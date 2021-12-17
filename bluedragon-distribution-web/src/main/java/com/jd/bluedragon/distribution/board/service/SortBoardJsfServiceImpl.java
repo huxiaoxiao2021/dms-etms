@@ -7,6 +7,7 @@ import com.jd.bluedragon.common.dto.board.request.CloseVirtualBoardPo;
 import com.jd.bluedragon.common.dto.board.request.CombinationBoardRequest;
 import com.jd.bluedragon.common.dto.board.response.BoardCheckDto;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.dto.BoardDto;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.board.SortBoardJsfService;
@@ -25,6 +26,7 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.gateway.service.SortBoardGatewayService;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.bluedragon.distribution.board.domain.AddBoardRequest;
@@ -78,6 +80,8 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
 
     @Autowired
     private SendMService sendMService;
+    @Autowired
+    private BaseMajorManager baseMajorManager;
 
 
 
@@ -300,10 +304,18 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
         return response;
     }
 
-    private CloseVirtualBoardPo initCloseVirtualBoardPo(String boardCode){
+    private CloseVirtualBoardPo initCloseVirtualBoardPo(String boardCode, String userErp, Integer siteCode){
         CloseVirtualBoardPo po = new CloseVirtualBoardPo();
         po.setBoardCode(boardCode);
         po.setBizSource(BizSourceEnum.SORTING_MACHINE.getValue());
+        com.jd.bluedragon.common.dto.base.request.OperatorInfo operatorInfo = new com.jd.bluedragon.common.dto.base.request.OperatorInfo();
+        BaseStaffSiteOrgDto baseStaffSiteOrgDto = baseMajorManager.getBaseStaffByErpNoCache(userErp);
+        if(baseStaffSiteOrgDto != null){
+            operatorInfo.setUserName(baseStaffSiteOrgDto.getStaffName());
+            operatorInfo.setSiteName(baseStaffSiteOrgDto.getSiteName());
+        }
+        operatorInfo.setUserErp(userErp);
+        po.setOperatorInfo(operatorInfo);
         return po;
     }
 
