@@ -315,6 +315,7 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
             operatorInfo.setSiteName(baseStaffSiteOrgDto.getSiteName());
         }
         operatorInfo.setUserErp(userErp);
+        operatorInfo.setSiteCode(siteCode);
         po.setOperatorInfo(operatorInfo);
         return po;
     }
