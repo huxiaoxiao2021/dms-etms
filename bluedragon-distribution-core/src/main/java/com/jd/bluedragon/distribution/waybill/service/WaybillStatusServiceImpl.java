@@ -857,6 +857,16 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
                 waybillQueryManager.sendBdTrace(bdTraceDto);
                 task.setYn(0);
             }
+            /**
+             * 弃件暂存
+             */
+            if (null != task.getKeyword2() && String.valueOf(WaybillStatus.WAYBILL_TRACK_WASTE_WAYBILL).equals(task.getKeyword2())) {
+                toWaybillStatus(tWaybillStatus, bdTraceDto);
+                bdTraceDto.setOperatorDesp(tWaybillStatus.getRemark());
+                waybillQueryManager.sendBdTrace(bdTraceDto);
+                task.setYn(0);
+            }
+
 		}
 
 

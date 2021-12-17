@@ -33,7 +33,7 @@ public interface DiscardedPackageStorageTempJsfService {
      * @author fanggang7
      * @time 2021-03-31 11:32:59 周三
      */
-    Response<List<DiscardedPackageStorageTemp>> selectList(DiscardedPackageStorageTempQo query);
+    Response<List<DiscardedPackageStorageTempVo>> selectList(DiscardedPackageStorageTempQo query);
 
     /**
      * 获取分页列表

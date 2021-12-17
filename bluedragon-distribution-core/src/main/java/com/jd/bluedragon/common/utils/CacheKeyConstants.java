@@ -205,4 +205,8 @@ public class CacheKeyConstants {
 
     public static final String VIRTUAL_BOARD_BIND = "dmsWeb:virtualBoard:bind:%s_%s";
     public static final int VIRTUAL_BOARD_BIND_TIMEOUT = 60;
+
+    public static final String DISCARDED_STORAGE_OPERATE_SCAN = "dmsWeb:discardedStorage:scan:%s";
+    public static final int DISCARDED_STORAGE_OPERATE_SCAN_TIMEOUT = 60;
+
 }

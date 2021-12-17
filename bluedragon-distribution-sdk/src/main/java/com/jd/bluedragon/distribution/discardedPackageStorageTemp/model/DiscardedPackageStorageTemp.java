@@ -135,6 +135,11 @@ public class DiscardedPackageStorageTemp implements Serializable{
      */
     private Integer waybillType;
 
+    /**
+     * 场地部门类型
+     */
+    private Integer siteDepartType;
+
     public Long getId() {
         return id;
     }
@@ -351,6 +356,15 @@ public class DiscardedPackageStorageTemp implements Serializable{
         this.prevProvinceCompanyName = prevProvinceCompanyName;
     }
 
+    public Integer getSiteDepartType() {
+        return siteDepartType;
+    }
+
+    public DiscardedPackageStorageTemp setSiteDepartType(Integer siteDepartType) {
+        this.siteDepartType = siteDepartType;
+        return this;
+    }
+
     @Override
     public String toString() {
         return "DiscardedPackageStorageTemp{" +
@@ -362,7 +376,7 @@ public class DiscardedPackageStorageTemp implements Serializable{
                 ", consignmentName='" + consignmentName + '\'' +
                 ", weight=" + weight +
                 ", cod=" + cod +
-                ", codAmount=" + codAmount +
+                ", codAmount='" + codAmount + '\'' +
                 ", businessCode='" + businessCode + '\'' +
                 ", businessName='" + businessName + '\'' +
                 ", operatorCode=" + operatorCode +
@@ -375,16 +389,19 @@ public class DiscardedPackageStorageTemp implements Serializable{
                 ", orgName='" + orgName + '\'' +
                 ", prevSiteCode=" + prevSiteCode +
                 ", prevSiteName='" + prevSiteName + '\'' +
-                ", prevProvinceCompanyCode=" + prevProvinceCompanyCode +
+                ", prevProvinceCompanyCode='" + prevProvinceCompanyCode + '\'' +
                 ", prevProvinceCompanyName='" + prevProvinceCompanyName + '\'' +
                 ", createTime=" + createTime +
                 ", updateTime=" + updateTime +
                 ", yn=" + yn +
                 ", ts=" + ts +
+                ", operateType=" + operateType +
+                ", waybillType=" + waybillType +
+                ", siteDepartType=" + siteDepartType +
                 '}';
     }
 
-	public Integer getOperateType() {
+    public Integer getOperateType() {
 		return operateType;
 	}
 
