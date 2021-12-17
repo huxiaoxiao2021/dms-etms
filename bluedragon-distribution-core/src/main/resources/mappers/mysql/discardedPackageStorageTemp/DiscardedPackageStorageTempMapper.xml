@@ -739,21 +739,20 @@
     <!-- 查询未扫描全部包裹的总数 -->
     <select id="selectUnFinishScanDiscardedPackageCount" resultType="long" parameterType="com.jd.bluedragon.distribution.discardedPackageStorageTemp.dto.UnFinishScanDiscardedPackageQo">
         SELECT count(1)
-        FROM `discarded_package_storage_temp` P
-        left join `discarded_waybill_storage_temp` W on P.waybill_code = W.waybill_code
+        FROM `discarded_package_storage_temp`
         where
-        P.yn = 1
-        AND W.yn = 1
-        AND W.package_sys_total > W.package_scan_total
-        AND W.operator_erp = #{operatorErp}
+        yn = 1
         <if test="waybillCode != null and waybillCode != ''">
-            AND P.waybill_code = #{waybillCode}
+            AND waybill_code = #{waybillCode}
+        </if>
+        <if test="waybillCodeList != null">
+            AND waybill_code in
+            <foreach collection="waybillCodeList" item="item" index="index" open="(" separator="," close=")">
+                #{item}
+            </foreach>
         </if>
         <if test="packageCode != null and packageCode != ''">
-            AND P.package_code = #{packageCode}
-        </if>
-        <if test="unSubmitStatus != null">
-            AND W.submit_status = #{unSubmitStatus}
+            AND package_code = #{packageCode}
         </if>
     </select>
     <!-- 查询未扫描全部包裹的数据 -->
@@ -774,22 +773,21 @@
         <result property="submitStatus" column="submit_status"/>
     </resultMap>
     <select id="selectUnFinishScanDiscardedPackageList" resultMap="RM_DiscardedPackageScanResultItem" parameterType="com.jd.bluedragon.distribution.discardedPackageStorageTemp.dto.UnFinishScanDiscardedPackageQo">
-        SELECT P.`id`, P.`waybill_code`, P.`package_code`, P.`status`, P.`waybill_product`, P.`consignment_name`, P.`weight`, P.`cod`, P.`cod_amount`, P.`business_code`, P.`business_name`, P.`operator_code`, P.`operator_erp`, P.`operator_name`, P.`site_code`, P.`site_name`, P.`site_city`, P.`org_code`, P.`org_name`, P.`prev_site_code`, P.`prev_site_name`, P.`prev_province_company_code`, P.`prev_province_company_name`, P.`create_time`, P.`update_time`, P.`yn`, P.`ts`, P.`operate_type`, P.`waybill_type`, P.`site_depart_type`
-        FROM `discarded_package_storage_temp` P
-        left join `discarded_waybill_storage_temp` W on P.waybill_code = W.waybill_code
+        SELECT `id`, `waybill_code`, `package_code`, `status`, `waybill_product`, `consignment_name`, `weight`, `cod`, `cod_amount`, `business_code`, `business_name`, `operator_code`, `operator_erp`, `operator_name`, `site_code`, `site_name`, `site_city`, `org_code`, `org_name`, `prev_site_code`, `prev_site_name`, `prev_province_company_code`, `prev_province_company_name`, `create_time`, `update_time`, `yn`, `ts`, `operate_type`, `waybill_type`, `site_depart_type`
+        FROM `discarded_package_storage_temp`
         where
-        P.yn = 1
-        AND W.yn = 1
-        AND W.package_sys_total > W.package_scan_total
-        AND W.operator_erp = #{operatorErp}
+        yn = 1
         <if test="waybillCode != null and waybillCode != ''">
-            AND P.waybill_code = #{waybillCode}
+            AND waybill_code = #{waybillCode}
+        </if>
+        <if test="waybillCodeList != null">
+            AND waybill_code in
+            <foreach collection="waybillCodeList" item="item" index="index" open="(" separator="," close=")">
+                #{item}
+            </foreach>
         </if>
         <if test="packageCode != null and packageCode != ''">
-            AND P.package_code = #{packageCode}
-        </if>
-        <if test="unSubmitStatus != null">
-            AND W.submit_status = #{unSubmitStatus}
+            AND package_code = #{packageCode}
         </if>
         <if test="pageNumber > 0">
             limit #{offset}, #{pageSize}
