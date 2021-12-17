@@ -33,6 +33,7 @@ import com.jd.transboard.api.service.GroupBoardService;
 import com.jd.transboard.api.service.IVirtualBoardService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.apache.avro.data.Json;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -250,7 +251,8 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
             com.jd.bluedragon.distribution.sdk.common.domain.InvokeResult<String> baseResult =
                     boardChuteJsfService.boardComplete(boardCompleteRequest);
             if(!baseResult.isSuccess()){
-                log.warn("修改板状态");
+                log.warn("调自动化服务修改板状态失败，请求参数：{},返回值:{}", JsonHelper.toJson(boardCompleteRequest),
+                        JsonHelper.toJson(baseResult));
                 response.toFail(baseResult.getMessage());
                 return response;
             }
@@ -261,7 +263,11 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
             response.setCode(jdCResponse.getCode());
             response.setMessage(jdCResponse.getMessage());
             return response;
-        }finally {
+        }catch (Exception e) {
+            response.toFail("请求异常，请稍后重试");
+            log.error("pda操作自动化组板完成异常,请求参数:{},异常:{}", JsonHelper.toJson(request), e);
+            return response;
+        } finally {
             jimdbCacheService.del(key);
         }
 
