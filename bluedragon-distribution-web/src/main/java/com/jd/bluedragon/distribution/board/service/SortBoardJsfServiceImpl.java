@@ -265,7 +265,7 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
             return response;
         }catch (Exception e) {
             response.toFail("请求异常，请稍后重试");
-            log.error("pda操作自动化组板完成异常,请求参数:{},异常:{}", JsonHelper.toJson(request), e);
+            log.error("pda操作自动化组板完成异常,请求参数:{}", JsonHelper.toJson(request), e);
             return response;
         } finally {
             jimdbCacheService.del(key);
