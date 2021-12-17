@@ -655,9 +655,9 @@
             <list>
                 <ref bean="initialPrintCompleteHandler" />
                 <ref bean="dealPopPrintHandler" />
+                <ref bean="pushModifyAddressTrack" />
                 <ref bean="pushPrintWaybillTrackHandler" />
                 <ref bean="pushModifyOrderMqHandler" />
-                <ref bean="pushModifyAddressTrack" />
                 <ref bean="pushPrintRecordHandler" />
             </list>
         </property>
