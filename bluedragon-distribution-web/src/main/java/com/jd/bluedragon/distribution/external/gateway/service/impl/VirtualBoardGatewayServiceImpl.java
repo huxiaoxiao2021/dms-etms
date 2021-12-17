@@ -151,6 +151,10 @@ public class VirtualBoardGatewayServiceImpl implements VirtualBoardGatewayServic
 
     }
 
+    @Override
+    public JdCResponse<List<String>> getSortMachineBySiteCode(Integer siteCode) {
+        return null;
+    }
 
 
 }

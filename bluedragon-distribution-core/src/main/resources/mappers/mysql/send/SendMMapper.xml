@@ -57,7 +57,8 @@
 	excute_count,
 	excute_time,
 	board_code,
-	biz_source
+	biz_source,
+    sendm_status
 	</sql>
 	
 	<select id="selectBySendCode" parameterType="SendM"
