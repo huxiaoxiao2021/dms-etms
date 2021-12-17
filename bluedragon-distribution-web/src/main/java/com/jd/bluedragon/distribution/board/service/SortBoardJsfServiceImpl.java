@@ -266,7 +266,7 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
             }
 
             //调板服务关闭板状态
-            CloseVirtualBoardPo po = initCloseVirtualBoardPo(baseResult.getData());
+            CloseVirtualBoardPo po = initCloseVirtualBoardPo(baseResult.getData(), request.getOperatorErp(), request.getSiteCode());
             JdCResponse<Void> jdCResponse = virtualBoardService.closeBoard(po);
             response.setCode(jdCResponse.getCode());
             response.setMessage(jdCResponse.getMessage());
