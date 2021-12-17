@@ -9,6 +9,7 @@ import org.apache.commons.lang.StringUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -2171,4 +2172,14 @@ public class BusinessUtil {
 
     }
 
+    /**
+     * 是否转运中心（新）
+     *
+     * @param sortTye
+     * @param sortSubType
+     * @return
+     */
+    public static boolean isTransportSite(Integer sortTye, Integer sortSubType){
+        return Objects.equals(sortTye, 12351) && Objects.equals(sortSubType, 123513);
+    }
 }
