@@ -1,5 +1,8 @@
 package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
+import com.jd.bd.dms.automatic.sdk.common.dto.BaseDmsAutoJsfResponse;
+import com.jd.bd.dms.automatic.sdk.modules.device.DeviceConfigInfoJsfService;
+import com.jd.bd.dms.automatic.sdk.modules.device.dto.DeviceConfigSimpleDto;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.request.OperatorInfo;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
@@ -12,10 +15,12 @@ import com.jd.bluedragon.distribution.board.service.VirtualBoardService;
 import com.jd.bluedragon.external.gateway.service.VirtualBoardGatewayService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -32,6 +37,8 @@ public class VirtualBoardGatewayServiceImpl implements VirtualBoardGatewayServic
     private VirtualBoardService virtualBoardService;
     @Autowired
     private SortBoardJsfService sortBoardJsfService;
+    @Autowired
+    private DeviceConfigInfoJsfService deviceConfigInfoJsfService;
 
     /**
      * 获取组板已存在的未完成数据
@@ -153,7 +160,29 @@ public class VirtualBoardGatewayServiceImpl implements VirtualBoardGatewayServic
 
     @Override
     public JdCResponse<List<String>> getSortMachineBySiteCode(Integer siteCode) {
-        return null;
+        JdCResponse<List<String>> jdCResponse = new JdCResponse<List<String>>();
+        jdCResponse.toSucceed();
+        if(siteCode == null){
+            jdCResponse.toFail("场地编码为空，请重试!");
+        }
+        BaseDmsAutoJsfResponse<List<DeviceConfigSimpleDto>> response =  deviceConfigInfoJsfService.findDeviceConfig(siteCode);
+        if(response.getStatusCode() != 200){
+             jdCResponse.toFail("查询设备编码失败，请退出重试!");
+             return jdCResponse;
+        }
+
+        if(CollectionUtils.isEmpty(response.getData())){
+            return jdCResponse;
+        }
+        List<String> devices = new ArrayList<>();
+        for (DeviceConfigSimpleDto dto : response.getData()){
+            //分拣机
+            if("SORT".equals(dto.getBusinessCode())){
+                devices.add(dto.getMachineCode());
+            }
+        }
+        jdCResponse.setData(devices);
+        return jdCResponse;
     }
 
 
