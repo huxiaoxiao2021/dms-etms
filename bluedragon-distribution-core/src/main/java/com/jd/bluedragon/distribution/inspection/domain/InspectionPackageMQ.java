@@ -70,6 +70,10 @@ public class InspectionPackageMQ implements Serializable {
 
     private Date recordCreateTime;
 
+    private String machineCode;//设备编码
+
+    private Integer bizSource;
+
     public String getPackageCode() {
         return packageCode;
     }
@@ -164,5 +168,21 @@ public class InspectionPackageMQ implements Serializable {
 
     public void setRecordCreateTime(Date recordCreateTime) {
         this.recordCreateTime = recordCreateTime;
+    }
+
+    public String getMachineCode() {
+        return machineCode;
+    }
+
+    public void setMachineCode(String machineCode) {
+        this.machineCode = machineCode;
+    }
+
+    public Integer getBizSource() {
+        return bizSource;
+    }
+
+    public void setBizSource(Integer bizSource) {
+        this.bizSource = bizSource;
     }
 }
