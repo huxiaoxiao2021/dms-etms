@@ -1094,12 +1094,22 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
             }else {
                 logger.warn("未知去向!");
             }
+            // B网设备抽检都是to5
+            if(SpotCheckSourceFromEnum.EQUIPMENT_SOURCE.contains(weightVolumeCollectDto.getFromSource())){
+                abnormalResultMq.setTo(SpotCheckSystemEnum.PANZE.getCode().toString());
+            }
         }
         // B网下发图片使用字段：detailList
         bIssueDownPicDeal(weightVolumeCollectDto, abnormalResultMq);
-        // 默认不认责判责
-        abnormalResultMq.setIsAccusation(1);
-        abnormalResultMq.setIsNeedBlame(0);
+        if(SpotCheckSourceFromEnum.EQUIPMENT_SOURCE.contains(weightVolumeCollectDto.getFromSource())){
+            // 设备抽检：B网默认认责不判责
+            abnormalResultMq.setIsAccusation(0);
+            abnormalResultMq.setIsNeedBlame(1);
+        }else {
+            // 默认不认责判责
+            abnormalResultMq.setIsAccusation(1);
+            abnormalResultMq.setIsNeedBlame(0);
+        }
     }
 
     private void cAssembleIssueSpotCheckDetail(WeightVolumeCollectDto weightVolumeCollectDto, AbnormalResultMq abnormalResultMq) {

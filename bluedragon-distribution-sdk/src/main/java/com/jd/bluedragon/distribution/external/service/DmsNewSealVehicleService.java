@@ -1,11 +1,7 @@
 package com.jd.bluedragon.distribution.external.service;
 
 import com.jd.bluedragon.distribution.api.request.NewSealVehicleRequest;
-import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
-import com.jd.bluedragon.distribution.api.response.RouteTypeResponse;
-import com.jd.bluedragon.distribution.api.response.SealBoxResponse;
-import com.jd.bluedragon.distribution.api.response.SealVehicleResponse;
-import com.jd.bluedragon.distribution.api.response.TransWorkItemResponse;
+import com.jd.bluedragon.distribution.api.response.*;
 
 /**
  * 发往物流网关的接口不要在此类中加方法
@@ -83,6 +79,14 @@ public interface DmsNewSealVehicleService {
      * @return
      */
     NewSealVehicleResponse unseal(NewSealVehicleRequest request);
+
+    /**
+     * 新解封车
+     *   fix：对选中的带解任务执行解封车
+     * @param request
+     * @return
+     */
+    NewUnsealVehicleResponse<Boolean> newUnseal(NewSealVehicleRequest request);
 
     /**
      * 校验并获取运力编码信息

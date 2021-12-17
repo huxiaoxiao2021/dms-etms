@@ -474,8 +474,8 @@ public class ArAbnormalServiceImpl implements ArAbnormalService {
         for (Map.Entry<String, List<String>> entry : waybillMap.entrySet()) {
             BigWaybillDto bigWaybillDto = this.getBigWaybillDtoByWaybillCode(entry.getKey());
             if (bigWaybillDto != null && bigWaybillDto.getWaybill() != null) {
-                //当运单为【航】字标的运单或者为铁路转公路的运单时，发送MQ
-                if (isNeedSendMQ(bigWaybillDto.getWaybill().getWaybillSign())
+                //当运单为【航】字标的运单 || 京航达的运单 || 铁路转公路的运单时，发送MQ
+                if (isNeedSendMQ(bigWaybillDto.getWaybill())
                         || Objects.equals(ArTransportChangeModeEnum.RAILWAY_TO_ROAD_CODE.getCode(), request.getTranspondType())) {
                     messages.addAll(this.assembleMessageList(request, bigWaybillDto, entry.getValue()));
                 }
@@ -487,14 +487,14 @@ public class ArAbnormalServiceImpl implements ArAbnormalService {
     }
 
     /**
-     * 根据waybillSign判断是否需要发消息
-     * 【航】字标的运单， waybill_sign第31位等于1或84位等于3 才发消息
-     *
-     * @param waybillSign
+     * 判断是否需要发消息
+     *  1、【航】字标的运单， waybill_sign第31位等于1或84位等于3 才发消息
+     *  2、京航达的运单，sendpday第137位等于1 发消息
+     * @param waybill
      * @return
      */
-    private boolean isNeedSendMQ(String waybillSign) {
-        return BusinessUtil.isArTransportMode(waybillSign);
+    private boolean isNeedSendMQ(Waybill waybill) {
+        return BusinessUtil.isArTransportMode(waybill.getWaybillSign()) || BusinessUtil.isJHD(waybill.getSendPay());
     }
 
     private BigWaybillDto getBigWaybillDtoByWaybillCode(String waybillCode) {

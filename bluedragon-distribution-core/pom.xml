@@ -204,7 +204,7 @@
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
 			<artifactId>bluedragon-distribution-sdk</artifactId>
-			<version>1.7.9-SNAPSHOT</version>
+			<version>1.8.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
@@ -513,7 +513,7 @@
 		<dependency>
 			<groupId>com.jd.ql.basic</groupId>
 			<artifactId>ql-basic-client</artifactId>
-			<version>1.2.28-SNAPSHOT</version>
+			<version>2.0.11-online-SNAPSHOT</version>
         </dependency>
 		<!-- 基础资料 获取编码 -->
 		<dependency>
@@ -781,6 +781,12 @@
 		</dependency>
 
 		<dependency>
+			<groupId>com.jd.tms.jdi</groupId>
+			<artifactId>tms-jdi-client</artifactId>
+			<version>1.1-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
             <groupId>com.jd.etms.finance</groupId>
             <artifactId>etms-finance-settlement-api</artifactId>
             <version>1.0.7.5-SNAPSHOT</version>
@@ -835,6 +841,18 @@
                 <exclusion>
                 	<groupId>com.jd.jim.cli</groupId>
                 	<artifactId>jim-cli-api</artifactId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>log4j-core</artifactId>
+                    <groupId>org.apache.logging.log4j</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>log4j-api</artifactId>
+                    <groupId>org.apache.logging.log4j</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>log4j-slf4j-impl</artifactId>
+                    <groupId>org.apache.logging.log4j</groupId>
                 </exclusion>
             </exclusions>
         </dependency>
@@ -1145,6 +1163,14 @@
                     <artifactId>fastjson</artifactId>
                     <groupId>com.alibaba</groupId>
                 </exclusion>
+                <exclusion>
+                    <artifactId>log4j-api</artifactId>
+                    <groupId>org.apache.logging.log4j</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>log4j-slf4j-impl</artifactId>
+                    <groupId>org.apache.logging.log4j</groupId>
+                </exclusion>
             </exclusions>
         </dependency>
 
@@ -1349,7 +1375,15 @@
 					<artifactId>tdeclient</artifactId>
 					<groupId>com.jd.security</groupId>
 				</exclusion>
-			</exclusions>
+                <exclusion>
+                    <artifactId>log4j-core</artifactId>
+                    <groupId>org.apache.logging.log4j</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>log4j-api</artifactId>
+                    <groupId>org.apache.logging.log4j</groupId>
+                </exclusion>
+            </exclusions>
 		</dependency>
 
 		<dependency>
@@ -1361,13 +1395,35 @@
 					<groupId>com.alibaba</groupId>
 					<artifactId>fastjson</artifactId>
 				</exclusion>
-			</exclusions>
+                <exclusion>
+                    <artifactId>log4j-core</artifactId>
+                    <groupId>org.apache.logging.log4j</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>log4j-api</artifactId>
+                    <groupId>org.apache.logging.log4j</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>log4j-slf4j-impl</artifactId>
+                    <groupId>org.apache.logging.log4j</groupId>
+                </exclusion>
+            </exclusions>
 		</dependency>
 		<dependency>
 			<groupId>com.jd.lop</groupId>
 			<artifactId>crossbow-api</artifactId>
 			<version>${crossbow.api.version}</version>
-		</dependency>
+            <exclusions>
+                <exclusion>
+                    <artifactId>log4j-core</artifactId>
+                    <groupId>org.apache.logging.log4j</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>log4j-slf4j-impl</artifactId>
+                    <groupId>org.apache.logging.log4j</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
 <!--		<dependency>-->
 <!--			<groupId>com.jd.lsb</groupId>-->
 <!--			<artifactId>lsb-component</artifactId>-->
@@ -1471,7 +1527,15 @@
                 	<groupId>com.jd.jim.cli</groupId>
                 	<artifactId>jim-cli-api</artifactId>
                 </exclusion>
-			</exclusions>
+                <exclusion>
+                    <artifactId>log4j-core</artifactId>
+                    <groupId>org.apache.logging.log4j</groupId>
+                </exclusion>
+                <exclusion>
+                    <artifactId>log4j-slf4j-impl</artifactId>
+                    <groupId>org.apache.logging.log4j</groupId>
+                </exclusion>
+            </exclusions>
 		</dependency>
 
 		<dependency>
@@ -1671,6 +1735,19 @@
 			<groupId>com.jd.dms.wb</groupId>
 			<artifactId>workbench-services-sdk</artifactId>
 		</dependency>
+
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>2.12.2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-slf4j-impl</artifactId>
+            <version>2.12.2</version>
+        </dependency>
+
     </dependencies>
 
 	<profiles>

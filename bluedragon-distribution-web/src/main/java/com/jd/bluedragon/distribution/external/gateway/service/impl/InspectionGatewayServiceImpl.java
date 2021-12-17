@@ -200,12 +200,6 @@ public class InspectionGatewayServiceImpl implements InspectionGatewayService {
             jdVerifyResponse.addInterceptBox(0, "加盟商预付款余额不足，请联系加盟商处理！");
             return jdVerifyResponse;
         }
-        /**暂存校验逻辑**/
-        if (isExpressCenterSite(request.getCurrentSiteCode()) && waybillStagingCheckManager.stagingCheck(request.getWaybillCode(), request.getCurrentSiteCode())) {
-            jdVerifyResponse.toSuccess();
-            jdVerifyResponse.addInterceptBox(0, Constants.PDA_STAGING_CONFIRM_MESSAGE);
-            return jdVerifyResponse;
-        }
         jdVerifyResponse.toSuccess(result.getMessage());
         return jdVerifyResponse;
     }

@@ -38,7 +38,7 @@
         <dd><a href="#springUrl('/gantry/index')" target="mainFrame">龙门架注册</a></dd>
         <dd><a href="#springUrl('/admin/remote-access')" target="mainFrame">客户改址查询</a></dd>
         <dd><a href="#springUrl('/partnerInspection/goPartnerDifferentList')" target="mainFrame">第三方差异处理</a></dd>
-        <dd><a href="#springUrl('/businesslog/goListPage')" target="mainFrame">日志查询</a></dd>
+##        <dd><a href="#springUrl('/businesslog/goListPage')" target="mainFrame">日志查询</a></dd>
         <dd><a href="#springUrl('/operateLog/goListPage2')" target="mainFrame">分拣中心操作日志(新)</a></dd>
         <dd><a href="#springUrl('/admin/goddess/index')" target="mainFrame">分拣运行时全程跟踪</a></dd>
         <dd><a href="#springUrl('/offline/goListPage')" target="mainFrame">分拣中心离线操作日志</a></dd>
@@ -85,6 +85,7 @@
         <dd><a href="#springUrl('/reviewWeightSpotCheck/toIndex')" target="mainFrame">复重抽检任务导入</a></dd>
         <dd><a href="#springUrl('/weightAndVolumeCheckOfB2b/toIndex')" target="mainFrame">重量体积抽检</a></dd>
         <dd><a href="#springUrl('/weightAndVolumeCheck/toIndex')" target="mainFrame">重量体积抽检统计</a></dd>
+        <dd><a href="http://dms-w.jd.com/#/page/report/spotCheck" target="mainFrame">定向抽检统计报表</a></dd>
         <dd><a href="#springUrl('/newseal/preSealVehicle/toIndex')" target="mainFrame">一键封车</a></dd>
         <dd><a href="#springUrl('/newseal/preSealVehicle/unusedtransport')" target="mainFrame">未使用运力编码查询</a></dd>
         <dd><a href="#springUrl('/waybillCodeCheckForKA/toIndex')" target="mainFrame">金融客户运单号对比校验</a></dd>
@@ -105,8 +106,6 @@
         <dd><a href="#springUrl('/recycleMaterialScan/index')" target="mainFrame">循环物资扫描查询</a></dd>
         <dt><a href="#" class="curr">FAQ</a></dt>
         <dd><a href="pages/faq/faq.html" target="mainFrame">FAQ</a></dd>
-        <dt><a href="#" class="curr">离线管理</a></dt>
-        <dd><a href="#springUrl('/offlinePwd/list')" target="mainFrame">离线密码管理</a></dd>
         <dt><a href="#" class="curr">订单</a></dt>
         <dd><a href="#springUrl('/kuGuan/goListPage')" target="mainFrame">库管单号查询</a></dd>
     </dl>

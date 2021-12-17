@@ -1,20 +1,20 @@
 package com.jd.bluedragon.distribution.transport.controller;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.core.base.JdiSelectWSManager;
 import com.jd.bluedragon.distribution.api.domain.LoginUser;
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
 import com.jd.bluedragon.distribution.base.service.SiteService;
-import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.distribution.transport.domain.TmsProxyCondition;
 import com.jd.bluedragon.distribution.transport.domain.TransBookBillDto;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.web.mvc.api.BasePagerCondition;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
-import com.jd.tms.tfc.dto.CommonDto;
-import com.jd.tms.tfc.dto.PageDto;
-import com.jd.tms.tfc.dto.TransBookBillQueryDto;
-import com.jd.tms.tfc.dto.TransBookBillResultDto;
+import com.jd.tms.jdi.dto.CommonDto;
+import com.jd.tms.jdi.dto.PageDto;
+import com.jd.tms.jdi.dto.TransBookBillQueryDto;
+import com.jd.tms.jdi.dto.TransBookBillResultDto;
 import com.jd.uim.annotation.Authorization;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -43,7 +43,7 @@ public class TmsProxyController extends DmsBaseController{
     private static final Logger log = LoggerFactory.getLogger(TmsProxyController.class);
 
     @Autowired
-    private NewSealVehicleService newsealVehicleService;
+    private JdiSelectWSManager jdiSelectWSManager;
 
     @Autowired
     private SiteService siteService;
@@ -94,7 +94,8 @@ public class TmsProxyController extends DmsBaseController{
         TransBookBillQueryDto queryDto = new TransBookBillQueryDto();
         try {
             queryDto = convertQueryDto(condition);
-            CommonDto<PageDto<TransBookBillResultDto>> resultDtoPageDto = newsealVehicleService.getTransBookBill(queryDto, convertPageDto(condition));
+            CommonDto<com.jd.tms.jdi.dto.PageDto<com.jd.tms.jdi.dto.TransBookBillResultDto>> resultDtoPageDto
+                    = jdiSelectWSManager.getTransBookBill(queryDto, convertPageDto(condition));
             if(log.isDebugEnabled()){
                 log.debug("运输委托书查询结果：{}", JsonHelper.toJson(resultDtoPageDto));
             }
