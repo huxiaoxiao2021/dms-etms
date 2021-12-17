@@ -22,6 +22,11 @@ public class RepeatPrint implements Serializable {
      * */
     private Boolean isOverTime;
 
+    /**
+     *  是否是理赔单
+     * */
+    private Boolean isLPFlag;
+
     public String getNewWaybillCode() {
         return newWaybillCode;
     }
@@ -44,5 +49,13 @@ public class RepeatPrint implements Serializable {
 
     public void setOldWaybillCode(String oldWaybillCode) {
         this.oldWaybillCode = oldWaybillCode;
+    }
+
+    public Boolean getIsLPFlag() {
+        return isLPFlag;
+    }
+
+    public void setIsLPFlag(Boolean LPFlag) {
+        isLPFlag = LPFlag;
     }
 }

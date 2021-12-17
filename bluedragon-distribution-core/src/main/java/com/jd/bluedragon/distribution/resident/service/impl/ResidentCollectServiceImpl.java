@@ -13,13 +13,14 @@ import com.jd.bluedragon.distribution.popPrint.service.PopPrintService;
 import com.jd.bluedragon.distribution.resident.domain.ResidentCollectDto;
 import com.jd.bluedragon.distribution.resident.service.ResidentCollectService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jdl.express.collect.api.CommonDTO;
+import com.jdl.express.collect.api.merchcollectwaybill.commands.notaskfinishcollectwaybill.NoTaskFinishCollectFailureWaybillInfoDTO;
 import com.jdl.express.collect.api.merchcollectwaybill.commands.notaskfinishcollectwaybill.NoTaskFinishCollectWaybillCommand;
 import com.jdl.express.collect.api.merchcollectwaybill.commands.notaskfinishcollectwaybill.NoTaskFinishCollectWaybillDTO;
 import com.jdl.express.collect.api.merchcollectwaybill.commands.notaskfinishcollectwaybill.NoTaskFinishCollectWaybillInfoDTO;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +30,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -66,6 +68,14 @@ public class ResidentCollectServiceImpl implements ResidentCollectService {
 
     @Override
     public InvokeResult<Boolean> residentCollect(ResidentCollectDto residentCollectDto) {
+        // 揽收处理
+        InvokeResult<Boolean> result = collectDeal(residentCollectDto);
+        // 站点装箱
+        afterCollectSuc(residentCollectDto);
+        return result;
+    }
+
+    private InvokeResult<Boolean> collectDeal(ResidentCollectDto residentCollectDto) {
         InvokeResult<Boolean> result = new InvokeResult<Boolean>();
         NoTaskFinishCollectWaybillCommand command = new NoTaskFinishCollectWaybillCommand();
         command.setSiteId(residentCollectDto.getSiteCode());
@@ -76,8 +86,9 @@ public class ResidentCollectServiceImpl implements ResidentCollectService {
         command.setSystemSource(SOURCE_FROM);
         List<NoTaskFinishCollectWaybillInfoDTO> list = new ArrayList<>();
         NoTaskFinishCollectWaybillInfoDTO waybillInfoDTO = new NoTaskFinishCollectWaybillInfoDTO();
+        // 运单号或包裹号
+        waybillInfoDTO.setRefId(residentCollectDto.getBarCode());
         String waybillCode = WaybillUtil.getWaybillCode(residentCollectDto.getBarCode());
-        waybillInfoDTO.setRefId(waybillCode);
         Waybill waybill = waybillQueryManager.getOnlyWaybillByWaybillCode(waybillCode);
         int packNum = waybill == null ? Constants.NUMBER_ZERO : waybill.getGoodNumber() == null ? Constants.NUMBER_ZERO : waybill.getGoodNumber();
         waybillInfoDTO.setPackCount(packNum);
@@ -104,47 +115,46 @@ public class ResidentCollectServiceImpl implements ResidentCollectService {
         // 调用终端揽收接口
         CommonDTO<NoTaskFinishCollectWaybillDTO> commonDTO = merchCollectManager.noTaskFinishCollectWaybill(command);
         if(commonDTO == null || !Objects.equals(CommonDTO.CODE_SUCCESS, commonDTO.getCode())){
-            logger.warn("操作运单号:{}的终端揽收失败,原因:{}", waybillCode, commonDTO == null ? InvokeResult.RESULT_NULL_MESSAGE : commonDTO.getMessage());
-            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, "揽收失败!" + (commonDTO == null ? Constants.EMPTY_FILL : commonDTO.getMessage()));
+            logger.warn("操作单号:{}的终端揽收失败,原因:{}", residentCollectDto.getBarCode(), commonDTO == null ? InvokeResult.RESULT_NULL_MESSAGE : commonDTO.getMessage());
+            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, "揽收失败!");
             return result;
         }
-        logger.info("运单号:{}操作驻场打印完成无任务揽收成功!", waybillCode);
+        if(commonDTO.getData() != null && CollectionUtils.isNotEmpty(commonDTO.getData().getOrderIds()) && commonDTO.getData().getOrderIds().get(0) != null){
+            NoTaskFinishCollectFailureWaybillInfoDTO collectInfo = commonDTO.getData().getOrderIds().get(0);
+            logger.warn("操作单号:{}的终端揽收失败,原因:{}", residentCollectDto.getBarCode(), collectInfo.getResultMsg());
+            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, "揽收失败!" + collectInfo.getResultMsg());
+            return result;
+        }
+        logger.info("单号:{}操作驻场打印完成无任务揽收成功!", residentCollectDto.getBarCode());
         return result;
+    }
+
+    private void afterCollectSuc(ResidentCollectDto residentCollectDto) {
+        // 箱号存在则发送消息给终端，终端发送'站点装箱..'全程跟踪
+        if(StringUtils.isNotEmpty(residentCollectDto.getBoxCode())){
+            PopPrintSmsMsg popPrintSmsMsg = new PopPrintSmsMsg();
+            popPrintSmsMsg.setWaybillCode(WaybillUtil.getWaybillCode(residentCollectDto.getBarCode()));
+            popPrintSmsMsg.setCreateSiteCode(residentCollectDto.getSiteCode());
+            popPrintSmsMsg.setCreateSiteName(residentCollectDto.getSiteName());
+            popPrintSmsMsg.setPrintPackCode(residentCollectDto.getOperateUserId());
+            popPrintSmsMsg.setPrintPackUser(residentCollectDto.getOperateUserName());
+            popPrintSmsMsg.setPrintPackTime(new Date());
+            popPrintSmsMsg.setBoxCode(residentCollectDto.getBoxCode());
+            popPrintSmsMsg.setPackageBarcode(residentCollectDto.getBarCode());
+            popPrintToSmsProducer.sendOnFailPersistent(popPrintSmsMsg.getPackageBarcode(), JsonHelper.toJson(popPrintSmsMsg));
+        }
     }
 
     @Override
     public InvokeResult<Boolean> afterCollectFinish(PopPrintRequest popPrintRequest) {
-        InvokeResult<Boolean> result = new InvokeResult<Boolean>();
         // 保存pop数据
-        popDataDeal(popPrintRequest);
-        // 箱号存在则发送消息给终端，终端发送'站点装箱..'全程跟踪
-        if(StringUtils.isNotEmpty(popPrintRequest.getBoxCode())){
-            PopPrintSmsMsg popPrintSmsMsg = new PopPrintSmsMsg();
-            popPrintSmsMsg.setWaybillCode(popPrintRequest.getWaybillCode());
-            popPrintSmsMsg.setCreateSiteCode(popPrintRequest.getOperateSiteCode());
-            popPrintSmsMsg.setCreateSiteName(popPrintRequest.getOperateSiteName());
-            popPrintSmsMsg.setPrintPackCode(popPrintRequest.getOperatorCode());
-            popPrintSmsMsg.setPrintPackUser(popPrintRequest.getOperatorName());
-            popPrintSmsMsg.setPrintPackTime(DateHelper.parseDateTime(popPrintRequest.getOperateTime()));
-            popPrintSmsMsg.setBoxCode(popPrintRequest.getBoxCode());
-            popPrintSmsMsg.setPackageBarcode(popPrintRequest.getPackageBarcode());
-            popPrintToSmsProducer.sendOnFailPersistent(popPrintSmsMsg.getPackageBarcode(), JsonHelper.toJson(popPrintSmsMsg));
-        }
-        return result;
-    }
-
-    /**
-     * pop数据处理
-     *
-     * @param popPrintRequest
-     */
-    private void popDataDeal(PopPrintRequest popPrintRequest) {
+        InvokeResult<Boolean> result = new InvokeResult<Boolean>();
         try {
             // 验证运单号
             com.jd.bluedragon.common.domain.Waybill waybill = waybillCommonService.findByWaybillCode(popPrintRequest.getWaybillCode());
             if (waybill == null) {
                 logger.warn("保存POP打印信息savePopPrint --> 运单【{}】不存在", popPrintRequest.getWaybillCode());
-                return;
+                return result;
             }
             PopPrint popPrint = popPrintService.requestToPopPrint(popPrintRequest);
             // 保存pop数据
@@ -161,7 +171,7 @@ public class ResidentCollectServiceImpl implements ResidentCollectService {
         }catch (Exception e){
             logger.error("处理运单号:{}的pop数据异常!", popPrintRequest.getWaybillCode(), e);
         }
-
+        return result;
     }
 
 }

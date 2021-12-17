@@ -19,6 +19,7 @@ import com.jd.bluedragon.distribution.print.service.PreSortingSecondService;
 import com.jd.bluedragon.distribution.urban.domain.TransbillM;
 import com.jd.bluedragon.distribution.urban.service.TransbillMService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.dms.utils.WaybillVasUtil;
 import com.jd.bluedragon.utils.NumberHelper;
@@ -478,6 +479,12 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
         CallerInfo callerInfo = Profiler.registerInfo("dms.web.BasicWaybillPrintHandler.loadBasicData",
                 Constants.UMP_APP_NAME_DMSWEB, false, true);
         try {
+        	//返分拣报废-只设置默认目的分拣中心名称：返分拣报废
+        	if(BusinessUtil.isScrapSortingSite(waybill.getWaybillSign())) {
+                waybill.setPurposefulDmsName(DmsConstants.TEXT_SCRAP_DMS_NAME_MARK);
+                waybill.setDestinationDmsName(DmsConstants.TEXT_SCRAP_DMS_NAME_MARK);
+        		return;
+        	}
             BaseDmsStore baseDmsStore = new BaseDmsStore();
             baseDmsStore.setStoreId(waybill.getStoreId());//库房编号
             baseDmsStore.setCky2(waybill.getCky2());//cky2

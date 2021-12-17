@@ -326,7 +326,7 @@ public class StrandServiceImpl implements StrandService {
         if(ReportTypeEnum.BATCH_NO.getCode().equals(request.getReportType())){
             return;
         }
-        ThreeDeliveryResponse response = deliveryService.dellCancelDeliveryMessage(sendM, true);
+        ThreeDeliveryResponse response = deliveryService.dellCancelDeliveryMessageWithServerTime(sendM, true);
         //取消发货时异常
         if(DeliveryResponse.CODE_Delivery_ERROR.equals(response.getCode())){
             log.error("包裹滞留上报取消发货时异常条码:{},createSiteCode:{}", request.getBarcode(), request.getSiteCode());

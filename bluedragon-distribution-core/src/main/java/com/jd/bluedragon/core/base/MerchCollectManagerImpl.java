@@ -30,7 +30,7 @@ public class MerchCollectManagerImpl implements MerchCollectManager {
     @Override
     public CommonDTO<NoTaskFinishCollectWaybillDTO> noTaskFinishCollectWaybill(NoTaskFinishCollectWaybillCommand command) {
 
-        CallerInfo callerInfo = Profiler.registerInfo("dmsWeb.jsf.ReportExternalManager.insertOrUpdateForWeightVolume",
+        CallerInfo callerInfo = Profiler.registerInfo("dmsWeb.jsf.MerchCollectManager.noTaskFinishCollectWaybill",
                 Constants.UMP_APP_NAME_DMSWEB,false,true);
         try {
             return merchCollectWaybillApi.noTaskFinishCollectWaybill(command);

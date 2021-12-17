@@ -12,7 +12,17 @@ public interface SendPayConstants {
 	 * 默认打标-0
 	 */
 	char CHAR_0 = '0';
-
+	/**
+	 * 生鲜标识
+	 */
+	int POSITION_2 = 2;
+	char CHAR_2_4 = '4';
+	char CHAR_2_5 = '5';
+	char CHAR_2_6 = '6';
+	char CHAR_2_7 = '7';
+	char CHAR_2_8 = '8';
+	char CHAR_2_9 = '9';
+	
 	int POSITION_124 = 124;
 	char CHAR_124_7 = '7';
 	/**

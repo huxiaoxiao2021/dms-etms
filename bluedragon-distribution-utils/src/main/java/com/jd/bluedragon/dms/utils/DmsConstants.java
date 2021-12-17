@@ -273,8 +273,15 @@ public class DmsConstants {
     public static final String BC_BOX_PREFIX = "BC";
 
     public static final String WJ_BOX_PREFIX = "WJ";
-
-
+    /**
+     * 退分拣中心-目的名称标识
+     */
+    public static final String TEXT_SCRAP_DMS_NAME_MARK = "返分拣报废";
+    /**
+     * 消息类型
+     */
+    public static final String MESSAGE_TYPE_BAOFEI = "TYPE_BAOFEI";
+    public static final String ORDER_TYPE_REVERSE = "20";
     /**
      * 暂存类型枚举值
      */

@@ -126,6 +126,14 @@ public class DiscardedPackageStorageTemp implements Serializable{
      */
     private Date ts;
     //columns END
+    /**
+     * 操作类型-1-弃件暂存 2-弃件废弃
+     */
+    private Integer operateType;
+    /**
+     * 运单类型 1-包裹类 2-信件类 
+     */
+    private Integer waybillType;
 
     public Long getId() {
         return id;
@@ -375,4 +383,20 @@ public class DiscardedPackageStorageTemp implements Serializable{
                 ", ts=" + ts +
                 '}';
     }
+
+	public Integer getOperateType() {
+		return operateType;
+	}
+
+	public void setOperateType(Integer operateType) {
+		this.operateType = operateType;
+	}
+
+	public Integer getWaybillType() {
+		return waybillType;
+	}
+
+	public void setWaybillType(Integer waybillType) {
+		this.waybillType = waybillType;
+	}
 }

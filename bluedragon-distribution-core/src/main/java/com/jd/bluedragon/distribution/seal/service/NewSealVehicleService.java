@@ -9,9 +9,6 @@ import com.jd.etms.vos.dto.CommonDto;
 import com.jd.etms.vos.dto.PageDto;
 import com.jd.etms.vos.dto.SealCarDto;
 import com.jd.tms.basic.dto.TransportResourceDto;
-import com.jd.tms.tfc.dto.TransBookBillQueryDto;
-import com.jd.tms.tfc.dto.TransWorkItemDto;
-import com.jd.tms.tfc.dto.TransWorkItemWsDto;
 
 import java.util.List;
 import java.util.Map;
@@ -125,15 +122,6 @@ public interface NewSealVehicleService {
     public NewSealVehicleResponse oneClickFerrySeal(List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> sealCars);
 
     /**
-     * 根据任务简码查询任务信息
-     *
-     * @param simpleCode
-     * @return
-     * @throws Exception
-     */
-    public com.jd.tms.tfc.dto.CommonDto<TransWorkItemDto> queryTransWorkItemBySimpleCode(String simpleCode) throws Exception;
-
-    /**
      * 查询相关车辆是否在分拣中心的电子围栏内,返回不在围栏的车牌号
      *
      * @param sealCars 待解的封车任务
@@ -166,32 +154,6 @@ public interface NewSealVehicleService {
      * @return
      */
     Long getSealCarTimeBySendCode(String sendCode);
-
-    /**
-     * 根据预约提货时间等条件获取委托书列表接口
-     * @param transBookBillQueryDto
-     * @param pageDto
-     * @return
-     * @throws Exception
-     */
-    com.jd.tms.tfc.dto.CommonDto<com.jd.tms.tfc.dto.PageDto<com.jd.tms.tfc.dto.TransBookBillResultDto>> getTransBookBill(com.jd.tms.tfc.dto.TransBookBillQueryDto transBookBillQueryDto, com.jd.tms.tfc.dto.PageDto<TransBookBillQueryDto> pageDto) throws Exception;
-
-    /**
-     * 根据任务简码和运力资源编码校验运力资源编码并对运力资源编码进行更新
-     * @param simpleCode
-     * @param transportCode
-     * @return
-     * @throws Exception
-     */
-    com.jd.tms.tfc.dto.CommonDto<String> checkTransportCode(String simpleCode, String transportCode) throws Exception;
-
-    /**
-     * 根据车牌号获取派车明细编码或根据派车明细编码获取车牌号
-     * @param transWorkItemWsDto
-     * @return
-     * @throws Exception
-     */
-    com.jd.tms.tfc.dto.CommonDto<TransWorkItemWsDto> getVehicleNumberOrItemCodeByParam(TransWorkItemWsDto transWorkItemWsDto) throws Exception;
 
     /**
      * 查询全部的未封车批次号

@@ -462,9 +462,13 @@ public class PackagePrintServiceImpl implements PackagePrintService {
 			return jdResult;
 		}
 	}
+
 	/**
 	 * 包裹补打回调处理
 	 */
+    @JProfiler(jKey = "dmsWeb.jsf.server.PackagePrintServiceImpl.reprintAfter",jAppName=Constants.UMP_APP_NAME_DMSWEB,
+            mState = {JProEnum.TP, JProEnum.FunctionError})
+    @Override
 	public JdResult<Boolean> reprintAfter(JdCommand<String> reprintAfterRequest) {
     	JdResult<Boolean> jdResult = this.checkParams(reprintAfterRequest);
 		if(!jdResult.isSucceed()){

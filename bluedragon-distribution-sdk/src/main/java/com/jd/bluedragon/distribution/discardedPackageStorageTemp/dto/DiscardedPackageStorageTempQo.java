@@ -73,6 +73,14 @@ public class DiscardedPackageStorageTempQo extends BasePagerCondition implements
     private Integer isAsyncExport;
 
     private Integer pageSize;
+    /**
+     * 操作类型-1-弃件暂存 2-弃件废弃
+     */
+    private Integer operateType;
+    /**
+     * 运单类型 1-包裹类 2-信件类 
+     */
+    private Integer waybillType;
 
     public String getWaybillCode() {
         return waybillCode;
@@ -185,5 +193,21 @@ public class DiscardedPackageStorageTempQo extends BasePagerCondition implements
         this.pageSize = pageSize;
         this.setLimit(pageSize);
     }
+
+	public Integer getOperateType() {
+		return operateType;
+	}
+
+	public void setOperateType(Integer operateType) {
+		this.operateType = operateType;
+	}
+
+	public Integer getWaybillType() {
+		return waybillType;
+	}
+
+	public void setWaybillType(Integer waybillType) {
+		this.waybillType = waybillType;
+	}
 
 }

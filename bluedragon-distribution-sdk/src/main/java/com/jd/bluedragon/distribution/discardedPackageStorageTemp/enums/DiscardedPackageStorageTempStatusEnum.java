@@ -27,6 +27,10 @@ public enum DiscardedPackageStorageTempStatusEnum {
      * 已认领
      */
     CLAIMED(2, "已认领"),
+    /**
+     * 已认领
+     */
+    STORAGE(3, "报废"),
 
     /**
      * 未知
