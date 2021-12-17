@@ -469,7 +469,7 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
         domain.setCreateUserCode(operatorInfo.getUserCode());
         domain.setSendType(Constants.BUSSINESS_TYPE_POSITIVE);
         domain.setBizSource(SendBizSourceEnum.SORT_MACHINE_SEND.getCode());
-
+        domain.setBoxCode(request.getBarcode());
         domain.setYn(1);
         domain.setCreateTime(DateHelper.add(operatorInfo.getOperateTime(), Calendar.SECOND, 5));
         domain.setOperateTime(DateHelper.add(operatorInfo.getOperateTime(), Calendar.SECOND, 5));
