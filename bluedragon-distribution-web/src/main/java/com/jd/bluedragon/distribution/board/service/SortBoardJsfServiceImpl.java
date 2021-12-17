@@ -17,6 +17,7 @@ import com.jd.bluedragon.distribution.sdk.modules.board.BoardChuteJsfService;
 import com.jd.bluedragon.distribution.sdk.modules.board.domain.BoardCompleteRequest;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
+import com.jd.bluedragon.distribution.send.service.SendMService;
 import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
@@ -74,6 +75,9 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
     IVirtualBoardService iVirtualBoardService;
     @Resource
     private CacheService jimdbCacheService;
+
+    @Autowired
+    private SendMService sendMService;
 
 
 
@@ -363,12 +367,30 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
 
     private Response<String> checkBarcodeSendStatus(BindBoardRequest request){
         Response<String> response = new Response<>();
-        SendM sendM = virtualBoardService.getRecentSendMByParam(request.getBoard().getCode(),
-                request.getOperatorInfo().getSiteCode(), null, null);
-        if(sendM == null){
+        //查询箱子发货记录
+        /* 不直接使用domain的原因，SELECT语句有[test="createUserId!=null"]等其它 */
+        SendM queryPara = new SendM();
+        queryPara.setBoardCode(request.getBoard().getCode());
+        queryPara.setCreateSiteCode(request.getOperatorInfo().getSiteCode());
+        List<SendM> sendMList = sendMService.findByParams(queryPara);
+        if (CollectionUtils.isEmpty(sendMList)) {
             response.toSucceed();
             return response;
         }
+        boolean notSend = true;
+        for(SendM m : sendMList){
+            if(m.getSendmStatus() != null && m.getSendmStatus() == 1){
+                notSend = false;
+                break;
+            }
+        }
+        //未发货
+        if(notSend){
+            response.toSucceed();
+            return response;
+        }
+
+        SendM sendM = sendMList.get(0);
 
         //发货时间
         Date sendTime = sendM.getOperateTime();

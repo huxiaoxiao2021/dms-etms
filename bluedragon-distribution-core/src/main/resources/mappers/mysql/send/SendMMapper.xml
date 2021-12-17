@@ -145,6 +145,9 @@
 					#{item,jdbcType=VARCHAR}
 				</foreach>
 			</if>
+			<if test="boardCode != null">
+				and board_code = #{boardCode,jdbcType=VARCHAR}
+			</if>
 			order by operate_time desc
 		</where>
 	</select>
