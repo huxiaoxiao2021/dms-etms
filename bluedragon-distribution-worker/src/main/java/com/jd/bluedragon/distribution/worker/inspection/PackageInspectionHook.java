@@ -69,6 +69,7 @@ public class PackageInspectionHook extends AbstractTaskHook {
             mq.setRecordCreateTime(inspection.getCreateTime());
             if (null != inspectionRequest){
                 mq.setMachineCode(inspectionRequest.getMachineCode());
+                mq.setBizSource(inspectionRequest.getBizSource());
             }
 
             Message message = new Message();
