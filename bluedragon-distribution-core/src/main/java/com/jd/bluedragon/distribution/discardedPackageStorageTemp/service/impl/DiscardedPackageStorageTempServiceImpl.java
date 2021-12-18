@@ -548,7 +548,7 @@ public class DiscardedPackageStorageTempServiceImpl implements DiscardedPackageS
             // 2.1 是否存在未提交的数据
             final DiscardedPackageFinishStatisticsDto discardedPackageFinishStatisticsDto = discardedWaybillStorageTempDao.selectDiscardedPackageFinishStatistics(this.genUnSubmitDiscardedListQo(paramObj));
             if(discardedPackageFinishStatisticsDto.getFinishCount() + discardedPackageFinishStatisticsDto.getUnFinishCount() == 0){
-                return result.toFail("没有为提交的数据，请先扫描");
+                return result.toFail("没有未提交的数据，请先扫描");
             }
             // 2.2 是否强制提交，若否，则校验所有待提交包裹是否都已扫齐
             if(!Objects.equals(Constants.YN_YES, paramObj.getForceSubmit()) && discardedPackageFinishStatisticsDto.getUnFinishCount() > 0){
