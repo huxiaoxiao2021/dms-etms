@@ -159,6 +159,7 @@
 		<property name="bTemplateRouterExecuteNew" value="${bTemplateRouterExecuteNew:false}"/>
         <property name="judgePackagePrintedIncludeSiteTerminal" value="${judgePackagePrintedIncludeSiteTerminal:'0'}"/>
         <property name="printCompleteCallbackAsyncPackageNum" value="${printCompleteCallbackAsyncPackageNum:500}"/>
+        <property name="sendCodeEffectiveValidation" value="${sendCodeEffectiveValidation:''}" />
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -300,6 +301,7 @@
 				<value>uccPropertyConfiguration.judgePackagePrintedIncludeSiteTerminal</value>
 				<value>uccPropertyConfiguration.printCompleteCallbackAsyncPackageNum</value>
 				<value>uccPropertyConfiguration.scheduleSiteCheckSameCity</value>
+				<value>uccPropertyConfiguration.sendCodeEffectiveValidation</value>
 
                 <value>hystrixRouteUccPropertyConfiguration.executionTimeoutInMilliseconds</value>
                 <value>hystrixRouteUccPropertyConfiguration.circuitBreakerEnabled</value>

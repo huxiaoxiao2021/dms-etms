@@ -421,7 +421,14 @@ public class UccPropertyConfiguration {
      * 启用批次有效性校验的分拣中心. 分拣中心ID逗号分隔。
      * 老发货等前端需要完全把批次生成逻辑切换到后台接口才能开启
      */
+    @Deprecated
     private String siteEnableSendCodeEffectiveValidation;
+
+    /**
+     * 启用批次有效性校验的分拣中心. 分拣中心ID逗号分隔。
+     * 老发货等前端需要完全把批次生成逻辑切换到后台接口才能开启
+     */
+    private String sendCodeEffectiveValidation;
 
     /**
      * 取消鸡毛信切换OMS接口开关
@@ -1702,5 +1709,13 @@ public class UccPropertyConfiguration {
 
     public void setPrintCompleteCallbackAsyncPackageNum(int printCompleteCallbackAsyncPackageNum) {
         this.printCompleteCallbackAsyncPackageNum = printCompleteCallbackAsyncPackageNum;
+    }
+
+    public String getSendCodeEffectiveValidation() {
+        return sendCodeEffectiveValidation;
+    }
+
+    public void setSendCodeEffectiveValidation(String sendCodeEffectiveValidation) {
+        this.sendCodeEffectiveValidation = sendCodeEffectiveValidation;
     }
 }
