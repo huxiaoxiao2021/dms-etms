@@ -12,6 +12,8 @@ import com.jd.bluedragon.distribution.businessCode.BusinessCodeFromSourceEnum;
 import com.jd.bluedragon.distribution.businessCode.BusinessCodeNodeTypeEnum;
 import com.jd.bluedragon.distribution.businessCode.domain.BusinessCodePo;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.DmsConstants;
+import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
@@ -169,12 +171,17 @@ public class SendCodeServiceImpl implements SendCodeService {
             }
 
             // 1. 校验批次号有效性
-            if (!BusinessUtil.isSendCode(sendCode)) {
+            if (!BusinessHelper.isSendCode(sendCode)) {
                 result.customMessage(SendCodeResponse.CODE_PARAMETER_ERROR, MessageFormat.format(SendCodeResponse.MESSAGE_PARAMETER_ERROR, sendCode));
                 return result;
             }
 
-            // 2. 校验批次号是否存在
+            // 2. 亚一批次号不校验存在性
+            if (sendCode.toUpperCase().startsWith(DmsConstants.AO_BATCH_CODE_PREFIX)) {
+                return result;
+            }
+
+            // 3. 校验批次号是否存在
             BusinessCodePo businessCodePo = businessCodeManager.queryBusinessCodeByCode(sendCode, BusinessCodeNodeTypeEnum.send_code);
             if (null == businessCodePo) {
                 result.customMessage(SendCodeResponse.CODE_NOT_EXIST_ERROR, MessageFormat.format(SendCodeResponse.MESSAGE_NOT_EXIST_ERROR, sendCode));
@@ -196,7 +203,7 @@ public class SendCodeServiceImpl implements SendCodeService {
      * @return 开关状态 true：开启
      */
     private boolean switchIsOpen(Integer createSiteCode) {
-        String configSites = uccPropertyConfiguration.getSiteEnableSendCodeEffectiveValidation();
+        String configSites = uccPropertyConfiguration.getSendCodeEffectiveValidation();
         if (StringUtils.isBlank(configSites)) {
             return false;
         }
