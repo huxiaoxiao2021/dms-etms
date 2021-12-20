@@ -16,12 +16,14 @@ import com.jd.bluedragon.external.gateway.service.VirtualBoardGatewayService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 虚拟组板服务
@@ -159,29 +161,23 @@ public class VirtualBoardGatewayServiceImpl implements VirtualBoardGatewayServic
     }
 
     @Override
-    public JdCResponse<List<String>> getSortMachineBySiteCode(Integer siteCode) {
-        JdCResponse<List<String>> jdCResponse = new JdCResponse<List<String>>();
+    public JdCResponse<Map<String, Boolean>> getSortMachineBySiteCode(Integer siteCode) {
+        JdCResponse<Map<String, Boolean>> jdCResponse = new JdCResponse<Map<String, Boolean>>();
         jdCResponse.toSucceed();
         if(siteCode == null){
-            jdCResponse.toFail("场地编码为空，请重试!");
+            jdCResponse.toFail("场地编码为空，请退出重试!");
         }
-        BaseDmsAutoJsfResponse<List<DeviceConfigSimpleDto>> response =  deviceConfigInfoJsfService.findDeviceConfig(siteCode);
+        deviceConfigInfoJsfService.findDeviceConfigListByCondition(siteCode.toString(), null);
+        BaseDmsAutoJsfResponse<Map<String, Boolean>> response =  deviceConfigInfoJsfService.getAutoMachineAndCheckCombinationBoard(siteCode);
         if(response.getStatusCode() != 200){
              jdCResponse.toFail("查询设备编码失败，请退出重试!");
              return jdCResponse;
         }
 
-        if(CollectionUtils.isEmpty(response.getData())){
+        if(MapUtils.isEmpty(response.getData())){
             return jdCResponse;
         }
-        List<String> devices = new ArrayList<>();
-        for (DeviceConfigSimpleDto dto : response.getData()){
-            //分拣机
-            if("SORT".equals(dto.getBusinessCode())){
-                devices.add(dto.getMachineCode());
-            }
-        }
-        jdCResponse.setData(devices);
+        jdCResponse.setData(response.getData());
         return jdCResponse;
     }
 

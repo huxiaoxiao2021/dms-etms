@@ -7,6 +7,7 @@ import com.jd.bluedragon.common.dto.board.response.UnbindVirtualBoardResultDto;
 import com.jd.bluedragon.common.dto.board.response.VirtualBoardResultDto;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 分拣虚拟组板服务
@@ -100,5 +101,5 @@ public interface VirtualBoardGatewayService {
      * @param siteCode
      * @return
      */
-    JdCResponse<List<String>> getSortMachineBySiteCode(Integer siteCode);
+    JdCResponse<Map<String, Boolean>> getSortMachineBySiteCode(Integer siteCode);
 }
