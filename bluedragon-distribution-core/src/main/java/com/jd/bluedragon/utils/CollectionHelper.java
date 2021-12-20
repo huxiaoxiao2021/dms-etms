@@ -112,14 +112,14 @@ public class CollectionHelper<E> {
         return Lists.partition(source, splitNum);
     }
     /**
-     * 拆分集合
+     * 拆分集合,先按每组数量perMinElementNum拆分，最大不超过maxGroupNum的值
      * @param <E>
      * @param source
-     * @param splitNum 拆分数量
+     * @param maxGroupNum 拆分组数量
      * @param perMinElementNum 每组拆分最少元素数
      * @return
      */
-    public static <E> List<List<E>> splitList(List<E> source, int splitNum,int perMinElementNum) {
+    public static <E> List<List<E>> splitList(List<E> source, int maxGroupNum,int perMinElementNum) {
     	List<List<E>> result = Lists.newArrayList();
     	if(source == null
     			|| source.size() == 0) {
@@ -132,14 +132,14 @@ public class CollectionHelper<E> {
     		return result;
     	}
     	int perNum = perMinElementNum;
-		int groupNum = size/perNum;
-		if(size%perNum > 0) {
-			groupNum += 1;
+		int groupNum = maxGroupNum;
+		if(size > (perNum * groupNum)) {
+			perNum = size/groupNum;
+			if(size%groupNum > 0) {
+				perNum +=1;
+			}
 		}
-		if(groupNum > splitNum) {
-			groupNum = splitNum;
-		}
-        return Lists.partition(source, groupNum);
+        return Lists.partition(source, perNum);
     }
     public static void main(String[] args) {
         List<SendM> list = new ArrayList<>();

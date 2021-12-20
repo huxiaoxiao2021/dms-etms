@@ -27,7 +27,7 @@ import com.jd.bluedragon.utils.JsonHelper;
  */
 public class ConcurrentJobHandlerTest {
     private static ThreadFactory namedThreadFactory = new ThreadFactoryBuilder()
-            .setNameFormat("test-concurrentJobHandler-%d").build();
+            .setNameFormat("pool-%d").build();
 	private static final ExecutorService cachedThreadPool = new ThreadPoolExecutor(10, 100,
             60L, TimeUnit.SECONDS,
             new LinkedBlockingQueue(),namedThreadFactory);
@@ -46,7 +46,7 @@ public class ConcurrentJobHandlerTest {
 			RequestA request = new RequestA();
 			request.strA = "test";
 			request.strList = new ArrayList<String>();
-			int total = 99;
+			int total = 10000;
 			for(int i=1;i<=total;i++) {
 				request.strList.add("第"+i+"个");
 			}
@@ -104,9 +104,11 @@ public class ConcurrentJobHandlerTest {
 			ResultA mergedResult = new ResultA();
 			mergedResult.suc = true;
 			mergedResult.resultList = new ArrayList<String>();
+			mergedResult.dealThreadList = new ArrayList<String>();
 			for(ResultA resultA : resultList) {
 				if(resultA.suc) {
 					mergedResult.resultList.addAll(resultA.resultList);
+					mergedResult.dealThreadList.add(resultA.dealThread);
 				}
 			}
 			return mergedResult;
@@ -157,22 +159,11 @@ public class ConcurrentJobHandlerTest {
 			this.strList = strList;
 		}
 	}
-	public static class ResultA implements Mergeable<ResultA>{
+	public static class ResultA{
 		private boolean suc;
+		private String dealThread;
+		private List<String> dealThreadList;
 		private List<String> resultList;
-		
-		@Override
-		public ResultA merge(List<ResultA> resultList) {
-			ResultA mergedResult = new ResultA();
-			mergedResult.suc = true;
-			mergedResult.resultList = new ArrayList<String>();
-			for(ResultA resultA : resultList) {
-				if(resultA.suc) {
-					mergedResult.resultList.addAll(resultA.resultList);
-				}
-			}
-			return mergedResult;
-		}
 
 		public boolean isSuc() {
 			return suc;
@@ -189,6 +180,22 @@ public class ConcurrentJobHandlerTest {
 		public void setResultList(List<String> resultList) {
 			this.resultList = resultList;
 		}
+
+		public String getDealThread() {
+			return dealThread;
+		}
+
+		public void setDealThread(String dealThread) {
+			this.dealThread = dealThread;
+		}
+
+		public List<String> getDealThreadList() {
+			return dealThreadList;
+		}
+
+		public void setDealThreadList(List<String> dealThreadList) {
+			this.dealThreadList = dealThreadList;
+		}
 	}
 	public static interface Mergeable<R>{
 		R merge(List<R> resultList);
@@ -202,11 +209,14 @@ public class ConcurrentJobHandlerTest {
 			ResultA result = new ResultA();
 			result.suc = true;
 			result.resultList = new ArrayList<String>();
+			
 			String threadDesc = Thread.currentThread().getId()+"-"+Thread.currentThread().getName();
+			
+			result.dealThread = threadDesc;
 			for(String str: request.strList) {
 				System.out.println("线程"+threadDesc+"开始处理："+str);
 				try {
-					Thread.sleep(100 +  r.nextInt(1));
+					Thread.sleep(10 +  r.nextInt(1));
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
