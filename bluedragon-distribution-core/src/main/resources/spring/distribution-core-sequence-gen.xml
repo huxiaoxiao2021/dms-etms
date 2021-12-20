@@ -93,6 +93,7 @@
         <constructor-arg index="0" name="expressionArg" value="createSiteCode + '-' + receiveSiteCode + '-' + currentTimeLong + u:leftPad(sequence,6) + serial:getSendCodeMod(createSiteCode,receiveSiteCode,currentTimeLong,sequence)"/>
         <constructor-arg index="1" name="uniqueStrategyArg" ref="jimDBUniqueStrategy"/>
         <property name="interpreter" ref="jexlInterpreter" />
+        <property name="uniqueViolationProcessMode" value="GET_NEXT" />
     </bean>
 
 </beans>
