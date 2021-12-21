@@ -634,7 +634,8 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
         //补打拦截
         if (waybillData != null
         		&& checkPrintInterceptReasonIdSet != null
-        		&& checkPrintInterceptReasonIdSet.contains(queryRequest.getThirdLevelExceptionId())
+        		&& queryRequest.getThirdLevelReasonId() != null
+        		&& checkPrintInterceptReasonIdSet.contains(queryRequest.getThirdLevelReasonId())
         		&& waybillService.hasPrintIntercept(waybillCode, waybillData.getWaybillSign())) {
             jdCResponse.setCode(JdCResponse.CODE_ERROR);
             jdCResponse.setMessage(HintService.getHint(HintCodeConstants.EX_REPORT_CHECK_CHANGE_ADDRESS));

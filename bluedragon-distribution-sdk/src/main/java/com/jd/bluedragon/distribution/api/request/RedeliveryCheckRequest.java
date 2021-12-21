@@ -20,6 +20,11 @@ public class RedeliveryCheckRequest extends JdRequest {
      * 异常id
      */
     private Integer exceptionId;
+    /**
+     * 异常上级id
+     */
+    private Integer supExceptionId;    
+    
 
     public Integer getCodeType() {
         return codeType;
@@ -43,6 +48,14 @@ public class RedeliveryCheckRequest extends JdRequest {
 
 	public void setExceptionId(Integer exceptionId) {
 		this.exceptionId = exceptionId;
+	}
+
+	public Integer getSupExceptionId() {
+		return supExceptionId;
+	}
+
+	public void setSupExceptionId(Integer supExceptionId) {
+		this.supExceptionId = supExceptionId;
 	}
 
 }
