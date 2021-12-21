@@ -148,6 +148,11 @@ public class WaybillPrintRequest extends JdRequest{
 	 */
 	private String userERP;
 
+    /**
+     * 包裹号
+     */
+    private String packageBarCode;
+
 	public Boolean getTrustBusinessFlag() {
 		return trustBusinessFlag;
 	}
@@ -437,4 +442,12 @@ public class WaybillPrintRequest extends JdRequest{
 	public void setBarCodeType(Integer barCodeType) {
 		this.barCodeType = barCodeType;
 	}
+
+    public String getPackageBarCode() {
+        return packageBarCode;
+    }
+
+    public void setPackageBarCode(String packageBarCode) {
+        this.packageBarCode = packageBarCode;
+    }
 }

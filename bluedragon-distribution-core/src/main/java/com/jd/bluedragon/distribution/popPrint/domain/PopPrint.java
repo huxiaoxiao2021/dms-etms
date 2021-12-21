@@ -153,6 +153,11 @@ public class PopPrint implements Serializable {
 	 */
 	public Integer interfaceType;
 
+    /**
+     * 是否是分拣中心首次打印 1：是 0：否
+     */
+	private Integer sortingFirstPrint;
+
 	public Integer getInterfaceType() {
 		return interfaceType;
 	}
@@ -420,5 +425,13 @@ public class PopPrint implements Serializable {
 
     public void setCategoryName(String categoryName) {
         this.categoryName = categoryName;
+    }
+
+    public Integer getSortingFirstPrint() {
+        return sortingFirstPrint;
+    }
+
+    public void setSortingFirstPrint(Integer sortingFirstPrint) {
+        this.sortingFirstPrint = sortingFirstPrint;
     }
 }

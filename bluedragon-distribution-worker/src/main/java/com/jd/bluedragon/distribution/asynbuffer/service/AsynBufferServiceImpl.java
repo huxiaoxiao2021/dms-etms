@@ -8,7 +8,9 @@ import com.jd.bluedragon.distribution.api.request.InspectionRequest;
 import com.jd.bluedragon.distribution.auto.domain.UploadData;
 import com.jd.bluedragon.distribution.auto.service.ScannerFrameDispatchService;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.command.JdCommand;
 import com.jd.bluedragon.distribution.delivery.IDeliveryOperationService;
+import com.jd.bluedragon.distribution.delivery.entity.SendMWrapper;
 import com.jd.bluedragon.distribution.departure.service.DepartureService;
 import com.jd.bluedragon.distribution.inspection.InspectionOperateTypeEnum;
 import com.jd.bluedragon.distribution.inspection.exception.InspectionException;
@@ -16,6 +18,8 @@ import com.jd.bluedragon.distribution.inspection.exception.WayBillCodeIllegalExc
 import com.jd.bluedragon.distribution.inspection.service.InspectionService;
 import com.jd.bluedragon.distribution.middleend.SortingServiceFactory;
 import com.jd.bluedragon.distribution.partnerWaybill.service.PartnerWaybillService;
+import com.jd.bluedragon.distribution.print.request.PrintCompleteRequest;
+import com.jd.bluedragon.distribution.print.service.PackagePrintInternalService;
 import com.jd.bluedragon.distribution.receive.service.impl.ReceiveTaskExecutor;
 import com.jd.bluedragon.distribution.receiveInspectionExc.service.ShieldsErrorService;
 import com.jd.bluedragon.distribution.reverse.service.ReverseSendService;
@@ -481,5 +485,41 @@ public class AsynBufferServiceImpl implements AsynBufferService {
             return Boolean.FALSE;
         }
         return Boolean.TRUE;
+    }
+
+    @Autowired
+    private PackagePrintInternalService packagePrintInternalService;
+
+    /**
+     * 打印回调异步处理任务
+     *
+     * @param task
+     * @return
+     * @throws Exception
+     */
+    @Override
+    public boolean printCallbackProcess(final Task task) throws Exception {
+        if (null == task || StringUtils.isBlank(task.getBody())) {
+            return true;
+        }
+        try {
+
+            String umpKey = "DmsWorker.Task.printCallbackProcess.execute";
+            String umpApp = Constants.UMP_APP_NAME_DMSWORKER;
+            UmpMonitorHelper.doWithUmpMonitor(umpKey, umpApp, new UmpMonitorHandler() {
+                @Override
+                public void process() {
+                    JdCommand<PrintCompleteRequest> request = JsonHelper.fromJsonUseGson(task.getBody(), new TypeToken<JdCommand<PrintCompleteRequest>>(){}.getType());
+
+                    packagePrintInternalService.printComplete(request);
+                }
+            });
+        }
+        catch (Throwable ex) {
+            log.error("打印回调异步处理任务执行失败, task: {}. 异常: ", task.getBody(), ex);
+            return false;
+        }
+
+        return true;
     }
 }

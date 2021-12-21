@@ -206,6 +206,11 @@
                     <entry key="task_send_1350_DMS" value="${jmq.task.topic.delivery.async.dms}"/>
                     <entry key="task_send_1350_PRE" value="${jmq.task.topic.delivery.async.pre}"/>
                     <entry key="task_send_1350_UAT" value="${jmq.task.topic.delivery.async.uat}"/>
+
+                    <!-- 打印回调异步处理任务 -->
+                    <entry key="task_pop_print_3000_DMS" value="${jmq.task.topic.pop.print.dms}" />
+                    <entry key="task_pop_print_3000_PRE" value="${jmq.task.topic.pop.print.pre}" />
+                    <entry key="task_pop_print_3000_UAT" value="${jmq.task.topic.pop.print.uat}" />
 				</map>
 	    	</constructor-arg>
 	    </bean>
