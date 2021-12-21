@@ -162,18 +162,18 @@ public class SendCodeServiceImpl implements SendCodeService {
             return result;
         }
         try {
+            // 1. 校验批次号正则
+            if (!BusinessHelper.isSendCode(sendCode)) {
+                result.customMessage(SendCodeResponse.CODE_PARAMETER_ERROR, MessageFormat.format(SendCodeResponse.MESSAGE_PARAMETER_ERROR, sendCode));
+                return result;
+            }
+
             if (!switchIsOpen(SerialRuleUtil.getCreateSiteCodeFromSendCode(sendCode))) {
                 return result;
             }
 
             if (logger.isInfoEnabled()) {
                 logger.info("启用批次有效性校验. site:{}", SerialRuleUtil.getCreateSiteCodeFromSendCode(sendCode));
-            }
-
-            // 1. 校验批次号有效性
-            if (!BusinessHelper.isSendCode(sendCode)) {
-                result.customMessage(SendCodeResponse.CODE_PARAMETER_ERROR, MessageFormat.format(SendCodeResponse.MESSAGE_PARAMETER_ERROR, sendCode));
-                return result;
             }
 
             // 2. 亚一批次号不校验存在性
@@ -207,12 +207,12 @@ public class SendCodeServiceImpl implements SendCodeService {
         if (StringUtils.isBlank(configSites)) {
             return false;
         }
-        if (null == createSiteCode) {
-            return false;
-        }
         // 全国开启
         if (Constants.STR_ALL.equalsIgnoreCase(configSites)) {
             return true;
+        }
+        if (null == createSiteCode) {
+            return false;
         }
 
         List<String> enableSites = Arrays.asList(configSites.split(Constants.SEPARATOR_COMMA));
