@@ -814,4 +814,13 @@
         <jsf:parameter key="token" value="${jsf.basicGoodsAreaWS.token}" hide="true" />
     </jsf:consumer>
 
+    <!--自动化组板服务-->
+    <jsf:consumer id="boardChuteJsfService"
+                  interface="com.jd.bluedragon.distribution.sdk.modules.board.BoardChuteJsfService"
+                  protocol="jsf"
+                  alias="${automatic.platform.jsf.alias}"
+                  timeout="${jsf.timeout.autoBoardChute}"
+                  retries="${jsf.retries}"
+                  serialization="hessian"/>
+
 </beans>

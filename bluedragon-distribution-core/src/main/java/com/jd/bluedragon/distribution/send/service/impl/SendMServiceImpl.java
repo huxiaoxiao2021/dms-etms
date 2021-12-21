@@ -46,7 +46,9 @@ public class SendMServiceImpl implements SendMService{
 
     @Override
     public List<SendM> findByParams(SendM params) {
-        if (params == null || StringUtils.isEmpty(params.getBoxCode()) || params.getCreateSiteCode() == null) {
+        if (params == null
+                || (StringUtils.isEmpty(params.getBoxCode()) && StringUtils.isEmpty(params.getBoardCode()))
+                || params.getCreateSiteCode() == null) {
             return Collections.emptyList();
         }
         //查询箱子发货记录

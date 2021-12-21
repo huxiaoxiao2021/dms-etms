@@ -29,6 +29,12 @@ public class AddOrGetVirtualBoardPo implements Serializable {
      */
     private Integer maxDestinationCount;
 
+    /**
+     * 操作来源 1：pda 2:分拣机
+     * @return
+     */
+    private Integer bizSource;
+
     public OperatorInfo getOperatorInfo() {
         return operatorInfo;
     }
@@ -54,5 +60,13 @@ public class AddOrGetVirtualBoardPo implements Serializable {
     public AddOrGetVirtualBoardPo setMaxDestinationCount(Integer maxDestinationCount) {
         this.maxDestinationCount = maxDestinationCount;
         return this;
+    }
+
+    public Integer getBizSource() {
+        return bizSource;
+    }
+
+    public void setBizSource(Integer bizSource) {
+        this.bizSource = bizSource;
     }
 }
