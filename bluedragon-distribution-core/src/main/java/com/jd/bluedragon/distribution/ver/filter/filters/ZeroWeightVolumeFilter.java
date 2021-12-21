@@ -77,9 +77,9 @@ public class ZeroWeightVolumeFilter implements Filter {
                                 || StringUtils.isEmpty(waybillNoCache.getSpareColumn2()) || Double.parseDouble(waybillNoCache.getSpareColumn2()) <= 0) {
                             //校验商品重量和商品量方
                             if(ZeroWeightVolumeCheckType.CHECK_GOOD_OR_AGAIN_WEIGHT_VOLUME.equals(checkType)){
+                                logger.info("因需要校验下单称重量方数据，调用运单接口检查称重量方数据,waybillCode={},goodsW={},goodsV={}",waybillCode,waybillNoCache.getWeight(),waybillNoCache.getVolume());
                                 if (waybillNoCache.getWeight() == null || waybillNoCache.getWeight() <= 0
                                         || waybillNoCache.getVolume() == null || waybillNoCache.getVolume()  <= 0) {
-                                    logger.info("调用运单接口检查称重量方数据,waybillCode={},w={},v={}",waybillCode,waybillNoCache.getWeight(),waybillNoCache.getVolume());
                                     logger.info("无下单称重量方数据，需要拦截，运单号{}",waybillCode);
                                     interceptFlag = Boolean.TRUE;
                                 }
