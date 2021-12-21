@@ -214,7 +214,7 @@ public class ArAbnormalServiceImpl implements ArAbnormalService {
                 response.setMessage("校验操作航空转陆运执行异常，请稍后重试！");
             	return response;
         	}
-		} catch (InterruptedException | ExecutionException | TimeoutException e) {
+		} catch (Exception e) {
 			Profiler.functionError(call);
 			log.error("校验能否操作航空转陆运执行异常：请求参数：{}", JsonHelper.toJson(arAbnormalRequest),e);
         	response = new ArAbnormalResponse();
