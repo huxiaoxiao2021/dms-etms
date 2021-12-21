@@ -27,6 +27,7 @@ import com.jd.bluedragon.distribution.api.request.box.BoxReq;
 import com.jd.bluedragon.distribution.api.response.BoardResponse;
 import com.jd.bluedragon.distribution.api.response.CheckBeforeSendResponse;
 import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
+import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.auto.domain.UploadData;
 import com.jd.bluedragon.distribution.b2bRouter.domain.B2BRouter;
 import com.jd.bluedragon.distribution.b2bRouter.domain.B2BRouterNode;
@@ -105,11 +106,14 @@ import com.jd.bluedragon.distribution.third.service.ThirdBoxDetailService;
 import com.jd.bluedragon.distribution.transBillSchedule.service.TransBillScheduleService;
 import com.jd.bluedragon.distribution.urban.service.TransbillMService;
 import com.jd.bluedragon.distribution.ver.domain.Site;
+import com.jd.bluedragon.distribution.ver.exception.SortingCheckException;
 import com.jd.bluedragon.distribution.ver.service.SortingCheckService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.distribution.weight.service.DmsWeightFlowService;
+import com.jd.bluedragon.distribution.weightVolume.domain.ZeroWeightVolumeCheckEntity;
+import com.jd.bluedragon.distribution.weightVolume.service.DMSWeightVolumeService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.crossbow.itms.domain.ItmsCancelSendCheckSendCodeDto;
@@ -405,6 +409,9 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
     private SendDetailService sendDetailService;
 
     @Autowired
+    private DMSWeightVolumeService dmsWeightVolumeService;
+
+    @Autowired
     private IBusinessInterceptReportService businessInterceptReportService;
 
     @Autowired
@@ -513,10 +520,16 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
             }
 
             //调用分拣无重量拦截链---2020.12.17 目前主要针对满足纯配外单的0 重量
-            com.jd.ql.dms.common.domain.JdResponse<Void> response = allPureValidateWeight(deliveryRequest.getBoxCode(),deliveryRequest.getSiteCode());
-            if(!response.getCode().equals(Constants.SUCCESS_NO_CODE)){
-                result.setCode(response.getCode());
-                result.setMessage(response.getMessage());
+            ZeroWeightVolumeCheckEntity entity = new ZeroWeightVolumeCheckEntity();
+            entity.setPackageCode(deliveryRequest.getBoxCode());
+            if(WaybillUtil.isPackageCode(deliveryRequest.getBoxCode())){
+                entity.setWaybillCode(WaybillUtil.getWaybillCode(deliveryRequest.getBoxCode()));
+            }else{
+                entity.setWaybillCode(deliveryRequest.getBoxCode());
+            }
+            if(dmsWeightVolumeService.zeroWeightVolumeIntercept(entity)){
+                result.setCode(SortingResponse.CODE_29403);
+                result.setMessage(HintService.getHint(HintCodeConstants.WAYBILL_WITHOUT_WEIGHT_OR_VOLUME));
                 // 发送拦截消息
                 this.sendBusinessInterceptMsg(deliveryRequest, result);
                 return result;
@@ -926,38 +939,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         return sendM;
     }
 
-    /**
-     * 老发货无重量拦截校验-提炼于拦截链
-     * @param packageCode
-     * @param siteCode
-     * @return
-     */
-    private com.jd.ql.dms.common.domain.JdResponse <Void> allPureValidateWeight(String packageCode,Integer siteCode){
-        com.jd.ql.dms.common.domain.JdResponse <Void> response = new com.jd.ql.dms.common.domain.JdResponse <Void>();
-        response.setCode(Constants.SUCCESS_NO_CODE);
-        if(WaybillUtil.isPackageCode(packageCode)){
-            String waybillCode = WaybillUtil.getWaybillCode(packageCode);
-            WaybillCache waybillCache = waybillCacheService.getNoCache(waybillCode);
-            FuncSwitchConfigAllPureDto funcSwitchConfigAllPureDto = new FuncSwitchConfigAllPureDto();
-            funcSwitchConfigAllPureDto.setWaybillCode(waybillCache.getWaybillCode());
-            funcSwitchConfigAllPureDto.setWaybillSign(waybillCache.getWaybillSign());
-            funcSwitchConfigAllPureDto.setCustomerCode(waybillCache.getCustomerCode());
-            funcSwitchConfigAllPureDto.setCreateSiteCode(siteCode);
-            // 一单多件不拦截 又去除
-            /*if(waybillCache.getQuantity() != null && waybillCache.getQuantity() > Constants.CONSTANT_NUMBER_ONE){
-                return response;
-            }*/
-            // 是否满足无重量拦截条件
-            boolean isAllPureNeedWeight = funcSwitchConfigService.isAllPureValidateWeight(funcSwitchConfigAllPureDto);
-            if(log.isInfoEnabled()){
-                log.info("运单waybillCode:{},当前isAllPureNeedWeight标识为:{}",waybillCode,isAllPureNeedWeight);
-            }
-            if(isAllPureNeedWeight){
-                return funcSwitchConfigService.checkAllPureWeight(waybillCache,waybillCache.getWaybillCode(),packageCode);
-            }
-        }
-        return  response;
-    }
+
 
     /**
      * 只校验包裹的 校验滑道号
