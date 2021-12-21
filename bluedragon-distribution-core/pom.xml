@@ -206,7 +206,7 @@
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
 			<artifactId>bluedragon-distribution-sdk</artifactId>
-			<version>1.7.9-uat-SNAPSHOT</version>
+			<version>1.7.11-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
@@ -235,7 +235,7 @@
 		<dependency>
             <groupId>com.jd.bluedragon</groupId>
             <artifactId>bluedragon-distribution-common-android</artifactId>
-            <version>1.3.8-uat-SNAPSHOT</version>
+            <version>1.4.0-SNAPSHOT</version>
         </dependency>
 		<dependency>
 			<groupId>com.jd.etms.waybill</groupId>
@@ -1116,7 +1116,7 @@
 		<dependency>
 			<groupId>com.jd.transboard</groupId>
 			<artifactId>transboard-api</artifactId>
-			<version>1.0.5-uat-SNAPSHOT</version>
+			<version>1.0.8-SNAPSHOT</version>
 			<exclusions>
 				<exclusion>
 					<artifactId>fastjson</artifactId>
@@ -1200,7 +1200,7 @@
 		<dependency>
 			<groupId>com.jd.bd.dms.automatic</groupId>
 			<artifactId>automatic-sdk</artifactId>
-			<version>1.2.0-SNAPSHOT</version>
+			<version>1.2.8-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
@@ -1781,7 +1781,12 @@
             <artifactId>log4j-slf4j-impl</artifactId>
             <version>2.12.2</version>
         </dependency>
-
+<!-- 分拣自动化总部任务服务-->
+		<dependency>
+			<groupId>com.jd.bluedragon</groupId>
+			<artifactId>automatic-platform-sdk</artifactId>
+			<version>1.1-SNAPSHOT</version>
+		</dependency>
     </dependencies>
 
 	<profiles>

@@ -7,6 +7,7 @@ import com.jd.bluedragon.common.dto.board.response.UnbindVirtualBoardResultDto;
 import com.jd.bluedragon.common.dto.board.response.VirtualBoardResultDto;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 分拣虚拟组板服务
@@ -86,4 +87,19 @@ public interface VirtualBoardGatewayService {
      * @return
      */
     JdCResponse<Void> handoverBoard(HandoverVirtualBoardPo handoverVirtualBoardPo);
+
+
+    /**
+     * 自动化完结板
+     * @param request
+     * @return
+     */
+    JdCResponse<Void> autoBoardComplete(AutoBoardCompleteRequest request);
+
+    /**
+     * 更加场地 查询分拣机编码
+     * @param siteCode
+     * @return
+     */
+    JdCResponse<Map<String, Boolean>> getSortMachineBySiteCode(Integer siteCode);
 }
