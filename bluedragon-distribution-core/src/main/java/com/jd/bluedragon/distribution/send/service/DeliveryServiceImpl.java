@@ -528,8 +528,8 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                 entity.setWaybillCode(deliveryRequest.getBoxCode());
             }
             if(dmsWeightVolumeService.zeroWeightVolumeIntercept(entity)){
-                result.setCode(SortingResponse.CODE_29403);
-                result.setMessage(HintService.getHint(HintCodeConstants.WAYBILL_WITHOUT_WEIGHT_OR_VOLUME));
+                result.setCode(SortingResponse.CODE_29419);
+                result.setMessage(HintService.getHint(HintCodeConstants.WAYBILL_WITHOUT_WEIGHT));
                 // 发送拦截消息
                 this.sendBusinessInterceptMsg(deliveryRequest, result);
                 return result;

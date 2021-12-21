@@ -48,8 +48,8 @@ public class ZeroWeightVolumeFilter implements Filter {
         entity.setWaybillCode(waybillCode);
 
         if(dmsWeightVolumeService.zeroWeightVolumeIntercept(entity)){
-            throw new SortingCheckException(SortingResponse.CODE_29403,
-                    HintService.getHintWithFuncModule(HintCodeConstants.WAYBILL_WITHOUT_WEIGHT_OR_VOLUME, request.getFuncModule()));
+            throw new SortingCheckException(SortingResponse.CODE_29419,
+                    HintService.getHintWithFuncModule(HintCodeConstants.WAYBILL_WITHOUT_WEIGHT, request.getFuncModule()));
         }
 
         chain.doFilter(request, chain);
