@@ -180,37 +180,22 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
             final OperatorInfo operatorInfo = addOrGetVirtualBoardPo.getOperatorInfo();
             String keyTemplate = CacheKeyConstants.VIRTUAL_BOARD_CREATE_DESTINATION;
             String key = String.format(keyTemplate, operatorInfo.getSiteCode(), operatorInfo.getUserErp());
-
             try{
-                //pda端的操作防呆
-                if(addOrGetVirtualBoardPo.getBizSource() == null
-                        || addOrGetVirtualBoardPo.getBizSource() == BizSourceEnum.PDA.getValue()){
-                    try {
-                        // 同一操作人及目的地加锁，解决并发问题
-                        boolean isExistHandling = jimdbCacheService.setNx(key, 1 + "", CacheKeyConstants.VIRTUAL_BOARD_CREATE_DESTINATION_TIMEOUT, TimeUnit.SECONDS);
-                    } catch (Exception e) {
-                        result.setCode(JdCResponse.CODE_FAIL);
-                        result.setMessage("操作太快，正在处理中");
-
-                        return result;
-                    }
+                try {
+                    // 同一操作人及目的地加锁，解决并发问题
+                    boolean isExistHandling = jimdbCacheService.setNx(key, 1 + "", CacheKeyConstants.VIRTUAL_BOARD_CREATE_DESTINATION_TIMEOUT, TimeUnit.SECONDS);
+                } catch (Exception e) {
+                    result.setCode(JdCResponse.CODE_FAIL);
+                    result.setMessage("操作太快，正在处理中");
+                    return result;
                 }
-
-                if(addOrGetVirtualBoardPo.getMaxDestinationCount() == null || addOrGetVirtualBoardPo.getMaxDestinationCount() <= 0){
-                    addOrGetVirtualBoardPo.setMaxDestinationCount(uccPropertyConfiguration.getVirtualBoardMaxDestinationCount());
-                }
+                addOrGetVirtualBoardPo.setMaxDestinationCount(uccPropertyConfiguration.getVirtualBoardMaxDestinationCount());
                 final Response<com.jd.transboard.api.dto.VirtualBoardResultDto> handleResult = virtualBoardJsfManager.createOrGetBoard(this.getConvertToTcParam(addOrGetVirtualBoardPo));
                 if(!Objects.equals(handleResult.getCode(), ResponseEnum.SUCCESS.getIndex())){
                     log.error("VirtualBoardServiceImpl.createOrGetBoard--fail-- param {} result {}", JsonHelper.toJson(addOrGetVirtualBoardPo), JsonHelper.toJson(handleResult));
                     result.toFail(handleResult.getMesseage());
                     return result;
                 }
-                if(handleResult.getData() != null){
-                    result.setData(new VirtualBoardResultDto());
-                    BeanUtils.copyProperties(handleResult.getData(), result.getData());
-                }
-
-
             } finally {
                 jimdbCacheService.del(key);
             }
