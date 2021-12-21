@@ -56,7 +56,7 @@ public class CheckCanAirToRoadJobHandler extends ConcurrentJobHandler<List<Strin
 			}
 			if(!BusinessUtil.checkCanAirToRoad(waybill.getWaybillSign(), waybill.getSendPay())) {
 				result.setCode(ArAbnormalResponse.CODE_SERVICE_ERROR);
-				result.setMessage(HintService.getCode(HintCodeConstants.AIR_TO_ROAD_NOT_ALLOWD));
+				result.setMessage(HintService.getHint(HintCodeConstants.AIR_TO_ROAD_NOT_ALLOWD));
 				return result;
 			}
 		}
