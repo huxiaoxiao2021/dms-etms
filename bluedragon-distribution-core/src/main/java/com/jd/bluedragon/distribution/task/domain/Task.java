@@ -186,6 +186,11 @@ public class Task implements java.io.Serializable, TaskModeAware{
      */
     public static final Integer TASK_TYPE_DELIVERY_TO_FINANCE= 1910;
 
+    /**
+     * 打印相关任务
+     */
+    public static final Integer TASK_TYPE_PRINT_CALLBACK_BIG_WAYBILL = 3000; // 打印回调大运单处理任务
+
     /** 相关数据库表 */
     public static final String TABLE_NAME_WAYBILL = "task_waybill";
     public static final String TABLE_NAME_REVERSE = "task_reverse";
@@ -233,6 +238,8 @@ public class Task implements java.io.Serializable, TaskModeAware{
     public static final String TABLE_NAME_AR_RECEIVE = "task_ar_receive";
 
     public static final String TABLE_NAME_POP_PRINT_INSPECTION = "task_pop_print_inspection";
+
+    public static final String TABLE_NAME_POP_PRINT = "task_pop_print";
 
 
     /** 相关数据库序列 */
@@ -615,6 +622,9 @@ public class Task implements java.io.Serializable, TaskModeAware{
             return Task.TABLE_NAME_VIRTUAL_BOARD_AUTO_CLOSE;
         }else if(Task.TASK_TYPE_CYCLE_BOX_STATUS.equals(type)){
             return Task.TABLE_NAME_CYCLE_BOX_STATUS;
+        }
+        else if (Task.TASK_TYPE_PRINT_CALLBACK_BIG_WAYBILL.equals(type)) {
+            return Task.TABLE_NAME_POP_PRINT;
         }
         
         return Task.TABLE_NAME_SORTING;

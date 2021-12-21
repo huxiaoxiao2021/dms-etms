@@ -250,6 +250,12 @@ public class WaybillStatus {
     public static final Integer WAYBILL_TRACK_WASTE_SCRAP = 2010;
     public static final String WAYBILL_TRACK_WASTE_SCRAP_MSG = "已操作废弃";
 
+    /**
+     * 包裹打印全程跟踪操作码
+     */
+    public static final Integer WAYBILL_TRACK_PACKAGE_PRINT = 5000;
+
+
     private Long id;
 
     private String sendCode;

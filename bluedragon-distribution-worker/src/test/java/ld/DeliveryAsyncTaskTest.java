@@ -1,12 +1,19 @@
 package ld;
 
+import com.google.gson.reflect.TypeToken;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.asynbuffer.service.AsynBufferService;
+import com.jd.bluedragon.distribution.command.JdCommand;
 import com.jd.bluedragon.distribution.delivery.IDeliveryOperationService;
+import com.jd.bluedragon.distribution.print.request.PrintCompleteRequest;
+import com.jd.bluedragon.distribution.print.service.PackagePrintInternalService;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.merchant.api.common.dto.BaseEntity;
+import com.jd.merchant.api.pack.dto.LoadScanDto;
+import jdk.internal.org.objectweb.asm.TypeReference;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -88,5 +95,29 @@ public class DeliveryAsyncTaskTest {
         sendMList.add(sendM);
 
         deliveryOperationService.asyncHandleDelivery(sendMList, SendBizSourceEnum.OLD_PACKAGE_SEND);
+    }
+
+    @Autowired
+    private PackagePrintInternalService packagePrintInternalService;
+
+    @Test
+    public void printCompleteTest() {
+        String json = "{\n" +
+                "    \"systemCode\": \"dms\",\n" +
+                "    \"secretKey\": \"123456\",\n" +
+                "    \"businessType\": \"1003\",\n" +
+                "    \"operateType\": \"100302\",\n" +
+                "    \"data\": {\n" +
+                "        \"waybillCode\": \"JDVF00001319770\",\n" +
+                "        \"siteCode\": 910,\n" +
+                "        \"operatorName\": \"邢松\",\n" +
+                "        \"operatorErp\": \"bjxings\",\n" +
+                "        \"opeTime\": \"1638879104893\"\n" +
+                "    }\n" +
+                "}";
+
+        JdCommand<PrintCompleteRequest> request = JsonHelper.fromJsonUseGson(json, new TypeToken<JdCommand<PrintCompleteRequest>>(){}.getType());
+        packagePrintInternalService.printComplete(request);
+
     }
 }

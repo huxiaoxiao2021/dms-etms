@@ -68,6 +68,8 @@ public interface PopPrintService {
 
 	public int updateByWaybillOrPack(PopPrint popPrint);
 
+    PopPrint findByPackage(PopPrint popPrint);
+
 	/**
 	 * 推补发货任务
 	 * @param popPrint

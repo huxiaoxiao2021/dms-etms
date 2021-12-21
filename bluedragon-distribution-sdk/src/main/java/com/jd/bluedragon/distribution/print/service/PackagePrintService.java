@@ -3,12 +3,12 @@ package com.jd.bluedragon.distribution.print.service;
 import java.util.List;
 import java.util.Map;
 
-import com.jd.bluedragon.distribution.api.request.ReversePrintRequest;
-import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.command.JdCommand;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.print.domain.PrintPackageImage;
+import com.jd.bluedragon.distribution.print.request.PrintCompleteRequest;
 import com.jd.bluedragon.distribution.print.request.RePrintRecordRequest;
+import com.jd.bluedragon.distribution.print.request.SiteTerminalPrintCompleteRequest;
 
 /**
  * 
@@ -70,5 +70,12 @@ public interface PackagePrintService {
 	 * @return
 	 */
 	JdResult<Boolean> reprintAfter(JdCommand<String> reprintAfterRequest);
+
+    /**
+     * 打印完成回调接口
+     * @param printRequest
+     * @return
+     */
+	JdResult<Boolean> packagePrintComplete(JdCommand<SiteTerminalPrintCompleteRequest> printRequest);
 
 }
