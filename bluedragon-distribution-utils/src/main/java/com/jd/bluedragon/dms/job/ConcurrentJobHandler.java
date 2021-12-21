@@ -93,7 +93,7 @@ public abstract class ConcurrentJobHandler<J,R> implements JobHandler<J,R>{
         for (Future<R> future: futureList) {
 			resultList.add(future.get(timeout,TimeUnit.MILLISECONDS));
         }
-		result.setData(this.merge(resultList));
+        result.toSuc(this.merge(resultList));
 		result.setCostTime(System.currentTimeMillis() - startTime);
 		return result;
 	}

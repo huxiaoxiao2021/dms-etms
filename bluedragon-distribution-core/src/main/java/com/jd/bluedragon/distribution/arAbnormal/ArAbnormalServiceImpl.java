@@ -179,6 +179,8 @@ public class ArAbnormalServiceImpl implements ArAbnormalService {
         		|| Objects.equals(arAbnormalRequest.getTranspondType(), ArTransportChangeModeEnum.AIR_TO_HIGH_SPEED_TRAIN_CODE.getCode())) {
         	ArAbnormalResponse result = checkCanAirToRoad(arAbnormalRequest);
         	if(!Objects.equals(ArAbnormalResponse.CODE_OK,result.getCode())) {
+                response.setCode(result.getCode());
+                response.setMessage(result.getMessage());
         		return response;
         	}
         }
