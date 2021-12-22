@@ -741,4 +741,10 @@
     <bean id="expressBillExceptionReportDao" class="com.jd.bluedragon.distribution.exceptionReport.billException.dao.ExpressBillExceptionReportDao">
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
     </bean>
+
+    <!-- 箱号与集包袋绑定 -->
+    <bean id="dockBaseInfoDao" class="com.jd.bluedragon.distribution.dock.dao.DockBaseInfoDao">
+        <property name="sqlSession" ref="businessSqlSessionTemplate"/>
+    </bean>
+
 </beans>
