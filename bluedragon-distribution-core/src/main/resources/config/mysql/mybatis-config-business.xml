@@ -19,6 +19,8 @@
         <typeAlias type="com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelation" alias="BoxMaterialRelation"/>
         <!-- 包裹回流扫描 -->
         <typeAlias type="com.jd.bluedragon.distribution.reflowPackage.doman.ReflowPackage" alias="ReflowPackage"/>
+        <!-- 月台基础资料管理 -->
+        <typeAlias type="com.jd.bluedragon.distribution.dock.domain.DockBaseInfoPo" alias="DockBaseInfoPo"/>
     </typeAliases>
 
     <plugins>
@@ -37,6 +39,7 @@
         <mapper resource="mappers/mysql/boxmaterialrelation/BoxMaterialRelationMapper.xml"/>
         <!-- 包裹回流扫描 -->
         <mapper resource="mappers/mysql/reflowPackage/ReflowPackageMapper.xml"/>
-
+        <!-- 月台基础资料管理 -->
+        <mapper resource="mappers/mysql/dock/DockMapper.xml"/>
     </mappers>
 </configuration>

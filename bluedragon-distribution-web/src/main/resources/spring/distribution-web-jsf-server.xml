@@ -366,5 +366,12 @@
                   server="dmsjsf">
     </jsf:provider>
 
+    <jsf:provider id="jsfDockService"
+                  interface="com.jd.bluedragon.distribution.dock.service.DockService"
+                  alias="${dms.jsf.alias}"
+                  ref="dockInfoJsfService"
+                  server="dmsjsf">
+    </jsf:provider>
+
 
 </beans>
