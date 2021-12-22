@@ -46,9 +46,9 @@ public class AuthorityInterceptHandler implements Handler<WaybillPrintContext, J
         InterceptResult<String> interceptResult = context.getResult();
 
         // 未首次打印的单子，限制营业部人员使用包裹补打
-        if (Constants.SWITCH_OFF.equals(uccConfig.getJudgePackagePrintedIncludeSiteTerminal())) {
-            return interceptResult;
-        }
+//        if (Constants.SWITCH_OFF.equals(uccConfig.getJudgePackagePrintedIncludeSiteTerminal())) {
+//            return interceptResult;
+//        }
 
         Integer operateType = context.getRequest().getOperateType();
         if (!WaybillPrintOperateTypeEnum.PACKAGE_AGAIN_PRINT.getType().equals(operateType)) {
