@@ -260,23 +260,20 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
             }
         }
 
-        Boolean interceptFlag = Boolean.FALSE;
 
-        //经济网
-        if(BusinessUtil.isEconomicNetValidateWeightVolume(waybillCode,waybillSign)){
-            logger.info("经济网场景无重量拦截,waybillCode={},packageCode={}",waybillCode,packageCode);
-            if(!packageWeightingService.weightVolumeValidate(waybillCode, packageCode)){
-                interceptFlag = Boolean.TRUE;
-            }
-        }else{
-
-            //非经济网
-            //获取拦截场景
-            ZeroWeightVolumeCheckType checkType = needCheckWeightAndVolume(waybillCode,waybillSign,customerCode);
-            if(!ZeroWeightVolumeCheckType.NOT_CHECK.equals(checkType)){
-                //获取称重流水数据
-                if (!packageWeightingService.weightVolumeValidate(waybillCode, packageCode)) {
+        //非经济网
+        //获取拦截场景
+        ZeroWeightVolumeCheckType checkType = needCheckWeightAndVolume(waybillCode,waybillSign,customerCode);
+        if(!ZeroWeightVolumeCheckType.NOT_CHECK.equals(checkType)){
+            //获取称重流水数据
+            if (!packageWeightingService.weightVolumeValidate(waybillCode, packageCode)) {
+                logger.info("本地库未查到重量体积,waybillCode={},packageCode={}",waybillCode,packageCode);
+                if(ZeroWeightVolumeCheckType.CHECK_DMS_AGAIN_WEIGHT.equals(checkType)){
+                    logger.info("经济网场景无重量拦截,waybillCode={},packageCode={}",waybillCode,packageCode);
+                    return Boolean.TRUE;
+                }else{
                     logger.info("本地库未查到重量体积，调用运单接口检查,waybillCode={},packageCode={}",waybillCode,packageCode);
+
                     //称重流水未获取到时需要从运单接口查  数据没有下放的极端情况下 防止已加载少加载一次
                     waybillNoCache = waybillNoCache == null ? waybillCacheService.getNoCache(waybillCode):waybillNoCache;
                     if (waybillNoCache != null) {
@@ -290,26 +287,31 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
                                 if (waybillNoCache.getWeight() == null || waybillNoCache.getWeight() <= 0
                                         || waybillNoCache.getVolume() == null || waybillNoCache.getVolume()  <= 0) {
                                     logger.info("无下单称重量方数据，需要拦截，运单号{}",waybillCode);
-                                    interceptFlag = Boolean.TRUE;
+                                    return Boolean.TRUE;
                                 }
                             }else{
                                 logger.info("无复重数据，需要拦截，运单号{}",waybillCode);
-                                interceptFlag = Boolean.TRUE;
+                                return Boolean.TRUE;
+
                             }
                         }
                     }else{
                         logger.info("调用运单接口检查称重量方数据,未获取到运单信息,waybillCode={}",waybillCode);
                     }
                 }
-
             }
-
         }
-        return interceptFlag;
+        return Boolean.FALSE;
     }
 
 
     private ZeroWeightVolumeCheckType needCheckWeightAndVolume(String waybillCode,String waybillSign,String customerCode){
+        /*******************************     经济网      *************************************/
+        if(BusinessUtil.isEconomicNetValidateWeightVolume(waybillCode,waybillSign)){
+            return ZeroWeightVolumeCheckType.CHECK_DMS_AGAIN_WEIGHT;
+        }
+        /*******************************     经济网 结束     *************************************/
+
 
         /*******************************     外单      *************************************/
 
@@ -420,6 +422,8 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
         NOT_CHECK,
         //校验复重
         CHECK_AGAIN_WEIGHT,
+        //校验分拣中心复重
+        CHECK_DMS_AGAIN_WEIGHT,
         //校验复重和复量方
         CHECK_AGAIN_WEIGHT_VOLUME,
         //校验复重和复量方  或者  商品重量和商品量方
