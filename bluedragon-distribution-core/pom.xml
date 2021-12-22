@@ -1743,6 +1743,13 @@
             <version>2.12.2</version>
         </dependency>
 
+		<!--冷链逆向单生成-->
+		<dependency>
+			<artifactId>coldchain-fulfillment-ot-api</artifactId>
+			<groupId>com.jd.coldchain.fulfillment</groupId>
+			<version>1.0-test-SNAPSHOT</version>
+		</dependency>
+
     </dependencies>
 
 	<profiles>

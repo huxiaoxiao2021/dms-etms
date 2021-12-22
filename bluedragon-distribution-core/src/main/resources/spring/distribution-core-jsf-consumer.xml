@@ -787,5 +787,9 @@
     <jsf:consumer id="merchCollectWaybillApi" interface="com.jdl.express.collect.api.merchcollectwaybill.MerchCollectWaybillApi"
                   protocol="jsf" alias="${jsf.merchCollect.alias}" timeout="${jsf.merchCollect.timeout}" retries="${jsf.retries}" >
     </jsf:consumer>
-
+    <!-- eclp冷链逆向换单 -->
+    <jsf:consumer id="coldChainReverseService" interface="com.jd.coldchain.fulfillment.ot.api.service.waybill.ColdChainReverseService"
+                  protocol="jsf" alias="${jsf.coldchain.eclp.reverse.alias}" timeout="${jsf.coldchain.eclp.reverse.alias.timeout}"
+                  retries="${jsf.retries}" >
+    </jsf:consumer>
 </beans>
