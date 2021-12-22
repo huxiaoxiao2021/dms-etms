@@ -374,10 +374,20 @@ public class DiscardedPackageStorageTempServiceImpl implements DiscardedPackageS
 
             String barCode = paramObj.getBarCode();
             String waybillCode = WaybillUtil.getWaybillCode(barCode);
-            if (Objects.equals(WasteOperateTypeEnum.STORAGE.getCode(), paramObj.getOperateType())) {
-                if (!waybillTraceManager.isWaybillWaste(waybillCode)) {
-                    log.warn("scanDiscardedPackage，不是弃件，请勿操作弃件暂存 param: {}", JsonHelper.toJson(paramObj));
-                    return result.toFail("不是弃件，请勿操作弃件暂存");
+            if (Objects.equals(DiscardedPackageSiteDepartTypeEnum.SORTING.getCode(), paramObj.getSiteDepartType())) {
+                if (Objects.equals(WasteOperateTypeEnum.STORAGE.getCode(), paramObj.getOperateType())) {
+                    if (!waybillTraceManager.isWaybillWaste(waybillCode)) {
+                        log.warn("scanDiscardedPackage，不是弃件，请勿操作弃件暂存 param: {}", JsonHelper.toJson(paramObj));
+                        return result.toFail("不是弃件，请勿操作弃件暂存");
+                    }
+                }
+            }
+            if (Objects.equals(DiscardedPackageSiteDepartTypeEnum.TRANSFER.getCode(), paramObj.getSiteDepartType())) {
+                if (Objects.equals(WasteOperateTypeEnum.STORAGE.getCode(), paramObj.getOperateType())) {
+                    if (!waybillTraceManager.isWaybillWaste(barCode)) {
+                        log.warn("scanDiscardedPackage，不是弃件，请勿操作弃件暂存 param: {}", JsonHelper.toJson(paramObj));
+                        return result.toFail("不是弃件，请勿操作弃件暂存");
+                    }
                 }
             }
 
@@ -548,7 +558,7 @@ public class DiscardedPackageStorageTempServiceImpl implements DiscardedPackageS
             // 2.1 是否存在未提交的数据
             final DiscardedPackageFinishStatisticsDto discardedPackageFinishStatisticsDto = discardedWaybillStorageTempDao.selectDiscardedPackageFinishStatistics(this.genUnSubmitDiscardedListQo(paramObj));
             if(discardedPackageFinishStatisticsDto.getFinishCount() + discardedPackageFinishStatisticsDto.getUnFinishCount() == 0){
-                return result.toFail("没有为提交的数据，请先扫描");
+                return result.toFail("没有未提交的数据，请先扫描");
             }
             // 2.2 是否强制提交，若否，则校验所有待提交包裹是否都已扫齐
             if(!Objects.equals(Constants.YN_YES, paramObj.getForceSubmit()) && discardedPackageFinishStatisticsDto.getUnFinishCount() > 0){
