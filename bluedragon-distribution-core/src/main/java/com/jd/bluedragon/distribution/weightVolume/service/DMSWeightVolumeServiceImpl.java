@@ -266,23 +266,40 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
         ZeroWeightVolumeCheckType checkType = needCheckWeightAndVolume(waybillCode,waybillSign,customerCode);
         if(!ZeroWeightVolumeCheckType.NOT_CHECK.equals(checkType)){
             //获取称重流水数据
-            if (!packageWeightingService.weightVolumeValidate(waybillCode, packageCode)) {
+            if (!packageWeightingService.weightVolumeValidate(waybillCode, packageCode,checkType)) {
                 logger.info("本地库未查到重量体积,waybillCode={},packageCode={}",waybillCode,packageCode);
                 if(ZeroWeightVolumeCheckType.CHECK_DMS_AGAIN_WEIGHT.equals(checkType)){
                     logger.info("经济网场景无重量拦截,waybillCode={},packageCode={}",waybillCode,packageCode);
                     return Boolean.TRUE;
                 }else{
                     logger.info("本地库未查到重量体积，调用运单接口检查,waybillCode={},packageCode={}",waybillCode,packageCode);
-
                     //称重流水未获取到时需要从运单接口查  数据没有下放的极端情况下 防止已加载少加载一次
                     waybillNoCache = waybillNoCache == null ? waybillCacheService.getNoCache(waybillCode):waybillNoCache;
                     if (waybillNoCache != null) {
                         logger.info("调用运单接口检查称重量方数据,waybillCode={},againW={},againV={}",waybillCode,waybillNoCache.getAgainWeight(),waybillNoCache.getSpareColumn2());
-                        //判断运单上重量体积（复重：AGAIN_WEIGHT、复量方SPARE_COLUMN2）是否同时存在（非空，>0）
+                        //判断运单上重量体积（复重：AGAIN_WEIGHT、复量方SPARE_COLUMN2，下单重量、下单体积）是否同时不存在（非空，>0）
+                        if(ZeroWeightVolumeCheckType.CHECK_GOOD_OR_AGAIN_WEIGHT_OR_VOLUME.equals(checkType)){
+                            if ((waybillNoCache.getAgainWeight() == null || waybillNoCache.getAgainWeight() <= 0)
+                                    && (org.apache.commons.lang.StringUtils.isEmpty(waybillNoCache.getSpareColumn2()) || Double.parseDouble(waybillNoCache.getSpareColumn2()) <= 0)
+                                    && (waybillNoCache.getWeight() == null || waybillNoCache.getWeight() <= 0)
+                                    && (waybillNoCache.getVolume() == null || waybillNoCache.getVolume() <= 0)){
+                                logger.info("无复重且复量方且下单重量且下单量方数据，需要拦截，运单号{}",waybillCode);
+                                return Boolean.TRUE;
+                            }
+
+                        }else {
+                            //判断运单上重量体积（复重：AGAIN_WEIGHT、复量方SPARE_COLUMN2）是否同时存在（非空，>0）
+                            if (waybillNoCache.getAgainWeight() == null || waybillNoCache.getAgainWeight() <= 0
+                                    || org.apache.commons.lang.StringUtils.isEmpty(waybillNoCache.getSpareColumn2()) || Double.parseDouble(waybillNoCache.getSpareColumn2()) <= 0) {
+                                logger.info("无复重或复量方数据，需要拦截，运单号{}",waybillCode);
+                                return Boolean.TRUE;
+                            }
+                        }
+
                         if (waybillNoCache.getAgainWeight() == null || waybillNoCache.getAgainWeight() <= 0
                                 || org.apache.commons.lang.StringUtils.isEmpty(waybillNoCache.getSpareColumn2()) || Double.parseDouble(waybillNoCache.getSpareColumn2()) <= 0) {
                             //校验商品重量和商品量方
-                            if(ZeroWeightVolumeCheckType.CHECK_GOOD_OR_AGAIN_WEIGHT_VOLUME.equals(checkType)){
+                            if(ZeroWeightVolumeCheckType.CHECK_GOOD_OR_AGAIN_WEIGHT_OR_VOLUME.equals(checkType)){
                                 logger.info("因需要校验下单称重量方数据，调用运单接口检查称重量方数据,waybillCode={},goodsW={},goodsV={}",waybillCode,waybillNoCache.getWeight(),waybillNoCache.getVolume());
                                 if (waybillNoCache.getWeight() == null || waybillNoCache.getWeight() <= 0
                                         || waybillNoCache.getVolume() == null || waybillNoCache.getVolume()  <= 0) {
@@ -363,7 +380,7 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
                 //C网的信任商家拦截
                 if(BusinessHelper.isTrust(waybillSign)){
                     logger.info("纯配外单 C网 信任商家，需要拦截，运单号{}",waybillCode);
-                    return ZeroWeightVolumeCheckType.CHECK_GOOD_OR_AGAIN_WEIGHT_VOLUME;
+                    return ZeroWeightVolumeCheckType.CHECK_GOOD_OR_AGAIN_WEIGHT_OR_VOLUME;
                 }
 
                 //特殊商家类型 且  个性化运单场景
@@ -417,19 +434,7 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
         return ZeroWeightVolumeCheckType.NOT_CHECK;
     }
 
-    enum ZeroWeightVolumeCheckType{
-        //不校验
-        NOT_CHECK,
-        //校验复重
-        CHECK_AGAIN_WEIGHT,
-        //校验分拣中心复重
-        CHECK_DMS_AGAIN_WEIGHT,
-        //校验复重和复量方
-        CHECK_AGAIN_WEIGHT_VOLUME,
-        //校验复重和复量方  或者  商品重量和商品量方
-        CHECK_GOOD_OR_AGAIN_WEIGHT_VOLUME;
 
-    }
 
     /**
      * 判断是否是C网运单

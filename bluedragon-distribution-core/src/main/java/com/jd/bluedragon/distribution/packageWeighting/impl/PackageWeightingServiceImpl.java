@@ -7,6 +7,7 @@ import com.jd.bluedragon.distribution.packageWeighting.PackageWeightingService;
 import com.jd.bluedragon.distribution.packageWeighting.dao.PackageWeightingDao;
 import com.jd.bluedragon.distribution.packageWeighting.domain.BusinessTypeEnum;
 import com.jd.bluedragon.distribution.packageWeighting.domain.PackageWeighting;
+import com.jd.bluedragon.distribution.weightVolume.domain.ZeroWeightVolumeCheckType;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -103,6 +104,91 @@ public class PackageWeightingServiceImpl implements PackageWeightingService {
                             return false;
                         }
                         return true;
+                    } else if (packageWeighting.getWeight() == null || packageWeighting.getWeight() <= 0 || packageWeighting.getVolume() == null || packageWeighting.getVolume() <= 0) {
+                        logger.warn("PackageWeightingServiceImpl-->weightVolumeValidate运单重量体积没有：waybillCode=" + waybillCode + ",packageCode=" + packageCode);
+                        return false;
+                    } else {
+                        return true;
+                    }
+                }
+            }
+            if (WaybillUtil.isWaybillCode(packageCode)) {
+                //扫运单号分拣的话，判断称重的包裹齐不齐
+                if (packageCount < total) {
+                    logger.warn("PackageWeightingServiceImpl-->weightVolumeValidate包裹不全：waybillCode=" + waybillCode + ",packageCode=" + packageCode + ",packageCount=" + packageCount + ",total=" + total);
+                    hasWVflag = false;
+                }
+            }
+            return hasWVflag;//有称重量方
+        }
+    }
+
+    /**
+     * 校验包裹或订单是否有称重量方
+     *
+     * @param waybillCode
+     * @param packageCode
+     * @param type
+     */
+    @Override
+    public boolean weightVolumeValidate(String waybillCode, String packageCode, ZeroWeightVolumeCheckType type) {
+
+        List<PackageWeighting> packageWeightings;
+        try {
+            if (ZeroWeightVolumeCheckType.CHECK_DMS_AGAIN_WEIGHT.equals(type)) {
+                packageWeightings = findWeightVolume(waybillCode, packageCode,
+                        Arrays.asList(BusinessTypeEnum.DMS.getCode(),BusinessTypeEnum.TOTAL.getCode()));
+            } else {
+                packageWeightings = findWeightVolume(waybillCode, packageCode,
+                        Arrays.asList(BusinessTypeEnum.DMS.getCode(),BusinessTypeEnum.PICKER.getCode(),BusinessTypeEnum.PICK_RESIDENT.getCode(),BusinessTypeEnum.PICK.getCode(),
+                                BusinessTypeEnum.CAR_TEAM.getCode(),BusinessTypeEnum.TOTAL.getCode()));
+            }
+        } catch (Exception e) {
+            logger.error("PackageWeightingServiceImpl-->weightVolumeValidate查询称重量方失败：waybillCode=" + waybillCode + ",packageCode=" + packageCode, e);
+            return false;//没有称重量方
+        }
+        if (packageWeightings == null || packageWeightings.isEmpty()) {
+            logger.warn("PackageWeightingServiceImpl-->weightVolumeValidate没查到重量数据：waybillCode=" + waybillCode + ",packageCode=" + packageCode);
+            return false;//没有称重量方
+        } else {
+            boolean hasWVflag = true;//是否有称重的标志
+            int total = 0;//运单应有的包裹总数量，做漏称检查
+            int packageCount = 0;//计数器，当前检查的包裹数量
+            for (PackageWeighting packageWeighting : packageWeightings) {
+                if (WaybillUtil.isPackageCode(packageWeighting.getPackageCode())) {
+                    if (total == 0) {
+                        //从包裹号中取得包裹数量
+                        total = WaybillUtil.getPackNumByPackCode(packageWeighting.getPackageCode());
+                    }
+                    //如果是包裹维度，一个一个包裹判断，是否有包裹不满足条件(经济网只校验重量，不校验体积)
+                    if (ZeroWeightVolumeCheckType.CHECK_DMS_AGAIN_WEIGHT.equals(type)) {
+                        if (packageWeighting.getWeight() == null || packageWeighting.getWeight() <= 0) {
+                            hasWVflag = false;
+                        }
+                    } if (ZeroWeightVolumeCheckType.CHECK_GOOD_OR_AGAIN_WEIGHT_OR_VOLUME.equals(type)) {
+                        // 重量和体积同时为空
+                        if ((packageWeighting.getWeight() == null || packageWeighting.getWeight() <= 0)
+                                && (packageWeighting.getVolume() == null || packageWeighting.getVolume() <= 0)) {
+                            hasWVflag = false;
+                        }
+                    } else if (packageWeighting.getWeight() == null || packageWeighting.getWeight() <= 0 || packageWeighting.getVolume() == null || packageWeighting.getVolume() <= 0) {
+                        logger.warn("PackageWeightingServiceImpl-->weightVolumeValidate包裹重量体积没有：waybillCode=" + waybillCode + ",packageCode=" + packageCode);
+                        hasWVflag = false;
+                    }
+                    packageCount++;
+                } else {
+                    //如果运单维度的称重流水
+                    //只校验重量，不校验体积
+                    if (ZeroWeightVolumeCheckType.CHECK_DMS_AGAIN_WEIGHT.equals(type)) {
+                        if (packageWeighting.getWeight() == null || packageWeighting.getWeight() <= 0) {
+                            return false;
+                        }
+                    } if (ZeroWeightVolumeCheckType.CHECK_GOOD_OR_AGAIN_WEIGHT_OR_VOLUME.equals(type)) {
+                        // 重量和体积同时为空
+                        if ((packageWeighting.getWeight() == null || packageWeighting.getWeight() <= 0)
+                                && (packageWeighting.getVolume() == null || packageWeighting.getVolume() <= 0)) {
+                            return false;
+                        }
                     } else if (packageWeighting.getWeight() == null || packageWeighting.getWeight() <= 0 || packageWeighting.getVolume() == null || packageWeighting.getVolume() <= 0) {
                         logger.warn("PackageWeightingServiceImpl-->weightVolumeValidate运单重量体积没有：waybillCode=" + waybillCode + ",packageCode=" + packageCode);
                         return false;
