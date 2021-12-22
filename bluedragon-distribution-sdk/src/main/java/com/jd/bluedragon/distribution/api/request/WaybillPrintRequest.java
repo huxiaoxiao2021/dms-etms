@@ -148,6 +148,11 @@ public class WaybillPrintRequest extends JdRequest{
 	 */
 	private String userERP;
 
+    /**
+     * 包裹号
+     */
+    private String packageBarCode;
+
 	/**
 	 * 拦截提示时，是否确认
 	 */
@@ -442,6 +447,14 @@ public class WaybillPrintRequest extends JdRequest{
 	public void setBarCodeType(Integer barCodeType) {
 		this.barCodeType = barCodeType;
 	}
+
+    public String getPackageBarCode() {
+        return packageBarCode;
+    }
+
+    public void setPackageBarCode(String packageBarCode) {
+        this.packageBarCode = packageBarCode;
+    }
 
 	public Boolean getConfirm() {
 		return confirm;

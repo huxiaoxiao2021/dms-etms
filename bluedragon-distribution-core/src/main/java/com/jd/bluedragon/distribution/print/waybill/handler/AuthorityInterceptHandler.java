@@ -12,10 +12,13 @@ import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * @author wyh
@@ -70,24 +73,35 @@ public class AuthorityInterceptHandler implements Handler<WaybillPrintContext, J
             return interceptResult;
         }
 
-
-        String barCode = context.getRequest().getBarCode();
-        if (WaybillUtil.isPackageCode(barCode)) {
-            PopPrint popPrint = new PopPrint();
-            popPrint.setWaybillCode(WaybillUtil.getWaybillCode(barCode));
-            popPrint.setPackageBarcode(barCode);
-
-            if (popPrintService.findByPackage(popPrint) == null) {
-                interceptResult.toFail(WaybillPrintMessages.MESSAGE_WAYBILL_FIRST_PRINT_INTERCEPT);
-                return interceptResult;
-            }
+        if (!findPopPrintRecord(context)) {
+            interceptResult.toFail(WaybillPrintMessages.MESSAGE_WAYBILL_FIRST_PRINT_INTERCEPT);
+            return interceptResult;
         }
 
         return interceptResult;
     }
 
     /**
-     *
+     * 查包裹/运单的打印记录
+     * @param context
+     * @return
+     */
+    private boolean findPopPrintRecord(WaybillPrintContext context) {
+        // 包裹补打输入的是包裹号
+        if (WaybillUtil.isPackageCode(context.getRequest().getPackageBarCode())) {
+            PopPrint popPrint = new PopPrint();
+            popPrint.setWaybillCode(WaybillUtil.getWaybillCode(context.getRequest().getPackageBarCode()));
+            popPrint.setPackageBarcode(context.getRequest().getPackageBarCode());
+            return popPrintService.findByPackage(popPrint) != null;
+        }
+        else {
+            List<PopPrint> popPrints = popPrintService.findAllByWaybillCode(context.getRequest().getBarCode());
+            return CollectionUtils.isNotEmpty(popPrints);
+        }
+    }
+
+    /**
+     * 限制未首次打印的站点类型
      * @param baseSite
      * @return
      */

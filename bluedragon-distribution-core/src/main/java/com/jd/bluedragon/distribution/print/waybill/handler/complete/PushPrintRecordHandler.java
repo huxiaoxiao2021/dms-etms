@@ -6,14 +6,18 @@ import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.handler.Handler;
 import com.jd.bluedragon.distribution.popPrint.dto.PushPrintRecordDto;
 import com.jd.bluedragon.distribution.print.request.PrintCompleteRequest;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+
+import java.util.Date;
 
 /**
  * @author wyh
@@ -63,7 +67,14 @@ public class PushPrintRecordHandler implements Handler<WaybillPrintCompleteConte
         printRecordDto.setPackageCode(request.getPackageBarcode());
         printRecordDto.setSiteCode(request.getOperateSiteCode());
         printRecordDto.setOperatorName(request.getOperatorName());
-        printRecordDto.setOpeTime(request.getOperateTime());
+
+        if (StringUtils.isNotBlank(request.getOperateTime())) {
+            Date opeTime = DateHelper.parseDate(request.getOperateTime(), DateHelper.DATE_FORMAT_YYYYMMDDHHmmss2);
+            printRecordDto.setOpeTime(opeTime == null ? System.currentTimeMillis() : opeTime.getTime());
+        }
+        else {
+            printRecordDto.setOpeTime(System.currentTimeMillis());
+        }
 
         if (NumberHelper.isPositiveNumber(request.getOperatorCode())) {
             BaseStaffSiteOrgDto baseStaff = baseMajorManager.getBaseStaffByStaffId(request.getOperatorCode());

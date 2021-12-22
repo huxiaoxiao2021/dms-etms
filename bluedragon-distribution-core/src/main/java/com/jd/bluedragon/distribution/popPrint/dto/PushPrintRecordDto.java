@@ -58,7 +58,7 @@ public class PushPrintRecordDto implements Serializable {
     /**
      * 操作时间
      */
-    private String opeTime;
+    private Long opeTime;
 
     public Integer getBusinessType() {
         return businessType;
@@ -124,11 +124,11 @@ public class PushPrintRecordDto implements Serializable {
         this.operatorErp = operatorErp;
     }
 
-    public String getOpeTime() {
+    public Long getOpeTime() {
         return opeTime;
     }
 
-    public void setOpeTime(String opeTime) {
+    public void setOpeTime(Long opeTime) {
         this.opeTime = opeTime;
     }
 }
