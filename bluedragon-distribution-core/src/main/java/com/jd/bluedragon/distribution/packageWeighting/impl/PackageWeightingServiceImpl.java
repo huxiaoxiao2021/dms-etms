@@ -163,16 +163,18 @@ public class PackageWeightingServiceImpl implements PackageWeightingService {
                     //如果是包裹维度，一个一个包裹判断，是否有包裹不满足条件(经济网只校验重量，不校验体积)
                     if (ZeroWeightVolumeCheckType.CHECK_DMS_AGAIN_WEIGHT.equals(type)) {
                         if (packageWeighting.getWeight() == null || packageWeighting.getWeight() <= 0) {
+                            logger.warn("PackageWeightingServiceImpl-->weightVolumeValidate运单重量没有：waybillCode=" + waybillCode + ",packageCode=" + packageCode);
                             hasWVflag = false;
                         }
                     } if (ZeroWeightVolumeCheckType.CHECK_GOOD_OR_AGAIN_WEIGHT_OR_VOLUME.equals(type)) {
                         // 重量和体积同时为空
                         if ((packageWeighting.getWeight() == null || packageWeighting.getWeight() <= 0)
                                 && (packageWeighting.getVolume() == null || packageWeighting.getVolume() <= 0)) {
+                            logger.warn("PackageWeightingServiceImpl-->weightVolumeValidate运单重量体积都没有：waybillCode=" + waybillCode + ",packageCode=" + packageCode);
                             hasWVflag = false;
                         }
                     } else if (packageWeighting.getWeight() == null || packageWeighting.getWeight() <= 0 || packageWeighting.getVolume() == null || packageWeighting.getVolume() <= 0) {
-                        logger.warn("PackageWeightingServiceImpl-->weightVolumeValidate包裹重量体积没有：waybillCode=" + waybillCode + ",packageCode=" + packageCode);
+                        logger.warn("PackageWeightingServiceImpl-->weightVolumeValidate包裹重量体积有一个没有：waybillCode=" + waybillCode + ",packageCode=" + packageCode);
                         hasWVflag = false;
                     }
                     packageCount++;
@@ -181,16 +183,18 @@ public class PackageWeightingServiceImpl implements PackageWeightingService {
                     //只校验重量，不校验体积
                     if (ZeroWeightVolumeCheckType.CHECK_DMS_AGAIN_WEIGHT.equals(type)) {
                         if (packageWeighting.getWeight() == null || packageWeighting.getWeight() <= 0) {
+                            logger.warn("PackageWeightingServiceImpl-->weightVolumeValidate运单重量没有：waybillCode=" + waybillCode + ",packageCode=" + packageCode);
                             return false;
                         }
                     } if (ZeroWeightVolumeCheckType.CHECK_GOOD_OR_AGAIN_WEIGHT_OR_VOLUME.equals(type)) {
                         // 重量和体积同时为空
                         if ((packageWeighting.getWeight() == null || packageWeighting.getWeight() <= 0)
                                 && (packageWeighting.getVolume() == null || packageWeighting.getVolume() <= 0)) {
+                            logger.warn("PackageWeightingServiceImpl-->weightVolumeValidate运单重量体积都没有：waybillCode=" + waybillCode + ",packageCode=" + packageCode);
                             return false;
                         }
                     } else if (packageWeighting.getWeight() == null || packageWeighting.getWeight() <= 0 || packageWeighting.getVolume() == null || packageWeighting.getVolume() <= 0) {
-                        logger.warn("PackageWeightingServiceImpl-->weightVolumeValidate运单重量体积没有：waybillCode=" + waybillCode + ",packageCode=" + packageCode);
+                        logger.warn("PackageWeightingServiceImpl-->weightVolumeValidate运单重量体积有一个没有：waybillCode=" + waybillCode + ",packageCode=" + packageCode);
                         return false;
                     } else {
                         return true;
