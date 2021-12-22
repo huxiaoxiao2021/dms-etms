@@ -156,7 +156,7 @@ public class SortBoardGatewayServiceImpl implements SortBoardGatewayService {
         result.toSucceed();
         try {
             if ((WaybillUtil.isWaybillCode(request.getBoxOrPackageCode()) || WaybillUtil.isPackageCode(request.getBoxOrPackageCode())) &&
-                    waybillTraceManager.isWaybillWaste(WaybillUtil.getWaybillCode(request.getBoxOrPackageCode()))){
+                    waybillTraceManager.isWaybillWaste(request.getBoxOrPackageCode())){
                 result.toError("弃件货物禁止组板，请拉至弃件暂存区操作弃件扫描");
                 return result;
             }
