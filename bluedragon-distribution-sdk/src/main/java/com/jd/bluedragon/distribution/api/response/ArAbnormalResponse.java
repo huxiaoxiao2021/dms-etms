@@ -37,4 +37,21 @@ public class ArAbnormalResponse extends JdResponse {
 
     public static final Integer CODE_TIMEERROR = 20010;
     public static final String MESSAGE_TIMEERROR= "操作时间格式错误";
+    
+    private Boolean showTipMsg = Boolean.FALSE;
+    private String tipMsg;
+    
+	public Boolean getShowTipMsg() {
+		return showTipMsg;
+	}
+	public void setShowTipMsg(Boolean showTipMsg) {
+		this.showTipMsg = showTipMsg;
+	}
+	public String getTipMsg() {
+		return tipMsg;
+	}
+	public void setTipMsg(String tipMsg) {
+		this.tipMsg = tipMsg;
+	}
+    
 }

@@ -847,7 +847,11 @@ public class HintCodeConstants {
     public static String YOUR_SITE_CAN_NOT_USE_FUNC = "50001";
     
     /**
-     * 存在非航空单操作，非航空单无法操作航空转陆运
+     * 非航空单无法操作航空转陆运
      */
     public static String AIR_TO_ROAD_NOT_ALLOWD="50002";
+    /**
+     * 存在非航空单操作，提示非航空单数量
+     */
+    public static String AIR_TO_ROAD_TIP_MSG="50004";
 }

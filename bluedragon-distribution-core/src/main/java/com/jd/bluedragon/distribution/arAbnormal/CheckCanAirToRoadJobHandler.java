@@ -16,8 +16,12 @@ import com.jd.bluedragon.dms.job.ConcurrentJobHandler;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.CollectionHelper;
 import com.jd.etms.waybill.domain.Waybill;
-
-public class CheckCanAirToRoadJobHandler extends ConcurrentJobHandler<List<String>, ArAbnormalResponse>{
+/**
+ * 校验能否航空转陆运，返回非航空运单列表
+ * @author wuyoude
+ *
+ */
+public class CheckCanAirToRoadJobHandler extends ConcurrentJobHandler<List<String>, List<String>>{
 
     @Autowired
     private WaybillQueryManager waybillQueryManager;
@@ -43,45 +47,38 @@ public class CheckCanAirToRoadJobHandler extends ConcurrentJobHandler<List<Strin
 		}
 		return jobList;
 	}
-
+	/**
+	 * 校验是否航空单，非航空单加入列表中
+	 */
 	@Override
-	protected ArAbnormalResponse doJob(List<String> waybillCodes) {
-		ArAbnormalResponse result = new ArAbnormalResponse();
+	protected List<String> doJob(List<String> waybillCodes) {
+		List<String> result = Lists.newArrayList();
+		if(CollectionUtils.isEmpty(waybillCodes)) {
+			return result;
+		}
 		for(String waybillCode : waybillCodes) {
 			Waybill waybill = waybillQueryManager.queryWaybillByWaybillCode(waybillCode);
-			if(waybill == null) {
-				result.setCode(ArAbnormalResponse.CODE_SERVICE_ERROR);
-				result.setMessage("单号"+waybillCode+"在运单系统不存在！");
-				return result;
-			}
-			if(!BusinessUtil.checkCanAirToRoad(waybill.getWaybillSign(), waybill.getSendPay())) {
-				result.setCode(ArAbnormalResponse.CODE_SERVICE_ERROR);
-				result.setMessage(HintService.getHint(HintCodeConstants.AIR_TO_ROAD_NOT_ALLOWD));
-				return result;
+			if(waybill != null 
+					&& !BusinessUtil.checkCanAirToRoad(waybill.getWaybillSign(), waybill.getSendPay())) {
+				result.add(waybillCode);
 			}
 		}
-		result.setCode(ArAbnormalResponse.CODE_OK);
-		result.setMessage(ArAbnormalResponse.MESSAGE_OK);
 		return result;
 	}
 	/**
-	 * 有一个失败，整个结果就认为是失败
+	 * 将多个列表合并成一个
 	 */
 	@Override
-	protected ArAbnormalResponse merge(List<ArAbnormalResponse> resultList) {
-		ArAbnormalResponse result = new ArAbnormalResponse();
+	protected List<String> merge(List<List<String>> resultList) {
+		List<String> result = Lists.newArrayList();
 		if(CollectionUtils.isEmpty(resultList)) {
-			result.setCode(ArAbnormalResponse.CODE_SERVICE_ERROR);
-			result.setMessage("校验操作航空转陆运执行异常，请稍后重试！");
 			return result;
 		}
-		for(ArAbnormalResponse tmp : resultList) {
-			if(!ArAbnormalResponse.CODE_OK.equals(tmp.getCode())) {
-				return tmp;
+		for(List<String> tmp : resultList) {
+			if(!CollectionUtils.isNotEmpty(tmp)) {
+				result.addAll(tmp);
 			}
 		}
-		result.setCode(ArAbnormalResponse.CODE_OK);
-		result.setMessage(ArAbnormalResponse.MESSAGE_OK);  
 		return result;
 	}
 
