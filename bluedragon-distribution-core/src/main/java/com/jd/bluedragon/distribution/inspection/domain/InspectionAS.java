@@ -79,6 +79,11 @@ public class InspectionAS implements Serializable {
      */
     public Integer bizSource;
 
+    /**
+     * 自动化设备编码
+     */
+    private String machineCode;
+
     public String getSealBoxCode() {
         return sealBoxCode;
     }
@@ -189,5 +194,13 @@ public class InspectionAS implements Serializable {
 
     public void setBizSource(Integer bizSource) {
         this.bizSource = bizSource;
+    }
+
+    public String getMachineCode() {
+        return machineCode;
+    }
+
+    public void setMachineCode(String machineCode) {
+        this.machineCode = machineCode;
     }
 }

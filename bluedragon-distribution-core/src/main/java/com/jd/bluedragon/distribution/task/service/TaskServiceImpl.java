@@ -63,10 +63,10 @@ public class TaskServiceImpl implements TaskService {
 
 	@Autowired
     private TaskDao taskDao;
-    
+
 	@Autowired
     private RedisTaskService redisTaskService;
-    
+
 	@Autowired
     private TaskModeAgent taskModeAgent;
 
@@ -452,7 +452,7 @@ public class TaskServiceImpl implements TaskService {
 
     /**
      * @param task
-     * @param ifCheckTaskMode 
+     * @param ifCheckTaskMode
      * @return
      */
     @JProfiler(jKey= "DMSCORE.TaskService.add",mState = {JProEnum.TP})
@@ -509,7 +509,7 @@ public class TaskServiceImpl implements TaskService {
         Map<String, Integer> allQueueSize = tbTaskQueueService.findAllQueueSize();
         int queueSize = task.findTaskQueueSize(allQueueSize);
         task.setQueueId(new Random().nextInt(queueSize));
-        if ( this.isWaybillTask(task) || this.isSendTask(task) || Task.TASK_TYPE_SORTING.equals(task.getType()) 
+        if ( this.isWaybillTask(task) || this.isSendTask(task) || Task.TASK_TYPE_SORTING.equals(task.getType())
                 || Task.TASK_TYPE_RECEIVE.equals(task.getType()) || Task.TASK_TYPE_INSPECTION.equals(task.getType())
                 || Task.TASK_TYPE_REVERSE_SPWARE.equals(task.getType()) || Task.TASK_TYPE_OFFLINE.equals(task.getType())
                 || Task.TASK_TYPE_PUSH_MQ.equals(task.getType()) || Task.TASK_TYPE_AUTO_INSPECTION_PREPARE.equals(task.getType())
@@ -662,18 +662,18 @@ public class TaskServiceImpl implements TaskService {
 		task.setExecuteTime(this.getExecuteTime(task));
 		return this.updateBySelective(task);
 	}
-	
+
 	private Integer getExecuteCount(Task task) {
 		return task.getExecuteCount() + Task.STEP;
 	}
-	
+
 	private Date getExecuteTime(Task task) {
 		return DateHelper.add(task.getExecuteTime(), Calendar.MINUTE, Task.INTERVAL_TIME);
 	}
-	
+
 	/**
 	 * 根据箱号查找指定类型任务是否执行完成
-	 * 
+	 *
 	 * @return true没有执行完成
 	 */
 	public List<Task> findTasks(Task task) {
@@ -694,7 +694,7 @@ public class TaskServiceImpl implements TaskService {
 	}
 
 	public Task findWaybillSendTask(String sendCode) {
-        TaskDao routerDao = taskDao;    	
+        TaskDao routerDao = taskDao;
 		return routerDao.findWaybillSendTask(sendCode);
     	}
 
@@ -704,19 +704,19 @@ public class TaskServiceImpl implements TaskService {
 		}
 		return Boolean.FALSE;
 	}
-	
+
 	private Boolean isSendTask(Task task) {
 		if (Task.TABLE_NAME_SEND.equalsIgnoreCase(task.getTableName())) {
 			return Boolean.TRUE;
 		}
 		return Boolean.FALSE;
 	}
-	
+
 	private Boolean has(Task task) {
 		if (StringHelper.isEmpty(task.getFingerprint())) {
 			return Boolean.FALSE;
 		}
-		
+
 		List<Task> tasks = this.findTasksByFingerprint(task);
 		if (!tasks.isEmpty() && tasks.size() > 0) {
 			return Boolean.TRUE;
@@ -920,7 +920,7 @@ public class TaskServiceImpl implements TaskService {
         BaseStaffSiteOrgDto site = baseService.queryDmsBaseSiteByCode(dto.getSiteCode());
         Assert.notNull(site,"智能分拣线生成分拣任务出错，获取站点信息失败"); //这里主动抛出异常是为了让事务回滚
         BaseStaffSiteOrgDto distribution = baseService.queryDmsBaseSiteByCode(String.valueOf(dto.getDistributeID()));
-        Assert.notNull(distribution,"智能分拣线生成分拣任务出错，获取分拣/智配中心信息失败"); 
+        Assert.notNull(distribution,"智能分拣线生成分拣任务出错，获取分拣/智配中心信息失败");
         Task taskSorting=new Task();
         taskSorting.setOwnSign(BusinessHelper.getOwnSign());
         taskSorting.setKeyword1(String.valueOf(dto.getDistributeID()));
@@ -1004,6 +1004,7 @@ public class TaskServiceImpl implements TaskService {
         inspectionAS.setUserCode(uPackage.getOperatorID());
         inspectionAS.setUserName(uPackage.getOperatorName());
         inspectionAS.setBusinessType(50);
+		inspectionAS.setMachineCode(uPackage.getMachineCode());
         inspectionAS.setBizSource(InspectionBizSourceEnum.AUTOMATIC_SORTING_MACHINE_INSPECTION.getCode());
         inspectionASes.add(inspectionAS);
         return inspectionASes;

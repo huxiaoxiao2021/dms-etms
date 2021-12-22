@@ -10,6 +10,7 @@ import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +47,9 @@ public class ScannerFrameInspectionConsume implements ScannerFrameConsume {
             inspection.setBizSource(InspectionBizSourceEnum.AUTOMATIC_SORTING_MACHINE_INSPECTION.getCode());
         } else {
             inspection.setBizSource(InspectionBizSourceEnum.AUTOMATIC_GANTRY_INSPECTION.getCode());
+        }
+        if (StringUtils.isNotEmpty(uploadData.getRegisterNo())){
+            inspection.setMachineCode(uploadData.getRegisterNo());
         }
 
         TaskRequest request=new TaskRequest();

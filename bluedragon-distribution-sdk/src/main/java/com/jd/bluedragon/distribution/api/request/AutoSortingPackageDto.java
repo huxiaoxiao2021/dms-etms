@@ -28,6 +28,8 @@ public class AutoSortingPackageDto implements Serializable{
     private Integer distributeID;
     /**分拣中心名称*/
     private String distributeName;
+    /**自动化设备编码*/
+    private String machineCode;
 
     public Integer getId() {
         return id;
@@ -107,5 +109,13 @@ public class AutoSortingPackageDto implements Serializable{
 
     public void setDistributeName(String distributeName) {
         this.distributeName = distributeName;
+    }
+
+    public String getMachineCode() {
+        return machineCode;
+    }
+
+    public void setMachineCode(String machineCode) {
+        this.machineCode = machineCode;
     }
 }
