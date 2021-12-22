@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jd.bluedragon.distribution.dock.dao.DockBaseInfoDao">
+    <resultMap id="BaseResultMap" type="com.jd.bluedragon.distribution.dock.domain.DockBaseInfoPo">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="dock_code" jdbcType="VARCHAR" property="dockCode" />
+        <result column="site_code" jdbcType="INTEGER" property="siteCode" />
+        <result column="site_name" jdbcType="VARCHAR" property="siteName" />
+        <result column="org_id" jdbcType="INTEGER" property="orgId" />
+        <result column="org_name" jdbcType="VARCHAR" property="orgName" />
+        <result column="dock_type" jdbcType="INTEGER" property="dockType" />
+        <result column="dock_attribute" jdbcType="INTEGER" property="dockAttribute" />
+        <result column="allowed_vehicle_type" jdbcType="VARCHAR" property="allowedVehicleType" />
+        <result column="is_immediately" jdbcType="INTEGER" property="isImmediately" />
+        <result column="is_has_dock_leveller" jdbcType="INTEGER" property="isHasDockLeveller" />
+        <result column="is_has_scales" jdbcType="INTEGER" property="isHasScales" />
+        <result column="height" jdbcType="DECIMAL" property="height" />
+        <result column="create_user_name" jdbcType="VARCHAR" property="createUserName" />
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="update_user_name" jdbcType="VARCHAR" property="updateUserName" />
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+        <result column="is_delete" jdbcType="INTEGER" property="isDelete" />
+        <result column="ts" jdbcType="TIMESTAMP" property="ts" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, dock_code, site_code, site_name, org_id, org_name, dock_type, dock_attribute, allowed_vehicle_type,
+        is_immediately, is_has_dock_leveller, is_has_scales, height,
+        create_user_name, create_time, update_user_name, update_time, is_delete, ts
+    </sql>
+
+    <insert id="insert" parameterType="DockBaseInfoPo">
+        insert into dock_base_info
+        (
+            dock_code,
+            site_code,
+            site_name,
+            org_id,
+            org_name,
+            dock_type,
+            dock_attribute,
+            allowed_vehicle_type,
+            is_immediately,
+            is_has_dock_leveller,
+            is_has_scales,
+            height,
+            create_user_name,
+            create_time,
+            update_user_name,
+            update_time,
+            is_delete
+        )
+        values
+        (
+            #{dockCode,jdbcType=VARCHAR},
+            #{siteCode,jdbcType=INTEGER},
+            #{siteName,jdbcType=VARCHAR},
+            #{orgId,jdbcType=INTEGER},
+            #{orgName,jdbcType=VARCHAR},
+            #{dockType,jdbcType=INTEGER},
+            #{dockAttribute,jdbcType=INTEGER},
+            #{allowedVehicleType,jdbcType=VARCHAR},
+            #{isHasDockLeveller,jdbcType=INTEGER},
+            #{isHasScales,jdbcType=INTEGER},
+            #{isImmediately,jdbcType=INTEGER},
+            #{height,jdbcType=DECIMAL},
+            #{createUserName,jdbcType=VARCHAR},
+            NOW(),
+            #{createUserName,jdbcType=VARCHAR},
+            NOW(),
+            0
+        )
+    </insert>
+
+    <update id="update" parameterType="DockBaseInfoPo">
+        update dock_base_info
+        <set>
+            <if test="dockCode != null">
+                dock_code = #{dockCode,jdbcType=VARCHAR},
+            </if>
+            <if test="dockType != null">
+                dock_type = #{dockType,jdbcType=INTEGER},
+            </if>
+            <if test="dockAttribute != null">
+                dock_attribute = #{dockAttribute,jdbcType=INTEGER},
+            </if>
+            <if test="allowedVehicleType != null">
+                allowed_vehicle_type = #{allowedVehicleType,jdbcType=VARCHAR},
+            </if>
+            <if test="isHasDockLeveller != null">
+                is_has_dock_leveller = #{isHasDockLeveller,jdbcType=INTEGER},
+            </if>
+            <if test="isHasScales != null">
+                is_has_scales = #{isHasScales,jdbcType=INTEGER},
+            </if>
+            <if test="isImmediately != null">
+                is_immediately = #{isImmediately, jdbcType=INTEGER},
+            </if>
+            <if test="height != null">
+                height = #{height, jdbcType=DECIMAL},
+            </if>
+            <if test="updateUserName != null">
+                update_user_name = #{updateUserName,jdbcType=VARCHAR},
+            </if>
+            <if test="updateTime != null">
+                update_time = now(),
+            </if>
+            <if test="isDelete != null">
+                is_delete = #{isDelete, jdbcType=INTEGER},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+
+    <update id="LogitechDeleteById" parameterType="DockBaseInfoPo">
+        update dock_base_info
+        <set>
+            <if test="updateUserName != null">
+                update_user_name = #{updateUserName, jdbcType=VARCHAR},
+            </if>
+            <if test="updateTime != null">
+                update_time = now(),
+            </if>
+                is_delete = 1
+        </set>
+        where id = #{id, jdbcType=BIGINT}
+    </update>
+
+    <select id="findById" resultMap="BaseResultMap">
+        select
+            <include refid="Base_Column_List"/>
+        from
+            dock_base_info
+        where id = #{id, jdbcType=BIGINT}
+    </select>
+
+    <select id="findByDockCode" parameterType="DockBaseInfoPo" resultMap="BaseResultMap">
+        select
+            <include refid="Base_Column_List"/>
+        from
+            dock_base_info
+        where
+            <if test="orgId != null">
+                org_id = #{orgId, jdbcType=INTEGER} and
+            </if>
+            <if test="siteCode != null">
+                site_code = #{siteCode, jdbcType=INTEGER} and
+            </if>
+            dock_code = #{dockCode, jdbcType=VARCHAR} and is_delete = 0
+        limit 1
+    </select>
+
+    <select id="pageNum_queryByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultType="java.lang.Integer">
+        select
+            count(1)
+        from
+            dock_base_info
+        where
+            <if test="orgId != null">
+                org_id = #{orgId, jdbcType=INTEGER} and
+            </if>
+            <if test="siteCode != null">
+                site_code = #{siteCode, jdbcType=INTEGER} and
+            </if>
+            is_delete = 0
+        order by
+            update_time desc
+        limit
+            #{offset, jdbcType=INTEGER}, #{limit, jdbcType=INTEGER}
+    </select>
+
+    <select id="queryByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultMap="BaseResultMap">
+        select
+            <include refid="Base_Column_List"/>
+        from
+            dock_base_info
+        where
+            <if test="orgId != null">
+                org_id = #{orgId, jdbcType=INTEGER} and
+            </if>
+            <if test="siteCode != null">
+                site_code = #{siteCode, jdbcType=INTEGER} and
+            </if>
+            is_delete = 0
+        order by
+            update_time desc
+        limit
+            #{offset, jdbcType=INTEGER}, #{limit, jdbcType=INTEGER}
+    </select>
+
+    <select id="listAllDockInfoBySiteCode" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select
+            <include refid="Base_Column_List"/>
+        from
+            dock_base_info
+        where
+            site_code = #{siteCode, jdbcType=INTEGER} and is_delete = 0
+    </select>
+
+</mapper>
