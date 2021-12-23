@@ -191,6 +191,10 @@ public class ArAbnormalServiceImpl implements ArAbnormalService {
                 response.setMessage(result.getMessage());
         		return response;
         	}
+        	if(result != null && Boolean.TRUE.equals(result.getShowTipMsg())) {
+        		response.setShowTipMsg(Boolean.TRUE);
+        		response.setTipMsg(result.getTipMsg());
+        	}
         }
         response.setCode(ArAbnormalResponse.CODE_OK);
         response.setMessage(ArAbnormalResponse.MESSAGE_OK);
