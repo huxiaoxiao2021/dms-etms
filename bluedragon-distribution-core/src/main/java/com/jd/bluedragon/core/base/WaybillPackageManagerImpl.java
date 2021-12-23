@@ -233,7 +233,7 @@ public class WaybillPackageManagerImpl implements WaybillPackageManager {
 
                 packageList.addAll(changeToDeliveryPackageDBatch(baseEntity.getData().getResult()));
 
-                log.debug("调用运单接口getPackageByParam,waybillCode:{},每次请求数:{}.返回包裹总数:{}，总页数:{}"
+                log.info("调用运单接口getPackageByParam,waybillCode:{},每次请求数:{}.返回包裹总数:{}，总页数:{}"
                         ,waybillCode,PACKAGE_NUM_ONCE_QUERY,baseEntity.getData().getTotalRow(), baseEntity.getData().getTotalPage());
 
                 //读取分页数
@@ -245,7 +245,7 @@ public class WaybillPackageManagerImpl implements WaybillPackageManager {
                     List<DeliveryPackageDto> dtoList = getPackageByParam(waybillCode, pageParam).getData().getResult();
                     packageList.addAll(changeToDeliveryPackageDBatch(dtoList));
                 }
-                log.debug("getPackageByWaybillCode获取包裹数据共{}条.waybillCode:{}" ,packageList.size(), waybillCode);
+                log.info("getPackageByWaybillCode获取包裹数据共{}条.waybillCode:{}" ,packageList.size(), waybillCode);
             }
 
             busiWaringUtil.bigWaybillWarning(waybillCode,packageList.size());
@@ -289,14 +289,14 @@ public class WaybillPackageManagerImpl implements WaybillPackageManager {
             List<DeliveryPackageD> packageList = new ArrayList();
             packageList.addAll(changeToDeliveryPackageDBatch(baseEntity.getData().getResult()));
 
-            log.debug("调用运单接口getPackageByParam-waybillCode[{}]limit[{}]totalRow[{}]totalPage[{}]"
+            log.info("调用运单接口getPackageByParam-waybillCode[{}]limit[{}]totalRow[{}]totalPage[{}]"
                     ,waybillCode,parallel_get_package_num_once_query,baseEntity.getData().getTotalRow(), baseEntity.getData().getTotalPage());
             //剩余页数并发获取
             int totalPage = baseEntity.getData().getTotalPage();
             if(totalPage > 1){
                 packageList.addAll(parallelGetPackages(waybillCode,totalPage,2,parallel_get_package_num_once_query));
             }
-            log.debug("getPackageByWaybillCode获取包裹数据共{}条.waybillCode:{}" ,packageList.size(), waybillCode);
+            log.info("getPackageByWaybillCode获取包裹数据共{}条.waybillCode:{}" ,packageList.size(), waybillCode);
             busiWaringUtil.bigWaybillWarning(waybillCode,packageList.size());
             BaseEntity<List<DeliveryPackageD>> result = new BaseEntity();
             result.setData(packageList);
