@@ -418,4 +418,13 @@
                   ref="driverBoardSend4JgjGatewayServiceImpl"
                   server="dmsjsf">
     </jsf:provider>
+
+    <!-- 弃件暂存服务-->
+    <bean id="discardedStorageGatewayServiceImpl" class="com.jd.bluedragon.distribution.external.gateway.service.impl.DiscardedStorageGatewayServiceImpl" />
+    <jsf:provider id="jsfDiscardedStorageGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.DiscardedStorageGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="discardedStorageGatewayServiceImpl"
+                  server="dmsjsf">
+    </jsf:provider>
 </beans>

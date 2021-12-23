@@ -6,6 +6,7 @@ import com.jd.etms.waybill.dto.BigPackageStateDto;
 import com.jd.etms.waybill.dto.PackageStateDto;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -75,4 +76,12 @@ public interface WaybillTraceManager {
      * @return
      */
     BaseEntity<BigPackageStateDto> getPkStateByCodeAndChoice(String waybillCode, Boolean queryPickInfo, Boolean queryDeliveryInfo, Boolean queryStoreInfo, Boolean querySortingInfo);
+
+    /**
+     * 根据操作单号 批量查最新一条全程跟踪
+     * @param opCodes 操作号（包括取件单号，面单号，包裹号，运单号） 最多一次传500个
+     * @see <a>https://cf.jd.com/pages/viewpage.action?pageId=162204941</a>
+     * @return 全程跟踪记录
+     */
+    BaseEntity<Map<String, PackageState>> getNewestPKStateByOpCodes(List<String> opCodes);
 }
