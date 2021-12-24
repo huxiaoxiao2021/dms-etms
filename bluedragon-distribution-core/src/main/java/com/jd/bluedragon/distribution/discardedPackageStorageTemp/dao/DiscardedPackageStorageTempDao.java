@@ -52,7 +52,7 @@ public class DiscardedPackageStorageTempDao extends BaseDao<DiscardedPackageStor
      * @author fanggang7
      * @date 2020-07-02 16:27:55 周四
      */
-    public List<DiscardedPackageStorageTempVo> selectList(DiscardedPackageStorageTempQo query) {
+    public List<DiscardedPackageStorageTemp> selectList(DiscardedPackageStorageTempQo query) {
         return this.getSqlSession().selectList(DiscardedPackageStorageTempDao.NAMESPACE + ".selectList", query);
     }
 

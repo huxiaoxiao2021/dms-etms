@@ -521,6 +521,12 @@
         <if test="submitStatus != null">
             AND submit_status = #{submitStatus}
         </if>
+        <if test="waybillCodeList != null">
+            AND waybill_code in
+            <foreach collection="waybillCodeList" item="item" index="index" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
     </sql>
     <!-- 查询行数 -->
     <select id="selectCount" resultType="long" parameterType="com.jd.bluedragon.distribution.discardedPackageStorageTemp.dto.DiscardedPackageStorageTempQo">

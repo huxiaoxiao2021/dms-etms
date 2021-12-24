@@ -4,6 +4,7 @@ import com.jd.ql.dms.common.web.mvc.api.BasePagerCondition;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Description: 快递弃件暂存<br>
@@ -91,6 +92,8 @@ public class DiscardedPackageStorageTempQo extends BasePagerCondition implements
      * 场地部门类型
      */
     private Integer siteDepartType;
+
+    List<String> waybillCodeList;
 
     public String getWaybillCode() {
         return waybillCode;
@@ -235,6 +238,15 @@ public class DiscardedPackageStorageTempQo extends BasePagerCondition implements
 
     public DiscardedPackageStorageTempQo setSiteDepartType(Integer siteDepartType) {
         this.siteDepartType = siteDepartType;
+        return this;
+    }
+
+    public List<String> getWaybillCodeList() {
+        return waybillCodeList;
+    }
+
+    public DiscardedPackageStorageTempQo setWaybillCodeList(List<String> waybillCodeList) {
+        this.waybillCodeList = waybillCodeList;
         return this;
     }
 }
