@@ -55,6 +55,7 @@ public class HintCodeConstants {
 
     /**
      * 此运单需使用包装耗材，但不存在包装耗材任务
+     * 此单包装服务暂无任务，请稍后再操作
      */
     public static String PACKING_CONSUMABLE_NOT_EXIST = "10005";
 
@@ -71,6 +72,7 @@ public class HintCodeConstants {
 
     /**
      * 此弃件禁止操作，请按公司规定暂存
+     * 弃件单禁止操作，请暂存
      */
     public static String WASTE_WAYBILL_TEMP_STORE = "20001";
 
@@ -91,6 +93,7 @@ public class HintCodeConstants {
 
     /**
      * 文件标识运单请集包至WJ开头箱号
+     * 文件类型需用WJ开头的箱号集包
      */
     public static String FILE_PACK_SORTING_WJ = "20005";
 
@@ -101,6 +104,7 @@ public class HintCodeConstants {
 
     /**
      * 运单为寄付营业厅运单，未操作揽收完成不允许发货/建箱!
+     * 寄付运单，须有揽收动作，请异常处理
      */
     public static String BUSINESS_HALL_WAYBILL_NOT_RECV = "20007";
 
@@ -111,6 +115,7 @@ public class HintCodeConstants {
 
     /**
      * 此单请先暂存，运单集齐后发货
+     * 请暂存，待集齐后发货
      */
     public static String JP_TEMP_STORE = "20009";
 
@@ -153,11 +158,13 @@ public class HintCodeConstants {
 
     /**
      * 此单未付尾款，异常处理选24预售原因，换单回仓！
+     * 预收单未付尾款，请异常处理后回仓
      */
     public static String PRE_SELL_WITHOUT_FINAL_PAY = "20017";
 
     /**
      * 运单号:{0}已经转至C网,目前还有{1}共{2}个包裹未操作【包裹补打】进行换单，请操作【包裹补打】更换面单!
+     * 运单号:{0}已转至C网,尚需{1}共{2}个包裹操作【包裹补打】更换面单
      */
     public static String PACKAGE_REPRINT_TO_TRANSFER = "20018";
 
@@ -189,12 +196,14 @@ public class HintCodeConstants {
     /**
      * 该订单没有重量或体积信息,不能装箱。请到【青龙分拣中心系统】称重量方
      * changeTo: 您操作的订单无重量，烦请称重量方以后再进行操作，谢谢。
+     * 此单无重量/体积，请复重复量方，谢谢。
      */
     public static String WAYBILL_WITHOUT_WEIGHT_OR_VOLUME = "20024";
 
     /**
      * 此包裹无重量体积，请到转运工作台按包裹录入重量体积
      * changeTo: 您操作的订单无重量，烦请称重量方以后再进行操作，谢谢。
+     * 此单无重量/体积，请复重复量方，谢谢。
      */
     public static String ZY_PACKAGE_WITHOUT_WEIGHT_OR_VOLUME = "20025";
 
@@ -202,12 +211,14 @@ public class HintCodeConstants {
      * 此单无称重重量,请称重后再操作
      * changeTo: 您操作的订单无重量，烦请称重量方以后再进行操作，谢谢。
      * 该订单没有重量或体积信息,不能装箱。请到【青龙分拣中心系统】称重量方
+     * 此单无重量/体积，请复重复量方，谢谢。
      */
     public static String WAYBILL_WITHOUT_WEIGHT = "20026";
 
     /**
      * 该订单没有重量或体积信息，确定装箱？
      * changeTo: 您操作的订单无重量，烦请称重量方抽检，谢谢。
+     * 此单无重量/体积，请复重复量方，谢谢。
      */
     public static String WAYBILL_WITHOUT_WEIGHT_WHEN_BOXING = "20027";
 
@@ -490,6 +501,7 @@ public class HintCodeConstants {
 
     /**
      * 该发货批次号已操作封车，无法重复操作！
+     * 该发货批次号已操作封车，请勿重复操作！
      */
     public static String SEND_CODE_SEALED = "30001";
 
@@ -505,6 +517,7 @@ public class HintCodeConstants {
 
     /**
      * 当前众邮箱号无分拣复重重量或复重体积，请复重量方后再发货
+     * 此单无重量/体积，请复重复量方，谢谢。
      */
     public static String ZY_BOX_MISSING_WEIGHT_OR_VOLUME = "30004";
 
@@ -525,6 +538,7 @@ public class HintCodeConstants {
 
     /**
      * 此单为[妥投状态]，请先核实异常，在PDA上提交配送异常后再进行逆向操作!
+     * 此单已妥投，请异常处理
      */
     public static String WAYBILL_DELIVERED_WHILE_REVERSE = "30008";
 
@@ -550,6 +564,7 @@ public class HintCodeConstants {
 
     /**
      * 请先在电脑上确认此运单包装服务是否完成!
+     * 此单有包装服务，请在【青龙分拣系统】完成确认
      */
     public static String PACKING_CONSUMABLE_CONFIRM_TIPS_SECOND = "30013";
 
@@ -585,6 +600,7 @@ public class HintCodeConstants {
 
     /**
      * 有不全运单，请处理后再发货
+     * 此单未集齐，待集齐后再发货
      */
     public static String WAYBILL_SEND_DIFFERENCE = "30020";
 
@@ -637,6 +653,7 @@ public class HintCodeConstants {
 
     /**
      * 当前批次为生鲜批次专用，而此单是非生鲜运单，请换普通批次
+     * 发货批次为生鲜批次，严禁发非生鲜的运单
      */
     public static String SPECIAL_FRESH_BATCH = "30030";
 
@@ -662,6 +679,7 @@ public class HintCodeConstants {
 
     /**
      * 组板发货板号校验失败
+     * 板发货板号校验失败，重新操作发
      */
     public static String BOARD_SEND_FAIL = "30035";
 
@@ -771,6 +789,7 @@ public class HintCodeConstants {
 
     /**
      * 单号不正确，未通过京东单号规则校验
+     * 单号不符合运单规则校验
      */
     public static String WAYBILL_RULE_ILLEGAL = "40002";
 

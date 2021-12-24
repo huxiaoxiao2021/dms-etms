@@ -26,13 +26,7 @@ public class ContractFilter implements Filter {
        /* if(logger.isInfoEnabled()){*/
             logger.info("do filter process...");
         /*}*/
-        Rule rule1 = request.getRuleMap().get("1020"); // 合约订单类型规则
-        Rule rule2 = request.getRuleMap().get("1021"); // 合约订单发货站点类型规则
-        if (WaybillCacheHelper.isContract(request.getWaybillCache(), rule1.getContent())
-                && !SiteHelper.matchSiteTypeRule(rule2.getContent(), request.getsReceiveSiteSubType())) {
-            throw new SortingCheckException(SortingResponse.CODE_29105,
-                    HintService.getHintWithFuncModule(HintCodeConstants.CONTRACT_WAYBILL, request.getFuncModule()));
-        }
+        // 2021年12月15日17:57:19 下线
 
         chain.doFilter(request, chain);
     }
