@@ -110,6 +110,7 @@ public class ColdChainReverseManagerImpl implements ColdChainReverseManager {
 
     /**
      * 调用eclp接口逆向换单
+     * https://cf.jd.com/pages/viewpage.action?pageId=638147267
      * @param coldChainReverseRequest
      * @return
      */
