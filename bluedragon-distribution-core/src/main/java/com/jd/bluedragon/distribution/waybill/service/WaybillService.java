@@ -175,7 +175,13 @@ public interface WaybillService {
      * @return
      */
     boolean isStartOrEndSite(Integer operateSiteCode,String waybillCode,int locationFlag);
-
+    /**
+     * 判断单号是否存在补打拦截
+     * @param waybillCode
+     * @param waybillSign
+     * @return
+     */
+    boolean hasPrintIntercept(String waybillCode,String waybillSign);
 
     /**
      * 仅获取存在理赔破损拦截，包含取消破损拦截场景

@@ -860,4 +860,10 @@ public class HintCodeConstants {
      * 你所在场地未开通此功能
      */
     public static String YOUR_SITE_CAN_NOT_USE_FUNC = "50001";
+    
+    
+    /**
+     * 异常上报-改地址拦截:改址订单，请补打操作 
+     */
+    public static String EX_REPORT_CHECK_CHANGE_ADDRESS = "50003";    
 }
