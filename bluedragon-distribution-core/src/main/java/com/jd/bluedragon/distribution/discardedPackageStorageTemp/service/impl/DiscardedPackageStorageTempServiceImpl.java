@@ -1,7 +1,6 @@
 package com.jd.bluedragon.distribution.discardedPackageStorageTemp.service.impl;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.wastepackagestorage.dto.DiscardedPackageNotScanItemDto;
 import com.jd.bluedragon.common.dto.wastepackagestorage.dto.DiscardedPackageScanResultItemDto;
 import com.jd.bluedragon.common.dto.wastepackagestorage.dto.DiscardedWaybillScanResultItemDto;
@@ -26,6 +25,7 @@ import com.jd.bluedragon.distribution.discardedPackageStorageTemp.enums.WasteOpe
 import com.jd.bluedragon.distribution.discardedPackageStorageTemp.enums.WasteWaybillTypeEnum;
 import com.jd.bluedragon.distribution.discardedPackageStorageTemp.handler.DiscardedStorageHandlerStrategy;
 import com.jd.bluedragon.distribution.discardedPackageStorageTemp.model.DiscardedPackageStorageTemp;
+import com.jd.bluedragon.distribution.discardedPackageStorageTemp.model.DiscardedWaybillStorageTemp;
 import com.jd.bluedragon.distribution.discardedPackageStorageTemp.service.DiscardedPackageStorageTempService;
 import com.jd.bluedragon.distribution.discardedPackageStorageTemp.vo.DiscardedPackageStorageTempVo;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -46,6 +46,7 @@ import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -130,6 +131,8 @@ public class DiscardedPackageStorageTempServiceImpl implements DiscardedPackageS
     public Response<List<DiscardedPackageStorageTempVo>> selectList(DiscardedPackageStorageTempQo query) {
         log.info("DiscardedPackageStorageTempServiceImpl.selectList param {}", JsonHelper.toJson(query));
         Response<List<DiscardedPackageStorageTempVo>> result = new Response<>();
+        List<DiscardedPackageStorageTempVo> dataList = new ArrayList<>();
+        result.setData(dataList);
         result.toSucceed();
         try {
             query.setYn(Constants.YN_YES);
@@ -138,8 +141,10 @@ public class DiscardedPackageStorageTempServiceImpl implements DiscardedPackageS
                 result.toError(checkAndSetResult.getMessage());
                 return result;
             }
-            List<DiscardedPackageStorageTempVo> dataList = discardedPackageStorageTempDao.selectList(query);
-            result.setData(dataList);
+            final List<DiscardedPackageStorageTempVo> discardedPackageStorageTempVos = this.queryVoList(query);
+            if(CollectionUtils.isNotEmpty(discardedPackageStorageTempVos)){
+                dataList.addAll(discardedPackageStorageTempVos);
+            }
         } catch (Exception e) {
             log.error("DiscardedPackageStorageTempServiceImpl.selectList exception ", e);
             result.toError("系统发生异常，请联系分拣小秘");
@@ -205,20 +210,9 @@ public class DiscardedPackageStorageTempServiceImpl implements DiscardedPackageS
             long total = discardedPackageStorageTempDao.selectCount(query);
             pageDto.setTotalRow(new Long(total).intValue());
             if (total > 0) {
-                List<DiscardedPackageStorageTempVo> rawDataList = discardedPackageStorageTempDao.selectList(query);
-                Map<Integer, String> discardedPackageStorageTempStatusEnumMap = DiscardedPackageStorageTempStatusEnum.ENUM_MAP;
-                for (DiscardedPackageStorageTempVo vo : rawDataList) {
-                    vo.setFirstScanTimeFormative(DateUtil.formatDateTime(vo.getCreateTime()));
-                    vo.setLastOperateTimeFormative(DateUtil.formatDateTime(vo.getUpdateTime()));
-                    String statusStr = discardedPackageStorageTempStatusEnumMap.get(vo.getStatus());
-                    vo.setStatusStr(statusStr != null ? statusStr : DiscardedPackageStorageTempStatusEnum.UNKNOW.getName());
-                    vo.setIsCodStr(Objects.equals(vo.getCod(), Constants.YN_YES) ? "是" : "否");
-                    // 计算已存储天数
-                    vo.setStorageDays(DateHelper.daysDiff(vo.getCreateTime(), new Date()));
-                    vo.setOperateTypeDesc(WasteOperateTypeEnum.getNameByCode(vo.getOperateType()));
-                    vo.setWaybillTypeDesc(WasteWaybillTypeEnum.getNameByCode(vo.getWaybillType()));
-                    vo.setSiteDepartTypeDesc(DiscardedPackageSiteDepartTypeEnum.getEnumNameByCode(vo.getSiteDepartType()));
-                    dataList.add(vo);
+                final List<DiscardedPackageStorageTempVo> discardedPackageStorageTempVos = this.queryVoList(query);
+                if(CollectionUtils.isNotEmpty(discardedPackageStorageTempVos)){
+                    dataList.addAll(discardedPackageStorageTempVos);
                 }
             }
             pageDto.setResult(dataList);
@@ -243,6 +237,48 @@ public class DiscardedPackageStorageTempServiceImpl implements DiscardedPackageS
         }
         return result;
 
+    }
+
+    private List<DiscardedPackageStorageTempVo> queryVoList(DiscardedPackageStorageTempQo query) {
+        List<DiscardedPackageStorageTempVo> dataList = new ArrayList<>();
+        List<DiscardedPackageStorageTemp> rawDataList = discardedPackageStorageTempDao.selectList(query);
+        // 根据去重运单号数据，再去查运单主表
+        Set<String> waybillCodeSet = new HashSet<>();
+        for (DiscardedPackageStorageTemp discardedPackageStorageTemp : rawDataList) {
+            waybillCodeSet.add(discardedPackageStorageTemp.getWaybillCode());
+            DiscardedPackageStorageTempVo vo = new DiscardedPackageStorageTempVo();
+            BeanUtils.copyProperties(discardedPackageStorageTemp, vo);
+            dataList.add(vo);
+        }
+        DiscardedPackageStorageTempQo queryWaybill = new DiscardedPackageStorageTempQo();
+        BeanUtils.copyProperties(query, queryWaybill);
+        queryWaybill.setPageNumber(0);
+        queryWaybill.setWaybillCodeList(new ArrayList<>(waybillCodeSet));
+        final List<DiscardedWaybillStorageTemp> discardedWaybillList = discardedWaybillStorageTempDao.selectList(queryWaybill);
+        Map<String, DiscardedWaybillStorageTemp> discardedWaybillStorageTempGBWaybillCodeMap = new HashMap<>();
+        for (DiscardedWaybillStorageTemp discardedWaybillStorageTemp : discardedWaybillList) {
+            discardedWaybillStorageTempGBWaybillCodeMap.put(discardedWaybillStorageTemp.getWaybillCode(), discardedWaybillStorageTemp);
+        }
+        Map<Integer, String> discardedPackageStorageTempStatusEnumMap = DiscardedPackageStorageTempStatusEnum.ENUM_MAP;
+        for (DiscardedPackageStorageTempVo vo : dataList) {
+            final DiscardedWaybillStorageTemp discardedWaybillStorageTemp = discardedWaybillStorageTempGBWaybillCodeMap.get(vo.getWaybillCode());
+            if(discardedWaybillStorageTemp != null){
+                vo.setPackageScanTotal(discardedWaybillStorageTemp.getPackageScanTotal());
+                vo.setPackageSysTotal(discardedWaybillStorageTemp.getPackageSysTotal());
+            }
+            
+            vo.setFirstScanTimeFormative(DateUtil.formatDateTime(vo.getCreateTime()));
+            vo.setLastOperateTimeFormative(DateUtil.formatDateTime(vo.getUpdateTime()));
+            vo.setSiteDepartTypeDesc(DiscardedPackageSiteDepartTypeEnum.getEnumNameByCode(vo.getSiteDepartType()));
+            String statusStr = discardedPackageStorageTempStatusEnumMap.get(vo.getStatus());
+            vo.setStatusStr(statusStr != null ? statusStr : DiscardedPackageStorageTempStatusEnum.UNKNOW.getName());
+            vo.setIsCodStr(Objects.equals(vo.getCod(), Constants.YN_YES) ? "是" : "否");
+            // 计算已存储天数
+            vo.setStorageDays(DateHelper.daysDiff(vo.getCreateTime(), new Date()));
+            vo.setOperateTypeDesc(WasteOperateTypeEnum.getNameByCode(vo.getOperateType()));
+            vo.setWaybillTypeDesc(WasteWaybillTypeEnum.getNameByCode(vo.getWaybillType()));
+        }
+        return dataList;
     }
 
     /**
