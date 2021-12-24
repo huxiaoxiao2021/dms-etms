@@ -450,8 +450,9 @@ public class DiscardedPackageStorageTempServiceImpl implements DiscardedPackageS
             return result.toFail("参数错误，siteDepartType不能为空", ResultCodeConstant.ILLEGAL_ARGUMENT);
         }
         if(paramObj.getOperateType() == null){
-            log.warn("checkParam4ScanDiscardedPackage，参数错误，operateType不能为空");
-            return result.toFail("参数错误，operateType不能为空", ResultCodeConstant.ILLEGAL_ARGUMENT);
+            // log.warn("checkParam4ScanDiscardedPackage，参数错误，operateType不能为空");
+            paramObj.setOperateType(WasteOperateTypeEnum.STORAGE.getCode());
+            // return result.toFail("参数错误，operateType不能为空", ResultCodeConstant.ILLEGAL_ARGUMENT);
         }
         final List<Integer> wasteOperateTypeList = WasteOperateTypeEnum.ENUM_LIST;
         if (!wasteOperateTypeList.contains(paramObj.getOperateType())) {
@@ -460,8 +461,9 @@ public class DiscardedPackageStorageTempServiceImpl implements DiscardedPackageS
         }
         if (Objects.equals(WasteOperateTypeEnum.STORAGE.getCode(), paramObj.getOperateType())) {
             if(paramObj.getWaybillType() == null){
-                log.warn("checkParam4ScanDiscardedPackage，参数错误，waybillType不能为空");
-                return result.toFail("参数错误，waybillType不能为空", ResultCodeConstant.ILLEGAL_ARGUMENT);
+                // log.warn("checkParam4ScanDiscardedPackage，参数错误，waybillType不能为空");
+                paramObj.setWaybillType(WasteWaybillTypeEnum.PACKAGE.getCode());
+                // return result.toFail("参数错误，waybillType不能为空", ResultCodeConstant.ILLEGAL_ARGUMENT);
             }
             final List<Integer> wasteWaybillTypeList = WasteWaybillTypeEnum.ENUM_LIST;
             if (!wasteWaybillTypeList.contains(paramObj.getWaybillType())) {
