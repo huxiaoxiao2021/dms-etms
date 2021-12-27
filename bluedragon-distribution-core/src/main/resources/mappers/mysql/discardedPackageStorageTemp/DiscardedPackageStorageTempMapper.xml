@@ -583,51 +583,12 @@
         <include refid="where"/>
     </select>
     <!-- 查询集合 如果pageNumber小于或等于0,则不进行分页操作 -->
-    <select id="selectList" resultMap="RM_DiscardedPackageStorageVoTemp" parameterType="com.jd.bluedragon.distribution.discardedPackageStorageTemp.dto.DiscardedPackageStorageTempQo">
+    <select id="selectList" resultMap="RM_DiscardedPackageStorageTemp" parameterType="com.jd.bluedragon.distribution.discardedPackageStorageTemp.dto.DiscardedPackageStorageTempQo">
         SELECT
-        P.`id`, P.`waybill_code`, P.`package_code`, P.`status`, P.`waybill_product`, P.`consignment_name`, P.`weight`, P.`cod`, P.`cod_amount`, P.`business_code`, P.`business_name`, P.`operator_code`, P.`operator_erp`, P.`operator_name`, P.`site_code`, P.`site_name`, P.`site_city`, P.`org_code`, P.`org_name`, P.`prev_site_code`, P.`prev_site_name`, P.`prev_province_company_code`, P.`prev_province_company_name`, P.`create_time`, P.`update_time`, P.`yn`, P.`ts`, P.`operate_type`, P.`waybill_type`, P.`site_depart_type`
-        , ifnull(W.package_sys_total, 0) as package_sys_total, ifnull(W.package_scan_total, 0) as package_scan_total, ifnull(W.submit_status, 0) as submit_status
-        FROM `discarded_package_storage_temp` P
-        left join `discarded_waybill_storage_temp` W on P.waybill_code = W.waybill_code
-        <where>
-            <if test="waybillCode != null and waybillCode != ''">
-                AND P.waybill_code = #{waybillCode}
-            </if>
-            <if test="packageCode != null and packageCode != ''">
-                AND P.package_code = #{packageCode}
-            </if>
-            <if test="isCod != null">
-                AND P.cod = #{isCod}
-            </if>
-            <if test="businessName != null and businessName != ''">
-                AND P.business_name = #{businessName}
-            </if>
-            <if test="orgCode != null">
-                AND P.org_code = #{orgCode}
-            </if>
-            <if test="siteCode != null">
-                AND P.site_code = #{siteCode}
-            </if>
-            <if test="scanTimeFrom != null">
-                AND P.create_time &lt;= #{scanTimeFrom}
-            </if>
-            <if test="scanTimeTo != null">
-                AND P.create_time >= #{scanTimeTo}
-            </if>
-            <if test="yn != null">
-                AND P.yn = #{yn}
-            </if>
-            <if test="operateType != null">
-                AND P.operate_type = #{operateType}
-            </if>
-            <if test="waybillType != null">
-                AND P.waybill_type = #{waybillType}
-            </if>
-            <if test="siteDepartType != null">
-                AND P.site_depart_type = #{siteDepartType}
-            </if>
-        </where>
-        order by W.create_time desc
+        <include refid="Base_Column_List" />
+        FROM `discarded_package_storage_temp`
+        <include refid="where"/>
+        order by create_time desc
         <if test="pageNumber > 0">
             limit #{offset}, #{pageSize}
         </if>
