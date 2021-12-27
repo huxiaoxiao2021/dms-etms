@@ -29,6 +29,7 @@ public class InspectionSplitWaybillTaskExecutor extends InspectionTaskCommonExec
     @Override
     protected InspectionTaskExecuteContext prepare(InspectionRequest request) {
         InspectionTaskExecuteContext context = new InspectionTaskExecuteContext();
+        context.setInspectionRequest(request);
         context.setPassCheck(true);
 
         if (0 == request.getPageNo() || 0 == request.getPageSize()) {

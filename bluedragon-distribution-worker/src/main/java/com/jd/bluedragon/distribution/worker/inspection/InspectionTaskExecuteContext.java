@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.worker.inspection;
 
+import com.jd.bluedragon.distribution.api.request.InspectionRequest;
 import com.jd.bluedragon.distribution.framework.TaskExecuteContext;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 import com.jd.bluedragon.distribution.receive.domain.CenConfirm;
@@ -29,6 +30,8 @@ public class InspectionTaskExecuteContext extends TaskExecuteContext {
      * 业务操作关键字
      */
     private String      businessKey;
+
+    private InspectionRequest inspectionRequest;
 
     public List<Inspection> getInspectionList() {
         return inspectionList;
@@ -60,5 +63,13 @@ public class InspectionTaskExecuteContext extends TaskExecuteContext {
 
     public void setCenConfirmList(List<CenConfirm> cenConfirmList) {
         this.cenConfirmList = cenConfirmList;
+    }
+
+    public InspectionRequest getInspectionRequest() {
+        return inspectionRequest;
+    }
+
+    public void setInspectionRequest(InspectionRequest inspectionRequest) {
+        this.inspectionRequest = inspectionRequest;
     }
 }
