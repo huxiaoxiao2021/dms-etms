@@ -30,7 +30,7 @@ public class CheckCanAirToRoadJobHandler extends ConcurrentJobHandler<List<Strin
 		super(executorService);
 	}
 	
-    @Value("${beans.ArAbnormalServiceImpl.maxJobThreadNum:5}")
+    @Value("${beans.ArAbnormalServiceImpl.maxJobThreadNum:10}")
     private int maxJobThreadNum;
     
     @Value("${beans.ArAbnormalServiceImpl.minPerJobWaybillNum:100}")
