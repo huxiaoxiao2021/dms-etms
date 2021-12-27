@@ -1,9 +1,14 @@
 package com.jd.bluedragon.distribution.arAbnormal;
 
+import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.core.hint.constants.HintArgsConstants;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.ArAbnormalRequest;
@@ -11,11 +16,14 @@ import com.jd.bluedragon.distribution.api.request.ArTransportModeChangeDto;
 import com.jd.bluedragon.distribution.api.response.ArAbnormalResponse;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
+import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.transport.domain.ArAbnormalReasonEnum;
 import com.jd.bluedragon.distribution.transport.domain.ArContrabandReason;
 import com.jd.bluedragon.distribution.transport.domain.ArContrabandReasonEnum;
 import com.jd.bluedragon.distribution.transport.domain.ArTransportChangeModeEnum;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
+import com.jd.bluedragon.dms.job.JobHandler;
+import com.jd.bluedragon.dms.job.JobResult;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.domain.AreaNode;
@@ -37,14 +45,21 @@ import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
+
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.util.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
 
 /**
  * @author tangchunqing
@@ -74,6 +89,16 @@ public class ArAbnormalServiceImpl implements ArAbnormalService {
 
     @Autowired
     private BaseMajorManager baseMajorManager;
+    
+    @Autowired
+    @Qualifier("checkCanAirToRoadJobHandler")
+    private JobHandler<List<String>,List<String>> checkCanAirToRoadJobHandler;
+    
+    @Value("${beans.ArAbnormalServiceImpl.checkCanAirToRoadTimeout:30000}")
+    private long checkCanAirToRoadTimeout;
+    
+    @Autowired
+    private SortingService sortingService;
 
     @Override
     public ArAbnormalResponse pushArAbnormal(ArAbnormalRequest arAbnormalRequest) {
@@ -158,12 +183,96 @@ public class ArAbnormalServiceImpl implements ArAbnormalService {
             response.setMessage(ArAbnormalResponse.MESSAGE_TIME);
             return response;
         }
+        if(Objects.equals(arAbnormalRequest.getTranspondType(), ArTransportChangeModeEnum.AIR_TO_ROAD_CODE.getCode())
+        		|| Objects.equals(arAbnormalRequest.getTranspondType(), ArTransportChangeModeEnum.AIR_TO_HIGH_SPEED_TRAIN_CODE.getCode())) {
+        	ArAbnormalResponse result = checkCanAirToRoad(arAbnormalRequest);
+        	if(!Objects.equals(ArAbnormalResponse.CODE_OK,result.getCode())) {
+                response.setCode(result.getCode());
+                response.setMessage(result.getMessage());
+        		return response;
+        	}
+        	if(result != null && Boolean.TRUE.equals(result.getShowTipMsg())) {
+        		response.setShowTipMsg(Boolean.TRUE);
+        		response.setTipMsg(result.getTipMsg());
+        	}
+        }
         response.setCode(ArAbnormalResponse.CODE_OK);
         response.setMessage(ArAbnormalResponse.MESSAGE_OK);
         return response;
     }
-
     /**
+     * 校验能否操作航空转陆运
+     * @param arAbnormalRequest
+     * @return
+     */
+    private ArAbnormalResponse checkCanAirToRoad(ArAbnormalRequest arAbnormalRequest) {
+    	ArAbnormalResponse response = new ArAbnormalResponse();
+        // 根据提报条码获取对应的运单和包裹信息
+        Map<String, List<String>> waybillMap = getWaybillMapByBarCode(arAbnormalRequest);
+        if(waybillMap == null
+        		|| waybillMap.isEmpty()) {
+            response.setCode(ArAbnormalResponse.CODE_OK);
+            response.setMessage(ArAbnormalResponse.MESSAGE_OK);  
+        	return response;
+        }
+        List<String> waybillCodes = Lists.newArrayList(waybillMap.keySet());
+        List<String> checkFailWaybillCodes = null;
+        CallerInfo call = ProfilerHelper.registerInfo("dmsWeb.job.checkCanAirToRoadJobHandler.handle");
+        try {
+        	JobResult<List<String>> jobResult= checkCanAirToRoadJobHandler.handle(waybillCodes, checkCanAirToRoadTimeout);
+        	if(jobResult != null && jobResult.isSuc()) {
+        		checkFailWaybillCodes = jobResult.getData();
+        	}else {
+                response.setCode(ArAbnormalResponse.CODE_SERVICE_ERROR);
+                response.setMessage("校验操作航空转陆运执行异常，请稍后重试！");
+            	return response;
+        	}
+		} catch (Exception e) {
+			Profiler.functionError(call);
+			log.error("校验能否操作航空转陆运执行异常：请求参数：{}", JsonHelper.toJson(arAbnormalRequest),e);
+            response.setCode(ArAbnormalResponse.CODE_SERVICE_ERROR);
+            response.setMessage("校验操作航空转陆运执行异常，请稍后重试！");
+        	return response;
+		}finally {
+			Profiler.registerInfoEnd(call);
+		}
+        if(CollectionUtils.isEmpty(checkFailWaybillCodes)) {
+            response.setCode(ArAbnormalResponse.CODE_OK);
+            response.setMessage(ArAbnormalResponse.MESSAGE_OK);  
+        	return response;
+        }
+        // 箱号、批次号，设置提醒信息
+        if (BusinessHelper.isSendCode(arAbnormalRequest.getPackageCode())
+             || BusinessUtil.isBoxcode(arAbnormalRequest.getPackageCode())) {
+        	int failNum = 0;
+        	int sucNum = 0;
+        	for(String waybillCode : waybillMap.keySet()) {
+        		List<String> packList = waybillMap.get(waybillCode);
+        		if(packList == null) {
+        			continue;
+        		}
+        		if(checkFailWaybillCodes.contains(waybillCode)) {
+        			failNum += packList.size();
+        		}else {
+        			sucNum += packList.size();
+        		}
+        	}
+            response.setCode(ArAbnormalResponse.CODE_OK);
+            response.setMessage(ArAbnormalResponse.MESSAGE_OK); 
+            response.setShowTipMsg(Boolean.TRUE);
+            Map<String, String> hintParams = new HashMap<String, String>();
+            hintParams.put(HintArgsConstants.ARG_FIRST, ""+sucNum);
+            hintParams.put(HintArgsConstants.ARG_SECOND, ""+failNum);
+            response.setTipMsg(HintService.getHint(HintCodeConstants.AIR_TO_ROAD_TIP_MSG,hintParams));
+        } else {
+            // 运单号、包裹号，不允许操作
+            response.setCode(ArAbnormalResponse.CODE_SERVICE_ERROR);
+            response.setMessage(HintService.getHint(HintCodeConstants.AIR_TO_ROAD_NOT_ALLOWD));
+        }
+		return response;
+	}
+
+	/**
      * 提报异常逻辑
      *
      * @param arAbnormalRequest
@@ -173,6 +282,11 @@ public class ArAbnormalServiceImpl implements ArAbnormalService {
     public void dealArAbnormal(ArAbnormalRequest arAbnormalRequest) throws JMQException {
         // 根据提报条码获取对应的运单和包裹信息
         Map<String, List<String>> waybillMap = getWaybillMapByBarCode(arAbnormalRequest);
+        //航空转陆运过滤非航空单
+        if(Objects.equals(arAbnormalRequest.getTranspondType(), ArTransportChangeModeEnum.AIR_TO_ROAD_CODE.getCode())
+        		|| Objects.equals(arAbnormalRequest.getTranspondType(), ArTransportChangeModeEnum.AIR_TO_HIGH_SPEED_TRAIN_CODE.getCode())) {
+        	waybillMap = filterUnAirWaybill(waybillMap);
+        }
         if (waybillMap != null) {
             // 发送全程跟踪
             this.doSendTrace(arAbnormalRequest, waybillMap);
@@ -192,8 +306,30 @@ public class ArAbnormalServiceImpl implements ArAbnormalService {
             }
         }
     }
-
     /**
+     * 过滤掉非航空单
+     * @param waybillMap
+     * @return
+     */
+    private Map<String, List<String>> filterUnAirWaybill(Map<String, List<String>> waybillMap) {
+    	if(CollectionUtils.isEmpty(waybillMap)) {
+    		return waybillMap;
+    	}
+    	Map<String, List<String>> waybillMapNew = new HashMap<String, List<String>>();
+		//过滤掉非航空单
+    	for(String waybillCode : waybillMap.keySet()) {
+			Waybill waybill = waybillQueryManager.queryWaybillByWaybillCode(waybillCode);
+			if(waybill != null 
+					&& !BusinessUtil.checkCanAirToRoad(waybill.getWaybillSign(), waybill.getSendPay())) {
+				log.warn("航空转陆运处理，过滤掉非航空单：{}", waybillCode);
+				continue;
+			}
+			waybillMapNew.put(waybillCode, waybillMap.get(waybillCode));
+		}
+		return waybillMapNew;
+	}
+
+	/**
      * 新老版本兼容，判断是否需要发送MQ消息
      * 新版空铁运输方式变更只处理航空转陆运，异常原因只有航空违禁品
      *
@@ -262,7 +398,6 @@ public class ArAbnormalServiceImpl implements ArAbnormalService {
         //按箱号 和 站点查发货明细
         SendDetail queryParam = new SendDetail();
         queryParam.setBoxCode(arAbnormalRequest.getPackageCode());
-        queryParam.setCreateSiteCode(arAbnormalRequest.getSiteCode());
         List<SendDetail> sendDetailList = sendDatailDao.querySendDatailsByBoxCode(queryParam);
         if (sendDetailList.size() > 0) {
             return this.assembleBySendDetail(sendDetailList);

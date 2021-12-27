@@ -2182,6 +2182,17 @@ public class BusinessUtil {
         return message.toString();
     }	
     /**
+     * 校验该运单是否为航空单（WaybillSign31位=1【特快送】或WaybillSign84位=3【干线运输模式为航空】或Sendpay137位=1【京航达】）
+     * @param waybillSign
+     * @param sendPay
+     * @return
+     */
+	public static boolean checkCanAirToRoad(String waybillSign, String sendPay) {
+		return isSignChar(waybillSign,WaybillSignConstants.POSITION_31,WaybillSignConstants.CHAR_31_1)
+		     ||isSignChar(waybillSign,WaybillSignConstants.POSITION_84,WaybillSignConstants.CHAR_84_3)
+		     ||isSignChar(sendPay,SendPayConstants.POSITION_137,SendPayConstants.CHAR_137_1);
+	}
+    /**
      * waybill_sign 29位=2  且  53位=1
      *
      * ECLP 仓配
