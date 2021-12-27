@@ -175,6 +175,21 @@ public class TransportCommonServiceImpl implements TransportCommonService {
     }
 
     @Override
+    @JProfiler(jKey = "DMSWEB.TransportCommonServiceImpl.getRouterByWaybillCode", jAppName = Constants.UMP_APP_NAME_DMSWEB , mState = {JProEnum.TP})
+    public InvokeResult<String> getRouterByWaybillCode(TransportServiceRequest transportServiceRequest) {
+        InvokeResult<String> result = new InvokeResult<>();
+        try {
+            String router = waybillService.getRouterByWaybillCode(transportServiceRequest.getWaybillCode());
+            result.setCode(com.jd.bluedragon.distribution.jsf.domain.InvokeResult.RESULT_SUCCESS_CODE);
+            result.setData(router);
+        } catch (Exception e) {
+            log.error("getRouterByWaybillCode|根据运单号【{}】查询waybill表路由字段值异常", transportServiceRequest.getWaybillCode(), e);
+            result.customMessage(InvokeResult.SERVER_ERROR_CODE, InvokeResult.SERVER_ERROR_MESSAGE);
+        }
+        return result;
+    }
+
+    @Override
     @JProfiler(jKey = "DMSWEB.TransportCommonServiceImpl.checkAllianceMoney", jAppName = Constants.UMP_APP_NAME_DMSWEB , mState = {JProEnum.TP})
     public InvokeResult<Boolean> checkAllianceMoney(String waybillCode) {
         InvokeResult<Boolean> result = new InvokeResult<>();

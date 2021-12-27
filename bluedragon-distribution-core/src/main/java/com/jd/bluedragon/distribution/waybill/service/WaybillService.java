@@ -136,6 +136,8 @@ public interface WaybillService {
 
     Integer getRouterFromMasterDb(String waybillCode, Integer createSiteCode);
 
+    String getRouterByWaybillCode(String waybillCode);
+
     /**
      * 现场预分拣拦截校验
      * @param waybillForPreSortOnSiteRequest

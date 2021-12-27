@@ -750,6 +750,11 @@ public class WaybillServiceImpl implements WaybillService {
     }
 
     @Override
+    public String getRouterByWaybillCode(String waybillCode) {
+        return waybillCacheService.getRouterByWaybillCode(waybillCode);
+    }
+
+    @Override
     public boolean allowFilePackFilter(Integer subType, String waybillSign) {
         if (!(Constants.BASE_SITE_DISTRIBUTION_CENTER.equals(subType)
                 || Constants.SITE_SUBTYPE_SECOND.equals(subType)
