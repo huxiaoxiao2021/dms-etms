@@ -166,8 +166,6 @@
             is_delete = 0
         order by
             update_time desc
-        limit
-            #{offset, jdbcType=INTEGER}, #{limit, jdbcType=INTEGER}
     </select>
 
     <select id="queryByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultMap="BaseResultMap">
