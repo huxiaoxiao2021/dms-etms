@@ -4,6 +4,7 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeCondition;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeRuleCheckDto;
+import com.jd.bluedragon.distribution.weightVolume.domain.ZeroWeightVolumeCheckEntity;
 
 /**
  * <p>
@@ -44,5 +45,13 @@ public interface DMSWeightVolumeService {
      * @return
      */
     String weightVolumeExcessDeal(WeightVolumeCondition condition);
+
+    /**
+     *
+     * 无称重量方拦截
+     * @param entity
+     * @return
+     */
+    Boolean zeroWeightVolumeIntercept(ZeroWeightVolumeCheckEntity entity);
 
 }

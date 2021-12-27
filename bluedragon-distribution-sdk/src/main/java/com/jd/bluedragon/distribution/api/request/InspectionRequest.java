@@ -12,30 +12,33 @@ public class InspectionRequest extends JdRequest{
 
 	/*箱号*/
     private String boxCode;
-    
+
     /*包裹号或者运单号*/
     private String packageBarOrWaybillCode;
-    
+
     /*包裹号*/
     private String packageBarcode;
-    
+
     /*运单号*/
     private String waybillCode;
-    
+
     /*异常类型(退货验货)*/
     private String exceptionType;
-    
+
     /*验货类型*/
     private Integer inspectionType;
-    
+
     /*收货单位*/
     private Integer receiveSiteCode;
 
     /*封箱号|封签号*/
     private String sealBoxCode;
-    
+
     /*操作类型*/
     private Integer operateType;
+
+	/*设备编码*/
+	private String machineCode;
 
 	private Float length;
 
@@ -189,7 +192,15 @@ public class InspectionRequest extends JdRequest{
 		this.bizSource = bizSource;
 	}
 
-    @Override
+	public String getMachineCode() {
+		return machineCode;
+	}
+
+	public void setMachineCode(String machineCode) {
+		this.machineCode = machineCode;
+	}
+
+	@Override
     public String toString() {
         return "InspectionRequest{" +
                 "boxCode='" + boxCode + '\'' +

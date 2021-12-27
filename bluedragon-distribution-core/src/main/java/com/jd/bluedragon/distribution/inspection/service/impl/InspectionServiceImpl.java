@@ -84,9 +84,9 @@ import java.util.*;
 
 /**
  * 验货Service
- * 
+ *
  * @author wangzichen
- * 
+ *
  */
 @Service
 public class InspectionServiceImpl implements InspectionService , InspectionJsfService {
@@ -100,7 +100,7 @@ public class InspectionServiceImpl implements InspectionService , InspectionJsfS
 
 	@Autowired
 	private InspectionDao inspectionDao;
-	
+
 	@Autowired
 	private InspectionECDao inspectionECDao;
 
@@ -119,7 +119,7 @@ public class InspectionServiceImpl implements InspectionService , InspectionJsfS
 
 	@Autowired
 	private TaskService taskService;
-	
+
 	@Autowired
 	private InspectionExceptionService service;
 
@@ -299,15 +299,15 @@ public class InspectionServiceImpl implements InspectionService , InspectionJsfS
 
 	/**
 	 * 验货核心操作逻辑
-	 * 
+	 *
 	 * @param inspections
 	 * @return
 	 * @throws Exception
-	 * 
+	 *
 	 */
 	@Override
 	@JProfiler(jKey= "DMSWORKER.InspectionService.inspectionCore", mState = {JProEnum.TP, JProEnum.FunctionError})
-	
+
 	public void inspectionCore(List<Inspection> inspections) throws Exception {
 		if (null == inspections) {
 			log.warn(" 验货 inspectionCore 参数为空 : collection of inspection is null ");
@@ -326,7 +326,7 @@ public class InspectionServiceImpl implements InspectionService , InspectionJsfS
 				// OEM同步wms
                 pushOEMToWMS(inspection);//FIXME:51号库推送，需要检查是否在用
 			}
-			
+
 		}
 	}
 
@@ -556,7 +556,7 @@ public class InspectionServiceImpl implements InspectionService , InspectionJsfS
 	}
 	/**
 	 * 插入pda操作日志表
-	 * 
+	 *
 	 * @param inspection
 	 */
 	private void addOperationLog(Inspection inspection,String methodName) {
@@ -611,7 +611,7 @@ public class InspectionServiceImpl implements InspectionService , InspectionJsfS
 	public List<Inspection> findPopJoinList(Map<String, Object> paramMap) {
 		return this.inspectionDao.findPopJoinList(paramMap);
 	}
-	
+
 	@Override
 	public List<Inspection> findBPopJoinList(Map<String, Object> paramMap) {
 		return this.inspectionDao.findBPopJoinList(paramMap);
@@ -674,7 +674,7 @@ public class InspectionServiceImpl implements InspectionService , InspectionJsfS
 		}
 	}
 
-	
+
 	@Override
 	public boolean haveInspection(Inspection inspection) {
 		return this.inspectionDao.haveInspection(inspection);
@@ -1198,6 +1198,9 @@ public class InspectionServiceImpl implements InspectionService , InspectionJsfS
 			map.put("businessType",String.valueOf(Constants.BUSSINESS_TYPE_POSITIVE));
 			if(inspectionBizSourceEnum != null){
 				map.put("bizSource",inspectionBizSourceEnum.getCode().toString());
+			}
+			if (StringUtils.isNotEmpty(vo.getMachineCode())){
+				map.put("machineCode",vo.getMachineCode());
 			}
 			if(BusinessUtil.isBoxcode(barCode)){
 				//箱号

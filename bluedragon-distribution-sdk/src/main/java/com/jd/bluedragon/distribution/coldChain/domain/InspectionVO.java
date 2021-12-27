@@ -24,6 +24,8 @@ public class InspectionVO implements Serializable {
 
     private String operateTime;
 
+    private String machineCode;//设备编号
+
     public List<String> getBarCodes() {
         return barCodes;
     }
@@ -70,5 +72,13 @@ public class InspectionVO implements Serializable {
 
     public void setOperateTime(String operateTime) {
         this.operateTime = operateTime;
+    }
+
+    public String getMachineCode() {
+        return machineCode;
+    }
+
+    public void setMachineCode(String machineCode) {
+        this.machineCode = machineCode;
     }
 }

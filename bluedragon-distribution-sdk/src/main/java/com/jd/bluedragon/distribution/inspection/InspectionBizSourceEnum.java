@@ -65,8 +65,11 @@ public enum InspectionBizSourceEnum {
          * 卸车验货
          */
         UNLOAD_CAR_INSPECTION(43, "卸车验货"),
-
-        ;
+        /**
+         * dws验货
+         */
+        DWS_INSPECTION(44,"DWS验货")
+    ;
 
         /**
          * 编码

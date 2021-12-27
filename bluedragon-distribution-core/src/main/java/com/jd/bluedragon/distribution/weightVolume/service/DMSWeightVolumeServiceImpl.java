@@ -2,6 +2,8 @@ package com.jd.bluedragon.distribution.weightVolume.service;
 
 import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.domain.WaybillCache;
+import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.businessIntercept.constants.Constant;
@@ -10,13 +12,13 @@ import com.jd.bluedragon.distribution.businessIntercept.dto.SaveInterceptMsgDto;
 import com.jd.bluedragon.distribution.businessIntercept.enums.BusinessInterceptOnlineStatusEnum;
 import com.jd.bluedragon.distribution.businessIntercept.helper.BusinessInterceptConfigHelper;
 import com.jd.bluedragon.distribution.businessIntercept.service.IBusinessInterceptReportService;
+import com.jd.bluedragon.distribution.funcSwitchConfig.TraderMoldTypeEnum;
+import com.jd.bluedragon.distribution.packageWeighting.PackageWeightingService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
+import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
 import com.jd.bluedragon.distribution.weightVolume.check.WeightVolumeChecker;
-import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeCondition;
-import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
-import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeRuleCheckDto;
-import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeRuleConstant;
+import com.jd.bluedragon.distribution.weightVolume.domain.*;
 import com.jd.bluedragon.distribution.weightVolume.handler.WeightVolumeHandlerStrategy;
 import com.jd.bluedragon.distribution.weightvolume.FromSourceEnum;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
@@ -25,6 +27,7 @@ import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.alibaba.fastjson.JSON;
 import com.jd.etms.waybill.domain.BaseEntity;
+import com.jd.ldop.basic.dto.BasicTraderNeccesaryInfoDTO;
 import com.jd.ql.basic.util.DateUtil;
 import com.jd.ql.dms.common.constants.DisposeNodeConstants;
 import com.jd.ql.dms.common.constants.OperateDeviceTypeConstants;
@@ -66,6 +69,16 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
 
     @Autowired
     private WaybillQueryManager waybillQueryManager;
+
+
+    @Autowired
+    private WaybillCacheService waybillCacheService;
+
+    @Autowired
+    PackageWeightingService packageWeightingService;
+
+    @Autowired
+    private BaseMinorManager baseMinorManager;
 
 
     @Override
@@ -221,6 +234,196 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
         }
         return remark.isEmpty() ? null : remark.toJSONString();
     }
+
+    /**
+     * 无称重量方拦截
+     *
+     * @param entity@return
+     */
+    @Override
+    @JProfiler(jKey = "DMSWEB.DMSWeightVolumeService.zeroWeightVolumeIntercept", jAppName= Constants.UMP_APP_NAME_DMSWEB, mState={JProEnum.TP, JProEnum.FunctionError})
+    public Boolean zeroWeightVolumeIntercept(ZeroWeightVolumeCheckEntity entity) {
+        String waybillCode = entity.getWaybillCode();
+        String waybillSign = entity.getWaybillSign();
+        String packageCode = entity.getPackageCode();
+        String customerCode = entity.getCustomerCode();
+        WaybillCache waybillNoCache = null;
+        logger.info("零称重量方拦截逻辑开始,waybillCode={},packageCode={}",waybillCode,packageCode);
+        try{
+
+            //waybillSign没有 或者 waybillSign和customerCode同时没有 前置补充数据
+            if(StringUtils.isBlank(waybillSign) ||
+                    (StringUtils.isBlank(waybillSign) && StringUtils.isBlank(customerCode))){
+                logger.info("零称重量方，需要提前加载数据,waybillCode={},packageCode={}",waybillCode,packageCode);
+                waybillNoCache = waybillCacheService.getNoCache(waybillCode);
+                if(StringUtils.isBlank(waybillSign)){
+                    waybillSign = waybillNoCache.getWaybillSign();
+                }
+                if(StringUtils.isBlank(customerCode)){
+                    customerCode = waybillNoCache.getCustomerCode();
+                }
+            }
+
+            //获取拦截场景
+            ZeroWeightVolumeCheckType checkType = needCheckWeightAndVolume(waybillCode,waybillSign,customerCode);
+            if(!ZeroWeightVolumeCheckType.NOT_CHECK.equals(checkType)){
+                //获取称重流水数据
+                if (!packageWeightingService.weightVolumeValidate(waybillCode, packageCode,checkType)) {
+                    logger.info("零称重量方 本地库未查到重量体积,waybillCode={},packageCode={}",waybillCode,packageCode);
+                    if(ZeroWeightVolumeCheckType.CHECK_DMS_AGAIN_WEIGHT.equals(checkType)){
+                        logger.info("零称重量方 经济网场景无重量拦截,waybillCode={},packageCode={}",waybillCode,packageCode);
+                        return Boolean.TRUE;
+                    }else{
+                        logger.info("零称重量方 本地库未查到重量体积，调用运单接口检查,waybillCode={},packageCode={}",waybillCode,packageCode);
+                        //称重流水未获取到时需要从运单接口查  数据没有下放的极端情况下 防止已加载少加载一次
+                        waybillNoCache = waybillNoCache == null ? waybillCacheService.getNoCache(waybillCode):waybillNoCache;
+                        if (waybillNoCache != null) {
+                            logger.info("零称重量方 调用运单接口检查称重量方数据,waybillCode={},againW={},againV={}",waybillCode,waybillNoCache.getAgainWeight(),waybillNoCache.getSpareColumn2());
+                            //判断运单上重量体积（复重：AGAIN_WEIGHT、复量方SPARE_COLUMN2，下单重量、下单体积）是否同时不存在（非空，>0）
+                            if(ZeroWeightVolumeCheckType.CHECK_GOOD_OR_AGAIN_WEIGHT_OR_VOLUME.equals(checkType)){
+                                if ((waybillNoCache.getAgainWeight() == null || waybillNoCache.getAgainWeight() <= 0)
+                                        && (org.apache.commons.lang.StringUtils.isEmpty(waybillNoCache.getSpareColumn2()) || Double.parseDouble(waybillNoCache.getSpareColumn2()) <= 0)
+                                        && (waybillNoCache.getWeight() == null || waybillNoCache.getWeight() <= 0)
+                                        && (waybillNoCache.getVolume() == null || waybillNoCache.getVolume() <= 0)){
+                                    logger.info("零称重量方 无复重且复量方且下单重量且下单量方数据，需要拦截，运单号{}",waybillCode);
+                                    return Boolean.TRUE;
+                                }
+
+                            }else {
+                                //判断运单上重量体积（复重：AGAIN_WEIGHT、复量方SPARE_COLUMN2）是否同时存在（非空，>0）
+                                if (waybillNoCache.getAgainWeight() == null || waybillNoCache.getAgainWeight() <= 0
+                                        || org.apache.commons.lang.StringUtils.isEmpty(waybillNoCache.getSpareColumn2()) || Double.parseDouble(waybillNoCache.getSpareColumn2()) <= 0) {
+                                    logger.info("零称重量方 无复重或复量方数据，需要拦截，运单号{}",waybillCode);
+                                    return Boolean.TRUE;
+                                }
+                            }
+                        }else{
+                            logger.info("零称重量方 调用运单接口检查称重量方数据,未获取到运单信息,waybillCode={}",waybillCode);
+                        }
+                    }
+                }else{
+                    logger.info("零称重量方 通过称重流水获取到称重量方信息，不需要拦截,waybillCode={}",waybillCode);
+                }
+            }
+            return Boolean.FALSE;
+        }catch (Exception e){
+            logger.error("零称重量方拦截逻辑异常,运单号{},包裹号{}",waybillCode,packageCode,e);
+            return Boolean.FALSE;
+        }finally {
+            logger.info("零称重量方拦截逻辑结束,waybillCode={},packageCode={}",waybillCode,packageCode);
+        }
+    }
+
+
+    private ZeroWeightVolumeCheckType needCheckWeightAndVolume(String waybillCode,String waybillSign,String customerCode){
+        /*******************************     经济网      *************************************/
+        if(BusinessUtil.isEconomicNetValidateWeightVolume(waybillCode,waybillSign)){
+            logger.info("零称重量方拦截经济网，需要拦截，运单号{}",waybillCode);
+            return ZeroWeightVolumeCheckType.CHECK_DMS_AGAIN_WEIGHT;
+        }
+        /*******************************     经济网 结束     *************************************/
+
+
+        /*******************************     外单      *************************************/
+
+        /*******************************     纯配外单      *************************************/
+
+        if(BusinessHelper.isAllPureOutWaybill(waybillSign)){
+
+            /*************纯配外单 统一不拦截场景开始******************/
+
+            //逆向不拦截
+            if (!BusinessUtil.isForeignForwardAndWaybillMarkForward(waybillSign)) {
+                logger.info("零称重量方 纯配外单 逆向场景，不需要拦截，运单号{}",waybillCode);
+                return ZeroWeightVolumeCheckType.NOT_CHECK;
+            }
+            if (WaybillUtil.isReturnCode(waybillCode)) {
+                logger.info("零称重量方 纯配外单 返单场景，不需要拦截，运单号{}",waybillCode);
+                return ZeroWeightVolumeCheckType.NOT_CHECK;
+            }
+            //退货取件
+            if (!BusinessUtil.isSignChar(waybillSign, 17, '0')) {
+                logger.info("零称重量方 纯配外单 逆向退货取件场景，不需要拦截，运单号{}",waybillCode);
+                return ZeroWeightVolumeCheckType.NOT_CHECK;
+            }
+            //内部商家不拦截
+            if(org.apache.commons.lang.StringUtils.isNotBlank(customerCode)){
+                BasicTraderNeccesaryInfoDTO basicTraderNeccesaryInfoDTO = baseMinorManager.getBaseTraderNeccesaryInfo(customerCode);
+                //traderMold  内部商家类型编码
+                if(basicTraderNeccesaryInfoDTO != null &&
+                        basicTraderNeccesaryInfoDTO.getTraderMold()!=null &&
+                        basicTraderNeccesaryInfoDTO.getTraderMold().equals(TraderMoldTypeEnum.inside_type.getCode())){
+                    logger.info("零称重量方 纯配外单 内部商家，不需要拦截，运单号{}",waybillCode);
+                    return ZeroWeightVolumeCheckType.NOT_CHECK;
+                }
+            }
+
+            /*************纯配外单 统一不拦截场景结束******************/
+
+            /*************纯配外单 统一拦截场景开始******************/
+            //运费临时欠款
+            if(BusinessUtil.isTemporaryArrearsWaybill(waybillSign)){
+                logger.info("零称重量方 运费临时欠款，需要拦截，运单号{}",waybillCode);
+                return ZeroWeightVolumeCheckType.CHECK_AGAIN_WEIGHT_VOLUME;
+            }
+
+            /*************纯配外单 统一拦截场景结束******************/
+
+            if(BusinessUtil.isCInternet(waybillSign)){
+                /*************纯配外单 C网 统一拦截场景开始******************/
+
+                //C网的信任商家拦截
+                if(BusinessHelper.isTrust(waybillSign)){
+                    logger.info("零称重量方 纯配外单 C网 信任商家，需要拦截，运单号{}",waybillCode);
+                    return ZeroWeightVolumeCheckType.CHECK_GOOD_OR_AGAIN_WEIGHT_OR_VOLUME;
+                }
+
+                //特殊商家类型  且  个性化运单场景
+                if (BusinessUtil.isSignInChars(waybillSign, 32, '0','2','K','Y')
+                        &&
+                        BusinessUtil.isSignInChars(waybillSign, 24, '0','1','3')
+                ) {
+                    logger.info("零称重量方 纯配外单 C网 特殊商家类型 且 个性化运单场景，需要拦截，运单号{}",waybillCode);
+                    return ZeroWeightVolumeCheckType.CHECK_AGAIN_WEIGHT_VOLUME;
+                }
+                /*************纯配外单 C网 统一拦截场景结束******************/
+            }else{
+                /*************纯配外单 非C网 统一不拦截场景开始******************/
+                //非C网信任商家不拦截
+                if(BusinessHelper.isTrust(waybillSign)){
+                    logger.info("零称重量方 纯配外单 非C网 信任商家场景，不需要拦截，运单号{}",waybillCode);
+                    return ZeroWeightVolumeCheckType.NOT_CHECK;
+                }
+                //不需要称重
+                if(BusinessUtil.isNoNeedWeight(waybillSign)){
+                    logger.info("零称重量方 纯配外单 非C网 不需要称重场景，不需要拦截，运单号{}",waybillCode);
+                    return ZeroWeightVolumeCheckType.NOT_CHECK;
+                }
+
+                /*************纯配外单 非C网 统一不拦截场景结束******************/
+
+
+                /*************纯配外单 非C网 统一拦截场景开始******************/
+                //快运零担
+                if(BusinessUtil.isSignChar(waybillSign, 40, '2')){
+                    logger.info("零称重量方 纯配外单 非C网 快运零担场景，需要拦截，运单号{}",waybillCode);
+                    return ZeroWeightVolumeCheckType.CHECK_AGAIN_WEIGHT_VOLUME;
+                }
+
+                /*************纯配外单 非C网 统一拦截场景结束******************/
+
+            }
+
+        }
+
+        /*******************************     纯配外单 结束      *************************************/
+
+        /*******************************     外单 结束    *************************************/
+        logger.info("零称重量方 任何条件未匹配到，不需要拦截，运单号{}",waybillCode);
+        return ZeroWeightVolumeCheckType.NOT_CHECK;
+    }
+
+
 
     /**
      * 判断是否是C网运单

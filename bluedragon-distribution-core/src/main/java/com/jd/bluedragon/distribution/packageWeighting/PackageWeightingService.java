@@ -2,6 +2,8 @@ package com.jd.bluedragon.distribution.packageWeighting;
 
 
 import com.jd.bluedragon.distribution.packageWeighting.domain.PackageWeighting;
+import com.jd.bluedragon.distribution.weightVolume.domain.ZeroWeightVolumeCheckType;
+
 import java.util.List;
 
 /**
@@ -29,8 +31,13 @@ public interface PackageWeightingService {
     /**
      * 校验包裹或订单是否有称重量方
      */
+    @Deprecated
     boolean weightVolumeValidate(String waybillCode, String packageCode);
 
+    /**
+     * 校验包裹或订单是否有称重量方
+     */
+    boolean weightVolumeValidate(String waybillCode, String packageCode, ZeroWeightVolumeCheckType type);
 
     /**
      * 校验包裹或订单是否有重量 (不校验体积)
