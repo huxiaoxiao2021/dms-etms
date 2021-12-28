@@ -83,16 +83,16 @@ public class ColdChainReverseManagerImpl implements ColdChainReverseManager {
 
         String waybillCode = exchangeWaybillDto.getWaybillCode();
         ColdChainReverseRequest requestDto = new ColdChainReverseRequest();
-        requestDto.setLwbNo(waybillCode);
+        requestDto.setWaybillCode(waybillCode);
         requestDto.setOperateUserId(exchangeWaybillDto.getOperatorId());
         requestDto.setOperateUser(exchangeWaybillDto.getOperatorName());
         requestDto.setOperateTime(StringUtils.isBlank(exchangeWaybillDto.getOperateTime())?new Date():DateHelper.parseDateTime(exchangeWaybillDto.getOperateTime()));
         if(exchangeWaybillDto.getIsTotalout()){
-            requestDto.setReverseType((byte)1);// 整单拒收
+            requestDto.setReverseType(1);// 整单拒收
         }else{
-            requestDto.setReverseType((byte)2);// 包裹拒收
+            requestDto.setReverseType(2);// 包裹拒收
         }
-        requestDto.setReverseSource((byte)2);//分拣中心
+        requestDto.setReverseSource(2);//分拣中心
         requestDto.setSortCenterId(exchangeWaybillDto.getCreateSiteCode());
         requestDto.setReturnType(LDOPManagerImpl.RETURN_TYPE_0);//默认
         if(exchangeWaybillDto.getReturnType()!=null){
@@ -128,14 +128,14 @@ public class ColdChainReverseManagerImpl implements ColdChainReverseManager {
                 return null;
             }
             ColdChainReverseResult coldChainReverseResult = responseDTO.getData();
-            if(coldChainReverseResult == null || StringUtils.isBlank(coldChainReverseResult.getLwb())) {
+            if(coldChainReverseResult == null || StringUtils.isBlank(coldChainReverseResult.getWaybillCode())) {
                 //逆向换单后返回的运单号为空
                 errorMessage.append("eclp自动换单接口失败 " + responseDTO.getStatusMessage());
                 logger.warn("触发eclp逆向换单返回的运单号为空,入参：{}  返回值：{}",JsonHelper.toJson(coldChainReverseRequest),JsonHelper.toJson(responseDTO));
                 return null;
             }
             WaybillReverseResult result = new WaybillReverseResult();
-            result.setWaybillCode(coldChainReverseResult.getLwb());
+            result.setWaybillCode(coldChainReverseResult.getWaybillCode());
             return result;
         }catch (Exception e){
             logger.error("触发eclp逆向换单发生异常,入参：" + JsonHelper.toJson(coldChainReverseRequest),e);
