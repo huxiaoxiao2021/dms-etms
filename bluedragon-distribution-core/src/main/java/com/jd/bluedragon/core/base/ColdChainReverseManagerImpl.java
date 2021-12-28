@@ -14,6 +14,8 @@ import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ldop.center.api.reverse.dto.WaybillReverseResult;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang3.StringUtils;
@@ -54,6 +56,7 @@ public class ColdChainReverseManagerImpl implements ColdChainReverseManager {
      * @return
      */
     @Override
+    @JProfiler(jKey = "DMS.WEB.ColdChainReverseManager.checkColdReverseProductType", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public boolean checkColdReverseProductType(String waybillCode) {
         if(StringUtils.isBlank(waybillCode)){
             return false;
@@ -68,7 +71,7 @@ public class ColdChainReverseManagerImpl implements ColdChainReverseManager {
         if(waybill == null || waybill.getWaybillExt() == null || StringUtils.isBlank(waybill.getWaybillExt().getProductType())){
             return false;
         }
-        List<String> productTypes = Arrays.asList(waybill.getWaybillExt().getProductType().split(","));
+        List<String> productTypes = Arrays.asList(waybill.getWaybillExt().getProductType().split(Constants.SEPARATOR_COMMA));
         return productTypes.contains(DmsConstants.PRODUCT_TYPE_COLD_CHAIN_KB) || productTypes.contains(Constants.PRODUCT_TYPE_MEDICINE_DP) || productTypes.contains(Constants.PRODUCT_TYPE_COLD_CHAIN_XP);
     }
 
@@ -79,6 +82,7 @@ public class ColdChainReverseManagerImpl implements ColdChainReverseManager {
      * @return
      */
     @Override
+    @JProfiler(jKey = "DMS.WEB.ColdChainReverseManager.makeColdChainReverseRequest", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public ColdChainReverseRequest makeColdChainReverseRequest(ExchangeWaybillDto exchangeWaybillDto) {
 
         String waybillCode = exchangeWaybillDto.getWaybillCode();
@@ -100,10 +104,6 @@ public class ColdChainReverseManagerImpl implements ColdChainReverseManager {
         }
         if(!new Integer(0).equals(exchangeWaybillDto.getPackageCount())){
             requestDto.setPackageCount(exchangeWaybillDto.getPackageCount());
-        }
-        if(this.checkIsPureMatch(waybillCode,null)){
-            //是纯配一次换单  理赔状态满足  一定退备件库
-            requestDto.setReturnType(LDOPManagerImpl.RETURN_TYPE_4);
         }
         return requestDto;
     }
@@ -142,33 +142,5 @@ public class ColdChainReverseManagerImpl implements ColdChainReverseManager {
             Profiler.functionError(info);
             return null;
         }
-    }
-
-    /**
-     * 纯配一次换单判断
-     * @param waybillCode
-     * @param waybillSign
-     * @return
-     */
-    private Boolean checkIsPureMatch(String waybillCode,String waybillSign){
-
-        if(StringUtils.isBlank(waybillSign)){
-            //外部未传入waybillSign 自己再去调用一次
-            BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode,true,true,true,false);
-            if(baseEntity != null && baseEntity.getData() != null && baseEntity.getData().getWaybill() != null && StringUtils.isNotBlank(baseEntity.getData().getWaybill().getWaybillSign())){
-                waybillSign = baseEntity.getData().getWaybill().getWaybillSign();
-            }
-        }
-        //纯配外单一次换单理赔完成且物权归京东-退备件库
-        if(BusinessUtil.isPurematch(waybillSign)){
-            LocalClaimInfoRespDTO claimInfoRespDTO = obcsManager.getClaimListByClueInfo(1,waybillCode);
-            if(claimInfoRespDTO != null){
-                if(LocalClaimInfoRespDTO.LP_STATUS_DONE.equals(claimInfoRespDTO.getStatusDesc())
-                        && LocalClaimInfoRespDTO.GOOD_OWNER_JD.equals(claimInfoRespDTO.getGoodOwner())){
-                    return Boolean.TRUE;
-                }
-            }
-        }
-        return Boolean.FALSE;
     }
 }

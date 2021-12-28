@@ -1805,11 +1805,14 @@ public class WaybillResource {
 		try {
 			StringBuilder errorMessage = new StringBuilder();
 			WaybillReverseResult waybillReverseResult = null;
+			String waybillCode = request.getWaybillCode();
 			//冷链的几种产品需要调eclp接口换单
-			if(coldChainReverseManager.checkColdReverseProductType(request.getWaybillCode())){
+			if(coldChainReverseManager.checkColdReverseProductType(waybillCode)){
+				log.info("换单方法createReturnsWaybillNew走冷链换单流程,运单号{}",waybillCode);
 				ColdChainReverseRequest coldChainReverseRequest = coldChainReverseManager.makeColdChainReverseRequest(request);
 				waybillReverseResult = coldChainReverseManager.createReverseWbOrder(coldChainReverseRequest,errorMessage);
 			}else {
+				log.info("换单方法createReturnsWaybillNew走原有流程,运单号{}",waybillCode);
 				WaybillReverseDTO waybillReverseDTO = ldopManager.makeWaybillReverseDTOCanTwiceExchange(request);
 				waybillReverseResult = ldopManager.waybillReverse(waybillReverseDTO, errorMessage);
 			}
