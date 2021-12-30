@@ -12,9 +12,9 @@
     <context:component-scan base-package="com.jd.security.tde.spring.*" />
 
     <bean id="tdeClient" class="com.jd.security.tde.spring.TdeClientFactoryBean">
-        <property name="token" value="eyJzaWciOiJaYXJPN09MU3hLc0JDQXcvaUVvc1MyMTEzR3VNREtwMmQ0Nkk1K29CY1hXZUNqVXdUd200bFc3R2FqL211WU1uQllWYWFibzZpVVphUFVOcWswRVczalZ3TjQrbzkyQ1VFWXdWSTJ3eEZwQ3UxZGhnUE5OUDhtSHBCRTdGaHNRSjh6YnFVZGVudUVKUzNBZGVMWk9kTlhncTR6L0ZnRFZQWDcyeUNRTkIzblpRb3B5eDk2d2gzSThhNHdoSWJ1SVE2WDJBN01rcUpoaFRubnZGclA2TFhPRTVGY045Y2NWZ1Ywc21UWnMzSHdWcHJZbm5MNnVuVGlRMG42cFloOHAwbnpBZWlUVFZud0oxWUdKelBDZW9rOUI3c3AralpMUjBZQ3JyUmVtRmJERWVYYXUzb3lEK3BJR2tUbmxqRUg2MGZBQXVYSzkyMFpZS1VDMEJObmNkcXc9PSIsImRhdGEiOnsiYWN0IjoiY3JlYXRlIiwiZWZmZWN0aXZlIjoxNjMyMjQwMDAwMDAwLCJleHBpcmVkIjoxNjk1MzEyMDAwMDAwLCJpZCI6Ik9XTTBZek5sWm1NdFpEaG1aaTAwWVRRNExXRXdOemd0TWpnek5XVmhNMk0yTTJJMiIsImtleSI6IjkvSE1scGdKRlJsMnlqY1pKelU4OHJTdTZtNnJyV0lwYjBMbGlZNEs2aVk9Iiwic2VydmljZSI6ImRtc19ldG1zX2JjMmNuUmlzIiwic3R5cGUiOjJ9LCJleHRlcm5hbERhdGEiOnsiem9uZSI6IkNOLTAifX0="/>
-        <property name="rPath" value=""/>
-        <property name="isProd" value="false"/>
+        <property name="token" value="${aces.token}"/>
+        <property name="rPath" value="${aces.rPath}"/>
+        <property name="isProd" value="${aces.isProd}"/>
     </bean>
 
 </beans>
