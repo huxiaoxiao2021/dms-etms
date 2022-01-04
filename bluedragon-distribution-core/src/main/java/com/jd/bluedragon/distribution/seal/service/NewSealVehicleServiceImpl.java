@@ -1044,6 +1044,14 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
         List<Message> batchSendStatusChanges = Lists.newArrayList();
         for(String code:batchCodeList){
             BatchSendStatusChange batchSendStatusChange = new BatchSendStatusChange(code, batchSendStatusEnum.getCode());
+
+            log.info("sendBatchSendCodeStatusMsg-1047-1 {}",batchSendStatusChangeProducer);
+            log.info("sendBatchSendCodeStatusMsg-1047-2 {}",batchSendStatusChange);
+            log.info("sendBatchSendCodeStatusMsg-1047-3 {}",JsonHelper.toJson(batchSendStatusChange));
+            log.info("sendBatchSendCodeStatusMsg-1047-4 {}",JsonHelper.toJson(batchSendStatusChange).getBytes(StandardCharsets.UTF_8));
+            log.info("sendBatchSendCodeStatusMsg-1047-5 {}",batchSendStatusChangeProducer.getTopic());
+            log.info("sendBatchSendCodeStatusMsg-1047-6 {}",code);
+
             batchSendStatusChanges.add(new Message()
                     .topic(batchSendStatusChangeProducer.getTopic())
                     .businessId(code)
