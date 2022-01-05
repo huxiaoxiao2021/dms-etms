@@ -837,7 +837,8 @@ public class SendDetailConsumer extends MessageBaseConsumer {
         frbc.setSystemId(87);//blockerComOrbrefundRq的systemId设定为87
         frbc.setReqErp(String.valueOf(sendDetail.getCreateUserCode()));
         frbc.setReqName(sendDetail.getCreateUser());
-        frbc.setOrderType(sorting.getType());
+        //写死是三方
+        frbc.setOrderType(30);
         frbc.setMessageType("BLOCKER_QUEUE_DMS_REVERSE_PRINT");
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         frbc.setOperatTime(dateFormat.format(operatorTime));
