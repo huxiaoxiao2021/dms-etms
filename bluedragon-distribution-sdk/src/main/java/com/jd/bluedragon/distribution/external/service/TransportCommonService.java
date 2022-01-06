@@ -41,6 +41,13 @@ public interface TransportCommonService {
     InvokeResult<Integer> getRouterNextSiteId(TransportServiceRequest transportServiceRequest);
 
     /**
+     * 根据运单号获取waybill表路由字段
+     * @param transportServiceRequest
+     * @return
+     */
+    InvokeResult<String> getRouterByWaybillCode(TransportServiceRequest transportServiceRequest);
+
+    /**
      * 加盟商余额校验
      * @param waybillCode 运单号
      * @return 校验结果
