@@ -707,15 +707,14 @@ public class SendDetailConsumer extends MessageBaseConsumer {
             return;
         }
         String waybillCode = waybill.getWaybillCode();
-        List<String> productTypes = Arrays.asList(waybill.getWaybillExt().getProductType().split(Constants.SEPARATOR_COMMA));
-        boolean isColdProductType = productTypes.contains(DmsConstants.PRODUCT_TYPE_COLD_CHAIN_KB) || productTypes.contains(Constants.PRODUCT_TYPE_MEDICINE_DP) || productTypes.contains(Constants.PRODUCT_TYPE_COLD_CHAIN_XP);
-        if(!isColdProductType){
-            log.warn("处理冷链拦截快退逻辑，非冷链卡班、医药大票、冷链小票产品类型，无须处理，运单号：{}",waybillCode);
-            return;
-        }
-
-        Integer createSiteCode = sendDetail.getCreateSiteCode();
         try {
+            List<String> productTypes = Arrays.asList(waybill.getWaybillExt().getProductType().split(Constants.SEPARATOR_COMMA));
+            boolean isColdProductType = productTypes.contains(DmsConstants.PRODUCT_TYPE_COLD_CHAIN_KB) || productTypes.contains(Constants.PRODUCT_TYPE_MEDICINE_DP) || productTypes.contains(Constants.PRODUCT_TYPE_COLD_CHAIN_XP);
+            if(!isColdProductType){
+                log.warn("处理冷链拦截快退逻辑，非冷链卡班、医药大票、冷链小票产品类型，无须处理，运单号：{}",waybillCode);
+                return;
+            }
+            Integer createSiteCode = sendDetail.getCreateSiteCode();
             //前缀 + 场地 + 运单号
             String redisKey = REDIS_COLD_INTEGRCEPT_SMS + createSiteCode + SEPARATOR + waybillCode;
             boolean isExist = redisClientCache.exists(redisKey);
@@ -745,7 +744,6 @@ public class SendDetailConsumer extends MessageBaseConsumer {
                 String waybillsign = waybill.getWaybillSign();
                 if (waybillsign != null && waybillsign.length() > 0) {
                     if (BusinessUtil.isSick(waybill.getWaybillSign())) {
-                        //TODO 上线观察一段时间 可删除该log
                         this.log.warn("分拣中心逆向病单,冷链卡班、医药大票、冷链小票产品屏蔽退款100分MQ,运单号：{}", wayBillCode);
                         return;
                     }
@@ -786,7 +784,6 @@ public class SendDetailConsumer extends MessageBaseConsumer {
             //waybillsign  1=T  ||  waybillsign  15=6表示逆向订单
             if((waybill.getWaybillSign().charAt(0)=='T' || waybill.getWaybillSign().charAt(14)=='6')){
                 if(BusinessUtil.isSick(waybill.getWaybillSign())){
-                    //TODO 上线观察一段时间 可删除该log
                     this.log.warn("分拣中心逆向病单,冷链卡班、医药大票、冷链小票产品屏蔽快退MQ,运单号：{}", wayBillCode);
                     return;
                 }
@@ -838,7 +835,7 @@ public class SendDetailConsumer extends MessageBaseConsumer {
         frbc.setReqErp(String.valueOf(sendDetail.getCreateUserCode()));
         frbc.setReqName(sendDetail.getCreateUser());
         //写死是三方
-        frbc.setOrderType(30);
+        frbc.setOrderType(20);
         frbc.setMessageType("BLOCKER_QUEUE_DMS_REVERSE_PRINT");
         DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         frbc.setOperatTime(dateFormat.format(operatorTime));
