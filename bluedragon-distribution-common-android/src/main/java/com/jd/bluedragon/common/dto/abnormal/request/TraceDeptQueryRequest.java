@@ -13,6 +13,7 @@ public class TraceDeptQueryRequest implements Serializable{
 	private Long thirdLevelExceptionId;
 	private String thirdLevelExceptionName;
 	private String specialScene;
+	private Long thirdLevelReasonId;
 	
 	public String getCode() {
 		return code;
@@ -67,5 +68,11 @@ public class TraceDeptQueryRequest implements Serializable{
 	}
 	public void setSpecialScene(String specialScene) {
 		this.specialScene = specialScene;
+	}
+	public Long getThirdLevelReasonId() {
+		return thirdLevelReasonId;
+	}
+	public void setThirdLevelReasonId(Long thirdLevelReasonId) {
+		this.thirdLevelReasonId = thirdLevelReasonId;
 	}
 }
