@@ -860,4 +860,13 @@ public class HintCodeConstants {
      * 异常上报-改地址拦截:改址订单，请补打操作 
      */
     public static String EX_REPORT_CHECK_CHANGE_ADDRESS = "50003";    
+    
+    /**
+     * 非航空单无法操作航空转陆运
+     */
+    public static String AIR_TO_ROAD_NOT_ALLOWD="50002";
+    /**
+     * 存在非航空单操作，提示非航空单数量
+     */
+    public static String AIR_TO_ROAD_TIP_MSG="50004";
 }
