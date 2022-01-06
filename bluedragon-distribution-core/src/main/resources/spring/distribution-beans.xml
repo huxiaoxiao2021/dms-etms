@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:util="http://www.springframework.org/schema/util"
        xsi:schemaLocation="
-    http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
+    http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+    http://www.springframework.org/schema/util
+	http://www.springframework.org/schema/util/spring-util.xsd">
 
     <bean name="sortingNumberLimitConfig" class="com.jd.bluedragon.distribution.ver.config.SortingNumberLimitConfig" >
 		<property name="siteTypes">
@@ -49,7 +52,32 @@
             </set>
         </constructor-arg>
     </bean>
-
+    <!-- 旧异常扫描-校验改地址原因ids -->
+    <bean id="checkPrintInterceptReasonIdSetForOld"  class="java.util.HashSet">
+    	<constructor-arg type="java.util.Collection">
+        	<set value-type="java.lang.Integer">    
+				<!-- 20260-锁定订单退回 -->
+				<value>20260</value>
+				<!-- 20261-退款100分订单退回 -->
+				<value>20261</value>	
+				<!-- 20262-客户取消订单 -->
+				<value>20262</value>	
+				<!-- 20263-包装损坏无法发货 -->
+				<value>20263</value>
+				<!-- 20264-订单地址超区 -->
+				<value>20264</value>	
+			</set>		
+        </constructor-arg>
+    </bean>
+	<!-- 新异常上报-校验改地址原因ids -->
+    <bean id="checkPrintInterceptReasonIdSet"  class="java.util.HashSet">
+    	<constructor-arg type="java.util.Collection">
+        	<set value-type="java.lang.Long">
+				<!-- 45186-客户取消订单 -->
+				<value>45186</value>
+			</set>
+        </constructor-arg>
+    </bean>
     <!-- 获取包裹明细线程池配置，参考了jsf线程池配置，由于上层请求流量限制来自jsf，要考虑线程池不能成为瓶颈 -->
     <bean id="executorparallelGetPackageExecutor" class="com.jd.bluedragon.utils.ThreadPoolExecutorFactory">
         <property name="corePoolSize" value="${parallel.getpackage.Executor.corePoolSize:20}"/><!-- jsf:server配置: 初始线程数 20，所有接口共用，达到200请求就报错 -->

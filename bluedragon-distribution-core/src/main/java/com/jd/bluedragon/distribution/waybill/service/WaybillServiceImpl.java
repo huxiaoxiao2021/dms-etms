@@ -1234,4 +1234,20 @@ public class WaybillServiceImpl implements WaybillService {
 
         return omcOrderCode;
     }
+
+	@Override
+	public boolean hasPrintIntercept(String waybillCode, String waybillSign) {
+		/**
+		 * 标位判断
+		 */
+		if(BusinessUtil.isChangeWaybillSign(waybillSign)) {
+			return true;
+		}
+		BlockResponse response = this.checkWaybillBlock(waybillCode, CancelWaybill.FEATURE_TYPE_ORDER_MODIFY);
+        if(response != null
+        		&& BlockResponse.BLOCK.equals(response.getCode())) {
+        	return true;
+        }
+		return false;
+	}
 }
