@@ -5,6 +5,7 @@ import com.jd.bluedragon.TextConstants;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.api.response.WaybillPrintResponse;
@@ -34,6 +35,8 @@ import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.pfinder.profiler.sdk.trace.PFTracing;
 import com.jd.ql.basic.domain.BaseDmsStore;
 import com.jd.ql.basic.domain.CrossPackageTagNew;
+import com.jd.ql.basic.domain.SortCrossDetail;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
@@ -75,6 +78,8 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
 
     @Autowired
     private BaseMinorManager baseMinorManager;
+    @Autowired
+    private BaseMajorManager baseMajorManager;
 
     @Autowired
     private UccPropertyConfiguration uccPropertyConfiguration;
@@ -189,7 +194,7 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
             //加载已打印记录【标签打印与发票打印】
             loadPrintedData(context);
             //根据预分拣站点加载始发及目的站点信息
-            loadBasicData(context.getResponse());
+            loadBasicData(context,context.getResponse());
             //加载路由信息
             waybillCommonService.loadWaybillRouter(context.getResponse(),context.getResponse().getOriginalDmsCode(),context.getResponse().getPurposefulDmsCode(),context.getWaybill().getWaybillSign());
         }catch (Exception ex){
@@ -482,10 +487,11 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
         }
     }
     /**
-     * 根据预分拣站点信息加载始发及目的站点、滑道号、笼车号
+     * 1、预分拣站点正常，查询大全表并设置滑道信息
+     * 2、全量接单需求-预分拣站点为空或小于0，运单endDmsId大于0，查询基础资料滑道信息
      * @param waybill
      */
-    private final void loadBasicData(final PrintWaybill waybill){
+    private final void loadBasicData(WaybillPrintContext context,final PrintWaybill waybill){
         CallerInfo callerInfo = Profiler.registerInfo("dms.web.BasicWaybillPrintHandler.loadBasicData",
                 Constants.UMP_APP_NAME_DMSWEB, false, true);
         try {
@@ -495,22 +501,89 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
                 waybill.setDestinationDmsName(DmsConstants.TEXT_SCRAP_DMS_NAME_MARK);
         		return;
         	}
+
+            //如果预分拣站点为0超区或者999999999EMS全国直发，则不用查询大全表
+            if(null!=waybill.getPrepareSiteCode()&&waybill.getPrepareSiteCode()>ComposeService.PREPARE_SITE_CODE_NOTHING
+                    && !ComposeService.PREPARE_SITE_CODE_EMS_DIRECT.equals(waybill.getPrepareSiteCode())){
+                /**
+                 * 1、预分拣站点正常，查询大全表并设置滑道信息
+                 */
+                setCrossInfoByCrossPackageTag(waybill);
+            }else if(null==waybill.getPrepareSiteCode()
+            		|| waybill.getPrepareSiteCode() <= ComposeService.PREPARE_SITE_CODE_NOTHING) {
+            	/**
+            	 * 2、全量接单需求-预分拣站点为空或小于0，运单endDmsId大于0，查询基础资料滑道信息
+            	 */
+            	setCrossInfoByCrossDetail(context,waybill);
+            }
+        } finally {
+            Profiler.registerInfoEnd(callerInfo);
+        }
+    }
+    /**
+     * 根据始发和目的分拣中心设置打印滑道信息
+     * @param waybill
+     * @param endDmsId 目的分拣中心
+     */
+    private void setCrossInfoByCrossDetail(WaybillPrintContext context,PrintWaybill waybill) {
+    	SortCrossDetail crossDetail = null;
+    	Integer endDmsId = null;
+    	if(context.getBigWaybillDto() != null 
+    			&& context.getBigWaybillDto().getWaybill()!= null
+    			&& context.getBigWaybillDto().getWaybill().getWaybillExt()!= null) {
+    		endDmsId = context.getBigWaybillDto().getWaybill().getWaybillExt().getEndDmsId();
+    	}
+    	BaseStaffSiteOrgDto originalDmsInfo =baseMajorManager.getBaseSiteBySiteId(waybill.getOriginalDmsCode());
+    	if(originalDmsInfo != null) {
+            waybill.setOriginalDmsCode(waybill.getOriginalDmsCode());
+            waybill.setOriginalDmsName(originalDmsInfo.getSiteName());
+    	}
+    	if(NumberHelper.gt0(endDmsId)) {
+    		context.setUseEndDmsId(true);
+    		context.setWaybillEndDmsId(endDmsId);
+    		JdResult<SortCrossDetail> remoteResult = baseMinorManager.queryCrossDetailByDmsIdAndSiteCode(waybill.getOriginalDmsCode(), endDmsId.toString(), waybill.getOriginalCrossType());
+            if(remoteResult.isSucceed()) {
+            	crossDetail=remoteResult.getData();
+            }else{
+                log.warn("打印业务：未获取到滑道号及笼车号信息:{}", remoteResult.getMessage());
+            }
+           	BaseStaffSiteOrgDto endDmsInfo =baseMajorManager.getBaseSiteBySiteId(endDmsId);
+        	if(endDmsInfo != null) {
+                waybill.setPurposefulDmsCode(endDmsId);
+                waybill.setPurposefulDmsName(endDmsInfo.getSiteName());
+                waybill.setDestinationDmsName(endDmsInfo.getSiteName());
+        	}
+    	}
+    	if(crossDetail != null) {
+            waybill.setPrepareSiteName("");
+            waybill.setPrintSiteName("");
+
+            //笼车号
+            waybill.setOriginalTabletrolley(crossDetail.getTabletrolleyCode());
+            waybill.setOriginalTabletrolleyCode(crossDetail.getTabletrolleyCode());
+            //道口号
+            waybill.setOriginalCrossCode(crossDetail.getCrossCode());
+            hiddenCrossInfo(waybill);
+    	}
+	}
+	/**
+     * 根据大全表设置打印滑道信息
+     * @param tag
+     * @param waybill
+     */
+    private void setCrossInfoByCrossPackageTag(PrintWaybill waybill) {
+    	CrossPackageTagNew tag = null;
             BaseDmsStore baseDmsStore = new BaseDmsStore();
             baseDmsStore.setStoreId(waybill.getStoreId());//库房编号
             baseDmsStore.setCky2(waybill.getCky2());//cky2
             baseDmsStore.setOrgId(waybill.getOrgId());//机构编号
             baseDmsStore.setDmsId(waybill.getOriginalDmsCode());//分拣中心编号
-            CrossPackageTagNew tag = null;
-            //如果预分拣站点为0超区或者999999999EMS全国直发，则不用查询大全表
-            if(null!=waybill.getPrepareSiteCode()&&waybill.getPrepareSiteCode()>ComposeService.PREPARE_SITE_CODE_NOTHING
-                    && !ComposeService.PREPARE_SITE_CODE_EMS_DIRECT.equals(waybill.getPrepareSiteCode())){
                 JdResult<CrossPackageTagNew> jdResult = baseMinorManager.queryCrossPackageTagForPrint(baseDmsStore, waybill.getPrepareSiteCode(), waybill.getOriginalDmsCode(),waybill.getOriginalCrossType());
                 if(jdResult.isSucceed()) {
                     tag=jdResult.getData();
                 }else{
                     log.warn("打印业务：未获取到滑道号及笼车号信息:{}", jdResult.getMessage());
-                }
-            }
+        }    	
             if(null!=tag){
                 if(tag.getIsAirTransport()!=null
                         && tag.getIsAirTransport()== ComposeService.AIR_TRANSPORT
@@ -549,12 +622,20 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
                 waybill.setOriginalCrossCode(tag.getOriginalCrossCode());
                 waybill.setPurposefulCrossCode(tag.getDestinationCrossCode());
                 waybill.setDestinationCrossCode(tag.getDestinationCrossCode());
+            hiddenCrossInfo(waybill);
+        }
+	}
+	/**
+     * 隐藏滑道信息
+     * @param waybill
+     */
+    private void hiddenCrossInfo(PrintWaybill waybill) {
                 if(BusinessUtil.isSignChar(waybill.getWaybillSign(),31,'3')){
                     waybill.setOriginalDmsName("");
                     waybill.setPurposefulDmsName("");
                     waybill.setDestinationDmsName("");
                     waybill.setOriginalTabletrolley("");
-                    waybill.setOriginalTabletrolleyCode("");
+            waybill.setOriginalTabletrolleyCode(""); 
                     waybill.setPurposefulTableTrolley("");
                     waybill.setDestinationTabletrolleyCode("");
                     waybill.setOriginalCrossCode("");
@@ -562,11 +643,6 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
                     waybill.setDestinationCrossCode("");
                 }
             }
-        } finally {
-            Profiler.registerInfoEnd(callerInfo);
-        }
-    }
-
     /**
      * 逆向换单设置终端重量
      * @param context

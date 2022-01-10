@@ -76,7 +76,28 @@ public class FilterContext {
      * 功能模块。默认分拣
      */
     private Integer funcModule = HintModuleConstants.FORWARD_SORTING;
-
+    /**
+     * 运单中的目的分拣中心信息
+     */
+    private Site waybillEndDmsSite;
+    /**
+     * 判断是否有预分拣站点
+     * @return
+     */
+    public boolean hasPreSite() {
+    	return waybillCache != null 
+    			&& waybillCache.getSiteCode() != null 
+    			&& waybillCache.getSiteCode() > 0;
+    }
+    /**
+     * 判断是否有目的分拣中心
+     * @return
+     */
+    public boolean hasEndDmsId() {
+    	return waybillCache != null 
+    			&& waybillCache.getEndDmsId() != null 
+    			&& waybillCache.getEndDmsId() > 0;
+    }
     public String getBoxCode() {
         return boxCode;
     }
@@ -288,4 +309,10 @@ public class FilterContext {
     public void setFuncModule(Integer funcModule) {
         this.funcModule = funcModule;
     }
+	public Site getWaybillEndDmsSite() {
+		return waybillEndDmsSite;
+	}
+	public void setWaybillEndDmsSite(Site waybillEndDmsSite) {
+		this.waybillEndDmsSite = waybillEndDmsSite;
+	}
 }

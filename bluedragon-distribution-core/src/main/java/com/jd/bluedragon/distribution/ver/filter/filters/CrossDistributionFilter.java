@@ -74,7 +74,17 @@ public class CrossDistributionFilter implements Filter {
             chain.doFilter(request, chain);
             return ;
         }
-
+        Integer endDmsId = request.getWaybillCache().getEndDmsId();
+        //全量接单场景：没有预分拣站点，有目的分拣中心：
+        //如果箱号目的地和运单目的分拣中心相同则通过
+        if (!request.hasPreSite()
+        		&& request.hasEndDmsId()
+        		&& request.getBox() != null && request.getBox().getReceiveSiteCode()!=null 
+        		&&request.getBox().getReceiveSiteCode().equals(endDmsId)) {
+            chain.doFilter(request, chain);
+            return ;
+        }
+        
         Rule ruleMixBox = null;
         try {
             ruleMixBox = request.getRuleMap().get(RULE_TYPE_MIX_BOX);
@@ -96,9 +106,18 @@ public class CrossDistributionFilter implements Filter {
             //region 跨分拣中心判断，如果目的地是分拣中心，并且不是中转站，则弹确认框提示
 //            Site waybillSite = waybill.getSiteCode()!=null&&waybill.getSiteCode().intValue()>0?siteService.get(waybill.getSiteCode()):null;
             //机构号判断用运单的预分拣站点的ORGID，如果预分拣站点为空，则默认去运单的ORGID
-            Integer waybillOrgid = request.getWaybillSite() != null
-                    && request.getWaybillSite().getOrgId() != null ? request.getWaybillSite().getOrgId()
-                    : request.getWaybillCache().getOrgId();
+            Integer waybillOrgid = null;
+            if(request.hasPreSite()) {
+            	//取预分拣站点机构
+                waybillOrgid = request.getWaybillSite() != null
+                        && request.getWaybillSite().getOrgId() != null ? request.getWaybillSite().getOrgId()
+                        : request.getWaybillCache().getOrgId();
+            }else if(request.hasEndDmsId()) {
+            	//取目的分拣中心机构
+                waybillOrgid = request.getWaybillEndDmsSite() != null
+                        && request.getWaybillEndDmsSite().getOrgId() != null ? request.getWaybillEndDmsSite().getOrgId()
+                        : request.getWaybillCache().getOrgId();
+            }
             if (SiteHelper.isDistributionCenter(request.getReceiveSite())
                     && !transferStationSiteType.equals(request.getReceiveSite().getSubType()) ) {
                 logger.info("分拣校验CrossDistributionFilter6packageCode[{}]pdaOperateRequest[{}]rule[{}]",request.getPackageCode(), JsonHelper.toJson(request), JsonHelper.toJson(request));
@@ -129,15 +148,11 @@ public class CrossDistributionFilter implements Filter {
                     }
 
                     if (rule5 == null || Rule.IN.equals(rule5.getInOut())) {
-
-                        //起始分拣中心不能与预分拣中心一样（如一样就是分拣到自己的分拣中心了） and 预分拣中心不能与目的分拣中心一样
-                        if (!(request.getReceiveSite().getCode().equals(preSiteDmsId) || request.getReceiveSite().getCode().equals(request.getCreateSiteCode()))) {
-                           CallerInfo info = Profiler.registerInfo("DMSVER.CrossDistributionFilter.ump1", Constants.UMP_APP_NAME_DMSVER,false, true);
-                            Profiler.registerInfoEnd(info);
-                            logger.info("跨分拣中心目的提示waybillCode:" + request.getWaybillCode() + " createSiteCode:" + request.getCreateSiteCode() + " preSiteCode" + request.getWaybillCache().getSiteCode() + " receiveSiteCode:" + request.getReceiveSite().getCode() + " preSiteDmsId:" + preSiteDmsId);
-                            throw new SortingCheckException(SortingResponse.CODE_39001,
-                                    HintService.getHintWithFuncModule(HintCodeConstants.RECEIVE_SITE_AND_DESTINATION_DIFFERENCE, request.getFuncModule()));
-                        }
+                    	if(request.hasPreSite()) {
+                    		this.checkRule1120(request,preSiteDmsId);
+                    	}else if(request.hasEndDmsId()) {
+                    		this.checkRule1120(request,endDmsId);
+                    	}
                     }
                 }
             }
@@ -147,7 +162,22 @@ public class CrossDistributionFilter implements Filter {
 
         chain.doFilter(request, chain);
     }
-
+    /**
+     * 1120规则校验
+     * @param request
+     * @param preSiteDmsId
+     * @throws Exception
+     */
+    private void checkRule1120(FilterContext request, Integer preSiteDmsId) throws Exception {
+        //起始分拣中心不能与预分拣中心一样（如一样就是分拣到自己的分拣中心了） and 预分拣中心不能与目的分拣中心一样
+        if (!(request.getReceiveSite().getCode().equals(preSiteDmsId) || request.getReceiveSite().getCode().equals(request.getCreateSiteCode()))) {
+           CallerInfo info = Profiler.registerInfo("DMSVER.CrossDistributionFilter.ump1", Constants.UMP_APP_NAME_DMSVER,false, true);
+            Profiler.registerInfoEnd(info);
+            logger.info("跨分拣中心目的提示waybillCode:" + request.getWaybillCode() + " createSiteCode:" + request.getCreateSiteCode() + " preSiteCode" + request.getWaybillCache().getSiteCode() + " receiveSiteCode:" + request.getReceiveSite().getCode() + " preSiteDmsId:" + preSiteDmsId);
+            throw new SortingCheckException(SortingResponse.CODE_39001,
+                    HintService.getHintWithFuncModule(HintCodeConstants.RECEIVE_SITE_AND_DESTINATION_DIFFERENCE, request.getFuncModule()));
+        }
+    }
     /**
      * 根据新的混装规则配置表查询是否可以通过
      *
@@ -157,7 +187,13 @@ public class CrossDistributionFilter implements Filter {
     private boolean passMixedConfig(FilterContext request) {
         //如果箱子允许混装，则校验是否在混装规则内
         if (MixedTypeEnum.MIXED.getCode().equals(request.getBox().getMixBoxType())) {
-            return mixedPackageConfigService.checkMixedPackageConfig(request.getCreateSiteCode(), request.getBox().getReceiveSiteCode(), request.getWaybillCache().getSiteCode(), request.getBox().getTransportType(), RuleTypeEnum.BUILD_PACKAGE.getCode());
+        	//校验预分拣站点
+        	if(request.hasPreSite()) {
+        		return mixedPackageConfigService.checkMixedPackageConfig(request.getCreateSiteCode(), request.getBox().getReceiveSiteCode(), request.getWaybillCache().getSiteCode(), request.getBox().getTransportType(), RuleTypeEnum.BUILD_PACKAGE.getCode());
+        	}else if(request.hasEndDmsId()) {
+        	//校验目的分拣中心
+        		return mixedPackageConfigService.checkMixedPackageConfig(request.getCreateSiteCode(), request.getBox().getReceiveSiteCode(), request.getWaybillCache().getEndDmsId(), request.getBox().getTransportType(), RuleTypeEnum.BUILD_PACKAGE.getCode());
+        	}
         }
         return false;
     }

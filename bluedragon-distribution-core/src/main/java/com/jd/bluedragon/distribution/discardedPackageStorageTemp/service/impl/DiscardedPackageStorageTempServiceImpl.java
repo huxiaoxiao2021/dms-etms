@@ -449,6 +449,7 @@ public class DiscardedPackageStorageTempServiceImpl implements DiscardedPackageS
             context.setScanDiscardedPackagePo(paramObj);
             context.setCurrentSiteInfo(siteDto);
             context.setBigWaybillDto(bigWaybillDto);
+            context.setWaybillCode(waybillCode);
             final Result<Boolean> handleResult = discardedStorageHandlerStrategy.handle(context);
             if(!handleResult.isSuccess()){
                 return result.toFail(handleResult.getMessage(), handleResult.getCode());

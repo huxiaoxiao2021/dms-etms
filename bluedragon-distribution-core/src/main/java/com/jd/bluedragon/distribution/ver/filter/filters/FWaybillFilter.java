@@ -90,14 +90,21 @@ public class FWaybillFilter implements Filter {
 		// 判断预分拣站点是否合法,
 		Site waybillSite = null;
 		//判断预分拣站点是否存在
-		if (request.getWaybillCache().getSiteCode() != null && request.getWaybillCache().getSiteCode() > 0) {
+		if (request.hasPreSite()) {
 			waybillSite = siteService.get(request.getWaybillCache().getSiteCode());
 			//判断预分拣站点是否还在运营
 			if (null == waybillSite || null == waybillSite.getCode() || waybillSite.getCode() <= 0) {
 				throw new SortingCheckException(SortingResponse.CODE_WAYBILL_SITE_CLOSE,
                         HintService.getHintWithFuncModule(HintCodeConstants.PRE_SITE_CLOSE, request.getFuncModule()));
 			}
-		} else{
+		} else if(request.hasEndDmsId()){
+			Site waybillEndDmsSite = siteService.get(request.getWaybillCache().getEndDmsId());
+			if (null == waybillEndDmsSite || null == waybillEndDmsSite.getCode() || waybillEndDmsSite.getCode() <= 0) {
+				throw new SortingCheckException(SortingResponse.CODE_WAYBILL_EMD_DMSSITE_CLOSE,
+                        HintService.getHintWithFuncModule(HintCodeConstants.EMD_DMSSITE_CLOSE, request.getFuncModule()));
+			}
+			request.setWaybillEndDmsSite(waybillEndDmsSite);
+		}else {
 			throw new SortingCheckException(SortingResponse.CODE_WAYBILL_SUPER_AREA,
 					HintService.getHintWithFuncModule(HintCodeConstants.OVER_AREA_WAYBILL, request.getFuncModule()));
 		}

@@ -17,6 +17,9 @@ import com.jd.bluedragon.distribution.discardedPackageStorageTemp.model.Discarde
 import com.jd.bluedragon.distribution.discardedPackageStorageTemp.service.DiscardedPackageStorageTempService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
+import com.jd.bluedragon.distribution.record.entity.DmsHasnoPresiteWaybillMq;
+import com.jd.bluedragon.distribution.record.enums.DmsHasnoPresiteWaybillMqOperateEnum;
+import com.jd.bluedragon.distribution.record.service.WaybillHasnoPresiteRecordService;
 import com.jd.bluedragon.distribution.wastePackage.service.WastePackageService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
@@ -68,6 +71,8 @@ public class WastePackageServiceImpl implements WastePackageService {
 
     @Autowired
     private DiscardedPackageStorageTempDao discardedPackageStorageTempDao;
+    @Autowired
+    private WaybillHasnoPresiteRecordService waybillHasnoPresiteRecordService;
 
     @Qualifier("bdBlockerCompleteMQ")
     @Autowired
@@ -187,6 +192,7 @@ public class WastePackageServiceImpl implements WastePackageService {
             BdTraceDto packagePrintBdTraceDto = getPackagePrintBdTraceDto(request);
             //发送全程跟踪消息
             waybillQueryManager.sendBdTrace(packagePrintBdTraceDto);
+            waybillHasnoPresiteRecordService.sendDataChangeMq(toDmsHasnoPresiteWaybillMq(request));
         }catch (Exception e){
             log.error("弃件暂存异常,请求参数：{}", JsonHelper.toJson(request),e);
             result.error("弃件暂存异常,请联系分拣小秘！");
@@ -271,6 +277,20 @@ public class WastePackageServiceImpl implements WastePackageService {
 
         return result;
 	}
+    /**
+     * 发送mq
+     * @param request
+     */
+    private DmsHasnoPresiteWaybillMq toDmsHasnoPresiteWaybillMq(WastePackageRequest request) {
+    	DmsHasnoPresiteWaybillMq dmsHasnoPresiteWaybillMq = new DmsHasnoPresiteWaybillMq();
+    	dmsHasnoPresiteWaybillMq.setWaybillCode(request.getWaybillCode());
+    	dmsHasnoPresiteWaybillMq.setOperateCode(DmsHasnoPresiteWaybillMqOperateEnum.WASTE.getCode());
+    	dmsHasnoPresiteWaybillMq.setOperateUserErp(request.getOperatorERP());
+    	dmsHasnoPresiteWaybillMq.setOperateUserName(request.getUserName());
+    	dmsHasnoPresiteWaybillMq.setOperateSiteCode(request.getSiteCode());
+    	dmsHasnoPresiteWaybillMq.setOperateTime(new Date());
+    	return dmsHasnoPresiteWaybillMq;
+    }
     /**
      * 组装DB数据
      * @param bigWaybillDto

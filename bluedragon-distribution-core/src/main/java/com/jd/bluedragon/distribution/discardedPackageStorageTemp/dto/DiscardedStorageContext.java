@@ -30,6 +30,8 @@ public class DiscardedStorageContext implements Serializable {
      * 场地信息
      */
     private BaseStaffSiteOrgDto currentSiteInfo;
+    
+    private String waybillCode;
 
     public DiscardedStorageContext() {
     }
@@ -60,4 +62,12 @@ public class DiscardedStorageContext implements Serializable {
         this.currentSiteInfo = currentSiteInfo;
         return this;
     }
+
+	public String getWaybillCode() {
+		return waybillCode;
+	}
+
+	public void setWaybillCode(String waybillCode) {
+		this.waybillCode = waybillCode;
+	}
 }

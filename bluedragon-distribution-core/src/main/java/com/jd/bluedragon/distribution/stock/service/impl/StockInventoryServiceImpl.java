@@ -7,6 +7,8 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.SortingInspectionSendingManager;
 import com.jd.bluedragon.core.base.TransferWaveManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.record.service.WaybillHasnoPresiteRecordService;
+import com.jd.bluedragon.distribution.record.vo.WaybillHasnoPresiteRecordVo;
 import com.jd.bluedragon.distribution.stock.dao.StockInventoryDao;
 import com.jd.bluedragon.distribution.stock.domain.InventoryQuery;
 import com.jd.bluedragon.distribution.stock.domain.StockInventory;
@@ -63,6 +65,9 @@ public class StockInventoryServiceImpl implements StockInventoryService {
 
     @Autowired
     private BaseMajorManager baseMajorManager;
+    
+    @Autowired
+    private WaybillHasnoPresiteRecordService waybillHasnoPresiteRecordService;
 
     @JProfiler(jKey = "dms.stock.StockInventoryServiceImpl.stockInventoryScan", jAppName = Constants.UMP_APP_NAME_DMSWEB,
             mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -91,6 +96,11 @@ public class StockInventoryServiceImpl implements StockInventoryService {
                     stockInventoryScanDto.getWaveBeginTime().getTime(),
                     stockInventoryScanDto.getWaveEndTime().getTime());
             int todoInventoryNum = Math.max(totalUnSendPackNum - inventoryNum, Constants.NUMBER_ZERO);
+            String waybillCode = WaybillUtil.getWaybillCode(stockInventoryScanDto.getPackageCode());
+            WaybillHasnoPresiteRecordVo vo = waybillHasnoPresiteRecordService.selectByWaybillCode(waybillCode);
+            if(vo != null) {
+            	stockInventoryResult.setPackageStatusDesc(vo.getStatusDesc());
+            }
             stockInventoryResult.setTodoInventoryNum(todoInventoryNum >= TODO_INVENTORY_NUM_LIMIT ? TODO_INVENTORY_NUM_LIMIT_DISPLAY : String.valueOf(todoInventoryNum));
 
             result.setData(stockInventoryResult);

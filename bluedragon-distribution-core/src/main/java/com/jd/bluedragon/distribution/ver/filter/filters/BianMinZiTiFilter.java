@@ -30,7 +30,7 @@ public class BianMinZiTiFilter implements Filter {
     public void doFilter(FilterContext request, FilterChain chain) throws Exception {
 
         Boolean  isSelfOrderDisToSelfOrderSiteBianMin = Boolean.FALSE;
-        if (BusinessUtil.isBianMinZiTi(request.getWaybillCache().getSendPay())) {
+        if (request.hasPreSite() && BusinessUtil.isBianMinZiTi(request.getWaybillCache().getSendPay())) {
 
             // 自提柜跨分拣取消提示
             if (!SiteHelper.matchSiteRule(SortingResponse.CODE_SiteType_BIANMINZITI, request.getsReceiveSiteSubType()) && !DISTRIBUTE_CENTER_TYPE.equals(request.getReceiveSite().getType())) {

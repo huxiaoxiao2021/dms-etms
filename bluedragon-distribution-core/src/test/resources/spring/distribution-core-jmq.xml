@@ -529,6 +529,10 @@
     <bean id="dmsExpressBillExceptionReportProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.dmsExpressBillExceptionReport}"/>
     </bean>
+    <!--  无预分拣站点消息-生产者 -->
+    <bean id="dmsHasnoPresiteWaybillMqProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.dmsHasnoPresiteWaybillMq}"/>
+    </bean>    
     <!--跨箱号中转修改发MQ-->
     <bean id="crossBoxSendProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.crossbox.change}"/>

@@ -14,6 +14,9 @@ import com.jd.bluedragon.distribution.discardedPackageStorageTemp.dto.DiscardedS
 import com.jd.bluedragon.distribution.discardedPackageStorageTemp.enums.WasteOperateTypeEnum;
 import com.jd.bluedragon.distribution.discardedPackageStorageTemp.model.DiscardedPackageStorageTemp;
 import com.jd.bluedragon.distribution.discardedPackageStorageTemp.model.DiscardedWaybillStorageTemp;
+import com.jd.bluedragon.distribution.record.entity.DmsHasnoPresiteWaybillMq;
+import com.jd.bluedragon.distribution.record.enums.DmsHasnoPresiteWaybillMqOperateEnum;
+import com.jd.bluedragon.distribution.record.service.WaybillHasnoPresiteRecordService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
@@ -76,7 +79,8 @@ public abstract class DiscardedStorageAbstractHandler implements DiscardedStorag
 
     @Autowired
     private DefaultJMQProducer discardedPackageStorageProducer;
-
+    @Autowired
+    private WaybillHasnoPresiteRecordService waybillHasnoPresiteRecordService;
     /**
      * 暂存弃件处理
      * @param context 上下文
@@ -108,8 +112,26 @@ public abstract class DiscardedStorageAbstractHandler implements DiscardedStorag
             this.sendDiscardedPackageStorageMq(context);
         }
         doHandleAfter(context);
+        //弃件操作,发送运单变更mq
+        sendDmsHasnoPresiteWaybillMq(context);
     }
-
+    /**
+     * 弃件操作,发送运单变更mq
+     * @param request
+     */
+    private void sendDmsHasnoPresiteWaybillMq(DiscardedStorageContext context) {
+    	ScanDiscardedPackagePo request = context.getScanDiscardedPackagePo();
+    	DmsHasnoPresiteWaybillMq dmsHasnoPresiteWaybillMq = new DmsHasnoPresiteWaybillMq();
+    	dmsHasnoPresiteWaybillMq.setWaybillCode(context.getWaybillCode());
+    	dmsHasnoPresiteWaybillMq.setOperateCode(DmsHasnoPresiteWaybillMqOperateEnum.WASTE.getCode());
+    	if(request.getOperateUser() != null) {
+        	dmsHasnoPresiteWaybillMq.setOperateUserErp(request.getOperateUser().getUserCode());
+        	dmsHasnoPresiteWaybillMq.setOperateUserName(request.getOperateUser().getUserName());
+        	dmsHasnoPresiteWaybillMq.setOperateSiteCode(request.getOperateUser().getSiteCode());
+    	}
+    	dmsHasnoPresiteWaybillMq.setOperateTime(new Date());
+    	waybillHasnoPresiteRecordService.sendDataChangeMq(dmsHasnoPresiteWaybillMq);
+    }
     /**
      * 各子处理器后置处理钩子
      * @param context 上下文

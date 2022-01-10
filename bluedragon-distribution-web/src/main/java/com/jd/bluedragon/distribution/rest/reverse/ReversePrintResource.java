@@ -15,6 +15,9 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.message.OwnReverseTransferDomain;
 import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
+import com.jd.bluedragon.distribution.record.entity.DmsHasnoPresiteWaybillMq;
+import com.jd.bluedragon.distribution.record.enums.DmsHasnoPresiteWaybillMqOperateEnum;
+import com.jd.bluedragon.distribution.record.service.WaybillHasnoPresiteRecordService;
 import com.jd.bluedragon.distribution.rest.pop.PopPrintResource;
 import com.jd.bluedragon.distribution.rest.task.TaskResource;
 import com.jd.bluedragon.distribution.reverse.service.ReversePrintService;
@@ -69,6 +72,9 @@ public class ReversePrintResource {
 
     @Autowired
     private WaybillTraceManager waybillTraceManager;
+    
+    @Autowired
+    private WaybillHasnoPresiteRecordService waybillHasnoPresiteRecordService;
 
     /**
      * 外单逆向换单打印提交数据
@@ -311,10 +317,23 @@ public class ReversePrintResource {
             result.setCode(InvokeResult.SERVER_ERROR_CODE);
             result.setMessage(result.getMessage().replace(InvokeResult.RESULT_SUCCESS_MESSAGE,"") + "【保存打印日志异常】");
         }
-
+        waybillHasnoPresiteRecordService.sendDataChangeMq(toDmsHasnoPresiteWaybillMq(request));
         return result;
     }
-
+    /**
+     * 发送mq
+     * @param rePrintRecord
+     */
+    private DmsHasnoPresiteWaybillMq toDmsHasnoPresiteWaybillMq(ReversePrintRequest request) {
+    	DmsHasnoPresiteWaybillMq dmsHasnoPresiteWaybillMq = new DmsHasnoPresiteWaybillMq();
+    	dmsHasnoPresiteWaybillMq.setWaybillCode(request.getOldCode());
+    	dmsHasnoPresiteWaybillMq.setOperateCode(DmsHasnoPresiteWaybillMqOperateEnum.EXCHANGE.getCode());
+    	dmsHasnoPresiteWaybillMq.setOperateUserErp(request.getStaffErpCode());
+    	dmsHasnoPresiteWaybillMq.setOperateUserName(request.getStaffRealName());
+    	dmsHasnoPresiteWaybillMq.setOperateSiteCode(request.getSiteCode());
+    	dmsHasnoPresiteWaybillMq.setOperateTime(new Date());
+    	return dmsHasnoPresiteWaybillMq;
+    }
     /**
      * 转换为离线称重task
      * @param request
