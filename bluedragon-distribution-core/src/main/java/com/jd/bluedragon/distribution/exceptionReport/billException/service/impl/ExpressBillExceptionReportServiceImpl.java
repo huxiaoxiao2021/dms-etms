@@ -328,21 +328,6 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
         return result;
     }
 
-    private static Map<Integer, Integer> reportType2CategoryTypeMap = new HashMap<>();
-    static {
-        Map<Integer, List<Integer>> categoryTypeMapReportTypeMap = new HashMap<>();
-        categoryTypeMapReportTypeMap.put(ExpressReportTypeCategoryEnum.OP_PROBLEM.getCode(), new ArrayList<>(Arrays.asList(1, 2, 3, 4, 5, 10, 11, 12, 13, 20)));
-        categoryTypeMapReportTypeMap.put(ExpressReportTypeCategoryEnum.EQUIPMENT_PROBLEM.getCode(), new ArrayList<>(Arrays.asList(6)));
-        categoryTypeMapReportTypeMap.put(ExpressReportTypeCategoryEnum.TEMPLATE_PROBLEM.getCode(), new ArrayList<>(Arrays.asList(19, 7, 16, 15, 18)));
-        categoryTypeMapReportTypeMap.put(ExpressReportTypeCategoryEnum.SYSTEM_PROBLEM.getCode(), new ArrayList<>(Arrays.asList(14, 8, 9, 17)));
-        for (Integer categoryType : categoryTypeMapReportTypeMap.keySet()) {
-            final List<Integer> reportTypeList = categoryTypeMapReportTypeMap.get(categoryType);
-            for (Integer reportType : reportTypeList) {
-                reportType2CategoryTypeMap.put(reportType, categoryType);
-            }
-        }
-    }
-
     /**
      * 获取异常举报类型枚举值
      * @return
