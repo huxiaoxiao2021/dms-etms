@@ -263,7 +263,7 @@ public class WaybillCacheHelper {
             return Boolean.FALSE;
         }
         return BusinessUtil.isChangeWaybillSign(waybill.getWaybillSign());
-        }
+    }
 
     public static Boolean isLuxury(WaybillCache waybill) {
         if (waybill == null || waybill.getSendPay() == null) {

@@ -19,6 +19,8 @@ import com.jd.bluedragon.distribution.exceptionReport.billException.dao.ExpressB
 import com.jd.bluedragon.distribution.exceptionReport.billException.domain.ExpressBillExceptionReport;
 import com.jd.bluedragon.distribution.exceptionReport.billException.dto.ExpressBillExceptionReportMq;
 import com.jd.bluedragon.distribution.exceptionReport.billException.enums.ExpressBillLineTypeEnum;
+import com.jd.bluedragon.distribution.exceptionReport.billException.enums.ExpressReportTypeCategoryEnum;
+import com.jd.bluedragon.distribution.exceptionReport.billException.enums.ExpressReportTypeEnum;
 import com.jd.bluedragon.distribution.exceptionReport.billException.service.ExpressBillExceptionReportService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.dms.wb.report.api.wmspack.dto.DmsPackRecordPo;
@@ -309,6 +311,12 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
             ExpressBillExceptionReportMq expressBillExceptionReportMq = new ExpressBillExceptionReportMq();
             BeanUtils.copyProperties(record, expressBillExceptionReportMq);
             expressBillExceptionReportMq.setReportTime(record.getReportTime().getTime());
+            // 增加大类信息
+            final Integer reportCategoryType = ExpressReportTypeEnum.CODE_2_REPORT_CATEGORY_MAP.get(expressBillExceptionReportMq.getReportType());
+            if(reportCategoryType != null){
+                expressBillExceptionReportMq.setReportTypeCategory(reportCategoryType);
+                expressBillExceptionReportMq.setReportTypeCategoryName(ExpressReportTypeCategoryEnum.ENUM_MAP.get(reportCategoryType));
+            }
             if(log.isDebugEnabled()){
                 log.debug("ExpressBillExceptionReportServiceImpl.sendDmsExpressBillExceptionReport content: [{}]", JsonHelper.toJson(expressBillExceptionReportMq));
             }
@@ -318,6 +326,21 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
             result.toFail("发送mq消息异常");
         }
         return result;
+    }
+
+    private static Map<Integer, Integer> reportType2CategoryTypeMap = new HashMap<>();
+    static {
+        Map<Integer, List<Integer>> categoryTypeMapReportTypeMap = new HashMap<>();
+        categoryTypeMapReportTypeMap.put(ExpressReportTypeCategoryEnum.OP_PROBLEM.getCode(), new ArrayList<>(Arrays.asList(1, 2, 3, 4, 5, 10, 11, 12, 13, 20)));
+        categoryTypeMapReportTypeMap.put(ExpressReportTypeCategoryEnum.EQUIPMENT_PROBLEM.getCode(), new ArrayList<>(Arrays.asList(6)));
+        categoryTypeMapReportTypeMap.put(ExpressReportTypeCategoryEnum.TEMPLATE_PROBLEM.getCode(), new ArrayList<>(Arrays.asList(19, 7, 16, 15, 18)));
+        categoryTypeMapReportTypeMap.put(ExpressReportTypeCategoryEnum.SYSTEM_PROBLEM.getCode(), new ArrayList<>(Arrays.asList(14, 8, 9, 17)));
+        for (Integer categoryType : categoryTypeMapReportTypeMap.keySet()) {
+            final List<Integer> reportTypeList = categoryTypeMapReportTypeMap.get(categoryType);
+            for (Integer reportType : reportTypeList) {
+                reportType2CategoryTypeMap.put(reportType, categoryType);
+            }
+        }
     }
 
     /**

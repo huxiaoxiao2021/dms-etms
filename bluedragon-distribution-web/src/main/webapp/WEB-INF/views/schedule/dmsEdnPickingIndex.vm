@@ -78,7 +78,9 @@
 			<button id="btn_export" type="button" class="btn btn-default">
 				<span class="glyphicon glyphicon-export" aria-hidden="true"></span>导出
 			</button>
-
+			<span style="margin-left:20px;color: red;font-size: 16px;font-weight: bold">
+				批量打印配送清单最多可打印200条，超过200条金鹏系统不支持！
+			</span>
 		</div>
 		<table id="dataTable"></table>
 	</div>

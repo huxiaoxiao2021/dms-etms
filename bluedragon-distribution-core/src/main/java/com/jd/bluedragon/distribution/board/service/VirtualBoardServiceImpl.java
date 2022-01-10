@@ -180,7 +180,6 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
             final OperatorInfo operatorInfo = addOrGetVirtualBoardPo.getOperatorInfo();
             String keyTemplate = CacheKeyConstants.VIRTUAL_BOARD_CREATE_DESTINATION;
             String key = String.format(keyTemplate, operatorInfo.getSiteCode(), operatorInfo.getUserErp());
-
             try{
                 boolean getLock = jimdbCacheService.setNx(key, 1 + "", CacheKeyConstants.VIRTUAL_BOARD_BIND_TIMEOUT, TimeUnit.SECONDS);
                 if(!getLock){

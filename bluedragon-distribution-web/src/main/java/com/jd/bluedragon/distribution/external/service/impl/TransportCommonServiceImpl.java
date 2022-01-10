@@ -193,7 +193,7 @@ public class TransportCommonServiceImpl implements TransportCommonService {
             result.setCode(com.jd.bluedragon.distribution.jsf.domain.InvokeResult.RESULT_SUCCESS_CODE);
             result.setData(router);
         } catch (Exception e) {
-            log.error("getRouterByWaybillCode|根据运单号【{}】查询waybill表路由字段值异常", transportServiceRequest.getWaybillCode(), e);
+            log.error("getRouterByWaybillCode|根据运单号【{}】查询waybill表路由字段异常", transportServiceRequest.getWaybillCode(), e);
             result.customMessage(InvokeResult.SERVER_ERROR_CODE, InvokeResult.SERVER_ERROR_MESSAGE);
         }
         return result;
