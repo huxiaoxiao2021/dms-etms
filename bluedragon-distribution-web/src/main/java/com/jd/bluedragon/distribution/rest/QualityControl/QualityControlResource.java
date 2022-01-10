@@ -224,7 +224,7 @@ public class QualityControlResource {
                         data.setIsCompleted(false);
                         data.setWaybillCode(waybillCode);
                         result.setData(data);
-                        result.setMessage("此单号"+ waybillCode +HintService.getHint(HintCodeConstants.EX_REPORT_CHECK_CHANGE_ADDRESS));
+                        result.setMessage("此单号["+ waybillCode +"]"+HintService.getHint(HintCodeConstants.EX_REPORT_CHECK_CHANGE_ADDRESS));
                         break;
                     }
                     //协商再投拦截
@@ -234,7 +234,7 @@ public class QualityControlResource {
                         data.setIsCompleted(false);
                         data.setWaybillCode(waybillCode);
                         result.setData(data);
-                        result.setMessage("此单号"+ waybillCode +"为【发起协商再投未处理】状态，需商家审核完成才能提交异常！");
+                        result.setMessage("此单号["+ waybillCode +"]为【发起协商再投未处理】状态，需商家审核完成才能提交异常！");
                         break;
                     }
                     else {

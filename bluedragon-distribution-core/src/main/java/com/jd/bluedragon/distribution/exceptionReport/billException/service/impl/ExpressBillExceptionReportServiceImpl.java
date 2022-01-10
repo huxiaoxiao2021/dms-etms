@@ -19,6 +19,8 @@ import com.jd.bluedragon.distribution.exceptionReport.billException.dao.ExpressB
 import com.jd.bluedragon.distribution.exceptionReport.billException.domain.ExpressBillExceptionReport;
 import com.jd.bluedragon.distribution.exceptionReport.billException.dto.ExpressBillExceptionReportMq;
 import com.jd.bluedragon.distribution.exceptionReport.billException.enums.ExpressBillLineTypeEnum;
+import com.jd.bluedragon.distribution.exceptionReport.billException.enums.ExpressReportTypeCategoryEnum;
+import com.jd.bluedragon.distribution.exceptionReport.billException.enums.ExpressReportTypeEnum;
 import com.jd.bluedragon.distribution.exceptionReport.billException.service.ExpressBillExceptionReportService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.dms.wb.report.api.wmspack.dto.DmsPackRecordPo;
@@ -309,6 +311,12 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
             ExpressBillExceptionReportMq expressBillExceptionReportMq = new ExpressBillExceptionReportMq();
             BeanUtils.copyProperties(record, expressBillExceptionReportMq);
             expressBillExceptionReportMq.setReportTime(record.getReportTime().getTime());
+            // 增加大类信息
+            final Integer reportCategoryType = ExpressReportTypeEnum.CODE_2_REPORT_CATEGORY_MAP.get(expressBillExceptionReportMq.getReportType());
+            if(reportCategoryType != null){
+                expressBillExceptionReportMq.setReportTypeCategory(reportCategoryType);
+                expressBillExceptionReportMq.setReportTypeCategoryName(ExpressReportTypeCategoryEnum.ENUM_MAP.get(reportCategoryType));
+            }
             if(log.isDebugEnabled()){
                 log.debug("ExpressBillExceptionReportServiceImpl.sendDmsExpressBillExceptionReport content: [{}]", JsonHelper.toJson(expressBillExceptionReportMq));
             }
