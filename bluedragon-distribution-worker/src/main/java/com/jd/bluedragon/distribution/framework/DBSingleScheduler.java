@@ -15,7 +15,14 @@ public abstract class DBSingleScheduler extends AbstractScheduleTask {
 
 	private String desc;
 
-	private TaskHanlder taskHanlder = new DBTaskHanlder();
+	private TaskHanlder taskHanlder;
+	
+	public DBSingleScheduler() {
+		this(new DBTaskHanlder());
+	}
+	public DBSingleScheduler(TaskHanlder taskHanlder) {
+		this.taskHanlder = taskHanlder;
+	}
 
 	public boolean execute(Object[] taskArray, String ownSign) throws Exception {
 		List<Task> tasks = new ArrayList<Task>();

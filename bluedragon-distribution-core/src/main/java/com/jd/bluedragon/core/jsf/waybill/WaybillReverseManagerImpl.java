@@ -33,6 +33,7 @@ import com.jd.bluedragon.distribution.reverse.domain.DmsWaybillReverseResponseDT
 import com.jd.bluedragon.distribution.reverse.domain.DmsWaybillReverseResult;
 import com.jd.bluedragon.distribution.reverse.domain.ExchangeWaybillDto;
 import com.jd.bluedragon.distribution.reverse.domain.LocalClaimInfoRespDTO;
+import com.jd.bluedragon.distribution.waybill.service.WaybillCancelService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -76,6 +77,10 @@ public class WaybillReverseManagerImpl implements WaybillReverseManager {
     private static final int RETURN_TYPE_3 = 3;
     private static final int RETURN_TYPE_4 = 4;
     private static final int RETURN_TYPE_5 = 5;
+    /**
+     * 计费-2-不计费
+     */
+    public static final int CHARGE_TYPE_2 = 2;
     /**
      * 代收货款-1
      */
@@ -155,6 +160,9 @@ public class WaybillReverseManagerImpl implements WaybillReverseManager {
      */
 	@Value("${dms.wbmsRequestProfile.token}")
     private String token;
+	
+    @Autowired
+    private WaybillCancelService waybillCancelService;
     /**
      * 触发外单逆向换单接口
      * @param waybillReverseDTO
@@ -408,7 +416,11 @@ public class WaybillReverseManagerImpl implements WaybillReverseManager {
         if(!new Integer(0).equals(packageCount)){
             waybillReverseDTO.setPackageCount(packageCount);
         }
-
+        //判断是否拦截14，设置计费字段：2-不计费
+        boolean isFullOrderFail = waybillCancelService.isFullOrderFail(waybillReverseDTO.getWaybillCode());
+        if(isFullOrderFail) {
+            waybillReverseDTO.setChargeType(CHARGE_TYPE_2);
+        }
         return waybillReverseDTO;
     }
     

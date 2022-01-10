@@ -69,7 +69,11 @@ public enum WaybillCancelInterceptTypeEnum {
     /**
      * 运营退货拦截
      */
-    CANCEL_SYS_RETURN(13, "运营退货拦截");
+    CANCEL_SYS_RETURN(13, "运营退货拦截"),
+    /**
+     * 全量接单失败拦截
+     */
+    FULL_ORDER_FAIL(14, "全量接单失败拦截");
 
     private final int code;
 

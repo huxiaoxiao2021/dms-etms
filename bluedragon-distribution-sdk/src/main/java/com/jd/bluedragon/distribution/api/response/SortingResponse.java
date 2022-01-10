@@ -111,6 +111,8 @@ public class SortingResponse extends JdResponse {
     public static final Integer CODE_29320 = 29320;
     public static final String MESSAGE_29320 = "弃件禁止操作，请按公司规定暂存";
 
+    //全量接单失败拦截
+    public static final Integer CODE_29321 = 29321;
     /**************************************配送拦截新逻辑END******************************/
 
     public static final Integer CODE_29319 = 29319;
@@ -485,6 +487,9 @@ public class SortingResponse extends JdResponse {
 
     public static final Integer CODE_C_TRANSPORT_B = 39137;
     public static final String MESSAGE_C_TRANSPORT_B= "此运单已转网，请操作包裹补打更换粘贴新面单!";
+    
+    public static final Integer CODE_WAYBILL_EMD_DMSSITE_CLOSE=39138;
+    public static final String MESSAGE_WAYBILL_EMD_DMSSITE_CLOSE ="此订单目的分拣中心已关闭,确定装箱";    
 
     public static final String WAYBILL_ERROR_ORGID = "运单-机构为空，提交IT或咚咚：xnpsxt";
 
