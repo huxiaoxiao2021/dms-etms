@@ -249,25 +249,18 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
 
             if(CollectionUtils.isEmpty(changeStateList)){
                 log.error("当前包裹{}，无法获取始发地",packageCode);
-                firstSiteVo = new FirstSiteVo();
-                firstSiteVo.setFirstSiteCode(910);
-                firstSiteVo.setFirstSiteName("马驹桥分拣中心");
-                firstSiteVo.setLineType(ExpressBillLineTypeEnum.STATION.getCode());
-                firstSiteVo.setReportedUserErp("bjxings");
-                firstSiteVo.setReportedUserId(123423L);
-                firstSiteVo.setReportedUserName("邢松");
-                /*result.toFail("当前包裹，无法获取始发地");
-                return result;*/
+                result.toFail("当前包裹，无法获取始发地");
+                return result;
             }
 
-            /*PackageStateDto packageState = changeStateList.get(0);
+            PackageStateDto packageState = changeStateList.get(0);
             firstSiteVo = this.packageFirstSiteAndReportedInfoVo(packageState);
 
             // 设置条线类型
             if (lineType == null) {
                 lineType = ExpressBillLineTypeEnum.STATION.getCode();
             }
-            firstSiteVo.setLineType(lineType);*/
+            firstSiteVo.setLineType(lineType);
             result.setData(firstSiteVo);
         }catch (Exception e){
             log.error("通过包裹号获取运单始发网点异常 packageCode:{}",packageCode,e);
