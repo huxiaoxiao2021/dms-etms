@@ -487,6 +487,16 @@ public class HintCodeConstants {
      * 您操作的订单无重量，烦请称重量方抽检，谢谢。
      */
     public static String WAYBILL_WITHOUT_WEIGHT_WEAK_INTERCEPT = "20080";
+    
+    /**
+     * 全量接单失败拦截
+     * 此单为[全量接单失败拦截],请退货。
+     */
+    public static String FULL_ORDER_FAIL_INTERCEPT = "20081";
+    /**
+     * 此订单目的分拣中心已关闭,确定装箱。
+     */
+    public static String EMD_DMSSITE_CLOSE="20082";
 
     /*##############################################拦截相关END#########################################################*/
 

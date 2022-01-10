@@ -57,6 +57,9 @@ import com.jd.bluedragon.distribution.reverse.domain.TwiceExchangeRequest;
 import com.jd.bluedragon.distribution.reverse.domain.TwiceExchangeResponse;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
+import com.jd.bluedragon.distribution.ver.domain.Site;
+import com.jd.bluedragon.distribution.waybill.domain.CancelWaybill;
+import com.jd.bluedragon.distribution.waybill.domain.WaybillCancelInterceptTypeEnum;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCancelService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
@@ -76,6 +79,7 @@ import com.jd.eclp.bbp.notice.enums.PostTypeEnum;
 import com.jd.eclp.bbp.notice.enums.ResolveTypeEnum;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
 import com.jd.etms.waybill.domain.BaseEntity;
+import com.jd.etms.waybill.domain.PackageState;
 import com.jd.etms.waybill.domain.PickupTask;
 import com.jd.etms.waybill.domain.WaybillManageDomain;
 import com.jd.etms.waybill.dto.BigWaybillDto;
@@ -87,6 +91,7 @@ import com.jd.ldop.basic.dto.BasicTraderIntegrateDTO;
 import com.jd.ldop.basic.dto.ResponseDTO;
 import com.jd.ldop.basic.dto.enums.signAreaEnums;
 import com.jd.ldop.business.api.dto.request.BackAddressDTO;
+import com.jd.ldop.center.api.refund.dto.RefundApplyDTO;
 import com.jd.ql.basic.dto.BaseSiteInfoDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
@@ -95,6 +100,9 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * 逆向换单打印
@@ -117,7 +125,7 @@ public class ReversePrintServiceImpl implements ReversePrintService {
     private static final Integer PICKUP_DIFFER_DAYS = 15;   //取件单创建时间和现在相差天数
     //退货站内通知间隔天数
     private static final int NOTIC_DIFFER_DAYS = 1;
-
+    
     @Autowired
     private TaskService taskService;
 
@@ -307,6 +315,8 @@ public class ReversePrintServiceImpl implements ReversePrintService {
         }catch (Exception e){
             log.error("发送逆向换单mq失败,新单号为：{}", domain.getNewCode(),e);
         }
+        //存在全量接单失败拦截，消息触发退款
+        doRefundApply(domain);
         OperationLog operationLog=new OperationLog();
         operationLog.setCreateTime(new Date());
         operationLog.setRemark("【外单逆向换单打印】原单号："+domain.getOldCode()+"新单号："+domain.getNewCode());
@@ -326,6 +336,48 @@ public class ReversePrintServiceImpl implements ReversePrintService {
 
         return true;
     }
+    /**
+     * 存在全量接单失败14拦截时，现结订单触发退款
+     * @param domain
+     */
+    private void doRefundApply(ReversePrintRequest domain) {
+        //判断是否存在全量接单失败14拦截
+    	boolean isFullOrderFail = waybillCancelService.isFullOrderFail(domain.getOldCode());
+        if(!isFullOrderFail) {
+        	return;
+        }
+    	//判断是否现结订单
+    	boolean isXj = false;
+    	BaseEntity<String> waybillSignResult = waybillQueryManager.getWaybillSignByWaybillCode(domain.getOldCode());
+    	if(waybillSignResult != null
+    			&& StringHelper.isNotEmpty(waybillSignResult.getData())) {
+    		isXj = BusinessUtil.isPrepaid(waybillSignResult.getData());
+    	}else {
+    		log.warn("判断全量接单：获取waybillSgin失败！单号："+domain.getOldCode());
+    		return;
+    	}
+    	if(!isXj) {
+    		return;
+    	}
+    	//调用退款接口
+    	RefundApplyDTO refundApplyDTO = new RefundApplyDTO();
+    	refundApplyDTO.setDeliveryId(domain.getOldCode());
+    	refundApplyDTO.setOperatorPin(domain.getStaffErpCode());
+    	refundApplyDTO.setOperatorName(domain.getStaffRealName());
+    	refundApplyDTO.setRefundReason("全量接单失败，逆向退回");
+    	JdResult<String> result = lDOPManager.refundApply(refundApplyDTO);
+        //记录日志
+    	OperationLog operationLog=new OperationLog();
+        operationLog.setCreateTime(new Date());
+        operationLog.setRemark("【外单逆向换单打印】触发退款：原单号:"+domain.getOldCode()+"结果："+JsonHelper.toJson(result));
+        operationLog.setWaybillCode(domain.getOldCode());
+        operationLog.setCreateUser(domain.getStaffRealName());
+        operationLog.setCreateUserCode(domain.getStaffId());
+        operationLog.setCreateSiteCode(domain.getSiteCode());
+        operationLog.setCreateSiteName(domain.getSiteName());
+        operationLog.setMethodName("ReversePrintServiceImpl#handlePrint");
+        operationLogService.add(operationLog);
+	}
 
     /**
      * added by zhanglei
@@ -721,6 +773,21 @@ public class ReversePrintServiceImpl implements ReversePrintService {
             result.setData(false);
             result.setMessage(checkClaimDamagedCancelResult.getMessage());
             return result;
+        }
+        //6.全量接单失败拦截消息14，且操作部门为64分拣中心，判断运单是否到达站点（全程跟踪节点：60,80,110,150）
+        BaseStaffSiteOrgDto siteInfo = baseMajorManager.getBaseSiteBySiteId(siteCode);
+        boolean isSortingSite = BusinessUtil.isSortingSiteType(siteInfo.getSiteType());
+        if (isSortingSite){
+        	boolean isFullOrderFail = waybillCancelService.isFullOrderFail(wayBillCode);
+        	if(isFullOrderFail) {
+        		List<PackageState> siteOperations= waybillTraceManager.getAllOperationsByOpeCodeAndState(wayBillCode, DmsConstants.SITE_OPERAT_STATES);
+        		if(CollectionUtils.isNotEmpty(siteOperations)) {
+	                result.setData(false);
+	                result.setMessage("此运单已到站点，禁止分拣操作逆向换单");
+        return result;
+    }
+        	}
+
         }
         return result;
     }

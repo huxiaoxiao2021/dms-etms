@@ -118,7 +118,11 @@ public class SpecialTextWaybillHandler implements Handler<WaybillPrintContext,Jd
                 printInfo.setPrintSiteName(site.getSiteName());
             }
         }
-
+        //全量接单，设置预分拣站点名称为空
+        if(context.isUseEndDmsId()) {
+            printInfo.setPrepareSiteName("");
+            printInfo.setPrintSiteName("");
+        }
         //新通路订单预分拣站点替换为代配站点（运单中的backupSiteId字段）
         if(BusinessHelper.isNewPathWay(printInfo.getSendPay()) && printInfo.getBackupSiteId() != null && printInfo.getBackupSiteId() > 0){
             printInfo.setPrepareSiteCode(printInfo.getBackupSiteId());

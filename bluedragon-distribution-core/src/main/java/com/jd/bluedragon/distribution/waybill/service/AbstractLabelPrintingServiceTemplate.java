@@ -16,6 +16,8 @@ import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
+import com.jd.bluedragon.distribution.print.domain.PrintWaybill;
+import com.jd.bluedragon.distribution.print.service.ComposeService;
 import com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintContext;
 import com.jd.bluedragon.distribution.waybill.domain.BaseResponseIncidental;
 import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingRequest;
@@ -27,6 +29,7 @@ import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ql.basic.domain.BaseDmsStore;
 import com.jd.ql.basic.domain.CrossPackageTagNew;
+import com.jd.ql.basic.domain.SortCrossDetail;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.ws.BasicSecondaryWS;
 
@@ -143,12 +146,79 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
     	if(BusinessUtil.isScrapSortingSite(context.getWaybillSign())) {
             return setScrapCrossInfo(labelPrinting,response);
     	}
-        if(labelPrinting.getPrepareSiteCode()!=null && labelPrinting.getPrepareSiteCode().equals(-1)){
+    	/**
+    	 * 1、预分拣站点正常，查询大全表并设置滑道信息
+    	 */
+        if(labelPrinting.getPrepareSiteCode()!=null && labelPrinting.getPrepareSiteCode() > ComposeService.PREPARE_SITE_CODE_NOTHING){
+        	return processByBase(request,labelPrinting,response);
+        	
+        }else {
+        	/**
+        	 * 2、全量接单需求-预分拣站点为空或小于0，运单endDmsId大于0，查询基础资料滑道信息
+        	 */
+        	return setCrossInfoByCrossDetail(context,response,labelPrinting);
+        }
+    }
+	/**
+	 * 2、全量接单需求-预分拣站点为空或小于0，运单endDmsId大于0，查询基础资料滑道信息
+     * 根据始发和目的分拣中心设置打印滑道信息
+     * @param waybill
+     * @param endDmsId 目的分拣中心
+     */
+    private BaseResponseIncidental<LabelPrintingResponse> setCrossInfoByCrossDetail(
+    		WaybillPrintContext context,
+			BaseResponseIncidental<LabelPrintingResponse> response, 
+			LabelPrintingResponse labelPrinting) {
+    	SortCrossDetail crossDetail = null;
+    	String waybillSign = context.getWaybillSign();
+    	Integer endDmsId = null;
+    	if(context.getBigWaybillDto() != null 
+    			&& context.getBigWaybillDto().getWaybill()!= null
+    			&& context.getBigWaybillDto().getWaybill().getWaybillExt()!= null) {
+    		endDmsId = context.getBigWaybillDto().getWaybill().getWaybillExt().getEndDmsId();
+    	}
+    	BaseStaffSiteOrgDto originalDmsInfo =baseMajorManager.getBaseSiteBySiteId(labelPrinting.getOriginalDmsCode());
+    	if(originalDmsInfo != null) {
+    		labelPrinting.setOriginalDmsCode(labelPrinting.getOriginalDmsCode());
+    		labelPrinting.setOriginalDmsName(originalDmsInfo.getSiteName());
+    	}
+    	if(NumberHelper.gt0(endDmsId)) {
+    		context.setUseEndDmsId(true);
+    		context.setWaybillEndDmsId(endDmsId);
+    		JdResult<SortCrossDetail> remoteResult = baseMinorManager.queryCrossDetailByDmsIdAndSiteCode(labelPrinting.getOriginalDmsCode(), 
+    				endDmsId.toString(), 
+    				labelPrinting.getOriginalCrossType());
+            if(remoteResult.isSucceed()) {
+            	crossDetail=remoteResult.getData();
+            }else{
+                log.warn("打印业务：未获取到滑道号及笼车号信息:{}", remoteResult.getMessage());
+            }
+           	BaseStaffSiteOrgDto endDmsInfo =baseMajorManager.getBaseSiteBySiteId(endDmsId);
+        	if(endDmsInfo != null) {
+        		labelPrinting.setPurposefulDmsCode(endDmsId);
+        		labelPrinting.setPurposefulDmsName(endDmsInfo.getSiteName());
+        		labelPrinting.setDestinationDmsName(endDmsInfo.getSiteName());
+        	}
+        	if(crossDetail != null) {
+        		labelPrinting.setPrepareSiteName("");
+        		labelPrinting.setPrintSiteName("");       		
+
+                //笼车号
+        		labelPrinting.setOriginalTabletrolley(crossDetail.getTabletrolleyCode());
+        		labelPrinting.setOriginalTabletrolleyCode(crossDetail.getTabletrolleyCode());
+                //道口号
+        		labelPrinting.setOriginalCrossCode(crossDetail.getCrossCode());
+                this.hiddenCrossInfo(labelPrinting,waybillSign);
+        	}
+    	}else if(labelPrinting.getPrepareSiteCode()!=null && labelPrinting.getPrepareSiteCode().equals(-1)){
             return new BaseResponseIncidental<LabelPrintingResponse>(LabelPrintingResponse.CODE_EMPTY_SITE,LabelPrintingResponse.MESSAGE_EMPTY_SITE,labelPrinting,JsonHelper.toJson(labelPrinting));
         }
 
-        response = processByBase(request,labelPrinting,response);
+        response.setData(labelPrinting);
+        response.setJsonData(JsonHelper.toJson(labelPrinting));
 
+        response.setCode(JdResponse.CODE_OK);
+        response.setMessage(JdResponse.MESSAGE_OK);
 
         return response; 
     }
@@ -178,7 +248,7 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
         return response;
     }
     /**
-     * 查询基础资料完善数据
+     * 1、预分拣站点正常，查询大全表并设置滑道信息
      * @param request
      * @param labelPrinting
      */
@@ -197,7 +267,7 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
             }else{
             	log.warn("打印业务：获取滑道号笼车号信息为空:{}", jdResult.getMessage());
             }
-        }
+        } 
 
         if(crossPackageTag==null){
             log.warn(LOG_PREFIX+" 无法获取包裹打印数据{}", request.getWaybillCode());
@@ -241,11 +311,27 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
         labelPrinting.setDestinationCrossCode(crossPackageTag.getDestinationCrossCode());
 
         com.jd.bluedragon.common.domain.Waybill waybill = waybillCommonService.findByWaybillCode(request.getWaybillCode());
-        if(waybill!=null&&waybill.getWaybillSign()!=null){
-            if(BusinessUtil.isSignChar(waybill.getWaybillSign(),31,'3')){
+        if(waybill != null) {
+        	this.hiddenCrossInfo(labelPrinting,waybill.getWaybillSign());
+        }
+
+        response.setData(labelPrinting);
+        response.setJsonData(JsonHelper.toJson(labelPrinting));
+
+        response.setCode(JdResponse.CODE_OK);
+        response.setMessage(JdResponse.MESSAGE_OK);
+
+        return response;
+    }
+	/**
+     * 隐藏滑道信息
+     * 
+     */
+	private void hiddenCrossInfo(LabelPrintingResponse labelPrinting,String waybillSign) {
+        if(BusinessUtil.isSignChar(waybillSign,31,'3')){
                 labelPrinting.setOriginalDmsCode(null);
                 labelPrinting.setOriginalDmsName("");
-                labelPrinting.setPurposefulDmsCode(null);
+            labelPrinting.setPurposefulDmsCode(null); 
                 labelPrinting.setPurposefulDmsName("");
                 labelPrinting.setDestinationDmsName("");
                 //笼车号
@@ -259,16 +345,7 @@ public abstract class AbstractLabelPrintingServiceTemplate implements LabelPrint
                 labelPrinting.setDestinationCrossCode("");
             }
         }
-
-        response.setData(labelPrinting);
-        response.setJsonData(JsonHelper.toJson(labelPrinting));
-
-        response.setCode(JdResponse.CODE_OK);
-        response.setMessage(JdResponse.MESSAGE_OK);
-
-        return response;
-    }
-
+	
     /**
      * 查询运单接口
      * @param request

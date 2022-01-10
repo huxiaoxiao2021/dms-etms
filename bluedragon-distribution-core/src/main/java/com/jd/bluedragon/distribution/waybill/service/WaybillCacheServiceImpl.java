@@ -58,7 +58,7 @@ public class WaybillCacheServiceImpl implements WaybillCacheService {
                 // 调用运单接口
                 this.log.info("运单号为： " + waybillCode + "调用WSS接口获取运单信息");
 
-                BigWaybillDto bigWaybillDto = waybillService.getWaybill(waybillCode, false);
+                BigWaybillDto bigWaybillDto = waybillService.getWaybill(waybillCode, false, true);
                 waybillCache = this.convertWaybillWS(bigWaybillDto, true);
                 return waybillCache;
             }
@@ -85,7 +85,7 @@ public class WaybillCacheServiceImpl implements WaybillCacheService {
     public WaybillCache getNoCache(String waybillCode) {
         WaybillCache waybillCache = null;
         try {
-            BigWaybillDto bigWaybillDto = waybillService.getWaybill(waybillCode, false);
+            BigWaybillDto bigWaybillDto = waybillService.getWaybill(waybillCode, false,true);
             waybillCache = this.convertWaybillWS(bigWaybillDto, true);
 
         }catch(Exception e){
@@ -147,6 +147,10 @@ public class WaybillCacheServiceImpl implements WaybillCacheService {
         waybillCache.setSpareColumn2(waybillWS.getSpareColumn2());//added by tangchunqing 2018年4月24日
         waybillCache.setFreight(waybillWS.getFreight());//added by shipeilin 2018年12月19日
         waybillCache.setCustomerCode(waybillWS.getCustomerCode());// add by liming 2020.11.08
+        if(waybillWS.getWaybillExt() != null) {
+        	waybillCache.setEndDmsId(waybillWS.getWaybillExt().getEndDmsId());//add by wuyoude 2021.10.15
+        }
+        
         return waybillCache;
     }
 
