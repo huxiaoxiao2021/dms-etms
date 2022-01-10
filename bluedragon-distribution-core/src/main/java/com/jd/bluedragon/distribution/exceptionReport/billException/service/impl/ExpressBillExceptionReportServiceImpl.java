@@ -249,25 +249,18 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
 
             if(CollectionUtils.isEmpty(changeStateList)){
                 log.error("当前包裹{}，无法获取始发地",packageCode);
-                firstSiteVo = new FirstSiteVo();
-                firstSiteVo.setFirstSiteCode(910);
-                firstSiteVo.setFirstSiteName("马驹桥分拣中心");
-                firstSiteVo.setLineType(ExpressBillLineTypeEnum.STATION.getCode());
-                firstSiteVo.setReportedUserErp("bjxings");
-                firstSiteVo.setReportedUserId(123423L);
-                firstSiteVo.setReportedUserName("邢松");
-                /*result.toFail("当前包裹，无法获取始发地");
-                return result;*/
+                result.toFail("当前包裹，无法获取始发地");
+                return result;
             }
 
-            /*PackageStateDto packageState = changeStateList.get(0);
+            PackageStateDto packageState = changeStateList.get(0);
             firstSiteVo = this.packageFirstSiteAndReportedInfoVo(packageState);
 
             // 设置条线类型
             if (lineType == null) {
                 lineType = ExpressBillLineTypeEnum.STATION.getCode();
             }
-            firstSiteVo.setLineType(lineType);*/
+            firstSiteVo.setLineType(lineType);
             result.setData(firstSiteVo);
         }catch (Exception e){
             log.error("通过包裹号获取运单始发网点异常 packageCode:{}",packageCode,e);
@@ -333,6 +326,21 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
             result.toFail("发送mq消息异常");
         }
         return result;
+    }
+
+    private static Map<Integer, Integer> reportType2CategoryTypeMap = new HashMap<>();
+    static {
+        Map<Integer, List<Integer>> categoryTypeMapReportTypeMap = new HashMap<>();
+        categoryTypeMapReportTypeMap.put(ExpressReportTypeCategoryEnum.OP_PROBLEM.getCode(), new ArrayList<>(Arrays.asList(1, 2, 3, 4, 5, 10, 11, 12, 13, 20)));
+        categoryTypeMapReportTypeMap.put(ExpressReportTypeCategoryEnum.EQUIPMENT_PROBLEM.getCode(), new ArrayList<>(Arrays.asList(6)));
+        categoryTypeMapReportTypeMap.put(ExpressReportTypeCategoryEnum.TEMPLATE_PROBLEM.getCode(), new ArrayList<>(Arrays.asList(19, 7, 16, 15, 18)));
+        categoryTypeMapReportTypeMap.put(ExpressReportTypeCategoryEnum.SYSTEM_PROBLEM.getCode(), new ArrayList<>(Arrays.asList(14, 8, 9, 17)));
+        for (Integer categoryType : categoryTypeMapReportTypeMap.keySet()) {
+            final List<Integer> reportTypeList = categoryTypeMapReportTypeMap.get(categoryType);
+            for (Integer reportType : reportTypeList) {
+                reportType2CategoryTypeMap.put(reportType, categoryType);
+            }
+        }
     }
 
     /**
