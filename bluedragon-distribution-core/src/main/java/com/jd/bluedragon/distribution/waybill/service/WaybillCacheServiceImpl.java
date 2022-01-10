@@ -129,6 +129,7 @@ public class WaybillCacheServiceImpl implements WaybillCacheService {
         waybillCache.setPaymentType(waybillWS.getPayment());
         waybillCache.setQuantity(waybillWS.getGoodNumber());
         waybillCache.setWeight(waybillWS.getGoodWeight());
+        waybillCache.setVolume(waybillWS.getGoodVolume());
         waybillCache.setAddress(waybillWS.getReceiverAddress());
         waybillCache.setOrgId(waybillWS.getArriveAreaId());
         waybillCache.setSendPay(waybillWS.getSendPay());
