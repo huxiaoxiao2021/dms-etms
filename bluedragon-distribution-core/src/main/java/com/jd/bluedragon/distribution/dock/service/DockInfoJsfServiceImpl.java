@@ -10,6 +10,7 @@ import com.jd.bluedragon.distribution.dock.domain.DockBaseInfoPo;
 import com.jd.bluedragon.distribution.dock.entity.AllowedVehicleEntity;
 import com.jd.bluedragon.distribution.dock.entity.DockInfoEntity;
 import com.jd.bluedragon.distribution.dock.entity.DockPageQueryCondition;
+import com.jd.bluedragon.distribution.failqueue.service.IFailQueueService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.jmq.common.exception.JMQException;
@@ -153,6 +154,10 @@ public class DockInfoJsfServiceImpl implements DockService{
     @Override
     @JProfiler(jKey = "DMS.BASE.DockInfoJsfServiceImpl.queryDockInfoByPage", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public PageDto<DockInfoEntity> queryDockInfoByPage(DockPageQueryCondition condition) {
+        if (!Objects.isNull(condition) && !Objects.isNull(condition.getSiteCode())) {
+            //如果siteCode存在的话，则将值复制给 siteCodeList
+            condition.getSiteCodeList().add(condition.getSiteCode());
+        }
         PagerResult<DockBaseInfoPo> baseInfoPoPagerResult = dockBaseInfoDao.queryByPagerCondition(condition);
         PageDto<DockInfoEntity> result = new PageDto<>();
         result.setCurrentPage(condition.getPageNumber());
