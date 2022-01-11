@@ -235,7 +235,7 @@ public class StrandServiceImpl implements StrandService {
         tTask.setCreateSiteCode(siteOrgDto.getSiteCode());
         tTask.setKeyword2(barcode);
         tTask.setReceiveSiteCode(siteOrgDto.getSiteCode());
-        tTask.setType(WaybillStatus.WAYBILL_OPE_TYPE_PUTAWAY);
+        tTask.setType(WaybillStatus.WAYBILL_STRAND_REPORT);
         tTask.setTableName(Task.TABLE_NAME_WAYBILL);
         tTask.setSequenceName(Task.TABLE_NAME_WAYBILL_SEQ);
         tTask.setOwnSign(BusinessHelper.getOwnSign());
@@ -252,7 +252,7 @@ public class StrandServiceImpl implements StrandService {
         tWaybillStatus.setCreateSiteCode(siteOrgDto.getSiteCode());
         tWaybillStatus.setCreateSiteName(siteOrgDto.getSiteName());
         tWaybillStatus.setCreateSiteType(siteOrgDto.getSiteType());
-        tWaybillStatus.setOperateType(WaybillStatus.WAYBILL_OPE_TYPE_PUTAWAY);
+        tWaybillStatus.setOperateType(WaybillStatus.WAYBILL_STRAND_REPORT);
         tWaybillStatus.setWaybillCode(waybillCode);
         // 运单自行区分 是包裹号还是运单号来更新状态
         tWaybillStatus.setPackageCode(barcode);
