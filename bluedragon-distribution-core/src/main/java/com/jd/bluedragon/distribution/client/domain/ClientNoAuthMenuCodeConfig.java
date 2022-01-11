@@ -21,7 +21,7 @@ public class ClientNoAuthMenuCodeConfig {
     /**
      * 无权限菜单编码
      */
-    private List<Integer> noAuthMenuCodes;
+    private List<String> noAuthMenuCodes;
 
     public Integer getSiteType() {
         return siteType;
@@ -39,11 +39,11 @@ public class ClientNoAuthMenuCodeConfig {
         this.subType = subType;
     }
 
-    public List<Integer> getNoAuthMenuCodes() {
+    public List<String> getNoAuthMenuCodes() {
         return noAuthMenuCodes;
     }
 
-    public void setNoAuthMenuCodes(List<Integer> noAuthMenuCodes) {
+    public void setNoAuthMenuCodes(List<String> noAuthMenuCodes) {
         this.noAuthMenuCodes = noAuthMenuCodes;
     }
 }

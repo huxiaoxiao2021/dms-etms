@@ -598,12 +598,20 @@ public class UccPropertyConfiguration {
      */
     private String noAuthMenuConfig;
     private String noAuthMenuConfigUat;
+    /**
+     * 打印客户端无权限菜单配置
+     */
+    private String noAuthMenuConfigNew;
 
     /**
      * 打印客户端菜单功能配置
      */
     private String menuCodeFuncConfig;
     private String menuCodeFuncConfigUat;
+    /**
+     * 打印客户端菜单功能配置
+     */
+    private String menuCodeFuncConfigNew;
 
     /**
      * 站点平台打印是否校验功能
@@ -1660,12 +1668,28 @@ public class UccPropertyConfiguration {
         this.noAuthMenuConfig = noAuthMenuConfig;
     }
 
+    public String getNoAuthMenuConfigNew() {
+        return noAuthMenuConfigNew;
+    }
+
+    public void setNoAuthMenuConfigNew(String noAuthMenuConfigNew) {
+        this.noAuthMenuConfigNew = noAuthMenuConfigNew;
+    }
+
     public String getMenuCodeFuncConfig() {
         return menuCodeFuncConfig;
     }
 
     public void setMenuCodeFuncConfig(String menuCodeFuncConfig) {
         this.menuCodeFuncConfig = menuCodeFuncConfig;
+    }
+
+    public String getMenuCodeFuncConfigNew() {
+        return menuCodeFuncConfigNew;
+    }
+
+    public void setMenuCodeFuncConfigNew(String menuCodeFuncConfigNew) {
+        this.menuCodeFuncConfigNew = menuCodeFuncConfigNew;
     }
 
     public boolean getSitePlateIsCheckFunc() {
