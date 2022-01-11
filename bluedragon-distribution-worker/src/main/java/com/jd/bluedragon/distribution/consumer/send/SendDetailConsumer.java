@@ -794,6 +794,7 @@ public class SendDetailConsumer extends MessageBaseConsumer {
                 this.log.info("冷链卡班、医药大票、冷链小票产品,分拣中心逆向订单快退:运单号[{}]",wayBillCode);
                 try {
                     blockerComOrbrefundRqMQ.send(wayBillCode,json);
+                    this.log.info("冷链卡班、医药大票、冷链小票产品发送blockerComOrbrefundRq成功,运单号：{}", wayBillCode);
                 } catch (Exception e) {
                     this.log.error("冷链卡班、医药大票、冷链小票产品,分拣中心逆向订单快退MQ失败[{}]",json , e);
                 }
