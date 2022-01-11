@@ -314,6 +314,7 @@ public class SendDetailConsumer extends MessageBaseConsumer {
     private BaseEntity<BigWaybillDto> getWaybillBaseEntity(String waybillCode) {
         WChoice choice = new WChoice();
         choice.setQueryWaybillC(true);
+        choice.setQueryWaybillExtend(true);
         choice.setQueryWaybillM(false);
         choice.setQueryGoodList(true);
         return waybillQueryManager.getDataByChoice(waybillCode, choice);
