@@ -15,7 +15,7 @@ public class ClientMenuFuncConfig {
      * 菜单编码
      * @see ClientMenuEnum
      */
-    private Integer menuCode;
+    private String menuCode;
     /**
      * 站点类型
      */
@@ -33,11 +33,11 @@ public class ClientMenuFuncConfig {
      */
     private Boolean isCanWeight = true;
 
-    public Integer getMenuCode() {
+    public String getMenuCode() {
         return menuCode;
     }
 
-    public void setMenuCode(Integer menuCode) {
+    public void setMenuCode(String menuCode) {
         this.menuCode = menuCode;
     }
 

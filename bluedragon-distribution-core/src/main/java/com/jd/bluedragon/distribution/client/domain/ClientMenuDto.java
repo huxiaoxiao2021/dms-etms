@@ -15,7 +15,7 @@ public class ClientMenuDto implements Serializable {
     /**
      * 菜单编码
      */
-    private Integer menuCode;
+    private String menuCode;
     /**
      * 菜单名称
      */
@@ -29,11 +29,11 @@ public class ClientMenuDto implements Serializable {
      */
     private Boolean isCanWeight = true;
 
-    public Integer getMenuCode() {
+    public String getMenuCode() {
         return menuCode;
     }
 
-    public void setMenuCode(Integer menuCode) {
+    public void setMenuCode(String menuCode) {
         this.menuCode = menuCode;
     }
 
