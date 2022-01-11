@@ -740,7 +740,7 @@ public class SendDetailConsumer extends MessageBaseConsumer {
     private void notifyBlocker(Waybill waybill,SendDetailMessage sendDetail) {
         String wayBillCode = waybill.getWaybillCode();
         try {
-            if (SendBizSourceEnum.REVERSE_SEND.equals(sendDetail.getBizSource())) {
+            if (SendBizSourceEnum.REVERSE_SEND.getCode().equals(sendDetail.getBizSource())) {
                 Date OperateTime = sendDetail.getOperateTime() == null? new Date():new Date(sendDetail.getOperateTime());
                 String waybillsign = waybill.getWaybillSign();
                 if (waybillsign != null && waybillsign.length() > 0) {
