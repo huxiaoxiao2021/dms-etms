@@ -233,7 +233,6 @@ public class StrandServiceImpl implements StrandService {
         Task tTask = new Task();
         tTask.setBoxCode(barcode);
         tTask.setCreateSiteCode(siteOrgDto.getSiteCode());
-        tTask.setKeyword1(barcode);
         tTask.setKeyword2(String.valueOf(WaybillStatus.WAYBILL_STRAND_REPORT));
         tTask.setReceiveSiteCode(siteOrgDto.getSiteCode());
         tTask.setType(Task.TASK_TYPE_WAYBILL_TRACK);
