@@ -84,6 +84,11 @@ public class DockInfoJsfServiceImplTest {
         condition.setSiteCode(480);
         condition.setOrgId(3);
         System.out.println(JsonHelper.toJson(dockInfoJsfService.queryDockInfoByPage(condition)));
+
+        DockPageQueryCondition condition1 = new DockPageQueryCondition();
+        condition1.setSiteCodeList(Collections.singletonList(480));
+        condition1.setOrgId(3);
+        System.out.println(JsonHelper.toJson(dockInfoJsfService.queryDockInfoByPage(condition1)));
     }
 
     @Test

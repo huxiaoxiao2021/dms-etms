@@ -160,8 +160,12 @@
             <if test="orgId != null">
                 org_id = #{orgId, jdbcType=INTEGER} and
             </if>
-            <if test="siteCode != null">
-                site_code = #{siteCode, jdbcType=INTEGER} and
+            <if test="siteCodeList != null">
+                site_code in
+                <foreach collection="siteCodeList" item="siteCode" index="index" open="(" separator="," close=")">
+                    #{siteCode, jdbcType=INTEGER}
+                </foreach>
+                and
             </if>
             is_delete = 0
         order by
@@ -177,8 +181,12 @@
             <if test="orgId != null">
                 org_id = #{orgId, jdbcType=INTEGER} and
             </if>
-            <if test="siteCode != null">
-                site_code = #{siteCode, jdbcType=INTEGER} and
+            <if test="siteCodeList != null">
+                site_code in
+                <foreach collection="siteCodeList" item="siteCode" index="index" open="(" separator="," close=")">
+                    #{siteCode, jdbcType=INTEGER}
+                </foreach>
+                and
             </if>
             is_delete = 0
         order by
