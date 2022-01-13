@@ -2,6 +2,9 @@ package com.jd.bluedragon.distribution.dock.entity;
 
 import com.jd.ql.dms.common.web.mvc.api.BasePagerCondition;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @ProjectName：bluedragon-distribution
  * @Package： com.jd.bluedragon.distribution.dock.entity
@@ -17,7 +20,17 @@ public class DockPageQueryCondition extends BasePagerCondition {
 
     private Integer orgId;
 
+    /**
+     * 逐渐废弃，改为使用siteCodeList
+     * @see DockPageQueryCondition#siteCodeList
+     */
+    @Deprecated
     private Integer siteCode;
+
+    /**
+     * 适配工作台的erp权限，查询部分站点
+     */
+    private List<Integer> siteCodeList = new ArrayList<Integer>();
 
     public Integer getOrgId() {
         return orgId;
@@ -33,5 +46,13 @@ public class DockPageQueryCondition extends BasePagerCondition {
 
     public void setSiteCode(Integer siteCode) {
         this.siteCode = siteCode;
+    }
+
+    public List<Integer> getSiteCodeList() {
+        return siteCodeList;
+    }
+
+    public void setSiteCodeList(List<Integer> siteCodeList) {
+        this.siteCodeList = siteCodeList;
     }
 }
