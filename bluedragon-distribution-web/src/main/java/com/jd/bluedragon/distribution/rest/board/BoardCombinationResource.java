@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.rest.board;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.board.request.CombinationBoardRequest;
+import com.jd.bluedragon.common.dto.unloadCar.UnloadCarStatusEnum;
 import com.jd.bluedragon.core.base.BoardCommonManager;
 import com.jd.bluedragon.distribution.api.dto.BoardDto;
 import com.jd.bluedragon.distribution.api.request.BoardCombinationRequest;
@@ -11,6 +12,8 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.board.service.BoardCombinationService;
 import com.jd.bluedragon.distribution.inspection.dao.InspectionDao;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
+import com.jd.bluedragon.distribution.loadAndUnload.UnloadCar;
+import com.jd.bluedragon.distribution.loadAndUnload.dao.UnloadCarDao;
 import com.jd.bluedragon.distribution.loadAndUnload.exception.LoadIllegalException;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -22,6 +25,7 @@ import com.jd.transboard.api.dto.AddBoardRequest;
 import com.jd.transboard.api.dto.Board;
 import com.jd.transboard.api.dto.Response;
 import com.jd.transboard.api.enums.BoardStatus;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -51,6 +55,8 @@ public class BoardCombinationResource {
     private BoardCommonManager boardCommonManager;
     @Autowired
     protected InspectionDao inspectionDao;
+    @Autowired
+    private UnloadCarDao unloadCarDao;
 
     @GET
     @Path("/boardCombination/barCodeValidation")
@@ -163,13 +169,28 @@ public class BoardCombinationResource {
         inspectionQ.setWaybillCode(WaybillUtil.getWaybillCode(request.getBoxOrPackageCode()));
         inspectionQ.setPackageBarcode(request.getBoxOrPackageCode());
         inspectionQ.setCreateSiteCode(request.getCurrentOperate().getSiteCode());
-        inspectionQ.setYn(Integer.valueOf(1));
-        boolean flag=inspectionDao.haveInspectionByPackageCode(inspectionQ);
-        //未操作验货不允许组板
-        if(!flag){
+        inspectionQ.setYn(1);
+        boolean flag = inspectionDao.haveInspectionByPackageCode(inspectionQ);
+        // 未操作验货不允许组板
+        if (!flag) {
             boardResponse.addStatusInfo(JdResponse.CODE_FAIL, "此包裹未验货，不允许组板！");
             result.toFail("此包裹未验货，不允许组板！");
             return result;
+        }
+
+        // 任务已结束不允许组板
+        if (request.getTaskId() != null) {
+            UnloadCar params = new UnloadCar();
+            params.setUnloadCarId(request.getTaskId());
+            List<UnloadCar> unloadCarList = unloadCarDao.selectByUnloadCar(params);
+            if (CollectionUtils.isNotEmpty(unloadCarList)) {
+                UnloadCar unloadCar = unloadCarList.get(0);
+                if (UnloadCarStatusEnum.UNLOAD_CAR_END.getType() == unloadCar.getStatus()) {
+                    boardResponse.addStatusInfo(JdResponse.CODE_FAIL, "该卸车任务已完成，无法进行组板操作");
+                    result.toFail("该卸车任务已完成，无法进行组板操作");
+                    return result;
+                }
+            }
         }
 
         try {

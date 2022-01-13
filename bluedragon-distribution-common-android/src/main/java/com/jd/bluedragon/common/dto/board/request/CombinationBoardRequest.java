@@ -57,6 +57,11 @@ public class CombinationBoardRequest implements Serializable {
      */
     private Integer flowDisaccord;
 
+    /**
+     * 任务ID
+     */
+    private Long taskId;
+
     @Override
     public String toString() {
         return "CombinationBoardRequest{" +
@@ -67,6 +72,8 @@ public class CombinationBoardRequest implements Serializable {
                 ", receiveSiteName='" + receiveSiteName + '\'' +
                 ", boxOrPackageCode='" + boxOrPackageCode + '\'' +
                 ", forceCombination=" + forceCombination +
+                ", flowDisaccord=" + flowDisaccord +
+                ", taskId=" + taskId +
                 '}';
     }
 
@@ -132,5 +139,13 @@ public class CombinationBoardRequest implements Serializable {
 
     public void setFlowDisaccord(Integer flowDisaccord) {
         this.flowDisaccord = flowDisaccord;
+    }
+
+    public Long getTaskId() {
+        return taskId;
+    }
+
+    public void setTaskId(Long taskId) {
+        this.taskId = taskId;
     }
 }

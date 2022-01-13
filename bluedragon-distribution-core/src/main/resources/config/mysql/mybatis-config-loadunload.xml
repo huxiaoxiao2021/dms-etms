@@ -28,6 +28,8 @@
         <typeAlias type="com.jd.bluedragon.distribution.loadAndUnload.UnloadCar" alias="unloadCar"/>
         <typeAlias type="com.jd.bluedragon.distribution.loadAndUnload.UnloadCarDistribution" alias="unloadCarDistribution"/>
         <typeAlias type="com.jd.bluedragon.distribution.loadAndUnload.UnloadCarTransBoard" alias="unloadCarTransBoard"/>
+
+        <typeAlias type="com.jd.bluedragon.distribution.board.domain.TaskBoard" alias="taskBoard"/>
     </typeAliases>
 
 
@@ -48,6 +50,9 @@
         <mapper resource="mappers/mysql/loadAndUnload/UnloadCarForTysMapper.xml" />
         <mapper resource="mappers/mysql/loadAndUnload/UnloadCarDistributionForTysMapper.xml" />
         <mapper resource="mappers/mysql/loadAndUnload/UnloadCarTransBoardForTysMapper.xml" />
+
+        <!-- 老组板和卸车任务绑定业务 -->
+        <mapper resource="mappers/mysql/board/TaskBoardMapper.xml" />
 
     </mappers>
 </configuration>
