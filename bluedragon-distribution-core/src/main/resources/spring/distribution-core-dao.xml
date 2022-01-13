@@ -665,6 +665,11 @@
         <property name="sqlSession" ref="loadUnloadSqlSessionTemplate"/>
     </bean>
 
+    <bean id="taskBoardDao" parent="businessBaseDao"
+          class="com.jd.bluedragon.distribution.board.dao.TaskBoardDao" >
+        <property name="sqlSession" ref="loadUnloadSqlSessionTemplate"/>
+    </bean>
+
     <!-- 集包异常举报 -->
     <bean id="collectionBagExceptionReportDao" class="com.jd.bluedragon.distribution.bagException.dao.CollectionBagExceptionReportDao">
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
