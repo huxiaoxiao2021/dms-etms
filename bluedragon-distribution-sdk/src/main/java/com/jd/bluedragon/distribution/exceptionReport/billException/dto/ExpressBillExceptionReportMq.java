@@ -48,6 +48,14 @@ public class ExpressBillExceptionReportMq implements Serializable {
      */
     private Integer reportType;
     /**
+     * 举报类型分类
+     */
+    private Integer reportTypeCategory;
+    /**
+     * 举报类型分类
+     */
+    private String reportTypeCategoryName;
+    /**
      * 举报人ERP
      */
     private String reportUserErp;
@@ -170,6 +178,24 @@ public class ExpressBillExceptionReportMq implements Serializable {
 
     public ExpressBillExceptionReportMq setReportType(Integer reportType) {
         this.reportType = reportType;
+        return this;
+    }
+
+    public Integer getReportTypeCategory() {
+        return reportTypeCategory;
+    }
+
+    public ExpressBillExceptionReportMq setReportTypeCategory(Integer reportTypeCategory) {
+        this.reportTypeCategory = reportTypeCategory;
+        return this;
+    }
+
+    public String getReportTypeCategoryName() {
+        return reportTypeCategoryName;
+    }
+
+    public ExpressBillExceptionReportMq setReportTypeCategoryName(String reportTypeCategoryName) {
+        this.reportTypeCategoryName = reportTypeCategoryName;
         return this;
     }
 
