@@ -255,6 +255,11 @@ public class WaybillStatus {
      */
     public static final Integer WAYBILL_TRACK_PACKAGE_PRINT = 5000;
 
+    /**
+     * 滞留上报
+     */
+    public static final Integer WAYBILL_STRAND_REPORT = 18000;
+
 
     private Long id;
 
