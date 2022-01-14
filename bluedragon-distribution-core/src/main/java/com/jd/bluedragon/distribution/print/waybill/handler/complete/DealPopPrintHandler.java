@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.print.waybill.handler.complete;
 
+import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.distribution.api.request.PopPrintRequest;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.handler.Handler;
@@ -10,9 +12,12 @@ import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
 import com.jd.bluedragon.distribution.print.request.PrintCompleteRequest;
 import com.jd.bluedragon.distribution.reprint.domain.ReprintRecord;
 import com.jd.bluedragon.distribution.reprint.service.ReprintRecordService;
+import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.etms.cache.util.WaybillConstants;
+import com.jd.etms.waybill.dto.PackageStateDto;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -39,6 +44,9 @@ public class DealPopPrintHandler implements Handler<WaybillPrintCompleteContext,
 
     @Autowired
     private ReprintRecordService reprintRecordService;
+
+    @Autowired
+    private WaybillTraceManager waybillTraceManager;
 
     private static final List<Integer> EXCLUDE_INSPECTION_OPERATE_TYPE = new ArrayList<>();
 
@@ -134,9 +142,9 @@ public class DealPopPrintHandler implements Handler<WaybillPrintCompleteContext,
             return request.getFirstTimePrint() == 1;
         }
         else {
-            return popPrintService.updateByWaybillOrPack(popPrint) <= 0;
+            return popPrintService.updateByWaybillOrPack(popPrint) <= 0 &&
+                    !waybillTraceManager.judgePackageHasConcreteState(popPrint.getPackageBarcode(), WaybillStatus.WAYBILL_TRACK_PACKAGE_PRINT_STATE);
         }
-
     }
 
     private void saveReprintRecord(PrintCompleteRequest request) {

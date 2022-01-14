@@ -52,6 +52,14 @@ public interface WaybillTraceManager {
     BaseEntity<List<PackageState>> getPkStateByPCode(String packageCode);
 
     /**
+     * 判断包裹是否有某个状态的全程跟踪
+     * @param packageCode
+     * @param state
+     * @return
+     */
+    Boolean judgePackageHasConcreteState(String packageCode, String state);
+
+    /**
      * 根据操作号、状态 查全程跟踪
      * @param opeCode
      * @param states

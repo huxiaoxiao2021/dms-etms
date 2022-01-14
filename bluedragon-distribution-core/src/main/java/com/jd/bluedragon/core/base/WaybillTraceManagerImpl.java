@@ -11,6 +11,7 @@ import com.jd.etms.waybill.dto.DChoice;
 import com.jd.etms.waybill.dto.PackageStateDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import static com.jd.bluedragon.Constants.RESULT_SUCCESS;
@@ -106,6 +108,34 @@ public class WaybillTraceManagerImpl implements WaybillTraceManager {
     public BaseEntity<List<PackageState>> getPkStateByPCode(String packageCode){
 
         return waybillTraceApi.getPkStateByPCode(packageCode);
+    }
+
+    /**
+     * 判断包裹是否有某个状态的全程跟踪
+     * @param packageCode
+     * @param state
+     * @return
+     */
+    @Override
+    @JProfiler(jKey = "DMS.BASE.WaybillTraceManagerImpl.judgePackageHasConcreteState", jAppName = Constants.UMP_APP_NAME_DMSWEB,
+            mState = {JProEnum.TP, JProEnum.FunctionError})
+    public Boolean judgePackageHasConcreteState(String packageCode, String state) {
+        try {
+            BaseEntity<List<PackageState>> baseEntity = getPkStateByPCode(packageCode);
+            if (baseEntity != null && CollectionUtils.isNotEmpty(baseEntity.getData())) {
+                for (PackageState packageState : baseEntity.getData()) {
+                    if (Objects.equals(state, packageState.getState())) {
+                        log.info("查询包裹全程跟踪状态: {}, {}", packageCode, state);
+                        return true;
+                    }
+                }
+            }
+        }
+        catch (Exception e) {
+            log.error("getPkStateByPCode error. {}", packageCode, e);
+        }
+
+        return false;
     }
 
     /**
