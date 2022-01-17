@@ -19,7 +19,9 @@ import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
+import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.QualityControlRequest;
+import com.jd.bluedragon.distribution.base.domain.JdCancelWaybillResponse;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.jss.JssService;
 import com.jd.bluedragon.distribution.qualityControl.QcVersionFlagEnum;
@@ -637,9 +639,13 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
         		&& queryRequest.getThirdLevelReasonId() != null
         		&& checkPrintInterceptReasonIdSet.contains(queryRequest.getThirdLevelReasonId())
         		&& waybillService.hasPrintIntercept(waybillCode, waybillData.getWaybillSign())) {
-            jdCResponse.setCode(JdCResponse.CODE_ERROR);
-            jdCResponse.setMessage(HintService.getHint(HintCodeConstants.EX_REPORT_CHECK_CHANGE_ADDRESS));
-            return jdCResponse;
+            //取消拦截  存在时跳过 不进行补打拦截提示
+            JdCancelWaybillResponse jdCancelResponse = waybillService.dealCancelWaybill(waybillCode);
+            if (jdCancelResponse == null || jdCancelResponse.getCode() == null || jdCancelResponse.getCode().equals(JdResponse.CODE_OK)) {
+                jdCResponse.setCode(JdCResponse.CODE_ERROR);
+                jdCResponse.setMessage(HintService.getHint(HintCodeConstants.EX_REPORT_CHECK_CHANGE_ADDRESS));
+                return jdCResponse;
+            }
         }
         //协商再投拦截
         if (waybillData != null
