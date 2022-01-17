@@ -40,6 +40,7 @@ public class WaybillDistributeTypeChangeFilter implements Filter {
     @Override
     public void doFilter(FilterContext request, FilterChain chain) throws Exception {
         logger.info("TransferHandler处理开始");
+        // 提示 WaybillDistributeTypeChangeFilter 存在拦截消息的改址拦截 这里只处理标位的 ForceChangeWaybillSignFilter 中处理强制改址拦截 ChangeWaybillSignFilter 中处理弱拦截
 
         String waybillCode = request.getWaybillCode();
         BlockResponse response = null;

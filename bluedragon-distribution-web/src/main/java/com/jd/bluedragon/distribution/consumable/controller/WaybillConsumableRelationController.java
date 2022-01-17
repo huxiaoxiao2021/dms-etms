@@ -10,6 +10,7 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.uim.annotation.Authorization;
+import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,6 +72,7 @@ public class WaybillConsumableRelationController extends DmsBaseController{
 	 */
     @Authorization(Constants.DMS_WEB_EXPRESS_WAYBILLCONSUMABLERECORD_R)
 	@RequestMapping(value = "/save")
+	@JProfiler(jKey = "dms.web.WaybillConsumableRelationController.save" , jAppName = Constants.UMP_APP_NAME_DMSWEB)
 	public @ResponseBody JdResponse<Boolean> save(@RequestBody WaybillConsumableRelation waybillConsumableRelation) {
 		JdResponse<Boolean> rest = new JdResponse<Boolean>();
 		try {
@@ -100,7 +102,7 @@ public class WaybillConsumableRelationController extends DmsBaseController{
 				waybillConsumableRecord.setModifyStatus(WaybillConsumableRecordService.TREATED_STATE);
 				waybillConsumableRecordService.updateByCondition(waybillConsumableRecord);
 			}
-	} catch (Exception e) {
+		} catch (Exception e) {
 			log.error("fail to save！",e);
 			rest.toError("保存失败，服务异常！");
 		}
@@ -113,6 +115,7 @@ public class WaybillConsumableRelationController extends DmsBaseController{
 	 */
     @Authorization(Constants.DMS_WEB_EXPRESS_WAYBILLCONSUMABLERECORD_R)
 	@RequestMapping(value = "/deleteByIds")
+	@JProfiler(jKey = "dms.web.WaybillConsumableRelationController.deleteByIds" , jAppName = Constants.UMP_APP_NAME_DMSWEB)
 	public @ResponseBody JdResponse<Integer> deleteByIds(@RequestBody WaybillConsumableRelationBatchDelete waybillConsumableRelationBatchDelete) {
 		JdResponse<Integer> rest = new JdResponse<Integer>();
 		try {
@@ -149,6 +152,7 @@ public class WaybillConsumableRelationController extends DmsBaseController{
 
     @Authorization(Constants.DMS_WEB_EXPRESS_WAYBILLCONSUMABLERECORD_R)
 	@RequestMapping("/getAddPage")
+	@JProfiler(jKey = "dms.web.WaybillConsumableRelationController.getAddPage" , jAppName = Constants.UMP_APP_NAME_DMSWEB)
 	public String getAddPage() {
 		return "consumable/waybillConsumableDetailAdd";
 	}
