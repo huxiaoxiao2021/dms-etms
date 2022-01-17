@@ -387,6 +387,12 @@ public class HintCodeConstants {
     public static String WAYBILL_INFO_CHANGE = "20061";
 
     /**
+     * 订单信息变更,请补打包裹标签
+     */
+    public static String WAYBILL_INFO_CHANGE_FORCE = "20085";
+
+
+    /**
      * 无此包裹或运单信息,确定装箱？
      */
     public static String WAYBILL_OR_PACKAGE_NOT_FOUND = "20062";
