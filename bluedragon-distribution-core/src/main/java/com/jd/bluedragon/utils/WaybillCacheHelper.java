@@ -265,6 +265,34 @@ public class WaybillCacheHelper {
         return BusinessUtil.isChangeWaybillSign(waybill.getWaybillSign());
     }
 
+    /**
+     * 是否修改订单地址 强
+     *
+     * @param waybill
+     * @return
+     */
+    public static Boolean isForceChangeWaybillSign(WaybillCache waybill) {
+
+        if (waybill == null || waybill.getWaybillSign() == null) {
+            return Boolean.FALSE;
+        }
+        return BusinessUtil.isForceChangeWaybillSign(waybill.getWaybillSign());
+    }
+
+    /**
+     * 是否修改订单地址 弱
+     *
+     * @param waybill
+     * @return
+     */
+    public static Boolean isWeakChangeWaybillSign(WaybillCache waybill) {
+
+        if (waybill == null || waybill.getWaybillSign() == null) {
+            return Boolean.FALSE;
+        }
+        return BusinessUtil.isWeakChangeWaybillSign(waybill.getWaybillSign());
+    }
+
     public static Boolean isLuxury(WaybillCache waybill) {
         if (waybill == null || waybill.getSendPay() == null) {
             return Boolean.FALSE;

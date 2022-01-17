@@ -2118,6 +2118,26 @@ public class BusinessUtil {
                 WaybillSignConstants.CHAR_8_1,WaybillSignConstants.CHAR_8_2);
     }
     /**
+     * 是否修改订单地址,waybillSign第8位1、2
+     *
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isForceChangeWaybillSign(String waybillSign) {
+        return BusinessUtil.isSignInChars(waybillSign, WaybillSignConstants.POSITION_8,
+                WaybillSignConstants.CHAR_8_1);
+    }
+    /**
+     * 是否修改订单地址,waybillSign第8位1、2
+     *
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isWeakChangeWaybillSign(String waybillSign) {
+        return BusinessUtil.isSignInChars(waybillSign, WaybillSignConstants.POSITION_8,
+                WaybillSignConstants.CHAR_8_2);
+    }
+    /**
      * 运单揽收类型为网点自送 71位是2 网点自提
      * @param waybillSign
      * @return
