@@ -119,7 +119,7 @@ public class WaybillTraceManagerImpl implements WaybillTraceManager {
     @Override
     @JProfiler(jKey = "DMS.BASE.WaybillTraceManagerImpl.judgePackageHasConcreteState", jAppName = Constants.UMP_APP_NAME_DMSWEB,
             mState = {JProEnum.TP, JProEnum.FunctionError})
-    public Boolean judgePackageHasConcreteState(String packageCode, String state) {
+    public boolean judgePackageHasConcreteState(String packageCode, String state) {
         try {
             BaseEntity<List<PackageState>> baseEntity = getPkStateByPCode(packageCode);
             if (baseEntity != null && CollectionUtils.isNotEmpty(baseEntity.getData())) {
@@ -132,7 +132,7 @@ public class WaybillTraceManagerImpl implements WaybillTraceManager {
             }
         }
         catch (Exception e) {
-            log.error("getPkStateByPCode error. {}", packageCode, e);
+            log.error("judgePackageHasConcreteState error. {}", packageCode, e);
         }
 
         return false;

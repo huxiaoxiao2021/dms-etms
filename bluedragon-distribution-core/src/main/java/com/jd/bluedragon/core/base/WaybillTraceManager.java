@@ -57,7 +57,7 @@ public interface WaybillTraceManager {
      * @param state
      * @return
      */
-    Boolean judgePackageHasConcreteState(String packageCode, String state);
+    boolean judgePackageHasConcreteState(String packageCode, String state);
 
     /**
      * 根据操作号、状态 查全程跟踪
