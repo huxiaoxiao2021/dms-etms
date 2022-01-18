@@ -266,14 +266,14 @@ public class LDOPManagerImpl implements LDOPManager {
                 return responseDTO.getData();
             }else {
                 //失败
-                errorMessage.append("换单前获取外单信息接口失败 "+responseDTO.getStatusMessage()+"请联系IT 咚咚 ：xnpsxt");
+                errorMessage.append("换单前获取外单信息接口失败 "+responseDTO.getStatusMessage());
                 log.info("换单前获取外单信息失败,入参：{}  失败原因：{}",JsonHelper.toJson(waybillReverseDTO),responseDTO.getStatusMessage());
             }
             return null;
         }catch (Exception e){
             log.error("换单前获取外单信息失败,入参：{}  失败原因：{}",JsonHelper.toJson(waybillReverseDTO),e.getMessage(),e);
             Profiler.functionError(info);
-            return null;
+            throw e;
         }finally{
             Profiler.registerInfoEnd(info);
 
