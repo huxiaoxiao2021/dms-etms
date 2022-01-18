@@ -149,7 +149,7 @@ public class WaybillPrintRequest extends JdRequest{
 	private String userERP;
 
     /**
-     * 包裹号
+     * 包裹号或运单号，目前只有包裹补打使用
      */
     private String packageBarCode;
 

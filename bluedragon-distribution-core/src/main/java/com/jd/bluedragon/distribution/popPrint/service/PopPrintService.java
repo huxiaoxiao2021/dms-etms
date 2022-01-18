@@ -93,4 +93,12 @@ public interface PopPrintService {
 	 * @param date
 	 */
 	void toTask(PopPrintRequest req, Integer operateType, String remark, Date date);
+
+    /**
+     * 判断包裹或者运单是否是首次打印
+     * 运单维度打印过一个单子就算首打
+     * @param barCode
+     * @return 首次打印返回true
+     */
+    boolean judgePackageFirstPrint(String barCode);
 }
