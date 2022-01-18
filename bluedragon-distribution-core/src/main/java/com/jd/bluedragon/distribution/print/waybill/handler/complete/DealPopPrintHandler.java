@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.print.waybill.handler.complete;
 
+import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.distribution.api.request.PopPrintRequest;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.handler.Handler;
@@ -42,12 +43,18 @@ public class DealPopPrintHandler implements Handler<WaybillPrintCompleteContext,
 
     private static final List<Integer> EXCLUDE_INSPECTION_OPERATE_TYPE = new ArrayList<>();
 
+    private static final List<Integer> FIRST_PRINT_OPERATE_TYPE = new ArrayList<>();
+
     static {
         EXCLUDE_INSPECTION_OPERATE_TYPE.add(WaybillPrintOperateTypeEnum.SITE_PLATE_PRINT.getType());
         EXCLUDE_INSPECTION_OPERATE_TYPE.add(WaybillPrintOperateTypeEnum.SMS_REPRINT.getType());
         EXCLUDE_INSPECTION_OPERATE_TYPE.add(WaybillPrintOperateTypeEnum.SITE_3PL_PACKAGE_AGAIN_REPRINT.getType());
         EXCLUDE_INSPECTION_OPERATE_TYPE.add(WaybillPrintOperateTypeEnum.SMS_PDA_REPRINT.getType());
         EXCLUDE_INSPECTION_OPERATE_TYPE.add(WaybillPrintOperateTypeEnum.SITE_HSD_PACKAGE_PRINT.getType());
+
+        FIRST_PRINT_OPERATE_TYPE.add(WaybillPrintOperateTypeEnum.PLATE_PRINT.getType());
+        FIRST_PRINT_OPERATE_TYPE.add(WaybillPrintOperateTypeEnum.SITE_PLATE_PRINT.getType());
+        FIRST_PRINT_OPERATE_TYPE.add(WaybillPrintOperateTypeEnum.FIELD_PRINT.getType());
     }
 
     /**
@@ -71,7 +78,7 @@ public class DealPopPrintHandler implements Handler<WaybillPrintCompleteContext,
                 PopPrint popPrint = requestToPopPrint(context.getRequest(), packageCode);
 
                 // 首次打印的包裹，打印记录保存到popPrint
-                if (judgePackageFirstPrint(popPrint, context.getRequest())) {
+                if (judgePackageFirstPrint(popPrint, context)) {
 
                     popPrintService.add(popPrint);
 
@@ -126,18 +133,24 @@ public class DealPopPrintHandler implements Handler<WaybillPrintCompleteContext,
     /**
      * 判断包裹是否是首次打印
      * @param popPrint
-     * @param request
+     * @param context
      * @return
      */
-    private boolean judgePackageFirstPrint(PopPrint popPrint, PrintCompleteRequest request) {
+    private boolean judgePackageFirstPrint(PopPrint popPrint, WaybillPrintCompleteContext context) {
+
+        // 去掉打印客户端固定写首打的逻辑
+//        if (FIRST_PRINT_OPERATE_TYPE.contains(context.getOperateType())) {
+//            return true;
+//        }
+
         // 设置是否首次打印标识，根据入参的值判定
+        PrintCompleteRequest request = context.getRequest();
         if (null != request.getFirstTimePrint()) {
             return request.getFirstTimePrint() == 1;
         }
         else {
-            return popPrintService.updateByWaybillOrPack(popPrint) <= 0;
+            return popPrintService.judgePackageFirstPrint(popPrint.getPackageBarcode());
         }
-
     }
 
     private void saveReprintRecord(PrintCompleteRequest request) {

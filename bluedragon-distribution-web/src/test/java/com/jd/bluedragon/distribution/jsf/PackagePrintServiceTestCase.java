@@ -1,11 +1,11 @@
 package com.jd.bluedragon.distribution.jsf;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.distribution.print.request.SiteTerminalPrintCompleteRequest;
+import com.jd.etms.waybill.domain.PackageState;
 import junit.framework.Assert;
 
 import org.junit.Test;
@@ -148,5 +148,16 @@ public class PackagePrintServiceTestCase {
         packagePrintDto.setOperatorName("邢松");
         packagePrintDto.setOperatorErp("bjxings");
         System.out.println(packagePrintService.packagePrintComplete(jdCommandJsfDto));
+    }
+
+    @Autowired
+    private WaybillTraceManager waybillTraceManager;
+
+    @Test
+    public void getAllOperationsByOpeCodeAndStateTest() {
+        Set<Integer> stateSet = new HashSet<>();
+        stateSet.add(-600);
+        List<PackageState> pac = waybillTraceManager.getAllOperationsByOpeCodeAndState("JDVF00001510222", stateSet);
+        System.out.println(JsonHelper.toJson(pac));
     }
 }
