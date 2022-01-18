@@ -5,10 +5,12 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
+import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.QualityControlRequest;
 import com.jd.bluedragon.distribution.api.request.RedeliveryCheckRequest;
 import com.jd.bluedragon.distribution.api.response.QualityControlResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.base.domain.JdCancelWaybillResponse;
 import com.jd.bluedragon.distribution.qualityControl.domain.RedeliveryMode;
 import com.jd.bluedragon.distribution.qualityControl.service.QualityControlService;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
@@ -221,11 +223,15 @@ public class QualityControlResource {
                             && request.getSupExceptionId() != null
                     		&& checkPrintInterceptReasonIdSetForOld.contains(request.getSupExceptionId())
                     		&& waybillService.hasPrintIntercept(waybillCode, waybillData.getWaybillSign())) {
-                        data.setIsCompleted(false);
-                        data.setWaybillCode(waybillCode);
-                        result.setData(data);
-                        result.setMessage("此单号["+ waybillCode +"]"+HintService.getHint(HintCodeConstants.EX_REPORT_CHECK_CHANGE_ADDRESS));
-                        break;
+                        //取消拦截  存在时跳过 不进行补打拦截提示
+                        JdCancelWaybillResponse jdCancelResponse = waybillService.dealCancelWaybill(waybillCode);
+                        if (jdCancelResponse == null || jdCancelResponse.getCode() == null || jdCancelResponse.getCode().equals(JdResponse.CODE_OK)) {
+                            data.setIsCompleted(false);
+                            data.setWaybillCode(waybillCode);
+                            result.setData(data);
+                            result.setMessage("此单号["+ waybillCode +"]"+HintService.getHint(HintCodeConstants.EX_REPORT_CHECK_CHANGE_ADDRESS));
+                            break;
+                        }
                     }
                     //协商再投拦截
                     if (waybillData != null
