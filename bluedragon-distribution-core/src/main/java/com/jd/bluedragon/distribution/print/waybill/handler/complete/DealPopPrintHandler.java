@@ -137,9 +137,10 @@ public class DealPopPrintHandler implements Handler<WaybillPrintCompleteContext,
      */
     private boolean judgePackageFirstPrint(PopPrint popPrint, WaybillPrintCompleteContext context) {
 
-        if (FIRST_PRINT_OPERATE_TYPE.contains(context.getOperateType())) {
-            return true;
-        }
+        // 去掉打印客户端固定写首打的逻辑
+//        if (FIRST_PRINT_OPERATE_TYPE.contains(context.getOperateType())) {
+//            return true;
+//        }
 
         // 设置是否首次打印标识，根据入参的值判定
         PrintCompleteRequest request = context.getRequest();

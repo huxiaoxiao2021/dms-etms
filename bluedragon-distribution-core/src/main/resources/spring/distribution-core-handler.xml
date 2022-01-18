@@ -126,7 +126,6 @@
 	<bean id="dmsReverseChangePrint" class="com.jd.bluedragon.distribution.print.waybill.handler.PlatePrintOperateHandler">
 		<property name="handlers">
 			<list>
-                <ref bean="firstPrintInterceptHandler" />
 				<ref bean="basicWaybillPrintHandler"/>
 				<ref bean="signAndReturnForExamineHandler"/>
 				<ref bean="c2cInterceptHandler"/>
@@ -173,7 +172,6 @@
     <bean id="stationPrint" class="com.jd.bluedragon.distribution.print.waybill.handler.PlatePrintOperateHandler">
         <property name="handlers">
             <list>
-                <ref bean="firstPrintInterceptHandler" />
                 <ref bean="basicWaybillPrintHandler"/>
                 <ref bean="waybillOutZoneHandler"/>
                 <ref bean="featherLetterHandler"/>
@@ -198,7 +196,6 @@
 	<bean id="platePrint" class="com.jd.bluedragon.distribution.print.waybill.handler.PlatePrintOperateHandler">
 		<property name="handlers">
 			<list>
-                <ref bean="firstPrintInterceptHandler" />
 				<ref bean="basicWaybillPrintHandler"/>
 				<ref bean="overLengthRemindHandler"/>
 				<ref bean="isNeedPrintHandler"/>
@@ -306,7 +303,6 @@
 	<bean id="sitePlatePrint" class="com.jd.bluedragon.distribution.print.waybill.handler.SitePlatePrintOperateHandler">
 		<property name="handlers">
 			<list>
-                <ref bean="firstPrintInterceptHandler" />
 				<ref bean="sitePlateBasicHandler"/>
 				<ref bean="sitePlateInterceptHandler"/>
 				<ref bean="needCollectionCompletedInterceptHandler"/>
