@@ -63,15 +63,15 @@ public class FirstPrintInterceptHandler implements Handler<WaybillPrintContext, 
             return interceptResult;
         }
 
-        // 包裹标签已打印拦截
-        if (FIRST_PRINT_OPERATE_TYPE.contains(context.getRequest().getOperateType())) {
-            if (WaybillUtil.isPackageCode(context.getRequest().getBarCode())) {
-                if (!popPrintService.judgePackageFirstPrint(context.getRequest().getBarCode())) {
-                    interceptResult.toFail(WaybillPrintMessages.MESSAGE_PACKAGE_PRINTED);
-                    return interceptResult;
-                }
-            }
-        }
+        // 包裹标签已打印拦截。输入运单号查询打印信息，大包裹情况存在性能问题
+//        if (FIRST_PRINT_OPERATE_TYPE.contains(context.getRequest().getOperateType())) {
+//            if (WaybillUtil.isPackageCode(context.getRequest().getBarCode())) {
+//                if (!popPrintService.judgePackageFirstPrint(context.getRequest().getBarCode())) {
+//                    interceptResult.toFail(WaybillPrintMessages.MESSAGE_PACKAGE_PRINTED);
+//                    return interceptResult;
+//                }
+//            }
+//        }
 
         if (siteTerminalLimitUseReprint(context, interceptResult)) {
             return interceptResult;
