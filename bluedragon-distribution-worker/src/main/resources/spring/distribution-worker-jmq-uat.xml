@@ -267,7 +267,7 @@
         <jmq:listener topic="${jmq.topic.bd.dms.delivery.cancel.send}" listener="tibetCancelSendDetailConsumer"/>
     </jmq:consumer>
     <!-- 消费无预分拣站点刷新数据 -->
-    <jmq:consumer id="jmq.dmsHasnoPresiteWaybillMqListener" transport="jmq.dmsWorker.transport">
+    <jmq:consumer id="jmq.dmsHasnoPresiteWaybillMqListener" transport="jmq.uatDmsWeb.transport">
         <jmq:listener topic="${jmq.topic.dmsHasnoPresiteWaybillMq}" listener="dmsHasnoPresiteWaybillMqListener"/>
     </jmq:consumer>
     <!-- dws抽检处理消费 -->

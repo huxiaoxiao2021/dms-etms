@@ -533,13 +533,21 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
                   * @Param: tasks
                  * @return
                  */
+                boolean hasReturnWaybillCode = false;
 				if(StringUtils.isNotBlank(tWaybillStatus.getReturnWaybillCode())){
 					map.put("returnWaybillCode",tWaybillStatus.getReturnWaybillCode());
+					hasReturnWaybillCode = true;
 				}
 				/**
 				 * 查询是否有全量接单失败，接到过14全量接单失败拦截消息，分拣在现有的换单打印节点写全程跟踪时，加个拦截类型的字段extendParameter 扩展属性里 interceptType
 				 */
 				boolean isFullOrderFail = waybillCancelService.isFullOrderFail(bdTraceDto.getWaybillCode());
+				/**
+				 * 判断一次原单号是否全量接单拦截
+				 */
+				if(!isFullOrderFail && hasReturnWaybillCode) {
+					isFullOrderFail = waybillCancelService.isFullOrderFail(tWaybillStatus.getReturnWaybillCode());
+				}
 				if(isFullOrderFail) {
 					map.put("interceptType",WaybillCancelInterceptTypeEnum.FULL_ORDER_FAIL.getCode());
 				}
