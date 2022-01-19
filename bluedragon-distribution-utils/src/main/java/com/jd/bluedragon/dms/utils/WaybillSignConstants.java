@@ -42,6 +42,15 @@ public interface WaybillSignConstants {
 	char CHAR_4_3 = '3';
 	char CHAR_4_4 = '4';
 	char CHAR_4_9 = '9';
+
+	/**
+	 * 改址标位 8 位  1 2 3
+	 */
+	int POSITION_8 = 8;
+	char CHAR_8_1='1';
+	char CHAR_8_2='2';
+	char CHAR_8_3='3';
+
 	/**
 	 * B网标识 1、2、3、4、5
 	 */
