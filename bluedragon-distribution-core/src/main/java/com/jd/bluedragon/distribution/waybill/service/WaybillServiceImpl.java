@@ -56,6 +56,7 @@ import com.jd.etms.waybill.dto.WaybillVasDto;
 import com.jd.jsf.gd.util.JsonUtils;
 import com.jd.ql.basic.dto.BaseSiteInfoDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -483,7 +484,13 @@ public class WaybillServiceImpl implements WaybillService {
 
 	private void appendPackages(String packageCode, Boolean isIncludePackage, BigWaybillDto waybillDto,
 			DmsWaybillInfoResponse response) {
-		for (DeliveryPackageD waybillPackage : waybillDto.getPackageList()) {
+        List<DeliveryPackageD> packageList = waybillDto.getPackageList();
+        if(CollectionUtils.isEmpty(packageList)){
+            response.setCode(CODE_WAYBILL_NOE_FOUND);
+            response.setMobile(JdResponse.MESSAGE_RE_PRINT_NO_PACK_LIST);
+            return;
+        }
+		for (DeliveryPackageD waybillPackage : packageList) {
 			if (isIncludePackage || !isIncludePackage
 					&& waybillPackage.getPackageBarcode().equalsIgnoreCase(packageCode)) {
 				OrderPackage orderPackage = new OrderPackage();
