@@ -8,6 +8,7 @@ import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
+import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
@@ -100,6 +101,12 @@ public class PopPrintServiceImpl implements PopPrintService {
 
     @Autowired
     private UccPropertyConfiguration uccConfig;
+
+    @Autowired
+    private WaybillTraceManager waybillTraceManager;
+
+    @Autowired
+    private WaybillPackageManager waybillPackageManager;
 
     @Override
     public PopPrint findByWaybillCode(String waybillCode) {
@@ -442,4 +449,41 @@ public class PopPrintServiceImpl implements PopPrintService {
         return target;
     }
 
+    @Override
+    @JProfiler(jKey = "DMSWEB.PopPrintServiceImpl.judgePackageFirstPrint", jAppName = Constants.UMP_APP_NAME_DMSWEB,
+            mState = {JProEnum.TP, JProEnum.FunctionError})
+    public boolean judgePackageFirstPrint(String barCode) {
+        if (WaybillUtil.isPackageCode(barCode)) {
+            PopPrint popPrint = new PopPrint();
+            popPrint.setWaybillCode(WaybillUtil.getWaybillCode(barCode));
+            popPrint.setPackageBarcode(barCode);
+            return this.findByPackage(popPrint) == null
+                    && !waybillTraceManager.judgePackageHasConcreteState(popPrint.getPackageBarcode(), WaybillStatus.WAYBILL_TRACK_PACKAGE_PRINT_STATE);
+        }
+        // 运单维度首打指包裹都未打印过
+        else if (WaybillUtil.isWaybillCode(barCode)) {
+            List<PopPrint> popPrints = this.findAllByWaybillCode(barCode);
+            if (CollectionUtils.isEmpty(popPrints)) {
+                BaseEntity<List<DeliveryPackageD>> baseEntity = waybillPackageManager.getPackListByWaybillCode(barCode);
+                if (baseEntity.getResultCode() == EnumBusiCode.BUSI_SUCCESS.getCode() && baseEntity.getData() != null) {
+                    for (DeliveryPackageD packageD : baseEntity.getData()) {
+                        if (waybillTraceManager.judgePackageHasConcreteState(packageD.getPackageBarcode(), WaybillStatus.WAYBILL_TRACK_PACKAGE_PRINT_STATE)) {
+                            if (log.isInfoEnabled()) {
+                                log.info("按运单维度查首打记录. {}", packageD.getPackageBarcode());
+                            }
+                            return false;
+                        }
+                    }
+
+                    if (log.isInfoEnabled()) {
+                        log.info("按运单维度查首打记录, 包裹都未打印. {}", barCode);
+                    }
+
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
 }

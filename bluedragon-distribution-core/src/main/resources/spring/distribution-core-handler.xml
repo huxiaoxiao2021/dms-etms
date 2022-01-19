@@ -102,8 +102,8 @@
 	<bean id="basicPrint" class="com.jd.bluedragon.distribution.print.waybill.handler.PlatePrintOperateHandler">
 		<property name="handlers">
 			<list>
-				<ref bean="basicWaybillPrintHandler"/>
-                <ref bean="authorityInterceptHandler" />
+                <ref bean="firstPrintInterceptHandler" />
+                <ref bean="basicWaybillPrintHandler"/>
 				<ref bean="signAndReturnForExamineHandler"/>
 				<ref bean="c2cInterceptHandler"/>
 				<ref bean="interceptWaybillHandler"/>

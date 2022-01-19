@@ -256,6 +256,11 @@ public class WaybillStatus {
     public static final Integer WAYBILL_TRACK_PACKAGE_PRINT = 5000;
 
     /**
+     * 包裹打印全程跟踪状态码
+     */
+    public static final String WAYBILL_TRACK_PACKAGE_PRINT_STATE = "-600";
+
+    /**
      * 滞留上报
      */
     public static final Integer WAYBILL_STRAND_REPORT = 18000;
