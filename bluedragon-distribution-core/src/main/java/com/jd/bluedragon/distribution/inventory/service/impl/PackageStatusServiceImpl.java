@@ -9,6 +9,9 @@ import com.jd.bluedragon.distribution.inventory.domain.PackStatusEnum;
 import com.jd.bluedragon.distribution.inventory.domain.PackageStatus;
 import com.jd.bluedragon.distribution.inventory.domain.SiteWithDirection;
 import com.jd.bluedragon.distribution.inventory.service.PackageStatusService;
+import com.jd.bluedragon.distribution.record.entity.DmsHasnoPresiteWaybillMq;
+import com.jd.bluedragon.distribution.record.enums.DmsHasnoPresiteWaybillMqOperateEnum;
+import com.jd.bluedragon.distribution.record.service.WaybillHasnoPresiteRecordService;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.service.SendDetailService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
@@ -23,6 +26,8 @@ import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.handler.WaybillSyncParameter;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.dms.print.utils.StringHelper;
+
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,7 +37,9 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service("packageStatusService")
 public class PackageStatusServiceImpl implements PackageStatusService {
@@ -54,6 +61,9 @@ public class PackageStatusServiceImpl implements PackageStatusService {
 
     @Autowired
     private WaybillCacheService waybillCacheService;
+    
+    @Autowired
+    private WaybillHasnoPresiteRecordService waybillHasnoPresiteRecordService;
 
     /**
      * 运单路由字段使用的分隔符
@@ -447,5 +457,91 @@ public class PackageStatusServiceImpl implements PackageStatusService {
             return siteWithDirection;
         }
         return null;
+    }
+
+    /**
+     * 过滤验货
+     */
+	@Override
+	public void filterAndSendDmsHasnoPresiteWaybillMq(List<WaybillSyncParameter> parameters, BdTraceDto bdTraceDto) {
+        //将回传运单状态/发送全称跟踪对象转换为消息对象
+        if (parameters != null) {
+        	List<DmsHasnoPresiteWaybillMq> messageList = toDmsHasnoPresiteWaybillMqList(parameters);
+        	if(messageList == null
+        			|| messageList.isEmpty()) {
+        		return;
+        	}
+            for (DmsHasnoPresiteWaybillMq dmsHasnoPresiteWaybillMq : messageList) {
+            	waybillHasnoPresiteRecordService.sendDataChangeMq(dmsHasnoPresiteWaybillMq);
+            }
+        } else if (bdTraceDto != null) {
+        	DmsHasnoPresiteWaybillMq dmsHasnoPresiteWaybillMq = toDmsHasnoPresiteWaybillMq(bdTraceDto);
+        	if(dmsHasnoPresiteWaybillMq == null) {
+        		return;
+        	}
+            waybillHasnoPresiteRecordService.sendDataChangeMq(dmsHasnoPresiteWaybillMq);
+        }
+	}
+	/**
+	 * 全程跟踪转成mq对象
+	 * @param bdTraceDto
+	 * @return
+	 */
+    private DmsHasnoPresiteWaybillMq toDmsHasnoPresiteWaybillMq(BdTraceDto bdTraceDto) {
+    	DmsHasnoPresiteWaybillMq dmsHasnoPresiteWaybillMq = new DmsHasnoPresiteWaybillMq();
+        //判断是否验货
+        PackStatusEnum statusEnum = getStatusInfo(bdTraceDto.getOperateType());
+        if(!PackStatusEnum.INSPECTION.equals(statusEnum)) {
+        	return null;
+        }
+        dmsHasnoPresiteWaybillMq.setWaybillCode(StringUtils.isNotBlank(bdTraceDto.getWaybillCode()) ? bdTraceDto.getWaybillCode() : WaybillUtil.getWaybillCode(bdTraceDto.getPackageBarCode()));
+        dmsHasnoPresiteWaybillMq.setOperateSiteCode(bdTraceDto.getOperatorSiteId());
+        dmsHasnoPresiteWaybillMq.setOperateUserErp(""+bdTraceDto.getOperatorUserId());
+        dmsHasnoPresiteWaybillMq.setOperateUserName(bdTraceDto.getOperatorUserName());
+        dmsHasnoPresiteWaybillMq.setOperateTime(bdTraceDto.getOperatorTime());
+    	dmsHasnoPresiteWaybillMq.setOperateCode(DmsHasnoPresiteWaybillMqOperateEnum.CHECK.getCode());
+    	return dmsHasnoPresiteWaybillMq;
+    }
+    /**
+     * 全程跟踪list转成mq对象
+     * @param parameters
+     * @return
+     */
+    private List<DmsHasnoPresiteWaybillMq> toDmsHasnoPresiteWaybillMqList(List<WaybillSyncParameter> parameters) {
+    	if(parameters == null
+    			|| parameters.isEmpty()) {
+    		return null;
+    	}
+    	//运单维度防重
+    	Set<String> waybillCodes = new HashSet<String>();
+    	List<DmsHasnoPresiteWaybillMq> messageList = new ArrayList<>();
+    	for(WaybillSyncParameter parameter : parameters) {
+        	//无法获取状态码
+        	if(parameter.getWaybillSyncParameterExtend() == null) {
+        		continue;
+        	}
+            //判断是否验货
+            PackStatusEnum statusEnum = getStatusInfo(parameter.getWaybillSyncParameterExtend().getOperateType());
+            if(!PackStatusEnum.INSPECTION.equals(statusEnum)) {
+            	continue;
+            }
+            DmsHasnoPresiteWaybillMq dmsHasnoPresiteWaybillMq = new DmsHasnoPresiteWaybillMq();
+            String waybillCode = WaybillUtil.getWaybillCode(parameter.getOperatorCode());
+            if(StringHelper.isEmpty(waybillCode)||
+            		waybillCodes.contains(waybillCode)) {
+            	continue;
+            }
+            dmsHasnoPresiteWaybillMq.setWaybillCode(waybillCode);
+            dmsHasnoPresiteWaybillMq.setOperateSiteCode(parameter.getZdId());
+            if(parameter.getOperatorId() != null) {
+            	dmsHasnoPresiteWaybillMq.setOperateUserErp(parameter.getOperatorId().toString());
+            }
+            dmsHasnoPresiteWaybillMq.setOperateUserName(parameter.getOperatorName());
+            dmsHasnoPresiteWaybillMq.setOperateTime(parameter.getOperateTime());
+        	dmsHasnoPresiteWaybillMq.setOperateCode(DmsHasnoPresiteWaybillMqOperateEnum.CHECK.getCode());
+        	messageList.add(dmsHasnoPresiteWaybillMq);
+        	waybillCodes.add(waybillCode);
+    	}
+    	return messageList;
     }
 }

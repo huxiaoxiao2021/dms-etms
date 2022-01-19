@@ -19,6 +19,7 @@ import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.storage.service.StoragePackageMService;
 import com.jd.bluedragon.distribution.task.domain.Task;
+import com.jd.bluedragon.distribution.waybill.domain.WaybillCancelInterceptTypeEnum;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -84,6 +85,9 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 
 	@Autowired
 	private PackageStatusService packageStatusService;
+	
+    @Autowired
+    private WaybillCancelService waybillCancelService;
 
 	public void sendModifyWaybillStatusNotify(List<Task> tasks) throws Exception{
 		if (tasks.isEmpty()) {
@@ -122,6 +126,7 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 				if (true == result.isFlag()) {
 					try{
 						packageStatusService.recordPackageStatus(parameterList,null);
+						packageStatusService.filterAndSendDmsHasnoPresiteWaybillMq(parameterList,null);
 					}catch (Exception e){
 						log.error("包裹状态发送MQ消息异常:{}" , JSON.toJSONString(parameterList),e);
 					}
@@ -519,7 +524,7 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
                 }
                 toWaybillStatus(tWaybillStatus, bdTraceDto);
                 bdTraceDto.setOperatorDesp(tWaybillStatus.getRemark());
-
+                Map<String,Object> map=new HashMap<String, Object>();
                 /**
                  * create by: yangwenshu
                  * description:把新运单号加入ExtendParameter  Map里，用于换单打印场景
@@ -528,12 +533,27 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
                   * @Param: tasks
                  * @return
                  */
+                boolean hasReturnWaybillCode = false;
 				if(StringUtils.isNotBlank(tWaybillStatus.getReturnWaybillCode())){
-					Map<String,Object> map=new HashMap<String, Object>();
 					map.put("returnWaybillCode",tWaybillStatus.getReturnWaybillCode());
+					hasReturnWaybillCode = true;
+				}
+				/**
+				 * 查询是否有全量接单失败，接到过14全量接单失败拦截消息，分拣在现有的换单打印节点写全程跟踪时，加个拦截类型的字段extendParameter 扩展属性里 interceptType
+				 */
+				boolean isFullOrderFail = waybillCancelService.isFullOrderFail(bdTraceDto.getWaybillCode());
+				/**
+				 * 判断一次原单号是否全量接单拦截
+				 */
+				if(!isFullOrderFail && hasReturnWaybillCode) {
+					isFullOrderFail = waybillCancelService.isFullOrderFail(tWaybillStatus.getReturnWaybillCode());
+				}
+				if(isFullOrderFail) {
+					map.put("interceptType",WaybillCancelInterceptTypeEnum.FULL_ORDER_FAIL.getCode());
+				}
+				if(!map.isEmpty()) {
 					bdTraceDto.setExtendParameter(map);
 				}
-
                 this.log.info("向运单系统回传全程跟踪，逆向换单打印调用：" );
                 waybillQueryManager.sendBdTrace(bdTraceDto);
 //                this.taskService.doDone(task);

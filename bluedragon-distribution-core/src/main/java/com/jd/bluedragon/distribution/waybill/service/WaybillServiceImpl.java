@@ -170,7 +170,21 @@ public class WaybillServiceImpl implements WaybillService {
 
         return baseEntity != null && baseEntity.getData() != null ? baseEntity.getData() : null;
     }
+    @Override
+    public BigWaybillDto getWaybill(String waybillCode, boolean isPackList, boolean isExtend) {
+        String aWaybillCode = WaybillUtil.getWaybillCode(waybillCode);
 
+        WChoice wChoice = new WChoice();
+        wChoice.setQueryWaybillC(true);
+        wChoice.setQueryWaybillE(true);
+        wChoice.setQueryWaybillM(true);
+        wChoice.setQueryWaybillExtend(isExtend);
+        wChoice.setQueryPackList(isPackList);
+        BaseEntity<BigWaybillDto> baseEntity = this.waybillQueryManager.getDataByChoice(aWaybillCode,
+                wChoice);
+
+        return baseEntity != null && baseEntity.getData() != null ? baseEntity.getData() : null;
+    }
     @Override
     public BigWaybillDto getWaybillProduct(String waybillCode) {
         String aWaybillCode = WaybillUtil.getWaybillCode(waybillCode);
@@ -946,6 +960,10 @@ public class WaybillServiceImpl implements WaybillService {
         }
         if (WaybillCancelInterceptTypeEnum.CANCEL_SYS_RETURN.getCode() == interceptType) {
             result.customMessage(SortingResponse.CODE_29317, HintService.getHint(HintCodeConstants.RETURN_GOODS_INTERCEPT));
+            return result;
+        }
+        if (WaybillCancelInterceptTypeEnum.FULL_ORDER_FAIL.getCode() == interceptType) {
+            result.customMessage(SortingResponse.CODE_29321, HintService.getHint(HintCodeConstants.FULL_ORDER_FAIL_INTERCEPT));
             return result;
         }
         return result;

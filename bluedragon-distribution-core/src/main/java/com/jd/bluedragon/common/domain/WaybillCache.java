@@ -324,6 +324,10 @@ public class WaybillCache implements Serializable {
 	 * 青龙业主号
 	 */
     private String customerCode;
+    /**
+     * 末级分拣分拣id
+     */
+    private Integer endDmsId;
 
 	public WaybillCache() {
 
@@ -840,5 +844,13 @@ public class WaybillCache implements Serializable {
 
 	public void setCustomerCode(String customerCode) {
 		this.customerCode = customerCode;
+	}
+
+	public Integer getEndDmsId() {
+		return endDmsId;
+	}
+
+	public void setEndDmsId(Integer endDmsId) {
+		this.endDmsId = endDmsId;
 	}
 }

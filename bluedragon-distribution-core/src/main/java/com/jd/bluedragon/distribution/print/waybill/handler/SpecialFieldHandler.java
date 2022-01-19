@@ -42,6 +42,10 @@ public class SpecialFieldHandler implements Handler<WaybillPrintContext,JdResult
 	public JdResult<String> handle(WaybillPrintContext context) {
 		log.debug("包裹标签打印-特殊字段处理");
 		BasePrintWaybill basePrintWaybill = context.getBasePrintWaybill();
+		if(context.isUseEndDmsId()) {
+			setDestinationCityDmsCodeByDmsSite(basePrintWaybill,context.getWaybillEndDmsId());
+			return context.getResult();
+		}
 		/**
 		 * 显示目的分拣中心标识destinationCityDmsCode
 		 * 1、始发分拣与目的分拣不一致，调用基础资料获取目的分拣中心对应的标识
@@ -49,12 +53,7 @@ public class SpecialFieldHandler implements Handler<WaybillPrintContext,JdResult
 		 */
 		if(basePrintWaybill.getPurposefulDmsCode() != null) {
 			if(!basePrintWaybill.getPurposefulDmsCode().equals(basePrintWaybill.getOriginalDmsCode())){
-				BaseSiteInfoDto baseSiteInfoDto = baseMajorManager.getBaseSiteInfoBySiteId(basePrintWaybill.getPurposefulDmsCode());
-				if(baseSiteInfoDto != null && StringHelper.isNotEmpty(baseSiteInfoDto.getDistributeCode())){
-					basePrintWaybill.setDestinationCityDmsCode(baseSiteInfoDto.getDistributeCode());
-				}else{
-					log.warn("打印-调用基础资料获取目的分拣中心对应的标识为空！siteCode:{}", basePrintWaybill.getPurposefulDmsCode());
-				}
+				setDestinationCityDmsCodeByDmsSite(basePrintWaybill,basePrintWaybill.getPurposefulDmsCode());
 			}else{
 				String destinationCrossCode = basePrintWaybill.getDestinationCrossCode();
 				if(StringHelper.isNotEmpty(destinationCrossCode) 
@@ -64,6 +63,19 @@ public class SpecialFieldHandler implements Handler<WaybillPrintContext,JdResult
 			}
 		}
 		return context.getResult();
+	}
+	/**
+	 * 根据目的分拣中心设置-destinationCityDmsCode
+	 * @param basePrintWaybill
+	 * @param endDmsId
+	 */
+	private void setDestinationCityDmsCodeByDmsSite(BasePrintWaybill basePrintWaybill, Integer endDmsId) {
+		BaseSiteInfoDto baseSiteInfoDto = baseMajorManager.getBaseSiteInfoBySiteId(endDmsId);
+		if(baseSiteInfoDto != null && StringHelper.isNotEmpty(baseSiteInfoDto.getDistributeCode())){
+			basePrintWaybill.setDestinationCityDmsCode(baseSiteInfoDto.getDistributeCode());
+		}else{
+			log.warn("打印-调用基础资料获取目的分拣中心对应的标识为空！siteCode:{}", basePrintWaybill.getPurposefulDmsCode());
+		}
 	}
 
 	/**

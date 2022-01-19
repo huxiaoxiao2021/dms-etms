@@ -1,7 +1,9 @@
 package com.jd.bluedragon.dms.utils;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 /**
@@ -273,6 +275,14 @@ public class DmsConstants {
     public static final String BC_BOX_PREFIX = "BC";
 
     public static final String WJ_BOX_PREFIX = "WJ";
+    //站点操作的节点
+    public static final Set<Integer> SITE_OPERAT_STATES = new HashSet<Integer>(){{
+    	add(60);
+    	add(80);
+    	add(110);
+    	add(150);
+    	}};
+
     /**
      * 退分拣中心-目的名称标识
      */

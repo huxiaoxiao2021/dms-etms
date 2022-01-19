@@ -3,7 +3,6 @@ package com.jd.bluedragon.distribution.waybill.service;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.waybill.domain.CancelWaybill;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillSiteTrackMq;
-import com.jd.bluedragon.distribution.weightAndVolumeCheck.dto.WeightAndVolumeCheckHandleMessage;
 
 import java.util.List;
 
@@ -36,5 +35,11 @@ public interface WaybillCancelService {
      * @time 2020-09-09 16:09:21 周三
      */
     InvokeResult<Boolean> handleWaybillSiteTrackMq(WaybillSiteTrackMq waybillSiteTrackMq);
+    /**
+     * 根据原运单号判断是否全量接单失败
+     * @param waybillCode
+     * @return
+     */
+    boolean isFullOrderFail(String waybillCode);
 
 }

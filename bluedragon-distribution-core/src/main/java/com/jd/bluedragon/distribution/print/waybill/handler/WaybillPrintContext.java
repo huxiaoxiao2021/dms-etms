@@ -110,7 +110,15 @@ public class WaybillPrintContext implements Context{
 	 * 操作人所属场地是否为分拣中心
 	 */
     private Boolean dmsCenter=Boolean.FALSE;
-	
+    /**
+     * 是否使用目的分拣中心,获取滑道信息时设置
+     */
+    private boolean isUseEndDmsId = false;
+    /**
+     * 运单中的目的分拣中心,获取滑道信息时设置
+     */
+    private Integer waybillEndDmsId;
+    
 	public void appendMessage(String message){
 		if(StringHelper.isNotEmpty(message)){
 			messages.add(message);
@@ -248,5 +256,17 @@ public class WaybillPrintContext implements Context{
 
 	public void setDmsCenter(Boolean dmsCenter) {
 		this.dmsCenter = dmsCenter;
+	}
+	public boolean isUseEndDmsId() {
+		return isUseEndDmsId;
+	}
+	public void setUseEndDmsId(boolean isUseEndDmsId) {
+		this.isUseEndDmsId = isUseEndDmsId;
+	}
+	public Integer getWaybillEndDmsId() {
+		return waybillEndDmsId;
+	}
+	public void setWaybillEndDmsId(Integer waybillEndDmsId) {
+		this.waybillEndDmsId = waybillEndDmsId;
 	}
 }
