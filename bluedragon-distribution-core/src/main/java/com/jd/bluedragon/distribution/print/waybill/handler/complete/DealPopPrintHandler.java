@@ -43,6 +43,7 @@ public class DealPopPrintHandler implements Handler<WaybillPrintCompleteContext,
     private static final List<Integer> EXCLUDE_INSPECTION_OPERATE_TYPE = new ArrayList<>();
 
     static {
+        EXCLUDE_INSPECTION_OPERATE_TYPE.add(WaybillPrintOperateTypeEnum.SITE_PLATE_PRINT.getType());
         EXCLUDE_INSPECTION_OPERATE_TYPE.add(WaybillPrintOperateTypeEnum.SMS_REPRINT.getType());
         EXCLUDE_INSPECTION_OPERATE_TYPE.add(WaybillPrintOperateTypeEnum.SITE_3PL_PACKAGE_AGAIN_REPRINT.getType());
         EXCLUDE_INSPECTION_OPERATE_TYPE.add(WaybillPrintOperateTypeEnum.SMS_PDA_REPRINT.getType());
