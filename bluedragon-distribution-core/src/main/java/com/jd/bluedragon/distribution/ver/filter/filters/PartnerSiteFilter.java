@@ -36,7 +36,8 @@ public class PartnerSiteFilter implements Filter {
         Boolean isPartnerOrderDisToSelfOrderSite = Boolean.FALSE;
 
         //预分拣站点是三方-合作站点，分拣目的地不是分拣中心时，包裹可能发送到其所属的自营站点，由自营站点配送到三方-合作站点
-        if ((SiteHelper.isMayBelongSiteExist(waybillSite) || isSmallSite(waybillSite))
+        if (request.hasPreSite()
+        		&& (SiteHelper.isMayBelongSiteExist(waybillSite) || isSmallSite(waybillSite))
                 && !SiteHelper.isDistributionCenter(request.getReceiveSite()) ) {
 
             if (null == waybillSite || null == waybillSite.getCode() || waybillSite.getCode() <= 0) {

@@ -1,0 +1,349 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.record.dao.WaybillHasnoPresiteRecordDao">
+    <!-- table映射实体对象 -->
+	<resultMap id="WaybillHasnoPresiteRecord" type="com.jd.bluedragon.distribution.record.model.WaybillHasnoPresiteRecord" >
+		<id column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result column="waybill_code" property="waybillCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="site_code" property="siteCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="site_name" property="siteName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="presite_code" property="presiteCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="end_dms_id" property="endDmsId" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="status" property="status" javaType="java.lang.Integer" jdbcType="TINYINT" />
+		<result column="call_status" property="callStatus" javaType="java.lang.Integer" jdbcType="TINYINT" />
+		<result column="deal_card_user_erp" property="dealCardUserErp" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="deal_card_user_name" property="dealCardUserName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="check_time" property="checkTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="call_time" property="callTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="deal_card_time" property="dealCardTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="finish_time" property="finishTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="is_delete" property="isDelete" javaType="java.lang.Integer" jdbcType="TINYINT" />
+		<result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+	</resultMap>
+
+	<sql id="Base_Column_List" >
+		id,waybill_code,site_code,site_name,presite_code,end_dms_id,
+		status,call_status,deal_card_user_erp,deal_card_user_name,check_time,
+		call_time,deal_card_time,finish_time,create_time,update_time,
+		is_delete,ts
+	</sql>
+
+	<insert id="insert" parameterType="com.jd.bluedragon.distribution.record.model.WaybillHasnoPresiteRecord" useGeneratedKeys="true" keyProperty="id">
+		insert into waybill_hasno_presite_record
+			(
+			<trim suffixOverrides=",">
+				<if test="id != null" >
+					id,
+				</if>
+				<if test="waybillCode != null" >
+					waybill_code,
+				</if>
+				<if test="siteCode != null" >
+					site_code,
+				</if>
+				<if test="siteName != null" >
+					site_name,
+				</if>
+				<if test="presiteCode != null" >
+					presite_code,
+				</if>
+				<if test="endDmsId != null" >
+					end_dms_id,
+				</if>
+				<if test="status != null" >
+					status,
+				</if>
+				<if test="callStatus != null" >
+					call_status,
+				</if>
+				<if test="dealCardUserErp != null" >
+					deal_card_user_erp,
+				</if>
+				<if test="dealCardUserName != null" >
+					deal_card_user_name,
+				</if>
+				<if test="checkTime != null" >
+					check_time,
+				</if>
+				<if test="callTime != null" >
+					call_time,
+				</if>
+				<if test="dealCardTime != null" >
+					deal_card_time,
+				</if>
+				<if test="finishTime != null" >
+					finish_time,
+				</if>
+				<if test="createTime != null" >
+					create_time,
+				</if>
+				<if test="updateTime != null" >
+					update_time,
+				</if>
+				<if test="isDelete != null" >
+					is_delete,
+				</if>
+				<if test="ts != null" >
+					ts,
+				</if>
+			</trim>
+			)
+			values
+			(
+			<trim suffixOverrides=",">
+				<if test="id != null" >
+					#{id,jdbcType=BIGINT},
+				</if>
+				<if test="waybillCode != null" >
+					#{waybillCode,jdbcType=VARCHAR},
+				</if>
+				<if test="siteCode != null" >
+					#{siteCode,jdbcType=INTEGER},
+				</if>
+				<if test="siteName != null" >
+					#{siteName,jdbcType=VARCHAR},
+				</if>
+				<if test="presiteCode != null" >
+					#{presiteCode,jdbcType=INTEGER},
+				</if>
+				<if test="endDmsId != null" >
+					#{endDmsId,jdbcType=INTEGER},
+				</if>
+				<if test="status != null" >
+					#{status,jdbcType=TINYINT},
+				</if>
+				<if test="callStatus != null" >
+					#{callStatus,jdbcType=TINYINT},
+				</if>
+				<if test="dealCardUserErp != null" >
+					#{dealCardUserErp,jdbcType=VARCHAR},
+				</if>
+				<if test="dealCardUserName != null" >
+					#{dealCardUserName,jdbcType=VARCHAR},
+				</if>
+				<if test="checkTime != null" >
+					#{checkTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="callTime != null" >
+					#{callTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="dealCardTime != null" >
+					#{dealCardTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="finishTime != null" >
+					#{finishTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="createTime != null" >
+					#{createTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="updateTime != null" >
+					#{updateTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="isDelete != null" >
+					#{isDelete,jdbcType=TINYINT},
+				</if>
+				<if test="ts != null" >
+					#{ts,jdbcType=TIMESTAMP},
+				</if>
+			</trim>
+			)
+	</insert>
+
+	<update id="update" parameterType="com.jd.bluedragon.distribution.record.model.WaybillHasnoPresiteRecord">
+		update waybill_hasno_presite_record
+			<set>
+				<if test="id != null" >
+					id = #{id,jdbcType=BIGINT},
+				</if>
+				<if test="waybillCode != null" >
+					waybill_code = #{waybillCode,jdbcType=VARCHAR},
+				</if>
+				<if test="siteCode != null" >
+					site_code = #{siteCode,jdbcType=INTEGER},
+				</if>
+				<if test="siteName != null" >
+					site_name = #{siteName,jdbcType=VARCHAR},
+				</if>
+				<if test="presiteCode != null" >
+					presite_code = #{presiteCode,jdbcType=INTEGER},
+				</if>
+				<if test="endDmsId != null" >
+					end_dms_id = #{endDmsId,jdbcType=INTEGER},
+				</if>
+				<if test="status != null" >
+					status = #{status,jdbcType=TINYINT},
+				</if>
+				<if test="callStatus != null" >
+					call_status = #{callStatus,jdbcType=TINYINT},
+				</if>
+				<if test="dealCardUserErp != null" >
+					deal_card_user_erp = #{dealCardUserErp,jdbcType=VARCHAR},
+				</if>
+				<if test="dealCardUserName != null" >
+					deal_card_user_name = #{dealCardUserName,jdbcType=VARCHAR},
+				</if>
+				<if test="checkTime != null" >
+					check_time = #{checkTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="callTime != null" >
+					call_time = #{callTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="dealCardTime != null" >
+					deal_card_time = #{dealCardTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="finishTime != null" >
+					finish_time = #{finishTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="createTime != null" >
+					create_time = #{createTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="updateTime != null" >
+					update_time = #{updateTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="isDelete != null" >
+					is_delete = #{isDelete,jdbcType=TINYINT},
+				</if>
+				<if test="ts != null" >
+					ts = #{ts,jdbcType=TIMESTAMP},
+				</if>
+			</set>
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+
+	<select id="queryByWaybillCode" parameterType="java.lang.String" resultMap="WaybillHasnoPresiteRecord">
+		select
+			<include refid="Base_Column_List"/>
+		from
+			waybill_hasno_presite_record t
+		where is_delete = 0 and waybill_code = #{waybillCode,jdbcType=VARCHAR}
+	</select>
+	
+    <!-- where条件 -->
+    <sql id="sql_where">
+        <where>
+        	is_delete = 0 
+	        <if test="waybillCode != null and waybillCode != ''">
+	            AND waybill_code = #{waybillCode}
+	        </if>
+	        <if test="status != null">
+	            AND status = #{status}
+	        </if>
+	        <if test="siteCode != null">
+	            AND site_code = #{siteCode}
+	        </if>
+	        <if test="startTimeTs != null">
+	            AND ts >= #{startTimeTs}
+	        </if>	        
+	        <if test="endTimeTs != null">
+	            AND ts &lt;= #{endTimeTs}
+	        </if>
+        </where>
+    </sql>
+    <!-- 查询行数 -->
+    <select id="selectCount" resultType="long" parameterType="com.jd.bluedragon.distribution.record.dto.WaybillHasnoPresiteRecordQo">
+        SELECT count(1) FROM waybill_hasno_presite_record t
+        <include refid="sql_where"/>
+    </select>
+    <!-- 查询集合 如果pageNumber小于或等于0,则不进行分页操作 -->
+    <select id="selectList" resultMap="WaybillHasnoPresiteRecord" parameterType="com.jd.bluedragon.distribution.record.dto.WaybillHasnoPresiteRecordQo">
+		select
+			<include refid="Base_Column_List"/>
+		from
+			waybill_hasno_presite_record t
+        <include refid="sql_where"/>
+        <if test="pageNumber > 0">
+            limit #{offset}, #{pageSize}
+        </if>
+    </select>
+	<update id="updateCheckInfo" parameterType="com.jd.bluedragon.distribution.record.model.WaybillHasnoPresiteRecord">
+		update waybill_hasno_presite_record
+			<set>
+				<if test="siteCode != null" >
+					site_code = #{siteCode,jdbcType=INTEGER},
+				</if>
+				<if test="siteName != null" >
+					site_name = #{siteName,jdbcType=VARCHAR},
+				</if>
+				<if test="checkTime != null" >
+					check_time = #{checkTime,jdbcType=TIMESTAMP},
+				</if>
+			</set>
+		where waybill_code = #{waybillCode,jdbcType=VARCHAR}
+			and status in (0,1,2,3)
+			and (check_time is null or check_time &lt; #{checkTime,jdbcType=TIMESTAMP})
+	</update>
+	<update id="updateCallInfo" parameterType="com.jd.bluedragon.distribution.record.model.WaybillHasnoPresiteRecord">
+		update waybill_hasno_presite_record
+			<set>
+				<if test="status != null" >
+					status = #{status,jdbcType=TINYINT},
+				</if>
+				<if test="callStatus != null" >
+					call_status = #{callStatus,jdbcType=TINYINT},
+				</if>				
+				<if test="callTime != null" >
+					call_time = #{callTime,jdbcType=TIMESTAMP},
+				</if>
+			</set>
+		where waybill_code = #{waybillCode,jdbcType=VARCHAR}
+			and status = 0
+			and (call_time is null or  call_time &lt; #{callTime,jdbcType=TIMESTAMP})
+	</update>
+	<update id="updateFailFinishInfo" parameterType="com.jd.bluedragon.distribution.record.model.WaybillHasnoPresiteRecord">
+		update waybill_hasno_presite_record
+			<set>
+				<if test="siteCode != null" >
+					site_code = #{siteCode,jdbcType=INTEGER},
+				</if>
+				<if test="siteName != null" >
+					site_name = #{siteName,jdbcType=VARCHAR},
+				</if>			
+				<if test="status != null" >
+					status = #{status,jdbcType=TINYINT},
+				</if>
+				<if test="finishTime != null" >
+					finish_time = #{finishTime,jdbcType=TIMESTAMP},
+				</if>				
+			</set>
+		where waybill_code = #{waybillCode,jdbcType=VARCHAR} 
+			and status in(2,3)
+			and (finish_time is null or  finish_time &lt; #{finishTime,jdbcType=TIMESTAMP})
+	</update>
+	<update id="updateSucFinishInfo" parameterType="com.jd.bluedragon.distribution.record.model.WaybillHasnoPresiteRecord">
+		update waybill_hasno_presite_record
+			<set>
+				<if test="siteCode != null" >
+					site_code = #{siteCode,jdbcType=INTEGER},
+				</if>
+				<if test="siteName != null" >
+					site_name = #{siteName,jdbcType=VARCHAR},
+				</if>			
+				<if test="status != null" >
+					status = #{status,jdbcType=TINYINT},
+				</if>
+				<if test="finishTime != null" >
+					finish_time = #{finishTime,jdbcType=TIMESTAMP},
+				</if>				
+			</set>
+		where waybill_code = #{waybillCode,jdbcType=VARCHAR}
+			and status in(1)
+			and (finish_time is null or  finish_time &lt; #{finishTime,jdbcType=TIMESTAMP})
+	</update>
+	
+	<!-- 查询超过2天并且状态是0的数据 -->
+    <select id="selectScanList" resultMap="WaybillHasnoPresiteRecord" parameterType="com.jd.bluedragon.distribution.record.dto.WaybillHasnoPresiteRecordQo">
+		select
+			<include refid="Base_Column_List"/>
+		from
+			waybill_hasno_presite_record t
+        where is_delete = 0 
+        	and status = 0
+        	and check_time &lt; #{endCheckTime,jdbcType=TIMESTAMP}
+        	and create_time >= #{startCreateTime,jdbcType=TIMESTAMP}
+        	and id > #{startId}
+          order by id limit #{pageSize}
+    </select>
+</mapper>
+

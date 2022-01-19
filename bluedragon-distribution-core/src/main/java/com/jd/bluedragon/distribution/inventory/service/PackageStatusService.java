@@ -1,10 +1,10 @@
 package com.jd.bluedragon.distribution.inventory.service;
 
+import java.util.List;
+
 import com.jd.bluedragon.distribution.inventory.domain.SiteWithDirection;
 import com.jd.etms.waybill.dto.BdTraceDto;
 import com.jd.etms.waybill.handler.WaybillSyncParameter;
-
-import java.util.List;
 
 public interface PackageStatusService {
     /**
@@ -21,4 +21,10 @@ public interface PackageStatusService {
      * @return
      */
     SiteWithDirection getReceiveSiteByWaybillCode(String waybillCode, Integer createSiteCode);
+    /**
+     * 过滤包裹物流状态信息并发DmsHasnoPresiteWaybillMq，全量接单相关mq
+     * @param parameters
+     * @param bdTraceDto
+     */
+    void filterAndSendDmsHasnoPresiteWaybillMq(List<WaybillSyncParameter> parameters,BdTraceDto bdTraceDto);
 }
