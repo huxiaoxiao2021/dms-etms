@@ -140,11 +140,6 @@ public class WaybillReverseManagerImpl implements WaybillReverseManager {
     private int twiceExchangeMaxTimes;
 	
     /**
-     * wbmsRequestProfile配置信息-systemSource
-     */
-	@Value("${dms.wbmsRequestProfile.systemSource}")
-    private String systemSource;
-    /**
      * wbmsRequestProfile配置信息-tenantId
      */
 	@Value("${dms.wbmsRequestProfile.tenantId}")
@@ -648,7 +643,6 @@ public class WaybillReverseManagerImpl implements WaybillReverseManager {
 	}
 	private WbmsRequestProfile getWbmsRequestProfile(String key) {
 		WbmsRequestProfile wbmsRequestProfile = new WbmsRequestProfile();
-		wbmsRequestProfile.setSystemSource(systemSource);
 		wbmsRequestProfile.setTenantId(tenantId);
 		wbmsRequestProfile.setAppSource(appSource);
 		wbmsRequestProfile.setToken(token);
