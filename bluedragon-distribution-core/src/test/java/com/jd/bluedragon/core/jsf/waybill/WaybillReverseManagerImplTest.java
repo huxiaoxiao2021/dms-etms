@@ -1,6 +1,6 @@
 package com.jd.bluedragon.core.jsf.waybill;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.when;
 
 import java.util.Date;
 
