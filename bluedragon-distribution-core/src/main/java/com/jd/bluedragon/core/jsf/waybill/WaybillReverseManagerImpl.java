@@ -254,7 +254,6 @@ public class WaybillReverseManagerImpl implements WaybillReverseManager {
     private DmsWaybillReverseResponseDTO convertDmsWaybillReverseResponseDTO(SubmitWaybillResponse submitWaybillResponse) {
 		if(submitWaybillResponse != null) {
 			DmsWaybillReverseResponseDTO dmsWaybillReverseResponseDTO = new DmsWaybillReverseResponseDTO();
-			dmsWaybillReverseResponseDTO.setWaybillCode(submitWaybillResponse.getWaybillCode());
 			//收货人信息
 			WaybillConsigneeDto consigneeDto = submitWaybillResponse.getWaybillConsigneeDto();
 			if(consigneeDto != null) {
