@@ -4,7 +4,6 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.junit.Test;
@@ -12,11 +11,6 @@ import org.junit.Test;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.distribution.print.domain.BasePrintWaybill;
 import com.jd.bluedragon.distribution.print.domain.PrintWaybill;
-import com.jd.bluedragon.distribution.reverse.domain.DmsDetailReverseReasonDTO;
-import com.jd.bluedragon.distribution.reverse.domain.DmsPackageDTO;
-import com.jd.bluedragon.distribution.reverse.domain.DmsWaybillAddress;
-import com.jd.bluedragon.distribution.reverse.domain.DmsWaybillReverseDTO;
-import com.jd.bluedragon.distribution.reverse.domain.DmsWaybillReverseResponseDTO;
 import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingResponse;
 
 /**
@@ -29,7 +23,7 @@ import com.jd.bluedragon.distribution.waybill.domain.LabelPrintingResponse;
  */
 public class ObjectHelperTest {
 
-//    @Test
+    @Test
     public void printFiles(){
     	String[] strs = {"packageCode","packageIndex","packageWeight","waybillCode","additionalComment","brandImageKey","consigneeCompany","consigneeCompany","consigner","consignerAddress","consignerTelText","customerName","destinationCrossCode","destinationDmsName","destinationTabletrolleyCode","freightText","goodsPaymentText","goodsPaymentText","mobileFirst","mobileLast","originalCrossCode","originalDmsName","originalTabletrolleyCode","popularizeMatrixCode","printAddress","printSiteName","remark","rodeCode","senderCompany","telFirst","telLast","transportMode","waybillSignText","examineFlag","securityCheck"};
 		String[] strs1 = {"promiseText","deliveryTimeCategory","customerOrderTime","distributTypeText","jZDFlag","telLast","telFirst","mobileLast","mobileFirst","busiOrderCode","busiCode","consignerTelText","consigner","additionalComment","rodeCode","originalDmsName","destinationDmsName","originalCrossCode","originalTabletrolleyCode","destinationCrossCode","destinationTabletrolleyCode","printSiteName","packageIndex","specialRequirement","consignerAddress","senderCompany","printAddress","consigneeCompany","customerName","goodsPaymentText","backupSiteName","waybillSignText","packageCode","waybillCode","waybillCode","muslimSignText","remark","printTime","freightText","weightFlagText","packageCode"};
@@ -67,7 +61,7 @@ public class ObjectHelperTest {
 			
 		}
 	}
-//    @Test
+    @Test
     public void printPrintResponse(){
     	Set<String> set0 = new HashSet();
     	Set<String> set1 = new HashSet();
@@ -139,18 +133,5 @@ public class ObjectHelperTest {
 			}
 		}
 		System.err.println(list);
-    }
-    @Test
-    public void printCopyFiledCode(){
-    	String[] objects = {"detailReverseReasonDTO","dmsDetailReverseReasonDTO"};
-    	Map<String,Field> fields = ObjectHelper.getAllFields(DmsDetailReverseReasonDTO.class);
-    	System.err.println("printCopyFiledCode：");
-    	for(String fieldName:fields.keySet()){
-    		String filedNameF = fieldName.substring(0,1).toUpperCase() + fieldName.substring(1);
-    		if("SerialVersionUID".equals(filedNameF)) {
-    			continue;
-    		}
-    		System.err.println(objects[0]+".set"+filedNameF+"("+objects[1]+".get"+filedNameF+"());");
-		}
     }
 }

@@ -39,7 +39,6 @@
 		<!--jim redis-->
 		<jimdb.version>3.1.2-SNAPSHOT</jimdb.version>
 		<tms-workbench-api.version>1.0-SNAPSHOT</tms-workbench-api.version>
-		<cp-wbms-client.version>1.0.84</cp-wbms-client.version>
 	</properties>
 
 	<dependencies>
@@ -1705,11 +1704,6 @@
 			<version>1.0.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
-			<groupId>com.jd.cp.wbms</groupId>
-			<artifactId>cp-wbms-client</artifactId>
-			<version>${cp-wbms-client.version}</version>
-		</dependency>
-		<dependency>
 			<groupId>com.jd.dms.wb</groupId>
 			<artifactId>workbench-report-api</artifactId>
 			<version>1.0.6-uat-SNAPSHOT</version>
@@ -1792,7 +1786,7 @@
 			<version>1.1-SNAPSHOT</version>
 		</dependency>
 
-    </dependencies>
+	</dependencies>
 
 	<profiles>
 		<!--测试环境  -->
