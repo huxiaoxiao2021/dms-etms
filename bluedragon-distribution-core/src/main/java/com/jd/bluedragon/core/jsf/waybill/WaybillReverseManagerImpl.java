@@ -55,7 +55,6 @@ import com.jd.etms.receive.api.response.GrossReturnResponse;
 import com.jd.etms.receive.api.saf.GrossReturnSaf;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.dto.BigWaybillDto;
-import com.jd.etms.waybill.dto.WChoice;
 import com.jd.ldop.business.api.BackAddressInfoApi;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.receive.api.dto.OrderMsgDTO;
@@ -509,11 +508,7 @@ public class WaybillReverseManagerImpl implements WaybillReverseManager {
 			return false;
 		}
         if(StringHelper.isNotEmpty(waybillCode)){
-        	WChoice wChoice = new WChoice();
-        	wChoice.setQueryWaybillC(true);
-        	wChoice.setQueryWaybillE(true);
-        	wChoice.setQueryWaybillExtend(true);
-            BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode, wChoice);
+            BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode, false, true, false, false);
             if(baseEntity != null
                     && baseEntity.getData() != null
                     && baseEntity.getData().getWaybill() != null
