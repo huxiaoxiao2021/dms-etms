@@ -45,7 +45,6 @@ import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.dto.device.enums.DeviceTypeEnum;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
-import com.jd.bluedragon.core.jsf.waybill.WaybillReverseManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.*;
 import com.jd.bluedragon.distribution.api.response.BaseResponse;
@@ -171,10 +170,6 @@ public class WaybillResource {
 	@Autowired
 	@Qualifier("ldopManager")
 	private LDOPManager ldopManager;
-
-	@Autowired
-	@Qualifier("waybillReverseManager")
-	private WaybillReverseManager waybillReverseManager;
 
 	@Autowired
 	private EclpPackageApiService eclpPackageApiService;
@@ -1706,7 +1701,7 @@ public class WaybillResource {
 	@Path("/dy/createReturnsWaybill/{waybillCode}/{operatorId}/{operatorName}/{operateTime}/{packageCount}/{orgId}/{createSiteCode}/{isTotal}")
 	@BusinessLog(sourceSys = 1,bizType = 1900,operateType = 1900002)
 	@JProfiler(jKey = "DMS.WEB.WaybillResource.createReturnsWaybill", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
-	public InvokeResult<DmsWaybillReverseResult> createReturnsWaybill(@PathParam("waybillCode")String waybillCode, @PathParam("operatorId")Integer operatorId, @PathParam("operatorName")String operatorName,
+	public InvokeResult<WaybillReverseResult> createReturnsWaybill(@PathParam("waybillCode")String waybillCode, @PathParam("operatorId")Integer operatorId, @PathParam("operatorName")String operatorName,
 													  @PathParam("operateTime")String operateTime , @PathParam("packageCount")Integer packageCount, @PathParam("orgId")Integer orgId, @PathParam("createSiteCode")Integer createSiteCode, @PathParam("isTotal")boolean isTotal) {
 		InvokeResult invokeResult =new InvokeResult();
 
@@ -1714,9 +1709,9 @@ public class WaybillResource {
                 ,waybillCode,operatorId,operatorName,operateTime,packageCount,orgId,createSiteCode,isTotal);
 
 		try {
-			DmsWaybillReverseDTO waybillReverseDTO = waybillReverseManager.makeWaybillReverseDTO( waybillCode,  operatorId,  operatorName,  DateHelper.parseDateTime(operateTime) ,  packageCount,  orgId,  createSiteCode,  isTotal);
+			WaybillReverseDTO waybillReverseDTO = ldopManager.makeWaybillReverseDTO( waybillCode,  operatorId,  operatorName,  DateHelper.parseDateTime(operateTime) ,  packageCount,  orgId,  createSiteCode,  isTotal);
 			StringBuilder errorMessage = new StringBuilder();
-			DmsWaybillReverseResult waybillReverseResult = waybillReverseManager.waybillReverse(waybillReverseDTO,errorMessage);
+			WaybillReverseResult waybillReverseResult = ldopManager.waybillReverse(waybillReverseDTO,errorMessage);
 			if(waybillReverseResult == null){
 				//失败
 				invokeResult.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
@@ -1760,9 +1755,9 @@ public class WaybillResource {
                 ,waybillCode,operatorId,operatorName,operateTime,packageCount,orgId,createSiteCode,isTotal);
 
 		try {
-			DmsWaybillReverseDTO waybillReverseDTO = waybillReverseManager.makeWaybillReverseDTO( waybillCode,  operatorId,  operatorName,  DateHelper.parseDateTime(operateTime) ,  packageCount,  orgId,  createSiteCode,  isTotal);
+			WaybillReverseDTO waybillReverseDTO = ldopManager.makeWaybillReverseDTO( waybillCode,  operatorId,  operatorName,  DateHelper.parseDateTime(operateTime) ,  packageCount,  orgId,  createSiteCode,  isTotal);
 			StringBuilder errorMessage = new StringBuilder();
-			DmsWaybillReverseResponseDTO waybillReverseResponseDTO = waybillReverseManager.queryReverseWaybill(waybillReverseDTO,errorMessage);
+			WaybillReverseResponseDTO waybillReverseResponseDTO = ldopManager.queryReverseWaybill(waybillReverseDTO,errorMessage);
 			if(waybillReverseResponseDTO == null){
 				//失败
 				invokeResult.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
@@ -1789,7 +1784,7 @@ public class WaybillResource {
 	@Path("/dy/createReturnsWaybill")
 	@BusinessLog(sourceSys = 1,bizType = 1900,operateType = 1900002)
 	@JProfiler(jKey = "DMS.WEB.WaybillResource.createReturnsWaybillNew", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
-	public InvokeResult<DmsWaybillReverseResult> createReturnsWaybillNew(ExchangeWaybillDto request) {
+	public InvokeResult<WaybillReverseResult> createReturnsWaybillNew(ExchangeWaybillDto request) {
 		InvokeResult invokeResult =new InvokeResult();
 
 		if(log.isDebugEnabled()){
@@ -1801,9 +1796,9 @@ public class WaybillResource {
             return invokeResult;
         }
 		try {
-			DmsWaybillReverseDTO waybillReverseDTO = waybillReverseManager.makeWaybillReverseDTOCanTwiceExchange(request);
+			WaybillReverseDTO waybillReverseDTO = ldopManager.makeWaybillReverseDTOCanTwiceExchange(request);
 			StringBuilder errorMessage = new StringBuilder();
-			DmsWaybillReverseResult waybillReverseResult = waybillReverseManager.waybillReverse(waybillReverseDTO,errorMessage);
+			WaybillReverseResult waybillReverseResult = ldopManager.waybillReverse(waybillReverseDTO,errorMessage);
 			if(waybillReverseResult == null){
 				//失败
 				invokeResult.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
@@ -1833,7 +1828,7 @@ public class WaybillResource {
 	@Path("/dy/getOldOrderMessage")
 	@BusinessLog(sourceSys = 1,bizType = 1900,operateType = 1900001)
 	@JProfiler(jKey = "DMS.WEB.WaybillResource.getOldOrderMessageNew", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
-	public InvokeResult<DmsWaybillReverseResponseDTO> getOldOrderMessageNew(ExchangeWaybillDto request) {
+	public InvokeResult<WaybillReverseResponseDTO> getOldOrderMessageNew(ExchangeWaybillDto request) {
 		InvokeResult invokeResult =new InvokeResult();
 
         if(log.isDebugEnabled()){
@@ -1841,9 +1836,9 @@ public class WaybillResource {
         }
 
 		try {
-			DmsWaybillReverseDTO waybillReverseDTO = waybillReverseManager.makeWaybillReverseDTOCanTwiceExchange(request);
+			WaybillReverseDTO waybillReverseDTO = ldopManager.makeWaybillReverseDTOCanTwiceExchange(request);
 			StringBuilder errorMessage = new StringBuilder();
-			DmsWaybillReverseResponseDTO waybillReverseResponseDTO = waybillReverseManager.queryReverseWaybill(waybillReverseDTO,errorMessage);
+			WaybillReverseResponseDTO waybillReverseResponseDTO = ldopManager.queryReverseWaybill(waybillReverseDTO,errorMessage);
 			if(waybillReverseResponseDTO == null){
 				//失败
 				invokeResult.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);

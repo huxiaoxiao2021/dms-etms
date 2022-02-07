@@ -158,7 +158,7 @@
     <jsf:consumer id="basicTraderIntegrateOutAPI" interface="com.jd.ldop.basic.api.BasicTraderIntegrateOutAPI" protocol="jsf"
                   alias="${ldop.basic.jsf.alias}" timeout="${ldop.basic.jsf.timeout}" lazy="${jsf.consumer.lazy}">
     </jsf:consumer>
-    
+
     <jsf:consumer id="refundApi" interface="com.jd.ldop.center.api.refund.RefundApi" protocol="jsf"
                   alias="${ldop.refundApi.jsf.alias}" timeout="${ldop.refundApi.jsf.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
     </jsf:consumer>
@@ -379,7 +379,7 @@
                   protocol="jsf"
                   serialization="hessian" lazy="${jsf.consumer.lazy}">
         <jsf:parameter key="token" hide="true" value="${basic.jsf.basicSortCrossDetailWS.token}"/>
-    </jsf:consumer>    
+    </jsf:consumer>
     <!-- 加履系统 查询接口 李杰 -->
     <jsf:consumer id="HandoverBillProvider" interface="com.jd.b2b.wt.assemble.sdk.service.HandoverBillProvider"
                   alias="${jsf.HandoverBillProvider.alias}" retries="${jsf.retries}"
@@ -588,7 +588,7 @@
     </jsf:consumer>
     <jsf:consumer id="qcJsfDeptService" interface="com.jd.wl.data.qc.abnormal.jsf.jar.abnormal.service.DeptService" alias="${qcAbnPdaAPI.alias}" timeout="${qcAbnPdaAPI.timeout}" retries="1" lazy="${jsf.consumer.lazy}">
         <jsf:parameter key="token" value="${qcAbnPdaAPI.token}" hide="true" />
-    </jsf:consumer>    
+    </jsf:consumer>
     <jsf:consumer id="jsfTypeService" interface="com.jd.dms.logger.service.BusinessLogQueryService"
                   protocol="jsf"
                   alias="${dms.jsfbusinesslog.alias}" timeout="10000"
@@ -803,13 +803,7 @@
     <jsf:consumer id="hintApi" interface="com.jd.dms.comp.api.hint.HintApi"
                   protocol="jsf" alias="${jsf.dms.comp.hint.alias}" timeout="${jsf.dms.comp.hint.timeout}" lazy="${jsf.consumer.lazy}">
     </jsf:consumer>
-    <!-- 百川新运单逆向相关接口 https://cf.jd.com/pages/viewpage.action?pageId=353913227-->
-    <jsf:consumer id="reverseWaybillApi" interface="com.jd.cp.wbms.client.api.ReverseWaybillApi"
-                  protocol="jsf" alias="${jsf.wbms.reverseWaybillApi.alias}"
-                  timeout="${jsf.wbms.reverseWaybillApi.timeout}"
-                  retries="${jsf.retries}">
-        <jsf:parameter key="token" value="${jsf.wbms.reverseWaybillApi.token}" hide="true"/>
-    </jsf:consumer>
+
     <jsf:consumer id="workingClockDataJsfService"
                   interface="com.jd.dms.wb.report.api.working.WorkingClockDataJsfService"
                   alias="${jsf.dmsWbReport.alias}"
@@ -835,5 +829,6 @@
                   timeout="${jsf.timeout.autoBoardChute}"
                   retries="${jsf.retries}"
                   serialization="hessian"/>
+
 
 </beans>

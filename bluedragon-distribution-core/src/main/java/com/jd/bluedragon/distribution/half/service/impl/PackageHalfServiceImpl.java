@@ -1,6 +1,6 @@
 package com.jd.bluedragon.distribution.half.service.impl;
 
-import com.jd.bluedragon.core.jsf.waybill.WaybillReverseManager;
+import com.jd.bluedragon.core.base.LDOPManager;
 import com.jd.bluedragon.distribution.half.dao.PackageHalfDetailDao;
 import com.jd.bluedragon.distribution.half.domain.PackageHalfDetail;
 import com.jd.bluedragon.distribution.half.domain.PackageHalfVO;
@@ -20,7 +20,6 @@ import org.springframework.stereotype.Service;
 import com.jd.bluedragon.distribution.half.domain.PackageHalf;
 import com.jd.bluedragon.distribution.half.dao.PackageHalfDao;
 import com.jd.bluedragon.distribution.half.service.PackageHalfService;
-import com.jd.bluedragon.distribution.reverse.domain.DmsWaybillReverseDTO;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -50,8 +49,8 @@ public class PackageHalfServiceImpl extends BaseService<PackageHalf> implements 
 	private WaybillStatusService waybillStatusService;
 
 	@Autowired
-	@Qualifier("waybillReverseManager")
-	private WaybillReverseManager waybillReverseManager;
+	@Qualifier("ldopManager")
+	private LDOPManager ldopManager;
 
 	@Override
 	public Dao<PackageHalf> getDao() {
@@ -65,20 +64,20 @@ public class PackageHalfServiceImpl extends BaseService<PackageHalf> implements 
 	public boolean save(PackageHalf packageHalf, List<PackageHalfDetail> packageHalfDetails,Integer waybillOpeType, Integer OperatorId, String OperatorName, Date operateTime ,Integer packageCount,Integer orgId,Integer createSiteCode,JdResponse<Boolean> rest) {
 
 		boolean isNeedToLDOP = false;
-		DmsWaybillReverseDTO waybillReverseDTO = null;
+		WaybillReverseDTO waybillReverseDTO = null;
 		//拒收触发换单
 		if(waybillOpeType.equals(WaybillStatus.WAYBILL_OPE_TYPE_REJECT)){
 			//整单拒收
-			 waybillReverseDTO  = waybillReverseManager.makeWaybillReverseDTO(packageHalf.getWaybillCode(),OperatorId,OperatorName,operateTime,packageCount,orgId,createSiteCode,true);
+			 waybillReverseDTO  = ldopManager.makeWaybillReverseDTO(packageHalf.getWaybillCode(),OperatorId,OperatorName,operateTime,packageCount,orgId,createSiteCode,true);
 			isNeedToLDOP = true;
 		}else if(waybillOpeType.equals(WaybillStatus.WAYBILL_OPE_TYPE_HALF_SIGNIN)){
 			//包裹拒收
-			 waybillReverseDTO = waybillReverseManager.makeWaybillReverseDTO(packageHalf.getWaybillCode(),OperatorId,OperatorName,operateTime,packageCount,orgId,createSiteCode,false);
+			 waybillReverseDTO = ldopManager.makeWaybillReverseDTO(packageHalf.getWaybillCode(),OperatorId,OperatorName,operateTime,packageCount,orgId,createSiteCode,false);
 			isNeedToLDOP = true;
 
 		}
 		if(isNeedToLDOP && waybillReverseDTO!=null){
-			if(!waybillReverseManager.waybillReverse(waybillReverseDTO,rest)){
+			if(!ldopManager.waybillReverse(waybillReverseDTO,rest)){
 				return false;
 			}
 		}
