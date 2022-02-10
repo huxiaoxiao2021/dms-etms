@@ -179,8 +179,17 @@ public class OfflineDeliveryServiceImpl implements OfflineService {
         String sendCode = sendCodeService.createSendCode(attrMap, BusinessCodeFromSourceEnum.DMS_WINCE_PDA, StringUtils.EMPTY);
         if (StringUtils.isBlank(sendCode)) {
             log.warn("离线上传修改批次号失败. offlineLogRequest:{}", JsonHelper.toJson(offlineLogRequest));
+
+            if (StringUtils.isBlank(offlineLogRequest.getBatchCode())) {
+                // 设置批次号
+                offlineLogRequest.setBatchCode(offlineLogRequest.getSiteCode() + "-" + receiveSiteCode + "-" + DateHelper.formatDate(DateHelper.parseDate(offlineLogRequest.getOperateTime(), Constants.DATE_TIME_MS_FORMAT), Constants.DATE_TIME_MS_STRING));
+            }
         }
         else {
+            if (log.isInfoEnabled()) {
+                log.info("离线发货修改批次号. newSendCode:{}, req:{}", sendCode, JsonHelper.toJson(offlineLogRequest));
+            }
+
             offlineLogRequest.setBatchCode(sendCode);
         }
     }

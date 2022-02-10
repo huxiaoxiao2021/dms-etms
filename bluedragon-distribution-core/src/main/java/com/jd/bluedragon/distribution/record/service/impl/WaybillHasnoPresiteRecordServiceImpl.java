@@ -345,6 +345,12 @@ public class WaybillHasnoPresiteRecordServiceImpl implements WaybillHasnoPresite
 	 */
 	private boolean doSystemAutoCallFail(WaybillHasnoPresiteRecord waybillHasnoPresiteRecord) {
 		String waybillCode = waybillHasnoPresiteRecord.getWaybillCode();
+		//目的分拣中心!=当前site
+		if(waybillHasnoPresiteRecord.getEndDmsId() == null
+				|| !waybillHasnoPresiteRecord.getEndDmsId().equals(waybillHasnoPresiteRecord.getSiteCode())) {
+			log.warn("系统自动外呼扫描-不处理，{}未到达目的分拣中心",waybillCode);
+			return false;
+		}
 		Waybill waybill = waybillQueryManager.getOnlyWaybillByWaybillCode(waybillCode);
 		if(waybill != null
 				&& waybill.getOldSiteId()!= null
