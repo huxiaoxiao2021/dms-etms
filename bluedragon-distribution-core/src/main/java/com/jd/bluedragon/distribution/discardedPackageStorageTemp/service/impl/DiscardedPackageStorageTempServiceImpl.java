@@ -420,7 +420,7 @@ public class DiscardedPackageStorageTempServiceImpl implements DiscardedPackageS
             }
             if (Objects.equals(DiscardedPackageSiteDepartTypeEnum.TRANSFER.getCode(), paramObj.getSiteDepartType())) {
                 if (Objects.equals(WasteOperateTypeEnum.STORAGE.getCode(), paramObj.getOperateType())) {
-                    if (!waybillTraceManager.isWaybillWaste(barCode)) {
+                    if (!waybillTraceManager.isOpCodeWaste(barCode)) {
                         log.warn("scanDiscardedPackage，不是弃件，请勿操作弃件暂存 param: {}", JsonHelper.toJson(paramObj));
                         return result.toFail("不是弃件，请勿操作弃件暂存");
                     }
