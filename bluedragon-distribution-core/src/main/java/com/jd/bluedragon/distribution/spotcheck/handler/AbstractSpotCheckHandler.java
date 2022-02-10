@@ -69,6 +69,9 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
     @Autowired
     private SpotCheckQueryManager spotCheckQueryManager;
 
+    @Autowired
+    private SpotCheckServiceProxy spotCheckServiceProxy;
+
     @Override
     public InvokeResult<SpotCheckResult> checkExcess(SpotCheckDto spotCheckDto) {
         InvokeResult<SpotCheckResult> checkResult = new InvokeResult<SpotCheckResult>();
@@ -244,7 +247,7 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
         setSpotCheckCache(spotCheckContext.getWaybillCode(), spotCheckContext.getExcessStatus());
         // 数据落库
         WeightVolumeSpotCheckDto summaryDto = assembleSummaryReform(spotCheckContext);
-        spotCheckQueryManager.insertOrUpdateSpotCheck(summaryDto);
+        spotCheckServiceProxy.insertOrUpdateProxyReform(summaryDto);
         // 下发超标数据
         spotCheckDealService.spotCheckIssue(summaryDto);
         // 双写老的抽检数据
@@ -1039,19 +1042,19 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
             initialWaybillCollect.setIsHasPicture(StringUtils.isEmpty(pictureUrl) ? Constants.NUMBER_ZERO : Constants.CONSTANT_NUMBER_ONE);
             initialWaybillCollect.setPictureAddress(null);
             initialWaybillCollect.setIsExcess(ExcessStatusEnum.EXCESS_ENUM_COMPUTE.getCode());
-            reportExternalManager.insertOrUpdateForWeightVolume(initialWaybillCollect);
+            spotCheckServiceProxy.insertOrUpdateProxyPrevious(initialWaybillCollect);
         }
         // 集齐
         if(spotCheckDealService.gatherTogether(spotCheckContext)){
             // 更新运单维度数据
-            reportExternalManager.insertOrUpdateForWeightVolume(assembleAfterGatherCollectDto(spotCheckContext));
+            spotCheckServiceProxy.insertOrUpdateProxyPrevious(assembleAfterGatherCollectDto(spotCheckContext));
             // 设置超标缓存
             setSpotCheckCache(spotCheckContext.getWaybillCode(), spotCheckContext.getExcessStatus());
         }
         // 设置包裹维度缓存
         setSpotCheckPackCache(spotCheckContext.getPackageCode(), spotCheckContext.getReviewSiteCode());
         // 新增包裹维度记录
-        reportExternalManager.insertOrUpdateForWeightVolume(assembleBeforeGatherPackCollectDto(spotCheckContext));
+        spotCheckServiceProxy.insertOrUpdateProxyPrevious(assembleBeforeGatherPackCollectDto(spotCheckContext));
         // 抽检全程跟踪
         spotCheckDealService.sendWaybillTrace(spotCheckContext);
         // 记录抽检操作日志
@@ -1067,7 +1070,7 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
         // 设置超标缓存
         setSpotCheckCache(spotCheckContext.getWaybillCode(), spotCheckContext.getExcessStatus());
         // 数据落es
-        reportExternalManager.insertOrUpdateForWeightVolume(assembleAfterGatherCollectDto(spotCheckContext));
+        spotCheckServiceProxy.insertOrUpdateProxyPrevious(assembleAfterGatherCollectDto(spotCheckContext));
         // 抽检全程跟踪
         spotCheckDealService.sendWaybillTrace(spotCheckContext);
         // 记录抽检操作日志

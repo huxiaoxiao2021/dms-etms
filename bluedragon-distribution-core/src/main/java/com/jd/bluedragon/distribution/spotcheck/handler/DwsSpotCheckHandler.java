@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.spotcheck.handler;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.ReportExternalManager;
 import com.jd.bluedragon.core.base.SpotCheckQueryManager;
+import com.jd.bluedragon.core.base.SpotCheckServiceProxy;
 import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.send.domain.dto.SendDetailDto;
@@ -51,6 +52,9 @@ public class DwsSpotCheckHandler extends AbstractSpotCheckHandler {
 
     @Autowired
     private ReportExternalManager reportExternalManager;
+
+    @Autowired
+    private SpotCheckServiceProxy spotCheckServiceProxy;
 
     @Override
     protected InvokeResult<SpotCheckResult> checkIsExcessReform(SpotCheckContext spotCheckContext) {
@@ -111,7 +115,7 @@ public class DwsSpotCheckHandler extends AbstractSpotCheckHandler {
             return;
         }
         if(StringUtils.isEmpty(spotCheckDealService.spotCheckPackSetStr(spotCheckContext.getWaybillCode(), spotCheckContext.getReviewSiteCode()))){
-            spotCheckQueryManager.insertOrUpdateSpotCheck(initSummaryDto(spotCheckContext));
+            spotCheckServiceProxy.insertOrUpdateProxyReform(initSummaryDto(spotCheckContext));
             // 初始化老的抽检数据
             initOldDto(spotCheckContext);
         }
@@ -126,14 +130,14 @@ public class DwsSpotCheckHandler extends AbstractSpotCheckHandler {
             spotCheckDealService.assembleContrastData(spotCheckContext);
             // 2、更新总记录
             WeightVolumeSpotCheckDto summaryDto = assembleSummaryReform(spotCheckContext);
-            spotCheckQueryManager.insertOrUpdateSpotCheck(summaryDto);
+            spotCheckServiceProxy.insertOrUpdateProxyReform(summaryDto);
             // 3、下发超标数据
             spotCheckDealService.spotCheckIssue(summaryDto);
         }
         // 双写老的抽检数据
         assembledSummaryAndDetailOldDto(spotCheckContext);
         // 包裹明细数据落库
-        spotCheckQueryManager.insertOrUpdateSpotCheck(assembleDetailReform(spotCheckContext));
+        spotCheckServiceProxy.insertOrUpdateProxyReform(assembleDetailReform(spotCheckContext));
         // 设置包裹维度缓存
         setSpotCheckPackCache(spotCheckContext.getPackageCode(), spotCheckContext.getReviewSiteCode());
         // 抽检全程跟踪
@@ -261,7 +265,7 @@ public class DwsSpotCheckHandler extends AbstractSpotCheckHandler {
         initOldDto.setVolumeRate(spotCheckContext.getVolumeRate());
         initOldDto.setFullCollect(Constants.NUMBER_ZERO);
         initOldDto.setIsExcess(ExcessStatusEnum.EXCESS_ENUM_COMPUTE.getCode());
-        reportExternalManager.insertOrUpdateForWeightVolume(initOldDto);
+        spotCheckServiceProxy.insertOrUpdateProxyPrevious(initOldDto);
     }
 
     private void reformSendSpotCheck(SpotCheckContext spotCheckContext, InvokeResult<Boolean> result) {

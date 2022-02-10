@@ -528,5 +528,10 @@
         <property name="topic" value="${jmq.topic.spotCheck.issue.zd}"/>
         <property name="timeout" value="1000"/>
     </bean>
+    <!-- 抽检明细外推MQ -->
+    <bean id="spotCheckDetailProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.spotCheck.detail}"/>
+        <property name="timeout" value="1000"/>
+    </bean>
 
 </beans>

@@ -152,6 +152,9 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
     @Autowired
     private SpotCheckQueryManager spotCheckQueryManager;
 
+    @Autowired
+    private SpotCheckServiceProxy spotCheckServiceProxy;
+
     @Override
     public void assembleContrastDataFromFinance(SpotCheckContext spotCheckContext) {
         // 从计费获取核对数据
@@ -660,7 +663,7 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
         updateCollect.setPackageCode(weightVolumeCollectDto.getPackageCode());
         updateCollect.setReviewSiteCode(weightVolumeCollectDto.getReviewSiteCode());
         updateCollect.setIssueDownstream(Constants.CONSTANT_NUMBER_ONE);
-        reportExternalManager.insertOrUpdateForWeightVolume(updateCollect);
+        spotCheckServiceProxy.insertOrUpdateProxyPrevious(updateCollect);
     }
 
     private void setIssueWaybillCache(String waybillCode) {
@@ -713,13 +716,13 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
             weightVolumeCollectDto.setReviewSiteCode(siteCode);
             weightVolumeCollectDto.setIsHasPicture(Constants.CONSTANT_NUMBER_ONE);
             weightVolumeCollectDto.setPictureAddress(pictureUrl);
-            reportExternalManager.insertOrUpdateForWeightVolume(weightVolumeCollectDto);
+            spotCheckServiceProxy.insertOrUpdateProxyPrevious(weightVolumeCollectDto);
             // 2、更新运单维度字段
             WeightVolumeCollectDto updateWaybillCollect = new WeightVolumeCollectDto();
             updateWaybillCollect.setPackageCode(waybillCode);// 一单多件运单维度记录包裹号是运单号
             updateWaybillCollect.setReviewSiteCode(siteCode);
             updateWaybillCollect.setIsHasPicture(Constants.CONSTANT_NUMBER_ONE);
-            reportExternalManager.insertOrUpdateForWeightVolume(updateWaybillCollect);
+            spotCheckServiceProxy.insertOrUpdateProxyPrevious(updateWaybillCollect);
         }else {
             if(!checkIsHasSpotCheck(waybillCode)){
                 // 一单一件包裹未抽检
@@ -730,7 +733,7 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
             weightVolumeCollectDto.setReviewSiteCode(siteCode);
             weightVolumeCollectDto.setIsHasPicture(Constants.CONSTANT_NUMBER_ONE);
             weightVolumeCollectDto.setPictureAddress(pictureUrl);
-            reportExternalManager.insertOrUpdateForWeightVolume(weightVolumeCollectDto);
+            spotCheckServiceProxy.insertOrUpdateProxyPrevious(weightVolumeCollectDto);
         }
         // 下发超标mq处理
         WeightAndVolumeCheckHandleMessage weightAndVolumeCheckHandleMessage = new WeightAndVolumeCheckHandleMessage();
@@ -758,13 +761,13 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
             detailRecord.setIsHasPicture(Constants.CONSTANT_NUMBER_ONE);
             detailRecord.setPictureAddress(pictureUrl);
             detailRecord.setRecordType(SpotCheckRecordTypeEnum.DETAIL_RECORD.getCode());
-            spotCheckQueryManager.insertOrUpdateSpotCheck(detailRecord);
+            spotCheckServiceProxy.insertOrUpdateProxyReform(detailRecord);
             WeightVolumeSpotCheckDto totalRecord = new WeightVolumeSpotCheckDto();
             totalRecord.setPackageCode(waybillCode);
             totalRecord.setReviewSiteCode(siteCode);
             totalRecord.setIsHasPicture(Constants.CONSTANT_NUMBER_ONE);
             totalRecord.setRecordType(SpotCheckRecordTypeEnum.SUMMARY_RECORD.getCode());
-            spotCheckQueryManager.insertOrUpdateSpotCheck(totalRecord);
+            spotCheckServiceProxy.insertOrUpdateProxyReform(totalRecord);
         }else {
             // 一单一件
             // 1、更新总记录维度数据
@@ -774,7 +777,7 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
             summaryRecord.setIsHasPicture(Constants.CONSTANT_NUMBER_ONE);
             summaryRecord.setPictureAddress(pictureUrl);
             summaryRecord.setRecordType(SpotCheckRecordTypeEnum.SUMMARY_RECORD.getCode());
-            spotCheckQueryManager.insertOrUpdateSpotCheck(summaryRecord);
+            spotCheckServiceProxy.insertOrUpdateProxyReform(summaryRecord);
             // 2、一单一件下发超标数据要有图片，故图片上传在抽检数据之后则需要下发超标MQ
             SpotCheckQueryCondition condition = new SpotCheckQueryCondition();
             condition.setWaybillCode(waybillCode);
@@ -1080,7 +1083,7 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
         spotCheckIssueProducer.sendOnFailPersistent(spotCheckIssueMQ.getWaybillCode(), JsonHelper.toJson(spotCheckIssueMQ));
         // 更新抽检主记录数据
         spotCheckDto.setIsIssueDownstream(Constants.CONSTANT_NUMBER_ONE);
-        spotCheckQueryManager.insertOrUpdateSpotCheck(spotCheckDto);
+        spotCheckServiceProxy.insertOrUpdateProxyReform(spotCheckDto);
     }
 
     private List<String> picUrlDeal(WeightVolumeSpotCheckDto spotCheckDto) {
@@ -1338,7 +1341,7 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
         updateWeightVolumeCollectDto.setPackageCode(barCode);
         updateWeightVolumeCollectDto.setReviewSiteCode(siteCode);
         updateWeightVolumeCollectDto.setWaybillStatus(WaybillStatus.WAYBILL_STATUS_CODE_FORWORD_DELIVERY);
-        reportExternalManager.insertOrUpdateForWeightVolume(updateWeightVolumeCollectDto);
+        spotCheckServiceProxy.insertOrUpdateProxyPrevious(updateWeightVolumeCollectDto);
     }
 
     @Override

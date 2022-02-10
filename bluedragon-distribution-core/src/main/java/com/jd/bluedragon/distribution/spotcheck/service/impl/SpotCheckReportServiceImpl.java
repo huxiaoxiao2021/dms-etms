@@ -4,6 +4,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.ExportConcurrencyLimitEnum;
 import com.jd.bluedragon.common.service.ExportConcurrencyLimitService;
 import com.jd.bluedragon.core.base.SpotCheckQueryManager;
+import com.jd.bluedragon.core.base.SpotCheckServiceProxy;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.spotcheck.SpotCheckReportQueryCondition;
 import com.jd.bluedragon.distribution.spotcheck.domain.ExportSpotCheckDto;
@@ -64,6 +65,9 @@ public class SpotCheckReportServiceImpl implements SpotCheckReportService {
 
     @Autowired
     private SpotCheckDealService spotCheckDealService;
+
+    @Autowired
+    private SpotCheckServiceProxy spotCheckServiceProxy;
 
     @Override
     public PagerResult<WeightVolumeSpotCheckDto> listData(SpotCheckReportQueryCondition condition) {
@@ -358,7 +362,7 @@ public class SpotCheckReportServiceImpl implements SpotCheckReportService {
         dto.setReviewSiteCode(reviewSiteCode);
         dto.setIsHasPicture(Constants.CONSTANT_NUMBER_ONE);
         dto.setPictureAddress(pictureUrl);
-        spotCheckQueryManager.insertOrUpdateSpotCheck(dto);
+        spotCheckServiceProxy.insertOrUpdateProxyReform(dto);
     }
 
     private boolean checkIsUpload(String packageCode, Integer reviewSiteCode) {

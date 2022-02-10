@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.consumer.spotCheck;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.SpotCheckQueryManager;
+import com.jd.bluedragon.core.base.SpotCheckServiceProxy;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckConstants;
 import com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckNotifyMQ;
@@ -49,6 +50,9 @@ public class SpotCheckNotifyConsumer extends MessageBaseConsumer {
 
     @Autowired
     private BaseMajorManager baseMajorManager;
+
+    @Autowired
+    private SpotCheckServiceProxy spotCheckServiceProxy;
 
     @Override
     public void consume(Message message) throws Exception {
@@ -103,7 +107,7 @@ public class SpotCheckNotifyConsumer extends MessageBaseConsumer {
             updateDto.setContrastStaffName(spotCheckNotifyMQ.getDutyStaffName());
             updateDto.setContrastStaffType(spotCheckNotifyMQ.getDutyStaffType());
         }
-        spotCheckQueryManager.insertOrUpdateSpotCheck(updateDto);
+        spotCheckServiceProxy.insertOrUpdateProxyReform(updateDto);
     }
 
     private void uploadWeightVolume(SpotCheckNotifyMQ spotCheckNotifyMQ, Long operateTime) {
