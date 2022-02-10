@@ -393,6 +393,8 @@ public interface WaybillSignConstants {
 	int POSITION_18 = 18;
 	char CHAR_18_C = 'C';
 	
+
+
 	/**
 	 * 71
 	 */

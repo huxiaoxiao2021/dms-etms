@@ -909,6 +909,11 @@ public class TaskServiceImpl implements TaskService {
 		}
 		add(toSortingTask(packageDtos));
 
+		//不需要验货直接返回
+		if(packageDtos.isAddInspection() != null && !packageDtos.isAddInspection()){
+			return;
+		}
+
 		//modified by zhanglei 20171127  这里做一下处理，如果是智配中心上传的数据，不再添加验货任务
 		BaseStaffSiteOrgDto distribution = baseService.queryDmsBaseSiteByCode(String.valueOf(packageDtos.getDistributeID()));
 		if(distribution != null && distribution.getSiteType().intValue() != 4){

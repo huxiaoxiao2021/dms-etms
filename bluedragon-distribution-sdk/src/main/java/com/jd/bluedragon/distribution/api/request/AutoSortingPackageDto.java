@@ -30,6 +30,8 @@ public class AutoSortingPackageDto implements Serializable{
     private String distributeName;
     /**自动化设备编码*/
     private String machineCode;
+    /** 是否补验货**/
+    private Boolean addInspection;
 
     public Integer getId() {
         return id;
@@ -117,5 +119,13 @@ public class AutoSortingPackageDto implements Serializable{
 
     public void setMachineCode(String machineCode) {
         this.machineCode = machineCode;
+    }
+
+    public Boolean isAddInspection() {
+        return addInspection;
+    }
+
+    public void setAddInspection(Boolean addInspection) {
+        this.addInspection = addInspection;
     }
 }
