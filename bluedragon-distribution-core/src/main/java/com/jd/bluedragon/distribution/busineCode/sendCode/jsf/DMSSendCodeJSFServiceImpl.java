@@ -74,4 +74,17 @@ public class DMSSendCodeJSFServiceImpl implements DMSSendCodeJSFService {
 
         return result;
     }
+
+    @Override
+    public InvokeResult<Boolean> validateSendCodeEffective(String sendCode) {
+        InvokeResult<Boolean> result = new InvokeResult<>();
+        result.success();
+
+        com.jd.bluedragon.distribution.base.domain.InvokeResult<Boolean> invokeResult = sendCodeService.validateSendCodeEffective(sendCode);
+        result.setCode(invokeResult.getCode());
+        result.setData(invokeResult.getData());
+        result.setMessage(invokeResult.getMessage());
+
+        return result;
+    }
 }
