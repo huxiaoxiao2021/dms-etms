@@ -38,7 +38,7 @@ public class ClientAuthRequest implements Serializable {
      * 菜单编码
      * @see ClientMenuEnum
      */
-    private Integer menuCode;
+    private String menuCode;
 
     public Integer getSiteCode() {
         return siteCode;
@@ -72,11 +72,11 @@ public class ClientAuthRequest implements Serializable {
         this.loginErp = loginErp;
     }
 
-    public Integer getMenuCode() {
+    public String getMenuCode() {
         return menuCode;
     }
 
-    public void setMenuCode(Integer menuCode) {
+    public void setMenuCode(String menuCode) {
         this.menuCode = menuCode;
     }
 }
