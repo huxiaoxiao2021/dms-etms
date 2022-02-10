@@ -1,13 +1,14 @@
-package com.jd.bluedragon.distribution.auto;
+package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.jd.bd.dms.automatic.sdk.common.dto.BaseDmsAutoJsfResponse;
+import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.core.base.AutoDistJsfManager;
-import com.jd.bluedragon.distribution.command.JdPageResult;
-import com.jd.bluedragon.distribution.command.JdResult;
+import com.jd.bluedragon.external.gateway.service.AutoDistService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
-@Service
+@Slf4j
 public class AutoDistServiceImpl implements AutoDistService {
     @Autowired
     private AutoDistJsfManager autoDistJsfManager;
@@ -19,9 +20,14 @@ public class AutoDistServiceImpl implements AutoDistService {
      *
      */
     @Override
-    public JdResult<Boolean> supplementSiteCode(String barCode, Integer siteCode, Integer createSiteCode, String operatorErp) {
+    public JdCResponse<Boolean> supplementSiteCode(String barCode, Integer siteCode, Integer createSiteCode, String operatorErp) {
+        log.info("自动补码收到参数:barCode={},siteCode={},createSiteCode={},operatorErp={}", barCode, siteCode, createSiteCode, operatorErp);
         BaseDmsAutoJsfResponse<Object> response = autoDistJsfManager.supplementSiteCode(barCode, siteCode);
-        JdResult<Boolean> result = new JdPageResult<>();
+        if (log.isInfoEnabled()) {
+            log.info("自动补码调用jsf返回:barCode={},siteCode={},res={}", barCode, siteCode, JSON.toJSONString(response));
+        }
+        JdCResponse<Boolean> result = new JdCResponse<>();
+        result.toSucceed();
         if (response != null) {
             result.setMessage(response.getStatusMessage());
         }

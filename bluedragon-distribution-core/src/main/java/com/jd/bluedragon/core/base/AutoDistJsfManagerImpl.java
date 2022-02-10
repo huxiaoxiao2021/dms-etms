@@ -2,10 +2,13 @@ package com.jd.bluedragon.core.base;
 
 import com.jd.bd.dms.automatic.sdk.common.dto.BaseDmsAutoJsfResponse;
 import com.jd.bd.dms.automatic.sdk.modules.autodist.AutoDistJsfService;
+import com.jd.bluedragon.Constants;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-@Service
+@Service("AutoDistJsfManager")
 public class AutoDistJsfManagerImpl implements AutoDistJsfManager {
     @Autowired
     private AutoDistJsfService autoDistJsfService;
@@ -20,6 +23,7 @@ public class AutoDistJsfManagerImpl implements AutoDistJsfManager {
      * @param siteCode
      */
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.BASE.AutoDistJsfManagerImpl.supplementSiteCode", mState = {JProEnum.TP})
     public BaseDmsAutoJsfResponse<Object> supplementSiteCode(String barCode, Integer siteCode) {
         return autoDistJsfService.supplementSiteCode(barCode , siteCode);
     }
