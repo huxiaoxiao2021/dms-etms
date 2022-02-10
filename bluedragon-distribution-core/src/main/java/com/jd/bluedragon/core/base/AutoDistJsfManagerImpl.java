@@ -24,7 +24,7 @@ public class AutoDistJsfManagerImpl implements AutoDistJsfManager {
      */
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.BASE.AutoDistJsfManagerImpl.supplementSiteCode", mState = {JProEnum.TP})
-    public BaseDmsAutoJsfResponse<Object> supplementSiteCode(String barCode, Integer siteCode) {
-        return autoDistJsfService.supplementSiteCode(barCode , siteCode);
+    public BaseDmsAutoJsfResponse<Object> supplementSiteCode(String barCode , Integer siteCode,Integer createSiteCode,String operatorErp) {
+        return autoDistJsfService.supplementSiteCode(barCode , siteCode,createSiteCode,operatorErp);
     }
 }

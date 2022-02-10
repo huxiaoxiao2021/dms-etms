@@ -5,7 +5,7 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 /**
  * 包裹补码功能，实现扫描包裹号或者运单号将信息推送给WCS
  */
-public interface AutoDistService {
+public interface AutoDistGatewayService {
 
     /**
      * 上海亚一的pda专用的包裹补码功能，实现扫描包裹号或者运单号将信息推送给WCS

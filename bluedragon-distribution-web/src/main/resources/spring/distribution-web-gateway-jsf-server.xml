@@ -428,10 +428,10 @@
                   server="dmsjsf">
     </jsf:provider>
     <!-- 自动补码服务 -->
-    <bean id="autoDistServiceImpl" class="com.jd.bluedragon.distribution.external.gateway.service.impl.AutoDistServiceImpl"/>
+    <bean id="autoDistGatewayServiceImpl" class="com.jd.bluedragon.distribution.external.gateway.service.impl.AutoDistGatewayServiceImpl"/>
     <jsf:provider id="jsfAutoDistService"
-                  interface="com.jd.bluedragon.external.gateway.service.AutoDistService"
+                  interface="com.jd.bluedragon.external.gateway.service.AutoDistGatewayService"
                   alias="${dms.gateway.jsf.alias}"
-                  ref="autoDistServiceImpl" server="dmsjsf">
+                  ref="autoDistGatewayServiceImpl" server="dmsjsf">
     </jsf:provider>
 </beans>

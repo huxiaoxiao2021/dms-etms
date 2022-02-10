@@ -9,5 +9,5 @@ public interface AutoDistJsfManager {
      *     上海亚一的pda调用的接口,如果不输入siteCode的值的话，默认传0
      * </doc>
      */
-    BaseDmsAutoJsfResponse<Object> supplementSiteCode(String barCode , Integer siteCode);
+    BaseDmsAutoJsfResponse<Object> supplementSiteCode(String barCode , Integer siteCode,Integer createSiteCode,String operatorErp);
 }
