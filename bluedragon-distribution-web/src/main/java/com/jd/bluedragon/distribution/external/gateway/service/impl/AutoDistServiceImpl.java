@@ -30,6 +30,9 @@ public class AutoDistServiceImpl implements AutoDistService {
         result.toSucceed();
         if (response != null) {
             result.setMessage(response.getStatusMessage());
+            if (BaseDmsAutoJsfResponse.SUCCESS_CODE != result.getCode()) {
+                result.toFail(response.getStatusMessage());
+            }
         }
         return result;
     }
