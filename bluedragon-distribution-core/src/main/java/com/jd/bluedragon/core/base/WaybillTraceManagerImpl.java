@@ -103,7 +103,7 @@ public class WaybillTraceManagerImpl implements WaybillTraceManager {
      */
     @JProfiler(jKey = "DMS.BASE.WaybillTraceManagerImpl.isOpCodeWaste",jAppName=Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public boolean isOpCodeWaste(String opCodeCode){
-        List<PackageState> list = getAllOperationsByOpeCodeAndState(opCodeCode, new HashSet<Integer>(Integer.parseInt(Constants.WAYBILLTRACE_WASTE)));
+        List<PackageState> list = getAllOperationsByOpeCodeAndState(opCodeCode, new HashSet<>(Collections.singletonList(Integer.parseInt(Constants.WAYBILLTRACE_WASTE))));
         if(list != null && list.size() > 0 ){
             return true;
         }
