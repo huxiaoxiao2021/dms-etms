@@ -65,6 +65,12 @@ public class StrandServiceImpl implements StrandService {
     @Autowired
     @Qualifier("strandReportDetailProducer")
     DefaultJMQProducer strandReportDetailProducer;
+    /**
+     * 工作台mq
+     */
+    @Autowired
+    @Qualifier("strandReportDetailWbProducer")
+    DefaultJMQProducer strandReportDetailWbProducer;    
     @Autowired
     @Qualifier("strandReportProducer")
     DefaultJMQProducer strandReportProducer;
@@ -91,16 +97,19 @@ public class StrandServiceImpl implements StrandService {
             result.error("你所在的分拣中心id未查到站点信息,请联系配送系统运营！");
             return result;
         }
-
+        boolean syncFlag = Constants.YN_YES.equals(request.getSyncFlag());
         /*按包裹上报*/
         if(ReportTypeEnum.PACKAGE_CODE.getCode().equals(reportType)){
             String waybillCode = WaybillUtil.getWaybillCode(request.getBarcode());
-            //发全程跟踪
-            int addCount = addPackageCodeWaybilTraceTask(request.getBarcode(), waybillCode, request, siteOrgDto);
-            //发滞留明细jmq
+          //发滞留明细jmq
             StrandDetailMessage strandDetailMessage = initStrandDetailMessage(request, request.getBarcode(), waybillCode);
-
-            strandReportDetailProducer.sendOnFailPersistent(waybillCode, JsonHelper.toJson(strandDetailMessage));
+            if(syncFlag) {
+	            //发全程跟踪
+	            int addCount = addPackageCodeWaybilTraceTask(request.getBarcode(), waybillCode, request, siteOrgDto);
+	            
+	            strandReportDetailProducer.sendOnFailPersistent(waybillCode, JsonHelper.toJson(strandDetailMessage));
+            }
+            strandReportDetailWbProducer.sendOnFailPersistent(waybillCode, JsonHelper.toJson(strandDetailMessage));
             return result;
         }
 
@@ -126,9 +135,12 @@ public class StrandServiceImpl implements StrandService {
                 Message message = new Message(strandReportDetailProducer.getTopic(), JsonHelper.toJson(strandDetailMessage), waybillCode);
                 list.add(message);
             }
-            //全程跟踪
-            addPackageCodeWaybilTraceTask(waybillCode, waybillCode, request, siteOrgDto);
-            strandReportDetailProducer.batchSendOnFailPersistent(list);
+            if(syncFlag) {
+	            //全程跟踪
+	            addPackageCodeWaybilTraceTask(waybillCode, waybillCode, request, siteOrgDto);
+	            strandReportDetailProducer.batchSendOnFailPersistent(list);
+            }
+            strandReportDetailWbProducer.batchSendOnFailPersistent(list);
             return result;
         }
 
@@ -145,14 +157,19 @@ public class StrandServiceImpl implements StrandService {
         List<Message> list = new ArrayList<>(packageCodes.size());
         for(String packageCode : packageCodes){
             String waybillCode = WaybillUtil.getWaybillCode(packageCode);
-            //全程跟踪
-            addPackageCodeWaybilTraceTask(packageCode, waybillCode, request, siteOrgDto);
+            if(syncFlag) {
+	            //全程跟踪
+	            addPackageCodeWaybilTraceTask(packageCode, waybillCode, request, siteOrgDto);
+            }
             //构建
             StrandDetailMessage strandDetailMessage = initStrandDetailMessage(request, packageCode, waybillCode);
             Message message = new Message(strandReportDetailProducer.getTopic(), JsonHelper.toJson(strandDetailMessage), waybillCode);
             list.add(message);
         }
-        strandReportDetailProducer.batchSendOnFailPersistent(list);
+        if(syncFlag) {
+        	strandReportDetailProducer.batchSendOnFailPersistent(list);
+        }
+        strandReportDetailWbProducer.batchSendOnFailPersistent(list);
         return result;
 
     }
@@ -217,6 +234,8 @@ public class StrandServiceImpl implements StrandService {
         strandDetailMessage.setReportType(request.getReportType());
         /* 运单号*/
         strandDetailMessage.setWaybillCode(waybillCode);
+        //同步标识
+        strandDetailMessage.setSyncFlag(request.getSyncFlag());
         return strandDetailMessage;
     }
 

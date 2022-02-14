@@ -30,6 +30,11 @@ public class StrandDetailMessage implements Serializable{
     private Integer createSiteCode;
     /**异常原因*/
     private String abnormalDescription;
+    /**
+     * 同步运单|路由标识
+     */
+    private Integer syncFlag;
+    
 
     public Integer getReasonCode() {
         return reasonCode;
@@ -110,4 +115,12 @@ public class StrandDetailMessage implements Serializable{
     public void setAbnormalDescription(String abnormalDescription) {
         this.abnormalDescription = abnormalDescription;
     }
+
+	public Integer getSyncFlag() {
+		return syncFlag;
+	}
+
+	public void setSyncFlag(Integer syncFlag) {
+		this.syncFlag = syncFlag;
+	}
 }
