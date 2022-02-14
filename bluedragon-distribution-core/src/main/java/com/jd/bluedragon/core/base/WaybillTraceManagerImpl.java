@@ -18,10 +18,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 import static com.jd.bluedragon.Constants.RESULT_SUCCESS;
 import static com.jd.bluedragon.Constants.WAYBILLTRACE_FINISHED;
@@ -93,6 +90,20 @@ public class WaybillTraceManagerImpl implements WaybillTraceManager {
     @Override
     public boolean isWaybillWaste(String waybillCode){
         List<PackageStateDto> list = getPkStateDtoByWCodeAndState(waybillCode, Constants.WAYBILLTRACE_WASTE);
+        if(list != null && list.size() > 0 ){
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * 判断是否为弃件
+     * @param opCodeCode 操作单据
+     * @return true表示是弃件，false表示不是弃件
+     */
+    @JProfiler(jKey = "DMS.BASE.WaybillTraceManagerImpl.isOpCodeWaste",jAppName=Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public boolean isOpCodeWaste(String opCodeCode){
+        List<PackageState> list = getAllOperationsByOpeCodeAndState(opCodeCode, new HashSet<>(Collections.singletonList(Integer.parseInt(Constants.WAYBILLTRACE_WASTE))));
         if(list != null && list.size() > 0 ){
             return true;
         }

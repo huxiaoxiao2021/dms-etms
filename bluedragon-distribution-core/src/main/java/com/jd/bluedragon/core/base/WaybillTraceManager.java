@@ -45,6 +45,13 @@ public interface WaybillTraceManager {
     boolean isWaybillWaste(String waybillCode);
 
     /**
+     * 判断是否为弃件
+     * @param opCodeCode 操作单据
+     * @return true表示是弃件，false表示不是弃件
+     */
+    boolean isOpCodeWaste(String opCodeCode);
+
+    /**
      * 获取包裹的全程跟踪状态
      * @param packageCode
      * @return
