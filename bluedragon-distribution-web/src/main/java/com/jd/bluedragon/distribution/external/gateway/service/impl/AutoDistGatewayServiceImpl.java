@@ -30,7 +30,7 @@ public class AutoDistGatewayServiceImpl implements AutoDistGatewayService {
         result.toSucceed();
         if (response != null) {
             result.setMessage(response.getStatusMessage());
-            if (BaseDmsAutoJsfResponse.SUCCESS_CODE != response.getCode()) {
+            if (BaseDmsAutoJsfResponse.SUCCESS_CODE != response.getStatusCode()) {
                 result.toFail(response.getStatusMessage());
             }
         }
