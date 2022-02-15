@@ -73,9 +73,6 @@ public class ReversePrintResource {
     @Autowired
     private WaybillTraceManager waybillTraceManager;
     
-    @Autowired
-    private WaybillHasnoPresiteRecordService waybillHasnoPresiteRecordService;
-
     /**
      * 外单逆向换单打印提交数据
      * @return JSON【{code: message: data:}】
@@ -317,22 +314,7 @@ public class ReversePrintResource {
             result.setCode(InvokeResult.SERVER_ERROR_CODE);
             result.setMessage(result.getMessage().replace(InvokeResult.RESULT_SUCCESS_MESSAGE,"") + "【保存打印日志异常】");
         }
-        waybillHasnoPresiteRecordService.sendDataChangeMq(toDmsHasnoPresiteWaybillMq(request));
         return result;
-    }
-    /**
-     * 发送mq
-     * @param rePrintRecord
-     */
-    private DmsHasnoPresiteWaybillMq toDmsHasnoPresiteWaybillMq(ReversePrintRequest request) {
-    	DmsHasnoPresiteWaybillMq dmsHasnoPresiteWaybillMq = new DmsHasnoPresiteWaybillMq();
-    	dmsHasnoPresiteWaybillMq.setWaybillCode(request.getOldCode());
-    	dmsHasnoPresiteWaybillMq.setOperateCode(DmsHasnoPresiteWaybillMqOperateEnum.EXCHANGE.getCode());
-    	dmsHasnoPresiteWaybillMq.setOperateUserErp(request.getStaffErpCode());
-    	dmsHasnoPresiteWaybillMq.setOperateUserName(request.getStaffRealName());
-    	dmsHasnoPresiteWaybillMq.setOperateSiteCode(request.getSiteCode());
-    	dmsHasnoPresiteWaybillMq.setOperateTime(new Date());
-    	return dmsHasnoPresiteWaybillMq;
     }
     /**
      * 转换为离线称重task
