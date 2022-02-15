@@ -371,6 +371,10 @@ public interface WaybillSignConstants {
 	int POSITION_29 = 29;
 	char CHAR_29_8 = '8';
 	char CHAR_29_2 = '2';
+	char CHAR_29_B = 'B';
+	char CHAR_29_C = 'C';
+	char CHAR_29_D = 'D';
+	char CHAR_29_E = 'E';
 	/**
 	 * 86
 	 */

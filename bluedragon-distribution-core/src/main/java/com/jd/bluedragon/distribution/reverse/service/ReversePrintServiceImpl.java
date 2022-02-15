@@ -50,6 +50,9 @@ import com.jd.bluedragon.distribution.operationLog.domain.OperationLog;
 import com.jd.bluedragon.distribution.operationLog.service.OperationLogService;
 import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
 import com.jd.bluedragon.distribution.qualityControl.service.QualityControlService;
+import com.jd.bluedragon.distribution.record.entity.DmsHasnoPresiteWaybillMq;
+import com.jd.bluedragon.distribution.record.enums.DmsHasnoPresiteWaybillMqOperateEnum;
+import com.jd.bluedragon.distribution.record.service.WaybillHasnoPresiteRecordService;
 import com.jd.bluedragon.distribution.reverse.domain.BackAddressDTOExt;
 import com.jd.bluedragon.distribution.reverse.domain.ExchangeWaybillDto;
 import com.jd.bluedragon.distribution.reverse.domain.LocalClaimInfoRespDTO;
@@ -202,6 +205,9 @@ public class ReversePrintServiceImpl implements ReversePrintService {
 
     @Autowired
     private WaybillTraceManager waybillTraceManager;
+    
+    @Autowired
+    private WaybillHasnoPresiteRecordService waybillHasnoPresiteRecordService;
 
     private static String EXCHANGE_PRINT_BEGIN_KEY = "dms_new_waybill_print_";
     /**
@@ -333,9 +339,24 @@ public class ReversePrintServiceImpl implements ReversePrintService {
 
         // 发送拦截报表
         this.sendDisposeAfterInterceptMsg(domain);
+        waybillHasnoPresiteRecordService.sendDataChangeMq(toDmsHasnoPresiteWaybillMq(domain));
 
         return true;
     }
+    /**
+     * 发送换单打印mq
+     * @param rePrintRecord
+     */
+    private DmsHasnoPresiteWaybillMq toDmsHasnoPresiteWaybillMq(ReversePrintRequest request) {
+    	DmsHasnoPresiteWaybillMq dmsHasnoPresiteWaybillMq = new DmsHasnoPresiteWaybillMq();
+    	dmsHasnoPresiteWaybillMq.setWaybillCode(request.getOldCode());
+    	dmsHasnoPresiteWaybillMq.setOperateCode(DmsHasnoPresiteWaybillMqOperateEnum.EXCHANGE.getCode());
+    	dmsHasnoPresiteWaybillMq.setOperateUserErp(request.getStaffErpCode());
+    	dmsHasnoPresiteWaybillMq.setOperateUserName(request.getStaffRealName());
+    	dmsHasnoPresiteWaybillMq.setOperateSiteCode(request.getSiteCode());
+    	dmsHasnoPresiteWaybillMq.setOperateTime(new Date());
+    	return dmsHasnoPresiteWaybillMq;
+    }    
     /**
      * 存在全量接单失败14拦截时，现结订单触发退款
      * @param domain
