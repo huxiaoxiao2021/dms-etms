@@ -179,7 +179,7 @@ public class StrandServiceImpl implements StrandService {
             	waybillStrandDetailMessage = this.loadWaybillInfo(request, waybillCode, null);
             	waybillInfoMap.put(waybillCode, waybillStrandDetailMessage);
             }
-            if(syncFlag) {R
+            if(syncFlag) {
 	            //全程跟踪
 	            addPackageCodeWaybilTraceTask(packageCode, waybillCode, request, siteOrgDto);
             }
