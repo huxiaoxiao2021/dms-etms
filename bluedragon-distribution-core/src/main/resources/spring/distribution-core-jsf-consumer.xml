@@ -810,4 +810,9 @@
                   retries="${jsf.retries}"
                   serialization="hessian"/>
 
+    <!--自动补码功能 -->
+    <jsf:consumer id="autoDistJsfService" interface="com.jd.bd.dms.automatic.sdk.modules.autodist.AutoDistJsfService"
+                  protocol="jsf" alias="${jsf.automatic.alias}" timeout="${jsf.automatic.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
+        <jsf:parameter key="token" value="${jsf.automatic.token}" hide="true"/>
+    </jsf:consumer>
 </beans>
