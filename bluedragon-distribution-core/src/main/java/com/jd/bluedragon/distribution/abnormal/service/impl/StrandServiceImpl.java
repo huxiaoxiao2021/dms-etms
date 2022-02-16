@@ -137,19 +137,23 @@ public class StrandServiceImpl implements StrandService {
             }
             StrandDetailMessage waybillStrandDetailMessage = this.loadWaybillInfo(request, waybillCode, bigWaybillDto);
             List<Message> list = new ArrayList<>(bigWaybillDto.getPackageList().size());
+            List<Message> listWb = new ArrayList<>(bigWaybillDto.getPackageList().size());
             for(DeliveryPackageD packageD : bigWaybillDto.getPackageList()){
                 String packageCode = packageD.getPackageBarcode();
                 //构建
                 StrandDetailMessage strandDetailMessage = initStrandDetailMessage(request, packageCode, waybillCode, waybillStrandDetailMessage);
-                Message message = new Message(strandReportDetailProducer.getTopic(), JsonHelper.toJson(strandDetailMessage), waybillCode);
-                list.add(message);
+                Message message = new Message(strandReportDetailWbProducer.getTopic(), JsonHelper.toJson(strandDetailMessage), waybillCode);
+                listWb.add(message);
+                if(syncFlag) {
+                	list.add(new Message(strandReportDetailProducer.getTopic(),message.getText(),waybillCode));
+                }
             }
             if(syncFlag) {
 	            //全程跟踪
 	            addPackageCodeWaybilTraceTask(waybillCode, waybillCode, request, siteOrgDto);
 	            strandReportDetailProducer.batchSendOnFailPersistent(list);
             }
-            strandReportDetailWbProducer.batchSendOnFailPersistent(list);
+            strandReportDetailWbProducer.batchSendOnFailPersistent(listWb);
             return result;
         }
 
@@ -164,6 +168,7 @@ public class StrandServiceImpl implements StrandService {
         }
         //发全程跟踪和上报明细消息
         List<Message> list = new ArrayList<>(packageCodes.size());
+        List<Message> listWb = new ArrayList<>(packageCodes.size());
         Map<String,StrandDetailMessage> waybillInfoMap = new HashMap<String,StrandDetailMessage>();
         for(String packageCode : packageCodes){
             String waybillCode = WaybillUtil.getWaybillCode(packageCode);
@@ -180,8 +185,11 @@ public class StrandServiceImpl implements StrandService {
             }
             //构建
             StrandDetailMessage strandDetailMessage = initStrandDetailMessage(request, packageCode, waybillCode,waybillStrandDetailMessage);
-            Message message = new Message(strandReportDetailProducer.getTopic(), JsonHelper.toJson(strandDetailMessage), waybillCode);
-            list.add(message);
+            Message message = new Message(strandReportDetailWbProducer.getTopic(), JsonHelper.toJson(strandDetailMessage), waybillCode);
+            listWb.add(message);
+            if(syncFlag) {
+            	list.add(new Message(strandReportDetailProducer.getTopic(),message.getText(),waybillCode));
+            }
         }
         if(syncFlag) {
         	strandReportDetailProducer.batchSendOnFailPersistent(list);
