@@ -179,7 +179,7 @@ public class StrandServiceImpl implements StrandService {
             	waybillStrandDetailMessage = this.loadWaybillInfo(request, waybillCode, null);
             	waybillInfoMap.put(waybillCode, waybillStrandDetailMessage);
             }
-            if(syncFlag) {
+            if(syncFlag) {R
 	            //全程跟踪
 	            addPackageCodeWaybilTraceTask(packageCode, waybillCode, request, siteOrgDto);
             }
@@ -292,7 +292,7 @@ public class StrandServiceImpl implements StrandService {
         //同步标识
         strandDetailMessage.setSyncFlag(request.getSyncFlag());
         if(waybillStrandDetailMessage != null) {
-        	strandDetailMessage.setWaybillAgainVolume(waybillStrandDetailMessage.getWaybillAgainWeight());
+        	strandDetailMessage.setWaybillAgainWeight(waybillStrandDetailMessage.getWaybillAgainWeight());
         	strandDetailMessage.setWaybillAgainVolume(waybillStrandDetailMessage.getWaybillAgainVolume());
         	strandDetailMessage.setRouterNextSiteCode(waybillStrandDetailMessage.getRouterNextSiteCode());
         }
