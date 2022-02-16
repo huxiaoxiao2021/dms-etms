@@ -23,7 +23,7 @@ import com.jd.ump.annotation.JProfiler;
  * @date: 2022年1月27日 下午2:37:26
  *
  */
-@Service("cancelWaybillJsfManager")
+@Service("configStrandReasonServiceJsfManager")
 public class ConfigStrandReasonServiceJsfManagerImpl implements ConfigStrandReasonServiceJsfManager{
 	
     @Autowired
