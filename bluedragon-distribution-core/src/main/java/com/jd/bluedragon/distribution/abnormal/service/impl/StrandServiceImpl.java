@@ -194,7 +194,7 @@ public class StrandServiceImpl implements StrandService {
         if(syncFlag) {
         	strandReportDetailProducer.batchSendOnFailPersistent(list);
         }
-        strandReportDetailWbProducer.batchSendOnFailPersistent(list);
+        strandReportDetailWbProducer.batchSendOnFailPersistent(listWb);
         return result;
 
     }
