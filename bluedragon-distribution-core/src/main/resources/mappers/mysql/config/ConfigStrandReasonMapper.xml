@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.config.dao.ConfigStrandReasonDao" >
+
+	<resultMap id="ConfigStrandReason" type="com.jd.bluedragon.distribution.config.model.ConfigStrandReason" >
+		<id column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result column="reason_code" property="reasonCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="reason_name" property="reasonName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="sync_flag" property="syncFlag" javaType="java.lang.Integer" jdbcType="TINYINT" />
+		<result column="order_num" property="orderNum" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="remark" property="remark" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="create_user" property="createUser" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="create_user_name" property="createUserName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="update_user" property="updateUser" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="update_user_name" property="updateUserName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="yn" property="yn" javaType="java.lang.Integer" jdbcType="TINYINT" />
+		<result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+	</resultMap>
+
+	<sql id="Base_Column_List" >
+		id,reason_code,reason_name,sync_flag,order_num,remark,
+		create_user,create_user_name,update_user,update_user_name,create_time,
+		update_time,yn,ts
+	</sql>
+
+	<insert id="insert" parameterType="com.jd.bluedragon.distribution.config.model.ConfigStrandReason" useGeneratedKeys="true" keyProperty="id">
+		insert into config_strand_reason
+			(
+			<trim suffixOverrides=",">
+				<if test="id != null" >
+					id,
+				</if>
+				<if test="reasonCode != null" >
+					reason_code,
+				</if>
+				<if test="reasonName != null" >
+					reason_name,
+				</if>
+				<if test="syncFlag != null" >
+					sync_flag,
+				</if>
+				<if test="orderNum != null" >
+					order_num,
+				</if>
+				<if test="remark != null" >
+					remark,
+				</if>
+				<if test="createUser != null" >
+					create_user,
+				</if>
+				<if test="createUserName != null" >
+					create_user_name,
+				</if>
+				<if test="updateUser != null" >
+					update_user,
+				</if>
+				<if test="updateUserName != null" >
+					update_user_name,
+				</if>
+				<if test="createTime != null" >
+					create_time,
+				</if>
+				<if test="updateTime != null" >
+					update_time,
+				</if>
+				<if test="yn != null" >
+					yn,
+				</if>
+				<if test="ts != null" >
+					ts,
+				</if>
+			</trim>
+			)
+			values
+			(
+			<trim suffixOverrides=",">
+				<if test="id != null" >
+					#{id,jdbcType=BIGINT},
+				</if>
+				<if test="reasonCode != null" >
+					#{reasonCode,jdbcType=INTEGER},
+				</if>
+				<if test="reasonName != null" >
+					#{reasonName,jdbcType=VARCHAR},
+				</if>
+				<if test="syncFlag != null" >
+					#{syncFlag,jdbcType=TINYINT},
+				</if>
+				<if test="orderNum != null" >
+					#{orderNum,jdbcType=INTEGER},
+				</if>
+				<if test="remark != null" >
+					#{remark,jdbcType=VARCHAR},
+				</if>
+				<if test="createUser != null" >
+					#{createUser,jdbcType=VARCHAR},
+				</if>
+				<if test="createUserName != null" >
+					#{createUserName,jdbcType=VARCHAR},
+				</if>
+				<if test="updateUser != null" >
+					#{updateUser,jdbcType=VARCHAR},
+				</if>
+				<if test="updateUserName != null" >
+					#{updateUserName,jdbcType=VARCHAR},
+				</if>
+				<if test="createTime != null" >
+					#{createTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="updateTime != null" >
+					#{updateTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="yn != null" >
+					#{yn,jdbcType=TINYINT},
+				</if>
+				<if test="ts != null" >
+					#{ts,jdbcType=TIMESTAMP},
+				</if>
+			</trim>
+			)
+	</insert>
+
+	<update id="updateById" parameterType="com.jd.bluedragon.distribution.config.model.ConfigStrandReason">
+		update config_strand_reason
+			<set>
+				<if test="reasonCode != null" >
+					reason_code = #{reasonCode,jdbcType=INTEGER},
+				</if>
+				<if test="reasonName != null" >
+					reason_name = #{reasonName,jdbcType=VARCHAR},
+				</if>
+				<if test="syncFlag != null" >
+					sync_flag = #{syncFlag,jdbcType=TINYINT},
+				</if>
+				<if test="orderNum != null" >
+					order_num = #{orderNum,jdbcType=INTEGER},
+				</if>
+				<if test="remark != null" >
+					remark = #{remark,jdbcType=VARCHAR},
+				</if>
+				<if test="createUser != null" >
+					create_user = #{createUser,jdbcType=VARCHAR},
+				</if>
+				<if test="createUserName != null" >
+					create_user_name = #{createUserName,jdbcType=VARCHAR},
+				</if>
+				<if test="updateUser != null" >
+					update_user = #{updateUser,jdbcType=VARCHAR},
+				</if>
+				<if test="updateUserName != null" >
+					update_user_name = #{updateUserName,jdbcType=VARCHAR},
+				</if>
+				<if test="createTime != null" >
+					create_time = #{createTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="updateTime != null" >
+					update_time = #{updateTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="yn != null" >
+					yn = #{yn,jdbcType=TINYINT},
+				</if>
+				<if test="ts != null" >
+					ts = #{ts,jdbcType=TIMESTAMP},
+				</if>
+			</set>
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+
+	<update id="deleteById" parameterType="com.jd.bluedragon.distribution.config.model.ConfigStrandReason">
+		update config_strand_reason
+			set 
+			<if test="updateUser != null" >
+				update_user = #{updateUser,jdbcType=VARCHAR},
+			</if>
+			<if test="updateTime != null" >
+				update_time = #{updateTime,jdbcType=TIMESTAMP},
+			</if>
+			   yn = 0
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+
+	<select id="queryById" parameterType="java.lang.Long" resultMap="ConfigStrandReason">
+		select
+			<include refid="Base_Column_List"/>
+		from
+			config_strand_reason t
+		where yn = 1 
+		  and id = #{id,jdbcType=BIGINT}
+	</select>
+
+	<select id="queryList" resultMap="ConfigStrandReason" parameterType="com.jd.bluedragon.distribution.config.query.ConfigStrandReasonQuery">
+		select
+			<include refid="Base_Column_List"/>
+		from
+			config_strand_reason t
+		<include refid="queryCondition"/>
+		order by order_num,reason_code
+        <if test="pageNumber > 0">
+            limit #{offset}, #{pageSize}
+        </if>
+	</select>
+
+	<select id="queryCount" resultType="long" parameterType="com.jd.bluedragon.distribution.config.query.ConfigStrandReasonQuery">
+		select
+			count(1)
+		from
+			config_strand_reason t
+		<include refid="queryCondition"/>
+	</select>
+
+	<sql id="queryCondition">
+		<where>
+			yn = 1 
+		<if test="reasonCode != null" >
+			and reason_code = #{reasonCode,jdbcType=INTEGER}
+		</if>			
+		</where>
+	</sql>
+	
+	<select id="queryByReasonCode" parameterType="java.lang.Integer" resultMap="ConfigStrandReason">
+		select
+			<include refid="Base_Column_List"/>
+		from
+			config_strand_reason t
+		where yn = 1 
+		  and reason_code = #{reasonCode,jdbcType=INTEGER}
+		  limit 1
+	</select>
+	
+</mapper>

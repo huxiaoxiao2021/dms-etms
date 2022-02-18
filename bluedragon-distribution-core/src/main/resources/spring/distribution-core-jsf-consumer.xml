@@ -795,14 +795,7 @@
                   retries="${jsf.retries}"
                   serialization="hessian">
     </jsf:consumer>
-    <!--滞留原因 工作台服务-->
-    <jsf:consumer id="configStrandReasonJsfService"
-                  interface="com.jd.dms.wb.sdk.api.config.IConfigStrandReasonJsfService"
-                  alias="${jsf.alias.configStrandReason}"
-                  timeout="${jsf.timeout.configStrandReason}"
-                  retries="${jsf.retries}"
-                  serialization="hessian">
-    </jsf:consumer>
+
     <!-- 驻厂揽收服务 -->
     <jsf:consumer id="merchCollectWaybillApi" interface="com.jdl.express.collect.api.merchcollectwaybill.MerchCollectWaybillApi"
                   protocol="jsf" alias="${jsf.merchCollect.alias}" timeout="${jsf.merchCollect.timeout}" retries="${jsf.retries}" >
