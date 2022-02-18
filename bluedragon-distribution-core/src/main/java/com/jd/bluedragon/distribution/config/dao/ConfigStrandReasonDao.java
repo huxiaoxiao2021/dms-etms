@@ -48,7 +48,7 @@ public interface ConfigStrandReasonDao {
 	 * @param query
 	 * @return
 	 */
-	int queryCount(ConfigStrandReasonQuery query);
+	Long queryCount(ConfigStrandReasonQuery query);
 	/**
 	 * 根据reasonCode查询
 	 * @param id

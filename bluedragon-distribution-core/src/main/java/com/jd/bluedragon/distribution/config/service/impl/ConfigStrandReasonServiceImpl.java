@@ -89,7 +89,11 @@ public class ConfigStrandReasonServiceImpl implements ConfigStrandReasonService 
 		    return Result.fail(checkResult.getMessage());
 		}
 		PageDto<ConfigStrandReason> pageData = new PageDto<>(query.getPageNumber(), query.getLimit());
-		int totalCount = configStrandReasonDao.queryCount(query);
+		int totalCount = 0;
+		Long count = configStrandReasonDao.queryCount(query);
+		if(count != null) {
+			totalCount = count.intValue();
+		}
 		if(totalCount > 0){
 			pageData.setResult(configStrandReasonDao.queryList(query));
 		}else {

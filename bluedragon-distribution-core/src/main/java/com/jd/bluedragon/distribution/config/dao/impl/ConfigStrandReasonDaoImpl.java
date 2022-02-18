@@ -43,7 +43,7 @@ public class ConfigStrandReasonDaoImpl extends BaseDao<ConfigStrandReason> imple
 	}
 
 	@Override
-	public int queryCount(ConfigStrandReasonQuery query) {
+	public Long queryCount(ConfigStrandReasonQuery query) {
 		return this.getSqlSession().selectOne(NAMESPACE + ".queryCount", query);
 	}
 
