@@ -182,7 +182,7 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
             loginDto.setAppCode("dmsPdaAndroid");
             loginDto.setUserName(loginUserResponse.getErpAccount());
             loginDto.setSource("erp");
-            loginDto.setTicketType("app");
+            loginDto.setTicketType("long");
             loginDto.setClientVersion(clientInfo.getVersionCode());
             loginDto.setDeviceId(clientInfo.getDeviceId());
             loginDto.setDeviceType(clientInfo.getVersionName());
@@ -190,7 +190,7 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
             loginDto.setIp("127.0.0.1");
             loginDto.setPwd(Encrypt.encodeDes(request.getPassword()));
             final RpcResultDto<LoginContextDto> loginResult = erpLoginServiceManager.loginSecurity(loginDto);
-            // log.info("wlGwErpLogin loginSecurity param {} result {}", JsonHelper.toJson(loginDto), JsonHelper.toJson(loginResult));
+            log.info("wlGwErpLogin loginSecurity param {} result {}", JsonHelper.toJson(loginDto), JsonHelper.toJson(loginResult));
             if(!loginResult.isSuccess()){
                 log.warn("wlGwErpLogin loginSecurity fail param {} result {}", JsonHelper.toJson(loginDto), JsonHelper.toJson(loginResult));
                 return;
