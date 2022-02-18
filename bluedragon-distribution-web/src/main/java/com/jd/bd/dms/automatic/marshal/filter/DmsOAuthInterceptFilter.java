@@ -1,8 +1,10 @@
 package com.jd.bd.dms.automatic.marshal.filter;
 
 import com.jd.bd.dms.automatic.marshal.GodHeader;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.bluedragon.utils.ServletRequestHelper;
+import com.jd.bluedragon.utils.SpringHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -38,10 +40,16 @@ public class DmsOAuthInterceptFilter extends DmsAuthorizationFilter {
         boolean secretBool = StringHelper.isNotEmpty(opCode) && opCode.equals(PropertiesHelper.newInstance().getValue(secretKey));/* 内部后门 */
         boolean temporaryBool = StringHelper.isEmpty(authorization);/* 过渡期的临时保护 */
         /* 过渡期间对传空的的进行保护处理，和内部后门JD-opCode的特殊值进行保护处理 */
+        UccPropertyConfiguration uccPropertyConfiguration =(UccPropertyConfiguration)SpringHelper.getBean("uccPropertyConfiguration");
         if (temporaryBool) {
-            LOGGER.warn("该客户端本次调用未进行rest加密鉴权,如果过渡期已过，将进行强制拦截，客户端IP:{}，请求路径：{}",
-                    ServletRequestHelper.getRealIpAddress(httpServletRequest),httpServletRequest.getRequestURI());
-            filterChain.doFilter(httpServletRequest,httpServletResponse);
+            LOGGER.warn("该客户端本次调用未进行rest加密鉴权,客户端IP:{}，请求路径：{}", ServletRequestHelper.getRealIpAddress(httpServletRequest),httpServletRequest.getRequestURI());
+            if (uccPropertyConfiguration.getRestApiOuthSwitch()){
+                LOGGER.info("校验开关打开,强制校验");
+                super.doFilterInternal(httpServletRequest, httpServletResponse, filterChain);
+            }
+            else {
+                filterChain.doFilter(httpServletRequest,httpServletResponse);
+            }
         } else if (secretBool) {
             LOGGER.info("内部调用，未拦截，客户端IP:{}", ServletRequestHelper.getRealIpAddress(httpServletRequest));
             filterChain.doFilter(httpServletRequest,httpServletResponse);

@@ -617,6 +617,19 @@ public class UccPropertyConfiguration {
      */
     private String limitSiteUsePackReprint;
 
+    /**
+     * 是否对restAPI鉴权的开关
+     */
+    private boolean restApiOuthSwitch;
+
+    public boolean getRestApiOuthSwitch() {
+        return restApiOuthSwitch;
+    }
+
+    public void setRestApiOuthSwitch(boolean restApiOuthSwitch) {
+        this.restApiOuthSwitch = restApiOuthSwitch;
+    }
+
     public String getScheduleSiteCheckSameCity() {
         return scheduleSiteCheckSameCity;
     }
