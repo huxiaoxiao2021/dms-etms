@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.config.service.impl;
 
+import java.util.ArrayList;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -97,7 +99,7 @@ public class ConfigStrandReasonServiceImpl implements ConfigStrandReasonService 
 		if(totalCount > 0){
 			pageData.setResult(configStrandReasonDao.queryList(query));
 		}else {
-			pageData.setResult(configStrandReasonDao.queryList(query));
+			pageData.setResult(new ArrayList<ConfigStrandReason>());
 		}
 		pageData.setTotalRow(totalCount);
 		result.setData(pageData);

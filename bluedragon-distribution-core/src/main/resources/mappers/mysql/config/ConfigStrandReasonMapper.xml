@@ -198,7 +198,7 @@
 		<include refid="queryCondition"/>
 		order by order_num,reason_code
         <if test="pageNumber > 0">
-            limit #{offset}, #{pageSize}
+            limit #{offset}, #{limit}
         </if>
 	</select>
 
