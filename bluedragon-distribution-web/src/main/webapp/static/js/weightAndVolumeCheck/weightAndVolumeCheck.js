@@ -1,10 +1,8 @@
 $(function () {
     var queryUrl = '/weightAndVolumeCheck/listData';
     var packageDetailQueryUrl = '/weightAndVolumeCheck/packageDetailListData';
-    var checkOverExportLimitUrl = '/weightAndVolumeCheck/checkOverExportLimit';
     var exportUrl = '/weightAndVolumeCheck/toExport';
     var upExcessPictureUrl = '/weightAndVolumeCheck/toUpload';
-    var searchExcessPictureUrl = '/weightAndVolumeCheck/searchExcessPicture';
     var tableInit = function () {
         var oTableInit = new Object();
         oTableInit.init = function () {

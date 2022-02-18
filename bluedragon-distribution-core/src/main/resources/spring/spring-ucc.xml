@@ -145,9 +145,6 @@
         <property name="virtualBoardMaxItemCount" value="${virtualBoardMaxItemCount:50}" />
         <property name="virtualBoardAutoCloseDays" value="${virtualBoardAutoCloseDays:1}" />
         <property name="virtualBoardCanUseSite" value="${virtualBoardCanUseSite:-1}" />
-		<property name="newSpotCheckSiteCodes" value="${newSpotCheckSiteCodes:910}"/>
-		<property name="isIssueToFinance" value="${isIssueToFinance:false}"/>
-		<property name="executeBCFuse" value="${executeBCFuse:false}"/>
 		<property name="androidIsExecuteNewSpotCheck" value="${androidIsExecuteNewSpotCheck:false}"/>
 		<property name="noAuthMenuConfig" value="${noAuthMenuConfig:}"/>
 		<property name="noAuthMenuConfigNew" value="${noAuthMenuConfigNew:}"/>
@@ -162,6 +159,8 @@
         <property name="printCompleteCallbackAsyncPackageNum" value="${printCompleteCallbackAsyncPackageNum:500}"/>
         <property name="sendCodeEffectiveValidation" value="${sendCodeEffectiveValidation:''}" />
         <property name="limitSiteUsePackReprint" value="${limitSiteUsePackReprint:'0'}" />
+		<property name="spotCheckReformSiteCodes" value="${spotCheckReformSiteCodes:true}"/>
+		<property name="aiDistinguishSwitch" value="${aiDistinguishSwitch:true}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -289,9 +288,6 @@
 				<value>uccPropertyConfiguration.virtualBoardMaxItemCount</value>
 				<value>uccPropertyConfiguration.virtualBoardAutoCloseDays</value>
 				<value>uccPropertyConfiguration.virtualBoardCanUseSite</value>
-				<value>uccPropertyConfiguration.newSpotCheckSiteCodes</value>
-				<value>uccPropertyConfiguration.isIssueToFinance</value>
-				<value>uccPropertyConfiguration.executeBCFuse</value>
 				<value>uccPropertyConfiguration.androidIsExecuteNewSpotCheck</value>
 				<value>uccPropertyConfiguration.noAuthMenuConfig</value>
 				<value>uccPropertyConfiguration.noAuthMenuConfigNew</value>
@@ -306,6 +302,8 @@
 				<value>uccPropertyConfiguration.scheduleSiteCheckSameCity</value>
 				<value>uccPropertyConfiguration.sendCodeEffectiveValidation</value>
 				<value>uccPropertyConfiguration.limitSiteUsePackReprint</value>
+				<value>uccPropertyConfiguration.spotCheckReformSiteCodes</value>
+				<value>uccPropertyConfiguration.aiDistinguishSwitch</value>
 
                 <value>hystrixRouteUccPropertyConfiguration.executionTimeoutInMilliseconds</value>
                 <value>hystrixRouteUccPropertyConfiguration.circuitBreakerEnabled</value>
