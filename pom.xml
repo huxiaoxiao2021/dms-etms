@@ -260,6 +260,12 @@
 				<version>2.0.12-uat-SNAPSHOT</version>
 			</dependency>
 
+            <dependency>
+                <artifactId>mrd-srv-sdk</artifactId>
+                <groupId>com.jd.mrd</groupId>
+                <version>1.0.3-SNAPSHOT</version>
+            </dependency>
+
 		</dependencies>
 	</dependencyManagement>
 
