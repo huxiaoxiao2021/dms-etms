@@ -6,7 +6,6 @@ import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.config.dao.ConfigStrandReasonDao;
 import com.jd.bluedragon.distribution.config.model.ConfigStrandReason;
 import com.jd.bluedragon.distribution.config.query.ConfigStrandReasonQuery;
-import com.jd.bluedragon.distribution.record.dao.WaybillHasnoPresiteRecordDao;
 
 /**
  * @ClassName: ConfigStrandReasonDaoImpl
@@ -17,7 +16,7 @@ import com.jd.bluedragon.distribution.record.dao.WaybillHasnoPresiteRecordDao;
  */
 public class ConfigStrandReasonDaoImpl extends BaseDao<ConfigStrandReason> implements ConfigStrandReasonDao{
 
-    private final static String NAMESPACE = WaybillHasnoPresiteRecordDao.class.getName();
+    private final static String NAMESPACE = ConfigStrandReasonDao.class.getName();
 	@Override
 	public int insert(ConfigStrandReason insertData) {
 		return this.getSqlSession().insert(NAMESPACE + ".insert", insertData);
