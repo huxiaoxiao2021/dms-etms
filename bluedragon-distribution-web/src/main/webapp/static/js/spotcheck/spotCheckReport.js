@@ -195,7 +195,7 @@ $(function () {
             title: '核对来源',
             align: 'center',
             formatter: function (value, row, index) {
-                return value === null ? null : value === 1 ? "计费重量" : value === 2 ? "运单复重" : value === 3 ? "下单重量" : null;
+                return value === null ? null : value === 1 ? "计费重量(计费)" : value === 2 ? "运单复重" : value === 3 ? "下单重量" : "计费重量(运单)";
             }
         },{
             field: 'machineCode',
@@ -586,7 +586,7 @@ $(function () {
                 title: '核对来源',
                 align: 'center',
                 formatter: function (value, row, index) {
-                    return value === null ? null : value === 1 ? "计费重量" : value === 2 ? "运单复重" : value === 3 ? "下单重量" : null;
+                    return value === null ? null : value === 1 ? "计费重量(计费)" : value === 2 ? "运单复重" : value === 3 ? "下单重量" : "计费重量(运单)";
                 }
             },{
                 field: 'machineCode',

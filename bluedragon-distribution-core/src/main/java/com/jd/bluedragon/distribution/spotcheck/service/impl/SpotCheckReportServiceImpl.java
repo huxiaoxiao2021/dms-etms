@@ -204,7 +204,8 @@ public class SpotCheckReportServiceImpl implements SpotCheckReportService {
             exportSpotCheckDto.setDiffStandard(spotCheckDto.getDiffStandard());
             exportSpotCheckDto.setReviewSource(spotCheckDto.getReviewSource() == null ? null : SpotCheckSourceFromEnum.analysisDescFromCode(spotCheckDto.getReviewSource()));
             exportSpotCheckDto.setContrastSource(spotCheckDto.getReviewSource() == null ? null :
-                    Objects.equals(spotCheckDto.getContrastSource(), 1) ? "计费重量" : Objects.equals(spotCheckDto.getContrastSource(), 2) ? "运单复重" : "下单重量");
+                    Objects.equals(spotCheckDto.getContrastSource(), 1) ? "计费重量(计费)" : Objects.equals(spotCheckDto.getContrastSource(), 2) ? "运单复重"
+                            : Objects.equals(spotCheckDto.getContrastSource(), 3) ? "下单重量" : "计费重量(运单)");
             exportSpotCheckDto.setMachineCode(spotCheckDto.getMachineCode());
             exportSpotCheckDto.setIsGatherTogether(Objects.equals(spotCheckDto.getIsGatherTogether(), 1) ? "是" : "否");
             exportSpotCheckDto.setIsExcess(spotCheckDto.getIsExcess() == null ? null : ExcessStatusEnum.analysisNameFromCode(spotCheckDto.getIsExcess()));
