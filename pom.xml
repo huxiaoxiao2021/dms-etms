@@ -254,6 +254,12 @@
 				<version>1.5-jdk7-SNAPSHOT</version>
 			</dependency>
 
+            <dependency>
+                <artifactId>mrd-srv-sdk</artifactId>
+                <groupId>com.jd.mrd</groupId>
+                <version>1.0.3-SNAPSHOT</version>
+            </dependency>
+
 		</dependencies>
 	</dependencyManagement>
 
