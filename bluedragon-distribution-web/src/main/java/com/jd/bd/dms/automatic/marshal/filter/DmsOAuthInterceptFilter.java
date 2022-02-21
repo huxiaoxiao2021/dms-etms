@@ -23,6 +23,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.jd.bluedragon.Constants.TOTAL_URL_INTERCEPTOR;
+
 /**
  * <p>
  *     分拣web自定义的接口拦截链处理类，过渡期自定义，如果没有JD-Authorization请求头的话，认为客户端处在过渡期，将不进行拦截
@@ -54,24 +56,19 @@ public class DmsOAuthInterceptFilter extends DmsAuthorizationFilter {
         if (temporaryBool) {
             LOGGER.warn("该客户端本次调用未进行rest加密鉴权,客户端IP:{}，请求路径：{}", ipAddress,uri);
             writeLogToHive(ipAddress,uri);
-            if (null!=needInterceptUrls && !"*".equals(needInterceptUrls)){
-                LOGGER.debug("校验开关打开,需要校验的urls：{}",needInterceptUrls);
-
-                List<String> urlList=new ArrayList<>();
-                if (needInterceptUrls.contains(",")){
-                    urlList = Arrays.asList(needInterceptUrls.split(","));
-                }
-                else {
-                    urlList.add(needInterceptUrls);
-                }
-
-                if (urlList.contains(uri)){
+            //部分拦截
+            if (null!=needInterceptUrls && !TOTAL_URL_INTERCEPTOR.equals(needInterceptUrls)){
+                List urlList =uccPropertyConfiguration.getNeedInterceptUrlList();
+                if (null!=urlList && urlList.contains(uri)){
                     super.doFilterInternal(httpServletRequest, httpServletResponse, filterChain);
                 }
                 else {
                     filterChain.doFilter(httpServletRequest,httpServletResponse);
                 }
-            }else {
+            }else if(Constants.TOTAL_URL_INTERCEPTOR.equals(needInterceptUrls)){//全部拦截
+                super.doFilterInternal(httpServletRequest, httpServletResponse, filterChain);
+            }
+            else {//全部放行
                 filterChain.doFilter(httpServletRequest,httpServletResponse);
             }
         } else if (secretBool) {

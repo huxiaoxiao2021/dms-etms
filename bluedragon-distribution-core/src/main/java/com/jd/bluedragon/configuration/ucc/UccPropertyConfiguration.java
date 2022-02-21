@@ -624,12 +624,32 @@ public class UccPropertyConfiguration {
 
     private String needInterceptUrls;
 
+    private List<String> needInterceptUrlList;
+
+    public List<String> getNeedInterceptUrlList() {
+        return needInterceptUrlList;
+    }
+
+    public void setNeedInterceptUrlList(List<String> needInterceptUrlList) {
+        this.needInterceptUrlList = needInterceptUrlList;
+    }
+
     public String getNeedInterceptUrls() {
         return needInterceptUrls;
     }
 
     public void setNeedInterceptUrls(String needInterceptUrls) {
         this.needInterceptUrls = needInterceptUrls;
+        if (needInterceptUrls!=null && !"".equals(needInterceptUrls)){
+            List<String> urlList=new ArrayList<>();
+            if (needInterceptUrls.contains(",")){
+                urlList = Arrays.asList(needInterceptUrls.split(","));
+            }
+            else {
+                urlList.add(needInterceptUrls);
+            }
+            this.needInterceptUrlList =urlList;
+        }
     }
 
     public boolean getRestApiOuthSwitch() {
