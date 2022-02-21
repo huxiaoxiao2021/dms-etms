@@ -1629,5 +1629,9 @@ public class Constants {
      * 产品类型-医药大票
      */
     public static final String PRODUCT_TYPE_MEDICINE_DP = "ll-m-0018";
+    /**
+     *产品类型-医药零担
+     */
+    public static final String PRODUCT_TYPE_MEDICAL_LESS_FREIGHT = "LL-YYLD-M";
 
 }
