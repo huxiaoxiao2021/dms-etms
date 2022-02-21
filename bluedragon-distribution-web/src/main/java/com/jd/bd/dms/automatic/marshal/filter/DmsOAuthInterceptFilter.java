@@ -69,10 +69,7 @@ public class DmsOAuthInterceptFilter extends DmsAuthorizationFilter {
             }else {
                 filterChain.doFilter(httpServletRequest,httpServletResponse);
             }
-        }
-
-
-        else if (secretBool) {
+        } else if (secretBool) {
             LOGGER.info("内部调用，未拦截，客户端IP:{}", ServletRequestHelper.getRealIpAddress(httpServletRequest));
             filterChain.doFilter(httpServletRequest,httpServletResponse);
         } else {
