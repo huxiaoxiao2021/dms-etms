@@ -1166,6 +1166,7 @@ public class Constants {
      */
     public static final Integer BIZTYPE_URL_CLICK = 999001;
 
+    public static final Integer BIZTYPE_URL_INTERCEPT = 999002;
     /**
      *
      * 菜单点击 分拣中心操作日志

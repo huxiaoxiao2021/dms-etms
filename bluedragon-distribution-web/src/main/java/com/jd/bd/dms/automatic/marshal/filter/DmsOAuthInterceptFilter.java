@@ -1,11 +1,15 @@
 package com.jd.bd.dms.automatic.marshal.filter;
 
+import com.alibaba.fastjson.JSONObject;
 import com.jd.bd.dms.automatic.marshal.GodHeader;
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.bluedragon.utils.ServletRequestHelper;
 import com.jd.bluedragon.utils.SpringHelper;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.dms.logger.aop.BusinessLogWriter;
+import com.jd.dms.logger.external.BusinessLogProfiler;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,6 +53,7 @@ public class DmsOAuthInterceptFilter extends DmsAuthorizationFilter {
         String needInterceptUrls = uccPropertyConfiguration.getNeedInterceptUrls();
         if (temporaryBool) {
             LOGGER.warn("该客户端本次调用未进行rest加密鉴权,客户端IP:{}，请求路径：{}", ipAddress,uri);
+            writeLogToHive(ipAddress,uri);
             if (null!=needInterceptUrls && !"*".equals(needInterceptUrls)){
                 LOGGER.debug("校验开关打开,需要校验的urls：{}",needInterceptUrls);
 
@@ -75,5 +80,17 @@ public class DmsOAuthInterceptFilter extends DmsAuthorizationFilter {
         } else {
             super.doFilterInternal(httpServletRequest, httpServletResponse, filterChain);
         }
+    }
+
+    private void writeLogToHive(String ipAddress, String uri) {
+        BusinessLogProfiler businessLogProfiler = new BusinessLogProfiler();
+        businessLogProfiler.setSourceSys(1);
+        businessLogProfiler.setBizType(Constants.BIZTYPE_URL_INTERCEPT);
+        businessLogProfiler.setOperateType(Constants.NEW_LOG);
+        JSONObject request=new JSONObject();
+        request.put("ipAddress",ipAddress);
+        request.put("uri",uri);
+        businessLogProfiler.setOperateRequest(JSONObject.toJSONString(request));
+        BusinessLogWriter.writeLog(businessLogProfiler);
     }
 }
