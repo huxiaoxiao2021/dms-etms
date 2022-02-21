@@ -78,7 +78,7 @@ public class SpotCheckServiceProxy {
             spotCheckDetailMQ.setUpdateTime(System.currentTimeMillis());
             spotCheckDetailMQ.setTs(System.currentTimeMillis());
             spotCheckDetailMQ.setYn(Constants.YN_YES);
-            spotCheckDetailProducer.sendOnFailPersistent(spotCheckDetailMQ.getWaybillCode(), JsonHelper.toJson(spotCheckDetailMQ));
+            spotCheckDetailProducer.sendOnFailPersistent(spotCheckDetailMQ.getPackageCode(), JsonHelper.toJson(spotCheckDetailMQ));
         }
     }
 
@@ -92,7 +92,7 @@ public class SpotCheckServiceProxy {
         if(isSuccess){
             SpotCheckDetailMQ spotCheckDetailMQ = new SpotCheckDetailMQ();
             BeanUtils.copyProperties(dto, spotCheckDetailMQ);
-            spotCheckDetailProducer.sendOnFailPersistent(spotCheckDetailMQ.getWaybillCode(), JsonHelper.toJson(spotCheckDetailMQ));
+            spotCheckDetailProducer.sendOnFailPersistent(spotCheckDetailMQ.getPackageCode(), JsonHelper.toJson(spotCheckDetailMQ));
         }
     }
 }
