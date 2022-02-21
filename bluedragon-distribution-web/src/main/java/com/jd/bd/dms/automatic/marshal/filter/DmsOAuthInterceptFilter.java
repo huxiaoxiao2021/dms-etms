@@ -15,6 +15,9 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * <p>
@@ -41,16 +44,35 @@ public class DmsOAuthInterceptFilter extends DmsAuthorizationFilter {
         boolean temporaryBool = StringHelper.isEmpty(authorization);/* 过渡期的临时保护 */
         /* 过渡期间对传空的的进行保护处理，和内部后门JD-opCode的特殊值进行保护处理 */
         UccPropertyConfiguration uccPropertyConfiguration =(UccPropertyConfiguration)SpringHelper.getBean("uccPropertyConfiguration");
+        String ipAddress =ServletRequestHelper.getRealIpAddress(httpServletRequest);
+        String uri =httpServletRequest.getRequestURI();
+        String needInterceptUrls = uccPropertyConfiguration.getNeedInterceptUrls();
         if (temporaryBool) {
-            LOGGER.warn("该客户端本次调用未进行rest加密鉴权,客户端IP:{}，请求路径：{}", ServletRequestHelper.getRealIpAddress(httpServletRequest),httpServletRequest.getRequestURI());
-            if (uccPropertyConfiguration.getRestApiOuthSwitch()){
-                LOGGER.info("校验开关打开,强制校验");
-                super.doFilterInternal(httpServletRequest, httpServletResponse, filterChain);
-            }
-            else {
+            LOGGER.warn("该客户端本次调用未进行rest加密鉴权,客户端IP:{}，请求路径：{}", ipAddress,uri);
+            if (null!=needInterceptUrls && !"*".equals(needInterceptUrls)){
+                LOGGER.debug("校验开关打开,需要校验的urls：{}",needInterceptUrls);
+
+                List<String> urlList=new ArrayList<>();
+                if (needInterceptUrls.contains(",")){
+                    urlList = Arrays.asList(needInterceptUrls.split(","));
+                }
+                else {
+                    urlList.add(needInterceptUrls);
+                }
+
+                if (urlList.contains(uri)){
+                    super.doFilterInternal(httpServletRequest, httpServletResponse, filterChain);
+                }
+                else {
+                    filterChain.doFilter(httpServletRequest,httpServletResponse);
+                }
+            }else {
                 filterChain.doFilter(httpServletRequest,httpServletResponse);
             }
-        } else if (secretBool) {
+        }
+
+
+        else if (secretBool) {
             LOGGER.info("内部调用，未拦截，客户端IP:{}", ServletRequestHelper.getRealIpAddress(httpServletRequest));
             filterChain.doFilter(httpServletRequest,httpServletResponse);
         } else {

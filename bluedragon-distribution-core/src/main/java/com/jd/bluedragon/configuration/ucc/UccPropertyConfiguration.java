@@ -622,6 +622,16 @@ public class UccPropertyConfiguration {
      */
     private boolean restApiOuthSwitch;
 
+    private String needInterceptUrls;
+
+    public String getNeedInterceptUrls() {
+        return needInterceptUrls;
+    }
+
+    public void setNeedInterceptUrls(String needInterceptUrls) {
+        this.needInterceptUrls = needInterceptUrls;
+    }
+
     public boolean getRestApiOuthSwitch() {
         return restApiOuthSwitch;
     }
