@@ -420,7 +420,10 @@
     <bean id="strandReportDetailProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.strand.report.detail}"/>
     </bean>
-
+    <!-- 滞留上报wb明细消息 -->
+    <bean id="strandReportDetailWbProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.strand.report.detailWb}"/>
+    </bean>
 
     <!-- 众邮箱号称重MQ -->
     <bean id="economicNetBoxWeightProducer" parent="dmsWebDefaultJMQProducer">

@@ -1,18 +1,20 @@
 package com.jd.bluedragon.distribution.rest.abnormal;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.dto.strandreport.request.ConfigStrandReasonData;
 import com.jd.bluedragon.distribution.abnormal.domain.ReportTypeEnum;
 import com.jd.bluedragon.distribution.abnormal.domain.StrandReportRequest;
 import com.jd.bluedragon.distribution.abnormal.service.StrandService;
-import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
+import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.send.domain.SendM;
-import com.jd.bluedragon.distribution.send.domain.ThreeDeliveryResponse;
-import com.jd.bluedragon.distribution.send.service.DeliveryService;
+import com.jd.bluedragon.distribution.config.model.ConfigStrandReason;
+import com.jd.bluedragon.distribution.config.query.ConfigStrandReasonQuery;
+import com.jd.bluedragon.distribution.config.service.ConfigStrandReasonService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.ldop.utils.CollectionUtils;
+import com.jd.ql.dms.common.web.mvc.api.PageDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
@@ -24,7 +26,8 @@ import org.springframework.stereotype.Component;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 
-import java.util.Date;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.RESULT_PARAMETER_ERROR_CODE;
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.RESULT_SUCCESS_CODE;
@@ -43,6 +46,9 @@ public class StrandResouce {
 
     @Autowired
     private StrandService strandService;
+    
+    @Autowired
+    private ConfigStrandReasonService configStrandReasonService;
 
     /**
      * 包裹滞留上报
@@ -58,6 +64,16 @@ public class StrandResouce {
             return invokeResult;
         }
         try {
+        	//查询滞留原因，设置同步标识，后续mq处理以提交时标识状态为准
+        	Result<ConfigStrandReason> reasonInfo = configStrandReasonService.queryByReasonCode(request.getReasonCode());
+        	if(reasonInfo == null
+        			|| !reasonInfo.isSuccess()
+        			|| reasonInfo.getData() == null) {
+        		invokeResult.error("滞留上报异常,无效的原因类型！");
+        		return invokeResult;
+        	}
+        	ConfigStrandReason reasonData = reasonInfo.getData();
+        	request.setSyncFlag(reasonData.getSyncFlag());
             //发送滞留上报消息
             strandService.sendStrandReportJmq(request);
         }catch (Exception e){
@@ -137,5 +153,52 @@ public class StrandResouce {
         invokeResult.success();
         return invokeResult;
     }
-
+    /**
+     * 查询原因列表
+     * @param request
+     * @return
+     */
+    @POST
+    @Path("strand/queryReasonList")
+    public InvokeResult<List<ConfigStrandReasonData>> queryReasonList(){
+    	InvokeResult<List<ConfigStrandReasonData>> invokeResult = new InvokeResult<>();
+        try {
+        	ConfigStrandReasonQuery query = new ConfigStrandReasonQuery();
+        	query.setPageNumber(1);
+        	query.setLimit(100);
+        	Result<PageDto<ConfigStrandReason>> resultInfo = configStrandReasonService.queryPageList(query);
+        	if(resultInfo == null
+        			|| !resultInfo.isSuccess()
+        			|| resultInfo.getData() == null) {
+        		invokeResult.error("获取滞留上报原因列表失败,请联系分拣小秘！");
+        		return invokeResult;
+        	}
+        	invokeResult.setData(toConfigStrandReasonDataList(resultInfo.getData().getResult()));
+        }catch (Exception e){
+            log.error("获取滞留上报原因异常!",e);
+            invokeResult.error("获取滞留上报原因异常,请联系分拣小秘！");
+        }    	
+        invokeResult.success();
+        return invokeResult;
+    }
+    /**
+     * 列表转换
+     * @param records
+     * @return
+     */
+	private List<ConfigStrandReasonData> toConfigStrandReasonDataList(List<ConfigStrandReason> records) {
+		List<ConfigStrandReasonData> list = new ArrayList<>();
+		if(!CollectionUtils.isEmpty(records)) {
+			for(ConfigStrandReason vo : records) {
+				ConfigStrandReasonData tmp = new ConfigStrandReasonData();
+				tmp.setReasonCode(vo.getReasonCode());
+				tmp.setReasonName(vo.getReasonName());
+				tmp.setSyncFlag(vo.getSyncFlag());
+				tmp.setRemark(vo.getRemark());
+				tmp.setOrderNum(vo.getOrderNum());
+				list.add(tmp);
+			}
+		}
+		return list;
+	}
 }
