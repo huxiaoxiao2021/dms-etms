@@ -30,6 +30,22 @@ public class StrandDetailMessage implements Serializable{
     private Integer createSiteCode;
     /**异常原因*/
     private String abnormalDescription;
+    /**
+     * 同步运单|路由标识
+     */
+    private Integer syncFlag;
+    /**
+     * 运单复重（单位：kg）
+     */
+    private Double waybillAgainWeight;
+    /**
+     * 运单复量方（单位：cm³）
+     */
+    private Double waybillAgainVolume;
+    /**
+     * 路由下一站点编码
+     */
+    private Integer routerNextSiteCode;
 
     public Integer getReasonCode() {
         return reasonCode;
@@ -110,4 +126,37 @@ public class StrandDetailMessage implements Serializable{
     public void setAbnormalDescription(String abnormalDescription) {
         this.abnormalDescription = abnormalDescription;
     }
+
+	public Integer getSyncFlag() {
+		return syncFlag;
+	}
+
+	public void setSyncFlag(Integer syncFlag) {
+		this.syncFlag = syncFlag;
+	}
+
+	public Double getWaybillAgainWeight() {
+		return waybillAgainWeight;
+	}
+
+	public void setWaybillAgainWeight(Double waybillAgainWeight) {
+		this.waybillAgainWeight = waybillAgainWeight;
+	}
+
+	public Double getWaybillAgainVolume() {
+		return waybillAgainVolume;
+	}
+
+	public void setWaybillAgainVolume(Double waybillAgainVolume) {
+		this.waybillAgainVolume = waybillAgainVolume;
+	}
+
+	public Integer getRouterNextSiteCode() {
+		return routerNextSiteCode;
+	}
+
+	public void setRouterNextSiteCode(Integer routerNextSiteCode) {
+		this.routerNextSiteCode = routerNextSiteCode;
+	}
+	
 }
