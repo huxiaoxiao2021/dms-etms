@@ -839,4 +839,21 @@
     <jsf:consumer id="erpLoginService" interface="com.jd.mrd.srv.service.erp.ErpLoginService"
                   protocol="jsf" alias="${jsf.mrd.alias}" timeout="${jsf.mrd.timeout}" retries="0">
     </jsf:consumer>
+
+    <!-- AI图片识别服务 -->
+    <jsf:consumer id="autoReportingService" interface="com.jd.wlai.center.service.outter.service.IAutoReportingService"
+                  protocol="jsf" alias="${jsf.autoReport.alias}" timeout="${jsf.autoReport.timeout}" retries="${jsf.retries}" >
+        <jsf:parameter key="token" hide="true" value="${jsf.autoReport.token}"/>
+    </jsf:consumer>
+
+    <!-- 抽检核对服务 -->
+    <jsf:consumer id="weightReportCommonRuleApi" interface="com.jdl.express.weight.report.api.rule.WeightReportCommonRuleApi"
+                  protocol="jsf" alias="${jsf.weightReport.alias}" timeout="${jsf.weightReport.timeout}" retries="${jsf.retries}" >
+    </jsf:consumer>
+
+    <!-- 抽检查询服务 -->
+    <jsf:consumer id="spotCheckQueryService" interface="com.jd.ql.dms.report.SpotCheckQueryService"
+                  protocol="jsf" alias="${jsf.spotCheckQuery.alias}" timeout="${jsf.spotCheckQuery.timeout}" retries="${jsf.retries}" serialization="hessian">
+    </jsf:consumer>
+
 </beans>

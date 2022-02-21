@@ -360,5 +360,10 @@
     <jmq:consumer id="jmq.dmsSpotCheckDealConsumer" transport="jmq.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.dwsSpotCheck}" listener="dmsSpotCheckDealConsumer"/>
     </jmq:consumer>
+
+    <!-- 抽检回传消息处理 -->
+    <jmq:consumer id="jmq.spotCheckNotifyConsumer" transport="jmq.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.spotCheckNotify}" listener="spotCheckNotifyConsumer"/>
+    </jmq:consumer>
 </beans>
 

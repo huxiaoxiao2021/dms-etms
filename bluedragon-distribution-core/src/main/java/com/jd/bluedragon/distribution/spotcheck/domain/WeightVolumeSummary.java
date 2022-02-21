@@ -1,8 +1,5 @@
 package com.jd.bluedragon.distribution.spotcheck.domain;
 
-
-import java.util.Date;
-
 /**
  * 操作人称重流水汇总
  *

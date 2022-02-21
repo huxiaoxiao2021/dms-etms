@@ -8,7 +8,25 @@ package com.jd.bluedragon.distribution.spotcheck.domain;
  */
 public class SpotCheckConstants {
 
+    /**
+     * 抽检已上传图片缓存前缀
+     */
+    public static final String UPLOADED_PIC_PREFIX = "spotCheck-uploadedPic:%s|%s";
+
+    /**
+     * 抽检下发来源：分拣 1
+     */
+    public static final Integer DMS_SPOT_CHECK_ISSUE = 1;
+    /**
+     * 抽检来源标识
+     *  人工：DMS-MSI 设备：DMS-DWS
+     */
+    public static final String EQUIPMENT_SPOT_CHECK = "DMS-DWS";
+    public static final String ARTIFICIAL_SPOT_CHECK = "DMS-MSI";
+
     public static final String PICTURE_LOOK_URL = "%s/weightAndVolumeCheck/toSearchPicture4MultiplePackage/?waybillCode=%s&siteCode=%s&fromSource=%s&pageNo=1&pageSize=20";
+
+    public static final String SPOT_CHECK_PICTURE_LOOK_URL = "%s/spotCheckReport/toSearchPicture/?waybillCode=%s&reviewSiteCode=%s&reviewSource=%s";
 
     /**
      * C网默认泡重比：8000
@@ -63,6 +81,8 @@ public class SpotCheckConstants {
 
     public static final String SPOT_CHECK_ONLY_SUPPORT_PURE_MATCH = "非纯配外单不计入抽检!";
 
+    public static final String SPOT_CHECK_BC = "非B非C订单，禁止操作!";
+
     public static final String SPOT_CHECK_ONLY_SUPPORT_B = "此功能只支持B网运单抽检!";
 
     public static final String SPOT_CHECK_FORBID_FINISHED_PACK = "此运单已经妥投,禁止抽检!";
@@ -89,5 +109,28 @@ public class SpotCheckConstants {
 
     public static final String SPOT_CHECK_VOLUME_LIMIT_B = "当前运单平均单个包裹体积超过%sm³，请核实后重新录入!";
     public static final String SPOT_CHECK_VOLUME_LIMIT_B_PACK = "当前包裹体积超过%sm³，请核实后重新录入!";
+
+    public static final String SPOT_CHECK_PACK_SEND_REFORM = "运单下包裹%s已发货,不支持人工抽检!";
+    public static final String SPOT_CHECK_PACK_SPOT_CHECK_REFORM = "运单下包裹%s已抽检,不支持人工抽检!";
+    public static final String SPOT_CHECK_PACK_SPOT_SEND_NOT_CHECK = "运单下有包裹已发货未抽检,禁止操作!!";
+
+    /**
+     * AI识别图片类型
+     *  1：重量 2：面单
+     */
+    public static final Integer SPOT_CHECK_AI_TYPE_WEIGHT = 1;
+    public static final Integer SPOT_CHECK_AI_TYPE_FACE = 2;
+    public static final String SPOT_CHECK_AI_WEIGHT_HIT = "录入重量:%s和图片识别重量:%s不一致，请重新上传!";
+    public static final String SPOT_CHECK_AI_FACE_HIT = "录入的运单号:%s和图片识别单号:%s不一致，请重新上传!";
+    /**
+     * 超标类型
+     *  重量超标：1 体积超标：2
+     */
+    public static final Integer EXCESS_TYPE_WEIGHT = 1;
+    public static final Integer EXCESS_TYPE_VOLUME = 2;
+    /**
+     * 图片识别异常编码
+     */
+    public static final Integer SPOT_CHECK_AI_EXC_CODE = 40001;
 
 }

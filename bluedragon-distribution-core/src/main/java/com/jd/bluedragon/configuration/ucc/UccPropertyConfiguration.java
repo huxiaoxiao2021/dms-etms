@@ -643,6 +643,19 @@ public class UccPropertyConfiguration {
      */
     private String limitSiteUsePackReprint;
 
+    /**
+     * 抽检改造开通场地
+     *  多个场地以,分隔
+     *  true表示全国
+     *  空表示未开启
+     */
+    private String spotCheckReformSiteCodes;
+
+    /**
+     * AI识别图片开关
+     */
+    private boolean aiDistinguishSwitch;
+
     public String getScheduleSiteCheckSameCity() {
         return scheduleSiteCheckSameCity;
     }
@@ -1466,30 +1479,6 @@ public class UccPropertyConfiguration {
         this.paralleGetPackageSwitch = paralleGetPackageSwitch;
     }
 
-    public String getNewSpotCheckSiteCodes() {
-        return newSpotCheckSiteCodes;
-    }
-
-    public void setNewSpotCheckSiteCodes(String newSpotCheckSiteCodes) {
-        this.newSpotCheckSiteCodes = newSpotCheckSiteCodes;
-    }
-
-    public boolean getExecuteBCFuse() {
-        return executeBCFuse;
-    }
-
-    public void setExecuteBCFuse(boolean executeBCFuse) {
-        this.executeBCFuse = executeBCFuse;
-    }
-
-    public boolean getIsIssueToFinance() {
-        return isIssueToFinance;
-    }
-
-    public void setIsIssueToFinance(boolean issueToFinance) {
-        isIssueToFinance = issueToFinance;
-    }
-
     /**
      * 西藏模式业务场景开关，按分拣中心归属的省份配置，不配置业务场景不生效，配置ALL全国生效
      */
@@ -1754,5 +1743,20 @@ public class UccPropertyConfiguration {
 
     public void setSendCodeEffectiveValidation(String sendCodeEffectiveValidation) {
         this.sendCodeEffectiveValidation = sendCodeEffectiveValidation;
+    }
+    public boolean getAiDistinguishSwitch() {
+        return aiDistinguishSwitch;
+    }
+
+    public void setAiDistinguishSwitch(boolean aiDistinguishSwitch) {
+        this.aiDistinguishSwitch = aiDistinguishSwitch;
+    }
+
+    public String getSpotCheckReformSiteCodes() {
+        return spotCheckReformSiteCodes;
+    }
+
+    public void setSpotCheckReformSiteCodes(String spotCheckReformSiteCodes) {
+        this.spotCheckReformSiteCodes = spotCheckReformSiteCodes;
     }
 }

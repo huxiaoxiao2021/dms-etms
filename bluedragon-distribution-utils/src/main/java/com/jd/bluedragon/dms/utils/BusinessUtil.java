@@ -1955,6 +1955,19 @@ public class BusinessUtil {
     }
 
     /**
+     * 判断是否B网（抽检专用）
+     *
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isBInternet(String waybillSign) {
+        return isSignInChars(waybillSign, WaybillSignConstants.POSITION_40, '1', '2', '3')
+                && !isSignInChars(waybillSign, WaybillSignConstants.POSITION_80, '6', '7', '8')
+                && !isSignInChars(waybillSign, WaybillSignConstants.POSITION_89, '1', '2')
+                && !isSignChar(waybillSign, WaybillSignConstants.POSITION_99, '1');
+    }
+
+    /**
      * 判断是否是快运
      * 31位 为1 是特快送
      * @param waybillSign
@@ -2200,7 +2213,7 @@ public class BusinessUtil {
         message.append("</OrderTaskInfo>");
 
         return message.toString();
-    }	
+    }
     /**
      * 校验该运单是否为航空单（WaybillSign31位=1【特快送】或WaybillSign84位=3【干线运输模式为航空】或Sendpay137位=1【京航达】）
      * @param waybillSign

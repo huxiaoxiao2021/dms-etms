@@ -415,12 +415,6 @@ public class GoodsLoadingScanningServiceImplTest {
         spotCheckGateWayService.spotCheckSubmit(req);
     }
 
-    @Test
-    public void testSpotCheckPictures(){
-
-        weightAndVolumeCheckService.searchPicture("JDK000000055832",364605,1,"SPOT_CHECK_ANDROID");
-    }
-
         @Test
         public void testCreateUnloadTask(){
             CreateUnloadTaskReq req=new CreateUnloadTaskReq();

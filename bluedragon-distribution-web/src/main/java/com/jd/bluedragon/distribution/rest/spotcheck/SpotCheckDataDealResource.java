@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.rest.spotcheck;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.ReportExternalManager;
+import com.jd.bluedragon.core.base.SpotCheckServiceProxy;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.basic.DataResolver;
@@ -62,6 +63,9 @@ public class SpotCheckDataDealResource {
 
     @Autowired
     private SpotCheckDealService spotCheckDealService;
+
+    @Autowired
+    private SpotCheckServiceProxy spotCheckServiceProxy;
 
     /**
      * 从excel获取包裹号修复抽检无图片问题
@@ -191,7 +195,7 @@ public class SpotCheckDataDealResource {
             WeightVolumeQueryCondition packCondition = new WeightVolumeQueryCondition();
             packCondition.setWaybillCode(waybillCode);
             packCondition.setReviewSiteCode(siteCode);
-            packCondition.setRecordType(SpotCheckRecordTypeEnum.PACKAGE.getCode());
+            packCondition.setRecordType(SpotCheckRecordTypeEnum.DETAIL_RECORD.getCode());
             List<WeightVolumeCollectDto> packList = reportExternalManager.queryByCondition(packCondition);
             for (WeightVolumeCollectDto packCollect : packList) {
                 String packageCode = packCollect.getPackageCode();
@@ -211,7 +215,7 @@ public class SpotCheckDataDealResource {
                 updateCollect.setReviewSiteCode(siteCode);
                 updateCollect.setIsHasPicture(Constants.CONSTANT_NUMBER_ONE);
                 updateCollect.setPictureAddress(searchPicResult.getData());
-                reportExternalManager.insertOrUpdateForWeightVolume(updateCollect);
+                spotCheckServiceProxy.insertOrUpdateProxyPrevious(updateCollect);
             }
         }
     }
@@ -250,7 +254,7 @@ public class SpotCheckDataDealResource {
             updateCollect.setReviewSiteCode(siteCode);
             updateCollect.setIsHasPicture(Constants.CONSTANT_NUMBER_ONE);
             updateCollect.setPictureAddress(searchPicResult.getData());
-            reportExternalManager.insertOrUpdateForWeightVolume(updateCollect);
+            spotCheckServiceProxy.insertOrUpdateProxyPrevious(updateCollect);
         }
     }
 
@@ -403,7 +407,7 @@ public class SpotCheckDataDealResource {
                     WeightVolumeQueryCondition packCondition = new WeightVolumeQueryCondition();
                     packCondition.setWaybillCode(waybillCode);
                     packCondition.setReviewSiteCode(collectDto.getReviewSiteCode());
-                    packCondition.setRecordType(SpotCheckRecordTypeEnum.PACKAGE.getCode());
+                    packCondition.setRecordType(SpotCheckRecordTypeEnum.DETAIL_RECORD.getCode());
                     List<WeightVolumeCollectDto> packCollectList = reportExternalManager.queryByCondition(packCondition);
 
                     int hasSendCount = 0; // 已发货包裹数
