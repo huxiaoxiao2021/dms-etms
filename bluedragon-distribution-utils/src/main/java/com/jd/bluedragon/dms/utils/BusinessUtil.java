@@ -2107,7 +2107,36 @@ public class BusinessUtil {
     public static boolean isPickUpOrNo(String waybillSign) {
         return isSignInChars(waybillSign, WaybillSignConstants.POSITION_79, WaybillSignConstants.CHAR_79_2);
     }
-
+    /**
+     * 是否修改订单地址,waybillSign第8位1、2
+     *
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isChangeWaybillSign(String waybillSign) {
+        return BusinessUtil.isSignInChars(waybillSign, WaybillSignConstants.POSITION_8,
+                WaybillSignConstants.CHAR_8_1,WaybillSignConstants.CHAR_8_2);
+    }
+    /**
+     * 是否修改订单地址,waybillSign第8位1、2
+     *
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isForceChangeWaybillSign(String waybillSign) {
+        return BusinessUtil.isSignInChars(waybillSign, WaybillSignConstants.POSITION_8,
+                WaybillSignConstants.CHAR_8_1);
+    }
+    /**
+     * 是否修改订单地址,waybillSign第8位1、2
+     *
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isWeakChangeWaybillSign(String waybillSign) {
+        return BusinessUtil.isSignInChars(waybillSign, WaybillSignConstants.POSITION_8,
+                WaybillSignConstants.CHAR_8_2);
+    }
     /**
      * 运单揽收类型为网点自送 71位是2 网点自提
      * @param waybillSign
@@ -2158,6 +2187,17 @@ public class BusinessUtil {
 
         return message.toString();
     }	
+    /**
+     * 校验该运单是否为航空单（WaybillSign31位=1【特快送】或WaybillSign84位=3【干线运输模式为航空】或Sendpay137位=1【京航达】）
+     * @param waybillSign
+     * @param sendPay
+     * @return
+     */
+	public static boolean checkCanAirToRoad(String waybillSign, String sendPay) {
+		return isSignChar(waybillSign,WaybillSignConstants.POSITION_31,WaybillSignConstants.CHAR_31_1)
+		     ||isSignChar(waybillSign,WaybillSignConstants.POSITION_84,WaybillSignConstants.CHAR_84_3)
+		     ||isSignChar(sendPay,SendPayConstants.POSITION_137,SendPayConstants.CHAR_137_1);
+	}
     /**
      * waybill_sign 29位=2  且  53位=1
      *

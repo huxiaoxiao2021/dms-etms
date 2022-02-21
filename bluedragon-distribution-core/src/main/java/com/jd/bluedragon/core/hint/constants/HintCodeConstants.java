@@ -387,6 +387,12 @@ public class HintCodeConstants {
     public static String WAYBILL_INFO_CHANGE = "20061";
 
     /**
+     * 订单信息变更,请补打包裹标签
+     */
+    public static String WAYBILL_INFO_CHANGE_FORCE = "20085";
+
+
+    /**
      * 无此包裹或运单信息,确定装箱？
      */
     public static String WAYBILL_OR_PACKAGE_NOT_FOUND = "20062";
@@ -481,6 +487,16 @@ public class HintCodeConstants {
      * 您操作的订单无重量，烦请称重量方抽检，谢谢。
      */
     public static String WAYBILL_WITHOUT_WEIGHT_WEAK_INTERCEPT = "20080";
+    
+    /**
+     * 全量接单失败拦截
+     * 此单为[全量接单失败拦截],请退货。
+     */
+    public static String FULL_ORDER_FAIL_INTERCEPT = "20081";
+    /**
+     * 此订单目的分拣中心已关闭,确定装箱。
+     */
+    public static String EMD_DMSSITE_CLOSE="20082";
 
     /*##############################################拦截相关END#########################################################*/
 
@@ -854,4 +870,19 @@ public class HintCodeConstants {
      * 你所在场地未开通此功能
      */
     public static String YOUR_SITE_CAN_NOT_USE_FUNC = "50001";
+    
+    
+    /**
+     * 异常上报-改地址拦截:改址订单，请补打操作 
+     */
+    public static String EX_REPORT_CHECK_CHANGE_ADDRESS = "50003";    
+    
+    /**
+     * 非航空单无法操作航空转陆运
+     */
+    public static String AIR_TO_ROAD_NOT_ALLOWD="50002";
+    /**
+     * 存在非航空单操作，提示非航空单数量
+     */
+    public static String AIR_TO_ROAD_TIP_MSG="50004";
 }

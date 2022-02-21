@@ -84,4 +84,16 @@ public class CancelWaybillDao extends BaseDao<CancelWaybill> {
         paramMap.put("featureType", featureType);
         return super.getSqlSession().selectOne(NAMESPACE + ".findPackageBlockedByCodeAndFeatureType", paramMap);
     }
+    /**
+     * 根据运单号和interceptType查询运单拦截记录
+     * @param waybillCode
+     * @param interceptType
+     * @return
+     */
+	public CancelWaybill getByWaybillCodeAndInterceptType(String waybillCode, Integer interceptType) {
+        Map<String, Object> paramMap = new HashMap<>();
+        paramMap.put("waybillCode", waybillCode);
+        paramMap.put("interceptType", interceptType);
+        return super.getSqlSession().selectOne(NAMESPACE + ".getByWaybillCodeAndInterceptType", paramMap);
+	}
 }

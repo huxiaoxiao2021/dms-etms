@@ -52,6 +52,10 @@
 					<artifactId>hibernate-validator</artifactId>
 					<groupId>org.hibernate.validator</groupId>
 				</exclusion>
+				<exclusion>
+					<artifactId>lsb-proto-common</artifactId>
+					<groupId>com.jd.lsb</groupId>
+				</exclusion>
 			</exclusions>
 			<groupId>com.jd.ql.shared.services</groupId>
 			<version>1.2-SNAPSHOT</version>
@@ -204,7 +208,7 @@
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
 			<artifactId>bluedragon-distribution-sdk</artifactId>
-			<version>1.8.2-SNAPSHOT</version>
+			<version>1.8.5-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
@@ -233,7 +237,7 @@
 		<dependency>
             <groupId>com.jd.bluedragon</groupId>
             <artifactId>bluedragon-distribution-common-android</artifactId>
-            <version>1.4.0-SNAPSHOT</version>
+            <version>1.4.1-SNAPSHOT</version>
         </dependency>
 		<dependency>
 			<groupId>com.jd.etms.waybill</groupId>
@@ -1105,7 +1109,7 @@
 		<dependency>
 			<groupId>com.jd.transboard</groupId>
 			<artifactId>transboard-api</artifactId>
-			<version>1.0.7-SNAPSHOT</version>
+			<version>1.0.8-SNAPSHOT</version>
 		</dependency>
 
 		<!--路由系统-->
@@ -1135,7 +1139,7 @@
 		<dependency>
 			<groupId>com.jd.ldop.center</groupId>
 			<artifactId>ldop-center-api</artifactId>
-			<version>1.6.0-SNAPSHOT</version>
+			<version>1.7.55-SNAPSHOT</version>
 		</dependency>
 		<!-- 理赔系统接口 -->
 		<dependency>
@@ -1172,7 +1176,7 @@
 		<dependency>
 			<groupId>com.jd.bd.dms.automatic</groupId>
 			<artifactId>automatic-sdk</artifactId>
-			<version>1.2.0-SNAPSHOT</version>
+			<version>1.2.9-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
@@ -1730,17 +1734,23 @@
 			<groupId>com.jd.dms.wb</groupId>
 			<artifactId>workbench-services-sdk</artifactId>
 		</dependency>
+		<!-- 分拣自动化总部任务服务-->
+		<dependency>
+			<groupId>com.jd.bluedragon</groupId>
+			<artifactId>automatic-platform-sdk</artifactId>
+			<version>1.1-SNAPSHOT</version>
+		</dependency>
 
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
-            <version>2.12.2</version>
+            <version>2.12.3</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-slf4j-impl</artifactId>
-            <version>2.12.2</version>
+            <version>2.12.3</version>
         </dependency>
 
 		<!--冷链逆向单生成-->

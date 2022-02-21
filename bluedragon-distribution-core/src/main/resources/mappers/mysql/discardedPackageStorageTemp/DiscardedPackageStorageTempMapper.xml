@@ -32,11 +32,48 @@
         <result property="ts" column="ts"/>
         <result property="operateType" column="operate_type"/>
         <result property="waybillType" column="waybill_type"/>
+        <result property="siteDepartType" column="site_depart_type"/>
+    </resultMap>
+
+    <resultMap id="RM_DiscardedPackageStorageVoTemp" type="com.jd.bluedragon.distribution.discardedPackageStorageTemp.vo.DiscardedPackageStorageTempVo">
+        <result property="id" column="id"/>
+        <result property="waybillCode" column="waybill_code"/>
+        <result property="packageCode" column="package_code"/>
+        <result property="status" column="status"/>
+        <result property="waybillProduct" column="waybill_product"/>
+        <result property="consignmentName" column="consignment_name"/>
+        <result property="weight" column="weight"/>
+        <result property="cod" column="cod"/>
+        <result property="codAmount" column="cod_amount"/>
+        <result property="businessCode" column="business_code"/>
+        <result property="businessName" column="business_name"/>
+        <result property="operatorCode" column="operator_code"/>
+        <result property="operatorErp" column="operator_erp"/>
+        <result property="operatorName" column="operator_name"/>
+        <result property="siteCode" column="site_code"/>
+        <result property="siteName" column="site_name"/>
+        <result property="siteCity" column="site_city"/>
+        <result property="orgCode" column="org_code"/>
+        <result property="orgName" column="org_name"/>
+        <result property="prevSiteCode" column="prev_site_code"/>
+        <result property="prevSiteName" column="prev_site_name"/>
+        <result property="prevProvinceCompanyCode" column="prev_province_company_code"/>
+        <result property="prevProvinceCompanyName" column="prev_province_company_name"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="yn" column="yn"/>
+        <result property="ts" column="ts"/>
+        <result property="operateType" column="operate_type"/>
+        <result property="waybillType" column="waybill_type"/>
+        <result property="siteDepartType" column="site_depart_type"/>
+        <result property="packageScanTotal" column="package_scan_total"/>
+        <result property="packageSysTotal" column="package_sys_total"/>
+        <result property="submitStatus" column="submit_status"/>
     </resultMap>
 
     <!-- 用于select查询公用抽取的列 -->
     <sql id="Base_Column_List">
-        `id`, `waybill_code`, `package_code`, `status`, `waybill_product`, `consignment_name`, `weight`, `cod`, `cod_amount`, `business_code`, `business_name`, `operator_code`, `operator_erp`, `operator_name`, `site_code`, `site_name`, `site_city`, `org_code`, `org_name`, `prev_site_code`, `prev_site_name`, `prev_province_company_code`, `prev_province_company_name`, `create_time`, `update_time`, `yn`, `ts`, `operate_type`, `waybill_type`
+        `id`, `waybill_code`, `package_code`, `status`, `waybill_product`, `consignment_name`, `weight`, `cod`, `cod_amount`, `business_code`, `business_name`, `operator_code`, `operator_erp`, `operator_name`, `site_code`, `site_name`, `site_city`, `org_code`, `org_name`, `prev_site_code`, `prev_site_name`, `prev_province_company_code`, `prev_province_company_name`, `create_time`, `update_time`, `yn`, `ts`, `operate_type`, `waybill_type`, `site_depart_type`
     </sql>
 
     <!-- 增加 -->
@@ -126,7 +163,10 @@
             </if>
             <if test="waybillType != null">
                 waybill_type,
-            </if>                        
+            </if>
+            <if test="siteDepartType != null">
+                site_depart_type,
+            </if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="waybillCode != null and waybillCode != ''">
@@ -212,7 +252,10 @@
             </if>
             <if test="waybillType != null">
                 #{waybillType},
-            </if>            
+            </if>
+            <if test="siteDepartType != null">
+                #{siteDepartType},
+            </if>
         </trim>
     </insert>
     <!-- 批量增加 -->
@@ -243,7 +286,8 @@
             prev_province_company_name,
             create_time,
             operate_type,
-            waybill_type
+            waybill_type,
+            site_depart_type
         </trim>
         values
         <foreach collection="list" item="item" index="index" separator=",">
@@ -272,7 +316,8 @@
                     #{item.prevProvinceCompanyName},
                     #{item.createTime},
                     #{item.operateType},
-                    #{item.waybillType}
+                    #{item.waybillType},
+                    #{item.siteDepartType}
             </trim>
         </foreach>
     </insert>
@@ -307,15 +352,79 @@
             <if test="orgName != null and orgName != ''">
             org_name = #{orgName},
             </if>
+            <if test="prevSiteCode != null">
+                prev_site_code = #{prevSiteCode},
+            </if>
+            <if test="prevSiteName != null and prevSiteName != ''">
+                prev_site_name = #{prevSiteName},
+            </if>
             <if test="operateType != null ">
             operate_type = #{operateType},
             </if>
             <if test="waybillType != null ">
             waybill_type = #{waybillType},
-            </if>            
+            </if>
+            <if test="siteDepartType != null ">
+                site_depart_type = #{siteDepartType},
+            </if>
+            <if test="updateTime != null ">
+                update_time = #{updateTime},
+            </if>
         </set>
         WHERE
             waybill_code = #{waybillCode}
+    </update>
+    <update id="updateByPackageCode" parameterType="com.jd.bluedragon.distribution.discardedPackageStorageTemp.model.DiscardedPackageStorageTemp">
+        UPDATE `discarded_package_storage_temp`
+        <set>
+            <if test="status != null ">
+                status = #{status},
+            </if>
+            <if test="operatorCode != null ">
+                operator_code = #{operatorCode},
+            </if>
+            <if test="operatorErp != null and operatorErp != ''">
+                operator_erp = #{operatorErp},
+            </if>
+            <if test="operatorName != null and operatorName != ''">
+                operator_name = #{operatorName},
+            </if>
+            <if test="siteCode != null ">
+                site_code = #{siteCode},
+            </if>
+            <if test="siteName != null and siteName != ''">
+                site_name = #{siteName},
+            </if>
+            <if test="siteCity != null and siteCity != ''">
+                site_city = #{siteCity},
+            </if>
+            <if test="orgCode != null ">
+                org_code = #{orgCode},
+            </if>
+            <if test="orgName != null and orgName != ''">
+                org_name = #{orgName},
+            </if>
+            <if test="prevSiteCode != null">
+                prev_site_code = #{prevSiteCode},
+            </if>
+            <if test="prevSiteName != null and prevSiteName != ''">
+                prev_site_name = #{prevSiteName},
+            </if>
+            <if test="operateType != null ">
+                operate_type = #{operateType},
+            </if>
+            <if test="waybillType != null ">
+                waybill_type = #{waybillType},
+            </if>
+            <if test="siteDepartType != null ">
+                site_depart_type = #{siteDepartType},
+            </if>
+            <if test="updateTime != null ">
+                update_time = #{updateTime},
+            </if>
+        </set>
+        WHERE
+        package_code = #{packageCode}
     </update>
     <!-- 批量更新 -->
     <update id="batchUpdate" parameterType="java.util.List">
@@ -393,7 +502,13 @@
 	            </if>
 	            <if test="item.waybillType != null ">
 	            waybill_type = #{item.waybillType}
-	            </if>                
+	            </if>
+                <if test="item.siteDepartType != null ">
+                    site_depart_type = #{item.siteDepartType}
+                </if>
+                <if test="updateTime != null ">
+                    update_time = #{updateTime},
+                </if>
             </set>
             WHERE
                 package_code = #{item.packageCode}
@@ -406,7 +521,7 @@
         <![CDATA[
             FROM `discarded_package_storage_temp`
             WHERE
-                id = #{id} 
+                id = #{id}
         ]]>
     </select>
     <!-- 按条件查询单条记录 -->
@@ -415,6 +530,7 @@
         <include refid="Base_Column_List"/>
         FROM `discarded_package_storage_temp`
         <include refid="where"/>
+        limit 1
     </select>
     <!-- where条件 -->
     <sql id="where">
@@ -457,6 +573,9 @@
         <if test="waybillType != null">
             AND waybill_type = #{waybillType}
         </if>
+        <if test="siteDepartType != null">
+            AND site_depart_type = #{siteDepartType}
+        </if>
     </sql>
     <!-- 查询行数 -->
     <select id="selectCount" resultType="long" parameterType="com.jd.bluedragon.distribution.discardedPackageStorageTemp.dto.DiscardedPackageStorageTempQo">
@@ -469,6 +588,7 @@
         <include refid="Base_Column_List" />
         FROM `discarded_package_storage_temp`
         <include refid="where"/>
+        order by create_time desc
         <if test="pageNumber > 0">
             limit #{offset}, #{pageSize}
         </if>
@@ -509,6 +629,12 @@
             <if test="siteName != null and siteName != ''">
             site_name = #{siteName},
             </if>
+            <if test="prevSiteCode != null">
+                prev_site_code = #{prevSiteCode},
+            </if>
+            <if test="prevSiteName != null and prevSiteName != ''">
+                prev_site_name = #{prevSiteName},
+            </if>
             <if test="siteCity != null and siteCity != ''">
             site_city = #{siteCity},
             </if>
@@ -523,10 +649,110 @@
             </if>
             <if test="waybillType != null ">
             waybill_type = #{waybillType},
-            </if>            
+            </if>
+            <if test="siteDepartType != null ">
+                site_depart_type = #{siteDepartType},
+            </if>
         </set>
         WHERE
             id = #{id}
-    </update>    
+    </update>
+
+    <!-- 查询已扫描未提交的弃件扫描数据明细 -->
+    <select id="selectUnSubmitDiscardedPackageList" resultMap="RM_DiscardedPackageScanResultItem" parameterType="com.jd.bluedragon.distribution.discardedPackageStorageTemp.dto.UnSubmitDiscardedListQo">
+        SELECT
+        W.`id`, P.`waybill_code`, P.`package_code`, P.`status`, P.`waybill_product`, P.`consignment_name`, P.`weight`, P.`cod`, P.`cod_amount`, P.`business_code`, P.`business_name`, P.`operator_code`, P.`operator_erp`, P.`operator_name`, P.`site_code`, P.`site_name`, P.`site_city`, P.`org_code`, P.`org_name`, P.`prev_site_code`, P.`prev_site_name`, P.`prev_province_company_code`, P.`prev_province_company_name`, P.`create_time`, P.`update_time`, P.`yn`, P.`ts`, P.`operate_type`, P.`waybill_type`, P.`site_depart_type`
+        , ifnull(W.package_sys_total, 0) as package_sys_total, ifnull(W.package_scan_total, 0) as package_scan_total, ifnull(W.submit_status, 0) as submit_status
+        FROM `discarded_package_storage_temp` P
+        left join `discarded_waybill_storage_temp` W on P.waybill_code = W.waybill_code
+        where
+        P.yn = 1
+        AND W.yn = 1
+        AND W.operator_erp = #{operatorErp}
+        <if test="waybillType != null">
+            AND P.waybill_type = #{waybillType}
+        </if>
+        <if test="unSubmitStatus != null">
+            AND W.submit_status = #{unSubmitStatus}
+        </if>
+        <if test="pageNumber > 0">
+            limit #{offset}, #{pageSize}
+        </if>
+    </select>
+
+    <!-- 查询未提交已扫描的弃件扫描总数 -->
+    <select id="selectUnSubmitDiscardedPackageCount" parameterType="com.jd.bluedragon.distribution.discardedPackageStorageTemp.dto.UnSubmitDiscardedListQo">
+        SELECT count(1)
+        FROM `discarded_package_storage_temp` P
+        left join `discarded_waybill_storage_temp` W on P.waybill_code = W.waybill_code
+        where
+        P.yn = 1
+        AND W.yn = 1
+        AND W.operator_erp = #{operatorErp}
+        <if test="waybillType != null">
+            AND P.waybill_type = #{waybillType}
+        </if>
+        <if test="unSubmitStatus != null">
+            AND W.submit_status = #{unSubmitStatus}
+        </if>
+    </select>
+
+    <!-- 查询未扫描全部包裹的总数 -->
+    <select id="selectUnFinishScanDiscardedPackageCount" resultType="long" parameterType="com.jd.bluedragon.distribution.discardedPackageStorageTemp.dto.UnFinishScanDiscardedPackageQo">
+        SELECT count(1)
+        FROM `discarded_package_storage_temp`
+        where
+        yn = 1
+        <if test="waybillCode != null and waybillCode != ''">
+            AND waybill_code = #{waybillCode}
+        </if>
+        <if test="waybillCodeList != null">
+            AND waybill_code in
+            <foreach collection="waybillCodeList" item="item" index="index" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="packageCode != null and packageCode != ''">
+            AND package_code = #{packageCode}
+        </if>
+    </select>
+    <!-- 查询未扫描全部包裹的数据 -->
+    <resultMap id="RM_DiscardedPackageScanResultItem" type="com.jd.bluedragon.common.dto.wastepackagestorage.dto.DiscardedPackageScanResultItemDto">
+        <result property="id" column="id"/>
+        <result property="packageCode" column="package_code"/>
+        <result property="waybillCode" column="waybill_code"/>
+        <result property="status" column="status"/>
+        <result property="operatorErp" column="operator_erp"/>
+        <result property="operatorName" column="operator_name"/>
+        <result property="siteCode" column="site_code"/>
+        <result property="siteName" column="site_name"/>
+        <result property="operateType" column="operate_type"/>
+        <result property="waybillType" column="waybill_type"/>
+        <result property="siteDepartType" column="site_depart_type"/>
+        <result property="packageScanTotal" column="package_scan_total"/>
+        <result property="packageSysTotal" column="package_sys_total"/>
+        <result property="submitStatus" column="submit_status"/>
+    </resultMap>
+    <select id="selectUnFinishScanDiscardedPackageList" resultMap="RM_DiscardedPackageScanResultItem" parameterType="com.jd.bluedragon.distribution.discardedPackageStorageTemp.dto.UnFinishScanDiscardedPackageQo">
+        SELECT `id`, `waybill_code`, `package_code`, `status`, `waybill_product`, `consignment_name`, `weight`, `cod`, `cod_amount`, `business_code`, `business_name`, `operator_code`, `operator_erp`, `operator_name`, `site_code`, `site_name`, `site_city`, `org_code`, `org_name`, `prev_site_code`, `prev_site_name`, `prev_province_company_code`, `prev_province_company_name`, `create_time`, `update_time`, `yn`, `ts`, `operate_type`, `waybill_type`, `site_depart_type`
+        FROM `discarded_package_storage_temp`
+        where
+        yn = 1
+        <if test="waybillCode != null and waybillCode != ''">
+            AND waybill_code = #{waybillCode}
+        </if>
+        <if test="waybillCodeList != null">
+            AND waybill_code in
+            <foreach collection="waybillCodeList" item="item" index="index" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="packageCode != null and packageCode != ''">
+            AND package_code = #{packageCode}
+        </if>
+        <if test="pageNumber > 0">
+            limit #{offset}, #{pageSize}
+        </if>
+    </select>
 </mapper>
 

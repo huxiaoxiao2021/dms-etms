@@ -11,14 +11,14 @@ import com.jd.etms.waybill.dto.DChoice;
 import com.jd.etms.waybill.dto.PackageStateDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static com.jd.bluedragon.Constants.RESULT_SUCCESS;
 import static com.jd.bluedragon.Constants.WAYBILLTRACE_FINISHED;
@@ -59,6 +59,7 @@ public class WaybillTraceManagerImpl implements WaybillTraceManager {
      * @param waybillCode 运单号
      * @return true表示已经妥投，false表示还没有妥投
      */
+    @Override
     public boolean isWaybillFinished(String waybillCode){
         List<PackageStateDto> list = getPkStateDtoByWCodeAndState(waybillCode, WAYBILLTRACE_FINISHED);
         if(list != null && list.size() > 0 ){
@@ -96,6 +97,20 @@ public class WaybillTraceManagerImpl implements WaybillTraceManager {
     }
 
     /**
+     * 判断是否为弃件
+     * @param opCodeCode 操作单据
+     * @return true表示是弃件，false表示不是弃件
+     */
+    @JProfiler(jKey = "DMS.BASE.WaybillTraceManagerImpl.isOpCodeWaste",jAppName=Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public boolean isOpCodeWaste(String opCodeCode){
+        List<PackageState> list = getAllOperationsByOpeCodeAndState(opCodeCode, new HashSet<>(Collections.singletonList(Integer.parseInt(Constants.WAYBILLTRACE_WASTE))));
+        if(list != null && list.size() > 0 ){
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * 获取包裹的全程跟踪状态
      * @param packageCode
      * @return
@@ -104,6 +119,34 @@ public class WaybillTraceManagerImpl implements WaybillTraceManager {
     public BaseEntity<List<PackageState>> getPkStateByPCode(String packageCode){
 
         return waybillTraceApi.getPkStateByPCode(packageCode);
+    }
+
+    /**
+     * 判断包裹是否有某个状态的全程跟踪
+     * @param packageCode
+     * @param state
+     * @return
+     */
+    @Override
+    @JProfiler(jKey = "DMS.BASE.WaybillTraceManagerImpl.judgePackageHasConcreteState", jAppName = Constants.UMP_APP_NAME_DMSWEB,
+            mState = {JProEnum.TP, JProEnum.FunctionError})
+    public boolean judgePackageHasConcreteState(String packageCode, String state) {
+        try {
+            BaseEntity<List<PackageState>> baseEntity = getPkStateByPCode(packageCode);
+            if (baseEntity != null && CollectionUtils.isNotEmpty(baseEntity.getData())) {
+                for (PackageState packageState : baseEntity.getData()) {
+                    if (Objects.equals(state, packageState.getState())) {
+                        log.info("查询包裹全程跟踪状态: {}, {}", packageCode, state);
+                        return true;
+                    }
+                }
+            }
+        }
+        catch (Exception e) {
+            log.error("judgePackageHasConcreteState error. {}", packageCode, e);
+        }
+
+        return false;
     }
 
     /**
@@ -163,5 +206,16 @@ public class WaybillTraceManagerImpl implements WaybillTraceManager {
             log.error("获取运单号{}状态列表失败", waybillCode, e);
         }
         return null;
+    }
+
+    /**
+     * 根据操作单号 批量查最新一条全程跟踪
+     * @param opCodes 操作号（包括取件单号，面单号，包裹号，运单号） 最多一次传500个
+     * @see <a>https://cf.jd.com/pages/viewpage.action?pageId=162204941</a>
+     * @return 全程跟踪记录
+     */
+    @Override
+    public BaseEntity<Map<String, PackageState>> getNewestPKStateByOpCodes(List<String> opCodes) {
+        return waybillTraceApi.getNewestPKStateByOpCodes(opCodes);
     }
 }

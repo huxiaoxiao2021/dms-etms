@@ -12,6 +12,8 @@ import com.jd.bluedragon.distribution.businessCode.BusinessCodeFromSourceEnum;
 import com.jd.bluedragon.distribution.businessCode.BusinessCodeNodeTypeEnum;
 import com.jd.bluedragon.distribution.businessCode.domain.BusinessCodePo;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.DmsConstants;
+import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
@@ -160,6 +162,12 @@ public class SendCodeServiceImpl implements SendCodeService {
             return result;
         }
         try {
+            // 1. 校验批次号正则
+            if (!BusinessHelper.isSendCode(sendCode)) {
+                result.customMessage(SendCodeResponse.CODE_PARAMETER_ERROR, MessageFormat.format(SendCodeResponse.MESSAGE_PARAMETER_ERROR, sendCode));
+                return result;
+            }
+
             if (!switchIsOpen(SerialRuleUtil.getCreateSiteCodeFromSendCode(sendCode))) {
                 return result;
             }
@@ -168,13 +176,12 @@ public class SendCodeServiceImpl implements SendCodeService {
                 logger.info("启用批次有效性校验. site:{}", SerialRuleUtil.getCreateSiteCodeFromSendCode(sendCode));
             }
 
-            // 1. 校验批次号有效性
-            if (!BusinessUtil.isSendCode(sendCode)) {
-                result.customMessage(SendCodeResponse.CODE_PARAMETER_ERROR, MessageFormat.format(SendCodeResponse.MESSAGE_PARAMETER_ERROR, sendCode));
+            // 2. 亚一批次号不校验存在性
+            if (sendCode.toUpperCase().startsWith(DmsConstants.AO_BATCH_CODE_PREFIX)) {
                 return result;
             }
 
-            // 2. 校验批次号是否存在
+            // 3. 校验批次号是否存在
             BusinessCodePo businessCodePo = businessCodeManager.queryBusinessCodeByCode(sendCode, BusinessCodeNodeTypeEnum.send_code);
             if (null == businessCodePo) {
                 result.customMessage(SendCodeResponse.CODE_NOT_EXIST_ERROR, MessageFormat.format(SendCodeResponse.MESSAGE_NOT_EXIST_ERROR, sendCode));
@@ -196,16 +203,16 @@ public class SendCodeServiceImpl implements SendCodeService {
      * @return 开关状态 true：开启
      */
     private boolean switchIsOpen(Integer createSiteCode) {
-        String configSites = uccPropertyConfiguration.getSiteEnableSendCodeEffectiveValidation();
+        String configSites = uccPropertyConfiguration.getSendCodeEffectiveValidation();
         if (StringUtils.isBlank(configSites)) {
-            return false;
-        }
-        if (null == createSiteCode) {
             return false;
         }
         // 全国开启
         if (Constants.STR_ALL.equalsIgnoreCase(configSites)) {
             return true;
+        }
+        if (null == createSiteCode) {
+            return false;
         }
 
         List<String> enableSites = Arrays.asList(configSites.split(Constants.SEPARATOR_COMMA));

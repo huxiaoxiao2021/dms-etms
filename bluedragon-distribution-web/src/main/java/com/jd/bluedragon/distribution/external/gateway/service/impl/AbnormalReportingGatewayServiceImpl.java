@@ -17,11 +17,16 @@ import com.jd.bluedragon.core.base.DeptServiceQcManager;
 import com.jd.bluedragon.core.base.IAbnPdaAPIManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.base.WaybillTraceManager;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
+import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.QualityControlRequest;
+import com.jd.bluedragon.distribution.base.domain.JdCancelWaybillResponse;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.jss.JssService;
 import com.jd.bluedragon.distribution.qualityControl.QcVersionFlagEnum;
 import com.jd.bluedragon.distribution.qualityControl.service.QualityControlService;
+import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.AreaData;
 import com.jd.bluedragon.dms.utils.AreaEnum;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -31,6 +36,7 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.PackageState;
+import com.jd.etms.waybill.domain.Waybill;
 import com.jd.ql.basic.domain.BaseDataDict;
 import com.jd.ql.dms.report.SiteQueryService;
 import com.jd.ql.dms.report.domain.BasicSite;
@@ -44,11 +50,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
+
+import javax.annotation.Resource;
 
 public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGatewayService {
 
@@ -89,9 +98,15 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
     @Value("${jss.pda.image.bucket}")
     private String bucket;
 
+    @Autowired
+    private WaybillService waybillService;
+    
     private static final int PACKAGE_CODE_TYPE = 1;
 
     private static final int WAYBILL_CODE_TYPE = 2;
+    
+    @Resource(name = "checkPrintInterceptReasonIdSet")
+    private Set<Long> checkPrintInterceptReasonIdSet;
 
     @Override
     public JdCResponse<List<DmsAbnormalReasonDto>> getAllAbnormalReason(String userErp) {
@@ -113,7 +128,9 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
         multiAbnormalReasonList.addAll(nonQcAbnormalReasonList);
 
         jdCResponse.setData(multiAbnormalReasonList);
-
+        if(log.isDebugEnabled()) {
+        	log.debug("异常上报-获取异常原因getAllAbnormalReason:请求userErp={}，返回结果：{}", userErp,JsonHelper.toJson(jdCResponse));
+        }
         return jdCResponse;
     }
 
@@ -598,6 +615,46 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
 
 	@Override
 	public JdCResponse<List<TraceDept>> getTraceDept(TraceDeptQueryRequest queryRequest) {
+        JdCResponse<List<TraceDept>> jdCResponse = new JdCResponse<>(JdCResponse.CODE_SUCCESS, JdCResponse.MESSAGE_SUCCESS);
+
+        if(StringUtils.isBlank(queryRequest.getCurrentDept())){
+            jdCResponse.toFail("操作人场地信息不能为空");
+            return jdCResponse;
+        }
+        //判断barCode是不是运单或者包裹号
+        if (StringHelper.isEmpty(queryRequest.getCode())) {
+            jdCResponse.setCode(JdCResponse.CODE_ERROR);
+            jdCResponse.setMessage("扫描条码不能为空！");
+            return jdCResponse;
+        } else if (!WaybillUtil.isPackageCode(queryRequest.getCode())) {
+            jdCResponse.setCode(JdCResponse.CODE_ERROR);
+            jdCResponse.setMessage("扫描条码必须是包裹号！");
+            return jdCResponse;
+        }
+        String waybillCode = WaybillUtil.getWaybillCode(queryRequest.getCode());
+        Waybill waybillData = waybillQueryManager.getWaybillByWayCode(waybillCode);
+        //补打拦截
+        if (waybillData != null
+        		&& checkPrintInterceptReasonIdSet != null
+        		&& queryRequest.getThirdLevelReasonId() != null
+        		&& checkPrintInterceptReasonIdSet.contains(queryRequest.getThirdLevelReasonId())
+        		&& waybillService.hasPrintIntercept(waybillCode, waybillData.getWaybillSign())) {
+            //取消拦截  存在时跳过 不进行补打拦截提示
+            JdCancelWaybillResponse jdCancelResponse = waybillService.dealCancelWaybill(waybillCode);
+            if (jdCancelResponse == null || jdCancelResponse.getCode() == null || jdCancelResponse.getCode().equals(JdResponse.CODE_OK)) {
+                jdCResponse.setCode(JdCResponse.CODE_ERROR);
+                jdCResponse.setMessage(HintService.getHint(HintCodeConstants.EX_REPORT_CHECK_CHANGE_ADDRESS));
+                return jdCResponse;
+            }
+        }
+        //协商再投拦截
+        if (waybillData != null
+        		&& waybillData.getBusiId() != null 
+        		&& qualityControlService.getRedeliveryState(waybillCode, waybillData.getBusiId()) == 0) {
+            jdCResponse.setCode(JdCResponse.CODE_ERROR);
+            jdCResponse.setMessage("此条码为【发起协商再投未处理】状态，需商家审核完成才能提交异常！");
+            return jdCResponse;
+        }
 		return deptServiceQcManager.getTraceDept(queryRequest);
 	}
 }

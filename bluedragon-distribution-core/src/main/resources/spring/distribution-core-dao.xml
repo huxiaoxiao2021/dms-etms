@@ -679,6 +679,9 @@
     <bean id="discardedPackageStorageTempDao" class="com.jd.bluedragon.distribution.discardedPackageStorageTemp.dao.DiscardedPackageStorageTempDao">
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
     </bean>
+    <bean id="discardedWaybillStorageTempDao" class="com.jd.bluedragon.distribution.discardedPackageStorageTemp.dao.DiscardedWaybillStorageTempDao">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
+    </bean>
 
     <!--  businessCode 业务单号表  -->
     <bean id="businessCodeDao" class="com.jd.bluedragon.distribution.businessCode.dao.BusinessCodeDao">
@@ -694,7 +697,9 @@
     <bean id="stockInventoryDao" class="com.jd.bluedragon.distribution.stock.dao.StockInventoryDao">
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
     </bean>
-
+    <bean id="waybillHasnoPresiteRecordDao" class="com.jd.bluedragon.distribution.record.dao.WaybillHasnoPresiteRecordDao">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate" />
+    </bean>
     <!--################################## bd_dms_business 相关DAO Start ############################################ -->
     <bean id="businessBaseDao" class="com.jd.ql.dms.common.web.mvc.mybatis.BaseDao" abstract="true">
         <property name="sqlSession" ref="sessionTemplateBusiness"/>
@@ -738,4 +743,10 @@
     <bean id="expressBillExceptionReportDao" class="com.jd.bluedragon.distribution.exceptionReport.billException.dao.ExpressBillExceptionReportDao">
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
     </bean>
+
+    <!-- 箱号与集包袋绑定 -->
+    <bean id="dockBaseInfoDao" class="com.jd.bluedragon.distribution.dock.dao.DockBaseInfoDao">
+        <property name="sqlSession" ref="businessSqlSessionTemplate"/>
+    </bean>
+
 </beans>

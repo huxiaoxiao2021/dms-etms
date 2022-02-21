@@ -5,6 +5,7 @@ import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.request.OperatorInfo;
 import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.board.BizSourceEnum;
 import com.jd.bluedragon.common.dto.board.request.*;
 import com.jd.bluedragon.common.dto.board.response.UnbindVirtualBoardResultDto;
 import com.jd.bluedragon.common.dto.board.response.VirtualBoardResultDto;
@@ -180,10 +181,8 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
             String keyTemplate = CacheKeyConstants.VIRTUAL_BOARD_CREATE_DESTINATION;
             String key = String.format(keyTemplate, operatorInfo.getSiteCode(), operatorInfo.getUserErp());
             try{
-                try {
-                    // 同一操作人及目的地加锁，解决并发问题
-                    boolean isExistHandling = jimdbCacheService.setNx(key, 1 + "", CacheKeyConstants.VIRTUAL_BOARD_CREATE_DESTINATION_TIMEOUT, TimeUnit.SECONDS);
-                } catch (Exception e) {
+                boolean getLock = jimdbCacheService.setNx(key, 1 + "", CacheKeyConstants.VIRTUAL_BOARD_BIND_TIMEOUT, TimeUnit.SECONDS);
+                if(!getLock){
                     result.setCode(JdCResponse.CODE_FAIL);
                     result.setMessage("操作太快，正在处理中");
                     return result;
@@ -313,10 +312,8 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
             String keyTemplate = CacheKeyConstants.VIRTUAL_BOARD_BIND;
             String key = String.format(keyTemplate, operatorInfo.getSiteCode(), operatorInfo.getUserErp());
             try {
-                try {
-                    // 同一操作人及目的地加锁，解决并发问题
-                    boolean isExistHandling = jimdbCacheService.setNx(key, 1 + "", CacheKeyConstants.VIRTUAL_BOARD_BIND_TIMEOUT, TimeUnit.SECONDS);
-                } catch (Exception e) {
+                boolean getLock = jimdbCacheService.setNx(key, 1 + "", CacheKeyConstants.VIRTUAL_BOARD_BIND_TIMEOUT, TimeUnit.SECONDS);
+                if(!getLock){
                     result.setCode(JdCResponse.CODE_FAIL);
                     result.setMessage("操作太快，正在处理中");
                     return result;
@@ -417,7 +414,7 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
                 result.setData(virtualBoardResultDto);
 
                 // 发送全称跟踪，整板则按板中所有包裹号进行处理
-                sendWaybillTrace(bindToVirtualBoardPo, virtualBoardResultDto.getBoardCode(), virtualBoardResultDto.getDestinationName(), WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION);
+                sendWaybillTrace(bindToVirtualBoardPo.getBarCode(), bindToVirtualBoardPo.getOperatorInfo(), virtualBoardResultDto.getBoardCode(), virtualBoardResultDto.getDestinationName(), WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION);
 
                 // 写自动关闭板号任务
                 if(virtualBoardResultDto.getNewBoardIsCreated() != null && virtualBoardResultDto.getNewBoardIsCreated()){
@@ -533,7 +530,8 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
      * @param receiveSiteCode
      * @return
      */
-    private SendM getRecentSendMByParam(String boxCode, Integer createSiteCode, Integer receiveSiteCode, Date operateTime) {
+    @Override
+    public SendM getRecentSendMByParam(String boxCode, Integer createSiteCode, Integer receiveSiteCode, Date operateTime) {
         //查询箱子发货记录
         /* 不直接使用domain的原因，SELECT语句有[test="createUserId!=null"]等其它 */
         SendM queryPara = new SendM();
@@ -588,13 +586,13 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
      * 发送全程跟踪
      * @param operateType
      */
-    private void sendWaybillTrace(BindToVirtualBoardPo bindToVirtualBoardPo, String boardCode, String destinationName, Integer operateType) {
+    @Override
+    public void sendWaybillTrace(String barcode, OperatorInfo operatorInfo, String boardCode, String destinationName, Integer operateType) {
         CallerInfo info = Profiler.registerInfo("DMSWEB.BoardCombinationServiceImpl.boardSendTrace", Constants.UMP_APP_NAME_DMSWEB,false, true);
         try {
             WaybillStatus waybillStatus = new WaybillStatus();
             //设置站点相关属性
-            waybillStatus.setPackageCode(bindToVirtualBoardPo.getBarCode());
-            final OperatorInfo operatorInfo = bindToVirtualBoardPo.getOperatorInfo();
+            waybillStatus.setPackageCode(barcode);
 
             waybillStatus.setCreateSiteCode(operatorInfo.getSiteCode());
             waybillStatus.setCreateSiteName(operatorInfo.getSiteName());
@@ -615,7 +613,7 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
 
         } catch (Exception e) {
             Profiler.functionError(info);
-            log.error("组板操作发送全称跟踪失败:{}", JsonHelper.toJson(bindToVirtualBoardPo), e);
+            log.error("组板操作发送全称跟踪失败barcode:{},operatorInfo:{}",barcode, JsonHelper.toJson(operatorInfo), e);
         }finally {
             Profiler.registerInfoEnd(info);
         }
@@ -994,6 +992,7 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
 
         return result;
     }
+
 
     private com.jd.transboard.api.dto.HandoverVirtualBoardPo getConvertToTcParam(HandoverVirtualBoardPo handoverVirtualBoardPo) {
         com.jd.transboard.api.dto.HandoverVirtualBoardPo handoverVirtualBoardPoTc = new com.jd.transboard.api.dto.HandoverVirtualBoardPo();

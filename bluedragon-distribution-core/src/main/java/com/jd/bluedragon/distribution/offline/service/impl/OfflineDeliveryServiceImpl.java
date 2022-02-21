@@ -7,6 +7,9 @@ import com.jd.bluedragon.distribution.api.Response;
 import com.jd.bluedragon.distribution.api.request.OfflineLogRequest;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
+import com.jd.bluedragon.distribution.busineCode.sendCode.service.SendCodeService;
+import com.jd.bluedragon.distribution.businessCode.BusinessCodeAttributeKey;
+import com.jd.bluedragon.distribution.businessCode.BusinessCodeFromSourceEnum;
 import com.jd.bluedragon.distribution.businessIntercept.service.IOfflineTaskCheckBusinessInterceptService;
 import com.jd.bluedragon.distribution.offline.domain.OfflineLog;
 import com.jd.bluedragon.distribution.offline.service.OfflineLogService;
@@ -21,6 +24,7 @@ import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.lang.StringUtils;
@@ -30,9 +34,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Service("offlineDeliveryService")
 public class OfflineDeliveryServiceImpl implements OfflineService {
@@ -64,6 +66,9 @@ public class OfflineDeliveryServiceImpl implements OfflineService {
 
 	@Autowired
 	private UccPropertyConfiguration uccPropertyConfiguration;
+
+    @Autowired
+    private SendCodeService sendCodeService;
 
 	@Override
 	public int parseToTask(OfflineLogRequest offlineLogRequest) {
@@ -130,18 +135,17 @@ public class OfflineDeliveryServiceImpl implements OfflineService {
 					offlineLogs.add(requestToOffline(offlineLogRequest, Constants.RESULT_FAIL,"OfflineDeliveryServiceImpl#parseToTask"));
 					continue;
 				}
-
-				if (StringUtils.isBlank(offlineLogRequest.getBatchCode())) {
-					// 设置批次号
-					offlineLogRequest.setBatchCode(offlineLogRequest.getSiteCode() + "-" + receiveSiteCode + "-" + DateHelper.formatDate(DateHelper.parseDate(offlineLogRequest.getOperateTime(), Constants.DATE_TIME_MS_FORMAT), Constants.DATE_TIME_MS_STRING));
-				}
 			}
 			offlineLogRequest.setBoxCode(boxCode);
 			offlineLogRequest.setReceiveSiteCode(receiveSiteCode);
 			if (turnoverBoxCodes != null && turnoverBoxCodes.length > 0) {
 				offlineLogRequest.setTurnoverBoxCode(turnoverBoxCodes[i]);
 			}
-			sendMList.add(toSendDatail(offlineLogRequest));
+
+            // 离线上传修改批次号
+            reWriteSendCode(offlineLogRequest, receiveSiteCode);
+
+            sendMList.add(toSendDatail(offlineLogRequest));
 			offlineLogs.add(requestToOffline(offlineLogRequest, Constants.RESULT_SUCCESS,"OfflineDeliveryServiceImpl#parseToTask"));
 			operationLogs.add(RequestConvertOperationLog(offlineLogRequest,"OfflineDeliveryServiceImpl#parseToTask"));
 			if (WaybillUtil.isPackageCode(boxCode) || WaybillUtil.isWaybillCode(boxCode)) {
@@ -162,6 +166,33 @@ public class OfflineDeliveryServiceImpl implements OfflineService {
 
 		return Constants.RESULT_FAIL;
 	}
+
+    /**
+     * 覆盖离线发货上传的批次号
+     * @param offlineLogRequest
+     * @param receiveSiteCode
+     */
+    private void reWriteSendCode(OfflineLogRequest offlineLogRequest, Integer receiveSiteCode) {
+        Map<BusinessCodeAttributeKey.SendCodeAttributeKeyEnum, String> attrMap = new HashMap<>();
+        attrMap.put(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.from_site_code, String.valueOf(offlineLogRequest.getSiteCode()));
+        attrMap.put(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.to_site_code, String.valueOf(receiveSiteCode));
+        String sendCode = sendCodeService.createSendCode(attrMap, BusinessCodeFromSourceEnum.DMS_WINCE_PDA, StringUtils.EMPTY);
+        if (StringUtils.isBlank(sendCode)) {
+            log.warn("离线上传修改批次号失败. offlineLogRequest:{}", JsonHelper.toJson(offlineLogRequest));
+
+            if (StringUtils.isBlank(offlineLogRequest.getBatchCode())) {
+                // 设置批次号
+                offlineLogRequest.setBatchCode(offlineLogRequest.getSiteCode() + "-" + receiveSiteCode + "-" + DateHelper.formatDate(DateHelper.parseDate(offlineLogRequest.getOperateTime(), Constants.DATE_TIME_MS_FORMAT), Constants.DATE_TIME_MS_STRING));
+            }
+        }
+        else {
+            if (log.isInfoEnabled()) {
+                log.info("离线发货修改批次号. newSendCode:{}, req:{}", sendCode, JsonHelper.toJson(offlineLogRequest));
+            }
+
+            offlineLogRequest.setBatchCode(sendCode);
+        }
+    }
 
     /**
      * 增加离线处理mq

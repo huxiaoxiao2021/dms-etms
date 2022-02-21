@@ -157,6 +157,10 @@
                   alias="${ldop.basic.jsf.alias}" timeout="${ldop.basic.jsf.timeout}" lazy="${jsf.consumer.lazy}">
     </jsf:consumer>
 
+    <jsf:consumer id="refundApi" interface="com.jd.ldop.center.api.refund.RefundApi" protocol="jsf"
+                  alias="${ldop.refundApi.jsf.alias}" timeout="${ldop.refundApi.jsf.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
+
     <!-- basicSecondaryWS接口代理类，内有 获取全量省市县地址、商家 方法 -->
     <bean id="basicSecondaryWSProxy" class="com.jd.ql.basic.proxy.impl.BasicSecondaryWSProxyImpl">
         <property name="basicSecondaryWS" ref="basicSecondaryWS"></property>
@@ -364,6 +368,15 @@
     <jsf:consumer id="baseCrossPackageTagWS" interface="com.jd.ql.basic.ws.BaseCrossPackageTagWS" protocol="jsf"
                   alias="${basic.jsf.baseCrossPackageTagWS.alias}" timeout="${basic.jsf.baseCrossPackageTagWS.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
         <jsf:parameter key="token" value="${basic.jsf.baseCrossPackageTagWS.token}" hide="true"/>
+    </jsf:consumer>
+    <!-- 基础资料滑道服务 -->
+    <jsf:consumer id="basicSortCrossDetailWS"
+                  interface="com.jd.ql.basic.ws.BasicSortCrossDetailWS"
+                  alias="${basic.jsf.basicSortCrossDetailWS.alias}"
+                  timeout="${basic.jsf.basicSortCrossDetailWS.timeout}"
+                  protocol="jsf"
+                  serialization="hessian" lazy="${jsf.consumer.lazy}">
+        <jsf:parameter key="token" hide="true" value="${basic.jsf.basicSortCrossDetailWS.token}"/>
     </jsf:consumer>
     <!-- 加履系统 查询接口 李杰 -->
     <jsf:consumer id="HandoverBillProvider" interface="com.jd.b2b.wt.assemble.sdk.service.HandoverBillProvider"
@@ -786,6 +799,21 @@
     <!-- 驻厂揽收服务 -->
     <jsf:consumer id="merchCollectWaybillApi" interface="com.jdl.express.collect.api.merchcollectwaybill.MerchCollectWaybillApi"
                   protocol="jsf" alias="${jsf.merchCollect.alias}" timeout="${jsf.merchCollect.timeout}" retries="${jsf.retries}" >
+    </jsf:consumer>
+
+    <!--自动化组板服务-->
+    <jsf:consumer id="boardChuteJsfService"
+                  interface="com.jd.bluedragon.distribution.sdk.modules.board.BoardChuteJsfService"
+                  protocol="jsf"
+                  alias="${automatic.platform.jsf.alias}"
+                  timeout="${jsf.timeout.autoBoardChute}"
+                  retries="${jsf.retries}"
+                  serialization="hessian"/>
+
+    <!--自动补码功能 -->
+    <jsf:consumer id="autoDistJsfService" interface="com.jd.bd.dms.automatic.sdk.modules.autodist.AutoDistJsfService"
+                  protocol="jsf" alias="${jsf.automatic.alias}" timeout="${jsf.automatic.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
+        <jsf:parameter key="token" value="${jsf.automatic.token}" hide="true"/>
     </jsf:consumer>
     <!-- eclp冷链逆向换单 -->
     <jsf:consumer id="coldChainReverseService" interface="com.jd.coldchain.fulfillment.ot.api.service.waybill.ColdChainReverseService"

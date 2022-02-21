@@ -14,6 +14,7 @@ import com.jd.bluedragon.distribution.reverse.domain.LocalClaimInfoRespDTO;
 import com.jd.bluedragon.distribution.reverse.service.ReverseSpareEclp;
 import com.jd.bluedragon.distribution.systemLog.domain.Goddess;
 import com.jd.bluedragon.distribution.systemLog.service.GoddessService;
+import com.jd.bluedragon.distribution.waybill.service.WaybillCancelService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -30,6 +31,8 @@ import com.jd.ldop.center.api.print.WaybillPrintApi;
 import com.jd.ldop.center.api.print.dto.PrintResultDTO;
 import com.jd.ldop.center.api.print.dto.WaybillPrintDataDTO;
 import com.jd.ldop.center.api.print.dto.WaybillPrintRequestDTO;
+import com.jd.ldop.center.api.refund.RefundApi;
+import com.jd.ldop.center.api.refund.dto.RefundApplyDTO;
 import com.jd.ldop.center.api.reverse.WaybillReturnSignatureApi;
 import com.jd.ldop.center.api.reverse.WaybillReverseApi;
 import com.jd.ldop.center.api.reverse.dto.*;
@@ -73,8 +76,13 @@ public class LDOPManagerImpl implements LDOPManager {
     public static final int RETURN_TYPE_3 = 3;
     public static final int RETURN_TYPE_4 = 4;
     public static final int RETURN_TYPE_5 = 5;
+    /**
+     * 计费-2-不计费
+     */
+    public static final int CHARGE_TYPE_2 = 2;
     
     private static final String UMP_KEY_PREFIX = "dmsWeb.jsf.client.ldop.";
+    private static final String UMP_KEY_REFUNDAPI_PREFIX = "dmsWeb.jsf.client.ldop.";
 
     @Autowired
     private LogEngine logEngine;
@@ -117,6 +125,13 @@ public class LDOPManagerImpl implements LDOPManager {
      */
 	@Value("${beans.LDOPManagerImpl.twiceExchangeMaxTimes}")
     private int twiceExchangeMaxTimes;
+	
+    @Autowired
+    private RefundApi refundApi;
+    
+    @Autowired
+    private WaybillCancelService waybillCancelService;
+    
     private final Logger log = LoggerFactory.getLogger(LDOPManagerImpl.class);
     /**
      * 触发外单逆向换单接口
@@ -266,14 +281,14 @@ public class LDOPManagerImpl implements LDOPManager {
                 return responseDTO.getData();
             }else {
                 //失败
-                errorMessage.append("换单前获取外单信息接口失败 "+responseDTO.getStatusMessage()+"请联系IT 咚咚 ：xnpsxt");
+                errorMessage.append("换单前获取外单信息接口失败 "+responseDTO.getStatusMessage());
                 log.info("换单前获取外单信息失败,入参：{}  失败原因：{}",JsonHelper.toJson(waybillReverseDTO),responseDTO.getStatusMessage());
             }
             return null;
         }catch (Exception e){
             log.error("换单前获取外单信息失败,入参：{}  失败原因：{}",JsonHelper.toJson(waybillReverseDTO),e.getMessage(),e);
             Profiler.functionError(info);
-            return null;
+            throw e;
         }finally{
             Profiler.registerInfoEnd(info);
 
@@ -358,6 +373,11 @@ public class LDOPManagerImpl implements LDOPManager {
             waybillAddress.setContact(exchangeWaybillDto.getContact());
             waybillAddress.setPhone(exchangeWaybillDto.getPhone());
             waybillReverseDTO.setWaybillAddress(waybillAddress);
+        }
+        //判断是否拦截14，设置计费字段：2-不计费
+        boolean isFullOrderFail = waybillCancelService.isFullOrderFail(exchangeWaybillDto.getWaybillCode());
+        if(isFullOrderFail) {
+            waybillReverseDTO.setChargeType(CHARGE_TYPE_2);
         }
         return waybillReverseDTO;
     }
@@ -564,6 +584,33 @@ public class LDOPManagerImpl implements LDOPManager {
     		return addressData;
     	}
     	return null;
+	}
+
+	@Override
+	public JdResult<String> refundApply(RefundApplyDTO refundApplyDTO) {
+		CallerInfo callerInfo = ProfilerHelper.registerInfo(UMP_KEY_REFUNDAPI_PREFIX + "refundApi.refundApply");
+    	JdResult<String> result = new JdResult<String>();
+    	try {
+    		ResponseDTO<String> rest = refundApi.refundApply(refundApplyDTO);
+	        if(null != rest 
+	        		&& ResponseDTO.SUCCESS_CODE.equals(rest.getStatusCode())){
+	            result.setData(rest.getData());
+	            result.toSuccess();
+	        }else if(null != rest){
+				log.warn("调用台账退款申请接口失败！请求参数：{},返回值：{}",JsonHelper.toJson(refundApplyDTO),JsonHelper.toJson(rest));
+				result.toFail(rest.getStatusMessage());
+	        }else {
+				log.warn("调用台账退款申请接口失败！请求参数：{},返回值：{}",JsonHelper.toJson(refundApplyDTO),JsonHelper.toJson(rest));
+				result.toFail("调用台账退款申请接口失败！");
+	        }
+		} catch (Exception e) {
+			log.error("调用台账退款申请接口异常！请求参数：{}",e,JsonHelper.toJson(refundApplyDTO));
+			result.toError("调用台账退款申请接口异常！");
+			Profiler.functionError(callerInfo);
+		}finally{
+			Profiler.registerInfoEnd(callerInfo);
+		}
+        return result;
 	}
 
 }

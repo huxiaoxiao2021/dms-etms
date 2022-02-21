@@ -1,6 +1,9 @@
 package com.jd.bluedragon.distribution.wastePackage.service.impl;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.dto.base.request.OperateUser;
+import com.jd.bluedragon.common.dto.wastepackagestorage.dto.DiscardedWaybillScanResultItemDto;
+import com.jd.bluedragon.common.dto.wastepackagestorage.request.ScanDiscardedPackagePo;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.base.WaybillTraceManager;
@@ -9,20 +12,21 @@ import com.jd.bluedragon.distribution.api.request.WastePackageRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.discardedPackageStorageTemp.dao.DiscardedPackageStorageTempDao;
 import com.jd.bluedragon.distribution.discardedPackageStorageTemp.dto.DiscardedPackageStorageTempQo;
-import com.jd.bluedragon.distribution.discardedPackageStorageTemp.enums.WasteOperateType;
+import com.jd.bluedragon.distribution.discardedPackageStorageTemp.enums.DiscardedPackageSiteDepartTypeEnum;
 import com.jd.bluedragon.distribution.discardedPackageStorageTemp.model.DiscardedPackageStorageTemp;
+import com.jd.bluedragon.distribution.discardedPackageStorageTemp.service.DiscardedPackageStorageTempService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
+import com.jd.bluedragon.distribution.record.entity.DmsHasnoPresiteWaybillMq;
+import com.jd.bluedragon.distribution.record.enums.DmsHasnoPresiteWaybillMqOperateEnum;
+import com.jd.bluedragon.distribution.record.service.WaybillHasnoPresiteRecordService;
 import com.jd.bluedragon.distribution.wastePackage.service.WastePackageService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.Md5Helper;
-import com.jd.bluedragon.utils.StringHelper;
+import com.jd.bluedragon.utils.*;
+import com.jd.dms.workbench.utils.sdk.base.Result;
 import com.jd.etms.cache.util.EnumBusiCode;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
@@ -42,12 +46,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.RESULT_PARAMETER_ERROR_CODE;
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.RESULT_SUCCESS_CODE;
@@ -72,13 +71,19 @@ public class WastePackageServiceImpl implements WastePackageService {
 
     @Autowired
     private DiscardedPackageStorageTempDao discardedPackageStorageTempDao;
-    
+    @Autowired
+    private WaybillHasnoPresiteRecordService waybillHasnoPresiteRecordService;
+
     @Qualifier("bdBlockerCompleteMQ")
     @Autowired
     private DefaultJMQProducer bdBlockerCompleteMQ;
-    
+
     @Autowired
     private TaskService taskService;
+
+    @Autowired
+    private DiscardedPackageStorageTempService discardedPackageStorageTempService;
+
     /**
      * 弃件暂存上报
      * @param request
@@ -86,20 +91,44 @@ public class WastePackageServiceImpl implements WastePackageService {
     @Override
     @JProfiler(jKey = "DMS.WEB.com.WastePackageServiceImpl.wastepackagestorage", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<Boolean> wastepackagestorage(WastePackageRequest request) {
-    	boolean isScrap = WasteOperateType.SCRAP.getCode().equals(request.getOperateType());
-    	if(isScrap) {
-    		return wasteWithScrap(request);
-    	}else {
-    		return wasteWithStorage(request);
-    	}
+        final InvokeResult<Boolean> result = new InvokeResult<>();
+        final Result<List<DiscardedWaybillScanResultItemDto>> handleResult = discardedPackageStorageTempService.scanDiscardedPackage(this.convert2ScanDiscardedPackagePo(request));
+        if(handleResult.isSuccess()){
+            result.setData(true);
+            result.setMessage(handleResult.getMessage());
+            return result;
+        } else {
+            result.error(handleResult.getMessage());
+            return result;
+        }
+    }
+
+    private ScanDiscardedPackagePo convert2ScanDiscardedPackagePo(WastePackageRequest wastePackageRequest){
+        final ScanDiscardedPackagePo scanDiscardedPackagePo = new ScanDiscardedPackagePo();
+        scanDiscardedPackagePo.setBarCode(wastePackageRequest.getWaybillCode());
+        if(StringUtils.isNotBlank(wastePackageRequest.getPackageCode())){
+            scanDiscardedPackagePo.setBarCode(wastePackageRequest.getPackageCode());
+        }
+        scanDiscardedPackagePo.setWaybillType(wastePackageRequest.getWaybillType());
+        scanDiscardedPackagePo.setStatus(wastePackageRequest.getStatus());
+        scanDiscardedPackagePo.setOperateType(wastePackageRequest.getOperateType());
+        scanDiscardedPackagePo.setSiteDepartType(DiscardedPackageSiteDepartTypeEnum.SORTING.getCode());
+        OperateUser operateUser = new OperateUser();
+        operateUser.setUserId(wastePackageRequest.getUserCode().longValue());
+        operateUser.setUserCode(wastePackageRequest.getOperatorERP());
+        operateUser.setUserName(wastePackageRequest.getUserName());
+        operateUser.setSiteCode(wastePackageRequest.getSiteCode());
+        operateUser.setSiteName(wastePackageRequest.getSiteName());
+        scanDiscardedPackagePo.setOperateUser(operateUser);
+        return scanDiscardedPackagePo;
     }
 	/**
-     * 弃件暂存处理	
+     * 弃件暂存处理
      * @param request
      * @return
      */
-    public InvokeResult<Boolean> wasteWithStorage(WastePackageRequest request) {    	
-        InvokeResult<Boolean> result = checkParam(request);
+    public InvokeResult<Boolean> wasteWithStorage(WastePackageRequest request) {
+    	InvokeResult<Boolean> result = checkParam(request);
         if(RESULT_SUCCESS_CODE != result.getCode()){
             return result;
         }
@@ -163,6 +192,7 @@ public class WastePackageServiceImpl implements WastePackageService {
             BdTraceDto packagePrintBdTraceDto = getPackagePrintBdTraceDto(request);
             //发送全程跟踪消息
             waybillQueryManager.sendBdTrace(packagePrintBdTraceDto);
+            waybillHasnoPresiteRecordService.sendDataChangeMq(toDmsHasnoPresiteWaybillMq(request));
         }catch (Exception e){
             log.error("弃件暂存异常,请求参数：{}", JsonHelper.toJson(request),e);
             result.error("弃件暂存异常,请联系分拣小秘！");
@@ -171,13 +201,13 @@ public class WastePackageServiceImpl implements WastePackageService {
         return result;
     }
 	/**
-     * 弃件废弃处理	
+     * 弃件废弃处理
      * @param request
      * @return
      */
     private InvokeResult<Boolean> wasteWithScrap(WastePackageRequest request) {
         InvokeResult<Boolean> result = new InvokeResult<>();
-        
+
         if(!WaybillUtil.isPackageCode(request.getPackageCode())){
         	result.error("请输入有效的包裹号！");
             log.warn("弃件暂存请求参数错误，包裹号无效！");
@@ -248,6 +278,20 @@ public class WastePackageServiceImpl implements WastePackageService {
         return result;
 	}
     /**
+     * 发送mq
+     * @param request
+     */
+    private DmsHasnoPresiteWaybillMq toDmsHasnoPresiteWaybillMq(WastePackageRequest request) {
+    	DmsHasnoPresiteWaybillMq dmsHasnoPresiteWaybillMq = new DmsHasnoPresiteWaybillMq();
+    	dmsHasnoPresiteWaybillMq.setWaybillCode(request.getWaybillCode());
+    	dmsHasnoPresiteWaybillMq.setOperateCode(DmsHasnoPresiteWaybillMqOperateEnum.WASTE.getCode());
+    	dmsHasnoPresiteWaybillMq.setOperateUserErp(request.getOperatorERP());
+    	dmsHasnoPresiteWaybillMq.setOperateUserName(request.getUserName());
+    	dmsHasnoPresiteWaybillMq.setOperateSiteCode(request.getSiteCode());
+    	dmsHasnoPresiteWaybillMq.setOperateTime(new Date());
+    	return dmsHasnoPresiteWaybillMq;
+    }
+    /**
      * 组装DB数据
      * @param bigWaybillDto
      * @param siteDto
@@ -285,32 +329,32 @@ public class WastePackageServiceImpl implements WastePackageService {
         db.setPackageCode(packageCode);
         db.setOperateType(request.getOperateType());
         db.setWaybillType(request.getWaybillType());
-            db.setStatus(request.getStatus());
-            db.setWaybillProduct(waybillQueryManager.getTransportMode(WaybillInfo));
-            String consignmentName = waybillQueryManager.getConsignmentNameByWaybillDto(bigWaybillDto);
-            //consignmentName 超过30位截取
-            consignmentName = StringHelper.substring(consignmentName,0,30);
-            db.setConsignmentName(consignmentName);
-            db.setWeight(BigDecimal.valueOf(WaybillInfo.getGoodWeight()));
-            if(WaybillInfo.getPayment()!=null && (WaybillInfo.getPayment()==1 || WaybillInfo.getPayment()==3)){
-                db.setCod(1);
-            }else {
-                db.setCod(0);
-            }
-            String codMoney = WaybillInfo.getCodMoney();
-            if (codMoney != null) {
-                db.setCodAmount(codMoney);
-            }
-            db.setBusinessCode(String.valueOf(WaybillInfo.getBusiId()));
-            db.setBusinessName(WaybillInfo.getBusiName());
-            db.setOperatorCode(request.getUserCode().longValue());
-            db.setOperatorName(request.getUserName());
-            db.setOperatorErp(request.getOperatorERP());
-            db.setSiteCode(request.getSiteCode());
-            db.setSiteName(request.getSiteName());
-            db.setSiteCity(siteDto.getCityName());
-            db.setOrgCode(siteDto.getOrgId());
-            db.setOrgName(siteDto.getOrgName());
+        db.setStatus(request.getStatus());
+        db.setWaybillProduct(waybillQueryManager.getTransportMode(WaybillInfo));
+        String consignmentName = waybillQueryManager.getConsignmentNameByWaybillDto(bigWaybillDto);
+        //consignmentName 超过30位截取
+        consignmentName = StringHelper.substring(consignmentName,0,30);
+        db.setConsignmentName(consignmentName);
+        db.setWeight(BigDecimal.valueOf(WaybillInfo.getGoodWeight()));
+        if(WaybillInfo.getPayment()!=null && (WaybillInfo.getPayment()==1 || WaybillInfo.getPayment()==3)){
+            db.setCod(1);
+        }else {
+            db.setCod(0);
+        }
+        String codMoney = WaybillInfo.getCodMoney();
+        if (codMoney != null) {
+            db.setCodAmount(codMoney);
+        }
+        db.setBusinessCode(String.valueOf(WaybillInfo.getBusiId()));
+        db.setBusinessName(WaybillInfo.getBusiName());
+        db.setOperatorCode(request.getUserCode().longValue());
+        db.setOperatorName(request.getUserName());
+        db.setOperatorErp(request.getOperatorERP());
+        db.setSiteCode(request.getSiteCode());
+        db.setSiteName(request.getSiteName());
+        db.setSiteCity(siteDto.getCityName());
+        db.setOrgCode(siteDto.getOrgId());
+        db.setOrgName(siteDto.getOrgName());
         Integer prevSiteCode=getPreSiteCode(packageCode,request.getSiteCode());
             db.setPrevSiteCode(prevSiteCode);
             if(prevSiteCode!=null){
@@ -375,7 +419,7 @@ public class WastePackageServiceImpl implements WastePackageService {
         waybillStatus.setOperateType(WaybillStatus.WAYBILL_TRACK_WASTE_SCRAP);
 
         waybillStatus.setRemark(WaybillStatus.WAYBILL_TRACK_WASTE_SCRAP_MSG);
-        
+
         Task task = new Task();
         task.setTableName(Task.TABLE_NAME_WAYBILL);
         task.setSequenceName(Task.getSequenceName(task.getTableName()));

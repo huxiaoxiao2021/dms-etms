@@ -136,7 +136,10 @@ public class CacheKeyConstants {
      * 缓存key-发货关系
      */
     public static final String CACHE_KEY_FORMAT_SAVE_SEND_RELATION ="dmsWeb:saveSendRelationKey:%s:%s";
-
+    /**
+     * 缓存key-无滑道数据标识
+     */
+    public static final String CACHE_KEY_FORMAT_WAYBILL_HASNO_PRESITE_RECORD_FLG ="dmsWeb:waybillHasnoPresiteRecordFlg:%s";
     /**
      * 文件箱号绑定锁
      */
@@ -205,4 +208,8 @@ public class CacheKeyConstants {
 
     public static final String VIRTUAL_BOARD_BIND = "dmsWeb:virtualBoard:bind:%s_%s";
     public static final int VIRTUAL_BOARD_BIND_TIMEOUT = 60;
+
+    public static final String DISCARDED_STORAGE_OPERATE_SCAN = "dmsWeb:discardedStorage:scan:%s";
+    public static final int DISCARDED_STORAGE_OPERATE_SCAN_TIMEOUT = 60;
+
 }

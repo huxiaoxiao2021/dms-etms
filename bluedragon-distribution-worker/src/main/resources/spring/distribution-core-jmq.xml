@@ -531,6 +531,14 @@
         <property name="topic" value="${jmq.topic.batch.send.status.change}"/>
     </bean>
 
+    <!--  无预分拣站点消息-生产者 -->
+    <bean id="dmsHasnoPresiteWaybillMqProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.dmsHasnoPresiteWaybillMq}"/>
+    </bean>    
+    <!--  拦截消息-生产者 -->
+    <bean id="bdBlockerInitMqProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.bdBlockerInitMq}"/>
+    </bean>
     <!-- dws抽检 -->
     <bean id="dwsSpotCheckProducer" parent="dmsWorkerDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.dwsSpotCheck}"/>
@@ -544,5 +552,10 @@
     <!-- 全量包裹打印数据MQ -->
     <bean id="packagePrintRecordProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.packagePrintRecord}"/>
+    </bean>
+
+    <!-- 弃件暂存 -->
+    <bean id="discardedPackageStorageProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.discardedPackageStorage}"/>
     </bean>
 </beans>

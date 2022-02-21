@@ -3,20 +3,26 @@ package com.jd.bluedragon.distribution.rest.QualityControl;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
+import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.QualityControlRequest;
 import com.jd.bluedragon.distribution.api.request.RedeliveryCheckRequest;
 import com.jd.bluedragon.distribution.api.response.QualityControlResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.base.domain.JdCancelWaybillResponse;
 import com.jd.bluedragon.distribution.qualityControl.domain.RedeliveryMode;
 import com.jd.bluedragon.distribution.qualityControl.service.QualityControlService;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
+import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.Md5Helper;
 import com.jd.etms.waybill.domain.BaseEntity;
+import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.util.WaybillCodeRuleValidateUtil;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -26,8 +32,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Controller;
 
+import javax.annotation.Resource;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -37,6 +45,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by dudong on 2014/12/1.
@@ -62,7 +71,13 @@ public class QualityControlResource {
 
     @Autowired
     private SortingService sortingService;
-
+    
+    @Autowired
+    private WaybillService waybillService;
+    
+    @Resource(name = "checkPrintInterceptReasonIdSetForOld")
+    private Set<Integer> checkPrintInterceptReasonIdSetForOld;
+    
     @POST
     @Path("/qualitycontrol/exceptioninfo")
     @JProfiler(jKey = "DMS.WEB.QualityControlResource.exceptionInfo", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -201,15 +216,32 @@ public class QualityControlResource {
 
             if(waybillCodeList != null && waybillCodeList.size() > 0){
                 for (String waybillCode :waybillCodeList){
-                    Integer busID = waybillQueryManager.getBusiId(waybillCode);
-                    if (null != busID){
-                        int res=qualityControlService.getRedeliveryState(waybillCode,busID);
-                        if (res==0){
+                	Waybill waybillData = waybillQueryManager.getWaybillByWayCode(waybillCode);
+                    //补打拦截
+                    if (waybillData != null
+                    		&& checkPrintInterceptReasonIdSetForOld != null
+                            && request.getSupExceptionId() != null
+                    		&& checkPrintInterceptReasonIdSetForOld.contains(request.getSupExceptionId())
+                    		&& waybillService.hasPrintIntercept(waybillCode, waybillData.getWaybillSign())) {
+                        //取消拦截  存在时跳过 不进行补打拦截提示
+                        JdCancelWaybillResponse jdCancelResponse = waybillService.dealCancelWaybill(waybillCode);
+                        if (jdCancelResponse == null || jdCancelResponse.getCode() == null || jdCancelResponse.getCode().equals(JdResponse.CODE_OK)) {
                             data.setIsCompleted(false);
                             data.setWaybillCode(waybillCode);
                             result.setData(data);
+                            result.setMessage("此单号["+ waybillCode +"]"+HintService.getHint(HintCodeConstants.EX_REPORT_CHECK_CHANGE_ADDRESS));
                             break;
                         }
+                    }
+                    //协商再投拦截
+                    if (waybillData != null
+                    		&& waybillData.getBusiId() != null 
+                    		&& qualityControlService.getRedeliveryState(waybillCode, waybillData.getBusiId()) == 0) {
+                        data.setIsCompleted(false);
+                        data.setWaybillCode(waybillCode);
+                        result.setData(data);
+                        result.setMessage("此单号["+ waybillCode +"]为【发起协商再投未处理】状态，需商家审核完成才能提交异常！");
+                        break;
                     }
                     else {
                         log.warn("PDA调用协商再投状态验证接口失败-无商家信息。运单号:{},入参:{}",waybillCode,JsonHelper.toJson(request));

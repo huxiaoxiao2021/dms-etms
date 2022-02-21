@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.external.service;
 import com.jd.bluedragon.distribution.api.request.BoardCommonRequest;
 import com.jd.bluedragon.distribution.api.request.TransportServiceRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.dock.entity.DockInfoEntity;
 
 import java.util.List;
 import java.util.Map;
@@ -38,6 +39,13 @@ public interface TransportCommonService {
      * @return
      */
     InvokeResult<Integer> getRouterNextSiteId(TransportServiceRequest transportServiceRequest);
+
+    /**
+     * 根据运单号获取waybill表路由字段
+     * @param transportServiceRequest
+     * @return
+     */
+    InvokeResult<String> getRouterByWaybillCode(TransportServiceRequest transportServiceRequest);
 
     /**
      * 加盟商余额校验
@@ -79,5 +87,20 @@ public interface TransportCommonService {
      * @return
      */
     InvokeResult<Map<String, Integer>> queryPackageAndWaybillNumByBatchCodes(Integer createSiteCode, List<String> batchCodes);
+
+    /**
+     * 根据场地信息查询所有的月台列表
+     * @param siteCode
+     * @return
+     */
+    InvokeResult<List<DockInfoEntity>> listAllDockInfoBySiteCode(Integer siteCode);
+
+    /**
+     * 根据站点和月台号获取月台信息
+     * @param siteCode
+     * @param dockCode
+     * @return
+     */
+    InvokeResult<DockInfoEntity> findDockInfoByDockCode(Integer siteCode, String dockCode);
 
 }

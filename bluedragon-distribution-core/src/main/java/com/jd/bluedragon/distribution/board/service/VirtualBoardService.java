@@ -5,9 +5,11 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.board.request.*;
 import com.jd.bluedragon.common.dto.board.response.VirtualBoardResultDto;
 import com.jd.bluedragon.common.dto.board.response.UnbindVirtualBoardResultDto;
+import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.dms.workbench.utils.sdk.base.Result;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -45,6 +47,10 @@ public interface VirtualBoardService {
      * @time 2021-08-14 18:25:31 周六
      */
     JdCResponse<VirtualBoardResultDto> bindToBoard(BindToVirtualBoardPo bindToVirtualBoardPo);
+
+    SendM getRecentSendMByParam(String boxCode, Integer createSiteCode, Integer receiveSiteCode, Date operateTime);
+
+    void sendWaybillTrace(String barcode, OperatorInfo operatorInfo, String boardCode, String destinationName, Integer operateType);
 
     /**
      * 删除流向

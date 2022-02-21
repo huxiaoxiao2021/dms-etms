@@ -81,6 +81,9 @@ public class BaseDataGatewayServiceImpl implements BaseDataGatewayService {
             log.error("[网关接口]查询基础字典信息时发生异常，request:" + JsonHelper.toJson(typeGroups), e);
             response.toError("[网关接口]查询基础字典信息时发生异常");
         }
+        if(log.isDebugEnabled()) {
+        	log.debug("异常上报-获取异常原因getBaseDictByTypeGroups:请求typeGroups="+JsonHelper.toJson(typeGroups)+"，返回结果："+JsonHelper.toJson(response));
+        }
         return response;
     }
 

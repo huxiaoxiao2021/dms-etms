@@ -19,11 +19,14 @@
                 <value>classpath:configured/jsf.properties</value>
                 <value>classpath:configured/mq.properties</value>
                 <value>classpath:configured/snowflake.properties</value>
+                <value>classpath:configured/dms_crossbow.properties</value>
                 <value>classpath:configured/ucc.properties</value>
                 <value>classpath:configured/print.properties</value>
                 <value>classpath:configured/kafka.properties</value>
                 <value>classpath:configured/important.properties</value>
                 <value>classpath:configured/sms.properties</value>
+                <value>classpath:aces.properties</value>
+                <value>classpath*:conf/comp.properties</value>
             </list>
         </property>
     </bean>
@@ -56,11 +59,12 @@
 	<import resource="classpath:spring/distribution-core-jmq.xml"/>
 	<import resource="classpath:spring/distribution-test-core-jmq.xml"/>
 	<import resource="classpath:spring/distribution-core-jss.xml"/>
+	<import resource="classpath:spring/distribution-core-aces-test.xml" />
 	<import resource="classpath:spring/spring-ucc.xml" />
 	<import resource="classpath:spring/distribution-core-sms.xml" />
 	<import resource="classpath:spring/distribution-core-handler.xml" />
 	<import resource="classpath:spring/distribution-core-sequence-gen.xml" />
-	<import resource="classpath*:cdf/crossbow.comp" />
+<!--	<import resource="classpath*:cdf/crossbow.comp" />-->
 	<import resource="distribution-beans.xml" />
 	<import resource="classpath:spring/distribution-core-datasource-waybill.xml" />
 

@@ -17,6 +17,8 @@ public interface WaybillService {
     BigWaybillDto getWaybill(String waybillCode);
 
     BigWaybillDto getWaybill(String waybillCode, boolean isPackList);
+    
+    BigWaybillDto getWaybill(String waybillCode, boolean isPackList, boolean isExtend);
 
     BigWaybillDto getWaybillProduct(String waybillCode);
 
@@ -136,6 +138,8 @@ public interface WaybillService {
 
     Integer getRouterFromMasterDb(String waybillCode, Integer createSiteCode);
 
+    String getRouterByWaybillCode(String waybillCode);
+
     /**
      * 现场预分拣拦截校验
      * @param waybillForPreSortOnSiteRequest
@@ -175,7 +179,13 @@ public interface WaybillService {
      * @return
      */
     boolean isStartOrEndSite(Integer operateSiteCode,String waybillCode,int locationFlag);
-
+    /**
+     * 判断单号是否存在补打拦截
+     * @param waybillCode
+     * @param waybillSign
+     * @return
+     */
+    boolean hasPrintIntercept(String waybillCode,String waybillSign);
 
     /**
      * 仅获取存在理赔破损拦截，包含取消破损拦截场景

@@ -80,4 +80,6 @@ public class WaybillPrintMessages{
 
 	public static final String MESSAGE_WAYBILL_FIRST_PRINT_INTERCEPT = "该单尚未完成首次打印，请使用站点平台打印功能，或者使用站长工作台-任务中心-分拣打印-包裹打印功能，进行打印，谢谢！";
 
+    public static final String MESSAGE_PACKAGE_PRINTED = "订单标签已打印，如需打印请操作包裹补打或去站长工作台操作包裹打印";
+
 }
