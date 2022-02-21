@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.waybill.request.WaybillTrackReq;
+import com.jd.bluedragon.common.dto.waybill.request.WaybillTrackResponse;
 import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -17,8 +18,10 @@ import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.PackageState;
 import com.jd.jim.cli.Cluster;
+import com.jd.ql.erp.util.BeanUtils;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +31,8 @@ import javax.annotation.Resource;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+
+import static org.elasticsearch.common.util.CollectionUtils.CollectionUtils;
 
 /**
  * 运单相关
@@ -44,6 +49,9 @@ public class WaybillGateWayServiceImpl implements WaybillGateWayService {
     @Autowired
     private WaybillPackageApi waybillPackageApi;
 
+    private static final String WAYBILL_TRACK = "waybill_track_";
+    private static final String WAYBILL_TRACK_LOCK = "waybill_track_lock";
+    private static final Long WAYBILL_TRACK_HISTORY_NUM = 10L;
     private final static long REDIS_CACHE_EXPIRE_TIME = 5 * 60;
 
     @Autowired
@@ -71,7 +79,9 @@ public class WaybillGateWayServiceImpl implements WaybillGateWayService {
      */
     @Override
     public JdCResponse<List<String>> queryPackageCodes(String waybillCode) {
+        log.info("运单【"+waybillCode+"】查询包裹号列表开始");
         BaseEntity<List<String>> entity = waybillPackageApi.getWaybillPackageCodes(waybillCode);
+        log.info("运单【"+waybillCode+"】查询包裹号列表，结果："+JsonHelper.toJson(entity));
         if(entity == null){
             return null;
         }
@@ -92,24 +102,36 @@ public class WaybillGateWayServiceImpl implements WaybillGateWayService {
      */
     @Override
     public JdCResponse<List<String>> queryWaybillTrackHistory(String erp) {
-        String key = "waybill_track_"+ erp;
-        Set<String> historySet = redisClient.zRevRangeByScore(key, 0, 10);
+        log.info("操作人【"+erp+"】全程跟踪历史记录查询开始");
+        String key = WAYBILL_TRACK + erp;
+        Set<String> historySet = redisClient.zRevRange(key, 0, WAYBILL_TRACK_HISTORY_NUM);
+        log.info("操作人【"+erp+"】全程跟踪历史记录:"+JsonHelper.toJson(historySet));
         JdCResponse<List<String>> jdCResponse = new JdCResponse<>();
         jdCResponse.setData(Lists.newArrayList(historySet));
+        jdCResponse.toSucceed();
         return jdCResponse;
     }
 
     @Override
-    public JdCResponse<List<PackageState>> queryWaybillTrack(WaybillTrackReq waybillTrackReq) {
+    public JdCResponse<List<WaybillTrackResponse>> queryWaybillTrack(WaybillTrackReq waybillTrackReq) {
         BaseEntity<List<PackageState>> entity = waybillTraceManager.getAllOperations(waybillTrackReq.getBarCode());
         if(entity == null){
             return null;
         }
-        JdCResponse<List<PackageState>> jdCResponse = new JdCResponse<>();
+        JdCResponse<List<WaybillTrackResponse>> jdCResponse = new JdCResponse<>();
         if(entity.getResultCode() == EnumBusiCode.BUSI_SUCCESS.getCode()){
             //查询成功则 记录历史
             recodHistory(waybillTrackReq);
-            jdCResponse.setData(entity.getData());
+            List<WaybillTrackResponse> waybillTrackResponses = Lists.newArrayList();
+            if (org.apache.commons.collections4.CollectionUtils.isNotEmpty(entity.getData())){
+                for (PackageState packageState:entity.getData()){
+                    WaybillTrackResponse res = new WaybillTrackResponse();
+                    BeanUtils.copyProperties(packageState,res);
+
+                    waybillTrackResponses.add(res);
+                }
+            }
+            jdCResponse.setData(waybillTrackResponses);
             jdCResponse.toSucceed(entity.getMessage());
             return jdCResponse;
         }
@@ -118,17 +140,18 @@ public class WaybillGateWayServiceImpl implements WaybillGateWayService {
     }
 
     private void recodHistory(WaybillTrackReq waybillTrackReq) {
-        String lockKey = "waybill_track_lock_"+ waybillTrackReq.getErp();
-        try {
-            if (redisClient.set(lockKey, "1", REDIS_CACHE_EXPIRE_TIME, TimeUnit.SECONDS, false)) {
-                String key = "waybill_track_"+ waybillTrackReq.getErp();
-                Long stayCount = 10L;
+        String lockKey = WAYBILL_TRACK_LOCK + waybillTrackReq.getErp();
+        if (redisClient.set(lockKey, "1", REDIS_CACHE_EXPIRE_TIME, TimeUnit.SECONDS, false)) {
+            try {
+                String key = WAYBILL_TRACK + waybillTrackReq.getErp();
+                redisClient.zAdd(key, System.currentTimeMillis(), waybillTrackReq.getBarCode());
                 Long count = redisClient.zCard(key);
-                redisClient.zRemRangeByScore(key,stayCount,count);
-                redisClient.zAdd(key,System.currentTimeMillis(), waybillTrackReq.getBarCode());
+                redisClient.zRemRangeByScore(key, WAYBILL_TRACK_HISTORY_NUM, count);
+            } catch (Exception e) {
+                log.error("[全程跟踪查询记录]设置Redis并发锁时发生异常，waybillTrackReq:{}", JsonHelper.toJson(waybillTrackReq), e);
+            } finally {
+                redisClient.del(lockKey);
             }
-        } catch (Exception e) {
-            log.error("[全程跟踪查询记录]设置Redis并发锁时发生异常，waybillTrackReq:{}" , JsonHelper.toJson(waybillTrackReq), e);
         }
 
     }
