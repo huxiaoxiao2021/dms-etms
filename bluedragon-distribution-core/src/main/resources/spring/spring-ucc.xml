@@ -306,7 +306,6 @@
 				<value>uccPropertyConfiguration.limitSiteUsePackReprint</value>
 				<value>uccPropertyConfiguration.spotCheckReformSiteCodes</value>
 				<value>uccPropertyConfiguration.aiDistinguishSwitch</value>
-				<value>uccPropertyConfiguration.sendCodeEffectiveValidation</value>
 				<value>uccPropertyConfiguration.restApiOuthSwitch</value>
 				<value>uccPropertyConfiguration.needInterceptUrls</value>
 
