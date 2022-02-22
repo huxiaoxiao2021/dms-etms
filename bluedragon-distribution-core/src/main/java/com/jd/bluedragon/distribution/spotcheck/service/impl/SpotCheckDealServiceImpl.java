@@ -896,6 +896,10 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
             message = (autoReportingResponse == null || autoReportingResponse.getStatus() == null) ? "AI图片识别失败!" : autoReportingResponse.getMessage();
             return ImmutablePair.of(code, message);
         }
+        if(logger.isInfoEnabled()){
+            logger.info("运单号:{}重量:{}图片类型:{}超标类型:{}的AI图片识别结果:{}",
+                    waybillCode, weight, uploadPicType, excessType, JsonHelper.toJson(autoReportingResponse));
+        }
         // 识别成功后，继续比对
         // 1、重量图片：比对录入重量和图片重量是否一致
         // 2、面单图片：比对录入单号和图片单号是否一致
@@ -911,7 +915,7 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
             return ImmutablePair.of(SpotCheckConstants.SPOT_CHECK_AI_EXC_CODE,
                     String.format(SpotCheckConstants.SPOT_CHECK_AI_FACE_HIT, waybillCode, recognizedInfo == null ? Constants.EMPTY_FILL : recognizedInfo));
         }
-        return ImmutablePair.of(SpotCheckConstants.SPOT_CHECK_AI_EXC_CODE, "未知错误!");
+        return ImmutablePair.of(code, message);
     }
 
     @Override
@@ -929,6 +933,9 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
         reportInfoQuery.setMeasureWeight(String.valueOf(spotCheckReviewDetail.getReviewTotalWeight()));
         reportInfoQuery.setMeasureVolume(String.valueOf(spotCheckReviewDetail.getReviewTotalVolume()));
         CommonDTO<ReportInfoDTO> commonDTO = weightReportCommonRuleManager.getReportInfo(reportInfoQuery);
+        if(logger.isInfoEnabled()){
+            logger.info("运单号:{}的核对数据:{}", reportInfoQuery.getWaybillCode(), JsonHelper.toJson(commonDTO.getData()));
+        }
         if(commonDTO == null || !Objects.equals(commonDTO.getCode(), CommonDTO.CODE_SUCCESS) || commonDTO.getData() == null){
             result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,
                     commonDTO == null ? InvokeResult.SERVER_ERROR_MESSAGE : commonDTO.getMessage());
@@ -956,6 +963,9 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
         reportInfoQuery.setMeasureWeight(String.valueOf(reviewWeight));
         reportInfoQuery.setMeasureVolume(String.valueOf(reviewVolume));
         CommonDTO<ReportInfoDTO> commonDTO = weightReportCommonRuleManager.getReportInfo(reportInfoQuery);
+        if(logger.isInfoEnabled()){
+            logger.info("运单号:{}的核对数据:{}", reportInfoQuery.getWaybillCode(), JsonHelper.toJson(commonDTO.getData()));
+        }
         ReportInfoDTO reportInfo = (commonDTO == null || !Objects.equals(commonDTO.getCode(), CommonDTO.CODE_SUCCESS)) ? null : commonDTO.getData();
         // 组装核对数据
         SpotCheckContrastDetail spotCheckContrastDetail = spotCheckContext.getSpotCheckContrastDetail();
@@ -1018,6 +1028,9 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
             spotCheckIssueZDMQ.setReviewWeight(spotCheckDto.getReviewWeight());
             spotCheckIssueZDMQ.setReviewVolume(spotCheckDto.getReviewVolume());
             spotCheckIssueZDMQ.setReviewTime(spotCheckDto.getReviewDate());
+            if(logger.isInfoEnabled()){
+                logger.info("体积超标,下发运单号:{}站点:{}的超标数据{}", spotCheckDto.getWaybillCode(), spotCheckDto.getReviewSiteCode(), JsonHelper.toJson(spotCheckIssueZDMQ));
+            }
             spotCheckIssueZDProducer.sendOnFailPersistent(spotCheckIssueZDMQ.getWaybillCode(), JsonHelper.toJson(spotCheckIssueZDMQ));
         }
         // 下发超标数据至称重再造系统条件
@@ -1080,6 +1093,9 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
         spotCheckIssueMQ.setAppendix(Constants.CONSTANT_NUMBER_ONE);
         spotCheckIssueMQ.setUrl(picUrlDeal(spotCheckDto));
         spotCheckIssueMQ.setStartTime(new Date());
+        if(logger.isInfoEnabled()){
+            logger.info("称重流程再造：下发运单号:{}站点:{}的超标数据{}", spotCheckDto.getWaybillCode(), spotCheckDto.getReviewSiteCode(), JsonHelper.toJson(spotCheckIssueMQ));
+        }
         spotCheckIssueProducer.sendOnFailPersistent(spotCheckIssueMQ.getWaybillCode(), JsonHelper.toJson(spotCheckIssueMQ));
         // 更新抽检主记录数据
         spotCheckDto.setIsIssueDownstream(Constants.CONSTANT_NUMBER_ONE);
