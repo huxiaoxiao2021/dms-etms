@@ -911,7 +911,7 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
             return ImmutablePair.of(SpotCheckConstants.SPOT_CHECK_AI_EXC_CODE,
                     String.format(SpotCheckConstants.SPOT_CHECK_AI_FACE_HIT, waybillCode, recognizedInfo == null ? Constants.EMPTY_FILL : recognizedInfo));
         }
-        return ImmutablePair.of(SpotCheckConstants.SPOT_CHECK_AI_EXC_CODE, "未知错误!");
+        return ImmutablePair.of(code, message);
     }
 
     @Override
