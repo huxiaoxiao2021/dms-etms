@@ -108,6 +108,8 @@ public class ColdChainReverseManagerImpl implements ColdChainReverseManager {
         if(!new Integer(0).equals(exchangeWaybillDto.getPackageCount())){
             requestDto.setPackageCount(exchangeWaybillDto.getPackageCount());
         }
+        //系统来源:  1:城配，2:一体机，3:冷链调度，4:分拣
+        requestDto.setSystemSource(4);
         return requestDto;
     }
 
