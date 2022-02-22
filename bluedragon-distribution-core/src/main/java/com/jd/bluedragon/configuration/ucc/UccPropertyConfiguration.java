@@ -656,6 +656,49 @@ public class UccPropertyConfiguration {
      */
     private boolean aiDistinguishSwitch;
 
+    /**
+     * 是否对restAPI鉴权的开关
+     */
+    private boolean restApiOuthSwitch;
+
+    private String needInterceptUrls;
+
+    private List<String> needInterceptUrlList;
+
+    public List<String> getNeedInterceptUrlList() {
+        return needInterceptUrlList;
+    }
+
+    public void setNeedInterceptUrlList(List<String> needInterceptUrlList) {
+        this.needInterceptUrlList = needInterceptUrlList;
+    }
+
+    public String getNeedInterceptUrls() {
+        return needInterceptUrls;
+    }
+
+    public void setNeedInterceptUrls(String needInterceptUrls) {
+        this.needInterceptUrls = needInterceptUrls;
+        if (needInterceptUrls!=null && !"".equals(needInterceptUrls)){
+            List<String> urlList=new ArrayList<>();
+            if (needInterceptUrls.contains(",")){
+                urlList = Arrays.asList(needInterceptUrls.split(","));
+            }
+            else {
+                urlList.add(needInterceptUrls);
+            }
+            this.needInterceptUrlList =urlList;
+        }
+    }
+
+    public boolean getRestApiOuthSwitch() {
+        return restApiOuthSwitch;
+    }
+
+    public void setRestApiOuthSwitch(boolean restApiOuthSwitch) {
+        this.restApiOuthSwitch = restApiOuthSwitch;
+    }
+
     public String getScheduleSiteCheckSameCity() {
         return scheduleSiteCheckSameCity;
     }

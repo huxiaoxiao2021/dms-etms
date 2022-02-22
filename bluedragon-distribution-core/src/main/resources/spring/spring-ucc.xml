@@ -161,6 +161,8 @@
         <property name="limitSiteUsePackReprint" value="${limitSiteUsePackReprint:'0'}" />
 		<property name="spotCheckReformSiteCodes" value="${spotCheckReformSiteCodes:true}"/>
 		<property name="aiDistinguishSwitch" value="${aiDistinguishSwitch:true}"/>
+		<property name="restApiOuthSwitch" value="${restApiOuthSwitch:true}"/>
+		<property name="needInterceptUrls" value="${needInterceptUrls:*}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -304,6 +306,8 @@
 				<value>uccPropertyConfiguration.limitSiteUsePackReprint</value>
 				<value>uccPropertyConfiguration.spotCheckReformSiteCodes</value>
 				<value>uccPropertyConfiguration.aiDistinguishSwitch</value>
+				<value>uccPropertyConfiguration.restApiOuthSwitch</value>
+				<value>uccPropertyConfiguration.needInterceptUrls</value>
 
                 <value>hystrixRouteUccPropertyConfiguration.executionTimeoutInMilliseconds</value>
                 <value>hystrixRouteUccPropertyConfiguration.circuitBreakerEnabled</value>
