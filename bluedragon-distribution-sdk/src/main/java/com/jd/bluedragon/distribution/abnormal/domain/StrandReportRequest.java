@@ -17,6 +17,10 @@ public class StrandReportRequest extends JdRequest {
     private String barcode;
     /**上报条码类型*/
     private Integer reportType;
+    /**
+     * 同步运单|路由标识
+     */
+    private Integer syncFlag;
 
     public Integer getReasonCode() {
         return reasonCode;
@@ -49,4 +53,12 @@ public class StrandReportRequest extends JdRequest {
     public void setReportType(Integer reportType) {
         this.reportType = reportType;
     }
+
+	public Integer getSyncFlag() {
+		return syncFlag;
+	}
+
+	public void setSyncFlag(Integer syncFlag) {
+		this.syncFlag = syncFlag;
+	}
 }
