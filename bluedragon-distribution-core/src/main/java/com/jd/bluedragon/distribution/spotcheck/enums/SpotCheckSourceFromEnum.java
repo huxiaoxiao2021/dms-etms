@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.spotcheck.enums;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 抽检来源
@@ -69,6 +70,15 @@ public enum SpotCheckSourceFromEnum {
     SpotCheckSourceFromEnum(int code, String name){
         this.code = code;
         this.name = name;
+    }
+
+    public static Integer analysisCodeFromName(String name){
+        for (SpotCheckSourceFromEnum value : SpotCheckSourceFromEnum.values()) {
+            if(Objects.equals(value.getName(), name)){
+                return value.getCode();
+            }
+        }
+        return null;
     }
 
     private int code;
