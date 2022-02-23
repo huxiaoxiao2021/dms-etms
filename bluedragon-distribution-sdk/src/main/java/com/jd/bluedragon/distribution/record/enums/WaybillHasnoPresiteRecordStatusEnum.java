@@ -12,12 +12,12 @@ public enum WaybillHasnoPresiteRecordStatusEnum {
     /**
      * 待换单
      */
-	FOR_EXCHANGE(1, "待换单"),
+	FOR_EXCHANGE(1, "待正向补打"),
 
     /**
      * 待逆向
      */
-    FOR_REVERSE(2, "待逆向"),
+    FOR_REVERSE(2, "待逆向换单"),
 
     /**
      * 待弃货
@@ -35,7 +35,7 @@ public enum WaybillHasnoPresiteRecordStatusEnum {
     /**
      * 已弃货
      */
-    WASTE_FINISH(6, "已弃货"),
+    WASTE_FINISH(6, "删除"),
     ;
 
     private Integer code;
