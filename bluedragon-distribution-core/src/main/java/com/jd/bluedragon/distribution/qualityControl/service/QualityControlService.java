@@ -8,11 +8,14 @@ import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBill;
 import com.jd.bluedragon.distribution.abnormalwaybill.service.AbnormalWayBillService;
 import com.jd.bluedragon.distribution.api.request.QualityControlRequest;
 import com.jd.bluedragon.distribution.api.request.ReturnsRequest;
+import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.base.domain.SysConfigContent;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.message.OwnReverseTransferDomain;
 import com.jd.bluedragon.distribution.qualityControl.QcVersionFlagEnum;
 import com.jd.bluedragon.distribution.qualityControl.domain.QualityControl;
+import com.jd.bluedragon.distribution.qualityControl.dto.QcReportJmqDto;
+import com.jd.bluedragon.distribution.qualityControl.dto.QcReportOutCallJmqDto;
 import com.jd.bluedragon.distribution.reverse.service.ReversePrintService;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
@@ -482,6 +485,109 @@ public class QualityControlService {
             return content.getKeyCodes().contains(reasonId.toString());
     }
         return false;
+    }
+
+    /**
+     * 处理异常提报数据
+     * @param qcReportJmqDto 消息提
+     * @return 处理结果
+     * @author fanggang7
+     * @time 2022-02-18 15:38:54 周五
+     */
+    public Result<Boolean> handleQcReportConsume(QcReportJmqDto qcReportJmqDto) {
+        Result<Boolean> result = Result.success();
+        try {
+            final BaseStaffSiteOrgDto baseStaff = baseMajorManager.getBaseStaffByErpNoCache(qcReportJmqDto.getCreateUser());
+            if(baseStaff == null){
+                return result.toFail(String.format("未找到此erp:%s信息", qcReportJmqDto.getCreateUser()));
+            }
+
+            String barCodes = qcReportJmqDto.getPackageNumber();
+            String[] barCodeList = barCodes.split(",");
+
+            for (String barCode : barCodeList) {
+                final QualityControlRequest qualityControlRequest = new QualityControlRequest();
+                qualityControlRequest.setQcVersionFlag(QcVersionFlagEnum.NEW_QUALITY_CONTROL_SYSTEM.getType());
+                qualityControlRequest.setQcValue(barCode);
+                qualityControlRequest.setQcType(PACKAGE_CODE_TYPE);
+                qualityControlRequest.setUserERP(qcReportJmqDto.getCreateUser());
+                qualityControlRequest.setUserName(baseStaff.getStaffName());
+                qualityControlRequest.setUserID(baseStaff.getStaffNo());
+                qualityControlRequest.setDistCenterID(Integer.parseInt(qcReportJmqDto.getCreateDept()));
+                qualityControlRequest.setDistCenterName(qcReportJmqDto.getCreateDeptName());
+                qualityControlRequest.setOperateTime(new Date(qcReportJmqDto.getCreateTime()));
+                qualityControlRequest.setQcCode(qcReportJmqDto.getAbnormalFirstId().intValue());
+                qualityControlRequest.setQcName(qcReportJmqDto.getAbnormalFirstName());
+                qualityControlRequest.setIsSortingReturn(false);
+                qualityControlRequest.setTrackContent("订单扫描异常【" + qcReportJmqDto.getAbnormalFirstName() + "】");
+                Task task = new Task();
+                task.setBody(JsonHelper.toJson(qualityControlRequest));
+                final TaskResult taskResult = this.dealQualityControlTask(task);
+                if(!TaskResult.toBoolean(taskResult)){
+                    log.error("handleQcReportConsume fail packageCode {} param {} ", barCode, JsonHelper.toJson(qcReportJmqDto));
+                    result.setData(false);
+                    return result;
+                } else {
+                    result.setData(true);
+                }
+            }
+
+        } catch (Exception e) {
+            log.error("handleQcReportConsume exception ", e);
+            result.toFail("handleQcReportConsume exception " + e.getMessage());
+        }
+        return result;
+    }
+
+    /**
+     * 处理异常提报数据
+     * @param qcReportJmqDto 消息提
+     * @return 处理结果
+     * @author fanggang7
+     * @time 2022-02-18 15:38:54 周五
+     */
+    public Result<Boolean> handleQcOutCallReportConsume(QcReportOutCallJmqDto qcReportJmqDto) {
+        Result<Boolean> result = Result.success();
+        try {
+            final BaseStaffSiteOrgDto baseStaff = baseMajorManager.getBaseStaffByErpNoCache(qcReportJmqDto.getCreateUser());
+            if(baseStaff == null){
+                return result.toFail(String.format("未找到此erp:%s信息", qcReportJmqDto.getCreateUser()));
+            }
+
+            String barCodes = qcReportJmqDto.getPackageNumber();
+            String[] barCodeList = barCodes.split(",");
+
+            for (String barCode : barCodeList) {
+                final QualityControlRequest qualityControlRequest = new QualityControlRequest();
+                qualityControlRequest.setQcVersionFlag(QcVersionFlagEnum.NEW_QUALITY_CONTROL_SYSTEM.getType());
+                qualityControlRequest.setQcValue(barCode);
+                qualityControlRequest.setQcType(PACKAGE_CODE_TYPE);
+                qualityControlRequest.setUserERP(qcReportJmqDto.getCreateUser());
+                qualityControlRequest.setUserName(baseStaff.getStaffName());
+                qualityControlRequest.setUserID(baseStaff.getStaffNo());
+                qualityControlRequest.setDistCenterID(Integer.parseInt(qcReportJmqDto.getCreateDept()));
+                qualityControlRequest.setDistCenterName(qcReportJmqDto.getCreateDeptName());
+                qualityControlRequest.setOperateTime(new Date(qcReportJmqDto.getCreateTime()));
+                qualityControlRequest.setQcCode(qcReportJmqDto.getAbnormalFirstId().intValue());
+                qualityControlRequest.setQcName(qcReportJmqDto.getAbnormalFirstName());
+                qualityControlRequest.setIsSortingReturn(false);
+                qualityControlRequest.setTrackContent("订单扫描异常【" + qcReportJmqDto.getAbnormalFirstName() + "】");
+                Task task = new Task();
+                task.setBody(JsonHelper.toJson(qualityControlRequest));
+                final TaskResult taskResult = this.dealQualityControlTask(task);
+                if(!TaskResult.toBoolean(taskResult)){
+                    log.error("handleQcOutCallReportConsume fail packageCode {} param {} ", barCode, JsonHelper.toJson(qcReportJmqDto));
+                    result.setData(false);
+                    return result;
+                } else {
+                    result.setData(true);
+                }
+            }
+        } catch (Exception e) {
+            log.error("handleQcOutCallReportConsume exception ", e);
+            result.toFail("handleQcOutCallReportConsume exception " + e.getMessage());
+        }
+        return result;
     }
 
 }
