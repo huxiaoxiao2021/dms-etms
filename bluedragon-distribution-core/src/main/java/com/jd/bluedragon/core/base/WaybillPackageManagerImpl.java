@@ -66,7 +66,7 @@ public class WaybillPackageManagerImpl implements WaybillPackageManager {
     @Autowired
     private UccPropertyConfiguration uccPropertyConfiguration;
 
-    @Autowired
+    @Autowired(required = false)
     @Qualifier("executorparallelGetPackageExecutor")
     private ExecutorService executorparallelGetPackageExecutor;
 

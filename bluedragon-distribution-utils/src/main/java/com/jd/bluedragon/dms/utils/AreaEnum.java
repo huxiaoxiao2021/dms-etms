@@ -12,13 +12,13 @@ import java.util.Map;
 public enum AreaEnum {
 
     //枚举值
-    EAST_AREA(3, "华东区"),
-    SOUTHWEST_AREA(4, "西南区"),
-    NORTH_AREA(6, "华北区"),
-    SOUTH_AREA(10, "华南区"),
-    CENTRAL_AREA(600, "华中区"),
-    NORTHEAST_AREA(611, "东北区"),
-    NORTHWEST_AREA(645, "西北区");
+    EAST_AREA(3, "华东"),
+    SOUTHWEST_AREA(4, "西南"),
+    NORTH_AREA(6, "华北"),
+    SOUTH_AREA(10, "华南"),
+    CENTRAL_AREA(600, "华中"),
+    NORTHEAST_AREA(611, "东北"),
+    NORTHWEST_AREA(645, "西北");
 
     private Integer code;
     private String name;
@@ -43,6 +43,18 @@ public enum AreaEnum {
     public static AreaEnum getAreaEnumByKey(Integer code) {
         return codeMap.get(code);
     }
+    /**
+     * 通过编码获取枚举
+     *
+     * @param code 编码
+     * @return 区域名称
+     */
+    public static String getAreaNameByCode(Integer code) {
+    	if(code != null && codeMap.containsKey(code)) {
+    		return codeMap.get(code).getName();
+    	}
+        return null;
+    }    
     /**
      * 
      * @param code
