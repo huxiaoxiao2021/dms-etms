@@ -498,6 +498,9 @@ public class QualityControlService {
         log.info("handleQcReportConsume param: {}", JsonHelper.toJson(qcReportJmqDto));
         Result<Boolean> result = Result.success();
         try {
+            if (StringUtils.isBlank(qcReportJmqDto.getReportSystem()) || !Objects.equals(qcReportJmqDto.getReportSystem(), "dms")){
+                return result;
+            }
             final BaseStaffSiteOrgDto baseStaff = baseMajorManager.getBaseStaffByErpNoCache(qcReportJmqDto.getCreateUser());
             if(baseStaff == null){
                 log.error(String.format("未找到此erp:%s信息", qcReportJmqDto.getCreateUser()));
@@ -518,8 +521,8 @@ public class QualityControlService {
                 qualityControlRequest.setDistCenterID(Integer.parseInt(qcReportJmqDto.getCreateDept()));
                 qualityControlRequest.setDistCenterName(qcReportJmqDto.getCreateDeptName());
                 qualityControlRequest.setOperateTime(new Date(qcReportJmqDto.getCreateTime()));
-                qualityControlRequest.setQcCode(qcReportJmqDto.getAbnormalFirstId().intValue());
-                qualityControlRequest.setQcName(qcReportJmqDto.getAbnormalFirstName());
+                qualityControlRequest.setQcCode(qcReportJmqDto.getAbnormalThirdId().intValue());
+                qualityControlRequest.setQcName(qcReportJmqDto.getAbnormalThirdName());
                 qualityControlRequest.setIsSortingReturn(false);
                 qualityControlRequest.setTrackContent("订单扫描异常【" + qcReportJmqDto.getAbnormalFirstName() + "】");
                 Task task = new Task();
@@ -554,6 +557,9 @@ public class QualityControlService {
         log.info("handleQcReportConsume param: {}", JsonHelper.toJson(qcReportJmqDto));
         Result<Boolean> result = Result.success();
         try {
+            if (StringUtils.isBlank(qcReportJmqDto.getReportSystem()) || !Objects.equals(qcReportJmqDto.getReportSystem(), "dms")){
+                return result;
+            }
             final BaseStaffSiteOrgDto baseStaff = baseMajorManager.getBaseStaffByErpNoCache(qcReportJmqDto.getCreateUser());
             if(baseStaff == null){
                 log.error(String.format("未找到此erp:%s信息", qcReportJmqDto.getCreateUser()));
@@ -574,8 +580,8 @@ public class QualityControlService {
                 qualityControlRequest.setDistCenterID(Integer.parseInt(qcReportJmqDto.getCreateDept()));
                 qualityControlRequest.setDistCenterName(qcReportJmqDto.getCreateDeptName());
                 qualityControlRequest.setOperateTime(new Date(qcReportJmqDto.getCreateTime()));
-                qualityControlRequest.setQcCode(qcReportJmqDto.getAbnormalFirstId().intValue());
-                qualityControlRequest.setQcName(qcReportJmqDto.getAbnormalFirstName());
+                qualityControlRequest.setQcCode(qcReportJmqDto.getAbnormalThirdId().intValue());
+                qualityControlRequest.setQcName(qcReportJmqDto.getAbnormalThirdName());
                 qualityControlRequest.setIsSortingReturn(false);
                 qualityControlRequest.setTrackContent("订单扫描异常【" + qcReportJmqDto.getAbnormalFirstName() + "】");
                 Task task = new Task();
