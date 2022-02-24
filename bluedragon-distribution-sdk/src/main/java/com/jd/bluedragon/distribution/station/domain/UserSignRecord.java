@@ -168,7 +168,18 @@ public class UserSignRecord implements Serializable {
 	 * 方案名称
 	 */
 	private String planName;
-
+	/**
+	 * 班次名称
+	 */
+	private String waveName;
+	/**
+	 * 工种名称
+	 */
+	private String jobName;
+	/**
+	 * 工作时长（单位：小时）
+	 */
+	private String workHours;
 	/**
 	 *
 	 * @param id
@@ -663,6 +674,30 @@ public class UserSignRecord implements Serializable {
 	 */
 	public String getPlanName() {
 		return this.planName;
+	}
+
+	public String getWaveName() {
+		return waveName;
+	}
+
+	public void setWaveName(String waveName) {
+		this.waveName = waveName;
+	}
+
+	public String getJobName() {
+		return jobName;
+	}
+
+	public void setJobName(String jobName) {
+		this.jobName = jobName;
+	}
+
+	public String getWorkHours() {
+		return workHours;
+	}
+
+	public void setWorkHours(String workHours) {
+		this.workHours = workHours;
 	}
 
 

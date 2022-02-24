@@ -56,10 +56,10 @@ public interface WorkStationJsfService {
 	 * 查询作业区字典
 	 * @return
 	 */
-	Result<List<WorkStation>> queryAreaDictList();	
+	Result<List<WorkStation>> queryAreaDictList(WorkStationQuery query);	
 	/**
 	 * 查询工序字典
 	 * @return
 	 */
-	Result<List<WorkStation>> queryWorkDictList();
+	Result<List<WorkStation>> queryWorkDictList(WorkStationQuery query);
 }

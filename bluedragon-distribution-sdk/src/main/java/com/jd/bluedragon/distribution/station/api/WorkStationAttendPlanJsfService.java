@@ -5,7 +5,6 @@ import java.util.List;
 import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.station.domain.WorkStationAttendPlan;
 import com.jd.bluedragon.distribution.station.query.WorkStationAttendPlanQuery;
-import com.jd.bluedragon.distribution.station.query.WorkStationGridQuery;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
 
 /**
@@ -58,5 +57,5 @@ public interface WorkStationAttendPlanJsfService {
 	 * @param query
 	 * @return
 	 */
-	Result<List<WorkStationAttendPlan>> queryWaveDictList(WorkStationGridQuery query);	
+	Result<List<WorkStationAttendPlan>> queryWaveDictList(WorkStationAttendPlanQuery query);	
 }

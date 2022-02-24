@@ -163,6 +163,10 @@ public class WorkStationAttendPlan implements Serializable {
 	 * 工序名称
 	 */
 	private String workName;
+	/**
+	 * 班次名称
+	 */
+	private String waveName;	
 
 	/**
 	 *
@@ -642,6 +646,14 @@ public class WorkStationAttendPlan implements Serializable {
 	 */
 	public String getWorkName() {
 		return this.workName;
+	}
+
+	public String getWaveName() {
+		return waveName;
+	}
+
+	public void setWaveName(String waveName) {
+		this.waveName = waveName;
 	}
 
 
