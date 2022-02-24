@@ -30,12 +30,13 @@ public class QcAbnormalReportOutCallReportConsumer extends MessageBaseConsumer {
     public void consume(Message message) throws Exception {
         QcReportOutCallJmqDto qcReportJmqDto = JsonHelper.fromJson(message.getText(), QcReportOutCallJmqDto.class);
         if(qcReportJmqDto == null){
-            log.warn("QcAbnormalReportReportConsumer 消息转换失败！[{}-{}]:[{}]", message.getTopic(), message.getBusinessId(), message.getText());
+            log.warn("QcAbnormalReportOutCallReportConsumer 消息转换失败！[{}-{}]:[{}]", message.getTopic(), message.getBusinessId(), message.getText());
             return;
         }
 
         final Result<Boolean> result = qualityControlService.handleQcOutCallReportConsume(qcReportJmqDto);
         if(!result.isSuccess() || !result.getData()){
+            log.error("QcAbnormalReportOutCallReportConsumer fail {}", JsonHelper.toJson(result));
             throw new RuntimeException("处理失败");
         }
     }
