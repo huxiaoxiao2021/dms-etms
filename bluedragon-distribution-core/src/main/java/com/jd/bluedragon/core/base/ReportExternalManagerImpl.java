@@ -24,23 +24,25 @@ import java.util.List;
 @Service("reportExternalManager")
 public class ReportExternalManagerImpl implements ReportExternalManager {
 
-    private static Logger logger = LoggerFactory.getLogger(ReportExternalManagerImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(ReportExternalManagerImpl.class);
 
     @Autowired
     private ReportExternalService reportExternalService;
 
     @Override
-    public void insertOrUpdateForWeightVolume(WeightVolumeCollectDto weightVolumeCollectDto) {
+    public Boolean insertOrUpdateForWeightVolume(WeightVolumeCollectDto weightVolumeCollectDto) {
         CallerInfo callerInfo = Profiler.registerInfo("dmsWeb.jsf.ReportExternalManager.insertOrUpdateForWeightVolume",
                 Constants.UMP_APP_NAME_DMSWEB,false,true);
         try {
-            reportExternalService.insertOrUpdateForWeightVolume(weightVolumeCollectDto);
+            BaseEntity<String> baseEntity = reportExternalService.insertOrUpdateForWeightVolume(weightVolumeCollectDto);
+            return baseEntity != null && baseEntity.isSuccess();
         }catch (Exception e){
             logger.error("运单号:{}的抽检数据落库异常!", weightVolumeCollectDto.getWaybillCode(), e);
             Profiler.functionError(callerInfo);
         }finally {
             Profiler.registerInfoEnd(callerInfo);
         }
+        return false;
     }
 
     @Override
