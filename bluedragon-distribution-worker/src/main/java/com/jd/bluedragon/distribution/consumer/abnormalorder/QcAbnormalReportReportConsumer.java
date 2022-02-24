@@ -27,6 +27,11 @@ public class QcAbnormalReportReportConsumer extends MessageBaseConsumer {
     private QualityControlService qualityControlService;
 
     @Override
+    public void setUat(String uat) {
+        super.setUat("false");
+    }
+
+    @Override
     public void consume(Message message) throws Exception {
         QcReportJmqDto qcReportJmqDto = JsonHelper.fromJson(message.getText(), QcReportJmqDto.class);
         if(qcReportJmqDto == null){
