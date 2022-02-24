@@ -524,7 +524,7 @@ public class QualityControlService {
                 qualityControlRequest.setQcCode(qcReportJmqDto.getAbnormalThirdId().intValue());
                 qualityControlRequest.setQcName(qcReportJmqDto.getAbnormalThirdName());
                 qualityControlRequest.setIsSortingReturn(false);
-                qualityControlRequest.setTrackContent("订单扫描异常【" + qcReportJmqDto.getAbnormalFirstName() + "】");
+                qualityControlRequest.setTrackContent("订单扫描异常【" + qcReportJmqDto.getAbnormalThirdName() + "】");
                 Task task = new Task();
                 task.setBody(JsonHelper.toJson(qualityControlRequest));
                 log.info("dealQualityControlTask param: {}", JsonHelper.toJson(task));
@@ -583,7 +583,7 @@ public class QualityControlService {
                 qualityControlRequest.setQcCode(qcReportJmqDto.getAbnormalThirdId().intValue());
                 qualityControlRequest.setQcName(qcReportJmqDto.getAbnormalThirdName());
                 qualityControlRequest.setIsSortingReturn(false);
-                qualityControlRequest.setTrackContent("订单扫描异常【" + qcReportJmqDto.getAbnormalFirstName() + "】");
+                qualityControlRequest.setTrackContent("订单扫描异常【" + qcReportJmqDto.getAbnormalThirdName() + "】");
                 Task task = new Task();
                 task.setBody(JsonHelper.toJson(qualityControlRequest));
                 log.info("dealQualityControlTask param: {}", JsonHelper.toJson(task));
