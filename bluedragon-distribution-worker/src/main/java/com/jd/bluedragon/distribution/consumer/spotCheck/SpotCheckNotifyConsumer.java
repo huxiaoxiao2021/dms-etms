@@ -97,11 +97,11 @@ public class SpotCheckNotifyConsumer extends MessageBaseConsumer {
                 || Objects.equals(SpotCheckStatusEnum.SPOT_CHECK_STATUS_PZ_EFFECT.getCode(), status))
                 && SpotCheckSourceFromEnum.ARTIFICIAL_SOURCE_NUM.contains(updateDto.getReviewSource())
                 && !Objects.equals(updateDto.getManualUploadWeight(), Constants.CONSTANT_NUMBER_ONE)){
+            updateDto.setManualUploadWeight(Constants.CONSTANT_NUMBER_ONE);
             uploadWeightVolume(spotCheckNotifyMQ, updateDto.getReviewDate());
         }
         // 更新抽检状态
         updateDto.setSpotCheckStatus(status);
-        updateDto.setManualUploadWeight(Constants.CONSTANT_NUMBER_ONE);
         if(Objects.equals(SpotCheckStatusEnum.SPOT_CHECK_STATUS_RZ_SYSTEM_ERP_Y.getCode(), status)){
             updateDto.setContrastStaffAccount(spotCheckNotifyMQ.getDutyStaffAccount());
             updateDto.setContrastStaffName(spotCheckNotifyMQ.getDutyStaffName());
