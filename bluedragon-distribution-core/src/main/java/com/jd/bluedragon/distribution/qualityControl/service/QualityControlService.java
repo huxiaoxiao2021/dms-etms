@@ -495,10 +495,12 @@ public class QualityControlService {
      * @time 2022-02-18 15:38:54 周五
      */
     public Result<Boolean> handleQcReportConsume(QcReportJmqDto qcReportJmqDto) {
+        log.info("handleQcReportConsume param: {}", JsonHelper.toJson(qcReportJmqDto));
         Result<Boolean> result = Result.success();
         try {
             final BaseStaffSiteOrgDto baseStaff = baseMajorManager.getBaseStaffByErpNoCache(qcReportJmqDto.getCreateUser());
             if(baseStaff == null){
+                log.error(String.format("未找到此erp:%s信息", qcReportJmqDto.getCreateUser()));
                 return result.toFail(String.format("未找到此erp:%s信息", qcReportJmqDto.getCreateUser()));
             }
 
@@ -522,7 +524,9 @@ public class QualityControlService {
                 qualityControlRequest.setTrackContent("订单扫描异常【" + qcReportJmqDto.getAbnormalFirstName() + "】");
                 Task task = new Task();
                 task.setBody(JsonHelper.toJson(qualityControlRequest));
+                log.info("dealQualityControlTask param: {}", JsonHelper.toJson(task));
                 final TaskResult taskResult = this.dealQualityControlTask(task);
+                log.info("dealQualityControlTask param: {} result: {}", JsonHelper.toJson(task), JsonHelper.toJson(taskResult));
                 if(!TaskResult.toBoolean(taskResult)){
                     log.error("handleQcReportConsume fail packageCode {} param {} ", barCode, JsonHelper.toJson(qcReportJmqDto));
                     result.setData(false);
@@ -547,10 +551,12 @@ public class QualityControlService {
      * @time 2022-02-18 15:38:54 周五
      */
     public Result<Boolean> handleQcOutCallReportConsume(QcReportOutCallJmqDto qcReportJmqDto) {
+        log.info("handleQcReportConsume param: {}", JsonHelper.toJson(qcReportJmqDto));
         Result<Boolean> result = Result.success();
         try {
             final BaseStaffSiteOrgDto baseStaff = baseMajorManager.getBaseStaffByErpNoCache(qcReportJmqDto.getCreateUser());
             if(baseStaff == null){
+                log.error(String.format("未找到此erp:%s信息", qcReportJmqDto.getCreateUser()));
                 return result.toFail(String.format("未找到此erp:%s信息", qcReportJmqDto.getCreateUser()));
             }
 
@@ -574,7 +580,9 @@ public class QualityControlService {
                 qualityControlRequest.setTrackContent("订单扫描异常【" + qcReportJmqDto.getAbnormalFirstName() + "】");
                 Task task = new Task();
                 task.setBody(JsonHelper.toJson(qualityControlRequest));
+                log.info("dealQualityControlTask param: {}", JsonHelper.toJson(task));
                 final TaskResult taskResult = this.dealQualityControlTask(task);
+                log.info("dealQualityControlTask param: {} result: {}", JsonHelper.toJson(task), JsonHelper.toJson(taskResult));
                 if(!TaskResult.toBoolean(taskResult)){
                     log.error("handleQcOutCallReportConsume fail packageCode {} param {} ", barCode, JsonHelper.toJson(qcReportJmqDto));
                     result.setData(false);
