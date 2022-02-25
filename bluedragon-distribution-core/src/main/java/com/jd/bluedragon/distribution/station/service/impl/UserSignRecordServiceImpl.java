@@ -219,12 +219,42 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 //		if(data != null) {
 //			return result.toFail("该用户已签到！");
 //		}
-		signInRequest.setCreateTime(new Date());
-		signInRequest.setSignInTime(new Date());
+        Date signInTime = new Date();
+		signInRequest.setCreateTime(signInTime);
+		signInRequest.setSignInTime(signInTime);
+        signInRequest.setSignDate(signInRequest.getSignInTime());
 		userSignRecordDao.insert(signInRequest);
-		return result;
+
+        // 自动将上次未签退数据签退。
+        result = autoSignOutLastSignInRecord(signInRequest, signInTime);
+
+        return result;
 	}
-	@Override
+
+    /**
+     * 自动签退逻辑
+     * @param signInRequest
+     * @param signInTime
+     */
+    private Result<Boolean> autoSignOutLastSignInRecord(UserSignRecord signInRequest, Date signInTime) {
+        UserSignRecord lastSignRecord = getLastSignRecord(signInRequest);
+        if (lastSignRecord != null && lastSignRecord.getSignOutTime() == null) {
+            UserSignRecord signOutRequest = new UserSignRecord();
+
+            // 自动签退时间比本次签到时间早一秒
+            Date signOutTime = new Date(signInTime.getTime() - 1000);
+            signOutRequest.setId(lastSignRecord.getId());
+            signOutRequest.setUpdateTime(signOutTime);
+            signOutRequest.setSignOutTime(signOutTime);
+            if (userSignRecordDao.updateById(signOutRequest) > 0) {
+                return new Result<>(201, "签到成功，自动将上次签到数据签退！");
+            }
+        }
+
+        return Result.success();
+    }
+
+    @Override
 	public Result<Boolean> signOut(UserSignRecord signOutRequest) {
 		Result<Boolean> result = Result.success();
 
@@ -232,12 +262,8 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		if(signOutRequest.getId() != null) {
 			data.setId(signOutRequest.getId());
 		}else {
-			UserSignRecordQuery query = new UserSignRecordQuery();
-			query.setSiteCode(signOutRequest.getSiteCode());
-			query.setUserCode(signOutRequest.getUserCode());
-			query.setSignDate(signOutRequest.getSignDate());
-			UserSignRecord lastSignRecord = userSignRecordDao.queryLastSignRecord(query);
-			if(lastSignRecord == null) {
+            UserSignRecord lastSignRecord = getLastSignRecord(signOutRequest);
+            if(lastSignRecord == null) {
 				return result.toFail("该用户未签到，无法签退！");
 			}
 			data.setId(lastSignRecord.getId());
@@ -247,7 +273,21 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		userSignRecordDao.updateById(data);
 		return result;
 	}
-	@Override
+
+    /**
+     * 获取用户最近一次签到数据
+     * @param signOutRequest
+     * @return
+     */
+    private UserSignRecord getLastSignRecord(UserSignRecord signOutRequest) {
+        UserSignRecordQuery query = new UserSignRecordQuery();
+        query.setSiteCode(signOutRequest.getSiteCode());
+        query.setUserCode(signOutRequest.getUserCode());
+        query.setSignDate(signOutRequest.getSignDate());
+        return userSignRecordDao.queryLastSignRecord(query);
+    }
+
+    @Override
 	public Result<UserSignRecord> queryLastSignRecord(UserSignRecordQuery query) {
 		Result<UserSignRecord> result = Result.success();
 		result.setData(fillOtherInfo(userSignRecordDao.queryLastSignRecord(query)));
