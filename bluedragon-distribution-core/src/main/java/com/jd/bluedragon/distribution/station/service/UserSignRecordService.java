@@ -77,4 +77,10 @@ public interface UserSignRecordService {
 	 */
 	Result<UserSignRecordReportSumVo> queryReportSum(UserSignRecordQuery query);
 
+    /**
+     * 自动处理签到数据签退
+     * @return
+     */
+    Result<Integer> autoHandleSignInRecord();
+
 }
