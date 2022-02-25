@@ -16,10 +16,16 @@ import com.jd.bluedragon.distribution.station.dao.UserSignRecordDao;
 import com.jd.bluedragon.distribution.station.domain.UserSignRecord;
 import com.jd.bluedragon.distribution.station.domain.UserSignRecordReportSumVo;
 import com.jd.bluedragon.distribution.station.domain.UserSignRecordReportVo;
+import com.jd.bluedragon.distribution.station.domain.WorkStation;
+import com.jd.bluedragon.distribution.station.domain.WorkStationAttendPlan;
+import com.jd.bluedragon.distribution.station.domain.WorkStationGrid;
 import com.jd.bluedragon.distribution.station.enums.JobTypeEnum;
 import com.jd.bluedragon.distribution.station.enums.WaveTypeEnum;
 import com.jd.bluedragon.distribution.station.query.UserSignRecordQuery;
 import com.jd.bluedragon.distribution.station.service.UserSignRecordService;
+import com.jd.bluedragon.distribution.station.service.WorkStationAttendPlanService;
+import com.jd.bluedragon.distribution.station.service.WorkStationGridService;
+import com.jd.bluedragon.distribution.station.service.WorkStationService;
 import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.StringHelper;
@@ -44,6 +50,18 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	
 	@Value("${beans.userSignRecordService.signDateRangeMaxDays:7}")
 	private int signDateRangeMaxDays;
+	
+	@Autowired
+	@Qualifier("workStationService")
+	WorkStationService workStationService;
+	
+	@Autowired
+	@Qualifier("workStationGridService")
+	WorkStationGridService workStationGridService;
+	
+	@Autowired
+	@Qualifier("workStationAttendPlanService")
+	WorkStationAttendPlanService workStationAttendPlanService;
 	
 	private static final DecimalFormat NUMBER_FORMAT = new DecimalFormat("0.00");
 	/**
@@ -223,8 +241,45 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		signInRequest.setCreateTime(signInTime);
 		signInRequest.setSignInTime(signInTime);
         signInRequest.setSignDate(signInRequest.getSignInTime());
-		userSignRecordDao.insert(signInRequest);
+		
+		Integer siteCode = signInRequest.getSiteCode();
+		String gridNo = signInRequest.getGridNo();
+		String areaCode = signInRequest.getAreaCode();
+		String workCode = signInRequest.getWorkCode();
+		WorkStation workStationCheckQuery = new WorkStation();
+		workStationCheckQuery.setWorkCode(workCode);
+		workStationCheckQuery.setAreaCode(areaCode);
+		Result<WorkStation> workStationData = workStationService.queryByBusinessKey(workStationCheckQuery);
+		if(workStationData == null
+				|| workStationData.getData() == null) {
+			return result.toFail("作业区工序信息不存在，请先维护作业区及工序信息！");
+		}
+		WorkStation workStation = workStationData.getData();
+		signInRequest.setRefStationKey(workStation.getBusinessKey());
+		//校验并设置网格信息
+		WorkStationGrid workStationGridCheckQuery = new WorkStationGrid();
+		workStationGridCheckQuery.setSiteCode(siteCode);
+		workStationGridCheckQuery.setGridNo(gridNo);
+		workStationGridCheckQuery.setRefStationKey(workStation.getBusinessKey());
+		Result<WorkStationGrid> workStationGridData = workStationGridService.queryByBusinessKey(workStationGridCheckQuery);
+		if(workStationGridData == null
+				|| workStationGridData.getData() == null) {
+			return result.toFail("网格信息不存在，请先维护场地网格信息！");
+		}
 
+		signInRequest.setRefGridKey(workStationGridData.getData().getBusinessKey());
+		//查询设置计划信息
+		WorkStationAttendPlan workStationAttendPlanQuery = new WorkStationAttendPlan();
+		workStationAttendPlanQuery.setRefGridKey(workStationGridData.getData().getBusinessKey());
+		workStationAttendPlanQuery.setWaveCode(signInRequest.getWaveCode());
+		Result<WorkStationAttendPlan> planData = workStationAttendPlanService.queryByBusinessKeys(workStationAttendPlanQuery);
+		if(planData != null
+				&& planData.getData() != null) {
+			signInRequest.setRefPlanKey(planData.getData().getBusinessKey());
+		}
+		
+        userSignRecordDao.insert(signInRequest);
+        
         // 自动将上次未签退数据签退。
         result = autoSignOutLastSignInRecord(signInRequest, signInTime);
 

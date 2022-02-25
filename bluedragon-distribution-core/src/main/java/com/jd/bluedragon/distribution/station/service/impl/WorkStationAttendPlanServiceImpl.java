@@ -180,6 +180,14 @@ public class WorkStationAttendPlanServiceImpl implements WorkStationAttendPlanSe
 	private boolean isExist(WorkStationAttendPlan data) {
 		return workStationAttendPlanDao.queryByBusinessKey(data) != null;
 	}
+	
+	@Override
+	public Result<WorkStationAttendPlan> queryByBusinessKeys(WorkStationAttendPlan data) {
+		Result<WorkStationAttendPlan> result = Result.success();
+		result.setData(this.fillOtherInfo(workStationAttendPlanDao.queryByBusinessKey(data)));
+		return result;
+	}	
+	
 	@Override
 	public Result<Boolean> importDatas(List<WorkStationAttendPlan> dataList) {
 		Result<Boolean> result = checkAndFillImportDatas(dataList);
@@ -262,7 +270,7 @@ public class WorkStationAttendPlanServiceImpl implements WorkStationAttendPlanSe
 		Result<WorkStation> workStationData = workStationService.queryByBusinessKey(workStationCheckQuery);
 		if(workStationData == null
 				|| workStationData.getData() == null) {
-			return result.toFail("工序信息不存在，请先维护工序信息！");
+			return result.toFail("作业区工序信息不存在，请先维护作业区及工序信息！");
 		}
 		WorkStation workStation = workStationData.getData();
 		data.setRefStationKey(workStation.getBusinessKey());

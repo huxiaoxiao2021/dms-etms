@@ -125,7 +125,7 @@ public class WorkStationGridServiceImpl implements WorkStationGridService {
 		Result<WorkStation> workStationData = workStationService.queryByBusinessKey(workStationCheckQuery);
 		if(workStationData == null
 				|| workStationData.getData() == null) {
-			return result.toFail("工序信息不存在，请先维护工序信息！");
+			return result.toFail("作业区工序信息不存在，请先维护作业区及工序信息！");
 		}
 		WorkStation workStation = workStationData.getData();
 		data.setGridCode(workStation.getAreaCode().concat("-").concat(data.getGridNo()));
