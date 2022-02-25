@@ -14,7 +14,9 @@ import com.jd.bluedragon.core.objectid.IGenerateObjectId;
 import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.station.dao.WorkStationGridDao;
 import com.jd.bluedragon.distribution.station.domain.WorkStation;
+import com.jd.bluedragon.distribution.station.domain.WorkStationCountVo;
 import com.jd.bluedragon.distribution.station.domain.WorkStationGrid;
+import com.jd.bluedragon.distribution.station.domain.WorkStationGridCountVo;
 import com.jd.bluedragon.distribution.station.query.WorkStationGridQuery;
 import com.jd.bluedragon.distribution.station.service.WorkStationGridService;
 import com.jd.bluedragon.distribution.station.service.WorkStationService;
@@ -303,6 +305,16 @@ public class WorkStationGridServiceImpl implements WorkStationGridService {
 	public Result<List<WorkStationGrid>> queryGridFloorDictList(WorkStationGridQuery query) {
 		Result<List<WorkStationGrid>> result = Result.success();
 		result.setData(workStationGridDao.queryGridFloorDictList(query));
+		return result;
+	}
+	@Override
+	public Result<WorkStationGridCountVo> queryPageCount(WorkStationGridQuery query) {
+		Result<WorkStationGridCountVo> result = Result.success();
+		Result<Boolean> checkResult = this.checkParamForQueryPageList(query);
+		if(!checkResult.isSuccess()){
+		    return Result.fail(checkResult.getMessage());
+		}
+		result.setData(workStationGridDao.queryPageCount(query));
 		return result;
 	}
 }

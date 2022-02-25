@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.station.api.WorkStationJsfService;
 import com.jd.bluedragon.distribution.station.domain.WorkStation;
+import com.jd.bluedragon.distribution.station.domain.WorkStationCountVo;
 import com.jd.bluedragon.distribution.station.query.WorkStationQuery;
 import com.jd.bluedragon.distribution.station.service.WorkStationService;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
@@ -74,6 +75,15 @@ public class WorkStationJsfServiceImpl implements WorkStationJsfService {
 	 */
 	public Result<PageDto<WorkStation>> queryPageList(WorkStationQuery query){
 		return workStationService.queryPageList(query);
+	 }
+	/**
+	 * 按条件查询统计信息
+	 * @param query
+	 * @return
+	 */	
+	@Override	
+	public Result<WorkStationCountVo> queryPageCount(WorkStationQuery query){
+		return workStationService.queryPageCount(query);
 	 }
 	@Override
 	public Result<List<WorkStation>> queryAreaDictList(WorkStationQuery query) {

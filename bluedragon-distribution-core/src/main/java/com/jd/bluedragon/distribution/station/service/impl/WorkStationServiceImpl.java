@@ -14,6 +14,7 @@ import com.jd.bluedragon.core.objectid.IGenerateObjectId;
 import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.station.dao.WorkStationDao;
 import com.jd.bluedragon.distribution.station.domain.WorkStation;
+import com.jd.bluedragon.distribution.station.domain.WorkStationCountVo;
 import com.jd.bluedragon.distribution.station.query.WorkStationQuery;
 import com.jd.bluedragon.distribution.station.service.WorkStationService;
 import com.jd.bluedragon.dms.utils.DmsConstants;
@@ -193,5 +194,15 @@ public class WorkStationServiceImpl implements WorkStationService {
 	@Override
 	public boolean isExist(WorkStation data) {
 		return workStationDao.queryByBusinessKey(data) != null;
+	}
+	@Override
+	public Result<WorkStationCountVo> queryPageCount(WorkStationQuery query) {
+		Result<WorkStationCountVo> result = Result.success();
+		Result<Boolean> checkResult = this.checkParamForQueryPageList(query);
+		if(!checkResult.isSuccess()){
+		    return Result.fail(checkResult.getMessage());
+		}
+		result.setData(workStationDao.queryPageCount(query));
+		return result;
 	}
 }

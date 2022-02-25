@@ -5,6 +5,7 @@ import java.util.List;
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.station.dao.WorkStationGridDao;
 import com.jd.bluedragon.distribution.station.domain.WorkStationGrid;
+import com.jd.bluedragon.distribution.station.domain.WorkStationGridCountVo;
 import com.jd.bluedragon.distribution.station.query.WorkStationGridQuery;
 import com.jd.dms.wb.sdk.vo.station.WorkStationGridVo;
 
@@ -93,6 +94,10 @@ public class WorkStationGridDaoImpl extends BaseDao<WorkStationGrid> implements 
 	@Override
 	public List<WorkStationGrid> queryGridFloorDictList(WorkStationGridQuery query) {
 		return this.getSqlSession().selectList(NAMESPACE+".queryGridFloorDictList",query);
+	}
+	@Override
+	public WorkStationGridCountVo queryPageCount(WorkStationGridQuery query) {
+		return this.getSqlSession().selectOne(NAMESPACE+".queryPageCount",query);
 	}
 
 }
