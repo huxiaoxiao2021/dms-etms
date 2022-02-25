@@ -195,8 +195,8 @@ public class QualityControlService {
             }
             set.add(sendDetail.getWaybillCode());
 
-            QualityControl qualityControl = convert2QualityControl(waybillCode, request, null);
-            log.info("分拣中心新异常提交结果同步运单状态开始，消息体：{}", JsonHelper.toJson(qualityControl));
+            // QualityControl qualityControl = convert2QualityControl(waybillCode, request, null);
+            // log.info("分拣中心新异常提交结果同步运单状态开始，消息体：{}", JsonHelper.toJson(qualityControl));
             // 更新运单状态
             updateWaybillStatus(waybillCode, request, operateSite, null);
             //异常处理 节点发MQ 换新单
