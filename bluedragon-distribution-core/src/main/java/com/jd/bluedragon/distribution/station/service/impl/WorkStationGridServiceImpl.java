@@ -59,6 +59,7 @@ public class WorkStationGridServiceImpl implements WorkStationGridService {
 		if(!result.isSuccess()) {
 			return result;
 		}
+		insertData.setBusinessKey(DmsConstants.CODE_PREFIX_WORK_STATION_GRID.concat(StringHelper.padZero(this.genObjectId.getObjectId(WorkStationGrid.class.getName()),11)));
 		result.setData(workStationGridDao.insert(insertData) == 1);
 		return result;
 	 }

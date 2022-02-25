@@ -36,12 +36,12 @@
 	</resultMap>
 
 	<sql id="Base_Column_List" >
-		id,business_key,org_code,site_code,wave_code,plan_name,
-		plan_attend_num,ref_grid_key,ref_station_key,version_num,enable_time,
-		disable_time,create_user,create_user_name,update_user,update_user_name,
-		create_time,update_time,yn,ts,org_name,
-		site_name,floor,grid_no,grid_code,grid_name,
-		area_code,area_name,work_code,work_name
+		p.id,p.business_key,p.org_code,p.site_code,p.wave_code,p.plan_name,
+		p.plan_attend_num,p.ref_grid_key,p.ref_station_key,p.version_num,p.enable_time,
+		p.disable_time,p.create_user,p.create_user_name,p.update_user,p.update_user_name,
+		p.create_time,p.update_time,p.yn,p.ts,
+		g.org_name,g.site_name,g.floor,g.grid_no,g.grid_code,g.grid_name,
+		s.area_code,s.area_name,s.work_code,s.work_name
 	</sql>
 
 	<insert id="insert" parameterType="com.jd.bluedragon.distribution.station.domain.WorkStationAttendPlan" useGeneratedKeys="true" keyProperty="id">
@@ -108,36 +108,6 @@
 				<if test="ts != null" >
 					ts,
 				</if>
-				<if test="orgName != null" >
-					org_name,
-				</if>
-				<if test="siteName != null" >
-					site_name,
-				</if>
-				<if test="floor != null" >
-					floor,
-				</if>
-				<if test="gridNo != null" >
-					grid_no,
-				</if>
-				<if test="gridCode != null" >
-					grid_code,
-				</if>
-				<if test="gridName != null" >
-					grid_name,
-				</if>
-				<if test="areaCode != null" >
-					area_code,
-				</if>
-				<if test="areaName != null" >
-					area_name,
-				</if>
-				<if test="workCode != null" >
-					work_code,
-				</if>
-				<if test="workName != null" >
-					work_name,
-				</if>
 			</trim>
 			)
 			values
@@ -202,36 +172,6 @@
 				</if>
 				<if test="ts != null" >
 					#{ts,jdbcType=TIMESTAMP},
-				</if>
-				<if test="orgName != null" >
-					#{orgName,jdbcType=VARCHAR},
-				</if>
-				<if test="siteName != null" >
-					#{siteName,jdbcType=VARCHAR},
-				</if>
-				<if test="floor != null" >
-					#{floor,jdbcType=INTEGER},
-				</if>
-				<if test="gridNo != null" >
-					#{gridNo,jdbcType=VARCHAR},
-				</if>
-				<if test="gridCode != null" >
-					#{gridCode,jdbcType=VARCHAR},
-				</if>
-				<if test="gridName != null" >
-					#{gridName,jdbcType=VARCHAR},
-				</if>
-				<if test="areaCode != null" >
-					#{areaCode,jdbcType=VARCHAR},
-				</if>
-				<if test="areaName != null" >
-					#{areaName,jdbcType=VARCHAR},
-				</if>
-				<if test="workCode != null" >
-					#{workCode,jdbcType=VARCHAR},
-				</if>
-				<if test="workName != null" >
-					#{workName,jdbcType=VARCHAR},
 				</if>
 			</trim>
 			)
@@ -300,60 +240,109 @@
 				<if test="ts != null" >
 					ts = #{ts,jdbcType=TIMESTAMP},
 				</if>
-				<if test="orgName != null" >
-					org_name = #{orgName,jdbcType=VARCHAR},
-				</if>
-				<if test="siteName != null" >
-					site_name = #{siteName,jdbcType=VARCHAR},
-				</if>
-				<if test="floor != null" >
-					floor = #{floor,jdbcType=INTEGER},
-				</if>
-				<if test="gridNo != null" >
-					grid_no = #{gridNo,jdbcType=VARCHAR},
-				</if>
-				<if test="gridCode != null" >
-					grid_code = #{gridCode,jdbcType=VARCHAR},
-				</if>
-				<if test="gridName != null" >
-					grid_name = #{gridName,jdbcType=VARCHAR},
-				</if>
-				<if test="areaCode != null" >
-					area_code = #{areaCode,jdbcType=VARCHAR},
-				</if>
-				<if test="areaName != null" >
-					area_name = #{areaName,jdbcType=VARCHAR},
-				</if>
-				<if test="workCode != null" >
-					work_code = #{workCode,jdbcType=VARCHAR},
-				</if>
-				<if test="workName != null" >
-					work_name = #{workName,jdbcType=VARCHAR},
-				</if>
 			</set>
 		where id = #{id,jdbcType=BIGINT}
 	</update>
 
-	<update id="deleteById" parameterType="java.lang.Long">
+	<update id="deleteById" parameterType="com.jd.bluedragon.distribution.station.domain.WorkStationAttendPlan">
 		update work_station_attend_plan
-			set yn = 0
+			set 
+			<if test="updateUser != null" >
+				update_user = #{updateUser,jdbcType=VARCHAR},
+			</if>
+			<if test="updateTime != null" >
+				update_time = #{updateTime,jdbcType=TIMESTAMP},
+			</if>
+			   yn = 0
 		where id = #{id,jdbcType=BIGINT}
 	</update>
-
+	
+	<update id="deleteByBusinessKey" parameterType="com.jd.bluedragon.distribution.station.domain.WorkStationAttendPlan">
+		update work_station_attend_plan
+			set 
+			<if test="updateUser != null" >
+				update_user = #{updateUser,jdbcType=VARCHAR},
+			</if>
+			<if test="updateTime != null" >
+				update_time = #{updateTime,jdbcType=TIMESTAMP},
+			</if>
+			   yn = 0
+		where yn = 1
+			and	ref_grid_key = #{refGridKey,jdbcType=VARCHAR}
+			and wave_code = #{waveCode,jdbcType=VARCHAR}
+	</update>
+	
+	<select id="queryByBusinessKey" parameterType="com.jd.bluedragon.distribution.station.domain.WorkStationAttendPlan" resultMap="WorkStationAttendPlan">
+		select
+			<include refid="Base_Column_List"/>
+		from
+			work_station_attend_plan p
+		<include refid="joinSql"/>
+		where p.yn = 1 
+			and	p.ref_grid_key = #{refGridKey,jdbcType=VARCHAR}
+			and p.wave_code = #{waveCode,jdbcType=VARCHAR}
+	</select>
+	
 	<select id="queryById" parameterType="java.lang.Long" resultMap="WorkStationAttendPlan">
 		select
 			<include refid="Base_Column_List"/>
 		from
-			work_station_attend_plan t
-		where yn = 1 and id = #{id,jdbcType=BIGINT}
+			work_station_attend_plan p
+		<include refid="joinSql"/>
+		where p.yn = 1 and p.id = #{id,jdbcType=BIGINT}
 	</select>
-
-	<select id="queryListByConditionWithPage" parameterType="java.util.Map" resultMap="WorkStationAttendPlan">
+	
+	<select id="queryList" parameterType="com.jd.bluedragon.distribution.station.query.WorkStationAttendPlanQuery" resultMap="WorkStationAttendPlan">
 		select
 			<include refid="Base_Column_List"/>
 		from
-			work_station_attend_plan t
-		where yn = 1 
+			work_station_attend_plan p
+		<include refid="joinSql"/>
+		<include refid="queryCondition"/>
+		<if test="pageNumber > 0">
+            limit #{offset}, #{limit}
+        </if>		
 	</select>
+
+	<select id="queryCount" parameterType="com.jd.bluedragon.distribution.station.query.WorkStationAttendPlanQuery" resultType="long">
+		select
+			count(1)
+		from
+			work_station_attend_plan p
+		<include refid="joinSql"/>			
+		<include refid="queryCondition"/>
+	</select>
+	
+	<sql id="joinSql">
+	 left outer join work_station s on p.ref_station_key = s.business_key and s.yn = 1
+	 left outer join work_station_grid g on p.ref_grid_key = g.business_key and g.yn = 1
+	</sql>
+		
+	<sql id="queryCondition">
+		<where>
+			p.yn = 1
+		<if test="orgCode != null" >
+			and p.org_code = #{orgCode,jdbcType=INTEGER}
+		</if>
+		<if test="siteCode != null" >
+			and p.site_code = #{siteCode,jdbcType=INTEGER}
+		</if>
+		<if test="waveCode != null" >
+			and p.wave_code = #{waveCode,jdbcType=TINYINT}
+		</if>		
+		<if test="gridNo != null and gridNo != ''" >
+			and g.grid_no = #{gridNo,jdbcType=VARCHAR}
+		</if>
+		<if test="gridCode != null and gridCode != ''" >
+			and g.grid_code = #{gridCode,jdbcType=VARCHAR}
+		</if>
+		<if test="areaCode != null and areaCode != ''" >
+			and s.area_code = #{areaCode,jdbcType=VARCHAR}
+		</if>
+		<if test="workCode != null and workCode != ''" >
+			and s.work_code = #{workCode,jdbcType=VARCHAR}
+		</if>		
+		</where>
+	</sql>
 
 </mapper>

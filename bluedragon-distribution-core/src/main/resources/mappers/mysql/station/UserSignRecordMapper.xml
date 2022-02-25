@@ -35,7 +35,31 @@
 		<result column="work_name" property="workName" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="plan_name" property="planName" javaType="java.lang.String" jdbcType="VARCHAR" />
 	</resultMap>
-
+	
+	<resultMap id="UserSignRecordReportVo" type="com.jd.bluedragon.distribution.station.domain.UserSignRecordReportVo" >
+		<result column="sign_date" property="signDate" javaType="java.util.Date" jdbcType="DATE" />	
+		<result column="org_code" property="orgCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="org_name" property="orgName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="site_code" property="siteCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="site_name" property="siteName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="grid_no" property="gridNo" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="grid_name" property="gridName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="work_code" property="workCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="work_name" property="workName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="station_code" property="stationCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="station_name" property="stationName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="wave_code" property="waveCode" javaType="java.lang.Integer" jdbcType="TINYINT" />		
+		<result column="standard_num" property="standardNum" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="plan_attend_num" property="planAttendNum" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="attend_num" property="attendNum" javaType="java.lang.Integer" jdbcType="INTEGER" />				
+	</resultMap>
+	
+	<resultMap id="UserSignRecordReportSumVo" type="com.jd.bluedragon.distribution.station.domain.UserSignRecordReportSumVo" >
+		<result column="standard_num_sum" property="standardNumSum" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="plan_attend_num_sum" property="planAttendNumSum" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="attend_num_sum" property="attendNumSum" javaType="java.lang.Integer" jdbcType="INTEGER" />				
+	</resultMap>
+	
 	<sql id="Base_Column_List" >
 		id,org_code,site_code,user_code,wave_code,job_code,
 		sign_date,sign_in_time,sign_out_time,ref_plan_key,ref_grid_key,
@@ -109,39 +133,6 @@
 				<if test="ts != null" >
 					ts,
 				</if>
-				<if test="orgName != null" >
-					org_name,
-				</if>
-				<if test="siteName != null" >
-					site_name,
-				</if>
-				<if test="floor != null" >
-					floor,
-				</if>
-				<if test="gridNo != null" >
-					grid_no,
-				</if>
-				<if test="gridCode != null" >
-					grid_code,
-				</if>
-				<if test="gridName != null" >
-					grid_name,
-				</if>
-				<if test="areaCode != null" >
-					area_code,
-				</if>
-				<if test="areaName != null" >
-					area_name,
-				</if>
-				<if test="workCode != null" >
-					work_code,
-				</if>
-				<if test="workName != null" >
-					work_name,
-				</if>
-				<if test="planName != null" >
-					plan_name,
-				</if>
 			</trim>
 			)
 			values
@@ -206,39 +197,6 @@
 				</if>
 				<if test="ts != null" >
 					#{ts,jdbcType=TIMESTAMP},
-				</if>
-				<if test="orgName != null" >
-					#{orgName,jdbcType=VARCHAR},
-				</if>
-				<if test="siteName != null" >
-					#{siteName,jdbcType=VARCHAR},
-				</if>
-				<if test="floor != null" >
-					#{floor,jdbcType=INTEGER},
-				</if>
-				<if test="gridNo != null" >
-					#{gridNo,jdbcType=VARCHAR},
-				</if>
-				<if test="gridCode != null" >
-					#{gridCode,jdbcType=VARCHAR},
-				</if>
-				<if test="gridName != null" >
-					#{gridName,jdbcType=VARCHAR},
-				</if>
-				<if test="areaCode != null" >
-					#{areaCode,jdbcType=VARCHAR},
-				</if>
-				<if test="areaName != null" >
-					#{areaName,jdbcType=VARCHAR},
-				</if>
-				<if test="workCode != null" >
-					#{workCode,jdbcType=VARCHAR},
-				</if>
-				<if test="workName != null" >
-					#{workName,jdbcType=VARCHAR},
-				</if>
-				<if test="planName != null" >
-					#{planName,jdbcType=VARCHAR},
 				</if>
 			</trim>
 			)
@@ -307,46 +265,21 @@
 				<if test="ts != null" >
 					ts = #{ts,jdbcType=TIMESTAMP},
 				</if>
-				<if test="orgName != null" >
-					org_name = #{orgName,jdbcType=VARCHAR},
-				</if>
-				<if test="siteName != null" >
-					site_name = #{siteName,jdbcType=VARCHAR},
-				</if>
-				<if test="floor != null" >
-					floor = #{floor,jdbcType=INTEGER},
-				</if>
-				<if test="gridNo != null" >
-					grid_no = #{gridNo,jdbcType=VARCHAR},
-				</if>
-				<if test="gridCode != null" >
-					grid_code = #{gridCode,jdbcType=VARCHAR},
-				</if>
-				<if test="gridName != null" >
-					grid_name = #{gridName,jdbcType=VARCHAR},
-				</if>
-				<if test="areaCode != null" >
-					area_code = #{areaCode,jdbcType=VARCHAR},
-				</if>
-				<if test="areaName != null" >
-					area_name = #{areaName,jdbcType=VARCHAR},
-				</if>
-				<if test="workCode != null" >
-					work_code = #{workCode,jdbcType=VARCHAR},
-				</if>
-				<if test="workName != null" >
-					work_name = #{workName,jdbcType=VARCHAR},
-				</if>
-				<if test="planName != null" >
-					plan_name = #{planName,jdbcType=VARCHAR},
-				</if>
 			</set>
 		where id = #{id,jdbcType=BIGINT}
 	</update>
 
-	<update id="deleteById" parameterType="java.lang.Long">
+
+	<update id="deleteById" parameterType="com.jd.bluedragon.distribution.station.domain.UserSignRecord">
 		update user_sign_record
-			set yn = 0
+			set 
+			<if test="updateUser != null" >
+				update_user = #{updateUser,jdbcType=VARCHAR},
+			</if>
+			<if test="updateTime != null" >
+				update_time = #{updateTime,jdbcType=TIMESTAMP},
+			</if>
+			   yn = 0
 		where id = #{id,jdbcType=BIGINT}
 	</update>
 
@@ -354,16 +287,198 @@
 		select
 			<include refid="Base_Column_List"/>
 		from
-			user_sign_record t
-		where yn = 1 and id = #{id,jdbcType=BIGINT}
+			user_sign_record r
+			<include refid="joinSql"/>			
+		where r.yn = 1 and r.id = #{id,jdbcType=BIGINT}
 	</select>
 
-	<select id="queryListByConditionWithPage" parameterType="java.util.Map" resultMap="UserSignRecord">
+	<select id="queryList" parameterType="com.jd.bluedragon.distribution.station.query.UserSignRecordQuery" resultMap="UserSignRecord">
+		select
+			<include refid="Base_Column_List"/>
+		from
+			user_sign_record r
+		<include refid="joinSql"/>
+		<include refid="queryCondition"/>
+		order by r.user_code,r.sign_in_time desc
+		<if test="pageNumber > 0">
+            limit #{startRecord}, #{pageSize}
+        </if>		
+	</select>
+
+	<select id="queryCount" parameterType="com.jd.bluedragon.distribution.station.query.UserSignRecordQuery" resultType="long">
+		select
+			count(1)
+		from
+			user_sign_record r
+		<include refid="joinSql"/>			
+		<include refid="queryCondition"/>
+	</select>
+
+	<sql id="queryCondition">
+		<where>
+			r.yn = 1 
+		<if test="signDate != null" >
+			and r.sign_date = #{signDate,jdbcType=DATE}
+		</if>		
+		<if test="orgCode != null" >
+			and r.org_code = #{orgCode,jdbcType=INTEGER}
+		</if>
+		<if test="siteCode != null" >
+			and r.site_code = #{siteCode,jdbcType=INTEGER}
+		</if>
+		<if test="waveCode != null" >
+			and r.wave_code = #{waveCode,jdbcType=TINYINT}
+		</if>
+		<if test="createUser != null and createUser != ''" >
+			and r.create_user = #{createUser,jdbcType=VARCHAR}
+		</if>
+		<if test="signDateStart != null" >
+			and r.sign_date >= #{signDateStart,jdbcType=DATE}
+		</if>
+		<if test="signDateEnd != null" >
+			and r.sign_date &lt;= #{signDateEnd,jdbcType=DATE}
+		</if>		
+		</where>
+	</sql>
+	
+	<sql id="joinSql">
+   		left outer join work_station s on r.ref_station_key = s.business_key and s.yn = 1
+		left outer join work_station_grid g on r.ref_grid_key = g.business_key and g.yn = 1
+	</sql>
+	
+	<select id="queryReportList" parameterType="com.jd.bluedragon.distribution.station.query.UserSignRecordQuery" resultMap="UserSignRecordReportVo">
+		select 
+			rc.sign_date,g.org_code,g.org_name,rc.site_code,g.site_name,g.grid_no,g.grid_name,
+			s.work_code,s.work_name,rc.station_code,s.station_name,rc.wave_code,
+			g.standard_num,p.plan_attend_num,rc.attend_num
+		from
+			(select r.sign_date,r.ref_plan_key,r.ref_grid_key,r.ref_station_key,
+				sum(case when r.sign_in_time is not null and r.sign_out_time is null then 1 else 0 end) attend_num 
+			from  user_sign_record r 
+			<include refid="queryReportCondition"/>
+   			group by r.sign_date,ref_plan_key) rc
+   		left outer join work_station s on rc.ref_station_key = s.business_key and s.yn = 1
+		left outer join work_station_grid g on rc.ref_grid_key = g.business_key and g.yn = 1
+ 		left outer join work_station_attend_plan p on rc.ref_plan_key = p.business_key and g.yn = 1
+		<if test="pageNumber > 0">
+            limit #{startRecord}, #{pageSize}
+        </if>
+	</select>
+	
+	<select id="queryReportCount" parameterType="com.jd.bluedragon.distribution.station.query.UserSignRecordQuery" resultType="long">
+		select 
+			count(1)
+		from
+			(select r.sign_date,r.ref_plan_key,r.ref_grid_key,r.ref_station_key 
+			from  user_sign_record r 
+			<include refid="queryReportCondition"/>
+   			group by r.sign_date,ref_plan_key) rc
+   		left outer join work_station s on rc.ref_station_key = s.business_key and s.yn = 1
+		left outer join work_station_grid g on rc.ref_grid_key = g.business_key and g.yn = 1
+ 		left outer join work_station_attend_plan p on rc.ref_plan_key = p.business_key and g.yn = 1
+	</select>
+	
+	<select id="queryReportSum" parameterType="com.jd.bluedragon.distribution.station.query.UserSignRecordQuery" resultMap="UserSignRecordReportSumVo">
+		select sum(u.standard_num_sum) standard_num_sum, 
+			   sum(u.plan_attend_num_sum) plan_attend_num_sum, 
+			   sum(u.attend_num_sum) attend_num_sum
+		from(
+			select 
+				0 standard_num_sum,
+				sum(case when p.plan_attend_num is null then 0 else p.plan_attend_num end) plan_attend_num_sum,
+				sum(rc.attend_num) attend_num_sum
+			from(
+				select r.site_code,r.grid_no,r.station_code,r.wave_code,
+					sum(case when r.sign_in_time is not null and r.sign_out_time is null then 1 else 0 end) attend_num 
+				  from  user_sign_record r 
+				  <include refid="queryReportCondition"/>
+		   			group by r.site_code,r.grid_no,r.station_code,r.wave_code) rc
+		 			left outer join work_station_attend_plan p on rc.station_code = p.station_code and rc.site_code = p.site_code and rc.grid_no = p.grid_no and rc.wave_code = p.wave_code and p.yn = 1
+			union all
+			select 
+				sum(case when g.standard_num is null then 0 else g.standard_num end) standard_num_sum,
+				0 plan_attend_num_sum,
+				0 attend_num_sum
+			from
+				(select r.ref_grid_key
+				from  user_sign_record r 
+				<include refid="queryReportCondition"/>
+	   			group by r.ref_grid_key) rc
+				left outer join work_station_grid g on rc.station_code = g.station_code and rc.site_code = g.site_code and rc.grid_no = g.grid_no and g.yn = 1
+				<include refid="queryReportConditionRef"/>
+		) u
+	</select>
+	
+	<sql id="queryReportCondition">
+		<where>
+			r.yn = 1
+		<if test="signDate != null" >
+			and r.sign_date = #{signDate,jdbcType=DATE}
+		</if>		
+		<if test="orgCode != null" >
+			and r.org_code = #{orgCode,jdbcType=INTEGER}
+		</if>
+		<if test="siteCode != null" >
+			and r.site_code = #{siteCode,jdbcType=INTEGER}
+		</if>	
+		<if test="waveCode != null" >
+			and r.wave_code = #{waveCode,jdbcType=TINYINT}
+		</if>
+		<if test="createUser != null and createUser != ''" >
+			and r.create_user = #{createUser,jdbcType=VARCHAR}
+		</if>
+		<if test="signDateStart != null" >
+			and r.sign_date >= #{signDateStart,jdbcType=DATE}
+		</if>
+		<if test="signDateEnd != null" >
+			and r.sign_date &lt;= #{signDateEnd,jdbcType=DATE}
+		</if>
+		</where>
+	</sql>
+	<sql id="queryReportConditionRef">
+		<where>
+		    1 = 1
+		<if test="gridNo != null and gridNo != ''" >
+			and g.grid_no = #{gridNo,jdbcType=VARCHAR}
+		</if>
+		<if test="gridNo != null and gridNo != ''" >
+			and g.grid_no = #{gridNo,jdbcType=VARCHAR}
+		</if>
+		<if test="areaCode != null and areaCode != ''" >
+			and s.area_code = #{areaCode,jdbcType=VARCHAR}
+		</if>
+		<if test="workCode != null and workCode != ''" >
+			and s.work_code = #{workCode,jdbcType=VARCHAR}
+		</if>
+		</where>
+	</sql>	
+	<select id="queryByBusinessKey" parameterType="com.jd.bluedragon.distribution.station.domain.UserSignRecord" resultMap="UserSignRecord">
 		select
 			<include refid="Base_Column_List"/>
 		from
 			user_sign_record t
-		where yn = 1 
+		where yn = 1
+			and sign_date = #{signDate,jdbcType=DATE}
+			and	site_code = #{siteCode,jdbcType=INTEGER}
+			and	grid_no = #{gridNo,jdbcType=VARCHAR}
+			and station_code = #{stationCode,jdbcType=VARCHAR}			
+			and wave_code = #{waveCode,jdbcType=VARCHAR}
+			and user_code = #{userCode,jdbcType=VARCHAR}
+	</select>
+	
+	<select id="queryLastSignRecord" parameterType="com.jd.bluedragon.distribution.station.query.UserSignRecordQuery" resultMap="UserSignRecord">
+		select
+			<include refid="Base_Column_List"/>
+		from
+			user_sign_record t
+		where yn = 1
+			and	site_code = #{siteCode,jdbcType=INTEGER}
+			and user_code = #{userCode,jdbcType=VARCHAR}
+		<if test="signDate != null" >
+			and sign_date = #{signDate,jdbcType=DATE}
+		</if>			
+		order by sign_in_time desc
+		limit 1
 	</select>
 
 </mapper>

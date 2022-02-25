@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.objectid.IGenerateObjectId;
 import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.station.dao.WorkStationAttendPlanDao;
 import com.jd.bluedragon.distribution.station.domain.WorkStation;
@@ -51,6 +52,9 @@ public class WorkStationAttendPlanServiceImpl implements WorkStationAttendPlanSe
 	
 	@Autowired
 	private BaseMajorManager baseMajorManager;
+	
+	@Autowired
+	private IGenerateObjectId genObjectId;
 
 	/**
 	 * 插入一条数据
@@ -62,6 +66,7 @@ public class WorkStationAttendPlanServiceImpl implements WorkStationAttendPlanSe
 		if(!result.isSuccess()) {
 			return result;
 		}
+		insertData.setBusinessKey(DmsConstants.CODE_PREFIX_WORK_STATION_ATTEND_PLAN.concat(StringHelper.padZero(this.genObjectId.getObjectId(WorkStationAttendPlan.class.getName()),11)));
 		result.setData(workStationAttendPlanDao.insert(insertData) == 1);
 		return result;
 	 }
@@ -183,6 +188,16 @@ public class WorkStationAttendPlanServiceImpl implements WorkStationAttendPlanSe
 		}
 		//先删除后插入新记录
 		for(WorkStationAttendPlan data : dataList) {
+			WorkStationAttendPlan oldData = workStationAttendPlanDao.queryByBusinessKey(data);
+			if(oldData != null) {
+				oldData.setUpdateUser(data.getCreateUser());
+				oldData.setUpdateUserName(data.getCreateUserName());
+				oldData.setUpdateTime(data.getCreateTime());
+				workStationAttendPlanDao.deleteById(oldData);
+				data.setBusinessKey(oldData.getBusinessKey());
+			}else {
+				data.setBusinessKey(DmsConstants.CODE_PREFIX_WORK_STATION_ATTEND_PLAN.concat(StringHelper.padZero(this.genObjectId.getObjectId(WorkStationAttendPlan.class.getName()),11)));
+			}			
 			workStationAttendPlanDao.deleteByBusinessKey(data);
 			workStationAttendPlanDao.insert(data);
 		}
@@ -219,6 +234,7 @@ public class WorkStationAttendPlanServiceImpl implements WorkStationAttendPlanSe
 		Result<Boolean> result = Result.success();
 		Integer siteCode = data.getSiteCode();
 		String gridNo = data.getGridNo();
+		String areaCode = data.getAreaCode();
 		String workCode = data.getWorkCode();
 		Integer waveCode = data.getWaveCode();
 		if(siteCode == null
@@ -242,16 +258,25 @@ public class WorkStationAttendPlanServiceImpl implements WorkStationAttendPlanSe
 		
 		WorkStation workStationCheckQuery = new WorkStation();
 		workStationCheckQuery.setWorkCode(workCode);
-		if(!workStationService.isExist(workStationCheckQuery)) {
-			return result.toFail("工序岗位信息不存在，请先维护岗位信息！");
+		workStationCheckQuery.setAreaCode(areaCode);
+		Result<WorkStation> workStationData = workStationService.queryByBusinessKey(workStationCheckQuery);
+		if(workStationData == null
+				|| workStationData.getData() == null) {
+			return result.toFail("工序信息不存在，请先维护工序信息！");
 		}
+		WorkStation workStation = workStationData.getData();
+		data.setRefStationKey(workStation.getBusinessKey());
+		//校验并设置网格信息
 		WorkStationGrid workStationGridCheckQuery = new WorkStationGrid();
 		workStationGridCheckQuery.setSiteCode(siteCode);
 		workStationGridCheckQuery.setGridNo(gridNo);
-		workStationGridCheckQuery.setWorkCode(workCode);
-		if(!workStationGridService.isExist(workStationGridCheckQuery)) {
+		workStationGridCheckQuery.setRefStationKey(workStation.getBusinessKey());
+		Result<WorkStationGrid> workStationGridData = workStationGridService.queryByBusinessKey(workStationGridCheckQuery);
+		if(workStationGridData == null
+				|| workStationGridData.getData() == null) {
 			return result.toFail("网格信息不存在，请先维护场地网格信息！");
 		}
+		data.setRefGridKey(workStationGridData.getData().getBusinessKey());
 		return result;
 	}
 	@Override

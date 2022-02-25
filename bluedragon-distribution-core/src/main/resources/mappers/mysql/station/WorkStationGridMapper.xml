@@ -105,12 +105,6 @@
 				<if test="ts != null" >
 					ts,
 				</if>
-				<if test="areaCode != null" >
-					area_code,
-				</if>
-				<if test="workCode != null" >
-					work_code,
-				</if>
 			</trim>
 			)
 			values
@@ -178,12 +172,6 @@
 				</if>
 				<if test="ts != null" >
 					#{ts,jdbcType=TIMESTAMP},
-				</if>
-				<if test="areaCode != null" >
-					#{areaCode,jdbcType=VARCHAR},
-				</if>
-				<if test="workCode != null" >
-					#{workCode,jdbcType=VARCHAR},
 				</if>
 			</trim>
 			)
@@ -254,12 +242,6 @@
 				</if>
 				<if test="ts != null" >
 					ts = #{ts,jdbcType=TIMESTAMP},
-				</if>
-				<if test="areaCode != null" >
-					area_code = #{areaCode,jdbcType=VARCHAR},
-				</if>
-				<if test="workCode != null" >
-					work_code = #{workCode,jdbcType=VARCHAR},
 				</if>
 			</set>
 		where id = #{id,jdbcType=BIGINT}
@@ -411,13 +393,14 @@
 			g.grid_no
 		from
 			work_station_grid g
+			<include refid="joinSql"/>			
 		where g.yn = 1 
 		    and g.site_code = #{siteCode,jdbcType=INTEGER}
 		<if test="floor != null" >
 			and g.floor = #{floor,jdbcType=INTEGER}
 		</if>
 		<if test="areaCode != null and areaCode != ''" >
-			and g.area_code = #{areaCode,jdbcType=VARCHAR}
+			and s.area_code = #{areaCode,jdbcType=VARCHAR}
 		</if>		    		    
 		group by g.grid_no
 	</select>	

@@ -46,6 +46,7 @@ public class WorkStationServiceImpl implements WorkStationService {
 	 */
 	public Result<Boolean> insert(WorkStation insertData){
 		Result<Boolean> result = Result.success();
+		insertData.setBusinessKey(DmsConstants.CODE_PREFIX_WORK_STATION.concat(StringHelper.padZero(this.genObjectId.getObjectId(WorkStation.class.getName()),11)));
 		result.setData(workStationDao.insert(insertData) == 1);
 		return result;
 	 }
