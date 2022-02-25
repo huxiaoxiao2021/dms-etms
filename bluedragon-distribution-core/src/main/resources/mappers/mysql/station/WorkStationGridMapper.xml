@@ -390,7 +390,7 @@
 	</select>	
 	<select id="queryGridNoDictList" parameterType="com.jd.bluedragon.distribution.station.query.WorkStationGridQuery" resultMap="WorkStationGrid">
 		select
-			g.grid_no
+			g.grid_no,max(g.grid_name) grid_name
 		from
 			work_station_grid g
 			<include refid="joinSql"/>			
