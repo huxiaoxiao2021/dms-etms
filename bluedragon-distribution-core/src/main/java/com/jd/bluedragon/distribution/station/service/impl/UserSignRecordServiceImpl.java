@@ -5,6 +5,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -64,6 +68,10 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	WorkStationAttendPlanService workStationAttendPlanService;
 	
 	private static final DecimalFormat NUMBER_FORMAT = new DecimalFormat("0.00");
+
+    @Autowired
+    private UccPropertyConfiguration uccConfiguration;
+
 	/**
 	 * 插入一条数据
 	 * @param insertData
@@ -233,15 +241,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	@Override
 	public Result<Boolean> signIn(UserSignRecord signInRequest) {
 		Result<Boolean> result = Result.success();
-//		UserSignRecord data = userSignRecordDao.queryByBusinessKey(signInRequest);
-//		if(data != null) {
-//			return result.toFail("该用户已签到！");
-//		}
-        Date signInTime = new Date();
-		signInRequest.setCreateTime(signInTime);
-		signInRequest.setSignInTime(signInTime);
-        signInRequest.setSignDate(signInRequest.getSignInTime());
-		
+
 		Integer siteCode = signInRequest.getSiteCode();
 		String gridNo = signInRequest.getGridNo();
 		String areaCode = signInRequest.getAreaCode();
@@ -278,10 +278,23 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 			signInRequest.setRefPlanKey(planData.getData().getBusinessKey());
 		}
 		
-        userSignRecordDao.insert(signInRequest);
+        Date now = new Date();
         
         // 自动将上次未签退数据签退。
-        result = autoSignOutLastSignInRecord(signInRequest, signInTime);
+        boolean autoSignOutSuccess = autoSignOutLastSignInRecord(signInRequest, now);
+
+        Date signInTime = now;
+        if (autoSignOutSuccess) {
+            signInTime = new Date(now.getTime() + 1000);
+        }
+        signInRequest.setCreateTime(signInTime);
+        signInRequest.setSignInTime(signInTime);
+        signInRequest.setSignDate(signInRequest.getSignInTime());
+        userSignRecordDao.insert(signInRequest);
+
+        if (autoSignOutSuccess) {
+            result = new Result<>(201, "签到成功，自动将上次签到数据签退！");
+        }
 
         return result;
 	}
@@ -289,24 +302,20 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
     /**
      * 自动签退逻辑
      * @param signInRequest
-     * @param signInTime
+     * @param signOutTime
      */
-    private Result<Boolean> autoSignOutLastSignInRecord(UserSignRecord signInRequest, Date signInTime) {
+    private boolean autoSignOutLastSignInRecord(UserSignRecord signInRequest, Date signOutTime) {
         UserSignRecord lastSignRecord = getLastSignRecord(signInRequest);
         if (lastSignRecord != null && lastSignRecord.getSignOutTime() == null) {
             UserSignRecord signOutRequest = new UserSignRecord();
 
-            // 自动签退时间比本次签到时间早一秒
-            Date signOutTime = new Date(signInTime.getTime() - 1000);
             signOutRequest.setId(lastSignRecord.getId());
             signOutRequest.setUpdateTime(signOutTime);
             signOutRequest.setSignOutTime(signOutTime);
-            if (userSignRecordDao.updateById(signOutRequest) > 0) {
-                return new Result<>(201, "签到成功，自动将上次签到数据签退！");
-            }
+            return userSignRecordDao.updateById(signOutRequest) > 0;
         }
 
-        return Result.success();
+        return false;
     }
 
     @Override
@@ -358,4 +367,18 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		result.setData(userSignRecordDao.queryReportSum(query));
 		return result;
 	}
+
+    @Override
+    @JProfiler(jKey = "DMS.WEB.UserSignRecordService.autoHandleSignInRecord", jAppName= Constants.UMP_APP_NAME_DMSWORKER, mState={JProEnum.TP, JProEnum.FunctionError})
+    public Result<Integer> autoHandleSignInRecord() {
+        Result<Integer> result = Result.success();
+        int notSignedOutRecordMoreThanHours = uccConfiguration.getNotSignedOutRecordMoreThanHours();
+        if (notSignedOutRecordMoreThanHours < 0) {
+            return result;
+        }
+
+
+
+        return null;
+    }
 }
