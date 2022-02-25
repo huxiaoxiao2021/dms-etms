@@ -90,7 +90,7 @@ public class ArAbnormalServiceImpl implements ArAbnormalService {
     @Autowired
     private BaseMajorManager baseMajorManager;
     
-    @Autowired(required = false)
+    @Autowired
     @Qualifier("checkCanAirToRoadJobHandler")
     private JobHandler<List<String>,List<String>> checkCanAirToRoadJobHandler;
     
