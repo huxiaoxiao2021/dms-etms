@@ -497,13 +497,13 @@
 		from
 			user_sign_record r
 		<include refid="joinSql"/>			
-		where yn = 1
+		where r.yn = 1
 			and	r.site_code = #{siteCode,jdbcType=INTEGER}
 			and r.user_code = #{userCode,jdbcType=VARCHAR}
 		<if test="signDate != null" >
-			and sign_date = #{signDate,jdbcType=DATE}
-		</if>			
-		order by sign_in_time desc
+			and r.sign_date = #{signDate,jdbcType=DATE}
+		</if>
+		order by r.sign_in_time desc
 		limit 1
 	</select>
 

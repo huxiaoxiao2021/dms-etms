@@ -41,6 +41,12 @@ public interface WorkStationAttendPlanService {
 	 */
 	Result<WorkStationAttendPlan> queryById(Long id);
 	/**
+	 * 根据businessKeys查询
+	 * @param id
+	 * @return
+	 */
+	Result<WorkStationAttendPlan> queryByBusinessKeys(WorkStationAttendPlan data);
+	/**
 	 * 按条件分页查询
 	 * @param query
 	 * @return
