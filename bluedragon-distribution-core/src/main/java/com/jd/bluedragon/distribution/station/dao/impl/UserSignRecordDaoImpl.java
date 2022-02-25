@@ -1,6 +1,9 @@
 package com.jd.bluedragon.distribution.station.dao.impl;
 
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.stereotype.Repository;
 
@@ -91,4 +94,20 @@ public class UserSignRecordDaoImpl extends BaseDao<UserSignRecord> implements Us
 	public UserSignRecordReportSumVo queryReportSum(UserSignRecordQuery query) {
 		return this.getSqlSession().selectOne(NAMESPACE+".queryReportSum",query);
 	}
+
+    @Override
+    public List<Long> querySignInMoreThanSpecifiedTime(Date signInTime, Integer limit) {
+        Map<String, Object> param = new HashMap<>();
+        param.put("signInTime", signInTime);
+        param.put("limit", limit);
+        return this.getSqlSession().selectList(NAMESPACE + ".querySignInMoreThanSpecifiedTime", param);
+    }
+
+    @Override
+    public int signOutById(UserSignRecord signOutRequest, List<Long> list) {
+        Map<String, Object> param = new HashMap<>();
+        param.put("param", signOutRequest);
+        param.put("list", list);
+        return this.getSqlSession().update(NAMESPACE + ".signOutById", param);
+    }
 }
