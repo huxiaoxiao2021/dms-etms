@@ -202,7 +202,7 @@
 			)
 	</insert>
 
-	<update id="update" parameterType="com.jd.bluedragon.distribution.station.domain.UserSignRecord">
+	<update id="updateById" parameterType="com.jd.bluedragon.distribution.station.domain.UserSignRecord">
 		update user_sign_record
 			<set>
 				<if test="id != null" >
@@ -299,7 +299,7 @@
 			user_sign_record r
 		<include refid="joinSql"/>
 		<include refid="queryCondition"/>
-		order by r.user_code,r.sign_in_time desc
+		order by r.ts desc
 		<if test="pageNumber > 0">
             limit #{startRecord}, #{pageSize}
         </if>		
