@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.station.api.WorkStationGridJsfService;
 import com.jd.bluedragon.distribution.station.domain.WorkStationGrid;
+import com.jd.bluedragon.distribution.station.domain.WorkStationGridCountVo;
 import com.jd.bluedragon.distribution.station.query.WorkStationGridQuery;
 import com.jd.bluedragon.distribution.station.service.WorkStationGridService;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
@@ -71,6 +72,15 @@ public class WorkStationGridJsfServiceImpl implements WorkStationGridJsfService 
 	public Result<PageDto<WorkStationGrid>> queryPageList(WorkStationGridQuery query){
 		return workStationGridService.queryPageList(query);
 	 }
+	/**
+	 * 按条件查询统计信息
+	 * @param query
+	 * @return
+	 */	
+	@Override	
+	public Result<WorkStationGridCountVo> queryPageCount(WorkStationGridQuery query){
+		return workStationGridService.queryPageCount(query);
+	 }	
 	@Override
 	public Result<List<WorkStationGrid>> queryAllGridBySiteCode(WorkStationGridQuery query) {
 		return workStationGridService.queryAllGridBySiteCode(query);

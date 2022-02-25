@@ -21,9 +21,17 @@ public class UserSignRecordReportSumVo implements Serializable {
 	 */
 	private Integer planAttendNumSum;
 	/**
-	 * 实到人数总计
+	 * 实际出勤人数总计
 	 */
 	private Integer attendNumSum;
+	/**
+	 * 实时在岗人数总计
+	 */
+	private Integer nowAttendNumSum;
+	/**
+	 * 计划偏离度
+	 */
+	private String deviationPlanRate;
 	
 	public Integer getStandardNumSum() {
 		return standardNumSum;
@@ -42,5 +50,17 @@ public class UserSignRecordReportSumVo implements Serializable {
 	}
 	public void setAttendNumSum(Integer attendNumSum) {
 		this.attendNumSum = attendNumSum;
+	}
+	public Integer getNowAttendNumSum() {
+		return nowAttendNumSum;
+	}
+	public void setNowAttendNumSum(Integer nowAttendNumSum) {
+		this.nowAttendNumSum = nowAttendNumSum;
+	}
+	public String getDeviationPlanRate() {
+		return deviationPlanRate;
+	}
+	public void setDeviationPlanRate(String deviationPlanRate) {
+		this.deviationPlanRate = deviationPlanRate;
 	}
 }

@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.station.dao;
 import java.util.List;
 
 import com.jd.bluedragon.distribution.station.domain.WorkStation;
+import com.jd.bluedragon.distribution.station.domain.WorkStationCountVo;
 import com.jd.bluedragon.distribution.station.query.WorkStationQuery;
 
 
@@ -72,4 +73,10 @@ public interface WorkStationDao {
 	 * @return
 	 */
 	List<WorkStation> queryWorkDictList(WorkStationQuery query);
+	/**
+	 * 按条件查询统计信息
+	 * @param query
+	 * @return
+	 */
+	WorkStationCountVo queryPageCount(WorkStationQuery query);
 }

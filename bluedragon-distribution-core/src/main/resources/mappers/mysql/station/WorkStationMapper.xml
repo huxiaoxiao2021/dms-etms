@@ -18,7 +18,12 @@
 		<result column="yn" property="yn" javaType="java.lang.Integer" jdbcType="TINYINT" />
 		<result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
 	</resultMap>
-
+	
+	<resultMap id="WorkStationCountVo" type="com.jd.bluedragon.distribution.station.domain.WorkStationCountVo" >
+		<result column="area_num" property="areaNum" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="work_num" property="workNum" javaType="java.lang.Integer" jdbcType="INTEGER" />				
+	</resultMap>
+	
 	<sql id="Base_Column_List" >
 		id,business_key,area_code,area_name,work_code,work_name,
 		create_user,create_user_name,update_user,update_user_name,create_time,
@@ -236,6 +241,15 @@
 			work_station t
 		<include refid="queryCondition"/>
 	</select>
+	
+	<select id="queryPageCount" parameterType="com.jd.bluedragon.distribution.station.query.WorkStationQuery" resultMap="WorkStationCountVo">
+		select
+			count(distinct area_code) area_num,
+			count(distinct work_code) work_num
+		from
+			work_station t
+		<include refid="queryCondition"/>
+	</select>	
 
 	<sql id="queryCondition">
 		<where>

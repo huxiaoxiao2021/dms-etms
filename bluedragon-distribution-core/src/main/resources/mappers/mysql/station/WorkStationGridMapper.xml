@@ -29,7 +29,13 @@
 		<result column="work_code" property="workCode" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="work_name" property="workName" javaType="java.lang.String" jdbcType="VARCHAR" />
 	</resultMap>
-
+	
+	<resultMap id="WorkStationGridCountVo" type="com.jd.bluedragon.distribution.station.domain.WorkStationGridCountVo" >
+		<result column="area_num" property="areaNum" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="work_num" property="workNum" javaType="java.lang.Integer" jdbcType="INTEGER" />	
+		<result column="grid_no_num" property="gridNoNum" javaType="java.lang.Integer" jdbcType="INTEGER" />	
+	</resultMap>
+	
 	<sql id="Base_Column_List" >
 		g.id,g.business_key,g.org_code,g.org_name,g.site_code,g.site_name,
 		g.floor,g.grid_no,g.grid_code,g.grid_name,g.standard_num,
@@ -318,6 +324,17 @@
 		<include refid="queryCondition"/>
 	</select>
 	
+	<select id="queryPageCount" parameterType="com.jd.bluedragon.distribution.station.query.WorkStationGridQuery" resultMap="WorkStationGridCountVo">
+		select
+			count(distinct s.area_code) area_num,
+			count(distinct s.work_code) work_num,
+			count(distinct g.grid_no) grid_no_num
+		from
+			work_station_grid g
+		<include refid="joinSql"/>				
+		<include refid="queryCondition"/>
+	</select>
+		
 	<sql id="joinSql">
 	 left outer join work_station s on g.ref_station_key = s.business_key and s.yn = 1
 	</sql>
