@@ -1,7 +1,9 @@
 package com.jd.bluedragon.distribution.station.service.impl;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
@@ -104,15 +106,30 @@ public class WorkStationServiceImpl implements WorkStationService {
 		}
 		//逐条校验
 		int rowNum = 1;
+		Map<String,Integer> uniqueKeysRowNumMap = new HashMap<String,Integer>();
 		for(WorkStation data : dataList) {
 			String rowKey = "第" + rowNum + "行";
 			Result<Boolean> result0 = checkAndFillNewData(data);
 			if(!result0.isSuccess()) {
 				return result0.toFail(rowKey + result0.getMessage());
 			}
+			//导入数据防重校验
+			String uniqueKeysStr = getUniqueKeysStr(data);
+			if(uniqueKeysRowNumMap.containsKey(uniqueKeysStr)) {
+				return result0.toFail(rowKey + "和第"+uniqueKeysRowNumMap.get(uniqueKeysStr)+"行数据重复！");
+			}
+			uniqueKeysRowNumMap.put(uniqueKeysStr, rowNum);
 			rowNum ++;
 		}
 		return result;
+	}
+	private String getUniqueKeysStr(WorkStation data) {
+		if(data != null ) {
+			return data.getAreaCode()
+					.concat(DmsConstants.KEYS_SPLIT)
+					.concat(data.getWorkCode());
+		}
+		return null;
 	}
 	/**
 	 * 校验并填充数据
