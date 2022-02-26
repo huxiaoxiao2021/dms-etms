@@ -1814,8 +1814,14 @@
 			<artifactId>automatic-platform-sdk</artifactId>
 			<version>1.1-SNAPSHOT</version>
 		</dependency>
+		<!--冷链逆向单生成-->
+		<dependency>
+			<artifactId>coldchain-fulfillment-ot-api</artifactId>
+			<groupId>com.jd.coldchain.fulfillment</groupId>
+			<version>1.0-uat-SNAPSHOT</version>
+		</dependency>
 
-	</dependencies>
+    </dependencies>
 
 	<profiles>
 		<!--测试环境  -->

@@ -26,6 +26,7 @@ import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckSourceFromEnum;
 import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckCurrencyService;
 import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckDealService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
+import com.jd.coldchain.fulfillment.ot.api.dto.waybill.ColdChainReverseRequest;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -221,6 +222,8 @@ public class WaybillResource {
     @Autowired
     private UccPropertyConfiguration uccPropertyConfiguration;
 
+	@Autowired
+	private ColdChainReverseManager coldChainReverseManager;
 
     /**
      * 根据运单号获取运单包裹信息接口
@@ -1784,9 +1787,19 @@ public class WaybillResource {
             return invokeResult;
         }
 		try {
-			WaybillReverseDTO waybillReverseDTO = ldopManager.makeWaybillReverseDTOCanTwiceExchange(request);
 			StringBuilder errorMessage = new StringBuilder();
-			WaybillReverseResult waybillReverseResult = ldopManager.waybillReverse(waybillReverseDTO,errorMessage);
+			WaybillReverseResult waybillReverseResult = null;
+			String waybillCode = request.getWaybillCode();
+			//冷链的几种产品需要调eclp接口换单
+			if(coldChainReverseManager.checkColdReverseProductType(waybillCode)){
+				log.info("换单方法createReturnsWaybillNew走冷链换单流程,运单号{}",waybillCode);
+				ColdChainReverseRequest coldChainReverseRequest = coldChainReverseManager.makeColdChainReverseRequest(request);
+				waybillReverseResult = coldChainReverseManager.createReverseWbOrder(coldChainReverseRequest,errorMessage);
+			}else {
+				log.info("换单方法createReturnsWaybillNew走原有流程,运单号{}",waybillCode);
+				WaybillReverseDTO waybillReverseDTO = ldopManager.makeWaybillReverseDTOCanTwiceExchange(request);
+				waybillReverseResult = ldopManager.waybillReverse(waybillReverseDTO, errorMessage);
+			}
 			if(waybillReverseResult == null){
 				//失败
 				invokeResult.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
