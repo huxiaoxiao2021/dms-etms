@@ -93,6 +93,14 @@ public class WorkStationAttendPlanServiceImpl implements WorkStationAttendPlanSe
 	 */
 	public Result<Boolean> updateById(WorkStationAttendPlan updateData){
 		Result<Boolean> result = Result.success();
+		String planName = updateData.getPlanName();
+		Integer planAttendNum = updateData.getPlanAttendNum();
+		if(!CheckHelper.checkStr("方案名称", planName, 50, result).isSuccess()) {
+			return result;
+		}
+		if(!CheckHelper.checkInteger("出勤计划人数", planAttendNum, 1,1000000, result).isSuccess()) {
+			return result;
+		}
 		workStationAttendPlanDao.deleteById(updateData);
 		updateData.setId(null);		
 		result.setData(workStationAttendPlanDao.insert(updateData) == 1);

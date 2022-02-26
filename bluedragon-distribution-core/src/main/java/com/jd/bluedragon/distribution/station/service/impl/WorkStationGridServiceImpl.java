@@ -156,6 +156,14 @@ public class WorkStationGridServiceImpl implements WorkStationGridService {
 	 */
 	public Result<Boolean> updateById(WorkStationGrid updateData){
 		Result<Boolean> result = Result.success();
+		String ownerUserErp = updateData.getOwnerUserErp();
+		Integer standardNum = updateData.getStandardNum();
+		if(!CheckHelper.checkInteger("编制人数", standardNum, 1,1000000, result).isSuccess()) {
+			return result;
+		}
+		if(!CheckHelper.checkStr("负责人ERP", ownerUserErp, 50, result).isSuccess()) {
+			return result;
+		}
 		workStationGridDao.deleteById(updateData);
 		updateData.setId(null);
 		result.setData(workStationGridDao.insert(updateData) == 1);
