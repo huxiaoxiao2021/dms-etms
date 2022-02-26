@@ -77,7 +77,7 @@ public class UserSignRecordDaoImpl extends BaseDao<UserSignRecord> implements Us
 	}
 	@Override
 	public long queryReportCount(UserSignRecordQuery query) {
-		return this.getSqlSession().insert(NAMESPACE+".queryReportCount",query);
+		return this.getSqlSession().selectOne(NAMESPACE+".queryReportCount",query);
 	}
 	@Override
 	public UserSignRecord queryByBusinessKey(UserSignRecord signInRequest) {

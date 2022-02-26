@@ -131,6 +131,16 @@ public class UserSignRecordQuery extends BasePagerCondition {
 	 */
 	private Integer pageSize;
 	
+	/**
+	 * 实时统计的日期-开始
+	 */
+	private Date nowDateStart;
+	
+	/**
+	 * 实时统计的日期-结束
+	 */
+	private Date nowDateEnd;
+	
 	public Integer getOrgCode() {
 		return orgCode;
 	}
@@ -280,5 +290,17 @@ public class UserSignRecordQuery extends BasePagerCondition {
 	}
 	public void setPageSize(Integer pageSize) {
 		this.pageSize = pageSize;
+	}
+	public Date getNowDateStart() {
+		return nowDateStart;
+	}
+	public void setNowDateStart(Date nowDateStart) {
+		this.nowDateStart = nowDateStart;
+	}
+	public Date getNowDateEnd() {
+		return nowDateEnd;
+	}
+	public void setNowDateEnd(Date nowDateEnd) {
+		this.nowDateEnd = nowDateEnd;
 	}
 }

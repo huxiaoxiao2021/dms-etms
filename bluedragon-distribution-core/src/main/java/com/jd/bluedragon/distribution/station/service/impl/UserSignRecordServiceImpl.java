@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.station.service.impl;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
@@ -32,6 +33,7 @@ import com.jd.bluedragon.distribution.station.service.WorkStationGridService;
 import com.jd.bluedragon.distribution.station.service.WorkStationService;
 import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
 
@@ -68,6 +70,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	WorkStationAttendPlanService workStationAttendPlanService;
 	
 	private static final DecimalFormat NUMBER_FORMAT = new DecimalFormat("0.00");
+	private static final DecimalFormat RATE_FORMAT = new DecimalFormat("0.00%");
 
     @Autowired
     private UccPropertyConfiguration uccConfiguration;
@@ -125,7 +128,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		}
 		PageDto<UserSignRecord> pageData = new PageDto<>(query.getPageNumber(), query.getPageSize());
 		Long totalCount = userSignRecordDao.queryCount(query);
-		if(totalCount > 0){
+		if(totalCount != null && totalCount > 0){
 		    List<UserSignRecord> dataList = userSignRecordDao.queryList(query);
 		    for (UserSignRecord tmp : dataList) {
 		    	this.fillOtherInfo(tmp);
@@ -155,6 +158,8 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		if(query.getPageNumber() > 0) {
 			query.setOffset((query.getPageNumber() - 1) * query.getPageSize());
 		}
+		//当天0点
+		Date nowDate = DateHelper.parseDate(DateHelper.getDateOfyyMMdd2(),DateHelper.DATE_FORMAT_YYYYMMDD);
 		Date signDate = null;
 		if(StringHelper.isNotEmpty(query.getSignDateStr())) {
 			signDate = DateHelper.parseDate(query.getSignDateStr(),DateHelper.DATE_FORMAT_YYYYMMDD);
@@ -181,6 +186,9 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 			}
 		}
 		query.setSignDate(signDate);
+		//设置实时在岗计算时间
+		query.setNowDateStart(DateHelper.addDate(nowDate, -1));
+		query.setNowDateEnd(DateHelper.add(query.getNowDateStart(), Calendar.SECOND, (int)DateHelper.ONE_DAY_SECONDS - 1));
 		return result;
 	 }
 	
@@ -365,6 +373,17 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		}
 		Result<UserSignRecordReportSumVo> result = Result.success();
 		result.setData(userSignRecordDao.queryReportSum(query));
+		if(result.getData() != null) {
+			Integer attendNumSum = result.getData().getAttendNumSum();
+			Integer planAttendNumSum = result.getData().getPlanAttendNumSum();
+			if(NumberHelper.gt0(planAttendNumSum)
+					&& attendNumSum != null) {
+				double offValue = Math.abs((attendNumSum - planAttendNumSum) * 1.0 / planAttendNumSum);
+				result.getData().setDeviationPlanRate(RATE_FORMAT.format(offValue));
+			}else {
+				result.getData().setDeviationPlanRate("--");
+			}
+		}
 		return result;
 	}
 

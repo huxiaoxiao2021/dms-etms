@@ -42,22 +42,27 @@
 		<result column="org_name" property="orgName" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="site_code" property="siteCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
 		<result column="site_name" property="siteName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="floor" property="floor" javaType="java.lang.Integer" jdbcType="INTEGER" />
 		<result column="grid_no" property="gridNo" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="grid_code" property="gridCode" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="grid_name" property="gridName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="area_code" property="areaCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="area_name" property="areaName" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="work_code" property="workCode" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="work_name" property="workName" javaType="java.lang.String" jdbcType="VARCHAR" />
-		<result column="station_code" property="stationCode" javaType="java.lang.String" jdbcType="VARCHAR" />
-		<result column="station_name" property="stationName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="plan_name" property="planName" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="wave_code" property="waveCode" javaType="java.lang.Integer" jdbcType="TINYINT" />		
 		<result column="standard_num" property="standardNum" javaType="java.lang.Integer" jdbcType="INTEGER" />
 		<result column="plan_attend_num" property="planAttendNum" javaType="java.lang.Integer" jdbcType="INTEGER" />
-		<result column="attend_num" property="attendNum" javaType="java.lang.Integer" jdbcType="INTEGER" />				
+		<result column="attend_num" property="attendNum" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="now_attend_num" property="nowAttendNum" javaType="java.lang.Integer" jdbcType="INTEGER" />		
 	</resultMap>
 	
 	<resultMap id="UserSignRecordReportSumVo" type="com.jd.bluedragon.distribution.station.domain.UserSignRecordReportSumVo" >
 		<result column="standard_num_sum" property="standardNumSum" javaType="java.lang.Integer" jdbcType="INTEGER" />
 		<result column="plan_attend_num_sum" property="planAttendNumSum" javaType="java.lang.Integer" jdbcType="INTEGER" />
-		<result column="attend_num_sum" property="attendNumSum" javaType="java.lang.Integer" jdbcType="INTEGER" />				
+		<result column="attend_num_sum" property="attendNumSum" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="now_attend_num_sum" property="nowAttendNumSum" javaType="java.lang.Integer" jdbcType="INTEGER" />				
 	</resultMap>
 	
 	<sql id="Base_Column_List" >
@@ -357,7 +362,7 @@
    		left outer join work_station s on r.ref_station_key = s.business_key and s.yn = 1
 		left outer join work_station_grid g on r.ref_grid_key = g.business_key and g.yn = 1
 		left outer join work_station_attend_plan p on r.ref_plan_key = p.business_key and p.yn = 1
-	</sql>
+	</sql>	
 	
 	<select id="queryReportList" parameterType="com.jd.bluedragon.distribution.station.query.UserSignRecordQuery" resultMap="UserSignRecordReportVo">
 		select 
@@ -365,14 +370,16 @@
 			g.floor,g.grid_no,g.grid_code,g.grid_name,
 			s.area_code,s.area_name,s.work_code,s.work_name,
 			p.plan_name,
-			g.standard_num,p.plan_attend_num,r.attend_num
+			g.standard_num,p.plan_attend_num,r.attend_num,
+			case when r2.now_attend_num is not null then r2.now_attend_num else 0 end now_attend_num
 		from
 			(select t.sign_date,t.ref_grid_key,t.wave_code,max(t.ref_plan_key) ref_plan_key,max(t.ref_station_key) ref_station_key,
-				sum(case when t.sign_in_time is not null and t.sign_out_time is null then 1 else 0 end) attend_num 
+				count(distinct t.user_code) attend_num 
 			from  user_sign_record t
 			<include refid="queryReportConditionMain"/>
    			group by t.sign_date,t.ref_plan_key) r
  			<include refid="joinSql"/>
+ 			<include refid="joinNowSql"/>
 		<include refid="queryReportConditionRef"/>
 		<if test="pageNumber > 0">
             limit #{offset}, #{limit}
@@ -383,19 +390,30 @@
 		select 
 			count(1)
 		from
-			(select t.sign_date,t.ref_grid_key,t.wave_code,max(t.ref_plan_key) ref_plan_key,max(t.ref_station_key) ref_station_key,
-				sum(case when t.sign_in_time is not null and t.sign_out_time is null then 1 else 0 end) attend_num 
+			(select t.sign_date,t.ref_grid_key,t.wave_code,max(t.ref_plan_key) ref_plan_key,max(t.ref_station_key) ref_station_key
 			from  user_sign_record t
 			<include refid="queryReportConditionMain"/>
    			group by t.sign_date,ref_plan_key) r
  			<include refid="joinSql"/>
-		<include refid="queryReportConditionRef"/> 		
+		<include refid="queryReportConditionRef"/>
 	</select>
-	
+		<sql id="joinNowSql">
+		left outer join (
+			select
+			t.ref_plan_key,
+			count(distinct t.user_code) now_attend_num
+		from
+			user_sign_record t 
+		<include refid="queryReportConditionMain"/>
+		GROUP BY
+			ref_plan_key
+		) r2 on r.ref_plan_key = r2.ref_plan_key
+	</sql>
 	<select id="queryReportSum" parameterType="com.jd.bluedragon.distribution.station.query.UserSignRecordQuery" resultMap="UserSignRecordReportSumVo">
 	select sum(u.standard_num_sum) standard_num_sum, 
-			   sum(u.plan_attend_num_sum) plan_attend_num_sum, 
-			   sum(u.attend_num_sum) attend_num_sum
+		   sum(u.plan_attend_num_sum) plan_attend_num_sum, 
+		   sum(u.attend_num_sum) attend_num_sum,
+		   sum(u.attend_num_sum) now_attend_num_sum
 		from(
 			select 
 				0 standard_num_sum,
@@ -427,7 +445,23 @@
 			<include refid="queryReportConditionRef"/>
 		) u
 	</select>
-	
+	<sql id="queryReportConditionMainNow">
+		<where>
+			t.yn = 1
+			and t.sign_in_time >= #{nowDateStart,jdbcType=DATE}
+			and t.sign_in_time &lt;= #{nowDateEnd,jdbcType=DATE}
+			and t.sign_out_time IS NULL					
+		<if test="orgCode != null" >
+			and t.org_code = #{orgCode,jdbcType=INTEGER}
+		</if>
+		<if test="siteCode != null" >
+			and t.site_code = #{siteCode,jdbcType=INTEGER}
+		</if>
+		<if test="waveCode != null" >
+			and t.wave_code = #{waveCode,jdbcType=TINYINT}
+		</if>		
+		</where>
+	</sql>	
 	<sql id="queryReportConditionMain">
 		<where>
 			t.yn = 1
@@ -442,9 +476,6 @@
 		</if>	
 		<if test="waveCode != null" >
 			and t.wave_code = #{waveCode,jdbcType=TINYINT}
-		</if>
-		<if test="createUser != null and createUser != ''" >
-			and t.create_user = #{createUser,jdbcType=VARCHAR}
 		</if>
 		<if test="signDateStart != null" >
 			and t.sign_date >= #{signDateStart,jdbcType=DATE}
