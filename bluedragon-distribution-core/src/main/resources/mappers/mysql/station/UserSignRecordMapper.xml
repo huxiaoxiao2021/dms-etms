@@ -413,28 +413,31 @@
 	select sum(u.standard_num_sum) standard_num_sum, 
 		   sum(u.plan_attend_num_sum) plan_attend_num_sum, 
 		   sum(u.attend_num_sum) attend_num_sum,
-		   sum(u.attend_num_sum) now_attend_num_sum
+		   sum(u.now_attend_num_sum) now_attend_num_sum
 		from(
 			select 
 				0 standard_num_sum,
 				sum(case when p.plan_attend_num is null then 0 else p.plan_attend_num end) plan_attend_num_sum,
-				sum(r.attend_num) attend_num_sum
+				sum(r.attend_num) attend_num_sum,
+				sum(case when r2.now_attend_num is not null then r2.now_attend_num else 0 end) now_attend_num_sum
 			from(
 			(select t.sign_date,t.ref_grid_key,t.wave_code,max(t.ref_plan_key) ref_plan_key,max(t.ref_station_key) ref_station_key,
-				sum(case when t.sign_in_time is not null and t.sign_out_time is null then 1 else 0 end) attend_num 
+				count(distinct t.user_code) attend_num
 			from  user_sign_record t
 				  <include refid="queryReportConditionMain"/>
 		   			group by t.sign_date,t.ref_grid_key,wave_code) r
 					left outer join work_station s on r.ref_station_key = s.business_key and s.yn = 1
 					left outer join work_station_grid g on r.ref_grid_key = g.business_key and g.yn = 1						
 		 			left outer join work_station_attend_plan p on r.ref_plan_key = p.business_key and p.yn = 1
+		 			<include refid="joinNowSql"/>
 			)
 			<include refid="queryReportConditionRef"/>	
 			union all
 			select 
 				sum(case when g.standard_num is null then 0 else g.standard_num end) standard_num_sum,
 				0 plan_attend_num_sum,
-				0 attend_num_sum
+				0 attend_num_sum,
+				0 now_attend_num_sum
 			from
 				(select t.ref_grid_key,max(t.ref_station_key) ref_station_key
 				from  user_sign_record t 
