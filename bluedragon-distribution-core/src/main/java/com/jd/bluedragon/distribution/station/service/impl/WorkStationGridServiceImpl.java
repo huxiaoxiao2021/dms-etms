@@ -117,7 +117,7 @@ public class WorkStationGridServiceImpl implements WorkStationGridService {
 		if(!CheckHelper.checkStr("工序ID", workCode, 50, result).isSuccess()) {
 			return result;
 		}
-		if(!CheckHelper.checkInteger("编制人数", standardNum, 1,100000, result).isSuccess()) {
+		if(!CheckHelper.checkInteger("编制人数", standardNum, 1,1000000, result).isSuccess()) {
 			return result;
 		}
 		if(!CheckHelper.checkStr("负责人ERP", ownerUserErp, 50, result).isSuccess()) {
