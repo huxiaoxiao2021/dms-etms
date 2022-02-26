@@ -361,7 +361,7 @@
 	<sql id="joinSql">
    		left outer join work_station s on r.ref_station_key = s.business_key and s.yn = 1
 		left outer join work_station_grid g on r.ref_grid_key = g.business_key and g.yn = 1
-		left outer join work_station_attend_plan p on r.ref_plan_key = p.business_key and p.yn = 1
+		left outer join work_station_attend_plan p on r.ref_grid_key = p.ref_grid_key and r.wave_code = p.wave_code and p.yn = 1
 	</sql>	
 	
 	<select id="queryReportList" parameterType="com.jd.bluedragon.distribution.station.query.UserSignRecordQuery" resultMap="UserSignRecordReportVo">
