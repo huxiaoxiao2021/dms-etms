@@ -538,4 +538,31 @@
 		limit 1
 	</select>
 
+    <select id="querySignInMoreThanSpecifiedTime" resultType="java.lang.Long">
+        SELECT
+            id
+        FROM
+            user_sign_record
+        WHERE
+            yn = 1
+        AND sign_in_time <![CDATA[ < ]]> #{signInTime,jdbcType=TIMESTAMP}
+        AND sign_out_time IS NULL
+        LIMIT #{limit,jdbcType=INTEGER}
+    </select>
+
+    <update id="signOutById">
+        UPDATE user_sign_record
+        SET
+            update_time = #{param.updateTime, jdbcType=TIMESTAMP},
+            update_user = #{param.updateUser, jdbcType=VARCHAR},
+            update_user_name = #{param.updateUserName, jdbcType=VARCHAR},
+            sign_out_time = #{param.signOutTime,jdbcType=TIMESTAMP}
+        WHERE
+            yn = 1
+        AND id IN
+        <foreach collection="list" item="item" open="(" close=")" separator=",">
+            #{item, jdbcType=BIGINT}
+        </foreach>
+    </update>
+
 </mapper>

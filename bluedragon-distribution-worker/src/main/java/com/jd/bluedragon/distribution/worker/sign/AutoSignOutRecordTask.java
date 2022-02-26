@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.worker.sign;
 
 import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.framework.DBSingleScheduler;
+import com.jd.bluedragon.distribution.framework.NoneTaskHanlder;
 import com.jd.bluedragon.distribution.station.service.UserSignRecordService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -23,12 +24,17 @@ public class AutoSignOutRecordTask extends DBSingleScheduler {
 
     private static final Logger log = LoggerFactory.getLogger(AutoSignOutRecordTask.class);
 
+    public AutoSignOutRecordTask(){
+        super(new NoneTaskHanlder());
+    }
+
     @Autowired
     private UserSignRecordService userSignRecordService;
 
     @Override
     protected boolean executeSingleTask(Task task, String ownSign) throws Exception {
         Result<Integer> result = userSignRecordService.autoHandleSignInRecord();
+
         if (log.isInfoEnabled()) {
             log.info("处理未签退数据：{}条.", JsonHelper.toJson(result));
         }

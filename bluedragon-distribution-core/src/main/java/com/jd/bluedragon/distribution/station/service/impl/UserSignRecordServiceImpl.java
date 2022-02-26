@@ -10,6 +10,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -342,6 +343,8 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		}
 		data.setUpdateTime(new Date());
 		data.setSignOutTime(new Date());
+        data.setUpdateUser(signOutRequest.getUpdateUser());
+        data.setUpdateUserName(signOutRequest.getUpdateUserName());
 		userSignRecordDao.updateById(data);
 		return result;
 	}
@@ -396,8 +399,37 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
             return result;
         }
 
+        Date signInTime = new Date(System.currentTimeMillis() - (long) notSignedOutRecordMoreThanHours * 3600 * 1000);
+        List<Long> toSignOutPks;
+        Date now = new Date();
+        int updateRows = 0;
 
 
-        return null;
+        try {
+            do {
+                toSignOutPks = userSignRecordDao.querySignInMoreThanSpecifiedTime(signInTime, 100);
+
+                if (CollectionUtils.isNotEmpty(toSignOutPks)) {
+                    UserSignRecord updateData = new UserSignRecord();
+                    updateData.setSignOutTime(now);
+                    updateData.setUpdateTime(now);
+                    updateData.setUpdateUser("sys.dms");
+                    updateData.setUpdateUserName(updateData.getUpdateUser());
+
+                    updateRows += userSignRecordDao.signOutById(updateData, toSignOutPks);
+                }
+
+                Thread.sleep(2000);
+
+            } while (CollectionUtils.isNotEmpty(toSignOutPks));
+
+            result.setData(updateRows);
+        }
+        catch (Exception e) {
+            log.error("自动关闭未签退数据异常.", e);
+            result.toFail(e.getMessage());
+        }
+
+        return result;
     }
 }
