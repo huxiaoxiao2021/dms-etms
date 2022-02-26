@@ -19,6 +19,7 @@ import com.jd.bluedragon.distribution.station.query.WorkStationAttendPlanQuery;
 import com.jd.bluedragon.distribution.station.service.WorkStationAttendPlanService;
 import com.jd.bluedragon.distribution.station.service.WorkStationGridService;
 import com.jd.bluedragon.distribution.station.service.WorkStationService;
+import com.jd.bluedragon.distribution.utils.CheckHelper;
 import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.dms.wb.sdk.enums.station.WaveTypeEnum;
@@ -241,22 +242,44 @@ public class WorkStationAttendPlanServiceImpl implements WorkStationAttendPlanSe
 	private Result<Boolean> checkAndFillNewData(WorkStationAttendPlan data){
 		Result<Boolean> result = Result.success();
 		Integer siteCode = data.getSiteCode();
+		Integer floor = data.getFloor();
 		String gridNo = data.getGridNo();
-		String areaCode = data.getAreaCode();
 		String workCode = data.getWorkCode();
+		String areaCode = data.getAreaCode();
 		Integer waveCode = data.getWaveCode();
-		if(siteCode == null
-				|| siteCode == 0) {
-			return result.toFail("青龙ID为空！");
+		String planName = data.getPlanName();
+		Integer planAttendNum = data.getPlanAttendNum();
+		if(!CheckHelper.checkStr("方案名称", planName, 50, result).isSuccess()) {
+			return result;
+		}		
+		if(siteCode == null) {
+			return result.toFail("场地ID为空！");
 		}
+		if(!CheckHelper.checkInteger("楼层", floor, 1,3, result).isSuccess()) {
+			return result;
+		}
+		//校验gridNo
 		if(StringHelper.isEmpty(gridNo)) {
-			return result.toFail("网格ID为空！");
+			return result.toFail("网格号为空！");
 		}
-		if(StringHelper.isEmpty(workCode)) {
-			return result.toFail("工序编码为空！");
+		if(gridNo.length()<2) {
+			gridNo = "0".concat(gridNo);
+			data.setGridNo(gridNo);
+		}
+		if(!CheckHelper.checkGridNo(gridNo, result).isSuccess()) {
+			return result;
+		}
+		if(!CheckHelper.checkStr("作业区ID", areaCode, 50, result).isSuccess()) {
+			return result;
+		}		
+		if(!CheckHelper.checkStr("工序ID", workCode, 50, result).isSuccess()) {
+			return result;
 		}
 		if(WaveTypeEnum.getEnum(waveCode) == null) {
 			return result.toFail("班次类型只能录入【"+WaveTypeEnum.getAllNames()+"】！");
+		}
+		if(!CheckHelper.checkInteger("出勤计划人数", planAttendNum, 1,100000, result).isSuccess()) {
+			return result;
 		}
 		BaseStaffSiteOrgDto siteInfo = baseMajorManager.getBaseSiteBySiteId(siteCode);
 		if(siteInfo == null) {
@@ -277,6 +300,7 @@ public class WorkStationAttendPlanServiceImpl implements WorkStationAttendPlanSe
 		//校验并设置网格信息
 		WorkStationGrid workStationGridCheckQuery = new WorkStationGrid();
 		workStationGridCheckQuery.setSiteCode(siteCode);
+		workStationGridCheckQuery.setFloor(floor);
 		workStationGridCheckQuery.setGridNo(gridNo);
 		workStationGridCheckQuery.setRefStationKey(workStation.getBusinessKey());
 		Result<WorkStationGrid> workStationGridData = workStationGridService.queryByBusinessKey(workStationGridCheckQuery);

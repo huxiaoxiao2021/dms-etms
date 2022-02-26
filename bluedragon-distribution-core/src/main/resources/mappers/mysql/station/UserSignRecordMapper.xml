@@ -370,14 +370,16 @@
 			g.floor,g.grid_no,g.grid_code,g.grid_name,
 			s.area_code,s.area_name,s.work_code,s.work_name,
 			p.plan_name,
-			g.standard_num,p.plan_attend_num,r.attend_num,
+			g.standard_num,
+			case when p.plan_attend_num is not null then p.plan_attend_num else 0 end plan_attend_num,
+			r.attend_num,
 			case when r2.now_attend_num is not null then r2.now_attend_num else 0 end now_attend_num
 		from
 			(select t.sign_date,t.ref_grid_key,t.wave_code,max(t.ref_plan_key) ref_plan_key,max(t.ref_station_key) ref_station_key,
 				count(distinct t.user_code) attend_num 
 			from  user_sign_record t
 			<include refid="queryReportConditionMain"/>
-   			group by t.sign_date,t.ref_plan_key) r
+   			group by t.sign_date,t.ref_grid_key,t.wave_code) r
  			<include refid="joinSql"/>
  			<include refid="joinNowSql"/>
 		<include refid="queryReportConditionRef"/>
@@ -393,21 +395,22 @@
 			(select t.sign_date,t.ref_grid_key,t.wave_code,max(t.ref_plan_key) ref_plan_key,max(t.ref_station_key) ref_station_key
 			from  user_sign_record t
 			<include refid="queryReportConditionMain"/>
-   			group by t.sign_date,ref_plan_key) r
+   			group by t.sign_date,t.ref_grid_key,t.wave_code) r
  			<include refid="joinSql"/>
 		<include refid="queryReportConditionRef"/>
 	</select>
 		<sql id="joinNowSql">
 		left outer join (
 			select
-			t.ref_plan_key,
+			t.ref_grid_key,
+			t.wave_code,
 			count(distinct t.user_code) now_attend_num
 		from
 			user_sign_record t 
 		<include refid="queryReportConditionMain"/>
-		GROUP BY
-			ref_plan_key
-		) r2 on r.ref_plan_key = r2.ref_plan_key
+		group by
+			t.ref_grid_key,t.wave_code
+		) r2 on r.ref_grid_key = r2.ref_grid_key and r.wave_code = r2.wave_code
 	</sql>
 	<select id="queryReportSum" parameterType="com.jd.bluedragon.distribution.station.query.UserSignRecordQuery" resultMap="UserSignRecordReportSumVo">
 	select sum(u.standard_num_sum) standard_num_sum, 
@@ -428,7 +431,7 @@
 		   			group by t.sign_date,t.ref_grid_key,wave_code) r
 					left outer join work_station s on r.ref_station_key = s.business_key and s.yn = 1
 					left outer join work_station_grid g on r.ref_grid_key = g.business_key and g.yn = 1						
-		 			left outer join work_station_attend_plan p on r.ref_plan_key = p.business_key and p.yn = 1
+		 			left outer join work_station_attend_plan p on r.ref_grid_key = p.ref_grid_key and r.wave_code = p.wave_code and p.yn = 1
 		 			<include refid="joinNowSql"/>
 			)
 			<include refid="queryReportConditionRef"/>	

@@ -278,6 +278,7 @@
 			   yn = 0
 		where yn = 1
 			and	site_code = #{siteCode,jdbcType=INTEGER}
+			and floor = #{floor,jdbcType=INTEGER}
 			and	grid_no = #{gridNo,jdbcType=VARCHAR}
 			and ref_station_key = #{refStationKey,jdbcType=VARCHAR}
 	</update>
@@ -290,8 +291,11 @@
 		<include refid="joinSql"/>
 		where g.yn = 1
 			and	g.site_code = #{siteCode,jdbcType=INTEGER}
+			and g.floor = #{floor,jdbcType=INTEGER}
 			and	g.grid_no = #{gridNo,jdbcType=VARCHAR}
 			and g.ref_station_key = #{refStationKey,jdbcType=VARCHAR}
+		order by g.id desc
+		limit 1			
 	</select>
 	
 	<select id="queryById" parameterType="java.lang.Long" resultMap="WorkStationGrid">

@@ -252,6 +252,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		Result<Boolean> result = Result.success();
 
 		Integer siteCode = signInRequest.getSiteCode();
+		Integer floor = signInRequest.getFloor();
 		String gridNo = signInRequest.getGridNo();
 		String areaCode = signInRequest.getAreaCode();
 		String workCode = signInRequest.getWorkCode();
@@ -267,6 +268,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		signInRequest.setRefStationKey(workStation.getBusinessKey());
 		//校验并设置网格信息
 		WorkStationGrid workStationGridCheckQuery = new WorkStationGrid();
+		workStationGridCheckQuery.setFloor(floor);
 		workStationGridCheckQuery.setSiteCode(siteCode);
 		workStationGridCheckQuery.setGridNo(gridNo);
 		workStationGridCheckQuery.setRefStationKey(workStation.getBusinessKey());

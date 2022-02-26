@@ -14,15 +14,14 @@ import com.jd.bluedragon.core.objectid.IGenerateObjectId;
 import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.station.dao.WorkStationGridDao;
 import com.jd.bluedragon.distribution.station.domain.WorkStation;
-import com.jd.bluedragon.distribution.station.domain.WorkStationCountVo;
 import com.jd.bluedragon.distribution.station.domain.WorkStationGrid;
 import com.jd.bluedragon.distribution.station.domain.WorkStationGridCountVo;
 import com.jd.bluedragon.distribution.station.query.WorkStationGridQuery;
 import com.jd.bluedragon.distribution.station.service.WorkStationGridService;
 import com.jd.bluedragon.distribution.station.service.WorkStationService;
+import com.jd.bluedragon.distribution.utils.CheckHelper;
 import com.jd.bluedragon.dms.utils.AreaEnum;
 import com.jd.bluedragon.dms.utils.DmsConstants;
-import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
@@ -92,23 +91,37 @@ public class WorkStationGridServiceImpl implements WorkStationGridService {
 		Integer floor = data.getFloor();
 		String gridNo = data.getGridNo();
 		String workCode = data.getWorkCode();
-		String areaCode = data.getAreaCode();		
-		if(siteCode == null
-				|| siteCode == 0) {
-			return result.toFail("青龙ID为空！");
+		String areaCode = data.getAreaCode();
+		String ownerUserErp = data.getOwnerUserErp();
+		Integer standardNum = data.getStandardNum();
+		if(siteCode == null) {
+			return result.toFail("场地ID为空！");
 		}
-		if(floor == null
-				|| floor == 0) {
-			return result.toFail("楼层为空！");
-		}		
+		if(!CheckHelper.checkInteger("楼层", floor, 1,3, result).isSuccess()) {
+			return result;
+		}
+		//校验gridNo
 		if(StringHelper.isEmpty(gridNo)) {
 			return result.toFail("网格号为空！");
 		}
-		if(StringHelper.isEmpty(areaCode)) {
-			return result.toFail("作业区ID为空！");
+		if(gridNo.length()<2) {
+			gridNo = "0".concat(gridNo);
+			data.setGridNo(gridNo);
+		}
+		if(!CheckHelper.checkGridNo(gridNo, result).isSuccess()) {
+			return result;
+		}
+		if(!CheckHelper.checkStr("作业区ID", areaCode, 50, result).isSuccess()) {
+			return result;
 		}		
-		if(StringHelper.isEmpty(workCode)) {
-			return result.toFail("工序编码为空！");
+		if(!CheckHelper.checkStr("工序ID", workCode, 50, result).isSuccess()) {
+			return result;
+		}
+		if(!CheckHelper.checkInteger("编制人数", standardNum, 1,100000, result).isSuccess()) {
+			return result;
+		}
+		if(!CheckHelper.checkStr("负责人ERP", ownerUserErp, 50, result).isSuccess()) {
+			return result;
 		}
 		BaseStaffSiteOrgDto siteInfo = baseMajorManager.getBaseSiteBySiteId(siteCode);
 		if(siteInfo == null) {
