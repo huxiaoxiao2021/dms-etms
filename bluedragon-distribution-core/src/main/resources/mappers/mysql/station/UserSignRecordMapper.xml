@@ -454,8 +454,8 @@
 	<sql id="queryReportConditionMainNow">
 		<where>
 			t.yn = 1
-			and t.sign_in_time >= #{nowDateStart,jdbcType=DATE}
-			and t.sign_in_time &lt;= #{nowDateEnd,jdbcType=DATE}
+			and t.sign_in_time >= #{nowDateStart,jdbcType=TIMESTAMP}
+			and t.sign_in_time &lt;= #{nowDateEnd,jdbcType=TIMESTAMP}
 			and t.sign_out_time IS NULL					
 		<if test="orgCode != null" >
 			and t.org_code = #{orgCode,jdbcType=INTEGER}

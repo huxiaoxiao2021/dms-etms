@@ -189,7 +189,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		query.setSignDate(signDate);
 		//设置实时在岗计算时间
 		query.setNowDateStart(DateHelper.addDate(nowDate, -1));
-		query.setNowDateEnd(DateHelper.add(query.getNowDateStart(), Calendar.SECOND, (int)DateHelper.ONE_DAY_SECONDS - 1));
+		query.setNowDateEnd(DateHelper.add(nowDate, Calendar.SECOND, (int)DateHelper.ONE_DAY_SECONDS - 1));
 		return result;
 	 }
 	
