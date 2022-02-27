@@ -407,7 +407,7 @@
 			count(distinct t.user_code) now_attend_num
 		from
 			user_sign_record t 
-		<include refid="queryReportConditionMain"/>
+		<include refid="queryReportConditionMainNow"/>
 		group by
 			t.ref_grid_key,t.wave_code
 		) r2 on r.ref_grid_key = r2.ref_grid_key and r.wave_code = r2.wave_code
