@@ -48,6 +48,10 @@ public class DmsConstants {
     public static final String BUSI_ORDER_CODE_QWD = "QWD";
     public static final String SOURCE_CODE_CLPS = "CLPS";
     public static final String BUSI_ORDER_CODE_PRE_CLPS = "CSL";
+    
+    public static final String CODE_PREFIX_WORK_STATION = "GX";
+    public static final String CODE_PREFIX_WORK_STATION_GRID = "CDGX";
+    public static final String CODE_PREFIX_WORK_STATION_ATTEND_PLAN = "CDGXPL";
 
     /**
      * 始发道口号类型-1-普通
@@ -275,6 +279,10 @@ public class DmsConstants {
     public static final String BC_BOX_PREFIX = "BC";
 
     public static final String WJ_BOX_PREFIX = "WJ";
+    
+    public static final int PAGE_SIZE_DEFAULT = 10;
+    
+    public static final String KEYS_SPLIT = ":";
     //站点操作的节点
     public static final Set<Integer> SITE_OPERAT_STATES = new HashSet<Integer>(){{
     	add(60);

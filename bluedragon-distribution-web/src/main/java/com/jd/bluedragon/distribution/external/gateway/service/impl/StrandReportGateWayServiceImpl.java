@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.strandreport.request.ConfigStrandReasonData;
 import com.jd.bluedragon.common.dto.strandreport.request.StrandReportReq;
 import com.jd.bluedragon.distribution.abnormal.domain.StrandReportRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -9,6 +10,9 @@ import com.jd.bluedragon.distribution.rest.abnormal.StrandResouce;
 import com.jd.bluedragon.external.gateway.service.StrandReportGateWayService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,4 +64,25 @@ public class StrandReportGateWayServiceImpl implements StrandReportGateWayServic
 
     return res;
     }
+  
+  @Override
+  @JProfiler(
+    jKey = "DMSWEB.StrandReportGateWayServiceImpl.queryReasonList",
+    jAppName = Constants.UMP_APP_NAME_DMSWEB,
+    mState = {JProEnum.TP, JProEnum.FunctionError}
+  )
+  public JdCResponse<List<ConfigStrandReasonData>> queryReasonList() {
+    JdCResponse<List<ConfigStrandReasonData>> res = new JdCResponse<>();
+    
+    InvokeResult<List<ConfigStrandReasonData>> invokeResult = strandResouce.queryReasonList();
+    if (null == invokeResult) {
+      res.toFail("获取异常原因列表失败！");
+    } else {
+    	res.setData(invokeResult.getData());
+    	res.setCode(invokeResult.getCode());
+    	res.setMessage(invokeResult.getMessage());
+    }
+    res.toSucceed();
+    return res;
+  }
 }
