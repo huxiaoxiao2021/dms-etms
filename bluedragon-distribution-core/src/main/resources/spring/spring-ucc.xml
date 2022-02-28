@@ -295,14 +295,9 @@
 				<value>uccPropertyConfiguration.printCompleteCallbackAsyncPackageNum</value>
 				<value>uccPropertyConfiguration.limitSiteUsePackReprint</value>
 				<value>uccPropertyConfiguration.sendCodeEffectiveValidation</value>
-<<<<<<< .mine
 				<value>uccPropertyConfiguration.restApiOuthSwitch</value>
 				<value>uccPropertyConfiguration.needInterceptUrls</value>
-=======
 				<value>uccPropertyConfiguration.notSignedOutRecordMoreThanHours</value>
-
->>>>>>> .theirs
-
                 <value>hystrixRouteUccPropertyConfiguration.executionTimeoutInMilliseconds</value>
                 <value>hystrixRouteUccPropertyConfiguration.circuitBreakerEnabled</value>
                 <value>hystrixRouteUccPropertyConfiguration.fallbackEnabled</value>
