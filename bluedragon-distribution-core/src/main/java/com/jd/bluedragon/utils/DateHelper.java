@@ -8,6 +8,7 @@ import org.apache.commons.lang.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.text.DateFormat;
 import java.text.MessageFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -506,5 +507,25 @@ public class DateHelper {
 			return sendCarTimeStr.substring(sendCarTimeStr.length() - SEND_CAR_TIME_LENGTH);
 		}
 		return null;
+    }
+    /**
+     * 计算小时数
+     * @param startTime
+     * @param endTime
+     * @return
+     */
+	public static double betweenHours(Date startTime, Date endTime) {
+		if(startTime != null && endTime!= null && endTime.after(startTime)) {
+			return 1.0*(endTime.getTime() - startTime.getTime())/3600/1000;
+		}
+		return 0;
+	}
+    /**
+     * 获取年月日 yyMMdd
+     * @return
+     */
+    public static String getDateOfyyMMdd2(){
+        DateFormat format = new SimpleDateFormat(DATE_FORMAT_YYYYMMDD);
+        return format.format(new Date());
     }
 }

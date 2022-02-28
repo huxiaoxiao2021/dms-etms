@@ -1,0 +1,294 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.station.dao.WorkStationDao" >
+
+	<resultMap id="WorkStation" type="com.jd.bluedragon.distribution.station.domain.WorkStation" >
+		<id column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result column="business_key" property="businessKey" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="area_code" property="areaCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="area_name" property="areaName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="work_code" property="workCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="work_name" property="workName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="create_user" property="createUser" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="create_user_name" property="createUserName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="update_user" property="updateUser" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="update_user_name" property="updateUserName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="yn" property="yn" javaType="java.lang.Integer" jdbcType="TINYINT" />
+		<result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+	</resultMap>
+	
+	<resultMap id="WorkStationCountVo" type="com.jd.bluedragon.distribution.station.domain.WorkStationCountVo" >
+		<result column="area_num" property="areaNum" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="work_num" property="workNum" javaType="java.lang.Integer" jdbcType="INTEGER" />				
+	</resultMap>
+	
+	<sql id="Base_Column_List" >
+		id,business_key,area_code,area_name,work_code,work_name,
+		create_user,create_user_name,update_user,update_user_name,create_time,
+		update_time,yn,ts
+	</sql>
+
+	<insert id="insert" parameterType="com.jd.bluedragon.distribution.station.domain.WorkStation" useGeneratedKeys="true" keyProperty="id">
+		insert into work_station
+			(
+			<trim suffixOverrides=",">
+				<if test="id != null" >
+					id,
+				</if>
+				<if test="businessKey != null" >
+					business_key,
+				</if>
+				<if test="areaCode != null" >
+					area_code,
+				</if>
+				<if test="areaName != null" >
+					area_name,
+				</if>
+				<if test="workCode != null" >
+					work_code,
+				</if>
+				<if test="workName != null" >
+					work_name,
+				</if>
+				<if test="createUser != null" >
+					create_user,
+				</if>
+				<if test="createUserName != null" >
+					create_user_name,
+				</if>
+				<if test="updateUser != null" >
+					update_user,
+				</if>
+				<if test="updateUserName != null" >
+					update_user_name,
+				</if>
+				<if test="createTime != null" >
+					create_time,
+				</if>
+				<if test="updateTime != null" >
+					update_time,
+				</if>
+				<if test="yn != null" >
+					yn,
+				</if>
+				<if test="ts != null" >
+					ts,
+				</if>
+			</trim>
+			)
+			values
+			(
+			<trim suffixOverrides=",">
+				<if test="id != null" >
+					#{id,jdbcType=BIGINT},
+				</if>
+				<if test="businessKey != null" >
+					#{businessKey,jdbcType=VARCHAR},
+				</if>
+				<if test="areaCode != null" >
+					#{areaCode,jdbcType=VARCHAR},
+				</if>
+				<if test="areaName != null" >
+					#{areaName,jdbcType=VARCHAR},
+				</if>
+				<if test="workCode != null" >
+					#{workCode,jdbcType=VARCHAR},
+				</if>
+				<if test="workName != null" >
+					#{workName,jdbcType=VARCHAR},
+				</if>
+				<if test="createUser != null" >
+					#{createUser,jdbcType=VARCHAR},
+				</if>
+				<if test="createUserName != null" >
+					#{createUserName,jdbcType=VARCHAR},
+				</if>
+				<if test="updateUser != null" >
+					#{updateUser,jdbcType=VARCHAR},
+				</if>
+				<if test="updateUserName != null" >
+					#{updateUserName,jdbcType=VARCHAR},
+				</if>
+				<if test="createTime != null" >
+					#{createTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="updateTime != null" >
+					#{updateTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="yn != null" >
+					#{yn,jdbcType=TINYINT},
+				</if>
+				<if test="ts != null" >
+					#{ts,jdbcType=TIMESTAMP},
+				</if>
+			</trim>
+			)
+	</insert>
+
+	<update id="update" parameterType="com.jd.bluedragon.distribution.station.domain.WorkStation">
+		update work_station
+			<set>
+				<if test="id != null" >
+					id = #{id,jdbcType=BIGINT},
+				</if>
+				<if test="businessKey != null" >
+					business_key = #{businessKey,jdbcType=VARCHAR},
+				</if>
+				<if test="areaCode != null" >
+					area_code = #{areaCode,jdbcType=VARCHAR},
+				</if>
+				<if test="areaName != null" >
+					area_name = #{areaName,jdbcType=VARCHAR},
+				</if>
+				<if test="workCode != null" >
+					work_code = #{workCode,jdbcType=VARCHAR},
+				</if>
+				<if test="workName != null" >
+					work_name = #{workName,jdbcType=VARCHAR},
+				</if>
+				<if test="createUser != null" >
+					create_user = #{createUser,jdbcType=VARCHAR},
+				</if>
+				<if test="createUserName != null" >
+					create_user_name = #{createUserName,jdbcType=VARCHAR},
+				</if>
+				<if test="updateUser != null" >
+					update_user = #{updateUser,jdbcType=VARCHAR},
+				</if>
+				<if test="updateUserName != null" >
+					update_user_name = #{updateUserName,jdbcType=VARCHAR},
+				</if>
+				<if test="createTime != null" >
+					create_time = #{createTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="updateTime != null" >
+					update_time = #{updateTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="yn != null" >
+					yn = #{yn,jdbcType=TINYINT},
+				</if>
+				<if test="ts != null" >
+					ts = #{ts,jdbcType=TIMESTAMP},
+				</if>
+			</set>
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+
+	<update id="deleteById" parameterType="com.jd.bluedragon.distribution.station.domain.WorkStation">
+		update work_station
+			set 
+			<if test="updateUser != null" >
+				update_user = #{updateUser,jdbcType=VARCHAR},
+			</if>
+			<if test="updateTime != null" >
+				update_time = #{updateTime,jdbcType=TIMESTAMP},
+			</if>
+			   yn = 0
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+	
+	<update id="deleteByBusinessKey"  parameterType="com.jd.bluedragon.distribution.station.domain.WorkStation">
+		update work_station
+			set 
+			<if test="updateUser != null" >
+				update_user = #{updateUser,jdbcType=VARCHAR},
+			</if>
+			<if test="updateTime != null" >
+				update_time = #{updateTime,jdbcType=TIMESTAMP},
+			</if>
+			   yn = 0
+		where yn = 1
+			and area_code = #{areaCode,jdbcType=VARCHAR}		
+			and work_code = #{workCode,jdbcType=VARCHAR}
+	</update>	
+
+	<select id="queryById" parameterType="java.lang.Long" resultMap="WorkStation">
+		select
+			<include refid="Base_Column_List"/>
+		from
+			work_station t
+		where yn = 1 and id = #{id,jdbcType=BIGINT}
+	</select>
+	
+	<select id="queryByBusinessKey" parameterType="com.jd.bluedragon.distribution.station.domain.WorkStation" resultMap="WorkStation">
+		select
+			<include refid="Base_Column_List"/>
+		from
+			work_station t
+		where yn = 1
+			and area_code = #{areaCode,jdbcType=VARCHAR}		
+			and work_code = #{workCode,jdbcType=VARCHAR}
+		order by id desc limit 1
+	</select>
+
+	<select id="queryList" parameterType="com.jd.bluedragon.distribution.station.query.WorkStationQuery" resultMap="WorkStation">
+		select
+			<include refid="Base_Column_List"/>
+		from
+			work_station t
+		<include refid="queryCondition"/>
+        <if test="pageNumber > 0">
+            limit #{offset}, #{limit}
+        </if>		
+	</select>
+	
+	<select id="queryCount" parameterType="com.jd.bluedragon.distribution.station.query.WorkStationQuery" resultType="long">
+		select
+			count(1)
+		from
+			work_station t
+		<include refid="queryCondition"/>
+	</select>
+	
+	<select id="queryPageCount" parameterType="com.jd.bluedragon.distribution.station.query.WorkStationQuery" resultMap="WorkStationCountVo">
+		select
+			count(distinct area_code) area_num,
+			count(distinct work_code) work_num
+		from
+			work_station t
+		<include refid="queryCondition"/>
+	</select>	
+
+	<sql id="queryCondition">
+		<where>
+			yn = 1
+		<if test="workCode != null and workCode != ''" >
+			and work_code = #{workCode,jdbcType=VARCHAR}
+		</if>
+		<if test="workName != null and workName != ''" >
+			and work_name like concat('%', #{workName}, '%')
+		</if>
+		<if test="areaCode != null and areaCode != ''" >
+			and area_code = #{areaCode,jdbcType=VARCHAR}
+		</if>
+		<if test="areaName != null and areaName != ''" >
+			and area_name like concat('%', #{areaName}, '%')
+		</if>	    			
+		</where>
+	</sql>
+	<select id="queryWorkDictList" parameterType="com.jd.bluedragon.distribution.station.query.WorkStationQuery" resultMap="WorkStation">
+ 		select
+			work_code,max(work_Name) work_Name
+		from
+			work_station t
+		where yn = 1 
+		<if test="areaCode != null and areaCode != ''" >
+			and area_code = #{areaCode,jdbcType=VARCHAR}
+		</if>		
+		group by work_code
+	</select>
+	<select id="queryAreaDictList" parameterType="com.jd.bluedragon.distribution.station.query.WorkStationQuery" resultMap="WorkStation">
+ 		select
+			area_code,max(area_name) area_name
+		from
+			work_station t
+		where yn = 1 
+		<if test="workCode != null and workCode != ''" >
+			and work_code = #{workCode,jdbcType=VARCHAR}
+		</if>
+		group by area_code
+	</select>
+
+</mapper>
