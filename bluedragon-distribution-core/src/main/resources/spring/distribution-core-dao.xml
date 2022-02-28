@@ -697,6 +697,19 @@
     <bean id="stockInventoryDao" class="com.jd.bluedragon.distribution.stock.dao.StockInventoryDao">
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
     </bean>
+    <!-- 三定相关dao配置 -->
+    <bean id="workStationDao" class="com.jd.bluedragon.distribution.station.dao.impl.WorkStationDaoImpl">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate" />
+    </bean>
+    <bean id="workStationGridDao" class="com.jd.bluedragon.distribution.station.dao.impl.WorkStationGridDaoImpl">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate" />
+    </bean>
+    <bean id="workStationAttendPlanDao" class="com.jd.bluedragon.distribution.station.dao.impl.WorkStationAttendPlanDaoImpl">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate" />
+    </bean>
+    <bean id="userSignRecordDao" class="com.jd.bluedragon.distribution.station.dao.impl.UserSignRecordDaoImpl">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate" />
+    </bean>                
     <bean id="waybillHasnoPresiteRecordDao" class="com.jd.bluedragon.distribution.record.dao.WaybillHasnoPresiteRecordDao">
         <property name="sqlSession" ref="unDivSqlSessionTemplate" />
     </bean>

@@ -158,6 +158,7 @@
 		<property name="sendCodeEffectiveValidation" value="${sendCodeEffectiveValidation:''}"/>
 		<property name="restApiOuthSwitch" value="${restApiOuthSwitch:true}"/>
 		<property name="needInterceptUrls" value="${needInterceptUrls:*}"/>
+		<property name="notSignedOutRecordMoreThanHours" value="${notSignedOutRecordMoreThanHours:-1}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -294,8 +295,13 @@
 				<value>uccPropertyConfiguration.printCompleteCallbackAsyncPackageNum</value>
 				<value>uccPropertyConfiguration.limitSiteUsePackReprint</value>
 				<value>uccPropertyConfiguration.sendCodeEffectiveValidation</value>
+<<<<<<< .mine
 				<value>uccPropertyConfiguration.restApiOuthSwitch</value>
 				<value>uccPropertyConfiguration.needInterceptUrls</value>
+=======
+				<value>uccPropertyConfiguration.notSignedOutRecordMoreThanHours</value>
+
+>>>>>>> .theirs
 
                 <value>hystrixRouteUccPropertyConfiguration.executionTimeoutInMilliseconds</value>
                 <value>hystrixRouteUccPropertyConfiguration.circuitBreakerEnabled</value>

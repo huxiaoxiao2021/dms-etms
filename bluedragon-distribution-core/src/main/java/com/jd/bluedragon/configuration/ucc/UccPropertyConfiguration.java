@@ -660,6 +660,11 @@ public class UccPropertyConfiguration {
         this.restApiOuthSwitch = restApiOuthSwitch;
     }
 
+    /**
+     * 自动签退超过多少小时未签退的数据
+     */
+    private int notSignedOutRecordMoreThanHours;
+
     public String getScheduleSiteCheckSameCity() {
         return scheduleSiteCheckSameCity;
     }
@@ -1697,5 +1702,13 @@ public class UccPropertyConfiguration {
 
     public void setSendCodeEffectiveValidation(String sendCodeEffectiveValidation) {
         this.sendCodeEffectiveValidation = sendCodeEffectiveValidation;
+    }
+
+    public int getNotSignedOutRecordMoreThanHours() {
+        return notSignedOutRecordMoreThanHours;
+    }
+
+    public void setNotSignedOutRecordMoreThanHours(int notSignedOutRecordMoreThanHours) {
+        this.notSignedOutRecordMoreThanHours = notSignedOutRecordMoreThanHours;
     }
 }
