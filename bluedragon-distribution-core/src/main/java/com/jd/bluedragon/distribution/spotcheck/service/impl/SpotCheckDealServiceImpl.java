@@ -522,6 +522,9 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
     @Override
     public boolean checkIsHasSend(String packageCode, Integer siteCode) {
         boolean isHasSend = false;
+        if(StringUtils.isBlank(packageCode)){
+            throw new SpotCheckSysException("包裹号不能为空!");
+        }
         try {
             String key = String.format(CacheKeyConstants.CACHE_KEY_WAYBILL_SEND_STATUS, siteCode, packageCode);
             if(!StringUtils.isEmpty(jimdbCacheService.get(key))){
