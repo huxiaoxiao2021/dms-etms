@@ -1,6 +1,9 @@
 package com.jd.bluedragon.external.gateway.service;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.waybill.request.WaybillTrackReq;
+import com.jd.bluedragon.common.dto.waybill.request.WaybillTrackResponse;
+import com.jd.etms.waybill.domain.PackageState;
 
 import java.util.List;
 
@@ -13,4 +16,10 @@ import java.util.List;
 public interface WaybillGateWayService {
 
     JdCResponse<List<Integer>> getPerAndSfSiteByWaybill(String waybillCode);
+
+    JdCResponse<List<String>> queryPackageCodes(String waybillCode);
+
+    JdCResponse<List<String>> queryWaybillTrackHistory(String erp);
+
+    JdCResponse<List<WaybillTrackResponse>> queryWaybillTrack(WaybillTrackReq waybillTrackReq);
 }
