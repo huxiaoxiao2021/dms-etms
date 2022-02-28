@@ -40,7 +40,7 @@
 		<waybill.cache.version>1.0.3</waybill.cache.version>
 		<business-sdk.version>1.0.9-test-SNAPSHOT</business-sdk.version>
 		<dms-component-sdk.version>1.0.1-SNAPSHOT</dms-component-sdk.version>
-		<workbench.services.sdk.version>1.0.6-SNAPSHOT</workbench.services.sdk.version>
+		<workbench.services.sdk.version>1.0.8-SNAPSHOT</workbench.services.sdk.version>
 		<!-- 用于源码tag -->
 		<maven.build.timestamp.format>yyyyMMddHHmm</maven.build.timestamp.format>
 		<project.scm.id>xnqlarch-gitlab</project.scm.id>
