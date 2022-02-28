@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.station.domain.WorkStationGrid;
+import com.jd.bluedragon.distribution.station.domain.WorkStationGridCountVo;
 import com.jd.bluedragon.distribution.station.query.WorkStationGridQuery;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
 
@@ -95,4 +96,10 @@ public interface WorkStationGridService {
 	 * @return
 	 */
 	Result<List<WorkStationGrid>> queryGridFloorDictList(WorkStationGridQuery query);
+	/**
+	 * 按条件查询统计信息
+	 * @param query
+	 * @return
+	 */
+	Result<WorkStationGridCountVo> queryPageCount(WorkStationGridQuery query);
 }

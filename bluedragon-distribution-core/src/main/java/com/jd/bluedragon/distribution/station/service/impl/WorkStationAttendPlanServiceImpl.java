@@ -1,7 +1,9 @@
 package com.jd.bluedragon.distribution.station.service.impl;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,13 +17,14 @@ import com.jd.bluedragon.distribution.station.dao.WorkStationAttendPlanDao;
 import com.jd.bluedragon.distribution.station.domain.WorkStation;
 import com.jd.bluedragon.distribution.station.domain.WorkStationAttendPlan;
 import com.jd.bluedragon.distribution.station.domain.WorkStationGrid;
+import com.jd.bluedragon.distribution.station.enums.WaveTypeEnum;
 import com.jd.bluedragon.distribution.station.query.WorkStationAttendPlanQuery;
 import com.jd.bluedragon.distribution.station.service.WorkStationAttendPlanService;
 import com.jd.bluedragon.distribution.station.service.WorkStationGridService;
 import com.jd.bluedragon.distribution.station.service.WorkStationService;
+import com.jd.bluedragon.distribution.utils.CheckHelper;
 import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.utils.StringHelper;
-import com.jd.dms.wb.sdk.enums.station.WaveTypeEnum;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
 
@@ -92,6 +95,14 @@ public class WorkStationAttendPlanServiceImpl implements WorkStationAttendPlanSe
 	 */
 	public Result<Boolean> updateById(WorkStationAttendPlan updateData){
 		Result<Boolean> result = Result.success();
+		String planName = updateData.getPlanName();
+		Integer planAttendNum = updateData.getPlanAttendNum();
+		if(!CheckHelper.checkStr("方案名称", planName, 50, result).isSuccess()) {
+			return result;
+		}
+		if(!CheckHelper.checkInteger("出勤计划人数", planAttendNum, 1,1000000, result).isSuccess()) {
+			return result;
+		}
 		workStationAttendPlanDao.deleteById(updateData);
 		updateData.setId(null);		
 		result.setData(workStationAttendPlanDao.insert(updateData) == 1);
@@ -180,6 +191,14 @@ public class WorkStationAttendPlanServiceImpl implements WorkStationAttendPlanSe
 	private boolean isExist(WorkStationAttendPlan data) {
 		return workStationAttendPlanDao.queryByBusinessKey(data) != null;
 	}
+	
+	@Override
+	public Result<WorkStationAttendPlan> queryByBusinessKeys(WorkStationAttendPlan data) {
+		Result<WorkStationAttendPlan> result = Result.success();
+		result.setData(this.fillOtherInfo(workStationAttendPlanDao.queryByBusinessKey(data)));
+		return result;
+	}	
+	
 	@Override
 	public Result<Boolean> importDatas(List<WorkStationAttendPlan> dataList) {
 		Result<Boolean> result = checkAndFillImportDatas(dataList);
@@ -215,15 +234,30 @@ public class WorkStationAttendPlanServiceImpl implements WorkStationAttendPlanSe
 		}
 		//逐条校验
 		int rowNum = 1;
+		Map<String,Integer> uniqueKeysRowNumMap = new HashMap<String,Integer>();
 		for(WorkStationAttendPlan data : dataList) {
 			String rowKey = "第" + rowNum + "行";
 			Result<Boolean> result0 = checkAndFillNewData(data);
 			if(!result0.isSuccess()) {
 				return result0.toFail(rowKey + result0.getMessage());
 			}
+			//导入数据防重校验
+			String uniqueKeysStr = getUniqueKeysStr(data);
+			if(uniqueKeysRowNumMap.containsKey(uniqueKeysStr)) {
+				return result0.toFail(rowKey + "和第"+uniqueKeysRowNumMap.get(uniqueKeysStr)+"行数据重复！");
+			}
+			uniqueKeysRowNumMap.put(uniqueKeysStr, rowNum);
 			rowNum ++;
 		}
 		return result;
+	}
+	private String getUniqueKeysStr(WorkStationAttendPlan data) {
+		if(data != null ) {
+			return data.getRefGridKey().toString()
+					.concat(DmsConstants.KEYS_SPLIT)
+					.concat(data.getWaveCode().toString());
+		}
+		return null;
 	}
 	/**
 	 * 校验并填充导入数据
@@ -233,22 +267,44 @@ public class WorkStationAttendPlanServiceImpl implements WorkStationAttendPlanSe
 	private Result<Boolean> checkAndFillNewData(WorkStationAttendPlan data){
 		Result<Boolean> result = Result.success();
 		Integer siteCode = data.getSiteCode();
+		Integer floor = data.getFloor();
 		String gridNo = data.getGridNo();
-		String areaCode = data.getAreaCode();
 		String workCode = data.getWorkCode();
+		String areaCode = data.getAreaCode();
 		Integer waveCode = data.getWaveCode();
-		if(siteCode == null
-				|| siteCode == 0) {
-			return result.toFail("青龙ID为空！");
+		String planName = data.getPlanName();
+		Integer planAttendNum = data.getPlanAttendNum();
+		if(!CheckHelper.checkStr("方案名称", planName, 50, result).isSuccess()) {
+			return result;
+		}		
+		if(siteCode == null) {
+			return result.toFail("场地ID为空！");
 		}
+		if(!CheckHelper.checkInteger("楼层", floor, 1,3, result).isSuccess()) {
+			return result;
+		}
+		//校验gridNo
 		if(StringHelper.isEmpty(gridNo)) {
-			return result.toFail("网格ID为空！");
+			return result.toFail("网格号为空！");
 		}
-		if(StringHelper.isEmpty(workCode)) {
-			return result.toFail("工序编码为空！");
+		if(gridNo.length()<2) {
+			gridNo = "0".concat(gridNo);
+			data.setGridNo(gridNo);
+		}
+		if(!CheckHelper.checkGridNo(gridNo, result).isSuccess()) {
+			return result;
+		}
+		if(!CheckHelper.checkStr("作业区ID", areaCode, 50, result).isSuccess()) {
+			return result;
+		}		
+		if(!CheckHelper.checkStr("工序ID", workCode, 50, result).isSuccess()) {
+			return result;
 		}
 		if(WaveTypeEnum.getEnum(waveCode) == null) {
 			return result.toFail("班次类型只能录入【"+WaveTypeEnum.getAllNames()+"】！");
+		}
+		if(!CheckHelper.checkInteger("出勤计划人数", planAttendNum, 1,1000000, result).isSuccess()) {
+			return result;
 		}
 		BaseStaffSiteOrgDto siteInfo = baseMajorManager.getBaseSiteBySiteId(siteCode);
 		if(siteInfo == null) {
@@ -262,13 +318,14 @@ public class WorkStationAttendPlanServiceImpl implements WorkStationAttendPlanSe
 		Result<WorkStation> workStationData = workStationService.queryByBusinessKey(workStationCheckQuery);
 		if(workStationData == null
 				|| workStationData.getData() == null) {
-			return result.toFail("工序信息不存在，请先维护工序信息！");
+			return result.toFail("作业区工序信息不存在，请先维护作业区及工序信息！");
 		}
 		WorkStation workStation = workStationData.getData();
 		data.setRefStationKey(workStation.getBusinessKey());
 		//校验并设置网格信息
 		WorkStationGrid workStationGridCheckQuery = new WorkStationGrid();
 		workStationGridCheckQuery.setSiteCode(siteCode);
+		workStationGridCheckQuery.setFloor(floor);
 		workStationGridCheckQuery.setGridNo(gridNo);
 		workStationGridCheckQuery.setRefStationKey(workStation.getBusinessKey());
 		Result<WorkStationGrid> workStationGridData = workStationGridService.queryByBusinessKey(workStationGridCheckQuery);

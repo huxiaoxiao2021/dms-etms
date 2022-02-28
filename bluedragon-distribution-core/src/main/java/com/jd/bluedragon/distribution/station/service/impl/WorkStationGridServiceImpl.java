@@ -1,7 +1,9 @@
 package com.jd.bluedragon.distribution.station.service.impl;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.jd.bluedragon.distribution.position.dao.PositionRecordDao;
 import com.jd.bluedragon.distribution.position.domain.PositionRecord;
@@ -18,9 +20,11 @@ import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.station.dao.WorkStationGridDao;
 import com.jd.bluedragon.distribution.station.domain.WorkStation;
 import com.jd.bluedragon.distribution.station.domain.WorkStationGrid;
+import com.jd.bluedragon.distribution.station.domain.WorkStationGridCountVo;
 import com.jd.bluedragon.distribution.station.query.WorkStationGridQuery;
 import com.jd.bluedragon.distribution.station.service.WorkStationGridService;
 import com.jd.bluedragon.distribution.station.service.WorkStationService;
+import com.jd.bluedragon.distribution.utils.CheckHelper;
 import com.jd.bluedragon.dms.utils.AreaEnum;
 import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.utils.StringHelper;
@@ -108,23 +112,37 @@ public class WorkStationGridServiceImpl implements WorkStationGridService {
 		Integer floor = data.getFloor();
 		String gridNo = data.getGridNo();
 		String workCode = data.getWorkCode();
-		String areaCode = data.getAreaCode();		
-		if(siteCode == null
-				|| siteCode == 0) {
-			return result.toFail("青龙ID为空！");
+		String areaCode = data.getAreaCode();
+		String ownerUserErp = data.getOwnerUserErp();
+		Integer standardNum = data.getStandardNum();
+		if(siteCode == null) {
+			return result.toFail("场地ID为空！");
 		}
-		if(floor == null
-				|| floor == 0) {
-			return result.toFail("楼层为空！");
-		}		
+		if(!CheckHelper.checkInteger("楼层", floor, 1,3, result).isSuccess()) {
+			return result;
+		}
+		//校验gridNo
 		if(StringHelper.isEmpty(gridNo)) {
 			return result.toFail("网格号为空！");
 		}
-		if(StringHelper.isEmpty(areaCode)) {
-			return result.toFail("作业区ID为空！");
+		if(gridNo.length()<2) {
+			gridNo = "0".concat(gridNo);
+			data.setGridNo(gridNo);
+		}
+		if(!CheckHelper.checkGridNo(gridNo, result).isSuccess()) {
+			return result;
+		}
+		if(!CheckHelper.checkStr("作业区ID", areaCode, 50, result).isSuccess()) {
+			return result;
 		}		
-		if(StringHelper.isEmpty(workCode)) {
-			return result.toFail("工序编码为空！");
+		if(!CheckHelper.checkStr("工序ID", workCode, 50, result).isSuccess()) {
+			return result;
+		}
+		if(!CheckHelper.checkInteger("编制人数", standardNum, 1,1000000, result).isSuccess()) {
+			return result;
+		}
+		if(!CheckHelper.checkStr("负责人ERP", ownerUserErp, 50, result).isSuccess()) {
+			return result;
 		}
 		BaseStaffSiteOrgDto siteInfo = baseMajorManager.getBaseSiteBySiteId(siteCode);
 		if(siteInfo == null) {
@@ -144,7 +162,7 @@ public class WorkStationGridServiceImpl implements WorkStationGridService {
 		Result<WorkStation> workStationData = workStationService.queryByBusinessKey(workStationCheckQuery);
 		if(workStationData == null
 				|| workStationData.getData() == null) {
-			return result.toFail("工序信息不存在，请先维护工序信息！");
+			return result.toFail("作业区工序信息不存在，请先维护作业区及工序信息！");
 		}
 		WorkStation workStation = workStationData.getData();
 		data.setGridCode(workStation.getAreaCode().concat("-").concat(data.getGridNo()));
@@ -159,6 +177,14 @@ public class WorkStationGridServiceImpl implements WorkStationGridService {
 	 */
 	public Result<Boolean> updateById(WorkStationGrid updateData){
 		Result<Boolean> result = Result.success();
+		String ownerUserErp = updateData.getOwnerUserErp();
+		Integer standardNum = updateData.getStandardNum();
+		if(!CheckHelper.checkInteger("编制人数", standardNum, 1,1000000, result).isSuccess()) {
+			return result;
+		}
+		if(!CheckHelper.checkStr("负责人ERP", ownerUserErp, 50, result).isSuccess()) {
+			return result;
+		}
 		workStationGridDao.deleteById(updateData);
 		updateData.setId(null);
 		result.setData(workStationGridDao.insert(updateData) == 1);
@@ -290,15 +316,34 @@ public class WorkStationGridServiceImpl implements WorkStationGridService {
 		}
 		//逐条校验
 		int rowNum = 1;
+		Map<String,Integer> uniqueKeysRowNumMap = new HashMap<String,Integer>();
 		for(WorkStationGrid data : dataList) {
 			String rowKey = "第" + rowNum + "行";
 			Result<Boolean> result0 = checkAndFillNewData(data);
 			if(!result0.isSuccess()) {
 				return result0.toFail(rowKey + result0.getMessage());
 			}
+			//导入数据防重校验
+			String uniqueKeysStr = getUniqueKeysStr(data);
+			if(uniqueKeysRowNumMap.containsKey(uniqueKeysStr)) {
+				return result0.toFail(rowKey + "和第"+uniqueKeysRowNumMap.get(uniqueKeysStr)+"行数据重复！");
+			}
+			uniqueKeysRowNumMap.put(uniqueKeysStr, rowNum);
 			rowNum ++;
 		}
 		return result;
+	}
+	private String getUniqueKeysStr(WorkStationGrid data) {
+		if(data != null ) {
+			return data.getSiteCode().toString()
+					.concat(DmsConstants.KEYS_SPLIT)
+					.concat(data.getFloor().toString())	
+					.concat(DmsConstants.KEYS_SPLIT)
+					.concat(data.getGridNo())		
+					.concat(DmsConstants.KEYS_SPLIT)
+					.concat(data.getRefStationKey());
+		}
+		return null;
 	}
 	@Override
 	public Result<WorkStationGrid> queryByBusinessKey(WorkStationGrid data) {
@@ -332,6 +377,16 @@ public class WorkStationGridServiceImpl implements WorkStationGridService {
 	public Result<List<WorkStationGrid>> queryGridFloorDictList(WorkStationGridQuery query) {
 		Result<List<WorkStationGrid>> result = Result.success();
 		result.setData(workStationGridDao.queryGridFloorDictList(query));
+		return result;
+	}
+	@Override
+	public Result<WorkStationGridCountVo> queryPageCount(WorkStationGridQuery query) {
+		Result<WorkStationGridCountVo> result = Result.success();
+		Result<Boolean> checkResult = this.checkParamForQueryPageList(query);
+		if(!checkResult.isSuccess()){
+		    return Result.fail(checkResult.getMessage());
+		}
+		result.setData(workStationGridDao.queryPageCount(query));
 		return result;
 	}
 }

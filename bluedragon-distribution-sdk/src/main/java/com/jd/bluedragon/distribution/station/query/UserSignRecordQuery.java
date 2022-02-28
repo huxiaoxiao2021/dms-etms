@@ -15,14 +15,14 @@ public class UserSignRecordQuery extends BasePagerCondition {
 
 	private static final long serialVersionUID = 1L;
 	/**
-	 * 工序编码
-	 */
-	private String workCode;
-
-	/**
 	 * 机构编码
 	 */
 	private Integer orgCode;
+
+	/**
+	 * 机构名称
+	 */
+	private String orgName;
 
 	/**
 	 * 场地编码
@@ -30,10 +30,49 @@ public class UserSignRecordQuery extends BasePagerCondition {
 	private Integer siteCode;
 
 	/**
-	 * 网格编号
+	 * 场地名称
+	 */
+	private String siteName;
+
+	/**
+	 * 楼层
+	 */
+	private Integer floor;
+
+	/**
+	 * 网格号:01~99
 	 */
 	private String gridNo;
 
+	/**
+	 * 网格ID
+	 */
+	private String gridCode;
+
+	/**
+	 * 网格名称
+	 */
+	private String gridName;
+	/**
+	 * 作业区编码
+	 */
+	private String areaCode;
+
+	/**
+	 * 作业区名称
+	 */
+	private String areaName;
+
+	/**
+	 * 工序编码
+	 */
+	private String workCode;
+
+	/**
+	 * 工序名称
+	 */
+	private String workName;
+	
 	/**
 	 * 班次:1-白班 2-中班 3-晚班
 	 */
@@ -92,17 +131,27 @@ public class UserSignRecordQuery extends BasePagerCondition {
 	 */
 	private Integer pageSize;
 	
-	public String getWorkCode() {
-		return workCode;
-	}
-	public void setWorkCode(String workCode) {
-		this.workCode = workCode;
-	}
+	/**
+	 * 实时统计的日期-开始
+	 */
+	private Date nowDateStart;
+	
+	/**
+	 * 实时统计的日期-结束
+	 */
+	private Date nowDateEnd;
+	
 	public Integer getOrgCode() {
 		return orgCode;
 	}
 	public void setOrgCode(Integer orgCode) {
 		this.orgCode = orgCode;
+	}
+	public String getOrgName() {
+		return orgName;
+	}
+	public void setOrgName(String orgName) {
+		this.orgName = orgName;
 	}
 	public Integer getSiteCode() {
 		return siteCode;
@@ -110,11 +159,59 @@ public class UserSignRecordQuery extends BasePagerCondition {
 	public void setSiteCode(Integer siteCode) {
 		this.siteCode = siteCode;
 	}
+	public String getSiteName() {
+		return siteName;
+	}
+	public void setSiteName(String siteName) {
+		this.siteName = siteName;
+	}
+	public Integer getFloor() {
+		return floor;
+	}
+	public void setFloor(Integer floor) {
+		this.floor = floor;
+	}
 	public String getGridNo() {
 		return gridNo;
 	}
 	public void setGridNo(String gridNo) {
 		this.gridNo = gridNo;
+	}
+	public String getGridCode() {
+		return gridCode;
+	}
+	public void setGridCode(String gridCode) {
+		this.gridCode = gridCode;
+	}
+	public String getGridName() {
+		return gridName;
+	}
+	public void setGridName(String gridName) {
+		this.gridName = gridName;
+	}
+	public String getAreaCode() {
+		return areaCode;
+	}
+	public void setAreaCode(String areaCode) {
+		this.areaCode = areaCode;
+	}
+	public String getAreaName() {
+		return areaName;
+	}
+	public void setAreaName(String areaName) {
+		this.areaName = areaName;
+	}
+	public String getWorkCode() {
+		return workCode;
+	}
+	public void setWorkCode(String workCode) {
+		this.workCode = workCode;
+	}
+	public String getWorkName() {
+		return workName;
+	}
+	public void setWorkName(String workName) {
+		this.workName = workName;
 	}
 	public Integer getWaveCode() {
 		return waveCode;
@@ -193,5 +290,17 @@ public class UserSignRecordQuery extends BasePagerCondition {
 	}
 	public void setPageSize(Integer pageSize) {
 		this.pageSize = pageSize;
+	}
+	public Date getNowDateStart() {
+		return nowDateStart;
+	}
+	public void setNowDateStart(Date nowDateStart) {
+		this.nowDateStart = nowDateStart;
+	}
+	public Date getNowDateEnd() {
+		return nowDateEnd;
+	}
+	public void setNowDateEnd(Date nowDateEnd) {
+		this.nowDateEnd = nowDateEnd;
 	}
 }

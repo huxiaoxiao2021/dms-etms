@@ -1,11 +1,13 @@
 package com.jd.bluedragon.distribution.station.dao;
 
+import java.util.Date;
 import java.util.List;
 
 import com.jd.bluedragon.distribution.station.domain.UserSignRecord;
 import com.jd.bluedragon.distribution.station.domain.UserSignRecordReportSumVo;
 import com.jd.bluedragon.distribution.station.domain.UserSignRecordReportVo;
 import com.jd.bluedragon.distribution.station.query.UserSignRecordQuery;
+import org.apache.ibatis.annotations.Param;
 
 /**
  * 人员签到表--Dao接口
@@ -81,6 +83,10 @@ public interface UserSignRecordDao {
 	 * @param query
 	 * @return
 	 */
-	UserSignRecordReportSumVo queryReportSum(UserSignRecordQuery query);	
+	UserSignRecordReportSumVo queryReportSum(UserSignRecordQuery query);
+
+    List<Long> querySignInMoreThanSpecifiedTime(Date signInTime, Integer limit);
+
+    int signOutById(UserSignRecord signOutRequest, List<Long> list);
 
 }

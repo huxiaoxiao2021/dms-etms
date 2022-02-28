@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.station.dao;
 import java.util.List;
 
 import com.jd.bluedragon.distribution.station.domain.WorkStationGrid;
+import com.jd.bluedragon.distribution.station.domain.WorkStationGridCountVo;
 import com.jd.bluedragon.distribution.station.query.WorkStationGridQuery;
 
 /**
@@ -91,4 +92,10 @@ public interface WorkStationGridDao {
 	 * @return
 	 */
 	List<WorkStationGrid> queryGridFloorDictList(WorkStationGridQuery query);
+	/**
+	 * 按条件查询统计信息
+	 * @param query
+	 * @return
+	 */
+	WorkStationGridCountVo queryPageCount(WorkStationGridQuery query);
 }

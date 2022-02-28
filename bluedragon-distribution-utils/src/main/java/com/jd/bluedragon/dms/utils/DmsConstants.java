@@ -282,6 +282,8 @@ public class DmsConstants {
     public static final String WJ_BOX_PREFIX = "WJ";
     
     public static final int PAGE_SIZE_DEFAULT = 10;
+    
+    public static final String KEYS_SPLIT = ":";
     //站点操作的节点
     public static final Set<Integer> SITE_OPERAT_STATES = new HashSet<Integer>(){{
     	add(60);

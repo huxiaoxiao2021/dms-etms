@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.station.domain.WorkStation;
+import com.jd.bluedragon.distribution.station.domain.WorkStationCountVo;
 import com.jd.bluedragon.distribution.station.query.WorkStationQuery;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
 
@@ -52,6 +53,12 @@ public interface WorkStationJsfService {
 	 * @return
 	 */
 	Result<PageDto<WorkStation>> queryPageList(WorkStationQuery query);
+	/**
+	 * 按条件查询统计信息
+	 * @param query
+	 * @return
+	 */
+	Result<WorkStationCountVo> queryPageCount(WorkStationQuery query);
 	/**
 	 * 查询作业区字典
 	 * @return

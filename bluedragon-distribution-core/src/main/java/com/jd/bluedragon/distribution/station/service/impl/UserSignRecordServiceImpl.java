@@ -2,9 +2,15 @@ package com.jd.bluedragon.distribution.station.service.impl;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -16,12 +22,19 @@ import com.jd.bluedragon.distribution.station.dao.UserSignRecordDao;
 import com.jd.bluedragon.distribution.station.domain.UserSignRecord;
 import com.jd.bluedragon.distribution.station.domain.UserSignRecordReportSumVo;
 import com.jd.bluedragon.distribution.station.domain.UserSignRecordReportVo;
+import com.jd.bluedragon.distribution.station.domain.WorkStation;
+import com.jd.bluedragon.distribution.station.domain.WorkStationAttendPlan;
+import com.jd.bluedragon.distribution.station.domain.WorkStationGrid;
 import com.jd.bluedragon.distribution.station.enums.JobTypeEnum;
 import com.jd.bluedragon.distribution.station.enums.WaveTypeEnum;
 import com.jd.bluedragon.distribution.station.query.UserSignRecordQuery;
 import com.jd.bluedragon.distribution.station.service.UserSignRecordService;
+import com.jd.bluedragon.distribution.station.service.WorkStationAttendPlanService;
+import com.jd.bluedragon.distribution.station.service.WorkStationGridService;
+import com.jd.bluedragon.distribution.station.service.WorkStationService;
 import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
 
@@ -45,7 +58,24 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	@Value("${beans.userSignRecordService.signDateRangeMaxDays:7}")
 	private int signDateRangeMaxDays;
 	
+	@Autowired
+	@Qualifier("workStationService")
+	WorkStationService workStationService;
+	
+	@Autowired
+	@Qualifier("workStationGridService")
+	WorkStationGridService workStationGridService;
+	
+	@Autowired
+	@Qualifier("workStationAttendPlanService")
+	WorkStationAttendPlanService workStationAttendPlanService;
+	
 	private static final DecimalFormat NUMBER_FORMAT = new DecimalFormat("0.00");
+	private static final DecimalFormat RATE_FORMAT = new DecimalFormat("0.00%");
+
+    @Autowired
+    private UccPropertyConfiguration uccConfiguration;
+
 	/**
 	 * 插入一条数据
 	 * @param insertData
@@ -99,7 +129,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		}
 		PageDto<UserSignRecord> pageData = new PageDto<>(query.getPageNumber(), query.getPageSize());
 		Long totalCount = userSignRecordDao.queryCount(query);
-		if(totalCount > 0){
+		if(totalCount != null && totalCount > 0){
 		    List<UserSignRecord> dataList = userSignRecordDao.queryList(query);
 		    for (UserSignRecord tmp : dataList) {
 		    	this.fillOtherInfo(tmp);
@@ -129,6 +159,8 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		if(query.getPageNumber() > 0) {
 			query.setOffset((query.getPageNumber() - 1) * query.getPageSize());
 		}
+		//当天0点
+		Date nowDate = DateHelper.parseDate(DateHelper.getDateOfyyMMdd2(),DateHelper.DATE_FORMAT_YYYYMMDD);
 		Date signDate = null;
 		if(StringHelper.isNotEmpty(query.getSignDateStr())) {
 			signDate = DateHelper.parseDate(query.getSignDateStr(),DateHelper.DATE_FORMAT_YYYYMMDD);
@@ -155,6 +187,9 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 			}
 		}
 		query.setSignDate(signDate);
+		//设置实时在岗计算时间
+		query.setNowDateStart(DateHelper.addDate(nowDate, -1));
+		query.setNowDateEnd(DateHelper.add(nowDate, Calendar.SECOND, (int)DateHelper.ONE_DAY_SECONDS - 1));
 		return result;
 	 }
 	
@@ -215,18 +250,62 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	@Override
 	public Result<Boolean> signIn(UserSignRecord signInRequest) {
 		Result<Boolean> result = Result.success();
-//		UserSignRecord data = userSignRecordDao.queryByBusinessKey(signInRequest);
-//		if(data != null) {
-//			return result.toFail("该用户已签到！");
-//		}
-        Date signInTime = new Date();
-		signInRequest.setCreateTime(signInTime);
-		signInRequest.setSignInTime(signInTime);
-        signInRequest.setSignDate(signInRequest.getSignInTime());
-		userSignRecordDao.insert(signInRequest);
 
+		Integer siteCode = signInRequest.getSiteCode();
+		Integer floor = signInRequest.getFloor();
+		String gridNo = signInRequest.getGridNo();
+		String areaCode = signInRequest.getAreaCode();
+		String workCode = signInRequest.getWorkCode();
+		WorkStation workStationCheckQuery = new WorkStation();
+		workStationCheckQuery.setWorkCode(workCode);
+		workStationCheckQuery.setAreaCode(areaCode);
+		Result<WorkStation> workStationData = workStationService.queryByBusinessKey(workStationCheckQuery);
+		if(workStationData == null
+				|| workStationData.getData() == null) {
+			return result.toFail("作业区工序信息不存在，请先维护作业区及工序信息！");
+		}
+		WorkStation workStation = workStationData.getData();
+		signInRequest.setRefStationKey(workStation.getBusinessKey());
+		//校验并设置网格信息
+		WorkStationGrid workStationGridCheckQuery = new WorkStationGrid();
+		workStationGridCheckQuery.setFloor(floor);
+		workStationGridCheckQuery.setSiteCode(siteCode);
+		workStationGridCheckQuery.setGridNo(gridNo);
+		workStationGridCheckQuery.setRefStationKey(workStation.getBusinessKey());
+		Result<WorkStationGrid> workStationGridData = workStationGridService.queryByBusinessKey(workStationGridCheckQuery);
+		if(workStationGridData == null
+				|| workStationGridData.getData() == null) {
+			return result.toFail("网格信息不存在，请先维护场地网格信息！");
+		}
+
+		signInRequest.setRefGridKey(workStationGridData.getData().getBusinessKey());
+		//查询设置计划信息
+		WorkStationAttendPlan workStationAttendPlanQuery = new WorkStationAttendPlan();
+		workStationAttendPlanQuery.setRefGridKey(workStationGridData.getData().getBusinessKey());
+		workStationAttendPlanQuery.setWaveCode(signInRequest.getWaveCode());
+		Result<WorkStationAttendPlan> planData = workStationAttendPlanService.queryByBusinessKeys(workStationAttendPlanQuery);
+		if(planData != null
+				&& planData.getData() != null) {
+			signInRequest.setRefPlanKey(planData.getData().getBusinessKey());
+		}
+		
+        Date now = new Date();
+        
         // 自动将上次未签退数据签退。
-        result = autoSignOutLastSignInRecord(signInRequest, signInTime);
+        boolean autoSignOutSuccess = autoSignOutLastSignInRecord(signInRequest, now);
+
+        Date signInTime = now;
+        if (autoSignOutSuccess) {
+            signInTime = new Date(now.getTime() + 1000);
+        }
+        signInRequest.setCreateTime(signInTime);
+        signInRequest.setSignInTime(signInTime);
+        signInRequest.setSignDate(signInRequest.getSignInTime());
+        userSignRecordDao.insert(signInRequest);
+
+        if (autoSignOutSuccess) {
+            result = new Result<>(201, "签到成功，自动将上次签到数据签退！");
+        }
 
         return result;
 	}
@@ -234,24 +313,20 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
     /**
      * 自动签退逻辑
      * @param signInRequest
-     * @param signInTime
+     * @param signOutTime
      */
-    private Result<Boolean> autoSignOutLastSignInRecord(UserSignRecord signInRequest, Date signInTime) {
+    private boolean autoSignOutLastSignInRecord(UserSignRecord signInRequest, Date signOutTime) {
         UserSignRecord lastSignRecord = getLastSignRecord(signInRequest);
         if (lastSignRecord != null && lastSignRecord.getSignOutTime() == null) {
             UserSignRecord signOutRequest = new UserSignRecord();
 
-            // 自动签退时间比本次签到时间早一秒
-            Date signOutTime = new Date(signInTime.getTime() - 1000);
             signOutRequest.setId(lastSignRecord.getId());
             signOutRequest.setUpdateTime(signOutTime);
             signOutRequest.setSignOutTime(signOutTime);
-            if (userSignRecordDao.updateById(signOutRequest) > 0) {
-                return new Result<>(201, "签到成功，自动将上次签到数据签退！");
-            }
+            return userSignRecordDao.updateById(signOutRequest) > 0;
         }
 
-        return Result.success();
+        return false;
     }
 
     @Override
@@ -270,6 +345,8 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		}
 		data.setUpdateTime(new Date());
 		data.setSignOutTime(new Date());
+        data.setUpdateUser(signOutRequest.getUpdateUser());
+        data.setUpdateUserName(signOutRequest.getUpdateUserName());
 		userSignRecordDao.updateById(data);
 		return result;
 	}
@@ -301,6 +378,60 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		}
 		Result<UserSignRecordReportSumVo> result = Result.success();
 		result.setData(userSignRecordDao.queryReportSum(query));
+		if(result.getData() != null) {
+			Integer attendNumSum = result.getData().getAttendNumSum();
+			Integer planAttendNumSum = result.getData().getPlanAttendNumSum();
+			if(NumberHelper.gt0(planAttendNumSum)
+					&& attendNumSum != null) {
+				double offValue = Math.abs((attendNumSum - planAttendNumSum) * 1.0 / planAttendNumSum);
+				result.getData().setDeviationPlanRate(RATE_FORMAT.format(offValue));
+			}else {
+				result.getData().setDeviationPlanRate("--");
+			}
+		}
 		return result;
 	}
+
+    @Override
+    @JProfiler(jKey = "DMS.WEB.UserSignRecordService.autoHandleSignInRecord", jAppName= Constants.UMP_APP_NAME_DMSWORKER, mState={JProEnum.TP, JProEnum.FunctionError})
+    public Result<Integer> autoHandleSignInRecord() {
+        Result<Integer> result = Result.success();
+        int notSignedOutRecordMoreThanHours = uccConfiguration.getNotSignedOutRecordMoreThanHours();
+        if (notSignedOutRecordMoreThanHours < 0) {
+            return result;
+        }
+
+        Date signInTime = new Date(System.currentTimeMillis() - (long) notSignedOutRecordMoreThanHours * 3600 * 1000);
+        List<Long> toSignOutPks;
+        Date now = new Date();
+        int updateRows = 0;
+
+
+        try {
+            do {
+                toSignOutPks = userSignRecordDao.querySignInMoreThanSpecifiedTime(signInTime, 100);
+
+                if (CollectionUtils.isNotEmpty(toSignOutPks)) {
+                    UserSignRecord updateData = new UserSignRecord();
+                    updateData.setSignOutTime(now);
+                    updateData.setUpdateTime(now);
+                    updateData.setUpdateUser("sys.dms");
+                    updateData.setUpdateUserName(updateData.getUpdateUser());
+
+                    updateRows += userSignRecordDao.signOutById(updateData, toSignOutPks);
+                }
+
+                Thread.sleep(2000);
+
+            } while (CollectionUtils.isNotEmpty(toSignOutPks));
+
+            result.setData(updateRows);
+        }
+        catch (Exception e) {
+            log.error("自动关闭未签退数据异常.", e);
+            result.toFail(e.getMessage());
+        }
+
+        return result;
+    }
 }

@@ -1,7 +1,9 @@
 package com.jd.bluedragon.distribution.station.service.impl;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
@@ -14,8 +16,10 @@ import com.jd.bluedragon.core.objectid.IGenerateObjectId;
 import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.station.dao.WorkStationDao;
 import com.jd.bluedragon.distribution.station.domain.WorkStation;
+import com.jd.bluedragon.distribution.station.domain.WorkStationCountVo;
 import com.jd.bluedragon.distribution.station.query.WorkStationQuery;
 import com.jd.bluedragon.distribution.station.service.WorkStationService;
+import com.jd.bluedragon.distribution.utils.CheckHelper;
 import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
@@ -45,7 +49,10 @@ public class WorkStationServiceImpl implements WorkStationService {
 	 * @return
 	 */
 	public Result<Boolean> insert(WorkStation insertData){
-		Result<Boolean> result = Result.success();
+		Result<Boolean> result = checkAndFillBeforeAdd(insertData);
+		if(!result.isSuccess()) {
+			return result;
+		}
 		insertData.setBusinessKey(DmsConstants.CODE_PREFIX_WORK_STATION.concat(StringHelper.padZero(this.genObjectId.getObjectId(WorkStation.class.getName()),11)));
 		result.setData(workStationDao.insert(insertData) == 1);
 		return result;
@@ -73,6 +80,21 @@ public class WorkStationServiceImpl implements WorkStationService {
 		return result;
 	}
 	/**
+	 * 校验并填充数据add
+	 * @param insertData
+	 * @return
+	 */
+	private Result<Boolean> checkAndFillBeforeAdd(WorkStation insertData){
+		Result<Boolean> result = checkAndFillNewData(insertData);
+		if(!result.isSuccess()) {
+			return result;
+		}
+		if(this.isExist(insertData)) {
+			return result.toFail("该作业区、工序已存在，请修改！");
+		}
+		return result;
+	}	
+	/**
 	 * 校验并填充导入数据
 	 * @param dataList
 	 * @return
@@ -84,27 +106,67 @@ public class WorkStationServiceImpl implements WorkStationService {
 		}
 		//逐条校验
 		int rowNum = 1;
+		Map<String,Integer> uniqueKeysRowNumMap = new HashMap<String,Integer>();
 		for(WorkStation data : dataList) {
 			String rowKey = "第" + rowNum + "行";
-			String workCode = data.getWorkCode();
-			String areaCode = data.getAreaCode();
-			if(StringHelper.isEmpty(workCode)) {
-				return result.toFail(rowKey + "工序编码为空！");
+			Result<Boolean> result0 = checkAndFillNewData(data);
+			if(!result0.isSuccess()) {
+				return result0.toFail(rowKey + result0.getMessage());
 			}
-			if(StringHelper.isEmpty(areaCode)) {
-				return result.toFail(rowKey + "作业区编码为空！");
+			//导入数据防重校验
+			String uniqueKeysStr = getUniqueKeysStr(data);
+			if(uniqueKeysRowNumMap.containsKey(uniqueKeysStr)) {
+				return result0.toFail(rowKey + "和第"+uniqueKeysRowNumMap.get(uniqueKeysStr)+"行数据重复！");
 			}
+			uniqueKeysRowNumMap.put(uniqueKeysStr, rowNum);
 			rowNum ++;
 		}
 		return result;
-	}	
+	}
+	private String getUniqueKeysStr(WorkStation data) {
+		if(data != null ) {
+			return data.getAreaCode()
+					.concat(DmsConstants.KEYS_SPLIT)
+					.concat(data.getWorkCode());
+		}
+		return null;
+	}
+	/**
+	 * 校验并填充数据
+	 * @param data
+	 * @return
+	 */
+	private Result<Boolean> checkAndFillNewData(WorkStation data){
+		Result<Boolean> result = Result.success();
+		String workCode = data.getWorkCode();
+		String workName = data.getWorkName();
+		String areaCode = data.getAreaCode();
+		String areaName = data.getAreaName();
+		
+		if(!CheckHelper.checkStr("作业区ID", areaCode, 50, result).isSuccess()) {
+			return result;
+		}		
+		if(!CheckHelper.checkStr("作业区名称", areaName, 100, result).isSuccess()) {
+			return result;
+		}
+		if(!CheckHelper.checkStr("工序ID", workCode, 50, result).isSuccess()) {
+			return result;
+		}
+		if(!CheckHelper.checkStr("工序名称", workName, 100, result).isSuccess()) {
+			return result;
+		}
+		return result;
+	}
 	/**
 	 * 根据id更新数据
 	 * @param updateData
 	 * @return
 	 */
 	public Result<Boolean> updateById(WorkStation updateData){
-		Result<Boolean> result = Result.success();
+		Result<Boolean> result = checkAndFillNewData(updateData);
+		if(!result.isSuccess()) {
+			return result;
+		}
 		workStationDao.deleteById(updateData);
 		updateData.setId(null);
 		result.setData(workStationDao.insert(updateData) == 1);
@@ -193,5 +255,15 @@ public class WorkStationServiceImpl implements WorkStationService {
 	@Override
 	public boolean isExist(WorkStation data) {
 		return workStationDao.queryByBusinessKey(data) != null;
+	}
+	@Override
+	public Result<WorkStationCountVo> queryPageCount(WorkStationQuery query) {
+		Result<WorkStationCountVo> result = Result.success();
+		Result<Boolean> checkResult = this.checkParamForQueryPageList(query);
+		if(!checkResult.isSuccess()){
+		    return Result.fail(checkResult.getMessage());
+		}
+		result.setData(workStationDao.queryPageCount(query));
+		return result;
 	}
 }

@@ -5,6 +5,7 @@ import java.util.List;
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.station.dao.WorkStationDao;
 import com.jd.bluedragon.distribution.station.domain.WorkStation;
+import com.jd.bluedragon.distribution.station.domain.WorkStationCountVo;
 import com.jd.bluedragon.distribution.station.query.WorkStationQuery;
 
 /**
@@ -80,5 +81,9 @@ public class WorkStationDaoImpl extends BaseDao<WorkStation> implements WorkStat
 	@Override
 	public List<WorkStation> queryAreaDictList(WorkStationQuery query) {
 		return this.getSqlSession().selectList(NAMESPACE+".queryAreaDictList",query);
+	}
+	@Override
+	public WorkStationCountVo queryPageCount(WorkStationQuery query) {
+		return this.getSqlSession().selectOne(NAMESPACE+".queryPageCount",query);
 	}
 }
