@@ -314,7 +314,16 @@
                   alias="${dms.jsf.alias}"
                   ref="userSignRecordJsfService"
                   server="dmsjsf">
-    </jsf:provider>                
+    </jsf:provider>
+
+    <!-- 上岗码查询JSF服务 -->
+    <jsf:provider id="positionQueryJsfServiceServer"
+                  interface="com.jd.bluedragon.distribution.position.api.PositionQueryJsfService"
+                  alias="${dms.jsf.alias}"
+                  ref="positionQueryJsfService"
+                  server="dmsjsf">
+    </jsf:provider>
+
     <!--  箱号绑定JSF服务   -->
     <jsf:provider id="dmsBoxRelationJsfService"
                   interface="com.jd.bluedragon.distribution.box.jsf.BoxRelationJsfService"

@@ -52,6 +52,7 @@ public class DmsConstants {
     public static final String CODE_PREFIX_WORK_STATION = "GX";
     public static final String CODE_PREFIX_WORK_STATION_GRID = "CDGX";
     public static final String CODE_PREFIX_WORK_STATION_ATTEND_PLAN = "CDGXPL";
+    public static final String CODE_PREFIX_POSITION = "GW";
 
     /**
      * 始发道口号类型-1-普通

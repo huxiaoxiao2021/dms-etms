@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.position.dao.PositionRecordDao" >
+
+	<resultMap id="BaseResultMap" type="com.jd.bluedragon.distribution.position.domain.PositionRecord" >
+		<id column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result column="site_code" property="siteCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="business_key" property="businessKey" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="position_code" property="positionCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="remark" property="remark" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="create_user" property="createUser" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="update_user" property="updateUser" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="yn" property="yn" javaType="java.lang.Integer" jdbcType="TINYINT" />
+		<result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+	</resultMap>
+
+	<resultMap id="BaseDetailResultMap" type="com.jd.bluedragon.distribution.position.domain.PositionDetailRecord" >
+		<id column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result column="position_code" property="positionCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="remark" property="remark" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="business_key" property="businessKey" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="org_code" property="orgCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="org_name" property="orgName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="site_code" property="siteCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="site_name" property="siteName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="floor" property="floor" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="grid_no" property="gridNo" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="grid_code" property="gridCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="grid_name" property="gridName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="area_code" property="areaCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="area_name" property="areaName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="work_code" property="workCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="work_name" property="workName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="create_user" property="createUser" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="update_user" property="updateUser" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="yn" property="yn" javaType="java.lang.Integer" jdbcType="TINYINT" />
+		<result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+	</resultMap>
+
+	<sql id="Base_Column_List" >
+		id,position_code,site_code,business_key,remark,
+		create_user,update_user,create_time,update_time,yn,ts
+	</sql>
+
+	<sql id="Base_Detail_Column_List" >
+		id,position_code,remark,business_key,org_code,org_name,site_code,site_name,
+		floor,grid_no,grid_code,grid_name,area_code,area_name,work_code,work_name,
+		create_user,update_user,create_time,update_time,yn,ts
+	</sql>
+
+	<insert id="insert" parameterType="com.jd.bluedragon.distribution.position.domain.PositionRecord" useGeneratedKeys="true" keyProperty="id">
+		insert into position_record
+		(
+		<trim suffixOverrides=",">
+			<if test="id != null" >
+				id,
+			</if>
+			<if test="positionCode != null" >
+				position_code,
+			</if>
+			<if test="siteCode != null" >
+				site_code,
+			</if>
+			<if test="businessKey != null" >
+				business_key,
+			</if>
+			<if test="remark != null" >
+				remark,
+			</if>
+			<if test="createUser != null" >
+				create_user,
+			</if>
+			<if test="updateUser != null" >
+				update_user,
+			</if>
+			<if test="createTime != null" >
+				create_time,
+			</if>
+			<if test="updateTime != null" >
+				update_time,
+			</if>
+				yn,
+				ts
+		</trim>
+		)
+		values
+		(
+		<trim suffixOverrides=",">
+			<if test="id != null" >
+				#{id,jdbcType=BIGINT},
+			</if>
+			<if test="positionCode != null" >
+				#{positionCode, jdbcType=VARCHAR},
+			</if>
+			<if test="siteCode != null" >
+				#{siteCode, jdbcType=INTEGER},
+			</if>
+			<if test="businessKey != null" >
+				#{business_key, jdbcType=VARCHAR},
+			</if>
+			<if test="remark != null" >
+				#{remark, jdbcType=VARCHAR},
+			</if>
+			<if test="createUser != null" >
+				#{createUser, jdbcType=VARCHAR},
+			</if>
+			<if test="updateUser != null" >
+				#{updateUser, jdbcType=VARCHAR},
+			</if>
+			now(),
+			now(),
+			1,
+			now()
+		</trim>
+		)
+	</insert>
+
+	<insert id="batchInsert" parameterType="List">
+		insert into third_box_detail
+		(
+		position_code,site_code,business_key,remark,
+		create_user,update_user,create_time,update_time,yn,ts
+		)
+		values
+		<foreach collection="list" item="item" index="index" separator=",">
+			(
+			#{item.positionCode,jdbcType=VARCHAR},
+			#{item.siteCode,jdbcType=INTEGER},
+			#{item.businessKey,jdbcType=VARCHAR},
+			#{item.remark,jdbcType=VARCHAR},
+			#{item.createUser,jdbcType=VARCHAR},
+			#{item.updateUser,jdbcType=VARCHAR},
+			now(),
+			now(),
+			 1,
+			now()
+			)
+		</foreach>
+	</insert>
+
+	<update id="updateByPositionCode" parameterType="com.jd.bluedragon.distribution.position.domain.PositionRecord">
+		update position_record
+		<set>
+			<if test="remark != null" >
+				remark = #{remark, jdbcType=VARCHAR},
+			</if>
+			<if test="updateUser != null" >
+				update_user = #{updateUser, jdbcType=VARCHAR},
+			</if>
+			update_time = now()
+		</set>
+		where position_code = #{positionCode, jdbcType=VARCHAR} and yn = 1
+	</update>
+
+	<update id="deleteByBusinessKey" parameterType="java.lang.String">
+		update position_record
+		set
+			update_time = now(),yn = 0
+		where business_key = #{businessKye, jdbcType=VARCHAR}
+	</update>
+
+	<select id="queryByPositionCode" parameterType="java.lang.String" resultMap="BaseDetailResultMap">
+		select
+		<include refid="Base_Column_List"/>
+		from
+		position_record
+		where yn = 1
+		and position_code = #{positionCode,jdbcType=VARCHAR}
+		limit 1
+	</select>
+
+	<select id="queryList" parameterType="com.jd.bluedragon.distribution.position.query.PositionQuery" resultMap="BaseDetailResultMap">
+		select
+			business_key,org_code,org_name,site_code,site_name,
+			floor,grid_no,grid_code,grid_name,area_code,area_name,work_code,work_name,yn,
+			p.position_code,p.remark,p.create_user,p.update_user,p.create_time,p.update_time
+		from work_station_grid w
+		left join position_record p
+		on w.business_key = p.business_key
+		where
+		<include refid="queryCondition"/>
+		<if test="pageNumber > 0">
+			limit #{startRecord}, #{pageSize}
+		</if>
+	</select>
+
+	<select id="queryCount" parameterType="com.jd.bluedragon.distribution.position.query.PositionQuery" resultType="long">
+		select count(1)
+		from work_station_grid w
+		left join position_record p
+		on w.business_key = p.business_key
+		where
+		<include refid="queryCondition"/>
+	</select>
+
+	<sql id="queryCondition">
+		<where>
+			yn = 1
+			<if test="orgCode != null" >
+				and org_code = #{orgCode,jdbcType=INTEGER}
+			</if>
+			<if test="siteCode != null" >
+				and site_code = #{siteCode,jdbcType=INTEGER}
+			</if>
+			<if test="areaCode != null and areaCode != ''" >
+				and area_code = #{areaCode,jdbcType=VARCHAR}
+			</if>
+			<if test="floor != null" >
+				and floor = #{floor,jdbcType=INTEGER}
+			</if>
+			<if test="gridCode != null and gridCode != ''" >
+				and grid_code = #{gridCode,jdbcType=VARCHAR}
+			</if>
+			<if test="workCode != null and workCode != ''" >
+				and work_code = #{workCode,jdbcType=VARCHAR}
+			</if>
+		</where>
+	</sql>
+
+</mapper>

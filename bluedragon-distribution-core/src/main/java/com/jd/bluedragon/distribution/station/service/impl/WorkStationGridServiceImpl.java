@@ -3,6 +3,9 @@ package com.jd.bluedragon.distribution.station.service.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.jd.bluedragon.distribution.position.dao.PositionRecordDao;
+import com.jd.bluedragon.distribution.position.domain.PositionRecord;
+import com.jd.bluedragon.distribution.position.service.PositionRecordService;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,6 +52,9 @@ public class WorkStationGridServiceImpl implements WorkStationGridService {
 	private BaseMajorManager baseMajorManager;
 	@Autowired
 	private IGenerateObjectId genObjectId;
+
+	@Autowired
+	private PositionRecordService positionRecordService;
 	/**
 	 * 插入一条数据
 	 * @param insertData
@@ -61,8 +67,21 @@ public class WorkStationGridServiceImpl implements WorkStationGridService {
 		}
 		insertData.setBusinessKey(DmsConstants.CODE_PREFIX_WORK_STATION_GRID.concat(StringHelper.padZero(this.genObjectId.getObjectId(WorkStationGrid.class.getName()),11)));
 		result.setData(workStationGridDao.insert(insertData) == 1);
+		// 添加岗位记录
+		addPosition(insertData);
 		return result;
 	 }
+
+	private void addPosition(WorkStationGrid insertData) {
+		PositionRecord record = new PositionRecord();
+		record.setSiteCode(insertData.getSiteCode());
+		record.setBusinessKey(insertData.getBusinessKey());
+		record.setPositionCode(DmsConstants.CODE_PREFIX_POSITION.concat(StringHelper.padZero(this.genObjectId.getObjectId(PositionRecord.class.getName()),11)));
+		record.setCreateUser(insertData.getCreateUser());
+		record.setUpdateUser(insertData.getUpdateUser());
+		positionRecordService.insertPosition(record);
+	}
+
 	/**
 	 * 校验并填充数据add
 	 * @param insertData
@@ -153,6 +172,8 @@ public class WorkStationGridServiceImpl implements WorkStationGridService {
 	public Result<Boolean> deleteById(WorkStationGrid deleteData){
 		Result<Boolean> result = Result.success();
 		result.setData(workStationGridDao.deleteById(deleteData) == 1);
+		// 同步删除岗位记录
+		positionRecordService.deleteByBusinessKey(deleteData.getBusinessKey());
 		return result;
 	 }
 	/**
@@ -246,9 +267,17 @@ public class WorkStationGridServiceImpl implements WorkStationGridService {
 				data.setBusinessKey(DmsConstants.CODE_PREFIX_WORK_STATION_GRID.concat(StringHelper.padZero(this.genObjectId.getObjectId(WorkStationGrid.class.getName()),11)));
 			}			
 			workStationGridDao.insert(data);
+			// 同步处理岗位
+			syncDealPosition(oldData, data);
 		}
 		return result;
 	}
+
+	private void syncDealPosition(WorkStationGrid oldData, WorkStationGrid newData) {
+		positionRecordService.deleteByBusinessKey(oldData.getBusinessKey());
+		addPosition(newData);
+	}
+
 	/**
 	 * 校验并填充导入数据
 	 * @param dataList
