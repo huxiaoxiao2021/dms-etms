@@ -220,6 +220,7 @@ public class DriverBoardSendServiceImpl implements DriverBoardSendService {
             if(!checkResult.isSuccess()){
                 return result.toFail(checkResult.getMessage(), checkResult.getCode());
             }
+            request.setBusinessType(Constants.BUSSINESS_TYPE_POSITIVE);
             InvokeResult<Boolean> batchCheckResult = sendCodeService.validateSendCodeEffective(request.getBatchCode());
             if (!batchCheckResult.codeSuccess()) {
                 return result.toFail(batchCheckResult.getMessage(), batchCheckResult.getCode());
@@ -314,7 +315,6 @@ public class DriverBoardSendServiceImpl implements DriverBoardSendService {
         if(StringUtils.isEmpty(request.getBarCode())){
             return result.toFail("参数错误，barCode不能为空");
         }
-        request.setBusinessType(Constants.BUSSINESS_TYPE_POSITIVE);
         return result;
     }
 
