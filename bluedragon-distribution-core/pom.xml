@@ -1109,7 +1109,8 @@
 		<dependency>
 			<groupId>com.jd.transboard</groupId>
 			<artifactId>transboard-api</artifactId>
-			<version>1.0.8-SNAPSHOT</version>
+<!--			1.0.8-SNAPSHOT-->
+			<version>1.0.9-TEST-SNAPSHOT</version>
 		</dependency>
 
 		<!--路由系统-->
