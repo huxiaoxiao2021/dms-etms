@@ -555,7 +555,7 @@ public class QualityControlService {
             return result.toFail("参数错误，createUser为空");
         }
         if(StringUtils.isBlank(qcReportJmqDto.getCreateDept())){
-            return result.toFail("参数错误，createUser为空");
+            return result.toFail("参数错误，createDept为空");
         }
         if(qcReportJmqDto.getCreateTime() == null){
             return result.toFail("参数错误，createTime为空");
@@ -639,7 +639,7 @@ public class QualityControlService {
             return result.toFail("参数错误，createUser为空");
         }
         if(StringUtils.isBlank(qcReportJmqDto.getCreateDept())){
-            return result.toFail("参数错误，createUser为空");
+            return result.toFail("参数错误，createDept为空");
         }
         if(qcReportJmqDto.getCreateTime() == null){
             return result.toFail("参数错误，createTime为空");
