@@ -14,7 +14,7 @@ import java.util.List;
  * @author hujiping
  * @date 2022/2/25 5:48 PM
  */
-public class PositionRecordDaoImpl extends BaseDao<PositionDetailRecord> implements PositionRecordDao {
+public class PositionRecordDaoImpl extends BaseDao<PositionRecord> implements PositionRecordDao {
 
     private final static String NAMESPACE = PositionRecordDao.class.getName();
 
@@ -29,8 +29,23 @@ public class PositionRecordDaoImpl extends BaseDao<PositionDetailRecord> impleme
     }
 
     @Override
-    public Long queryCount(PositionQuery query) {
-        return this.getSqlSession().selectOne(NAMESPACE+".queryCount",query);
+    public int updateByPositionCode(PositionRecord positionRecord) {
+        return this.getSqlSession().update(NAMESPACE+".updateByPositionCode",positionRecord);
+    }
+
+    @Override
+    public int deleteByBusinessKey(PositionRecord positionRecord) {
+        return this.getSqlSession().update(NAMESPACE+".deleteByBusinessKey",positionRecord);
+    }
+
+    @Override
+    public PositionRecord queryByPositionCode(String positionCode) {
+        return this.getSqlSession().selectOne(NAMESPACE+".queryByPositionCode",positionCode);
+    }
+
+    @Override
+    public PositionRecord queryByBusinessKey(String businessKey) {
+        return this.getSqlSession().selectOne(NAMESPACE+".queryByBusinessKey",businessKey);
     }
 
     @Override
@@ -39,12 +54,7 @@ public class PositionRecordDaoImpl extends BaseDao<PositionDetailRecord> impleme
     }
 
     @Override
-    public int updateByPositionCode(String positionCode) {
-        return this.getSqlSession().update(NAMESPACE+".updateByPositionCode",positionCode);
-    }
-
-    @Override
-    public int deleteByBusinessKey(String businessKey) {
-        return this.getSqlSession().update(NAMESPACE+".deleteByBusinessKey",businessKey);
+    public Long queryCount(PositionQuery query) {
+        return this.getSqlSession().selectOne(NAMESPACE+".queryCount",query);
     }
 }

@@ -41,18 +41,34 @@ public interface PositionRecordService {
     Result<PageDto<PositionDetailRecord>> queryPageList(PositionQuery query);
 
     /**
-     * 根据岗位编码更新
-     *
+     * 根据岗位编码查询一条记录
+     * 
      * @param positionCode
      * @return
      */
-    Result<Boolean> updateByPositionCode(String positionCode);
+    Result<PositionDetailRecord> queryOneByPositionCode(String positionCode);
+
+    /**
+     * 根据岗位编码更新
+     *
+     * @param positionRecord
+     * @return
+     */
+    Result<Boolean> updateByPositionCode(PositionRecord positionRecord);
 
     /**
      * 根据业务主键删除
      *
-     * @param businessKey
+     * @param positionRecord
      * @return
      */
-    Result<Boolean> deleteByBusinessKey(String businessKey);
+    Result<Boolean> deleteByBusinessKey(PositionRecord positionRecord);
+
+    /**
+     * 根据条件查询总数
+     *
+     * @param query
+     * @return
+     */
+    Result<Long> queryCountByCondition(PositionQuery query);
 }

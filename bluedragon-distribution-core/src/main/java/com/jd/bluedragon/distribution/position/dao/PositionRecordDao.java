@@ -31,15 +31,39 @@ public interface PositionRecordDao {
     int batchInsert(List<PositionRecord> list);
 
     /**
-     * 根据条件查询总数
+     * 根据岗位编码更新
      *
-     * @param query
+     * @param positionRecord
      * @return
      */
-    Long queryCount(PositionQuery query);
+    int updateByPositionCode(PositionRecord positionRecord);
 
     /**
-     * 根据条件查询
+     * 根据业务主键逻辑删除
+     *
+     * @param positionRecord
+     * @return
+     */
+    int deleteByBusinessKey(PositionRecord positionRecord);
+
+    /**
+     * 根据岗位编码查询
+     *
+     * @param positionCode
+     * @return
+     */
+    PositionRecord queryByPositionCode(String positionCode);
+
+    /**
+     * 根据业务主键查询数据
+     *
+     * @param businessKey
+     * @return
+     */
+    PositionRecord queryByBusinessKey(String businessKey);
+
+    /**
+     * 根据条件分页查询
      *
      * @param query
      * @return
@@ -47,18 +71,10 @@ public interface PositionRecordDao {
     List<PositionDetailRecord> queryList(PositionQuery query);
 
     /**
-     * 根据岗位编码更新
+     * 根据条件查询总数
      *
-     * @param positionCode
+     * @param query
      * @return
      */
-    int updateByPositionCode(String positionCode);
-
-    /**
-     * 根据业务主键逻辑删除
-     *
-     * @param businessKey
-     * @return
-     */
-    int deleteByBusinessKey(String businessKey);
+    Long queryCount(PositionQuery query);
 }
