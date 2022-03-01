@@ -12,6 +12,7 @@ import com.jd.bluedragon.distribution.kuaiyun.weight.domain.WaybillWeightVO;
 import com.jd.bluedragon.distribution.kuaiyun.weight.enums.WeightByWaybillExceptionTypeEnum;
 import com.jd.bluedragon.distribution.kuaiyun.weight.service.WeighByWaybillService;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
+import com.jd.bluedragon.distribution.weightvolume.FromSourceEnum;
 import com.jd.bluedragon.distribution.weightvolume.WeightVolumeBusinessTypeEnum;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.ParamsMapUtil;
@@ -25,6 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.text.MessageFormat;
+import java.util.Objects;
 
 /**
  * <p>
@@ -82,6 +84,10 @@ public class LiveCycleWeightVolumeChecker implements IWeightVolumeChecker {
         InvokeResult<Boolean> result = new InvokeResult<>();
         result.setData(Boolean.TRUE);
         result.success();
+        if(Objects.equals(entity.getSourceCode().name(), FromSourceEnum.SPOT_CHECK.name())){
+            // 来源是抽检类型的称重无需校验
+            return result;
+        }
         BaseEntity<Waybill> baseWaybillEntity = waybillQueryManager.getWaybillByWaybillCode
                 (WaybillUtil.getWaybillCode(entity.getBarCode()));
         if (null ==baseWaybillEntity || null == baseWaybillEntity.getData()) {
