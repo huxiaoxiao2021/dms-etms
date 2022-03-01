@@ -24,9 +24,9 @@ public class PositionRecord implements Serializable {
     private Integer siteCode;
 
     /**
-     * 业务主键：site_code、floor、grid_no、ref_station_key
+     * ref：work_station_grid业务主键
      */
-    private String businessKey;
+    private String refGridKey;
 
     /**
      * 岗位编码
@@ -84,12 +84,12 @@ public class PositionRecord implements Serializable {
         this.siteCode = siteCode;
     }
 
-    public String getBusinessKey() {
-        return businessKey;
+    public String getRefGridKey() {
+        return refGridKey;
     }
 
-    public void setBusinessKey(String businessKey) {
-        this.businessKey = businessKey;
+    public void setRefGridKey(String refGridKey) {
+        this.refGridKey = refGridKey;
     }
 
     public String getPositionCode() {

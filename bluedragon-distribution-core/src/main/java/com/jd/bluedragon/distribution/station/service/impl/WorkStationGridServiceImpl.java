@@ -79,8 +79,8 @@ public class WorkStationGridServiceImpl implements WorkStationGridService {
 	private void addPosition(WorkStationGrid insertData) {
 		PositionRecord record = new PositionRecord();
 		record.setSiteCode(insertData.getSiteCode());
-		record.setBusinessKey(insertData.getBusinessKey());
-		record.setPositionCode(DmsConstants.CODE_PREFIX_POSITION.concat(StringHelper.padZero(this.genObjectId.getObjectId(PositionRecord.class.getName()),11)));
+		record.setRefGridKey(insertData.getBusinessKey());
+		record.setPositionCode(DmsConstants.CODE_PREFIX_POSITION.concat(StringHelper.padZero(this.genObjectId.getObjectId(PositionRecord.class.getName()),8)));
 		record.setCreateUser(insertData.getCreateUser());
 		record.setUpdateUser(insertData.getUpdateUser());
 		positionRecordService.insertPosition(record);
@@ -199,7 +199,10 @@ public class WorkStationGridServiceImpl implements WorkStationGridService {
 		Result<Boolean> result = Result.success();
 		result.setData(workStationGridDao.deleteById(deleteData) == 1);
 		// 同步删除岗位记录
-		positionRecordService.deleteByBusinessKey(deleteData.getBusinessKey());
+		PositionRecord positionRecord = new PositionRecord();
+		positionRecord.setRefGridKey(deleteData.getBusinessKey());
+		positionRecord.setUpdateUser(deleteData.getUpdateUser());
+		positionRecordService.deleteByBusinessKey(positionRecord);
 		return result;
 	 }
 	/**
@@ -300,7 +303,12 @@ public class WorkStationGridServiceImpl implements WorkStationGridService {
 	}
 
 	private void syncDealPosition(WorkStationGrid oldData, WorkStationGrid newData) {
-		positionRecordService.deleteByBusinessKey(oldData.getBusinessKey());
+		if(oldData != null){
+			PositionRecord positionRecord = new PositionRecord();
+			positionRecord.setRefGridKey(oldData.getBusinessKey());
+			positionRecord.setUpdateUser(newData.getUpdateUser());
+			positionRecordService.deleteByBusinessKey(positionRecord);
+		}
 		addPosition(newData);
 	}
 
