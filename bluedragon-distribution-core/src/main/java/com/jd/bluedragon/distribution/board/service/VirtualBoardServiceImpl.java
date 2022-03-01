@@ -388,8 +388,12 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
                 // 已在同场地发货，不可再组板
                 final SendM recentSendMByParam = getRecentSendMByParam(bindToVirtualBoardPo.getBarCode(), operatorInfo.getSiteCode(), null, null);
                 if (recentSendMByParam != null) {
-                    result.toFail("该包裹已发货");
-                    return result;
+                    //三小时内禁止再次发货，返调度再次发货问题处理
+                    Date sendTime = recentSendMByParam.getOperateTime();
+                    if(sendTime != null && System.currentTimeMillis() - sendTime.getTime() <= 3l * 3600l * 1000l) {
+                        result.toFail("该包裹已发货");
+                        return result;
+                    }
                 }
                 // 调板号服务绑定到板号
                 bindToVirtualBoardPo.setMaxItemCount(uccPropertyConfiguration.getVirtualBoardMaxItemCount());
