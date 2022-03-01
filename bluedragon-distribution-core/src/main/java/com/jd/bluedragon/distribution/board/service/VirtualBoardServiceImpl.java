@@ -387,7 +387,6 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
                 }
                 // 已在同场地发货，不可再组板
                 final SendM recentSendMByParam = getRecentSendMByParam(bindToVirtualBoardPo.getBarCode(), operatorInfo.getSiteCode(), null, null);
-                log.info("test.log--【{}】bindToBoard-分拣组板已发货信息-【{}】", barCode, JsonHelper.toJson(recentSendMByParam));
                 if (recentSendMByParam != null) {
                     //三小时内禁止再次发货，返调度再次发货问题处理
                     Date sendTime = recentSendMByParam.getOperateTime();
