@@ -546,6 +546,32 @@ public class QualityControlService {
         return result;
     }
 
+    public Result<Void> checkMqParam(QcReportJmqDto qcReportJmqDto) {
+        Result<Void> result = Result.success();
+        if(StringUtils.isBlank(qcReportJmqDto.getPackageNumber())){
+            return result.toFail("参数错误，packageNumber为空");
+        }
+        if(StringUtils.isBlank(qcReportJmqDto.getCreateUser())){
+            return result.toFail("参数错误，createUser为空");
+        }
+        if(StringUtils.isBlank(qcReportJmqDto.getCreateDept())){
+            return result.toFail("参数错误，createUser为空");
+        }
+        if(qcReportJmqDto.getCreateTime() == null){
+            return result.toFail("参数错误，createTime为空");
+        }
+        if(StringUtils.isBlank(qcReportJmqDto.getCreateDeptName())){
+            return result.toFail("参数错误，createDeptName为空");
+        }
+        if(qcReportJmqDto.getAbnormalThirdId() == null){
+            return result.toFail("参数错误，abnormalThirdId为空");
+        }
+        if(StringUtils.isBlank(qcReportJmqDto.getAbnormalThirdName())){
+            return result.toFail("参数错误，abnormalThirdName为空");
+        }
+        return result;
+    }
+
     /**
      * 处理异常提报数据
      * @param qcReportJmqDto 消息提
@@ -600,6 +626,32 @@ public class QualityControlService {
         } catch (Exception e) {
             log.error("handleQcOutCallReportConsume exception ", e);
             result.toFail("handleQcOutCallReportConsume exception " + e.getMessage());
+        }
+        return result;
+    }
+
+    public Result<Void> checkMqParam(QcReportOutCallJmqDto qcReportJmqDto) {
+        Result<Void> result = Result.success();
+        if(StringUtils.isBlank(qcReportJmqDto.getPackageNumber())){
+            return result.toFail("参数错误，packageNumber为空");
+        }
+        if(StringUtils.isBlank(qcReportJmqDto.getCreateUser())){
+            return result.toFail("参数错误，createUser为空");
+        }
+        if(StringUtils.isBlank(qcReportJmqDto.getCreateDept())){
+            return result.toFail("参数错误，createUser为空");
+        }
+        if(qcReportJmqDto.getCreateTime() == null){
+            return result.toFail("参数错误，createTime为空");
+        }
+        if(StringUtils.isBlank(qcReportJmqDto.getCreateDeptName())){
+            return result.toFail("参数错误，createDeptName为空");
+        }
+        if(qcReportJmqDto.getAbnormalThirdId() == null){
+            return result.toFail("参数错误，abnormalThirdId为空");
+        }
+        if(StringUtils.isBlank(qcReportJmqDto.getAbnormalThirdName())){
+            return result.toFail("参数错误，abnormalThirdName为空");
         }
         return result;
     }
