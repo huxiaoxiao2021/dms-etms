@@ -239,6 +239,8 @@ public class SortBoardGatewayServiceImpl implements SortBoardGatewayService {
             BoardInfoDto boardInfoDto = new BoardInfoDto();
             boardInfoDto.setCode(response.getData().getCode());
             boardInfoDto.setDestination(response.getData().getDestination());
+            boardInfoDto.setOperatorErp(response.getData().getOperatorErp());
+            boardInfoDto.setOperatorName(response.getData().getOperatorName());
             jdCResponse.setData(boardInfoDto);
         }
 
