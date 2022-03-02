@@ -1757,7 +1757,7 @@
 		<dependency>
 			<artifactId>coldchain-fulfillment-ot-api</artifactId>
 			<groupId>com.jd.coldchain.fulfillment</groupId>
-			<version>1.0-test-SNAPSHOT</version>
+			<version>1.0-SNAPSHOT</version>
 		</dependency>
 
     </dependencies>
