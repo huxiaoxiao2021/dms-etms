@@ -156,7 +156,7 @@
     <jsf:consumer id="basicTraderIntegrateOutAPI" interface="com.jd.ldop.basic.api.BasicTraderIntegrateOutAPI" protocol="jsf"
                   alias="${ldop.basic.jsf.alias}" timeout="${ldop.basic.jsf.timeout}" lazy="${jsf.consumer.lazy}">
     </jsf:consumer>
-    
+
     <jsf:consumer id="refundApi" interface="com.jd.ldop.center.api.refund.RefundApi" protocol="jsf"
                   alias="${ldop.refundApi.jsf.alias}" timeout="${ldop.refundApi.jsf.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
     </jsf:consumer>
@@ -377,7 +377,7 @@
                   protocol="jsf"
                   serialization="hessian" lazy="${jsf.consumer.lazy}">
         <jsf:parameter key="token" hide="true" value="${basic.jsf.basicSortCrossDetailWS.token}"/>
-    </jsf:consumer>    
+    </jsf:consumer>
     <!-- 加履系统 查询接口 李杰 -->
     <jsf:consumer id="HandoverBillProvider" interface="com.jd.b2b.wt.assemble.sdk.service.HandoverBillProvider"
                   alias="${jsf.HandoverBillProvider.alias}" retries="${jsf.retries}"
@@ -814,5 +814,10 @@
     <jsf:consumer id="autoDistJsfService" interface="com.jd.bd.dms.automatic.sdk.modules.autodist.AutoDistJsfService"
                   protocol="jsf" alias="${jsf.automatic.alias}" timeout="${jsf.automatic.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
         <jsf:parameter key="token" value="${jsf.automatic.token}" hide="true"/>
+    </jsf:consumer>
+    <!-- eclp冷链逆向换单 -->
+    <jsf:consumer id="coldChainReverseService" interface="com.jd.coldchain.fulfillment.ot.api.service.waybill.ColdChainReverseService"
+                  protocol="jsf" alias="${jsf.coldchain.eclp.reverse.alias}" timeout="${jsf.coldchain.eclp.reverse.alias.timeout}"
+                  retries="${jsf.retries}" >
     </jsf:consumer>
 </beans>
