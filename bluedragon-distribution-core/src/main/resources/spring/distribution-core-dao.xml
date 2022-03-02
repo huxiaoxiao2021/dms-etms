@@ -713,6 +713,9 @@
     <bean id="waybillHasnoPresiteRecordDao" class="com.jd.bluedragon.distribution.record.dao.WaybillHasnoPresiteRecordDao">
         <property name="sqlSession" ref="unDivSqlSessionTemplate" />
     </bean>
+    <bean id="configStrandReasonDao" class="com.jd.bluedragon.distribution.config.dao.impl.ConfigStrandReasonDaoImpl">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate" />
+    </bean>
     <bean id="positionRecordDao" class="com.jd.bluedragon.distribution.position.dao.impl.PositionRecordDaoImpl">
         <property name="sqlSession" ref="unDivSqlSessionTemplate" />
     </bean>

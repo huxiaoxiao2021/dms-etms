@@ -512,13 +512,8 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
         // 上传成功后，发送MQ消息，进行下一步操作
         WeightAndVolumeCheckHandleMessage weightAndVolumeCheckHandleMessage = new WeightAndVolumeCheckHandleMessage();
         weightAndVolumeCheckHandleMessage.setOpNode(WeightAndVolumeCheckHandleMessage.UPLOAD_IMG);
-        if(WaybillUtil.isPackageCode(packageCode)){
-            weightAndVolumeCheckHandleMessage.setPackageCode(packageCode);
-            weightAndVolumeCheckHandleMessage.setWaybillCode(WaybillUtil.getWaybillCodeByPackCode(packageCode));
-        }
-        if(WaybillUtil.isWaybillCode(packageCode)){
-            weightAndVolumeCheckHandleMessage.setWaybillCode(packageCode);
-        }
+        weightAndVolumeCheckHandleMessage.setPackageCode(packageCode);
+        weightAndVolumeCheckHandleMessage.setWaybillCode(WaybillUtil.getWaybillCodeByPackCode(packageCode));
         weightAndVolumeCheckHandleMessage.setSiteCode(siteCode);
         try {
             weightAndVolumeCheckHandleProducer.send(packageCode, JSON.toJSONString(weightAndVolumeCheckHandleMessage));

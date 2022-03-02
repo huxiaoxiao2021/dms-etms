@@ -156,6 +156,8 @@
 		<property name="printCompleteCallbackAsyncPackageNum" value="${printCompleteCallbackAsyncPackageNum:500}"/>
 		<property name="limitSiteUsePackReprint" value="${limitSiteUsePackReprint:'0'}"/>
 		<property name="sendCodeEffectiveValidation" value="${sendCodeEffectiveValidation:''}"/>
+		<property name="restApiOuthSwitch" value="${restApiOuthSwitch:true}"/>
+		<property name="needInterceptUrls" value="${needInterceptUrls:*}"/>
 		<property name="notSignedOutRecordMoreThanHours" value="${notSignedOutRecordMoreThanHours:-1}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
@@ -293,8 +295,9 @@
 				<value>uccPropertyConfiguration.printCompleteCallbackAsyncPackageNum</value>
 				<value>uccPropertyConfiguration.limitSiteUsePackReprint</value>
 				<value>uccPropertyConfiguration.sendCodeEffectiveValidation</value>
+				<value>uccPropertyConfiguration.restApiOuthSwitch</value>
+				<value>uccPropertyConfiguration.needInterceptUrls</value>
 				<value>uccPropertyConfiguration.notSignedOutRecordMoreThanHours</value>
-
                 <value>hystrixRouteUccPropertyConfiguration.executionTimeoutInMilliseconds</value>
                 <value>hystrixRouteUccPropertyConfiguration.circuitBreakerEnabled</value>
                 <value>hystrixRouteUccPropertyConfiguration.fallbackEnabled</value>

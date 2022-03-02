@@ -290,6 +290,13 @@
                   ref="waybillHasnoPresiteRecordJsfService"
                   server="dmsjsf">
     </jsf:provider>
+    <!-- 滞留原因配置服务 -->
+    <jsf:provider id="configStrandReasonJsfServiceServer"
+                  interface="com.jd.bluedragon.distribution.config.jsf.ConfigStrandReasonJsfService"
+                  alias="${dms.jsf.alias}"
+                  ref="configStrandReasonJsfService"
+                  server="dmsjsf">
+    </jsf:provider>    
     <!-- 三定jsf服务 -->
     <jsf:provider id="workStationJsfServiceServer"
                   interface="com.jd.bluedragon.distribution.station.api.WorkStationJsfService"

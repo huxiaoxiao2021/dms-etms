@@ -395,6 +395,7 @@
         <mapper resource="mappers/mysql/station/WorkStationAttendPlanMapper.xml" />
         <mapper resource="mappers/mysql/station/UserSignRecordMapper.xml" />
         <mapper resource="mappers/mysql/record/WaybillHasnoPresiteRecordMapper.xml" />
+		<mapper resource="mappers/mysql/config/ConfigStrandReasonMapper.xml" />
         <mapper resource="mappers/mysql/position/PositionRecordMapper.xml" />
     </mappers>
 </configuration>
