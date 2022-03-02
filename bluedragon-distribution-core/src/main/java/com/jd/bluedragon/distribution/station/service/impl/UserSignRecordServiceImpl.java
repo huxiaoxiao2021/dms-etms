@@ -421,7 +421,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
                     updateRows += userSignRecordDao.signOutById(updateData, toSignOutPks);
                 }
 
-                Thread.sleep(2000);
+                Thread.sleep(200);
 
             } while (CollectionUtils.isNotEmpty(toSignOutPks));
 
