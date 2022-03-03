@@ -39,6 +39,12 @@ public class QcAbnormalReportReportConsumer extends MessageBaseConsumer {
             return;
         }
 
+        final Result<Void> checkMqParamResult = qualityControlService.checkMqParam(qcReportJmqDto);
+        if(!checkMqParamResult.isSuccess()){
+            log.warn("QcAbnormalReportReportConsumer 消息体参数不符合要求 {} message: {}", checkMqParamResult.getMessage(), message.getText());
+            return;
+        }
+
         final Result<Boolean> result = qualityControlService.handleQcReportConsume(qcReportJmqDto);
         if(!result.isSuccess() || !result.getData()){
             log.error("QcAbnormalReportReportConsumer fail {}", JsonHelper.toJson(result));
