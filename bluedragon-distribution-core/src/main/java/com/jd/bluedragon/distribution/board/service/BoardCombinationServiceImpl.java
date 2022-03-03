@@ -943,6 +943,19 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
     }
 
     /**
+     * 获取箱号所属的板号
+     *
+     * @param siteCode
+     * @param boxCode
+     * @return
+     */
+    @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.BoardCombinationServiceImpl.getBoardBoxInfo", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public Response<BoardBoxInfoDto> getBoardBoxInfo(Integer siteCode, String boxCode) {
+        return groupBoardService.getBoardBoxInfo(boxCode, siteCode);
+    }
+
+    /**
      *创建新的板号
      *
      * @return
