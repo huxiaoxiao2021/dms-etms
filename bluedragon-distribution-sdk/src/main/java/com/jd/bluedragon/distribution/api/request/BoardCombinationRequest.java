@@ -31,6 +31,10 @@ public class BoardCombinationRequest extends JdRequest {
     private Integer flowDisaccord;
 
     private Integer onlineStatus;
+    /**
+     * 操作来源：1:pda 2:分拣机
+     */
+    private Integer bizSource;
 
     public String getBoardCode() {
         return boardCode;
@@ -86,5 +90,13 @@ public class BoardCombinationRequest extends JdRequest {
 
     public void setOnlineStatus(Integer onlineStatus) {
         this.onlineStatus = onlineStatus;
+    }
+
+    public Integer getBizSource() {
+        return bizSource;
+    }
+
+    public void setBizSource(Integer bizSource) {
+        this.bizSource = bizSource;
     }
 }

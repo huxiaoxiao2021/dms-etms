@@ -21,6 +21,7 @@ import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.transboard.api.dto.AddBoardRequest;
 import com.jd.transboard.api.dto.Board;
 import com.jd.transboard.api.dto.Response;
+import com.jd.transboard.api.enums.BizSourceEnum;
 import com.jd.transboard.api.enums.BoardStatus;
 import org.apache.commons.lang.StringUtils;
 import com.jd.ump.annotation.JProEnum;
@@ -365,6 +366,9 @@ public class BoardCombinationResource {
             invokeResult.setMessage(InvokeResult.PARAM_ERROR);
             this.log.warn("建板请求的参数有误");
             return invokeResult;
+        }
+        if(request.getBizSource() == null){
+            request.setBizSource(BizSourceEnum.PDA.getValue());
         }
         this.log.info("建板请求的板号数量:{},场站sitecode:{},目的地destinationId:{}",request.getBoardCount(), request.getSiteCode(),request.getDestinationId());
         return boardCombinationService.createBoard(request);
