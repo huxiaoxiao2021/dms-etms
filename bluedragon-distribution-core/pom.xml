@@ -1119,7 +1119,7 @@
 		<dependency>
 			<groupId>com.jd.transboard</groupId>
 			<artifactId>transboard-api</artifactId>
-			<version>1.0.8-SNAPSHOT</version>
+			<version>1.0.9-uat-SNAPSHOT</version>
 			<exclusions>
 				<exclusion>
 					<artifactId>fastjson</artifactId>
