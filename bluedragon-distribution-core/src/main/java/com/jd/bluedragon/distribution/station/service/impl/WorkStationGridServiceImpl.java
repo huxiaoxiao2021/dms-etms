@@ -6,6 +6,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.position.domain.PositionRecord;
 import com.jd.bluedragon.distribution.position.service.PositionRecordService;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -201,14 +202,23 @@ public class WorkStationGridServiceImpl implements WorkStationGridService {
 	 * @param deleteData
 	 * @return
 	 */
+	@Transactional(value = "main_undiv", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public Result<Boolean> deleteById(WorkStationGrid deleteData){
 		Result<Boolean> result = Result.success();
+		Result<WorkStationGrid> queryResult = queryById(deleteData.getId());
+		if(queryResult.getData() == null || StringUtils.isEmpty(queryResult.getData().getBusinessKey())){
+			throw new RuntimeException("根据id:" + deleteData.getId() + "未查询到数据!");
+		}
 		result.setData(workStationGridDao.deleteById(deleteData) == 1);
 		// 同步删除岗位记录
+		String businessKey = queryResult.getData().getBusinessKey();
 		PositionRecord positionRecord = new PositionRecord();
-		positionRecord.setRefGridKey(deleteData.getBusinessKey());
+		positionRecord.setRefGridKey(businessKey);
 		positionRecord.setUpdateUser(deleteData.getUpdateUser());
-		positionRecordService.deleteByBusinessKey(positionRecord);
+		Result<Boolean> deletePositionResult = positionRecordService.deleteByBusinessKey(positionRecord);
+		if(Objects.equals(deletePositionResult.getData(), false)){
+			throw new RuntimeException("根据businessKey:" + businessKey + "删除岗位数据失败!");
+		}
 		return result;
 	 }
 	/**

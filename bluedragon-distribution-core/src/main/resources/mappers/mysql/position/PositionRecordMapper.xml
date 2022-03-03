@@ -78,12 +78,8 @@
 			<if test="updateUser != null" >
 				update_user,
 			</if>
-			<if test="createTime != null" >
 				create_time,
-			</if>
-			<if test="updateTime != null" >
 				update_time,
-			</if>
 				yn,
 				ts
 		</trim>
@@ -101,7 +97,7 @@
 				#{siteCode, jdbcType=INTEGER},
 			</if>
 			<if test="refGridKey != null" >
-				#{ref_grid_key, jdbcType=VARCHAR},
+				#{refGridKey, jdbcType=VARCHAR},
 			</if>
 			<if test="remark != null" >
 				#{remark, jdbcType=VARCHAR},
@@ -159,13 +155,12 @@
 
 	<update id="deleteByBusinessKey" parameterType="com.jd.bluedragon.distribution.position.domain.PositionRecord">
 		update position_record
-		set
-			<set>
-				<if test="updateUser != null" >
-					update_user = #{updateUser, jdbcType=VARCHAR},
-				</if>
-				update_time = now(),yn = 0
-			</set>
+		<set>
+			<if test="updateUser != null" >
+				update_user = #{updateUser, jdbcType=VARCHAR},
+			</if>
+			update_time = now(),yn = 0
+		</set>
 		where ref_grid_key = #{refGridKey, jdbcType=VARCHAR}
 	</update>
 
