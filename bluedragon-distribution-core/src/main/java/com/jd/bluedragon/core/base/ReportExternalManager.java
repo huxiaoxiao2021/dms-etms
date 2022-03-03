@@ -19,7 +19,7 @@ public interface ReportExternalManager {
      *
      * @param weightVolumeCollectDto
      */
-    void insertOrUpdateForWeightVolume(WeightVolumeCollectDto weightVolumeCollectDto);
+    Boolean insertOrUpdateForWeightVolume(WeightVolumeCollectDto weightVolumeCollectDto);
 
     /**
      * 根据条件查询抽检数量

@@ -617,6 +617,54 @@ public class UccPropertyConfiguration {
      */
     private String limitSiteUsePackReprint;
 
+    /**
+     * 是否对restAPI鉴权的开关
+     */
+    private boolean restApiOuthSwitch;
+
+    private String needInterceptUrls;
+
+    private List<String> needInterceptUrlList;
+
+    public List<String> getNeedInterceptUrlList() {
+        return needInterceptUrlList;
+    }
+
+    public void setNeedInterceptUrlList(List<String> needInterceptUrlList) {
+        this.needInterceptUrlList = needInterceptUrlList;
+    }
+
+    public String getNeedInterceptUrls() {
+        return needInterceptUrls;
+    }
+
+    public void setNeedInterceptUrls(String needInterceptUrls) {
+        this.needInterceptUrls = needInterceptUrls;
+        if (needInterceptUrls!=null && !"".equals(needInterceptUrls)){
+            List<String> urlList=new ArrayList<>();
+            if (needInterceptUrls.contains(",")){
+                urlList = Arrays.asList(needInterceptUrls.split(","));
+            }
+            else {
+                urlList.add(needInterceptUrls);
+            }
+            this.needInterceptUrlList =urlList;
+        }
+    }
+
+    public boolean getRestApiOuthSwitch() {
+        return restApiOuthSwitch;
+    }
+
+    public void setRestApiOuthSwitch(boolean restApiOuthSwitch) {
+        this.restApiOuthSwitch = restApiOuthSwitch;
+    }
+
+    /**
+     * 自动签退超过多少小时未签退的数据
+     */
+    private int notSignedOutRecordMoreThanHours;
+
     public String getScheduleSiteCheckSameCity() {
         return scheduleSiteCheckSameCity;
     }
@@ -1654,5 +1702,13 @@ public class UccPropertyConfiguration {
 
     public void setSendCodeEffectiveValidation(String sendCodeEffectiveValidation) {
         this.sendCodeEffectiveValidation = sendCodeEffectiveValidation;
+    }
+
+    public int getNotSignedOutRecordMoreThanHours() {
+        return notSignedOutRecordMoreThanHours;
+    }
+
+    public void setNotSignedOutRecordMoreThanHours(int notSignedOutRecordMoreThanHours) {
+        this.notSignedOutRecordMoreThanHours = notSignedOutRecordMoreThanHours;
     }
 }

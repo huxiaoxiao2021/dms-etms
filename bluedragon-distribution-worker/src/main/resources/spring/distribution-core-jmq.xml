@@ -419,7 +419,10 @@
     <bean id="strandReportDetailProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.strand.report.detail}"/>
     </bean>
-
+    <!-- 滞留上报wb明细消息 -->
+    <bean id="strandReportDetailWbProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.strand.report.detailWb}"/>
+    </bean>
 
     <!-- 众邮箱号称重MQ -->
     <bean id="economicNetBoxWeightProducer" parent="dmsWebDefaultJMQProducer">
@@ -557,5 +560,11 @@
     <!-- 弃件暂存 -->
     <bean id="discardedPackageStorageProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.discardedPackageStorage}"/>
+    </bean>
+
+    <!-- 抽检明细外推MQ -->
+    <bean id="spotCheckDetailProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.spotCheck.detail}"/>
+        <property name="timeout" value="1000"/>
     </bean>
 </beans>

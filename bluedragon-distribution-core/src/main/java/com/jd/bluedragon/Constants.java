@@ -1166,6 +1166,7 @@ public class Constants {
      */
     public static final Integer BIZTYPE_URL_CLICK = 999001;
 
+    public static final Integer BIZTYPE_URL_INTERCEPT = 999002;
     /**
      *
      * 菜单点击 分拣中心操作日志
@@ -1633,5 +1634,8 @@ public class Constants {
      *产品类型-医药零担
      */
     public static final String PRODUCT_TYPE_MEDICAL_LESS_FREIGHT = "LL-YYLD-M";
+
+    public static final String TOTAL_URL_INTERCEPTOR = "*";
+
 
 }
