@@ -44,7 +44,7 @@ public class WorkStationServiceImpl implements WorkStationService {
 	@Autowired
 	private IGenerateObjectId genObjectId;
 	@Autowired
-	@Qualifier("workStationDao")
+	@Qualifier("workStationGridService")
 	private WorkStationGridService workStationGridService;
 
 	/**
