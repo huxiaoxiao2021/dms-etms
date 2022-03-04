@@ -34,7 +34,6 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 	private UserSignRecordService userSignRecordService;
 	
 	@Autowired
-	@Qualifier("positionRecordService")
 	private PositionRecordService positionRecordService;
 	
 	@Override
