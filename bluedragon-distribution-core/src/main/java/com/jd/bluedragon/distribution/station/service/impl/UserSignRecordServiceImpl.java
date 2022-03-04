@@ -78,7 +78,6 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	WorkStationAttendPlanService workStationAttendPlanService;
 	
 	@Autowired
-	@Qualifier("positionRecordService")
 	private PositionRecordService positionRecordService;
 	
 	private static final DecimalFormat NUMBER_FORMAT = new DecimalFormat("0.00");
