@@ -419,6 +419,7 @@
 			<include refid="joinSql"/>			
 		where g.yn = 1 
 		    and g.site_code = #{siteCode,jdbcType=INTEGER}
+		    and g.grid_no is not null
 		<if test="floor != null" >
 			and g.floor = #{floor,jdbcType=INTEGER}
 		</if>
@@ -433,7 +434,16 @@
 		from
 			work_station_grid g
 		where g.yn = 1 
-		    and g.site_code = #{siteCode,jdbcType=INTEGER}	    
+		    and g.site_code = #{siteCode,jdbcType=INTEGER}
+		    and g.floor is not null	    
 		group by g.floor
 	</select>
+	<select id="queryCountByRefStationKey" parameterType="java.lang.String" resultType="long">
+		select
+			count(1)
+		from
+			work_station_grid g
+		where g.yn = 1 
+		    and g.ref_station_key = #{refStationKey,jdbcType=VARCHAR}
+	</select>	
 </mapper>
