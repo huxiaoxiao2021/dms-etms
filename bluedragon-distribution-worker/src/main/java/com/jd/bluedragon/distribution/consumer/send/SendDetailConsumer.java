@@ -14,6 +14,7 @@ import com.jd.bluedragon.distribution.coldchain.domain.ColdChainSend;
 import com.jd.bluedragon.distribution.coldchain.dto.CCInAndOutBoundMessage;
 import com.jd.bluedragon.distribution.coldchain.dto.ColdChainOperateTypeEnum;
 import com.jd.bluedragon.distribution.coldchain.service.ColdChainSendService;
+import com.jd.bluedragon.distribution.fastRefund.domain.FastRefundBlockerComplete;
 import com.jd.bluedragon.distribution.gantry.service.GantryExceptionService;
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
 import com.jd.bluedragon.distribution.newseal.entity.DmsSendRelation;
@@ -30,11 +31,9 @@ import com.jd.bluedragon.distribution.storage.domain.StoragePackageM;
 import com.jd.bluedragon.distribution.storage.service.StoragePackageMService;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.dto.WeightAndVolumeCheckHandleMessage;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.SerialRuleUtil;
+import com.jd.bluedragon.utils.*;
 import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.common.util.StringUtils;
 import com.jd.dms.logger.external.BusinessLogProfiler;
@@ -55,7 +54,11 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -123,6 +126,14 @@ public class SendDetailConsumer extends MessageBaseConsumer {
     @Autowired
     private SpotCheckDealService spotCheckDealService;
 
+    @Qualifier("bdBlockerCompleteMQ")
+    @Autowired
+    private DefaultJMQProducer bdBlockerCompleteMQ;
+
+    @Qualifier("blockerComOrbrefundRqMQ")
+    @Autowired
+    private DefaultJMQProducer blockerComOrbrefundRqMQ;
+
     /**
      * 缓存redis的key
      */
@@ -155,6 +166,11 @@ public class SendDetailConsumer extends MessageBaseConsumer {
 
     @Value("${pack.send.cache.time:30}")
     private Integer packSendCacheTime;
+
+    /**
+     * 冷链产品需要拦截快退缓存redis的key
+     * */
+    private final static String REDIS_COLD_INTEGRCEPT_SMS = "COLD_CHAIN_INTEGRCEPT_SMS-";
 
     @Override
     public void consume(Message message) {
@@ -270,6 +286,8 @@ public class SendDetailConsumer extends MessageBaseConsumer {
                 this.pushWeightCheckMq(sendDetail, waybill);
                 // 保存发货关系
                 this.saveSendRelation(sendDetail);
+                //处理冷链拦截快退
+                this.doColdIntercept(waybill,sendDetail);
             } else {
                 log.warn("[dmsWorkSendDetail消费]根据运单号获取运单信息为空，packageBarCode:{},boxCode:{}", packageBarCode, sendDetail.getBoxCode());
             }
@@ -296,6 +314,7 @@ public class SendDetailConsumer extends MessageBaseConsumer {
     private BaseEntity<BigWaybillDto> getWaybillBaseEntity(String waybillCode) {
         WChoice choice = new WChoice();
         choice.setQueryWaybillC(true);
+        choice.setQueryWaybillExtend(true);
         choice.setQueryWaybillM(false);
         choice.setQueryGoodList(true);
         return waybillQueryManager.getDataByChoice(waybillCode, choice);
@@ -677,4 +696,153 @@ public class SendDetailConsumer extends MessageBaseConsumer {
         weightAndVolumeCheckHandleProducer.sendOnFailPersistent(packageCode, JsonHelper.toJson(message));
     }
 
+    /**
+     * 处理冷链拦截快退
+     * @param waybill
+     * @param sendDetail
+     */
+    private void doColdIntercept(Waybill waybill,SendDetailMessage sendDetail){
+
+        if(waybill == null || waybill.getWaybillExt() == null || StringUtils.isBlank(waybill.getWaybillExt().getProductType()) || sendDetail == null){
+            log.warn("处理冷链拦截快退逻辑，运单详情或发货明细为空");
+            return;
+        }
+        String waybillCode = waybill.getWaybillCode();
+        try {
+            List<String> productTypes = Arrays.asList(waybill.getWaybillExt().getProductType().split(Constants.SEPARATOR_COMMA));
+            boolean isColdProductType = productTypes.contains(DmsConstants.PRODUCT_TYPE_COLD_CHAIN_KB) || productTypes.contains(Constants.PRODUCT_TYPE_MEDICINE_DP) || productTypes.contains(Constants.PRODUCT_TYPE_COLD_CHAIN_XP);
+            if(!isColdProductType){
+                log.warn("处理冷链拦截快退逻辑，非冷链卡班、医药大票、冷链小票产品类型，无须处理，运单号：{}",waybillCode);
+                return;
+            }
+            Integer createSiteCode = sendDetail.getCreateSiteCode();
+            //前缀 + 场地 + 运单号
+            String redisKey = REDIS_COLD_INTEGRCEPT_SMS + createSiteCode + SEPARATOR + waybillCode;
+            boolean isExist = redisClientCache.exists(redisKey);
+            if(isExist){
+                //设置30分钟的去重
+                return;
+            }
+            redisClientCache.setEx(redisKey, Constants.YN_YES.toString(), this.packSendCacheTime, TimeUnit.MINUTES);
+            //快退
+            notifyBlocker(waybill,sendDetail);
+            backwardSendMQ(waybill,sendDetail);
+        }catch (Exception e){
+            log.error("处理冷链拦截快退逻辑发成异常，运单号：" + waybillCode, e);
+        }
+    }
+
+    /**
+     * 发送bd_blocker_complete
+     * @param waybill
+     * @param sendDetail
+     */
+    private void notifyBlocker(Waybill waybill,SendDetailMessage sendDetail) {
+        String wayBillCode = waybill.getWaybillCode();
+        try {
+            if (SendBizSourceEnum.REVERSE_SEND.getCode().equals(sendDetail.getBizSource())) {
+                Date OperateTime = sendDetail.getOperateTime() == null? new Date():new Date(sendDetail.getOperateTime());
+                String waybillsign = waybill.getWaybillSign();
+                if (waybillsign != null && waybillsign.length() > 0) {
+                    if (BusinessUtil.isSick(waybill.getWaybillSign())) {
+                        this.log.warn("分拣中心逆向病单,冷链卡班、医药大票、冷链小票产品屏蔽退款100分MQ,运单号：{}", wayBillCode);
+                        return;
+                    }
+                }
+                String refundMessage = this.refundMessage(wayBillCode,
+                        DateHelper.formatDateTimeMs(OperateTime));
+                //bd_blocker_complete的MQ
+                this.bdBlockerCompleteMQ.send(wayBillCode, refundMessage);
+                this.log.info("冷链卡班、医药大票、冷链小票产品 退款100分MQ消息推送成功,运单号：{}", wayBillCode);
+            }
+        } catch (Exception e) {
+            this.log.error("冷链卡班、医药大票、冷链小票产品回传退款100分逆向分拣信息失败，运单号：" + wayBillCode, e);
+        }
+    }
+    private String refundMessage(String waybillCode, String operateTime) {
+        StringBuilder message = new StringBuilder();
+        message.append("<?xml version=\"1.0\" encoding=\"utf-16\"?>");
+        message.append("<OrderTaskInfo xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">");
+        message.append("<OrderId>" + waybillCode + "</OrderId>");
+        message.append("<OrderType>20</OrderType>");
+        message.append("<MessageType>BLOCKER_QUEUE_DMS</MessageType>");
+        message.append("<OperatTime>" + operateTime + "</OperatTime>");
+        message.append("</OrderTaskInfo>");
+
+        return message.toString();
+    }
+
+    /**
+     * 发送blockerComOrbrefundRq
+     * @param waybill
+     * @param sendDetail
+     */
+    private void backwardSendMQ(Waybill waybill,SendDetailMessage sendDetail){
+        String wayBillCode = waybill.getWaybillCode();
+        // 验证运单号
+        String waybillsign = waybill.getWaybillSign();
+        if(waybillsign != null && waybillsign.length()>0){
+            //waybillsign  1=T  ||  waybillsign  15=6表示逆向订单
+            if((waybill.getWaybillSign().charAt(0)=='T' || waybill.getWaybillSign().charAt(14)=='6')){
+                if(BusinessUtil.isSick(waybill.getWaybillSign())){
+                    this.log.warn("分拣中心逆向病单,冷链卡班、医药大票、冷链小票产品屏蔽快退MQ,运单号：{}", wayBillCode);
+                    return;
+                }
+                //组装FastRefundBlockerComplete
+                FastRefundBlockerComplete frbc = toMakeFastRefundBlockerComplete(wayBillCode,sendDetail);
+                String json = JsonHelper.toJson(frbc);
+                this.log.info("冷链卡班、医药大票、冷链小票产品,分拣中心逆向订单快退:运单号[{}]",wayBillCode);
+                try {
+                    blockerComOrbrefundRqMQ.send(wayBillCode,json);
+                    this.log.info("冷链卡班、医药大票、冷链小票产品发送blockerComOrbrefundRq成功,运单号：{}", wayBillCode);
+                } catch (Exception e) {
+                    this.log.error("冷链卡班、医药大票、冷链小票产品,分拣中心逆向订单快退MQ失败[{}]",json , e);
+                }
+            }else{
+                log.info("订单:{}为非逆向订单,waybillsign:{}",wayBillCode,waybillsign);
+            }
+        }
+    }
+
+    /**
+     * blockerComOrbrefundRq
+     * 参数拼装
+     * @param waybillCode
+     * @param sendDetail
+     * @return
+     */
+    private FastRefundBlockerComplete toMakeFastRefundBlockerComplete(String waybillCode,SendDetailMessage sendDetail){
+        FastRefundBlockerComplete frbc = new FastRefundBlockerComplete();
+        //新运单号获取老运单号的所有信息  参数返单号
+        try{
+            BaseEntity<Waybill> wayBillOld = waybillQueryManager.getWaybillByReturnWaybillCode(waybillCode);
+            if(wayBillOld.getData() != null){
+                String vendorId = wayBillOld.getData().getVendorId();
+                if(vendorId == null || "".equals(vendorId)){
+                    frbc.setOrderId("0");//没有订单号的外单,是非京东平台上下的订单
+                }else{
+                    frbc.setOrderId(vendorId);
+                }
+            }else{
+                frbc.setOrderId("0");
+            }
+        }catch(Exception e){
+            this.log.error("冷链卡班、医药大票、冷链小票产品,发送blockerComOrbrefundRq的MQ时新运单号获取老运单号失败,waybillcode:"+waybillCode, e);
+        }
+        Date operatorTime = sendDetail.getOperateTime() == null? new Date():new Date(sendDetail.getOperateTime());
+        frbc.setWaybillcode(waybillCode);
+        frbc.setApplyReason("分拣中心快速退款");
+        frbc.setApplyDate(operatorTime.getTime());
+        frbc.setSystemId(87);//blockerComOrbrefundRq的systemId设定为87
+        frbc.setReqErp(String.valueOf(sendDetail.getCreateUserCode()));
+        frbc.setReqName(sendDetail.getCreateUser());
+        //写死是三方
+        frbc.setOrderType(20);
+        frbc.setMessageType("BLOCKER_QUEUE_DMS_REVERSE_PRINT");
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        frbc.setOperatTime(dateFormat.format(operatorTime));
+        frbc.setSys("ql.dms");
+
+        return frbc;
+    }
 }

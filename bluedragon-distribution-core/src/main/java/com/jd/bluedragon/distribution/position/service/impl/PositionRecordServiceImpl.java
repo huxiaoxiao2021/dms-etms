@@ -41,10 +41,14 @@ public class PositionRecordServiceImpl implements PositionRecordService {
         Result<Integer> result = new Result<Integer>();
         result.toSuccess();
         if(StringUtils.isEmpty(record.getPositionCode())){
-            record.setPositionCode(DmsConstants.CODE_PREFIX_POSITION.concat(StringHelper.padZero(this.genObjectId.getObjectId(PositionRecord.class.getName()),8)));
+            record.setPositionCode(generalPositionCode());
         }
         result.setData(positionRecordDao.insert(record));
         return result;
+    }
+
+    private String generalPositionCode() {
+        return DmsConstants.CODE_PREFIX_POSITION.concat(StringHelper.padZero(this.genObjectId.getObjectId(PositionRecord.class.getName()),8));
     }
 
     @Override
@@ -53,7 +57,7 @@ public class PositionRecordServiceImpl implements PositionRecordService {
         result.toSuccess();
         for (PositionRecord positionRecord : list) {
             if(StringUtils.isEmpty(positionRecord.getPositionCode())){
-                positionRecord.setPositionCode(DmsConstants.CODE_PREFIX_POSITION.concat(StringHelper.padZero(this.genObjectId.getObjectId(PositionRecord.class.getName()),8)));
+                positionRecord.setPositionCode(generalPositionCode());
             }
         }
         result.setData(positionRecordDao.batchInsert(list));
@@ -64,6 +68,12 @@ public class PositionRecordServiceImpl implements PositionRecordService {
     public Result<PageDto<PositionDetailRecord>> queryPageList(PositionQuery query) {
         Result<PageDto<PositionDetailRecord>> result = new Result<PageDto<PositionDetailRecord>>();
         result.toSuccess();
+        if(query.getPageSize() == null || query.getPageSize() <= 0 || query.getPageNumber() <= 0) {
+            result.toFail("分页参数错误!");
+            return result;
+        }
+        query.setLimit(query.getPageSize());
+        query.setOffset((query.getPageNumber() - 1) * query.getPageSize());
         PageDto<PositionDetailRecord> pageDto = new PageDto<PositionDetailRecord>(query.getPageNumber(), query.getPageSize());
         Long totalCount = positionRecordDao.queryCount(query);
         if(totalCount > 0){
