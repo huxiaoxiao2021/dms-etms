@@ -385,6 +385,7 @@
 			<include refid="joinSql"/>
 		where g.yn = 1 
 		    and g.site_code = #{siteCode,jdbcType=INTEGER}
+		    and s.area_code is not null
 		<if test="floor != null" >
 			and g.floor = #{floor,jdbcType=INTEGER}
 		</if>
@@ -398,6 +399,7 @@
 			<include refid="joinSql"/>
 		where g.yn = 1 
 		    and g.site_code = #{siteCode,jdbcType=INTEGER}
+		    and s.work_code is not null
 		<if test="floor != null" >
 			and g.floor = #{floor,jdbcType=INTEGER}
 		</if>		    
