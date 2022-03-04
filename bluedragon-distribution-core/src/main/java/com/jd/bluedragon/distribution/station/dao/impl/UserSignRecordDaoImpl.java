@@ -8,6 +8,8 @@ import java.util.Map;
 import org.springframework.stereotype.Repository;
 
 import com.jd.bluedragon.common.dao.BaseDao;
+import com.jd.bluedragon.common.dto.station.UserSignQueryRequest;
+import com.jd.bluedragon.common.dto.station.UserSignRecordData;
 import com.jd.bluedragon.distribution.station.dao.UserSignRecordDao;
 import com.jd.bluedragon.distribution.station.domain.UserSignRecord;
 import com.jd.bluedragon.distribution.station.domain.UserSignRecordReportSumVo;
@@ -110,4 +112,16 @@ public class UserSignRecordDaoImpl extends BaseDao<UserSignRecord> implements Us
         param.put("list", list);
         return this.getSqlSession().update(NAMESPACE + ".signOutById", param);
     }
+	@Override
+	public UserSignRecord queryLastUnSignOutRecord(UserSignRecordQuery query) {
+	    return this.getSqlSession().selectOne(NAMESPACE+".queryLastUnSignOutRecord",query);
+	}
+	@Override
+	public Long queryCountWithPosition(UserSignQueryRequest query) {
+	    return this.getSqlSession().selectOne(NAMESPACE+".queryCountWithPosition",query);
+	}
+	@Override
+	public List<UserSignRecordData> queryListWithPosition(UserSignQueryRequest query) {
+		return this.getSqlSession().selectList(NAMESPACE+".queryListWithPosition",query);
+	}
 }

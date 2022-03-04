@@ -6,10 +6,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
-import com.jd.ump.annotation.JProEnum;
-import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +13,15 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.station.UserSignQueryRequest;
+import com.jd.bluedragon.common.dto.station.UserSignRecordData;
+import com.jd.bluedragon.common.dto.station.UserSignRequest;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.distribution.api.response.base.Result;
+import com.jd.bluedragon.distribution.position.domain.PositionDetailRecord;
+import com.jd.bluedragon.distribution.position.service.PositionRecordService;
 import com.jd.bluedragon.distribution.station.dao.UserSignRecordDao;
 import com.jd.bluedragon.distribution.station.domain.UserSignRecord;
 import com.jd.bluedragon.distribution.station.domain.UserSignRecordReportSumVo;
@@ -28,6 +32,7 @@ import com.jd.bluedragon.distribution.station.domain.WorkStationGrid;
 import com.jd.bluedragon.distribution.station.enums.JobTypeEnum;
 import com.jd.bluedragon.distribution.station.enums.WaveTypeEnum;
 import com.jd.bluedragon.distribution.station.query.UserSignRecordQuery;
+import com.jd.bluedragon.distribution.station.query.WorkStationGridQuery;
 import com.jd.bluedragon.distribution.station.service.UserSignRecordService;
 import com.jd.bluedragon.distribution.station.service.WorkStationAttendPlanService;
 import com.jd.bluedragon.distribution.station.service.WorkStationGridService;
@@ -37,6 +42,8 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -69,6 +76,10 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	@Autowired
 	@Qualifier("workStationAttendPlanService")
 	WorkStationAttendPlanService workStationAttendPlanService;
+	
+	@Autowired
+	@Qualifier("positionRecordService")
+	private PositionRecordService positionRecordService;
 	
 	private static final DecimalFormat NUMBER_FORMAT = new DecimalFormat("0.00");
 	private static final DecimalFormat RATE_FORMAT = new DecimalFormat("0.00%");
@@ -370,6 +381,9 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		result.setData(fillOtherInfo(userSignRecordDao.queryLastSignRecord(query)));
 		return result;
 	}
+	private UserSignRecord queryLastUnSignOutRecord(UserSignRecordQuery query) {
+		return fillOtherInfo(userSignRecordDao.queryLastUnSignOutRecord(query));
+	}
 	@Override
 	public Result<UserSignRecordReportSumVo> queryReportSum(UserSignRecordQuery query) {
 		Result<Boolean> checkResult = this.checkParamForQueryPageList(query);
@@ -434,4 +448,185 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 
         return result;
     }
+	@Override
+	public JdCResponse<Boolean> signInWithPosition(UserSignRequest signInRequest) {
+		JdCResponse<Boolean> result = new JdCResponse<>();
+		result.toSucceed();
+		//校验并组装签到数据
+        UserSignRecord signInData = new UserSignRecord();
+        result = this.checkAndFillSignInInfo(signInRequest,signInData);
+        if(!result.isSucceed()) {
+        	return result;
+        }
+        
+		UserSignRecordQuery lastSignRecordQuery = new UserSignRecordQuery();
+		lastSignRecordQuery.setUserCode(signInRequest.getUserCode());
+		lastSignRecordQuery.setSiteCode(signInRequest.getSiteCode());
+		lastSignRecordQuery.setSignDate(signInRequest.getSignDate());
+		//查询签到记录，先签退
+        UserSignRecord lastSignRecord = this.queryLastUnSignOutRecord(lastSignRecordQuery);
+        UserSignRecord signOutRequest = new UserSignRecord();
+        if(lastSignRecord != null) {
+        	signOutRequest.setId(lastSignRecord.getId());
+        	signOutRequest.setUpdateUser(signInRequest.getOperateUserCode());
+        	signOutRequest.setUpdateUserName(signInRequest.getOperateUserName());
+    		this.doSignOut(signOutRequest);
+		}
+        if(this.doSignIn(signInData)) {
+        	result.toSucceed("签到成功！"); 
+        }else {
+        	result.toFail("签到失败！");
+        }
+		return result;
+	}
+	@Override
+	public JdCResponse<Boolean> signOutWithPosition(UserSignRequest signOutRequest) {
+		JdCResponse<Boolean> result = new JdCResponse<>();
+		result.toSucceed();
+
+		UserSignRecord data = new UserSignRecord();
+		if(signOutRequest.getRecordId() != null) {
+			data.setId(signOutRequest.getRecordId());
+		}else {
+			UserSignRecord lastSignRecordQuery = new UserSignRecord();
+			lastSignRecordQuery.setUserCode(signOutRequest.getUserCode());
+			lastSignRecordQuery.setSiteCode(signOutRequest.getSiteCode());
+			lastSignRecordQuery.setSignDate(signOutRequest.getSignDate());
+			
+            UserSignRecord lastSignRecord = getLastSignRecord(lastSignRecordQuery);
+            if(lastSignRecord == null) {
+            	result.toFail("该用户未签到，无法签退！");
+				return result;
+			}
+			data.setId(lastSignRecord.getId());
+		}
+        data.setUpdateUser(signOutRequest.getOperateUserCode());
+        data.setUpdateUserName(signOutRequest.getOperateUserName());
+        if(this.doSignOut(data)) {
+        	result.toSucceed("退成功！"); 
+        }else {
+        	result.toFail("签退失败！");
+        }
+		return result;
+	}
+	@Override
+	public JdCResponse<Boolean> signAuto(UserSignRequest userSignRequest) {
+		JdCResponse<Boolean> result = new JdCResponse<>();
+		result.toSucceed();
+
+		UserSignRecordQuery lastSignRecordQuery = new UserSignRecordQuery();
+		lastSignRecordQuery.setUserCode(userSignRequest.getUserCode());
+		lastSignRecordQuery.setSiteCode(userSignRequest.getSiteCode());
+		lastSignRecordQuery.setSignDate(userSignRequest.getSignDate());
+		//查询签到记录，自动签退
+        UserSignRecord lastSignRecord = this.queryLastUnSignOutRecord(lastSignRecordQuery);
+        
+        UserSignRecord data = new UserSignRecord();
+        if(lastSignRecord != null) {
+        	data.setId(lastSignRecord.getId());
+            data.setUpdateUser(userSignRequest.getOperateUserCode());
+            data.setUpdateUserName(userSignRequest.getOperateUserName());
+    		result.setData(doSignOut(data));
+    		return result;
+		}
+		//校验并组装签到数据
+        UserSignRecord signInData = new UserSignRecord();
+        result = this.checkAndFillSignInInfo(userSignRequest,signInData);
+        if(!result.isSucceed()) {
+        	return result;
+        }
+        if(this.doSignIn(signInData)) {
+        	result.toSucceed("签到成功！"); 
+        }else {
+        	result.toFail("签到失败！");
+        }
+		return result;
+	}
+	private JdCResponse<Boolean> checkAndFillSignInInfo(UserSignRequest signInRequest,UserSignRecord signInData){
+		JdCResponse<Boolean> result = new JdCResponse<>();
+		result.toSucceed();
+		if(signInRequest == null
+				|| StringHelper.isEmpty(signInRequest.getPositionCode())) {
+			result.toFail("上岗码不能为空！");
+			return result;
+		}
+		if(StringHelper.isEmpty(signInRequest.getUserCode())) {
+			result.toFail("用户编码不能为空！");
+			return result;
+		}
+		Result<PositionDetailRecord> positionData = positionRecordService.queryOneByPositionCode(signInRequest.getPositionCode());
+		if(positionData == null
+				|| positionData.getData() == null) {
+			result.toFail("上岗码无效！");
+			return result;
+		}
+		String gridKey = positionData.getData().getRefGridKey();
+		WorkStationGridQuery workStationGridCheckQuery = new WorkStationGridQuery();
+		workStationGridCheckQuery.setBusinessKey(gridKey);
+		Result<WorkStationGrid> workStationGridData = workStationGridService.queryByGridKey(workStationGridCheckQuery);
+		if(workStationGridData == null
+				|| workStationGridData.getData() == null) {
+			result.toFail("网格信息不存在，请先维护场地网格信息！");
+			return result;
+		}
+		WorkStationGrid gridInfo = workStationGridData.getData();
+		String stationKey = gridInfo.getRefStationKey();
+		signInData.setJobCode(signInRequest.getJobCode());
+		signInData.setUserCode(signInRequest.getUserCode());
+		signInData.setCreateUser(signInRequest.getOperateUserCode());
+		signInData.setCreateUserName(signInRequest.getOperateUserName());
+		signInData.setSiteCode(gridInfo.getSiteCode());
+		signInData.setOrgCode(gridInfo.getOrgCode());
+		signInData.setRefGridKey(gridKey);
+		signInData.setRefStationKey(stationKey);
+		
+		return result;
+	}
+	private boolean doSignIn(UserSignRecord userSignRecord) {
+		userSignRecord.setCreateTime(new Date());
+		userSignRecord.setSignInTime(new Date());
+		return userSignRecordDao.insert(userSignRecord) == 1;
+	}
+	private boolean doSignOut(UserSignRecord userSignRecord) {
+		userSignRecord.setUpdateTime(new Date());
+		userSignRecord.setSignOutTime(new Date());
+		return userSignRecordDao.updateById(userSignRecord) == 1;
+	}
+	@Override
+	public JdCResponse<PageDto<UserSignRecordData>> querySignListWithPosition(UserSignQueryRequest query) {
+		JdCResponse<PageDto<UserSignRecordData>> result = new JdCResponse<>();
+		result.toSucceed();
+		if(query == null
+				|| StringHelper.isEmpty(query.getPositionCode())) {
+			result.toFail("上岗码不能为空！");
+			return result;
+		}
+		Result<PositionDetailRecord> positionData = positionRecordService.queryOneByPositionCode(query.getPositionCode());
+		if(positionData == null
+				|| positionData.getData() == null) {
+			result.toFail("上岗码无效！");
+			return result;
+		}
+		if(query.getPageSize() == null
+				|| query.getPageSize() <= 0) {
+			query.setPageSize(DmsConstants.PAGE_SIZE_DEFAULT);
+		}
+		query.setOffset(0);
+		query.setLimit(query.getPageSize());
+		if(query.getPageNumber() > 0) {
+			query.setOffset((query.getPageNumber() - 1) * query.getPageSize());
+		}
+		PageDto<UserSignRecordData> PageDto = new PageDto<>(query.getPageNumber(), query.getPageSize());
+		Long totalCount = userSignRecordDao.queryCountWithPosition(query);
+		if(totalCount != null && totalCount > 0){
+		    List<UserSignRecordData> dataList = userSignRecordDao.queryListWithPosition(query);
+		    PageDto.setResult(dataList);
+			PageDto.setTotalRow(totalCount.intValue());
+		}else {
+		    PageDto.setResult(new ArrayList<UserSignRecordData>());
+			PageDto.setTotalRow(0);
+		}
+		result.setData(PageDto);
+		return result;
+	}
 }

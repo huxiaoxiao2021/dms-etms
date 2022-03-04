@@ -102,4 +102,10 @@ public interface WorkStationGridService {
 	 * @return
 	 */
 	Result<WorkStationGridCountVo> queryPageCount(WorkStationGridQuery query);
+	/**
+	 * 根据gridKey查询
+	 * @param workStationGridCheckQuery
+	 * @return
+	 */
+	Result<WorkStationGrid> queryByGridKey(WorkStationGridQuery workStationGridCheckQuery);
 }

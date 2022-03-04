@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.position.service;
 
+import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.station.PositionData;
 import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.position.domain.PositionDetailRecord;
 import com.jd.bluedragon.distribution.position.domain.PositionRecord;
@@ -71,4 +73,10 @@ public interface PositionRecordService {
      * @return
      */
     Result<Long> queryCountByCondition(PositionQuery query);
+    /**
+     * 查询岗位信息
+     * @param positionCode
+     * @return
+     */
+	JdCResponse<PositionData> queryPositionData(String positionCode);
 }

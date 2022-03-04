@@ -1,5 +1,9 @@
 package com.jd.bluedragon.distribution.station.service;
 
+import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.station.UserSignQueryRequest;
+import com.jd.bluedragon.common.dto.station.UserSignRecordData;
+import com.jd.bluedragon.common.dto.station.UserSignRequest;
 import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.station.domain.UserSignRecord;
 import com.jd.bluedragon.distribution.station.domain.UserSignRecordReportSumVo;
@@ -82,5 +86,28 @@ public interface UserSignRecordService {
      * @return
      */
     Result<Integer> autoHandleSignInRecord();
-
+    /**
+     * 按岗位签到
+     * @param signInRequest
+     * @return
+     */
+    JdCResponse<Boolean> signInWithPosition(UserSignRequest signInRequest);
+    /**
+     * 按岗位签退
+     * @param signInRequest
+     * @return
+     */
+	JdCResponse<Boolean> signOutWithPosition(UserSignRequest signOutRequest);
+    /**
+     * 自动签到、签退
+     * @param signInRequest
+     * @return
+     */
+	JdCResponse<Boolean> signAuto(UserSignRequest userSignRequest);
+	/**
+	 * 分页查询签到列表数据
+	 * @param query
+	 * @return
+	 */
+	JdCResponse<PageDto<UserSignRecordData>> querySignListWithPosition(UserSignQueryRequest query);
 }

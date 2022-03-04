@@ -98,4 +98,10 @@ public interface WorkStationGridDao {
 	 * @return
 	 */
 	WorkStationGridCountVo queryPageCount(WorkStationGridQuery query);
+	/**
+	 * 根据
+	 * @param gridKey查询
+	 * @return
+	 */
+	WorkStationGrid queryByGridKey(WorkStationGridQuery workStationGridQuery);
 }

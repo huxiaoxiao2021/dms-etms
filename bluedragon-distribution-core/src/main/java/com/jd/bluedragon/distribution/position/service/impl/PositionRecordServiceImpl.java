@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.position.service.impl;
 
+import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.station.PositionData;
 import com.jd.bluedragon.core.objectid.IGenerateObjectId;
 import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.position.dao.PositionRecordDao;
@@ -10,6 +12,8 @@ import com.jd.bluedragon.distribution.position.service.PositionRecordService;
 import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
+import com.jd.ql.erp.util.BeanUtils;
+
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -103,4 +107,20 @@ public class PositionRecordServiceImpl implements PositionRecordService {
         result.setData(positionRecordDao.queryCount(query));
         return result;
     }
+
+	@Override
+	public JdCResponse<PositionData> queryPositionData(String positionCode) {
+		JdCResponse<PositionData> result = new JdCResponse<PositionData>();
+		result.toSucceed();
+		Result<PositionDetailRecord> positionDetailResult = this.queryOneByPositionCode(positionCode);
+		if(positionDetailResult == null
+				|| positionDetailResult.getData() == null) {
+			result.toFail("无效的上岗码！");
+		}
+		PositionData positionData = new PositionData();
+		BeanUtils.copyProperties(positionDetailResult.getData(), positionData);
+		positionData.setDefaultMenuCode("test1");
+		result.setData(positionData);
+		return result;
+	}
 }
