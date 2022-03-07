@@ -1060,7 +1060,6 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
         boardBox.setOperatorErp(request.getUserCode() + "");
         boardBox.setOperatorName(request.getUserName());
         boardBox.setSiteCode(request.getSiteCode());
-        boardBox.setBizSource(BizSourceEnum.PDA.getValue());
         //调用TC接口取消组板
         Response<String> tcResponse = null;
         CallerInfo info = Profiler.registerInfo("DMSWEB.BoardCombinationServiceImpl.boardCombinationCancel.TCJSF", Constants.UMP_APP_NAME_DMSWEB, false, true);
