@@ -2424,6 +2424,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
 
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("unloadUserErp",request.getUnloadUserErp());
+        params.put("unloadUserName",request.getUnloadUserName());
         params.put("railWayPlatForm",request.getRailWayPlatForm());
         params.put("unloadCarIds",request.getUnloadCarIds());
         params.put("updateUserErp",request.getUpdateUserErp());
