@@ -534,8 +534,7 @@ public class QualityControlService {
                 log.info("dealQualityControlTask param: {} result: {}", JsonHelper.toJson(task), JsonHelper.toJson(taskResult));
                 if(!TaskResult.toBoolean(taskResult)){
                     log.error("handleQcReportConsume fail packageCode {} param {} ", barCode, JsonHelper.toJson(qcReportJmqDto));
-                    result.setData(false);
-                    return result;
+                    return result.toFail();
                 } else {
                     result.setData(true);
                 }
@@ -619,8 +618,7 @@ public class QualityControlService {
                 log.info("dealQualityControlTask param: {} result: {}", JsonHelper.toJson(task), JsonHelper.toJson(taskResult));
                 if(!TaskResult.toBoolean(taskResult)){
                     log.error("handleQcOutCallReportConsume fail packageCode {} param {} ", barCode, JsonHelper.toJson(qcReportJmqDto));
-                    result.setData(false);
-                    return result;
+                    return result.toFail();
                 } else {
                     result.setData(true);
                 }
