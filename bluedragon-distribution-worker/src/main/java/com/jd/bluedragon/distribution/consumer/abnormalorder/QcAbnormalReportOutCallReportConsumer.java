@@ -46,7 +46,7 @@ public class QcAbnormalReportOutCallReportConsumer extends MessageBaseConsumer {
         }
 
         final Result<Boolean> result = qualityControlService.handleQcOutCallReportConsume(qcReportJmqDto);
-        if(!result.isSuccess() || !result.getData()){
+        if(!result.isSuccess()){
             log.error("QcAbnormalReportOutCallReportConsumer fail {}", JsonHelper.toJson(result));
             throw new RuntimeException("处理失败");
         }
