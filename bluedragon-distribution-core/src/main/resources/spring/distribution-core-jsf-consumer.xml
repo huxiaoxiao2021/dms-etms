@@ -820,4 +820,8 @@
                   protocol="jsf" alias="${jsf.coldchain.eclp.reverse.alias}" timeout="${jsf.coldchain.eclp.reverse.alias.timeout}"
                   retries="${jsf.retries}" >
     </jsf:consumer>
+    <!-- 网关外网erp认证插件 -->
+    <jsf:consumer id="erpLoginService" interface="com.jd.mrd.srv.service.erp.ErpLoginService"
+                  protocol="jsf" alias="${jsf.mrd.alias}" timeout="${jsf.mrd.timeout}" retries="0">
+    </jsf:consumer>
 </beans>

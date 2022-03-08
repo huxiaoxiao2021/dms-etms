@@ -273,5 +273,12 @@
     <jmq:consumer id="jmq.dmsSpotCheckDealConsumer" transport="jmq.uatDmsWeb.transport">
         <jmq:listener topic="${jmq.topic.dwsSpotCheck}" listener="dmsSpotCheckDealConsumer"/>
     </jmq:consumer>
+    <!--质控异常提报mq消费-->
+    <jmq:consumer id="jmq.qcAbnormalReportReportConsumer" transport="jmq.uatDmsWeb.transport">
+        <jmq:listener topic="${jmq.topic.abnormalRecordReport}" listener="qcAbnormalReportReportConsumer"/>
+    </jmq:consumer>
+    <jmq:consumer id="jmq.qcAbnormalReportOutCallReportConsumer" transport="jmq.uatDmsWeb.transport">
+        <jmq:listener topic="${jmq.topic.abnormalRecordOutCallReport}" listener="qcAbnormalReportOutCallReportConsumer"/>
+    </jmq:consumer>
 </beans>
 
