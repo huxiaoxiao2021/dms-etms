@@ -329,6 +329,9 @@
         <if test="unloadUserErp != null">
             unload_user_erp = #{unloadUserErp, jdbcType=VARCHAR},
         </if>
+        <if test="unloadUserName != null">
+            unload_user_name = #{unloadUserName, jdbcType=VARCHAR},
+        </if>
         <if test="railWayPlatForm != null">
             railWay_platForm = #{railWayPlatForm, jdbcType=VARCHAR},
         </if>
