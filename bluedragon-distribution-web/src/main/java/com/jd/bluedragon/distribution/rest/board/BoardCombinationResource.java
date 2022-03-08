@@ -368,7 +368,7 @@ public class BoardCombinationResource {
             return invokeResult;
         }
         if(request.getBizSource() == null){
-            request.setBizSource(BizSourceEnum.PDA.getValue());
+            request.setBizSource(BizSourceEnum.PRINT_CLIENT.getValue());
         }
         this.log.info("建板请求的板号数量:{},场站sitecode:{},目的地destinationId:{}",request.getBoardCount(), request.getSiteCode(),request.getDestinationId());
         return boardCombinationService.createBoard(request);
