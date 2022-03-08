@@ -2454,13 +2454,12 @@ public class UnloadCarServiceImpl implements UnloadCarService {
                 // 先逻辑删除旧的负责人
                 unloadCarDistribution.setUnloadUserErp(unloadUserErps.get(0));
                 unloadCarDistributionDao.deleteUnloadHelper(unloadCarDistribution);
+                // 添加新的负责人
+                unloadCarDistribution.setUnloadUserErp(request.getUnloadUserErp());
+                unloadCarDistributionDao.add(unloadCarDistribution);
                 // 如果新负责人还是协助人，需要删除
                 unloadCarDistribution.setUnloadUserType(UnloadUserTypeEnum.HELPER.getType());
                 unloadCarDistributionDao.deleteUnloadHelper(unloadCarDistribution);
-                // 添加新的负责人
-                unloadCarDistribution.setUnloadUserType(UnloadUserTypeEnum.UNLOAD_MASTER.getType());
-                unloadCarDistribution.setUnloadUserErp(request.getUnloadUserErp());
-                unloadCarDistributionDao.add(unloadCarDistribution);
             }
         }
         return true;
