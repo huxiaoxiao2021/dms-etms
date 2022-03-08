@@ -22,7 +22,11 @@ public class BoardInfoDto implements Serializable {
      * 目的地名称
      */
     private String destination;
-
+    /**
+     * 组板人信息
+     */
+    private String operatorErp;
+    private String operatorName;
     @Override
     public String toString() {
         return "BoardInfoDto{" +
@@ -45,5 +49,21 @@ public class BoardInfoDto implements Serializable {
 
     public void setDestination(String destination) {
         this.destination = destination;
+    }
+
+    public String getOperatorErp() {
+        return operatorErp;
+    }
+
+    public void setOperatorErp(String operatorErp) {
+        this.operatorErp = operatorErp;
+    }
+
+    public String getOperatorName() {
+        return operatorName;
+    }
+
+    public void setOperatorName(String operatorName) {
+        this.operatorName = operatorName;
     }
 }

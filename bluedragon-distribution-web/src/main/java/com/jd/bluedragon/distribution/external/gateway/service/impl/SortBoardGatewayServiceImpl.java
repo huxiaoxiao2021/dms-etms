@@ -11,6 +11,7 @@ import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.distribution.api.request.BoardCombinationRequest;
 import com.jd.bluedragon.distribution.api.response.BoardResponse;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
+import com.jd.bluedragon.distribution.board.service.BoardCombinationService;
 import com.jd.bluedragon.distribution.inspection.dao.InspectionDao;
 import com.jd.bluedragon.distribution.rest.board.BoardCombinationResource;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -18,7 +19,8 @@ import com.jd.bluedragon.external.gateway.service.SortBoardGatewayService;
 import com.jd.dms.logger.annotation.BusinessLog;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.domain.JdResponseStatusInfo;
-import com.jd.transboard.api.dto.Board;
+import com.jd.transboard.api.dto.BoardBoxInfoDto;
+import com.jd.transboard.api.dto.Response;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
@@ -47,6 +49,9 @@ public class SortBoardGatewayServiceImpl implements SortBoardGatewayService {
 
     @Autowired
     private WaybillTraceManager waybillTraceManager;
+
+    @Autowired
+    private BoardCombinationService boardCombinationService;
 
     private static final Logger log = LoggerFactory.getLogger(SortBoardGatewayServiceImpl.class);
 
@@ -233,17 +238,19 @@ public class SortBoardGatewayServiceImpl implements SortBoardGatewayService {
     public JdCResponse<BoardInfoDto> queryBoardInfo(Integer siteCode, String packageOrBoxCode) {
 
         JdCResponse<BoardInfoDto> jdCResponse = new JdCResponse<>();
-        JdResponse<Board> response = boardCombinationResource.getBoardByBoxCode(siteCode, packageOrBoxCode);
+        Response<BoardBoxInfoDto> response = boardCombinationService.getBoardBoxInfo(siteCode, packageOrBoxCode);
 
         if (response.getCode() == 200) {
             BoardInfoDto boardInfoDto = new BoardInfoDto();
             boardInfoDto.setCode(response.getData().getCode());
             boardInfoDto.setDestination(response.getData().getDestination());
+            boardInfoDto.setOperatorErp(response.getData().getOperatorErp());
+            boardInfoDto.setOperatorName(response.getData().getOperatorName());
             jdCResponse.setData(boardInfoDto);
         }
 
         jdCResponse.setCode(response.getCode());
-        jdCResponse.setMessage(response.getMessage());
+        jdCResponse.setMessage(response.getMesseage());
 
         return jdCResponse;
     }
