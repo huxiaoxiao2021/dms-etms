@@ -891,7 +891,8 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
         if(autoReportingResponse == null || StringUtils.isEmpty(autoReportingResponse.getStatus())
                 || !Objects.equals(autoReportingResponse.getStatus(), String.valueOf(InvokeResult.RESULT_SUCCESS_CODE))
                 || CollectionUtils.isEmpty(autoReportingResponse.getPicList())
-                || autoReportingResponse.getPicList().get(0) == null){
+                || autoReportingResponse.getPicList().get(0) == null
+                || !Objects.equals(autoReportingResponse.getPicList().get(0).getStatus(), String.valueOf(InvokeResult.RESULT_SUCCESS_CODE))){
             code = SpotCheckConstants.SPOT_CHECK_AI_EXC_CODE;
             message = (autoReportingResponse == null || autoReportingResponse.getStatus() == null) ? "AI图片识别失败!" : autoReportingResponse.getMessage();
             return ImmutablePair.of(code, message);
