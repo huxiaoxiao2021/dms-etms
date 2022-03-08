@@ -487,6 +487,8 @@ public class QualityControlService {
         return false;
     }
 
+    private String reportSystem = "dms";
+
     /**
      * 处理异常提报数据
      * @param qcReportJmqDto 消息提
@@ -498,17 +500,17 @@ public class QualityControlService {
         log.info("handleQcReportConsume param: {}", JsonHelper.toJson(qcReportJmqDto));
         Result<Boolean> result = Result.success();
         try {
-            if (StringUtils.isBlank(qcReportJmqDto.getReportSystem()) || !Objects.equals(qcReportJmqDto.getReportSystem(), "dms")){
+            if (StringUtils.isBlank(qcReportJmqDto.getReportSystem()) || !Objects.equals(qcReportJmqDto.getReportSystem(), reportSystem)){
                 return result;
             }
             final BaseStaffSiteOrgDto baseStaff = baseMajorManager.getBaseStaffByErpNoCache(qcReportJmqDto.getCreateUser());
             if(baseStaff == null){
-                log.error(String.format("未找到此erp:%s信息", qcReportJmqDto.getCreateUser()));
+                log.error("未找到此erp:{}信息", qcReportJmqDto.getCreateUser());
                 return result.toFail(String.format("未找到此erp:%s信息", qcReportJmqDto.getCreateUser()));
             }
 
             String barCodes = qcReportJmqDto.getPackageNumber();
-            String[] barCodeList = barCodes.split(",");
+            String[] barCodeList = barCodes.split(Constants.SEPARATOR_COMMA);
 
             for (String barCode : barCodeList) {
                 final QualityControlRequest qualityControlRequest = new QualityControlRequest();
@@ -583,17 +585,17 @@ public class QualityControlService {
         log.info("handleQcReportConsume param: {}", JsonHelper.toJson(qcReportJmqDto));
         Result<Boolean> result = Result.success();
         try {
-            if (StringUtils.isBlank(qcReportJmqDto.getReportSystem()) || !Objects.equals(qcReportJmqDto.getReportSystem(), "dms")){
+            if (StringUtils.isBlank(qcReportJmqDto.getReportSystem()) || !Objects.equals(qcReportJmqDto.getReportSystem(), reportSystem)){
                 return result;
             }
             final BaseStaffSiteOrgDto baseStaff = baseMajorManager.getBaseStaffByErpNoCache(qcReportJmqDto.getCreateUser());
             if(baseStaff == null){
-                log.error(String.format("未找到此erp:%s信息", qcReportJmqDto.getCreateUser()));
+                log.error("未找到此erp:{}信息", qcReportJmqDto.getCreateUser());
                 return result.toFail(String.format("未找到此erp:%s信息", qcReportJmqDto.getCreateUser()));
             }
 
             String barCodes = qcReportJmqDto.getPackageNumber();
-            String[] barCodeList = barCodes.split(",");
+            String[] barCodeList = barCodes.split(Constants.SEPARATOR_COMMA);
 
             for (String barCode : barCodeList) {
                 final QualityControlRequest qualityControlRequest = new QualityControlRequest();
