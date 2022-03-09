@@ -319,9 +319,8 @@ public class BoardCommonManagerImpl implements BoardCommonManager {
             addBoardRequest.setOperatorName(request.getOperateUserName());
             addBoardRequest.setSiteCode(request.getOperateSiteCode());
             addBoardRequest.setSiteName(request.getOperateSiteName());
-            if(addBoardRequest.getBizSource() == null){
-                addBoardRequest.setBizSource(BizSourceEnum.PDA.getValue());
-            }
+            addBoardRequest.setBizSource(request.getBizSource());
+
             Response<List<Board>> response = groupBoardManager.createBoards(addBoardRequest);
             if(response != null && response.getCode() == ResponseEnum.SUCCESS.getIndex()
                     && !response.getData().isEmpty()){

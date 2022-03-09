@@ -796,9 +796,6 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
         addBoardBox.setSiteName(request.getSiteName());
         addBoardBox.setSiteType(BOARD_COMBINATION_SITE_TYPE);
         addBoardBox.setBizSource(request.getBizSource());
-        if(addBoardBox.getBizSource() == null){
-            addBoardBox.setBizSource(BizSourceEnum.PDA.getValue());
-        }
         CallerInfo info = Profiler.registerInfo("DMSWEB.BoardCombinationServiceImpl.addBoxToBoardByWaybill.TCJSF", Constants.UMP_APP_NAME_DMSWEB,false, true);
 
         for (DeliveryPackageD deliveryPackageD : deliveryPackageDList) {

@@ -102,7 +102,7 @@ public class BoardCombinationResource {
             boardResponse.addStatusInfo(JdResponse.CODE_FAIL,errStr);
             return result;
         }
-
+        request.setBizSource(BizSourceEnum.PDA.getValue());
         return combinationNew(request);
     }
 

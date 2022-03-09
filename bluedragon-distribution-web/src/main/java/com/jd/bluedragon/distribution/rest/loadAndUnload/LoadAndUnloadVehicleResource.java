@@ -188,9 +188,6 @@ public class LoadAndUnloadVehicleResource {
                 || StringUtils.isEmpty(request.getOperateSiteName())){
             return "操作站点不存在!";
         }
-        if(request.getBizSource() == null){
-            request.setBizSource(BizSourceEnum.PDA.getValue());
-        }
         return null;
     }
 
