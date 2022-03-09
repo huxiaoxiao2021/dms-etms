@@ -50,7 +50,7 @@
 		g.id,g.business_key,g.org_code,g.org_name,g.site_code,g.site_name,
 		g.floor,g.grid_no,g.grid_code,g.grid_name,g.create_user,g.create_time,g.yn,
 		s.area_code,s.area_name,s.work_code,s.work_name,
-		p.position_code,p.remark,p.update_user,p.update_time,p.ts
+		p.position_code,p.ref_grid_key,p.remark,p.update_user,p.update_time,p.ts
 	</sql>
 
 	<insert id="insert" parameterType="com.jd.bluedragon.distribution.position.domain.PositionRecord" useGeneratedKeys="true" keyProperty="id">
