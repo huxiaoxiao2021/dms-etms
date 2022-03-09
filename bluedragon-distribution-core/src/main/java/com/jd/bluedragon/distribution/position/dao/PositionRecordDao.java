@@ -53,6 +53,13 @@ public interface PositionRecordDao {
      * @return
      */
     PositionRecord queryByPositionCode(String positionCode);
+    /**
+     * 根据岗位编码查询详细信息
+     *
+     * @param positionCode
+     * @return
+     */
+    PositionDetailRecord queryDetailByPositionCode(String positionCode);
 
     /**
      * 根据业务主键查询数据

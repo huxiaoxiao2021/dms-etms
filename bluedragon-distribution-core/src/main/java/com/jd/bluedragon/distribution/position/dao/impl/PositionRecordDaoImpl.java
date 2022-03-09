@@ -42,7 +42,10 @@ public class PositionRecordDaoImpl extends BaseDao<PositionRecord> implements Po
     public PositionRecord queryByPositionCode(String positionCode) {
         return this.getSqlSession().selectOne(NAMESPACE+".queryByPositionCode",positionCode);
     }
-
+    @Override
+    public PositionDetailRecord queryDetailByPositionCode(String positionCode) {
+        return this.getSqlSession().selectOne(NAMESPACE+".queryDetailByPositionCode",positionCode);
+    }
     @Override
     public PositionRecord queryByBusinessKey(String businessKey) {
         return this.getSqlSession().selectOne(NAMESPACE+".queryByBusinessKey",businessKey);

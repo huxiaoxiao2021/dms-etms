@@ -164,13 +164,27 @@
 		where ref_grid_key = #{refGridKey, jdbcType=VARCHAR}
 	</update>
 
-	<select id="queryByPositionCode" parameterType="java.lang.String" resultMap="BaseDetailResultMap">
+	<select id="queryByPositionCode" parameterType="java.lang.String" resultMap="BaseResultMap">
 		select
 		<include refid="Base_Column_List"/>
 		from
 		position_record
 		where yn = 1
 		and position_code = #{positionCode,jdbcType=VARCHAR}
+		limit 1
+	</select>
+
+	<select id="queryDetailByPositionCode" parameterType="java.lang.String" resultMap="BaseDetailResultMap">
+		select
+		<include refid="Base_Detail_Column_List"/>
+		from
+			position_record p
+		left join
+			work_station_grid g on g.business_key = p.ref_grid_key and g.yn = 1
+		left join
+			work_station s on g.ref_station_key = s.business_key and s.yn = 1
+		where p.yn = 1
+		and p.position_code = #{positionCode,jdbcType=VARCHAR}
 		limit 1
 	</select>
 

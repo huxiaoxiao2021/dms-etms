@@ -90,6 +90,7 @@ public class PositionRecordServiceImpl implements PositionRecordService {
     @Override
     public Result<PositionDetailRecord> queryOneByPositionCode(String positionCode) {
         Result<PositionDetailRecord> result = new Result<PositionDetailRecord>();
+        result.setData(positionRecordDao.queryDetailByPositionCode(positionCode));
         result.toSuccess();
         return result;
     }

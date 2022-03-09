@@ -180,6 +180,12 @@ public class UserSignRecordData implements Serializable {
 	 * 工作时长（单位：小时）
 	 */
 	private String workHours;
+	/**
+	 * 工作时长（单位：hh时mm分）
+	 */
+	private String workTimes;
+	
+	
 	public Long getId() {
 		return id;
 	}
@@ -383,5 +389,11 @@ public class UserSignRecordData implements Serializable {
 	}
 	public void setWorkHours(String workHours) {
 		this.workHours = workHours;
+	}
+	public String getWorkTimes() {
+		return workTimes;
+	}
+	public void setWorkTimes(String workTimes) {
+		this.workTimes = workTimes;
 	}
 }

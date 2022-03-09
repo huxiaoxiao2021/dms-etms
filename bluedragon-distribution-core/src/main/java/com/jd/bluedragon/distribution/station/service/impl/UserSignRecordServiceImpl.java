@@ -619,6 +619,9 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		Long totalCount = userSignRecordDao.queryCountWithPosition(query);
 		if(totalCount != null && totalCount > 0){
 		    List<UserSignRecordData> dataList = userSignRecordDao.queryListWithPosition(query);
+		    for(UserSignRecordData data: dataList) {
+		    	fillOtherInfo(data);
+		    }
 		    PageDto.setResult(dataList);
 			PageDto.setTotalRow(totalCount.intValue());
 		}else {
@@ -627,5 +630,25 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		}
 		result.setData(PageDto);
 		return result;
+	}
+	public UserSignRecordData fillOtherInfo(UserSignRecordData data) {
+		if(data == null) {
+			return null;
+		}
+		data.setWaveName(WaveTypeEnum.getNameByCode(data.getWaveCode()));
+		data.setJobName(JobTypeEnum.getNameByCode(data.getJobCode()));
+		if(data.getSignInTime() != null
+				&& data.getSignOutTime() != null) {
+			String workHours = "";
+			String workTimes = "--";
+			double workHoursDouble = DateHelper.betweenHours(data.getSignInTime(),data.getSignOutTime());
+			workHours = NUMBER_FORMAT.format(workHoursDouble);
+			data.setWorkHours(workHours);
+			if(workHoursDouble > 0) {
+				workTimes = DateHelper.hoursToHHMM(workHoursDouble);
+			}
+			data.setWorkTimes(workTimes);
+		}
+		return data;
 	}
 }
