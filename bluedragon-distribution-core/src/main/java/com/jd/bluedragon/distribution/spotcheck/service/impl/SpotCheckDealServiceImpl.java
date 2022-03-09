@@ -888,13 +888,16 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
         int code = InvokeResult.RESULT_SUCCESS_CODE;
         String message = InvokeResult.RESULT_SUCCESS_MESSAGE;
         AutoReportingResponse autoReportingResponse = autoReportingManager.reportingCheck(autoReportingRequest);
-        if(autoReportingResponse == null || StringUtils.isEmpty(autoReportingResponse.getStatus())
-                || !Objects.equals(autoReportingResponse.getStatus(), String.valueOf(InvokeResult.RESULT_SUCCESS_CODE))
-                || CollectionUtils.isEmpty(autoReportingResponse.getPicList())
-                || autoReportingResponse.getPicList().get(0) == null
-                || !Objects.equals(autoReportingResponse.getPicList().get(0).getStatus(), String.valueOf(InvokeResult.RESULT_SUCCESS_CODE))){
+        if(autoReportingResponse == null || !Objects.equals(autoReportingResponse.getStatus(), String.valueOf(InvokeResult.RESULT_SUCCESS_CODE))
+                || CollectionUtils.isEmpty(autoReportingResponse.getPicList())){
             code = SpotCheckConstants.SPOT_CHECK_AI_EXC_CODE;
-            message = (autoReportingResponse == null || autoReportingResponse.getStatus() == null) ? "AI图片识别失败!" : autoReportingResponse.getMessage();
+            message = "AI图片识别失败，请联系分拣小秘!";
+            return ImmutablePair.of(code, message);
+        }
+        AutoReportingPicDto reportResult = autoReportingResponse.getPicList().get(0);
+        if(reportResult == null || !Objects.equals(reportResult.getStatus(), String.valueOf(InvokeResult.RESULT_SUCCESS_CODE))){
+            code = SpotCheckConstants.SPOT_CHECK_AI_EXC_CODE;
+            message = reportResult == null ? "AI图片识别失败，请联系分拣小秘！" : reportResult.getMessage();
             return ImmutablePair.of(code, message);
         }
         // 识别成功后，继续比对
