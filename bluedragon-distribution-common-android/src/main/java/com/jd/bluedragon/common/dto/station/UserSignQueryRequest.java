@@ -19,6 +19,10 @@ public class UserSignQueryRequest implements Serializable {
      */
     private String positionCode;
 	/**
+	 * 签到日期
+	 */
+	private Date signDate;
+	/**
 	 * 签到日期-开始
 	 */
 	private Date signDateStart;
@@ -58,6 +62,12 @@ public class UserSignQueryRequest implements Serializable {
 	}
 	public void setPositionCode(String positionCode) {
 		this.positionCode = positionCode;
+	}
+	public Date getSignDate() {
+		return signDate;
+	}
+	public void setSignDate(Date signDate) {
+		this.signDate = signDate;
 	}
 	public Date getSignDateStart() {
 		return signDateStart;
