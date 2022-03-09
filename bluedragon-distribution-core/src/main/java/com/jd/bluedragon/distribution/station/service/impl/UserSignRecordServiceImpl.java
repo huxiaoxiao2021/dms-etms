@@ -525,7 +525,12 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
         	data.setId(lastSignRecord.getId());
             data.setUpdateUser(userSignRequest.getOperateUserCode());
             data.setUpdateUserName(userSignRequest.getOperateUserName());
-    		result.setData(doSignOut(data));
+            
+            if(this.doSignOut(data)) {
+            	result.toSucceed("签退成功！"); 
+            }else {
+            	result.toFail("签退失败！");
+            }
     		return result;
 		}
 		//校验并组装签到数据
@@ -606,6 +611,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 			result.toFail("上岗码无效！");
 			return result;
 		}
+		query.setRefGridKey(positionData.getData().getRefGridKey());
 		if(query.getPageSize() == null
 				|| query.getPageSize() <= 0) {
 			query.setPageSize(DmsConstants.PAGE_SIZE_DEFAULT);
