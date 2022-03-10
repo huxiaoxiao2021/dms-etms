@@ -394,6 +394,7 @@
  			<include refid="joinSql"/>
  			<include refid="joinNowSql"/>
 		<include refid="queryReportConditionRef"/>
+		order by r.sign_date,r.ref_grid_key,r.wave_code
 		<if test="pageNumber > 0">
             limit #{offset}, #{limit}
         </if>
