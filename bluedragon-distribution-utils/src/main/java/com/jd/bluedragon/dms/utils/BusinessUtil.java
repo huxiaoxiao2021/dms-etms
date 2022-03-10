@@ -2210,5 +2210,50 @@ public class BusinessUtil {
                 && isSignInChars(waybillSign, WaybillSignConstants.POSITION_53, WaybillSignConstants.CHAR_53_1);
 
     }
-
+    /**
+     * 验证工种
+     * @param jobCodeStr
+     * @return
+     */
+    public static boolean isJobCode(String jobCodeStr){
+    	if(jobCodeStr == null
+    			|| jobCodeStr.length() == 0) {
+    		return false;
+    	}
+    	return jobCodeStr.matches(JOB_TYPE_REGEX);
+    }
+    /**
+     * 判断是否人员三定条码,一位数字
+     * @param scanUserCode
+     * @return
+     */
+    public static boolean isScanUserCode(String scanUserCode) {
+    	if(scanUserCode == null
+    			|| scanUserCode.length() < 2) {
+    		return false;
+    	}
+    	return isJobCode(scanUserCode.substring(0,1));
+    }
+    /**
+     * 判断是否人员三定条码,返回用户编码，否则返回null
+     * @param scanUserCode
+     * @return
+     */
+    public static String getUserCodeFromScanUserCode(String scanUserCode) {
+    	if(!isScanUserCode(scanUserCode)) {
+    		return null;
+    	}
+    	return scanUserCode.substring(1);
+    }
+    /**
+     * 判断是否人员三定条码,返回工种类型，否则返回null
+     * @param scanUserCode
+     * @return
+     */
+    public static Integer getJobCodeFromScanUserCode(String scanUserCode) {
+    	if(!isScanUserCode(scanUserCode)) {
+    		return null;
+    	}
+    	return Integer.parseInt(scanUserCode.substring(0,1));
+    }
 }

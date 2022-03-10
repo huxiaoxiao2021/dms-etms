@@ -205,6 +205,11 @@ public class DmsConstants {
      * 冷链卡班
      */
     public static final String PRODUCT_TYPE_COLD_CHAIN_KB = "LL-KB-M";
+    
+    /**
+     * 工种类型
+     */
+    public static final String JOB_TYPE_REGEX = "^[1-6]$";
 
     /**
      * 京仓、非京仓、外仓

@@ -657,4 +657,16 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		}
 		return data;
 	}
+	@Override
+	public JdCResponse<UserSignRecordData> queryLastUserSignRecordData(UserSignQueryRequest query) {
+		JdCResponse<UserSignRecordData> result = new JdCResponse<>();
+		result.toSucceed();
+		if(query == null
+				|| StringHelper.isEmpty(query.getUserCode())) {
+			result.toFail("用户编码不能为空！");
+			return result;
+		}
+		result.setData(fillOtherInfo(userSignRecordDao.queryLastUserSignRecordData(query)));
+		return result;
+	}
 }

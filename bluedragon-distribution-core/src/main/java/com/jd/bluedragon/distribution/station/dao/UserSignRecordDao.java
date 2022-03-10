@@ -107,5 +107,11 @@ public interface UserSignRecordDao {
 	 * @return
 	 */
 	List<UserSignRecordData> queryListWithPosition(UserSignQueryRequest query);
+	/**
+	 * 查询用户最近的一次签到记录，返回UserSignRecordData
+	 * @param query
+	 * @return
+	 */
+	UserSignRecordData queryLastUserSignRecordData(UserSignQueryRequest query);
 
 }

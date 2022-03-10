@@ -3,9 +3,9 @@ package com.jd.bluedragon.common.dto.station;
 import java.io.Serializable;
 
 /**
- * 上岗码记录
+ * 上岗码数据信息
  *
- * @author hujiping
+ * @author wuyoude
  * @date 2022/2/25 5:25 PM
  */
 public class PositionData implements Serializable {

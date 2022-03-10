@@ -646,5 +646,23 @@
 			and r.sign_date = #{signDate,jdbcType=DATE}
 		</if>		
 		</where>
-	</sql>		
+	</sql>	
+	
+	<select id="queryLastUserSignRecordData" parameterType="com.jd.bluedragon.distribution.station.query.UserSignRecordQuery" resultMap="UserSignRecordData">
+		select
+			<include refid="Base_Column_List"/>
+		from
+			user_sign_record r
+		<include refid="joinSql"/>			
+		where r.yn = 1
+			and r.user_code = #{userCode,jdbcType=VARCHAR}
+		<if test="siteCode != null" >
+			and	r.site_code = #{siteCode,jdbcType=INTEGER}	
+		</if>		
+		<if test="signDate != null" >
+			and r.sign_date = #{signDate,jdbcType=DATE}
+		</if>
+		order by r.sign_in_time desc
+		limit 1
+	</select>
 </mapper>

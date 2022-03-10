@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.station.gateway;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.station.PositionData;
+import com.jd.bluedragon.common.dto.station.ScanUserData;
 import com.jd.bluedragon.common.dto.station.UserSignQueryRequest;
 import com.jd.bluedragon.common.dto.station.UserSignRecordData;
 import com.jd.bluedragon.common.dto.station.UserSignRequest;
@@ -40,9 +41,21 @@ public interface UserSignGatewayService {
 	 */
 	JdCResponse<PageDto<UserSignRecordData>> querySignListWithPosition(UserSignQueryRequest query);
 	/**
+	 * 查询用户最近一次签到数据
+	 * @param query
+	 * @return
+	 */
+	JdCResponse<UserSignRecordData> queryLastUserSignRecordData(UserSignQueryRequest query);
+	/**
 	 * 查询上岗码相关信息
 	 * @param positionCode
 	 * @return
 	 */
 	JdCResponse<PositionData> queryPositionData(String positionCode);
+	/**
+	 * 查询扫描用户信息
+	 * @param scanUserCode
+	 * @return
+	 */
+	JdCResponse<ScanUserData> queryScanUserData(String scanUserCode);
 }

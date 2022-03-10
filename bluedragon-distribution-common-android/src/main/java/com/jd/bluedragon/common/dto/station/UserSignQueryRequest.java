@@ -15,6 +15,10 @@ public class UserSignQueryRequest implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
     /**
+     * 主键ID
+     */
+    private Long id;
+    /**
      * 岗位编码
      */
     private String positionCode;
@@ -43,7 +47,10 @@ public class UserSignQueryRequest implements Serializable {
      * 岗位编码
      */
     private String refGridKey;
-	
+    /**
+     * 用户编码
+     */
+    private String userCode;
 	/**
 	 * 分页参数-开始值
 	 */
@@ -57,6 +64,12 @@ public class UserSignQueryRequest implements Serializable {
 	
 	private Integer pageSize;
 	
+	public Long getId() {
+		return id;
+	}
+	public void setId(Long id) {
+		this.id = id;
+	}
 	public String getPositionCode() {
 		return positionCode;
 	}
@@ -98,6 +111,12 @@ public class UserSignQueryRequest implements Serializable {
 	}
 	public void setRefGridKey(String refGridKey) {
 		this.refGridKey = refGridKey;
+	}
+	public String getUserCode() {
+		return userCode;
+	}
+	public void setUserCode(String userCode) {
+		this.userCode = userCode;
 	}
 	public int getOffset() {
 		return offset;

@@ -110,4 +110,10 @@ public interface UserSignRecordService {
 	 * @return
 	 */
 	JdCResponse<PageDto<UserSignRecordData>> querySignListWithPosition(UserSignQueryRequest query);
+	/**
+	 * 查询当前操作人最近的一条签到记录
+	 * @param query
+	 * @return
+	 */
+	JdCResponse<UserSignRecordData> queryLastUserSignRecordData(UserSignQueryRequest query);
 }

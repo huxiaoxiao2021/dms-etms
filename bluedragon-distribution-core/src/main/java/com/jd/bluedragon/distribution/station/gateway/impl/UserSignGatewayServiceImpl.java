@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.station.PositionData;
+import com.jd.bluedragon.common.dto.station.ScanUserData;
 import com.jd.bluedragon.common.dto.station.UserSignQueryRequest;
 import com.jd.bluedragon.common.dto.station.UserSignRecordData;
 import com.jd.bluedragon.common.dto.station.UserSignRequest;
@@ -14,6 +15,7 @@ import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.position.service.PositionRecordService;
 import com.jd.bluedragon.distribution.station.gateway.UserSignGatewayService;
 import com.jd.bluedragon.distribution.station.service.UserSignRecordService;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
 
 import lombok.extern.slf4j.Slf4j;
@@ -55,6 +57,25 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 	@Override
 	public JdCResponse<PositionData> queryPositionData(String positionCode) {
 		return positionRecordService.queryPositionData(positionCode);
+	}
+	@Override
+	public JdCResponse<ScanUserData> queryScanUserData(String scanUserCode) {
+		JdCResponse<ScanUserData> result = new JdCResponse<ScanUserData>();
+		result.toSucceed();
+		
+		if(!BusinessUtil.isScanUserCode(scanUserCode)) {
+			result.toFail("请扫描|输入正确的三定条码！");
+			return result;
+		}
+		ScanUserData data = new ScanUserData();
+		data.setJobCode(BusinessUtil.getJobCodeFromScanUserCode(scanUserCode));
+		data.setUserCode(BusinessUtil.getUserCodeFromScanUserCode(scanUserCode));
+		result.setData(data);
+		return result;
+	}
+	@Override
+	public JdCResponse<UserSignRecordData> queryLastUserSignRecordData(UserSignQueryRequest query) {
+		return userSignRecordService.queryLastUserSignRecordData(query);
 	}
 
 }
