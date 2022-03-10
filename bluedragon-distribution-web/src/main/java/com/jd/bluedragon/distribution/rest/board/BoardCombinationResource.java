@@ -578,6 +578,7 @@ public class BoardCombinationResource {
         boardCombinationRequest.setIsForceCombination(param.isForceCombination());
         boardCombinationRequest.setSiteCode(param.getCurrentOperate().getSiteCode());
         boardCombinationRequest.setSiteName(param.getCurrentOperate().getSiteName());
+        boardCombinationRequest.setUserErp(param.getUser().getUserErp());
         boardCombinationRequest.setUserCode(param.getUser().getUserCode());
         boardCombinationRequest.setUserName(param.getUser().getUserName());
         if (param.getFlowDisaccord() != null) {

@@ -32,6 +32,11 @@ public class BoardCombinationRequest extends JdRequest {
 
     private Integer onlineStatus;
 
+    /**
+     * 用户erp
+     */
+    private String userErp;
+
     public String getBoardCode() {
         return boardCode;
     }
@@ -86,5 +91,13 @@ public class BoardCombinationRequest extends JdRequest {
 
     public void setOnlineStatus(Integer onlineStatus) {
         this.onlineStatus = onlineStatus;
+    }
+
+    public String getUserErp() {
+        return userErp;
+    }
+
+    public void setUserErp(String userErp) {
+        this.userErp = userErp;
     }
 }

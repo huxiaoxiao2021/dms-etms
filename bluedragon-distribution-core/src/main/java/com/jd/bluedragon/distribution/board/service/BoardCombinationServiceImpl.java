@@ -623,7 +623,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
             AddBoardBox addBoardBox = new AddBoardBox();
             addBoardBox.setBoardCode(request.getBoardCode());
             addBoardBox.setBoxCode(request.getBoxOrPackageCode());
-            addBoardBox.setOperatorErp(request.getUserCode() + "");
+            addBoardBox.setOperatorErp(request.getUserErp());
             addBoardBox.setOperatorName(request.getUserName());
             addBoardBox.setSiteCode(request.getSiteCode());
             addBoardBox.setSiteName(request.getSiteName());
@@ -1057,7 +1057,11 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
         BoardBoxRequest boardBox = new BoardBoxRequest();
         boardBox.setBoardCode(request.getBoardCode());
         boardBox.setBoxCode(request.getBoxOrPackageCode());
-        boardBox.setOperatorErp(request.getUserCode() + "");
+        String operatorErp = request.getUserErp();
+        if (StringUtils.isBlank(operatorErp)) {
+            operatorErp = request.getUserCode() + "";
+        }
+        boardBox.setOperatorErp(operatorErp);
         boardBox.setOperatorName(request.getUserName());
         boardBox.setSiteCode(request.getSiteCode());
 
@@ -1262,7 +1266,11 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
         moveBoxRequest.setBoardCode(request.getBoardCode());
         moveBoxRequest.setBoxCode(request.getBoxOrPackageCode());
         moveBoxRequest.setSiteCode(request.getSiteCode());
-        moveBoxRequest.setOperatorErp(request.getUserCode() + "");
+        String operatorErp = request.getUserErp();
+        if (StringUtils.isBlank(operatorErp)) {
+            operatorErp = request.getUserCode() + "";
+        }
+        moveBoxRequest.setOperatorErp(operatorErp);
         moveBoxRequest.setOperatorName(request.getUserName());
 
         CallerInfo info = Profiler.registerInfo("DMSWEB.BoardCombinationServiceImpl.moveBoxToNewBoard.TCJSF", Constants.UMP_APP_NAME_DMSWEB, false, true);
