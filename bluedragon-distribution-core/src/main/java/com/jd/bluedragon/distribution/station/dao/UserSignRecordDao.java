@@ -49,6 +49,12 @@ public interface UserSignRecordDao {
 	 */
 	List<UserSignRecord> queryList(UserSignRecordQuery query);
 	/**
+	 * 按条件分页查询-导出
+	 * @param query
+	 * @return
+	 */
+	List<UserSignRecord> queryListForExport(UserSignRecordQuery query);
+	/**
 	 * 按条件查询数量
 	 * @param query
 	 * @return

@@ -309,7 +309,18 @@
             limit #{offset}, #{limit}
         </if>		
 	</select>
-
+	<select id="queryListForExport" parameterType="com.jd.bluedragon.distribution.station.query.UserSignRecordQuery" resultMap="UserSignRecord">
+		select
+			<include refid="Base_Column_List"/>
+		from
+			user_sign_record r
+		<include refid="joinSql"/>
+		<include refid="queryCondition"/>
+		order by r.id
+		<if test="pageNumber > 0">
+            limit #{offset}, #{limit}
+        </if>		
+	</select>
 	<select id="queryCount" parameterType="com.jd.bluedragon.distribution.station.query.UserSignRecordQuery" resultType="long">
 		select
 			count(1)
