@@ -37,6 +37,7 @@ import com.jd.bluedragon.distribution.station.service.UserSignRecordService;
 import com.jd.bluedragon.distribution.station.service.WorkStationAttendPlanService;
 import com.jd.bluedragon.distribution.station.service.WorkStationGridService;
 import com.jd.bluedragon.distribution.station.service.WorkStationService;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.NumberHelper;
@@ -570,7 +571,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		Result<WorkStationGrid> workStationGridData = workStationGridService.queryByGridKey(workStationGridCheckQuery);
 		if(workStationGridData == null
 				|| workStationGridData.getData() == null) {
-			result.toFail("网格信息不存在，请先维护场地网格信息！");
+			result.toFail("上岗码对应的网格信息不存在，请先维护场地网格信息！");
 			return result;
 		}
 		WorkStationGrid gridInfo = workStationGridData.getData();
@@ -587,8 +588,10 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		return result;
 	}
 	private boolean doSignIn(UserSignRecord userSignRecord) {
-		userSignRecord.setCreateTime(new Date());
-		userSignRecord.setSignInTime(new Date());
+		Date date = new Date();
+		userSignRecord.setCreateTime(date);
+		userSignRecord.setSignInTime(date);
+		userSignRecord.setSignDate(date);
 		return userSignRecordDao.insert(userSignRecord) == 1;
 	}
 	private boolean doSignOut(UserSignRecord userSignRecord) {
