@@ -147,7 +147,7 @@
         where
         seal_car_code = #{sealCarCode,jdbcType=VARCHAR}
         and unload_user_erp = #{unloadUserErp,jdbcType=VARCHAR}
-        and unload_user_type = 1
+        and unload_user_type = #{unloadUserType,jdbcType=TINYINT}
         <include refid="Base_Condition_Sql"/>
     </update>
 

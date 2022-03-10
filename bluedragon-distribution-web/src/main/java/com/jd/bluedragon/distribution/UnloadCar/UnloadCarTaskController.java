@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.UnloadCar;
 
+import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.domain.LoginUser;
@@ -73,6 +74,7 @@ public class UnloadCarTaskController extends DmsBaseController {
         if (erpUser != null) {
             request.setUpdateUserErp(erpUser.getUserCode());
             request.setUpdateUserName(erpUser.getUserName());
+            log.info("distributeTask|分配卸车任务：request={}", JSON.toJSONString(request));
             try {
                 if (unloadCarService.distributeTask(request)) {
                     result.setCode(JdResponse.CODE_SUCCESS);
