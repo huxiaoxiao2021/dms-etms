@@ -25,6 +25,10 @@ public class UserSignRequest implements Serializable {
 	 * 员工ERP|拼音|身份证号
 	 */
 	private String userCode;
+	/**
+	 * 扫描的三定人员编码
+	 */
+	private String scanUserCode;
     /**
      * 岗位编码
      */
@@ -64,6 +68,12 @@ public class UserSignRequest implements Serializable {
 	}
 	public void setUserCode(String userCode) {
 		this.userCode = userCode;
+	}
+	public String getScanUserCode() {
+		return scanUserCode;
+	}
+	public void setScanUserCode(String scanUserCode) {
+		this.scanUserCode = scanUserCode;
 	}
 	public String getPositionCode() {
 		return positionCode;

@@ -450,8 +450,10 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
     }
 	@Override
 	public JdCResponse<Boolean> signInWithPosition(UserSignRequest signInRequest) {
-		JdCResponse<Boolean> result = new JdCResponse<>();
-		result.toSucceed();
+		JdCResponse<Boolean> result = checkAndFillUserInfo(signInRequest);
+		if(!result.isSucceed()) {
+			return result;
+		}
 		//校验并组装签到数据
         UserSignRecord signInData = new UserSignRecord();
         result = this.checkAndFillSignInInfo(signInRequest,signInData);
@@ -481,8 +483,10 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	}
 	@Override
 	public JdCResponse<Boolean> signOutWithPosition(UserSignRequest signOutRequest) {
-		JdCResponse<Boolean> result = new JdCResponse<>();
-		result.toSucceed();
+		JdCResponse<Boolean> result = checkAndFillUserInfo(signOutRequest);
+		if(!result.isSucceed()) {
+			return result;
+		}
 
 		UserSignRecord data = new UserSignRecord();
 		if(signOutRequest.getRecordId() != null) {
@@ -511,8 +515,10 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	}
 	@Override
 	public JdCResponse<Boolean> signAuto(UserSignRequest userSignRequest) {
-		JdCResponse<Boolean> result = new JdCResponse<>();
-		result.toSucceed();
+		JdCResponse<Boolean> result = checkAndFillUserInfo(userSignRequest);
+		if(!result.isSucceed()) {
+			return result;
+		}
 
 		UserSignRecordQuery lastSignRecordQuery = new UserSignRecordQuery();
 		lastSignRecordQuery.setUserCode(userSignRequest.getUserCode());
@@ -547,16 +553,35 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
         }
 		return result;
 	}
+	/**
+	 * 签到、签退设置用户信息
+	 * @param signRequest
+	 * @return
+	 */
+	private JdCResponse<Boolean> checkAndFillUserInfo(UserSignRequest signRequest){
+		JdCResponse<Boolean> result = new JdCResponse<>();
+		result.toSucceed();
+		String scanUserCode = signRequest.getScanUserCode();
+		if(StringHelper.isNotEmpty(scanUserCode)) {
+			if(BusinessUtil.isScanUserCode(scanUserCode)){
+				result.toFail("请扫描正确的三定条码！");
+				return result;
+			}
+			signRequest.setJobCode(BusinessUtil.getJobCodeFromScanUserCode(scanUserCode));
+			signRequest.setUserCode(BusinessUtil.getUserCodeFromScanUserCode(scanUserCode));
+			return result;
+		}else if(StringHelper.isEmpty(signRequest.getUserCode())) {
+			result.toFail("用户编码不能为空！");
+			return result;
+		}
+		return result;
+	}
 	private JdCResponse<Boolean> checkAndFillSignInInfo(UserSignRequest signInRequest,UserSignRecord signInData){
 		JdCResponse<Boolean> result = new JdCResponse<>();
 		result.toSucceed();
 		if(signInRequest == null
 				|| StringHelper.isEmpty(signInRequest.getPositionCode())) {
 			result.toFail("上岗码不能为空！");
-			return result;
-		}
-		if(StringHelper.isEmpty(signInRequest.getUserCode())) {
-			result.toFail("用户编码不能为空！");
 			return result;
 		}
 		Result<PositionDetailRecord> positionData = positionRecordService.queryOneByPositionCode(signInRequest.getPositionCode());
