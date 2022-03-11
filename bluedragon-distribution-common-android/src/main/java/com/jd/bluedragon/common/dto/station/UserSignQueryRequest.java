@@ -19,6 +19,10 @@ public class UserSignQueryRequest implements Serializable {
      */
     private Long id;
     /**
+     * 场地编码
+     */
+    private Integer siteCode;
+    /**
      * 岗位编码
      */
     private String positionCode;
@@ -69,6 +73,12 @@ public class UserSignQueryRequest implements Serializable {
 	}
 	public void setId(Long id) {
 		this.id = id;
+	}
+	public Integer getSiteCode() {
+		return siteCode;
+	}
+	public void setSiteCode(Integer siteCode) {
+		this.siteCode = siteCode;
 	}
 	public String getPositionCode() {
 		return positionCode;
