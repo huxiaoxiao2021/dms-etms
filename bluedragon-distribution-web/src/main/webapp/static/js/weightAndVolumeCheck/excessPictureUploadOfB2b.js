@@ -127,7 +127,7 @@ $(function () {
                     if(picType === 5){
                         count = heightUploadCount ++;
                     }
-                    if(count >= 2){
+                    if(count >= 1){
                         $.msg.confirm('您上传的照片已多次未通过系统校验，是否强制提交?',function () {
                             // 设置强制提交
                             formData.append('isForce',true);
