@@ -563,7 +563,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		result.toSucceed();
 		String scanUserCode = signRequest.getScanUserCode();
 		if(StringHelper.isNotEmpty(scanUserCode)) {
-			if(BusinessUtil.isScanUserCode(scanUserCode)){
+			if(!BusinessUtil.isScanUserCode(scanUserCode)){
 				result.toFail("请扫描正确的三定条码！");
 				return result;
 			}
