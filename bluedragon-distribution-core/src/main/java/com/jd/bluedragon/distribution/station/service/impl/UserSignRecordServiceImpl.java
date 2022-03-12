@@ -653,8 +653,9 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		Long totalCount = userSignRecordDao.queryCountWithPosition(query);
 		if(totalCount != null && totalCount > 0){
 		    List<UserSignRecordData> dataList = userSignRecordDao.queryListWithPosition(query);
+		    Date currentDate = new Date();
 		    for(UserSignRecordData data: dataList) {
-		    	fillOtherInfo(data);
+		    	fillOtherInfo(data,currentDate);
 		    }
 		    PageDto.setResult(dataList);
 			PageDto.setTotalRow(totalCount.intValue());
@@ -665,25 +666,31 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		result.setData(PageDto);
 		return result;
 	}
-	public UserSignRecordData fillOtherInfo(UserSignRecordData data) {
+	public UserSignRecordData fillOtherInfo(UserSignRecordData data,Date currentDate) {
 		if(data == null) {
 			return null;
 		}
 		data.setWaveName(WaveTypeEnum.getNameByCode(data.getWaveCode()));
 		data.setJobName(JobTypeEnum.getNameByCode(data.getJobCode()));
-		if(data.getSignInTime() != null
-				&& data.getSignOutTime() != null) {
+		if(data.getSignInTime() != null) {
 			String workHours = "";
 			String workTimes = "--";
-			double workHoursDouble = DateHelper.betweenHours(data.getSignInTime(),data.getSignOutTime());
-			workHours = NUMBER_FORMAT.format(workHoursDouble);
-			data.setWorkHours(workHours);
+			double workHoursDouble = calculateWorkHours(data.getSignInTime(),data.getSignOutTime(),currentDate);
 			if(workHoursDouble > 0) {
+				workHours = NUMBER_FORMAT.format(workHoursDouble);
+				data.setWorkHours(workHours);
 				workTimes = DateHelper.hoursToHHMM(workHoursDouble);
 			}
 			data.setWorkTimes(workTimes);
 		}
 		return data;
+	}
+	private double calculateWorkHours(Date signInTime,Date signOutTime,Date currentDate) {
+		Date workEndTime = signOutTime;
+		if(workEndTime == null) {
+			workEndTime = currentDate;
+		}
+		return DateHelper.betweenHours(signInTime,workEndTime);
 	}
 	@Override
 	public JdCResponse<UserSignRecordData> queryLastUserSignRecordData(UserSignQueryRequest query) {
@@ -694,7 +701,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 			result.toFail("用户编码不能为空！");
 			return result;
 		}
-		result.setData(fillOtherInfo(userSignRecordDao.queryLastUserSignRecordData(query)));
+		result.setData(fillOtherInfo(userSignRecordDao.queryLastUserSignRecordData(query),new Date()));
 		return result;
 	}
 }
