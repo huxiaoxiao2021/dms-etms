@@ -7,6 +7,7 @@
 		<result column="org_code" property="orgCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
 		<result column="site_code" property="siteCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
 		<result column="user_code" property="userCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="user_name" property="userName" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="wave_code" property="waveCode" javaType="java.lang.Integer" jdbcType="TINYINT" />
 		<result column="job_code" property="jobCode" javaType="java.lang.Integer" jdbcType="TINYINT" />
 		<result column="sign_date" property="signDate" javaType="java.util.Date" jdbcType="DATE" />
@@ -70,6 +71,7 @@
 		<result column="org_code" property="orgCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
 		<result column="site_code" property="siteCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
 		<result column="user_code" property="userCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="user_name" property="userName" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="wave_code" property="waveCode" javaType="java.lang.Integer" jdbcType="TINYINT" />
 		<result column="job_code" property="jobCode" javaType="java.lang.Integer" jdbcType="TINYINT" />
 		<result column="sign_date" property="signDate" javaType="java.util.Date" jdbcType="DATE" />
@@ -100,7 +102,7 @@
 	</resultMap>
 		
 	<sql id="Base_Column_List" >
-		r.id,r.org_code,r.site_code,r.user_code,r.wave_code,r.job_code,
+		r.id,r.org_code,r.site_code,r.user_code,r.user_name,r.wave_code,r.job_code,
 		r.sign_date,r.sign_in_time,r.sign_out_time,r.ref_plan_key,r.ref_grid_key,
 		r.ref_station_key,r.create_user,r.create_user_name,r.update_user,r.update_user_name,
 		r.create_time,r.update_time,r.yn,r.ts,
@@ -125,6 +127,9 @@
 				<if test="userCode != null" >
 					user_code,
 				</if>
+				<if test="userName != null" >
+					user_name,
+				</if>				
 				<if test="waveCode != null" >
 					wave_code,
 				</if>
@@ -190,6 +195,9 @@
 				<if test="userCode != null" >
 					#{userCode,jdbcType=VARCHAR},
 				</if>
+				<if test="userName != null" >
+					#{userName,jdbcType=VARCHAR},
+				</if>				
 				<if test="waveCode != null" >
 					#{waveCode,jdbcType=TINYINT},
 				</if>
@@ -257,6 +265,9 @@
 				<if test="userCode != null" >
 					user_code = #{userCode,jdbcType=VARCHAR},
 				</if>
+				<if test="userName != null" >
+					user_name = #{userName,jdbcType=VARCHAR},
+				</if>				
 				<if test="waveCode != null" >
 					wave_code = #{waveCode,jdbcType=TINYINT},
 				</if>
@@ -665,4 +676,12 @@
 		order by r.sign_in_time desc
 		limit 1
 	</select>
+	<select id="queryUserSignRecordDataById" parameterType="java.lang.Long" resultMap="UserSignRecordData">
+		select
+			<include refid="Base_Column_List"/>
+		from
+			user_sign_record r
+			<include refid="joinSql"/>			
+		where r.yn = 1 and r.id = #{id,jdbcType=BIGINT}
+	</select>	
 </mapper>

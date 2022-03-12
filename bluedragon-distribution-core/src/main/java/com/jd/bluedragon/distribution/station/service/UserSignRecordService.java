@@ -91,19 +91,19 @@ public interface UserSignRecordService {
      * @param signInRequest
      * @return
      */
-    JdCResponse<Boolean> signInWithPosition(UserSignRequest signInRequest);
+    JdCResponse<UserSignRecordData> signInWithPosition(UserSignRequest signInRequest);
     /**
      * 按岗位签退
      * @param signInRequest
      * @return
      */
-	JdCResponse<Boolean> signOutWithPosition(UserSignRequest signOutRequest);
+	JdCResponse<UserSignRecordData> signOutWithPosition(UserSignRequest signOutRequest);
     /**
      * 自动签到、签退
      * @param signInRequest
      * @return
      */
-	JdCResponse<Boolean> signAuto(UserSignRequest userSignRequest);
+	JdCResponse<UserSignRecordData> signAuto(UserSignRequest userSignRequest);
 	/**
 	 * 分页查询签到列表数据
 	 * @param query

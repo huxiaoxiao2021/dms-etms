@@ -2256,4 +2256,26 @@ public class BusinessUtil {
     	}
     	return Integer.parseInt(scanUserCode.substring(0,1));
     }
+    /**
+     * 判断是否是身份证号
+     * @param userCode
+     * @return
+     */
+    public static boolean isIdCardNo(String userCode) {
+    	if(userCode == null) {
+    		return false;
+    	}
+    	return userCode.matches(ID_CARD_NO_REGEX);
+    }
+    /**
+     * 隐藏身份证号：是身份证，返回加密身份证号，第8位至15位显示为星号，否则返回原值
+     * @param idCard
+     * @return
+     */
+    public static String encryptIdCard(String idCard) {
+    	if(!isIdCardNo(idCard)) {
+    		return idCard;
+    	}
+    	return idCard.replaceAll("(\\w{4})\\w*(\\w{4})", "$1***$2");
+    }
 }

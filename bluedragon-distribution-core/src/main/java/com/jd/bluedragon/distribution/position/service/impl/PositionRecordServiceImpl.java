@@ -130,7 +130,7 @@ public class PositionRecordServiceImpl implements PositionRecordService {
 		}
 		PositionData positionData = new PositionData();
 		BeanUtils.copyProperties(positionDetailResult.getData(), positionData);
-		positionData.setDefaultMenuCode("test1");
+		positionData.setDefaultMenuCode("UNSEAL_CAR_POSITION");
 		result.setData(positionData);
 		return result;
 	}

@@ -21,19 +21,19 @@ public interface UserSignGatewayService {
 	 * @param signInRequest
 	 * @return
 	 */
-	JdCResponse<Boolean> signInWithPosition(UserSignRequest signInRequest);
+	JdCResponse<UserSignRecordData> signInWithPosition(UserSignRequest signInRequest);
 	/**
 	 * 签退
 	 * @param signOutRequest
 	 * @return
 	 */
-	JdCResponse<Boolean> signOutWithPosition(UserSignRequest signOutRequest);
+	JdCResponse<UserSignRecordData> signOutWithPosition(UserSignRequest signOutRequest);
 	/**
 	 * 自动签到、签退
 	 * @param userSignRequest
 	 * @return
 	 */
-	JdCResponse<Boolean> signAuto(UserSignRequest userSignRequest);
+	JdCResponse<UserSignRecordData> signAuto(UserSignRequest userSignRequest);
 	/**
 	 * 按条件分页查询
 	 * @param query

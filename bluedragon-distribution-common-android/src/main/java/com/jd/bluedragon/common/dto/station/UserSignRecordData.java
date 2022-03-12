@@ -33,6 +33,10 @@ public class UserSignRecordData implements Serializable {
 	 * 员工ERP|拼音|身份证号
 	 */
 	private String userCode;
+	/**
+	 * 签到人员名称
+	 */
+	private String userName;
 
 	/**
 	 * 班次:1-白班 2-中班 3-晚班
@@ -209,6 +213,12 @@ public class UserSignRecordData implements Serializable {
 	}
 	public void setUserCode(String userCode) {
 		this.userCode = userCode;
+	}
+	public String getUserName() {
+		return userName;
+	}
+	public void setUserName(String userName) {
+		this.userName = userName;
 	}
 	public Integer getWaveCode() {
 		return waveCode;

@@ -128,4 +128,8 @@ public class UserSignRecordDaoImpl extends BaseDao<UserSignRecord> implements Us
 	public UserSignRecordData queryLastUserSignRecordData(UserSignQueryRequest query) {
 		return this.getSqlSession().selectOne(NAMESPACE+".queryLastUserSignRecordData",query);
 	}
+	@Override
+	public UserSignRecordData queryUserSignRecordDataById(Long id) {
+		return this.getSqlSession().selectOne(NAMESPACE+".queryUserSignRecordDataById",id);
+	}
 }

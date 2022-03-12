@@ -210,6 +210,10 @@ public class DmsConstants {
      * 工种类型
      */
     public static final String JOB_TYPE_REGEX = "^[1-6]$";
+    /**
+     * 身份证正则
+     */
+    public static final String ID_CARD_NO_REGEX = "(^\\d{18}$)|(^\\d{17}(\\d|X|x)$)";
 
     /**
      * 京仓、非京仓、外仓

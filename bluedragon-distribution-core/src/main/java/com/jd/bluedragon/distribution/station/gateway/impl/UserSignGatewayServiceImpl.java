@@ -39,15 +39,15 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 	private PositionRecordService positionRecordService;
 	
 	@Override
-	public JdCResponse<Boolean> signInWithPosition(UserSignRequest signInRequest) {
+	public JdCResponse<UserSignRecordData> signInWithPosition(UserSignRequest signInRequest) {
 		return userSignRecordService.signInWithPosition(signInRequest);
 	}
 	@Override
-	public JdCResponse<Boolean> signOutWithPosition(UserSignRequest signOutRequest) {
+	public JdCResponse<UserSignRecordData> signOutWithPosition(UserSignRequest signOutRequest) {
 		return userSignRecordService.signOutWithPosition(signOutRequest);
 	}
 	@Override
-	public JdCResponse<Boolean> signAuto(UserSignRequest userSignRequest) {
+	public JdCResponse<UserSignRecordData> signAuto(UserSignRequest userSignRequest) {
 		return userSignRecordService.signAuto(userSignRequest);
 	}
 	@Override

@@ -160,4 +160,13 @@ public class BusinessHelperTest {
 		System.out.println(String.format("%03d",10));
 		System.out.println(String.format("%03d",10101));
 	}
+	@Test
+	public void testIdCardNo() {
+		String userCode="123456789012345678";
+		boolean isIdCardNo = BusinessUtil.isIdCardNo(userCode);
+		assertTrue(isIdCardNo);
+		
+		String encryptIdCard= BusinessUtil.encryptIdCard(userCode);
+		assertFalse(encryptIdCard.equals("1234***45678"));
+	}
 }

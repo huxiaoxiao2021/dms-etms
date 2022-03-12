@@ -19,6 +19,7 @@ import com.jd.bluedragon.common.dto.station.UserSignQueryRequest;
 import com.jd.bluedragon.common.dto.station.UserSignRecordData;
 import com.jd.bluedragon.common.dto.station.UserSignRequest;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.position.domain.PositionDetailRecord;
 import com.jd.bluedragon.distribution.position.service.PositionRecordService;
@@ -42,6 +43,7 @@ import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -80,6 +82,9 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	
 	@Autowired
 	private PositionRecordService positionRecordService;
+	
+	@Autowired
+	private BaseMajorManager baseMajorManager;
 	
 	private static final DecimalFormat NUMBER_FORMAT = new DecimalFormat("0.00");
 	private static final DecimalFormat RATE_FORMAT = new DecimalFormat("0.00%");
@@ -449,8 +454,8 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
         return result;
     }
 	@Override
-	public JdCResponse<Boolean> signInWithPosition(UserSignRequest signInRequest) {
-		JdCResponse<Boolean> result = checkAndFillUserInfo(signInRequest);
+	public JdCResponse<UserSignRecordData> signInWithPosition(UserSignRequest signInRequest) {
+		JdCResponse<UserSignRecordData> result = checkAndFillUserInfo(signInRequest);
 		if(!result.isSucceed()) {
 			return result;
 		}
@@ -475,6 +480,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
     		this.doSignOut(signOutRequest);
 		}
         if(this.doSignIn(signInData)) {
+        	result.setData(this.toUserSignRecordData(signInData));
         	result.toSucceed("签到成功！"); 
         }else {
         	result.toFail("签到失败！");
@@ -482,8 +488,8 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		return result;
 	}
 	@Override
-	public JdCResponse<Boolean> signOutWithPosition(UserSignRequest signOutRequest) {
-		JdCResponse<Boolean> result = checkAndFillUserInfo(signOutRequest);
+	public JdCResponse<UserSignRecordData> signOutWithPosition(UserSignRequest signOutRequest) {
+		JdCResponse<UserSignRecordData> result = checkAndFillUserInfo(signOutRequest);
 		if(!result.isSucceed()) {
 			return result;
 		}
@@ -507,6 +513,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
         data.setUpdateUser(signOutRequest.getOperateUserCode());
         data.setUpdateUserName(signOutRequest.getOperateUserName());
         if(this.doSignOut(data)) {
+        	result.setData(this.queryUserSignRecordDataById(data.getId()));
         	result.toSucceed("退成功！"); 
         }else {
         	result.toFail("签退失败！");
@@ -514,8 +521,8 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		return result;
 	}
 	@Override
-	public JdCResponse<Boolean> signAuto(UserSignRequest userSignRequest) {
-		JdCResponse<Boolean> result = checkAndFillUserInfo(userSignRequest);
+	public JdCResponse<UserSignRecordData> signAuto(UserSignRequest userSignRequest) {
+		JdCResponse<UserSignRecordData> result = checkAndFillUserInfo(userSignRequest);
 		if(!result.isSucceed()) {
 			return result;
 		}
@@ -534,7 +541,8 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
             data.setUpdateUserName(userSignRequest.getOperateUserName());
             
             if(this.doSignOut(data)) {
-            	result.toSucceed("签退成功！"); 
+            	result.setData(this.queryUserSignRecordDataById(data.getId()));
+            	result.toSucceed("签退成功！");
             }else {
             	result.toFail("签退失败！");
             }
@@ -547,6 +555,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
         	return result;
         }
         if(this.doSignIn(signInData)) {
+        	result.setData(this.toUserSignRecordData(signInData));
         	result.toSucceed("签到成功！"); 
         }else {
         	result.toFail("签到失败！");
@@ -558,8 +567,8 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	 * @param signRequest
 	 * @return
 	 */
-	private JdCResponse<Boolean> checkAndFillUserInfo(UserSignRequest signRequest){
-		JdCResponse<Boolean> result = new JdCResponse<>();
+	private JdCResponse<UserSignRecordData> checkAndFillUserInfo(UserSignRequest signRequest){
+		JdCResponse<UserSignRecordData> result = new JdCResponse<>();
 		result.toSucceed();
 		String scanUserCode = signRequest.getScanUserCode();
 		if(StringHelper.isNotEmpty(scanUserCode)) {
@@ -576,8 +585,8 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		}
 		return result;
 	}
-	private JdCResponse<Boolean> checkAndFillSignInInfo(UserSignRequest signInRequest,UserSignRecord signInData){
-		JdCResponse<Boolean> result = new JdCResponse<>();
+	private JdCResponse<UserSignRecordData> checkAndFillSignInInfo(UserSignRequest signInRequest,UserSignRecord signInData){
+		JdCResponse<UserSignRecordData> result = new JdCResponse<>();
 		result.toSucceed();
 		if(signInRequest == null
 				|| StringHelper.isEmpty(signInRequest.getPositionCode())) {
@@ -609,7 +618,15 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		signInData.setOrgCode(gridInfo.getOrgCode());
 		signInData.setRefGridKey(gridKey);
 		signInData.setRefStationKey(stationKey);
-		
+		signInData.setUserName(signInData.getUserCode());
+		if(JobTypeEnum.JOBTYPE1.getCode().equals(signInData.getJobCode())) {
+			//正式工设置erp对应的名称
+			BaseStaffSiteOrgDto userInfo = baseMajorManager.getBaseStaffIgnoreIsResignByErp(signInData.getUserCode());
+			if(userInfo != null
+					&& userInfo.getStaffName() != null) {
+				signInData.setUserName(userInfo.getStaffName());
+			}
+		}
 		return result;
 	}
 	private boolean doSignIn(UserSignRecord userSignRecord) {
@@ -672,6 +689,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		}
 		data.setWaveName(WaveTypeEnum.getNameByCode(data.getWaveCode()));
 		data.setJobName(JobTypeEnum.getNameByCode(data.getJobCode()));
+		data.setUserName(BusinessUtil.encryptIdCard(data.getUserName()));
 		if(data.getSignInTime() != null) {
 			String workHours = "";
 			String workTimes = "--";
@@ -703,5 +721,16 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		}
 		result.setData(fillOtherInfo(userSignRecordDao.queryLastUserSignRecordData(query),new Date()));
 		return result;
+	}
+	private UserSignRecordData toUserSignRecordData(UserSignRecord record) {
+		if(record == null) {
+			return null;
+		}
+		UserSignRecordData data = new UserSignRecordData();
+		BeanUtils.copyProperties(record, data);
+		return fillOtherInfo(data,new Date());
+	}
+	private UserSignRecordData queryUserSignRecordDataById(Long id) {
+		return fillOtherInfo(userSignRecordDao.queryUserSignRecordDataById(id),new Date());
 	}
 }

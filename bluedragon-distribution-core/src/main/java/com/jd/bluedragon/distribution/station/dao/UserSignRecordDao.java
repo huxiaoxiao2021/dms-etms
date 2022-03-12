@@ -113,5 +113,11 @@ public interface UserSignRecordDao {
 	 * @return
 	 */
 	UserSignRecordData queryLastUserSignRecordData(UserSignQueryRequest query);
+	/**
+	 * 根据id查询
+	 * @param id
+	 * @return
+	 */
+	UserSignRecordData queryUserSignRecordDataById(Long id);
 
 }
