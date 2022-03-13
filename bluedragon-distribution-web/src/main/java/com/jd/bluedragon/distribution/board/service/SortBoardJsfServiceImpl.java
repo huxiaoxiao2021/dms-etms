@@ -98,6 +98,7 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
         }else{
             String str = com.jd.bluedragon.distribution.api.utils.JsonHelper.toJson(request);
             CombinationBoardRequest c = JsonHelper.fromJson(str, CombinationBoardRequest.class);
+            c.setBizSource(BizSourceEnum.SORTING_MACHINE.getValue());
             jdcResponse = sortBoardGatewayService.combinationBoardNew(c);
         }
         return JsonHelper.fromJsonUseGson(JsonHelper.toJson(jdcResponse),new TypeToken<Response<BoardRequestDto>>(){}.getType());

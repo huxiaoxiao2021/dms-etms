@@ -61,6 +61,10 @@ public class CombinationBoardRequest implements Serializable {
      * 任务ID
      */
     private Long taskId;
+    /**
+     * 组板来源 1：pda 2:分拣机
+     */
+    private Integer bizSource;
 
     @Override
     public String toString() {
@@ -147,5 +151,13 @@ public class CombinationBoardRequest implements Serializable {
 
     public void setTaskId(Long taskId) {
         this.taskId = taskId;
+    }
+
+    public Integer getBizSource() {
+        return bizSource;
+    }
+
+    public void setBizSource(Integer bizSource) {
+        this.bizSource = bizSource;
     }
 }

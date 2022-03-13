@@ -31,11 +31,15 @@ public class BoardCombinationRequest extends JdRequest {
     private Integer flowDisaccord;
 
     private Integer onlineStatus;
-
     /**
      * 用户erp
      */
     private String userErp;
+    /**
+     * 操作来源：1:pda 2:分拣机
+     */
+    private Integer bizSource;
+
 
     public String getBoardCode() {
         return boardCode;
@@ -99,5 +103,13 @@ public class BoardCombinationRequest extends JdRequest {
 
     public void setUserErp(String userErp) {
         this.userErp = userErp;
+    }
+
+    public Integer getBizSource() {
+        return bizSource;
+    }
+
+    public void setBizSource(Integer bizSource) {
+        this.bizSource = bizSource;
     }
 }

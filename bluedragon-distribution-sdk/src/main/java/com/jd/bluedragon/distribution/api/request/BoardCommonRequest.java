@@ -62,6 +62,12 @@ public class BoardCommonRequest implements Serializable {
      * **/
     private boolean isForceCombination = false;
 
+    /**
+     * 操作来源 1: 分拣pda 2:分拣机
+     * @return
+     */
+    private Integer bizSource;
+
     public String getBoardCode() {
         return boardCode;
     }
@@ -156,5 +162,13 @@ public class BoardCommonRequest implements Serializable {
 
     public void setIsForceCombination(boolean forceCombination) {
         isForceCombination = forceCombination;
+    }
+
+    public Integer getBizSource() {
+        return bizSource;
+    }
+
+    public void setBizSource(Integer bizSource) {
+        this.bizSource = bizSource;
     }
 }

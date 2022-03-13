@@ -5,6 +5,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.base.response.MsgBoxTypeEnum;
+import com.jd.bluedragon.common.dto.board.BizSourceEnum;
 import com.jd.bluedragon.common.dto.unloadCar.*;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -80,6 +81,7 @@ public class LoadAndUnloadCarGatewayServiceImpl implements LoadAndUnloadCarGatew
             jdCResponse.toError("参数不能为空");
             return jdCResponse;
         }
+        unloadCarScanRequest.setBizSource(BizSourceEnum.PDA.getValue());
         InvokeResult<UnloadCarScanResult> invokeResult = loadAndUnloadVehicleResource.getUnloadScan(unloadCarScanRequest);
 
         jdCResponse.setCode(convertCode(invokeResult.getCode()));
@@ -93,7 +95,7 @@ public class LoadAndUnloadCarGatewayServiceImpl implements LoadAndUnloadCarGatew
     @Override
     public JdCResponse<UnloadCarScanResult> barCodeScan(UnloadCarScanRequest unloadCarScanRequest) {
         JdCResponse<UnloadCarScanResult> jdCResponse = new JdCResponse<UnloadCarScanResult>();
-
+        unloadCarScanRequest.setBizSource(BizSourceEnum.PDA.getValue());
         InvokeResult<UnloadCarScanResult> invokeResult = loadAndUnloadVehicleResource.barCodeScan(unloadCarScanRequest);
 
         jdCResponse.setCode(invokeResult.getCode());
@@ -107,7 +109,7 @@ public class LoadAndUnloadCarGatewayServiceImpl implements LoadAndUnloadCarGatew
     @Override
     public JdVerifyResponse<UnloadCarScanResult> packageCodeScan(UnloadCarScanRequest unloadCarScanRequest) {
         JdVerifyResponse<UnloadCarScanResult> response = new JdVerifyResponse<>();
-
+        unloadCarScanRequest.setBizSource(BizSourceEnum.PDA.getValue());
         InvokeResult<UnloadCarScanResult> invokeResult = loadAndUnloadVehicleResource.packageCodeScan(unloadCarScanRequest);
         // 包裹号转大宗标识
         Integer transfer = unloadCarScanRequest.getTransfer();
@@ -134,6 +136,7 @@ public class LoadAndUnloadCarGatewayServiceImpl implements LoadAndUnloadCarGatew
     @Override
     public JdCResponse<UnloadCarScanResult> waybillScan(UnloadCarScanRequest unloadCarScanRequest) {
         JdCResponse<UnloadCarScanResult> response = new JdCResponse<>();
+        unloadCarScanRequest.setBizSource(BizSourceEnum.PDA.getValue());
         InvokeResult<UnloadCarScanResult> invokeResult = loadAndUnloadVehicleResource.waybillScan(unloadCarScanRequest);
         response.setCode(convertCode(invokeResult.getCode()));
         response.setMessage(invokeResult.getMessage());
@@ -145,7 +148,6 @@ public class LoadAndUnloadCarGatewayServiceImpl implements LoadAndUnloadCarGatew
     @Override
     public JdCResponse<List<UnloadCarDetailScanResult>> getUnloadCarDetail(String sealCarCode) {
         JdCResponse<List<UnloadCarDetailScanResult>> jdCResponse = new JdCResponse<List<UnloadCarDetailScanResult>>();
-
         InvokeResult<List<UnloadCarDetailScanResult>> invokeResult = loadAndUnloadVehicleResource.getUnloadCarDetail(sealCarCode);
 
         jdCResponse.setCode(invokeResult.getCode());
@@ -269,6 +271,7 @@ public class LoadAndUnloadCarGatewayServiceImpl implements LoadAndUnloadCarGatew
             jdCResponse.toError("参数不能为空");
             return jdCResponse;
         }
+        req.setBizSource(BizSourceEnum.PDA.getValue());
         InvokeResult<UnloadScanDetailDto> invokeResult = loadAndUnloadVehicleResource.unloadScan(req);
 
         jdCResponse.setCode(convertCode(invokeResult.getCode()));
@@ -308,6 +311,7 @@ public class LoadAndUnloadCarGatewayServiceImpl implements LoadAndUnloadCarGatew
             return response;
 
         }
+        req.setBizSource(BizSourceEnum.PDA.getValue());
         InvokeResult<UnloadScanDetailDto> invokeResult = loadAndUnloadVehicleResource.packageCodeScanNew(req);
         response.setCode(convertCode(invokeResult.getCode()));
         response.setMessage(invokeResult.getMessage());
@@ -320,6 +324,7 @@ public class LoadAndUnloadCarGatewayServiceImpl implements LoadAndUnloadCarGatew
     @Override
     public JdCResponse<UnloadScanDetailDto> waybillScanNew(UnloadCarScanRequest unloadCarScanRequest) {
         JdCResponse<UnloadScanDetailDto> response = new JdCResponse<>();
+        unloadCarScanRequest.setBizSource(BizSourceEnum.PDA.getValue());
         InvokeResult<UnloadScanDetailDto> invokeResult = loadAndUnloadVehicleResource.waybillScanNew(unloadCarScanRequest);
         response.setCode(convertCode(invokeResult.getCode()));
         response.setMessage(invokeResult.getMessage());
