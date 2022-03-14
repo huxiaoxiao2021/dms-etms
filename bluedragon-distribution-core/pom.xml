@@ -237,7 +237,7 @@
 		<dependency>
             <groupId>com.jd.bluedragon</groupId>
             <artifactId>bluedragon-distribution-common-android</artifactId>
-            <version>1.4.2-SNAPSHOT</version>
+            <version>1.4.3-SNAPSHOT</version>
         </dependency>
 		<dependency>
 			<groupId>com.jd.etms.waybill</groupId>
@@ -1759,6 +1759,11 @@
 			<groupId>com.jd.coldchain.fulfillment</groupId>
 			<version>1.0-SNAPSHOT</version>
 		</dependency>
+
+        <dependency>
+            <groupId>com.jdl.jy.realtime</groupId>
+            <artifactId>realtime-service-sdk</artifactId>
+        </dependency>
 
     </dependencies>
 

@@ -10,6 +10,8 @@ import java.io.Serializable;
  **/
 public class AppUpgradeRequest implements Serializable {
 
+    private static final long serialVersionUID = 8717200402325165552L;
+
     /**
      * 用户ERP
      */
