@@ -58,6 +58,12 @@ public class OperatorInfo implements Serializable {
      */
     private Date operateTime;
 
+    /**
+     * 操作来源 1: 分拣pda 2:分拣机
+     * @return
+     */
+    private Integer bizSource;
+
     public Integer getUserCode() {
         return userCode;
     }
@@ -137,5 +143,13 @@ public class OperatorInfo implements Serializable {
     public OperatorInfo setOperateTime(Date operateTime) {
         this.operateTime = operateTime;
         return this;
+    }
+
+    public Integer getBizSource() {
+        return bizSource;
+    }
+
+    public void setBizSource(Integer bizSource) {
+        this.bizSource = bizSource;
     }
 }

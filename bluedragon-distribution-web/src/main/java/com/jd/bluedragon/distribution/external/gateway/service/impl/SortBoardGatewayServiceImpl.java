@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.external.gateway.service.impl;
 import com.jd.bk.common.util.string.StringUtils;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.board.BizSourceEnum;
 import com.jd.bluedragon.common.dto.board.request.CombinationBoardRequest;
 import com.jd.bluedragon.common.dto.board.response.BoardCheckDto;
 import com.jd.bluedragon.common.dto.board.response.BoardDetailDto;
@@ -283,7 +284,7 @@ public class SortBoardGatewayServiceImpl implements SortBoardGatewayService {
         boardCombinationRequest.setSiteName(param.getCurrentOperate().getSiteName());
         boardCombinationRequest.setUserCode(param.getUser().getUserCode());
         boardCombinationRequest.setUserName(param.getUser().getUserName());
-
+        boardCombinationRequest.setBizSource(BizSourceEnum.PDA.getValue());
         return boardCombinationRequest;
 
     }
