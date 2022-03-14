@@ -88,12 +88,21 @@ public class ArtificialSpotCheckRequest implements Serializable {
      * 超标状态
      */
     private Integer excessStatus;
+    /**
+     * 超标类型
+     */
+    private Integer excessType;
 
     /**
      * 图片url
      *  分为：重量、长、宽、高、面单
      */
     private Map<String, String> pictureUrlsMap;
+
+    /**
+     * 是否改造后的抽检
+     */
+    private Boolean isReformedSpotCheck = false;
 
     public String getBarCode() {
         return barCode;
@@ -215,11 +224,27 @@ public class ArtificialSpotCheckRequest implements Serializable {
         this.excessStatus = excessStatus;
     }
 
+    public Integer getExcessType() {
+        return excessType;
+    }
+
+    public void setExcessType(Integer excessType) {
+        this.excessType = excessType;
+    }
+
     public Map<String, String> getPictureUrlsMap() {
         return pictureUrlsMap;
     }
 
     public void setPictureUrlsMap(Map<String, String> pictureUrlsMap) {
         this.pictureUrlsMap = pictureUrlsMap;
+    }
+
+    public Boolean getIsReformedSpotCheck() {
+        return isReformedSpotCheck;
+    }
+
+    public void setIsReformedSpotCheck(Boolean reformedSpotCheck) {
+        isReformedSpotCheck = reformedSpotCheck;
     }
 }

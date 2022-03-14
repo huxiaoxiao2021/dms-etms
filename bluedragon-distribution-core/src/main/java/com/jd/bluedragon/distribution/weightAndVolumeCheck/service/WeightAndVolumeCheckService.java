@@ -1,8 +1,6 @@
 package com.jd.bluedragon.distribution.weightAndVolumeCheck.service;
 
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.weight.domain.PackWeightVO;
-import com.jd.bluedragon.distribution.weightAndVolumeCheck.SpotCheckSourceEnum;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightAndVolumeCheckCondition;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.dto.WeightAndVolumeCheckHandleMessage;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.dto.WeightVolumePictureDto;
@@ -24,7 +22,6 @@ import java.util.List;
  */
 public interface WeightAndVolumeCheckService {
 
-
     /**
      * 上传超标图片
      * @param imageName
@@ -33,15 +30,6 @@ public interface WeightAndVolumeCheckService {
      * @return
      */
     void uploadExcessPicture(String imageName, long imageSize, InputStream inputStream) throws Exception;
-
-    /**
-     * 查看
-     * @param waybillCode
-     * @param siteCode
-     * @param isWaybillSpotCheck
-     * @return
-     */
-    InvokeResult<String> searchPicture(String waybillCode,Integer siteCode,Integer isWaybillSpotCheck,String fromSource);
 
     /**
      * 查看超标图片（C网）
@@ -86,37 +74,7 @@ public interface WeightAndVolumeCheckService {
      */
     PagerResult<WeightVolumeCollectDto> queryByCondition(WeightAndVolumeCheckCondition condition);
 
-    /**
-     * 更新图片并发送处理消息
-     * @param packageCode
-     * @param siteCode
-     */
-    void updateImgAndSendHandleMq(String packageCode, Integer siteCode, String pictureUrl);
-
-    /**
-     * 校验是否超标
-     * @param packWeightVO
-     * @return
-     */
-    InvokeResult<Boolean> checkIsExcess(PackWeightVO packWeightVO);
-
-    /**
-     * 称重体积数据处理
-     * @param packWeightVO
-     * @param spotCheckSourceEnum
-     */
-    InvokeResult<Boolean> dealSportCheck(PackWeightVO packWeightVO, SpotCheckSourceEnum spotCheckSourceEnum);
-
     void setProductType(WeightVolumeCollectDto weightVolumeCollectDto, Waybill  waybill);
-
-    /**
-     * 查询最新一条抽检记录数据
-     * @param query 查询条件
-     * @return 抽检记录
-     * @author fanggang7
-     * @time 2020-08-24 17:12:55 周一
-     */
-    InvokeResult<WeightVolumeCollectDto> queryLatestCheckRecord(WeightVolumeQueryCondition query);
 
     /**
      * 处理消费称重抽检处理消息

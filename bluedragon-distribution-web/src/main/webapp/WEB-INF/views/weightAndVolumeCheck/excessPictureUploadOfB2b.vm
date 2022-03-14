@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>重量体积抽检-超标图片上传</title>
+    <title>人工抽检-超标图片上传</title>
     <meta http-equiv="pragma" content="no-cache" />
     <meta http-equiv="cache-control" content="no-cache">
     <meta http-equiv="expires" content="0">
@@ -15,11 +15,12 @@
 <body>
 <input type="hidden" id="waybillOrPackageCode" value="$!{waybillOrPackageCode}"/>
 <input type="hidden" id="createSiteCode" value="$!{createSiteCode}"/>
-<input type="hidden" id="rowIndex" value="$!{rowIndex}"/>
-<input type="hidden" id="isWaybill" value="$!{isWaybill}"/>
+<input type="hidden" id="weight" value="$!{weight}"/>
+<input type="hidden" id="excessType" value="$!{excessType}"/>
+<input type="hidden" id="isMultiPack" value="$!{isMultiPack}"/>
 <div id="dataTableDiv" class="main">
         <ol class="breadcrumb">
-            <li><a href="#">重量体积抽检</a></li>
+            <li><a href="#">人工抽检</a></li>
             <li class="active">超标图片上传</li>
         </ol>
 
@@ -44,7 +45,7 @@
                         <div class="col-xs-12">
                             <div class="col-xs-6">
                                 <div class="form-group">
-                                    <label class="control-label col-xs-3" for="box-code-input">重量</label>
+                                    <label id="picDimension" class="control-label col-xs-3" for="box-code-input">重量</label>
                                     <div class=" col-xs-5">
                                         <input type="text" id="pictureField1" class="form-control search-param" >
                                     </div>
@@ -66,7 +67,7 @@
                                     <div class=" col-xs-5" style="display: none" id="upSuccess1">
                                         <p style="color: #00CC33;font-size: 25px;" align="center">上传成功</p>
                                     </div>
-                                    <div class=" col-xs-5" style="display: none" id="UpFail1">
+                                    <div class=" col-xs-5" style="display: none" id="upFail1">
                                         <p style="color: #FF0040;font-size: 25px;" align="center">上传失败</p>
                                     </div>
                                     <div class=" col-xs-2" style="display: none">
@@ -80,7 +81,7 @@
                         <div class="col-xs-12">
                             <div class="col-xs-6">
                                 <div class="form-group">
-                                    <label class="control-label col-xs-3" for="box-code-input">长</label>
+                                    <label class="control-label col-xs-3" for="box-code-input">面单</label>
                                     <div class=" col-xs-5">
                                         <input type="text" id="pictureField2" class="form-control search-param" >
                                     </div>
@@ -102,7 +103,7 @@
                                     <div class=" col-xs-5" style="display: none" id="upSuccess2">
                                         <p style="color: #00CC33;font-size: 25px;" align="center">上传成功</p>
                                     </div>
-                                    <div class=" col-xs-5" style="display: none" id="UpFail2">
+                                    <div class=" col-xs-5" style="display: none" id="upFail2">
                                         <p style="color: #FF0040;font-size: 25px;" align="center">上传失败</p>
                                     </div>
                                     <div class=" col-xs-2" style="display: none">
@@ -116,7 +117,7 @@
                         <div class="col-xs-12">
                             <div class="col-xs-6">
                                 <div class="form-group">
-                                    <label class="control-label col-xs-3" for="box-code-input">宽</label>
+                                    <label class="control-label col-xs-3" for="box-code-input">长</label>
                                     <div class=" col-xs-5">
                                         <input type="text" id="pictureField3" class="form-control search-param" >
                                     </div>
@@ -138,7 +139,7 @@
                                     <div class=" col-xs-5" style="display: none" id="upSuccess3">
                                         <p style="color: #00CC33;font-size: 25px;" align="center">上传成功</p>
                                     </div>
-                                    <div class=" col-xs-5" style="display: none" id="UpFail3">
+                                    <div class=" col-xs-5" style="display: none" id="upFail3">
                                         <p style="color: #FF0040;font-size: 25px;" align="center">上传失败</p>
                                     </div>
                                     <div class=" col-xs-2" style="display: none">
@@ -152,7 +153,7 @@
                         <div class="col-xs-12">
                             <div class="col-xs-6">
                                 <div class="form-group">
-                                    <label class="control-label col-xs-3" for="box-code-input">高</label>
+                                    <label class="control-label col-xs-3" for="box-code-input">宽</label>
                                     <div class=" col-xs-5">
                                         <input type="text" id="pictureField4" class="form-control search-param" >
                                     </div>
@@ -174,7 +175,7 @@
                                     <div class=" col-xs-5" style="display: none" id="upSuccess4">
                                         <p style="color: #00CC33;font-size: 25px;" align="center">上传成功</p>
                                     </div>
-                                    <div class=" col-xs-5" style="display: none" id="UpFail4">
+                                    <div class=" col-xs-5" style="display: none" id="upFail4">
                                         <p style="color: #FF0040;font-size: 25px;" align="center">上传失败</p>
                                     </div>
                                     <div class=" col-xs-2" style="display: none">
@@ -188,7 +189,7 @@
                         <div class="col-xs-12">
                             <div class="col-xs-6">
                                 <div class="form-group">
-                                    <label class="control-label col-xs-3" for="box-code-input">面单</label>
+                                    <label class="control-label col-xs-3" for="box-code-input">高</label>
                                     <div class=" col-xs-5">
                                         <input type="text" id="pictureField5" class="form-control search-param" >
                                     </div>
@@ -210,7 +211,7 @@
                                     <div class=" col-xs-5" style="display: none" id="upSuccess5">
                                         <p style="color: #00CC33;font-size: 25px;" align="center">上传成功</p>
                                     </div>
-                                    <div class=" col-xs-5" style="display: none" id="UpFail5">
+                                    <div class=" col-xs-5" style="display: none" id="upFail5">
                                         <p style="color: #FF0040;font-size: 25px;" align="center">上传失败</p>
                                     </div>
                                     <div class=" col-xs-2" style="display: none">

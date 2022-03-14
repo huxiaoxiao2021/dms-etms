@@ -28,6 +28,8 @@ public class PackWeightVO extends WaybillWeightVO{
 
     private String organizationName;
 
+    private String machineCode;
+
     public String getErpCode() {
         return erpCode;
     }
@@ -50,6 +52,14 @@ public class PackWeightVO extends WaybillWeightVO{
 
     public void setOrganizationName(String organizationName) {
         this.organizationName = organizationName;
+    }
+
+    public String getMachineCode() {
+        return machineCode;
+    }
+
+    public void setMachineCode(String machineCode) {
+        this.machineCode = machineCode;
     }
 
     public Double getLength() {

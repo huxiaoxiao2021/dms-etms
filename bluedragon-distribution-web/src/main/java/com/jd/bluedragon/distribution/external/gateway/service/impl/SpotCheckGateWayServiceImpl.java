@@ -3,11 +3,9 @@ package com.jd.bluedragon.distribution.external.gateway.service.impl;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.spotcheck.SpotCheckCheckReq;
-import com.jd.bluedragon.common.dto.spotcheck.SpotCheckRecordReq;
 import com.jd.bluedragon.common.dto.spotcheck.SpotCheckSubmitReq;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckConstants;
 import com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckDto;
 import com.jd.bluedragon.distribution.spotcheck.enums.ExcessStatusEnum;
@@ -15,8 +13,6 @@ import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckDimensionEnum;
 import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckSourceFromEnum;
 import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckCurrencyService;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightVolumeCheckConditionB2b;
-import com.jd.bluedragon.distribution.weightAndVolumeCheck.WeightVolumeCheckOfB2bWaybill;
-import com.jd.bluedragon.distribution.weightAndVolumeCheck.service.WeightAndVolumeCheckOfB2bService;
 import com.jd.bluedragon.external.gateway.service.SpotCheckGateWayService;
 import com.alibaba.fastjson.JSON;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -29,7 +25,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -44,16 +39,10 @@ public class SpotCheckGateWayServiceImpl implements SpotCheckGateWayService {
     private static final Logger logger = LoggerFactory.getLogger(SpotCheckGateWayServiceImpl.class);
 
     @Autowired
-    private WeightAndVolumeCheckOfB2bService weightAndVolumeCheckOfB2bService;
-
-    @Autowired
     private SpotCheckCurrencyService spotCheckCurrencyService;
 
     @Autowired
     private BaseMajorManager baseMajorManager;
-
-    @Autowired
-    private UccPropertyConfiguration uccPropertyConfiguration;
 
     @JProfiler(jKey = "DMSWEB.SpotCheckGateWayServiceImpl.checkIsExcess", mState = {JProEnum.TP, JProEnum.FunctionError})
     @Override
@@ -81,33 +70,11 @@ public class SpotCheckGateWayServiceImpl implements SpotCheckGateWayService {
             return jdCResponse;
         }
         try {
-            // 执行新抽检逻辑
-            if(uccPropertyConfiguration.getAndroidIsExecuteNewSpotCheck()){
-                com.jd.bluedragon.distribution.base.domain.InvokeResult<Integer> checkIsExcessResult
-                        = spotCheckCurrencyService.checkIsExcess(convertToSpotCheckDto(req));
-                jdCResponse.setCode(checkIsExcessResult.getCode());
-                jdCResponse.setMessage(checkIsExcessResult.getMessage());
-                jdCResponse.setData(checkIsExcessResult.getData());
-                return jdCResponse;
-            }
-            WeightVolumeCheckConditionB2b conditionB2b = new WeightVolumeCheckConditionB2b();
-            conditionB2b.setCreateSiteCode(req.getCreateSiteCode());
-            conditionB2b.setWaybillOrPackageCode(req.getWaybillCode());
-            conditionB2b.setLoginErp(req.getLoginErp());
-            conditionB2b.setWaybillVolume(req.getVolume());
-            conditionB2b.setWaybillWeight(req.getWeight());
-            conditionB2b.setAndroidSpotCheck(true);
-            InvokeResult<List<WeightVolumeCheckOfB2bWaybill>> invokeResult = weightAndVolumeCheckOfB2bService.checkIsExcessOfWaybill(conditionB2b);
-            if (null == invokeResult || CollectionUtils.isEmpty(invokeResult.getData())) {
-                jdCResponse.toFail("操作失败！");
-                return jdCResponse;
-            }
-            WeightVolumeCheckOfB2bWaybill weightVolumeCheckOfB2bWaybill = invokeResult.getData().get(0);
-            if (null != weightVolumeCheckOfB2bWaybill) {
-                jdCResponse.toSucceed("操作成功！");
-                jdCResponse.setData(weightVolumeCheckOfB2bWaybill.getIsExcess());
-                return jdCResponse;
-            }
+            InvokeResult<Integer> checkIsExcessResult = spotCheckCurrencyService.checkIsExcess(convertToSpotCheckDto(req));
+            jdCResponse.setCode(checkIsExcessResult.getCode());
+            jdCResponse.setMessage(checkIsExcessResult.getMessage());
+            jdCResponse.setData(checkIsExcessResult.getData());
+            return jdCResponse;
         } catch (Exception e) {
             logger.error("DMSWEB.SpotCheckGateWayServiceImpl.checkIsExcess error waybillCode={}", req.getWaybillCode(), e);
         }
@@ -145,17 +112,9 @@ public class SpotCheckGateWayServiceImpl implements SpotCheckGateWayService {
             return jdCResponse;
         }
         try {
-            // 执行新抽检逻辑
-            if(uccPropertyConfiguration.getAndroidIsExecuteNewSpotCheck()){
-                spotCheckCurrencyService.spotCheckDeal(convertToSpotCheckDealDto(req));
-                jdCResponse.toSucceed("操作成功！");
-                return jdCResponse;
-            }
-            InvokeResult<String> result = weightAndVolumeCheckOfB2bService.dealExcessDataOfWaybill(convert(req));
-            if (null != result && Constants.SUCCESS_CODE.equals(result.getCode())) {
-                jdCResponse.toSucceed("操作成功！");
-                return jdCResponse;
-            }
+            spotCheckCurrencyService.spotCheckDeal(convertToSpotCheckDealDto(req));
+            jdCResponse.toSucceed("操作成功！");
+            return jdCResponse;
         } catch (Exception e) {
             logger.error("DMSWEB.SpotCheckGateWayServiceImpl.spotCheckSubmit error waybillCode={}", req.getWaybillCode(), e);
         }
@@ -224,36 +183,5 @@ public class SpotCheckGateWayServiceImpl implements SpotCheckGateWayService {
         conditionB2b.setUrls(req.getUrls());
         conditionB2b.setAndroidSpotCheck(true);
         return conditionB2b;
-    }
-
-
-    /**
-     * 校验抽检记录是否存在
-     *
-     * @param req
-     * @return
-     */
-    @Override
-    public JdCResponse<Void> checkRecordExist(SpotCheckRecordReq req) {
-        JdCResponse<Void> jdCResponse = new JdCResponse<>();
-        if (StringUtils.isBlank(req.getWaybillCode())) {
-            jdCResponse.toConfirm("运单号不能为空");
-            return jdCResponse;
-        }
-        if (null == req.getCreateSiteCode()) {
-            jdCResponse.toConfirm("抽检站点编号为空");
-            return jdCResponse;
-        }
-        InvokeResult<String> result = weightAndVolumeCheckOfB2bService.checkRecordExist(req.getWaybillCode(), req.getCreateSiteCode());
-        if (null == result) {
-            jdCResponse.toConfirm("操作失败");
-            return jdCResponse;
-        }
-        if (result.getCode() == 600) {
-            jdCResponse.toConfirm(result.getMessage());
-            return jdCResponse;
-        }
-        jdCResponse.toSucceed("操作成功");
-        return jdCResponse;
     }
 }

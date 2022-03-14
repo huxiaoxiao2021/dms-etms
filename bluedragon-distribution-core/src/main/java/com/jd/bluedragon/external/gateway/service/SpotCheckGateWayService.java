@@ -2,7 +2,6 @@ package com.jd.bluedragon.external.gateway.service;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.spotcheck.SpotCheckCheckReq;
-import com.jd.bluedragon.common.dto.spotcheck.SpotCheckRecordReq;
 import com.jd.bluedragon.common.dto.spotcheck.SpotCheckSubmitReq;
 
 /**
@@ -29,11 +28,5 @@ public interface SpotCheckGateWayService {
      * @return
      */
     JdCResponse<Void> spotCheckSubmit(SpotCheckSubmitReq req);
-
-    /**
-     * 抽检记录是否存在
-     * @return
-     */
-    JdCResponse<Void> checkRecordExist(SpotCheckRecordReq req);
 
 }

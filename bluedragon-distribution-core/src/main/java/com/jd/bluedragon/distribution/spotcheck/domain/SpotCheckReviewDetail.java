@@ -84,6 +84,11 @@ public class SpotCheckReviewDetail implements Serializable {
      */
     private String reviewUserName;
 
+    /**
+     * 设备编码
+     */
+    private String machineCode;
+
     public Double getReviewTotalWeight() {
         return reviewTotalWeight == null ? Constants.DOUBLE_ZERO : reviewTotalWeight;
     }
@@ -218,5 +223,13 @@ public class SpotCheckReviewDetail implements Serializable {
 
     public void setReviewUserName(String reviewUserName) {
         this.reviewUserName = reviewUserName;
+    }
+
+    public String getMachineCode() {
+        return machineCode;
+    }
+
+    public void setMachineCode(String machineCode) {
+        this.machineCode = machineCode;
     }
 }

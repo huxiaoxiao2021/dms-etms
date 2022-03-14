@@ -55,7 +55,7 @@ public class ExcessStandardVolumeHandler implements IExcessStandardHandler {
         double reviewLarge = checkExcessRequest.getReviewLarge();
         double contrastLarge = checkExcessRequest.getContrastLarge();
         // 较大值误差
-        double largeDiff = MathUtils.keepScale(Math.abs(reviewLarge - contrastLarge), 3);
+        double largeDiff = MathUtils.keepScale(Math.abs(reviewLarge - contrastLarge), 2);
         // 超标原因
         String excessReasonTemplate = "体积标准:体积%s在%s和%s之间并且【较大值差异:%s】超过误差标准值%s";
         if(reviewVolume >= firstVolume && reviewVolume < secondVolume){
