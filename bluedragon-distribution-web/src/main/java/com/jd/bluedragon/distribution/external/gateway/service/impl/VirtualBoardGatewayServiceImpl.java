@@ -6,6 +6,7 @@ import com.jd.bd.dms.automatic.sdk.modules.device.dto.DeviceConfigSimpleDto;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.request.OperatorInfo;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.board.BizSourceEnum;
 import com.jd.bluedragon.common.dto.board.request.*;
 import com.jd.bluedragon.common.dto.board.response.UnbindVirtualBoardResultDto;
 import com.jd.bluedragon.common.dto.board.response.VirtualBoardResultDto;
@@ -51,6 +52,9 @@ public class VirtualBoardGatewayServiceImpl implements VirtualBoardGatewayServic
      */
     @Override
     public JdCResponse<List<VirtualBoardResultDto>> getBoardUnFinishInfo(OperatorInfo operatorInfo) {
+        if(operatorInfo.getBizSource() == null){
+            operatorInfo.setBizSource(BizSourceEnum.PDA.getValue());
+        }
         return virtualBoardService.getBoardUnFinishInfo(operatorInfo);
     }
 
@@ -64,6 +68,9 @@ public class VirtualBoardGatewayServiceImpl implements VirtualBoardGatewayServic
     @Override
     @JProfiler(jKey = "DMSWEB.VirtualBoardServiceImpl.createOrGetBoard",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<VirtualBoardResultDto> createOrGetBoard(AddOrGetVirtualBoardPo addOrGetVirtualBoardPo) {
+        if(addOrGetVirtualBoardPo.getBizSource() == null){
+            addOrGetVirtualBoardPo.setBizSource(BizSourceEnum.PDA.getValue());
+        }
         return virtualBoardService.createOrGetBoard(addOrGetVirtualBoardPo);
     }
 
@@ -77,6 +84,9 @@ public class VirtualBoardGatewayServiceImpl implements VirtualBoardGatewayServic
     @Override
     @JProfiler(jKey = "DMSWEB.VirtualBoardServiceImpl.bindToBoard",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<VirtualBoardResultDto> bindToBoard(BindToVirtualBoardPo bindToVirtualBoardPo) {
+        if(bindToVirtualBoardPo.getBizSource() == null){
+            bindToVirtualBoardPo.setBizSource(BizSourceEnum.PDA.getValue());
+        }
         return virtualBoardService.bindToBoard(bindToVirtualBoardPo);
     }
 

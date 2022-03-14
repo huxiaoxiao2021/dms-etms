@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.board.service;
 import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.request.User;
+import com.jd.bluedragon.common.dto.board.BizSourceEnum;
 import com.jd.bluedragon.common.dto.board.request.CombinationBoardRequest;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
@@ -377,6 +378,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
             addBoardBox.setSiteCode(request.getSiteCode());
             addBoardBox.setSiteName(request.getSiteName());
             addBoardBox.setSiteType(BOARD_COMBINATION_SITE_TYPE);
+            addBoardBox.setBizSource(BizSourceEnum.PDA.getValue());
             tcResponse = groupBoardService.addBoxToBoard(addBoardBox);
         } catch (Exception e) {
             Profiler.functionError(info);
@@ -636,6 +638,10 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
             if (GoodsLoadScanConstants.GOODS_LOAD_SCAN_FOLW_DISACCORD_Y.equals(request.getFlowDisaccord())) {
                 addBoardBox.setFlowDisaccord(request.getFlowDisaccord());
             }
+            addBoardBox.setBizSource(combinationBoardRequest.getBizSource());
+            if(addBoardBox.getBizSource() == null){
+                addBoardBox.setBizSource(BizSourceEnum.PDA.getValue());
+            }
             tcResponse = groupBoardService.addBoxToBoard(addBoardBox);
         } catch (Exception e) {
             Profiler.functionError(info);
@@ -689,6 +695,10 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
         addBoardRequest.setSiteName(request.getSiteName());
         addBoardRequest.setOperatorErp(user.getUserErp());
         addBoardRequest.setOperatorName(user.getUserName());
+        addBoardRequest.setBizSource(combinationBoardRequest.getBizSource());
+        if(addBoardRequest.getBizSource() == null){
+            addBoardRequest.setBizSource(BizSourceEnum.PDA.getValue());
+        }
         // 调用接口生成板号
         InvokeResult<List<BoardDto>> invokeResult = createBoard(addBoardRequest);
         if (invokeResult.getCode() != InvokeResult.RESULT_SUCCESS_CODE) {
@@ -794,7 +804,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
         addBoardBox.setSiteCode(request.getSiteCode());
         addBoardBox.setSiteName(request.getSiteName());
         addBoardBox.setSiteType(BOARD_COMBINATION_SITE_TYPE);
-
+        addBoardBox.setBizSource(request.getBizSource());
         CallerInfo info = Profiler.registerInfo("DMSWEB.BoardCombinationServiceImpl.addBoxToBoardByWaybill.TCJSF", Constants.UMP_APP_NAME_DMSWEB,false, true);
 
         for (DeliveryPackageD deliveryPackageD : deliveryPackageDList) {
@@ -1073,7 +1083,6 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
         boardBox.setOperatorErp(operatorErp);
         boardBox.setOperatorName(request.getUserName());
         boardBox.setSiteCode(request.getSiteCode());
-
         //调用TC接口取消组板
         Response<String> tcResponse = null;
         CallerInfo info = Profiler.registerInfo("DMSWEB.BoardCombinationServiceImpl.boardCombinationCancel.TCJSF", Constants.UMP_APP_NAME_DMSWEB, false, true);

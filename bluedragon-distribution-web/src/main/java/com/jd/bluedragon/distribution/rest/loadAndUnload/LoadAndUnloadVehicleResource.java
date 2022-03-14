@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.rest.loadAndUnload;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.dto.board.BizSourceEnum;
 import com.jd.bluedragon.common.dto.unloadCar.*;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.loadAndUnload.service.UnloadCarService;
@@ -115,6 +116,7 @@ public class LoadAndUnloadVehicleResource {
             result.parameterError(remindMessage);
             return result;
         }
+
         return unloadCarService.packageCodeScan(unloadCarScanRequest);
     }
 

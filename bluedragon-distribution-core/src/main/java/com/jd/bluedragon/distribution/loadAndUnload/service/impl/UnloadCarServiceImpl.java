@@ -88,6 +88,7 @@ import com.jd.tms.data.dto.CargoDetailDto;
 import com.jd.transboard.api.dto.AddBoardBox;
 import com.jd.transboard.api.dto.Board;
 import com.jd.transboard.api.dto.Response;
+import com.jd.transboard.api.enums.BizSourceEnum;
 import com.jd.transboard.api.enums.ResponseEnum;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -1965,6 +1966,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             addBoardBox.setSiteCode(request.getOperateSiteCode());
             addBoardBox.setSiteName(request.getOperateSiteName());
             addBoardBox.setSiteType(BoardCommonManagerImpl.BOARD_COMBINATION_SITE_TYPE);
+            addBoardBox.setBizSource(BizSourceEnum.PDA.getValue());
             Response<Integer> response = groupBoardManager.addBoxToBoard(addBoardBox);
 
             if (response == null) {
