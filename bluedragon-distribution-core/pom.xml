@@ -60,7 +60,7 @@
 		<dependency>
 			<groupId>ql-dms-report</groupId>
 			<artifactId>report-sdk</artifactId>
-			<version>1.1.35-spotCheck-SNAPSHOT</version>
+			<version>1.1.35-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
@@ -233,7 +233,7 @@
 		<dependency>
             <groupId>com.jd.bluedragon</groupId>
             <artifactId>bluedragon-distribution-common-android</artifactId>
-            <version>1.4.0-spotCheck-SNAPSHOT</version>
+            <version>1.4.3-SNAPSHOT</version>
         </dependency>
 		<dependency>
 			<groupId>com.jd.etms.waybill</groupId>
