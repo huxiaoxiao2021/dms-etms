@@ -619,9 +619,14 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		signInData.setRefGridKey(gridKey);
 		signInData.setRefStationKey(stationKey);
 		signInData.setUserName(signInData.getUserCode());
-		if(JobTypeEnum.JOBTYPE1.getCode().equals(signInData.getJobCode())) {
+		if(JobTypeEnum.JOBTYPE1.getCode().equals(signInData.getJobCode())
+				||JobTypeEnum.JOBTYPE2.getCode().equals(signInData.getJobCode())) {
 			//正式工设置erp对应的名称
 			BaseStaffSiteOrgDto userInfo = baseMajorManager.getBaseStaffIgnoreIsResignByErp(signInData.getUserCode());
+			if(userInfo == null) {
+				result.toFail("签到失败，无效的Erp信息！");
+				return result;
+			}
 			if(userInfo != null
 					&& userInfo.getStaffName() != null) {
 				signInData.setUserName(userInfo.getStaffName());
