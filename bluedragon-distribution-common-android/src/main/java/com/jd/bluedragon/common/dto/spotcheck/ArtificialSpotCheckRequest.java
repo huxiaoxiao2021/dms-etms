@@ -88,10 +88,6 @@ public class ArtificialSpotCheckRequest implements Serializable {
      * 超标状态
      */
     private Integer excessStatus;
-    /**
-     * 超标类型
-     */
-    private Integer excessType;
 
     /**
      * 图片url
@@ -99,6 +95,10 @@ public class ArtificialSpotCheckRequest implements Serializable {
      */
     private Map<String, String> pictureUrlsMap;
 
+    /**
+     * 超标类型
+     */
+    private Integer excessType;
     /**
      * 是否改造后的抽检
      */
