@@ -159,6 +159,7 @@
 		<property name="restApiOuthSwitch" value="${restApiOuthSwitch:true}"/>
 		<property name="needInterceptUrls" value="${needInterceptUrls:*}"/>
 		<property name="notSignedOutRecordMoreThanHours" value="${notSignedOutRecordMoreThanHours:-1}"/>
+		<property name="sealTaskHystrixProps" value="${sealTaskHystrixProps: ''}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -306,6 +307,7 @@
                 <value>hystrixRouteUccPropertyConfiguration.circuitBreakerSleepWindowInMilliseconds</value>
                 <value>hystrixRouteUccPropertyConfiguration.maximumSize</value>
                 <value>hystrixRouteUccPropertyConfiguration.circuitBreakerRequestVolumeThreshold</value>
+                <value>hystrixRouteUccPropertyConfiguration.sealTaskHystrixProps</value>
 			</list>
 		</property>
 	</bean>

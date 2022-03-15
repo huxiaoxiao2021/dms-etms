@@ -7,6 +7,8 @@ import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.SealTask
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.SealVehicleTaskResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.ToSealCarInfo;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.UnSealCarData;
+import com.jd.bluedragon.common.utils.ProfilerHelper;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.IJySealVehicleManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
@@ -19,11 +21,17 @@ import com.jd.bluedragon.utils.ValueNameEnumUtils;
 import com.jd.etms.vos.dto.CommonDto;
 import com.jd.etms.vos.dto.PageDto;
 import com.jd.etms.vos.dto.SealCarDto;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import com.jdl.jy.realtime.base.Pager;
 import com.jdl.jy.realtime.enums.seal.LineTypeEnum;
 import com.jdl.jy.realtime.enums.seal.VehicleStatusEnum;
 import com.jdl.jy.realtime.model.es.seal.SealCarMonitor;
 import com.jdl.jy.realtime.model.query.seal.SealVehicleTaskQuery;
+import com.netflix.hystrix.HystrixCommandGroupKey;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixProperty;
+import com.netflix.hystrix.contrib.javanica.conf.HystrixPropertiesManager;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -74,7 +82,6 @@ public class JySealVehicleServiceImpl implements IJySealVehicleService {
                 if (!result.codeSuccess()) {
                     return result;
                 }
-
                 query.setSealCarCode(sealCarCodeList);
             }
             else {
@@ -93,7 +100,7 @@ public class JySealVehicleServiceImpl implements IJySealVehicleService {
         pager.setPageSize(request.getPageSize());
         pager.setSearchVo(query);
 
-        com.jdl.jy.realtime.model.vo.seal.SealVehicleTaskResponse serviceResult = jySealVehicleManager.querySealTask(pager);
+        com.jdl.jy.realtime.model.vo.seal.SealVehicleTaskResponse serviceResult = fetchSealTaskFromEs(pager);
         if (serviceResult == null) {
             result.error("服务器异常，请联系分拣小秘");
             return result;
@@ -115,6 +122,22 @@ public class JySealVehicleServiceImpl implements IJySealVehicleService {
         }
 
         return result;
+    }
+
+    @HystrixCommand(
+            commandKey = "fetchSealTask",
+            fallbackMethod = "sealTaskFallback",
+            commandProperties = {
+                    @HystrixProperty(name = HystrixPropertiesManager.FALLBACK_ENABLED, value = "true"),
+//                    @HystrixProperty(name = HystrixPropertiesManager.EXECUTION_ISOLATION_THREAD_TIMEOUT_IN_MILLISECONDS, value = "500"),
+//                    @HystrixProperty(name = HystrixPropertiesManager.FALLBACK_ISOLATION_SEMAPHORE_MAX_CONCURRENT_REQUESTS, value = "10"),
+//                    @HystrixProperty(name = HystrixPropertiesManager.CIRCUIT_BREAKER_ERROR_THRESHOLD_PERCENTAGE, value = "10"),
+//                    @HystrixProperty(name = HystrixPropertiesManager.CIRCUIT_BREAKER_REQUEST_VOLUME_THRESHOLD, value = "10"),
+            }
+    )
+    public com.jdl.jy.realtime.model.vo.seal.SealVehicleTaskResponse fetchSealTaskFromEs(Pager<SealVehicleTaskQuery> pager) {
+        com.jdl.jy.realtime.model.vo.seal.SealVehicleTaskResponse serviceResult = jySealVehicleManager.querySealTask(pager);
+        return serviceResult;
     }
 
     private boolean isRefresh(SealVehicleTaskRequest request) {
@@ -149,9 +172,28 @@ public class JySealVehicleServiceImpl implements IJySealVehicleService {
         return response;
     }
 
-    private InvokeResult<SealVehicleTaskResponse> sealTaskFallback(SealVehicleTaskRequest request) {
+    /**
+     * 解封车任务降级逻辑
+     * @param request
+     * @param throwable
+     * @return
+     */
+    public InvokeResult<SealVehicleTaskResponse> sealTaskFallback(SealVehicleTaskRequest request, Throwable throwable) {
         InvokeResult<SealVehicleTaskResponse> invokeResult = new InvokeResult<>();
+
+        CallerInfo ump = ProfilerHelper.registerInfo("dms.web.IJySealVehicleService.sealTaskFallback");
         try {
+
+            StringBuilder msgConcat = new StringBuilder();
+            msgConcat.append("获取解封车任务进入降级逻辑");
+
+            if (throwable != null) {
+                log.error("获取解封车任务进入降级逻辑. request:{}", JsonHelper.toJson(request), throwable);
+                msgConcat.append("异常信息:[").append(throwable.getMessage()).append("]");
+            }
+
+            Profiler.businessAlarm("dms.web.IJySealVehicleService.fallback", msgConcat.toString());
+
             List<SealCarDto> sealCarDtoList = getSealTaskFromVos(invokeResult, request);
             if (!invokeResult.codeSuccess()) {
                 return invokeResult;
@@ -174,6 +216,10 @@ public class JySealVehicleServiceImpl implements IJySealVehicleService {
         catch (Exception e) {
             log.error("从运输拉取解封车任务异常. {}", JsonHelper.toJson(request), e);
             invokeResult.error("服务器异常，请联系分拣小秘");
+            Profiler.functionError(ump);
+        }
+        finally {
+            Profiler.registerInfoEnd(ump);
         }
 
         return invokeResult;

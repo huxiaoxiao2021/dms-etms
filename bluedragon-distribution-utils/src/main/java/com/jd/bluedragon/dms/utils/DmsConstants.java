@@ -224,6 +224,13 @@ public class DmsConstants {
      * 保温箱号规则，MZ开头，总长度14到16位
      */
     public static final Pattern WARM_BOX_CODE_REGEX = Pattern.compile("^MZ[A-Z0-9]{12,14}$");
+
+    /**
+     * APP版本号正则.
+     * 支持0.0.0，11.00.11，1.00.00，11.00.0，11.01.01，01.01.01，2.2
+     */
+    public static final Pattern APP_VERSION_REGEX = Pattern.compile("^([0-9]\\d|[0-9])(.([0-9]\\d|\\d)){1,2}$");
+
     /**
      * 预售异常原因-上级编码
      */

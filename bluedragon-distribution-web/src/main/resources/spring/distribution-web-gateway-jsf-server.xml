@@ -434,4 +434,12 @@
                   alias="${dms.gateway.jsf.alias}"
                   ref="autoDistGatewayServiceImpl" server="dmsjsf">
     </jsf:provider>
+
+    <!--  APP升级检测   -->
+    <bean id="appUpgradeGatewayServiceImpl" class="com.jd.bluedragon.distribution.external.gateway.service.impl.AppUpgradeGatewayServiceImpl" />
+    <jsf:provider id="jsfAppUpgradeGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.AppUpgradeGatewayService"
+                  alias="dms.gateway.jsf.alias"
+                  ref="appUpgradeGatewayServiceImpl"
+                  server="dmsjsf" />
 </beans>
