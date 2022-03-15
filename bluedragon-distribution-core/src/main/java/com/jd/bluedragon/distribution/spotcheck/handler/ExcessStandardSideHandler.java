@@ -54,7 +54,7 @@ public class ExcessStandardSideHandler implements IExcessStandardHandler {
         Double reviewWeight = checkExcessRequest.getReviewWeight();
         Double contrastWeight = checkExcessRequest.getContrastWeight();
         // 重量误差
-        double diffWeight = MathUtils.keepScale(Math.abs(reviewWeight - contrastWeight), 3);
+        double diffWeight = MathUtils.keepScale(Math.abs(reviewWeight - contrastWeight), 2);
         double sumSide = checkExcessRequest.getReviewLength() + checkExcessRequest.getReviewWidth() + checkExcessRequest.getReviewHeight();
         // 超标原因
         String excessReasonTemplate = "边长标准:三边之和在%s和%s之间并且误差%s超过误差标准值%s";

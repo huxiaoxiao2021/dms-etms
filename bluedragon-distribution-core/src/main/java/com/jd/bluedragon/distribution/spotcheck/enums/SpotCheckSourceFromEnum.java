@@ -15,27 +15,27 @@ public enum SpotCheckSourceFromEnum {
     /**
      * 平台打印抽检
      * */
-    SPOT_CHECK_CLIENT_PLATE(1,"SPOT_CHECK_CLIENT_PLATE"),
+    SPOT_CHECK_CLIENT_PLATE(1,"SPOT_CHECK_CLIENT_PLATE", "平台打印抽检"),
     /**
      * dws抽检
      * */
-    SPOT_CHECK_DWS(2,"SPOT_CHECK_DWS"),
+    SPOT_CHECK_DWS(2,"SPOT_CHECK_DWS", "dws抽检"),
     /**
      * 网页抽检
      * */
-    SPOT_CHECK_DMS_WEB(3,"SPOT_CHECK_DMS_WEB"),
+    SPOT_CHECK_DMS_WEB(3,"SPOT_CHECK_DMS_WEB", "网页抽检"),
     /**
      * 安卓抽检
      * */
-    SPOT_CHECK_ANDROID(4,"SPOT_CHECK_ANDROID"),
+    SPOT_CHECK_ANDROID(4,"SPOT_CHECK_ANDROID", "安卓抽检"),
     /**
      * 人工抽检
      * */
-    SPOT_CHECK_ARTIFICIAL(5,"SPOT_CHECK_ARTIFICIAL"),
+    SPOT_CHECK_ARTIFICIAL(5,"SPOT_CHECK_ARTIFICIAL", "人工抽检"),
     /**
      * 其他
      */
-    SPOT_CHECK_OTHER(6,"other");
+    SPOT_CHECK_OTHER(6,"other", "其他");
 
     public static final List<String> C_SPOT_CHECK_SOURCE;
     public static final List<String> B_SPOT_CHECK_SOURCE;
@@ -44,10 +44,12 @@ public enum SpotCheckSourceFromEnum {
      * 人工来源
      */
     public static final List<String> ARTIFICIAL_SOURCE;
+    public static final List<Integer> ARTIFICIAL_SOURCE_NUM;
     /**
      * 设备来源
      */
     public static final List<String> EQUIPMENT_SOURCE;
+    public static final List<Integer> EQUIPMENT_SOURCE_NUM;
 
     static{
         C_SPOT_CHECK_SOURCE = new ArrayList<>();
@@ -62,14 +64,31 @@ public enum SpotCheckSourceFromEnum {
         ARTIFICIAL_SOURCE.add(SPOT_CHECK_ARTIFICIAL.getName());
         ARTIFICIAL_SOURCE.add(SPOT_CHECK_ANDROID.getName());
         ARTIFICIAL_SOURCE.add(SPOT_CHECK_DMS_WEB.getName());
+        ARTIFICIAL_SOURCE_NUM = new ArrayList<>();
+        ARTIFICIAL_SOURCE_NUM.add(SPOT_CHECK_ARTIFICIAL.getCode());
+        ARTIFICIAL_SOURCE_NUM.add(SPOT_CHECK_ANDROID.getCode());
+        ARTIFICIAL_SOURCE_NUM.add(SPOT_CHECK_DMS_WEB.getCode());
         EQUIPMENT_SOURCE = new ArrayList<>();
         EQUIPMENT_SOURCE.add(SPOT_CHECK_CLIENT_PLATE.getName());
         EQUIPMENT_SOURCE.add(SPOT_CHECK_DWS.getName());
+        EQUIPMENT_SOURCE_NUM = new ArrayList<>();
+        EQUIPMENT_SOURCE_NUM.add(SPOT_CHECK_CLIENT_PLATE.getCode());
+        EQUIPMENT_SOURCE_NUM.add(SPOT_CHECK_DWS.getCode());
     }
 
-    SpotCheckSourceFromEnum(int code, String name){
+    SpotCheckSourceFromEnum(int code, String name, String description){
         this.code = code;
         this.name = name;
+        this.description = description;
+    }
+
+    public static String analysisDescFromCode(int code){
+        for (SpotCheckSourceFromEnum value : SpotCheckSourceFromEnum.values()) {
+            if(Objects.equals(value.getCode(), code)){
+                return value.getDescription();
+            }
+        }
+        return null;
     }
 
     public static Integer analysisCodeFromName(String name){
@@ -83,6 +102,7 @@ public enum SpotCheckSourceFromEnum {
 
     private int code;
     private String name;
+    private String description;
 
     public int getCode() {
         return code;
@@ -98,5 +118,13 @@ public enum SpotCheckSourceFromEnum {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

@@ -527,7 +527,7 @@
     <!--  拦截消息-生产者 -->
     <bean id="bdBlockerInitMqProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.bdBlockerInitMq}"/>
-    </bean>    
+    </bean>
     <!-- dws抽检 -->
     <bean id="dwsSpotCheckProducer" parent="dmsWorkerDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.dwsSpotCheck}"/>
@@ -548,4 +548,16 @@
         <property name="topic" value="${jmq.topic.spotCheck.detail}"/>
         <property name="timeout" value="1000"/>
     </bean>
+
+    <!-- 抽检超标下发至称重再造系统 -->
+    <bean id="spotCheckIssueProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.spotCheck.issue}"/>
+        <property name="timeout" value="1000"/>
+    </bean>
+    <!-- 抽检体积超标下发至终端系统 -->
+    <bean id="spotCheckIssueZDProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.spotCheck.issue.zd}"/>
+        <property name="timeout" value="1000"/>
+    </bean>
+
 </beans>

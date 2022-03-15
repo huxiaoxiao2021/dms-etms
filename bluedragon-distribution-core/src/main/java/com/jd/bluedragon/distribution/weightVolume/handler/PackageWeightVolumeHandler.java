@@ -11,12 +11,10 @@ import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckDto;
 import com.jd.bluedragon.distribution.spotcheck.enums.*;
 import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckCurrencyService;
-import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckDealService;
 import com.jd.bluedragon.distribution.weight.domain.OpeSendObject;
 import com.jd.bluedragon.distribution.weight.domain.PackOpeDetail;
 import com.jd.bluedragon.distribution.weight.domain.PackOpeDto;
 import com.jd.bluedragon.distribution.weight.domain.PackWeightVO;
-import com.jd.bluedragon.distribution.weightAndVolumeCheck.service.WeightAndVolumeCheckService;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeContext;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeRuleConstant;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
@@ -60,9 +58,6 @@ public class PackageWeightVolumeHandler extends AbstractWeightVolumeHandler {
     private SiteService siteService;
 
     @Autowired
-    private WeightAndVolumeCheckService weightAndVolumeCheckService;
-
-    @Autowired
     WaybillTraceManager waybillTraceManager;
 
     @Autowired
@@ -71,9 +66,6 @@ public class PackageWeightVolumeHandler extends AbstractWeightVolumeHandler {
     @Autowired
     @Qualifier("dwsSpotCheckProducer")
     private DefaultJMQProducer dwsSpotCheckProducer;
-
-    @Autowired
-    private SpotCheckDealService spotCheckDealService;
 
     @Autowired
     private SpotCheckCurrencyService spotCheckCurrencyService;
@@ -205,14 +197,10 @@ public class PackageWeightVolumeHandler extends AbstractWeightVolumeHandler {
         InvokeResult<Boolean> result = new InvokeResult<>();
         //自动化称重量方设备上传的运单/包裹，且为一单一件，且上游站点/分拣中心操作过称重，才进行抽检
         if(FromSourceEnum.DMS_AUTOMATIC_MEASURE.equals(entity.getSourceCode()) && !isFirstWeightVolume(entity)){
-            if(spotCheckDealService.isExecuteNewSpotCheck(entity.getOperateSiteCode())){
-                InvokeResult<Integer> checkExcessStatusResult = spotCheckCurrencyService.checkIsExcessWithOutOtherCheck(convertToSpotCheckDto(entity));
-                result.setMessage(checkExcessStatusResult.getMessage());
-                result.setData(Objects.equals(checkExcessStatusResult.getData(), ExcessStatusEnum.EXCESS_ENUM_YES.getCode()));
-                return result;
-            }
-            PackWeightVO packWeightVO = convertToPackWeightVO(entity);
-            return weightAndVolumeCheckService.checkIsExcess(packWeightVO);
+            InvokeResult<Integer> checkExcessStatusResult = spotCheckCurrencyService.checkIsExcessWithOutOtherCheck(convertToSpotCheckDto(entity));
+            result.setMessage(checkExcessStatusResult.getMessage());
+            result.setData(Objects.equals(checkExcessStatusResult.getData(), ExcessStatusEnum.EXCESS_ENUM_YES.getCode()));
+            return result;
         }
         if (logger.isInfoEnabled()) {
             logger.info("自动化称重抽检-handler-不满足自动化抽检条件-参数:{}", JsonHelper.toJson(entity));
@@ -262,6 +250,7 @@ public class PackageWeightVolumeHandler extends AbstractWeightVolumeHandler {
         packWeightVO.setOrganizationCode(site.getOrgId());
         packWeightVO.setOperatorSiteName(entity.getOperateSiteName());
         packWeightVO.setOperatorSiteCode(entity.getOperateSiteCode());
+        packWeightVO.setMachineCode(entity.getMachineCode());
         return packWeightVO;
     }
 

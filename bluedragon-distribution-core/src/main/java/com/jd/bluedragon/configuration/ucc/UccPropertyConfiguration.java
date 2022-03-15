@@ -483,24 +483,6 @@ public class UccPropertyConfiguration {
     private double spotCheckNoExcessLimit;
 
     /**
-     * 开启新抽检场地
-     *  多个场地以,分隔
-     *  true表示全国
-     *  空表示未开启
-     */
-    private String newSpotCheckSiteCodes;
-
-    /**
-     * 是否执行BC融合
-     */
-    private boolean executeBCFuse;
-
-    /**
-     * 抽检数据是否下发给计费
-     */
-    private boolean isIssueToFinance;
-
-    /**
      * 老发货异步任务开关
      */
     private String deliverySendAsyncSite;
@@ -664,6 +646,19 @@ public class UccPropertyConfiguration {
      * 自动签退超过多少小时未签退的数据
      */
     private int notSignedOutRecordMoreThanHours;
+
+    /**
+     * 抽检改造开通场地
+     *  多个场地以,分隔
+     *  true表示全国
+     *  空表示未开启
+     */
+    private String spotCheckReformSiteCodes;
+
+    /**
+     * AI识别图片开关
+     */
+    private boolean aiDistinguishSwitch;
 
     public String getScheduleSiteCheckSameCity() {
         return scheduleSiteCheckSameCity;
@@ -1446,30 +1441,6 @@ public class UccPropertyConfiguration {
         this.paralleGetPackageSwitch = paralleGetPackageSwitch;
     }
 
-    public String getNewSpotCheckSiteCodes() {
-        return newSpotCheckSiteCodes;
-    }
-
-    public void setNewSpotCheckSiteCodes(String newSpotCheckSiteCodes) {
-        this.newSpotCheckSiteCodes = newSpotCheckSiteCodes;
-    }
-
-    public boolean getExecuteBCFuse() {
-        return executeBCFuse;
-    }
-
-    public void setExecuteBCFuse(boolean executeBCFuse) {
-        this.executeBCFuse = executeBCFuse;
-    }
-
-    public boolean getIsIssueToFinance() {
-        return isIssueToFinance;
-    }
-
-    public void setIsIssueToFinance(boolean issueToFinance) {
-        isIssueToFinance = issueToFinance;
-    }
-
     /**
      * 西藏模式业务场景开关，按分拣中心归属的省份配置，不配置业务场景不生效，配置ALL全国生效
      */
@@ -1710,5 +1681,20 @@ public class UccPropertyConfiguration {
 
     public void setNotSignedOutRecordMoreThanHours(int notSignedOutRecordMoreThanHours) {
         this.notSignedOutRecordMoreThanHours = notSignedOutRecordMoreThanHours;
+    }
+    public boolean getAiDistinguishSwitch() {
+        return aiDistinguishSwitch;
+    }
+
+    public void setAiDistinguishSwitch(boolean aiDistinguishSwitch) {
+        this.aiDistinguishSwitch = aiDistinguishSwitch;
+    }
+
+    public String getSpotCheckReformSiteCodes() {
+        return spotCheckReformSiteCodes;
+    }
+
+    public void setSpotCheckReformSiteCodes(String spotCheckReformSiteCodes) {
+        this.spotCheckReformSiteCodes = spotCheckReformSiteCodes;
     }
 }

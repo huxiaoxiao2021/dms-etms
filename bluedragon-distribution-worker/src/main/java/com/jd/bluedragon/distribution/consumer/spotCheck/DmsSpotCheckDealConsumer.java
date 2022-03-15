@@ -4,14 +4,10 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckDto;
 import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckDimensionEnum;
-import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckHandlerTypeEnum;
 import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckSourceFromEnum;
 import com.jd.bluedragon.distribution.spotcheck.exceptions.SpotCheckSysException;
 import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckCurrencyService;
-import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckDealService;
 import com.jd.bluedragon.distribution.weight.domain.PackWeightVO;
-import com.jd.bluedragon.distribution.weightAndVolumeCheck.SpotCheckSourceEnum;
-import com.jd.bluedragon.distribution.weightAndVolumeCheck.service.WeightAndVolumeCheckService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.jmq.common.message.Message;
 import com.jd.ump.profiler.CallerInfo;
@@ -35,12 +31,6 @@ public class DmsSpotCheckDealConsumer extends MessageBaseConsumer {
     @Autowired
     private SpotCheckCurrencyService spotCheckCurrencyService;
 
-    @Autowired
-    private WeightAndVolumeCheckService weightAndVolumeCheckService;
-
-    @Autowired
-    private SpotCheckDealService spotCheckDealService;
-
     @Override
     public void consume(Message message) throws Exception {
         CallerInfo info = Profiler.registerInfo("DmsSpotCheckDealConsumer.consume", Constants.UMP_APP_NAME_DMSWORKER,false, true);
@@ -52,10 +42,6 @@ public class DmsSpotCheckDealConsumer extends MessageBaseConsumer {
             PackWeightVO packWeightVO = JsonHelper.fromJsonUseGson(message.getText(), PackWeightVO.class);
             if (packWeightVO == null) {
                 log.warn("dws抽检消息体转换失败，内容为【{}】", message.getText());
-                return;
-            }
-            if(!spotCheckDealService.isExecuteNewSpotCheck(packWeightVO.getOperatorSiteCode())){
-                weightAndVolumeCheckService.dealSportCheck(packWeightVO, SpotCheckSourceEnum.SPOT_CHECK_DWS);
                 return;
             }
             spotCheckCurrencyService.spotCheckDeal(transferToSpotCheckDto(packWeightVO));
@@ -85,6 +71,7 @@ public class DmsSpotCheckDealConsumer extends MessageBaseConsumer {
         spotCheckDto.setSiteName(packWeightVO.getOperatorSiteName());
         spotCheckDto.setOperateUserErp(packWeightVO.getErpCode());
         spotCheckDto.setOperateUserName(packWeightVO.getOperatorName());
+        spotCheckDto.setMachineCode(packWeightVO.getMachineCode());
         spotCheckDto.setDimensionType(SpotCheckDimensionEnum.SPOT_CHECK_PACK.getCode());
         return spotCheckDto;
     }

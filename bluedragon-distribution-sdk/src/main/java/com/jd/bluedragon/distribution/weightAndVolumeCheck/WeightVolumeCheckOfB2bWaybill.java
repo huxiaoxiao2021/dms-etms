@@ -33,6 +33,14 @@ public class WeightVolumeCheckOfB2bWaybill implements Serializable {
      * */
     private Integer isExcess;
     /**
+     * 超标类型
+     */
+    private Integer excessType;
+    /**
+     * 是否多包裹
+     */
+    private Boolean isMultiPack = false;
+    /**
      * 上传图片数量
      * */
     private Integer upLoadNum;
@@ -75,6 +83,22 @@ public class WeightVolumeCheckOfB2bWaybill implements Serializable {
 
     public void setIsExcess(Integer isExcess) {
         this.isExcess = isExcess;
+    }
+
+    public Integer getExcessType() {
+        return excessType;
+    }
+
+    public void setExcessType(Integer excessType) {
+        this.excessType = excessType;
+    }
+
+    public Boolean getIsMultiPack() {
+        return isMultiPack;
+    }
+
+    public void setIsMultiPack(Boolean multiPack) {
+        isMultiPack = multiPack;
     }
 
     public Integer getUpLoadNum() {
