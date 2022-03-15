@@ -667,7 +667,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 					return result;
 				}
 				if(!isCarId){
-					result.toFail("签到失败，无效的身份证号！");
+					result.toFail("签到失败，无效的Erp|身份证号！");
 					return result;
 				}
 			}
