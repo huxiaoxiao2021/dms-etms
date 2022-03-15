@@ -459,17 +459,21 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		if(!result.isSucceed()) {
 			return result;
 		}
+		//校验上岗码,并获取网格信息
+		JdCResponse<WorkStationGrid> gridResult = this.checkAndGetWorkStationGrid(signInRequest);
+		if(!result.isSucceed()) {
+			result.setMessage(gridResult.getMessage());
+			return result;
+		}
 		//校验并组装签到数据
         UserSignRecord signInData = new UserSignRecord();
-        result = this.checkAndFillSignInInfo(signInRequest,signInData);
+        result = this.checkAndFillSignInInfo(signInRequest,signInData,gridResult.getData());
         if(!result.isSucceed()) {
         	return result;
         }
         
 		UserSignRecordQuery lastSignRecordQuery = new UserSignRecordQuery();
 		lastSignRecordQuery.setUserCode(signInRequest.getUserCode());
-		lastSignRecordQuery.setSiteCode(signInRequest.getSiteCode());
-		lastSignRecordQuery.setSignDate(signInRequest.getSignDate());
 		//查询签到记录，先签退
         UserSignRecord lastSignRecord = this.queryLastUnSignOutRecord(lastSignRecordQuery);
         UserSignRecord signOutRequest = new UserSignRecord();
@@ -494,27 +498,25 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 			return result;
 		}
 
-		UserSignRecord data = new UserSignRecord();
+		UserSignRecord signOutData = new UserSignRecord();
 		if(signOutRequest.getRecordId() != null) {
-			data.setId(signOutRequest.getRecordId());
+			signOutData.setId(signOutRequest.getRecordId());
 		}else {
-			UserSignRecord lastSignRecordQuery = new UserSignRecord();
+			UserSignRecordQuery lastSignRecordQuery = new UserSignRecordQuery();
 			lastSignRecordQuery.setUserCode(signOutRequest.getUserCode());
-			lastSignRecordQuery.setSiteCode(signOutRequest.getSiteCode());
-			lastSignRecordQuery.setSignDate(signOutRequest.getSignDate());
 			
-            UserSignRecord lastSignRecord = getLastSignRecord(lastSignRecordQuery);
+            UserSignRecord lastSignRecord = queryLastUnSignOutRecord(lastSignRecordQuery);
             if(lastSignRecord == null) {
             	result.toFail("该用户未签到，无法签退！");
 				return result;
 			}
-			data.setId(lastSignRecord.getId());
+			signOutData.setId(lastSignRecord.getId());
 		}
-        data.setUpdateUser(signOutRequest.getOperateUserCode());
-        data.setUpdateUserName(signOutRequest.getOperateUserName());
-        if(this.doSignOut(data)) {
-        	result.setData(this.queryUserSignRecordDataById(data.getId()));
-        	result.toSucceed("退成功！"); 
+        signOutData.setUpdateUser(signOutRequest.getOperateUserCode());
+        signOutData.setUpdateUserName(signOutRequest.getOperateUserName());
+        if(this.doSignOut(signOutData)) {
+        	result.setData(this.queryUserSignRecordDataById(signOutData.getId()));
+        	result.toSucceed("签退成功！"); 
         }else {
         	result.toFail("签退失败！");
         }
@@ -526,34 +528,52 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		if(!result.isSucceed()) {
 			return result;
 		}
-
+		//校验上岗码,并获取网格信息
+		JdCResponse<WorkStationGrid> gridResult = this.checkAndGetWorkStationGrid(userSignRequest);
+		if(!result.isSucceed()) {
+			result.setMessage(gridResult.getMessage());
+			return result;
+		}
+		WorkStationGrid gridInfo = gridResult.getData();
 		UserSignRecordQuery lastSignRecordQuery = new UserSignRecordQuery();
 		lastSignRecordQuery.setUserCode(userSignRequest.getUserCode());
-		lastSignRecordQuery.setSiteCode(userSignRequest.getSiteCode());
-		lastSignRecordQuery.setSignDate(userSignRequest.getSignDate());
 		//查询签到记录，自动签退
         UserSignRecord lastSignRecord = this.queryLastUnSignOutRecord(lastSignRecordQuery);
         
-        UserSignRecord data = new UserSignRecord();
+        boolean needSignIn = true;
+        boolean needSignOut = false;
+        
         if(lastSignRecord != null) {
-        	data.setId(lastSignRecord.getId());
-            data.setUpdateUser(userSignRequest.getOperateUserCode());
-            data.setUpdateUserName(userSignRequest.getOperateUserName());
-            
-            if(this.doSignOut(data)) {
-            	result.setData(this.queryUserSignRecordDataById(data.getId()));
-            	result.toSucceed("签退成功！");
-            }else {
-            	result.toFail("签退失败！");
+        	needSignOut = true;
+        	//上次签到岗位和本次相同，不需要签到
+            if(gridInfo.getBusinessKey() != null
+            		&& gridInfo.getBusinessKey().equals(lastSignRecord.getRefGridKey())) {
+            	needSignIn = false;
             }
-    		return result;
 		}
-		//校验并组装签到数据
+		
         UserSignRecord signInData = new UserSignRecord();
-        result = this.checkAndFillSignInInfo(userSignRequest,signInData);
-        if(!result.isSucceed()) {
-        	return result;
+        //校验并组装签到数据
+        if(needSignIn) {
+            result = this.checkAndFillSignInInfo(userSignRequest,signInData,gridResult.getData());
+            if(!result.isSucceed()) {
+            	return result;
+            }
         }
+        if(needSignOut) {
+        	UserSignRecord signOutData = new UserSignRecord();
+        	signOutData.setId(lastSignRecord.getId());
+        	signOutData.setUpdateUser(userSignRequest.getOperateUserCode());
+        	signOutData.setUpdateUserName(userSignRequest.getOperateUserName());
+            this.doSignOut(signOutData);
+            //不需要签到，直接返回签退结果
+            if(!needSignIn) {
+            	result.setData(this.queryUserSignRecordDataById(signOutData.getId()));
+                result.toSucceed("签退成功！");
+        		return result;
+            }
+        }
+
         if(this.doSignIn(signInData)) {
         	result.setData(this.toUserSignRecordData(signInData));
         	result.toSucceed("签到成功！"); 
@@ -585,8 +605,8 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		}
 		return result;
 	}
-	private JdCResponse<UserSignRecordData> checkAndFillSignInInfo(UserSignRequest signInRequest,UserSignRecord signInData){
-		JdCResponse<UserSignRecordData> result = new JdCResponse<>();
+	private JdCResponse<WorkStationGrid> checkAndGetWorkStationGrid(UserSignRequest signInRequest){
+		JdCResponse<WorkStationGrid> result = new JdCResponse<>();
 		result.toSucceed();
 		if(signInRequest == null
 				|| StringHelper.isEmpty(signInRequest.getPositionCode())) {
@@ -608,7 +628,13 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 			result.toFail("上岗码对应的网格信息不存在，请先维护场地网格信息！");
 			return result;
 		}
-		WorkStationGrid gridInfo = workStationGridData.getData();
+		return result;
+	}
+	private JdCResponse<UserSignRecordData> checkAndFillSignInInfo(UserSignRequest signInRequest,UserSignRecord signInData,WorkStationGrid gridInfo){
+		JdCResponse<UserSignRecordData> result = new JdCResponse<>();
+		result.toSucceed();
+		
+		String gridKey = gridInfo.getBusinessKey();
 		String stationKey = gridInfo.getRefStationKey();
 		signInData.setJobCode(signInRequest.getJobCode());
 		signInData.setUserCode(signInRequest.getUserCode());
@@ -619,18 +645,39 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		signInData.setRefGridKey(gridKey);
 		signInData.setRefStationKey(stationKey);
 		signInData.setUserName(signInData.getUserCode());
-		if(JobTypeEnum.JOBTYPE1.getCode().equals(signInData.getJobCode())
-				||JobTypeEnum.JOBTYPE2.getCode().equals(signInData.getJobCode())) {
+		
+		String userCode = signInData.getUserCode();
+		Integer jobCode = signInData.getJobCode();
+		boolean isCarId = BusinessUtil.isIdCardNo(userCode);
+		if(JobTypeEnum.JOBTYPE1.getCode().equals(jobCode)
+				||JobTypeEnum.JOBTYPE2.getCode().equals(jobCode)
+				||JobTypeEnum.JOBTYPE6.getCode().equals(jobCode)) {
 			//正式工设置erp对应的名称
 			BaseStaffSiteOrgDto userInfo = baseMajorManager.getBaseStaffIgnoreIsResignByErp(signInData.getUserCode());
-			if(userInfo == null) {
-				result.toFail("签到失败，无效的Erp信息！");
-				return result;
-			}
+			boolean isEffectErp = false;
 			if(userInfo != null
+					&& Constants.FLAG_USER_Is_Resign.equals(userInfo.getIsResign())) {
+				isEffectErp = true;
+			}
+			if(!isEffectErp) {
+				if(JobTypeEnum.JOBTYPE1.getCode().equals(jobCode)
+							||JobTypeEnum.JOBTYPE2.getCode().equals(jobCode)) {
+					result.toFail("签到失败，ERP在中台基础资料中不存在！");
+					return result;
+				}
+				if(!isCarId){
+					result.toFail("签到失败，无效的身份证号！");
+					return result;
+				}
+			}
+			//设置用户名称
+			if(isEffectErp
 					&& userInfo.getStaffName() != null) {
 				signInData.setUserName(userInfo.getStaffName());
 			}
+		}else if(!isCarId){
+			result.toFail("签到失败，无效的身份证号！");
+			return result;
 		}
 		return result;
 	}

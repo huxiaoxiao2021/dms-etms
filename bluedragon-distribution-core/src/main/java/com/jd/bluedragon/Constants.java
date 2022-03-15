@@ -1632,6 +1632,11 @@ public class Constants {
     public static final String PRODUCT_TYPE_MEDICINE_DP = "ll-m-0018";
 
     public static final String TOTAL_URL_INTERCEPTOR = "*";
+    /**
+     * 用户有效标识
+     */
+    public static final Integer FLAG_USER_Is_Resign = 1;
+    
 
 
 }
