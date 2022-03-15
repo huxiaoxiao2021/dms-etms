@@ -628,6 +628,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 			result.toFail("上岗码对应的网格信息不存在，请先维护场地网格信息！");
 			return result;
 		}
+		result.setData(workStationGridData.getData());
 		return result;
 	}
 	private JdCResponse<UserSignRecordData> checkAndFillSignInInfo(UserSignRequest signInRequest,UserSignRecord signInData,WorkStationGrid gridInfo){
