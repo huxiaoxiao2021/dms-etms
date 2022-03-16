@@ -459,7 +459,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		if(!result.isSucceed()) {
 			return result;
 		}
-		//校验上岗码,并获取网格信息
+		//校验岗位码,并获取网格信息
 		JdCResponse<WorkStationGrid> gridResult = this.checkAndGetWorkStationGrid(signInRequest);
 		if(!gridResult.isSucceed()) {
 			result.setMessage(gridResult.getMessage());
@@ -528,7 +528,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		if(!result.isSucceed()) {
 			return result;
 		}
-		//校验上岗码,并获取网格信息
+		//校验岗位码,并获取网格信息
 		JdCResponse<WorkStationGrid> gridResult = this.checkAndGetWorkStationGrid(userSignRequest);
 		if(!gridResult.isSucceed()) {
 			result.setMessage(gridResult.getMessage());
@@ -593,7 +593,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		String scanUserCode = signRequest.getScanUserCode();
 		if(StringHelper.isNotEmpty(scanUserCode)) {
 			if(!BusinessUtil.isScanUserCode(scanUserCode)){
-				result.toFail("请扫描正确的三定条码！");
+				result.toFail("请扫描正确的人员码！");
 				return result;
 			}
 			signRequest.setJobCode(BusinessUtil.getJobCodeFromScanUserCode(scanUserCode));
@@ -610,13 +610,13 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		result.toSucceed();
 		if(signInRequest == null
 				|| StringHelper.isEmpty(signInRequest.getPositionCode())) {
-			result.toFail("上岗码不能为空！");
+			result.toFail("岗位码不能为空！");
 			return result;
 		}
 		Result<PositionDetailRecord> positionData = positionRecordService.queryOneByPositionCode(signInRequest.getPositionCode());
 		if(positionData == null
 				|| positionData.getData() == null) {
-			result.toFail("上岗码无效！");
+			result.toFail("岗位码无效！");
 			return result;
 		}
 		String gridKey = positionData.getData().getRefGridKey();
@@ -625,7 +625,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		Result<WorkStationGrid> workStationGridData = workStationGridService.queryByGridKey(workStationGridCheckQuery);
 		if(workStationGridData == null
 				|| workStationGridData.getData() == null) {
-			result.toFail("上岗码对应的网格信息不存在，请先维护场地网格信息！");
+			result.toFail("岗位码对应的网格信息不存在，请先维护场地网格信息！");
 			return result;
 		}
 		result.setData(workStationGridData.getData());
@@ -700,13 +700,13 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		result.toSucceed();
 		if(query == null
 				|| StringHelper.isEmpty(query.getPositionCode())) {
-			result.toFail("上岗码不能为空！");
+			result.toFail("岗位码不能为空！");
 			return result;
 		}
 		Result<PositionDetailRecord> positionData = positionRecordService.queryOneByPositionCode(query.getPositionCode());
 		if(positionData == null
 				|| positionData.getData() == null) {
-			result.toFail("上岗码无效！");
+			result.toFail("岗位码无效！");
 			return result;
 		}
 		query.setRefGridKey(positionData.getData().getRefGridKey());

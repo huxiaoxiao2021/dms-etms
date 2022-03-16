@@ -65,7 +65,7 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 		result.toSucceed();
 		
 		if(!BusinessUtil.isScanUserCode(scanUserCode)) {
-			result.toFail("请扫描正确的三定条码！");
+			result.toFail("请扫描正确的人员码！");
 			return result;
 		}
 		ScanUserData data = new ScanUserData();
@@ -90,8 +90,9 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 			jobCode = result.getData().getJobCode();
 		}
 		if(!JobTypeEnum.JOBTYPE1.getCode().equals(jobCode)
-				&& !JobTypeEnum.JOBTYPE2.getCode().equals(jobCode)) {
-			result.toFail("请扫描正式工|派遣工三定条码");
+				&& !JobTypeEnum.JOBTYPE2.getCode().equals(jobCode)
+				&& !JobTypeEnum.JOBTYPE6.getCode().equals(jobCode)) {
+			result.toFail("请扫描[正式工、派遣工、支援]人员码！");
 			return result;
 		}
 		return result;
