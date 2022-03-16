@@ -704,6 +704,14 @@ public class UccPropertyConfiguration {
      */
     private int notSignedOutRecordMoreThanHours;
 
+    /**
+     * 终端包装耗材重塑项目：
+     * 下线分拣维护包装耗材基础信息入口（"分拣"和"其他"类型的除外）
+     * 包装耗材确认页面的增加和删除按钮
+     * 开关：0不关闭入口；1关闭基础资料维护入口；2关闭耗材明细的增加和删除按钮；3关闭两者
+     */
+    private Integer packConsumableSwitch;
+
     public String getScheduleSiteCheckSameCity() {
         return scheduleSiteCheckSameCity;
     }
@@ -1814,5 +1822,13 @@ public class UccPropertyConfiguration {
 
     public void setNotSignedOutRecordMoreThanHours(int notSignedOutRecordMoreThanHours) {
         this.notSignedOutRecordMoreThanHours = notSignedOutRecordMoreThanHours;
+    }
+
+    public Integer getPackConsumableSwitch() {
+        return packConsumableSwitch;
+    }
+
+    public void setPackConsumableSwitch(Integer packConsumableSwitch) {
+        this.packConsumableSwitch = packConsumableSwitch;
     }
 }

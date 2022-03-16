@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -143,6 +144,19 @@ public class PackingConsumableConsumer extends MessageBaseConsumer {
             WaybillConsumableRelation relation = new WaybillConsumableRelation();
             relation.setWaybillCode(packingConsumable.getWaybillCode());
             relation.setConsumableCode(dto.getPackingCode());
+
+            relation.setConsumableName(dto.getPackingName());
+            relation.setConsumableType(dto.getPackingType());
+            relation.setConsumableTypeName(dto.getPackingTypeName());
+            relation.setSpecification(dto.getPackingSpecification());
+            relation.setUnit(dto.getPackingUnit());
+            if (dto.getPackingVolume() != null){
+                relation.setVolume(BigDecimal.valueOf(dto.getPackingVolume() * 100*100*100));
+            }
+            relation.setVolumeCoefficient(BigDecimal.valueOf(dto.getVolumeCoefficient()));
+//            relation.setWeight(dto.get);
+            relation.setPackingCharge(BigDecimal.valueOf(dto.getPackingCharge()));
+
             relation.setReceiveQuantity(dto.getPackingNumber());
             relation.setConfirmQuantity(dto.getPackingNumber());
             //relation.setOperateUserCode(packingConsumable.getOperateUserErp());
@@ -177,13 +191,18 @@ public class PackingConsumableConsumer extends MessageBaseConsumer {
         logEngine.addLog(businessLogProfiler);
     }
 
-    /* 判断是否需要直接确认包装耗材，包含木质包装耗材（木架、木箱、木托盘） */
+    /*
+        判断是否需要直接确认包装耗材，包含木质包装耗材（木架、木箱、木托盘）
+        终端包装耗材融合项目：对于木质包装耗材的判断标准有变，以终端的木质耗材编码为准，分拣侧写死在枚举中ConsumableCodeEnums，通过isWoodenConsumable进行判断是否是木质
+     */
     private boolean isNeedConfirmConsumable(WaybillConsumableDto packingConsumable) {
         if (CollectionUtils.isNotEmpty(packingConsumable.getPackingChargeList())) {
             for(WaybillConsumableDetailDto waybillConsumableDetailDto : packingConsumable.getPackingChargeList()) {
                 if(PackingTypeEnum.TY003.getTypeCode().equals(waybillConsumableDetailDto.getPackingType())
                     || PackingTypeEnum.TY004.getTypeCode().equals(waybillConsumableDetailDto.getPackingType())
-                    || PackingTypeEnum.TY008.getTypeCode().equals(waybillConsumableDetailDto.getPackingType())) {
+                    || PackingTypeEnum.TY008.getTypeCode().equals(waybillConsumableDetailDto.getPackingType())
+                    || ConsumableCodeEnums.isWoodenConsumable(waybillConsumableDetailDto.getPackingCode())
+                ) {
                     return false;
                 }
             }
