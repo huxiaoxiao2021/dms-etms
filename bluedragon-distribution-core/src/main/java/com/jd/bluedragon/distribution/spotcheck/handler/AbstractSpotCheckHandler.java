@@ -806,8 +806,10 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
         spotCheckReviewDetail.setReviewUserId(spotCheckDto.getOperateUserId());
         spotCheckReviewDetail.setReviewUserErp(spotCheckDto.getOperateUserErp());
         try {
-            BaseStaffSiteOrgDto baseStaff = baseMajorManager.getBaseStaffByErpNoCache(spotCheckDto.getOperateUserErp());
-            spotCheckReviewDetail.setReviewUserName(baseStaff.getStaffName());
+            if(StringUtils.isNotEmpty(spotCheckDto.getOperateUserErp())){
+                BaseStaffSiteOrgDto baseStaff = baseMajorManager.getBaseStaffByErpNoCache(spotCheckDto.getOperateUserErp());
+                spotCheckReviewDetail.setReviewUserName(baseStaff == null ? null : baseStaff.getStaffName());
+            }
         }catch (Exception e){
             logger.error("根据erp:{}获取操作人信息异常!", spotCheckDto.getOperateUserErp());
         }
