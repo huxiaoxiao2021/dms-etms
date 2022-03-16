@@ -13,6 +13,7 @@ import com.jd.bluedragon.common.dto.station.UserSignRecordData;
 import com.jd.bluedragon.common.dto.station.UserSignRequest;
 import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.position.service.PositionRecordService;
+import com.jd.bluedragon.distribution.station.enums.JobTypeEnum;
 import com.jd.bluedragon.distribution.station.gateway.UserSignGatewayService;
 import com.jd.bluedragon.distribution.station.service.UserSignRecordService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
@@ -64,7 +65,7 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 		result.toSucceed();
 		
 		if(!BusinessUtil.isScanUserCode(scanUserCode)) {
-			result.toFail("请扫描|输入正确的三定条码！");
+			result.toFail("请扫描正确的三定条码！");
 			return result;
 		}
 		ScanUserData data = new ScanUserData();
@@ -76,6 +77,24 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 	@Override
 	public JdCResponse<UserSignRecordData> queryLastUserSignRecordData(UserSignQueryRequest query) {
 		return userSignRecordService.queryLastUserSignRecordData(query);
+	}
+	@Override
+	public JdCResponse<ScanUserData> queryScanUserDataForLogin(String scanUserCode) {
+		JdCResponse<ScanUserData> result = this.queryScanUserData(scanUserCode);
+		if(!result.isSucceed()) {
+			return result;
+		}
+		//校验是否能登录
+		Integer jobCode = null;
+		if(result.getData() != null) {
+			jobCode = result.getData().getJobCode();
+		}
+		if(!JobTypeEnum.JOBTYPE1.getCode().equals(jobCode)
+				&& !JobTypeEnum.JOBTYPE2.getCode().equals(jobCode)) {
+			result.toFail("请扫描正式工|派遣工三定条码");
+			return result;
+		}
+		return result;
 	}
 
 }

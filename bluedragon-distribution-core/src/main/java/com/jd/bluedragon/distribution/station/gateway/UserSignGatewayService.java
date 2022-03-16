@@ -58,4 +58,10 @@ public interface UserSignGatewayService {
 	 * @return
 	 */
 	JdCResponse<ScanUserData> queryScanUserData(String scanUserCode);
+	/**
+	 * 登录-查询扫描用户信息
+	 * @param scanUserCode
+	 * @return
+	 */
+	JdCResponse<ScanUserData> queryScanUserDataForLogin(String scanUserCode);
 }
