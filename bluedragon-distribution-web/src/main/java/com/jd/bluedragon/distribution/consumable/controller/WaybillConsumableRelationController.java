@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.consumable.controller;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
 import com.jd.bluedragon.distribution.consumable.domain.*;
@@ -10,16 +11,16 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.uim.annotation.Authorization;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
+import java.util.Objects;
 
 /**
  *
@@ -43,13 +44,21 @@ public class WaybillConsumableRelationController extends DmsBaseController{
 
 	@Autowired
 	private BaseMajorManager baseMajorManager;
+
+	@Autowired
+	private UccPropertyConfiguration uccPropertyConfiguration;
+
 	/**
 	 * 返回主页面
 	 * @return
 	 */
 	@Authorization(Constants.DMS_WEB_EXPRESS_WAYBILLCONSUMABLERECORD_R)
-	@RequestMapping(value = "/toIndex")
-	public String toIndex() {
+	@RequestMapping(value = "/toIndex", method = RequestMethod.GET)
+	public String toIndex(Model model) {
+		boolean flag = Objects.equals(uccPropertyConfiguration.getPackConsumableSwitch(),2)
+				|| Objects.equals(uccPropertyConfiguration.getPackConsumableSwitch(), 3);
+
+		model.addAttribute("banAddAndDeleteFlag", flag);
 		return "/consumable/waybillConsumableRelation";
 	}
 	/**
@@ -164,6 +173,12 @@ public class WaybillConsumableRelationController extends DmsBaseController{
 		JdResponse<Integer> result = new JdResponse<>();
 		try {
 			String packUserErp = waybillConsumablePackUserRequest.getPackUserErp();
+
+			if (StringUtils.isEmpty(packUserErp)) {
+				result.toError("打包人的ERP为空，请检查！");
+				return result;
+			}
+
 			//验证ERP是否存在
 			BaseStaffSiteOrgDto userOrgInfo = baseMajorManager.getBaseStaffByErpNoCache(packUserErp);
 			if (userOrgInfo == null){

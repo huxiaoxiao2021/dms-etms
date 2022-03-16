@@ -4971,8 +4971,8 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
             return response;
         }
 
-        //3.B网包装耗材服务确认拦截
-        if (! this.checkWaybillConsumable(sendM)) {
+        //3.包装耗材服务确认拦截
+        if (this.checkWaybillConsumable(sendM)) {
             response.setCode(DeliveryResponse.CODE_29120);
             response.setMessage(HintService.getHint(HintCodeConstants.PACKING_CONSUMABLE_CONFIRM_TIPS_SECOND));
             return response;
@@ -7186,25 +7186,8 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
             if (WaybillUtil.isPackageCode(sendM.getBoxCode()) && ! WaybillUtil.isSurfaceCode(sendM.getBoxCode())) {
                 String waybillCode = WaybillUtil.getWaybillCode(sendM.getBoxCode());
                 if (StringHelper.isNotEmpty(waybillCode)) {
-                    WChoice wChoice = new WChoice();
-                    wChoice.setQueryWaybillS(true);
-                    wChoice.setQueryWaybillC(true);
-                    //获取运单信息
-                    BaseEntity<BigWaybillDto> baseEntity = this.waybillQueryManager.getDataByChoice(waybillCode, wChoice);
-                    if (baseEntity != null && baseEntity.getData() != null && baseEntity.getData().getWaybill() != null) {
-                        this.log.debug("运单号【{}】调用运单数据成功！",waybillCode);
-
-                        waybill = baseEntity.getData().getWaybill();
-                        String waybillSign = waybill.getWaybillSign();
-                        //判断waybillSign是够支持包装耗材服务，支持才判断是否确认
-                        if (BusinessHelper.isNeedConsumable(waybillSign)) {
-                            //返回确认结果
-                            return waybillConsumableRecordService.isConfirmed(waybillCode);
-                        }
-                    } else {
-                        //无运单数据
-                        log.warn("{}对应的运单信息为空！",waybillCode);
-                    }
+                    /* 终端包装耗材重塑项目：不进行标位判断，见任务进行拦截 */
+                    return waybillConsumableRecordService.needConfirmed(waybillCode);
                 } else {
                     //运单号转换失败
                     log.warn("{}转换运单号失败！",sendM.getBoxCode());

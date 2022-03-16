@@ -510,8 +510,7 @@ public class BoardCommonManagerImpl implements BoardCommonManager {
 
 
             //有包装服务
-            boolean isPackService = BusinessUtil.isNeedConsumable(waybillSign);
-            if(isPackService && waybillConsumableRecordService.needConfirmed(waybillCode)){
+            if(waybillConsumableRecordService.needConfirmed(waybillCode)){
                 logger.warn("interceptValidate卸车包装服务运单未确认包装完成禁止发货单号：{}",waybillCode);
                 result.setCode(InvokeResult.RESULT_INTERCEPT_CODE);
                 result.setMessage(LoadIllegalException.PACK_SERVICE_NO_CONFIRM_FORBID_SEND_MESSAGE);
@@ -607,8 +606,7 @@ public class BoardCommonManagerImpl implements BoardCommonManager {
             return result;
         }
         //有包装服务
-        boolean isPackService = BusinessUtil.isNeedConsumable(waybillSign);
-        if(isPackService && waybillConsumableRecordService.needConfirmed(waybillCode)){
+        if(waybillConsumableRecordService.needConfirmed(waybillCode)){
             logger.warn("loadUnloadInterceptValidate 装卸车包装服务运单未确认包装完成禁止发货单号：{}",waybillCode);
 //            result.setCode(InvokeResult.RESULT_INTERCEPT_CODE);
             result.setData(true);
