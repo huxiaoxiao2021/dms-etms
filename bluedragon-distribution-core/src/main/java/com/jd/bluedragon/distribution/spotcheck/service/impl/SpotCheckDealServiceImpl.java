@@ -82,6 +82,11 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
 
     private static final Logger logger = LoggerFactory.getLogger(SpotCheckDealServiceImpl.class);
 
+    /**外部 访问域名 */
+    private static final String STORAGE_DOMAIN_COM = "storage.jd.com";
+    /**内部 访问域名 */
+    private static final String STORAGE_DOMAIN_LOCAL = "storage.jd.local";
+
     private static final int OUT_EXCESS_STATUS = 3; // 外部门定义的未超标值
 
     @Value("${jss.pda.image.bucket}")
@@ -1104,8 +1109,8 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
             }
             if(Objects.equals(spotCheckDto.getExcessType(), SpotCheckConstants.EXCESS_TYPE_WEIGHT)){
                 // 1）、重量超标：2张，面单和重量
-                picList.add(picUrlList.get(0));
-                picList.add(picUrlList.get(1));
+                picList.add(replaceInOut(picUrlList.get(0)));
+                picList.add(replaceInOut(picUrlList.get(1)));
                 return picList;
             }else {
                 // 2）、体积超标：5张，面单、全景、长、宽、高
@@ -1117,10 +1122,17 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
             // 1）、一单一件下发一张
             // 2）、一单多件不下发图片
             if(!Objects.equals(spotCheckDto.getIsMultiPack(), Constants.CONSTANT_NUMBER_ONE)){
-                picList.add(spotCheckDto.getPictureAddress());
+                picList.add(replaceInOut(spotCheckDto.getPictureAddress()));
             }
         }
         return picList;
+    }
+
+    private String replaceInOut(String inAddress) {
+        if(StringUtils.isEmpty(inAddress)){
+            return Constants.EMPTY_FILL;
+        }
+        return inAddress.replace(STORAGE_DOMAIN_LOCAL, STORAGE_DOMAIN_COM);
     }
 
     @Override
