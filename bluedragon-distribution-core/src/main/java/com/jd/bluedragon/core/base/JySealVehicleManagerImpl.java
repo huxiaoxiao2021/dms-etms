@@ -1,7 +1,9 @@
 package com.jd.bluedragon.core.base;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.request.SealTaskInfoRequest;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.exception.SealVehicleTaskBusinessException;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ump.profiler.CallerInfo;
@@ -36,11 +38,19 @@ public class JySealVehicleManagerImpl implements IJySealVehicleManager {
     @Qualifier("jySealVehicleService")
     private ISealVehicleService sealVehicleService;
 
+    @Autowired
+    private UccPropertyConfiguration uccConfig;
+
     @Override
     public SealVehicleTaskResponse querySealTask(Pager<SealVehicleTaskQuery> pager) {
         CallerInfo ump = ProfilerHelper.registerInfo("dms.web.jySealVehicleManager.querySealCarByStatus");
 
         try {
+            if (uccConfig.getSealTaskForceFallback() == Constants.YN_YES) {
+                log.info("解封车任务列表服务强制降级. query:{}", JsonHelper.toJson(pager));
+                throw new SealVehicleTaskBusinessException("解封车任务列表服务强制降级");
+            }
+
             ServiceResult<SealVehicleTaskResponse> serviceResult = sealVehicleService.querySealCarByStatus(pager);
             if (serviceResult.retFail()) {
                 log.error("查询待解封车任务失败. {}-{}", JsonHelper.toJson(pager), JsonHelper.toJson(serviceResult));

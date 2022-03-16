@@ -70,6 +70,18 @@ public class JySealVehicleServiceImpl implements IJySealVehicleService {
     @Autowired
     private NewSealVehicleService newSealVehicleService;
 
+    @HystrixCommand(
+            commandKey = "fetchSealTask",
+            fallbackMethod = "sealTaskFallback",
+            commandProperties = {
+                    @HystrixProperty(name = HystrixPropertiesManager.FALLBACK_ENABLED, value = "true"),
+                    @HystrixProperty(name = HystrixPropertiesManager.EXECUTION_ISOLATION_THREAD_TIMEOUT_IN_MILLISECONDS, value = "500"),
+                    @HystrixProperty(name = HystrixPropertiesManager.FALLBACK_ISOLATION_SEMAPHORE_MAX_CONCURRENT_REQUESTS, value = "10"),
+                    @HystrixProperty(name = HystrixPropertiesManager.CIRCUIT_BREAKER_ENABLED, value = "false"),
+                    @HystrixProperty(name = HystrixPropertiesManager.CIRCUIT_BREAKER_ERROR_THRESHOLD_PERCENTAGE, value = "10"),
+                    @HystrixProperty(name = HystrixPropertiesManager.CIRCUIT_BREAKER_REQUEST_VOLUME_THRESHOLD, value = "10"),
+            }
+    )
     @Override
     public InvokeResult<SealVehicleTaskResponse> fetchSealTask(SealVehicleTaskRequest request) {
         InvokeResult<SealVehicleTaskResponse> result = new InvokeResult<>();
@@ -100,7 +112,7 @@ public class JySealVehicleServiceImpl implements IJySealVehicleService {
         pager.setPageSize(request.getPageSize());
         pager.setSearchVo(query);
 
-        com.jdl.jy.realtime.model.vo.seal.SealVehicleTaskResponse serviceResult = fetchSealTaskFromEs(pager);
+        com.jdl.jy.realtime.model.vo.seal.SealVehicleTaskResponse serviceResult = jySealVehicleManager.querySealTask(pager);
         if (serviceResult == null) {
             result.error("服务器异常，请联系分拣小秘");
             return result;
@@ -122,22 +134,6 @@ public class JySealVehicleServiceImpl implements IJySealVehicleService {
         }
 
         return result;
-    }
-
-    @HystrixCommand(
-            commandKey = "fetchSealTask",
-            fallbackMethod = "sealTaskFallback",
-            commandProperties = {
-                    @HystrixProperty(name = HystrixPropertiesManager.FALLBACK_ENABLED, value = "true"),
-//                    @HystrixProperty(name = HystrixPropertiesManager.EXECUTION_ISOLATION_THREAD_TIMEOUT_IN_MILLISECONDS, value = "500"),
-//                    @HystrixProperty(name = HystrixPropertiesManager.FALLBACK_ISOLATION_SEMAPHORE_MAX_CONCURRENT_REQUESTS, value = "10"),
-//                    @HystrixProperty(name = HystrixPropertiesManager.CIRCUIT_BREAKER_ERROR_THRESHOLD_PERCENTAGE, value = "10"),
-//                    @HystrixProperty(name = HystrixPropertiesManager.CIRCUIT_BREAKER_REQUEST_VOLUME_THRESHOLD, value = "10"),
-            }
-    )
-    public com.jdl.jy.realtime.model.vo.seal.SealVehicleTaskResponse fetchSealTaskFromEs(Pager<SealVehicleTaskQuery> pager) {
-        com.jdl.jy.realtime.model.vo.seal.SealVehicleTaskResponse serviceResult = jySealVehicleManager.querySealTask(pager);
-        return serviceResult;
     }
 
     private boolean isRefresh(SealVehicleTaskRequest request) {
@@ -173,6 +169,7 @@ public class JySealVehicleServiceImpl implements IJySealVehicleService {
     }
 
     /**
+     * Hystrix降级任务
      * 解封车任务降级逻辑
      * @param request
      * @param throwable
