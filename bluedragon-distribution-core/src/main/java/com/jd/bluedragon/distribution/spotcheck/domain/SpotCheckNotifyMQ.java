@@ -1,7 +1,6 @@
 package com.jd.bluedragon.distribution.spotcheck.domain;
 
 import java.io.Serializable;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -110,14 +109,8 @@ public class SpotCheckNotifyMQ implements Serializable {
     //核对重量来源 核对重量来源（计费/复重/下单/无）1-计费重量 2-运单复重 3-下单重量
     private Integer confirmWeightSource;
 
-    // 流程发起时间 格式 "yyyy-MM-dd HH:mm:ss";只在流程发起时初始化一次
-    private Date startTime;
-
     // 1：待核实 2：认责 3：超时认责 4：系统认责 5：升级判责 6：判责有效 7：判责无效 8：处理完成
     private Integer status;
-
-    // 状态变更时间；
-    private Date statusUpdateTime;
 
     // 附件类型 1:图片，2:视频
     private Integer appendix;
@@ -373,14 +366,6 @@ public class SpotCheckNotifyMQ implements Serializable {
         this.confirmWeightSource = confirmWeightSource;
     }
 
-    public Date getStartTime() {
-        return startTime;
-    }
-
-    public void setStartTime(Date startTime) {
-        this.startTime = startTime;
-    }
-
     public Integer getStatus() {
         return status;
     }
@@ -389,13 +374,6 @@ public class SpotCheckNotifyMQ implements Serializable {
         this.status = status;
     }
 
-    public Date getStatusUpdateTime() {
-        return statusUpdateTime;
-    }
-
-    public void setStatusUpdateTime(Date statusUpdateTime) {
-        this.statusUpdateTime = statusUpdateTime;
-    }
 
     public Integer getAppendix() {
         return appendix;
