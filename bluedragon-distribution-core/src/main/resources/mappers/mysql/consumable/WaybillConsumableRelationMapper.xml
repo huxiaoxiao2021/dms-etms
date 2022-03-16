@@ -16,6 +16,14 @@
 		<result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
 		<result column="is_delete" property="isDelete" javaType="java.lang.Integer" jdbcType="TINYINT" />
 		<result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="consumable_name" property="consumableName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="consumable_type" property="consumableType" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="consumable_type_name" property="consumableTypeName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="volume" property="volume" javaType="java.math.BigDecimal" jdbcType="DECIMAL" />
+		<result column="volume_coefficient" property="volumeCoefficient" javaType="java.math.BigDecimal" jdbcType="DECIMAL" />
+		<result column="specification" property="specification" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="unit" property="unit" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="packing_charge" property="packingCharge" javaType="java.math.BigDecimal" jdbcType="DECIMAL" />
 	</resultMap>
 
 	<resultMap id="WaybillConsumableDetailInfo" type="com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableDetailInfo" >
@@ -39,6 +47,15 @@
 		<result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
 		<result column="is_delete" property="isDelete" javaType="java.lang.Integer" jdbcType="TINYINT" />
 		<result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+
+		<result column="consumable_name" property="name" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="consumable_type" property="type" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="consumable_type_name" property="typeName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="volume" property="volume" javaType="java.math.BigDecimal" jdbcType="DECIMAL" />
+		<result column="volume_coefficient" property="volumeCoefficient" javaType="java.math.BigDecimal" jdbcType="DECIMAL" />
+		<result column="specification" property="specification" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="unit" property="unit" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="packing_charge" property="packingCharge" javaType="java.math.BigDecimal" jdbcType="DECIMAL" />
 	</resultMap>
 
 	<sql id="Base_Column_List" >
@@ -46,6 +63,13 @@
 		operate_user_erp,pack_user_erp,operate_time,create_time,update_time,is_delete,
 		ts
 	</sql>
+
+	<sql id="Base_Column_Detail_List" >
+		id,waybill_code,consumable_code,receive_quantity,confirm_quantity,operate_user_code,
+		operate_user_erp,pack_user_erp,operate_time,create_time,update_time,is_delete,ts,
+		consumable_name,consumable_type,consumable_type_name,volume,volume_coefficient,specification,unit,packing_charge
+	</sql>
+
 
 	<insert id="insert" parameterType="com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRelation">
 		insert into waybill_consumable_relation
@@ -88,7 +112,31 @@
 					is_delete,
 				</if>
 				<if test="ts != null">
-					ts
+					ts,
+				</if>
+				<if test="consumableName != null">
+					consumable_name,
+				</if>
+				<if test="consumableType != null">
+					consumable_type,
+				</if>
+				<if test="consumableTypeName != null">
+					consumable_type_name,
+				</if>
+				<if test="volume != null">
+					volume,
+				</if>
+				<if test="volumeCoefficient != null">
+					volume_coefficient,
+				</if>
+				<if test="specification != null">
+					specification,
+				</if>
+				<if test="unit != null">
+					unit,
+				</if>
+				<if test="packingCharge != null">
+					packing_charge
 				</if>
 			</trim>
 			)
@@ -132,7 +180,31 @@
 					#{isDelete,jdbcType=TINYINT},
 				</if>
 				<if test="ts != null">
-					#{ts,jdbcType=TIMESTAMP}
+					#{ts,jdbcType=TIMESTAMP},
+				</if>
+				<if test="consumableName != null">
+					#{item.consumableName,jdbcType=VARCHAR},
+				</if>
+				<if test="consumableType != null">
+					#{item.consumableType,jdbcType=VARCHAR},
+				</if>
+				<if test="consumableTypeName != null">
+					#{item.consumableTypeName,jdbcType=VARCHAR},
+				</if>
+				<if test="volume != null">
+					#{item.volume,jdbcType=DECIMAL},
+				</if>
+				<if test="volumeCoefficient != null">
+					#{item.volumeCoefficient,jdbcType=DECIMAL},
+				</if>
+				<if test="specification != null">
+					#{item.specification,jdbcType=VARCHAR},
+				</if>
+				<if test="unit != null">
+					#{item.unit,jdbcType=VARCHAR},
+				</if>
+				<if test="packingCharge != null">
+					#{item.packingCharge,jdbcType=DECIMAL}
 				</if>
 			</trim>
 			)
@@ -142,7 +214,8 @@
 		insert into waybill_consumable_relation
 			(
 				waybill_code,consumable_code,receive_quantity,confirm_quantity,
-				operate_user_erp,operate_time,create_time,is_delete,ts
+				operate_user_erp,operate_time,create_time,is_delete,ts,
+				consumable_name,consumable_type,consumable_type_name,volume,volume_coefficient,specification,unit,packing_charge
 			)
 			values
 			<foreach collection="list" item="item" index="index" separator=",">
@@ -155,7 +228,15 @@
 					#{item.operateTime,jdbcType=TIMESTAMP},
 					now(),
 					0,
-					now()
+					now(),
+					#{item.consumableName,jdbcType=VARCHAR},
+					#{item.consumableType,jdbcType=VARCHAR},
+					#{item.consumableTypeName,jdbcType=VARCHAR},
+					#{item.volume,jdbcType=DECIMAL},
+					#{item.volumeCoefficient,jdbcType=DECIMAL},
+					#{item.specification,jdbcType=VARCHAR},
+					#{item.unit,jdbcType=VARCHAR},
+					#{item.packingCharge,jdbcType=DECIMAL}
 				)
 			</foreach>
 	</insert>
@@ -219,9 +300,19 @@
 	</update>
 
     <select id="queryByWaybillCodes" parameterType="List" resultMap="WaybillConsumableDetailInfo">
-        select waybill_code,receive_quantity,confirm_quantity,pack_user_erp,consumable_code,name,type,type_name,volume,volume_coefficient,specification,unit
+        select waybill_code,receive_quantity,confirm_quantity,pack_user_erp,consumable_code,name,type,type_name,pci.volume,pci.volume_coefficient,pci.specification,pci.unit, packing_charge
         from waybill_consumable_relation wcr left join packing_consumable_info pci on wcr.consumable_code = pci.code
 		where wcr.is_delete = 0 and  wcr.waybill_code in
+		<foreach collection="list" item="item" index="index" open="(" separator="," close=")">
+			#{item,jdbcType=VARCHAR}
+		</foreach>
+	</select>
+
+	<select id="queryNewByWaybillCodes" parameterType="List" resultMap="WaybillConsumableDetailInfo">
+		select
+			<include refid="Base_Column_Detail_List"/>
+		from waybill_consumable_relation
+		where is_delete = 0 and  waybill_code in
 		<foreach collection="list" item="item" index="index" open="(" separator="," close=")">
 			#{item,jdbcType=VARCHAR}
 		</foreach>
@@ -278,11 +369,26 @@
 	</select>
 
 	<select id="queryDetailInfoByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultMap="WaybillConsumableDetailInfo">
-		select wcr.id,waybill_code,receive_quantity,confirm_quantity,pack_user_erp,consumable_code,name,type,type_name,volume,volume_coefficient,specification,unit,wcr.operate_time,wcr.operate_user_code,wcr.operate_user_erp,wcr.create_time,wcr.update_time,wcr.is_delete
+		select wcr.id,waybill_code,receive_quantity,confirm_quantity,pack_user_erp,consumable_code,name,type,type_name,pci.volume,pci.volume_coefficient,pci.specification,pci.unit,wcr.operate_time,wcr.operate_user_code,wcr.operate_user_erp,wcr.create_time,wcr.update_time,wcr.is_delete
 			from packing_consumable_info pci
 			inner join waybill_consumable_relation wcr
 			on pci.code = wcr.consumable_code
 			where pci.is_delete = 0 and wcr.is_delete = 0 and waybill_code = #{waybillCode,jdbcType=VARCHAR}
+		limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
+	</select>
+
+	<select id="pageNum_queryNewDetailInfoByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultType="Integer">
+		select
+		count(1) as num
+		from waybill_consumable_relation
+		where is_delete = 0 and waybill_code = #{waybillCode,jdbcType=VARCHAR}
+	</select>
+
+	<select id="queryNewDetailInfoByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultMap="WaybillConsumableDetailInfo">
+		select
+			<include refid="Base_Column_Detail_List"/>
+		from waybill_consumable_relation
+		where is_delete = 0 and waybill_code = #{waybillCode,jdbcType=VARCHAR}
 		limit #{offset,jdbcType=INTEGER},#{limit,jdbcType=INTEGER}
 	</select>
 

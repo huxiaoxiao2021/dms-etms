@@ -29,8 +29,18 @@ public class WaybillConsumableRelationDaoImpl extends BaseDao<WaybillConsumableR
     }
 
     @Override
+    public List<WaybillConsumableDetailInfo> queryNewByWaybillCodes(List<String> waybillCodes) {
+        return sqlSession.selectList(this.nameSpace+".queryNewByWaybillCodes", waybillCodes);
+    }
+
+    @Override
     public PagerResult<WaybillConsumableDetailInfo> queryDetailInfoByPagerCondition(WaybillConsumableRelationCondition waybillConsumableRelationCondition) {
         return this.queryByPagerCondition("queryDetailInfoByPagerCondition", waybillConsumableRelationCondition);
+    }
+
+    @Override
+    public PagerResult<WaybillConsumableDetailInfo> queryNewDetailInfoByPagerCondition(WaybillConsumableRelationCondition waybillConsumableRelationCondition) {
+        return this.queryByPagerCondition("queryNewDetailInfoByPagerCondition", waybillConsumableRelationCondition);
     }
 
     @Override

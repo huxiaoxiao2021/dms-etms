@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.web;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.common.web.LoginContext;
 import com.jd.ql.basic.domain.BaseDataDict;
@@ -21,6 +22,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -47,6 +49,9 @@ public class IndexController {
 
     @Value("${zyWeightConfigUrl:}")
     private String zyWeightConfigUrl;
+
+    @Autowired
+    private UccPropertyConfiguration uccPropertyConfiguration;
 
     @Authorization(Constants.DMS_WEB_INDEX_R)
     @RequestMapping(value = "/", method = RequestMethod.GET)
@@ -126,6 +131,12 @@ public class IndexController {
             model.addAttribute("zyWeightConfigUrl",zyWeightConfigUrl);
             model.addAttribute("userName", erpUser.getUserName());
             model.addAttribute("userCode", erpUser.getStaffNo());
+
+            boolean flag = Objects.equals(uccPropertyConfiguration.getPackConsumableSwitch(),1)
+                    || Objects.equals(uccPropertyConfiguration.getPackConsumableSwitch(), 3);
+
+            model.addAttribute("banAddAndDeleteFlag", flag);
+
         } catch (Exception e) {
             //菜单不处理异常信息
             log.error("获取当前用户失败", e);

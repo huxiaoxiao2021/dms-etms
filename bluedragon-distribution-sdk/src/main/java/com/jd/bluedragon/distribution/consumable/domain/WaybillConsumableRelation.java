@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.consumable.domain;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import com.jd.ql.dms.common.web.mvc.api.DbEntity;
 
@@ -20,6 +21,51 @@ public class WaybillConsumableRelation extends DbEntity {
 
 	 /** 耗材编号 */
 	private String consumableCode;
+
+	/**
+	 * 新增明细字段：耗材名称
+	 */
+	private String consumableName;
+
+	/**
+	 * 新增明细字段：耗材类型
+	 */
+	private String consumableType;
+
+	/**
+	 * 新增明细字段：耗材类型名称
+	 */
+	private String consumableTypeName;
+
+	/**
+	 * 新增明细字段：体积(cm³)
+	 */
+	private BigDecimal volume;
+
+	/**
+	 * 新增明细字段：体积系数
+	 */
+	private BigDecimal volumeCoefficient;
+
+	/**
+	 * 新增明细字段：规格
+	 */
+	private String specification;
+
+	/**
+	 * 新增明细字段：单位
+	 */
+	private String unit;
+
+	/**
+	 * 新增明细字段：重量
+	 */
+	private BigDecimal weight;
+
+	/**
+	 * 包装耗材价格
+	 */
+	private BigDecimal packingCharge;
 
 	 /** 揽收数量 */
 	private Double receiveQuantity;
@@ -69,6 +115,78 @@ public class WaybillConsumableRelation extends DbEntity {
 	 */
 	public String getConsumableCode() {
 		return this.consumableCode;
+	}
+
+	public String getConsumableName() {
+		return consumableName;
+	}
+
+	public void setConsumableName(String consumableName) {
+		this.consumableName = consumableName;
+	}
+
+	public String getConsumableType() {
+		return consumableType;
+	}
+
+	public void setConsumableType(String consumableType) {
+		this.consumableType = consumableType;
+	}
+
+	public String getConsumableTypeName() {
+		return consumableTypeName;
+	}
+
+	public void setConsumableTypeName(String consumableTypeName) {
+		this.consumableTypeName = consumableTypeName;
+	}
+
+	public BigDecimal getVolume() {
+		return volume;
+	}
+
+	public void setVolume(BigDecimal volume) {
+		this.volume = volume;
+	}
+
+	public BigDecimal getVolumeCoefficient() {
+		return volumeCoefficient;
+	}
+
+	public void setVolumeCoefficient(BigDecimal volumeCoefficient) {
+		this.volumeCoefficient = volumeCoefficient;
+	}
+
+	public String getSpecification() {
+		return specification;
+	}
+
+	public void setSpecification(String specification) {
+		this.specification = specification;
+	}
+
+	public String getUnit() {
+		return unit;
+	}
+
+	public void setUnit(String unit) {
+		this.unit = unit;
+	}
+
+	public BigDecimal getWeight() {
+		return weight;
+	}
+
+	public void setWeight(BigDecimal weight) {
+		this.weight = weight;
+	}
+
+	public BigDecimal getPackingCharge() {
+		return packingCharge;
+	}
+
+	public void setPackingCharge(BigDecimal packingCharge) {
+		this.packingCharge = packingCharge;
 	}
 
 	/**

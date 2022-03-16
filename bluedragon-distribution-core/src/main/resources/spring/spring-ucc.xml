@@ -164,6 +164,7 @@
 		<property name="restApiOuthSwitch" value="${restApiOuthSwitch:true}"/>
 		<property name="needInterceptUrls" value="${needInterceptUrls:*}"/>
 		<property name="notSignedOutRecordMoreThanHours" value="${notSignedOutRecordMoreThanHours:-1}"/>
+		<property name="packConsumableSwitch" value="${packConsumableSwitch:0}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -311,6 +312,7 @@
 				<value>uccPropertyConfiguration.restApiOuthSwitch</value>
 				<value>uccPropertyConfiguration.needInterceptUrls</value>
 				<value>uccPropertyConfiguration.notSignedOutRecordMoreThanHours</value>
+				<value>uccPropertyConfiguration.packConsumableSwitch</value>
 
                 <value>hystrixRouteUccPropertyConfiguration.executionTimeoutInMilliseconds</value>
                 <value>hystrixRouteUccPropertyConfiguration.circuitBreakerEnabled</value>
