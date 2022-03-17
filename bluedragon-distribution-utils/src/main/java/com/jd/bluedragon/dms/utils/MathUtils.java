@@ -1,6 +1,7 @@
 package com.jd.bluedragon.dms.utils;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 /**
  * 数学计算工具
@@ -33,6 +34,6 @@ public class MathUtils {
      */
     public static Double keepScale(double source, int scale) {
         BigDecimal b = BigDecimal.valueOf((float) source);
-        return b.setScale(scale, BigDecimal.ROUND_HALF_UP).doubleValue();
+        return b.setScale(scale, RoundingMode.HALF_UP).doubleValue();
     }
 }

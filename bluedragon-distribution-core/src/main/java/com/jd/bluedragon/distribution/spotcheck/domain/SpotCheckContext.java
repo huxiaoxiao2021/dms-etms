@@ -118,9 +118,18 @@ public class SpotCheckContext implements Serializable {
      */
     private Integer excessStatus;
     /**
+     * 超标类型
+     *  1：重量超标 2：体积超标
+     */
+    private Integer excessType;
+    /**
      * 超标原因
      */
     private String excessReason;
+    /**
+     * 重量差异
+     */
+    private Double diffWeight;
     /**
      * 误差标准值
      */
@@ -135,6 +144,16 @@ public class SpotCheckContext implements Serializable {
      * 图片链接
      */
     private String pictureAddress;
+    /**
+     * 是否有视频
+     * 1: 有
+     * 0: 无
+     */
+    private Integer isHasVideo;
+    /**
+     * 视频链接
+     */
+    private String videoAddress;
 
     public String getSpotCheckSourceFrom() {
         return spotCheckSourceFrom;
@@ -305,7 +324,8 @@ public class SpotCheckContext implements Serializable {
     }
 
     public SpotCheckContrastDetail getSpotCheckContrastDetail() {
-        return spotCheckContrastDetail == null ? new SpotCheckContrastDetail() : spotCheckContrastDetail;
+        setSpotCheckContrastDetail(spotCheckContrastDetail == null ? new SpotCheckContrastDetail() : spotCheckContrastDetail);
+        return spotCheckContrastDetail;
     }
 
     public void setSpotCheckContrastDetail(SpotCheckContrastDetail spotCheckContrastDetail) {
@@ -320,12 +340,28 @@ public class SpotCheckContext implements Serializable {
         this.excessStatus = excessStatus;
     }
 
+    public Integer getExcessType() {
+        return excessType;
+    }
+
+    public void setExcessType(Integer excessType) {
+        this.excessType = excessType;
+    }
+
     public String getExcessReason() {
         return excessReason;
     }
 
     public void setExcessReason(String excessReason) {
         this.excessReason = excessReason;
+    }
+
+    public Double getDiffWeight() {
+        return diffWeight;
+    }
+
+    public void setDiffWeight(Double diffWeight) {
+        this.diffWeight = diffWeight;
     }
 
     public String getDiffStandard() {
@@ -350,5 +386,21 @@ public class SpotCheckContext implements Serializable {
 
     public void setPictureAddress(String pictureAddress) {
         this.pictureAddress = pictureAddress;
+    }
+
+    public Integer getIsHasVideo() {
+        return isHasVideo;
+    }
+
+    public void setIsHasVideo(Integer isHasVideo) {
+        this.isHasVideo = isHasVideo;
+    }
+
+    public String getVideoAddress() {
+        return videoAddress;
+    }
+
+    public void setVideoAddress(String videoAddress) {
+        this.videoAddress = videoAddress;
     }
 }

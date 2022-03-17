@@ -102,4 +102,10 @@ public interface WorkStationGridService {
 	 * @return
 	 */
 	Result<WorkStationGridCountVo> queryPageCount(WorkStationGridQuery query);
+	/**
+	 * 
+	 * @param stationKey
+	 * @return
+	 */
+	boolean hasGridData(String stationKey);
 }
