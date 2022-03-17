@@ -629,18 +629,18 @@
 		order by r.sign_in_time desc
 		limit 1
 	</select>
-	<select id="queryListWithPosition" parameterType="com.jd.bluedragon.distribution.station.query.UserSignRecordQuery" resultMap="UserSignRecordData">
+	<select id="queryListWithPosition" parameterType="com.jd.bluedragon.common.dto.station.UserSignQueryRequest" resultMap="UserSignRecordData">
 		select
 			<include refid="Base_Column_List"/>
 		from
 			user_sign_record r
 		<include refid="joinSql"/>
 		<include refid="queryWithPosition"/>
-		order by r.ts desc
+		order by r.sign_in_time desc,r.sign_out_time
         limit #{offset}, #{limit}
 	</select>
 
-	<select id="queryCountWithPosition" parameterType="com.jd.bluedragon.distribution.station.query.UserSignRecordQuery" resultType="long">
+	<select id="queryCountWithPosition" parameterType="com.jd.bluedragon.common.dto.station.UserSignQueryRequest" resultType="long">
 		select
 			count(1)
 		from
@@ -652,13 +652,15 @@
 		<where>
 			r.yn = 1
 			and r.ref_grid_key = #{refGridKey,jdbcType=VARCHAR}
+			and t.sign_in_time >= #{signInTimeStart,jdbcType=TIMESTAMP}
+			and t.sign_in_time &lt;= #{signInTimeEnd,jdbcType=TIMESTAMP}			
 		<if test="signDate != null" >
 			and r.sign_date = #{signDate,jdbcType=DATE}
 		</if>		
 		</where>
 	</sql>	
 	
-	<select id="queryLastUserSignRecordData" parameterType="com.jd.bluedragon.distribution.station.query.UserSignRecordQuery" resultMap="UserSignRecordData">
+	<select id="queryLastUserSignRecordData" parameterType="com.jd.bluedragon.common.dto.station.UserSignQueryRequest" resultMap="UserSignRecordData">
 		select
 			<include refid="Base_Column_List"/>
 		from

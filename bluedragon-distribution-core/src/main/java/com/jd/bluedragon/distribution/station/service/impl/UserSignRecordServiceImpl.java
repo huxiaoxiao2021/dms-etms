@@ -68,6 +68,9 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	@Value("${beans.userSignRecordService.signDateRangeMaxDays:7}")
 	private int signDateRangeMaxDays;
 	
+	@Value("${beans.userSignRecordService.queryByPositionRangeDays:2}")
+	private int queryByPositionRangeDays;
+	
 	@Autowired
 	@Qualifier("workStationService")
 	WorkStationService workStationService;
@@ -709,6 +712,11 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 			result.toFail("岗位码无效！");
 			return result;
 		}
+		//当天0点
+		Date nowDate = DateHelper.parseDate(DateHelper.getDateOfyyMMdd2(),DateHelper.DATE_FORMAT_YYYYMMDD);
+		//设置时间查询范围
+		query.setSignInTimeStart(DateHelper.addDate(nowDate, -(this.queryByPositionRangeDays - 1)));
+		query.setSignInTimeEnd(DateHelper.add(nowDate, Calendar.SECOND, (int)DateHelper.ONE_DAY_SECONDS - 1));
 		query.setRefGridKey(positionData.getData().getRefGridKey());
 		if(query.getPageSize() == null
 				|| query.getPageSize() <= 0) {
