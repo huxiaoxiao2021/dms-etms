@@ -12,7 +12,11 @@ import com.jd.bluedragon.common.dto.board.response.VirtualBoardResultDto;
 import com.jd.bluedragon.distribution.board.SortBoardJsfService;
 import com.jd.bluedragon.distribution.board.domain.Response;
 import com.jd.bluedragon.distribution.board.service.VirtualBoardService;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.gateway.service.VirtualBoardGatewayService;
+import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.transboard.api.dto.Board;
+import com.jd.transboard.api.service.GroupBoardService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections4.CollectionUtils;
@@ -37,6 +41,8 @@ public class VirtualBoardGatewayServiceImpl implements VirtualBoardGatewayServic
 
     @Autowired
     private VirtualBoardService virtualBoardService;
+    @Autowired
+    private GroupBoardService groupBoardService;
     @Autowired
     private SortBoardJsfService sortBoardJsfService;
     @Autowired
@@ -158,6 +164,52 @@ public class VirtualBoardGatewayServiceImpl implements VirtualBoardGatewayServic
         return jdCResponse;
 
 
+    }
+
+    @Override
+    public JdCResponse<VirtualBoardResultDto> autoBoardDetail(AutoBoardCompleteRequest request) {
+        JdCResponse<VirtualBoardResultDto> jdCResponse = new JdCResponse<VirtualBoardResultDto>();
+        jdCResponse.toSucceed();
+
+        com.jd.transboard.api.dto.Response<Board> boardRes = groupBoardService.getBoardByBoxCode(request.getBarcode(), request.getSiteCode());
+        if (boardRes.getCode()!=200){
+            jdCResponse.toFail("查询组板信息失败，请退出重试!");
+            return jdCResponse;
+        }
+        Board board = boardRes.getData();
+        if (board==null){
+            jdCResponse.toFail("查询组板信息失败，请退出重试!");
+            return jdCResponse;
+        }
+
+        com.jd.transboard.api.dto.Response<List<String>> boxCodeRes = groupBoardService.getBoxesByBoardCode(board.getCode());
+        if (boxCodeRes.getCode()!=200){
+            jdCResponse.toFail("查询组板包裹(箱号)信息失败，请退出重试!");
+            return jdCResponse;
+        }
+        List<String> boxes = boxCodeRes.getData();
+        if (CollectionUtils.isEmpty(boxes)){
+            jdCResponse.toFail("查询组板包裹(箱号)信息失败，请退出重试!");
+            return jdCResponse;
+        }
+        VirtualBoardResultDto result = new VirtualBoardResultDto();
+        result.setBoardCode(board.getCode());
+        result.setBoardStatus(board.getStatus());
+        result.setDestinationId(board.getDestinationId());
+        result.setDestinationName(board.getDestination());
+        int packageCount = 0;
+        int boxCount = 0;
+        for (String code:boxes){
+            if (WaybillUtil.isPackageCode(code)){
+                packageCount++;
+            }
+            if (BusinessHelper.isBoxcode(code)){
+                boxCount++;
+            }
+        }
+        result.setPackageTotal(packageCount);
+        result.setBoxTotal(boxCount);
+        return jdCResponse;
     }
 
     @Override
