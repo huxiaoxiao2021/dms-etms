@@ -35,6 +35,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.RoundingMode;
 import java.util.*;
 
 /**
@@ -251,7 +252,7 @@ public class WaybillConsumableRecordServiceImpl extends BaseService<WaybillConsu
                     packingChargeStr
                             .concat(dto.getName())
                             .concat(Constants.SEPARATOR_COLON)
-                            .concat(String.valueOf(dto.getPackingCharge()))
+                            .concat(String.valueOf(dto.getPackingCharge().setScale(2, RoundingMode.HALF_UP)))
                             .concat("元")
                             .concat(Constants.SEPARATOR_SEMICOLON)
             );
