@@ -225,14 +225,14 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
     }
 
     @Override
-    public Response<String> addToBoard(BindBoardRequest request) {
-        Response<String> response = new Response<>();
+    public Response<BoardSendDto> addToBoard(BindBoardRequest request) {
+        Response<BoardSendDto> response = new Response<>();
         try {
             // 检查是否已发货，在落格后已发货的，包裹补发货
-            BoardSendEnum sendEnum = replenishDeliveryIfSendBeforeSorting(request);
-            response.setData(sendEnum.toString());
+            BoardSendDto boardSendDto = replenishDeliveryIfSendBeforeSorting(request);
+            response.setData(boardSendDto);
             // 板在落格前发货，不补发货 不补板
-            if(BoardSendEnum.SEND_AFTER_SORTING.equals(sendEnum)){
+            if(BoardSendEnum.SEND_AFTER_SORTING.toString().equals(boardSendDto.getBoardSendEnum())){
                 response.toSucceed();
                 return response;
             }
@@ -517,15 +517,20 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
      * @param request
      * @return ture : 已发货 false 未发货
      */
-    private BoardSendEnum replenishDeliveryIfSendBeforeSorting(BindBoardRequest request){
+    private BoardSendDto replenishDeliveryIfSendBeforeSorting(BindBoardRequest request){
+        BoardSendDto  boardSendDto = new BoardSendDto();
         SendM sendM = sendMService.selectOneBoardSend(request.getOperatorInfo().getSiteCode(),
                 request.getBoard().getCode()
                 ,1);
         if (sendM == null) {
-            return BoardSendEnum.NOT_SEND;
+            boardSendDto.setBoardSendEnum(BoardSendEnum.NOT_SEND.toString());
+            return boardSendDto;
         }
+
         //发货时间
         Date sendTime = sendM.getOperateTime();
+        boardSendDto.setSendTime(sendTime);
+
         //操作时间
         Date operateTime = request.getOperatorInfo().getOperateTime();
         long compareResult = sendTime.getTime() - operateTime.getTime();
@@ -536,12 +541,14 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
             log.info("自动化组板板的发货状态检查，板已经发货，包裹:{}的落格时间:{}在板:{}的发货时间:{}之前，包裹补发货", request.getBarcode(),
                     DateHelper.formatDate(operateTime, DATE_FORMAT_YYYYMMDDHHmmss2), request.getBoard().getCode(),
                     DateHelper.formatDate(sendTime, DATE_FORMAT_YYYYMMDDHHmmss2));
-            return BoardSendEnum.SEND_AFTER_SORTING;
+            boardSendDto.setBoardSendEnum(BoardSendEnum.SEND_AFTER_SORTING.toString());
+            return boardSendDto;
         }
         log.info("自动化组板板的发货状态检查，板已经发货，包裹:{}的落格时间:{}在板:{}的发货时间:{}之后不再组板", request.getBarcode(),
                 DateHelper.formatDate(operateTime, DATE_FORMAT_YYYYMMDDHHmmss2), request.getBoard().getCode(),
                 DateHelper.formatDate(sendTime, DATE_FORMAT_YYYYMMDDHHmmss2));
-        return BoardSendEnum.SEND_BEFORE_SORTING;
+        boardSendDto.setBoardSendEnum(BoardSendEnum.SEND_BEFORE_SORTING.toString());
+        return boardSendDto;
 
     }
 

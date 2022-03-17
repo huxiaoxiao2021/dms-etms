@@ -28,6 +28,6 @@ public interface SortBoardJsfService {
     Response<Void> autoBoardComplete(AutoBoardCompleteRequest request);
 
 
-    Response<String> addToBoard(BindBoardRequest request);
+    Response<BoardSendDto> addToBoard(BindBoardRequest request);
 
 }
