@@ -43,8 +43,8 @@ public class B2bWaybillScheduleMqListener extends MessageBaseConsumer {
             log.warn("b2bWaybillScheduleMqListener.consume消息体无效，WaybillCode为空！[{}-{}]:[{}]",message.getTopic(),message.getBusinessId(),message.getText());
             return;
         }
-        if(StringHelper.isEmpty(b2bWaybillScheduleMq.getBeginNodeCode())){
-            log.warn("b2bWaybillScheduleMqListener.consume消息体无效，beginNodeCode为空！[{}-{}]:[{}]",message.getTopic(),message.getBusinessId(),message.getText());
+        if(StringHelper.isEmpty(b2bWaybillScheduleMq.getSiteNodeCode())){
+            log.warn("b2bWaybillScheduleMqListener.consume消息体无效，siteNodeCode为空！[{}-{}]:[{}]",message.getTopic(),message.getBusinessId(),message.getText());
             return;
         }
         DmsScheduleInfo dmsScheduleInfo = new DmsScheduleInfo();
@@ -53,32 +53,30 @@ public class B2bWaybillScheduleMqListener extends MessageBaseConsumer {
         dmsScheduleInfo.setCarrierName(b2bWaybillScheduleMq.getCarrierName());
         dmsScheduleInfo.setPackageNum(b2bWaybillScheduleMq.getBoxCount());
         dmsScheduleInfo.setScheduleTime(b2bWaybillScheduleMq.getScheduleTime());
-        //根据网点编码获取对应的分拣中心Id
-        Integer baseSiteCodeByNodeCode = this.getBaseSiteCodeByNodeCode(b2bWaybillScheduleMq.getBeginNodeCode());
-        if(null != baseSiteCodeByNodeCode){
-            dmsScheduleInfo.setDestDmsSiteCode(baseSiteCodeByNodeCode);
+        //调用基础资料根据网点编码获取对应的分拣中心Id
+        Integer dmsId = this.getBaseSiteCodeByNodeCode(b2bWaybillScheduleMq.getSiteNodeCode());
+        if(null != dmsId){
+            dmsScheduleInfo.setDestDmsSiteCode(dmsId);
         }
         boolean syncScheduleInfoToDbResult = dmsScheduleInfoService.syncScheduleInfoToDb(dmsScheduleInfo);
         if(!syncScheduleInfoToDbResult){
             log.warn("b2bWaybillScheduleMqListener.consume消息落库失败，[{}-{}]:[{}]",message.getTopic(),message.getBusinessId(),message.getText());
+            throw new RuntimeException("b2bWaybillScheduleMqListener.consume消息消费落库失败 message=" + message.getText());
         }
     }
 
-    private Integer getBaseSiteCodeByNodeCode(String beginNodeCode){
-        //调用基础资料获取网点编码对应的预分拣站点
-        BaseStaffSiteOrgDto orgDto = baseMajorManager.getBaseSiteByDmsCode(beginNodeCode);
-        if(orgDto != null && orgDto.getSiteCode() != null){
-            //调用基础资料获取预分拣站点对应的分拣中心
-            Integer siteCode = orgDto.getSiteCode();
-            BaseStaffSiteOrgDto baseStaffSiteOrgDto = baseMajorManager.getBaseSiteBySiteId(siteCode);
-            if(baseStaffSiteOrgDto != null && baseStaffSiteOrgDto.getDmsId() != null){
-                return baseStaffSiteOrgDto.getDmsId();
-            }else{
-                log.warn("b2bWaybillScheduleMqListener.getBaseSiteCodeByNodeCode 根据预分拣站点Id获取对应分拣中心失败，beginNodeCode:{}，siteCode:{}",beginNodeCode,siteCode);
-            }
-        }else{
-            log.warn("b2bWaybillScheduleMqListener.getBaseSiteCodeByNodeCode 根据网点编码获取站点Id失败，beginNodeCode:{}",beginNodeCode);
+
+    /**
+     * 调用基础资料，获取网点编码对应的站点Id
+     * @param siteCode
+     * @return
+     */
+    private Integer getBaseSiteCodeByNodeCode(String siteCode){
+        BaseStaffSiteOrgDto orgDto = baseMajorManager.getBaseSiteByDmsCode(siteCode);
+        if(orgDto != null && orgDto.getDmsId() != null){
+            return orgDto.getDmsId();
         }
+        log.info("b2bWaybillScheduleMqListener.getBaseSiteCodeByNodeCode 根据网点编码siteCode获取分拣中心Id失败，siteCode:{}",siteCode);
         return null;
     }
 }

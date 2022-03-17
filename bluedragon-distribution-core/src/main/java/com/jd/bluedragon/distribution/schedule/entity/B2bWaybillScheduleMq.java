@@ -35,8 +35,9 @@ public class B2bWaybillScheduleMq implements Serializable {
 	private Integer boxCount;
 
 	/**
-	 * 始发网点编码
+	 * 企配仓网点编码
 	 */
+	private String siteNodeCode;
 	private String beginNodeCode;
 
 	/**
