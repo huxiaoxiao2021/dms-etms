@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.station.service;
 
+import java.util.List;
+
 import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.station.domain.UserSignRecord;
 import com.jd.bluedragon.distribution.station.domain.UserSignRecordReportSumVo;
@@ -82,5 +84,16 @@ public interface UserSignRecordService {
      * @return
      */
     Result<Integer> autoHandleSignInRecord();
-
+	/**
+	 * 按条件查询数量
+	 * @param query
+	 * @return
+	 */
+	Result<Long> queryCount(UserSignRecordQuery query);
+	/**
+	 * 按条件查询列表-导出
+	 * @param query
+	 * @return
+	 */
+	Result<List<UserSignRecord>> queryListForExport(UserSignRecordQuery query);
 }

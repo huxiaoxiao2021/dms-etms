@@ -6,10 +6,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
-import com.jd.ump.annotation.JProEnum;
-import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +13,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.station.dao.UserSignRecordDao;
 import com.jd.bluedragon.distribution.station.domain.UserSignRecord;
@@ -37,6 +35,8 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -55,7 +55,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	@Qualifier("userSignRecordDao")
 	private UserSignRecordDao userSignRecordDao;
 	
-	@Value("${beans.userSignRecordService.signDateRangeMaxDays:7}")
+	@Value("${beans.userSignRecordService.signDateRangeMaxDays:2}")
 	private int signDateRangeMaxDays;
 	
 	@Autowired
@@ -434,4 +434,28 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 
         return result;
     }
+	@Override
+	public Result<Long> queryCount(UserSignRecordQuery query) {
+		Result<Long> result = Result.success();
+		Result<Boolean> checkResult = this.checkParamForQueryPageList(query);
+		if(!checkResult.isSuccess()){
+		    return Result.fail(checkResult.getMessage());
+		}
+		result.setData(userSignRecordDao.queryCount(query));
+		return result;
+	}
+	@Override
+	public Result<List<UserSignRecord>> queryListForExport(UserSignRecordQuery query) {
+		Result<List<UserSignRecord>> result = Result.success();
+		Result<Boolean> checkResult = this.checkParamForQueryPageList(query);
+		if(!checkResult.isSuccess()){
+		    return Result.fail(checkResult.getMessage());
+		}
+	    List<UserSignRecord> dataList = userSignRecordDao.queryListForExport(query);
+	    for (UserSignRecord tmp : dataList) {
+	    	this.fillOtherInfo(tmp);
+	    }
+		result.setData(dataList);
+		return result;
+	}
 }

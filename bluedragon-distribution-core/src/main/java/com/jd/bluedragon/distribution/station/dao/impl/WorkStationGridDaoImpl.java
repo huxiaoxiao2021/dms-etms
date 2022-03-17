@@ -98,5 +98,9 @@ public class WorkStationGridDaoImpl extends BaseDao<WorkStationGrid> implements 
 	public WorkStationGridCountVo queryPageCount(WorkStationGridQuery query) {
 		return this.getSqlSession().selectOne(NAMESPACE+".queryPageCount",query);
 	}
+	@Override
+	public long queryCountByRefStationKey(String stationKey) {
+		return this.getSqlSession().selectOne(NAMESPACE+".queryCountByRefStationKey",stationKey);
+	}
 
 }
