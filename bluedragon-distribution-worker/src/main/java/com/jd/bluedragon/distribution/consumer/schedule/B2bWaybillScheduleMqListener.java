@@ -76,7 +76,7 @@ public class B2bWaybillScheduleMqListener extends MessageBaseConsumer {
         if(orgDto != null && orgDto.getDmsId() != null){
             return orgDto.getDmsId();
         }
-        log.info("b2bWaybillScheduleMqListener.getBaseSiteCodeByNodeCode 根据网点编码siteCode获取分拣中心Id失败，siteCode:{}",siteCode);
+        log.warn("b2bWaybillScheduleMqListener.getBaseSiteCodeByNodeCode 根据网点编码siteCode获取分拣中心Id失败，siteCode:{}",siteCode);
         return null;
     }
 }
