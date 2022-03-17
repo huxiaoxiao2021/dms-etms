@@ -652,8 +652,8 @@
 		<where>
 			r.yn = 1
 			and r.ref_grid_key = #{refGridKey,jdbcType=VARCHAR}
-			and t.sign_in_time >= #{signInTimeStart,jdbcType=TIMESTAMP}
-			and t.sign_in_time &lt;= #{signInTimeEnd,jdbcType=TIMESTAMP}			
+			and r.sign_in_time >= #{signInTimeStart,jdbcType=TIMESTAMP}
+			and r.sign_in_time &lt;= #{signInTimeEnd,jdbcType=TIMESTAMP}			
 		<if test="signDate != null" >
 			and r.sign_date = #{signDate,jdbcType=DATE}
 		</if>		
