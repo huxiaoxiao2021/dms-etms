@@ -10,7 +10,7 @@ public class BoardSendDto implements Serializable {
     private static final long serialVersionUID = 328671719132840528L;
     private Date sendTime;
     private String boardSendEnum;
-
+    private String boardCode;
     public Date getSendTime() {
         return sendTime;
     }
@@ -25,5 +25,13 @@ public class BoardSendDto implements Serializable {
 
     public void setBoardSendEnum(String boardSendEnum) {
         this.boardSendEnum = boardSendEnum;
+    }
+
+    public String getBoardCode() {
+        return boardCode;
+    }
+
+    public void setBoardCode(String boardCode) {
+        this.boardCode = boardCode;
     }
 }

@@ -48,5 +48,5 @@ public interface SendMService {
      * @param sendmStatus
      * @return
      */
-    SendM selectOneBoardSend(Integer createSiteCode, String boardCode, Integer sendmStatus);
+    public SendM selectSendByBoardCode(Integer createSiteCode, String boardCode, Integer sendmStatus);
 }

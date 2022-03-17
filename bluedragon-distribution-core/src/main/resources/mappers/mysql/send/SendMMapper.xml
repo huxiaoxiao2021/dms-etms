@@ -650,7 +650,7 @@
         and operate_time <![CDATA[>=]]> #{operateTimeStart,jdbcType=TIMESTAMP}
 		AND operate_time <![CDATA[<]]> #{operateTimeEnd,jdbcType=TIMESTAMP}
     </select>
-	<select id="selectOneBoardSend" parameterType="SendM" resultMap="SendM">
+	<select id="selectSendByBoardCode" parameterType="map" resultMap="SendM">
 		select
 		<include refid="Base_Column_List" />
 		from send_m

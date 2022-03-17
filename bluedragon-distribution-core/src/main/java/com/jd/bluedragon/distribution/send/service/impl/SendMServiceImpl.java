@@ -64,7 +64,7 @@ public class SendMServiceImpl implements SendMService{
      * @return
      */
     @Override
-    public SendM selectOneBoardSend(Integer createSiteCode, String boardCode, Integer sendmStatus){
-        return sendMDao.selectOneBoardSend(createSiteCode, boardCode, sendmStatus);
+    public SendM selectSendByBoardCode(Integer createSiteCode, String boardCode, Integer sendmStatus){
+        return sendMDao.selectSendByBoardCode(createSiteCode, boardCode, sendmStatus);
     }
 }

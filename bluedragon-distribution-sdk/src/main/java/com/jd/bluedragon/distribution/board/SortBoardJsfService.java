@@ -30,4 +30,5 @@ public interface SortBoardJsfService {
 
     Response<BoardSendDto> addToBoard(BindBoardRequest request);
 
+    List<BoardSendDto> checkAndReplenishDelivery(CheckBoardStatusDto request);
 }
