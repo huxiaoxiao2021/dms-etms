@@ -1,6 +1,8 @@
 package com.jd.bluedragon.distribution.station.jsf.impl;
 
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -90,6 +92,14 @@ public class UserSignRecordJsfServiceImpl implements UserSignRecordJsfService {
 	@Override
 	public Result<UserSignRecordReportSumVo> queryReportSum(UserSignRecordQuery query) {
 		return userSignRecordService.queryReportSum(query);
+	}
+	@Override
+	public Result<Long> queryCount(UserSignRecordQuery query) {
+		return userSignRecordService.queryCount(query);
+	}
+	@Override
+	public Result<List<UserSignRecord>> queryListForExport(UserSignRecordQuery query) {
+		return userSignRecordService.queryListForExport(query);
 	}
 
 }

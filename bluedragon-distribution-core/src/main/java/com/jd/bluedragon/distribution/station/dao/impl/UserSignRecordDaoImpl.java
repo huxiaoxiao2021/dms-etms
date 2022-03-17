@@ -67,6 +67,14 @@ public class UserSignRecordDaoImpl extends BaseDao<UserSignRecord> implements Us
 	    return this.getSqlSession().selectList(NAMESPACE+".queryList",query);
 	}
 	/**
+	 * 按条件分页查询-导出
+	 * @param query
+	 * @return
+	 */
+	public List<UserSignRecord> queryListForExport(UserSignRecordQuery query){
+	    return this.getSqlSession().selectList(NAMESPACE+".queryListForExport",query);
+	}
+	/**
 	 * 按条件查询数量
 	 * @param query
 	 * @return

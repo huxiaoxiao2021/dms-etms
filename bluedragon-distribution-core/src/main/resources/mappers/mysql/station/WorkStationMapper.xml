@@ -274,6 +274,7 @@
 		from
 			work_station t
 		where yn = 1 
+		  and work_code is not null
 		<if test="areaCode != null and areaCode != ''" >
 			and area_code = #{areaCode,jdbcType=VARCHAR}
 		</if>		
@@ -285,6 +286,7 @@
 		from
 			work_station t
 		where yn = 1 
+		  and area_code is not null
 		<if test="workCode != null and workCode != ''" >
 			and work_code = #{workCode,jdbcType=VARCHAR}
 		</if>
