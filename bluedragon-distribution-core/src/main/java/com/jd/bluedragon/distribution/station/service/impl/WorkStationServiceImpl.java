@@ -18,6 +18,7 @@ import com.jd.bluedragon.distribution.station.dao.WorkStationDao;
 import com.jd.bluedragon.distribution.station.domain.WorkStation;
 import com.jd.bluedragon.distribution.station.domain.WorkStationCountVo;
 import com.jd.bluedragon.distribution.station.query.WorkStationQuery;
+import com.jd.bluedragon.distribution.station.service.WorkStationGridService;
 import com.jd.bluedragon.distribution.station.service.WorkStationService;
 import com.jd.bluedragon.distribution.utils.CheckHelper;
 import com.jd.bluedragon.dms.utils.DmsConstants;
@@ -42,6 +43,9 @@ public class WorkStationServiceImpl implements WorkStationService {
 	
 	@Autowired
 	private IGenerateObjectId genObjectId;
+	@Autowired
+	@Qualifier("workStationGridService")
+	private WorkStationGridService workStationGridService;
 
 	/**
 	 * 插入一条数据
@@ -53,7 +57,7 @@ public class WorkStationServiceImpl implements WorkStationService {
 		if(!result.isSuccess()) {
 			return result;
 		}
-		insertData.setBusinessKey(DmsConstants.CODE_PREFIX_WORK_STATION.concat(StringHelper.padZero(this.genObjectId.getObjectId(WorkStation.class.getName()),11)));
+		generateAndSetBusinessKey(insertData);
 		result.setData(workStationDao.insert(insertData) == 1);
 		return result;
 	 }
@@ -73,7 +77,7 @@ public class WorkStationServiceImpl implements WorkStationService {
 				workStationDao.deleteById(oldData);
 				data.setBusinessKey(oldData.getBusinessKey());
 			}else {
-				data.setBusinessKey(DmsConstants.CODE_PREFIX_WORK_STATION.concat(StringHelper.padZero(this.genObjectId.getObjectId(WorkStation.class.getName()),11)));
+				generateAndSetBusinessKey(data);
 			}
 			workStationDao.insert(data);
 		}
@@ -179,6 +183,17 @@ public class WorkStationServiceImpl implements WorkStationService {
 	 */
 	public Result<Boolean> deleteById(WorkStation deleteData){
 		Result<Boolean> result = Result.success();
+		if(deleteData == null
+				|| deleteData.getId() == null) {
+			return result.toFail("参数错误，id不能为空！");
+		}
+		WorkStation oldData = workStationDao.queryById(deleteData.getId());
+		if(oldData == null) {
+			return result.toFail("参数错误，无效的数据id！");
+		}
+		if(workStationGridService.hasGridData(oldData.getBusinessKey())) {
+			return result.toFail("该工序存在场地网格记录，无法删除！");
+		}
 		result.setData(workStationDao.deleteById(deleteData) == 1);
 		return result;
 	 }
@@ -265,5 +280,14 @@ public class WorkStationServiceImpl implements WorkStationService {
 		}
 		result.setData(workStationDao.queryPageCount(query));
 		return result;
+	}
+	/**
+	 * 生成并设置businessKey
+	 * @param data
+	 */
+	private void generateAndSetBusinessKey(WorkStation data) {
+		if(data != null) {
+			data.setBusinessKey(DmsConstants.CODE_PREFIX_WORK_STATION.concat(StringHelper.padZero(this.genObjectId.getObjectId(WorkStation.class.getName()),11)));
+		}
 	}
 }
