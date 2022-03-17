@@ -24,6 +24,7 @@ import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.gateway.service.SortBoardGatewayService;
+import com.jd.bluedragon.utils.ArraysUtil;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -296,11 +297,22 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
                 return response;
             }
 
-            //调板服务关闭板状态
-            CloseVirtualBoardPo po = initCloseVirtualBoardPo(baseResult.getData(), request.getOperatorErp(), request.getSiteCode());
-            JdCResponse<Void> jdCResponse = virtualBoardService.closeBoard(po);
-            response.setCode(jdCResponse.getCode());
-            response.setMessage(jdCResponse.getMessage());
+            String boardCodes = baseResult.getData();
+            if(StringUtils.isNotBlank(boardCodes)){
+                String[] codes = boardCodes.split(",");
+                if(codes.length > 0){
+                    com.jd.bluedragon.common.dto.base.request.OperatorInfo operatorInfo =
+                            initOperatorInfo(request.getOperatorErp(), request.getSiteCode());
+                    for (String code : codes){
+                        //调板服务关闭板状态
+                        CloseVirtualBoardPo po = initCloseVirtualBoardPo(code, operatorInfo);
+                        JdCResponse<Void> jdCResponse = virtualBoardService.closeBoard(po);
+                        response.setCode(jdCResponse.getCode());
+                        response.setMessage(jdCResponse.getMessage());
+                    }
+                }
+            }
+
             return response;
         }catch (Exception e) {
             response.toFail("请求异常，请稍后重试");
@@ -337,10 +349,14 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
         return response;
     }
 
-    private CloseVirtualBoardPo initCloseVirtualBoardPo(String boardCode, String userErp, Integer siteCode){
+    private CloseVirtualBoardPo initCloseVirtualBoardPo(String boardCode, com.jd.bluedragon.common.dto.base.request.OperatorInfo operatorInfo ){
         CloseVirtualBoardPo po = new CloseVirtualBoardPo();
         po.setBoardCode(boardCode);
         po.setBizSource(BizSourceEnum.SORTING_MACHINE.getValue());
+        po.setOperatorInfo(operatorInfo);
+        return po;
+    }
+    private com.jd.bluedragon.common.dto.base.request.OperatorInfo initOperatorInfo(String userErp, Integer siteCode){
         com.jd.bluedragon.common.dto.base.request.OperatorInfo operatorInfo = new com.jd.bluedragon.common.dto.base.request.OperatorInfo();
         BaseStaffSiteOrgDto baseStaffSiteOrgDto = baseMajorManager.getBaseStaffByErpNoCache(userErp);
         if(baseStaffSiteOrgDto != null){
@@ -349,8 +365,7 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
         }
         operatorInfo.setUserErp(userErp);
         operatorInfo.setSiteCode(siteCode);
-        po.setOperatorInfo(operatorInfo);
-        return po;
+        return operatorInfo;
     }
 
     private AddBoardBox initAddBoardBox(BindBoardRequest request){
