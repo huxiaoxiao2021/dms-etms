@@ -54,6 +54,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import static com.jd.bluedragon.utils.DateHelper.DATE_FORMAT_YYYYMMDDHHmmss2;
+
 @Service("sortBoardJsfService")
 public class SortBoardJsfServiceImpl implements SortBoardJsfService {
     private static final Logger log = LoggerFactory.getLogger(SortBoardJsfServiceImpl.class);
@@ -179,6 +181,7 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
      * @return
      */
     @Override
+    @Deprecated
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.WEB.SortBoardJsfServiceImpl.bindBoard", mState = JProEnum.TP)
     public Response<String> bindBoard(BindBoardRequest request) {
         Response<String> response = checkParma4BindBoard(request);
@@ -212,13 +215,54 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
 
         //发送全程跟踪
         com.jd.bluedragon.common.dto.base.request.OperatorInfo operatorInfo = initOperatorInfo(request.getOperatorInfo());
-
         virtualBoardService.sendWaybillTrace(request.getBarcode(), operatorInfo, request.getBoard().getCode(),
                 request.getBoard().getDestination(), WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION);
 
 
         response.toSucceed();
         return response;
+
+    }
+
+    @Override
+    public Response<String> addToBoard(BindBoardRequest request) {
+        Response<String> response = new Response<>();
+        try {
+            // 检查是否已发货，在落格后已发货的，包裹补发货
+            BoardSendEnum sendEnum = replenishDeliveryIfSendBeforeSorting(request);
+            response.setData(sendEnum.toString());
+            // 板在落格前发货，不补发货 不补板
+            if(BoardSendEnum.SEND_AFTER_SORTING.equals(sendEnum)){
+                response.toSucceed();
+                return response;
+            }
+
+            //调板服务组板
+            AddBoardBox addBoardBox = initAddBoardBox(request);
+            com.jd.transboard.api.dto.Response<Integer>  bindResult = groupBoardService.addBoxToBoard(addBoardBox);
+            log.info("分拣机组板调参数:{}，返回值:{}", JsonHelper.toJson(request), JsonHelper.toJson(bindResult));
+            if(bindResult.getCode() != 200){
+                response.toFail(MessageFormat.format("调板服务组板接口失败code:{0}，message:{1}", bindResult.getCode(),
+                        bindResult.getMesseage()));
+                log.warn("调板服务组板接口失败code:{}，message:{},请求参数:{}", bindResult.getCode(), bindResult.getMesseage(),
+                        JsonHelper.toJson(addBoardBox));
+                return response;
+            }
+
+            //发送全程跟踪
+            com.jd.bluedragon.common.dto.base.request.OperatorInfo operatorInfo = initOperatorInfo(request.getOperatorInfo());
+            virtualBoardService.sendWaybillTrace(request.getBarcode(), operatorInfo, request.getBoard().getCode(),
+                    request.getBoard().getDestination(), WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION);
+            response.toSucceed();
+            return response;
+
+        }catch (Exception e){
+            log.error("自动化组板操作异常，组板信息：{}", JsonHelper.toJson(request));
+            response.toFail("自动化组板操作异常异常");
+            return response;
+        }
+
+
 
     }
 
@@ -281,6 +325,8 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
         }
 
     }
+
+
 
     private Response<Void> checkParam4AutoBoardComplete(AutoBoardCompleteRequest request){
         Response<Void> response = new Response<>();
@@ -463,6 +509,39 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
             jimdbCacheService.del(key);
         }
 
+
+    }
+
+    /**
+     *
+     * @param request
+     * @return ture : 已发货 false 未发货
+     */
+    private BoardSendEnum replenishDeliveryIfSendBeforeSorting(BindBoardRequest request){
+        SendM sendM = sendMService.selectOneBoardSend(request.getOperatorInfo().getSiteCode(),
+                request.getBoard().getCode()
+                ,1);
+        if (sendM == null) {
+            return BoardSendEnum.NOT_SEND;
+        }
+        //发货时间
+        Date sendTime = sendM.getOperateTime();
+        //操作时间
+        Date operateTime = request.getOperatorInfo().getOperateTime();
+        long compareResult = sendTime.getTime() - operateTime.getTime();
+        //发货时间晚于 操作时间 补发货
+        if(compareResult >= 0){
+            SendM domain= toSendMDomain(request, sendM.getSendCode());
+            deliveryService.packageSend(SendBizSourceEnum.SORT_MACHINE_SEND, domain);
+            log.info("自动化组板板的发货状态检查，板已经发货，包裹:{}的落格时间:{}在板:{}的发货时间:{}之前，包裹补发货", request.getBarcode(),
+                    DateHelper.formatDate(operateTime, DATE_FORMAT_YYYYMMDDHHmmss2), request.getBoard().getCode(),
+                    DateHelper.formatDate(sendTime, DATE_FORMAT_YYYYMMDDHHmmss2));
+            return BoardSendEnum.SEND_AFTER_SORTING;
+        }
+        log.info("自动化组板板的发货状态检查，板已经发货，包裹:{}的落格时间:{}在板:{}的发货时间:{}之后不再组板", request.getBarcode(),
+                DateHelper.formatDate(operateTime, DATE_FORMAT_YYYYMMDDHHmmss2), request.getBoard().getCode(),
+                DateHelper.formatDate(sendTime, DATE_FORMAT_YYYYMMDDHHmmss2));
+        return BoardSendEnum.SEND_BEFORE_SORTING;
 
     }
 
