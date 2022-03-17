@@ -514,10 +514,10 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
         boolean hasReplenish = false;
         for(String boardCode : boardCodes){
             BoardSendDto dto = new BoardSendDto();
+            dto.setBoardCode(boardCode);
             SendM sendM = sendMService.selectSendByBoardCode(request.getSiteCode(),
                     boardCode, 1);
             if(sendM == null){
-                dto.setBoardCode(boardCode);
                 dto.setBoardSendEnum(BoardSendEnum.NOT_SEND.toString());
                 boardSendDtos.add(dto);
                 continue;
