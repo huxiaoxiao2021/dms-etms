@@ -55,7 +55,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	@Qualifier("userSignRecordDao")
 	private UserSignRecordDao userSignRecordDao;
 	
-	@Value("${beans.userSignRecordService.signDateRangeMaxDays:7}")
+	@Value("${beans.userSignRecordService.signDateRangeMaxDays:2}")
 	private int signDateRangeMaxDays;
 	
 	@Autowired
