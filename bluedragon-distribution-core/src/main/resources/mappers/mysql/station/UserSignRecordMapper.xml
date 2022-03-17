@@ -418,7 +418,7 @@
 			t.wave_code,
 			count(distinct t.user_code) now_attend_num
 		from
-			user_sign_record t force index(`sign_in_time`) 
+			user_sign_record t force index(`idx_sign_in_time`) 
 		<include refid="queryReportConditionMainNow"/>
 		group by
 			t.ref_grid_key,t.wave_code
