@@ -233,7 +233,7 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
             response.toFail("查询组板包裹(箱号)信息失败，请退出重试!");
             return response;
         }
-
+        response.toSucceed();
         response.setData(boardCode);
         return response;
     }
