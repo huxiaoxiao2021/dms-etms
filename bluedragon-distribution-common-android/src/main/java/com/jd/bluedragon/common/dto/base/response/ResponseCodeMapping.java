@@ -1,0 +1,59 @@
+package com.jd.bluedragon.common.dto.base.response;
+
+public enum ResponseCodeMapping {
+
+  SUCCESS(200, "成功"),
+  UNKNOW_ERROR(500, "未知错误！"),
+  MINI_STORE_HASBEEN_BIND(5001,"微仓码已被绑定！"),
+  MINI_STORE_IS_NOT_AVAILABLE(5002,"微仓当前不可用！"),
+  INCE_BOARD_HASBEEN_BIND(5003,"冰板码已经被被绑定！"),
+  INCE_BOARD_IS_NOT_AVAILABLE(5004,"冰板当前不可用！"),
+  BOX_HASBEEN_BIND(5005,"箱号已经被绑定！");
+
+
+  ResponseCodeMapping(Integer code, String message) {
+    this.code = code;
+    this.message = message;
+  }
+
+  private Integer code;
+  private String message;
+
+  public void setMessage(String message) {
+    this.message = message;
+  }
+
+  ResponseCodeMapping(String message) {
+    this.message = message;
+  }
+
+  public String getMessage() {
+    return this.message;
+  }
+
+  public Integer getCode() {
+    return code;
+  }
+
+  public void setCode(Integer code) {
+    this.code = code;
+  }
+
+  public static ResponseCodeMapping getProperType(String name) {
+    ResponseCodeMapping[] codeMappings = ResponseCodeMapping.values();
+    for (ResponseCodeMapping responseCodeMapping : codeMappings) {
+      if (responseCodeMapping.name().equals(name)) {
+        return responseCodeMapping;
+      }
+    }
+    return null;
+  }
+
+  public static ResponseCodeMapping responseCodeMappingAdapter(
+      ResponseCodeMapping responseCodeMapping, String msg) {
+    if (null != msg && !"".equals(msg)) {
+      responseCodeMapping.setMessage(responseCodeMapping.getMessage() + msg);
+    }
+    return responseCodeMapping;
+  }
+}

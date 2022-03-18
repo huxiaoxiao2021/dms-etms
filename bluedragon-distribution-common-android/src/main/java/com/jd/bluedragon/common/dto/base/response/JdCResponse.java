@@ -172,4 +172,30 @@ public class JdCResponse<E> implements Serializable {
 	public void setData(E data) {
 		this.data = data;
 	}
+
+	public static JdCResponse successResponse() {
+		return successResponse(null);
+	}
+
+	public static JdCResponse successResponse(Object data) {
+		return generateAPIResponse(ResponseCodeMapping.SUCCESS, data);
+	}
+
+	public static JdCResponse errorResponse(ResponseCodeMapping responseCodeMapping) {
+		return generateAPIResponse(responseCodeMapping, null);
+	}
+
+	public static JdCResponse errorResponse(ResponseCodeMapping responseCodeMapping, Object data) {
+		return generateAPIResponse(responseCodeMapping, data);
+	}
+
+	private static JdCResponse generateAPIResponse(ResponseCodeMapping responseCodeMapping,
+													Object data) {
+		JdCResponse apiResponse = new JdCResponse();
+		apiResponse.setCode(responseCodeMapping.getCode());
+		apiResponse.setMessage(responseCodeMapping.getMessage());
+		apiResponse.setData(data);
+		return apiResponse;
+	}
+
 }
