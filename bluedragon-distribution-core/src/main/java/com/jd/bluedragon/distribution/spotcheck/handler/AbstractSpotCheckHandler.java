@@ -247,7 +247,7 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
         if(!result.codeSuccess()){
             return;
         }
-        // 设置超标缓存
+        // 设置已抽检缓存
         setSpotCheckCache(spotCheckContext.getWaybillCode(), spotCheckContext.getExcessStatus());
         // 数据落库
         WeightVolumeSpotCheckDto summaryDto = assembleSummaryReform(spotCheckContext);
@@ -330,7 +330,7 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
         dto.setIsExcess(spotCheckContext.getExcessStatus());
         dto.setExcessType(spotCheckContext.getExcessType());
         dto.setSpotCheckStatus(Objects.equals(spotCheckContext.getExcessStatus(), ExcessStatusEnum.EXCESS_ENUM_YES.getCode())
-                ? SpotCheckStatusEnum.SPOT_CHECK_STATUS_VERIFY.getCode() : SpotCheckStatusEnum.SPOT_CHECK_STATUS_INVALID.getCode());
+                ? SpotCheckStatusEnum.SPOT_CHECK_STATUS_VERIFY.getCode() : SpotCheckStatusEnum.SPOT_CHECK_STATUS_INVALID_UN_EXCESS.getCode());
         dto.setYn(Constants.CONSTANT_NUMBER_ONE);
         return dto;
     }

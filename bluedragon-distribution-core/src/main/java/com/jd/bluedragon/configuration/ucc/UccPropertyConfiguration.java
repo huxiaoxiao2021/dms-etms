@@ -660,6 +660,11 @@ public class UccPropertyConfiguration {
      */
     private boolean aiDistinguishSwitch;
 
+    /**
+     * 设备AI识别图片开关
+     */
+    private boolean deviceAIDistinguishSwitch;
+
     public String getScheduleSiteCheckSameCity() {
         return scheduleSiteCheckSameCity;
     }
@@ -1688,6 +1693,14 @@ public class UccPropertyConfiguration {
 
     public void setAiDistinguishSwitch(boolean aiDistinguishSwitch) {
         this.aiDistinguishSwitch = aiDistinguishSwitch;
+    }
+
+    public boolean getDeviceAIDistinguishSwitch() {
+        return deviceAIDistinguishSwitch;
+    }
+
+    public void setDeviceAIDistinguishSwitch(boolean deviceAIDistinguishSwitch) {
+        this.deviceAIDistinguishSwitch = deviceAIDistinguishSwitch;
     }
 
     public String getSpotCheckReformSiteCodes() {
