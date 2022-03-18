@@ -18,6 +18,7 @@ public interface SortBoardJsfService {
 
     /**
      * 自动化组板
+     *
      * @param request
      * @return
      */
@@ -25,4 +26,6 @@ public interface SortBoardJsfService {
 
 
     Response<Void> autoBoardComplete(AutoBoardCompleteRequest request);
+
+    Response<String> calcBoard(AutoBoardCompleteRequest domain);
 }

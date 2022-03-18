@@ -2,7 +2,6 @@ package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
 import com.jd.bd.dms.automatic.sdk.common.dto.BaseDmsAutoJsfResponse;
 import com.jd.bd.dms.automatic.sdk.modules.device.DeviceConfigInfoJsfService;
-import com.jd.bd.dms.automatic.sdk.modules.device.dto.DeviceConfigSimpleDto;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.request.OperatorInfo;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
@@ -25,7 +24,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -162,8 +160,6 @@ public class VirtualBoardGatewayServiceImpl implements VirtualBoardGatewayServic
         jdCResponse.setCode(response.getCode());
         jdCResponse.setMessage(response.getMessage());
         return jdCResponse;
-
-
     }
 
     @Override
@@ -171,7 +167,17 @@ public class VirtualBoardGatewayServiceImpl implements VirtualBoardGatewayServic
         JdCResponse<VirtualBoardResultDto> jdCResponse = new JdCResponse<VirtualBoardResultDto>();
         jdCResponse.toSucceed();
 
-        com.jd.transboard.api.dto.Response<Board> boardRes = groupBoardService.getBoardByBoxCode(request.getBarcode(), request.getSiteCode());
+        com.jd.bluedragon.distribution.board.domain.AutoBoardCompleteRequest domain =
+                new com.jd.bluedragon.distribution.board.domain.AutoBoardCompleteRequest();
+        BeanUtils.copyProperties(request, domain);
+
+        Response<String> boardCodeRes = sortBoardJsfService.calcBoard(domain);
+        if (boardCodeRes.getCode()!=200){
+            jdCResponse.toFail("计算板号失败，请退出重试!");
+            return jdCResponse;
+        }
+        String boardCode = boardCodeRes.getData();
+        com.jd.transboard.api.dto.Response<Board> boardRes = groupBoardService.getBoardByCode(boardCode);
         if (boardRes.getCode()!=200){
             jdCResponse.toFail("查询组板信息失败，请退出重试!");
             return jdCResponse;
@@ -192,6 +198,11 @@ public class VirtualBoardGatewayServiceImpl implements VirtualBoardGatewayServic
             jdCResponse.toFail("查询组板包裹(箱号)信息失败，请退出重试!");
             return jdCResponse;
         }
+        jdCResponse.setData(getVirtualBoardResultDto(board, boxes));
+        return jdCResponse;
+    }
+
+    private VirtualBoardResultDto getVirtualBoardResultDto(Board board, List<String> boxes) {
         VirtualBoardResultDto result = new VirtualBoardResultDto();
         result.setBoardCode(board.getCode());
         result.setBoardStatus(board.getStatus());
@@ -199,7 +210,7 @@ public class VirtualBoardGatewayServiceImpl implements VirtualBoardGatewayServic
         result.setDestinationName(board.getDestination());
         int packageCount = 0;
         int boxCount = 0;
-        for (String code:boxes){
+        for (String code: boxes){
             if (WaybillUtil.isPackageCode(code)){
                 packageCount++;
             }
@@ -209,7 +220,7 @@ public class VirtualBoardGatewayServiceImpl implements VirtualBoardGatewayServic
         }
         result.setPackageTotal(packageCount);
         result.setBoxTotal(boxCount);
-        return jdCResponse;
+        return result;
     }
 
     @Override
