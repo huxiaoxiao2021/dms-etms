@@ -54,6 +54,23 @@
         where ice_board_code2 = #{iceBoardCode}
           and occupied_flag = 1 LIMIT 1;
     </select>
+    <select id="selectDeviceBindStatus" resultType="java.lang.Integer">
+        SELECT id
+        from mini_store_bind_relation
+        WHERE store_code = #{storeCode}
+          AND box_code = #{boxCode}
+          AND ice_board_code1 = #{iceBoardCode1}
+          AND ice_board_code2 = #{iceBoardCode2}
+          AND occupied_flag = 1
+        UNION ALL
+        SELECT id
+        from mini_store_bind_relation
+        WHERE store_code = #{storeCode}
+          AND box_code = #{boxCode}
+          AND ice_board_code1 = #{iceBoardCode2}
+          AND ice_board_code2 = #{iceBoardCode1}
+          AND occupied_flag = 1 LIMIT 1
+    </select>
 
     <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
         select

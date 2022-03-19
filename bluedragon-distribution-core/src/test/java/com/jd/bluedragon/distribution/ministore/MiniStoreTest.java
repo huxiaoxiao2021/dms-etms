@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.ministore;
 
 import com.jd.bluedragon.distribution.ministore.dao.MiniStoreBindRelationDao;
 import com.jd.bluedragon.distribution.ministore.domain.MiniStoreBindRelation;
+import com.jd.bluedragon.distribution.ministore.dto.DeviceDto;
 import com.jd.bluedragon.distribution.ministore.service.MiniStoreService;
 import com.jd.bluedragon.distribution.ministore.service.impl.MiniStoreServiceImpl;
 import com.jd.bluedragon.distribution.seal.dao.SealBoxDao;
@@ -26,9 +27,27 @@ public class MiniStoreTest {
     @Autowired
     MiniStoreService miniStoreService;
     @Test
-    public void bindRelationTest(){
-        //Boolean flag =miniStoreService.validateIceBoardBindStatus("i1");
-        Integer a =1;
-        Assert.assertTrue(1==a);
+    public void validatDeviceBindStatusTest(){
+        DeviceDto deviceDto =new DeviceDto();
+        deviceDto.setStoreCode("s2");
+        deviceDto.setBoxCode("b2");
+        deviceDto.setIceBoardCode1("i5");
+        deviceDto.setIceBoardCode2("i3");
+      Boolean f = miniStoreService.validatDeviceBindStatus(deviceDto);
+        Assert.assertTrue(true==f);
+    }
+
+
+    @Test
+    public void validatInsert(){
+        DeviceDto deviceDto =new DeviceDto();
+        deviceDto.setStoreCode("s2");
+        deviceDto.setBoxCode("b2");
+        deviceDto.setIceBoardCode1("i5");
+        deviceDto.setIceBoardCode2("i3");
+        deviceDto.setCreateUser("weixiaofeng12");
+        deviceDto.setCreateUserCode(1L);
+        Boolean f = miniStoreService.bindMiniStoreDevice(deviceDto);
+        Assert.assertTrue(true==f);
     }
 }

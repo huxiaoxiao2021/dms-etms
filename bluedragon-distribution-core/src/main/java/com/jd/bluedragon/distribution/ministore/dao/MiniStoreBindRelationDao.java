@@ -20,6 +20,8 @@ public interface MiniStoreBindRelationDao {
 
     MiniStoreBindRelation selectByDeviceInfo(DeviceDto deviceDto);
 
+    Integer selectDeviceBindStatus(DeviceDto deviceDto);
+
     Integer selectStoreBindStatus(String storeCode);
 
     Integer selectBoxBindStatus(String boxCode);
@@ -28,7 +30,7 @@ public interface MiniStoreBindRelationDao {
 
     List<MiniStoreBindRelation> list(DeviceDto deviceDto);
 
-    List<MiniStoreBindRelation> selectBindingList(DeviceDto deviceDto);
+    List<MiniStoreBindRelation> selectBindingList(String createUserCode);
 
 
 }
