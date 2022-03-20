@@ -5,10 +5,11 @@ import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.request.OperatorInfo;
 import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
-import com.jd.bluedragon.common.dto.board.BizSourceEnum;
+import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.board.request.*;
 import com.jd.bluedragon.common.dto.board.response.UnbindVirtualBoardResultDto;
 import com.jd.bluedragon.common.dto.board.response.VirtualBoardResultDto;
+import com.jd.bluedragon.common.dto.box.response.BoxDto;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
@@ -18,6 +19,7 @@ import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.core.jsf.dms.IVirtualBoardJsfManager;
 import com.jd.bluedragon.distribution.api.request.BoardCombinationRequest;
+import com.jd.bluedragon.distribution.api.response.BoxResponse;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
@@ -34,6 +36,7 @@ import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.dms.utils.BarCodeType;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.external.gateway.service.BoxGatewayService;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.Md5Helper;
@@ -77,6 +80,9 @@ import java.util.concurrent.TimeUnit;
 public class VirtualBoardServiceImpl implements VirtualBoardService {
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
+
+    @Resource
+    private BoxGatewayService boxGatewayService;
 
     @Autowired
     private IVirtualBoardJsfManager virtualBoardJsfManager;
@@ -394,6 +400,13 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
                         result.toFail("该包裹已发货");
                         return result;
                     }
+                }
+                // 校验循环集包袋
+                JdVerifyResponse<BoxDto> response = boxGatewayService.boxValidationAndCheck(bindToVirtualBoardPo.getBarCode(),bindToVirtualBoardPo.getOperateType(),bindToVirtualBoardPo.getSiteCode());
+                if(!JdVerifyResponse.CODE_SUCCESS.equals(response.getCode())){
+                    result.setCode(response.getCode());
+                    result.setMessage(response.getMessage());
+                    return result;
                 }
                 // 调板号服务绑定到板号
                 bindToVirtualBoardPo.setMaxItemCount(uccPropertyConfiguration.getVirtualBoardMaxItemCount());
