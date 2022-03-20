@@ -2,6 +2,8 @@ package com.jd.bluedragon.distribution.ministore.service;
 
 
 import com.jd.bluedragon.Pager;
+import com.jd.bluedragon.dbrouter.DataSources;
+import com.jd.bluedragon.dbrouter.DynamicDataSourceType;
 import com.jd.bluedragon.distribution.ministore.dto.DeviceDto;
 import com.jd.bluedragon.distribution.mixedPackageConfig.domain.MixedPackageConfig;
 import com.jd.bluedragon.distribution.mixedPackageConfig.domain.MixedPackageConfigRequest;
@@ -16,6 +18,7 @@ public interface MiniStoreService {
      * 查询设备（三码）绑定状态
      * true 绑定状态 false 未绑定
      */
+    @DataSources(DynamicDataSourceType.DMS_UNDIV_SLAVE)
     Boolean validatDeviceBindStatus(DeviceDto deviceDto);
 
     /**
@@ -39,6 +42,7 @@ public interface MiniStoreService {
      * @param deviceDto
      * @return true绑定成功 false绑定失败
      */
+    @DataSources(DynamicDataSourceType.DMS_UNDIV_MAIN)
     Boolean bindMiniStoreDevice(DeviceDto deviceDto);
 
 

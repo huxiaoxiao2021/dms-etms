@@ -21,31 +21,11 @@ public class DynamicDataSourceHolders {
         if (DynamicDataSourceType.DEFAULT.name().equals(dataSource)){
             d =DynamicDataSourceType.DEFAULT;
         }
-        if (DynamicDataSourceType.FAILSHIFT.name().equals(dataSource)){
-            d =DynamicDataSourceType.FAILSHIFT;
+        if (DynamicDataSourceType.DMS_UNDIV_MAIN.name().equals(dataSource)){
+            d =DynamicDataSourceType.DMS_UNDIV_MAIN;
         }
-        else if (DynamicDataSourceType.FACTORMISS.name().equals(dataSource)){
-            d=DynamicDataSourceType.FACTORMISS;
-        }
-        else if(DynamicDataSourceType.CONFIGCENTER.name().equals(dataSource)) {
-            d =DynamicDataSourceType.CONFIGCENTER;
-        }
-        else if(DynamicDataSourceType.CLL0814.name().equals(dataSource)) {
-            d =DynamicDataSourceType.CLL0814;
-        }
-        else if(DynamicDataSourceType.HELING0603.name().equals(dataSource)) {
-            d =DynamicDataSourceType.HELING0603;
-        }
-        else if(DynamicDataSourceType.XIANGLIAOBANK.name().equals(dataSource)) {
-            d =DynamicDataSourceType.XIANGLIAOBANK;
-        }
-        else if(DynamicDataSourceType.XIANLIAO1229.name().equals(dataSource)) {
-            d =DynamicDataSourceType.XIANLIAO1229;
-        } else if(DynamicDataSourceType.ZHIWEILAI.name().equals(dataSource)) {
-            d =DynamicDataSourceType.ZHIWEILAI;
-        }
-        else if(DynamicDataSourceType.CJBANK.name().equals(dataSource)) {
-            d =DynamicDataSourceType.CJBANK;
+        if (DynamicDataSourceType.DMS_UNDIV_SLAVE.name().equals(dataSource)){
+            d =DynamicDataSourceType.DMS_UNDIV_SLAVE;
         }
         return d;
     }
