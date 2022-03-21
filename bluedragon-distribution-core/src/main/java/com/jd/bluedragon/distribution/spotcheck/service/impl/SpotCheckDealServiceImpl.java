@@ -1114,7 +1114,10 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
                 return picList;
             }else {
                 // 2）、体积超标：5张，面单、全景、长、宽、高
-                return picUrlList;
+                for (String picUrl : picUrlList) {
+                    picList.add(replaceInOut(picUrl));
+                }
+                return picList;
             }
         }
         if(SpotCheckSourceFromEnum.EQUIPMENT_SOURCE_NUM.contains(spotCheckDto.getReviewSource())){
