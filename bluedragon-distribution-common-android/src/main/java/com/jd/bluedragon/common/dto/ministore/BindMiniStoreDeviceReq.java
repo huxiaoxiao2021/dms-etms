@@ -4,17 +4,18 @@ import java.io.Serializable;
 
 public class BindMiniStoreDeviceReq implements Serializable {
     private static final long serialVersionUID = -1270921018093707313L;
-    private String miniStoreCode;
+    private String storeCode;
     private String iceBoardCode1;
     private String iceBoardCode2;
     private String boxCode;
 
-    public String getMiniStoreCode() {
-        return miniStoreCode;
+
+    public String getStoreCode() {
+        return storeCode;
     }
 
-    public void setMiniStoreCode(String miniStoreCode) {
-        this.miniStoreCode = miniStoreCode;
+    public void setStoreCode(String storeCode) {
+        this.storeCode = storeCode;
     }
 
     public String getIceBoardCode1() {
