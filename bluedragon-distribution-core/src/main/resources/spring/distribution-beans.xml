@@ -49,6 +49,7 @@
                 <value type="java.lang.String">ZK</value>
                 <value type="java.lang.String">ZQ</value>
                 <value type="java.lang.String">ZS</value>
+                <value type="java.lang.String">AK</value>
             </set>
         </constructor-arg>
     </bean>
