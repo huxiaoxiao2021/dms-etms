@@ -16,6 +16,7 @@ import com.jd.bluedragon.distribution.board.service.VirtualBoardService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.gateway.service.VirtualBoardGatewayService;
 import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.ldop.utils.StringUtils;
 import com.jd.transboard.api.dto.Board;
 import com.jd.transboard.api.service.GroupBoardService;
 import com.jd.ump.annotation.JProEnum;
@@ -180,7 +181,7 @@ public class VirtualBoardGatewayServiceImpl implements VirtualBoardGatewayServic
 
             Response<String> boardCodeRes = sortBoardJsfService.calcBoard(domain);
             if (boardCodeRes.getCode()!=200){
-                jdCResponse.toFail("计算板号失败，请退出重试!");
+                jdCResponse.toFail(StringUtils.isEmpty(boardCodeRes.getMessage())?"计算板号失败，请退出重试!":boardCodeRes.getMessage());
                 return jdCResponse;
             }
             String boardCode = boardCodeRes.getData();
