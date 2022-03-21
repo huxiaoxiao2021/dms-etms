@@ -225,7 +225,7 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
 
         Response<String> response = new Response<String>();
         if (baseResult.getCode()!=200){
-            response.toFail("查询组板包裹(箱号)信息失败，请退出重试!");
+            response.toFail(StringUtils.isEmpty(response.getMessage())?"查询组板包裹(箱号)信息失败，请退出重试!":response.getMessage());
             return response;
         }
         String boardCode = baseResult.getData();
