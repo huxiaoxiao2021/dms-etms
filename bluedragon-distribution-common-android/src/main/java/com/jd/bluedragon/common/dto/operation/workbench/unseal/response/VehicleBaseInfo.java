@@ -37,6 +37,21 @@ public class VehicleBaseInfo implements Serializable {
      */
     private Boolean spotCheck;
 
+    /**
+     * 任务号
+     */
+    private String billCode;
+
+    /**
+     * 始发站点ID
+     */
+    private Integer starSiteId;
+
+    /**
+     * 始发站点名称
+     */
+    private String startSiteName;
+
     public String getSealCarCode() {
         return sealCarCode;
     }
@@ -75,5 +90,29 @@ public class VehicleBaseInfo implements Serializable {
 
     public void setSpotCheck(Boolean spotCheck) {
         this.spotCheck = spotCheck;
+    }
+
+    public String getBillCode() {
+        return billCode;
+    }
+
+    public void setBillCode(String billCode) {
+        this.billCode = billCode;
+    }
+
+    public Integer getStarSiteId() {
+        return starSiteId;
+    }
+
+    public void setStarSiteId(Integer starSiteId) {
+        this.starSiteId = starSiteId;
+    }
+
+    public String getStartSiteName() {
+        return startSiteName;
+    }
+
+    public void setStartSiteName(String startSiteName) {
+        this.startSiteName = startSiteName;
     }
 }

@@ -3,10 +3,7 @@ package com.jd.bluedragon.distribution.seal.service;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.request.SealTaskInfoRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.request.SealVehicleTaskRequest;
-import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.SealTaskInfo;
-import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.SealVehicleTaskResponse;
-import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.ToSealCarInfo;
-import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.UnSealCarData;
+import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.*;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.IJySealVehicleManager;
@@ -77,7 +74,7 @@ public class JySealVehicleServiceImpl implements IJySealVehicleService {
                     @HystrixProperty(name = HystrixPropertiesManager.FALLBACK_ENABLED, value = "true"),
                     @HystrixProperty(name = HystrixPropertiesManager.EXECUTION_ISOLATION_THREAD_TIMEOUT_IN_MILLISECONDS, value = "500"),
                     @HystrixProperty(name = HystrixPropertiesManager.FALLBACK_ISOLATION_SEMAPHORE_MAX_CONCURRENT_REQUESTS, value = "10"),
-                    @HystrixProperty(name = HystrixPropertiesManager.CIRCUIT_BREAKER_ENABLED, value = "false"),
+                    @HystrixProperty(name = HystrixPropertiesManager.CIRCUIT_BREAKER_ENABLED, value = "true"),
                     @HystrixProperty(name = HystrixPropertiesManager.CIRCUIT_BREAKER_ERROR_THRESHOLD_PERCENTAGE, value = "10"),
                     @HystrixProperty(name = HystrixPropertiesManager.CIRCUIT_BREAKER_REQUEST_VOLUME_THRESHOLD, value = "10"),
             }
@@ -191,24 +188,14 @@ public class JySealVehicleServiceImpl implements IJySealVehicleService {
 
             Profiler.businessAlarm("dms.web.IJySealVehicleService.fallback", msgConcat.toString());
 
-            List<SealCarDto> sealCarDtoList = getSealTaskFromVos(invokeResult, request);
+            PageDto<SealCarDto> pageDto = getSealTaskFromVos(invokeResult, request);
             if (!invokeResult.codeSuccess()) {
                 return invokeResult;
             }
 
-            List<SealCarDto> filterList = new ArrayList<>();
-            if (isSearch(request)) {
-                for (SealCarDto sealCar : sealCarDtoList) {
-                    if (filterBySealCode(request, sealCar) || filterByVehicleNumber(request, sealCar)) {
-                        filterList.add(sealCar);
-                    }
-                }
-            }
-            else if (isRefresh(request)) {
-                filterList = sealCarDtoList;
-            }
+            SealVehicleTaskResponse response = makeSealResponseUsingVos(request, pageDto);
 
-            invokeResult.setData(sealCarDtoToResponse(filterList));
+            invokeResult.setData(response);
         }
         catch (Exception e) {
             log.error("从运输拉取解封车任务异常. {}", JsonHelper.toJson(request), e);
@@ -223,18 +210,52 @@ public class JySealVehicleServiceImpl implements IJySealVehicleService {
     }
 
     /**
+     * 转换VOS解封车结果
+     * @param request
+     * @param pageDto
+     * @return
+     */
+    private SealVehicleTaskResponse makeSealResponseUsingVos(SealVehicleTaskRequest request, PageDto<SealCarDto> pageDto) {
+        SealVehicleTaskResponse response = new SealVehicleTaskResponse();
+        List<VehicleStatusStatis> statusStatisList = new ArrayList<>();
+        response.setStatusStatis(statusStatisList);
+        VehicleStatusStatis statusStatis = new VehicleStatusStatis();
+        statusStatisList.add(statusStatis);
+        statusStatis.setVehicleStatus(VehicleStatusEnum.TO_SEAL.getCode());
+        statusStatis.setVehicleStatusName(VehicleStatusEnum.TO_SEAL.getName());
+
+        List<SealCarDto> filterList = new ArrayList<>();
+        if (isSearch(request)) {
+            for (SealCarDto sealCar : pageDto.getResult()) {
+                if (filterBySealCode(request, sealCar) || filterByVehicleNumber(request, sealCar)) {
+                    filterList.add(sealCar);
+                }
+            }
+            statusStatis.setTotal((long)filterList.size());
+        }
+        else if (isRefresh(request)) {
+            filterList = pageDto.getResult();
+            statusStatis.setTotal((long) pageDto.getTotalRow());
+        }
+
+        sealCarDtoToResponse(response, filterList);
+
+        return response;
+    }
+
+    /**
      * 根据封签号获得封车编码
      * @param result
      * @param request
      * @return
      */
     private List<String> getSealCarCodeFromVos(InvokeResult<SealVehicleTaskResponse> result, SealVehicleTaskRequest request) {
-        List<SealCarDto> sealCarDtoList = getSealTaskFromVos(result, request);
+        PageDto<SealCarDto> pageDto = getSealTaskFromVos(result, request);
         if (!result.codeSuccess()) {
             return null;
         }
         List<SealCarDto> filterList = new ArrayList<>();
-        for (SealCarDto sealCar : sealCarDtoList) {
+        for (SealCarDto sealCar : pageDto.getResult()) {
             if (filterBySealCode(request, sealCar)) {
                 filterList.add(sealCar);
             }
@@ -258,9 +279,7 @@ public class JySealVehicleServiceImpl implements IJySealVehicleService {
      * @param request
      * @return
      */
-    private List<SealCarDto> getSealTaskFromVos(InvokeResult<SealVehicleTaskResponse> invokeResult, SealVehicleTaskRequest request) {
-        List<SealCarDto> sealCarDtoList = new ArrayList<>();
-
+    private PageDto<SealCarDto> getSealTaskFromVos(InvokeResult<SealVehicleTaskResponse> invokeResult, SealVehicleTaskRequest request) {
         SealCarDto sealCarDto = getSealCarDto(request);
         PageDto<SealCarDto> pageDto = getSealCarDtoPageDto(request);
 
@@ -269,7 +288,7 @@ public class JySealVehicleServiceImpl implements IJySealVehicleService {
             if (returnCommonDto != null) {
                 if (Constants.RESULT_SUCCESS == returnCommonDto.getCode()) {
                     if (returnCommonDto.getData() != null && CollectionUtils.isNotEmpty(returnCommonDto.getData().getResult())) {
-                        return returnCommonDto.getData().getResult();
+                        return returnCommonDto.getData();
                     }
                     else {
                         invokeResult.setCode(JdResponse.CODE_OK_NULL);
@@ -287,7 +306,7 @@ public class JySealVehicleServiceImpl implements IJySealVehicleService {
             invokeResult.error("服务器异常，请联系分拣小秘！");
         }
 
-        return sealCarDtoList;
+        return null;
     }
 
     /**
@@ -315,12 +334,10 @@ public class JySealVehicleServiceImpl implements IJySealVehicleService {
         return false;
     }
 
-    private SealVehicleTaskResponse sealCarDtoToResponse(List<SealCarDto> sealCarDtos) {
+    private void sealCarDtoToResponse(SealVehicleTaskResponse response, List<SealCarDto> sealCarDtos) {
         if (CollectionUtils.isEmpty(sealCarDtos)) {
-            return null;
+            return;
         }
-
-        SealVehicleTaskResponse response = new SealVehicleTaskResponse();
 
         List<ToSealCarInfo> sealCarInfList = new ArrayList<>();
         for (SealCarDto sealCarDto : sealCarDtos) {
@@ -328,6 +345,8 @@ public class JySealVehicleServiceImpl implements IJySealVehicleService {
             sealCarInfo.setActualArriveTime(null);
             sealCarInfo.setSealCarCode(sealCarDto.getSealCarCode());
             sealCarInfo.setVehicleNumber(sealCarDto.getVehicleNumber());
+            sealCarInfo.setStarSiteId(sealCarDto.getStartSiteId());
+            sealCarInfo.setStartSiteName(sealCarDto.getStartSiteName());
             sealCarInfo.setLineType(null);
             sealCarInfo.setLineTypeName(null);
             sealCarInfo.setSpotCheck(null);
@@ -337,8 +356,6 @@ public class JySealVehicleServiceImpl implements IJySealVehicleService {
         UnSealCarData<ToSealCarInfo> toSealCarData = new UnSealCarData<>();
         toSealCarData.setData(sealCarInfList);
         response.setToSealCarData(toSealCarData);
-
-        return response;
     }
 
     private PageDto<SealCarDto> getSealCarDtoPageDto(SealVehicleTaskRequest request) {
