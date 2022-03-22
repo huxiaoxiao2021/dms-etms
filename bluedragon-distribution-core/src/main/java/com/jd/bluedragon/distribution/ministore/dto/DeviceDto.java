@@ -17,6 +17,15 @@ public class DeviceDto {
     private String createSiteName;
     private Long receiveSiteCode;
     private String receiveSiteName;
+    private Long miniStoreBindRelationId;//绑定关系id
+
+    public Long getMiniStoreBindRelationId() {
+        return miniStoreBindRelationId;
+    }
+
+    public void setMiniStoreBindRelationId(Long miniStoreBindRelationId) {
+        this.miniStoreBindRelationId = miniStoreBindRelationId;
+    }
 
     public String getStoreCode() {
         return storeCode;

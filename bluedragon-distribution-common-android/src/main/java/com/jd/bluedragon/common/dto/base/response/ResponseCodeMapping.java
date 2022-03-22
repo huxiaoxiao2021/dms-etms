@@ -9,7 +9,8 @@ public enum ResponseCodeMapping {
   INCE_BOARD_HASBEEN_BIND(5003,"冰板码已经被被绑定！"),
   INCE_BOARD_IS_NOT_AVAILABLE(5004,"冰板当前不可用！"),
   BOX_HASBEEN_BIND(5005,"箱号已经被绑定！"),
-  DEVICE_HASBEEN_BIND(5006,"已经存在绑定的设备记录，请勿重复绑定！");
+  DEVICE_HASBEEN_BIND(5006,"已经存在绑定的设备记录，请勿重复绑定！"),
+  NO_LEGAL_BIND_RELATIONSHIP(5008,"未找到正确的绑定关系");
 
 
   ResponseCodeMapping(Integer code, String message) {

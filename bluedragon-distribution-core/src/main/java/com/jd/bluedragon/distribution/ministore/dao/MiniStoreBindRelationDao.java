@@ -22,6 +22,8 @@ public interface MiniStoreBindRelationDao {
 
     Integer selectDeviceBindStatus(DeviceDto deviceDto);
 
+    List<MiniStoreBindRelation> selectDeviceBindRelation(DeviceDto deviceDto);
+
     Integer selectStoreBindStatus(String storeCode);
 
     Integer selectBoxBindStatus(String boxCode);

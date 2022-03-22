@@ -72,6 +72,43 @@
           AND occupied_flag = 1 LIMIT 1
     </select>
 
+
+    <select id="selectDeviceBindRelation" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        from mini_store_bind_relation
+        WHERE occupied_flag = 1
+        <if test="storeCode!=null and storeCode!='' ">
+            and  store_code = #{storeCode}
+        </if>
+        <if test="boxCode!=null and boxCode!='' ">
+            AND box_code = #{boxCode}
+        </if>
+        <if test="iceBoardCode1!=null and iceBoardCode1!='' ">
+            AND ice_board_code1 = #{iceBoardCode1}
+        </if>
+        <if test="iceBoardCode2!=null and iceBoardCode2!='' ">
+            AND ice_board_code2 = #{iceBoardCode2}
+        </if>
+        UNION ALL
+        SELECT
+        <include refid="Base_Column_List"/>
+        from mini_store_bind_relation
+        WHERE occupied_flag = 1
+        <if test="storeCode!=null and storeCode!='' ">
+            and  store_code = #{storeCode}
+        </if>
+        <if test="boxCode!=null and boxCode!='' ">
+            AND box_code = #{boxCode}
+        </if>
+        <if test="iceBoardCode2!=null and iceBoardCode2!='' ">
+            AND ice_board_code1 = #{iceBoardCode2}
+        </if>
+        <if test="iceBoardCode1!=null and iceBoardCode1!='' ">
+            AND ice_board_code2 = #{iceBoardCode1}
+        </if>
+    </select>
+
     <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
         select
         <include refid="Base_Column_List"/>

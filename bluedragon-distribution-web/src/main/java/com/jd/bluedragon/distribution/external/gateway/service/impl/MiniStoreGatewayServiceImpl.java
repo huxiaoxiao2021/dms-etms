@@ -2,8 +2,8 @@ package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.ResponseCodeMapping;
-import com.jd.bluedragon.common.dto.ministore.BindMiniStoreDeviceReq;
-import com.jd.bluedragon.common.dto.ministore.DeviceStatusValidateReq;
+import com.jd.bluedragon.common.dto.ministore.*;
+import com.jd.bluedragon.distribution.ministore.domain.MiniStoreBindRelation;
 import com.jd.bluedragon.distribution.ministore.dto.DeviceDto;
 import com.jd.bluedragon.distribution.ministore.service.MiniStoreService;
 import com.jd.bluedragon.distribution.saf.service.GetWaybillSafService;
@@ -64,6 +64,45 @@ public class MiniStoreGatewayServiceImpl implements MiniStoreGatewayService {
         }
         Boolean bindSuccess = miniStoreService.bindMiniStoreDevice(deviceDto);
         if (bindSuccess) {
+            return JdCResponse.successResponse();
+        }
+        return JdCResponse.errorResponse(ResponseCodeMapping.UNKNOW_ERROR);
+    }
+
+    @Override
+    public JdCResponse sealBox(SealBoxReq sealBoxReq) {
+        return null;
+    }
+
+    @Override
+    public JdCResponse<Integer> querySortCount(String boxCode) {
+        return null;
+    }
+
+    @Override
+    public JdCResponse<UnBoxValidateResp> unBoxValidateBindRelation(UnBoxValidateReq unBoxValidateReq) {
+        DeviceDto deviceDto = BeanUtils.copy(unBoxValidateReq, DeviceDto.class);
+        MiniStoreBindRelation miniStoreBindRelation = miniStoreService.selectBindRelation(deviceDto);
+        if (null != miniStoreBindRelation) {
+            UnBoxValidateResp unBoxValidateResp = BeanUtils.copy(miniStoreBindRelation, UnBoxValidateResp.class);
+            unBoxValidateResp.setMiniStoreBindRelationId(miniStoreBindRelation.getId());
+            return JdCResponse.successResponse(unBoxValidateReq);
+        }
+        return JdCResponse.errorResponse(ResponseCodeMapping.NO_LEGAL_BIND_RELATIONSHIP);
+    }
+
+    @Override
+    public JdCResponse validateSortRelation(ValidateSortRelationReq validateSortRelationReq) {
+        return null;
+    }
+
+    @Override
+    public JdCResponse unBox(UnBoxReq unBoxReq) {
+        DeviceDto deviceDto =new DeviceDto();
+        deviceDto.setBoxCode(unBoxReq.getBoxCode());
+        deviceDto.setMiniStoreBindRelationId(unBoxReq.getMiniStoreBindRelationId());
+        Boolean success =miniStoreService.updateProcessStatusAndInvaliSortRealtion(deviceDto);
+        if (success){
             return JdCResponse.successResponse();
         }
         return JdCResponse.errorResponse(ResponseCodeMapping.UNKNOW_ERROR);

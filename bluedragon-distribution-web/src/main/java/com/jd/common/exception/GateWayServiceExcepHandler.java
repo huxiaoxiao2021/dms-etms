@@ -8,8 +8,8 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.stereotype.Component;
 
-@Component
-@Aspect
+//@Component
+//@Aspect
 @Slf4j
 public class GateWayServiceExcepHandler {
     @Around("@within(com.jd.bluedragon.distribution.external.gateway.service.impl.*) && @annotation(com.jd.bluedragon.common.UnifiedExceptionProcess)")

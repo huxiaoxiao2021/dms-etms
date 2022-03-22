@@ -1,8 +1,7 @@
 package com.jd.bluedragon.external.gateway.service;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
-import com.jd.bluedragon.common.dto.ministore.BindMiniStoreDeviceReq;
-import com.jd.bluedragon.common.dto.ministore.DeviceStatusValidateReq;
+import com.jd.bluedragon.common.dto.ministore.*;
 
 public interface MiniStoreGatewayService {
     /**
@@ -18,6 +17,40 @@ public interface MiniStoreGatewayService {
      * @return
      */
     JdCResponse bindMiniStoreDevice(BindMiniStoreDeviceReq request);
+
+    /**
+     * 封箱
+     * @param sealBoxReq
+     * @return
+     */
+    JdCResponse sealBox(SealBoxReq sealBoxReq);
+
+    /**
+     *查询当前集包数量（已集包裹数量）
+     */
+    JdCResponse<Integer> querySortCount(String boxCode);
+
+    /**
+     * 解封箱时校验三码的原绑定关系是否正确
+     * @param unBoxValidateReq
+     * @return
+     */
+    JdCResponse<UnBoxValidateResp> unBoxValidateBindRelation(UnBoxValidateReq unBoxValidateReq);
+
+    /**
+     * 校验集包关系（箱子和包裹的绑定关系）
+     * @param validateSortRelationReq
+     * @return
+     */
+    JdCResponse validateSortRelation(ValidateSortRelationReq validateSortRelationReq);
+
+    /**
+     * 解封箱
+     * @param unBoxReq
+     * @return
+     */
+    JdCResponse unBox(UnBoxReq unBoxReq);
+
 
 
 }

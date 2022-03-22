@@ -58,6 +58,11 @@ public class TaskGatewayServiceImpl implements TaskGatewayService {
         TaskResponse taskResponse = taskResource.add(taskRequest);
 
         if(Objects.equals(taskResponse.getCode(),TaskResponse.CODE_OK)){
+            //TODO 判断是分拣逻辑，异步存储技术逻辑
+            /**
+             *  taskRequest.setType(EnumConstants.TaskTypeEnum.TASK_TYPE_SORTING.getType()); TASK_TYPE_SORTING
+             *  根据箱号 判断是否是移动微仓的逻辑，然后发送消息
+             */
             jdCResponse.toSucceed(taskResponse.getMessage());
         }else{
             jdCResponse.toError(taskResponse.getMessage());

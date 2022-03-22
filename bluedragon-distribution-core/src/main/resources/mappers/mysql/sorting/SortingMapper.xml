@@ -347,5 +347,7 @@
 		order by operate_time limit #{startIndex},#{pageSize}
 	</select>
 
-
+	<update id="invaliSortRealtion">
+		update sorting set YN=0,UPDATE_TIME=now() where box_code =#{boxCode}
+	</update>
 </mapper>

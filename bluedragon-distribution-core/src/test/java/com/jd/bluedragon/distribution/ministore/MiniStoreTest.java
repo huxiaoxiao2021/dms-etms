@@ -72,4 +72,13 @@ public class MiniStoreTest {
         //vs
         //耗时：3422ms 耗时：4360ms 耗时：3316ms 差一个数量级
     }
+
+    @Test
+    public void unBoxTest(){
+        DeviceDto deviceDto =new DeviceDto();
+        deviceDto.setMiniStoreBindRelationId(2L);
+        deviceDto.setBoxCode("JDVF00001693352-7-15-");
+        Boolean r =miniStoreService.updateProcessStatusAndInvaliSortRealtion(deviceDto);
+        System.out.println("解封箱结果："+r);
+    }
 }
