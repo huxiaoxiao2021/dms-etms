@@ -102,5 +102,9 @@ public class WorkStationGridDaoImpl extends BaseDao<WorkStationGrid> implements 
 	public long queryCountByRefStationKey(String stationKey) {
 		return this.getSqlSession().selectOne(NAMESPACE+".queryCountByRefStationKey",stationKey);
 	}
+	@Override
+	public WorkStationGrid queryByGridKey(WorkStationGridQuery workStationGridQuery) {
+		return this.getSqlSession().selectOne(NAMESPACE+".queryByGridKey",workStationGridQuery);
+	}
 
 }

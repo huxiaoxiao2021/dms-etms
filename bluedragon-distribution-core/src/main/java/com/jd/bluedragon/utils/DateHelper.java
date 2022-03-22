@@ -32,7 +32,10 @@ public class DateHelper {
     };
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DateHelper.class);
-
+    /**
+     * 1小时的分钟数
+     */
+    public static final long ONE_HOUR_MINUTES = 60;
     /**
      * 五分钟秒数
      */
@@ -528,4 +531,16 @@ public class DateHelper {
         DateFormat format = new SimpleDateFormat(DATE_FORMAT_YYYYMMDD);
         return format.format(new Date());
     }
+    /**
+     * 
+     * @param hours
+     * @return
+     */
+	public static String hoursToHHMM(double hours) {
+		if(hours > 0) {
+			long minutes = (long)(hours * ONE_HOUR_MINUTES);
+			return (minutes/60) + "时" + (minutes%60) + "分";
+		}
+		return "";
+	}
 }

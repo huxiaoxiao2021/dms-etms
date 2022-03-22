@@ -52,6 +52,7 @@ public class DmsConstants {
     public static final String CODE_PREFIX_WORK_STATION = "GX";
     public static final String CODE_PREFIX_WORK_STATION_GRID = "CDGX";
     public static final String CODE_PREFIX_WORK_STATION_ATTEND_PLAN = "CDGXPL";
+    public static final String CODE_PREFIX_POSITION = "GW";
 
     /**
      * 始发道口号类型-1-普通
@@ -204,6 +205,15 @@ public class DmsConstants {
      * 冷链卡班
      */
     public static final String PRODUCT_TYPE_COLD_CHAIN_KB = "LL-KB-M";
+    
+    /**
+     * 工种类型
+     */
+    public static final String JOB_TYPE_REGEX = "^[1-6]$";
+    /**
+     * 身份证正则
+     */
+    public static final String ID_CARD_NO_REGEX = "(^\\d{18}$)|(^\\d{17}(\\d|X|x)$)";
 
     /**
      * 京仓、非京仓、外仓
