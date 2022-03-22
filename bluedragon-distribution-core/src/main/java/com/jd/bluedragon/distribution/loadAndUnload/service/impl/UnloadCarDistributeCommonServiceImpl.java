@@ -93,6 +93,11 @@ public class UnloadCarDistributeCommonServiceImpl implements UnloadCarDistribute
     }
 
     @Override
+    public boolean deleteUnloadMaster(UnloadCarDistribution params) {
+        return unloadCarDistributionForTysDao.deleteUnloadMaster(params);
+    }
+
+    @Override
     public List<String> selectTasksByUser(String unloadUserErp) {
         if (uccPropertyConfiguration.isReadUnloadFromTys()) {
             return unloadCarDistributionForTysDao.selectTasksByUser(unloadUserErp);
