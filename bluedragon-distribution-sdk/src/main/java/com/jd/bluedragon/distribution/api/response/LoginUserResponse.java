@@ -101,7 +101,12 @@ public class LoginUserResponse extends JdResponse {
 	private DmsClientConfigInfo dmsClientConfigInfo;
 
 	private String token;
-	
+
+    /**
+     * 物流网关外网erp认证插件 ticket
+     */
+    private String wlGwTicket;
+
 	/**
 	 * @return the dmsSiteCode
 	 */
@@ -306,7 +311,16 @@ public class LoginUserResponse extends JdResponse {
 		this.token = token;
 	}
 
-	public BaseResponse toOldLoginResponse() {
+    public String getWlGwTicket() {
+        return wlGwTicket;
+    }
+
+    public LoginUserResponse setWlGwTicket(String wlGwTicket) {
+        this.wlGwTicket = wlGwTicket;
+        return this;
+    }
+
+    public BaseResponse toOldLoginResponse() {
 		BaseResponse baseResponse = new BaseResponse(super.getCode(), super.getMessage());
 		baseResponse.setErpAccount(this.erpAccount);
 		baseResponse.setPassword(this.password);
@@ -348,6 +362,7 @@ public class LoginUserResponse extends JdResponse {
 				", forceUpdate=" + forceUpdate +
 				", dmsClientConfigInfo=" + dmsClientConfigInfo +
 				", token='" + token + '\'' +
+				", wlGwTicket='" + wlGwTicket + '\'' +
 				'}';
 	}
 }

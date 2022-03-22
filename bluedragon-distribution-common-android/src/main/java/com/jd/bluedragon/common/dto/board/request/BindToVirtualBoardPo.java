@@ -34,6 +34,12 @@ public class BindToVirtualBoardPo implements Serializable {
      */
     private Integer maxItemCount;
 
+    /**
+     * 操作来源 1: 分拣pda 2:分拣机
+     * @return
+     */
+    private Integer bizSource;
+
     public OperatorInfo getOperatorInfo() {
         return operatorInfo;
     }
@@ -68,5 +74,13 @@ public class BindToVirtualBoardPo implements Serializable {
     public BindToVirtualBoardPo setMaxItemCount(Integer maxItemCount) {
         this.maxItemCount = maxItemCount;
         return this;
+    }
+
+    public Integer getBizSource() {
+        return bizSource;
+    }
+
+    public void setBizSource(Integer bizSource) {
+        this.bizSource = bizSource;
     }
 }

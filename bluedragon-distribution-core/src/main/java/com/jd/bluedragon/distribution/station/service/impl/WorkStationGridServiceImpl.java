@@ -415,4 +415,8 @@ public class WorkStationGridServiceImpl implements WorkStationGridService {
 		result.setData(workStationGridDao.queryPageCount(query));
 		return result;
 	}
+	@Override
+	public boolean hasGridData(String stationKey) {
+		return workStationGridDao.queryCountByRefStationKey(stationKey) > 0;
+	}
 }

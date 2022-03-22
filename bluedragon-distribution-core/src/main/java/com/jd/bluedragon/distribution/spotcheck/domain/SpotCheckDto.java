@@ -86,6 +86,10 @@ public class SpotCheckDto implements Serializable {
      */
     private String operateUserName;
     /**
+     * 设备编码
+     */
+    private String machineCode;;
+    /**
      * 抽检维度类型
      * @see SpotCheckDimensionEnum
      */
@@ -95,9 +99,17 @@ public class SpotCheckDto implements Serializable {
      */
     private Integer excessStatus;
     /**
+     * 超标类型
+     */
+    private Integer excessType;
+    /**
      * 图片链接
      */
     private Map<String, String> pictureUrls;
+    /**
+     * 是否改造后的抽检
+     */
+    private Boolean isReformedSpotCheck = false;
 
     public String getBarCode() {
         return barCode;
@@ -219,6 +231,14 @@ public class SpotCheckDto implements Serializable {
         this.operateUserErp = operateUserErp;
     }
 
+    public String getMachineCode() {
+        return machineCode;
+    }
+
+    public void setMachineCode(String machineCode) {
+        this.machineCode = machineCode;
+    }
+
     public String getOperateUserName() {
         return operateUserName;
     }
@@ -243,11 +263,27 @@ public class SpotCheckDto implements Serializable {
         this.excessStatus = excessStatus;
     }
 
+    public Integer getExcessType() {
+        return excessType;
+    }
+
+    public void setExcessType(Integer excessType) {
+        this.excessType = excessType;
+    }
+
     public Map<String, String> getPictureUrls() {
         return pictureUrls;
     }
 
     public void setPictureUrls(Map<String, String> pictureUrls) {
         this.pictureUrls = pictureUrls;
+    }
+
+    public Boolean getIsReformedSpotCheck() {
+        return isReformedSpotCheck;
+    }
+
+    public void setIsReformedSpotCheck(Boolean reformedSpotCheck) {
+        isReformedSpotCheck = reformedSpotCheck;
     }
 }

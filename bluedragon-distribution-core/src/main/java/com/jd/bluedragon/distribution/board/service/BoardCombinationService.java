@@ -74,6 +74,14 @@ public interface BoardCombinationService {
     public Response<Board> getBoardByBoxCode(Integer siteCode, String boxCode);
 
     /**
+     * 获取板信息 板箱信息
+     * @param siteCode
+     * @param boxCode
+     * @return
+     */
+    public Response<BoardBoxInfoDto> getBoardBoxInfo(Integer siteCode, String boxCode);
+
+    /**
      * 创建新的板号
      * @param request
      * @return

@@ -42,7 +42,6 @@ public class PackageWeightVolumeHandlerTest {
             packWeightVO.setOrganizationCode(6);
             packWeightVO.setOrganizationName("总公司");
             packWeightVO.setCodeStr("JDV000464669019-1-1-");
-            weightAndVolumeCheckService.dealSportCheck(packWeightVO, SpotCheckSourceEnum.SPOT_CHECK_DWS);
             Assert.assertTrue(true);
         }catch (Exception e){
             logger.error("服务异常!", e);

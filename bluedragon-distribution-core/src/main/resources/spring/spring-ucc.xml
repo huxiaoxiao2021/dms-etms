@@ -142,9 +142,6 @@
         <property name="virtualBoardMaxItemCount" value="${virtualBoardMaxItemCount:50}" />
         <property name="virtualBoardAutoCloseDays" value="${virtualBoardAutoCloseDays:1}" />
         <property name="virtualBoardCanUseSite" value="${virtualBoardCanUseSite:-1}" />
-		<property name="newSpotCheckSiteCodes" value="${newSpotCheckSiteCodes:910}"/>
-		<property name="isIssueToFinance" value="${isIssueToFinance:false}"/>
-		<property name="executeBCFuse" value="${executeBCFuse:false}"/>
 		<property name="androidIsExecuteNewSpotCheck" value="${androidIsExecuteNewSpotCheck:false}"/>
 		<property name="noAuthMenuConfig" value="${noAuthMenuConfig:}"/>
 		<property name="noAuthMenuConfigNew" value="${noAuthMenuConfigNew:}"/>
@@ -159,6 +156,8 @@
 		<property name="restApiOuthSwitch" value="${restApiOuthSwitch:true}"/>
 		<property name="needInterceptUrls" value="${needInterceptUrls:*}"/>
 		<property name="notSignedOutRecordMoreThanHours" value="${notSignedOutRecordMoreThanHours:-1}"/>
+		<property name="spotCheckReformSiteCodes" value="${spotCheckReformSiteCodes:true}"/>
+		<property name="aiDistinguishSwitch" value="${aiDistinguishSwitch:true}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -281,9 +280,6 @@
 				<value>uccPropertyConfiguration.virtualBoardMaxItemCount</value>
 				<value>uccPropertyConfiguration.virtualBoardAutoCloseDays</value>
 				<value>uccPropertyConfiguration.virtualBoardCanUseSite</value>
-				<value>uccPropertyConfiguration.newSpotCheckSiteCodes</value>
-				<value>uccPropertyConfiguration.isIssueToFinance</value>
-				<value>uccPropertyConfiguration.executeBCFuse</value>
 				<value>uccPropertyConfiguration.androidIsExecuteNewSpotCheck</value>
 				<value>uccPropertyConfiguration.noAuthMenuConfig</value>
 				<value>uccPropertyConfiguration.noAuthMenuConfigNew</value>
@@ -298,6 +294,9 @@
 				<value>uccPropertyConfiguration.restApiOuthSwitch</value>
 				<value>uccPropertyConfiguration.needInterceptUrls</value>
 				<value>uccPropertyConfiguration.notSignedOutRecordMoreThanHours</value>
+				<value>uccPropertyConfiguration.spotCheckReformSiteCodes</value>
+				<value>uccPropertyConfiguration.aiDistinguishSwitch</value>
+
                 <value>hystrixRouteUccPropertyConfiguration.executionTimeoutInMilliseconds</value>
                 <value>hystrixRouteUccPropertyConfiguration.circuitBreakerEnabled</value>
                 <value>hystrixRouteUccPropertyConfiguration.fallbackEnabled</value>

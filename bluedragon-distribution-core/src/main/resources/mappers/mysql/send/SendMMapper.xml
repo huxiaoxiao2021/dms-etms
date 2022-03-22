@@ -650,5 +650,14 @@
         and operate_time <![CDATA[>=]]> #{operateTimeStart,jdbcType=TIMESTAMP}
 		AND operate_time <![CDATA[<]]> #{operateTimeEnd,jdbcType=TIMESTAMP}
     </select>
-
+	<select id="selectSendByBoardCode" parameterType="map" resultMap="SendM">
+		select
+		<include refid="Base_Column_List" />
+		from send_m
+        where yn= 1
+		and create_site_code = #{createSiteCode,jdbcType=INTEGER}
+		and board_code = #{boardCode,jdbcType=VARCHAR}
+		and sendm_status = #{sendmStatus,jdbcType=INTEGER}
+		limit 1
+	</select>
 </mapper>

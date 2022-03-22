@@ -86,6 +86,7 @@ import com.jd.tms.data.dto.CargoDetailDto;
 import com.jd.transboard.api.dto.AddBoardBox;
 import com.jd.transboard.api.dto.Board;
 import com.jd.transboard.api.dto.Response;
+import com.jd.transboard.api.enums.BizSourceEnum;
 import com.jd.transboard.api.enums.ResponseEnum;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -1965,6 +1966,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             addBoardBox.setSiteCode(request.getOperateSiteCode());
             addBoardBox.setSiteName(request.getOperateSiteName());
             addBoardBox.setSiteType(BoardCommonManagerImpl.BOARD_COMBINATION_SITE_TYPE);
+            addBoardBox.setBizSource(BizSourceEnum.PDA.getValue());
             Response<Integer> response = groupBoardManager.addBoxToBoard(addBoardBox);
 
             if (response == null) {
@@ -2424,6 +2426,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
 
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("unloadUserErp",request.getUnloadUserErp());
+        params.put("unloadUserName",request.getUnloadUserName());
         params.put("railWayPlatForm",request.getRailWayPlatForm());
         params.put("unloadCarIds",request.getUnloadCarIds());
         params.put("updateUserErp",request.getUpdateUserErp());
@@ -2445,13 +2448,19 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             unloadCarDistribution.setUnloadUserName(request.getUnloadUserName());
             unloadCarDistribution.setUnloadUserType(UnloadUserTypeEnum.UNLOAD_MASTER.getType());
             unloadCarDistribution.setUpdateTime(new Date());
+            unloadCarDistribution.setCreateTime(new Date());
             List<String> unloadUserErps = unloadCarDistributionDao.selectUnloadUserBySealCarCode(request.getSealCarCodes().get(i));
             if (CollectionUtils.isEmpty(unloadUserErps)) {
-                unloadCarDistribution.setCreateTime(new Date());
                 unloadCarDistributionDao.add(unloadCarDistribution);
             } else {
-                unloadCarDistributionDao.updateUnloadUser(unloadCarDistribution);
-                // 如果自己还是协助人，需要删除
+                // 先逻辑删除旧的负责人
+                unloadCarDistribution.setUnloadUserErp(unloadUserErps.get(0));
+                unloadCarDistributionDao.deleteUnloadHelper(unloadCarDistribution);
+                // 添加新的负责人
+                unloadCarDistribution.setUnloadUserErp(request.getUnloadUserErp());
+                unloadCarDistributionDao.add(unloadCarDistribution);
+                // 如果新负责人还是协助人，需要删除
+                unloadCarDistribution.setUnloadUserType(UnloadUserTypeEnum.HELPER.getType());
                 unloadCarDistributionDao.deleteUnloadHelper(unloadCarDistribution);
             }
         }
