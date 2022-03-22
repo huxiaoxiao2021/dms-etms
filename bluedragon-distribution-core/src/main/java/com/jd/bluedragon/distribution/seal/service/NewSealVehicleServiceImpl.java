@@ -233,6 +233,9 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
             msg = "封车异常：["+ e.getMessage() +"]";
             throw e;
         }finally {
+            if(log.isInfoEnabled()){
+                log.info("封车入参:{}  出参：{}", JsonHelper.toJson(doSealCarDtos),JsonHelper.toJson(sealCarInfo));
+            }
 //            addSystemLog(paramList, msg);
             long endTime = System.currentTimeMillis();
 
@@ -575,7 +578,9 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
             removeBatchCodeRedisCache(paramList);
             msg += "["+ e.getMessage() +"]";
         }finally {
-
+            if(log.isInfoEnabled()){
+                log.info("封车入参:{}  出参：{}", JsonHelper.toJson(doSealCarDtos),JsonHelper.toJson(sealCarInfo));
+            }
             for (SealCarDto sealCarDto : paramList) {
 
                 long endTime = new Date().getTime();
