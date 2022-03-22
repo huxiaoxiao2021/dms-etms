@@ -33,6 +33,9 @@ public class DockInfoConverter {
      * @return
      */
     public static DockInfoEntity convertToEntity(DockBaseInfoPo dockBaseInfoPo) {
+        if(dockBaseInfoPo == null) {
+            return null;
+        }
         DockInfoEntity entity = new DockInfoEntity();
         entity.setId(dockBaseInfoPo.getId());
         entity.setDockCode(dockBaseInfoPo.getDockCode());
