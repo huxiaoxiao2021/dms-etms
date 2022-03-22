@@ -997,6 +997,22 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
         return result;
     }
 
+    @Override
+    public Result<VirtualBoardResultDto> getBoxCountByBoardCode(String boardCode) {
+        Result<VirtualBoardResultDto> result = Result.success();
+        Response<com.jd.transboard.api.dto.VirtualBoardResultDto> handleResult = virtualBoardJsfManager.getBoxCountByBoardCode(boardCode);
+        if(!Objects.equals(handleResult.getCode(), ResponseEnum.SUCCESS.getIndex())){
+            log.error("VirtualBoardServiceImpl.getBoxCountByBoardCode--fail-- param {} result {}", boardCode, JsonHelper.toJson(handleResult));
+            return result.toFail("获取板号统计信息失败，请稍后再试");
+        }
+        com.jd.transboard.api.dto.VirtualBoardResultDto virtualBoardResultDto = handleResult.getData();
+        if (null != virtualBoardResultDto) {
+            return result.toFail("请先扫描流向");
+        }
+        VirtualBoardResultDto dto = new VirtualBoardResultDto();
+        BeanUtils.copyProperties(virtualBoardResultDto, dto);
+        return result.setData(dto);
+    }
 
     private com.jd.transboard.api.dto.HandoverVirtualBoardPo getConvertToTcParam(HandoverVirtualBoardPo handoverVirtualBoardPo) {
         com.jd.transboard.api.dto.HandoverVirtualBoardPo handoverVirtualBoardPoTc = new com.jd.transboard.api.dto.HandoverVirtualBoardPo();

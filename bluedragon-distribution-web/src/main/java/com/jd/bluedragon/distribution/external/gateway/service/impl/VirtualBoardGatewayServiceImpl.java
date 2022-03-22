@@ -16,9 +16,11 @@ import com.jd.bluedragon.distribution.board.service.VirtualBoardService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.gateway.service.VirtualBoardGatewayService;
 import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.dms.workbench.utils.sdk.base.Result;
 import com.jd.ldop.utils.StringUtils;
 import com.jd.transboard.api.dto.Board;
 import com.jd.transboard.api.service.GroupBoardService;
+import com.jd.transboard.api.service.IVirtualBoardService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import lombok.extern.slf4j.Slf4j;
@@ -185,55 +187,19 @@ public class VirtualBoardGatewayServiceImpl implements VirtualBoardGatewayServic
                 return jdCResponse;
             }
             String boardCode = boardCodeRes.getData();
-            com.jd.transboard.api.dto.Response<Board> boardRes = groupBoardService.getBoardByCode(boardCode);
-            if (boardRes.getCode()!=200){
+            Result<VirtualBoardResultDto> result = virtualBoardService.getBoxCountByBoardCode(boardCode);
+            if (result.getCode()!=200){
                 jdCResponse.toFail("查询组板信息失败，请退出重试!");
                 return jdCResponse;
             }
-            Board board = boardRes.getData();
-            if (board==null){
-                jdCResponse.toFail("查询组板信息失败，请退出重试!");
-                return jdCResponse;
-            }
-
-            com.jd.transboard.api.dto.Response<List<String>> boxCodeRes = groupBoardService.getBoxesByBoardCode(board.getCode());
-            if (boxCodeRes.getCode()!=200){
-                jdCResponse.toFail("查询组板包裹(箱号)信息失败，请退出重试!");
-                return jdCResponse;
-            }
-            List<String> boxes = boxCodeRes.getData();
-            if (CollectionUtils.isEmpty(boxes)){
-                jdCResponse.toFail("查询组板包裹(箱号)信息失败，请退出重试!");
-                return jdCResponse;
-            }
-            jdCResponse.setData(getVirtualBoardResultDto(board, boxes));
+            VirtualBoardResultDto data = result.getData();
+            jdCResponse.setData(data);
             return jdCResponse;
         }catch(Exception e){
             log.error("组板查询接口异常,request:"+ JsonHelper.toJson(request),e);
             jdCResponse.toFail("组板查询接口异常，请联系分拣小秘排查");
             return jdCResponse;
         }
-    }
-
-    private VirtualBoardResultDto getVirtualBoardResultDto(Board board, List<String> boxes) {
-        VirtualBoardResultDto result = new VirtualBoardResultDto();
-        result.setBoardCode(board.getCode());
-        result.setBoardStatus(board.getStatus());
-        result.setDestinationId(board.getDestinationId());
-        result.setDestinationName(board.getDestination());
-        int packageCount = 0;
-        int boxCount = 0;
-        for (String code: boxes){
-            if (WaybillUtil.isPackageCode(code)){
-                packageCount++;
-            }
-            if (BusinessHelper.isBoxcode(code)){
-                boxCount++;
-            }
-        }
-        result.setPackageTotal(packageCount);
-        result.setBoxTotal(boxCount);
-        return result;
     }
 
     @Override

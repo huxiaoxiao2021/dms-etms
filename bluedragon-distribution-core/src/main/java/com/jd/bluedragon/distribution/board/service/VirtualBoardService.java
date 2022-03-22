@@ -8,6 +8,7 @@ import com.jd.bluedragon.common.dto.board.response.UnbindVirtualBoardResultDto;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.dms.workbench.utils.sdk.base.Result;
+import com.jd.transboard.api.dto.Response;
 
 import java.util.Date;
 import java.util.List;
@@ -112,4 +113,11 @@ public interface VirtualBoardService {
      * @return
      */
     JdCResponse<Void> handoverBoard(HandoverVirtualBoardPo handoverVirtualBoardPo);
+
+    /**
+     * 根据板号获取箱号统计数据
+     * @param boardCode
+     * @return
+     */
+    Result<VirtualBoardResultDto> getBoxCountByBoardCode(String boardCode);
 }
