@@ -26,70 +26,37 @@ public class UnloadCarDistributeCommonServiceImpl implements UnloadCarDistribute
 
     @Override
     public int add(UnloadCarDistribution detail) {
-        if (uccPropertyConfiguration.isStopWriteUnloadFromDms()) {
-            if (uccPropertyConfiguration.isWriteUnloadFromTys()) {
-                return unloadCarDistributionForTysDao.add(detail);
-            }
-            throw new LoadIllegalException(Constants.UNLOAD_TRANSFER_WARN_MESSAGE);
-        }
-        return unloadCarDistributionDao.add(detail);
+        return unloadCarDistributionForTysDao.add(detail);
     }
 
     @Override
     public int updateUnloadUser(UnloadCarDistribution detail) {
-        if (uccPropertyConfiguration.isStopWriteUnloadFromDms()) {
-            if (uccPropertyConfiguration.isWriteUnloadFromTys()) {
-                return unloadCarDistributionForTysDao.updateUnloadUser(detail);
-            }
-            throw new LoadIllegalException(Constants.UNLOAD_TRANSFER_WARN_MESSAGE);
-        }
-        return unloadCarDistributionDao.updateUnloadUser(detail);
+        return unloadCarDistributionForTysDao.updateUnloadUser(detail);
     }
 
     @Override
     public List<String> selectHelperBySealCarCode(String sealCarCode) {
-        if (uccPropertyConfiguration.isReadUnloadFromTys()) {
-            return unloadCarDistributionForTysDao.selectHelperBySealCarCode(sealCarCode);
-        }
-        return unloadCarDistributionDao.selectHelperBySealCarCode(sealCarCode);
+        return unloadCarDistributionForTysDao.selectHelperBySealCarCode(sealCarCode);
     }
 
     @Override
     public List<String> selectUnloadUserBySealCarCode(String sealCarCode) {
-        if (uccPropertyConfiguration.isReadUnloadFromTys()) {
-            return unloadCarDistributionForTysDao.selectUnloadUserBySealCarCode(sealCarCode);
-        }
-        return unloadCarDistributionDao.selectUnloadUserBySealCarCode(sealCarCode);
+        return unloadCarDistributionForTysDao.selectUnloadUserBySealCarCode(sealCarCode);
     }
 
     @Override
     public List<UnloadCarDistribution> selectUnloadCarTaskHelpers(String sealCarCode) {
-        if (uccPropertyConfiguration.isReadUnloadFromTys()) {
-            return unloadCarDistributionForTysDao.selectUnloadCarTaskHelpers(sealCarCode);
-        }
-        return unloadCarDistributionDao.selectUnloadCarTaskHelpers(sealCarCode);
+        return unloadCarDistributionForTysDao.selectUnloadCarTaskHelpers(sealCarCode);
     }
 
     @Override
     public boolean deleteUnloadCarTaskHelpers(UnloadCarDistribution params) {
-        if (uccPropertyConfiguration.isStopWriteUnloadFromDms()) {
-            if (uccPropertyConfiguration.isWriteUnloadFromTys()) {
-                return unloadCarDistributionForTysDao.deleteUnloadCarTaskHelpers(params);
-            }
-            throw new LoadIllegalException(Constants.UNLOAD_TRANSFER_WARN_MESSAGE);
-        }
-        return unloadCarDistributionDao.deleteUnloadCarTaskHelpers(params);
+        return unloadCarDistributionForTysDao.deleteUnloadCarTaskHelpers(params);
     }
 
     @Override
     public boolean deleteUnloadHelper(UnloadCarDistribution params) {
-        if (uccPropertyConfiguration.isStopWriteUnloadFromDms()) {
-            if (uccPropertyConfiguration.isWriteUnloadFromTys()) {
-                return unloadCarDistributionForTysDao.deleteUnloadHelper(params);
-            }
-            throw new LoadIllegalException(Constants.UNLOAD_TRANSFER_WARN_MESSAGE);
-        }
-        return unloadCarDistributionDao.deleteUnloadHelper(params);
+         return unloadCarDistributionForTysDao.deleteUnloadHelper(params);
     }
 
     @Override
@@ -99,9 +66,6 @@ public class UnloadCarDistributeCommonServiceImpl implements UnloadCarDistribute
 
     @Override
     public List<String> selectTasksByUser(String unloadUserErp) {
-        if (uccPropertyConfiguration.isReadUnloadFromTys()) {
-            return unloadCarDistributionForTysDao.selectTasksByUser(unloadUserErp);
-        }
-        return unloadCarDistributionDao.selectTasksByUser(unloadUserErp);
+        return unloadCarDistributionForTysDao.selectTasksByUser(unloadUserErp);
     }
 }
