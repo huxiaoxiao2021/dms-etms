@@ -87,6 +87,12 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
+    @Resource
+    private CycleBoxService cycleBoxService;
+
+    @Resource
+    private FuncSwitchConfigService funcSwitchConfigService;
+
     @Autowired
     private IVirtualBoardJsfManager virtualBoardJsfManager;
 
@@ -404,6 +410,15 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
                         return result;
                     }
                 }
+                // 校验循环集包袋
+                if (isBoxCode){
+                    final Box box = boxService.findBoxByCode(bindToVirtualBoardPo.getBarCode());
+                    if (!validationAndCheck(bindToVirtualBoardPo.getBarCode(),bindToVirtualBoardPo.getOperateType(),bindToVirtualBoardPo.getSiteCode(),box)){
+                        result.setCode(BoxResponse.CODE_BC_BOX_NO_BINDING);
+                        result.setMessage(BoxResponse.MESSAGE_BC_NO_BINDING);
+                        return result;
+                    }
+                }
                 // 调板号服务绑定到板号
                 bindToVirtualBoardPo.setMaxItemCount(uccPropertyConfiguration.getVirtualBoardMaxItemCount());
                 final com.jd.transboard.api.dto.BindToVirtualBoardPo convertToTcParam = this.getConvertToTcParam(bindToVirtualBoardPo);
@@ -444,6 +459,46 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
         return result;
     }
 
+    public boolean validationAndCheck(String boxCode, Integer operateType,Integer siteCode, Box box) {
+        if (Constants.OPERATE_TYPE_SORTING.equals(operateType) || Constants.OPERATE_TYPE_INSPECTION.equals(operateType)) {
+            BaseStaffSiteOrgDto dto = baseService.queryDmsBaseSiteByCode(box.getReceiveSiteCode().toString());
+            if (dto == null) {
+                log.info("boxes/validation :{} baseService.queryDmsBaseSiteByCode 获取目的地信息 NULL", box.getReceiveSiteCode().toString());
+                return false;
+            }
+            // 获取循环集包袋绑定信息
+            String materialCode = cycleBoxService.getBoxMaterialRelation(boxCode);
+            // 决定是否绑定循环集包袋
+            if (!checkHaveBinDing(materialCode, box.getType(), siteCode)) {
+                return false;
+            }
+        }
+        return true;
+    }
+    /**
+     * true 绑定了  false 未绑定
+     * @param materialCode
+     * @param boxType
+     * @param siteCode
+     * @return
+     */
+    private boolean checkHaveBinDing(String materialCode,String boxType,Integer siteCode){
+        // 不是BC类型的不拦截
+        if(!BusinessHelper.isBCBoxType(boxType)){
+            return true;
+        }
+
+        // 开关关闭不拦截
+        if(!funcSwitchConfigService.getBcBoxFilterStatus(FuncSwitchConfigEnum.FUNCTION_BC_BOX_FILTER.getCode(),siteCode)){
+            return  true;
+        }
+
+        //有集包袋不拦截
+        if(!org.springframework.util.StringUtils.isEmpty(materialCode)){
+            return true;
+        }
+        return false;
+    }
     /**
      * 推组板发货任务
      * @return
@@ -1016,8 +1071,8 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
             return result;
         }
         com.jd.transboard.api.dto.VirtualBoardResultDto virtualBoardResultDto = handleResult.getData();
-        if (null != virtualBoardResultDto) {
-            result.toFail("请先扫描流向");
+        if (null == virtualBoardResultDto) {
+            result.toFail("查询数据异常，请联系分拣小秘排查！");
             return result;
         }
         VirtualBoardResultDto dto = new VirtualBoardResultDto();
