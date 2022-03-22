@@ -199,7 +199,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 			if(signDateStart != null && signDateEnd != null) {
 				Date checkDate = DateHelper.addDate(signDateStart,signDateRangeMaxDays);
 				if(signDateEnd.after(checkDate)) {
-					return result.toFail("查询日期范围不能超过" + signDateRangeMaxDays + "天");
+					return result.toFail("查询日期范围不能超过" + (signDateRangeMaxDays + 1) + "天");
 				}
 				query.setSignDateStart(signDateStart);
 				query.setSignDateEnd(signDateEnd);

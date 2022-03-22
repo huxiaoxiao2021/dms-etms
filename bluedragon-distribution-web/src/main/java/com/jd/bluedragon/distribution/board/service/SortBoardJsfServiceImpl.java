@@ -24,6 +24,7 @@ import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.gateway.service.SortBoardGatewayService;
+import com.jd.bluedragon.utils.ArraysUtil;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -48,11 +49,10 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
+
+import static com.jd.bluedragon.utils.DateHelper.DATE_FORMAT_YYYYMMDDHHmmss2;
 
 @Service("sortBoardJsfService")
 public class SortBoardJsfServiceImpl implements SortBoardJsfService {
@@ -179,6 +179,7 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
      * @return
      */
     @Override
+    @Deprecated
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.WEB.SortBoardJsfServiceImpl.bindBoard", mState = JProEnum.TP)
     public Response<String> bindBoard(BindBoardRequest request) {
         Response<String> response = checkParma4BindBoard(request);
@@ -212,7 +213,6 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
 
         //发送全程跟踪
         com.jd.bluedragon.common.dto.base.request.OperatorInfo operatorInfo = initOperatorInfo(request.getOperatorInfo());
-
         virtualBoardService.sendWaybillTrace(request.getBarcode(), operatorInfo, request.getBoard().getCode(),
                 request.getBoard().getDestination(), WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION);
 
@@ -221,6 +221,37 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
         return response;
 
     }
+
+    @Override
+    public Response<BoardSendDto> addToBoard(BindBoardRequest request) {
+        Response<BoardSendDto> response = new Response<>();
+        try {
+            //调板服务组板
+            AddBoardBox addBoardBox = initAddBoardBox(request);
+            com.jd.transboard.api.dto.Response<Integer>  bindResult = groupBoardService.addBoxToBoard(addBoardBox);
+            log.info("分拣机组板调参数:{}，返回值:{}", JsonHelper.toJson(request), JsonHelper.toJson(bindResult));
+            if(bindResult.getCode() != 200){
+                response.toFail(MessageFormat.format("调板服务组板接口失败code:{0}，message:{1}", bindResult.getCode(),
+                        bindResult.getMesseage()));
+                log.warn("调板服务组板接口失败code:{}，message:{},请求参数:{}", bindResult.getCode(), bindResult.getMesseage(),
+                        JsonHelper.toJson(addBoardBox));
+                return response;
+            }
+
+            //发送全程跟踪
+            com.jd.bluedragon.common.dto.base.request.OperatorInfo operatorInfo = initOperatorInfo(request.getOperatorInfo());
+            virtualBoardService.sendWaybillTrace(request.getBarcode(), operatorInfo, request.getBoard().getCode(),
+                    request.getBoard().getDestination(), WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION);
+            response.toSucceed();
+            return response;
+        }catch (Exception e){
+            log.error("自动化组板操作异常，组板信息：{}", JsonHelper.toJson(request));
+            response.toFail("自动化组板操作异常异常");
+            return response;
+        }
+
+    }
+
 
     private com.jd.bluedragon.common.dto.base.request.OperatorInfo initOperatorInfo( OperatorInfo operatorInfo){
         com.jd.bluedragon.common.dto.base.request.OperatorInfo operator = new com.jd.bluedragon.common.dto.base.request.OperatorInfo();
@@ -266,11 +297,22 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
                 return response;
             }
 
-            //调板服务关闭板状态
-            CloseVirtualBoardPo po = initCloseVirtualBoardPo(baseResult.getData(), request.getOperatorErp(), request.getSiteCode());
-            JdCResponse<Void> jdCResponse = virtualBoardService.closeBoard(po);
-            response.setCode(jdCResponse.getCode());
-            response.setMessage(jdCResponse.getMessage());
+            String boardCodes = baseResult.getData();
+            if(StringUtils.isNotBlank(boardCodes)){
+                String[] codes = boardCodes.split(",");
+                if(codes.length > 0){
+                    com.jd.bluedragon.common.dto.base.request.OperatorInfo operatorInfo =
+                            initOperatorInfo(request.getOperatorErp(), request.getSiteCode());
+                    for (String code : codes){
+                        //调板服务关闭板状态
+                        CloseVirtualBoardPo po = initCloseVirtualBoardPo(code, operatorInfo);
+                        JdCResponse<Void> jdCResponse = virtualBoardService.closeBoard(po);
+                        response.setCode(jdCResponse.getCode());
+                        response.setMessage(jdCResponse.getMessage());
+                    }
+                }
+            }
+
             return response;
         }catch (Exception e) {
             response.toFail("请求异常，请稍后重试");
@@ -281,6 +323,8 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
         }
 
     }
+
+
 
     private Response<Void> checkParam4AutoBoardComplete(AutoBoardCompleteRequest request){
         Response<Void> response = new Response<>();
@@ -305,10 +349,14 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
         return response;
     }
 
-    private CloseVirtualBoardPo initCloseVirtualBoardPo(String boardCode, String userErp, Integer siteCode){
+    private CloseVirtualBoardPo initCloseVirtualBoardPo(String boardCode, com.jd.bluedragon.common.dto.base.request.OperatorInfo operatorInfo ){
         CloseVirtualBoardPo po = new CloseVirtualBoardPo();
         po.setBoardCode(boardCode);
         po.setBizSource(BizSourceEnum.SORTING_MACHINE.getValue());
+        po.setOperatorInfo(operatorInfo);
+        return po;
+    }
+    private com.jd.bluedragon.common.dto.base.request.OperatorInfo initOperatorInfo(String userErp, Integer siteCode){
         com.jd.bluedragon.common.dto.base.request.OperatorInfo operatorInfo = new com.jd.bluedragon.common.dto.base.request.OperatorInfo();
         BaseStaffSiteOrgDto baseStaffSiteOrgDto = baseMajorManager.getBaseStaffByErpNoCache(userErp);
         if(baseStaffSiteOrgDto != null){
@@ -317,8 +365,7 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
         }
         operatorInfo.setUserErp(userErp);
         operatorInfo.setSiteCode(siteCode);
-        po.setOperatorInfo(operatorInfo);
-        return po;
+        return operatorInfo;
     }
 
     private AddBoardBox initAddBoardBox(BindBoardRequest request){
@@ -467,6 +514,89 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
     }
 
     /**
+     *
+     * @param request
+     * @return ture : 已发货 false 未发货
+     */
+    @Override
+    public List<BoardSendDto> checkAndReplenishDelivery(CheckBoardStatusDto request){
+        List<BoardSendDto>  boardSendDtos = new ArrayList<>();
+        if(CollectionUtils.isEmpty(request.getBoardCodes())){
+            log.warn("自动化组板查板发货状态，传入的板号为空,包裹{}", request.getBarcode());
+            return boardSendDtos;
+        }
+        List<String>  boardCodes = request.getBoardCodes();
+        boolean hasReplenish = false;
+        for(String boardCode : boardCodes){
+            BoardSendDto dto = new BoardSendDto();
+            dto.setBoardCode(boardCode);
+            SendM sendM = sendMService.selectSendByBoardCode(request.getSiteCode(),
+                    boardCode, 1);
+            if(sendM == null){
+                dto.setBoardSendEnum(BoardSendEnum.NOT_SEND.toString());
+                boardSendDtos.add(dto);
+                continue;
+            }
+
+            //发货时间
+            Date sendTime = sendM.getOperateTime();
+            dto.setSendTime(sendTime);
+            //操作时间
+            Date operateTime = request.getOperateTime();
+            long compareResult = sendTime.getTime() - operateTime.getTime();
+            //发货时间晚于 操作时间 补发货
+            if(compareResult >= 0){
+                SendM domain= convertToSendM(request, sendM.getSendCode());
+                //只需补一次发货
+                if(!hasReplenish){
+                    hasReplenish = true;
+                    deliveryService.packageSend(SendBizSourceEnum.SORT_MACHINE_SEND, domain);
+                    log.info("自动化组板板的发货状态检查，板已经发货，包裹:{}的落格时间:{}在板:{}的发货时间:{}之前，包裹补发货", request.getBarcode(),
+                            DateHelper.formatDate(operateTime, DATE_FORMAT_YYYYMMDDHHmmss2),boardCode,
+                            DateHelper.formatDate(sendTime, DATE_FORMAT_YYYYMMDDHHmmss2));
+                }
+                dto.setBoardSendEnum(BoardSendEnum.SEND_AFTER_SORTING.toString());
+            }else {
+                log.info("自动化组板板的发货状态检查，板已经发货，包裹:{}的落格时间:{}在板:{}的发货时间:{}之后不再组板", request.getBarcode(),
+                        DateHelper.formatDate(operateTime, DATE_FORMAT_YYYYMMDDHHmmss2), boardCode,
+                        DateHelper.formatDate(sendTime, DATE_FORMAT_YYYYMMDDHHmmss2));
+                dto.setBoardSendEnum(BoardSendEnum.SEND_BEFORE_SORTING.toString());
+            }
+            boardSendDtos.add(dto);
+        }
+
+
+
+
+        return boardSendDtos;
+
+    }
+
+
+    /**
+     * 请求拼装SendM发货对象
+     * @param request
+     * @return
+     */
+    private SendM convertToSendM(CheckBoardStatusDto request, String sendCode) {
+
+        SendM domain = new SendM();
+        domain.setReceiveSiteCode(request.getReceiveSiteCode());
+        domain.setSendCode(sendCode);
+        domain.setCreateSiteCode(request.getSiteCode());
+        domain.setCreateUser(request.getUserName());
+        domain.setCreateUserCode(request.getUserCode());
+        domain.setSendType(Constants.BUSSINESS_TYPE_POSITIVE);
+        domain.setBizSource(SendBizSourceEnum.SORT_MACHINE_SEND.getCode());
+        domain.setBoxCode(request.getBarcode());
+        domain.setYn(1);
+        domain.setCreateTime(DateHelper.add(request.getOperateTime(), Calendar.SECOND, 5));
+        domain.setOperateTime(DateHelper.add(request.getOperateTime(), Calendar.SECOND, 5));
+        return domain;
+    }
+
+
+    /**
      * 请求拼装SendM发货对象
      * @param request
      * @return
@@ -489,6 +619,7 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
         domain.setOperateTime(DateHelper.add(operatorInfo.getOperateTime(), Calendar.SECOND, 5));
         return domain;
     }
+
 
 
     public BoardChuteJsfService getBoardChuteJsfService() {
