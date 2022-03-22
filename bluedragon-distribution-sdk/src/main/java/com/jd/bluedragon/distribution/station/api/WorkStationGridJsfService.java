@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.station.api;
 import java.util.List;
 
 import com.jd.bluedragon.distribution.api.response.base.Result;
+import com.jd.bluedragon.distribution.station.domain.DeleteRequest;
 import com.jd.bluedragon.distribution.station.domain.WorkStationGrid;
 import com.jd.bluedragon.distribution.station.domain.WorkStationGridCountVo;
 import com.jd.bluedragon.distribution.station.query.WorkStationGridQuery;
@@ -88,5 +89,23 @@ public interface WorkStationGridJsfService {
 	 * @param query
 	 * @return
 	 */
-	Result<List<WorkStationGrid>> queryGridFloorDictList(WorkStationGridQuery query);	
+	Result<List<WorkStationGrid>> queryGridFloorDictList(WorkStationGridQuery query);
+	/**
+	 * 批量删除
+	 * @param deleteRequest
+	 * @return
+	 */
+	Result<Boolean> deleteByIds(DeleteRequest<WorkStationGrid> deleteRequest);
+	/**
+	 * 查询数量
+	 * @param query
+	 * @return
+	 */
+	Result<Long> queryCount(WorkStationGridQuery query);
+	/**
+	 * 查询列表导出
+	 * @param query
+	 * @return
+	 */
+	Result<List<WorkStationGrid>> queryListForExport(WorkStationGridQuery query);	
 }

@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.station.dao;
 
 import java.util.List;
 
+import com.jd.bluedragon.distribution.station.domain.DeleteRequest;
 import com.jd.bluedragon.distribution.station.domain.WorkStation;
 import com.jd.bluedragon.distribution.station.domain.WorkStationCountVo;
 import com.jd.bluedragon.distribution.station.query.WorkStationQuery;
@@ -79,4 +80,22 @@ public interface WorkStationDao {
 	 * @return
 	 */
 	WorkStationCountVo queryPageCount(WorkStationQuery query);
+	/**
+	 * 导出查询列表
+	 * @param query
+	 * @return
+	 */
+	List<WorkStation> queryListForExport(WorkStationQuery query);
+	/**
+	 * 根据id列表查询
+	 * @param deleteRequest
+	 * @return
+	 */
+	List<WorkStation> queryByIds(DeleteRequest<WorkStation> deleteRequest);
+	/**
+	 * 根据id批量删除
+	 * @param deleteRequest
+	 * @return
+	 */
+	int deleteByIds(DeleteRequest<WorkStation> deleteRequest);
 }

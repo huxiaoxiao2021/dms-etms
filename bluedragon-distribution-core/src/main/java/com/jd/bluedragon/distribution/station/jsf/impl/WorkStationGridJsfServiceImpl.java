@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.station.api.WorkStationGridJsfService;
+import com.jd.bluedragon.distribution.station.domain.DeleteRequest;
 import com.jd.bluedragon.distribution.station.domain.WorkStationGrid;
 import com.jd.bluedragon.distribution.station.domain.WorkStationGridCountVo;
 import com.jd.bluedragon.distribution.station.query.WorkStationGridQuery;
@@ -104,5 +105,17 @@ public class WorkStationGridJsfServiceImpl implements WorkStationGridJsfService 
 	@Override
 	public Result<List<WorkStationGrid>> queryGridFloorDictList(WorkStationGridQuery query) {
 		return workStationGridService.queryGridFloorDictList(query);
+	}
+	@Override
+	public Result<Boolean> deleteByIds(DeleteRequest<WorkStationGrid> deleteRequest) {
+		return workStationGridService.deleteByIds(deleteRequest);
+	}
+	@Override
+	public Result<Long> queryCount(WorkStationGridQuery query) {
+		return workStationGridService.queryCount(query);
+	}
+	@Override
+	public Result<List<WorkStationGrid>> queryListForExport(WorkStationGridQuery query) {
+		return workStationGridService.queryListForExport(query);
 	}
 }

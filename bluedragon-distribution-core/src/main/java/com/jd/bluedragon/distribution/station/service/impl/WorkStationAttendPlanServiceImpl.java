@@ -14,6 +14,7 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.objectid.IGenerateObjectId;
 import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.station.dao.WorkStationAttendPlanDao;
+import com.jd.bluedragon.distribution.station.domain.DeleteRequest;
 import com.jd.bluedragon.distribution.station.domain.WorkStation;
 import com.jd.bluedragon.distribution.station.domain.WorkStationAttendPlan;
 import com.jd.bluedragon.distribution.station.domain.WorkStationGrid;
@@ -340,6 +341,47 @@ public class WorkStationAttendPlanServiceImpl implements WorkStationAttendPlanSe
 	public Result<List<WorkStationAttendPlan>> queryWaveDictList(WorkStationAttendPlanQuery query) {
 		Result<List<WorkStationAttendPlan>> result = Result.success();
 		result.setData(workStationAttendPlanDao.queryWaveDictList(query));
+		return result;
+	}
+	@Override
+	public Result<Boolean> deleteByIds(DeleteRequest<WorkStationAttendPlan> deleteRequest) {
+		Result<Boolean> result = Result.success();
+		if(deleteRequest == null
+				|| CollectionUtils.isEmpty(deleteRequest.getDataList())) {
+			return result.toFail("参数错误，删除列表不能为空！");
+		}
+		List<WorkStationAttendPlan> oldDataList = workStationAttendPlanDao.queryByIds(deleteRequest);
+		if(CollectionUtils.isEmpty(oldDataList)
+				|| oldDataList.size() < deleteRequest.getDataList().size()) {
+			return result.toFail("参数错误，数据已变更请刷新列表后重新选择！");
+		}
+		result.setData(workStationAttendPlanDao.deleteByIds(deleteRequest) > 0);
+		return result;
+	}
+	@Override
+	public Result<Long> queryCount(WorkStationAttendPlanQuery query) {
+		Result<Long> result = Result.success();
+		Result<Boolean> checkResult = this.checkParamForQueryPageList(query);
+		if(!checkResult.isSuccess()){
+		    return Result.fail(checkResult.getMessage());
+		}
+		result.setData(workStationAttendPlanDao.queryCount(query));
+		return result;
+	}
+	@Override
+	public Result<List<WorkStationAttendPlan>> queryListForExport(WorkStationAttendPlanQuery query) {
+		Result<List<WorkStationAttendPlan>> result = Result.success();
+		Result<Boolean> checkResult = this.checkParamForQueryPageList(query);
+		if(!checkResult.isSuccess()){
+		    return Result.fail(checkResult.getMessage());
+		}
+		List<WorkStationAttendPlan> dataList = workStationAttendPlanDao.queryListForExport(query);
+		if(CollectionUtils.isNotEmpty(dataList)) {
+			for(WorkStationAttendPlan tmp: dataList) {
+				this.fillOtherInfo(tmp);
+			}
+		}
+		result.setData(dataList);
 		return result;
 	}
 }
