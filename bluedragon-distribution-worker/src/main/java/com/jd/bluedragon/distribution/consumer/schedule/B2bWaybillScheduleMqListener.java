@@ -4,6 +4,7 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.schedule.entity.B2bWaybillScheduleMq;
+import com.jd.bluedragon.distribution.schedule.entity.BusinessTypeEnum;
 import com.jd.bluedragon.distribution.schedule.entity.DmsScheduleInfo;
 import com.jd.bluedragon.distribution.schedule.service.DmsScheduleInfoService;
 import com.jd.jmq.common.message.Message;
@@ -53,6 +54,7 @@ public class B2bWaybillScheduleMqListener extends MessageBaseConsumer {
         dmsScheduleInfo.setCarrierName(b2bWaybillScheduleMq.getCarrierName());
         dmsScheduleInfo.setPackageNum(b2bWaybillScheduleMq.getBoxCount());
         dmsScheduleInfo.setScheduleTime(b2bWaybillScheduleMq.getScheduleTime());
+        dmsScheduleInfo.setBusinessType(BusinessTypeEnum.EDN.getCode());
         //调用基础资料根据网点编码获取对应的分拣中心Id
         Integer dmsId = this.getBaseSiteCodeByNodeCode(b2bWaybillScheduleMq.getSiteNodeCode());
         if(null != dmsId){
