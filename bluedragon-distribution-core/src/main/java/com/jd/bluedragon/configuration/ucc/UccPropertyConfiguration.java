@@ -665,6 +665,32 @@ public class UccPropertyConfiguration {
 
     private List<String> needInterceptUrlList;
 
+    /**
+     * 作业工作台解封车任务降级配置
+     */
+    private String sealTaskHystrixProps;
+
+    /**
+     * 作业工作台解封车任务强制降级开关
+     */
+    private int sealTaskForceFallback;
+
+    public int getSealTaskForceFallback() {
+        return sealTaskForceFallback;
+    }
+
+    public void setSealTaskForceFallback(int sealTaskForceFallback) {
+        this.sealTaskForceFallback = sealTaskForceFallback;
+    }
+
+    public String getSealTaskHystrixProps() {
+        return sealTaskHystrixProps;
+    }
+
+    public void setSealTaskHystrixProps(String sealTaskHystrixProps) {
+        this.sealTaskHystrixProps = sealTaskHystrixProps;
+    }
+
     public List<String> getNeedInterceptUrlList() {
         return needInterceptUrlList;
     }

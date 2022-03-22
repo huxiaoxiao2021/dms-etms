@@ -1,6 +1,8 @@
 package com.jd.bluedragon.distribution.base.service;
 
+import com.jd.bluedragon.distribution.api.request.AppUpgradeRequest;
 import com.jd.bluedragon.distribution.api.request.LoginRequest;
+import com.jd.bluedragon.distribution.api.response.AppUpgradeResponse;
 import com.jd.bluedragon.distribution.api.response.BaseResponse;
 import com.jd.bluedragon.distribution.api.response.LoginUserResponse;
 import com.jd.bluedragon.distribution.client.domain.CheckMenuAuthRequest;
@@ -77,4 +79,11 @@ public interface UserService {
 	 * @return
 	 */
 	JdResult<CheckMenuAuthResponse> checkMenuAuth(CheckMenuAuthRequest checkMenuAuthRequest);
+
+    /**
+     * APP升级校验
+     * @param request
+     * @return
+     */
+    JdResult<AppUpgradeResponse> checkAppVersion(AppUpgradeRequest request);
 }
