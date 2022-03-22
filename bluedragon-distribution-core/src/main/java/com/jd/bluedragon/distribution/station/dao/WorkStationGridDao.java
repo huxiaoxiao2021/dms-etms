@@ -104,4 +104,10 @@ public interface WorkStationGridDao {
 	 * @return
 	 */
 	long queryCountByRefStationKey(String stationKey);
+	/**
+	 * 根据
+	 * @param gridKey查询
+	 * @return
+	 */
+	WorkStationGrid queryByGridKey(WorkStationGridQuery workStationGridQuery);
 }

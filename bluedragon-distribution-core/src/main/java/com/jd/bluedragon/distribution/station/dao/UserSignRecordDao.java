@@ -3,11 +3,12 @@ package com.jd.bluedragon.distribution.station.dao;
 import java.util.Date;
 import java.util.List;
 
+import com.jd.bluedragon.common.dto.station.UserSignQueryRequest;
+import com.jd.bluedragon.common.dto.station.UserSignRecordData;
 import com.jd.bluedragon.distribution.station.domain.UserSignRecord;
 import com.jd.bluedragon.distribution.station.domain.UserSignRecordReportSumVo;
 import com.jd.bluedragon.distribution.station.domain.UserSignRecordReportVo;
 import com.jd.bluedragon.distribution.station.query.UserSignRecordQuery;
-import org.apache.ibatis.annotations.Param;
 
 /**
  * 人员签到表--Dao接口
@@ -85,6 +86,12 @@ public interface UserSignRecordDao {
 	 */
 	UserSignRecord queryLastSignRecord(UserSignRecordQuery query);
 	/**
+	 * 查询用户最近一次未签退的签到信息
+	 * @param query
+	 * @return
+	 */
+	UserSignRecord queryLastUnSignOutRecord(UserSignRecordQuery query);
+	/**
 	 * 按条件查询统计
 	 * @param query
 	 * @return
@@ -92,7 +99,31 @@ public interface UserSignRecordDao {
 	UserSignRecordReportSumVo queryReportSum(UserSignRecordQuery query);
 
     List<Long> querySignInMoreThanSpecifiedTime(Date signInTime, Integer limit);
-
+    
     int signOutById(UserSignRecord signOutRequest, List<Long> list);
+    /**
+     * 查询-数量
+     * @param query
+     * @return
+     */
+	Long queryCountWithPosition(UserSignQueryRequest query);
+	/**
+	 * 分页查询
+	 * @param query
+	 * @return
+	 */
+	List<UserSignRecordData> queryListWithPosition(UserSignQueryRequest query);
+	/**
+	 * 查询用户最近的一次签到记录，返回UserSignRecordData
+	 * @param query
+	 * @return
+	 */
+	UserSignRecordData queryLastUserSignRecordData(UserSignQueryRequest query);
+	/**
+	 * 根据id查询
+	 * @param id
+	 * @return
+	 */
+	UserSignRecordData queryUserSignRecordDataById(Long id);
 
 }

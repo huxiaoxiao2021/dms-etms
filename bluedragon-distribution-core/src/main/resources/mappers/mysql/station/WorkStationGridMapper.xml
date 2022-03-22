@@ -435,7 +435,7 @@
 			work_station_grid g
 		where g.yn = 1 
 		    and g.site_code = #{siteCode,jdbcType=INTEGER}
-		    and g.floor is not null	    
+		    and g.floor is not null
 		group by g.floor
 	</select>
 	<select id="queryCountByRefStationKey" parameterType="java.lang.String" resultType="long">
@@ -443,7 +443,18 @@
 			count(1)
 		from
 			work_station_grid g
-		where g.yn = 1 
+		where g.yn = 1
 		    and g.ref_station_key = #{refStationKey,jdbcType=VARCHAR}
-	</select>	
+	</select>
+	<select id="queryByGridKey" parameterType="com.jd.bluedragon.distribution.station.domain.WorkStationGrid" resultMap="WorkStationGrid">
+		select
+			<include refid="Base_Column_List"/>
+		from
+			work_station_grid g
+		<include refid="joinSql"/>
+		where g.yn = 1
+			and	g.business_key = #{businessKey,jdbcType=VARCHAR}
+		order by g.id desc
+		limit 1
+	</select>
 </mapper>

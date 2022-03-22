@@ -108,4 +108,10 @@ public interface WorkStationGridService {
 	 * @return
 	 */
 	boolean hasGridData(String stationKey);
+	/**
+	 * 根据gridKey查询
+	 * @param workStationGridCheckQuery
+	 * @return
+	 */
+	Result<WorkStationGrid> queryByGridKey(WorkStationGridQuery workStationGridCheckQuery);
 }
