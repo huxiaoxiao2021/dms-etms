@@ -429,6 +429,15 @@ $(function () {
                     if(params.businessType != undefined && params.businessType != "undefined"){
                         param += "&businessType=" +  params.businessType;
                     }
+                    if(params.isTrustMerchant != undefined && params.isTrustMerchant != "undefined"){
+                        param += "&isTrustMerchant=" +  params.isTrustMerchant;
+                    }
+                    if(params.isGatherTogether != undefined && params.isGatherTogether != "undefined"){
+                        param += "&isGatherTogether=" +  params.isGatherTogether;
+                    }
+                    if(params.isIssueDownstream != undefined && params.isIssueDownstream != "undefined"){
+                        param += "&isIssueDownstream=" +  params.isIssueDownstream;
+                    }
 
                     $('#btn_export').attr("disabled",true);
                     location.href = exportUrl + "?" + param;

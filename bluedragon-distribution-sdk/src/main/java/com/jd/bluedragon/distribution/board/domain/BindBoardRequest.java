@@ -20,6 +20,11 @@ public class BindBoardRequest implements Serializable {
      */
     private Integer bizSource;
 
+    /**
+     * 是否需要补发货
+     */
+    private Boolean needReplenishDelivery;
+
     public String getBarcode() {
         return barcode;
     }
@@ -50,5 +55,13 @@ public class BindBoardRequest implements Serializable {
 
     public void setBizSource(Integer bizSource) {
         this.bizSource = bizSource;
+    }
+
+    public Boolean getNeedReplenishDelivery() {
+        return needReplenishDelivery;
+    }
+
+    public void setNeedReplenishDelivery(Boolean needReplenishDelivery) {
+        this.needReplenishDelivery = needReplenishDelivery;
     }
 }

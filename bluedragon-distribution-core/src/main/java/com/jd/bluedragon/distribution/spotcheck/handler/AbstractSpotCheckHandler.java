@@ -87,8 +87,10 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
         SpotCheckContext spotCheckContext = initSpotCheckContext(spotCheckDto);
 
         // 执行新的抽检改造模式
-        if(spotCheckDto.getIsReformedSpotCheck() || Objects.equals(spotCheckContext.getSpotCheckSourceFrom(), SpotCheckSourceFromEnum.SPOT_CHECK_DMS_WEB.getName())
-                ||spotCheckDealService.isExecuteSpotCheckReform(spotCheckDto.getSiteCode())){
+        if(spotCheckDto.getIsReformedSpotCheck()
+                || Objects.equals(spotCheckContext.getSpotCheckSourceFrom(), SpotCheckSourceFromEnum.SPOT_CHECK_DMS_WEB.getName())
+                || (SpotCheckSourceFromEnum.EQUIPMENT_SOURCE.contains(spotCheckContext.getSpotCheckSourceFrom())
+                && spotCheckDealService.isExecuteSpotCheckReform(spotCheckDto.getSiteCode()))){
             // 抽检校验
             reformCheck(spotCheckContext, result);
             if(!result.codeSuccess()){
@@ -203,8 +205,10 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
         SpotCheckContext spotCheckContext = initSpotCheckContext(spotCheckDto);
 
         // 执行新的抽检改造模式
-        if(spotCheckDto.getIsReformedSpotCheck() || Objects.equals(spotCheckContext.getSpotCheckSourceFrom(), SpotCheckSourceFromEnum.SPOT_CHECK_DMS_WEB.getName())
-                ||spotCheckDealService.isExecuteSpotCheckReform(spotCheckDto.getSiteCode())){
+        if(spotCheckDto.getIsReformedSpotCheck()
+                || Objects.equals(spotCheckContext.getSpotCheckSourceFrom(), SpotCheckSourceFromEnum.SPOT_CHECK_DMS_WEB.getName())
+                || (SpotCheckSourceFromEnum.EQUIPMENT_SOURCE.contains(spotCheckContext.getSpotCheckSourceFrom())
+                && spotCheckDealService.isExecuteSpotCheckReform(spotCheckDto.getSiteCode()))){
             // 抽检校验
             reformCheck(spotCheckContext, result);
             if(!result.codeSuccess()){
@@ -806,8 +810,10 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
         spotCheckReviewDetail.setReviewUserId(spotCheckDto.getOperateUserId());
         spotCheckReviewDetail.setReviewUserErp(spotCheckDto.getOperateUserErp());
         try {
-            BaseStaffSiteOrgDto baseStaff = baseMajorManager.getBaseStaffByErpNoCache(spotCheckDto.getOperateUserErp());
-            spotCheckReviewDetail.setReviewUserName(baseStaff.getStaffName());
+            if(StringUtils.isNotEmpty(spotCheckDto.getOperateUserErp())){
+                BaseStaffSiteOrgDto baseStaff = baseMajorManager.getBaseStaffByErpNoCache(spotCheckDto.getOperateUserErp());
+                spotCheckReviewDetail.setReviewUserName(baseStaff == null ? null : baseStaff.getStaffName());
+            }
         }catch (Exception e){
             logger.error("根据erp:{}获取操作人信息异常!", spotCheckDto.getOperateUserErp());
         }
