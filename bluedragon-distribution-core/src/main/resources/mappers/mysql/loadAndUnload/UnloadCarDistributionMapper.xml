@@ -147,7 +147,18 @@
         where
         seal_car_code = #{sealCarCode,jdbcType=VARCHAR}
         and unload_user_erp = #{unloadUserErp,jdbcType=VARCHAR}
-        and unload_user_type = #{unloadUserType,jdbcType=TINYINT}
+        and unload_user_type = 1
+        <include refid="Base_Condition_Sql"/>
+    </update>
+
+    <update id="deleteUnloadMaster" parameterType="unloadCarDistribution">
+        update unload_car_distribute
+        set
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+        yn = 0
+        where
+        seal_car_code = #{sealCarCode,jdbcType=VARCHAR}
+        and unload_user_type = 0
         <include refid="Base_Condition_Sql"/>
     </update>
 
