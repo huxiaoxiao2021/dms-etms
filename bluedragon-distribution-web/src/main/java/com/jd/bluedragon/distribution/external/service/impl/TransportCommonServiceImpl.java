@@ -341,7 +341,13 @@ public class TransportCommonServiceImpl implements TransportCommonService {
         DockBaseInfoPo dockBaseInfoPo = new DockBaseInfoPo();
         dockBaseInfoPo.setDockCode(dockCode);
         dockBaseInfoPo.setSiteCode(siteCode);
-        result.setData(DockInfoConverter.convertToEntity(dockBaseInfoDao.findByDockCode(dockBaseInfoPo)));
+        DockBaseInfoPo dockBaseInfoPoRes = dockBaseInfoDao.findByDockCode(dockBaseInfoPo);
+
+        if(dockBaseInfoPoRes == null) {
+            result.error("场地【" + siteCode + "】内未查到月台【" + dockCode + "】信息");
+            return result;
+        }
+        result.setData(DockInfoConverter.convertToEntity(dockBaseInfoPoRes));
 
         return result;
     }

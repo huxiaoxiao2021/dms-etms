@@ -861,4 +861,14 @@
                   protocol="jsf" alias="${jsf.coldchain.eclp.reverse.alias}" timeout="${jsf.coldchain.eclp.reverse.alias.timeout}"
                   retries="${jsf.retries}" >
     </jsf:consumer>
+
+    <!--  拣运封车服务  -->
+    <jsf:consumer id="jySealVehicleService"
+                  interface="com.jdl.jy.realtime.api.seal.ISealVehicleService"
+                  protocol="jsf"
+                  alias="${jsf.jy.realtime.alias}"
+                  timeout="10000"
+                  retries="${jsf.retries}"
+                  serialization="hessian"/>
+
 </beans>
