@@ -187,7 +187,7 @@ public class VirtualBoardGatewayServiceImpl implements VirtualBoardGatewayServic
                 return jdCResponse;
             }
             String boardCode = boardCodeRes.getData();
-            Result<VirtualBoardResultDto> result = virtualBoardService.getBoxCountByBoardCode(boardCode);
+            JdCResponse<VirtualBoardResultDto> result = virtualBoardService.getBoxCountByBoardCode(boardCode);
             if (result.getCode()!=200){
                 jdCResponse.toFail("查询组板信息失败，请退出重试!");
                 return jdCResponse;

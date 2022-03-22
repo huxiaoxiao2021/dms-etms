@@ -119,5 +119,5 @@ public interface VirtualBoardService {
      * @param boardCode
      * @return
      */
-    Result<VirtualBoardResultDto> getBoxCountByBoardCode(String boardCode);
+    JdCResponse<VirtualBoardResultDto> getBoxCountByBoardCode(String boardCode);
 }
