@@ -1,7 +1,10 @@
 package com.jd.bluedragon.distribution.seal.service;
 
+import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.operation.workbench.unseal.request.SealCodeRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.request.SealTaskInfoRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.request.SealVehicleTaskRequest;
+import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.SealCodeResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.SealTaskInfo;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.SealVehicleTaskResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -27,4 +30,12 @@ public interface IJySealVehicleService {
      * @return
      */
     InvokeResult<SealTaskInfo> taskInfo(SealTaskInfoRequest request);
+
+
+    /**
+     * 封签号列表
+     * @param request
+     * @return
+     */
+    InvokeResult<SealCodeResponse> sealCodeList(SealCodeRequest request);
 }

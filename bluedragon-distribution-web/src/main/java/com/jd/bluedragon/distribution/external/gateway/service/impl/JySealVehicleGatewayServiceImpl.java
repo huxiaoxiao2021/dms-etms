@@ -3,8 +3,10 @@ package com.jd.bluedragon.distribution.external.gateway.service.impl;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.operation.workbench.unseal.request.SealCodeRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.request.SealTaskInfoRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.request.SealVehicleTaskRequest;
+import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.SealCodeResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.SealTaskInfo;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.SealVehicleTaskResponse;
 import com.jd.bluedragon.common.dto.select.SelectOption;
@@ -110,5 +112,19 @@ public class JySealVehicleGatewayServiceImpl implements JySealVehicleGatewayServ
         response.toSucceed();
         response.setData(optionList);
         return response;
+    }
+
+    @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JySealVehicleGatewayService.sealCodeList",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
+    public JdCResponse<SealCodeResponse> sealCodeList(SealCodeRequest request) {
+        JdCResponse<SealCodeResponse> response = new JdCResponse<>();
+        response.toSucceed();
+        if (null == request || StringUtils.isBlank(request.getSealCarCode())) {
+            response.toFail("缺少封车编码");
+            return response;
+        }
+        InvokeResult<SealCodeResponse> invokeResult = jySealVehicleService.sealCodeList(request);
+        return new JdCResponse<>(invokeResult.getCode(), invokeResult.getMessage(), invokeResult.getData());
     }
 }

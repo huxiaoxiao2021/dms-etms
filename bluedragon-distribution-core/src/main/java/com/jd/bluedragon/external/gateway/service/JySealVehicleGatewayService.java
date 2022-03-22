@@ -1,8 +1,10 @@
 package com.jd.bluedragon.external.gateway.service;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.operation.workbench.unseal.request.SealCodeRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.request.SealTaskInfoRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.request.SealVehicleTaskRequest;
+import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.SealCodeResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.SealTaskInfo;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.SealVehicleTaskResponse;
 import com.jd.bluedragon.common.dto.select.SelectOption;
@@ -36,5 +38,12 @@ public interface JySealVehicleGatewayService {
      * @return
      */
     JdCResponse<List<SelectOption>> vehicleStatusOptions();
+
+    /**
+     * 封签号列表
+     * @param request
+     * @return
+     */
+    JdCResponse<SealCodeResponse> sealCodeList(SealCodeRequest request);
 
 }

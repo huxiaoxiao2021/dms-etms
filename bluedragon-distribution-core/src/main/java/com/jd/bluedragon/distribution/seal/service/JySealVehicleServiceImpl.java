@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.seal.service;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.dto.operation.workbench.unseal.request.SealCodeRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.request.SealTaskInfoRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.request.SealVehicleTaskRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.*;
@@ -31,6 +32,7 @@ import com.netflix.hystrix.contrib.javanica.annotation.HystrixProperty;
 import com.netflix.hystrix.contrib.javanica.conf.HystrixPropertiesManager;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.hssf.record.formula.functions.T;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -188,7 +190,9 @@ public class JySealVehicleServiceImpl implements IJySealVehicleService {
 
             Profiler.businessAlarm("dms.web.IJySealVehicleService.fallback", msgConcat.toString());
 
-            PageDto<SealCarDto> pageDto = getSealTaskFromVos(invokeResult, request);
+            SealCarDto sealCarQuery = getSealCarDto(request);
+            PageDto<SealCarDto> queryPageDto = getSealCarDtoPageDto(request.getPageNumber(), request.getPageSize());
+            PageDto<SealCarDto> pageDto = getSealTaskFromVos(invokeResult, sealCarQuery, queryPageDto);
             if (!invokeResult.codeSuccess()) {
                 return invokeResult;
             }
@@ -250,7 +254,9 @@ public class JySealVehicleServiceImpl implements IJySealVehicleService {
      * @return
      */
     private List<String> getSealCarCodeFromVos(InvokeResult<SealVehicleTaskResponse> result, SealVehicleTaskRequest request) {
-        PageDto<SealCarDto> pageDto = getSealTaskFromVos(result, request);
+        SealCarDto sealCarQuery = getSealCarDto(request);
+        PageDto<SealCarDto> queryPageDto = getSealCarDtoPageDto(request.getPageNumber(), request.getPageSize());
+        PageDto<SealCarDto> pageDto = getSealTaskFromVos(result, sealCarQuery, queryPageDto);
         if (!result.codeSuccess()) {
             return null;
         }
@@ -276,13 +282,11 @@ public class JySealVehicleServiceImpl implements IJySealVehicleService {
     /**
      * 根据查询条件从运输获得封车任务
      * @param invokeResult
-     * @param request
+     * @param sealCarDto
+     * @param pageDto
      * @return
      */
-    private PageDto<SealCarDto> getSealTaskFromVos(InvokeResult<SealVehicleTaskResponse> invokeResult, SealVehicleTaskRequest request) {
-        SealCarDto sealCarDto = getSealCarDto(request);
-        PageDto<SealCarDto> pageDto = getSealCarDtoPageDto(request);
-
+    private <E> PageDto<SealCarDto> getSealTaskFromVos(InvokeResult<E> invokeResult, SealCarDto sealCarDto, PageDto<SealCarDto> pageDto) {
         try {
             CommonDto<PageDto<SealCarDto>> returnCommonDto = newSealVehicleService.findSealInfo(sealCarDto, pageDto);
             if (returnCommonDto != null) {
@@ -302,7 +306,7 @@ public class JySealVehicleServiceImpl implements IJySealVehicleService {
             }
         }
         catch (Exception e) {
-            log.error("从运输拉取解封车任务异常. {}", JsonHelper.toJson(request), e);
+            log.error("从运输拉取解封车任务异常. {}", JsonHelper.toJson(sealCarDto), e);
             invokeResult.error("服务器异常，请联系分拣小秘！");
         }
 
@@ -358,10 +362,10 @@ public class JySealVehicleServiceImpl implements IJySealVehicleService {
         response.setToSealCarData(toSealCarData);
     }
 
-    private PageDto<SealCarDto> getSealCarDtoPageDto(SealVehicleTaskRequest request) {
+    private PageDto<SealCarDto> getSealCarDtoPageDto(Integer pageNumber, Integer pageSize) {
         PageDto<SealCarDto> pageDto = new PageDto<>();
-        pageDto.setCurrentPage(request.getPageNumber());
-        pageDto.setPageSize(request.getPageSize());
+        pageDto.setCurrentPage(pageNumber);
+        pageDto.setPageSize(pageSize);
         return pageDto;
     }
 
@@ -404,5 +408,41 @@ public class JySealVehicleServiceImpl implements IJySealVehicleService {
         taskInfo.setActualArriveTime(sealCarMonitor.getActualArriveTime());
 
         return taskInfo;
+    }
+
+    @Override
+    public InvokeResult<SealCodeResponse> sealCodeList(SealCodeRequest request) {
+        InvokeResult<SealCodeResponse> result = new InvokeResult<>();
+
+        SealCarDto sealCarQuery = new SealCarDto();
+        sealCarQuery.setSealCarCode(request.getSealCarCode());
+        Integer pageNumber = 1, pageSize = 10;
+        PageDto<SealCarDto> queryPageDto = getSealCarDtoPageDto(pageNumber, pageSize);
+
+        PageDto<SealCarDto> pageDto = getSealTaskFromVos(result, sealCarQuery, queryPageDto);
+        if (!result.codeSuccess()) {
+            return result;
+        }
+
+        // TODO 增加无任务解封车逻辑
+        for (SealCarDto sealCarDto : pageDto.getResult()) {
+            if (filterBySealCarCode(request, sealCarDto)) {
+                result.setData(makeSealCodeResponse(sealCarDto));
+                break;
+            }
+        }
+
+        return result;
+    }
+
+    private SealCodeResponse makeSealCodeResponse(SealCarDto sealCarDto) {
+        SealCodeResponse response = new SealCodeResponse();
+        response.setSealCodes(sealCarDto.getSealCodes());
+        response.setVehicleNumber(sealCarDto.getVehicleNumber());
+        return response;
+    }
+
+    private boolean filterBySealCarCode(SealCodeRequest request, SealCarDto sealCarDto) {
+        return StringUtils.isNotBlank(sealCarDto.getSealCarCode()) && Objects.equals(request.getSealCarCode(), sealCarDto.getSealCarCode());
     }
 }
