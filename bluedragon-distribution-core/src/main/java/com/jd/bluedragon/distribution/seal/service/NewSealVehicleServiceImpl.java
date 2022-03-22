@@ -133,16 +133,16 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 
     @Autowired
     private SendDetailService sendDetailService;
-    
+
 	@Autowired
 	private BaseMajorManager baseMajorManager;
-	
+
 	@Autowired
 	private TmsServiceManager tmsServiceManager;
-	
+
 	@Autowired
 	private PreSealVehicleService preSealVehicleService;
-	
+
 	@Autowired
 	private PreSealBatchService preSealBatchService;
 
@@ -158,6 +158,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
     @Autowired
     private TibetBizService tibetBizService;
 
+    @Autowired
     @Qualifier(value = "batchSendStatusChangeProducer")
     private DefaultJMQProducer batchSendStatusChangeProducer;
 
@@ -1454,7 +1455,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 	@Override
 	public JdResult<List<String>> getUnSealSendCodes(NewSealVehicleRequest request){
 		JdResult<List<String>> result = new JdResult<List<String>>();
-		if(request != null 
+		if(request != null
 				&& request.getSiteCode() != null
 				&& StringHelper.isNotEmpty(request.getTransportCode())
 				&& StringHelper.isNotEmpty(request.getVehicleNumber())) {
