@@ -180,14 +180,19 @@ public class VirtualBoardGatewayServiceImpl implements VirtualBoardGatewayServic
             com.jd.bluedragon.distribution.board.domain.AutoBoardCompleteRequest domain =
                     new com.jd.bluedragon.distribution.board.domain.AutoBoardCompleteRequest();
             BeanUtils.copyProperties(request, domain);
-
+            log.info("计算格口获取板号信息,request:"+ JsonHelper.toJson(request));
             Response<String> boardCodeRes = sortBoardJsfService.calcBoard(domain);
+            log.info("计算格口获取板号信息,request:"+ JsonHelper.toJson(request)+",result:"+JsonHelper.toJson(boardCodeRes));
+
             if (boardCodeRes.getCode()!=200){
                 jdCResponse.toFail(StringUtils.isEmpty(boardCodeRes.getMessage())?"计算板号失败，请退出重试!":boardCodeRes.getMessage());
                 return jdCResponse;
             }
             String boardCode = boardCodeRes.getData();
+            log.info("获取板号统计信息,request:"+ boardCode);
             JdCResponse<VirtualBoardResultDto> result = virtualBoardService.getBoxCountByBoardCode(boardCode);
+            log.info("获取板号统计信息,request:"+ boardCode+",result:"+JsonHelper.toJson(result));
+
             if (result.getCode()!=200){
                 jdCResponse.toFail("查询组板信息失败，请退出重试!");
                 return jdCResponse;

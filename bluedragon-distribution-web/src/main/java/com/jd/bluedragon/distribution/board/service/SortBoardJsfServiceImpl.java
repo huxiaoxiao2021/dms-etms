@@ -222,7 +222,7 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
         BeanUtils.copyProperties(request, boardCompleteRequest);
         com.jd.bluedragon.distribution.sdk.common.domain.InvokeResult<String> baseResult =
                 boardChuteJsfService.calcBoard(boardCompleteRequest);
-
+        log.info("计算格口获取板号信息,request:"+ JsonHelper.toJson(request)+",result:"+ JsonHelper.toJson(baseResult));
         Response<String> response = new Response<String>();
         if (baseResult.getCode()!=200){
             response.toFail(StringUtils.isEmpty(response.getMessage())?"查询组板包裹(箱号)信息失败，请退出重试!":response.getMessage());
