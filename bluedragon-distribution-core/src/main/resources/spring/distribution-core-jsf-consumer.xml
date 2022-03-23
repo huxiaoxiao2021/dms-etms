@@ -871,4 +871,10 @@
                   retries="${jsf.retries}"
                   serialization="hessian"/>
 
+    <!-- 循环物资 -->
+    <jsf:consumer id="recycleMaterialJsfService" interface="com.jd.bluedragon.sdk.modules.recyclematerial.RecycleMaterialJsfService"
+                  protocol="jsf"  alias="${business.jsf.recycleMaterial.alias}"
+                  timeout="${jsf.recycleMaterial.timeout}" retries="${jsf.retries}" serialization="hessian">
+    </jsf:consumer>
+
 </beans>
