@@ -1787,6 +1787,16 @@
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
 			<artifactId>business-sdk</artifactId>
+			<exclusions>
+				<exclusion>
+					<groupId>javax.validation</groupId>
+					<artifactId>validation-api</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.hibernate</groupId>
+					<artifactId>hibernate-validator</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
     </dependencies>
 
