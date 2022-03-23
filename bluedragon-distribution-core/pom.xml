@@ -1797,7 +1797,6 @@
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
 			<artifactId>business-sdk</artifactId>
-			<version>${business-sdk.version}</version>
 		</dependency>
     </dependencies>
 
