@@ -89,4 +89,9 @@ public class MiniStoreServiceImpl implements MiniStoreService {
         }
         return false;
     }
+
+    @Override
+    public Boolean updateProcessStatusAndSyncMsg(DeviceDto deviceDto) {
+        return null;
+    }
 }

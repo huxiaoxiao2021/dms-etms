@@ -59,4 +59,6 @@ public interface MiniStoreService {
 
 
     Boolean updateProcessStatusAndInvaliSortRealtion(DeviceDto deviceDto);
+
+    Boolean updateProcessStatusAndSyncMsg(DeviceDto deviceDto);
 }

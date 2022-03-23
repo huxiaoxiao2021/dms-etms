@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
+import com.jd.bluedragon.common.UnifiedExceptionProcess;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.ResponseCodeMapping;
 import com.jd.bluedragon.common.dto.ministore.*;
@@ -13,8 +14,8 @@ import com.jd.bluedragon.utils.BeanUtils;
 import com.jd.cmp.jsf.SwDeviceJsfService;
 import com.jd.jddl.common.utils.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
+@UnifiedExceptionProcess
 public class MiniStoreGatewayServiceImpl implements MiniStoreGatewayService {
 
     @Autowired
@@ -71,6 +72,7 @@ public class MiniStoreGatewayServiceImpl implements MiniStoreGatewayService {
 
     @Override
     public JdCResponse sealBox(SealBoxReq sealBoxReq) {
+        miniStoreService.updateProcessStatusAndSyncMsg(null);
         return null;
     }
 

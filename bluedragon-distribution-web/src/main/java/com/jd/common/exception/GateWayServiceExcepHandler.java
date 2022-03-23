@@ -2,20 +2,22 @@ package com.jd.common.exception;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.ResponseCodeMapping;
-import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-//@Component
-//@Aspect
-@Slf4j
+@Component
+@Aspect
 public class GateWayServiceExcepHandler {
-    @Around("@within(com.jd.bluedragon.distribution.external.gateway.service.impl.*) && @annotation(com.jd.bluedragon.common.UnifiedExceptionProcess)")
-    public JdCResponse serviceExcepHandler(ProceedingJoinPoint proceedingJoinPoint) {
+    private static final Logger log = LoggerFactory.getLogger(GateWayServiceExcepHandler.class);
+
+    @Around("execution(* com.jd.bluedragon.distribution.external.gateway.service.impl..*.*(..)) && @within(com.jd.bluedragon.common.UnifiedExceptionProcess)")
+    public JdCResponse serviceExceptionHandler(ProceedingJoinPoint proceedingJoinPoint) {
         log.info("invoke start..");
-        JdCResponse  jdCResponse= new JdCResponse<>();
+        JdCResponse jdCResponse = new JdCResponse<>();
         try {
             jdCResponse = (JdCResponse) proceedingJoinPoint.proceed();
         } catch (Throwable throwable) {

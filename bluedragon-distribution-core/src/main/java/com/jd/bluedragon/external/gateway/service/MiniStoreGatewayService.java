@@ -31,7 +31,7 @@ public interface MiniStoreGatewayService {
     JdCResponse<Integer> querySortCount(String boxCode);
 
     /**
-     * 解封箱时校验三码的原绑定关系是否正确
+     * 校验三码的原绑定关系是否正确/是否存在绑定关系（解封箱或者集包时校验）
      * @param unBoxValidateReq
      * @return
      */
