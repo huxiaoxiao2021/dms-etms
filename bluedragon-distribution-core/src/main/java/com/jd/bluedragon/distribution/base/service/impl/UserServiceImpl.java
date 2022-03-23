@@ -516,20 +516,25 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
                     log.info("version compare: old:{}, newest:{}, result:{}", request.getVersionCode(), dmsClientConfigInfo.getVersionCode(), needUpgrade);
                 }
 
-                if (needUpgrade) {
-                    response.setNeedUpdate(true);
-                }
-
-                response.setDownloadType(dmsClientConfigInfo.getDownloadType());
-                response.setDownloadUrl(dmsClientConfigInfo.getDownloadUrl());
-                response.setFileName(dmsClientConfigInfo.getFileName());
-                response.setFileSize(dmsClientConfigInfo.getFileSize());
-                response.setFileCheckCode(dmsClientConfigInfo.getFileCheckCode());
-                response.setVersionRemark(dmsClientConfigInfo.getVersionRemark());
-                response.setFileItemsCheckCode(dmsClientConfigInfo.getFileItemsCheckCode());
-                response.setRunningMode(dmsClientConfigInfo.getRunningMode());
+                setUpgradeResponse(response, dmsClientConfigInfo, needUpgrade);
             }
         }
+    }
+
+    private void setUpgradeResponse(AppUpgradeResponse response, DmsClientConfigInfo dmsClientConfigInfo, boolean needUpgrade) {
+        if (needUpgrade) {
+            response.setNeedUpdate(true);
+        }
+
+        response.setDownloadType(dmsClientConfigInfo.getDownloadType());
+        response.setDownloadUrl(dmsClientConfigInfo.getDownloadUrl());
+        response.setFileName(dmsClientConfigInfo.getFileName());
+        response.setFileSize(dmsClientConfigInfo.getFileSize());
+        response.setFileCheckCode(dmsClientConfigInfo.getFileCheckCode());
+        response.setVersionRemark(dmsClientConfigInfo.getVersionRemark());
+        response.setFileItemsCheckCode(dmsClientConfigInfo.getFileItemsCheckCode());
+        response.setRunningMode(dmsClientConfigInfo.getRunningMode());
+        response.setVersionCode(dmsClientConfigInfo.getVersionCode());
     }
 
     private DmsClientVersionRequest assembleVersionRequest(AppUpgradeRequest request) {
