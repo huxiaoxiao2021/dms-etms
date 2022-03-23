@@ -439,6 +439,7 @@ public class JySealVehicleServiceImpl implements IJySealVehicleService {
         SealCodeResponse response = new SealCodeResponse();
         response.setSealCodes(sealCarDto.getSealCodes());
         response.setVehicleNumber(sealCarDto.getVehicleNumber());
+        response.setBillCode(sealCarDto.getBillCode());
         return response;
     }
 
