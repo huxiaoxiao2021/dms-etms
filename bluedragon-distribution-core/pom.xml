@@ -1254,11 +1254,6 @@
 			<artifactId>tms-boss-client</artifactId>
 			<version>1.0-SNAPSHOT</version>
 		</dependency>
-        <dependency>
-            <groupId>com.jd.bluedragon</groupId>
-            <artifactId>business-sdk</artifactId>
-            <version>1.0.8-RELEASE</version>
-        </dependency>
 
 		<!--JMQ-Split组件  -->
 		<dependency>
@@ -1709,11 +1704,6 @@
 			<groupId>com.jd.tms.data</groupId>
 			<artifactId>tms-data-client</artifactId>
 			<version>1.0-SNAPSHOT</version>
-		</dependency>
-
-		<dependency>
-			<groupId>com.jd.bluedragon</groupId>
-			<artifactId>business-sdk</artifactId>
 		</dependency>
 
 		<dependency>
