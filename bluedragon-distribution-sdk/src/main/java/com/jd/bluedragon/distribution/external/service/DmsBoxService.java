@@ -1,10 +1,12 @@
 package com.jd.bluedragon.distribution.external.service;
 
+import com.jd.bluedragon.distribution.api.Response;
 import com.jd.bluedragon.distribution.api.request.box.BoxReq;
 import com.jd.bluedragon.distribution.api.response.BoxResponse;
 import com.jd.bluedragon.distribution.api.response.box.BoxDto;
 
 import javax.swing.*;
+import java.util.List;
 
 /**
  * 发往物流网关的接口不要在此类中加方法
@@ -21,4 +23,5 @@ public interface DmsBoxService {
      */
     BoxResponse get(String boxCode);
 
+    Response<List<String>> generateRecycleBasketCode(int quantity);
 }
