@@ -286,5 +286,9 @@
     <jmq:consumer id="jmq.qcAbnormalReportOutCallReportConsumer" transport="jmq.uatDmsWeb.transport">
         <jmq:listener topic="${jmq.topic.abnormalRecordOutCallReport}" listener="qcAbnormalReportOutCallReportConsumer"/>
     </jmq:consumer>
+    <!--B2B-TMS企配仓运单调度信息-->
+    <jmq:consumer id="jmq.b2bWaybillScheduleMqListener" transport="jmq.uatDmsWeb.transport">
+        <jmq:listener topic="${jmq.topic.b2b.tms.bd.schedule.result}" listener="b2bWaybillScheduleMqListener"/>
+    </jmq:consumer>
 </beans>
 
