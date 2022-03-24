@@ -43,20 +43,20 @@ public class HystrixPropertiesAutoInjection implements PolledConfigurationSource
 
     @Override
     public PollResult poll(boolean initial, Object checkPoint) throws Exception {
-        Map<String, Object> allPropMap;
+        Map<String, Object> allPropMap = new HashMap<>();
 
         String hystrixProps = uccConfig.getSealTaskHystrixProps();
         if (StringUtils.isNotBlank(hystrixProps)) {
-            allPropMap = JsonHelper.fromJson(hystrixProps, Map.class);
-            Map<String, Object> defaultPropMap = (Map<String, Object>) allPropMap.get(DEFAULT_PROPS_KEY);
+            Map<String, Object> uccConfigMap = JsonHelper.fromJson(hystrixProps, Map.class);
+            Map<String, Object> defaultPropMap = (Map<String, Object>) uccConfigMap.get(DEFAULT_PROPS_KEY);
             if (MapUtils.isNotEmpty(defaultPropMap)) {
                 allPropMap.putAll(defaultPropMap);
             }
-            Map<String, Object> cmdPropMap = (Map<String, Object>) allPropMap.get(COMMAND_PROPS_KEY);
+            Map<String, Object> cmdPropMap = (Map<String, Object>) uccConfigMap.get(COMMAND_PROPS_KEY);
             if (MapUtils.isNotEmpty(cmdPropMap)) {
                 allPropMap.putAll(cmdPropMap);
             }
-            Map<String, Object> threadPropMap = (Map<String, Object>) allPropMap.get(THREAD_POOL_PROPS_KEY);
+            Map<String, Object> threadPropMap = (Map<String, Object>) uccConfigMap.get(THREAD_POOL_PROPS_KEY);
             if (MapUtils.isNotEmpty(threadPropMap)) {
                 allPropMap.putAll(threadPropMap);
             }
