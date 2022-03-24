@@ -69,16 +69,51 @@ public class JySealVehicleServiceImpl implements IJySealVehicleService {
     @Autowired
     private NewSealVehicleService newSealVehicleService;
 
+    /**
+     * Hystrix 配置参考
+     * @see https://cf.jd.com/pages/viewpage.action?pageId=575172590
+     * @see https://github.com/Netflix/Hystrix/wiki/Configuration
+     * @param request
+     * @return
+     */
     @HystrixCommand(
             commandKey = "fetchSealTask",
             fallbackMethod = "sealTaskFallback",
+            threadPoolKey = "fetchSealTaskThread", // 不同command线程池配置隔离
             commandProperties = {
+                    // 是否开启降级逻辑，默认是开启。
                     @HystrixProperty(name = HystrixPropertiesManager.FALLBACK_ENABLED, value = "true"),
-                    @HystrixProperty(name = HystrixPropertiesManager.EXECUTION_ISOLATION_THREAD_TIMEOUT_IN_MILLISECONDS, value = "500"),
-                    @HystrixProperty(name = HystrixPropertiesManager.FALLBACK_ISOLATION_SEMAPHORE_MAX_CONCURRENT_REQUESTS, value = "10"),
+                    // fallBack方法执行时的最大并发数，默认是10，如果大量请求的fallback方法被执行时，超出此并发数的请求会抛出REJECTED_SEMAPHORE_FALLBACK异常。
+                    // 如果并发数达到该设置值，请求会被拒绝和抛出异常并且fallback不会被调用
+                    @HystrixProperty(name = HystrixPropertiesManager.FALLBACK_ISOLATION_SEMAPHORE_MAX_CONCURRENT_REQUESTS, value = "100"),
+                    // run方法执行时间超过此时间以后将执行fallback逻辑。如果超时不降级，将此值配置大点
+                    @HystrixProperty(name = HystrixPropertiesManager.EXECUTION_ISOLATION_THREAD_TIMEOUT_IN_MILLISECONDS, value = "10000"),
+
+                    // 是否开启断路器，默认开启。推荐开启
                     @HystrixProperty(name = HystrixPropertiesManager.CIRCUIT_BREAKER_ENABLED, value = "true"),
-                    @HystrixProperty(name = HystrixPropertiesManager.CIRCUIT_BREAKER_ERROR_THRESHOLD_PERCENTAGE, value = "10"),
-                    @HystrixProperty(name = HystrixPropertiesManager.CIRCUIT_BREAKER_REQUEST_VOLUME_THRESHOLD, value = "10"),
+                    // 启用熔断器功能窗口时间内的最小请求数。默认值20. 这个参数非常重要，熔断器是否打开首先要满足这个条件
+                    // 意思是至少有20个请求才进行errorThresholdPercentage错误百分比计算。比如一段时间（10s）内有19个请求全部失败了。错误百分比是100%，但熔断器不会打开，因为requestVolumeThreshold的值是20.
+                    @HystrixProperty(name = HystrixPropertiesManager.CIRCUIT_BREAKER_REQUEST_VOLUME_THRESHOLD, value = "50"),
+                    // 此属性设置错误百分比，等于或高于该百分比时，执行fallback降级逻辑
+                    @HystrixProperty(name = HystrixPropertiesManager.CIRCUIT_BREAKER_ERROR_THRESHOLD_PERCENTAGE, value = "50"),
+
+                    // 此属性设置滚动窗口的大小，默认10秒
+                    @HystrixProperty(name = HystrixPropertiesManager.METRICS_ROLLING_STATS_TIME_IN_MILLISECONDS, value = "10000"),
+
+                    // ##########################  执行run方法的线程池配置 #########################
+
+                    // 核心线程池的大小，默认值是 10
+                    @HystrixProperty(name = HystrixPropertiesManager.CORE_SIZE, value = "20"),
+                    // 线程池中线程的最大数量，默认值是10，此配置项单独配置时并不会生效，需要启用allowMaximumSizeToDivergeFromCoreSize项
+                    @HystrixProperty(name = HystrixPropertiesManager.MAXIMUM_SIZE, value = "50"),
+
+                    // 设置线程池队列大小。作业队列的最大值，默认值为-1，设置为此值时，队列会使用SynchronousQueue，此时其size为0，Hystrix 不会向队列内存放作业。
+                    // 如果此值设置为一个正的int型，队列会使用一个固定size的LinkedBlockingQueue，此时在核心线程池内的线程都在忙碌时，会将作业暂时存放在此队列内，但超出此队列的请求依然会被拒绝
+                    @HystrixProperty(name = HystrixPropertiesManager.MAX_QUEUE_SIZE, value = "5"),
+
+                    // 是否允许线程池扩展到最大线程池数量，默认为 false。
+                    @HystrixProperty(name = HystrixPropertiesManager.ALLOW_MAXIMUM_SIZE_TO_DIVERGE_FROM_CORE_SIZE, value = "true")
+                    // ##########################  执行run方法的线程池配置 #########################
             }
     )
     @Override
@@ -113,7 +148,7 @@ public class JySealVehicleServiceImpl implements IJySealVehicleService {
 
         com.jdl.jy.realtime.model.vo.seal.SealVehicleTaskResponse serviceResult = jySealVehicleManager.querySealTask(pager);
         if (serviceResult == null) {
-            result.error("服务器异常，请联系分拣小秘");
+            log.warn("未查询到待解封车任务. {}", JsonHelper.toJson(pager));
             return result;
         }
 

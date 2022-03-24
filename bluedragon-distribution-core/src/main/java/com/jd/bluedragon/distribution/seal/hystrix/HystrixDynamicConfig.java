@@ -22,7 +22,7 @@ public class HystrixDynamicConfig {
 
     @Bean
     public DynamicConfiguration dynamicConfiguration() {
-        boolean ignoreDeletesFromSource = false; // 缺少的属性视为删除
+        boolean ignoreDeletesFromSource = false; // 缺少的属性视为删除  @see https://github.com/Netflix/archaius/wiki/Users-Guide
         AbstractPollingScheduler scheduler = new FixedDelayPollingScheduler(30 * 1000, 60 * 1000, ignoreDeletesFromSource);
         DynamicConfiguration configuration = new DynamicConfiguration(propertiesAutoInjection, scheduler);
         ConfigurationManager.install(configuration); // must install to enable configuration
