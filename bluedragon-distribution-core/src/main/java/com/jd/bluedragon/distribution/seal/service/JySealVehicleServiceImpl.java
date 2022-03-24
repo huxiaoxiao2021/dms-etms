@@ -35,7 +35,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.record.formula.functions.T;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -122,11 +121,10 @@ public class JySealVehicleServiceImpl implements IJySealVehicleService {
             log.info("查询ES返回待解封车任务serviceResult. {}", JsonHelper.toJson(serviceResult));
         }
 
-        SealVehicleTaskResponse taskResponse = new SealVehicleTaskResponse();
         try {
             StopWatch stopWatch = new StopWatch("CV-SealVehicleTaskResponse");
             stopWatch.start();
-            BeanUtils.copyProperties(serviceResult, taskResponse);
+            SealVehicleTaskResponse taskResponse = JsonHelper.fromJson(JsonHelper.toJson(serviceResult), SealVehicleTaskResponse.class);
             stopWatch.stop();
             log.info(stopWatch.prettyPrint());
 
