@@ -9,12 +9,17 @@ import com.jd.bluedragon.distribution.position.domain.PositionDetailRecord;
 import com.jd.bluedragon.distribution.position.domain.PositionRecord;
 import com.jd.bluedragon.distribution.position.query.PositionQuery;
 import com.jd.bluedragon.distribution.position.service.PositionRecordService;
+import com.jd.bluedragon.distribution.station.dao.WorkStationGridDao;
+import com.jd.bluedragon.distribution.station.domain.WorkStationGrid;
+import com.jd.bluedragon.distribution.station.query.WorkStationGridQuery;
 import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
 import com.jd.ql.erp.util.BeanUtils;
-
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -30,11 +35,16 @@ import java.util.List;
 @Service
 public class PositionRecordServiceImpl implements PositionRecordService {
 
+    private static final Logger logger = LoggerFactory.getLogger(PositionRecordServiceImpl.class);
+
     @Autowired
     private PositionRecordDao positionRecordDao;
 
     @Autowired
     private IGenerateObjectId genObjectId;
+
+    @Autowired
+    private WorkStationGridDao workStationGridDao;
 
     @Override
     public Result<Integer> insertPosition(PositionRecord record) {
@@ -134,4 +144,37 @@ public class PositionRecordServiceImpl implements PositionRecordService {
 		result.setData(positionData);
 		return result;
 	}
+
+    @Override
+    public void syncAllData() {
+        long startTime = System.currentTimeMillis();
+        WorkStationGridQuery query = new WorkStationGridQuery();
+        int totalCount = 0;
+        int limit = 1000;
+        int offset = 0;
+        int count = 0;
+        while (count < 200){
+            query.setOffset(offset);
+            query.setLimit(limit);
+            List<WorkStationGrid> list = workStationGridDao.queryAllByPage(query);
+            if(CollectionUtils.isEmpty(list)){
+                break;
+            }
+            for (WorkStationGrid workStationGrid : list) {
+                PositionRecord record = new PositionRecord();
+                record.setSiteCode(workStationGrid.getSiteCode());
+                record.setRefGridKey(workStationGrid.getBusinessKey());
+                record.setPositionCode(generalPositionCode());
+                record.setCreateUser(workStationGrid.getCreateUser());
+                record.setUpdateUser(workStationGrid.getCreateUser());
+                if(positionRecordDao.queryByBusinessKey(workStationGrid.getBusinessKey()) == null){
+                    insertPosition(record);
+                    totalCount ++;
+                }
+            }
+            offset += limit;
+            count ++;
+        }
+        logger.info("同步历史数据完成，共耗时：{}共同步:{}条记录", System.currentTimeMillis() - startTime, totalCount);
+    }
 }
