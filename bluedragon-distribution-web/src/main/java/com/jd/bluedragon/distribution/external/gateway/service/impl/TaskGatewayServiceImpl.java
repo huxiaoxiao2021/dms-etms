@@ -14,6 +14,7 @@ import com.jd.dms.logger.annotation.BusinessLog;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import javax.annotation.Resource;
 import java.util.Objects;
@@ -30,6 +31,8 @@ public class TaskGatewayServiceImpl implements TaskGatewayService {
     private TaskResource taskResource;
     @Autowired
     MiniStoreService miniStoreService;
+    @Autowired
+    ThreadPoolTaskExecutor taskExecutor;
 
     @Override
     @BusinessLog(sourceSys = 1,bizType = 2006,operateType = 20061)
@@ -67,8 +70,8 @@ public class TaskGatewayServiceImpl implements TaskGatewayService {
         if(Objects.equals(taskResponse.getCode(),TaskResponse.CODE_OK)){
 
             if (TASK_TYPE_SORTING.equals(taskRequest.getType())){
-                Runnable MiniStoreSortProcessTask =new MiniStoreSortIncrCountTask(pdaRequest.getBoxCode(),pdaRequest.getBody(),miniStoreService);
-                new Thread(MiniStoreSortProcessTask).start();//TODO 改为线程池提交
+                Runnable miniStoreSortIncrCountTask =new MiniStoreSortIncrCountTask(pdaRequest.getBoxCode(),pdaRequest.getBody(),miniStoreService);
+                taskExecutor.execute(miniStoreSortIncrCountTask);
             }
             jdCResponse.toSucceed(taskResponse.getMessage());
         }else{
