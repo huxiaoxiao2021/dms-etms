@@ -69,4 +69,8 @@ public interface MiniStoreService {
     Integer queryMiniStoreSortCount();
 
     boolean unBind(Long miniStoreBindRelationId,Long updateUserCode,String updateUser);
+
+    int incrSortCount(Long id,String updateUser,Long updateUserCode);
+
+    boolean validateSortRelation(String boxCode, String packageCode);
 }

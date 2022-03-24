@@ -140,5 +140,9 @@ public class SortingDao extends BaseDao<Sorting>  implements ISortingDao {
         return this.getSqlSession().update(namespace +".invaliSortRealtion",boxCode);
     }
 
+    public Long findByPackageCodeAndBoxCode(Sorting sorting){
+        return this.getSqlSession().selectOne(namespace +".findByPackageCodeAndBoxCode",sorting);
+    }
+
 
 }

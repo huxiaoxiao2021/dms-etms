@@ -110,7 +110,7 @@
     </select>
 
     <select id="listBindDate" resultMap="BaseResultMap">
-        SELECT id,store_code, box_code, ice_board_code1, ice_board_code2
+        SELECT id, store_code, box_code, ice_board_code1, ice_board_code2
         from mini_store_bind_relation
         where create_user_code = #{createUserCode}
           AND state = 1
@@ -356,5 +356,12 @@
             create_time       = #{createTime,jdbcType=TIMESTAMP},
             update_time       = #{updateTime,jdbcType=TIMESTAMP}
         where id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="incrSortCount">
+        update mini_store_bind_relation
+        set sort_count       =sort_count + 1,
+            update_user_code =#{updateUserCode},
+            update_user=#{updateUser}
+        where id = #{id}
     </update>
 </mapper>

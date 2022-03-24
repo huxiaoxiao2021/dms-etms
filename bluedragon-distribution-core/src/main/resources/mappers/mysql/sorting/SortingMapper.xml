@@ -350,4 +350,7 @@
 	<update id="invaliSortRealtion">
 		update sorting set YN=0,UPDATE_TIME=now() where box_code =#{boxCode}
 	</update>
+	<select id="findByPackageCodeAndBoxCode" resultType="java.lang.Long">
+		SELECT SORTING_ID FROM sorting WHERE PACKAGE_CODE =#{packageCode} AND BOX_CODE = #{boxCode} AND YN =1 limit 1
+	</select>
 </mapper>

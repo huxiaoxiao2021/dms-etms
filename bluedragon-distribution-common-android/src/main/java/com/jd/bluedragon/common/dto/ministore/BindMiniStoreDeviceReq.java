@@ -8,7 +8,24 @@ public class BindMiniStoreDeviceReq implements Serializable {
     private String iceBoardCode1;
     private String iceBoardCode2;
     private String boxCode;
+    private Long userCode;
+    private String userName;
 
+    public Long getUserCode() {
+        return userCode;
+    }
+
+    public void setUserCode(Long userCode) {
+        this.userCode = userCode;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
 
     public String getStoreCode() {
         return storeCode;

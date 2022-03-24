@@ -6,6 +6,8 @@ public class UnBoxReq implements Serializable {
     private static final long serialVersionUID = -7084771505168281914L;
     private Long miniStoreBindRelationId;
     private String boxCode;
+    private String updateUser;
+    private Long updateUserCode;
 
     public Long getMiniStoreBindRelationId() {
         return miniStoreBindRelationId;

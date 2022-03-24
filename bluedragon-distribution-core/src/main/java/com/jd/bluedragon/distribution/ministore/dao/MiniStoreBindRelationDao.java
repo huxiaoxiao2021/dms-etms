@@ -37,4 +37,6 @@ public interface MiniStoreBindRelationDao {
 
 
     List<MiniStoreBindRelation> listBindDate(QueryTaskDto queryTaskDto);
+
+    int incrSortCount(Long id,String updateUser,Long updateUserCode);
 }

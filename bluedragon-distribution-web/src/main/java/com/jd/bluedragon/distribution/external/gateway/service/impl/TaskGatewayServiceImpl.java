@@ -3,17 +3,22 @@ package com.jd.bluedragon.distribution.external.gateway.service.impl;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.task.request.TaskPdaRequest;
+import com.jd.bluedragon.common.task.MiniStoreSortIncrCountTask;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.api.response.TaskResponse;
+import com.jd.bluedragon.distribution.ministore.service.MiniStoreService;
 import com.jd.bluedragon.distribution.rest.task.TaskResource;
 import com.jd.bluedragon.external.gateway.service.TaskGatewayService;
 import com.jd.dms.logger.annotation.BusinessLog;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.annotation.Resource;
 import java.util.Objects;
+
+import static com.jd.bluedragon.distribution.task.domain.Task.TASK_TYPE_SORTING;
 
 /**
  * @author : xumigen
@@ -23,6 +28,8 @@ public class TaskGatewayServiceImpl implements TaskGatewayService {
 
     @Resource
     private TaskResource taskResource;
+    @Autowired
+    MiniStoreService miniStoreService;
 
     @Override
     @BusinessLog(sourceSys = 1,bizType = 2006,operateType = 20061)
@@ -58,11 +65,11 @@ public class TaskGatewayServiceImpl implements TaskGatewayService {
         TaskResponse taskResponse = taskResource.add(taskRequest);
 
         if(Objects.equals(taskResponse.getCode(),TaskResponse.CODE_OK)){
-            //TODO 判断是分拣逻辑，异步存储技术逻辑
-            /**
-             *  taskRequest.setType(EnumConstants.TaskTypeEnum.TASK_TYPE_SORTING.getType()); TASK_TYPE_SORTING
-             *  根据箱号 判断是否是移动微仓的逻辑，然后发送消息
-             */
+
+            if (TASK_TYPE_SORTING.equals(taskRequest.getType())){
+                Runnable MiniStoreSortProcessTask =new MiniStoreSortIncrCountTask(pdaRequest.getBoxCode(),pdaRequest.getBody(),miniStoreService);
+                new Thread(MiniStoreSortProcessTask).start();//TODO 改为线程池提交
+            }
             jdCResponse.toSucceed(taskResponse.getMessage());
         }else{
             jdCResponse.toError(taskResponse.getMessage());

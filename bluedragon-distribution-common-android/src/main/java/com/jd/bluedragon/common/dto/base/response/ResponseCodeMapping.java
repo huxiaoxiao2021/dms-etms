@@ -1,5 +1,8 @@
 package com.jd.bluedragon.common.dto.base.response;
 
+/**
+ * @author weixiaofeng12
+ */
 public enum ResponseCodeMapping {
 
   SUCCESS(200, "成功"),
@@ -11,7 +14,8 @@ public enum ResponseCodeMapping {
   BOX_HASBEEN_BIND(5005,"箱号已经被绑定！"),
   DEVICE_HASBEEN_BIND(5006,"已经存在绑定的设备记录，请勿重复绑定！"),
   NO_LEGAL_BIND_RELATIONSHIP(5008,"未找到正确的绑定关系"),
-  NO_BIND_DATA(5009,"未查询到相关的绑定数据！");
+  NO_BIND_DATA(5009,"未查询到相关的绑定数据！"),
+  NO_BIND_RELATION_BETWEEN_BOX_AND_PACKAGE(5010,"该包裹未在集包码下集包！");
 
 
   ResponseCodeMapping(Integer code, String message) {

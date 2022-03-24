@@ -101,4 +101,10 @@ public class MiniStoreTest {
         boolean rs =miniStoreService.unBind(1L,1L,"weixiaofeng12");
         System.out.println("解绑结果：" +rs);
     }
+
+    @Test
+    public void validateSortRelationTest() {
+        boolean rs =miniStoreService.validateSortRelation("BC1001191120330000012905","JDV000049314581-1-0-");
+        System.out.println("集包关系校验：" +rs);
+    }
 }

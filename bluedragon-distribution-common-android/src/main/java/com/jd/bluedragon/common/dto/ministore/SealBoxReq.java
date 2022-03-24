@@ -8,6 +8,24 @@ public class SealBoxReq {
     private List<String> iceBoardCodes;
     private String boxCode;
     private List<String> packageCodes;
+    private String updateUser;
+    private Long updateUserCode;
+
+    public String getUpdateUser() {
+        return updateUser;
+    }
+
+    public void setUpdateUser(String updateUser) {
+        this.updateUser = updateUser;
+    }
+
+    public Long getUpdateUserCode() {
+        return updateUserCode;
+    }
+
+    public void setUpdateUserCode(Long updateUserCode) {
+        this.updateUserCode = updateUserCode;
+    }
 
     public Long getMiniStoreBindRelationId() {
         return miniStoreBindRelationId;

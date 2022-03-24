@@ -14,6 +14,7 @@ import com.jd.bluedragon.distribution.ministore.service.MiniStoreService;
 import com.jd.bluedragon.enums.SwDeviceStatusEnum;
 import com.jd.bluedragon.external.gateway.service.MiniStoreGatewayService;
 import com.jd.bluedragon.utils.BeanUtils;
+import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.cmp.jsf.SwDeviceJsfService;
 import com.jd.jddl.common.utils.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,9 +33,9 @@ public class MiniStoreGatewayServiceImpl implements MiniStoreGatewayService {
     public JdCResponse validateDeviceStatus(DeviceStatusValidateReq request) {
         //调用保温箱jsf接口查询报文箱子可用状态
         Assert.assertNotNull(request);
-        if (null != request.getStoreCode() && !"".equals(request.getStoreCode())) {
+        if (ObjectHelper.isNotNull(request.getStoreCode())) {
             Integer availableStatus = swDeviceJsfService.isDeviceUse(request.getStoreCode());
-            if (SwDeviceStatusEnum.AVAILABLE.getCode() != availableStatus) {
+            if (!SwDeviceStatusEnum.AVAILABLE.getCode() .equals(availableStatus)) {
                 return JdCResponse.errorResponse(ResponseCodeMapping.MINI_STORE_IS_NOT_AVAILABLE);
             }
             Boolean hasBeenBind = miniStoreService.validateStoreBindStatus(request.getStoreCode());
@@ -42,9 +43,9 @@ public class MiniStoreGatewayServiceImpl implements MiniStoreGatewayService {
                 return JdCResponse.errorResponse(ResponseCodeMapping.MINI_STORE_HASBEEN_BIND);
             }
         }
-        if (null != request.getIceBoardCode() && !"".equals(request.getIceBoardCode())) {
+        if (ObjectHelper.isNotNull(request.getIceBoardCode())) {
             Integer availableStatus = swDeviceJsfService.isDeviceUse(request.getIceBoardCode());
-            if (SwDeviceStatusEnum.AVAILABLE.getCode() != availableStatus) {
+            if (!SwDeviceStatusEnum.AVAILABLE.getCode().equals(availableStatus)) {
                 return JdCResponse.errorResponse(ResponseCodeMapping.INCE_BOARD_IS_NOT_AVAILABLE);
             }
             Boolean hasBeenBind = miniStoreService.validateIceBoardBindStatus(request.getIceBoardCode());
@@ -52,7 +53,7 @@ public class MiniStoreGatewayServiceImpl implements MiniStoreGatewayService {
                 return JdCResponse.errorResponse(ResponseCodeMapping.INCE_BOARD_HASBEEN_BIND);
             }
         }
-        if (null != request.getBoxCode() && !"".equals(request.getBoxCode())) {
+        if (ObjectHelper.isNotNull(request.getBoxCode())) {
             Boolean hasBeenBind = miniStoreService.validateBoxBindStatus(request.getBoxCode());
             if (hasBeenBind) {
                 return JdCResponse.errorResponse(ResponseCodeMapping.BOX_HASBEEN_BIND);
@@ -108,7 +109,11 @@ public class MiniStoreGatewayServiceImpl implements MiniStoreGatewayService {
 
     @Override
     public JdCResponse validateSortRelation(ValidateSortRelationReq validateSortRelationReq) {
-        return null;
+        boolean success =miniStoreService.validateSortRelation(validateSortRelationReq.getBoxCode(),validateSortRelationReq.getPackageCode());
+        if (success){
+            return JdCResponse.successResponse();
+        }
+        return JdCResponse.errorResponse(ResponseCodeMapping.NO_BIND_RELATION_BETWEEN_BOX_AND_PACKAGE);
     }
 
     @Override
@@ -144,4 +149,5 @@ public class MiniStoreGatewayServiceImpl implements MiniStoreGatewayService {
         }
         return JdCResponse.errorResponse(ResponseCodeMapping.UNKNOW_ERROR);
     }
+
 }

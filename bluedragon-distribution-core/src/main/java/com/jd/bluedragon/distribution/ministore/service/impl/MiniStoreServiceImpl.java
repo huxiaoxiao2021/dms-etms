@@ -11,6 +11,7 @@ import com.jd.bluedragon.distribution.ministore.enums.MSDeviceBindEventTypeEnum;
 import com.jd.bluedragon.distribution.ministore.enums.MiniStoreProcessStatusEnum;
 import com.jd.bluedragon.distribution.ministore.service.MiniStoreService;
 import com.jd.bluedragon.distribution.sorting.dao.SortingDao;
+import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.utils.BeanUtils;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.TimeUtils;
@@ -136,5 +137,19 @@ public class MiniStoreServiceImpl implements MiniStoreService {
         miniStoreBindRelation.setUpdateUserCode(updateUserCode);
         miniStoreBindRelation.setUpdateUser(updateUser);
         return miniStoreBindRelationDao.updateByPrimaryKeySelective(miniStoreBindRelation)>0;
+    }
+
+    @Override
+    public int incrSortCount(Long id,String updateUser,Long updateUserCode) {
+        return miniStoreBindRelationDao.incrSortCount(id,updateUser,updateUserCode);
+    }
+
+    @Override
+    public boolean validateSortRelation(String boxCode, String packageCode) {
+        Sorting sorting =new Sorting();
+        sorting.setBoxCode(boxCode);
+        sorting.setPackageCode(packageCode);
+        Long id =sortingDao.findByPackageCodeAndBoxCode(sorting);
+        return null!=id;
     }
 }
