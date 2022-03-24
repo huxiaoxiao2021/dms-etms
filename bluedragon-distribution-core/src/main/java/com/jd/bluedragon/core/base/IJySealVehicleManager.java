@@ -2,7 +2,6 @@ package com.jd.bluedragon.core.base;
 
 
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.request.SealTaskInfoRequest;
-import com.jd.bluedragon.common.dto.operation.workbench.unseal.request.SealVehicleTaskRequest;
 import com.jdl.jy.realtime.base.Pager;
 import com.jdl.jy.realtime.model.es.seal.SealCarMonitor;
 import com.jdl.jy.realtime.model.query.seal.SealVehicleTaskQuery;
