@@ -55,6 +55,8 @@ public interface MiniStoreGatewayService {
 
     JdCResponse<List<BindAndNoSortTaskResp>> queryBindAndNoSortTaskList(BindAndNoSortTaskReq bindAndNoSortTaskReq);
 
+    JdCResponse unBind(UnBindReq unBindReq);
+
 
 
 }

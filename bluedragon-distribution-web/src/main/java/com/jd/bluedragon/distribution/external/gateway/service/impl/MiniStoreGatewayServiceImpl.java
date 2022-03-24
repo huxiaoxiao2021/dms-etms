@@ -77,7 +77,7 @@ public class MiniStoreGatewayServiceImpl implements MiniStoreGatewayService {
 
     @Override
     public JdCResponse sealBox(SealBoxReq sealBoxReq) {
-        SealBoxDto sealBoxDto =BeanUtils.copy(sealBoxReq,SealBoxDto.class);
+        SealBoxDto sealBoxDto = BeanUtils.copy(sealBoxReq, SealBoxDto.class);
         Boolean success = miniStoreService.updateProcessStatusAndSyncMsg(sealBoxDto);
         if (success) {
             return JdCResponse.successResponse();
@@ -87,8 +87,8 @@ public class MiniStoreGatewayServiceImpl implements MiniStoreGatewayService {
 
     @Override
     public JdCResponse<Integer> querySortCount(String boxCode) {
-        Integer count =miniStoreService.queryMiniStoreSortCount();
-        if (count!=null){
+        Integer count = miniStoreService.queryMiniStoreSortCount();
+        if (count != null) {
             return JdCResponse.successResponse(count);
         }
         return JdCResponse.errorResponse(ResponseCodeMapping.UNKNOW_ERROR);
@@ -125,14 +125,23 @@ public class MiniStoreGatewayServiceImpl implements MiniStoreGatewayService {
 
     @Override
     public JdCResponse<List<BindAndNoSortTaskResp>> queryBindAndNoSortTaskList(BindAndNoSortTaskReq bindAndNoSortTaskReq) {
-        QueryTaskDto queryTaskDto =new QueryTaskDto();
+        QueryTaskDto queryTaskDto = new QueryTaskDto();
         queryTaskDto.setCreateUserCode(bindAndNoSortTaskReq.getCreateUserCode());
-        PageHelper.startPage(bindAndNoSortTaskReq.getPageNo(),bindAndNoSortTaskReq.getPageSize());
+        PageHelper.startPage(bindAndNoSortTaskReq.getPageNo(), bindAndNoSortTaskReq.getPageSize());
         List<MiniStoreBindRelation> miniStoreBindRelationList = miniStoreService.queryBindAndNoSortTaskList(queryTaskDto);
-        if (miniStoreBindRelationList!=null && miniStoreBindRelationList.size()>0){
-            List<BindAndNoSortTaskResp> bindAndNoSortTaskRespList =BeanUtils.copy(miniStoreBindRelationList,BindAndNoSortTaskResp.class);
+        if (miniStoreBindRelationList != null && miniStoreBindRelationList.size() > 0) {
+            List<BindAndNoSortTaskResp> bindAndNoSortTaskRespList = BeanUtils.copy(miniStoreBindRelationList, BindAndNoSortTaskResp.class);
             return JdCResponse.successResponse(bindAndNoSortTaskRespList);
         }
         return JdCResponse.errorResponse(ResponseCodeMapping.NO_BIND_DATA);
+    }
+
+    @Override
+    public JdCResponse unBind(UnBindReq unBindReq) {
+        boolean success = miniStoreService.unBind(unBindReq.getMiniStoreBindRelationId(), unBindReq.getUpdateUserCode(), unBindReq.getUpdateUser());
+        if (success) {
+            return JdCResponse.successResponse();
+        }
+        return JdCResponse.errorResponse(ResponseCodeMapping.UNKNOW_ERROR);
     }
 }

@@ -67,4 +67,6 @@ public interface MiniStoreService {
     List<MiniStoreBindRelation> queryBindAndNoSortTaskList(QueryTaskDto queryTaskDto);
 
     Integer queryMiniStoreSortCount();
+
+    boolean unBind(Long miniStoreBindRelationId,Long updateUserCode,String updateUser);
 }

@@ -30,8 +30,8 @@ public class MiniStoreServiceImpl implements MiniStoreService {
     MiniStoreBindRelationDao miniStoreBindRelationDao;
     @Autowired
     SortingDao sortingDao;
-    @Autowired
-    @Qualifier("miniStoreSealBoxProducer")
+    //@Autowired
+    //@Qualifier("miniStoreSealBoxProducer")
     private DefaultJMQProducer miniStoreSealBoxProducer;
 
     @Override
@@ -125,5 +125,16 @@ public class MiniStoreServiceImpl implements MiniStoreService {
     @Override
     public Integer queryMiniStoreSortCount() {
         return null;
+    }
+
+    @Override
+    public boolean unBind(Long miniStoreBindRelationId,Long updateUserCode,String updateUser) {
+        MiniStoreBindRelation miniStoreBindRelation =new MiniStoreBindRelation();
+        miniStoreBindRelation.setId(miniStoreBindRelationId);
+        miniStoreBindRelation.setState(Byte.valueOf(MiniStoreProcessStatusEnum.UNBIND.getCode()));
+        miniStoreBindRelation.setUpdateTime(new Date());
+        miniStoreBindRelation.setUpdateUserCode(updateUserCode);
+        miniStoreBindRelation.setUpdateUser(updateUser);
+        return miniStoreBindRelationDao.updateByPrimaryKeySelective(miniStoreBindRelation)>0;
     }
 }

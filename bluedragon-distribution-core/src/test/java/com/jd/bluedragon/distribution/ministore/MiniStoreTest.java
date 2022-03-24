@@ -58,7 +58,7 @@ public class MiniStoreTest {
     }
 
     @Test
-    public void BeanCopyTest() {
+    public void BeanCopyXingNengTest() {
         Long start = System.currentTimeMillis();
         for (int i = 0; i < 100000; i++) {
             DeviceDto deviceDto = new DeviceDto();
@@ -94,5 +94,11 @@ public class MiniStoreTest {
         PageHelper.startPage(1, 2);
         List<MiniStoreBindRelation> miniStoreBindRelationList =miniStoreService.queryBindAndNoSortTaskList(dto);
         System.out.println("绑定数据：" + miniStoreBindRelationList.get(1));
+    }
+
+    @Test
+    public void unbind() {
+        boolean rs =miniStoreService.unBind(1L,1L,"weixiaofeng12");
+        System.out.println("解绑结果：" +rs);
     }
 }
