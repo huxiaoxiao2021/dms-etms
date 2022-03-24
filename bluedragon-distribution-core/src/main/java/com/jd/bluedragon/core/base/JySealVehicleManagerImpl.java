@@ -52,6 +52,11 @@ public class JySealVehicleManagerImpl implements IJySealVehicleManager {
             }
 
             ServiceResult<SealVehicleTaskResponse> serviceResult = sealVehicleService.querySealCarByStatus(pager);
+
+            if (log.isInfoEnabled()) {
+                log.info("查询待解封车任务. query:{}, response:{}", JsonHelper.toJson(pager), JsonHelper.toJson(serviceResult));
+            }
+
             if (serviceResult.retFail()) {
                 log.error("查询待解封车任务失败. {}-{}", JsonHelper.toJson(pager), JsonHelper.toJson(serviceResult));
                 throw new SealVehicleTaskBusinessException(serviceResult.getMessage());
