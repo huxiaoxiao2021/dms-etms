@@ -117,11 +117,10 @@ public class JySealVehicleServiceImpl implements IJySealVehicleService {
             return result;
         }
 
-        SealVehicleTaskResponse taskResponse = new SealVehicleTaskResponse();
         try {
             StopWatch stopWatch = new StopWatch("CV-SealVehicleTaskResponse");
             stopWatch.start();
-            BeanCopyUtil.copy(serviceResult, taskResponse);
+            SealVehicleTaskResponse taskResponse = JsonHelper.fromJson(JsonHelper.toJson(serviceResult), SealVehicleTaskResponse.class);
             stopWatch.stop();
             log.info(stopWatch.prettyPrint());
 
