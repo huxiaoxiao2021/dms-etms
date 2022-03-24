@@ -71,7 +71,6 @@ public class RecycleMaterialServiceImpl implements RecycleMaterialService {
             response.toFail(addResult.getMessage());
             return response;
         }
-
         //返回打印信息
         RecycleBasketPrintInfo printInfo = new RecycleBasketPrintInfo();
         printInfo.setRecycleBasketCodes(codes);
@@ -121,6 +120,12 @@ public class RecycleMaterialServiceImpl implements RecycleMaterialService {
         if(recycleMaterial == null){
             logger.error("周转筐补打根据编码:{}未查到周转筐信息", recycleBasketEntity.getRecycleBasketCode());
             response.toFail("根据编码未查到周转筐信息，请检查编码是否正确！");
+            return response;
+        }
+
+        if(!recycleBasketEntity.getCreateSiteCode().equals(recycleMaterial.getCurrentSiteCode())){
+            logger.error("周转筐补打根据编码:{}查到周转筐信息的", recycleBasketEntity.getRecycleBasketCode());
+            response.toFail("该周转筐目前所属[{}],和你绑定的分拣中心不一致，您不能操作补打！");
             return response;
         }
         RecycleBasketPrintInfo printInfo = new RecycleBasketPrintInfo();
