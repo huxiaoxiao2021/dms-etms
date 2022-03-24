@@ -21,7 +21,8 @@ public class GateWayServiceExcepHandler {
         try {
             jdCResponse = (JdCResponse) proceedingJoinPoint.proceed();
         } catch (Throwable throwable) {
-            log.error("ServiceExcepHandler  failed", throwable);
+            log.error("serviceExceptionHandler异常处理...", throwable);
+            //在这做异常处理封装
             return JdCResponse.errorResponse(ResponseCodeMapping.UNKNOW_ERROR);
         }
         log.info("invoke end..");

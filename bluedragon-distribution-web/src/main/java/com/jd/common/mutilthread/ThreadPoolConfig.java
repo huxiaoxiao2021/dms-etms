@@ -11,11 +11,11 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import java.util.Map;
 import java.util.concurrent.ThreadPoolExecutor;
 
-@Configuration
-@EnableAsync
+//@Configuration
+//@EnableAsync
 public class ThreadPoolConfig {
     private static final Logger logger = LoggerFactory.getLogger(ThreadPoolConfig.class);
-    @Bean()
+    //@Bean()
     public ThreadPoolTaskExecutor executor() {
         ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         //配置核心线程数

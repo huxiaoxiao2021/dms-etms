@@ -3,6 +3,8 @@ package com.jd.bluedragon.external.gateway.service;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.ministore.*;
 
+import java.util.List;
+
 public interface MiniStoreGatewayService {
     /**
      * 检验设备可用状态
@@ -26,7 +28,7 @@ public interface MiniStoreGatewayService {
     JdCResponse sealBox(SealBoxReq sealBoxReq);
 
     /**
-     *查询当前集包数量（已集包裹数量）
+     *查询当前集包数量（已集包裹数量）暂时不用这个接口
      */
     JdCResponse<Integer> querySortCount(String boxCode);
 
@@ -50,6 +52,8 @@ public interface MiniStoreGatewayService {
      * @return
      */
     JdCResponse unBox(UnBoxReq unBoxReq);
+
+    JdCResponse<List<BindAndNoSortTaskResp>> queryBindAndNoSortTaskList(BindAndNoSortTaskReq bindAndNoSortTaskReq);
 
 
 

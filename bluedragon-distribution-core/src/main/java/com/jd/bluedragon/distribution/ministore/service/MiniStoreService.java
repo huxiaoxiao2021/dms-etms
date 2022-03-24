@@ -7,6 +7,8 @@ import com.jd.bluedragon.dbrouter.DynamicDataSourceType;
 import com.jd.bluedragon.distribution.ministore.dao.MiniStoreBindRelationDao;
 import com.jd.bluedragon.distribution.ministore.domain.MiniStoreBindRelation;
 import com.jd.bluedragon.distribution.ministore.dto.DeviceDto;
+import com.jd.bluedragon.distribution.ministore.dto.QueryTaskDto;
+import com.jd.bluedragon.distribution.ministore.dto.SealBoxDto;
 import com.jd.bluedragon.distribution.mixedPackageConfig.domain.MixedPackageConfig;
 import com.jd.bluedragon.distribution.mixedPackageConfig.domain.MixedPackageConfigRequest;
 import com.jd.bluedragon.distribution.mixedPackageConfig.domain.MixedSite;
@@ -60,5 +62,9 @@ public interface MiniStoreService {
 
     Boolean updateProcessStatusAndInvaliSortRealtion(DeviceDto deviceDto);
 
-    Boolean updateProcessStatusAndSyncMsg(DeviceDto deviceDto);
+    Boolean updateProcessStatusAndSyncMsg(SealBoxDto sealBoxDto);
+
+    List<MiniStoreBindRelation> queryBindAndNoSortTaskList(QueryTaskDto queryTaskDto);
+
+    Integer queryMiniStoreSortCount();
 }

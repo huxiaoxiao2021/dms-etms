@@ -1,19 +1,24 @@
 package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import com.jd.bluedragon.common.UnifiedExceptionProcess;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.ResponseCodeMapping;
 import com.jd.bluedragon.common.dto.ministore.*;
 import com.jd.bluedragon.distribution.ministore.domain.MiniStoreBindRelation;
 import com.jd.bluedragon.distribution.ministore.dto.DeviceDto;
+import com.jd.bluedragon.distribution.ministore.dto.QueryTaskDto;
+import com.jd.bluedragon.distribution.ministore.dto.SealBoxDto;
 import com.jd.bluedragon.distribution.ministore.service.MiniStoreService;
-import com.jd.bluedragon.distribution.saf.service.GetWaybillSafService;
 import com.jd.bluedragon.enums.SwDeviceStatusEnum;
 import com.jd.bluedragon.external.gateway.service.MiniStoreGatewayService;
 import com.jd.bluedragon.utils.BeanUtils;
 import com.jd.cmp.jsf.SwDeviceJsfService;
 import com.jd.jddl.common.utils.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.List;
 
 @UnifiedExceptionProcess
 public class MiniStoreGatewayServiceImpl implements MiniStoreGatewayService {
@@ -72,13 +77,21 @@ public class MiniStoreGatewayServiceImpl implements MiniStoreGatewayService {
 
     @Override
     public JdCResponse sealBox(SealBoxReq sealBoxReq) {
-        miniStoreService.updateProcessStatusAndSyncMsg(null);
-        return null;
+        SealBoxDto sealBoxDto =BeanUtils.copy(sealBoxReq,SealBoxDto.class);
+        Boolean success = miniStoreService.updateProcessStatusAndSyncMsg(sealBoxDto);
+        if (success) {
+            return JdCResponse.successResponse();
+        }
+        return JdCResponse.errorResponse(ResponseCodeMapping.UNKNOW_ERROR);
     }
 
     @Override
     public JdCResponse<Integer> querySortCount(String boxCode) {
-        return null;
+        Integer count =miniStoreService.queryMiniStoreSortCount();
+        if (count!=null){
+            return JdCResponse.successResponse(count);
+        }
+        return JdCResponse.errorResponse(ResponseCodeMapping.UNKNOW_ERROR);
     }
 
     @Override
@@ -100,13 +113,26 @@ public class MiniStoreGatewayServiceImpl implements MiniStoreGatewayService {
 
     @Override
     public JdCResponse unBox(UnBoxReq unBoxReq) {
-        DeviceDto deviceDto =new DeviceDto();
+        DeviceDto deviceDto = new DeviceDto();
         deviceDto.setBoxCode(unBoxReq.getBoxCode());
         deviceDto.setMiniStoreBindRelationId(unBoxReq.getMiniStoreBindRelationId());
-        Boolean success =miniStoreService.updateProcessStatusAndInvaliSortRealtion(deviceDto);
-        if (success){
+        Boolean success = miniStoreService.updateProcessStatusAndInvaliSortRealtion(deviceDto);
+        if (success) {
             return JdCResponse.successResponse();
         }
         return JdCResponse.errorResponse(ResponseCodeMapping.UNKNOW_ERROR);
+    }
+
+    @Override
+    public JdCResponse<List<BindAndNoSortTaskResp>> queryBindAndNoSortTaskList(BindAndNoSortTaskReq bindAndNoSortTaskReq) {
+        QueryTaskDto queryTaskDto =new QueryTaskDto();
+        queryTaskDto.setCreateUserCode(bindAndNoSortTaskReq.getCreateUserCode());
+        PageHelper.startPage(bindAndNoSortTaskReq.getPageNo(),bindAndNoSortTaskReq.getPageSize());
+        List<MiniStoreBindRelation> miniStoreBindRelationList = miniStoreService.queryBindAndNoSortTaskList(queryTaskDto);
+        if (miniStoreBindRelationList!=null && miniStoreBindRelationList.size()>0){
+            List<BindAndNoSortTaskResp> bindAndNoSortTaskRespList =BeanUtils.copy(miniStoreBindRelationList,BindAndNoSortTaskResp.class);
+            return JdCResponse.successResponse(bindAndNoSortTaskRespList);
+        }
+        return JdCResponse.errorResponse(ResponseCodeMapping.NO_BIND_DATA);
     }
 }

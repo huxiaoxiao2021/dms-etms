@@ -2,29 +2,20 @@ package com.jd.bluedragon.common.dto.ministore;
 
 import java.io.Serializable;
 
-public class UnBoxValidateResp implements Serializable {
-    private static final long serialVersionUID = -4198321416624957318L;
-    private Long   miniStoreBindRelationId;
+public class BindAndNoSortTaskResp implements Serializable {
+    private static final long serialVersionUID = -3852456142559369558L;
+    private Long id;
     private String storeCode;
     private String iceBoardCode1;
     private String iceBoardCode2;
     private String boxCode;
-    private Integer sortCount;
 
-    public Integer getSortCount() {
-        return sortCount;
+    public Long getId() {
+        return id;
     }
 
-    public void setSortCount(Integer sortCount) {
-        this.sortCount = sortCount;
-    }
-
-    public Long getMiniStoreBindRelationId() {
-        return miniStoreBindRelationId;
-    }
-
-    public void setMiniStoreBindRelationId(Long miniStoreBindRelationId) {
-        this.miniStoreBindRelationId = miniStoreBindRelationId;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getStoreCode() {
@@ -57,5 +48,16 @@ public class UnBoxValidateResp implements Serializable {
 
     public void setBoxCode(String boxCode) {
         this.boxCode = boxCode;
+    }
+
+    @Override
+    public String toString() {
+        return "BindAndNoSortTaskResp{" +
+                "id=" + id +
+                ", storeCode='" + storeCode + '\'' +
+                ", iceBoardCode1='" + iceBoardCode1 + '\'' +
+                ", iceBoardCode2='" + iceBoardCode2 + '\'' +
+                ", boxCode='" + boxCode + '\'' +
+                '}';
     }
 }

@@ -1,8 +1,12 @@
 package com.jd.bluedragon.distribution.ministore;
 
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import com.jd.bluedragon.distribution.ministore.dao.MiniStoreBindRelationDao;
 import com.jd.bluedragon.distribution.ministore.domain.MiniStoreBindRelation;
 import com.jd.bluedragon.distribution.ministore.dto.DeviceDto;
+import com.jd.bluedragon.distribution.ministore.dto.QueryTaskDto;
 import com.jd.bluedragon.distribution.ministore.service.MiniStoreService;
 import com.jd.bluedragon.distribution.ministore.service.impl.MiniStoreServiceImpl;
 import com.jd.bluedragon.distribution.seal.dao.SealBoxDao;
@@ -27,21 +31,22 @@ public class MiniStoreTest {
     MiniStoreBindRelationDao miniStoreBindRelationDao;
     @Autowired
     MiniStoreService miniStoreService;
+
     @Test
-    public void validatDeviceBindStatusTest(){
-        DeviceDto deviceDto =new DeviceDto();
+    public void validatDeviceBindStatusTest() {
+        DeviceDto deviceDto = new DeviceDto();
         deviceDto.setStoreCode("s2");
         deviceDto.setBoxCode("b2");
         deviceDto.setIceBoardCode1("i5");
         deviceDto.setIceBoardCode2("i3");
         Boolean f = miniStoreService.validatDeviceBindStatus(deviceDto);
-        Assert.assertTrue(true==f);
+        Assert.assertTrue(true == f);
     }
 
 
     @Test
-    public void validatInsert(){
-        DeviceDto deviceDto =new DeviceDto();
+    public void validatInsert() {
+        DeviceDto deviceDto = new DeviceDto();
         deviceDto.setStoreCode("s2");
         deviceDto.setBoxCode("b2");
         deviceDto.setIceBoardCode1("i5");
@@ -49,23 +54,23 @@ public class MiniStoreTest {
         deviceDto.setCreateUser("weixiaofeng12");
         deviceDto.setCreateUserCode(1L);
         Boolean f = miniStoreService.bindMiniStoreDevice(deviceDto);
-        Assert.assertTrue(true==f);
+        Assert.assertTrue(true == f);
     }
 
     @Test
-    public void BeanCopyTest(){
-        Long start =System.currentTimeMillis();
-        for (int i=0;i<100000;i++){
-            DeviceDto deviceDto =new DeviceDto();
+    public void BeanCopyTest() {
+        Long start = System.currentTimeMillis();
+        for (int i = 0; i < 100000; i++) {
+            DeviceDto deviceDto = new DeviceDto();
             deviceDto.setStoreCode("s2");
             deviceDto.setBoxCode("b2");
             deviceDto.setIceBoardCode1("i5");
             deviceDto.setIceBoardCode2("i3");
             deviceDto.setCreateUser("weixiaofeng12");
             deviceDto.setCreateUserCode(1L);
-            MiniStoreBindRelation miniStoreBindRelation =BeanUtils.copy(deviceDto, MiniStoreBindRelation.class);
+            MiniStoreBindRelation miniStoreBindRelation = BeanUtils.copy(deviceDto, MiniStoreBindRelation.class);
         }
-        System.out.println("耗时："+(System.currentTimeMillis()-start)+"ms");
+        System.out.println("耗时：" + (System.currentTimeMillis() - start) + "ms");
         //耗时：17564ms
         //耗时：18860ms
         //耗时：19910ms
@@ -74,11 +79,20 @@ public class MiniStoreTest {
     }
 
     @Test
-    public void unBoxTest(){
-        DeviceDto deviceDto =new DeviceDto();
+    public void unBoxTest() {
+        DeviceDto deviceDto = new DeviceDto();
         deviceDto.setMiniStoreBindRelationId(2L);
         deviceDto.setBoxCode("JDVF00001693352-7-15-");
-        Boolean r =miniStoreService.updateProcessStatusAndInvaliSortRealtion(deviceDto);
-        System.out.println("解封箱结果："+r);
+        Boolean r = miniStoreService.updateProcessStatusAndInvaliSortRealtion(deviceDto);
+        System.out.println("解封箱结果：" + r);
+    }
+
+    @Test
+    public void listBindData() {
+        QueryTaskDto dto = new QueryTaskDto();
+        dto.setCreateUserCode(1L);
+        PageHelper.startPage(1, 2);
+        List<MiniStoreBindRelation> miniStoreBindRelationList =miniStoreService.queryBindAndNoSortTaskList(dto);
+        System.out.println("绑定数据：" + miniStoreBindRelationList.get(1));
     }
 }

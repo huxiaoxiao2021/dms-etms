@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.ministore.dao;
 
 import com.jd.bluedragon.distribution.ministore.domain.MiniStoreBindRelation;
 import com.jd.bluedragon.distribution.ministore.dto.DeviceDto;
+import com.jd.bluedragon.distribution.ministore.dto.QueryTaskDto;
 
 import java.util.List;
 
@@ -35,4 +36,5 @@ public interface MiniStoreBindRelationDao {
     List<MiniStoreBindRelation> selectBindingList(String createUserCode);
 
 
+    List<MiniStoreBindRelation> listBindDate(QueryTaskDto queryTaskDto);
 }

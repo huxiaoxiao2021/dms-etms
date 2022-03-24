@@ -1,8 +1,8 @@
-package com.jd.bluedragon.common.dto.ministore;
+package com.jd.bluedragon.distribution.ministore.dto;
 
 import java.util.List;
 
-public class SealBoxReq {
+public class SealBoxDto {
     private Long   miniStoreBindRelationId;//绑定关系id
     private String storeCode;
     private List<String> iceBoardCodes;

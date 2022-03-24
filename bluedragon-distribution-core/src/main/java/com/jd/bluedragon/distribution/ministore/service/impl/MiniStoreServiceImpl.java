@@ -1,16 +1,23 @@
 package com.jd.bluedragon.distribution.ministore.service.impl;
 
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.ministore.dao.MiniStoreBindRelationDao;
 import com.jd.bluedragon.distribution.ministore.domain.MiniStoreBindRelation;
 import com.jd.bluedragon.distribution.ministore.dto.DeviceDto;
+import com.jd.bluedragon.distribution.ministore.dto.MiniStoreEvent;
+import com.jd.bluedragon.distribution.ministore.dto.QueryTaskDto;
+import com.jd.bluedragon.distribution.ministore.dto.SealBoxDto;
+import com.jd.bluedragon.distribution.ministore.enums.MSDeviceBindEventTypeEnum;
 import com.jd.bluedragon.distribution.ministore.enums.MiniStoreProcessStatusEnum;
 import com.jd.bluedragon.distribution.ministore.service.MiniStoreService;
 import com.jd.bluedragon.distribution.sorting.dao.SortingDao;
 import com.jd.bluedragon.utils.BeanUtils;
-import com.jd.eclp.master.qualification.service.LicenseService;
+import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.TimeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -23,6 +30,9 @@ public class MiniStoreServiceImpl implements MiniStoreService {
     MiniStoreBindRelationDao miniStoreBindRelationDao;
     @Autowired
     SortingDao sortingDao;
+    @Autowired
+    @Qualifier("miniStoreSealBoxProducer")
+    private DefaultJMQProducer miniStoreSealBoxProducer;
 
     @Override
     public Boolean validatDeviceBindStatus(DeviceDto deviceDto) {
@@ -64,7 +74,7 @@ public class MiniStoreServiceImpl implements MiniStoreService {
 
     @Override
     public Boolean updateProcessStatusAndInvaliSortRealtion(DeviceDto deviceDto) {
-        int r1 =0;
+        int r1 = 0;
         MiniStoreBindRelation pre = miniStoreBindRelationDao.selectByPrimaryKey(deviceDto.getMiniStoreBindRelationId());
 
         MiniStoreBindRelation miniStoreBindRelation = new MiniStoreBindRelation();
@@ -82,8 +92,8 @@ public class MiniStoreServiceImpl implements MiniStoreService {
                 return true;
             }
         } catch (Exception e) {
-            logger.error("解封箱异常",e);
-            if (r1>0){
+            logger.error("解封箱异常", e);
+            if (r1 > 0) {
                 miniStoreBindRelationDao.updateByPrimaryKeySelective(pre);
             }
         }
@@ -91,7 +101,29 @@ public class MiniStoreServiceImpl implements MiniStoreService {
     }
 
     @Override
-    public Boolean updateProcessStatusAndSyncMsg(DeviceDto deviceDto) {
+    public Boolean updateProcessStatusAndSyncMsg(SealBoxDto sealBoxDto) {
+        MiniStoreBindRelation miniStoreBindRelation = new MiniStoreBindRelation();
+        miniStoreBindRelation.setId(sealBoxDto.getMiniStoreBindRelationId());
+        miniStoreBindRelation.setState(Byte.valueOf(MiniStoreProcessStatusEnum.SEAL_BOX.getCode()));
+        miniStoreBindRelation.setUpdateTime(new Date());
+        int rs = miniStoreBindRelationDao.updateByPrimaryKeySelective(miniStoreBindRelation);
+        if (rs > 0) {
+            MiniStoreEvent miniStoreEvent =BeanUtils.convert(sealBoxDto,MiniStoreEvent.class);
+            miniStoreEvent.setEventType(MSDeviceBindEventTypeEnum.SEAL_BOX.getCode());
+            miniStoreEvent.setCreateTime(TimeUtils.date2string(new Date(),TimeUtils.yyyy_MM_dd_HH_mm_ss));
+            miniStoreSealBoxProducer.sendOnFailPersistent(sealBoxDto.getBoxCode(), JsonHelper.toJson(sealBoxDto));
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public List<MiniStoreBindRelation> queryBindAndNoSortTaskList(QueryTaskDto queryTaskDto) {
+        return miniStoreBindRelationDao.listBindDate(queryTaskDto);
+    }
+
+    @Override
+    public Integer queryMiniStoreSortCount() {
         return null;
     }
 }
