@@ -2450,13 +2450,20 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             unloadCarDistribution.setUnloadUserType(UnloadUserTypeEnum.UNLOAD_MASTER.getType());
             unloadCarDistribution.setUpdateTime(new Date());
             unloadCarDistribution.setCreateTime(new Date());
+            // 使用卸车任务的创建时间作为负责人进入的时间
+            UnloadCar unloadCar = unloadCarDao.selectBySealCarCodeWithStatus(request.getSealCarCodes().get(i));
+            if (unloadCar != null) {
+                unloadCarDistribution.setUpdateTime(unloadCar.getCreateTime());
+                unloadCarDistribution.setCreateTime(unloadCar.getCreateTime());
+            }
 
             // 先逻辑删除旧的负责人
             unloadCarDistributionDao.deleteUnloadMaster(unloadCarDistribution);
-            // 添加新的负责人
-            unloadCarDistributionDao.add(unloadCarDistribution);
             // 如果新负责人还是协助人，需要删除
             unloadCarDistributionDao.deleteUnloadHelper(unloadCarDistribution);
+            // 添加新的负责人
+            unloadCarDistributionDao.add(unloadCarDistribution);
+
         }
         return true;
     }
