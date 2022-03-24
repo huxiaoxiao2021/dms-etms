@@ -125,6 +125,10 @@ public class JySealVehicleServiceImpl implements IJySealVehicleService {
             stopWatch.stop();
             log.info(stopWatch.prettyPrint());
 
+            if (log.isInfoEnabled()) {
+                log.info("返回待解封车任务. {}", JsonHelper.toJson(taskResponse));
+            }
+
             result.setData(taskResponse);
         }
         catch (Exception e) {
