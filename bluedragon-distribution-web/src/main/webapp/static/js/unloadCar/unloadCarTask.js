@@ -245,6 +245,7 @@ $(function () {
         $.ajaxHelper.doGetSync(userUrl,null,function(res){
             if(res && !res.succeed){
                 if (res.code === 400) {
+                    $("#unloadUserName").val("");
                     alert(res.message);
                     return;
                 }
