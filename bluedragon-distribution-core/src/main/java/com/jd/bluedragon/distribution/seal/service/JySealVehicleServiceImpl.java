@@ -99,11 +99,11 @@ public class JySealVehicleServiceImpl implements IJySealVehicleService {
 
                     // 此属性设置滚动窗口的大小，默认10秒
                     @HystrixProperty(name = HystrixPropertiesManager.METRICS_ROLLING_STATS_TIME_IN_MILLISECONDS, value = "10000"),
-
-                    // ##########################  执行run方法的线程池配置 #########################
-
+            },
+            threadPoolProperties = {
                     // 核心线程池的大小，默认值是 10
                     @HystrixProperty(name = HystrixPropertiesManager.CORE_SIZE, value = "20"),
+
                     // 线程池中线程的最大数量，默认值是10，此配置项单独配置时并不会生效，需要启用allowMaximumSizeToDivergeFromCoreSize项
                     @HystrixProperty(name = HystrixPropertiesManager.MAXIMUM_SIZE, value = "50"),
 
@@ -113,7 +113,6 @@ public class JySealVehicleServiceImpl implements IJySealVehicleService {
 
                     // 是否允许线程池扩展到最大线程池数量，默认为 false。
                     @HystrixProperty(name = HystrixPropertiesManager.ALLOW_MAXIMUM_SIZE_TO_DIVERGE_FROM_CORE_SIZE, value = "true")
-                    // ##########################  执行run方法的线程池配置 #########################
             }
     )
     @Override
