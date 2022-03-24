@@ -31,6 +31,8 @@ public interface UnloadCarDistributeCommonService {
 
     public boolean deleteUnloadHelper(UnloadCarDistribution params);
 
+    public boolean deleteUnloadMaster(UnloadCarDistribution params);
+
     public List<String> selectTasksByUser(String unloadUserErp);
 
 }
