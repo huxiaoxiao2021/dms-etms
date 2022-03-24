@@ -52,7 +52,6 @@ public class RecycleMaterialServiceImpl implements RecycleMaterialService {
 
     private JdResponse<RecycleBasketPrintInfo> generateRecycleBasketPrintInfo(RecycleBasketEntity recycleBasketEntity){
         JdResponse<RecycleBasketPrintInfo> response = new JdResponse<>();
-        boxService.generateRecycleBasketCode(recycleBasketEntity.getQuantity());
         List<String> codes = boxService.generateRecycleBasketCode(recycleBasketEntity.getQuantity());
         if(CollectionUtils.isEmpty(codes)){
             logger.error("周转筐打印生成编码失败");
