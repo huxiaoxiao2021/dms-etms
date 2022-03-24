@@ -110,4 +110,12 @@ public interface WorkStationGridDao {
 	 * @return
 	 */
 	WorkStationGrid queryByGridKey(WorkStationGridQuery workStationGridQuery);
+
+	/**
+	 * 分页查询所有数据（用于初始化数据）
+	 *
+	 * @param query
+	 * @return
+	 */
+	List<WorkStationGrid> queryAllByPage(WorkStationGridQuery query);
 }

@@ -80,4 +80,22 @@ public class PositionQueryJsfServiceImpl implements PositionQueryJsfService {
         }
         return result;
     }
+
+    @Override
+    public void syncAllData() {
+        try {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        positionRecordService.syncAllData();
+                    }catch (Exception e){
+                        logger.error("同步历史数据异常!", e);
+                    }
+                }
+            }).start();
+        }catch (Exception e){
+            logger.error("同步历史数据异常!", e);
+        }
+    }
 }

@@ -79,4 +79,11 @@ public interface PositionRecordService {
      * @return
      */
 	JdCResponse<PositionData> queryPositionData(String positionCode);
+
+    /**
+     * 同步所有数据
+     *
+     * @return
+     */
+    void syncAllData();
 }
