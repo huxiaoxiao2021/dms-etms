@@ -37,4 +37,11 @@ public interface PositionQueryJsfService {
      * @return
      */
     Result<Boolean> updateByPositionCode(PositionRecord positionRecord);
+
+    /**
+     * 同步全量数据
+     *
+     * @return
+     */
+    void syncAllData();
 }

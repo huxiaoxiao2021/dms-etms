@@ -71,4 +71,11 @@ public interface PositionRecordService {
      * @return
      */
     Result<Long> queryCountByCondition(PositionQuery query);
+
+    /**
+     * 同步所有数据
+     *
+     * @return
+     */
+    void syncAllData();
 }
