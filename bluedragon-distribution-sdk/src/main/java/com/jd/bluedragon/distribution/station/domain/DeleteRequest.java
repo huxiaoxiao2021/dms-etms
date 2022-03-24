@@ -13,6 +13,10 @@ public class DeleteRequest<T> implements Serializable{
 	
 	private static final long serialVersionUID = 1L;
 	/**
+	 * 操作人站点
+	 */
+	private Integer operateSiteCode;
+	/**
 	 * 操作人编码
 	 */
 	private String operateUserCode;
@@ -29,6 +33,12 @@ public class DeleteRequest<T> implements Serializable{
 	 */
 	private List<T> dataList;
 	
+	public Integer getOperateSiteCode() {
+		return operateSiteCode;
+	}
+	public void setOperateSiteCode(Integer operateSiteCode) {
+		this.operateSiteCode = operateSiteCode;
+	}
 	public String getOperateUserCode() {
 		return operateUserCode;
 	}

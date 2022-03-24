@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -354,6 +355,11 @@ public class WorkStationAttendPlanServiceImpl implements WorkStationAttendPlanSe
 		if(CollectionUtils.isEmpty(oldDataList)
 				|| oldDataList.size() < deleteRequest.getDataList().size()) {
 			return result.toFail("参数错误，数据已变更请刷新列表后重新选择！");
+		}
+		for(WorkStationAttendPlan oldData : oldDataList) {
+			if(!ObjectUtils.equals(oldData.getSiteCode(), deleteRequest.getOperateSiteCode())) {
+				return result.toFail("网格计划【"+oldData.getPlanName()+ "】非本人所在场地数据，无法删除！");
+			}
 		}
 		result.setData(workStationAttendPlanDao.deleteByIds(deleteRequest) > 0);
 		return result;
