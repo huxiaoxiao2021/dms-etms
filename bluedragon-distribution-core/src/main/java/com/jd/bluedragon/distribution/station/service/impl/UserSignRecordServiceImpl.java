@@ -465,7 +465,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		//校验岗位码,并获取网格信息
 		JdCResponse<WorkStationGrid> gridResult = this.checkAndGetWorkStationGrid(signInRequest);
 		if(!gridResult.isSucceed()) {
-			result.setMessage(gridResult.getMessage());
+			result.toFail(gridResult.getMessage());
 			return result;
 		}
 		//校验并组装签到数据
@@ -534,7 +534,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		//校验岗位码,并获取网格信息
 		JdCResponse<WorkStationGrid> gridResult = this.checkAndGetWorkStationGrid(userSignRequest);
 		if(!gridResult.isSucceed()) {
-			result.setMessage(gridResult.getMessage());
+			result.toFail(gridResult.getMessage());
 			return result;
 		}
 		WorkStationGrid gridInfo = gridResult.getData();
