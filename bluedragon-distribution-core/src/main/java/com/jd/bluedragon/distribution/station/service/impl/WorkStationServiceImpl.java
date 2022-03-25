@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.lucene.util.CollectionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 import com.jd.bluedragon.core.objectid.IGenerateObjectId;
 import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.station.dao.WorkStationDao;
+import com.jd.bluedragon.distribution.station.domain.DeleteRequest;
 import com.jd.bluedragon.distribution.station.domain.WorkStation;
 import com.jd.bluedragon.distribution.station.domain.WorkStationCountVo;
 import com.jd.bluedragon.distribution.station.query.WorkStationQuery;
@@ -289,5 +291,45 @@ public class WorkStationServiceImpl implements WorkStationService {
 		if(data != null) {
 			data.setBusinessKey(DmsConstants.CODE_PREFIX_WORK_STATION.concat(StringHelper.padZero(this.genObjectId.getObjectId(WorkStation.class.getName()),11)));
 		}
+	}
+	@Override
+	public Result<Boolean> deleteByIds(DeleteRequest<WorkStation> deleteRequest) {
+		Result<Boolean> result = Result.success();
+		if(deleteRequest == null
+				|| CollectionUtils.isEmpty(deleteRequest.getDataList())) {
+			return result.toFail("参数错误，删除列表不能为空！");
+		}
+		List<WorkStation> oldDataList = workStationDao.queryByIds(deleteRequest);
+		if(CollectionUtils.isEmpty(oldDataList)
+				|| oldDataList.size() < deleteRequest.getDataList().size()) {
+			return result.toFail("参数错误，数据已变更请刷新列表后重新选择！");
+		}
+		for(WorkStation oldData : oldDataList) {
+			if(workStationGridService.hasGridData(oldData.getBusinessKey())) {
+				return result.toFail("工序【"+oldData.getWorkName()+ "】存在场地网格记录，无法删除！");
+			}
+		}
+		result.setData(workStationDao.deleteByIds(deleteRequest) > 0);
+		return result;
+	}
+	@Override
+	public Result<Long> queryCount(WorkStationQuery query) {
+		Result<Long> result = Result.success();
+		Result<Boolean> checkResult = this.checkParamForQueryPageList(query);
+		if(!checkResult.isSuccess()){
+		    return Result.fail(checkResult.getMessage());
+		}
+		result.setData(workStationDao.queryCount(query));
+		return result;
+	}
+	@Override
+	public Result<List<WorkStation>> queryListForExport(WorkStationQuery query) {
+		Result<List<WorkStation>> result = Result.success();
+		Result<Boolean> checkResult = this.checkParamForQueryPageList(query);
+		if(!checkResult.isSuccess()){
+		    return Result.fail(checkResult.getMessage());
+		}
+		result.setData(workStationDao.queryListForExport(query));
+		return result;
 	}
 }

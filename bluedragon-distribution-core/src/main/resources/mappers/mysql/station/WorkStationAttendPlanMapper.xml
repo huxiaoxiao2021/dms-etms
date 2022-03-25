@@ -304,7 +304,16 @@
             limit #{offset}, #{limit}
         </if>		
 	</select>
-
+	<select id="queryListForExport" parameterType="com.jd.bluedragon.distribution.station.query.WorkStationAttendPlanQuery" resultMap="WorkStationAttendPlan">
+		select
+			<include refid="Base_Column_List"/>
+		from
+			work_station_attend_plan p
+		<include refid="joinSql"/>
+		<include refid="queryCondition"/>
+		order by p.id 
+        limit #{offset}, #{limit}
+	</select>
 	<select id="queryCount" parameterType="com.jd.bluedragon.distribution.station.query.WorkStationAttendPlanQuery" resultType="long">
 		select
 			count(1)
@@ -345,5 +354,35 @@
 		</if>		
 		</where>
 	</sql>
-
+	<select id="queryByIds" parameterType="com.jd.bluedragon.distribution.station.domain.DeleteRequest" resultMap="WorkStationAttendPlan">
+		select
+			<include refid="Base_Column_List"/>
+		from
+			work_station_attend_plan p
+		<include refid="joinSql"/>
+		where p.yn = 1
+		 	and p.id in
+		<foreach collection="dataList" item="item" open="(" close=")" separator=",">
+			#{item.id,jdbcType=BIGINT}
+		</foreach>
+	</select>	
+	<update id="deleteByIds" parameterType="com.jd.bluedragon.distribution.station.domain.DeleteRequest">
+		update work_station_attend_plan
+			set 
+			<if test="operateUserCode != null" >
+				update_user = #{operateUserCode,jdbcType=VARCHAR},
+			</if>
+			<if test="operateUserName != null" >
+				update_user_name = #{operateUserName,jdbcType=VARCHAR},
+			</if>			
+			<if test="operateTime != null" >
+				update_time = #{operateTime,jdbcType=TIMESTAMP},
+			</if>
+			   yn = 0
+		where yn = 1
+		 	and id in
+		<foreach collection="dataList" item="item" open="(" close=")" separator=",">
+			#{item.id,jdbcType=BIGINT}
+		</foreach>		
+	</update>
 </mapper>

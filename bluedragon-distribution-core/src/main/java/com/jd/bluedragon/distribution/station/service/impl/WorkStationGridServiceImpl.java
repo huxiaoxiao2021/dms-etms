@@ -8,6 +8,8 @@ import java.util.Objects;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.ObjectUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -21,6 +23,7 @@ import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.position.domain.PositionRecord;
 import com.jd.bluedragon.distribution.position.service.PositionRecordService;
 import com.jd.bluedragon.distribution.station.dao.WorkStationGridDao;
+import com.jd.bluedragon.distribution.station.domain.DeleteRequest;
 import com.jd.bluedragon.distribution.station.domain.WorkStation;
 import com.jd.bluedragon.distribution.station.domain.WorkStationGrid;
 import com.jd.bluedragon.distribution.station.domain.WorkStationGridCountVo;
@@ -415,5 +418,53 @@ public class WorkStationGridServiceImpl implements WorkStationGridService {
 		Result<WorkStationGrid> result = Result.success();
 		result.setData(workStationGridDao.queryByGridKey(workStationGridQuery));
 		return result;
+	}
+	@Override
+	public Result<Boolean> deleteByIds(DeleteRequest<WorkStationGrid> deleteRequest) {
+		Result<Boolean> result = Result.success();
+		if(deleteRequest == null
+				|| CollectionUtils.isEmpty(deleteRequest.getDataList())) {
+			return result.toFail("参数错误，删除列表不能为空！");
+		}
+		List<WorkStationGrid> oldDataList = workStationGridDao.queryByIds(deleteRequest);
+		if(CollectionUtils.isEmpty(oldDataList)
+				|| oldDataList.size() < deleteRequest.getDataList().size()) {
+			return result.toFail("参数错误，数据已变更请刷新列表后重新选择！");
+		}
+		for(WorkStationGrid oldData : oldDataList) {
+			if(!ObjectUtils.equals(oldData.getSiteCode(), deleteRequest.getOperateSiteCode())) {
+				return result.toFail("网格【"+oldData.getGridName()+ "】非本人所在场地数据，无法删除！");
+			}
+		}
+		result.setData(workStationGridDao.deleteByIds(deleteRequest) > 0);
+		return result;
+	}
+	@Override
+	public Result<Long> queryCount(WorkStationGridQuery query) {
+		Result<Long> result = Result.success();
+		Result<Boolean> checkResult = this.checkParamForQueryPageList(query);
+		if(!checkResult.isSuccess()){
+		    return Result.fail(checkResult.getMessage());
+		}
+		result.setData(workStationGridDao.queryCount(query));
+		return result;
+	}
+	@Override
+	public Result<List<WorkStationGrid>> queryListForExport(WorkStationGridQuery query) {
+		Result<List<WorkStationGrid>> result = Result.success();
+		Result<Boolean> checkResult = this.checkParamForQueryPageList(query);
+		if(!checkResult.isSuccess()){
+		    return Result.fail(checkResult.getMessage());
+		}
+		result.setData(workStationGridDao.queryListForExport(query));
+		return result;
+	}
+	@Override
+	public List<WorkStationGrid> querySiteListByOrgCode(WorkStationGridQuery query) {
+		return workStationGridDao.querySiteListByOrgCode(query);
+	}
+	@Override
+	public List<String> queryOwnerUserErpListBySiteCode(WorkStationGridQuery query) {
+		return workStationGridDao.queryOwnerUserErpListBySiteCode(query);
 	}
 }
