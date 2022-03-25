@@ -35,7 +35,7 @@ public class MiniStoreGatewayServiceImpl implements MiniStoreGatewayService {
         Assert.assertNotNull(request);
         if (ObjectHelper.isNotNull(request.getStoreCode())) {
             Integer availableStatus = swDeviceJsfService.isDeviceUse(request.getStoreCode());
-            if (!SwDeviceStatusEnum.AVAILABLE.getCode() .equals(availableStatus)) {
+            if (!SwDeviceStatusEnum.AVAILABLE.getCode().equals(availableStatus)) {
                 return JdCResponse.errorResponse(ResponseCodeMapping.MINI_STORE_IS_NOT_AVAILABLE);
             }
             Boolean hasBeenBind = miniStoreService.validateStoreBindStatus(request.getStoreCode());
@@ -109,8 +109,8 @@ public class MiniStoreGatewayServiceImpl implements MiniStoreGatewayService {
 
     @Override
     public JdCResponse validateSortRelation(ValidateSortRelationReq validateSortRelationReq) {
-        boolean success =miniStoreService.validateSortRelation(validateSortRelationReq.getBoxCode(),validateSortRelationReq.getPackageCode());
-        if (success){
+        boolean success = miniStoreService.validateSortRelation(validateSortRelationReq.getBoxCode(), validateSortRelationReq.getPackageCode(), validateSortRelationReq.getCreateSiteCode());
+        if (success) {
             return JdCResponse.successResponse();
         }
         return JdCResponse.errorResponse(ResponseCodeMapping.NO_BIND_RELATION_BETWEEN_BOX_AND_PACKAGE);
@@ -123,6 +123,7 @@ public class MiniStoreGatewayServiceImpl implements MiniStoreGatewayService {
         deviceDto.setMiniStoreBindRelationId(unBoxReq.getMiniStoreBindRelationId());
         Boolean success = miniStoreService.updateProcessStatusAndInvaliSortRealtion(deviceDto);
         if (success) {
+            //发消息
             return JdCResponse.successResponse();
         }
         return JdCResponse.errorResponse(ResponseCodeMapping.UNKNOW_ERROR);

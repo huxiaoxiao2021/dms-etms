@@ -6,6 +6,15 @@ public class ValidateSortRelationReq implements Serializable {
     private static final long serialVersionUID = 5380129227311225455L;
     private String boxCode;
     private String packageCode;
+    private Integer  createSiteCode;
+
+    public Integer getCreateSiteCode() {
+        return createSiteCode;
+    }
+
+    public void setCreateSiteCode(Integer createSiteCode) {
+        this.createSiteCode = createSiteCode;
+    }
 
     public String getBoxCode() {
         return boxCode;

@@ -348,9 +348,9 @@
 	</select>
 
 	<update id="invaliSortRealtion">
-		update sorting set YN=0,UPDATE_TIME=now() where box_code =#{boxCode}
+		update sorting set YN=0,UPDATE_TIME=now() where box_code =#{boxCode} and create_site_code = #{createSiteCode}
 	</update>
-	<select id="findByPackageCodeAndBoxCode" resultType="java.lang.Long">
-		SELECT SORTING_ID FROM sorting WHERE PACKAGE_CODE =#{packageCode} AND BOX_CODE = #{boxCode} AND YN =1 limit 1
+	<select id="findByPackageCodeAndBoxCode" parameterType="sorting" resultType="java.lang.Long">
+		SELECT SORTING_ID FROM sorting WHERE PACKAGE_CODE =#{packageCode} AND BOX_CODE = #{boxCode} AND CREATE_SITE_CODE =#{createSiteCode} AND YN =1 limit 1
 	</select>
 </mapper>

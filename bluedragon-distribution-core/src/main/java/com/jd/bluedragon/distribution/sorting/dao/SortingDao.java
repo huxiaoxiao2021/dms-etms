@@ -136,8 +136,8 @@ public class SortingDao extends BaseDao<Sorting>  implements ISortingDao {
         return this.getSqlSession().selectList(namespace +".findPageSorting",params);
     }
 
-    public int invaliSortRealtion(String boxCode){
-        return this.getSqlSession().update(namespace +".invaliSortRealtion",boxCode);
+    public int invaliSortRealtion(Sorting sorting){
+        return this.getSqlSession().update(namespace +".invaliSortRealtion",sorting);
     }
 
     public Long findByPackageCodeAndBoxCode(Sorting sorting){

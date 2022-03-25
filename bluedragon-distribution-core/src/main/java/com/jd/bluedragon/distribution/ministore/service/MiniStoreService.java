@@ -72,5 +72,5 @@ public interface MiniStoreService {
 
     int incrSortCount(Long id,String updateUser,Long updateUserCode);
 
-    boolean validateSortRelation(String boxCode, String packageCode);
+    boolean validateSortRelation(String boxCode, String packageCode,Integer createSiteCode);
 }

@@ -15,6 +15,7 @@ import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.utils.BeanUtils;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.TimeUtils;
+import org.apache.lucene.search.Sort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -82,10 +83,14 @@ public class MiniStoreServiceImpl implements MiniStoreService {
         miniStoreBindRelation.setId(deviceDto.getMiniStoreBindRelationId());
         miniStoreBindRelation.setState(Byte.valueOf(MiniStoreProcessStatusEnum.UN_SEAL_BOX.getCode()));
         miniStoreBindRelation.setUpdateTime(new Date());
+        miniStoreBindRelation.setOccupiedFlag(false);
         try {
             r1 = miniStoreBindRelationDao.updateByPrimaryKeySelective(miniStoreBindRelation);
             if (r1 > 0) {
-                int rs = sortingDao.invaliSortRealtion(deviceDto.getBoxCode());
+                Sorting sorting =new Sorting();
+                sorting.setCreateSiteCode(deviceDto.getCreateSiteCode().intValue());
+                sorting.setBoxCode(deviceDto.getBoxCode());
+                int rs = sortingDao.invaliSortRealtion(sorting);
                 if (rs <= 0) {
                     miniStoreBindRelationDao.updateByPrimaryKeySelective(pre);
                     return false;
@@ -112,7 +117,7 @@ public class MiniStoreServiceImpl implements MiniStoreService {
             MiniStoreEvent miniStoreEvent =BeanUtils.convert(sealBoxDto,MiniStoreEvent.class);
             miniStoreEvent.setEventType(MSDeviceBindEventTypeEnum.SEAL_BOX.getCode());
             miniStoreEvent.setCreateTime(TimeUtils.date2string(new Date(),TimeUtils.yyyy_MM_dd_HH_mm_ss));
-            miniStoreSealBoxProducer.sendOnFailPersistent(sealBoxDto.getBoxCode(), JsonHelper.toJson(sealBoxDto));
+            miniStoreSealBoxProducer.sendOnFailPersistent(sealBoxDto.getBoxCode(), JsonHelper.toJson(miniStoreEvent));//TODO businessId
             return true;
         }
         return false;
@@ -136,6 +141,7 @@ public class MiniStoreServiceImpl implements MiniStoreService {
         miniStoreBindRelation.setUpdateTime(new Date());
         miniStoreBindRelation.setUpdateUserCode(updateUserCode);
         miniStoreBindRelation.setUpdateUser(updateUser);
+        miniStoreBindRelation.setOccupiedFlag(false);
         return miniStoreBindRelationDao.updateByPrimaryKeySelective(miniStoreBindRelation)>0;
     }
 
@@ -145,10 +151,11 @@ public class MiniStoreServiceImpl implements MiniStoreService {
     }
 
     @Override
-    public boolean validateSortRelation(String boxCode, String packageCode) {
+    public boolean validateSortRelation(String boxCode, String packageCode,Integer createSiteCode) {
         Sorting sorting =new Sorting();
         sorting.setBoxCode(boxCode);
         sorting.setPackageCode(packageCode);
+        sorting.setCreateSiteCode(createSiteCode);
         Long id =sortingDao.findByPackageCodeAndBoxCode(sorting);
         return null!=id;
     }

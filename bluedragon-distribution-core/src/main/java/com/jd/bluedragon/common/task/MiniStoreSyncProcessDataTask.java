@@ -1,6 +1,6 @@
 package com.jd.bluedragon.common.task;
 
-public class MiniStoreSyncDataTask implements Runnable {
+public class MiniStoreSyncProcessDataTask implements Runnable {
     private Integer processType;
     private String boxCode;
     private String updateUser;

@@ -83,6 +83,7 @@ public class MiniStoreTest {
         DeviceDto deviceDto = new DeviceDto();
         deviceDto.setMiniStoreBindRelationId(2L);
         deviceDto.setBoxCode("JDVF00001693352-7-15-");
+        deviceDto.setCreateSiteCode(910L);
         Boolean r = miniStoreService.updateProcessStatusAndInvaliSortRealtion(deviceDto);
         System.out.println("解封箱结果：" + r);
     }
@@ -104,7 +105,7 @@ public class MiniStoreTest {
 
     @Test
     public void validateSortRelationTest() {
-        boolean rs =miniStoreService.validateSortRelation("BC1001191120330000012905","JDV000049314581-1-0-");
+        boolean rs =miniStoreService.validateSortRelation("BC1001191120330000012905","JDV000049314581-1-0-",10512);
         System.out.println("集包关系校验：" +rs);
     }
 }
