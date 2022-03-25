@@ -1,22 +1,27 @@
 package com.jd.bluedragon.common.task;
 
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
-import com.jd.bluedragon.distribution.ministore.dao.MiniStoreBindRelationDao;
 import com.jd.bluedragon.distribution.ministore.domain.MiniStoreBindRelation;
-import com.jd.bluedragon.distribution.ministore.dto.MiniStoreEvent;
+import com.jd.bluedragon.distribution.ministore.dto.MiniStoreBindRelationEvent;
 import com.jd.bluedragon.distribution.ministore.enums.MSDeviceBindEventTypeEnum;
 import com.jd.bluedragon.distribution.ministore.service.MiniStoreService;
-import com.jd.bluedragon.distribution.sorting.dao.SortingDao;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.TimeUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * 给上下游系统（保温箱、终端、仓储等）同步微仓绑定关系数据
+ */
 public class MiniStoreSyncBindRelationTask implements Runnable {
+    private static final Logger logger = LoggerFactory.getLogger(MiniStoreSyncBindRelationTask.class);
+
     private MSDeviceBindEventTypeEnum type;
     private Long miniStoreBindRelationId;
     private DefaultJMQProducer miniStoreSealBoxProducer;
@@ -53,7 +58,7 @@ public class MiniStoreSyncBindRelationTask implements Runnable {
         iceBoardCodes.add(miniStoreBindRelation.getIceBoardCode2());
 
         //封装消息体
-        MiniStoreEvent miniStoreEvent = new MiniStoreEvent();
+        MiniStoreBindRelationEvent miniStoreEvent = new MiniStoreBindRelationEvent();
         miniStoreEvent.setPackageCodes(packageCodes);
         miniStoreEvent.setIceBoardCodes(iceBoardCodes);
         miniStoreEvent.setEventType(type.getCode());

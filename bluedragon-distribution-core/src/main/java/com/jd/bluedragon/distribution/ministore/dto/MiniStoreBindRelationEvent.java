@@ -2,7 +2,7 @@ package com.jd.bluedragon.distribution.ministore.dto;
 
 import java.util.List;
 
-public class MiniStoreEvent{
+public class MiniStoreBindRelationEvent {
     private Integer eventType;
     private String storeCode;
     private String boxCode;
