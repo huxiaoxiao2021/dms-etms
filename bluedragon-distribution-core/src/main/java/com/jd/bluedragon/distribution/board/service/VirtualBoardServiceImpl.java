@@ -411,7 +411,7 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
                     }
                 }
                 // 校验循环集包袋
-                if (isBoxCode){
+                if (isBoxCode&&bindToVirtualBoardPo.getSiteCode()!=null&&bindToVirtualBoardPo.getOperateType()!=null){
                     final Box box = boxService.findBoxByCode(bindToVirtualBoardPo.getBarCode());
                     if (!validationAndCheck(bindToVirtualBoardPo.getBarCode(),bindToVirtualBoardPo.getOperateType(),bindToVirtualBoardPo.getSiteCode(),box)){
                         result.setCode(BoxResponse.CODE_BC_BOX_NO_BINDING);
@@ -475,6 +475,7 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
         }
         return true;
     }
+
     /**
      * true 绑定了  false 未绑定
      * @param materialCode
