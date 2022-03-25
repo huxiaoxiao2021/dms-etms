@@ -45,7 +45,7 @@ public class B2bWaybillScheduleMqListenerTestCase {
     @Test
     public void testConsume() throws Exception{
     	Message message = new Message();
-    	String text = "{\"siteNodeCode\":\"010A210\"," +
+    	String text = "{\"siteNodeCode\":\"010H002\"," +
 				"\"boxCount\":1," +
 				"\"carrierName\":\"小松鼠合伙人\"," +
 				"\"scheduleTime\":1627014451000," +
