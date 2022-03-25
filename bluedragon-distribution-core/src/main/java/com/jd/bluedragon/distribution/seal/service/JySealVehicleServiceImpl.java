@@ -6,13 +6,11 @@ import com.jd.bluedragon.common.dto.operation.workbench.unseal.request.SealTaskI
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.request.SealVehicleTaskRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.*;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.IJySealVehicleManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
-import com.jd.bluedragon.utils.BeanCopyUtil;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.ValueNameEnumUtils;
@@ -26,13 +24,11 @@ import com.jdl.jy.realtime.enums.seal.LineTypeEnum;
 import com.jdl.jy.realtime.enums.seal.VehicleStatusEnum;
 import com.jdl.jy.realtime.model.es.seal.SealCarMonitor;
 import com.jdl.jy.realtime.model.query.seal.SealVehicleTaskQuery;
-import com.netflix.hystrix.HystrixCommandGroupKey;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixProperty;
 import com.netflix.hystrix.contrib.javanica.conf.HystrixPropertiesManager;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.poi.hssf.record.formula.functions.T;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +40,7 @@ import org.springframework.util.StopWatch;
 import java.util.*;
 
 /**
+ *
  * @ClassName JySealVehicleServiceImpl
  * @Description
  * @Author wyh
@@ -227,9 +224,9 @@ public class JySealVehicleServiceImpl implements IJySealVehicleService {
             if (throwable != null) {
                 log.error("获取解封车任务进入降级逻辑. request:{}", JsonHelper.toJson(request), throwable);
                 msgConcat.append("异常信息:[").append(throwable.getMessage()).append("]");
-            }
 
-            Profiler.businessAlarm("dms.web.IJySealVehicleService.fallback", msgConcat.toString());
+                Profiler.businessAlarm("dms.web.IJySealVehicleService.fallback", msgConcat.toString());
+            }
 
             SealCarDto sealCarQuery = getSealCarDto(request);
             PageDto<SealCarDto> queryPageDto = getSealCarDtoPageDto(request.getPageNumber(), request.getPageSize());
@@ -272,7 +269,7 @@ public class JySealVehicleServiceImpl implements IJySealVehicleService {
         List<SealCarDto> filterList = new ArrayList<>();
         if (isSearch(request)) {
             for (SealCarDto sealCar : pageDto.getResult()) {
-                if (filterBySealCode(request, sealCar) || filterByVehicleNumber(request, sealCar)) {
+                if (filterBySealCode(request.getBarCode(), sealCar) || filterByVehicleNumber(request.getBarCode(), sealCar)) {
                     filterList.add(sealCar);
                 }
             }
@@ -296,28 +293,50 @@ public class JySealVehicleServiceImpl implements IJySealVehicleService {
      */
     private List<String> getSealCarCodeFromVos(InvokeResult<SealVehicleTaskResponse> result, SealVehicleTaskRequest request) {
         SealCarDto sealCarQuery = getSealCarDto(request);
-        Integer pageNumber = 1;
-        Integer pageSize = 1000; // TODO 根据封签号查询封车编码，暂时查询所有待封车数据。
-        PageDto<SealCarDto> queryPageDto = getSealCarDtoPageDto(pageNumber, pageSize);
-        PageDto<SealCarDto> pageDto = getSealTaskFromVos(result, sealCarQuery, queryPageDto);
-        if (!result.codeSuccess()) {
-            return null;
-        }
-        List<SealCarDto> filterList = new ArrayList<>();
-        for (SealCarDto sealCar : pageDto.getResult()) {
-            if (filterBySealCode(request, sealCar)) {
-                filterList.add(sealCar);
-            }
-        }
-        if (CollectionUtils.isEmpty(filterList)) {
+
+        List<String> sealCarCodeList = getSealTaskFromVosUsingScroll(request, sealCarQuery);
+        if (CollectionUtils.isEmpty(sealCarCodeList)) {
             result.error("该封签号没有待解封车任务");
             return null;
         }
 
+        return sealCarCodeList;
+    }
+
+    /**
+     * 滚动查询运输接口，获取封车编码
+     * @param request
+     * @param queryDto
+     * @return
+     */
+    private List<String> getSealTaskFromVosUsingScroll(SealVehicleTaskRequest request, SealCarDto queryDto) {
         Set<String> sealCarCodeSet = new HashSet<>();
-        for (SealCarDto sealCarDto : filterList) {
-            sealCarCodeSet.add(sealCarDto.getSealCarCode());
-        }
+
+        int pageNumber = 1, pageSize = 100;
+        PageDto<SealCarDto> sealTaskFromVos;
+        boolean findSealCarCode = false;
+        InvokeResult<Boolean> invokeResult = new InvokeResult<>();
+        do {
+            PageDto<SealCarDto> queryPageDto = getSealCarDtoPageDto(pageNumber, pageSize);
+            sealTaskFromVos = getSealTaskFromVos(invokeResult, queryDto, queryPageDto);
+
+            if (sealTaskFromVos != null && CollectionUtils.isNotEmpty(sealTaskFromVos.getResult())) {
+
+                pageNumber ++;
+
+                for (SealCarDto sealCarDto : sealTaskFromVos.getResult()) {
+                    if (filterBySealCode(request.getBarCode(), sealCarDto)) {
+                        sealCarCodeSet.add(sealCarDto.getSealCarCode());
+
+                        if (log.isInfoEnabled()) {
+                            log.info("根据封签号{}从运输获取封车编码{}.", JsonHelper.toJson(request), sealCarCodeSet);
+                        }
+
+                        findSealCarCode = true;
+                    }
+                }
+            }
+        } while (sealTaskFromVos != null && CollectionUtils.isNotEmpty(sealTaskFromVos.getResult()) && !findSealCarCode);
 
         return new ArrayList<>(sealCarCodeSet);
     }
@@ -353,27 +372,29 @@ public class JySealVehicleServiceImpl implements IJySealVehicleService {
             invokeResult.error("服务器异常，请联系分拣小秘！");
         }
 
+        log.warn("查询运输接口获取解封车任务失败. sealCarDto:{}-{}, response:{}", JsonHelper.toJson(sealCarDto), JsonHelper.toJson(pageDto), JsonHelper.toJson(invokeResult));
+
         return null;
     }
 
     /**
      * 按搜索条件过滤封车任务
-     * @param request
+     * @param barCode
      * @param sealCar
      * @return
      */
-    private boolean filterBySealCode(SealVehicleTaskRequest request, SealCarDto sealCar) {
-        if (CollectionUtils.isNotEmpty(sealCar.getSealCodes()) && sealCar.getSealCodes().contains(request.getBarCode())) {
+    private boolean filterBySealCode(String barCode, SealCarDto sealCar) {
+        if (CollectionUtils.isNotEmpty(sealCar.getSealCodes()) && sealCar.getSealCodes().contains(barCode)) {
             return true;
         }
 
         return false;
     }
 
-    private boolean filterByVehicleNumber(SealVehicleTaskRequest request, SealCarDto sealCar) {
-        if (!BusinessUtil.isSealBoxNo(request.getBarCode())) {
+    private boolean filterByVehicleNumber(String barCode, SealCarDto sealCar) {
+        if (!BusinessUtil.isSealBoxNo(barCode)) {
             if (StringUtils.isNotBlank(sealCar.getVehicleNumber())
-                    && sealCar.getVehicleNumber().length() > 4 && request.getBarCode().equals(StringUtils.substring(sealCar.getVehicleNumber(), - 4))) {
+                    && sealCar.getVehicleNumber().length() > 4 && barCode.equals(StringUtils.substring(sealCar.getVehicleNumber(), - 4))) {
                 return true;
             }
         }
