@@ -38,7 +38,6 @@ public class B2bWaybillScheduleMq implements Serializable {
 	 * 企配仓网点编码
 	 */
 	private String siteNodeCode;
-	private String beginNodeCode;
 
 	/**
 	 * 调度时间
