@@ -22,7 +22,7 @@ public interface MiniStoreService {
      * 查询设备（三码）绑定状态
      * true 绑定状态 false 未绑定
      */
-    @DataSources(DynamicDataSourceType.DMS_UNDIV_SLAVE)
+    @DataSources(DynamicDataSourceType.DMS_UNDIV_MAIN)
     Boolean validatDeviceBindStatus(DeviceDto deviceDto);
 
     /**
@@ -49,7 +49,6 @@ public interface MiniStoreService {
      * @param deviceDto
      * @return true绑定成功 false绑定失败
      */
-    @DataSources(DynamicDataSourceType.DMS_UNDIV_MAIN)
     Boolean bindMiniStoreDevice(DeviceDto deviceDto);
 
     /**
@@ -57,6 +56,7 @@ public interface MiniStoreService {
      * @param deviceDto
      * @return
      */
+    @DataSources(DynamicDataSourceType.DMS_UNDIV_SLAVE)
     MiniStoreBindRelation selectBindRelation(DeviceDto deviceDto);
 
 
@@ -64,6 +64,7 @@ public interface MiniStoreService {
 
     Boolean updateProcessStatusAndSyncMsg(SealBoxDto sealBoxDto);
 
+    @DataSources(DynamicDataSourceType.DMS_UNDIV_SLAVE)
     List<MiniStoreBindRelation> queryBindAndNoSortTaskList(QueryTaskDto queryTaskDto);
 
     Integer queryMiniStoreSortCount();
@@ -73,4 +74,8 @@ public interface MiniStoreService {
     int incrSortCount(Long id,String updateUser,Long updateUserCode);
 
     boolean validateSortRelation(String boxCode, String packageCode,Integer createSiteCode);
+
+    int invaliSortRealtion(String boxCode,Long createSiteCode);
+
+    MiniStoreBindRelation selectById(Long id);
 }

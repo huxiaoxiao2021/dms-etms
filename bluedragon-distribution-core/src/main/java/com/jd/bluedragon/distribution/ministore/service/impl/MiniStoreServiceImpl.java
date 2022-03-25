@@ -4,22 +4,17 @@ import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.ministore.dao.MiniStoreBindRelationDao;
 import com.jd.bluedragon.distribution.ministore.domain.MiniStoreBindRelation;
 import com.jd.bluedragon.distribution.ministore.dto.DeviceDto;
-import com.jd.bluedragon.distribution.ministore.dto.MiniStoreEvent;
 import com.jd.bluedragon.distribution.ministore.dto.QueryTaskDto;
 import com.jd.bluedragon.distribution.ministore.dto.SealBoxDto;
-import com.jd.bluedragon.distribution.ministore.enums.MSDeviceBindEventTypeEnum;
 import com.jd.bluedragon.distribution.ministore.enums.MiniStoreProcessStatusEnum;
 import com.jd.bluedragon.distribution.ministore.service.MiniStoreService;
 import com.jd.bluedragon.distribution.sorting.dao.SortingDao;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.utils.BeanUtils;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.TimeUtils;
-import org.apache.lucene.search.Sort;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -32,9 +27,8 @@ public class MiniStoreServiceImpl implements MiniStoreService {
     MiniStoreBindRelationDao miniStoreBindRelationDao;
     @Autowired
     SortingDao sortingDao;
-    //@Autowired
-    //@Qualifier("miniStoreSealBoxProducer")
-    private DefaultJMQProducer miniStoreSealBoxProducer;
+    @Autowired
+    ThreadPoolTaskExecutor taskExecutor;
 
     @Override
     public Boolean validatDeviceBindStatus(DeviceDto deviceDto) {
@@ -77,20 +71,20 @@ public class MiniStoreServiceImpl implements MiniStoreService {
     @Override
     public Boolean updateProcessStatusAndInvaliSortRealtion(DeviceDto deviceDto) {
         int r1 = 0;
+        //保存镜像-回滚使用
         MiniStoreBindRelation pre = miniStoreBindRelationDao.selectByPrimaryKey(deviceDto.getMiniStoreBindRelationId());
 
         MiniStoreBindRelation miniStoreBindRelation = new MiniStoreBindRelation();
         miniStoreBindRelation.setId(deviceDto.getMiniStoreBindRelationId());
         miniStoreBindRelation.setState(Byte.valueOf(MiniStoreProcessStatusEnum.UN_SEAL_BOX.getCode()));
+        miniStoreBindRelation.setUpdateUser(deviceDto.getUpdateUser());
+        miniStoreBindRelation.setUpdateUserCode(deviceDto.getUpdateUserCode());
         miniStoreBindRelation.setUpdateTime(new Date());
         miniStoreBindRelation.setOccupiedFlag(false);
         try {
             r1 = miniStoreBindRelationDao.updateByPrimaryKeySelective(miniStoreBindRelation);
             if (r1 > 0) {
-                Sorting sorting =new Sorting();
-                sorting.setCreateSiteCode(deviceDto.getCreateSiteCode().intValue());
-                sorting.setBoxCode(deviceDto.getBoxCode());
-                int rs = sortingDao.invaliSortRealtion(sorting);
+                int rs = invaliSortRealtion(deviceDto.getBoxCode(),deviceDto.getCreateSiteCode());
                 if (rs <= 0) {
                     miniStoreBindRelationDao.updateByPrimaryKeySelective(pre);
                     return false;
@@ -112,15 +106,7 @@ public class MiniStoreServiceImpl implements MiniStoreService {
         miniStoreBindRelation.setId(sealBoxDto.getMiniStoreBindRelationId());
         miniStoreBindRelation.setState(Byte.valueOf(MiniStoreProcessStatusEnum.SEAL_BOX.getCode()));
         miniStoreBindRelation.setUpdateTime(new Date());
-        int rs = miniStoreBindRelationDao.updateByPrimaryKeySelective(miniStoreBindRelation);
-        if (rs > 0) {
-            MiniStoreEvent miniStoreEvent =BeanUtils.convert(sealBoxDto,MiniStoreEvent.class);
-            miniStoreEvent.setEventType(MSDeviceBindEventTypeEnum.SEAL_BOX.getCode());
-            miniStoreEvent.setCreateTime(TimeUtils.date2string(new Date(),TimeUtils.yyyy_MM_dd_HH_mm_ss));
-            miniStoreSealBoxProducer.sendOnFailPersistent(sealBoxDto.getBoxCode(), JsonHelper.toJson(miniStoreEvent));//TODO businessId
-            return true;
-        }
-        return false;
+        return miniStoreBindRelationDao.updateByPrimaryKeySelective(miniStoreBindRelation)>0;
     }
 
     @Override
@@ -158,5 +144,18 @@ public class MiniStoreServiceImpl implements MiniStoreService {
         sorting.setCreateSiteCode(createSiteCode);
         Long id =sortingDao.findByPackageCodeAndBoxCode(sorting);
         return null!=id;
+    }
+
+    @Override
+    public int invaliSortRealtion(String boxCode, Long createSiteCode) {
+        Sorting sorting =new Sorting();
+        sorting.setCreateSiteCode(createSiteCode.intValue());
+        sorting.setBoxCode(boxCode);
+        return sortingDao.invaliSortRealtion(sorting);
+    }
+
+    @Override
+    public MiniStoreBindRelation selectById(Long id) {
+        return miniStoreBindRelationDao.selectByPrimaryKey(id);
     }
 }

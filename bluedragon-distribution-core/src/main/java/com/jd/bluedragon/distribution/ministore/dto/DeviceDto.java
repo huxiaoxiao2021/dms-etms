@@ -13,11 +13,29 @@ public class DeviceDto {
     private Date endTime;
     private String createUser;
     private Long createUserCode;
+    private String updateUser;
+    private Long updateUserCode;
     private Long createSiteCode;
     private String createSiteName;
     private Long receiveSiteCode;
     private String receiveSiteName;
     private Long miniStoreBindRelationId;//绑定关系id
+
+    public String getUpdateUser() {
+        return updateUser;
+    }
+
+    public void setUpdateUser(String updateUser) {
+        this.updateUser = updateUser;
+    }
+
+    public Long getUpdateUserCode() {
+        return updateUserCode;
+    }
+
+    public void setUpdateUserCode(Long updateUserCode) {
+        this.updateUserCode = updateUserCode;
+    }
 
     public Long getMiniStoreBindRelationId() {
         return miniStoreBindRelationId;

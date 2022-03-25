@@ -6,11 +6,15 @@ import com.jd.bluedragon.common.UnifiedExceptionProcess;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.ResponseCodeMapping;
 import com.jd.bluedragon.common.dto.ministore.*;
+import com.jd.bluedragon.common.task.MiniStoreSyncBindRelationTask;
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.ministore.domain.MiniStoreBindRelation;
 import com.jd.bluedragon.distribution.ministore.dto.DeviceDto;
 import com.jd.bluedragon.distribution.ministore.dto.QueryTaskDto;
 import com.jd.bluedragon.distribution.ministore.dto.SealBoxDto;
+import com.jd.bluedragon.distribution.ministore.enums.MSDeviceBindEventTypeEnum;
 import com.jd.bluedragon.distribution.ministore.service.MiniStoreService;
+import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.enums.SwDeviceStatusEnum;
 import com.jd.bluedragon.external.gateway.service.MiniStoreGatewayService;
 import com.jd.bluedragon.utils.BeanUtils;
@@ -18,6 +22,8 @@ import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.cmp.jsf.SwDeviceJsfService;
 import com.jd.jddl.common.utils.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import java.util.List;
 
@@ -28,6 +34,13 @@ public class MiniStoreGatewayServiceImpl implements MiniStoreGatewayService {
     MiniStoreService miniStoreService;
     @Autowired
     SwDeviceJsfService swDeviceJsfService;
+    @Autowired
+    ThreadPoolTaskExecutor taskExecutor;
+    @Autowired
+    SortingService sortingService;
+    @Autowired
+    @Qualifier("miniStoreSealBoxProducer")
+    private DefaultJMQProducer miniStoreSealBoxProducer;
 
     @Override
     public JdCResponse validateDeviceStatus(DeviceStatusValidateReq request) {
@@ -81,6 +94,8 @@ public class MiniStoreGatewayServiceImpl implements MiniStoreGatewayService {
         SealBoxDto sealBoxDto = BeanUtils.copy(sealBoxReq, SealBoxDto.class);
         Boolean success = miniStoreService.updateProcessStatusAndSyncMsg(sealBoxDto);
         if (success) {
+            MiniStoreSyncBindRelationTask task = new MiniStoreSyncBindRelationTask(MSDeviceBindEventTypeEnum.SEAL_BOX, sealBoxDto.getMiniStoreBindRelationId(), miniStoreSealBoxProducer, miniStoreService, sortingService);
+            taskExecutor.execute(task);
             return JdCResponse.successResponse();
         }
         return JdCResponse.errorResponse(ResponseCodeMapping.UNKNOW_ERROR);
@@ -118,12 +133,11 @@ public class MiniStoreGatewayServiceImpl implements MiniStoreGatewayService {
 
     @Override
     public JdCResponse unBox(UnBoxReq unBoxReq) {
-        DeviceDto deviceDto = new DeviceDto();
-        deviceDto.setBoxCode(unBoxReq.getBoxCode());
-        deviceDto.setMiniStoreBindRelationId(unBoxReq.getMiniStoreBindRelationId());
+        DeviceDto deviceDto = BeanUtils.copy(unBoxReq, DeviceDto.class);
         Boolean success = miniStoreService.updateProcessStatusAndInvaliSortRealtion(deviceDto);
         if (success) {
-            //发消息
+            MiniStoreSyncBindRelationTask task = new MiniStoreSyncBindRelationTask(MSDeviceBindEventTypeEnum.SEAL_BOX, unBoxReq.getMiniStoreBindRelationId(), miniStoreSealBoxProducer, miniStoreService, sortingService);
+            taskExecutor.execute(task);
             return JdCResponse.successResponse();
         }
         return JdCResponse.errorResponse(ResponseCodeMapping.UNKNOW_ERROR);
