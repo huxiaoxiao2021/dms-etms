@@ -296,7 +296,9 @@ public class JySealVehicleServiceImpl implements IJySealVehicleService {
      */
     private List<String> getSealCarCodeFromVos(InvokeResult<SealVehicleTaskResponse> result, SealVehicleTaskRequest request) {
         SealCarDto sealCarQuery = getSealCarDto(request);
-        PageDto<SealCarDto> queryPageDto = getSealCarDtoPageDto(request.getPageNumber(), request.getPageSize());
+        Integer pageNumber = 1;
+        Integer pageSize = 1000; // TODO 根据封签号查询封车编码，暂时查询所有待封车数据。
+        PageDto<SealCarDto> queryPageDto = getSealCarDtoPageDto(pageNumber, pageSize);
         PageDto<SealCarDto> pageDto = getSealTaskFromVos(result, sealCarQuery, queryPageDto);
         if (!result.codeSuccess()) {
             return null;
