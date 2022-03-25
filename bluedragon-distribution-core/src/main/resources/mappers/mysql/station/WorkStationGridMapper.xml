@@ -447,6 +447,25 @@
 		    and g.floor is not null	    
 		group by g.floor
 	</select>
+	<select id="querySiteListByOrgCode" parameterType="com.jd.bluedragon.distribution.station.query.WorkStationGridQuery" resultMap="WorkStationGrid">
+		select
+			g.site_code,max(g.site_name) site_name
+		from
+			work_station_grid g
+		where g.yn = 1 
+		    and g.org_code = #{orgCode,jdbcType=INTEGER}
+		    and g.site_code is not null
+		group by g.site_code
+	</select>
+	<select id="queryOwnerUserErpListBySiteCode" parameterType="com.jd.bluedragon.distribution.station.query.WorkStationGridQuery" resultType="String">
+		select
+			distinct g.owner_user_erp
+		from
+			work_station_grid g
+		where g.yn = 1 
+		    and g.site_code = #{siteCode,jdbcType=INTEGER}
+		    and g.owner_user_erp is not null
+	</select>		
 	<select id="queryCountByRefStationKey" parameterType="java.lang.String" resultType="long">
 		select
 			count(1)

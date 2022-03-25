@@ -106,6 +106,16 @@ public interface WorkStationGridDao {
 	 */
 	long queryCountByRefStationKey(String stationKey);
 	/**
+	 * 查询有网格的站点列表
+	 * @param query
+	 */
+	List<WorkStationGrid> querySiteListByOrgCode(WorkStationGridQuery query);
+	/**
+	 * 查询erp列表
+	 * @param query
+	 */
+	List<String> queryOwnerUserErpListBySiteCode(WorkStationGridQuery query);
+	/**
 	 * 导出查询列表
 	 * @param query
 	 * @return

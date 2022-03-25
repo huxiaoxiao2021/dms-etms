@@ -126,5 +126,15 @@ public interface WorkStationGridService {
 	 * @param query
 	 * @return
 	 */
-	Result<List<WorkStationGrid>> queryListForExport(WorkStationGridQuery query);	
+	Result<List<WorkStationGrid>> queryListForExport(WorkStationGridQuery query);
+	/**
+	 * 查询有网格的站点列表
+	 * @param query
+	 */
+	List<WorkStationGrid> querySiteListByOrgCode(WorkStationGridQuery query);
+	/**
+	 * 查询erp列表
+	 * @param query
+	 */
+	List<String> queryOwnerUserErpListBySiteCode(WorkStationGridQuery query);	
 }

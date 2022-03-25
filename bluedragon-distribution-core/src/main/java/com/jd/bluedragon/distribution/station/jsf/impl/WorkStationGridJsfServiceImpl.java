@@ -118,4 +118,12 @@ public class WorkStationGridJsfServiceImpl implements WorkStationGridJsfService 
 	public Result<List<WorkStationGrid>> queryListForExport(WorkStationGridQuery query) {
 		return workStationGridService.queryListForExport(query);
 	}
+	@Override
+	public List<String> queryOwnerUserErpListBySiteCode(WorkStationGridQuery query) {
+		return workStationGridService.queryOwnerUserErpListBySiteCode(query);
+	}
+	@Override
+	public List<WorkStationGrid> querySiteListByOrgCode(WorkStationGridQuery query) {
+		return workStationGridService.querySiteListByOrgCode(query);
+	}
 }

@@ -406,4 +406,12 @@ public class WorkStationGridServiceImpl implements WorkStationGridService {
 		result.setData(workStationGridDao.queryListForExport(query));
 		return result;
 	}
+	@Override
+	public List<WorkStationGrid> querySiteListByOrgCode(WorkStationGridQuery query) {
+		return workStationGridDao.querySiteListByOrgCode(query);
+	}
+	@Override
+	public List<String> queryOwnerUserErpListBySiteCode(WorkStationGridQuery query) {
+		return workStationGridDao.queryOwnerUserErpListBySiteCode(query);
+	}
 }

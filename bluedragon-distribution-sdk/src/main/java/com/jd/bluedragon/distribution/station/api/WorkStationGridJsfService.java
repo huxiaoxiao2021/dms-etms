@@ -107,5 +107,7 @@ public interface WorkStationGridJsfService {
 	 * @param query
 	 * @return
 	 */
-	Result<List<WorkStationGrid>> queryListForExport(WorkStationGridQuery query);	
+	Result<List<WorkStationGrid>> queryListForExport(WorkStationGridQuery query);
+	List<String> queryOwnerUserErpListBySiteCode(WorkStationGridQuery query);
+	List<WorkStationGrid> querySiteListByOrgCode(WorkStationGridQuery query);	
 }

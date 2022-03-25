@@ -104,6 +104,14 @@ public class WorkStationGridDaoImpl extends BaseDao<WorkStationGrid> implements 
 		return this.getSqlSession().selectOne(NAMESPACE+".queryCountByRefStationKey",stationKey);
 	}
 	@Override
+	public List<WorkStationGrid> querySiteListByOrgCode(WorkStationGridQuery query) {
+		return this.getSqlSession().selectList(NAMESPACE+".querySiteListByOrgCode",query);
+	}
+	@Override
+	public List<String> queryOwnerUserErpListBySiteCode(WorkStationGridQuery query) {
+		return this.getSqlSession().selectList(NAMESPACE+".queryOwnerUserErpListBySiteCode",query);
+	}	
+	@Override
 	public List<WorkStationGrid> queryListForExport(WorkStationGridQuery query) {
 		return this.getSqlSession().selectList(NAMESPACE+".queryListForExport",query);
 	}
@@ -115,5 +123,4 @@ public class WorkStationGridDaoImpl extends BaseDao<WorkStationGrid> implements 
 	public int deleteByIds(DeleteRequest<WorkStationGrid> deleteRequest) {
 		return this.getSqlSession().update(NAMESPACE+".deleteByIds",deleteRequest);
 	}
-
 }
