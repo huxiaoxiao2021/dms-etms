@@ -494,7 +494,6 @@
 		where yn = 1
 		limit #{offset}, #{limit}
 	</select>
-	</select>
 	<select id="queryByIds" parameterType="com.jd.bluedragon.distribution.station.domain.DeleteRequest" resultMap="WorkStationGrid">
 		select
 			<include refid="Base_Column_List"/>
