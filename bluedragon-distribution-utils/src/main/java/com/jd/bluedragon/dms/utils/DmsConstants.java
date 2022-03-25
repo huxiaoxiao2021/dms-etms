@@ -225,6 +225,10 @@ public class DmsConstants {
      */
     public static final Pattern WARM_BOX_CODE_REGEX = Pattern.compile("^MZ[A-Z0-9]{12,14}$");
     /**
+     * （微仓）大保温箱号规则，MZ开头，总长度14到16位
+     */
+    public static final Pattern BIG_WARM_BOX_CODE_REGEX = Pattern.compile("^WCDX[0-9]{10}$");
+    /**
      * 预售异常原因-上级编码
      */
     public static final Integer QC_TYPE = 2;

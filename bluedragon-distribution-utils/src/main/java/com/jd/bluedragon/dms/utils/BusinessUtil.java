@@ -1569,7 +1569,8 @@ public class BusinessUtil {
         if (StringUtils.isEmpty(boxCode)) {
             return Boolean.FALSE;
         }
-        return DmsConstants.WARM_BOX_CODE_REGEX.matcher(boxCode.toUpperCase().trim()).matches();
+        return DmsConstants.WARM_BOX_CODE_REGEX.matcher(boxCode.toUpperCase().trim()).matches() ||
+                BIG_WARM_BOX_CODE_REGEX.matcher(boxCode.toUpperCase().trim()).matches();
     }
 
     /**
@@ -2224,4 +2225,7 @@ public class BusinessUtil {
 
     }
 
+    public static void main(String[] args) {
+        System.out.println(BIG_WARM_BOX_CODE_REGEX.matcher("WCDX1234567890").matches());
+    }
 }
