@@ -30,6 +30,7 @@ public enum DeskClientMenuEnum {
     KY_PRINT("0601023", "跨越航空签打印"),
     BOARD_PRINT("0601024", "板标打印"),
     RECEIVE_STORAGE_PRINT("0601025", "收纳暂存打印"),
+    RECYCLE_BASKET_PRINT("0601026", "周转筐标签打印"),
 
     // 清单打印
     SEND_HANDOVER_LIST_ALL("0602001", "发货交接清单（全部）"),
