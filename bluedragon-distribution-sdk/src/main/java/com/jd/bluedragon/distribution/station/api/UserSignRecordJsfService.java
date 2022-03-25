@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.station.api;
 import java.util.List;
 
 import com.jd.bluedragon.distribution.api.response.base.Result;
+import com.jd.bluedragon.distribution.station.domain.UserSignNoticeVo;
 import com.jd.bluedragon.distribution.station.domain.UserSignRecord;
 import com.jd.bluedragon.distribution.station.domain.UserSignRecordReportSumVo;
 import com.jd.bluedragon.distribution.station.domain.UserSignRecordReportVo;
@@ -91,4 +92,6 @@ public interface UserSignRecordJsfService {
 	 * @return
 	 */
 	Result<List<UserSignRecord>> queryListForExport(UserSignRecordQuery query);
+	
+	Result<UserSignNoticeVo> queryUserSignRecordToNoticeVo(UserSignRecordQuery query);
 }

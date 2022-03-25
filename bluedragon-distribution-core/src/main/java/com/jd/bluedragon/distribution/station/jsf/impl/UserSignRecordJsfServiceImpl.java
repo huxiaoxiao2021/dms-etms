@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.station.api.UserSignRecordJsfService;
+import com.jd.bluedragon.distribution.station.domain.UserSignNoticeVo;
 import com.jd.bluedragon.distribution.station.domain.UserSignRecord;
 import com.jd.bluedragon.distribution.station.domain.UserSignRecordReportSumVo;
 import com.jd.bluedragon.distribution.station.domain.UserSignRecordReportVo;
@@ -100,6 +101,10 @@ public class UserSignRecordJsfServiceImpl implements UserSignRecordJsfService {
 	@Override
 	public Result<List<UserSignRecord>> queryListForExport(UserSignRecordQuery query) {
 		return userSignRecordService.queryListForExport(query);
+	}
+	@Override
+	public Result<UserSignNoticeVo> queryUserSignRecordToNoticeVo(UserSignRecordQuery query) {
+		return userSignRecordService.queryUserSignRecordToNoticeVo(query);
 	}
 
 }
