@@ -103,13 +103,7 @@ public abstract class AbstractBaseUserService implements LoginService {
         if (response.getCode().equals(JdResponse.CODE_OK)) {
             this.bindSite2LoginUser(response);
         }
-        String sysconfRunningMode = response.getDmsClientConfigInfo()!= null?response.getDmsClientConfigInfo().getRunningMode():"";
-        if(runningMode.contains(RUNNING_MODE_UAT) && !Objects.equals(runningMode,sysconfRunningMode)){
-            response.setCode(JdResponse.CODE_WRONG_STATUS);
-            String msg = String.format("当前登录账号[%s]不支持[%s]登录,请尝试在登录首页右上角修改正式环境再登录！",request.getErpAccount(),runningMode);
-            response.setMessage(msg);
-            return response;
-        }
+
         return response;
     }
 
