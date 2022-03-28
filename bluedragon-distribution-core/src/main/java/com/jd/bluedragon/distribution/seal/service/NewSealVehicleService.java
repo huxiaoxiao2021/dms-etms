@@ -1,9 +1,11 @@
 package com.jd.bluedragon.distribution.seal.service;
 
 import com.jd.bluedragon.common.dto.blockcar.request.SealCarPreRequest;
-import com.jd.bluedragon.distribution.api.request.NewSealVehicleRequest;
-import com.jd.bluedragon.distribution.api.request.cancelSealRequest;
+import com.jd.bluedragon.distribution.api.domain.TransAbnormalTypeDto;
+import com.jd.bluedragon.distribution.api.request.*;
 import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
+import com.jd.bluedragon.distribution.api.response.SealCodesResponse;
+import com.jd.bluedragon.distribution.base.domain.DmsBaseDict;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.dms.wb.report.api.sealCar.dto.client.SealCarNotCollectedDto;
 import com.jd.dms.wb.report.api.sealCar.dto.client.SealCarNotCollectedPo;
@@ -205,4 +207,41 @@ public interface NewSealVehicleService {
      * @return 查询结果
      */
     NewSealVehicleResponse<List<SealCarNotCollectedDto>> selectPackageNotFullCollectedList(SealCarNotCollectedPo paramObj);
+
+    /**
+     * 查询待解封签信息
+     * @param request
+     * @return
+     */
+	NewSealVehicleResponse<SealCodesResponse> querySealCodes(SealCodeRequest request);
+
+    /**
+     * 执行无到货解封签
+     * @param request
+     * @return
+     */
+	NewSealVehicleResponse<String> doDeSealCodes(DeSealCodeRequest request);
+
+    /**
+     * 运输异常提报接口
+     * @param transAbnormalDto
+     * @return
+     */
+    NewSealVehicleResponse<String> createTransAbnormalStandard(TransAbnormalDto transAbnormalDto);
+
+
+    /**
+     * 获取运输异常提报类型 1031,4,1323
+     * @return
+     */
+    NewSealVehicleResponse<List<TransAbnormalTypeDto>> getTransAbnormalTypeCode();
+
+    /**
+     * 提报异常，并执行无到货解封签
+     * @see #createTransAbnormalStandard(TransAbnormalDto)
+     * @see #doDeSealCodes(DeSealCodeRequest)
+     * @return
+     */
+    NewSealVehicleResponse<String> createTransAbnormalAndDeSealCode(TransAbnormalAndDeSealRequest request);
+
 }
