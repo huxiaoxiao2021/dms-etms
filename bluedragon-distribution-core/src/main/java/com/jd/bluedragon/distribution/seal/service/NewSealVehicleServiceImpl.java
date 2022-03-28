@@ -12,20 +12,19 @@ import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.dto.blockcar.request.SealCarPreRequest;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.*;
-import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.core.base.CarrierQueryWSManager;
-import com.jd.bluedragon.core.base.VosManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.tms.TmsServiceManager;
 import com.jd.bluedragon.core.jsf.tms.TransportResource;
 import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
-import com.jd.bluedragon.distribution.api.request.NewSealVehicleRequest;
-import com.jd.bluedragon.distribution.api.request.cancelSealRequest;
+import com.jd.bluedragon.distribution.api.domain.TransAbnormalTypeDto;
+import com.jd.bluedragon.distribution.api.request.*;
 import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
 import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
+import com.jd.bluedragon.distribution.api.response.SealCodesResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
+import com.jd.bluedragon.distribution.base.domain.DmsBaseDict;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.busineCode.sendCode.service.SendCodeService;
 import com.jd.bluedragon.distribution.command.JdResult;
@@ -52,6 +51,7 @@ import com.jd.bluedragon.distribution.newseal.service.PreSealVehicleService;
 import com.jd.bluedragon.distribution.newseal.service.SealVehiclesService;
 import com.jd.bluedragon.distribution.seal.domain.BatchSendStatusChange;
 import com.jd.bluedragon.distribution.seal.domain.BatchSendStatusEnum;
+import com.jd.bluedragon.distribution.seal.manager.SealCarManager;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.service.SendDetailService;
 import com.jd.bluedragon.distribution.send.service.SendMService;
@@ -73,10 +73,11 @@ import com.jd.dms.logger.external.LogEngine;
 import com.jd.etms.vos.dto.*;
 import com.jd.etms.vos.ws.VosBusinessWS;
 import com.jd.etms.vos.ws.VosQueryWS;
-import com.alibaba.fastjson.JSONObject;
 import com.jd.jmq.common.message.Message;
-import com.jd.tms.basic.dto.TransportResourceDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.tms.basic.dto.BasicDictDto;
+import com.jd.tms.basic.dto.TransportResourceDto;
+import com.jd.tms.dtp.dto.TransAbnormalBillCreateDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections.CollectionUtils;
@@ -161,6 +162,12 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
     @Autowired
     @Qualifier(value = "batchSendStatusChangeProducer")
     private DefaultJMQProducer batchSendStatusChangeProducer;
+
+    @Autowired
+    private SealCarManager sealCarManager;
+
+    @Autowired
+    private BasicQueryWSManager basicQueryWSManager;
 
     private static final Integer UNSEAL_CAR_IN_RECIVE_AREA = 2;    //带解封的车辆在围栏里(1-是否在始发网点 2-是否在目的网点)
 
@@ -1498,7 +1505,212 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 		}
 		return result;
 	}
-	/**
+
+    @Override
+    public NewSealVehicleResponse<SealCodesResponse> querySealCodes(SealCodeRequest request) {
+	    NewSealVehicleResponse<SealCodesResponse> response = new NewSealVehicleResponse<>();
+
+	    if (null == request) {
+	        log.error("VOS封签线上化相关接口-查询待解封的封签方法, 参数为空");
+	        response.setCode(NewSealVehicleResponse.CODE_PARAM_ERROR);
+	        response.setMessage(NewSealVehicleResponse.MESSAGE_PARAM_ERROR);
+	        return response;
+        }
+	    if (StringUtils.isEmpty(request.getVehicleNumber())) {
+            log.error("VOS封签线上化相关接口-查询待解封的封签方法, 车牌号为空:{}", JsonHelper.toJson(request) );
+            response.setCode(NewSealVehicleResponse.CODE_PARAM_ERROR);
+            response.setMessage(NewSealVehicleResponse.MESSAGE_PARAM_ERROR);
+            return response;
+        }
+	    if (null == request.getDeSealSiteId()) {
+            log.error("VOS封签线上化相关接口-查询待解封的封签方法, 操作站点为空:{}", JsonHelper.toJson(request) );
+            response.setCode(NewSealVehicleResponse.CODE_PARAM_ERROR);
+            response.setMessage(NewSealVehicleResponse.MESSAGE_PARAM_ERROR);
+            return response;
+        }
+        SealCodesDto sealCodesDto = new SealCodesDto();
+	    sealCodesDto.setVehicleNumber(request.getVehicleNumber());
+	    sealCodesDto.setDesealSiteId(request.getDeSealSiteId());
+
+	    try {
+            CommonDto<SealCodesDto> sealCodesDtoCommonDto = sealCarManager.querySealCodes(sealCodesDto);
+            if (null == sealCodesDtoCommonDto) {
+                response.setCode(NewSealVehicleResponse.CODE_INTERNAL_ERROR);
+                response.setMessage(NewSealVehicleResponse.MESSAGE_SERVICE_ERROR_C);
+                return response;
+            }
+            if (sealCodesDtoCommonDto.getCode() == CommonDto.CODE_SUCCESS) {
+                response.setCode(NewSealVehicleResponse.CODE_OK);
+                response.setMessage(NewSealVehicleResponse.MESSAGE_OK);
+                response.setData(ConvertToSealCodesResponse(sealCodesDtoCommonDto.getData()));
+                return response;
+            }
+            if (sealCodesDtoCommonDto.getCode() != CommonDto.CODE_SUCCESS || null == sealCodesDtoCommonDto.getData()) {
+                response.setCode(NewSealVehicleResponse.CODE_OK_NULL);
+                response.setMessage(sealCodesDtoCommonDto.getMessage());
+                return response;
+            }
+        } catch (RuntimeException e) {
+	        log.error("VOS封签线上化相关接口-查询待解封的封签方法, 调用异常, 参数：{}", JsonHelper.toJson(request), e);
+            response.setCode(NewSealVehicleResponse.CODE_INTERNAL_ERROR);
+            response.setMessage(NewSealVehicleResponse.MESSAGE_SERVICE_ERROR_C);
+            return response;
+        }
+
+        return response;
+    }
+
+    @Override
+    public NewSealVehicleResponse<String> doDeSealCodes(DeSealCodeRequest request) {
+        NewSealVehicleResponse<String> response = new NewSealVehicleResponse<>();
+
+        if (null == request) {
+            log.error("VOS封签线上化相关接口-无货解封签方法, 参数为空");
+            response.setCode(NewSealVehicleResponse.CODE_PARAM_ERROR);
+            response.setMessage(NewSealVehicleResponse.MESSAGE_PARAM_ERROR);
+            return response;
+        }
+        if (StringUtils.isEmpty(request.getVehicleNumber())) {
+            log.error("VOS封签线上化相关接口-无货解封签方法, 车牌号为空:{}", JsonHelper.toJson(request) );
+            response.setCode(NewSealVehicleResponse.CODE_PARAM_ERROR);
+            response.setMessage(NewSealVehicleResponse.MESSAGE_PARAM_ERROR);
+            return response;
+        }
+        if (null == request.getDesealSiteId() || null == request.getDesealSiteName()
+                || null == request.getDesealUserCode() || null == request.getDesealUserName()) {
+            log.error("VOS封签线上化相关接口-无货解封签方法, 操作人信息为空:{}", JsonHelper.toJson(request) );
+            response.setCode(NewSealVehicleResponse.CODE_PARAM_ERROR);
+            response.setMessage(NewSealVehicleResponse.MESSAGE_PARAM_ERROR);
+            return response;
+        }
+
+        try {
+            CommonDto<String> sealCodesDtoCommonDto = sealCarManager.doDeSealCodes(convertToSealCodesDto(request));
+            if (null == sealCodesDtoCommonDto) {
+                response.setCode(NewSealVehicleResponse.CODE_INTERNAL_ERROR);
+                response.setMessage(NewSealVehicleResponse.MESSAGE_SERVICE_ERROR_C);
+                return response;
+            }
+            if (sealCodesDtoCommonDto.getCode() == CommonDto.CODE_SUCCESS) {
+                response.setCode(NewSealVehicleResponse.CODE_OK);
+                response.setMessage(NewSealVehicleResponse.MESSAGE_OK);
+                response.setData(sealCodesDtoCommonDto.getData());
+                return response;
+            }
+            if (sealCodesDtoCommonDto.getCode() != CommonDto.CODE_SUCCESS || null == sealCodesDtoCommonDto.getData()) {
+                response.setCode(NewSealVehicleResponse.CODE_OK_NULL);
+                response.setMessage(sealCodesDtoCommonDto.getMessage());
+                return response;
+            }
+        } catch (RuntimeException e) {
+            log.error("VOS封签线上化相关接口-无货解封签方法, 调用异常, 参数：{}", JsonHelper.toJson(request), e);
+            response.setCode(NewSealVehicleResponse.CODE_INTERNAL_ERROR);
+            response.setMessage(NewSealVehicleResponse.MESSAGE_SERVICE_ERROR_C);
+            return response;
+        }
+
+        return response;
+    }
+
+    @Override
+    public NewSealVehicleResponse<String> createTransAbnormalStandard(TransAbnormalDto transAbnormalDto) {
+        NewSealVehicleResponse<String> response = new NewSealVehicleResponse<>();
+
+        try {
+            com.jd.tms.dtp.dto.CommonDto<String> commonDto = sealCarManager
+                    .createTransAbnormalStandard(convertToAccountDto(transAbnormalDto), convertToTransAbnormalBillCreateDto(transAbnormalDto));
+            if (null == commonDto) {
+                response.setCode(NewSealVehicleResponse.CODE_INTERNAL_ERROR);
+                response.setMessage(NewSealVehicleResponse.MESSAGE_SERVICE_ERROR_C);
+                return response;
+            }
+            if (commonDto.getCode() == CommonDto.CODE_SUCCESS) {
+                response.setCode(NewSealVehicleResponse.CODE_OK);
+                response.setMessage(NewSealVehicleResponse.MESSAGE_OK);
+                response.setData(commonDto.getData());
+                return response;
+            }
+            if (commonDto.getCode() != CommonDto.CODE_SUCCESS || null == commonDto.getData()) {
+                response.setCode(NewSealVehicleResponse.CODE_OK_NULL);
+                response.setMessage(commonDto.getMessage());
+                return response;
+            }
+        } catch (RuntimeException e) {
+            log.error("VOS封签线上化相关接口-异常登记提交, 调用异常, 参数：{}", JsonHelper.toJson(transAbnormalDto), e);
+            response.setCode(NewSealVehicleResponse.CODE_INTERNAL_ERROR);
+            response.setMessage(NewSealVehicleResponse.MESSAGE_SERVICE_ERROR_C);
+            return response;
+        }
+
+        return response;
+    }
+
+    private SealCodesResponse ConvertToSealCodesResponse(SealCodesDto sealCodesDto) {
+	    SealCodesResponse response = new SealCodesResponse();
+	    response.setSealCodes(sealCodesDto.getSealCodes());
+	    response.setVehicleNumber(sealCodesDto.getVehicleNumber());
+	    response.setBillCode(sealCodesDto.getBillCode());
+	    return response;
+    }
+
+    private SealCodesDto convertToSealCodesDto(DeSealCodeRequest request) {
+	    SealCodesDto sealCodesDto = new SealCodesDto();
+	    sealCodesDto.setVehicleNumber(request.getVehicleNumber());
+	    sealCodesDto.setDesealCodes(request.getDesealCodes());
+	    sealCodesDto.setDesealSiteId(request.getDesealSiteId());
+	    sealCodesDto.setDesealSiteName(request.getDesealSiteName());
+	    sealCodesDto.setDesealUserCode(request.getDesealUserCode());
+	    sealCodesDto.setDesealUserName(request.getDesealUserName());
+	    return sealCodesDto;
+    }
+
+    private com.jd.tms.dtp.dto.AccountDto convertToAccountDto(TransAbnormalDto transAbnormalDto) {
+	    com.jd.tms.dtp.dto.AccountDto accountDto = new com.jd.tms.dtp.dto.AccountDto();
+	    accountDto.setSource(1); //1:内网ERP 2:外网PIN 3:APP-PIN请求 4:大屏ERP请求
+        accountDto.setUserCode(transAbnormalDto.getUserCode());
+        accountDto.setUserName(transAbnormalDto.getUserName());//当source=1:内网ERP时，该值必填
+        return accountDto;
+    }
+
+    private TransAbnormalBillCreateDto convertToTransAbnormalBillCreateDto(TransAbnormalDto transAbnormalDto) {
+        TransAbnormalBillCreateDto transAbnormalBillCreateDto = new TransAbnormalBillCreateDto();
+        transAbnormalBillCreateDto.setReferBillCode(transAbnormalDto.getReferBillCode());
+        transAbnormalBillCreateDto.setReferBillType(transAbnormalDto.getReferBillType());//3-任务号TJ
+        transAbnormalBillCreateDto.setAbnormalSort1Code("103"); //基础资料字典表获取所有的一级类型："1323",2,"1323"
+        transAbnormalBillCreateDto.setAbnormalSort1Name("封签类");
+        transAbnormalBillCreateDto.setAbnormalSort2Code("1031");//基础资料字典表获取所有的一级类型："1323",2,"1323"
+        transAbnormalBillCreateDto.setAbnormalSort2Name("封签场地异常");
+        transAbnormalBillCreateDto.setAbnormalTypeCode(transAbnormalDto.getAbnormalTypeCode());
+        transAbnormalBillCreateDto.setAbnormalTypeName(transAbnormalDto.getAbnormalTypeName());
+        transAbnormalBillCreateDto.setPhotoUrlList(transAbnormalDto.getPhotoUrlList());
+        transAbnormalBillCreateDto.setCreateSiteId(transAbnormalDto.getSiteCode());
+        transAbnormalBillCreateDto.setAbnormalAddress(transAbnormalDto.getSiteName());//地址信息用站点名称承接
+        transAbnormalBillCreateDto.setAbnormalDescName(transAbnormalDto.getAbnormalDesc());
+        transAbnormalBillCreateDto.setAbnormalTime(new Date());
+        return transAbnormalBillCreateDto;
+    }
+
+    @Override
+    public NewSealVehicleResponse<List<TransAbnormalTypeDto>> getTransAbnormalTypeCode() {
+        //基础资料字典表获取所有的一级类型：1031,4,1323
+        List<BasicDictDto> basicDictDtoList = basicQueryWSManager.getDictList("1031", 4, "1323");
+        NewSealVehicleResponse<List<TransAbnormalTypeDto>> response = new NewSealVehicleResponse<>();
+        response.setData(convertToTypeDto(basicDictDtoList));
+        return response;
+    }
+
+    private List<TransAbnormalTypeDto> convertToTypeDto(List<BasicDictDto> basicDictDtoList) {
+	    List<TransAbnormalTypeDto> list = new ArrayList<>();
+        for (BasicDictDto basicDictDto : basicDictDtoList) {
+            TransAbnormalTypeDto typeDto = new TransAbnormalTypeDto();
+            typeDto.setTypeCode(basicDictDto.getDictCode());
+            typeDto.setTypeName(basicDictDto.getDictName());
+            list.add(typeDto);
+        }
+	    return list;
+    }
+
+    /**
 	 * 过滤掉已操作预封车的批次
 	 * @param unSealSendCodeList
 	 * @param preSealSendCodes
@@ -1598,5 +1810,15 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
             result.setMessage("按封车号查询运单未集齐包裹列表异常，请联系分拣小秘");
         }
         return result;
+    }
+
+    @Override
+    public NewSealVehicleResponse<String> createTransAbnormalAndDeSealCode(TransAbnormalAndDeSealRequest request) {
+	    NewSealVehicleResponse<String> response = this.createTransAbnormalStandard(request.getTransAbnormalDto());
+	    if (response == null || !JdResponse.CODE_OK.equals(response.getCode())) {
+	        return response;
+        }
+	    response = this.doDeSealCodes(request.getDeSealCodeRequest());
+        return response;
     }
 }
