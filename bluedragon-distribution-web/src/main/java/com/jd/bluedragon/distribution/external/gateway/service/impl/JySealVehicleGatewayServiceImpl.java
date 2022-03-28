@@ -12,6 +12,7 @@ import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.SealVehi
 import com.jd.bluedragon.common.dto.select.SelectOption;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.seal.service.IJySealVehicleService;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.external.gateway.service.JySealVehicleGatewayService;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.ump.annotation.JProEnum;
@@ -79,9 +80,10 @@ public class JySealVehicleGatewayServiceImpl implements JySealVehicleGatewayServ
                     response.toError("请输入搜索条件");
                     return false;
                 }
-
-                request.setPageNumber(1);
-                request.setPageSize(20);
+                // 非封签号则是车牌号后四位，转大写
+                if (!BusinessUtil.isSealBoxNo(request.getBarCode())) {
+                    request.setBarCode(StringUtils.upperCase(request.getBarCode()));
+                }
                 break;
         }
 
