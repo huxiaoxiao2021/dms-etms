@@ -117,7 +117,6 @@ public class JySealVehicleServiceImpl implements IJySealVehicleService {
         InvokeResult<SealVehicleTaskResponse> result = new InvokeResult<>();
 
         SealVehicleTaskQuery query = assembleCommandCondition(request);
-
         if (isSearch(request)) {
             if (BusinessUtil.isSealBoxNo(request.getBarCode())) {
                 List<String> sealCarCodeList = getSealCarCodeFromVos(result, request);
@@ -130,12 +129,12 @@ public class JySealVehicleServiceImpl implements IJySealVehicleService {
                 query.setVehicleNumberLastFour(request.getBarCode());
             }
         }
-        else if (isRefresh(request)) {
-            query.setVehicleStatus(request.getVehicleStatus());
-            query.setLineType(request.getLineType());
+        else {
             // 查询最近6小时的待解封车任务
             query.setQueryTimeStart(DateHelper.newTimeRangeHoursAgo(new Date(), 6));
         }
+        query.setVehicleStatus(request.getVehicleStatus());
+        query.setLineType(request.getLineType());
 
         Pager<SealVehicleTaskQuery> pager = new Pager<>();
         pager.setPageNo(request.getPageNumber());
@@ -178,7 +177,7 @@ public class JySealVehicleServiceImpl implements IJySealVehicleService {
     }
 
     private boolean isSearch(SealVehicleTaskRequest request) {
-        return SealVehicleTaskQuery.FETCH_TYPE_SEARCH.equals(request.getFetchType());
+        return StringUtils.isNotBlank(request.getBarCode());
     }
 
     private SealVehicleTaskQuery assembleCommandCondition(SealVehicleTaskRequest request) {
@@ -275,7 +274,7 @@ public class JySealVehicleServiceImpl implements IJySealVehicleService {
             }
             statusStatis.setTotal((long)filterList.size());
         }
-        else if (isRefresh(request)) {
+        else {
             filterList = pageDto.getResult();
             statusStatis.setTotal((long) pageDto.getTotalRow());
         }
