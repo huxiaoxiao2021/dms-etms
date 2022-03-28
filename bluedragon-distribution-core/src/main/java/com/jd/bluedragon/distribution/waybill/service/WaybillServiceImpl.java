@@ -750,6 +750,7 @@ public class WaybillServiceImpl implements WaybillService {
     public Integer getRouterFromMasterDb(String waybillCode, Integer createSiteCode) {
         // 根据waybillCode查库获取路由信息
         String router = waybillCacheService.getRouterByWaybillCode(waybillCode);
+        log.info("查询运单route字段，运单号=【{}】，返回=【{}】", waybillCode, JsonUtils.toJSONString(router));
         if (StringUtils.isBlank(router)) {
             log.error("从数据库实时获取运单路由返回空|getRouterFromMasterDb：waybillCode={},createSiteCode={}", waybillCode, createSiteCode);
             return null;
@@ -767,6 +768,8 @@ public class WaybillServiceImpl implements WaybillService {
                 }
             }
         }
+        log.info("查询运单route字段中场地流向，运单号=【{}】，当前场地=【{}】，流向场地=【{}】", waybillCode, createSiteCode, nextSiteCode);
+
         return nextSiteCode;
     }
 
