@@ -7,7 +7,10 @@ import com.jd.bluedragon.common.dto.blockcar.response.PreSealVehicleMeasureDto;
 import com.jd.bluedragon.common.dto.blockcar.response.SealCarTaskInfoDto;
 import com.jd.bluedragon.common.dto.blockcar.response.TransportInfoDto;
 import com.jd.bluedragon.common.dto.seal.request.CancelSealRequest;
-import com.jd.bluedragon.distribution.api.request.SealVehicleVolumeVerifyRequest;
+import com.jd.bluedragon.distribution.api.domain.TransAbnormalTypeDto;
+import com.jd.bluedragon.distribution.api.request.*;
+import com.jd.bluedragon.distribution.api.response.NewUnsealVehicleResponse;
+import com.jd.bluedragon.distribution.api.response.SealCodesResponse;
 
 import java.util.List;
 
@@ -90,4 +93,43 @@ public interface NewSealVehicleGatewayService {
      * @return
      */
     JdCResponse<List<String>> getUnSealSendCodes(SealCarPreRequest request);
+
+    /**
+     * 查询待解封的封签方法
+     * @param param
+     * @return
+     */
+    JdCResponse<SealCodesResponse> querySealCodes(SealCodeRequest param);
+
+    /**
+     * 无货解封签
+     * @param request
+     * @return
+     */
+    JdCResponse<String> doDeSealCodes(DeSealCodeRequest request);
+
+    /**
+     * 解封签异常提报
+     * @param param
+     * @return
+     */
+    JdCResponse<String> createTransAbnormalStandard (TransAbnormalDto param);
+
+    /**
+     * 获取解封签异常提报的类型枚举
+     * @return
+     */
+    JdCResponse<List<TransAbnormalTypeDto>> getTransAbnormalTypeCode ();
+
+    /**
+     * 提报异常，并执行无到货解封签
+     * @return
+     */
+    JdCResponse<String> createTransAbnormalAndDeSealCode(TransAbnormalAndDeSealRequest request);
+
+    /**
+     * 提报异常，并执行解封车校验 和 解封车
+     * @return
+     */
+    NewUnsealVehicleResponse<Boolean> createTransAbnormalAndUnseal(TransAbnormalAndUnsealRequest request);
 }

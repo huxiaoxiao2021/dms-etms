@@ -815,4 +815,15 @@
                   protocol="jsf" alias="${jsf.automatic.alias}" timeout="${jsf.automatic.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
         <jsf:parameter key="token" value="${jsf.automatic.token}" hide="true"/>
     </jsf:consumer>
+
+    <!-- VOS封签线上化相关接口 -->
+    <jsf:consumer id="sealCarWSJSF" interface="com.jd.etms.vos.ws.SealCarWS"
+                  protocol="jsf" alias="${jsf.SealCarWS.alias}" timeout="${jsf.SealCarWS.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
+
+    <!-- VOS封签线上化相关接口 -->
+    <jsf:consumer id="dtpTransAbnormalApiJSF" interface="com.jd.tms.dtp.api.DtpTransAbnormalApi"
+                  protocol="jsf" alias="${jsf.DtpTransAbnormalApi.alias}" timeout="${jsf.DtpTransAbnormalApi.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
+
 </beans>
