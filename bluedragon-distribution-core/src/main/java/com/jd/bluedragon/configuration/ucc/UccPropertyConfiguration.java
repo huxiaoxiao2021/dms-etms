@@ -665,6 +665,11 @@ public class UccPropertyConfiguration {
      */
     private boolean deviceAIDistinguishSwitch;
 
+    /**
+     * 设备AI识别大包裹限制
+     */
+    private int deviceAIDistinguishPackNum;
+
     public String getScheduleSiteCheckSameCity() {
         return scheduleSiteCheckSameCity;
     }
@@ -1701,6 +1706,14 @@ public class UccPropertyConfiguration {
 
     public void setDeviceAIDistinguishSwitch(boolean deviceAIDistinguishSwitch) {
         this.deviceAIDistinguishSwitch = deviceAIDistinguishSwitch;
+    }
+
+    public int getDeviceAIDistinguishPackNum() {
+        return deviceAIDistinguishPackNum;
+    }
+
+    public void setDeviceAIDistinguishPackNum(int deviceAIDistinguishPackNum) {
+        this.deviceAIDistinguishPackNum = deviceAIDistinguishPackNum;
     }
 
     public String getSpotCheckReformSiteCodes() {

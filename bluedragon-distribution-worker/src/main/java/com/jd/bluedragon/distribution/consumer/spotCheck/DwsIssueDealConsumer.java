@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.consumer.spotCheck;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.SpotCheckQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
@@ -47,6 +48,13 @@ public class DwsIssueDealConsumer  extends MessageBaseConsumer {
     @Qualifier("dwsAIDistinguishBigProducer")
     private DefaultJMQProducer dwsAIDistinguishBigProducer;
 
+    @Autowired
+    @Qualifier("dwsAIDistinguishSmallProducer")
+    private DefaultJMQProducer dwsAIDistinguishSmallProducer;
+
+    @Autowired
+    private UccPropertyConfiguration uccPropertyConfiguration;
+
     @Override
     public void consume(Message message) throws Exception {
         CallerInfo info = Profiler.registerInfo("DwsIssueDealConsumer.consume", Constants.UMP_APP_NAME_DMSWORKER, false, true);
@@ -87,7 +95,11 @@ public class DwsIssueDealConsumer  extends MessageBaseConsumer {
             dwsAIDistinguishMQ.setWaybillCode(spotCheckDto.getWaybillCode());
             dwsAIDistinguishMQ.setSiteCode(spotCheckDto.getReviewSiteCode());
             dwsAIDistinguishMQ.setPackages(list);
-            dwsAIDistinguishBigProducer.sendOnFailPersistent(dwsAIDistinguishMQ.getWaybillCode(), JsonHelper.toJson(dwsAIDistinguishMQ));
+            if(list.size() > uccPropertyConfiguration.getDeviceAIDistinguishPackNum()){
+                dwsAIDistinguishBigProducer.sendOnFailPersistent(dwsAIDistinguishMQ.getWaybillCode(), JsonHelper.toJson(dwsAIDistinguishMQ));
+            }else {
+                dwsAIDistinguishSmallProducer.sendOnFailPersistent(dwsAIDistinguishMQ.getWaybillCode(), JsonHelper.toJson(dwsAIDistinguishMQ));
+            }
         } catch (SpotCheckSysException e) {
             logger.warn("dws下发处理消息体处理异常进行重试", e);
             throw e;
