@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.station.service;
 import java.util.List;
 
 import com.jd.bluedragon.distribution.api.response.base.Result;
+import com.jd.bluedragon.distribution.station.domain.DeleteRequest;
 import com.jd.bluedragon.distribution.station.domain.WorkStation;
 import com.jd.bluedragon.distribution.station.domain.WorkStationCountVo;
 import com.jd.bluedragon.distribution.station.query.WorkStationQuery;
@@ -81,4 +82,22 @@ public interface WorkStationService {
 	 * @return
 	 */
 	Result<WorkStationCountVo> queryPageCount(WorkStationQuery query);
+	/**
+	 * 批量删除
+	 * @param deleteRequest
+	 * @return
+	 */
+	Result<Boolean> deleteByIds(DeleteRequest<WorkStation> deleteRequest);
+	/**
+	 * 查询数量
+	 * @param query
+	 * @return
+	 */
+	Result<Long> queryCount(WorkStationQuery query);
+	/**
+	 * 查询列表导出
+	 * @param query
+	 * @return
+	 */
+	Result<List<WorkStation>> queryListForExport(WorkStationQuery query);	
 }

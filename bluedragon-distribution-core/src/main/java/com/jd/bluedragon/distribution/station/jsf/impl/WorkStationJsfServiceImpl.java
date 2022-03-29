@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.station.api.WorkStationJsfService;
+import com.jd.bluedragon.distribution.station.domain.DeleteRequest;
 import com.jd.bluedragon.distribution.station.domain.WorkStation;
 import com.jd.bluedragon.distribution.station.domain.WorkStationCountVo;
 import com.jd.bluedragon.distribution.station.query.WorkStationQuery;
@@ -92,5 +93,17 @@ public class WorkStationJsfServiceImpl implements WorkStationJsfService {
 	@Override
 	public Result<List<WorkStation>> queryWorkDictList(WorkStationQuery query) {
 		return workStationService.queryWorkDictList(query);
+	}
+	@Override
+	public Result<Boolean> deleteByIds(DeleteRequest<WorkStation> deleteRequest) {
+		return workStationService.deleteByIds(deleteRequest);
+	}
+	@Override
+	public Result<Long> queryCount(WorkStationQuery query) {
+		return workStationService.queryCount(query);
+	}
+	@Override
+	public Result<List<WorkStation>> queryListForExport(WorkStationQuery query) {
+		return workStationService.queryListForExport(query);
 	}
 }

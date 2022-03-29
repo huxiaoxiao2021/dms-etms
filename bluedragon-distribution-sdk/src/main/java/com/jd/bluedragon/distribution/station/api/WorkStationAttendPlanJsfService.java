@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.station.api;
 import java.util.List;
 
 import com.jd.bluedragon.distribution.api.response.base.Result;
+import com.jd.bluedragon.distribution.station.domain.DeleteRequest;
 import com.jd.bluedragon.distribution.station.domain.WorkStationAttendPlan;
 import com.jd.bluedragon.distribution.station.query.WorkStationAttendPlanQuery;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
@@ -57,5 +58,23 @@ public interface WorkStationAttendPlanJsfService {
 	 * @param query
 	 * @return
 	 */
-	Result<List<WorkStationAttendPlan>> queryWaveDictList(WorkStationAttendPlanQuery query);	
+	Result<List<WorkStationAttendPlan>> queryWaveDictList(WorkStationAttendPlanQuery query);
+	/**
+	 * 批量删除
+	 * @param deleteRequest
+	 * @return
+	 */
+	Result<Boolean> deleteByIds(DeleteRequest<WorkStationAttendPlan> deleteRequest);
+	/**
+	 * 查询数量
+	 * @param query
+	 * @return
+	 */
+	Result<Long> queryCount(WorkStationAttendPlanQuery query);
+	/**
+	 * 查询列表导出
+	 * @param query
+	 * @return
+	 */
+	Result<List<WorkStationAttendPlan>> queryListForExport(WorkStationAttendPlanQuery query);	
 }
