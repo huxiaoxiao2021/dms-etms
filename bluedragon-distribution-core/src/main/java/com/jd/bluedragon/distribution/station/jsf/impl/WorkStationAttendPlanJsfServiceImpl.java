@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.station.api.WorkStationAttendPlanJsfService;
+import com.jd.bluedragon.distribution.station.domain.DeleteRequest;
 import com.jd.bluedragon.distribution.station.domain.WorkStationAttendPlan;
 import com.jd.bluedragon.distribution.station.query.WorkStationAttendPlanQuery;
 import com.jd.bluedragon.distribution.station.service.WorkStationAttendPlanService;
@@ -78,6 +79,18 @@ public class WorkStationAttendPlanJsfServiceImpl implements WorkStationAttendPla
 	@Override
 	public Result<List<WorkStationAttendPlan>> queryWaveDictList(WorkStationAttendPlanQuery query) {
 		return workStationAttendPlanService.queryWaveDictList(query);
+	}
+	@Override
+	public Result<Boolean> deleteByIds(DeleteRequest<WorkStationAttendPlan> deleteRequest) {
+		return workStationAttendPlanService.deleteByIds(deleteRequest);
+	}
+	@Override
+	public Result<Long> queryCount(WorkStationAttendPlanQuery query) {
+		return workStationAttendPlanService.queryCount(query);
+	}
+	@Override
+	public Result<List<WorkStationAttendPlan>> queryListForExport(WorkStationAttendPlanQuery query) {
+		return workStationAttendPlanService.queryListForExport(query);
 	}
 
 }

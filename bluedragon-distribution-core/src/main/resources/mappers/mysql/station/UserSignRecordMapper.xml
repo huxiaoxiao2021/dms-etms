@@ -65,6 +65,24 @@
 		<result column="now_attend_num_sum" property="nowAttendNumSum" javaType="java.lang.Integer" jdbcType="INTEGER" />				
 	</resultMap>
 	
+	<resultMap id="UserSignNoticeVo" type="com.jd.bluedragon.distribution.station.domain.UserSignNoticeVo" >
+		<result column="standard_num_sum" property="standardNumSum" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="grid_count" property="gridCount" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="station_count" property="stationCount" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="area_count" property="areaCount" javaType="java.lang.Integer" jdbcType="INTEGER" />				
+	</resultMap>
+	<resultMap id="UserSignNoticeWaveItemVo" type="com.jd.bluedragon.distribution.station.domain.UserSignNoticeWaveItemVo" >
+		<result column="wave_code" property="waveCode" javaType="java.lang.Integer" jdbcType="TINYINT" />
+		<result column="plan_attend_num_sum" property="planAttendNumSum" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="attend_num_sum" property="attendNumSum" javaType="java.lang.Integer" jdbcType="INTEGER" />
+	</resultMap>
+	<resultMap id="UserSignNoticeJobItemVo" type="com.jd.bluedragon.distribution.station.domain.UserSignNoticeJobItemVo" >
+		<result column="wave_code" property="waveCode" javaType="java.lang.Integer" jdbcType="TINYINT" />
+		<result column="job_code" property="jobCode" javaType="java.lang.Integer" jdbcType="TINYINT" />
+		<result column="attend_num_sum" property="attendNumSum" javaType="java.lang.Integer" jdbcType="INTEGER" />
+	</resultMap>		
+	
+		
 	<sql id="Base_Column_List" >
 		r.id,r.org_code,r.site_code,r.user_code,r.wave_code,r.job_code,
 		r.sign_date,r.sign_in_time,r.sign_out_time,r.ref_plan_key,r.ref_grid_key,
@@ -522,7 +540,60 @@
 			and work_code = #{workCode,jdbcType=VARCHAR}
 		</if>
 		</where>
-	</sql>	
+	</sql>
+	<select id="queryUserSignNoticeVo" parameterType="com.jd.bluedragon.distribution.station.query.UserSignRecordQuery" resultMap="UserSignNoticeVo">
+		select 
+				sum(case when g.standard_num is null then 0 else g.standard_num end) standard_num_sum,
+				count(distinct r.ref_grid_key) grid_count,
+				count(distinct r.ref_station_key) station_count,
+				count(distinct s.area_code) area_count
+			from
+				(select t.ref_grid_key,max(t.ref_station_key) ref_station_key
+				from  user_sign_record t force index(`idx_sign_date`) 
+				<include refid="queryNoticeCondition"/>
+	   			group by t.ref_grid_key) r
+				left outer join work_station_grid g on r.ref_grid_key = g.business_key and g.yn = 1
+				left outer join work_station s on r.ref_station_key = s.business_key and s.yn = 1
+	</select>
+	<select id="queryUserSignNoticeWaveItems" parameterType="com.jd.bluedragon.distribution.station.query.UserSignRecordQuery" resultMap="UserSignNoticeWaveItemVo">
+		select 
+			r.wave_code,
+				sum(case when p.plan_attend_num is null then 0 else p.plan_attend_num end) plan_attend_num_sum,
+				sum(case when r.attend_num is null then 0 else r.attend_num end) attend_num_sum
+			from
+				(select t.ref_grid_key,t.wave_code,count(distinct t.user_code) attend_num
+				from  user_sign_record t force index(`idx_sign_date`) 
+					<include refid="queryNoticeCondition"/>
+	   			group by t.ref_grid_key,t.wave_code) r
+				left outer join work_station_attend_plan p on r.ref_grid_key = p.ref_grid_key and r.wave_code = p.wave_code and p.yn = 1
+			group by r.wave_code
+			order by r.wave_code
+	</select>
+	<select id="queryUserSignNoticeJobItems" parameterType="com.jd.bluedragon.distribution.station.query.UserSignRecordQuery" resultMap="UserSignNoticeJobItemVo">
+		select 
+				r.wave_code,
+				r.job_code,
+				sum(case when r.attend_num is null then 0 else r.attend_num end) attend_num_sum
+			from
+				(select t.ref_grid_key,t.wave_code,t.job_code,count(distinct t.user_code) attend_num
+				from  user_sign_record t force index(`idx_sign_date`) 
+					<include refid="queryNoticeCondition"/>
+	   			group by t.ref_grid_key,t.wave_code,t.job_code) r
+			group by r.wave_code,r.job_code
+			order by r.wave_code,r.job_code
+	</select>		
+	<sql id="queryNoticeCondition">
+		<where>
+			t.yn = 1
+			and t.sign_date = #{signDate,jdbcType=DATE}
+		<if test="orgCode != null" >
+			and t.org_code = #{orgCode,jdbcType=INTEGER}
+		</if>
+		<if test="siteCode != null" >
+			and t.site_code = #{siteCode,jdbcType=INTEGER}
+		</if>	
+		</where>
+	</sql>			
 	<select id="queryByBusinessKey" parameterType="com.jd.bluedragon.distribution.station.domain.UserSignRecord" resultMap="UserSignRecord">
 		select
 			<include refid="Base_Column_List"/>
