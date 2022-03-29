@@ -535,12 +535,13 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
         domain.setCreateSiteCode(request.getSiteCode());
         domain.setCreateUser(request.getUserName());
         domain.setCreateUserCode(request.getUserCode());
-        domain.setSendType(Constants.BUSSINESS_TYPE_POSITIVE);
-        domain.setBizSource(SendBizSourceEnum.SORT_MACHINE_SEND.getCode());
+        domain.setSendType(sendM.getSendType());
+        domain.setBizSource(SendBizSourceEnum.BOARD_SEND.getCode());
         domain.setBoxCode(request.getBarcode());
         domain.setYn(1);
-        domain.setCreateTime(request.getOperateTime());
-        domain.setOperateTime(request.getOperateTime());
+        domain.setCreateTime(new Date());
+        domain.setOperateTime(sendM.getOperateTime());
+        domain.setBoardCode(sendM.getBoardCode());
         return domain;
     }
 
