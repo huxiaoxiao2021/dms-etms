@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.station.dao.WorkStationGridDao;
+import com.jd.bluedragon.distribution.station.domain.DeleteRequest;
 import com.jd.bluedragon.distribution.station.domain.WorkStationGrid;
 import com.jd.bluedragon.distribution.station.domain.WorkStationGridCountVo;
 import com.jd.bluedragon.distribution.station.query.WorkStationGridQuery;
@@ -102,7 +103,26 @@ public class WorkStationGridDaoImpl extends BaseDao<WorkStationGrid> implements 
 	public long queryCountByRefStationKey(String stationKey) {
 		return this.getSqlSession().selectOne(NAMESPACE+".queryCountByRefStationKey",stationKey);
 	}
-
+	@Override
+	public List<WorkStationGrid> querySiteListByOrgCode(WorkStationGridQuery query) {
+		return this.getSqlSession().selectList(NAMESPACE+".querySiteListByOrgCode",query);
+	}
+	@Override
+	public List<String> queryOwnerUserErpListBySiteCode(WorkStationGridQuery query) {
+		return this.getSqlSession().selectList(NAMESPACE+".queryOwnerUserErpListBySiteCode",query);
+	}	
+	@Override
+	public List<WorkStationGrid> queryListForExport(WorkStationGridQuery query) {
+		return this.getSqlSession().selectList(NAMESPACE+".queryListForExport",query);
+	}
+	@Override
+	public List<WorkStationGrid> queryByIds(DeleteRequest<WorkStationGrid> deleteRequest) {
+		return this.getSqlSession().selectList(NAMESPACE+".queryByIds",deleteRequest);
+	}
+	@Override
+	public int deleteByIds(DeleteRequest<WorkStationGrid> deleteRequest) {
+		return this.getSqlSession().update(NAMESPACE+".deleteByIds",deleteRequest);
+	}
 	@Override
 	public List<WorkStationGrid> queryAllByPage(WorkStationGridQuery query) {
 		return this.getSqlSession().selectList(NAMESPACE+".queryAllByPage",query);

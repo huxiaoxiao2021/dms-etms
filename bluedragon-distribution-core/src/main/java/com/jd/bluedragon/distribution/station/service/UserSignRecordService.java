@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.station.service;
 import java.util.List;
 
 import com.jd.bluedragon.distribution.api.response.base.Result;
+import com.jd.bluedragon.distribution.station.domain.UserSignNoticeVo;
 import com.jd.bluedragon.distribution.station.domain.UserSignRecord;
 import com.jd.bluedragon.distribution.station.domain.UserSignRecordReportSumVo;
 import com.jd.bluedragon.distribution.station.domain.UserSignRecordReportVo;
@@ -96,4 +97,10 @@ public interface UserSignRecordService {
 	 * @return
 	 */
 	Result<List<UserSignRecord>> queryListForExport(UserSignRecordQuery query);
+    /**
+     * 根据条件查询-转成通知对象
+     * @param query
+     * @return
+     */
+	Result<UserSignNoticeVo> queryUserSignRecordToNoticeVo(UserSignRecordQuery query);
 }

@@ -3,6 +3,9 @@ package com.jd.bluedragon.distribution.station.dao;
 import java.util.Date;
 import java.util.List;
 
+import com.jd.bluedragon.distribution.station.domain.UserSignNoticeJobItemVo;
+import com.jd.bluedragon.distribution.station.domain.UserSignNoticeVo;
+import com.jd.bluedragon.distribution.station.domain.UserSignNoticeWaveItemVo;
 import com.jd.bluedragon.distribution.station.domain.UserSignRecord;
 import com.jd.bluedragon.distribution.station.domain.UserSignRecordReportSumVo;
 import com.jd.bluedragon.distribution.station.domain.UserSignRecordReportVo;
@@ -90,7 +93,25 @@ public interface UserSignRecordDao {
 	 * @return
 	 */
 	UserSignRecordReportSumVo queryReportSum(UserSignRecordQuery query);
-
+	/**
+	 * 统计总数
+	 * @param query
+	 * @return
+	 */
+	UserSignNoticeVo queryUserSignNoticeVo(UserSignRecordQuery query);
+	/**
+	 * 班次维度统计
+	 * @param query
+	 * @return
+	 */
+	List<UserSignNoticeWaveItemVo> queryUserSignNoticeWaveItems(UserSignRecordQuery query);
+	/**
+	 * 工种维度统计
+	 * @param query
+	 * @return
+	 */
+	List<UserSignNoticeJobItemVo> queryUserSignNoticeJobItems(UserSignRecordQuery query);
+	
     List<Long> querySignInMoreThanSpecifiedTime(Date signInTime, Integer limit);
 
     int signOutById(UserSignRecord signOutRequest, List<Long> list);

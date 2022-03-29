@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.station.dao.WorkStationDao;
+import com.jd.bluedragon.distribution.station.domain.DeleteRequest;
 import com.jd.bluedragon.distribution.station.domain.WorkStation;
 import com.jd.bluedragon.distribution.station.domain.WorkStationCountVo;
 import com.jd.bluedragon.distribution.station.query.WorkStationQuery;
@@ -85,5 +86,17 @@ public class WorkStationDaoImpl extends BaseDao<WorkStation> implements WorkStat
 	@Override
 	public WorkStationCountVo queryPageCount(WorkStationQuery query) {
 		return this.getSqlSession().selectOne(NAMESPACE+".queryPageCount",query);
+	}
+	@Override
+	public List<WorkStation> queryListForExport(WorkStationQuery query) {
+	    return this.getSqlSession().selectList(NAMESPACE+".queryListForExport",query);
+	}
+	@Override
+	public List<WorkStation> queryByIds(DeleteRequest<WorkStation> deleteRequest) {
+		return this.getSqlSession().selectList(NAMESPACE+".queryByIds",deleteRequest);
+	}
+	@Override
+	public int deleteByIds(DeleteRequest<WorkStation> deleteRequest) {
+		return this.getSqlSession().update(NAMESPACE+".deleteByIds",deleteRequest);
 	}
 }

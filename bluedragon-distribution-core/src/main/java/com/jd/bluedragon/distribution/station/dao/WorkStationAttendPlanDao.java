@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.station.dao;
 
 import java.util.List;
 
+import com.jd.bluedragon.distribution.station.domain.DeleteRequest;
 import com.jd.bluedragon.distribution.station.domain.WorkStationAttendPlan;
 import com.jd.bluedragon.distribution.station.query.WorkStationAttendPlanQuery;
 
@@ -68,5 +69,22 @@ public interface WorkStationAttendPlanDao {
 	 * @return
 	 */
 	List<WorkStationAttendPlan> queryWaveDictList(WorkStationAttendPlanQuery query);
-
+	/**
+	 * 导出查询列表
+	 * @param query
+	 * @return
+	 */
+	List<WorkStationAttendPlan> queryListForExport(WorkStationAttendPlanQuery query);
+	/**
+	 * 根据id列表查询
+	 * @param deleteRequest
+	 * @return
+	 */
+	List<WorkStationAttendPlan> queryByIds(DeleteRequest<WorkStationAttendPlan> deleteRequest);
+	/**
+	 * 根据id批量删除
+	 * @param deleteRequest
+	 * @return
+	 */
+	int deleteByIds(DeleteRequest<WorkStationAttendPlan> deleteRequest);
 }
