@@ -97,6 +97,13 @@ public interface VirtualBoardGatewayService {
     JdCResponse<Void> autoBoardComplete(AutoBoardCompleteRequest request);
 
     /**
+     *
+     * @param request
+     * @return
+     */
+    JdCResponse<VirtualBoardResultDto> autoBoardDetail(AutoBoardCompleteRequest request);
+
+    /**
      * 更加场地 查询分拣机编码
      * @param siteCode
      * @return
