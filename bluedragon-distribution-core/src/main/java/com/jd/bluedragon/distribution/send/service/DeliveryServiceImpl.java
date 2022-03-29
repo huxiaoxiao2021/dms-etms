@@ -6853,7 +6853,9 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
             for(String boxCode : tcResponse.getData()){
                 domain.setSendMId(null);
                 domain.setBoxCode(boxCode);
-                if (StringUtils.isBlank(getSendedCode(domain))) {//未发过货的才执行发货
+                String lastSendedCode = getSendedCode(domain);
+                //未发过货的 或者 上次发货和本次发货的批次不一致的 才执行发货
+                if (StringUtils.isBlank(lastSendedCode) || !lastSendedCode.equals(domain.getSendCode())) {
                     packageSend(source, domain);
                 }
             }
