@@ -445,5 +445,14 @@
 			work_station_grid g
 		where g.yn = 1 
 		    and g.ref_station_key = #{refStationKey,jdbcType=VARCHAR}
-	</select>	
+	</select>
+
+	<select id="queryAllByPage" parameterType="com.jd.bluedragon.distribution.station.query.WorkStationGridQuery" resultMap="WorkStationGrid">
+		select
+			site_code,business_key,create_user,update_user,create_time,update_time
+		from
+			work_station_grid
+		where yn = 1
+		limit #{offset}, #{limit}
+	</select>
 </mapper>
