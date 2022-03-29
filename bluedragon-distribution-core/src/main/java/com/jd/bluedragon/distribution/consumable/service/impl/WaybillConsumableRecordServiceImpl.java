@@ -247,6 +247,9 @@ public class WaybillConsumableRecordServiceImpl extends BaseService<WaybillConsu
         for(WaybillConsumableDetailInfo dto : exportDtos) {
             PackingConsumableReportDto item = consumableDtoMap.get(dto.getWaybillCode());
             String packingChargeStr = item.getPackingChargeDes();
+            if (null == dto.getPackingCharge()) {
+                continue;
+            }
 
             item.setPackingChargeDes(
                     packingChargeStr
