@@ -170,58 +170,6 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
         return board;
     }
 
-    /**
-     * 分拣机组板
-     * 如果过该板已发货 则补发货
-     * /
-     *
-     * @param request
-     * @return
-     */
-    @Override
-    @Deprecated
-    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMS.WEB.SortBoardJsfServiceImpl.bindBoard", mState = JProEnum.TP)
-    public Response<String> bindBoard(BindBoardRequest request) {
-        Response<String> response = checkParma4BindBoard(request);
-        if(!response.isSucceed()){
-            return response;
-        }
-        //校验发货状态
-        response = checkBarcodeSendStatus(request);
-        //已发货不能再组板
-        if(!response.isSucceed()){
-            return response;
-        }
-
-        //板在改包裹或箱落格前发货，生成新板号
-        if(StringUtils.isNotBlank(response.getData())){
-            request.getBoard().setCode(response.getData());
-        }
-
-        //调板服务组板
-        AddBoardBox addBoardBox = initAddBoardBox(request);
-        com.jd.transboard.api.dto.Response<Integer>  bindResult = groupBoardService.addBoxToBoard(addBoardBox);
-        log.info("分拣机组板调参数:{}，返回值:{}", JsonHelper.toJson(request), JsonHelper.toJson(bindResult));
-
-        if(bindResult.getCode() != 200){
-            response.toFail(MessageFormat.format("调板服务组板接口失败code:{0}，message:{1}", bindResult.getCode(),
-                    bindResult.getMesseage()));
-            log.warn("调板服务组板接口失败code:{}，message:{},请求参数:{}", bindResult.getCode(), bindResult.getMesseage(),
-                    JsonHelper.toJson(addBoardBox));
-            return response;
-        }
-
-        //发送全程跟踪
-        com.jd.bluedragon.common.dto.base.request.OperatorInfo operatorInfo = initOperatorInfo(request.getOperatorInfo());
-        virtualBoardService.sendWaybillTrace(request.getBarcode(), operatorInfo, request.getBoard().getCode(),
-                request.getBoard().getDestination(), WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION);
-
-
-        response.toSucceed();
-        return response;
-
-    }
-
     @Override
     public Response<BoardSendDto> addToBoard(BindBoardRequest request) {
         Response<BoardSendDto> response = new Response<>();
@@ -591,8 +539,8 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
         domain.setBizSource(SendBizSourceEnum.SORT_MACHINE_SEND.getCode());
         domain.setBoxCode(request.getBarcode());
         domain.setYn(1);
-        domain.setCreateTime(request.getOperateTime(), Calendar.SECOND, 5);
-        domain.setOperateTime(request.getOperateTime(), Calendar.SECOND, 5);
+        domain.setCreateTime(request.getOperateTime());
+        domain.setOperateTime(request.getOperateTime());
         return domain;
     }
 
