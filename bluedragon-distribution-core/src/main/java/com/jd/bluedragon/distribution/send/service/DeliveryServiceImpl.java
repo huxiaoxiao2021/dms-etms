@@ -7196,7 +7196,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         } catch (Exception e) {
             log.error("查询运单是否已经确认耗材失败，运单号：{}" , sendM.getBoxCode(), e);
         }
-        return true;
+        return false;
     }
 
 
