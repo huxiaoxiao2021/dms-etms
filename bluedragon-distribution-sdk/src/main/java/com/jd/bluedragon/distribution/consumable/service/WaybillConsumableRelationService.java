@@ -55,4 +55,6 @@ public interface WaybillConsumableRelationService extends Service<WaybillConsuma
     int getNoPackUserErpRecordCount(String waybillCode);
 
     void updateByWaybillCode(WaybillConsumableRelationPDADto waybillConsumableRelationPDADto);
+
+    List<WaybillConsumableRelation> convert2WaybillConsumableRelation(ReceivePackingConsumableDto packingConsumableDto);
 }

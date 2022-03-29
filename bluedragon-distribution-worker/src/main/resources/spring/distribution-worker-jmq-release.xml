@@ -163,6 +163,11 @@
     <jmq:consumer id="jmq.packingConsumableConsumer" transport="jmq.BlueDragonDistribution.transport">
         <jmq:listener topic="${jmq.topic.bd.pack.sync.waybill}" listener="packingConsumableConsumer"/>
     </jmq:consumer>
+    <!-- 终端揽收齁包装耗材消息 -->
+    <jmq:consumer id="jmq.cPackingConsumableConsumer" transport="jmq.BlueDragonDistribution.transport">
+        <jmq:listener topic="${jmq.topic.qlerp.receive.consumable}" listener="cPackingConsumableConsumer"/>
+    </jmq:consumer>
+
     <!--履约单剔除消息-->
     <jmq:consumer id="jmq.performanceRemoveConsumer" transport="jmq.BlueDragonDistribution.transport">
         <jmq:listener topic="${jmq.topic.waybill.order.flag}" listener="performanceRemoveConsumer"/>
