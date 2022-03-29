@@ -241,7 +241,8 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
             //发送全程跟踪
             com.jd.bluedragon.common.dto.base.request.OperatorInfo operatorInfo = initOperatorInfo(request.getOperatorInfo());
             virtualBoardService.sendWaybillTrace(request.getBarcode(), operatorInfo, request.getBoard().getCode(),
-                    request.getBoard().getDestination(), WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION);
+                    request.getBoard().getDestination(), WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION,
+                    request.getBizSource());
             response.toSucceed();
             return response;
         }catch (Exception e){
@@ -546,7 +547,7 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
             long compareResult = sendTime.getTime() - operateTime.getTime();
             //发货时间晚于 操作时间 补发货
             if(compareResult >= 0){
-                SendM domain= convertToSendM(request, sendM.getSendCode());
+                SendM domain= convertToSendM(request, sendM);
                 //只需补一次发货
                 if(!hasReplenish){
                     hasReplenish = true;
@@ -578,11 +579,11 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
      * @param request
      * @return
      */
-    private SendM convertToSendM(CheckBoardStatusDto request, String sendCode) {
+    private SendM convertToSendM(CheckBoardStatusDto request, SendM sendM) {
 
         SendM domain = new SendM();
-        domain.setReceiveSiteCode(request.getReceiveSiteCode());
-        domain.setSendCode(sendCode);
+        domain.setReceiveSiteCode(sendM.getReceiveSiteCode());
+        domain.setSendCode(sendM.getSendCode());
         domain.setCreateSiteCode(request.getSiteCode());
         domain.setCreateUser(request.getUserName());
         domain.setCreateUserCode(request.getUserCode());
@@ -590,8 +591,8 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
         domain.setBizSource(SendBizSourceEnum.SORT_MACHINE_SEND.getCode());
         domain.setBoxCode(request.getBarcode());
         domain.setYn(1);
-        domain.setCreateTime(DateHelper.add(request.getOperateTime(), Calendar.SECOND, 5));
-        domain.setOperateTime(DateHelper.add(request.getOperateTime(), Calendar.SECOND, 5));
+        domain.setCreateTime(request.getOperateTime(), Calendar.SECOND, 5);
+        domain.setOperateTime(request.getOperateTime(), Calendar.SECOND, 5);
         return domain;
     }
 
