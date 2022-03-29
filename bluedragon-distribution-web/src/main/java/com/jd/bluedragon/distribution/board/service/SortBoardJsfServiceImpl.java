@@ -6,14 +6,12 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.board.request.CloseVirtualBoardPo;
 import com.jd.bluedragon.common.dto.board.request.CombinationBoardRequest;
 import com.jd.bluedragon.common.dto.board.response.BoardCheckDto;
-import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.dto.BoardDto;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.board.SortBoardJsfService;
 import com.jd.bluedragon.distribution.board.domain.*;
 import com.jd.bluedragon.distribution.loadAndUnload.exception.LoadIllegalException;
-import com.jd.bluedragon.distribution.sdk.common.domain.BaseResult;
 import com.jd.bluedragon.distribution.sdk.modules.board.BoardChuteJsfService;
 import com.jd.bluedragon.distribution.sdk.modules.board.domain.BoardCompleteRequest;
 import com.jd.bluedragon.distribution.send.domain.SendM;
@@ -30,21 +28,18 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ql.dms.common.domain.JdResponse;
-import com.jd.bluedragon.distribution.board.domain.AddBoardRequest;
 import com.jd.transboard.api.dto.AddBoardBox;
 import com.jd.transboard.api.dto.Board;
 import com.jd.transboard.api.service.GroupBoardService;
 import com.jd.transboard.api.service.IVirtualBoardService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
-import org.apache.avro.data.Json;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -250,6 +245,28 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
             return response;
         }
 
+    }
+
+    @Override
+    public Response<String> calcBoard(AutoBoardCompleteRequest request) {
+        Response<String> response = new Response<String>();
+        BoardCompleteRequest boardCompleteRequest = new BoardCompleteRequest();
+        BeanUtils.copyProperties(request, boardCompleteRequest);
+        com.jd.bluedragon.distribution.sdk.common.domain.InvokeResult<String> baseResult =
+                boardChuteJsfService.calcBoard(boardCompleteRequest);
+        log.info("计算格口获取板号信息,request:"+ JsonHelper.toJson(request)+",result:"+ JsonHelper.toJson(baseResult));
+        if (baseResult.getCode()!=200){
+            response.toFail(StringUtils.isEmpty(baseResult.getMessage())?"查询组板包裹(箱号)信息失败，请退出重试!":baseResult.getMessage());
+            return response;
+        }
+        String boardCode = baseResult.getData();
+        if (StringUtils.isEmpty(boardCode)){
+            response.toFail("查询组板包裹(箱号)信息失败，请退出重试!");
+            return response;
+        }
+        response.toSucceed();
+        response.setData(boardCode);
+        return response;
     }
 
 

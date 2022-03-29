@@ -65,8 +65,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 
 import javax.annotation.Resource;
+import javax.ws.rs.QueryParam;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -1062,6 +1064,26 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
         return result;
     }
 
+    @Override
+    public JdCResponse<VirtualBoardResultDto> getBoxCountByBoardCode(String boardCode) {
+        JdCResponse<VirtualBoardResultDto> result = new JdCResponse<>();
+        Response<com.jd.transboard.api.dto.VirtualBoardResultDto> handleResult = virtualBoardJsfManager.getBoxCountByBoardCode(boardCode);
+        if(!Objects.equals(handleResult.getCode(), ResponseEnum.SUCCESS.getIndex())){
+            log.error("VirtualBoardServiceImpl.getBoxCountByBoardCode--fail-- param {} result {}", boardCode, JsonHelper.toJson(handleResult));
+            result.toFail("获取板号统计信息失败，请稍后再试");
+            return result;
+        }
+        com.jd.transboard.api.dto.VirtualBoardResultDto virtualBoardResultDto = handleResult.getData();
+        if (null == virtualBoardResultDto) {
+            result.toFail("查询数据异常，请联系分拣小秘排查！");
+            return result;
+        }
+        VirtualBoardResultDto dto = new VirtualBoardResultDto();
+        BeanUtils.copyProperties(virtualBoardResultDto, dto);
+        result.setData(dto);
+        result.toSucceed();
+        return result;
+    }
 
     private com.jd.transboard.api.dto.HandoverVirtualBoardPo getConvertToTcParam(HandoverVirtualBoardPo handoverVirtualBoardPo) {
         com.jd.transboard.api.dto.HandoverVirtualBoardPo handoverVirtualBoardPoTc = new com.jd.transboard.api.dto.HandoverVirtualBoardPo();
