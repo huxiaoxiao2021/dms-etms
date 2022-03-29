@@ -158,6 +158,7 @@
 		<property name="notSignedOutRecordMoreThanHours" value="${notSignedOutRecordMoreThanHours:-1}"/>
 		<property name="spotCheckReformSiteCodes" value="${spotCheckReformSiteCodes:true}"/>
 		<property name="aiDistinguishSwitch" value="${aiDistinguishSwitch:true}"/>
+		<property name="packConsumableSwitch" value="${packConsumableSwitch:0}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -296,6 +297,7 @@
 				<value>uccPropertyConfiguration.notSignedOutRecordMoreThanHours</value>
 				<value>uccPropertyConfiguration.spotCheckReformSiteCodes</value>
 				<value>uccPropertyConfiguration.aiDistinguishSwitch</value>
+				<value>uccPropertyConfiguration.packConsumableSwitch</value>
 
                 <value>hystrixRouteUccPropertyConfiguration.executionTimeoutInMilliseconds</value>
                 <value>hystrixRouteUccPropertyConfiguration.circuitBreakerEnabled</value>
