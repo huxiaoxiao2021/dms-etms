@@ -268,4 +268,23 @@ public  class SendMDao extends BaseDao<SendM>  {
 		searchParams.put("operateTimeEnd", endDate);
 		return this.getSqlSession().selectList(SendMDao.namespace + ".batchSearchBySiteCodeAndStartTime",searchParams);
 	}
+
+	/**
+	 * 根据始发分拣中心、板号、发货状态查询send_m的一条发货记录
+	 * @param createSiteCode
+	 * @param boardCode
+	 * @param sendmStatus
+	 * @return
+	 */
+	public SendM selectSendByBoardCode(Integer createSiteCode, String boardCode, Integer sendmStatus){
+		if(createSiteCode == null || StringUtils.isBlank(boardCode) || sendmStatus == null){
+			throw new IllegalArgumentException("查询条件始发分拣中心、发货状态、板号不能为空.");
+		}
+		Map<String, Object> searchParams = new HashMap<>();
+		searchParams.put("createSiteCode", createSiteCode);
+		searchParams.put("sendmStatus", sendmStatus);
+		searchParams.put("boardCode", boardCode);
+
+		return this.getSqlSession().selectOne(SendMDao.namespace + ".selectSendByBoardCode",searchParams);
+	}
 }

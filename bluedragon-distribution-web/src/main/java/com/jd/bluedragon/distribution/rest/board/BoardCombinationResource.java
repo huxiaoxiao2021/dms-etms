@@ -21,6 +21,7 @@ import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.transboard.api.dto.AddBoardRequest;
 import com.jd.transboard.api.dto.Board;
 import com.jd.transboard.api.dto.Response;
+import com.jd.transboard.api.enums.BizSourceEnum;
 import com.jd.transboard.api.enums.BoardStatus;
 import org.apache.commons.lang.StringUtils;
 import com.jd.ump.annotation.JProEnum;
@@ -101,7 +102,7 @@ public class BoardCombinationResource {
             boardResponse.addStatusInfo(JdResponse.CODE_FAIL,errStr);
             return result;
         }
-
+        request.setBizSource(BizSourceEnum.PDA.getValue());
         return combinationNew(request);
     }
 
@@ -366,6 +367,9 @@ public class BoardCombinationResource {
             this.log.warn("建板请求的参数有误");
             return invokeResult;
         }
+        if(request.getBizSource() == null){
+            request.setBizSource(BizSourceEnum.PRINT_CLIENT.getValue());
+        }
         this.log.info("建板请求的板号数量:{},场站sitecode:{},目的地destinationId:{}",request.getBoardCount(), request.getSiteCode(),request.getDestinationId());
         return boardCombinationService.createBoard(request);
     }
@@ -578,6 +582,7 @@ public class BoardCombinationResource {
         boardCombinationRequest.setIsForceCombination(param.isForceCombination());
         boardCombinationRequest.setSiteCode(param.getCurrentOperate().getSiteCode());
         boardCombinationRequest.setSiteName(param.getCurrentOperate().getSiteName());
+        boardCombinationRequest.setUserErp(param.getUser().getUserErp());
         boardCombinationRequest.setUserCode(param.getUser().getUserCode());
         boardCombinationRequest.setUserName(param.getUser().getUserName());
         if (param.getFlowDisaccord() != null) {

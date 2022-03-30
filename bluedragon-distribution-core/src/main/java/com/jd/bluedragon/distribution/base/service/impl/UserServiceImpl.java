@@ -1,11 +1,11 @@
 package com.jd.bluedragon.distribution.base.service.impl;
 
-import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.ErpLoginServiceManager;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.distribution.api.JdResponse;
@@ -28,6 +28,12 @@ import com.jd.bluedragon.sdk.modules.client.DmsClientMessages;
 import com.jd.bluedragon.sdk.modules.client.LoginStatusEnum;
 import com.jd.bluedragon.sdk.modules.client.LogoutTypeEnum;
 import com.jd.bluedragon.sdk.modules.client.ProgramTypeEnum;
+import com.jd.bluedragon.sdk.modules.client.dto.DmsClientHeartbeatRequest;
+import com.jd.bluedragon.sdk.modules.client.dto.DmsClientHeartbeatResponse;
+import com.jd.bluedragon.utils.*;
+import com.jd.mrd.srv.dto.RpcResultDto;
+import com.jd.mrd.srv.service.erp.dto.LoginContextDto;
+import com.jd.mrd.srv.service.erp.dto.LoginDto;
 import com.jd.bluedragon.sdk.modules.client.dto.*;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.NumberHelper;
@@ -75,6 +81,9 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
     @Autowired
     @Qualifier("jimdbCacheService")
     private CacheService jimdbCacheService;
+
+    @Autowired
+    private ErpLoginServiceManager erpLoginServiceManager;
 
 	/**
 	 * 分拣客户端登录服务
@@ -162,6 +171,9 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
             // 保存缓存
             String clientLoginDeviceIdKey = String.format(CacheKeyConstants.CACHE_KEY_FORMAT_CLIENT_LOGIN_USER_DEVICE_ID, request.getErpAccount(), deviceId);
             jimdbCacheService.setEx(clientLoginDeviceIdKey, token, CacheKeyConstants.CACHE_KEY_FORMAT_CLIENT_LOGIN_DEVICE_ID_EXPIRE_TIME, TimeUnit.HOURS);
+
+            // 物流网关外网erp认证登录
+            this.wlGwErpLogin(request, clientInfo, loginUserResponse);
         } catch (Exception e) {
             log.error("UserServiceImpl.getAndSaveToken exception ", e);
             loginUserResponse.setCode(JdResponse.CODE_SERVICE_ERROR);
@@ -169,6 +181,32 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
             return false;
         }
         return true;
+    }
+
+    private void wlGwErpLogin(LoginRequest request, ClientInfo clientInfo, LoginUserResponse loginUserResponse) {
+        try {
+            // 物流网关外网erp认证登录
+            LoginDto loginDto = new LoginDto();
+            loginDto.setAppCode("dmsPdaAndroid");
+            loginDto.setUserName(loginUserResponse.getErpAccount());
+            loginDto.setSource("erp");
+            loginDto.setTicketType("long");
+            loginDto.setClientVersion(clientInfo.getVersionCode());
+            loginDto.setDeviceId(clientInfo.getDeviceId());
+            loginDto.setDeviceType(clientInfo.getVersionName());
+            loginDto.setDeviceName(clientInfo.getVersionName());
+            loginDto.setIp("127.0.0.1");
+            loginDto.setPwd(Encrypt.encodeDes(request.getPassword()));
+            final RpcResultDto<LoginContextDto> loginResult = erpLoginServiceManager.loginSecurity(loginDto);
+            log.info("wlGwErpLogin loginSecurity param {} result {}", JsonHelper.toJson(loginDto), JsonHelper.toJson(loginResult));
+            if(!loginResult.isSuccess()){
+                log.warn("wlGwErpLogin loginSecurity fail param {} result {}", JsonHelper.toJson(loginDto), JsonHelper.toJson(loginResult));
+                return;
+            }
+            loginUserResponse.setWlGwTicket(loginResult.getData().getTicket());
+        } catch (Exception e) {
+            log.error("wlGwErpLogin exception ", e);
+        }
     }
 
     /**

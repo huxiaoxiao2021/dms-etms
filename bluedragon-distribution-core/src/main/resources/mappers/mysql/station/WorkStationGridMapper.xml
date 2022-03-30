@@ -318,7 +318,16 @@
             limit #{offset}, #{limit}
         </if>		
 	</select>
-
+	<select id="queryListForExport" parameterType="com.jd.bluedragon.distribution.station.query.WorkStationGridQuery" resultMap="WorkStationGrid">
+		select
+			<include refid="Base_Column_List"/>
+		from
+			work_station_grid g
+		<include refid="joinSql"/>			
+		<include refid="queryCondition"/>
+		order by g.id 
+        limit #{offset}, #{limit}
+	</select>
 	<select id="queryCount" parameterType="com.jd.bluedragon.distribution.station.query.WorkStationGridQuery" resultType="long">
 		select
 			count(1)
@@ -385,6 +394,7 @@
 			<include refid="joinSql"/>
 		where g.yn = 1 
 		    and g.site_code = #{siteCode,jdbcType=INTEGER}
+		    and s.area_code is not null
 		<if test="floor != null" >
 			and g.floor = #{floor,jdbcType=INTEGER}
 		</if>
@@ -398,6 +408,7 @@
 			<include refid="joinSql"/>
 		where g.yn = 1 
 		    and g.site_code = #{siteCode,jdbcType=INTEGER}
+		    and s.work_code is not null
 		<if test="floor != null" >
 			and g.floor = #{floor,jdbcType=INTEGER}
 		</if>		    
@@ -417,6 +428,7 @@
 			<include refid="joinSql"/>			
 		where g.yn = 1 
 		    and g.site_code = #{siteCode,jdbcType=INTEGER}
+		    and g.grid_no is not null
 		<if test="floor != null" >
 			and g.floor = #{floor,jdbcType=INTEGER}
 		</if>
@@ -431,7 +443,76 @@
 		from
 			work_station_grid g
 		where g.yn = 1 
-		    and g.site_code = #{siteCode,jdbcType=INTEGER}	    
+		    and g.site_code = #{siteCode,jdbcType=INTEGER}
+		    and g.floor is not null	    
 		group by g.floor
 	</select>
+	<select id="querySiteListByOrgCode" parameterType="com.jd.bluedragon.distribution.station.query.WorkStationGridQuery" resultMap="WorkStationGrid">
+		select
+			g.site_code,max(g.site_name) site_name
+		from
+			work_station_grid g
+		where g.yn = 1 
+		    and g.org_code = #{orgCode,jdbcType=INTEGER}
+		    and g.site_code is not null
+		group by g.site_code
+	</select>
+	<select id="queryOwnerUserErpListBySiteCode" parameterType="com.jd.bluedragon.distribution.station.query.WorkStationGridQuery" resultType="String">
+		select
+			distinct g.owner_user_erp
+		from
+			work_station_grid g
+		where g.yn = 1 
+		    and g.site_code = #{siteCode,jdbcType=INTEGER}
+		    and g.owner_user_erp is not null
+	</select>		
+	<select id="queryCountByRefStationKey" parameterType="java.lang.String" resultType="long">
+		select
+			count(1)
+		from
+			work_station_grid g
+		where g.yn = 1 
+		    and g.ref_station_key = #{refStationKey,jdbcType=VARCHAR}
+	</select>
+
+	<select id="queryAllByPage" parameterType="com.jd.bluedragon.distribution.station.query.WorkStationGridQuery" resultMap="WorkStationGrid">
+		select
+			site_code,business_key,create_user,update_user,create_time,update_time
+		from
+			work_station_grid
+		where yn = 1
+		limit #{offset}, #{limit}
+	</select>
+
+	<select id="queryByIds" parameterType="com.jd.bluedragon.distribution.station.domain.DeleteRequest" resultMap="WorkStationGrid">
+		select
+			<include refid="Base_Column_List"/>
+		from
+			work_station_grid g
+		<include refid="joinSql"/>
+		where g.yn = 1
+		 	and g.id in
+		<foreach collection="dataList" item="item" open="(" close=")" separator=",">
+			#{item.id,jdbcType=BIGINT}
+		</foreach>
+	</select>	
+	<update id="deleteByIds" parameterType="com.jd.bluedragon.distribution.station.domain.DeleteRequest">
+		update work_station_grid
+			set 
+			<if test="operateUserCode != null" >
+				update_user = #{operateUserCode,jdbcType=VARCHAR},
+			</if>
+			<if test="operateUserName != null" >
+				update_user_name = #{operateUserName,jdbcType=VARCHAR},
+			</if>			
+			<if test="operateTime != null" >
+				update_time = #{operateTime,jdbcType=TIMESTAMP},
+			</if>
+			   yn = 0
+		where yn = 1
+		 	and id in
+		<foreach collection="dataList" item="item" open="(" close=")" separator=",">
+			#{item.id,jdbcType=BIGINT}
+		</foreach>		
+	</update>		
 </mapper>

@@ -86,6 +86,7 @@ import com.jd.tms.data.dto.CargoDetailDto;
 import com.jd.transboard.api.dto.AddBoardBox;
 import com.jd.transboard.api.dto.Board;
 import com.jd.transboard.api.dto.Response;
+import com.jd.transboard.api.enums.BizSourceEnum;
 import com.jd.transboard.api.enums.ResponseEnum;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -1965,6 +1966,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             addBoardBox.setSiteCode(request.getOperateSiteCode());
             addBoardBox.setSiteName(request.getOperateSiteName());
             addBoardBox.setSiteType(BoardCommonManagerImpl.BOARD_COMBINATION_SITE_TYPE);
+            addBoardBox.setBizSource(BizSourceEnum.PDA.getValue());
             Response<Integer> response = groupBoardManager.addBoxToBoard(addBoardBox);
 
             if (response == null) {
@@ -2424,6 +2426,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
 
         Map<String, Object> params = new HashMap<String, Object>();
         params.put("unloadUserErp",request.getUnloadUserErp());
+        params.put("unloadUserName",request.getUnloadUserName());
         params.put("railWayPlatForm",request.getRailWayPlatForm());
         params.put("unloadCarIds",request.getUnloadCarIds());
         params.put("updateUserErp",request.getUpdateUserErp());
@@ -2445,15 +2448,21 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             unloadCarDistribution.setUnloadUserName(request.getUnloadUserName());
             unloadCarDistribution.setUnloadUserType(UnloadUserTypeEnum.UNLOAD_MASTER.getType());
             unloadCarDistribution.setUpdateTime(new Date());
-            List<String> unloadUserErps = unloadCarDistributionDao.selectUnloadUserBySealCarCode(request.getSealCarCodes().get(i));
-            if (CollectionUtils.isEmpty(unloadUserErps)) {
-                unloadCarDistribution.setCreateTime(new Date());
-                unloadCarDistributionDao.add(unloadCarDistribution);
-            } else {
-                unloadCarDistributionDao.updateUnloadUser(unloadCarDistribution);
-                // 如果自己还是协助人，需要删除
-                unloadCarDistributionDao.deleteUnloadHelper(unloadCarDistribution);
+            unloadCarDistribution.setCreateTime(new Date());
+            // 使用卸车任务的创建时间作为负责人进入的时间
+            UnloadCar unloadCar = unloadCarDao.selectBySealCarCodeWithStatus(request.getSealCarCodes().get(i));
+            if (unloadCar != null) {
+                unloadCarDistribution.setUpdateTime(unloadCar.getCreateTime());
+                unloadCarDistribution.setCreateTime(unloadCar.getCreateTime());
             }
+
+            // 先逻辑删除旧的负责人
+            unloadCarDistributionDao.deleteUnloadMaster(unloadCarDistribution);
+            // 如果新负责人还是协助人，需要删除
+            unloadCarDistributionDao.deleteUnloadHelper(unloadCarDistribution);
+            // 添加新的负责人
+            unloadCarDistributionDao.add(unloadCarDistribution);
+
         }
         return true;
     }
@@ -3244,8 +3253,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
 
 
             //有包装服务
-            boolean isPackService = BusinessUtil.isNeedConsumable(waybillSign);
-            if(isPackService && waybillConsumableRecordService.needConfirmed(waybillCode)){
+            if(waybillConsumableRecordService.needConfirmed(waybillCode)){
                 logger.warn("interceptValidate卸车包装服务运单未确认包装完成禁止发货单号：{}",waybillCode);
                 result.setCode(InvokeResult.RESULT_INTERCEPT_CODE);
                 result.setMessage(LoadIllegalException.PACK_SERVICE_NO_CONFIRM_FORBID_SEND_MESSAGE);
@@ -3387,8 +3395,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
 
 
             //有包装服务
-            boolean isPackService = BusinessUtil.isNeedConsumable(waybillSign);
-            if(isPackService && waybillConsumableRecordService.needConfirmed(waybillCode)){
+            if(waybillConsumableRecordService.needConfirmed(waybillCode)){
                 logger.warn("interceptValidate卸车包装服务运单未确认包装完成禁止发货单号：{}",waybillCode);
                 result.setCode(InvokeResult.RESULT_INTERCEPT_CODE);
                 result.setMessage(LoadIllegalException.PACK_SERVICE_NO_CONFIRM_FORBID_SEND_MESSAGE);

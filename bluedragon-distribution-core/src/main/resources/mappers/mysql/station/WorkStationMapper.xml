@@ -233,7 +233,15 @@
             limit #{offset}, #{limit}
         </if>		
 	</select>
-	
+	<select id="queryListForExport" parameterType="com.jd.bluedragon.distribution.station.query.WorkStationQuery" resultMap="WorkStation">
+		select
+			<include refid="Base_Column_List"/>
+		from
+			work_station t
+		<include refid="queryCondition"/>
+		order by t.id 
+        limit #{offset}, #{limit}		
+	</select>	
 	<select id="queryCount" parameterType="com.jd.bluedragon.distribution.station.query.WorkStationQuery" resultType="long">
 		select
 			count(1)
@@ -274,6 +282,7 @@
 		from
 			work_station t
 		where yn = 1 
+		  and work_code is not null
 		<if test="areaCode != null and areaCode != ''" >
 			and area_code = #{areaCode,jdbcType=VARCHAR}
 		</if>		
@@ -285,10 +294,40 @@
 		from
 			work_station t
 		where yn = 1 
+		  and area_code is not null
 		<if test="workCode != null and workCode != ''" >
 			and work_code = #{workCode,jdbcType=VARCHAR}
 		</if>
 		group by area_code
 	</select>
-
+	<select id="queryByIds" parameterType="com.jd.bluedragon.distribution.station.domain.DeleteRequest" resultMap="WorkStation">
+		select
+			<include refid="Base_Column_List"/>
+		from
+			work_station t
+		where t.yn = 1
+		 	and t.id in
+		<foreach collection="dataList" item="item" open="(" close=")" separator=",">
+			#{item.id,jdbcType=BIGINT}
+		</foreach>
+	</select>	
+	<update id="deleteByIds" parameterType="com.jd.bluedragon.distribution.station.domain.DeleteRequest">
+		update work_station
+			set 
+			<if test="operateUserCode != null" >
+				update_user = #{operateUserCode,jdbcType=VARCHAR},
+			</if>
+			<if test="operateUserName != null" >
+				update_user_name = #{operateUserName,jdbcType=VARCHAR},
+			</if>			
+			<if test="operateTime != null" >
+				update_time = #{operateTime,jdbcType=TIMESTAMP},
+			</if>
+			   yn = 0
+		where yn = 1
+		 	and id in
+		<foreach collection="dataList" item="item" open="(" close=")" separator=",">
+			#{item.id,jdbcType=BIGINT}
+		</foreach>		
+	</update>
 </mapper>

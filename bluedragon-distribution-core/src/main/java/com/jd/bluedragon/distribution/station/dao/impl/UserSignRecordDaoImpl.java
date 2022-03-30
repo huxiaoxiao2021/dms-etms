@@ -9,6 +9,9 @@ import org.springframework.stereotype.Repository;
 
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.station.dao.UserSignRecordDao;
+import com.jd.bluedragon.distribution.station.domain.UserSignNoticeJobItemVo;
+import com.jd.bluedragon.distribution.station.domain.UserSignNoticeVo;
+import com.jd.bluedragon.distribution.station.domain.UserSignNoticeWaveItemVo;
 import com.jd.bluedragon.distribution.station.domain.UserSignRecord;
 import com.jd.bluedragon.distribution.station.domain.UserSignRecordReportSumVo;
 import com.jd.bluedragon.distribution.station.domain.UserSignRecordReportVo;
@@ -67,6 +70,14 @@ public class UserSignRecordDaoImpl extends BaseDao<UserSignRecord> implements Us
 	    return this.getSqlSession().selectList(NAMESPACE+".queryList",query);
 	}
 	/**
+	 * 按条件分页查询-导出
+	 * @param query
+	 * @return
+	 */
+	public List<UserSignRecord> queryListForExport(UserSignRecordQuery query){
+	    return this.getSqlSession().selectList(NAMESPACE+".queryListForExport",query);
+	}
+	/**
 	 * 按条件查询数量
 	 * @param query
 	 * @return
@@ -94,7 +105,18 @@ public class UserSignRecordDaoImpl extends BaseDao<UserSignRecord> implements Us
 	public UserSignRecordReportSumVo queryReportSum(UserSignRecordQuery query) {
 		return this.getSqlSession().selectOne(NAMESPACE+".queryReportSum",query);
 	}
-
+	@Override
+	public UserSignNoticeVo queryUserSignNoticeVo(UserSignRecordQuery query) {
+		return this.getSqlSession().selectOne(NAMESPACE+".queryUserSignNoticeVo",query);
+	}
+	@Override
+	public List<UserSignNoticeWaveItemVo> queryUserSignNoticeWaveItems(UserSignRecordQuery query) {
+		return this.getSqlSession().selectList(NAMESPACE+".queryUserSignNoticeWaveItems",query);
+	}
+	@Override
+	public List<UserSignNoticeJobItemVo> queryUserSignNoticeJobItems(UserSignRecordQuery query) {
+		return this.getSqlSession().selectList(NAMESPACE+".queryUserSignNoticeJobItems",query);
+	}
     @Override
     public List<Long> querySignInMoreThanSpecifiedTime(Date signInTime, Integer limit) {
         Map<String, Object> param = new HashMap<>();

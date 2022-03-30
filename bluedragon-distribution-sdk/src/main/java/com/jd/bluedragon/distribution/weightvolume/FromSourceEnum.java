@@ -80,7 +80,7 @@ public enum FromSourceEnum {
      */
     CLPS_WEIGHT_BY_BOX,
     /**
-     * 人工抽检
+     * 抽检
      */
-    ARTIFICIAL_SPOT_CHECK;
+    SPOT_CHECK;
 }

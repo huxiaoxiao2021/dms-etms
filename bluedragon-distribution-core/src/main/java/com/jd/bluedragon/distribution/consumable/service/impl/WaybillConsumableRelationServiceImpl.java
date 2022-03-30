@@ -2,22 +2,20 @@ package com.jd.bluedragon.distribution.consumable.service.impl;
 
 import com.jd.bluedragon.distribution.api.domain.LoginUser;
 import com.jd.bluedragon.distribution.consumable.dao.WaybillConsumableRelationDao;
-import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableDetailInfo;
-import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRelation;
-import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRelationCondition;
-import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRelationPDADto;
+import com.jd.bluedragon.distribution.consumable.domain.*;
 import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRelationService;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.ql.dms.common.web.mvc.BaseService;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.math.BigDecimal;
+import java.util.*;
 
 /**
  *
@@ -41,12 +39,35 @@ public class WaybillConsumableRelationServiceImpl extends BaseService<WaybillCon
 
     @Override
     public  List<WaybillConsumableDetailInfo> queryByWaybillCodes(List<String> waybillCodes) {
-        return waybillConsumableRelationDao.queryByWaybillCodes(waybillCodes);
+		List<WaybillConsumableDetailInfo> results = new ArrayList<>();
+		Set<String> leftWaybillCodes = new HashSet<>();
+
+		/* 兼容逻辑：终端包装耗材重塑项目将耗材的基础资料信息维护迁移到终端，所以此处有兼容逻辑，待分拣所有的包装耗材基础资料完全下线之后，可去掉该兼容逻辑，采用新的查询方法 */
+		List<WaybillConsumableDetailInfo> resultLists1 = waybillConsumableRelationDao.queryNewByWaybillCodes(waybillCodes);
+		for (WaybillConsumableDetailInfo waybillConsumableDetailInfo : resultLists1) {
+			if (StringUtils.isEmpty(waybillConsumableDetailInfo.getType())) {
+				leftWaybillCodes.add(waybillConsumableDetailInfo.getWaybillCode());
+			} else {
+				results.add(waybillConsumableDetailInfo);
+			}
+		}
+		if (CollectionUtils.isNotEmpty(leftWaybillCodes)) {
+			results.addAll(waybillConsumableRelationDao.queryByWaybillCodes(new ArrayList<String>(leftWaybillCodes)));
+		}
+
+        return results;
     }
 
 	@Override
 	public PagerResult<WaybillConsumableDetailInfo> queryDetailInfoByPagerCondition(WaybillConsumableRelationCondition waybillConsumableRelationCondition) {
-		return waybillConsumableRelationDao.queryDetailInfoByPagerCondition(waybillConsumableRelationCondition);
+		PagerResult<WaybillConsumableDetailInfo> result = waybillConsumableRelationDao.queryNewDetailInfoByPagerCondition(waybillConsumableRelationCondition);
+
+		/* 兼容逻辑：终端包装耗材重塑项目将耗材的基础资料信息维护迁移到终端，所以此处有兼容逻辑，待分拣所有的包装耗材基础资料完全下线之后，可去掉该兼容逻辑，采用新的查询方法 */
+		if (result == null || CollectionUtils.isEmpty(result.getRows()) || StringUtils.isEmpty(result.getRows().get(0).getType())) {
+			result = waybillConsumableRelationDao.queryDetailInfoByPagerCondition(waybillConsumableRelationCondition);
+		}
+
+		return result;
 	}
 
 	@Override
@@ -81,5 +102,43 @@ public class WaybillConsumableRelationServiceImpl extends BaseService<WaybillCon
 	@Override
 	public void updateByWaybillCode(WaybillConsumableRelationPDADto waybillConsumableRelationPDADto) {
 		waybillConsumableRelationDao.updateByWaybillCode(waybillConsumableRelationPDADto);
+	}
+
+	@Override
+	public List<WaybillConsumableRelation> convert2WaybillConsumableRelation(ReceivePackingConsumableDto packingConsumableDto) {
+		List<BoxChargeDetail> boxChargeDetails = packingConsumableDto.getBoxChargeDetails();
+		if(CollectionUtils.isEmpty(boxChargeDetails)){
+			return null;
+		}
+		Date operateTime = DateHelper.toDate(packingConsumableDto.getPdaTime());
+		String erp = StringUtils.isEmpty(packingConsumableDto.getEntryErp())? String.valueOf(packingConsumableDto.getEntryId()) : packingConsumableDto.getEntryErp();
+		List<WaybillConsumableRelation> waybillConsumableRelationLst = new ArrayList<WaybillConsumableRelation>(boxChargeDetails.size());
+		for(BoxChargeDetail boxChargeDetail : boxChargeDetails){
+			WaybillConsumableRelation relation = new WaybillConsumableRelation();
+			relation.setWaybillCode(packingConsumableDto.getWaybillCode());
+			relation.setConsumableCode(boxChargeDetail.getBarCode());
+
+			relation.setConsumableName(boxChargeDetail.getBoxName());
+			relation.setConsumableType(boxChargeDetail.getMaterialTypeCode());
+			relation.setConsumableTypeName(boxChargeDetail.getMaterialTypeName());
+			relation.setSpecification(boxChargeDetail.getMaterialSpecification());
+			relation.setUnit(boxChargeDetail.getMaterialUnit());
+			if (boxChargeDetail.getMaterialVolume() != null) {
+				relation.setVolume(BigDecimal.valueOf(boxChargeDetail.getMaterialVolume() * 100*100*100));
+			}
+			relation.setVolumeCoefficient(BigDecimal.valueOf(boxChargeDetail.getVolumeCoefficient()));
+			relation.setPackingCharge(boxChargeDetail.getMaterialAmount());
+
+			if (boxChargeDetail.getMaterialNumber() != null) {
+				relation.setReceiveQuantity(boxChargeDetail.getMaterialNumber().doubleValue());
+				relation.setConfirmQuantity(boxChargeDetail.getMaterialNumber().doubleValue());
+			}
+
+			relation.setOperateUserErp(erp);
+			relation.setOperateTime(operateTime);
+			waybillConsumableRelationLst.add(relation);
+		}
+
+		return waybillConsumableRelationLst;
 	}
 }

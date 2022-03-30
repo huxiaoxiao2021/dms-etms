@@ -195,7 +195,7 @@ public class SpotCheckDataDealResource {
             WeightVolumeQueryCondition packCondition = new WeightVolumeQueryCondition();
             packCondition.setWaybillCode(waybillCode);
             packCondition.setReviewSiteCode(siteCode);
-            packCondition.setRecordType(SpotCheckRecordTypeEnum.PACKAGE.getCode());
+            packCondition.setRecordType(SpotCheckRecordTypeEnum.DETAIL_RECORD.getCode());
             List<WeightVolumeCollectDto> packList = reportExternalManager.queryByCondition(packCondition);
             for (WeightVolumeCollectDto packCollect : packList) {
                 String packageCode = packCollect.getPackageCode();
@@ -407,7 +407,7 @@ public class SpotCheckDataDealResource {
                     WeightVolumeQueryCondition packCondition = new WeightVolumeQueryCondition();
                     packCondition.setWaybillCode(waybillCode);
                     packCondition.setReviewSiteCode(collectDto.getReviewSiteCode());
-                    packCondition.setRecordType(SpotCheckRecordTypeEnum.PACKAGE.getCode());
+                    packCondition.setRecordType(SpotCheckRecordTypeEnum.DETAIL_RECORD.getCode());
                     List<WeightVolumeCollectDto> packCollectList = reportExternalManager.queryByCondition(packCondition);
 
                     int hasSendCount = 0; // 已发货包裹数

@@ -220,7 +220,11 @@ $(function () {
 
             $.ajaxHelper.doPostSync(distributeUrl,JSON.stringify(request),function(res){
                 if(res && res.succeed){
-                    tableInit().refresh();
+                    if (res.code === 200) {
+                        tableInit().refresh();
+                    } else {
+                        alert(res.message);
+                    }
                 }else{
                     alert(res.message);
                 }
@@ -240,7 +244,11 @@ $(function () {
         var userUrl = '/unloadCarTask/getUserName?unloadUser=' + $("#unloadUser").val();
         $.ajaxHelper.doGetSync(userUrl,null,function(res){
             if(res && !res.succeed){
-                alert('操作成功!');
+                if (res.code === 400) {
+                    $("#unloadUserName").val("");
+                    alert(res.message);
+                    return;
+                }
             }
             $("#unloadUserName").val(res.data);
         });

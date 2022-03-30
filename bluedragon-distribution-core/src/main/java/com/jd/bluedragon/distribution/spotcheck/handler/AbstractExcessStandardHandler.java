@@ -98,7 +98,7 @@ public class AbstractExcessStandardHandler {
         SpotCheckReviewDetail spotCheckReviewDetail = spotCheckContext.getSpotCheckReviewDetail();
         double reviewWeight = spotCheckReviewDetail.getReviewTotalWeight();
         double reviewVolume = spotCheckReviewDetail.getReviewTotalVolume();
-        double reviewVolumeWeight = MathUtils.keepScale(reviewVolume / spotCheckContext.getVolumeRate(), 3);
+        double reviewVolumeWeight = MathUtils.keepScale(reviewVolume / spotCheckContext.getVolumeRate(), 2);
         double reviewLarge = Math.max(reviewWeight, reviewVolumeWeight);
         checkExcessRequest.setReviewWeight(reviewWeight);
         checkExcessRequest.setReviewVolume(reviewVolume);
@@ -135,7 +135,7 @@ public class AbstractExcessStandardHandler {
             // 复核总重量、复核总体积
             double reviewWeight = spotCheckReviewDetail.getReviewTotalWeight();
             double reviewVolume = spotCheckReviewDetail.getReviewTotalVolume();
-            double reviewVolumeWeight = MathUtils.keepScale(reviewVolume / spotCheckContext.getVolumeRate(), 3);
+            double reviewVolumeWeight = MathUtils.keepScale(reviewVolume / spotCheckContext.getVolumeRate(), 2);
             // 复核较大值
             double reviewLarge = Math.max(reviewWeight, reviewVolumeWeight);
             // 核对较大值

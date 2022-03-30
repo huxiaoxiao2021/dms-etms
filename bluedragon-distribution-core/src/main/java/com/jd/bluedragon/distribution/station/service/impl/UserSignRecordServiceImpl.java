@@ -4,12 +4,10 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
-import com.jd.ump.annotation.JProEnum;
-import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,8 +15,14 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.distribution.api.response.base.Result;
+import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.station.dao.UserSignRecordDao;
+import com.jd.bluedragon.distribution.station.domain.UserSignNoticeJobItemVo;
+import com.jd.bluedragon.distribution.station.domain.UserSignNoticeVo;
+import com.jd.bluedragon.distribution.station.domain.UserSignNoticeWaveItemVo;
 import com.jd.bluedragon.distribution.station.domain.UserSignRecord;
 import com.jd.bluedragon.distribution.station.domain.UserSignRecordReportSumVo;
 import com.jd.bluedragon.distribution.station.domain.UserSignRecordReportVo;
@@ -37,6 +41,8 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -55,7 +61,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	@Qualifier("userSignRecordDao")
 	private UserSignRecordDao userSignRecordDao;
 	
-	@Value("${beans.userSignRecordService.signDateRangeMaxDays:7}")
+	@Value("${beans.userSignRecordService.signDateRangeMaxDays:2}")
 	private int signDateRangeMaxDays;
 	
 	@Autowired
@@ -178,7 +184,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 			if(signDateStart != null && signDateEnd != null) {
 				Date checkDate = DateHelper.addDate(signDateStart,signDateRangeMaxDays);
 				if(signDateEnd.after(checkDate)) {
-					return result.toFail("查询日期范围不能超过" + signDateRangeMaxDays + "天");
+					return result.toFail("查询日期范围不能超过" + (signDateRangeMaxDays + 1) + "天");
 				}
 				query.setSignDateStart(signDateStart);
 				query.setSignDateEnd(signDateEnd);
@@ -434,4 +440,85 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 
         return result;
     }
+     
+    /**
+     * 根据条件查询-转成通知对象
+     * @param query
+     * @return
+     */
+    public Result<UserSignNoticeVo> queryUserSignRecordToNoticeVo(UserSignRecordQuery query) {
+    	Result<UserSignNoticeVo> result = Result.success();
+    	UserSignNoticeVo notice = userSignRecordDao.queryUserSignNoticeVo(query);
+    	if(notice == null
+    			|| notice.getGridCount() == 0) {
+    		log.warn("咚咚通知：数据异常，不存在签到数据！请求参数：{}",JsonHelper.toJson(query));
+    		result.toFail("咚咚通知：数据异常，不存在签到数据！");
+    		return result;
+    	}
+    	
+    	List<UserSignNoticeWaveItemVo> waveItems = userSignRecordDao.queryUserSignNoticeWaveItems(query);
+    	if(CollectionUtils.isEmpty(waveItems)) {
+    		log.warn("咚咚通知：数据异常，不存在签到班次汇总数据！请求参数：{}",JsonHelper.toJson(query));
+    		result.toFail("咚咚通知：数据异常，不存在签到班次汇总数据！");
+    		return result;
+    	}
+    	List<UserSignNoticeJobItemVo> jobItems = userSignRecordDao.queryUserSignNoticeJobItems(query);
+    	if(CollectionUtils.isEmpty(jobItems)) {
+    		log.warn("咚咚通知：数据异常，不存在签到班次、工种汇总数据！请求参数：{}",JsonHelper.toJson(query));
+    		result.toFail("咚咚通知：数据异常，不存在签到班次、工种汇总数据");
+    		return result;    		
+    	}
+    	notice.setWaveItems(waveItems);
+    	
+    	Map<Integer,UserSignNoticeWaveItemVo> waveMap = new HashMap<Integer,UserSignNoticeWaveItemVo>();
+    	for(UserSignNoticeWaveItemVo waveData: waveItems) {
+    		waveMap.put(waveData.getWaveCode(), waveData);
+    	}
+    	for(UserSignNoticeJobItemVo jobData: jobItems) {
+    		UserSignNoticeWaveItemVo waveData = waveMap.get(jobData.getWaveCode());
+    		if(waveData == null) {
+    			log.warn("咚咚通知：数据异常，waveItems不存在{}班次数据！",jobData.getWaveCode());
+        		result.toFail("咚咚通知：数据异常，不存在签到班次、工种汇总数据");
+        		return result; 
+    		}
+    		if(waveData.getJobItems() == null) {
+    			waveData.setJobItems(new ArrayList<UserSignNoticeJobItemVo>());
+    			waveData.setAttendNumSum(0);
+    		}
+    		waveData.getJobItems().add(jobData);
+    		waveData.setAttendNumSum(waveData.getAttendNumSum() + jobData.getAttendNumSum());
+			if(NumberHelper.gt0(waveData.getPlanAttendNumSum())) {
+				double offValue = Math.abs((waveData.getAttendNumSum() - waveData.getPlanAttendNumSum()) * 1.0 / waveData.getPlanAttendNumSum());
+				waveData.setDeviationPlanRate(RATE_FORMAT.format(offValue));
+			}else {
+				waveData.setDeviationPlanRate("--");
+			}
+    	}
+    	result.setData(notice);
+    	return result;
+    }
+	@Override
+	public Result<Long> queryCount(UserSignRecordQuery query) {
+		Result<Long> result = Result.success();
+		Result<Boolean> checkResult = this.checkParamForQueryPageList(query);
+		if(!checkResult.isSuccess()){
+		    return Result.fail(checkResult.getMessage());
+		}
+		result.setData(userSignRecordDao.queryCount(query));
+		return result;
+	}
+	@Override
+	public Result<List<UserSignRecord>> queryListForExport(UserSignRecordQuery query) {
+		Result<List<UserSignRecord>> result = Result.success();
+		Result<Boolean> checkResult = this.checkParamForQueryPageList(query);
+		if(!checkResult.isSuccess()){
+		    return Result.fail(checkResult.getMessage());
+		}
+	    List<UserSignRecord> dataList = userSignRecordDao.queryListForExport(query);
+	    for (UserSignRecord tmp : dataList) {
+	    	this.fillOtherInfo(tmp);
+	    }
+		result.setData(dataList);
+		return result;
+	}
 }

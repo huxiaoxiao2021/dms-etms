@@ -47,6 +47,7 @@ import com.jd.transboard.api.dto.AddBoardRequest;
 import com.jd.transboard.api.dto.Board;
 import com.jd.transboard.api.dto.MoveBoxRequest;
 import com.jd.transboard.api.dto.Response;
+import com.jd.transboard.api.enums.BizSourceEnum;
 import com.jd.transboard.api.enums.ResponseEnum;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -58,6 +59,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+
+import static com.jd.ql.dms.common.constants.OperateDeviceTypeConstants.PDA;
 
 /**
  * 组板公用操作实现
@@ -316,6 +319,8 @@ public class BoardCommonManagerImpl implements BoardCommonManager {
             addBoardRequest.setOperatorName(request.getOperateUserName());
             addBoardRequest.setSiteCode(request.getOperateSiteCode());
             addBoardRequest.setSiteName(request.getOperateSiteName());
+            addBoardRequest.setBizSource(request.getBizSource());
+
             Response<List<Board>> response = groupBoardManager.createBoards(addBoardRequest);
             if(response != null && response.getCode() == ResponseEnum.SUCCESS.getIndex()
                     && !response.getData().isEmpty()){
@@ -349,7 +354,7 @@ public class BoardCommonManagerImpl implements BoardCommonManager {
         moveBoxRequest.setSiteCode(request.getOperateSiteCode());
         moveBoxRequest.setOperatorErp(request.getOperateUserErp());
         moveBoxRequest.setOperatorName(request.getOperateUserName());
-
+        moveBoxRequest.setBizSource(request.getBizSource());
         Response<String> tcResponse = groupBoardManager.moveBoxToNewBoard(moveBoxRequest);
         //组新板成功
         if (tcResponse != null && tcResponse.getCode() == ResponseEnum.SUCCESS.getIndex()) {
@@ -510,8 +515,7 @@ public class BoardCommonManagerImpl implements BoardCommonManager {
 
 
             //有包装服务
-            boolean isPackService = BusinessUtil.isNeedConsumable(waybillSign);
-            if(isPackService && waybillConsumableRecordService.needConfirmed(waybillCode)){
+            if(waybillConsumableRecordService.needConfirmed(waybillCode)){
                 logger.warn("interceptValidate卸车包装服务运单未确认包装完成禁止发货单号：{}",waybillCode);
                 result.setCode(InvokeResult.RESULT_INTERCEPT_CODE);
                 result.setMessage(LoadIllegalException.PACK_SERVICE_NO_CONFIRM_FORBID_SEND_MESSAGE);
@@ -607,8 +611,7 @@ public class BoardCommonManagerImpl implements BoardCommonManager {
             return result;
         }
         //有包装服务
-        boolean isPackService = BusinessUtil.isNeedConsumable(waybillSign);
-        if(isPackService && waybillConsumableRecordService.needConfirmed(waybillCode)){
+        if(waybillConsumableRecordService.needConfirmed(waybillCode)){
             logger.warn("loadUnloadInterceptValidate 装卸车包装服务运单未确认包装完成禁止发货单号：{}",waybillCode);
 //            result.setCode(InvokeResult.RESULT_INTERCEPT_CODE);
             result.setData(true);

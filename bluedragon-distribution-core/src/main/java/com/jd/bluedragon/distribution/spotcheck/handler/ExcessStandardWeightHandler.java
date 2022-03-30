@@ -53,7 +53,7 @@ public class ExcessStandardWeightHandler implements IExcessStandardHandler {
         // 核对较大值
         Double contrastLarge = checkExcessRequest.getContrastLarge();
         // 较大值误差
-        double largeDiff = MathUtils.keepScale(Math.abs(reviewLarge - contrastLarge), 3);
+        double largeDiff = MathUtils.keepScale(Math.abs(reviewLarge - contrastLarge), 2);
         // 超标原因
         String excessReasonTemplate = "重量标准:分拣较大值%s在%s至%s之间并且【较大值差异:%s】超过标准值%s";
         if(reviewLarge <= firstWeight && contrastLarge > firstWeight){

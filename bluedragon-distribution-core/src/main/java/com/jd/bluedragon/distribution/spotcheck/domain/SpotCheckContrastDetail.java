@@ -1,7 +1,5 @@
 package com.jd.bluedragon.distribution.spotcheck.domain;
 
-import com.jd.jddl.executor.function.scalar.filter.In;
-
 import java.io.Serializable;
 
 /**
@@ -47,6 +45,22 @@ public class SpotCheckContrastDetail implements Serializable {
      */
     private String contrastOrgName;
     /**
+     * 核对操作战区编码
+     */
+    private String contrastWarZoneCode;
+    /**
+     * 核对操作战区名称
+     */
+    private String contrastWarZoneName;
+    /**
+     * 核对操作片区编码
+     */
+    private String contrastAreaCode;
+    /**
+     * 核对操作片区名称
+     */
+    private String contrastAreaName;
+    /**
      * 核对片区编码
      */
     private String contrastDeptCode;
@@ -66,6 +80,14 @@ public class SpotCheckContrastDetail implements Serializable {
      * 核对操作人ERP
      */
     private String contrastOperateUserErp;
+    /**
+     * 核对操作人姓名
+     */
+    private String contrastOperateUserName;
+    /**
+     * 核对操作人账号类型
+     */
+    private Integer contrastOperateUserAccountType;
     /**
      * 责任类型
      */
@@ -150,6 +172,38 @@ public class SpotCheckContrastDetail implements Serializable {
         this.contrastOrgName = contrastOrgName;
     }
 
+    public String getContrastWarZoneCode() {
+        return contrastWarZoneCode;
+    }
+
+    public void setContrastWarZoneCode(String contrastWarZoneCode) {
+        this.contrastWarZoneCode = contrastWarZoneCode;
+    }
+
+    public String getContrastWarZoneName() {
+        return contrastWarZoneName;
+    }
+
+    public void setContrastWarZoneName(String contrastWarZoneName) {
+        this.contrastWarZoneName = contrastWarZoneName;
+    }
+
+    public String getContrastAreaCode() {
+        return contrastAreaCode;
+    }
+
+    public void setContrastAreaCode(String contrastAreaCode) {
+        this.contrastAreaCode = contrastAreaCode;
+    }
+
+    public String getContrastAreaName() {
+        return contrastAreaName;
+    }
+
+    public void setContrastAreaName(String contrastAreaName) {
+        this.contrastAreaName = contrastAreaName;
+    }
+
     public String getContrastDeptCode() {
         return contrastDeptCode;
     }
@@ -188,6 +242,22 @@ public class SpotCheckContrastDetail implements Serializable {
 
     public void setContrastOperateUserErp(String contrastOperateUserErp) {
         this.contrastOperateUserErp = contrastOperateUserErp;
+    }
+
+    public String getContrastOperateUserName() {
+        return contrastOperateUserName;
+    }
+
+    public void setContrastOperateUserName(String contrastOperateUserName) {
+        this.contrastOperateUserName = contrastOperateUserName;
+    }
+
+    public Integer getContrastOperateUserAccountType() {
+        return contrastOperateUserAccountType;
+    }
+
+    public void setContrastOperateUserAccountType(Integer contrastOperateUserAccountType) {
+        this.contrastOperateUserAccountType = contrastOperateUserAccountType;
     }
 
     public Integer getDutyType() {
