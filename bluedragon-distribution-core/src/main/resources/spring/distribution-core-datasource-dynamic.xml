@@ -5,6 +5,7 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
     http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
     http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.1.xsd">
+
     <bean id="dmsUndivMain" class="org.apache.commons.dbcp.BasicDataSource"  destroy-method="close">
         <property name="url" value="${dms.write.mysql.db.undiv.url}"/>
         <property name="username" value="${db.mysql.undiv.username}"/>
@@ -65,6 +66,18 @@
     <bean id="dynamicSqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
         <property name="dataSource" ref="dynamicDataSource" />
         <property name="configLocation" value="classpath:config/mysql/mybatis-config-undiv.xml"/>
+        <property name="plugins">
+            <array>
+                <bean class="com.github.pagehelper.PageInterceptor">
+                    <property name="properties">
+                        <props>
+                            <prop key="helperDialect">mysql</prop>
+                            <prop key="reasonable">true</prop>
+                        </props>
+                    </property>
+                </bean>
+            </array>
+        </property>
     </bean>
     <bean id="dynamicSqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
         <constructor-arg index="0" ref="dynamicSqlSessionFactory"/>
