@@ -25,6 +25,7 @@ public class MiniStoreSortIncrCountTask implements Runnable {
 
     @Override
     public void run() {
+        logger.info("MiniStoreSortIncrCountTask start...");
         DeviceDto deviceDto = new DeviceDto();
         deviceDto.setBoxCode(boxCode);
         MiniStoreBindRelation miniStoreBindRelation = miniStoreService.selectBindRelation(deviceDto);

@@ -40,6 +40,7 @@ public class MiniStoreSyncProcessDataTask implements Runnable {
 
     @Override
     public void run() {
+        logger.info("MiniStoreSyncProcessDataTask start...");
         DeviceDto deviceDto = new DeviceDto();
         deviceDto.setBoxCode(boxCode);
         MiniStoreBindRelation miniStoreBindRelation = miniStoreService.selectBindRelation(deviceDto);
@@ -49,9 +50,10 @@ public class MiniStoreSyncProcessDataTask implements Runnable {
             event.setStoreCode(miniStoreBindRelation.getStoreCode());
             event.setProcessType(processType.getType());
             event.setSiteName(miniStoreBindRelation.getCreateSiteName());
-            event.setOperateTime(TimeUtils.date2string(miniStoreBindRelation.getUpdateTime(),TimeUtils.yyyy_MM_dd_HH_mm_ss));
+            Date time =new Date();
+            event.setOperateTime(TimeUtils.date2string(time,TimeUtils.yyyy_MM_dd_HH_mm_ss));
             event.setOperateUser(miniStoreBindRelation.getUpdateUser());
-            event.setCreateTime(TimeUtils.date2string(new Date(),TimeUtils.yyyy_MM_dd_HH_mm_ss));
+            event.setCreateTime(TimeUtils.date2string(time,TimeUtils.yyyy_MM_dd_HH_mm_ss));
             miniStoreSortProcessProducer.sendOnFailPersistent(boxCode, JsonHelper.toJson(event));
         }
 

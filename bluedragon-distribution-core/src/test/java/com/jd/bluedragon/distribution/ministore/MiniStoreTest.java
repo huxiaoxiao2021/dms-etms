@@ -18,6 +18,8 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -31,6 +33,20 @@ public class MiniStoreTest {
     MiniStoreBindRelationDao miniStoreBindRelationDao;
     @Autowired
     MiniStoreService miniStoreService;
+    @Autowired
+    ThreadPoolTaskExecutor taskExecutor;
+
+
+    @Test
+    public void ThreadPoolTest() {
+        Runnable runnable =new Runnable() {
+            @Override
+            public void run() {
+                System.out.println(1);
+            }
+        };
+        taskExecutor.execute(runnable);
+    }
 
     @Test
     public void validatDeviceBindStatusTest() {

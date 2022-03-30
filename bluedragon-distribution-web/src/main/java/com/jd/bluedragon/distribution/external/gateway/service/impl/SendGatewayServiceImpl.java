@@ -27,6 +27,8 @@ import com.jd.bluedragon.distribution.businessCode.BusinessCodeFromSourceEnum;
 import com.jd.bluedragon.distribution.coldchain.domain.TransPlanDetailResult;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
+import com.jd.bluedragon.distribution.ministore.enums.BizDirectionEnum;
+import com.jd.bluedragon.distribution.ministore.enums.ProcessTypeEnum;
 import com.jd.bluedragon.distribution.rest.send.ColdChainDeliveryResource;
 import com.jd.bluedragon.distribution.rest.send.DeliveryResource;
 import com.jd.bluedragon.distribution.send.domain.SendM;
@@ -127,6 +129,7 @@ public class SendGatewayServiceImpl implements SendGatewayService {
         SendResult sendResult = invokeResult.getData();
         if(Objects.equals(sendResult.getKey(),SendResult.CODE_OK)){
             jdVerifyResponse.toSuccess(sendResult.getValue());
+            ProcessTypeEnum processTypeEnum = BizDirectionEnum.FROWARD.getCode().equals(cRequest.getBusinessType())?ProcessTypeEnum.SEND_SORT_CENTER:ProcessTypeEnum.BACK_INSPECTION_SORT_CENTER;
             return jdVerifyResponse;
         }
 

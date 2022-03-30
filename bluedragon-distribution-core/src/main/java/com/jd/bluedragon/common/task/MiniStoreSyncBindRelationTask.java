@@ -41,6 +41,8 @@ public class MiniStoreSyncBindRelationTask implements Runnable {
 
     @Override
     public void run() {
+        logger.info("MiniStoreSyncBindRelationTask start...");
+
         //查询微仓绑定数据
         MiniStoreBindRelation miniStoreBindRelation = miniStoreService.selectById(miniStoreBindRelationId);
         //查询分拣集包数据
