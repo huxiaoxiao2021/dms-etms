@@ -698,47 +698,49 @@
 		select
 			<include refid="Base_Column_List"/>
 		from
-			user_sign_record r
+			(select t.* from user_sign_record t
+			where t.yn = 1
+				and t.user_code = #{userCode,jdbcType=VARCHAR}
+				and t.sign_out_time is null
+			<if test="siteCode != null" >
+				and	t.site_code = #{siteCode,jdbcType=INTEGER}	
+			</if>			
+			<if test="signDate != null" >
+				and t.sign_date = #{signDate,jdbcType=DATE}
+			</if>
+			order by t.sign_in_time desc
+			limit 1
+			) r			
 		<include refid="joinSql"/>			
-		where r.yn = 1
-			and r.user_code = #{userCode,jdbcType=VARCHAR}
-			and r.sign_out_time is null
-		<if test="siteCode != null" >
-			and	r.site_code = #{siteCode,jdbcType=INTEGER}	
-		</if>			
-		<if test="signDate != null" >
-			and r.sign_date = #{signDate,jdbcType=DATE}
-		</if>
-		order by r.sign_in_time desc
 		limit 1
 	</select>
 	<select id="queryListWithPosition" parameterType="com.jd.bluedragon.common.dto.station.UserSignQueryRequest" resultMap="UserSignRecordData">
 		select
 			<include refid="Base_Column_List"/>
 		from
-			user_sign_record r
-		<include refid="joinSql"/>
-		<include refid="queryWithPosition"/>
-		order by r.sign_in_time desc,r.sign_out_time
-        limit #{offset}, #{limit}
+			(select t.* from user_sign_record t
+			<include refid="queryWithPosition"/>
+			order by t.sign_in_time desc,t.sign_out_time
+	        limit #{offset}, #{limit}
+	        ) r
+        <include refid="joinSql"/>
 	</select>
 
 	<select id="queryCountWithPosition" parameterType="com.jd.bluedragon.common.dto.station.UserSignQueryRequest" resultType="long">
 		select
 			count(1)
 		from
-			user_sign_record r
-		<include refid="joinSql"/>
+			user_sign_record t
 		<include refid="queryWithPosition"/>
 	</select>
 	<sql id="queryWithPosition">
 		<where>
-			r.yn = 1
-			and r.ref_grid_key = #{refGridKey,jdbcType=VARCHAR}
-			and r.sign_in_time >= #{signInTimeStart,jdbcType=TIMESTAMP}
-			and r.sign_in_time &lt;= #{signInTimeEnd,jdbcType=TIMESTAMP}			
+			t.yn = 1
+			and t.ref_grid_key = #{refGridKey,jdbcType=VARCHAR}
+			and t.sign_in_time >= #{signInTimeStart,jdbcType=TIMESTAMP}
+			and t.sign_in_time &lt;= #{signInTimeEnd,jdbcType=TIMESTAMP}			
 		<if test="signDate != null" >
-			and r.sign_date = #{signDate,jdbcType=DATE}
+			and t.sign_date = #{signDate,jdbcType=DATE}
 		</if>		
 		</where>
 	</sql>	
@@ -747,25 +749,28 @@
 		select
 			<include refid="Base_Column_List"/>
 		from
-			user_sign_record r
-		<include refid="joinSql"/>			
-		where r.yn = 1
-			and r.user_code = #{userCode,jdbcType=VARCHAR}
-		<if test="siteCode != null" >
-			and	r.site_code = #{siteCode,jdbcType=INTEGER}	
-		</if>		
-		<if test="signDate != null" >
-			and r.sign_date = #{signDate,jdbcType=DATE}
-		</if>
-		order by r.sign_in_time desc
+			(select t.* from user_sign_record t
+				where t.yn = 1
+					and t.user_code = #{userCode,jdbcType=VARCHAR}
+				<if test="siteCode != null" >
+					and	t.site_code = #{siteCode,jdbcType=INTEGER}	
+				</if>		
+				<if test="signDate != null" >
+					and t.sign_date = #{signDate,jdbcType=DATE}
+				</if>
+				order by t.sign_in_time desc
+				limit 1) r
+		<include refid="joinSql"/>
 		limit 1
 	</select>
 	<select id="queryUserSignRecordDataById" parameterType="java.lang.Long" resultMap="UserSignRecordData">
 		select
 			<include refid="Base_Column_List"/>
 		from
-			user_sign_record r
+			(select t.* from user_sign_record t 
+				where t.yn = 1 and t.id = #{id,jdbcType=BIGINT}
+			) r
 			<include refid="joinSql"/>			
-		where r.yn = 1 and r.id = #{id,jdbcType=BIGINT}
+		limit 1
 	</select>	
 </mapper>
