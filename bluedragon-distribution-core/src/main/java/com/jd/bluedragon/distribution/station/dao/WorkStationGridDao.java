@@ -141,4 +141,10 @@ public interface WorkStationGridDao {
 	 * @return
 	 */
 	int deleteByIds(DeleteRequest<WorkStationGrid> deleteRequest);
+	/**
+	 * 根据
+	 * @param gridKey查询
+	 * @return
+	 */
+	WorkStationGrid queryByGridKey(WorkStationGridQuery workStationGridQuery);
 }

@@ -1,10 +1,11 @@
 package com.jd.bluedragon.distribution.station.service.impl;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
-import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.distribution.position.domain.PositionRecord;
-import com.jd.bluedragon.distribution.position.service.PositionRecordService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.ObjectUtils;
@@ -12,10 +13,15 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.objectid.IGenerateObjectId;
 import com.jd.bluedragon.distribution.api.response.base.Result;
+import com.jd.bluedragon.distribution.position.domain.PositionRecord;
+import com.jd.bluedragon.distribution.position.service.PositionRecordService;
 import com.jd.bluedragon.distribution.station.dao.WorkStationGridDao;
 import com.jd.bluedragon.distribution.station.domain.DeleteRequest;
 import com.jd.bluedragon.distribution.station.domain.WorkStation;
@@ -32,8 +38,6 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * 工序岗位网格表--Service接口实现
@@ -230,7 +234,7 @@ public class WorkStationGridServiceImpl implements WorkStationGridService {
 	 */
 	public Result<WorkStationGrid> queryById(Long id){
 		Result<WorkStationGrid> result = Result.success();
-		result.setData(toWorkStationGrid(workStationGridDao.queryById(id)));
+		result.setData(workStationGridDao.queryById(id));
 		return result;
 	 }
 	/**
@@ -275,20 +279,7 @@ public class WorkStationGridServiceImpl implements WorkStationGridService {
 		
 		return result;
 	 }
-	/**
-	 * 对象转换成vo
-	 * @param data
-	 * @return
-	 */
-	public WorkStationGrid toWorkStationGrid(WorkStationGrid data){
-		if(data == null) {
-			return null;
-		}
-		WorkStationGrid vo = new WorkStationGrid();
-		BeanUtils.copyProperties(data, vo);
-		//特殊字段设置
-		return vo;
-	 }
+
 	@Override
 	public Result<List<WorkStationGrid>> queryAllGridBySiteCode(WorkStationGridQuery query) {
 		Result<List<WorkStationGrid>> result = Result.success();
@@ -376,7 +367,7 @@ public class WorkStationGridServiceImpl implements WorkStationGridService {
 	@Override
 	public Result<WorkStationGrid> queryByBusinessKey(WorkStationGrid data) {
 		Result<WorkStationGrid> result = Result.success();
-		result.setData(toWorkStationGrid(workStationGridDao.queryByBusinessKey(data)));
+		result.setData(workStationGridDao.queryByBusinessKey(data));
 		return result;
 	}
 	@Override
@@ -468,5 +459,12 @@ public class WorkStationGridServiceImpl implements WorkStationGridService {
 	@Override
 	public List<String> queryOwnerUserErpListBySiteCode(WorkStationGridQuery query) {
 		return workStationGridDao.queryOwnerUserErpListBySiteCode(query);
+	}
+
+	@Override
+	public Result<WorkStationGrid> queryByGridKey(WorkStationGridQuery workStationGridQuery) {
+		Result<WorkStationGrid> result = Result.success();
+		result.setData(workStationGridDao.queryByGridKey(workStationGridQuery));
+		return result;
 	}
 }

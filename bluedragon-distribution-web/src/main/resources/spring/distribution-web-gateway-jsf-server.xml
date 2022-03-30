@@ -418,7 +418,12 @@
                   ref="driverBoardSend4JgjGatewayServiceImpl"
                   server="dmsjsf">
     </jsf:provider>
-
+    <!-- 签到服务服务 -->
+    <jsf:provider id="userSignGatewayServiceServer"
+                  interface="com.jd.bluedragon.distribution.station.gateway.UserSignGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="userSignGatewayService" server="dmsjsf">
+    </jsf:provider>
     <!-- 弃件暂存服务-->
     <bean id="discardedStorageGatewayServiceImpl" class="com.jd.bluedragon.distribution.external.gateway.service.impl.DiscardedStorageGatewayServiceImpl" />
     <jsf:provider id="jsfDiscardedStorageGatewayService"

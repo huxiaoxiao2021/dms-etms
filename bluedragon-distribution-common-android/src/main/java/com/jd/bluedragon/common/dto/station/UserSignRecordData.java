@@ -1,16 +1,16 @@
-package com.jd.bluedragon.distribution.station.domain;
+package com.jd.bluedragon.common.dto.station;
 
-import java.util.Date;
 import java.io.Serializable;
+import java.util.Date;
 
 /**
- * @ClassName: UserSignRecord
- * @Description: 人员签到表-实体类
+ * @ClassName: UserSignRecordData
+ * @Description: 人员签到记录数据
  * @author wuyoude
  * @date 2022年02月23日 11:01:53
  *
  */
-public class UserSignRecord implements Serializable {
+public class UserSignRecordData implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -33,6 +33,11 @@ public class UserSignRecord implements Serializable {
 	 * 员工ERP|拼音|身份证号
 	 */
 	private String userCode;
+	/**
+	 * 签到人员名称
+	 */
+	private String userName;
+
 	/**
 	 * 班次:1-白班 2-中班 3-晚班
 	 */
@@ -180,536 +185,225 @@ public class UserSignRecord implements Serializable {
 	 */
 	private String workHours;
 	/**
-	 * 签到人员名称
+	 * 工作时长（单位：hh时mm分）
 	 */
-	private String userName;
-	/**
-	 *
-	 * @param id
-	 */
+	private String workTimes;
+	
+	
+	public Long getId() {
+		return id;
+	}
 	public void setId(Long id) {
 		this.id = id;
 	}
-
-	/**
-	 *
-	 * @return id
-	 */
-	public Long getId() {
-		return this.id;
+	public Integer getOrgCode() {
+		return orgCode;
 	}
-
-	/**
-	 *
-	 * @param orgCode
-	 */
 	public void setOrgCode(Integer orgCode) {
 		this.orgCode = orgCode;
 	}
-
-	/**
-	 *
-	 * @return orgCode
-	 */
-	public Integer getOrgCode() {
-		return this.orgCode;
+	public Integer getSiteCode() {
+		return siteCode;
 	}
-
-	/**
-	 *
-	 * @param siteCode
-	 */
 	public void setSiteCode(Integer siteCode) {
 		this.siteCode = siteCode;
 	}
-
-	/**
-	 *
-	 * @return siteCode
-	 */
-	public Integer getSiteCode() {
-		return this.siteCode;
+	public String getUserCode() {
+		return userCode;
 	}
-
-	/**
-	 *
-	 * @param userCode
-	 */
 	public void setUserCode(String userCode) {
 		this.userCode = userCode;
 	}
-
-	/**
-	 *
-	 * @return userCode
-	 */
-	public String getUserCode() {
-		return this.userCode;
-	}
-
-	/**
-	 *
-	 * @param waveCode
-	 */
-	public void setWaveCode(Integer waveCode) {
-		this.waveCode = waveCode;
-	}
-
-	/**
-	 *
-	 * @return waveCode
-	 */
-	public Integer getWaveCode() {
-		return this.waveCode;
-	}
-
-	/**
-	 *
-	 * @param jobCode
-	 */
-	public void setJobCode(Integer jobCode) {
-		this.jobCode = jobCode;
-	}
-
-	/**
-	 *
-	 * @return jobCode
-	 */
-	public Integer getJobCode() {
-		return this.jobCode;
-	}
-
-	/**
-	 *
-	 * @param signDate
-	 */
-	public void setSignDate(Date signDate) {
-		this.signDate = signDate;
-	}
-
-	/**
-	 *
-	 * @return signDate
-	 */
-	public Date getSignDate() {
-		return this.signDate;
-	}
-
-	/**
-	 *
-	 * @param signInTime
-	 */
-	public void setSignInTime(Date signInTime) {
-		this.signInTime = signInTime;
-	}
-
-	/**
-	 *
-	 * @return signInTime
-	 */
-	public Date getSignInTime() {
-		return this.signInTime;
-	}
-
-	/**
-	 *
-	 * @param signOutTime
-	 */
-	public void setSignOutTime(Date signOutTime) {
-		this.signOutTime = signOutTime;
-	}
-
-	/**
-	 *
-	 * @return signOutTime
-	 */
-	public Date getSignOutTime() {
-		return this.signOutTime;
-	}
-
-	/**
-	 *
-	 * @param refPlanKey
-	 */
-	public void setRefPlanKey(String refPlanKey) {
-		this.refPlanKey = refPlanKey;
-	}
-
-	/**
-	 *
-	 * @return refPlanKey
-	 */
-	public String getRefPlanKey() {
-		return this.refPlanKey;
-	}
-
-	/**
-	 *
-	 * @param refGridKey
-	 */
-	public void setRefGridKey(String refGridKey) {
-		this.refGridKey = refGridKey;
-	}
-
-	/**
-	 *
-	 * @return refGridKey
-	 */
-	public String getRefGridKey() {
-		return this.refGridKey;
-	}
-
-	/**
-	 *
-	 * @param refStationKey
-	 */
-	public void setRefStationKey(String refStationKey) {
-		this.refStationKey = refStationKey;
-	}
-
-	/**
-	 *
-	 * @return refStationKey
-	 */
-	public String getRefStationKey() {
-		return this.refStationKey;
-	}
-
-	/**
-	 *
-	 * @param createUser
-	 */
-	public void setCreateUser(String createUser) {
-		this.createUser = createUser;
-	}
-
-	/**
-	 *
-	 * @return createUser
-	 */
-	public String getCreateUser() {
-		return this.createUser;
-	}
-
-	/**
-	 *
-	 * @param createUserName
-	 */
-	public void setCreateUserName(String createUserName) {
-		this.createUserName = createUserName;
-	}
-
-	/**
-	 *
-	 * @return createUserName
-	 */
-	public String getCreateUserName() {
-		return this.createUserName;
-	}
-
-	/**
-	 *
-	 * @param updateUser
-	 */
-	public void setUpdateUser(String updateUser) {
-		this.updateUser = updateUser;
-	}
-
-	/**
-	 *
-	 * @return updateUser
-	 */
-	public String getUpdateUser() {
-		return this.updateUser;
-	}
-
-	/**
-	 *
-	 * @param updateUserName
-	 */
-	public void setUpdateUserName(String updateUserName) {
-		this.updateUserName = updateUserName;
-	}
-
-	/**
-	 *
-	 * @return updateUserName
-	 */
-	public String getUpdateUserName() {
-		return this.updateUserName;
-	}
-
-	/**
-	 *
-	 * @param createTime
-	 */
-	public void setCreateTime(Date createTime) {
-		this.createTime = createTime;
-	}
-
-	/**
-	 *
-	 * @return createTime
-	 */
-	public Date getCreateTime() {
-		return this.createTime;
-	}
-
-	/**
-	 *
-	 * @param updateTime
-	 */
-	public void setUpdateTime(Date updateTime) {
-		this.updateTime = updateTime;
-	}
-
-	/**
-	 *
-	 * @return updateTime
-	 */
-	public Date getUpdateTime() {
-		return this.updateTime;
-	}
-
-	/**
-	 *
-	 * @param yn
-	 */
-	public void setYn(Integer yn) {
-		this.yn = yn;
-	}
-
-	/**
-	 *
-	 * @return yn
-	 */
-	public Integer getYn() {
-		return this.yn;
-	}
-
-	/**
-	 *
-	 * @param ts
-	 */
-	public void setTs(Date ts) {
-		this.ts = ts;
-	}
-
-	/**
-	 *
-	 * @return ts
-	 */
-	public Date getTs() {
-		return this.ts;
-	}
-
-	/**
-	 *
-	 * @param orgName
-	 */
-	public void setOrgName(String orgName) {
-		this.orgName = orgName;
-	}
-
-	/**
-	 *
-	 * @return orgName
-	 */
-	public String getOrgName() {
-		return this.orgName;
-	}
-
-	/**
-	 *
-	 * @param siteName
-	 */
-	public void setSiteName(String siteName) {
-		this.siteName = siteName;
-	}
-
-	/**
-	 *
-	 * @return siteName
-	 */
-	public String getSiteName() {
-		return this.siteName;
-	}
-
-	/**
-	 *
-	 * @param floor
-	 */
-	public void setFloor(Integer floor) {
-		this.floor = floor;
-	}
-
-	/**
-	 *
-	 * @return floor
-	 */
-	public Integer getFloor() {
-		return this.floor;
-	}
-
-	/**
-	 *
-	 * @param gridNo
-	 */
-	public void setGridNo(String gridNo) {
-		this.gridNo = gridNo;
-	}
-
-	/**
-	 *
-	 * @return gridNo
-	 */
-	public String getGridNo() {
-		return this.gridNo;
-	}
-
-	/**
-	 *
-	 * @param gridCode
-	 */
-	public void setGridCode(String gridCode) {
-		this.gridCode = gridCode;
-	}
-
-	/**
-	 *
-	 * @return gridCode
-	 */
-	public String getGridCode() {
-		return this.gridCode;
-	}
-
-	/**
-	 *
-	 * @param gridName
-	 */
-	public void setGridName(String gridName) {
-		this.gridName = gridName;
-	}
-
-	/**
-	 *
-	 * @return gridName
-	 */
-	public String getGridName() {
-		return this.gridName;
-	}
-
-	/**
-	 *
-	 * @param areaCode
-	 */
-	public void setAreaCode(String areaCode) {
-		this.areaCode = areaCode;
-	}
-
-	/**
-	 *
-	 * @return areaCode
-	 */
-	public String getAreaCode() {
-		return this.areaCode;
-	}
-
-	/**
-	 *
-	 * @param areaName
-	 */
-	public void setAreaName(String areaName) {
-		this.areaName = areaName;
-	}
-
-	/**
-	 *
-	 * @return areaName
-	 */
-	public String getAreaName() {
-		return this.areaName;
-	}
-
-	/**
-	 *
-	 * @param workCode
-	 */
-	public void setWorkCode(String workCode) {
-		this.workCode = workCode;
-	}
-
-	/**
-	 *
-	 * @return workCode
-	 */
-	public String getWorkCode() {
-		return this.workCode;
-	}
-
-	/**
-	 *
-	 * @param workName
-	 */
-	public void setWorkName(String workName) {
-		this.workName = workName;
-	}
-
-	/**
-	 *
-	 * @return workName
-	 */
-	public String getWorkName() {
-		return this.workName;
-	}
-
-	/**
-	 *
-	 * @param planName
-	 */
-	public void setPlanName(String planName) {
-		this.planName = planName;
-	}
-
-	/**
-	 *
-	 * @return planName
-	 */
-	public String getPlanName() {
-		return this.planName;
-	}
-
-	public String getWaveName() {
-		return waveName;
-	}
-
-	public void setWaveName(String waveName) {
-		this.waveName = waveName;
-	}
-
-	public String getJobName() {
-		return jobName;
-	}
-
-	public void setJobName(String jobName) {
-		this.jobName = jobName;
-	}
-
-	public String getWorkHours() {
-		return workHours;
-	}
-
-	public void setWorkHours(String workHours) {
-		this.workHours = workHours;
-	}
-
 	public String getUserName() {
 		return userName;
 	}
-
 	public void setUserName(String userName) {
 		this.userName = userName;
 	}
-
-
+	public Integer getWaveCode() {
+		return waveCode;
+	}
+	public void setWaveCode(Integer waveCode) {
+		this.waveCode = waveCode;
+	}
+	public Integer getJobCode() {
+		return jobCode;
+	}
+	public void setJobCode(Integer jobCode) {
+		this.jobCode = jobCode;
+	}
+	public Date getSignDate() {
+		return signDate;
+	}
+	public void setSignDate(Date signDate) {
+		this.signDate = signDate;
+	}
+	public Date getSignInTime() {
+		return signInTime;
+	}
+	public void setSignInTime(Date signInTime) {
+		this.signInTime = signInTime;
+	}
+	public Date getSignOutTime() {
+		return signOutTime;
+	}
+	public void setSignOutTime(Date signOutTime) {
+		this.signOutTime = signOutTime;
+	}
+	public String getRefPlanKey() {
+		return refPlanKey;
+	}
+	public void setRefPlanKey(String refPlanKey) {
+		this.refPlanKey = refPlanKey;
+	}
+	public String getRefGridKey() {
+		return refGridKey;
+	}
+	public void setRefGridKey(String refGridKey) {
+		this.refGridKey = refGridKey;
+	}
+	public String getRefStationKey() {
+		return refStationKey;
+	}
+	public void setRefStationKey(String refStationKey) {
+		this.refStationKey = refStationKey;
+	}
+	public String getCreateUser() {
+		return createUser;
+	}
+	public void setCreateUser(String createUser) {
+		this.createUser = createUser;
+	}
+	public String getCreateUserName() {
+		return createUserName;
+	}
+	public void setCreateUserName(String createUserName) {
+		this.createUserName = createUserName;
+	}
+	public String getUpdateUser() {
+		return updateUser;
+	}
+	public void setUpdateUser(String updateUser) {
+		this.updateUser = updateUser;
+	}
+	public String getUpdateUserName() {
+		return updateUserName;
+	}
+	public void setUpdateUserName(String updateUserName) {
+		this.updateUserName = updateUserName;
+	}
+	public Date getCreateTime() {
+		return createTime;
+	}
+	public void setCreateTime(Date createTime) {
+		this.createTime = createTime;
+	}
+	public Date getUpdateTime() {
+		return updateTime;
+	}
+	public void setUpdateTime(Date updateTime) {
+		this.updateTime = updateTime;
+	}
+	public Integer getYn() {
+		return yn;
+	}
+	public void setYn(Integer yn) {
+		this.yn = yn;
+	}
+	public Date getTs() {
+		return ts;
+	}
+	public void setTs(Date ts) {
+		this.ts = ts;
+	}
+	public String getOrgName() {
+		return orgName;
+	}
+	public void setOrgName(String orgName) {
+		this.orgName = orgName;
+	}
+	public String getSiteName() {
+		return siteName;
+	}
+	public void setSiteName(String siteName) {
+		this.siteName = siteName;
+	}
+	public Integer getFloor() {
+		return floor;
+	}
+	public void setFloor(Integer floor) {
+		this.floor = floor;
+	}
+	public String getGridNo() {
+		return gridNo;
+	}
+	public void setGridNo(String gridNo) {
+		this.gridNo = gridNo;
+	}
+	public String getGridCode() {
+		return gridCode;
+	}
+	public void setGridCode(String gridCode) {
+		this.gridCode = gridCode;
+	}
+	public String getGridName() {
+		return gridName;
+	}
+	public void setGridName(String gridName) {
+		this.gridName = gridName;
+	}
+	public String getAreaCode() {
+		return areaCode;
+	}
+	public void setAreaCode(String areaCode) {
+		this.areaCode = areaCode;
+	}
+	public String getAreaName() {
+		return areaName;
+	}
+	public void setAreaName(String areaName) {
+		this.areaName = areaName;
+	}
+	public String getWorkCode() {
+		return workCode;
+	}
+	public void setWorkCode(String workCode) {
+		this.workCode = workCode;
+	}
+	public String getWorkName() {
+		return workName;
+	}
+	public void setWorkName(String workName) {
+		this.workName = workName;
+	}
+	public String getPlanName() {
+		return planName;
+	}
+	public void setPlanName(String planName) {
+		this.planName = planName;
+	}
+	public String getWaveName() {
+		return waveName;
+	}
+	public void setWaveName(String waveName) {
+		this.waveName = waveName;
+	}
+	public String getJobName() {
+		return jobName;
+	}
+	public void setJobName(String jobName) {
+		this.jobName = jobName;
+	}
+	public String getWorkHours() {
+		return workHours;
+	}
+	public void setWorkHours(String workHours) {
+		this.workHours = workHours;
+	}
+	public String getWorkTimes() {
+		return workTimes;
+	}
+	public void setWorkTimes(String workTimes) {
+		this.workTimes = workTimes;
+	}
 }

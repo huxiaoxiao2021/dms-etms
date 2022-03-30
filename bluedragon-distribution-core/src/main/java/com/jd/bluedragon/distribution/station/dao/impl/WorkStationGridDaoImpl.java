@@ -127,5 +127,9 @@ public class WorkStationGridDaoImpl extends BaseDao<WorkStationGrid> implements 
 	public List<WorkStationGrid> queryAllByPage(WorkStationGridQuery query) {
 		return this.getSqlSession().selectList(NAMESPACE+".queryAllByPage",query);
 	}
+	@Override
+	public WorkStationGrid queryByGridKey(WorkStationGridQuery workStationGridQuery) {
+		return this.getSqlSession().selectOne(NAMESPACE+".queryByGridKey",workStationGridQuery);
+	}
 
 }
