@@ -183,14 +183,14 @@ public interface NewSealVehicleService {
 	JdResult<List<String>> getUnSealSendCodes(NewSealVehicleRequest request);
 
     /**
-     * 查询待解封签信息
+     * 查询待解封签信息（无到货解封签专用）
      * @param request
      * @return
      */
 	NewSealVehicleResponse<SealCodesResponse> querySealCodes(SealCodeRequest request);
 
     /**
-     * 执行无到货解封签
+     * 执行无到货解封签（无到货解封签专用）
      * @param request
      * @return
      */

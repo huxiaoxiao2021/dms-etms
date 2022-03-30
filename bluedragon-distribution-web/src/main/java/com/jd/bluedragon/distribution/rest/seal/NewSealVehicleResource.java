@@ -953,7 +953,7 @@ public class NewSealVehicleResource {
     }
 
     /**
-     * 查询待解封签号
+     * 查询待解封签号（无到货解封签专用）
      * @param param
      * @return
      */
@@ -965,7 +965,7 @@ public class NewSealVehicleResource {
     }
 
     /**
-     * 无到货解封签
+     * 无到货解封签（无到货解封签专用）
      * @param param
      * @return
      */
