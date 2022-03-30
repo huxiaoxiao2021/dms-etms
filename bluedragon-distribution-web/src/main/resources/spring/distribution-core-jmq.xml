@@ -329,6 +329,11 @@
         <property name="timeout" value="10000"/>
         <property name="topic" value="${jmq.topic.waybillConsumable}"/>
     </bean>
+    <!-- 包装耗材确认消息同步报表-->
+    <bean id="waybillConsumableReportProducer" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+        <property name="timeout" value="10000"/>
+        <property name="topic" value="${jmq.topic.waybillConsumable.report}"/>
+    </bean>
 
     <!-- 签单返回合单mq，提供运单新单号和旧单号列表 -->
     <bean id="mergeWaybillReturnMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
@@ -560,4 +565,14 @@
         <property name="timeout" value="1000"/>
     </bean>
 
+
+    <bean id="miniStoreSealBoxProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.ministore.bind.relation}"/>
+        <property name="timeout" value="1000"/>
+    </bean>
+
+    <bean id="miniStoreSortProcessProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.ministore.sorting.process}"/>
+        <property name="timeout" value="1000"/>
+    </bean>
 </beans>
