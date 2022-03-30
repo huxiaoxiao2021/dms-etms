@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.position.service.impl;
 
+import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.station.PositionData;
 import com.jd.bluedragon.core.objectid.IGenerateObjectId;
 import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.position.dao.PositionRecordDao;
@@ -14,6 +16,8 @@ import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
 import org.apache.commons.collections.CollectionUtils;
+import com.jd.ql.erp.util.BeanUtils;
+
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -97,6 +101,7 @@ public class PositionRecordServiceImpl implements PositionRecordService {
     @Override
     public Result<PositionDetailRecord> queryOneByPositionCode(String positionCode) {
         Result<PositionDetailRecord> result = new Result<PositionDetailRecord>();
+        result.setData(positionRecordDao.queryDetailByPositionCode(positionCode));
         result.toSuccess();
         return result;
     }
@@ -157,4 +162,20 @@ public class PositionRecordServiceImpl implements PositionRecordService {
         }
         logger.info("同步历史数据完成，共耗时：{}共同步:{}条记录", System.currentTimeMillis() - startTime, totalCount);
     }
+
+	@Override
+	public JdCResponse<PositionData> queryPositionData(String positionCode) {
+		JdCResponse<PositionData> result = new JdCResponse<PositionData>();
+		result.toSucceed();
+		Result<PositionDetailRecord> positionDetailResult = this.queryOneByPositionCode(positionCode);
+		if(positionDetailResult == null
+				|| positionDetailResult.getData() == null) {
+			result.toFail("无效的上岗码！");
+		}
+		PositionData positionData = new PositionData();
+		BeanUtils.copyProperties(positionDetailResult.getData(), positionData);
+		positionData.setDefaultMenuCode("UNSEAL_CAR_POSITION");
+		result.setData(positionData);
+		return result;
+	}
 }
