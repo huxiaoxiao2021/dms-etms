@@ -2224,4 +2224,37 @@ public class BusinessUtil {
 
     }
 
+    /**
+     * APP版本大小比较
+     * @param appVersion 当前版本
+     * @param newestVersion 配置的最新版本
+     * @return true：需要升级
+     */
+    public static boolean appVersionCompare(String appVersion, String newestVersion) {
+        if (StringUtils.isBlank(appVersion) || StringUtils.isBlank(newestVersion)) {
+            return false;
+        }
+
+        Matcher curVersionMatcher = APP_VERSION_REGEX.matcher(appVersion);
+        Matcher newestVersionMatcher = APP_VERSION_REGEX.matcher(newestVersion);
+        if (!curVersionMatcher.matches() || !newestVersionMatcher.matches()) {
+            return false;
+        }
+
+        String[] versionArr = appVersion.split("\\.");
+        String[] newestVerArr = newestVersion.split("\\.");
+
+        int minDigit = Math.min(versionArr.length, newestVerArr.length);
+
+        for (int i = 0; i < minDigit; i++) {
+            if (Integer.parseInt(versionArr[i]) < Integer.parseInt(newestVerArr[i])) {
+                return true;
+            }
+            else if (Integer.parseInt(versionArr[i]) > Integer.parseInt(newestVerArr[i])){
+                return false;
+            }
+        }
+
+        return versionArr.length < newestVerArr.length;
+    }
 }
