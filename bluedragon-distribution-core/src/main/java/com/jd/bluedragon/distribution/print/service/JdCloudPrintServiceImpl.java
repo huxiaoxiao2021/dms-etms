@@ -189,13 +189,13 @@ public class JdCloudPrintServiceImpl implements JdCloudPrintService {
 			if(!localPdfTempPathExist){
 				checkAndCreateTempPath();
 			}
-			File pdfFile = new File(localPdfTempPath+"/"+pdfFileName);
+			File pdfFile = null;
 			OutputStream outputStream = null;
 		try {
+			pdfFile = new File(localPdfTempPath+"/"+pdfFileName);
 			outputStream = new FileOutputStream(pdfFile);
 			this.printPdfHelper.generatePdf(outputStream, jdCloudPrintRequest.getTemplate(), 0, 0, 0, (List<Map<String,String>>)jdCloudPrintRequest.getModel());
 			pdfOutJssStorage.bucket(pdfPrintOssConfig.getBucket()).object(jssPdfPath).entity(pdfFile).put();
-			pdfFile.deleteOnExit();
 			List<JdCloudPrintResponse> printResponses = new ArrayList<JdCloudPrintResponse>();
 			JdCloudPrintResponse printResponse = new JdCloudPrintResponse();
 			List<String> outputMsg = new ArrayList<String>();
@@ -217,6 +217,13 @@ public class JdCloudPrintServiceImpl implements JdCloudPrintService {
 					outputStream.close();
 				} catch (IOException e) {
 					log.error("OutPutStream关闭失败", e);
+				}
+			}
+			if(pdfFile != null){
+				try {
+					pdfFile.delete();
+				} catch (Exception e) {
+					log.error("pdfFile.delete()失败", e);
 				}
 			}
 		}

@@ -304,6 +304,11 @@ public class UccPropertyConfiguration {
      * PDA通知自动拉取间隔时间(单位秒)
      */
     private Integer pdaNoticePullIntervalTime;
+    
+    /**
+     * 是否走新的逆向接口
+     */
+    private boolean needUseNewReverseApi;
 
     /**
      * 离线任务上传拦截报表，0 - 全部开启，-1 - 全部关闭，1243,3534表示具体场地
@@ -1739,4 +1744,12 @@ public class UccPropertyConfiguration {
     public void setPackConsumableSwitch(Integer packConsumableSwitch) {
         this.packConsumableSwitch = packConsumableSwitch;
     }
+
+	public boolean isNeedUseNewReverseApi() {
+		return needUseNewReverseApi;
+	}
+
+	public void setNeedUseNewReverseApi(boolean needUseNewReverseApi) {
+		this.needUseNewReverseApi = needUseNewReverseApi;
+	}
 }
