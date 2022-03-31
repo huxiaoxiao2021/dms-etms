@@ -659,7 +659,7 @@
 		        <if test="signDate != null" >
 		            and t.sign_date = #{signDate,jdbcType=DATE}
 		        </if>
-		        order by r.sign_in_time desc
+		        order by t.sign_in_time desc
 		        limit 1
 			) r
 		<include refid="joinSql"/>
