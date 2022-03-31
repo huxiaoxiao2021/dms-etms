@@ -72,7 +72,10 @@ public class ColdChainReverseManagerImpl implements ColdChainReverseManager {
             return false;
         }
         List<String> productTypes = Arrays.asList(waybill.getWaybillExt().getProductType().split(Constants.SEPARATOR_COMMA));
-        return productTypes.contains(DmsConstants.PRODUCT_TYPE_COLD_CHAIN_KB) || productTypes.contains(Constants.PRODUCT_TYPE_MEDICINE_DP) || productTypes.contains(Constants.PRODUCT_TYPE_COLD_CHAIN_XP);
+        return productTypes.contains(DmsConstants.PRODUCT_TYPE_COLD_CHAIN_KB)
+                || productTypes.contains(Constants.PRODUCT_TYPE_MEDICINE_DP)
+                || productTypes.contains(Constants.PRODUCT_TYPE_COLD_CHAIN_XP)
+                || productTypes.contains(Constants.PRODUCT_TYPE_MEDICAL_LESS_FREIGHT);
     }
 
     /**
@@ -105,6 +108,8 @@ public class ColdChainReverseManagerImpl implements ColdChainReverseManager {
         if(!new Integer(0).equals(exchangeWaybillDto.getPackageCount())){
             requestDto.setPackageCount(exchangeWaybillDto.getPackageCount());
         }
+        //系统来源:  1:城配，2:一体机，3:冷链调度，4:分拣
+        requestDto.setSystemSource(LDOPManagerImpl.RETURN_TYPE_4);
         return requestDto;
     }
 
