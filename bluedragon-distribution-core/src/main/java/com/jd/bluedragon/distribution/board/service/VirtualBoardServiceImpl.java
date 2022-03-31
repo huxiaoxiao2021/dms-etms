@@ -388,8 +388,12 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
                 // 已在同场地发货，不可再组板
                 final SendM recentSendMByParam = getRecentSendMByParam(bindToVirtualBoardPo.getBarCode(), operatorInfo.getSiteCode(), null, null);
                 if (recentSendMByParam != null) {
-                    result.toFail("该包裹已发货");
-                    return result;
+                    //三小时内禁止再次发货，返调度再次发货问题处理
+                    Date sendTime = recentSendMByParam.getOperateTime();
+                    if(sendTime != null && System.currentTimeMillis() - sendTime.getTime() <= 3l * 3600l * 1000l) {
+                        result.toFail("该包裹已发货");
+                        return result;
+                    }
                 }
                 // 调板号服务绑定到板号
                 bindToVirtualBoardPo.setMaxItemCount(uccPropertyConfiguration.getVirtualBoardMaxItemCount());
@@ -414,7 +418,9 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
                 result.setData(virtualBoardResultDto);
 
                 // 发送全称跟踪，整板则按板中所有包裹号进行处理
-                sendWaybillTrace(bindToVirtualBoardPo.getBarCode(), bindToVirtualBoardPo.getOperatorInfo(), virtualBoardResultDto.getBoardCode(), virtualBoardResultDto.getDestinationName(), WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION);
+                sendWaybillTrace(bindToVirtualBoardPo.getBarCode(), bindToVirtualBoardPo.getOperatorInfo(),
+                        virtualBoardResultDto.getBoardCode(), virtualBoardResultDto.getDestinationName(),
+                        WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION, bindToVirtualBoardPo.getBizSource());
 
                 // 写自动关闭板号任务
                 if(virtualBoardResultDto.getNewBoardIsCreated() != null && virtualBoardResultDto.getNewBoardIsCreated()){
@@ -587,7 +593,8 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
      * @param operateType
      */
     @Override
-    public void sendWaybillTrace(String barcode, OperatorInfo operatorInfo, String boardCode, String destinationName, Integer operateType) {
+    public void sendWaybillTrace(String barcode, OperatorInfo operatorInfo, String boardCode, String destinationName,
+                                 Integer operateType, Integer bizSource) {
         CallerInfo info = Profiler.registerInfo("DMSWEB.BoardCombinationServiceImpl.boardSendTrace", Constants.UMP_APP_NAME_DMSWEB,false, true);
         try {
             WaybillStatus waybillStatus = new WaybillStatus();
@@ -599,7 +606,14 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
 
             waybillStatus.setOperatorId(operatorInfo.getUserCode());
             waybillStatus.setOperator(operatorInfo.getUserName());
-            waybillStatus.setOperateTime(new Date());
+            // 非自动化的 取当前系统时间
+            if(bizSource == null || BizSourceEnum.SORTING_MACHINE.getValue() != bizSource){
+                waybillStatus.setOperateTime(new Date());
+            }else {
+                //自动化取操作时间
+                waybillStatus.setOperateTime(operatorInfo.getOperateTime());
+            }
+
             waybillStatus.setOperateType(operateType);
 
             if (operateType.equals(WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION)) {

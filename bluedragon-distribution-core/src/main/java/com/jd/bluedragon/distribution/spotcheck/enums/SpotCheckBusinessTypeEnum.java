@@ -20,6 +20,14 @@ public enum SpotCheckBusinessTypeEnum {
         this.name = name;
     }
 
+    public static String analysisNameFromCode(int code){
+        for (SpotCheckBusinessTypeEnum value : SpotCheckBusinessTypeEnum.values()) {
+            if(value.getCode() == code){
+                return value.getName();
+            }
+        }
+        return null;
+    }
     public Integer getCode() {
         return code;
     }

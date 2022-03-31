@@ -151,17 +151,11 @@ public class DmsPackingConsumableServiceImpl implements DmsPackingConsumableServ
         CallerInfo info = Profiler.registerInfo("DMS.BASE.DmsPackingConsumableServiceImpl.getConfirmStatusByWaybillCode",
                 Constants.UMP_APP_NAME_DMSWEB, false, true);
         try {
-            Waybill waybill = waybillQueryManager.getOnlyWaybillByWaybillCode(waybillCode);
-            if (waybill != null && BusinessHelper.isNeedConsumable(waybill.getWaybillSign())) {
-                WaybillConsumableRecord record =  waybillConsumableRecordService.queryOneByWaybillCode(waybillCode);
-                if (record != null && record.getConfirmStatus() == 0) {
-                    jdResponse.setData(Boolean.FALSE);
-                    jdResponse.setCode(JdResponse.CODE_SUCCESS);
-                    jdResponse.setMessage(HintService.getHint(HintCodeConstants.PACKING_CONSUMABLE_CONFIRM));
-                } else if (record == null) {
-                    jdResponse.setCode(HINT_CODE);
-                    jdResponse.setMessage(HintService.getHint(HintCodeConstants.PACKING_CONSUMABLE_NOT_EXIST));
-                }
+            WaybillConsumableRecord record =  waybillConsumableRecordService.queryOneByWaybillCode(waybillCode);
+            if (record != null && record.getConfirmStatus() == 0) {
+                jdResponse.setData(Boolean.FALSE);
+                jdResponse.setCode(JdResponse.CODE_SUCCESS);
+                jdResponse.setMessage(HintService.getHint(HintCodeConstants.PACKING_CONSUMABLE_CONFIRM));
             }
         } catch (Exception e) {
             log.error("查询运单：{}是否存在待确认包装任务失败",waybillCode);

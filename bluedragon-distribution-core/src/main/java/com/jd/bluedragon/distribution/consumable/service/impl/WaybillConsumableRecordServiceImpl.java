@@ -19,6 +19,7 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.web.mvc.BaseService;
 import com.jd.ql.dms.common.web.mvc.api.Dao;
 import com.jd.ump.annotation.JProEnum;
@@ -27,12 +28,14 @@ import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.RoundingMode;
 import java.util.*;
 
 /**
@@ -60,6 +63,10 @@ public class WaybillConsumableRecordServiceImpl extends BaseService<WaybillConsu
     @Autowired
     @Qualifier("waybillConsumableProducer")
     private DefaultJMQProducer waybillConsumableProducer;
+
+    @Autowired
+    @Qualifier("waybillConsumableReportProducer")
+    private DefaultJMQProducer waybillConsumableReportProducer;
 
     private static int WAYBILL_CONSUMABLE_MESSAGE_TYPE = 2;
 
@@ -127,6 +134,9 @@ public class WaybillConsumableRecordServiceImpl extends BaseService<WaybillConsu
         sendConfirmWaybillConsumableMq(confirmedRecords);
         Profiler.registerInfoEnd(info);
 
+        //3.发送MQ数据同步工作台报表
+        sendConfirmWaybillConsumableMqToReport(confirmedRecords);
+
         return result;
     }
 
@@ -153,7 +163,8 @@ public class WaybillConsumableRecordServiceImpl extends BaseService<WaybillConsu
         }
         //added by hanjiaxing3 2019.04.12 业务方确认取不到包装服务任务的，也进行拦截
         else {
-            log.warn("运单号{}需要使用包装耗材服务，但是不存在包装耗材服务任务，需对TOPIC：【bd_pack_sync_waybill】查询归档",waybillCode);
+//            log.warn("运单号{}需要使用包装耗材服务，但是不存在包装耗材服务任务，需对TOPIC：【bd_pack_sync_waybill】查询归档",waybillCode);
+            // modified by wuzuxiang  2022-02-21 快递快运都需要进行包装耗材服务确认，只看包装耗材任务，不看标位
             return false;
         }
         //edited by hanjiaxing3 2019.04.12 业务方确认取不到包装服务任务的，也进行拦截
@@ -204,6 +215,57 @@ public class WaybillConsumableRecordServiceImpl extends BaseService<WaybillConsu
                 }catch (Exception e){
                     log.error("B网包装耗材确认明细发送运单失败：{}" , JSON.toJSONString(dto), e);
                 }
+            }
+        }
+    }
+
+    /**
+     * 发送确认消息同步到报表
+     * @param confirmedRecords
+     */
+    private void sendConfirmWaybillConsumableMqToReport(List<WaybillConsumableRecord> confirmedRecords){
+        if (CollectionUtils.isEmpty(confirmedRecords)) {
+            return;
+        }
+        Map<String, PackingConsumableReportDto> consumableDtoMap = new HashMap<>();
+        for (WaybillConsumableRecord record : confirmedRecords){
+            PackingConsumableReportDto dto = new PackingConsumableReportDto();
+            dto.setWaybillCode(record.getWaybillCode());
+            dto.setCollectionErp(record.getReceiveUserErp());
+            if (NumberUtils.isParsable(record.getReceiveUserCode())) {
+                dto.setCollectionUserId(Integer.valueOf(record.getReceiveUserCode()));
+            }
+            dto.setConfirmErp(record.getConfirmUserErp());
+            dto.setConfirmSiteCode(record.getDmsId());
+            dto.setConfirmSiteName(record.getDmsName());
+            dto.setConfirmTime(record.getConfirmTime());
+            dto.setPackingChargeDes("耗材价格明细：");
+            consumableDtoMap.put(record.getWaybillCode(), dto);
+        }
+        //构建消息体价格明细
+        List<WaybillConsumableDetailInfo> exportDtos = waybillConsumableRelationService.queryByWaybillCodes(new ArrayList<>(consumableDtoMap.keySet()));
+        for(WaybillConsumableDetailInfo dto : exportDtos) {
+            PackingConsumableReportDto item = consumableDtoMap.get(dto.getWaybillCode());
+            String packingChargeStr = item.getPackingChargeDes();
+            if (null == dto.getPackingCharge()) {
+                continue;
+            }
+
+            item.setPackingChargeDes(
+                    packingChargeStr
+                            .concat(dto.getName())
+                            .concat(Constants.SEPARATOR_COLON)
+                            .concat(String.valueOf(dto.getPackingCharge().setScale(2, RoundingMode.HALF_UP)))
+                            .concat("元")
+                            .concat(Constants.SEPARATOR_SEMICOLON)
+            );
+        }
+        //逐个运单发送MQ
+        for (PackingConsumableReportDto dto : consumableDtoMap.values()){
+            try {
+                waybillConsumableReportProducer.sendOnFailPersistent(dto.getWaybillCode(), JSON.toJSONString(dto));
+            }catch (Exception e){
+                log.error("包装耗材确认消息同步至报表发送失败：{}" , JSON.toJSONString(dto), e);
             }
         }
     }
@@ -286,6 +348,32 @@ public class WaybillConsumableRecordServiceImpl extends BaseService<WaybillConsu
         return res;
     }
 
+    @Override
+    public WaybillConsumableRecord convert2WaybillConsumableRecord(ReceivePackingConsumableDto consumableDto) {
+        if (consumableDto == null) {
+            return null;
+        }
+
+        WaybillConsumableRecord waybillConsumableRecord = new WaybillConsumableRecord();
+        waybillConsumableRecord.setWaybillCode(consumableDto.getWaybillCode());
+
+        //根据 packingConsumable.getDmsCode() 查询分拣中心信息
+        Integer siteCode = consumableDto.getDmsCode();
+        BaseStaffSiteOrgDto dto = baseMajorManager.getBaseSiteBySiteId(siteCode);
+        waybillConsumableRecord.setDmsId(dto.getSiteCode());
+        waybillConsumableRecord.setDmsName(dto.getSiteName());
+
+        waybillConsumableRecord.setReceiveUserErp(consumableDto.getEntryErp());
+        waybillConsumableRecord.setReceiveUserCode(String.valueOf(consumableDto.getEntryId()));
+        waybillConsumableRecord.setReceiveUserName(consumableDto.getEntryName());
+        waybillConsumableRecord.setReceiveTime(DateHelper.toDate(consumableDto.getPdaTime()));
+
+        waybillConsumableRecord.setConfirmStatus(WaybillConsumableRecordService.UNTREATED_STATE);
+        waybillConsumableRecord.setModifyStatus(WaybillConsumableRecordService.UNTREATED_STATE);
+
+        return waybillConsumableRecord;
+    }
+
     /**
      * PDA实操绑定打包人，确认打包
      */
@@ -360,7 +448,7 @@ public class WaybillConsumableRecordServiceImpl extends BaseService<WaybillConsu
         }
 
         //1.该运单未被确认
-        if(dbRes != null && TREATED_STATE.equals(dbRes.getConfirmStatus())){
+        if(TREATED_STATE.equals(dbRes.getConfirmStatus())){
             res.toFail(String.format("运单号%s已有%s确认，请勿重复确认", dbRes.getWaybillCode(), dbRes.getConfirmUserErp()));
             return res;
         }

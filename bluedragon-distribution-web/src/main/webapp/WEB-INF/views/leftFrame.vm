@@ -67,7 +67,9 @@
         <dd><a href="http://erp.ql.jd.com/transport/detailPartDeliverPackage" target="mainFrame">修改包裹数</a></dd>
         <dd><a href="#springUrl('/consumable/waybillConsumableRecord/toIndex')" target="mainFrame">B网包装耗材</a></dd>
         <dd><a href="#springUrl('/consumable/packingConsumableInfo/toIndex')" target="mainFrame">包装物资基础信息管理</a></dd>
-        <dd><a href="#springUrl('/consumable/dmsConsumableRelation/toIndex')" target="mainFrame">快运中心包装耗材管理</a></dd>
+        #if($!banAddAndDeleteFlag == false)
+            <dd><a href="#springUrl('/consumable/dmsConsumableRelation/toIndex')" target="mainFrame">快运中心包装耗材管理</a></dd>
+        #end
         <dd><a href="#springUrl('/storage/storagePackageM/toIndex')" target="mainFrame">暂存管理</a></dd>
         <dd><a href="#springUrl('/jinpeng/performance/toIndex')" target="mainFrame">加履交接单打印</a></dd>
         <dd><a href="#springUrl('/collect/collectGoodsPlace/toIndex')" target="mainFrame">集货位配置</a></dd>
@@ -83,8 +85,9 @@
         <dd><a href="#springUrl('/whiteList/toIndex')" target="mainFrame">PDA白名单管理</a></dd>
         <dd><a href="#springUrl('/boxlimit/toIndex')" target="mainFrame">PDA建箱包裹数配置</a></dd>
         <dd><a href="#springUrl('/reviewWeightSpotCheck/toIndex')" target="mainFrame">复重抽检任务导入</a></dd>
-        <dd><a href="#springUrl('/weightAndVolumeCheckOfB2b/toIndex')" target="mainFrame">重量体积抽检</a></dd>
+        <dd><a href="#springUrl('/weightAndVolumeCheckOfB2b/toIndex')" target="mainFrame">人工抽检</a></dd>
         <dd><a href="#springUrl('/weightAndVolumeCheck/toIndex')" target="mainFrame">重量体积抽检统计</a></dd>
+        <dd><a href="#springUrl('/spotCheckReport/toIndex')" target="mainFrame">抽检统计报表</a></dd>
         <dd><a href="http://dms-w.jd.com/#/page/report/spotCheck" target="mainFrame">定向抽检统计报表</a></dd>
         <dd><a href="#springUrl('/newseal/preSealVehicle/toIndex')" target="mainFrame">一键封车</a></dd>
         <dd><a href="#springUrl('/newseal/preSealVehicle/unusedtransport')" target="mainFrame">未使用运力编码查询</a></dd>
@@ -100,7 +103,7 @@
         <dd><a href="#springUrl('/reverseReceive/index')" target="mainFrame">逆向收货查询</a></dd>
         <dd><a href="#springUrl('/areaDestPlan/index')" target="mainFrame">龙门架发货关系维护</a></dd>
         <dd><a href="$!{mixedConfigUrl}?userName=$!{userName}&userCode=$!{userCode}" target="mainFrame">跨区混装箱规则配置</a></dd>
-        <dd><a href="$!{zyWeightConfigUrl}/b2b/express/weight/index" target="mainFrame">快运运单称重</a></dd>
+        <dd><a href="#springUrl('/b2b/express/weight/index')" target="mainFrame">快运运单称重</a></dd>
         <dd><a href="#springUrl('/abnormal/dmsOperateHint/toIndex')" target="mainFrame">PDA验货提示语</a></dd>
         <dd><a href="#springUrl('/recyclematerial/index')" target="mainFrame">循环物资管理</a></dd>
         <dd><a href="#springUrl('/recycleMaterialScan/index')" target="mainFrame">循环物资扫描查询</a></dd>

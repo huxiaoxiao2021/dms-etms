@@ -68,10 +68,11 @@
 
     <Loggers>
         <!-- sql  -->
-        <logger name="java.sql" level="ERROR" additivity="true"/>
+        <logger name="java.sql" level="DEBUG" additivity="true"/>
         <!-- mybatis  -->
-        <logger name="org.mybatis" level="ERROR" additivity="true"/>
-        <logger name="org.apache.ibatis" level="ERROR" additivity="true"/>
+        <logger name="org.mybatis" level="DEBUG" additivity="true"/>
+        <logger name="org.apache.ibatis" level="DEBUG" additivity="true"/>
+        
         <logger name="org.springframework" level="ERROR" additivity="true"/>
         <logger name="org.apache.commons" level="ERROR" additivity="true"/>
         <logger name="org.apache.cxf" level="ERROR" additivity="true"/>

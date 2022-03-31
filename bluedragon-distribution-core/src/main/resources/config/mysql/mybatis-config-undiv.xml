@@ -390,6 +390,12 @@
 
         <!-- 库存盘点 -->
         <mapper resource="mappers/mysql/stock/StockInventoryMapper.xml" />
+        <mapper resource="mappers/mysql/station/WorkStationMapper.xml" />
+        <mapper resource="mappers/mysql/station/WorkStationGridMapper.xml" />
+        <mapper resource="mappers/mysql/station/WorkStationAttendPlanMapper.xml" />
+        <mapper resource="mappers/mysql/station/UserSignRecordMapper.xml" />
         <mapper resource="mappers/mysql/record/WaybillHasnoPresiteRecordMapper.xml" />
+		<mapper resource="mappers/mysql/config/ConfigStrandReasonMapper.xml" />
+        <mapper resource="mappers/mysql/position/PositionRecordMapper.xml" />
     </mappers>
 </configuration>

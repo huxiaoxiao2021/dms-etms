@@ -40,6 +40,7 @@
 	<import resource="distribution-core-datasource-waybill.xml" />
 	<import resource="classpath:spring/distribution-core-aces.xml" />
 	<import resource="classpath:spring/distribution-web-sorting-filter.xml" />
+	<import resource="classpath:spring/hystrix-config.xml" />
 
 	<context:component-scan base-package="com.jd.bluedragon.distribution.popAbnormal.helper" />
 	<context:component-scan base-package="com.jd.bluedragon.distribution.*.dao" />

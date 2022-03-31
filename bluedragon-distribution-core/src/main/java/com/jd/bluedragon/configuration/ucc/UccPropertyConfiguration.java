@@ -483,24 +483,6 @@ public class UccPropertyConfiguration {
     private double spotCheckNoExcessLimit;
 
     /**
-     * 开启新抽检场地
-     *  多个场地以,分隔
-     *  true表示全国
-     *  空表示未开启
-     */
-    private String newSpotCheckSiteCodes;
-
-    /**
-     * 是否执行BC融合
-     */
-    private boolean executeBCFuse;
-
-    /**
-     * 抽检数据是否下发给计费
-     */
-    private boolean isIssueToFinance;
-
-    /**
      * 老发货异步任务开关
      */
     private String deliverySendAsyncSite;
@@ -616,6 +598,101 @@ public class UccPropertyConfiguration {
      * 是否限制终端人员使用包裹补打 1：限制 0：不限制
      */
     private String limitSiteUsePackReprint;
+
+    /**
+     * 是否对restAPI鉴权的开关
+     */
+    private boolean restApiOuthSwitch;
+
+    private String needInterceptUrls;
+
+    private List<String> needInterceptUrlList;
+
+    /**
+     * 作业工作台解封车任务降级配置
+     */
+    private String sealTaskHystrixProps;
+
+    /**
+     * 作业工作台解封车任务强制降级开关
+     */
+    private int sealTaskForceFallback;
+
+    public int getSealTaskForceFallback() {
+        return sealTaskForceFallback;
+    }
+
+    public void setSealTaskForceFallback(int sealTaskForceFallback) {
+        this.sealTaskForceFallback = sealTaskForceFallback;
+    }
+
+    public String getSealTaskHystrixProps() {
+        return sealTaskHystrixProps;
+    }
+
+    public void setSealTaskHystrixProps(String sealTaskHystrixProps) {
+        this.sealTaskHystrixProps = sealTaskHystrixProps;
+    }
+
+    public List<String> getNeedInterceptUrlList() {
+        return needInterceptUrlList;
+    }
+
+    public void setNeedInterceptUrlList(List<String> needInterceptUrlList) {
+        this.needInterceptUrlList = needInterceptUrlList;
+    }
+
+    public String getNeedInterceptUrls() {
+        return needInterceptUrls;
+    }
+
+    public void setNeedInterceptUrls(String needInterceptUrls) {
+        this.needInterceptUrls = needInterceptUrls;
+        if (needInterceptUrls!=null && !"".equals(needInterceptUrls)){
+            List<String> urlList=new ArrayList<>();
+            if (needInterceptUrls.contains(",")){
+                urlList = Arrays.asList(needInterceptUrls.split(","));
+            }
+            else {
+                urlList.add(needInterceptUrls);
+            }
+            this.needInterceptUrlList =urlList;
+        }
+    }
+
+    public boolean getRestApiOuthSwitch() {
+        return restApiOuthSwitch;
+    }
+
+    public void setRestApiOuthSwitch(boolean restApiOuthSwitch) {
+        this.restApiOuthSwitch = restApiOuthSwitch;
+    }
+
+    /**
+     * 自动签退超过多少小时未签退的数据
+     */
+    private int notSignedOutRecordMoreThanHours;
+
+    /**
+     * 抽检改造开通场地
+     *  多个场地以,分隔
+     *  true表示全国
+     *  空表示未开启
+     */
+    private String spotCheckReformSiteCodes;
+
+    /**
+     * AI识别图片开关
+     */
+    private boolean aiDistinguishSwitch;
+
+    /**
+     * 终端包装耗材重塑项目：
+     * 下线分拣维护包装耗材基础信息入口（"分拣"和"其他"类型的除外）
+     * 包装耗材确认页面的增加和删除按钮
+     * 开关：0不关闭入口；1关闭基础资料维护入口；2关闭耗材明细的增加和删除按钮；3关闭两者
+     */
+    private Integer packConsumableSwitch;
 
     public String getScheduleSiteCheckSameCity() {
         return scheduleSiteCheckSameCity;
@@ -1398,30 +1475,6 @@ public class UccPropertyConfiguration {
         this.paralleGetPackageSwitch = paralleGetPackageSwitch;
     }
 
-    public String getNewSpotCheckSiteCodes() {
-        return newSpotCheckSiteCodes;
-    }
-
-    public void setNewSpotCheckSiteCodes(String newSpotCheckSiteCodes) {
-        this.newSpotCheckSiteCodes = newSpotCheckSiteCodes;
-    }
-
-    public boolean getExecuteBCFuse() {
-        return executeBCFuse;
-    }
-
-    public void setExecuteBCFuse(boolean executeBCFuse) {
-        this.executeBCFuse = executeBCFuse;
-    }
-
-    public boolean getIsIssueToFinance() {
-        return isIssueToFinance;
-    }
-
-    public void setIsIssueToFinance(boolean issueToFinance) {
-        isIssueToFinance = issueToFinance;
-    }
-
     /**
      * 西藏模式业务场景开关，按分拣中心归属的省份配置，不配置业务场景不生效，配置ALL全国生效
      */
@@ -1654,5 +1707,36 @@ public class UccPropertyConfiguration {
 
     public void setSendCodeEffectiveValidation(String sendCodeEffectiveValidation) {
         this.sendCodeEffectiveValidation = sendCodeEffectiveValidation;
+    }
+
+    public int getNotSignedOutRecordMoreThanHours() {
+        return notSignedOutRecordMoreThanHours;
+    }
+
+    public void setNotSignedOutRecordMoreThanHours(int notSignedOutRecordMoreThanHours) {
+        this.notSignedOutRecordMoreThanHours = notSignedOutRecordMoreThanHours;
+    }
+    public boolean getAiDistinguishSwitch() {
+        return aiDistinguishSwitch;
+    }
+
+    public void setAiDistinguishSwitch(boolean aiDistinguishSwitch) {
+        this.aiDistinguishSwitch = aiDistinguishSwitch;
+    }
+
+    public String getSpotCheckReformSiteCodes() {
+        return spotCheckReformSiteCodes;
+    }
+
+    public void setSpotCheckReformSiteCodes(String spotCheckReformSiteCodes) {
+        this.spotCheckReformSiteCodes = spotCheckReformSiteCodes;
+    }
+
+    public Integer getPackConsumableSwitch() {
+        return packConsumableSwitch;
+    }
+
+    public void setPackConsumableSwitch(Integer packConsumableSwitch) {
+        this.packConsumableSwitch = packConsumableSwitch;
     }
 }

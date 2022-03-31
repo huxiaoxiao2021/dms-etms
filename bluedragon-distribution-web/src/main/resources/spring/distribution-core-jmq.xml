@@ -329,6 +329,11 @@
         <property name="timeout" value="10000"/>
         <property name="topic" value="${jmq.topic.waybillConsumable}"/>
     </bean>
+    <!-- 包装耗材确认消息同步报表-->
+    <bean id="waybillConsumableReportProducer" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+        <property name="timeout" value="10000"/>
+        <property name="topic" value="${jmq.topic.waybillConsumable.report}"/>
+    </bean>
 
     <!-- 签单返回合单mq，提供运单新单号和旧单号列表 -->
     <bean id="mergeWaybillReturnMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
@@ -416,6 +421,10 @@
     <!-- 滞留上报明细消息 -->
     <bean id="strandReportDetailProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.strand.report.detail}"/>
+    </bean>
+    <!-- 滞留上报wb明细消息 -->
+    <bean id="strandReportDetailWbProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.strand.report.detailWb}"/>
     </bean>
 
     <!-- 银行卡运单号校验 -->
@@ -523,7 +532,7 @@
     <!--  拦截消息-生产者 -->
     <bean id="bdBlockerInitMqProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.bdBlockerInitMq}"/>
-    </bean>    
+    </bean>
     <!-- dws抽检 -->
     <bean id="dwsSpotCheckProducer" parent="dmsWorkerDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.dwsSpotCheck}"/>
@@ -544,4 +553,16 @@
         <property name="topic" value="${jmq.topic.spotCheck.detail}"/>
         <property name="timeout" value="1000"/>
     </bean>
+
+    <!-- 抽检超标下发至称重再造系统 -->
+    <bean id="spotCheckIssueProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.spotCheck.issue}"/>
+        <property name="timeout" value="1000"/>
+    </bean>
+    <!-- 抽检体积超标下发至终端系统 -->
+    <bean id="spotCheckIssueZDProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.spotCheck.issue.zd}"/>
+        <property name="timeout" value="1000"/>
+    </bean>
+
 </beans>

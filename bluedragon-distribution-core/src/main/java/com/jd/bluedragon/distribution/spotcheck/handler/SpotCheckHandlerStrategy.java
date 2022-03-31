@@ -1,8 +1,8 @@
 package com.jd.bluedragon.distribution.spotcheck.handler;
 
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckConstants;
 import com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckDto;
+import com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckResult;
 import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckSourceFromEnum;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -24,10 +24,6 @@ public class SpotCheckHandlerStrategy {
     private ISpotCheckHandler artificialSpotCheckHandler;
 
     @Autowired
-    @Qualifier("androidSpotCheckHandler")
-    private ISpotCheckHandler androidSpotCheckHandler;
-
-    @Autowired
     @Qualifier("clientSpotCheckHandler")
     private ISpotCheckHandler clientSpotCheckHandler;
 
@@ -39,27 +35,23 @@ public class SpotCheckHandlerStrategy {
     @Qualifier("webSpotCheckHandler")
     private ISpotCheckHandler webSpotCheckHandler;
 
-    public InvokeResult<Integer> checkIsExcess(SpotCheckDto spotCheckDto) {
-        InvokeResult<Integer> result = new InvokeResult<Integer>();
+    public InvokeResult<SpotCheckResult> checkExcess(SpotCheckDto spotCheckDto) {
+        InvokeResult<SpotCheckResult> result = new InvokeResult<SpotCheckResult>();
         // 客户端抽检
         if(Objects.equals(SpotCheckSourceFromEnum.SPOT_CHECK_CLIENT_PLATE.getName(), spotCheckDto.getSpotCheckSourceFrom())){
-            return clientSpotCheckHandler.checkIsExcess(spotCheckDto);
+            return clientSpotCheckHandler.checkExcess(spotCheckDto);
         }
         // dws抽检
         if(Objects.equals(SpotCheckSourceFromEnum.SPOT_CHECK_DWS.getName(), spotCheckDto.getSpotCheckSourceFrom())){
-            return dwsSpotCheckHandler.checkIsExcess(spotCheckDto);
+            return dwsSpotCheckHandler.checkExcess(spotCheckDto);
         }
         // web页面抽检
         if(Objects.equals(SpotCheckSourceFromEnum.SPOT_CHECK_DMS_WEB.getName(), spotCheckDto.getSpotCheckSourceFrom())){
-            return webSpotCheckHandler.checkIsExcess(spotCheckDto);
-        }
-        // 安卓抽检
-        if(Objects.equals(SpotCheckSourceFromEnum.SPOT_CHECK_ANDROID.getName(), spotCheckDto.getSpotCheckSourceFrom())){
-            return androidSpotCheckHandler.checkIsExcess(spotCheckDto);
+            return webSpotCheckHandler.checkExcess(spotCheckDto);
         }
         // 人工抽检
         if(Objects.equals(SpotCheckSourceFromEnum.SPOT_CHECK_ARTIFICIAL.getName(), spotCheckDto.getSpotCheckSourceFrom())){
-            return artificialSpotCheckHandler.checkIsExcess(spotCheckDto);
+            return artificialSpotCheckHandler.checkExcess(spotCheckDto);
         }
         result.parameterError("未知抽检来源，不予处理!");
         return result;
@@ -85,10 +77,6 @@ public class SpotCheckHandlerStrategy {
         // web页面抽检
         if(Objects.equals(SpotCheckSourceFromEnum.SPOT_CHECK_DMS_WEB.getName(), spotCheckDto.getSpotCheckSourceFrom())){
             return webSpotCheckHandler.dealSpotCheck(spotCheckDto);
-        }
-        // 安卓抽检
-        if(Objects.equals(SpotCheckSourceFromEnum.SPOT_CHECK_ANDROID.getName(), spotCheckDto.getSpotCheckSourceFrom())){
-            return androidSpotCheckHandler.dealSpotCheck(spotCheckDto);
         }
         // 人工抽检
         if(Objects.equals(SpotCheckSourceFromEnum.SPOT_CHECK_ARTIFICIAL.getName(), spotCheckDto.getSpotCheckSourceFrom())){

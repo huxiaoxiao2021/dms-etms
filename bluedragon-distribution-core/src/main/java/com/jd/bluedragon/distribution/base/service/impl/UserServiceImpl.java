@@ -5,10 +5,13 @@ import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.ErpLoginServiceManager;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.request.AppUpgradeRequest;
 import com.jd.bluedragon.distribution.api.request.LoginRequest;
+import com.jd.bluedragon.distribution.api.response.AppUpgradeResponse;
 import com.jd.bluedragon.distribution.api.response.BaseResponse;
 import com.jd.bluedragon.distribution.api.response.LoginUserResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
@@ -20,12 +23,18 @@ import com.jd.bluedragon.distribution.client.domain.CheckMenuAuthRequest;
 import com.jd.bluedragon.distribution.client.domain.CheckMenuAuthResponse;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.sysloginlog.domain.ClientInfo;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.sdk.modules.client.DmsClientMessages;
 import com.jd.bluedragon.sdk.modules.client.LoginStatusEnum;
 import com.jd.bluedragon.sdk.modules.client.LogoutTypeEnum;
 import com.jd.bluedragon.sdk.modules.client.ProgramTypeEnum;
 import com.jd.bluedragon.sdk.modules.client.dto.DmsClientHeartbeatRequest;
 import com.jd.bluedragon.sdk.modules.client.dto.DmsClientHeartbeatResponse;
+import com.jd.bluedragon.utils.*;
+import com.jd.mrd.srv.dto.RpcResultDto;
+import com.jd.mrd.srv.service.erp.dto.LoginContextDto;
+import com.jd.mrd.srv.service.erp.dto.LoginDto;
+import com.jd.bluedragon.sdk.modules.client.dto.*;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.PropertiesHelper;
@@ -72,6 +81,9 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
     @Autowired
     @Qualifier("jimdbCacheService")
     private CacheService jimdbCacheService;
+
+    @Autowired
+    private ErpLoginServiceManager erpLoginServiceManager;
 
 	/**
 	 * 分拣客户端登录服务
@@ -159,6 +171,9 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
             // 保存缓存
             String clientLoginDeviceIdKey = String.format(CacheKeyConstants.CACHE_KEY_FORMAT_CLIENT_LOGIN_USER_DEVICE_ID, request.getErpAccount(), deviceId);
             jimdbCacheService.setEx(clientLoginDeviceIdKey, token, CacheKeyConstants.CACHE_KEY_FORMAT_CLIENT_LOGIN_DEVICE_ID_EXPIRE_TIME, TimeUnit.HOURS);
+
+            // 物流网关外网erp认证登录
+            this.wlGwErpLogin(request, clientInfo, loginUserResponse);
         } catch (Exception e) {
             log.error("UserServiceImpl.getAndSaveToken exception ", e);
             loginUserResponse.setCode(JdResponse.CODE_SERVICE_ERROR);
@@ -166,6 +181,32 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
             return false;
         }
         return true;
+    }
+
+    private void wlGwErpLogin(LoginRequest request, ClientInfo clientInfo, LoginUserResponse loginUserResponse) {
+        try {
+            // 物流网关外网erp认证登录
+            LoginDto loginDto = new LoginDto();
+            loginDto.setAppCode("dmsPdaAndroid");
+            loginDto.setUserName(loginUserResponse.getErpAccount());
+            loginDto.setSource("erp");
+            loginDto.setTicketType("long");
+            loginDto.setClientVersion(clientInfo.getVersionCode());
+            loginDto.setDeviceId(clientInfo.getDeviceId());
+            loginDto.setDeviceType(clientInfo.getVersionName());
+            loginDto.setDeviceName(clientInfo.getVersionName());
+            loginDto.setIp("127.0.0.1");
+            loginDto.setPwd(Encrypt.encodeDes(request.getPassword()));
+            final RpcResultDto<LoginContextDto> loginResult = erpLoginServiceManager.loginSecurity(loginDto);
+            log.info("wlGwErpLogin loginSecurity param {} result {}", JsonHelper.toJson(loginDto), JsonHelper.toJson(loginResult));
+            if(!loginResult.isSuccess()){
+                log.warn("wlGwErpLogin loginSecurity fail param {} result {}", JsonHelper.toJson(loginDto), JsonHelper.toJson(loginResult));
+                return;
+            }
+            loginUserResponse.setWlGwTicket(loginResult.getData().getTicket());
+        } catch (Exception e) {
+            log.error("wlGwErpLogin exception ", e);
+        }
     }
 
     /**
@@ -433,4 +474,98 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
 		}
 		return checkResult;
 	}
+
+    @Override
+    @JProfiler(jKey = "DMS.BASE.UserServiceImpl.checkAppVersion",
+            mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    public JdResult<AppUpgradeResponse> checkAppVersion(AppUpgradeRequest request) {
+        JdResult<AppUpgradeResponse> result = new JdResult<>();
+        result.toSuccess();
+
+        AppUpgradeResponse response = new AppUpgradeResponse();
+        response.setNeedUpdate(false); // 默认不升级
+        result.setData(response);
+
+        if (StringUtils.isBlank(request.getVersionCode())) {
+            log.warn("检测升级缺少版本号:{}", JsonHelper.toJson(request));
+            return result;
+        }
+
+        try {
+            DmsClientVersionRequest versionRequest = assembleVersionRequest(request);
+
+            versionCompare(request, response, versionRequest);
+        }
+        catch (Exception e) {
+            log.error("APP版本检测异常. {}", JsonHelper.toJson(request), e);
+            result.toError("APP版本检测异常");
+        }
+
+        return result;
+    }
+
+    /**
+     * 版本比较
+     * @param request
+     * @param response
+     * @param versionRequest
+     */
+    private void versionCompare(AppUpgradeRequest request, AppUpgradeResponse response, DmsClientVersionRequest versionRequest) {
+        JdResult<DmsClientVersionResponse> clientResponse = dmsClientManager.getClientVersion(versionRequest);
+        if (clientResponse.isSucceed() && null != clientResponse.getData()) {
+            DmsClientVersionResponse clientVersion = clientResponse.getData();
+            DmsClientConfigInfo dmsClientConfigInfo = clientVersion.getDmsClientConfigInfo();
+            if (dmsClientConfigInfo != null && StringUtils.isNotBlank(dmsClientConfigInfo.getVersionCode())) {
+                boolean needUpgrade = BusinessUtil.appVersionCompare(request.getVersionCode(), dmsClientConfigInfo.getVersionCode());
+
+                if (log.isInfoEnabled()) {
+                    log.info("version compare: old:{}, newest:{}, result:{}", request.getVersionCode(), dmsClientConfigInfo.getVersionCode(), needUpgrade);
+                }
+
+                setUpgradeResponse(response, dmsClientConfigInfo, needUpgrade);
+            }
+        }
+    }
+
+    private void setUpgradeResponse(AppUpgradeResponse response, DmsClientConfigInfo dmsClientConfigInfo, boolean needUpgrade) {
+        if (needUpgrade) {
+            response.setNeedUpdate(true);
+        }
+
+        response.setDownloadType(dmsClientConfigInfo.getDownloadType());
+        response.setDownloadUrl(dmsClientConfigInfo.getDownloadUrl());
+        response.setFileName(dmsClientConfigInfo.getFileName());
+        response.setFileSize(dmsClientConfigInfo.getFileSize());
+        response.setFileCheckCode(dmsClientConfigInfo.getFileCheckCode());
+        response.setVersionRemark(dmsClientConfigInfo.getVersionRemark());
+        response.setFileItemsCheckCode(dmsClientConfigInfo.getFileItemsCheckCode());
+        response.setRunningMode(dmsClientConfigInfo.getRunningMode());
+        response.setVersionCode(dmsClientConfigInfo.getVersionCode());
+    }
+
+    private DmsClientVersionRequest assembleVersionRequest(AppUpgradeRequest request) {
+        DmsClientVersionRequest versionRequest = new DmsClientVersionRequest();
+        versionRequest.setProgramType(ANDROID_LOGIN_PROGRAM_TYPE);
+        versionRequest.setCurrentVersionCode(request.getVersionCode());
+        versionRequest.setSystemCode(Constants.SYS_CODE_DMS);
+
+        if (NumberHelper.gt0(request.getSiteCode())) {
+            versionRequest.setSiteCode(String.valueOf(request.getSiteCode()));
+
+            BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteBySiteId(request.getSiteCode());
+            if (null != baseSite) {
+                versionRequest.setOrgCode(String.valueOf(baseSite.getOrgId()));
+                versionRequest.setOrgName(baseSite.getOrgName());
+                versionRequest.setSiteName(baseSite.getSiteName());
+            }
+        }
+        if (StringUtils.isNotBlank(request.getErpAccount())) {
+            versionRequest.setUserCode(request.getErpAccount());
+        }
+        if (StringUtils.isNotBlank(request.getDeviceId())) {
+            versionRequest.setMachineCode(request.getDeviceId());
+        }
+
+        return versionRequest;
+    }
 }

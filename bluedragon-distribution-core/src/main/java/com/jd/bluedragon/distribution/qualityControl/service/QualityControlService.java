@@ -8,11 +8,14 @@ import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBill;
 import com.jd.bluedragon.distribution.abnormalwaybill.service.AbnormalWayBillService;
 import com.jd.bluedragon.distribution.api.request.QualityControlRequest;
 import com.jd.bluedragon.distribution.api.request.ReturnsRequest;
+import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.base.domain.SysConfigContent;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.message.OwnReverseTransferDomain;
 import com.jd.bluedragon.distribution.qualityControl.QcVersionFlagEnum;
 import com.jd.bluedragon.distribution.qualityControl.domain.QualityControl;
+import com.jd.bluedragon.distribution.qualityControl.dto.QcReportJmqDto;
+import com.jd.bluedragon.distribution.qualityControl.dto.QcReportOutCallJmqDto;
 import com.jd.bluedragon.distribution.reverse.service.ReversePrintService;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
@@ -192,8 +195,8 @@ public class QualityControlService {
             }
             set.add(sendDetail.getWaybillCode());
 
-            QualityControl qualityControl = convert2QualityControl(waybillCode, request, null);
-            log.info("分拣中心新异常提交结果同步运单状态开始，消息体：{}", JsonHelper.toJson(qualityControl));
+            // QualityControl qualityControl = convert2QualityControl(waybillCode, request, null);
+            // log.info("分拣中心新异常提交结果同步运单状态开始，消息体：{}", JsonHelper.toJson(qualityControl));
             // 更新运单状态
             updateWaybillStatus(waybillCode, request, operateSite, null);
             //异常处理 节点发MQ 换新单
@@ -482,6 +485,175 @@ public class QualityControlService {
             return content.getKeyCodes().contains(reasonId.toString());
     }
         return false;
+    }
+
+    private String reportSystem = "dms";
+
+    /**
+     * 处理异常提报数据
+     * @param qcReportJmqDto 消息提
+     * @return 处理结果
+     * @author fanggang7
+     * @time 2022-02-18 15:38:54 周五
+     */
+    public Result<Boolean> handleQcReportConsume(QcReportJmqDto qcReportJmqDto) {
+        log.info("handleQcReportConsume param: {}", JsonHelper.toJson(qcReportJmqDto));
+        Result<Boolean> result = Result.success();
+        try {
+            if (StringUtils.isBlank(qcReportJmqDto.getReportSystem()) || !Objects.equals(qcReportJmqDto.getReportSystem(), reportSystem)){
+                return result;
+            }
+            final BaseStaffSiteOrgDto baseStaff = baseMajorManager.getBaseStaffByErpNoCache(qcReportJmqDto.getCreateUser());
+            if(baseStaff == null){
+                log.error("未找到此erp:{}信息", qcReportJmqDto.getCreateUser());
+                return result.toFail(String.format("未找到此erp:%s信息", qcReportJmqDto.getCreateUser()));
+            }
+
+            String barCodes = qcReportJmqDto.getPackageNumber();
+            String[] barCodeList = barCodes.split(Constants.SEPARATOR_COMMA);
+
+            for (String barCode : barCodeList) {
+                final QualityControlRequest qualityControlRequest = new QualityControlRequest();
+                qualityControlRequest.setQcVersionFlag(QcVersionFlagEnum.NEW_QUALITY_CONTROL_SYSTEM.getType());
+                qualityControlRequest.setQcValue(barCode);
+                qualityControlRequest.setQcType(PACKAGE_CODE_TYPE);
+                qualityControlRequest.setUserERP(qcReportJmqDto.getCreateUser());
+                qualityControlRequest.setUserName(baseStaff.getStaffName());
+                qualityControlRequest.setUserID(baseStaff.getStaffNo());
+                qualityControlRequest.setDistCenterID(Integer.parseInt(qcReportJmqDto.getCreateDept()));
+                qualityControlRequest.setDistCenterName(qcReportJmqDto.getCreateDeptName());
+                qualityControlRequest.setOperateTime(new Date(qcReportJmqDto.getCreateTime()));
+                qualityControlRequest.setQcCode(qcReportJmqDto.getAbnormalThirdId().intValue());
+                qualityControlRequest.setQcName(qcReportJmqDto.getAbnormalThirdName());
+                qualityControlRequest.setIsSortingReturn(false);
+                qualityControlRequest.setTrackContent("订单扫描异常【" + qcReportJmqDto.getAbnormalThirdName() + "】");
+                Task task = new Task();
+                task.setBody(JsonHelper.toJson(qualityControlRequest));
+                log.info("dealQualityControlTask param: {}", JsonHelper.toJson(task));
+                final TaskResult taskResult = this.dealQualityControlTask(task);
+                log.info("dealQualityControlTask param: {} result: {}", JsonHelper.toJson(task), JsonHelper.toJson(taskResult));
+                if(!TaskResult.toBoolean(taskResult)){
+                    log.error("handleQcReportConsume fail packageCode {} param {} ", barCode, JsonHelper.toJson(qcReportJmqDto));
+                    return result.toFail();
+                } else {
+                    result.setData(true);
+                }
+            }
+
+        } catch (Exception e) {
+            log.error("handleQcReportConsume exception ", e);
+            result.toFail("handleQcReportConsume exception " + e.getMessage());
+        }
+        return result;
+    }
+
+    public Result<Void> checkMqParam(QcReportJmqDto qcReportJmqDto) {
+        Result<Void> result = Result.success();
+        if(StringUtils.isBlank(qcReportJmqDto.getPackageNumber())){
+            return result.toFail("参数错误，packageNumber为空");
+        }
+        if(StringUtils.isBlank(qcReportJmqDto.getCreateUser())){
+            return result.toFail("参数错误，createUser为空");
+        }
+        if(StringUtils.isBlank(qcReportJmqDto.getCreateDept())){
+            return result.toFail("参数错误，createDept为空");
+        }
+        if(qcReportJmqDto.getCreateTime() == null){
+            return result.toFail("参数错误，createTime为空");
+        }
+        if(StringUtils.isBlank(qcReportJmqDto.getCreateDeptName())){
+            return result.toFail("参数错误，createDeptName为空");
+        }
+        if(qcReportJmqDto.getAbnormalThirdId() == null){
+            return result.toFail("参数错误，abnormalThirdId为空");
+        }
+        if(StringUtils.isBlank(qcReportJmqDto.getAbnormalThirdName())){
+            return result.toFail("参数错误，abnormalThirdName为空");
+        }
+        return result;
+    }
+
+    /**
+     * 处理异常提报数据
+     * @param qcReportJmqDto 消息提
+     * @return 处理结果
+     * @author fanggang7
+     * @time 2022-02-18 15:38:54 周五
+     */
+    public Result<Boolean> handleQcOutCallReportConsume(QcReportOutCallJmqDto qcReportJmqDto) {
+        log.info("handleQcReportConsume param: {}", JsonHelper.toJson(qcReportJmqDto));
+        Result<Boolean> result = Result.success();
+        try {
+            if (StringUtils.isBlank(qcReportJmqDto.getReportSystem()) || !Objects.equals(qcReportJmqDto.getReportSystem(), reportSystem)){
+                return result;
+            }
+            final BaseStaffSiteOrgDto baseStaff = baseMajorManager.getBaseStaffByErpNoCache(qcReportJmqDto.getCreateUser());
+            if(baseStaff == null){
+                log.error("未找到此erp:{}信息", qcReportJmqDto.getCreateUser());
+                return result.toFail(String.format("未找到此erp:%s信息", qcReportJmqDto.getCreateUser()));
+            }
+
+            String barCodes = qcReportJmqDto.getPackageNumber();
+            String[] barCodeList = barCodes.split(Constants.SEPARATOR_COMMA);
+
+            for (String barCode : barCodeList) {
+                final QualityControlRequest qualityControlRequest = new QualityControlRequest();
+                qualityControlRequest.setQcVersionFlag(QcVersionFlagEnum.NEW_QUALITY_CONTROL_SYSTEM.getType());
+                qualityControlRequest.setQcValue(barCode);
+                qualityControlRequest.setQcType(PACKAGE_CODE_TYPE);
+                qualityControlRequest.setUserERP(qcReportJmqDto.getCreateUser());
+                qualityControlRequest.setUserName(baseStaff.getStaffName());
+                qualityControlRequest.setUserID(baseStaff.getStaffNo());
+                qualityControlRequest.setDistCenterID(Integer.parseInt(qcReportJmqDto.getCreateDept()));
+                qualityControlRequest.setDistCenterName(qcReportJmqDto.getCreateDeptName());
+                qualityControlRequest.setOperateTime(new Date(qcReportJmqDto.getCreateTime()));
+                qualityControlRequest.setQcCode(qcReportJmqDto.getAbnormalThirdId().intValue());
+                qualityControlRequest.setQcName(qcReportJmqDto.getAbnormalThirdName());
+                qualityControlRequest.setIsSortingReturn(false);
+                qualityControlRequest.setTrackContent("订单扫描异常【" + qcReportJmqDto.getAbnormalThirdName() + "】");
+                Task task = new Task();
+                task.setBody(JsonHelper.toJson(qualityControlRequest));
+                log.info("dealQualityControlTask param: {}", JsonHelper.toJson(task));
+                final TaskResult taskResult = this.dealQualityControlTask(task);
+                log.info("dealQualityControlTask param: {} result: {}", JsonHelper.toJson(task), JsonHelper.toJson(taskResult));
+                if(!TaskResult.toBoolean(taskResult)){
+                    log.error("handleQcOutCallReportConsume fail packageCode {} param {} ", barCode, JsonHelper.toJson(qcReportJmqDto));
+                    return result.toFail();
+                } else {
+                    result.setData(true);
+                }
+            }
+        } catch (Exception e) {
+            log.error("handleQcOutCallReportConsume exception ", e);
+            result.toFail("handleQcOutCallReportConsume exception " + e.getMessage());
+        }
+        return result;
+    }
+
+    public Result<Void> checkMqParam(QcReportOutCallJmqDto qcReportJmqDto) {
+        Result<Void> result = Result.success();
+        if(StringUtils.isBlank(qcReportJmqDto.getPackageNumber())){
+            return result.toFail("参数错误，packageNumber为空");
+        }
+        if(StringUtils.isBlank(qcReportJmqDto.getCreateUser())){
+            return result.toFail("参数错误，createUser为空");
+        }
+        if(StringUtils.isBlank(qcReportJmqDto.getCreateDept())){
+            return result.toFail("参数错误，createDept为空");
+        }
+        if(qcReportJmqDto.getCreateTime() == null){
+            return result.toFail("参数错误，createTime为空");
+        }
+        if(StringUtils.isBlank(qcReportJmqDto.getCreateDeptName())){
+            return result.toFail("参数错误，createDeptName为空");
+        }
+        if(qcReportJmqDto.getAbnormalThirdId() == null){
+            return result.toFail("参数错误，abnormalThirdId为空");
+        }
+        if(StringUtils.isBlank(qcReportJmqDto.getAbnormalThirdName())){
+            return result.toFail("参数错误，abnormalThirdName为空");
+        }
+        return result;
     }
 
 }
