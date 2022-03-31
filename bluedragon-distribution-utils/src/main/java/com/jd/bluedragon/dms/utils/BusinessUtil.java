@@ -2237,7 +2237,6 @@ public class BusinessUtil {
                 && isSignInChars(waybillSign, WaybillSignConstants.POSITION_53, WaybillSignConstants.CHAR_53_1);
 
     }
-
     /**
      * 是否转运中心（新）
      *
@@ -2317,7 +2316,6 @@ public class BusinessUtil {
     	}
     	return idCard.replaceAll("(\\w{4})\\w*(\\w{4})", "$1***$2");
     }
-
     /**
      * APP版本大小比较
      * @param appVersion 当前版本

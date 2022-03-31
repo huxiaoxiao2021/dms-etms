@@ -104,11 +104,6 @@ public class WorkStationGridDaoImpl extends BaseDao<WorkStationGrid> implements 
 		return this.getSqlSession().selectOne(NAMESPACE+".queryCountByRefStationKey",stationKey);
 	}
 	@Override
-	public WorkStationGrid queryByGridKey(WorkStationGridQuery workStationGridQuery) {
-		return this.getSqlSession().selectOne(NAMESPACE+".queryByGridKey",workStationGridQuery);
-	}
-
-	@Override
 	public List<WorkStationGrid> querySiteListByOrgCode(WorkStationGridQuery query) {
 		return this.getSqlSession().selectList(NAMESPACE+".querySiteListByOrgCode",query);
 	}
@@ -131,6 +126,10 @@ public class WorkStationGridDaoImpl extends BaseDao<WorkStationGrid> implements 
 	@Override
 	public List<WorkStationGrid> queryAllByPage(WorkStationGridQuery query) {
 		return this.getSqlSession().selectList(NAMESPACE+".queryAllByPage",query);
+	}
+	@Override
+	public WorkStationGrid queryByGridKey(WorkStationGridQuery workStationGridQuery) {
+		return this.getSqlSession().selectOne(NAMESPACE+".queryByGridKey",workStationGridQuery);
 	}
 
 }

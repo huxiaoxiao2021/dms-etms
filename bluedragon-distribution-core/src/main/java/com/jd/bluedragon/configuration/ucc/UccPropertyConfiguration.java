@@ -652,11 +652,6 @@ public class UccPropertyConfiguration {
     private String spotCheckReformSiteCodes;
 
     /**
-     * AI识别图片开关
-     */
-    private boolean aiDistinguishSwitch;
-
-    /**
      * 是否对restAPI鉴权的开关
      */
     private boolean restApiOuthSwitch;
@@ -738,6 +733,10 @@ public class UccPropertyConfiguration {
      */
     private Integer packConsumableSwitch;
 
+    /**
+     * AI识别图片开关
+     */
+    private boolean aiDistinguishSwitch;
     public String getScheduleSiteCheckSameCity() {
         return scheduleSiteCheckSameCity;
     }

@@ -474,17 +474,6 @@
 		where g.yn = 1
 		    and g.ref_station_key = #{refStationKey,jdbcType=VARCHAR}
 	</select>
-	<select id="queryByGridKey" parameterType="com.jd.bluedragon.distribution.station.domain.WorkStationGrid" resultMap="WorkStationGrid">
-		select
-			<include refid="Base_Column_List"/>
-		from
-			work_station_grid g
-		<include refid="joinSql"/>
-		where g.yn = 1
-			and	g.business_key = #{businessKey,jdbcType=VARCHAR}
-		order by g.id desc
-		limit 1
-	</select>
 
 	<select id="queryAllByPage" parameterType="com.jd.bluedragon.distribution.station.query.WorkStationGridQuery" resultMap="WorkStationGrid">
 		select
@@ -494,6 +483,7 @@
 		where yn = 1
 		limit #{offset}, #{limit}
 	</select>
+
 	<select id="queryByIds" parameterType="com.jd.bluedragon.distribution.station.domain.DeleteRequest" resultMap="WorkStationGrid">
 		select
 			<include refid="Base_Column_List"/>
@@ -525,4 +515,15 @@
 			#{item.id,jdbcType=BIGINT}
 		</foreach>		
 	</update>		
+	<select id="queryByGridKey" parameterType="com.jd.bluedragon.distribution.station.domain.WorkStationGrid" resultMap="WorkStationGrid">
+		select
+			<include refid="Base_Column_List"/>
+		from
+			work_station_grid g
+		<include refid="joinSql"/>
+		where g.yn = 1
+			and	g.business_key = #{businessKey,jdbcType=VARCHAR}
+		order by g.id desc
+		limit 1			
+	</select>	
 </mapper>

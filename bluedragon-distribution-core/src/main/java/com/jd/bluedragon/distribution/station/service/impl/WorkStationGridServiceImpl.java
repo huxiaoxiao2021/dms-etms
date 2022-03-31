@@ -412,13 +412,6 @@ public class WorkStationGridServiceImpl implements WorkStationGridService {
 	public boolean hasGridData(String stationKey) {
 		return workStationGridDao.queryCountByRefStationKey(stationKey) > 0;
 	}
-
-	@Override
-	public Result<WorkStationGrid> queryByGridKey(WorkStationGridQuery workStationGridQuery) {
-		Result<WorkStationGrid> result = Result.success();
-		result.setData(workStationGridDao.queryByGridKey(workStationGridQuery));
-		return result;
-	}
 	@Override
 	public Result<Boolean> deleteByIds(DeleteRequest<WorkStationGrid> deleteRequest) {
 		Result<Boolean> result = Result.success();
@@ -466,5 +459,12 @@ public class WorkStationGridServiceImpl implements WorkStationGridService {
 	@Override
 	public List<String> queryOwnerUserErpListBySiteCode(WorkStationGridQuery query) {
 		return workStationGridDao.queryOwnerUserErpListBySiteCode(query);
+	}
+
+	@Override
+	public Result<WorkStationGrid> queryByGridKey(WorkStationGridQuery workStationGridQuery) {
+		Result<WorkStationGrid> result = Result.success();
+		result.setData(workStationGridDao.queryByGridKey(workStationGridQuery));
+		return result;
 	}
 }

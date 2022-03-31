@@ -16,14 +16,6 @@ public interface SortBoardJsfService {
      */
     InvokeResult<List<Board>> createBoard(AddBoardRequest request);
 
-    /**
-     * 自动化组板
-     *
-     * @param request
-     * @return
-     */
-    Response<String> bindBoard(BindBoardRequest request);
-
 
     Response<Void> autoBoardComplete(AutoBoardCompleteRequest request);
 
