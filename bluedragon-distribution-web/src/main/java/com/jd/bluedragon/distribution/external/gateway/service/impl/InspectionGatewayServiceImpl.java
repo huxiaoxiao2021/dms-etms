@@ -237,7 +237,8 @@ public class InspectionGatewayServiceImpl implements InspectionGatewayService {
         JdVerifyResponse<InspectionCheckResultDto> response = new JdVerifyResponse<>();
         response.toSuccess();
 
-        String waybillCode = request.getWaybillCode();
+        String barCode = request.getBarCode();
+        String waybillCode = WaybillUtil.getWaybillCode(barCode);
 
         // 拦截消息客户端弹窗并震动，提示消息客户端文字提示，警告消息客户端只弹窗不震动
 
@@ -250,16 +251,17 @@ public class InspectionGatewayServiceImpl implements InspectionGatewayService {
 
         // 提示语校验
         HintCheckRequest hintCheckRequest = new HintCheckRequest();
-        hintCheckRequest.setPackageCode(request.getWaybillCode());
+        hintCheckRequest.setPackageCode(barCode);
         hintCheckRequest.setCreateSiteCode(request.getCreateSiteCode());
 
         JdCResponse<InspectionCheckResultDto> hintCheckResult = hintCheck(hintCheckRequest);
         if (!Objects.equals(hintCheckResult.getCode(), BaseEntity.CODE_SUCCESS)) {
             response.toError(hintCheckResult.getMessage());
-            response.addInterceptBox(0, hintCheckResult.getMessage());
             return response;
         }
         else {
+            response.setData(hintCheckResult.getData());
+
             if (StringUtils.isNotBlank(hintCheckResult.getData().getInspectionResultDto().getHintMessage())) {
                 response.addWarningBox(0, hintCheckResult.getData().getInspectionResultDto().getHintMessage());
             }
@@ -276,8 +278,7 @@ public class InspectionGatewayServiceImpl implements InspectionGatewayService {
 
     private void checkWaybillCancel(InspectionRequest request, JdVerifyResponse<InspectionCheckResultDto> response) {
         PdaOperateRequest pdaOperateRequest = new PdaOperateRequest();
-        pdaOperateRequest.setBoxCode(request.getBoxCode());
-        pdaOperateRequest.setPackageCode(request.getPackageCode());
+        pdaOperateRequest.setPackageCode(request.getBarCode());
         pdaOperateRequest.setBusinessType(request.getBusinessType());
         pdaOperateRequest.setCreateSiteCode(request.getCreateSiteCode());
         pdaOperateRequest.setCreateSiteName(request.getCreateSiteName());
@@ -299,18 +300,22 @@ public class InspectionGatewayServiceImpl implements InspectionGatewayService {
      * @param waybillCode
      */
     private void tempStorageCheck(InspectionRequest request, JdVerifyResponse<InspectionCheckResultDto> response, String waybillCode) {
+        if (StringUtils.isBlank(waybillCode)) {
+            return;
+        }
         InvokeResult<Boolean> tempStorageResult = storageResource.checkIsNeedStorage(waybillCode, request.getCreateSiteCode());
         if (tempStorageResult.getCode() == 201) {
             if (tempStorageResult.getData()) {
                 response.addWarningBox(0, tempStorageResult.getMessage());
             }
             else {
+                response.setCode(20001);
                 response.addPromptBox(0, tempStorageResult.getMessage());
             }
         }
         else if (response.getCode() == JdCResponse.CODE_FAIL
-                || response.getCode() == JdCResponse.CODE_ERROR){
-            response.addInterceptBox(0, tempStorageResult.getMessage());
+                || response.getCode() == JdCResponse.CODE_ERROR) {
+            response.addWarningBox(0, tempStorageResult.getMessage());
         }
     }
 
@@ -321,15 +326,16 @@ public class InspectionGatewayServiceImpl implements InspectionGatewayService {
      * @return
      */
     private Boolean checkAllianceMoney(JdVerifyResponse<InspectionCheckResultDto> response, String waybillCode) {
+        if (StringUtils.isBlank(waybillCode)) {
+            return true;
+        }
         BaseEntity<Boolean> result = allianceBusiResouse.checkMoney(waybillCode);
         if (result.getCode() != BaseEntity.CODE_SUCCESS) {
             response.toError(result.getMessage());
-            response.addInterceptBox(0, result.getMessage());
             return false;
         }
         // 不充足就是需要拦截
         if (!result.getData()) {
-            response.toError();
             response.addInterceptBox(0,"加盟商预付款余额不足，请联系加盟商处理！");
         }
 

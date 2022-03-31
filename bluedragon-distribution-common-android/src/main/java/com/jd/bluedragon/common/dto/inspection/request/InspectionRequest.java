@@ -12,6 +12,9 @@ public class InspectionRequest implements Serializable {
 
     private static final long serialVersionUID = -4305293341631044606L;
 
+    /**
+     * 箱号、包裹号或运单号
+     */
     private String barCode;
 
     private int businessType;
