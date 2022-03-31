@@ -4,14 +4,13 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.inspection.request.InspectionRequest;
-import com.jd.bluedragon.common.dto.inspection.response.InspectionCheckResultDto;
 import com.jd.bluedragon.common.dto.inspection.response.ConsumableRecordResponseDto;
+import com.jd.bluedragon.common.dto.inspection.response.InspectionCheckResultDto;
 import com.jd.bluedragon.common.dto.inspection.response.InspectionCheckWaybillTypeRequest;
 import com.jd.bluedragon.common.dto.inspection.response.InspectionResultDto;
 import com.jd.bluedragon.common.dto.waybill.request.ThirdWaybillReq;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
-import com.jd.bluedragon.core.base.WaybillStagingCheckManager;
 import com.jd.bluedragon.distribution.api.request.HintCheckRequest;
 import com.jd.bluedragon.distribution.api.request.ThirdWaybillRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -31,10 +30,8 @@ import com.jd.bluedragon.external.gateway.service.InspectionGatewayService;
 import com.jd.dms.logger.annotation.BusinessLog;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.domain.JdResponse;
-import com.jd.registry.util.NamedThreadFactory;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,7 +40,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 
 import javax.annotation.Resource;
 import java.util.Objects;
-import java.util.concurrent.*;
 
 import static com.jd.bluedragon.distribution.loadAndUnload.service.impl.UnloadCarServiceImpl.EXPRESS_CENTER_SITE_ID;
 
@@ -81,7 +77,7 @@ public class InspectionGatewayServiceImpl implements InspectionGatewayService {
     @Resource
     private StorageResource storageResource;
 
-    @Resource
+    @Autowired
     private WaybillService waybillService;
 
     private final static Logger log = LoggerFactory.getLogger(InspectionGatewayServiceImpl.class);
