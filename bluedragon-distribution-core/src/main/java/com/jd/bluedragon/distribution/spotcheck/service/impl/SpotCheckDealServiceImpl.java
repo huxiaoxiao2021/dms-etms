@@ -1054,7 +1054,7 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
         }
         // 设备抽检需校验图片是否合规
         if(SpotCheckSourceFromEnum.EQUIPMENT_SOURCE_NUM.contains(spotCheckDto.getReviewSource())
-                && uccPropertyConfiguration.getAiDistinguishSwitch()){
+                && uccPropertyConfiguration.getDeviceAIDistinguishSwitch()){
             if(logger.isInfoEnabled()){
                 logger.info("设备抽检图片AI识别下发运单:{}站点:{}的数据!", spotCheckDto.getWaybillCode(), spotCheckDto.getReviewSiteCode());
             }
