@@ -110,12 +110,6 @@ public interface WorkStationGridService {
 	 */
 	boolean hasGridData(String stationKey);
 	/**
-	 * 根据gridKey查询
-	 * @param workStationGridCheckQuery
-	 * @return
-	 */
-	Result<WorkStationGrid> queryByGridKey(WorkStationGridQuery workStationGridCheckQuery);
-	/**
 	 * 批量删除
 	 * @param deleteRequest
 	 * @return
@@ -143,4 +137,10 @@ public interface WorkStationGridService {
 	 * @param query
 	 */
 	List<String> queryOwnerUserErpListBySiteCode(WorkStationGridQuery query);	
+	/**
+	 * 根据gridKey查询
+	 * @param workStationGridCheckQuery
+	 * @return
+	 */
+	Result<WorkStationGrid> queryByGridKey(WorkStationGridQuery workStationGridCheckQuery);
 }

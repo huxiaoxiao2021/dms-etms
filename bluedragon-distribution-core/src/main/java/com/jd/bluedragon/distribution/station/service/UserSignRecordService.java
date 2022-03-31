@@ -102,6 +102,12 @@ public interface UserSignRecordService {
 	 */
 	Result<List<UserSignRecord>> queryListForExport(UserSignRecordQuery query);
     /**
+     * 根据条件查询-转成通知对象
+     * @param query
+     * @return
+     */
+	Result<UserSignNoticeVo> queryUserSignRecordToNoticeVo(UserSignRecordQuery query);
+    /**
      * 按岗位签到
      * @param signInRequest
      * @return
@@ -131,10 +137,4 @@ public interface UserSignRecordService {
 	 * @return
 	 */
 	JdCResponse<UserSignRecordData> queryLastUserSignRecordData(UserSignQueryRequest query);
-    /**
-     * 根据条件查询-转成通知对象
-     * @param query
-     * @return
-     */
-	Result<UserSignNoticeVo> queryUserSignRecordToNoticeVo(UserSignRecordQuery query);
 }

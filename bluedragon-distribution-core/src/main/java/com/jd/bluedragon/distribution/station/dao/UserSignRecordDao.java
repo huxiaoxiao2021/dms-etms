@@ -3,11 +3,11 @@ package com.jd.bluedragon.distribution.station.dao;
 import java.util.Date;
 import java.util.List;
 
-import com.jd.bluedragon.common.dto.station.UserSignQueryRequest;
-import com.jd.bluedragon.common.dto.station.UserSignRecordData;
 import com.jd.bluedragon.distribution.station.domain.UserSignNoticeJobItemVo;
 import com.jd.bluedragon.distribution.station.domain.UserSignNoticeVo;
 import com.jd.bluedragon.distribution.station.domain.UserSignNoticeWaveItemVo;
+import com.jd.bluedragon.common.dto.station.UserSignQueryRequest;
+import com.jd.bluedragon.common.dto.station.UserSignRecordData;
 import com.jd.bluedragon.distribution.station.domain.UserSignRecord;
 import com.jd.bluedragon.distribution.station.domain.UserSignRecordReportSumVo;
 import com.jd.bluedragon.distribution.station.domain.UserSignRecordReportVo;
@@ -76,12 +76,6 @@ public interface UserSignRecordDao {
 	 * @return
 	 */
 	long queryReportCount(UserSignRecordQuery query);
-	/**
-	 * 根据业务主键查询
-	 * @param signInRequest
-	 * @return
-	 */
-	UserSignRecord queryByBusinessKey(UserSignRecord signInRequest);
 	/**
 	 * 查询用户最近一次签到信息
 	 * @param query

@@ -105,12 +105,6 @@ public interface WorkStationGridDao {
 	 * @return
 	 */
 	long queryCountByRefStationKey(String stationKey);
-	/**
-	 * 根据
-	 * @param gridKey查询
-	 * @return
-	 */
-	WorkStationGrid queryByGridKey(WorkStationGridQuery workStationGridQuery);
 
 	/**
 	 * 分页查询所有数据（用于初始化数据）
@@ -147,4 +141,10 @@ public interface WorkStationGridDao {
 	 * @return
 	 */
 	int deleteByIds(DeleteRequest<WorkStationGrid> deleteRequest);
+	/**
+	 * 根据
+	 * @param gridKey查询
+	 * @return
+	 */
+	WorkStationGrid queryByGridKey(WorkStationGridQuery workStationGridQuery);
 }

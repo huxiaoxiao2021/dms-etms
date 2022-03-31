@@ -73,12 +73,6 @@ public interface PositionRecordService {
      * @return
      */
     Result<Long> queryCountByCondition(PositionQuery query);
-    /**
-     * 查询岗位信息
-     * @param positionCode
-     * @return
-     */
-	JdCResponse<PositionData> queryPositionData(String positionCode);
 
     /**
      * 同步所有数据
@@ -86,4 +80,10 @@ public interface PositionRecordService {
      * @return
      */
     void syncAllData();
+    /**
+     * 查询岗位信息
+     * @param positionCode
+     * @return
+     */
+	JdCResponse<PositionData> queryPositionData(String positionCode);
 }
