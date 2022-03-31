@@ -12,11 +12,7 @@ public class InspectionRequest implements Serializable {
 
     private static final long serialVersionUID = -4305293341631044606L;
 
-    private String waybillCode;
-
-    private String packageCode;
-
-    private String boxCode;
+    private String barCode;
 
     private int businessType;
 
@@ -32,28 +28,12 @@ public class InspectionRequest implements Serializable {
 
     private String operateUserName;
 
-    public String getWaybillCode() {
-        return waybillCode;
+    public String getBarCode() {
+        return barCode;
     }
 
-    public void setWaybillCode(String waybillCode) {
-        this.waybillCode = waybillCode;
-    }
-
-    public String getPackageCode() {
-        return packageCode;
-    }
-
-    public void setPackageCode(String packageCode) {
-        this.packageCode = packageCode;
-    }
-
-    public String getBoxCode() {
-        return boxCode;
-    }
-
-    public void setBoxCode(String boxCode) {
-        this.boxCode = boxCode;
+    public void setBarCode(String barCode) {
+        this.barCode = barCode;
     }
 
     public int getBusinessType() {
