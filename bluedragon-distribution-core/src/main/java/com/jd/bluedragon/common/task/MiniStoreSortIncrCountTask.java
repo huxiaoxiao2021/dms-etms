@@ -29,20 +29,20 @@ public class MiniStoreSortIncrCountTask implements Runnable {
         DeviceDto deviceDto = new DeviceDto();
         deviceDto.setBoxCode(boxCode);
         MiniStoreBindRelation miniStoreBindRelation = miniStoreService.selectBindRelation(deviceDto);
-        if (null == miniStoreBindRelation) {
-            logger.error("移动微仓更改集包数据异常：未查询到相关的绑定数据，boxCode {}", boxCode);
-        }
-        List<PackSortTaskBody> bodyList = JSON.parseArray(body, PackSortTaskBody.class);
-        String updateUser = bodyList.get(0).getUserName();
-        Long updateUserCode = Long.valueOf(bodyList.get(0).getUserCode());
-        int rs = 0;
-        try {
-            rs = miniStoreService.incrSortCount(miniStoreBindRelation.getId(),updateUser,updateUserCode);
-        } catch (Exception e) {
-            logger.error("移动微仓更改集包数据异常", e);
-        }
-        if (rs > 0) {
-            logger.info("移动微仓增加集包计数成功！");
+        if (null != miniStoreBindRelation) {
+            logger.info("移动微仓集包业务更改集包数量,boxCode {}", boxCode);
+            List<PackSortTaskBody> bodyList = JSON.parseArray(body, PackSortTaskBody.class);
+            String updateUser = bodyList.get(0).getUserName();
+            Long updateUserCode = Long.valueOf(bodyList.get(0).getUserCode());
+            int rs = 0;
+            try {
+                rs = miniStoreService.incrSortCount(miniStoreBindRelation.getId(), updateUser, updateUserCode);
+            } catch (Exception e) {
+                logger.error("移动微仓更改集包数据异常", e);
+            }
+            if (rs > 0) {
+                logger.info("移动微仓增加集包计数成功！");
+            }
         }
     }
 }
