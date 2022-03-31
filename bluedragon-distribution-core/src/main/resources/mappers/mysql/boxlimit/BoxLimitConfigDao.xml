@@ -13,10 +13,13 @@
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
     <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
     <result column="yn" jdbcType="BOOLEAN" property="yn" />
+    <result column="config_type" jdbcType="TINYINT" property="configType"/>
+    <result column="box_number_type"  jdbcType="VARCHAR" property="boxNumberType"/>
+
   </resultMap>
   <sql id="Base_Column_List">
     id, site_name, site_id, limit_num, operator_erp, operator_site_id, operator_site_name, 
-    operating_time, create_time, update_time, yn
+    operating_time, create_time, update_time, yn, config_type, box_number_type
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select 
@@ -32,11 +35,11 @@
     insert into box_limit_config (site_name, site_id, limit_num, 
       operator_erp, operator_site_id, operator_site_name, 
       operating_time, create_time, update_time, 
-      yn)
+      yn, config_type, box_number_type)
     values (#{siteName,jdbcType=VARCHAR}, #{siteId,jdbcType=INTEGER}, #{limitNum,jdbcType=INTEGER}, 
       #{operatorErp,jdbcType=VARCHAR}, #{operatorSiteId,jdbcType=INTEGER}, #{operatorSiteName,jdbcType=VARCHAR}, 
       #{operatingTime,jdbcType=TIMESTAMP}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, 
-      #{yn,jdbcType=BOOLEAN})
+      #{yn,jdbcType=BOOLEAN},#{configType,jdbcType=TINYINT},#{boxNumberType,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="com.jd.bluedragon.distribution.boxlimit.domain.BoxLimitConfig" useGeneratedKeys="true">
     insert into box_limit_config
@@ -138,6 +141,12 @@
       <if test="yn != null">
         yn = #{yn,jdbcType=BOOLEAN},
       </if>
+      <if test="config_type != null">
+        config_type = #{configType,jdbcType=TINYINT},
+      </if>
+      <if test="box_number_type != null">
+        box_number_type = #{boxNumberType,jdbcType=VARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
@@ -205,7 +214,7 @@
   </select>
 
   <select id="queryLimitNumBySiteId"  resultType="java.lang.Integer">
-    select limit_num from box_limit_config where yn = 1 AND site_id = #{siteId}
+    select limit_num from box_limit_config where yn = 1 AND site_id = #{siteId} and box_number_type = #{boxNumberType}
   </select>
 
   <select id="queryByCondition"  resultMap="BaseResultMap">
@@ -220,6 +229,13 @@
       <if test="siteId != null">
         AND site_id = #{siteId}
       </if>
+      <if test="configType != null">
+        AND config_type = #{configType}
+      </if>
+      <if test="boxNumberType != null">
+        AND box_number_type = #{boxNumberType}
+      </if>
+
     </where>
     ORDER BY update_time DESC LIMIT #{offset},#{pageSize}
   </select>
@@ -237,6 +253,10 @@
         AND site_id = #{siteId}
       </if>
     </where>
+  </select>
+
+  <select id="queryCommonLimitNum" resultType="java.lang.Integer">
+    select limit_num from box_limit_config where yn = 1 and box_number_type = #{boxNumberType}
   </select>
 
 

@@ -43,9 +43,16 @@ public interface BoxLimitService {
     JdResponse querySiteNameById(Integer siteId);
 
     /**
-     *  根据站点ID 查询 包裹数量限制
+     *  根据站点ID和箱号类型查询包裹数量限制
      *  未配置 返回 null
      */
-    Integer queryLimitNumBySiteId(Integer siteId);
+    Integer queryLimitNumBySiteIdAndBoxNumberType(Integer siteId,String boxNumberType);
+
+    /**
+     * 通过箱号类型获取通用包裹限制数量
+     * @param boxNumberType
+     * @return
+     */
+    Integer queryCommonLimitNum(String boxNumberType);
 
 }

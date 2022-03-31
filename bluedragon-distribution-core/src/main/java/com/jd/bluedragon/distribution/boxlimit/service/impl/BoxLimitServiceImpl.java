@@ -236,6 +236,8 @@ public class BoxLimitServiceImpl implements BoxLimitService {
         boxLimitConfig.setCreateTime(now);
         boxLimitConfig.setUpdateTime(now);
         boxLimitConfig.setYn(true);
+        boxLimitConfig.setConfigType(dto.getConfigType());
+        boxLimitConfig.setBoxNumberType(dto.getBoxNumberType());
 
         boxLimitConfigDao.insert(boxLimitConfig);
 
@@ -271,6 +273,8 @@ public class BoxLimitServiceImpl implements BoxLimitService {
         boxLimitConfig.setSiteId(dto.getSiteId());
         boxLimitConfig.setSiteName(dto.getSiteName());
         boxLimitConfig.setLimitNum(dto.getLimitNum());
+        boxLimitConfig.setConfigType(dto.getConfigType());
+        boxLimitConfig.setBoxNumberType(dto.getBoxNumberType());
 
         boxLimitConfigDao.updateByPrimaryKeySelective(boxLimitConfig);
         return response;
@@ -297,10 +301,18 @@ public class BoxLimitServiceImpl implements BoxLimitService {
     }
 
     @Override
-    @Cache(key = "BoxLimitServiceImpl.queryLimitNumBySiteId@args0", memoryEnable = true, memoryExpiredTime = 2 * 60 * 1000
+    @Cache(key = "BoxLimitServiceImpl.queryLimitNumBySiteId@args0@args1", memoryEnable = true, memoryExpiredTime = 2 * 60 * 1000
             ,redisEnable = true, redisExpiredTime = 2 * 60 * 1000)
-    public Integer queryLimitNumBySiteId(Integer siteId) {
-        return boxLimitConfigDao.queryLimitNumBySiteId(siteId);
+    public Integer queryLimitNumBySiteIdAndBoxNumberType(Integer siteId,String boxNumberType) {
+        BoxLimitQueryDTO dto = new BoxLimitQueryDTO();
+        dto.setSiteId(siteId);
+        dto.setBoxNumberType(boxNumberType);
+        return boxLimitConfigDao.queryLimitNumBySiteId(dto);
+    }
+
+    @Override
+    public Integer queryCommonLimitNum(String boxNumberType) {
+        return boxLimitConfigDao.queryCommonLimitNum(boxNumberType);
     }
 
 }

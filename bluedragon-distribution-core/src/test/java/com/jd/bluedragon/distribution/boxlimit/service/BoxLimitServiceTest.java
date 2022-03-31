@@ -156,8 +156,8 @@ public class BoxLimitServiceTest{
 
     @Test
     public void queryLimitNumBySiteId() {
-        Mockito.when(boxLimitConfigDao.queryLimitNumBySiteId(Mockito.<Integer>any())).thenReturn(1000);
-        Integer id = boxLimitService.queryLimitNumBySiteId(1);
+        Mockito.when(boxLimitConfigDao.queryLimitNumBySiteId(Mockito.<BoxLimitQueryDTO>any())).thenReturn(1000);
+        Integer id = boxLimitService.queryLimitNumBySiteIdAndBoxNumberType(1,"BC");
         log.info("queryLimitNumBySiteId: id = {}", id);
     }
 
