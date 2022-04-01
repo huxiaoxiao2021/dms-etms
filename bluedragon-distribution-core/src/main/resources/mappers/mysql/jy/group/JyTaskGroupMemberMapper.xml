@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jd.bluedragon.distribution.jy.dao.group.JyTaskGroupMemberDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.jd.bluedragon.distribution.jy.group.JyTaskGroupMemberEntity" id="jyTaskGroupMemberMap">
+        <result property="id" column="id"/>
+        <result property="refTaskId" column="ref_task_id"/>
+        <result property="refGroupCode" column="ref_group_code"/>
+        <result property="refGroupMemberCode" column="ref_group_member_code"/>
+        <result property="userCode" column="user_code"/>
+        <result property="userName" column="user_name"/>
+        <result property="jobCode" column="job_code"/>
+        <result property="startTime" column="start_time"/>
+        <result property="endTime" column="end_time"/>
+        <result property="workTimes" column="work_times"/>
+        <result property="orgCode" column="org_code"/>
+        <result property="siteCode" column="site_code"/>
+        <result property="createUser" column="create_user"/>
+        <result property="createUserName" column="create_user_name"/>
+        <result property="updateUser" column="update_user"/>
+        <result property="updateUserName" column="update_user_name"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="yn" column="yn"/>
+        <result property="ts" column="ts"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,
+        ref_task_id,
+        ref_group_code,
+        ref_group_member_code,
+        user_code,
+        user_name,
+        job_code,
+        start_time,
+        end_time,
+        work_times,
+        org_code,
+        site_code,
+        create_user,
+        create_user_name,
+        update_user,
+        update_user_name,
+        create_time,
+        update_time,
+        yn,
+        ts
+    </sql>
+
+    <insert id="insert" parameterType="JyTaskGroupMemberEntity">
+        INSERT INTO jy_task_group_member (
+                            id,
+                            ref_task_id,
+                            ref_group_code,
+                            ref_group_member_code,
+                            user_code,
+                            user_name,
+                            job_code,
+                            start_time,
+                            end_time,
+                            work_times,
+                            org_code,
+                            site_code,
+                            create_user,
+                            create_user_name,
+                            update_user,
+                            update_user_name,
+                            create_time,
+                            update_time,
+                            yn,
+                            ts
+                    ) VALUES (
+                            #{id},
+                            #{refTaskId},
+                            #{refGroupCode},
+                            #{refGroupMemberCode},
+                            #{userCode},
+                            #{userName},
+                            #{jobCode},
+                            #{startTime},
+                            #{endTime},
+                            #{workTimes},
+                            #{orgCode},
+                            #{siteCode},
+                            #{createUser},
+                            #{createUserName},
+                            #{updateUser},
+                            #{updateUserName},
+                            #{createTime},
+                            #{updateTime},
+                            #{yn},
+                            #{ts}
+                    )
+    </insert>
+</mapper>

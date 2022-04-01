@@ -768,4 +768,31 @@
         <property name="sqlSession" ref="businessSqlSessionTemplate"/>
     </bean>
 
+    <!--################################## jy_core 相关DAO BEGIN ############################################ -->
+
+    <bean id="jyGroupDao" class="com.jd.bluedragon.distribution.jy.dao.group.JyGroupDao">
+        <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
+    </bean>
+    <bean id="jyGroupMemberDao" class="com.jd.bluedragon.distribution.jy.dao.group.JyGroupMemberDao">
+        <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
+    </bean>
+    <bean id="jyTaskGroupMemberDao" class="com.jd.bluedragon.distribution.jy.dao.group.JyTaskGroupMemberDao">
+        <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
+    </bean>
+    <bean id="jyBizTaskUnloadVehicleDao" class="com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskUnloadVehicleDao">
+        <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
+    </bean>
+    <bean id="jyBizUnloadVehicleBatchDao" class="com.jd.bluedragon.distribution.jy.dao.unload.JyBizUnloadVehicleBatchDao">
+        <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
+    </bean>
+    <bean id="jyUnloadAggsDao" class="com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadAggsDao">
+        <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
+    </bean>
+    <bean id="jyUnloadDao" class="com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadDao">
+        <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
+    </bean>
+
+    <!--################################## jy_core 相关DAO END ############################################ -->
+
+
 </beans>

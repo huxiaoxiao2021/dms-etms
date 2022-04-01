@@ -1,0 +1,26 @@
+package com.jd.bluedragon.distribution.jy.dao.group;
+
+import com.jd.bluedragon.common.dao.BaseDao;
+import com.jd.bluedragon.distribution.jy.group.JyGroupEntity;
+
+/**
+ * 工作小组表
+ * 
+ * @author liuduo8
+ * @email liuduo3@jd.com
+ * @date 2022-04-01 16:23:35
+ */
+public class JyGroupDao extends BaseDao<JyGroupEntity> {
+
+    final static String NAMESPACE = JyGroupDao.class.getName();
+
+    /**
+     * 新增
+     *
+     * @param
+     * @return
+     */
+    public int insert(JyGroupEntity entity) {
+        return this.getSqlSession().insert(NAMESPACE + ".insert", entity);
+    }
+}

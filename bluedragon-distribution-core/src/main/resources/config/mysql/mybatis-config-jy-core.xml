@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="GBK"?>
+<!DOCTYPE configuration
+		PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>
+	<properties>
+		<property name="dialect" value="MYSQL"/>
+	</properties>
+	<settings>
+		<setting name="lazyLoadingEnabled" value="false"/>
+		<setting name="autoMappingBehavior" value="FULL"/>
+		<setting name="defaultStatementTimeout" value="30"/>
+	</settings>
+
+	<typeAliases>
+		<typeAlias type="com.jd.bluedragon.distribution.jy.group.JyGroupEntity" alias="JyGroupEntity"/>
+		<typeAlias type="com.jd.bluedragon.distribution.jy.group.JyGroupMemberEntity" alias="JyGroupMemberEntity"/>
+		<typeAlias type="com.jd.bluedragon.distribution.jy.group.JyTaskGroupMemberEntity" alias="JyTaskGroupMemberEntity"/>
+		<typeAlias type="com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity" alias="JyBizTaskUnloadVehicleEntity"/>
+		<typeAlias type="com.jd.bluedragon.distribution.jy.unload.JyBizUnloadVehicleBatchEntity" alias="JyBizUnloadVehicleBatchEntity"/>
+		<typeAlias type="com.jd.bluedragon.distribution.jy.unload.JyUnloadAggsEntity" alias="JyUnloadAggsEntity"/>
+		<typeAlias type="com.jd.bluedragon.distribution.jy.unload.JyUnloadEntity" alias="JyUnloadEntity"/>
+
+	</typeAliases>
+
+
+	<mappers>
+
+		<mapper resource="mappers/mysql/jy/group/JyGroupMapper.xml" />
+		<mapper resource="mappers/mysql/jy/group/JyGroupMemberMapper.xml" />
+		<mapper resource="mappers/mysql/jy/group/JyTaskGroupMemberMapper.xml" />
+		<mapper resource="mappers/mysql/jy/task/JyBizTaskUnloadVehicleMapper.xml" />
+		<mapper resource="mappers/mysql/jy/unload/JyBizUnloadVehicleBatchMapper.xml" />
+		<mapper resource="mappers/mysql/jy/unload/JyUnloadAggsMapper.xml" />
+		<mapper resource="mappers/mysql/jy/unload/JyUnloadMapper.xml" />
+
+
+	</mappers>
+</configuration>

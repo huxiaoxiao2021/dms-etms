@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadAggsDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.jd.bluedragon.distribution.jy.unload.JyUnloadAggsEntity" id="jyUnloadAggsMap">
+        <result property="id" column="id"/>
+        <result property="bizId" column="biz_id"/>
+        <result property="sealCarCode" column="seal_car_code"/>
+        <result property="operateSiteId" column="operate_site_id"/>
+        <result property="productType" column="product_type"/>
+        <result property="shouldScanCount" column="should_scan_count"/>
+        <result property="actualScanCount" column="actual_scan_count"/>
+        <result property="interceptShouldScanCount" column="intercept_should_scan_count"/>
+        <result property="interceptActualScanCount" column="intercept_actual_scan_count"/>
+        <result property="interceptNotScanCount" column="intercept_not_scan_count"/>
+        <result property="moreScanLocalCount" column="more_scan_local_count"/>
+        <result property="moreScanOutCount" column="more_scan_out_count"/>
+        <result property="moreScanTotalCount" column="more_scan_total_count"/>
+        <result property="totalSealPackageCount" column="total_seal_package_count"/>
+        <result property="totalScannedPackageCount" column="total_scanned_package_count"/>
+        <result property="createTime" column="create_time"/>
+        <result property="yn" column="yn"/>
+        <result property="ts" column="ts"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,
+        biz_id,
+        seal_car_code,
+        operate_site_id,
+        product_type,
+        should_scan_count,
+        actual_scan_count,
+        intercept_should_scan_count,
+        intercept_actual_scan_count,
+        intercept_not_scan_count,
+        more_scan_local_count,
+        more_scan_out_count,
+        more_scan_total_count,
+        total_seal_package_count,
+        total_scanned_package_count,
+        create_time,
+        yn,
+        ts
+    </sql>
+
+    <insert id="insert" parameterType="JyUnloadAggsEntity">
+        INSERT INTO jy_unload_aggs (
+                            id,
+                            biz_id,
+                            seal_car_code,
+                            operate_site_id,
+                            product_type,
+                            should_scan_count,
+                            actual_scan_count,
+                            intercept_should_scan_count,
+                            intercept_actual_scan_count,
+                            intercept_not_scan_count,
+                            more_scan_local_count,
+                            more_scan_out_count,
+                            more_scan_total_count,
+                            total_seal_package_count,
+                            total_scanned_package_count,
+                            create_time,
+                            yn,
+                            ts
+                    ) VALUES (
+                            #{id},
+                            #{bizId},
+                            #{sealCarCode},
+                            #{operateSiteId},
+                            #{productType},
+                            #{shouldScanCount},
+                            #{actualScanCount},
+                            #{interceptShouldScanCount},
+                            #{interceptActualScanCount},
+                            #{interceptNotScanCount},
+                            #{moreScanLocalCount},
+                            #{moreScanOutCount},
+                            #{moreScanTotalCount},
+                            #{totalSealPackageCount},
+                            #{totalScannedPackageCount},
+                            #{createTime},
+                            #{yn},
+                            #{ts}
+                    )
+    </insert>
+</mapper>

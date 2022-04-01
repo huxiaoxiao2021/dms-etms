@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskUnloadVehicleDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity" id="jyBizTaskUnloadVehicleMap">
+        <result property="id" column="id"/>
+        <result property="bizId" column="biz_id"/>
+        <result property="sealCarCode" column="seal_car_code"/>
+        <result property="vehicleNumber" column="vehicle_number"/>
+        <result property="transWorkItemCode" column="trans_work_item_code"/>
+        <result property="batchCodes" column="batch_codes"/>
+        <result property="fuzzyVehicleNumber" column="fuzzy_vehicle_number"/>
+        <result property="vehicleStatus" column="vehicle_status"/>
+        <result property="manualCreatedFlag" column="manual_created_flag"/>
+        <result property="startSiteId" column="start_site_id"/>
+        <result property="startSiteName" column="start_site_name"/>
+        <result property="endSiteId" column="end_site_id"/>
+        <result property="endSiteName" column="end_site_name"/>
+        <result property="sortTime" column="sort_time"/>
+        <result property="sortIntegral" column="sort_integral"/>
+        <result property="predictionArriveTime" column="prediction_arrive_time"/>
+        <result property="actualArriveTime" column="actual_arrive_time"/>
+        <result property="desealCarTime" column="deseal_car_time"/>
+        <result property="unloadFinishTime" column="unload_finish_time"/>
+        <result property="lessCount" column="less_count"/>
+        <result property="moreCount" column="more_count"/>
+        <result property="abnormalFlag" column="abnormal_flag"/>
+        <result property="unloadProgress" column="unload_progress"/>
+        <result property="lineType" column="line_type"/>
+        <result property="lineTypeName" column="line_type_name"/>
+        <result property="tagsSign" column="tags_sign"/>
+        <result property="createUserErp" column="create_user_erp"/>
+        <result property="createUserName" column="create_user_name"/>
+        <result property="updateUserErp" column="update_user_erp"/>
+        <result property="updateUserName" column="update_user_name"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="yn" column="yn"/>
+        <result property="ts" column="ts"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,
+        biz_id,
+        seal_car_code,
+        vehicle_number,
+        trans_work_item_code,
+        batch_codes,
+        fuzzy_vehicle_number,
+        vehicle_status,
+        manual_created_flag,
+        start_site_id,
+        start_site_name,
+        end_site_id,
+        end_site_name,
+        sort_time,
+        sort_integral,
+        prediction_arrive_time,
+        actual_arrive_time,
+        deseal_car_time,
+        unload_finish_time,
+        less_count,
+        more_count,
+        abnormal_flag,
+        unload_progress,
+        line_type,
+        line_type_name,
+        tags_sign,
+        create_user_erp,
+        create_user_name,
+        update_user_erp,
+        update_user_name,
+        create_time,
+        update_time,
+        yn,
+        ts
+    </sql>
+
+    <insert id="insert" parameterType="JyBizTaskUnloadVehicleEntity">
+        INSERT INTO jy_biz_task_unload_vehicle (
+                            id,
+                            biz_id,
+                            seal_car_code,
+                            vehicle_number,
+                            trans_work_item_code,
+                            batch_codes,
+                            fuzzy_vehicle_number,
+                            vehicle_status,
+                            manual_created_flag,
+                            start_site_id,
+                            start_site_name,
+                            end_site_id,
+                            end_site_name,
+                            sort_time,
+                            sort_integral,
+                            prediction_arrive_time,
+                            actual_arrive_time,
+                            deseal_car_time,
+                            unload_finish_time,
+                            less_count,
+                            more_count,
+                            abnormal_flag,
+                            unload_progress,
+                            line_type,
+                            line_type_name,
+                            tags_sign,
+                            create_user_erp,
+                            create_user_name,
+                            update_user_erp,
+                            update_user_name,
+                            create_time,
+                            update_time,
+                            yn,
+                            ts
+                    ) VALUES (
+                            #{id},
+                            #{bizId},
+                            #{sealCarCode},
+                            #{vehicleNumber},
+                            #{transWorkItemCode},
+                            #{batchCodes},
+                            #{fuzzyVehicleNumber},
+                            #{vehicleStatus},
+                            #{manualCreatedFlag},
+                            #{startSiteId},
+                            #{startSiteName},
+                            #{endSiteId},
+                            #{endSiteName},
+                            #{sortTime},
+                            #{sortIntegral},
+                            #{predictionArriveTime},
+                            #{actualArriveTime},
+                            #{desealCarTime},
+                            #{unloadFinishTime},
+                            #{lessCount},
+                            #{moreCount},
+                            #{abnormalFlag},
+                            #{unloadProgress},
+                            #{lineType},
+                            #{lineTypeName},
+                            #{tagsSign},
+                            #{createUserErp},
+                            #{createUserName},
+                            #{updateUserErp},
+                            #{updateUserName},
+                            #{createTime},
+                            #{updateTime},
+                            #{yn},
+                            #{ts}
+                    )
+    </insert>
+</mapper>

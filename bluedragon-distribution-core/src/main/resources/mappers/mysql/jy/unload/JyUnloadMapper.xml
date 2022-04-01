@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.jd.bluedragon.distribution.jy.unload.JyUnloadEntity" id="jyUnloadMap">
+        <result property="id" column="id"/>
+        <result property="bizId" column="biz_id"/>
+        <result property="sealCarCode" column="seal_car_code"/>
+        <result property="vehicleNumber" column="vehicle_number"/>
+        <result property="startSiteId" column="start_site_id"/>
+        <result property="endSiteId" column="end_site_id"/>
+        <result property="operateSiteId" column="operate_site_id"/>
+        <result property="barCode" column="bar_code"/>
+        <result property="operateTime" column="operate_time"/>
+        <result property="createUserErp" column="create_user_erp"/>
+        <result property="createUserName" column="create_user_name"/>
+        <result property="updateUserErp" column="update_user_erp"/>
+        <result property="updateUserName" column="update_user_name"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="yn" column="yn"/>
+        <result property="ts" column="ts"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,
+        biz_id,
+        seal_car_code,
+        vehicle_number,
+        start_site_id,
+        end_site_id,
+        operate_site_id,
+        bar_code,
+        operate_time,
+        create_user_erp,
+        create_user_name,
+        update_user_erp,
+        update_user_name,
+        create_time,
+        update_time,
+        yn,
+        ts
+    </sql>
+
+    <insert id="insert" parameterType="JyUnloadEntity">
+        INSERT INTO jy_unload (
+                            id,
+                            biz_id,
+                            seal_car_code,
+                            vehicle_number,
+                            start_site_id,
+                            end_site_id,
+                            operate_site_id,
+                            bar_code,
+                            operate_time,
+                            create_user_erp,
+                            create_user_name,
+                            update_user_erp,
+                            update_user_name,
+                            create_time,
+                            update_time,
+                            yn,
+                            ts
+                    ) VALUES (
+                            #{id},
+                            #{bizId},
+                            #{sealCarCode},
+                            #{vehicleNumber},
+                            #{startSiteId},
+                            #{endSiteId},
+                            #{operateSiteId},
+                            #{barCode},
+                            #{operateTime},
+                            #{createUserErp},
+                            #{createUserName},
+                            #{updateUserErp},
+                            #{updateUserName},
+                            #{createTime},
+                            #{updateTime},
+                            #{yn},
+                            #{ts}
+                    )
+    </insert>
+</mapper>
