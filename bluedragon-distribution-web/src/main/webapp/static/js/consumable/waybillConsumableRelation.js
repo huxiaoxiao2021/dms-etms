@@ -156,76 +156,74 @@ $(function () {
                         return $.dateHelper.formatDateTime(new Date(value));
                     }
                 }
-            }
-//            ,
-//            {
-//                field: 'op',
-//                title: '操作',
-//                formatter : function (value, row, index) {
-//                    return '<a class="mdinfo" href="javascript:void(0)" ><i class="glyphicon glyphicon-pencil"></i>&nbsp;修改数量&nbsp;</a>';
-//                },
-//                events: {
-//                    'click .mdinfo': function(e, value, row, index) {
-//                        var params = {waybillCode: $('#waybillCode-value-input').val()};
-//
-//                        $.ajaxHelper.doPostSync(checkModify,JSON.stringify(params),function(res){
-//                            if(res.code != 200)
-//                            {
-//                                $.msg.error($('#waybillCode-value-input').val() + "校验异常！");
-//                            } else {
-//                                if (res.data == false) {
-//                                    $.msg.warn($('#waybillCode-value-input').val() + "【已确认】或为【寄付运费运单】，不允许修改耗材使用数量！");
-//                                }
-//                                else {
-//                                    layer.open({
-//                                        id:'modifyInfoFrame',
-//                                        type: 2,
-//                                        title:'耗材信息修改',
-//                                        shadeClose: true,
-//                                        shade: 0.7,
-//                                        shadeClose: false,
-//                                        maxmin: true,
-//                                        area: ['850px', '380px'],
-//                                        content: modifyInfoPageUrl,
-//                                        success: function(layero, index){
-//                                            var id = row.id;
-//                                            var code = row.consumableCode;
-//                                            var name = row.name;
-//                                            var type = row.type;
-//                                            var typeName = row.typeName;
-//                                            var volume = row.volume;
-//                                            var volumeCoefficient = row.volumeCoefficient;
-//                                            var specification = row.specification;
-//                                            var unit = row.unit;
-//                                            var receiveQuantity = row.receiveQuantity;
-//                                            var confirmQuantity = row.confirmQuantity;
-//                                            var packUserErp = row.packUserErp;
-//                                            var waybillCode = row.waybillCode;
-//
-//                                            var frameId = document.getElementById("modifyInfoFrame").getElementsByTagName("iframe")[0].id;
-//                                            var frameWindow = $('#' + frameId)[0].contentWindow;
-//                                            frameWindow.$('#id-value-input').val(id);
-//                                            frameWindow.$('#code-value-input').val(code);
-//                                            frameWindow.$('#name-value-input').val(name);
-//                                            frameWindow.$('#type-value-input').val(typeName);
-//                                            frameWindow.$('#volume-value-input').val(volume);
-//                                            frameWindow.$('#volume-coefficient-value-input').val(volumeCoefficient);
-//                                            frameWindow.$('#specification-value-input').val(specification);
-//                                            frameWindow.$('#unit-value-input').val(unit);
-//                                            frameWindow.$('#receive-value-input').val(receiveQuantity);
-//                                            frameWindow.$('#confirm-value-input').val(confirmQuantity);
-//                                            frameWindow.$('#erp-value-input').val(packUserErp);
-//                                            frameWindow.$('#waybillCode-value-input').val(waybillCode);
-//                                        }
-//                                    });
-//                                }
-//                            }
-//                        },'json');
-//
-//                    }
-//                }
-//            }
-            ];
+            },
+            {
+                field: 'op',
+                title: '操作',
+                formatter : function (value, row, index) {
+                    return '<a class="mdinfo" href="javascript:void(0)" ><i class="glyphicon glyphicon-pencil"></i>&nbsp;修改数量&nbsp;</a>';
+                },
+                events: {
+                    'click .mdinfo': function(e, value, row, index) {
+                        var params = {waybillCode: $('#waybillCode-value-input').val()};
+
+                        $.ajaxHelper.doPostSync(checkModify,JSON.stringify(params),function(res){
+                            if(res.code != 200)
+                            {
+                                $.msg.error($('#waybillCode-value-input').val() + "校验异常！");
+                            } else {
+                                if (res.data == false) {
+                                    $.msg.warn($('#waybillCode-value-input').val() + "【已确认】或为【寄付运费运单】，不允许修改耗材使用数量！");
+                                }
+                                else {
+                                    layer.open({
+                                        id:'modifyInfoFrame',
+                                        type: 2,
+                                        title:'耗材信息修改',
+                                        shadeClose: true,
+                                        shade: 0.7,
+                                        shadeClose: false,
+                                        maxmin: true,
+                                        area: ['850px', '380px'],
+                                        content: modifyInfoPageUrl,
+                                        success: function(layero, index){
+                                            var id = row.id;
+                                            var code = row.consumableCode;
+                                            var name = row.name;
+                                            var type = row.type;
+                                            var typeName = row.typeName;
+                                            var volume = row.volume;
+                                            var volumeCoefficient = row.volumeCoefficient;
+                                            var specification = row.specification;
+                                            var unit = row.unit;
+                                            var receiveQuantity = row.receiveQuantity;
+                                            var confirmQuantity = row.confirmQuantity;
+                                            var packUserErp = row.packUserErp;
+                                            var waybillCode = row.waybillCode;
+
+                                            var frameId = document.getElementById("modifyInfoFrame").getElementsByTagName("iframe")[0].id;
+                                            var frameWindow = $('#' + frameId)[0].contentWindow;
+                                            frameWindow.$('#id-value-input').val(id);
+                                            frameWindow.$('#code-value-input').val(code);
+                                            frameWindow.$('#name-value-input').val(name);
+                                            frameWindow.$('#type-value-input').val(typeName);
+                                            frameWindow.$('#volume-value-input').val(volume);
+                                            frameWindow.$('#volume-coefficient-value-input').val(volumeCoefficient);
+                                            frameWindow.$('#specification-value-input').val(specification);
+                                            frameWindow.$('#unit-value-input').val(unit);
+                                            frameWindow.$('#receive-value-input').val(receiveQuantity);
+                                            frameWindow.$('#confirm-value-input').val(confirmQuantity);
+                                            frameWindow.$('#erp-value-input').val(packUserErp);
+                                            frameWindow.$('#waybillCode-value-input').val(waybillCode);
+                                        }
+                                    });
+                                }
+                            }
+                        },'json');
+
+                    }
+                }
+            }];
         oTableInit.refresh = function() {
             $('#dataTable').bootstrapTable('refresh');
         };
