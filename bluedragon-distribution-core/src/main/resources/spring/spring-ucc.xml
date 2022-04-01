@@ -100,6 +100,7 @@
 		<property name="exportSpotCheckMaxSize" value="${exportSpotCheckMaxSize:10000}" />
 		<property name="pdaNoticePullIntervalTime" value="${pdaNoticePullIntervalTime:1800}" /> <!-- PDA通知自动拉取间隔时间(单位秒) -->
 		<property name="allBCBoxFilterWebSite" value="${allBCBoxFilterWebSite:-1}"/>
+		<property name="needUseNewReverseApi" value="${needUseNewReverseApi:true}" />
 		<property name="offlineTaskReportInterceptSites" value="${offlineTaskReportInterceptSites:-1}"/> <!-- 离线任务处理上报拦截数据开关 -->
 		<property name="weightVolumeRuleStandard" value="${weightVolumeRuleStandard:''}" />
 		<property name="printHandoverListSites" value="${printHandoverListSites:false}"/>
@@ -246,6 +247,7 @@
                 <value>uccPropertyConfiguration.exportSpotCheckMaxSize</value>
 				<value>uccPropertyConfiguration.pdaNoticePullIntervalTime</value> <!-- PDA通知自动拉取间隔时间(单位秒) -->
 				<value>uccPropertyConfiguration.allBCBoxFilterWebSite</value>
+				<value>uccPropertyConfiguration.needUseNewReverseApi</value>
 				<value>uccPropertyConfiguration.offlineTaskReportInterceptSites</value> <!-- 离线任务处理上报拦截数据开关 -->
                 <value>uccPropertyConfiguration.weightVolumeRuleStandard</value>
 				<value>uccPropertyConfiguration.exportConcurrencyLimitNum</value>
