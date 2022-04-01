@@ -2,18 +2,17 @@ package com.jd.bluedragon.core.base;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.reverse.domain.ExchangeWaybillDto;
-import com.jd.bluedragon.distribution.reverse.domain.LocalClaimInfoRespDTO;
-import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.coldchain.distribution.api.ColdDmsPackingConsumableApi;
+import com.jd.coldchain.distribution.dto.BaseResponse;
 import com.jd.coldchain.fulfillment.ot.api.dto.waybill.ColdChainReverseRequest;
 import com.jd.coldchain.fulfillment.ot.api.dto.waybill.ColdChainReverseResult;
 import com.jd.coldchain.fulfillment.ot.api.service.waybill.ColdChainReverseService;
-import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
-import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ldop.center.api.reverse.dto.WaybillReverseResult;
+import com.jd.tp.common.utils.Objects;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
@@ -48,6 +47,8 @@ public class ColdChainReverseManagerImpl implements ColdChainReverseManager {
     @Autowired
     @Qualifier("obcsManager")
     private OBCSManager obcsManager;
+    @Autowired
+    private ColdDmsPackingConsumableApi coldDmsPackingConsumableApi;
 
     /**
      * 检查是否是需要调eclp逆向换单的冷链产品
@@ -142,5 +143,31 @@ public class ColdChainReverseManagerImpl implements ColdChainReverseManager {
             Profiler.functionError(info);
             return null;
         }
+    }
+
+    /**
+     * 检查需不需要确认包装耗材
+     * @param waybillCode
+     * @return
+     */
+    @Override
+    public Boolean checkIsNeedConfirmed(String waybillCode) {
+        if(StringUtils.isBlank(waybillCode)){
+            return false;
+        }
+        CallerInfo info = null;
+        boolean flag = false;
+        try{
+            info = Profiler.registerInfo( "DMSWEB.ColdChainReverseManagerImpl.checkIsNeedConfirmed",false, true);
+            BaseResponse<Boolean>  baseResponse = coldDmsPackingConsumableApi.checkIsNeedConfirmed(waybillCode);
+            logger.warn("checkIsNeedConfirmed检查需不需要确认冷链包装耗材,入参：{}  结果：{}",waybillCode,JsonHelper.toJson(baseResponse));
+            if(Objects.nonNull(baseResponse) && baseResponse.getCode() == BaseResponse.OK_CODE){
+                flag = baseResponse.getData();
+            }
+        }catch (Exception e){
+            logger.error("checkIsNeedConfirmed检查需不需要确认冷链包装耗材发生异常,入参：" + waybillCode,e);
+            Profiler.functionError(info);
+        }
+        return flag;
     }
 }
