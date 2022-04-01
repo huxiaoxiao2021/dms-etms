@@ -8,7 +8,11 @@ import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
 import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.external.LogEngine;
+import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.bluedragon.distribution.reverse.domain.BackAddressDTOExt;
+import com.jd.bluedragon.distribution.reverse.domain.ExchangeWaybillDto;
+import com.jd.bluedragon.distribution.reverse.domain.LocalClaimInfoRespDTO;
+import com.jd.bluedragon.distribution.reverse.service.ReverseSpareEclp;
 import com.jd.bluedragon.distribution.reverse.domain.DmsDetailReverseReasonDTO;
 import com.jd.bluedragon.distribution.reverse.domain.DmsPackageDTO;
 import com.jd.bluedragon.distribution.reverse.domain.DmsWaybillAddress;
@@ -106,6 +110,9 @@ public class LDOPManagerImpl implements LDOPManager {
     @Autowired
     private GeneralWaybillQueryApi generalWaybillQueryApi;
 
+    @Autowired
+    private ReverseSpareEclp reverseSpareEclp;
+
     /*用于记录操作日志*/
     @Autowired
     private GoddessService goddessService;
@@ -115,11 +122,17 @@ public class LDOPManagerImpl implements LDOPManager {
     private OBCSManager obcsManager;
 
     @Autowired
+    private WaybillQueryManager waybillQueryManager;
+    @Autowired
     @Qualifier("backAddressInfoApi")
     private BackAddressInfoApi backAddressInfoApi;
     @Autowired
     private BaseService baseService;
-
+    /**
+     * 二次换单限制次数
+     */
+	@Value("${beans.LDOPManagerImpl.twiceExchangeMaxTimes}")
+    private int twiceExchangeMaxTimes;
 	
     @Autowired
     private RefundApi refundApi;
@@ -229,6 +242,41 @@ public class LDOPManagerImpl implements LDOPManager {
 
         }
     }
+
+
+    /**
+     *
+     * @param waybillCode 运单号
+     * @param operatorId 操作人ID
+     * @param operatorName 操作人
+     * @param operateTime 操作时间
+     * @param packageCount 拒收包裹数量
+     * @param isTotal 是否是整单拒收
+     * @return
+     */
+    public WaybillReverseDTO makeWaybillReverseDTO(String waybillCode, Integer operatorId, String operatorName, Date operateTime , Integer packageCount, Integer orgId, Integer createSiteCode, boolean isTotal){
+        WaybillReverseDTO waybillReverseDTO = new WaybillReverseDTO();
+        waybillReverseDTO.setSource(2); //分拣中心
+        if(isTotal){
+            waybillReverseDTO.setReverseType(1);// 整单拒收
+        }else{
+            waybillReverseDTO.setReverseType(2);// 包裹拒收
+        }
+
+        waybillReverseDTO.setWaybillCode(waybillCode);
+        waybillReverseDTO.setOperateUserId(operatorId);
+        waybillReverseDTO.setOperateUser(operatorName);
+        waybillReverseDTO.setOrgId(orgId);
+        waybillReverseDTO.setSortCenterId(createSiteCode);
+        waybillReverseDTO.setOperateTime(operateTime);
+        waybillReverseDTO.setReturnType(RETURN_TYPE_0);//默认
+        if(!new Integer(0).equals(packageCount)){
+            waybillReverseDTO.setPackageCount(packageCount);
+        }
+
+        return waybillReverseDTO;
+    }
+
 
     public DmsWaybillReverseResponseDTO queryReverseWaybill(DmsWaybillReverseDTO dmsWaybillReverseDTO,StringBuilder errorMessage) {
     	WaybillReverseDTO waybillReverseDTO = this.convertWaybillReverseDTO(dmsWaybillReverseDTO);
@@ -352,7 +400,7 @@ public class LDOPManagerImpl implements LDOPManager {
 
         if(StringUtils.isEmpty(waybillSign)){
             //外部未传入waybillSign 自己再去调用一次
-            BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode,true,true,true,false);
+        	com.jd.etms.waybill.domain.BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode,true,true,true,false);
             if(baseEntity!=null && baseEntity.getData()!=null && baseEntity.getData().getWaybill() != null && StringUtils.isNotBlank(baseEntity.getData().getWaybill().getWaybillSign())){
                 waybillSign = baseEntity.getData().getWaybill().getWaybillSign();
             }
@@ -611,6 +659,11 @@ public class LDOPManagerImpl implements LDOPManager {
     	}
     	return null;
 	}
+    /**
+     * 对象转换->分拣对象
+     * @param waybillReverseResult
+     * @return
+     */
     private DmsWaybillReverseResult convertDmsWaybillReverseResult(WaybillReverseResult waybillReverseResult) {
     	if(waybillReverseResult != null) {
     		DmsWaybillReverseResult result = new DmsWaybillReverseResult();
