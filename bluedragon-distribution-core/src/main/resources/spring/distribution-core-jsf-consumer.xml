@@ -722,7 +722,7 @@
     <jsf:consumer id="reverseWaybillApi" interface="com.jd.cp.wbms.client.api.ReverseWaybillApi"
                   protocol="jsf" alias="${jsf.wbms.reverseWaybillApi.alias}" 
                   timeout="${jsf.wbms.reverseWaybillApi.timeout}"
-                  lazy="${jsf.consumer.lazy}
+                  lazy="${jsf.consumer.lazy}"
                   retries="${jsf.retries}">
         <jsf:parameter key="token" value="${jsf.wbms.reverseWaybillApi.token}" hide="true"/>
     </jsf:consumer>
