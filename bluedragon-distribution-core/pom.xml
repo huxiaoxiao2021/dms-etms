@@ -1797,8 +1797,8 @@
 
 		<dependency>
 			<groupId>com.jd.cmp</groupId>
-			<artifactId>cmp-api</artifactId>
-			<version>0.0.4-SNAPSHOT</version>
+			<artifactId>cmp-api-dms</artifactId>
+			<version>0.0.3-SNAPSHOT</version>
 		</dependency>
     </dependencies>
 
