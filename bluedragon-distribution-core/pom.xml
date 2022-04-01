@@ -768,11 +768,11 @@
 					<artifactId>fastjson</artifactId>
 					<groupId>com.alibaba</groupId>
 				</exclusion>
-				<exclusion>
-					<artifactId>commons-beanutils</artifactId>
-					<groupId>commons-beanutils</groupId>
-				</exclusion>
-			</exclusions>
+                <exclusion>
+                    <artifactId>commons-beanutils</artifactId>
+                    <groupId>commons-beanutils</groupId>
+                </exclusion>
+            </exclusions>
 		</dependency>
         <dependency>
             <groupId>stock-sdk</groupId>
@@ -1387,7 +1387,7 @@
             <groupId>com.jd.eclp</groupId>
             <artifactId>eclp-co-api</artifactId>
             <version>0.0.1-PRE-SNAPSHOT</version>
-            <exclusions>
+			<exclusions>
 				<exclusion>
 					<artifactId>fastjson</artifactId>
 					<groupId>com.alibaba</groupId>
@@ -1416,7 +1416,7 @@
 					<groupId>com.alibaba</groupId>
 					<artifactId>fastjson</artifactId>
 				</exclusion>
-				<exclusion>
+                <exclusion>
 					<artifactId>log4j-1.2-api</artifactId>
 					<groupId>org.apache.logging.log4j</groupId>
 				</exclusion>
@@ -1438,8 +1438,8 @@
 			<groupId>com.jd.lop</groupId>
 			<artifactId>crossbow-api</artifactId>
 			<version>${crossbow.api.version}</version>
-			<exclusions>
-				<exclusion>
+            <exclusions>
+                <exclusion>
 					<artifactId>log4j-1.2-api</artifactId>
 					<groupId>org.apache.logging.log4j</groupId>
 				</exclusion>
@@ -1451,8 +1451,8 @@
                     <artifactId>log4j-slf4j-impl</artifactId>
                     <groupId>org.apache.logging.log4j</groupId>
                 </exclusion>
-			</exclusions>
-		</dependency>
+            </exclusions>
+        </dependency>
 <!--		<dependency>-->
 <!--			<groupId>com.jd.lsb</groupId>-->
 <!--			<artifactId>lsb-component</artifactId>-->
@@ -1706,6 +1706,7 @@
 		<dependency>
 			<groupId>com.jd.merchant</groupId>
 			<artifactId>platform-api</artifactId>
+			<!-- 测试环境1.0.2-test-SNAPSHOT  生成环境 1.0.0-SNAPSHOT -->
 			<version>1.0.0-SNAPSHOT</version>
 		</dependency>
 		<dependency>
@@ -1753,7 +1754,7 @@
             <groupId>cn.jdl.oms</groupId>
             <artifactId>jdl-oms-client</artifactId>
 			<!--			<version>1.0.5-20210715.082904-28</version>-->
-			<version>1.0.5-SNAPSHOT</version>
+            <version>1.0.5-SNAPSHOT</version>
         </dependency>
 
         <!-- 提示语系统 -->
@@ -1782,6 +1783,12 @@
 			<artifactId>lombok</artifactId>
 		</dependency>
 
+		<!-- 分拣自动化总部任务服务-->
+		<dependency>
+			<groupId>com.jd.bluedragon</groupId>
+			<artifactId>automatic-platform-sdk</artifactId>
+			<version>1.1-SNAPSHOT</version>
+		</dependency>
 
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
@@ -1809,12 +1816,7 @@
             <artifactId>mrd-srv-sdk</artifactId>
             <groupId>com.jd.mrd</groupId>
         </dependency>
-		<!-- 分拣自动化总部任务服务-->
-		<dependency>
-			<groupId>com.jd.bluedragon</groupId>
-			<artifactId>automatic-platform-sdk</artifactId>
-			<version>1.1-SNAPSHOT</version>
-		</dependency>
+
 		<!--冷链逆向单生成-->
 		<dependency>
 			<artifactId>coldchain-fulfillment-ot-api</artifactId>

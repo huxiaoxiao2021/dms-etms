@@ -66,6 +66,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -145,8 +146,8 @@ public class LDOPManagerImpl implements LDOPManager {
      * @param waybillReverseDTO
      * @return
      */
-    public boolean waybillReverse(WaybillReverseDTO waybillReverseDTO,JdResponse<Boolean> rest){
-
+    public boolean waybillReverse(DmsWaybillReverseDTO dmsWaybillReverseDTO,JdResponse<Boolean> rest){
+    	WaybillReverseDTO waybillReverseDTO = this.convertWaybillReverseDTO(dmsWaybillReverseDTO);
         long startTime=new Date().getTime();
         CallerInfo info = null;
         ResponseDTO responseDTO = null;
@@ -194,17 +195,17 @@ public class LDOPManagerImpl implements LDOPManager {
     }
 
     @Override
-    public WaybillReverseResult waybillReverse(WaybillReverseDTO waybillReverseDTO,StringBuilder errorMessage) {
+    public DmsWaybillReverseResult waybillReverse(DmsWaybillReverseDTO dmsWaybillReverseDTO,StringBuilder errorMessage) {
         long startTime=new Date().getTime();
-
+        WaybillReverseDTO waybillReverseDTO = this.convertWaybillReverseDTO(dmsWaybillReverseDTO);
         CallerInfo info = null;
-        ResponseDTO responseDTO = null;
+        ResponseDTO<WaybillReverseResult> responseDTO = null;
         try{
             info = Profiler.registerInfo( "DMSWEB.LDOPManagerImpl.waybillReverse",false, true);
 
             responseDTO = waybillReverseApi.waybillReverse(waybillReverseDTO);
             if(responseDTO.getStatusCode().equals(ResponseDTO.SUCCESS_CODE)){
-                return (WaybillReverseResult) responseDTO.getData();
+                return this.convertDmsWaybillReverseResult(responseDTO.getData());
             }else {
                 //失败
                 errorMessage.append("外单自动换单接口失败 "+responseDTO.getStatusMessage());
@@ -285,7 +286,7 @@ public class LDOPManagerImpl implements LDOPManager {
 
             ResponseDTO<WaybillReverseResponseDTO> responseDTO = waybillReverseApi.queryReverseWaybill(waybillReverseDTO);
             if(responseDTO.getStatusCode().equals(ResponseDTO.SUCCESS_CODE)){
-                return responseDTO.getData();
+                return this.convertDmsWaybillReverseResponseDTO(responseDTO.getData());
             }else {
                 //失败
                 errorMessage.append("换单前获取外单信息接口失败 "+responseDTO.getStatusMessage());
@@ -718,7 +719,7 @@ public class LDOPManagerImpl implements LDOPManager {
     	JdResult<String> result = new JdResult<String>();
     	try {
     		ResponseDTO<String> rest = refundApi.refundApply(refundApplyDTO);
-	        if(null != rest
+	        if(null != rest 
 	        		&& ResponseDTO.SUCCESS_CODE.equals(rest.getStatusCode())){
 	            result.setData(rest.getData());
 	            result.toSuccess();

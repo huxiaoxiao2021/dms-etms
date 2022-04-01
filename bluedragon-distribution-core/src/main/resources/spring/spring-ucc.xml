@@ -100,6 +100,7 @@
 		<property name="exportSpotCheckMaxSize" value="${exportSpotCheckMaxSize:10000}" />
 		<property name="pdaNoticePullIntervalTime" value="${pdaNoticePullIntervalTime:1800}" /> <!-- PDA通知自动拉取间隔时间(单位秒) -->
 		<property name="allBCBoxFilterWebSite" value="${allBCBoxFilterWebSite:-1}"/>
+		<property name="needUseNewReverseApi" value="${needUseNewReverseApi:true}" />
 		<property name="offlineTaskReportInterceptSites" value="${offlineTaskReportInterceptSites:-1}"/> <!-- 离线任务处理上报拦截数据开关 -->
 		<property name="weightVolumeRuleStandard" value="${weightVolumeRuleStandard:''}" />
 		<property name="printHandoverListSites" value="${printHandoverListSites:false}"/>
@@ -136,8 +137,8 @@
         <property name="businessLogQueryPageSwitch" value="${businessLogQueryPageSwitch:'1'}" />
         <property name="spotCheckNoExcessLimit" value="${spotCheckNoExcessLimit:1.5}" />
 		<property name="useNewInventorySiteCodes" value="${useNewInventorySiteCodes:''}" />
-		<property name="multiplePackageSpotCheckSwitch" value="${multiplePackageSpotCheckSwitch:0}"/>
-		<property name="multiplePackageSpotCheckSites" value="${multiplePackageSpotCheckSites:''}"/>
+		<property name="multiplePackageSpotCheckSwitch" value="${multiplePackageSpotCheckSwitch:0}"/> <!-- 一单多件抽检开关配置 -->
+		<property name="multiplePackageSpotCheckSites" value="${multiplePackageSpotCheckSites:''}"/> <!-- 一单多件抽检场地配置 -->
 		<property name="readUnloadFromTys" value="${readUnloadFromTys:false}" />
 		<property name="stopWriteUnloadFromDms" value="${stopWriteUnloadFromDms:false}" />
 		<property name="writeUnloadFromTys" value="${writeUnloadFromTys:false}" />
@@ -155,15 +156,15 @@
 		<property name="sitePlateIsCheckFunc" value="${sitePlateIsCheckFunc:false}"/>
 		<property name="scheduleSiteCheckSameCity" value="${scheduleSiteCheckSameCity:''}"/>
 		<property name="bTemplateRouterExecuteNew" value="${bTemplateRouterExecuteNew:false}"/>
-        <property name="judgePackagePrintedIncludeSiteTerminal" value="${judgePackagePrintedIncludeSiteTerminal:'0'}"/>
-        <property name="printCompleteCallbackAsyncPackageNum" value="${printCompleteCallbackAsyncPackageNum:500}"/>
-        <property name="sendCodeEffectiveValidation" value="${sendCodeEffectiveValidation:''}" />
-        <property name="limitSiteUsePackReprint" value="${limitSiteUsePackReprint:'0'}" />
-		<property name="spotCheckReformSiteCodes" value="${spotCheckReformSiteCodes:true}"/>
-		<property name="aiDistinguishSwitch" value="${aiDistinguishSwitch:true}"/>
+		<property name="judgePackagePrintedIncludeSiteTerminal" value="${judgePackagePrintedIncludeSiteTerminal:'0'}"/>
+		<property name="printCompleteCallbackAsyncPackageNum" value="${printCompleteCallbackAsyncPackageNum:500}"/>
+		<property name="limitSiteUsePackReprint" value="${limitSiteUsePackReprint:'0'}"/>
+		<property name="sendCodeEffectiveValidation" value="${sendCodeEffectiveValidation:''}"/>
 		<property name="restApiOuthSwitch" value="${restApiOuthSwitch:true}"/>
 		<property name="needInterceptUrls" value="${needInterceptUrls:*}"/>
 		<property name="notSignedOutRecordMoreThanHours" value="${notSignedOutRecordMoreThanHours:-1}"/>
+		<property name="spotCheckReformSiteCodes" value="${spotCheckReformSiteCodes:true}"/>
+		<property name="aiDistinguishSwitch" value="${aiDistinguishSwitch:true}"/>
 		<property name="packConsumableSwitch" value="${packConsumableSwitch:0}"/>
 		<property name="sealTaskHystrixProps" value="${sealTaskHystrixProps: ''}"/>
 		<property name="sealTaskForceFallback" value="${sealTaskForceFallback: 0}"/>
@@ -239,21 +240,19 @@
 				<value>uccPropertyConfiguration.allPureValidateWeightWebSite</value>
 				<value>uccPropertyConfiguration.preSortOnSiteSwitchOn</value>
 				<value>uccPropertyConfiguration.deliverHideSites</value>
-				<value>uccPropertyConfiguration.usePdaSorterApi</value>
 				<value>uccPropertyConfiguration.siteQueryLimit</value>
                 <value>uccPropertyConfiguration.BCContainWJNumberLimit</value>
                 <value>uccPropertyConfiguration.WJPackageNumberLimit</value>
                 <value>uccPropertyConfiguration.exportSpotCheckMaxSize</value>
 				<value>uccPropertyConfiguration.pdaNoticePullIntervalTime</value> <!-- PDA通知自动拉取间隔时间(单位秒) -->
 				<value>uccPropertyConfiguration.allBCBoxFilterWebSite</value>
+				<value>uccPropertyConfiguration.needUseNewReverseApi</value>
 				<value>uccPropertyConfiguration.offlineTaskReportInterceptSites</value> <!-- 离线任务处理上报拦截数据开关 -->
                 <value>uccPropertyConfiguration.weightVolumeRuleStandard</value>
 				<value>uccPropertyConfiguration.exportConcurrencyLimitNum</value>
 				<value>uccPropertyConfiguration.oneQuerySize</value>
 				<value>uccPropertyConfiguration.printHandoverListSites</value>
-				<value>uccPropertyConfiguration.newPrintHandoverListSwitch</value>
 				<value>uccPropertyConfiguration.checkSiteSubType</value>
-				<value>uccPropertyConfiguration.unSealCarHandlePackageFullCollectedSwitch</value>
 				<value>uccPropertyConfiguration.scrollQuerySize</value>
 				<value>uccPropertyConfiguration.printScrollQueryCountLimit</value>
 				<value>uccPropertyConfiguration.approvalSwitch</value>
@@ -280,8 +279,6 @@
 				<value>uccPropertyConfiguration.deliverySendAsyncSite</value>
 				<value>uccPropertyConfiguration.deliverySendTaskSleepMills</value>
                 <value>uccPropertyConfiguration.packRePrintInterceptStatus</value>
-                <value>uccPropertyConfiguration.checkBoxSendedSwitchOn</value>
-                <value>uccPropertyConfiguration.deliverySendAsyncSite</value>
                 <value>uccPropertyConfiguration.spotCheckNoExcessLimit</value>
                 <value>uccPropertyConfiguration.businessLogQueryPageSwitch</value>
 				<value>uccPropertyConfiguration.useNewInventorySiteCodes</value>
@@ -299,21 +296,18 @@
 				<value>uccPropertyConfiguration.noAuthMenuConfigNew</value>
 				<value>uccPropertyConfiguration.menuCodeFuncConfig</value>
 				<value>uccPropertyConfiguration.menuCodeFuncConfigNew</value>
-				<value>uccPropertyConfiguration.noAuthMenuConfigUat</value>
-				<value>uccPropertyConfiguration.menuCodeFuncConfigUat</value>
 				<value>uccPropertyConfiguration.sitePlateIsCheckFunc</value>
 				<value>uccPropertyConfiguration.bTemplateRouterExecuteNew</value>
+				<value>uccPropertyConfiguration.scheduleSiteCheckSameCity</value>
 				<value>uccPropertyConfiguration.judgePackagePrintedIncludeSiteTerminal</value>
 				<value>uccPropertyConfiguration.printCompleteCallbackAsyncPackageNum</value>
-				<value>uccPropertyConfiguration.scheduleSiteCheckSameCity</value>
-				<value>uccPropertyConfiguration.sendCodeEffectiveValidation</value>
 				<value>uccPropertyConfiguration.limitSiteUsePackReprint</value>
-				<value>uccPropertyConfiguration.spotCheckReformSiteCodes</value>
-				<value>uccPropertyConfiguration.aiDistinguishSwitch</value>
 				<value>uccPropertyConfiguration.sendCodeEffectiveValidation</value>
 				<value>uccPropertyConfiguration.restApiOuthSwitch</value>
 				<value>uccPropertyConfiguration.needInterceptUrls</value>
 				<value>uccPropertyConfiguration.notSignedOutRecordMoreThanHours</value>
+				<value>uccPropertyConfiguration.spotCheckReformSiteCodes</value>
+				<value>uccPropertyConfiguration.aiDistinguishSwitch</value>
 				<value>uccPropertyConfiguration.packConsumableSwitch</value>
                 <value>uccPropertyConfiguration.sealTaskHystrixProps</value>
                 <value>uccPropertyConfiguration.sealTaskForceFallback</value>

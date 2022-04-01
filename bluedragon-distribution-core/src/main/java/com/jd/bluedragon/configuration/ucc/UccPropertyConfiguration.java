@@ -309,7 +309,7 @@ public class UccPropertyConfiguration {
      * PDA通知自动拉取间隔时间(单位秒)
      */
     private Integer pdaNoticePullIntervalTime;
-
+    
     /**
      * 是否走新的逆向接口
      */
@@ -574,6 +574,16 @@ public class UccPropertyConfiguration {
     }
 
     /**
+     * 一单多件抽检功能开关，0-关，1-开
+     */
+    private int multiplePackageSpotCheckSwitch;
+
+    /**
+     * 一单多件抽检场地配置，配置ALL表示全部开启
+     */
+    private String multiplePackageSpotCheckSites;
+
+    /**
      * 读转运卸车表开关
      */
     private boolean readUnloadFromTys;
@@ -597,7 +607,6 @@ public class UccPropertyConfiguration {
      * 打印客户端无权限菜单配置
      */
     private String noAuthMenuConfig;
-    private String noAuthMenuConfigUat;
     /**
      * 打印客户端无权限菜单配置
      */
@@ -607,7 +616,6 @@ public class UccPropertyConfiguration {
      * 打印客户端菜单功能配置
      */
     private String menuCodeFuncConfig;
-    private String menuCodeFuncConfigUat;
     /**
      * 打印客户端菜单功能配置
      */
@@ -617,11 +625,6 @@ public class UccPropertyConfiguration {
      * 站点平台打印是否校验功能
      */
     private boolean sitePlateIsCheckFunc;
-
-    /**
-     * B网面单路由是否开启新模式
-     */
-    private boolean bTemplateRouterExecuteNew;
 
     /**
      * 预分拣返调度校验同城
@@ -642,14 +645,6 @@ public class UccPropertyConfiguration {
      * 是否限制终端人员使用包裹补打 1：限制 0：不限制
      */
     private String limitSiteUsePackReprint;
-
-    /**
-     * 抽检改造开通场地
-     *  多个场地以,分隔
-     *  true表示全国
-     *  空表示未开启
-     */
-    private String spotCheckReformSiteCodes;
 
     /**
      * 是否对restAPI鉴权的开关
@@ -726,6 +721,19 @@ public class UccPropertyConfiguration {
     private int notSignedOutRecordMoreThanHours;
 
     /**
+     * 抽检改造开通场地
+     *  多个场地以,分隔
+     *  true表示全国
+     *  空表示未开启
+     */
+    private String spotCheckReformSiteCodes;
+
+    /**
+     * AI识别图片开关
+     */
+    private boolean aiDistinguishSwitch;
+
+    /**
      * 终端包装耗材重塑项目：
      * 下线分拣维护包装耗材基础信息入口（"分拣"和"其他"类型的除外）
      * 包装耗材确认页面的增加和删除按钮
@@ -733,10 +741,6 @@ public class UccPropertyConfiguration {
      */
     private Integer packConsumableSwitch;
 
-    /**
-     * AI识别图片开关
-     */
-    private boolean aiDistinguishSwitch;
     public String getScheduleSiteCheckSameCity() {
         return scheduleSiteCheckSameCity;
     }
@@ -1249,15 +1253,7 @@ public class UccPropertyConfiguration {
         this.checkBoxSendedSwitchOn = checkBoxSendedSwitchOn;
     }
 
-    public Integer getUsePdaSorterApi() {
-		return usePdaSorterApi;
-	}
-
-	public void setUsePdaSorterApi(Integer usePdaSorterApi) {
-		this.usePdaSorterApi = usePdaSorterApi;
-	}
-
-	public String getAllBCBoxFilterWebSite() {
+    public String getAllBCBoxFilterWebSite() {
         return allBCBoxFilterWebSite;
     }
 
@@ -1346,32 +1342,6 @@ public class UccPropertyConfiguration {
         this.checkSiteSubType = checkSiteSubType;
     }
 
-    public String getUnSealCarHandlePackageFullCollectedSwitch() {
-        return unSealCarHandlePackageFullCollectedSwitch;
-    }
-
-    public UccPropertyConfiguration setUnSealCarHandlePackageFullCollectedSwitch(String unSealCarHandlePackageFullCollectedSwitch) {
-        this.unSealCarHandlePackageFullCollectedSwitch = unSealCarHandlePackageFullCollectedSwitch;
-        return this;
-    }
-
-    public Boolean getUnSealCarHandlePackageFullCollectedNeedHandle(Long siteId) {
-        if(StringUtils.isBlank(unSealCarHandlePackageFullCollectedSwitch)){
-            return false;
-        }
-        if(Objects.equals("all", unSealCarHandlePackageFullCollectedSwitch)){
-            return true;
-        }
-        if(Objects.equals("-1", unSealCarHandlePackageFullCollectedSwitch)){
-            return false;
-        }
-        List<String> siteCodes = Arrays.asList(unSealCarHandlePackageFullCollectedSwitch.split(Constants.SEPARATOR_COMMA));
-        if(siteCodes.contains(siteId + "")){
-            return true;
-        }
-        return false;
-    }
-
     public int getScrollQuerySize() {
         return scrollQuerySize;
     }
@@ -1426,14 +1396,6 @@ public class UccPropertyConfiguration {
 
     public void setSpotCheckIssueControl(boolean spotCheckIssueControl) {
         this.spotCheckIssueControl = spotCheckIssueControl;
-    }
-
-    public boolean getNewPrintHandoverListSwitch() {
-        return newPrintHandoverListSwitch;
-    }
-
-    public void setNewPrintHandoverListSwitch(boolean newPrintHandoverListSwitch) {
-        this.newPrintHandoverListSwitch = newPrintHandoverListSwitch;
     }
 
     public int getHideSpecialStartSitePrintSwitch() {
@@ -1573,13 +1535,13 @@ public class UccPropertyConfiguration {
         this.itmsBizEnableSwitch = itmsBizEnableSwitch;
     }
 
-	public boolean isNeedUseNewReverseApi() {
-		return needUseNewReverseApi;
-	}
+    public String getUseNewInventorySiteCodes() {
+        return useNewInventorySiteCodes;
+    }
 
-	public void setNeedUseNewReverseApi(boolean needUseNewReverseApi) {
-		this.needUseNewReverseApi = needUseNewReverseApi;
-	}
+    public void setUseNewInventorySiteCodes(String useNewInventorySiteCodes) {
+        this.useNewInventorySiteCodes = useNewInventorySiteCodes;
+    }
 
     public int getMultiplePackageSpotCheckSwitch() {
         return multiplePackageSpotCheckSwitch;
@@ -1722,14 +1684,6 @@ public class UccPropertyConfiguration {
         this.androidIsExecuteNewSpotCheck = androidIsExecuteNewSpotCheck;
     }
 
-    public String getUseNewInventorySiteCodes() {
-        return useNewInventorySiteCodes;
-    }
-
-    public void setUseNewInventorySiteCodes(String useNewInventorySiteCodes) {
-        this.useNewInventorySiteCodes = useNewInventorySiteCodes;
-    }
-
     public String getNoAuthMenuConfig() {
         return noAuthMenuConfig;
     }
@@ -1825,6 +1779,14 @@ public class UccPropertyConfiguration {
     public void setSendCodeEffectiveValidation(String sendCodeEffectiveValidation) {
         this.sendCodeEffectiveValidation = sendCodeEffectiveValidation;
     }
+
+    public int getNotSignedOutRecordMoreThanHours() {
+        return notSignedOutRecordMoreThanHours;
+    }
+
+    public void setNotSignedOutRecordMoreThanHours(int notSignedOutRecordMoreThanHours) {
+        this.notSignedOutRecordMoreThanHours = notSignedOutRecordMoreThanHours;
+    }
     public boolean getAiDistinguishSwitch() {
         return aiDistinguishSwitch;
     }
@@ -1841,14 +1803,6 @@ public class UccPropertyConfiguration {
         this.spotCheckReformSiteCodes = spotCheckReformSiteCodes;
     }
 
-    public int getNotSignedOutRecordMoreThanHours() {
-        return notSignedOutRecordMoreThanHours;
-    }
-
-    public void setNotSignedOutRecordMoreThanHours(int notSignedOutRecordMoreThanHours) {
-        this.notSignedOutRecordMoreThanHours = notSignedOutRecordMoreThanHours;
-    }
-
     public Integer getPackConsumableSwitch() {
         return packConsumableSwitch;
     }
@@ -1856,4 +1810,12 @@ public class UccPropertyConfiguration {
     public void setPackConsumableSwitch(Integer packConsumableSwitch) {
         this.packConsumableSwitch = packConsumableSwitch;
     }
+
+	public boolean isNeedUseNewReverseApi() {
+		return needUseNewReverseApi;
+	}
+
+	public void setNeedUseNewReverseApi(boolean needUseNewReverseApi) {
+		this.needUseNewReverseApi = needUseNewReverseApi;
+	}
 }
