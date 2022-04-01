@@ -588,7 +588,7 @@
     </jsf:consumer>
     <jsf:consumer id="qcJsfDeptService" interface="com.jd.wl.data.qc.abnormal.jsf.jar.abnormal.service.DeptService" alias="${qcAbnPdaAPI.alias}" timeout="${qcAbnPdaAPI.timeout}" retries="1" lazy="${jsf.consumer.lazy}">
         <jsf:parameter key="token" value="${qcAbnPdaAPI.token}" hide="true" />
-    </jsf:consumer>
+    </jsf:consumer>    
     <jsf:consumer id="jsfTypeService" interface="com.jd.dms.logger.service.BusinessLogQueryService"
                   protocol="jsf"
                   alias="${dms.jsfbusinesslog.alias}" timeout="10000"
@@ -739,7 +739,6 @@
                   timeout="${jsf.dmsWbReport.timeout}" lazy="${jsf.consumer.lazy}">
     </jsf:consumer>
 
-    <!-- 流程组件接口 -->
     <jsf:consumer id="flowService" interface="com.jd.lsb.flow.service.FlowService"
                   alias="${jsf.flowService.alias}" lazy="${jsf.consumer.lazy}">
         <jsf:parameter key="appKey" value="${flow.appkey}" hide="true"/>
@@ -784,6 +783,11 @@
                   timeout="${jsf.timeout.configCenter}" lazy="${jsf.consumer.lazy}">
     </jsf:consumer>
 
+    <!-- 提示语 -->
+    <jsf:consumer id="hintApi" interface="com.jd.dms.comp.api.hint.HintApi"
+                  protocol="jsf" alias="${jsf.dms.comp.hint.alias}" timeout="${jsf.dms.comp.hint.timeout}" lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
+
     <!-- 已验未发 -->
     <jsf:consumer id="sortingInspectionSendingService" interface="com.jd.ql.zw.monitor.service.SortingInspectionSendingService"
                   alias="${jsf.alias.sortingInspectionSending}" protocol="jsf" timeout="${jsf.timeout.sortingInspectionSending}" lazy="${jsf.consumer.lazy}">
@@ -806,10 +810,6 @@
                   serialization="hessian">
     </jsf:consumer>
 
-    <!-- 提示语 -->
-    <jsf:consumer id="hintApi" interface="com.jd.dms.comp.api.hint.HintApi"
-                  protocol="jsf" alias="${jsf.dms.comp.hint.alias}" timeout="${jsf.dms.comp.hint.timeout}" lazy="${jsf.consumer.lazy}">
-    </jsf:consumer>
 
     <jsf:consumer id="workingClockDataJsfService"
                   interface="com.jd.dms.wb.report.api.working.WorkingClockDataJsfService"
@@ -842,6 +842,11 @@
                   protocol="jsf" alias="${jsf.automatic.alias}" timeout="${jsf.automatic.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
         <jsf:parameter key="token" value="${jsf.automatic.token}" hide="true"/>
     </jsf:consumer>
+    <!-- eclp冷链逆向换单 -->
+    <jsf:consumer id="coldChainReverseService" interface="com.jd.coldchain.fulfillment.ot.api.service.waybill.ColdChainReverseService"
+                  protocol="jsf" alias="${jsf.coldchain.eclp.reverse.alias}" timeout="${jsf.coldchain.eclp.reverse.alias.timeout}"
+                  retries="${jsf.retries}" >
+    </jsf:consumer>
     <!-- 网关外网erp认证插件 -->
     <jsf:consumer id="erpLoginService" interface="com.jd.mrd.srv.service.erp.ErpLoginService"
                   protocol="jsf" alias="${jsf.mrd.alias}" timeout="${jsf.mrd.timeout}" retries="0">
@@ -867,11 +872,8 @@
     <jsf:consumer id="recycleMaterialJsfService" interface="com.jd.bluedragon.sdk.modules.recyclematerial.RecycleMaterialJsfService"
                   protocol="jsf"  alias="${business.jsf.recycleMaterial.alias}"
                   timeout="${jsf.recycleMaterial.timeout}" retries="${jsf.retries}" serialization="hessian">
-    <!-- eclp冷链逆向换单 -->
-    <jsf:consumer id="coldChainReverseService" interface="com.jd.coldchain.fulfillment.ot.api.service.waybill.ColdChainReverseService"
-                  protocol="jsf" alias="${jsf.coldchain.eclp.reverse.alias}" timeout="${jsf.coldchain.eclp.reverse.alias.timeout}"
-                  retries="${jsf.retries}" >
     </jsf:consumer>
+
 
     <!--  拣运封车服务  -->
     <jsf:consumer id="jySealVehicleService"

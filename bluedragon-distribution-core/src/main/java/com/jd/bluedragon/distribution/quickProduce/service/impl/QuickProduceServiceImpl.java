@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.quickProduce.service.impl;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
+import com.jd.bluedragon.core.jsf.waybill.WaybillReverseManager;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.order.domain.OrderBankResponse;
 import com.jd.bluedragon.distribution.order.service.OrderBankService;
@@ -31,7 +32,7 @@ public class QuickProduceServiceImpl implements QuickProduceService {
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    GetOrderMsgServiceJsf getOrderMsgServiceJsf;
+    WaybillReverseManager waybillReverseManager;
 
     /**
      * 订单中间键ws封装类
@@ -110,7 +111,7 @@ public class QuickProduceServiceImpl implements QuickProduceService {
 
     @JProfiler(jKey = "DMSWEB.QuickProduceServiceImpl.getQuickProduceWabillFromDrec",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
-    private Waybill getQuickProduceWabillFromDrec(String waybillCode) {
+    public Waybill getQuickProduceWabillFromDrec(String waybillCode) {
     	return waybillReverseManager.getQuickProduceWabillFromDrec(waybillCode);
         }
 

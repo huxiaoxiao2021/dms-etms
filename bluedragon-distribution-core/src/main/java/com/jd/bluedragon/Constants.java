@@ -1522,6 +1522,14 @@ public class Constants {
      */
     public static String LINE_NEXT_CHAR = "\n";
     /**
+     * 默认时区-GMT+8
+     */
+    public final static String TIME_ZONE8 = "GMT+8";
+    /**
+     * 默认国际化-zh_CN
+     */
+    public final static String LOCALE_ZH_CN = "zh_CN";
+    /**
      * 传摆线路类型列表
      */
     public static List<Integer> CUAN_BAI_LINE_TYPES = new ArrayList<Integer>();
@@ -1538,9 +1546,6 @@ public class Constants {
     	CUAN_BAI_LINE_TYPES.add(34);
     }
 
-    //DeliveryPackageD信任包裹称重
-    public static Integer isTrust = 1;
-
     /**
      * 车牌长度9位 ex:010A00001
      */
@@ -1555,11 +1560,18 @@ public class Constants {
      * 查询已扫包裹最大数限制单次IN50
      */
     public static final int QUERY_LOAD_SCAN_MAX = 50;
+    //DeliveryPackageD信任包裹称重
+    public static Integer isTrust = 1;
 
     /**
      * 卸车任务流水线模式:只验货不组板
      */
     public static final Integer ASSEMBLY_LINE_TYPE = 0;
+
+    /**
+     * 系统名
+     */
+    public static final String SYSTEM_NAME = "QLFJZXJT";
 
     /**
      * 导出并发限制数量
@@ -1570,11 +1582,6 @@ public class Constants {
      * 导出并发key 缓存有效时间 单位:天
      */
     public static Integer EXPORT_REDIS_KEY_TIME_OUT = 1;
-
-    /**
-     * 系统名
-     */
-    public static final String SYSTEM_NAME = "QLFJZXJT";
 
     /**
      * 开启状态 1
