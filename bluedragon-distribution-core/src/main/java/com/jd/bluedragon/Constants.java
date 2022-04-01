@@ -1584,11 +1584,6 @@ public class Constants {
     public static Integer EXPORT_REDIS_KEY_TIME_OUT = 1;
 
     /**
-     * B网抽检图片前缀标识：B
-     */
-    public static final String SPOT_CHECK_B = "B";
-
-    /**
      * 开启状态 1
      */
     public static final String SWITCH_OPEN = "1";
