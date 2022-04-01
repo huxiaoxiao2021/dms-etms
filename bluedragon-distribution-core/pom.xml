@@ -38,7 +38,7 @@
 		<ps-epf.version>1.0-SNAPSHOT</ps-epf.version>
 		<!--jim redis-->
 		<jimdb.version>3.1.2-SNAPSHOT</jimdb.version>
-		<cp-wbms-client.version>1.0.84</cp-wbms-client.version>
+		<cp-wbms-client.version>1.0.110</cp-wbms-client.version>
 	</properties>
 
 	<dependencies>

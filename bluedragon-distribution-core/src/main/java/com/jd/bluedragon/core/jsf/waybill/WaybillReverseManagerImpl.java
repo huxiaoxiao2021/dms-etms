@@ -309,11 +309,16 @@ public class WaybillReverseManagerImpl implements WaybillReverseManager {
 		JdResult<SubmitWaybillResponse> result = new JdResult<SubmitWaybillResponse>();
 		WbmsApiResult<SubmitWaybillResponse> rpcResult = null;
         CallerInfo info = null;
+    	WbmsRequestProfile profile = null;
+    	ReverseWaybillRequest requestData = null;
     	try {
     		info = ProfilerHelper.registerInfo( UMP_KEY_WBMS_PREFIX + ".queryWaybill");
-			rpcResult = this.reverseWaybillApi.queryWaybill(
-					getWbmsRequestProfile(dmsWaybillReverseDTO.getWaybillCode()), 
-					convertReverseWaybillRequest(dmsWaybillReverseDTO));
+    		//初始化参数
+    		profile= getWbmsRequestProfile(dmsWaybillReverseDTO.getWaybillCode());
+    		requestData = convertReverseWaybillRequest(dmsWaybillReverseDTO);
+    		infoLog("换单前查询运单数据-百川接口reverseWaybillApi.queryWaybill:{},{}",profile,requestData);
+			rpcResult = this.reverseWaybillApi.queryWaybill(profile,requestData);
+			infoLog("换单前查询运单数据-百川接口reverseWaybillApi.queryWaybill-返回:{}",rpcResult);
     		if(rpcResult != null
     				&& rpcResult.isSuccess()) {
     			result.toSuccess(rpcResult.getMessage());
@@ -348,12 +353,13 @@ public class WaybillReverseManagerImpl implements WaybillReverseManager {
     	ReverseWaybillRequest requestData = null;
     	long startTime=new Date().getTime();
     	try {
-    		info = ProfilerHelper.registerInfo( UMP_KEY_WBMS_PREFIX + ".submitWaybill");
+    		info = ProfilerHelper.registerInfo(UMP_KEY_WBMS_PREFIX + ".submitWaybill");
     		//初始化参数
     		profile= getWbmsRequestProfile(dmsWaybillReverseDTO.getWaybillCode());
     		requestData = convertReverseWaybillRequest(dmsWaybillReverseDTO);
+    		infoLog("换单提交-百川接口reverseWaybillApi.submitWaybill-入参:{},{}",profile,requestData);
     		rpcResult = this.reverseWaybillApi.submitWaybill(profile,requestData);
-    		
+    		infoLog("换单提交-百川接口reverseWaybillApi.submitWaybill-返回:{}",rpcResult);
     		if(rpcResult != null 
     				&& rpcResult.isSuccess()) {
     			result.toSuccess(rpcResult.getMessage());
@@ -510,6 +516,7 @@ public class WaybillReverseManagerImpl implements WaybillReverseManager {
 	private boolean needUseNewReverseApi(String waybillCode){
 		//先判断是否开启ucc配置
 		if(!uccPropertyConfiguration.isNeedUseNewReverseApi()) {
+			log.info("百川接口切换-0：不调百川接口{}",waybillCode);
 			return false;
 		}
         if(StringHelper.isNotEmpty(waybillCode)){
@@ -522,11 +529,12 @@ public class WaybillReverseManagerImpl implements WaybillReverseManager {
                     && baseEntity.getData().getWaybill() != null
                     && baseEntity.getData().getWaybill().getWaybillExt() != null){
 	            if(StringHelper.isNotEmpty(baseEntity.getData().getWaybill().getWaybillExt().getOmcOrderCode())){
-	            	log.info("百川接口切换：调用百川接口{}",waybillCode);
+	            	log.info("百川接口切换-1：调用百川接口{}",waybillCode);
 	            	return true;
 	            }
             }
         }
+        log.info("百川接口切换-0：不调百川接口{}",waybillCode);
 		return false;
 	}
 
@@ -699,5 +707,26 @@ public class WaybillReverseManagerImpl implements WaybillReverseManager {
 			return reverseWaybillRequest;
 		}
 		return null;
+	}
+	/**
+	 * 打印info日志
+	 * @param format
+	 * @param params1
+	 */
+	private void infoLog(String format, Object params1) {
+		if(log.isInfoEnabled()) {
+			log.info(format, JsonHelper.toJson(params1));
+		}
+	}
+	/**
+	 * 打印info日志
+	 * @param format
+	 * @param params1
+	 * @param params2
+	 */
+	private void infoLog(String format, Object params1,Object params2) {
+		if(log.isInfoEnabled()) {
+			log.info(format, JsonHelper.toJson(params1),JsonHelper.toJson(params2));
+		}
 	}
 }
