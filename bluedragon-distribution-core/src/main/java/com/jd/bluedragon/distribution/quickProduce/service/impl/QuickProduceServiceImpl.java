@@ -107,32 +107,12 @@ public class QuickProduceServiceImpl implements QuickProduceService {
         joinDetail.setCityName(waybill.getCityName());
         joinDetail.setCountryName(waybill.getCountryName());
     }
+
     @JProfiler(jKey = "DMSWEB.QuickProduceServiceImpl.getQuickProduceWabillFromDrec",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
     private Waybill getQuickProduceWabillFromDrec(String waybillCode) {
-
-        Waybill waybill= null;
-        OrderMsgDTO orderMsgDTO= getOrderMsgServiceJsf.getOrderAllMsgByDeliveryId(waybillCode);
-        if(orderMsgDTO==null) {
-            log.warn("闪购从外单获取运单数据为空，单号为：{}",waybillCode);
-            return waybill;
+    	return waybillReverseManager.getQuickProduceWabillFromDrec(waybillCode);
         }
-        waybill=new Waybill();
-        waybill.setReceiverName(orderMsgDTO.getReceiveName());
-        waybill.setReceiverMobile(orderMsgDTO.getReceiveMobile());
-        waybill.setReceiverTel(orderMsgDTO.getReceiveTel());
-        if (orderMsgDTO.getCollectionMoney()!=null) {
-            waybill.setRecMoney(orderMsgDTO.getCollectionMoney());
-        }
-        //waybill.setSendPay(orderMsgDTO.sendp);
-        waybill.setAddress(orderMsgDTO.getReceiveAdress());
-        //waybill.setAirSigns(orderMsgDTO.getAreaCityId());
-        waybill.setWaybillCode(waybillCode);
-        waybill.setPaymentType(orderMsgDTO.getCollectionValue());
-        if (orderMsgDTO.getPreallocation() != null)
-            waybill.setSiteCode(orderMsgDTO.getPreallocation().getSiteId());
-        return waybill;
-    }
 
 
     private  Waybill getWabillFromOom(String waybillCode){

@@ -1776,7 +1776,7 @@ public class WaybillResource {
 	@BusinessLog(sourceSys = 1,bizType = 1900,operateType = 1900002)
 	@JProfiler(jKey = "DMS.WEB.WaybillResource.createReturnsWaybillNew", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public InvokeResult<WaybillReverseResult> createReturnsWaybillNew(ExchangeWaybillDto request) {
-		InvokeResult invokeResult =new InvokeResult();
+		InvokeResult<DmsWaybillReverseResult> invokeResult =new InvokeResult<DmsWaybillReverseResult>();
 
 		if(log.isDebugEnabled()){
             log.debug("换单前获取信息接口入参：{}",JsonHelper.toJson(request));
@@ -1788,7 +1788,7 @@ public class WaybillResource {
         }
 		try {
 			StringBuilder errorMessage = new StringBuilder();
-			WaybillReverseResult waybillReverseResult = null;
+			DmsWaybillReverseResult waybillReverseResult = null;
 			String waybillCode = request.getWaybillCode();
 			//冷链的几种产品需要调eclp接口换单
 			if(coldChainReverseManager.checkColdReverseProductType(waybillCode)){
@@ -1797,8 +1797,8 @@ public class WaybillResource {
 				waybillReverseResult = coldChainReverseManager.createReverseWbOrder(coldChainReverseRequest,errorMessage);
 			}else {
 				log.info("换单方法createReturnsWaybillNew走原有流程,运单号{}",waybillCode);
-				WaybillReverseDTO waybillReverseDTO = ldopManager.makeWaybillReverseDTOCanTwiceExchange(request);
-				waybillReverseResult = ldopManager.waybillReverse(waybillReverseDTO, errorMessage);
+				DmsWaybillReverseDTO waybillReverseDTO = waybillReverseManager.makeWaybillReverseDTOCanTwiceExchange(request);
+				waybillReverseResult = waybillReverseManager.waybillReverse(waybillReverseDTO,errorMessage);
 			}
 			if(waybillReverseResult == null){
 				//失败

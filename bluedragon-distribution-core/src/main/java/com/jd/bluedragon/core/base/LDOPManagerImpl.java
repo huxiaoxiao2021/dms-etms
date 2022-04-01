@@ -8,22 +8,25 @@ import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
 import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.external.LogEngine;
+import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.bluedragon.distribution.reverse.domain.BackAddressDTOExt;
 import com.jd.bluedragon.distribution.reverse.domain.ExchangeWaybillDto;
 import com.jd.bluedragon.distribution.reverse.domain.LocalClaimInfoRespDTO;
 import com.jd.bluedragon.distribution.reverse.service.ReverseSpareEclp;
+import com.jd.bluedragon.distribution.reverse.domain.DmsDetailReverseReasonDTO;
+import com.jd.bluedragon.distribution.reverse.domain.DmsPackageDTO;
+import com.jd.bluedragon.distribution.reverse.domain.DmsWaybillAddress;
+import com.jd.bluedragon.distribution.reverse.domain.DmsWaybillReverseDTO;
+import com.jd.bluedragon.distribution.reverse.domain.DmsWaybillReverseResponseDTO;
+import com.jd.bluedragon.distribution.reverse.domain.DmsWaybillReverseResult;
 import com.jd.bluedragon.distribution.systemLog.domain.Goddess;
 import com.jd.bluedragon.distribution.systemLog.service.GoddessService;
-import com.jd.bluedragon.dms.utils.BusinessUtil;
-import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCancelService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.dms.logger.external.BusinessLogProfiler;
-import com.jd.etms.waybill.domain.BaseEntity;
-import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.alibaba.fastjson.JSONObject;
 import com.jd.ldop.business.api.BackAddressInfoApi;
 import com.jd.ldop.business.api.dto.request.BackAddressDTO;
@@ -35,6 +38,8 @@ import com.jd.ldop.center.api.print.dto.WaybillPrintDataDTO;
 import com.jd.ldop.center.api.print.dto.WaybillPrintRequestDTO;
 import com.jd.ldop.center.api.refund.RefundApi;
 import com.jd.ldop.center.api.refund.dto.RefundApplyDTO;
+import com.jd.ldop.center.api.receive.dto.DetailReverseReasonDTO;
+import com.jd.ldop.center.api.receive.dto.PackageDTO;
 import com.jd.ldop.center.api.reverse.WaybillReturnSignatureApi;
 import com.jd.ldop.center.api.reverse.WaybillReverseApi;
 import com.jd.ldop.center.api.reverse.dto.*;
@@ -71,11 +76,6 @@ import java.util.List;
 @Service("ldopManager")
 public class LDOPManagerImpl implements LDOPManager {
 
-    /**
-     * 计费-2-不计费
-     */
-    public static final int CHARGE_TYPE_2 = 2;
-
     ////退货方式 0 - 按照商家配置 1 - 退库房 2 - 退寄件人 3 - 退备件库 4 - 物流损退备件库 5 - 退指定地址
     public static final int RETURN_TYPE_0 = 0;
     public static final int RETURN_TYPE_1 = 1;
@@ -83,7 +83,11 @@ public class LDOPManagerImpl implements LDOPManager {
     public static final int RETURN_TYPE_3 = 3;
     public static final int RETURN_TYPE_4 = 4;
     public static final int RETURN_TYPE_5 = 5;
-
+    /**
+     * 计费-2-不计费
+     */
+    public static final int CHARGE_TYPE_2 = 2;
+    
     private static final String UMP_KEY_PREFIX = "dmsWeb.jsf.client.ldop.";
     private static final String UMP_KEY_REFUNDAPI_PREFIX = "dmsWeb.jsf.client.ldop.";
 
@@ -123,19 +127,18 @@ public class LDOPManagerImpl implements LDOPManager {
     private BackAddressInfoApi backAddressInfoApi;
     @Autowired
     private BaseService baseService;
-
-
-    @Autowired
-    private RefundApi refundApi;
-
-    @Autowired
-    private WaybillCancelService waybillCancelService;
-
     /**
      * 二次换单限制次数
      */
 	@Value("${beans.LDOPManagerImpl.twiceExchangeMaxTimes}")
     private int twiceExchangeMaxTimes;
+	
+    @Autowired
+    private RefundApi refundApi;
+    
+    @Autowired
+    private WaybillCancelService waybillCancelService;
+    
     private final Logger log = LoggerFactory.getLogger(LDOPManagerImpl.class);
     /**
      * 触发外单逆向换单接口
@@ -274,8 +277,8 @@ public class LDOPManagerImpl implements LDOPManager {
     }
 
 
-    public WaybillReverseResponseDTO queryReverseWaybill(WaybillReverseDTO waybillReverseDTO,StringBuilder errorMessage) {
-
+    public DmsWaybillReverseResponseDTO queryReverseWaybill(DmsWaybillReverseDTO dmsWaybillReverseDTO,StringBuilder errorMessage) {
+    	WaybillReverseDTO waybillReverseDTO = this.convertWaybillReverseDTO(dmsWaybillReverseDTO);
         CallerInfo info = null;
         try{
             info = Profiler.registerInfo( "DMSWEB.LDOPManagerImpl.queryReverseWaybill",false, true);
@@ -378,6 +381,11 @@ public class LDOPManagerImpl implements LDOPManager {
             waybillAddress.setPhone(exchangeWaybillDto.getPhone());
             waybillReverseDTO.setWaybillAddress(waybillAddress);
         }
+        //判断是否拦截14，设置计费字段：2-不计费
+        boolean isFullOrderFail = waybillCancelService.isFullOrderFail(exchangeWaybillDto.getWaybillCode());
+        if(isFullOrderFail) {
+            waybillReverseDTO.setChargeType(CHARGE_TYPE_2);
+        }
         return waybillReverseDTO;
     }
 
@@ -391,7 +399,7 @@ public class LDOPManagerImpl implements LDOPManager {
 
         if(StringUtils.isEmpty(waybillSign)){
             //外部未传入waybillSign 自己再去调用一次
-            BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode,true,true,true,false);
+        	com.jd.etms.waybill.domain.BaseEntity<BigWaybillDto> baseEntity = waybillQueryManager.getDataByChoice(waybillCode,true,true,true,false);
             if(baseEntity!=null && baseEntity.getData()!=null && baseEntity.getData().getWaybill() != null && StringUtils.isNotBlank(baseEntity.getData().getWaybill().getWaybillSign())){
                 waybillSign = baseEntity.getData().getWaybill().getWaybillSign();
             }
@@ -584,7 +592,126 @@ public class LDOPManagerImpl implements LDOPManager {
     	}
     	return null;
 	}
-
+    private WaybillReverseDTO convertWaybillReverseDTO(DmsWaybillReverseDTO dmsWaybillReverseDTO) {
+    	if(dmsWaybillReverseDTO != null) {
+    		WaybillReverseDTO waybillReverseDTO = new WaybillReverseDTO();
+    		waybillReverseDTO.setWeight(dmsWaybillReverseDTO.getWeight());
+    		waybillReverseDTO.setOperateTime(dmsWaybillReverseDTO.getOperateTime());
+    		waybillReverseDTO.setReverseType(dmsWaybillReverseDTO.getReverseType());
+    		waybillReverseDTO.setAllowReverseCount(dmsWaybillReverseDTO.getAllowReverseCount());
+    		waybillReverseDTO.setRemark(dmsWaybillReverseDTO.getRemark());
+    		waybillReverseDTO.setPackageCount(dmsWaybillReverseDTO.getPackageCount());
+    		waybillReverseDTO.setReturnType(dmsWaybillReverseDTO.getReturnType());
+    		waybillReverseDTO.setOperateUser(dmsWaybillReverseDTO.getOperateUser());
+    		waybillReverseDTO.setWaybillCode(dmsWaybillReverseDTO.getWaybillCode());
+    		waybillReverseDTO.setReverseReason(dmsWaybillReverseDTO.getReverseReason());
+    		waybillReverseDTO.setSortCenterId(dmsWaybillReverseDTO.getSortCenterId());
+    		waybillReverseDTO.setOrgId(dmsWaybillReverseDTO.getOrgId());
+    		waybillReverseDTO.setAttributionToJD(dmsWaybillReverseDTO.getAttributionToJD());
+    		waybillReverseDTO.setSiteId(dmsWaybillReverseDTO.getSiteId());
+    		waybillReverseDTO.setSource(dmsWaybillReverseDTO.getSource());
+    		waybillReverseDTO.setCustomerCode(dmsWaybillReverseDTO.getCustomerCode());
+    		waybillReverseDTO.setVolume(dmsWaybillReverseDTO.getVolume());
+    		waybillReverseDTO.setLimitReverseFlag(dmsWaybillReverseDTO.getLimitReverseFlag());
+    		waybillReverseDTO.setOperateUserId(dmsWaybillReverseDTO.getOperateUserId());
+    		waybillReverseDTO.setChargeType(dmsWaybillReverseDTO.getChargeType());
+    		DmsWaybillAddress dmsWaybillAddress= dmsWaybillReverseDTO.getWaybillAddress();
+    		if(dmsWaybillAddress != null) {
+    			WaybillAddress waybillAddress = new WaybillAddress();
+    			waybillAddress.setCountryId(dmsWaybillAddress.getCountryId());
+    			waybillAddress.setProvinceId(dmsWaybillAddress.getProvinceId());
+    			waybillAddress.setCredentialsType(dmsWaybillAddress.getCredentialsType());
+    			waybillAddress.setPhone(dmsWaybillAddress.getPhone());
+    			waybillAddress.setCountryName(dmsWaybillAddress.getCountryName());
+    			waybillAddress.setCountrysideId(dmsWaybillAddress.getCountrysideId());
+    			waybillAddress.setCityId(dmsWaybillAddress.getCityId());
+    			waybillAddress.setCityName(dmsWaybillAddress.getCityName());
+    			waybillAddress.setProvinceName(dmsWaybillAddress.getProvinceName());
+    			waybillAddress.setCompanyName(dmsWaybillAddress.getCompanyName());
+    			waybillAddress.setContact(dmsWaybillAddress.getContact());
+    			waybillAddress.setAddress(dmsWaybillAddress.getAddress());
+    			waybillAddress.setCredentialsNumber(dmsWaybillAddress.getCredentialsNumber());
+    			waybillAddress.setLongitude(dmsWaybillAddress.getLongitude());
+    			waybillAddress.setCoordinateType(dmsWaybillAddress.getCoordinateType());
+    			waybillAddress.setCountrysideName(dmsWaybillAddress.getCountrysideName());
+    			waybillAddress.setLatitude(dmsWaybillAddress.getLatitude());
+    			waybillAddress.setMobile(dmsWaybillAddress.getMobile());
+    			waybillReverseDTO.setWaybillAddress(waybillAddress);
+    		}
+    		if(dmsWaybillReverseDTO.getDetailReverseReasonDTOList() != null) {
+    			List<DetailReverseReasonDTO> detailReverseReasonDTOList = new ArrayList<DetailReverseReasonDTO>();
+    			for(DmsDetailReverseReasonDTO dmsDetailReverseReasonDTO :dmsWaybillReverseDTO.getDetailReverseReasonDTOList()) {
+    				DetailReverseReasonDTO detailReverseReasonDTO = new DetailReverseReasonDTO();
+    				detailReverseReasonDTO.setSerialNo(dmsDetailReverseReasonDTO.getSerialNo());
+    				detailReverseReasonDTO.setReasonType(dmsDetailReverseReasonDTO.getReasonType());
+    				detailReverseReasonDTO.setDeliveryId(dmsDetailReverseReasonDTO.getDeliveryId());
+    				detailReverseReasonDTO.setCount(dmsDetailReverseReasonDTO.getCount());
+    				detailReverseReasonDTO.setReasonName(dmsDetailReverseReasonDTO.getReasonName());
+    				detailReverseReasonDTO.setProductName(dmsDetailReverseReasonDTO.getProductName());
+    				detailReverseReasonDTO.setProductId(dmsDetailReverseReasonDTO.getProductId());
+    				
+    				detailReverseReasonDTOList.add(detailReverseReasonDTO);
+    			}
+    			waybillReverseDTO.setDetailReverseReasonDTOList(detailReverseReasonDTOList);
+    		}
+    		return waybillReverseDTO;
+    	}
+    	return null;
+	}
+    /**
+     * 对象转换->分拣对象
+     * @param waybillReverseResult
+     * @return
+     */
+    private DmsWaybillReverseResult convertDmsWaybillReverseResult(WaybillReverseResult waybillReverseResult) {
+    	if(waybillReverseResult != null) {
+    		DmsWaybillReverseResult result = new DmsWaybillReverseResult();
+    		result.setWaybillCode(waybillReverseResult.getWaybillCode());
+    		return result;
+    	}
+    	return null;
+    }
+    private DmsWaybillReverseResponseDTO convertDmsWaybillReverseResponseDTO(WaybillReverseResponseDTO waybillReverseResponseDTO) {
+    	if(waybillReverseResponseDTO != null) {
+    		DmsWaybillReverseResponseDTO dmsWaybillReverseResponseDTO = new DmsWaybillReverseResponseDTO();
+    		dmsWaybillReverseResponseDTO.setProvinceId(waybillReverseResponseDTO.getProvinceId());
+    		dmsWaybillReverseResponseDTO.setSenderAddress(waybillReverseResponseDTO.getSenderAddress());
+    		dmsWaybillReverseResponseDTO.setCityId(waybillReverseResponseDTO.getCityId());
+    		dmsWaybillReverseResponseDTO.setReceiveMobile(waybillReverseResponseDTO.getReceiveMobile());
+    		dmsWaybillReverseResponseDTO.setReceiveTel(waybillReverseResponseDTO.getReceiveTel());
+    		dmsWaybillReverseResponseDTO.setPackageCount(waybillReverseResponseDTO.getPackageCount());
+    		dmsWaybillReverseResponseDTO.setTownId(waybillReverseResponseDTO.getTownId());
+    		dmsWaybillReverseResponseDTO.setSenderTel(waybillReverseResponseDTO.getSenderTel());
+    		dmsWaybillReverseResponseDTO.setWaybillCode(waybillReverseResponseDTO.getWaybillCode());
+    		dmsWaybillReverseResponseDTO.setCity(waybillReverseResponseDTO.getCity());
+    		dmsWaybillReverseResponseDTO.setSenderName(waybillReverseResponseDTO.getSenderName());
+    		dmsWaybillReverseResponseDTO.setCounty(waybillReverseResponseDTO.getCounty());
+    		dmsWaybillReverseResponseDTO.setProvince(waybillReverseResponseDTO.getProvince());
+    		dmsWaybillReverseResponseDTO.setReceiveName(waybillReverseResponseDTO.getReceiveName());
+    		dmsWaybillReverseResponseDTO.setReceiveAddress(waybillReverseResponseDTO.getReceiveAddress());
+    		dmsWaybillReverseResponseDTO.setSenderMobile(waybillReverseResponseDTO.getSenderMobile());
+    		dmsWaybillReverseResponseDTO.setTown(waybillReverseResponseDTO.getTown());
+    		dmsWaybillReverseResponseDTO.setCountyId(waybillReverseResponseDTO.getCountyId());
+    		if(waybillReverseResponseDTO.getPackageDTOList() != null) {
+    			List<DmsPackageDTO> packageDTOList = new ArrayList<DmsPackageDTO>();
+    			for(PackageDTO temp :waybillReverseResponseDTO.getPackageDTOList()) {
+    				DmsPackageDTO dmsPackageDTO = new DmsPackageDTO();
+    				dmsPackageDTO.setVolumn(temp.getVolumn());
+    				dmsPackageDTO.setCustomerId(temp.getCustomerId());
+    				dmsPackageDTO.setDeliveryId(temp.getDeliveryId());
+    				dmsPackageDTO.setWeight(temp.getWeight());
+    				dmsPackageDTO.setVloumWidth(temp.getVloumWidth());
+    				dmsPackageDTO.setVloumHeight(temp.getVloumHeight());
+    				dmsPackageDTO.setVloumLong(temp.getVloumLong());
+    				dmsPackageDTO.setPackageCode(temp.getPackageCode());
+    				packageDTOList.add(dmsPackageDTO);
+    			}
+    			dmsWaybillReverseResponseDTO.setPackageDTOList(packageDTOList);
+    		}
+    		return dmsWaybillReverseResponseDTO;
+    	}
+		return null;
+	}
 	@Override
 	public JdResult<String> refundApply(RefundApplyDTO refundApplyDTO) {
 		CallerInfo callerInfo = ProfilerHelper.registerInfo(UMP_KEY_REFUNDAPI_PREFIX + "refundApi.refundApply");
@@ -611,6 +738,5 @@ public class LDOPManagerImpl implements LDOPManager {
 		}
         return result;
 	}
-
 
 }
