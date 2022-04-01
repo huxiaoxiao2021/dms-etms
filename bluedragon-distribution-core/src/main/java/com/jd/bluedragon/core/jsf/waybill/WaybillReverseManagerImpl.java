@@ -163,7 +163,7 @@ public class WaybillReverseManagerImpl implements WaybillReverseManager {
 	@Value("${dms.wbmsRequestProfile.token}")
     private String token;
     /**
-     * 触发外单逆向换单接口
+     * 触发外单逆向换单提交接口
      * @param waybillReverseDTO
      * @return
      */
@@ -221,6 +221,9 @@ public class WaybillReverseManagerImpl implements WaybillReverseManager {
 		}
     	return null;
 	}
+    /**
+     * 换单前获取原单信息接口
+     */
 	@Override
     public DmsWaybillReverseResponseDTO queryReverseWaybill(DmsWaybillReverseDTO dmsWaybillReverseDTO,StringBuilder errorMessage) {
         if(needUseNewReverseApi(dmsWaybillReverseDTO.getWaybillCode())) {
@@ -230,7 +233,7 @@ public class WaybillReverseManagerImpl implements WaybillReverseManager {
         }
      }
     /**
-     * 新处理逻辑
+     * 换单前获取原单信息接口-百川逻辑
      * @param dmsWaybillReverseDTO
      * @param errorMessage
      * @return
@@ -597,7 +600,9 @@ public class WaybillReverseManagerImpl implements WaybillReverseManager {
             waybill.setSiteCode(orderMsgDTO.getPreallocation().getSiteId());
         return waybill;
 	}
-
+	/**
+	 * 根据旧单号查询新单号
+	 */
 	@Override
 	public JdResult<String> queryWaybillCodeByOldWaybillCode(String oldWaybillCode) {
         if(needUseNewReverseApi(oldWaybillCode)) {
@@ -607,7 +612,7 @@ public class WaybillReverseManagerImpl implements WaybillReverseManager {
         }
 	}
 	/**
-	 * 现有逻辑(加入监控)
+	 * 根据旧单号查询新单号-现有逻辑(加入监控)
 	 * @param oldWaybillCode
 	 * @return
 	 */
