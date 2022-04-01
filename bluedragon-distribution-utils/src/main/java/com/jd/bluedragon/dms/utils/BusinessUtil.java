@@ -103,6 +103,27 @@ public class BusinessUtil {
         }
         return isMatchBoxCode(s);
     }
+    public static Boolean isStoreCode(String s) {
+        if (StringUtils.isEmpty(s)) {
+            return Boolean.FALSE;
+        }
+        return isMatchStoreCode(s);
+    }
+
+    private static Boolean isMatchStoreCode(String s) {
+        return  BIG_WARM_BOX_CODE_REGEX.matcher(s.toUpperCase().trim()).matches();
+    }
+
+    public static Boolean isIceBoardCode(String s) {
+        if (StringUtils.isEmpty(s)) {
+            return Boolean.FALSE;
+        }
+        return isMatchIceBoardCode(s);
+    }
+
+    private static Boolean isMatchIceBoardCode(String s) {
+        return  DmsConstants.ICE_BOARD_BOX_CODE_REGEX.matcher(s.trim().toUpperCase()).matches();
+    }
 
     /**
      * 判断是否为箱号

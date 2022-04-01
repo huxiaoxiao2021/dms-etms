@@ -228,6 +228,9 @@ public class DmsConstants {
      * （微仓）大保温箱号规则，MZ开头，总长度14到16位
      */
     public static final Pattern BIG_WARM_BOX_CODE_REGEX = Pattern.compile("^WCDX[0-9]{10}$");
+
+    public static final Pattern ICE_BOARD_BOX_CODE_REGEX = Pattern.compile("^ICE[0-9]{10}$");
+
     /**
      * 预售异常原因-上级编码
      */
