@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.boxlimit.service.impl;
 
 import com.google.gson.Gson;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.domain.LoginUser;
 import com.jd.bluedragon.distribution.boxlimit.BoxLimitDTO;
@@ -21,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
+import javax.annotation.Resource;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -33,6 +35,8 @@ public class BoxLimitServiceImpl implements BoxLimitService {
     private BaseMajorManager baseMajorManager;
     @Autowired
     private BoxLimitConfigDao boxLimitConfigDao;
+    @Resource
+    private UccPropertyConfiguration uccPropertyConfiguration;
 
     @Override
     public PagerResult<BoxLimitVO> listData(BoxLimitQueryDTO dto) {
@@ -55,6 +59,8 @@ public class BoxLimitServiceImpl implements BoxLimitService {
             vo.setOperatorErp(b.getOperatorErp());
             vo.setOperatorSiteName(b.getOperatorSiteName());
             vo.setOperatingTime(format.format(b.getOperatingTime()));
+            vo.setConfigType(b.getConfigType());
+            vo.setBoxNumberType(b.getBoxNumberType());
             list.add(vo);
         }
         result.setRows(list);
@@ -88,6 +94,9 @@ public class BoxLimitServiceImpl implements BoxLimitService {
             b.setCreateTime(now);
             b.setUpdateTime(now);
             b.setYn(true);
+            b.setBoxNumberType(vo.getBoxNumberType());
+            //场地建箱配置类型
+            b.setConfigType(2);
             list.add(b);
         }
         boxLimitConfigDao.batchInsert(list);
@@ -127,6 +136,12 @@ public class BoxLimitServiceImpl implements BoxLimitService {
             if (vo.getLimitNum() == null || vo.getLimitNum() <= 0) {
                 response.setCode(JdResponse.CODE_FAIL);
                 response.setMessage(String.format("excel中第%s行 建箱包裹上限不正确!", row));
+                return;
+            }
+            List<String> types = Arrays.asList(uccPropertyConfiguration.getBoxNumberTypes().split(","));
+            if(StringUtils.isEmpty(vo.getBoxNumberType()) || !types.contains(vo.getBoxNumberType())){
+                response.setCode(JdResponse.CODE_FAIL);
+                response.setMessage(String.format("excel中第%s行 建箱箱号类型为空或箱号类型不在处理范围内!", row));
                 return;
             }
             // 记录重复的站点ID

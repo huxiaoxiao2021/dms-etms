@@ -161,6 +161,7 @@
 		<property name="packConsumableSwitch" value="${packConsumableSwitch:0}"/>
 		<property name="sealTaskHystrixProps" value="${sealTaskHystrixProps: ''}"/>
 		<property name="sealTaskForceFallback" value="${sealTaskForceFallback: 0}"/>
+		<property name="boxNumberTypes" value="${boxNumberTypes: ''}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -302,6 +303,7 @@
 				<value>uccPropertyConfiguration.packConsumableSwitch</value>
                 <value>uccPropertyConfiguration.sealTaskHystrixProps</value>
                 <value>uccPropertyConfiguration.sealTaskForceFallback</value>
+				<value>uccPropertyConfiguration.boxNumberTypes</value>
 
                 <value>hystrixRouteUccPropertyConfiguration.executionTimeoutInMilliseconds</value>
                 <value>hystrixRouteUccPropertyConfiguration.circuitBreakerEnabled</value>

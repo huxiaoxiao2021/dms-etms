@@ -21,6 +21,8 @@ public class BoxLimitQueryDTO implements Serializable {
 
     private Integer offset = 0;
 
+    private Integer configType;
+
     private String boxNumberType;
 
     public String getSiteName() {
@@ -61,6 +63,14 @@ public class BoxLimitQueryDTO implements Serializable {
 
     public void setOffset() {
         this.offset = (this.pageNum - 1) * this.pageSize;
+    }
+
+    public Integer getConfigType() {
+        return configType;
+    }
+
+    public void setConfigType(Integer configType) {
+        this.configType = configType;
     }
 
     public String getBoxNumberType() {

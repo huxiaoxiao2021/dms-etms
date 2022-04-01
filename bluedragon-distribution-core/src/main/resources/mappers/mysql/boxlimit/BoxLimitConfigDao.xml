@@ -141,10 +141,10 @@
       <if test="yn != null">
         yn = #{yn,jdbcType=BOOLEAN},
       </if>
-      <if test="config_type != null">
+      <if test="configType != null">
         config_type = #{configType,jdbcType=TINYINT},
       </if>
-      <if test="box_number_type != null">
+      <if test="boxNumberType != null">
         box_number_type = #{boxNumberType,jdbcType=VARCHAR},
       </if>
     </set>
@@ -252,11 +252,17 @@
       <if test="siteId != null">
         AND site_id = #{siteId}
       </if>
+      <if test="configType != null">
+        AND config_type = #{configType}
+      </if>
+      <if test="boxNumberType != null">
+        AND box_number_type = #{boxNumberType}
+      </if>
     </where>
   </select>
 
   <select id="queryCommonLimitNum" resultType="java.lang.Integer">
-    select limit_num from box_limit_config where yn = 1 and box_number_type = #{boxNumberType}
+    select limit_num from box_limit_config where yn = 1 and  config_type=1 and box_number_type = #{boxNumberType}
   </select>
 
 

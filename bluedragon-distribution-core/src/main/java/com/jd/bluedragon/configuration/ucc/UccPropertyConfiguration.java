@@ -694,6 +694,11 @@ public class UccPropertyConfiguration {
      */
     private Integer packConsumableSwitch;
 
+    /**
+     * 箱号类型集合
+     */
+    private String boxNumberTypes;
+
     public String getScheduleSiteCheckSameCity() {
         return scheduleSiteCheckSameCity;
     }
@@ -1738,5 +1743,13 @@ public class UccPropertyConfiguration {
 
     public void setPackConsumableSwitch(Integer packConsumableSwitch) {
         this.packConsumableSwitch = packConsumableSwitch;
+    }
+
+    public String getBoxNumberTypes() {
+        return boxNumberTypes;
+    }
+
+    public void setBoxNumberTypes(String boxNumberTypes) {
+        this.boxNumberTypes = boxNumberTypes;
     }
 }

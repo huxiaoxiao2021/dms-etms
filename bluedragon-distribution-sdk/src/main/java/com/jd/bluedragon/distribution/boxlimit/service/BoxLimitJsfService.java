@@ -23,7 +23,7 @@ public interface BoxLimitJsfService {
      * @param dto
      * @return
      */
-    PagerResult<BoxLimitVO> listData(BoxLimitQueryDTO dto);
+    JdResponse<PagerResult<BoxLimitVO>> listData(BoxLimitQueryDTO dto);
 
     /**
      * 根据站点获取站点名称

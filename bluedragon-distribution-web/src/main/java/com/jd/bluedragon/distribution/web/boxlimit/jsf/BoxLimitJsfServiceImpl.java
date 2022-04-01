@@ -41,9 +41,17 @@ public class BoxLimitJsfServiceImpl extends DmsBaseController implements BoxLimi
      * 获取列表
      */
 
-    public PagerResult<BoxLimitVO> listData(BoxLimitQueryDTO dto) {
-
-        return boxLimitService.listData(dto);
+    public JdResponse<PagerResult<BoxLimitVO>> listData(BoxLimitQueryDTO dto) {
+        JdResponse response = new JdResponse();
+        response.setCode(JdResponse.CODE_FAIL);
+        response.setMessage(JdResponse.MESSAGE_FAIL);
+        PagerResult<BoxLimitVO> result = boxLimitService.listData(dto);
+        if(result != null){
+            response.setData(result);
+            response.setCode(JdResponse.CODE_SUCCESS);
+            response.setMessage(JdResponse.MESSAGE_SUCCESS);
+        }
+        return response;
     }
 
     /**
