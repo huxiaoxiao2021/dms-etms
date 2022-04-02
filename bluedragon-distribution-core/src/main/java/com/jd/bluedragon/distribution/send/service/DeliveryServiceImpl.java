@@ -3678,13 +3678,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
             dSendM.setUpdateUserCode(tSendM.getUpdateUserCode());
             dSendM.setUpdateTime(new Date());
             dSendM.setOperateTime(tSendM.getOperateTime());
-            String caruser = dSendM.getSendUser();
-            // 是否发车
-            if (caruser != null && !"".equals(caruser)) {
-                return new ThreeDeliveryResponse(
-                        DeliveryResponse.CODE_Delivery_NO_DEPART,
-                        HintService.getHint(HintCodeConstants.BOX_SENT_ALREADY_TIPS_SECOND), null);
-            }
+            // 是否发车 2021年12月15日18:09:28 下线
 
             tSendDatail.setReceiveSiteCode(dSendM.getReceiveSiteCode());
             // 是否发货状态更新
@@ -3708,20 +3702,8 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
 		for (SendDetail dSendDetail : tList) {
 			tSendM.setBoxCode(dSendDetail.getBoxCode());
 			List<SendM> sendMList = this.sendMDao.findSendMByBoxCode(tSendM);
-			// 发车验证
-			if (sendMList != null && !sendMList.isEmpty()) {
-				SendM dSendM = this.getLastSendDate(sendMList);
-				dSendM.setUpdaterUser(tSendM.getUpdaterUser());
-				dSendM.setUpdateUserCode(tSendM.getUpdateUserCode());
-				dSendM.setUpdateTime(new Date());
-				String caruser = dSendM.getSendUser();
-				if (caruser != null && !"".equals(caruser)) {
-					return new ThreeDeliveryResponse(
-							DeliveryResponse.CODE_Delivery_NO_DEPART,
-							HintService.getHint(HintCodeConstants.BOX_SENT_ALREADY_TIPS_SECOND), null);
-				}
-				break;
-			} else {
+			// 发车验证 2021年12月15日18:08:57 下线
+			if (sendMList == null || sendMList.isEmpty()) {
 				return new ThreeDeliveryResponse(
 						DeliveryResponse.CODE_Delivery_NO_MESAGE,
 						HintService.getHint(HintCodeConstants.BOX_SENDM_MISSING), null);
@@ -5324,18 +5306,20 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         }
         //end
         if(!noHasFreightWaybills.isEmpty()){
-        	interceptResult.toFail();
+            // 2021年12月15日18:02:50 下线
+        	/*interceptResult.toFail();
             Map<String, String> argsMap = new HashMap<>();
             argsMap.put(HintArgsConstants.ARG_FIRST, noHasFreightWaybills.toString());
         	interceptResult.setMessage(HintService.getHint(HintCodeConstants.WAYBILL_MISSING_RECEIVE_FREIGHT, argsMap));
-        	return interceptResult;
+        	return interceptResult;*/
         }
         if(!sendNoHasFreightWaybills.isEmpty()){
-            interceptResult.toFail();
+            // 2021年12月15日18:03:09 下线
+            /*interceptResult.toFail();
             Map<String, String> argsMap = new HashMap<>();
             argsMap.put(HintArgsConstants.ARG_FIRST, sendNoHasFreightWaybills.toString());
             interceptResult.setMessage(HintService.getHint(HintCodeConstants.WAYBILL_MISSING_SEND_FREIGHT, argsMap));
-            return interceptResult;
+            return interceptResult;*/
         }
         return interceptResult;
     }
