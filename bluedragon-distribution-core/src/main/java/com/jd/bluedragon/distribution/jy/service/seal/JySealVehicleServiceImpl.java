@@ -1,4 +1,4 @@
-package com.jd.bluedragon.distribution.seal.service;
+package com.jd.bluedragon.distribution.jy.service.seal;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.request.SealCodeRequest;
@@ -10,6 +10,7 @@ import com.jd.bluedragon.core.base.IJySealVehicleManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
