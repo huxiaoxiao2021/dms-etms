@@ -105,18 +105,7 @@ public class RBoxFilter implements Filter {
             }
         }
 
-        if (!BusinessUtil.isBoxcode(request.getBoxCode())) {
-            if ( WaybillUtil.isSurfaceCode(request.getPackageCode())
-                    && !SiteHelper.isAfterSale(rule3.getContent(), request.getsReceiveSiteSubType())) {
-                throw new SortingCheckException(SortingResponse.CODE_29112,
-                        HintService.getHintWithFuncModule(HintCodeConstants.PICKUP_WAYBILL, request.getFuncModule()));
-            } else if (! WaybillUtil.isSurfaceCode(request.getPackageCode())
-                    && !SiteHelper.isAfterSale(rule2.getContent(), request.getsReceiveSiteSubType())
-                    && !BusinessUtil.isBizSite(sReceiveSiteType)) {
-                throw new SortingCheckException(SortingResponse.CODE_29113,
-                        HintService.getHintWithFuncModule(HintCodeConstants.REVERSE_WAYBILL, request.getFuncModule()));
-            }
-        }
+        // 2021年12月15日17:58:37 下线
 
         chain.doFilter(request, chain);
     }
