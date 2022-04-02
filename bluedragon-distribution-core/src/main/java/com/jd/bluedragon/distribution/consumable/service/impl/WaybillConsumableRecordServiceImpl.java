@@ -253,7 +253,11 @@ public class WaybillConsumableRecordServiceImpl extends BaseService<WaybillConsu
 
             item.setPackingChargeDes(
                     packingChargeStr
-                            .concat(dto.getName())
+                            .concat(
+                                    StringUtils.isEmpty(dto.getName())?
+                                            (StringUtils.isEmpty(dto.getTypeName())?"null":dto.getTypeName())
+                                            :dto.getName()
+                            )
                             .concat(Constants.SEPARATOR_COLON)
                             .concat(String.valueOf(dto.getPackingCharge().setScale(2, RoundingMode.HALF_UP)))
                             .concat("元")
