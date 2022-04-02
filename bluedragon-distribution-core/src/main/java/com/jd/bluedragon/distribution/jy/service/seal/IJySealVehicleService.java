@@ -1,4 +1,4 @@
-package com.jd.bluedragon.distribution.seal.service;
+package com.jd.bluedragon.distribution.jy.service.seal;
 
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.request.SealCodeRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.request.SealTaskInfoRequest;
