@@ -356,6 +356,7 @@
 			  where t.yn = 1 and t.id = #{id,jdbcType=BIGINT}
 			) r
 			<include refid="joinSql"/>			
+		limit 1
 	</select>
 
 	<select id="queryList" parameterType="com.jd.bluedragon.distribution.station.query.UserSignRecordQuery" resultMap="UserSignRecord">
@@ -663,6 +664,7 @@
 		        limit 1
 			) r
 		<include refid="joinSql"/>
+		limit 1
 	</select>
     <select id="querySignInMoreThanSpecifiedTime" resultType="java.lang.Long">
         SELECT
