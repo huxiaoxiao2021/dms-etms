@@ -1,4 +1,4 @@
-package com.jd.bluedragon.distribution.jy.services.task;
+package com.jd.bluedragon.distribution.jy.service.task;
 
 import com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskUnloadVehicleDao;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadOrderTypeEnum;

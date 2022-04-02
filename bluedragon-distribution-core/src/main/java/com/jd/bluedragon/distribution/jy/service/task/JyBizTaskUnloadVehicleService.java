@@ -1,4 +1,4 @@
-package com.jd.bluedragon.distribution.jy.services.task;
+package com.jd.bluedragon.distribution.jy.service.task;
 
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadOrderTypeEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadStatusEnum;
