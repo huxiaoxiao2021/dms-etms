@@ -32,7 +32,7 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
      * @return
      */
     @Override
-    public Map<JyBizTaskUnloadStatusEnum, Integer> findStatusCountByCondition4Status(JyBizTaskUnloadVehicleEntity condition) {
+    public Map<JyBizTaskUnloadStatusEnum, Integer> findStatusCountByCondition4Status(JyBizTaskUnloadVehicleEntity condition,JyBizTaskUnloadStatusEnum... enums) {
         return null;
     }
 
@@ -43,7 +43,7 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
      * @return
      */
     @Override
-    public Map<JyBizTaskUnloadStatusEnum, Map<JyLineTypeEnum, Integer>> findStatusCountByCondition4StatusAndLine(JyBizTaskUnloadVehicleEntity condition) {
+    public Map<JyBizTaskUnloadStatusEnum, Map<JyLineTypeEnum, Integer>> findStatusCountByCondition4StatusAndLine(JyBizTaskUnloadVehicleEntity condition,JyBizTaskUnloadStatusEnum... enums) {
         return null;
     }
 

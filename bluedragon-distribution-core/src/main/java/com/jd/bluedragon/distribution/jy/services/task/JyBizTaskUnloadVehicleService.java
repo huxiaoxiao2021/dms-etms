@@ -13,7 +13,7 @@ import java.util.Map;
  *
  * @Auther: 刘铎（liuduo8）
  * @Date: 2022/4/1
- * @Description:
+ * @Description:  到车卸车任务服务类
  */
 public interface JyBizTaskUnloadVehicleService {
 
@@ -24,7 +24,7 @@ public interface JyBizTaskUnloadVehicleService {
      * @param condition 条件 车牌后四位 封车编码  目的场地（必填）状态集合
      * @return
      */
-    Map<JyBizTaskUnloadStatusEnum, Integer> findStatusCountByCondition4Status(JyBizTaskUnloadVehicleEntity condition);
+    Map<JyBizTaskUnloadStatusEnum, Integer> findStatusCountByCondition4Status(JyBizTaskUnloadVehicleEntity condition,JyBizTaskUnloadStatusEnum... enums);
 
 
     /**
@@ -33,7 +33,7 @@ public interface JyBizTaskUnloadVehicleService {
      * @param condition 条件 车牌后四位 封车编码  目的场地（必填）状态集合
      * @return
      */
-    Map<JyBizTaskUnloadStatusEnum, Map<JyLineTypeEnum, Integer>> findStatusCountByCondition4StatusAndLine(JyBizTaskUnloadVehicleEntity condition);
+    Map<JyBizTaskUnloadStatusEnum, Map<JyLineTypeEnum, Integer>> findStatusCountByCondition4StatusAndLine(JyBizTaskUnloadVehicleEntity condition,JyBizTaskUnloadStatusEnum... enums);
 
 
     /**
@@ -56,7 +56,17 @@ public interface JyBizTaskUnloadVehicleService {
 
     /**
      * 创建业务任务
+     *
      * 无任务 和 任务 模式 通用服务
+     *
+     * 必填字段以下：
+     * 封车编码
+     * 车牌号
+     * 始发场地ID
+     * 始发场地名称
+     * 目的场地ID
+     * 目的场地名称
+     * 是否无任务卸车；1：是：0：否
      *
      * @param entity
      * @return
@@ -64,13 +74,13 @@ public interface JyBizTaskUnloadVehicleService {
     boolean createUnloadTask(JyBizTaskUnloadVehicleEntity entity);
 
     /**
-     * 保存或更新基础信息
+     * 保存或更新基础信息 注:字段未NULL时不更新此字段
      * 包含以下业务字段
      * 业务主键
      * 封车编码
      * 车牌号
      * 派车明细编码
-     * 模糊查询车牌号
+     * 模糊查询车牌号（自动从车牌号截取）
      * 任务状态
      * 是否无任务卸车
      * 始发场地ID
