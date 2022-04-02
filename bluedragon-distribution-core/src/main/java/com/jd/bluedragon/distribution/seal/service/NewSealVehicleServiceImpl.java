@@ -1695,11 +1695,16 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
         //基础资料字典表获取所有的一级类型：1031,4,1323
         List<BasicDictDto> basicDictDtoList = basicQueryWSManager.getDictList("1031", 4, "1323");
         NewSealVehicleResponse<List<TransAbnormalTypeDto>> response = new NewSealVehicleResponse<>();
+        response.setCode(NewSealVehicleResponse.CODE_OK);
         response.setData(convertToTypeDto(basicDictDtoList));
         return response;
     }
 
     private List<TransAbnormalTypeDto> convertToTypeDto(List<BasicDictDto> basicDictDtoList) {
+	    if (CollectionUtils.isEmpty(basicDictDtoList)) {
+	        return Collections.emptyList();
+        }
+
 	    List<TransAbnormalTypeDto> list = new ArrayList<>();
         for (BasicDictDto basicDictDto : basicDictDtoList) {
             TransAbnormalTypeDto typeDto = new TransAbnormalTypeDto();

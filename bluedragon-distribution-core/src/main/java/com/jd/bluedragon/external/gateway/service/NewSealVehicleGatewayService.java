@@ -95,14 +95,14 @@ public interface NewSealVehicleGatewayService {
     JdCResponse<List<String>> getUnSealSendCodes(SealCarPreRequest request);
 
     /**
-     * 查询待解封的封签方法
+     * 查询待解封的封签方法（无到货解封签专用）
      * @param param
      * @return
      */
     JdCResponse<SealCodesResponse> querySealCodes(SealCodeRequest param);
 
     /**
-     * 无货解封签
+     * 无货解封签（无到货解封签专用）
      * @param request
      * @return
      */
