@@ -36,18 +36,9 @@ public class FreightFilter implements Filter {
     @Override
     public void doFilter(FilterContext request, FilterChain chain) throws Exception {
 
-        WaybillCache waybillCache = request.getWaybillCache();
-
         //b2b校验是否包含-到付运费 2021年08月30日13:47:07 移除
 
-        //b2b校验是否包含-寄付运费
-        if (BusinessHelper.isCheckSendFreightForB2b(waybillCache.getWaybillSign())) {
-            fixFreight(waybillCache);
-            if (!NumberHelper.gt0(waybillCache.getFreight()) && !BusinessUtil.isFYWZ(waybillCache.getWaybillSign())) {
-                logger.warn("运单无寄付运费金额:" + waybillCache.getWaybillCode());
-                throw new SortingCheckException(SortingResponse.CODE_29406, HintService.getHintWithFuncModule(HintCodeConstants.WAYBILL_WITHOUT_SEND_FREIGHT, request.getFuncModule()));
-            }
-        }
+        //b2b校验是否包含-寄付运费 2021年12月15日17:51:51 移除
 
         chain.doFilter(request, chain);
     }
