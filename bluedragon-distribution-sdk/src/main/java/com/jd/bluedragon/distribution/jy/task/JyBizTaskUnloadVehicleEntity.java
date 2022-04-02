@@ -20,7 +20,7 @@ public class JyBizTaskUnloadVehicleEntity implements Serializable {
      */
     private Long id;
     /**
-     * 业务主键
+     * 业务主键 = 封车编码
      */
     private String bizId;
     /**
