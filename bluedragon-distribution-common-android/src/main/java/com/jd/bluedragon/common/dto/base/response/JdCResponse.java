@@ -1,5 +1,6 @@
 package com.jd.bluedragon.common.dto.base.response;
 
+import com.jd.bluedragon.common.dto.ministore.PageObject;
 import java.io.Serializable;
 
 /**
@@ -12,12 +13,12 @@ import java.io.Serializable;
  *
  */
 public class JdCResponse<E> implements Serializable {
-    
+
     private static final long serialVersionUID = 1L;
-    
+
     public static final Integer CODE_SUCCESS = 200;
     public static final String MESSAGE_SUCCESS = "success";
-    
+
     public static final Integer CODE_FAIL = 400;
     public static final String MESSAGE_FAIL = "fail";
 
@@ -35,12 +36,14 @@ public class JdCResponse<E> implements Serializable {
 
     /** 响应状态码 */
     protected Integer code;
-    
+
     /** 响应消息 */
     protected String message;
-    
+
     /** 响应数据 */
     protected E data;
+
+		private PageObject page;
     /**
      * 构造方法，默认为成功
      */
@@ -131,6 +134,14 @@ public class JdCResponse<E> implements Serializable {
 
 	}
 
+	public PageObject getPage() {
+		return page;
+	}
+
+	public void setPage(PageObject page) {
+		this.page = page;
+	}
+
 	/**
 	 * @return the code
 	 */
@@ -189,12 +200,25 @@ public class JdCResponse<E> implements Serializable {
 		return generateAPIResponse(responseCodeMapping, data);
 	}
 
+	public static JdCResponse successResponse(Object data, PageObject page) {
+		return generateAPIResponse(ResponseCodeMapping.SUCCESS, data, page);
+	}
+
 	private static JdCResponse generateAPIResponse(ResponseCodeMapping responseCodeMapping,
 													Object data) {
 		JdCResponse apiResponse = new JdCResponse();
 		apiResponse.setCode(responseCodeMapping.getCode());
 		apiResponse.setMessage(responseCodeMapping.getMessage());
 		apiResponse.setData(data);
+		return apiResponse;
+	}
+	private static JdCResponse generateAPIResponse(ResponseCodeMapping responseCodeMapping,
+			Object data, PageObject page) {
+		JdCResponse apiResponse = new JdCResponse();
+		apiResponse.setCode(responseCodeMapping.getCode());
+		apiResponse.setMessage(responseCodeMapping.getMessage());
+		apiResponse.setData(data);
+		apiResponse.setPage(page);
 		return apiResponse;
 	}
 
