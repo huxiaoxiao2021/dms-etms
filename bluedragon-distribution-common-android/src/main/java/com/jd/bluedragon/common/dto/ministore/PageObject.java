@@ -104,4 +104,12 @@ public class PageObject<T> implements Serializable {
   public void setTotalPages(Integer totalPages) {
     this.totalPages = totalPages;
   }
+
+  public List<T> getData() {
+    return data;
+  }
+
+  public void setData(List<T> data) {
+    this.data = data;
+  }
 }
