@@ -41,6 +41,12 @@
         <result property="ts" column="ts"/>
     </resultMap>
 
+    <resultMap type="com.jd.bluedragon.distribution.jy.dto.task.JyBizTaskUnloadCountDto" id="JyBizTaskUnloadCountMap">
+        <result property="vehicleStatus" column="vehicle_status"/>
+        <result property="lineType" column="line_type"/>
+        <result property="sum" column="v_sum"/>
+    </resultMap>
+
     <sql id="Base_Column_List">
         id,
         biz_id,
@@ -151,4 +157,223 @@
                             #{ts}
                     )
     </insert>
+
+    <select id="findByBizId" resultMap="jyBizTaskUnloadVehicleMap">
+        select
+        <include refid="Base_Column_List"/>
+        from jy_biz_task_unload_vehicle
+        where biz_id = #{bizId} and yn = 1
+    </select>
+
+    <select id="findIdByBizId" resultType="java.lang.Long">
+        select
+            id
+        from jy_biz_task_unload_vehicle
+        where biz_id = #{bizId} and yn = 1
+    </select>
+
+    <select id="findStatusCountByCondition4Status" resultMap="JyBizTaskUnloadCountMap">
+        select
+            vehicle_status,count(1) as v_sum
+        from jy_biz_task_unload_vehicle
+
+        <where>
+            end_site_id = #{entity.endSiteId}
+
+            <if test="entity.sealCarCode">
+                and seal_car_code = #{entity.sealCarCode}
+            </if>
+
+            <if test="entity.fuzzyVehicleNumber">
+                and fuzzy_vehicle_number = #{entity.fuzzyVehicleNumber}
+            </if>
+
+            <if test="statuses != null">
+                and vehicle_status in
+                <foreach collection="statuses" item="item" open="(" close=")" separator=",">
+                    #{item}
+                </foreach>
+            </if>
+            and yn = 1
+
+        </where>
+
+        group by vehicle_status
+
+    </select>
+
+
+    <select id="findStatusCountByCondition4StatusAndLine" resultMap="JyBizTaskUnloadCountMap">
+        select
+        vehicle_status,line_type,count(1) as v_sum
+        from jy_biz_task_unload_vehicle
+
+        <where>
+            end_site_id = #{entity.endSiteId}
+
+            <if test="entity.sealCarCode">
+                and seal_car_code = #{entity.sealCarCode}
+            </if>
+
+            <if test="entity.fuzzyVehicleNumber">
+                and fuzzy_vehicle_number = #{entity.fuzzyVehicleNumber}
+            </if>
+
+            <if test="statuses != null">
+                and vehicle_status in
+                <foreach collection="statuses" item="item" open="(" close=")" separator=",">
+                    #{item}
+                </foreach>
+            </if>
+            and yn = 1
+
+        </where>
+
+        group by vehicle_status,line_type
+
+    </select>
+
+
+    <select id="findByConditionOfPage" resultMap="jyBizTaskUnloadVehicleMap">
+        select
+            <include refid="Base_Column_List"/>
+        from jy_biz_task_unload_vehicle
+
+        <where>
+            end_site_id = #{entity.endSiteId}
+
+            <if test="entity.sealCarCode">
+                and seal_car_code = #{entity.sealCarCode}
+            </if>
+
+            <if test="entity.fuzzyVehicleNumber">
+                and fuzzy_vehicle_number = #{entity.fuzzyVehicleNumber}
+            </if>
+
+            <if test="entity.vehicleStatus != null">
+                and vehicle_status = #{entity.vehicleStatus}
+            </if>
+            and yn = 1
+        </where>
+
+        limit #{offset},#{limit}
+
+    </select>
+
+    <update id="updateStatusByBizId" parameterType="jyBizTaskUnloadVehicleEntity">
+        update  jy_biz_task_unload_vehicle
+        <set>
+            vehicle_status = #{vehicleStatus}
+            update_user_erp = #{updateUserErp},
+            update_user_name = #{updateUserName},
+            update_time = #{updateTime}
+        </set>
+
+        <where>
+            biz_id = #{bizId} and yn = 1
+        </where>
+
+    </update>
+
+    <update id="updateOfBaseInfoById" parameterType="JyBizTaskUnloadVehicleEntity">
+        UPDATE jy_biz_task_unload_vehicle
+        <set>
+            <if test="sealCarCode != null">
+                seal_car_code = #{sealCarCode},
+            </if>
+            <if test="vehicleNumber != null">
+                vehicle_number = #{vehicleNumber},
+            </if>
+            <if test="transWorkItemCode != null">
+                trans_work_item_code = #{transWorkItemCode},
+            </if>
+            <if test="batchCodes != null">
+                batch_codes = #{batchCodes},
+            </if>
+            <if test="fuzzyVehicleNumber != null">
+                fuzzy_vehicle_number = #{fuzzyVehicleNumber},
+            </if>
+            <if test="startSiteId != null">
+                start_site_id = #{startSiteId},
+            </if>
+            <if test="startSiteName != null">
+                start_site_name = #{startSiteName},
+            </if>
+            <if test="endSiteId != null">
+                end_site_id = #{endSiteId},
+            </if>
+            <if test="endSiteName != null">
+                end_site_name = #{endSiteName},
+            </if>
+            <if test="sortTime != null">
+                sort_time = #{sortTime},
+            </if>
+            <if test="sortIntegral != null">
+                sort_integral = #{sortIntegral},
+            </if>
+            <if test="predictionArriveTime != null">
+                prediction_arrive_time = #{predictionArriveTime},
+            </if>
+            <if test="actualArriveTime != null">
+                actual_arrive_time = #{actualArriveTime},
+            </if>
+            <if test="desealCarTime != null">
+                deseal_car_time = #{desealCarTime},
+            </if>
+            <if test="abnormalFlag != null">
+                abnormal_flag = #{abnormalFlag},
+            </if>
+            <if test="lineType != null">
+                line_type = #{lineType},
+            </if>
+            <if test="lineTypeName != null">
+                line_type_name = #{lineTypeName},
+            </if>
+            <if test="updateUserErp != null">
+                update_user_erp = #{updateUserErp},
+            </if>
+            <if test="updateUserName != null">
+                update_user_name = #{updateUserName},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+        </set>
+        <where>
+            id = #{id} and yn = 1
+        </where>
+    </update>
+
+    <update id="updateOfOtherBusinessInfoById" parameterType="JyBizTaskUnloadVehicleEntity">
+        UPDATE jy_biz_task_unload_vehicle
+        <set>
+            <if test="unloadFinishTime != null">
+                unload_finish_time = #{unloadFinishTime},
+            </if>
+            <if test="lessCount != null">
+                less_count = #{lessCount},
+            </if>
+            <if test="moreCount != null">
+                more_count = #{moreCount},
+            </if>
+            <if test="abnormalFlag != null">
+                abnormal_flag = #{abnormalFlag},
+            </if>
+            <if test="unloadProgress != null">
+                unload_progress = #{unloadProgress},
+            </if>
+            <if test="updateUserErp != null">
+                update_user_erp = #{updateUserErp},
+            </if>
+            <if test="updateUserName != null">
+                update_user_name = #{updateUserName},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+        </set>
+        <where>
+            id = #{id} and yn = 1
+        </where>
+    </update>
 </mapper>

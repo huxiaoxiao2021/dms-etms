@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.jy.service.task;
 
+import com.jd.bluedragon.distribution.jy.dto.task.JyBizTaskUnloadCountDto;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadOrderTypeEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyLineTypeEnum;
@@ -24,7 +25,7 @@ public interface JyBizTaskUnloadVehicleService {
      * @param condition 条件 车牌后四位 封车编码  目的场地（必填）状态集合
      * @return
      */
-    Map<JyBizTaskUnloadStatusEnum, Integer> findStatusCountByCondition4Status(JyBizTaskUnloadVehicleEntity condition,JyBizTaskUnloadStatusEnum... enums);
+    List<JyBizTaskUnloadCountDto> findStatusCountByCondition4Status(JyBizTaskUnloadVehicleEntity condition,JyBizTaskUnloadStatusEnum... enums);
 
 
     /**
@@ -33,7 +34,7 @@ public interface JyBizTaskUnloadVehicleService {
      * @param condition 条件 车牌后四位 封车编码  目的场地（必填）状态集合
      * @return
      */
-    Map<JyBizTaskUnloadStatusEnum, Map<JyLineTypeEnum, Integer>> findStatusCountByCondition4StatusAndLine(JyBizTaskUnloadVehicleEntity condition,JyBizTaskUnloadStatusEnum... enums);
+    List<JyBizTaskUnloadCountDto> findStatusCountByCondition4StatusAndLine(JyBizTaskUnloadVehicleEntity condition, JyBizTaskUnloadStatusEnum... enums);
 
 
     /**
@@ -48,30 +49,12 @@ public interface JyBizTaskUnloadVehicleService {
     List<JyBizTaskUnloadVehicleEntity> findByConditionOfPage(JyBizTaskUnloadVehicleEntity condition, JyBizTaskUnloadOrderTypeEnum typeEnum, Integer pageNum, Integer pageSize);
 
     /**
-     * 改变状态 只支持完成
+     * 改变状态
      * @param entity 业务主键 必填 状态 必填 修改人必填 修改时间必填
      * @return
      */
     boolean changeStatus(JyBizTaskUnloadVehicleEntity entity);
 
-    /**
-     * 创建业务任务
-     *
-     * 无任务 和 任务 模式 通用服务
-     *
-     * 必填字段以下：
-     * 封车编码
-     * 车牌号
-     * 始发场地ID
-     * 始发场地名称
-     * 目的场地ID
-     * 目的场地名称
-     * 是否无任务卸车；1：是：0：否
-     *
-     * @param entity
-     * @return
-     */
-    boolean createUnloadTask(JyBizTaskUnloadVehicleEntity entity);
 
     /**
      * 保存或更新基础信息 注:字段未NULL时不更新此字段
@@ -87,7 +70,14 @@ public interface JyBizTaskUnloadVehicleService {
      * 始发场地名称
      * 目的场地ID
      * 目的场地名称
-     *
+     * 排序时间
+     * 排序积分
+     * 预计到达时间
+     * 实际到达时间
+     * 解封车时间
+     * 线路类型
+     * 线路类型名称
+     * 任务标签
      * @param entity
      * @return
      */
