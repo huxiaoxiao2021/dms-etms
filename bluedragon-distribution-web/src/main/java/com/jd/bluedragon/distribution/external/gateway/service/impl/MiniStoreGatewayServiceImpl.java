@@ -150,11 +150,11 @@ public class MiniStoreGatewayServiceImpl implements MiniStoreGatewayService {
         Page page =PageHelper.startPage(bindAndNoSortTaskReq.getPageNo(), bindAndNoSortTaskReq.getPageSize());
         List<MiniStoreBindRelation> miniStoreBindRelationList = miniStoreService.queryBindAndNoSortTaskList(queryTaskDto);
         if (miniStoreBindRelationList != null && miniStoreBindRelationList.size() > 0) {
-            PageObject pageObject = new PageObject.Builder().pageNo(page.getPageNum())
-                .pageSize(page.getPageSize()).offset(page.getStartRow()).totalElements(page.getTotal())
-                .totalPages(page.getPages()).build();
             List<BindAndNoSortTaskResp> bindAndNoSortTaskRespList = BeanUtils.copy(miniStoreBindRelationList, BindAndNoSortTaskResp.class);
-            return JdCResponse.successResponse(bindAndNoSortTaskRespList,pageObject);
+            PageObject<BindAndNoSortTaskResp> pageObject = new PageObject.Builder().pageNo(page.getPageNum())
+                .pageSize(page.getPageSize()).offset(page.getStartRow()).totalElements(page.getTotal())
+                .totalPages(page.getPages()).data(bindAndNoSortTaskRespList).build();
+            return JdCResponse.successResponse(pageObject);
         }
         return JdCResponse.errorResponse(ResponseCodeMapping.NO_BIND_DATA);
     }

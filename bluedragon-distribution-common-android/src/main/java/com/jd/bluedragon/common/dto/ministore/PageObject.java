@@ -1,8 +1,9 @@
 package com.jd.bluedragon.common.dto.ministore;
 
 import java.io.Serializable;
+import java.util.List;
 
-public class PageObject implements Serializable {
+public class PageObject<T> implements Serializable {
 
   private static final long serialVersionUID = -3806764885999501760L;
 
@@ -11,10 +12,18 @@ public class PageObject implements Serializable {
   private Integer offset;
   private Long totalElements;
   private Integer totalPages;
+  private List<T> data;
 
   public static class Builder {
 
     PageObject pageObject = new PageObject();
+
+    public Builder data(List data) {
+      if (data != null) {
+        pageObject.data = data;
+      }
+      return this;
+    }
 
     public Builder pageNo(Integer pageNo) {
       if (pageNo != null) {
