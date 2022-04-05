@@ -18,6 +18,17 @@ import java.util.Map;
  */
 public interface JyBizTaskUnloadVehicleService {
 
+    /**
+     * 根据bizId获取数据
+     * @return
+     */
+    JyBizTaskUnloadVehicleEntity findByBizId(String bizId);
+
+    /**
+     * 根据bizId获取数据只返回逻辑主键
+     * @return
+     */
+    Long findIdByBizId(String bizId);
 
     /**
      * 按状态分组返回 统计 总数
@@ -50,6 +61,8 @@ public interface JyBizTaskUnloadVehicleService {
 
     /**
      * 改变状态
+     * 如果此次更新的状态 在 当前状态前置节点则不更新直接返回成功
+     * 比如 当前状态是卸车中 本次更新到待卸车 则直接返回成功
      * @param entity 业务主键 必填 状态 必填 修改人必填 修改时间必填
      * @return
      */

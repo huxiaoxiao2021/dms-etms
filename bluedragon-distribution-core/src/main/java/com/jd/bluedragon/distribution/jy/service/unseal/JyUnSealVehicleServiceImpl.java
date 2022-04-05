@@ -10,6 +10,7 @@ import com.jd.bluedragon.core.base.IJySealVehicleManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.DateHelper;
@@ -489,6 +490,17 @@ public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
         }
 
         return result;
+    }
+
+    /**
+     * 创建卸车任务
+     *
+     * @param entity
+     * @return
+     */
+    @Override
+    public boolean createUnSealTask(JyBizTaskUnloadVehicleEntity entity) {
+        return false;
     }
 
     private SealCodeResponse makeSealCodeResponse(SealCarDto sealCarDto) {

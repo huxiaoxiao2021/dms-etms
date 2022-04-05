@@ -4,6 +4,7 @@ import com.jd.bluedragon.common.dto.operation.workbench.unload.request.UnloadSca
 import com.jd.bluedragon.common.dto.operation.workbench.unload.request.UnloadVehicleRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.unload.response.UnloadScanDetail;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
 
 /**
  * @ClassName IUnloadVehicleService
@@ -26,4 +27,11 @@ public interface IJyUnloadVehicleService {
      * @return
      */
     InvokeResult<UnloadScanDetail> unloadDetail(UnloadVehicleRequest request);
+
+    /**
+     * 创建卸车任务
+     * @param entity
+     * @return
+     */
+    boolean createUnloadTask(JyBizTaskUnloadVehicleEntity entity);
 }

@@ -321,6 +321,17 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         return result;
     }
 
+    /**
+     * 创建卸车任务
+     *
+     * @param entity
+     * @return
+     */
+    @Override
+    public boolean createUnloadTask(JyBizTaskUnloadVehicleEntity entity) {
+        return false;
+    }
+
     private Boolean refreshUnloadAggCache(String bizId) {
 
         // TODO jy_unload_aggs flink增加版本，防止进度变小

@@ -12,22 +12,23 @@ import java.util.Map;
  */
 public enum JyBizTaskUnloadStatusEnum {
 
-    INIT(0,"等待初始"),
+    INIT(0,"等待初始",0),
 
-    ON_WAY(1,"在途"),
+    ON_WAY(1,"在途",1),
 
-    WAIT_UN_SEAL(2,"待解"),
+    WAIT_UN_SEAL(2,"待解",2),
 
-    WAIT_UN_LOAD(3,"待卸"),
+    WAIT_UN_LOAD(3,"待卸",3),
 
-    UN_LOADING(4,"卸车"),
+    UN_LOADING(4,"卸车",4),
 
-    UN_LOAD_DONE(5,"已完成"),
+    UN_LOAD_DONE(5,"已完成",5),
 
-    CANCEL(6,"取消");
+    CANCEL(6,"取消",6);
 
     private Integer code;
     private String name;
+    private Integer order;
     private static Map<Integer, JyBizTaskUnloadStatusEnum> codeMap;
     public static Map<Integer, String> enumMap;
 
@@ -65,9 +66,10 @@ public enum JyBizTaskUnloadStatusEnum {
         return "未知";
     }
 
-    JyBizTaskUnloadStatusEnum(Integer code, String name) {
+    JyBizTaskUnloadStatusEnum(Integer code, String name, Integer order) {
         this.code = code;
         this.name = name;
+        this.order = order;
     }
 
     public Integer getCode() {
@@ -77,4 +79,6 @@ public enum JyBizTaskUnloadStatusEnum {
     public String getName() {
         return name;
     }
+
+    public Integer getOrder() { return order; }
 }

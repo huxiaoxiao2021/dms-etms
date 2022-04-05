@@ -86,7 +86,6 @@
 
     <insert id="insert" parameterType="JyBizTaskUnloadVehicleEntity">
         INSERT INTO jy_biz_task_unload_vehicle (
-                            id,
                             biz_id,
                             seal_car_code,
                             vehicle_number,
@@ -118,10 +117,8 @@
                             update_user_name,
                             create_time,
                             update_time,
-                            yn,
-                            ts
+                            yn
                     ) VALUES (
-                            #{id},
                             #{bizId},
                             #{sealCarCode},
                             #{vehicleNumber},
@@ -153,8 +150,7 @@
                             #{updateUserName},
                             #{createTime},
                             #{updateTime},
-                            #{yn},
-                            #{ts}
+                            #{yn}
                     )
     </insert>
 
@@ -163,15 +159,27 @@
         <include refid="Base_Column_List"/>
         from jy_biz_task_unload_vehicle
         where biz_id = #{bizId} and yn = 1
+        order by ts desc
+        limit 1;
     </select>
 
-    <select id="findIdByBizId" resultType="java.lang.Long">
+    <select id="findIdByBizId" resultMap="jyBizTaskUnloadVehicleMap">
         select
             id
         from jy_biz_task_unload_vehicle
         where biz_id = #{bizId} and yn = 1
+        order by ts desc
+        limit 1;
     </select>
 
+    <select id="findIdAndStatusByBizId" resultType="java.lang.Long">
+        select
+            id,vehicle_status
+        from jy_biz_task_unload_vehicle
+        where biz_id = #{bizId} and yn = 1
+        order by ts desc
+        limit 1;
+    </select>
     <select id="findStatusCountByCondition4Status" resultMap="JyBizTaskUnloadCountMap">
         select
             vehicle_status,count(1) as v_sum

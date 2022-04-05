@@ -61,6 +61,30 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
     private Cluster redisClientOfJy;
 
     /**
+     * 根据bizId获取数据
+     *
+     * @param bizId
+     * @return
+     */
+    @Override
+    @JProfiler(jKey = "DMSWEB.jy.JyBizTaskUnloadVehicleServiceImpl.findByBizId",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
+    public JyBizTaskUnloadVehicleEntity findByBizId(String bizId) {
+        return jyBizTaskUnloadVehicleDao.findByBizId(bizId);
+    }
+
+    /**
+     * 根据bizId获取数据只返回逻辑主键
+     *
+     * @param bizId
+     * @return
+     */
+    @Override
+    @JProfiler(jKey = "DMSWEB.jy.JyBizTaskUnloadVehicleServiceImpl.findIdByBizId",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
+    public Long findIdByBizId(String bizId) {
+        return jyBizTaskUnloadVehicleDao.findIdByBizId(bizId);
+    }
+
+    /**
      * 按状态分组返回 统计 总数
      *
      * @param condition 条件 车牌后四位 封车编码  目的场地（必填）状态集合
@@ -118,6 +142,7 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
      * @return
      */
     @Override
+    @JProfiler(jKey = "DMSWEB.jy.JyBizTaskUnloadVehicleServiceImpl.findByConditionOfPage",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
     public List<JyBizTaskUnloadVehicleEntity> findByConditionOfPage(JyBizTaskUnloadVehicleEntity condition, JyBizTaskUnloadOrderTypeEnum typeEnum, Integer pageNum, Integer pageSize) {
         Integer offset = 0;
         Integer limit = pageSize;
@@ -134,22 +159,33 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
 
     /**
      * 改变状态
-     *
+     * 如果此次更新的状态 在 当前状态前置节点则不更新直接返回成功
+     * 比如 当前状态是卸车中 本次更新到待卸车 则直接返回成功
      * @param entity 业务主键 必填 状态 必填 修改人必填 修改时间必填
      * @return
      */
     @Override
     @Transactional(value = "tm_jy_core",propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    @JProfiler(jKey = "DMSWEB.jy.JyBizTaskUnloadVehicleServiceImpl.changeStatus",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
     public boolean changeStatus(JyBizTaskUnloadVehicleEntity entity) {
-        if(StringUtils.isEmpty(entity.getBizId())){
+        if(StringUtils.isEmpty(entity.getBizId()) || entity.getVehicleStatus() == null){
             return false;
         }
         if(entity.getUpdateTime() == null){
             entity.setUpdateTime(new Date());
         }
         String bizId = entity.getBizId();
+        Integer changeStatus = entity.getVehicleStatus();
         try{
             if(locked(bizId)){
+                JyBizTaskUnloadVehicleEntity nowStatus = jyBizTaskUnloadVehicleDao.findIdAndStatusByBizId(bizId);
+                // 如果要更新的状态 在 更新前的状态 前置节点 则直接返回成功不做任何动作
+                if(checkStatusIsBefore(JyBizTaskUnloadStatusEnum.getEnumByCode(changeStatus),
+                        JyBizTaskUnloadStatusEnum.getEnumByCode(nowStatus.getVehicleStatus()))){
+                    logger.warn("bizId:{}尝试错误更新状态，丢弃此次操作，更新前{}，更新后{}",bizId,nowStatus.getVehicleStatus(),changeStatus);
+                    return true;
+                }
+
                 return jyBizTaskUnloadVehicleDao.changeStatus(entity) > 0;
             }else {
                 //未锁定成功 抛出异常
@@ -188,6 +224,7 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
      */
     @Override
     @Transactional(value = "tm_jy_core",propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    @JProfiler(jKey = "DMSWEB.jy.JyBizTaskUnloadVehicleServiceImpl.saveOrUpdateOfBaseInfo",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
     public boolean saveOrUpdateOfBaseInfo(JyBizTaskUnloadVehicleEntity entity) {
         String bizId = entity.getBizId();
         if(StringUtils.isEmpty(bizId)){
@@ -237,6 +274,7 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
      */
     @Override
     @Transactional(value = "tm_jy_core",propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    @JProfiler(jKey = "DMSWEB.jy.JyBizTaskUnloadVehicleServiceImpl.saveOrUpdateOfOtherBusinessInfo",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
     public boolean saveOrUpdateOfOtherBusinessInfo(JyBizTaskUnloadVehicleEntity entity) {
 
         String bizId = entity.getBizId();
@@ -275,6 +313,7 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
      * @return
      */
     @Override
+    @JProfiler(jKey = "DMSWEB.jy.JyBizTaskUnloadVehicleServiceImpl.isLocked",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
     public boolean isLocked(String bizId) {
         boolean r = Boolean.FALSE;
         String lockKey = String.format(JY_BIZ_TASK_UNLOAD_V_LOCK_KEY_FORMAT,bizId);
@@ -297,6 +336,7 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
      * @return
      */
     @Override
+    @JProfiler(jKey = "DMSWEB.jy.JyBizTaskUnloadVehicleServiceImpl.locked",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
     public boolean locked(String bizId) {
         boolean r = Boolean.FALSE;
         String lockKey = String.format(JY_BIZ_TASK_UNLOAD_V_LOCK_KEY_FORMAT,bizId);
@@ -325,6 +365,7 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
      * @return
      */
     @Override
+    @JProfiler(jKey = "DMSWEB.jy.JyBizTaskUnloadVehicleServiceImpl.unLocked",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
     public boolean unLocked(String bizId) {
         String lockKey = String.format(JY_BIZ_TASK_UNLOAD_V_LOCK_KEY_FORMAT,bizId);
         try{
@@ -338,5 +379,21 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
             redisClientOfJy.del(lockKey);
         }
         return true;
+    }
+
+    /**
+     * 检查节点 source  是否 在 target 的前置节点
+     * @param source
+     * @param target
+     * @return
+     */
+    private boolean checkStatusIsBefore(JyBizTaskUnloadStatusEnum source,JyBizTaskUnloadStatusEnum target){
+        if(source == null){
+            return true;
+        }
+        if(target == null){
+            return false;
+        }
+        return source.getOrder() < target.getOrder();
     }
 }

@@ -7,6 +7,7 @@ import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.SealCode
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.SealTaskInfo;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.SealVehicleTaskResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
 
 /**
  * @ClassName IJyUnSealVehicleService
@@ -39,21 +40,10 @@ public interface IJyUnSealVehicleService {
     InvokeResult<SealCodeResponse> sealCodeList(SealCodeRequest request);
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    /**
+     * 创建卸车任务
+     * @param entity
+     * @return
+     */
+    boolean createUnSealTask(JyBizTaskUnloadVehicleEntity entity);
 }
