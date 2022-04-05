@@ -37,4 +37,23 @@ public interface IJyUnSealVehicleService {
      * @return
      */
     InvokeResult<SealCodeResponse> sealCodeList(SealCodeRequest request);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
