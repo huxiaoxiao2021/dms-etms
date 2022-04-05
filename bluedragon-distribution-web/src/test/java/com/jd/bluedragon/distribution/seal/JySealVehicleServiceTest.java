@@ -5,7 +5,7 @@ import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.request.SealVehicleTaskRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.SealVehicleTaskResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.jy.service.unseal.IJySealVehicleService;
+import com.jd.bluedragon.distribution.jy.service.unseal.IJyUnSealVehicleService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jdl.jy.realtime.model.query.seal.SealVehicleTaskQuery;
 import org.junit.Test;
@@ -25,7 +25,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 public class JySealVehicleServiceTest {
 
     @Autowired
-    private IJySealVehicleService jySealVehicleService;
+    private IJyUnSealVehicleService jySealVehicleService;
 
     private static User user;
 

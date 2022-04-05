@@ -9,12 +9,12 @@ import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.SealVehi
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 
 /**
- * @ClassName IJySealVehicleService
+ * @ClassName IJyUnSealVehicleService
  * @Description
  * @Author wyh
  * @Date 2022/3/11 14:30
  **/
-public interface IJySealVehicleService {
+public interface IJyUnSealVehicleService {
 
     /**
      * 拉取封车任务

@@ -42,15 +42,15 @@ import java.util.*;
 
 /**
  *
- * @ClassName JySealVehicleServiceImpl
+ * @ClassName JyUnSealVehicleServiceImpl
  * @Description
  * @Author wyh
  * @Date 2022/3/11 14:30
  **/
 @Service
-public class JySealVehicleServiceImpl implements IJySealVehicleService {
+public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
 
-    private static final Logger log = LoggerFactory.getLogger(JySealVehicleServiceImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(JyUnSealVehicleServiceImpl.class);
 
     /**
      * 查询几天内的带解任务（负数）
