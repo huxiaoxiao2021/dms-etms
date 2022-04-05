@@ -5,7 +5,7 @@ import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.request.SealVehicleTaskRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.SealVehicleTaskResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.jy.service.seal.IJySealVehicleService;
+import com.jd.bluedragon.distribution.jy.service.unseal.IJySealVehicleService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jdl.jy.realtime.model.query.seal.SealVehicleTaskQuery;
 import org.junit.Test;

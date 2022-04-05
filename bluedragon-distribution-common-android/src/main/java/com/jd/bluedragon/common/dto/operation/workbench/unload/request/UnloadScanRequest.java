@@ -44,6 +44,11 @@ public class UnloadScanRequest implements Serializable {
      */
     private Boolean forceSubmit;
 
+    /**
+     * 任务组号
+     */
+    private String groupCode;
+
     public User getUser() {
         return user;
     }
@@ -98,5 +103,13 @@ public class UnloadScanRequest implements Serializable {
 
     public void setForceSubmit(Boolean forceSubmit) {
         this.forceSubmit = forceSubmit;
+    }
+
+    public String getGroupCode() {
+        return groupCode;
+    }
+
+    public void setGroupCode(String groupCode) {
+        this.groupCode = groupCode;
     }
 }

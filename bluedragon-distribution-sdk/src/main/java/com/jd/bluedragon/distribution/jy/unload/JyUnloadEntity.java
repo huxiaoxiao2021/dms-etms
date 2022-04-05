@@ -14,6 +14,17 @@ import java.util.Date;
 public class JyUnloadEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 
+    public JyUnloadEntity() {}
+
+    public JyUnloadEntity(String barCode, Long operateSiteId) {
+        this.barCode = barCode;
+        this.operateSiteId = operateSiteId;
+    }
+
+    public JyUnloadEntity(String bizId) {
+        this.bizId = bizId;
+    }
+
     /**
      * 主键ID
      */

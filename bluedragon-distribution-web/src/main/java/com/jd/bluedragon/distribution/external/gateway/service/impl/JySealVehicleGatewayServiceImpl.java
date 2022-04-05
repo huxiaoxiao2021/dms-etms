@@ -11,7 +11,7 @@ import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.SealTask
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.SealVehicleTaskResponse;
 import com.jd.bluedragon.common.dto.select.SelectOption;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.jy.service.seal.IJySealVehicleService;
+import com.jd.bluedragon.distribution.jy.service.unseal.IJySealVehicleService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.external.gateway.service.JySealVehicleGatewayService;
 import com.jd.bluedragon.utils.NumberHelper;

@@ -2,6 +2,8 @@ package com.jd.bluedragon.distribution.jy.dao.unload;
 
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.jy.unload.JyUnloadAggsEntity;
+import com.jd.coo.sa.mybatis.plugins.id.SequenceGenAdaptor;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * 卸车进度汇总表
@@ -12,7 +14,12 @@ import com.jd.bluedragon.distribution.jy.unload.JyUnloadAggsEntity;
  */
 public class JyUnloadAggsDao extends BaseDao<JyUnloadAggsEntity> {
 
+    private static final String DB_TABLE_NAME = "jy_unload_aggs";
+
     final static String NAMESPACE = JyUnloadAggsDao.class.getName();
+
+    @Autowired
+    private SequenceGenAdaptor sequenceGenAdaptor;
 
     /**
      * 新增
@@ -21,6 +28,11 @@ public class JyUnloadAggsDao extends BaseDao<JyUnloadAggsEntity> {
      * @return
      */
     public int insert(JyUnloadAggsEntity entity) {
+        entity.setId(sequenceGenAdaptor.newId(DB_TABLE_NAME));
         return this.getSqlSession().insert(NAMESPACE + ".insert", entity);
+    }
+
+    public JyUnloadAggsEntity aggByBiz(JyUnloadAggsEntity entity) {
+        return this.getSqlSession().selectOne(NAMESPACE + ".aggByBiz", entity);
     }
 }

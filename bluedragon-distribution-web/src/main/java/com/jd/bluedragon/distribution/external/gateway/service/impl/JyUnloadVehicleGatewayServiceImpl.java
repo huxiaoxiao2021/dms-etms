@@ -4,13 +4,17 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.unload.request.*;
 import com.jd.bluedragon.common.dto.operation.workbench.unload.response.*;
+import com.jd.bluedragon.common.dto.select.SelectOption;
 import com.jd.bluedragon.common.dto.select.StringSelectOption;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.ProductTypeEnum;
-import com.jd.bluedragon.distribution.jy.service.unload.IUnloadVehicleService;
+import com.jd.bluedragon.distribution.jy.service.unload.IJyUnloadVehicleService;
 import com.jd.bluedragon.external.gateway.service.JyUnloadVehicleGatewayService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -23,11 +27,29 @@ import java.util.List;
 public class JyUnloadVehicleGatewayServiceImpl implements JyUnloadVehicleGatewayService {
 
     @Autowired
-    private IUnloadVehicleService unloadVehicleService;
+    private IJyUnloadVehicleService unloadVehicleService;
 
     @Override
     public JdCResponse<UnloadVehicleTaskResponse> fetchUnloadTask(UnloadVehicleTaskRequest request) {
         return null;
+    }
+
+    @Override
+    public JdCResponse<List<SelectOption>> vehicleStatusOptions() {
+        List<JyBizTaskUnloadStatusEnum> showStatus = Arrays.asList(
+                JyBizTaskUnloadStatusEnum.WAIT_UN_SEAL,
+                JyBizTaskUnloadStatusEnum.UN_LOADING,
+                JyBizTaskUnloadStatusEnum.UN_LOAD_DONE);
+
+        List<SelectOption> optionList = new ArrayList<>();
+        for (JyBizTaskUnloadStatusEnum statusEnum : showStatus) {
+            SelectOption option = new SelectOption(statusEnum.getCode(), statusEnum.getName(), statusEnum.getCode());
+            optionList.add(option);
+        }
+        JdCResponse<List<SelectOption>> response = new JdCResponse<>();
+        response.toSucceed();
+        response.setData(optionList);
+        return response;
     }
 
     @Override
@@ -47,12 +69,32 @@ public class JyUnloadVehicleGatewayServiceImpl implements JyUnloadVehicleGateway
     }
 
     @Override
-    public JdVerifyResponse<Long> unloadScan(UnloadScanRequest request) {
-        // 返回本次扫描的包裹数
-        // 调用验货拦截服务
-        // 统计设备的扫描数量
-        // 一个包裹、箱号只能扫描一次
-        return null;
+    public JdVerifyResponse<Integer> unloadScan(UnloadScanRequest request) {
+        JdVerifyResponse<Integer> response = new JdVerifyResponse<>();
+        response.toSuccess();
+
+        // 扫描前校验拦截结果
+        if (!checkBarInterceptResult(response, request)) {
+            return response;
+        }
+
+        InvokeResult<Integer> invokeResult = unloadVehicleService.unloadScan(request);
+        return new JdVerifyResponse<>(invokeResult.getCode(), invokeResult.getMessage());
+    }
+
+    /**
+     * 调用验货拦截链
+     * @param response
+     * @param request
+     * @return
+     */
+    private boolean checkBarInterceptResult(JdVerifyResponse<Integer> response, UnloadScanRequest request) {
+        // 非强制提交，校验拦截
+        if (!request.getForceSubmit()) {
+            // TODO 卸车扫描调用拦截链
+        }
+
+        return true;
     }
 
     @Override

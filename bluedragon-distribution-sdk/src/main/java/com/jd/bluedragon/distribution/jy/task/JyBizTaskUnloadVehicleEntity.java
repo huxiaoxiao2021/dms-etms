@@ -15,6 +15,12 @@ import java.util.Date;
 public class JyBizTaskUnloadVehicleEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 
+    public JyBizTaskUnloadVehicleEntity() {}
+
+    public JyBizTaskUnloadVehicleEntity(String bizId) {
+        this.bizId = bizId;
+    }
+
     /**
      * 主键ID
      */

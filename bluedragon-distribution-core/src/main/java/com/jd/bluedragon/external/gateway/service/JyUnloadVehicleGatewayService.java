@@ -4,6 +4,7 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.unload.request.*;
 import com.jd.bluedragon.common.dto.operation.workbench.unload.response.*;
+import com.jd.bluedragon.common.dto.select.SelectOption;
 import com.jd.bluedragon.common.dto.select.StringSelectOption;
 
 import java.util.List;
@@ -24,6 +25,12 @@ public interface JyUnloadVehicleGatewayService {
     JdCResponse<UnloadVehicleTaskResponse> fetchUnloadTask(UnloadVehicleTaskRequest request);
 
     /**
+     * 车辆状态枚举
+     * @return
+     */
+    JdCResponse<List<SelectOption>> vehicleStatusOptions();
+
+    /**
      * 产品类型枚举
      * @return
      */
@@ -34,7 +41,7 @@ public interface JyUnloadVehicleGatewayService {
      * @param request
      * @return
      */
-    JdVerifyResponse<Long> unloadScan(UnloadScanRequest request);
+    JdVerifyResponse<Integer> unloadScan(UnloadScanRequest request);
 
     /**
      * 卸车明细

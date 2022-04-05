@@ -13,14 +13,19 @@ public class UnloadScanDetail implements Serializable {
     private static final long serialVersionUID = -7823254733387066564L;
 
     /**
-     * 应扫数量
+     * 卸车任务业务主键
      */
-    private Long shouldScanCount;
+    private String bizId;
 
     /**
-     * 已扫数量
+     * 应卸包裹总数
      */
-    private Long actualScanCount;
+    private Long totalSealPackageCount;
+
+    /**
+     * 已卸包裹总数
+     */
+    private Long totalScannedPackageCount;
 
     /**
      * 拦截应扫数量
@@ -42,20 +47,28 @@ public class UnloadScanDetail implements Serializable {
      */
     private Long moreScanOutCount;
 
-    public Long getShouldScanCount() {
-        return shouldScanCount;
+    public String getBizId() {
+        return bizId;
     }
 
-    public void setShouldScanCount(Long shouldScanCount) {
-        this.shouldScanCount = shouldScanCount;
+    public void setBizId(String bizId) {
+        this.bizId = bizId;
     }
 
-    public Long getActualScanCount() {
-        return actualScanCount;
+    public Long getTotalSealPackageCount() {
+        return totalSealPackageCount;
     }
 
-    public void setActualScanCount(Long actualScanCount) {
-        this.actualScanCount = actualScanCount;
+    public void setTotalSealPackageCount(Long totalSealPackageCount) {
+        this.totalSealPackageCount = totalSealPackageCount;
+    }
+
+    public Long getTotalScannedPackageCount() {
+        return totalScannedPackageCount;
+    }
+
+    public void setTotalScannedPackageCount(Long totalScannedPackageCount) {
+        this.totalScannedPackageCount = totalScannedPackageCount;
     }
 
     public Long getInterceptShouldScanCount() {

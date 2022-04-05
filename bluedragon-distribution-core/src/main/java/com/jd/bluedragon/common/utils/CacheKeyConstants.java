@@ -4,6 +4,8 @@ public class CacheKeyConstants {
 
     private static final String DMS_CACHE_PREFIX = "dms.etms.";
 
+    private static final String JY_CACHE_PREFIX = "jy:";
+
 	public static final String POP_PRINT_BACKUP_KEY = "popprint.backup.list";
 
 	/**
@@ -195,5 +197,29 @@ public class CacheKeyConstants {
 
     public static final String DISCARDED_STORAGE_OPERATE_SCAN = "dmsWeb:discardedStorage:scan:%s";
     public static final int DISCARDED_STORAGE_OPERATE_SCAN_TIMEOUT = 60;
+
+    /**
+     * 卸车扫描防重，每个单号只能扫描一次
+     * 单号+场地
+     */
+    public static final String JY_UNLOAD_SCAN_KEY = JY_CACHE_PREFIX + "unload:scan:%s:%s";
+
+    /**
+     * 拣运卸车任务主键
+     * bizId
+     */
+    public static final String JY_UNLOAD_BIZ_KEY = JY_CACHE_PREFIX + "unload:biz:%s";
+
+    /**
+     * PDA扫描进度缓存
+     * bizId
+     */
+    public static final String JY_UNLOAD_PDA_AGG_KEY = JY_CACHE_PREFIX + "unload:pda:%s";
+
+    /**
+     * 拣运卸车任务扫描进度
+     * bizId
+     */
+    public static final String JY_UNLOAD_DETAIL_KEY = JY_CACHE_PREFIX + "unload:biz:%s";
 
 }
