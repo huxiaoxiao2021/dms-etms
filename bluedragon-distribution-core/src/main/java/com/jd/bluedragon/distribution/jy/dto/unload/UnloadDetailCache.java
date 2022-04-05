@@ -1,50 +1,59 @@
-package com.jd.bluedragon.common.dto.operation.workbench.unload.response;
+package com.jd.bluedragon.distribution.jy.dto.unload;
+
+import com.jd.bluedragon.distribution.jy.annotation.RedisHashColumn;
 
 import java.io.Serializable;
 
 /**
- * @ClassName UnloadScanDetail
+ * @ClassName UnloadDetailCache
  * @Description
  * @Author wyh
- * @Date 2022/3/31 20:59
+ * @Date 2022/4/5 13:56
  **/
-public class UnloadScanDetail implements Serializable {
+public class UnloadDetailCache implements Serializable {
 
-    private static final long serialVersionUID = -7823254733387066564L;
+    private static final long serialVersionUID = -610708170755930275L;
 
     /**
      * 卸车任务业务主键
      */
+    @RedisHashColumn(hashField = "bizId")
     private String bizId;
 
     /**
      * 应卸包裹总数
      */
+    @RedisHashColumn(hashField = "totalCount")
     private Long totalCount;
 
     /**
      * 已卸包裹总数
      */
+    @RedisHashColumn(hashField = "unloadCount")
     private Long unloadCount;
 
     /**
      * 拦截应扫数量
      */
+    @RedisHashColumn(hashField = "interceptShouldScanCount")
     private Long interceptShouldScanCount;
 
     /**
      * 拦截已扫数量
      */
+    @RedisHashColumn(hashField = "interceptActualScanCount")
     private Long interceptActualScanCount;
 
     /**
      * 本场地多扫数量
      */
+    @RedisHashColumn(hashField = "moreScanLocalCount")
     private Long moreScanLocalCount;
 
     /**
      * 非本场地多扫数量
      */
+    @RedisHashColumn(hashField = "moreScanOutCount")
     private Long moreScanOutCount;
 
     public String getBizId() {

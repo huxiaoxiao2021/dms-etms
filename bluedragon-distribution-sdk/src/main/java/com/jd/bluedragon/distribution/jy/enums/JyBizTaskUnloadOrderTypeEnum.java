@@ -14,7 +14,10 @@ public enum JyBizTaskUnloadOrderTypeEnum {
 
     ORDER_TIME(1, "排序时间"),
     ORDER_TIME_ABNORMAL(2, "排序时间和异常状态"),
-    SORT_INTEGRAL(3, "积分");
+    SORT_INTEGRAL(3, "积分"),
+    DESEAL_CAR_TIME(4, "解封车时间"),
+    UNLOAD_PROGRESS(5, "卸车进度"),
+    ;
 
     private Integer code;
     private String name;

@@ -109,6 +109,12 @@ public class JyBizTaskUnloadVehicleEntity implements Serializable {
      * 是否异常；0-否 1-是
      */
     private Integer abnormalFlag;
+
+    /**
+     * 包裹总数
+     */
+    private Long totalCount;
+
     /**
      * 卸车进度
      */
@@ -334,6 +340,14 @@ public class JyBizTaskUnloadVehicleEntity implements Serializable {
         return this.abnormalFlag;
     }
 
+    public Long getTotalCount() {
+        return totalCount;
+    }
+
+    public void setTotalCount(Long totalCount) {
+        this.totalCount = totalCount;
+    }
+
     public BigDecimal setUnloadProgress(BigDecimal unloadProgress) {
         return this.unloadProgress = unloadProgress;
     }
@@ -428,6 +442,14 @@ public class JyBizTaskUnloadVehicleEntity implements Serializable {
 
     public Date getTs() {
         return this.ts;
+    }
+
+    public boolean unloadWithoutTask() {
+        return this.manualCreatedFlag != null && this.manualCreatedFlag == 1;
+    }
+
+    public boolean unloadAbnormal() {
+        return this.abnormalFlag != null && this.abnormalFlag == 1;
     }
 
 }

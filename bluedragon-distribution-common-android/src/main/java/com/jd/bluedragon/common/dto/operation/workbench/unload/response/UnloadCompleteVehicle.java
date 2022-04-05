@@ -3,6 +3,7 @@ package com.jd.bluedragon.common.dto.operation.workbench.unload.response;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.VehicleBaseInfo;
 
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  * @ClassName UnloadCompleteVehicle
@@ -29,6 +30,16 @@ public class UnloadCompleteVehicle extends VehicleBaseInfo implements Serializab
      */
     private Boolean manualCreatedTask;
 
+    /**
+     * 是否异常
+     */
+    private Boolean abnormalFlag;
+
+    /**
+     * 卸车完成时间
+     */
+    private Date unloadFinishTime;
+
     public Long getLessCount() {
         return lessCount;
     }
@@ -51,5 +62,21 @@ public class UnloadCompleteVehicle extends VehicleBaseInfo implements Serializab
 
     public void setManualCreatedTask(Boolean manualCreatedTask) {
         this.manualCreatedTask = manualCreatedTask;
+    }
+
+    public Boolean getAbnormalFlag() {
+        return abnormalFlag;
+    }
+
+    public void setAbnormalFlag(Boolean abnormalFlag) {
+        this.abnormalFlag = abnormalFlag;
+    }
+
+    public Date getUnloadFinishTime() {
+        return unloadFinishTime;
+    }
+
+    public void setUnloadFinishTime(Date unloadFinishTime) {
+        this.unloadFinishTime = unloadFinishTime;
     }
 }

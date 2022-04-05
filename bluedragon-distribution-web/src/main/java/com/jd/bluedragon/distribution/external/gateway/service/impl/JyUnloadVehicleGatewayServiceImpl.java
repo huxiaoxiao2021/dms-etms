@@ -14,7 +14,6 @@ import com.jd.bluedragon.external.gateway.service.JyUnloadVehicleGatewayService;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -31,18 +30,14 @@ public class JyUnloadVehicleGatewayServiceImpl implements JyUnloadVehicleGateway
 
     @Override
     public JdCResponse<UnloadVehicleTaskResponse> fetchUnloadTask(UnloadVehicleTaskRequest request) {
-        return null;
+        InvokeResult<UnloadVehicleTaskResponse> invokeResult = unloadVehicleService.fetchUnloadTask(request);
+        return new JdCResponse<>(invokeResult.getCode(), invokeResult.getMessage(), invokeResult.getData());
     }
 
     @Override
     public JdCResponse<List<SelectOption>> vehicleStatusOptions() {
-        List<JyBizTaskUnloadStatusEnum> showStatus = Arrays.asList(
-                JyBizTaskUnloadStatusEnum.WAIT_UN_SEAL,
-                JyBizTaskUnloadStatusEnum.UN_LOADING,
-                JyBizTaskUnloadStatusEnum.UN_LOAD_DONE);
-
         List<SelectOption> optionList = new ArrayList<>();
-        for (JyBizTaskUnloadStatusEnum statusEnum : showStatus) {
+        for (JyBizTaskUnloadStatusEnum statusEnum : JyBizTaskUnloadStatusEnum.UNLOAD_STATUS_OPTIONS) {
             SelectOption option = new SelectOption(statusEnum.getCode(), statusEnum.getName(), statusEnum.getCode());
             optionList.add(option);
         }
@@ -99,7 +94,8 @@ public class JyUnloadVehicleGatewayServiceImpl implements JyUnloadVehicleGateway
 
     @Override
     public JdCResponse<UnloadScanDetail> unloadDetail(UnloadVehicleRequest request) {
-        return null;
+        InvokeResult<UnloadScanDetail> invokeResult = unloadVehicleService.unloadDetail(request);
+        return new JdCResponse<>(invokeResult.getCode(), invokeResult.getMessage(), invokeResult.getData());
     }
 
     @Override

@@ -4,6 +4,7 @@ import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.VehicleB
 import com.jd.bluedragon.common.dto.select.SelectOption;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -17,14 +18,9 @@ public class UnloadVehicleInfo extends VehicleBaseInfo implements Serializable {
     private static final long serialVersionUID = 7007964985586446559L;
 
     /**
-     * 总件数
+     * 卸车进度
      */
-    private Long totalCount;
-
-    /**
-     * 已卸件数
-     */
-    private Long unloadCount;
+    private BigDecimal unloadProgress;
 
     /**
      * 单号标签集合
@@ -36,20 +32,12 @@ public class UnloadVehicleInfo extends VehicleBaseInfo implements Serializable {
      */
     private Boolean manualCreatedTask;
 
-    public Long getTotalCount() {
-        return totalCount;
+    public BigDecimal getUnloadProgress() {
+        return unloadProgress;
     }
 
-    public void setTotalCount(Long totalCount) {
-        this.totalCount = totalCount;
-    }
-
-    public Long getUnloadCount() {
-        return unloadCount;
-    }
-
-    public void setUnloadCount(Long unloadCount) {
-        this.unloadCount = unloadCount;
+    public void setUnloadProgress(BigDecimal unloadProgress) {
+        this.unloadProgress = unloadProgress;
     }
 
     public List<SelectOption> getTags() {

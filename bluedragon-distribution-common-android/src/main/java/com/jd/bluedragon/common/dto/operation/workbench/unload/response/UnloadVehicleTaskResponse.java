@@ -16,7 +16,7 @@ public class UnloadVehicleTaskResponse implements Serializable {
     private static final long serialVersionUID = -5913639108262323459L;
 
     /**
-     * 封车状态数量统计
+     * 卸车状态数量统计
      */
     private List<VehicleStatusStatis> statusAgg;
 

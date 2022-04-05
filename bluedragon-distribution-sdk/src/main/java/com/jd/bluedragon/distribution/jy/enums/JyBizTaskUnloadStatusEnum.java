@@ -1,7 +1,6 @@
 package com.jd.bluedragon.distribution.jy.enums;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * 天官赐福 ◎ 百无禁忌
@@ -32,6 +31,8 @@ public enum JyBizTaskUnloadStatusEnum {
     private static Map<Integer, JyBizTaskUnloadStatusEnum> codeMap;
     public static Map<Integer, String> enumMap;
 
+    public static final List<JyBizTaskUnloadStatusEnum> UNLOAD_STATUS_OPTIONS = new ArrayList<JyBizTaskUnloadStatusEnum>();
+
     static {
         //将所有枚举装载到map中
         codeMap = new HashMap<Integer, JyBizTaskUnloadStatusEnum>();
@@ -40,6 +41,10 @@ public enum JyBizTaskUnloadStatusEnum {
             codeMap.put(_enum.getCode(), _enum);
             enumMap.put(_enum.getCode(), _enum.getName());
         }
+
+        UNLOAD_STATUS_OPTIONS.add(JyBizTaskUnloadStatusEnum.WAIT_UN_LOAD);
+        UNLOAD_STATUS_OPTIONS.add(JyBizTaskUnloadStatusEnum.UN_LOADING);
+        UNLOAD_STATUS_OPTIONS.add(JyBizTaskUnloadStatusEnum.UN_LOAD_DONE);
     }
 
     /**

@@ -16,6 +16,11 @@ public class UnloadVehicleData<T> implements Serializable {
     private static final long serialVersionUID = -3630137990394812580L;
 
     /**
+     * 车辆状态
+     */
+    private Integer vehicleStatus;
+
+    /**
      * 车辆数据
      */
     private List<T> data;
@@ -24,6 +29,14 @@ public class UnloadVehicleData<T> implements Serializable {
      * 车辆类型统计
      */
     private List<LineTypeStatis> lineStatistics;
+
+    public Integer getVehicleStatus() {
+        return vehicleStatus;
+    }
+
+    public void setVehicleStatus(Integer vehicleStatus) {
+        this.vehicleStatus = vehicleStatus;
+    }
 
     public List<T> getData() {
         return data;

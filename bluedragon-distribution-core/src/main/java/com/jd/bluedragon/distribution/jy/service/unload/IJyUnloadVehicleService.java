@@ -2,7 +2,9 @@ package com.jd.bluedragon.distribution.jy.service.unload;
 
 import com.jd.bluedragon.common.dto.operation.workbench.unload.request.UnloadScanRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.unload.request.UnloadVehicleRequest;
+import com.jd.bluedragon.common.dto.operation.workbench.unload.request.UnloadVehicleTaskRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.unload.response.UnloadScanDetail;
+import com.jd.bluedragon.common.dto.operation.workbench.unload.response.UnloadVehicleTaskResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
 
@@ -13,6 +15,13 @@ import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
  * @Date 2022/4/2 17:04
  **/
 public interface IJyUnloadVehicleService {
+
+    /**
+     * 拉取卸车任务
+     * @param request
+     * @return
+     */
+    InvokeResult<UnloadVehicleTaskResponse> fetchUnloadTask(UnloadVehicleTaskRequest request);
 
     /**
      * 卸车扫描

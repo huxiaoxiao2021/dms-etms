@@ -12,6 +12,7 @@ import java.util.Map;
  */
 public enum JyLineTypeEnum {
 
+    OTHER(0, "其他"),
 
     TRUNK_LINE(1, "干线"),
 
