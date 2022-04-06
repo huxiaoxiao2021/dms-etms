@@ -67,6 +67,8 @@ public class MiniStoreSyncBindRelationTask implements Runnable {
         miniStoreEvent.setStoreCode(miniStoreBindRelation.getStoreCode());
         miniStoreEvent.setBoxCode(miniStoreBindRelation.getBoxCode());
         miniStoreEvent.setCreateTime(TimeUtils.date2string(new Date(),TimeUtils.yyyy_MM_dd_HH_mm_ss));
+
+        logger.info("消息体："+JsonHelper.toJson(miniStoreEvent));
         miniStoreSealBoxProducer.sendOnFailPersistent(miniStoreBindRelation.getBoxCode(), JsonHelper.toJson(miniStoreEvent));
         //TODO businessId
     }

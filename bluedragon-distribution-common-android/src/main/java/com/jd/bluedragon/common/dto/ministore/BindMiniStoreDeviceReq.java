@@ -8,23 +8,59 @@ public class BindMiniStoreDeviceReq implements Serializable {
     private String iceBoardCode1;
     private String iceBoardCode2;
     private String boxCode;
-    private Long userCode;
-    private String userName;
+    private String createUser;
+    private Long createUserCode;
+    private Long createSiteCode;
+    private String createSiteName;
+    private Long receiveSiteCode;
+    private String receiveSiteName;
 
-    public Long getUserCode() {
-        return userCode;
+    public String getCreateUser() {
+        return createUser;
     }
 
-    public void setUserCode(Long userCode) {
-        this.userCode = userCode;
+    public void setCreateUser(String createUser) {
+        this.createUser = createUser;
     }
 
-    public String getUserName() {
-        return userName;
+    public Long getCreateUserCode() {
+        return createUserCode;
     }
 
-    public void setUserName(String userName) {
-        this.userName = userName;
+    public void setCreateUserCode(Long createUserCode) {
+        this.createUserCode = createUserCode;
+    }
+
+    public Long getCreateSiteCode() {
+        return createSiteCode;
+    }
+
+    public void setCreateSiteCode(Long createSiteCode) {
+        this.createSiteCode = createSiteCode;
+    }
+
+    public String getCreateSiteName() {
+        return createSiteName;
+    }
+
+    public void setCreateSiteName(String createSiteName) {
+        this.createSiteName = createSiteName;
+    }
+
+    public Long getReceiveSiteCode() {
+        return receiveSiteCode;
+    }
+
+    public void setReceiveSiteCode(Long receiveSiteCode) {
+        this.receiveSiteCode = receiveSiteCode;
+    }
+
+    public String getReceiveSiteName() {
+        return receiveSiteName;
+    }
+
+    public void setReceiveSiteName(String receiveSiteName) {
+        this.receiveSiteName = receiveSiteName;
     }
 
     public String getStoreCode() {
