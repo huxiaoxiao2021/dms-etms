@@ -160,14 +160,16 @@
         <property name="printCompleteCallbackAsyncPackageNum" value="${printCompleteCallbackAsyncPackageNum:500}"/>
         <property name="sendCodeEffectiveValidation" value="${sendCodeEffectiveValidation:''}" />
         <property name="limitSiteUsePackReprint" value="${limitSiteUsePackReprint:'0'}" />
-		<property name="spotCheckReformSiteCodes" value="${spotCheckReformSiteCodes:true}"/>
-		<property name="aiDistinguishSwitch" value="${aiDistinguishSwitch:true}"/>
 		<property name="restApiOuthSwitch" value="${restApiOuthSwitch:true}"/>
 		<property name="needInterceptUrls" value="${needInterceptUrls:*}"/>
 		<property name="notSignedOutRecordMoreThanHours" value="${notSignedOutRecordMoreThanHours:-1}"/>
 		<property name="packConsumableSwitch" value="${packConsumableSwitch:0}"/>
 		<property name="sealTaskHystrixProps" value="${sealTaskHystrixProps: ''}"/>
 		<property name="sealTaskForceFallback" value="${sealTaskForceFallback: 0}"/>
+		<property name="spotCheckReformSiteCodes" value="${spotCheckReformSiteCodes:true}"/>
+		<property name="aiDistinguishSwitch" value="${aiDistinguishSwitch:true}"/>
+		<property name="deviceAIDistinguishSwitch" value="${deviceAIDistinguishSwitch:true}"/>
+		<property name="deviceAIDistinguishPackNum" value="${deviceAIDistinguishPackNum:100}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -310,8 +312,6 @@
 				<value>uccPropertyConfiguration.scheduleSiteCheckSameCity</value>
 				<value>uccPropertyConfiguration.sendCodeEffectiveValidation</value>
 				<value>uccPropertyConfiguration.limitSiteUsePackReprint</value>
-				<value>uccPropertyConfiguration.spotCheckReformSiteCodes</value>
-				<value>uccPropertyConfiguration.aiDistinguishSwitch</value>
 				<value>uccPropertyConfiguration.sendCodeEffectiveValidation</value>
 				<value>uccPropertyConfiguration.restApiOuthSwitch</value>
 				<value>uccPropertyConfiguration.needInterceptUrls</value>
@@ -319,6 +319,10 @@
 				<value>uccPropertyConfiguration.packConsumableSwitch</value>
                 <value>uccPropertyConfiguration.sealTaskHystrixProps</value>
                 <value>uccPropertyConfiguration.sealTaskForceFallback</value>
+				<value>uccPropertyConfiguration.spotCheckReformSiteCodes</value>
+				<value>uccPropertyConfiguration.aiDistinguishSwitch</value>
+				<value>uccPropertyConfiguration.deviceAIDistinguishSwitch</value>
+				<value>uccPropertyConfiguration.deviceAIDistinguishPackNum</value>
 
                 <value>hystrixRouteUccPropertyConfiguration.executionTimeoutInMilliseconds</value>
                 <value>hystrixRouteUccPropertyConfiguration.circuitBreakerEnabled</value>

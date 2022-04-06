@@ -10,6 +10,7 @@ import com.jd.ql.dms.report.domain.spotcheck.WeightVolumeSpotCheckDto;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import java.io.InputStream;
+import java.util.Map;
 
 /**
  * 抽检处理接口
@@ -80,6 +81,15 @@ public interface SpotCheckDealService {
      * @return
      */
     boolean checkIsHasSpotCheck(String waybillCode);
+
+    /**
+     * 运单是否超标
+     *
+     * @param waybillCode
+     * @param siteCode
+     * @return
+     */
+    boolean checkIsExcess(String waybillCode, Integer siteCode);
 
     /**
      * 获取已抽检包裹号
@@ -163,6 +173,13 @@ public interface SpotCheckDealService {
      * @param weightVolumeSpotCheckDto
      */
     void spotCheckIssue(WeightVolumeSpotCheckDto weightVolumeSpotCheckDto);
+
+    /**
+     * 执行下发
+     *
+     * @param weightVolumeSpotCheckDto
+     */
+    void executeIssue(WeightVolumeSpotCheckDto weightVolumeSpotCheckDto);
 
     /**
      * 上传图片

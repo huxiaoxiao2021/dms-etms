@@ -290,5 +290,15 @@
     <jmq:consumer id="jmq.b2bWaybillScheduleMqListener" transport="jmq.uatDmsWeb.transport">
         <jmq:listener topic="${jmq.topic.b2b.tms.bd.schedule.result}" listener="b2bWaybillScheduleMqListener"/>
     </jmq:consumer>
+
+    <!-- 抽检-设备图片AI识别回传消息处理 -->
+    <jmq:consumer id="jmq.dwsAIDistinguishNotifyConsumer" transport="jmq.uatDmsWeb.transport">
+        <jmq:listener topic="${jmq.topic.dwsAIDistinguish.Notify.uat}" listener="dwsAIDistinguishNotifyConsumer"/>
+    </jmq:consumer>
+
+    <!-- dws抽检下发处理消息消费 -->
+    <jmq:consumer id="jmq.dwsIssueDealConsumer" transport="jmq.uatDmsWeb.transport">
+        <jmq:listener topic="${jmq.topic.spotCheck.dwsIssueDeal}" listener="dwsIssueDealConsumer"/>
+    </jmq:consumer>
 </beans>
 

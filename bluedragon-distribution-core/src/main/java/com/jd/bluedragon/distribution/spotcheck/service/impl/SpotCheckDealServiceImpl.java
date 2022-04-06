@@ -152,6 +152,14 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
     private DefaultJMQProducer spotCheckIssueZDProducer;
 
     @Autowired
+    @Qualifier("dwsAIDistinguishSmallProducer")
+    private DefaultJMQProducer dwsAIDistinguishSmallProducer;
+
+    @Autowired
+    @Qualifier("dwsIssueDealProducer")
+    private DefaultJMQProducer dwsIssueDealProducer;
+
+    @Autowired
     private JssService jssService;
 
     @Autowired
@@ -582,6 +590,27 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
     }
 
     @Override
+    public boolean checkIsExcess(String waybillCode, Integer siteCode) {
+        boolean isExcess = false;
+        try {
+            String key = String.format(CacheKeyConstants.CACHE_SPOT_CHECK, waybillCode);
+            String executeStatus = jimdbCacheService.get(key);
+            if(StringUtils.isNotEmpty(executeStatus)){
+                return Objects.equals(executeStatus, String.valueOf(ExcessStatusEnum.EXCESS_ENUM_YES.getCode()));
+            }else {
+                SpotCheckQueryCondition condition = new SpotCheckQueryCondition();
+                condition.setPackageCode(waybillCode);
+                condition.setReviewSiteCode(siteCode);
+                condition.setIsExcess(ExcessStatusEnum.EXCESS_ENUM_YES.getCode());
+                return Objects.equals(spotCheckQueryManager.querySpotCheckCountByCondition(condition), Constants.CONSTANT_NUMBER_ONE);
+            }
+        }catch (Exception e){
+            logger.error("根据运单号{}查询是否超标异常!", waybillCode, e);
+        }
+        return isExcess;
+    }
+
+    @Override
     public String spotCheckPackSetStr(String waybillCode, Integer siteCode) {
         String packListKey = String.format(CacheKeyConstants.CACHE_SPOT_CHECK_PACK_LIST, siteCode, waybillCode);
         String packSetStr;
@@ -776,6 +805,13 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
             totalRecord.setIsHasPicture(Constants.CONSTANT_NUMBER_ONE);
             totalRecord.setRecordType(SpotCheckRecordTypeEnum.SUMMARY_RECORD.getCode());
             spotCheckServiceProxy.insertOrUpdateProxyReform(totalRecord);
+            // 4.下发超标数据
+            if(checkIsExcess(waybillCode, siteCode)){
+                totalRecord.setWaybillCode(waybillCode);
+                totalRecord.setIsExcess(ExcessStatusEnum.EXCESS_ENUM_YES.getCode());
+                totalRecord.setIsGatherTogether(Constants.CONSTANT_NUMBER_ONE);
+                dwsIssueDealProducer.sendOnFailPersistent(waybillCode, JsonHelper.toJson(totalRecord));
+            }
         }else {
             // 一单一件
             // 1、更新总记录维度数据
@@ -1019,15 +1055,45 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
             logger.info("spotCheckWaybill has issued will not send {}", spotCheckDto.getWaybillCode());
             return;
         }
-        if(logger.isInfoEnabled()){
-            logger.info("称重流程再造：下发运单号:{}站点:{}的超标数据!", spotCheckDto.getWaybillCode(), spotCheckDto.getReviewSiteCode());
-        }
         // 下发前置条件：超标&&集齐
         if(!Objects.equals(spotCheckDto.getIsExcess(), ExcessStatusEnum.EXCESS_ENUM_YES.getCode())){
             return;
         }
         if(!Objects.equals(spotCheckDto.getIsGatherTogether(), Constants.CONSTANT_NUMBER_ONE)){
             return;
+        }
+        // 设备抽检需校验图片是否合规
+        if(SpotCheckSourceFromEnum.EQUIPMENT_SOURCE_NUM.contains(spotCheckDto.getReviewSource())
+                && uccPropertyConfiguration.getDeviceAIDistinguishSwitch()){
+            if(logger.isInfoEnabled()){
+                logger.info("设备抽检图片AI识别下发运单:{}站点:{}的数据!", spotCheckDto.getWaybillCode(), spotCheckDto.getReviewSiteCode());
+            }
+            String picUrl = StringUtils.isEmpty(spotCheckDto.getPictureAddress())
+                    ? getSpotCheckPackUrlFromCache(spotCheckDto.getPackageCode(), spotCheckDto.getReviewSiteCode()) : spotCheckDto.getPictureAddress();
+            if(StringUtils.isEmpty(picUrl)){
+                return;
+            }
+            List<DwsAIDistinguishMQ.Package> list = new ArrayList<>();
+            DwsAIDistinguishMQ.Package packageUrl = new DwsAIDistinguishMQ.Package();
+            packageUrl.setPackageCode(spotCheckDto.getPackageCode());
+            packageUrl.setPicUrl(picUrl.replace(STORAGE_DOMAIN_COM, STORAGE_DOMAIN_LOCAL));
+            list.add(packageUrl);
+            DwsAIDistinguishMQ dwsAIDistinguishMQ = new DwsAIDistinguishMQ();
+            dwsAIDistinguishMQ.setUuid(spotCheckDto.getWaybillCode().concat(Constants.SEPARATOR_HYPHEN).concat(String.valueOf(System.currentTimeMillis())));
+            dwsAIDistinguishMQ.setWaybillCode(spotCheckDto.getWaybillCode());
+            dwsAIDistinguishMQ.setSiteCode(spotCheckDto.getReviewSiteCode());
+            dwsAIDistinguishMQ.setPackages(list);
+            dwsAIDistinguishSmallProducer.sendOnFailPersistent(dwsAIDistinguishMQ.getWaybillCode(), JsonHelper.toJson(dwsAIDistinguishMQ));
+            return;
+        }
+        // 执行下发
+        executeIssue(spotCheckDto);
+    }
+
+    @Override
+    public void executeIssue(WeightVolumeSpotCheckDto spotCheckDto) {
+        if(logger.isInfoEnabled()){
+            logger.info("称重流程再造：下发运单号:{}站点:{}的超标数据!", spotCheckDto.getWaybillCode(), spotCheckDto.getReviewSiteCode());
         }
         // 体积超标下发终端条件：体积超标&&设备抽检
         if(SpotCheckSourceFromEnum.EQUIPMENT_SOURCE_NUM.contains(spotCheckDto.getReviewSource())

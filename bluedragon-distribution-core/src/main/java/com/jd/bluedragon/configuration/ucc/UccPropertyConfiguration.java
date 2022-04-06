@@ -512,24 +512,6 @@ public class UccPropertyConfiguration {
     private String multiplePackageSpotCheckSites;
 
     /**
-     * 开启新抽检场地
-     *  多个场地以,分隔
-     *  true表示全国
-     *  空表示未开启
-     */
-    private String newSpotCheckSiteCodes;
-
-    /**
-     * 是否执行BC融合
-     */
-    private boolean executeBCFuse;
-
-    /**
-     * 抽检数据是否下发给计费
-     */
-    private boolean isIssueToFinance;
-
-    /**
      * 老发货异步任务开关
      */
     private String deliverySendAsyncSite;
@@ -737,6 +719,17 @@ public class UccPropertyConfiguration {
      * AI识别图片开关
      */
     private boolean aiDistinguishSwitch;
+
+    /**
+     * 设备AI识别图片开关
+     */
+    private boolean deviceAIDistinguishSwitch;
+
+    /**
+     * 设备AI识别大包裹限制
+     */
+    private int deviceAIDistinguishPackNum;
+
     public String getScheduleSiteCheckSameCity() {
         return scheduleSiteCheckSameCity;
     }
@@ -1831,6 +1824,22 @@ public class UccPropertyConfiguration {
 
     public void setAiDistinguishSwitch(boolean aiDistinguishSwitch) {
         this.aiDistinguishSwitch = aiDistinguishSwitch;
+    }
+
+    public boolean getDeviceAIDistinguishSwitch() {
+        return deviceAIDistinguishSwitch;
+    }
+
+    public void setDeviceAIDistinguishSwitch(boolean deviceAIDistinguishSwitch) {
+        this.deviceAIDistinguishSwitch = deviceAIDistinguishSwitch;
+    }
+
+    public int getDeviceAIDistinguishPackNum() {
+        return deviceAIDistinguishPackNum;
+    }
+
+    public void setDeviceAIDistinguishPackNum(int deviceAIDistinguishPackNum) {
+        this.deviceAIDistinguishPackNum = deviceAIDistinguishPackNum;
     }
 
     public String getSpotCheckReformSiteCodes() {

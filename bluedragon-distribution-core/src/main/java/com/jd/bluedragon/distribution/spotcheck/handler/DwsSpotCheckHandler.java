@@ -1,10 +1,11 @@
 package com.jd.bluedragon.distribution.spotcheck.handler;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.core.base.ReportExternalManager;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.SpotCheckQueryManager;
 import com.jd.bluedragon.core.base.SpotCheckServiceProxy;
 import com.jd.bluedragon.core.base.WaybillTraceManager;
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.send.domain.dto.SendDetailDto;
 import com.jd.bluedragon.distribution.send.service.SendDetailService;
@@ -13,6 +14,7 @@ import com.jd.bluedragon.distribution.spotcheck.enums.*;
 import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckDealService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.report.domain.WeightVolumeCollectDto;
 import com.jd.ql.dms.report.domain.spotcheck.SpotCheckQueryCondition;
@@ -20,6 +22,7 @@ import com.jd.ql.dms.report.domain.spotcheck.WeightVolumeSpotCheckDto;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -51,10 +54,14 @@ public class DwsSpotCheckHandler extends AbstractSpotCheckHandler {
     private SpotCheckQueryManager spotCheckQueryManager;
 
     @Autowired
-    private ReportExternalManager reportExternalManager;
+    private SpotCheckServiceProxy spotCheckServiceProxy;
 
     @Autowired
-    private SpotCheckServiceProxy spotCheckServiceProxy;
+    private UccPropertyConfiguration uccPropertyConfiguration;
+
+    @Autowired
+    @Qualifier("dwsIssueDealProducer")
+    private DefaultJMQProducer dwsIssueDealProducer;
 
     @Override
     protected InvokeResult<SpotCheckResult> checkIsExcessReform(SpotCheckContext spotCheckContext) {
@@ -122,7 +129,7 @@ public class DwsSpotCheckHandler extends AbstractSpotCheckHandler {
         // 集齐后
         if(spotCheckDealService.gatherTogether(spotCheckContext)){
             spotCheckContext.setIsGatherTogether(true);
-            // 0、设置超标缓存
+            // 0、设置已抽检缓存
             setSpotCheckCache(spotCheckContext.getWaybillCode(), spotCheckContext.getExcessStatus());
             // 1、汇总复核数据
             summaryReviewWeightVolume(spotCheckContext);
@@ -132,7 +139,14 @@ public class DwsSpotCheckHandler extends AbstractSpotCheckHandler {
             WeightVolumeSpotCheckDto summaryDto = assembleSummaryReform(spotCheckContext);
             spotCheckServiceProxy.insertOrUpdateProxyReform(summaryDto);
             // 3、下发超标数据
-            spotCheckDealService.spotCheckIssue(summaryDto);
+            if(Objects.equals(spotCheckContext.getExcessStatus(), ExcessStatusEnum.EXCESS_ENUM_YES.getCode())){
+                if(uccPropertyConfiguration.getAiDistinguishSwitch()){
+                    // 发消息来单独处理dws的一单多件的下发逻辑
+                    dwsIssueDealProducer.sendOnFailPersistent(spotCheckContext.getWaybillCode(), JsonHelper.toJson(summaryDto));
+                }else {
+                    spotCheckDealService.executeIssue(summaryDto);
+                }
+            }
         }
         // 双写老的抽检数据
         assembledSummaryAndDetailOldDto(spotCheckContext);
