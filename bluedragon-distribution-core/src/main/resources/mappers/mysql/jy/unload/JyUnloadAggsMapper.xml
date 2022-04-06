@@ -64,8 +64,7 @@
                             total_seal_package_count,
                             total_scanned_package_count,
                             create_time,
-                            yn,
-                            ts
+                            yn
                     ) VALUES (
                             #{id},
                             #{bizId},
@@ -82,9 +81,36 @@
                             #{moreScanTotalCount},
                             #{totalSealPackageCount},
                             #{totalScannedPackageCount},
-                            #{createTime},
-                            #{yn},
-                            #{ts}
+                            NOW(),
+                            1
                     )
     </insert>
+    
+    <select id="aggByBiz" parameterType="JyUnloadAggsEntity" resultMap="jyUnloadAggsMap">
+        SELECT
+            biz_id,
+            total_seal_package_count,
+            total_scanned_package_count,
+            SUM( intercept_should_scan_count ) AS intercept_should_scan_count,
+            SUM( intercept_actual_scan_count ) AS intercept_actual_scan_count,
+            SUM( more_scan_local_count ) AS more_scan_local_count,
+            SUM( more_scan_out_count ) AS more_scan_out_count
+        FROM
+            jy_unload_aggs
+        WHERE
+            yn = 1
+            AND biz_id = #{bizId, jdbcType=VARCHAR}
+        GROUP BY
+            biz_id
+    </select>
+
+    <select id="queryByBizId" parameterType="JyUnloadAggsEntity" resultMap="jyUnloadAggsMap">
+        SELECT
+            <include refid="Base_Column_List"/>
+        FROM
+             jy_unload_aggs
+        WHERE
+            yn = 1
+        AND biz_id = #{bizId, jdbcType=VARCHAR}
+    </select>
 </mapper>

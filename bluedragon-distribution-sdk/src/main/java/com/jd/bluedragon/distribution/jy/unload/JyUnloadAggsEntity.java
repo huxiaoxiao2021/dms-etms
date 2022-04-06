@@ -14,6 +14,12 @@ import java.util.Date;
 public class JyUnloadAggsEntity implements Serializable {
     private static final long serialVersionUID = 1L;
 
+    public JyUnloadAggsEntity() {}
+
+    public JyUnloadAggsEntity(String bizId) {
+        this.bizId = bizId;
+    }
+
     /**
      * 主键ID
      */
@@ -21,7 +27,7 @@ public class JyUnloadAggsEntity implements Serializable {
     /**
      * 任务主键
      */
-    private Long bizId;
+    private String bizId;
     /**
      * 封车编码
      */
@@ -95,11 +101,11 @@ public class JyUnloadAggsEntity implements Serializable {
         return this.id;
     }
 
-    public Long setBizId(Long bizId) {
+    public String setBizId(String bizId) {
         return this.bizId = bizId;
     }
 
-    public Long getBizId() {
+    public String getBizId() {
         return this.bizId;
     }
 

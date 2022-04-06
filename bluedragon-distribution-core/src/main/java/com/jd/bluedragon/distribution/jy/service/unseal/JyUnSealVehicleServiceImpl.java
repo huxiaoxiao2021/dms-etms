@@ -1,4 +1,4 @@
-package com.jd.bluedragon.distribution.seal.service;
+package com.jd.bluedragon.distribution.jy.service.unseal;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.request.SealCodeRequest;
@@ -10,6 +10,8 @@ import com.jd.bluedragon.core.base.IJySealVehicleManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
+import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -41,15 +43,15 @@ import java.util.*;
 
 /**
  *
- * @ClassName JySealVehicleServiceImpl
+ * @ClassName JyUnSealVehicleServiceImpl
  * @Description
  * @Author wyh
  * @Date 2022/3/11 14:30
  **/
 @Service
-public class JySealVehicleServiceImpl implements IJySealVehicleService {
+public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
 
-    private static final Logger log = LoggerFactory.getLogger(JySealVehicleServiceImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(JyUnSealVehicleServiceImpl.class);
 
     /**
      * 查询几天内的带解任务（负数）
@@ -488,6 +490,17 @@ public class JySealVehicleServiceImpl implements IJySealVehicleService {
         }
 
         return result;
+    }
+
+    /**
+     * 创建卸车任务
+     *
+     * @param entity
+     * @return
+     */
+    @Override
+    public boolean createUnSealTask(JyBizTaskUnloadVehicleEntity entity) {
+        return false;
     }
 
     private SealCodeResponse makeSealCodeResponse(SealCarDto sealCarDto) {

@@ -33,7 +33,7 @@
     <bean id="transactionManager_jyCore"
           class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
         <property name="dataSource" ref="jy_core"/>
-        <qualifier value="jy_core"/>
+        <qualifier value="tm_jy_core"/>
     </bean>
 
     <tx:annotation-driven transaction-manager="transactionManager_jyCore" proxy-target-class="true"/>
