@@ -16,7 +16,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.station.UserSignQueryRequest;
 import com.jd.bluedragon.common.dto.station.UserSignRecordData;
@@ -881,5 +880,20 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	}
 	private UserSignRecordData queryUserSignRecordDataById(Long id) {
 		return fillOtherInfo(userSignRecordDao.queryUserSignRecordDataById(id),new Date());
+	}
+	@Override
+	public List<UserSignRecordData> queryUserSignRecordDataByIds(List<Long> idList) {
+		List<UserSignRecordData> dataList = userSignRecordDao.queryUserSignRecordDataByIds(idList);
+		if(!CollectionUtils.isEmpty(dataList)) {
+			Date currentDate = new Date();
+		    for(UserSignRecordData data: dataList) {
+		    	fillOtherInfo(data,currentDate);
+		    }
+		}
+		return dataList;
+	}
+	@Override
+	public List<UserSignRecord> queryUnSignOutListWithPosition(UserSignQueryRequest query) {
+		return userSignRecordDao.queryUnSignOutListWithPosition(query);
 	}
 }
