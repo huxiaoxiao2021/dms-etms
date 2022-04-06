@@ -420,5 +420,12 @@
                   server="dmsjsf">
     </jsf:provider>
 
+    <!--  集箱包裹数量限制JSF服务   -->
+    <jsf:provider id="dmsBoxLimitJsfService"
+                  interface="com.jd.bluedragon.distribution.boxlimit.service.BoxLimitJsfService"
+                  alias="${dms.jsf.alias}"
+                  ref="boxLimitJsfService"
+                  server="dmsjsf">
+    </jsf:provider>
 
 </beans>
