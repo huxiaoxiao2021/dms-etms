@@ -19,6 +19,10 @@ public class UnloadCommonRequest implements Serializable {
 
     private CurrentOperate currentOperate;
 
+    private Integer pageNumber;
+
+    private Integer pageSize;
+
     /**
      * 业务主键
      */
@@ -33,6 +37,22 @@ public class UnloadCommonRequest implements Serializable {
      * 车牌号
      */
     private String vehicleNumber;
+
+    public Integer getPageNumber() {
+        return pageNumber;
+    }
+
+    public void setPageNumber(Integer pageNumber) {
+        this.pageNumber = pageNumber;
+    }
+
+    public Integer getPageSize() {
+        return pageSize;
+    }
+
+    public void setPageSize(Integer pageSize) {
+        this.pageSize = pageSize;
+    }
 
     public User getUser() {
         return user;

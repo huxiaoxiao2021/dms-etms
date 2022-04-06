@@ -19,6 +19,10 @@ public class UnloadProductTypeRequest implements Serializable {
 
     private CurrentOperate currentOperate;
 
+    private Integer pageNumber;
+
+    private Integer pageSize;
+
     /**
      * 业务主键
      */
@@ -38,6 +42,22 @@ public class UnloadProductTypeRequest implements Serializable {
      * 产品类型
      */
     private String productType;
+
+    public Integer getPageNumber() {
+        return pageNumber;
+    }
+
+    public void setPageNumber(Integer pageNumber) {
+        this.pageNumber = pageNumber;
+    }
+
+    public Integer getPageSize() {
+        return pageSize;
+    }
+
+    public void setPageSize(Integer pageSize) {
+        this.pageSize = pageSize;
+    }
 
     public User getUser() {
         return user;

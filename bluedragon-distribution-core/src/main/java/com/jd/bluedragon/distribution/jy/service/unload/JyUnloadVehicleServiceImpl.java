@@ -620,6 +620,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         unloadEntity.setVehicleNumber(taskUnloadVehicle.getVehicleNumber());
         unloadEntity.setStartSiteId(taskUnloadVehicle.getStartSiteId());
         unloadEntity.setEndSiteId(taskUnloadVehicle.getEndSiteId());
+        unloadEntity.setManualCreatedFlag(taskUnloadVehicle.getManualCreatedFlag());
         unloadEntity.setOperateSiteId((long) request.getCurrentOperate().getSiteCode());
         unloadEntity.setBarCode(request.getBarCode());
         unloadEntity.setOperateTime(operateTime);
@@ -949,7 +950,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
             convertAggEntityToPage(productTypeList, unloadAggList);
         }
         catch (Exception ex) {
-            log.error("查询货物明细服务器异. {}", JsonHelper.toJson(request), ex);
+            log.error("查询货物明细服务器异常. {}", JsonHelper.toJson(request), ex);
             result.error("查询货物明细服务器异常，请咚咚联系分拣小秘！");
         }
 
@@ -957,12 +958,12 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
     }
 
     private void convertAggEntityToPage(List<UnloadScanAggByProductType> productTypeList, List<JyUnloadAggsEntity> unloadAggList) {
-        for (JyUnloadAggsEntity aggsEntity : unloadAggList) {
+        for (JyUnloadAggsEntity aggEntity : unloadAggList) {
             UnloadScanAggByProductType item = new UnloadScanAggByProductType();
-            item.setProductType(aggsEntity.getProductType());
+            item.setProductType(aggEntity.getProductType());
             item.setProductTypeName(UnloadProductTypeEnum.getNameByCode(item.getProductType()));
-            item.setShouldScanCount(aggsEntity.getShouldScanCount().longValue());
-            item.setActualScanCount(aggsEntity.getActualScanCount().longValue());
+            item.setShouldScanCount(aggEntity.getShouldScanCount().longValue());
+            item.setActualScanCount(aggEntity.getActualScanCount().longValue());
             productTypeList.add(item);
         }
     }
@@ -971,6 +972,53 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "IUnloadVehicleService.toScanAggByProduct",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public InvokeResult<List<ProductTypeAgg>> toScanAggByProduct(UnloadCommonRequest request) {
-        return null;
+        InvokeResult<List<ProductTypeAgg>> result = new InvokeResult<>();
+        if (StringUtils.isBlank(request.getBizId())) {
+            result.parameterError("请选择卸车任务！");
+            return result;
+        }
+
+        try {
+            List<ProductTypeAgg> productTypeList = Lists.newArrayList();
+            result.setData(productTypeList);
+            List<JyUnloadAggsEntity> unloadAggList = unloadAggDao.queryByBizId(new JyUnloadAggsEntity(request.getBizId()));
+            if (CollectionUtils.isEmpty(unloadAggList)) {
+                return result;
+            }
+
+            makeToScanCountAggByProduct(productTypeList, unloadAggList);
+        }
+        catch (Exception ex) {
+            log.error("按产品类型统计待扫包裹总数异常. {}", JsonHelper.toJson(request), ex);
+            result.error("查询待扫包裹数据服务器异常，请咚咚联系分拣小秘！");
+        }
+
+        return result;
+    }
+
+    private void makeToScanCountAggByProduct(List<ProductTypeAgg> productTypeList, List<JyUnloadAggsEntity> unloadAggList) {
+        for (JyUnloadAggsEntity aggEntity : unloadAggList) {
+            ProductTypeAgg item = new ProductTypeAgg();
+            item.setProductType(aggEntity.getProductType());
+            item.setProductTypeName(UnloadProductTypeEnum.getNameByCode(item.getProductType()));
+            item.setCount(dealMinus(aggEntity.getShouldScanCount(), aggEntity.getActualScanCount()));
+            productTypeList.add(item);
+        }
+    }
+
+    private Long dealMinus(Number a, Number b) {
+        return NumberHelper.gt(a, b) ? a.longValue() - b.longValue() : 0L;
+    }
+
+    @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "IUnloadVehicleService.toScanBarCodeDetail",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
+    public InvokeResult<ToScanDetailByProductType> toScanBarCodeDetail(UnloadProductTypeRequest request) {
+
+        // scaned_flag null or 0 是待扫
+
+        InvokeResult<ToScanDetailByProductType> result = new InvokeResult<>();
+
+        return result;
     }
 }
