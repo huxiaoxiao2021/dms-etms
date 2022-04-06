@@ -294,7 +294,10 @@ $(function () {
                     return "抽检中";
                 }
                 if(value === 102){
-                    return "抽检无效";
+                    return "抽检无效-未超标";
+                }
+                if(value === 103){
+                    return "抽检无效-AI失败";
                 }
                 return null;
             }
@@ -305,7 +308,15 @@ $(function () {
             formatter: function (value, row, index) {
                 return value === 1 ? '有' : '无';
             }
-        },{
+        }, {
+                field: 'pictureAIDistinguishReason',
+                title: '图片AI识别结果',
+                align: 'center',
+                visible: false,
+                formatter: function (value, row, index) {
+                    return value;
+                }
+            },{
             field: 'operate',
             title: '操作',
             align: 'center',
