@@ -857,4 +857,13 @@
                   retries="${jsf.retries}"
                   serialization="hessian"/>
 
+    <!--  拣运调度服务  -->
+    <jsf:consumer id="jyScheduleTaskApi"
+                  interface="com.jdl.jy.schedule.api.task.IJyScheduleTaskApi"
+                  protocol="jsf"
+                  alias="${jsf.jy.schedule.alias}"
+                  timeout="10000"
+                  retries="${jsf.retries}"
+                  serialization="hessian"/>
+
 </beans>

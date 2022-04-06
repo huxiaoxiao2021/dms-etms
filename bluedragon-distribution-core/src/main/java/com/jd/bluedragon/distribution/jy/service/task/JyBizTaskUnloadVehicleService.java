@@ -4,6 +4,7 @@ import com.jd.bluedragon.distribution.jy.dto.task.JyBizTaskUnloadCountDto;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadOrderTypeEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyLineTypeEnum;
+import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadDto;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
 
 import java.util.List;
@@ -23,6 +24,12 @@ public interface JyBizTaskUnloadVehicleService {
      * @return
      */
     JyBizTaskUnloadVehicleEntity findByBizId(String bizId);
+
+    /**
+     * 根据派车明细编码获取数据
+     * @return
+     */
+    JyBizTaskUnloadVehicleEntity findByTransWorkItemCode(String transWorkItemCode);
 
     /**
      * 根据bizId获取数据只返回逻辑主键
@@ -135,4 +142,19 @@ public interface JyBizTaskUnloadVehicleService {
      * @return
      */
     boolean unLocked(String bizId);
+
+    /**
+     * 初始通过运输实时接口补全数据
+     * @param sealCarCode
+     * @return
+     */
+    JyBizTaskUnloadVehicleEntity initTaskByTms(String sealCarCode);
+
+    /**
+     * 无任务模式初始数据
+     * 业务主键和封车编码保持一致 并自定生成
+     * @param dto
+     * @return
+     */
+    JyBizTaskUnloadVehicleEntity initTaskByNoTask(JyBizTaskUnloadDto dto);
 }

@@ -11,6 +11,8 @@ import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.VehicleS
 import com.jd.bluedragon.common.dto.select.SelectOption;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
+import com.jd.bluedragon.core.base.JyScheduleTaskManager;
+import com.jd.bluedragon.core.base.VosManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.coldChain.domain.InspectionVO;
@@ -26,6 +28,10 @@ import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyLineTypeEnum;
 import com.jd.bluedragon.distribution.jy.enums.UnloadProductTypeEnum;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskUnloadVehicleService;
+import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadStatusEnum;
+import com.jd.bluedragon.distribution.jy.exception.JyBizException;
+import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskUnloadVehicleService;
+import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadDto;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
 import com.jd.bluedragon.distribution.jy.unload.JyUnloadAggsEntity;
 import com.jd.bluedragon.distribution.jy.unload.JyUnloadEntity;
@@ -39,6 +45,10 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import com.jdl.jy.schedule.dto.task.JyScheduleTaskReq;
+import com.jdl.jy.schedule.dto.task.JyScheduleTaskResp;
+import com.jdl.jy.schedule.enums.task.JyScheduleTaskDistributionTypeEnum;
+import com.jdl.jy.schedule.enums.task.JyScheduleTaskTypeEnum;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -47,6 +57,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -84,6 +96,12 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
 
     @Autowired
     private DeliveryService deliveryService;
+
+    @Autowired
+    private JyBizTaskUnloadVehicleService jyBizTaskUnloadVehicleService;
+
+    @Autowired
+    private JyScheduleTaskManager jyScheduleTaskManager;
 
     @Override
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "IUnloadVehicleService.fetchUnloadTask",
@@ -671,14 +689,165 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
     }
 
     /**
-     * 创建卸车任务
+     * 创建卸车任务 解封车操作成功使用
      *
-     * @param entity
+     * @param dto
      * @return
      */
     @Override
-    public boolean createUnloadTask(JyBizTaskUnloadVehicleEntity entity) {
-        return false;
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "IUnloadVehicleService.createUnloadTask",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
+    @Transactional(value = "tm_jy_core",propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    public boolean createUnloadTask(JyBizTaskUnloadDto dto){
+
+        if(dto.getManualCreatedFlag() != null && Integer.valueOf(1).equals(dto.getManualCreatedFlag())){
+            //无任务模式
+            //计算生成BIZ_ID
+            JyBizTaskUnloadVehicleEntity taskUnloadVehicleEntity = jyBizTaskUnloadVehicleService.initTaskByNoTask(dto);
+            if(taskUnloadVehicleEntity == null){
+                //初始化失败
+                throw new JyBizException(String.format("初始业务任务基础数据异常！无任务模式 车牌:%s",dto.getVehicleNumber()));
+            }
+        }else{
+            //防止上线初期运输数据未全部接入时 增加补数逻辑
+            Long id = jyBizTaskUnloadVehicleService.findIdByBizId(dto.getBizId());
+            if(id == null || id <=0 ){
+                JyBizTaskUnloadVehicleEntity unloadVehicleEntity = jyBizTaskUnloadVehicleService.initTaskByTms(dto.getSealCarCode());
+                if(unloadVehicleEntity == null){
+                    throw new JyBizException(String.format("初始业务任务基础数据异常！bizId:%s",dto.getBizId()));
+                }
+            }
+
+            //更新状态
+            JyBizTaskUnloadVehicleEntity changeStatusParam = new JyBizTaskUnloadVehicleEntity();
+            changeStatusParam.setBizId(dto.getBizId());
+            changeStatusParam.setUpdateUserErp(dto.getOperateUserErp());
+            changeStatusParam.setUpdateUserName(dto.getOperateUserName());
+            changeStatusParam.setUpdateTime(dto.getOperateTime());
+            changeStatusParam.setVehicleStatus(JyBizTaskUnloadStatusEnum.WAIT_UN_LOAD.getCode());
+            if(!jyBizTaskUnloadVehicleService.changeStatus(changeStatusParam)){
+                throw new JyBizException(String.format("更新任务状态异常！bizId:%s",dto.getBizId()));
+            }
+            //关闭原解封车任务
+            if(!closeScheduleTask(dto,JyScheduleTaskTypeEnum.UNSEAL)){
+                throw new JyBizException(String.format("关闭原解封车调度任务失败！bizId:%s",dto.getBizId()));
+            }
+
+        }
+        //创建卸车任务
+        boolean createFlag = createUnLoadScheduleTask(dto);
+        if(!createFlag){
+            throw new JyBizException(String.format("关闭原解封车调度任务失败！bizId:%s",dto.getBizId()));
+        }
+
+        return true;
+    }
+
+    /**
+     * 卸车任务领取和分配
+     *
+     * @param dto
+     * @return
+     */
+    @Override
+    @Transactional(value = "tm_jy_core",propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "IUnloadVehicleService.drawUnloadTask",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
+    public boolean drawUnloadTask(JyBizTaskUnloadDto dto) {
+        //更新状态
+        JyBizTaskUnloadVehicleEntity changeStatusParam = new JyBizTaskUnloadVehicleEntity();
+        changeStatusParam.setBizId(dto.getBizId());
+        changeStatusParam.setUpdateUserErp(dto.getOperateUserErp());
+        changeStatusParam.setUpdateUserName(dto.getOperateUserName());
+        changeStatusParam.setUpdateTime(dto.getOperateTime());
+        changeStatusParam.setVehicleStatus(JyBizTaskUnloadStatusEnum.UN_LOADING.getCode());
+        if(!jyBizTaskUnloadVehicleService.changeStatus(changeStatusParam)){
+            throw new JyBizException(String.format("更新任务状态异常！bizId:%s",dto.getBizId()));
+        }
+        //分配调度任务
+        if(!distributeScheduleTask(dto)){
+            throw new JyBizException(String.format("分配调度任务失败！bizId:%s",dto.getBizId()));
+        }
+        return true;
+    }
+
+    /**
+     * 卸车任务完成
+     *
+     * @param dto
+     * @return
+     */
+    @Override
+    @Transactional(value = "tm_jy_core",propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "IUnloadVehicleService.completeUnloadTask",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
+    public boolean completeUnloadTask(JyBizTaskUnloadDto dto) {
+        //修改业务任务状态
+        JyBizTaskUnloadVehicleEntity changeStatusParam = new JyBizTaskUnloadVehicleEntity();
+        changeStatusParam.setBizId(dto.getBizId());
+        changeStatusParam.setUpdateUserErp(dto.getOperateUserErp());
+        changeStatusParam.setUpdateUserName(dto.getOperateUserName());
+        changeStatusParam.setUpdateTime(dto.getOperateTime());
+        changeStatusParam.setVehicleStatus(JyBizTaskUnloadStatusEnum.UN_LOAD_DONE.getCode());
+        if(!jyBizTaskUnloadVehicleService.changeStatus(changeStatusParam)){
+            throw new JyBizException(String.format("更新任务状态异常！bizId:%s",dto.getBizId()));
+        }
+        //关闭调度任务
+        if(!closeScheduleTask(dto,JyScheduleTaskTypeEnum.UNLOAD)){
+            throw new JyBizException(String.format("关闭调度任务失败！bizId:%s",dto.getBizId()));
+        }
+        return true;
+    }
+
+    /**
+     * 关闭调度任务
+     * @param dto
+     * @param typeEnum
+     * @return
+     */
+    private boolean closeScheduleTask(JyBizTaskUnloadDto dto,JyScheduleTaskTypeEnum typeEnum){
+        JyScheduleTaskReq req = new JyScheduleTaskReq();
+        req.setBizId(dto.getBizId());
+        req.setTaskType(String.valueOf(typeEnum.getCode()));
+        req.setOpeUser(dto.getOperateUserErp());
+        req.setOpeUserName(dto.getOperateUserName());
+        req.setOpeTime(dto.getOperateTime());
+        JyScheduleTaskResp jyScheduleTaskResp = jyScheduleTaskManager.closeScheduleTask(req);
+        return jyScheduleTaskResp != null;
+    }
+    /**
+     * 分配卸车调度任务
+     * @param dto
+     * @return
+     */
+    private boolean distributeScheduleTask(JyBizTaskUnloadDto dto){
+        JyScheduleTaskReq req = new JyScheduleTaskReq();
+        req.setBizId(dto.getBizId());
+        req.setTaskType(String.valueOf(JyScheduleTaskTypeEnum.UNLOAD.getCode()));
+        req.setDistributionType(JyScheduleTaskDistributionTypeEnum.GROUP.getCode());
+        req.setDistributionTarget(dto.getGroupCode());
+        req.setDistributionTime(dto.getOperateTime());
+        req.setOpeUser(dto.getOperateUserErp());
+        req.setOpeUserName(dto.getOperateUserName());
+        req.setOpeTime(dto.getOperateTime());
+        JyScheduleTaskResp jyScheduleTaskResp = jyScheduleTaskManager.distributeScheduleTask(req);
+        return jyScheduleTaskResp != null;
+    }
+
+    /**
+     * 创建卸车专用调度任务
+     * @param dto
+     * @return
+     */
+    private boolean createUnLoadScheduleTask(JyBizTaskUnloadDto dto){
+        JyScheduleTaskReq req = new JyScheduleTaskReq();
+        req.setBizId(dto.getBizId());
+        req.setTaskType(String.valueOf(JyScheduleTaskTypeEnum.UNLOAD.getCode()));
+        req.setOpeUser(dto.getOperateUserErp());
+        req.setOpeUserName(dto.getOperateUserName());
+        req.setOpeTime(dto.getOperateTime());
+        JyScheduleTaskResp jyScheduleTaskResp = jyScheduleTaskManager.createScheduleTask(req);
+        return jyScheduleTaskResp != null;
     }
 
     /**
