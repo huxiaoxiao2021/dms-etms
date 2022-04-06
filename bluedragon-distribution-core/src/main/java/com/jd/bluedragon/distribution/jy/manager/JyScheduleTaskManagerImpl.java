@@ -1,4 +1,4 @@
-package com.jd.bluedragon.core.base;
+package com.jd.bluedragon.distribution.jy.manager;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.utils.JsonHelper;

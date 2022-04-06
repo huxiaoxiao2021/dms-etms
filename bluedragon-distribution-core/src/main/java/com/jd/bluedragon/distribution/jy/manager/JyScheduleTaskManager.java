@@ -1,4 +1,4 @@
-package com.jd.bluedragon.core.base;
+package com.jd.bluedragon.distribution.jy.manager;
 
 import com.jdl.jy.schedule.base.ServiceResult;
 import com.jdl.jy.schedule.dto.task.JyScheduleTaskReq;
