@@ -5,6 +5,8 @@ import com.jd.bluedragon.distribution.jy.unload.JyUnloadAggsEntity;
 import com.jd.coo.sa.mybatis.plugins.id.SequenceGenAdaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.List;
+
 /**
  * 卸车进度汇总表
  * 
@@ -34,5 +36,9 @@ public class JyUnloadAggsDao extends BaseDao<JyUnloadAggsEntity> {
 
     public JyUnloadAggsEntity aggByBiz(JyUnloadAggsEntity entity) {
         return this.getSqlSession().selectOne(NAMESPACE + ".aggByBiz", entity);
+    }
+
+    public List<JyUnloadAggsEntity> queryByBizId(JyUnloadAggsEntity entity) {
+        return this.getSqlSession().selectList(NAMESPACE + ".queryByBizId", entity);
     }
 }

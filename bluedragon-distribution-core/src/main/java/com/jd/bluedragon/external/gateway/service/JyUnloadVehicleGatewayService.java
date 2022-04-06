@@ -48,21 +48,21 @@ public interface JyUnloadVehicleGatewayService {
      * @param request
      * @return
      */
-    JdCResponse<UnloadScanDetail> unloadDetail(UnloadVehicleRequest request);
+    JdCResponse<UnloadScanDetail> unloadDetail(UnloadCommonRequest request);
 
     /**
      * 货物明细
      * @param request
      * @return
      */
-    JdCResponse<List<UnloadScanAggByProductType>> unloadGoodsDetail(UnloadVehicleRequest request);
+    JdCResponse<List<UnloadScanAggByProductType>> unloadGoodsDetail(UnloadGoodsRequest request);
 
     /**
      * 按产品类型统计待扫包裹总数
      * @param request
      * @return
      */
-    JdCResponse<List<ProductTypeAgg>> toScanAggByProduct(UnloadVehicleRequest request);
+    JdCResponse<List<ProductTypeAgg>> toScanAggByProduct(UnloadCommonRequest request);
 
     /**
      * 待扫单号明细
@@ -76,21 +76,21 @@ public interface JyUnloadVehicleGatewayService {
      * @param request
      * @return
      */
-    JdCResponse<InterceptScanBarCode> interceptBarCodeDetail(UnloadVehicleRequest request);
+    JdCResponse<InterceptScanBarCode> interceptBarCodeDetail(UnloadCommonRequest request);
 
     /**
      * 多扫单号明细
      * @param request
      * @return
      */
-    JdCResponse<MoreScanBarCode> moreScanBarCodeDetail(UnloadVehicleRequest request);
+    JdCResponse<MoreScanBarCode> moreScanBarCodeDetail(UnloadCommonRequest request);
 
     /**
      * 卸车完成前预览是否有异常数据
      * @param request
      * @return
      */
-    JdCResponse<UnloadPreviewData> unloadPreviewDashboard(UnloadVehicleRequest request);
+    JdCResponse<UnloadPreviewData> unloadPreviewDashboard(UnloadCommonRequest request);
 
     /**
      * 卸车完成

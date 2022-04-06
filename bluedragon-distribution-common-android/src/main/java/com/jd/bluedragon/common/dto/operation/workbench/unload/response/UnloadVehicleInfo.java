@@ -32,6 +32,19 @@ public class UnloadVehicleInfo extends VehicleBaseInfo implements Serializable {
      */
     private Boolean manualCreatedTask;
 
+    /**
+     * 任务主键
+     */
+    private String taskId;
+
+    public String getTaskId() {
+        return taskId;
+    }
+
+    public void setTaskId(String taskId) {
+        this.taskId = taskId;
+    }
+
     public BigDecimal getUnloadProgress() {
         return unloadProgress;
     }

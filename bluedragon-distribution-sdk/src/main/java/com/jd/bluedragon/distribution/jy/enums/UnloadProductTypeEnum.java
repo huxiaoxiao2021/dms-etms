@@ -1,12 +1,12 @@
 package com.jd.bluedragon.distribution.jy.enums;
 
 /**
- * @ClassName ProductTypeEnum
+ * @ClassName UnloadProductTypeEnum
  * @Description 卸车产品类型
  * @Author wyh
  * @Date 2022/4/2 14:05
  **/
-public enum ProductTypeEnum {
+public enum UnloadProductTypeEnum {
 
     NONE("NONE", "其他", 99),
     FRESH("FRESH", "生鲜", 1),
@@ -21,10 +21,19 @@ public enum ProductTypeEnum {
 
     private Integer displayOrder;
 
-    ProductTypeEnum(String code, String name, Integer displayOrder) {
+    UnloadProductTypeEnum(String code, String name, Integer displayOrder) {
         this.code = code;
         this.name = name;
         this.displayOrder = displayOrder;
+    }
+
+    public static String getNameByCode(String code) {
+        for (UnloadProductTypeEnum productType : UnloadProductTypeEnum.values()) {
+            if (productType.code.equals(code)) {
+                return productType.name;
+            }
+        }
+        return "";
     }
 
     public String getCode() {

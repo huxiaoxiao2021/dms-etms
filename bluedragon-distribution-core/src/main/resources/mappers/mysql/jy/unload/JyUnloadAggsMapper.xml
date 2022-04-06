@@ -103,4 +103,14 @@
         GROUP BY
             biz_id
     </select>
+
+    <select id="queryByBizId" parameterType="JyUnloadAggsEntity" resultMap="jyUnloadAggsMap">
+        SELECT
+            <include refid="Base_Column_List"/>
+        FROM
+             jy_unload_aggs
+        WHERE
+            yn = 1
+        AND biz_id = #{bizId, jdbcType=VARCHAR}
+    </select>
 </mapper>

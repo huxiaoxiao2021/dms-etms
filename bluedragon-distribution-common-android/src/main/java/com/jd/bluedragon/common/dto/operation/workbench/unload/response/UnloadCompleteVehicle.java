@@ -40,6 +40,19 @@ public class UnloadCompleteVehicle extends VehicleBaseInfo implements Serializab
      */
     private Date unloadFinishTime;
 
+    /**
+     * 任务主键
+     */
+    private String taskId;
+
+    public String getTaskId() {
+        return taskId;
+    }
+
+    public void setTaskId(String taskId) {
+        this.taskId = taskId;
+    }
+
     public Long getLessCount() {
         return lessCount;
     }

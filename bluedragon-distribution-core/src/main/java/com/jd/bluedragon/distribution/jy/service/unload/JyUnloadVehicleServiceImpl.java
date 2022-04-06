@@ -3,9 +3,7 @@ package com.jd.bluedragon.distribution.jy.service.unload;
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
-import com.jd.bluedragon.common.dto.operation.workbench.unload.request.UnloadScanRequest;
-import com.jd.bluedragon.common.dto.operation.workbench.unload.request.UnloadVehicleRequest;
-import com.jd.bluedragon.common.dto.operation.workbench.unload.request.UnloadVehicleTaskRequest;
+import com.jd.bluedragon.common.dto.operation.workbench.unload.request.*;
 import com.jd.bluedragon.common.dto.operation.workbench.unload.response.*;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.LineTypeStatis;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.VehicleBaseInfo;
@@ -26,6 +24,7 @@ import com.jd.bluedragon.distribution.jy.dto.unload.UnloadDetailCache;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadOrderTypeEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyLineTypeEnum;
+import com.jd.bluedragon.distribution.jy.enums.UnloadProductTypeEnum;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskUnloadVehicleService;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
 import com.jd.bluedragon.distribution.jy.unload.JyUnloadAggsEntity;
@@ -204,12 +203,14 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
                     toUnloadVehicle.setDeSealCarTime(entity.getDesealCarTime());
                     toUnloadVehicle.setManualCreatedTask(entity.unloadWithoutTask());
                     toUnloadVehicle.setTags(resolveTagSign(entity.getTagsSign()));
+                    toUnloadVehicle.setTaskId(getJyScheduleTaskId(entity.getBizId()));
                     vehicleList.add(toUnloadVehicle);
                 case UN_LOADING:
                     UnloadVehicleInfo unloadVehicleInfo = (UnloadVehicleInfo) vehicleBaseInfo;
                     unloadVehicleInfo.setManualCreatedTask(entity.unloadWithoutTask());
                     unloadVehicleInfo.setTags(resolveTagSign(entity.getTagsSign()));
                     unloadVehicleInfo.setUnloadProgress(entity.getUnloadProgress());
+                    unloadVehicleInfo.setTaskId(getJyScheduleTaskId(entity.getBizId()));
                     vehicleList.add(unloadVehicleInfo);
                 case UN_LOAD_DONE:
                     UnloadCompleteVehicle completeVehicle = (UnloadCompleteVehicle) vehicleBaseInfo;
@@ -218,9 +219,22 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
                     completeVehicle.setManualCreatedTask(entity.unloadWithoutTask());
                     completeVehicle.setAbnormalFlag(entity.unloadAbnormal());
                     completeVehicle.setUnloadFinishTime(entity.getUnloadFinishTime());
+                    completeVehicle.setTaskId(getJyScheduleTaskId(entity.getBizId()));
                     vehicleList.add(completeVehicle);
             }
         }
+    }
+
+    /**
+     * 查询调度任务ID
+     * @param bizId
+     * @return
+     */
+    private String getJyScheduleTaskId(String bizId) {
+        // TODO 查询调度任务ID
+        String taskId = StringUtils.EMPTY;
+
+        return taskId;
     }
 
     /**
@@ -372,7 +386,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
             // 统计本次扫描的包裹数
             calculateScanCount(result, request);
 
-            // 统计卸车任务扫描进度
+            // 记录卸车任务扫描进度
             recordUnloadProgress(result, request, taskUnloadVehicle);
         }
         // TODO catch specific exception
@@ -397,16 +411,12 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
     private void recordUnloadProgress(InvokeResult<Integer> result, UnloadScanRequest request, JyBizTaskUnloadVehicleEntity taskUnloadVehicle) {
         String pdaOpeCacheKey = genPdaUnloadProgressCacheKey(request.getBizId());
         if (redisClientOfJy.exists(pdaOpeCacheKey)) {
-            if (NumberHelper.gt0(result.getData())) {
-                redisClientOfJy.hIncrBy(pdaOpeCacheKey, RedisHashKeyConstants.UNLOAD_COUNT, result.getData());
-                redisClientOfJy.expire(pdaOpeCacheKey, 10, TimeUnit.HOURS);
+            redisClientOfJy.hIncrBy(pdaOpeCacheKey, RedisHashKeyConstants.UNLOAD_COUNT, result.getData());
+            redisClientOfJy.expire(pdaOpeCacheKey, 10, TimeUnit.HOURS);
 
-                logInfo("更新PDA本地卸车扫描进度. {}-{}", JsonHelper.toJson(request), JsonHelper.toJson(result));
-            }
+            logInfo("更新PDA本地卸车扫描进度. {}-{}", JsonHelper.toJson(request), JsonHelper.toJson(result));
         }
         else {
-            logInfo("初始化PDA本地卸车扫描进度. {}-{}", JsonHelper.toJson(request), JsonHelper.toJson(result));
-
             JyUnloadAggsEntity queryAgg = new JyUnloadAggsEntity(request.getBizId());
             JyUnloadAggsEntity unloadAggEntity = unloadAggDao.aggByBiz(queryAgg);
             Integer unloadCount = calculateRightUnloadCount(result, unloadAggEntity);
@@ -417,6 +427,8 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
 
             redisClientOfJy.hMSet(pdaOpeCacheKey, redisHashMap);
             redisClientOfJy.expire(pdaOpeCacheKey, 10, TimeUnit.HOURS);
+
+            logInfo("初始化PDA本地卸车扫描进度. {}-{}", JsonHelper.toJson(request), JsonHelper.toJson(result));
         }
     }
 
@@ -629,7 +641,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
     @Override
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "IUnloadVehicleService.unloadDetail",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
-    public InvokeResult<UnloadScanDetail> unloadDetail(UnloadVehicleRequest request) {
+    public InvokeResult<UnloadScanDetail> unloadDetail(UnloadCommonRequest request) {
         InvokeResult<UnloadScanDetail> result = new InvokeResult<>();
         if (StringUtils.isBlank(request.getBizId())) {
             result.parameterError("加载卸车进度缺少任务编码!");
@@ -747,5 +759,49 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         return String.format(CacheKeyConstants.JY_UNLOAD_PDA_AGG_KEY, bizId);
     }
 
+    @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "IUnloadVehicleService.unloadGoodsDetail",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
+    public InvokeResult<List<UnloadScanAggByProductType>> unloadGoodsDetail(UnloadGoodsRequest request) {
+        InvokeResult<List<UnloadScanAggByProductType>> result = new InvokeResult<>();
+        if (StringUtils.isBlank(request.getBizId())) {
+            result.parameterError("请选择卸车任务！");
+            return result;
+        }
 
+        try {
+            List<UnloadScanAggByProductType> productTypeList = Lists.newArrayList();
+            result.setData(productTypeList);
+            List<JyUnloadAggsEntity> unloadAggList = unloadAggDao.queryByBizId(new JyUnloadAggsEntity(request.getBizId()));
+            if (CollectionUtils.isEmpty(unloadAggList)) {
+                return result;
+            }
+
+            convertAggEntityToPage(productTypeList, unloadAggList);
+        }
+        catch (Exception ex) {
+            log.error("查询货物明细服务器异. {}", JsonHelper.toJson(request), ex);
+            result.error("查询货物明细服务器异常，请咚咚联系分拣小秘！");
+        }
+
+        return result;
+    }
+
+    private void convertAggEntityToPage(List<UnloadScanAggByProductType> productTypeList, List<JyUnloadAggsEntity> unloadAggList) {
+        for (JyUnloadAggsEntity aggsEntity : unloadAggList) {
+            UnloadScanAggByProductType item = new UnloadScanAggByProductType();
+            item.setProductType(aggsEntity.getProductType());
+            item.setProductTypeName(UnloadProductTypeEnum.getNameByCode(item.getProductType()));
+            item.setShouldScanCount(aggsEntity.getShouldScanCount().longValue());
+            item.setActualScanCount(aggsEntity.getActualScanCount().longValue());
+            productTypeList.add(item);
+        }
+    }
+
+    @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "IUnloadVehicleService.toScanAggByProduct",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
+    public InvokeResult<List<ProductTypeAgg>> toScanAggByProduct(UnloadCommonRequest request) {
+        return null;
+    }
 }

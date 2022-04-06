@@ -8,7 +8,7 @@ import com.jd.bluedragon.common.dto.select.SelectOption;
 import com.jd.bluedragon.common.dto.select.StringSelectOption;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadStatusEnum;
-import com.jd.bluedragon.distribution.jy.enums.ProductTypeEnum;
+import com.jd.bluedragon.distribution.jy.enums.UnloadProductTypeEnum;
 import com.jd.bluedragon.distribution.jy.service.unload.IJyUnloadVehicleService;
 import com.jd.bluedragon.external.gateway.service.JyUnloadVehicleGatewayService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,7 +50,7 @@ public class JyUnloadVehicleGatewayServiceImpl implements JyUnloadVehicleGateway
     @Override
     public JdCResponse<List<StringSelectOption>> productTypeOptions() {
         List<StringSelectOption> optionList = new ArrayList<>();
-        for (ProductTypeEnum _enum : ProductTypeEnum.values()) {
+        for (UnloadProductTypeEnum _enum : UnloadProductTypeEnum.values()) {
             StringSelectOption keyValue = new StringSelectOption(_enum.getCode(), _enum.getName(), _enum.getDisplayOrder());
             optionList.add(keyValue);
         }
@@ -93,19 +93,21 @@ public class JyUnloadVehicleGatewayServiceImpl implements JyUnloadVehicleGateway
     }
 
     @Override
-    public JdCResponse<UnloadScanDetail> unloadDetail(UnloadVehicleRequest request) {
+    public JdCResponse<UnloadScanDetail> unloadDetail(UnloadCommonRequest request) {
         InvokeResult<UnloadScanDetail> invokeResult = unloadVehicleService.unloadDetail(request);
         return new JdCResponse<>(invokeResult.getCode(), invokeResult.getMessage(), invokeResult.getData());
     }
 
     @Override
-    public JdCResponse<List<UnloadScanAggByProductType>> unloadGoodsDetail(UnloadVehicleRequest request) {
-        return null;
+    public JdCResponse<List<UnloadScanAggByProductType>> unloadGoodsDetail(UnloadGoodsRequest request) {
+        InvokeResult<List<UnloadScanAggByProductType>> invokeResult = unloadVehicleService.unloadGoodsDetail(request);
+        return new JdCResponse<>(invokeResult.getCode(), invokeResult.getMessage(), invokeResult.getData());
     }
 
     @Override
-    public JdCResponse<List<ProductTypeAgg>> toScanAggByProduct(UnloadVehicleRequest request) {
-        return null;
+    public JdCResponse<List<ProductTypeAgg>> toScanAggByProduct(UnloadCommonRequest request) {
+        InvokeResult<List<ProductTypeAgg>> invokeResult = unloadVehicleService.toScanAggByProduct(request);
+        return new JdCResponse<>(invokeResult.getCode(), invokeResult.getMessage(), invokeResult.getData());
     }
 
     @Override
@@ -117,14 +119,14 @@ public class JyUnloadVehicleGatewayServiceImpl implements JyUnloadVehicleGateway
     }
 
     @Override
-    public JdCResponse<InterceptScanBarCode> interceptBarCodeDetail(UnloadVehicleRequest request) {
+    public JdCResponse<InterceptScanBarCode> interceptBarCodeDetail(UnloadCommonRequest request) {
 
         // "intercept_flag 1:拦截
         return null;
     }
 
     @Override
-    public JdCResponse<MoreScanBarCode> moreScanBarCodeDetail(UnloadVehicleRequest request) {
+    public JdCResponse<MoreScanBarCode> moreScanBarCodeDetail(UnloadCommonRequest request) {
 
         // more_scan_flag 1:多扫
         // local_site_flag 1:本场地
@@ -132,7 +134,7 @@ public class JyUnloadVehicleGatewayServiceImpl implements JyUnloadVehicleGateway
     }
 
     @Override
-    public JdCResponse<UnloadPreviewData> unloadPreviewDashboard(UnloadVehicleRequest request) {
+    public JdCResponse<UnloadPreviewData> unloadPreviewDashboard(UnloadCommonRequest request) {
         return null;
     }
 
