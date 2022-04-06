@@ -6,7 +6,7 @@ import com.jd.bluedragon.common.dto.operation.workbench.unseal.request.SealTaskI
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.request.SealVehicleTaskRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.*;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
-import com.jd.bluedragon.core.base.IJySealVehicleManager;
+import com.jd.bluedragon.distribution.jy.manager.IJyUnSealVehicleManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -62,8 +62,8 @@ public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
     private static final int STATUS = 10;
 
     @Autowired
-    @Qualifier("jySealVehicleManager")
-    private IJySealVehicleManager jySealVehicleManager;
+    @Qualifier("jyUnSealVehicleManager")
+    private IJyUnSealVehicleManager jySealVehicleManager;
 
     @Autowired
     private NewSealVehicleService newSealVehicleService;

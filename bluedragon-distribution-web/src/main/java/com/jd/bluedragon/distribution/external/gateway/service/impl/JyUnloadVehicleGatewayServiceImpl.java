@@ -31,7 +31,7 @@ public class JyUnloadVehicleGatewayServiceImpl implements JyUnloadVehicleGateway
     @Override
     public JdCResponse<UnloadVehicleTaskResponse> fetchUnloadTask(UnloadVehicleTaskRequest request) {
         InvokeResult<UnloadVehicleTaskResponse> invokeResult = unloadVehicleService.fetchUnloadTask(request);
-        return new JdCResponse<>(invokeResult.getCode(), invokeResult.getMessage(), invokeResult.getData());
+        return retJdCResponse(invokeResult);
     }
 
     @Override
@@ -74,7 +74,7 @@ public class JyUnloadVehicleGatewayServiceImpl implements JyUnloadVehicleGateway
         }
 
         InvokeResult<Integer> invokeResult = unloadVehicleService.unloadScan(request);
-        return new JdVerifyResponse<>(invokeResult.getCode(), invokeResult.getMessage());
+        return new JdVerifyResponse<>(invokeResult.getCode(), invokeResult.getMessage(), invokeResult.getData());
     }
 
     /**
@@ -95,27 +95,25 @@ public class JyUnloadVehicleGatewayServiceImpl implements JyUnloadVehicleGateway
     @Override
     public JdCResponse<UnloadScanDetail> unloadDetail(UnloadCommonRequest request) {
         InvokeResult<UnloadScanDetail> invokeResult = unloadVehicleService.unloadDetail(request);
-        return new JdCResponse<>(invokeResult.getCode(), invokeResult.getMessage(), invokeResult.getData());
+        return retJdCResponse(invokeResult);
     }
 
     @Override
     public JdCResponse<List<UnloadScanAggByProductType>> unloadGoodsDetail(UnloadGoodsRequest request) {
         InvokeResult<List<UnloadScanAggByProductType>> invokeResult = unloadVehicleService.unloadGoodsDetail(request);
-        return new JdCResponse<>(invokeResult.getCode(), invokeResult.getMessage(), invokeResult.getData());
+        return retJdCResponse(invokeResult);
     }
 
     @Override
     public JdCResponse<List<ProductTypeAgg>> toScanAggByProduct(UnloadCommonRequest request) {
         InvokeResult<List<ProductTypeAgg>> invokeResult = unloadVehicleService.toScanAggByProduct(request);
-        return new JdCResponse<>(invokeResult.getCode(), invokeResult.getMessage(), invokeResult.getData());
+        return retJdCResponse(invokeResult);
     }
 
     @Override
     public JdCResponse<ToScanDetailByProductType> toScanBarCodeDetail(UnloadProductTypeRequest request) {
-
-        // scaned_flag null or 0 是待扫
-
-        return null;
+        InvokeResult<ToScanDetailByProductType> invokeResult = unloadVehicleService.toScanBarCodeDetail(request);
+        return new JdCResponse<>(invokeResult.getCode(), invokeResult.getMessage(), invokeResult.getData());
     }
 
     @Override
@@ -141,5 +139,9 @@ public class JyUnloadVehicleGatewayServiceImpl implements JyUnloadVehicleGateway
     @Override
     public JdCResponse<Boolean> submitUnloadComplete(UnloadCompleteRequest request) {
         return null;
+    }
+
+    private <T> JdCResponse<T> retJdCResponse(InvokeResult<T> invokeResult) {
+        return new JdCResponse<>(invokeResult.getCode(), invokeResult.getMessage(), invokeResult.getData());
     }
 }
