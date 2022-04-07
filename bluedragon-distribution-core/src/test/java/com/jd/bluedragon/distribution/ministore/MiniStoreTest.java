@@ -124,4 +124,10 @@ public class MiniStoreTest {
         boolean rs =miniStoreService.validateSortRelation("BC1001191120330000012905","JDV000049314581-1-0-",10512);
         System.out.println("集包关系校验：" +rs);
     }
+
+    @Test
+    public void incrSortCountTest() {
+        int rs =    miniStoreService.incrSortCount(19L, "吴有德", 17331L);
+        System.out.println("校验结果：" +rs);
+    }
 }

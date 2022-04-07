@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.ministore.dao;
 import com.jd.bluedragon.distribution.ministore.domain.MiniStoreBindRelation;
 import com.jd.bluedragon.distribution.ministore.dto.DeviceDto;
 import com.jd.bluedragon.distribution.ministore.dto.QueryTaskDto;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -38,5 +39,5 @@ public interface MiniStoreBindRelationDao {
 
     List<MiniStoreBindRelation> listBindDate(QueryTaskDto queryTaskDto);
 
-    int incrSortCount(Long id,String updateUser,Long updateUserCode);
+    int incrSortCount(@Param("id") Long id, @Param("updateUser") String updateUser, @Param("updateUserCode") Long updateUserCode);
 }
