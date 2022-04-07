@@ -159,22 +159,27 @@ public class JyGroupMemberServiceImpl implements JyGroupMemberService {
 			jyGroupMemberDao.insert(memberData);
 			//非新小组，将新加入组员加入到当前小组工作任务人员明细中
 			//查询当前小组工作任务
-			Random r = new Random();
-			Long taskId = 1L+ r.nextInt(10) ;
-			JyTaskGroupMemberEntity taskMember = new JyTaskGroupMemberEntity();
-			taskMember.setRefGroupMemberCode(memberData.getMemberCode());
-			taskMember.setRefGroupCode(groupCode);
-			taskMember.setRefTaskId(taskId);
-			taskMember.setJobCode(addMemberRequest.getJobCode());
-			taskMember.setUserCode(addMemberRequest.getUserCode());
-			taskMember.setUserName(addMemberRequest.getUserName());
-			taskMember.setOrgCode(addMemberRequest.getOrgCode());
-			taskMember.setSiteCode(addMemberRequest.getSiteCode());
-			taskMember.setStartTime(currentDate);
-			taskMember.setCreateTime(currentDate);
-			taskMember.setCreateUser(addMemberRequest.getOperateUserCode());
-			taskMember.setCreateUserName(addMemberRequest.getOperateUserName());	
-			jyTaskGroupMemberService.addTaskMember(taskMember);
+			List<Long> taskIds  = new ArrayList<Long>();
+			taskIds.add(2L);
+			taskIds.add(3L);
+			if(!CollectionUtils.isEmpty(taskIds)) {
+				for(Long taskId : taskIds) {
+					JyTaskGroupMemberEntity taskMember = new JyTaskGroupMemberEntity();
+					taskMember.setRefGroupMemberCode(memberData.getMemberCode());
+					taskMember.setRefGroupCode(groupCode);
+					taskMember.setRefTaskId(taskId);
+					taskMember.setJobCode(addMemberRequest.getJobCode());
+					taskMember.setUserCode(addMemberRequest.getUserCode());
+					taskMember.setUserName(addMemberRequest.getUserName());
+					taskMember.setOrgCode(addMemberRequest.getOrgCode());
+					taskMember.setSiteCode(addMemberRequest.getSiteCode());
+					taskMember.setStartTime(currentDate);
+					taskMember.setCreateTime(currentDate);
+					taskMember.setCreateUser(addMemberRequest.getOperateUserCode());
+					taskMember.setCreateUserName(addMemberRequest.getOperateUserName());	
+					jyTaskGroupMemberService.addTaskMember(taskMember);
+				}
+			}
 		}
 		GroupMemberData returnData = new GroupMemberData();
 		returnData.setGroupCode(groupCode);
