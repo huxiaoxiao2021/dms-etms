@@ -117,7 +117,7 @@ public class MiniStoreGatewayServiceImpl implements MiniStoreGatewayService {
         if (null != miniStoreBindRelation) {
             UnBoxValidateResp unBoxValidateResp = BeanUtils.copy(miniStoreBindRelation, UnBoxValidateResp.class);
             unBoxValidateResp.setMiniStoreBindRelationId(miniStoreBindRelation.getId());
-            return JdCResponse.successResponse(unBoxValidateReq);
+            return JdCResponse.successResponse(unBoxValidateResp);
         }
         return JdCResponse.errorResponse(ResponseCodeMapping.NO_LEGAL_BIND_RELATIONSHIP);
     }
