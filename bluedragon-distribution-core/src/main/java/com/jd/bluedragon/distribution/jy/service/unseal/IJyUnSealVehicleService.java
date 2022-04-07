@@ -42,9 +42,16 @@ public interface IJyUnSealVehicleService {
 
 
     /**
-     * 创建卸车任务
+     * 创建解封车任务
      * @param dto
      * @return
      */
     boolean createUnSealTask(JyBizTaskUnSealDto dto);
+
+    /**
+     * 取消解封车任务
+     * @param dto
+     * @return
+     */
+    boolean cancelUnSealTask(JyBizTaskUnSealDto dto);
 }

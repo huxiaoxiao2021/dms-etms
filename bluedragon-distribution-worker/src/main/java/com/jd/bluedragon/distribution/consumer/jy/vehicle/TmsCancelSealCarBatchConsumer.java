@@ -5,8 +5,11 @@ import com.jd.bluedragon.core.base.VosManager;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskUnloadVehicleService;
+import com.jd.bluedragon.distribution.jy.service.unseal.IJyUnSealVehicleService;
+import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnSealDto;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.etms.vos.dto.CommonDto;
 import com.jd.etms.vos.dto.SealCarDto;
 import com.jd.jmq.common.message.Message;
 import com.jd.ump.annotation.JProEnum;
@@ -19,6 +22,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -35,8 +39,16 @@ public class TmsCancelSealCarBatchConsumer extends MessageBaseConsumer {
 
     private Logger logger = LoggerFactory.getLogger(TmsCancelSealCarBatchConsumer.class);
 
+    /**
+     * 运输取消封车状态
+     */
+    private static final Integer TMS_CANCEL_SEAL_CAR = 200;
+
     @Autowired
-    private JyBizTaskUnloadVehicleService jyBizTaskUnloadVehicleService;
+    private VosManager vosManager;
+
+    @Autowired
+    private IJyUnSealVehicleService jyUnSealVehicleService;
 
     @Override
     @JProfiler(jKey = "DMSWORKER.jy.TmsCancelSealCarBatchConsumer.consume",jAppName = Constants.UMP_APP_NAME_DMSWORKER, mState = {JProEnum.TP,JProEnum.FunctionError})
@@ -59,8 +71,48 @@ public class TmsCancelSealCarBatchConsumer extends MessageBaseConsumer {
             return;
         }
 
-        //取消批次需要更新批次信息表 如果全部批次都被取消则取消 解封车任务
+        //接收取消批次信息 查询运输获取取消状态
+        SealCarDto sealCarCodeOfTms = findSealCarInfoBySealCarCodeOfTms(mqBody.getSealCarCode());
+        if(TMS_CANCEL_SEAL_CAR.equals(sealCarCodeOfTms.getStatus())){
+            //证明整个封车编码被取消了 , 取消对应任务
+            if(!jyUnSealVehicleService.cancelUnSealTask(convert2Dto(mqBody))){
+                //失败重试
+                logger.error("TmsCancelSealCarBatchConsumer consume -->关键数据为空，内容为【{}】", message.getText());
+                throw new JyBizException("cancelUnSealTask fail!");
+            }
+        }
+    }
 
+    private JyBizTaskUnSealDto convert2Dto(TmsCancelSealCarBatchMQBody mqBody){
+        JyBizTaskUnSealDto dto = new JyBizTaskUnSealDto();
+        dto.setBizId(mqBody.getSealCarCode());
+        dto.setSealCarCode(mqBody.getSealCarCode());
+        dto.setOperateUserName(mqBody.getOperateUserName());
+        dto.setOperateUserErp(mqBody.getOperateUserCode());
+        dto.setOperateTime(new Date(mqBody.getOperateTime()));
+        return dto;
+    }
+
+    /**
+     * 通过封车编码获取封车信息
+     * @param sealCarCode
+     * @return
+     */
+    private SealCarDto findSealCarInfoBySealCarCodeOfTms(String sealCarCode){
+        if(logger.isInfoEnabled()){
+            logger.info("TTmsCancelSealCarBatchConsumer获取封车信息开始 {}",sealCarCode);
+        }
+        CommonDto<SealCarDto> sealCarDtoCommonDto = vosManager.querySealCarInfoBySealCarCode(sealCarCode);
+        if(logger.isInfoEnabled()){
+            logger.info("TmsCancelSealCarBatchConsumer获取封车信息返回数据 {},{}",sealCarCode,JsonHelper.toJson(sealCarCode));
+        }
+        if(sealCarDtoCommonDto == null || Constants.RESULT_SUCCESS != sealCarDtoCommonDto.getCode()){
+            throw new JyBizException("querySealCarInfoBySealCarCode fail!");
+        }
+        if(sealCarDtoCommonDto.getData() == null || StringUtils.isEmpty(sealCarDtoCommonDto.getData().getTransWorkItemCode())){
+            throw new JyBizException("querySealCarInfoBySealCarCode null!");
+        }
+        return sealCarDtoCommonDto.getData();
     }
 
     /**
@@ -88,7 +140,7 @@ public class TmsCancelSealCarBatchConsumer extends MessageBaseConsumer {
         /**
          * 操作时间
          */
-        private String operateTime;
+        private Long operateTime;
 
         public String getSealCarCode() {
             return sealCarCode;
@@ -122,11 +174,11 @@ public class TmsCancelSealCarBatchConsumer extends MessageBaseConsumer {
             this.operateUserName = operateUserName;
         }
 
-        public String getOperateTime() {
+        public Long getOperateTime() {
             return operateTime;
         }
 
-        public void setOperateTime(String operateTime) {
+        public void setOperateTime(Long operateTime) {
             this.operateTime = operateTime;
         }
     }
