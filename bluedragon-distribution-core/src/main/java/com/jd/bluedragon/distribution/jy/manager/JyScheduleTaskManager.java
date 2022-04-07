@@ -34,7 +34,7 @@ public interface JyScheduleTaskManager {
      * @param req
      * @return
      */
-    JyScheduleTaskResp distributeScheduleTask(JyScheduleTaskReq req);
+    JyScheduleTaskResp distributeAndStartScheduleTask(JyScheduleTaskReq req);
 
     /**
      * 通过业务主键和任务类型获取调度任务

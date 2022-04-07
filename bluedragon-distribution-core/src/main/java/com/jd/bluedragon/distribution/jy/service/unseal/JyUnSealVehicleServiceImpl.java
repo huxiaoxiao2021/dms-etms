@@ -565,7 +565,7 @@ public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
     private boolean createUnSealScheduleTask(JyBizTaskUnSealDto dto){
         JyScheduleTaskReq req = new JyScheduleTaskReq();
         req.setBizId(dto.getBizId());
-        req.setTaskType(String.valueOf(JyScheduleTaskTypeEnum.UNSEAL.getCode()));
+        req.setTaskType(JyScheduleTaskTypeEnum.UNSEAL.getCode());
         req.setOpeUser(dto.getOperateUserErp());
         req.setOpeUserName(dto.getOperateUserName());
         req.setOpeTime(dto.getOperateTime());
