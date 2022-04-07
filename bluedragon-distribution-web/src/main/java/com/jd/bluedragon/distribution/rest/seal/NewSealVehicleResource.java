@@ -490,7 +490,8 @@ public class NewSealVehicleResource {
                         sealVehicleResponse.setCode(JdResponse.CODE_OK);
                         sealVehicleResponse.setMessage(JdResponse.MESSAGE_OK);
                     } else {
-                        if(SealCarSourceEnum.FERRY_SEAL_CAR.getCode().equals(sealCarSource)){
+                        //if(SealCarSourceEnum.FERRY_SEAL_CAR.getCode().equals(sealCarSource)){
+                            //不分传摆和运力都去校验目的地类型是中转场的时候 跳过目的地不一致逻辑
                             BaseStaffSiteOrgDto endNodeSite = basicPrimaryWS.getBaseSiteBySiteId(endNodeId);
                             if(endNodeSite != null
                                     && SiteSignTool.supportTemporaryTransfer(endNodeSite.getSiteSign())){
@@ -498,7 +499,7 @@ public class NewSealVehicleResource {
                                 sealVehicleResponse.setMessage(JdResponse.MESSAGE_OK);
                                 return sealVehicleResponse;
                             }
-                        }
+                        //}
                         sealVehicleResponse.setCode(NewSealVehicleResponse.CODE_EXCUTE_ERROR);
                         sealVehicleResponse.setMessage(NewSealVehicleResponse.TIPS_RECEIVESITE_DIFF_ERROR);
                     }
