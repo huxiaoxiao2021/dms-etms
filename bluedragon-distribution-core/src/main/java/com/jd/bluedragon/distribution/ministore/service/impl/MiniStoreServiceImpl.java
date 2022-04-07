@@ -1,12 +1,11 @@
 package com.jd.bluedragon.distribution.ministore.service.impl;
 
-import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.ministore.dao.MiniStoreBindRelationDao;
 import com.jd.bluedragon.distribution.ministore.domain.MiniStoreBindRelation;
 import com.jd.bluedragon.distribution.ministore.dto.DeviceDto;
 import com.jd.bluedragon.distribution.ministore.dto.QueryTaskDto;
 import com.jd.bluedragon.distribution.ministore.dto.SealBoxDto;
-import com.jd.bluedragon.distribution.ministore.enums.MiniStoreProcessStatusEnum;
+import com.jd.bluedragon.common.dto.ministore.MiniStoreProcessStatusEnum;
 import com.jd.bluedragon.distribution.ministore.service.MiniStoreService;
 import com.jd.bluedragon.distribution.sorting.dao.SortingDao;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;

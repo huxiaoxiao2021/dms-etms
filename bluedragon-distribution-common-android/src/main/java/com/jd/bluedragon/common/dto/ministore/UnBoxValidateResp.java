@@ -10,6 +10,15 @@ public class UnBoxValidateResp implements Serializable {
     private String iceBoardCode2;
     private String boxCode;
     private Integer sortCount;
+    private Byte state;
+
+    public Byte getState() {
+        return state;
+    }
+
+    public void setState(Byte state) {
+        this.state = state;
+    }
 
     public Integer getSortCount() {
         return sortCount;

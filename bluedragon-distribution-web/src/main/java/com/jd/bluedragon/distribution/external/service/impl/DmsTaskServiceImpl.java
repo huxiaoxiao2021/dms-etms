@@ -10,7 +10,6 @@ import com.jd.bluedragon.distribution.api.response.TaskResponse;
 import com.jd.bluedragon.distribution.external.service.DmsTaskService;
 import com.jd.bluedragon.distribution.ministore.dto.PSReceivingDto;
 import com.jd.bluedragon.distribution.ministore.enums.BizDirectionEnum;
-import com.jd.bluedragon.distribution.ministore.enums.MiniStoreProcessStatusEnum;
 import com.jd.bluedragon.distribution.ministore.enums.ProcessTypeEnum;
 import com.jd.bluedragon.distribution.ministore.service.MiniStoreService;
 import com.jd.bluedragon.distribution.rest.task.TaskResource;

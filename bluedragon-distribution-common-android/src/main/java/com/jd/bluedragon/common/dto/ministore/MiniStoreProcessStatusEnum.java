@@ -1,4 +1,4 @@
-package com.jd.bluedragon.distribution.ministore.enums;
+package com.jd.bluedragon.common.dto.ministore;
 
 /**
  * 微仓状态扭转枚举

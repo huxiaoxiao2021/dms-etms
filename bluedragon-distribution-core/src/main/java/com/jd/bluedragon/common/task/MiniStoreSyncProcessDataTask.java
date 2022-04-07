@@ -54,6 +54,7 @@ public class MiniStoreSyncProcessDataTask implements Runnable {
             event.setOperateTime(TimeUtils.date2string(time,TimeUtils.yyyy_MM_dd_HH_mm_ss));
             event.setOperateUser(miniStoreBindRelation.getUpdateUser());
             event.setCreateTime(TimeUtils.date2string(time,TimeUtils.yyyy_MM_dd_HH_mm_ss));
+            logger.info("MiniStoreSyncProcessDataTask send mq消息体："+JsonHelper.toJson(event));
             miniStoreSortProcessProducer.sendOnFailPersistent(boxCode, JsonHelper.toJson(event));
         }
 
