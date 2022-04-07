@@ -20,7 +20,7 @@ public class JyGroupQuery extends BasePagerCondition {
     /**
      * 岗位编码
      */
-    private String posionCode;
+    private String positionCode;
 	/**
 	 * 分页-pageSize
 	 */
@@ -32,11 +32,11 @@ public class JyGroupQuery extends BasePagerCondition {
 	public void setGroupCode(String groupCode) {
 		this.groupCode = groupCode;
 	}
-	public String getPosionCode() {
-		return posionCode;
+	public String getPositionCode() {
+		return positionCode;
 	}
-	public void setPosionCode(String posionCode) {
-		this.posionCode = posionCode;
+	public void setPositionCode(String positionCode) {
+		this.positionCode = positionCode;
 	}
 	public Integer getPageSize() {
 		return pageSize;

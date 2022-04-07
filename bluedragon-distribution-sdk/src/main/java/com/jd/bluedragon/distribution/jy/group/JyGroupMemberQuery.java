@@ -16,7 +16,7 @@ public class JyGroupMemberQuery extends BasePagerCondition {
     /**
      * 组编码
      */
-    private String groupCode;
+    private String refGroupCode;
     /**
      * 状态
      */
@@ -26,11 +26,11 @@ public class JyGroupMemberQuery extends BasePagerCondition {
 	 */
 	private Integer pageSize;
 	
-	public String getGroupCode() {
-		return groupCode;
+	public String getRefGroupCode() {
+		return refGroupCode;
 	}
-	public void setGroupCode(String groupCode) {
-		this.groupCode = groupCode;
+	public void setRefGroupCode(String refGroupCode) {
+		this.refGroupCode = refGroupCode;
 	}
 	public Integer getStatus() {
 		return status;

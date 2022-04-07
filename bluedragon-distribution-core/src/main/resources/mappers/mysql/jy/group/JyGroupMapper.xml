@@ -7,7 +7,7 @@
     <resultMap type="com.jd.bluedragon.distribution.jy.group.JyGroupEntity" id="jyGroupMap">
         <result property="id" column="id"/>
         <result property="groupCode" column="group_code"/>
-        <result property="posionCode" column="posion_code"/>
+        <result property="positionCode" column="position_code"/>
         <result property="orgCode" column="org_code"/>
         <result property="siteCode" column="site_code"/>
         <result property="createUser" column="create_user"/>
@@ -23,7 +23,7 @@
     <sql id="Base_Column_List">
         id,
         group_code,
-        posion_code,
+        position_code,
         org_code,
         site_code,
         create_user,
@@ -40,7 +40,7 @@
         INSERT INTO jy_group (
                             id,
                             group_code,
-                            posion_code,
+                            position_code,
                             org_code,
                             site_code,
                             create_user,
@@ -48,13 +48,11 @@
                             update_user,
                             update_user_name,
                             create_time,
-                            update_time,
-                            yn,
-                            ts
+                            update_time
                     ) VALUES (
                             #{id},
                             #{groupCode},
-                            #{posionCode},
+                            #{positionCode},
                             #{orgCode},
                             #{siteCode},
                             #{createUser},
@@ -62,18 +60,16 @@
                             #{updateUser},
                             #{updateUserName},
                             #{createTime},
-                            #{updateTime},
-                            #{yn},
-                            #{ts}
+                            #{updateTime}
                     )
     </insert>
     <select id="queryGroupByPosition" parameterType="com.jd.bluedragon.distribution.jy.group.JyGroupQuery" resultMap="jyGroupMap">
         select
             <include refid="Base_Column_List"/>
         from
-            jy_group_member t
+            jy_group
         where yn = 1
-          and posion_code = #{posionCode}  
+          and position_code = #{positionCode}  
           order by id desc
         limit 1
     </select>    

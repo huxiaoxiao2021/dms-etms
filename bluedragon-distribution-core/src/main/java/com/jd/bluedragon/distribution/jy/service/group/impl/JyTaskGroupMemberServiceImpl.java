@@ -60,7 +60,7 @@ public class JyTaskGroupMemberServiceImpl implements JyTaskGroupMemberService {
 		result.toSuccess();
 		//查询小组在岗人员
 		JyGroupMemberQuery membersQuery = new JyGroupMemberQuery();
-		membersQuery.setGroupCode(startData.getRefGroupCode());
+		membersQuery.setRefGroupCode(startData.getRefGroupCode());
 		membersQuery.setStatus(JyGroupMemberStatusEnum.IN.getCode());
 		List<JyGroupMemberEntity> members = jyGroupMemberService.queryMemberListByGroup(membersQuery);
 		List<JyTaskGroupMemberEntity> taskMembers = new ArrayList<JyTaskGroupMemberEntity>();

@@ -93,12 +93,11 @@ public class JyGroupMemberServiceImpl implements JyGroupMemberService {
 		String gridKey = positionData.getData().getRefGridKey();
 		//查询岗位码对应的小组信息
 		JyGroupQuery groupQuery = new JyGroupQuery();
-		groupQuery.setPosionCode(addMemberRequest.getPositionCode());
+		groupQuery.setPositionCode(addMemberRequest.getPositionCode());
 		JyGroupEntity groupData = null;
 		Result<JyGroupEntity> groupResult = jyGroupService.queryGroupByPosition(groupQuery);
 		boolean isNewGroup = false;
 		Date currentDate = new Date();
-		
 		if(groupResult != null 
 				&& groupResult.isSuccess()
 				&& groupResult.getData() != null) {
@@ -119,6 +118,7 @@ public class JyGroupMemberServiceImpl implements JyGroupMemberService {
 		generateAndSetMemberCode(memberData);
 		memberData.setRefGroupCode(groupCode);
 		memberData.setRefSignRecordId(addMemberRequest.getSignRecordId());
+		memberData.setStatus(JyGroupMemberStatusEnum.IN.getCode());
 		memberData.setUserCode(addMemberRequest.getUserCode());
 		memberData.setUserName(addMemberRequest.getUserName());
 		memberData.setJobCode(addMemberRequest.getJobCode());

@@ -165,13 +165,11 @@
             <include refid="queryWithGroup"/>
     </select>    
     <sql id="queryWithGroup">
-        <where>
         where t.yn = 1
             and t.ref_group_code = #{refGroupCode}           
         <if test="status != null" >
             and t.status = #{status,jdbcType=INTEGER}
         </if>       
-        </where>
     </sql> 
     <select id="queryBySignRecordId" parameterType="java.lang.Long" resultMap="jyGroupMemberMap">
         select

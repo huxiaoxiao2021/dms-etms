@@ -24,8 +24,8 @@ import com.jd.bluedragon.utils.StringHelper;
 public class JyGroupServiceImpl implements JyGroupService {
 
 	@Autowired
-	@Qualifier("workStationDao")
-	private JyGroupDao workStationDao;
+	@Qualifier("jyGroupDao")
+	private JyGroupDao jyGroupDao;
 	
 	@Autowired
 	private IGenerateObjectId genObjectId;
@@ -42,14 +42,14 @@ public class JyGroupServiceImpl implements JyGroupService {
 			return result;
 		}
 		generateAndSetGroupCode(data);
-		result.setData(workStationDao.insert(data) == 1);
+		result.setData(jyGroupDao.insert(data) == 1);
 		return result;
 	}
 	@Override
 	public Result<JyGroupEntity> queryGroupByPosition(JyGroupQuery query) {
 		Result<JyGroupEntity> result = new Result<JyGroupEntity>();
 		result.toSuccess();
-		result.setData(workStationDao.queryGroupByPosition(query));
+		result.setData(jyGroupDao.queryGroupByPosition(query));
 		return result;
 	}	
 	private Result<Boolean> checkAndFillBeforeAdd(JyGroupEntity data) {

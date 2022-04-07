@@ -75,7 +75,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
     @Autowired
     private JyUnloadAggsDao unloadAggDao;
 
-    @Qualifier("inspectionJsfServiceProvider")
+    @Qualifier("inspectionService")
     @Autowired
     private InspectionJsfService inspectionService;
 
