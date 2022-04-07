@@ -163,6 +163,15 @@
         limit 1;
     </select>
 
+    <select id="findByTransWorkItemCode" resultMap="jyBizTaskUnloadVehicleMap">
+        select
+        <include refid="Base_Column_List"/>
+        from jy_biz_task_unload_vehicle
+        where trans_work_item_code = #{transWorkItemCode} and yn = 1
+        order by ts desc
+        limit 1;
+    </select>
+
     <select id="findIdByBizId" resultMap="jyBizTaskUnloadVehicleMap">
         select
             id
@@ -266,6 +275,30 @@
 
         limit #{offset},#{limit}
 
+        <if test="orderType != null">
+            order by
+            <choose>
+                <when test="orderType == 1">
+                    sort_time desc
+                </when>
+                <when test="orderType == 2">
+                    abnormal_flag desc,sort_time desc
+                </when>
+                <when test="orderType == 3">
+                    sort_integral
+                </when>
+                <when test="orderType == 4">
+                    deseal_car_time desc
+                </when>
+                <when test="orderType == 5">
+                    unload_progress desc
+                </when>
+                <otherwise>
+                    id
+                </otherwise>
+            </choose>
+
+        </if>
     </select>
 
     <update id="updateStatusByBizId" parameterType="jyBizTaskUnloadVehicleEntity">

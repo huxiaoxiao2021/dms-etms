@@ -381,5 +381,22 @@
     <jmq:consumer id="jmq.b2bWaybillScheduleMqListener" transport="jmq.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.b2b.tms.bd.schedule.result}" listener="b2bWaybillScheduleMqListener"/>
     </jmq:consumer>
+
+    <!--运输状态消息-->
+    <jmq:consumer id="jmq.tmsSealCarStatusConsumer" transport="jmq.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.tms.seal.car.status}" listener="tmsSealCarStatusConsumer"/>
+    </jmq:consumer>
+    <!--运输取消封车消息-->
+    <jmq:consumer id="jmq.tmsCancelSealCarBatchConsumer" transport="jmq.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.tms.cancel.seal.car.batch}" listener="tmsCancelSealCarBatchConsumer"/>
+    </jmq:consumer>
+    <!--运输司机到达消息-->
+    <jmq:consumer id="jmq.tmsTransWorkCarArriveConsumer" transport="jmq.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.tms.trans.work.car.arrive}" listener="tmsTransWorkCarArriveConsumer"/>
+    </jmq:consumer>
+    <!--运输司机到达消息-->
+    <jmq:consumer id="jmq.tmsVehicleDetailStatusConsumer" transport="jmq.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.tms.vehicle.detail.status}" listener="tmsVehicleDetailStatusConsumer"/>
+    </jmq:consumer>
 </beans>
 

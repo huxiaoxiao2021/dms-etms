@@ -37,4 +37,14 @@ public class UnloadCarInfo extends VehicleBaseInfo implements Serializable {
     public void setUnloadCount(Long unloadCount) {
         this.unloadCount = unloadCount;
     }
+
+    private Boolean _active;
+
+    public Boolean get_active() {
+        return _active;
+    }
+
+    public void set_active(Boolean _active) {
+        this._active = _active;
+    }
 }

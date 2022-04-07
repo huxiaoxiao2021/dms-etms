@@ -49,6 +49,12 @@ public class JyUnloadEntity implements Serializable {
      * 目的场地ID
      */
     private Long endSiteId;
+
+    /**
+     * 是否无任务卸车；1：是：0：否
+     */
+    private Integer manualCreatedFlag;
+
     /**
      * 操作场地ID
      */
@@ -132,6 +138,14 @@ public class JyUnloadEntity implements Serializable {
 
     public Long getStartSiteId() {
         return this.startSiteId;
+    }
+
+    public Integer getManualCreatedFlag() {
+        return manualCreatedFlag;
+    }
+
+    public void setManualCreatedFlag(Integer manualCreatedFlag) {
+        this.manualCreatedFlag = manualCreatedFlag;
     }
 
     public Long setEndSiteId(Long endSiteId) {

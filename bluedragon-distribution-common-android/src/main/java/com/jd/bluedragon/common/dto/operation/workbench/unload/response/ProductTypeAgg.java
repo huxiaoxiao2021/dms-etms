@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 /**
  * @ClassName ProductTypeAgg
- * @Description 按产品类型统计包裹数
+ * @Description 按产品类型统计待扫包裹数
  * @Author wyh
  * @Date 2022/4/1 15:12
  **/
@@ -23,7 +23,7 @@ public class ProductTypeAgg implements Serializable {
     private String productTypeName;
 
     /**
-     * 数量
+     * 待扫数量
      */
     private Long count;
 

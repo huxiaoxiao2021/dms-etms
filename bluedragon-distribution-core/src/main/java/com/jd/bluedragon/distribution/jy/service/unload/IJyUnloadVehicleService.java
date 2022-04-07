@@ -1,11 +1,9 @@
 package com.jd.bluedragon.distribution.jy.service.unload;
 
 import com.jd.bluedragon.common.dto.operation.workbench.unload.request.*;
-import com.jd.bluedragon.common.dto.operation.workbench.unload.response.ProductTypeAgg;
-import com.jd.bluedragon.common.dto.operation.workbench.unload.response.UnloadScanAggByProductType;
-import com.jd.bluedragon.common.dto.operation.workbench.unload.response.UnloadScanDetail;
-import com.jd.bluedragon.common.dto.operation.workbench.unload.response.UnloadVehicleTaskResponse;
+import com.jd.bluedragon.common.dto.operation.workbench.unload.response.*;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadDto;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
 
 import java.util.List;
@@ -54,9 +52,30 @@ public interface IJyUnloadVehicleService {
     InvokeResult<List<ProductTypeAgg>> toScanAggByProduct(UnloadCommonRequest request);
 
     /**
-     * 创建卸车任务
-     * @param entity
+     * 查询待扫包裹
+     * @param request
      * @return
      */
-    boolean createUnloadTask(JyBizTaskUnloadVehicleEntity entity);
+    InvokeResult<ToScanDetailByProductType> toScanBarCodeDetail(UnloadProductTypeRequest request);
+
+    /**
+     * 创建卸车任务
+     * @param dto
+     * @return
+     */
+    boolean createUnloadTask(JyBizTaskUnloadDto dto);
+
+    /**
+     * 卸车任务领取和分配
+     * @param dto
+     * @return
+     */
+    boolean drawUnloadTask(JyBizTaskUnloadDto dto);
+
+    /**
+     * 卸车任务完成
+     * @param dto
+     * @return
+     */
+    boolean completeUnloadTask(JyBizTaskUnloadDto dto);
 }
