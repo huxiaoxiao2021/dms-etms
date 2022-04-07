@@ -35,7 +35,7 @@ public enum MiniStoreProcessStatusEnum {
         this.msg = msg;
     }
 
-    public static MiniStoreProcessStatusEnum codeOf(int code) {
+    public static MiniStoreProcessStatusEnum codeOf(String code) {
         for (MiniStoreProcessStatusEnum typeEnum : values()) {
             if (typeEnum.getCode().equals(code)) {
                 return typeEnum;
