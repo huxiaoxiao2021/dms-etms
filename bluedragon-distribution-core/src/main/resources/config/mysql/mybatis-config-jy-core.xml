@@ -34,6 +34,7 @@
 		<mapper resource="mappers/mysql/jy/unload/JyBizUnloadVehicleBatchMapper.xml" />
 		<mapper resource="mappers/mysql/jy/unload/JyUnloadAggsMapper.xml" />
 		<mapper resource="mappers/mysql/jy/unload/JyUnloadMapper.xml" />
+		<mapper resource="mappers/mysql/jy/config/JyWorkMapFuncConfigMapper.xml" />
 
 
 	</mappers>

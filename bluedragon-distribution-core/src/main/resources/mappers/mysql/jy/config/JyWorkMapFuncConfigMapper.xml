@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jd.bluedragon.distribution.jy.dao.config.JyWorkMapFuncConfigDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.jd.bluedragon.distribution.jy.config.JyWorkMapFuncConfigEntity" id="jyWorkMapFuncConfigMap">
+        <result property="id" column="id"/>
+        <result property="refWorkKey" column="ref_work_key"/>
+        <result property="funcCode" column="func_code"/>
+        <result property="createUser" column="create_user"/>
+        <result property="updateUser" column="update_user"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="yn" column="yn"/>
+        <result property="ts" column="ts"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,
+        ref_work_key,
+        func_code,
+        create_user,
+        update_user,
+        create_time,
+        update_time,
+        yn,
+        ts
+    </sql>
+
+    <insert id="insert" parameterType="com.jd.bluedragon.distribution.jy.config.JyWorkMapFuncConfigEntity">
+        INSERT INTO jy_work_map_func_config (
+                            id,
+                            ref_work_key,
+                            func_code,
+                            create_user,
+                            update_user,
+                            create_time,
+                            update_time,
+                            yn,
+                            ts
+                    ) VALUES (
+                            #{id},
+                            #{refWorkKey},
+                            #{funcCode},
+                            #{createUser},
+                            #{updateUser},
+                            now(),
+                            now(),
+                            1,
+                            now()
+                    )
+    </insert>
+
+    <sql id="queryCondition">
+        <where>
+            yn = 1
+            <if test="funcCode != null and funcCode != ''">
+                and func_code = #{funcCode,jdbcType=VARCHAR}
+            </if>
+            <if test="refWorkKey != null and refWorkKey != ''">
+                and ref_work_key = #{refWorkKey,jdbcType=VARCHAR}
+            </if>
+        </where>
+    </sql>
+
+    <select id="queryById" parameterType="Long" resultMap="jyWorkMapFuncConfigMap">
+        select
+            <include refid="Base_Column_List"/>
+        from
+            jy_work_map_func_config
+        where yn = 1
+        and id = #{id,jdbcType=BIGINT}
+        limit 1
+    </select>
+
+    <update id="updateById" parameterType="com.jd.bluedragon.distribution.jy.config.JyWorkMapFuncConfigEntity">
+        update jy_work_map_func_config
+        <set>
+            <if test="funcCode != null" >
+                func_code = #{funcCode, jdbcType=VARCHAR},
+            </if>
+            <if test="refWorkKey != null" >
+                ref_work_key = #{refWorkKey, jdbcType=VARCHAR},
+            </if>
+            <if test="updateUser != null" >
+                update_user = #{updateUser, jdbcType=VARCHAR},
+            </if>
+            update_time = now()
+        </set>
+        where yn = 1
+        and id = #{id,jdbcType=BIGINT}
+    </update>
+
+    <update id="deleteById" parameterType="com.jd.bluedragon.distribution.jy.config.JyWorkMapFuncConfigEntity">
+        update jy_work_map_func_config
+        <set>
+            <if test="updateUser != null" >
+                update_user = #{updateUser, jdbcType=VARCHAR},
+            </if>
+            update_time = now(),
+            yn = 0
+        </set>
+        where yn = 1
+        and id = #{id,jdbcType=BIGINT}
+    </update>
+
+    <select id="queryList" parameterType="com.jd.bluedragon.distribution.jy.config.JyWorkMapFuncQuery" resultMap="jyWorkMapFuncConfigMap">
+        select
+            <include refid="Base_Column_List"/>
+        from
+            jy_work_map_func_config
+        <include refid="queryCondition"/>
+        limit #{offset}, #{limit}
+    </select>
+
+    <select id="queryCount" parameterType="com.jd.bluedragon.distribution.jy.config.JyWorkMapFuncQuery" resultType="java.lang.Integer">
+        select
+            count(1)
+        from
+            jy_work_map_func_config
+        <include refid="queryCondition"/>
+    </select>
+</mapper>
