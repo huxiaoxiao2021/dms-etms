@@ -33,6 +33,10 @@ public class JyWorkMapFuncConfigDao extends BaseDao<JyWorkMapFuncConfigEntity> {
         return this.getSqlSession().selectOne(NAMESPACE + ".queryById", id);
     }
 
+    public JyWorkMapFuncConfigEntity queryByBusinessKey(String businessKey) {
+        return this.getSqlSession().selectOne(NAMESPACE + ".queryByBusinessKey", businessKey);
+    }
+
     public List<JyWorkMapFuncConfigEntity> queryList(JyWorkMapFuncQuery query) {
         return this.getSqlSession().selectList(NAMESPACE+".queryList",query);
     }

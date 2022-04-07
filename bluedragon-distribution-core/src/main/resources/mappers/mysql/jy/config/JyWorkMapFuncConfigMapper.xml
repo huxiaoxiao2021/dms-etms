@@ -74,6 +74,16 @@
         limit 1
     </select>
 
+    <select id="queryByBusinessKey" parameterType="String" resultMap="jyWorkMapFuncConfigMap">
+        select
+            <include refid="Base_Column_List"/>
+        from
+            jy_work_map_func_config
+        where yn = 1
+        and ref_work_key = #{refWorkKey,jdbcType=VARCHAR}
+        limit 1
+    </select>
+
     <update id="updateById" parameterType="com.jd.bluedragon.distribution.jy.config.JyWorkMapFuncConfigEntity">
         update jy_work_map_func_config
         <set>
