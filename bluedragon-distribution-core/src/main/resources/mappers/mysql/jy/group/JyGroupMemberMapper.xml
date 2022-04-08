@@ -166,7 +166,7 @@
     </select>    
     <sql id="queryWithGroup">
         where t.yn = 1
-            and t.ref_group_code = #{refGroupCode}           
+            and t.ref_group_code = #{groupCode}           
         <if test="status != null" >
             and t.status = #{status,jdbcType=INTEGER}
         </if>       
