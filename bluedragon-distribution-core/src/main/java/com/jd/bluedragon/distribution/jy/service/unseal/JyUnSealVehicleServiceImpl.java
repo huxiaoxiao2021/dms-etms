@@ -511,7 +511,7 @@ public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
     }
 
     /**
-     * 创建卸车任务
+     * 创建解封车任务
      *
      * @param dto
      * @return
@@ -558,6 +558,36 @@ public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
     }
 
     /**
+     * 取消解封车任务
+     *
+     * @param dto
+     * @return
+     */
+    @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "IJyUnSealVehicleService.cancelUnSealTask",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
+    @Transactional(value = "tm_jy_core",propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    public boolean cancelUnSealTask(JyBizTaskUnSealDto dto) {
+        JyBizTaskUnloadVehicleEntity entity = new JyBizTaskUnloadVehicleEntity();
+        entity.setBizId(dto.getBizId());
+        entity.setVehicleStatus(JyBizTaskUnloadStatusEnum.CANCEL.getCode());
+        entity.setUpdateTime(dto.getOperateTime());
+        entity.setUpdateUserErp(dto.getOperateUserErp());
+        entity.setUpdateUserName(dto.getOperateUserName());
+        if(jyBizTaskUnloadVehicleService.changeStatus(entity)){
+            //关闭调度任务
+            if(!closeUnSealScheduleTask(dto)){
+                throw new JyBizException("创建调度任务失败");
+            }else{
+                return true;
+            }
+        }else{
+            log.error("IJyUnSealVehicleService.cancelUnSealTask fail dto:{}",JsonHelper.toJson(dto));
+            return false;
+        }
+    }
+
+    /**
      * 创建卸车专用调度任务
      * @param dto
      * @return
@@ -565,11 +595,27 @@ public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
     private boolean createUnSealScheduleTask(JyBizTaskUnSealDto dto){
         JyScheduleTaskReq req = new JyScheduleTaskReq();
         req.setBizId(dto.getBizId());
-        req.setTaskType(String.valueOf(JyScheduleTaskTypeEnum.UNSEAL.getCode()));
+        req.setTaskType(JyScheduleTaskTypeEnum.UNSEAL.getCode());
         req.setOpeUser(dto.getOperateUserErp());
         req.setOpeUserName(dto.getOperateUserName());
         req.setOpeTime(dto.getOperateTime());
         JyScheduleTaskResp jyScheduleTaskResp = jyScheduleTaskManager.createScheduleTask(req);
+        return jyScheduleTaskResp != null;
+    }
+
+    /**
+     * 关闭卸车专用调度任务
+     * @param dto
+     * @return
+     */
+    private boolean closeUnSealScheduleTask(JyBizTaskUnSealDto dto){
+        JyScheduleTaskReq req = new JyScheduleTaskReq();
+        req.setBizId(dto.getBizId());
+        req.setTaskType(JyScheduleTaskTypeEnum.UNSEAL.getCode());
+        req.setOpeUser(dto.getOperateUserErp());
+        req.setOpeUserName(dto.getOperateUserName());
+        req.setOpeTime(dto.getOperateTime());
+        JyScheduleTaskResp jyScheduleTaskResp = jyScheduleTaskManager.closeScheduleTask(req);
         return jyScheduleTaskResp != null;
     }
 

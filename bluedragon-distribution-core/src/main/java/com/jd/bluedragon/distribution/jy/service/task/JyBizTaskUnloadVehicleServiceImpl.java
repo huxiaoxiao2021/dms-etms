@@ -309,7 +309,7 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
     @Override
     @Transactional(value = "tm_jy_core",propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     @JProfiler(jKey = "DMSWEB.jy.JyBizTaskUnloadVehicleServiceImpl.saveOrUpdateOfOtherBusinessInfo",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
-    public boolean saveOrUpdateOfOtherBusinessInfo(JyBizTaskUnloadVehicleEntity entity) {
+    public boolean saveOrUpdateOfBusinessInfo(JyBizTaskUnloadVehicleEntity entity) {
 
         String bizId = entity.getBizId();
         if(StringUtils.isEmpty(bizId)){
@@ -323,7 +323,7 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
                 Long id = jyBizTaskUnloadVehicleDao.findIdByBizId(bizId);
                 if(id != null && id > 0){
                     //存在即更新
-                    result = jyBizTaskUnloadVehicleDao.updateOfOtherBusinessInfoById(entity) > 0;
+                    result = jyBizTaskUnloadVehicleDao.updateOfBusinessInfoById(entity) > 0;
                 }else {
                     //不存在则新增
                     result = jyBizTaskUnloadVehicleDao.insert(entity) > 0;

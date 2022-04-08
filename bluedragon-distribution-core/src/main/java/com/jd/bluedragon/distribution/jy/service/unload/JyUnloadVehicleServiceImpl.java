@@ -763,7 +763,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
             throw new JyBizException(String.format("更新任务状态异常！bizId:%s",dto.getBizId()));
         }
         //分配调度任务
-        if(!distributeScheduleTask(dto)){
+        if(!distributeAndStartScheduleTask(dto)){
             throw new JyBizException(String.format("分配调度任务失败！bizId:%s",dto.getBizId()));
         }
         return true;
@@ -818,17 +818,17 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
      * @param dto
      * @return
      */
-    private boolean distributeScheduleTask(JyBizTaskUnloadDto dto){
+    private boolean distributeAndStartScheduleTask(JyBizTaskUnloadDto dto){
         JyScheduleTaskReq req = new JyScheduleTaskReq();
         req.setBizId(dto.getBizId());
-        req.setTaskType(String.valueOf(JyScheduleTaskTypeEnum.UNLOAD.getCode()));
+        req.setTaskType(JyScheduleTaskTypeEnum.UNLOAD.getCode());
         req.setDistributionType(JyScheduleTaskDistributionTypeEnum.GROUP.getCode());
         req.setDistributionTarget(dto.getGroupCode());
         req.setDistributionTime(dto.getOperateTime());
         req.setOpeUser(dto.getOperateUserErp());
         req.setOpeUserName(dto.getOperateUserName());
         req.setOpeTime(dto.getOperateTime());
-        JyScheduleTaskResp jyScheduleTaskResp = jyScheduleTaskManager.distributeScheduleTask(req);
+        JyScheduleTaskResp jyScheduleTaskResp = jyScheduleTaskManager.distributeAndStartScheduleTask(req);
         return jyScheduleTaskResp != null;
     }
 
@@ -840,7 +840,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
     private boolean createUnLoadScheduleTask(JyBizTaskUnloadDto dto){
         JyScheduleTaskReq req = new JyScheduleTaskReq();
         req.setBizId(dto.getBizId());
-        req.setTaskType(String.valueOf(JyScheduleTaskTypeEnum.UNLOAD.getCode()));
+        req.setTaskType(JyScheduleTaskTypeEnum.UNLOAD.getCode());
         req.setOpeUser(dto.getOperateUserErp());
         req.setOpeUserName(dto.getOperateUserName());
         req.setOpeTime(dto.getOperateTime());

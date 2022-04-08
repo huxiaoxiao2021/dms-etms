@@ -141,8 +141,8 @@ public class JyBizTaskUnloadVehicleDao extends BaseDao<JyBizTaskUnloadVehicleEnt
      * @param entity
      * @return
      */
-    public int updateOfOtherBusinessInfoById(JyBizTaskUnloadVehicleEntity entity) {
-        return this.getSqlSession().update(NAMESPACE + ".updateOfOtherBusinessInfoById",entity);
+    public int updateOfBusinessInfoById(JyBizTaskUnloadVehicleEntity entity) {
+        return this.getSqlSession().update(NAMESPACE + ".updateOfBusinessInfoById",entity);
     }
 
 }
