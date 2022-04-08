@@ -47,6 +47,12 @@ public class WaybillConsumableDto  implements Serializable {
      */
     private List<WaybillConsumableDetailDto> packingChargeList;
 
+    /**
+     * 行业条线
+     * 1:冷链条线
+     */
+    private Integer industryTag;
+
     public String getWaybillCode() {
         return waybillCode;
     }
@@ -101,5 +107,13 @@ public class WaybillConsumableDto  implements Serializable {
 
     public void setPackingChargeList(List<WaybillConsumableDetailDto> packingChargeList) {
         this.packingChargeList = packingChargeList;
+    }
+
+    public Integer getIndustryTag() {
+        return industryTag;
+    }
+
+    public void setIndustryTag(Integer industryTag) {
+        this.industryTag = industryTag;
     }
 }

@@ -29,6 +29,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author shipeilin
@@ -80,6 +81,11 @@ public class PackingConsumableConsumer extends MessageBaseConsumer {
         }
         if(packingConsumable.getDmsCode() == null){
             this.log.warn("PackingConsumableConsumer consume -->消息中没有站点编号：{}" , message.getText());
+            addLog(packingConsumable,startTime);
+            return;
+        }
+        if(Objects.equals(Constants.INTEGER_FLG_TRUE,packingConsumable.getIndustryTag())){
+            this.log.warn("PackingConsumableConsumer consume -->冷链条线耗材无须关注：{}" , message.getText());
             addLog(packingConsumable,startTime);
             return;
         }

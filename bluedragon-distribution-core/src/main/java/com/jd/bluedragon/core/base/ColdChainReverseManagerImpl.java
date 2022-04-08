@@ -116,6 +116,7 @@ public class ColdChainReverseManagerImpl implements ColdChainReverseManager {
      * @return
      */
     @Override
+    @JProfiler(jKey = "DMS.WEB.ColdChainReverseManager.createReverseWbOrder", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public WaybillReverseResult createReverseWbOrder(ColdChainReverseRequest coldChainReverseRequest,StringBuilder errorMessage) {
         CallerInfo info = null;
         try{
@@ -151,6 +152,7 @@ public class ColdChainReverseManagerImpl implements ColdChainReverseManager {
      * @return
      */
     @Override
+    @JProfiler(jKey = "DMS.WEB.ColdChainReverseManager.checkIsNeedConfirmed", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public Boolean checkIsNeedConfirmed(String waybillCode) {
         if(StringUtils.isBlank(waybillCode)){
             return false;
