@@ -30,10 +30,28 @@ public class SinglePackageSendRequest implements Serializable {
     private boolean cancelLastSend;
     private Integer sendForWholeBoard;
     private String bizSource;
+    private Integer siteType;
+    private Integer subType;
     /*
     调用次数;前端有递归调用的场景
      */
     private Integer callTimes;
+
+    public Integer getSiteType() {
+        return siteType;
+    }
+
+    public void setSiteType(Integer siteType) {
+        this.siteType = siteType;
+    }
+
+    public Integer getSubType() {
+        return subType;
+    }
+
+    public void setSubType(Integer subType) {
+        this.subType = subType;
+    }
 
     public User getUser() {
         return user;
