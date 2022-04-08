@@ -103,11 +103,11 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 	}
 	@Override
 	public JdCResponse<UserSignRecordData> signOutWithGroup(UserSignRequest signOutRequest) {
-		return userSignRecordService.signInWithGroup(signOutRequest);
+		return userSignRecordService.signOutWithGroup(signOutRequest);
 	}
 	@Override
 	public JdCResponse<UserSignRecordData> signAutoWithGroup(UserSignRequest userSignRequest) {
-		return userSignRecordService.signInWithGroup(userSignRequest);
+		return userSignRecordService.signAutoWithGroup(userSignRequest);
 	}
 
 }

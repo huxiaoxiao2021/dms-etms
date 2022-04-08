@@ -923,7 +923,6 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 			return result;
 		}
 		//剔除组员
-		//添加组员
 		JdCResponse<GroupMemberData> removeMemberResult = this.removeMember(signOutRequest, result.getData());
 		if(removeMemberResult.isSucceed()) {
 			result.getData().setGroupData(removeMemberResult.getData());
