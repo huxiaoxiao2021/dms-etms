@@ -154,7 +154,7 @@
         select
             count(1)
         from
-            user_sign_record t
+            jy_group_member t
         <include refid="queryWithGroup"/>
     </select>    
     <select id="queryMemberListByGroup" parameterType="com.jd.bluedragon.distribution.jy.group.JyGroupMemberQuery" resultMap="jyGroupMemberMap">
