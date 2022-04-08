@@ -23,7 +23,7 @@ public interface GroupMemberGatewayService {
 	JdCResponse<GroupMemberData> addMember(GroupMemberRequest addMemberRequest);
 	/**
 	 * 删除小组成员
-	 * @param addMemberRequest
+	 * @param removeMemberRequest
 	 * @return
 	 */
 	JdCResponse<GroupMemberData> removeMember(GroupMemberRequest removeMemberRequest);
@@ -33,4 +33,10 @@ public interface GroupMemberGatewayService {
 	 * @return
 	 */
 	JdCResponse<PageDto<UserSignRecordData>> querySignListByGroup(GroupMemberQueryRequest query);
+	/**
+	 * 查询小组信息
+	 * @param groupCode
+	 * @return
+	 */
+	JdCResponse<GroupMemberData> queryGroupData(String groupCode);
 }

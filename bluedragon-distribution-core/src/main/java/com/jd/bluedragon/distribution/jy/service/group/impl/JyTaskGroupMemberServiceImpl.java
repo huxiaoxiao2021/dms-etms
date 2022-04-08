@@ -81,7 +81,9 @@ public class JyTaskGroupMemberServiceImpl implements JyTaskGroupMemberService {
 			taskMember.setCreateUserName(startData.getCreateUserName());
 			taskMembers.add(taskMember);
 		}
-		jyTaskGroupMemberDao.batchInsert(taskMembers);
+		if(taskMembers.size() > 0) {
+			jyTaskGroupMemberDao.batchInsert(taskMembers);
+		}
 		return result;
 	}
 

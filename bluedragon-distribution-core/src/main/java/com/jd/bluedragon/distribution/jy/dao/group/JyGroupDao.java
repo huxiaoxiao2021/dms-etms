@@ -32,4 +32,12 @@ public class JyGroupDao extends BaseDao<JyGroupEntity> {
 	public JyGroupEntity queryGroupByPosition(JyGroupQuery query) {
 		return this.getSqlSession().selectOne(NAMESPACE + ".queryGroupByPosition", query);
 	}
+	/**
+	 * 查询小组信息
+	 * @param groupCode
+	 * @return
+	 */
+	public JyGroupEntity queryByGroupCode(String groupCode) {
+		return this.getSqlSession().selectOne(NAMESPACE + ".queryByGroupCode", groupCode);
+	}
 }

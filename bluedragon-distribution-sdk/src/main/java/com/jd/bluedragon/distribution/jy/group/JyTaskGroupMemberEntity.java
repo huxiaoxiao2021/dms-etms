@@ -21,7 +21,7 @@ public class JyTaskGroupMemberEntity implements Serializable {
     /**
      * 关联任务表-id
      */
-    private Long refTaskId;
+    private String refTaskId;
     /**
      * 关联工作任务表-group_code
      */
@@ -95,19 +95,19 @@ public class JyTaskGroupMemberEntity implements Serializable {
      */
     private Date ts;
 
-    public Long setId(Long id) {
-        return this.id = id;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public Long getId() {
         return this.id;
     }
 
-    public Long setRefTaskId(Long refTaskId) {
-        return this.refTaskId = refTaskId;
+    public void setRefTaskId(String refTaskId) {
+        this.refTaskId = refTaskId;
     }
 
-    public Long getRefTaskId() {
+    public String getRefTaskId() {
         return this.refTaskId;
     }
 

@@ -1,8 +1,6 @@
 package com.jd.bluedragon.common.dto.group;
 
 import java.io.Serializable;
-import java.util.Date;
-
 /**
  * @ClassName: GroupMemberData
  * @Description: 小组成员数据
@@ -17,11 +15,21 @@ public class GroupMemberData implements Serializable {
 	 * 小组编码
 	 */
 	private String groupCode;
+	/**
+	 * 成员数量
+	 */
+	private Integer groupMemberNum;
 	
 	public String getGroupCode() {
 		return groupCode;
 	}
 	public void setGroupCode(String groupCode) {
 		this.groupCode = groupCode;
+	}
+	public Integer getGroupMemberNum() {
+		return groupMemberNum;
+	}
+	public void setGroupMemberNum(Integer groupMemberNum) {
+		this.groupMemberNum = groupMemberNum;
 	}
 }

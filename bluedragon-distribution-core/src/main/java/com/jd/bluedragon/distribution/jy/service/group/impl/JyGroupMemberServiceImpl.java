@@ -3,7 +3,6 @@ package com.jd.bluedragon.distribution.jy.service.group.impl;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Random;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +24,7 @@ import com.jd.bluedragon.distribution.jy.group.JyGroupMemberQuery;
 import com.jd.bluedragon.distribution.jy.group.JyGroupMemberStatusEnum;
 import com.jd.bluedragon.distribution.jy.group.JyGroupQuery;
 import com.jd.bluedragon.distribution.jy.group.JyTaskGroupMemberEntity;
+import com.jd.bluedragon.distribution.jy.manager.JyScheduleTaskManager;
 import com.jd.bluedragon.distribution.jy.service.group.JyGroupMemberService;
 import com.jd.bluedragon.distribution.jy.service.group.JyGroupService;
 import com.jd.bluedragon.distribution.jy.service.group.JyTaskGroupMemberService;
@@ -35,6 +35,9 @@ import com.jd.bluedragon.distribution.station.service.UserSignRecordService;
 import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
 import com.jd.ql.dms.print.utils.StringHelper;
+import com.jdl.jy.schedule.dto.task.JyScheduleTaskReq;
+import com.jdl.jy.schedule.dto.task.JyScheduleTaskResp;
+import com.jdl.jy.schedule.enums.task.JyScheduleTaskDistributionTypeEnum;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -68,6 +71,10 @@ public class JyGroupMemberServiceImpl implements JyGroupMemberService {
 	@Autowired
 	@Qualifier("jyTaskGroupMemberService")
 	private JyTaskGroupMemberService jyTaskGroupMemberService;
+	
+	@Autowired
+	@Qualifier("jyScheduleTaskManager")
+	private JyScheduleTaskManager jyScheduleTaskManager;
 	
 	@Autowired
 	private IGenerateObjectId genObjectId;
@@ -159,11 +166,13 @@ public class JyGroupMemberServiceImpl implements JyGroupMemberService {
 			jyGroupMemberDao.insert(memberData);
 			//非新小组，将新加入组员加入到当前小组工作任务人员明细中
 			//查询当前小组工作任务
-			List<Long> taskIds  = new ArrayList<Long>();
-			taskIds.add(2L);
-			taskIds.add(3L);
-			if(!CollectionUtils.isEmpty(taskIds)) {
-				for(Long taskId : taskIds) {
+			JyScheduleTaskReq taskQuery = new JyScheduleTaskReq();
+			taskQuery.setDistributionType(JyScheduleTaskDistributionTypeEnum.GROUP.getCode());
+			taskQuery.setDistributionTarget(groupCode);
+			List<JyScheduleTaskResp> taskList = jyScheduleTaskManager.findStartedScheduleTasksByDistribute(taskQuery);
+			if(!CollectionUtils.isEmpty(taskList)) {
+				for(JyScheduleTaskResp task : taskList) {
+					String taskId = task.getTaskId();
 					JyTaskGroupMemberEntity taskMember = new JyTaskGroupMemberEntity();
 					taskMember.setRefGroupMemberCode(memberData.getMemberCode());
 					taskMember.setRefGroupCode(groupCode);
@@ -183,6 +192,7 @@ public class JyGroupMemberServiceImpl implements JyGroupMemberService {
 		}
 		GroupMemberData returnData = new GroupMemberData();
 		returnData.setGroupCode(groupCode);
+		returnData.setGroupMemberNum(jyGroupMemberDao.queryGroupMemberNum(groupCode));
 		result.setData(returnData);
 		return result;
 	}
@@ -213,6 +223,10 @@ public class JyGroupMemberServiceImpl implements JyGroupMemberService {
 			taskGroupMember.setUpdateUserName(removeMemberRequest.getOperateUserName());
 			//小组任务成员，设置结束时间
 			jyTaskGroupMemberService.endWorkByMemberCode(taskGroupMember);
+			GroupMemberData returnData = new GroupMemberData();
+			returnData.setGroupCode(memberData.getRefGroupCode());
+			returnData.setGroupMemberNum(jyGroupMemberDao.queryGroupMemberNum(memberData.getRefGroupCode()));
+			result.setData(returnData);
 		}
 		return result;
 	}
@@ -256,5 +270,9 @@ public class JyGroupMemberServiceImpl implements JyGroupMemberService {
 		if(data != null) {
 			data.setMemberCode(DmsConstants.CODE_PREFIX_JY_GROUP_MEMBER.concat(StringHelper.padZero(this.genObjectId.getObjectId(JyGroupMemberEntity.class.getName()),11)));
 		}
+	}
+	@Override
+	public Integer queryGroupMemberNum(String groupCode) {
+		return jyGroupMemberDao.queryGroupMemberNum(groupCode);
 	}
 }

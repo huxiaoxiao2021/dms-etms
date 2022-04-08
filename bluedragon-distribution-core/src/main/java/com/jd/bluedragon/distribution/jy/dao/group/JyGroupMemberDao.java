@@ -75,4 +75,12 @@ public class JyGroupMemberDao extends BaseDao<JyGroupMemberEntity> {
 	public List<JyGroupMemberEntity> queryMemberListByGroup(JyGroupMemberQuery query) {
 		return this.getSqlSession().selectList(NAMESPACE + ".queryMemberListByGroup", query);
 	}
+	/**
+	 * 查询小组成员数量
+	 * @param groupCode
+	 * @return
+	 */
+	public Integer queryGroupMemberNum(String groupCode) {
+		return this.getSqlSession().selectOne(NAMESPACE + ".queryGroupMemberNum", groupCode);
+	}
 }

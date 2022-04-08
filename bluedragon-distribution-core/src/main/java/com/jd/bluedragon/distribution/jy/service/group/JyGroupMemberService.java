@@ -44,4 +44,10 @@ public interface JyGroupMemberService {
 	 * @return
 	 */
 	List<JyGroupMemberEntity> queryMemberListByGroup(JyGroupMemberQuery membersQuery);
+	/**
+	 * 查询小组成员数量
+	 * @param groupCode
+	 * @return
+	 */
+	Integer queryGroupMemberNum(String groupCode);
 }

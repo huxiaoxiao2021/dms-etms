@@ -12,6 +12,7 @@ import com.jd.bluedragon.common.dto.group.GroupMemberRequest;
 import com.jd.bluedragon.common.dto.station.UserSignRecordData;
 import com.jd.bluedragon.distribution.jy.gateway.group.GroupMemberGatewayService;
 import com.jd.bluedragon.distribution.jy.service.group.JyGroupMemberService;
+import com.jd.bluedragon.distribution.jy.service.group.JyGroupService;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
 
 /**
@@ -28,6 +29,10 @@ public class GroupMemberGatewayServiceImpl implements GroupMemberGatewayService 
 	@Qualifier("jyGroupMemberService")
 	private JyGroupMemberService jyGroupMemberService;
 
+	@Autowired
+	@Qualifier("jyGroupService")
+	private JyGroupService jyGroupService;
+	
 	@Override
 	public JdCResponse<GroupMemberData> addMember(GroupMemberRequest addMemberRequest) {
 		return jyGroupMemberService.addMember(addMemberRequest);
@@ -39,6 +44,10 @@ public class GroupMemberGatewayServiceImpl implements GroupMemberGatewayService 
 	@Override
 	public JdCResponse<PageDto<UserSignRecordData>> querySignListByGroup(GroupMemberQueryRequest query) {
 		return jyGroupMemberService.querySignListByGroup(query);
+	}
+	@Override
+	public JdCResponse<GroupMemberData> queryGroupData(String groupCode) {
+		return jyGroupService.queryGroupData(groupCode);
 	}
 
 }

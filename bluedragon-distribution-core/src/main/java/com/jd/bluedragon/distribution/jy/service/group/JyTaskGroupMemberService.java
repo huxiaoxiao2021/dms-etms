@@ -33,5 +33,5 @@ public interface JyTaskGroupMemberService {
 	 * @param endData
 	 * @return
 	 */
-	Result<Boolean> endTask(JyTaskGroupMemberEntity endData);	
+	Result<Boolean> endTask(JyTaskGroupMemberEntity endData);
 }

@@ -4,11 +4,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.group.GroupMemberData;
 import com.jd.bluedragon.core.objectid.IGenerateObjectId;
 import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.jy.dao.group.JyGroupDao;
 import com.jd.bluedragon.distribution.jy.group.JyGroupEntity;
 import com.jd.bluedragon.distribution.jy.group.JyGroupQuery;
+import com.jd.bluedragon.distribution.jy.service.group.JyGroupMemberService;
 import com.jd.bluedragon.distribution.jy.service.group.JyGroupService;
 import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.utils.StringHelper;
@@ -26,6 +29,10 @@ public class JyGroupServiceImpl implements JyGroupService {
 	@Autowired
 	@Qualifier("jyGroupDao")
 	private JyGroupDao jyGroupDao;
+	
+	@Autowired
+	@Qualifier("jyGroupMemberService")
+	private JyGroupMemberService jyGroupMemberService;
 	
 	@Autowired
 	private IGenerateObjectId genObjectId;
@@ -69,5 +76,17 @@ public class JyGroupServiceImpl implements JyGroupService {
 		if(data != null) {
 			data.setGroupCode(DmsConstants.CODE_PREFIX_JY_GROUP.concat(StringHelper.padZero(this.genObjectId.getObjectId(JyGroupEntity.class.getName()),11)));
 		}
+	}
+	@Override
+	public JdCResponse<GroupMemberData> queryGroupData(String groupCode) {
+		JdCResponse<GroupMemberData> result = new JdCResponse<>();
+		result.toSucceed();
+		JyGroupEntity group = jyGroupDao.queryByGroupCode(groupCode);
+		if(group != null) {
+			GroupMemberData groupData = new GroupMemberData();
+			groupData.setGroupCode(groupCode);
+			groupData.setGroupMemberNum(jyGroupMemberService.queryGroupMemberNum(groupCode));
+		}
+		return result;
 	}
 }
