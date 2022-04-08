@@ -86,6 +86,9 @@ public class JyGroupServiceImpl implements JyGroupService {
 			GroupMemberData groupData = new GroupMemberData();
 			groupData.setGroupCode(groupCode);
 			groupData.setGroupMemberNum(jyGroupMemberService.queryGroupMemberNum(groupCode));
+			result.setData(groupData);
+		}else {
+			result.toFail("无效的组编码！");
 		}
 		return result;
 	}
