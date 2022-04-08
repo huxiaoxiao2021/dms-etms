@@ -786,7 +786,7 @@
             (select t.* from user_sign_record t 
                 where t.yn = 1 
                   and t.id in 
-                <foreach collection="idList" item="item" open="(" close=")" separator=",">
+                <foreach collection="list" item="item" open="(" close=")" separator=",">
 		            #{item,jdbcType=BIGINT}
 		        </foreach>
             ) r
