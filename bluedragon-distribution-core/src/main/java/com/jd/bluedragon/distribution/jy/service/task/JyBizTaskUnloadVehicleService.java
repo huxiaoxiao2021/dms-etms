@@ -4,6 +4,7 @@ import com.jd.bluedragon.distribution.jy.dto.task.JyBizTaskUnloadCountDto;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadOrderTypeEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyLineTypeEnum;
+import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadDto;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
 
 import java.util.List;
@@ -23,6 +24,12 @@ public interface JyBizTaskUnloadVehicleService {
      * @return
      */
     JyBizTaskUnloadVehicleEntity findByBizId(String bizId);
+
+    /**
+     * 根据派车明细编码获取数据
+     * @return
+     */
+    JyBizTaskUnloadVehicleEntity findByTransWorkItemCode(String transWorkItemCode);
 
     /**
      * 根据bizId获取数据只返回逻辑主键
@@ -83,14 +90,7 @@ public interface JyBizTaskUnloadVehicleService {
      * 始发场地名称
      * 目的场地ID
      * 目的场地名称
-     * 排序时间
-     * 排序积分
-     * 预计到达时间
-     * 实际到达时间
-     * 解封车时间
-     * 线路类型
-     * 线路类型名称
-     * 任务标签
+     *
      * @param entity
      * @return
      */
@@ -106,7 +106,7 @@ public interface JyBizTaskUnloadVehicleService {
      * @param entity
      * @return
      */
-    boolean saveOrUpdateOfOtherBusinessInfo(JyBizTaskUnloadVehicleEntity entity);
+    boolean saveOrUpdateOfBusinessInfo(JyBizTaskUnloadVehicleEntity entity);
 
     /**
      * 检查当前卸车任务是否被锁定
@@ -135,4 +135,19 @@ public interface JyBizTaskUnloadVehicleService {
      * @return
      */
     boolean unLocked(String bizId);
+
+    /**
+     * 初始通过运输实时接口补全数据
+     * @param sealCarCode
+     * @return
+     */
+    JyBizTaskUnloadVehicleEntity initTaskByTms(String sealCarCode);
+
+    /**
+     * 无任务模式初始数据
+     * 业务主键和封车编码保持一致 并自定生成
+     * @param dto
+     * @return
+     */
+    JyBizTaskUnloadVehicleEntity initTaskByNoTask(JyBizTaskUnloadDto dto);
 }

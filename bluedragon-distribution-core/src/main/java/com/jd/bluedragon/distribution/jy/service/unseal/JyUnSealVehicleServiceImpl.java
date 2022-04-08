@@ -1,15 +1,21 @@
 package com.jd.bluedragon.distribution.jy.service.unseal;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.request.SealCodeRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.request.SealTaskInfoRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.request.SealVehicleTaskRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.*;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
-import com.jd.bluedragon.core.base.IJySealVehicleManager;
+import com.jd.bluedragon.distribution.jy.manager.JyScheduleTaskManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadStatusEnum;
+import com.jd.bluedragon.distribution.jy.exception.JyBizException;
+import com.jd.bluedragon.distribution.jy.manager.IJyUnSealVehicleManager;
+import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskUnloadVehicleService;
+import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnSealDto;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
@@ -19,6 +25,8 @@ import com.jd.bluedragon.utils.ValueNameEnumUtils;
 import com.jd.etms.vos.dto.CommonDto;
 import com.jd.etms.vos.dto.PageDto;
 import com.jd.etms.vos.dto.SealCarDto;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import com.jdl.jy.realtime.base.Pager;
@@ -26,6 +34,9 @@ import com.jdl.jy.realtime.enums.seal.LineTypeEnum;
 import com.jdl.jy.realtime.enums.seal.VehicleStatusEnum;
 import com.jdl.jy.realtime.model.es.seal.SealCarMonitor;
 import com.jdl.jy.realtime.model.query.seal.SealVehicleTaskQuery;
+import com.jdl.jy.schedule.dto.task.JyScheduleTaskReq;
+import com.jdl.jy.schedule.dto.task.JyScheduleTaskResp;
+import com.jdl.jy.schedule.enums.task.JyScheduleTaskTypeEnum;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixProperty;
 import com.netflix.hystrix.contrib.javanica.conf.HystrixPropertiesManager;
@@ -37,6 +48,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StopWatch;
 
 import java.util.*;
@@ -62,12 +75,17 @@ public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
     private static final int STATUS = 10;
 
     @Autowired
-    @Qualifier("jySealVehicleManager")
-    private IJySealVehicleManager jySealVehicleManager;
+    @Qualifier("jyUnSealVehicleManager")
+    private IJyUnSealVehicleManager jySealVehicleManager;
 
     @Autowired
     private NewSealVehicleService newSealVehicleService;
 
+    @Autowired
+    private JyBizTaskUnloadVehicleService jyBizTaskUnloadVehicleService;
+
+    @Autowired
+    private JyScheduleTaskManager jyScheduleTaskManager;
     /**
      * Hystrix 配置参考
      * @see https://cf.jd.com/pages/viewpage.action?pageId=575172590
@@ -493,14 +511,112 @@ public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
     }
 
     /**
-     * 创建卸车任务
+     * 创建解封车任务
      *
-     * @param entity
+     * @param dto
      * @return
      */
     @Override
-    public boolean createUnSealTask(JyBizTaskUnloadVehicleEntity entity) {
-        return false;
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "IJyUnSealVehicleService.createUnSealTask",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
+    @Transactional(value = "tm_jy_core",propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    public boolean createUnSealTask(JyBizTaskUnSealDto dto) {
+        //保存业务任务数据
+        JyBizTaskUnloadVehicleEntity entity = new JyBizTaskUnloadVehicleEntity();
+        entity.setBizId(dto.getBizId());
+        entity.setSealCarCode(dto.getSealCarCode());
+        entity.setVehicleNumber(dto.getVehicleNumber());
+        entity.setTransWorkItemCode(dto.getTransWorkItemCode());
+        entity.setStartSiteId(dto.getStartSiteId());
+        entity.setStartSiteName(dto.getStartSiteName());
+        entity.setEndSiteId(dto.getEndSiteId());
+        entity.setEndSiteName(dto.getEndSiteName());
+        entity.setCreateUserName(dto.getOperateUserName());
+        entity.setCreateUserErp(dto.getOperateUserErp());
+        entity.setCreateTime(dto.getOperateTime());
+        entity.setUpdateUserName(dto.getOperateUserName());
+        entity.setUpdateUserErp(dto.getOperateUserErp());
+        entity.setUpdateTime(dto.getOperateTime());
+        //优先已上游调用者传入的状态为准，默认在途状态
+        if(dto.getVehicleStatus() == null){
+            entity.setVehicleStatus(JyBizTaskUnloadStatusEnum.ON_WAY.getCode());
+        }else{
+            entity.setVehicleStatus(dto.getVehicleStatus());
+        }
+        if(jyBizTaskUnloadVehicleService.saveOrUpdateOfBaseInfo(entity)){
+            //创建调度任务
+            if(!createUnSealScheduleTask(dto)){
+                throw new JyBizException("创建调度任务失败");
+            }else{
+                return true;
+            }
+        }else{
+            log.error("IJyUnSealVehicleService.createUnSealTask fail dto:{}",JsonHelper.toJson(dto));
+            return false;
+        }
+
+    }
+
+    /**
+     * 取消解封车任务
+     *
+     * @param dto
+     * @return
+     */
+    @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "IJyUnSealVehicleService.cancelUnSealTask",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
+    @Transactional(value = "tm_jy_core",propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    public boolean cancelUnSealTask(JyBizTaskUnSealDto dto) {
+        JyBizTaskUnloadVehicleEntity entity = new JyBizTaskUnloadVehicleEntity();
+        entity.setBizId(dto.getBizId());
+        entity.setVehicleStatus(JyBizTaskUnloadStatusEnum.CANCEL.getCode());
+        entity.setUpdateTime(dto.getOperateTime());
+        entity.setUpdateUserErp(dto.getOperateUserErp());
+        entity.setUpdateUserName(dto.getOperateUserName());
+        if(jyBizTaskUnloadVehicleService.changeStatus(entity)){
+            //关闭调度任务
+            if(!closeUnSealScheduleTask(dto)){
+                throw new JyBizException("创建调度任务失败");
+            }else{
+                return true;
+            }
+        }else{
+            log.error("IJyUnSealVehicleService.cancelUnSealTask fail dto:{}",JsonHelper.toJson(dto));
+            return false;
+        }
+    }
+
+    /**
+     * 创建卸车专用调度任务
+     * @param dto
+     * @return
+     */
+    private boolean createUnSealScheduleTask(JyBizTaskUnSealDto dto){
+        JyScheduleTaskReq req = new JyScheduleTaskReq();
+        req.setBizId(dto.getBizId());
+        req.setTaskType(JyScheduleTaskTypeEnum.UNSEAL.getCode());
+        req.setOpeUser(dto.getOperateUserErp());
+        req.setOpeUserName(dto.getOperateUserName());
+        req.setOpeTime(dto.getOperateTime());
+        JyScheduleTaskResp jyScheduleTaskResp = jyScheduleTaskManager.createScheduleTask(req);
+        return jyScheduleTaskResp != null;
+    }
+
+    /**
+     * 关闭卸车专用调度任务
+     * @param dto
+     * @return
+     */
+    private boolean closeUnSealScheduleTask(JyBizTaskUnSealDto dto){
+        JyScheduleTaskReq req = new JyScheduleTaskReq();
+        req.setBizId(dto.getBizId());
+        req.setTaskType(JyScheduleTaskTypeEnum.UNSEAL.getCode());
+        req.setOpeUser(dto.getOperateUserErp());
+        req.setOpeUserName(dto.getOperateUserName());
+        req.setOpeTime(dto.getOperateTime());
+        JyScheduleTaskResp jyScheduleTaskResp = jyScheduleTaskManager.closeScheduleTask(req);
+        return jyScheduleTaskResp != null;
     }
 
     private SealCodeResponse makeSealCodeResponse(SealCarDto sealCarDto) {

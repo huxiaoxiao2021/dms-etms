@@ -42,10 +42,6 @@ public class JyBizTaskUnloadVehicleEntity implements Serializable {
      */
     private String transWorkItemCode;
     /**
-     * 批次号集合
-     */
-    private String batchCodes;
-    /**
      * 模糊查询车牌号
      */
     private String fuzzyVehicleNumber;
@@ -81,6 +77,11 @@ public class JyBizTaskUnloadVehicleEntity implements Serializable {
      * 排序积分
      */
     private Long sortIntegral;
+
+    /**
+     * 排名（积分模式）
+     */
+    private Integer ranking;
     /**
      * 预计到达时间
      */
@@ -204,14 +205,6 @@ public class JyBizTaskUnloadVehicleEntity implements Serializable {
         return this.transWorkItemCode;
     }
 
-    public String setBatchCodes(String batchCodes) {
-        return this.batchCodes = batchCodes;
-    }
-
-    public String getBatchCodes() {
-        return this.batchCodes;
-    }
-
     public String setFuzzyVehicleNumber(String fuzzyVehicleNumber) {
         return this.fuzzyVehicleNumber = fuzzyVehicleNumber;
     }
@@ -282,6 +275,14 @@ public class JyBizTaskUnloadVehicleEntity implements Serializable {
 
     public Long getSortIntegral() {
         return this.sortIntegral;
+    }
+
+    public Integer getRanking() {
+        return ranking;
+    }
+
+    public void setRanking(Integer ranking) {
+        this.ranking = ranking;
     }
 
     public Date setPredictionArriveTime(Date predictionArriveTime) {

@@ -48,7 +48,7 @@
         ts
     </sql>
 
-    <insert id="insert" parameterType="JyGroupMemberEntity">
+    <insert id="insert" parameterType="com.jd.bluedragon.distribution.jy.group.JyGroupMemberEntity">
         INSERT INTO jy_group_member (
                             id,
                             member_code,
@@ -66,9 +66,7 @@
                             update_user,
                             update_user_name,
                             create_time,
-                            update_time,
-                            yn,
-                            ts
+                            update_time
                     ) VALUES (
                             #{id},
                             #{memberCode},
@@ -86,9 +84,109 @@
                             #{updateUser},
                             #{updateUserName},
                             #{createTime},
-                            #{updateTime},
-                            #{yn},
-                            #{ts}
+                            #{updateTime}
                     )
     </insert>
+    <insert id="batchInsert" parameterType="java.util.List">
+        INSERT INTO jy_group_member (
+                            id,
+                            member_code,
+                            ref_group_code,
+                            ref_sign_record_id,
+                            user_code,
+                            user_name,
+                            job_code,
+                            master_flag,
+                            status,
+                            org_code,
+                            site_code,
+                            create_user,
+                            create_user_name,
+                            update_user,
+                            update_user_name,
+                            create_time,
+                            update_time
+                    ) VALUES 
+                    <foreach collection="list" item="item" separator=",">
+			        (
+                      #{item.id},
+                      #{item.memberCode},
+                      #{item.refGroupCode},
+                      #{item.refSignRecordId},
+                      #{item.userCode},
+                      #{item.userName},
+                      #{item.jobCode},
+                      #{item.masterFlag},
+                      #{item.status},
+                      #{item.orgCode},
+                      #{item.siteCode},
+                      #{item.createUser},
+                      #{item.createUserName},
+                      #{item.updateUser},
+                      #{item.updateUserName},
+                      #{item.createTime},
+                      #{item.updateTime}
+                    )
+			        </foreach>
+    </insert> 
+    <update id="removeMember">
+        UPDATE jy_group_member
+        SET
+            update_time = #{updateTime, jdbcType=TIMESTAMP},
+            update_user = #{updateUser, jdbcType=VARCHAR},
+            update_user_name = #{updateUserName, jdbcType=VARCHAR},
+            status = #{status,jdbcType=INTEGER}
+        WHERE
+            yn = 1
+        AND id = #{id}
+    </update>      
+     
+    <select id="querySignIdListByGroup" parameterType="com.jd.bluedragon.common.dto.group.GroupMemberQueryRequest" resultType="long">
+        select
+            t.id
+        from
+            jy_group_member t
+        <include refid="queryWithGroup"/>
+          order by id
+          limit #{offset}, #{limit}
+    </select>
+    <select id="queryCountByGroup" parameterType="com.jd.bluedragon.common.dto.group.GroupMemberQueryRequest" resultType="long">
+        select
+            count(1)
+        from
+            user_sign_record t
+        <include refid="queryWithGroup"/>
+    </select>    
+    <select id="queryMemberListByGroup" parameterType="com.jd.bluedragon.distribution.jy.group.JyGroupMemberQuery" resultMap="jyGroupMemberMap">
+        select
+            <include refid="Base_Column_List"/>
+        from
+            jy_group_member t
+            <include refid="queryWithGroup"/>
+    </select>    
+    <sql id="queryWithGroup">
+        where t.yn = 1
+            and t.ref_group_code = #{refGroupCode}           
+        <if test="status != null" >
+            and t.status = #{status,jdbcType=INTEGER}
+        </if>       
+    </sql> 
+    <select id="queryBySignRecordId" parameterType="java.lang.Long" resultMap="jyGroupMemberMap">
+        select
+            <include refid="Base_Column_List"/>
+        from
+            jy_group_member t
+        where t.yn = 1
+            and t.ref_sign_record_id = #{refSignRecordId}
+        limit 1
+    </select>
+    <select id="queryGroupMemberNum" parameterType="java.lang.Long" resultType="int">
+        select
+            count(1)
+        from
+            jy_group_member t
+        where t.yn = 1
+            and t.ref_group_code = #{refGroupCode}
+            and t.status = 1
+    </select>    
 </mapper>

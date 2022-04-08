@@ -49,6 +49,12 @@ public class JdVerifyResponse<T> {
         this.message = message;
     }
 
+    public JdVerifyResponse(int code, String message, T data) {
+        this.code = code;
+        this.message = message;
+        this.data = data;
+    }
+
     public void init(int code, String message) {
         this.code = code;
         this.message = message;

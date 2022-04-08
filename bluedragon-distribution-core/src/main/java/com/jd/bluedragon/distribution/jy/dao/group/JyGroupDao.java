@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.jy.dao.group;
 
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.jy.group.JyGroupEntity;
+import com.jd.bluedragon.distribution.jy.group.JyGroupQuery;
 
 /**
  * 工作小组表
@@ -23,4 +24,20 @@ public class JyGroupDao extends BaseDao<JyGroupEntity> {
     public int insert(JyGroupEntity entity) {
         return this.getSqlSession().insert(NAMESPACE + ".insert", entity);
     }
+    /**
+     * 根据岗位码查询
+     * @param query
+     * @return
+     */
+	public JyGroupEntity queryGroupByPosition(JyGroupQuery query) {
+		return this.getSqlSession().selectOne(NAMESPACE + ".queryGroupByPosition", query);
+	}
+	/**
+	 * 查询小组信息
+	 * @param groupCode
+	 * @return
+	 */
+	public JyGroupEntity queryByGroupCode(String groupCode) {
+		return this.getSqlSession().selectOne(NAMESPACE + ".queryByGroupCode", groupCode);
+	}
 }

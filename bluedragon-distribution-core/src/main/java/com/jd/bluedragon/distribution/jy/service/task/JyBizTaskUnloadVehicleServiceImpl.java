@@ -2,17 +2,26 @@ package com.jd.bluedragon.distribution.jy.service.task;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.core.base.VosManager;
 import com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskUnloadVehicleDao;
 import com.jd.bluedragon.distribution.jy.dto.task.JyBizTaskUnloadCountDto;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadOrderTypeEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyLineTypeEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
+import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadDto;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.StringHelper;
+import com.jd.coo.sa.sequence.JimdbSequenceGen;
+import com.jd.etms.sdk.util.DateUtil;
+import com.jd.etms.vos.dto.CommonDto;
+import com.jd.etms.vos.dto.SealCarDto;
 import com.jd.jim.cli.Cluster;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.jsoup.helper.DataUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +44,8 @@ import java.util.concurrent.TimeUnit;
  */
 @Service("jyBizTaskUnloadVehicleService")
 public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicleService{
+
+    private final static String JY_BIZ_TASK_BIZ_ID_PREFIX = "XCZJ%s";
     /**
      * 锁格式
      */
@@ -60,6 +71,13 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
     @Qualifier("redisClientOfJy")
     private Cluster redisClientOfJy;
 
+    @Autowired
+    private VosManager vosManager;
+
+    @Autowired
+    @Qualifier("redisJyBizIdSequenceGen")
+    private JimdbSequenceGen redisJyBizIdSequenceGen;
+
     /**
      * 根据bizId获取数据
      *
@@ -70,6 +88,18 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
     @JProfiler(jKey = "DMSWEB.jy.JyBizTaskUnloadVehicleServiceImpl.findByBizId",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
     public JyBizTaskUnloadVehicleEntity findByBizId(String bizId) {
         return jyBizTaskUnloadVehicleDao.findByBizId(bizId);
+    }
+
+    /**
+     * 根据派车明细编码获取数据
+     *
+     * @param transWorkItemCode
+     * @return
+     */
+    @Override
+    @JProfiler(jKey = "DMSWEB.jy.JyBizTaskUnloadVehicleServiceImpl.findByTransWorkItemCode",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
+    public JyBizTaskUnloadVehicleEntity findByTransWorkItemCode(String transWorkItemCode) {
+        return jyBizTaskUnloadVehicleDao.findByTransWorkItemCode(transWorkItemCode);
     }
 
     /**
@@ -179,6 +209,10 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
         try{
             if(locked(bizId)){
                 JyBizTaskUnloadVehicleEntity nowStatus = jyBizTaskUnloadVehicleDao.findIdAndStatusByBizId(bizId);
+                if(nowStatus == null){
+                    //未获得当前状态数据
+                    throw new JyBizException(String.format("未获取到需要更新状态的任务数据，bizId:%s", bizId));
+                }
                 // 如果要更新的状态 在 更新前的状态 前置节点 则直接返回成功不做任何动作
                 if(checkStatusIsBefore(JyBizTaskUnloadStatusEnum.getEnumByCode(changeStatus),
                         JyBizTaskUnloadStatusEnum.getEnumByCode(nowStatus.getVehicleStatus()))){
@@ -275,7 +309,7 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
     @Override
     @Transactional(value = "tm_jy_core",propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     @JProfiler(jKey = "DMSWEB.jy.JyBizTaskUnloadVehicleServiceImpl.saveOrUpdateOfOtherBusinessInfo",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
-    public boolean saveOrUpdateOfOtherBusinessInfo(JyBizTaskUnloadVehicleEntity entity) {
+    public boolean saveOrUpdateOfBusinessInfo(JyBizTaskUnloadVehicleEntity entity) {
 
         String bizId = entity.getBizId();
         if(StringUtils.isEmpty(bizId)){
@@ -289,7 +323,7 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
                 Long id = jyBizTaskUnloadVehicleDao.findIdByBizId(bizId);
                 if(id != null && id > 0){
                     //存在即更新
-                    result = jyBizTaskUnloadVehicleDao.updateOfOtherBusinessInfoById(entity) > 0;
+                    result = jyBizTaskUnloadVehicleDao.updateOfBusinessInfoById(entity) > 0;
                 }else {
                     //不存在则新增
                     result = jyBizTaskUnloadVehicleDao.insert(entity) > 0;
@@ -379,6 +413,88 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
             redisClientOfJy.del(lockKey);
         }
         return true;
+    }
+
+    /**
+     * 初始通过运输实时接口补全数据
+     *
+     * @param sealCarCode
+     * @return
+     */
+    @Override
+    @JProfiler(jKey = "DMSWEB.jy.JyBizTaskUnloadVehicleServiceImpl.initTaskByTms",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
+    @Transactional(value = "tm_jy_core",propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    public JyBizTaskUnloadVehicleEntity initTaskByTms(String sealCarCode) {
+        CommonDto<SealCarDto> sealCarDtoCommonDto = vosManager.querySealCarInfoBySealCarCode(sealCarCode);
+        if(sealCarDtoCommonDto != null && Constants.RESULT_SUCCESS == sealCarDtoCommonDto.getCode()
+            && sealCarDtoCommonDto.getData() != null && !StringUtils.isEmpty(sealCarDtoCommonDto.getData().getSealCarCode())){
+            SealCarDto sealCarDto = sealCarDtoCommonDto.getData();
+            JyBizTaskUnloadVehicleEntity initParams = new JyBizTaskUnloadVehicleEntity();
+            initParams.setBizId(sealCarCode);
+            initParams.setSealCarCode(sealCarCode);
+            initParams.setVehicleNumber(sealCarDto.getVehicleNumber());
+            initParams.setTransWorkItemCode(sealCarDto.getTransWorkItemCode());
+            initParams.setStartSiteId(Long.valueOf(sealCarDto.getStartSiteId()));
+            initParams.setEndSiteId(Long.valueOf(sealCarDto.getEndSiteId()));
+            initParams.setStartSiteName(sealCarDto.getStartSiteName());
+            initParams.setEndSiteName(sealCarDto.getEndSiteName());
+            initParams.setVehicleStatus(JyBizTaskUnloadStatusEnum.INIT.getCode());
+            //本身已带锁
+            if(saveOrUpdateOfBaseInfo(initParams)){
+                return initParams;
+            }else{
+                logger.error("JyBizTaskUnloadVehicleService.initTaskByTms save fail! {},{}",sealCarCode,
+                        JsonHelper.toJson(initParams));
+            }
+        }else {
+            logger.error("JyBizTaskUnloadVehicleService.initTaskByTms fail! {},{}",sealCarCode,
+                    JsonHelper.toJson(sealCarDtoCommonDto));
+        }
+        return null;
+    }
+
+    /**
+     * 无任务模式初始数据 无任务模式创建的任务默认为待卸状态
+     * 业务主键和封车编码保持一致 并自定生成
+     * @param dto
+     * @return
+     */
+    @Override
+    @Transactional(value = "tm_jy_core",propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    @JProfiler(jKey = "DMSWEB.jy.JyBizTaskUnloadVehicleServiceImpl.initTaskByNoTask",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
+    public JyBizTaskUnloadVehicleEntity initTaskByNoTask(JyBizTaskUnloadDto dto) {
+        String bizId = genBizId();
+        if(StringUtils.isEmpty(bizId)){
+            return null;
+        }
+        JyBizTaskUnloadVehicleEntity initParams = new JyBizTaskUnloadVehicleEntity();
+        initParams.setBizId(bizId);
+        initParams.setSealCarCode(bizId);
+        initParams.setVehicleNumber(dto.getVehicleNumber()); //车牌号从无任务模式中获取
+        initParams.setStartSiteId(Long.valueOf(0));
+        initParams.setStartSiteName("无任务模式");
+        initParams.setEndSiteId(Long.valueOf(dto.getOperateSiteId()));
+        initParams.setEndSiteName(dto.getOperateSiteName());
+        initParams.setVehicleStatus(JyBizTaskUnloadStatusEnum.WAIT_UN_LOAD.getCode());
+        initParams.setManualCreatedFlag(1);
+        //本身已带锁
+        if(saveOrUpdateOfBaseInfo(initParams)){
+            return initParams;
+        }else{
+            logger.error("JyBizTaskUnloadVehicleService.initTaskByTms save fail! {},{}",JsonHelper.toJson(dto),
+                    JsonHelper.toJson(initParams));
+        }
+        return null;
+    }
+
+    /**
+     * 生成BIZID逻辑
+     * XCZJ2204050000001
+     * @return
+     */
+    private String genBizId(){
+        String ownerKey = String.format(JY_BIZ_TASK_BIZ_ID_PREFIX, DateHelper.formatDate(new Date(),DateHelper.DATE_FORMATE_yyMMdd));
+        return StringHelper.padZero(redisJyBizIdSequenceGen.gen(ownerKey));
     }
 
     /**

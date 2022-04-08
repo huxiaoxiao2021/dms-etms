@@ -25,7 +25,7 @@ public class JyGroupEntity implements Serializable {
     /**
      * 岗位编码
      */
-    private String posionCode;
+    private String positionCode;
     /**
      * 机构编码
      */
@@ -83,15 +83,15 @@ public class JyGroupEntity implements Serializable {
         return this.groupCode;
     }
 
-    public String setPosionCode(String posionCode) {
-        return this.posionCode = posionCode;
-    }
+    public String getPositionCode() {
+		return positionCode;
+	}
 
-    public String getPosionCode() {
-        return this.posionCode;
-    }
+	public void setPositionCode(String positionCode) {
+		this.positionCode = positionCode;
+	}
 
-    public Integer setOrgCode(Integer orgCode) {
+	public Integer setOrgCode(Integer orgCode) {
         return this.orgCode = orgCode;
     }
 
