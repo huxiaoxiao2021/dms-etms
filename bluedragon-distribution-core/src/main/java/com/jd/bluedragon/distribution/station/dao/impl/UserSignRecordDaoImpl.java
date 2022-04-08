@@ -161,7 +161,7 @@ public class UserSignRecordDaoImpl extends BaseDao<UserSignRecord> implements Us
 		if(CollectionUtils.isEmpty(idList)) {
 			return new ArrayList<UserSignRecordData>();
 		}
-		return this.getSqlSession().selectList(NAMESPACE+".querySignDataListByIds",idList);
+		return this.getSqlSession().selectList(NAMESPACE+".queryUserSignRecordDataByIds",idList);
 	}
 	@Override
 	public List<UserSignRecord> queryUnSignOutListWithPosition(UserSignQueryRequest query) {

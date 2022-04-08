@@ -18,7 +18,7 @@ public class GroupMemberQueryRequest implements Serializable {
 	 */
 	private String groupCode;
 	/**
-	 * 小组编码
+	 * 状态
 	 */
 	private Integer status;
 	/**
