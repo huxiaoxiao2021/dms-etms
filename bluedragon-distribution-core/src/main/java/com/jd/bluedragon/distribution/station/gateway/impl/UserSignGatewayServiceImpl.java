@@ -97,5 +97,17 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 		}
 		return result;
 	}
+	@Override
+	public JdCResponse<UserSignRecordData> signInWithGroup(UserSignRequest signInRequest) {
+		return userSignRecordService.signInWithGroup(signInRequest);
+	}
+	@Override
+	public JdCResponse<UserSignRecordData> signOutWithGroup(UserSignRequest signOutRequest) {
+		return userSignRecordService.signInWithGroup(signOutRequest);
+	}
+	@Override
+	public JdCResponse<UserSignRecordData> signAutoWithGroup(UserSignRequest userSignRequest) {
+		return userSignRecordService.signInWithGroup(userSignRequest);
+	}
 
 }

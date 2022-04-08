@@ -17,6 +17,8 @@ import org.springframework.stereotype.Service;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.group.GroupMemberData;
+import com.jd.bluedragon.common.dto.group.GroupMemberRequest;
 import com.jd.bluedragon.common.dto.station.UserSignQueryRequest;
 import com.jd.bluedragon.common.dto.station.UserSignRecordData;
 import com.jd.bluedragon.common.dto.station.UserSignRequest;
@@ -24,6 +26,7 @@ import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
+import com.jd.bluedragon.distribution.jy.service.group.JyGroupMemberService;
 import com.jd.bluedragon.distribution.position.domain.PositionDetailRecord;
 import com.jd.bluedragon.distribution.position.service.PositionRecordService;
 import com.jd.bluedragon.distribution.station.dao.UserSignRecordDao;
@@ -91,6 +94,9 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	
 	@Autowired
 	private PositionRecordService positionRecordService;
+	@Autowired
+	@Qualifier("jyGroupMemberService")
+	private JyGroupMemberService jyGroupMemberService;
 	
 	@Autowired
 	private BaseMajorManager baseMajorManager;
@@ -895,5 +901,84 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	@Override
 	public List<UserSignRecord> queryUnSignOutListWithPosition(UserSignQueryRequest query) {
 		return userSignRecordDao.queryUnSignOutListWithPosition(query);
+	}
+	@Override
+	public JdCResponse<UserSignRecordData> signInWithGroup(UserSignRequest signInRequest) {
+		JdCResponse<UserSignRecordData> result = this.signInWithPosition(signInRequest);
+		if(!result.isSucceed()) {
+			return result;
+		}
+		//添加组员
+		JdCResponse<GroupMemberData> addMemberResult = this.addMember(signInRequest, result.getData());
+		//无法回滚
+		if(addMemberResult.isSucceed()) {
+			result.getData().setGroupData(addMemberResult.getData());
+		}
+		return result;
+	}
+	@Override
+	public JdCResponse<UserSignRecordData> signOutWithGroup(UserSignRequest signOutRequest) {
+		JdCResponse<UserSignRecordData> result = this.signOutWithPosition(signOutRequest);
+		if(!result.isSucceed()) {
+			return result;
+		}
+		//剔除组员
+		//添加组员
+		JdCResponse<GroupMemberData> removeMemberResult = this.removeMember(signOutRequest, result.getData());
+		if(removeMemberResult.isSucceed()) {
+			result.getData().setGroupData(removeMemberResult.getData());
+		}
+		return result;
+	}
+	@Override
+	public JdCResponse<UserSignRecordData> signAutoWithGroup(UserSignRequest userSignRequest) {
+		JdCResponse<UserSignRecordData> result = this.signAuto(userSignRequest);
+		if(!result.isSucceed()) {
+			return result;
+		}
+		JdCResponse<GroupMemberData> memberResult = null;
+		//签到-添加组员
+		if(result.getData().getSignOutTime() == null) {
+			memberResult = this.addMember(userSignRequest, result.getData());
+		}else {
+			//签退-剔除组员
+			memberResult = this.removeMember(userSignRequest, result.getData());
+		}
+		if(memberResult.isSucceed()) {
+			result.getData().setGroupData(memberResult.getData());
+		}
+		return result;
+	}
+	/**
+	 * 添加组员
+	 * @param userSignRequest
+	 * @param signData
+	 * @return
+	 */
+	private JdCResponse<GroupMemberData> addMember(UserSignRequest userSignRequest,UserSignRecordData signData){
+		GroupMemberRequest addMemberRequest = new GroupMemberRequest();
+		addMemberRequest.setSignRecordId(signData.getId());
+		addMemberRequest.setPositionCode(userSignRequest.getPositionCode());
+		addMemberRequest.setJobCode(signData.getJobCode());
+		addMemberRequest.setUserCode(signData.getUserCode());
+		addMemberRequest.setUserName(signData.getUserName());
+		addMemberRequest.setOrgCode(signData.getOrgCode());
+		addMemberRequest.setSiteCode(signData.getSiteCode());
+		addMemberRequest.setOperateUserCode(userSignRequest.getOperateUserCode());
+		addMemberRequest.setOperateUserName(userSignRequest.getOperateUserName());
+		return jyGroupMemberService.addMember(addMemberRequest);
+	}
+	/**
+	 * 剔除组员
+	 * @param userSignRequest
+	 * @param signData
+	 * @return
+	 */
+	private JdCResponse<GroupMemberData> removeMember(UserSignRequest userSignRequest,UserSignRecordData signData){
+		GroupMemberRequest removeMemberRequest = new GroupMemberRequest();
+		removeMemberRequest.setSignRecordId(signData.getId());
+		removeMemberRequest.setOperateUserCode(userSignRequest.getOperateUserCode());
+		removeMemberRequest.setOperateUserName(userSignRequest.getOperateUserName());
+		return jyGroupMemberService.removeMember(removeMemberRequest);
 	}
 }
