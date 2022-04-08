@@ -15,6 +15,8 @@ import com.jd.bluedragon.common.dto.send.request.TransPlanRequest;
 import com.jd.bluedragon.common.dto.send.response.CheckBeforeSendResponse;
 import com.jd.bluedragon.common.dto.send.response.SendThreeDetailDto;
 import com.jd.bluedragon.common.dto.send.response.TransPlanDto;
+import com.jd.bluedragon.common.task.MiniStoreSyncProcessDataTask;
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.ColdChainDeliveryRequest;
 import com.jd.bluedragon.distribution.api.request.PackageSendRequest;
@@ -29,6 +31,7 @@ import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
 import com.jd.bluedragon.distribution.ministore.enums.BizDirectionEnum;
 import com.jd.bluedragon.distribution.ministore.enums.ProcessTypeEnum;
+import com.jd.bluedragon.distribution.ministore.service.MiniStoreService;
 import com.jd.bluedragon.distribution.rest.send.ColdChainDeliveryResource;
 import com.jd.bluedragon.distribution.rest.send.DeliveryResource;
 import com.jd.bluedragon.distribution.send.domain.SendM;
@@ -52,6 +55,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -85,6 +89,14 @@ public class SendGatewayServiceImpl implements SendGatewayService {
 
     @Autowired
     private SortingCheckService sortingCheckService;
+    @Autowired
+    @Qualifier("miniStoreSortProcessProducer")
+    private DefaultJMQProducer miniStoreSortProcessProducer;
+    @Autowired
+    MiniStoreService miniStoreService;
+    @Autowired
+    @Qualifier("taskExecutor")
+    ThreadPoolTaskExecutor taskExecutor;
 
     @Override
     @JProfiler(jKey = "DMSWEB.SendGatewayServiceImpl.packageSendVerifyForBox",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -129,7 +141,9 @@ public class SendGatewayServiceImpl implements SendGatewayService {
         SendResult sendResult = invokeResult.getData();
         if(Objects.equals(sendResult.getKey(),SendResult.CODE_OK)){
             jdVerifyResponse.toSuccess(sendResult.getValue());
-            ProcessTypeEnum processTypeEnum = BizDirectionEnum.FROWARD.getCode().equals(cRequest.getBusinessType())?ProcessTypeEnum.SEND_SORT_CENTER:ProcessTypeEnum.BACK_INSPECTION_SORT_CENTER;
+            ProcessTypeEnum processTypeEnum = String.valueOf(cRequest.getSiteType()).equals("64")?ProcessTypeEnum.SEND_SORT_CENTER:ProcessTypeEnum.SEND_JIEHUOCANG;
+            Runnable task = new MiniStoreSyncProcessDataTask(processTypeEnum, request.getBoxCode(), request.getUserName(), Long.valueOf(request.getUserCode()), miniStoreService, miniStoreSortProcessProducer);
+            taskExecutor.execute(task);
             return jdVerifyResponse;
         }
 
