@@ -792,6 +792,10 @@
         <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
     </bean>
 
+    <bean id="jyWorkMapFuncConfigDao" class="com.jd.bluedragon.distribution.jy.dao.config.JyWorkMapFuncConfigDao">
+        <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
+    </bean>
+
     <!--################################## jy_core 相关DAO END ############################################ -->
 
 

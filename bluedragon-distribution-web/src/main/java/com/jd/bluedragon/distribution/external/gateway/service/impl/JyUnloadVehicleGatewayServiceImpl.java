@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.unload.request.*;
@@ -10,6 +11,7 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.UnloadProductTypeEnum;
 import com.jd.bluedragon.distribution.jy.service.unload.IJyUnloadVehicleService;
+import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadDto;
 import com.jd.bluedragon.external.gateway.service.JyUnloadVehicleGatewayService;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -27,6 +29,20 @@ public class JyUnloadVehicleGatewayServiceImpl implements JyUnloadVehicleGateway
 
     @Autowired
     private IJyUnloadVehicleService unloadVehicleService;
+
+    @Override
+    public JdCResponse<Boolean> createNoTaskUnloadTask(UnloadNoTaskRequest request) {
+        JdCResponse<Boolean> jdCResponse = new JdCResponse<Boolean>();
+        JyBizTaskUnloadDto dto = new JyBizTaskUnloadDto();
+        // 无任务模式
+        dto.setManualCreatedFlag(Constants.CONSTANT_NUMBER_ONE);
+        dto.setVehicleNumber(request.getVehicleNumber());
+        dto.setOperateSiteId(request.getOperateSiteId());
+        dto.setOperateSiteName(request.getOperateSiteName());
+        jdCResponse.toSucceed();
+        jdCResponse.setData(unloadVehicleService.createUnloadTask(dto));
+        return jdCResponse;
+    }
 
     @Override
     public JdCResponse<UnloadVehicleTaskResponse> fetchUnloadTask(UnloadVehicleTaskRequest request) {
