@@ -1,9 +1,10 @@
 package com.jd.bluedragon.distribution.jy.service.unload;
-import java.util.Date;
 
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
+import com.jd.bluedragon.common.dto.operation.workbench.enums.BarCodeLabelOptionEnum;
+import com.jd.bluedragon.common.dto.operation.workbench.enums.UnloadBarCodeScanTypeEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.unload.request.*;
 import com.jd.bluedragon.common.dto.operation.workbench.unload.response.*;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.LineTypeStatis;
@@ -14,7 +15,6 @@ import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.jy.constants.LabelOptionConstants;
 import com.jd.bluedragon.distribution.jy.constants.RedisHashKeyConstants;
 import com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadAggsDao;
 import com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadDao;
@@ -36,7 +36,10 @@ import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.JyUnloadTaskSignConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.*;
+import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.NumberHelper;
+import com.jd.bluedragon.utils.RedisHashUtils;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.jim.cli.Cluster;
 import com.jd.ump.annotation.JProEnum;
@@ -1240,13 +1243,13 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         if (!Objects.equals(UnloadBarCodeQueryEntranceEnum.TO_SCAN, scanTypeEnum)) {
             if (StringUtils.isNotBlank(unloadDetail.getProductType())) {
                 displayOrder ++;
-                labelList.add(new LabelOption(LabelOptionConstants.CODE_PRODUCT, UnloadProductTypeEnum.getNameByCode(unloadDetail.getProductType()), displayOrder));
+                labelList.add(new LabelOption(BarCodeLabelOptionEnum.PRODUCT_TYPE.getCode(), UnloadProductTypeEnum.getNameByCode(unloadDetail.getProductType()), displayOrder));
             }
         }
 
         if (NumberHelper.gt0(unloadDetail.getInterceptFlag())) {
             displayOrder ++;
-            labelList.add(new LabelOption(LabelOptionConstants.CODE_INTERCEPT, "拦截", displayOrder));
+            labelList.add(new LabelOption(BarCodeLabelOptionEnum.INTERCEPT.getCode(), "拦截", displayOrder));
         }
 
         return labelList;

@@ -1,4 +1,4 @@
-package com.jd.bluedragon.distribution.jy.enums;
+package com.jd.bluedragon.common.dto.operation.workbench.enums;
 
 /**
  * @ClassName UnloadBarCodeQueryEntranceEnum
@@ -21,6 +21,15 @@ public enum UnloadBarCodeScanTypeEnum {
     UnloadBarCodeScanTypeEnum(Integer code, String name) {
         this.code = code;
         this.name = name;
+    }
+
+    public static String getNameByCode(Integer code) {
+        for (UnloadBarCodeScanTypeEnum scanTypeEnum : UnloadBarCodeScanTypeEnum.values()) {
+            if (scanTypeEnum.code.equals(code)) {
+                return scanTypeEnum.name;
+            }
+        }
+        return "";
     }
 
     public Integer getCode() {
