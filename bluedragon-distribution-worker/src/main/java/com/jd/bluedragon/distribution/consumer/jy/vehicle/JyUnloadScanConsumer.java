@@ -93,16 +93,16 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
 
         doUnloadScan(unloadScanDto);
 
+        // 刷新卸车进度缓存
         refreshUnloadProgressCache(unloadScanDto);
 
     }
 
     private void refreshUnloadProgressCache(UnloadScanDto unloadScanDto) {
-        if (StringUtils.isNotBlank(unloadScanDto.getBizId())) {
-
-            // TODO 设定一个biz的刷新窗口
-            unloadVehicleService.refreshUnloadAggCache(unloadScanDto.getBizId());
+        if (logger.isInfoEnabled()) {
+            logger.info("卸车扫描完成刷新扫描进度缓存. {}", unloadScanDto.getBizId());
         }
+        unloadVehicleService.refreshUnloadAggCache(unloadScanDto.getBizId());
     }
 
     /**
@@ -148,6 +148,7 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
      */
     private void startAndDistributeUnloadTask(UnloadScanDto unloadScanDto) {
 
+        // 卸车任务首次扫描
         if (judgeBarCodeIsFirstScanFromTask(unloadScanDto)) {
 
             startJyScheduleTask(unloadScanDto);

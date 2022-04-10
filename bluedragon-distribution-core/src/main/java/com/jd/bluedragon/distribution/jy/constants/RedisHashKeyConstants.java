@@ -8,6 +8,7 @@ package com.jd.bluedragon.distribution.jy.constants;
  **/
 public class RedisHashKeyConstants {
 
+    public static final String UNLOAD_BIZ_ID = "bizId";
     public static final String UNLOAD_TOTAL_COUNT = "totalCount";
     public static final String UNLOAD_COUNT = "unloadCount";
     public static final String UNLOAD_INTERCEPT_SHOULD_SCAN_COUNT = "interceptShouldScanCount";

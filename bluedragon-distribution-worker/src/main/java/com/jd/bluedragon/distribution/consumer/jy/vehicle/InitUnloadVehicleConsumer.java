@@ -8,9 +8,11 @@ import com.jd.bluedragon.distribution.jy.dto.task.UnloadVehicleMqDto;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskUnloadVehicleService;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
+import com.jd.bluedragon.dms.utils.JyUnloadTaskSignConstants;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.bluedragon.utils.TagSignHelper;
 import com.jd.jim.cli.Cluster;
 import com.jd.jmq.common.message.Message;
 import com.jd.ump.annotation.JProEnum;
@@ -82,7 +84,25 @@ public class InitUnloadVehicleConsumer extends MessageBaseConsumer {
             }
         }
 
+        if (saveUnloadTaskData(message, mqDto)) {
+            // 消费成功，记录数据版本号
+            if (NumberHelper.gt0(mqDto.getVersion())) {
+                logger.info("卸车任务消费的最新版本号. {}-{}", mqDto.getSealCarCode(), mqDto.getVersion());
+                redisClientOfJy.set(versionMutex, mqDto.getVersion() + "");
+                redisClientOfJy.expire(versionMutex, 12, TimeUnit.HOURS);
+            }
+        }
+    }
+
+    /**
+     * 保存卸车任务数据
+     * @param message
+     * @param mqDto
+     * @return
+     */
+    private boolean saveUnloadTaskData(Message message, UnloadVehicleMqDto mqDto) {
         boolean saveData;
+
         JyBizTaskUnloadVehicleEntity unloadVehicleEntity = convertEntityFromDto(mqDto);
         try {
             saveData = jyBizTaskUnloadVehicleService.saveOrUpdateOfBusinessInfo(unloadVehicleEntity);
@@ -97,14 +117,7 @@ public class InitUnloadVehicleConsumer extends MessageBaseConsumer {
             throw new RuntimeException("初始化卸车任务发生业务失败");
         }
 
-        if (saveData) {
-            // 消费成功，记录数据版本号
-            if (NumberHelper.gt0(mqDto.getVersion())) {
-                logger.info("卸车任务消费的最新版本号. {}-{}", mqDto.getSealCarCode(), mqDto.getVersion());
-                redisClientOfJy.set(versionMutex, mqDto.getVersion() + "");
-                redisClientOfJy.expire(versionMutex, 12, TimeUnit.HOURS);
-            }
-        }
+        return saveData;
     }
 
     private JyBizTaskUnloadVehicleEntity convertEntityFromDto(UnloadVehicleMqDto mqDto) {
@@ -136,40 +149,57 @@ public class InitUnloadVehicleConsumer extends MessageBaseConsumer {
             unloadVehicleEntity.setTotalCount(mqDto.getTotalCount());
         }
 
-        if (mqDto.getCheckType() != null) {
+        // 处理卸车任务标位
+        unloadVehicleEntity.setTagsSign(TagSignHelper.initDefaultPlaceholder());
+        dealTagSign(mqDto, unloadVehicleEntity);
 
-        }
-
-        Map<String, Object> extendInfo = mqDto.getExtendInfo();
-        if (MapUtils.isNotEmpty(extendInfo)) {
-
-            dealUnloadSingleWaybillTag(unloadVehicleEntity, extendInfo);
-
-            Object totalScannedPackageProgress = extendInfo.get(UnloadVehicleMqDto.EXTEND_KEY_SCAN_PROGRESS);
-            if (totalScannedPackageProgress != null) {
-                if (NumberHelper.isBigDecimal(totalScannedPackageProgress + "")) {
-                    BigDecimal progress = new BigDecimal(totalScannedPackageProgress + "");
-                    unloadVehicleEntity.setUnloadProgress(progress);
-                }
-            }
-        }
+        // 处理卸车进度
+        dealUnloadProgress(mqDto, unloadVehicleEntity);
 
         return unloadVehicleEntity;
     }
 
+    private void dealUnloadProgress(UnloadVehicleMqDto mqDto, JyBizTaskUnloadVehicleEntity unloadVehicleEntity) {
+        Map<String, Object> extendInfo = mqDto.getExtendInfo();
+        if (MapUtils.isEmpty(extendInfo)) {
+            return;
+        }
+        Object totalScannedPackageProgress = extendInfo.get(UnloadVehicleMqDto.EXTEND_KEY_SCAN_PROGRESS);
+        if (totalScannedPackageProgress != null) {
+            if (NumberHelper.isBigDecimal(totalScannedPackageProgress + "")) {
+                BigDecimal progress = new BigDecimal(totalScannedPackageProgress + "");
+                unloadVehicleEntity.setUnloadProgress(progress);
+            }
+        }
+    }
+
     /**
-     * 处理逐单卸标识
+     * 处理卸车任务标位
+     * @param mqDto
      * @param unloadVehicleEntity
-     * @param extendInfo
      */
-    private void dealUnloadSingleWaybillTag(JyBizTaskUnloadVehicleEntity unloadVehicleEntity, Map<String, Object> extendInfo) {
+    private void dealTagSign(UnloadVehicleMqDto mqDto, JyBizTaskUnloadVehicleEntity unloadVehicleEntity) {
+
+        // 标记抽检标识
+        if (mqDto.getCheckType() != null) {
+            if (mqDto.getCheckType() == Constants.CONSTANT_NUMBER_ONE) {
+                unloadVehicleEntity.setTagsSign(TagSignHelper.setPositionSign(unloadVehicleEntity.getTagsSign(), JyUnloadTaskSignConstants.POSITION_1, JyUnloadTaskSignConstants.CHAR_1_1));
+            }
+        }
+
+        Map<String, Object> extendInfo = mqDto.getExtendInfo();
+        if (MapUtils.isEmpty(extendInfo)) {
+            return;
+        }
+
+        // 标记逐单卸标识
         Object damageCntObj = extendInfo.get(UnloadVehicleMqDto.EXTEND_KEY_DAMAGE_CNT);
         Object lostCntObj = extendInfo.get(UnloadVehicleMqDto.EXTEND_KEY_LOST_CNT);
         if (null != damageCntObj && null != lostCntObj) {
             Long damageCnt = Long.valueOf(damageCntObj + "");
             Long lostCnt = Long.valueOf(lostCntObj + "");
             if (uccConfig.getJyUnloadSingleWaybillThreshold() < (damageCnt + lostCnt)) {
-                // TODO 卸车任务打逐单卸标识
+                unloadVehicleEntity.setTagsSign(TagSignHelper.setPositionSign(unloadVehicleEntity.getTagsSign(), JyUnloadTaskSignConstants.POSITION_2, JyUnloadTaskSignConstants.CHAR_2_1));
             }
         }
     }

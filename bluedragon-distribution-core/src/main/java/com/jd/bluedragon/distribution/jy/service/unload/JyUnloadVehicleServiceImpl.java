@@ -464,6 +464,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
     private void recordUnloadProgress(Integer pdaUnloadCount, UnloadScanRequest request, JyBizTaskUnloadVehicleEntity taskUnloadVehicle) {
         String pdaOpeCacheKey = genPdaUnloadProgressCacheKey(request.getBizId());
         if (redisClientOfJy.exists(pdaOpeCacheKey)) {
+
             redisClientOfJy.hIncrBy(pdaOpeCacheKey, RedisHashKeyConstants.UNLOAD_COUNT, pdaUnloadCount);
             redisClientOfJy.expire(pdaOpeCacheKey, UNLOAD_CACHE_EXPIRE, TimeUnit.HOURS);
 
@@ -794,7 +795,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         String pdaOpeCacheKey = genPdaUnloadProgressCacheKey(bizId);
         if (redisClientOfJy.exists(pdaOpeCacheKey)) {
             String redisVal = redisClientOfJy.hGet(pdaOpeCacheKey, RedisHashKeyConstants.UNLOAD_COUNT);
-            if (StringUtils.isNotBlank(redisVal)) {
+            if (StringUtils.isNotBlank(redisVal) && NumberHelper.isNumber(redisVal)) {
                 Integer pdaScannedPackageCount = Integer.valueOf(redisVal);
                 // PDA进度快以PDA为准
                 Integer rightUnloadCount = calculateRightUnloadCount(pdaScannedPackageCount, unloadAggEntity);
