@@ -15,6 +15,11 @@ public class JyBizTaskUnloadDto implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
+     * 调度任务ID
+     */
+    private String taskId;
+
+    /**
      * 业务主键 = 封车编码
      */
     private String bizId;
@@ -63,6 +68,14 @@ public class JyBizTaskUnloadDto implements Serializable {
      * 任务状态；0-等待初始，1-在途，2-待解，3-待卸，4-卸车，5-卸车完成，6-取消
      */
     private Integer vehicleStatus;
+
+    public String getTaskId() {
+        return taskId;
+    }
+
+    public void setTaskId(String taskId) {
+        this.taskId = taskId;
+    }
 
     public String getBizId() {
         return bizId;
