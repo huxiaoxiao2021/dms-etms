@@ -8,6 +8,15 @@ public class UnBoxReq implements Serializable {
     private String boxCode;
     private String updateUser;
     private Long updateUserCode;
+    private String errMsg;
+
+    public String getErrMsg() {
+        return errMsg;
+    }
+
+    public void setErrMsg(String errMsg) {
+        this.errMsg = errMsg;
+    }
 
     public String getUpdateUser() {
         return updateUser;
