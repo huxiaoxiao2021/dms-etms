@@ -97,6 +97,6 @@ public interface IJyUnloadVehicleService {
      * @param dto
      * @return
      */
-    boolean createUnloadTask(JyBizTaskUnloadDto dto);
+    JyBizTaskUnloadDto createUnloadTask(JyBizTaskUnloadDto dto);
 
 }

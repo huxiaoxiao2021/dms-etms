@@ -702,12 +702,12 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "IJyUnloadVehicleService.createUnloadTask",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     @Transactional(value = "tm_jy_core",propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public boolean createUnloadTask(JyBizTaskUnloadDto dto){
-
+    public JyBizTaskUnloadDto createUnloadTask(JyBizTaskUnloadDto dto){
+        JyBizTaskUnloadVehicleEntity taskUnloadVehicleEntity = null;
         if(dto.getManualCreatedFlag() != null && Integer.valueOf(1).equals(dto.getManualCreatedFlag())){
             //无任务模式
             //计算生成BIZ_ID
-            JyBizTaskUnloadVehicleEntity taskUnloadVehicleEntity = jyBizTaskUnloadVehicleService.initTaskByNoTask(dto);
+            taskUnloadVehicleEntity = jyBizTaskUnloadVehicleService.initTaskByNoTask(dto);
             if(taskUnloadVehicleEntity == null){
                 //初始化失败
                 throw new JyBizException(String.format("初始业务任务基础数据异常！无任务模式 车牌:%s",dto.getVehicleNumber()));
@@ -716,8 +716,8 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
             //防止上线初期运输数据未全部接入时 增加补数逻辑
             Long id = jyBizTaskUnloadVehicleService.findIdByBizId(dto.getBizId());
             if(id == null || id <=0 ){
-                JyBizTaskUnloadVehicleEntity unloadVehicleEntity = jyBizTaskUnloadVehicleService.initTaskByTms(dto.getSealCarCode());
-                if(unloadVehicleEntity == null){
+                taskUnloadVehicleEntity = jyBizTaskUnloadVehicleService.initTaskByTms(dto.getSealCarCode());
+                if(taskUnloadVehicleEntity == null){
                     throw new JyBizException(String.format("初始业务任务基础数据异常！bizId:%s",dto.getBizId()));
                 }
             }
@@ -738,13 +738,18 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
             }
 
         }
-        //创建卸车任务
-        boolean createFlag = createUnLoadScheduleTask(dto);
-        if(!createFlag){
-            throw new JyBizException(String.format("关闭原解封车调度任务失败！bizId:%s",dto.getBizId()));
-        }
 
-        return true;
+        //创建卸车任务
+        JyScheduleTaskResp scheduleTaskResp =  createUnLoadScheduleTask(dto);
+        boolean createFlag = scheduleTaskResp != null;
+        if(!createFlag){
+            throw new JyBizException(String.format("创建新卸车调度任务失败！bizId:%s",dto.getBizId()));
+        }
+        JyBizTaskUnloadDto result = new JyBizTaskUnloadDto();
+        result.setTaskId(scheduleTaskResp.getTaskId());
+        result.setBizId(taskUnloadVehicleEntity.getBizId());
+        result.setVehicleNumber(taskUnloadVehicleEntity.getVehicleNumber());
+        return result;
     }
 
     /**
@@ -769,15 +774,14 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
      * @param dto
      * @return
      */
-    private boolean createUnLoadScheduleTask(JyBizTaskUnloadDto dto){
+    private JyScheduleTaskResp createUnLoadScheduleTask(JyBizTaskUnloadDto dto){
         JyScheduleTaskReq req = new JyScheduleTaskReq();
         req.setBizId(dto.getBizId());
         req.setTaskType(JyScheduleTaskTypeEnum.UNLOAD.getCode());
         req.setOpeUser(dto.getOperateUserErp());
         req.setOpeUserName(dto.getOperateUserName());
         req.setOpeTime(dto.getOperateTime());
-        JyScheduleTaskResp jyScheduleTaskResp = jyScheduleTaskManager.createScheduleTask(req);
-        return jyScheduleTaskResp != null;
+        return jyScheduleTaskManager.createScheduleTask(req);
     }
 
     /**
