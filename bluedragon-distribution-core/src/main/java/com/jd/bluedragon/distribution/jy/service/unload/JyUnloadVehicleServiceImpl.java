@@ -78,6 +78,8 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
 
     private static final int UNLOAD_CACHE_EXPIRE = 12;
 
+    private static final int UNLOAD_SCAN_BAR_EXPIRE = 6;
+
     @Autowired
     @Qualifier("redisClientOfJy")
     private Cluster redisClientOfJy;
@@ -645,7 +647,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         boolean alreadyScanned = false;
         // 同场地一个单号只能扫描一次
         String mutexKey = String.format(CacheKeyConstants.JY_UNLOAD_SCAN_KEY, barCode, siteCode);
-        if (redisClientOfJy.set(mutexKey, "1", 6, TimeUnit.HOURS, false)) {
+        if (redisClientOfJy.set(mutexKey, "1", UNLOAD_SCAN_BAR_EXPIRE, TimeUnit.HOURS, false)) {
             JyUnloadEntity queryDb = new JyUnloadEntity(barCode, (long) siteCode);
             if (jyUnloadDao.queryByCodeAndSite(queryDb) != null) {
                 alreadyScanned = true;
@@ -787,8 +789,6 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
 
         JyUnloadAggsEntity unloadAggEntity = sumUnloadAgg(bizId);
 
-        logInfo("触发更新卸车扫描进度. {}", JsonHelper.toJson(unloadAggEntity));
-
         // 比较PDA扫描的进度和Flink计算出的进度
         String pdaOpeCacheKey = genPdaUnloadProgressCacheKey(bizId);
         if (redisClientOfJy.exists(pdaOpeCacheKey)) {
@@ -803,7 +803,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
                 logInfo("根据PDA更新卸车扫描进度成功. {}", JsonHelper.toJson(unloadAggEntity));
             }
         }
-        // PDA卸车扫描数据失效，卸车进度则以unload_agg为准
+
         logInfo("init unload progress from unload agg. {}", JsonHelper.toJson(unloadAggEntity));
 
         return initScanDetailCacheUsingUnloadAgg(unloadAggEntity);
@@ -1005,21 +1005,21 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
      * @param unloadDetail
      * @return
      */
-    private String resolveScanTypeDesc(JyVehicleTaskUnloadDetail unloadDetail) {
+    private UnloadBarCodeScanTypeEnum resolveScanTypeDesc(JyVehicleTaskUnloadDetail unloadDetail) {
         if (NumberHelper.gt0(unloadDetail.getMoreScanFlag())) {
             if (NumberHelper.gt0(unloadDetail.getLocalSiteFlag())) {
-                return UnloadBarCodeScanTypeEnum.LOCAL_MORE_SCAN.getName();
+                return UnloadBarCodeScanTypeEnum.LOCAL_MORE_SCAN;
             }
             else {
-                return UnloadBarCodeScanTypeEnum.OUT_MORE_SCAN.getName();
+                return UnloadBarCodeScanTypeEnum.OUT_MORE_SCAN;
             }
         }
         else {
             if (!NumberHelper.gt0(unloadDetail.getScannedFlag())) {
-                return UnloadBarCodeScanTypeEnum.TO_SCAN.getName();
+                return UnloadBarCodeScanTypeEnum.TO_SCAN;
             }
             else {
-                return UnloadBarCodeScanTypeEnum.SCANNED.getName();
+                return UnloadBarCodeScanTypeEnum.SCANNED;
             }
         }
     }
@@ -1062,14 +1062,17 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         return interceptScanBarCode;
     }
 
-    private List<UnloadScanBarCode> getUnloadScanBarCodeList(UnloadBarCodeQueryEntranceEnum scanTypeEnum, List<JyVehicleTaskUnloadDetail> unloadDetailList) {
+    private List<UnloadScanBarCode> getUnloadScanBarCodeList(UnloadBarCodeQueryEntranceEnum queryEntranceEnum, List<JyVehicleTaskUnloadDetail> unloadDetailList) {
         List<UnloadScanBarCode> barCodeList = Lists.newArrayList();
         for (JyVehicleTaskUnloadDetail unloadDetail : unloadDetailList) {
             UnloadScanBarCode barCode = new UnloadScanBarCode();
             barCode.setBarCode(unloadDetail.getPackageCode());
             barCode.setProductType(UnloadProductTypeEnum.getNameByCode(unloadDetail.getProductType()));
-            barCode.setTags(resolveBarCodeLabel(scanTypeEnum, unloadDetail));
-            barCode.setScanType(resolveScanTypeDesc(unloadDetail));
+            barCode.setTags(resolveBarCodeLabel(queryEntranceEnum, unloadDetail));
+
+            UnloadBarCodeScanTypeEnum scanTypeEnum = resolveScanTypeDesc(unloadDetail);
+            barCode.setScanType(scanTypeEnum.getCode());
+            barCode.setScanTypeDesc(scanTypeEnum.getName());
 
             barCodeList.add(barCode);
         }
@@ -1229,18 +1232,18 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
 
     /**
      * 解析包裹标签。产品类型、拦截等
-     * @param scanTypeEnum
+     * @param queryEntranceEnum
      * @param unloadDetail
      * @return
      */
-    private List<LabelOption> resolveBarCodeLabel(UnloadBarCodeQueryEntranceEnum scanTypeEnum, JyVehicleTaskUnloadDetail unloadDetail) {
+    private List<LabelOption> resolveBarCodeLabel(UnloadBarCodeQueryEntranceEnum queryEntranceEnum, JyVehicleTaskUnloadDetail unloadDetail) {
         List<LabelOption> labelList = new ArrayList<>();
 
         // 标签展示的顺序
         int displayOrder = 0;
 
         // 待扫包裹不显示产品类型
-        if (!Objects.equals(UnloadBarCodeQueryEntranceEnum.TO_SCAN, scanTypeEnum)) {
+        if (!Objects.equals(UnloadBarCodeQueryEntranceEnum.TO_SCAN, queryEntranceEnum)) {
             if (StringUtils.isNotBlank(unloadDetail.getProductType())) {
                 displayOrder ++;
                 labelList.add(new LabelOption(BarCodeLabelOptionEnum.PRODUCT_TYPE.getCode(), UnloadProductTypeEnum.getNameByCode(unloadDetail.getProductType()), displayOrder));
