@@ -138,4 +138,12 @@ public class MiniStoreTest {
         int rs =    miniStoreService.incrSortCount(19L, "吴有德", 17331L);
         System.out.println("校验结果：" +rs);
     }
+
+    @Test
+    public void updateByIdTest() {
+        MiniStoreBindRelation m =new MiniStoreBindRelation();
+        m.setId(5L);
+        int rs =    miniStoreService.updateById(m);
+        System.out.println("校验结果：" +rs);
+    }
 }
