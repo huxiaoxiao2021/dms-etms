@@ -1,10 +1,7 @@
 package com.jd.bluedragon.common.dto.operation.workbench.unload.response;
 
-import com.jd.bluedragon.common.dto.select.SelectOption;
-
 import java.io.Serializable;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @ClassName UnloadScanBarCode
@@ -29,7 +26,7 @@ public class UnloadScanBarCode implements Serializable {
     /**
      * 单号标签集合
      */
-    private List<SelectOption> tags;
+    private List<LabelOption> tags;
 
     /**
      * 扫描类型 待扫，已扫，非本场地多扫，本场地多扫
@@ -52,11 +49,11 @@ public class UnloadScanBarCode implements Serializable {
         this.productType = productType;
     }
 
-    public List<SelectOption> getTags() {
+    public List<LabelOption> getTags() {
         return tags;
     }
 
-    public void setTags(List<SelectOption> tags) {
+    public void setTags(List<LabelOption> tags) {
         this.tags = tags;
     }
 

@@ -73,10 +73,6 @@ public class JyBizTaskUnloadVehicleEntity implements Serializable {
      * 排序时间
      */
     private Date sortTime;
-    /**
-     * 排序积分
-     */
-    private Long sortIntegral;
 
     /**
      * 排名（积分模式）
@@ -267,14 +263,6 @@ public class JyBizTaskUnloadVehicleEntity implements Serializable {
 
     public Date getSortTime() {
         return this.sortTime;
-    }
-
-    public Long setSortIntegral(Long sortIntegral) {
-        return this.sortIntegral = sortIntegral;
-    }
-
-    public Long getSortIntegral() {
-        return this.sortIntegral;
     }
 
     public Integer getRanking() {

@@ -29,6 +29,11 @@ public class UnloadPreviewData implements Serializable {
     private Long abnormalCount;
 
     /**
+     * 拦截数量
+     */
+    private Long interceptCount;
+
+    /**
      * 待扫描数量
      */
     private Long shouldScanCount;
@@ -65,6 +70,14 @@ public class UnloadPreviewData implements Serializable {
 
     public void setAbnormalCount(Long abnormalCount) {
         this.abnormalCount = abnormalCount;
+    }
+
+    public Long getInterceptCount() {
+        return interceptCount;
+    }
+
+    public void setInterceptCount(Long interceptCount) {
+        this.interceptCount = interceptCount;
     }
 
     public Long getShouldScanCount() {

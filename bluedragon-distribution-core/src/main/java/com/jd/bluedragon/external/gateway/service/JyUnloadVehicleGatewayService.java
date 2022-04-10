@@ -105,5 +105,5 @@ public interface JyUnloadVehicleGatewayService {
      * @param request
      * @return
      */
-    JdCResponse<Boolean> submitUnloadComplete(UnloadCompleteRequest request);
+    JdCResponse<Boolean> submitUnloadCompletion(UnloadCompleteRequest request);
 }
