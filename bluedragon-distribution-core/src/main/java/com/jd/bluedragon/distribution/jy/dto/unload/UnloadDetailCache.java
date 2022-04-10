@@ -18,7 +18,7 @@ public class UnloadDetailCache implements Serializable {
     /**
      * 卸车任务业务主键
      */
-    @RedisHashColumn(hashField = "bizId")
+    @RedisHashColumn(hashField = RedisHashKeyConstants.UNLOAD_BIZ_ID)
     private String bizId;
 
     /**

@@ -4,6 +4,8 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
+import com.jd.bluedragon.common.dto.inspection.request.InspectionRequest;
+import com.jd.bluedragon.common.dto.inspection.response.InspectionCheckResultDto;
 import com.jd.bluedragon.common.dto.operation.workbench.unload.request.*;
 import com.jd.bluedragon.common.dto.operation.workbench.unload.response.*;
 import com.jd.bluedragon.common.dto.select.SelectOption;
@@ -13,13 +15,18 @@ import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.UnloadProductTypeEnum;
 import com.jd.bluedragon.distribution.jy.service.unload.IJyUnloadVehicleService;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadDto;
+import com.jd.bluedragon.external.gateway.service.InspectionGatewayService;
 import com.jd.bluedragon.external.gateway.service.JyUnloadVehicleGatewayService;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -32,6 +39,9 @@ public class JyUnloadVehicleGatewayServiceImpl implements JyUnloadVehicleGateway
 
     @Autowired
     private IJyUnloadVehicleService unloadVehicleService;
+
+    @Autowired
+    private InspectionGatewayService inspectionGatewayService;
 
     @Override
     public JdCResponse<Boolean> createNoTaskUnloadTask(UnloadNoTaskRequest request) {
@@ -108,7 +118,22 @@ public class JyUnloadVehicleGatewayServiceImpl implements JyUnloadVehicleGateway
     private boolean checkBarInterceptResult(JdVerifyResponse<Integer> response, UnloadScanRequest request) {
         // 非强制提交，校验拦截
         if (!request.getForceSubmit()) {
-            // TODO 卸车扫描调用拦截链
+            InspectionRequest inspectionRequest = new InspectionRequest();
+            inspectionRequest.setBarCode(request.getBarCode());
+            inspectionRequest.setBusinessType(10);
+            inspectionRequest.setCreateSiteCode(request.getCurrentOperate().getSiteCode());
+            inspectionRequest.setCreateSiteName(request.getCurrentOperate().getSiteName());
+            inspectionRequest.setOperateTime(DateHelper.formatDateTime(new Date()));
+            inspectionRequest.setOperateType(2);
+            inspectionRequest.setOperateUserCode(request.getUser().getUserCode());
+            inspectionRequest.setOperateUserName(request.getUser().getUserName());
+            JdVerifyResponse<InspectionCheckResultDto> verifyResponse = inspectionGatewayService.checkBeforeInspection(inspectionRequest);
+            if (verifyResponse.getCode() != JdVerifyResponse.CODE_SUCCESS || CollectionUtils.isNotEmpty(verifyResponse.getMsgBoxes())) {
+                response.setCode(verifyResponse.getCode());
+                response.setMessage(verifyResponse.getMessage());
+                response.setMsgBoxes(verifyResponse.getMsgBoxes());
+                return false;
+            }
         }
 
         return true;
