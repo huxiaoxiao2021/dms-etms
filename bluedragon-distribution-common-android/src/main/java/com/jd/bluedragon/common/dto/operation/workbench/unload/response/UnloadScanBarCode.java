@@ -31,7 +31,9 @@ public class UnloadScanBarCode implements Serializable {
     /**
      * 扫描类型 待扫，已扫，非本场地多扫，本场地多扫
      */
-    private String scanType;
+    private Integer scanType;
+
+    private String scanTypeDesc;
 
     public String getBarCode() {
         return barCode;
@@ -57,11 +59,19 @@ public class UnloadScanBarCode implements Serializable {
         this.tags = tags;
     }
 
-    public String getScanType() {
+    public Integer getScanType() {
         return scanType;
     }
 
-    public void setScanType(String scanType) {
+    public void setScanType(Integer scanType) {
         this.scanType = scanType;
+    }
+
+    public String getScanTypeDesc() {
+        return scanTypeDesc;
+    }
+
+    public void setScanTypeDesc(String scanTypeDesc) {
+        this.scanTypeDesc = scanTypeDesc;
     }
 }
