@@ -26,8 +26,8 @@
     <sql id="Base_Column_List">
         id
         , store_code, box_code, ice_board_code1, ice_board_code2, state, occupied_flag,
-    des, sort_count, unbox_count, create_site_code, create_site_name, receive_site_code, 
-    receive_site_name, create_user, create_user_code, update_user, update_user_code, 
+    des, sort_count, unbox_count, create_site_code, create_site_name, receive_site_code,
+    receive_site_name, create_user, create_user_code, update_user, update_user_code,
     create_time, update_time
     </sql>
     <select id="selectStoreBindStatus" resultType="java.lang.Integer">
@@ -327,9 +327,7 @@
             <if test="createTime != null">
                 create_time = #{createTime,jdbcType=TIMESTAMP},
             </if>
-            <if test="updateTime != null">
-                update_time = #{updateTime,jdbcType=TIMESTAMP},
-            </if>
+                update_time = now()
         </set>
         where id = #{id,jdbcType=BIGINT}
     </update>
@@ -354,7 +352,7 @@
             update_user       = #{updateUser,jdbcType=VARCHAR},
             update_user_code  = #{updateUserCode,jdbcType=BIGINT},
             create_time       = #{createTime,jdbcType=TIMESTAMP},
-            update_time       = #{updateTime,jdbcType=TIMESTAMP}
+            update_time       = now()
         where id = #{id,jdbcType=BIGINT}
     </update>
     <update id="incrSortCount">

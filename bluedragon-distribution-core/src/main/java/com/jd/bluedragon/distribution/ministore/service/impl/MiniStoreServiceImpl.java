@@ -157,4 +157,9 @@ public class MiniStoreServiceImpl implements MiniStoreService {
     public MiniStoreBindRelation selectById(Long id) {
         return miniStoreBindRelationDao.selectByPrimaryKey(id);
     }
+
+    @Override
+    public int updateById(MiniStoreBindRelation m) {
+        return miniStoreBindRelationDao.updateByPrimaryKeySelective(m);
+    }
 }

@@ -7,6 +7,7 @@ import com.jd.bluedragon.distribution.ministore.dao.MiniStoreBindRelationDao;
 import com.jd.bluedragon.distribution.ministore.domain.MiniStoreBindRelation;
 import com.jd.bluedragon.distribution.ministore.dto.DeviceDto;
 import com.jd.bluedragon.distribution.ministore.dto.QueryTaskDto;
+import com.jd.bluedragon.distribution.ministore.enums.BizDirectionEnum;
 import com.jd.bluedragon.distribution.ministore.service.MiniStoreService;
 import com.jd.bluedragon.distribution.ministore.service.impl.MiniStoreServiceImpl;
 import com.jd.bluedragon.distribution.seal.dao.SealBoxDao;
@@ -36,6 +37,13 @@ public class MiniStoreTest {
     @Autowired
     ThreadPoolTaskExecutor taskExecutor;
 
+    @Test
+    public void BizDirectionEnumTest() {
+       Integer a =10;
+       if (BizDirectionEnum.FROWARD.getCode().equals(a)){
+           System.out.println("正向流程");
+       }
+    }
 
     @Test
     public void ThreadPoolTest() {

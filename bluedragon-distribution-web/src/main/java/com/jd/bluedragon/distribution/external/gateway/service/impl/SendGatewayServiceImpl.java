@@ -142,7 +142,9 @@ public class SendGatewayServiceImpl implements SendGatewayService {
         if(Objects.equals(sendResult.getKey(),SendResult.CODE_OK)){
             jdVerifyResponse.toSuccess(sendResult.getValue());
             ProcessTypeEnum processTypeEnum = String.valueOf(cRequest.getSiteType()).equals("64")?ProcessTypeEnum.SEND_SORT_CENTER:ProcessTypeEnum.SEND_JIEHUOCANG;
-            Runnable task = new MiniStoreSyncProcessDataTask(processTypeEnum, request.getBoxCode(), request.getUserName(), Long.valueOf(request.getUserCode()), miniStoreService, miniStoreSortProcessProducer);
+            Runnable task = new MiniStoreSyncProcessDataTask(processTypeEnum, request.getBoxCode(),
+                request.getUserName(), Long.valueOf(request.getUserCode()),request.getSiteName(),
+                miniStoreService, miniStoreSortProcessProducer);
             taskExecutor.execute(task);
             return jdVerifyResponse;
         }

@@ -76,7 +76,9 @@ public class DmsTaskServiceImpl implements DmsTaskService {
                 List<PSReceivingDto> psReceivingDtoList = JSON.parseArray(request.getBody(), PSReceivingDto.class);
                 PSReceivingDto psReceivingDto = psReceivingDtoList.get(0);
                 ProcessTypeEnum processTypeEnum = BizDirectionEnum.FROWARD.getCode().equals(request.getBusinessType()) ? ProcessTypeEnum.INSPECTION_SORT_CENTER : ProcessTypeEnum.BACK_INSPECTION_SORT_CENTER;
-                Runnable task = new MiniStoreSyncProcessDataTask(processTypeEnum, request.getBoxCode(), psReceivingDto.getUserName(), Long.valueOf(psReceivingDto.getUserCode()), miniStoreService, miniStoreSortProcessProducer);
+                Runnable task = new MiniStoreSyncProcessDataTask(processTypeEnum, request.getBoxCode(),
+                    psReceivingDto.getUserName(), Long.valueOf(psReceivingDto.getUserCode()),psReceivingDto.getSiteName(),
+                    miniStoreService, miniStoreSortProcessProducer);
                 taskExecutor.execute(task);
             }
         }

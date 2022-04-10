@@ -56,7 +56,7 @@ public interface MiniStoreService {
      * @param deviceDto
      * @return
      */
-    @DataSources(DynamicDataSourceType.DMS_UNDIV_SLAVE)
+    @DataSources(DynamicDataSourceType.DMS_UNDIV_MAIN)
     MiniStoreBindRelation selectBindRelation(DeviceDto deviceDto);
 
 
@@ -78,4 +78,6 @@ public interface MiniStoreService {
     int invaliSortRealtion(String boxCode,Long createSiteCode);
 
     MiniStoreBindRelation selectById(Long id);
+
+    int updateById(MiniStoreBindRelation m);
 }
