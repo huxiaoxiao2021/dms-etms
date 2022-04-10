@@ -1,4 +1,4 @@
-package com.jd.bluedragon.core.base;
+package com.jd.bluedragon.distribution.jy.manager;
 
 import com.jdl.jy.schedule.base.ServiceResult;
 import com.jdl.jy.schedule.dto.task.JyScheduleTaskReq;
@@ -34,7 +34,7 @@ public interface JyScheduleTaskManager {
      * @param req
      * @return
      */
-    JyScheduleTaskResp distributeScheduleTask(JyScheduleTaskReq req);
+    JyScheduleTaskResp distributeAndStartScheduleTask(JyScheduleTaskReq req);
 
     /**
      * 通过业务主键和任务类型获取调度任务

@@ -18,6 +18,14 @@ import java.util.List;
 public interface JyUnloadVehicleGatewayService {
 
     /**
+     * 创建无任务卸车
+     *
+     * @param request
+     * @return
+     */
+    JdCResponse<Boolean> createNoTaskUnloadTask(UnloadNoTaskRequest request);
+
+    /**
      * 卸车任务列表
      * @param request
      * @return
@@ -97,5 +105,5 @@ public interface JyUnloadVehicleGatewayService {
      * @param request
      * @return
      */
-    JdCResponse<Boolean> submitUnloadComplete(UnloadCompleteRequest request);
+    JdCResponse<Boolean> submitUnloadCompletion(UnloadCompleteRequest request);
 }

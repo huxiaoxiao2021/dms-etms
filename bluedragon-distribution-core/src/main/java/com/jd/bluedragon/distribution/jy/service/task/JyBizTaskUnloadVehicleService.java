@@ -90,14 +90,7 @@ public interface JyBizTaskUnloadVehicleService {
      * 始发场地名称
      * 目的场地ID
      * 目的场地名称
-     * 排序时间
-     * 排序积分
-     * 预计到达时间
-     * 实际到达时间
-     * 解封车时间
-     * 线路类型
-     * 线路类型名称
-     * 任务标签
+     *
      * @param entity
      * @return
      */
@@ -113,7 +106,7 @@ public interface JyBizTaskUnloadVehicleService {
      * @param entity
      * @return
      */
-    boolean saveOrUpdateOfOtherBusinessInfo(JyBizTaskUnloadVehicleEntity entity);
+    boolean saveOrUpdateOfBusinessInfo(JyBizTaskUnloadVehicleEntity entity);
 
     /**
      * 检查当前卸车任务是否被锁定

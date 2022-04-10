@@ -146,5 +146,16 @@ public interface UserSignRecordDao {
 	 * @return
 	 */
 	UserSignRecordData queryUserSignRecordDataById(Long id);
-
+	/**
+	 * 根据id列表查询
+	 * @param idList
+	 * @return
+	 */
+	List<UserSignRecordData> queryUserSignRecordDataByIds(List<Long> idList);
+	/**
+	 * 按岗位查询已签未退的签到记录
+	 * @param query
+	 * @return
+	 */
+	List<UserSignRecord> queryUnSignOutListWithPosition(UserSignQueryRequest query);
 }

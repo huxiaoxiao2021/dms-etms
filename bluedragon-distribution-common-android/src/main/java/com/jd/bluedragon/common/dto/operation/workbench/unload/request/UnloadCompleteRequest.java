@@ -39,6 +39,19 @@ public class UnloadCompleteRequest implements Serializable {
      */
     private Byte abnormalFlag;
 
+    /**
+     * 待扫描数量
+     * 异常情况下必传
+     */
+    private Long shouldScanCount;
+
+    /**
+     * 多扫数量
+     * 异常情况下必传
+     */
+    private Long moreScanCount;
+
+
     public User getUser() {
         return user;
     }
@@ -85,5 +98,21 @@ public class UnloadCompleteRequest implements Serializable {
 
     public void setAbnormalFlag(Byte abnormalFlag) {
         this.abnormalFlag = abnormalFlag;
+    }
+
+    public Long getShouldScanCount() {
+        return shouldScanCount;
+    }
+
+    public void setShouldScanCount(Long shouldScanCount) {
+        this.shouldScanCount = shouldScanCount;
+    }
+
+    public Long getMoreScanCount() {
+        return moreScanCount;
+    }
+
+    public void setMoreScanCount(Long moreScanCount) {
+        this.moreScanCount = moreScanCount;
     }
 }

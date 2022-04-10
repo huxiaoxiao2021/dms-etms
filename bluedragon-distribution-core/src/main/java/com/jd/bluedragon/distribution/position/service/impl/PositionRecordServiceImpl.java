@@ -4,12 +4,16 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.station.PositionData;
 import com.jd.bluedragon.core.objectid.IGenerateObjectId;
 import com.jd.bluedragon.distribution.api.response.base.Result;
+import com.jd.bluedragon.distribution.jy.config.JyWorkMapFuncConfigEntity;
+import com.jd.bluedragon.distribution.jy.dao.config.JyWorkMapFuncConfigDao;
 import com.jd.bluedragon.distribution.position.dao.PositionRecordDao;
 import com.jd.bluedragon.distribution.position.domain.PositionDetailRecord;
 import com.jd.bluedragon.distribution.position.domain.PositionRecord;
 import com.jd.bluedragon.distribution.position.query.PositionQuery;
 import com.jd.bluedragon.distribution.position.service.PositionRecordService;
+import com.jd.bluedragon.distribution.station.dao.WorkStationDao;
 import com.jd.bluedragon.distribution.station.dao.WorkStationGridDao;
+import com.jd.bluedragon.distribution.station.domain.WorkStation;
 import com.jd.bluedragon.distribution.station.domain.WorkStationGrid;
 import com.jd.bluedragon.distribution.station.query.WorkStationGridQuery;
 import com.jd.bluedragon.dms.utils.DmsConstants;
@@ -46,6 +50,12 @@ public class PositionRecordServiceImpl implements PositionRecordService {
 
     @Autowired
     private WorkStationGridDao workStationGridDao;
+
+    @Autowired
+    private WorkStationDao workStationDao;
+
+    @Autowired
+    private JyWorkMapFuncConfigDao jyWorkMapFuncConfigDao;
 
     @Override
     public Result<Integer> insertPosition(PositionRecord record) {
@@ -174,8 +184,28 @@ public class PositionRecordServiceImpl implements PositionRecordService {
 		}
 		PositionData positionData = new PositionData();
 		BeanUtils.copyProperties(positionDetailResult.getData(), positionData);
-		positionData.setDefaultMenuCode("UNSEAL_CAR_POSITION");
+        setDefaultMenuCode(positionCode, positionData, result);
+        if(!result.isSucceed()){
+           return result;
+        }
 		result.setData(positionData);
 		return result;
 	}
+
+    private void setDefaultMenuCode(String positionCode, PositionData positionData, JdCResponse<PositionData> result) {
+        WorkStation workStation = new WorkStation();
+        workStation.setAreaCode(positionData.getAreaCode());
+        workStation.setWorkCode(positionData.getWorkCode());
+        WorkStation queryWork = workStationDao.queryByBusinessKey(workStation);
+        if(queryWork == null || StringUtils.isEmpty(queryWork.getBusinessKey())){
+            result.toFail(String.format("岗位码:%s对应的工序不存在，请联系分拣小秘!", positionCode));
+            return;
+        }
+        JyWorkMapFuncConfigEntity entity = jyWorkMapFuncConfigDao.queryByBusinessKey(queryWork.getBusinessKey());
+        if(entity == null || StringUtils.isEmpty(entity.getFuncCode())){
+            result.toFail(String.format("岗位码:%s对应的功能编码未配置，请联系分拣小秘!", positionCode));
+            return;
+        }
+        positionData.setDefaultMenuCode(entity.getFuncCode());
+    }
 }

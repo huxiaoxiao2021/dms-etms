@@ -623,6 +623,11 @@ public class UccPropertyConfiguration {
      */
     private Integer jyTaskPageMax;
 
+    /**
+     * 卸车逐单卸阈值
+     */
+    private Integer jyUnloadSingleWaybillThreshold;
+
     public int getSealTaskForceFallback() {
         return sealTaskForceFallback;
     }
@@ -1751,5 +1756,13 @@ public class UccPropertyConfiguration {
 
     public void setJyTaskPageMax(Integer jyTaskPageMax) {
         this.jyTaskPageMax = jyTaskPageMax;
+    }
+
+    public Integer getJyUnloadSingleWaybillThreshold() {
+        return jyUnloadSingleWaybillThreshold;
+    }
+
+    public void setJyUnloadSingleWaybillThreshold(Integer jyUnloadSingleWaybillThreshold) {
+        this.jyUnloadSingleWaybillThreshold = jyUnloadSingleWaybillThreshold;
     }
 }

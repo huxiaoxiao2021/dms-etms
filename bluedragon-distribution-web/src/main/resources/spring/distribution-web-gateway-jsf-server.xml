@@ -463,4 +463,10 @@
                   alias="${dms.gateway.jsf.alias}"
                   ref="jyUnloadVehicleGatewayServiceImpl"
                   server="dmsjsf" />
+    <!-- 小组成员网关服务   -->
+    <jsf:provider id="groupMemberGatewayServiceServer"
+                  interface="com.jd.bluedragon.distribution.jy.gateway.group.GroupMemberGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="groupMemberGatewayService"
+                  server="dmsjsf" />                 
 </beans>

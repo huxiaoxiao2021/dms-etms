@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.jy.dto.unload;
 
 import com.jd.bluedragon.distribution.jy.annotation.RedisHashColumn;
+import com.jd.bluedragon.distribution.jy.constants.RedisHashKeyConstants;
 
 import java.io.Serializable;
 
@@ -23,38 +24,38 @@ public class UnloadDetailCache implements Serializable {
     /**
      * 应卸包裹总数
      */
-    @RedisHashColumn(hashField = "totalCount")
-    private Long totalCount;
+    @RedisHashColumn(hashField = RedisHashKeyConstants.UNLOAD_TOTAL_COUNT)
+    private Integer totalCount;
 
     /**
      * 已卸包裹总数
      */
-    @RedisHashColumn(hashField = "unloadCount")
-    private Long unloadCount;
+    @RedisHashColumn(hashField = RedisHashKeyConstants.UNLOAD_COUNT)
+    private Integer unloadCount;
 
     /**
      * 拦截应扫数量
      */
-    @RedisHashColumn(hashField = "interceptShouldScanCount")
-    private Long interceptShouldScanCount;
+    @RedisHashColumn(hashField = RedisHashKeyConstants.UNLOAD_INTERCEPT_SHOULD_SCAN_COUNT)
+    private Integer interceptShouldScanCount;
 
     /**
      * 拦截已扫数量
      */
-    @RedisHashColumn(hashField = "interceptActualScanCount")
-    private Long interceptActualScanCount;
+    @RedisHashColumn(hashField = RedisHashKeyConstants.UNLOAD_INTERCEPT_ACTUAL_SCAN_COUNT)
+    private Integer interceptActualScanCount;
 
     /**
      * 本场地多扫数量
      */
-    @RedisHashColumn(hashField = "moreScanLocalCount")
-    private Long moreScanLocalCount;
+    @RedisHashColumn(hashField = RedisHashKeyConstants.UNLOAD_MORE_SCAN_LOCAL_COUNT)
+    private Integer moreScanLocalCount;
 
     /**
      * 非本场地多扫数量
      */
-    @RedisHashColumn(hashField = "moreScanOutCount")
-    private Long moreScanOutCount;
+    @RedisHashColumn(hashField = RedisHashKeyConstants.UNLOAD_MORE_SCAN_OUT_COUNT)
+    private Integer moreScanOutCount;
 
     public String getBizId() {
         return bizId;
@@ -64,51 +65,51 @@ public class UnloadDetailCache implements Serializable {
         this.bizId = bizId;
     }
 
-    public Long getTotalCount() {
+    public Integer getTotalCount() {
         return totalCount;
     }
 
-    public void setTotalCount(Long totalCount) {
+    public void setTotalCount(Integer totalCount) {
         this.totalCount = totalCount;
     }
 
-    public Long getUnloadCount() {
+    public Integer getUnloadCount() {
         return unloadCount;
     }
 
-    public void setUnloadCount(Long unloadCount) {
+    public void setUnloadCount(Integer unloadCount) {
         this.unloadCount = unloadCount;
     }
 
-    public Long getInterceptShouldScanCount() {
+    public Integer getInterceptShouldScanCount() {
         return interceptShouldScanCount;
     }
 
-    public void setInterceptShouldScanCount(Long interceptShouldScanCount) {
+    public void setInterceptShouldScanCount(Integer interceptShouldScanCount) {
         this.interceptShouldScanCount = interceptShouldScanCount;
     }
 
-    public Long getInterceptActualScanCount() {
+    public Integer getInterceptActualScanCount() {
         return interceptActualScanCount;
     }
 
-    public void setInterceptActualScanCount(Long interceptActualScanCount) {
+    public void setInterceptActualScanCount(Integer interceptActualScanCount) {
         this.interceptActualScanCount = interceptActualScanCount;
     }
 
-    public Long getMoreScanLocalCount() {
+    public Integer getMoreScanLocalCount() {
         return moreScanLocalCount;
     }
 
-    public void setMoreScanLocalCount(Long moreScanLocalCount) {
+    public void setMoreScanLocalCount(Integer moreScanLocalCount) {
         this.moreScanLocalCount = moreScanLocalCount;
     }
 
-    public Long getMoreScanOutCount() {
+    public Integer getMoreScanOutCount() {
         return moreScanOutCount;
     }
 
-    public void setMoreScanOutCount(Long moreScanOutCount) {
+    public void setMoreScanOutCount(Integer moreScanOutCount) {
         this.moreScanOutCount = moreScanOutCount;
     }
 }

@@ -1,20 +1,18 @@
 package com.jd.bluedragon.distribution.jy.manager;
 
-import com.google.common.collect.Lists;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import com.jdl.jy.realtime.api.unload.IUnloadVehicleJsfService;
 import com.jdl.jy.realtime.base.Pager;
+import com.jdl.jy.realtime.base.ServiceResult;
 import com.jdl.jy.realtime.model.es.unload.JyVehicleTaskUnloadDetail;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 /**
  * @ClassName JyUnloadVehicleManagerImpl
@@ -32,16 +30,91 @@ public class JyUnloadVehicleManagerImpl implements IJyUnloadVehicleManager {
     private IUnloadVehicleJsfService unloadVehicleJsfService;
 
     @Override
-    public List<JyVehicleTaskUnloadDetail> queryByCondition(Pager<JyVehicleTaskUnloadDetail> pager) {
-        List<JyVehicleTaskUnloadDetail> unloadDetails = Lists.newArrayList();
+    public Pager<JyVehicleTaskUnloadDetail> queryToScanBarCodeDetail(Pager<JyVehicleTaskUnloadDetail> query) {
+        Pager<JyVehicleTaskUnloadDetail> unloadDetails = new Pager<>();
 
-        CallerInfo ump = ProfilerHelper.registerInfo("dms.web.IJyUnloadVehicleManager.queryByCondition");
+        CallerInfo ump = ProfilerHelper.registerInfo("dms.web.IJyUnloadVehicleManager.queryToScanBarCodeDetail");
         try {
-
+            ServiceResult<Pager<JyVehicleTaskUnloadDetail>> serviceResult = unloadVehicleJsfService.queryToScanBarCodeDetail(query);
+            if (serviceResult.retSuccess()) {
+                return serviceResult.getData();
+            }
+            else {
+                log.warn("分页查询卸车待扫描包裹失败. {}. {}", JsonHelper.toJson(query), JsonHelper.toJson(serviceResult));
+            }
         }
         catch (Exception ex) {
             Profiler.functionError(ump);
-            log.error("查询卸车明细失败. {}", JsonHelper.toJson(pager), ex);
+            log.error("查询卸车待扫包裹明细异常. {}", JsonHelper.toJson(query), ex);
+        }
+        Profiler.registerInfoEnd(ump);
+
+        return unloadDetails;
+    }
+
+    @Override
+    public Pager<JyVehicleTaskUnloadDetail> queryInterceptBarCodeDetail(Pager<JyVehicleTaskUnloadDetail> query) {
+        Pager<JyVehicleTaskUnloadDetail> unloadDetails = new Pager<>();
+
+        CallerInfo ump = ProfilerHelper.registerInfo("dms.web.IJyUnloadVehicleManager.queryInterceptBarCodeDetail");
+        try {
+            ServiceResult<Pager<JyVehicleTaskUnloadDetail>> serviceResult = unloadVehicleJsfService.queryInterceptBarCodeDetail(query);
+            if (serviceResult.retSuccess()) {
+                return serviceResult.getData();
+            }
+            else {
+                log.warn("分页查询卸车拦截包裹失败. {}. {}", JsonHelper.toJson(query), JsonHelper.toJson(serviceResult));
+            }
+        }
+        catch (Exception ex) {
+            Profiler.functionError(ump);
+            log.error("查询卸车拦截包裹异常. {}", JsonHelper.toJson(query), ex);
+        }
+        Profiler.registerInfoEnd(ump);
+
+        return unloadDetails;
+    }
+
+    @Override
+    public Pager<JyVehicleTaskUnloadDetail> queryMoreScanBarCodeDetail(Pager<JyVehicleTaskUnloadDetail> query) {
+        Pager<JyVehicleTaskUnloadDetail> unloadDetails = new Pager<>();
+
+        CallerInfo ump = ProfilerHelper.registerInfo("dms.web.IJyUnloadVehicleManager.queryMoreScanBarCodeDetail");
+        try {
+            ServiceResult<Pager<JyVehicleTaskUnloadDetail>> serviceResult = unloadVehicleJsfService.queryMoreScanBarCodeDetail(query);
+            if (serviceResult.retSuccess()) {
+                return serviceResult.getData();
+            }
+            else {
+                log.warn("分页查询卸车多扫包裹失败. {}. {}", JsonHelper.toJson(query), JsonHelper.toJson(serviceResult));
+            }
+        }
+        catch (Exception ex) {
+            Profiler.functionError(ump);
+            log.error("查询卸车多扫包裹异常. {}", JsonHelper.toJson(query), ex);
+        }
+        Profiler.registerInfoEnd(ump);
+
+        return unloadDetails;
+    }
+
+    @Override
+    public Pager<JyVehicleTaskUnloadDetail> queryMoreScanAndToScanBarCodeDetail(Pager<JyVehicleTaskUnloadDetail> query) {
+        Pager<JyVehicleTaskUnloadDetail> unloadDetails = new Pager<>();
+
+        CallerInfo ump = ProfilerHelper.registerInfo("dms.web.IJyUnloadVehicleManager.queryMoreScanAndToScanBarCodeDetail");
+        try {
+            ServiceResult<Pager<JyVehicleTaskUnloadDetail>> serviceResult = unloadVehicleJsfService.queryMoreScanAndToScanBarCodeDetail(query);
+            if (serviceResult.retSuccess()) {
+                return serviceResult.getData();
+            }
+            else {
+                log.warn("分页查询卸车多扫待扫包裹失败. {}. {}", JsonHelper.toJson(query), JsonHelper.toJson(serviceResult));
+            }
+        }
+        catch (Exception ex) {
+            Profiler.functionError(ump);
+            log.error("查询卸车多扫待扫包裹异常. {}", JsonHelper.toJson(query), ex);
         }
         Profiler.registerInfoEnd(ump);
 
@@ -52,11 +125,14 @@ public class JyUnloadVehicleManagerImpl implements IJyUnloadVehicleManager {
     public JyVehicleTaskUnloadDetail findOneUnloadDetail(JyVehicleTaskUnloadDetail query) {
         CallerInfo ump = ProfilerHelper.registerInfo("dms.web.IJyUnloadVehicleManager.findOneUnloadDetail");
         try {
-
+            ServiceResult<JyVehicleTaskUnloadDetail> serviceResult = unloadVehicleJsfService.findSealCarCode(query);
+            if (serviceResult.retSuccess()) {
+                return serviceResult.getData();
+            }
         }
         catch (Exception ex) {
             Profiler.functionError(ump);
-            log.error("查询一条卸车明细失败. {}", JsonHelper.toJson(query), ex);
+            log.error("查询一条卸车明细异常. {}", JsonHelper.toJson(query), ex);
         }
         Profiler.registerInfoEnd(ump);
 

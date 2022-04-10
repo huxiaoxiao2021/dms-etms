@@ -69,9 +69,7 @@
                             update_user,
                             update_user_name,
                             create_time,
-                            update_time,
-                            yn,
-                            ts
+                            update_time
                     ) VALUES (
                             #{id},
                             #{refTaskId},
@@ -90,9 +88,75 @@
                             #{updateUser},
                             #{updateUserName},
                             #{createTime},
-                            #{updateTime},
-                            #{yn},
-                            #{ts}
+                            #{updateTime}
                     )
     </insert>
+    <insert id="batchInsert" parameterType="java.util.List">
+        INSERT INTO jy_task_group_member (
+                            id,
+                            ref_task_id,
+                            ref_group_code,
+                            ref_group_member_code,
+                            user_code,
+                            user_name,
+                            job_code,
+                            start_time,
+                            end_time,
+                            work_times,
+                            org_code,
+                            site_code,
+                            create_user,
+                            create_user_name,
+                            update_user,
+                            update_user_name,
+                            create_time,
+                            update_time
+                    ) VALUES 
+                    <foreach collection="list" item="item" separator=",">
+                    (
+                      #{item.id},
+                      #{item.refTaskId},
+                      #{item.refGroupCode},
+                      #{item.refGroupMemberCode},
+                      #{item.userCode},
+                      #{item.userName},
+                      #{item.jobCode},
+                      #{item.startTime},
+                      #{item.endTime},
+                      #{item.workTimes},
+                      #{item.orgCode},
+                      #{item.siteCode},
+                      #{item.createUser},
+                      #{item.createUserName},
+                      #{item.updateUser},
+                      #{item.updateUserName},
+                      #{item.createTime},
+                      #{item.updateTime}
+                    )
+                    </foreach>
+    </insert>    
+    <update id="endWorkByMemberCode" parameterType="JyTaskGroupMemberEntity">
+        UPDATE jy_task_group_member
+        SET
+            update_time = #{updateTime, jdbcType=TIMESTAMP},
+            update_user = #{updateUser, jdbcType=VARCHAR},
+            update_user_name = #{updateUserName, jdbcType=VARCHAR},
+            end_time = #{endTime,jdbcType=TIMESTAMP}
+        WHERE
+            yn = 1
+        AND ref_group_member_code = #{refGroupMemberCode}
+        AND end_time is null
+    </update> 
+    <update id="endWorkByTaskId" parameterType="JyTaskGroupMemberEntity">
+        UPDATE jy_task_group_member
+        SET
+            update_time = #{updateTime, jdbcType=TIMESTAMP},
+            update_user = #{updateUser, jdbcType=VARCHAR},
+            update_user_name = #{updateUserName, jdbcType=VARCHAR},
+            end_time = #{endTime,jdbcType=TIMESTAMP}
+        WHERE
+            yn = 1
+        AND ref_task_id = #{refTaskId}
+        AND end_time is null
+    </update>       
 </mapper>

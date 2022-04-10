@@ -1,4 +1,4 @@
-package com.jd.bluedragon.core.base;
+package com.jd.bluedragon.distribution.jy.manager;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -87,19 +87,19 @@ public class JyScheduleTaskManagerImpl implements JyScheduleTaskManager {
      * @return
      */
     @Override
-    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.JyScheduleTaskManagerImpl.distributeScheduleTask", mState = {JProEnum.TP, JProEnum.FunctionError})
-    public JyScheduleTaskResp distributeScheduleTask(JyScheduleTaskReq req) {
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.JyScheduleTaskManagerImpl.distributeAndStartScheduleTask", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public JyScheduleTaskResp distributeAndStartScheduleTask(JyScheduleTaskReq req) {
         ServiceResult<JyScheduleTaskResp> apiResult = null;
         try{
-            apiResult = jyScheduleTaskApi.distributeScheduleTask(req);
+            apiResult = jyScheduleTaskApi.distributeAndStartScheduleTask(req);
             if(apiResult.getSuccess()){
                 return apiResult.getData();
             }
         }catch (Exception e){
-            logger.error("JyScheduleTaskManagerImpl.distributeScheduleTask error req:{}",  JsonHelper.toJson(req),e);
+            logger.error("JyScheduleTaskManagerImpl.distributeAndStartScheduleTask error req:{}",  JsonHelper.toJson(req),e);
         }finally {
             if(logger.isInfoEnabled()){
-                logger.info("JyScheduleTaskManagerImpl.distributeScheduleTask req:{} resp:{}", JsonHelper.toJson(req),JsonHelper.toJson(apiResult));
+                logger.info("JyScheduleTaskManagerImpl.distributeAndStartScheduleTask req:{} resp:{}", JsonHelper.toJson(req),JsonHelper.toJson(apiResult));
             }
         }
         return null;

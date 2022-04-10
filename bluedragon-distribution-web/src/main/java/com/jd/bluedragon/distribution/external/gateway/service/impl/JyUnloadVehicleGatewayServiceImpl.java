@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
+import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.unload.request.*;
@@ -10,7 +12,10 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.UnloadProductTypeEnum;
 import com.jd.bluedragon.distribution.jy.service.unload.IJyUnloadVehicleService;
+import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadDto;
 import com.jd.bluedragon.external.gateway.service.JyUnloadVehicleGatewayService;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
@@ -29,9 +34,24 @@ public class JyUnloadVehicleGatewayServiceImpl implements JyUnloadVehicleGateway
     private IJyUnloadVehicleService unloadVehicleService;
 
     @Override
+    public JdCResponse<Boolean> createNoTaskUnloadTask(UnloadNoTaskRequest request) {
+        JdCResponse<Boolean> jdCResponse = new JdCResponse<Boolean>();
+        JyBizTaskUnloadDto dto = new JyBizTaskUnloadDto();
+        // 无任务模式
+        dto.setManualCreatedFlag(Constants.CONSTANT_NUMBER_ONE);
+        dto.setVehicleNumber(request.getVehicleNumber());
+        dto.setOperateSiteId(request.getOperateSiteId());
+        dto.setOperateSiteName(request.getOperateSiteName());
+        jdCResponse.toSucceed();
+        jdCResponse.setData(unloadVehicleService.createUnloadTask(dto));
+        return jdCResponse;
+    }
+
+    @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyUnloadVehicleGatewayService.fetchUnloadTask",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public JdCResponse<UnloadVehicleTaskResponse> fetchUnloadTask(UnloadVehicleTaskRequest request) {
-        InvokeResult<UnloadVehicleTaskResponse> invokeResult = unloadVehicleService.fetchUnloadTask(request);
-        return retJdCResponse(invokeResult);
+        return retJdCResponse(unloadVehicleService.fetchUnloadTask(request));
     }
 
     @Override
@@ -64,6 +84,8 @@ public class JyUnloadVehicleGatewayServiceImpl implements JyUnloadVehicleGateway
     }
 
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyUnloadVehicleGatewayService.unloadScan",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public JdVerifyResponse<Integer> unloadScan(UnloadScanRequest request) {
         JdVerifyResponse<Integer> response = new JdVerifyResponse<>();
         response.toSuccess();
@@ -93,52 +115,59 @@ public class JyUnloadVehicleGatewayServiceImpl implements JyUnloadVehicleGateway
     }
 
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyUnloadVehicleGatewayService.unloadDetail",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public JdCResponse<UnloadScanDetail> unloadDetail(UnloadCommonRequest request) {
-        InvokeResult<UnloadScanDetail> invokeResult = unloadVehicleService.unloadDetail(request);
-        return retJdCResponse(invokeResult);
+        return retJdCResponse(unloadVehicleService.unloadDetail(request));
     }
 
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyUnloadVehicleGatewayService.unloadGoodsDetail",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public JdCResponse<List<UnloadScanAggByProductType>> unloadGoodsDetail(UnloadGoodsRequest request) {
-        InvokeResult<List<UnloadScanAggByProductType>> invokeResult = unloadVehicleService.unloadGoodsDetail(request);
-        return retJdCResponse(invokeResult);
+        return retJdCResponse(unloadVehicleService.unloadGoodsDetail(request));
     }
 
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyUnloadVehicleGatewayService.toScanAggByProduct",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public JdCResponse<List<ProductTypeAgg>> toScanAggByProduct(UnloadCommonRequest request) {
-        InvokeResult<List<ProductTypeAgg>> invokeResult = unloadVehicleService.toScanAggByProduct(request);
-        return retJdCResponse(invokeResult);
+        return retJdCResponse(unloadVehicleService.toScanAggByProduct(request));
     }
 
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyUnloadVehicleGatewayService.toScanBarCodeDetail",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public JdCResponse<ToScanDetailByProductType> toScanBarCodeDetail(UnloadProductTypeRequest request) {
-        InvokeResult<ToScanDetailByProductType> invokeResult = unloadVehicleService.toScanBarCodeDetail(request);
-        return new JdCResponse<>(invokeResult.getCode(), invokeResult.getMessage(), invokeResult.getData());
+        return retJdCResponse(unloadVehicleService.toScanBarCodeDetail(request));
     }
 
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyUnloadVehicleGatewayService.interceptBarCodeDetail",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public JdCResponse<InterceptScanBarCode> interceptBarCodeDetail(UnloadCommonRequest request) {
-
-        // "intercept_flag 1:拦截
-        return null;
+        return retJdCResponse(unloadVehicleService.interceptBarCodeDetail(request));
     }
 
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyUnloadVehicleGatewayService.moreScanBarCodeDetail",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public JdCResponse<MoreScanBarCode> moreScanBarCodeDetail(UnloadCommonRequest request) {
-
-        // more_scan_flag 1:多扫
-        // local_site_flag 1:本场地
-        return null;
+        return retJdCResponse(unloadVehicleService.moreScanBarCodeDetail(request));
     }
 
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyUnloadVehicleGatewayService.unloadPreviewDashboard",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public JdCResponse<UnloadPreviewData> unloadPreviewDashboard(UnloadCommonRequest request) {
-        return null;
+        return retJdCResponse(unloadVehicleService.unloadPreviewDashboard(request));
     }
 
     @Override
-    public JdCResponse<Boolean> submitUnloadComplete(UnloadCompleteRequest request) {
-        return null;
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyUnloadVehicleGatewayService.submitUnloadCompletion",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
+    public JdCResponse<Boolean> submitUnloadCompletion(UnloadCompleteRequest request) {
+        return retJdCResponse(unloadVehicleService.submitUnloadCompletion(request));
     }
 
     private <T> JdCResponse<T> retJdCResponse(InvokeResult<T> invokeResult) {

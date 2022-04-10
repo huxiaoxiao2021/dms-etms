@@ -10,7 +10,6 @@
         <result property="sealCarCode" column="seal_car_code"/>
         <result property="vehicleNumber" column="vehicle_number"/>
         <result property="transWorkItemCode" column="trans_work_item_code"/>
-        <result property="batchCodes" column="batch_codes"/>
         <result property="fuzzyVehicleNumber" column="fuzzy_vehicle_number"/>
         <result property="vehicleStatus" column="vehicle_status"/>
         <result property="manualCreatedFlag" column="manual_created_flag"/>
@@ -19,7 +18,7 @@
         <result property="endSiteId" column="end_site_id"/>
         <result property="endSiteName" column="end_site_name"/>
         <result property="sortTime" column="sort_time"/>
-        <result property="sortIntegral" column="sort_integral"/>
+        <result property="ranking" column="ranking"/>
         <result property="predictionArriveTime" column="prediction_arrive_time"/>
         <result property="actualArriveTime" column="actual_arrive_time"/>
         <result property="desealCarTime" column="deseal_car_time"/>
@@ -27,6 +26,7 @@
         <result property="lessCount" column="less_count"/>
         <result property="moreCount" column="more_count"/>
         <result property="abnormalFlag" column="abnormal_flag"/>
+        <result property="totalCount" column="total_count"/>
         <result property="unloadProgress" column="unload_progress"/>
         <result property="lineType" column="line_type"/>
         <result property="lineTypeName" column="line_type_name"/>
@@ -53,7 +53,6 @@
         seal_car_code,
         vehicle_number,
         trans_work_item_code,
-        batch_codes,
         fuzzy_vehicle_number,
         vehicle_status,
         manual_created_flag,
@@ -62,7 +61,7 @@
         end_site_id,
         end_site_name,
         sort_time,
-        sort_integral,
+        ranking,
         prediction_arrive_time,
         actual_arrive_time,
         deseal_car_time,
@@ -70,6 +69,7 @@
         less_count,
         more_count,
         abnormal_flag,
+        total_count,
         unload_progress,
         line_type,
         line_type_name,
@@ -90,7 +90,6 @@
                             seal_car_code,
                             vehicle_number,
                             trans_work_item_code,
-                            batch_codes,
                             fuzzy_vehicle_number,
                             vehicle_status,
                             manual_created_flag,
@@ -99,7 +98,7 @@
                             end_site_id,
                             end_site_name,
                             sort_time,
-                            sort_integral,
+                            ranking,
                             prediction_arrive_time,
                             actual_arrive_time,
                             deseal_car_time,
@@ -107,23 +106,20 @@
                             less_count,
                             more_count,
                             abnormal_flag,
+                            total_count,
                             unload_progress,
                             line_type,
                             line_type_name,
                             tags_sign,
                             create_user_erp,
                             create_user_name,
-                            update_user_erp,
-                            update_user_name,
                             create_time,
-                            update_time,
                             yn
                     ) VALUES (
                             #{bizId},
                             #{sealCarCode},
                             #{vehicleNumber},
                             #{transWorkItemCode},
-                            #{batchCodes},
                             #{fuzzyVehicleNumber},
                             #{vehicleStatus},
                             #{manualCreatedFlag},
@@ -132,7 +128,7 @@
                             #{endSiteId},
                             #{endSiteName},
                             #{sortTime},
-                            #{sortIntegral},
+                            #{ranking},
                             #{predictionArriveTime},
                             #{actualArriveTime},
                             #{desealCarTime},
@@ -140,17 +136,15 @@
                             #{lessCount},
                             #{moreCount},
                             #{abnormalFlag},
+                            #{totalCount},
                             #{unloadProgress},
                             #{lineType},
                             #{lineTypeName},
                             #{tagsSign},
                             #{createUserErp},
                             #{createUserName},
-                            #{updateUserErp},
-                            #{updateUserName},
                             #{createTime},
-                            #{updateTime},
-                            #{yn}
+                            1
                     )
     </insert>
 
@@ -285,7 +279,7 @@
                     abnormal_flag desc,sort_time desc
                 </when>
                 <when test="orderType == 3">
-                    sort_integral
+                    ranking
                 </when>
                 <when test="orderType == 4">
                     deseal_car_time desc
@@ -328,11 +322,11 @@
             <if test="transWorkItemCode != null">
                 trans_work_item_code = #{transWorkItemCode},
             </if>
-            <if test="batchCodes != null">
-                batch_codes = #{batchCodes},
-            </if>
             <if test="fuzzyVehicleNumber != null">
                 fuzzy_vehicle_number = #{fuzzyVehicleNumber},
+            </if>
+            <if test="manual_created_flag != null">
+                manual_created_flag = #{manualCreatedFlag},
             </if>
             <if test="startSiteId != null">
                 start_site_id = #{startSiteId},
@@ -345,30 +339,6 @@
             </if>
             <if test="endSiteName != null">
                 end_site_name = #{endSiteName},
-            </if>
-            <if test="sortTime != null">
-                sort_time = #{sortTime},
-            </if>
-            <if test="sortIntegral != null">
-                sort_integral = #{sortIntegral},
-            </if>
-            <if test="predictionArriveTime != null">
-                prediction_arrive_time = #{predictionArriveTime},
-            </if>
-            <if test="actualArriveTime != null">
-                actual_arrive_time = #{actualArriveTime},
-            </if>
-            <if test="desealCarTime != null">
-                deseal_car_time = #{desealCarTime},
-            </if>
-            <if test="abnormalFlag != null">
-                abnormal_flag = #{abnormalFlag},
-            </if>
-            <if test="lineType != null">
-                line_type = #{lineType},
-            </if>
-            <if test="lineTypeName != null">
-                line_type_name = #{lineTypeName},
             </if>
             <if test="updateUserErp != null">
                 update_user_erp = #{updateUserErp},
@@ -385,9 +355,30 @@
         </where>
     </update>
 
-    <update id="updateOfOtherBusinessInfoById" parameterType="JyBizTaskUnloadVehicleEntity">
+    <update id="updateOfBusinessInfoById" parameterType="JyBizTaskUnloadVehicleEntity">
         UPDATE jy_biz_task_unload_vehicle
         <set>
+            <if test="sortTime != null">
+                sort_time = #{sortTime},
+            </if>
+            <if test="ranking != null">
+                ranking = #{ranking},
+            </if>
+            <if test="predictionArriveTime != null">
+                prediction_arrive_time = #{predictionArriveTime},
+            </if>
+            <if test="actualArriveTime != null">
+                actual_arrive_time = #{actualArriveTime},
+            </if>
+            <if test="desealCarTime != null">
+                deseal_car_time = #{desealCarTime},
+            </if>
+            <if test="lineType != null">
+                line_type = #{lineType},
+            </if>
+            <if test="lineTypeName != null">
+                line_type_name = #{lineTypeName},
+            </if>
             <if test="unloadFinishTime != null">
                 unload_finish_time = #{unloadFinishTime},
             </if>
@@ -399,6 +390,9 @@
             </if>
             <if test="abnormalFlag != null">
                 abnormal_flag = #{abnormalFlag},
+            </if>
+            <if test="total_count != null">
+                total_count = #{totalCount},
             </if>
             <if test="unloadProgress != null">
                 unload_progress = #{unloadProgress},

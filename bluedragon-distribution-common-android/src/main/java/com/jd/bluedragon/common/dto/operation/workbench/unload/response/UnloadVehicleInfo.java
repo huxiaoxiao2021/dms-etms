@@ -1,7 +1,6 @@
 package com.jd.bluedragon.common.dto.operation.workbench.unload.response;
 
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.VehicleBaseInfo;
-import com.jd.bluedragon.common.dto.select.SelectOption;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
@@ -25,7 +24,7 @@ public class UnloadVehicleInfo extends VehicleBaseInfo implements Serializable {
     /**
      * 单号标签集合
      */
-    private List<SelectOption> tags;
+    private List<LabelOption> tags;
 
     /**
      * 无任务卸车
@@ -53,11 +52,11 @@ public class UnloadVehicleInfo extends VehicleBaseInfo implements Serializable {
         this.unloadProgress = unloadProgress;
     }
 
-    public List<SelectOption> getTags() {
+    public List<LabelOption> getTags() {
         return tags;
     }
 
-    public void setTags(List<SelectOption> tags) {
+    public void setTags(List<LabelOption> tags) {
         this.tags = tags;
     }
 

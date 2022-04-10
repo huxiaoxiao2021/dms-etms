@@ -1,11 +1,13 @@
 package com.jd.bluedragon.distribution.station.dao.impl;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.stereotype.Repository;
+import org.springframework.util.CollectionUtils;
 
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.common.dto.station.UserSignQueryRequest;
@@ -153,5 +155,16 @@ public class UserSignRecordDaoImpl extends BaseDao<UserSignRecord> implements Us
 	@Override
 	public UserSignRecordData queryUserSignRecordDataById(Long id) {
 		return this.getSqlSession().selectOne(NAMESPACE+".queryUserSignRecordDataById",id);
+	}
+	@Override
+	public List<UserSignRecordData> queryUserSignRecordDataByIds(List<Long> idList) {
+		if(CollectionUtils.isEmpty(idList)) {
+			return new ArrayList<UserSignRecordData>();
+		}
+		return this.getSqlSession().selectList(NAMESPACE+".queryUserSignRecordDataByIds",idList);
+	}
+	@Override
+	public List<UserSignRecord> queryUnSignOutListWithPosition(UserSignQueryRequest query) {
+		return this.getSqlSession().selectList(NAMESPACE+".queryUnSignOutListWithPosition",query);
 	}
 }
