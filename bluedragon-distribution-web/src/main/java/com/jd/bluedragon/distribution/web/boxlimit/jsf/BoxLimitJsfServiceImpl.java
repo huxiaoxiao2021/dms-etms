@@ -1,10 +1,7 @@
 package com.jd.bluedragon.distribution.web.boxlimit.jsf;
 
-import com.jd.bluedragon.Constants;
+import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
-import com.jd.bluedragon.distribution.basic.DataResolver;
-import com.jd.bluedragon.distribution.basic.ExcelDataResolverFactory;
-import com.jd.bluedragon.distribution.basic.PropertiesMetaDataFactory;
 import com.jd.bluedragon.distribution.boxlimit.BoxLimitDTO;
 import com.jd.bluedragon.distribution.boxlimit.BoxLimitQueryDTO;
 import com.jd.bluedragon.distribution.boxlimit.BoxLimitTemplateVO;
@@ -14,13 +11,10 @@ import com.jd.bluedragon.distribution.boxlimit.service.BoxLimitService;
 import com.jd.bluedragon.distribution.web.boxlimit.BoxLimitController;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
-import com.jd.uim.annotation.Authorization;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +23,7 @@ import java.util.List;
  * @author chenyaguo
  * @date 2022/3/31 19:54
  */
+@Service("boxLimitJsfService")
 public class BoxLimitJsfServiceImpl extends DmsBaseController implements BoxLimitJsfService {
 
     private static final Logger log = LoggerFactory.getLogger(BoxLimitController.class);
@@ -66,6 +61,7 @@ public class BoxLimitJsfServiceImpl extends DmsBaseController implements BoxLimi
      * 新建/修改
      */
     public JdResponse save(BoxLimitDTO dto) {
+        log.info("新增或者修改集箱包裹限制-入参-{}", JSON.toJSONString(dto));
         if (dto.getId() == null) {
             return boxLimitService.create(dto, getLoginUser());
         } else {

@@ -232,7 +232,7 @@
       <if test="configType != null">
         AND config_type = #{configType}
       </if>
-      <if test="boxNumberType != null">
+      <if test="boxNumberType != null and boxNumberType !=''">
         AND box_number_type = #{boxNumberType}
       </if>
 
@@ -255,7 +255,7 @@
       <if test="configType != null">
         AND config_type = #{configType}
       </if>
-      <if test="boxNumberType != null">
+      <if test="boxNumberType != null and boxNumberType !=''">
         AND box_number_type = #{boxNumberType}
       </if>
     </where>
