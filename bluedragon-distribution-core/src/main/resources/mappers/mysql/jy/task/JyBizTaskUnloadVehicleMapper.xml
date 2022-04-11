@@ -166,7 +166,7 @@
         limit 1;
     </select>
 
-    <select id="findIdByBizId" resultMap="jyBizTaskUnloadVehicleMap">
+    <select id="findIdByBizId" resultType="java.lang.Long">
         select
             id
         from jy_biz_task_unload_vehicle
@@ -175,7 +175,7 @@
         limit 1;
     </select>
 
-    <select id="findIdAndStatusByBizId" resultType="java.lang.Long">
+    <select id="findIdAndStatusByBizId" resultMap="jyBizTaskUnloadVehicleMap">
         select
             id,vehicle_status
         from jy_biz_task_unload_vehicle
@@ -298,7 +298,7 @@
     <update id="updateStatusByBizId" parameterType="jyBizTaskUnloadVehicleEntity">
         update  jy_biz_task_unload_vehicle
         <set>
-            vehicle_status = #{vehicleStatus}
+            vehicle_status = #{vehicleStatus},
             update_user_erp = #{updateUserErp},
             update_user_name = #{updateUserName},
             update_time = #{updateTime}
