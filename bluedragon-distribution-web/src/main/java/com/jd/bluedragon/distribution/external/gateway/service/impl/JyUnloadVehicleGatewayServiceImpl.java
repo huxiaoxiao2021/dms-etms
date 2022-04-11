@@ -18,11 +18,15 @@ import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadDto;
 import com.jd.bluedragon.external.gateway.service.InspectionGatewayService;
 import com.jd.bluedragon.external.gateway.service.JyUnloadVehicleGatewayService;
 import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.collections4.CollectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -37,6 +41,8 @@ import java.util.List;
  **/
 public class JyUnloadVehicleGatewayServiceImpl implements JyUnloadVehicleGatewayService {
 
+    private final Logger logger = LoggerFactory.getLogger(JyUnloadVehicleGatewayServiceImpl.class);
+
     @Autowired
     private IJyUnloadVehicleService unloadVehicleService;
 
@@ -44,16 +50,33 @@ public class JyUnloadVehicleGatewayServiceImpl implements JyUnloadVehicleGateway
     private InspectionGatewayService inspectionGatewayService;
 
     @Override
-    public JdCResponse<Boolean> createNoTaskUnloadTask(UnloadNoTaskRequest request) {
-        JdCResponse<Boolean> jdCResponse = new JdCResponse<Boolean>();
-        JyBizTaskUnloadDto dto = new JyBizTaskUnloadDto();
-        // 无任务模式
-        dto.setManualCreatedFlag(Constants.CONSTANT_NUMBER_ONE);
-        dto.setVehicleNumber(request.getVehicleNumber());
-        dto.setOperateSiteId(request.getOperateSiteId());
-        dto.setOperateSiteName(request.getOperateSiteName());
-        jdCResponse.toSucceed();
-        jdCResponse.setData(unloadVehicleService.createUnloadTask(dto));
+    public JdCResponse<UnloadNoTaskResponse> createNoTaskUnloadTask(UnloadNoTaskRequest request) {
+        CallerInfo info = Profiler.registerInfo("JyUnloadVehicleGatewayService.createNoTaskUnloadTask",
+                Constants.UMP_APP_NAME_DMSWORKER,false, true);
+        JdCResponse<UnloadNoTaskResponse> jdCResponse = new JdCResponse<UnloadNoTaskResponse>();
+        try {
+            // 无任务模式
+            JyBizTaskUnloadDto dto = new JyBizTaskUnloadDto();
+            dto.setManualCreatedFlag(Constants.CONSTANT_NUMBER_ONE);
+            dto.setVehicleNumber(request.getVehicleNumber());
+            dto.setOperateSiteId(request.getOperateSiteId());
+            dto.setOperateSiteName(request.getOperateSiteName());
+            JyBizTaskUnloadDto noTaskUnloadDto = unloadVehicleService.createUnloadTask(dto);
+            UnloadNoTaskResponse unloadNoTaskResponse = new UnloadNoTaskResponse();
+            unloadNoTaskResponse.setOperateSiteId(noTaskUnloadDto.getOperateSiteId());
+            unloadNoTaskResponse.setOperateSiteName(noTaskUnloadDto.getOperateSiteName());
+            unloadNoTaskResponse.setBizId(noTaskUnloadDto.getBizId());
+            unloadNoTaskResponse.setSealCarCode(noTaskUnloadDto.getSealCarCode());
+            unloadNoTaskResponse.setVehicleNumber(noTaskUnloadDto.getVehicleNumber());
+            jdCResponse.toSucceed();
+            jdCResponse.setData(unloadNoTaskResponse);
+        }catch (Exception e){
+            logger.error("创建无任务卸车任务异常，request:{}!", JsonHelper.toJson(request), e);
+            jdCResponse.toFail("创建无任务卸车任务异常，请联系分拣小秘!");
+            Profiler.functionError(info);
+        }finally {
+            Profiler.registerInfoEnd(info);
+        }
         return jdCResponse;
     }
 
