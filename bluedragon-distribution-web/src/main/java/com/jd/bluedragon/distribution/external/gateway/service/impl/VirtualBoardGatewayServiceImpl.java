@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
+import com.google.common.collect.Lists;
 import com.jd.bd.dms.automatic.sdk.common.dto.BaseDmsAutoJsfResponse;
 import com.jd.bd.dms.automatic.sdk.modules.device.DeviceConfigInfoJsfService;
 import com.jd.bluedragon.Constants;
@@ -46,8 +47,6 @@ public class VirtualBoardGatewayServiceImpl implements VirtualBoardGatewayServic
 
     @Autowired
     private VirtualBoardService virtualBoardService;
-    @Autowired
-    private GroupBoardService groupBoardService;
     @Autowired
     private SortBoardJsfService sortBoardJsfService;
     @Autowired
@@ -173,32 +172,36 @@ public class VirtualBoardGatewayServiceImpl implements VirtualBoardGatewayServic
     }
 
     @Override
-    public JdCResponse<VirtualBoardResultDto> autoBoardDetail(AutoBoardCompleteRequest request) {
-        JdCResponse<VirtualBoardResultDto> jdCResponse = new JdCResponse<VirtualBoardResultDto>();
+    public JdCResponse<List<VirtualBoardResultDto>> autoBoardDetail(AutoBoardCompleteRequest request) {
+        JdCResponse<List<VirtualBoardResultDto>> jdCResponse = new JdCResponse<List<VirtualBoardResultDto>>();
         jdCResponse.toSucceed();
         try{
             com.jd.bluedragon.distribution.board.domain.AutoBoardCompleteRequest domain =
                     new com.jd.bluedragon.distribution.board.domain.AutoBoardCompleteRequest();
             BeanUtils.copyProperties(request, domain);
             log.info("计算格口获取板号信息,request:"+ JsonHelper.toJson(request));
-            Response<String> boardCodeRes = sortBoardJsfService.calcBoard(domain);
+            Response<List<String>> boardCodeRes = sortBoardJsfService.calcBoard(domain);
             log.info("计算格口获取板号信息,request:"+ JsonHelper.toJson(request)+",result:"+JsonHelper.toJson(boardCodeRes));
 
             if (boardCodeRes.getCode()!=200){
                 jdCResponse.toFail(StringUtils.isEmpty(boardCodeRes.getMessage())?"计算板号失败，请退出重试!":boardCodeRes.getMessage());
                 return jdCResponse;
             }
-            String boardCode = boardCodeRes.getData();
-            log.info("获取板号统计信息,request:"+ boardCode);
-            JdCResponse<VirtualBoardResultDto> result = virtualBoardService.getBoxCountByBoardCode(boardCode);
-            log.info("获取板号统计信息,request:"+ boardCode+",result:"+JsonHelper.toJson(result));
+            List<VirtualBoardResultDto> results = Lists.newArrayList();
 
-            if (result.getCode()!=200){
-                jdCResponse.toFail("查询组板信息失败，请退出重试!");
-                return jdCResponse;
+            List<String> boardCodes = boardCodeRes.getData();
+            for (String boardCode:boardCodes){
+                log.info("获取板号统计信息,request:"+ boardCode);
+                JdCResponse<VirtualBoardResultDto> result = virtualBoardService.getBoxCountByBoardCode(boardCode);
+                    log.info("获取板号统计信息,request:"+ boardCodes+",result:"+JsonHelper.toJson(result));
+                if (result.getCode()!=200){
+                    jdCResponse.toFail("查询组板信息失败，请退出重试!");
+                    return jdCResponse;
+                }
+                VirtualBoardResultDto data = result.getData();
+                results.add(data);
             }
-            VirtualBoardResultDto data = result.getData();
-            jdCResponse.setData(data);
+            jdCResponse.setData(results);
             return jdCResponse;
         }catch(Exception e){
             log.error("组板查询接口异常,request:"+ JsonHelper.toJson(request),e);

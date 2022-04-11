@@ -27,5 +27,5 @@ public interface SortBoardJsfService {
 
     Response<Void> autoBoardComplete(AutoBoardCompleteRequest request);
 
-    Response<String> calcBoard(AutoBoardCompleteRequest domain);
+    Response<List<String>> calcBoard(AutoBoardCompleteRequest domain);
 }
