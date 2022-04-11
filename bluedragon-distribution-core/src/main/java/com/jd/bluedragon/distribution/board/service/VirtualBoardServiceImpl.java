@@ -155,6 +155,10 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
                 return result;
             }
             for (com.jd.transboard.api.dto.VirtualBoardResultDto virtualBoardResultDtoQueryDatum : virtualBoardResultDtoQueryData) {
+                //删除流向，不变更板状态的， 隐藏不展示
+                if(virtualBoardResultDtoQueryDatum.getHideSwitch()) {
+                    continue;
+                }
                 VirtualBoardResultDto virtualBoardResultDto = new VirtualBoardResultDto();
                 BeanUtils.copyProperties(virtualBoardResultDtoQueryDatum, virtualBoardResultDto);
                 virtualBoardResultDtoList.add(virtualBoardResultDto);
