@@ -267,8 +267,6 @@
             and yn = 1
         </where>
 
-        limit #{offset},#{limit}
-
         <if test="orderType != null">
             order by
             <choose>
@@ -293,6 +291,8 @@
             </choose>
 
         </if>
+
+        limit #{offset},#{limit}
     </select>
 
     <update id="updateStatusByBizId" parameterType="jyBizTaskUnloadVehicleEntity">
