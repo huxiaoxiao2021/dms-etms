@@ -307,6 +307,7 @@
                 <value>uccPropertyConfiguration.sealTaskForceFallback</value>
                 <value>uccPropertyConfiguration.jyUnloadSingleWaybillThreshold</value>
 				<value>uccPropertyConfiguration.jyTaskPageMax</value>
+				<value>uccPropertyConfiguration.checkBoxSendedSwitchOn</value>
 
                 <value>hystrixRouteUccPropertyConfiguration.executionTimeoutInMilliseconds</value>
                 <value>hystrixRouteUccPropertyConfiguration.circuitBreakerEnabled</value>
