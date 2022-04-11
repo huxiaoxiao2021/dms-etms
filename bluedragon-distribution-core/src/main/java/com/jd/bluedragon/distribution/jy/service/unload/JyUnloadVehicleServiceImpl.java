@@ -182,10 +182,13 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         switch (curQueryStatus) {
             case WAIT_UN_LOAD:
                 response.setToUnloadVehicleData(unloadVehicleData);
+                break;
             case UN_LOADING:
                 response.setUnloadVehicleData(unloadVehicleData);
+                break;
             case UN_LOAD_DONE:
                 response.setUnloadCompletedData(unloadVehicleData);
+                break;
         }
     }
 
@@ -236,6 +239,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
                     toUnloadVehicle.setTags(resolveTagSign(entity.getTagsSign()));
                     toUnloadVehicle.setTaskId(getJyScheduleTaskId(entity.getBizId()));
                     vehicleList.add(toUnloadVehicle);
+                    break;
                 case UN_LOADING:
                     UnloadVehicleInfo unloadVehicleInfo = (UnloadVehicleInfo) vehicleBaseInfo;
                     unloadVehicleInfo.setManualCreatedTask(entity.unloadWithoutTask());
@@ -243,6 +247,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
                     unloadVehicleInfo.setUnloadProgress(entity.getUnloadProgress());
                     unloadVehicleInfo.setTaskId(getJyScheduleTaskId(entity.getBizId()));
                     vehicleList.add(unloadVehicleInfo);
+                    break;
                 case UN_LOAD_DONE:
                     UnloadCompleteVehicle completeVehicle = (UnloadCompleteVehicle) vehicleBaseInfo;
                     completeVehicle.setLessCount(entity.getLessCount());
@@ -252,6 +257,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
                     completeVehicle.setUnloadFinishTime(entity.getUnloadFinishTime());
                     completeVehicle.setTaskId(getJyScheduleTaskId(entity.getBizId()));
                     vehicleList.add(completeVehicle);
+                    break;
             }
         }
     }
@@ -280,10 +286,13 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         switch (curQueryStatus) {
             case WAIT_UN_LOAD:
                 vehicleBaseInfo = new ToUnloadVehicle();
+                break;
             case UN_LOADING:
                 vehicleBaseInfo = new UnloadVehicleInfo();
+                break;
             case UN_LOAD_DONE:
                 vehicleBaseInfo = new UnloadCompleteVehicle();
+                break;
         }
 
         vehicleBaseInfo.setSealCarCode(entity.getSealCarCode());
@@ -531,6 +540,9 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
                 unloadCount = unloadAggEntity.getTotalScannedPackageCount();
 
                 logInfo("卸车已扫描数量从jy_unload_agg获取. {}", JsonHelper.toJson(unloadAggEntity));
+            }
+            else {
+                logInfo("根据PDA更新卸车扫描进度成功. {}", JsonHelper.toJson(unloadAggEntity));
             }
         }
 
@@ -811,8 +823,6 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
                 Integer rightUnloadCount = calculateRightUnloadCount(pdaScannedPackageCount, unloadAggEntity);
 
                 unloadAggEntity.setTotalScannedPackageCount(rightUnloadCount);
-
-                logInfo("根据PDA更新卸车扫描进度成功. {}", JsonHelper.toJson(unloadAggEntity));
             }
         }
 
