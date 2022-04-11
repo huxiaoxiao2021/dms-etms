@@ -80,6 +80,7 @@ public class MiniStoreServiceImpl implements MiniStoreService {
         miniStoreBindRelation.setUpdateUserCode(deviceDto.getUpdateUserCode());
         miniStoreBindRelation.setUpdateTime(new Date());
         miniStoreBindRelation.setOccupiedFlag(false);
+        miniStoreBindRelation.setDes(deviceDto.getErrMsg());
         try {
             r1 = miniStoreBindRelationDao.updateByPrimaryKeySelective(miniStoreBindRelation);
             if (r1 > 0) {

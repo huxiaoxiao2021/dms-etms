@@ -67,6 +67,7 @@ public class MiniStoreSyncBindRelationTask implements Runnable {
             miniStoreEvent.setEventType(type.getCode());
             miniStoreEvent.setStoreCode(miniStoreBindRelation.getStoreCode());
             miniStoreEvent.setBoxCode(miniStoreBindRelation.getBoxCode());
+            miniStoreEvent.setErrMsg(miniStoreBindRelation.getDes());
             miniStoreEvent.setCreateTime(TimeUtils.date2string(new Date(),TimeUtils.yyyy_MM_dd_HH_mm_ss));
             if (null!=miniStoreBindRelation.getDes() && !"".equals(miniStoreBindRelation.getDes())){
                 miniStoreEvent.setErrMsg(miniStoreBindRelation.getDes());

@@ -20,6 +20,15 @@ public class DeviceDto {
     private Long receiveSiteCode;
     private String receiveSiteName;
     private Long miniStoreBindRelationId;//绑定关系id
+    private String errMsg;
+
+    public String getErrMsg() {
+        return errMsg;
+    }
+
+    public void setErrMsg(String errMsg) {
+        this.errMsg = errMsg;
+    }
 
     public String getUpdateUser() {
         return updateUser;
