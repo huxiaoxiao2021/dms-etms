@@ -144,7 +144,7 @@ public class MiniStoreGatewayServiceImpl implements MiniStoreGatewayService {
     }
 
     @Override
-    public JdCResponse<List<BindAndNoSortTaskResp>> queryBindAndNoSortTaskList(BindAndNoSortTaskReq bindAndNoSortTaskReq) {
+    public JdCResponse<PageObject<BindAndNoSortTaskResp>> queryBindAndNoSortTaskList(BindAndNoSortTaskReq bindAndNoSortTaskReq) {
         QueryTaskDto queryTaskDto = new QueryTaskDto();
         queryTaskDto.setCreateUserCode(bindAndNoSortTaskReq.getCreateUserCode());
         Page page =PageHelper.startPage(bindAndNoSortTaskReq.getPageNo(), bindAndNoSortTaskReq.getPageSize());

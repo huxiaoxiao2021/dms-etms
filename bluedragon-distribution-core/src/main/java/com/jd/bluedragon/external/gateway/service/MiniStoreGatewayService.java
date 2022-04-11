@@ -53,8 +53,18 @@ public interface MiniStoreGatewayService {
      */
     JdCResponse unBox(UnBoxReq unBoxReq);
 
-    JdCResponse<List<BindAndNoSortTaskResp>> queryBindAndNoSortTaskList(BindAndNoSortTaskReq bindAndNoSortTaskReq);
+    /**
+     * 查询绑定未集包的任务列表
+     * @param bindAndNoSortTaskReq
+     * @return
+     */
+    JdCResponse<PageObject<BindAndNoSortTaskResp>> queryBindAndNoSortTaskList(BindAndNoSortTaskReq bindAndNoSortTaskReq);
 
+    /**
+     * 解绑定微仓设备：解除三码（微仓码 冰板码 集包码）的绑定关系
+     * @param unBindReq
+     * @return
+     */
     JdCResponse unBind(UnBindReq unBindReq);
 
 
