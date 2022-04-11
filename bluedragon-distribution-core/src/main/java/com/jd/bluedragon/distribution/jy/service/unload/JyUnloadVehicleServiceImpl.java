@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.jy.service.unload;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.BarCodeLabelOptionEnum;
@@ -672,13 +673,15 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
             return result;
         }
 
-        String progressCacheKey = genUnloadDetailCacheKey(request.getBizId());
-        Map<String, String> hashRedisMap = redisClientOfJy.hGetAll(progressCacheKey);
+        // 暂时去掉缓存读数据库。需要在接收agg时写入缓存。
+        Map<String, String> hashRedisMap = Maps.newHashMap();
 
         if (MapUtils.isEmpty(hashRedisMap)) {
             log.warn("卸车进度缓存不存在主动刷新. {}", JsonHelper.toJson(request));
             refreshUnloadAggCache(request.getBizId());
         }
+        String progressCacheKey = genUnloadDetailCacheKey(request.getBizId());
+        hashRedisMap = redisClientOfJy.hGetAll(progressCacheKey);
 
         try {
             UnloadDetailCache redisCache = RedisHashUtils.mapConvertBean(hashRedisMap, UnloadDetailCache.class);
