@@ -274,7 +274,7 @@ public class BoxLimitServiceImpl implements BoxLimitService {
             response.setMessage("数据不存在!");
             return response;
         }
-        checkDtoData(dto, response);
+        //checkDtoData(dto, response);
         if (!response.isSucceed()) {
             return response;
         }
