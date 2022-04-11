@@ -4,6 +4,7 @@ import com.jd.bluedragon.distribution.consumer.jy.vehicle.TmsCancelSealCarBatchC
 import com.jd.bluedragon.distribution.consumer.jy.vehicle.TmsSealCarStatusConsumer;
 import com.jd.bluedragon.distribution.consumer.jy.vehicle.TmsTransWorkCarArriveConsumer;
 import com.jd.bluedragon.distribution.consumer.jy.vehicle.TmsVehicleDetailStatusConsumer;
+import com.jd.jmq.common.message.Message;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,10 +35,16 @@ public class TmsConsumerTest {
 
     @Test
     public void testTmsMq(){
+        String tmsSealCarStatusJson = "{\"sealCarCode\":\"SC22040419643118\",\"status\":10,\"operateUserCode\":\"chenyifei6\",\"operateUserName\":\"陈毅飞\",\"operateTime\":\"2022-04-04 19:10:54\",\"sealCarType\":30,\"batchCodes\":[\"R202204041106221342\",\"R1510931730171867136\",\"R202204041145461342\"],\"transBookCode\":\"TB22040430009175\",\"volume\":null,\"weight\":null,\"transWay\":2,\"vehicleNumber\":\"京AAJ7385\",\"operateSiteId\":1342,\"operateSiteCode\":\"010Y059\",\"operateSiteName\":\"北京上庄营业部\",\"warehouseCode\":null,\"largeCargoDetails\":null,\"pieceCount\":null,\"source\":2,\"sealCarInArea\":null}\n";
 
-        while (true){
-            System.out.println();
+        Message message = new Message();
+        message.setText(tmsSealCarStatusJson);
+        try {
+            tmsSealCarStatusConsumer.consume(message);
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+
 
     }
 }
