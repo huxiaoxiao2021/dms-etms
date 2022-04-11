@@ -143,7 +143,7 @@
      
     <select id="querySignIdListByGroup" parameterType="com.jd.bluedragon.common.dto.group.GroupMemberQueryRequest" resultType="long">
         select
-            t.id
+            t.ref_sign_record_id
         from
             jy_group_member t
         <include refid="queryWithGroup"/>
