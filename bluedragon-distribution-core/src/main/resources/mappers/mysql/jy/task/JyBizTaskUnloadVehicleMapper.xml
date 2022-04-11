@@ -18,7 +18,6 @@
         <result property="endSiteId" column="end_site_id"/>
         <result property="endSiteName" column="end_site_name"/>
         <result property="sortTime" column="sort_time"/>
-        <result property="sortIntegral" column="sort_integral"/>
         <result property="ranking" column="ranking"/>
         <result property="predictionArriveTime" column="prediction_arrive_time"/>
         <result property="actualArriveTime" column="actual_arrive_time"/>
@@ -62,7 +61,6 @@
         end_site_id,
         end_site_name,
         sort_time,
-        sort_integral,
         ranking,
         prediction_arrive_time,
         actual_arrive_time,
@@ -100,7 +98,6 @@
                             end_site_id,
                             end_site_name,
                             sort_time,
-                            sort_integral,
                             ranking,
                             prediction_arrive_time,
                             actual_arrive_time,
@@ -131,7 +128,6 @@
                             #{endSiteId},
                             #{endSiteName},
                             #{sortTime},
-                            #{sortIntegral},
                             #{ranking},
                             #{predictionArriveTime},
                             #{actualArriveTime},
@@ -283,7 +279,7 @@
                     abnormal_flag desc,sort_time desc
                 </when>
                 <when test="orderType == 3">
-                    sort_integral
+                    ranking
                 </when>
                 <when test="orderType == 4">
                     deseal_car_time desc
@@ -365,9 +361,6 @@
             <if test="sortTime != null">
                 sort_time = #{sortTime},
             </if>
-            <if test="sortIntegral != null">
-                sort_integral = #{sortIntegral},
-            </if>
             <if test="ranking != null">
                 ranking = #{ranking},
             </if>
@@ -379,9 +372,6 @@
             </if>
             <if test="desealCarTime != null">
                 deseal_car_time = #{desealCarTime},
-            </if>
-            <if test="abnormalFlag != null">
-                abnormal_flag = #{abnormalFlag},
             </if>
             <if test="lineType != null">
                 line_type = #{lineType},

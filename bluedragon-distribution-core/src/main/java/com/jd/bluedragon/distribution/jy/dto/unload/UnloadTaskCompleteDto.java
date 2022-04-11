@@ -1,23 +1,17 @@
-package com.jd.bluedragon.common.dto.operation.workbench.unload.request;
-
-import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
-import com.jd.bluedragon.common.dto.base.request.User;
+package com.jd.bluedragon.distribution.jy.dto.unload;
 
 import java.io.Serializable;
+import java.util.Date;
 
 /**
- * @ClassName UnloadScanRequest
- * @Description 卸车完成
+ * @ClassName UnloadTaskCompleteDto
+ * @Description
  * @Author wyh
- * @Date 2022/3/31 22:13
+ * @Date 2022/4/9 20:16
  **/
-public class UnloadCompleteRequest implements Serializable {
+public class UnloadTaskCompleteDto implements Serializable {
 
-    private static final long serialVersionUID = 4648667337916471503L;
-
-    private User user;
-
-    private CurrentOperate currentOperate;
+    private static final long serialVersionUID = 4855347699013606767L;
 
     /**
      * 任务主键
@@ -41,32 +35,22 @@ public class UnloadCompleteRequest implements Serializable {
 
     /**
      * 待扫描数量
-     * 异常情况下必传
      */
     private Long shouldScanCount;
 
     /**
      * 多扫数量
-     * 异常情况下必传
      */
     private Long moreScanCount;
 
+    /**
+     * 操作时间
+     */
+    private Date operateTime;
 
-    public User getUser() {
-        return user;
-    }
+    private String operateUserErp;
 
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    public CurrentOperate getCurrentOperate() {
-        return currentOperate;
-    }
-
-    public void setCurrentOperate(CurrentOperate currentOperate) {
-        this.currentOperate = currentOperate;
-    }
+    private String operateUserName;
 
     public String getTaskId() {
         return taskId;
@@ -114,5 +98,29 @@ public class UnloadCompleteRequest implements Serializable {
 
     public void setMoreScanCount(Long moreScanCount) {
         this.moreScanCount = moreScanCount;
+    }
+
+    public Date getOperateTime() {
+        return operateTime;
+    }
+
+    public void setOperateTime(Date operateTime) {
+        this.operateTime = operateTime;
+    }
+
+    public String getOperateUserErp() {
+        return operateUserErp;
+    }
+
+    public void setOperateUserErp(String operateUserErp) {
+        this.operateUserErp = operateUserErp;
+    }
+
+    public String getOperateUserName() {
+        return operateUserName;
+    }
+
+    public void setOperateUserName(String operateUserName) {
+        this.operateUserName = operateUserName;
     }
 }

@@ -34,10 +34,6 @@ public class JyUnloadAggsDao extends BaseDao<JyUnloadAggsEntity> {
         return this.getSqlSession().insert(NAMESPACE + ".insert", entity);
     }
 
-    public JyUnloadAggsEntity aggByBiz(JyUnloadAggsEntity entity) {
-        return this.getSqlSession().selectOne(NAMESPACE + ".aggByBiz", entity);
-    }
-
     public List<JyUnloadAggsEntity> queryByBizId(JyUnloadAggsEntity entity) {
         return this.getSqlSession().selectList(NAMESPACE + ".queryByBizId", entity);
     }

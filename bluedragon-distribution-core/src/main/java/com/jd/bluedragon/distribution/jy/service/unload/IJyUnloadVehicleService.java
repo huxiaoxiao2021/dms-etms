@@ -4,7 +4,6 @@ import com.jd.bluedragon.common.dto.operation.workbench.unload.request.*;
 import com.jd.bluedragon.common.dto.operation.workbench.unload.response.*;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadDto;
-import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
 
 import java.util.List;
 
@@ -59,23 +58,45 @@ public interface IJyUnloadVehicleService {
     InvokeResult<ToScanDetailByProductType> toScanBarCodeDetail(UnloadProductTypeRequest request);
 
     /**
+     * 拦截单号明细
+     * @param request
+     * @return
+     */
+    InvokeResult<InterceptScanBarCode> interceptBarCodeDetail(UnloadCommonRequest request);
+
+    /**
+     * 多扫单号明细
+     * @param request
+     * @return
+     */
+    InvokeResult<MoreScanBarCode> moreScanBarCodeDetail(UnloadCommonRequest request);
+
+    /**
+     * 卸车完成前预览是否有异常数据
+     * @param request
+     * @return
+     */
+    InvokeResult<UnloadPreviewData> unloadPreviewDashboard(UnloadCommonRequest request);
+
+    /**
+     * 卸车完成
+     * @param request
+     * @return
+     */
+    InvokeResult<Boolean> submitUnloadCompletion(UnloadCompleteRequest request);
+
+    /**
+     * 刷新卸车任务进度缓存
+     * @param bizId
+     * @return
+     */
+    Boolean refreshUnloadAggCache(String bizId);
+
+    /**
      * 创建卸车任务
      * @param dto
      * @return
      */
-    boolean createUnloadTask(JyBizTaskUnloadDto dto);
+    JyBizTaskUnloadDto createUnloadTask(JyBizTaskUnloadDto dto);
 
-    /**
-     * 卸车任务领取和分配
-     * @param dto
-     * @return
-     */
-    boolean drawUnloadTask(JyBizTaskUnloadDto dto);
-
-    /**
-     * 卸车任务完成
-     * @param dto
-     * @return
-     */
-    boolean completeUnloadTask(JyBizTaskUnloadDto dto);
 }

@@ -145,7 +145,7 @@ public class TmsSealCarStatusConsumer extends MessageBaseConsumer {
             if(logger.isInfoEnabled()) {
                 logger.info("消费处理tms_seal_car_status 执行解封车状态逻辑，内容{}", JsonHelper.toJson(tmsSealCarStatus));
             }
-            return jyUnloadVehicleService.createUnloadTask(convert4Load(tmsSealCarStatus,sealCarInfoBySealCarCodeOfTms));
+            return jyUnloadVehicleService.createUnloadTask(convert4Load(tmsSealCarStatus,sealCarInfoBySealCarCodeOfTms)) != null;
         }else if(TMS_STATUS_IN_RAIL.equals(tmsSealCarStatus.getStatus())){
             //触碰围栏后更新任务状态
             Long id = jyBizTaskUnloadVehicleService.findIdByBizId(tmsSealCarStatus.getSealCarCode());
