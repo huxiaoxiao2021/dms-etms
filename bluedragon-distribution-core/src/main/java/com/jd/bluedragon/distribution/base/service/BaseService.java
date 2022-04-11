@@ -260,6 +260,6 @@ public interface BaseService{
      * @author fanggang7
      * @time 2022-04-11 16:47:33 周一
      */
-    MenuUsageProcessDto getMenuUsageConfig(MenuUsageConfigRequestDto menuUsageConfigRequestDto);
+    MenuUsageProcessDto getAndroidMenuUsageConfig(MenuUsageConfigRequestDto menuUsageConfigRequestDto);
 
 }

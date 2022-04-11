@@ -118,7 +118,7 @@ public class BaseDataGatewayServiceImpl implements BaseDataGatewayService {
         JdCResponse<MenuUsageProcessDto> response = new JdCResponse<>();
         response.toSucceed();
         try {
-            final MenuUsageProcessDto menuUsageProcessDto = baseService.getMenuUsageConfig(menuUsageConfigRequestDto);
+            final MenuUsageProcessDto menuUsageProcessDto = baseService.getAndroidMenuUsageConfig(menuUsageConfigRequestDto);
             response.setData(menuUsageProcessDto);
         } catch (Exception e) {
             log.error("BaseDataGatewayServiceImpl.getMenuUsageProcessByMenuCode exception ", e);

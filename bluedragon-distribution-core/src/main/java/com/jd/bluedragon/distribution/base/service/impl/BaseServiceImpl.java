@@ -917,8 +917,8 @@ public class BaseServiceImpl extends AbstractClient implements BaseService, ErpV
      * @time 2022-04-11 16:47:33 周一
      */
     @Override
-    public MenuUsageProcessDto getMenuUsageConfig(MenuUsageConfigRequestDto menuUsageConfigRequestDto) {
-        log.info("BaseServiceImpl.getMenuUsageProcessByMenuCode param {}", menuUsageConfigRequestDto);
+    public MenuUsageProcessDto getAndroidMenuUsageConfig(MenuUsageConfigRequestDto menuUsageConfigRequestDto) {
+        log.info("BaseServiceImpl.getAndroidMenuUsageConfig param {}", menuUsageConfigRequestDto);
         final SysConfig sysConfig = sysConfigService.findConfigContentByConfigName(Constants.SYS_CONFIG_ANDROID_MENU_USAGE + menuUsageConfigRequestDto.getMenuCode());
         if (sysConfig == null) {
             return null;

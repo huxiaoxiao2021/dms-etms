@@ -2,6 +2,9 @@ package com.jd.bluedragon.distribution.rest.base;
 
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.sysConfig.request.MenuUsageConfigRequestDto;
+import com.jd.bluedragon.common.dto.sysConfig.response.MenuUsageProcessDto;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
@@ -1746,6 +1749,22 @@ public class BaseResource {
 		result.setData(menuCodeIsOffline);
 		return result;
 	}
+
+    @POST
+    @Path("/bases/getAndroidMenuUsageConfig")
+    @JProfiler(jKey = "DMS.WEB.BaseResource.getAndroidMenuUsageConfig", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public InvokeResult<MenuUsageProcessDto> getAndroidMenuUsageConfig(MenuUsageConfigRequestDto menuUsageConfigRequestDto) {
+        InvokeResult<MenuUsageProcessDto> result = new InvokeResult<>();
+        result.success();
+        try {
+            final MenuUsageProcessDto menuUsageProcessDto = baseService.getAndroidMenuUsageConfig(menuUsageConfigRequestDto);
+            result.setData(menuUsageProcessDto);
+        } catch (Exception e) {
+            log.error("BaseResource.getAndroidMenuUsageConfig exception ", e);
+            result.error("接口处理异常");
+        }
+        return result;
+    }
 
 }
 
