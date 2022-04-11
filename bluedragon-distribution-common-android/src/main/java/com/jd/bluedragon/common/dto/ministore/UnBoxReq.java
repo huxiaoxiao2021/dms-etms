@@ -9,6 +9,15 @@ public class UnBoxReq implements Serializable {
     private String updateUser;
     private Long updateUserCode;
     private String errMsg;
+    private Long createSiteCode;
+
+    public Long getCreateSiteCode() {
+        return createSiteCode;
+    }
+
+    public void setCreateSiteCode(Long createSiteCode) {
+        this.createSiteCode = createSiteCode;
+    }
 
     public String getErrMsg() {
         return errMsg;
