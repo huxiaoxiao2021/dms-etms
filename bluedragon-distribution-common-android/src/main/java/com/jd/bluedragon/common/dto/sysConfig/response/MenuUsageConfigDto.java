@@ -12,24 +12,24 @@ import java.io.Serializable;
 public class MenuUsageConfigDto implements Serializable {
     private static final long serialVersionUID = 4698812631300000677L;
 
-    private MenuUsageConditionConfigDto conditionConfig;
+    private MenuUsageConditionConfigDto condition;
 
-    private MenuUsageProcessDto processConfig;
+    private MenuUsageProcessDto process;
 
-    public MenuUsageConditionConfigDto getConditionConfig() {
-        return conditionConfig;
+    public MenuUsageConditionConfigDto getCondition() {
+        return condition;
     }
 
-    public void setConditionConfig(MenuUsageConditionConfigDto conditionConfig) {
-        this.conditionConfig = conditionConfig;
+    public void setCondition(MenuUsageConditionConfigDto condition) {
+        this.condition = condition;
     }
 
-    public MenuUsageProcessDto getProcessConfig() {
-        return processConfig;
+    public MenuUsageProcessDto getProcess() {
+        return process;
     }
 
-    public void setProcessConfig(MenuUsageProcessDto processConfig) {
-        this.processConfig = processConfig;
+    public void setProcess(MenuUsageProcessDto process) {
+        this.process = process;
     }
 
 }

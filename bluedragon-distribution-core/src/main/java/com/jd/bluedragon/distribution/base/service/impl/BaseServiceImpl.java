@@ -928,11 +928,11 @@ public class BaseServiceImpl extends AbstractClient implements BaseService, ErpV
         if (menuUsageConfigDto == null) {
             return null;
         }
-        final MenuUsageConditionConfigDto conditionConfig = menuUsageConfigDto.getConditionConfig();
+        final MenuUsageConditionConfigDto conditionConfig = menuUsageConfigDto.getCondition();
 
         if(CollectionUtils.isEmpty(conditionConfig.getSiteType()) && CollectionUtils.isEmpty(conditionConfig.getSiteSubType())
                 && CollectionUtils.isEmpty(conditionConfig.getSiteSortType()) && CollectionUtils.isEmpty(conditionConfig.getSiteSubType()) && CollectionUtils.isEmpty(conditionConfig.getSiteSortThirdType())){
-            return menuUsageConfigDto.getProcessConfig();
+            return menuUsageConfigDto.getProcess();
         }
 
         final CurrentOperate currentOperate = menuUsageConfigRequestDto.getCurrentOperate();
@@ -943,7 +943,7 @@ public class BaseServiceImpl extends AbstractClient implements BaseService, ErpV
                 && (CollectionUtils.isEmpty(conditionConfig.getSiteSubType()) || (siteInfo.getSortType() != null && conditionConfig.getSiteSubType().contains(siteInfo.getSortType())))
                 && (CollectionUtils.isEmpty(conditionConfig.getSiteSubType()) || (siteInfo.getSortSubType() != null && conditionConfig.getSiteSubType().contains(siteInfo.getSortSubType())))
                 && (CollectionUtils.isEmpty(conditionConfig.getSiteSubType()) || (siteInfo.getSortThirdType() != null && conditionConfig.getSiteSubType().contains(siteInfo.getSortThirdType())))){
-            return menuUsageConfigDto.getProcessConfig();
+            return menuUsageConfigDto.getProcess();
         }
         return null;
     }
