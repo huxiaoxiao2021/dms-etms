@@ -27,6 +27,11 @@ public class RemoveDestinationPo implements Serializable {
      */
     private String boardCode;
 
+    /**
+     * 板状态变更开关： null:首次操作流向删除      true：确认流向删除，同时完结板状态；   false: 确认流向删除，但不改变板状态
+     */
+    private Boolean boardStatusEndSwitch;
+
     public OperatorInfo getOperatorInfo() {
         return operatorInfo;
     }
@@ -52,5 +57,13 @@ public class RemoveDestinationPo implements Serializable {
     public RemoveDestinationPo setBoardCode(String boardCode) {
         this.boardCode = boardCode;
         return this;
+    }
+
+    public Boolean getBoardStatusEndSwitch() {
+        return boardStatusEndSwitch;
+    }
+
+    public void setBoardStatusEndSwitch(Boolean boardStatusEndSwitch) {
+        this.boardStatusEndSwitch = boardStatusEndSwitch;
     }
 }
