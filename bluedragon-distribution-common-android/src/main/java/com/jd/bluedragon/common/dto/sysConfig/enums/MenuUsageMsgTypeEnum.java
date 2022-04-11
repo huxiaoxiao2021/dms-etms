@@ -16,7 +16,7 @@ public enum MenuUsageMsgTypeEnum {
     /**
      * dialog
      */
-    DIALOG(1, "可用"),
+    DIALOG(2, "可用"),
     ;
 
     private Integer code;
