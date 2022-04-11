@@ -3,6 +3,8 @@ package com.jd.bluedragon.distribution.external.gateway.service.impl;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.basedata.response.BaseDataDictDto;
+import com.jd.bluedragon.common.dto.sysConfig.request.MenuUsageConfigRequestDto;
+import com.jd.bluedragon.common.dto.sysConfig.response.MenuUsageProcessDto;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.rest.base.BaseResource;
@@ -102,5 +104,26 @@ public class BaseDataGatewayServiceImpl implements BaseDataGatewayService {
             return result;
         }
         return null;
+    }
+
+    /**
+     * 安卓根据菜单编码获取菜单可用性结果
+     * @param menuUsageConfigRequestDto 请求参数
+     * @return 菜单可用性结果
+     * @author fanggang7
+     * @time 2022-04-11 16:47:33 周一
+     */
+    @Override
+    public JdCResponse<MenuUsageProcessDto> getMenuUsageConfig(MenuUsageConfigRequestDto menuUsageConfigRequestDto) {
+        JdCResponse<MenuUsageProcessDto> response = new JdCResponse<>();
+        response.toSucceed();
+        try {
+            final MenuUsageProcessDto menuUsageProcessDto = baseService.getMenuUsageConfig(menuUsageConfigRequestDto);
+            response.setData(menuUsageProcessDto);
+        } catch (Exception e) {
+            log.error("BaseDataGatewayServiceImpl.getMenuUsageProcessByMenuCode exception ", e);
+            response.toError("接口处理异常");
+        }
+        return response;
     }
 }

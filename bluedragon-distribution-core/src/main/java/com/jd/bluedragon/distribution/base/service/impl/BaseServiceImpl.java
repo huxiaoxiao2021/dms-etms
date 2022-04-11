@@ -1,6 +1,12 @@
 package com.jd.bluedragon.distribution.base.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
+import com.jd.bluedragon.common.dto.sysConfig.request.MenuUsageConfigRequestDto;
+import com.jd.bluedragon.common.dto.sysConfig.response.MenuUsageConditionConfigDto;
+import com.jd.bluedragon.common.dto.sysConfig.response.MenuUsageConfigDto;
+import com.jd.bluedragon.common.dto.sysConfig.response.MenuUsageProcessDto;
 import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.core.redis.TaskMode;
 import com.jd.bluedragon.distribution.base.dao.SysConfigDao;
@@ -25,10 +31,7 @@ import com.jd.ql.basic.domain.Assort;
 import com.jd.ql.basic.domain.BaseDataDict;
 import com.jd.ql.basic.domain.BaseOrg;
 import com.jd.ql.basic.domain.BaseResult;
-import com.jd.ql.basic.dto.BaseGoodsPositionDto;
-import com.jd.ql.basic.dto.BaseSelfDDto;
-import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.ql.basic.dto.BaseStoreInfoDto;
+import com.jd.ql.basic.dto.*;
 import com.jd.ql.basic.proxy.BasicPrimaryWSProxy;
 import com.jd.ql.basic.proxy.BasicSecondaryWSProxy;
 import com.jd.ql.basic.ws.BasicMixedWS;
@@ -66,6 +69,9 @@ public class BaseServiceImpl extends AbstractClient implements BaseService, ErpV
 
 	@Autowired
 	SysConfigDao sysConfigDao;
+
+    @Autowired
+    SysConfigService sysConfigService;
 	
 	@Autowired
 	@Qualifier("basicMixedWS")
@@ -902,4 +908,43 @@ public class BaseServiceImpl extends AbstractClient implements BaseService, ErpV
 	protected LoginClientService selectLoginClient() {
 		return this;
 	}
+
+    /**
+     * 安卓根据菜单编码获取菜单可用性结果
+     * @param menuUsageConfigRequestDto 请求参数
+     * @return 菜单可用性结果
+     * @author fanggang7
+     * @time 2022-04-11 16:47:33 周一
+     */
+    @Override
+    public MenuUsageProcessDto getMenuUsageConfig(MenuUsageConfigRequestDto menuUsageConfigRequestDto) {
+        log.info("BaseServiceImpl.getMenuUsageProcessByMenuCode param {}", menuUsageConfigRequestDto);
+        final SysConfig sysConfig = sysConfigService.findConfigContentByConfigName(Constants.SYS_CONFIG_ANDROID_MENU_USAGE + menuUsageConfigRequestDto.getMenuCode());
+        if (sysConfig == null) {
+            return null;
+        }
+
+        final MenuUsageConfigDto menuUsageConfigDto = JSON.parseObject(sysConfig.getConfigContent(), MenuUsageConfigDto.class);
+        if (menuUsageConfigDto == null) {
+            return null;
+        }
+        final MenuUsageConditionConfigDto conditionConfig = menuUsageConfigDto.getConditionConfig();
+
+        if(CollectionUtils.isEmpty(conditionConfig.getSiteType()) && CollectionUtils.isEmpty(conditionConfig.getSiteSubType())
+                && CollectionUtils.isEmpty(conditionConfig.getSiteSortType()) && CollectionUtils.isEmpty(conditionConfig.getSiteSubType()) && CollectionUtils.isEmpty(conditionConfig.getSiteSortThirdType())){
+            return menuUsageConfigDto.getProcessConfig();
+        }
+
+        final CurrentOperate currentOperate = menuUsageConfigRequestDto.getCurrentOperate();
+        final int siteCode = currentOperate.getSiteCode();
+        final BaseSiteInfoDto siteInfo = baseMajorManager.getBaseSiteInfoBySiteId(siteCode);
+        if((CollectionUtils.isEmpty(conditionConfig.getSiteType()) || (siteInfo.getSiteType() != null && conditionConfig.getSiteType().contains(siteInfo.getSiteType())))
+                && (CollectionUtils.isEmpty(conditionConfig.getSiteSubType()) || (siteInfo.getSubType() != null && conditionConfig.getSiteSubType().contains(siteInfo.getSubType())))
+                && (CollectionUtils.isEmpty(conditionConfig.getSiteSubType()) || (siteInfo.getSortType() != null && conditionConfig.getSiteSubType().contains(siteInfo.getSortType())))
+                && (CollectionUtils.isEmpty(conditionConfig.getSiteSubType()) || (siteInfo.getSortSubType() != null && conditionConfig.getSiteSubType().contains(siteInfo.getSortSubType())))
+                && (CollectionUtils.isEmpty(conditionConfig.getSiteSubType()) || (siteInfo.getSortThirdType() != null && conditionConfig.getSiteSubType().contains(siteInfo.getSortThirdType())))){
+            return menuUsageConfigDto.getProcessConfig();
+        }
+        return null;
+    }
 }
