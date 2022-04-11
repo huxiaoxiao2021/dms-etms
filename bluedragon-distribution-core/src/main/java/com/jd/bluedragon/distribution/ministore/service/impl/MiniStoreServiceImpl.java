@@ -81,6 +81,7 @@ public class MiniStoreServiceImpl implements MiniStoreService {
         miniStoreBindRelation.setUpdateTime(new Date());
         miniStoreBindRelation.setOccupiedFlag(false);
         miniStoreBindRelation.setDes(deviceDto.getErrMsg());
+        miniStoreBindRelation.setUnboxCount(deviceDto.getUnboxCount());
         try {
             r1 = miniStoreBindRelationDao.updateByPrimaryKeySelective(miniStoreBindRelation);
             if (r1 > 0) {

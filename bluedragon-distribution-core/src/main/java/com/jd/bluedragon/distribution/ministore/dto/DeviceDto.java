@@ -21,6 +21,15 @@ public class DeviceDto {
     private String receiveSiteName;
     private Long miniStoreBindRelationId;//绑定关系id
     private String errMsg;
+    private Integer unboxCount;
+
+    public Integer getUnboxCount() {
+        return unboxCount;
+    }
+
+    public void setUnboxCount(Integer unboxCount) {
+        this.unboxCount = unboxCount;
+    }
 
     public String getErrMsg() {
         return errMsg;

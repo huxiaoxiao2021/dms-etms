@@ -10,6 +10,15 @@ public class UnBoxReq implements Serializable {
     private Long updateUserCode;
     private String errMsg;
     private Long createSiteCode;
+    private Integer unboxCount;
+
+    public Integer getUnboxCount() {
+        return unboxCount;
+    }
+
+    public void setUnboxCount(Integer unboxCount) {
+        this.unboxCount = unboxCount;
+    }
 
     public Long getCreateSiteCode() {
         return createSiteCode;
