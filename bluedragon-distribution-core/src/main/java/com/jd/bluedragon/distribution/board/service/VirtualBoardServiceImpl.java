@@ -774,24 +774,8 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
             if(!Objects.equals(handleResult.getCode(), ResponseEnum.SUCCESS.getIndex())){
                 log.error("VirtualBoardServiceImpl.removeDestination--fail-- param {} result {}", JsonHelper.toJson(removeDestinationPo), JsonHelper.toJson(handleResult));
                 //首次删除 && 仅1个流向 && 删除流向返回存在板未完结的状态码： 操作人员自选是否完结状态并删除流向
-                if(removeDestinationPo.getBoardStatusEndSwitch() == null && Objects.equals(handleResult.getCode(), ResponseEnum.HAND_OVER_FAILURE.getIndex())) {
-                    if(removeDestinationPo.getOperatorInfo().getBizSource() == null){
-                        removeDestinationPo.getOperatorInfo().setBizSource(BizSourceEnum.PDA.getValue());
-                    }
-                    List<VirtualBoardResultDto> list = new ArrayList<>();
-                    JdCResponse<List<VirtualBoardResultDto>> res = this.getBoardUnFinishInfo(removeDestinationPo.getOperatorInfo());
-                    if(res == null || !Objects.equals(res.getCode(), ResponseEnum.SUCCESS.getIndex())) {
-                        log.error("VirtualBoardServiceImpl.removeDestination--删除流向时校验是否仅有一个流向查询异常，request={},response={}",
-                                JsonHelper.toJson(removeDestinationPo.getOperatorInfo()), JsonHelper.toJson(res));
-
-                        result.toFail("查询当前流向数据异常");
-                        return result;
-                    }
-                    if(CollectionUtils.isNotEmpty(res.getData()) && res.getData().size() == 1) {
-                        result.toConfirm("该流向存在未完结的板号，是否需要将板号完结？");
-                        return result;
-                    }
-                    result.toFail(handleResult.getMesseage());
+                if(Objects.equals(handleResult.getCode(), Response.CODE_CONFIRM)) {
+                    result.toConfirm(handleResult.getMesseage());
                     return result;
                 }else {
                     result.toFail(handleResult.getMesseage());
@@ -807,26 +791,13 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
         return result;
     }
 
-    /**
-     * 查询当前分拣组板的流向场地信息
-     * @param operatorInfo
-     * @return
-     */
-    private List getBoardDestinationInfo(OperatorInfo operatorInfo) {
-        if(operatorInfo.getBizSource() == null){
-            operatorInfo.setBizSource(BizSourceEnum.PDA.getValue());
-        }
-        JdCResponse<List<VirtualBoardResultDto>> res = this.getBoardUnFinishInfo(operatorInfo);
-        if(res == null || !Objects.equals(res.getCode(), ResponseEnum.SUCCESS.getIndex())) {
-
-        }
-        return null;
-    }
-
     private com.jd.transboard.api.dto.RemoveDestinationPo getConvertToTcParam(RemoveDestinationPo removeDestinationPo) {
         com.jd.transboard.api.dto.RemoveDestinationPo removeDestinationPoTc = new com.jd.transboard.api.dto.RemoveDestinationPo();
         BeanUtils.copyProperties(removeDestinationPo, removeDestinationPoTc);
         OperatorInfo operatorInfo = removeDestinationPo.getOperatorInfo();
+        if(operatorInfo.getBizSource() == null){
+            operatorInfo.setBizSource(BizSourceEnum.PDA.getValue());
+        }
         final com.jd.transboard.api.dto.base.OperatorInfo operatorInfoTarget = new com.jd.transboard.api.dto.base.OperatorInfo();
         BeanUtils.copyProperties(operatorInfo, operatorInfoTarget);
         removeDestinationPoTc.setOperatorInfo(operatorInfoTarget);
