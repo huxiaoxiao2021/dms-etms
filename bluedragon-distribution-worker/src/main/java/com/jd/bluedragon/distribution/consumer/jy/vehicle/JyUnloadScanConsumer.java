@@ -93,16 +93,6 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
 
         doUnloadScan(unloadScanDto);
 
-        // 刷新卸车进度缓存
-        refreshUnloadProgressCache(unloadScanDto);
-
-    }
-
-    private void refreshUnloadProgressCache(UnloadScanDto unloadScanDto) {
-        if (logger.isInfoEnabled()) {
-            logger.info("卸车扫描完成刷新扫描进度缓存. {}", unloadScanDto.getBizId());
-        }
-        unloadVehicleService.refreshUnloadAggCache(unloadScanDto.getBizId());
     }
 
     /**
