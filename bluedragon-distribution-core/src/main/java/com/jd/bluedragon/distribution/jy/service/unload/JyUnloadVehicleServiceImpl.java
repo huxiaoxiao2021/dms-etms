@@ -37,10 +37,7 @@ import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.JyUnloadTaskSignConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.NumberHelper;
-import com.jd.bluedragon.utils.RedisHashUtils;
+import com.jd.bluedragon.utils.*;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.jim.cli.Cluster;
 import com.jd.ump.annotation.JProEnum;
@@ -707,7 +704,12 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     @Transactional(value = "tm_jy_core",propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public JyBizTaskUnloadDto createUnloadTask(JyBizTaskUnloadDto dto){
+        //初始生成业务任务实体
         JyBizTaskUnloadVehicleEntity taskUnloadVehicleEntity = null;
+        //创建调度任务实体
+        JyBizTaskUnloadDto createScheduleTask = new JyBizTaskUnloadDto();
+        BeanCopyUtil.copy(dto,createScheduleTask);
+
         if(dto.getManualCreatedFlag() != null && Integer.valueOf(1).equals(dto.getManualCreatedFlag())){
             //无任务模式
             //计算生成BIZ_ID
@@ -716,6 +718,8 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
                 //初始化失败
                 throw new JyBizException(String.format("初始业务任务基础数据异常！无任务模式 车牌:%s",dto.getVehicleNumber()));
             }
+            //无任务模式补充BIZ_ID
+            createScheduleTask.setBizId(taskUnloadVehicleEntity.getBizId());
         }else{
             //防止上线初期运输数据未全部接入时 增加补数逻辑
             Long id = jyBizTaskUnloadVehicleService.findIdByBizId(dto.getBizId());
