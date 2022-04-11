@@ -24,12 +24,7 @@ public class OldReplaceFilter implements Filter {
     @Override
     public void doFilter(FilterContext request, FilterChain chain) throws Exception {
 
-        Rule rule1 = request.getRuleMap().get("1030");
-        if (WaybillCacheHelper.isReplacement(request.getWaybillCache())
-                && ! SiteHelper.matchSiteTypeRule(rule1.getContent(), request.getsReceiveSiteSubType())) {
-            throw  new SortingCheckException(SortingResponse.CODE_29104,
-                    HintService.getHintWithFuncModule(HintCodeConstants.OLD_FOR_NEW_WAYBILL, request.getFuncModule()));
-        }
+        // 2021年12月15日17:56:45  下线
 
         chain.doFilter(request, chain);
     }

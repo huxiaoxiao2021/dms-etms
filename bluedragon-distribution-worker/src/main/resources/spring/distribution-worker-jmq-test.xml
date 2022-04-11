@@ -376,5 +376,10 @@
     <jmq:consumer id="jmq.spotCheckNotifyConsumer" transport="jmq.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.spotCheckNotify}" listener="spotCheckNotifyConsumer"/>
     </jmq:consumer>
+
+    <!--B2B-TMS企配仓运单调度信息-->
+    <jmq:consumer id="jmq.b2bWaybillScheduleMqListener" transport="jmq.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.b2b.tms.bd.schedule.result}" listener="b2bWaybillScheduleMqListener"/>
+    </jmq:consumer>
 </beans>
 

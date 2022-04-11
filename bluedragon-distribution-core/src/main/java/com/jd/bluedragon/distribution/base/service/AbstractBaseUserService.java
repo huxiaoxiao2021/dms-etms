@@ -72,6 +72,8 @@ public abstract class AbstractBaseUserService implements LoginService {
 
     private static final String INSTALL_WARN = "应用版本过低，请重新安装，操作方法：海鸥->软件库->右上角搜索中输入青龙，按回车键->点[安装]";
 
+    protected static final String ANDROID_VERSION_NAME = "PDA_Android";
+
     /**
      * 当前应用的环境（prod-全国 pre-华中 uat-UAT test-测试）
      */

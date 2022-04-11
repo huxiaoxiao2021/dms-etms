@@ -33,7 +33,6 @@ public class UserSignRecord implements Serializable {
 	 * 员工ERP|拼音|身份证号
 	 */
 	private String userCode;
-
 	/**
 	 * 班次:1-白班 2-中班 3-晚班
 	 */
@@ -180,6 +179,10 @@ public class UserSignRecord implements Serializable {
 	 * 工作时长（单位：小时）
 	 */
 	private String workHours;
+	/**
+	 * 签到人员名称
+	 */
+	private String userName;
 	/**
 	 *
 	 * @param id
@@ -698,6 +701,14 @@ public class UserSignRecord implements Serializable {
 
 	public void setWorkHours(String workHours) {
 		this.workHours = workHours;
+	}
+
+	public String getUserName() {
+		return userName;
+	}
+
+	public void setUserName(String userName) {
+		this.userName = userName;
 	}
 
 

@@ -205,6 +205,15 @@ public class DmsConstants {
      * 冷链卡班
      */
     public static final String PRODUCT_TYPE_COLD_CHAIN_KB = "LL-KB-M";
+    
+    /**
+     * 工种类型
+     */
+    public static final String JOB_TYPE_REGEX = "^[1-6]$";
+    /**
+     * 身份证正则
+     */
+    public static final String ID_CARD_NO_REGEX = "(^\\d{18}$)|(^\\d{17}(\\d|X|x)$)";
 
     /**
      * 京仓、非京仓、外仓
@@ -225,6 +234,13 @@ public class DmsConstants {
      * 保温箱号规则，MZ开头，总长度14到16位
      */
     public static final Pattern WARM_BOX_CODE_REGEX = Pattern.compile("^MZ[A-Z0-9]{12,14}$");
+
+    /**
+     * APP版本号正则.
+     * 支持0.0.0，11.00.11，1.00.00，11.00.0，11.01.01，01.01.01，2.2
+     */
+    public static final Pattern APP_VERSION_REGEX = Pattern.compile("^([0-9]\\d|[0-9])(.([0-9]\\d|\\d)){1,2}$");
+
     /**
      * 预售异常原因-上级编码
      */

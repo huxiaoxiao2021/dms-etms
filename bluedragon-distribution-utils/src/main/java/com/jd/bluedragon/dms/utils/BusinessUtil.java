@@ -2223,5 +2223,105 @@ public class BusinessUtil {
                 && isSignInChars(waybillSign, WaybillSignConstants.POSITION_53, WaybillSignConstants.CHAR_53_1);
 
     }
+    /**
+     * 验证工种
+     * @param jobCodeStr
+     * @return
+     */
+    public static boolean isJobCode(String jobCodeStr){
+    	if(jobCodeStr == null
+    			|| jobCodeStr.length() == 0) {
+    		return false;
+    	}
+    	return jobCodeStr.matches(JOB_TYPE_REGEX);
+    }
+    /**
+     * 判断是否人员三定条码,一位数字
+     * @param scanUserCode
+     * @return
+     */
+    public static boolean isScanUserCode(String scanUserCode) {
+    	if(scanUserCode == null
+    			|| scanUserCode.length() < 2) {
+    		return false;
+    	}
+    	return isJobCode(scanUserCode.substring(0,1));
+    }
+    /**
+     * 判断是否人员三定条码,返回用户编码，否则返回null
+     * @param scanUserCode
+     * @return
+     */
+    public static String getUserCodeFromScanUserCode(String scanUserCode) {
+    	if(!isScanUserCode(scanUserCode)) {
+    		return null;
+    	}
+    	return scanUserCode.substring(1);
+    }
+    /**
+     * 判断是否人员三定条码,返回工种类型，否则返回null
+     * @param scanUserCode
+     * @return
+     */
+    public static Integer getJobCodeFromScanUserCode(String scanUserCode) {
+    	if(!isScanUserCode(scanUserCode)) {
+    		return null;
+    	}
+    	return Integer.parseInt(scanUserCode.substring(0,1));
+    }
+    /**
+     * 判断是否是身份证号
+     * @param userCode
+     * @return
+     */
+    public static boolean isIdCardNo(String userCode) {
+    	if(userCode == null) {
+    		return false;
+    	}
+    	return userCode.matches(ID_CARD_NO_REGEX);
+    }
+    /**
+     * 隐藏身份证号：是身份证，返回加密身份证号，第8位至15位显示为星号，否则返回原值
+     * @param idCard
+     * @return
+     */
+    public static String encryptIdCard(String idCard) {
+    	if(!isIdCardNo(idCard)) {
+    		return idCard;
+    	}
+    	return idCard.replaceAll("(\\w{4})\\w*(\\w{4})", "$1***$2");
+    }
+    /**
+     * APP版本大小比较
+     * @param appVersion 当前版本
+     * @param newestVersion 配置的最新版本
+     * @return true：需要升级
+     */
+    public static boolean appVersionCompare(String appVersion, String newestVersion) {
+        if (StringUtils.isBlank(appVersion) || StringUtils.isBlank(newestVersion)) {
+            return false;
+        }
 
+        Matcher curVersionMatcher = APP_VERSION_REGEX.matcher(appVersion);
+        Matcher newestVersionMatcher = APP_VERSION_REGEX.matcher(newestVersion);
+        if (!curVersionMatcher.matches() || !newestVersionMatcher.matches()) {
+            return false;
+        }
+
+        String[] versionArr = appVersion.split("\\.");
+        String[] newestVerArr = newestVersion.split("\\.");
+
+        int minDigit = Math.min(versionArr.length, newestVerArr.length);
+
+        for (int i = 0; i < minDigit; i++) {
+            if (Integer.parseInt(versionArr[i]) < Integer.parseInt(newestVerArr[i])) {
+                return true;
+            }
+            else if (Integer.parseInt(versionArr[i]) > Integer.parseInt(newestVerArr[i])){
+                return false;
+            }
+        }
+
+        return versionArr.length < newestVerArr.length;
+    }
 }
