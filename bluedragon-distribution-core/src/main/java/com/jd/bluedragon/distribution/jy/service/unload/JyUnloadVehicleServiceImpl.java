@@ -748,15 +748,15 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         }
 
         //创建卸车任务
-        JyScheduleTaskResp scheduleTaskResp =  createUnLoadScheduleTask(dto);
+        JyScheduleTaskResp scheduleTaskResp =  createUnLoadScheduleTask(createScheduleTask);
         boolean createFlag = scheduleTaskResp != null;
         if(!createFlag){
-            throw new JyBizException(String.format("创建新卸车调度任务失败！bizId:%s",dto.getBizId()));
+            throw new JyBizException(String.format("创建新卸车调度任务失败！bizId:%s",createScheduleTask.getBizId()));
         }
         JyBizTaskUnloadDto result = new JyBizTaskUnloadDto();
         result.setTaskId(scheduleTaskResp.getTaskId());
-        result.setBizId(taskUnloadVehicleEntity.getBizId());
-        result.setVehicleNumber(taskUnloadVehicleEntity.getVehicleNumber());
+        result.setBizId(createScheduleTask.getBizId());
+        result.setVehicleNumber(createScheduleTask.getVehicleNumber());
         return result;
     }
 

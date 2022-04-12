@@ -273,6 +273,10 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
             }
             entity.setFuzzyVehicleNumber(fvn);
         }
+        // 初始默认数据
+        if(entity.getManualCreatedFlag() == null){
+            entity.setManualCreatedFlag(0);
+        }
         // 锁定数据
         boolean result;
         try{

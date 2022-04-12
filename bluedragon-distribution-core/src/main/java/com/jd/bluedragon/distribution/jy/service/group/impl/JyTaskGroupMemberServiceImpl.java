@@ -7,7 +7,9 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
+import com.jd.bluedragon.common.dto.group.GroupMemberQueryRequest;
 import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.jy.dao.group.JyTaskGroupMemberDao;
 import com.jd.bluedragon.distribution.jy.group.JyGroupMemberEntity;
@@ -60,12 +62,21 @@ public class JyTaskGroupMemberServiceImpl implements JyTaskGroupMemberService {
 		result.toSuccess();
 		//查询小组在岗人员
 		JyGroupMemberQuery membersQuery = new JyGroupMemberQuery();
-		membersQuery.setRefGroupCode(startData.getRefGroupCode());
+		membersQuery.setGroupCode(startData.getRefGroupCode());
 		membersQuery.setStatus(JyGroupMemberStatusEnum.IN.getCode());
 		List<JyGroupMemberEntity> members = jyGroupMemberService.queryMemberListByGroup(membersQuery);
 		List<JyTaskGroupMemberEntity> taskMembers = new ArrayList<JyTaskGroupMemberEntity>();
+		GroupMemberQueryRequest memberCodeListQuery = new GroupMemberQueryRequest();
+		memberCodeListQuery.setTaskId(startData.getRefTaskId());
+		//查询任务下已存在的MemberCode
+		List<String> memberCodeList = jyTaskGroupMemberDao.queryMemberCodeListByTaskId(memberCodeListQuery);
+		boolean checkExist = !CollectionUtils.isEmpty(memberCodeList);
 		Date currentDate = new Date();
 		for(JyGroupMemberEntity member: members) {
+			//同一个任务一个MemberCode只能对应一条记录
+			if(checkExist && memberCodeList.contains(member.getMemberCode())) {
+				continue;
+			}
 			JyTaskGroupMemberEntity taskMember = new JyTaskGroupMemberEntity();
 			taskMember.setRefGroupMemberCode(member.getMemberCode());
 			taskMember.setRefGroupCode(member.getRefGroupCode());

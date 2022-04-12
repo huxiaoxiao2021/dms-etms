@@ -18,6 +18,10 @@ public class GroupMemberQueryRequest implements Serializable {
 	 */
 	private String groupCode;
 	/**
+	 * 任务id
+	 */
+	private String taskId;
+	/**
 	 * 状态
 	 */
 	private Integer status;
@@ -40,6 +44,14 @@ public class GroupMemberQueryRequest implements Serializable {
 
 	public void setGroupCode(String groupCode) {
 		this.groupCode = groupCode;
+	}
+
+	public String getTaskId() {
+		return taskId;
+	}
+
+	public void setTaskId(String taskId) {
+		this.taskId = taskId;
 	}
 
 	public Integer getStatus() {
