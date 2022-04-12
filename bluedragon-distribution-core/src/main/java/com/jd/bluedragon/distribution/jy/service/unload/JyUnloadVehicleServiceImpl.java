@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.jy.service.unload;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.BarCodeLabelOptionEnum;
@@ -36,10 +37,7 @@ import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.JyUnloadTaskSignConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.NumberHelper;
-import com.jd.bluedragon.utils.RedisHashUtils;
+import com.jd.bluedragon.utils.*;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.jim.cli.Cluster;
 import com.jd.ump.annotation.JProEnum;
@@ -671,13 +669,15 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
             return result;
         }
 
-        String progressCacheKey = genUnloadDetailCacheKey(request.getBizId());
-        Map<String, String> hashRedisMap = redisClientOfJy.hGetAll(progressCacheKey);
+        // 暂时去掉缓存读数据库。需要在接收agg时写入缓存。
+        Map<String, String> hashRedisMap = Maps.newHashMap();
 
         if (MapUtils.isEmpty(hashRedisMap)) {
             log.warn("卸车进度缓存不存在主动刷新. {}", JsonHelper.toJson(request));
             refreshUnloadAggCache(request.getBizId());
         }
+        String progressCacheKey = genUnloadDetailCacheKey(request.getBizId());
+        hashRedisMap = redisClientOfJy.hGetAll(progressCacheKey);
 
         try {
             UnloadDetailCache redisCache = RedisHashUtils.mapConvertBean(hashRedisMap, UnloadDetailCache.class);
@@ -704,7 +704,12 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     @Transactional(value = "tm_jy_core",propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public JyBizTaskUnloadDto createUnloadTask(JyBizTaskUnloadDto dto){
+        //初始生成业务任务实体
         JyBizTaskUnloadVehicleEntity taskUnloadVehicleEntity = null;
+        //创建调度任务实体
+        JyBizTaskUnloadDto createScheduleTask = new JyBizTaskUnloadDto();
+        BeanCopyUtil.copy(dto,createScheduleTask);
+
         if(dto.getManualCreatedFlag() != null && Integer.valueOf(1).equals(dto.getManualCreatedFlag())){
             //无任务模式
             //计算生成BIZ_ID
@@ -713,6 +718,8 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
                 //初始化失败
                 throw new JyBizException(String.format("初始业务任务基础数据异常！无任务模式 车牌:%s",dto.getVehicleNumber()));
             }
+            //无任务模式补充BIZ_ID
+            createScheduleTask.setBizId(taskUnloadVehicleEntity.getBizId());
         }else{
             //防止上线初期运输数据未全部接入时 增加补数逻辑
             Long id = jyBizTaskUnloadVehicleService.findIdByBizId(dto.getBizId());
@@ -741,15 +748,15 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         }
 
         //创建卸车任务
-        JyScheduleTaskResp scheduleTaskResp =  createUnLoadScheduleTask(dto);
+        JyScheduleTaskResp scheduleTaskResp =  createUnLoadScheduleTask(createScheduleTask);
         boolean createFlag = scheduleTaskResp != null;
         if(!createFlag){
-            throw new JyBizException(String.format("创建新卸车调度任务失败！bizId:%s",dto.getBizId()));
+            throw new JyBizException(String.format("创建新卸车调度任务失败！bizId:%s",createScheduleTask.getBizId()));
         }
         JyBizTaskUnloadDto result = new JyBizTaskUnloadDto();
         result.setTaskId(scheduleTaskResp.getTaskId());
-        result.setBizId(taskUnloadVehicleEntity.getBizId());
-        result.setVehicleNumber(taskUnloadVehicleEntity.getVehicleNumber());
+        result.setBizId(createScheduleTask.getBizId());
+        result.setVehicleNumber(createScheduleTask.getVehicleNumber());
         return result;
     }
 

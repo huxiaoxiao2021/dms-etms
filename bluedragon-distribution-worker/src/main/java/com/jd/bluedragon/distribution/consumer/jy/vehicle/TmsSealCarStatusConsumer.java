@@ -261,10 +261,7 @@ public class TmsSealCarStatusConsumer extends MessageBaseConsumer {
             logger.info("TmsSealCarStatusConsumer获取封车信息返回数据 {},{}",sealCarCode,JsonHelper.toJson(sealCarCode));
         }
         if(sealCarDtoCommonDto == null || Constants.RESULT_SUCCESS != sealCarDtoCommonDto.getCode()){
-            throw new JyBizException("querySealCarInfoBySealCarCode fail!");
-        }
-        if(sealCarDtoCommonDto.getData() == null || StringUtils.isEmpty(sealCarDtoCommonDto.getData().getTransWorkItemCode())){
-            throw new JyBizException("querySealCarInfoBySealCarCode null!");
+            return null;
         }
         return sealCarDtoCommonDto.getData();
     }

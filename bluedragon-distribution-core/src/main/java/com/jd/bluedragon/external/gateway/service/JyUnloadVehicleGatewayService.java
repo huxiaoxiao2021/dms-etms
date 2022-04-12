@@ -23,7 +23,7 @@ public interface JyUnloadVehicleGatewayService {
      * @param request
      * @return
      */
-    JdCResponse<Boolean> createNoTaskUnloadTask(UnloadNoTaskRequest request);
+    JdCResponse<UnloadNoTaskResponse> createNoTaskUnloadTask(UnloadNoTaskRequest request);
 
     /**
      * 卸车任务列表
