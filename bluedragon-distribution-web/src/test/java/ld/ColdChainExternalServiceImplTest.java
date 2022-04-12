@@ -1,8 +1,10 @@
 package ld;
 
+import com.jd.bluedragon.common.dto.operation.workbench.unload.request.UnloadVehicleTaskRequest;
 import com.jd.bluedragon.distribution.coldChain.domain.*;
 import com.jd.bluedragon.distribution.coldchain.service.ColdChainExternalServiceImpl;
 import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
+import com.jd.bluedragon.distribution.jy.service.unload.IJyUnloadVehicleService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import org.junit.Assert;
 import org.junit.Test;
@@ -108,5 +110,23 @@ public class ColdChainExternalServiceImplTest {
         InvokeResult<Boolean> result =  coldChainExternalService.sendOfKY(req);
 
         Assert.assertTrue(result.getCode() == InvokeResult.RESULT_SUCCESS_CODE);
+    }
+
+
+    @Autowired
+    private IJyUnloadVehicleService unloadVehicleService;
+
+    @Test
+    public void fetchUnloadTaskTest() {
+        UnloadVehicleTaskRequest request = new UnloadVehicleTaskRequest();
+        request.setPageNumber(1);
+        request.setPageSize(230);
+        request.setEndSiteCode(910);
+        request.setVehicleStatus(3);
+//        request.setBarCode();
+//        request.setLineType();
+//        request.setFetchType();
+
+        unloadVehicleService.fetchUnloadTask(request);
     }
 }

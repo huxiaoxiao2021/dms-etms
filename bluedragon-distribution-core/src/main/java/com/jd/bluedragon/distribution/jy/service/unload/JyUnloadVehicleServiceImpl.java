@@ -379,7 +379,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         condition.setEndSiteId(request.getEndSiteCode().longValue());
         condition.setVehicleStatus(request.getVehicleStatus());
         condition.setLineType(request.getLineType());
-        if (!WaybillUtil.isPackageCode(request.getBarCode())) {
+        if (StringUtils.isNotBlank(request.getBarCode()) && !WaybillUtil.isPackageCode(request.getBarCode())) {
             condition.setFuzzyVehicleNumber(request.getBarCode());
         }
 
@@ -501,14 +501,14 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
      * @return
      */
     private JyUnloadAggsEntity sumUnloadAgg(String bizId) {
-
         JyUnloadAggsEntity retAgg = new JyUnloadAggsEntity();
-        retAgg.setBizId(bizId);
+
         List<JyUnloadAggsEntity> aggList = unloadAggDao.queryByBizId(new JyUnloadAggsEntity(bizId));
         if (CollectionUtils.isEmpty(aggList)) {
             return retAgg;
         }
 
+        retAgg.setBizId(bizId);
         retAgg.setTotalScannedPackageCount(aggList.get(0).getTotalScannedPackageCount());
         retAgg.setTotalSealPackageCount(aggList.get(0).getTotalSealPackageCount());
 
