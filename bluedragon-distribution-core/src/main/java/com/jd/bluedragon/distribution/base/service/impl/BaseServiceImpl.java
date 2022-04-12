@@ -917,8 +917,9 @@ public class BaseServiceImpl extends AbstractClient implements BaseService, ErpV
      * @time 2022-04-11 16:47:33 周一
      */
     @Override
-    public MenuUsageProcessDto getAndroidMenuUsageConfig(MenuUsageConfigRequestDto menuUsageConfigRequestDto) {
-        log.info("BaseServiceImpl.getAndroidMenuUsageConfig param {}", menuUsageConfigRequestDto);
+    public MenuUsageProcessDto getClientMenuUsageConfig(MenuUsageConfigRequestDto menuUsageConfigRequestDto) {
+        log.info("BaseServiceImpl.getClientMenuUsageConfig param {}", menuUsageConfigRequestDto);
+
         final SysConfig sysConfig = sysConfigService.findConfigContentByConfigName(Constants.SYS_CONFIG_ANDROID_MENU_USAGE + menuUsageConfigRequestDto.getMenuCode());
         if (sysConfig == null) {
             return null;
@@ -934,18 +935,21 @@ public class BaseServiceImpl extends AbstractClient implements BaseService, ErpV
         }
 
         if(CollectionUtils.isEmpty(conditionConfig.getSiteType()) && CollectionUtils.isEmpty(conditionConfig.getSiteSubType())
-                && CollectionUtils.isEmpty(conditionConfig.getSiteSortType()) && CollectionUtils.isEmpty(conditionConfig.getSiteSubType()) && CollectionUtils.isEmpty(conditionConfig.getSiteSortThirdType())){
+                && CollectionUtils.isEmpty(conditionConfig.getSiteSortType()) && CollectionUtils.isEmpty(conditionConfig.getSiteSortSubType()) && CollectionUtils.isEmpty(conditionConfig.getSiteSortThirdType())){
             return menuUsageConfigDto.getProcess();
         }
 
         final CurrentOperate currentOperate = menuUsageConfigRequestDto.getCurrentOperate();
         final int siteCode = currentOperate.getSiteCode();
         final BaseSiteInfoDto siteInfo = baseMajorManager.getBaseSiteInfoBySiteId(siteCode);
+        if (siteInfo == null) {
+            return null;
+        }
         if((CollectionUtils.isEmpty(conditionConfig.getSiteType()) || (siteInfo.getSiteType() != null && conditionConfig.getSiteType().contains(siteInfo.getSiteType())))
                 && (CollectionUtils.isEmpty(conditionConfig.getSiteSubType()) || (siteInfo.getSubType() != null && conditionConfig.getSiteSubType().contains(siteInfo.getSubType())))
-                && (CollectionUtils.isEmpty(conditionConfig.getSiteSubType()) || (siteInfo.getSortType() != null && conditionConfig.getSiteSubType().contains(siteInfo.getSortType())))
-                && (CollectionUtils.isEmpty(conditionConfig.getSiteSubType()) || (siteInfo.getSortSubType() != null && conditionConfig.getSiteSubType().contains(siteInfo.getSortSubType())))
-                && (CollectionUtils.isEmpty(conditionConfig.getSiteSubType()) || (siteInfo.getSortThirdType() != null && conditionConfig.getSiteSubType().contains(siteInfo.getSortThirdType())))){
+                && (CollectionUtils.isEmpty(conditionConfig.getSiteSortType()) || (siteInfo.getSortType() != null && conditionConfig.getSiteSortType().contains(siteInfo.getSortType())))
+                && (CollectionUtils.isEmpty(conditionConfig.getSiteSortSubType()) || (siteInfo.getSortSubType() != null && conditionConfig.getSiteSortSubType().contains(siteInfo.getSortSubType())))
+                && (CollectionUtils.isEmpty(conditionConfig.getSiteSortThirdType()) || (siteInfo.getSortThirdType() != null && conditionConfig.getSiteSortThirdType().contains(siteInfo.getSortThirdType())))){
             return menuUsageConfigDto.getProcess();
         }
         return null;
