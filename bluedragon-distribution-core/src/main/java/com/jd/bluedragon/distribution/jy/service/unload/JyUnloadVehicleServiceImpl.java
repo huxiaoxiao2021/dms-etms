@@ -1292,10 +1292,13 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         JyVehicleTaskUnloadDetail searchVo = new JyVehicleTaskUnloadDetail();
         pager.setSearchVo(searchVo);
 
+        // 多扫查询条件
         searchVo.setOperateSiteId(request.getCurrentOperate().getSiteCode());
         searchVo.setBizId(request.getBizId());
         searchVo.setMoreScanFlag(Constants.CONSTANT_NUMBER_ONE); // 多扫
 
+        // 待扫查询条件
+        searchVo.setSealCarCode(request.getBizId());
         searchVo.setScannedFlag(Constants.NUMBER_ZERO); // 待扫
         searchVo.setEndSiteId(request.getCurrentOperate().getSiteCode());
         return pager;
