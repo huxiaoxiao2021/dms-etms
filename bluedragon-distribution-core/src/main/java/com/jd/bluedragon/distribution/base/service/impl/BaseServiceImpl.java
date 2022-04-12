@@ -929,6 +929,9 @@ public class BaseServiceImpl extends AbstractClient implements BaseService, ErpV
             return null;
         }
         final MenuUsageConditionConfigDto conditionConfig = menuUsageConfigDto.getCondition();
+        if (conditionConfig == null) {
+            return menuUsageConfigDto.getProcess();
+        }
 
         if(CollectionUtils.isEmpty(conditionConfig.getSiteType()) && CollectionUtils.isEmpty(conditionConfig.getSiteSubType())
                 && CollectionUtils.isEmpty(conditionConfig.getSiteSortType()) && CollectionUtils.isEmpty(conditionConfig.getSiteSubType()) && CollectionUtils.isEmpty(conditionConfig.getSiteSortThirdType())){
