@@ -111,7 +111,9 @@ public class JyBizTaskUnloadVehicleDao extends BaseDao<JyBizTaskUnloadVehicleEnt
     public List<JyBizTaskUnloadVehicleEntity> findByConditionOfPage(JyBizTaskUnloadVehicleEntity condition, JyBizTaskUnloadOrderTypeEnum typeEnum, Integer offset, Integer limit) {
         Map<String,Object> params = new HashMap<>();
         params.put("entity",condition);
-        params.put("orderType",typeEnum.getCode());
+        if(typeEnum != null) {
+            params.put("orderType",typeEnum.getCode());
+        }
         params.put("offset",offset);
         params.put("limit",limit);
         return this.getSqlSession().selectList(NAMESPACE + ".findByConditionOfPage", params);
