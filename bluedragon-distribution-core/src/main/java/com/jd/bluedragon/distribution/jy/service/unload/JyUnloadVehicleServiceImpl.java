@@ -376,7 +376,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         condition.setEndSiteId(request.getEndSiteCode().longValue());
         condition.setVehicleStatus(request.getVehicleStatus());
         condition.setLineType(request.getLineType());
-        if (!WaybillUtil.isPackageCode(request.getBarCode())) {
+        if (StringUtils.isNotBlank(request.getBarCode()) && !WaybillUtil.isPackageCode(request.getBarCode())) {
             condition.setFuzzyVehicleNumber(request.getBarCode());
         }
 
