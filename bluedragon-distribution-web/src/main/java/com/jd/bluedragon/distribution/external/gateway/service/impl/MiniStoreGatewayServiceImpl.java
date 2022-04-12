@@ -45,7 +45,7 @@ public class MiniStoreGatewayServiceImpl implements MiniStoreGatewayService {
     private DefaultJMQProducer miniStoreSealBoxProducer;
 
     @Override
-    public JdCResponse validateDeviceStatus(@Valid @NotNull(message = "校验参数不能为空！") DeviceStatusValidateReq request) {
+    public JdCResponse validateDeviceStatus(DeviceStatusValidateReq request) {
 
         if (ObjectHelper.isNotNull(request.getStoreCode())) {
             Integer availableStatus = swDeviceJsfService.isDeviceUse(request.getStoreCode());
