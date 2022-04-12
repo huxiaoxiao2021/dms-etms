@@ -25,6 +25,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @UnifiedExceptionProcess
@@ -43,9 +45,8 @@ public class MiniStoreGatewayServiceImpl implements MiniStoreGatewayService {
     private DefaultJMQProducer miniStoreSealBoxProducer;
 
     @Override
-    public JdCResponse validateDeviceStatus(DeviceStatusValidateReq request) {
-        //调用保温箱jsf接口查询报文箱子可用状态
-        Assert.assertNotNull(request);
+    public JdCResponse validateDeviceStatus(@Valid @NotNull(message = "校验参数不能为空！") DeviceStatusValidateReq request) {
+
         if (ObjectHelper.isNotNull(request.getStoreCode())) {
             Integer availableStatus = swDeviceJsfService.isDeviceUse(request.getStoreCode());
             if (!SwDeviceStatusEnum.AVAILABLE.getCode().equals(availableStatus)) {

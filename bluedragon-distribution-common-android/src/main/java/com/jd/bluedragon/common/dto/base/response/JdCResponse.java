@@ -181,6 +181,10 @@ public class JdCResponse<E> implements Serializable {
 		return generateAPIResponse(ResponseCodeMapping.SUCCESS, data);
 	}
 
+	public static JdCResponse errorResponse(Integer code,String message) {
+		return generateAPIResponse(code, message);
+	}
+
 	public static JdCResponse errorResponse(ResponseCodeMapping responseCodeMapping) {
 		return generateAPIResponse(responseCodeMapping, null);
 	}
@@ -195,6 +199,12 @@ public class JdCResponse<E> implements Serializable {
 		apiResponse.setCode(responseCodeMapping.getCode());
 		apiResponse.setMessage(responseCodeMapping.getMessage());
 		apiResponse.setData(data);
+		return apiResponse;
+	}
+	private static JdCResponse generateAPIResponse(Integer code, String message) {
+		JdCResponse apiResponse = new JdCResponse();
+		apiResponse.setCode(code);
+		apiResponse.setMessage(message);
 		return apiResponse;
 	}
 
