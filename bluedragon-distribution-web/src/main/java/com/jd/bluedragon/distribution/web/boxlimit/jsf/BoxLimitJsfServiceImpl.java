@@ -83,8 +83,13 @@ public class BoxLimitJsfServiceImpl extends DmsBaseController implements BoxLimi
         try {
             return boxLimitService.importData(dataList, getLoginUser());
         } catch (Exception e) {
-            this.log.error("导入异常!", e);
+            this.log.error("导入异常!-{}", e.getMessage(),e);
             return new JdResponse(JdResponse.CODE_FAIL, e.getMessage());
         }
+    }
+
+    @Override
+    public JdResponse<Integer> countByCondition(BoxLimitQueryDTO dto) {
+        return boxLimitService.countByCondition(dto);
     }
 }

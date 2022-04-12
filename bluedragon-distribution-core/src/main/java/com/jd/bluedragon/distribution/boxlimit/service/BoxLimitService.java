@@ -55,4 +55,11 @@ public interface BoxLimitService {
      */
     Integer queryCommonLimitNum(String boxNumberType);
 
+    /**
+     * 查询符合条件的数据条数
+     * @param dto
+     * @return
+     */
+    JdResponse<Integer> countByCondition(BoxLimitQueryDTO dto);
+
 }

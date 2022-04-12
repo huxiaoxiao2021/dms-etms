@@ -693,12 +693,6 @@ public class UccPropertyConfiguration {
      * 开关：0不关闭入口；1关闭基础资料维护入口；2关闭耗材明细的增加和删除按钮；3关闭两者
      */
     private Integer packConsumableSwitch;
-
-    /**
-     * 箱号类型集合
-     */
-    private String boxNumberTypes;
-
     public String getScheduleSiteCheckSameCity() {
         return scheduleSiteCheckSameCity;
     }
@@ -1743,13 +1737,5 @@ public class UccPropertyConfiguration {
 
     public void setPackConsumableSwitch(Integer packConsumableSwitch) {
         this.packConsumableSwitch = packConsumableSwitch;
-    }
-
-    public String getBoxNumberTypes() {
-        return boxNumberTypes;
-    }
-
-    public void setBoxNumberTypes(String boxNumberTypes) {
-        this.boxNumberTypes = boxNumberTypes;
     }
 }

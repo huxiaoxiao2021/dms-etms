@@ -82,4 +82,8 @@ public class BoxLimitConfigDao extends BaseDao<BoxLimitConfig> {
     public Integer queryCommonLimitNum(String boxNumberType){
         return this.getSqlSession().selectOne(namespace+".queryCommonLimitNum", boxNumberType);
     }
+
+    public int batchUpdate(List<BoxLimitConfig> dtos){
+        return this.getSqlSession().update(namespace+".batchUpdate", dtos);
+    }
 }

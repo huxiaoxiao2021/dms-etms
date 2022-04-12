@@ -53,4 +53,11 @@ public interface BoxLimitJsfService {
      */
     JdResponse toImport(List<BoxLimitTemplateVO> dataList);
 
+    /**
+     * 查询符合条件的数据条数
+     * @param dto
+     * @return
+     */
+    JdResponse<Integer> countByCondition(BoxLimitQueryDTO dto);
+
 }

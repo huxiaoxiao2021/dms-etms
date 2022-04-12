@@ -177,7 +177,10 @@
      operating_time,
      create_time,
      update_time,
-     yn)
+     yn,
+     config_type,
+     box_number_type
+     )
     values
     <foreach collection="list" item="item" separator=",">
       (
@@ -190,7 +193,10 @@
        #{item.operatingTime,jdbcType=TIMESTAMP},
        #{item.createTime,jdbcType=TIMESTAMP},
        #{item.updateTime,jdbcType=TIMESTAMP},
-       #{item.yn,jdbcType=BOOLEAN})
+       #{item.yn,jdbcType=BOOLEAN},
+       #{item.configType,jdbcType=TINYINT},
+       #{item.boxNumberType,jdbcType=VARCHAR}
+       )
     </foreach>
   </insert>
 
@@ -264,6 +270,21 @@
   <select id="queryCommonLimitNum" resultType="java.lang.Integer">
     select limit_num from box_limit_config where yn = 1 and  config_type=1 and box_number_type = #{boxNumberType}
   </select>
+
+  <update id="batchUpdate" parameterType="java.util.List">
+    update  box_limit_config
+    <trim prefix="set" suffixOverrides=",">
+      <trim prefix="limit_num =case" suffix="end,">
+        <foreach collection="list" item="item" index="index">
+            when id=#{item.id,jdbcType=BIGINT} then #{item.limitNum,jdbcType=INTEGER}
+        </foreach>
+      </trim>
+    </trim>
+        where id in
+    <foreach collection="list" index="index" item="item" separator="," open="(" close=")">
+        #{item.id,jdbcType=BIGINT}
+    </foreach>
+  </update>
 
 
 </mapper>
