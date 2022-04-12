@@ -102,6 +102,8 @@ public class SealCarDto implements Serializable {
      */
     private List<String> selectedSendCodes;
 
+    private String billCode;
+
     @Override
     public String toString() {
         return "SealCarDto{" +
@@ -122,6 +124,7 @@ public class SealCarDto implements Serializable {
                 ", palletCount='" + palletCount + '\'' +
                 ", transWay='" + transWay + '\'' +
                 ", transWayName='" + transWayName + '\'' +
+                ", billCode='" + billCode + '\'' +
                 '}';
     }
 
@@ -268,4 +271,12 @@ public class SealCarDto implements Serializable {
 	public void setSelectedSendCodes(List<String> selectedSendCodes) {
 		this.selectedSendCodes = selectedSendCodes;
 	}
+
+    public String getBillCode() {
+        return billCode;
+    }
+
+    public void setBillCode(String billCode) {
+        this.billCode = billCode;
+    }
 }
