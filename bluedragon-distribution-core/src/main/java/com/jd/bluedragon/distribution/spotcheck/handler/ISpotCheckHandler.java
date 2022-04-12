@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.spotcheck.handler;
 
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckDto;
+import com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckResult;
 
 /**
  * 类的描述
@@ -16,14 +17,7 @@ public interface ISpotCheckHandler {
      * @param spotCheckDto
      * @return
      */
-    InvokeResult<Integer> checkIsExcess(SpotCheckDto spotCheckDto);
-
-    /**
-     * 抽检数据处理
-     * @param spotCheckDto
-     * @return
-     */
-    InvokeResult<Boolean> dealSpotCheckData(SpotCheckDto spotCheckDto);
+    InvokeResult<SpotCheckResult> checkExcess(SpotCheckDto spotCheckDto);
 
     /**
      * 抽检处理

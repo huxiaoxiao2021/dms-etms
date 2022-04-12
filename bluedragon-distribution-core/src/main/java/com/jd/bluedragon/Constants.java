@@ -677,7 +677,8 @@ public class Constants {
     public static final String DMS_WEB_PTORDER_RECEIVE_R="DMS-WEB-PTORDER-RECEIVE-R"; //平台实收查询
     public static final String DMS_WEB_SORTING_RECEIVEWEIGHTCHECK_R="DMS-WEB-SORTING-RECEIVEWEIGHTCHECK-R"; //揽收重量校验统计
     public static final String DMS_WEB_SORTING_WEIGHTANDVOLUMECHECK_R="DMS-WEB-SORTING-WEIGHTANDVOLUMECHECK-R"; //重量体积抽验统计
-    public static final String DMS_WEB_SORTING_WEIGHTANDVOLUMECHECKOFB2B_R="DMS-WEB-SORTING-WEIGHTANDVOLUMECHECKOFB2B-R"; //重量体积抽检
+    public static final String DMS_WEB_SORTING_SPOT_CHECK_REPORT_R="DMS-WEB-SORTING-SPOT-CHECK-REPORT-R"; //抽检报表
+    public static final String DMS_WEB_SORTING_WEIGHTANDVOLUMECHECKOFB2B_R="DMS-WEB-SORTING-WEIGHTANDVOLUMECHECKOFB2B-R"; //人工抽检
     public static final String DMS_WEB_SORTING_REVIEWWEIGHTSPOTCHECK_R="DMS-WEB-SORTING-REVIEWWEIGHTSPOTCHECK-R"; //复重抽检任务导入
     public static final String DMS_WEB_SORTING_REVIEWWEIGHTSPOTCHECK_SPECIAL_R="DMS-WEB-SORTING-REVIEWWEIGHTSPOTCHECK-SPECIAL-R"; //复重抽检任务的导入功能（单独申请权限）
     public static final String DMS_WEB_UNLOAD_CAR_TASK_R="DMS_WEB_UNLOAD_CAR_TASK_R"; //卸车任务分配
@@ -814,6 +815,12 @@ public class Constants {
     public static final String SYS_CONFIG_CLIENT_RUNNING_MODE_PRE = "sys.config.client.runningMode.";
 
     public static final String SYS_CONFIG_CROUTER_OPEN_DMS_CODES= "crouter.verify.allowed";
+
+    /**
+     * 安卓菜单可用性配置
+     */
+    public static final String SYS_CONFIG_ANDROID_MENU_USAGE= "android_menu_usage_";
+
     /**
      * 是否启用中台创建箱号开关key
      */
@@ -1636,6 +1643,11 @@ public class Constants {
     public static final String PRODUCT_TYPE_MEDICAL_LESS_FREIGHT = "LL-YYLD-M";
 
     public static final String TOTAL_URL_INTERCEPTOR = "*";
+    /**
+     * 用户有效标识
+     */
+    public static final Integer FLAG_USER_Is_Resign = 1;
+    
 
 
 }

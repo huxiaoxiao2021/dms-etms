@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.UnloadCar;
 
+import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.domain.LoginUser;
@@ -16,6 +17,7 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.uim.annotation.Authorization;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,16 +70,31 @@ public class UnloadCarTaskController extends DmsBaseController {
     @ResponseBody
     @Authorization(Constants.DMS_WEB_UNLOAD_CAR_TASK_R)
     public JdResponse distributeTask(@RequestBody DistributeTaskRequest request) {
+        log.info("distributeTask|分配卸车任务:request={}", JSON.toJSONString(request));
         JdResponse result = new JdResponse<>();
         ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
         if (erpUser != null) {
             request.setUpdateUserErp(erpUser.getUserCode());
             request.setUpdateUserName(erpUser.getUserName());
             try {
+                BaseStaffSiteOrgDto baseStaffSiteOrgDto = baseMajorManager.getBaseStaffByErpNoCache(request.getUnloadUserErp());
+                if (baseStaffSiteOrgDto == null) {
+                    log.warn("distributeTask|分配卸车任务的负责人erp不存在:request={}", JSON.toJSONString(request));
+                    result.toFail("卸车负责人ERP不存在，请确认erp是否输入正确");
+                    return result;
+                }
+                String staffName = baseStaffSiteOrgDto.getStaffName();
+                // 如果分配的负责人姓名为空或者与青龙基础资料不一致，则以青龙基础资料为准
+                if (StringUtils.isBlank(request.getUnloadUserName()) || !request.getUnloadUserName().equals(staffName)) {
+                    if (StringUtils.isNotBlank(staffName)) {
+                        request.setUnloadUserName(staffName);
+                    }
+                }
                 if (unloadCarService.distributeTask(request)) {
                     result.setCode(JdResponse.CODE_SUCCESS);
                     result.setMessage(JdResponse.MESSAGE_SUCCESS);
                 }
+
             } catch (LoadIllegalException e) {
                 log.error("分配卸车任务发生异常：e=", e);
                 result.setCode(JdResponse.CODE_FAIL);
@@ -100,6 +117,8 @@ public class UnloadCarTaskController extends DmsBaseController {
         BaseStaffSiteOrgDto baseStaffSiteOrgDto = baseMajorManager.getBaseStaffByErpNoCache(unloadUser);
         if(baseStaffSiteOrgDto != null){
             result.setData(baseStaffSiteOrgDto.getStaffName());
+        } else {
+            result.toFail("卸车负责人ERP不存在，请确认erp是否输入正确");
         }
         return result;
     }

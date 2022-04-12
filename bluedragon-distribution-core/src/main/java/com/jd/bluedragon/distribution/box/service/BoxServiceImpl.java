@@ -20,6 +20,7 @@ import com.jd.bluedragon.distribution.box.constants.BoxTypeEnum;
 import com.jd.bluedragon.distribution.box.dao.BoxDao;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.domain.BoxStatusEnum;
+import com.jd.bluedragon.distribution.box.domain.BoxSystemTypeEnum;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.crossbox.domain.CrossBoxResult;
 import com.jd.bluedragon.distribution.crossbox.service.CrossBoxService;
@@ -51,6 +52,8 @@ import org.springframework.util.Assert;
 import javax.annotation.Resource;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+
+import static com.jd.bluedragon.distribution.box.constants.BoxTypeEnum.RECYCLE_BASKET;
 
 @Service("boxService")
 public class BoxServiceImpl implements BoxService {
@@ -180,6 +183,20 @@ public class BoxServiceImpl implements BoxService {
      */
 	private List<Box> batchAddNewFromDMS(Box param, String systemType) {
         List<Box> boxes = Lists.newArrayList();
+		List<String> codes = generateCode(param, systemType);
+		for(String code :codes){
+
+			Box box = new Box();
+			BeanHelper.copyProperties(box, param);
+			box.setCode(code);
+			box.setBoxSource(systemType);
+			boxes.add(box);
+			this.add(box);
+		}
+		return boxes;
+	}
+
+	private List<String> generateCode(Box param, String systemType){
 		String boxCodePrefix = null;
 		long[] seqNos = new long[0];
 		boolean dbOpen = isOpenDB();
@@ -194,19 +211,27 @@ public class BoxServiceImpl implements BoxService {
 				seqNos = generateBoxCodeSeqNoNew(param,boxCodePrefix, param.getQuantity(),true);
 			}
 		}
-		for(long seqNo :seqNos){
-			if(seqNo >= 100000000){
-				throw new RuntimeException("箱号序列号超限"+boxCodePrefix);
-			}
-			Box box = new Box();
-			BeanHelper.copyProperties(box, param);
-			box.setCode(boxCodePrefix +RandomUtils.generateString(1)+ StringHelper.padZero(seqNo) + StringHelper.padZero((seqNo % 31),2));
-			box.setBoxSource(systemType);
-			boxes.add(box);
-			this.add(box);
+		if(seqNos.length == 0){
+			throw new RuntimeException("箱号生成序列号异常" + boxCodePrefix);
 		}
-		return boxes;
+		List<String> codes = new ArrayList<>(seqNos.length);
+		for(long seqNo :seqNos) {
+			if (seqNo >= 100000000) {
+				throw new RuntimeException("箱号序列号超限" + boxCodePrefix);
+			}
+			codes.add(boxCodePrefix +RandomUtils.generateString(1)+ StringHelper.padZero(seqNo) + StringHelper.padZero((seqNo % 31),2));
+		}
+		return codes;
 	}
+
+	@Override
+	public List<String> generateRecycleBasketCode(int quantity){
+		Box param = new Box();
+		param.setType(BoxTypeEnum.RECYCLE_BASKET.getCode());
+		param.setQuantity(quantity);
+		return generateCode(param, BoxSystemTypeEnum.PRINT_CLIENT.getCode());
+	}
+
 
 
 	/**

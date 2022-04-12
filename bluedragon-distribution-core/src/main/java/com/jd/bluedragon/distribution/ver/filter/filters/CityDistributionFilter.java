@@ -34,31 +34,7 @@ public class CityDistributionFilter implements Filter {
     public void doFilter(FilterContext request, FilterChain chain) throws Exception {
 
         logger.info("do CityDistributionFilter process...");
-        if (BusinessUtil.isUrban(request.getWaybillCache().getWaybillSign(), request.getWaybillCache().getSendPay())) {
-            TransBillScheduleResponse response = new TransBillScheduleResponse();
-            if (BusinessUtil.isBoxcode(request.getBoxCode())) {
-                TransBillScheduleRequest transBillScheduleRequest = new TransBillScheduleRequest();
-                transBillScheduleRequest.setBoxCode(request.getBoxCode());
-                transBillScheduleRequest.setWaybillCode(request.getWaybillCode());
-                response = this.checkScheduleBill(transBillScheduleRequest);
-
-                if (response != null
-                        && request.getBoxCode().equals(response.getBoxCode())
-                        && request.getWaybillCode().equals(response.getWaybillCode())
-                        && response.getSameScheduleBill()) {
-                    this.logger.info("城配拦截通过" + response.toString());
-                    if (StringUtils.isNotBlank(response.getRoadCode())) {
-                        request.getWaybillCache().setRoadCode(response.getRoadCode());
-                    }
-                } else {
-                    if (response != null) {
-                        this.logger.info("城配拦截未通过" + response.toString());
-                    }
-                    throw new SortingCheckException(SortingResponse.CODE_29212, HintService.getHintWithFuncModule(HintCodeConstants.BOX_BIND_TRANS_BILL, request.getFuncModule()));
-                }
-
-            }
-        }
+        // 2021年12月15日17:53:42 移除
         chain.doFilter(request, chain);
     }
 

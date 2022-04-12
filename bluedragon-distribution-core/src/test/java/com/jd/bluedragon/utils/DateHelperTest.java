@@ -78,4 +78,16 @@ public class DateHelperTest {
 			System.out.println("----:" + DateHelper.parseTmsCarTime("2021-01-01",dateStr));
 		}
 	}
+	@Test
+	public void testHoursToHHMM() {
+		double[] dateStrList = new double[]{
+				1.5,
+				0.1,
+				0.15,
+				0.5,
+				};
+		for (double dateStr : dateStrList) {
+			System.out.println("----:" + DateHelper.hoursToHHMM(dateStr));
+		}
+	}
 }

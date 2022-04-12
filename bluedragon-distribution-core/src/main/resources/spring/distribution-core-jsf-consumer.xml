@@ -820,4 +820,52 @@
                   protocol="jsf" alias="${jsf.coldchain.eclp.reverse.alias}" timeout="${jsf.coldchain.eclp.reverse.alias.timeout}"
                   retries="${jsf.retries}" >
     </jsf:consumer>
+    <!-- 网关外网erp认证插件 -->
+    <jsf:consumer id="erpLoginService" interface="com.jd.mrd.srv.service.erp.ErpLoginService"
+                  protocol="jsf" alias="${jsf.mrd.alias}" timeout="${jsf.mrd.timeout}" retries="0">
+    </jsf:consumer>
+
+    <!-- AI图片识别服务 -->
+    <jsf:consumer id="autoReportingService" interface="com.jd.wlai.center.service.outter.service.IAutoReportingService"
+                  protocol="jsf" alias="${jsf.autoReport.alias}" timeout="${jsf.autoReport.timeout}" retries="${jsf.retries}" >
+        <jsf:parameter key="token" hide="true" value="${jsf.autoReport.token}"/>
+    </jsf:consumer>
+
+    <!-- 抽检核对服务 -->
+    <jsf:consumer id="weightReportCommonRuleApi" interface="com.jdl.express.weight.report.api.rule.WeightReportCommonRuleApi"
+                  protocol="jsf" alias="${jsf.weightReport.alias}" timeout="${jsf.weightReport.timeout}" retries="${jsf.retries}" >
+    </jsf:consumer>
+
+    <!-- 抽检查询服务 -->
+    <jsf:consumer id="spotCheckQueryService" interface="com.jd.ql.dms.report.SpotCheckQueryService"
+                  protocol="jsf" alias="${jsf.spotCheckQuery.alias}" timeout="${jsf.spotCheckQuery.timeout}" retries="${jsf.retries}" serialization="hessian">
+    </jsf:consumer>
+
+    <!-- 循环物资 -->
+    <jsf:consumer id="recycleMaterialJsfService" interface="com.jd.bluedragon.sdk.modules.recyclematerial.RecycleMaterialJsfService"
+                  protocol="jsf"  alias="${business.jsf.recycleMaterial.alias}"
+                  timeout="${jsf.recycleMaterial.timeout}" retries="${jsf.retries}" serialization="hessian">
+    </jsf:consumer>
+
+
+    <!--  拣运封车服务  -->
+    <jsf:consumer id="jySealVehicleService"
+                  interface="com.jdl.jy.realtime.api.seal.ISealVehicleService"
+                  protocol="jsf"
+                  alias="${jsf.jy.realtime.alias}"
+                  timeout="10000"
+                  retries="${jsf.retries}"
+                  serialization="hessian"/>
+
+
+    <!-- VOS封签线上化相关接口 -->
+    <jsf:consumer id="sealCarWSJSF" interface="com.jd.etms.vos.ws.SealCarWS"
+                  protocol="jsf" alias="${jsf.SealCarWS.alias}" timeout="${jsf.SealCarWS.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
+
+    <!-- VOS封签线上化相关接口 -->
+    <jsf:consumer id="dtpTransAbnormalApiJSF" interface="com.jd.tms.dtp.api.DtpTransAbnormalApi"
+                  protocol="jsf" alias="${jsf.DtpTransAbnormalApi.alias}" timeout="${jsf.DtpTransAbnormalApi.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
+
 </beans>

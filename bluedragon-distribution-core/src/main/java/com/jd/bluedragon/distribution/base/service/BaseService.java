@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.base.service;
 
+import com.jd.bluedragon.common.dto.sysConfig.request.MenuUsageConfigRequestDto;
+import com.jd.bluedragon.common.dto.sysConfig.response.MenuUsageProcessDto;
 import com.jd.bluedragon.core.redis.TaskMode;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.electron.domain.ElectronSite;
@@ -250,5 +252,14 @@ public interface BaseService{
 	 * @return
 	 */
 	Integer getMappingSite(Integer smallSiteCode);
+
+    /**
+     * 安卓根据菜单编码获取菜单可用性结果
+     * @param menuUsageConfigRequestDto 请求参数
+     * @return 菜单可用性结果
+     * @author fanggang7
+     * @time 2022-04-11 16:47:33 周一
+     */
+    MenuUsageProcessDto getClientMenuUsageConfig(MenuUsageConfigRequestDto menuUsageConfigRequestDto);
 
 }

@@ -75,6 +75,11 @@ public class WorkStationGridQuery extends BasePagerCondition {
 	 */
 	private Integer pageSize;
 	
+	/**
+	 * 唯一业务编码
+	 */
+	private String businessKey;
+	
 	public Integer getOrgCode() {
 		return orgCode;
 	}
@@ -177,6 +182,14 @@ public class WorkStationGridQuery extends BasePagerCondition {
 
 	public void setPageSize(Integer pageSize) {
 		this.pageSize = pageSize;
+	}
+
+	public String getBusinessKey() {
+		return businessKey;
+	}
+
+	public void setBusinessKey(String businessKey) {
+		this.businessKey = businessKey;
 	}
 
 }

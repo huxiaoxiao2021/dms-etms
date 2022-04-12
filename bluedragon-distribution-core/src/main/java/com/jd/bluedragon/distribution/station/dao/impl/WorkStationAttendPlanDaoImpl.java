@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.station.dao.WorkStationAttendPlanDao;
+import com.jd.bluedragon.distribution.station.domain.DeleteRequest;
 import com.jd.bluedragon.distribution.station.domain.WorkStationAttendPlan;
 import com.jd.bluedragon.distribution.station.query.WorkStationAttendPlanQuery;
 
@@ -77,5 +78,17 @@ public class WorkStationAttendPlanDaoImpl extends BaseDao<WorkStationAttendPlan>
 	@Override
 	public List<WorkStationAttendPlan> queryWaveDictList(WorkStationAttendPlanQuery query) {
 	    return this.getSqlSession().selectList(NAMESPACE+".queryWaveDictList",query);
+	}
+	@Override
+	public List<WorkStationAttendPlan> queryListForExport(WorkStationAttendPlanQuery query) {
+		return this.getSqlSession().selectList(NAMESPACE+".queryListForExport",query);
+	}
+	@Override
+	public List<WorkStationAttendPlan> queryByIds(DeleteRequest<WorkStationAttendPlan> deleteRequest) {
+		return this.getSqlSession().selectList(NAMESPACE+".queryByIds",deleteRequest);
+	}
+	@Override
+	public int deleteByIds(DeleteRequest<WorkStationAttendPlan> deleteRequest) {
+		return this.getSqlSession().update(NAMESPACE+".deleteByIds",deleteRequest);
 	}
 }

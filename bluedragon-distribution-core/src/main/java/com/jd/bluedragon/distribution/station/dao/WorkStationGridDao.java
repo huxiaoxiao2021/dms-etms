@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.station.dao;
 
 import java.util.List;
 
+import com.jd.bluedragon.distribution.station.domain.DeleteRequest;
 import com.jd.bluedragon.distribution.station.domain.WorkStationGrid;
 import com.jd.bluedragon.distribution.station.domain.WorkStationGridCountVo;
 import com.jd.bluedragon.distribution.station.query.WorkStationGridQuery;
@@ -98,4 +99,52 @@ public interface WorkStationGridDao {
 	 * @return
 	 */
 	WorkStationGridCountVo queryPageCount(WorkStationGridQuery query);
+	/**
+	 * 根据refStationKey 查询数据记录条数
+	 * @param stationKey
+	 * @return
+	 */
+	long queryCountByRefStationKey(String stationKey);
+
+	/**
+	 * 分页查询所有数据（用于初始化数据）
+	 *
+	 * @param query
+	 * @return
+	 */
+	List<WorkStationGrid> queryAllByPage(WorkStationGridQuery query);
+	/**
+	 * 查询有网格的站点列表
+	 * @param query
+	 */
+	List<WorkStationGrid> querySiteListByOrgCode(WorkStationGridQuery query);
+	/**
+	 * 查询erp列表
+	 * @param query
+	 */
+	List<String> queryOwnerUserErpListBySiteCode(WorkStationGridQuery query);
+	/**
+	 * 导出查询列表
+	 * @param query
+	 * @return
+	 */
+	List<WorkStationGrid> queryListForExport(WorkStationGridQuery query);
+	/**
+	 * 根据id列表查询
+	 * @param deleteRequest
+	 * @return
+	 */
+	List<WorkStationGrid> queryByIds(DeleteRequest<WorkStationGrid> deleteRequest);
+	/**
+	 * 根据id批量删除
+	 * @param deleteRequest
+	 * @return
+	 */
+	int deleteByIds(DeleteRequest<WorkStationGrid> deleteRequest);
+	/**
+	 * 根据
+	 * @param gridKey查询
+	 * @return
+	 */
+	WorkStationGrid queryByGridKey(WorkStationGridQuery workStationGridQuery);
 }

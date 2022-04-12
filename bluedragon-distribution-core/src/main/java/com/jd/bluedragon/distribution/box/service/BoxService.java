@@ -25,6 +25,8 @@ public interface BoxService {
     
     Box findBoxByBoxCode(Box box);
 
+    List<String> generateRecycleBasketCode(int quantity);
+
     Integer updateVolumeByCode(Box box);
     /**  
      * 查询缓存箱号

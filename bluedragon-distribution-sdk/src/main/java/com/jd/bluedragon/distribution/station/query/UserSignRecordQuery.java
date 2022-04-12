@@ -141,6 +141,8 @@ public class UserSignRecordQuery extends BasePagerCondition {
 	 */
 	private Date nowDateEnd;
 	
+	private String refGridKey;
+	
 	public Integer getOrgCode() {
 		return orgCode;
 	}
@@ -302,5 +304,11 @@ public class UserSignRecordQuery extends BasePagerCondition {
 	}
 	public void setNowDateEnd(Date nowDateEnd) {
 		this.nowDateEnd = nowDateEnd;
+	}
+	public String getRefGridKey() {
+		return refGridKey;
+	}
+	public void setRefGridKey(String refGridKey) {
+		this.refGridKey = refGridKey;
 	}
 }

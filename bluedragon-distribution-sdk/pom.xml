@@ -7,7 +7,7 @@
 
 	<groupId>com.jd.bluedragon</groupId>
 	<artifactId>bluedragon-distribution-sdk</artifactId>
-	<version>1.8.5-SNAPSHOT</version>
+	<version>1.8.8-SNAPSHOT</version>
 	<name>bluedragon-distribution-sdk</name>
 	<url>http://bluedragon.360buy.com</url>
 	<packaging>jar</packaging>
@@ -39,7 +39,7 @@
 		<dependency>
 		    <groupId>com.google.guava</groupId>
 		    <artifactId>guava</artifactId>
-		    <version>14.0.1</version>
+		    <version>16.0.1</version>
 		</dependency>
 <!--        <dependency>-->
 <!--            <groupId>com.jd.transboard</groupId>-->

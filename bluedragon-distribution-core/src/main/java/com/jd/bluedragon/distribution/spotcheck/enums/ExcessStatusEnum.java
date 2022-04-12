@@ -21,6 +21,15 @@ public enum ExcessStatusEnum {
         this.name = name;
     }
 
+    public static String analysisNameFromCode(int code){
+        for (ExcessStatusEnum value : ExcessStatusEnum.values()) {
+            if(value.getCode() == code){
+                return value.getName();
+            }
+        }
+        return null;
+    }
+
     public Integer getCode() {
         return code;
     }

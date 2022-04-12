@@ -54,4 +54,17 @@ public class SendMServiceImpl implements SendMService{
         //查询箱子发货记录
         return sendMDao.selectBySendSiteCode(params);
     }
+
+
+    /**
+     * 根据始发分拣中心、目的分拣中心、箱号确定send_m的一条发货记录
+     * @param createSiteCode
+     * @param boardCode
+     * @param sendmStatus
+     * @return
+     */
+    @Override
+    public SendM selectSendByBoardCode(Integer createSiteCode, String boardCode, Integer sendmStatus){
+        return sendMDao.selectSendByBoardCode(createSiteCode, boardCode, sendmStatus);
+    }
 }

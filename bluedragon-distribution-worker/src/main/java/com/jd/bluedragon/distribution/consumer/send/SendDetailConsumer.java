@@ -134,6 +134,10 @@ public class SendDetailConsumer extends MessageBaseConsumer {
     @Autowired
     private DefaultJMQProducer blockerComOrbrefundRqMQ;
 
+    @Autowired
+    @Qualifier("weightAndVolumeCheckHandleProducer")
+    private DefaultJMQProducer weightAndVolumeCheckHandleProducer;
+
     /**
      * 缓存redis的key
      */
@@ -153,11 +157,6 @@ public class SendDetailConsumer extends MessageBaseConsumer {
      * */
     @Value("${sendDetailConsumer.smsExpireTime:24}")
     private Integer smsExpireTime;
-
-    /**
-     * 称重抽检所需运单发货状态有效时间（单位为天）
-     */
-    private Integer weightCheckSendStatusExpireTime = 15;
 
     /**
      * 分隔符号
@@ -283,7 +282,7 @@ public class SendDetailConsumer extends MessageBaseConsumer {
                 // 快运暂存发货MQ
                 this.kyStorageSendMq(sendDetail);
                 // 发送称重抽检mq消息
-                this.pushWeightCheckMq(sendDetail, waybill);
+                this.newSpotCheckSendDeal(sendDetail);
                 // 保存发货关系
                 this.saveSendRelation(sendDetail);
                 //处理冷链拦截快退
@@ -619,62 +618,14 @@ public class SendDetailConsumer extends MessageBaseConsumer {
         }
     }
 
-    @Autowired
-    @Qualifier("weightAndVolumeCheckHandleProducer")
-    private DefaultJMQProducer weightAndVolumeCheckHandleProducer;
-
-    /**
-     * 称重抽检结果需要等待发货完成才下发给FXM，故发货完成后需要触发称重抽检相关消息
-     * @author fanggang7
-     * @time 2020-08-26 09:20:00 周三
-     */
-    private void pushWeightCheckMq(SendDetailMessage sendDetail, Waybill waybill){
-        if(spotCheckDealService.isExecuteNewSpotCheck(sendDetail.getCreateSiteCode())){
-            newSpotCheckSendDeal(sendDetail);
-            return;
-        }
-        // 查询是否已有抽检记录，如果有，则发送，无则不发送
-        try {
-            String checkPackageRecordKey = CacheKeyConstants.CACHE_KEY_PACKAGE_OR_WAYBILL_CHECK_FLAG.concat(sendDetail.getPackageBarcode());
-            String cachedRecordFlag = redisClientCache.get(checkPackageRecordKey);
-
-            if(StringUtils.isEmpty(cachedRecordFlag) || Integer.parseInt(cachedRecordFlag) != Constants.YN_YES){
-                String checkWaybillRecordKey = CacheKeyConstants.CACHE_KEY_PACKAGE_OR_WAYBILL_CHECK_FLAG.concat(waybill.getWaybillCode());
-                cachedRecordFlag = redisClientCache.get(checkWaybillRecordKey);
-                if(StringUtils.isEmpty(cachedRecordFlag) || Integer.parseInt(cachedRecordFlag) != Constants.YN_YES){
-                    return;
-                }
-            }
-
-            String key = String.format(CacheKeyConstants.CACHE_KEY_WAYBILL_SEND_STATUS, sendDetail.getCreateSiteCode(), sendDetail.getPackageBarcode());
-            // 如果是运单纬度发货，则存运单纬度缓存
-            if(WaybillUtil.isWaybillCode(sendDetail.getPackageBarcode())){
-                key = String.format(CacheKeyConstants.CACHE_KEY_WAYBILL_SEND_STATUS, sendDetail.getCreateSiteCode(), waybill.getWaybillCode());
-            }
-
-            // 先存一遍缓存
-            try {
-                redisClientCache.setEx(key, Constants.YN_YES.toString(), this.weightCheckSendStatusExpireTime, TimeUnit.DAYS);
-            }catch (Exception e){
-                log.error("pushWeightCheckMq 存储运单或包裹发货状态【{}】异常", key);
-            }
-
-            String packageCode = sendDetail.getPackageBarcode();
-            WeightAndVolumeCheckHandleMessage weightAndVolumeCheckHandleMessage = new WeightAndVolumeCheckHandleMessage();
-            weightAndVolumeCheckHandleMessage.setOpNode(WeightAndVolumeCheckHandleMessage.SEND);
-            weightAndVolumeCheckHandleMessage.setWaybillCode(waybill.getWaybillCode());
-            weightAndVolumeCheckHandleMessage.setPackageCode(packageCode);
-            weightAndVolumeCheckHandleMessage.setSiteCode(sendDetail.getCreateSiteCode());
-            weightAndVolumeCheckHandleProducer.send(sendDetail.getPackageBarcode(), JSON.toJSONString(weightAndVolumeCheckHandleMessage));
-        } catch (JMQException e) {
-            log.warn("pushWeightCheckMq exception: {}", e.getMessage(), e);
-        }
-    }
-
     private void newSpotCheckSendDeal(SendDetailMessage sendDetail) {
         String packageCode = sendDetail.getPackageBarcode();
         Integer siteCode = sendDetail.getCreateSiteCode();
         if(!WaybillUtil.isPackageCode(packageCode)){
+            return;
+        }
+        if(spotCheckDealService.isExecuteSpotCheckReform(siteCode)){
+            // 抽检改造：已开通的场地无需处理发货数据
             return;
         }
         if(!spotCheckDealService.checkPackHasSpotCheck(packageCode, siteCode)){
