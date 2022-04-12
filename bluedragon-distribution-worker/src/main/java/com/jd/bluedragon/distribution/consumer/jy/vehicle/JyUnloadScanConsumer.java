@@ -114,21 +114,21 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
 
     private JyUnloadEntity copyFromDto(UnloadScanDto unloadScanDto) {
         JyUnloadEntity unloadEntity = new JyUnloadEntity();
-        unloadEntity.setBizId(unloadEntity.getBizId());
-        unloadEntity.setSealCarCode(unloadEntity.getSealCarCode());
-        unloadEntity.setVehicleNumber(unloadEntity.getVehicleNumber());
-        unloadEntity.setStartSiteId(unloadEntity.getStartSiteId());
-        unloadEntity.setManualCreatedFlag(unloadEntity.getManualCreatedFlag());
-        unloadEntity.setEndSiteId(unloadEntity.getEndSiteId());
-        unloadEntity.setOperateSiteId(unloadEntity.getOperateSiteId());
-        unloadEntity.setBarCode(unloadEntity.getBarCode());
-        unloadEntity.setOperateTime(unloadEntity.getOperateTime());
-        unloadEntity.setCreateUserErp(unloadEntity.getCreateUserErp());
-        unloadEntity.setCreateUserName(unloadEntity.getCreateUserName());
-        unloadEntity.setUpdateUserErp(unloadEntity.getUpdateUserErp());
-        unloadEntity.setUpdateUserName(unloadEntity.getUpdateUserName());
-        unloadEntity.setCreateTime(unloadEntity.getCreateTime());
-        unloadEntity.setUpdateTime(unloadEntity.getUpdateTime());
+        unloadEntity.setBizId(unloadScanDto.getBizId());
+        unloadEntity.setSealCarCode(unloadScanDto.getSealCarCode());
+        unloadEntity.setVehicleNumber(unloadScanDto.getVehicleNumber());
+        unloadEntity.setStartSiteId(unloadScanDto.getStartSiteId());
+        unloadEntity.setManualCreatedFlag(unloadScanDto.getManualCreatedFlag());
+        unloadEntity.setEndSiteId(unloadScanDto.getEndSiteId());
+        unloadEntity.setOperateSiteId(unloadScanDto.getOperateSiteId());
+        unloadEntity.setBarCode(unloadScanDto.getBarCode());
+        unloadEntity.setOperateTime(unloadScanDto.getOperateTime());
+        unloadEntity.setCreateUserErp(unloadScanDto.getCreateUserErp());
+        unloadEntity.setCreateUserName(unloadScanDto.getCreateUserName());
+        unloadEntity.setUpdateUserErp(unloadScanDto.getUpdateUserErp());
+        unloadEntity.setUpdateUserName(unloadScanDto.getUpdateUserName());
+        unloadEntity.setCreateTime(unloadScanDto.getCreateTime());
+        unloadEntity.setUpdateTime(unloadScanDto.getUpdateTime());
 
         return unloadEntity;
     }
