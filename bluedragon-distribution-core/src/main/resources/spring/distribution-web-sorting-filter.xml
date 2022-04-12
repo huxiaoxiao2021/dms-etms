@@ -53,6 +53,7 @@
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.CrossDistributionFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.FastTransferStationFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ChangeWaybillSignFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ColdPackConsumableConfirmFilter"/>
     </util:list>
 
     <bean id="forwardFilterChain" class="com.jd.bluedragon.distribution.ver.filter.chains.ForwardFilterChain" scope="prototype" destroy-method="destory">
