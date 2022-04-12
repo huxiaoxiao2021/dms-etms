@@ -1647,7 +1647,9 @@ public class Constants {
      * 用户有效标识
      */
     public static final Integer FLAG_USER_Is_Resign = 1;
-    
-
+    /**
+     * 医冷零担（md-m-0002）
+     */
+    public static final String  PRODUCT_TYPE_MEDICAL_COLD_PART_BILL = "md-m-0002";
 
 }
