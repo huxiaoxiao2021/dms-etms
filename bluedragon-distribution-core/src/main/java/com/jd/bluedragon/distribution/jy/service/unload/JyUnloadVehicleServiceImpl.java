@@ -1015,8 +1015,9 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         JyVehicleTaskUnloadDetail searchVo = new JyVehicleTaskUnloadDetail();
         pager.setSearchVo(searchVo);
 
-        searchVo.setOperateSiteId(request.getCurrentOperate().getSiteCode());
+        searchVo.setEndSiteId(request.getCurrentOperate().getSiteCode());
         searchVo.setBizId(request.getBizId());
+        searchVo.setSealCarCode(request.getSealCarCode());
         searchVo.setProductType(request.getProductType());
         searchVo.setScannedFlag(Constants.NUMBER_ZERO); // 待扫
         return pager;
@@ -1119,7 +1120,8 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         JyVehicleTaskUnloadDetail searchVo = new JyVehicleTaskUnloadDetail();
         pager.setSearchVo(searchVo);
 
-        searchVo.setOperateSiteId(request.getCurrentOperate().getSiteCode());
+        searchVo.setEndSiteId(request.getCurrentOperate().getSiteCode());
+        searchVo.setSealCarCode(request.getBizId());
         searchVo.setBizId(request.getBizId());
         searchVo.setInterceptFlag(Constants.CONSTANT_NUMBER_ONE); // 拦截
         return pager;
@@ -1173,7 +1175,9 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         JyVehicleTaskUnloadDetail searchVo = new JyVehicleTaskUnloadDetail();
         pager.setSearchVo(searchVo);
 
+        // 多扫按操作场地查
         searchVo.setOperateSiteId(request.getCurrentOperate().getSiteCode());
+        searchVo.setSealCarCode(request.getBizId());
         searchVo.setBizId(request.getBizId());
         searchVo.setMoreScanFlag(Constants.CONSTANT_NUMBER_ONE); // 多扫
         return pager;
@@ -1291,7 +1295,9 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         searchVo.setOperateSiteId(request.getCurrentOperate().getSiteCode());
         searchVo.setBizId(request.getBizId());
         searchVo.setMoreScanFlag(Constants.CONSTANT_NUMBER_ONE); // 多扫
+
         searchVo.setScannedFlag(Constants.NUMBER_ZERO); // 待扫
+        searchVo.setEndSiteId(request.getCurrentOperate().getSiteCode());
         return pager;
     }
 
