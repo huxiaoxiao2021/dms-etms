@@ -69,9 +69,6 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
     @Qualifier("jyTaskGroupMemberService")
     private JyTaskGroupMemberService taskGroupMemberService;
 
-    @Autowired
-    private IJyUnloadVehicleService unloadVehicleService;
-
     @Override
     @JProfiler(jKey = "DMS.WORKER.jyUnloadScanConsumer.consume",
             jAppName = Constants.UMP_APP_NAME_DMSWORKER, mState = {JProEnum.TP,JProEnum.FunctionError})
@@ -104,8 +101,7 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
         // 首次扫描分配卸车任务，变更任务状态
         startAndDistributeUnloadTask(unloadScanDto);
 
-        JyUnloadEntity unloadEntity = new JyUnloadEntity();
-        BeanCopyUtil.copy(unloadScanDto, unloadEntity);
+        JyUnloadEntity unloadEntity = copyFromDto(unloadScanDto);
 
         if (jyUnloadDao.insert(unloadEntity) <= 0) {
             logger.error("保存卸车扫描记录异常. {}", JsonHelper.toJson(unloadEntity));
@@ -114,6 +110,27 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
 
         // 插入验货或收货任务，发全程跟踪
         addTaskPersistent(unloadScanDto);
+    }
+
+    private JyUnloadEntity copyFromDto(UnloadScanDto unloadScanDto) {
+        JyUnloadEntity unloadEntity = new JyUnloadEntity();
+        unloadEntity.setBizId(unloadEntity.getBizId());
+        unloadEntity.setSealCarCode(unloadEntity.getSealCarCode());
+        unloadEntity.setVehicleNumber(unloadEntity.getVehicleNumber());
+        unloadEntity.setStartSiteId(unloadEntity.getStartSiteId());
+        unloadEntity.setManualCreatedFlag(unloadEntity.getManualCreatedFlag());
+        unloadEntity.setEndSiteId(unloadEntity.getEndSiteId());
+        unloadEntity.setOperateSiteId(unloadEntity.getOperateSiteId());
+        unloadEntity.setBarCode(unloadEntity.getBarCode());
+        unloadEntity.setOperateTime(unloadEntity.getOperateTime());
+        unloadEntity.setCreateUserErp(unloadEntity.getCreateUserErp());
+        unloadEntity.setCreateUserName(unloadEntity.getCreateUserName());
+        unloadEntity.setUpdateUserErp(unloadEntity.getUpdateUserErp());
+        unloadEntity.setUpdateUserName(unloadEntity.getUpdateUserName());
+        unloadEntity.setCreateTime(unloadEntity.getCreateTime());
+        unloadEntity.setUpdateTime(unloadEntity.getUpdateTime());
+
+        return unloadEntity;
     }
 
     private void addTaskPersistent(UnloadScanDto unloadScanDto) {

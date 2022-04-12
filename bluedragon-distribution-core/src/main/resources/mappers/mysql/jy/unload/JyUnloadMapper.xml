@@ -61,8 +61,7 @@
                             update_user_name,
                             create_time,
                             update_time,
-                            yn,
-                            ts
+                            yn
                     ) VALUES (
                             #{id},
                             #{bizId},
@@ -79,8 +78,7 @@
                             #{updateUserName},
                             #{createTime},
                             #{updateTime},
-                            #{yn},
-                            #{ts}
+                            1
                     )
     </insert>
 
