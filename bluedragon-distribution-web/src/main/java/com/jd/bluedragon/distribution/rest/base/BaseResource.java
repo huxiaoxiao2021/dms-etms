@@ -2,7 +2,6 @@ package com.jd.bluedragon.distribution.rest.base;
 
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.sysConfig.request.MenuUsageConfigRequestDto;
 import com.jd.bluedragon.common.dto.sysConfig.response.MenuUsageProcessDto;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
@@ -1757,7 +1756,7 @@ public class BaseResource {
         InvokeResult<MenuUsageProcessDto> result = new InvokeResult<>();
         result.success();
         try {
-            final MenuUsageProcessDto menuUsageProcessDto = baseService.getAndroidMenuUsageConfig(menuUsageConfigRequestDto);
+            final MenuUsageProcessDto menuUsageProcessDto = baseService.getClientMenuUsageConfig(menuUsageConfigRequestDto);
             result.setData(menuUsageProcessDto);
         } catch (Exception e) {
             log.error("BaseResource.getAndroidMenuUsageConfig exception ", e);
