@@ -45,6 +45,11 @@ public class UnloadCompleteVehicle extends VehicleBaseInfo implements Serializab
      */
     private String taskId;
 
+    /**
+     * 业务主键
+     */
+    private String bizId;
+
     public String getTaskId() {
         return taskId;
     }
@@ -101,5 +106,13 @@ public class UnloadCompleteVehicle extends VehicleBaseInfo implements Serializab
 
     public void set_active(Boolean _active) {
         this._active = _active;
+    }
+
+    public String getBizId() {
+        return bizId;
+    }
+
+    public void setBizId(String bizId) {
+        this.bizId = bizId;
     }
 }

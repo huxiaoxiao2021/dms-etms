@@ -238,6 +238,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
                     toUnloadVehicle.setManualCreatedTask(entity.unloadWithoutTask());
                     toUnloadVehicle.setTags(resolveTagSign(entity.getTagsSign()));
                     toUnloadVehicle.setTaskId(getJyScheduleTaskId(entity.getBizId()));
+                    toUnloadVehicle.setBizId(entity.getBizId());
                     vehicleList.add(toUnloadVehicle);
                     break;
                 case UN_LOADING:
@@ -246,6 +247,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
                     unloadVehicleInfo.setTags(resolveTagSign(entity.getTagsSign()));
                     unloadVehicleInfo.setUnloadProgress(entity.getUnloadProgress());
                     unloadVehicleInfo.setTaskId(getJyScheduleTaskId(entity.getBizId()));
+                    unloadVehicleInfo.setBizId(entity.getBizId());
                     vehicleList.add(unloadVehicleInfo);
                     break;
                 case UN_LOAD_DONE:
@@ -256,6 +258,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
                     completeVehicle.setAbnormalFlag(entity.unloadAbnormal());
                     completeVehicle.setUnloadFinishTime(entity.getUnloadFinishTime());
                     completeVehicle.setTaskId(getJyScheduleTaskId(entity.getBizId()));
+                    completeVehicle.setBizId(entity.getBizId());
                     vehicleList.add(completeVehicle);
                     break;
             }
