@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.UnifiedExceptionProcess;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.ResponseCodeMapping;
@@ -20,6 +21,8 @@ import com.jd.bluedragon.external.gateway.service.MiniStoreGatewayService;
 import com.jd.bluedragon.utils.BeanUtils;
 import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.cmp.jsf.SwDeviceJsfService;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -42,6 +45,7 @@ public class MiniStoreGatewayServiceImpl implements MiniStoreGatewayService {
     private DefaultJMQProducer miniStoreSealBoxProducer;
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.MiniStoreGatewayServiceImpl.validateDeviceStatus", mState = {JProEnum.TP})
     public JdCResponse validateDeviceStatus(DeviceStatusValidateReq request) {
         DeviceDto deviceDto = BeanUtils.copy(request, DeviceDto.class);
         boolean avaiable = miniStoreService.validatDeviceCodeStatus(deviceDto);
@@ -52,6 +56,7 @@ public class MiniStoreGatewayServiceImpl implements MiniStoreGatewayService {
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.MiniStoreGatewayServiceImpl.bindMiniStoreDevice", mState = {JProEnum.TP})
     public JdCResponse bindMiniStoreDevice(BindMiniStoreDeviceReq request) {
         DeviceDto deviceDto = BeanUtils.copy(request, DeviceDto.class);
         Boolean bindSuccess = miniStoreService.bindMiniStoreDevice(deviceDto);
@@ -62,6 +67,7 @@ public class MiniStoreGatewayServiceImpl implements MiniStoreGatewayService {
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.MiniStoreGatewayServiceImpl.sealBox", mState = {JProEnum.TP})
     public JdCResponse sealBox(SealBoxReq sealBoxReq) {
         SealBoxDto sealBoxDto = BeanUtils.copy(sealBoxReq, SealBoxDto.class);
         Boolean success = miniStoreService.updateProcessStatusAndSyncMsg(sealBoxDto);
@@ -74,6 +80,7 @@ public class MiniStoreGatewayServiceImpl implements MiniStoreGatewayService {
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.MiniStoreGatewayServiceImpl.querySortCount", mState = {JProEnum.TP})
     public JdCResponse<Integer> querySortCount(String boxCode) {
         Integer count = miniStoreService.queryMiniStoreSortCount();
         if (count != null) {
@@ -83,6 +90,7 @@ public class MiniStoreGatewayServiceImpl implements MiniStoreGatewayService {
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.MiniStoreGatewayServiceImpl.unBoxValidateBindRelation", mState = {JProEnum.TP})
     public JdCResponse<UnBoxValidateResp> unBoxValidateBindRelation(UnBoxValidateReq unBoxValidateReq) {
         DeviceDto deviceDto = BeanUtils.copy(unBoxValidateReq, DeviceDto.class);
         MiniStoreBindRelation miniStoreBindRelation = miniStoreService.selectBindRelation(deviceDto);
@@ -95,6 +103,7 @@ public class MiniStoreGatewayServiceImpl implements MiniStoreGatewayService {
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.MiniStoreGatewayServiceImpl.validateSortRelation", mState = {JProEnum.TP})
     public JdCResponse validateSortRelation(ValidateSortRelationReq validateSortRelationReq) {
         boolean success = miniStoreService.validateSortRelation(validateSortRelationReq.getBoxCode(), validateSortRelationReq.getPackageCode(), validateSortRelationReq.getCreateSiteCode());
         if (success) {
@@ -104,6 +113,7 @@ public class MiniStoreGatewayServiceImpl implements MiniStoreGatewayService {
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.MiniStoreGatewayServiceImpl.unBox", mState = {JProEnum.TP})
     public JdCResponse unBox(UnBoxReq unBoxReq) {
         DeviceDto deviceDto = BeanUtils.copy(unBoxReq, DeviceDto.class);
         Boolean success = miniStoreService.updateProcessStatusAndInvaliSortRealtion(deviceDto);
@@ -116,6 +126,7 @@ public class MiniStoreGatewayServiceImpl implements MiniStoreGatewayService {
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.MiniStoreGatewayServiceImpl.queryBindAndNoSortTaskList", mState = {JProEnum.TP})
     public JdCResponse<PageObject<BindAndNoSortTaskResp>> queryBindAndNoSortTaskList(BindAndNoSortTaskReq bindAndNoSortTaskReq) {
         QueryTaskDto queryTaskDto = new QueryTaskDto();
         queryTaskDto.setCreateUserCode(bindAndNoSortTaskReq.getCreateUserCode());
@@ -130,6 +141,7 @@ public class MiniStoreGatewayServiceImpl implements MiniStoreGatewayService {
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.MiniStoreGatewayServiceImpl.unBind", mState = {JProEnum.TP})
     public JdCResponse unBind(UnBindReq unBindReq) {
         boolean success = miniStoreService.unBind(unBindReq.getMiniStoreBindRelationId(), unBindReq.getUpdateUserCode(), unBindReq.getUpdateUser());
         if (success) {
