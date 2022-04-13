@@ -181,7 +181,7 @@ public class BoxLimitServiceImpl implements BoxLimitService {
             response.setMessage("最大导入数量不允许超过" + maxImportSize);
             return;
         }
-        int row = 1;
+        int row = 2;
         StringBuilder duplicateIds = new StringBuilder();
         Set<BoxLimitTemplateVO> siteIdSet = new HashSet<>();
         for (BoxLimitTemplateVO vo : data) {
@@ -205,6 +205,7 @@ public class BoxLimitServiceImpl implements BoxLimitService {
                 response.setMessage(String.format("excel中第%s行 建箱箱号类型为空或箱号类型不在处理范围内!", row));
                 return;
             }
+            row++;
         }
     }
     /**
