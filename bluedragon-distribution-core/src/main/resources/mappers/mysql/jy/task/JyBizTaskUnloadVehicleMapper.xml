@@ -325,7 +325,7 @@
             <if test="fuzzyVehicleNumber != null">
                 fuzzy_vehicle_number = #{fuzzyVehicleNumber},
             </if>
-            <if test="manual_created_flag != null">
+            <if test="manualCreatedFlag != null">
                 manual_created_flag = #{manualCreatedFlag},
             </if>
             <if test="startSiteId != null">
