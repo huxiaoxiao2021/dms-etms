@@ -1,33 +1,74 @@
 package com.jd.bluedragon.distribution.ministore.service.impl;
 
+import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.base.response.ResponseCodeMapping;
+import com.jd.bluedragon.core.base.MiniStoreJsfManger;
 import com.jd.bluedragon.distribution.ministore.dao.MiniStoreBindRelationDao;
 import com.jd.bluedragon.distribution.ministore.domain.MiniStoreBindRelation;
 import com.jd.bluedragon.distribution.ministore.dto.DeviceDto;
 import com.jd.bluedragon.distribution.ministore.dto.QueryTaskDto;
 import com.jd.bluedragon.distribution.ministore.dto.SealBoxDto;
 import com.jd.bluedragon.common.dto.ministore.MiniStoreProcessStatusEnum;
+import com.jd.bluedragon.distribution.ministore.exception.MiniStoreBizException;
 import com.jd.bluedragon.distribution.ministore.service.MiniStoreService;
 import com.jd.bluedragon.distribution.sorting.dao.SortingDao;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
+import com.jd.bluedragon.enums.SwDeviceStatusEnum;
 import com.jd.bluedragon.utils.BeanUtils;
+import com.jd.bluedragon.utils.ObjectHelper;
+import com.jd.jddl.executor.function.scalar.filter.In;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.ThreadPoolExecutor;
 
 @Service("miniStoreService")
 public class MiniStoreServiceImpl implements MiniStoreService {
     private static final Logger logger = LoggerFactory.getLogger(MiniStoreServiceImpl.class);
     @Autowired
+    MiniStoreJsfManger miniStoreJsfManger;
+    @Autowired
     MiniStoreBindRelationDao miniStoreBindRelationDao;
     @Autowired
     SortingDao sortingDao;
-    @Autowired
-    ThreadPoolTaskExecutor taskExecutor;
+
+    @Override
+    public Boolean validatDeviceCodeStatus(DeviceDto deviceDto) {
+        if (deviceDto == null) {
+            throw new MiniStoreBizException(ResponseCodeMapping.MINI_STORE_DEVICE_CODE_ISNULL);
+        }
+        if (ObjectHelper.isNotNull(deviceDto.getStoreCode())) {
+            Integer availableStatus = miniStoreJsfManger.isDeviceUse(deviceDto.getStoreCode());
+            if (!SwDeviceStatusEnum.AVAILABLE.getCode().equals(availableStatus)) {
+                throw new MiniStoreBizException(ResponseCodeMapping.MINI_STORE_IS_NOT_AVAILABLE);
+            }
+            Integer hasBeenBind = miniStoreBindRelationDao.selectStoreBindStatus(deviceDto.getStoreCode());
+            if (hasBeenBind != null) {
+                throw new MiniStoreBizException(ResponseCodeMapping.MINI_STORE_HASBEEN_BIND);
+            }
+        }
+        if (ObjectHelper.isNotNull(deviceDto.getIceBoardCode())) {
+            Integer availableStatus = miniStoreJsfManger.isDeviceUse(deviceDto.getIceBoardCode());
+            if (!SwDeviceStatusEnum.AVAILABLE.getCode().equals(availableStatus)) {
+                throw new MiniStoreBizException(ResponseCodeMapping.INCE_BOARD_IS_NOT_AVAILABLE);
+            }
+            Integer hasBeenBind = miniStoreBindRelationDao.selectIceBoardStatus(deviceDto.getIceBoardCode());
+            if (hasBeenBind != null) {
+                throw new MiniStoreBizException(ResponseCodeMapping.INCE_BOARD_HASBEEN_BIND);
+            }
+        }
+        if (ObjectHelper.isNotNull(deviceDto.getBoxCode())) {
+            Integer hasBeenBind = miniStoreBindRelationDao.selectBoxBindStatus(deviceDto.getBoxCode());
+            if (hasBeenBind != null) {
+                throw new MiniStoreBizException(ResponseCodeMapping.BOX_HASBEEN_BIND);
+            }
+        }
+        return true;
+    }
 
     @Override
     public Boolean validatDeviceBindStatus(DeviceDto deviceDto) {
@@ -51,6 +92,10 @@ public class MiniStoreServiceImpl implements MiniStoreService {
 
     @Override
     public Boolean bindMiniStoreDevice(DeviceDto deviceDto) {
+        Integer hasBeenBind = miniStoreBindRelationDao.selectDeviceBindStatus(deviceDto);
+        if (hasBeenBind!=null){
+            throw new MiniStoreBizException(ResponseCodeMapping.DEVICE_HASBEEN_BIND);
+        }
         MiniStoreBindRelation miniStoreBindRelation = BeanUtils.copy(deviceDto, MiniStoreBindRelation.class);
         Date date = new Date();
         miniStoreBindRelation.setCreateTime(date);
@@ -85,7 +130,7 @@ public class MiniStoreServiceImpl implements MiniStoreService {
         try {
             r1 = miniStoreBindRelationDao.updateByPrimaryKeySelective(miniStoreBindRelation);
             if (r1 > 0) {
-                int rs = invaliSortRealtion(deviceDto.getBoxCode(),deviceDto.getCreateSiteCode());
+                int rs = invaliSortRealtion(deviceDto.getBoxCode(), deviceDto.getCreateSiteCode());
                 if (rs <= 0) {
                     miniStoreBindRelationDao.updateByPrimaryKeySelective(pre);
                     return false;
@@ -107,7 +152,7 @@ public class MiniStoreServiceImpl implements MiniStoreService {
         miniStoreBindRelation.setId(sealBoxDto.getMiniStoreBindRelationId());
         miniStoreBindRelation.setState(Byte.valueOf(MiniStoreProcessStatusEnum.SEAL_BOX.getCode()));
         miniStoreBindRelation.setUpdateTime(new Date());
-        return miniStoreBindRelationDao.updateByPrimaryKeySelective(miniStoreBindRelation)>0;
+        return miniStoreBindRelationDao.updateByPrimaryKeySelective(miniStoreBindRelation) > 0;
     }
 
     @Override
@@ -121,35 +166,35 @@ public class MiniStoreServiceImpl implements MiniStoreService {
     }
 
     @Override
-    public boolean unBind(Long miniStoreBindRelationId,Long updateUserCode,String updateUser) {
-        MiniStoreBindRelation miniStoreBindRelation =new MiniStoreBindRelation();
+    public boolean unBind(Long miniStoreBindRelationId, Long updateUserCode, String updateUser) {
+        MiniStoreBindRelation miniStoreBindRelation = new MiniStoreBindRelation();
         miniStoreBindRelation.setId(miniStoreBindRelationId);
         miniStoreBindRelation.setState(Byte.valueOf(MiniStoreProcessStatusEnum.UNBIND.getCode()));
         miniStoreBindRelation.setUpdateTime(new Date());
         miniStoreBindRelation.setUpdateUserCode(updateUserCode);
         miniStoreBindRelation.setUpdateUser(updateUser);
         miniStoreBindRelation.setOccupiedFlag(false);
-        return miniStoreBindRelationDao.updateByPrimaryKeySelective(miniStoreBindRelation)>0;
+        return miniStoreBindRelationDao.updateByPrimaryKeySelective(miniStoreBindRelation) > 0;
     }
 
     @Override
-    public int incrSortCount(Long id,String updateUser,Long updateUserCode) {
-        return miniStoreBindRelationDao.incrSortCount(id,updateUser,updateUserCode);
+    public int incrSortCount(Long id, String updateUser, Long updateUserCode) {
+        return miniStoreBindRelationDao.incrSortCount(id, updateUser, updateUserCode);
     }
 
     @Override
-    public boolean validateSortRelation(String boxCode, String packageCode,Integer createSiteCode) {
-        Sorting sorting =new Sorting();
+    public boolean validateSortRelation(String boxCode, String packageCode, Integer createSiteCode) {
+        Sorting sorting = new Sorting();
         sorting.setBoxCode(boxCode);
         sorting.setPackageCode(packageCode);
         sorting.setCreateSiteCode(createSiteCode);
-        Long id =sortingDao.findByPackageCodeAndBoxCode(sorting);
-        return null!=id;
+        Long id = sortingDao.findByPackageCodeAndBoxCode(sorting);
+        return null != id;
     }
 
     @Override
     public int invaliSortRealtion(String boxCode, Long createSiteCode) {
-        Sorting sorting =new Sorting();
+        Sorting sorting = new Sorting();
         sorting.setCreateSiteCode(createSiteCode.intValue());
         sorting.setBoxCode(boxCode);
         return sortingDao.invaliSortRealtion(sorting);

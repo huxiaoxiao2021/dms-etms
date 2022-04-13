@@ -43,6 +43,7 @@ public class MiniStoreSyncBindRelationTask implements Runnable {
     public void run() {
         logger.info("MiniStoreSyncBindRelationTask(seal and unseal) start，current processType is "+type.getMsg());
 
+
         //查询微仓绑定数据
         MiniStoreBindRelation miniStoreBindRelation = miniStoreService.selectById(miniStoreBindRelationId);
         if (miniStoreBindRelation!=null){
@@ -75,6 +76,7 @@ public class MiniStoreSyncBindRelationTask implements Runnable {
             logger.info("消息体："+JsonHelper.toJson(miniStoreEvent));
             miniStoreSealBoxProducer.sendOnFailPersistent(miniStoreBindRelation.getBoxCode(), JsonHelper.toJson(miniStoreEvent));
             //TODO businessId
+            logger.info("MiniStoreSyncBindRelationTask has compeleted");
         }
     }
 }

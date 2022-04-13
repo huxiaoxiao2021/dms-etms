@@ -7,8 +7,10 @@ public enum ResponseCodeMapping {
 
   SUCCESS(200, "成功"),
   UNKNOW_ERROR(500, "未知错误！"),
+  MINI_STORE_DEVICE_CODE_ISNULL(5001,"设备码不能为空！"),
   MINI_STORE_HASBEEN_BIND(5001,"微仓码已被绑定！"),
   MINI_STORE_IS_NOT_AVAILABLE(5002,"微仓当前不可用！"),
+  MINISTORE_SYS_INVOKE_EXCEPTION(-1,"保温箱服务调用异常"),
   INCE_BOARD_HASBEEN_BIND(5003,"冰板码已经被被绑定！"),
   INCE_BOARD_IS_NOT_AVAILABLE(5004,"冰板当前不可用！"),
   BOX_HASBEEN_BIND(5005,"箱号已经被绑定！"),

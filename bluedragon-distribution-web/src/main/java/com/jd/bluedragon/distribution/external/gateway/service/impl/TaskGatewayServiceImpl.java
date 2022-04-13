@@ -14,10 +14,12 @@ import com.jd.dms.logger.annotation.BusinessLog;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import javax.annotation.Resource;
 import java.util.Objects;
+import java.util.concurrent.ThreadPoolExecutor;
 
 import static com.jd.bluedragon.distribution.task.domain.Task.TASK_TYPE_SORTING;
 
@@ -32,7 +34,8 @@ public class TaskGatewayServiceImpl implements TaskGatewayService {
     @Autowired
     MiniStoreService miniStoreService;
     @Autowired
-    ThreadPoolTaskExecutor taskExecutor;
+    @Qualifier("taskExecutor")
+    ThreadPoolExecutor taskExecutor;
 
     @Override
     @BusinessLog(sourceSys = 1,bizType = 2006,operateType = 20061)

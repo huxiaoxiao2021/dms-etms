@@ -20,13 +20,10 @@ import com.jd.bluedragon.external.gateway.service.MiniStoreGatewayService;
 import com.jd.bluedragon.utils.BeanUtils;
 import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.cmp.jsf.SwDeviceJsfService;
-import com.jd.jddl.common.utils.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @UnifiedExceptionProcess
@@ -46,43 +43,17 @@ public class MiniStoreGatewayServiceImpl implements MiniStoreGatewayService {
 
     @Override
     public JdCResponse validateDeviceStatus(DeviceStatusValidateReq request) {
-
-        if (ObjectHelper.isNotNull(request.getStoreCode())) {
-            Integer availableStatus = swDeviceJsfService.isDeviceUse(request.getStoreCode());
-            if (!SwDeviceStatusEnum.AVAILABLE.getCode().equals(availableStatus)) {
-                return JdCResponse.errorResponse(ResponseCodeMapping.MINI_STORE_IS_NOT_AVAILABLE);
-            }
-            Boolean hasBeenBind = miniStoreService.validateStoreBindStatus(request.getStoreCode());
-            if (hasBeenBind) {
-                return JdCResponse.errorResponse(ResponseCodeMapping.MINI_STORE_HASBEEN_BIND);
-            }
+        DeviceDto deviceDto = BeanUtils.copy(request, DeviceDto.class);
+        boolean avaiable = miniStoreService.validatDeviceCodeStatus(deviceDto);
+        if (avaiable) {
+            return JdCResponse.successResponse();
         }
-        if (ObjectHelper.isNotNull(request.getIceBoardCode())) {
-            Integer availableStatus = swDeviceJsfService.isDeviceUse(request.getIceBoardCode());
-            if (!SwDeviceStatusEnum.AVAILABLE.getCode().equals(availableStatus)) {
-                return JdCResponse.errorResponse(ResponseCodeMapping.INCE_BOARD_IS_NOT_AVAILABLE);
-            }
-            Boolean hasBeenBind = miniStoreService.validateIceBoardBindStatus(request.getIceBoardCode());
-            if (hasBeenBind) {
-                return JdCResponse.errorResponse(ResponseCodeMapping.INCE_BOARD_HASBEEN_BIND);
-            }
-        }
-        if (ObjectHelper.isNotNull(request.getBoxCode())) {
-            Boolean hasBeenBind = miniStoreService.validateBoxBindStatus(request.getBoxCode());
-            if (hasBeenBind) {
-                return JdCResponse.errorResponse(ResponseCodeMapping.BOX_HASBEEN_BIND);
-            }
-        }
-        return JdCResponse.successResponse();
+        return JdCResponse.errorResponse(ResponseCodeMapping.UNKNOW_ERROR);
     }
 
     @Override
     public JdCResponse bindMiniStoreDevice(BindMiniStoreDeviceReq request) {
         DeviceDto deviceDto = BeanUtils.copy(request, DeviceDto.class);
-        Boolean bindStatus = miniStoreService.validatDeviceBindStatus(deviceDto);
-        if (null != bindStatus && bindStatus) {
-            return JdCResponse.errorResponse(ResponseCodeMapping.DEVICE_HASBEEN_BIND);
-        }
         Boolean bindSuccess = miniStoreService.bindMiniStoreDevice(deviceDto);
         if (bindSuccess) {
             return JdCResponse.successResponse();
@@ -96,7 +67,7 @@ public class MiniStoreGatewayServiceImpl implements MiniStoreGatewayService {
         Boolean success = miniStoreService.updateProcessStatusAndSyncMsg(sealBoxDto);
         if (success) {
             MiniStoreSyncBindRelationTask task = new MiniStoreSyncBindRelationTask(MSDeviceBindEventTypeEnum.SEAL_BOX, sealBoxDto.getMiniStoreBindRelationId(), miniStoreSealBoxProducer, miniStoreService, sortingService);
-            taskExecutor.execute(task);
+            task.run();
             return JdCResponse.successResponse();
         }
         return JdCResponse.errorResponse(ResponseCodeMapping.UNKNOW_ERROR);
@@ -138,7 +109,7 @@ public class MiniStoreGatewayServiceImpl implements MiniStoreGatewayService {
         Boolean success = miniStoreService.updateProcessStatusAndInvaliSortRealtion(deviceDto);
         if (success) {
             MiniStoreSyncBindRelationTask task = new MiniStoreSyncBindRelationTask(MSDeviceBindEventTypeEnum.SEAL_BOX, unBoxReq.getMiniStoreBindRelationId(), miniStoreSealBoxProducer, miniStoreService, sortingService);
-            taskExecutor.execute(task);
+            task.run();
             return JdCResponse.successResponse();
         }
         return JdCResponse.errorResponse(ResponseCodeMapping.UNKNOW_ERROR);
@@ -148,13 +119,11 @@ public class MiniStoreGatewayServiceImpl implements MiniStoreGatewayService {
     public JdCResponse<PageObject<BindAndNoSortTaskResp>> queryBindAndNoSortTaskList(BindAndNoSortTaskReq bindAndNoSortTaskReq) {
         QueryTaskDto queryTaskDto = new QueryTaskDto();
         queryTaskDto.setCreateUserCode(bindAndNoSortTaskReq.getCreateUserCode());
-        Page page =PageHelper.startPage(bindAndNoSortTaskReq.getPageNo(), bindAndNoSortTaskReq.getPageSize());
+        Page page = PageHelper.startPage(bindAndNoSortTaskReq.getPageNo(), bindAndNoSortTaskReq.getPageSize());
         List<MiniStoreBindRelation> miniStoreBindRelationList = miniStoreService.queryBindAndNoSortTaskList(queryTaskDto);
         if (miniStoreBindRelationList != null && miniStoreBindRelationList.size() > 0) {
             List<BindAndNoSortTaskResp> bindAndNoSortTaskRespList = BeanUtils.copy(miniStoreBindRelationList, BindAndNoSortTaskResp.class);
-            PageObject<BindAndNoSortTaskResp> pageObject = new PageObject.Builder().pageNo(page.getPageNum())
-                .pageSize(page.getPageSize()).offset(page.getStartRow()).totalElements(page.getTotal())
-                .totalPages(page.getPages()).data(bindAndNoSortTaskRespList).build();
+            PageObject<BindAndNoSortTaskResp> pageObject = new PageObject.Builder().pageNo(page.getPageNum()).pageSize(page.getPageSize()).offset(page.getStartRow()).totalElements(page.getTotal()).totalPages(page.getPages()).data(bindAndNoSortTaskRespList).build();
             return JdCResponse.successResponse(pageObject);
         }
         return JdCResponse.errorResponse(ResponseCodeMapping.NO_BIND_DATA);

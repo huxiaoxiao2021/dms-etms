@@ -17,12 +17,15 @@ import com.jd.bluedragon.distribution.mixedPackageConfig.domain.PrintQueryReques
 import java.util.List;
 
 public interface MiniStoreService {
-
+    /**
+     * 检验设备可用状态
+     * @return true 代表可用，false 不可用
+     */
+    Boolean validatDeviceCodeStatus(DeviceDto deviceDto);
     /**
      * 查询设备（三码）绑定状态
      * true 绑定状态 false 未绑定
      */
-    @DataSources(DynamicDataSourceType.DMS_UNDIV_MAIN)
     Boolean validatDeviceBindStatus(DeviceDto deviceDto);
 
     /**

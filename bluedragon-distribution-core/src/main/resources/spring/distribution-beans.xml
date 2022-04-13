@@ -99,4 +99,7 @@
 	</bean>
 	<bean id="checkCanAirToRoadJobHandler" class="com.jd.bluedragon.distribution.arAbnormal.CheckCanAirToRoadJobHandler" parent="parentConcurrentJobHandler">
 	</bean>
+
+    <bean id="taskExecutor" class="com.jd.bluedragon.common.mutilthread.ThreadPoolExecutorConfig">
+    </bean>
 </beans>

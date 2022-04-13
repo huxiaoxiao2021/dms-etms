@@ -2,7 +2,8 @@ package com.jd.bluedragon.enums;
 
 public enum SwDeviceStatusEnum {
     AVAILABLE(1,"可用"),
-    NOT_AVAILABLE(0,"不可用");
+    NOT_AVAILABLE(0,"不可用"),
+    MINISTORE_SYS_INVOKE_EXCEPTION(-1,"保温箱服务调用异常");
     private Integer code;
     private String msg;
 

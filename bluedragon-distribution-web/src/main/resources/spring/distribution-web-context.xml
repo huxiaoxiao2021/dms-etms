@@ -45,6 +45,7 @@
 	<context:component-scan base-package="com.jd.common.authorization"/>
 	<context:component-scan base-package="com.jd.dms.logger"/>
 	<context:component-scan base-package="com.jd.common.exception" />
+	<context:component-scan base-package="com.jd.common.context" />
 
     <!-- 引入特殊配置 -->
     <import resource="classpath:spring/distribution-web-context-special.xml" />

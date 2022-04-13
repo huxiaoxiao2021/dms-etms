@@ -3,12 +3,13 @@ package com.jd.bluedragon.distribution.ministore.dto;
 import java.util.Date;
 
 public class DeviceDto {
-    private String storeCode;//微仓码
-    private String iceBoardCode1;//冰板码1
-    private String iceBoardCode2;//冰板码2
-    private String boxCode;//集包码
-    private Byte state;//状态
-    private Boolean occupiedFlag;//占用标识
+    private String storeCode;
+    private String iceBoardCode;
+    private String iceBoardCode1;
+    private String iceBoardCode2;
+    private String boxCode;
+    private Byte state;
+    private Boolean occupiedFlag;
     private Date startTime;
     private Date endTime;
     private String createUser;
@@ -19,9 +20,17 @@ public class DeviceDto {
     private String createSiteName;
     private Long receiveSiteCode;
     private String receiveSiteName;
-    private Long miniStoreBindRelationId;//绑定关系id
+    private Long miniStoreBindRelationId;
     private String errMsg;
     private Integer unboxCount;
+
+    public String getIceBoardCode() {
+        return iceBoardCode;
+    }
+
+    public void setIceBoardCode(String iceBoardCode) {
+        this.iceBoardCode = iceBoardCode;
+    }
 
     public Integer getUnboxCount() {
         return unboxCount;

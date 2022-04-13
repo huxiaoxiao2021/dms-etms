@@ -27,6 +27,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.ThreadPoolExecutor;
 
 /**
  * <p>
@@ -42,7 +43,7 @@ public class DmsTaskServiceImpl implements DmsTaskService {
     MiniStoreService miniStoreService;
     @Autowired
     @Qualifier("taskExecutor")
-    ThreadPoolTaskExecutor taskExecutor;
+    ThreadPoolExecutor taskExecutor;
     @Autowired
     SortingService sortingService;
     @Autowired
