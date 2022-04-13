@@ -155,6 +155,10 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
                 return result;
             }
             for (com.jd.transboard.api.dto.VirtualBoardResultDto virtualBoardResultDtoQueryDatum : virtualBoardResultDtoQueryData) {
+                //删除流向，不变更板状态的， 隐藏不展示
+                if(virtualBoardResultDtoQueryDatum.getHideSwitch() != null && virtualBoardResultDtoQueryDatum.getHideSwitch()) {
+                    continue;
+                }
                 VirtualBoardResultDto virtualBoardResultDto = new VirtualBoardResultDto();
                 BeanUtils.copyProperties(virtualBoardResultDtoQueryDatum, virtualBoardResultDto);
                 virtualBoardResultDtoList.add(virtualBoardResultDto);
@@ -773,8 +777,14 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
             final Response<Void> handleResult = virtualBoardJsfManager.removeDestination(this.getConvertToTcParam(removeDestinationPo));
             if(!Objects.equals(handleResult.getCode(), ResponseEnum.SUCCESS.getIndex())){
                 log.error("VirtualBoardServiceImpl.removeDestination--fail-- param {} result {}", JsonHelper.toJson(removeDestinationPo), JsonHelper.toJson(handleResult));
-                result.toFail(handleResult.getMesseage());
-                return result;
+                //首次删除 && 仅1个流向 && 删除流向返回存在板未完结的状态码： 操作人员自选是否完结状态并删除流向
+                if(Objects.equals(handleResult.getCode(), Response.CODE_CONFIRM)) {
+                    result.toConfirm(handleResult.getMesseage());
+                    return result;
+                }else {
+                    result.toFail(handleResult.getMesseage());
+                    return result;
+                }
             }
 
         } catch (Exception e) {
@@ -789,6 +799,9 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
         com.jd.transboard.api.dto.RemoveDestinationPo removeDestinationPoTc = new com.jd.transboard.api.dto.RemoveDestinationPo();
         BeanUtils.copyProperties(removeDestinationPo, removeDestinationPoTc);
         OperatorInfo operatorInfo = removeDestinationPo.getOperatorInfo();
+        if(operatorInfo.getBizSource() == null){
+            operatorInfo.setBizSource(BizSourceEnum.PDA.getValue());
+        }
         final com.jd.transboard.api.dto.base.OperatorInfo operatorInfoTarget = new com.jd.transboard.api.dto.base.OperatorInfo();
         BeanUtils.copyProperties(operatorInfo, operatorInfoTarget);
         removeDestinationPoTc.setOperatorInfo(operatorInfoTarget);
