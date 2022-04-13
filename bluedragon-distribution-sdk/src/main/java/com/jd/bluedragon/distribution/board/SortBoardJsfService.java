@@ -19,10 +19,8 @@ public interface SortBoardJsfService {
 
     Response<Void> autoBoardComplete(AutoBoardCompleteRequest request);
 
-    Response<String> calcBoard(AutoBoardCompleteRequest domain);
-
-
     Response<BoardSendDto> addToBoard(BindBoardRequest request);
 
     List<BoardSendDto> checkAndReplenishDelivery(CheckBoardStatusDto request);
+    Response<List<String>> calcBoard(AutoBoardCompleteRequest domain);
 }
