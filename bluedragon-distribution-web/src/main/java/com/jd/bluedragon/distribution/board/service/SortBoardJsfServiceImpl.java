@@ -6,14 +6,12 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.board.request.CloseVirtualBoardPo;
 import com.jd.bluedragon.common.dto.board.request.CombinationBoardRequest;
 import com.jd.bluedragon.common.dto.board.response.BoardCheckDto;
-import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.dto.BoardDto;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.board.SortBoardJsfService;
 import com.jd.bluedragon.distribution.board.domain.*;
 import com.jd.bluedragon.distribution.loadAndUnload.exception.LoadIllegalException;
-import com.jd.bluedragon.distribution.sdk.common.domain.BaseResult;
 import com.jd.bluedragon.distribution.sdk.modules.board.BoardChuteJsfService;
 import com.jd.bluedragon.distribution.sdk.modules.board.domain.BoardCompleteRequest;
 import com.jd.bluedragon.distribution.send.domain.SendM;
@@ -24,7 +22,6 @@ import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.gateway.service.SortBoardGatewayService;
-import com.jd.bluedragon.utils.ArraysUtil;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -199,6 +196,28 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
             return response;
         }
 
+    }
+
+    @Override
+    public Response<String> calcBoard(AutoBoardCompleteRequest request) {
+        Response<String> response = new Response<String>();
+        BoardCompleteRequest boardCompleteRequest = new BoardCompleteRequest();
+        BeanUtils.copyProperties(request, boardCompleteRequest);
+        com.jd.bluedragon.distribution.sdk.common.domain.InvokeResult<String> baseResult =
+                boardChuteJsfService.calcBoard(boardCompleteRequest);
+        log.info("计算格口获取板号信息,request:"+ JsonHelper.toJson(request)+",result:"+ JsonHelper.toJson(baseResult));
+        if (baseResult.getCode()!=200){
+            response.toFail(StringUtils.isEmpty(baseResult.getMessage())?"查询组板包裹(箱号)信息失败，请退出重试!":baseResult.getMessage());
+            return response;
+        }
+        String boardCode = baseResult.getData();
+        if (StringUtils.isEmpty(boardCode)){
+            response.toFail("查询组板包裹(箱号)信息失败，请退出重试!");
+            return response;
+        }
+        response.toSucceed();
+        response.setData(boardCode);
+        return response;
     }
 
 
