@@ -1,11 +1,15 @@
 package ld;
+import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
+import com.jd.bluedragon.common.dto.base.request.User;
 
+import com.jd.bluedragon.common.dto.operation.workbench.unload.request.UnloadScanRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.unload.request.UnloadVehicleTaskRequest;
 import com.jd.bluedragon.distribution.coldChain.domain.*;
 import com.jd.bluedragon.distribution.coldchain.service.ColdChainExternalServiceImpl;
 import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.service.unload.IJyUnloadVehicleService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.external.gateway.service.JyUnloadVehicleGatewayService;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -128,5 +132,39 @@ public class ColdChainExternalServiceImplTest {
 //        request.setFetchType();
 
         unloadVehicleService.fetchUnloadTask(request);
+    }
+
+    private static User user = new User();
+    private static CurrentOperate currentOperate = new CurrentOperate();
+
+    static {
+
+        user.setUserCode(17907);
+        user.setUserName("邢松");
+        user.setUserErp("bjxings");
+
+        currentOperate.setOrgId(1);
+        currentOperate.setSiteCode(910);
+        currentOperate.setSiteName("北京马驹桥");
+
+    }
+
+    @Autowired
+    private JyUnloadVehicleGatewayService unloadVehicleGatewayService;
+
+    @Test
+    public void unloadScanTest() {
+        UnloadScanRequest request = new UnloadScanRequest();
+        request.setUser(user);
+        request.setCurrentOperate(currentOperate);
+        request.setBarCode("JDVF00001740486");
+        request.setTaskId("220411200000001");
+        request.setBizId("SC00002");
+        request.setSealCarCode("SC00002");
+        request.setForceSubmit(false);
+        request.setGroupCode("G00000008001");
+
+        unloadVehicleGatewayService.unloadScan(request);
+
     }
 }

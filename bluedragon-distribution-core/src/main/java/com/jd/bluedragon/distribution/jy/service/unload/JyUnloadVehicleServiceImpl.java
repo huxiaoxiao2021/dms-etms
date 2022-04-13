@@ -434,7 +434,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
 
         InvokeResult<Integer> result = new InvokeResult<>();
         // 卸车扫描前置校验
-        if (checkBeforeScan(result, request)) {
+        if (!checkBeforeScan(result, request)) {
             return result;
         }
 
@@ -560,38 +560,11 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
      */
     private boolean checkBeforeScan(InvokeResult<Integer> result, UnloadScanRequest request) {
         String barCode = request.getBarCode();
-        if (StringUtils.isBlank(barCode)) {
-            result.parameterError("请扫描单号！");
-            return false;
-        }
-        if (!BusinessHelper.isBoxcode(barCode)
-                && !WaybillUtil.isWaybillCode(barCode)
-                && !WaybillUtil.isPackageCode(barCode)) {
-            result.parameterError("扫描单号非法！");
-            return false;
-        }
-
-        if (StringUtils.isBlank(request.getBizId())
-                || StringUtils.isBlank(request.getSealCarCode())
-                || StringUtils.isBlank(request.getTaskId())) {
-            result.parameterError("请选择卸车任务！");
-            return false;
-        }
-
         int siteCode = request.getCurrentOperate().getSiteCode();
-        if (!NumberHelper.gt0(siteCode)) {
-            result.parameterError("缺少操作场地！");
-            return false;
-        }
 
         // 一个单号只能扫描一次
         if (checkBarScannedAlready(barCode, siteCode)) {
             result.hintMessage("单号已扫描！");
-            return false;
-        }
-
-        if (StringUtils.isBlank(request.getGroupCode())) {
-            result.hintMessage("扫描前请绑定小组！");
             return false;
         }
 
@@ -630,7 +603,8 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         Date operateTime = new Date();
         UnloadScanDto unloadScanDto = new UnloadScanDto();
         unloadScanDto.setBizId(request.getBizId());
-        unloadScanDto.setSealCarCode(request.getSealCarCode());
+        // 无任务场景下没有sealCarCode
+        unloadScanDto.setSealCarCode(StringUtils.isBlank(request.getSealCarCode()) ? StringUtils.EMPTY : request.getSealCarCode());
         unloadScanDto.setVehicleNumber(taskUnloadVehicle.getVehicleNumber());
         unloadScanDto.setStartSiteId(taskUnloadVehicle.getStartSiteId());
         unloadScanDto.setEndSiteId(taskUnloadVehicle.getEndSiteId());
@@ -1124,7 +1098,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         pager.setSearchVo(searchVo);
 
         searchVo.setEndSiteId(request.getCurrentOperate().getSiteCode());
-        searchVo.setSealCarCode(request.getBizId());
+        searchVo.setSealCarCode(request.getSealCarCode());
         searchVo.setBizId(request.getBizId());
         searchVo.setInterceptFlag(Constants.CONSTANT_NUMBER_ONE); // 拦截
         return pager;
@@ -1180,7 +1154,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
 
         // 多扫按操作场地查
         searchVo.setOperateSiteId(request.getCurrentOperate().getSiteCode());
-        searchVo.setSealCarCode(request.getBizId());
+        searchVo.setSealCarCode(request.getSealCarCode());
         searchVo.setBizId(request.getBizId());
         searchVo.setMoreScanFlag(Constants.CONSTANT_NUMBER_ONE); // 多扫
         return pager;
@@ -1281,7 +1255,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
 
         if (NumberHelper.gt0(unloadDetail.getInterceptFlag())) {
             displayOrder ++;
-            labelList.add(new LabelOption(BarCodeLabelOptionEnum.INTERCEPT.getCode(), "拦截", displayOrder));
+            labelList.add(new LabelOption(BarCodeLabelOptionEnum.INTERCEPT.getCode(), BarCodeLabelOptionEnum.INTERCEPT.getName(), displayOrder));
         }
 
         return labelList;
@@ -1295,13 +1269,14 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         JyVehicleTaskUnloadDetail searchVo = new JyVehicleTaskUnloadDetail();
         pager.setSearchVo(searchVo);
 
+        searchVo.setBizId(request.getBizId());
+        searchVo.setSealCarCode(request.getSealCarCode());
+
         // 多扫查询条件
         searchVo.setOperateSiteId(request.getCurrentOperate().getSiteCode());
-        searchVo.setBizId(request.getBizId());
         searchVo.setMoreScanFlag(Constants.CONSTANT_NUMBER_ONE); // 多扫
 
         // 待扫查询条件
-        searchVo.setSealCarCode(request.getBizId());
         searchVo.setScannedFlag(Constants.NUMBER_ZERO); // 待扫
         searchVo.setEndSiteId(request.getCurrentOperate().getSiteCode());
         return pager;
