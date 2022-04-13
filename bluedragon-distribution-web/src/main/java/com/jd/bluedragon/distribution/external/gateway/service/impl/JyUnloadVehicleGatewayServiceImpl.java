@@ -15,15 +15,19 @@ import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.UnloadProductTypeEnum;
 import com.jd.bluedragon.distribution.jy.service.unload.IJyUnloadVehicleService;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadDto;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.gateway.service.InspectionGatewayService;
 import com.jd.bluedragon.external.gateway.service.JyUnloadVehicleGatewayService;
+import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -123,6 +127,10 @@ public class JyUnloadVehicleGatewayServiceImpl implements JyUnloadVehicleGateway
         JdVerifyResponse<Integer> response = new JdVerifyResponse<>();
         response.toSuccess();
 
+        if (!checkBeforeScan(response, request)) {
+            return response;
+        }
+
         // 扫描前校验拦截结果
         if (!checkBarInterceptResult(response, request)) {
             return response;
@@ -130,6 +138,45 @@ public class JyUnloadVehicleGatewayServiceImpl implements JyUnloadVehicleGateway
 
         InvokeResult<Integer> invokeResult = unloadVehicleService.unloadScan(request);
         return new JdVerifyResponse<>(invokeResult.getCode(), invokeResult.getMessage(), invokeResult.getData());
+    }
+
+    /**
+     * 扫描前校验
+     * @param response
+     * @param request
+     * @return
+     */
+    private boolean checkBeforeScan(JdVerifyResponse<Integer> response, UnloadScanRequest request) {
+        String barCode = request.getBarCode();
+        if (StringUtils.isBlank(barCode)) {
+            response.toFail("请扫描单号！");
+            return false;
+        }
+        if (!BusinessHelper.isBoxcode(barCode)
+                && !WaybillUtil.isWaybillCode(barCode)
+                && !WaybillUtil.isPackageCode(barCode)) {
+            response.toFail("扫描单号非法！");
+            return false;
+        }
+
+        if (StringUtils.isBlank(request.getBizId())
+                || StringUtils.isBlank(request.getTaskId())) {
+            response.toFail("请选择卸车任务！");
+            return false;
+        }
+
+        int siteCode = request.getCurrentOperate().getSiteCode();
+        if (!NumberHelper.gt0(siteCode)) {
+            response.toFail("缺少操作场地！");
+            return false;
+        }
+
+        if (StringUtils.isBlank(request.getGroupCode())) {
+            response.toFail("扫描前请绑定小组！");
+            return false;
+        }
+
+        return true;
     }
 
     /**
