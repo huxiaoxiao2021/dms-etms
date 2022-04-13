@@ -430,16 +430,18 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         logInfo("开始卸车扫描. {}", JsonHelper.toJson(request));
 
         InvokeResult<Integer> result = new InvokeResult<>();
-        // 卸车扫描前置校验
-        if (!checkBeforeScan(result, request)) {
-            return result;
-        }
 
         JyBizTaskUnloadVehicleEntity taskUnloadVehicle = unloadVehicleService.findByBizId(request.getBizId());
         if (taskUnloadVehicle == null) {
             result.hintMessage("卸车任务不存在，请刷新卸车任务列表后再扫描！");
             return result;
         }
+
+        // 卸车扫描前置校验
+        if (!checkBeforeScan(result, request)) {
+            return result;
+        }
+
 
         try {
             // 保存扫描记录，发运单全程跟踪。首次扫描分配卸车任务

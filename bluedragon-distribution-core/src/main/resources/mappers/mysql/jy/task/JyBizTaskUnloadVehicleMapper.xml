@@ -391,7 +391,7 @@
             <if test="abnormalFlag != null">
                 abnormal_flag = #{abnormalFlag},
             </if>
-            <if test="total_count != null">
+            <if test="totalCount != null">
                 total_count = #{totalCount},
             </if>
             <if test="unloadProgress != null">
