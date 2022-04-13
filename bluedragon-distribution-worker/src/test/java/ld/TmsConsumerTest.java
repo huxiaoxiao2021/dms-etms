@@ -1,9 +1,11 @@
 package ld;
 
+import com.jd.bluedragon.common.dto.operation.workbench.unload.request.UnloadVehicleTaskRequest;
 import com.jd.bluedragon.distribution.consumer.jy.vehicle.TmsCancelSealCarBatchConsumer;
 import com.jd.bluedragon.distribution.consumer.jy.vehicle.TmsSealCarStatusConsumer;
 import com.jd.bluedragon.distribution.consumer.jy.vehicle.TmsTransWorkCarArriveConsumer;
 import com.jd.bluedragon.distribution.consumer.jy.vehicle.TmsVehicleDetailStatusConsumer;
+import com.jd.bluedragon.distribution.jy.service.unload.IJyUnloadVehicleService;
 import com.jd.jmq.common.message.Message;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -33,6 +35,9 @@ public class TmsConsumerTest {
     @Autowired
     private TmsCancelSealCarBatchConsumer tmsCancelSealCarBatchConsumer;
 
+
+
+
     @Test
     public void testTmsMq(){
         //封车
@@ -50,5 +55,10 @@ public class TmsConsumerTest {
         }
 
 
+
+
+
     }
+
+
 }

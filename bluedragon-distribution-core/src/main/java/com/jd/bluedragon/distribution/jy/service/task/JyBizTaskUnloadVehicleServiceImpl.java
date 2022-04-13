@@ -177,7 +177,7 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
         Integer offset = 0;
         Integer limit = pageSize;
         if(pageNum > 0 ){
-            offset = pageNum * pageSize;
+            offset = ( pageNum - 1 ) * pageSize;
         }
         //超过最大分页数据量 直接返回空数据
         if(offset + limit > ucc.getJyTaskPageMax()){
