@@ -6,6 +6,7 @@ import com.jd.bluedragon.common.dto.base.request.OperatorInfo;
 import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
+import com.jd.bluedragon.common.dto.board.BizSourceEnum;
 import com.jd.bluedragon.common.dto.board.request.*;
 import com.jd.bluedragon.common.dto.board.response.UnbindVirtualBoardResultDto;
 import com.jd.bluedragon.common.dto.board.response.VirtualBoardResultDto;
@@ -407,15 +408,6 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
                     Date sendTime = recentSendMByParam.getOperateTime();
                     if(sendTime != null && System.currentTimeMillis() - sendTime.getTime() <= 3l * 3600l * 1000l) {
                         result.toFail("该包裹已发货");
-                        return result;
-                    }
-                }
-                // 校验循环集包袋
-                if (isBoxCode){
-                    final Box box = boxService.findBoxByCode(bindToVirtualBoardPo.getBarCode());
-                    if (!validationAndCheck(bindToVirtualBoardPo.getBarCode(),bindToVirtualBoardPo.getOperateType(),bindToVirtualBoardPo.getSiteCode(),box)){
-                        result.setCode(BoxResponse.CODE_BC_BOX_NO_BINDING);
-                        result.setMessage(BoxResponse.MESSAGE_BC_NO_BINDING);
                         return result;
                     }
                 }
