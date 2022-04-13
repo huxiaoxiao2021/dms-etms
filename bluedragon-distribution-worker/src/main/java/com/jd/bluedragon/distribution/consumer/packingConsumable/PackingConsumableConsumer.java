@@ -26,10 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * @author shipeilin
@@ -84,7 +81,7 @@ public class PackingConsumableConsumer extends MessageBaseConsumer {
             addLog(packingConsumable,startTime);
             return;
         }
-        if(Objects.equals(Constants.INTEGER_FLG_TRUE,packingConsumable.getIndustryTag())){
+        if(checkColdWaybill(packingConsumable)){
             this.log.warn("PackingConsumableConsumer consume -->冷链条线耗材无须关注：{}" , message.getText());
             addLog(packingConsumable,startTime);
             return;
@@ -106,6 +103,24 @@ public class PackingConsumableConsumer extends MessageBaseConsumer {
             waybillConsumableRelationService.batchAdd(waybillConsumableRelationLst);
         }
         log.debug("PackingConsumableConsumer consume --> 消息消费完成，Body为【{}】",message.getText());
+    }
+
+    /**
+     * 检查冷链产品
+     * @param packingConsumable
+     * @return
+     */
+    private boolean checkColdWaybill(WaybillConsumableDto packingConsumable){
+        String productTypeStr = packingConsumable.getProductType();
+        if(StringUtils.isNotBlank(productTypeStr)){
+            List<String> productTypeList = Arrays.asList(productTypeStr.split(Constants.SEPARATOR_COMMA));
+            if(productTypeList.contains(Constants.PRODUCT_TYPE_MEDICAL_PART_BILL)
+                || productTypeList.contains(Constants.PRODUCT_TYPE_MEDICINE_DP)
+                || productTypeList.contains(Constants.PRODUCT_TYPE_MEDICAL_COLD_BILL)){
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
