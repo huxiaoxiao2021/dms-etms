@@ -5,10 +5,12 @@ import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.request.OperatorInfo;
 import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.board.BizSourceEnum;
 import com.jd.bluedragon.common.dto.board.request.*;
 import com.jd.bluedragon.common.dto.board.response.UnbindVirtualBoardResultDto;
 import com.jd.bluedragon.common.dto.board.response.VirtualBoardResultDto;
+import com.jd.bluedragon.common.dto.box.response.BoxDto;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
@@ -18,11 +20,15 @@ import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.core.jsf.dms.IVirtualBoardJsfManager;
 import com.jd.bluedragon.distribution.api.request.BoardCombinationRequest;
+import com.jd.bluedragon.distribution.api.response.BoxResponse;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.businessIntercept.enums.BusinessInterceptOnlineStatusEnum;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
+import com.jd.bluedragon.distribution.cyclebox.CycleBoxService;
+import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigEnum;
+import com.jd.bluedragon.distribution.funcSwitchConfig.service.FuncSwitchConfigService;
 import com.jd.bluedragon.distribution.jsf.domain.BoardCombinationJsfResponse;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.distribution.send.domain.SendM;
@@ -34,6 +40,7 @@ import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.dms.utils.BarCodeType;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.external.gateway.service.BoxGatewayService;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.Md5Helper;
@@ -41,6 +48,7 @@ import com.jd.dms.workbench.utils.sdk.base.Result;
 import com.jd.dms.workbench.utils.sdk.constants.ResultCodeConstant;
 import com.jd.eclp.common.util.DateUtil;
 import com.jd.etms.waybill.domain.Waybill;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.transboard.api.dto.Board;
 import com.jd.transboard.api.dto.Response;
@@ -58,8 +66,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 
 import javax.annotation.Resource;
+import javax.ws.rs.QueryParam;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -77,6 +87,12 @@ import java.util.concurrent.TimeUnit;
 public class VirtualBoardServiceImpl implements VirtualBoardService {
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
+
+    @Resource
+    private CycleBoxService cycleBoxService;
+
+    @Resource
+    private FuncSwitchConfigService funcSwitchConfigService;
 
     @Autowired
     private IVirtualBoardJsfManager virtualBoardJsfManager;
@@ -437,6 +453,46 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
         return result;
     }
 
+    public boolean validationAndCheck(String boxCode, Integer operateType,Integer siteCode, Box box) {
+        if (Constants.OPERATE_TYPE_SORTING.equals(operateType) || Constants.OPERATE_TYPE_INSPECTION.equals(operateType)) {
+            BaseStaffSiteOrgDto dto = baseService.queryDmsBaseSiteByCode(box.getReceiveSiteCode().toString());
+            if (dto == null) {
+                log.info("boxes/validation :{} baseService.queryDmsBaseSiteByCode 获取目的地信息 NULL", box.getReceiveSiteCode().toString());
+                return false;
+            }
+            // 获取循环集包袋绑定信息
+            String materialCode = cycleBoxService.getBoxMaterialRelation(boxCode);
+            // 决定是否绑定循环集包袋
+            if (!checkHaveBinDing(materialCode, box.getType(), siteCode)) {
+                return false;
+            }
+        }
+        return true;
+    }
+    /**
+     * true 绑定了  false 未绑定
+     * @param materialCode
+     * @param boxType
+     * @param siteCode
+     * @return
+     */
+    private boolean checkHaveBinDing(String materialCode,String boxType,Integer siteCode){
+        // 不是BC类型的不拦截
+        if(!BusinessHelper.isBCBoxType(boxType)){
+            return true;
+        }
+
+        // 开关关闭不拦截
+        if(!funcSwitchConfigService.getBcBoxFilterStatus(FuncSwitchConfigEnum.FUNCTION_BC_BOX_FILTER.getCode(),siteCode)){
+            return  true;
+        }
+
+        //有集包袋不拦截
+        if(!org.springframework.util.StringUtils.isEmpty(materialCode)){
+            return true;
+        }
+        return false;
+    }
     /**
      * 推组板发货任务
      * @return
@@ -1007,6 +1063,26 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
         return result;
     }
 
+    @Override
+    public JdCResponse<VirtualBoardResultDto> getBoxCountByBoardCode(String boardCode) {
+        JdCResponse<VirtualBoardResultDto> result = new JdCResponse<>();
+        Response<com.jd.transboard.api.dto.VirtualBoardResultDto> handleResult = virtualBoardJsfManager.getBoxCountByBoardCode(boardCode);
+        if(!Objects.equals(handleResult.getCode(), ResponseEnum.SUCCESS.getIndex())){
+            log.error("VirtualBoardServiceImpl.getBoxCountByBoardCode--fail-- param {} result {}", boardCode, JsonHelper.toJson(handleResult));
+            result.toFail("获取板号统计信息失败，请稍后再试");
+            return result;
+        }
+        com.jd.transboard.api.dto.VirtualBoardResultDto virtualBoardResultDto = handleResult.getData();
+        if (null == virtualBoardResultDto) {
+            result.toFail("查询数据异常，请联系分拣小秘排查！");
+            return result;
+        }
+        VirtualBoardResultDto dto = new VirtualBoardResultDto();
+        BeanUtils.copyProperties(virtualBoardResultDto, dto);
+        result.setData(dto);
+        result.toSucceed();
+        return result;
+    }
 
     private com.jd.transboard.api.dto.HandoverVirtualBoardPo getConvertToTcParam(HandoverVirtualBoardPo handoverVirtualBoardPo) {
         com.jd.transboard.api.dto.HandoverVirtualBoardPo handoverVirtualBoardPoTc = new com.jd.transboard.api.dto.HandoverVirtualBoardPo();
