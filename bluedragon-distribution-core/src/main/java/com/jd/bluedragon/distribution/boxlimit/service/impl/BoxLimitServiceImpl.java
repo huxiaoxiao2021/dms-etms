@@ -32,7 +32,9 @@ import java.util.*;
 public class BoxLimitServiceImpl implements BoxLimitService {
     private static final Logger log = LoggerFactory.getLogger(BoxLimitServiceImpl.class);
     private final int maxImportSize = 5000;
+    //场地建箱配置类型
     private static final Integer SITE_BOX_TYPE = 2;
+    //箱号类型
     private static List<String> boxNumberTypes;
     static{
         boxNumberTypes = Arrays.asList("BC","TC","GC","FC","BS","TS","FS","ZC","BX","TW","WJ");
@@ -242,7 +244,7 @@ public class BoxLimitServiceImpl implements BoxLimitService {
             if (dto.getId() == null || !dto.getId().equals(boxLimitConfigs.get(0).getId())) {
                 if(dto.getConfigType().equals(SITE_BOX_TYPE)){
                     response.setCode(JdResponse.CODE_FAIL);
-                    response.setMessage(String.format("ID为:%s 的机构配置箱号类型:%s 已经存在,不允许重复配置", dto.getSiteId(),dto.getBoxNumberType()));
+                    response.setMessage(String.format("ID为:%s 的机构配置箱号类型:%s 已经存在,请修改或者删除原配置", dto.getSiteId(),dto.getBoxNumberType()));
                     return;
                 }
                 response.setCode(JdResponse.CODE_FAIL);

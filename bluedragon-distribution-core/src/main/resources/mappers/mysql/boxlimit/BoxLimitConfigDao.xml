@@ -15,10 +15,9 @@
     <result column="yn" jdbcType="BOOLEAN" property="yn" />
     <result column="config_type" jdbcType="TINYINT" property="configType"/>
     <result column="box_number_type"  jdbcType="VARCHAR" property="boxNumberType"/>
-
   </resultMap>
   <sql id="Base_Column_List">
-    id, site_name, site_id, limit_num, operator_erp, operator_site_id, operator_site_name, 
+    id, site_name, site_id, limit_num, operator_erp, operator_site_id, operator_site_name,
     operating_time, create_time, update_time, yn, config_type, box_number_type
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
