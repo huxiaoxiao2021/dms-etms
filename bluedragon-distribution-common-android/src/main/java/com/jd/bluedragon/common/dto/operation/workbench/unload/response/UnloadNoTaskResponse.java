@@ -16,8 +16,10 @@ public class UnloadNoTaskResponse implements Serializable {
     private Integer operateSiteId;
     // 操作场地名称
     private String operateSiteName;
-    // 任务编码
+    // 业务主键
     private String bizId;
+    // 任务编码
+    private String taskId;
     // 封车编码
     private String sealCarCode;
     // 车牌号
@@ -45,6 +47,14 @@ public class UnloadNoTaskResponse implements Serializable {
 
     public void setBizId(String bizId) {
         this.bizId = bizId;
+    }
+
+    public String getTaskId() {
+        return taskId;
+    }
+
+    public void setTaskId(String taskId) {
+        this.taskId = taskId;
     }
 
     public String getSealCarCode() {
