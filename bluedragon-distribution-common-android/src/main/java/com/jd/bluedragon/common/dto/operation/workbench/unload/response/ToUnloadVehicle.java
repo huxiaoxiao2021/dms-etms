@@ -36,6 +36,11 @@ public class ToUnloadVehicle extends VehicleBaseInfo implements Serializable {
      */
     private String taskId;
 
+    /**
+     * 业务主键
+     */
+    private String bizId;
+
     public String getTaskId() {
         return taskId;
     }
@@ -68,6 +73,13 @@ public class ToUnloadVehicle extends VehicleBaseInfo implements Serializable {
         this.manualCreatedTask = manualCreatedTask;
     }
 
+    public String getBizId() {
+        return bizId;
+    }
+
+    public void setBizId(String bizId) {
+        this.bizId = bizId;
+    }
 
     private Boolean _active;
 

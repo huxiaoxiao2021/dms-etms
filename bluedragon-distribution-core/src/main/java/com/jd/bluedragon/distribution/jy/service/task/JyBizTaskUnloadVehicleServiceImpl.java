@@ -7,7 +7,6 @@ import com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskUnloadVehicleDao;
 import com.jd.bluedragon.distribution.jy.dto.task.JyBizTaskUnloadCountDto;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadOrderTypeEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadStatusEnum;
-import com.jd.bluedragon.distribution.jy.enums.JyLineTypeEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadDto;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
@@ -15,13 +14,12 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.coo.sa.sequence.JimdbSequenceGen;
-import com.jd.etms.sdk.util.DateUtil;
 import com.jd.etms.vos.dto.CommonDto;
 import com.jd.etms.vos.dto.SealCarDto;
 import com.jd.jim.cli.Cluster;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
-import org.jsoup.helper.DataUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,8 +27,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -177,7 +173,7 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
         Integer offset = 0;
         Integer limit = pageSize;
         if(pageNum > 0 ){
-            offset = pageNum * pageSize;
+            offset = ( pageNum - 1 ) * pageSize;
         }
         //超过最大分页数据量 直接返回空数据
         if(offset + limit > ucc.getJyTaskPageMax()){
@@ -285,7 +281,9 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
                 Long id = jyBizTaskUnloadVehicleDao.findIdByBizId(bizId);
                 if(id != null && id > 0){
                     //存在即更新
+                    entity.setId(id);
                     result = jyBizTaskUnloadVehicleDao.updateOfBaseInfoById(entity) > 0;
+                    entity.setId(null);
                 }else {
                     //不存在则新增
                     result = jyBizTaskUnloadVehicleDao.insert(entity) > 0;
@@ -327,7 +325,9 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
                 Long id = jyBizTaskUnloadVehicleDao.findIdByBizId(bizId);
                 if(id != null && id > 0){
                     //存在即更新
+                    entity.setId(id);
                     result = jyBizTaskUnloadVehicleDao.updateOfBusinessInfoById(entity) > 0;
+                    entity.setId(null);
                 }else {
                     //不存在则新增
                     result = jyBizTaskUnloadVehicleDao.insert(entity) > 0;
@@ -459,7 +459,7 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
 
     /**
      * 无任务模式初始数据 无任务模式创建的任务默认为待卸状态
-     * 业务主键和封车编码保持一致 并自定生成
+     * 业务主键自定生成 封车编码未空字符串
      * @param dto
      * @return
      */
@@ -473,7 +473,7 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
         }
         JyBizTaskUnloadVehicleEntity initParams = new JyBizTaskUnloadVehicleEntity();
         initParams.setBizId(bizId);
-        initParams.setSealCarCode(bizId);
+        initParams.setSealCarCode(StringUtils.EMPTY);
         initParams.setVehicleNumber(dto.getVehicleNumber()); //车牌号从无任务模式中获取
         initParams.setStartSiteId(Long.valueOf(0));
         initParams.setStartSiteName("无任务模式");
@@ -498,7 +498,7 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
      */
     private String genBizId(){
         String ownerKey = String.format(JY_BIZ_TASK_BIZ_ID_PREFIX, DateHelper.formatDate(new Date(),DateHelper.DATE_FORMATE_yyMMdd));
-        return StringHelper.padZero(redisJyBizIdSequenceGen.gen(ownerKey));
+        return ownerKey + StringHelper.padZero(redisJyBizIdSequenceGen.gen(ownerKey));
     }
 
     /**

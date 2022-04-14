@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.lucene.util.CollectionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -269,6 +270,18 @@ public class WorkStationServiceImpl implements WorkStationService {
 		result.setData(workStationDao.queryByBusinessKey(data));
 		return result;		
 	}
+
+	@Override
+	public Result<WorkStation> queryByRealBusinessKey(String businessKey) {
+		Result<WorkStation> result = Result.success();
+		if(StringUtils.isEmpty(businessKey)){
+			result.toFail("业务主键不能为空!");
+			return result;
+		}
+		result.setData(workStationDao.queryByRealBusinessKey(businessKey));
+		return result;
+	}
+
 	@Override
 	public boolean isExist(WorkStation data) {
 		return workStationDao.queryByBusinessKey(data) != null;

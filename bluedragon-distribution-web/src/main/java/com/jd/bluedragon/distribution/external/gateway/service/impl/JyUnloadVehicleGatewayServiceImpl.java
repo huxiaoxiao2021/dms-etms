@@ -70,6 +70,7 @@ public class JyUnloadVehicleGatewayServiceImpl implements JyUnloadVehicleGateway
             unloadNoTaskResponse.setOperateSiteId(noTaskUnloadDto.getOperateSiteId());
             unloadNoTaskResponse.setOperateSiteName(noTaskUnloadDto.getOperateSiteName());
             unloadNoTaskResponse.setBizId(noTaskUnloadDto.getBizId());
+            unloadNoTaskResponse.setTaskId(noTaskUnloadDto.getTaskId());
             unloadNoTaskResponse.setSealCarCode(noTaskUnloadDto.getSealCarCode());
             unloadNoTaskResponse.setVehicleNumber(noTaskUnloadDto.getVehicleNumber());
             jdCResponse.toSucceed();

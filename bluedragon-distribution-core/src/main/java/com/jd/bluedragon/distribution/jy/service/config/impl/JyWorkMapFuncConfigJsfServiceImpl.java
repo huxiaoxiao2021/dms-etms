@@ -169,11 +169,13 @@ public class JyWorkMapFuncConfigJsfServiceImpl implements JyWorkMapFuncConfigJsf
                 detailVO.setCreateTime(entity.getCreateTime());
                 detailVO.setUpdateUser(entity.getUpdateUser());
                 detailVO.setUpdateTime(entity.getUpdateTime());
-                // 以下待后续需要在添加
-//                detailVO.setAreaCode();
-//                detailVO.setAreaName();
-//                detailVO.setWorkCode();
-//                detailVO.setWorkName();
+                Result<WorkStation> workStationResult = workStationService.queryByRealBusinessKey(entity.getRefWorkKey());
+                if(workStationResult != null && workStationResult.getData() != null){
+                    detailVO.setAreaCode(workStationResult.getData().getAreaCode());
+                    detailVO.setAreaName(workStationResult.getData().getAreaName());
+                    detailVO.setWorkCode(workStationResult.getData().getWorkCode());
+                    detailVO.setWorkName(workStationResult.getData().getWorkName());
+                }
                 list.add(detailVO);
             }
             pageDto.setTotalRow(queryResult.getTotalRow());

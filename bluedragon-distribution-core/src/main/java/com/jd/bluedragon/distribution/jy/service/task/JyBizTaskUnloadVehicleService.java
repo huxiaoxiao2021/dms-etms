@@ -145,7 +145,7 @@ public interface JyBizTaskUnloadVehicleService {
 
     /**
      * 无任务模式初始数据
-     * 业务主键和封车编码保持一致 并自定生成
+     * 业务主键自定生成 封车编码未空字符串
      * @param dto
      * @return
      */
