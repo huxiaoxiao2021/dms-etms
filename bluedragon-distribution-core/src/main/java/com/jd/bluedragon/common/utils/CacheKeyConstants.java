@@ -202,30 +202,30 @@ public class CacheKeyConstants {
      * 卸车扫描防重，每个单号只能扫描一次
      * 单号+场地
      */
-    public static final String JY_UNLOAD_SCAN_KEY = JY_CACHE_PREFIX + "unload:scan:%s:%s";
+    public static final String JY_UNLOAD_SCAN_KEY = JY_CACHE_PREFIX + "ul:scan:%s:%s";
 
     /**
      * 拣运卸车任务主键
      * bizId
      */
-    public static final String JY_UNLOAD_BIZ_KEY = JY_CACHE_PREFIX + "unload:biz:%s";
+    public static final String JY_UNLOAD_TASK_FIRST_SCAN_KEY = JY_CACHE_PREFIX + "ul:biz:first:%s";
 
     /**
      * PDA扫描进度缓存
      * bizId
      */
-    public static final String JY_UNLOAD_PDA_AGG_KEY = JY_CACHE_PREFIX + "unload:pda:%s";
+    public static final String JY_UNLOAD_PDA_PROCESS_KEY = JY_CACHE_PREFIX + "ul:process:part:%s";
 
     /**
      * 拣运卸车任务扫描进度
      * bizId
      */
-    public static final String JY_UNLOAD_DETAIL_KEY = JY_CACHE_PREFIX + "unload:biz:%s";
+    public static final String JY_UNLOAD_PROCESS_KEY = JY_CACHE_PREFIX + "ul:process:%s";
 
     /**
      * 拣运卸车任务数据
      * sealCarCode
      */
-    public static final String JY_UNLOAD_SEAL_CAR_MONITOR_SEAL_CAR_CODE = JY_CACHE_PREFIX + "sealCarMonitor:sealCarCode:%s";
+    public static final String JY_UNLOAD_SEAL_CAR_MONITOR_SEAL_CAR_CODE = JY_CACHE_PREFIX + "sealCarMonitor:%s";
 
 }

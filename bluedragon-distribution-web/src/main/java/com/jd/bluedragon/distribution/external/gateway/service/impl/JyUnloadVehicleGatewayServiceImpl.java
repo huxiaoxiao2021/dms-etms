@@ -133,11 +133,23 @@ public class JyUnloadVehicleGatewayServiceImpl implements JyUnloadVehicleGateway
 
         // 扫描前校验拦截结果
         if (!checkBarInterceptResult(response, request)) {
+            // 失败直接返回
             return response;
         }
 
         InvokeResult<Integer> invokeResult = unloadVehicleService.unloadScan(request);
-        return new JdVerifyResponse<>(invokeResult.getCode(), invokeResult.getMessage(), invokeResult.getData());
+        if (invokeResult.getCode() == InvokeResult.RESULT_SUCCESS_CODE) {
+            response.toSuccess();
+            return response;
+        }
+        else if (invokeResult.getCode() == InvokeResult.CODE_HINT) {
+            response.addPromptBox(0, invokeResult.getMessage());
+            return response;
+        }
+        else {
+            response.toFail(invokeResult.getMessage());
+            return response;
+        }
     }
 
     /**
@@ -198,11 +210,18 @@ public class JyUnloadVehicleGatewayServiceImpl implements JyUnloadVehicleGateway
             inspectionRequest.setOperateUserCode(request.getUser().getUserCode());
             inspectionRequest.setOperateUserName(request.getUser().getUserName());
             JdVerifyResponse<InspectionCheckResultDto> verifyResponse = inspectionGatewayService.checkBeforeInspection(inspectionRequest);
-            if (verifyResponse.getCode() != JdVerifyResponse.CODE_SUCCESS || CollectionUtils.isNotEmpty(verifyResponse.getMsgBoxes())) {
+            if (verifyResponse.getCode() != JdVerifyResponse.CODE_SUCCESS) {
                 response.setCode(verifyResponse.getCode());
                 response.setMessage(verifyResponse.getMessage());
-                response.setMsgBoxes(verifyResponse.getMsgBoxes());
                 return false;
+            }
+            else {
+                if (CollectionUtils.isNotEmpty(verifyResponse.getMsgBoxes())) {
+                    response.setCode(verifyResponse.getCode());
+                    response.setMessage(verifyResponse.getMessage());
+                    response.setMsgBoxes(verifyResponse.getMsgBoxes());
+                    return true;
+                }
             }
         }
 

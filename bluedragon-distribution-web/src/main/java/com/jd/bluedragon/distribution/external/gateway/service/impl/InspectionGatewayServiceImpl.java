@@ -11,18 +11,22 @@ import com.jd.bluedragon.common.dto.inspection.response.InspectionResultDto;
 import com.jd.bluedragon.common.dto.waybill.request.ThirdWaybillReq;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.distribution.alliance.service.AllianceBusiDeliveryDetailService;
 import com.jd.bluedragon.distribution.api.request.HintCheckRequest;
 import com.jd.bluedragon.distribution.api.request.ThirdWaybillRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.domain.JdCancelWaybillResponse;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
+import com.jd.bluedragon.distribution.coldChain.domain.InspectionCheckResult;
 import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRecordService;
 import com.jd.bluedragon.distribution.external.service.DmsPackingConsumableService;
 import com.jd.bluedragon.distribution.inspection.domain.InspectionResult;
+import com.jd.bluedragon.distribution.inspection.service.InspectionService;
 import com.jd.bluedragon.distribution.rest.allianceBusi.AllianceBusiResouse;
 import com.jd.bluedragon.distribution.rest.inspection.InspectionResource;
 import com.jd.bluedragon.distribution.rest.storage.StorageResource;
 import com.jd.bluedragon.distribution.rest.waybill.WaybillResource;
+import com.jd.bluedragon.distribution.storage.service.StoragePackageMService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.distribution.wss.dto.BaseEntity;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -35,6 +39,7 @@ import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
@@ -74,11 +79,18 @@ public class InspectionGatewayServiceImpl implements InspectionGatewayService {
     @Autowired
     protected BaseMajorManager baseMajorManager;
 
-    @Resource
-    private StorageResource storageResource;
-
     @Autowired
     private WaybillService waybillService;
+
+    @Autowired
+    private AllianceBusiDeliveryDetailService allianceBusiDeliveryDetailService;
+
+    @Autowired
+    @Qualifier("storagePackageMService")
+    private StoragePackageMService storagePackageMService;
+
+    @Autowired
+    private InspectionService inspectionService;
 
     private final static Logger log = LoggerFactory.getLogger(InspectionGatewayServiceImpl.class);
 
@@ -234,16 +246,14 @@ public class InspectionGatewayServiceImpl implements InspectionGatewayService {
         response.toSuccess();
 
         String barCode = request.getBarCode();
-        String waybillCode = WaybillUtil.getWaybillCode(barCode);
 
         // 拦截消息客户端弹窗并震动，提示消息客户端文字提示，警告消息客户端只弹窗不震动
 
-        if (!checkAllianceMoney(response, waybillCode)) {
-            return response;
-        }
+        // 加盟商余额校验
+        checkAllianceMoney(response, request);
 
         // 暂存校验
-        tempStorageCheck(request, response, waybillCode);
+        tempStorageCheck(request, response);
 
         // 提示语校验
         HintCheckRequest hintCheckRequest = new HintCheckRequest();
@@ -293,19 +303,19 @@ public class InspectionGatewayServiceImpl implements InspectionGatewayService {
      * 暂存校验
      * @param request
      * @param response
-     * @param waybillCode
      */
-    private void tempStorageCheck(InspectionRequest request, JdVerifyResponse<InspectionCheckResultDto> response, String waybillCode) {
+    private void tempStorageCheck(InspectionRequest request, JdVerifyResponse<InspectionCheckResultDto> response) {
+        String waybillCode = WaybillUtil.getWaybillCode(request.getBarCode());
         if (StringUtils.isBlank(waybillCode)) {
             return;
         }
-        InvokeResult<Boolean> tempStorageResult = storageResource.checkIsNeedStorage(waybillCode, request.getCreateSiteCode());
+
+        InvokeResult<Boolean> tempStorageResult = storagePackageMService.checkIsNeedStorage(waybillCode, request.getCreateSiteCode());
         if (tempStorageResult.getCode() == 201) {
             if (tempStorageResult.getData()) {
                 response.addWarningBox(0, tempStorageResult.getMessage());
             }
             else {
-                response.setCode(20001);
                 response.addPromptBox(0, tempStorageResult.getMessage());
             }
         }
@@ -318,23 +328,17 @@ public class InspectionGatewayServiceImpl implements InspectionGatewayService {
     /**
      * 加盟商余额校验
      * @param response
-     * @param waybillCode
+     * @param request
      * @return
      */
-    private Boolean checkAllianceMoney(JdVerifyResponse<InspectionCheckResultDto> response, String waybillCode) {
-        if (StringUtils.isBlank(waybillCode)) {
-            return true;
+    private void checkAllianceMoney(JdVerifyResponse<InspectionCheckResultDto> response, InspectionRequest request) {
+        String waybillCode = WaybillUtil.getWaybillCode(request.getBarCode());
+        if (StringUtils.isNotBlank(waybillCode)) {
+            if (!allianceBusiDeliveryDetailService.checkExist(waybillCode)) {
+                if (!allianceBusiDeliveryDetailService.checkMoney(waybillCode)) {
+                    response.addWarningBox(0, InspectionCheckResult.ALLIANCE_INTERCEPT_MESSAGE);
+                }
+            }
         }
-        BaseEntity<Boolean> result = allianceBusiResouse.checkMoney(waybillCode);
-        if (result.getCode() != BaseEntity.CODE_SUCCESS) {
-            response.toError(result.getMessage());
-            return false;
-        }
-        // 不充足就是需要拦截
-        if (!result.getData()) {
-            response.addInterceptBox(0,"加盟商预付款余额不足，请联系加盟商处理！");
-        }
-
-        return true;
     }
 }

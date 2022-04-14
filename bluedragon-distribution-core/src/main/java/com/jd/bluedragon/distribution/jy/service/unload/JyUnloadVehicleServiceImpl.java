@@ -442,7 +442,6 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
             return result;
         }
 
-
         try {
             // 保存扫描记录，发运单全程跟踪。首次扫描分配卸车任务
             UnloadScanDto unloadScanDto = createUnloadDto(request, taskUnloadVehicle);
@@ -457,7 +456,8 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         catch (Exception ex) {
             log.error("卸车扫描失败. {}", JsonHelper.toJson(request), ex);
             result.error("服务器异常，卸车扫描失败，请咚咚联系分拣小秘！");
-            return result;
+
+            redisClientOfJy.del(getBizBarCodeCacheKey(request.getBarCode(), request.getCurrentOperate().getSiteCode()));
         }
 
         return result;
@@ -500,13 +500,13 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
      * @return
      */
     private JyUnloadAggsEntity sumUnloadAgg(String bizId) {
-        JyUnloadAggsEntity retAgg = new JyUnloadAggsEntity();
-
         List<JyUnloadAggsEntity> aggList = unloadAggDao.queryByBizId(new JyUnloadAggsEntity(bizId));
         if (CollectionUtils.isEmpty(aggList)) {
-            return retAgg;
+            log.warn("卸车任务[{}]不存在进度数据.", bizId);
+            return null;
         }
 
+        JyUnloadAggsEntity retAgg = new JyUnloadAggsEntity();
         retAgg.setBizId(bizId);
         retAgg.setTotalScannedPackageCount(aggList.get(0).getTotalScannedPackageCount());
         retAgg.setTotalSealPackageCount(aggList.get(0).getTotalSealPackageCount());
@@ -633,8 +633,8 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
     private boolean checkBarScannedAlready(String barCode, int siteCode) {
         boolean alreadyScanned = false;
         // 同场地一个单号只能扫描一次
-        String mutexKey = String.format(CacheKeyConstants.JY_UNLOAD_SCAN_KEY, barCode, siteCode);
-        if (redisClientOfJy.set(mutexKey, "1", UNLOAD_SCAN_BAR_EXPIRE, TimeUnit.HOURS, false)) {
+        String mutexKey = getBizBarCodeCacheKey(barCode, siteCode);
+        if (redisClientOfJy.set(mutexKey, String.valueOf(System.currentTimeMillis()), UNLOAD_SCAN_BAR_EXPIRE, TimeUnit.HOURS, false)) {
             JyUnloadEntity queryDb = new JyUnloadEntity(barCode, (long) siteCode);
             if (jyUnloadDao.queryByCodeAndSite(queryDb) != null) {
                 alreadyScanned = true;
@@ -647,6 +647,10 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         return alreadyScanned;
     }
 
+    private String getBizBarCodeCacheKey(String barCode, int siteCode) {
+        return String.format(CacheKeyConstants.JY_UNLOAD_SCAN_KEY, barCode, siteCode);
+    }
+
     @Override
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "IJyUnloadVehicleService.unloadDetail",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
@@ -657,17 +661,18 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
             return result;
         }
 
-        // 暂时去掉缓存读数据库。需要在接收agg时写入缓存。
-        Map<String, String> hashRedisMap = Maps.newHashMap();
-
-        if (MapUtils.isEmpty(hashRedisMap)) {
-            log.warn("卸车进度缓存不存在主动刷新. {}", JsonHelper.toJson(request));
-            refreshUnloadAggCache(request.getBizId());
-        }
-        String progressCacheKey = genUnloadDetailCacheKey(request.getBizId());
-        hashRedisMap = redisClientOfJy.hGetAll(progressCacheKey);
-
         try {
+            // 暂时去掉缓存读数据库。需要在接收agg时写入缓存。
+            Map<String, String> hashRedisMap = Maps.newHashMap();
+
+            if (MapUtils.isEmpty(hashRedisMap)) {
+                log.warn("卸车进度缓存不存在主动刷新. {}", JsonHelper.toJson(request));
+                refreshUnloadAggCache(request.getBizId());
+            }
+
+            String progressCacheKey = genUnloadProcessCacheKey(request.getBizId());
+            hashRedisMap = redisClientOfJy.hGetAll(progressCacheKey);
+
             UnloadDetailCache redisCache = RedisHashUtils.mapConvertBean(hashRedisMap, UnloadDetailCache.class);
 
             UnloadScanDetail scanProgress = JsonHelper.fromJson(JsonHelper.toJson(redisCache), UnloadScanDetail.class);
@@ -789,9 +794,22 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
 
         JyUnloadAggsEntity unloadAggEntity = sumUnloadAgg(bizId);
 
+        boolean unloadAggSumExist = true;
+        boolean pdaUnloadProgressExist = true;
+
+        if (null == unloadAggEntity) {
+            unloadAggSumExist = false;
+        }
+
         // 比较PDA扫描的进度和Flink计算出的进度
         String pdaOpeCacheKey = genPdaUnloadProgressCacheKey(bizId);
         if (redisClientOfJy.exists(pdaOpeCacheKey)) {
+
+            if (!unloadAggSumExist) {
+                unloadAggEntity = new JyUnloadAggsEntity();
+                unloadAggEntity.setBizId(bizId);
+            }
+
             String redisVal = redisClientOfJy.hGet(pdaOpeCacheKey, RedisHashKeyConstants.UNLOAD_COUNT);
             if (StringUtils.isNotBlank(redisVal) && NumberHelper.isNumber(redisVal)) {
                 Integer pdaScannedPackageCount = Integer.valueOf(redisVal);
@@ -801,10 +819,16 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
                 unloadAggEntity.setTotalScannedPackageCount(rightUnloadCount);
             }
         }
+        else {
+            pdaUnloadProgressExist = false;
+        }
 
-        logInfo("init unload progress from unload agg. {}", JsonHelper.toJson(unloadAggEntity));
+        if (unloadAggSumExist || pdaUnloadProgressExist) {
+            return initScanDetailCacheUsingUnloadAgg(unloadAggEntity);
+        }
 
-        return initScanDetailCacheUsingUnloadAgg(unloadAggEntity);
+        return false;
+
     }
 
     /**
@@ -818,17 +842,15 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         }
 
         try {
-            UnloadDetailCache cacheEntity = new UnloadDetailCache();
-            cacheEntity.setBizId(unloadAggEntity.getBizId());
-            cacheEntity.setInterceptShouldScanCount(unloadAggEntity.getInterceptShouldScanCount());
-            cacheEntity.setInterceptActualScanCount(unloadAggEntity.getInterceptActualScanCount());
-            cacheEntity.setMoreScanLocalCount(unloadAggEntity.getMoreScanLocalCount());
-            cacheEntity.setMoreScanOutCount(unloadAggEntity.getMoreScanOutCount());
-            cacheEntity.setTotalCount(unloadAggEntity.getTotalSealPackageCount());
-            cacheEntity.setUnloadCount(unloadAggEntity.getTotalScannedPackageCount());
+            logInfo("init unload progress from unload agg. {}", JsonHelper.toJson(unloadAggEntity));
 
+            UnloadDetailCache cacheEntity = unloadAggToCacheDomain(unloadAggEntity);
             Map<String, String> redisHashMap = RedisHashUtils.objConvertToMap(cacheEntity);
-            String unloadDetailCacheKey = genUnloadDetailCacheKey(unloadAggEntity.getBizId());
+            if (MapUtils.isEmpty(redisHashMap)) {
+                log.warn("unload entity to redis hashMap error. {}", JsonHelper.toJson(unloadAggEntity));
+                return false;
+            }
+            String unloadDetailCacheKey = genUnloadProcessCacheKey(unloadAggEntity.getBizId());
             redisClientOfJy.hMSet(unloadDetailCacheKey, redisHashMap);
             redisClientOfJy.expire(unloadDetailCacheKey, UNLOAD_CACHE_EXPIRE, TimeUnit.HOURS);
         }
@@ -840,12 +862,34 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         return true;
     }
 
-    private String genUnloadDetailCacheKey(String bizId) {
-        return String.format(CacheKeyConstants.JY_UNLOAD_DETAIL_KEY, bizId);
+    private UnloadDetailCache unloadAggToCacheDomain(JyUnloadAggsEntity unloadAggEntity) {
+        UnloadDetailCache cacheEntity = new UnloadDetailCache();
+        cacheEntity.setBizId(unloadAggEntity.getBizId());
+        cacheEntity.setInterceptShouldScanCount(unloadAggEntity.getInterceptShouldScanCount());
+        cacheEntity.setInterceptActualScanCount(unloadAggEntity.getInterceptActualScanCount());
+        cacheEntity.setMoreScanLocalCount(unloadAggEntity.getMoreScanLocalCount());
+        cacheEntity.setMoreScanOutCount(unloadAggEntity.getMoreScanOutCount());
+        cacheEntity.setTotalCount(unloadAggEntity.getTotalSealPackageCount());
+        cacheEntity.setUnloadCount(unloadAggEntity.getTotalScannedPackageCount());
+        return cacheEntity;
     }
 
+    /**
+     * 卸车进度缓存
+     * @param bizId
+     * @return
+     */
+    private String genUnloadProcessCacheKey(String bizId) {
+        return String.format(CacheKeyConstants.JY_UNLOAD_PROCESS_KEY, bizId);
+    }
+
+    /**
+     * PDA本地扫描进度缓存
+     * @param bizId
+     * @return
+     */
     private String genPdaUnloadProgressCacheKey(String bizId) {
-        return String.format(CacheKeyConstants.JY_UNLOAD_PDA_AGG_KEY, bizId);
+        return String.format(CacheKeyConstants.JY_UNLOAD_PDA_PROCESS_KEY, bizId);
     }
 
     @Override

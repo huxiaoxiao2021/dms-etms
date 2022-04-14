@@ -1,17 +1,22 @@
 package ld;
 
+import com.google.common.collect.Maps;
 import com.jd.bluedragon.common.dto.operation.workbench.unload.request.UnloadVehicleTaskRequest;
-import com.jd.bluedragon.distribution.consumer.jy.vehicle.TmsCancelSealCarBatchConsumer;
-import com.jd.bluedragon.distribution.consumer.jy.vehicle.TmsSealCarStatusConsumer;
-import com.jd.bluedragon.distribution.consumer.jy.vehicle.TmsTransWorkCarArriveConsumer;
-import com.jd.bluedragon.distribution.consumer.jy.vehicle.TmsVehicleDetailStatusConsumer;
+import com.jd.bluedragon.common.utils.CacheKeyConstants;
+import com.jd.bluedragon.distribution.consumer.jy.vehicle.*;
+import com.jd.bluedragon.distribution.jy.dto.task.UnloadVehicleMqDto;
 import com.jd.bluedragon.distribution.jy.service.unload.IJyUnloadVehicleService;
+import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.jim.cli.Cluster;
 import com.jd.jmq.common.message.Message;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import java.util.Map;
 
 /**
  * 天官赐福 ◎ 百无禁忌
@@ -58,6 +63,73 @@ public class TmsConsumerTest {
 
 
 
+    }
+
+    @Autowired
+    private JyUnloadTaskCompleteConsumer unloadTaskCompleteConsumer;
+    @Autowired
+    @Qualifier("redisClientOfJy")
+    private Cluster redisClientOfJy;
+    @Autowired
+    private InitUnloadVehicleConsumer initUnloadVehicleConsumer;
+
+    @Test
+    public void JyUnloadTaskCompleteConsumerTest() throws Exception {
+        String body = "{\n" +
+                "  \"taskId\" : \"220413200000015\",\n" +
+                "  \"bizId\" : \"SC22041300014948\",\n" +
+                "  \"sealCarCode\" : \"SC22041300014948\",\n" +
+                "  \"abnormalFlag\" : 1,\n" +
+                "  \"shouldScanCount\" : 5,\n" +
+                "  \"moreScanCount\" : 10,\n" +
+                "  \"operateTime\" : 1649847283374,\n" +
+                "  \"operateUserErp\" : \"bjxings\",\n" +
+                "  \"operateUserName\" : \"邢松\"\n" +
+                "}\n";
+
+        Message message = new Message();
+        message.setText(body);
+        unloadTaskCompleteConsumer.consume(message);
+    }
+
+    @Test
+    public void InitUnloadVehicleConsumerTest() throws Exception {
+        String body = "{\n" +
+                "    \"endOrgCode\": 4,\n" +
+                "    \"endOrgName\": \"西南分公司\",\n" +
+                "    \"endSiteCode\": \"028F020\",\n" +
+                "    \"endSiteId\": 691538,\n" +
+                "    \"endSiteName\": \"成都祥福分拣中心\",\n" +
+                "    \"extendInfo\": {},\n" +
+                "    \"sealCarCode\": \"BJ001\",\n" +
+                "    \"sealCarStatus\": 10,\n" +
+                "    \"sealCarTime\": 1649620363000,\n" +
+                "    \"startOrgCode\": 10,\n" +
+                "    \"startOrgName\": \"华南分公司\",\n" +
+                "    \"startSiteCode\": \"663F001\",\n" +
+                "    \"startSiteId\": 146054,\n" +
+                "    \"startSiteName\": \"揭阳分拣中心\",\n" +
+                "    \"totalScannedPackageCount\": 0,\n" +
+                "    \"transportCode\": \"R1911088023065\",\n" +
+                "    \"ts\": 1649620365106,\n" +
+                "    \"vehicleNumber\": \"浙H27589\",\n" +
+                "    \"vehicleNumberLastFour\": \"7589\",\n" +
+                "    \"vehicleStatus\": 4,\n" +
+                "    \"version\": 0,\n" +
+                "    \"yn\": 1\n" +
+                "}";
+
+        UnloadVehicleMqDto mqDto = JsonHelper.fromJson(body, UnloadVehicleMqDto.class);
+        Map<String, Object> extendMap = Maps.newHashMap();
+        extendMap.put(UnloadVehicleMqDto.EXTEND_KEY_LOST_CNT, 1);
+        extendMap.put(UnloadVehicleMqDto.EXTEND_KEY_SCAN_PROGRESS, 100);
+        extendMap.put(UnloadVehicleMqDto.EXTEND_KEY_DAMAGE_CNT, 10);
+        mqDto.setExtendInfo(extendMap);
+
+        Message message = new Message();
+        message.setText(JsonHelper.toJson(mqDto));
+
+        initUnloadVehicleConsumer.consume(message);
     }
 
 
