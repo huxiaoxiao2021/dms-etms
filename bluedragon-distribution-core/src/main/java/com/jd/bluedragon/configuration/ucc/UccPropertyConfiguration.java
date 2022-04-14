@@ -687,6 +687,19 @@ public class UccPropertyConfiguration {
     private boolean aiDistinguishSwitch;
 
     /**
+     * 设备AI识别图片场地开关
+     *  多个场地以,分隔
+     *  true表示全国
+     *  空表示未开启
+     */
+    private String deviceAIDistinguishSwitch;
+
+    /**
+     * 设备AI识别大包裹限制
+     */
+    private int deviceAIDistinguishPackNum;
+
+    /**
      * 终端包装耗材重塑项目：
      * 下线分拣维护包装耗材基础信息入口（"分拣"和"其他"类型的除外）
      * 包装耗材确认页面的增加和删除按钮
@@ -1721,6 +1734,22 @@ public class UccPropertyConfiguration {
 
     public void setAiDistinguishSwitch(boolean aiDistinguishSwitch) {
         this.aiDistinguishSwitch = aiDistinguishSwitch;
+    }
+
+    public String getDeviceAIDistinguishSwitch() {
+        return deviceAIDistinguishSwitch;
+    }
+
+    public void setDeviceAIDistinguishSwitch(String deviceAIDistinguishSwitch) {
+        this.deviceAIDistinguishSwitch = deviceAIDistinguishSwitch;
+    }
+
+    public int getDeviceAIDistinguishPackNum() {
+        return deviceAIDistinguishPackNum;
+    }
+
+    public void setDeviceAIDistinguishPackNum(int deviceAIDistinguishPackNum) {
+        this.deviceAIDistinguishPackNum = deviceAIDistinguishPackNum;
     }
 
     public String getSpotCheckReformSiteCodes() {

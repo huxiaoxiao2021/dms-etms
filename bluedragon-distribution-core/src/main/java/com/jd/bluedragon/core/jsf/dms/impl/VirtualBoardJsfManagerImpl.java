@@ -111,4 +111,9 @@ public class VirtualBoardJsfManagerImpl implements IVirtualBoardJsfManager {
     public Response<Void> handoverBoard(HandoverVirtualBoardPo handoverVirtualBoardPo) {
         return virtualBoardJsfService.handoverBoard(handoverVirtualBoardPo);
     }
+
+    @Override
+    public Response<VirtualBoardResultDto> getBoxCountByBoardCode(String boardCode) {
+        return virtualBoardJsfService.getBoxCountByBoardCode(boardCode);
+    }
 }
