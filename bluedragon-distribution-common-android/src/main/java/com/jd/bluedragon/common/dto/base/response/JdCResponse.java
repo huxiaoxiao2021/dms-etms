@@ -172,5 +172,4 @@ public class JdCResponse<E> implements Serializable {
 	public void setData(E data) {
 		this.data = data;
 	}
-
 }
