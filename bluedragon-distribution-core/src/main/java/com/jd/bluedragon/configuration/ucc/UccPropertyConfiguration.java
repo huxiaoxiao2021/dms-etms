@@ -721,9 +721,12 @@ public class UccPropertyConfiguration {
     private boolean aiDistinguishSwitch;
 
     /**
-     * 设备AI识别图片开关
+     * 设备AI识别图片场地开关
+     *  多个场地以,分隔
+     *  true表示全国
+     *  空表示未开启
      */
-    private boolean deviceAIDistinguishSwitch;
+    private String deviceAIDistinguishSwitch;
 
     /**
      * 设备AI识别大包裹限制
@@ -1826,11 +1829,11 @@ public class UccPropertyConfiguration {
         this.aiDistinguishSwitch = aiDistinguishSwitch;
     }
 
-    public boolean getDeviceAIDistinguishSwitch() {
+    public String getDeviceAIDistinguishSwitch() {
         return deviceAIDistinguishSwitch;
     }
 
-    public void setDeviceAIDistinguishSwitch(boolean deviceAIDistinguishSwitch) {
+    public void setDeviceAIDistinguishSwitch(String deviceAIDistinguishSwitch) {
         this.deviceAIDistinguishSwitch = deviceAIDistinguishSwitch;
     }
 

@@ -140,7 +140,7 @@ public class DwsSpotCheckHandler extends AbstractSpotCheckHandler {
             spotCheckServiceProxy.insertOrUpdateProxyReform(summaryDto);
             // 3、下发超标数据
             if(Objects.equals(spotCheckContext.getExcessStatus(), ExcessStatusEnum.EXCESS_ENUM_YES.getCode())){
-                if(uccPropertyConfiguration.getAiDistinguishSwitch()){
+                if(spotCheckDealService.isExecuteDwsAIDistinguish(spotCheckContext.getReviewSiteCode())){
                     // 发消息来单独处理dws的一单多件的下发逻辑
                     dwsIssueDealProducer.sendOnFailPersistent(spotCheckContext.getWaybillCode(), JsonHelper.toJson(summaryDto));
                 }else {
@@ -196,7 +196,6 @@ public class DwsSpotCheckHandler extends AbstractSpotCheckHandler {
         initSummaryDto.setBusinessType(spotCheckContext.getSpotCheckBusinessType());
         initSummaryDto.setIsExcess(ExcessStatusEnum.EXCESS_ENUM_COMPUTE.getCode());
         initSummaryDto.setIsGatherTogether(Constants.NUMBER_ZERO);
-        initSummaryDto.setIsIssueDownstream(Constants.NUMBER_ZERO);
         initSummaryDto.setSpotCheckStatus(SpotCheckStatusEnum.SPOT_CHECK_STATUS_DOING.getCode());
         initSummaryDto.setRecordType(SpotCheckRecordTypeEnum.SUMMARY_RECORD.getCode());
         initSummaryDto.setMachineCode(spotCheckReviewDetail.getMachineCode());

@@ -83,13 +83,12 @@ public interface SpotCheckDealService {
     boolean checkIsHasSpotCheck(String waybillCode);
 
     /**
-     * 运单是否超标
+     * 运单是否超标：只从redis查询
      *
      * @param waybillCode
-     * @param siteCode
      * @return
      */
-    boolean checkIsExcess(String waybillCode, Integer siteCode);
+    boolean checkIsExcessFromRedis(String waybillCode);
 
     /**
      * 获取已抽检包裹号
@@ -140,6 +139,14 @@ public interface SpotCheckDealService {
      * @return
      */
     boolean isExecuteSpotCheckReform(Integer siteCode);
+
+    /**
+     * 是否开启 设备抽检AI图片识别
+     *
+     * @param siteCode
+     * @return
+     */
+    boolean isExecuteDwsAIDistinguish(Integer siteCode);
 
     /**
      * 单个图片识别
