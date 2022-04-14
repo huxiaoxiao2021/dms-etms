@@ -27,6 +27,11 @@ public class RemoveDestinationPo implements Serializable {
      */
     private String boardCode;
 
+    /**
+     * 版本：做数据隔离
+     */
+    private Integer version;
+
     public OperatorInfo getOperatorInfo() {
         return operatorInfo;
     }
@@ -52,5 +57,13 @@ public class RemoveDestinationPo implements Serializable {
     public RemoveDestinationPo setBoardCode(String boardCode) {
         this.boardCode = boardCode;
         return this;
+    }
+
+    public Integer getVersion() {
+        return version;
+    }
+
+    public void setVersion(Integer version) {
+        this.version = version;
     }
 }
