@@ -71,11 +71,6 @@ public class TaskGatewayServiceImpl implements TaskGatewayService {
         TaskResponse taskResponse = taskResource.add(taskRequest);
 
         if(Objects.equals(taskResponse.getCode(),TaskResponse.CODE_OK)){
-
-            if (TASK_TYPE_SORTING.equals(taskRequest.getType())){
-                Runnable miniStoreSortIncrCountTask =new MiniStoreSortIncrCountTask(pdaRequest.getBoxCode(),pdaRequest.getBody(),miniStoreService);
-                taskExecutor.execute(miniStoreSortIncrCountTask);
-            }
             jdCResponse.toSucceed(taskResponse.getMessage());
         }else{
             jdCResponse.toError(taskResponse.getMessage());
