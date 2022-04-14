@@ -281,7 +281,9 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
                 Long id = jyBizTaskUnloadVehicleDao.findIdByBizId(bizId);
                 if(id != null && id > 0){
                     //存在即更新
+                    entity.setId(id);
                     result = jyBizTaskUnloadVehicleDao.updateOfBaseInfoById(entity) > 0;
+                    entity.setId(null);
                 }else {
                     //不存在则新增
                     result = jyBizTaskUnloadVehicleDao.insert(entity) > 0;
@@ -323,7 +325,9 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
                 Long id = jyBizTaskUnloadVehicleDao.findIdByBizId(bizId);
                 if(id != null && id > 0){
                     //存在即更新
+                    entity.setId(id);
                     result = jyBizTaskUnloadVehicleDao.updateOfBusinessInfoById(entity) > 0;
+                    entity.setId(null);
                 }else {
                     //不存在则新增
                     result = jyBizTaskUnloadVehicleDao.insert(entity) > 0;

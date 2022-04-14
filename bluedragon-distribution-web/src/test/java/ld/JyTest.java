@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.math.BigDecimal;
+
 /**
  * 天官赐福 ◎ 百无禁忌
  *
@@ -36,5 +38,15 @@ public class JyTest {
         condition.setVehicleStatus(JyBizTaskUnloadStatusEnum.ON_WAY.getCode());
         jyBizTaskUnloadVehicleService.findByConditionOfPage(condition,typeEnum,pageNum,pageSize);
 
+    }
+
+    @Test
+    public void testSaveOrUpdateOfBusinessInfo(){
+        JyBizTaskUnloadVehicleEntity entity = new JyBizTaskUnloadVehicleEntity();
+
+        entity.setBizId("SC22041300014927");
+        entity.setUnloadProgress(BigDecimal.valueOf(10.2));
+
+        jyBizTaskUnloadVehicleService.saveOrUpdateOfBusinessInfo(entity);
     }
 }
