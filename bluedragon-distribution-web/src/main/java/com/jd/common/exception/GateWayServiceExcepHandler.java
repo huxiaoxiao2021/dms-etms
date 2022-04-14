@@ -1,23 +1,14 @@
 package com.jd.common.exception;
 
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
-import com.jd.bluedragon.common.dto.base.response.ResponseCodeMapping;
+import com.jd.bluedragon.common.dto.base.response.RespCodeMapping;
 import com.jd.bluedragon.distribution.ministore.exception.MiniStoreBizException;
-import org.apache.commons.collections4.CollectionUtils;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.MissingServletRequestParameterException;
-
-import javax.validation.ConstraintViolation;
-import javax.validation.ConstraintViolationException;
-import javax.validation.ValidationException;
-import java.util.Set;
 
 @Component
 @Aspect
@@ -33,9 +24,9 @@ public class GateWayServiceExcepHandler {
 
             if (throwable instanceof MiniStoreBizException) {
                 MiniStoreBizException exception = (MiniStoreBizException) throwable;
-                return JdCResponse.errorResponse(exception.getCode(), exception.getMessage());
+                return new JdCResponse(exception.getCode(), exception.getMessage());
             }
-            return JdCResponse.errorResponse(ResponseCodeMapping.UNKNOW_ERROR);
+            return new JdCResponse(RespCodeMapping.UNKNOW_ERROR.getCode(), RespCodeMapping.UNKNOW_ERROR.getMessage());
         }
         return jdCResponse;
     }

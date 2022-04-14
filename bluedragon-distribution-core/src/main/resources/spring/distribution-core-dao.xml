@@ -767,7 +767,7 @@
 
     <bean id="miniStoreBindRelationDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
         <property name="mapperInterface" value="com.jd.bluedragon.distribution.ministore.dao.MiniStoreBindRelationDao"/>
-        <property name="sqlSessionFactory" ref="dynamicSqlSessionFactory"></property>
-        <property name="sqlSessionTemplate" ref="dynamicSqlSessionTemplate"></property>
+        <property name="sqlSessionFactory" ref="unDivSqlSessionFactory"></property>
+        <property name="sqlSessionTemplate" ref="unDivSqlSessionTemplate"></property>
     </bean>
 </beans>

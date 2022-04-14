@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface MiniStoreGatewayService {
     /**
-     * 检验设备可用状态
+     * 校验设备可用状态
      * @param request
      * @return 成功 代表可用，反之 不可用
      */

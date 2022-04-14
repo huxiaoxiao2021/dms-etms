@@ -5,7 +5,7 @@ import com.github.pagehelper.PageHelper;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.UnifiedExceptionProcess;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
-import com.jd.bluedragon.common.dto.base.response.ResponseCodeMapping;
+import com.jd.bluedragon.common.dto.base.response.RespCodeMapping;
 import com.jd.bluedragon.common.dto.ministore.*;
 import com.jd.bluedragon.common.task.MiniStoreSyncBindRelationTask;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
@@ -16,10 +16,8 @@ import com.jd.bluedragon.distribution.ministore.dto.SealBoxDto;
 import com.jd.bluedragon.distribution.ministore.enums.MSDeviceBindEventTypeEnum;
 import com.jd.bluedragon.distribution.ministore.service.MiniStoreService;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
-import com.jd.bluedragon.enums.SwDeviceStatusEnum;
 import com.jd.bluedragon.external.gateway.service.MiniStoreGatewayService;
 import com.jd.bluedragon.utils.BeanUtils;
-import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.cmp.jsf.SwDeviceJsfService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -48,11 +46,11 @@ public class MiniStoreGatewayServiceImpl implements MiniStoreGatewayService {
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.MiniStoreGatewayServiceImpl.validateDeviceStatus", mState = {JProEnum.TP})
     public JdCResponse validateDeviceStatus(DeviceStatusValidateReq request) {
         DeviceDto deviceDto = BeanUtils.copy(request, DeviceDto.class);
-        boolean avaiable = miniStoreService.validatDeviceCodeStatus(deviceDto);
+        boolean avaiable = miniStoreService.validateDeviceCodeStatus(deviceDto);
         if (avaiable) {
-            return JdCResponse.successResponse();
+            return new JdCResponse(RespCodeMapping.SUCCESS.getCode(), RespCodeMapping.SUCCESS.getMessage());
         }
-        return JdCResponse.errorResponse(ResponseCodeMapping.UNKNOW_ERROR);
+        return new JdCResponse(RespCodeMapping.UNKNOW_ERROR.getCode(), RespCodeMapping.UNKNOW_ERROR.getMessage());
     }
 
     @Override
@@ -61,9 +59,9 @@ public class MiniStoreGatewayServiceImpl implements MiniStoreGatewayService {
         DeviceDto deviceDto = BeanUtils.copy(request, DeviceDto.class);
         Boolean bindSuccess = miniStoreService.bindMiniStoreDevice(deviceDto);
         if (bindSuccess) {
-            return JdCResponse.successResponse();
+            return new JdCResponse(RespCodeMapping.SUCCESS.getCode(), RespCodeMapping.SUCCESS.getMessage());
         }
-        return JdCResponse.errorResponse(ResponseCodeMapping.UNKNOW_ERROR);
+        return new JdCResponse(RespCodeMapping.UNKNOW_ERROR.getCode(), RespCodeMapping.UNKNOW_ERROR.getMessage());
     }
 
     @Override
@@ -74,9 +72,9 @@ public class MiniStoreGatewayServiceImpl implements MiniStoreGatewayService {
         if (success) {
             MiniStoreSyncBindRelationTask task = new MiniStoreSyncBindRelationTask(MSDeviceBindEventTypeEnum.SEAL_BOX, sealBoxDto.getMiniStoreBindRelationId(), miniStoreSealBoxProducer, miniStoreService, sortingService);
             task.run();
-            return JdCResponse.successResponse();
+            return new JdCResponse(RespCodeMapping.SUCCESS.getCode(), RespCodeMapping.SUCCESS.getMessage());
         }
-        return JdCResponse.errorResponse(ResponseCodeMapping.UNKNOW_ERROR);
+        return new JdCResponse(RespCodeMapping.UNKNOW_ERROR.getCode(), RespCodeMapping.UNKNOW_ERROR.getMessage());
     }
 
     @Override
@@ -84,9 +82,9 @@ public class MiniStoreGatewayServiceImpl implements MiniStoreGatewayService {
     public JdCResponse<Integer> querySortCount(String boxCode) {
         Integer count = miniStoreService.queryMiniStoreSortCount();
         if (count != null) {
-            return JdCResponse.successResponse(count);
+            return new JdCResponse(RespCodeMapping.SUCCESS.getCode(), RespCodeMapping.SUCCESS.getMessage(),count);
         }
-        return JdCResponse.errorResponse(ResponseCodeMapping.UNKNOW_ERROR);
+        return new JdCResponse(RespCodeMapping.UNKNOW_ERROR.getCode(), RespCodeMapping.UNKNOW_ERROR.getMessage());
     }
 
     @Override
@@ -97,9 +95,9 @@ public class MiniStoreGatewayServiceImpl implements MiniStoreGatewayService {
         if (null != miniStoreBindRelation) {
             UnBoxValidateResp unBoxValidateResp = BeanUtils.copy(miniStoreBindRelation, UnBoxValidateResp.class);
             unBoxValidateResp.setMiniStoreBindRelationId(miniStoreBindRelation.getId());
-            return JdCResponse.successResponse(unBoxValidateResp);
+            return new JdCResponse(RespCodeMapping.SUCCESS.getCode(), RespCodeMapping.SUCCESS.getMessage(),unBoxValidateResp);
         }
-        return JdCResponse.errorResponse(ResponseCodeMapping.NO_LEGAL_BIND_RELATIONSHIP);
+        return new JdCResponse(RespCodeMapping.NO_LEGAL_BIND_RELATIONSHIP.getCode(),RespCodeMapping.NO_LEGAL_BIND_RELATIONSHIP.getMessage());
     }
 
     @Override
@@ -107,22 +105,22 @@ public class MiniStoreGatewayServiceImpl implements MiniStoreGatewayService {
     public JdCResponse validateSortRelation(ValidateSortRelationReq validateSortRelationReq) {
         boolean success = miniStoreService.validateSortRelation(validateSortRelationReq.getBoxCode(), validateSortRelationReq.getPackageCode(), validateSortRelationReq.getCreateSiteCode());
         if (success) {
-            return JdCResponse.successResponse();
+            return new JdCResponse(RespCodeMapping.SUCCESS.getCode(), RespCodeMapping.SUCCESS.getMessage());
         }
-        return JdCResponse.errorResponse(ResponseCodeMapping.NO_BIND_RELATION_BETWEEN_BOX_AND_PACKAGE);
+        return new JdCResponse(RespCodeMapping.NO_BIND_RELATION_BETWEEN_BOX_AND_PACKAGE.getCode(),RespCodeMapping.NO_BIND_RELATION_BETWEEN_BOX_AND_PACKAGE.getMessage());
     }
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.MiniStoreGatewayServiceImpl.unBox", mState = {JProEnum.TP})
     public JdCResponse unBox(UnBoxReq unBoxReq) {
         DeviceDto deviceDto = BeanUtils.copy(unBoxReq, DeviceDto.class);
-        Boolean success = miniStoreService.updateProcessStatusAndInvaliSortRealtion(deviceDto);
+        boolean success = miniStoreService.updateProcessStatusAndInvaliSortRealtion(deviceDto);
         if (success) {
             MiniStoreSyncBindRelationTask task = new MiniStoreSyncBindRelationTask(MSDeviceBindEventTypeEnum.SEAL_BOX, unBoxReq.getMiniStoreBindRelationId(), miniStoreSealBoxProducer, miniStoreService, sortingService);
             task.run();
-            return JdCResponse.successResponse();
+            return new JdCResponse(RespCodeMapping.SUCCESS.getCode(), RespCodeMapping.SUCCESS.getMessage());
         }
-        return JdCResponse.errorResponse(ResponseCodeMapping.UNKNOW_ERROR);
+        return new JdCResponse(RespCodeMapping.UNKNOW_ERROR.getCode(), RespCodeMapping.UNKNOW_ERROR.getMessage());
     }
 
     @Override
@@ -135,9 +133,9 @@ public class MiniStoreGatewayServiceImpl implements MiniStoreGatewayService {
         if (miniStoreBindRelationList != null && miniStoreBindRelationList.size() > 0) {
             List<BindAndNoSortTaskResp> bindAndNoSortTaskRespList = BeanUtils.copy(miniStoreBindRelationList, BindAndNoSortTaskResp.class);
             PageObject<BindAndNoSortTaskResp> pageObject = new PageObject.Builder().pageNo(page.getPageNum()).pageSize(page.getPageSize()).offset(page.getStartRow()).totalElements(page.getTotal()).totalPages(page.getPages()).data(bindAndNoSortTaskRespList).build();
-            return JdCResponse.successResponse(pageObject);
+            return new JdCResponse(RespCodeMapping.SUCCESS.getCode(), RespCodeMapping.SUCCESS.getMessage(),pageObject);
         }
-        return JdCResponse.errorResponse(ResponseCodeMapping.NO_BIND_DATA);
+        return new JdCResponse(RespCodeMapping.NO_BIND_DATA.getCode(),RespCodeMapping.NO_BIND_DATA.getMessage());
     }
 
     @Override
@@ -145,9 +143,9 @@ public class MiniStoreGatewayServiceImpl implements MiniStoreGatewayService {
     public JdCResponse unBind(UnBindReq unBindReq) {
         boolean success = miniStoreService.unBind(unBindReq.getMiniStoreBindRelationId(), unBindReq.getUpdateUserCode(), unBindReq.getUpdateUser());
         if (success) {
-            return JdCResponse.successResponse();
+            return new JdCResponse(RespCodeMapping.SUCCESS.getCode(), RespCodeMapping.SUCCESS.getMessage());
         }
-        return JdCResponse.errorResponse(ResponseCodeMapping.UNKNOW_ERROR);
+        return new JdCResponse(RespCodeMapping.UNKNOW_ERROR.getCode(), RespCodeMapping.UNKNOW_ERROR.getMessage());
     }
 
 }

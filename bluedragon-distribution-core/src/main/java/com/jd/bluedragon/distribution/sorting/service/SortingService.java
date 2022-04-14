@@ -206,4 +206,11 @@ public interface SortingService {
      * @return
      */
     SortingJsfResponse check(PdaOperateRequest pdaOperateRequest);
+
+    /**
+     * 判断箱号和包裹是否存在集包关系
+     * @param sorting
+     * @return
+     */
+    Long findByPackageCodeAndBoxCode(Sorting sorting);
 }

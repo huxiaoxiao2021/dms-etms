@@ -327,7 +327,9 @@
             <if test="createTime != null">
                 create_time = #{createTime,jdbcType=TIMESTAMP},
             </if>
-                update_time = now()
+            <if test="updateTime != null">
+                update_time = #{updateTime,jdbcType=TIMESTAMP},
+            </if>
         </set>
         where id = #{id,jdbcType=BIGINT}
     </update>
@@ -357,11 +359,11 @@
     </update>
     <update id="incrSortCount">
         update mini_store_bind_relation
-        set sort_count  =sort_count + 1,
+        set sort_count       =sort_count + 1,
             update_user_code =#{updateUserCode},
             update_user=#{updateUser},
-            state =3,
-            update_time =now()
+            state            =3,
+            update_time      =now()
         where id = #{id}
     </update>
 </mapper>

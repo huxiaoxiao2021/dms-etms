@@ -21,7 +21,7 @@ public interface MiniStoreService {
      * 检验设备可用状态
      * @return true 代表可用，false 不可用
      */
-    Boolean validatDeviceCodeStatus(DeviceDto deviceDto);
+    Boolean validateDeviceCodeStatus(DeviceDto deviceDto);
     /**
      * 查询设备（三码）绑定状态
      * true 绑定状态 false 未绑定
@@ -47,7 +47,7 @@ public interface MiniStoreService {
     Boolean validateBoxBindStatus(String boxCode);
 
     /**
-     * 绑定设备（三码）
+     * 绑定设备（三码：微仓 冰版 箱子）
      *
      * @param deviceDto
      * @return true绑定成功 false绑定失败
@@ -59,7 +59,6 @@ public interface MiniStoreService {
      * @param deviceDto
      * @return
      */
-    @DataSources(DynamicDataSourceType.DMS_UNDIV_MAIN)
     MiniStoreBindRelation selectBindRelation(DeviceDto deviceDto);
 
 
@@ -67,7 +66,6 @@ public interface MiniStoreService {
 
     Boolean updateProcessStatusAndSyncMsg(SealBoxDto sealBoxDto);
 
-    @DataSources(DynamicDataSourceType.DMS_UNDIV_SLAVE)
     List<MiniStoreBindRelation> queryBindAndNoSortTaskList(QueryTaskDto queryTaskDto);
 
     Integer queryMiniStoreSortCount();
@@ -78,7 +76,7 @@ public interface MiniStoreService {
 
     boolean validateSortRelation(String boxCode, String packageCode,Integer createSiteCode);
 
-    int invaliSortRealtion(String boxCode,Long createSiteCode);
+    boolean invaliSortRealtion(String boxCode,Long createSiteCode);
 
     MiniStoreBindRelation selectById(Long id);
 

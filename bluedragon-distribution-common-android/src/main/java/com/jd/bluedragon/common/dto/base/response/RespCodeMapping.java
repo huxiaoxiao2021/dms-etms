@@ -3,10 +3,10 @@ package com.jd.bluedragon.common.dto.base.response;
 /**
  * @author weixiaofeng12
  */
-public enum ResponseCodeMapping {
+public enum RespCodeMapping {
 
   SUCCESS(200, "成功"),
-  UNKNOW_ERROR(500, "未知错误！"),
+  UNKNOW_ERROR(500, "服务器开小差，请联系分拣小秘！"),
   MINI_STORE_DEVICE_CODE_ISNULL(5001,"设备码不能为空！"),
   MINI_STORE_HASBEEN_BIND(5001,"微仓码已被绑定！"),
   MINI_STORE_IS_NOT_AVAILABLE(5002,"微仓当前不可用！"),
@@ -20,7 +20,7 @@ public enum ResponseCodeMapping {
   NO_BIND_RELATION_BETWEEN_BOX_AND_PACKAGE(5010,"该包裹未在集包码下集包！");
 
 
-  ResponseCodeMapping(Integer code, String message) {
+  RespCodeMapping(Integer code, String message) {
     this.code = code;
     this.message = message;
   }
@@ -32,7 +32,7 @@ public enum ResponseCodeMapping {
     this.message = message;
   }
 
-  ResponseCodeMapping(String message) {
+  RespCodeMapping(String message) {
     this.message = message;
   }
 
@@ -48,21 +48,21 @@ public enum ResponseCodeMapping {
     this.code = code;
   }
 
-  public static ResponseCodeMapping getProperType(String name) {
-    ResponseCodeMapping[] codeMappings = ResponseCodeMapping.values();
-    for (ResponseCodeMapping responseCodeMapping : codeMappings) {
-      if (responseCodeMapping.name().equals(name)) {
-        return responseCodeMapping;
+  public static RespCodeMapping getProperType(String name) {
+    RespCodeMapping[] respCodeMappings = RespCodeMapping.values();
+    for (RespCodeMapping respCodeMapping : respCodeMappings) {
+      if (respCodeMapping.name().equals(name)) {
+        return respCodeMapping;
       }
     }
     return null;
   }
 
-  public static ResponseCodeMapping responseCodeMappingAdapter(
-      ResponseCodeMapping responseCodeMapping, String msg) {
+  public static RespCodeMapping responseCodeMappingAdapter(
+          RespCodeMapping respCodeMapping, String msg) {
     if (null != msg && !"".equals(msg)) {
-      responseCodeMapping.setMessage(responseCodeMapping.getMessage() + msg);
+      respCodeMapping.setMessage(respCodeMapping.getMessage() + msg);
     }
-    return responseCodeMapping;
+    return respCodeMapping;
   }
 }

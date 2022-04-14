@@ -284,6 +284,9 @@
 		update_user = #{updateUser,jdbcType=VARCHAR}, update_time = NOW()
 		WHERE yn=1 AND is_cancel = 0
 		AND create_site_code = #{createSiteCode}
+		<if test="id != null">
+			and SORTING_ID =#{id}
+		</if>
 		<if test="packageCode != null">
 			AND package_code = #{packageCode}
 		</if>
