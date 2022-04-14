@@ -168,7 +168,7 @@
 		<property name="sealTaskForceFallback" value="${sealTaskForceFallback: 0}"/>
 		<property name="spotCheckReformSiteCodes" value="${spotCheckReformSiteCodes:true}"/>
 		<property name="aiDistinguishSwitch" value="${aiDistinguishSwitch:true}"/>
-		<property name="deviceAIDistinguishSwitch" value="${deviceAIDistinguishSwitch:true}"/>
+		<property name="deviceAIDistinguishSwitch" value="${deviceAIDistinguishSwitch:910}"/>
 		<property name="deviceAIDistinguishPackNum" value="${deviceAIDistinguishPackNum:100}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->

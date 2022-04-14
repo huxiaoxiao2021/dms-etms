@@ -393,5 +393,15 @@
     <jmq:consumer id="jmq.dwsIssueDealConsumer" transport="jmq.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.spotCheck.dwsIssueDeal}" listener="dwsIssueDealConsumer"/>
     </jmq:consumer>
+
+    <!-- 抽检-设备图片AI识别回传消息处理 -->
+    <jmq:consumer id="jmq.dwsAIDistinguishNotifyConsumer" transport="jmq.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.dwsAIDistinguish.Notify}" listener="dwsAIDistinguishNotifyConsumer"/>
+    </jmq:consumer>
+
+    <!-- dws抽检下发处理消息消费 -->
+    <jmq:consumer id="jmq.dwsIssueDealConsumer" transport="jmq.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.spotCheck.dwsIssueDeal}" listener="dwsIssueDealConsumer"/>
+    </jmq:consumer>
 </beans>
 
