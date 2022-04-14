@@ -148,4 +148,13 @@ public class MiniStoreGatewayServiceImpl implements MiniStoreGatewayService {
         return new JdCResponse(RespCodeMapping.UNKNOW_ERROR.getCode(), RespCodeMapping.UNKNOW_ERROR.getMessage());
     }
 
+    @Override
+    public JdCResponse incrSortCount(IncrSortCountReq req) {
+        int success =miniStoreService.incrSortCount(req.getId(),req.getUpdateUser(),req.getUpdateUserCode());
+        if (success>0){
+            return new JdCResponse(RespCodeMapping.SUCCESS.getCode(), RespCodeMapping.SUCCESS.getMessage());
+        }
+        return new JdCResponse(RespCodeMapping.UNKNOW_ERROR.getCode(), RespCodeMapping.UNKNOW_ERROR.getMessage());
+    }
+
 }

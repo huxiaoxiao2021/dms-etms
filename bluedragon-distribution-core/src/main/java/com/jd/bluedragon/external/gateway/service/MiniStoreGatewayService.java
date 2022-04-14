@@ -67,6 +67,11 @@ public interface MiniStoreGatewayService {
      */
     JdCResponse unBind(UnBindReq unBindReq);
 
+    /**
+     * 更新微仓集包数量
+     */
+    JdCResponse incrSortCount(IncrSortCountReq incrSortCountReq);
+
 
 
 }

@@ -72,7 +72,7 @@ public enum SortingBizSourceEnum {
      */
     AUTOMATIC_SORTING_MACHINE_SORTING(74, "分拣机分拣"),
 
-    MINI_STORE__SORTING(74, "分拣机分拣"),
+    MINI_STORE_SORTING(75, "移动微仓集包分拣"),
 
     ;
 
