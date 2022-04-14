@@ -10,13 +10,9 @@ import com.jd.bluedragon.common.dto.blockcar.response.SealCarTaskInfoDto;
 import com.jd.bluedragon.common.dto.blockcar.response.TransportInfoDto;
 import com.jd.bluedragon.common.dto.seal.request.CancelSealRequest;
 import com.jd.bluedragon.distribution.api.JdResponse;
-import com.jd.bluedragon.distribution.api.request.NewSealVehicleRequest;
-import com.jd.bluedragon.distribution.api.request.SealVehicleVolumeVerifyRequest;
-import com.jd.bluedragon.distribution.api.request.cancelSealRequest;
-import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
-import com.jd.bluedragon.distribution.api.response.RouteTypeResponse;
-import com.jd.bluedragon.distribution.api.response.SealVehicleVolumeVerifyResponse;
-import com.jd.bluedragon.distribution.api.response.TransWorkItemResponse;
+import com.jd.bluedragon.distribution.api.domain.TransAbnormalTypeDto;
+import com.jd.bluedragon.distribution.api.request.*;
+import com.jd.bluedragon.distribution.api.response.*;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.newseal.domain.CancelPreSealVehicleRequest;
 import com.jd.bluedragon.distribution.newseal.domain.PreSealVehicleMeasureInfo;
@@ -550,5 +546,89 @@ public class NewSealVehicleGatewayServiceImpl implements NewSealVehicleGatewaySe
     		result.toFail("调用接口返回数据为空！");
     	}
     	return result;
+    }
+
+    @Override
+    @JProfiler(jKey = "DMSWEB.NewSealVehicleGatewayServiceImpl.querySealCodes",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public JdCResponse<SealCodesResponse> querySealCodes(SealCodeRequest param) {
+        JdCResponse<SealCodesResponse> response = new JdCResponse<>();
+        response.toSucceed();
+        NewSealVehicleResponse<SealCodesResponse> sealVehicleResponse = newSealVehicleService.querySealCodes(param);
+        if (null == sealVehicleResponse) {
+            response.toFail();
+        } else if (!NewSealVehicleResponse.CODE_OK.equals(sealVehicleResponse.getCode())) {
+            response.toFail(sealVehicleResponse.getMessage());
+        } else {
+            response.setData(sealVehicleResponse.getData());
+        }
+        return response;
+    }
+
+    @Override
+    @JProfiler(jKey = "DMSWEB.NewSealVehicleGatewayServiceImpl.doDeSealCodes",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public JdCResponse<String> doDeSealCodes(DeSealCodeRequest request) {
+        JdCResponse<String> response = new JdCResponse<>();
+        response.toSucceed();
+        NewSealVehicleResponse<String> sealVehicleResponse = newSealVehicleService.doDeSealCodes(request);
+        if (null == sealVehicleResponse) {
+            response.toFail();
+        } else if (!NewSealVehicleResponse.CODE_OK.equals(sealVehicleResponse.getCode())) {
+            response.toFail(sealVehicleResponse.getMessage());
+        } else {
+            response.setData(sealVehicleResponse.getData());
+        }
+        return response;
+    }
+
+    @Override
+    @JProfiler(jKey = "DMSWEB.NewSealVehicleGatewayServiceImpl.createTransAbnormalStandard",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public JdCResponse<String> createTransAbnormalStandard(TransAbnormalDto param) {
+        JdCResponse<String> response = new JdCResponse<>();
+        response.toSucceed();
+        NewSealVehicleResponse<String> sealVehicleResponse = newSealVehicleService.createTransAbnormalStandard(param);
+        if (null == sealVehicleResponse) {
+            response.toFail();
+        } else if (!NewSealVehicleResponse.CODE_OK.equals(sealVehicleResponse.getCode())) {
+            response.toFail(sealVehicleResponse.getMessage());
+        } else {
+            response.setData(sealVehicleResponse.getData());
+        }
+        return response;
+    }
+
+    @Override
+    @JProfiler(jKey = "DMSWEB.NewSealVehicleGatewayServiceImpl.getTransAbnormalTypeCode",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public JdCResponse<List<TransAbnormalTypeDto>> getTransAbnormalTypeCode() {
+        JdCResponse<List<TransAbnormalTypeDto>> response = new JdCResponse<>();
+        response.toSucceed();
+        NewSealVehicleResponse<List<TransAbnormalTypeDto>> sealVehicleResponse = newSealVehicleService.getTransAbnormalTypeCode();
+        if (null == sealVehicleResponse) {
+            response.toFail();
+        } else if (!NewSealVehicleResponse.CODE_OK.equals(sealVehicleResponse.getCode())) {
+            response.toFail(sealVehicleResponse.getMessage());
+        } else {
+            response.setData(sealVehicleResponse.getData());
+        }
+        return response;
+    }
+
+    @Override
+    public JdCResponse<String> createTransAbnormalAndDeSealCode(TransAbnormalAndDeSealRequest request) {
+        JdCResponse<String> response = new JdCResponse<>();
+        response.toSucceed();
+        NewSealVehicleResponse<String> sealVehicleResponse = newSealVehicleService.createTransAbnormalAndDeSealCode(request);
+        if (null == sealVehicleResponse) {
+            response.toFail();
+        } else if (!NewSealVehicleResponse.CODE_OK.equals(sealVehicleResponse.getCode())) {
+            response.toFail(sealVehicleResponse.getMessage());
+        } else {
+            response.setData(sealVehicleResponse.getData());
+        }
+        return response;
+    }
+
+    @Override
+    public NewUnsealVehicleResponse<Boolean> createTransAbnormalAndUnseal(TransAbnormalAndUnsealRequest request) {
+        return newSealVehicleResource.createTransAbnormalAndUnseal(request);
     }
 }

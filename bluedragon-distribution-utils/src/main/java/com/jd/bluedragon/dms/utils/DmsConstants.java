@@ -1,7 +1,9 @@
 package com.jd.bluedragon.dms.utils;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 /**
@@ -46,6 +48,11 @@ public class DmsConstants {
     public static final String BUSI_ORDER_CODE_QWD = "QWD";
     public static final String SOURCE_CODE_CLPS = "CLPS";
     public static final String BUSI_ORDER_CODE_PRE_CLPS = "CSL";
+    
+    public static final String CODE_PREFIX_WORK_STATION = "GX";
+    public static final String CODE_PREFIX_WORK_STATION_GRID = "CDGX";
+    public static final String CODE_PREFIX_WORK_STATION_ATTEND_PLAN = "CDGXPL";
+    public static final String CODE_PREFIX_POSITION = "GW";
 
     /**
      * 始发道口号类型-1-普通
@@ -198,6 +205,15 @@ public class DmsConstants {
      * 冷链卡班
      */
     public static final String PRODUCT_TYPE_COLD_CHAIN_KB = "LL-KB-M";
+    
+    /**
+     * 工种类型
+     */
+    public static final String JOB_TYPE_REGEX = "^[1-6]$";
+    /**
+     * 身份证正则
+     */
+    public static final String ID_CARD_NO_REGEX = "(^\\d{18}$)|(^\\d{17}(\\d|X|x)$)";
 
     /**
      * 京仓、非京仓、外仓
@@ -218,6 +234,13 @@ public class DmsConstants {
      * 保温箱号规则，MZ开头，总长度14到16位
      */
     public static final Pattern WARM_BOX_CODE_REGEX = Pattern.compile("^MZ[A-Z0-9]{12,14}$");
+
+    /**
+     * APP版本号正则.
+     * 支持0.0.0，11.00.11，1.00.00，11.00.0，11.01.01，01.01.01，2.2
+     */
+    public static final Pattern APP_VERSION_REGEX = Pattern.compile("^([0-9]\\d|[0-9])(.([0-9]\\d|\\d)){1,2}$");
+
     /**
      * 预售异常原因-上级编码
      */
@@ -273,6 +296,18 @@ public class DmsConstants {
     public static final String BC_BOX_PREFIX = "BC";
 
     public static final String WJ_BOX_PREFIX = "WJ";
+    
+    public static final int PAGE_SIZE_DEFAULT = 10;
+    
+    public static final String KEYS_SPLIT = ":";
+    //站点操作的节点
+    public static final Set<Integer> SITE_OPERAT_STATES = new HashSet<Integer>(){{
+    	add(60);
+    	add(80);
+    	add(110);
+    	add(150);
+    	}};
+
     /**
      * 退分拣中心-目的名称标识
      */

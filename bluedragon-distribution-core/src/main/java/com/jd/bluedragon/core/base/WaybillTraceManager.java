@@ -45,11 +45,26 @@ public interface WaybillTraceManager {
     boolean isWaybillWaste(String waybillCode);
 
     /**
+     * 判断是否为弃件
+     * @param opCodeCode 操作单据
+     * @return true表示是弃件，false表示不是弃件
+     */
+    boolean isOpCodeWaste(String opCodeCode);
+
+    /**
      * 获取包裹的全程跟踪状态
      * @param packageCode
      * @return
      */
     BaseEntity<List<PackageState>> getPkStateByPCode(String packageCode);
+
+    /**
+     * 判断包裹是否有某个状态的全程跟踪
+     * @param packageCode
+     * @param state
+     * @return
+     */
+    boolean judgePackageHasConcreteState(String packageCode, String state);
 
     /**
      * 根据操作号、状态 查全程跟踪

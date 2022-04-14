@@ -10,6 +10,7 @@ import com.jd.ql.basic.domain.BaseDmsStore;
 import com.jd.ql.basic.domain.BaseSiteGoods;
 import com.jd.ql.basic.domain.CrossPackageTagNew;
 import com.jd.ql.basic.domain.ReverseCrossPackageTag;
+import com.jd.ql.basic.domain.SortCrossDetail;
 import com.jd.ql.basic.dto.BaseGoodsPositionDto;
 
 import java.util.List;
@@ -103,5 +104,12 @@ public interface BaseMinorManager {
      * @return
      */
     BasicTraderNeccesaryInfoDTO getBaseTraderNeccesaryInfo(String traderCode);
-
+    /**
+     * 根据分拣和目的站点查询道口关系https://cf.jd.com/pages/viewpage.action?pageId=446932958
+     * @param dmsId        始发分拣ID
+     * @param siteCode     目的分拣（或目的站点）ID
+     * @param crossType    道口类型：1-普通，2-航空，3-填仓
+     * @return
+     */
+    JdResult<SortCrossDetail> queryCrossDetailByDmsIdAndSiteCode(Integer dmsId, String siteCode, Integer crossType);
 }

@@ -41,4 +41,12 @@ public interface SendMService {
      * @return
      */
     List<SendM> findByParams(SendM params);
+    /**
+     * 根据始发分拣中心、目的分拣中心、箱号确定send_m的一条发货记录
+     * @param createSiteCode
+     * @param boardCode
+     * @param sendmStatus
+     * @return
+     */
+    public SendM selectSendByBoardCode(Integer createSiteCode, String boardCode, Integer sendmStatus);
 }

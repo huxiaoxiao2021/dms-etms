@@ -25,7 +25,15 @@ public interface WaybillConsumableRelationDao extends Dao<WaybillConsumableRelat
      * @param waybillCodes
      * @return
      */
+    @Deprecated
     public List<WaybillConsumableDetailInfo> queryByWaybillCodes(List<String> waybillCodes);
+
+    /**
+     * 根据运单号集合查询耗材明细
+     * @param waybillCodes
+     * @return
+     */
+    public List<WaybillConsumableDetailInfo> queryNewByWaybillCodes(List<String> waybillCodes);
 
 
     /**
@@ -34,6 +42,14 @@ public interface WaybillConsumableRelationDao extends Dao<WaybillConsumableRelat
      * @return
      */
     PagerResult<WaybillConsumableDetailInfo> queryDetailInfoByPagerCondition(WaybillConsumableRelationCondition waybillConsumableRelationCondition);
+
+    /**
+     * 根据查询条件获取运单耗材明细
+     * @param waybillConsumableRelationCondition
+     * @return
+     */
+    PagerResult<WaybillConsumableDetailInfo> queryNewDetailInfoByPagerCondition(WaybillConsumableRelationCondition waybillConsumableRelationCondition);
+
 
     /**
      * 根据运单号批量更新打包人

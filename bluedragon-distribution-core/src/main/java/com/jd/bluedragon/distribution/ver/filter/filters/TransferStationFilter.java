@@ -31,32 +31,8 @@ public class TransferStationFilter implements Filter {
     public void doFilter(FilterContext request, FilterChain chain) throws Exception {
 
         //region 中转站订单判断
-        Site transferStationSite = request.getWaybillCache().getTransferStationId() != null ? siteService
-                .get(request.getWaybillCache().getTransferStationId())
-                : null;
-        this.logger.info("waybill.getTransferStationId is " + request.getWaybillCache().getTransferStationId());
 
-        //收获站点不是分拣中心
-        if (this.hasTransferStation(request.getWaybillCache()) && !SiteHelper.isDistributionCenter(request.getReceiveSite())) {
-            //站点相同
-            boolean istransferStationSiteEquals = request.getReceiveSite().getCode().equals(request.getsReceiveBoxSite().getCode());
-            //类型相同
-            boolean istransferStationSiteReceiveSiteEquals = false;
-            if(transferStationSite != null){
-                istransferStationSiteReceiveSiteEquals = transferStationSite.getCode().equals(request.getsReceiveBoxSite().getCode());
-            }
-            //transferStation不是速递中心
-            if (SiteHelper.isFastStation(transferStationSite)) {
-                if (!istransferStationSiteEquals || !istransferStationSiteReceiveSiteEquals) {
-                    throw new SortingCheckException(SortingResponse.CODE_39118,
-                            HintService.getHintWithFuncModule(HintCodeConstants.FAST_STATION_WAYBILL, request.getFuncModule()));
-                }
-            } else {
-                throw new SortingCheckException(SortingResponse.CODE_39003,
-                        HintService.getHintWithFuncModule(HintCodeConstants.TRANSFER_STATION_WAYBILL, request.getFuncModule()));
-            }
-        }
-        //endregion
+        // 2021年12月15日17:56:08 下线
 
         chain.doFilter(request, chain);
     }

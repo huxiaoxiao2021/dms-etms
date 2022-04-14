@@ -56,6 +56,7 @@ import com.jd.etms.waybill.dto.WaybillVasDto;
 import com.jd.jsf.gd.util.JsonUtils;
 import com.jd.ql.basic.dto.BaseSiteInfoDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -169,7 +170,21 @@ public class WaybillServiceImpl implements WaybillService {
 
         return baseEntity != null && baseEntity.getData() != null ? baseEntity.getData() : null;
     }
+    @Override
+    public BigWaybillDto getWaybill(String waybillCode, boolean isPackList, boolean isExtend) {
+        String aWaybillCode = WaybillUtil.getWaybillCode(waybillCode);
 
+        WChoice wChoice = new WChoice();
+        wChoice.setQueryWaybillC(true);
+        wChoice.setQueryWaybillE(true);
+        wChoice.setQueryWaybillM(true);
+        wChoice.setQueryWaybillExtend(isExtend);
+        wChoice.setQueryPackList(isPackList);
+        BaseEntity<BigWaybillDto> baseEntity = this.waybillQueryManager.getDataByChoice(aWaybillCode,
+                wChoice);
+
+        return baseEntity != null && baseEntity.getData() != null ? baseEntity.getData() : null;
+    }
     @Override
     public BigWaybillDto getWaybillProduct(String waybillCode) {
         String aWaybillCode = WaybillUtil.getWaybillCode(waybillCode);
@@ -483,7 +498,13 @@ public class WaybillServiceImpl implements WaybillService {
 
 	private void appendPackages(String packageCode, Boolean isIncludePackage, BigWaybillDto waybillDto,
 			DmsWaybillInfoResponse response) {
-		for (DeliveryPackageD waybillPackage : waybillDto.getPackageList()) {
+        List<DeliveryPackageD> packageList = waybillDto.getPackageList();
+        if(CollectionUtils.isEmpty(packageList)){
+            response.setCode(CODE_WAYBILL_NOE_FOUND);
+            response.setMobile(JdResponse.MESSAGE_RE_PRINT_NO_PACK_LIST);
+            return;
+        }
+		for (DeliveryPackageD waybillPackage : packageList) {
 			if (isIncludePackage || !isIncludePackage
 					&& waybillPackage.getPackageBarcode().equalsIgnoreCase(packageCode)) {
 				OrderPackage orderPackage = new OrderPackage();
@@ -939,6 +960,10 @@ public class WaybillServiceImpl implements WaybillService {
         }
         if (WaybillCancelInterceptTypeEnum.CANCEL_SYS_RETURN.getCode() == interceptType) {
             result.customMessage(SortingResponse.CODE_29317, HintService.getHint(HintCodeConstants.RETURN_GOODS_INTERCEPT));
+            return result;
+        }
+        if (WaybillCancelInterceptTypeEnum.FULL_ORDER_FAIL.getCode() == interceptType) {
+            result.customMessage(SortingResponse.CODE_29321, HintService.getHint(HintCodeConstants.FULL_ORDER_FAIL_INTERCEPT));
             return result;
         }
         return result;

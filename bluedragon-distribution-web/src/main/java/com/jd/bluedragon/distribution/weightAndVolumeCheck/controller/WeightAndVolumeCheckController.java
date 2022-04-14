@@ -89,7 +89,7 @@ public class WeightAndVolumeCheckController extends DmsBaseController {
     @RequestMapping("/listData")
     @ResponseBody
     public PagerResult<WeightVolumeCollectDto> listData(@RequestBody WeightAndVolumeCheckCondition condition){
-        condition.setRecordType(SpotCheckRecordTypeEnum.WAYBILL.getCode());
+        condition.setRecordType(SpotCheckRecordTypeEnum.SUMMARY_RECORD.getCode());
         condition.setQueryForWeb(Constants.YN_YES);
 
         PagerResult<WeightVolumeCollectDto> result = weightAndVolumeCheckService.queryByCondition(condition);
@@ -100,7 +100,7 @@ public class WeightAndVolumeCheckController extends DmsBaseController {
     @RequestMapping("/packageDetailListData")
     @ResponseBody
     public PagerResult<WeightVolumeCollectDto> packageDetailListData(@RequestBody WeightAndVolumeCheckCondition condition){
-        condition.setRecordType(SpotCheckRecordTypeEnum.PACKAGE.getCode());
+        condition.setRecordType(SpotCheckRecordTypeEnum.DETAIL_RECORD.getCode());
         PagerResult<WeightVolumeCollectDto> result = weightAndVolumeCheckService.queryByCondition(condition);
         return result;
     }
@@ -121,7 +121,7 @@ public class WeightAndVolumeCheckController extends DmsBaseController {
             bfw = new BufferedWriter(new OutputStreamWriter(response.getOutputStream(), "GBK"));
             //设置响应
             CsvExporterUtils.setResponseHeader(response, fn);
-            condition.setRecordType(SpotCheckRecordTypeEnum.WAYBILL.getCode());
+            condition.setRecordType(SpotCheckRecordTypeEnum.SUMMARY_RECORD.getCode());
             condition.setQueryForWeb(Constants.YN_YES);
             weightAndVolumeCheckService.export(condition,bfw);
             exportConcurrencyLimitService.decrKey(ExportConcurrencyLimitEnum.WEIGHT_AND_VOLUME_CHECK_REPORT.getCode());
@@ -222,11 +222,6 @@ public class WeightAndVolumeCheckController extends DmsBaseController {
             log.error(formatMsg,e);
             return result;
         }
-        if(result.getCode() == InvokeResult.RESULT_SUCCESS_CODE){
-            // 上传成功后，更新图片，发送MQ消息，进行下一步操作
-            weightAndVolumeCheckService.updateImgAndSendHandleMq(packageCode, siteCode, null);
-        }
-
         return result;
 
     }
@@ -283,41 +278,5 @@ public class WeightAndVolumeCheckController extends DmsBaseController {
         weightVolumeQueryConditionPager.setPageNo(condition.getOffset()/condition.getLimit() + 1);
         weightVolumeQueryConditionPager.setPageSize(condition.getLimit());
         return weightAndVolumeCheckService.searchPicture4MultiplePackage(weightVolumeQueryConditionPager);
-    }
-
-    /**
-     * 跳转到B网超标图片页面
-     * @param waybillCode
-     * @param isWaybillSpotCheck
-     * @return
-     */
-    @Authorization(Constants.DMS_WEB_SORTING_WEIGHTANDVOLUMECHECK_R)
-    @RequestMapping(value = "/toSearchB2bExcessPicture")
-    public String toSearchB2bExcessPicture(@QueryParam("waybillCode")String waybillCode,
-                                           @QueryParam("siteCode")Integer siteCode,
-                                           @QueryParam("isWaybillSpotCheck")Integer isWaybillSpotCheck,
-                                           @QueryParam("fromSource")String fromSource,Model model){
-        model.addAttribute("siteCode",siteCode);
-        model.addAttribute("waybillCode",waybillCode);
-        model.addAttribute("isWaybillSpotCheck",isWaybillSpotCheck);
-        model.addAttribute("fromSource",fromSource);
-        return "/weightAndVolumeCheck/b2bExcessPicture";
-    }
-
-    /**
-     * 显示B网超标图片链接
-     * @param waybillCode
-     * @param siteCode
-     * @param isWaybillSpotCheck
-     * @return
-     */
-    @Authorization(Constants.DMS_WEB_SORTING_WEIGHTANDVOLUMECHECK_R)
-    @RequestMapping(value = "/searchB2bExcessPicture", method = RequestMethod.GET)
-    @ResponseBody
-    public InvokeResult<String> searchB2bExcessPicture(@QueryParam("waybillCode")String waybillCode,
-                                                       @QueryParam("siteCode")Integer siteCode,
-                                                       @QueryParam("isWaybillSpotCheck")Integer isWaybillSpotCheck,
-                                                       @RequestParam("fromSource")String fromSource){
-        return weightAndVolumeCheckService.searchPicture(waybillCode,siteCode,isWaybillSpotCheck,fromSource);
     }
 }

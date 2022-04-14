@@ -27,11 +27,11 @@ import com.jd.bluedragon.distribution.router.domain.dto.RouteNextDto;
 import com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckDto;
 import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckBusinessTypeEnum;
 import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckDimensionEnum;
-import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckHandlerTypeEnum;
 import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckSourceFromEnum;
 import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckCurrencyService;
 import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckDealService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
+import com.jd.coldchain.fulfillment.ot.api.dto.waybill.ColdChainReverseRequest;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -88,8 +88,6 @@ import com.jd.bluedragon.distribution.web.kuaiyun.weight.WeighByWaybillControlle
 import com.jd.bluedragon.distribution.weight.domain.PackOpeDetail;
 import com.jd.bluedragon.distribution.weight.domain.PackOpeDto;
 import com.jd.bluedragon.distribution.weight.domain.PackWeightVO;
-import com.jd.bluedragon.distribution.weightAndVolumeCheck.SpotCheckSourceEnum;
-import com.jd.bluedragon.distribution.weightAndVolumeCheck.service.WeightAndVolumeCheckService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
@@ -165,8 +163,6 @@ public class WaybillResource {
 	@Autowired
 	private WeighByWaybillController weighByWaybillController;
 
-	public static final Integer DMSTYPE = 10; // 建包
-
 	@Autowired
 	private JsfSortingResourceService jsfSortingResourceService;
 
@@ -187,13 +183,7 @@ public class WaybillResource {
     private ReceiveWeightCheckService receiveWeightCheckService;
 
 	@Autowired
-	private WeightAndVolumeCheckService weightAndVolumeCheckService;
-
-	@Autowired
 	private SpotCheckCurrencyService spotCheckCurrencyService;
-
-	@Autowired
-	private SpotCheckDealService spotCheckDealService;
 
 	@Autowired
 	private SiteService siteService;
@@ -201,7 +191,6 @@ public class WaybillResource {
 	 * 运单路由字段使用的分隔符
 	 */
 	private static final  String WAYBILL_ROUTER_SPLITER = "\\|";
-
 
 	/* 运单查询 */
 	@Autowired
@@ -239,6 +228,8 @@ public class WaybillResource {
     @Autowired
     private UccPropertyConfiguration uccPropertyConfiguration;
 
+	@Autowired
+	private ColdChainReverseManager coldChainReverseManager;
 
     /**
      * 根据运单号获取运单包裹信息接口
@@ -1800,9 +1791,19 @@ public class WaybillResource {
             return invokeResult;
         }
 		try {
-			WaybillReverseDTO waybillReverseDTO = ldopManager.makeWaybillReverseDTOCanTwiceExchange(request);
 			StringBuilder errorMessage = new StringBuilder();
-			WaybillReverseResult waybillReverseResult = ldopManager.waybillReverse(waybillReverseDTO,errorMessage);
+			WaybillReverseResult waybillReverseResult = null;
+			String waybillCode = request.getWaybillCode();
+			//冷链的几种产品需要调eclp接口换单
+			if(coldChainReverseManager.checkColdReverseProductType(waybillCode)){
+				log.info("换单方法createReturnsWaybillNew走冷链换单流程,运单号{}",waybillCode);
+				ColdChainReverseRequest coldChainReverseRequest = coldChainReverseManager.makeColdChainReverseRequest(request);
+				waybillReverseResult = coldChainReverseManager.createReverseWbOrder(coldChainReverseRequest,errorMessage);
+			}else {
+				log.info("换单方法createReturnsWaybillNew走原有流程,运单号{}",waybillCode);
+				WaybillReverseDTO waybillReverseDTO = ldopManager.makeWaybillReverseDTOCanTwiceExchange(request);
+				waybillReverseResult = ldopManager.waybillReverse(waybillReverseDTO, errorMessage);
+			}
 			if(waybillReverseResult == null){
 				//失败
 				invokeResult.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
@@ -2121,10 +2122,7 @@ public class WaybillResource {
     public InvokeResult<Boolean> packageWeightCheck(PackWeightVO packWeightVO){
 		InvokeResult<Boolean> result = new InvokeResult<Boolean>();
 		try {
-			if(spotCheckDealService.isExecuteNewSpotCheck(packWeightVO.getOperatorSiteCode())){
-				return spotCheckCurrencyService.spotCheckDeal(transferToSpotCheckDto(packWeightVO));
-			}
-			return weightAndVolumeCheckService.dealSportCheck(packWeightVO, SpotCheckSourceEnum.SPOT_CHECK_CLIENT_PLATE);
+			return spotCheckCurrencyService.spotCheckDeal(transferToSpotCheckDto(packWeightVO));
 		}catch (Exception e){
 			log.error("客户端抽检处理异常!", e);
 			result.error();

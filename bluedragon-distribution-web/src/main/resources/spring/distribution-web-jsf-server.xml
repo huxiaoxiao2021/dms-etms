@@ -283,6 +283,53 @@
                   ref="discardedPackageStorageTempJsfService"
                   server="dmsjsf">
     </jsf:provider>
+    <!-- 无滑道运单服务 -->
+    <jsf:provider id="waybillHasnoPresiteRecordJsfServiceServer"
+                  interface="com.jd.bluedragon.distribution.record.jsf.WaybillHasnoPresiteRecordJsfService"
+                  alias="${dms.jsf.alias}"
+                  ref="waybillHasnoPresiteRecordJsfService"
+                  server="dmsjsf">
+    </jsf:provider>
+    <!-- 滞留原因配置服务 -->
+    <jsf:provider id="configStrandReasonJsfServiceServer"
+                  interface="com.jd.bluedragon.distribution.config.jsf.ConfigStrandReasonJsfService"
+                  alias="${dms.jsf.alias}"
+                  ref="configStrandReasonJsfService"
+                  server="dmsjsf">
+    </jsf:provider>    
+    <!-- 三定jsf服务 -->
+    <jsf:provider id="workStationJsfServiceServer"
+                  interface="com.jd.bluedragon.distribution.station.api.WorkStationJsfService"
+                  alias="${dms.jsf.alias}"
+                  ref="workStationJsfService"
+                  server="dmsjsf">
+    </jsf:provider>
+    <jsf:provider id="workStationGridJsfServiceServer"
+                  interface="com.jd.bluedragon.distribution.station.api.WorkStationGridJsfService"
+                  alias="${dms.jsf.alias}"
+                  ref="workStationGridJsfService"
+                  server="dmsjsf">
+    </jsf:provider>
+    <jsf:provider id="workStationAttendPlanJsfServiceServer"
+                  interface="com.jd.bluedragon.distribution.station.api.WorkStationAttendPlanJsfService"
+                  alias="${dms.jsf.alias}"
+                  ref="workStationAttendPlanJsfService"
+                  server="dmsjsf">
+    </jsf:provider>
+    <jsf:provider id="userSignRecordJsfServiceServer"
+                  interface="com.jd.bluedragon.distribution.station.api.UserSignRecordJsfService"
+                  alias="${dms.jsf.alias}"
+                  ref="userSignRecordJsfService"
+                  server="dmsjsf">
+    </jsf:provider>
+
+    <!-- 上岗码查询JSF服务 -->
+    <jsf:provider id="positionQueryJsfServiceServer"
+                  interface="com.jd.bluedragon.distribution.position.api.PositionQueryJsfService"
+                  alias="${dms.jsf.alias}"
+                  ref="positionQueryJsfService"
+                  server="dmsjsf">
+    </jsf:provider>
 
     <!--  箱号绑定JSF服务   -->
     <jsf:provider id="dmsBoxRelationJsfService"

@@ -29,6 +29,7 @@
         <result column="cky2" property="cky2"/>
         <result column="create_time" property="createTime"/>
         <result column="update_time" property="updateTime"/>
+        <result column="end_dms_id" property="endDmsId"/>
     </resultMap>
 
     <select id="findByWaybillCode" resultMap="waybillCache" parameterType="java.util.Map">
@@ -37,7 +38,7 @@
 			site_name, payment_type, send_pay, weight,good_volume, quantity, address,
 			waybill_type, transfer_station_id, cross_code
 			, distribute_store_id, trolley_code, busi_id,cky2,
-			distribute_type,road_code,waybill_Sign,distribute_store_name,busi_name
+			distribute_type,road_code,waybill_Sign,distribute_store_name,busi_name,end_dms_id
 		FROM ${tableName}
 		WHERE waybill_code = #{waybillCode}
 		LIMIT 1

@@ -287,5 +287,23 @@
         <property name="type" value="1322"/>
         <property name="desc" value="虚拟组板超时未完结板号自动完结处理"/>
     </bean>
+    <bean id="waybillHasnoPresiteRecordScanTask" class="com.jd.bluedragon.distribution.worker.record.WaybillHasnoPresiteRecordScanTask"
+          init-method="init" depends-on="managerFactory">
+        <property name="dataSource" ref="taskDataSource"/>
+        <property name="managerFactory" ref="managerFactory"/>
+        <property name="taskType" value="WaybillHasnoPresiteRecordScanTask"/>
+        <property name="ownSign" value="${ownSign}"/>
+        <property name="type" value="1323"/>
+        <property name="desc" value="全量接单定时扫描任务"/>
+    </bean>
 
+    <bean id="autoSignOutRecordTask" class="com.jd.bluedragon.distribution.worker.sign.AutoSignOutRecordTask"
+          init-method="init" depends-on="managerFactory">
+        <property name="dataSource" ref="taskDataSource"/>
+        <property name="managerFactory" ref="managerFactory"/>
+        <property name="taskType" value="AutoSignOutRecordTask"/>
+        <property name="ownSign" value="${ownSign}"/>
+        <property name="type" value="1324"/>
+        <property name="desc" value="签到数据自动签退任务"/>
+    </bean>
 </beans>

@@ -15,6 +15,9 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.message.OwnReverseTransferDomain;
 import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
+import com.jd.bluedragon.distribution.record.entity.DmsHasnoPresiteWaybillMq;
+import com.jd.bluedragon.distribution.record.enums.DmsHasnoPresiteWaybillMqOperateEnum;
+import com.jd.bluedragon.distribution.record.service.WaybillHasnoPresiteRecordService;
 import com.jd.bluedragon.distribution.rest.pop.PopPrintResource;
 import com.jd.bluedragon.distribution.rest.task.TaskResource;
 import com.jd.bluedragon.distribution.reverse.service.ReversePrintService;
@@ -69,7 +72,7 @@ public class ReversePrintResource {
 
     @Autowired
     private WaybillTraceManager waybillTraceManager;
-
+    
     /**
      * 外单逆向换单打印提交数据
      * @return JSON【{code: message: data:}】
@@ -311,10 +314,8 @@ public class ReversePrintResource {
             result.setCode(InvokeResult.SERVER_ERROR_CODE);
             result.setMessage(result.getMessage().replace(InvokeResult.RESULT_SUCCESS_MESSAGE,"") + "【保存打印日志异常】");
         }
-
         return result;
     }
-
     /**
      * 转换为离线称重task
      * @param request

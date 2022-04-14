@@ -15,11 +15,14 @@ import com.jd.ql.basic.domain.BaseResult;
 import com.jd.ql.basic.domain.BaseSiteGoods;
 import com.jd.ql.basic.domain.CrossPackageTagNew;
 import com.jd.ql.basic.domain.ReverseCrossPackageTag;
+import com.jd.ql.basic.domain.SortCrossDetail;
 import com.jd.ql.basic.dto.BaseGoodsPositionDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.basic.dto.ResultData;
 import com.jd.ql.basic.ws.BaseCrossPackageTagWS;
 import com.jd.ql.basic.ws.BasicAirConfigWS;
 import com.jd.ql.basic.ws.BasicSecondaryWS;
+import com.jd.ql.basic.ws.BasicSortCrossDetailWS;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
@@ -72,6 +75,8 @@ public class BaseMinorManagerImpl implements BaseMinorManager {
 
 	@Autowired
 	private BaseMajorManager baseMajorManager;
+	@Autowired
+	private BasicSortCrossDetailWS basicSortCrossDetailWS;
 	
 	@Cache(key = "TbaseMinorManagerImpl.getBaseTraderById@args0", memoryEnable = true, memoryExpiredTime = 10 * 60 * 1000,
 	redisEnable = true, redisExpiredTime = 20 * 60 * 1000)
@@ -462,6 +467,35 @@ public class BaseMinorManagerImpl implements BaseMinorManager {
 			Profiler.registerInfoEnd(info);
 		}
 		return null;
+	}
+
+	@Override
+	public JdResult<SortCrossDetail> queryCrossDetailByDmsIdAndSiteCode(Integer dmsId, String siteCode,
+			Integer crossType) {
+		JdResult<SortCrossDetail> result = new JdResult<SortCrossDetail>();
+		String params = "{" + dmsId + "," + siteCode + "," + crossType +"}";
+		CallerInfo callerInfo = ProfilerHelper.registerInfo("DMSWEB.jsf.out.basicSortCrossDetailWS.queryCrossDetailByDmsIdAndSiteCode");
+		try{
+			ResultData<SortCrossDetail> remoteResult= basicSortCrossDetailWS.queryCrossDetailByDmsIdAndSiteCode(dmsId, siteCode, crossType);
+			if(null != remoteResult 
+					&& remoteResult.checkSuccess()){
+               result.setData(remoteResult.getData());
+               result.toSuccess(remoteResult.getResultMsg());
+			}else if(remoteResult != null){
+				result.toFail(remoteResult.getResultMsg());
+				log.warn("jsf-fail:basicSortCrossDetailWS.queryCrossDetailByDmsIdAndSiteCode!params:{},msg:{}",params,remoteResult.getResultMsg());
+           }else{
+	           	result.toFail("jsf-fail:basicSortCrossDetailWS.queryCrossDetailByDmsIdAndSiteCode!params:"+params+",msg:返回结果为null");
+	           	log.warn(result.getMessage());
+           }
+		}catch(Exception e){
+			result.toError("jsf-exception:basicSortCrossDetailWS.queryCrossDetailByDmsIdAndSiteCode!params:"+params+",msg:"+e.getMessage());
+			log.error(result.getMessage(), e);
+			Profiler.functionError(callerInfo);
+		}finally{
+			Profiler.registerInfoEnd(callerInfo);
+		}
+		return result;
 	}
 
 }

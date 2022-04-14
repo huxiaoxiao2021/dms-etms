@@ -157,6 +157,10 @@
                   alias="${ldop.basic.jsf.alias}" timeout="${ldop.basic.jsf.timeout}" lazy="${jsf.consumer.lazy}">
     </jsf:consumer>
 
+    <jsf:consumer id="refundApi" interface="com.jd.ldop.center.api.refund.RefundApi" protocol="jsf"
+                  alias="${ldop.refundApi.jsf.alias}" timeout="${ldop.refundApi.jsf.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
+
     <!-- basicSecondaryWS接口代理类，内有 获取全量省市县地址、商家 方法 -->
     <bean id="basicSecondaryWSProxy" class="com.jd.ql.basic.proxy.impl.BasicSecondaryWSProxyImpl">
         <property name="basicSecondaryWS" ref="basicSecondaryWS"></property>
@@ -364,6 +368,15 @@
     <jsf:consumer id="baseCrossPackageTagWS" interface="com.jd.ql.basic.ws.BaseCrossPackageTagWS" protocol="jsf"
                   alias="${basic.jsf.baseCrossPackageTagWS.alias}" timeout="${basic.jsf.baseCrossPackageTagWS.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
         <jsf:parameter key="token" value="${basic.jsf.baseCrossPackageTagWS.token}" hide="true"/>
+    </jsf:consumer>
+    <!-- 基础资料滑道服务 -->
+    <jsf:consumer id="basicSortCrossDetailWS"
+                  interface="com.jd.ql.basic.ws.BasicSortCrossDetailWS"
+                  alias="${basic.jsf.basicSortCrossDetailWS.alias}"
+                  timeout="${basic.jsf.basicSortCrossDetailWS.timeout}"
+                  protocol="jsf"
+                  serialization="hessian" lazy="${jsf.consumer.lazy}">
+        <jsf:parameter key="token" hide="true" value="${basic.jsf.basicSortCrossDetailWS.token}"/>
     </jsf:consumer>
     <!-- 加履系统 查询接口 李杰 -->
     <jsf:consumer id="HandoverBillProvider" interface="com.jd.b2b.wt.assemble.sdk.service.HandoverBillProvider"
@@ -796,5 +809,63 @@
                   timeout="${jsf.timeout.autoBoardChute}"
                   retries="${jsf.retries}"
                   serialization="hessian"/>
+
+    <!--自动补码功能 -->
+    <jsf:consumer id="autoDistJsfService" interface="com.jd.bd.dms.automatic.sdk.modules.autodist.AutoDistJsfService"
+                  protocol="jsf" alias="${jsf.automatic.alias}" timeout="${jsf.automatic.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
+        <jsf:parameter key="token" value="${jsf.automatic.token}" hide="true"/>
+    </jsf:consumer>
+    <!-- eclp冷链逆向换单 -->
+    <jsf:consumer id="coldChainReverseService" interface="com.jd.coldchain.fulfillment.ot.api.service.waybill.ColdChainReverseService"
+                  protocol="jsf" alias="${jsf.coldchain.eclp.reverse.alias}" timeout="${jsf.coldchain.eclp.reverse.alias.timeout}"
+                  retries="${jsf.retries}" >
+    </jsf:consumer>
+    <!-- 网关外网erp认证插件 -->
+    <jsf:consumer id="erpLoginService" interface="com.jd.mrd.srv.service.erp.ErpLoginService"
+                  protocol="jsf" alias="${jsf.mrd.alias}" timeout="${jsf.mrd.timeout}" retries="0">
+    </jsf:consumer>
+
+    <!-- AI图片识别服务 -->
+    <jsf:consumer id="autoReportingService" interface="com.jd.wlai.center.service.outter.service.IAutoReportingService"
+                  protocol="jsf" alias="${jsf.autoReport.alias}" timeout="${jsf.autoReport.timeout}" retries="${jsf.retries}" >
+        <jsf:parameter key="token" hide="true" value="${jsf.autoReport.token}"/>
+    </jsf:consumer>
+
+    <!-- 抽检核对服务 -->
+    <jsf:consumer id="weightReportCommonRuleApi" interface="com.jdl.express.weight.report.api.rule.WeightReportCommonRuleApi"
+                  protocol="jsf" alias="${jsf.weightReport.alias}" timeout="${jsf.weightReport.timeout}" retries="${jsf.retries}" >
+    </jsf:consumer>
+
+    <!-- 抽检查询服务 -->
+    <jsf:consumer id="spotCheckQueryService" interface="com.jd.ql.dms.report.SpotCheckQueryService"
+                  protocol="jsf" alias="${jsf.spotCheckQuery.alias}" timeout="${jsf.spotCheckQuery.timeout}" retries="${jsf.retries}" serialization="hessian">
+    </jsf:consumer>
+
+    <!-- 循环物资 -->
+    <jsf:consumer id="recycleMaterialJsfService" interface="com.jd.bluedragon.sdk.modules.recyclematerial.RecycleMaterialJsfService"
+                  protocol="jsf"  alias="${business.jsf.recycleMaterial.alias}"
+                  timeout="${jsf.recycleMaterial.timeout}" retries="${jsf.retries}" serialization="hessian">
+    </jsf:consumer>
+
+
+    <!--  拣运封车服务  -->
+    <jsf:consumer id="jySealVehicleService"
+                  interface="com.jdl.jy.realtime.api.seal.ISealVehicleService"
+                  protocol="jsf"
+                  alias="${jsf.jy.realtime.alias}"
+                  timeout="10000"
+                  retries="${jsf.retries}"
+                  serialization="hessian"/>
+
+
+    <!-- VOS封签线上化相关接口 -->
+    <jsf:consumer id="sealCarWSJSF" interface="com.jd.etms.vos.ws.SealCarWS"
+                  protocol="jsf" alias="${jsf.SealCarWS.alias}" timeout="${jsf.SealCarWS.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
+
+    <!-- VOS封签线上化相关接口 -->
+    <jsf:consumer id="dtpTransAbnormalApiJSF" interface="com.jd.tms.dtp.api.DtpTransAbnormalApi"
+                  protocol="jsf" alias="${jsf.DtpTransAbnormalApi.alias}" timeout="${jsf.DtpTransAbnormalApi.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
 
 </beans>

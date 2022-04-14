@@ -3,8 +3,14 @@ package com.jd.bluedragon.distribution.spotcheck.service;
 import com.jd.bluedragon.distribution.base.domain.DmsBaseDict;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckContext;
+import com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckResult;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.dto.WeightAndVolumeCheckHandleMessage;
 import com.jd.ql.dms.report.domain.WeightVolumeCollectDto;
+import com.jd.ql.dms.report.domain.spotcheck.WeightVolumeSpotCheckDto;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+
+import java.io.InputStream;
+import java.util.Map;
 
 /**
  * 抽检处理接口
@@ -36,21 +42,6 @@ public interface SpotCheckDealService {
      * @return
      */
     DmsBaseDict getProductType(String waybillSign);
-
-    /**
-     * 是否执行新的抽检模式
-     *
-     * @param siteCode
-     * @return
-     */
-    boolean isExecuteNewSpotCheck(Integer siteCode);
-
-    /**
-     * 是否执行BC融合
-     *
-     * @return
-     */
-    boolean isExecuteBCFuse();
 
     /**
      * 是否集齐
@@ -92,6 +83,14 @@ public interface SpotCheckDealService {
     boolean checkIsHasSpotCheck(String waybillCode);
 
     /**
+     * 运单是否超标：只从redis查询
+     *
+     * @param waybillCode
+     * @return
+     */
+    boolean checkIsExcessFromRedis(String waybillCode);
+
+    /**
      * 获取已抽检包裹号
      *
      * @param waybillCode
@@ -117,14 +116,6 @@ public interface SpotCheckDealService {
     void issueSpotCheckDetail(WeightVolumeCollectDto weightVolumeCollectDto);
 
     /**
-     * 是否抽检数据给计费
-     *
-     * @param collectDto
-     * @return
-     */
-    boolean isSueToFinance(WeightVolumeCollectDto collectDto);
-
-    /**
      * 处理上传图片
      *
      * @param packageCode
@@ -140,4 +131,78 @@ public interface SpotCheckDealService {
      * @return
      */
     InvokeResult<Boolean> executeNewHandleProcess(WeightAndVolumeCheckHandleMessage message);
+
+    /**
+     * 是否执行抽检改造模式
+     *
+     * @param siteCode
+     * @return
+     */
+    boolean isExecuteSpotCheckReform(Integer siteCode);
+
+    /**
+     * 是否开启 设备抽检AI图片识别
+     *
+     * @param siteCode
+     * @return
+     */
+    boolean isExecuteDwsAIDistinguish(Integer siteCode);
+
+    /**
+     * 单个图片识别
+     *
+     * @param waybillCode
+     * @param weight
+     * @param picUrl
+     * @param uploadPicType SpotCheckPicTypeEnum
+     * @param excessType 1：重量图片 2：面单图片
+     * @return
+     */
+    ImmutablePair<Integer, String> singlePicAutoDistinguish(String waybillCode, Double weight, String picUrl, Integer uploadPicType, Integer excessType);
+
+    /**
+     * 校验超标
+     *
+     * @param spotCheckContext
+     */
+    InvokeResult<SpotCheckResult> checkIsExcessReform(SpotCheckContext spotCheckContext);
+
+    /**
+     * 组装核对数据
+     *
+     * @param spotCheckContext
+     */
+    void assembleContrastData(SpotCheckContext spotCheckContext);
+
+    /**
+     * 下发超标数据
+     *
+     * @param weightVolumeSpotCheckDto
+     */
+    void spotCheckIssue(WeightVolumeSpotCheckDto weightVolumeSpotCheckDto);
+
+    /**
+     * 执行下发
+     *
+     * @param weightVolumeSpotCheckDto
+     */
+    void executeIssue(WeightVolumeSpotCheckDto weightVolumeSpotCheckDto);
+
+    /**
+     * 上传图片
+     *
+     * @param originalFileName
+     * @param inStream
+     * @return
+     */
+    String uploadExcessPicture(String originalFileName, InputStream inStream);
+
+    /**
+     * 获取包裹图片缓存
+     *
+     * @param packageCode
+     * @param siteCode
+     * @return
+     */
+    String getSpotCheckPackUrlFromCache(String packageCode, Integer siteCode);
 }

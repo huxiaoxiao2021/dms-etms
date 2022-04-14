@@ -10,6 +10,8 @@ import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.packageToMq.domain.Pack;
+import com.jd.bluedragon.distribution.router.RouterService;
+import com.jd.bluedragon.distribution.router.domain.dto.RouteNextDto;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.domain.ThreeDeliveryResponse;
@@ -26,6 +28,7 @@ import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.Md5Helper;
+import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.jddl.executor.function.scalar.filter.In;
@@ -46,7 +49,9 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 包裹滞留上报
@@ -65,6 +70,12 @@ public class StrandServiceImpl implements StrandService {
     @Autowired
     @Qualifier("strandReportDetailProducer")
     DefaultJMQProducer strandReportDetailProducer;
+    /**
+     * 工作台mq
+     */
+    @Autowired
+    @Qualifier("strandReportDetailWbProducer")
+    DefaultJMQProducer strandReportDetailWbProducer;    
     @Autowired
     @Qualifier("strandReportProducer")
     DefaultJMQProducer strandReportProducer;
@@ -72,6 +83,8 @@ public class StrandServiceImpl implements StrandService {
     WaybillService waybillService;
     @Autowired
     private DeliveryService deliveryService;
+    @Autowired
+    private RouterService routerService;
 
     private static final String ABNORMAL_DESCRIPTION_PREFIX = "已滞留：原因：";
 
@@ -91,16 +104,20 @@ public class StrandServiceImpl implements StrandService {
             result.error("你所在的分拣中心id未查到站点信息,请联系配送系统运营！");
             return result;
         }
-
+        boolean syncFlag = Constants.YN_YES.equals(request.getSyncFlag());
         /*按包裹上报*/
         if(ReportTypeEnum.PACKAGE_CODE.getCode().equals(reportType)){
             String waybillCode = WaybillUtil.getWaybillCode(request.getBarcode());
-            //发全程跟踪
-            int addCount = addPackageCodeWaybilTraceTask(request.getBarcode(), waybillCode, request, siteOrgDto);
-            //发滞留明细jmq
-            StrandDetailMessage strandDetailMessage = initStrandDetailMessage(request, request.getBarcode(), waybillCode);
-
-            strandReportDetailProducer.sendOnFailPersistent(waybillCode, JsonHelper.toJson(strandDetailMessage));
+            StrandDetailMessage waybillStrandDetailMessage = this.loadWaybillInfo(request, waybillCode, null);
+          //发滞留明细jmq
+            StrandDetailMessage strandDetailMessage = initStrandDetailMessage(request, request.getBarcode(), waybillCode , waybillStrandDetailMessage);
+            if(syncFlag) {
+	            //发全程跟踪
+	            int addCount = addPackageCodeWaybilTraceTask(request.getBarcode(), waybillCode, request, siteOrgDto);
+	            
+	            strandReportDetailProducer.sendOnFailPersistent(waybillCode, JsonHelper.toJson(strandDetailMessage));
+            }
+            strandReportDetailWbProducer.sendOnFailPersistent(waybillCode, JsonHelper.toJson(strandDetailMessage));
             return result;
         }
 
@@ -118,17 +135,25 @@ public class StrandServiceImpl implements StrandService {
                 result.error("上报失败，改运单包裹信息为空,请联系运单小秘！");
                 return result;
             }
+            StrandDetailMessage waybillStrandDetailMessage = this.loadWaybillInfo(request, waybillCode, bigWaybillDto);
             List<Message> list = new ArrayList<>(bigWaybillDto.getPackageList().size());
+            List<Message> listWb = new ArrayList<>(bigWaybillDto.getPackageList().size());
             for(DeliveryPackageD packageD : bigWaybillDto.getPackageList()){
                 String packageCode = packageD.getPackageBarcode();
                 //构建
-                StrandDetailMessage strandDetailMessage = initStrandDetailMessage(request, packageCode, waybillCode);
-                Message message = new Message(strandReportDetailProducer.getTopic(), JsonHelper.toJson(strandDetailMessage), waybillCode);
-                list.add(message);
+                StrandDetailMessage strandDetailMessage = initStrandDetailMessage(request, packageCode, waybillCode, waybillStrandDetailMessage);
+                Message message = new Message(strandReportDetailWbProducer.getTopic(), JsonHelper.toJson(strandDetailMessage), waybillCode);
+                listWb.add(message);
+                if(syncFlag) {
+                	list.add(new Message(strandReportDetailProducer.getTopic(),message.getText(),waybillCode));
+                }
             }
-            //全程跟踪
-            addPackageCodeWaybilTraceTask(waybillCode, waybillCode, request, siteOrgDto);
-            strandReportDetailProducer.batchSendOnFailPersistent(list);
+            if(syncFlag) {
+	            //全程跟踪
+	            addPackageCodeWaybilTraceTask(waybillCode, waybillCode, request, siteOrgDto);
+	            strandReportDetailProducer.batchSendOnFailPersistent(list);
+            }
+            strandReportDetailWbProducer.batchSendOnFailPersistent(listWb);
             return result;
         }
 
@@ -143,20 +168,67 @@ public class StrandServiceImpl implements StrandService {
         }
         //发全程跟踪和上报明细消息
         List<Message> list = new ArrayList<>(packageCodes.size());
+        List<Message> listWb = new ArrayList<>(packageCodes.size());
+        Map<String,StrandDetailMessage> waybillInfoMap = new HashMap<String,StrandDetailMessage>();
         for(String packageCode : packageCodes){
             String waybillCode = WaybillUtil.getWaybillCode(packageCode);
-            //全程跟踪
-            addPackageCodeWaybilTraceTask(packageCode, waybillCode, request, siteOrgDto);
+            StrandDetailMessage waybillStrandDetailMessage = null;
+            if(waybillInfoMap.containsKey(waybillCode)) {
+            	waybillStrandDetailMessage = waybillInfoMap.get(waybillCode);
+            }else {
+            	waybillStrandDetailMessage = this.loadWaybillInfo(request, waybillCode, null);
+            	waybillInfoMap.put(waybillCode, waybillStrandDetailMessage);
+            }
+            if(syncFlag) {
+	            //全程跟踪
+	            addPackageCodeWaybilTraceTask(packageCode, waybillCode, request, siteOrgDto);
+            }
             //构建
-            StrandDetailMessage strandDetailMessage = initStrandDetailMessage(request, packageCode, waybillCode);
-            Message message = new Message(strandReportDetailProducer.getTopic(), JsonHelper.toJson(strandDetailMessage), waybillCode);
-            list.add(message);
+            StrandDetailMessage strandDetailMessage = initStrandDetailMessage(request, packageCode, waybillCode,waybillStrandDetailMessage);
+            Message message = new Message(strandReportDetailWbProducer.getTopic(), JsonHelper.toJson(strandDetailMessage), waybillCode);
+            listWb.add(message);
+            if(syncFlag) {
+            	list.add(new Message(strandReportDetailProducer.getTopic(),message.getText(),waybillCode));
+            }
         }
-        strandReportDetailProducer.batchSendOnFailPersistent(list);
+        if(syncFlag) {
+        	strandReportDetailProducer.batchSendOnFailPersistent(list);
+        }
+        strandReportDetailWbProducer.batchSendOnFailPersistent(listWb);
         return result;
 
     }
-
+    /**
+     * 滞留明细初始化前加载运单其他信息
+     * @param request
+     * @param waybillCode
+     * @param bigWaybillDto
+     * @return
+     */
+    private StrandDetailMessage loadWaybillInfo(StrandReportRequest request,String waybillCode, BigWaybillDto bigWaybillDto) {
+    	StrandDetailMessage strandDetailMessage = new StrandDetailMessage();
+    	BigWaybillDto waybillDto = bigWaybillDto;
+    	if(waybillDto == null) {
+    		waybillDto =  waybillService.getWaybill(waybillCode);
+    	}
+    	if(waybillDto != null
+    			&& waybillDto.getWaybill() != null) {
+    		strandDetailMessage.setWaybillAgainWeight(waybillDto.getWaybill().getAgainWeight());
+    		if(NumberHelper.isBigDecimal(waybillDto.getWaybill().getSpareColumn2())) {
+    			strandDetailMessage.setWaybillAgainVolume(new Double(waybillDto.getWaybill().getSpareColumn2()));
+    		}
+    	}else {
+    		log.warn("滞留明细初始化：{}加载称重量方信息失败，运单信息不存在！",waybillCode);
+    	}
+    	RouteNextDto routeNextDto = routerService.matchRouterNextNode(request.getSiteCode(), waybillCode);
+    	//加载路由信息，设置下一站站点
+    	if(routeNextDto != null) {
+    		strandDetailMessage.setRouterNextSiteCode(routeNextDto.getFirstNextSiteId());
+    	}else {
+    		log.warn("滞留明细初始化：{}加载路由下一站失败，路由信息不存在！",waybillCode);
+    	}
+    	return strandDetailMessage;
+    }
     private List<String> getPackageCodesByBoxCodeOrSendCode(Integer reportType, StrandReportRequest request){
         //构建查询sendDetail的查询参数
         SendDetailDto  sendDetail = initSendDetail(reportType, request.getBarcode(), request.getSiteCode());
@@ -195,7 +267,7 @@ public class StrandServiceImpl implements StrandService {
      * @param waybillCode
      * @return
      */
-    private StrandDetailMessage initStrandDetailMessage(StrandReportRequest request, String packageCode, String waybillCode){
+    private StrandDetailMessage initStrandDetailMessage(StrandReportRequest request, String packageCode, String waybillCode, StrandDetailMessage waybillStrandDetailMessage){
         StrandDetailMessage strandDetailMessage = new StrandDetailMessage();
         /*异常描述*/
         strandDetailMessage.setAbnormalDescription(ABNORMAL_DESCRIPTION_PREFIX + request.getReasonMessage());
@@ -217,6 +289,13 @@ public class StrandServiceImpl implements StrandService {
         strandDetailMessage.setReportType(request.getReportType());
         /* 运单号*/
         strandDetailMessage.setWaybillCode(waybillCode);
+        //同步标识
+        strandDetailMessage.setSyncFlag(request.getSyncFlag());
+        if(waybillStrandDetailMessage != null) {
+        	strandDetailMessage.setWaybillAgainWeight(waybillStrandDetailMessage.getWaybillAgainWeight());
+        	strandDetailMessage.setWaybillAgainVolume(waybillStrandDetailMessage.getWaybillAgainVolume());
+        	strandDetailMessage.setRouterNextSiteCode(waybillStrandDetailMessage.getRouterNextSiteCode());
+        }
         return strandDetailMessage;
     }
 
@@ -233,11 +312,11 @@ public class StrandServiceImpl implements StrandService {
         Task tTask = new Task();
         tTask.setBoxCode(barcode);
         tTask.setCreateSiteCode(siteOrgDto.getSiteCode());
-        tTask.setKeyword2(barcode);
+        tTask.setKeyword2(String.valueOf(WaybillStatus.WAYBILL_STRAND_REPORT));
         tTask.setReceiveSiteCode(siteOrgDto.getSiteCode());
-        tTask.setType(WaybillStatus.WAYBILL_OPE_TYPE_PUTAWAY);
-        tTask.setTableName(Task.TABLE_NAME_WAYBILL);
-        tTask.setSequenceName(Task.TABLE_NAME_WAYBILL_SEQ);
+        tTask.setType(Task.TASK_TYPE_WAYBILL_TRACK);
+        tTask.setTableName(Task.getTableName(Task.TASK_TYPE_WAYBILL_TRACK));
+        tTask.setSequenceName(Task.getSequenceName(Task.TABLE_NAME_POP));
         tTask.setOwnSign(BusinessHelper.getOwnSign());
         //回传运单状态
         tTask.setKeyword1(waybillCode);
@@ -252,8 +331,9 @@ public class StrandServiceImpl implements StrandService {
         tWaybillStatus.setCreateSiteCode(siteOrgDto.getSiteCode());
         tWaybillStatus.setCreateSiteName(siteOrgDto.getSiteName());
         tWaybillStatus.setCreateSiteType(siteOrgDto.getSiteType());
-        tWaybillStatus.setOperateType(WaybillStatus.WAYBILL_OPE_TYPE_PUTAWAY);
+        tWaybillStatus.setOperateType(WaybillStatus.WAYBILL_STRAND_REPORT);
         tWaybillStatus.setWaybillCode(waybillCode);
+        tWaybillStatus.setRemark("滞留上报，原因：" + request.getReasonMessage());
         // 运单自行区分 是包裹号还是运单号来更新状态
         tWaybillStatus.setPackageCode(barcode);
         tTask.setBody(JsonHelper.toJson(tWaybillStatus));

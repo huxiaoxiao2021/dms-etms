@@ -85,4 +85,11 @@ public interface IVirtualBoardJsfManager {
      * @time 2021-10-11 14:44:02
      */
     Response<Void> handoverBoard(HandoverVirtualBoardPo handoverVirtualBoardPo);
+
+    /**
+     * 根据板号获取箱号统计数据
+     * @param boardCode
+     * @return
+     */
+    Response<VirtualBoardResultDto> getBoxCountByBoardCode(String boardCode);
 }

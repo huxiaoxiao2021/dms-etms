@@ -418,7 +418,12 @@
                   ref="driverBoardSend4JgjGatewayServiceImpl"
                   server="dmsjsf">
     </jsf:provider>
-
+    <!-- 签到服务服务 -->
+    <jsf:provider id="userSignGatewayServiceServer"
+                  interface="com.jd.bluedragon.distribution.station.gateway.UserSignGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="userSignGatewayService" server="dmsjsf">
+    </jsf:provider>
     <!-- 弃件暂存服务-->
     <bean id="discardedStorageGatewayServiceImpl" class="com.jd.bluedragon.distribution.external.gateway.service.impl.DiscardedStorageGatewayServiceImpl" />
     <jsf:provider id="jsfDiscardedStorageGatewayService"
@@ -427,4 +432,27 @@
                   ref="discardedStorageGatewayServiceImpl"
                   server="dmsjsf">
     </jsf:provider>
+    <!-- 自动补码服务 -->
+    <bean id="autoDistGatewayServiceImpl" class="com.jd.bluedragon.distribution.external.gateway.service.impl.AutoDistGatewayServiceImpl"/>
+    <jsf:provider id="jsfAutoDistService"
+                  interface="com.jd.bluedragon.external.gateway.service.AutoDistGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="autoDistGatewayServiceImpl" server="dmsjsf">
+    </jsf:provider>
+
+    <!--  APP升级检测   -->
+    <bean id="appUpgradeGatewayServiceImpl" class="com.jd.bluedragon.distribution.external.gateway.service.impl.AppUpgradeGatewayServiceImpl" />
+    <jsf:provider id="jsfAppUpgradeGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.AppUpgradeGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="appUpgradeGatewayServiceImpl"
+                  server="dmsjsf" />
+
+    <!-- 拣运待解封车任务   -->
+    <bean id="jySealVehicleGatewayServiceImpl" class="com.jd.bluedragon.distribution.external.gateway.service.impl.JySealVehicleGatewayServiceImpl" />
+    <jsf:provider id="jsfJySealVehicleGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.JySealVehicleGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="jySealVehicleGatewayServiceImpl"
+                  server="dmsjsf" />
 </beans>

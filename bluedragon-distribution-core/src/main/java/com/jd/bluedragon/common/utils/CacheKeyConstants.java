@@ -65,25 +65,13 @@ public class CacheKeyConstants {
      *  封车编码绑定的包裹 key=前缀-封车编码-包裹号
      */
     public static final String REDIS_PREFIX_SEALCAR_SURPLUS_PACK = "unload.sealCar.surplusPackage-";
-	/**
-	 * 包裹抽检记录的缓存
-	 */
-	public static final String CACHE_KEY_PACKAGE_OR_WAYBILL_CHECK_FLAG = "dmsWeb:packageOrWaybillCheckFlag:";
+
+    /***************************************** 抽检缓存start *******************************************/
+
     /**
      * 包裹抽检记录的缓存
      */
-    public static final String CACHE_KEY_WAYBILL_PACKAGE_CHECK_LIST = "dmsWeb:waybillSpotCheckList:%s-%s:";
-    /**
-     * 抽检包裹上传图片的缓存
-     */
-	public static final String CACHE_KEY_SPOT_CHECK_PICTURE_URL_UPLOAD_FLAG = "spotCheck.pictureUrl-%s-%s";
-    /**
-     * 包裹抽检是否超标的缓存
-     */
-	public static final String CACHE_KEY_SPOT_IS_EXCESS_FLAG = "spotCheck.isExcess-%s-%s";
-
-
-    /***************************************** 抽检缓存start *******************************************/
+    public static final String CACHE_KEY_PACKAGE_OR_WAYBILL_CHECK_FLAG = "dmsWeb:packageOrWaybillCheckFlag:";
     /**
      * 运单已抽检缓存前缀
      */
@@ -111,10 +99,6 @@ public class CacheKeyConstants {
      * 运单下已发货包裹发货状态缓存redis的key
      */
     public static final String CACHE_KEY_WAYBILL_SEND_PACKS_STATUS = "dmsWeb:waybillSendPacksStatus:%s-%s";
-    /**
-     * 包裹发货状态缓存redis的key
-     */
-    public static final String CACHE_KEY_FXM_SEND_WAYBILL = "dmsWeb:spotCheck:fxmSend:%s-%s";
 	/**
 	 * 卸车任务已拦截包裹扫描
 	 *  组板绑定的包裹 key=前缀-封车编码-包裹号
@@ -136,7 +120,10 @@ public class CacheKeyConstants {
      * 缓存key-发货关系
      */
     public static final String CACHE_KEY_FORMAT_SAVE_SEND_RELATION ="dmsWeb:saveSendRelationKey:%s:%s";
-
+    /**
+     * 缓存key-无滑道数据标识
+     */
+    public static final String CACHE_KEY_FORMAT_WAYBILL_HASNO_PRESITE_RECORD_FLG ="dmsWeb:waybillHasnoPresiteRecordFlg:%s";
     /**
      * 文件箱号绑定锁
      */

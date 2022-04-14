@@ -32,4 +32,14 @@ public interface DMSSendCodeJSFService {
      */
     InvokeResult<String> createSendCode(Map<BusinessCodeAttributeKey.SendCodeAttributeKeyEnum,String> attributeKeyEnumObjectMap, BusinessCodeFromSourceEnum fromSourceEnum, String createUser);
 
+    /**
+     * 批次号有效性校验
+     * <ul>
+     *     <li>校验正则</li>
+     *     <li>校验批次号是否存在</li>
+     * </ul>
+     * @param sendCode 批次号
+     * @return
+     */
+    InvokeResult<Boolean> validateSendCodeEffective(String sendCode);
 }

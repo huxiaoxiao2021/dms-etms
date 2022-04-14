@@ -151,11 +151,13 @@ public class DriverBoardSendServiceImpl implements DriverBoardSendService {
 
             ServiceMessage<Boolean> departureResult = departureService.checkSendStatusFromVOS(request.getBatchCode());
             if (ServiceResultEnum.WRONG_STATUS.equals(departureResult.getResult())) {//已被封车
-                result.setData(new KeyValueDto<>(2, HintService.getHint(HintCodeConstants.SEND_CODE_SEALED)));
+                return result.toFail(HintService.getHint(HintCodeConstants.SEND_CODE_SEALED), InvokeResult.RESULT_THIRD_ERROR_CODE);
             } else if (ServiceResultEnum.SUCCESS.equals(departureResult.getResult())) {//未被封车
                 BaseStaffSiteOrgDto site = siteService.getSite(receiveSiteCode);
-                String siteName = null != site ? site.getSiteName() : "未获取到该站点名称";
-                result.setData(new KeyValueDto<>(1, siteName));
+                if(site == null){
+                    return result.toFail("未获取到该站点数据", InvokeResult.RESULT_THIRD_ERROR_CODE);
+                }
+                result.setData(new KeyValueDto<>(1, site.getSiteName()));
             } else {
                 return result.toFail(departureResult.getErrorMsg());
             }
@@ -192,6 +194,9 @@ public class DriverBoardSendServiceImpl implements DriverBoardSendService {
         if(StringUtils.isEmpty(request.getBatchCode())){
             return result.toFail("参数错误，batchCode不能为空");
         }
+        if(!BusinessUtil.isSendCode(request.getBatchCode())){
+            return result.toFail("请扫描正确的批次号");
+        }
         return result;
     }
 
@@ -215,6 +220,7 @@ public class DriverBoardSendServiceImpl implements DriverBoardSendService {
             if(!checkResult.isSuccess()){
                 return result.toFail(checkResult.getMessage(), checkResult.getCode());
             }
+            request.setBusinessType(Constants.BUSSINESS_TYPE_POSITIVE);
             InvokeResult<Boolean> batchCheckResult = sendCodeService.validateSendCodeEffective(request.getBatchCode());
             if (!batchCheckResult.codeSuccess()) {
                 return result.toFail(batchCheckResult.getMessage(), batchCheckResult.getCode());
@@ -244,7 +250,7 @@ public class DriverBoardSendServiceImpl implements DriverBoardSendService {
             operateUser.setUserName(driverDto.getDriverName());
 
             final PackageSendRequest packageSendRequest = this.convertDriverBoardSendRequestToPackageSendRequest(request, driverDto);
-            packageSendRequest.setBizSource(SendBizSourceEnum.ANDROID_PDA_SEND.getCode());
+            packageSendRequest.setBizSource(SendBizSourceEnum.BOARD_SEND.getCode());
             SendM sendM = this.toSendMDomain(packageSendRequest);
             sendM.setBoxCode(request.getBarCode());
 
@@ -302,6 +308,9 @@ public class DriverBoardSendServiceImpl implements DriverBoardSendService {
         }
         if(StringUtils.isEmpty(request.getBatchCode())){
             return result.toFail("参数错误，batchCode不能为空");
+        }
+        if(!BusinessUtil.isSendCode(request.getBatchCode())){
+            return result.toFail("请扫描正确的批次号");
         }
         if(StringUtils.isEmpty(request.getBarCode())){
             return result.toFail("参数错误，barCode不能为空");

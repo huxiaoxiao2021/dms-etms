@@ -10,11 +10,11 @@ import com.jd.bluedragon.core.base.ReportExternalManager;
 import com.jd.bluedragon.core.base.JdiQueryWSManager;
 import com.jd.bluedragon.core.base.JdiSelectWSManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
-import com.jd.bluedragon.distribution.api.request.NewSealVehicleRequest;
-import com.jd.bluedragon.distribution.api.request.SealVehicleVolumeVerifyRequest;
-import com.jd.bluedragon.distribution.api.request.cancelSealRequest;
+import com.jd.bluedragon.distribution.api.domain.TransAbnormalTypeDto;
+import com.jd.bluedragon.distribution.api.request.*;
 import com.jd.bluedragon.distribution.api.response.*;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
+import com.jd.bluedragon.distribution.base.domain.DmsBaseDict;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.busineCode.sendCode.service.SendCodeService;
 import com.jd.bluedragon.distribution.coldchain.domain.ColdChainSend;
@@ -833,6 +833,7 @@ public class NewSealVehicleResource {
                     List<SealCarDto> sealCarDtos = returnCommonDto.getData().getResult();
                     if (sealCarDtos != null && sealCarDtos.size() > 0) {    //合并批次号并按创建时间倒序排序
                         sealCarDtos = mergeBatchCode(sealCarDtos);
+                        filterDeSealCode(sealCarDtos);
                         sortSealCarDtos(sealCarDtos);
                         sealVehicleResponse.setData(sealCarDtos);
                     } else {
@@ -950,6 +951,88 @@ public class NewSealVehicleResource {
         }
         return unSealVehicleResponse;
     }
+
+    /**
+     * 查询待解封签号（无到货解封签专用）
+     * @param param
+     * @return
+     */
+    @POST
+    @Path("/new/vehicle/querySealCodes")
+    @JProfiler(jKey = "DMS.WEB.NewSealVehicleResource.querySealCodes", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public NewSealVehicleResponse<SealCodesResponse> querySealCodes (SealCodeRequest param) {
+        return newsealVehicleService.querySealCodes(param);
+    }
+
+    /**
+     * 无到货解封签（无到货解封签专用）
+     * @param param
+     * @return
+     */
+    @POST
+    @Path("/new/vehicle/doDeSealCodes")
+    @JProfiler(jKey = "DMS.WEB.NewSealVehicleResource.doDeSealCodes", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public NewSealVehicleResponse<String> doDeSealCodes (DeSealCodeRequest param) {
+        return newsealVehicleService.doDeSealCodes(param);
+    }
+
+    /**
+     * 无货解封签异常上报
+     * @param param
+     * @return
+     */
+    @POST
+    @Path("/new/vehicle/createTransAbnormalStandard")
+    @JProfiler(jKey = "DMS.WEB.NewSealVehicleResource.createTransAbnormalStandard", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public NewSealVehicleResponse<String> createTransAbnormalStandard (TransAbnormalDto param) {
+        return newsealVehicleService.createTransAbnormalStandard(param);
+    }
+
+    @GET
+    @Path("/new/vehicle/getTransAbnormalTypeCode")
+    @JProfiler(jKey = "DMS.WEB.NewSealVehicleResource.getTransAbnormalTypeCode", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public NewSealVehicleResponse<List<TransAbnormalTypeDto>> getTransAbnormalTypeCode () {
+        return newsealVehicleService.getTransAbnormalTypeCode();
+    }
+
+    @POST
+    @Path("/new/vehicle/createTransAbnormalAndDeSealCode")
+    @JProfiler(jKey = "DMS.WEB.NewSealVehicleResource.createTransAbnormalAndDeSealCode", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public NewSealVehicleResponse<String> createTransAbnormalAndDeSealCode(TransAbnormalAndDeSealRequest request){
+        return newsealVehicleService.createTransAbnormalAndDeSealCode(request);
+    }
+
+    @POST
+    @Path("/new/vehicle/createTransAbnormalAndUnseal")
+    @JProfiler(jKey = "DMS.WEB.NewSealVehicleResource.createTransAbnormalAndUnseal", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public NewUnsealVehicleResponse<Boolean> createTransAbnormalAndUnseal(TransAbnormalAndUnsealRequest request){
+        NewUnsealVehicleResponse<Boolean> unSealVehicleResponse = new NewUnsealVehicleResponse<>();
+
+        NewSealVehicleResponse<String> response = this.createTransAbnormalStandard(request.getTransAbnormalDto());
+        if (response == null) {
+            unSealVehicleResponse.setCode(JdResponse.CODE_SERVICE_ERROR);
+            unSealVehicleResponse.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
+            return unSealVehicleResponse;
+        }
+        if (!JdResponse.CODE_OK.equals(response.getCode())) {
+            unSealVehicleResponse.setCode(response.getCode());
+            unSealVehicleResponse.setMessage(response.getMessage());
+            return unSealVehicleResponse;
+        }
+        try {
+            NewSealVehicleRequest request1 = new NewSealVehicleRequest();
+            request1.setData(Collections.singletonList(request.getSealCarDto()));
+            unSealVehicleResponse = this.newUnseal(request1);
+            return unSealVehicleResponse;
+
+        } catch (Exception e) {
+            unSealVehicleResponse = new NewUnsealVehicleResponse<>();
+            unSealVehicleResponse.setCode(NewSealVehicleResponse.CODE_INTERNAL_ERROR);
+            unSealVehicleResponse.setMessage("提报异常成功，解封签异常");
+        }
+        return unSealVehicleResponse;
+    }
+
 
     /**
      * 校验是否需要抽检
@@ -1079,6 +1162,27 @@ public class NewSealVehicleResource {
         }
 
         return mergeResult;
+    }
+
+    /**
+     * 过滤待解封签号
+     * 返回sealCodes中，将存在于deSealCodes中的数据去掉
+     * @param sealCarDtos
+     * @return
+     */
+    private List<SealCarDto> filterDeSealCode(List<SealCarDto> sealCarDtos) {
+        for (SealCarDto item : sealCarDtos) {
+            if (CollectionUtils.isEmpty(item.getSealCodes()) || CollectionUtils.isEmpty(item.getDesealCodes())) {
+                continue;
+            }
+            for (String deSealCode : item.getDesealCodes()) {
+                if (!item.getSealCodes().contains(deSealCode)) {
+                    continue;
+                }
+                item.getSealCodes().remove(deSealCode);
+            }
+        }
+        return sealCarDtos;
     }
 
     /**

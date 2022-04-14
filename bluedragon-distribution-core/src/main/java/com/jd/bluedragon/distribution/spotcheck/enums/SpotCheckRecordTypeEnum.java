@@ -8,8 +8,8 @@ package com.jd.bluedragon.distribution.spotcheck.enums;
  */
 public enum SpotCheckRecordTypeEnum {
 
-    PACKAGE(1, "包裹"),
-    WAYBILL(2, "运单");
+    DETAIL_RECORD(1, "明细记录"),
+    SUMMARY_RECORD(2, "汇总记录");
 
     private Integer code;
     private String name;

@@ -1,9 +1,12 @@
 package com.jd.bluedragon.distribution;
 
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.consumer.spotCheck.SpotCheckNotifyConsumer;
 import com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckDto;
+import com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckNotifyMQ;
 import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckCurrencyService;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.jmq.common.message.Message;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,24 +31,29 @@ public class SpotCheckTest {
     @Autowired
     private SpotCheckCurrencyService spotCheckCurrencyService;
 
+    @Autowired
+    private SpotCheckNotifyConsumer spotCheckNotifyConsumer;
+
     @Test
     public void spotCheckDeal() {
         try {
             String text = "{\n" +
-                    "    \"barCode\":\"JDV000705208490-1-1-\",\n" +
-                    "    \"spotCheckSourceFrom\":\"SPOT_CHECK_DWS\",\n" +
-                    "    \"weight\":5001.3,\n" +
-                    "    \"length\":10.1,\n" +
-                    "    \"width\":10.1,\n" +
-                    "    \"height\":10.1,\n" +
-                    "    \"orgId\":6,\n" +
-                    "    \"orgName\":\"总公司\",\n" +
-                    "    \"siteCode\":10098,\n" +
-                    "    \"siteName\":\"石景山营业部\",\n" +
-                    "    \"operateUserId\":10053,\n" +
-                    "    \"operateUserErp\":\"bjxings\",\n" +
-                    "    \"operateUserName\":\"邢松\",\n" +
-                    "    \"dimensionType\":0\n" +
+                    "\"barCode\":\"JDVF00001501950-1-3-\",\n" +
+                    "\"spotCheckSourceFrom\":\"SPOT_CHECK_DWS\",\n" +
+                    "\"weight\":50,\n" +
+                    "\"length\":30,\n" +
+                    "\"width\":10,\n" +
+                    "\"height\":200,\n" +
+                    "\n" +
+                    "\"orgId\":6,\n" +
+                    "\"orgName\":\"总公司\",\n" +
+                    "\"siteCode\":10098,\n" +
+                    "\"siteName\":\"北京双树直送第一车队-测试\",\n" +
+                    "\"operateUserId\":10053,\n" +
+                    "\"operateUserErp\":\"bjxings\",\n" +
+                    "\"operateUserName\":\"邢松\",\n" +
+                    "\"machineCode\":\"machineCode\",\n" +
+                    "\"dimensionType\":0\n" +
                     "}";
             SpotCheckDto spotCheckDto = JsonHelper.fromJson(text, SpotCheckDto.class);
 
@@ -63,9 +71,57 @@ public class SpotCheckTest {
 //            spotCheckDto.setBarCode("JDV000706650345-2-3-");
 //            InvokeResult<Boolean> result2 = spotCheckCurrencyService.spotCheckDeal(spotCheckDto);
 //            spotCheckDto.setBarCode("JDV000706650345-3-3-");
-            InvokeResult<Boolean> result3 = spotCheckCurrencyService.spotCheckDeal(spotCheckDto);
-            Assert.assertTrue(true);
+//            InvokeResult<Boolean> result3 = spotCheckCurrencyService.spotCheckDeal(spotCheckDto);
 
+
+            text = "{\n" +
+                    "    \"confirmVolume\":\"10000.00\",\n" +
+                    "    \"confirmWeight\":\"20.00\",\n" +
+                    "    \"confirmWeightSource\":2,\n" +
+                    "    \"convertCoefficient\":\"4800\",\n" +
+                    "    \"customerCode\":\"10K10044\",\n" +
+                    "    \"diffWeight\":\"30.00\",\n" +
+                    "    \"dutyOrgCode\":\"39\",\n" +
+                    "    \"dutyOrgName\":\"石景山营业部\",\n" +
+                    "    \"dutyProvinceCompanyCode\":\"010S002\",\n" +
+                    "    \"dutyRegion\":\"总公司\",\n" +
+                    "    \"dutyRegionCode\":\"6\",\n" +
+                    "    \"dutyStaffAccount\":\"bjych\",\n" +
+                    "    \"dutyStaffName\":\"杨超Test\",\n" +
+                    "    \"dutyStaffType\":1,\n" +
+                    "    \"dutyType\":15,\n" +
+                    "    \"exceedType\":1,\n" +
+                    "    \"flowId\":\"DMS-MSI_JDVF00001511122_10098\",\n" +
+                    "    \"flowSystem\":\"DMS-MSI\",\n" +
+                    "    \"initiationLink\":\"1\",\n" +
+                    "    \"orgCode\":\"10098\",\n" +
+                    "    \"orgName\":\"北京双树直送第一车队-测试\",\n" +
+                    "    \"packageNumber\":1,\n" +
+                    "    \"reConfirmHigh\":\"90.0\",\n" +
+                    "    \"reConfirmLong\":\"10.0\",\n" +
+                    "    \"reConfirmVolume\":\"9000.0\",\n" +
+                    "    \"reConfirmWeight\":\"50.0\",\n" +
+                    "    \"reConfirmWidth\":\"10.0\",\n" +
+                    "    \"standerDiff\":\"±5%\",\n" +
+                    "    \"startRegion\":\"总公司\",\n" +
+                    "    \"startRegionCode\":\"6\",\n" +
+                    "    \"startStaffAccount\":\"bjxings\",\n" +
+                    "    \"startStaffName\":\"刑松\",\n" +
+                    "    \"startStaffType\":1,\n" +
+                    "    \"startTime\":\"2022-01-18 10:28:31\",\n" +
+                    "    \"status\":2,\n" +
+                    "    \"statusUpdateTime\":\"2022-01-18 10:38:43\",\n" +
+                    "    \"url\":[\n" +
+                    "        \"http://test.storage.jd.com/dms-feedback/ce499e73-471c-491a-b07c-ee69b311712a.png?Expires=1957832658&AccessKey=a7ogJNbj3Ee9YM1O&Signature=XsaOGMnMPs8a2M2bwgdaunLvvFQ%3D\",\n" +
+                    "        \"http://test.storage.jd.com/dms-feedback/6c424b2c-5816-4f61-b555-536543c0d125.jpg?Expires=1957832673&AccessKey=a7ogJNbj3Ee9YM1O&Signature=Wb7enskgeu5qGbThaXlva8gSE%2Fw%3D\"\n" +
+                    "    ],\n" +
+                    "    \"waybillCode\":\"JDVF00001511122\",\n" +
+                    "    \"waybillSign\":\"30001000110909000000000000000000000030020002005000002000010000000000001000000015000100003010100000300000000010000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000\"\n" +
+                    "}";
+            Message message = new Message();
+            message.setText(text);
+            spotCheckNotifyConsumer.consume(message);
+            Assert.assertTrue(true);
         }catch (Throwable e){
             logger.error("监听流程结果处理异常!", e);
             Assert.fail();

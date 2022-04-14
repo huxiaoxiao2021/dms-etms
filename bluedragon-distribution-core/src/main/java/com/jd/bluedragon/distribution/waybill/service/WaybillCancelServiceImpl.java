@@ -140,4 +140,10 @@ public class WaybillCancelServiceImpl implements WaybillCancelService {
         cancelWaybill.setInterceptMode(WaybillCancelInterceptModeEnum.NOTICE.getCode());
         cancelWaybill.setOperateTimeOrder(currentTimeMillis);
     }
+
+	@Override
+	public boolean isFullOrderFail(String waybillCode) {
+		CancelWaybill cancelWaybill = this.cancelWaybillDao.getByWaybillCodeAndInterceptType(waybillCode, WaybillCancelInterceptTypeEnum.FULL_ORDER_FAIL.getCode());
+		return cancelWaybill!=null;
+	}
 }

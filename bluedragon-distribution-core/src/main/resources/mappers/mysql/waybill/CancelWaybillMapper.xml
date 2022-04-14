@@ -114,4 +114,25 @@
 		AND yn = 1
 		order by operate_time_order desc limit 1
 	</select>
+	<select id="getByWaybillCodeAndInterceptType" parameterType="java.util.Map" resultMap="cancelWaybill">
+		SELECT
+		waybill_code,
+		package_code,
+		feature_type,
+		create_time,
+		update_time,
+		business_type,
+		intercept_type,
+		intercept_mode,
+		operate_time,
+		operate_time_order,
+		yn,
+		ts
+		FROM Waybill_Cancel
+		WHERE
+		waybill_code = #{waybillCode,jdbcType=VARCHAR}
+		AND intercept_type = #{interceptType,jdbcType=INTEGER}
+		AND yn = 1
+		order by operate_time_order desc limit 1
+	</select>
 </mapper>

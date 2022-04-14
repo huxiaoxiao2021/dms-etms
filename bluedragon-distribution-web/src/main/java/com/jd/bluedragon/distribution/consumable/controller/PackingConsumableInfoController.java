@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.consumable.controller;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
 import com.jd.bluedragon.distribution.consumable.domain.PackingConsumableInfo;
 import com.jd.bluedragon.distribution.consumable.domain.PackingConsumableInfoCondition;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.Map;
+import java.util.Objects;
 
 /**
  *
@@ -35,6 +37,9 @@ public class PackingConsumableInfoController extends DmsBaseController {
 
 	@Autowired
 	private PackingConsumableInfoService packingConsumableInfoService;
+
+	@Autowired
+	private UccPropertyConfiguration uccPropertyConfiguration;
 
 	/**
 	 * 返回主页面
@@ -97,7 +102,13 @@ public class PackingConsumableInfoController extends DmsBaseController {
 	public JdResponse getAllPackingType() {
 		JdResponse<Map<String, String>> rest = new JdResponse<Map<String, String>>();
 		try {
-			rest.setData(PackingTypeEnum.getEnumMap());
+			//UCC配置1或者3限制分拣页面维护包装耗材信息（"分拣"和"其他"类型除外:因为分拣和其他属于分拣物资类型）
+			if (Objects.equals(uccPropertyConfiguration.getPackConsumableSwitch(),1) || Objects.equals(uccPropertyConfiguration.getPackConsumableSwitch(),3)) {
+				rest.setData(PackingTypeEnum.getMaterialTypeEnumMap());
+			} else {
+				rest.setData(PackingTypeEnum.getEnumMap());
+			}
+
 		} catch (Exception e) {
 			log.error("获取包装类型失败", e);
 			rest.toError("获取包装类型失败，服务异常！");

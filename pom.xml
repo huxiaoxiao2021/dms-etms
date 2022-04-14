@@ -38,9 +38,10 @@
 		<!-- mq.sender update@2012.06.11 -->
 		<mq.sender.version>0.3.1-SNAPSHOT</mq.sender.version>
 		<waybill.cache.version>1.0.3</waybill.cache.version>
-		<business-sdk.version>1.0.9-test-SNAPSHOT</business-sdk.version>
+		<business-sdk.version>1.1.1-SNAPSHOT</business-sdk.version>
 		<dms-component-sdk.version>1.0.1-SNAPSHOT</dms-component-sdk.version>
 		<workbench.services.sdk.version>1.0.8-SNAPSHOT</workbench.services.sdk.version>
+        <jy.realtime.sdk.version>1.0.0-SNAPSHOT</jy.realtime.sdk.version>
 		<!-- 用于源码tag -->
 		<maven.build.timestamp.format>yyyyMMddHHmm</maven.build.timestamp.format>
 		<project.scm.id>xnqlarch-gitlab</project.scm.id>
@@ -253,6 +254,30 @@
 				<artifactId>jdl-express-collect-api</artifactId>
 				<version>1.5-jdk7-SNAPSHOT</version>
 			</dependency>
+
+            <dependency>
+                <artifactId>mrd-srv-sdk</artifactId>
+                <groupId>com.jd.mrd</groupId>
+                <version>1.0.3-SNAPSHOT</version>
+            </dependency>
+
+			<dependency>
+				<groupId>com.jd.wl.image.center</groupId>
+				<artifactId>wl-aicenter-outter-api-1.7</artifactId>
+				<version>0.0.1-SNAPSHOT</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.jdl.express.weight.report</groupId>
+				<artifactId>jdl-express-weight-report-api</artifactId>
+				<version>1.1.0-SNAPSHOT</version>
+			</dependency>
+
+            <dependency>
+                <groupId>com.jdl.jy.realtime</groupId>
+                <artifactId>realtime-service-sdk</artifactId>
+                <version>${jy.realtime.sdk.version}</version>
+            </dependency>
 
 		</dependencies>
 	</dependencyManagement>

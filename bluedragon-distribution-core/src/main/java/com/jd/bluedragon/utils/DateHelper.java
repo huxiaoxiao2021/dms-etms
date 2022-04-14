@@ -8,6 +8,7 @@ import org.apache.commons.lang.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.text.DateFormat;
 import java.text.MessageFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -31,7 +32,10 @@ public class DateHelper {
     };
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DateHelper.class);
-
+    /**
+     * 1小时的分钟数
+     */
+    public static final long ONE_HOUR_MINUTES = 60;
     /**
      * 五分钟秒数
      */
@@ -507,4 +511,36 @@ public class DateHelper {
 		}
 		return null;
     }
+    /**
+     * 计算小时数
+     * @param startTime
+     * @param endTime
+     * @return
+     */
+	public static double betweenHours(Date startTime, Date endTime) {
+		if(startTime != null && endTime!= null && endTime.after(startTime)) {
+			return 1.0*(endTime.getTime() - startTime.getTime())/3600/1000;
+		}
+		return 0;
+	}
+    /**
+     * 获取年月日 yyMMdd
+     * @return
+     */
+    public static String getDateOfyyMMdd2(){
+        DateFormat format = new SimpleDateFormat(DATE_FORMAT_YYYYMMDD);
+        return format.format(new Date());
+    }
+    /**
+     * 
+     * @param hours
+     * @return
+     */
+	public static String hoursToHHMM(double hours) {
+		if(hours > 0) {
+			long minutes = (long)(hours * ONE_HOUR_MINUTES);
+			return (minutes/60) + "时" + (minutes%60) + "分";
+		}
+		return "";
+	}
 }

@@ -27,6 +27,7 @@ import com.jd.bluedragon.distribution.api.request.box.BoxReq;
 import com.jd.bluedragon.distribution.api.response.BoardResponse;
 import com.jd.bluedragon.distribution.api.response.CheckBeforeSendResponse;
 import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
+import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.auto.domain.UploadData;
 import com.jd.bluedragon.distribution.b2bRouter.domain.B2BRouter;
 import com.jd.bluedragon.distribution.b2bRouter.domain.B2BRouterNode;
@@ -105,11 +106,14 @@ import com.jd.bluedragon.distribution.third.service.ThirdBoxDetailService;
 import com.jd.bluedragon.distribution.transBillSchedule.service.TransBillScheduleService;
 import com.jd.bluedragon.distribution.urban.service.TransbillMService;
 import com.jd.bluedragon.distribution.ver.domain.Site;
+import com.jd.bluedragon.distribution.ver.exception.SortingCheckException;
 import com.jd.bluedragon.distribution.ver.service.SortingCheckService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.distribution.weight.service.DmsWeightFlowService;
+import com.jd.bluedragon.distribution.weightVolume.domain.ZeroWeightVolumeCheckEntity;
+import com.jd.bluedragon.distribution.weightVolume.service.DMSWeightVolumeService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.crossbow.itms.domain.ItmsCancelSendCheckSendCodeDto;
@@ -405,6 +409,9 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
     private SendDetailService sendDetailService;
 
     @Autowired
+    private DMSWeightVolumeService dmsWeightVolumeService;
+
+    @Autowired
     private IBusinessInterceptReportService businessInterceptReportService;
 
     @Autowired
@@ -513,10 +520,17 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
             }
 
             //调用分拣无重量拦截链---2020.12.17 目前主要针对满足纯配外单的0 重量
-            com.jd.ql.dms.common.domain.JdResponse<Void> response = allPureValidateWeight(deliveryRequest.getBoxCode(),deliveryRequest.getSiteCode());
-            if(!response.getCode().equals(Constants.SUCCESS_NO_CODE)){
-                result.setCode(response.getCode());
-                result.setMessage(response.getMessage());
+            ZeroWeightVolumeCheckEntity entity = new ZeroWeightVolumeCheckEntity();
+            entity.setPackageCode(deliveryRequest.getBoxCode());
+            if(WaybillUtil.isPackageCode(deliveryRequest.getBoxCode())){
+                entity.setWaybillCode(WaybillUtil.getWaybillCode(deliveryRequest.getBoxCode()));
+            }else{
+                entity.setWaybillCode(deliveryRequest.getBoxCode());
+            }
+            if(dmsWeightVolumeService.zeroWeightVolumeIntercept(entity)){
+                result.setCode(JdResult.CODE_FAIL);
+                result.setMessageCode(SortingResponse.CODE_29419);
+                result.setMessage(HintService.getHint(HintCodeConstants.WAYBILL_WITHOUT_WEIGHT));
                 // 发送拦截消息
                 this.sendBusinessInterceptMsg(deliveryRequest, result);
                 return result;
@@ -926,38 +940,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         return sendM;
     }
 
-    /**
-     * 老发货无重量拦截校验-提炼于拦截链
-     * @param packageCode
-     * @param siteCode
-     * @return
-     */
-    private com.jd.ql.dms.common.domain.JdResponse <Void> allPureValidateWeight(String packageCode,Integer siteCode){
-        com.jd.ql.dms.common.domain.JdResponse <Void> response = new com.jd.ql.dms.common.domain.JdResponse <Void>();
-        response.setCode(Constants.SUCCESS_NO_CODE);
-        if(WaybillUtil.isPackageCode(packageCode)){
-            String waybillCode = WaybillUtil.getWaybillCode(packageCode);
-            WaybillCache waybillCache = waybillCacheService.getNoCache(waybillCode);
-            FuncSwitchConfigAllPureDto funcSwitchConfigAllPureDto = new FuncSwitchConfigAllPureDto();
-            funcSwitchConfigAllPureDto.setWaybillCode(waybillCache.getWaybillCode());
-            funcSwitchConfigAllPureDto.setWaybillSign(waybillCache.getWaybillSign());
-            funcSwitchConfigAllPureDto.setCustomerCode(waybillCache.getCustomerCode());
-            funcSwitchConfigAllPureDto.setCreateSiteCode(siteCode);
-            // 一单多件不拦截 又去除
-            /*if(waybillCache.getQuantity() != null && waybillCache.getQuantity() > Constants.CONSTANT_NUMBER_ONE){
-                return response;
-            }*/
-            // 是否满足无重量拦截条件
-            boolean isAllPureNeedWeight = funcSwitchConfigService.isAllPureValidateWeight(funcSwitchConfigAllPureDto);
-            if(log.isInfoEnabled()){
-                log.info("运单waybillCode:{},当前isAllPureNeedWeight标识为:{}",waybillCode,isAllPureNeedWeight);
-            }
-            if(isAllPureNeedWeight){
-                return funcSwitchConfigService.checkAllPureWeight(waybillCache,waybillCache.getWaybillCode(),packageCode);
-            }
-        }
-        return  response;
-    }
+
 
     /**
      * 只校验包裹的 校验滑道号
@@ -3695,13 +3678,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
             dSendM.setUpdateUserCode(tSendM.getUpdateUserCode());
             dSendM.setUpdateTime(new Date());
             dSendM.setOperateTime(tSendM.getOperateTime());
-            String caruser = dSendM.getSendUser();
-            // 是否发车
-            if (caruser != null && !"".equals(caruser)) {
-                return new ThreeDeliveryResponse(
-                        DeliveryResponse.CODE_Delivery_NO_DEPART,
-                        HintService.getHint(HintCodeConstants.BOX_SENT_ALREADY_TIPS_SECOND), null);
-            }
+            // 是否发车 2021年12月15日18:09:28 下线
 
             tSendDatail.setReceiveSiteCode(dSendM.getReceiveSiteCode());
             // 是否发货状态更新
@@ -3725,20 +3702,8 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
 		for (SendDetail dSendDetail : tList) {
 			tSendM.setBoxCode(dSendDetail.getBoxCode());
 			List<SendM> sendMList = this.sendMDao.findSendMByBoxCode(tSendM);
-			// 发车验证
-			if (sendMList != null && !sendMList.isEmpty()) {
-				SendM dSendM = this.getLastSendDate(sendMList);
-				dSendM.setUpdaterUser(tSendM.getUpdaterUser());
-				dSendM.setUpdateUserCode(tSendM.getUpdateUserCode());
-				dSendM.setUpdateTime(new Date());
-				String caruser = dSendM.getSendUser();
-				if (caruser != null && !"".equals(caruser)) {
-					return new ThreeDeliveryResponse(
-							DeliveryResponse.CODE_Delivery_NO_DEPART,
-							HintService.getHint(HintCodeConstants.BOX_SENT_ALREADY_TIPS_SECOND), null);
-				}
-				break;
-			} else {
+			// 发车验证 2021年12月15日18:08:57 下线
+			if (sendMList == null || sendMList.isEmpty()) {
 				return new ThreeDeliveryResponse(
 						DeliveryResponse.CODE_Delivery_NO_MESAGE,
 						HintService.getHint(HintCodeConstants.BOX_SENDM_MISSING), null);
@@ -4988,8 +4953,8 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
             return response;
         }
 
-        //3.B网包装耗材服务确认拦截
-        if (! this.checkWaybillConsumable(sendM)) {
+        //3.包装耗材服务确认拦截
+        if (this.checkWaybillConsumable(sendM)) {
             response.setCode(DeliveryResponse.CODE_29120);
             response.setMessage(HintService.getHint(HintCodeConstants.PACKING_CONSUMABLE_CONFIRM_TIPS_SECOND));
             return response;
@@ -5341,18 +5306,20 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         }
         //end
         if(!noHasFreightWaybills.isEmpty()){
-        	interceptResult.toFail();
+            // 2021年12月15日18:02:50 下线
+        	/*interceptResult.toFail();
             Map<String, String> argsMap = new HashMap<>();
             argsMap.put(HintArgsConstants.ARG_FIRST, noHasFreightWaybills.toString());
         	interceptResult.setMessage(HintService.getHint(HintCodeConstants.WAYBILL_MISSING_RECEIVE_FREIGHT, argsMap));
-        	return interceptResult;
+        	return interceptResult;*/
         }
         if(!sendNoHasFreightWaybills.isEmpty()){
-            interceptResult.toFail();
+            // 2021年12月15日18:03:09 下线
+            /*interceptResult.toFail();
             Map<String, String> argsMap = new HashMap<>();
             argsMap.put(HintArgsConstants.ARG_FIRST, sendNoHasFreightWaybills.toString());
             interceptResult.setMessage(HintService.getHint(HintCodeConstants.WAYBILL_MISSING_SEND_FREIGHT, argsMap));
-            return interceptResult;
+            return interceptResult;*/
         }
         return interceptResult;
     }
@@ -6870,7 +6837,9 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
             for(String boxCode : tcResponse.getData()){
                 domain.setSendMId(null);
                 domain.setBoxCode(boxCode);
-                if (StringUtils.isBlank(getSendedCode(domain))) {//未发过货的才执行发货
+                String lastSendedCode = getSendedCode(domain);
+                //未发过货的 或者 上次发货和本次发货的批次不一致的 才执行发货
+                if (StringUtils.isBlank(lastSendedCode) || !lastSendedCode.equals(domain.getSendCode())) {
                     packageSend(source, domain);
                 }
             }
@@ -7203,25 +7172,8 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
             if (WaybillUtil.isPackageCode(sendM.getBoxCode()) && ! WaybillUtil.isSurfaceCode(sendM.getBoxCode())) {
                 String waybillCode = WaybillUtil.getWaybillCode(sendM.getBoxCode());
                 if (StringHelper.isNotEmpty(waybillCode)) {
-                    WChoice wChoice = new WChoice();
-                    wChoice.setQueryWaybillS(true);
-                    wChoice.setQueryWaybillC(true);
-                    //获取运单信息
-                    BaseEntity<BigWaybillDto> baseEntity = this.waybillQueryManager.getDataByChoice(waybillCode, wChoice);
-                    if (baseEntity != null && baseEntity.getData() != null && baseEntity.getData().getWaybill() != null) {
-                        this.log.debug("运单号【{}】调用运单数据成功！",waybillCode);
-
-                        waybill = baseEntity.getData().getWaybill();
-                        String waybillSign = waybill.getWaybillSign();
-                        //判断waybillSign是够支持包装耗材服务，支持才判断是否确认
-                        if (BusinessHelper.isNeedConsumable(waybillSign)) {
-                            //返回确认结果
-                            return waybillConsumableRecordService.isConfirmed(waybillCode);
-                        }
-                    } else {
-                        //无运单数据
-                        log.warn("{}对应的运单信息为空！",waybillCode);
-                    }
+                    /* 终端包装耗材重塑项目：不进行标位判断，见任务进行拦截 */
+                    return waybillConsumableRecordService.needConfirmed(waybillCode);
                 } else {
                     //运单号转换失败
                     log.warn("{}转换运单号失败！",sendM.getBoxCode());
@@ -7230,7 +7182,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         } catch (Exception e) {
             log.error("查询运单是否已经确认耗材失败，运单号：{}" , sendM.getBoxCode(), e);
         }
-        return true;
+        return false;
     }
 
 

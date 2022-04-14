@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.consumable.domain;
 
+import java.math.BigDecimal;
+
 /**
  * Created by hanjiaxing1 on 2018/8/23.
  */
@@ -19,6 +21,9 @@ public class WaybillConsumableDetailInfo extends PackingConsumableInfo {
 
     /** 包装人ERP */
     private String packUserErp;
+
+    /** 包装耗材价格 **/
+    private BigDecimal packingCharge;
 
     public String getWaybillCode() {
         return waybillCode;
@@ -58,5 +63,13 @@ public class WaybillConsumableDetailInfo extends PackingConsumableInfo {
 
     public void setPackUserErp(String packUserErp) {
         this.packUserErp = packUserErp;
+    }
+
+    public BigDecimal getPackingCharge() {
+        return packingCharge;
+    }
+
+    public void setPackingCharge(BigDecimal packingCharge) {
+        this.packingCharge = packingCharge;
     }
 }

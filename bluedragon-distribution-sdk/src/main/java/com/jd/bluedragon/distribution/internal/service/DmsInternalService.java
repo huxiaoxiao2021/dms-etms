@@ -174,10 +174,19 @@ public interface DmsInternalService {
     /**
      * 查询运单是否已经确认耗材
      * @see ver DmsWebBaseClient#isConsumableConfirmed
+     * @see #needConsumableConfirmed(String)
      * @param waybillCode
      * @return
      */
+    @Deprecated
     public Boolean isConsumableConfirmed(String waybillCode);
+
+    /**
+     * 查询是否需要进行包装耗材的确认
+     * @param waybillCode
+     * @return
+     */
+    Boolean needConsumableConfirmed(String waybillCode);
 
     /**
      * 查询运单是否可以进行逆向操作

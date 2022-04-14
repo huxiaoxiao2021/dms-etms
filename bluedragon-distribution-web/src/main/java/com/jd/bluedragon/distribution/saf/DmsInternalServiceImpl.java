@@ -200,6 +200,23 @@ public class DmsInternalServiceImpl implements DmsInternalService {
 
     }
 
+    /**
+     * 查询运单是否已经确认耗材
+     * @param waybillCode
+     * @return
+     */
+    @Override
+    @JProfiler(jKey = "DMSWEB.DmsInternalServiceImpl.needConsumableConfirmed",mState = JProEnum.TP,jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    public Boolean needConsumableConfirmed(String waybillCode) {
+        try {
+            return waybillConsumableRecordService.needConfirmed(waybillCode);
+        } catch (Exception e) {
+            log.error("needConsumableConfirmed error:{}", waybillCode, e);
+            return Boolean.FALSE;
+        }
+
+    }
+
     @Override
     @JProfiler(jKey = "DMSWEB.DmsInternalServiceImpl.getBelongSiteCode",mState = JProEnum.TP)
     public BaseResponse getBelongSiteCode(Integer code) {
