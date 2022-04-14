@@ -158,6 +158,8 @@
 		<property name="notSignedOutRecordMoreThanHours" value="${notSignedOutRecordMoreThanHours:-1}"/>
 		<property name="spotCheckReformSiteCodes" value="${spotCheckReformSiteCodes:true}"/>
 		<property name="aiDistinguishSwitch" value="${aiDistinguishSwitch:true}"/>
+		<property name="deviceAIDistinguishSwitch" value="${deviceAIDistinguishSwitch:910}"/>
+		<property name="deviceAIDistinguishPackNum" value="${deviceAIDistinguishPackNum:100}"/>
 		<property name="packConsumableSwitch" value="${packConsumableSwitch:0}"/>
 		<property name="sealTaskHystrixProps" value="${sealTaskHystrixProps: ''}"/>
 		<property name="sealTaskForceFallback" value="${sealTaskForceFallback: 0}"/>
@@ -299,6 +301,8 @@
 				<value>uccPropertyConfiguration.notSignedOutRecordMoreThanHours</value>
 				<value>uccPropertyConfiguration.spotCheckReformSiteCodes</value>
 				<value>uccPropertyConfiguration.aiDistinguishSwitch</value>
+				<value>uccPropertyConfiguration.deviceAIDistinguishSwitch</value>
+				<value>uccPropertyConfiguration.deviceAIDistinguishPackNum</value>
 				<value>uccPropertyConfiguration.packConsumableSwitch</value>
                 <value>uccPropertyConfiguration.sealTaskHystrixProps</value>
                 <value>uccPropertyConfiguration.sealTaskForceFallback</value>
