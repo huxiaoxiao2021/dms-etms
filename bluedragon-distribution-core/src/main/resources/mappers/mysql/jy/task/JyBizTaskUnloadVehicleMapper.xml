@@ -3,8 +3,9 @@
 
 <mapper namespace="com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskUnloadVehicleDao">
 
-	<!-- 可根据自己的需求，是否要使用 -->
-    <resultMap type="com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity" id="jyBizTaskUnloadVehicleMap">
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity"
+               id="jyBizTaskUnloadVehicleMap">
         <result property="id" column="id"/>
         <result property="bizId" column="biz_id"/>
         <result property="sealCarCode" column="seal_car_code"/>
@@ -84,69 +85,186 @@
         ts
     </sql>
 
+
     <insert id="insert" parameterType="JyBizTaskUnloadVehicleEntity">
         INSERT INTO jy_biz_task_unload_vehicle (
-                            biz_id,
-                            seal_car_code,
-                            vehicle_number,
-                            trans_work_item_code,
-                            fuzzy_vehicle_number,
-                            vehicle_status,
-                            manual_created_flag,
-                            start_site_id,
-                            start_site_name,
-                            end_site_id,
-                            end_site_name,
-                            sort_time,
-                            ranking,
-                            prediction_arrive_time,
-                            actual_arrive_time,
-                            deseal_car_time,
-                            unload_finish_time,
-                            less_count,
-                            more_count,
-                            abnormal_flag,
-                            total_count,
-                            unload_progress,
-                            line_type,
-                            line_type_name,
-                            tags_sign,
-                            create_user_erp,
-                            create_user_name,
-                            create_time,
-                            yn
-                    ) VALUES (
-                            #{bizId},
-                            #{sealCarCode},
-                            #{vehicleNumber},
-                            #{transWorkItemCode},
-                            #{fuzzyVehicleNumber},
-                            #{vehicleStatus},
-                            #{manualCreatedFlag},
-                            #{startSiteId},
-                            #{startSiteName},
-                            #{endSiteId},
-                            #{endSiteName},
-                            #{sortTime},
-                            #{ranking},
-                            #{predictionArriveTime},
-                            #{actualArriveTime},
-                            #{desealCarTime},
-                            #{unloadFinishTime},
-                            #{lessCount},
-                            #{moreCount},
-                            #{abnormalFlag},
-                            #{totalCount},
-                            #{unloadProgress},
-                            #{lineType},
-                            #{lineTypeName},
-                            #{tagsSign},
-                            #{createUserErp},
-                            #{createUserName},
-                            #{createTime},
-                            1
-                    )
+
+        biz_id,
+
+        <if test="sealCarCode != null">
+            seal_car_code,
+        </if>
+        <if test="vehicleNumber != null">
+            vehicle_number,
+        </if>
+        <if test="transWorkItemCode != null">
+            trans_work_item_code,
+        </if>
+        <if test="fuzzyVehicleNumber != null">
+            fuzzy_vehicle_number,
+        </if>
+        <if test="vehicleStatus != null">
+            vehicle_status,
+        </if>
+        <if test="manualCreatedFlag != null">
+            manual_created_flag,
+        </if>
+        <if test="startSiteId != null">
+            start_site_id,
+        </if>
+        <if test="startSiteName != null">
+            start_site_name,
+        </if>
+        <if test="endSiteId != null">
+            end_site_id,
+        </if>
+        <if test="endSiteName != null">
+            end_site_name,
+        </if>
+        <if test="sortTime != null">
+            sort_time,
+        </if>
+        <if test="ranking != null">
+            ranking,
+        </if>
+        <if test="predictionArriveTime != null">
+            prediction_arrive_time,
+        </if>
+        <if test="actualArriveTime != null">
+            actual_arrive_time,
+        </if>
+        <if test="desealCarTime != null">
+            deseal_car_time,
+        </if>
+        <if test="unloadFinishTime != null">
+            unload_finish_time,
+        </if>
+        <if test="lessCount != null">
+            less_count,
+        </if>
+        <if test="moreCount != null">
+            more_count,
+        </if>
+        <if test="abnormalFlag != null">
+            abnormal_flag,
+        </if>
+        <if test="totalCount != null">
+            total_count,
+        </if>
+        <if test="unloadProgress != null">
+            unload_progress,
+        </if>
+        <if test="lineType != null">
+            line_type,
+        </if>
+        <if test="lineTypeName != null">
+            line_type_name,
+        </if>
+        <if test="tagsSign != null">
+            tags_sign,
+        </if>
+        <if test="createUserErp != null">
+            create_user_erp,
+        </if>
+        <if test="createUserName != null">
+            create_user_name,
+        </if>
+        <if test="createTime != null">
+            create_time,
+        </if>
+        yn
+
+        ) VALUES (
+
+        #{bizId},
+
+        <if test="sealCarCode != null">
+            #{sealCarCode},
+        </if>
+        <if test="vehicleNumber != null">
+            #{vehicleNumber},
+        </if>
+        <if test="transWorkItemCode != null">
+            #{transWorkItemCode},
+        </if>
+        <if test="fuzzyVehicleNumber != null">
+            #{fuzzyVehicleNumber},
+        </if>
+        <if test="vehicleStatus != null">
+            #{vehicleStatus},
+        </if>
+        <if test="manualCreatedFlag != null">
+            #{manualCreatedFlag},
+        </if>
+        <if test="startSiteId != null">
+            #{startSiteId},
+        </if>
+        <if test="startSiteName != null">
+            #{startSiteName},
+        </if>
+        <if test="endSiteId != null">
+            #{endSiteId},
+        </if>
+        <if test="endSiteName != null">
+            #{endSiteName},
+        </if>
+        <if test="sortTime != null">
+            #{sortTime},
+        </if>
+        <if test="ranking != null">
+            #{ranking},
+        </if>
+        <if test="predictionArriveTime != null">
+            #{predictionArriveTime},
+        </if>
+        <if test="actualArriveTime != null">
+            #{actualArriveTime},
+        </if>
+        <if test="desealCarTime != null">
+            #{desealCarTime},
+        </if>
+        <if test="unloadFinishTime != null">
+            #{unloadFinishTime},
+        </if>
+        <if test="lessCount != null">
+            #{lessCount},
+        </if>
+        <if test="moreCount != null">
+            #{moreCount},
+        </if>
+        <if test="abnormalFlag != null">
+            #{abnormalFlag},
+        </if>
+        <if test="totalCount != null">
+            #{totalCount},
+        </if>
+        <if test="unloadProgress != null">
+            #{unloadProgress},
+        </if>
+        <if test="lineType != null">
+            #{lineType},
+        </if>
+        <if test="lineTypeName != null">
+            #{lineTypeName},
+        </if>
+        <if test="tagsSign != null">
+            #{tagsSign},
+        </if>
+        <if test="createUserErp != null">
+            #{createUserErp},
+        </if>
+        <if test="createUserName != null">
+            #{createUserName},
+        </if>
+        <if test="createTime != null">
+            #{createTime},
+        </if>
+
+        1
+
+        )
     </insert>
+
 
     <select id="findByBizId" resultMap="jyBizTaskUnloadVehicleMap">
         select
@@ -167,25 +285,24 @@
     </select>
 
     <select id="findIdByBizId" resultType="java.lang.Long">
-        select
-            id
+        select id
         from jy_biz_task_unload_vehicle
-        where biz_id = #{bizId} and yn = 1
-        order by ts desc
-        limit 1;
+        where biz_id = #{bizId}
+          and yn = 1
+        order by ts desc limit 1;
     </select>
 
     <select id="findIdAndStatusByBizId" resultMap="jyBizTaskUnloadVehicleMap">
-        select
-            id,vehicle_status
+        select id,
+               vehicle_status
         from jy_biz_task_unload_vehicle
-        where biz_id = #{bizId} and yn = 1
-        order by ts desc
-        limit 1;
+        where biz_id = #{bizId}
+          and yn = 1
+        order by ts desc limit 1;
     </select>
     <select id="findStatusCountByCondition4Status" resultMap="JyBizTaskUnloadCountMap">
         select
-            vehicle_status,count(1) as v_sum
+        vehicle_status,count(1) as v_sum
         from jy_biz_task_unload_vehicle
 
         <where>
@@ -247,7 +364,7 @@
 
     <select id="findByConditionOfPage" resultMap="jyBizTaskUnloadVehicleMap">
         select
-            <include refid="Base_Column_List"/>
+        <include refid="Base_Column_List"/>
         from jy_biz_task_unload_vehicle
 
         <where>
@@ -296,7 +413,7 @@
     </select>
 
     <update id="updateStatusByBizId" parameterType="jyBizTaskUnloadVehicleEntity">
-        update  jy_biz_task_unload_vehicle
+        update jy_biz_task_unload_vehicle
         <set>
             vehicle_status = #{vehicleStatus},
             update_user_erp = #{updateUserErp},
