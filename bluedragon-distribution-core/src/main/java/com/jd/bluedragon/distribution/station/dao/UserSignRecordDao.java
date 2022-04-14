@@ -77,12 +77,6 @@ public interface UserSignRecordDao {
 	 */
 	long queryReportCount(UserSignRecordQuery query);
 	/**
-	 * 根据业务主键查询
-	 * @param signInRequest
-	 * @return
-	 */
-	UserSignRecord queryByBusinessKey(UserSignRecord signInRequest);
-	/**
 	 * 查询用户最近一次签到信息
 	 * @param query
 	 * @return

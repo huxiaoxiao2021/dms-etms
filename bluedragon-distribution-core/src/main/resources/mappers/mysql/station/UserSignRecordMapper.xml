@@ -358,30 +358,36 @@
 		select
 			<include refid="Base_Column_List"/>
 		from
-			user_sign_record r
+			(select t.* from user_sign_record t 
+			  where t.yn = 1 and t.id = #{id,jdbcType=BIGINT}
+			) r
 			<include refid="joinSql"/>			
-		where r.yn = 1 and r.id = #{id,jdbcType=BIGINT}
+		limit 1
 	</select>
 
 	<select id="queryList" parameterType="com.jd.bluedragon.distribution.station.query.UserSignRecordQuery" resultMap="UserSignRecord">
 		select
 			<include refid="Base_Column_List"/>
 		from
-			user_sign_record r force index(`idx_sign_date`) 
+			(select t.* from user_sign_record t force index(`idx_sign_date`) 
+	          <include refid="queryConditionMain"/>
+	        ) r
 		<include refid="joinSql"/>
-		<include refid="queryCondition"/>
+		<include refid="queryConditionRef"/>
 		order by r.ts desc
 		<if test="pageNumber > 0">
             limit #{offset}, #{limit}
         </if>		
 	</select>
 	<select id="queryListForExport" parameterType="com.jd.bluedragon.distribution.station.query.UserSignRecordQuery" resultMap="UserSignRecord">
-		select
-			<include refid="Base_Column_List"/>
-		from
-			user_sign_record r force index(`idx_sign_date`) 
-		<include refid="joinSql"/>
-		<include refid="queryCondition"/>
+        select
+            <include refid="Base_Column_List"/>
+        from
+            (select t.* from user_sign_record t force index(`idx_sign_date`) 
+              <include refid="queryConditionMain"/>
+            ) r
+        <include refid="joinSql"/>
+        <include refid="queryConditionRef"/>
 		order by r.id
 		<if test="pageNumber > 0">
             limit #{offset}, #{limit}
@@ -391,35 +397,41 @@
 		select
 			count(1)
 		from
-			user_sign_record r force index(`idx_sign_date`) 
-		<include refid="joinSql"/>
-		<include refid="queryCondition"/>
+            (select t.* from user_sign_record t force index(`idx_sign_date`) 
+              <include refid="queryConditionMain"/>
+            ) r
+        <include refid="joinSql"/>
+        <include refid="queryConditionRef"/>
 	</select>
-
-	<sql id="queryCondition">
+    <sql id="queryConditionMain">
+        <where>
+            t.yn = 1 
+        <if test="signDate != null" >
+            and t.sign_date = #{signDate,jdbcType=DATE}
+        </if>       
+        <if test="orgCode != null" >
+            and t.org_code = #{orgCode,jdbcType=INTEGER}
+        </if>
+        <if test="siteCode != null" >
+            and t.site_code = #{siteCode,jdbcType=INTEGER}
+        </if>
+        <if test="waveCode != null" >
+            and t.wave_code = #{waveCode,jdbcType=TINYINT}
+        </if>
+        <if test="createUser != null and createUser != ''" >
+            and t.create_user = #{createUser,jdbcType=VARCHAR}
+        </if>
+        <if test="signDateStart != null" >
+            and t.sign_date >= #{signDateStart,jdbcType=DATE}
+        </if>
+        <if test="signDateEnd != null" >
+            and t.sign_date &lt;= #{signDateEnd,jdbcType=DATE}
+        </if>               
+        </where>
+    </sql>
+	<sql id="queryConditionRef">
 		<where>
-			r.yn = 1 
-		<if test="signDate != null" >
-			and r.sign_date = #{signDate,jdbcType=DATE}
-		</if>		
-		<if test="orgCode != null" >
-			and r.org_code = #{orgCode,jdbcType=INTEGER}
-		</if>
-		<if test="siteCode != null" >
-			and r.site_code = #{siteCode,jdbcType=INTEGER}
-		</if>
-		<if test="waveCode != null" >
-			and r.wave_code = #{waveCode,jdbcType=TINYINT}
-		</if>
-		<if test="createUser != null and createUser != ''" >
-			and r.create_user = #{createUser,jdbcType=VARCHAR}
-		</if>
-		<if test="signDateStart != null" >
-			and r.sign_date >= #{signDateStart,jdbcType=DATE}
-		</if>
-		<if test="signDateEnd != null" >
-			and r.sign_date &lt;= #{signDateEnd,jdbcType=DATE}
-		</if>
+			1 = 1 
 		<if test="gridNo != null and gridNo != ''" >
 			and g.grid_no = #{gridNo,jdbcType=VARCHAR}
 		</if>
@@ -641,37 +653,23 @@
 			and t.site_code = #{siteCode,jdbcType=INTEGER}
 		</if>	
 		</where>
-	</sql>			
-	<select id="queryByBusinessKey" parameterType="com.jd.bluedragon.distribution.station.domain.UserSignRecord" resultMap="UserSignRecord">
-		select
-			<include refid="Base_Column_List"/>
-		from
-			user_sign_record r
-		<include refid="joinSql"/>			
-		where r.yn = 1
-			and r.sign_date = #{signDate,jdbcType=DATE}
-			and	r.site_code = #{siteCode,jdbcType=INTEGER}
-			and	g.grid_no = #{gridNo,jdbcType=VARCHAR}
-			and g.floor = #{floor,jdbcType=INTEGER}
-			and s.area_code = #{areaCode,jdbcType=VARCHAR}		
-			and s.work_code = #{workCode,jdbcType=VARCHAR}			
-			and r.wave_code = #{waveCode,jdbcType=VARCHAR}
-			and r.user_code = #{userCode,jdbcType=VARCHAR}
-	</select>
+	</sql>
 	
 	<select id="queryLastSignRecord" parameterType="com.jd.bluedragon.distribution.station.query.UserSignRecordQuery" resultMap="UserSignRecord">
 		select
 			<include refid="Base_Column_List"/>
 		from
-			user_sign_record r
-		<include refid="joinSql"/>			
-		where r.yn = 1
-			and	r.site_code = #{siteCode,jdbcType=INTEGER}
-			and r.user_code = #{userCode,jdbcType=VARCHAR}
-		<if test="signDate != null" >
-			and r.sign_date = #{signDate,jdbcType=DATE}
-		</if>
-		order by r.sign_in_time desc
+			(select t.* from user_sign_record t
+			     where t.yn = 1
+		            and t.site_code = #{siteCode,jdbcType=INTEGER}
+		            and t.user_code = #{userCode,jdbcType=VARCHAR}
+		        <if test="signDate != null" >
+		            and t.sign_date = #{signDate,jdbcType=DATE}
+		        </if>
+		        order by t.sign_in_time desc
+		        limit 1
+			) r
+		<include refid="joinSql"/>
 		limit 1
 	</select>
     <select id="querySignInMoreThanSpecifiedTime" resultType="java.lang.Long">

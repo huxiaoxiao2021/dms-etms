@@ -10,6 +10,7 @@ import com.jd.ql.dms.report.domain.spotcheck.WeightVolumeSpotCheckDto;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import java.io.InputStream;
+import java.util.Map;
 
 /**
  * 抽检处理接口
@@ -82,6 +83,14 @@ public interface SpotCheckDealService {
     boolean checkIsHasSpotCheck(String waybillCode);
 
     /**
+     * 运单是否超标：只从redis查询
+     *
+     * @param waybillCode
+     * @return
+     */
+    boolean checkIsExcessFromRedis(String waybillCode);
+
+    /**
      * 获取已抽检包裹号
      *
      * @param waybillCode
@@ -132,6 +141,14 @@ public interface SpotCheckDealService {
     boolean isExecuteSpotCheckReform(Integer siteCode);
 
     /**
+     * 是否开启 设备抽检AI图片识别
+     *
+     * @param siteCode
+     * @return
+     */
+    boolean isExecuteDwsAIDistinguish(Integer siteCode);
+
+    /**
      * 单个图片识别
      *
      * @param waybillCode
@@ -163,6 +180,13 @@ public interface SpotCheckDealService {
      * @param weightVolumeSpotCheckDto
      */
     void spotCheckIssue(WeightVolumeSpotCheckDto weightVolumeSpotCheckDto);
+
+    /**
+     * 执行下发
+     *
+     * @param weightVolumeSpotCheckDto
+     */
+    void executeIssue(WeightVolumeSpotCheckDto weightVolumeSpotCheckDto);
 
     /**
      * 上传图片

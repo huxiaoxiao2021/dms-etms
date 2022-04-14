@@ -18,7 +18,8 @@ public enum SpotCheckStatusEnum {
     SPOT_CHECK_STATUS_COMPLETE(8, "处理完成"),
     SPOT_CHECK_STATUS_RZ_OVERTIME(9, "超时认责"),
     SPOT_CHECK_STATUS_DOING(101, "抽检中"),
-    SPOT_CHECK_STATUS_INVALID(102, "抽检无效");
+    SPOT_CHECK_STATUS_INVALID_UN_EXCESS(102, "抽检无效-未超标"),
+    SPOT_CHECK_STATUS_INVALID_AI_FAIL(103, "抽检无效-AI失败");
 
     private Integer code;
 

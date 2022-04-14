@@ -565,6 +565,22 @@
         <property name="timeout" value="1000"/>
     </bean>
 
+    <!-- 设备图片AI识别下发至大数据识别系统 -->
+    <bean id="dwsAIDistinguishBigProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.dws.aiDistinguish_big}"/>
+        <property name="timeout" value="1000"/>
+    </bean>
+    <bean id="dwsAIDistinguishSmallProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.dws.aiDistinguish_small}"/>
+        <property name="timeout" value="1000"/>
+    </bean>
+
+    <!-- 设备抽检下发处理MQ -->
+    <bean id="dwsIssueDealProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.spotCheck.dwsIssueDeal}"/>
+        <property name="timeout" value="1000"/>
+    </bean>
+
     <!--  拣运卸车扫描  -->
     <bean id="jyUnloadScanProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.jy.unload.scan}" />

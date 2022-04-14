@@ -816,6 +816,12 @@ public class Constants {
     public static final String SYS_CONFIG_CLIENT_RUNNING_MODE_PRE = "sys.config.client.runningMode.";
 
     public static final String SYS_CONFIG_CROUTER_OPEN_DMS_CODES= "crouter.verify.allowed";
+
+    /**
+     * 安卓菜单可用性配置
+     */
+    public static final String SYS_CONFIG_ANDROID_MENU_USAGE= "android_menu_usage_";
+
     /**
      * 是否启用中台创建箱号开关key
      */
