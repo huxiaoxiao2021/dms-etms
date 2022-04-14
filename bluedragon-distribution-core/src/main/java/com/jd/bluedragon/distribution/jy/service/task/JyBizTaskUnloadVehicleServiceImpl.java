@@ -498,7 +498,7 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
      */
     private String genBizId(){
         String ownerKey = String.format(JY_BIZ_TASK_BIZ_ID_PREFIX, DateHelper.formatDate(new Date(),DateHelper.DATE_FORMATE_yyMMdd));
-        return StringHelper.padZero(redisJyBizIdSequenceGen.gen(ownerKey));
+        return ownerKey + StringHelper.padZero(redisJyBizIdSequenceGen.gen(ownerKey));
     }
 
     /**
