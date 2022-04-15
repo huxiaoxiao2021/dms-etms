@@ -60,7 +60,7 @@ public class BoxLimitJsfServiceImpl extends DmsBaseController implements BoxLimi
     /**
      * 新建/修改
      */
-    public JdResponse save(BoxLimitDTO dto) {
+    public JdResponse saveOrUpdate(BoxLimitDTO dto) {
         log.info("新增或者修改集箱包裹限制-入参-{}", JSON.toJSONString(dto));
         if (dto.getId() == null) {
             return boxLimitService.create(dto, getLoginUser());
@@ -91,5 +91,10 @@ public class BoxLimitJsfServiceImpl extends DmsBaseController implements BoxLimi
     @Override
     public JdResponse<Integer> countByCondition(BoxLimitQueryDTO dto) {
         return boxLimitService.countByCondition(dto);
+    }
+
+    @Override
+    public JdResponse<List<String>> getBoxTypeList() {
+        return boxLimitService.getBoxTypeList();
     }
 }

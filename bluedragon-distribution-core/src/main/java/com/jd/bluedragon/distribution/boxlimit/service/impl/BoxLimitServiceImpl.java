@@ -1,10 +1,11 @@
 package com.jd.bluedragon.distribution.boxlimit.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.google.common.collect.Lists;
 import com.google.gson.Gson;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.domain.LoginUser;
+import com.jd.bluedragon.distribution.box.constants.BoxTypeEnum;
 import com.jd.bluedragon.distribution.boxlimit.BoxLimitDTO;
 import com.jd.bluedragon.distribution.boxlimit.BoxLimitQueryDTO;
 import com.jd.bluedragon.distribution.boxlimit.BoxLimitTemplateVO;
@@ -23,23 +24,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
-import javax.annotation.Resource;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-@Service
+@Service("boxLimitService")
 public class BoxLimitServiceImpl implements BoxLimitService {
     private static final Logger log = LoggerFactory.getLogger(BoxLimitServiceImpl.class);
-    private final int maxImportSize = 5000;
     //场地建箱配置类型
-    private static final Integer SITE_BOX_TYPE = 2;
-    //箱号类型
-    private static List<String> boxNumberTypes;
-    static{
-        boxNumberTypes = Arrays.asList("BC","TC","GC","FC","BS","TS","FS","ZC","BX","TW","WJ");
-        log.info("初始化箱号类型-{}",JSON.toJSONString(boxNumberTypes));
-    }
+    private static  Integer SITE_BOX_TYPE =2;
 
     @Autowired
     private BaseMajorManager baseMajorManager;
@@ -50,6 +43,7 @@ public class BoxLimitServiceImpl implements BoxLimitService {
     public PagerResult<BoxLimitVO> listData(BoxLimitQueryDTO dto) {
         PagerResult<BoxLimitVO> result = new PagerResult<>();
         dto.setSiteName(dto.getSiteName().trim());
+        log.info("配置分页查询入参-{}",JSON.toJSONString(dto));
         Integer count = boxLimitConfigDao.countByCondition(dto);
         result.setTotal(count);
         if (count == 0) {
@@ -78,39 +72,16 @@ public class BoxLimitServiceImpl implements BoxLimitService {
 
     @Override
     public JdResponse importData(List<BoxLimitTemplateVO> data, LoginUser operator) {
-        log.info("导入数据- {}",JSON.toJSONString(data));
         JdResponse response = new JdResponse();
-        checkTemplateData(data, response);
-        log.info("建箱包裹数限制：导入数据校验结果为:{}",new Gson().toJson(response));
-        if (!response.isSucceed()) {
-            return response;
-        }
         Date now = new Date();
         String operatorErp = operator.getUserErp();
         Integer operatorSiteId = operator.getSiteCode();
         String operatorName = operator.getSiteName();
         List<BoxLimitConfig> addList = new ArrayList<>();
-        List<BoxLimitConfig> updateList = new ArrayList<>();
-        //对重复的配置进行去重
-        TreeSet<BoxLimitTemplateVO> setVos = new TreeSet<>(new Comparator<BoxLimitTemplateVO>() {
-            @Override
-            public int compare(BoxLimitTemplateVO o1, BoxLimitTemplateVO o2) {
-                int result1 = o1.getSiteName().compareTo(o2.getSiteName());
-                if(result1 == 0){
-                    int result2 = o1.getBoxNumberType().compareTo(o2.getBoxNumberType());
-                    if(result2 == 0){
-                        return o1.getSiteId().compareTo(o2.getSiteId());
-                    }
-                    return result2;
-                }
-                return result1;
-            }
-        });
-        setVos.addAll(data);
-        Iterator<BoxLimitTemplateVO> iterator = setVos.iterator();
+        //需要更新的数据id集合
+        List<Long> updateList = new ArrayList<>();
         int failCount =0;
-        while (iterator.hasNext()){
-            BoxLimitTemplateVO vo =iterator.next();
+        for (BoxLimitTemplateVO vo :data){
             BaseStaffSiteOrgDto siteOrgDto = baseMajorManager.getBaseSiteBySiteId(vo.getSiteId());
             log.info("siteOrgDto -{}",JSON.toJSONString(siteOrgDto));
             if (siteOrgDto == null) {
@@ -126,88 +97,41 @@ public class BoxLimitServiceImpl implements BoxLimitService {
             queryDTO.setSiteName(vo.getSiteName());
             queryDTO.setConfigType(SITE_BOX_TYPE);
             queryDTO.setBoxNumberType(vo.getBoxNumberType());
-            //根据条件查询库中数据有无该记录 有则更新 无则新增
+            //根据条件查询库中数据有无该记录 有则删除 并添加所有的导入上传数据
             List<BoxLimitConfig> result = boxLimitConfigDao.queryByCondition(queryDTO);
-            if(CollectionUtils.isEmpty(result)){
-                BoxLimitConfig b = new BoxLimitConfig();
-                b.setSiteName(vo.getSiteName());
-                b.setSiteId(vo.getSiteId());
-                b.setLimitNum(vo.getLimitNum());
-                b.setOperatorErp(operatorErp);
-                b.setOperatorSiteId(operatorSiteId);
-                b.setOperatorSiteName(operatorName);
-                b.setOperatingTime(now);
-                b.setCreateTime(now);
-                b.setUpdateTime(now);
-                b.setYn(true);
-                b.setBoxNumberType(vo.getBoxNumberType());
-                //场地建箱配置类型
-                b.setConfigType(SITE_BOX_TYPE);
-                addList.add(b);
-            }else{
+            if(!CollectionUtils.isEmpty(result)){
                 BoxLimitConfig updateConfig = result.get(0);
-                updateConfig.setLimitNum(vo.getLimitNum());
-                updateConfig.setOperatorErp(operatorErp);
-                updateConfig.setOperatingTime(now);
-                updateConfig.setUpdateTime(now);
-                updateList.add(updateConfig);
+                updateList.add(updateConfig.getId());
             }
+            BoxLimitConfig b = new BoxLimitConfig();
+            b.setSiteName(vo.getSiteName());
+            b.setSiteId(vo.getSiteId());
+            b.setLimitNum(vo.getLimitNum());
+            b.setOperatorErp(operatorErp);
+            b.setOperatorSiteId(operatorSiteId);
+            b.setOperatorSiteName(operatorName);
+            b.setOperatingTime(now);
+            b.setCreateTime(now);
+            b.setUpdateTime(now);
+            b.setYn(true);
+            b.setBoxNumberType(vo.getBoxNumberType());
+            //场地建箱配置类型
+            b.setConfigType(SITE_BOX_TYPE);
+            addList.add(b);
         }
         if(!CollectionUtils.isEmpty(updateList)){
-            log.info("修改配置数据-{}",JSON.toJSONString(updateList));
-            boxLimitConfigDao.batchUpdate(updateList);
+            boxLimitConfigDao.batchDelete(updateList);
         }
         if(!CollectionUtils.isEmpty(addList)){
-            log.info("新增配置数据-{}",JSON.toJSONString(addList));
-            boxLimitConfigDao.batchInsert(addList);
+            List<List<BoxLimitConfig>> partition = Lists.partition(addList, 100);
+            for (List<BoxLimitConfig> configs :partition){
+                boxLimitConfigDao.batchInsert(configs);
+            }
         }
         response.setData(failCount);
         return response;
     }
 
-    /**
-     * 校验导入数据是否规范
-     * @param data
-     * @param response
-     */
-    private void checkTemplateData(List<BoxLimitTemplateVO> data, JdResponse response) {
-        if (CollectionUtils.isEmpty(data)) {
-            response.setCode(JdResponse.CODE_FAIL);
-            response.setMessage("上传数据为空!");
-            return;
-        }
-        if (data.size() > maxImportSize) {
-            response.setCode(JdResponse.CODE_FAIL);
-            response.setMessage("最大导入数量不允许超过" + maxImportSize);
-            return;
-        }
-        int row = 2;
-        StringBuilder duplicateIds = new StringBuilder();
-        Set<BoxLimitTemplateVO> siteIdSet = new HashSet<>();
-        for (BoxLimitTemplateVO vo : data) {
-            if (vo.getSiteId() == null) {
-                response.setCode(JdResponse.CODE_FAIL);
-                response.setMessage(String.format("excel中第%s行 机构ID为空!", row));
-                return;
-            }
-            if (StringUtils.isEmpty(vo.getSiteName())) {
-                response.setCode(JdResponse.CODE_FAIL);
-                response.setMessage(String.format("excel中第%s行 机构名称为空!", row));
-                return;
-            }
-            if (vo.getLimitNum() == null || vo.getLimitNum() <= 0) {
-                response.setCode(JdResponse.CODE_FAIL);
-                response.setMessage(String.format("excel中第%s行 建箱包裹上限不正确!", row));
-                return;
-            }
-            if(StringUtils.isEmpty(vo.getBoxNumberType()) || !boxNumberTypes.contains(vo.getBoxNumberType())){
-                response.setCode(JdResponse.CODE_FAIL);
-                response.setMessage(String.format("excel中第%s行 建箱箱号类型为空或箱号类型不在处理范围内!", row));
-                return;
-            }
-            row++;
-        }
-    }
     /**
      * 校验输入数据是否规范
      * @param dto
@@ -218,11 +142,6 @@ public class BoxLimitServiceImpl implements BoxLimitService {
         if (dto.getConfigType().equals(SITE_BOX_TYPE) && dto.getSiteId() == null) {
             response.setCode(JdResponse.CODE_FAIL);
             response.setMessage("机构ID为空!");
-            return;
-        }
-        if (dto.getConfigType().equals(SITE_BOX_TYPE) && StringUtils.isEmpty(dto.getSiteName())) {
-            response.setCode(JdResponse.CODE_FAIL);
-            response.setMessage("机构名称为空!");
             return;
         }
         if (dto.getLimitNum() == null || dto.getLimitNum() <= 0) {
@@ -255,16 +174,12 @@ public class BoxLimitServiceImpl implements BoxLimitService {
         }
         if(dto.getConfigType().equals(SITE_BOX_TYPE)){
             BaseStaffSiteOrgDto siteOrgDto = baseMajorManager.getBaseSiteBySiteId(dto.getSiteId());
-            if (siteOrgDto == null) {
+            if (siteOrgDto == null || StringUtils.isEmpty(siteOrgDto.getSiteName())) {
                 response.setCode(JdResponse.CODE_FAIL);
                 response.setMessage(String.format("ID为%s的机构不存在!", dto.getSiteId()));
                 return;
             }
-            if (!dto.getSiteName().equals(siteOrgDto.getSiteName())) {
-                response.setCode(JdResponse.CODE_FAIL);
-                response.setMessage(String.format("ID为%s的机构ID与机构名称不匹配,实际机构名称应为:%s", dto.getSiteId(), siteOrgDto.getSiteName()));
-                return;
-            }
+            dto.setSiteName(siteOrgDto.getSiteName());
         }
     }
 
@@ -276,7 +191,6 @@ public class BoxLimitServiceImpl implements BoxLimitService {
         if (!response.isSucceed()) {
             return response;
         }
-
         Date now = new Date();
         BoxLimitConfig boxLimitConfig = new BoxLimitConfig();
         boxLimitConfig.setSiteName(dto.getSiteName());
@@ -286,7 +200,6 @@ public class BoxLimitServiceImpl implements BoxLimitService {
         boxLimitConfig.setOperatorSiteId(operator.getSiteCode());
         boxLimitConfig.setOperatorSiteName(operator.getSiteName());
         boxLimitConfig.setOperatingTime(now);
-
         boxLimitConfig.setCreateTime(now);
         boxLimitConfig.setUpdateTime(now);
         boxLimitConfig.setYn(true);
@@ -294,7 +207,6 @@ public class BoxLimitServiceImpl implements BoxLimitService {
         boxLimitConfig.setBoxNumberType(dto.getBoxNumberType());
 
         boxLimitConfigDao.insert(boxLimitConfig);
-
         return response;
     }
 
@@ -382,4 +294,35 @@ public class BoxLimitServiceImpl implements BoxLimitService {
         return response;
     }
 
+    @Override
+    public JdResponse<List<String>> getBoxTypeList() {
+        JdResponse response = new JdResponse();
+        List<String> boxTypes = new ArrayList<>();
+        Map<String, String> map = BoxTypeEnum.getMap();
+        for(String key : map.keySet()){
+            boxTypes.add(key);
+        }
+        response.setData(boxTypes);
+        response.toSucceed();
+        return response;
+    }
+
+    @Override
+    @Cache(key = "BoxLimitServiceImpl.getLimitNums@args0@args1", memoryEnable = true, memoryExpiredTime = 2 * 60 * 1000)
+    public void getLimitNums( Integer createSiteCode, String type,Integer maxNum,List<Integer> limitNums){
+        Integer limitNum = this.queryLimitNumBySiteIdAndBoxNumberType(createSiteCode, type);
+        log.info("分拣数量限制拦截 createSiteCode:{}, type:{},maxNum:{}", createSiteCode, type, maxNum);
+        if (limitNum != null) {
+            limitNums.add(limitNum);
+        } else {
+            Integer commonLimitNum = this.queryCommonLimitNum(type);
+            log.info("分拣集包通用数量限制 箱号类型{}， 限制数量 {} ",type,commonLimitNum);
+            if(commonLimitNum != null){
+                limitNums.add(commonLimitNum);
+            }else {
+                limitNums.add(maxNum);
+            }
+        }
+        log.info("limitNums ---",JSON.toJSONString(limitNums));
+    }
 }

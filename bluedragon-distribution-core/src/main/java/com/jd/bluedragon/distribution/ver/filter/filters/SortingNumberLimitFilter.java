@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.ver.filter.filters;
 
+import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
@@ -71,24 +72,12 @@ public class SortingNumberLimitFilter implements Filter {
                     //校验开关是否开启
                     NumberLimitConfig siteCheckConfig = this.getSwitchStatus(CONFIG_SITE_PACKAGE_NUM_CHECK);
                     if (siteCheckConfig != null && Boolean.TRUE.equals(siteCheckConfig.getIsOpen())) {
-                        Integer limitNum = boxLimitService.queryLimitNumBySiteIdAndBoxNumberType(request.getCreateSiteCode(),request.getBox().getType());
-                        logger.info("分拣数量限制拦截 createSiteCode:{},queryLimitNumBySiteId:{},sysConfigNum:{}", request.getCreateSiteCode(), limitNum, siteCheckConfig.getMaxNum());
-                        if (limitNum != null) {
-                            limitNums.add(limitNum);
-                        } else {
-                            //limitNums.add(siteCheckConfig.getMaxNum());
-                            Integer commonLimitNum = boxLimitService.queryCommonLimitNum(request.getBox().getType());
-                            logger.info("分拣集包通用数量限制 箱号类型{}， 限制数量 {} ",request.getBox().getType(),commonLimitNum);
-                            if(commonLimitNum != null){
-                                limitNums.add(commonLimitNum);
-                            }else {
-                                limitNums.add(siteCheckConfig.getMaxNum());
-                            }
-                        }
-
+                        boxLimitService.getLimitNums(request.getCreateSiteCode(),request.getBox().getType()
+                                ,siteCheckConfig.getMaxNum(),limitNums);
                     }
                 }
         	}
+            logger.info("limitNums ---", JSON.toJSONString(limitNums));
             //校验开关是否开启
             NumberLimitConfig config =this.getSwitchStatus(CONFIG_SEND_PACKAGE_NUM_CHECK);
             if(config != null && Boolean.TRUE.equals(config.getIsOpen())) {

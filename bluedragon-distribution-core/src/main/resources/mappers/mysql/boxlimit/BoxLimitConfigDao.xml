@@ -228,7 +228,7 @@
     from box_limit_config
     <where>
       AND yn = 1
-      <if test="siteName != null">
+      <if test="siteName != null and siteName !=''">
         AND site_name LIKE CONCAT('%',#{siteName},'%')
       </if>
       <if test="siteId != null">
@@ -251,7 +251,7 @@
     from box_limit_config
     <where>
       AND yn = 1
-      <if test="siteName != null">
+      <if test="siteName != null and siteName !=''">
         AND site_name LIKE CONCAT('%',#{siteName},'%')
       </if>
       <if test="siteId != null">

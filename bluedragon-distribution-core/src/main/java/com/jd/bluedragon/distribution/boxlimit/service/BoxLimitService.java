@@ -62,4 +62,12 @@ public interface BoxLimitService {
      */
     JdResponse<Integer> countByCondition(BoxLimitQueryDTO dto);
 
-}
+    /**
+     * 获取箱号类型集合
+     * @return
+     */
+    JdResponse<List<String>> getBoxTypeList();
+
+    void getLimitNums( Integer createSiteCode, String type,Integer maxNum,List<Integer> limitNums);
+
+    }

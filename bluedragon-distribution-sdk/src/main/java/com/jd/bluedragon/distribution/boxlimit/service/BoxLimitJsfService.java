@@ -37,7 +37,7 @@ public interface BoxLimitJsfService {
      * @param dto
      * @return
      */
-    JdResponse save( BoxLimitDTO dto);
+    JdResponse saveOrUpdate( BoxLimitDTO dto);
 
     /**
      * 根据id删除集箱包裹限制配置信息
@@ -59,5 +59,11 @@ public interface BoxLimitJsfService {
      * @return
      */
     JdResponse<Integer> countByCondition(BoxLimitQueryDTO dto);
+
+    /**
+     * 获取箱号类型集合
+     * @return
+     */
+    JdResponse<List<String>> getBoxTypeList();
 
 }
