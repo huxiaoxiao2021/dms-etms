@@ -56,7 +56,7 @@ public class ColdPackConsumableConfirmFilter implements Filter {
         try{
             if (this.isContainPackConsumableService(request)) {
                 Boolean needConfirmed = coldChainReverseManager.checkIsNeedConfirmed(request.getWaybillCode());
-                if (needConfirmed) {
+                 if (needConfirmed != null && needConfirmed) {
                     //强制拦截
                     throw new SortingCheckException(SortingResponse.CODE_29322,
                             HintService.getHintWithFuncModule(HintCodeConstants.PACKING_CONSUMABLE_CONFIRM, request.getFuncModule()));
