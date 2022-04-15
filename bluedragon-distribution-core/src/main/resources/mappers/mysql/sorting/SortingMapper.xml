@@ -356,4 +356,9 @@
 	<select id="findByPackageCodeAndBoxCode" parameterType="sorting" resultType="java.lang.Long">
 		SELECT SORTING_ID FROM sorting WHERE PACKAGE_CODE =#{packageCode} AND BOX_CODE = #{boxCode} AND CREATE_SITE_CODE =#{createSiteCode} AND YN =1 limit 1
 	</select>
+
+	<select id="listSortingByBoxCode" parameterType="sorting" resultMap="sorting">
+		SELECT package_code FROM sorting
+		where box_code =#{boxCode} and create_site_code = #{createSiteCode}
+	</select>
 </mapper>

@@ -113,7 +113,7 @@ public class MiniStoreGatewayServiceImpl implements MiniStoreGatewayService {
         DeviceDto deviceDto = BeanUtils.copy(unBoxReq, DeviceDto.class);
         boolean success = miniStoreService.updateProcessStatusAndInvaliSortRealtion(deviceDto);
         if (success) {
-            MiniStoreSyncBindRelationTask task = new MiniStoreSyncBindRelationTask(MSDeviceBindEventTypeEnum.SEAL_BOX, unBoxReq.getMiniStoreBindRelationId(), miniStoreSealBoxProducer, miniStoreService, sortingService);
+            MiniStoreSyncBindRelationTask task = new MiniStoreSyncBindRelationTask(MSDeviceBindEventTypeEnum.UN_SEAL_BOX, unBoxReq.getMiniStoreBindRelationId(), miniStoreSealBoxProducer, miniStoreService, sortingService);
             task.run();
             return new JdCResponse(MSCodeMapping.SUCCESS.getCode(), MSCodeMapping.SUCCESS.getMessage());
         }

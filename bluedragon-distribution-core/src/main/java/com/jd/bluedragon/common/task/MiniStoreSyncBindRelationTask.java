@@ -51,7 +51,7 @@ public class MiniStoreSyncBindRelationTask implements Runnable {
             Sorting sorting =new Sorting();
             sorting.setBoxCode(miniStoreBindRelation.getBoxCode());
             sorting.setCreateSiteCode(miniStoreBindRelation.getCreateSiteCode().intValue());
-            List<Sorting> sortingList = sortingService.findOrderDetail(sorting);
+            List<Sorting> sortingList = sortingService.listSortingByBoxCode(sorting);
 
             List<String> packageCodes =new ArrayList<>();
             for (Sorting s:sortingList){

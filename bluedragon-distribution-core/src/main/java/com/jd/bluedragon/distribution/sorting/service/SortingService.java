@@ -213,4 +213,6 @@ public interface SortingService {
      * @return
      */
     Long findByPackageCodeAndBoxCode(Sorting sorting);
+
+    List<Sorting> listSortingByBoxCode(Sorting sorting);
 }

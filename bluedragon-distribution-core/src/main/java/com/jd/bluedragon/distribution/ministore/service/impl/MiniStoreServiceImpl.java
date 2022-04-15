@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.ministore.service.impl;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.MSCodeMapping;
 import com.jd.bluedragon.core.base.MiniStoreJsfManger;
 import com.jd.bluedragon.distribution.api.JdResponse;
@@ -117,12 +118,13 @@ public class MiniStoreServiceImpl implements MiniStoreService {
         //保存镜像-回滚使用
         MiniStoreBindRelation pre = miniStoreBindRelationDao.selectByPrimaryKey(deviceDto.getMiniStoreBindRelationId());
 
+        Date time =new Date();
         MiniStoreBindRelation miniStoreBindRelation = new MiniStoreBindRelation();
         miniStoreBindRelation.setId(deviceDto.getMiniStoreBindRelationId());
         miniStoreBindRelation.setState(Byte.valueOf(MiniStoreProcessStatusEnum.UN_SEAL_BOX.getCode()));
         miniStoreBindRelation.setUpdateUser(deviceDto.getUpdateUser());
         miniStoreBindRelation.setUpdateUserCode(deviceDto.getUpdateUserCode());
-        miniStoreBindRelation.setUpdateTime(new Date());
+        miniStoreBindRelation.setUpdateTime(time);
         miniStoreBindRelation.setOccupiedFlag(false);
         miniStoreBindRelation.setDes(deviceDto.getErrMsg());
         miniStoreBindRelation.setUnboxCount(deviceDto.getUnboxCount());
@@ -132,6 +134,11 @@ public class MiniStoreServiceImpl implements MiniStoreService {
                 Sorting sorting =new Sorting();
                 sorting.setBoxCode(deviceDto.getBoxCode());
                 sorting.setCreateSiteCode(deviceDto.getCreateSiteCode().intValue());
+                sorting.setType(Constants.BUSSINESS_TYPE_POSITIVE);
+                sorting.setOperateTime(time);
+                sorting.setUpdateUserCode(deviceDto.getUpdateUserCode().intValue());
+                sorting.setUpdateUser(deviceDto.getUpdateUser());
+
                 SortingResponse sr = sortingService.doCancelSorting(sorting);
                 if (!JdResponse.CODE_OK.equals(sr.getCode())) {
                     logger.error("移动微仓解封箱取消分拣失败:{}",sr.getMessage());

@@ -1573,4 +1573,9 @@ public class SortingServiceImpl implements SortingService {
 		return sortingDao.findByPackageCodeAndBoxCode(sorting);
 	}
 
+	@Override
+	public List<Sorting> listSortingByBoxCode(Sorting sorting) {
+		return sortingDao.listSortingByBoxCode(sorting);
+	}
+
 }
