@@ -5,6 +5,7 @@ import com.jd.bluedragon.common.dto.operation.workbench.unload.request.UnloadVeh
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.distribution.consumer.jy.vehicle.*;
 import com.jd.bluedragon.distribution.jy.dto.task.UnloadVehicleMqDto;
+import com.jd.bluedragon.distribution.jy.enums.JyLineTypeEnum;
 import com.jd.bluedragon.distribution.jy.service.unload.IJyUnloadVehicleService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.jim.cli.Cluster;
@@ -16,6 +17,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.util.Date;
 import java.util.Map;
 
 /**
@@ -115,7 +117,7 @@ public class TmsConsumerTest {
                 "    \"vehicleNumber\": \"浙H27589\",\n" +
                 "    \"vehicleNumberLastFour\": \"7589\",\n" +
                 "    \"vehicleStatus\": 4,\n" +
-                "    \"version\": 1,\n" +
+                "    \"version\": 3,\n" +
                 "    \"yn\": 1\n" +
                 "}";
 
@@ -123,8 +125,17 @@ public class TmsConsumerTest {
         Map<String, Object> extendMap = Maps.newHashMap();
         extendMap.put(UnloadVehicleMqDto.EXTEND_KEY_LOST_CNT, 1);
         extendMap.put(UnloadVehicleMqDto.EXTEND_KEY_SCAN_PROGRESS, 100);
-        extendMap.put(UnloadVehicleMqDto.EXTEND_KEY_DAMAGE_CNT, 10);
+        extendMap.put(UnloadVehicleMqDto.EXTEND_KEY_DAMAGE_CNT, 20);
         mqDto.setExtendInfo(extendMap);
+
+        mqDto.setOrderTime(new Date());
+        mqDto.setRanking(10);
+        mqDto.setPredictionArriveTime(new Date());
+        mqDto.setActualArriveTime(new Date());
+        mqDto.setDesealCarTime(new Date());
+        mqDto.setLineType(JyLineTypeEnum.TRUNK_LINE.getCode());
+        mqDto.setLineTypeName(JyLineTypeEnum.TRUNK_LINE.getName());
+        mqDto.setTotalCount(1000L);
 
         Message message = new Message();
         message.setText(JsonHelper.toJson(mqDto));

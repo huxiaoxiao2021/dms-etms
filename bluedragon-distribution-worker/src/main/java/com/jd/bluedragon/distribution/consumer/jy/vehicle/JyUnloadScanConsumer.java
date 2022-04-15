@@ -236,7 +236,7 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
         boolean firstScanned = false;
         String mutexKey = getUnloadBizCacheKey(unloadScanDto);
         if (redisClientOfJy.set(mutexKey, unloadScanDto.getBarCode(), UNLOAD_SCAN_BIZ_EXPIRE, TimeUnit.HOURS, false)) {
-            JyUnloadEntity queryDb = new JyUnloadEntity(unloadScanDto.getBizId());
+            JyUnloadEntity queryDb = new JyUnloadEntity(unloadScanDto.getOperateSiteId(), unloadScanDto.getBizId());
             if (jyUnloadDao.findByBizId(queryDb) == null) {
 
                 logInfo("卸车任务{}判定为首次扫描. {}", unloadScanDto.getBizId(), JsonHelper.toJson(unloadScanDto));

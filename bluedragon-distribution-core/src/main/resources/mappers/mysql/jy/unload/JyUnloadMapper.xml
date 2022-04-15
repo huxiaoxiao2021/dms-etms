@@ -104,6 +104,7 @@
         WHERE
             yn = 1
         AND biz_id = #{bizId, jdbcType=VARCHAR}
+        AND operate_site_id = #{operateSiteId, jdbcType=BIGINT}
         limit 1
     </select>
 </mapper>

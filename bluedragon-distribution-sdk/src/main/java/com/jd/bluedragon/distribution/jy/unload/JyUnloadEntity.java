@@ -21,7 +21,8 @@ public class JyUnloadEntity implements Serializable {
         this.operateSiteId = operateSiteId;
     }
 
-    public JyUnloadEntity(String bizId) {
+    public JyUnloadEntity(Long operateSiteId, String bizId) {
+        this.operateSiteId = operateSiteId;
         this.bizId = bizId;
     }
 
