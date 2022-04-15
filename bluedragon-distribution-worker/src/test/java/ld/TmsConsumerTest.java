@@ -115,7 +115,7 @@ public class TmsConsumerTest {
                 "    \"vehicleNumber\": \"浙H27589\",\n" +
                 "    \"vehicleNumberLastFour\": \"7589\",\n" +
                 "    \"vehicleStatus\": 4,\n" +
-                "    \"version\": 0,\n" +
+                "    \"version\": 1,\n" +
                 "    \"yn\": 1\n" +
                 "}";
 

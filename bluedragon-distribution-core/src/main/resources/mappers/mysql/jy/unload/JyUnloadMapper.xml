@@ -14,6 +14,7 @@
         <result property="operateSiteId" column="operate_site_id"/>
         <result property="barCode" column="bar_code"/>
         <result property="operateTime" column="operate_time"/>
+        <result property="manualCreatedFlag" column="manual_created_flag" />
         <result property="createUserErp" column="create_user_erp"/>
         <result property="createUserName" column="create_user_name"/>
         <result property="updateUserErp" column="update_user_erp"/>
@@ -34,6 +35,7 @@
         operate_site_id,
         bar_code,
         operate_time,
+        manual_created_flag,
         create_user_erp,
         create_user_name,
         update_user_erp,
@@ -55,6 +57,7 @@
                             operate_site_id,
                             bar_code,
                             operate_time,
+                            manual_created_flag,
                             create_user_erp,
                             create_user_name,
                             update_user_erp,
@@ -72,6 +75,7 @@
                             #{operateSiteId},
                             #{barCode},
                             #{operateTime},
+                            #{manualCreatedFlag},
                             #{createUserErp},
                             #{createUserName},
                             #{updateUserErp},
