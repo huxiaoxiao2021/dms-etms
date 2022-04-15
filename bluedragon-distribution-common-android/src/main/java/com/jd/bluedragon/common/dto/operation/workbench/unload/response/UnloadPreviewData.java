@@ -39,9 +39,14 @@ public class UnloadPreviewData implements Serializable {
     private Long shouldScanCount;
 
     /**
-     * 多扫数量
+     * 本场地多扫数量
      */
-    private Long moreScanCount;
+    private Long moreScanLocalCount;
+
+    /**
+     * 非本场地多扫数量
+     */
+    private Long moreScanOutCount;
 
     /**
      * 待扫和多扫明细
@@ -88,12 +93,20 @@ public class UnloadPreviewData implements Serializable {
         this.shouldScanCount = shouldScanCount;
     }
 
-    public Long getMoreScanCount() {
-        return moreScanCount;
+    public Long getMoreScanLocalCount() {
+        return moreScanLocalCount;
     }
 
-    public void setMoreScanCount(Long moreScanCount) {
-        this.moreScanCount = moreScanCount;
+    public void setMoreScanLocalCount(Long moreScanLocalCount) {
+        this.moreScanLocalCount = moreScanLocalCount;
+    }
+
+    public Long getMoreScanOutCount() {
+        return moreScanOutCount;
+    }
+
+    public void setMoreScanOutCount(Long moreScanOutCount) {
+        this.moreScanOutCount = moreScanOutCount;
     }
 
     public List<UnloadScanBarCode> getBarCodeList() {

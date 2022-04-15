@@ -1128,7 +1128,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
     private Long calculateInterceptShouldScanCount(List<JyVehicleTaskUnloadDetail> unloadDetails) {
         Long shouldScanCount = 0L;
         for (JyVehicleTaskUnloadDetail unloadDetail : unloadDetails) {
-            if (unloadDetail.getScannedFlag() == Constants.CONSTANT_NUMBER_ONE) {
+            if (Objects.equals(Constants.CONSTANT_NUMBER_ONE, unloadDetail.getScannedFlag())) {
                 shouldScanCount ++;
             }
         }
@@ -1361,9 +1361,10 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
 
         if (!unloadDone) {
             previewData.setTotalScan(oneUnloadAgg.getTotalScannedPackageCount().longValue());
-            previewData.setMoreScanCount(existOutMoreScanRows + existLocalMoreScanRows);
+            previewData.setMoreScanLocalCount(existLocalMoreScanRows);
+            previewData.setMoreScanOutCount(existOutMoreScanRows);
             previewData.setShouldScanCount(dealMinus(oneUnloadAgg.getTotalSealPackageCount(), oneUnloadAgg.getTotalScannedPackageCount()));
-            previewData.setAbnormalCount(previewData.getMoreScanCount() + previewData.getShouldScanCount());
+            previewData.setAbnormalCount(previewData.getMoreScanLocalCount() + previewData.getMoreScanOutCount() + previewData.getShouldScanCount());
         }
 
         return unloadDone;
