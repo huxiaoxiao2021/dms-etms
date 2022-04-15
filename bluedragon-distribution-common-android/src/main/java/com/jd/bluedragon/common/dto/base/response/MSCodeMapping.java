@@ -3,7 +3,7 @@ package com.jd.bluedragon.common.dto.base.response;
 /**
  * @author weixiaofeng12
  */
-public enum RespCodeMapping {
+public enum MSCodeMapping {
 
   SUCCESS(200, "成功"),
   UNKNOW_ERROR(500, "服务器开小差，请联系分拣小秘！"),
@@ -20,7 +20,7 @@ public enum RespCodeMapping {
   NO_BIND_RELATION_BETWEEN_BOX_AND_PACKAGE(5010,"该包裹未在集包码下集包！");
 
 
-  RespCodeMapping(Integer code, String message) {
+  MSCodeMapping(Integer code, String message) {
     this.code = code;
     this.message = message;
   }
@@ -32,7 +32,7 @@ public enum RespCodeMapping {
     this.message = message;
   }
 
-  RespCodeMapping(String message) {
+  MSCodeMapping(String message) {
     this.message = message;
   }
 
@@ -48,21 +48,21 @@ public enum RespCodeMapping {
     this.code = code;
   }
 
-  public static RespCodeMapping getProperType(String name) {
-    RespCodeMapping[] respCodeMappings = RespCodeMapping.values();
-    for (RespCodeMapping respCodeMapping : respCodeMappings) {
-      if (respCodeMapping.name().equals(name)) {
-        return respCodeMapping;
+  public static MSCodeMapping getProperType(String name) {
+    MSCodeMapping[] MSCodeMappings = MSCodeMapping.values();
+    for (MSCodeMapping MSCodeMapping : MSCodeMappings) {
+      if (MSCodeMapping.name().equals(name)) {
+        return MSCodeMapping;
       }
     }
     return null;
   }
 
-  public static RespCodeMapping responseCodeMappingAdapter(
-          RespCodeMapping respCodeMapping, String msg) {
+  public static MSCodeMapping responseCodeMappingAdapter(
+          MSCodeMapping MSCodeMapping, String msg) {
     if (null != msg && !"".equals(msg)) {
-      respCodeMapping.setMessage(respCodeMapping.getMessage() + msg);
+      MSCodeMapping.setMessage(MSCodeMapping.getMessage() + msg);
     }
-    return respCodeMapping;
+    return MSCodeMapping;
   }
 }

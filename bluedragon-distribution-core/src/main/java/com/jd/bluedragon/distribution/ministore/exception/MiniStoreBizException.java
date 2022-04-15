@@ -1,6 +1,6 @@
 package com.jd.bluedragon.distribution.ministore.exception;
 
-import com.jd.bluedragon.common.dto.base.response.RespCodeMapping;
+import com.jd.bluedragon.common.dto.base.response.MSCodeMapping;
 
 public class MiniStoreBizException extends RuntimeException{
 
@@ -13,10 +13,10 @@ public class MiniStoreBizException extends RuntimeException{
         this.message =message;
     }
 
-    public MiniStoreBizException(RespCodeMapping respCodeMapping){
-        super(respCodeMapping.getMessage());
-        this.code = respCodeMapping.getCode();
-        this.message = respCodeMapping.getMessage();
+    public MiniStoreBizException(MSCodeMapping MSCodeMapping){
+        super(MSCodeMapping.getMessage());
+        this.code = MSCodeMapping.getCode();
+        this.message = MSCodeMapping.getMessage();
     }
 
     public Integer getCode() {

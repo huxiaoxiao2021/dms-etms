@@ -117,14 +117,26 @@ public class DeliverGoodsNoticeConsumer extends MessageBaseConsumer {
             BaseStaffSiteOrgDto baseStaffSiteOrgDto =baseMajorManager.getBaseSiteBySiteId(Integer.valueOf(context.getSiteCode()));
             ProcessTypeEnum processType = JIEHUOCANG.getType().equals(baseStaffSiteOrgDto.getSubType())?SEND_JIEHUOCANG:SEND_SORT_CENTER;
             log.info("MiniStoreSyncProcessDataTask start，current processType is ",processType.getMsg());
-            //判断是否是接货仓仓发货,接货仓发货往后不再更新绑定数据节点状态
-            if (SEND_JIEHUOCANG==processType){
+            if (SEND_JIEHUOCANG==processType
+                    && MiniStoreProcessStatusEnum.SEAL_BOX.getCode().equals(String.valueOf(miniStoreBindRelation.getState()))){
                 log.info("接货仓发货同步节点数据...");
                 MiniStoreBindRelation m =new MiniStoreBindRelation();
                 m.setId(miniStoreBindRelation.getId());
                 m.setUpdateUser(context.getOperatorName());
                 m.setUpdateUserCode(Long.valueOf(context.getOperatorCode()));
                 m.setState(Byte.valueOf(MiniStoreProcessStatusEnum.DELIVER_GOODS.getCode()));
+                m.setUpdateTime(new Date());
+                miniStoreService.updateById(m);
+            }
+            if (SEND_SORT_CENTER==processType
+                    && MiniStoreProcessStatusEnum.CHECK_GOODS.getCode().equals(String.valueOf(miniStoreBindRelation.getState()))){
+                log.info("分拣中心发货同步节点数据...");
+                MiniStoreBindRelation m =new MiniStoreBindRelation();
+                m.setId(miniStoreBindRelation.getId());
+                m.setUpdateUser(context.getOperatorName());
+                m.setUpdateUserCode(Long.valueOf(context.getOperatorCode()));
+                m.setState(Byte.valueOf(MiniStoreProcessStatusEnum.SORTCENTER_DELIVER_GOODS.getCode()));
+                m.setUpdateTime(new Date());
                 miniStoreService.updateById(m);
             }
             MiniStoreSortingProcessEvent event =new MiniStoreSortingProcessEvent();

@@ -5,7 +5,7 @@ import com.github.pagehelper.PageHelper;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.UnifiedExceptionProcess;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
-import com.jd.bluedragon.common.dto.base.response.RespCodeMapping;
+import com.jd.bluedragon.common.dto.base.response.MSCodeMapping;
 import com.jd.bluedragon.common.dto.ministore.*;
 import com.jd.bluedragon.common.task.MiniStoreSyncBindRelationTask;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
@@ -23,7 +23,6 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import java.util.List;
 
@@ -34,8 +33,6 @@ public class MiniStoreGatewayServiceImpl implements MiniStoreGatewayService {
     MiniStoreService miniStoreService;
     @Autowired
     SwDeviceJsfService swDeviceJsfService;
-    @Autowired
-    ThreadPoolTaskExecutor taskExecutor;
     @Autowired
     SortingService sortingService;
     @Autowired
@@ -48,9 +45,9 @@ public class MiniStoreGatewayServiceImpl implements MiniStoreGatewayService {
         DeviceDto deviceDto = BeanUtils.copy(request, DeviceDto.class);
         boolean avaiable = miniStoreService.validateDeviceCodeStatus(deviceDto);
         if (avaiable) {
-            return new JdCResponse(RespCodeMapping.SUCCESS.getCode(), RespCodeMapping.SUCCESS.getMessage());
+            return new JdCResponse(MSCodeMapping.SUCCESS.getCode(), MSCodeMapping.SUCCESS.getMessage());
         }
-        return new JdCResponse(RespCodeMapping.UNKNOW_ERROR.getCode(), RespCodeMapping.UNKNOW_ERROR.getMessage());
+        return new JdCResponse(MSCodeMapping.UNKNOW_ERROR.getCode(), MSCodeMapping.UNKNOW_ERROR.getMessage());
     }
 
     @Override
@@ -59,9 +56,9 @@ public class MiniStoreGatewayServiceImpl implements MiniStoreGatewayService {
         DeviceDto deviceDto = BeanUtils.copy(request, DeviceDto.class);
         Boolean bindSuccess = miniStoreService.bindMiniStoreDevice(deviceDto);
         if (bindSuccess) {
-            return new JdCResponse(RespCodeMapping.SUCCESS.getCode(), RespCodeMapping.SUCCESS.getMessage());
+            return new JdCResponse(MSCodeMapping.SUCCESS.getCode(), MSCodeMapping.SUCCESS.getMessage());
         }
-        return new JdCResponse(RespCodeMapping.UNKNOW_ERROR.getCode(), RespCodeMapping.UNKNOW_ERROR.getMessage());
+        return new JdCResponse(MSCodeMapping.UNKNOW_ERROR.getCode(), MSCodeMapping.UNKNOW_ERROR.getMessage());
     }
 
     @Override
@@ -72,9 +69,9 @@ public class MiniStoreGatewayServiceImpl implements MiniStoreGatewayService {
         if (success) {
             MiniStoreSyncBindRelationTask task = new MiniStoreSyncBindRelationTask(MSDeviceBindEventTypeEnum.SEAL_BOX, sealBoxDto.getMiniStoreBindRelationId(), miniStoreSealBoxProducer, miniStoreService, sortingService);
             task.run();
-            return new JdCResponse(RespCodeMapping.SUCCESS.getCode(), RespCodeMapping.SUCCESS.getMessage());
+            return new JdCResponse(MSCodeMapping.SUCCESS.getCode(), MSCodeMapping.SUCCESS.getMessage());
         }
-        return new JdCResponse(RespCodeMapping.UNKNOW_ERROR.getCode(), RespCodeMapping.UNKNOW_ERROR.getMessage());
+        return new JdCResponse(MSCodeMapping.UNKNOW_ERROR.getCode(), MSCodeMapping.UNKNOW_ERROR.getMessage());
     }
 
     @Override
@@ -82,9 +79,9 @@ public class MiniStoreGatewayServiceImpl implements MiniStoreGatewayService {
     public JdCResponse<Integer> querySortCount(String boxCode) {
         Integer count = miniStoreService.queryMiniStoreSortCount();
         if (count != null) {
-            return new JdCResponse(RespCodeMapping.SUCCESS.getCode(), RespCodeMapping.SUCCESS.getMessage(),count);
+            return new JdCResponse(MSCodeMapping.SUCCESS.getCode(), MSCodeMapping.SUCCESS.getMessage(),count);
         }
-        return new JdCResponse(RespCodeMapping.UNKNOW_ERROR.getCode(), RespCodeMapping.UNKNOW_ERROR.getMessage());
+        return new JdCResponse(MSCodeMapping.UNKNOW_ERROR.getCode(), MSCodeMapping.UNKNOW_ERROR.getMessage());
     }
 
     @Override
@@ -95,9 +92,9 @@ public class MiniStoreGatewayServiceImpl implements MiniStoreGatewayService {
         if (null != miniStoreBindRelation) {
             UnBoxValidateResp unBoxValidateResp = BeanUtils.copy(miniStoreBindRelation, UnBoxValidateResp.class);
             unBoxValidateResp.setMiniStoreBindRelationId(miniStoreBindRelation.getId());
-            return new JdCResponse(RespCodeMapping.SUCCESS.getCode(), RespCodeMapping.SUCCESS.getMessage(),unBoxValidateResp);
+            return new JdCResponse(MSCodeMapping.SUCCESS.getCode(), MSCodeMapping.SUCCESS.getMessage(),unBoxValidateResp);
         }
-        return new JdCResponse(RespCodeMapping.NO_LEGAL_BIND_RELATIONSHIP.getCode(),RespCodeMapping.NO_LEGAL_BIND_RELATIONSHIP.getMessage());
+        return new JdCResponse(MSCodeMapping.NO_LEGAL_BIND_RELATIONSHIP.getCode(), MSCodeMapping.NO_LEGAL_BIND_RELATIONSHIP.getMessage());
     }
 
     @Override
@@ -105,9 +102,9 @@ public class MiniStoreGatewayServiceImpl implements MiniStoreGatewayService {
     public JdCResponse validateSortRelation(ValidateSortRelationReq validateSortRelationReq) {
         boolean success = miniStoreService.validateSortRelation(validateSortRelationReq.getBoxCode(), validateSortRelationReq.getPackageCode(), validateSortRelationReq.getCreateSiteCode());
         if (success) {
-            return new JdCResponse(RespCodeMapping.SUCCESS.getCode(), RespCodeMapping.SUCCESS.getMessage());
+            return new JdCResponse(MSCodeMapping.SUCCESS.getCode(), MSCodeMapping.SUCCESS.getMessage());
         }
-        return new JdCResponse(RespCodeMapping.NO_BIND_RELATION_BETWEEN_BOX_AND_PACKAGE.getCode(),RespCodeMapping.NO_BIND_RELATION_BETWEEN_BOX_AND_PACKAGE.getMessage());
+        return new JdCResponse(MSCodeMapping.NO_BIND_RELATION_BETWEEN_BOX_AND_PACKAGE.getCode(), MSCodeMapping.NO_BIND_RELATION_BETWEEN_BOX_AND_PACKAGE.getMessage());
     }
 
     @Override
@@ -118,9 +115,9 @@ public class MiniStoreGatewayServiceImpl implements MiniStoreGatewayService {
         if (success) {
             MiniStoreSyncBindRelationTask task = new MiniStoreSyncBindRelationTask(MSDeviceBindEventTypeEnum.SEAL_BOX, unBoxReq.getMiniStoreBindRelationId(), miniStoreSealBoxProducer, miniStoreService, sortingService);
             task.run();
-            return new JdCResponse(RespCodeMapping.SUCCESS.getCode(), RespCodeMapping.SUCCESS.getMessage());
+            return new JdCResponse(MSCodeMapping.SUCCESS.getCode(), MSCodeMapping.SUCCESS.getMessage());
         }
-        return new JdCResponse(RespCodeMapping.UNKNOW_ERROR.getCode(), RespCodeMapping.UNKNOW_ERROR.getMessage());
+        return new JdCResponse(MSCodeMapping.UNKNOW_ERROR.getCode(), MSCodeMapping.UNKNOW_ERROR.getMessage());
     }
 
     @Override
@@ -133,9 +130,9 @@ public class MiniStoreGatewayServiceImpl implements MiniStoreGatewayService {
         if (miniStoreBindRelationList != null && miniStoreBindRelationList.size() > 0) {
             List<BindAndNoSortTaskResp> bindAndNoSortTaskRespList = BeanUtils.copy(miniStoreBindRelationList, BindAndNoSortTaskResp.class);
             PageObject<BindAndNoSortTaskResp> pageObject = new PageObject.Builder().pageNo(page.getPageNum()).pageSize(page.getPageSize()).offset(page.getStartRow()).totalElements(page.getTotal()).totalPages(page.getPages()).data(bindAndNoSortTaskRespList).build();
-            return new JdCResponse(RespCodeMapping.SUCCESS.getCode(), RespCodeMapping.SUCCESS.getMessage(),pageObject);
+            return new JdCResponse(MSCodeMapping.SUCCESS.getCode(), MSCodeMapping.SUCCESS.getMessage(),pageObject);
         }
-        return new JdCResponse(RespCodeMapping.NO_BIND_DATA.getCode(),RespCodeMapping.NO_BIND_DATA.getMessage());
+        return new JdCResponse(MSCodeMapping.NO_BIND_DATA.getCode(), MSCodeMapping.NO_BIND_DATA.getMessage());
     }
 
     @Override
@@ -143,18 +140,18 @@ public class MiniStoreGatewayServiceImpl implements MiniStoreGatewayService {
     public JdCResponse unBind(UnBindReq unBindReq) {
         boolean success = miniStoreService.unBind(unBindReq.getMiniStoreBindRelationId(), unBindReq.getUpdateUserCode(), unBindReq.getUpdateUser());
         if (success) {
-            return new JdCResponse(RespCodeMapping.SUCCESS.getCode(), RespCodeMapping.SUCCESS.getMessage());
+            return new JdCResponse(MSCodeMapping.SUCCESS.getCode(), MSCodeMapping.SUCCESS.getMessage());
         }
-        return new JdCResponse(RespCodeMapping.UNKNOW_ERROR.getCode(), RespCodeMapping.UNKNOW_ERROR.getMessage());
+        return new JdCResponse(MSCodeMapping.UNKNOW_ERROR.getCode(), MSCodeMapping.UNKNOW_ERROR.getMessage());
     }
 
     @Override
     public JdCResponse incrSortCount(IncrSortCountReq req) {
         int success =miniStoreService.incrSortCount(req.getId(),req.getUpdateUser(),req.getUpdateUserCode());
         if (success>0){
-            return new JdCResponse(RespCodeMapping.SUCCESS.getCode(), RespCodeMapping.SUCCESS.getMessage());
+            return new JdCResponse(MSCodeMapping.SUCCESS.getCode(), MSCodeMapping.SUCCESS.getMessage());
         }
-        return new JdCResponse(RespCodeMapping.UNKNOW_ERROR.getCode(), RespCodeMapping.UNKNOW_ERROR.getMessage());
+        return new JdCResponse(MSCodeMapping.UNKNOW_ERROR.getCode(), MSCodeMapping.UNKNOW_ERROR.getMessage());
     }
 
 }

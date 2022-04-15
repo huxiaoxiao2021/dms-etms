@@ -1,7 +1,7 @@
 package com.jd.common.exception;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
-import com.jd.bluedragon.common.dto.base.response.RespCodeMapping;
+import com.jd.bluedragon.common.dto.base.response.MSCodeMapping;
 import com.jd.bluedragon.distribution.ministore.exception.MiniStoreBizException;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -26,7 +26,7 @@ public class GateWayServiceExcepHandler {
                 MiniStoreBizException exception = (MiniStoreBizException) throwable;
                 return new JdCResponse(exception.getCode(), exception.getMessage());
             }
-            return new JdCResponse(RespCodeMapping.UNKNOW_ERROR.getCode(), RespCodeMapping.UNKNOW_ERROR.getMessage());
+            return new JdCResponse(MSCodeMapping.UNKNOW_ERROR.getCode(), MSCodeMapping.UNKNOW_ERROR.getMessage());
         }
         return jdCResponse;
     }

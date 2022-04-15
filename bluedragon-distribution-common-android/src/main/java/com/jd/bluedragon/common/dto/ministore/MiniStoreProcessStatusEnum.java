@@ -9,7 +9,9 @@ public enum MiniStoreProcessStatusEnum {
     SORT("3","集包"),
     SEAL_BOX("4","封箱"),
     UN_SEAL_BOX("5","解封箱"),
-    DELIVER_GOODS("6","发货");
+    DELIVER_GOODS("6","接货仓发货"),
+    CHECK_GOODS("7","分拣中心验货"),
+    SORTCENTER_DELIVER_GOODS("8","发货");
 
     private String code;
     private String msg;

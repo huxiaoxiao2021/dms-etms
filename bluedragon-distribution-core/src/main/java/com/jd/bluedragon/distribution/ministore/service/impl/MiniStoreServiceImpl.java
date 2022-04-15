@@ -1,6 +1,6 @@
 package com.jd.bluedragon.distribution.ministore.service.impl;
 
-import com.jd.bluedragon.common.dto.base.response.RespCodeMapping;
+import com.jd.bluedragon.common.dto.base.response.MSCodeMapping;
 import com.jd.bluedragon.core.base.MiniStoreJsfManger;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
@@ -38,32 +38,32 @@ public class MiniStoreServiceImpl implements MiniStoreService {
     @Override
     public Boolean validateDeviceCodeStatus(DeviceDto deviceDto) {
         if (deviceDto == null) {
-            throw new MiniStoreBizException(RespCodeMapping.MINI_STORE_DEVICE_CODE_ISNULL);
+            throw new MiniStoreBizException(MSCodeMapping.MINI_STORE_DEVICE_CODE_ISNULL);
         }
         if (ObjectHelper.isNotNull(deviceDto.getStoreCode())) {
             Integer availableStatus = miniStoreJsfManger.isDeviceUse(deviceDto.getStoreCode());
             if (!SwDeviceStatusEnum.AVAILABLE.getCode().equals(availableStatus)) {
-                throw new MiniStoreBizException(RespCodeMapping.MINI_STORE_IS_NOT_AVAILABLE);
+                throw new MiniStoreBizException(MSCodeMapping.MINI_STORE_IS_NOT_AVAILABLE);
             }
             Integer hasBeenBind = miniStoreBindRelationDao.selectStoreBindStatus(deviceDto.getStoreCode());
             if (hasBeenBind != null) {
-                throw new MiniStoreBizException(RespCodeMapping.MINI_STORE_HASBEEN_BIND);
+                throw new MiniStoreBizException(MSCodeMapping.MINI_STORE_HASBEEN_BIND);
             }
         }
         if (ObjectHelper.isNotNull(deviceDto.getIceBoardCode())) {
             Integer availableStatus = miniStoreJsfManger.isDeviceUse(deviceDto.getIceBoardCode());
             if (!SwDeviceStatusEnum.AVAILABLE.getCode().equals(availableStatus)) {
-                throw new MiniStoreBizException(RespCodeMapping.INCE_BOARD_IS_NOT_AVAILABLE);
+                throw new MiniStoreBizException(MSCodeMapping.INCE_BOARD_IS_NOT_AVAILABLE);
             }
             Integer hasBeenBind = miniStoreBindRelationDao.selectIceBoardStatus(deviceDto.getIceBoardCode());
             if (hasBeenBind != null) {
-                throw new MiniStoreBizException(RespCodeMapping.INCE_BOARD_HASBEEN_BIND);
+                throw new MiniStoreBizException(MSCodeMapping.INCE_BOARD_HASBEEN_BIND);
             }
         }
         if (ObjectHelper.isNotNull(deviceDto.getBoxCode())) {
             Integer hasBeenBind = miniStoreBindRelationDao.selectBoxBindStatus(deviceDto.getBoxCode());
             if (hasBeenBind != null) {
-                throw new MiniStoreBizException(RespCodeMapping.BOX_HASBEEN_BIND);
+                throw new MiniStoreBizException(MSCodeMapping.BOX_HASBEEN_BIND);
             }
         }
         return true;
@@ -93,7 +93,7 @@ public class MiniStoreServiceImpl implements MiniStoreService {
     public Boolean bindMiniStoreDevice(DeviceDto deviceDto) {
         Integer hasBeenBind = miniStoreBindRelationDao.selectDeviceBindStatus(deviceDto);
         if (hasBeenBind!=null){
-            throw new MiniStoreBizException(RespCodeMapping.DEVICE_HASBEEN_BIND);
+            throw new MiniStoreBizException(MSCodeMapping.DEVICE_HASBEEN_BIND);
         }
         MiniStoreBindRelation miniStoreBindRelation = BeanUtils.copy(deviceDto, MiniStoreBindRelation.class);
         Date date = new Date();

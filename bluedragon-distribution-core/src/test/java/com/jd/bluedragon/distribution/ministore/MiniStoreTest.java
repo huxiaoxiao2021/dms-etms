@@ -34,8 +34,6 @@ public class MiniStoreTest {
     MiniStoreBindRelationDao miniStoreBindRelationDao;
     @Autowired
     MiniStoreService miniStoreService;
-    @Autowired
-    ThreadPoolTaskExecutor taskExecutor;
 
     @Test
     public void BizDirectionEnumTest() {
@@ -53,7 +51,7 @@ public class MiniStoreTest {
                 System.out.println(1);
             }
         };
-        taskExecutor.execute(runnable);
+        //taskExecutor.execute(runnable);
     }
 
     @Test

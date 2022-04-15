@@ -67,8 +67,7 @@ import com.jd.ump.annotation.JProfiler;
 
 import javax.ws.rs.HEAD;
 
-import static com.jd.bluedragon.distribution.ministore.enums.ProcessTypeEnum.SEND_JIEHUOCANG;
-import static com.jd.bluedragon.distribution.ministore.enums.ProcessTypeEnum.SEND_SORT_CENTER;
+import static com.jd.bluedragon.distribution.ministore.enums.ProcessTypeEnum.*;
 import static com.jd.bluedragon.distribution.ministore.enums.SiteTypeEnum.JIEHUOCANG;
 
 public abstract class BaseReceiveTaskExecutor<T extends Receive> extends DmsTaskExecutor<T> {
@@ -190,8 +189,18 @@ public abstract class BaseReceiveTaskExecutor<T extends Receive> extends DmsTask
 				deviceDto.setBoxCode(receive.getBoxCode());
 				MiniStoreBindRelation miniStoreBindRelation = miniStoreService.selectBindRelation(deviceDto);
 				if (miniStoreBindRelation!=null){
-					ProcessTypeEnum processType =ProcessTypeEnum.INSPECTION_SORT_CENTER;
+					ProcessTypeEnum processType = INSPECTION_SORT_CENTER;
 					log.info("MiniStoreSyncProcessDataTask start，current processType is ",processType.getMsg());
+					if (MiniStoreProcessStatusEnum.DELIVER_GOODS.getCode().equals(String.valueOf(miniStoreBindRelation.getState()))){
+						log.info("分拣中心验货同步节点数据...");
+						MiniStoreBindRelation m =new MiniStoreBindRelation();
+						m.setId(miniStoreBindRelation.getId());
+						m.setUpdateUser(receive.getCreateUser());
+						m.setUpdateUserCode(Long.valueOf(receive.getCreateUserCode()));
+						m.setState(Byte.valueOf(MiniStoreProcessStatusEnum.CHECK_GOODS.getCode()));
+						m.setUpdateTime(new Date());
+						miniStoreService.updateById(m);
+					}
 					MiniStoreSortingProcessEvent event =new MiniStoreSortingProcessEvent();
 					event.setStoreCode(miniStoreBindRelation.getStoreCode());
 					event.setProcessType(processType.getType());
