@@ -109,13 +109,13 @@ public class MiniStoreGatewayServiceImpl implements MiniStoreGatewayService {
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.MiniStoreGatewayServiceImpl.unBox", mState = {JProEnum.TP})
-    public JdCResponse unBox(UnBoxReq unBoxReq) {
+    public JdCResponse<List<String>> unBox(UnBoxReq unBoxReq) {
         DeviceDto deviceDto = BeanUtils.copy(unBoxReq, DeviceDto.class);
         boolean success = miniStoreService.updateProcessStatusAndInvaliSortRealtion(deviceDto);
         if (success) {
             MiniStoreSyncBindRelationTask task = new MiniStoreSyncBindRelationTask(MSDeviceBindEventTypeEnum.UN_SEAL_BOX, unBoxReq.getMiniStoreBindRelationId(), miniStoreSealBoxProducer, miniStoreService, sortingService);
             task.run();
-            return new JdCResponse(MSCodeMapping.SUCCESS.getCode(), MSCodeMapping.SUCCESS.getMessage());
+            return new JdCResponse(MSCodeMapping.SUCCESS.getCode(), MSCodeMapping.SUCCESS.getMessage(),task.getPackageCodes());
         }
         return new JdCResponse(MSCodeMapping.UNKNOW_ERROR.getCode(), MSCodeMapping.UNKNOW_ERROR.getMessage());
     }

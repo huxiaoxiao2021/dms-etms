@@ -27,6 +27,15 @@ public class MiniStoreSyncBindRelationTask implements Runnable {
     private DefaultJMQProducer miniStoreSealBoxProducer;
     private MiniStoreService miniStoreService;
     private SortingService sortingService;
+    private List<String> packageCodes;
+
+    public List<String> getPackageCodes() {
+        return packageCodes;
+    }
+
+    public void setPackageCodes(List<String> packageCodes) {
+        this.packageCodes = packageCodes;
+    }
 
     public MiniStoreSyncBindRelationTask(MSDeviceBindEventTypeEnum type, Long miniStoreBindRelationId,
                                          DefaultJMQProducer miniStoreSealBoxProducer,
@@ -53,10 +62,11 @@ public class MiniStoreSyncBindRelationTask implements Runnable {
             sorting.setCreateSiteCode(miniStoreBindRelation.getCreateSiteCode().intValue());
             List<Sorting> sortingList = sortingService.listSortingByBoxCode(sorting);
 
-            List<String> packageCodes =new ArrayList<>();
+            packageCodes =new ArrayList<>();
             for (Sorting s:sortingList){
                 packageCodes.add(s.getPackageCode());
             }
+
             List<String> iceBoardCodes =new ArrayList<>();
             iceBoardCodes.add(miniStoreBindRelation.getIceBoardCode1());
             iceBoardCodes.add(miniStoreBindRelation.getIceBoardCode2());

@@ -57,6 +57,7 @@ public class DeliverGoodsNoticeConsumer extends MessageBaseConsumer {
 
     @Override
     public void consume(Message message) {
+        miniStoreDeliverGoodsConsumerMessage(message);
         deliverGoodsNoticeConsumerMessage(message);
     }
 
@@ -99,13 +100,17 @@ public class DeliverGoodsNoticeConsumer extends MessageBaseConsumer {
             context.setOperatorTime(new Date());
 
             cycleMaterialSendMQ.send(context.getMaterialCode(), JsonHelper.toJson(context));
-            miniStoreDeliverGoodsConsumerMessage(context);
         }catch (Exception e) {
             log.error("[DeliverGoodsNoticeConsumer]消费异常，MQ message body:{}" , message.getText(), e);
             throw new RuntimeException(e.getMessage() + "，MQ message body:" + message.getText(), e);
         }
     }
-    void miniStoreDeliverGoodsConsumerMessage(BoxMaterialRelationMQ context){
+    void miniStoreDeliverGoodsConsumerMessage(Message message){
+        if (!JsonHelper.isJsonString(message.getText())) {
+            log.warn("[miniStoreDeliverGoodsConsumerMessage]MQ-消息体非JSON格式，内容为【{}】", message.getText());
+            return;
+        }
+        BoxMaterialRelationMQ context = JsonHelper.fromJsonUseGson(message.getText(), BoxMaterialRelationMQ.class);
         if (StringUtils.isBlank(context.getBoxCode()) || !BusinessUtil.isBoxcode(context.getBoxCode()) || StringUtils.isBlank(context.getSiteCode())){
             log.error("移动微仓发货推送节点消息异常：箱号为空！");
             return;

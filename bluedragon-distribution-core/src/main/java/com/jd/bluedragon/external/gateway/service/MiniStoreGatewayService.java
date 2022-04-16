@@ -51,7 +51,7 @@ public interface MiniStoreGatewayService {
      * @param unBoxReq
      * @return
      */
-    JdCResponse unBox(UnBoxReq unBoxReq);
+    JdCResponse<List<String>> unBox(UnBoxReq unBoxReq);
 
     /**
      * 查询绑定未集包的任务列表
