@@ -43,7 +43,7 @@ public class MiniStoreSyncProcessDataTask implements Runnable {
 
     @Override
     public void run() {
-        logger.info("MiniStoreSyncProcessDataTask start，current processType is ",processType.getMsg());
+        logger.info("MiniStoreSyncProcessDataTask start，current processType is {}",processType.getMsg());
         DeviceDto deviceDto = new DeviceDto();
         deviceDto.setBoxCode(boxCode);
         MiniStoreBindRelation miniStoreBindRelation = miniStoreService.selectBindRelation(deviceDto);

@@ -121,7 +121,7 @@ public class DeliverGoodsNoticeConsumer extends MessageBaseConsumer {
         if (miniStoreBindRelation!=null){
             BaseStaffSiteOrgDto baseStaffSiteOrgDto =baseMajorManager.getBaseSiteBySiteId(Integer.valueOf(context.getSiteCode()));
             ProcessTypeEnum processType = JIEHUOCANG.getType().equals(baseStaffSiteOrgDto.getSubType())?SEND_JIEHUOCANG:SEND_SORT_CENTER;
-            log.info("MiniStoreSyncProcessDataTask start，current processType is ",processType.getMsg());
+            log.info("MiniStoreSyncProcessDataTask start，current processType is {} ",processType.getMsg());
             if (SEND_JIEHUOCANG==processType
                     && MiniStoreProcessStatusEnum.SEAL_BOX.getCode().equals(String.valueOf(miniStoreBindRelation.getState()))){
                 log.info("接货仓发货同步节点数据...");

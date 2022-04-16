@@ -147,17 +147,13 @@ public abstract class BaseReceiveTaskExecutor<T extends Receive> extends DmsTask
 	 */
 	@JProfiler(jKey = "DMSWEB.ReceiveTaskExecutor.execute", mState = { JProEnum.TP })
 	public boolean execute(TaskContext<T> taskContext, String ownSign) {
-		log.info("9310=============1>");
 		List<CenConfirm> cenConfirmList = null;
 		// step1-保存收货记录
 		saveReceive(taskContext);
-		log.info("9310=============2>");
 		// 必须有封车号，才更新封车表
 		updateSealVehicle(taskContext);
-		log.info("9310=============3>");
 		// 解封箱
 		unsealBox(taskContext);
-		log.info("9310=============4>");
 		// 判断是否大件商品
 		boolean isBoxingType = Constants.BOXING_TYPE.equals(taskContext.getBody()
 				.getBoxingType());
@@ -169,17 +165,13 @@ public abstract class BaseReceiveTaskExecutor<T extends Receive> extends DmsTask
 			// 非大件商品-批量处理
 			cenConfirmList = batchSaveCenConfirmAndSendTrack(taskContext);
 		}
-		log.info("9310=============5>");
 		// 推送mq消息--周转箱
 		pushTurnoverBoxInfo(taskContext);
-		log.info("9310=============6>");
 
 		pushReceiveInfo(cenConfirmList);
-		log.info("9310=============7>");
 
 		// 循环集包袋发送消息
 		pushCycleMaterialMQ(taskContext);
-		log.info("9310=============8>");
 
 		//移动微仓同步业务节点数据
 		pushMiniStoreProcessDataMQ(taskContext);
@@ -199,7 +191,7 @@ public abstract class BaseReceiveTaskExecutor<T extends Receive> extends DmsTask
 				MiniStoreBindRelation miniStoreBindRelation = miniStoreService.selectBindRelation(deviceDto);
 				if (miniStoreBindRelation!=null){
 					ProcessTypeEnum processType = INSPECTION_SORT_CENTER;
-					log.info("MiniStoreSyncProcessDataTask start，current processType is ",processType.getMsg());
+					log.info("MiniStoreSyncProcessDataTask start，current processType is {}",processType.getMsg());
 					//TODO 这里要不要做状态拦截校验
 					if (MiniStoreProcessStatusEnum.DELIVER_GOODS.getCode().equals(String.valueOf(miniStoreBindRelation.getState()))){
 						log.info("分拣中心验货同步节点数据...");
