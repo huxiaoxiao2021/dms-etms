@@ -328,7 +328,6 @@ public abstract class BaseReceiveTaskExecutor<T extends Receive> extends DmsTask
 	 */
 	protected void pushReceiveInfo(List<CenConfirm> cenConfirmList){
 		if(cenConfirmList == null || cenConfirmList.size() < 1){
-			log.info("9310=========cenConfirmList为空");
 			return ;
 		}
 		Set sendInspectionKey = new HashSet();
