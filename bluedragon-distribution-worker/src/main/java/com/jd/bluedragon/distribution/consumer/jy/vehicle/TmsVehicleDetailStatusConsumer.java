@@ -1,15 +1,21 @@
 package com.jd.bluedragon.distribution.consumer.jy.vehicle;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.VosManager;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadStatusEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskUnloadVehicleService;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.etms.vos.dto.CommonDto;
+import com.jd.etms.vos.dto.SealCarDto;
 import com.jd.jmq.common.message.Message;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
@@ -39,6 +45,12 @@ public class TmsVehicleDetailStatusConsumer extends MessageBaseConsumer {
     private static final Integer ARRIVE_CAR_STATUS = 20;
 
     @Autowired
+    private VosManager vosManager;
+
+    @Autowired
+    private BaseMajorManager baseMajorManager;
+
+    @Autowired
     private JyBizTaskUnloadVehicleService jyBizTaskUnloadVehicleService;
 
     @Override
@@ -65,8 +77,24 @@ public class TmsVehicleDetailStatusConsumer extends MessageBaseConsumer {
         //获取派车明细编码对应的封车任务 并 更新状态为待解
         if(!ARRIVE_CAR_STATUS.equals(mqBody.getStatus())){
             // 只处理到车数据
+            logger.info("tmsVehicleDetailStatusConsumer consume -->丢弃，只处理司机到达，内容为【{}】", message.getText());
             return;
         }
+        SealCarDto sealCarInfoBySealCarCodeOfTms = findSealCarInfoBySealCarCodeOfTms(mqBody.getSealCarCode());
+        if(sealCarInfoBySealCarCodeOfTms == null){
+            logger.error("tmsVehicleDetailStatusConsumer 从运输未获取到封车信息,{}",JsonHelper.toJson(mqBody));
+            return;
+        }
+        Integer endSiteId = sealCarInfoBySealCarCodeOfTms.getEndSiteId();
+        //检查目的地是否是拣运中心
+        BaseStaffSiteOrgDto siteInfo = baseMajorManager.getBaseSiteBySiteId(endSiteId);
+        if(siteInfo == null || !BusinessUtil.isSorting(siteInfo.getSiteType())){
+            //丢弃数据
+            logger.info("tmsVehicleDetailStatusConsumer 不需要关心的数据丢弃,目的站点:{},目的站点类型:{}，消息:{}",endSiteId,siteInfo==null?null:siteInfo.getSiteType(),
+                    JsonHelper.toJson(mqBody));
+            return;
+        }
+
         String bizId = mqBody.getSealCarCode();
         Long id = jyBizTaskUnloadVehicleService.findIdByBizId(bizId);
         if(id != null && id > 0){
@@ -99,6 +127,25 @@ public class TmsVehicleDetailStatusConsumer extends MessageBaseConsumer {
         entity.setUpdateTime(DateHelper.toDate(Long.valueOf(mqBody.getOperateTime())));
         entity.setVehicleStatus(JyBizTaskUnloadStatusEnum.WAIT_UN_SEAL.getCode());
         return entity;
+    }
+
+    /**
+     * 通过封车编码获取封车信息
+     * @param sealCarCode
+     * @return
+     */
+    private SealCarDto findSealCarInfoBySealCarCodeOfTms(String sealCarCode){
+        if(logger.isInfoEnabled()){
+            logger.info("TmsSealCarStatusConsumer获取封车信息开始 {}",sealCarCode);
+        }
+        CommonDto<SealCarDto> sealCarDtoCommonDto = vosManager.querySealCarInfoBySealCarCode(sealCarCode);
+        if(logger.isInfoEnabled()){
+            logger.info("TmsSealCarStatusConsumer获取封车信息返回数据 {},{}",sealCarCode,JsonHelper.toJson(sealCarCode));
+        }
+        if(sealCarDtoCommonDto == null || Constants.RESULT_SUCCESS != sealCarDtoCommonDto.getCode()){
+            return null;
+        }
+        return sealCarDtoCommonDto.getData();
     }
 
     private class TmsVehicleDetailStatusMqBody implements Serializable {

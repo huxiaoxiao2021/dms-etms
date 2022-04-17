@@ -578,7 +578,7 @@ public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
         if(jyBizTaskUnloadVehicleService.changeStatus(entity)){
             //关闭调度任务
             if(!closeUnSealScheduleTask(dto)){
-                throw new JyBizException("创建调度任务失败");
+                throw new JyBizException("关闭调度任务失败");
             }else{
                 return true;
             }
