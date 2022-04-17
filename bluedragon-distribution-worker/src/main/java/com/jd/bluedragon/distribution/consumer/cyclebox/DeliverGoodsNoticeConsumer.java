@@ -57,8 +57,9 @@ public class DeliverGoodsNoticeConsumer extends MessageBaseConsumer {
 
     @Override
     public void consume(Message message) {
-        miniStoreDeliverGoodsConsumerMessage(message);
+        log.info("DeliverGoodsNoticeConsumer start...");
         deliverGoodsNoticeConsumerMessage(message);
+        miniStoreDeliverGoodsConsumerMessage(message);
     }
 
     void deliverGoodsNoticeConsumerMessage(Message message){
