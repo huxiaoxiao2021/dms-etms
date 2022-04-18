@@ -1248,6 +1248,9 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
             UnloadPreviewData previewData = new UnloadPreviewData();
             result.setData(previewData);
 
+            // 默认正常
+            previewData.setAbnormalFlag(Constants.NUMBER_ZERO.byteValue());
+
             List<JyUnloadAggsEntity> unloadAggList = unloadAggDao.queryByBizId(new JyUnloadAggsEntity(request.getBizId()));
             if (CollectionUtils.isEmpty(unloadAggList)) {
                 log.warn("判断卸车任务是否完成查询AGG为空.{}", JsonHelper.toJson(request));
@@ -1256,10 +1259,10 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
 
             // 判断卸车任务是否异常.
             Boolean unloadTaskNormal = judgeUnloadTaskNormal(previewData, unloadAggList);
+            previewData.setAbnormalFlag(unloadTaskNormal ? Constants.NUMBER_ZERO.byteValue() : Constants.CONSTANT_NUMBER_ONE);
 
             // 卸车任务正常，直接返回
             if (unloadTaskNormal) {
-                previewData.setAbnormalFlag(Constants.NUMBER_ZERO.byteValue());
                 return result;
             }
 
