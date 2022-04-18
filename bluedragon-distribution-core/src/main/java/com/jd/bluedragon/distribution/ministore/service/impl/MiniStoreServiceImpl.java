@@ -143,7 +143,10 @@ public class MiniStoreServiceImpl implements MiniStoreService {
                 if (!JdResponse.CODE_OK.equals(sr.getCode())) {
                     logger.error("移动微仓解封箱取消分拣失败:{}",sr.getMessage());
                     miniStoreBindRelationDao.updateByPrimaryKeySelective(pre);
-                    return false;
+                    if (sr.getCode().equals(22004)){
+                        throw new MiniStoreBizException(sr.getCode(),"包裹/箱子已经发货，不能取消集包");
+                    }
+                    throw new MiniStoreBizException(sr.getCode(),sr.getMessage());
                 }
                 return true;
             }
@@ -151,6 +154,9 @@ public class MiniStoreServiceImpl implements MiniStoreService {
             logger.error("解封箱异常", e);
             if (r1 > 0) {
                 miniStoreBindRelationDao.updateByPrimaryKeySelective(pre);
+            }
+            if (e instanceof MiniStoreBizException){
+                throw e;
             }
         }
         return false;
