@@ -52,6 +52,14 @@ public interface WorkStationDao {
 	 * @return
 	 */
 	WorkStation queryByBusinessKey(WorkStation data);
+
+	/**
+	 * 根据业务主键查询
+	 *
+	 * @param businessKey
+	 * @return
+	 */
+	WorkStation queryByRealBusinessKey(String businessKey);
 	/**
 	 * 按条件分页查询
 	 * @param query

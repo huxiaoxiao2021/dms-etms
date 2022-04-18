@@ -88,7 +88,6 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
-
     @Resource
     private CycleBoxService cycleBoxService;
 
@@ -484,7 +483,6 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
         }
         return true;
     }
-
     /**
      * true 绑定了  false 未绑定
      * @param materialCode

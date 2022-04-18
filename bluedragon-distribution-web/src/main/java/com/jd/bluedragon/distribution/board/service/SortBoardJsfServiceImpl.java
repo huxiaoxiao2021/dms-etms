@@ -28,18 +28,21 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ql.dms.common.domain.JdResponse;
+import com.jd.bluedragon.distribution.board.domain.AddBoardRequest;
 import com.jd.transboard.api.dto.AddBoardBox;
 import com.jd.transboard.api.dto.Board;
 import com.jd.transboard.api.service.GroupBoardService;
 import com.jd.transboard.api.service.IVirtualBoardService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.apache.avro.data.Json;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -197,19 +200,19 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
     }
 
     @Override
-    public Response<String> calcBoard(AutoBoardCompleteRequest request) {
-        Response<String> response = new Response<String>();
+    public Response<List<String>> calcBoard(AutoBoardCompleteRequest request) {
+        Response<List<String>> response = new Response<List<String>>();
         BoardCompleteRequest boardCompleteRequest = new BoardCompleteRequest();
         BeanUtils.copyProperties(request, boardCompleteRequest);
-        com.jd.bluedragon.distribution.sdk.common.domain.InvokeResult<String> baseResult =
-                boardChuteJsfService.calcBoard(boardCompleteRequest);
+        com.jd.bluedragon.distribution.sdk.common.domain.InvokeResult<List<String>> baseResult =
+                boardChuteJsfService.calcBoards(boardCompleteRequest);
         log.info("计算格口获取板号信息,request:"+ JsonHelper.toJson(request)+",result:"+ JsonHelper.toJson(baseResult));
         if (baseResult.getCode()!=200){
             response.toFail(StringUtils.isEmpty(baseResult.getMessage())?"查询组板包裹(箱号)信息失败，请退出重试!":baseResult.getMessage());
             return response;
         }
-        String boardCode = baseResult.getData();
-        if (StringUtils.isEmpty(boardCode)){
+        List<String> boardCode = baseResult.getData();
+        if (CollectionUtils.isEmpty(boardCode)){
             response.toFail("查询组板包裹(箱号)信息失败，请退出重试!");
             return response;
         }
@@ -254,8 +257,8 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
             //调用自动化服务
             BoardCompleteRequest boardCompleteRequest = new BoardCompleteRequest();
             BeanUtils.copyProperties(request, boardCompleteRequest);
-            com.jd.bluedragon.distribution.sdk.common.domain.InvokeResult<String> baseResult =
-                    boardChuteJsfService.boardComplete(boardCompleteRequest);
+            com.jd.bluedragon.distribution.sdk.common.domain.InvokeResult<List<String>> baseResult =
+                    boardChuteJsfService.completeBoard(boardCompleteRequest);
             if(!baseResult.isSuccess()){
                 log.warn("调自动化服务修改板状态失败，请求参数：{},返回值:{}", JsonHelper.toJson(boardCompleteRequest),
                         JsonHelper.toJson(baseResult));
@@ -263,19 +266,16 @@ public class SortBoardJsfServiceImpl implements SortBoardJsfService {
                 return response;
             }
 
-            String boardCodes = baseResult.getData();
-            if(StringUtils.isNotBlank(boardCodes)){
-                String[] codes = boardCodes.split(",");
-                if(codes.length > 0){
-                    com.jd.bluedragon.common.dto.base.request.OperatorInfo operatorInfo =
-                            initOperatorInfo(request.getOperatorErp(), request.getSiteCode());
-                    for (String code : codes){
-                        //调板服务关闭板状态
-                        CloseVirtualBoardPo po = initCloseVirtualBoardPo(code, operatorInfo);
-                        JdCResponse<Void> jdCResponse = virtualBoardService.closeBoard(po);
-                        response.setCode(jdCResponse.getCode());
-                        response.setMessage(jdCResponse.getMessage());
-                    }
+            List<String> boardCodes = baseResult.getData();
+            if(CollectionUtils.isNotEmpty(boardCodes)){
+                com.jd.bluedragon.common.dto.base.request.OperatorInfo operatorInfo =
+                        initOperatorInfo(request.getOperatorErp(), request.getSiteCode());
+                for (String code : boardCodes){
+                    //调板服务关闭板状态
+                    CloseVirtualBoardPo po = initCloseVirtualBoardPo(code, operatorInfo);
+                    JdCResponse<Void> jdCResponse = virtualBoardService.closeBoard(po);
+                    response.setCode(jdCResponse.getCode());
+                    response.setMessage(jdCResponse.getMessage());
                 }
             }
 

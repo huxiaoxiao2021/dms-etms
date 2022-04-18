@@ -3,6 +3,8 @@ package com.jd.bluedragon.common.dto.station;
 import java.io.Serializable;
 import java.util.Date;
 
+import com.jd.bluedragon.common.dto.group.GroupMemberData;
+
 /**
  * @ClassName: UserSignRecordData
  * @Description: 人员签到记录数据
@@ -188,6 +190,8 @@ public class UserSignRecordData implements Serializable {
 	 * 工作时长（单位：hh时mm分）
 	 */
 	private String workTimes;
+	
+	private GroupMemberData groupData;
 	
 	
 	public Long getId() {
@@ -405,5 +409,11 @@ public class UserSignRecordData implements Serializable {
 	}
 	public void setWorkTimes(String workTimes) {
 		this.workTimes = workTimes;
+	}
+	public GroupMemberData getGroupData() {
+		return groupData;
+	}
+	public void setGroupData(GroupMemberData groupData) {
+		this.groupData = groupData;
 	}
 }

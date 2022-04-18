@@ -159,6 +159,14 @@ public class InvokeResult<T> implements Serializable {
     }
 
     /**
+     * 参数错误
+     */
+    public void parameterError() {
+        this.code = RESULT_PARAMETER_ERROR_CODE;
+        this.message = PARAM_ERROR;
+    }
+
+    /**
      * 设置用户自定义消息
      * @param code      消息代号
      * @param message   消息内容

@@ -257,10 +257,6 @@
     <jmq:consumer id="jmq.waybilCodeCheckExportLogConsumer" transport="jmq.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.waybill.check.exportlog}" listener="waybilCodeCheckExportLogConsumer"/>
     </jmq:consumer>
-    <!--封车及解封车状态变化数据-->
-    <jmq:consumer id="jmq.unloadCarConsumer" transport="jmq.dmsWorker.transport">
-        <jmq:listener topic="${jmq.topic.unloadCar}" listener="unloadCarConsumer" />
-    </jmq:consumer>
     <!-- 称重抽检处理消息 -->
     <jmq:consumer id="jmq.weightAndVolumeCheckHandleConsumer" transport="jmq.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.weightAndVolumeCheck.handle}" listener="weightAndVolumeCheckHandleConsumer"/>
@@ -379,11 +375,6 @@
         <jmq:listener topic="${jmq.topic.abnormalRecordOutCallReport}" listener="qcAbnormalReportOutCallReportConsumer"/>
     </jmq:consumer>
 
-    <!--B2B-TMS企配仓运单调度信息-->
-    <jmq:consumer id="jmq.b2bWaybillScheduleMqListener" transport="jmq.dmsWorker.transport">
-        <jmq:listener topic="${jmq.topic.b2b.tms.bd.schedule.result}" listener="b2bWaybillScheduleMqListener"/>
-    </jmq:consumer>
-
     <!-- 抽检-设备图片AI识别回传消息处理 -->
     <jmq:consumer id="jmq.dwsAIDistinguishNotifyConsumer" transport="jmq.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.dwsAIDistinguish.Notify}" listener="dwsAIDistinguishNotifyConsumer"/>
@@ -393,5 +384,43 @@
     <jmq:consumer id="jmq.dwsIssueDealConsumer" transport="jmq.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.spotCheck.dwsIssueDeal}" listener="dwsIssueDealConsumer"/>
     </jmq:consumer>
+
+    <!--B2B-TMS企配仓运单调度信息-->
+    <jmq:consumer id="jmq.b2bWaybillScheduleMqListener" transport="jmq.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.b2b.tms.bd.schedule.result}" listener="b2bWaybillScheduleMqListener"/>
+    </jmq:consumer>
+
+    <!--运输状态消息-->
+    <jmq:consumer id="jmq.tmsSealCarStatusConsumer" transport="jmq.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.tms.seal.car.status}" listener="tmsSealCarStatusConsumer"/>
+    </jmq:consumer>
+    <!--运输取消封车消息-->
+    <jmq:consumer id="jmq.tmsCancelSealCarBatchConsumer" transport="jmq.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.tms.cancel.seal.car.batch}" listener="tmsCancelSealCarBatchConsumer"/>
+    </jmq:consumer>
+    <!--运输司机到达消息-->
+    <jmq:consumer id="jmq.tmsTransWorkCarArriveConsumer" transport="jmq.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.tms.trans.work.car.arrive}" listener="tmsTransWorkCarArriveConsumer"/>
+    </jmq:consumer>
+    <!--运输司机到达消息-->
+    <jmq:consumer id="jmq.tmsVehicleDetailStatusConsumer" transport="jmq.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.tms.vehicle.detail.status}" listener="tmsVehicleDetailStatusConsumer"/>
+    </jmq:consumer>
+
+    <!--  接收卸车任务  -->
+    <jmq:consumer id="jmq.initUnloadVehicleConsumer" transport="jmq.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.jy.flink.unload}" listener="initUnloadVehicleConsumer"/>
+    </jmq:consumer>
+
+    <!--  拣运卸车扫描  -->
+    <jmq:consumer id="jmq.jyUnloadScanConsumer" transport="jmq.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.jy.unload.scan}" listener="jyUnloadScanConsumer"/>
+    </jmq:consumer>
+
+    <!--  拣运卸车完成  -->
+    <jmq:consumer id="jmq.jyUnloadTaskCompleteConsumer" transport="jmq.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.jy.unload.complete}" listener="jyUnloadTaskCompleteConsumer"/>
+    </jmq:consumer>
+
 </beans>
 

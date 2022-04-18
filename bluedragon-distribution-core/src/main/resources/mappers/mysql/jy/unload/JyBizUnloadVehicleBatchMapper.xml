@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jd.bluedragon.distribution.jy.dao.unload.JyBizUnloadVehicleBatchDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.jd.bluedragon.distribution.jy.unload.JyBizUnloadVehicleBatchEntity" id="jyBizUnloadVehicleBatchMap">
+        <result property="id" column="id"/>
+        <result property="sealCarCode" column="seal_car_code"/>
+        <result property="batchCode" column="batch_code"/>
+        <result property="yn" column="yn"/>
+        <result property="ts" column="ts"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,
+        seal_car_code,
+        batch_code,
+        yn,
+        ts
+    </sql>
+
+    <insert id="insert" parameterType="JyBizUnloadVehicleBatchEntity">
+        INSERT INTO jy_biz_unload_vehicle_batch (
+                            id,
+                            seal_car_code,
+                            batch_code,
+                            yn,
+                            ts
+                    ) VALUES (
+                            #{id},
+                            #{sealCarCode},
+                            #{batchCode},
+                            #{yn},
+                            #{ts}
+                    )
+    </insert>
+</mapper>
