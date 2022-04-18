@@ -288,7 +288,6 @@
 				<value>uccPropertyConfiguration.deliverySendTaskSleepMills</value>
                 <value>uccPropertyConfiguration.packRePrintInterceptStatus</value>
                 <value>uccPropertyConfiguration.checkBoxSendedSwitchOn</value>
-                <value>uccPropertyConfiguration.deliverySendAsyncSite</value>
                 <value>uccPropertyConfiguration.spotCheckNoExcessLimit</value>
                 <value>uccPropertyConfiguration.businessLogQueryPageSwitch</value>
 				<value>uccPropertyConfiguration.useNewInventorySiteCodes</value>
@@ -315,7 +314,6 @@
 				<value>uccPropertyConfiguration.scheduleSiteCheckSameCity</value>
 				<value>uccPropertyConfiguration.sendCodeEffectiveValidation</value>
 				<value>uccPropertyConfiguration.limitSiteUsePackReprint</value>
-				<value>uccPropertyConfiguration.sendCodeEffectiveValidation</value>
 				<value>uccPropertyConfiguration.restApiOuthSwitch</value>
 				<value>uccPropertyConfiguration.needInterceptUrls</value>
 				<value>uccPropertyConfiguration.notSignedOutRecordMoreThanHours</value>
@@ -328,7 +326,6 @@
                 <value>uccPropertyConfiguration.sealTaskForceFallback</value>
                 <value>uccPropertyConfiguration.jyUnloadSingleWaybillThreshold</value>
 				<value>uccPropertyConfiguration.jyTaskPageMax</value>
-				<value>uccPropertyConfiguration.checkBoxSendedSwitchOn</value>
 
                 <value>hystrixRouteUccPropertyConfiguration.executionTimeoutInMilliseconds</value>
                 <value>hystrixRouteUccPropertyConfiguration.circuitBreakerEnabled</value>
