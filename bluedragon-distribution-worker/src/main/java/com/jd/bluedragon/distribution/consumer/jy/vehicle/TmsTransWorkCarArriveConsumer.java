@@ -46,7 +46,7 @@ public class TmsTransWorkCarArriveConsumer extends MessageBaseConsumer {
             logger.warn("TmsTransWorkCarArriveConsumer consume --> 消息为空");
             return;
         }
-        if (! JsonHelper.isJsonString(message.getText())) {
+        if (!JsonHelper.isJsonString(message.getText())) {
             logger.warn("TmsTransWorkCarArriveConsumer consume -->消息体非JSON格式，内容为【{}】", message.getText());
             return;
         }

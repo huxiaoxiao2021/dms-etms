@@ -43,24 +43,157 @@ public class TmsConsumerTest {
     private TmsCancelSealCarBatchConsumer tmsCancelSealCarBatchConsumer;
 
 
+    //封车
+    String tmsSealCarStatusJson = "{\"sealCarCode\":\"SC22041100014898\",\"status\":10,\"operateUserCode\":\"bjxings\",\"operateUserName\":\"邢松\",\"operateTime\":\"2022-04-11 15:57:41\",\"sealCarType\":10,\"batchCodes\":[\"910-39-01595202205127129\"],\"transBookCode\":null,\"volume\":22.3112,\"weight\":343.22,\"transWay\":3,\"vehicleNumber\":\"京AB0D87\",\"operateSiteId\":910,\"operateSiteCode\":\"010F002\",\"operateSiteName\":\"北京马驹桥分拣中心6\",\"warehouseCode\":null,\"largeCargoDetails\":null,\"pieceCount\":null,\"source\":1}";
+    //解封车
+    String tmsSealCarStatusJson2 ="{\"sealCarCode\":\"SC22041100014898\",\"status\":20,\"operateUserCode\":\"fang3\",\"operateUserName\":\"方斌\",\"operateTime\":\"2022-04-17 14:17:40\",\"sealCarType\":30,\"batchCodes\":null,\"transBookCode\":\"TB22041730847267\",\"volume\":null,\"weight\":null,\"transWay\":null,\"vehicleNumber\":\"鄂ADJ8702\",\"operateSiteId\":869056,\"operateSiteCode\":\"027Y432\",\"operateSiteName\":\"武汉汉口北揽收营业部\",\"warehouseCode\":null,\"largeCargoDetails\":null,\"pieceCount\":null,\"source\":1,\"sealCarInArea\":null}\n";
+    //进围栏
+    String tmsSealCarStatusJson3 = "{\"sealCarCode\":\"SC22041100014898\",\"status\":40,\"operateUserCode\":null,\"operateUserName\":null,\"operateTime\":\"2022-04-17 14:17:54\",\"sealCarType\":null,\"batchCodes\":null,\"transBookCode\":null,\"volume\":null,\"weight\":null,\"transWay\":null,\"vehicleNumber\":\"京AD13697\",\"operateSiteId\":null,\"operateSiteCode\":null,\"operateSiteName\":null,\"warehouseCode\":null,\"largeCargoDetails\":null,\"pieceCount\":null,\"source\":1,\"sealCarInArea\":null}\n";
+
+    //司机到达 无任务
+    String s1 = "{\"status\":20,\"vehicleDetailCode\":\"CBD22032933731038\",\"operateTime\":1648551913608,\"operatorUserId\":21926679,\"operatorCode\":\"wangzheng27\",\"operatorName\":\"王政\",\"operatorPhone\":\"15361435295\",\"sealCarCode\":\"SC22041100014898\",\"volume\":null,\"sendCarInArea\":1,\"arriveCarInArea\":null,\"specialTrans\":null,\"sameDevice\":null}\n";
+
+    //司机到达
+    String s2 = "{\"transWorkCode\":\"TW22033029178590\",\"transWorkItemCode\":\"TW22033029178590-001\",\"comeTime\":null,\"sendTime\":null,\"arriveTime\":\"2022-03-30 15:08:20\",\"businessType\":14,\"transType\":11,\"transWay\":2,\"vehicleNumber\":\"甘AX6A83\",\"operateType\":2}";
+
 
 
     @Test
     public void testTmsMq(){
-        //封车
-        String tmsSealCarStatusJson = "{\"sealCarCode\":\"SC22041100014898\",\"status\":10,\"operateUserCode\":\"bjxings\",\"operateUserName\":\"邢松\",\"operateTime\":\"2022-04-11 15:57:41\",\"sealCarType\":10,\"batchCodes\":[\"910-39-01595202205127129\"],\"transBookCode\":null,\"volume\":22.3112,\"weight\":343.22,\"transWay\":3,\"vehicleNumber\":\"京AB0D87\",\"operateSiteId\":910,\"operateSiteCode\":\"010F002\",\"operateSiteName\":\"北京马驹桥分拣中心6\",\"warehouseCode\":null,\"largeCargoDetails\":null,\"pieceCount\":null,\"source\":1}";
-        //解封车
-        String tmsSealCarStatusJson2 = "{\"sealCarCode\":\"SC22041100014898\",\"status\":20,\"operateUserCode\":\"bjxings\",\"operateUserName\":\"邢松\",\"operateTime\":\"2022-04-11 15:57:41\",\"sealCarType\":10,\"batchCodes\":[\"910-39-01595202205127129\"],\"transBookCode\":null,\"volume\":22.3112,\"weight\":343.22,\"transWay\":3,\"vehicleNumber\":\"京AB0D87\",\"operateSiteId\":910,\"operateSiteCode\":\"010F002\",\"operateSiteName\":\"北京马驹桥分拣中心6\",\"warehouseCode\":null,\"largeCargoDetails\":null,\"pieceCount\":null,\"source\":1}";
-
 
         Message message = new Message();
-        message.setText(tmsSealCarStatusJson2);
         try {
+            message.setText(tmsSealCarStatusJson);
+            //封车
             tmsSealCarStatusConsumer.consume(message);
+
+            message.setText(tmsSealCarStatusJson3);
+            //进围栏
+            tmsSealCarStatusConsumer.consume(message);
+
+            //司机到达
+            message.setText(s2);
+            //tmsTransWorkCarArriveConsumer.consume(message);
+
+            //司机到达 无任务
+            message.setText(s1);
+            tmsVehicleDetailStatusConsumer.consume(message);
+
+            message.setText(tmsSealCarStatusJson2);
+            //解封车
+            tmsSealCarStatusConsumer.consume(message);
+
+
         } catch (Exception e) {
             e.printStackTrace();
         }
 
+
+
+
+    }
+
+    @Test
+    public void testTmsMq2(){
+
+        Message message = new Message();
+        try {
+            message.setText(tmsSealCarStatusJson);
+            //封车
+            tmsSealCarStatusConsumer.consume(message);
+
+            message.setText(tmsSealCarStatusJson3);
+            //进围栏
+            tmsSealCarStatusConsumer.consume(message);
+
+            //司机到达
+            message.setText(s2);
+            //tmsTransWorkCarArriveConsumer.consume(message);
+
+            //司机到达 无任务
+            message.setText(s1);
+            tmsVehicleDetailStatusConsumer.consume(message);
+
+            message.setText(tmsSealCarStatusJson2);
+            //解封车
+            tmsSealCarStatusConsumer.consume(message);
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
+
+
+    }
+
+
+    @Test
+    public void testTmsMq3(){
+
+        Message message = new Message();
+        try {
+            message.setText(tmsSealCarStatusJson);
+            //封车
+            tmsSealCarStatusConsumer.consume(message);
+
+            message.setText(tmsSealCarStatusJson3);
+            //进围栏
+            tmsSealCarStatusConsumer.consume(message);
+
+            //司机到达
+            message.setText(s2);
+            tmsTransWorkCarArriveConsumer.consume(message);
+
+            //司机到达 无任务
+            message.setText(s1);
+            //tmsVehicleDetailStatusConsumer.consume(message);
+
+            message.setText(tmsSealCarStatusJson2);
+            //解封车
+            tmsSealCarStatusConsumer.consume(message);
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
+
+
+    }
+
+
+    @Test
+    public void testTmsMq4(){
+
+        Message message = new Message();
+        try {
+            message.setText(tmsSealCarStatusJson);
+            //封车
+            tmsSealCarStatusConsumer.consume(message);
+
+            message.setText(tmsSealCarStatusJson3);
+            //进围栏
+            //tmsSealCarStatusConsumer.consume(message);
+
+            //司机到达
+            message.setText(s2);
+            tmsTransWorkCarArriveConsumer.consume(message);
+
+            //司机到达 无任务
+            message.setText(s1);
+            //tmsVehicleDetailStatusConsumer.consume(message);
+
+            message.setText(tmsSealCarStatusJson2);
+            //解封车
+            tmsSealCarStatusConsumer.consume(message);
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
 
 

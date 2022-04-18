@@ -40,7 +40,7 @@ import java.util.List;
  * @Description:
  * 消费 tms_seal_car_status
  * sealCarCode 维度
- * status  10 封车，20解封车，30进围栏，40出围栏
+ * status  10 封车，20解封车，30出围栏，40进围栏
  * {"sealCarCode":"SC22033019316055","status":20,"operateUserCode":"kongtuantuan","operateUserName":"孔团团","operateTime":"2022-03-30 15:37:56","sealCarType":30,"batchCodes":null,"transBookCode":"TB22033029658674","volume":null,"weight":null,"transWay":null,"vehicleNumber":"京AAG6153","operateSiteId":271733,"operateSiteCode":"010Y316","operateSiteName":"北京槐柏树营业部","warehouseCode":null,"largeCargoDetails":null,"pieceCount":null,"source":1,"sealCarInArea":null}
 {"sealCarCode":"SC22040419643118","status":10,"operateUserCode":"chenyifei6","operateUserName":"陈毅飞","operateTime":"2022-04-04 19:10:54","sealCarType":30,"batchCodes":["R202204041106221342","R1510931730171867136","R202204041145461342"],"transBookCode":"TB22040430009175","volume":null,"weight":null,"transWay":2,"vehicleNumber":"京AAJ7385","operateSiteId":1342,"operateSiteCode":"010Y059","operateSiteName":"北京上庄营业部","warehouseCode":null,"largeCargoDetails":null,"pieceCount":null,"source":2,"sealCarInArea":null}
  */
@@ -60,7 +60,7 @@ public class TmsSealCarStatusConsumer extends MessageBaseConsumer {
     /**
      * 进围栏状态
      */
-    private static final Integer TMS_STATUS_IN_RAIL = 30;
+    private static final Integer TMS_STATUS_IN_RAIL = 40;
 
     @Autowired
     private IJyUnSealVehicleService jyUnSealVehicleService;
