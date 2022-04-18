@@ -315,17 +315,17 @@
     </jmq:consumer>
 
     <!--  接收卸车任务  -->
-    <jmq:consumer id="jmq.initUnloadVehicleConsumer" transport="jmq.dmsWorker.transport">
+    <jmq:consumer id="jmq.initUnloadVehicleConsumer" transport="jmq.uatDmsWeb.transport">
         <jmq:listener topic="${jmq.topic.jy.flink.unload}" listener="initUnloadVehicleConsumer"/>
     </jmq:consumer>
 
     <!--  拣运卸车扫描  -->
-    <jmq:consumer id="jmq.jyUnloadScanConsumer" transport="jmq.dmsWorker.transport">
+    <jmq:consumer id="jmq.jyUnloadScanConsumer" transport="jmq.uatDmsWeb.transport">
         <jmq:listener topic="${jmq.topic.jy.unload.scan}" listener="jyUnloadScanConsumer"/>
     </jmq:consumer>
 
     <!--  拣运卸车完成  -->
-    <jmq:consumer id="jmq.jyUnloadTaskCompleteConsumer" transport="jmq.dmsWorker.transport">
+    <jmq:consumer id="jmq.jyUnloadTaskCompleteConsumer" transport="jmq.uatDmsWeb.transport">
         <jmq:listener topic="${jmq.topic.jy.unload.complete}" listener="jyUnloadTaskCompleteConsumer"/>
     </jmq:consumer>
 </beans>
