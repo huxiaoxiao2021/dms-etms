@@ -137,4 +137,34 @@ public interface UserSignRecordService {
 	 * @return
 	 */
 	JdCResponse<UserSignRecordData> queryLastUserSignRecordData(UserSignQueryRequest query);
+	/**
+	 * 根据id列表查询签到记录列表
+	 * @param idList
+	 * @return
+	 */
+	List<UserSignRecordData> queryUserSignRecordDataByIds(List<Long> idList);
+	/**
+	 * 按岗位查询已签未退的签到记录
+	 * @param query
+	 * @return
+	 */
+	List<UserSignRecord> queryUnSignOutListWithPosition(UserSignQueryRequest query);
+    /**
+     * 按岗位签到-执行添加组员操作
+     * @param signInRequest
+     * @return
+     */
+    JdCResponse<UserSignRecordData> signInWithGroup(UserSignRequest signInRequest);
+    /**
+     * 按岗位签退-执行移除组员操作
+     * @param signOutRequest
+     * @return
+     */
+	JdCResponse<UserSignRecordData> signOutWithGroup(UserSignRequest signOutRequest);
+    /**
+     * 自动签到、签退-执行添加、移除组员操作
+     * @param signInRequest
+     * @return
+     */
+	JdCResponse<UserSignRecordData> signAutoWithGroup(UserSignRequest userSignRequest);	
 }

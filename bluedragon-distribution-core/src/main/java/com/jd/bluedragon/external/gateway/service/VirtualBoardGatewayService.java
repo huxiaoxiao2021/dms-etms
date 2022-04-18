@@ -101,7 +101,7 @@ public interface VirtualBoardGatewayService {
      * @param request
      * @return
      */
-    JdCResponse<VirtualBoardResultDto> autoBoardDetail(AutoBoardCompleteRequest request);
+    JdCResponse<List<VirtualBoardResultDto>> autoBoardDetail(AutoBoardCompleteRequest request);
 
     /**
      * 更加场地 查询分拣机编码

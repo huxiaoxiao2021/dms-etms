@@ -652,6 +652,16 @@ public class UccPropertyConfiguration {
      */
     private int sealTaskForceFallback;
 
+    /**
+     * 拣运任务最大翻页数量
+     */
+    private Integer jyTaskPageMax;
+
+    /**
+     * 卸车逐单卸阈值
+     */
+    private Integer jyUnloadSingleWaybillThreshold;
+
     public int getSealTaskForceFallback() {
         return sealTaskForceFallback;
     }
@@ -719,6 +729,7 @@ public class UccPropertyConfiguration {
      * AI识别图片开关
      */
     private boolean aiDistinguishSwitch;
+
 
     /**
      * 设备AI识别图片场地开关
@@ -1867,5 +1878,21 @@ public class UccPropertyConfiguration {
 
     public void setPackConsumableSwitch(Integer packConsumableSwitch) {
         this.packConsumableSwitch = packConsumableSwitch;
+    }
+
+    public Integer getJyTaskPageMax() {
+        return jyTaskPageMax;
+    }
+
+    public void setJyTaskPageMax(Integer jyTaskPageMax) {
+        this.jyTaskPageMax = jyTaskPageMax;
+    }
+
+    public Integer getJyUnloadSingleWaybillThreshold() {
+        return jyUnloadSingleWaybillThreshold;
+    }
+
+    public void setJyUnloadSingleWaybillThreshold(Integer jyUnloadSingleWaybillThreshold) {
+        this.jyUnloadSingleWaybillThreshold = jyUnloadSingleWaybillThreshold;
     }
 }
