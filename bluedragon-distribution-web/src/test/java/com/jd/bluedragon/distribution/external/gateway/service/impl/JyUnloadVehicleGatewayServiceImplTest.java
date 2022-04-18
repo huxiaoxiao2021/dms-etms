@@ -108,4 +108,30 @@ public class JyUnloadVehicleGatewayServiceImplTest {
 
         unloadVehicleGatewayService.unloadDetail(secondProgress);
     }
+
+    @Test
+    public void previewDataTest() {
+        String json = "{\n" +
+                "    \"bizId\": \"SC22041800015039\",\n" +
+                "    \"currentOperate\": {\n" +
+                "        \"operateTime\": 1650274205808,\n" +
+                "        \"orgId\": 6,\n" +
+                "        \"orgName\": \"总公司\",\n" +
+                "        \"siteCode\": 910,\n" +
+                "        \"siteName\": \"北京马驹桥分拣中心6\"\n" +
+                "    },\n" +
+                "    \"pageNumber\": 1,\n" +
+                "    \"pageSize\": 20,\n" +
+                "    \"sealCarCode\": \"SC22041800015039\",\n" +
+                "    \"user\": {\n" +
+                "        \"userCode\": 17331,\n" +
+                "        \"userErp\": \"wuyoude\",\n" +
+                "        \"userName\": \"吴有德\"\n" +
+                "    },\n" +
+                "    \"vehicleNumber\": \"京F84846\"\n" +
+                "}";
+
+        unloadVehicleGatewayService.unloadPreviewDashboard(JsonHelper.fromJson(json, UnloadCommonRequest.class));
+
+    }
 }
