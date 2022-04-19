@@ -1336,7 +1336,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
     }
 
     /**
-     * 判断卸车任务是否正常。同时满足一下三个条件为正常
+     * 判断卸车任务是否正常。同时满足以下三个条件为正常
      * <ul>
      *     <li>待扫包裹数==0</li>
      *     <li>本场地多扫==0</li>
@@ -1350,6 +1350,8 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         long existToScanRows = 0;
         long existLocalMoreScanRows = 0;
         long existOutMoreScanRows = 0;
+        long moreScanOutCount = 0;
+        long moreScanLocalCount = 0;
         long interceptNotScanCount = 0;
         long interceptActualScanCount = 0;
         for (JyUnloadAggsEntity aggEntity : unloadAggList) {
@@ -1358,9 +1360,11 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
             }
             if (NumberHelper.gt0(aggEntity.getMoreScanLocalCount())) {
                 existLocalMoreScanRows ++;
+                moreScanLocalCount += aggEntity.getMoreScanLocalCount();
             }
             if (NumberHelper.gt0(aggEntity.getMoreScanOutCount())) {
                 existOutMoreScanRows ++;
+                moreScanOutCount += aggEntity.getMoreScanOutCount();
             }
             if (NumberHelper.gt0(aggEntity.getInterceptShouldScanCount())) {
                 interceptNotScanCount ++;
@@ -1378,8 +1382,8 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
             previewData.setTotalScan(oneUnloadAgg.getTotalScannedPackageCount().longValue());
             previewData.setInterceptNotScanCount(interceptNotScanCount);
             previewData.setInterceptActualScanCount(interceptActualScanCount);
-            previewData.setMoreScanLocalCount(existLocalMoreScanRows);
-            previewData.setMoreScanOutCount(existOutMoreScanRows);
+            previewData.setMoreScanLocalCount(moreScanLocalCount);
+            previewData.setMoreScanOutCount(moreScanOutCount);
             previewData.setShouldScanCount(dealMinus(oneUnloadAgg.getTotalSealPackageCount(), oneUnloadAgg.getTotalScannedPackageCount()));
             previewData.setAbnormalCount(previewData.getMoreScanLocalCount() + previewData.getMoreScanOutCount() + previewData.getShouldScanCount());
         }

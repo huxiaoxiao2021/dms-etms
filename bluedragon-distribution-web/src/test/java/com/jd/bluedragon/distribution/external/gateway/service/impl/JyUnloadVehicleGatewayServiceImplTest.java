@@ -112,9 +112,9 @@ public class JyUnloadVehicleGatewayServiceImplTest {
     @Test
     public void previewDataTest() {
         String json = "{\n" +
-                "    \"bizId\": \"SC22041800015039\",\n" +
+                "    \"bizId\": \"XCZJ22041800000002\",\n" +
                 "    \"currentOperate\": {\n" +
-                "        \"operateTime\": 1650274205808,\n" +
+                "        \"operateTime\": 1650349015029,\n" +
                 "        \"orgId\": 6,\n" +
                 "        \"orgName\": \"总公司\",\n" +
                 "        \"siteCode\": 910,\n" +
@@ -122,13 +122,13 @@ public class JyUnloadVehicleGatewayServiceImplTest {
                 "    },\n" +
                 "    \"pageNumber\": 1,\n" +
                 "    \"pageSize\": 20,\n" +
-                "    \"sealCarCode\": \"SC22041800015039\",\n" +
+                "    \"sealCarCode\": \"\",\n" +
                 "    \"user\": {\n" +
-                "        \"userCode\": 17331,\n" +
-                "        \"userErp\": \"wuyoude\",\n" +
-                "        \"userName\": \"吴有德\"\n" +
+                "        \"userCode\": 18225,\n" +
+                "        \"userErp\": \"xumigen\",\n" +
+                "        \"userName\": \"徐迷根\"\n" +
                 "    },\n" +
-                "    \"vehicleNumber\": \"京F84846\"\n" +
+                "    \"vehicleNumber\": \"京NEFQNEG\"\n" +
                 "}";
 
         unloadVehicleGatewayService.unloadPreviewDashboard(JsonHelper.fromJson(json, UnloadCommonRequest.class));
