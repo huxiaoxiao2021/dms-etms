@@ -229,8 +229,10 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         }
 
         for (JyBizTaskUnloadVehicleEntity entity : vehiclePageList) {
+            // 初始化基础字段
             VehicleBaseInfo vehicleBaseInfo = assembleVehicleBase(curQueryStatus, entity);
 
+            // 设置个性化字段
             switch (curQueryStatus) {
                 case WAIT_UN_LOAD:
                     ToUnloadVehicle toUnloadVehicle = (ToUnloadVehicle) vehicleBaseInfo;
@@ -302,6 +304,8 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         vehicleBaseInfo.setVehicleNumber(entity.getVehicleNumber());
         vehicleBaseInfo.setLineType(entity.getLineType());
         vehicleBaseInfo.setLineTypeName(entity.getLineTypeName());
+        vehicleBaseInfo.setStarSiteId(entity.getStartSiteId().intValue());
+        vehicleBaseInfo.setStartSiteName(entity.getStartSiteName());
 
         return vehicleBaseInfo;
     }
@@ -1248,6 +1252,9 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
             UnloadPreviewData previewData = new UnloadPreviewData();
             result.setData(previewData);
 
+            // 默认正常
+            previewData.setAbnormalFlag(Constants.NUMBER_ZERO.byteValue());
+
             List<JyUnloadAggsEntity> unloadAggList = unloadAggDao.queryByBizId(new JyUnloadAggsEntity(request.getBizId()));
             if (CollectionUtils.isEmpty(unloadAggList)) {
                 log.warn("判断卸车任务是否完成查询AGG为空.{}", JsonHelper.toJson(request));
@@ -1256,10 +1263,10 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
 
             // 判断卸车任务是否异常.
             Boolean unloadTaskNormal = judgeUnloadTaskNormal(previewData, unloadAggList);
+            previewData.setAbnormalFlag(unloadTaskNormal ? Constants.NUMBER_ZERO.byteValue() : Constants.CONSTANT_NUMBER_ONE);
 
             // 卸车任务正常，直接返回
             if (unloadTaskNormal) {
-                previewData.setAbnormalFlag(Constants.NUMBER_ZERO.byteValue());
                 return result;
             }
 
@@ -1343,6 +1350,8 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         long existToScanRows = 0;
         long existLocalMoreScanRows = 0;
         long existOutMoreScanRows = 0;
+        long interceptNotScanCount = 0;
+        long interceptActualScanCount = 0;
         for (JyUnloadAggsEntity aggEntity : unloadAggList) {
             if (!Objects.equals(aggEntity.getTotalScannedPackageCount(), aggEntity.getTotalSealPackageCount())) {
                 existToScanRows ++;
@@ -1353,6 +1362,12 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
             if (NumberHelper.gt0(aggEntity.getMoreScanOutCount())) {
                 existOutMoreScanRows ++;
             }
+            if (NumberHelper.gt0(aggEntity.getInterceptShouldScanCount())) {
+                interceptNotScanCount ++;
+            }
+            if (NumberHelper.gt0(aggEntity.getInterceptActualScanCount())) {
+                interceptActualScanCount ++;
+            }
         }
         boolean unloadDone = existToScanRows == 0 && existLocalMoreScanRows == 0 && existOutMoreScanRows == 0;
 
@@ -1361,6 +1376,8 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
 
         if (!unloadDone) {
             previewData.setTotalScan(oneUnloadAgg.getTotalScannedPackageCount().longValue());
+            previewData.setInterceptNotScanCount(interceptNotScanCount);
+            previewData.setInterceptActualScanCount(interceptActualScanCount);
             previewData.setMoreScanLocalCount(existLocalMoreScanRows);
             previewData.setMoreScanOutCount(existOutMoreScanRows);
             previewData.setShouldScanCount(dealMinus(oneUnloadAgg.getTotalSealPackageCount(), oneUnloadAgg.getTotalScannedPackageCount()));
@@ -1387,7 +1404,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         }
         if (NumberHelper.gt0(request.getAbnormalFlag())
                 && null == request.getShouldScanCount()
-                && null == request.getMoreScanCount()) {
+                && null == request.getMoreScanOutCount()) {
             invokeResult.parameterError("卸车任务异常时需要异常数量");
             return invokeResult;
         }
@@ -1397,7 +1414,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
             recordUnloadCompleteStatus(request);
 
             // 同步请求关闭卸车任务
-            invokeResult.setData(completeTask(request));
+            invokeResult.setData(this.completeTask(request));
         }
         catch (JyBizException bizException) {
             log.error("卸车完成关闭任务发生异常. {}", JsonHelper.toJson(request), bizException);
@@ -1417,12 +1434,38 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         completeDto.setBizId(request.getBizId());
         completeDto.setSealCarCode(request.getSealCarCode());
         completeDto.setAbnormalFlag(request.getAbnormalFlag());
-        completeDto.setMoreScanCount(request.getMoreScanCount());
+
+        // 设置多扫数量
+        completeDto.setMoreScanCount(this.calcRightMoreScanCount(request));
+
         completeDto.setShouldScanCount(request.getShouldScanCount());
         completeDto.setOperateTime(new Date());
         completeDto.setOperateUserErp(request.getUser().getUserErp());
         completeDto.setOperateUserName(request.getUser().getUserName());
         unloadTaskCompleteProducer.sendOnFailPersistent(completeDto.getBizId(), JsonHelper.toJson(completeDto));
+    }
+
+    /**
+     * 计算正确的多扫数量
+     * <ul>
+     *     <li>无任务卸车只有非本场地多扫</li>
+     *     <li>正常卸车任务包含非本场地多扫+本场地多扫</li>
+     * </ul>
+     * @param request
+     * @return
+     */
+    private Long calcRightMoreScanCount(UnloadCompleteRequest request) {
+        JyBizTaskUnloadVehicleEntity unloadTask = jyBizTaskUnloadVehicleService.findByBizId(request.getBizId());
+        // 无任务模式，只统计非本场地多扫
+        if (unloadTask != null && unloadTask.unloadWithoutTask()) {
+            return request.getMoreScanOutCount();
+        }
+        else {
+            if (NumberHelper.isPositiveNumber(request.getMoreScanLocalCount()) && NumberHelper.isPositiveNumber(request.getMoreScanOutCount())) {
+                return request.getMoreScanLocalCount() + request.getMoreScanOutCount();
+            }
+        }
+        return 0L;
     }
 
     private boolean completeTask(UnloadCompleteRequest request) {
