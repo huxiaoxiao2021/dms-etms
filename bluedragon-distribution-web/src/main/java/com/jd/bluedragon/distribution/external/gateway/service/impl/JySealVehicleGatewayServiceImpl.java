@@ -11,7 +11,7 @@ import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.SealTask
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.SealVehicleTaskResponse;
 import com.jd.bluedragon.common.dto.select.SelectOption;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.seal.service.IJySealVehicleService;
+import com.jd.bluedragon.distribution.jy.service.unseal.IJyUnSealVehicleService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.external.gateway.service.JySealVehicleGatewayService;
 import com.jd.bluedragon.utils.NumberHelper;
@@ -39,7 +39,7 @@ public class JySealVehicleGatewayServiceImpl implements JySealVehicleGatewayServ
     private static final Logger log = LoggerFactory.getLogger(JySealVehicleGatewayServiceImpl.class);
 
     @Autowired
-    private IJySealVehicleService jySealVehicleService;
+    private IJyUnSealVehicleService jyUnSealVehicleService;
 
     @Override
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JySealVehicleGatewayService.fetchSealTask", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
@@ -52,7 +52,7 @@ public class JySealVehicleGatewayServiceImpl implements JySealVehicleGatewayServ
             return response;
         }
 
-        InvokeResult<SealVehicleTaskResponse> invokeResult = jySealVehicleService.fetchSealTask(request);
+        InvokeResult<SealVehicleTaskResponse> invokeResult = jyUnSealVehicleService.fetchSealTask(request);
         return new JdCResponse<>(invokeResult.getCode(), invokeResult.getMessage(), invokeResult.getData());
     }
 
@@ -96,7 +96,7 @@ public class JySealVehicleGatewayServiceImpl implements JySealVehicleGatewayServ
         JdCResponse<SealTaskInfo> response = new JdCResponse<>();
         response.toSucceed();
 
-        InvokeResult<SealTaskInfo> invokeResult = jySealVehicleService.taskInfo(request);
+        InvokeResult<SealTaskInfo> invokeResult = jyUnSealVehicleService.taskInfo(request);
         return new JdCResponse<>(invokeResult.getCode(), invokeResult.getMessage(), invokeResult.getData());
     }
 
@@ -126,7 +126,7 @@ public class JySealVehicleGatewayServiceImpl implements JySealVehicleGatewayServ
             response.toFail("缺少封车编码");
             return response;
         }
-        InvokeResult<SealCodeResponse> invokeResult = jySealVehicleService.sealCodeList(request);
+        InvokeResult<SealCodeResponse> invokeResult = jyUnSealVehicleService.sealCodeList(request);
         return new JdCResponse<>(invokeResult.getCode(), invokeResult.getMessage(), invokeResult.getData());
     }
 }

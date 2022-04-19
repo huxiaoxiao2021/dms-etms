@@ -1,4 +1,4 @@
-package com.jd.bluedragon.core.base;
+package com.jd.bluedragon.distribution.jy.manager;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.request.SealTaskInfoRequest;
@@ -24,15 +24,15 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 /**
- * @ClassName JySealVehicleManagerImpl
+ * @ClassName JyUnSealVehicleManagerImpl
  * @Description
  * @Author wyh
  * @Date 2022/3/9 19:49
  **/
-@Service("jySealVehicleManager")
-public class JySealVehicleManagerImpl implements IJySealVehicleManager {
+@Service("jyUnSealVehicleManager")
+public class JyUnSealVehicleManagerImpl implements IJyUnSealVehicleManager {
 
-    private static final Logger log = LoggerFactory.getLogger(JySealVehicleManagerImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(JyUnSealVehicleManagerImpl.class);
 
     @Autowired
     @Qualifier("jySealVehicleService")

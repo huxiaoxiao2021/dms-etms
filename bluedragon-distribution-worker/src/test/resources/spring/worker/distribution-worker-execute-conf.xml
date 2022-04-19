@@ -23,28 +23,18 @@
 
 	<!-- JMQ 任务-->
 
+<!--
 	<import resource="classpath:spring/worker/jmq/distribution-worker-asynBuffer-comsumer-dms-important.xml" />
+-->
 
-
+	<bean id="simpleTaskProcessorJMQRouter"
+		  class="com.jd.ql.framework.asynBuffer.comsumer.SimpleTaskProcessorJMQRouter">
+		<constructor-arg name="mapping">
+			<map></map>
+		</constructor-arg>
+	</bean>
 	<!-- 特殊业务 -->
 	<!--<import resource="classpath:spring/worker/db/distribution-worker-task-special.xml" />-->
 
-	<!--<bean id="waybillStatusTask"
-		  class="com.jd.bluedragon.distribution.worker.waybill.WaybillStatusTask"
-		  init-method="init" lazy-init="false" depends-on="managerFactory">
-		<property name="dataSource" ref="taskDataSource"/>
-		<property name="taskType" value="WaybillStatusTaskN"/>
-		<property name="managerFactory" ref="managerFactory"/>
-		<property name="ownSign" value="${ownSign}"/>
-	</bean>-->
-
-	<bean id="sortingSplitTask"
-		  class="com.jd.bluedragon.distribution.worker.sorting.SortingSplitTask"
-		  init-method="init" depends-on="managerFactory">
-		<property name="dataSource" ref="taskDataSource"/>
-		<property name="taskType" value="SortingSplitTaskN"/>
-		<property name="ownSign" value="${ownSign}"/>
-		<property name="type" value="1260"/>
-	</bean>
 
 </beans>

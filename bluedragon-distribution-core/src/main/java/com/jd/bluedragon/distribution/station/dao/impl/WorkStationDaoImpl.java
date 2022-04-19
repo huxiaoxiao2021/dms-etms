@@ -58,7 +58,13 @@ public class WorkStationDaoImpl extends BaseDao<WorkStation> implements WorkStat
 	@Override
 	public WorkStation queryByBusinessKey(WorkStation data) {
 		return this.getSqlSession().selectOne(NAMESPACE+".queryByBusinessKey",data);
-	}	
+	}
+
+	@Override
+	public WorkStation queryByRealBusinessKey(String businessKey) {
+		return this.getSqlSession().selectOne(NAMESPACE+".queryByRealBusinessKey", businessKey);
+	}
+
 	/**
 	 * 按条件分页查询
 	 * @param query
