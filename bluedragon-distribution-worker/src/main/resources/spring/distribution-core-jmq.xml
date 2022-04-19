@@ -613,4 +613,13 @@
         <property name="timeout" value="1000" />
     </bean>
 
+    <bean id="miniStoreSealBoxProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.ministore.bind.relation}"/>
+        <property name="timeout" value="1000"/>
+    </bean>
+
+    <bean id="miniStoreSortProcessProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.ministore.sorting.process}"/>
+        <property name="timeout" value="1000"/>
+    </bean>
 </beans>

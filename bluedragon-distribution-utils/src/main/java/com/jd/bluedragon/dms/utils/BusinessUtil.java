@@ -104,6 +104,27 @@ public class BusinessUtil {
         }
         return isMatchBoxCode(s);
     }
+    public static Boolean isStoreCode(String s) {
+        if (StringUtils.isEmpty(s)) {
+            return Boolean.FALSE;
+        }
+        return isMatchStoreCode(s);
+    }
+
+    private static Boolean isMatchStoreCode(String s) {
+        return  BIG_WARM_BOX_CODE_REGEX.matcher(s.toUpperCase().trim()).matches();
+    }
+
+    public static Boolean isIceBoardCode(String s) {
+        if (StringUtils.isEmpty(s)) {
+            return Boolean.FALSE;
+        }
+        return isMatchIceBoardCode(s);
+    }
+
+    private static Boolean isMatchIceBoardCode(String s) {
+        return  DmsConstants.ICE_BOARD_BOX_CODE_REGEX.matcher(s.trim().toUpperCase()).matches();
+    }
 
     /**
      * 判断是否为箱号
@@ -1579,7 +1600,8 @@ public class BusinessUtil {
         if (StringUtils.isEmpty(boxCode)) {
             return Boolean.FALSE;
         }
-        return DmsConstants.WARM_BOX_CODE_REGEX.matcher(boxCode.toUpperCase().trim()).matches();
+        return DmsConstants.WARM_BOX_CODE_REGEX.matcher(boxCode.toUpperCase().trim()).matches() ||
+                BIG_WARM_BOX_CODE_REGEX.matcher(boxCode.toUpperCase().trim()).matches();
     }
 
     /**
@@ -2336,26 +2358,7 @@ public class BusinessUtil {
             return false;
         }
 
-        Matcher curVersionMatcher = APP_VERSION_REGEX.matcher(appVersion);
-        Matcher newestVersionMatcher = APP_VERSION_REGEX.matcher(newestVersion);
-        if (!curVersionMatcher.matches() || !newestVersionMatcher.matches()) {
-            return false;
-        }
-
-        String[] versionArr = appVersion.split("\\.");
-        String[] newestVerArr = newestVersion.split("\\.");
-
-        int minDigit = Math.min(versionArr.length, newestVerArr.length);
-
-        for (int i = 0; i < minDigit; i++) {
-            if (Integer.parseInt(versionArr[i]) < Integer.parseInt(newestVerArr[i])) {
-                return true;
-            }
-            else if (Integer.parseInt(versionArr[i]) > Integer.parseInt(newestVerArr[i])){
-                return false;
-            }
-        }
-
-        return versionArr.length < newestVerArr.length;
+    public static void main(String[] args) {
+        System.out.println(BIG_WARM_BOX_CODE_REGEX.matcher("WCDX1234567890").matches());
     }
 }
