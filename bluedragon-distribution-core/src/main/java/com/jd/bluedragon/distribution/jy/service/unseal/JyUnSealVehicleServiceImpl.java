@@ -136,6 +136,7 @@ public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
     public InvokeResult<SealVehicleTaskResponse> fetchSealTask(SealVehicleTaskRequest request) {
         InvokeResult<SealVehicleTaskResponse> result = new InvokeResult<>();
 
+        // TODO 根据封签号从运输获得封车编码，查unload_task查不到时，兜底查运输数据。
         SealVehicleTaskQuery query = assembleCommandCondition(request);
         if (isSearch(request)) {
             if (BusinessUtil.isSealBoxNo(request.getBarCode())) {

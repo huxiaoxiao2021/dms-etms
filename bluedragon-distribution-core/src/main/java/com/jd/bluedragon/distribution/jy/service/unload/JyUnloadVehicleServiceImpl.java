@@ -229,8 +229,10 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         }
 
         for (JyBizTaskUnloadVehicleEntity entity : vehiclePageList) {
+            // 初始化基础字段
             VehicleBaseInfo vehicleBaseInfo = assembleVehicleBase(curQueryStatus, entity);
 
+            // 设置个性化字段
             switch (curQueryStatus) {
                 case WAIT_UN_LOAD:
                     ToUnloadVehicle toUnloadVehicle = (ToUnloadVehicle) vehicleBaseInfo;
@@ -302,6 +304,8 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         vehicleBaseInfo.setVehicleNumber(entity.getVehicleNumber());
         vehicleBaseInfo.setLineType(entity.getLineType());
         vehicleBaseInfo.setLineTypeName(entity.getLineTypeName());
+        vehicleBaseInfo.setStarSiteId(entity.getStartSiteId().intValue());
+        vehicleBaseInfo.setStartSiteName(entity.getStartSiteName());
 
         return vehicleBaseInfo;
     }
