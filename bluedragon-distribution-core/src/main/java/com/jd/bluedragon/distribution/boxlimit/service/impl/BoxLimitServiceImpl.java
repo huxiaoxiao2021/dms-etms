@@ -308,21 +308,19 @@ public class BoxLimitServiceImpl implements BoxLimitService {
     }
 
     @Override
-    @Cache(key = "BoxLimitServiceImpl.getLimitNums@args0@args1", memoryEnable = true, memoryExpiredTime = 2 * 60 * 1000)
-    public void getLimitNums( Integer createSiteCode, String type,Integer maxNum,List<Integer> limitNums){
+    @Cache(key = "BoxLimitServiceImpl.getLimitNums@args0@args1", memoryEnable = true, memoryExpiredTime = 2 * 60 * 1000
+            ,redisEnable = true, redisExpiredTime = 2 * 60 * 1000)
+    public Integer getLimitNums( Integer createSiteCode, String type){
         Integer limitNum = this.queryLimitNumBySiteIdAndBoxNumberType(createSiteCode, type);
-        log.info("分拣数量限制拦截 createSiteCode:{}, type:{},maxNum:{}", createSiteCode, type, maxNum);
+        log.info("分拣数量限制拦截 createSiteCode:{}, type:{}", createSiteCode, type);
         if (limitNum != null) {
-            limitNums.add(limitNum);
-        } else {
-            Integer commonLimitNum = this.queryCommonLimitNum(type);
-            log.info("分拣集包通用数量限制 箱号类型{}， 限制数量 {} ",type,commonLimitNum);
-            if(commonLimitNum != null){
-                limitNums.add(commonLimitNum);
-            }else {
-                limitNums.add(maxNum);
-            }
+            return limitNum;
         }
-        log.info("limitNums ---",JSON.toJSONString(limitNums));
+        Integer commonLimitNum = this.queryCommonLimitNum(type);
+        log.info("分拣集包通用数量限制 箱号类型{}， 限制数量 {} ",type,commonLimitNum);
+        if(commonLimitNum != null){
+            return commonLimitNum;
+        }
+        return null;
     }
 }

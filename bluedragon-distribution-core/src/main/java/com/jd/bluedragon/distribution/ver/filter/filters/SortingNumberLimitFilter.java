@@ -72,12 +72,17 @@ public class SortingNumberLimitFilter implements Filter {
                     //校验开关是否开启
                     NumberLimitConfig siteCheckConfig = this.getSwitchStatus(CONFIG_SITE_PACKAGE_NUM_CHECK);
                     if (siteCheckConfig != null && Boolean.TRUE.equals(siteCheckConfig.getIsOpen())) {
-                        boxLimitService.getLimitNums(request.getCreateSiteCode(),request.getBox().getType()
-                                ,siteCheckConfig.getMaxNum(),limitNums);
+                        Integer configNum = boxLimitService.getLimitNums(request.getCreateSiteCode(), request.getBox().getType());
+                        logger.info("分拣数量限制拦截 createSiteCode:{},queryLimitNumBySiteId:{},sysConfigNum:{}", request.getCreateSiteCode(), configNum, siteCheckConfig.getMaxNum());
+                        if (configNum != null) {
+                            limitNums.add(configNum);
+                        } else {
+                            limitNums.add(siteCheckConfig.getMaxNum());
+                        }
                     }
                 }
         	}
-            logger.info("limitNums ---", JSON.toJSONString(limitNums));
+            logger.info("limitNums ---{}", JSON.toJSONString(limitNums));
             //校验开关是否开启
             NumberLimitConfig config =this.getSwitchStatus(CONFIG_SEND_PACKAGE_NUM_CHECK);
             if(config != null && Boolean.TRUE.equals(config.getIsOpen())) {
@@ -110,7 +115,6 @@ public class SortingNumberLimitFilter implements Filter {
      * @throws SortingCheckException
      */
     private void limitNumCheck(int hasSorting,int currentSorting,int limitNum ,String boxCode) throws SortingCheckException {
-        logger.info("分拣数量限制拦截 hasSorting:{},currentSorting:{},limitNum:{}, boxCode{}", hasSorting, currentSorting, limitNum,boxCode);
     	if(currentSorting > limitNum) {
             //当前分拣数量大于限制数量，提示按包裹分拣
             throw new SortingCheckException(SortingResponse.CODE_29417, MessageFormat.format(SortingResponse.MESSAGE_29417_WAYBILL,limitNum,boxCode));

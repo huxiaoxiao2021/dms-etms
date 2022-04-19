@@ -68,6 +68,6 @@ public interface BoxLimitService {
      */
     JdResponse<List<String>> getBoxTypeList();
 
-    void getLimitNums( Integer createSiteCode, String type,Integer maxNum,List<Integer> limitNums);
+    Integer getLimitNums( Integer createSiteCode, String type);
 
     }
