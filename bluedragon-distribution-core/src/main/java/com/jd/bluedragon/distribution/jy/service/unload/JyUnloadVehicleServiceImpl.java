@@ -1384,8 +1384,8 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
             previewData.setInterceptActualScanCount(interceptActualScanCount);
             previewData.setMoreScanLocalCount(moreScanLocalCount);
             previewData.setMoreScanOutCount(moreScanOutCount);
-            previewData.setShouldScanCount(dealMinus(oneUnloadAgg.getTotalSealPackageCount(), oneUnloadAgg.getTotalScannedPackageCount()));
-            previewData.setAbnormalCount(previewData.getMoreScanLocalCount() + previewData.getMoreScanOutCount() + previewData.getShouldScanCount());
+            previewData.setToScanCount(dealMinus(oneUnloadAgg.getTotalSealPackageCount(), oneUnloadAgg.getTotalScannedPackageCount()));
+            previewData.setAbnormalCount(previewData.getMoreScanLocalCount() + previewData.getMoreScanOutCount() + previewData.getToScanCount());
         }
 
         return unloadDone;
@@ -1407,7 +1407,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
             return invokeResult;
         }
         if (NumberHelper.gt0(request.getAbnormalFlag())
-                && null == request.getShouldScanCount()
+                && null == request.getToScanCount()
                 && null == request.getMoreScanOutCount()) {
             invokeResult.parameterError("卸车任务异常时需要异常数量");
             return invokeResult;
@@ -1442,7 +1442,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         // 设置多扫数量
         completeDto.setMoreScanCount(this.calcRightMoreScanCount(request));
 
-        completeDto.setShouldScanCount(request.getShouldScanCount());
+        completeDto.setToScanCount(request.getToScanCount());
         completeDto.setOperateTime(new Date());
         completeDto.setOperateUserErp(request.getUser().getUserErp());
         completeDto.setOperateUserName(request.getUser().getUserName());
