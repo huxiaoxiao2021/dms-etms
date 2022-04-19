@@ -1384,8 +1384,8 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
             previewData.setInterceptActualScanCount(interceptActualScanCount);
             previewData.setMoreScanLocalCount(moreScanLocalCount);
             previewData.setMoreScanOutCount(moreScanOutCount);
-            previewData.setShouldScanCount(dealMinus(oneUnloadAgg.getTotalSealPackageCount(), oneUnloadAgg.getTotalScannedPackageCount()));
-            previewData.setAbnormalCount(previewData.getMoreScanLocalCount() + previewData.getMoreScanOutCount() + previewData.getShouldScanCount());
+            previewData.setToScanCount(dealMinus(oneUnloadAgg.getTotalSealPackageCount(), oneUnloadAgg.getTotalScannedPackageCount()));
+            previewData.setAbnormalCount(previewData.getMoreScanLocalCount() + previewData.getMoreScanOutCount() + previewData.getToScanCount());
         }
 
         return unloadDone;

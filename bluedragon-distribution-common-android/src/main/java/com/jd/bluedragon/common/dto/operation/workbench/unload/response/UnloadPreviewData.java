@@ -41,7 +41,7 @@ public class UnloadPreviewData implements Serializable {
     /**
      * 待扫描数量
      */
-    private Long shouldScanCount;
+    private Long toScanCount;
 
     /**
      * 本场地多扫数量
@@ -98,12 +98,12 @@ public class UnloadPreviewData implements Serializable {
         this.interceptNotScanCount = interceptNotScanCount;
     }
 
-    public Long getShouldScanCount() {
-        return shouldScanCount;
+    public Long getToScanCount() {
+        return toScanCount;
     }
 
-    public void setShouldScanCount(Long shouldScanCount) {
-        this.shouldScanCount = shouldScanCount;
+    public void setToScanCount(Long toScanCount) {
+        this.toScanCount = toScanCount;
     }
 
     public Long getMoreScanLocalCount() {
