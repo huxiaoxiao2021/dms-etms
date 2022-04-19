@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.station.service.impl;
 
+import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -16,8 +17,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.group.GroupMemberData;
+import com.jd.bluedragon.common.dto.group.GroupMemberRequest;
 import com.jd.bluedragon.common.dto.station.UserSignQueryRequest;
 import com.jd.bluedragon.common.dto.station.UserSignRecordData;
 import com.jd.bluedragon.common.dto.station.UserSignRequest;
@@ -25,6 +27,7 @@ import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
+import com.jd.bluedragon.distribution.jy.service.group.JyGroupMemberService;
 import com.jd.bluedragon.distribution.position.domain.PositionDetailRecord;
 import com.jd.bluedragon.distribution.position.service.PositionRecordService;
 import com.jd.bluedragon.distribution.station.dao.UserSignRecordDao;
@@ -92,6 +95,9 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	
 	@Autowired
 	private PositionRecordService positionRecordService;
+	@Autowired
+	@Qualifier("jyGroupMemberService")
+	private JyGroupMemberService jyGroupMemberService;
 	
 	@Autowired
 	private BaseMajorManager baseMajorManager;
@@ -546,6 +552,12 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	}
 	@Override
 	public JdCResponse<UserSignRecordData> signInWithPosition(UserSignRequest signInRequest) {
+		UserSignContext context = new UserSignContext();
+		context.userSignRequest = signInRequest;
+		return this.doSignIn(context);
+	}
+	public JdCResponse<UserSignRecordData> doSignIn(UserSignContext context) {
+		UserSignRequest signInRequest = context.userSignRequest;		
 		JdCResponse<UserSignRecordData> result = checkAndFillUserInfo(signInRequest);
 		if(!result.isSucceed()) {
 			return result;
@@ -573,10 +585,13 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
         	signOutRequest.setUpdateUser(signInRequest.getOperateUserCode());
         	signOutRequest.setUpdateUserName(signInRequest.getOperateUserName());
     		this.doSignOut(signOutRequest);
+    		context.signOutData = this.toUserSignRecordData(lastSignRecord);
 		}
         if(this.doSignIn(signInData)) {
         	result.setData(this.toUserSignRecordData(signInData));
-        	result.toSucceed("签到成功！"); 
+        	result.toSucceed("签到成功！");
+        	context.signInData = result.getData();
+        	context.signInFlag = true;
         }else {
         	result.toFail("签到失败！");
         }
@@ -584,6 +599,12 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	}
 	@Override
 	public JdCResponse<UserSignRecordData> signOutWithPosition(UserSignRequest signOutRequest) {
+		UserSignContext context = new UserSignContext();
+		context.userSignRequest = signOutRequest;
+		return this.doSignOut(context);
+	}
+	public JdCResponse<UserSignRecordData> doSignOut(UserSignContext context) {
+		UserSignRequest signOutRequest = context.userSignRequest;
 		JdCResponse<UserSignRecordData> result = checkAndFillUserInfo(signOutRequest);
 		if(!result.isSucceed()) {
 			return result;
@@ -608,6 +629,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
         if(this.doSignOut(signOutData)) {
         	result.setData(this.queryUserSignRecordDataById(signOutData.getId()));
         	result.toSucceed("签退成功！"); 
+        	context.signOutData = result.getData();
         }else {
         	result.toFail("签退失败！");
         }
@@ -615,6 +637,12 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	}
 	@Override
 	public JdCResponse<UserSignRecordData> signAuto(UserSignRequest userSignRequest) {
+		UserSignContext context = new UserSignContext();
+		context.userSignRequest = userSignRequest;
+		return this.doSignAuto(context);
+	}
+	public JdCResponse<UserSignRecordData> doSignAuto(UserSignContext context) {
+		UserSignRequest userSignRequest = context.getUserSignRequest();
 		JdCResponse<UserSignRecordData> result = checkAndFillUserInfo(userSignRequest);
 		if(!result.isSucceed()) {
 			return result;
@@ -661,13 +689,18 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
             if(!needSignIn) {
             	result.setData(this.queryUserSignRecordDataById(signOutData.getId()));
                 result.toSucceed("签退成功！");
+                context.signOutData = result.getData();
         		return result;
+            }else {
+            	context.signOutData = this.toUserSignRecordData(lastSignRecord);
             }
         }
 
         if(this.doSignIn(signInData)) {
         	result.setData(this.toUserSignRecordData(signInData));
-        	result.toSucceed("签到成功！"); 
+        	result.toSucceed("签到成功！");
+        	context.signInData = result.getData();
+        	context.signInFlag = true;
         }else {
         	result.toFail("签到失败！");
         }
@@ -881,5 +914,150 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	}
 	private UserSignRecordData queryUserSignRecordDataById(Long id) {
 		return fillOtherInfo(userSignRecordDao.queryUserSignRecordDataById(id),new Date());
+	}
+	@Override
+	public List<UserSignRecordData> queryUserSignRecordDataByIds(List<Long> idList) {
+		List<UserSignRecordData> dataList = userSignRecordDao.queryUserSignRecordDataByIds(idList);
+		if(!CollectionUtils.isEmpty(dataList)) {
+			Date currentDate = new Date();
+		    for(UserSignRecordData data: dataList) {
+		    	fillOtherInfo(data,currentDate);
+		    }
+		}
+		return dataList;
+	}
+	@Override
+	public List<UserSignRecord> queryUnSignOutListWithPosition(UserSignQueryRequest query) {
+		return userSignRecordDao.queryUnSignOutListWithPosition(query);
+	}
+	@Override
+	public JdCResponse<UserSignRecordData> signInWithGroup(UserSignRequest signInRequest) {
+		UserSignContext context = new UserSignContext();
+		context.userSignRequest = signInRequest;
+		JdCResponse<UserSignRecordData> result = this.doSignIn(context);
+		if(!result.isSucceed()) {
+			return result;
+		}
+		this.addOrRemoveMember(context);
+		result.getData().setGroupData(context.groupData);
+		return result;
+	}
+	@Override
+	public JdCResponse<UserSignRecordData> signOutWithGroup(UserSignRequest signOutRequest) {
+		UserSignContext context = new UserSignContext();
+		context.userSignRequest = signOutRequest;
+		JdCResponse<UserSignRecordData> result = this.doSignOut(context);
+		if(!result.isSucceed()) {
+			return result;
+		}
+		this.addOrRemoveMember(context);
+		result.getData().setGroupData(context.groupData);
+		return result;
+	}
+	@Override
+	public JdCResponse<UserSignRecordData> signAutoWithGroup(UserSignRequest userSignRequest) {
+		UserSignContext context = new UserSignContext();
+		context.userSignRequest = userSignRequest;
+		JdCResponse<UserSignRecordData> result = this.doSignAuto(context);
+		if(!result.isSucceed()) {
+			return result;
+		}
+		this.addOrRemoveMember(context);
+		result.getData().setGroupData(context.groupData);
+		return result;
+	}
+	/**
+	 * 添加|剔除组员
+	 * @param context
+	 * @return
+	 */
+	private void addOrRemoveMember(UserSignContext context){
+		if(context.signOutData != null) {
+			GroupMemberRequest removeMemberRequest = new GroupMemberRequest();
+			removeMemberRequest.setSignRecordId(context.signOutData.getId());
+			removeMemberRequest.setOperateUserCode(context.userSignRequest.getOperateUserCode());
+			removeMemberRequest.setOperateUserName(context.userSignRequest.getOperateUserName());
+			JdCResponse<GroupMemberData> removeMemberResult = jyGroupMemberService.removeMember(removeMemberRequest);
+			//签退设置-组
+			if(removeMemberResult.isSucceed() && !context.signInFlag) {
+				context.groupData = removeMemberResult.getData();
+			}
+		}
+		if(context.signInData != null) {
+			GroupMemberRequest addMemberRequest = new GroupMemberRequest();
+			addMemberRequest.setSignRecordId(context.signInData.getId());
+			addMemberRequest.setPositionCode(context.userSignRequest.getPositionCode());
+			addMemberRequest.setJobCode(context.signInData.getJobCode());
+			addMemberRequest.setUserCode(context.signInData.getUserCode());
+			addMemberRequest.setUserName(context.signInData.getUserName());
+			addMemberRequest.setOrgCode(context.signInData.getOrgCode());
+			addMemberRequest.setSiteCode(context.signInData.getSiteCode());
+			addMemberRequest.setOperateUserCode(context.userSignRequest.getOperateUserCode());
+			addMemberRequest.setOperateUserName(context.userSignRequest.getOperateUserName());
+			JdCResponse<GroupMemberData> addMemberResult = jyGroupMemberService.addMember(addMemberRequest);	
+			//签到设置-组
+			if(addMemberResult.isSucceed() && context.signInFlag) {
+				context.groupData = addMemberResult.getData();
+			}
+		}
+	}
+	/**
+	 * 签到处理上下文
+	 * @author wuyoude
+	 *
+	 */
+	private class UserSignContext implements Serializable {
+		private static final long serialVersionUID = 1L;
+		/**
+		 * 请求体
+		 */
+		UserSignRequest userSignRequest;
+		/**
+		 * 签到数据
+		 */
+		UserSignRecordData signInData;
+		/**
+		 * 签退数据
+		 */
+		UserSignRecordData signOutData;
+		/**
+		 * 签到标识
+		 */
+		boolean signInFlag;
+		/**
+		 * 组信息
+		 */
+		GroupMemberData groupData;
+		
+		public UserSignRequest getUserSignRequest() {
+			return userSignRequest;
+		}
+		public void setUserSignRequest(UserSignRequest userSignRequest) {
+			this.userSignRequest = userSignRequest;
+		}
+		public UserSignRecordData getSignInData() {
+			return signInData;
+		}
+		public void setSignInData(UserSignRecordData signInData) {
+			this.signInData = signInData;
+		}
+		public UserSignRecordData getSignOutData() {
+			return signOutData;
+		}
+		public void setSignOutData(UserSignRecordData signOutData) {
+			this.signOutData = signOutData;
+		}
+		public boolean isSignInFlag() {
+			return signInFlag;
+		}
+		public void setSignInFlag(boolean signInFlag) {
+			this.signInFlag = signInFlag;
+		}
+		public GroupMemberData getGroupData() {
+			return groupData;
+		}
+		public void setGroupData(GroupMemberData groupData) {
+			this.groupData = groupData;
+		}
 	}
 }

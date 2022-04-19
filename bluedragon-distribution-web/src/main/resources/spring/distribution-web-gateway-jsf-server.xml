@@ -455,4 +455,18 @@
                   alias="${dms.gateway.jsf.alias}"
                   ref="jySealVehicleGatewayServiceImpl"
                   server="dmsjsf" />
+
+    <!--  拣运卸车服务  -->
+    <bean id="jyUnloadVehicleGatewayServiceImpl" class="com.jd.bluedragon.distribution.external.gateway.service.impl.JyUnloadVehicleGatewayServiceImpl" />
+    <jsf:provider id="jsfJyUnloadVehicleGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.JyUnloadVehicleGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="jyUnloadVehicleGatewayServiceImpl"
+                  server="dmsjsf" />
+    <!-- 小组成员网关服务   -->
+    <jsf:provider id="groupMemberGatewayServiceServer"
+                  interface="com.jd.bluedragon.distribution.jy.gateway.group.GroupMemberGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="groupMemberGatewayService"
+                  server="dmsjsf" />                 
 </beans>

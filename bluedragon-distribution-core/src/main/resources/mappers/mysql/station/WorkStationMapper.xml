@@ -223,6 +223,16 @@
 		order by id desc limit 1
 	</select>
 
+	<select id="queryByRealBusinessKey" parameterType="String" resultMap="WorkStation">
+		select
+			<include refid="Base_Column_List"/>
+		from
+			work_station
+		where yn = 1
+		and business_key = #{businessKey,jdbcType=VARCHAR}
+		limit 1
+	</select>
+
 	<select id="queryList" parameterType="com.jd.bluedragon.distribution.station.query.WorkStationQuery" resultMap="WorkStation">
 		select
 			<include refid="Base_Column_List"/>

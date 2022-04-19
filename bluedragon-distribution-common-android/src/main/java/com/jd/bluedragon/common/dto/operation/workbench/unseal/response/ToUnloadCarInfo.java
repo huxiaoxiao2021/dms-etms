@@ -25,4 +25,14 @@ public class ToUnloadCarInfo extends VehicleBaseInfo implements Serializable {
     public void setDeSealCarTime(Date deSealCarTime) {
         this.deSealCarTime = deSealCarTime;
     }
+
+    private Boolean _active;
+
+    public Boolean get_active() {
+        return _active;
+    }
+
+    public void set_active(Boolean _active) {
+        this._active = _active;
+    }
 }

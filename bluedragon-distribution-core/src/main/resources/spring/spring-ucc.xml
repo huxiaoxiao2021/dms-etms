@@ -163,6 +163,9 @@
 		<property name="packConsumableSwitch" value="${packConsumableSwitch:0}"/>
 		<property name="sealTaskHystrixProps" value="${sealTaskHystrixProps: ''}"/>
 		<property name="sealTaskForceFallback" value="${sealTaskForceFallback: 0}"/>
+		<property name="jyTaskPageMax" value="${jyTaskPageMax: 200}"/>
+		<property name="jyUnloadSingleWaybillThreshold" value="${jyUnloadSingleWaybillThreshold:20}"/>
+
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -306,6 +309,9 @@
 				<value>uccPropertyConfiguration.packConsumableSwitch</value>
                 <value>uccPropertyConfiguration.sealTaskHystrixProps</value>
                 <value>uccPropertyConfiguration.sealTaskForceFallback</value>
+                <value>uccPropertyConfiguration.jyUnloadSingleWaybillThreshold</value>
+				<value>uccPropertyConfiguration.jyTaskPageMax</value>
+				<value>uccPropertyConfiguration.checkBoxSendedSwitchOn</value>
 
                 <value>hystrixRouteUccPropertyConfiguration.executionTimeoutInMilliseconds</value>
                 <value>hystrixRouteUccPropertyConfiguration.circuitBreakerEnabled</value>

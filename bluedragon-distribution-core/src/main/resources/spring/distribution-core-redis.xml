@@ -24,6 +24,11 @@
        <!--<property name="configId" value="${redis.cache.config.id}"/>-->
        <property name="jimUrl" value="${redis.cache.config.url}"/>
     </bean>
+	<bean id="redisClientOfJy"  class="com.jd.jim.cli.ReloadableJimClientFactoryBean">
+		<!--<property name="configClient" ref="configClient"/>-->
+		<!--<property name="configId" value="${redis.cache.config.id}"/>-->
+		<property name="jimUrl" value="${redis.jy.config.url}"/>
+	</bean>
 	
 	<!-- 静态配置 -->
 	<!-- bean id="redisClient" class="com.jd.cachecloud.client.StaticRedisClientFactoryBean">

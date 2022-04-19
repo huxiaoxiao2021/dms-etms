@@ -1,4 +1,4 @@
-package com.jd.bluedragon.core.base;
+package com.jd.bluedragon.distribution.jy.manager;
 
 
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.request.SealTaskInfoRequest;
@@ -8,12 +8,12 @@ import com.jdl.jy.realtime.model.query.seal.SealVehicleTaskQuery;
 import com.jdl.jy.realtime.model.vo.seal.SealVehicleTaskResponse;
 
 /**
- * @ClassName IJySealVehicleManager
+ * @ClassName IJyUnSealVehicleManager
  * @Description
  * @Author wyh
  * @Date 2022/3/9 18:48
  **/
-public interface IJySealVehicleManager {
+public interface IJyUnSealVehicleManager {
 
     /**
      * 查询封车任务
