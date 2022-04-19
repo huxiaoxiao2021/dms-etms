@@ -10,7 +10,8 @@ public enum ReportTypeEnum {
     PACKAGE_CODE(1,"包裹号"),
     WAYBILL_CODE(2, "运单号"),
     BOX_CODE(3, "箱号"),
-    BATCH_NO(4, "批次号");
+    BATCH_NO(4, "批次号"),
+    BOARD_NO(5, "板号");
 
     private Integer code;
 

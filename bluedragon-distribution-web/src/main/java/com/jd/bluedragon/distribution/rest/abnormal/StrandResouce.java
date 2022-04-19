@@ -1,7 +1,9 @@
 package com.jd.bluedragon.distribution.rest.abnormal;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.strandreport.request.ConfigStrandReasonData;
+import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.distribution.abnormal.domain.ReportTypeEnum;
 import com.jd.bluedragon.distribution.abnormal.domain.StrandReportRequest;
 import com.jd.bluedragon.distribution.abnormal.service.StrandService;
@@ -15,6 +17,9 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ldop.utils.CollectionUtils;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
+import com.jd.transboard.api.dto.Board;
+import com.jd.transboard.api.dto.Response;
+import com.jd.transboard.api.service.GroupBoardService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
@@ -49,6 +54,8 @@ public class StrandResouce {
     
     @Autowired
     private ConfigStrandReasonService configStrandReasonService;
+    @Autowired
+    private GroupBoardManager groupBoardManager;
 
     /**
      * 包裹滞留上报
@@ -64,6 +71,17 @@ public class StrandResouce {
             return invokeResult;
         }
         try {
+            //判断一下
+            if (ReportTypeEnum.BOARD_NO.getCode().equals(request.getReportType())){
+                if (!BusinessUtil.isBoardCode(request.getBarcode())){
+                    Response<Board> boardResponse= groupBoardManager.getBoardByBoxCode(request.getBarcode(),request.getSiteCode());
+                    if (!JdCResponse.CODE_SUCCESS.equals(boardResponse.getCode())){
+                        invokeResult.error("未根据箱号/包裹号找到匹配的板号！");
+                        return invokeResult;
+                    }
+                    request.setBarcode(boardResponse.getData().getCode());
+                }
+            }
         	//查询滞留原因，设置同步标识，后续mq处理以提交时标识状态为准
         	Result<ConfigStrandReason> reasonInfo = configStrandReasonService.queryByReasonCode(request.getReasonCode());
         	if(reasonInfo == null

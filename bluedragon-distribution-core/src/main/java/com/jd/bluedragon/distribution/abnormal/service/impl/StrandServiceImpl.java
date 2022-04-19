@@ -1,7 +1,9 @@
 package com.jd.bluedragon.distribution.abnormal.service.impl;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
+import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.distribution.abnormal.domain.ReportTypeEnum;
 import com.jd.bluedragon.distribution.abnormal.domain.StrandReportRequest;
 import com.jd.bluedragon.distribution.abnormal.dto.StrandDetailMessage;
@@ -9,7 +11,6 @@ import com.jd.bluedragon.distribution.abnormal.service.StrandService;
 import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.SiteService;
-import com.jd.bluedragon.distribution.packageToMq.domain.Pack;
 import com.jd.bluedragon.distribution.router.RouterService;
 import com.jd.bluedragon.distribution.router.domain.dto.RouteNextDto;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
@@ -18,6 +19,9 @@ import com.jd.bluedragon.distribution.send.domain.ThreeDeliveryResponse;
 import com.jd.bluedragon.distribution.send.domain.dto.SendDetailDto;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.send.service.SendDetailService;
+import com.jd.bluedragon.distribution.send.service.SendMService;
+import com.jd.bluedragon.distribution.sorting.domain.Sorting;
+import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
@@ -35,6 +39,7 @@ import com.jd.jddl.executor.function.scalar.filter.In;
 import com.jd.jmq.common.exception.JMQException;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.transboard.api.dto.Response;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections4.CollectionUtils;
@@ -70,6 +75,8 @@ public class StrandServiceImpl implements StrandService {
     @Autowired
     @Qualifier("strandReportDetailProducer")
     DefaultJMQProducer strandReportDetailProducer;
+    @Autowired
+    SendMService sendMService;
     /**
      * 工作台mq
      */
@@ -85,6 +92,10 @@ public class StrandServiceImpl implements StrandService {
     private DeliveryService deliveryService;
     @Autowired
     private RouterService routerService;
+    @Autowired
+    GroupBoardManager groupBoardManager;
+    @Autowired
+    SortingService sortingService;
 
     private static final String ABNORMAL_DESCRIPTION_PREFIX = "已滞留：原因：";
 
@@ -156,7 +167,52 @@ public class StrandServiceImpl implements StrandService {
             strandReportDetailWbProducer.batchSendOnFailPersistent(listWb);
             return result;
         }
+        //按板号进行上报
+        if(ReportTypeEnum.BOARD_NO.getCode().equals(reportType)){
+            String boardCode = request.getBarcode();
+            Response<List<String>> response= groupBoardManager.getBoxesByBoardCode(boardCode);
+            if(!(JdCResponse.CODE_SUCCESS.equals(response.getCode())
+                    && null!=response.getData()
+                    && response.getData().size()>0)){
+                log.warn("根据板号：{}未查到包裹/箱号信息", boardCode);
+                result.error(MessageFormat.format("上报失败，该板{0}内无包裹/箱号信息！", boardCode));
+                return result;
+            }
+            List<String> packOrBoxCodes =response.getData();
+            List<String> packageCodes =new ArrayList<>();
+            findPackageFromBox(packOrBoxCodes,packageCodes,request.getSiteCode());
 
+            //发全程跟踪和上报明细消息
+            List<Message> list = new ArrayList<>(packageCodes.size());
+            List<Message> listWb = new ArrayList<>(packageCodes.size());
+            Map<String,StrandDetailMessage> waybillInfoMap = new HashMap<String,StrandDetailMessage>();
+            for(String packageCode : packageCodes){
+                String waybillCode = WaybillUtil.getWaybillCode(packageCode);
+                StrandDetailMessage waybillStrandDetailMessage = null;
+                if(waybillInfoMap.containsKey(waybillCode)) {
+                    waybillStrandDetailMessage = waybillInfoMap.get(waybillCode);
+                }else {
+                    waybillStrandDetailMessage = this.loadWaybillInfo(request, waybillCode, null);
+                    waybillInfoMap.put(waybillCode, waybillStrandDetailMessage);
+                }
+                if(syncFlag) {
+                    //全程跟踪
+                    addPackageCodeWaybilTraceTask(packageCode, waybillCode, request, siteOrgDto);
+                }
+                //构建
+                StrandDetailMessage strandDetailMessage = initStrandDetailMessage(request, packageCode, waybillCode,waybillStrandDetailMessage);
+                Message message = new Message(strandReportDetailWbProducer.getTopic(), JsonHelper.toJson(strandDetailMessage), waybillCode);
+                listWb.add(message);
+                if(syncFlag) {
+                    list.add(new Message(strandReportDetailProducer.getTopic(),message.getText(),waybillCode));
+                }
+            }
+            if(syncFlag) {
+                strandReportDetailProducer.batchSendOnFailPersistent(list);
+            }
+            strandReportDetailWbProducer.batchSendOnFailPersistent(listWb);
+            return result;
+        }
         /*按箱号或批次号上报*/
         List<String> packageCodes = getPackageCodesByBoxCodeOrSendCode(reportType, request);
 
@@ -198,6 +254,26 @@ public class StrandServiceImpl implements StrandService {
         return result;
 
     }
+
+    private void findPackageFromBox(List<String> packOrBoxCodes, List<String> packageCodes,Integer siteCode) {
+        Sorting sorting =new Sorting();
+        sorting.setCreateSiteCode(siteCode);
+        for (String code:packOrBoxCodes){
+            if (BusinessUtil.isBoxcode(code)){
+                sorting.setBoxCode(code);
+                List<Sorting> sortingList =sortingService.findByBoxCode(sorting);
+                if (sortingList!=null && sortingList.size()>0){
+                    for (Sorting s:sortingList){
+                        packageCodes.add(s.getPackageCode());
+                    }
+                }
+            }
+            else {
+                packageCodes.add(code);
+            }
+        }
+    }
+
     /**
      * 滞留明细初始化前加载运单其他信息
      * @param request
@@ -355,6 +431,14 @@ public class StrandServiceImpl implements StrandService {
             String waybillCode = WaybillUtil.getWaybillCode(barcode);
             SendDetail sendDetail = sendDetailService.findOneByWaybillCode(request.getSiteCode(), waybillCode);
             if(sendDetail != null){
+                return true;
+            }
+            return false;
+        }
+        /*按板号进行上报*/
+        else if (ReportTypeEnum.BOARD_NO.getCode().equals(reportType)){
+            SendM sendM =sendMService.selectSendByBoardCode(request.getSiteCode(),request.getBarcode(),1);
+            if(sendM != null){
                 return true;
             }
             return false;
