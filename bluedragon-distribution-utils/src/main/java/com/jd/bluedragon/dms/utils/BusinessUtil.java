@@ -2358,7 +2358,26 @@ public class BusinessUtil {
             return false;
         }
 
-    public static void main(String[] args) {
-        System.out.println(BIG_WARM_BOX_CODE_REGEX.matcher("WCDX1234567890").matches());
+        Matcher curVersionMatcher = APP_VERSION_REGEX.matcher(appVersion);
+        Matcher newestVersionMatcher = APP_VERSION_REGEX.matcher(newestVersion);
+        if (!curVersionMatcher.matches() || !newestVersionMatcher.matches()) {
+            return false;
+        }
+
+        String[] versionArr = appVersion.split("\\.");
+        String[] newestVerArr = newestVersion.split("\\.");
+
+        int minDigit = Math.min(versionArr.length, newestVerArr.length);
+
+        for (int i = 0; i < minDigit; i++) {
+            if (Integer.parseInt(versionArr[i]) < Integer.parseInt(newestVerArr[i])) {
+                return true;
+            }
+            else if (Integer.parseInt(versionArr[i]) > Integer.parseInt(newestVerArr[i])){
+                return false;
+            }
+        }
+
+        return versionArr.length < newestVerArr.length;
     }
 }
