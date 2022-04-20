@@ -1,37 +1,25 @@
 package com.jd.bluedragon.distribution.consumer.jy.vehicle;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.common.dto.operation.workbench.unload.request.UnloadCompleteRequest;
-import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.api.response.base.Result;
-import com.jd.bluedragon.distribution.inspection.service.InspectionService;
-import com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadAggsDao;
-import com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadDao;
-import com.jd.bluedragon.distribution.jy.dto.unload.UnloadScanDto;
 import com.jd.bluedragon.distribution.jy.dto.unload.UnloadTaskCompleteDto;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.group.JyTaskGroupMemberEntity;
 import com.jd.bluedragon.distribution.jy.service.group.JyTaskGroupMemberService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskUnloadVehicleService;
-import com.jd.bluedragon.distribution.jy.service.unload.UnloadVehicleTransactionManager;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
-import com.jd.bluedragon.distribution.jy.unload.JyUnloadAggsEntity;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
-import com.jd.jim.cli.Cluster;
 import com.jd.jmq.common.message.Message;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.proxy.Profiler;
-import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 /**
  * @ClassName JyUnloadTaskCompleteConsumer
@@ -119,7 +107,7 @@ public class JyUnloadTaskCompleteConsumer extends MessageBaseConsumer {
         updateData.setUpdateUserName(completeDto.getOperateUserName());
         updateData.setUpdateTime(completeDto.getOperateTime());
         updateData.setMoreCount(completeDto.getMoreScanCount());
-        updateData.setLessCount(completeDto.getShouldScanCount());
+        updateData.setLessCount(completeDto.getToScanCount());
         return updateData;
     }
 }
