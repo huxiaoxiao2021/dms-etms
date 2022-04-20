@@ -70,6 +70,8 @@ public class InitUnloadVehicleConsumer extends MessageBaseConsumer {
         }
 
         UnloadVehicleMqDto mqDto = JsonHelper.fromJson(message.getText(), UnloadVehicleMqDto.class);
+
+        // 过滤掉丢弃的数据
         if (filterDiscardData(mqDto)) {
             return;
         }
