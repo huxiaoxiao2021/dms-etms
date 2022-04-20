@@ -807,11 +807,11 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
                     } catch (InterruptedException e) {
                         logger.error("阻塞1s异常!", e);
                     }
+                    totalRecord.setWaybillCode(waybillCode);
+                    totalRecord.setIsExcess(ExcessStatusEnum.EXCESS_ENUM_YES.getCode());
+                    totalRecord.setIsGatherTogether(Constants.CONSTANT_NUMBER_ONE);
+                    dwsIssueDealProducer.sendOnFailPersistent(waybillCode, JsonHelper.toJson(totalRecord));
                 }
-                totalRecord.setWaybillCode(waybillCode);
-                totalRecord.setIsExcess(ExcessStatusEnum.EXCESS_ENUM_YES.getCode());
-                totalRecord.setIsGatherTogether(Constants.CONSTANT_NUMBER_ONE);
-                dwsIssueDealProducer.sendOnFailPersistent(waybillCode, JsonHelper.toJson(totalRecord));
             }
         }else {
             // 一单一件
