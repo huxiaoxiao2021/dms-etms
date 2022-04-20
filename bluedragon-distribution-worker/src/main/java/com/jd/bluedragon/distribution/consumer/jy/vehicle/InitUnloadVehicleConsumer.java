@@ -3,11 +3,13 @@ package com.jd.bluedragon.distribution.consumer.jy.vehicle;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.jy.dto.task.UnloadVehicleMqDto;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskUnloadVehicleService;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.JyUnloadTaskSignConstants;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
@@ -15,6 +17,7 @@ import com.jd.bluedragon.utils.StringHelper;
 import com.jd.bluedragon.utils.TagSignHelper;
 import com.jd.jim.cli.Cluster;
 import com.jd.jmq.common.message.Message;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.proxy.Profiler;
@@ -51,6 +54,9 @@ public class InitUnloadVehicleConsumer extends MessageBaseConsumer {
     @Autowired
     private UccPropertyConfiguration uccConfig;
 
+    @Autowired
+    private BaseMajorManager baseMajorManager;
+
     @Override
     @JProfiler(jKey = "DMS.WORKER.jy.initUnloadVehicleConsumer.consume", jAppName = Constants.UMP_APP_NAME_DMSWORKER, mState = {JProEnum.TP,JProEnum.FunctionError})
     public void consume(Message message) throws Exception {
@@ -64,13 +70,7 @@ public class InitUnloadVehicleConsumer extends MessageBaseConsumer {
         }
 
         UnloadVehicleMqDto mqDto = JsonHelper.fromJson(message.getText(), UnloadVehicleMqDto.class);
-        if (mqDto == null) {
-            logger.warn("InitUnloadVehicleConsumer consume -->JSON转换后为空，内容为【{}】", message.getText());
-            return;
-        }
-
-        if (StringUtils.isEmpty(mqDto.getSealCarCode())) {
-            logger.warn("InitUnloadVehicleConsumer consume -->关键数据为空，内容为【{}】", message.getText());
+        if (filterDiscardData(mqDto)) {
             return;
         }
 
@@ -92,6 +92,35 @@ public class InitUnloadVehicleConsumer extends MessageBaseConsumer {
                 redisClientOfJy.expire(versionMutex, 12, TimeUnit.HOURS);
             }
         }
+    }
+
+    /**
+     * 需要丢弃的数据
+     * @param mqDto
+     * @return true：丢弃
+     */
+    private boolean filterDiscardData(UnloadVehicleMqDto mqDto) {
+        if (mqDto == null) {
+            logger.warn("InitUnloadVehicleConsumer consume -->JSON转换后为空");
+            return true;
+        }
+
+        if (StringUtils.isEmpty(mqDto.getSealCarCode()) || null == mqDto.getEndSiteId()) {
+            logger.warn("InitUnloadVehicleConsumer consume -->关键数据为空，内容为【{}】", JsonHelper.toJson(mqDto));
+            return true;
+        }
+
+        Integer endSiteId = mqDto.getEndSiteId();
+        //检查目的地是否是拣运中心
+        BaseStaffSiteOrgDto siteInfo = baseMajorManager.getBaseSiteBySiteId(endSiteId);
+        if (siteInfo == null || !BusinessUtil.isSorting(siteInfo.getSiteType())) {
+            //丢弃数据
+            logger.info("InitUnloadVehicleConsumer不需要关心的数据丢弃, 目的站点:{}, 目的站点类型:{}, 消息:{}",
+                    endSiteId, siteInfo == null ? null : siteInfo.getSiteType(), JsonHelper.toJson(mqDto));
+            return true;
+        }
+
+        return false;
     }
 
     /**
