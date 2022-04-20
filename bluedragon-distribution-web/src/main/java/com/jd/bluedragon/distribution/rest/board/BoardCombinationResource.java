@@ -1,14 +1,18 @@
 package com.jd.bluedragon.distribution.rest.board;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.board.request.CombinationBoardRequest;
+import com.jd.bluedragon.common.dto.board.response.VirtualBoardResultDto;
 import com.jd.bluedragon.core.base.BoardCommonManager;
 import com.jd.bluedragon.distribution.api.dto.BoardDto;
 import com.jd.bluedragon.distribution.api.request.BoardCombinationRequest;
 import com.jd.bluedragon.distribution.api.request.BoardCommonRequest;
+import com.jd.bluedragon.distribution.api.response.BoardInfoResponse;
 import com.jd.bluedragon.distribution.api.response.BoardResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.board.service.BoardCombinationService;
+import com.jd.bluedragon.distribution.board.service.VirtualBoardService;
 import com.jd.bluedragon.distribution.inspection.dao.InspectionDao;
 import com.jd.bluedragon.distribution.inspection.domain.Inspection;
 import com.jd.bluedragon.distribution.loadAndUnload.exception.LoadIllegalException;
@@ -52,6 +56,8 @@ public class BoardCombinationResource {
     private BoardCommonManager boardCommonManager;
     @Autowired
     protected InspectionDao inspectionDao;
+    @Autowired
+    private VirtualBoardService virtualBoardService;
 
     @GET
     @Path("/boardCombination/barCodeValidation")
@@ -92,7 +98,7 @@ public class BoardCombinationResource {
     @JProfiler(jKey = "DMS.WEB.BoardCombinationResource.combination", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdResponse<BoardResponse> combination(BoardCombinationRequest request) {
         JdResponse<BoardResponse> result = new JdResponse<BoardResponse>();
-          result.setData(new BoardResponse());
+        result.setData(new BoardResponse());
         BoardResponse boardResponse = result.getData();
 
         //参数校验
@@ -176,9 +182,16 @@ public class BoardCombinationResource {
         try {
             Board oldBoard = null;
             // 查询之前是否组过板
-            JdResponse<Board> response = getBoardByBoxCode(request.getCurrentOperate().getSiteCode(), request.getBoxOrPackageCode());
+            JdResponse<BoardInfoResponse> response = getBoardByBoxCode(request.getCurrentOperate().getSiteCode(), request.getBoxOrPackageCode());
             if (response != null && JdResponse.CODE_SUCCESS.equals(response.getCode())) {
-                oldBoard = response.getData();
+                BoardInfoResponse data = response.getData();
+                oldBoard=new Board();
+                oldBoard.setId(data.getId());
+                oldBoard.setCode(data.getCode());
+                oldBoard.setDestination(data.getDestination());
+                oldBoard.setDestinationId(data.getDestinationId());
+                oldBoard.setStatus(data.getStatus());
+                oldBoard.setCreateTime(data.getCreateTime());
             }
             // 第一次则生成板号
             if (StringUtils.isBlank(request.getBoardCode())) {
@@ -322,12 +335,11 @@ public class BoardCombinationResource {
     @GET
     @Path("/boardCombination/belong/{siteCode}/{boxCode}")
     @JProfiler(jKey = "DMS.WEB.BoardCombinationResource.getBoardByBoxCode", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
-    public JdResponse<Board> getBoardByBoxCode(@PathParam("siteCode") Integer siteCode, @PathParam("boxCode") String boxCode){
-        JdResponse<Board> result = new JdResponse<Board>();
+    public JdResponse<BoardInfoResponse> getBoardByBoxCode(@PathParam("siteCode") Integer siteCode, @PathParam("boxCode") String boxCode){
+        JdResponse<BoardInfoResponse> result = new JdResponse<BoardInfoResponse>();
+        BoardInfoResponse boardInfoResponse = new BoardInfoResponse();
         result.toSucceed("查询箱子所属板号成功!");
-
         //参数校验
-
         if(BusinessHelper.isBoxcode(boxCode) || WaybillUtil.isPackageCode(boxCode)){
             try {
                 Response<Board> tcResponse = boardCombinationService.getBoardByBoxCode(siteCode, boxCode);
@@ -336,7 +348,19 @@ public class BoardCombinationResource {
                 }else if(JdResponse.CODE_SUCCESS.equals(tcResponse.getCode())){
                     //查询成功
                     if(tcResponse.getData() != null){
-                        result.setData(tcResponse.getData());
+                        Board data = tcResponse.getData();
+                        boardInfoResponse.setId(data.getId());
+                        boardInfoResponse.setCode(data.getCode());
+                        boardInfoResponse.setDestination(data.getDestination());
+                        boardInfoResponse.setDestinationId(data.getDestinationId());
+                        boardInfoResponse.setStatus(data.getStatus());
+                        boardInfoResponse.setCreateTime(data.getCreateTime());
+                        //根据板号获取扫描件数
+                        JdCResponse<VirtualBoardResultDto> virtualBoardResult = virtualBoardService.getBoxCountByBoardCode(data.getCode());
+                        if(virtualBoardResult != null && virtualBoardResult.getData() != null){
+                            boardInfoResponse.setScanQuantity(virtualBoardResult.getData().getPackageTotal());
+                        }
+                        result.setData(boardInfoResponse);
                     }else{
                         result.toFail("未查询到板号");
                     }
@@ -401,7 +425,6 @@ public class BoardCombinationResource {
     public JdResponse<BoardResponse> getBoxCodesByBoardCode(@PathParam("boardCode") String boardCode){
         JdResponse<BoardResponse> result = new JdResponse<BoardResponse>();
         result.toSucceed("查询箱子所属板号成功!");
-
         //参数校验
         if(BusinessUtil.isBoardCode(boardCode)){
             try {
@@ -483,7 +506,7 @@ public class BoardCombinationResource {
         if (!BusinessUtil.isBoxcode(request.getBoxOrPackageCode())
                 && !WaybillUtil.isPackageCode(request.getBoxOrPackageCode())) {
             this.log.warn("箱号/包裹号正则校验不通过：{}", request.getBoxOrPackageCode());
-           return "箱号/包裹号不合法.";
+            return "箱号/包裹号不合法.";
         }
 
         return null;
