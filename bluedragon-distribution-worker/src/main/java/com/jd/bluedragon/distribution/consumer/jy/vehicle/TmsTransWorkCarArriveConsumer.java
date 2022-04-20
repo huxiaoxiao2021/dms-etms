@@ -1,24 +1,32 @@
 package com.jd.bluedragon.distribution.consumer.jy.vehicle;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.JdiQueryWSManager;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadStatusEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskUnloadVehicleService;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.jmq.common.message.Message;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.tms.jdi.dto.CommonDto;
+import com.jd.tms.jdi.dto.TransWorkItemDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * 天官赐福 ◎ 百无禁忌
@@ -38,6 +46,12 @@ public class TmsTransWorkCarArriveConsumer extends MessageBaseConsumer {
 
     @Autowired
     private JyBizTaskUnloadVehicleService jyBizTaskUnloadVehicleService;
+
+    @Autowired
+    private JdiQueryWSManager jdiQueryWSManager;
+
+    @Autowired
+    private BaseMajorManager baseMajorManager;
 
     @Override
     @JProfiler(jKey = "DMSWORKER.jy.tmsTransWorkCarArriveConsumer.consume",jAppName = Constants.UMP_APP_NAME_DMSWORKER, mState = {JProEnum.TP,JProEnum.FunctionError})
@@ -71,11 +85,27 @@ public class TmsTransWorkCarArriveConsumer extends MessageBaseConsumer {
                 throw new JyBizException("司机到车（调度任务）更新状态失败重试");
             }
         }else {
-            //不存在因无封车编码  无法继续创建任务 需要进入重试队列等待重试
+            //不存在因无封车编码  无法继续创建任务 部分数据需要进入重试队列等待重试
             if(logger.isInfoEnabled()) {
                 logger.info("消费处理TmsTransWorkCarArriveConsumer 执行到达状态 不存在 逻辑，内容{}", JsonHelper.toJson(mqBody));
             }
-            throw new JyBizException("司机到车（调度任务）无任务，等待封车任务重试");
+            //获取派车任务对应数据的目的地类型，如果是分拣的则进入重试，反之直接丢弃
+            TransWorkItemDto transWorkItemDto = jdiQueryWSManager.getTransWorkItemsDtoByItemCode(mqBody.getTransWorkItemCode());
+            if(transWorkItemDto != null ){
+                String endNodeCode = transWorkItemDto.getEndNodeCode();
+                if(!StringUtils.isEmpty(endNodeCode)){
+                    //检查目的地是否是拣运中心
+                    BaseStaffSiteOrgDto siteInfo = baseMajorManager.getBaseSiteByDmsCode(endNodeCode);
+                    if(siteInfo != null && BusinessUtil.isSorting(siteInfo.getSiteType())){
+                        throw new JyBizException("司机到车（调度任务）无任务，等待封车任务重试"+mqBody.getTransWorkItemCode());
+                    }
+                }
+            }
+            if(logger.isInfoEnabled()) {
+                logger.info("TmsTransWorkCarArriveConsumer 不需要关心的数据丢弃,消息:{}", JsonHelper.toJson(mqBody));
+            }
+            return;
+
         }
     }
 
