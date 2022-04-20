@@ -155,6 +155,16 @@ public class DiscardedPackageStorageTempServiceImpl implements DiscardedPackageS
     private Response<Void> checkAndSetPram4SelectParam(DiscardedPackageStorageTempQo query){
         Response<Void> result = new Response<>();
         result.toSucceed();
+        if(StringUtils.isBlank(query.getCreateTimeFromStr())){
+            result.toError("参数错误，createTimeFromStr为空");
+            return result;
+        }
+        query.setCreateTimeFrom(DateHelper.parseDate(query.getCreateTimeFromStr(), DateHelper.DATE_FORMAT_YYYYMMDDHHmmss2));
+        if(StringUtils.isBlank(query.getCreateTimeToStr())){
+            result.toError("参数错误，createTimeToStr为空");
+            return result;
+        }
+        query.setCreateTimeTo(DateHelper.parseDate(query.getCreateTimeToStr(), DateHelper.DATE_FORMAT_YYYYMMDDHHmmss2));
         if(query.getStorageDaysFrom() != null){
             try {
                 Date currentDateMorning = DateUtil.parseDateByStr(DateUtil.format(new Date(), DateUtil.FORMAT_DATE), DateUtil.FORMAT_DATE);
@@ -210,6 +220,16 @@ public class DiscardedPackageStorageTempServiceImpl implements DiscardedPackageS
             long total = discardedPackageStorageTempDao.selectCount(query);
             pageDto.setTotalRow(new Long(total).intValue());
             if (total > 0) {
+                if(query.getPageNumber() > 1){
+                    // 如果是最后一页，则将pageSize设置为剩余条数大小
+                    final int totalMax = query.getPageNumber() * query.getPageSize();
+                    if((long) (totalMax) > total){
+                        query.setPageSize(new Long(total - (long) (query.getPageNumber() - 1) * query.getPageSize()).intValue());
+                    }
+                    if(query.getLastId() != null){
+                        query.setPageNumber(1);
+                    }
+                }
                 final List<DiscardedPackageStorageTempVo> discardedPackageStorageTempVos = this.queryVoList(query);
                 if(CollectionUtils.isNotEmpty(discardedPackageStorageTempVos)){
                     dataList.addAll(discardedPackageStorageTempVos);
