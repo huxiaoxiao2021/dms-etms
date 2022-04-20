@@ -100,7 +100,7 @@ public class StrandServiceImpl implements StrandService {
     private static final String ABNORMAL_DESCRIPTION_PREFIX = "已滞留：原因：";
 
     /**
-     * 生成滞留明细消息
+     * 上报滞留明细消息
      * @param request
      */
     @Override
@@ -118,7 +118,7 @@ public class StrandServiceImpl implements StrandService {
         boolean syncFlag = Constants.YN_YES.equals(request.getSyncFlag());
         /*按包裹上报*/
         if(ReportTypeEnum.PACKAGE_CODE.getCode().equals(reportType)){
-            return reportByPackAge(result,request,syncFlag,siteOrgDto);
+            return reportByPackage(result,request,syncFlag,siteOrgDto);
         }
         /*按运单上报*/
         if(ReportTypeEnum.WAYBILL_CODE.getCode().equals(reportType)){
@@ -126,65 +126,29 @@ public class StrandServiceImpl implements StrandService {
         }
         //按板号进行上报
         if(ReportTypeEnum.BOARD_NO.getCode().equals(reportType)){
-            String boardCode = request.getBarcode();
-            Response<List<String>> response= groupBoardManager.getBoxesByBoardCode(boardCode);
-            if(!(JdCResponse.CODE_SUCCESS.equals(response.getCode())
-                    && null!=response.getData()
-                    && response.getData().size()>0)){
-                log.warn("根据板号：{}未查到包裹/箱号信息", boardCode);
-                result.error(MessageFormat.format("上报失败，该板{0}内无包裹/箱号信息！", boardCode));
-                return result;
-            }
-            List<String> packOrBoxCodes =response.getData();
-            List<String> packageCodes =new ArrayList<>();
-            findPackageFromBox(packOrBoxCodes,packageCodes,request.getSiteCode());
-
-            //发全程跟踪和上报明细消息
-            List<Message> list = new ArrayList<>(packageCodes.size());
-            List<Message> listWb = new ArrayList<>(packageCodes.size());
-            Map<String,StrandDetailMessage> waybillInfoMap = new HashMap<String,StrandDetailMessage>();
-            for(String packageCode : packageCodes){
-                String waybillCode = WaybillUtil.getWaybillCode(packageCode);
-                StrandDetailMessage waybillStrandDetailMessage = null;
-                if(waybillInfoMap.containsKey(waybillCode)) {
-                    waybillStrandDetailMessage = waybillInfoMap.get(waybillCode);
-                }else {
-                    waybillStrandDetailMessage = this.loadWaybillInfo(request, waybillCode, null);
-                    waybillInfoMap.put(waybillCode, waybillStrandDetailMessage);
-                }
-                if(syncFlag) {
-                    //全程跟踪
-                    addPackageCodeWaybilTraceTask(packageCode, waybillCode, request, siteOrgDto);
-                }
-                //构建
-                StrandDetailMessage strandDetailMessage = initStrandDetailMessage(request, packageCode, waybillCode,waybillStrandDetailMessage);
-                Message message = new Message(strandReportDetailWbProducer.getTopic(), JsonHelper.toJson(strandDetailMessage), waybillCode);
-                listWb.add(message);
-                if(syncFlag) {
-                    list.add(new Message(strandReportDetailProducer.getTopic(),message.getText(),waybillCode));
-                }
-            }
-            if(syncFlag) {
-                strandReportDetailProducer.batchSendOnFailPersistent(list);
-            }
-            strandReportDetailWbProducer.batchSendOnFailPersistent(listWb);
-            return result;
+            return reportByBoard(result,request,syncFlag,siteOrgDto);
         }
-        return reportByBoxOrSendCode(result,request,syncFlag,siteOrgDto);
         /*按箱号或批次号上报*/
-
-
+        return reportByBoxOrSendCode(result,request,syncFlag,siteOrgDto);
     }
 
-    private InvokeResult reportByBoxOrSendCode(InvokeResult result, StrandReportRequest request, boolean syncFlag, BaseStaffSiteOrgDto siteOrgDto) {
-        List<String> packageCodes = getPackageCodesByBoxCodeOrSendCode(request.getReportType(), request);
-        if(CollectionUtils.isEmpty(packageCodes)){
-            String reportTypeName = ReportTypeEnum.getReportTypeName(request.getReportType());
-            log.warn("根据{}:{}上报滞留，内无包裹号", reportTypeName,request.getBarcode());
-            result.error(MessageFormat.format("上报失败，该{0}内无包裹信息！", reportTypeName));
+    private InvokeResult reportByBoard(InvokeResult result, StrandReportRequest request, boolean syncFlag, BaseStaffSiteOrgDto siteOrgDto) {
+        String boardCode = request.getBarcode();
+        Response<List<String>> response= groupBoardManager.getBoxesByBoardCode(boardCode);
+        if(!(JdCResponse.CODE_SUCCESS.equals(response.getCode())
+                && null!=response.getData()
+                && response.getData().size()>0)){
+            log.warn("根据板号：{}未查到包裹/箱号信息", boardCode);
+            result.error(MessageFormat.format("上报失败，该板{0}内无包裹/箱号信息！", boardCode));
             return result;
         }
-        //发全程跟踪和上报明细消息
+        List<String> packOrBoxCodes =response.getData();
+        List<String> packageCodes =getPackageCodesFromPackOrBoxCodes(packOrBoxCodes,request.getSiteCode());
+        batchSendReportJmqByPackageCodes(packageCodes,request,syncFlag,siteOrgDto);
+        return result;
+    }
+
+    private void batchSendReportJmqByPackageCodes(List<String> packageCodes, StrandReportRequest request, boolean syncFlag, BaseStaffSiteOrgDto siteOrgDto) {
         List<Message> list = new ArrayList<>(packageCodes.size());
         List<Message> listWb = new ArrayList<>(packageCodes.size());
         Map<String,StrandDetailMessage> waybillInfoMap = new HashMap<String,StrandDetailMessage>();
@@ -213,6 +177,17 @@ public class StrandServiceImpl implements StrandService {
             strandReportDetailProducer.batchSendOnFailPersistent(list);
         }
         strandReportDetailWbProducer.batchSendOnFailPersistent(listWb);
+    }
+
+    private InvokeResult reportByBoxOrSendCode(InvokeResult result, StrandReportRequest request, boolean syncFlag, BaseStaffSiteOrgDto siteOrgDto) {
+        List<String> packageCodes = getPackageCodesByBoxCodeOrSendCode(request.getBarcode(),request.getSiteCode());
+        if(CollectionUtils.isEmpty(packageCodes)){
+            String reportTypeName = ReportTypeEnum.getReportTypeName(request.getReportType());
+            log.warn("根据{}:{}上报滞留，内无包裹号", reportTypeName,request.getBarcode());
+            result.error(MessageFormat.format("上报失败，该{0}内无包裹信息！", reportTypeName));
+            return result;
+        }
+        batchSendReportJmqByPackageCodes(packageCodes,request,syncFlag,siteOrgDto);
         return result;
     }
 
@@ -251,10 +226,10 @@ public class StrandServiceImpl implements StrandService {
         return result;
     }
 
-    private InvokeResult reportByPackAge(InvokeResult result, StrandReportRequest request, boolean syncFlag, BaseStaffSiteOrgDto siteOrgDto) {
+    private InvokeResult reportByPackage(InvokeResult result, StrandReportRequest request, boolean syncFlag, BaseStaffSiteOrgDto siteOrgDto) {
         String waybillCode = WaybillUtil.getWaybillCode(request.getBarcode());
         StrandDetailMessage waybillStrandDetailMessage = loadWaybillInfo(request, waybillCode, null);
-        //发滞留明细jmq
+        //生成滞留明细jmq
         StrandDetailMessage strandDetailMessage = initStrandDetailMessage(request, request.getBarcode(), waybillCode , waybillStrandDetailMessage);
         if(syncFlag) {
             //发全程跟踪
@@ -266,23 +241,20 @@ public class StrandServiceImpl implements StrandService {
     }
 
 
-    private void findPackageFromBox(List<String> packOrBoxCodes, List<String> packageCodes,Integer siteCode) {
-        Sorting sorting =new Sorting();
-        sorting.setCreateSiteCode(siteCode);
+    private List<String> getPackageCodesFromPackOrBoxCodes(List<String> packOrBoxCodes,Integer siteCode) {
+        List<String> packageCodes =new ArrayList<>();
         for (String code:packOrBoxCodes){
             if (BusinessUtil.isBoxcode(code)){
-                sorting.setBoxCode(code);
-                List<Sorting> sortingList =sortingService.findByBoxCode(sorting);
-                if (sortingList!=null && sortingList.size()>0){
-                    for (Sorting s:sortingList){
-                        packageCodes.add(s.getPackageCode());
-                    }
+                List<String> pCodes =getPackageCodesByBoxCodeOrSendCode(code,siteCode);
+                if (pCodes!=null && pCodes.size()>0){
+                    packageCodes.addAll(pCodes);
                 }
             }
             else {
                 packageCodes.add(code);
             }
         }
+        return packageCodes;
     }
 
     /**
@@ -316,10 +288,10 @@ public class StrandServiceImpl implements StrandService {
     	}
     	return strandDetailMessage;
     }
-    private List<String> getPackageCodesByBoxCodeOrSendCode(Integer reportType, StrandReportRequest request){
+    private List<String> getPackageCodesByBoxCodeOrSendCode(String boxOrSendCode,Integer siteCode){
         //构建查询sendDetail的查询参数
-        SendDetailDto  sendDetail = initSendDetail(reportType, request.getBarcode(), request.getSiteCode());
-        if(ReportTypeEnum.BOX_CODE.getCode().equals(reportType)) {
+        SendDetailDto  sendDetail = initSendDetail(boxOrSendCode, siteCode);
+        if(BusinessUtil.isBoxcode(boxOrSendCode)) {
             return  sendDetailService.queryPackageCodeByboxCode(sendDetail);
         }
         return  sendDetailService.queryPackageCodeBySendCode(sendDetail);
@@ -327,22 +299,20 @@ public class StrandServiceImpl implements StrandService {
 
     /**
      * 根据sendCode 或 boxCode构建查询send_d 查询参数
-     * @param reportType
      * @param barcode
      * @param createSiteCode
      * @return
      */
-    private SendDetailDto initSendDetail( Integer reportType, String barcode, int createSiteCode){
+    private SendDetailDto initSendDetail(String barcode, int createSiteCode){
         SendDetailDto sendDetail = new SendDetailDto();
         sendDetail.setIsCancel(0);
         sendDetail.setCreateSiteCode(createSiteCode);
-        if(ReportTypeEnum.BOX_CODE.getCode().equals(reportType)){
+        if(BusinessUtil.isBoxcode(barcode)){
             sendDetail.setBoxCode(barcode);
         }
-        if(ReportTypeEnum.BATCH_NO.getCode().equals(reportType)){
+        if(BusinessUtil.isSendCode(barcode)){
          sendDetail.setSendCode(barcode);
         }
-
         return sendDetail;
     }
 
@@ -455,7 +425,7 @@ public class StrandServiceImpl implements StrandService {
             return false;
         }
         /*按箱号或批次号上报*/
-        List<String> packageCodes = getPackageCodesByBoxCodeOrSendCode(reportType, request);
+        List<String> packageCodes = getPackageCodesByBoxCodeOrSendCode(request.getBarcode(),request.getSiteCode());
         if(!CollectionUtils.isEmpty(packageCodes)){
             return true;
         }
