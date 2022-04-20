@@ -9,6 +9,7 @@ import com.jd.bluedragon.distribution.ver.domain.FilterContext;
 import com.jd.bluedragon.distribution.ver.exception.SortingCheckException;
 import com.jd.bluedragon.distribution.ver.filter.Filter;
 import com.jd.bluedragon.distribution.ver.filter.FilterChain;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.SiteHelper;
 import com.jd.bluedragon.utils.WaybillCacheHelper;
@@ -55,6 +56,7 @@ public class FastTransferStationFilter implements Filter {
                         if (sceduleSiteCode != null && sceduleSiteCode.toString().equals(request.getsReceiveSiteCode())) {
                             //如果站点相等,则什么也不做
                         } else {
+                            logger.error("FastTransferStationFilter CODE_39000 request: {}", JsonHelper.toJson(request));
                             throw new SortingCheckException(SortingResponse.CODE_39000,
                                     HintService.getHintWithFuncModule(HintCodeConstants.SITE_NOT_EQUAL_RECEIVE_SITE, request.getFuncModule()));
                         }
