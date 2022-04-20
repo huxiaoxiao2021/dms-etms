@@ -1,5 +1,6 @@
 package com.jd.bluedragon.common.dto.base.response;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,7 +11,8 @@ import java.util.List;
  * @ClassName JdVerifyResponse
  * @date 2019/6/17
  */
-public class JdVerifyResponse<T> {
+public class JdVerifyResponse<T> implements Serializable {
+    private static final long serialVersionUID = -2577538677042007863L;
 
     /*
     只是调用验证接口是成功;理论上应该看msgBoxes 是否有返回数据。
@@ -159,8 +161,9 @@ public class JdVerifyResponse<T> {
         this.msgBoxes = msgBoxes;
     }
 
-    public static class MsgBox {
+    public static class MsgBox implements Serializable {
 
+        private static final long serialVersionUID = 3024545920925812168L;
         /**
          * 校验结果类型 1-提示框 2-确认框 3-拦截框
          */
