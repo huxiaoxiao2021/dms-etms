@@ -118,54 +118,11 @@ public class StrandServiceImpl implements StrandService {
         boolean syncFlag = Constants.YN_YES.equals(request.getSyncFlag());
         /*按包裹上报*/
         if(ReportTypeEnum.PACKAGE_CODE.getCode().equals(reportType)){
-            String waybillCode = WaybillUtil.getWaybillCode(request.getBarcode());
-            StrandDetailMessage waybillStrandDetailMessage = this.loadWaybillInfo(request, waybillCode, null);
-          //发滞留明细jmq
-            StrandDetailMessage strandDetailMessage = initStrandDetailMessage(request, request.getBarcode(), waybillCode , waybillStrandDetailMessage);
-            if(syncFlag) {
-	            //发全程跟踪
-	            int addCount = addPackageCodeWaybilTraceTask(request.getBarcode(), waybillCode, request, siteOrgDto);
-	            
-	            strandReportDetailProducer.sendOnFailPersistent(waybillCode, JsonHelper.toJson(strandDetailMessage));
-            }
-            strandReportDetailWbProducer.sendOnFailPersistent(waybillCode, JsonHelper.toJson(strandDetailMessage));
-            return result;
+            return reportByPackAge(result,request,syncFlag,siteOrgDto);
         }
-
         /*按运单上报*/
         if(ReportTypeEnum.WAYBILL_CODE.getCode().equals(reportType)){
-            String waybillCode = request.getBarcode();
-            BigWaybillDto bigWaybillDto =  waybillService.getWaybill(waybillCode);
-            if(bigWaybillDto == null){
-                log.warn("根据运单号：{}未查到运单信息", waybillCode);
-                result.error("上报失败，运单信息为空,请联系运单小秘！");
-                return result;
-            }
-            if(CollectionUtils.isEmpty(bigWaybillDto.getPackageList())){
-                log.warn("根据运单号：{}未查到包裹信息", waybillCode);
-                result.error("上报失败，改运单包裹信息为空,请联系运单小秘！");
-                return result;
-            }
-            StrandDetailMessage waybillStrandDetailMessage = this.loadWaybillInfo(request, waybillCode, bigWaybillDto);
-            List<Message> list = new ArrayList<>(bigWaybillDto.getPackageList().size());
-            List<Message> listWb = new ArrayList<>(bigWaybillDto.getPackageList().size());
-            for(DeliveryPackageD packageD : bigWaybillDto.getPackageList()){
-                String packageCode = packageD.getPackageBarcode();
-                //构建
-                StrandDetailMessage strandDetailMessage = initStrandDetailMessage(request, packageCode, waybillCode, waybillStrandDetailMessage);
-                Message message = new Message(strandReportDetailWbProducer.getTopic(), JsonHelper.toJson(strandDetailMessage), waybillCode);
-                listWb.add(message);
-                if(syncFlag) {
-                	list.add(new Message(strandReportDetailProducer.getTopic(),message.getText(),waybillCode));
-                }
-            }
-            if(syncFlag) {
-	            //全程跟踪
-	            addPackageCodeWaybilTraceTask(waybillCode, waybillCode, request, siteOrgDto);
-	            strandReportDetailProducer.batchSendOnFailPersistent(list);
-            }
-            strandReportDetailWbProducer.batchSendOnFailPersistent(listWb);
-            return result;
+            return reportByWayBill(result,request,syncFlag,siteOrgDto);
         }
         //按板号进行上报
         if(ReportTypeEnum.BOARD_NO.getCode().equals(reportType)){
@@ -213,11 +170,16 @@ public class StrandServiceImpl implements StrandService {
             strandReportDetailWbProducer.batchSendOnFailPersistent(listWb);
             return result;
         }
+        return reportByBoxOrSendCode(result,request,syncFlag,siteOrgDto);
         /*按箱号或批次号上报*/
-        List<String> packageCodes = getPackageCodesByBoxCodeOrSendCode(reportType, request);
 
+
+    }
+
+    private InvokeResult reportByBoxOrSendCode(InvokeResult result, StrandReportRequest request, boolean syncFlag, BaseStaffSiteOrgDto siteOrgDto) {
+        List<String> packageCodes = getPackageCodesByBoxCodeOrSendCode(request.getReportType(), request);
         if(CollectionUtils.isEmpty(packageCodes)){
-            String reportTypeName = ReportTypeEnum.getReportTypeName(reportType);
+            String reportTypeName = ReportTypeEnum.getReportTypeName(request.getReportType());
             log.warn("根据{}:{}上报滞留，内无包裹号", reportTypeName,request.getBarcode());
             result.error(MessageFormat.format("上报失败，该{0}内无包裹信息！", reportTypeName));
             return result;
@@ -230,30 +192,79 @@ public class StrandServiceImpl implements StrandService {
             String waybillCode = WaybillUtil.getWaybillCode(packageCode);
             StrandDetailMessage waybillStrandDetailMessage = null;
             if(waybillInfoMap.containsKey(waybillCode)) {
-            	waybillStrandDetailMessage = waybillInfoMap.get(waybillCode);
+                waybillStrandDetailMessage = waybillInfoMap.get(waybillCode);
             }else {
-            	waybillStrandDetailMessage = this.loadWaybillInfo(request, waybillCode, null);
-            	waybillInfoMap.put(waybillCode, waybillStrandDetailMessage);
+                waybillStrandDetailMessage = this.loadWaybillInfo(request, waybillCode, null);
+                waybillInfoMap.put(waybillCode, waybillStrandDetailMessage);
             }
             if(syncFlag) {
-	            //全程跟踪
-	            addPackageCodeWaybilTraceTask(packageCode, waybillCode, request, siteOrgDto);
+                //全程跟踪
+                addPackageCodeWaybilTraceTask(packageCode, waybillCode, request, siteOrgDto);
             }
             //构建
             StrandDetailMessage strandDetailMessage = initStrandDetailMessage(request, packageCode, waybillCode,waybillStrandDetailMessage);
             Message message = new Message(strandReportDetailWbProducer.getTopic(), JsonHelper.toJson(strandDetailMessage), waybillCode);
             listWb.add(message);
             if(syncFlag) {
-            	list.add(new Message(strandReportDetailProducer.getTopic(),message.getText(),waybillCode));
+                list.add(new Message(strandReportDetailProducer.getTopic(),message.getText(),waybillCode));
             }
         }
         if(syncFlag) {
-        	strandReportDetailProducer.batchSendOnFailPersistent(list);
+            strandReportDetailProducer.batchSendOnFailPersistent(list);
         }
         strandReportDetailWbProducer.batchSendOnFailPersistent(listWb);
         return result;
-
     }
+
+    private InvokeResult reportByWayBill(InvokeResult result, StrandReportRequest request, boolean syncFlag, BaseStaffSiteOrgDto siteOrgDto) {
+        String waybillCode = request.getBarcode();
+        BigWaybillDto bigWaybillDto =  waybillService.getWaybill(waybillCode);
+        if(bigWaybillDto == null){
+            log.warn("根据运单号：{}未查到运单信息", waybillCode);
+            result.error("上报失败，运单信息为空,请联系运单小秘！");
+            return result;
+        }
+        if(CollectionUtils.isEmpty(bigWaybillDto.getPackageList())){
+            log.warn("根据运单号：{}未查到包裹信息", waybillCode);
+            result.error("上报失败，改运单包裹信息为空,请联系运单小秘！");
+            return result;
+        }
+        StrandDetailMessage waybillStrandDetailMessage = this.loadWaybillInfo(request, waybillCode, bigWaybillDto);
+        List<Message> list = new ArrayList<>(bigWaybillDto.getPackageList().size());
+        List<Message> listWb = new ArrayList<>(bigWaybillDto.getPackageList().size());
+        for(DeliveryPackageD packageD : bigWaybillDto.getPackageList()){
+            String packageCode = packageD.getPackageBarcode();
+            //构建
+            StrandDetailMessage strandDetailMessage = initStrandDetailMessage(request, packageCode, waybillCode, waybillStrandDetailMessage);
+            Message message = new Message(strandReportDetailWbProducer.getTopic(), JsonHelper.toJson(strandDetailMessage), waybillCode);
+            listWb.add(message);
+            if(syncFlag) {
+                list.add(new Message(strandReportDetailProducer.getTopic(),message.getText(),waybillCode));
+            }
+        }
+        if(syncFlag) {
+            //全程跟踪
+            addPackageCodeWaybilTraceTask(waybillCode, waybillCode, request, siteOrgDto);
+            strandReportDetailProducer.batchSendOnFailPersistent(list);
+        }
+        strandReportDetailWbProducer.batchSendOnFailPersistent(listWb);
+        return result;
+    }
+
+    private InvokeResult reportByPackAge(InvokeResult result, StrandReportRequest request, boolean syncFlag, BaseStaffSiteOrgDto siteOrgDto) {
+        String waybillCode = WaybillUtil.getWaybillCode(request.getBarcode());
+        StrandDetailMessage waybillStrandDetailMessage = loadWaybillInfo(request, waybillCode, null);
+        //发滞留明细jmq
+        StrandDetailMessage strandDetailMessage = initStrandDetailMessage(request, request.getBarcode(), waybillCode , waybillStrandDetailMessage);
+        if(syncFlag) {
+            //发全程跟踪
+            int addCount = addPackageCodeWaybilTraceTask(request.getBarcode(), waybillCode, request, siteOrgDto);
+            strandReportDetailProducer.sendOnFailPersistent(waybillCode, JsonHelper.toJson(strandDetailMessage));
+        }
+        strandReportDetailWbProducer.sendOnFailPersistent(waybillCode, JsonHelper.toJson(strandDetailMessage));
+        return result;
+    }
+
 
     private void findPackageFromBox(List<String> packOrBoxCodes, List<String> packageCodes,Integer siteCode) {
         Sorting sorting =new Sorting();
