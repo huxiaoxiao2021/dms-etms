@@ -514,6 +514,9 @@
             <if test="unloadProgress != null">
                 unload_progress = #{unloadProgress},
             </if>
+            <if test="tagsSign != null">
+                tags_sign = #{tagsSign},
+            </if>
             <if test="updateUserErp != null">
                 update_user_erp = #{updateUserErp},
             </if>

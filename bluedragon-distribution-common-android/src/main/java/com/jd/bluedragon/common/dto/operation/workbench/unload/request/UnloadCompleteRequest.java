@@ -43,7 +43,7 @@ public class UnloadCompleteRequest implements Serializable {
      * 待扫描数量
      * 异常情况下必传
      */
-    private Long shouldScanCount;
+    private Long toScanCount;
 
     /**
      * 本场地多扫数量
@@ -104,12 +104,12 @@ public class UnloadCompleteRequest implements Serializable {
         this.abnormalFlag = abnormalFlag;
     }
 
-    public Long getShouldScanCount() {
-        return shouldScanCount;
+    public Long getToScanCount() {
+        return toScanCount;
     }
 
-    public void setShouldScanCount(Long shouldScanCount) {
-        this.shouldScanCount = shouldScanCount;
+    public void setToScanCount(Long toScanCount) {
+        this.toScanCount = toScanCount;
     }
 
     public Long getMoreScanLocalCount() {

@@ -36,7 +36,7 @@ public class UnloadTaskCompleteDto implements Serializable {
     /**
      * 待扫描数量
      */
-    private Long shouldScanCount;
+    private Long toScanCount;
 
     /**
      * 多扫数量
@@ -84,12 +84,12 @@ public class UnloadTaskCompleteDto implements Serializable {
         this.abnormalFlag = abnormalFlag;
     }
 
-    public Long getShouldScanCount() {
-        return shouldScanCount;
+    public Long getToScanCount() {
+        return toScanCount;
     }
 
-    public void setShouldScanCount(Long shouldScanCount) {
-        this.shouldScanCount = shouldScanCount;
+    public void setToScanCount(Long toScanCount) {
+        this.toScanCount = toScanCount;
     }
 
     public Long getMoreScanCount() {

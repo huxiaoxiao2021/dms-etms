@@ -229,8 +229,10 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         }
 
         for (JyBizTaskUnloadVehicleEntity entity : vehiclePageList) {
+            // 初始化基础字段
             VehicleBaseInfo vehicleBaseInfo = assembleVehicleBase(curQueryStatus, entity);
 
+            // 设置个性化字段
             switch (curQueryStatus) {
                 case WAIT_UN_LOAD:
                     ToUnloadVehicle toUnloadVehicle = (ToUnloadVehicle) vehicleBaseInfo;
@@ -302,6 +304,8 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         vehicleBaseInfo.setVehicleNumber(entity.getVehicleNumber());
         vehicleBaseInfo.setLineType(entity.getLineType());
         vehicleBaseInfo.setLineTypeName(entity.getLineTypeName());
+        vehicleBaseInfo.setStarSiteId(entity.getStartSiteId().intValue());
+        vehicleBaseInfo.setStartSiteName(entity.getStartSiteName());
 
         return vehicleBaseInfo;
     }
@@ -1332,7 +1336,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
     }
 
     /**
-     * 判断卸车任务是否正常。同时满足一下三个条件为正常
+     * 判断卸车任务是否正常。同时满足以下三个条件为正常
      * <ul>
      *     <li>待扫包裹数==0</li>
      *     <li>本场地多扫==0</li>
@@ -1346,6 +1350,8 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         long existToScanRows = 0;
         long existLocalMoreScanRows = 0;
         long existOutMoreScanRows = 0;
+        long moreScanOutCount = 0;
+        long moreScanLocalCount = 0;
         long interceptNotScanCount = 0;
         long interceptActualScanCount = 0;
         for (JyUnloadAggsEntity aggEntity : unloadAggList) {
@@ -1354,9 +1360,11 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
             }
             if (NumberHelper.gt0(aggEntity.getMoreScanLocalCount())) {
                 existLocalMoreScanRows ++;
+                moreScanLocalCount += aggEntity.getMoreScanLocalCount();
             }
             if (NumberHelper.gt0(aggEntity.getMoreScanOutCount())) {
                 existOutMoreScanRows ++;
+                moreScanOutCount += aggEntity.getMoreScanOutCount();
             }
             if (NumberHelper.gt0(aggEntity.getInterceptShouldScanCount())) {
                 interceptNotScanCount ++;
@@ -1374,10 +1382,10 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
             previewData.setTotalScan(oneUnloadAgg.getTotalScannedPackageCount().longValue());
             previewData.setInterceptNotScanCount(interceptNotScanCount);
             previewData.setInterceptActualScanCount(interceptActualScanCount);
-            previewData.setMoreScanLocalCount(existLocalMoreScanRows);
-            previewData.setMoreScanOutCount(existOutMoreScanRows);
-            previewData.setShouldScanCount(dealMinus(oneUnloadAgg.getTotalSealPackageCount(), oneUnloadAgg.getTotalScannedPackageCount()));
-            previewData.setAbnormalCount(previewData.getMoreScanLocalCount() + previewData.getMoreScanOutCount() + previewData.getShouldScanCount());
+            previewData.setMoreScanLocalCount(moreScanLocalCount);
+            previewData.setMoreScanOutCount(moreScanOutCount);
+            previewData.setToScanCount(dealMinus(oneUnloadAgg.getTotalSealPackageCount(), oneUnloadAgg.getTotalScannedPackageCount()));
+            previewData.setAbnormalCount(previewData.getMoreScanLocalCount() + previewData.getMoreScanOutCount() + previewData.getToScanCount());
         }
 
         return unloadDone;
@@ -1399,7 +1407,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
             return invokeResult;
         }
         if (NumberHelper.gt0(request.getAbnormalFlag())
-                && null == request.getShouldScanCount()
+                && null == request.getToScanCount()
                 && null == request.getMoreScanOutCount()) {
             invokeResult.parameterError("卸车任务异常时需要异常数量");
             return invokeResult;
@@ -1434,7 +1442,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         // 设置多扫数量
         completeDto.setMoreScanCount(this.calcRightMoreScanCount(request));
 
-        completeDto.setShouldScanCount(request.getShouldScanCount());
+        completeDto.setToScanCount(request.getToScanCount());
         completeDto.setOperateTime(new Date());
         completeDto.setOperateUserErp(request.getUser().getUserErp());
         completeDto.setOperateUserName(request.getUser().getUserName());
