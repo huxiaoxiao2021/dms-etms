@@ -36,6 +36,20 @@
     <jmq:transport id="jmq.dmsWorkerForTibet.transport" address="${jmq.dmsWorkerForTibet.address}" user="${jmq.dmsWorkerForTibet.user}"
                    password="${jmq.dmsWorkerForTibet.password}" app="${jmq.dmsWorkerForTibet.app}"/>
 
+    <!--########################  JMQ4配置  #############################################-->
+    <jmq:transport id="jmq4.dmsWeb.transport"
+                   address="${jmq4.dmsWeb.address}"
+                   user="${jmq4.dmsWeb.user}"
+                   password="${jmq4.dmsWeb.password}"
+                   app="${jmq4.dmsWeb.app}" />
+
+    <jmq:transport id="jmq4.dmsWorker.transport"
+                   address="${jmq4.dmsWorker.address}"
+                   user="${jmq4.dmsWorker.user}"
+                   password="${jmq4.dmsWorker.password}"
+                   app="${jmq4.dmsWorker.app}"/>
+    <!--########################  JMQ4配置  #############################################-->
+
 	<!-- jmq 消费客户端配置区 -->
     <!-- 一车一单发车 -->
     <!-- 一车一单发车 -->
@@ -320,12 +334,12 @@
     </jmq:consumer>
 
     <!--  拣运卸车扫描  -->
-    <jmq:consumer id="jmq.jyUnloadScanConsumer" transport="jmq.uatDmsWeb.transport">
+    <jmq:consumer id="jmq.jyUnloadScanConsumer" transport="jmq4.uatDmsWeb.transport">
         <jmq:listener topic="${jmq.topic.jy.unload.scan}" listener="jyUnloadScanConsumer"/>
     </jmq:consumer>
 
     <!--  拣运卸车完成  -->
-    <jmq:consumer id="jmq.jyUnloadTaskCompleteConsumer" transport="jmq.uatDmsWeb.transport">
+    <jmq:consumer id="jmq.jyUnloadTaskCompleteConsumer" transport="jmq4.uatDmsWeb.transport">
         <jmq:listener topic="${jmq.topic.jy.unload.complete}" listener="jyUnloadTaskCompleteConsumer"/>
     </jmq:consumer>
 </beans>
