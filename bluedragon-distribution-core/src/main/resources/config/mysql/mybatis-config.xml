@@ -51,6 +51,7 @@
         <mapper resource="mappers/mysql/kvIndex/KvIndexMapper.xml"/>
         <mapper resource="mappers/mysql/weightAndVolume/DmsOutWeightAndVolumeMapper.xml"/>
         <mapper resource="mappers/mysql/BusinessCode/BusinessCodeMapper.xml"/>
+        <mapper resource="mappers/mysql/jy/unload/JyUnloadMapper.xml" />
     </mappers>
 
 </configuration>
