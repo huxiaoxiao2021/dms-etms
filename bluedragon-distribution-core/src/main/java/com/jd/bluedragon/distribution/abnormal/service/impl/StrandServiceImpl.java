@@ -133,6 +133,7 @@ public class StrandServiceImpl implements StrandService {
     }
 
     private InvokeResult reportByBoard(InvokeResult result, StrandReportRequest request, boolean syncFlag, BaseStaffSiteOrgDto siteOrgDto) {
+        log.info("===========reportByBoard==============");
         String boardCode = request.getBarcode();
         Response<List<String>> response= groupBoardManager.getBoxesByBoardCode(boardCode);
         if(!(JdCResponse.CODE_SUCCESS.equals(response.getCode())
@@ -142,8 +143,10 @@ public class StrandServiceImpl implements StrandService {
             result.error(MessageFormat.format("上报失败，该板{0}内无包裹/箱号信息！", boardCode));
             return result;
         }
+        log.info("===========reportByBoard==============根据板号找到组板箱号和包裹号");
         List<String> packOrBoxCodes =response.getData();
         List<String> packageCodes =getPackageCodesFromPackOrBoxCodes(packOrBoxCodes,request.getSiteCode());
+        log.info("===========reportByBoard==============找到板子下的小包裹{}",packageCodes.size()>0?"null":packageCodes.toString());
         batchSendReportJmqByPackageCodes(packageCodes,request,syncFlag,siteOrgDto);
         return result;
     }
@@ -167,6 +170,7 @@ public class StrandServiceImpl implements StrandService {
             }
             //构建
             StrandDetailMessage strandDetailMessage = initStrandDetailMessage(request, packageCode, waybillCode,waybillStrandDetailMessage);
+           log.info("按包裹滞留上报消息体 {}",JsonHelper.toJson(strandDetailMessage));
             Message message = new Message(strandReportDetailWbProducer.getTopic(), JsonHelper.toJson(strandDetailMessage), waybillCode);
             listWb.add(message);
             if(syncFlag) {
@@ -247,6 +251,7 @@ public class StrandServiceImpl implements StrandService {
             if (BusinessUtil.isBoxcode(code)){
                 List<String> pCodes =getPackageCodesByBoxCodeOrSendCode(code,siteCode);
                 if (pCodes!=null && pCodes.size()>0){
+                    log.info("======getPackageCodesFromPackOrBoxCodes======根据sendD找到包裹信息{}",pCodes.toString());
                     packageCodes.addAll(pCodes);
                 }
             }

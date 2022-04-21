@@ -73,12 +73,15 @@ public class StrandResouce {
         try {
             //判断一下
             if (ReportTypeEnum.BOARD_NO.getCode().equals(request.getReportType())){
+                log.info("============按板进行滞留上报================");
                 if (!BusinessUtil.isBoardCode(request.getBarcode())){
+                    log.info("============按板进行滞留上报================非板号");
                     Response<Board> boardResponse= groupBoardManager.getBoardByBoxCode(request.getBarcode(),request.getSiteCode());
                     if (!JdCResponse.CODE_SUCCESS.equals(boardResponse.getCode())){
                         invokeResult.error("未根据箱号/包裹号找到匹配的板号！");
                         return invokeResult;
                     }
+                    log.info("============按板进行滞留上报================非板号,找到板号{}",boardResponse.getData().getCode());
                     request.setBarcode(boardResponse.getData().getCode());
                 }
             }
