@@ -38,6 +38,29 @@
         <property name="uat" value="${jmq.split.uat.switch:false}"/>
     </bean>
 
+    <!--########################  JMQ4配置  #############################################-->
+
+    <jmq:producer id="jmq4DmsWebProducer" transport="jmq4.dmsWeb.transport" retryTimes="3" />
+    <jmq:producer id="jmq4WorkerProducer" transport="jmq4.dmsWorker.transport" retryTimes="3" />
+
+    <bean id="jmq4DmsWebProducerSplit" class="com.jd.jspliter.jmq.producer.EnvMessageProducer" parent="jmq4DmsWebProducer">
+        <property name="uat" value="${jmq.split.uat.switch:false}"/>
+    </bean>
+    <bean id="jmq4WorkerProducerSplit" class="com.jd.jspliter.jmq.producer.EnvMessageProducer" parent="jmq4WorkerProducer">
+        <property name="uat" value="${jmq.split.uat.switch:false}"/>
+    </bean>
+
+    <bean id="jmq4DmsWebDefaultJMQProducer" abstract="true" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+        <property name="timeout" value="1000"/>
+        <property name="jmqProducer" ref="jmq4DmsWebProducerSplit"/>
+    </bean>
+    <bean id="jmq4DmsWorkerDefaultJMQProducer" abstract="true" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+        <property name="timeout" value="1000"/>
+        <property name="jmqProducer" ref="jmq4WorkerProducerSplit"/>
+    </bean>
+
+    <!--########################  JMQ4配置  #############################################-->
+
     <!--下述BEAN用来去除DBS事务拦截-->
     <bean class="com.jd.coo.sa.mybatis.plugins.event.mq.MQPluginContext"/>
 
@@ -602,13 +625,13 @@
     </bean>
 
     <!--  拣运卸车扫描  -->
-    <bean id="jyUnloadScanProducer" parent="dmsWebDefaultJMQProducer">
+    <bean id="jyUnloadScanProducer" parent="jmq4DmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.jy.unload.scan}" />
         <property name="timeout" value="1000" />
     </bean>
 
     <!--  拣运卸车完成  -->
-    <bean id="jyUnloadTaskCompleteProducer" parent="dmsWebDefaultJMQProducer">
+    <bean id="jyUnloadTaskCompleteProducer" parent="jmq4DmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.jy.unload.complete}" />
         <property name="timeout" value="1000" />
     </bean>
