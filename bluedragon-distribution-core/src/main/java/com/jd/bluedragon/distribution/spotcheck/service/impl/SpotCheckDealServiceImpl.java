@@ -1057,8 +1057,8 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
         reportInfoQuery.setWaybillCode(waybillCode);
         reportInfoQuery.setChannel(SpotCheckSourceFromEnum.ARTIFICIAL_SOURCE.contains(spotCheckContext.getSpotCheckSourceFrom())
                 ? SpotCheckConstants.ARTIFICIAL_SPOT_CHECK : SpotCheckConstants.EQUIPMENT_SPOT_CHECK);
-        reportInfoQuery.setMeasureWeight(String.valueOf(reviewWeight));
-        reportInfoQuery.setMeasureVolume(String.valueOf(reviewVolume));
+        reportInfoQuery.setMeasureWeight(NumberHelper.formatMoney(reviewWeight));
+        reportInfoQuery.setMeasureVolume(NumberHelper.formatMoney(reviewVolume));
         CommonDTO<ReportInfoDTO> commonDTO = weightReportCommonRuleManager.getReportInfo(reportInfoQuery);
         if(logger.isInfoEnabled()){
             logger.info("运单号:{}的核对数据:{}", reportInfoQuery.getWaybillCode(), JsonHelper.toJson(commonDTO.getData()));

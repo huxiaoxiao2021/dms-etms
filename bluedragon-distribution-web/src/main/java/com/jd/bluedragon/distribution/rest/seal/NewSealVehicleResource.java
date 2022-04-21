@@ -1094,17 +1094,26 @@ public class NewSealVehicleResource {
             if(unSealCarMap.containsKey(vehicleNumber)){
                 unSealCarMap.get(vehicleNumber).addAll(batchCodes);
             }else {
-                Set<String> batchCodeSet = new HashSet<>(batchCodes);
+                Set<String> batchCodeSet = new HashSet<>();
+                if(CollectionUtils.isNotEmpty(batchCodes)){
+                    batchCodeSet.addAll(batchCodes);
+                }
                 unSealCarMap.put(vehicleNumber, batchCodeSet);
             }
         }
         // 组装查询条件
         for (Map.Entry<String, Set<String>> entry : unSealCarMap.entrySet()) {
+            if(CollectionUtils.isEmpty(entry.getValue())){
+                continue;
+            }
             WaitSpotCheckQueryCondition condition = new WaitSpotCheckQueryCondition();
             condition.setVehicleNumber(entry.getKey());
             condition.setBatchCodeSet(entry.getValue());
             condition.setUnSealTime(new Date());
             queryConditions.add(condition);
+        }
+        if(CollectionUtils.isEmpty(queryConditions)){
+            return;
         }
         if(reportExternalManager.checkIsNeedSpotCheck(queryConditions)){
             unSealVehicleResponse.setBusinessCode(NewUnsealVehicleResponse.SPOT_CHECK_UNSEAL_HINT_CODE);
