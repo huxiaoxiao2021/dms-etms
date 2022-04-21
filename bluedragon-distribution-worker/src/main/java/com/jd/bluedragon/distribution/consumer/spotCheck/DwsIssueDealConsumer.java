@@ -75,6 +75,7 @@ public class DwsIssueDealConsumer  extends MessageBaseConsumer {
             condition.setRecordType(SpotCheckRecordTypeEnum.DETAIL_RECORD.getCode());
             List<WeightVolumeSpotCheckDto> spotCheckList = spotCheckQueryManager.querySpotCheckByCondition(condition);
             if(CollectionUtils.isEmpty(spotCheckList)){
+                logger.warn("根据包裹:{}站点:{}未查询到抽检数据!", spotCheckDto.getPackageCode(), spotCheckDto.getReviewSiteCode());
                 return;
             }
             List<DwsAIDistinguishMQ.Package> list = new ArrayList<>();
