@@ -30,6 +30,7 @@ import com.jd.bluedragon.dms.utils.WaybillSignConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.dms.logger.external.LogEngine;
@@ -1026,8 +1027,8 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
         reportInfoQuery.setChannel(SpotCheckSourceFromEnum.ARTIFICIAL_SOURCE.contains(spotCheckContext.getSpotCheckSourceFrom())
                 ? SpotCheckConstants.ARTIFICIAL_SPOT_CHECK : SpotCheckConstants.EQUIPMENT_SPOT_CHECK);
         SpotCheckReviewDetail spotCheckReviewDetail = spotCheckContext.getSpotCheckReviewDetail();
-        reportInfoQuery.setMeasureWeight(String.valueOf(spotCheckReviewDetail.getReviewTotalWeight()));
-        reportInfoQuery.setMeasureVolume(String.valueOf(spotCheckReviewDetail.getReviewTotalVolume()));
+        reportInfoQuery.setMeasureWeight(NumberHelper.formatMoney(spotCheckReviewDetail.getReviewTotalWeight()));
+        reportInfoQuery.setMeasureVolume(NumberHelper.formatMoney(spotCheckReviewDetail.getReviewTotalVolume()));
         CommonDTO<ReportInfoDTO> commonDTO = weightReportCommonRuleManager.getReportInfo(reportInfoQuery);
         if(logger.isInfoEnabled()){
             logger.info("运单号:{}的核对数据:{}", reportInfoQuery.getWaybillCode(), JsonHelper.toJson(commonDTO.getData()));
@@ -1195,9 +1196,8 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
         spotCheckIssueMQ.setDutyStaffAccount(spotCheckDto.getContrastStaffAccount());
         spotCheckIssueMQ.setDutyStaffName(spotCheckDto.getContrastStaffName());
         spotCheckIssueMQ.setDutyStaffType(spotCheckDto.getContrastStaffType());
-        DecimalFormat decimalFormat = new DecimalFormat("0.00");
-        spotCheckIssueMQ.setConfirmWeight(spotCheckDto.getContrastWeight() == null ? null : decimalFormat.format(spotCheckDto.getContrastWeight()));
-        spotCheckIssueMQ.setConfirmVolume(spotCheckDto.getContrastVolume() == null ? null : decimalFormat.format(spotCheckDto.getContrastVolume()));
+        spotCheckIssueMQ.setConfirmWeight(NumberHelper.formatMoney(spotCheckDto.getContrastWeight()));
+        spotCheckIssueMQ.setConfirmVolume(NumberHelper.formatMoney(spotCheckDto.getContrastVolume()));
         spotCheckIssueMQ.setStartStaffAccount(spotCheckDto.getReviewUserErp());
         spotCheckIssueMQ.setStartStaffName(spotCheckDto.getReviewUserName());
         spotCheckIssueMQ.setStartStaffType(Constants.CONSTANT_NUMBER_ONE);
@@ -1205,14 +1205,14 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
         spotCheckIssueMQ.setStartRegion(spotCheckDto.getReviewOrgName());
         spotCheckIssueMQ.setOrgCode(String.valueOf(spotCheckDto.getReviewSiteCode()));
         spotCheckIssueMQ.setOrgName(spotCheckDto.getReviewSiteName());
-        spotCheckIssueMQ.setReConfirmLong(spotCheckDto.getReviewLength() == null ? null : String.valueOf(spotCheckDto.getReviewLength()));
-        spotCheckIssueMQ.setReConfirmWidth(spotCheckDto.getReviewWidth() == null ? null : String.valueOf(spotCheckDto.getReviewWidth()));
-        spotCheckIssueMQ.setReConfirmHigh(spotCheckDto.getReviewHeight() == null ? null : String.valueOf(spotCheckDto.getReviewHeight()));
-        spotCheckIssueMQ.setReConfirmWeight(spotCheckDto.getReviewWeight() == null ? String.valueOf(Constants.DOUBLE_ZERO) : String.valueOf(spotCheckDto.getReviewWeight()));
-        spotCheckIssueMQ.setReConfirmVolume(spotCheckDto.getReviewVolume() == null ? String.valueOf(Constants.DOUBLE_ZERO) : String.valueOf(spotCheckDto.getReviewVolume()));
+        spotCheckIssueMQ.setReConfirmLong(NumberHelper.formatMoney(spotCheckDto.getReviewLength()));
+        spotCheckIssueMQ.setReConfirmWidth(NumberHelper.formatMoney(spotCheckDto.getReviewWidth()));
+        spotCheckIssueMQ.setReConfirmHigh(NumberHelper.formatMoney(spotCheckDto.getReviewHeight()));
+        spotCheckIssueMQ.setReConfirmWeight(NumberHelper.formatMoney(spotCheckDto.getReviewWeight()));
+        spotCheckIssueMQ.setReConfirmVolume(NumberHelper.formatMoney(spotCheckDto.getReviewVolume()));
         spotCheckIssueMQ.setConvertCoefficient(spotCheckDto.getVolumeRate() == null ? null : String.valueOf(spotCheckDto.getVolumeRate()));
         spotCheckIssueMQ.setConfirmWeightSource(spotCheckDto.getContrastSource());
-        spotCheckIssueMQ.setDiffWeight(spotCheckDto.getDiffWeight() == null ? null : decimalFormat.format(spotCheckDto.getDiffWeight()));
+        spotCheckIssueMQ.setDiffWeight(NumberHelper.formatMoney(spotCheckDto.getDiffWeight()));
         spotCheckIssueMQ.setStanderDiff(spotCheckDto.getDiffStandard());
         spotCheckIssueMQ.setExceedType(spotCheckDto.getExcessType());
         spotCheckIssueMQ.setStatus(spotCheckDto.getSpotCheckStatus());
