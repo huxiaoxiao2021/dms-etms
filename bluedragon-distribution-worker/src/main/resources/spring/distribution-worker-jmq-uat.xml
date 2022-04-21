@@ -334,12 +334,12 @@
     </jmq:consumer>
 
     <!--  拣运卸车扫描  -->
-    <jmq:consumer id="jmq.jyUnloadScanConsumer" transport="jmq4.uatDmsWeb.transport">
+    <jmq:consumer id="jmq.jyUnloadScanConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.jy.unload.scan}" listener="jyUnloadScanConsumer"/>
     </jmq:consumer>
 
     <!--  拣运卸车完成  -->
-    <jmq:consumer id="jmq.jyUnloadTaskCompleteConsumer" transport="jmq4.uatDmsWeb.transport">
+    <jmq:consumer id="jmq.jyUnloadTaskCompleteConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.jy.unload.complete}" listener="jyUnloadTaskCompleteConsumer"/>
     </jmq:consumer>
 </beans>
