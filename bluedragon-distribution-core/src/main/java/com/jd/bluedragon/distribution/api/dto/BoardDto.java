@@ -12,6 +12,10 @@ public class BoardDto {
     private String date;
     private String time;
     private Integer destinationId;
+    /**
+     * 扫描数量
+     */
+    private Integer scanQuantity;
 
     public String getCode() {
         return code;
@@ -59,5 +63,13 @@ public class BoardDto {
 
     public void setDestinationId(Integer destinationId) {
         this.destinationId = destinationId;
+    }
+
+    public Integer getScanQuantity() {
+        return scanQuantity;
+    }
+
+    public void setScanQuantity(Integer scanQuantity) {
+        this.scanQuantity = scanQuantity;
     }
 }
