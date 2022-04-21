@@ -20,7 +20,6 @@
 		<typeAlias type="com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity" alias="JyBizTaskUnloadVehicleEntity"/>
 		<typeAlias type="com.jd.bluedragon.distribution.jy.unload.JyBizUnloadVehicleBatchEntity" alias="JyBizUnloadVehicleBatchEntity"/>
 		<typeAlias type="com.jd.bluedragon.distribution.jy.unload.JyUnloadAggsEntity" alias="JyUnloadAggsEntity"/>
-		<typeAlias type="com.jd.bluedragon.distribution.jy.unload.JyUnloadEntity" alias="JyUnloadEntity"/>
 
 	</typeAliases>
 
