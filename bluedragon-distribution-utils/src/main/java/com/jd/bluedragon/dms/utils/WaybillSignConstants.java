@@ -177,6 +177,13 @@ public interface WaybillSignConstants {
      * 正向
      */
 	char CHAR_61_0 = '0';
+	/**
+	 * 逆向  1236
+	 */
+	char CHAR_61_1 = '1';
+	char CHAR_61_2 = '2';
+	char CHAR_61_3 = '3';
+	char CHAR_61_6 = '6';
 
 	/**
 	 * 逆向类型(运单打标)
