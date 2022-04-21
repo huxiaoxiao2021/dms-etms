@@ -112,11 +112,6 @@ public class DiscardedPackageStorageTempQo extends BasePagerCondition implements
 
     List<String> waybillCodeList;
 
-    /**
-     * 上次查询的最后一条id
-     */
-    private Long lastId;
-
     public String getWaybillCode() {
         return waybillCode;
     }
@@ -302,13 +297,5 @@ public class DiscardedPackageStorageTempQo extends BasePagerCondition implements
     public DiscardedPackageStorageTempQo setWaybillCodeList(List<String> waybillCodeList) {
         this.waybillCodeList = waybillCodeList;
         return this;
-    }
-
-    public Long getLastId() {
-        return lastId;
-    }
-
-    public void setLastId(Long lastId) {
-        this.lastId = lastId;
     }
 }
