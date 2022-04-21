@@ -149,6 +149,7 @@ public class JyGroupMemberServiceImpl implements JyGroupMemberService {
 					generateAndSetMemberCode(member);
 					member.setRefGroupCode(groupCode);
 					member.setRefSignRecordId(signData.getId());
+                    member.setStatus(JyGroupMemberStatusEnum.IN.getCode());
 					member.setUserCode(signData.getUserCode());
 					member.setUserName(signData.getUserName());
 					member.setJobCode(signData.getJobCode());
