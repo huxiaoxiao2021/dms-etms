@@ -54,6 +54,9 @@ public class VirtualBoardResultDto implements Serializable {
 
     private Long createTimeMillSeconds;
 
+    private String warnMsg;
+
+
     public String getBoardCode() {
         return boardCode;
     }
@@ -133,5 +136,13 @@ public class VirtualBoardResultDto implements Serializable {
     public VirtualBoardResultDto setCreateTimeMillSeconds(Long createTimeMillSeconds) {
         this.createTimeMillSeconds = createTimeMillSeconds;
         return this;
+    }
+
+    public String getWarnMsg() {
+        return warnMsg;
+    }
+
+    public void setWarnMsg(String warnMsg) {
+        this.warnMsg = warnMsg;
     }
 }
