@@ -724,7 +724,6 @@
                   timeout="${jsf.wbms.reverseWaybillApi.timeout}"
                   lazy="${jsf.consumer.lazy}"
                   retries="${jsf.retries}">
-        <jsf:parameter key="token" value="${jsf.wbms.reverseWaybillApi.token}" hide="true"/>
     </jsf:consumer>
     <jsf:consumer id="printHandoverListJsfService"
                   interface="com.jd.dms.wb.report.api.IPrintHandoverListJsfService"
