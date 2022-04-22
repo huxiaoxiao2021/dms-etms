@@ -1464,11 +1464,11 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         if (unloadTask != null && unloadTask.unloadWithoutTask()) {
             return request.getMoreScanOutCount();
         }
-        else {
-            if (NumberHelper.isPositiveNumber(request.getMoreScanLocalCount()) && NumberHelper.isPositiveNumber(request.getMoreScanOutCount())) {
-                return request.getMoreScanLocalCount() + request.getMoreScanOutCount();
-            }
+
+        if (request.getMoreScanLocalCount() != null && request.getMoreScanOutCount() != null) {
+            return request.getMoreScanLocalCount() + request.getMoreScanOutCount();
         }
+
         return 0L;
     }
 
