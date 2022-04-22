@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.consumer.spotCheck;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.SpotCheckQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
@@ -11,6 +12,7 @@ import com.jd.bluedragon.distribution.spotcheck.exceptions.SpotCheckSysException
 import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckDealService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.jmq.common.message.Message;
+import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ql.dms.report.domain.spotcheck.SpotCheckQueryCondition;
 import com.jd.ql.dms.report.domain.spotcheck.WeightVolumeSpotCheckDto;
 import com.jd.ump.profiler.CallerInfo;
@@ -25,6 +27,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 
 /**
@@ -55,6 +58,10 @@ public class DwsIssueDealConsumer  extends MessageBaseConsumer {
     @Autowired
     private UccPropertyConfiguration uccPropertyConfiguration;
 
+    @Autowired
+    @Qualifier("jimdbCacheService")
+    private CacheService jimdbCacheService;
+
     @Override
     public void consume(Message message) throws Exception {
         CallerInfo info = Profiler.registerInfo("DwsIssueDealConsumer.consume", Constants.UMP_APP_NAME_DMSWORKER, false, true);
@@ -66,6 +73,9 @@ public class DwsIssueDealConsumer  extends MessageBaseConsumer {
             WeightVolumeSpotCheckDto spotCheckDto = JsonHelper.fromJsonUseGson(message.getText(), WeightVolumeSpotCheckDto.class);
             if(spotCheckDto == null || StringUtils.isEmpty(spotCheckDto.getWaybillCode()) || spotCheckDto.getReviewSiteCode() == null) {
                 logger.warn("dws下发处理消息体转换失败，内容为【{}】", message.getText());
+                return;
+            }
+            if(checkWaybillIsAiSend(spotCheckDto.getWaybillCode())){
                 return;
             }
             // 一单多件：获取抽检的包裹数据
@@ -101,6 +111,8 @@ public class DwsIssueDealConsumer  extends MessageBaseConsumer {
             }else {
                 dwsAIDistinguishSmallProducer.sendOnFailPersistent(dwsAIDistinguishMQ.getWaybillCode(), JsonHelper.toJson(dwsAIDistinguishMQ));
             }
+            // 设置下发AI缓存
+            setAiSendWaybillCache(spotCheckDto.getWaybillCode());
         } catch (SpotCheckSysException e) {
             logger.warn("dws下发处理消息体处理异常进行重试", e);
             throw e;
@@ -109,6 +121,31 @@ public class DwsIssueDealConsumer  extends MessageBaseConsumer {
             logger.error("dws下发处理消息体处理失败, 消息体:{}", message.getText(), e);
         } finally {
             Profiler.registerInfoEnd(info);
+        }
+    }
+
+    /**
+     * 校验运单是否已下发AI
+     *
+     * @param waybillCode
+     * @return
+     */
+    private boolean checkWaybillIsAiSend(String waybillCode) {
+        try {
+            String cacheAiSendWaybillKey = String.format(CacheKeyConstants.CACHE_AI_SEND_WAYBILL, waybillCode);
+            return jimdbCacheService.exists(cacheAiSendWaybillKey);
+        }catch (Exception e){
+            logger.error("校验运单号:{}是否下发AI异常!", waybillCode);
+        }
+        return false;
+    }
+
+    private void setAiSendWaybillCache(String waybillCode) {
+        try {
+            String key = String.format(CacheKeyConstants.CACHE_AI_SEND_WAYBILL, waybillCode);
+            jimdbCacheService.setEx(key, Constants.CONSTANT_NUMBER_ONE, 30, TimeUnit.MINUTES);
+        }catch (Exception e){
+            logger.error("设置运单号:{}下发AI的缓存异常!", waybillCode, e);
         }
     }
 }
