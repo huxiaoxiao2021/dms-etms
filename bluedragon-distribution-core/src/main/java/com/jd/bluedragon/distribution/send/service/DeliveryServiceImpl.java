@@ -3068,7 +3068,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
             tSendDetail.setCreateSiteCode(tSendM.getCreateSiteCode());
             // 按照运单取消处理
             if (WaybillUtil.isWaybillCode(tSendM.getBoxCode()) || WaybillUtil.isSurfaceCode(tSendM.getBoxCode()) || WaybillUtil.isPackageCode(tSendM.getBoxCode())) {
-                callerInfo = Profiler.registerInfo("DMSWEB.DeliveryService.dellCancel.waybillCode");
+                callerInfo = Profiler.registerInfo("DMSWEB.DeliveryService.dellCancel.waybillCode",Constants.SYSTEM_CODE_WEB,false,true);
                 // 判断 按运单发货在处理中，则稍后再试
                 if (isSendByWaybillProcessing(tSendM) || sendByWaybillProcessing(tSendM)) {
                     return new ThreeDeliveryResponse(
@@ -3104,7 +3104,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
 							HintService.getHint(HintCodeConstants.PACKAGE_SENDM_MISSING), null);
 				}
 			} else if (BusinessHelper.isBoxcode(tSendM.getBoxCode())) {
-                callerInfo = Profiler.registerInfo("DMSWEB.DeliveryService.dellCancel.boxCode");
+                callerInfo = Profiler.registerInfo("DMSWEB.DeliveryService.dellCancel.boxCode",Constants.SYSTEM_CODE_WEB,false,true);
 				List<SendM> sendMList = this.sendMDao.findSendMByBoxCode2(tSendM);
                 ThreeDeliveryResponse threeDeliveryResponse = cancelUpdateDataByBox(tSendM, tSendDetail, sendMList);
                 if (threeDeliveryResponse.getCode().equals(200)) {
@@ -3122,7 +3122,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                 Profiler.registerInfoEnd(callerInfo);
                 return threeDeliveryResponse;
             } else if (BusinessUtil.isBoardCode(tSendM.getBoxCode())){
-                callerInfo = Profiler.registerInfo("DMSWEB.DeliveryService.dellCancel.boardCode");
+                callerInfo = Profiler.registerInfo("DMSWEB.DeliveryService.dellCancel.boardCode",Constants.SYSTEM_CODE_WEB,false,true);
                 tSendM.setBoardCode(tSendM.getBoxCode());
                 //1.组板发货批次，板号校验（强校验）
                 if(!checkSendM(tSendM)){
