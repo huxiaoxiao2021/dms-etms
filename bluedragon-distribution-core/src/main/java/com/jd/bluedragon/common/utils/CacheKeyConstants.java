@@ -90,6 +90,10 @@ public class CacheKeyConstants {
      * 抽检下发fxm的缓存
      */
     public static final String CACHE_FXM_SEND_WAYBILL = "spotCheck.fxmSend-%s";
+    /**
+     * 抽检下发AI的缓存
+     */
+    public static final String CACHE_AI_SEND_WAYBILL = "spotCheck.aiSend-%s";
 
     /***************************************** 抽检缓存end *******************************************/
 
