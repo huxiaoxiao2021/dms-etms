@@ -39,8 +39,8 @@ public class BoxLimitDaoTest {
     @Test
     public void insertTest() {
         BoxLimitConfig config = new BoxLimitConfig();
-        config.setSiteName("test001");
-        config.setSiteId(1);
+        config.setSiteName("test001231");
+        //config.setSiteId(1);
         config.setLimitNum(110);
         config.setOperatorErp("testErp001");
         config.setOperatorSiteId(1);

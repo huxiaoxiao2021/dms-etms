@@ -31,12 +31,18 @@
     where id = #{id,jdbcType=BIGINT}
   </delete>
   <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.jd.bluedragon.distribution.boxlimit.domain.BoxLimitConfig" useGeneratedKeys="true">
-    insert into box_limit_config (site_name, site_id, limit_num, 
-      operator_erp, operator_site_id, operator_site_name, 
+    insert into box_limit_config (site_name,
+      <if test="siteId != null">
+        site_id,
+      </if>
+      limit_num, operator_erp, operator_site_id, operator_site_name,
       operating_time, create_time, update_time, 
       yn, config_type, box_number_type)
-    values (#{siteName,jdbcType=VARCHAR}, #{siteId,jdbcType=INTEGER}, #{limitNum,jdbcType=INTEGER}, 
-      #{operatorErp,jdbcType=VARCHAR}, #{operatorSiteId,jdbcType=INTEGER}, #{operatorSiteName,jdbcType=VARCHAR}, 
+    values (#{siteName,jdbcType=VARCHAR},
+      <if test="siteId != null">
+        #{siteId,jdbcType=INTEGER},
+      </if>
+      #{limitNum,jdbcType=INTEGER}, #{operatorErp,jdbcType=VARCHAR}, #{operatorSiteId,jdbcType=INTEGER}, #{operatorSiteName,jdbcType=VARCHAR},
       #{operatingTime,jdbcType=TIMESTAMP}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, 
       #{yn,jdbcType=BOOLEAN},#{configType,jdbcType=TINYINT},#{boxNumberType,jdbcType=VARCHAR})
   </insert>
