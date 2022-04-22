@@ -146,7 +146,7 @@ public class StrandServiceImpl implements StrandService {
         log.info("===========reportByBoard==============根据板号找到组板箱号和包裹号");
         List<String> packOrBoxCodes =response.getData();
         List<String> packageCodes =getPackageCodesFromPackOrBoxCodes(packOrBoxCodes,request.getSiteCode());
-        log.info("===========reportByBoard==============找到板子下的小包裹{}",packageCodes.size()>0?"null":packageCodes.toString());
+        log.info("===========reportByBoard==============找到板子下的小包裹{}",packageCodes.size()>0?packageCodes.toString():"null");
         batchSendReportJmqByPackageCodes(packageCodes,request,syncFlag,siteOrgDto);
         return result;
     }
@@ -179,8 +179,11 @@ public class StrandServiceImpl implements StrandService {
         }
         if(syncFlag) {
             strandReportDetailProducer.batchSendOnFailPersistent(list);
+            log.info("=====report滞留上报按板或者按包裹（最终都是按包裹）给运单发全程跟踪消息成功============");
+
         }
         strandReportDetailWbProducer.batchSendOnFailPersistent(listWb);
+        log.info("=====report滞留上报按板或者按包裹（最终都是按包裹）给分拣报表发消息成功============");
     }
 
     private InvokeResult reportByBoxOrSendCode(InvokeResult result, StrandReportRequest request, boolean syncFlag, BaseStaffSiteOrgDto siteOrgDto) {
@@ -225,8 +228,10 @@ public class StrandServiceImpl implements StrandService {
             //全程跟踪
             addPackageCodeWaybilTraceTask(waybillCode, waybillCode, request, siteOrgDto);
             strandReportDetailProducer.batchSendOnFailPersistent(list);
+            log.info("=====reportByWayBill给运单发全程跟踪消息成功============");
         }
         strandReportDetailWbProducer.batchSendOnFailPersistent(listWb);
+        log.info("=====reportByWayBill给分拣报表发消息成功============");
         return result;
     }
 
@@ -239,8 +244,10 @@ public class StrandServiceImpl implements StrandService {
             //发全程跟踪
             int addCount = addPackageCodeWaybilTraceTask(request.getBarcode(), waybillCode, request, siteOrgDto);
             strandReportDetailProducer.sendOnFailPersistent(waybillCode, JsonHelper.toJson(strandDetailMessage));
+            log.info("=====reportByPackage给运单发全程跟踪消息成功============");
         }
         strandReportDetailWbProducer.sendOnFailPersistent(waybillCode, JsonHelper.toJson(strandDetailMessage));
+        log.info("=====reportByPackage给分拣报表发消息成功============");
         return result;
     }
 
@@ -249,6 +256,7 @@ public class StrandServiceImpl implements StrandService {
         List<String> packageCodes =new ArrayList<>();
         for (String code:packOrBoxCodes){
             if (BusinessUtil.isBoxcode(code)){
+                log.info("=====getPackageCodesFromPackOrBoxCodes=======根据箱号获取集包包裹 {}",code);
                 List<String> pCodes =getPackageCodesByBoxCodeOrSendCode(code,siteCode);
                 if (pCodes!=null && pCodes.size()>0){
                     log.info("======getPackageCodesFromPackOrBoxCodes======根据sendD找到包裹信息{}",pCodes.toString());
