@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.boxlimit.service;
 
+import com.jd.bluedragon.distribution.api.domain.LoginUser;
 import com.jd.bluedragon.distribution.boxlimit.BoxLimitDTO;
 import com.jd.bluedragon.distribution.boxlimit.BoxLimitQueryDTO;
 import com.jd.bluedragon.distribution.boxlimit.BoxLimitTemplateVO;
@@ -37,21 +38,21 @@ public interface BoxLimitJsfService {
      * @param dto
      * @return
      */
-    JdResponse saveOrUpdate( BoxLimitDTO dto);
+    JdResponse saveOrUpdate(BoxLimitDTO dto,LoginUser loginUser);
 
     /**
      * 根据id删除集箱包裹限制配置信息
      * @param ids
      * @return
      */
-    JdResponse delete(ArrayList<Long> ids);
+    JdResponse delete(ArrayList<Long> ids,LoginUser loginUser);
 
     /**
      * 按站点集箱包裹限制配置导入
      * @param dataList
      * @return
      */
-    JdResponse toImport(List<BoxLimitTemplateVO> dataList);
+    JdResponse toImport(List<BoxLimitTemplateVO> dataList,LoginUser loginUser);
 
     /**
      * 查询符合条件的数据条数

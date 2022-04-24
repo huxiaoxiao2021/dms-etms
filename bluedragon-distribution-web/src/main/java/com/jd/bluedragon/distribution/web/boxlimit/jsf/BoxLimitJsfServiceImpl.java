@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.web.boxlimit.jsf;
 
 import com.alibaba.fastjson.JSON;
+import com.jd.bluedragon.distribution.api.domain.LoginUser;
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
 import com.jd.bluedragon.distribution.boxlimit.BoxLimitDTO;
 import com.jd.bluedragon.distribution.boxlimit.BoxLimitQueryDTO;
@@ -24,7 +25,7 @@ import java.util.List;
  * @date 2022/3/31 19:54
  */
 @Service("boxLimitJsfService")
-public class BoxLimitJsfServiceImpl extends DmsBaseController implements BoxLimitJsfService {
+public class BoxLimitJsfServiceImpl implements BoxLimitJsfService {
 
     private static final Logger log = LoggerFactory.getLogger(BoxLimitController.class);
 
@@ -60,28 +61,28 @@ public class BoxLimitJsfServiceImpl extends DmsBaseController implements BoxLimi
     /**
      * 新建/修改
      */
-    public JdResponse saveOrUpdate(BoxLimitDTO dto) {
+    public JdResponse saveOrUpdate(BoxLimitDTO dto, LoginUser loginUser) {
         log.info("新增或者修改集箱包裹限制-入参-{}", JSON.toJSONString(dto));
         if (dto.getId() == null) {
-            return boxLimitService.create(dto, getLoginUser());
+            return boxLimitService.create(dto, loginUser);
         } else {
-            return boxLimitService.update(dto, getLoginUser());
+            return boxLimitService.update(dto, loginUser);
         }
     }
 
     /**
      * 删除
      */
-    public JdResponse delete(ArrayList<Long> ids) {
-        return boxLimitService.delete(ids, getLoginUser().getUserErp());
+    public JdResponse delete(ArrayList<Long> ids,LoginUser loginUser) {
+        return boxLimitService.delete(ids, loginUser.getUserErp());
     }
 
     /**
      * 导入
      */
-    public JdResponse toImport(List<BoxLimitTemplateVO> dataList) {
+    public JdResponse toImport(List<BoxLimitTemplateVO> dataList,LoginUser loginUser) {
         try {
-            return boxLimitService.importData(dataList, getLoginUser());
+            return boxLimitService.importData(dataList, loginUser);
         } catch (Exception e) {
             this.log.error("导入异常!-{}", e.getMessage(),e);
             return new JdResponse(JdResponse.CODE_FAIL, e.getMessage());
