@@ -565,10 +565,10 @@
             AND create_time &lt; #{createTimeTo}
         </if>
         <if test="scanTimeFrom != null">
-            AND create_time &lt;= #{scanTimeFrom}
+            AND create_time >= #{scanTimeFrom}
         </if>
         <if test="scanTimeTo != null">
-            AND create_time >= #{scanTimeTo}
+            AND create_time &lt; #{scanTimeTo}
         </if>
         <if test="yn != null">
             AND yn = #{yn}

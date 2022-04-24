@@ -168,7 +168,7 @@ public class DiscardedPackageStorageTempServiceImpl implements DiscardedPackageS
         if(query.getStorageDaysFrom() != null){
             try {
                 Date currentDateMorning = DateUtil.parseDateByStr(DateUtil.format(new Date(), DateUtil.FORMAT_DATE), DateUtil.FORMAT_DATE);
-                query.setScanTimeFrom(DateHelper.addDate(currentDateMorning, -query.getStorageDaysFrom() + 1));
+                query.setScanTimeTo(DateHelper.addDate(currentDateMorning, -query.getStorageDaysFrom()));
             } catch (Exception e) {
                 log.error("DiscardedPackageStorageTempServiceImpl.checkAndSetPram4SelectParam exception ", e);
                 result.toError("计算已存储天数异常");
@@ -179,7 +179,7 @@ public class DiscardedPackageStorageTempServiceImpl implements DiscardedPackageS
         if(query.getStorageDaysTo() != null){
             try {
                 Date currentDateMorning = DateUtil.parseDateByStr(DateUtil.format(new Date(), DateUtil.FORMAT_DATE), DateUtil.FORMAT_DATE);
-                query.setScanTimeTo(DateHelper.addDate(currentDateMorning, -query.getStorageDaysTo()));
+                query.setScanTimeFrom(DateHelper.addDate(currentDateMorning, -query.getStorageDaysTo() - 1));
             } catch (Exception e) {
                 log.error("DiscardedPackageStorageTempServiceImpl.checkAndSetPram4SelectParam exception ", e);
                 result.toError("计算已存储天数异常");
@@ -270,6 +270,7 @@ public class DiscardedPackageStorageTempServiceImpl implements DiscardedPackageS
             discardedWaybillStorageTempGBWaybillCodeMap.put(discardedWaybillStorageTemp.getWaybillCode(), discardedWaybillStorageTemp);
         }
         Map<Integer, String> discardedPackageStorageTempStatusEnumMap = DiscardedPackageStorageTempStatusEnum.ENUM_MAP;
+        Date dateNow = new Date();
         for (DiscardedPackageStorageTempVo vo : dataList) {
             final DiscardedWaybillStorageTemp discardedWaybillStorageTemp = discardedWaybillStorageTempGBWaybillCodeMap.get(vo.getWaybillCode());
             if(discardedWaybillStorageTemp != null){
@@ -284,7 +285,7 @@ public class DiscardedPackageStorageTempServiceImpl implements DiscardedPackageS
             vo.setStatusStr(statusStr != null ? statusStr : DiscardedPackageStorageTempStatusEnum.UNKNOW.getName());
             vo.setIsCodStr(Objects.equals(vo.getCod(), Constants.YN_YES) ? "是" : "否");
             // 计算已存储天数
-            vo.setStorageDays(DateHelper.daysDiff(vo.getCreateTime(), new Date()));
+            vo.setStorageDays(DateHelper.daysDiff(vo.getCreateTime(), dateNow));
             vo.setOperateTypeDesc(WasteOperateTypeEnum.getNameByCode(vo.getOperateType()));
             vo.setWaybillTypeDesc(WasteWaybillTypeEnum.getNameByCode(vo.getWaybillType()));
         }
