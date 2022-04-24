@@ -2,6 +2,8 @@ package com.jd.bluedragon.distribution.abnormal.service.impl;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.distribution.abnormal.domain.ReportTypeEnum;
@@ -483,6 +485,14 @@ public class StrandServiceImpl implements StrandService {
         //按批次提交,不取消发货
         if(ReportTypeEnum.BATCH_NO.getCode().equals(request.getReportType())){
             return;
+        }
+        if (ReportTypeEnum.BOARD_NO.getCode().equals(request.getReportType())){
+            SendM sendm =sendMService.selectSendByBoardCode(request.getSiteCode(),request.getBarcode(),1);
+            if (sendM==null){
+                log.info("按板滞留上报==========没有找到按板的sendM(发货)记录");
+                return;
+            }
+            sendM.setSendCode(sendm.getSendCode());
         }
         ThreeDeliveryResponse response = deliveryService.dellCancelDeliveryMessageWithServerTime(sendM, true);
         //取消发货时异常

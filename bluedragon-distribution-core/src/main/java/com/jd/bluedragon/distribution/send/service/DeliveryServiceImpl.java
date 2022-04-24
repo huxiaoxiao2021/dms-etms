@@ -3117,14 +3117,6 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                 return threeDeliveryResponse;
             } else if (BusinessUtil.isBoardCode(tSendM.getBoxCode())){
                 tSendM.setBoardCode(tSendM.getBoxCode());
-                SendM sendM =sendMDao.findSendMByBoardCode(tSendM);
-                if (sendM==null){
-                    log.info("按板取消发货==========没有找到按板的sendM记录");
-                    return new ThreeDeliveryResponse(
-                            DeliveryResponse.CODE_NO_BOARDSEND_DETAIL_ERROR,
-                            HintService.getHint(HintCodeConstants.BOARD_SENDM_MISSING), null);
-                }
-                tSendM.setSendCode(sendM.getSendCode());
                 //1.组板发货批次，板号校验（强校验）
                 if(!checkSendM(tSendM)){
                     log.info("按板取消发货checkSendM===批次号始发ID与操作人所属单位ID不一致");
