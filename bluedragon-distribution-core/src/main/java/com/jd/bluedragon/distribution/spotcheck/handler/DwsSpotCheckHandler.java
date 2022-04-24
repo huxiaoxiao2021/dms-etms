@@ -129,12 +129,12 @@ public class DwsSpotCheckHandler extends AbstractSpotCheckHandler {
         // 集齐后
         if(spotCheckDealService.gatherTogether(spotCheckContext)){
             spotCheckContext.setIsGatherTogether(true);
-            // 0、设置已抽检缓存
-            setSpotCheckCache(spotCheckContext.getWaybillCode(), spotCheckContext.getExcessStatus());
             // 1、汇总复核数据
             summaryReviewWeightVolume(spotCheckContext);
             // 获取核对数据
             spotCheckDealService.assembleContrastData(spotCheckContext);
+            // 设置已抽检缓存
+            setSpotCheckCache(spotCheckContext.getWaybillCode(), spotCheckContext.getExcessStatus());
             // 2、更新总记录
             WeightVolumeSpotCheckDto summaryDto = assembleSummaryReform(spotCheckContext);
             spotCheckServiceProxy.insertOrUpdateProxyReform(summaryDto);

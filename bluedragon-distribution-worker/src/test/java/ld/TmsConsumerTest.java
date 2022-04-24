@@ -1,12 +1,9 @@
 package ld;
 
 import com.google.common.collect.Maps;
-import com.jd.bluedragon.common.dto.operation.workbench.unload.request.UnloadVehicleTaskRequest;
-import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.distribution.consumer.jy.vehicle.*;
 import com.jd.bluedragon.distribution.jy.dto.task.UnloadVehicleMqDto;
 import com.jd.bluedragon.distribution.jy.enums.JyLineTypeEnum;
-import com.jd.bluedragon.distribution.jy.service.unload.IJyUnloadVehicleService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.jim.cli.Cluster;
 import com.jd.jmq.common.message.Message;
@@ -230,45 +227,50 @@ public class TmsConsumerTest {
     @Test
     public void InitUnloadVehicleConsumerTest() throws Exception {
         String body = "{\n" +
-                "    \"endOrgCode\": 4,\n" +
-                "    \"endOrgName\": \"西南分公司\",\n" +
-                "    \"endSiteCode\": \"028F020\",\n" +
-                "    \"endSiteId\": 691538,\n" +
-                "    \"endSiteName\": \"成都祥福分拣中心\",\n" +
-                "    \"extendInfo\": {},\n" +
-                "    \"sealCarCode\": \"BJ001\",\n" +
+                "    \"billCode\": \"TJ22041943964444\",\n" +
+                "    \"endOrgCode\": 6,\n" +
+                "    \"endOrgName\": \"华北分公司\",\n" +
+                "    \"endSiteCode\": \"530F001\",\n" +
+                "    \"endSiteId\": 831908,\n" +
+                "    \"endSiteName\": \"菏泽分拣中心\",\n" +
+                "    \"extendInfo\": {\n" +
+                "        \"lostCnt\": \"499\",\n" +
+                "        \"damageCnt\": \"23\",\n" +
+                "        \"totalScannedPackageProgress\": \"90.01\"\n" +
+                "    },\n" +
+                "    \"sealCarCode\": \"XCZJ22041900000009\",\n" +
                 "    \"sealCarStatus\": 10,\n" +
-                "    \"sealCarTime\": 1649620363000,\n" +
-                "    \"startOrgCode\": 10,\n" +
-                "    \"startOrgName\": \"华南分公司\",\n" +
-                "    \"startSiteCode\": \"663F001\",\n" +
-                "    \"startSiteId\": 146054,\n" +
-                "    \"startSiteName\": \"揭阳分拣中心\",\n" +
+                "    \"sealCarTime\": 1650373338000,\n" +
+                "    \"startOrgCode\": 6,\n" +
+                "    \"startOrgName\": \"华北分公司\",\n" +
+                "    \"startSiteCode\": \"530Y006\",\n" +
+                "    \"startSiteId\": 221357,\n" +
+                "    \"startSiteName\": \"菏泽巨野营业部\",\n" +
                 "    \"totalScannedPackageCount\": 0,\n" +
-                "    \"transportCode\": \"R1911088023065\",\n" +
-                "    \"ts\": 1649620365106,\n" +
-                "    \"vehicleNumber\": \"浙H27589\",\n" +
-                "    \"vehicleNumberLastFour\": \"7589\",\n" +
+                "    \"transportCode\": \"R2111177231019\",\n" +
+                "    \"ts\": 1650373334591,\n" +
+                "    \"vehicleNumber\": \"鲁R5SU05\",\n" +
+                "    \"vehicleNumberLastFour\": \"SU05\",\n" +
                 "    \"vehicleStatus\": 4,\n" +
-                "    \"version\": 3,\n" +
+                "    \"version\": 1,\n" +
                 "    \"yn\": 1\n" +
                 "}";
 
         UnloadVehicleMqDto mqDto = JsonHelper.fromJson(body, UnloadVehicleMqDto.class);
-        Map<String, Object> extendMap = Maps.newHashMap();
-        extendMap.put(UnloadVehicleMqDto.EXTEND_KEY_LOST_CNT, 1);
-        extendMap.put(UnloadVehicleMqDto.EXTEND_KEY_SCAN_PROGRESS, 100);
-        extendMap.put(UnloadVehicleMqDto.EXTEND_KEY_DAMAGE_CNT, 20);
-        mqDto.setExtendInfo(extendMap);
-
-        mqDto.setOrderTime(new Date());
-        mqDto.setRanking(10);
-        mqDto.setPredictionArriveTime(new Date());
-        mqDto.setActualArriveTime(new Date());
-        mqDto.setDesealCarTime(new Date());
-        mqDto.setLineType(JyLineTypeEnum.TRUNK_LINE.getCode());
-        mqDto.setLineTypeName(JyLineTypeEnum.TRUNK_LINE.getName());
-        mqDto.setTotalCount(1000L);
+//        Map<String, Object> extendMap = Maps.newHashMap();
+//        extendMap.put(UnloadVehicleMqDto.EXTEND_KEY_LOST_CNT, 1);
+//        extendMap.put(UnloadVehicleMqDto.EXTEND_KEY_SCAN_PROGRESS, 100);
+//        extendMap.put(UnloadVehicleMqDto.EXTEND_KEY_DAMAGE_CNT, 20);
+//        mqDto.setExtendInfo(extendMap);
+//
+//        mqDto.setOrderTime(new Date());
+//        mqDto.setRanking(10);
+//        mqDto.setPredictionArriveTime(new Date());
+//        mqDto.setActualArriveTime(new Date());
+//        mqDto.setDesealCarTime(new Date());
+//        mqDto.setLineType(JyLineTypeEnum.TRUNK_LINE.getCode());
+//        mqDto.setLineTypeName(JyLineTypeEnum.TRUNK_LINE.getName());
+//        mqDto.setTotalCount(1000L);
 
         Message message = new Message();
         message.setText(JsonHelper.toJson(mqDto));

@@ -3046,6 +3046,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
      * @return
      */
     @Override
+    @JProfiler(jKey = "DMSWEB.DeliveryService.dellCancelDeliveryMessageWithServerTime")
     public ThreeDeliveryResponse dellCancelDeliveryMessageWithServerTime(SendM tSendM, boolean needSendMQ) {
         tSendM.setOperateTime(new Date());
         return dellCancelDeliveryMessage(tSendM, needSendMQ);
@@ -3064,12 +3065,13 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
     @Override
     public ThreeDeliveryResponse dellCancelDeliveryMessage(SendM tSendM, boolean needSendMQ) {
         try {
+            CallerInfo callerInfo = null;
             SendDetail tSendDetail = new SendDetail();
             tSendDetail.setBoxCode(tSendM.getBoxCode());
             tSendDetail.setCreateSiteCode(tSendM.getCreateSiteCode());
             // 按照运单取消处理
-            if (WaybillUtil.isWaybillCode(tSendM.getBoxCode()) || WaybillUtil.isSurfaceCode(tSendM.getBoxCode())
-                    || WaybillUtil.isPackageCode(tSendM.getBoxCode())) {
+            if (WaybillUtil.isWaybillCode(tSendM.getBoxCode()) || WaybillUtil.isSurfaceCode(tSendM.getBoxCode()) || WaybillUtil.isPackageCode(tSendM.getBoxCode())) {
+                callerInfo = Profiler.registerInfo("DMSWEB.DeliveryService.dellCancel.waybillCode");
                 // 判断 按运单发货在处理中，则稍后再试
                 if (isSendByWaybillProcessing(tSendM) || sendByWaybillProcessing(tSendM)) {
                     return new ThreeDeliveryResponse(
@@ -3096,13 +3098,16 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                         // 更新包裹装车记录表的扫描状态为取消扫描状态
                         updateScanActionByPackageCodes(tlist, tSendM);
                     }
+                    Profiler.registerInfoEnd(callerInfo);
 					return responsePack;
 				} else {
+                    Profiler.registerInfoEnd(callerInfo);
 					return new ThreeDeliveryResponse(
 							DeliveryResponse.CODE_Delivery_NO_MESAGE,
 							HintService.getHint(HintCodeConstants.PACKAGE_SENDM_MISSING), null);
 				}
 			} else if (BusinessHelper.isBoxcode(tSendM.getBoxCode())) {
+                callerInfo = Profiler.registerInfo("DMSWEB.DeliveryService.dellCancel.boxCode");
 				List<SendM> sendMList = this.sendMDao.findSendMByBoxCode2(tSendM);
                 ThreeDeliveryResponse threeDeliveryResponse = cancelUpdateDataByBox(tSendM, tSendDetail, sendMList);
                 if (threeDeliveryResponse.getCode().equals(200)) {
@@ -3117,8 +3122,10 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                     openBox(tSendM);
                     sendMessage(sendDatails, tSendM, needSendMQ);
                 }
+                Profiler.registerInfoEnd(callerInfo);
                 return threeDeliveryResponse;
             } else if (BusinessUtil.isBoardCode(tSendM.getBoxCode())){
+                callerInfo = Profiler.registerInfo("DMSWEB.DeliveryService.dellCancel.boardCode");
                 tSendM.setBoardCode(tSendM.getBoxCode());
                 //1.组板发货批次，板号校验（强校验）
                 if(!checkSendM(tSendM)){
@@ -3135,7 +3142,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                             HintService.getHint(HintCodeConstants.ABORT_CANCEL_AFTER_BOARD_SENT),null);
                 }
 
-                //3.校验是否有板号对应的发货数据
+                //3.校验是否有板号和批次号对应的发货数据
                 List<String> sendMList = sendMDao.selectBoxCodeByBoardCodeAndSendCode(tSendM);
                 if(sendMList == null || sendMList.size()<1){
                     log.info("按板取消发货==========没有找到板号的发货明细");
@@ -3163,9 +3170,10 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                 // 更新包裹装车记录表的扫描状态为取消扫描状态
                 updateScanActionByBoardCode(tSendM);
                 log.info("按板取消发货==========更新包裹装车记录表的扫描状态为取消扫描状态");
+                Profiler.registerInfoEnd(callerInfo);
                 return new ThreeDeliveryResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK, null);
             } else if (BusinessHelper.isSendCode(tSendM.getSendCode()) && tSendM.getCreateSiteCode() != null) {
-                CallerInfo callerInfo = Profiler.registerInfo("DMS.WEB.deliveryService.cancelBySendCode",Constants.SYSTEM_CODE_WEB,false,true);
+                callerInfo = Profiler.registerInfo("DMS.WEB.deliveryService.cancelBySendCode",Constants.SYSTEM_CODE_WEB,false,true);
                 /* 请求参数中只有sendCode参数和createSiteCode参数有效 */
                 SendDetail sendDetailRequest = new SendDetail();
                 sendDetailRequest.setCreateSiteCode(tSendM.getCreateSiteCode());

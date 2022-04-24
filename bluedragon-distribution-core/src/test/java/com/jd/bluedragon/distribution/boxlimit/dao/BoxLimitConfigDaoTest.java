@@ -138,7 +138,10 @@ public class BoxLimitConfigDaoTest extends AbstractDaoIntegrationH2Test {
 
     @Test
     public void queryLimitNumBySiteIdTest() {
-        Integer limitNum = boxLimitConfigDao.queryLimitNumBySiteId(1);
+        BoxLimitQueryDTO dto = new BoxLimitQueryDTO();
+        dto.setSiteId(38);
+        dto.setBoxNumberType("BC");
+        Integer limitNum = boxLimitConfigDao.queryLimitNumBySiteId(dto);
         log.info("=====> limitNum = {}", limitNum);
     }
 

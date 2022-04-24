@@ -16,11 +16,13 @@ import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.bluedragon.utils.TagSignHelper;
 import com.jd.jim.cli.Cluster;
+import com.jd.jmq.client.consumer.MessageListener;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -30,6 +32,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -39,10 +42,10 @@ import java.util.concurrent.TimeUnit;
  * @Author wyh
  * @Date 2022/4/2 17:04
  **/
-@Service("initUnloadVehicleConsumer")
-public class InitUnloadVehicleConsumer extends MessageBaseConsumer {
+@Service("refreshUnloadVehicleProgressConsumer")
+public class RefreshUnloadVehicleProgressConsumer implements MessageListener {
 
-    private static final Logger logger = LoggerFactory.getLogger(InitUnloadVehicleConsumer.class);
+    private static final Logger logger = LoggerFactory.getLogger(RefreshUnloadVehicleProgressConsumer.class);
 
     @Autowired
     @Qualifier("redisClientOfJy")
@@ -57,9 +60,11 @@ public class InitUnloadVehicleConsumer extends MessageBaseConsumer {
     @Autowired
     private BaseMajorManager baseMajorManager;
 
-    @Override
     @JProfiler(jKey = "DMS.WORKER.jy.initUnloadVehicleConsumer.consume", jAppName = Constants.UMP_APP_NAME_DMSWORKER, mState = {JProEnum.TP,JProEnum.FunctionError})
     public void consume(Message message) throws Exception {
+
+        logger.info("开始消费拣运卸车进度:{}", message.getText());
+
         if (StringHelper.isEmpty(message.getText())) {
             logger.warn("InitUnloadVehicleConsumer consume --> 消息为空");
             return;
@@ -70,8 +75,6 @@ public class InitUnloadVehicleConsumer extends MessageBaseConsumer {
         }
 
         UnloadVehicleMqDto mqDto = JsonHelper.fromJson(message.getText(), UnloadVehicleMqDto.class);
-
-        // 过滤掉丢弃的数据
         if (filterDiscardData(mqDto)) {
             return;
         }
@@ -176,6 +179,9 @@ public class InitUnloadVehicleConsumer extends MessageBaseConsumer {
         if (mqDto.getLineTypeName() != null) {
             unloadVehicleEntity.setLineTypeName(mqDto.getLineTypeName());
         }
+        if (mqDto.getTotalCount() != null) {
+            unloadVehicleEntity.setTotalCount(mqDto.getTotalCount());
+        }
 
         // 处理卸车任务标位
         unloadVehicleEntity.setTagsSign(TagSignHelper.initDefaultPlaceholder());
@@ -198,13 +204,6 @@ public class InitUnloadVehicleConsumer extends MessageBaseConsumer {
                 BigDecimal progress = new BigDecimal(totalScannedPackageProgress + "");
                 unloadVehicleEntity.setUnloadProgress(progress);
             }
-        }
-
-        // 解析封车包裹总数
-        Object totalCountObj = extendInfo.get(UnloadVehicleMqDto.EXTEND_KEY_TOTAL_COUNT);
-        if (totalCountObj != null) {
-            Long totalCount = Long.valueOf(totalCountObj + "");
-            unloadVehicleEntity.setTotalCount(totalCount);
         }
     }
 
@@ -239,4 +238,13 @@ public class InitUnloadVehicleConsumer extends MessageBaseConsumer {
         }
     }
 
+    @Override
+    public void onMessage(List<Message> messages) throws Exception {
+        if (CollectionUtils.isEmpty(messages)) {
+            return;
+        }
+        for (Message message : messages) {
+            this.consume(message);
+        }
+    }
 }

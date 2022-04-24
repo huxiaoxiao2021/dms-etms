@@ -30,6 +30,7 @@ import com.jd.bluedragon.dms.utils.WaybillSignConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.dms.logger.external.LogEngine;
@@ -807,11 +808,11 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
                     } catch (InterruptedException e) {
                         logger.error("阻塞1s异常!", e);
                     }
+                    totalRecord.setWaybillCode(waybillCode);
+                    totalRecord.setIsExcess(ExcessStatusEnum.EXCESS_ENUM_YES.getCode());
+                    totalRecord.setIsGatherTogether(Constants.CONSTANT_NUMBER_ONE);
+                    dwsIssueDealProducer.sendOnFailPersistent(waybillCode, JsonHelper.toJson(totalRecord));
                 }
-                totalRecord.setWaybillCode(waybillCode);
-                totalRecord.setIsExcess(ExcessStatusEnum.EXCESS_ENUM_YES.getCode());
-                totalRecord.setIsGatherTogether(Constants.CONSTANT_NUMBER_ONE);
-                dwsIssueDealProducer.sendOnFailPersistent(waybillCode, JsonHelper.toJson(totalRecord));
             }
         }else {
             // 一单一件
@@ -1026,8 +1027,8 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
         reportInfoQuery.setChannel(SpotCheckSourceFromEnum.ARTIFICIAL_SOURCE.contains(spotCheckContext.getSpotCheckSourceFrom())
                 ? SpotCheckConstants.ARTIFICIAL_SPOT_CHECK : SpotCheckConstants.EQUIPMENT_SPOT_CHECK);
         SpotCheckReviewDetail spotCheckReviewDetail = spotCheckContext.getSpotCheckReviewDetail();
-        reportInfoQuery.setMeasureWeight(String.valueOf(spotCheckReviewDetail.getReviewTotalWeight()));
-        reportInfoQuery.setMeasureVolume(String.valueOf(spotCheckReviewDetail.getReviewTotalVolume()));
+        reportInfoQuery.setMeasureWeight(NumberHelper.formatMoney(spotCheckReviewDetail.getReviewTotalWeight()));
+        reportInfoQuery.setMeasureVolume(NumberHelper.formatMoney(spotCheckReviewDetail.getReviewTotalVolume()));
         CommonDTO<ReportInfoDTO> commonDTO = weightReportCommonRuleManager.getReportInfo(reportInfoQuery);
         if(logger.isInfoEnabled()){
             logger.info("运单号:{}的核对数据:{}", reportInfoQuery.getWaybillCode(), JsonHelper.toJson(commonDTO.getData()));
@@ -1056,8 +1057,8 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
         reportInfoQuery.setWaybillCode(waybillCode);
         reportInfoQuery.setChannel(SpotCheckSourceFromEnum.ARTIFICIAL_SOURCE.contains(spotCheckContext.getSpotCheckSourceFrom())
                 ? SpotCheckConstants.ARTIFICIAL_SPOT_CHECK : SpotCheckConstants.EQUIPMENT_SPOT_CHECK);
-        reportInfoQuery.setMeasureWeight(String.valueOf(reviewWeight));
-        reportInfoQuery.setMeasureVolume(String.valueOf(reviewVolume));
+        reportInfoQuery.setMeasureWeight(NumberHelper.formatMoney(reviewWeight));
+        reportInfoQuery.setMeasureVolume(NumberHelper.formatMoney(reviewVolume));
         CommonDTO<ReportInfoDTO> commonDTO = weightReportCommonRuleManager.getReportInfo(reportInfoQuery);
         if(logger.isInfoEnabled()){
             logger.info("运单号:{}的核对数据:{}", reportInfoQuery.getWaybillCode(), JsonHelper.toJson(commonDTO.getData()));

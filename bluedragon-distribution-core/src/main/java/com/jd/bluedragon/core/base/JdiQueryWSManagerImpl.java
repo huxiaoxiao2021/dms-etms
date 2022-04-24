@@ -1,6 +1,7 @@
 package com.jd.bluedragon.core.base;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.tms.jdi.dto.CommonDto;
 import com.jd.tms.jdi.dto.TransWorkItemDto;
 import com.jd.tms.jdi.ws.JdiQueryWS;
@@ -11,6 +12,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+
+import java.util.List;
 
 
 /**
@@ -41,6 +45,36 @@ public class JdiQueryWSManagerImpl implements JdiQueryWSManager {
             Profiler.functionError(callerInfo);
         }finally {
             Profiler.registerInfoEnd(callerInfo);
+        }
+        return null;
+    }
+
+    /**
+     * 根据派车明细编码获取派车任务明细
+     *
+     * @param var1
+     * @return
+     */
+    @Override
+    public TransWorkItemDto getTransWorkItemsDtoByItemCode(String itemCode) {
+        CommonDto<List<TransWorkItemDto>> resp = null;
+        try {
+            if(StringUtils.isEmpty(itemCode)){
+                return null;
+            }
+            resp = jdiQueryWS.getTransWorkItemsDtoByItemCode(itemCode);
+            if(resp.isSuccess() && !CollectionUtils.isEmpty(resp.getData())){
+                for(TransWorkItemDto dto : resp.getData()){
+                    if(itemCode.equals(dto.getTransWorkItemCode())){
+                        return dto;
+                    }
+                }
+            }
+            return null;
+        }catch (Exception e){
+            logger.error("getTransWorkItemsDtoByItemCode:{}获取派车任务明细异常!",itemCode,e.getMessage(),e);
+        }finally {
+            logger.info("JdiQueryWS.getTransWorkItemsDtoByItemCode,req:{},resp:{}",itemCode, JsonHelper.toJson(resp));
         }
         return null;
     }

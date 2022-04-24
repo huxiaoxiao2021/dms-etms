@@ -59,6 +59,23 @@ public class DiscardedPackageStorageTempQo extends BasePagerCondition implements
     private Integer storageDaysTo;
 
     /**
+     * 首次扫描开始时间
+     */
+    private String createTimeFromStr;
+    /**
+     * 首次扫描结束时间
+     */
+    private String createTimeToStr;
+
+    /**
+     * 首次扫描开始时间
+     */
+    private Date createTimeFrom;
+    /**
+     * 首次扫描结束时间
+     */
+    private Date createTimeTo;
+    /**
      * 扫描开始时间
      */
     private Date scanTimeFrom;
@@ -157,6 +174,38 @@ public class DiscardedPackageStorageTempQo extends BasePagerCondition implements
 
     public void setStorageDaysTo(Integer storageDaysTo) {
         this.storageDaysTo = storageDaysTo;
+    }
+
+    public String getCreateTimeFromStr() {
+        return createTimeFromStr;
+    }
+
+    public void setCreateTimeFromStr(String createTimeFromStr) {
+        this.createTimeFromStr = createTimeFromStr;
+    }
+
+    public String getCreateTimeToStr() {
+        return createTimeToStr;
+    }
+
+    public void setCreateTimeToStr(String createTimeToStr) {
+        this.createTimeToStr = createTimeToStr;
+    }
+
+    public Date getCreateTimeFrom() {
+        return createTimeFrom;
+    }
+
+    public void setCreateTimeFrom(Date createTimeFrom) {
+        this.createTimeFrom = createTimeFrom;
+    }
+
+    public Date getCreateTimeTo() {
+        return createTimeTo;
+    }
+
+    public void setCreateTimeTo(Date createTimeTo) {
+        this.createTimeTo = createTimeTo;
     }
 
     public Date getScanTimeFrom() {
