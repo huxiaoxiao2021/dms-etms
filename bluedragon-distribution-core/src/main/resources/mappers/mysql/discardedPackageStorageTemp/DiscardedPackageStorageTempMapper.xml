@@ -593,20 +593,10 @@
         SELECT
         <include refid="Base_Column_List" />
         FROM `discarded_package_storage_temp`
-        <where>
-            <include refid="sql_if_not_null"/>
-            and id &lt;= (select D.id
-                from `discarded_package_storage_temp` D
-                <include refid="where"/>
-                order by create_time desc
-                <if test="pageNumber > 0">
-                    limit #{offset}, 1
-                </if>
-            )
-        </where>
+        <include refid="where"/>
         order by create_time desc
         <if test="pageNumber > 0">
-            limit #{pageSize}
+            limit #{offset}, #{pageSize}
         </if>
     </select>
     <!-- 伪删除（更新删除行的识别码） -->

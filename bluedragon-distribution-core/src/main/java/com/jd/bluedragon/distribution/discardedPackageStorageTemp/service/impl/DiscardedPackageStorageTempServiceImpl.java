@@ -28,6 +28,7 @@ import com.jd.bluedragon.distribution.discardedPackageStorageTemp.model.Discarde
 import com.jd.bluedragon.distribution.discardedPackageStorageTemp.model.DiscardedWaybillStorageTemp;
 import com.jd.bluedragon.distribution.discardedPackageStorageTemp.service.DiscardedPackageStorageTempService;
 import com.jd.bluedragon.distribution.discardedPackageStorageTemp.vo.DiscardedPackageStorageTempVo;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.dms.workbench.utils.sdk.base.Result;
@@ -156,15 +157,21 @@ public class DiscardedPackageStorageTempServiceImpl implements DiscardedPackageS
         Response<Void> result = new Response<>();
         result.toSucceed();
         if(StringUtils.isBlank(query.getCreateTimeFromStr())){
-            result.toError("参数错误，createTimeFromStr为空");
-            return result;
+            if(StringUtils.isBlank(query.getPackageCode())){
+                result.toError("参数错误，createTimeFromStr为空");
+                return result;
+            } else {
+                query.setCreateTimeFrom(DateHelper.parseDate(query.getCreateTimeFromStr(), DateHelper.DATE_FORMAT_YYYYMMDDHHmmss2));
+            }
         }
-        query.setCreateTimeFrom(DateHelper.parseDate(query.getCreateTimeFromStr(), DateHelper.DATE_FORMAT_YYYYMMDDHHmmss2));
         if(StringUtils.isBlank(query.getCreateTimeToStr())){
-            result.toError("参数错误，createTimeToStr为空");
-            return result;
+            if(StringUtils.isBlank(query.getPackageCode())) {
+                result.toError("参数错误，createTimeToStr为空");
+                return result;
+            } else {
+                query.setCreateTimeTo(DateHelper.parseDate(query.getCreateTimeToStr(), DateHelper.DATE_FORMAT_YYYYMMDDHHmmss2));
+            }
         }
-        query.setCreateTimeTo(DateHelper.parseDate(query.getCreateTimeToStr(), DateHelper.DATE_FORMAT_YYYYMMDDHHmmss2));
         if(query.getStorageDaysFrom() != null){
             try {
                 Date currentDateMorning = DateUtil.parseDateByStr(DateUtil.format(new Date(), DateUtil.FORMAT_DATE), DateUtil.FORMAT_DATE);
@@ -453,6 +460,13 @@ public class DiscardedPackageStorageTempServiceImpl implements DiscardedPackageS
             }
             if (CollectionUtils.isEmpty(bigWaybillDto.getPackageList())) {
                 return result.toFail("没有查询到运单包裹信息");
+            }
+
+            if (Objects.equals(WasteOperateTypeEnum.SCRAP.getCode(), paramObj.getOperateType())) {
+                String waybillSign = baseEntity.getData().getWaybill().getWaybillSign();
+                if(!BusinessUtil.isScrapSortingSite(waybillSign)) {
+                    return result.toFail("提交失败，非返分拣报废运单！");
+                }
             }
 
             // 3. 执行业务操作逻辑
