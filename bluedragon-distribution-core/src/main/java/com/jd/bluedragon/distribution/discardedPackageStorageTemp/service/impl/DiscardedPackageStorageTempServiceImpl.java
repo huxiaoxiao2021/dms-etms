@@ -160,17 +160,17 @@ public class DiscardedPackageStorageTempServiceImpl implements DiscardedPackageS
             if(StringUtils.isBlank(query.getWaybillCode()) && StringUtils.isBlank(query.getPackageCode())){
                 result.toError("参数错误，createTimeFromStr为空");
                 return result;
-            } else {
-                query.setCreateTimeFrom(DateHelper.parseDate(query.getCreateTimeFromStr(), DateHelper.DATE_FORMAT_YYYYMMDDHHmmss2));
             }
+        } else {
+            query.setCreateTimeFrom(DateHelper.parseDate(query.getCreateTimeFromStr(), DateHelper.DATE_FORMAT_YYYYMMDDHHmmss2));
         }
         if(StringUtils.isBlank(query.getCreateTimeToStr())){
             if(StringUtils.isBlank(query.getWaybillCode()) && StringUtils.isBlank(query.getPackageCode())){
                 result.toError("参数错误，createTimeToStr为空");
                 return result;
-            } else {
-                query.setCreateTimeTo(DateHelper.parseDate(query.getCreateTimeToStr(), DateHelper.DATE_FORMAT_YYYYMMDDHHmmss2));
             }
+        } else {
+            query.setCreateTimeTo(DateHelper.parseDate(query.getCreateTimeToStr(), DateHelper.DATE_FORMAT_YYYYMMDDHHmmss2));
         }
         if(query.getStorageDaysFrom() != null){
             try {
