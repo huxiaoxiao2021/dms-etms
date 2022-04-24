@@ -254,8 +254,16 @@ public class SortBoardGatewayServiceImpl implements SortBoardGatewayService {
             boardInfoDto.setOperatorName(response.getData().getOperatorName());
             //根据板号查询扫描件量
             JdCResponse<VirtualBoardResultDto> virtualBoard = virtualBoardService.getBoxCountByBoardCode(response.getData().getCode());
-            if(virtualBoard.getCode() == 200){
-                boardInfoDto.setScanQuantity(virtualBoard.getData().getPackageTotal());
+            if(virtualBoard.getCode() == 200 && virtualBoard.getData() != null){
+                int packageTotal = 0;
+                int boxTotal = 0;
+                if(virtualBoard.getData().getPackageTotal() != null){
+                    packageTotal = virtualBoard.getData().getPackageTotal();
+                }
+                if(virtualBoard.getData().getBoxTotal() != null){
+                    boxTotal =virtualBoard.getData().getBoxTotal();
+                }
+                boardInfoDto.setScanQuantity(packageTotal + boxTotal);
             }
             jdCResponse.setData(boardInfoDto);
         }

@@ -1037,7 +1037,15 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
             JdCResponse<VirtualBoardResultDto> boxCountResult = virtualBoardService.getBoxCountByBoardCode(boardCode);
             Integer scanQuantity = null;
             if(boxCountResult.getCode() == 200 && boxCountResult.getData() != null){
-                scanQuantity=boxCountResult.getData().getPackageTotal();
+                int packageTotal = 0;
+                int boxTotal = 0;
+                if(boxCountResult.getData().getPackageTotal() != null){
+                    packageTotal = boxCountResult.getData().getPackageTotal();
+                }
+                if(boxCountResult.getData().getBoxTotal() != null){
+                    boxTotal =boxCountResult.getData().getBoxTotal();
+                }
+                scanQuantity =packageTotal+boxTotal;
             }
             invokeResult.setMessage(tcResponse.getMesseage());
             invokeResult.setData(boardToBoardDto(tcResponse.getData(),scanQuantity));
