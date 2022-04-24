@@ -76,9 +76,9 @@
         <dd><a href="#springUrl('/collect/collectGoodsDetail/toIndex')" target="mainFrame">集货报表</a></dd>
 
         <dt><a href="#" class="curr">冷链医药相关功能</a></dt>
-        <dd><a href="#springUrl('http://test.ccdc.jd.com/consumable/packingConsumableInfo/index')" target="mainFrame">包装基础资料管理</a></dd>
-        <dd><a href="#springUrl('http://test.ccdc.jd.com//consumable/dmsConsumableRelation/index')" target="mainFrame">转运中心包装管理</a></dd>
-        <dd><a href="#springUrl('http://test.ccdc.jd.com//consumable/waybillConsumableRecord/index')" target="mainFrame">包装信息操作管理</a></dd>
+        <dd><a href="#springUrl('http://ccdc.jdl.com/consumable/packingConsumableInfo/index')" target="mainFrame">包装基础资料管理</a></dd>
+        <dd><a href="#springUrl('http://ccdc.jdl.com/consumable/dmsConsumableRelation/index')" target="mainFrame">转运中心包装管理</a></dd>
+        <dd><a href="#springUrl('http://ccdc.jdl.com/consumable/waybillConsumableRecord/index')" target="mainFrame">包装信息操作管理</a></dd>
 
         <dt><a href="#" class="curr">企配仓功能</a></dt>
         <dd><a href="#springUrl('/schedule/dmsScheduleInfo/toDmsEdnPickingIndex')" target="mainFrame">拣货功能</a></dd>
