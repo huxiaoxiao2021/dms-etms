@@ -157,7 +157,7 @@ public class DiscardedPackageStorageTempServiceImpl implements DiscardedPackageS
         Response<Void> result = new Response<>();
         result.toSucceed();
         if(StringUtils.isBlank(query.getCreateTimeFromStr())){
-            if(StringUtils.isBlank(query.getPackageCode())){
+            if(StringUtils.isBlank(query.getWaybillCode()) && StringUtils.isBlank(query.getPackageCode())){
                 result.toError("参数错误，createTimeFromStr为空");
                 return result;
             } else {
@@ -165,7 +165,7 @@ public class DiscardedPackageStorageTempServiceImpl implements DiscardedPackageS
             }
         }
         if(StringUtils.isBlank(query.getCreateTimeToStr())){
-            if(StringUtils.isBlank(query.getPackageCode())) {
+            if(StringUtils.isBlank(query.getWaybillCode()) && StringUtils.isBlank(query.getPackageCode())){
                 result.toError("参数错误，createTimeToStr为空");
                 return result;
             } else {
