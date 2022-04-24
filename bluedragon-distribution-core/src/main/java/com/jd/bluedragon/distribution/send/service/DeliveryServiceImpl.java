@@ -3129,12 +3129,14 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                 tSendM.setBoardCode(tSendM.getBoxCode());
                 //1.组板发货批次，板号校验（强校验）
                 if(!checkSendM(tSendM)){
+                    log.info("按板取消发货checkSendM===批次号始发ID与操作人所属单位ID不一致");
                     return new ThreeDeliveryResponse(
                             DeliveryResponse.CODE_SEND_SITE_NOTMATCH__ERROR,
                             DeliveryResponse.MESSAGE_SEND_SITE_NOTMATCH_ERROR,null);
                 }
                 //2.校板是否已经发车
                 if(checkBoardIsDepartured(tSendM)){
+                    log.info("按板取消发货checkBoardIsDepartured=== 板号已操作发车，不能取消发货");
                     return new ThreeDeliveryResponse(
                             DeliveryResponse.CODE_BOARD_SENDED_ERROR,
                             HintService.getHint(HintCodeConstants.ABORT_CANCEL_AFTER_BOARD_SENT),null);
@@ -3143,6 +3145,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                 //3.校验是否有板号和批次号对应的发货数据
                 List<String> sendMList = sendMDao.selectBoxCodeByBoardCodeAndSendCode(tSendM);
                 if(sendMList == null || sendMList.size()<1){
+                    log.info("按板取消发货==========没有找到板号的发货明细");
                     //提示没有找到板号的发货明细
                     return new ThreeDeliveryResponse(
                             DeliveryResponse.CODE_NO_BOARDSEND_DETAIL_ERROR,
@@ -3151,18 +3154,22 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                 //4.校验是否有同一板号的发货任务没有跑完
                 String redisKey = REDIS_PREFIX_BOARD_DELIVERY + tSendM.getBoxCode();
                 if(StringHelper.isNotEmpty(redisManager.get(redisKey))){
+                    log.info("按板取消发货==========存在有同一板号的发货任务没有跑完");
                     return new ThreeDeliveryResponse(
                             DeliveryResponse.CODE_BOARD_SEND_NOT_FINISH_ERROR,
                             HintService.getHint(HintCodeConstants.BOARD_DELIVERY_PROCESSING),null);
                 }
                 //生产一个按板号取消发货的任务
                 pushBoardSendTask(tSendM,Task.TASK_TYPE_BOARD_SEND_CANCEL);
+                log.info("按板取消发货==========pushBoardSendTask");
                 //将板由“关闭”状态变为“组板中”的状态
                 List<String> boardList = new ArrayList<>();
                 boardList.add(tSendM.getBoardCode());
                 changeBoardStatus(tSendM,boardList);
+                log.info("按板取消发货==========将板由“关闭”状态变为“组板中”的状态");
                 // 更新包裹装车记录表的扫描状态为取消扫描状态
                 updateScanActionByBoardCode(tSendM);
+                log.info("按板取消发货==========更新包裹装车记录表的扫描状态为取消扫描状态");
                 Profiler.registerInfoEnd(callerInfo);
                 return new ThreeDeliveryResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK, null);
             } else if (BusinessHelper.isSendCode(tSendM.getSendCode()) && tSendM.getCreateSiteCode() != null) {
