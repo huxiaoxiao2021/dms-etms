@@ -1656,7 +1656,12 @@ public class Constants {
      * 用户有效标识
      */
     public static final Integer FLAG_USER_Is_Resign = 1;
-    
-
-
+    /**
+     * 医药零担产品类型
+     */
+    public static final String PRODUCT_TYPE_MEDICAL_PART_BILL = "LL-YYLD-M";
+    /**
+     * 医药冷链产品
+     */
+    public static final String PRODUCT_TYPE_MEDICAL_COLD_BILL = "ll-m-0002";
 }

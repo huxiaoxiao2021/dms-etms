@@ -1854,6 +1854,19 @@
 			<artifactId>cmp-api-dms</artifactId>
 			<version>0.0.3-SNAPSHOT</version>
 		</dependency>
+
+		<!--查询冷链耗材-->
+		<dependency>
+			<groupId>com.jd.coldchain</groupId>
+			<artifactId>dispatch-api</artifactId>
+			<version>1.0.0-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<groupId>com.jd.ldop.center</groupId>
+					<artifactId>ldop-center-api</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
     </dependencies>
 
 	<profiles>
