@@ -372,5 +372,10 @@
     <jmq:consumer id="jmq.spotCheckNotifyConsumer" transport="jmq.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.spotCheckNotify}" listener="spotCheckNotifyConsumer"/>
     </jmq:consumer>
+
+    <!-- 保温箱逆向处理 -->
+    <jmq:consumer id="jmq.dealMiniStoreOutConsumer" transport="jmq.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.box.inOut}" listener="dealMiniStoreOutConsumer"/>
+    </jmq:consumer>
 </beans>
 
