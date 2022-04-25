@@ -70,6 +70,13 @@ public interface WorkStationService {
 	 * @return
 	 */
 	Result<WorkStation> queryByBusinessKey(WorkStation data);
+
+	/**
+	 * 根据业务主键查询
+	 * @param businessKey
+	 * @return
+	 */
+	Result<WorkStation> queryByRealBusinessKey(String businessKey);
 	/**
 	 * 根据业务主键判断是否存在
 	 * @param data

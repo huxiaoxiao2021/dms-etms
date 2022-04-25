@@ -451,7 +451,8 @@ public class NewSealVehicleResource {
                         sealVehicleResponse.setCode(JdResponse.CODE_OK);
                         sealVehicleResponse.setMessage(JdResponse.MESSAGE_OK);
                     } else {
-                        if(SealCarSourceEnum.FERRY_SEAL_CAR.getCode().equals(sealCarSource)){
+                        //if(SealCarSourceEnum.FERRY_SEAL_CAR.getCode().equals(sealCarSource)){
+                            //不分传摆和运力都去校验目的地类型是中转场的时候 跳过目的地不一致逻辑
                             BaseStaffSiteOrgDto endNodeSite = basicPrimaryWS.getBaseSiteBySiteId(endNodeId);
                             if(endNodeSite != null
                                     && SiteSignTool.supportTemporaryTransfer(endNodeSite.getSiteSign())){
@@ -459,7 +460,7 @@ public class NewSealVehicleResource {
                                 sealVehicleResponse.setMessage(JdResponse.MESSAGE_OK);
                                 return sealVehicleResponse;
                             }
-                        }
+                        //}
                         sealVehicleResponse.setCode(NewSealVehicleResponse.CODE_EXCUTE_ERROR);
                         sealVehicleResponse.setMessage(NewSealVehicleResponse.TIPS_RECEIVESITE_DIFF_ERROR);
                     }
@@ -1054,17 +1055,26 @@ public class NewSealVehicleResource {
             if(unSealCarMap.containsKey(vehicleNumber)){
                 unSealCarMap.get(vehicleNumber).addAll(batchCodes);
             }else {
-                Set<String> batchCodeSet = new HashSet<>(batchCodes);
+                Set<String> batchCodeSet = new HashSet<>();
+                if(CollectionUtils.isNotEmpty(batchCodes)){
+                    batchCodeSet.addAll(batchCodes);
+                }
                 unSealCarMap.put(vehicleNumber, batchCodeSet);
             }
         }
         // 组装查询条件
         for (Map.Entry<String, Set<String>> entry : unSealCarMap.entrySet()) {
+            if(CollectionUtils.isEmpty(entry.getValue())){
+                continue;
+            }
             WaitSpotCheckQueryCondition condition = new WaitSpotCheckQueryCondition();
             condition.setVehicleNumber(entry.getKey());
             condition.setBatchCodeSet(entry.getValue());
             condition.setUnSealTime(new Date());
             queryConditions.add(condition);
+        }
+        if(CollectionUtils.isEmpty(queryConditions)){
+            return;
         }
         if(reportExternalManager.checkIsNeedSpotCheck(queryConditions)){
             unSealVehicleResponse.setBusinessCode(NewUnsealVehicleResponse.SPOT_CHECK_UNSEAL_HINT_CODE);

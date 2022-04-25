@@ -4,6 +4,8 @@ public class CacheKeyConstants {
 
     private static final String DMS_CACHE_PREFIX = "dms.etms.";
 
+    private static final String JY_CACHE_PREFIX = "jy:";
+
 	public static final String POP_PRINT_BACKUP_KEY = "popprint.backup.list";
 
 	/**
@@ -88,6 +90,10 @@ public class CacheKeyConstants {
      * 抽检下发fxm的缓存
      */
     public static final String CACHE_FXM_SEND_WAYBILL = "spotCheck.fxmSend-%s";
+    /**
+     * 抽检下发AI的缓存
+     */
+    public static final String CACHE_AI_SEND_WAYBILL = "spotCheck.aiSend-%s";
 
     /***************************************** 抽检缓存end *******************************************/
 
@@ -195,5 +201,35 @@ public class CacheKeyConstants {
 
     public static final String DISCARDED_STORAGE_OPERATE_SCAN = "dmsWeb:discardedStorage:scan:%s";
     public static final int DISCARDED_STORAGE_OPERATE_SCAN_TIMEOUT = 60;
+
+    /**
+     * 卸车扫描防重，每个单号只能扫描一次
+     * 单号+场地
+     */
+    public static final String JY_UNLOAD_SCAN_KEY = JY_CACHE_PREFIX + "ul:scan:%s:%s";
+
+    /**
+     * 拣运卸车任务主键
+     * bizId
+     */
+    public static final String JY_UNLOAD_TASK_FIRST_SCAN_KEY = JY_CACHE_PREFIX + "ul:biz:first:%s";
+
+    /**
+     * PDA扫描进度缓存
+     * bizId
+     */
+    public static final String JY_UNLOAD_PDA_PROCESS_KEY = JY_CACHE_PREFIX + "ul:process:part:%s";
+
+    /**
+     * 拣运卸车任务扫描进度
+     * bizId
+     */
+    public static final String JY_UNLOAD_PROCESS_KEY = JY_CACHE_PREFIX + "ul:process:%s";
+
+    /**
+     * 拣运卸车任务数据
+     * sealCarCode
+     */
+    public static final String JY_UNLOAD_SEAL_CAR_MONITOR_SEAL_CAR_CODE = JY_CACHE_PREFIX + "sealCarMonitor:%s";
 
 }

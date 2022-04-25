@@ -10,6 +10,7 @@ public class Constants {
     
     public static final String DATE_FORMAT = "yyyy-MM-dd";
     public static final String DATE_FORMAT1 = "yyyyMMdd";
+    public static final String DATE_FORMAT2 = "yyMMdd";
     public static final String DATE_TIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
     public static final String DATE_TIME_MS_FORMAT = "yyyy-MM-dd HH:mm:ss.SSS";
     public static final String DATE_TIME_MS_STRING = "yyyyMMddHHmmssSSS";

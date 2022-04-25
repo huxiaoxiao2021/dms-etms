@@ -64,4 +64,22 @@ public interface UserSignGatewayService {
 	 * @return
 	 */
 	JdCResponse<ScanUserData> queryScanUserDataForLogin(String scanUserCode);
+    /**
+     * 按岗位签到-执行添加组员操作
+     * @param signInRequest
+     * @return
+     */
+    JdCResponse<UserSignRecordData> signInWithGroup(UserSignRequest signInRequest);
+    /**
+     * 按岗位签退-执行移除组员操作
+     * @param signOutRequest
+     * @return
+     */
+	JdCResponse<UserSignRecordData> signOutWithGroup(UserSignRequest signOutRequest);
+    /**
+     * 自动签到、签退-执行添加、移除组员操作
+     * @param signInRequest
+     * @return
+     */
+	JdCResponse<UserSignRecordData> signAutoWithGroup(UserSignRequest userSignRequest);	
 }
