@@ -24,6 +24,9 @@ public class BindToVirtualBoardPo implements Serializable {
 
     private String barCode;
 
+    private Integer operateType;
+
+    private Integer siteCode;
     /**
      * 目标板号
      */
@@ -82,5 +85,21 @@ public class BindToVirtualBoardPo implements Serializable {
 
     public void setBizSource(Integer bizSource) {
         this.bizSource = bizSource;
+    }
+
+    public Integer getOperateType() {
+        return operateType;
+    }
+
+    public void setOperateType(Integer operateType) {
+        this.operateType = operateType;
+    }
+
+    public Integer getSiteCode() {
+        return siteCode;
+    }
+
+    public void setSiteCode(Integer siteCode) {
+        this.siteCode = siteCode;
     }
 }
