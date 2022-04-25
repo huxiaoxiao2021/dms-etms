@@ -1,8 +1,8 @@
 package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
+import com.google.common.collect.Lists;
 import com.jd.bd.dms.automatic.sdk.common.dto.BaseDmsAutoJsfResponse;
 import com.jd.bd.dms.automatic.sdk.modules.device.DeviceConfigInfoJsfService;
-import com.jd.bd.dms.automatic.sdk.modules.device.dto.DeviceConfigSimpleDto;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.request.OperatorInfo;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
@@ -10,19 +10,27 @@ import com.jd.bluedragon.common.dto.board.BizSourceEnum;
 import com.jd.bluedragon.common.dto.board.request.*;
 import com.jd.bluedragon.common.dto.board.response.UnbindVirtualBoardResultDto;
 import com.jd.bluedragon.common.dto.board.response.VirtualBoardResultDto;
+import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.board.SortBoardJsfService;
 import com.jd.bluedragon.distribution.board.domain.Response;
 import com.jd.bluedragon.distribution.board.service.VirtualBoardService;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.gateway.service.VirtualBoardGatewayService;
+import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.dms.workbench.utils.sdk.base.Result;
+import com.jd.ldop.utils.StringUtils;
+import com.jd.transboard.api.dto.Board;
+import com.jd.transboard.api.service.GroupBoardService;
+import com.jd.transboard.api.service.IVirtualBoardService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -34,6 +42,7 @@ import java.util.Map;
  * @time 2021-08-20 12:30:07 周五
  */
 @Service("virtualBoardGatewayServiceImpl")
+@Slf4j
 public class VirtualBoardGatewayServiceImpl implements VirtualBoardGatewayService {
 
     @Autowired
@@ -166,8 +175,45 @@ public class VirtualBoardGatewayServiceImpl implements VirtualBoardGatewayServic
         jdCResponse.setCode(response.getCode());
         jdCResponse.setMessage(response.getMessage());
         return jdCResponse;
+    }
 
+    @Override
+    public JdCResponse<List<VirtualBoardResultDto>> autoBoardDetail(AutoBoardCompleteRequest request) {
+        JdCResponse<List<VirtualBoardResultDto>> jdCResponse = new JdCResponse<List<VirtualBoardResultDto>>();
+        jdCResponse.toSucceed();
+        try{
+            com.jd.bluedragon.distribution.board.domain.AutoBoardCompleteRequest domain =
+                    new com.jd.bluedragon.distribution.board.domain.AutoBoardCompleteRequest();
+            BeanUtils.copyProperties(request, domain);
+            log.info("计算格口获取板号信息,request:"+ JsonHelper.toJson(request));
+            Response<List<String>> boardCodeRes = sortBoardJsfService.calcBoard(domain);
+            log.info("计算格口获取板号信息,request:"+ JsonHelper.toJson(request)+",result:"+JsonHelper.toJson(boardCodeRes));
 
+            if (boardCodeRes.getCode()!=200){
+                jdCResponse.toFail(StringUtils.isEmpty(boardCodeRes.getMessage())?"计算板号失败，请退出重试!":boardCodeRes.getMessage());
+                return jdCResponse;
+            }
+            List<VirtualBoardResultDto> results = Lists.newArrayList();
+
+            List<String> boardCodes = boardCodeRes.getData();
+            for (String boardCode:boardCodes){
+                log.info("获取板号统计信息,request:"+ boardCode);
+                JdCResponse<VirtualBoardResultDto> result = virtualBoardService.getBoxCountByBoardCode(boardCode);
+                    log.info("获取板号统计信息,request:"+ boardCodes+",result:"+JsonHelper.toJson(result));
+                if (result.getCode()!=200){
+                    jdCResponse.toFail("查询组板信息失败，请退出重试!");
+                    return jdCResponse;
+                }
+                VirtualBoardResultDto data = result.getData();
+                results.add(data);
+            }
+            jdCResponse.setData(results);
+            return jdCResponse;
+        }catch(Exception e){
+            log.error("组板查询接口异常,request:"+ JsonHelper.toJson(request),e);
+            jdCResponse.toFail("组板查询接口异常，请联系分拣小秘排查");
+            return jdCResponse;
+        }
     }
 
     @Override

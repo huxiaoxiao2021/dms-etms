@@ -874,6 +874,15 @@ public class BusinessUtil {
     }
 
     /**
+     * 拣运中心
+     * @param type 站点类型
+     * @return
+     */
+    public static boolean isSorting(Integer type){
+        return Integer.valueOf(64).equals(type);
+    }
+
+    /**
      *判断是否是冷链卡班
      */
     public static Boolean isColdChainKB(String waybillSign,String productType){

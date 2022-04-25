@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jd.bluedragon.distribution.jy.dao.group.JyGroupDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.jd.bluedragon.distribution.jy.group.JyGroupEntity" id="jyGroupMap">
+        <result property="id" column="id"/>
+        <result property="groupCode" column="group_code"/>
+        <result property="positionCode" column="position_code"/>
+        <result property="orgCode" column="org_code"/>
+        <result property="siteCode" column="site_code"/>
+        <result property="createUser" column="create_user"/>
+        <result property="createUserName" column="create_user_name"/>
+        <result property="updateUser" column="update_user"/>
+        <result property="updateUserName" column="update_user_name"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="yn" column="yn"/>
+        <result property="ts" column="ts"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,
+        group_code,
+        position_code,
+        org_code,
+        site_code,
+        create_user,
+        create_user_name,
+        update_user,
+        update_user_name,
+        create_time,
+        update_time,
+        yn,
+        ts
+    </sql>
+
+    <insert id="insert" parameterType="JyGroupEntity">
+        INSERT INTO jy_group (
+                            id,
+                            group_code,
+                            position_code,
+                            org_code,
+                            site_code,
+                            create_user,
+                            create_user_name,
+                            update_user,
+                            update_user_name,
+                            create_time,
+                            update_time
+                    ) VALUES (
+                            #{id},
+                            #{groupCode},
+                            #{positionCode},
+                            #{orgCode},
+                            #{siteCode},
+                            #{createUser},
+                            #{createUserName},
+                            #{updateUser},
+                            #{updateUserName},
+                            #{createTime},
+                            #{updateTime}
+                    )
+    </insert>
+    <select id="queryGroupByPosition" parameterType="com.jd.bluedragon.distribution.jy.group.JyGroupQuery" resultMap="jyGroupMap">
+        select
+            <include refid="Base_Column_List"/>
+        from
+            jy_group
+        where yn = 1
+          and position_code = #{positionCode}  
+          order by id desc
+        limit 1
+    </select>
+    <select id="queryByGroupCode" parameterType="java.lang.String" resultMap="jyGroupMap">
+        select
+            <include refid="Base_Column_List"/>
+        from
+            jy_group
+        where yn = 1
+          and group_code = #{groupCode}
+          order by id desc
+        limit 1
+    </select>    
+</mapper>

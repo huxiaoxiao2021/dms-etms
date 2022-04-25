@@ -618,6 +618,16 @@ public class UccPropertyConfiguration {
      */
     private int sealTaskForceFallback;
 
+    /**
+     * 拣运任务最大翻页数量
+     */
+    private Integer jyTaskPageMax;
+
+    /**
+     * 卸车逐单卸阈值
+     */
+    private Integer jyUnloadSingleWaybillThreshold;
+
     public int getSealTaskForceFallback() {
         return sealTaskForceFallback;
     }
@@ -685,6 +695,19 @@ public class UccPropertyConfiguration {
      * AI识别图片开关
      */
     private boolean aiDistinguishSwitch;
+
+    /**
+     * 设备AI识别图片场地开关
+     *  多个场地以,分隔
+     *  true表示全国
+     *  空表示未开启
+     */
+    private String deviceAIDistinguishSwitch;
+
+    /**
+     * 设备AI识别大包裹限制
+     */
+    private int deviceAIDistinguishPackNum;
 
     /**
      * 终端包装耗材重塑项目：
@@ -1724,6 +1747,22 @@ public class UccPropertyConfiguration {
         this.aiDistinguishSwitch = aiDistinguishSwitch;
     }
 
+    public String getDeviceAIDistinguishSwitch() {
+        return deviceAIDistinguishSwitch;
+    }
+
+    public void setDeviceAIDistinguishSwitch(String deviceAIDistinguishSwitch) {
+        this.deviceAIDistinguishSwitch = deviceAIDistinguishSwitch;
+    }
+
+    public int getDeviceAIDistinguishPackNum() {
+        return deviceAIDistinguishPackNum;
+    }
+
+    public void setDeviceAIDistinguishPackNum(int deviceAIDistinguishPackNum) {
+        this.deviceAIDistinguishPackNum = deviceAIDistinguishPackNum;
+    }
+
     public String getSpotCheckReformSiteCodes() {
         return spotCheckReformSiteCodes;
     }
@@ -1738,5 +1777,21 @@ public class UccPropertyConfiguration {
 
     public void setPackConsumableSwitch(Integer packConsumableSwitch) {
         this.packConsumableSwitch = packConsumableSwitch;
+    }
+
+    public Integer getJyTaskPageMax() {
+        return jyTaskPageMax;
+    }
+
+    public void setJyTaskPageMax(Integer jyTaskPageMax) {
+        this.jyTaskPageMax = jyTaskPageMax;
+    }
+
+    public Integer getJyUnloadSingleWaybillThreshold() {
+        return jyUnloadSingleWaybillThreshold;
+    }
+
+    public void setJyUnloadSingleWaybillThreshold(Integer jyUnloadSingleWaybillThreshold) {
+        this.jyUnloadSingleWaybillThreshold = jyUnloadSingleWaybillThreshold;
     }
 }

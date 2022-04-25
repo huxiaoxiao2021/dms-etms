@@ -158,9 +158,14 @@
 		<property name="notSignedOutRecordMoreThanHours" value="${notSignedOutRecordMoreThanHours:-1}"/>
 		<property name="spotCheckReformSiteCodes" value="${spotCheckReformSiteCodes:true}"/>
 		<property name="aiDistinguishSwitch" value="${aiDistinguishSwitch:true}"/>
+		<property name="deviceAIDistinguishSwitch" value="${deviceAIDistinguishSwitch:910}"/>
+		<property name="deviceAIDistinguishPackNum" value="${deviceAIDistinguishPackNum:100}"/>
 		<property name="packConsumableSwitch" value="${packConsumableSwitch:0}"/>
 		<property name="sealTaskHystrixProps" value="${sealTaskHystrixProps: ''}"/>
 		<property name="sealTaskForceFallback" value="${sealTaskForceFallback: 0}"/>
+		<property name="jyTaskPageMax" value="${jyTaskPageMax: 200}"/>
+		<property name="jyUnloadSingleWaybillThreshold" value="${jyUnloadSingleWaybillThreshold:20}"/>
+
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -299,9 +304,14 @@
 				<value>uccPropertyConfiguration.notSignedOutRecordMoreThanHours</value>
 				<value>uccPropertyConfiguration.spotCheckReformSiteCodes</value>
 				<value>uccPropertyConfiguration.aiDistinguishSwitch</value>
+				<value>uccPropertyConfiguration.deviceAIDistinguishSwitch</value>
+				<value>uccPropertyConfiguration.deviceAIDistinguishPackNum</value>
 				<value>uccPropertyConfiguration.packConsumableSwitch</value>
                 <value>uccPropertyConfiguration.sealTaskHystrixProps</value>
                 <value>uccPropertyConfiguration.sealTaskForceFallback</value>
+                <value>uccPropertyConfiguration.jyUnloadSingleWaybillThreshold</value>
+				<value>uccPropertyConfiguration.jyTaskPageMax</value>
+				<value>uccPropertyConfiguration.checkBoxSendedSwitchOn</value>
 
                 <value>hystrixRouteUccPropertyConfiguration.executionTimeoutInMilliseconds</value>
                 <value>hystrixRouteUccPropertyConfiguration.circuitBreakerEnabled</value>

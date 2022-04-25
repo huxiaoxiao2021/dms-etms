@@ -106,8 +106,8 @@ public class DmsScheduleInfoServiceImpl extends BaseService<DmsScheduleInfo> imp
 			return dmsScheduleInfoDao.updateScheduleInfo(dmsScheduleInfo);
 		}else{
 			logger.warn("调度时间小于历史数据，不做更新！oldData[{}],newData[{}]", JsonHelper.toJson(oldData),JsonHelper.toJson(dmsScheduleInfo));
+			return true;
 		}
-		return false;
 	}
 
 	@Override
