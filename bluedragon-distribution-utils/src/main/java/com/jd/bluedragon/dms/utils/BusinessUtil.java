@@ -2380,4 +2380,13 @@ public class BusinessUtil {
 
         return versionArr.length < newestVerArr.length;
     }
+
+    /**
+     * 是否医药冷链产品（精温送）
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isMedicalFreshProductType(String waybillSign){
+        return isSignChar(waybillSign,WaybillSignConstants.POSITION_31,WaybillSignConstants.CHAR_31_D);
+    }
 }

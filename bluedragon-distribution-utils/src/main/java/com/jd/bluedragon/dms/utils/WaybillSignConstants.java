@@ -257,6 +257,7 @@ public interface WaybillSignConstants {
 	char CHAR_31_A = 'A';
 	char CHAR_31_B = 'B';
 	char CHAR_31_C = 'C';
+	char CHAR_31_D = 'D';
 	char CHAR_31_F = 'F';
 	char CHAR_31_G = 'G';
 	char CHAR_31_H = 'H';

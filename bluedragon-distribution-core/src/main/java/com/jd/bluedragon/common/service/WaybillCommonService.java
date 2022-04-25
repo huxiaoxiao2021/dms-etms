@@ -9,6 +9,7 @@ import com.jd.etms.waybill.domain.PackageWeigh;
 import com.jd.etms.waybill.domain.PickupTask;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.PackOpeFlowDto;
+import com.jd.etms.waybill.dto.WaybillVasDto;
 
 import java.util.List;
 import java.util.Map;
@@ -220,4 +221,11 @@ public interface WaybillCommonService {
 	 * @return
 	 */
 	boolean checkPackExist(String packCode);
+
+	/**
+	 * 根据运单号获得增值服务列表
+	 * @param waybillCode
+	 * @return
+	 */
+	List<WaybillVasDto> getWaybillVasList(String waybillCode);
 }
