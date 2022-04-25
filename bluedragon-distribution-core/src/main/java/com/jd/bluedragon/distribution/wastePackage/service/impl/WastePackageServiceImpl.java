@@ -56,6 +56,7 @@ import static com.jd.bluedragon.distribution.base.domain.InvokeResult.RESULT_SUC
  * @author biyuo
  * @date 2021/3/23
  */
+@Deprecated
 @Service("wastePackageService")
 public class WastePackageServiceImpl implements WastePackageService {
     private final Logger log = LoggerFactory.getLogger(WastePackageServiceImpl.class);
