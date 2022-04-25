@@ -727,28 +727,29 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
                     }
                 }
             }
-           //todo 获取青龙号
             String customerCode = waybill.getCustomerCode();
             List<String> qlListConfigList = sysConfigService.getStringListConfig(Constants.SYS_WAYBILL_PRINT_ADDIOWN_NUMBER_CONF);
-            log.info("获取本地青龙配置为：{}", JSON.toJSONString(qlListConfigList));
-
+            log.info("获取本地青龙配置为：{}", JSON.toJSON(qlListConfigList));
+            log.info("配合测试增加打印waybill配置：{}",JSON.toJSON(waybill));
             boolean signInChars = BusinessUtil.isSignInChars(waybill.getWaybillSign(), WaybillSignConstants.POSITION_61, WaybillSignConstants.CHAR_61_1,
                     WaybillSignConstants.CHAR_61_2, WaybillSignConstants.CHAR_61_3, WaybillSignConstants.CHAR_61_6);
-            if(!CollectionUtils.isEmpty(qlListConfigList)&&qlListConfigList.contains(customerCode)&&signInChars){
-                     //获取订单号
+            char positionChar = waybill.getWaybillSign().charAt(WaybillSignConstants.POSITION_61 - 1);
+            log.info("配合测试增加打印positionChar配置：{},打印结果是：{}",JSON.toJSON(positionChar),JSON.toJSON(signInChars));
+            if(customerCode!=null&&!CollectionUtils.isEmpty(qlListConfigList)&&qlListConfigList.contains(customerCode)&&signInChars){
+                //获取订单号
 
                 BaseEntity<com.jd.etms.waybill.domain.Waybill> oldWaybill= waybillQueryManager.getWaybillByReturnWaybillCode(waybill.getWaybillCode());
-                     if(oldWaybill != null && oldWaybill.getData()!=null&&oldWaybill.getData().getWaybillCode()!=null) {
-                         String oldWaybillCode = oldWaybill.getData().getWaybillCode();
-                         target.setPopularizeMatrixCode(oldWaybillCode);
-                         target.setPopularizeMatrixCodeDesc("原运单号");
-                         target.appendRemark(Constants.PRINT_TITLES+oldWaybillCode);
-                     }else {
-                         //二维码为扫码寄快递
+                if(oldWaybill != null && oldWaybill.getData()!=null&&oldWaybill.getData().getWaybillCode()!=null) {
+                    String oldWaybillCode = oldWaybill.getData().getWaybillCode();
+                    target.setPopularizeMatrixCode(oldWaybillCode);
+                    target.setPopularizeMatrixCodeDesc("原运单号");
+                    target.appendRemark(Constants.PRINT_TITLES+oldWaybillCode);
+                }else {
+                    //二维码为扫码寄快递
 //
-                         target.appendRemark(Constants.PRINT_TITLES+Constants.PRINT_JD_TITLES);
-                     }
-             }
+                    target.appendRemark(Constants.PRINT_JD_TITLES);
+                }
+            }
         }
         target.setBusiOrderCode(waybill.getBusiOrderCode());
 

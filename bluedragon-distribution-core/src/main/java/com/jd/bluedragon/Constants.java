@@ -824,8 +824,8 @@ public class Constants {
     /**
      * print titles
      */
-    public static final  String  PRINT_TITLES="【原退】原运单号";
-    public static final  String  PRINT_JD_TITLES="联系京东项目组获取运单号”。";
+    public static final  String  PRINT_TITLES="【原退】原运单号:";
+    public static final  String  PRINT_JD_TITLES="【原退】原运单号:联系京东项目组获取运单号”。";
 
     /**
      * 安卓菜单可用性配置
