@@ -156,20 +156,17 @@ public class DiscardedPackageStorageTempServiceImpl implements DiscardedPackageS
     private Response<Void> checkAndSetPram4SelectParam(DiscardedPackageStorageTempQo query){
         Response<Void> result = new Response<>();
         result.toSucceed();
-        if(StringUtils.isBlank(query.getCreateTimeFromStr())){
-            if(StringUtils.isBlank(query.getWaybillCode()) && StringUtils.isBlank(query.getPackageCode())){
-                result.toError("参数错误，createTimeFromStr为空");
+        if(StringUtils.isBlank(query.getWaybillCode()) && StringUtils.isBlank(query.getPackageCode())){
+            if((query.getStorageDaysFrom() == null || query.getStorageDaysTo() == null) &&
+                    (StringUtils.isBlank(query.getCreateTimeFromStr()) || StringUtils.isBlank(query.getCreateTimeToStr()))){
+                result.toError("参数错误，waybillCode和packageCode为空时，首次扫描时间和存储天数不能同时为空");
                 return result;
             }
-        } else {
+        }
+        if(!StringUtils.isBlank(query.getCreateTimeFromStr())){
             query.setCreateTimeFrom(DateHelper.parseDate(query.getCreateTimeFromStr(), DateHelper.DATE_FORMAT_YYYYMMDDHHmmss2));
         }
-        if(StringUtils.isBlank(query.getCreateTimeToStr())){
-            if(StringUtils.isBlank(query.getWaybillCode()) && StringUtils.isBlank(query.getPackageCode())){
-                result.toError("参数错误，createTimeToStr为空");
-                return result;
-            }
-        } else {
+        if(!StringUtils.isBlank(query.getCreateTimeToStr())){
             query.setCreateTimeTo(DateHelper.parseDate(query.getCreateTimeToStr(), DateHelper.DATE_FORMAT_YYYYMMDDHHmmss2));
         }
         if(query.getStorageDaysFrom() != null){
@@ -192,6 +189,10 @@ public class DiscardedPackageStorageTempServiceImpl implements DiscardedPackageS
                 result.toError("计算已存储天数异常");
                 return result;
             }
+        }
+        if(query.getStorageDaysFrom() != null && query.getStorageDaysTo() != null && (query.getStorageDaysTo() - query.getStorageDaysFrom() > 7)){
+            result.toError("已存储天数查询范围不能超过7天");
+            return result;
         }
 
         return result;
