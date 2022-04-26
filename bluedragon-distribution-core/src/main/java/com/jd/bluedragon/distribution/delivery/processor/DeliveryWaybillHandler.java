@@ -38,6 +38,8 @@ public class DeliveryWaybillHandler extends DeliveryBaseHandler {
     @Override
     public DeliveryResponse initDeliveryTask(SendMWrapper wrapper) {
 
+
+
         for (String waybillCode : wrapper.getBarCodeList()) {
 
             // 获取运单包裹数
@@ -52,7 +54,7 @@ public class DeliveryWaybillHandler extends DeliveryBaseHandler {
             int pageTotal = (totalNum % onePageSize) == 0 ? (totalNum / onePageSize) : (totalNum / onePageSize) + 1;
 
             // 生成本次发货的唯一标识
-            String batchUniqKey = waybillCode + Constants.UNDER_LINE + wrapper.getSendM().getCreateSiteCode();
+            String batchUniqKey = wrapper.getSendM().getSendCode();
 
             // 设置本次发货的批处理锁
             lockDeliveryByWaybill(batchUniqKey, pageTotal);
@@ -102,13 +104,14 @@ public class DeliveryWaybillHandler extends DeliveryBaseHandler {
      * @return
      */
     private boolean lockDeliveryByWaybill(String batchUniqKey, int pageTotal) {
-        String redisKey = String.format(CacheKeyConstants.WAYBILL_SEND_BATCH_KEY, batchUniqKey);
-        boolean lockRet = redisClientCache.set(redisKey, String.valueOf(pageTotal), EXPIRE_TIME_SECOND, TimeUnit.SECONDS, false);
-        if (log.isInfoEnabled()) {
-            log.info("按运单发货锁定运单数据. key:{}", batchUniqKey);
+        String redisKey = String.format(CacheKeyConstants.INITIAL_SEND_COUNT_KEY, batchUniqKey);
+        try {
+            redisClientCache.incrBy(redisKey,pageTotal);
+        } catch (Exception e) {
+            log.error("lockDeliveryByWaybill初始化批次计数异常",e);
+            return false;
         }
-
-        return lockRet;
+        return true;
     }
 
     /**

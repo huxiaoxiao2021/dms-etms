@@ -97,7 +97,7 @@ public abstract class DeliveryBaseHandler implements IDeliveryBaseHandler {
         SendM sendM = wrapper.getSendM();
 
         // 生成本次发货的唯一标识
-        String batchUniqKey = genBatchTaskUniqKey(wrapper);
+        String batchUniqKey = sendM.getSendCode();
 
         // 设置本次发货的批处理锁，值为本次任务的总页数
         lockPageDelivery(batchUniqKey, pageTotal);
@@ -149,8 +149,14 @@ public abstract class DeliveryBaseHandler implements IDeliveryBaseHandler {
      * @return
      */
     private boolean lockPageDelivery(String batchUniqKey, int pageTotal) {
-        String redisKey = String.format(CacheKeyConstants.PACKAGE_SEND_BATCH_KEY, batchUniqKey);
-        return redisClientCache.set(redisKey, String.valueOf(pageTotal), EXPIRE_TIME_SECOND, TimeUnit.SECONDS, false);
+        String redisKey = String.format(CacheKeyConstants.INITIAL_SEND_COUNT_KEY, batchUniqKey);
+        try {
+            redisClientCache.incrBy(redisKey,pageTotal);
+        } catch (Exception e) {
+            log.error("lockPageDelivery初始化批次计数异常",e);
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -191,9 +197,17 @@ public abstract class DeliveryBaseHandler implements IDeliveryBaseHandler {
 
         deliveryService.deliveryCoreLogic(sendMList.get(0).getBizSource(), sendMList);
 
-        // 判断是否推送全程跟踪任务
-        SendM taskSendM = sendMList.get(0);
-        return judgePushSendTracking(sendM, pageNo, pageTotal, batchUniqKey, taskSendM);
+        return competeTaskIncrCount(sendM.getSendCode());
+    }
+
+    private boolean competeTaskIncrCount(String sendCode) {
+        String compeletedCountKey = String.format(CacheKeyConstants.COMPELETE_SEND_COUNT_KEY, sendCode);
+        try {
+            redisClientCache.incr(compeletedCountKey);
+        } catch (Exception e) {
+            log.error("任务完成计数异常",e);
+        }
+        return true;
     }
 
     private boolean judgePushSendTracking(SendM sendM, int pageNo, int pageTotal, String batchUniqKey, SendM taskSendM) {
@@ -208,6 +222,7 @@ public abstract class DeliveryBaseHandler implements IDeliveryBaseHandler {
         // 设置单页处理完成标志位
         redisClientCache.setBit(countRedisKey, pageNo, true);
         redisClientCache.expire(countRedisKey, EXPIRE_TIME_SECOND, TimeUnit.SECONDS);
+
 
         // 全部分页任务处理完成，生成发货任务
         if (Integer.parseInt(redisVal) == redisClientCache.bitCount(countRedisKey).intValue()) {

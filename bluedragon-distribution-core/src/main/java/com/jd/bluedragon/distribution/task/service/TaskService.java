@@ -46,6 +46,8 @@ public interface TaskService {
 
     List<Task> findSendTasks(Integer type, Integer fetchNum, String key,List<String> queueIds,String ownSign, List<String> ownSigns);
 
+    List<Task> findSendTasksByxx(Integer type, Integer fetchNum, String key,List<String> queueIds,String ownSign, List<String> ownSigns,Integer executeCount);
+
     List<Task> findTasksByFingerprint(Task task);
 
     Boolean updateBySelective(Task task);

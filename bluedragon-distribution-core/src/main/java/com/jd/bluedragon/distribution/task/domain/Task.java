@@ -749,7 +749,9 @@ public class Task implements java.io.Serializable, TaskModeAware{
 //				taskType = "ReverseSendRedisTask";
 			} else if (keyword1.equals("5")) {
 				taskType = "TransitSendRedisTask";
-			}
+			}else if (keyword1.equals("20")) {
+                taskType = "CreateSendTask";
+            }
 		} else if (Task.TASK_TYPE_DEPARTURE.equals(type)
 				&& StringHelper.isNotEmpty(keyword1) && keyword1.equals("5")) {
 			taskType = "ThirdDepartureRedisTask";
@@ -892,6 +894,9 @@ public class Task implements java.io.Serializable, TaskModeAware{
             }
             else if ("11".equals(keyword1)) {
                 return "waybillSendDeliverySplitTaskN";
+            }
+            else if (keyword1.equals("20")) {
+                return  "CreateSendTask";
             }
         }
         else if (TASK_TYPE_DELIVERY_ASYNC.equals(type)) {

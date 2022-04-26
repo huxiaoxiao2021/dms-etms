@@ -688,6 +688,14 @@ public class TaskServiceImpl implements TaskService {
 		return routerDao.findSendTasks(type, fetchNum, key,queueIds, ownSign, ownSigns);
 	}
 
+	@Override
+	public List<Task> findSendTasksByxx(Integer type, Integer fetchNum, String key, List<String> queueIds, String ownSign, List<String> ownSigns,Integer executeCount) {
+		Assert.notNull(type, "type must not be null");
+		Assert.notNull(fetchNum, "fetchNum must not be null");
+		TaskDao routerDao = taskDao;
+		return routerDao.findSendTasksByxx(type, fetchNum, key,queueIds, ownSign, ownSigns,executeCount);
+	}
+
 	public Task findReverseSendTask(String sendCode) {
         TaskDao routerDao = taskDao;
 		return routerDao.findReverseSendTask(sendCode);

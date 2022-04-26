@@ -9,10 +9,12 @@ import com.jd.bluedragon.distribution.delivery.processor.IDeliveryBaseHandler;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
 import com.jd.bluedragon.distribution.task.domain.Task;
+import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.Md5Helper;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections.CollectionUtils;
@@ -51,6 +53,8 @@ public class DeliveryOperationServiceImpl implements IDeliveryOperationService {
 
     @Autowired
     private UccPropertyConfiguration uccConfig;
+    @Autowired
+    protected TaskService taskService;
 
     /**
      * 按包裹、箱号、运单处理发货数据
@@ -98,6 +102,21 @@ public class DeliveryOperationServiceImpl implements IDeliveryOperationService {
         if (CollectionUtils.isNotEmpty(waybillWrapper.getBarCodeList())) {
             waybillHandler.initDeliveryTask(waybillWrapper);
         }
+
+        //创建task
+        Task task = new Task();
+        task.setCreateSiteCode(sendM.getCreateSiteCode());
+        task.setReceiveSiteCode(sendM.getReceiveSiteCode());
+        task.setType(Task.TASK_TYPE_SEND_DELIVERY);
+        task.setTableName(Task.getTableName(task.getType()));
+        task.setSequenceName(Task.getSequenceName(task.getTableName()));
+        task.setKeyword1("20");
+        task.setKeyword2(sendM.getSendCode());
+        task.setOwnSign(BusinessHelper.getOwnSign());
+
+        task.setBody(JsonHelper.toJson(sendM));
+        taskService.add(task);
+
 
         return DeliveryResponse.oK();
     }
