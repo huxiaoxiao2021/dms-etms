@@ -1524,6 +1524,14 @@ public class Constants {
      */
     public static String LINE_NEXT_CHAR = "\n";
     /**
+     * 默认时区-GMT+8
+     */
+    public final static String TIME_ZONE8 = "GMT+8";
+    /**
+     * 默认国际化-zh_CN
+     */
+    public final static String LOCALE_ZH_CN = "zh_CN";
+    /**
      * 传摆线路类型列表
      */
     public static List<Integer> CUAN_BAI_LINE_TYPES = new ArrayList<Integer>();

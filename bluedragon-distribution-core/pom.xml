@@ -38,6 +38,7 @@
 		<ps-epf.version>1.0-SNAPSHOT</ps-epf.version>
 		<!--jim redis-->
 		<jimdb.version>3.1.2-SNAPSHOT</jimdb.version>
+		<cp-wbms-client.version>1.0.110</cp-wbms-client.version>
 	</properties>
 
 	<dependencies>
@@ -1680,7 +1681,11 @@
 			<!-- 测试环境1.0.2-test-SNAPSHOT  生成环境 1.0.0-SNAPSHOT -->
 			<version>1.0.0-SNAPSHOT</version>
 		</dependency>
-
+		<dependency>
+			<groupId>com.jd.cp.wbms</groupId>
+			<artifactId>cp-wbms-client</artifactId>
+			<version>${cp-wbms-client.version}</version>
+		</dependency>
 		<dependency>
 			<groupId>com.jd.dms.wb</groupId>
 			<artifactId>workbench-report-api</artifactId>
