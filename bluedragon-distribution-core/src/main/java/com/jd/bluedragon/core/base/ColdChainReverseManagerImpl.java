@@ -1,6 +1,7 @@
 package com.jd.bluedragon.core.base;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.distribution.reverse.domain.DmsWaybillReverseResult;
 import com.jd.bluedragon.distribution.reverse.domain.ExchangeWaybillDto;
 import com.jd.bluedragon.distribution.reverse.domain.LocalClaimInfoRespDTO;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
@@ -115,7 +116,7 @@ public class ColdChainReverseManagerImpl implements ColdChainReverseManager {
      * @return
      */
     @Override
-    public WaybillReverseResult createReverseWbOrder(ColdChainReverseRequest coldChainReverseRequest,StringBuilder errorMessage) {
+    public DmsWaybillReverseResult createReverseWbOrder(ColdChainReverseRequest coldChainReverseRequest,StringBuilder errorMessage) {
         CallerInfo info = null;
         try{
             info = Profiler.registerInfo( "DMSWEB.ColdChainReverseManagerImpl.createReverseWbOrder",false, true);
@@ -134,7 +135,7 @@ public class ColdChainReverseManagerImpl implements ColdChainReverseManager {
                 logger.warn("触发eclp逆向换单返回的运单号为空,入参：{}  返回值：{}",JsonHelper.toJson(coldChainReverseRequest),JsonHelper.toJson(responseDTO));
                 return null;
             }
-            WaybillReverseResult result = new WaybillReverseResult();
+            DmsWaybillReverseResult result = new DmsWaybillReverseResult();
             result.setWaybillCode(coldChainReverseResult.getWaybillCode());
             return result;
         }catch (Exception e){

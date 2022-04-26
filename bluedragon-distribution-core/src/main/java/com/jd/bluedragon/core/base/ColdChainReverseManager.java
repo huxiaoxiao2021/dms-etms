@@ -1,9 +1,8 @@
 package com.jd.bluedragon.core.base;
 
+import com.jd.bluedragon.distribution.reverse.domain.DmsWaybillReverseResult;
 import com.jd.bluedragon.distribution.reverse.domain.ExchangeWaybillDto;
 import com.jd.coldchain.fulfillment.ot.api.dto.waybill.ColdChainReverseRequest;
-import com.jd.coldchain.fulfillment.ot.api.dto.waybill.ColdChainReverseResult;
-import com.jd.ldop.center.api.reverse.dto.WaybillReverseResult;
 
 /**
  * @author : caozhixing
@@ -16,5 +15,5 @@ import com.jd.ldop.center.api.reverse.dto.WaybillReverseResult;
 public interface ColdChainReverseManager {
     boolean checkColdReverseProductType(String waybillCode);
     ColdChainReverseRequest makeColdChainReverseRequest(ExchangeWaybillDto exchangeWaybillDto);
-    WaybillReverseResult createReverseWbOrder(ColdChainReverseRequest coldChainReverseRequest,StringBuilder errorMessage);
+    DmsWaybillReverseResult createReverseWbOrder(ColdChainReverseRequest coldChainReverseRequest,StringBuilder errorMessage);
 }
