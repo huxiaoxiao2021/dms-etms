@@ -30,9 +30,11 @@ import com.jd.bluedragon.distribution.cyclebox.CycleBoxService;
 import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigEnum;
 import com.jd.bluedragon.distribution.funcSwitchConfig.service.FuncSwitchConfigService;
 import com.jd.bluedragon.distribution.jsf.domain.BoardCombinationJsfResponse;
+import com.jd.bluedragon.distribution.middleend.sorting.dao.DynamicSortingQueryDao;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.service.SendMService;
+import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.ver.service.SortingCheckService;
@@ -130,6 +132,8 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
     @Autowired
     private BaseService baseService;
 
+    @Autowired
+    private DynamicSortingQueryDao dynamicSortingQueryDao;
     /**
      * 获取组板已存在的未完成数据
      * @param operatorInfo 操作人信息
@@ -426,6 +430,25 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
                         return result;
                     }
                 }
+                //集包禁止组板拦截
+                if(isPackageCode) {
+                    Sorting sorting = new Sorting();
+                    sorting.setCreateSiteCode(operatorInfo.getSiteCode());
+                    sorting.setPackageCode(barCode);
+                    List<Sorting> sortingList = dynamicSortingQueryDao.findByWaybillCodeOrPackageCode(sorting);
+                    if(CollectionUtils.isNotEmpty(sortingList)) {
+                        for (Sorting sortingTemp : sortingList) {
+                            final BarCodeType barCodeType = BusinessUtil.getBarCodeType(sortingTemp.getBoxCode());
+                            if (barCodeType != null && Objects.equals(barCodeType, BarCodeType.BOX_CODE)) {
+                                log.info("VirtualBoardServiceImpl.bindToBoard--包裹【{}】分拣组板时校验拦截，该包裹已经集包【{}】,request=【{}】", barCode, JsonHelper.toJson(sortingTemp), JsonHelper.toJson(bindToVirtualBoardPo));
+                                result.setCode(BoxResponse.CODE_PACKAGE_BOX);
+                                result.setMessage(BoxResponse.MESSAGE_CODE_PACKAGE_BOX);
+                                return result;
+                            }
+                        }
+                    }
+                }
+
                 // 调板号服务绑定到板号
                 bindToVirtualBoardPo.setMaxItemCount(uccPropertyConfiguration.getVirtualBoardMaxItemCount());
                 final com.jd.transboard.api.dto.BindToVirtualBoardPo convertToTcParam = this.getConvertToTcParam(bindToVirtualBoardPo);
