@@ -2,15 +2,12 @@ package com.jd.bluedragon.distribution.worker.delivery;
 
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
-import com.jd.bluedragon.distribution.delivery.entity.SendMWrapper;
 import com.jd.bluedragon.distribution.framework.SendDBSingleScheduler;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.task.domain.Task;
-import com.jd.bluedragon.distribution.worker.inspection.InspectionSplitTask;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.configure.utils.TimeUtils;
 import com.jd.jim.cli.Cluster;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -34,15 +31,17 @@ public class CreateSendTask extends SendDBSingleScheduler {
 
     @Override
     protected boolean executeSingleTask(Task task, String ownSign) throws Exception {
-        log.info("CreateSendTask. task:{}", JsonHelper.toJson(task));
+        log.info("wxf=====================CreateSendTask=======================wxf. task:{}", JsonHelper.toJson(task));
         //判断任务完成度+任务创建时间
         final SendM sendM = JsonHelper.fromJson(task.getBody(), SendM.class);
         Date createTime = task.getCreateTime();
         String sendCode = sendM.getSendCode();
+
         String initialCountKey = String.format(CacheKeyConstants.INITIAL_SEND_COUNT_KEY, sendCode);
         int initialCount = Integer.valueOf(redisClientCache.get(initialCountKey));
         String compeletedCountKey = String.format(CacheKeyConstants.COMPELETE_SEND_COUNT_KEY, sendCode);
         int compeletedCount = Integer.valueOf(redisClientCache.get(compeletedCountKey));
+
         if (compeletedCount >= initialCount) {
             log.info("任务执行完毕");
             deliveryService.addTaskSend(sendM);
@@ -61,6 +60,7 @@ public class CreateSendTask extends SendDBSingleScheduler {
 
     @Override
     public List<Task> selectTasks(String arg0, int queueNum, List<String> queryCondition, int fetchNum) throws Exception {
+        log.info("===========================XXXXYYYY========================================");
         if (queryCondition.size() == 0) {
             return Collections.emptyList();
         }

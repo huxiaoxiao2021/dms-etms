@@ -76,6 +76,7 @@ public class DeliveryOperationServiceImpl implements IDeliveryOperationService {
         // 单次发货的公共属性
         SendM sendM = makeDeliveryDomain(requests.get(0), sourceEnum);
         long uniqueId = genSendBatchTaskUniqueId(sendM.getSendCode());
+        log.info("===========asyncHandleDelivery==========生成批次唯一id：{},批次号码：{}",uniqueId,sendM.getSendCode());
 
         // 每次发货的操作时间、操作人、批次号等认为是一样的
         packageSendWrapper.setSendM(sendM);
@@ -122,7 +123,9 @@ public class DeliveryOperationServiceImpl implements IDeliveryOperationService {
         task.setKeyword2(sendM.getSendCode());
         task.setOwnSign(BusinessHelper.getOwnSign());
         task.setBody(JsonHelper.toJson(sendM));
-        taskService.add(task);
+        taskService.doAddTask(task,false);
+        log.info("===========asyncHandleDelivery==========生成task调度任务");
+
 
         return DeliveryResponse.oK();
     }

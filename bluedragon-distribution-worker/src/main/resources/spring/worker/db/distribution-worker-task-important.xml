@@ -269,7 +269,7 @@
           init-method="init" lazy-init="false" depends-on="managerFactory">
         <property name="dataSource" ref="taskDataSource"/>
         <property name="managerFactory" ref="managerFactory"/>
-        <property name="taskType" value="createSendTask"/>
+        <property name="taskType" value="CreateSendTask"/>
         <property name="ownSign" value="${ownSign}"/>
         <property name="type" value="1300"/>
         <property name="keyType" value="20"/>

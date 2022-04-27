@@ -148,10 +148,12 @@ public abstract class DeliveryBaseHandler implements IDeliveryBaseHandler {
      * @param pageTotal
      * @return
      */
-    private boolean lockPageDelivery(String batchUniqKey, int pageTotal) {
+    @Override
+    public boolean lockPageDelivery(String batchUniqKey, int pageTotal) {
         String redisKey = String.format(CacheKeyConstants.INITIAL_SEND_COUNT_KEY, batchUniqKey);
         try {
             redisClientCache.incrBy(redisKey,pageTotal);
+            log.info("批次任务 {}，计数成功：{}",batchUniqKey,pageTotal);
         } catch (Exception e) {
             log.error("lockPageDelivery初始化批次计数异常",e);
             return false;
@@ -203,7 +205,7 @@ public abstract class DeliveryBaseHandler implements IDeliveryBaseHandler {
         String compeletedCountKey = String.format(CacheKeyConstants.COMPELETE_SEND_COUNT_KEY, batchUniqKey);
         try {
             redisClientCache.incr(compeletedCountKey);
-            log.info("发货批次完成任务计数加1");
+            log.info("发货批次 {} competeTaskIncrCount加一",batchUniqKey);
         } catch (Exception e) {
             log.error("任务完成计数异常",e);
         }

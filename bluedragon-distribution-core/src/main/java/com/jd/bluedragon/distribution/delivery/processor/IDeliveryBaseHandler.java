@@ -29,6 +29,14 @@ public interface IDeliveryBaseHandler {
     DeliveryResponse initDeliveryTask(SendMWrapper wrapper);
 
     /**
+     * 锁定批次任务
+     * @param batchUniqKey
+     * @param pageTotal
+     * @return
+     */
+    boolean lockPageDelivery(String batchUniqKey, int pageTotal);
+
+    /**
      * 处理发货逻辑
      * @param wrapper
      * @return

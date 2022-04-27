@@ -57,7 +57,7 @@ public class DeliveryWaybillHandler extends DeliveryBaseHandler {
             String batchUniqKey = wrapper.getBatchUniqKey();
 
             // 设置本次发货的批处理锁
-            lockDeliveryByWaybill(batchUniqKey, pageTotal);
+            lockPageDelivery(batchUniqKey, pageTotal);
 
             // 插入分页任务
             for (int i = 0; i < pageTotal; i++) {
@@ -96,24 +96,6 @@ public class DeliveryWaybillHandler extends DeliveryBaseHandler {
 
         return DeliveryResponse.oK();
     }
-
-    /**
-     * 锁定按运单发货
-     * @param batchUniqKey
-     * @param pageTotal
-     * @return
-     */
-    private boolean lockDeliveryByWaybill(String batchUniqKey, int pageTotal) {
-        String redisKey = String.format(CacheKeyConstants.INITIAL_SEND_COUNT_KEY, batchUniqKey);
-        try {
-            redisClientCache.incrBy(redisKey,pageTotal);
-        } catch (Exception e) {
-            log.error("lockDeliveryByWaybill初始化批次计数异常",e);
-            return false;
-        }
-        return true;
-    }
-
     /**
      * 处理发货逻辑
      *
