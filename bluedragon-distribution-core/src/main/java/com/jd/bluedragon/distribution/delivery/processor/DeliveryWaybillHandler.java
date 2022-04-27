@@ -54,7 +54,7 @@ public class DeliveryWaybillHandler extends DeliveryBaseHandler {
             int pageTotal = (totalNum % onePageSize) == 0 ? (totalNum / onePageSize) : (totalNum / onePageSize) + 1;
 
             // 生成本次发货的唯一标识
-            String batchUniqKey = wrapper.getSendM().getSendCode();
+            String batchUniqKey = wrapper.getBatchUniqKey();
 
             // 设置本次发货的批处理锁
             lockDeliveryByWaybill(batchUniqKey, pageTotal);
@@ -146,9 +146,7 @@ public class DeliveryWaybillHandler extends DeliveryBaseHandler {
 
         deliveryService.deliveryCoreLogic(waybillSendMList.get(0).getBizSource(), waybillSendMList);
 
-        // 判断是否推送全程跟踪任务
-        SendM taskSendM = waybillSendMList.get(0);
-        return judgePushSendTracking(pageNo, waybillCode, waybillSendM, waybillBatchUniqKey, taskSendM);
+        return competeTaskIncrCount(waybillBatchUniqKey);
     }
 
     private boolean judgePushSendTracking(int pageNo, String waybillCode, SendM waybillSendM, String waybillBatchUniqKey, SendM taskSendM) {

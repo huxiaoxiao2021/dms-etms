@@ -15,6 +15,7 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.Md5Helper;
+import com.jd.coo.sa.mybatis.plugins.id.SequenceGenAdaptor;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections.CollectionUtils;
@@ -55,6 +56,8 @@ public class DeliveryOperationServiceImpl implements IDeliveryOperationService {
     private UccPropertyConfiguration uccConfig;
     @Autowired
     protected TaskService taskService;
+    @Autowired
+    protected SequenceGenAdaptor sequenceGenAdaptor;
 
     /**
      * 按包裹、箱号、运单处理发货数据
@@ -72,11 +75,16 @@ public class DeliveryOperationServiceImpl implements IDeliveryOperationService {
 
         // 单次发货的公共属性
         SendM sendM = makeDeliveryDomain(requests.get(0), sourceEnum);
+        long uniqueId = genSendBatchTaskUniqueId(sendM.getSendCode());
 
         // 每次发货的操作时间、操作人、批次号等认为是一样的
         packageSendWrapper.setSendM(sendM);
+        packageSendWrapper.setBatchUniqKey(sendM.getSendCode()+uniqueId);
         boxSendWrapper.setSendM(sendM);
+        boxSendWrapper.setBatchUniqKey(sendM.getSendCode()+uniqueId);
         waybillWrapper.setSendM(sendM);
+        waybillWrapper.setBatchUniqKey(sendM.getSendCode()+uniqueId);
+
 
         for (SendM request : requests) {
             String barCode = request.getBoxCode();
@@ -103,7 +111,7 @@ public class DeliveryOperationServiceImpl implements IDeliveryOperationService {
             waybillHandler.initDeliveryTask(waybillWrapper);
         }
 
-        //创建task
+        //创建task,todo： 只创建定时task不创建mq消息
         Task task = new Task();
         task.setCreateSiteCode(sendM.getCreateSiteCode());
         task.setReceiveSiteCode(sendM.getReceiveSiteCode());
@@ -113,12 +121,22 @@ public class DeliveryOperationServiceImpl implements IDeliveryOperationService {
         task.setKeyword1("20");
         task.setKeyword2(sendM.getSendCode());
         task.setOwnSign(BusinessHelper.getOwnSign());
-
         task.setBody(JsonHelper.toJson(sendM));
         taskService.add(task);
 
-
         return DeliveryResponse.oK();
+    }
+
+    long genSendBatchTaskUniqueId(String nameSpace){
+        long sequence;
+        try {
+            sequence = sequenceGenAdaptor.newId(nameSpace);
+        }
+        catch (Throwable ex) {
+            log.error("[发货批次任务]生成唯一id失败 ", ex);
+            return System.currentTimeMillis();
+        }
+        return sequence;
     }
 
     private SendM makeDeliveryDomain(SendM request, SendBizSourceEnum sourceEnum) {

@@ -272,6 +272,7 @@
         <property name="taskType" value="createSendTask"/>
         <property name="ownSign" value="${ownSign}"/>
         <property name="type" value="1300"/>
+        <property name="keyType" value="20"/>
         <property name="desc" value="创建发货任务"/>
     </bean>
 </beans>

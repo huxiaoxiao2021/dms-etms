@@ -97,7 +97,7 @@ public abstract class DeliveryBaseHandler implements IDeliveryBaseHandler {
         SendM sendM = wrapper.getSendM();
 
         // 生成本次发货的唯一标识
-        String batchUniqKey = sendM.getSendCode();
+        String batchUniqKey = wrapper.getBatchUniqKey();
 
         // 设置本次发货的批处理锁，值为本次任务的总页数
         lockPageDelivery(batchUniqKey, pageTotal);
@@ -191,19 +191,19 @@ public abstract class DeliveryBaseHandler implements IDeliveryBaseHandler {
             sendMList.add(domain);
         }
 
-        final int pageNo = wrapper.getPageNo();
-        final int pageTotal = wrapper.getTotalPage();
         final String batchUniqKey = wrapper.getBatchUniqKey();
 
         deliveryService.deliveryCoreLogic(sendMList.get(0).getBizSource(), sendMList);
 
-        return competeTaskIncrCount(sendM.getSendCode());
+        return competeTaskIncrCount(batchUniqKey);
     }
 
-    private boolean competeTaskIncrCount(String sendCode) {
-        String compeletedCountKey = String.format(CacheKeyConstants.COMPELETE_SEND_COUNT_KEY, sendCode);
+    @Override
+    public boolean competeTaskIncrCount(String batchUniqKey) {
+        String compeletedCountKey = String.format(CacheKeyConstants.COMPELETE_SEND_COUNT_KEY, batchUniqKey);
         try {
             redisClientCache.incr(compeletedCountKey);
+            log.info("发货批次完成任务计数加1");
         } catch (Exception e) {
             log.error("任务完成计数异常",e);
         }
@@ -222,7 +222,6 @@ public abstract class DeliveryBaseHandler implements IDeliveryBaseHandler {
         // 设置单页处理完成标志位
         redisClientCache.setBit(countRedisKey, pageNo, true);
         redisClientCache.expire(countRedisKey, EXPIRE_TIME_SECOND, TimeUnit.SECONDS);
-
 
         // 全部分页任务处理完成，生成发货任务
         if (Integer.parseInt(redisVal) == redisClientCache.bitCount(countRedisKey).intValue()) {

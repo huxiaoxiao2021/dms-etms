@@ -5,6 +5,7 @@ import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.distribution.delivery.entity.SendMWrapper;
 import com.jd.bluedragon.distribution.framework.SendDBSingleScheduler;
 import com.jd.bluedragon.distribution.send.domain.SendM;
+import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.worker.inspection.InspectionSplitTask;
 import com.jd.bluedragon.utils.DateHelper;
@@ -27,6 +28,8 @@ public class CreateSendTask extends SendDBSingleScheduler {
     @Autowired
     @Qualifier("redisClientCache")
     protected Cluster redisClientCache;
+    @Autowired
+    DeliveryService deliveryService;
 
 
     @Override
@@ -42,18 +45,14 @@ public class CreateSendTask extends SendDBSingleScheduler {
         int compeletedCount = Integer.valueOf(redisClientCache.get(compeletedCountKey));
         if (compeletedCount >= initialCount) {
             log.info("任务执行完毕");
-            /**
-             * 执行发送task逻辑
-             */
+            deliveryService.addTaskSend(sendM);
             return true;
         } else {
             Date now = new Date();
-            int passedMini = DateHelper.getMiniDiff(createTime, now);
-            if (passedMini > uccConfig.getCreateSendTasktimeOut()) {
+            int passedTime = DateHelper.getMiniDiff(createTime, now);
+            if (passedTime > uccConfig.getCreateSendTasktimeOut()) {
                 log.info("任务未执行完毕，但已超过时间阈值");
-                /**
-                 * 执行发送task逻辑
-                 */
+                deliveryService.addTaskSend(sendM);
                 return true;
             }
         }
@@ -76,7 +75,7 @@ public class CreateSendTask extends SendDBSingleScheduler {
                 fetchNum = fetchNum * queueNum / queryCondition.size();
             }
 
-            List<Task> Tasks = taskService.findSendTasksByxx(this.type, fetchNum, this.keyType, queryCondition, ownSign, ownSignList, uccConfig.getCreateSendTaskExecuteCount());
+            List<Task> Tasks = taskService.findTasksUnderOptimizeSendTask(this.type, fetchNum, this.keyType, queryCondition, ownSign, ownSignList, uccConfig.getCreateSendTaskExecuteCount());
             for (Task task : Tasks) {
                 if (!isMyTask(queueNum, task.getId(), queryCondition)) {
                     continue;

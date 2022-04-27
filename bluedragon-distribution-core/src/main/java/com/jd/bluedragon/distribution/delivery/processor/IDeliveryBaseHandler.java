@@ -34,4 +34,6 @@ public interface IDeliveryBaseHandler {
      * @return
      */
     boolean dealCoreDelivery(SendMWrapper wrapper);
+
+    boolean competeTaskIncrCount(String batchUniqKey);
 }

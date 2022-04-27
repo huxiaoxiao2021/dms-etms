@@ -126,7 +126,7 @@ public class TaskDao extends BaseDao<Task> {
 	}
 
 
-	public List<Task> findSendTasksByxx(Integer type, Integer fetchNum, String key, List<String> queueIds,String ownSign, List<String> ownSigns,Integer executeCount) {
+	public List<Task> findTasksUnderOptimizeSendTask(Integer type, Integer fetchNum, String key, List<String> queueIds,String ownSign, List<String> ownSigns,Integer executeCount) {
 		Map<String, Object> request = new HashMap<String, Object>();
 		request.put("type", type);
 		request.put("tableName", Task.getTableName(type));
@@ -136,7 +136,7 @@ public class TaskDao extends BaseDao<Task> {
 		request.put("ownSign",ownSign);
 		request.put("ownSigns",ownSigns);
 		request.put("executeCount",executeCount);
-		return super.getSqlSession().selectList(TaskDao.namespace + ".findSendTasksByxx", request);
+		return super.getSqlSession().selectList(TaskDao.namespace + ".findTasksUnderOptimizeSendTask", request);
 	}
 	/**
 	 * 查询待处理失败的数据
