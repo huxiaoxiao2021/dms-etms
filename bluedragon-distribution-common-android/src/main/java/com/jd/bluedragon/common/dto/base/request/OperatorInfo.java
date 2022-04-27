@@ -64,6 +64,11 @@ public class OperatorInfo implements Serializable {
      */
     private Integer bizSource;
 
+    /**
+     * 版本：做数据隔离
+     */
+    private Integer version;
+
     public Integer getUserCode() {
         return userCode;
     }
@@ -151,5 +156,13 @@ public class OperatorInfo implements Serializable {
 
     public void setBizSource(Integer bizSource) {
         this.bizSource = bizSource;
+    }
+
+    public Integer getVersion() {
+        return version;
+    }
+
+    public void setVersion(Integer version) {
+        this.version = version;
     }
 }
