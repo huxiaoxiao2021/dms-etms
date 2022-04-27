@@ -153,7 +153,7 @@ public abstract class DeliveryBaseHandler implements IDeliveryBaseHandler {
         String redisKey = String.format(CacheKeyConstants.INITIAL_SEND_COUNT_KEY, batchUniqKey);
         try {
             redisClientCache.incrBy(redisKey,pageTotal);
-            log.info("批次任务 {}，计数成功：{}",batchUniqKey,pageTotal);
+            log.info("批次任务初始化 {}，计数成功：{}",batchUniqKey,pageTotal);
         } catch (Exception e) {
             log.error("lockPageDelivery初始化批次计数异常",e);
             return false;

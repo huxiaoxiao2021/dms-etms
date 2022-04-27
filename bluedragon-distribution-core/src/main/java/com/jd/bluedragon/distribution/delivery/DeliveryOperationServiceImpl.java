@@ -80,11 +80,11 @@ public class DeliveryOperationServiceImpl implements IDeliveryOperationService {
 
         // 每次发货的操作时间、操作人、批次号等认为是一样的
         packageSendWrapper.setSendM(sendM);
-        packageSendWrapper.setBatchUniqKey(sendM.getSendCode()+uniqueId);
+        packageSendWrapper.setBatchUniqKey(sendM.getSendCode()+"_"+uniqueId);
         boxSendWrapper.setSendM(sendM);
-        boxSendWrapper.setBatchUniqKey(sendM.getSendCode()+uniqueId);
+        boxSendWrapper.setBatchUniqKey(sendM.getSendCode()+"_"+uniqueId);
         waybillWrapper.setSendM(sendM);
-        waybillWrapper.setBatchUniqKey(sendM.getSendCode()+uniqueId);
+        waybillWrapper.setBatchUniqKey(sendM.getSendCode()+"_"+uniqueId);
 
 
         for (SendM request : requests) {
