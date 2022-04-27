@@ -328,7 +328,7 @@ public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
 
     private boolean queryFromBatchCode(String inputCode) {
         return BusinessHelper.isSendCode(inputCode)
-                || BusinessHelper.isTerminalBatchCode(inputCode);
+                || BusinessUtil.isTerminalSendCode(inputCode);
     }
 
     private boolean queryFromSealCode(String inputCode) {
