@@ -142,9 +142,8 @@ public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
         SealVehicleTaskQuery query = assembleCommandCondition(request);
         if (isSearch(request)) {
             // 根据封签号或批次号查询，从运输获得封车编码
-            if (BusinessUtil.isSealBoxNo(request.getBarCode())
-                    || BusinessHelper.isSendCode(request.getBarCode())
-                    || BusinessHelper.isTerminalBatchCode(request.getBarCode())) {
+            if (queryFromSealCode(request.getBarCode())
+                    || queryFromBatchCode(request.getBarCode())) {
                 List<String> sealCarCodeList = getSealCarCodeFromVos(result, request);
                 if (!result.codeSuccess()) {
                     return result;
@@ -308,16 +307,24 @@ public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
         sealCarDto.setStatus(STATUS);
         sealCarDto.setEndSiteId(request.getEndSiteCode());
         // 封签号
-        if (BusinessUtil.isSealBoxNo(request.getBarCode())) {
+        if (queryFromSealCode(request.getBarCode())) {
             sealCarDto.setSealCode(request.getBarCode());
         }
         // 批次号
-        else if (BusinessHelper.isSendCode(request.getBarCode())
-                || BusinessHelper.isTerminalBatchCode(request.getBarCode())) {
+        else if (queryFromBatchCode(request.getBarCode())) {
             sealCarDto.setBatchCode(request.getBarCode());
         }
 
         return sealCarDto;
+    }
+
+    private boolean queryFromBatchCode(String inputCode) {
+        return BusinessHelper.isSendCode(inputCode)
+                || BusinessHelper.isTerminalBatchCode(inputCode);
+    }
+
+    private boolean queryFromSealCode(String inputCode) {
+        return BusinessUtil.isSealBoxNo(inputCode);
     }
 
     /**
@@ -354,12 +361,23 @@ public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
 
         if (sealTaskFromVos != null && CollectionUtils.isNotEmpty(sealTaskFromVos.getResult())) {
 
-            for (SealCarDto sealCarDto : sealTaskFromVos.getResult()) {
-                if (filterBySealCode(request.getBarCode(), sealCarDto)) {
-                    sealCarCodeSet.add(sealCarDto.getSealCarCode());
+            boolean queryFromSealCode = queryFromSealCode(request.getBarCode());
 
+            boolean queryFromBatchCode = queryFromBatchCode(request.getBarCode());
+
+            for (SealCarDto sealCarDto : sealTaskFromVos.getResult()) {
+                if (queryFromSealCode) {
+                    if (filterBySealCode(request.getBarCode(), sealCarDto)) {
+                        sealCarCodeSet.add(sealCarDto.getSealCarCode());
+                        if (log.isInfoEnabled()) {
+                            log.info("根据封签号{}从运输获取封车编码{}.", JsonHelper.toJson(request), sealCarCodeSet);
+                        }
+                    }
+                }
+                else if (queryFromBatchCode) {
+                    sealCarCodeSet.add(sealCarDto.getSealCarCode());
                     if (log.isInfoEnabled()) {
-                        log.info("根据封签号{}从运输获取封车编码{}.", JsonHelper.toJson(request), sealCarCodeSet);
+                        log.info("根据批次号{}从运输获取封车编码{}.", JsonHelper.toJson(request), sealCarCodeSet);
                     }
                 }
             }
@@ -419,7 +437,7 @@ public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
     }
 
     private boolean filterByVehicleNumber(String barCode, SealCarDto sealCar) {
-        if (!BusinessUtil.isSealBoxNo(barCode)) {
+        if (!queryFromSealCode(barCode)) {
             if (StringUtils.isNotBlank(sealCar.getVehicleNumber())
                     && sealCar.getVehicleNumber().length() > 4 && barCode.equals(StringUtils.substring(sealCar.getVehicleNumber(), - 4))) {
                 return true;
