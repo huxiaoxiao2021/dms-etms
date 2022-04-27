@@ -19,6 +19,7 @@ import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnSealDto;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.ValueNameEnumUtils;
@@ -137,9 +138,13 @@ public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
         InvokeResult<SealVehicleTaskResponse> result = new InvokeResult<>();
 
         // TODO 根据封签号从运输获得封车编码，查unload_task查不到时，兜底查运输数据。
+        // TODO 按积分查询
         SealVehicleTaskQuery query = assembleCommandCondition(request);
         if (isSearch(request)) {
-            if (BusinessUtil.isSealBoxNo(request.getBarCode())) {
+            // 根据封签号或批次号查询，从运输获得封车编码
+            if (BusinessUtil.isSealBoxNo(request.getBarCode())
+                    || BusinessHelper.isSendCode(request.getBarCode())
+                    || BusinessHelper.isTerminalBatchCode(request.getBarCode())) {
                 List<String> sealCarCodeList = getSealCarCodeFromVos(result, request);
                 if (!result.codeSuccess()) {
                     return result;
@@ -147,7 +152,7 @@ public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
                 query.setSealCarCode(sealCarCodeList);
             }
             else {
-                query.setVehicleNumberLastFour(request.getBarCode());
+                query.setSearchKeyword(request.getBarCode());
             }
         }
         else {
@@ -310,7 +315,16 @@ public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
         // 查询封车任务
         sealCarDto.setStatus(STATUS);
         sealCarDto.setEndSiteId(request.getEndSiteCode());
-        sealCarDto.setSealCode(request.getBarCode());
+        // 封签号
+        if (BusinessUtil.isSealBoxNo(request.getBarCode())) {
+            sealCarDto.setSealCode(request.getBarCode());
+        }
+        // 批次号
+        else if (BusinessHelper.isSendCode(request.getBarCode())
+                || BusinessHelper.isTerminalBatchCode(request.getBarCode())) {
+            sealCarDto.setBatchCode(request.getBarCode());
+        }
+
         return sealCarDto;
     }
 
@@ -325,7 +339,7 @@ public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
 
         List<String> sealCarCodeList = getSealCarCodeFromVos(request, sealCarQuery);
         if (CollectionUtils.isEmpty(sealCarCodeList)) {
-            result.error("该封签号没有待解封车任务");
+            result.error("没有待解封车任务！");
             return null;
         }
 
