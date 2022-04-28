@@ -918,7 +918,7 @@ public class BaseServiceImpl extends AbstractClient implements BaseService, ErpV
      */
     @Override
     public MenuUsageProcessDto getClientMenuUsageConfig(MenuUsageConfigRequestDto menuUsageConfigRequestDto) {
-        log.info("BaseServiceImpl.getClientMenuUsageConfig param {}", menuUsageConfigRequestDto);
+        log.info("BaseServiceImpl.getClientMenuUsageConfig param {}", JsonHelper.toJson(menuUsageConfigRequestDto));
 
         MenuUsageProcessDto menuUsageProcessDto = null;
         final CurrentOperate currentOperate = menuUsageConfigRequestDto.getCurrentOperate();
