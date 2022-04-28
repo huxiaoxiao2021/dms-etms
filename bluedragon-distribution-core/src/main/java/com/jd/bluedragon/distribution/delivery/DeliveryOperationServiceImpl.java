@@ -112,7 +112,6 @@ public class DeliveryOperationServiceImpl implements IDeliveryOperationService {
             waybillHandler.initDeliveryTask(waybillWrapper);
         }
 
-        //创建task,todo： 只创建定时task不创建mq消息
         Task task = new Task();
         task.setCreateSiteCode(sendM.getCreateSiteCode());
         task.setReceiveSiteCode(sendM.getReceiveSiteCode());
