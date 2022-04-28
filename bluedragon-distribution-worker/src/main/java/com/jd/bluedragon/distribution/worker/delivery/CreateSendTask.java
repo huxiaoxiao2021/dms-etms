@@ -43,14 +43,14 @@ public class CreateSendTask extends SendDBSingleScheduler {
         int compeletedCount = Integer.valueOf(redisClientCache.get(compeletedCountKey));
 
         if (compeletedCount >= initialCount) {
-            log.info("任务执行完毕");
+            log.info("批次 {} 任务执行完毕，开始调用deliveryService.addTaskSend...",sendCode);
             deliveryService.addTaskSend(sendM);
             return true;
         } else {
             Date now = new Date();
             int passedTime = DateHelper.getMiniDiff(createTime, now);
             if (passedTime > uccConfig.getCreateSendTasktimeOut()) {
-                log.info("任务未执行完毕，但已超过时间阈值");
+                log.info("批次 {} 任务未执行完毕，但已超过时间阈值，调用deliveryService.addTaskSend...",sendCode);
                 deliveryService.addTaskSend(sendM);
                 return true;
             }
