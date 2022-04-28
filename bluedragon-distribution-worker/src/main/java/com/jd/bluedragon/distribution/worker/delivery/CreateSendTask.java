@@ -31,7 +31,7 @@ public class CreateSendTask extends SendDBSingleScheduler {
 
     @Override
     protected boolean executeSingleTask(Task task, String ownSign) throws Exception {
-        log.info("wxf=====================CreateSendTask=======================wxf. task:{}", JsonHelper.toJson(task));
+        log.info("=========CreateSendTask start executeSingleTask======task:{}", JsonHelper.toJson(task));
         //判断任务完成度+任务创建时间
         final SendM sendM = JsonHelper.fromJson(task.getBody(), SendM.class);
         Date createTime = task.getCreateTime();
@@ -60,7 +60,6 @@ public class CreateSendTask extends SendDBSingleScheduler {
 
     @Override
     public List<Task> selectTasks(String arg0, int queueNum, List<String> queryCondition, int fetchNum) throws Exception {
-        log.info("===========================XXXXYYYY========================================");
         if (queryCondition.size() == 0) {
             return Collections.emptyList();
         }
