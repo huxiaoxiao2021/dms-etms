@@ -50,6 +50,7 @@
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.CODFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.AirBoxFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.DmsToVendorFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ColdPackConsumableConfirmFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.CrossDistributionFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.FastTransferStationFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ChangeWaybillSignFilter"/>
