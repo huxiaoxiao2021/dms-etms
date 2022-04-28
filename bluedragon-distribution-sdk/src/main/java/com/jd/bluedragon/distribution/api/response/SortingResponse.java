@@ -330,6 +330,10 @@ public class SortingResponse extends JdResponse {
     public static final Integer CODE_29310 = 29310;
     public static final String MESSAGE_29310 = "此单请先暂存，运单集齐后发货";
 
+    //冷链耗材确认拦截
+    public static final Integer CODE_29322 = 29322;
+    public static final String MESSAGE_29322 = "此单有包装服务明细，需在分拣系统确认后才可发货";
+
     public static final Integer CODE_29318 = 29318;
     // 分拣登录人提示
     public static final String MESSAGE_29318_SORTING = "此单为暂存拦截运单请先暂存，分拣工作台收到可操作消息后直接操作换单打印";
