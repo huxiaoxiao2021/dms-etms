@@ -479,6 +479,8 @@ public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
             }
         }
         taskInfo.setTotalCount(sealCarMonitor.getTotalCount());
+        taskInfo.setLocalCount(sealCarMonitor.getLocalCount());
+        taskInfo.setExternalCount(sealCarMonitor.getExternalCount());
         taskInfo.setUnloadCount(sealCarMonitor.getUnloadCount());
         taskInfo.setSealCarTime(sealCarMonitor.getSealCarTime());
         taskInfo.setPredictionArriveTime(sealCarMonitor.getPredictionArriveTime());
