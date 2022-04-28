@@ -798,7 +798,12 @@ public class Constants {
     /**
      * 配置信息-终端站点客户端菜单配置黑名单
      */
-    public static final String SYS_CONFIG_CLIENT_SMSSITEMENUBLACKLIST = "sys.config.client.smsSiteMenuBlacklist";    
+    public static final String SYS_CONFIG_CLIENT_SMSSITEMENUBLACKLIST = "sys.config.client.smsSiteMenuBlacklist";
+    /**
+     *  配置信息-青龙打印配置  qinglong.print.type.use
+     *
+     */
+    public static final String SYS_WAYBILL_PRINT_ADDIOWN_NUMBER_CONF = "waybill.print.addiOwnNumberConf";
 
     /**
      * 配置信息-拼多多不允许获取接口的打印类型 pdd.print.type.not.use;
@@ -816,6 +821,11 @@ public class Constants {
     public static final String SYS_CONFIG_CLIENT_RUNNING_MODE_PRE = "sys.config.client.runningMode.";
 
     public static final String SYS_CONFIG_CROUTER_OPEN_DMS_CODES= "crouter.verify.allowed";
+    /**
+     * print titles
+     */
+    public static final  String  PRINT_TITLES="【原退】原运单号:";
+    public static final  String  PRINT_JD_TITLES="【原退】原运单号:联系京东项目组获取运单号”。";
 
     /**
      * 安卓菜单可用性配置
