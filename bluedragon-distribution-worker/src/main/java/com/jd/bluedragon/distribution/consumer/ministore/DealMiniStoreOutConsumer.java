@@ -32,7 +32,7 @@ public class DealMiniStoreOutConsumer extends MessageBaseConsumer {
             logger.error("保温箱逆向出库非JSON格式，内容为【{}】", message.getText());
             return;
         }
-        BoxInOutMessage boxInOutMessage = JsonHelper.fromJsonUseGson(message.getText(), BoxInOutMessage.class);
+        BoxInOutMessage boxInOutMessage = JsonHelper.fromJson(message.getText(), BoxInOutMessage.class);
         if (boxInOutMessage==null){
             logger.error("保温箱逆向出库消息体为空！");
             return;
