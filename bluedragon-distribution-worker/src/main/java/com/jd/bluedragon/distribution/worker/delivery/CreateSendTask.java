@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.worker.delivery;
 
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.distribution.delivery.entity.SendMWrapper;
 import com.jd.bluedragon.distribution.framework.SendDBSingleScheduler;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
@@ -33,18 +34,23 @@ public class CreateSendTask extends SendDBSingleScheduler {
     protected boolean executeSingleTask(Task task, String ownSign) throws Exception {
         log.info("=========CreateSendTask start executeSingleTask======task:{}", JsonHelper.toJson(task));
         //判断任务完成度+任务创建时间
-        final SendM sendM = JsonHelper.fromJson(task.getBody(), SendM.class);
+        final SendMWrapper sendMWrapper = JsonHelper.fromJson(task.getBody(), SendMWrapper.class);
+        SendM sendM =sendMWrapper.getSendM();
         Date createTime = task.getCreateTime();
         String sendCode = sendM.getSendCode();
+        String uiqueId =sendMWrapper.getBatchUniqKey();
 
-        String initialCountKey = String.format(CacheKeyConstants.INITIAL_SEND_COUNT_KEY, sendCode);
+        String initialCountKey = String.format(CacheKeyConstants.INITIAL_SEND_COUNT_KEY, uiqueId);
         int initialCount = Integer.valueOf(redisClientCache.get(initialCountKey));
-        String compeletedCountKey = String.format(CacheKeyConstants.COMPELETE_SEND_COUNT_KEY, sendCode);
+        String compeletedCountKey = String.format(CacheKeyConstants.COMPELETE_SEND_COUNT_KEY, uiqueId);
         int compeletedCount = Integer.valueOf(redisClientCache.get(compeletedCountKey));
 
         if (compeletedCount >= initialCount) {
+
+
             log.info("批次 {} 任务执行完毕，开始调用deliveryService.addTaskSend...",sendCode);
             deliveryService.addTaskSend(sendM);
+            deleteRedisCountKey(initialCountKey,compeletedCountKey);
             return true;
         } else {
             Date now = new Date();
@@ -52,10 +58,17 @@ public class CreateSendTask extends SendDBSingleScheduler {
             if (passedTime > uccConfig.getCreateSendTasktimeOut()) {
                 log.info("批次 {} 任务未执行完毕，但已超过时间阈值，调用deliveryService.addTaskSend...",sendCode);
                 deliveryService.addTaskSend(sendM);
+                deleteRedisCountKey(initialCountKey,compeletedCountKey);
                 return true;
             }
         }
         return false;
+    }
+
+    private void deleteRedisCountKey(String initialCountKey, String compeletedCountKey) {
+        redisClientCache.del(initialCountKey);
+        redisClientCache.del(compeletedCountKey);
+        log.info("=============清除批次任务计数器=========");
     }
 
     @Override

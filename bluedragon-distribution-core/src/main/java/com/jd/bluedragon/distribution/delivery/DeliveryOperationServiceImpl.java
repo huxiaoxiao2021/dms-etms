@@ -121,7 +121,13 @@ public class DeliveryOperationServiceImpl implements IDeliveryOperationService {
         task.setKeyword1("20");
         task.setKeyword2(sendM.getSendCode());
         task.setOwnSign(BusinessHelper.getOwnSign());
-        task.setBody(JsonHelper.toJson(sendM));
+
+        SendMWrapper sendMWrapper =new SendMWrapper(SendKeyTypeEnum.BY_SENDCODE);
+        sendMWrapper.setSendM(sendM);
+        sendMWrapper.setBatchUniqKey(sendM.getSendCode()+"_"+uniqueId);
+        task.setBody(JsonHelper.toJson(sendMWrapper));
+
+        task.setFingerprint(Md5Helper.encode(String.valueOf(uniqueId)));
         taskService.doAddTask(task,false);
         log.info("===========asyncHandleDelivery==========生成task调度任务");
 
