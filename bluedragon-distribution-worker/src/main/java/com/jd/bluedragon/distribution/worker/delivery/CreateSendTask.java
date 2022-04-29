@@ -41,13 +41,17 @@ public class CreateSendTask extends SendDBSingleScheduler {
         String uiqueId =sendMWrapper.getBatchUniqKey();
 
         String initialCountKey = String.format(CacheKeyConstants.INITIAL_SEND_COUNT_KEY, uiqueId);
-        int initialCount = Integer.valueOf(redisClientCache.get(initialCountKey));
         String compeletedCountKey = String.format(CacheKeyConstants.COMPELETE_SEND_COUNT_KEY, uiqueId);
-        int compeletedCount = Integer.valueOf(redisClientCache.get(compeletedCountKey));
+        int initialCount = 0,compeletedCount=0;
 
-        if (compeletedCount >= initialCount) {
+        if (StringUtils.isNotEmpty(redisClientCache.get(initialCountKey))){
+            initialCount =Integer.valueOf(redisClientCache.get(initialCountKey));
+        }
+        if (StringUtils.isNotEmpty(redisClientCache.get(compeletedCountKey))){
+            compeletedCount = Integer.valueOf(redisClientCache.get(compeletedCountKey));
+        }
 
-
+        if (initialCount>0 && compeletedCount>0 && compeletedCount >= initialCount) {
             log.info("批次 {} 任务执行完毕，开始调用deliveryService.addTaskSend...",sendCode);
             deliveryService.addTaskSend(sendM);
             deleteRedisCountKey(initialCountKey,compeletedCountKey);
