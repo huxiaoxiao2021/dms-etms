@@ -75,6 +75,16 @@ public class SealTaskInfo implements Serializable {
     private Integer totalCount;
 
     /**
+     * 总件数-本地
+     */
+    private Integer localCount;
+
+    /**
+     * 总件数-外埠
+     */
+    private Integer externalCount;
+
+    /**
      * 已卸件数
      */
     private Integer unloadCount;
@@ -188,6 +198,22 @@ public class SealTaskInfo implements Serializable {
 
     public void setTotalCount(Integer totalCount) {
         this.totalCount = totalCount;
+    }
+
+    public Integer getLocalCount() {
+        return localCount;
+    }
+
+    public void setLocalCount(Integer localCount) {
+        this.localCount = localCount;
+    }
+
+    public Integer getExternalCount() {
+        return externalCount;
+    }
+
+    public void setExternalCount(Integer externalCount) {
+        this.externalCount = externalCount;
     }
 
     public Integer getUnloadCount() {

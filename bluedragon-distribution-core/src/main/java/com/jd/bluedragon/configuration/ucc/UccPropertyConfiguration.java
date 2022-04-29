@@ -1895,4 +1895,12 @@ public class UccPropertyConfiguration {
     public void setJyUnloadSingleWaybillThreshold(Integer jyUnloadSingleWaybillThreshold) {
         this.jyUnloadSingleWaybillThreshold = jyUnloadSingleWaybillThreshold;
     }
+
+	public boolean isNeedUseNewReverseApi() {
+		return needUseNewReverseApi;
+	}
+
+	public void setNeedUseNewReverseApi(boolean needUseNewReverseApi) {
+		this.needUseNewReverseApi = needUseNewReverseApi;
+	}
 }

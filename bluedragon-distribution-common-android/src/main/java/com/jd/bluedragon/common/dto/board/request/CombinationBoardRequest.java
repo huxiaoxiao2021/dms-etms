@@ -145,19 +145,19 @@ public class CombinationBoardRequest implements Serializable {
         this.flowDisaccord = flowDisaccord;
     }
 
-    public Long getTaskId() {
-        return taskId;
-    }
-
-    public void setTaskId(Long taskId) {
-        this.taskId = taskId;
-    }
-
     public Integer getBizSource() {
         return bizSource;
     }
 
     public void setBizSource(Integer bizSource) {
         this.bizSource = bizSource;
+    }
+
+    public Long getTaskId() {
+        return taskId;
+    }
+
+    public void setTaskId(Long taskId) {
+        this.taskId = taskId;
     }
 }
