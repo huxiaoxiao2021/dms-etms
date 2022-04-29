@@ -264,6 +264,16 @@
         <property name="desc" value="发货异步任务"/>
     </bean>
 
+    <bean id="deliveryAsyncTaskV2" class="com.jd.bluedragon.distribution.worker.delivery.DeliveryAsyncTaskV2"
+          init-method="init" lazy-init="false" depends-on="managerFactory">
+        <property name="dataSource" ref="taskDataSource"/>
+        <property name="managerFactory" ref="managerFactory"/>
+        <property name="taskType" value="DeliveryAsyncTaskV2"/>
+        <property name="ownSign" value="${ownSign}"/>
+        <property name="type" value="1360"/>
+        <property name="desc" value="发货异步任务定时调度独立处理-未涉及多级异步框架"/>
+    </bean>
+
 
     <bean id="createSendTask" class="com.jd.bluedragon.distribution.worker.delivery.CreateSendTask"
           init-method="init" lazy-init="false" depends-on="managerFactory">

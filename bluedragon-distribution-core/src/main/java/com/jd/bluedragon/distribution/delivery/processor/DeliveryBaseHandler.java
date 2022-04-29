@@ -124,7 +124,7 @@ public abstract class DeliveryBaseHandler implements IDeliveryBaseHandler {
             task.setCreateSiteCode(sendM.getCreateSiteCode());
             task.setReceiveSiteCode(sendM.getReceiveSiteCode());
 
-            task.setType(Task.TASK_TYPE_DELIVERY_ASYNC);
+            task.setType(Task.TASK_TYPE_DELIVERY_ASYNC_V2);
             task.setTableName(Task.getTableName(task.getType()));
             task.setSequenceName(Task.getSequenceName(task.getTableName()));
             task.setKeyword1(wrapper.getKeyType().name());
@@ -136,7 +136,7 @@ public abstract class DeliveryBaseHandler implements IDeliveryBaseHandler {
                     Constants.UNDER_LINE + System.currentTimeMillis();
             task.setFingerprint(Md5Helper.encode(fingerprint));
 
-            taskService.add(task);
+            taskService.doAddTask(task,false);
         }
 
         return DeliveryResponse.oK();

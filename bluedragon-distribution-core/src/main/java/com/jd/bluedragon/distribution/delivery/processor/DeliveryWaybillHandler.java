@@ -79,7 +79,7 @@ public class DeliveryWaybillHandler extends DeliveryBaseHandler {
                 task.setReceiveSiteCode(sendM.getReceiveSiteCode());
 
                 task.setSequenceName(Task.getSequenceName(task.getTableName()));
-                task.setType(Task.TASK_TYPE_DELIVERY_ASYNC);
+                task.setType(Task.TASK_TYPE_DELIVERY_ASYNC_V2);
                 task.setTableName(Task.getTableName(task.getType()));
                 task.setKeyword1(wrapper.getKeyType().name());
                 task.setKeyword2(i + 1 + Constants.UNDER_LINE + pageTotal + Constants.UNDER_LINE + waybillCode);
@@ -90,7 +90,7 @@ public class DeliveryWaybillHandler extends DeliveryBaseHandler {
                         Constants.UNDER_LINE + System.currentTimeMillis();
                 task.setFingerprint(Md5Helper.encode(fingerprint));
 
-                taskService.add(task);
+                taskService.doAddTask(task,false);
             }
         }
 

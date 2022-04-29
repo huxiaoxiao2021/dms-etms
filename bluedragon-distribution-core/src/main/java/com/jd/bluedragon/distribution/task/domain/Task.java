@@ -101,6 +101,7 @@ public class Task implements java.io.Serializable, TaskModeAware{
     public static final Integer TASK_TYPE_WATBILL_NOTIFY = 1310; // 运单通知
     public static final Integer TASK_TYPE_CYCLE_BOX_STATUS = 1330; //同步青流箱状态
     public static final Integer TASK_TYPE_DELIVERY_ASYNC = 1350;
+    public static final Integer TASK_TYPE_DELIVERY_ASYNC_V2 = 1360;
 
     /**
      * 整板发货任务
@@ -562,7 +563,8 @@ public class Task implements java.io.Serializable, TaskModeAware{
                 || TASK_TYPE_DEPARTURE_CAR.equals(type)
                 || Task.TASK_TYPE_SEND_DELIVERY.equals(type)
                 || Task.TASK_TYPE_WATBILL_NOTIFY.equals(type)
-                || Task.TASK_TYPE_DELIVERY_ASYNC.equals(type)) {
+                || Task.TASK_TYPE_DELIVERY_ASYNC.equals(type)
+                || Task.TASK_TYPE_DELIVERY_ASYNC_V2.equals(type)) {
             return Task.TABLE_NAME_SEND;
         } else if (Task.TASK_TYPE_POP.equals(type)||Task.TASK_TYPE_WAYBILL_TRACK.equals(type)) {
             return Task.TABLE_NAME_POP;
@@ -901,6 +903,9 @@ public class Task implements java.io.Serializable, TaskModeAware{
         }
         else if (TASK_TYPE_DELIVERY_ASYNC.equals(type)) {
             return "DeliverySendAsyncTask";
+        }
+        else if (TASK_TYPE_DELIVERY_ASYNC_V2.equals(type)) {
+            return "DeliverySendAsyncTaskV2";
         }
         else if(TASK_TYPE_ACARABILL_SEND_DELIVERY.equals(type)){
             //TASK_TYPE_ACARABILL_SEND_DELIVERY = 1301; // 不会有
