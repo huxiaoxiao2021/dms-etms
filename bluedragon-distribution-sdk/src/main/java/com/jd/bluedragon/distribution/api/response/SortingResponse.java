@@ -554,6 +554,7 @@ public class SortingResponse extends JdResponse {
     public static final Integer MESSAGE_SHOW_TYPE_CONFIRM = 2;
     public static final Integer MESSAGE_SHOW_TYPE_INTERCEPT = 3;
 
+    public static final Integer CODE_AROUND_PLATE_BOX_ERROR =40008;
 
     /** 单纯提示语 **/
     List<String> tipMessages;

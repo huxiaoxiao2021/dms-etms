@@ -886,4 +886,7 @@
                   protocol="jsf" alias="${jsf.DtpTransAbnormalApi.alias}" timeout="${jsf.DtpTransAbnormalApi.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
     </jsf:consumer>
 
+    <jsf:consumer id="waybillPackageContainerApi" interface="com.jd.coldchain.distribution.api.WaybillPackageContainerApi"
+                  protocol="jsf" alias="${jsf.coldchain.dispatch.alias}" timeout="${jsf.coldchain.dispatch.timeout}" retries="${jsf.retries}" >
+    </jsf:consumer>
 </beans>

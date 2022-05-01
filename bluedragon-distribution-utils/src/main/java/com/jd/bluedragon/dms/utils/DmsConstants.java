@@ -271,6 +271,11 @@ public class DmsConstants {
     public static final String COLLECTION_BAG_PREFIX = "AD";
 
     /**
+     * 医药直发围板箱前缀
+     */
+    public static final String COLLECTION_MS_PREFIX = "MS";
+
+    /**
      * 分拣中心类型（数据字典-站点类型）
      */
     public static final List<Integer> SORTING_SITE_TYPE_LIST = Arrays.asList(64);
