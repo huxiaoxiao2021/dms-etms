@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.delivery;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
 import com.jd.bluedragon.distribution.delivery.constants.SendKeyTypeEnum;
@@ -16,6 +17,7 @@ import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.Md5Helper;
 import com.jd.coo.sa.mybatis.plugins.id.SequenceGenAdaptor;
+import com.jd.jim.cli.Cluster;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections.CollectionUtils;
@@ -28,6 +30,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author wyh
@@ -58,6 +61,9 @@ public class DeliveryOperationServiceImpl implements IDeliveryOperationService {
     protected TaskService taskService;
     @Autowired
     protected SequenceGenAdaptor sequenceGenAdaptor;
+    @Autowired
+    @Qualifier("redisClientCache")
+    protected Cluster redisClientCache;
 
     /**
      * 按包裹、箱号、运单处理发货数据
@@ -98,6 +104,13 @@ public class DeliveryOperationServiceImpl implements IDeliveryOperationService {
             else if (WaybillUtil.isWaybillCode(barCode)) {
                 waybillWrapper.add(barCode);
             }
+        }
+
+        String compeletedCountKey = String.format(CacheKeyConstants.COMPELETE_SEND_COUNT_KEY, sendM.getSendCode()+"_"+uniqueId);
+        try {
+            redisClientCache.set(compeletedCountKey,"0",uccConfig.getCreateSendTasktimeOut(), TimeUnit.MINUTES,false);
+        } catch (Exception e) {
+            log.error("redis给发货任务compeletedCountKey设置过期时间异常",e);
         }
 
         if (CollectionUtils.isNotEmpty(packageSendWrapper.getBarCodeList())) {
