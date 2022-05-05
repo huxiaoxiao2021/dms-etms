@@ -1,10 +1,14 @@
 package com.jd.bluedragon.distribution.rest.seal;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
+import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.blockcar.enumeration.FerrySealCarSceneEnum;
 import com.jd.bluedragon.common.dto.blockcar.enumeration.SealCarSourceEnum;
 import com.jd.bluedragon.common.dto.blockcar.request.SealCarPreRequest;
+import com.jd.bluedragon.common.dto.sysConfig.request.MenuUsageConfigRequestDto;
+import com.jd.bluedragon.common.dto.sysConfig.response.MenuUsageProcessDto;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.ReportExternalManager;
 import com.jd.bluedragon.core.base.JdiQueryWSManager;
@@ -16,6 +20,7 @@ import com.jd.bluedragon.distribution.api.response.*;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.base.domain.DmsBaseDict;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.busineCode.sendCode.service.SendCodeService;
 import com.jd.bluedragon.distribution.coldchain.domain.ColdChainSend;
 import com.jd.bluedragon.distribution.coldchain.service.ColdChainSendService;
@@ -127,6 +132,9 @@ public class NewSealVehicleResource {
 
     @Autowired
     private ReportExternalManager reportExternalManager;
+
+    @Autowired
+    private BaseService baseService;
 
     /**
      * 校验并获取运力编码信息
@@ -926,6 +934,10 @@ public class NewSealVehicleResource {
     @BusinessLog(sourceSys = Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB, bizType = 1012)
     @JProfiler(jKey = "DMS.WEB.NewSealVehicleResource.newUnseal", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public NewUnsealVehicleResponse<Boolean> newUnseal(NewSealVehicleRequest request) {
+        return newUnsealWithCheckUsage(request, true);
+    }
+
+    public NewUnsealVehicleResponse<Boolean> newUnsealWithCheckUsage(NewSealVehicleRequest request, boolean checkUsage) {
         NewUnsealVehicleResponse<Boolean> unSealVehicleResponse = new NewUnsealVehicleResponse<Boolean>();
         try {
             if (request == null || request.getData() == null) {
@@ -933,6 +945,27 @@ public class NewSealVehicleResource {
                 unSealVehicleResponse.setCode(JdResponse.CODE_PARAM_ERROR);
                 unSealVehicleResponse.setMessage(JdResponse.MESSAGE_PARAM_ERROR);
                 return unSealVehicleResponse;
+            }
+
+            if(checkUsage) {
+                final List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> data = request.getData();
+                final com.jd.bluedragon.distribution.wss.dto.SealCarDto sealCarDto = data.get(0);
+                final MenuUsageConfigRequestDto menuUsageConfigRequestDto = new MenuUsageConfigRequestDto();
+                menuUsageConfigRequestDto.setMenuCode("0101014");
+                final CurrentOperate currentOperate = new CurrentOperate();
+                currentOperate.setSiteCode(sealCarDto.getDesealSiteId());
+                menuUsageConfigRequestDto.setCurrentOperate(currentOperate);
+                final User user = new User();
+                user.setUserErp(sealCarDto.getDesealUserCode());
+                user.setUserName(sealCarDto.getDesealUserName());
+                menuUsageConfigRequestDto.setUser(user);
+                final MenuUsageProcessDto clientMenuUsageConfig = baseService.getClientMenuUsageConfig(menuUsageConfigRequestDto);
+
+                if(clientMenuUsageConfig != null && Objects.equals(Constants.YN_NO, clientMenuUsageConfig.getCanUse())){
+                    unSealVehicleResponse.setCode(JdResponse.CODE_SEE_OTHER);
+                    unSealVehicleResponse.setMessage(clientMenuUsageConfig.getMsg());
+                    return unSealVehicleResponse;
+                }
             }
 
             CommonDto<String> returnCommonDto = newsealVehicleService.unseal(request.getData());
