@@ -19,6 +19,16 @@ public class MenuUsageConditionConfigDto implements Serializable {
     private List<Integer> siteSortSubType;
     private List<Integer> siteSortThirdType;
 
+    /**
+     * 场地编码
+     */
+    private List<Integer> siteCodes;
+
+    /**
+     * 区域编码
+     */
+    private List<Integer> orgCodes;
+
     public List<Integer> getSiteType() {
         return siteType;
     }
@@ -59,4 +69,19 @@ public class MenuUsageConditionConfigDto implements Serializable {
         this.siteSortThirdType = siteSortThirdType;
     }
 
+    public List<Integer> getSiteCodes() {
+        return siteCodes;
+    }
+
+    public void setSiteCodes(List<Integer> siteCodes) {
+        this.siteCodes = siteCodes;
+    }
+
+    public List<Integer> getOrgCodes() {
+        return orgCodes;
+    }
+
+    public void setOrgCodes(List<Integer> orgCodes) {
+        this.orgCodes = orgCodes;
+    }
 }

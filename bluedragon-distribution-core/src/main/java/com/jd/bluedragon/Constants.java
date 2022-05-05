@@ -833,6 +833,11 @@ public class Constants {
     public static final String SYS_CONFIG_ANDROID_MENU_USAGE= "android_menu_usage_";
 
     /**
+     * 安卓菜单可用性配置，按场地id配置
+     */
+    public static final String SYS_CONFIG_ANDROID_MENU_USAGE_BY_SITE_CODE = "android_menu_usage_by_site_code_";
+
+    /**
      * 是否启用中台创建箱号开关key
      */
     public static final String CREATE_BOX_FROM_SSC_SWITCH = "CREATE_BOX_FROM_SSC_SWITCH";
