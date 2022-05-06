@@ -52,10 +52,10 @@ public interface SealCarManager {
      * 无货上封签方法
      * @param param vehicleNumber
      * @param param sealCodes
-     * @param param desealSiteId
-     * @param param desealSiteName
-     * @param param desealUserCode
-     * @param param desealUserName
+     * @param param sealSiteId
+     * @param param sealSiteName
+     * @param param sealUserCode
+     * @param param sealUserName
      * @return
      */
     CommonDto<String> doSealCodes(SealCodesDto param);
