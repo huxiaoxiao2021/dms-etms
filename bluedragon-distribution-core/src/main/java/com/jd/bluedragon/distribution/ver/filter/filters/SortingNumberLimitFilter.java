@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.ver.filter.filters;
 
+import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
@@ -53,7 +54,7 @@ public class SortingNumberLimitFilter implements Filter {
 
     @Override
     public void doFilter(FilterContext request, FilterChain chain) throws Exception {
-        if (request.getBox() != null) {
+        if (request.getBox() != null && org.apache.commons.lang3.StringUtils.isNotBlank(request.getBox().getType()) ) {
         	//存放限制的数量列表
         	List<Integer> limitNums = new ArrayList<>();
         	Integer siteType = null;
@@ -71,17 +72,17 @@ public class SortingNumberLimitFilter implements Filter {
                     //校验开关是否开启
                     NumberLimitConfig siteCheckConfig = this.getSwitchStatus(CONFIG_SITE_PACKAGE_NUM_CHECK);
                     if (siteCheckConfig != null && Boolean.TRUE.equals(siteCheckConfig.getIsOpen())) {
-                        Integer limitNum = boxLimitService.queryLimitNumBySiteId(request.getCreateSiteCode());
-                        logger.info("分拣数量限制拦截 createSiteCode:{},queryLimitNumBySiteId:{},sysConfigNum:{}", request.getCreateSiteCode(), limitNum, siteCheckConfig.getMaxNum());
-                        if (limitNum != null) {
-                            limitNums.add(limitNum);
+                        Integer configNum = boxLimitService.getLimitNums(request.getCreateSiteCode(), request.getBox().getType());
+                        logger.info("分拣数量限制拦截 createSiteCode:{},queryLimitNumBySiteId:{},sysConfigNum:{}", request.getCreateSiteCode(), configNum, siteCheckConfig.getMaxNum());
+                        if (configNum != null) {
+                            limitNums.add(configNum);
                         } else {
                             limitNums.add(siteCheckConfig.getMaxNum());
                         }
-
                     }
                 }
         	}
+            logger.info("limitNums ---{}", JSON.toJSONString(limitNums));
             //校验开关是否开启
             NumberLimitConfig config =this.getSwitchStatus(CONFIG_SEND_PACKAGE_NUM_CHECK);
             if(config != null && Boolean.TRUE.equals(config.getIsOpen())) {
@@ -100,7 +101,7 @@ public class SortingNumberLimitFilter implements Filter {
                 	CollectionUtils.sort(limitNums);
                 }
                 for (Integer limitNum : limitNums){
-                	limitNumCheck(hasSorting, currentNum, limitNum);
+                	limitNumCheck(hasSorting, currentNum, limitNum,request.getBoxCode());
                 }
             }
         }
@@ -113,14 +114,13 @@ public class SortingNumberLimitFilter implements Filter {
      * @param limitNum
      * @throws SortingCheckException
      */
-    private void limitNumCheck(int hasSorting,int currentSorting,int limitNum) throws SortingCheckException {
-        logger.info("分拣数量限制拦截 hasSorting:{},currentSorting:{},limitNum:{}", hasSorting, currentSorting, limitNum);
+    private void limitNumCheck(int hasSorting,int currentSorting,int limitNum ,String boxCode) throws SortingCheckException {
     	if(currentSorting > limitNum) {
             //当前分拣数量大于限制数量，提示按包裹分拣
-            throw new SortingCheckException(SortingResponse.CODE_29417, MessageFormat.format(SortingResponse.MESSAGE_29417_WAYBILL,limitNum));
+            throw new SortingCheckException(SortingResponse.CODE_29417, MessageFormat.format(SortingResponse.MESSAGE_29417_WAYBILL,limitNum,boxCode));
         } else if (hasSorting + currentSorting > limitNum) {
             //提示换箱号
-            throw new SortingCheckException(SortingResponse.CODE_29417, MessageFormat.format(SortingResponse.MESSAGE_29417,limitNum));
+            throw new SortingCheckException(SortingResponse.CODE_29417, MessageFormat.format(SortingResponse.MESSAGE_29417,limitNum,boxCode));
         }
     }
 

@@ -1,12 +1,9 @@
-package com.jd.bluedragon.distribution.boxlimit;
+package com.jd.bluedragon.distribution.station.query;
 
-import java.io.Serializable;
+import com.jd.ql.dms.common.web.mvc.api.BasePagerCondition;
 
-/**
- * 建箱包裹数配置
- */
-public class BoxLimitDTO implements Serializable {
-    private Long id;
+public class BoxLimitQuery  extends BasePagerCondition {
+
     /**
      * 机构名称
      */
@@ -23,7 +20,7 @@ public class BoxLimitDTO implements Serializable {
     /**
      * 配置类型(1:通用配置 2：场地建箱配置)
      */
-    private Integer configType;
+    private Integer configType =2;
 
     /**
      * 箱号类型
@@ -31,6 +28,8 @@ public class BoxLimitDTO implements Serializable {
      *   8-FS（返调度再投奢侈品） 9-FC（签单返还） 10-ZC（上门接货） 11-ZC（商家售后） 12-BX（正向虚拟） 13-TW（逆向内配） 14-WJ(文件信封)
      */
     private String boxNumberType;
+
+    private Integer pageSize;
 
     public String getSiteName() {
         return siteName;
@@ -46,14 +45,6 @@ public class BoxLimitDTO implements Serializable {
 
     public void setSiteId(Integer siteId) {
         this.siteId = siteId;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public Integer getLimitNum() {
@@ -78,5 +69,13 @@ public class BoxLimitDTO implements Serializable {
 
     public void setBoxNumberType(String boxNumberType) {
         this.boxNumberType = boxNumberType;
+    }
+
+    public Integer getPageSize() {
+        return pageSize;
+    }
+
+    public void setPageSize(Integer pageSize) {
+        this.pageSize = pageSize;
     }
 }
