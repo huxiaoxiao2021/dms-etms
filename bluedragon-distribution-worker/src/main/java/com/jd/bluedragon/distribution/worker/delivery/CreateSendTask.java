@@ -52,7 +52,7 @@ public class CreateSendTask extends SendDBSingleScheduler {
         }
 
         if (initialCount>0 && compeletedCount>0 && compeletedCount >= initialCount) {
-            log.info("批次 {} 任务执行完毕，开始调用deliveryService.addTaskSend...",sendCode);
+            log.info("批次 {} 任务执行完毕，开始调用deliveryService.addTaskSend...",uiqueId);
             deliveryService.addTaskSend(sendM);
             deleteRedisCountKey(initialCountKey,compeletedCountKey);
             return true;
@@ -60,12 +60,13 @@ public class CreateSendTask extends SendDBSingleScheduler {
             Date now = new Date();
             int passedTime = DateHelper.getMiniDiff(createTime, now);
             if (passedTime > uccConfig.getCreateSendTasktimeOut()) {
-                log.info("批次 {} 任务未执行完毕，但已超过时间阈值，调用deliveryService.addTaskSend...",sendCode);
+                log.info("批次 {} 任务未执行完毕，但已超过时间阈值，调用deliveryService.addTaskSend...",uiqueId);
                 deliveryService.addTaskSend(sendM);
                 deleteRedisCountKey(initialCountKey,compeletedCountKey);
                 return true;
             }
         }
+        log.info("批次 {} 任务不满足条件，下次重新执行",uiqueId);
         return false;
     }
 
