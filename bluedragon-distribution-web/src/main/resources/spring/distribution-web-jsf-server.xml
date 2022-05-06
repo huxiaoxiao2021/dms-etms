@@ -331,6 +331,14 @@
                   server="dmsjsf">
     </jsf:provider>
 
+    <!-- 拣运功能配置JSF服务 -->
+    <jsf:provider id="jyWorkMapFuncConfigJsfServiceServer"
+                  interface="com.jd.bluedragon.distribution.jy.api.JyWorkMapFuncConfigJsfService"
+                  alias="${dms.jsf.alias}"
+                  ref="jyWorkMapFuncConfigJsfService"
+                  server="dmsjsf">
+    </jsf:provider>
+
     <!--  箱号绑定JSF服务   -->
     <jsf:provider id="dmsBoxRelationJsfService"
                   interface="com.jd.bluedragon.distribution.box.jsf.BoxRelationJsfService"

@@ -141,6 +141,9 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
     @Autowired
     private RouterService routerService;
 
+    @Autowired
+    private TaskBoardService taskBoardService;
+
 
 
     /**
@@ -599,7 +602,9 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
                 logInfo = "组板转移成功.原板号:" + boardMoveResponse.getData() + ",新板号:" + boardCode + ",箱号/包裹号：" + boxOrPackageCode +
                         ",站点：" + request.getSiteCode();
                 log.debug(logInfo);
-
+                // 保存任务和组板关系
+                combinationBoardRequest.setBoardCode(boardCode);
+                taskBoardService.saveTaskBoard(combinationBoardRequest);
                 //原板号缓存-1
                 redisCommonUtil.decr(CacheKeyConstants.REDIS_PREFIX_BOARD_BINDINGS_COUNT + "-" + boardMoveResponse.getData());
                 //缓存+1
@@ -659,6 +664,10 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
         logInfo = "组板成功!板号：" + boardCode + ",箱号/包裹号：" + boxOrPackageCode + ",站点：" + request.getSiteCode();
         //组板成功
         log.debug(logInfo);
+
+        // 保存任务和组板关系
+        combinationBoardRequest.setBoardCode(boardCode);
+        taskBoardService.saveTaskBoard(combinationBoardRequest);
 
         //缓存+1
         redisCommonUtil.incr(CacheKeyConstants.REDIS_PREFIX_BOARD_BINDINGS_COUNT + "-" + boardCode);

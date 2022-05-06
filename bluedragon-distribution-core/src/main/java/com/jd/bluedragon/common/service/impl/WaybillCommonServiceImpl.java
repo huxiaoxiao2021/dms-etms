@@ -1815,4 +1815,19 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             }
         }
     }
+
+    /**
+     * 根据运单号获得增值服务列表
+     * @param waybillCode
+     * @return
+     */
+    @Override
+    public List<WaybillVasDto> getWaybillVasList(String waybillCode) {
+        BaseEntity<List<WaybillVasDto>> baseEntity = waybillQueryManager.getWaybillVasInfosByWaybillCode(waybillCode);
+        if(baseEntity == null || baseEntity.getResultCode() != EnumBusiCode.BUSI_SUCCESS.getCode()
+                || CollectionUtils.isEmpty(baseEntity.getData())){
+            return null;
+        }
+        return baseEntity.getData();
+    }
 }

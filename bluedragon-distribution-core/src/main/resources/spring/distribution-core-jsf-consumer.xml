@@ -718,7 +718,14 @@
     <jsf:consumer id="stagingServiceWS" interface="com.jd.merchant.api.staging.ws.StagingServiceWS"
                   protocol="jsf" alias="${jsf.tys.platform.alias}" timeout="${jsf.reportExternalService.timeout}" lazy="${jsf.consumer.lazy}">
     </jsf:consumer>
-
+    <!-- 百川新运单逆向相关接口 https://cf.jd.com/pages/viewpage.action?pageId=353913227-->
+    <jsf:consumer id="reverseWaybillApi" interface="com.jd.cp.wbms.client.api.ReverseWaybillApi"
+                  protocol="jsf" alias="${jsf.wbms.reverseWaybillApi.alias}"
+                  timeout="${jsf.wbms.reverseWaybillApi.timeout}"
+                  lazy="${jsf.consumer.lazy}"
+                  retries="${jsf.retries}">
+        <jsf:parameter key="token" value="${jsf.wbms.reverseWaybillApi.token}" hide="true"/>
+    </jsf:consumer>
     <jsf:consumer id="printHandoverListJsfService"
                   interface="com.jd.dms.wb.report.api.IPrintHandoverListJsfService"
                   alias="${jsf.printHandoverList.alias}"
@@ -848,11 +855,29 @@
     </jsf:consumer>
 
 
-    <!--  拣运封车服务  -->
+    <!--  拣运实时解封车服务  -->
     <jsf:consumer id="jySealVehicleService"
                   interface="com.jdl.jy.realtime.api.seal.ISealVehicleService"
                   protocol="jsf"
                   alias="${jsf.jy.realtime.alias}"
+                  timeout="10000"
+                  retries="${jsf.retries}"
+                  serialization="hessian"/>
+
+    <!--  拣运实时卸车服务  -->
+    <jsf:consumer id="jyUnloadVehicleJsfService"
+                  interface="com.jdl.jy.realtime.api.unload.IUnloadVehicleJsfService"
+                  protocol="jsf"
+                  alias="${jsf.jy.realtime.alias}"
+                  timeout="10000"
+                  retries="${jsf.retries}"
+                  serialization="hessian"/>
+
+    <!--  拣运调度服务  -->
+    <jsf:consumer id="jyScheduleTaskApi"
+                  interface="com.jdl.jy.schedule.api.task.IJyScheduleTaskApi"
+                  protocol="jsf"
+                  alias="${jsf.jy.schedule.alias}"
                   timeout="10000"
                   retries="${jsf.retries}"
                   serialization="hessian"/>
@@ -866,6 +891,13 @@
     <!-- VOS封签线上化相关接口 -->
     <jsf:consumer id="dtpTransAbnormalApiJSF" interface="com.jd.tms.dtp.api.DtpTransAbnormalApi"
                   protocol="jsf" alias="${jsf.DtpTransAbnormalApi.alias}" timeout="${jsf.DtpTransAbnormalApi.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
+
+    <!-- 冷链耗材相关接口 -->
+    <jsf:consumer id="coldDmsPackingConsumableApi" interface="com.jd.coldchain.distribution.api.ColdDmsPackingConsumableApi"
+                  protocol="jsf" alias="${jsf.consumer.coldchain.distribution.alias}"
+                  timeout="${jsf.consumer.coldchain.distribution.timeout}"
+                  retries="${jsf.retries}" >
     </jsf:consumer>
 
 </beans>
