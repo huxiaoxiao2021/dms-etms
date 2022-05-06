@@ -85,7 +85,7 @@ public class DmsNewSealVehicleServiceImpl implements DmsNewSealVehicleService {
     @Override
     @JProfiler(jKey = "DMSWEB.DmsNewSealVehicleServiceImpl.unseal", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public NewSealVehicleResponse unseal(NewSealVehicleRequest request) {
-        return newSealVehicleResource.unseal(request);
+        return newSealVehicleResource.unsealWithCheckUsage(request, false);
     }
 
     @Override
