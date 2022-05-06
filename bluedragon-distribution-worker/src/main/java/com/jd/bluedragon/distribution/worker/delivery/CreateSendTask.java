@@ -37,7 +37,6 @@ public class CreateSendTask extends SendDBSingleScheduler {
         final SendMWrapper sendMWrapper = JsonHelper.fromJson(task.getBody(), SendMWrapper.class);
         SendM sendM =sendMWrapper.getSendM();
         Date createTime = task.getCreateTime();
-        String sendCode = sendM.getSendCode();
         String uiqueId =sendMWrapper.getBatchUniqKey();
 
         String initialCountKey = String.format(CacheKeyConstants.INITIAL_SEND_COUNT_KEY, uiqueId);
@@ -73,7 +72,7 @@ public class CreateSendTask extends SendDBSingleScheduler {
     private void deleteRedisCountKey(String initialCountKey, String compeletedCountKey) {
         redisClientCache.del(initialCountKey);
         redisClientCache.del(compeletedCountKey);
-        log.info("=============清除批次任务计数器=========");
+        log.info("=============清除批次任务计数器===============");
     }
 
     @Override
