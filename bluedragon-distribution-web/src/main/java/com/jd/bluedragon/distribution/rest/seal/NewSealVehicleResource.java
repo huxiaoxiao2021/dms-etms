@@ -1040,6 +1040,10 @@ public class NewSealVehicleResource {
     @Path("/new/vehicle/createTransAbnormalAndUnseal")
     @JProfiler(jKey = "DMS.WEB.NewSealVehicleResource.createTransAbnormalAndUnseal", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public NewUnsealVehicleResponse<Boolean> createTransAbnormalAndUnseal(TransAbnormalAndUnsealRequest request){
+        return createTransAbnormalAndUnsealWithCheckUsage(request, true);
+    }
+
+    public NewUnsealVehicleResponse<Boolean> createTransAbnormalAndUnsealWithCheckUsage(TransAbnormalAndUnsealRequest request, boolean checkUsage){
         NewUnsealVehicleResponse<Boolean> unSealVehicleResponse = new NewUnsealVehicleResponse<>();
 
         NewSealVehicleResponse<String> response = this.createTransAbnormalStandard(request.getTransAbnormalDto());
@@ -1056,7 +1060,7 @@ public class NewSealVehicleResource {
         try {
             NewSealVehicleRequest request1 = new NewSealVehicleRequest();
             request1.setData(Collections.singletonList(request.getSealCarDto()));
-            unSealVehicleResponse = this.newUnseal(request1);
+            unSealVehicleResponse = this.newUnsealWithCheckUsage(request1, checkUsage);
             return unSealVehicleResponse;
 
         } catch (Exception e) {
