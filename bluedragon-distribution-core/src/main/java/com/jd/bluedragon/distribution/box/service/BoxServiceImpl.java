@@ -50,6 +50,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import javax.annotation.Resource;
+import java.text.MessageFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -701,8 +702,14 @@ public class BoxServiceImpl implements BoxService {
         if (Box.BOX_TRANSPORT_TYPE_CITY.equals(request.getTransportType())) {
             Assert.notNull(request.getPredictSendTime(), "request predictSendTime must not be null");
         }
-        this.log.info("BoxRequest's {}", request.toString());
-        BoxResponse response = this.ok();
+		this.log.info("BoxRequest's {}", request.toString());
+		BoxResponse response = this.ok();
+		// 调用冷链接口，校验是否配置了此路径
+		if (BoxTypeEnum.TYPE_MS.getCode().equalsIgnoreCase(request.getType()) && !baseMajorManager.validateDirectlySentLine(request.getCreateSiteCode(),request.getReceiveSiteCode())) {
+			response.setCode(JdResponse.CODE_COLD_CHAIN_SITE_NO_ROUTE);
+			response.setMessage(MessageFormat.format(JdResponse.MESSAGE_COLD_CHAIN_SITE_NO_ROUTE, request.getCreateSiteName(), request.getReceiveSiteName()));
+			return response;
+		}
         // 先生成路由信息
         // 获得路由信息创建站点与目的站点之间，用于标签打印，方便站点人员确认下一站发往哪
         CrossBoxResult<String[]> routInfoRes = null;
