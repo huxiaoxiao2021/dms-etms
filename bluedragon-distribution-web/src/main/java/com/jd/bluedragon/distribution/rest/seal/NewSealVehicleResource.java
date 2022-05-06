@@ -938,6 +938,10 @@ public class NewSealVehicleResource {
     @BusinessLog(sourceSys = Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB, bizType = 1012)
     @JProfiler(jKey = "DMS.WEB.NewSealVehicleResource.unseal", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public NewSealVehicleResponse unseal(NewSealVehicleRequest request) {
+        return unsealWithCheckUsage(request, true);
+    }
+
+    public NewSealVehicleResponse unsealWithCheckUsage(NewSealVehicleRequest request, boolean checkUsage) {
         NewSealVehicleResponse<String> sealVehicleResponse = new NewSealVehicleResponse<String>(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
         try {
             if (request == null || request.getData() == null) {
@@ -945,6 +949,27 @@ public class NewSealVehicleResource {
                 sealVehicleResponse.setCode(JdResponse.CODE_PARAM_ERROR);
                 sealVehicleResponse.setMessage(JdResponse.MESSAGE_PARAM_ERROR);
                 return sealVehicleResponse;
+            }
+
+            if(checkUsage) {
+                final List<com.jd.bluedragon.distribution.wss.dto.SealCarDto> data = request.getData();
+                final com.jd.bluedragon.distribution.wss.dto.SealCarDto sealCarDto = data.get(0);
+                final MenuUsageConfigRequestDto menuUsageConfigRequestDto = new MenuUsageConfigRequestDto();
+                menuUsageConfigRequestDto.setMenuCode("0101014");
+                final CurrentOperate currentOperate = new CurrentOperate();
+                currentOperate.setSiteCode(sealCarDto.getDesealSiteId());
+                menuUsageConfigRequestDto.setCurrentOperate(currentOperate);
+                final User user = new User();
+                user.setUserErp(sealCarDto.getDesealUserCode());
+                user.setUserName(sealCarDto.getDesealUserName());
+                menuUsageConfigRequestDto.setUser(user);
+                final MenuUsageProcessDto clientMenuUsageConfig = baseService.getClientMenuUsageConfig(menuUsageConfigRequestDto);
+
+                if(clientMenuUsageConfig != null && Objects.equals(Constants.YN_NO, clientMenuUsageConfig.getCanUse())){
+                    sealVehicleResponse.setCode(JdResponse.CODE_SEE_OTHER);
+                    sealVehicleResponse.setMessage(clientMenuUsageConfig.getMsg());
+                    return sealVehicleResponse;
+                }
             }
 
             CommonDto<String> returnCommonDto = newsealVehicleService.unseal(request.getData());
