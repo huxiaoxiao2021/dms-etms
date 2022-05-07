@@ -32,6 +32,16 @@ public class BoxLimitVO implements Serializable {
      */
     private String operatorSiteName;
 
+    /**
+     * 配置类型
+     */
+    private Integer configType;
+
+    /**
+     * 箱号类型
+     */
+    private String boxNumberType;
+
     public Long getId() {
         return id;
     }
@@ -86,5 +96,21 @@ public class BoxLimitVO implements Serializable {
 
     public void setOperatorSiteName(String operatorSiteName) {
         this.operatorSiteName = operatorSiteName;
+    }
+
+    public Integer getConfigType() {
+        return configType;
+    }
+
+    public void setConfigType(Integer configType) {
+        this.configType = configType;
+    }
+
+    public String getBoxNumberType() {
+        return boxNumberType;
+    }
+
+    public void setBoxNumberType(String boxNumberType) {
+        this.boxNumberType = boxNumberType;
     }
 }

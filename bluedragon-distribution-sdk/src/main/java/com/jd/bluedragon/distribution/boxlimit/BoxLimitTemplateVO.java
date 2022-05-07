@@ -19,6 +19,11 @@ public class BoxLimitTemplateVO implements Serializable {
      */
     private Integer limitNum;
 
+    /**
+     * 箱号类型
+     */
+    private String boxNumberType;
+
     public String getSiteName() {
         return siteName;
     }
@@ -43,4 +48,11 @@ public class BoxLimitTemplateVO implements Serializable {
         this.limitNum = limitNum;
     }
 
+    public String getBoxNumberType() {
+        return boxNumberType;
+    }
+
+    public void setBoxNumberType(String boxNumberType) {
+        this.boxNumberType = boxNumberType;
+    }
 }

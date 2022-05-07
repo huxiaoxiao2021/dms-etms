@@ -209,7 +209,7 @@
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
 			<artifactId>bluedragon-distribution-sdk</artifactId>
-			<version>1.8.8-SNAPSHOT</version>
+			<version>1.8.9-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
@@ -1818,6 +1818,19 @@
 			<groupId>com.jdl.jy.schedule</groupId>
 			<artifactId>jy-schedule-service-sdk</artifactId>
 			<version>1.0.0-SNAPSHOT</version>
+		</dependency>
+
+		<!--查询冷链耗材-->
+		<dependency>
+			<groupId>com.jd.coldchain</groupId>
+			<artifactId>dispatch-api</artifactId>
+			<version>1.0.0-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<groupId>com.jd.ldop.center</groupId>
+					<artifactId>ldop-center-api</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
     </dependencies>
 
