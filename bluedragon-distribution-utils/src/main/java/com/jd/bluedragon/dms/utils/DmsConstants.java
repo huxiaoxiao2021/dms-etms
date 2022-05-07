@@ -273,7 +273,7 @@ public class DmsConstants {
     /**
      * 医药直发围板箱前缀
      */
-    public static final String COLLECTION_MS_PREFIX = "MS";
+    public static final String COLLECTION_YY_PREFIX = "YY";
 
     /**
      * 分拣中心类型（数据字典-站点类型）

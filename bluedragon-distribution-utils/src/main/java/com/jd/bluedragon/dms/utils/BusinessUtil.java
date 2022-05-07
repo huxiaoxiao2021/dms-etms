@@ -1761,8 +1761,8 @@ public class BusinessUtil {
         if (StringUtils.isBlank(materialCode)) {
             return false;
         }
-        return (materialCode.toUpperCase().startsWith(COLLECTION_BAG_PREFIX) ||
-                materialCode.toUpperCase().startsWith(COLLECTION_MS_PREFIX)) && materialCode.length() == 16;
+        return (materialCode.toUpperCase().startsWith(COLLECTION_BAG_PREFIX) && materialCode.length() == 16) ||
+                (materialCode.toUpperCase().startsWith(COLLECTION_YY_PREFIX) && materialCode.length() == 15);
     }
     /**
      * 判断是否无人车配送，sendpay第307位=1

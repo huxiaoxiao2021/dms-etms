@@ -92,9 +92,6 @@ public class JdResponse extends JdObject {
     public static final Integer CODE_TARGET_SITE_NO_ROUTE_CONFIRM = 20017;
     public static final String  MESSAGE_TARGET_SITE_NO_ROUTE_CONFIRM = "调度站点无滑道信息，是否继续操作?";
 
-    public static final Integer CODE_COLD_CHAIN_SITE_NO_ROUTE = 20018;
-    public static final String  MESSAGE_COLD_CHAIN_SITE_NO_ROUTE = "未配置发出地“{0}”至目的地“{1}”的医药直发包规则，请先创建医药直发规则后再进行打印";
-
     public static final Integer CODE_UNLOADBILL = 2424;
     public static final String MESSAGE_UNLOADBILL = "已经装载不允许取消";
 
