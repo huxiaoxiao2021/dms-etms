@@ -62,4 +62,12 @@ public interface GroupBoardManager {
      * @return 关闭结果
      */
     Response<Boolean> closeBoard(String boardCode);
+
+    /**
+     * 根据箱号取所在的板信息
+     * @param boxCode 箱号
+     * @param siteCode 操作场站
+     * @return 板对象
+     */
+    Response<Board> getBoardByBoxCode(String boxCode, Integer siteCode);
 }
