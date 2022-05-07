@@ -88,4 +88,11 @@ public class GroupBoardManagerImpl implements GroupBoardManager {
         return groupBoardService.closeBoard(boardCode);
     }
 
+    @JProfiler(jKey = "dmsWeb.jsf.tc.groupBoardService.getBoardByBoxCode",jAppName= Constants.UMP_APP_NAME_DMSWEB,
+            mState = {JProEnum.TP, JProEnum.FunctionError})
+    @Override
+    public Response<Board> getBoardByBoxCode(String boxCode, Integer siteCode) {
+        return groupBoardService.getBoardByBoxCode(boxCode,siteCode);
+    }
+
 }
