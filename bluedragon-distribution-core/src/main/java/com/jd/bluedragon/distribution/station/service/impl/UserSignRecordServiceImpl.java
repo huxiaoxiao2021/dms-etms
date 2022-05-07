@@ -568,17 +568,16 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 			result.toFail(gridResult.getMessage());
 			return result;
 		}
-		//校验并组装签到数据
-        UserSignRecord signInData = new UserSignRecord();
-        result = this.checkAndFillSignInInfo(signInRequest,signInData,gridResult.getData());
-        if(!result.isSucceed()) {
-        	return result;
-        }
-        
 		UserSignRecordQuery lastSignRecordQuery = new UserSignRecordQuery();
 		lastSignRecordQuery.setUserCode(signInRequest.getUserCode());
 		//查询签到记录，先签退
         UserSignRecord lastSignRecord = this.queryLastUnSignOutRecord(lastSignRecordQuery);
+		//校验并组装签到数据
+		UserSignRecord signInData = new UserSignRecord();
+		result = this.checkAndFillSignInInfo(signInRequest,signInData,gridResult.getData(), lastSignRecord);
+		if(!result.isSucceed()) {
+			return result;
+		}
         UserSignRecord signOutRequest = new UserSignRecord();
         if(lastSignRecord != null) {
         	signOutRequest.setId(lastSignRecord.getId());
@@ -674,7 +673,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
         UserSignRecord signInData = new UserSignRecord();
         //校验并组装签到数据
         if(needSignIn) {
-            result = this.checkAndFillSignInInfo(userSignRequest,signInData,gridResult.getData());
+            result = this.checkAndFillSignInInfo(userSignRequest,signInData,gridResult.getData(), lastSignRecord);
             if(!result.isSucceed()) {
             	return result;
             }
@@ -755,7 +754,8 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		result.setData(workStationGridData.getData());
 		return result;
 	}
-	private JdCResponse<UserSignRecordData> checkAndFillSignInInfo(UserSignRequest signInRequest,UserSignRecord signInData,WorkStationGrid gridInfo){
+	private JdCResponse<UserSignRecordData> checkAndFillSignInInfo(UserSignRequest signInRequest,UserSignRecord signInData,
+																   WorkStationGrid gridInfo, UserSignRecord lastSignRecord){
 		JdCResponse<UserSignRecordData> result = new JdCResponse<>();
 		result.toSucceed();
 		
@@ -770,6 +770,10 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		signInData.setRefGridKey(gridKey);
 		signInData.setRefStationKey(stationKey);
 		signInData.setUserName(signInData.getUserCode());
+		Integer waveCode = calculateWave(lastSignRecord);
+		signInData.setWaveCode(waveCode);
+		signInData.setWaveName(WaveTypeEnum.getNameByCode(waveCode));
+		signInData.setRefPlanKey(queryPlanKey(signInData));
 		
 		String userCode = signInData.getUserCode();
 		Integer jobCode = signInData.getJobCode();
@@ -806,6 +810,68 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		}
 		return result;
 	}
+
+	private String queryPlanKey(UserSignRecord signInData) {
+		//查询设置计划信息
+		WorkStationAttendPlan workStationAttendPlanQuery = new WorkStationAttendPlan();
+		workStationAttendPlanQuery.setRefGridKey(signInData.getRefGridKey());
+		workStationAttendPlanQuery.setWaveCode(signInData.getWaveCode());
+		Result<WorkStationAttendPlan> planData = workStationAttendPlanService.queryByBusinessKeys(workStationAttendPlanQuery);
+		if(planData != null
+				&& planData.getData() != null) {
+			return planData.getData().getBusinessKey();
+		}
+		return null;
+	}
+
+	/**
+	 * 计算班次
+	 * 	fix：
+	 * 		1、0<h<=6: 如果前一天18-24未签到过则为白班，签到过则为晚班
+	 * 		2、6<h<=12: 如果当天0-6未签到过则为白班，签到过则为晚班
+	 * 		3、12<h<=18: 如果当天6-12未签到过则为中班，签到过则为白班
+	 * 		4、18<h<=24: 如果当天12-18未签到过则为晚班，签到过则为中班
+	 * @param lastSignRecord
+	 * @return
+	 */
+	private Integer calculateWave(UserSignRecord lastSignRecord) {
+		Date lastSignInTime = lastSignRecord == null ? null : lastSignRecord.getSignInTime() == null ? null : lastSignRecord.getSignInTime();
+		// 当前时间的小时
+		int currentHour = DateHelper.getHour(new Date());
+		// 上次签到的小时
+		Integer lastSignInHour = DateHelper.getHour(lastSignInTime);
+		// 当天零点
+		long currentZero = DateHelper.getZero(new Date());
+		// 昨天零点
+		long yesterdayZero = DateHelper.getZero(DateHelper.addDate(new Date(), -1));
+		if(0 < currentHour && currentHour < 6){
+			if(lastSignInTime == null ||
+					!(lastSignInTime.getTime() > yesterdayZero && lastSignInTime.getTime() < currentZero && lastSignInHour >= 18)){
+				return WaveTypeEnum.DAY.getCode();
+			}
+			return WaveTypeEnum.NIGHT.getCode();
+		}else if (6 <= currentHour && currentHour < 12){
+			if(lastSignInTime == null ||
+					!(lastSignInTime.getTime() > currentZero && lastSignInHour >= 0 && lastSignInHour < 6)){
+				return WaveTypeEnum.DAY.getCode();
+			}
+			return WaveTypeEnum.NIGHT.getCode();
+		}else if(12 <= currentHour && currentHour < 18){
+			if(lastSignInTime == null ||
+					!(lastSignInTime.getTime() > currentZero && lastSignInHour >= 6 && lastSignInHour < 12)){
+				return WaveTypeEnum.MIDDLE.getCode();
+			}
+			return WaveTypeEnum.DAY.getCode();
+		}else if(18 <= currentHour){
+			if(lastSignInTime == null ||
+					!(lastSignInTime.getTime() > currentZero && lastSignInHour >= 12 && lastSignInHour < 18)){
+				return WaveTypeEnum.MIDDLE.getCode();
+			}
+			return WaveTypeEnum.DAY.getCode();
+		}
+		return null;
+	}
+
 	private boolean doSignIn(UserSignRecord userSignRecord) {
 		Date date = new Date();
 		userSignRecord.setCreateTime(date);
