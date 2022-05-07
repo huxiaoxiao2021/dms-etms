@@ -631,4 +631,10 @@ public class NewSealVehicleGatewayServiceImpl implements NewSealVehicleGatewaySe
     public NewUnsealVehicleResponse<Boolean> createTransAbnormalAndUnseal(TransAbnormalAndUnsealRequest request) {
         return newSealVehicleResource.createTransAbnormalAndUnseal(request);
     }
+
+
+	@Override
+	public NewSealVehicleResponse<String> doSealCodes(DoSealCodeRequest request) {
+		return newSealVehicleService.doSealCodes(request);
+	}
 }
