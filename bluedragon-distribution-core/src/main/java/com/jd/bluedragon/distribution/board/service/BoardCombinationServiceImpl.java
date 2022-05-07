@@ -3,8 +3,10 @@ package com.jd.bluedragon.distribution.board.service;
 import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.request.User;
+import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.board.BizSourceEnum;
 import com.jd.bluedragon.common.dto.board.request.CombinationBoardRequest;
+import com.jd.bluedragon.common.dto.board.response.VirtualBoardResultDto;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.core.base.BaseMajorManager;
@@ -140,6 +142,9 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
 
     @Autowired
     private RouterService routerService;
+
+    @Autowired
+    private VirtualBoardService virtualBoardService;
 
 
 
@@ -979,7 +984,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
         if(tcResponse.getCode() == 200 && tcResponse.getData() != null){
             result.setMessage(tcResponse.getMesseage());
             for(int j=0;j<tcResponse.getData().size();j++){
-                boardDtoList.add(boardToBoardDto(tcResponse.getData().get(j)));
+                boardDtoList.add(boardToBoardDto(tcResponse.getData().get(j),null));
             }
             log.info("建板成功,板号的目的地编号destinationId:{},建板数量boardCount:{},操作人operatorErp:{}",request.getDestinationId(),
                     request.getBoardCount(),request.getOperatorErp());
@@ -993,7 +998,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
         return result;
     }
 
-    public BoardDto boardToBoardDto(Board board){
+    public BoardDto boardToBoardDto(Board board,Integer scanQuantity){
         BoardDto boardDto = new BoardDto();
         boardDto.setDate(DateHelper.formatDate(board.getCreateTime(),"yyyy-MM-dd"));
         boardDto.setTime(DateHelper.formatDate(board.getCreateTime(),"HH:mm:ss"));
@@ -1001,6 +1006,9 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
         boardDto.setDestination(board.getDestination());
         boardDto.setDestinationId(board.getDestinationId());
         boardDto.setStatus(board.getStatus());
+        if(scanQuantity != null){
+            boardDto.setScanQuantity(scanQuantity);
+        }
         return boardDto;
     }
 
@@ -1026,8 +1034,21 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
         }
         if(tcResponse.getCode() == 200 &&tcResponse.getData() != null){
             log.info("获取板信息成功，boardCode:{}",boardCode);
+            JdCResponse<VirtualBoardResultDto> boxCountResult = virtualBoardService.getBoxCountByBoardCode(boardCode);
+            Integer scanQuantity = null;
+            if(boxCountResult.getCode() == 200 && boxCountResult.getData() != null){
+                int packageTotal = 0;
+                int boxTotal = 0;
+                if(boxCountResult.getData().getPackageTotal() != null){
+                    packageTotal = boxCountResult.getData().getPackageTotal();
+                }
+                if(boxCountResult.getData().getBoxTotal() != null){
+                    boxTotal =boxCountResult.getData().getBoxTotal();
+                }
+                scanQuantity =packageTotal+boxTotal;
+            }
             invokeResult.setMessage(tcResponse.getMesseage());
-            invokeResult.setData(boardToBoardDto(tcResponse.getData()));
+            invokeResult.setData(boardToBoardDto(tcResponse.getData(),scanQuantity));
             return invokeResult;
         }
         log.error("获取板信息失败，boardCode:{}",boardCode);
