@@ -21,7 +21,12 @@ public enum SendKeyTypeEnum {
     /**
      * 按箱号发货
      */
-    BY_BOX;
+    BY_BOX,
+    /**
+     * 按批次号
+     */
+
+    BY_SENDCODE;
 
     public static SendKeyTypeEnum findEnum(String name) {
         for (SendKeyTypeEnum value : SendKeyTypeEnum.values()) {

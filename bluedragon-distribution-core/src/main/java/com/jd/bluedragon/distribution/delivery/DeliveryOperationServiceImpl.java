@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.delivery;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
 import com.jd.bluedragon.distribution.delivery.constants.SendKeyTypeEnum;
@@ -9,10 +10,14 @@ import com.jd.bluedragon.distribution.delivery.processor.IDeliveryBaseHandler;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
 import com.jd.bluedragon.distribution.task.domain.Task;
+import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.Md5Helper;
+import com.jd.coo.sa.mybatis.plugins.id.SequenceGenAdaptor;
+import com.jd.jim.cli.Cluster;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections.CollectionUtils;
@@ -25,6 +30,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @author wyh
@@ -51,6 +57,13 @@ public class DeliveryOperationServiceImpl implements IDeliveryOperationService {
 
     @Autowired
     private UccPropertyConfiguration uccConfig;
+    @Autowired
+    protected TaskService taskService;
+    @Autowired
+    protected SequenceGenAdaptor sequenceGenAdaptor;
+    @Autowired
+    @Qualifier("redisClientCache")
+    protected Cluster redisClientCache;
 
     /**
      * 按包裹、箱号、运单处理发货数据
@@ -68,11 +81,17 @@ public class DeliveryOperationServiceImpl implements IDeliveryOperationService {
 
         // 单次发货的公共属性
         SendM sendM = makeDeliveryDomain(requests.get(0), sourceEnum);
+        long uniqueId = genSendBatchTaskUniqueId(sendM.getSendCode());
+        log.info("===========asyncHandleDelivery==========生成批次唯一id：{},批次号码：{}",uniqueId,sendM.getSendCode());
 
         // 每次发货的操作时间、操作人、批次号等认为是一样的
         packageSendWrapper.setSendM(sendM);
+        packageSendWrapper.setBatchUniqKey(sendM.getSendCode()+"_"+uniqueId);
         boxSendWrapper.setSendM(sendM);
+        boxSendWrapper.setBatchUniqKey(sendM.getSendCode()+"_"+uniqueId);
         waybillWrapper.setSendM(sendM);
+        waybillWrapper.setBatchUniqKey(sendM.getSendCode()+"_"+uniqueId);
+
 
         for (SendM request : requests) {
             String barCode = request.getBoxCode();
@@ -87,6 +106,13 @@ public class DeliveryOperationServiceImpl implements IDeliveryOperationService {
             }
         }
 
+        String compeletedCountKey = String.format(CacheKeyConstants.COMPELETE_SEND_COUNT_KEY, sendM.getSendCode()+"_"+uniqueId);
+        try {
+            redisClientCache.set(compeletedCountKey,"0",uccConfig.getCreateSendTasktimeOut(), TimeUnit.MINUTES,false);
+        } catch (Exception e) {
+            log.error("redis给发货任务compeletedCountKey设置过期时间异常",e);
+        }
+
         if (CollectionUtils.isNotEmpty(packageSendWrapper.getBarCodeList())) {
             packageHandler.initDeliveryTask(packageSendWrapper);
         }
@@ -99,7 +125,39 @@ public class DeliveryOperationServiceImpl implements IDeliveryOperationService {
             waybillHandler.initDeliveryTask(waybillWrapper);
         }
 
+        Task task = new Task();
+        task.setCreateSiteCode(sendM.getCreateSiteCode());
+        task.setReceiveSiteCode(sendM.getReceiveSiteCode());
+        task.setType(Task.TASK_TYPE_SEND_DELIVERY);
+        task.setTableName(Task.getTableName(task.getType()));
+        task.setSequenceName(Task.getSequenceName(task.getTableName()));
+        task.setKeyword1("20");
+        task.setKeyword2(sendM.getSendCode());
+        task.setOwnSign(BusinessHelper.getOwnSign());
+
+        SendMWrapper sendMWrapper =new SendMWrapper(SendKeyTypeEnum.BY_SENDCODE);
+        sendMWrapper.setSendM(sendM);
+        sendMWrapper.setBatchUniqKey(sendM.getSendCode()+"_"+uniqueId);
+        task.setBody(JsonHelper.toJson(sendMWrapper));
+
+        task.setFingerprint(Md5Helper.encode(String.valueOf(uniqueId)));
+        taskService.doAddTask(task,false);
+        log.info("===========asyncHandleDelivery==========生成task调度任务");
+
+
         return DeliveryResponse.oK();
+    }
+
+    long genSendBatchTaskUniqueId(String nameSpace){
+        long sequence;
+        try {
+            sequence = sequenceGenAdaptor.newId(nameSpace);
+        }
+        catch (Throwable ex) {
+            log.error("[发货批次任务]生成唯一id失败 ", ex);
+            return System.currentTimeMillis();
+        }
+        return sequence;
     }
 
     private SendM makeDeliveryDomain(SendM request, SendBizSourceEnum sourceEnum) {
