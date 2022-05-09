@@ -97,7 +97,7 @@ public abstract class DeliveryBaseHandler implements IDeliveryBaseHandler {
         SendM sendM = wrapper.getSendM();
 
         // 生成本次发货的唯一标识
-        String batchUniqKey = genBatchTaskUniqKey(wrapper);
+        String batchUniqKey = wrapper.getBatchUniqKey();
 
         // 设置本次发货的批处理锁，值为本次任务的总页数
         lockPageDelivery(batchUniqKey, pageTotal);
@@ -124,7 +124,7 @@ public abstract class DeliveryBaseHandler implements IDeliveryBaseHandler {
             task.setCreateSiteCode(sendM.getCreateSiteCode());
             task.setReceiveSiteCode(sendM.getReceiveSiteCode());
 
-            task.setType(Task.TASK_TYPE_DELIVERY_ASYNC);
+            task.setType(Task.TASK_TYPE_DELIVERY_ASYNC_V2);
             task.setTableName(Task.getTableName(task.getType()));
             task.setSequenceName(Task.getSequenceName(task.getTableName()));
             task.setKeyword1(wrapper.getKeyType().name());
@@ -136,7 +136,7 @@ public abstract class DeliveryBaseHandler implements IDeliveryBaseHandler {
                     Constants.UNDER_LINE + System.currentTimeMillis();
             task.setFingerprint(Md5Helper.encode(fingerprint));
 
-            taskService.add(task);
+            taskService.doAddTask(task,false);
         }
 
         return DeliveryResponse.oK();
@@ -148,9 +148,17 @@ public abstract class DeliveryBaseHandler implements IDeliveryBaseHandler {
      * @param pageTotal
      * @return
      */
-    private boolean lockPageDelivery(String batchUniqKey, int pageTotal) {
-        String redisKey = String.format(CacheKeyConstants.PACKAGE_SEND_BATCH_KEY, batchUniqKey);
-        return redisClientCache.set(redisKey, String.valueOf(pageTotal), EXPIRE_TIME_SECOND, TimeUnit.SECONDS, false);
+    @Override
+    public boolean lockPageDelivery(String batchUniqKey, int pageTotal) {
+        String redisKey = String.format(CacheKeyConstants.INITIAL_SEND_COUNT_KEY, batchUniqKey);
+        try {
+            redisClientCache.incrBy(redisKey,pageTotal);
+            log.info("批次任务初始化 {}，计数成功：{}",batchUniqKey,pageTotal);
+        } catch (Exception e) {
+            log.error("lockPageDelivery初始化批次计数异常",e);
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -194,6 +202,36 @@ public abstract class DeliveryBaseHandler implements IDeliveryBaseHandler {
         // 判断是否推送全程跟踪任务
         SendM taskSendM = sendMList.get(0);
         return judgePushSendTracking(sendM, pageNo, pageTotal, batchUniqKey, taskSendM);
+    }
+
+    @Override
+    public boolean dealCoreDeliveryV2(final SendMWrapper wrapper) {
+        List<SendM> sendMList = Lists.newArrayListWithCapacity(wrapper.getBarCodeList().size());
+        final SendM sendM = wrapper.getSendM();
+        for (String barCode : wrapper.getBarCodeList()) {
+            SendM domain = new SendM();
+            BeanUtils.copyProperties(sendM, domain);
+            domain.setBoxCode(barCode);
+            sendMList.add(domain);
+        }
+
+        final String batchUniqKey = wrapper.getBatchUniqKey();
+
+        deliveryService.deliveryCoreLogic(sendMList.get(0).getBizSource(), sendMList);
+
+        return competeTaskIncrCount(batchUniqKey);
+    }
+
+    @Override
+    public boolean competeTaskIncrCount(String batchUniqKey) {
+        String compeletedCountKey = String.format(CacheKeyConstants.COMPELETE_SEND_COUNT_KEY, batchUniqKey);
+        try {
+            redisClientCache.incr(compeletedCountKey);
+            log.info("发货批次 {} competeTaskIncrCount加一",batchUniqKey);
+        } catch (Exception e) {
+            log.error("任务完成计数异常",e);
+        }
+        return true;
     }
 
     private boolean judgePushSendTracking(SendM sendM, int pageNo, int pageTotal, String batchUniqKey, SendM taskSendM) {
