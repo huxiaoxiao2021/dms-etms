@@ -131,6 +131,35 @@ public class DeliveryWaybillHandler extends DeliveryBaseHandler {
         return competeTaskIncrCount(waybillBatchUniqKey);
     }
 
+    @Override
+    public boolean dealCoreDeliveryV2(SendMWrapper wrapper) {
+        int pageSize = wrapper.getPageSize();
+        final int pageNo = wrapper.getPageNo();
+
+        // 分页获取运单包裹数据
+        final String waybillCode = wrapper.getWaybillCode();
+        BaseEntity<List<DeliveryPackageD>> baseEntity = waybillPackageManager.getPackListByWaybillCodeOfPage(waybillCode, pageNo, pageSize);
+        if (baseEntity == null || CollectionUtils.isEmpty(baseEntity.getData())) {
+            log.warn("[发货]运单拆分任务分页获取包裹数量为空! waybillCode={}", waybillCode);
+            return false;
+        }
+
+        List<SendM> waybillSendMList = Lists.newArrayListWithCapacity(pageSize);
+        final SendM waybillSendM = wrapper.getSendM();
+        for (DeliveryPackageD deliveryPackageD : baseEntity.getData()) {
+            SendM domain = new SendM();
+            BeanUtils.copyProperties(waybillSendM, domain);
+            domain.setBoxCode(deliveryPackageD.getPackageBarcode());
+            waybillSendMList.add(domain);
+        }
+
+        final String waybillBatchUniqKey = wrapper.getBatchUniqKey();
+
+        deliveryService.deliveryCoreLogic(waybillSendMList.get(0).getBizSource(), waybillSendMList);
+
+        return competeTaskIncrCount(waybillBatchUniqKey);
+    }
+
     private boolean judgePushSendTracking(int pageNo, String waybillCode, SendM waybillSendM, String waybillBatchUniqKey, SendM taskSendM) {
         String redisKey = String.format(CacheKeyConstants.WAYBILL_SEND_BATCH_KEY, waybillBatchUniqKey);
         String redisVal = redisClientCache.get(redisKey);
