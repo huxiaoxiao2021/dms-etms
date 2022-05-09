@@ -632,6 +632,24 @@ public class UccPropertyConfiguration {
      * 卸车逐单卸阈值
      */
     private Integer jyUnloadSingleWaybillThreshold;
+    private Integer createSendTaskExecuteCount;
+    private Integer createSendTasktimeOut;
+
+    public Integer getCreateSendTaskExecuteCount() {
+        return createSendTaskExecuteCount;
+    }
+
+    public void setCreateSendTaskExecuteCount(Integer createSendTaskExecuteCount) {
+        this.createSendTaskExecuteCount = createSendTaskExecuteCount;
+    }
+
+    public Integer getCreateSendTasktimeOut() {
+        return createSendTasktimeOut;
+    }
+
+    public void setCreateSendTasktimeOut(Integer createSendTasktimeOut) {
+        this.createSendTasktimeOut = createSendTasktimeOut;
+    }
 
     public int getSealTaskForceFallback() {
         return sealTaskForceFallback;

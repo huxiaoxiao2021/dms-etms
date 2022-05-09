@@ -52,10 +52,10 @@ public class DeliveryWaybillHandler extends DeliveryBaseHandler {
             int pageTotal = (totalNum % onePageSize) == 0 ? (totalNum / onePageSize) : (totalNum / onePageSize) + 1;
 
             // 生成本次发货的唯一标识
-            String batchUniqKey = waybillCode + Constants.UNDER_LINE + wrapper.getSendM().getCreateSiteCode();
+            String batchUniqKey = wrapper.getBatchUniqKey();
 
             // 设置本次发货的批处理锁
-            lockDeliveryByWaybill(batchUniqKey, pageTotal);
+            lockPageDelivery(batchUniqKey, pageTotal);
 
             // 插入分页任务
             for (int i = 0; i < pageTotal; i++) {
@@ -77,7 +77,7 @@ public class DeliveryWaybillHandler extends DeliveryBaseHandler {
                 task.setReceiveSiteCode(sendM.getReceiveSiteCode());
 
                 task.setSequenceName(Task.getSequenceName(task.getTableName()));
-                task.setType(Task.TASK_TYPE_DELIVERY_ASYNC);
+                task.setType(Task.TASK_TYPE_DELIVERY_ASYNC_V2);
                 task.setTableName(Task.getTableName(task.getType()));
                 task.setKeyword1(wrapper.getKeyType().name());
                 task.setKeyword2(i + 1 + Constants.UNDER_LINE + pageTotal + Constants.UNDER_LINE + waybillCode);
@@ -88,29 +88,12 @@ public class DeliveryWaybillHandler extends DeliveryBaseHandler {
                         Constants.UNDER_LINE + System.currentTimeMillis();
                 task.setFingerprint(Md5Helper.encode(fingerprint));
 
-                taskService.add(task);
+                taskService.doAddTask(task,false);
             }
         }
 
         return DeliveryResponse.oK();
     }
-
-    /**
-     * 锁定按运单发货
-     * @param batchUniqKey
-     * @param pageTotal
-     * @return
-     */
-    private boolean lockDeliveryByWaybill(String batchUniqKey, int pageTotal) {
-        String redisKey = String.format(CacheKeyConstants.WAYBILL_SEND_BATCH_KEY, batchUniqKey);
-        boolean lockRet = redisClientCache.set(redisKey, String.valueOf(pageTotal), EXPIRE_TIME_SECOND, TimeUnit.SECONDS, false);
-        if (log.isInfoEnabled()) {
-            log.info("按运单发货锁定运单数据. key:{}", batchUniqKey);
-        }
-
-        return lockRet;
-    }
-
     /**
      * 处理发货逻辑
      *
@@ -146,6 +129,35 @@ public class DeliveryWaybillHandler extends DeliveryBaseHandler {
         // 判断是否推送全程跟踪任务
         SendM taskSendM = waybillSendMList.get(0);
         return judgePushSendTracking(pageNo, waybillCode, waybillSendM, waybillBatchUniqKey, taskSendM);
+    }
+
+    @Override
+    public boolean dealCoreDeliveryV2(SendMWrapper wrapper) {
+        int pageSize = wrapper.getPageSize();
+        final int pageNo = wrapper.getPageNo();
+
+        // 分页获取运单包裹数据
+        final String waybillCode = wrapper.getWaybillCode();
+        BaseEntity<List<DeliveryPackageD>> baseEntity = waybillPackageManager.getPackListByWaybillCodeOfPage(waybillCode, pageNo, pageSize);
+        if (baseEntity == null || CollectionUtils.isEmpty(baseEntity.getData())) {
+            log.warn("[发货]运单拆分任务分页获取包裹数量为空! waybillCode={}", waybillCode);
+            return false;
+        }
+
+        List<SendM> waybillSendMList = Lists.newArrayListWithCapacity(pageSize);
+        final SendM waybillSendM = wrapper.getSendM();
+        for (DeliveryPackageD deliveryPackageD : baseEntity.getData()) {
+            SendM domain = new SendM();
+            BeanUtils.copyProperties(waybillSendM, domain);
+            domain.setBoxCode(deliveryPackageD.getPackageBarcode());
+            waybillSendMList.add(domain);
+        }
+
+        final String waybillBatchUniqKey = wrapper.getBatchUniqKey();
+
+        deliveryService.deliveryCoreLogic(waybillSendMList.get(0).getBizSource(), waybillSendMList);
+
+        return competeTaskIncrCount(waybillBatchUniqKey);
     }
 
     private boolean judgePushSendTracking(int pageNo, String waybillCode, SendM waybillSendM, String waybillBatchUniqKey, SendM taskSendM) {
