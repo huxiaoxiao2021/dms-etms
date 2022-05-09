@@ -30,6 +30,12 @@ public interface IDeliveryOperationService {
     void dealDeliveryTask(Task task);
 
     /**
+     * 版本升级-新老隔离
+     * @param task
+     */
+    void dealDeliveryTaskV2(Task task);
+
+    /**
      * 异步任务开关
      * @param createSiteCode
      * @return

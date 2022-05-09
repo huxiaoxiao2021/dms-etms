@@ -209,6 +209,34 @@ public class DeliveryOperationServiceImpl implements IDeliveryOperationService {
         }
     }
 
+    @Override
+    @JProfiler(jKey = "DMSWEB.DeliveryOperationService.dealDeliveryTaskV2", jAppName = Constants.UMP_APP_NAME_DMSWORKER, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public void dealDeliveryTaskV2(Task task) {
+
+        final SendMWrapper wrapper = JsonHelper.fromJson(task.getBody(), SendMWrapper.class);
+        if (null == wrapper || null == wrapper.getKeyType()) {
+            return;
+        }
+
+        SendKeyTypeEnum typeEnum = wrapper.getKeyType();
+        switch (typeEnum) {
+            case BY_PACKAGE:
+
+                packageHandler.dealCoreDeliveryV2(wrapper);
+                break;
+            case BY_BOX:
+
+                boxHandler.dealCoreDeliveryV2(wrapper);
+                break;
+            case BY_WAYBILL:
+
+                waybillHandler.dealCoreDeliveryV2(wrapper);
+                break;
+            default:
+                break;
+        }
+    }
+
     /**
      * 发货异步任务切换开关
      * @param createSiteCode

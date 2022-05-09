@@ -25,7 +25,7 @@ public class DeliveryAsyncTaskV2 extends DBSingleScheduler {
     @Override
     protected boolean executeSingleTask(Task task, String ownSign) throws Exception {
         try {
-            deliveryOperationService.dealDeliveryTask(task);
+            deliveryOperationService.dealDeliveryTaskV2(task);
         }
         catch (Exception ex) {
             log.error("DeliveryAsyncTask-error. task:{}", JsonHelper.toJson(task), ex);

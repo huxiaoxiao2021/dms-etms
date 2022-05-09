@@ -43,5 +43,12 @@ public interface IDeliveryBaseHandler {
      */
     boolean dealCoreDelivery(SendMWrapper wrapper);
 
+    /**
+     * 版本升级 -新老版本部署隔离
+     * @param wrapper
+     * @return
+     */
+    boolean dealCoreDeliveryV2(SendMWrapper wrapper);
+
     boolean competeTaskIncrCount(String batchUniqKey);
 }
