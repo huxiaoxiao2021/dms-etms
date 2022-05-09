@@ -193,6 +193,28 @@ public abstract class DeliveryBaseHandler implements IDeliveryBaseHandler {
             sendMList.add(domain);
         }
 
+        final int pageNo = wrapper.getPageNo();
+        final int pageTotal = wrapper.getTotalPage();
+        final String batchUniqKey = wrapper.getBatchUniqKey();
+
+        deliveryService.deliveryCoreLogic(sendMList.get(0).getBizSource(), sendMList);
+
+        // 判断是否推送全程跟踪任务
+        SendM taskSendM = sendMList.get(0);
+        return judgePushSendTracking(sendM, pageNo, pageTotal, batchUniqKey, taskSendM);
+    }
+
+    @Override
+    public boolean dealCoreDeliveryV2(final SendMWrapper wrapper) {
+        List<SendM> sendMList = Lists.newArrayListWithCapacity(wrapper.getBarCodeList().size());
+        final SendM sendM = wrapper.getSendM();
+        for (String barCode : wrapper.getBarCodeList()) {
+            SendM domain = new SendM();
+            BeanUtils.copyProperties(sendM, domain);
+            domain.setBoxCode(barCode);
+            sendMList.add(domain);
+        }
+
         final String batchUniqKey = wrapper.getBatchUniqKey();
 
         deliveryService.deliveryCoreLogic(sendMList.get(0).getBizSource(), sendMList);

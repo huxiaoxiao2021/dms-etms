@@ -38,8 +38,6 @@ public class DeliveryWaybillHandler extends DeliveryBaseHandler {
     @Override
     public DeliveryResponse initDeliveryTask(SendMWrapper wrapper) {
 
-
-
         for (String waybillCode : wrapper.getBarCodeList()) {
 
             // 获取运单包裹数
@@ -104,6 +102,37 @@ public class DeliveryWaybillHandler extends DeliveryBaseHandler {
      */
     @Override
     public boolean dealCoreDelivery(SendMWrapper wrapper) {
+        int pageSize = wrapper.getPageSize();
+        final int pageNo = wrapper.getPageNo();
+
+        // 分页获取运单包裹数据
+        final String waybillCode = wrapper.getWaybillCode();
+        BaseEntity<List<DeliveryPackageD>> baseEntity = waybillPackageManager.getPackListByWaybillCodeOfPage(waybillCode, pageNo, pageSize);
+        if (baseEntity == null || CollectionUtils.isEmpty(baseEntity.getData())) {
+            log.warn("[发货]运单拆分任务分页获取包裹数量为空! waybillCode={}", waybillCode);
+            return false;
+        }
+
+        List<SendM> waybillSendMList = Lists.newArrayListWithCapacity(pageSize);
+        final SendM waybillSendM = wrapper.getSendM();
+        for (DeliveryPackageD deliveryPackageD : baseEntity.getData()) {
+            SendM domain = new SendM();
+            BeanUtils.copyProperties(waybillSendM, domain);
+            domain.setBoxCode(deliveryPackageD.getPackageBarcode());
+            waybillSendMList.add(domain);
+        }
+
+        final String waybillBatchUniqKey = wrapper.getBatchUniqKey();
+
+        deliveryService.deliveryCoreLogic(waybillSendMList.get(0).getBizSource(), waybillSendMList);
+
+        // 判断是否推送全程跟踪任务
+        SendM taskSendM = waybillSendMList.get(0);
+        return judgePushSendTracking(pageNo, waybillCode, waybillSendM, waybillBatchUniqKey, taskSendM);
+    }
+
+    @Override
+    public boolean dealCoreDeliveryV2(SendMWrapper wrapper) {
         int pageSize = wrapper.getPageSize();
         final int pageNo = wrapper.getPageNo();
 
