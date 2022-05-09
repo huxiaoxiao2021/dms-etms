@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.jd.ql.basic.domain.BaseSite;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -101,7 +102,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	
 	@Autowired
 	private BaseMajorManager baseMajorManager;
-	
+
 	private static final DecimalFormat NUMBER_FORMAT = new DecimalFormat("0.00");
 	private static final DecimalFormat RATE_FORMAT = new DecimalFormat("0.00%");
 
@@ -333,6 +334,8 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
         signInRequest.setCreateTime(signInTime);
         signInRequest.setSignInTime(signInTime);
         signInRequest.setSignDate(signInRequest.getSignInTime());
+		// 设置战区信息
+		setWarZoneInfo(signInRequest);
         userSignRecordDao.insert(signInRequest);
 
         if (autoSignOutSuccess) {
@@ -568,16 +571,17 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 			result.toFail(gridResult.getMessage());
 			return result;
 		}
+		//校验并组装签到数据
+        UserSignRecord signInData = new UserSignRecord();
+        result = this.checkAndFillSignInInfo(signInRequest,signInData,gridResult.getData());
+        if(!result.isSucceed()) {
+        	return result;
+        }
+
 		UserSignRecordQuery lastSignRecordQuery = new UserSignRecordQuery();
 		lastSignRecordQuery.setUserCode(signInRequest.getUserCode());
 		//查询签到记录，先签退
         UserSignRecord lastSignRecord = this.queryLastUnSignOutRecord(lastSignRecordQuery);
-		//校验并组装签到数据
-		UserSignRecord signInData = new UserSignRecord();
-		result = this.checkAndFillSignInInfo(signInRequest,signInData,gridResult.getData(), lastSignRecord);
-		if(!result.isSucceed()) {
-			return result;
-		}
         UserSignRecord signOutRequest = new UserSignRecord();
         if(lastSignRecord != null) {
         	signOutRequest.setId(lastSignRecord.getId());
@@ -673,7 +677,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
         UserSignRecord signInData = new UserSignRecord();
         //校验并组装签到数据
         if(needSignIn) {
-            result = this.checkAndFillSignInInfo(userSignRequest,signInData,gridResult.getData(), lastSignRecord);
+            result = this.checkAndFillSignInInfo(userSignRequest,signInData,gridResult.getData());
             if(!result.isSucceed()) {
             	return result;
             }
@@ -754,11 +758,10 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		result.setData(workStationGridData.getData());
 		return result;
 	}
-	private JdCResponse<UserSignRecordData> checkAndFillSignInInfo(UserSignRequest signInRequest,UserSignRecord signInData,
-																   WorkStationGrid gridInfo, UserSignRecord lastSignRecord){
+	private JdCResponse<UserSignRecordData> checkAndFillSignInInfo(UserSignRequest signInRequest,UserSignRecord signInData, WorkStationGrid gridInfo){
 		JdCResponse<UserSignRecordData> result = new JdCResponse<>();
 		result.toSucceed();
-		
+
 		String gridKey = gridInfo.getBusinessKey();
 		String stationKey = gridInfo.getRefStationKey();
 		signInData.setJobCode(signInRequest.getJobCode());
@@ -770,10 +773,14 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		signInData.setRefGridKey(gridKey);
 		signInData.setRefStationKey(stationKey);
 		signInData.setUserName(signInData.getUserCode());
-		Integer waveCode = calculateWave(lastSignRecord);
+		// 获取最近一次签到记录
+		UserSignQueryRequest query = new UserSignQueryRequest();
+		query.setUserCode(signInRequest.getUserCode());
+		Integer waveCode = calculateWave(userSignRecordDao.queryLastUserSignRecordData(query));
 		signInData.setWaveCode(waveCode);
 		signInData.setWaveName(WaveTypeEnum.getNameByCode(waveCode));
 		signInData.setRefPlanKey(queryPlanKey(signInData));
+		setWarZoneInfo(signInData);
 		
 		String userCode = signInData.getUserCode();
 		Integer jobCode = signInData.getJobCode();
@@ -811,6 +818,15 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		return result;
 	}
 
+	private void setWarZoneInfo(UserSignRecord signInData) {
+		if(signInData.getSiteCode() == null){
+			return;
+		}
+		BaseSite baseSite = baseMajorManager.getSiteBySiteCode(signInData.getSiteCode());
+		signInData.setWarZoneCode(baseSite == null ? null : baseSite.getProvinceCompanyCode());
+		signInData.setWarZoneName(baseSite == null ? null : baseSite.getProvinceCompanyName());
+	}
+
 	private String queryPlanKey(UserSignRecord signInData) {
 		//查询设置计划信息
 		WorkStationAttendPlan workStationAttendPlanQuery = new WorkStationAttendPlan();
@@ -834,40 +850,44 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	 * @param lastSignRecord
 	 * @return
 	 */
-	private Integer calculateWave(UserSignRecord lastSignRecord) {
+	private Integer calculateWave(UserSignRecordData lastSignRecord) {
 		Date lastSignInTime = lastSignRecord == null ? null : lastSignRecord.getSignInTime() == null ? null : lastSignRecord.getSignInTime();
-		// 当前时间的小时
-		int currentHour = DateHelper.getHour(new Date());
-		// 上次签到的小时
-		Integer lastSignInHour = DateHelper.getHour(lastSignInTime);
-		// 当天零点
-		long currentZero = DateHelper.getZero(new Date());
-		// 昨天零点
-		long yesterdayZero = DateHelper.getZero(DateHelper.addDate(new Date(), -1));
-		if(0 < currentHour && currentHour < 6){
+		// 当前时间
+		Date currentDate = new Date();
+		long currentTime = currentDate.getTime();
+		// 当天零点、6、12、18、24
+		long currentZero = DateHelper.getZero(currentDate);
+		long currentZeroAdd6 = DateHelper.add(new Date(currentZero), Calendar.HOUR_OF_DAY, 6).getTime();
+		long currentZeroAdd12 = DateHelper.add(new Date(currentZero), Calendar.HOUR_OF_DAY, 12).getTime();
+		long currentZeroAdd18 = DateHelper.add(new Date(currentZero), Calendar.HOUR_OF_DAY, 18).getTime();
+		long currentZeroAdd24 = DateHelper.add(new Date(currentZero), Calendar.HOUR_OF_DAY, 24).getTime();
+		// 昨天零点、18、24
+		long yesterdayZero = DateHelper.getZero(DateHelper.addDate(currentDate, -1));
+		long yesterdayZeroAdd18 = DateHelper.add(new Date(yesterdayZero), Calendar.HOUR_OF_DAY, 18).getTime();
+		if(currentZero < currentTime && currentTime <= currentZeroAdd6){
 			if(lastSignInTime == null ||
-					!(lastSignInTime.getTime() > yesterdayZero && lastSignInTime.getTime() < currentZero && lastSignInHour >= 18)){
+					!(lastSignInTime.getTime() > yesterdayZeroAdd18 && lastSignInTime.getTime() <= currentZero)){
 				return WaveTypeEnum.DAY.getCode();
 			}
 			return WaveTypeEnum.NIGHT.getCode();
-		}else if (6 <= currentHour && currentHour < 12){
+		}else if (currentZeroAdd6 < currentTime && currentTime <= currentZeroAdd12){
 			if(lastSignInTime == null ||
-					!(lastSignInTime.getTime() > currentZero && lastSignInHour >= 0 && lastSignInHour < 6)){
+					!(lastSignInTime.getTime() > currentZero && lastSignInTime.getTime() <= currentZeroAdd6)){
 				return WaveTypeEnum.DAY.getCode();
 			}
 			return WaveTypeEnum.NIGHT.getCode();
-		}else if(12 <= currentHour && currentHour < 18){
+		}else if(currentZeroAdd12 < currentTime && currentTime <= currentZeroAdd18){
 			if(lastSignInTime == null ||
-					!(lastSignInTime.getTime() > currentZero && lastSignInHour >= 6 && lastSignInHour < 12)){
+					!(lastSignInTime.getTime() > currentZeroAdd6 && lastSignInTime.getTime() <= currentZeroAdd12)){
 				return WaveTypeEnum.MIDDLE.getCode();
 			}
 			return WaveTypeEnum.DAY.getCode();
-		}else if(18 <= currentHour){
+		}else if(currentZeroAdd18 < currentTime && currentTime <= currentZeroAdd24){
 			if(lastSignInTime == null ||
-					!(lastSignInTime.getTime() > currentZero && lastSignInHour >= 12 && lastSignInHour < 18)){
-				return WaveTypeEnum.MIDDLE.getCode();
+					!(lastSignInTime.getTime() > currentZeroAdd12 && lastSignInTime.getTime() <= currentZeroAdd18)){
+				return WaveTypeEnum.NIGHT.getCode();
 			}
-			return WaveTypeEnum.DAY.getCode();
+			return WaveTypeEnum.MIDDLE.getCode();
 		}
 		return null;
 	}

@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.jd.bluedragon.distribution.station.enums.SiteTypeEnum;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.lucene.util.CollectionUtil;
@@ -82,6 +83,7 @@ public class WorkStationServiceImpl implements WorkStationService {
 			}else {
 				generateAndSetBusinessKey(data);
 			}
+			data.setSiteTypeName(SiteTypeEnum.getNameByCode(data.getSiteTypeCode()));
 			workStationDao.insert(data);
 		}
 		return result;
@@ -125,6 +127,9 @@ public class WorkStationServiceImpl implements WorkStationService {
 			if(uniqueKeysRowNumMap.containsKey(uniqueKeysStr)) {
 				return result0.toFail(rowKey + "和第"+uniqueKeysRowNumMap.get(uniqueKeysStr)+"行数据重复！");
 			}
+			if(SiteTypeEnum.getEnum(data.getSiteTypeCode()) == null){
+				return result0.toFail(rowKey + "的场地类型ID不符合要求！");
+			}
 			uniqueKeysRowNumMap.put(uniqueKeysStr, rowNum);
 			rowNum ++;
 		}
@@ -149,6 +154,7 @@ public class WorkStationServiceImpl implements WorkStationService {
 		String workName = data.getWorkName();
 		String areaCode = data.getAreaCode();
 		String areaName = data.getAreaName();
+		data.setSiteTypeName(SiteTypeEnum.getNameByCode(data.getSiteTypeCode()));
 		
 		if(!CheckHelper.checkStr("作业区ID", areaCode, 50, result).isSuccess()) {
 			return result;
@@ -176,6 +182,7 @@ public class WorkStationServiceImpl implements WorkStationService {
 		}
 		workStationDao.deleteById(updateData);
 		updateData.setId(null);
+		updateData.setSiteTypeName(SiteTypeEnum.getNameByCode(updateData.getSiteTypeCode()));
 		result.setData(workStationDao.insert(updateData) == 1);
 		return result;
 	 }

@@ -5,6 +5,8 @@
 	<resultMap id="WorkStation" type="com.jd.bluedragon.distribution.station.domain.WorkStation" >
 		<id column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT" />
 		<result column="business_key" property="businessKey" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="site_type_code" property="siteTypeCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="site_type_name" property="siteTypeName" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="area_code" property="areaCode" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="area_name" property="areaName" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="work_code" property="workCode" javaType="java.lang.String" jdbcType="VARCHAR" />
@@ -25,7 +27,7 @@
 	</resultMap>
 	
 	<sql id="Base_Column_List" >
-		id,business_key,area_code,area_name,work_code,work_name,
+		id,business_key,site_type_code,site_type_name,area_code,area_name,work_code,work_name,
 		create_user,create_user_name,update_user,update_user_name,create_time,
 		update_time,yn,ts
 	</sql>
@@ -39,6 +41,12 @@
 				</if>
 				<if test="businessKey != null" >
 					business_key,
+				</if>
+				<if test="siteTypeCode != null" >
+					site_type_code,
+				</if>
+				<if test="siteTypeName != null" >
+					site_type_name,
 				</if>
 				<if test="areaCode != null" >
 					area_code,
@@ -86,6 +94,12 @@
 				</if>
 				<if test="businessKey != null" >
 					#{businessKey,jdbcType=VARCHAR},
+				</if>
+				<if test="siteTypeCode != null" >
+					#{siteTypeCode,jdbcType=VARCHAR},
+				</if>
+				<if test="siteTypeName != null" >
+					#{siteTypeName,jdbcType=VARCHAR},
 				</if>
 				<if test="areaCode != null" >
 					#{areaCode,jdbcType=VARCHAR},
@@ -135,6 +149,12 @@
 				</if>
 				<if test="businessKey != null" >
 					business_key = #{businessKey,jdbcType=VARCHAR},
+				</if>
+				<if test="siteTypeCode != null" >
+					site_type_code = #{siteTypeCode,jdbcType=VARCHAR},
+				</if>
+				<if test="siteTypeName != null" >
+					site_type_name = #{siteTypeCode,jdbcType=VARCHAR},
 				</if>
 				<if test="areaCode != null" >
 					area_code = #{areaCode,jdbcType=VARCHAR},
