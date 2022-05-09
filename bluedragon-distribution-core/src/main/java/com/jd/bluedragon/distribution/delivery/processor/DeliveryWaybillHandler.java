@@ -38,8 +38,6 @@ public class DeliveryWaybillHandler extends DeliveryBaseHandler {
     @Override
     public DeliveryResponse initDeliveryTask(SendMWrapper wrapper) {
 
-
-
         for (String waybillCode : wrapper.getBarCodeList()) {
 
             // 获取运单包裹数
@@ -128,7 +126,9 @@ public class DeliveryWaybillHandler extends DeliveryBaseHandler {
 
         deliveryService.deliveryCoreLogic(waybillSendMList.get(0).getBizSource(), waybillSendMList);
 
-        return competeTaskIncrCount(waybillBatchUniqKey);
+        // 判断是否推送全程跟踪任务
+        SendM taskSendM = waybillSendMList.get(0);
+        return judgePushSendTracking(pageNo, waybillCode, waybillSendM, waybillBatchUniqKey, taskSendM);
     }
 
     @Override

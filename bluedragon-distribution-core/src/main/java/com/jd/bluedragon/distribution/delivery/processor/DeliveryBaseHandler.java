@@ -193,11 +193,15 @@ public abstract class DeliveryBaseHandler implements IDeliveryBaseHandler {
             sendMList.add(domain);
         }
 
+        final int pageNo = wrapper.getPageNo();
+        final int pageTotal = wrapper.getTotalPage();
         final String batchUniqKey = wrapper.getBatchUniqKey();
 
         deliveryService.deliveryCoreLogic(sendMList.get(0).getBizSource(), sendMList);
 
-        return competeTaskIncrCount(batchUniqKey);
+        // 判断是否推送全程跟踪任务
+        SendM taskSendM = sendMList.get(0);
+        return judgePushSendTracking(sendM, pageNo, pageTotal, batchUniqKey, taskSendM);
     }
 
     @Override
