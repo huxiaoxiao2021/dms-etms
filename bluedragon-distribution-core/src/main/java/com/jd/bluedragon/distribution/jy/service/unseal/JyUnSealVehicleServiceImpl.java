@@ -261,7 +261,7 @@ public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
                     return result;
                 }
 
-                result.setData(makeSealResponseUsingVos(request, pageDto, true));
+                result.setData(makeSealResponseUsingVos(request, pageDto, false));
             }
         }
         catch (Exception e) {
@@ -549,7 +549,7 @@ public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
         statusStatis.setVehicleStatusName(JyUnSealStatusEnum.WAIT_UN_SEAL.getName());
 
         List<SealCarDto> filterList = new ArrayList<>();
-        if (!needFilter && isSearch(request)) {
+        if (needFilter && isSearch(request)) {
             for (SealCarDto sealCar : pageDto.getResult()) {
                 if (filterBySealCode(request.getBarCode(), sealCar) || filterByVehicleNumber(request.getBarCode(), sealCar)) {
                     filterList.add(sealCar);
