@@ -1,4 +1,4 @@
-package com.jd.bluedragon.external.gateway.service;
+package com.jd.bluedragon.distribution.tms;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.carTask.response.CarTaskEndNodeResponse;
@@ -6,8 +6,7 @@ import com.jd.bluedragon.common.dto.carTask.response.CarTaskResponse;
 
 import java.util.List;
 
-public interface TMSCarTaskGateWayService {
-
+public interface TmsCarTaskService {
 
 
     /**
@@ -23,6 +22,4 @@ public interface TMSCarTaskGateWayService {
      * @param endNodeCode
      */
     JdCResponse<List<CarTaskResponse>> queryCarTaskList(String startNodeCode, String endNodeCode);
-
-    void updateCarTaskInfo();
 }

@@ -1,11 +1,15 @@
 package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
+import IceInternal.Ex;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.board.response.VirtualBoardResultDto;
 import com.jd.bluedragon.common.dto.carTask.response.CarTaskEndNodeResponse;
 import com.jd.bluedragon.common.dto.carTask.response.CarTaskResponse;
+import com.jd.bluedragon.distribution.tms.TmsCarTaskService;
 import com.jd.bluedragon.external.gateway.service.TMSCarTaskGateWayService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.text.DateFormat;
@@ -17,39 +21,32 @@ import java.util.Objects;
 
 @Slf4j
 public class TMSCarTaskGateWayServiceImpl implements TMSCarTaskGateWayService {
+
+    @Autowired
+    private TmsCarTaskService tmsCarTaskService;
+
     @Override
-    public JdCResponse<List<CarTaskEndNodeResponse>> getEndNodeList(Integer beginNodeCode) {
-        log.info("获取当前站点的目的站点列表 入参-{}",beginNodeCode);
-        JdCResponse<List<CarTaskEndNodeResponse>> jdCResponse = new JdCResponse<List<CarTaskEndNodeResponse>>();
+    public JdCResponse<List<CarTaskEndNodeResponse>> getEndNodeList(String startNodeCode) {
+        log.info("获取当前站点的目的站点列表 入参-{}",startNodeCode);
+        JdCResponse<List<CarTaskEndNodeResponse>> jdCResponse = new JdCResponse<>();
         jdCResponse.toSucceed();
-//        if(beginNodeCode == null){
-//            jdCResponse.toFail("站点ID不能为空！");
-//        }
-        List<CarTaskEndNodeResponse> list = new ArrayList<>();
-        CarTaskEndNodeResponse endNode = new CarTaskEndNodeResponse();
-        endNode.setEndNodeCode(1000);
-        endNode.setEndNodeName("目的站点1");
-
-        CarTaskEndNodeResponse endNode1 = new CarTaskEndNodeResponse();
-        endNode1.setEndNodeCode(2000);
-        endNode1.setEndNodeName("目的站点2");
-
-        CarTaskEndNodeResponse endNode2 = new CarTaskEndNodeResponse();
-        endNode2.setEndNodeCode(3000);
-        endNode2.setEndNodeName("目的站点3");
-
-        list.add(endNode);
-        list.add(endNode1);
-        list.add(endNode2);
-
-        jdCResponse.setData(list);
-        return jdCResponse;
+        if(StringUtils.isBlank(startNodeCode)){
+            jdCResponse.toFail("站点ID不能为空！");
+            return jdCResponse;
+        }
+        try{
+            return tmsCarTaskService.getEndNodeList(startNodeCode);
+        }catch (Exception e){
+            log.error("TMSCarTaskGateWayServiceImpl.getEndNodeList 获取目的分拣列表异常 入参：{}，message:{}",startNodeCode,e.getMessage());
+            jdCResponse.toFail("获取目的分拣列表异常!");
+            return jdCResponse;
+        }
     }
 
     @Override
-    public JdCResponse<List<CarTaskResponse>>  queryCarTaskList(Integer beginNodeCode, Integer endNodeCode) {
+    public JdCResponse<List<CarTaskResponse>>  queryCarTaskList(String startNodeCode, String endNodeCode) {
 
-        log.info("获取当前站点的目的站点列表 入参-{}",beginNodeCode);
+        log.info("获取当前站点的目的站点列表 入参-{}",startNodeCode);
         JdCResponse<List<CarTaskResponse>> jdCResponse = new JdCResponse<>();
         jdCResponse.toSucceed();
 //        if(beginNodeCode == null ){

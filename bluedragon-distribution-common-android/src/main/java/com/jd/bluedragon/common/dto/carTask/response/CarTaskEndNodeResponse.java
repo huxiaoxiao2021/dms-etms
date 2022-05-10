@@ -10,18 +10,18 @@ public class CarTaskEndNodeResponse implements Serializable {
     /**
      * 目的站点编码
      */
-    private Integer endNodeCode;
+    private String endNodeCode;
 
     /**
      * 目的站点名称
      */
     private String endNodeName;
 
-    public Integer getEndNodeCode() {
+    public String getEndNodeCode() {
         return endNodeCode;
     }
 
-    public void setEndNodeCode(Integer endNodeCode) {
+    public void setEndNodeCode(String endNodeCode) {
         this.endNodeCode = endNodeCode;
     }
 
