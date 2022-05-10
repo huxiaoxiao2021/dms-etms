@@ -44,8 +44,17 @@ public interface ConfigStrandReasonJsfService {
 	Result<ConfigStrandReason> queryByReasonCode(Integer reasonCode);	
 	/**
 	 * 按条件分页查询
+	 * 查询全部
 	 * @param query
 	 * @return
 	 */
-	Result<PageDto<ConfigStrandReason>> queryPageList(ConfigStrandReasonQuery query);    
+	Result<PageDto<ConfigStrandReason>> queryPageList(ConfigStrandReasonQuery query);
+	/**
+	 * 按条件分页查询
+	 * 工作台查询，根据 businessTag
+	 * businessTag = 1 or 2 分别代表 大网 + 冷链
+	 * @param query
+	 * @return
+	 */
+	Result<PageDto<ConfigStrandReason>> queryPageListByBusinessTag(ConfigStrandReasonQuery query);
 }

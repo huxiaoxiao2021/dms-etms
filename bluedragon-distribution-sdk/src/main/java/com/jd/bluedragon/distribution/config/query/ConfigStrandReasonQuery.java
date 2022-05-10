@@ -20,6 +20,13 @@ public class ConfigStrandReasonQuery extends BasePagerCondition implements Seria
 	 */
 	private Integer reasonCode;
 
+	/**
+	 * 业务条线
+	 * 1：大网
+	 * 2：冷链
+	 */
+	private Integer businessTag;
+
 	public Integer getReasonCode() {
 		return reasonCode;
 	}
@@ -28,4 +35,11 @@ public class ConfigStrandReasonQuery extends BasePagerCondition implements Seria
 		this.reasonCode = reasonCode;
 	}
 
+	public Integer getBusinessTag() {
+		return businessTag;
+	}
+
+	public void setBusinessTag(Integer businessTag) {
+		this.businessTag = businessTag;
+	}
 }
