@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.quickProduce.service.impl;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
+import com.jd.bluedragon.core.jsf.waybill.WaybillReverseManager;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.order.domain.OrderBankResponse;
 import com.jd.bluedragon.distribution.order.service.OrderBankService;
@@ -31,7 +32,7 @@ public class QuickProduceServiceImpl implements QuickProduceService {
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
     @Autowired
-    GetOrderMsgServiceJsf getOrderMsgServiceJsf;
+    WaybillReverseManager waybillReverseManager;
 
     /**
      * 订单中间键ws封装类
@@ -111,29 +112,8 @@ public class QuickProduceServiceImpl implements QuickProduceService {
     @JProfiler(jKey = "DMSWEB.QuickProduceServiceImpl.getQuickProduceWabillFromDrec",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP})
     public Waybill getQuickProduceWabillFromDrec(String waybillCode) {
-
-        Waybill waybill= null;
-        OrderMsgDTO orderMsgDTO= getOrderMsgServiceJsf.getOrderAllMsgByDeliveryId(waybillCode);
-        if(orderMsgDTO==null) {
-            log.warn("闪购从外单获取运单数据为空，单号为：{}",waybillCode);
-            return waybill;
+    	return waybillReverseManager.getQuickProduceWabillFromDrec(waybillCode);
         }
-        waybill=new Waybill();
-        waybill.setReceiverName(orderMsgDTO.getReceiveName());
-        waybill.setReceiverMobile(orderMsgDTO.getReceiveMobile());
-        waybill.setReceiverTel(orderMsgDTO.getReceiveTel());
-        if (orderMsgDTO.getCollectionMoney()!=null) {
-            waybill.setRecMoney(orderMsgDTO.getCollectionMoney());
-        }
-        //waybill.setSendPay(orderMsgDTO.sendp);
-        waybill.setAddress(orderMsgDTO.getReceiveAdress());
-        //waybill.setAirSigns(orderMsgDTO.getAreaCityId());
-        waybill.setWaybillCode(waybillCode);
-        waybill.setPaymentType(orderMsgDTO.getCollectionValue());
-        if (orderMsgDTO.getPreallocation() != null)
-            waybill.setSiteCode(orderMsgDTO.getPreallocation().getSiteId());
-        return waybill;
-    }
 
 
     private  Waybill getWabillFromOom(String waybillCode){

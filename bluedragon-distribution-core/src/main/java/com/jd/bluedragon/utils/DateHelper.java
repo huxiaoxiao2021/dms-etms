@@ -62,6 +62,11 @@ public class DateHelper {
     public static final long ONE_HOUR_MILLI = 60 * 60 * 1000;
 
     /**
+     * 三小时的毫秒数
+     */
+    public static final long Three_HOUR_MILLI = 3 * 60 * 60 * 1000;
+
+    /**
      * 一天的毫秒数
      */
     public static final long ONE_DAY = 24 * 60 * 60 * 1000;
@@ -484,6 +489,21 @@ public class DateHelper {
             return 0;
         }
         int days = (int) ((endDate.getTime() - startDate.getTime()) / (24 * 3600 * 1000));
+        return days;
+    }
+
+    /**
+     * 两个日期分钟差
+     *
+     * @param startDate
+     * @param endDate
+     * @return
+     */
+    public static int getMiniDiff(Date startDate, Date endDate) {
+        if (startDate == null || endDate == null) {
+            return 0;
+        }
+        int days = (int) ((endDate.getTime() - startDate.getTime()) / (60 * 1000));
         return days;
     }
     /**

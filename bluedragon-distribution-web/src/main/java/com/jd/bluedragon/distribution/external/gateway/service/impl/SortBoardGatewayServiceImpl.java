@@ -8,11 +8,13 @@ import com.jd.bluedragon.common.dto.board.request.CombinationBoardRequest;
 import com.jd.bluedragon.common.dto.board.response.BoardCheckDto;
 import com.jd.bluedragon.common.dto.board.response.BoardDetailDto;
 import com.jd.bluedragon.common.dto.board.response.BoardInfoDto;
+import com.jd.bluedragon.common.dto.board.response.VirtualBoardResultDto;
 import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.distribution.api.request.BoardCombinationRequest;
 import com.jd.bluedragon.distribution.api.response.BoardResponse;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.board.service.BoardCombinationService;
+import com.jd.bluedragon.distribution.board.service.VirtualBoardService;
 import com.jd.bluedragon.distribution.inspection.dao.InspectionDao;
 import com.jd.bluedragon.distribution.rest.board.BoardCombinationResource;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -53,6 +55,9 @@ public class SortBoardGatewayServiceImpl implements SortBoardGatewayService {
 
     @Autowired
     private BoardCombinationService boardCombinationService;
+
+    @Autowired
+    private VirtualBoardService virtualBoardService;
 
     private static final Logger log = LoggerFactory.getLogger(SortBoardGatewayServiceImpl.class);
 
@@ -247,6 +252,19 @@ public class SortBoardGatewayServiceImpl implements SortBoardGatewayService {
             boardInfoDto.setDestination(response.getData().getDestination());
             boardInfoDto.setOperatorErp(response.getData().getOperatorErp());
             boardInfoDto.setOperatorName(response.getData().getOperatorName());
+            //根据板号查询扫描件量
+            JdCResponse<VirtualBoardResultDto> virtualBoard = virtualBoardService.getBoxCountByBoardCode(response.getData().getCode());
+            if(virtualBoard.getCode() == 200 && virtualBoard.getData() != null){
+                int packageTotal = 0;
+                int boxTotal = 0;
+                if(virtualBoard.getData().getPackageTotal() != null){
+                    packageTotal = virtualBoard.getData().getPackageTotal();
+                }
+                if(virtualBoard.getData().getBoxTotal() != null){
+                    boxTotal =virtualBoard.getData().getBoxTotal();
+                }
+                boardInfoDto.setScanQuantity(packageTotal + boxTotal);
+            }
             jdCResponse.setData(boardInfoDto);
         }
 

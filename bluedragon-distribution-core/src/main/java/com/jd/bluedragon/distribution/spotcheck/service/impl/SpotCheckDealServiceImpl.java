@@ -30,6 +30,7 @@ import com.jd.bluedragon.dms.utils.WaybillSignConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.dms.logger.external.LogEngine;
@@ -1022,8 +1023,8 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
         reportInfoQuery.setChannel(SpotCheckSourceFromEnum.ARTIFICIAL_SOURCE.contains(spotCheckContext.getSpotCheckSourceFrom())
                 ? SpotCheckConstants.ARTIFICIAL_SPOT_CHECK : SpotCheckConstants.EQUIPMENT_SPOT_CHECK);
         SpotCheckReviewDetail spotCheckReviewDetail = spotCheckContext.getSpotCheckReviewDetail();
-        reportInfoQuery.setMeasureWeight(String.valueOf(spotCheckReviewDetail.getReviewTotalWeight()));
-        reportInfoQuery.setMeasureVolume(String.valueOf(spotCheckReviewDetail.getReviewTotalVolume()));
+        reportInfoQuery.setMeasureWeight(NumberHelper.formatMoney(spotCheckReviewDetail.getReviewTotalWeight()));
+        reportInfoQuery.setMeasureVolume(NumberHelper.formatMoney(spotCheckReviewDetail.getReviewTotalVolume()));
         CommonDTO<ReportInfoDTO> commonDTO = weightReportCommonRuleManager.getReportInfo(reportInfoQuery);
         if(commonDTO == null || !Objects.equals(commonDTO.getCode(), CommonDTO.CODE_SUCCESS) || commonDTO.getData() == null){
             result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,
@@ -1049,8 +1050,8 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
         reportInfoQuery.setWaybillCode(waybillCode);
         reportInfoQuery.setChannel(SpotCheckSourceFromEnum.ARTIFICIAL_SOURCE.contains(spotCheckContext.getSpotCheckSourceFrom())
                 ? SpotCheckConstants.ARTIFICIAL_SPOT_CHECK : SpotCheckConstants.EQUIPMENT_SPOT_CHECK);
-        reportInfoQuery.setMeasureWeight(String.valueOf(reviewWeight));
-        reportInfoQuery.setMeasureVolume(String.valueOf(reviewVolume));
+        reportInfoQuery.setMeasureWeight(NumberHelper.formatMoney(reviewWeight));
+        reportInfoQuery.setMeasureVolume(NumberHelper.formatMoney(reviewVolume));
         CommonDTO<ReportInfoDTO> commonDTO = weightReportCommonRuleManager.getReportInfo(reportInfoQuery);
         ReportInfoDTO reportInfo = (commonDTO == null || !Objects.equals(commonDTO.getCode(), CommonDTO.CODE_SUCCESS)) ? null : commonDTO.getData();
         // 组装核对数据

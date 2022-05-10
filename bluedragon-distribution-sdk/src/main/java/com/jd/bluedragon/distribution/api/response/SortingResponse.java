@@ -330,6 +330,10 @@ public class SortingResponse extends JdResponse {
     public static final Integer CODE_29310 = 29310;
     public static final String MESSAGE_29310 = "此单请先暂存，运单集齐后发货";
 
+    //冷链耗材确认拦截
+    public static final Integer CODE_29322 = 29322;
+    public static final String MESSAGE_29322 = "此单有包装服务明细，需在分拣系统确认后才可发货";
+
     public static final Integer CODE_29318 = 29318;
     // 分拣登录人提示
     public static final String MESSAGE_29318_SORTING = "此单为暂存拦截运单请先暂存，分拣工作台收到可操作消息后直接操作换单打印";
@@ -382,8 +386,8 @@ public class SortingResponse extends JdResponse {
     public static final String MESSAGE_29416 = "此运单为半退单，需单独建箱，禁止与其他类型运单混装";
 
     public static final Integer CODE_29417 = 29417;
-    public static final String MESSAGE_29417 = "此箱包裹数量超限，请更换箱号!";
-    public static final String MESSAGE_29417_WAYBILL = "集包数量超过上限{0}个，请按包裹操作建箱!";
+    public static final String MESSAGE_29417 = "{1}此箱包裹数量超限{0}个，请更换箱号!";
+    public static final String MESSAGE_29417_WAYBILL = "{1}集包数量超过上限{0}个，请按包裹操作建箱!";
 
     public static final Integer CODE_29418 = 29418;
     public static final String MESSAGE_29418 = "此单已拒收或妥投，请扫描正确面单或退商家打印正确面单或操作异常处理!";

@@ -918,7 +918,20 @@ public class BaseServiceImpl extends AbstractClient implements BaseService, ErpV
      */
     @Override
     public MenuUsageProcessDto getClientMenuUsageConfig(MenuUsageConfigRequestDto menuUsageConfigRequestDto) {
-        log.info("BaseServiceImpl.getClientMenuUsageConfig param {}", menuUsageConfigRequestDto);
+        log.info("BaseServiceImpl.getClientMenuUsageConfig param {}", JsonHelper.toJson(menuUsageConfigRequestDto));
+
+        MenuUsageProcessDto menuUsageProcessDto = null;
+        final CurrentOperate currentOperate = menuUsageConfigRequestDto.getCurrentOperate();
+        final int siteCode = currentOperate.getSiteCode();
+        final BaseSiteInfoDto siteInfo = baseMajorManager.getBaseSiteInfoBySiteId(siteCode);
+        if(siteInfo == null){
+            return null;
+        }
+
+        final MenuUsageProcessDto clientMenuUsageByCodeConfig = getClientMenuUsageByCodeConfig(menuUsageConfigRequestDto);
+        if (clientMenuUsageByCodeConfig != null) {
+            return clientMenuUsageByCodeConfig;
+        }
 
         final SysConfig sysConfig = sysConfigService.findConfigContentByConfigName(Constants.SYS_CONFIG_ANDROID_MENU_USAGE + menuUsageConfigRequestDto.getMenuCode());
         if (sysConfig == null) {
@@ -938,13 +951,6 @@ public class BaseServiceImpl extends AbstractClient implements BaseService, ErpV
                 && CollectionUtils.isEmpty(conditionConfig.getSiteSortType()) && CollectionUtils.isEmpty(conditionConfig.getSiteSortSubType()) && CollectionUtils.isEmpty(conditionConfig.getSiteSortThirdType())){
             return menuUsageConfigDto.getProcess();
         }
-
-        final CurrentOperate currentOperate = menuUsageConfigRequestDto.getCurrentOperate();
-        final int siteCode = currentOperate.getSiteCode();
-        final BaseSiteInfoDto siteInfo = baseMajorManager.getBaseSiteInfoBySiteId(siteCode);
-        if (siteInfo == null) {
-            return null;
-        }
         if((CollectionUtils.isEmpty(conditionConfig.getSiteType()) || (siteInfo.getSiteType() != null && conditionConfig.getSiteType().contains(siteInfo.getSiteType())))
                 && (CollectionUtils.isEmpty(conditionConfig.getSiteSubType()) || (siteInfo.getSubType() != null && conditionConfig.getSiteSubType().contains(siteInfo.getSubType())))
                 && (CollectionUtils.isEmpty(conditionConfig.getSiteSortType()) || (siteInfo.getSortType() != null && conditionConfig.getSiteSortType().contains(siteInfo.getSortType())))
@@ -952,6 +958,39 @@ public class BaseServiceImpl extends AbstractClient implements BaseService, ErpV
                 && (CollectionUtils.isEmpty(conditionConfig.getSiteSortThirdType()) || (siteInfo.getSortThirdType() != null && conditionConfig.getSiteSortThirdType().contains(siteInfo.getSortThirdType())))){
             return menuUsageConfigDto.getProcess();
         }
+
+        return menuUsageProcessDto;
+
+    }
+
+    /**
+     * 获取指定具体场地或区域的配置
+     */
+    public MenuUsageProcessDto getClientMenuUsageByCodeConfig(MenuUsageConfigRequestDto menuUsageConfigRequestDto) {
+        final SysConfig sysConfigByCode = sysConfigService.findConfigContentByConfigName(Constants.SYS_CONFIG_ANDROID_MENU_USAGE_BY_SITE_CODE + menuUsageConfigRequestDto.getMenuCode());
+        // 如果配置都为空，则直接返回空
+        if (sysConfigByCode == null) {
+            return null;
+        }
+
+        final MenuUsageConfigDto menuUsageConfigDtoByCode = JSON.parseObject(sysConfigByCode.getConfigContent(), MenuUsageConfigDto.class);
+        if (menuUsageConfigDtoByCode == null) {
+            return null;
+        }
+
+        final CurrentOperate currentOperate = menuUsageConfigRequestDto.getCurrentOperate();
+
+        final int siteCode = currentOperate.getSiteCode();
+
+        final MenuUsageConditionConfigDto conditionConfig = menuUsageConfigDtoByCode.getCondition();
+        if (conditionConfig == null) {
+            return menuUsageConfigDtoByCode.getProcess();
+        }
+
+        if(CollectionUtils.isEmpty(conditionConfig.getSiteCodes()) || conditionConfig.getSiteCodes().contains(siteCode)){
+            return menuUsageConfigDtoByCode.getProcess();
+        }
+
         return null;
     }
 }

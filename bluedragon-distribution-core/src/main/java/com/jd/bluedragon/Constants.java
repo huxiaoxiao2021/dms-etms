@@ -823,6 +823,11 @@ public class Constants {
     public static final String SYS_CONFIG_ANDROID_MENU_USAGE= "android_menu_usage_";
 
     /**
+     * 安卓菜单可用性配置，按场地id配置
+     */
+    public static final String SYS_CONFIG_ANDROID_MENU_USAGE_BY_SITE_CODE = "android_menu_usage_by_site_code_";
+
+    /**
      * 是否启用中台创建箱号开关key
      */
     public static final String CREATE_BOX_FROM_SSC_SWITCH = "CREATE_BOX_FROM_SSC_SWITCH";
@@ -1524,6 +1529,14 @@ public class Constants {
      */
     public static String LINE_NEXT_CHAR = "\n";
     /**
+     * 默认时区-GMT+8
+     */
+    public final static String TIME_ZONE8 = "GMT+8";
+    /**
+     * 默认国际化-zh_CN
+     */
+    public final static String LOCALE_ZH_CN = "zh_CN";
+    /**
      * 传摆线路类型列表
      */
     public static List<Integer> CUAN_BAI_LINE_TYPES = new ArrayList<Integer>();
@@ -1644,7 +1657,12 @@ public class Constants {
      * 用户有效标识
      */
     public static final Integer FLAG_USER_Is_Resign = 1;
-    
-
-
+    /**
+     * 医药零担产品类型
+     */
+    public static final String PRODUCT_TYPE_MEDICAL_PART_BILL = "LL-YYLD-M";
+    /**
+     * 医药冷链产品
+     */
+    public static final String PRODUCT_TYPE_MEDICAL_COLD_BILL = "ll-m-0002";
 }

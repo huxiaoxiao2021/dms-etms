@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jd.bluedragon.distribution.board.dao.TaskBoardDao">
+
+    <resultMap id="taskBoard" type="com.jd.bluedragon.distribution.board.domain.TaskBoard" >
+        <id column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+        <result column="task_id" property="taskId" javaType="java.lang.Long" jdbcType="BIGINT" />
+        <result column="business_id" property="businessId" javaType="java.lang.Integer" jdbcType="INTEGER" />
+        <result column="board_code" property="boardCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="current_site_name" property="currentSiteName" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="current_site_code" property="currentSiteCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
+        <result column="current_dms_code" property="currentDmsCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="org_name" property="orgName" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="org_code" property="orgCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
+        <result column="create_user_name" property="createUserName" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="create_user_erp" property="createUserErp" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="update_user_name" property="updateUserName" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="update_user_erp" property="updateUserErp" javaType="java.lang.String" jdbcType="VARCHAR" />
+        <result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+        <result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+        <result column="yn" property="yn" javaType="java.lang.Integer" jdbcType="TINYINT" />
+        <result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+    </resultMap>
+
+    <sql id="Base_Column_List" >
+        id,task_id,business_id,board_code,current_site_name,current_site_code,current_dms_code,
+        org_name,org_code,create_user_name,create_user_erp,update_user_name,update_user_erp,create_time,update_time,yn,ts
+    </sql>
+
+    <insert id="add" parameterType="taskBoard">
+        insert into task_board_info
+        <trim  prefix="(" suffix=")" suffixOverrides=",">
+            <if test="taskId != null">
+                task_id,
+            </if>
+            <if test="businessId != null">
+                business_id,
+            </if>
+            <if test="boardCode != null">
+                board_code,
+            </if>
+            <if test="currentSiteName != null">
+                current_site_name,
+            </if>
+            <if test="currentSiteCode != null">
+                current_site_code,
+            </if>
+            <if test="currentDmsCode != null">
+                current_dms_code,
+            </if>
+            <if test="orgName != null">
+                org_name,
+            </if>
+            <if test="orgCode != null">
+                org_code,
+            </if>
+            <if test="createUserName != null">
+                create_user_name,
+            </if>
+            <if test="createUserErp != null">
+                create_user_erp,
+            </if>
+            <if test="updateUserName != null">
+                update_user_name,
+            </if>
+            <if test="updateUserErp != null">
+                update_user_erp,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="updateTime != null">
+                update_time,
+            </if>
+            yn,
+            ts
+        </trim>
+
+        <trim prefix="values (" suffix=")"  suffixOverrides=",">
+            <if test="taskId != null">
+                #{taskId,jdbcType=BIGINT},
+            </if>
+            <if test="businessId != null">
+                #{businessId,jdbcType=INTEGER},
+            </if>
+            <if test="boardCode != null">
+                #{boardCode,jdbcType=VARCHAR},
+            </if>
+            <if test="currentSiteName != null">
+                #{currentSiteName,jdbcType=VARCHAR},
+            </if>
+            <if test="currentSiteCode != null">
+                #{currentSiteCode,jdbcType=INTEGER},
+            </if>
+            <if test="currentDmsCode != null">
+                #{currentDmsCode,jdbcType=VARCHAR},
+            </if>
+            <if test="orgName != null">
+                #{orgName,jdbcType=VARCHAR},
+            </if>
+            <if test="orgCode != null">
+                #{orgCode,jdbcType=INTEGER},
+            </if>
+            <if test="createUserName != null">
+                #{createUserName,jdbcType=VARCHAR},
+            </if>
+            <if test="createUserErp != null">
+                #{createUserErp,jdbcType=VARCHAR},
+            </if>
+            <if test="updateUserName != null">
+                #{updateUserName,jdbcType=VARCHAR},
+            </if>
+            <if test="updateUserErp != null">
+                #{updateUserErp,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateTime != null">
+                #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+            1,
+            now(3)
+        </trim>
+    </insert>
+
+
+    <select id="findRecordByTaskIdAndBoardCode" parameterType="taskBoard" resultMap="taskBoard">
+        select
+        <include refid="Base_Column_List"/>
+        from task_board_info where yn = 1
+        and board_code = #{boardCode,jdbcType=VARCHAR} and task_id = #{taskId,jdbcType=BIGINT} and business_id = #{businessId,jdbcType=INTEGER}
+    </select>
+
+
+
+</mapper>

@@ -5,12 +5,10 @@ import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.request.OperatorInfo;
 import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
-import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.board.BizSourceEnum;
 import com.jd.bluedragon.common.dto.board.request.*;
 import com.jd.bluedragon.common.dto.board.response.UnbindVirtualBoardResultDto;
 import com.jd.bluedragon.common.dto.board.response.VirtualBoardResultDto;
-import com.jd.bluedragon.common.dto.box.response.BoxDto;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
@@ -40,7 +38,6 @@ import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.dms.utils.BarCodeType;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.external.gateway.service.BoxGatewayService;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.Md5Helper;
@@ -66,10 +63,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.Assert;
 
 import javax.annotation.Resource;
-import javax.ws.rs.QueryParam;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -408,6 +403,15 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
                     Date sendTime = recentSendMByParam.getOperateTime();
                     if(sendTime != null && System.currentTimeMillis() - sendTime.getTime() <= 3l * 3600l * 1000l) {
                         result.toFail("该包裹已发货");
+                        return result;
+                    }
+                }
+                // 校验循环集包袋
+                if (isBoxCode&&bindToVirtualBoardPo.getSiteCode()!=null&&bindToVirtualBoardPo.getOperateType()!=null){
+                    final Box box = boxService.findBoxByCode(bindToVirtualBoardPo.getBarCode());
+                    if (!validationAndCheck(bindToVirtualBoardPo.getBarCode(),bindToVirtualBoardPo.getOperateType(),bindToVirtualBoardPo.getSiteCode(),box)){
+                        result.setCode(BoxResponse.CODE_BC_BOX_NO_BINDING);
+                        result.setMessage(BoxResponse.MESSAGE_BC_NO_BINDING);
                         return result;
                     }
                 }
