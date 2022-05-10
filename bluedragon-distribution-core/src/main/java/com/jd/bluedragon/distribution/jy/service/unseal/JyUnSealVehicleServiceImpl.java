@@ -77,6 +77,7 @@ public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
     private int rollBackDay;
 
     private static final int STATUS = 10;
+    private static final int VEHICLE_NUMBER_FOUR = 4;
 
     @Autowired
     @Qualifier("jyUnSealVehicleManager")
@@ -193,7 +194,7 @@ public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
     @Override
     public InvokeResult<SealVehicleTaskResponse> fetchUnSealTask(SealVehicleTaskRequest request) {
 
-        logInfo("拉取到车任务. {}", JsonHelper.toJson(request));
+        logInfo("拉取拣运到车任务. {}", JsonHelper.toJson(request));
 
         InvokeResult<SealVehicleTaskResponse> result = new InvokeResult<>();
 
@@ -202,8 +203,12 @@ public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
             condition.setEndSiteId(request.getEndSiteCode().longValue());
 
             if (isSearch(request)) {
+                // 按封车编码查询
+                if (queryFromSealCarCode(request.getBarCode())) {
+                    condition.setSealCarCode(request.getBarCode());
+                }
                 // 根据封签号或批次号查询，从运输获得封车编码
-                if (queryFromSealCode(request.getBarCode())
+                else if (queryFromSealCode(request.getBarCode())
                         || queryFromBatchCode(request.getBarCode())) {
                     List<String> sealCarCodeList = getSealCarCodeFromVos(result, request);
                     if (!result.codeSuccess()) {
@@ -215,7 +220,13 @@ public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
                     if (NumberHelper.isPositiveNumber(request.getBarCode())) {
                         condition.setStartSiteId(Long.valueOf(request.getBarCode()));
                     }
-                    condition.setFuzzyVehicleNumber(request.getBarCode());
+                    if (request.getBarCode().length() == VEHICLE_NUMBER_FOUR) {
+                        condition.setFuzzyVehicleNumber(request.getBarCode());
+                    }
+                    if (StringUtils.isBlank(condition.getFuzzyVehicleNumber()) && !NumberHelper.gt0(condition.getStartSiteId())) {
+                        result.error("请输入正确的车牌号后四位或上游场地！");
+                        return result;
+                    }
                 }
             }
             else {
@@ -271,10 +282,6 @@ public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
         SealCarDto sealCarQuery = new SealCarDto();
         // 查询封车任务
         sealCarQuery.setStatus(STATUS);
-        // 查询15天内的待解任务
-        Calendar c = Calendar.getInstance();
-        c.add(Calendar.DATE, rollBackDay);
-        sealCarQuery.setSealCarTimeBegin(c.getTime());
         sealCarQuery.setEndSiteId(request.getEndSiteCode());
         sealCarQuery.setSealCarCode(condition.getSealCarCode());
         return sealCarQuery;
@@ -586,6 +593,10 @@ public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
         return BusinessUtil.isSealBoxNo(inputCode);
     }
 
+    private boolean queryFromSealCarCode(String inputCode) {
+        return BusinessUtil.isSealCarCode(inputCode);
+    }
+
     /**
      * 根据封签号获得封车编码
      * @param result
@@ -698,7 +709,7 @@ public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
     private boolean filterByVehicleNumber(String barCode, SealCarDto sealCar) {
         if (!queryFromSealCode(barCode)) {
             if (StringUtils.isNotBlank(sealCar.getVehicleNumber())
-                    && sealCar.getVehicleNumber().length() > 4 && barCode.equals(StringUtils.substring(sealCar.getVehicleNumber(), - 4))) {
+                    && sealCar.getVehicleNumber().length() > VEHICLE_NUMBER_FOUR && barCode.equals(StringUtils.substring(sealCar.getVehicleNumber(), - VEHICLE_NUMBER_FOUR))) {
                 return true;
             }
         }
