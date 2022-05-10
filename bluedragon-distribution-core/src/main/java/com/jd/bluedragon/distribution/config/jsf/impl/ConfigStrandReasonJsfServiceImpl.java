@@ -1,6 +1,8 @@
 package com.jd.bluedragon.distribution.config.jsf.impl;
 
 
+import com.jd.bluedragon.Constants;
+import com.jd.tp.common.utils.Objects;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -63,6 +65,7 @@ public class ConfigStrandReasonJsfServiceImpl implements ConfigStrandReasonJsfSe
 	}	
 	/**
 	 * 按条件分页查询
+	 * 查询全部
 	 * @param query
 	 * @return
 	 */
@@ -70,4 +73,30 @@ public class ConfigStrandReasonJsfServiceImpl implements ConfigStrandReasonJsfSe
 		return configStrandReasonService.queryPageList(query);
 	 }
 
+	/**
+	 * 按条件分页查询
+	 * businessTag = 1 or 2 分别代表 大网 + 冷链
+	 * @param query
+	 * @return
+	 */
+	@Override
+	public Result<PageDto<ConfigStrandReason>> queryPageListByBusinessTag(ConfigStrandReasonQuery query) {
+		Result<Boolean> checkResult = this.checkParam(query);
+		if(!checkResult.isSuccess()){
+			return Result.fail(checkResult.getMessage());
+		}
+		return configStrandReasonService.queryPageList(query);
+	}
+
+	private Result<Boolean> checkParam(ConfigStrandReasonQuery query){
+		Result<Boolean> result = Result.success();
+		if(query == null || query.getBusinessTag() == null){
+			return Result.fail("参数不能为空");
+		}
+		Integer businessTag = query.getBusinessTag();
+		if( !Objects.equals(Constants.CONSTANT_NUMBER_ONE,businessTag) && !Objects.equals(Constants.CONSTANT_NUMBER_TWO,businessTag)){
+			return Result.fail("业务类型不合法");
+		}
+		return result;
+	}
 }
