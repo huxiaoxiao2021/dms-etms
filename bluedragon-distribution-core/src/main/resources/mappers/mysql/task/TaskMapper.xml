@@ -253,6 +253,17 @@
 		where
 			yn = 1 AND task_status in(0,4)  AND task_type = #{type}
 			AND keyword1 = #{key} and execute_count &lt; #{executeCount}
+		<if test="ownSign != null">
+			and own_sign = #{ownSign,jdbcType=VARCHAR}
+		</if>
+		<if test="queueIds != null">
+			AND queue_id in
+			<foreach collection="queueIds" item="queueId" open="(" close=")" separator=",">
+				#{queueId}
+			</foreach>
+		</if>
+		LIMIT
+		#{fetchNum}
 	</select>
 
 	<select id="findReverseSendTask" resultMap="task" parameterType="map">
