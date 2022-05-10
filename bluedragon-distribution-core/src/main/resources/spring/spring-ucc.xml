@@ -172,6 +172,8 @@
 		<property name="sealTaskForceFallback" value="${sealTaskForceFallback: 0}"/>
 		<property name="jyTaskPageMax" value="${jyTaskPageMax: 200}"/>
 		<property name="jyUnloadSingleWaybillThreshold" value="${jyUnloadSingleWaybillThreshold:20}"/>
+        <property name="jyUnSealTaskOrderByIntegral" value="${jyUnSealTaskOrderByIntegral:0}"/>
+        <property name="jyUnSealTaskSwitchToEs" value="${jyUnSealTaskSwitchToEs:0}"/>
 		<property name="createSendTaskExecuteCount" value="${createSendTaskExecuteCount:30}"/>
 		<property name="createSendTasktimeOut" value="${createSendTasktimeOut:30}"/>
 
@@ -328,6 +330,9 @@
                 <value>uccPropertyConfiguration.sealTaskForceFallback</value>
                 <value>uccPropertyConfiguration.jyUnloadSingleWaybillThreshold</value>
 				<value>uccPropertyConfiguration.jyTaskPageMax</value>
+				<value>uccPropertyConfiguration.checkBoxSendedSwitchOn</value>
+				<value>uccPropertyConfiguration.jyUnSealTaskOrderByIntegral</value>
+				<value>uccPropertyConfiguration.jyUnSealTaskSwitchToEs</value>
 				<value>uccPropertyConfiguration.createSendTaskExecuteCount</value>
 				<value>uccPropertyConfiguration.createSendTasktimeOut</value>
 

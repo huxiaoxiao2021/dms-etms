@@ -736,18 +736,9 @@ public class UccPropertyConfiguration {
     private int notSignedOutRecordMoreThanHours;
 
     /**
-     * 终端包装耗材重塑项目：
-     * 下线分拣维护包装耗材基础信息入口（"分拣"和"其他"类型的除外）
-     * 包装耗材确认页面的增加和删除按钮
-     * 开关：0不关闭入口；1关闭基础资料维护入口；2关闭耗材明细的增加和删除按钮；3关闭两者
-     */
-    private Integer packConsumableSwitch;
-
-    /**
      * AI识别图片开关
      */
     private boolean aiDistinguishSwitch;
-
 
     /**
      * 设备AI识别图片场地开关
@@ -761,6 +752,24 @@ public class UccPropertyConfiguration {
      * 设备AI识别大包裹限制
      */
     private int deviceAIDistinguishPackNum;
+
+    /**
+     * 终端包装耗材重塑项目：
+     * 下线分拣维护包装耗材基础信息入口（"分拣"和"其他"类型的除外）
+     * 包装耗材确认页面的增加和删除按钮
+     * 开关：0不关闭入口；1关闭基础资料维护入口；2关闭耗材明细的增加和删除按钮；3关闭两者
+     */
+    private Integer packConsumableSwitch;
+
+    /**
+     * 到车任务按积分排序开关 1：开启
+     */
+    private Integer jyUnSealTaskOrderByIntegral;
+
+    /**
+     * 到车任务切换ES逻辑开关 1：开启
+     */
+    private Integer jyUnSealTaskSwitchToEs;
 
     public String getScheduleSiteCheckSameCity() {
         return scheduleSiteCheckSameCity;
@@ -1598,14 +1607,6 @@ public class UccPropertyConfiguration {
         this.itmsBizEnableSwitch = itmsBizEnableSwitch;
     }
 
-	public boolean isNeedUseNewReverseApi() {
-		return needUseNewReverseApi;
-	}
-
-	public void setNeedUseNewReverseApi(boolean needUseNewReverseApi) {
-		this.needUseNewReverseApi = needUseNewReverseApi;
-	}
-
     public int getMultiplePackageSpotCheckSwitch() {
         return multiplePackageSpotCheckSwitch;
     }
@@ -1914,4 +1915,27 @@ public class UccPropertyConfiguration {
         this.jyUnloadSingleWaybillThreshold = jyUnloadSingleWaybillThreshold;
     }
 
+    public Integer getJyUnSealTaskOrderByIntegral() {
+        return jyUnSealTaskOrderByIntegral;
+    }
+
+    public void setJyUnSealTaskOrderByIntegral(Integer jyUnSealTaskOrderByIntegral) {
+        this.jyUnSealTaskOrderByIntegral = jyUnSealTaskOrderByIntegral;
+    }
+
+    public Integer getJyUnSealTaskSwitchToEs() {
+        return jyUnSealTaskSwitchToEs;
+    }
+
+    public void setJyUnSealTaskSwitchToEs(Integer jyUnSealTaskSwitchToEs) {
+        this.jyUnSealTaskSwitchToEs = jyUnSealTaskSwitchToEs;
+    }
+
+	public boolean isNeedUseNewReverseApi() {
+		return needUseNewReverseApi;
+	}
+
+	public void setNeedUseNewReverseApi(boolean needUseNewReverseApi) {
+		this.needUseNewReverseApi = needUseNewReverseApi;
+	}
 }
