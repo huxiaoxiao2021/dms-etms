@@ -717,6 +717,11 @@ public class UccPropertyConfiguration {
      */
     private Integer packConsumableSwitch;
 
+    /**
+     * 到车任务按积分排序开关 1：开启
+     */
+    private Integer jyUnSealTaskOrderByIntegral;
+
     public String getScheduleSiteCheckSameCity() {
         return scheduleSiteCheckSameCity;
     }
@@ -1793,5 +1798,13 @@ public class UccPropertyConfiguration {
 
     public void setJyUnloadSingleWaybillThreshold(Integer jyUnloadSingleWaybillThreshold) {
         this.jyUnloadSingleWaybillThreshold = jyUnloadSingleWaybillThreshold;
+    }
+
+    public Integer getJyUnSealTaskOrderByIntegral() {
+        return jyUnSealTaskOrderByIntegral;
+    }
+
+    public void setJyUnSealTaskOrderByIntegral(Integer jyUnSealTaskOrderByIntegral) {
+        this.jyUnSealTaskOrderByIntegral = jyUnSealTaskOrderByIntegral;
     }
 }

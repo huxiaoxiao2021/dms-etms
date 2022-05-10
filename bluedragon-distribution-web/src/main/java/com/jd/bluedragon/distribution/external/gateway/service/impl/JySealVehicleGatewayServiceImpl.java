@@ -11,6 +11,7 @@ import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.SealTask
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.SealVehicleTaskResponse;
 import com.jd.bluedragon.common.dto.select.SelectOption;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.jy.enums.JyUnSealStatusEnum;
 import com.jd.bluedragon.distribution.jy.service.unseal.IJyUnSealVehicleService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.external.gateway.service.JySealVehicleGatewayService;
@@ -53,6 +54,20 @@ public class JySealVehicleGatewayServiceImpl implements JySealVehicleGatewayServ
         }
 
         InvokeResult<SealVehicleTaskResponse> invokeResult = jyUnSealVehicleService.fetchSealTask(request);
+        return new JdCResponse<>(invokeResult.getCode(), invokeResult.getMessage(), invokeResult.getData());
+    }
+
+    @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JySealVehicleGatewayService.fetchUnSealTask", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
+    public JdCResponse<SealVehicleTaskResponse> fetchUnSealTask(SealVehicleTaskRequest request) {
+        JdCResponse<SealVehicleTaskResponse> response = new JdCResponse<>();
+        response.toSucceed();
+
+        if (!checkQueryParam(response, request)) {
+            return response;
+        }
+
+        InvokeResult<SealVehicleTaskResponse> invokeResult = jyUnSealVehicleService.fetchUnSealTask(request);
         return new JdCResponse<>(invokeResult.getCode(), invokeResult.getMessage(), invokeResult.getData());
     }
 
@@ -103,7 +118,7 @@ public class JySealVehicleGatewayServiceImpl implements JySealVehicleGatewayServ
     @Override
     public JdCResponse<List<SelectOption>> vehicleStatusOptions() {
         List<SelectOption> optionList = new ArrayList<>();
-        for (VehicleStatusEnum _enum : VehicleStatusEnum.values()) {
+        for (JyUnSealStatusEnum _enum : JyUnSealStatusEnum.values()) {
             SelectOption option = new SelectOption(_enum.getCode(), _enum.getName(), _enum.getOrder());
             optionList.add(option);
         }

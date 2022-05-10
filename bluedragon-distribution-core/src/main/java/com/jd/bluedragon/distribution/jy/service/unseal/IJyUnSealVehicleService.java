@@ -26,6 +26,13 @@ public interface IJyUnSealVehicleService {
     InvokeResult<SealVehicleTaskResponse> fetchSealTask(SealVehicleTaskRequest request);
 
     /**
+     * 拉取待解封车任务
+     * @param request
+     * @return
+     */
+    InvokeResult<SealVehicleTaskResponse> fetchUnSealTask(SealVehicleTaskRequest request);
+
+    /**
      * 封车任务明细
      * @param request
      * @return
