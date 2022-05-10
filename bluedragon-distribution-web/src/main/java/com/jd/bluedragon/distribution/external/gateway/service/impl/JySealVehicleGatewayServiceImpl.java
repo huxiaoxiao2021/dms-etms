@@ -10,6 +10,7 @@ import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.SealCode
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.SealTaskInfo;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.SealVehicleTaskResponse;
 import com.jd.bluedragon.common.dto.select.SelectOption;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.enums.JyUnSealStatusEnum;
 import com.jd.bluedragon.distribution.jy.service.unseal.IJyUnSealVehicleService;
@@ -28,6 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @ClassName JySealVehicleGatewayServiceImpl
@@ -41,6 +43,9 @@ public class JySealVehicleGatewayServiceImpl implements JySealVehicleGatewayServ
 
     @Autowired
     private IJyUnSealVehicleService jyUnSealVehicleService;
+
+    @Autowired
+    private UccPropertyConfiguration uccConfig;
 
     @Override
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JySealVehicleGatewayService.fetchSealTask", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
@@ -66,9 +71,12 @@ public class JySealVehicleGatewayServiceImpl implements JySealVehicleGatewayServ
         if (!checkQueryParam(response, request)) {
             return response;
         }
-
-        InvokeResult<SealVehicleTaskResponse> invokeResult = jyUnSealVehicleService.fetchUnSealTask(request);
-        return new JdCResponse<>(invokeResult.getCode(), invokeResult.getMessage(), invokeResult.getData());
+        if (Objects.equals(Constants.CONSTANT_NUMBER_ONE, uccConfig.getJyUnSealTaskSwitchToEs())) {
+            return retJdCResponse(jyUnSealVehicleService.fetchSealTask(request));
+        }
+        else {
+            return retJdCResponse(jyUnSealVehicleService.fetchUnSealTask(request));
+        }
     }
 
     private boolean checkQueryParam(JdCResponse<SealVehicleTaskResponse> response, SealVehicleTaskRequest request) {
@@ -142,6 +150,10 @@ public class JySealVehicleGatewayServiceImpl implements JySealVehicleGatewayServ
             return response;
         }
         InvokeResult<SealCodeResponse> invokeResult = jyUnSealVehicleService.sealCodeList(request);
+        return new JdCResponse<>(invokeResult.getCode(), invokeResult.getMessage(), invokeResult.getData());
+    }
+
+    private <T> JdCResponse<T> retJdCResponse(InvokeResult<T> invokeResult) {
         return new JdCResponse<>(invokeResult.getCode(), invokeResult.getMessage(), invokeResult.getData());
     }
 }

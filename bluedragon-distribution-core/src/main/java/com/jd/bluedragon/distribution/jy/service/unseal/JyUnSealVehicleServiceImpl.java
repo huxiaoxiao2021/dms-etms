@@ -16,6 +16,7 @@ import com.jd.bluedragon.distribution.jy.dto.task.JyBizTaskUnloadCountDto;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadOrderTypeEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyLineTypeEnum;
+import com.jd.bluedragon.distribution.jy.enums.JyUnSealStatusEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.manager.IJyUnSealVehicleManager;
 import com.jd.bluedragon.distribution.jy.manager.JyScheduleTaskManager;
@@ -54,7 +55,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StopWatch;
 
 import java.util.*;
 
@@ -197,52 +197,87 @@ public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
 
         InvokeResult<SealVehicleTaskResponse> result = new InvokeResult<>();
 
-        JyBizTaskUnloadVehicleEntity condition = new JyBizTaskUnloadVehicleEntity();
-        condition.setEndSiteId(request.getEndSiteCode().longValue());
+        try {
+            JyBizTaskUnloadVehicleEntity condition = new JyBizTaskUnloadVehicleEntity();
+            condition.setEndSiteId(request.getEndSiteCode().longValue());
 
-        if (isSearch(request)) {
-            // 根据封签号或批次号查询，从运输获得封车编码
-            if (queryFromSealCode(request.getBarCode())
-                    || queryFromBatchCode(request.getBarCode())) {
-                List<String> sealCarCodeList = getSealCarCodeFromVos(result, request);
+            if (isSearch(request)) {
+                // 根据封签号或批次号查询，从运输获得封车编码
+                if (queryFromSealCode(request.getBarCode())
+                        || queryFromBatchCode(request.getBarCode())) {
+                    List<String> sealCarCodeList = getSealCarCodeFromVos(result, request);
+                    if (!result.codeSuccess()) {
+                        return result;
+                    }
+                    condition.setSealCarCode(sealCarCodeList.get(0));
+                }
+                else {
+                    if (NumberHelper.isPositiveNumber(request.getBarCode())) {
+                        condition.setStartSiteId(Long.valueOf(request.getBarCode()));
+                    }
+                    condition.setFuzzyVehicleNumber(request.getBarCode());
+                }
+            }
+            else {
+                // 查询最近6小时的待解封车任务
+                condition.setSortTime(DateHelper.newTimeRangeHoursAgo(new Date(), 6));
+            }
+
+            List<JyBizTaskUnloadCountDto> vehicleStatusAggList =
+                    jyBizTaskUnloadVehicleService.findStatusCountByCondition4Status(condition, JyBizTaskUnloadStatusEnum.UNSEAL_STATUS_OPTIONS.toArray(new JyBizTaskUnloadStatusEnum[JyBizTaskUnloadStatusEnum.UNSEAL_STATUS_OPTIONS.size()]));
+            if (CollectionUtils.isEmpty(vehicleStatusAggList)) {
+                return result;
+            }
+
+            SealVehicleTaskResponse response = new SealVehicleTaskResponse();
+            result.setData(response);
+
+            // 按状态统计到车任务
+            assembleUnSealVehicleStatusAgg(vehicleStatusAggList, response);
+
+            // 按状态组装到车任务数据
+            assembleUnSealVehicle(request, condition, response);
+
+            // 按封车编码查不到数据，再兜底查运输
+            if (StringUtils.isNotBlank(condition.getSealCarCode()) && response.responseDataIsNull()) {
+
+                logInfo("从运输获得待解封车任务列表. {}", JsonHelper.toJson(condition));
+
+                SealCarDto sealCarQuery = queryVosUnSealTaskUsingSealCarCode(request, condition);
+                PageDto<SealCarDto> queryPageDto = getSealCarDtoPageDto(request.getPageNumber(), request.getPageSize());
+                PageDto<SealCarDto> pageDto = getSealTaskFromVos(result, sealCarQuery, queryPageDto);
                 if (!result.codeSuccess()) {
                     return result;
                 }
-                condition.setSealCarCode(sealCarCodeList.get(0));
-            }
-            else {
-                if (NumberHelper.isPositiveNumber(request.getBarCode())) {
-                    condition.setStartSiteId(Long.valueOf(request.getBarCode()));
-                }
-                condition.setFuzzyVehicleNumber(request.getBarCode());
+
+                result.setData(makeSealResponseUsingVos(request, pageDto, true));
             }
         }
-        else {
-            // 查询最近6小时的待解封车任务
-            condition.setSortTime(DateHelper.newTimeRangeHoursAgo(new Date(), 6));
-        }
-
-        List<JyBizTaskUnloadCountDto> vehicleStatusAggList =
-                jyBizTaskUnloadVehicleService.findStatusCountByCondition4Status(condition, JyBizTaskUnloadStatusEnum.UNSEAL_STATUS_OPTIONS.toArray(new JyBizTaskUnloadStatusEnum[JyBizTaskUnloadStatusEnum.UNSEAL_STATUS_OPTIONS.size()]));
-        if (CollectionUtils.isEmpty(vehicleStatusAggList)) {
-            return result;
-        }
-
-        SealVehicleTaskResponse response = new SealVehicleTaskResponse();
-        result.setData(response);
-
-        // 按状态统计到车任务
-        assembleUnloadStatusAgg(vehicleStatusAggList, response);
-
-        // 按状态组装到车任务数据
-        assembleUnSealVehicle(request, condition, response);
-
-        // TODO 按封车编码查不到数据，再兜底查运输
-        if (StringUtils.isNotBlank(condition.getSealCarCode()) && response.responseDataIsNull()) {
-
+        catch (Exception e) {
+            log.error("查询到车任务服务器异常. {}", JsonHelper.toJson(request), e);
+            result.error("获取到车任务服务器异常，请咚咚联系分拣小秘！");
         }
 
         return result;
+    }
+
+    /**
+     * 根据封车编码查运输待解任务
+     * @param request
+     * @param condition
+     * @return
+     */
+    private SealCarDto queryVosUnSealTaskUsingSealCarCode(SealVehicleTaskRequest request, JyBizTaskUnloadVehicleEntity condition) {
+        SealCarDto sealCarQuery = new SealCarDto();
+        // 查询封车任务
+        sealCarQuery.setStatus(STATUS);
+        // 查询15天内的待解任务
+        Calendar c = Calendar.getInstance();
+        c.add(Calendar.DATE, rollBackDay);
+        sealCarQuery.setSealCarTimeBegin(c.getTime());
+        sealCarQuery.setEndSiteId(request.getEndSiteCode());
+        sealCarQuery.setSealCarCode(condition.getSealCarCode());
+        return sealCarQuery;
     }
 
     /**
@@ -250,7 +285,7 @@ public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
      * @param vehicleStatusAggList
      * @param response
      */
-    private void assembleUnloadStatusAgg(List<JyBizTaskUnloadCountDto> vehicleStatusAggList, SealVehicleTaskResponse response) {
+    private void assembleUnSealVehicleStatusAgg(List<JyBizTaskUnloadCountDto> vehicleStatusAggList, SealVehicleTaskResponse response) {
         List<VehicleStatusStatis> statusAgg = Lists.newArrayListWithCapacity(vehicleStatusAggList.size());
         response.setStatusStatis(statusAgg);
 
@@ -474,7 +509,7 @@ public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
                 return invokeResult;
             }
 
-            SealVehicleTaskResponse response = makeSealResponseUsingVos(request, pageDto);
+            SealVehicleTaskResponse response = makeSealResponseUsingVos(request, pageDto, true);
 
             invokeResult.setData(response);
         }
@@ -494,19 +529,20 @@ public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
      * 转换VOS解封车结果
      * @param request
      * @param pageDto
+     * @param needFilter 是否需要根据搜索项过滤运输的数据
      * @return
      */
-    private SealVehicleTaskResponse makeSealResponseUsingVos(SealVehicleTaskRequest request, PageDto<SealCarDto> pageDto) {
+    private SealVehicleTaskResponse makeSealResponseUsingVos(SealVehicleTaskRequest request, PageDto<SealCarDto> pageDto, Boolean needFilter) {
         SealVehicleTaskResponse response = new SealVehicleTaskResponse();
         List<VehicleStatusStatis> statusStatisList = new ArrayList<>();
         response.setStatusStatis(statusStatisList);
         VehicleStatusStatis statusStatis = new VehicleStatusStatis();
         statusStatisList.add(statusStatis);
-        statusStatis.setVehicleStatus(VehicleStatusEnum.TO_SEAL.getCode());
-        statusStatis.setVehicleStatusName(VehicleStatusEnum.TO_SEAL.getName());
+        statusStatis.setVehicleStatus(JyUnSealStatusEnum.WAIT_UN_SEAL.getCode());
+        statusStatis.setVehicleStatusName(JyUnSealStatusEnum.WAIT_UN_SEAL.getName());
 
         List<SealCarDto> filterList = new ArrayList<>();
-        if (isSearch(request)) {
+        if (!needFilter && isSearch(request)) {
             for (SealCarDto sealCar : pageDto.getResult()) {
                 if (filterBySealCode(request.getBarCode(), sealCar) || filterByVehicleNumber(request.getBarCode(), sealCar)) {
                     filterList.add(sealCar);

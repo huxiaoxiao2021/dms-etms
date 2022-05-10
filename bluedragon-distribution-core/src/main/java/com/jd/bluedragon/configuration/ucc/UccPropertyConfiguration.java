@@ -722,6 +722,11 @@ public class UccPropertyConfiguration {
      */
     private Integer jyUnSealTaskOrderByIntegral;
 
+    /**
+     * 到车任务切换ES逻辑开关 1：开启
+     */
+    private Integer jyUnSealTaskSwitchToEs;
+
     public String getScheduleSiteCheckSameCity() {
         return scheduleSiteCheckSameCity;
     }
@@ -1806,5 +1811,13 @@ public class UccPropertyConfiguration {
 
     public void setJyUnSealTaskOrderByIntegral(Integer jyUnSealTaskOrderByIntegral) {
         this.jyUnSealTaskOrderByIntegral = jyUnSealTaskOrderByIntegral;
+    }
+
+    public Integer getJyUnSealTaskSwitchToEs() {
+        return jyUnSealTaskSwitchToEs;
+    }
+
+    public void setJyUnSealTaskSwitchToEs(Integer jyUnSealTaskSwitchToEs) {
+        this.jyUnSealTaskSwitchToEs = jyUnSealTaskSwitchToEs;
     }
 }
