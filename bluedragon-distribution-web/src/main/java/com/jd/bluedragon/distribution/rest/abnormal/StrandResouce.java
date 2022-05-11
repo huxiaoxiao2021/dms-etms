@@ -176,31 +176,14 @@ public class StrandResouce {
     }
     /**
      * 查询原因列表
-     * @param request
+     * 全部：大网和冷链
+     * @param
      * @return
      */
     @POST
     @Path("strand/queryReasonList")
     public InvokeResult<List<ConfigStrandReasonData>> queryReasonList(){
-    	InvokeResult<List<ConfigStrandReasonData>> invokeResult = new InvokeResult<>();
-        try {
-        	ConfigStrandReasonQuery query = new ConfigStrandReasonQuery();
-        	query.setPageNumber(1);
-        	query.setLimit(100);
-        	Result<PageDto<ConfigStrandReason>> resultInfo = configStrandReasonService.queryPageList(query);
-        	if(resultInfo == null
-        			|| !resultInfo.isSuccess()
-        			|| resultInfo.getData() == null) {
-        		invokeResult.error("获取滞留上报原因列表失败,请联系分拣小秘！");
-        		return invokeResult;
-        	}
-        	invokeResult.setData(toConfigStrandReasonDataList(resultInfo.getData().getResult()));
-        }catch (Exception e){
-            log.error("获取滞留上报原因异常!",e);
-            invokeResult.error("获取滞留上报原因异常,请联系分拣小秘！");
-        }    	
-        invokeResult.success();
-        return invokeResult;
+        return this.queryBaseReasonList(null);
     }
     /**
      * 列表转换
@@ -222,4 +205,46 @@ public class StrandResouce {
 		}
 		return list;
 	}
+
+    /**
+     * 查询原因列表
+     * 非冷链的
+     * @return
+     */
+    @POST
+    @Path("strand/queryNoColdReasonList")
+    public InvokeResult<List<ConfigStrandReasonData>> queryNoColdReasonList(){
+        return this.queryBaseReasonList(Constants.CONSTANT_NUMBER_ONE);
+    }
+
+    /**
+     * businessTag为空默认查全部
+     * @param businessTag 业务标识，1：大网，2：冷链
+     * @return
+     */
+    private InvokeResult<List<ConfigStrandReasonData>> queryBaseReasonList(Integer businessTag){
+        InvokeResult<List<ConfigStrandReasonData>> invokeResult = new InvokeResult<>();
+        try {
+            ConfigStrandReasonQuery query = new ConfigStrandReasonQuery();
+            query.setPageNumber(1);
+            query.setLimit(100);
+            if(businessTag != null) {
+                //大网标识
+                query.setBusinessTag(businessTag);
+            }
+            Result<PageDto<ConfigStrandReason>> resultInfo = configStrandReasonService.queryPageList(query);
+            if(resultInfo == null
+                    || !resultInfo.isSuccess()
+                    || resultInfo.getData() == null) {
+                invokeResult.error("获取滞留上报原因列表失败,请联系分拣小秘！");
+                return invokeResult;
+            }
+            invokeResult.setData(toConfigStrandReasonDataList(resultInfo.getData().getResult()));
+        }catch (Exception e){
+            log.error("获取滞留上报原因异常!",e);
+            invokeResult.error("获取滞留上报原因异常,请联系分拣小秘！");
+        }
+        invokeResult.success();
+        return invokeResult;
+    }
 }

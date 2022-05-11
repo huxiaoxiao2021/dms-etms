@@ -16,7 +16,14 @@ public interface StrandReportGateWayService {
     JdCResponse<Boolean> report(StrandReportReq request);
     /**
      * 查询滞留上报原因
+     * 全部
      * @return
      */
     JdCResponse<List<ConfigStrandReasonData>> queryReasonList();
+    /**
+     * 查询滞留上报原因
+     * 非冷链
+     * @return
+     */
+    JdCResponse<List<ConfigStrandReasonData>> queryNoColdReasonList();
 }

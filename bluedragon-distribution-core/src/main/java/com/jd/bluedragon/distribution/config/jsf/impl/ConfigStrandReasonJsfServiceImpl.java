@@ -88,6 +88,11 @@ public class ConfigStrandReasonJsfServiceImpl implements ConfigStrandReasonJsfSe
 		return configStrandReasonService.queryPageList(query);
 	}
 
+	/**
+	 * 分页查询参数校验
+	 * @param query
+	 * @return
+	 */
 	private Result<Boolean> checkParam(ConfigStrandReasonQuery query){
 		Result<Boolean> result = Result.success();
 		if(query == null || query.getBusinessTag() == null){
@@ -97,6 +102,22 @@ public class ConfigStrandReasonJsfServiceImpl implements ConfigStrandReasonJsfSe
 		if( !Objects.equals(Constants.CONSTANT_NUMBER_ONE,businessTag) && !Objects.equals(Constants.CONSTANT_NUMBER_TWO,businessTag)){
 			return Result.fail("业务类型不合法");
 		}
+		return result;
+	}
+
+	/**
+	 * 删除冷链滞留原因
+	 * businessTag=2的
+	 * @param deleteData
+	 * @return
+	 */
+	@Override
+	public Result<Boolean> deleteColdReasonById(ConfigStrandReason deleteData) {
+		Result<ConfigStrandReason> reasonResult = configStrandReasonService.queryById(deleteData.getId());
+		if(reasonResult.isSuccess() && reasonResult.getData() != null && Objects.equals(reasonResult.getData().getBusinessTag(),Constants.CONSTANT_NUMBER_TWO)){
+			return configStrandReasonService.deleteById(deleteData);
+		}
+		Result<Boolean> result = Result.fail("无权限删除或数据不存在");
 		return result;
 	}
 }
