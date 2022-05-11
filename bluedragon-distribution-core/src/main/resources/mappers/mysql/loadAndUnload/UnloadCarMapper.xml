@@ -426,6 +426,9 @@
         <if test="unloadUserErp != null">
             and unload_user_erp = #{unloadUserErp,jdbcType=VARCHAR}
         </if>
+        <if test="unloadCarId != null">
+            and unload_car_id = #{unloadCarId,jdbcType=BIGINT}
+        </if>
     </sql>
 
     <select id="selectByUnloadCar" parameterType="unloadCar" resultMap="unloadCar">

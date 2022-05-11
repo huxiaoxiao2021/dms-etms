@@ -112,6 +112,9 @@ public class TaskBusinessIdGen implements BusinessIdGen<Task> {
         if (Task.TASK_TYPE_DELIVERY_ASYNC.equals(taskType)) {
             return task.getKeyword2();
         }
+        if (Task.TASK_TYPE_DELIVERY_ASYNC_V2.equals(taskType)) {
+            return task.getKeyword2();
+        }
 
         return null;
     }

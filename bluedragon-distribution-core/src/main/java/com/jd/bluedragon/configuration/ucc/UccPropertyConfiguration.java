@@ -304,6 +304,11 @@ public class UccPropertyConfiguration {
      * PDA通知自动拉取间隔时间(单位秒)
      */
     private Integer pdaNoticePullIntervalTime;
+    
+    /**
+     * 是否走新的逆向接口
+     */
+    private boolean needUseNewReverseApi;
 
     /**
      * 离线任务上传拦截报表，0 - 全部开启，-1 - 全部关闭，1243,3534表示具体场地
@@ -627,6 +632,24 @@ public class UccPropertyConfiguration {
      * 卸车逐单卸阈值
      */
     private Integer jyUnloadSingleWaybillThreshold;
+    private Integer createSendTaskExecuteCount;
+    private Integer createSendTasktimeOut;
+
+    public Integer getCreateSendTaskExecuteCount() {
+        return createSendTaskExecuteCount;
+    }
+
+    public void setCreateSendTaskExecuteCount(Integer createSendTaskExecuteCount) {
+        this.createSendTaskExecuteCount = createSendTaskExecuteCount;
+    }
+
+    public Integer getCreateSendTasktimeOut() {
+        return createSendTasktimeOut;
+    }
+
+    public void setCreateSendTasktimeOut(Integer createSendTasktimeOut) {
+        this.createSendTasktimeOut = createSendTasktimeOut;
+    }
 
     public int getSealTaskForceFallback() {
         return sealTaskForceFallback;
@@ -1794,4 +1817,12 @@ public class UccPropertyConfiguration {
     public void setJyUnloadSingleWaybillThreshold(Integer jyUnloadSingleWaybillThreshold) {
         this.jyUnloadSingleWaybillThreshold = jyUnloadSingleWaybillThreshold;
     }
+
+	public boolean isNeedUseNewReverseApi() {
+		return needUseNewReverseApi;
+	}
+
+	public void setNeedUseNewReverseApi(boolean needUseNewReverseApi) {
+		this.needUseNewReverseApi = needUseNewReverseApi;
+	}
 }

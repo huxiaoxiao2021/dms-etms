@@ -718,7 +718,14 @@
     <jsf:consumer id="stagingServiceWS" interface="com.jd.merchant.api.staging.ws.StagingServiceWS"
                   protocol="jsf" alias="${jsf.tys.platform.alias}" timeout="${jsf.reportExternalService.timeout}" lazy="${jsf.consumer.lazy}">
     </jsf:consumer>
-
+    <!-- 百川新运单逆向相关接口 https://cf.jd.com/pages/viewpage.action?pageId=353913227-->
+    <jsf:consumer id="reverseWaybillApi" interface="com.jd.cp.wbms.client.api.ReverseWaybillApi"
+                  protocol="jsf" alias="${jsf.wbms.reverseWaybillApi.alias}"
+                  timeout="${jsf.wbms.reverseWaybillApi.timeout}"
+                  lazy="${jsf.consumer.lazy}"
+                  retries="${jsf.retries}">
+        <jsf:parameter key="token" value="${jsf.wbms.reverseWaybillApi.token}" hide="true"/>
+    </jsf:consumer>
     <jsf:consumer id="printHandoverListJsfService"
                   interface="com.jd.dms.wb.report.api.IPrintHandoverListJsfService"
                   alias="${jsf.printHandoverList.alias}"
@@ -884,6 +891,13 @@
     <!-- VOS封签线上化相关接口 -->
     <jsf:consumer id="dtpTransAbnormalApiJSF" interface="com.jd.tms.dtp.api.DtpTransAbnormalApi"
                   protocol="jsf" alias="${jsf.DtpTransAbnormalApi.alias}" timeout="${jsf.DtpTransAbnormalApi.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
+
+    <!-- 冷链耗材相关接口 -->
+    <jsf:consumer id="coldDmsPackingConsumableApi" interface="com.jd.coldchain.distribution.api.ColdDmsPackingConsumableApi"
+                  protocol="jsf" alias="${jsf.consumer.coldchain.distribution.alias}"
+                  timeout="${jsf.consumer.coldchain.distribution.timeout}"
+                  retries="${jsf.retries}" >
     </jsf:consumer>
 
 </beans>

@@ -62,10 +62,10 @@ public class BoxLimitConfigDao extends BaseDao<BoxLimitConfig> {
         return this.getSqlSession().selectList(namespace+".queryBySiteIds", siteIds);
     }
     /**
-     * 根据机构ID查询 包裹限制数量
+     * 根据机构ID和箱号类型查询 包裹限制数量
      */
-    public Integer queryLimitNumBySiteId(Integer siteId){
-        return this.getSqlSession().selectOne(namespace+".queryLimitNumBySiteId", siteId);
+    public Integer queryLimitNumBySiteId(BoxLimitQueryDTO dto){
+        return this.getSqlSession().selectOne(namespace+".queryLimitNumBySiteId", dto);
     }
 
     /**
@@ -73,5 +73,17 @@ public class BoxLimitConfigDao extends BaseDao<BoxLimitConfig> {
      */
     public int batchDelete(List<Long> ids){
         return this.getSqlSession().delete(namespace+".batchDelete", ids);
+    }
+
+    /**
+     * 根据箱号类型获取通用包裹限制数量
+     * @return
+     */
+    public Integer queryCommonLimitNum(String boxNumberType){
+        return this.getSqlSession().selectOne(namespace+".queryCommonLimitNum", boxNumberType);
+    }
+
+    public int batchUpdate(List<BoxLimitConfig> dtos){
+        return this.getSqlSession().update(namespace+".batchUpdate", dtos);
     }
 }
