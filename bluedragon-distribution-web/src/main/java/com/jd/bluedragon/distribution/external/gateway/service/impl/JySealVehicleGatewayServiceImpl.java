@@ -126,6 +126,22 @@ public class JySealVehicleGatewayServiceImpl implements JySealVehicleGatewayServ
     @Override
     public JdCResponse<List<SelectOption>> vehicleStatusOptions() {
         List<SelectOption> optionList = new ArrayList<>();
+        for (VehicleStatusEnum _enum : VehicleStatusEnum.values()) {
+            SelectOption option = new SelectOption(_enum.getCode(), _enum.getName(), _enum.getOrder());
+            optionList.add(option);
+        }
+
+        Collections.sort(optionList, new SelectOption.OrderComparator());
+
+        JdCResponse<List<SelectOption>> response = new JdCResponse<>();
+        response.toSucceed();
+        response.setData(optionList);
+        return response;
+    }
+
+    @Override
+    public JdCResponse<List<SelectOption>> unSealVehicleStatusOptions() {
+        List<SelectOption> optionList = new ArrayList<>();
         for (JyUnSealStatusEnum _enum : JyUnSealStatusEnum.values()) {
             SelectOption option = new SelectOption(_enum.getCode(), _enum.getName(), _enum.getOrder());
             optionList.add(option);
