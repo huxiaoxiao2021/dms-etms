@@ -1,12 +1,9 @@
 package ld;
 
 import com.google.common.collect.Maps;
-import com.jd.bluedragon.common.dto.operation.workbench.unload.request.UnloadVehicleTaskRequest;
-import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.distribution.consumer.jy.vehicle.*;
 import com.jd.bluedragon.distribution.jy.dto.task.UnloadVehicleMqDto;
 import com.jd.bluedragon.distribution.jy.enums.JyLineTypeEnum;
-import com.jd.bluedragon.distribution.jy.service.unload.IJyUnloadVehicleService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.jim.cli.Cluster;
 import com.jd.jmq.common.message.Message;
