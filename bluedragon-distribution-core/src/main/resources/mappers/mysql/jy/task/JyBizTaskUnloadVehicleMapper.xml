@@ -307,18 +307,14 @@
 
         <where>
 
-        <include refid="queryTaskCondition"/>
+            <include refid="queryTaskCondition"/>
 
-        <if test="statuses != null">
-            and vehicle_status in
-            <foreach collection="statuses" item="item" open="(" close=")" separator=",">
-                #{item}
-            </foreach>
-        </if>
-
-        <if test="entity.sortTime != null">
-            AND sort_time >= #{entity.sortTime}
-        </if>
+            <if test="statuses != null">
+                and vehicle_status in
+                <foreach collection="statuses" item="item" open="(" close=")" separator=",">
+                    #{item}
+                </foreach>
+            </if>
 
         </where>
 
@@ -333,6 +329,10 @@
 
             <if test="entity.sealCarCode">
                 and seal_car_code = #{entity.sealCarCode}
+            </if>
+
+            <if test="entity.sortTime != null">
+                AND sort_time >= #{entity.sortTime}
             </if>
 
             <choose>
@@ -358,18 +358,14 @@
 
         <where>
 
-        <include refid="queryTaskCondition"/>
+            <include refid="queryTaskCondition"/>
 
-        <if test="statuses != null">
-            and vehicle_status in
-            <foreach collection="statuses" item="item" open="(" close=")" separator=",">
-                #{item}
-            </foreach>
-        </if>
-
-        <if test="entity.sortTime != null">
-            AND sort_time >= #{entity.sortTime}
-        </if>
+            <if test="statuses != null">
+                and vehicle_status in
+                <foreach collection="statuses" item="item" open="(" close=")" separator=",">
+                    #{item}
+                </foreach>
+            </if>
 
         </where>
 
