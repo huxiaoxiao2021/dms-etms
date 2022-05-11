@@ -4,14 +4,18 @@ import java.io.Serializable;
 import java.util.List;
 
 /**
- * @ClassName ToSealCarList
+ * @ClassName UnSealCarData
  * @Description
  * @Author wyh
  * @Date 2022/3/3 13:57
  **/
 public class UnSealCarData<T> implements Serializable {
 
-    private static final long serialVersionUID = -7090184885072826427L;
+    private static final long serialVersionUID = 8453028878992044574L;
+    /**
+     * 车辆状态
+     */
+    private Integer vehicleStatus;
 
     /**
      * 车辆数据
@@ -22,6 +26,14 @@ public class UnSealCarData<T> implements Serializable {
      * 车辆类型统计
      */
     private List<LineTypeStatis> lineStatistics;
+
+    public Integer getVehicleStatus() {
+        return vehicleStatus;
+    }
+
+    public void setVehicleStatus(Integer vehicleStatus) {
+        this.vehicleStatus = vehicleStatus;
+    }
 
     public List<T> getData() {
         return data;

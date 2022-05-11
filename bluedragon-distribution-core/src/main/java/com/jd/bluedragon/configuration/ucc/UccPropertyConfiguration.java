@@ -304,7 +304,7 @@ public class UccPropertyConfiguration {
      * PDA通知自动拉取间隔时间(单位秒)
      */
     private Integer pdaNoticePullIntervalTime;
-    
+
     /**
      * 是否走新的逆向接口
      */
@@ -739,6 +739,16 @@ public class UccPropertyConfiguration {
      * 开关：0不关闭入口；1关闭基础资料维护入口；2关闭耗材明细的增加和删除按钮；3关闭两者
      */
     private Integer packConsumableSwitch;
+
+    /**
+     * 到车任务按积分排序开关 1：开启
+     */
+    private Integer jyUnSealTaskOrderByIntegral;
+
+    /**
+     * 到车任务切换ES逻辑开关 1：开启
+     */
+    private Integer jyUnSealTaskSwitchToEs;
 
     public String getScheduleSiteCheckSameCity() {
         return scheduleSiteCheckSameCity;
@@ -1816,6 +1826,22 @@ public class UccPropertyConfiguration {
 
     public void setJyUnloadSingleWaybillThreshold(Integer jyUnloadSingleWaybillThreshold) {
         this.jyUnloadSingleWaybillThreshold = jyUnloadSingleWaybillThreshold;
+    }
+
+    public Integer getJyUnSealTaskOrderByIntegral() {
+        return jyUnSealTaskOrderByIntegral;
+    }
+
+    public void setJyUnSealTaskOrderByIntegral(Integer jyUnSealTaskOrderByIntegral) {
+        this.jyUnSealTaskOrderByIntegral = jyUnSealTaskOrderByIntegral;
+    }
+
+    public Integer getJyUnSealTaskSwitchToEs() {
+        return jyUnSealTaskSwitchToEs;
+    }
+
+    public void setJyUnSealTaskSwitchToEs(Integer jyUnSealTaskSwitchToEs) {
+        this.jyUnSealTaskSwitchToEs = jyUnSealTaskSwitchToEs;
     }
 
 	public boolean isNeedUseNewReverseApi() {
