@@ -48,6 +48,12 @@ public interface JySealVehicleGatewayService {
     JdCResponse<List<SelectOption>> vehicleStatusOptions();
 
     /**
+     * 待解封车状态枚举
+     * @return
+     */
+    JdCResponse<List<SelectOption>> unSealVehicleStatusOptions();
+
+    /**
      * 封签号列表
      * @param request
      * @return
