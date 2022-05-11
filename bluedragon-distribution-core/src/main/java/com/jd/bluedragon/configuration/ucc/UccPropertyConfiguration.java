@@ -635,6 +635,18 @@ public class UccPropertyConfiguration {
     private Integer createSendTaskExecuteCount;
     private Integer createSendTasktimeOut;
 
+
+    /** 老发货拆分任务 每页执行的包裹或箱号数据了**/
+    private Integer oldSendSplitPageSize;
+
+    public Integer getOldSendSplitPageSize() {
+        return oldSendSplitPageSize;
+    }
+
+    public void setOldSendSplitPageSize(Integer oldSendSplitPageSize) {
+        this.oldSendSplitPageSize = oldSendSplitPageSize;
+    }
+
     public Integer getCreateSendTaskExecuteCount() {
         return createSendTaskExecuteCount;
     }
