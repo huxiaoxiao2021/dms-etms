@@ -29,5 +29,19 @@
 
 	<!-- jmq 消费客户端配置区 -->
 
+    <!--########################  JMQ4配置  #############################################-->
+    <jmq:transport id="jmq4.dmsWeb.transport"
+                   address="${jmq4.dmsWeb.address}"
+                   user="${jmq4.dmsWeb.user}"
+                   password="${jmq4.dmsWeb.password}"
+                   app="${jmq4.dmsWeb.app}" />
+
+    <jmq:transport id="jmq4.dmsWorker.transport"
+                   address="${jmq4.dmsWorker.address}"
+                   user="${jmq4.dmsWorker.user}"
+                   password="${jmq4.dmsWorker.password}"
+                   app="${jmq4.dmsWorker.app}"/>
+    <!--########################  JMQ4配置  #############################################-->
+
 </beans>
 

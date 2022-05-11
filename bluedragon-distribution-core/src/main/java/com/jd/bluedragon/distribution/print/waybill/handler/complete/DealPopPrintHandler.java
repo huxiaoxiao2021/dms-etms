@@ -1,6 +1,5 @@
 package com.jd.bluedragon.distribution.print.waybill.handler.complete;
 
-import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.distribution.api.request.PopPrintRequest;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.handler.Handler;

@@ -1312,6 +1312,18 @@ public class BusinessUtil {
        return input.matches(SEAL_BOX_NO);
     }
 
+    /**
+     * 判断是否是封车编码
+     * @param input
+     * @return
+     */
+    public static boolean isSealCarCode(String input) {
+        if (StringUtils.isEmpty(input)) {
+            return false;
+        }
+        return input.startsWith("SC") && input.length() == 16;
+    }
+
 
     /**
      * 是否是鸡毛信运单
@@ -2332,5 +2344,14 @@ public class BusinessUtil {
         }
 
         return versionArr.length < newestVerArr.length;
+    }
+
+    /**
+     * 是否医药冷链产品（精温送）
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isMedicalFreshProductType(String waybillSign){
+        return isSignChar(waybillSign,WaybillSignConstants.POSITION_31,WaybillSignConstants.CHAR_31_D);
     }
 }

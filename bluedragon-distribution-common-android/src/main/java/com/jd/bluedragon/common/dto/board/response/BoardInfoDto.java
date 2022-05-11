@@ -27,6 +27,12 @@ public class BoardInfoDto implements Serializable {
      */
     private String operatorErp;
     private String operatorName;
+
+    /**
+     * 扫描数量
+     */
+    private Integer scanQuantity;
+
     @Override
     public String toString() {
         return "BoardInfoDto{" +
@@ -65,5 +71,13 @@ public class BoardInfoDto implements Serializable {
 
     public void setOperatorName(String operatorName) {
         this.operatorName = operatorName;
+    }
+
+    public Integer getScanQuantity() {
+        return scanQuantity;
+    }
+
+    public void setScanQuantity(Integer scanQuantity) {
+        this.scanQuantity = scanQuantity;
     }
 }

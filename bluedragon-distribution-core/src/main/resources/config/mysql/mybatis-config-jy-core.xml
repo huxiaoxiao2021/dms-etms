@@ -20,7 +20,6 @@
 		<typeAlias type="com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity" alias="JyBizTaskUnloadVehicleEntity"/>
 		<typeAlias type="com.jd.bluedragon.distribution.jy.unload.JyBizUnloadVehicleBatchEntity" alias="JyBizUnloadVehicleBatchEntity"/>
 		<typeAlias type="com.jd.bluedragon.distribution.jy.unload.JyUnloadAggsEntity" alias="JyUnloadAggsEntity"/>
-		<typeAlias type="com.jd.bluedragon.distribution.jy.unload.JyUnloadEntity" alias="JyUnloadEntity"/>
 
 	</typeAliases>
 
@@ -33,7 +32,6 @@
 		<mapper resource="mappers/mysql/jy/task/JyBizTaskUnloadVehicleMapper.xml" />
 		<mapper resource="mappers/mysql/jy/unload/JyBizUnloadVehicleBatchMapper.xml" />
 		<mapper resource="mappers/mysql/jy/unload/JyUnloadAggsMapper.xml" />
-		<mapper resource="mappers/mysql/jy/unload/JyUnloadMapper.xml" />
 		<mapper resource="mappers/mysql/jy/config/JyWorkMapFuncConfigMapper.xml" />
 
 
