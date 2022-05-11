@@ -57,4 +57,10 @@ public interface ConfigStrandReasonJsfService {
 	 * @return
 	 */
 	Result<PageDto<ConfigStrandReason>> queryPageListByBusinessTag(ConfigStrandReasonQuery query);
+	/**
+	 * 根据id删除数据
+	 * @param deleteData
+	 * @return
+	 */
+	Result<Boolean> deleteColdReasonById(ConfigStrandReason deleteData);
 }
