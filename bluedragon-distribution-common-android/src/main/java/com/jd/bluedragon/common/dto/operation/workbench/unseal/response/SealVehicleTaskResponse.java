@@ -77,4 +77,15 @@ public class SealVehicleTaskResponse implements Serializable {
     public void setDrivingData(UnSealCarData<DrivingCarInfo> drivingData) {
         this.drivingData = drivingData;
     }
+
+    /**
+     * 判断返回任务数据为空
+     * @return
+     */
+    public Boolean responseDataIsNull() {
+        return (this.toSealCarData == null || this.toSealCarData.getData() == null || this.toSealCarData.getData().size() == 0)
+                && (this.toUnloadCarData == null || this.toUnloadCarData.getData() == null || this.toUnloadCarData.getData().size() == 0)
+                && (this.unloadCarData == null || this.unloadCarData.getData() == null || this.unloadCarData.getData().size() == 0)
+                && (this.drivingData == null || this.drivingData.getData() == null || this.drivingData.getData().size() == 0);
+    }
 }
