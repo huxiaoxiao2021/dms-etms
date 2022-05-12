@@ -46,6 +46,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
@@ -121,7 +122,8 @@ public class BoxServiceImpl implements BoxService {
 
 	@Autowired
 	private BasicPrimaryWS basicPrimaryWS;
-
+	@Value("${box.addBatch.size:20}")
+	private Integer boxAddBatchSize;
 
     public Integer add(Box box) {
         Assert.notNull(box, "box must not be null");
@@ -134,6 +136,27 @@ public class BoxServiceImpl implements BoxService {
 		}
         return result;
     }
+
+	private Integer add(List<Box> boxes) {
+		if (CollectionUtils.isEmpty(boxes)) {
+			return 0;
+		}
+		List<List<Box>> list = Lists.partition(boxes, boxAddBatchSize);
+		Integer result = 0;
+		for (List<Box> boxList : list) {
+			//持久化
+			Integer succCount = this.boxDao.addBatch(boxList);
+			result += succCount;
+		}
+		//缓存
+		for (Box box : boxes) {
+			Boolean isCatched = jimdbCacheService.setEx(getCacheKey(box.getCode()),JsonHelper.toJson(box), timeout);
+			if (!isCatched){
+				log.warn("box cache fail. the boxCode is " + box.getCode());
+			}
+		}
+		return result;
+	}
 
     @JProfiler(jKey = "DMSWEB.BoxService.batchAdd",mState = {JProEnum.TP})
     public List<Box> batchAdd(Box param) {
@@ -150,8 +173,8 @@ public class BoxServiceImpl implements BoxService {
             box.setCode(boxCodePrefix + boxCodeSuffix);
             boxes.add(box);
 
-            this.add(box);
         }
+		this.add(boxes);
         return boxes;
     }
 
@@ -185,14 +208,13 @@ public class BoxServiceImpl implements BoxService {
         List<Box> boxes = Lists.newArrayList();
 		List<String> codes = generateCode(param, systemType);
 		for(String code :codes){
-
 			Box box = new Box();
 			BeanHelper.copyProperties(box, param);
 			box.setCode(code);
 			box.setBoxSource(systemType);
 			boxes.add(box);
-			this.add(box);
 		}
+		this.add(boxes);
 		return boxes;
 	}
 
