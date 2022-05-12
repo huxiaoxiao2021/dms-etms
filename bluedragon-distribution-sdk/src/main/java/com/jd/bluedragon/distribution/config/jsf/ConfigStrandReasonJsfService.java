@@ -44,7 +44,7 @@ public interface ConfigStrandReasonJsfService {
 	Result<ConfigStrandReason> queryByReasonCode(Integer reasonCode);	
 	/**
 	 * 按条件分页查询
-	 * 查询全部
+	 * 查询默认
 	 * @param query
 	 * @return
 	 */
@@ -56,7 +56,7 @@ public interface ConfigStrandReasonJsfService {
 	 * @param query
 	 * @return
 	 */
-	Result<PageDto<ConfigStrandReason>> queryPageListByBusinessTag(ConfigStrandReasonQuery query);
+	Result<PageDto<ConfigStrandReason>> queryPageListByBusinessTagList(ConfigStrandReasonQuery query);
 	/**
 	 * 根据id删除数据
 	 * @param deleteData

@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.config.query;
 
 import java.io.Serializable;
+import java.util.List;
 
 import com.jd.ql.dms.common.web.mvc.api.BasePagerCondition;
 
@@ -19,13 +20,12 @@ public class ConfigStrandReasonQuery extends BasePagerCondition implements Seria
 	 * 原因编码
 	 */
 	private Integer reasonCode;
-
 	/**
 	 * 业务条线
-	 * 1：大网
+	 * 1：默认
 	 * 2：冷链
 	 */
-	private Integer businessTag;
+	private List<Integer> businessTagList;
 
 	public Integer getReasonCode() {
 		return reasonCode;
@@ -35,11 +35,11 @@ public class ConfigStrandReasonQuery extends BasePagerCondition implements Seria
 		this.reasonCode = reasonCode;
 	}
 
-	public Integer getBusinessTag() {
-		return businessTag;
+	public List<Integer> getBusinessTagList() {
+		return businessTagList;
 	}
 
-	public void setBusinessTag(Integer businessTag) {
-		this.businessTag = businessTag;
+	public void setBusinessTagList(List<Integer> businessTagList) {
+		this.businessTagList = businessTagList;
 	}
 }
