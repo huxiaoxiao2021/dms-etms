@@ -226,8 +226,11 @@
 		<if test="reasonCode != null" >
 			and reason_code = #{reasonCode,jdbcType=INTEGER}
 		</if>
-		<if test="businessTag != null" >
-			and business_tag = #{businessTag,jdbcType=INTEGER}
+		<if test="businessTagList != null and businessTagList.size > 0 ">
+			and business_tag in
+			<foreach collection="businessTagList" separator="," open="(" close=")" item="item">
+				#{item,jdbcType=VARCHAR}
+			</foreach>
 		</if>
 		</where>
 	</sql>
