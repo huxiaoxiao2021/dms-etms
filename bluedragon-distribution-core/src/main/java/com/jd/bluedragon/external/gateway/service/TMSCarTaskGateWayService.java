@@ -1,6 +1,8 @@
 package com.jd.bluedragon.external.gateway.service;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.carTask.request.CarTaskQueryRequest;
+import com.jd.bluedragon.common.dto.carTask.request.CarTaskUpdateDto;
 import com.jd.bluedragon.common.dto.carTask.response.CarTaskEndNodeResponse;
 import com.jd.bluedragon.common.dto.carTask.response.CarTaskResponse;
 
@@ -16,13 +18,16 @@ public interface TMSCarTaskGateWayService {
      */
     JdCResponse<List<CarTaskEndNodeResponse>> getEndNodeList(String startNodeCode);
 
-
     /**
      * 根据始发网点和目的网点查询车辆任务
-     * @param startNodeCode
-     * @param endNodeCode
+     * @param request
      */
-    JdCResponse<List<CarTaskResponse>> queryCarTaskList(String startNodeCode, String endNodeCode);
+    JdCResponse<List<CarTaskResponse>> queryCarTaskList(CarTaskQueryRequest request);
 
-    void updateCarTaskInfo();
+    /**
+     * 更新车辆任务信息
+     * @param carTaskUpdateDto
+     * @return
+     */
+    JdCResponse updateCarTaskInfo(CarTaskUpdateDto carTaskUpdateDto);
 }

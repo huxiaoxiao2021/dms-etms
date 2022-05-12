@@ -9,26 +9,75 @@ public class CarTaskResponse implements Serializable {
 
     private int id;
 
+    /**
+     * 路由线路编码
+     */
     private String routeLineCode;
 
+    /**
+     * 始发网点编码
+     */
+    private String beginNodeCode;
+
+    /**
+     * 始发网点名称
+     */
+    private String beginNodeName;
+
+    /**
+     * 起始网点类型
+     */
+    private String startNodeType;
+
+    /**
+     * 目的网点编码
+     */
     private String endNodeCode;
 
+    /**
+     * 目的网点名称
+     */
     private String endNodeName;
 
+    /**
+     * 目的网点类型
+     */
+    private String endNodeType;
+
+    /**
+     * 流向方量
+     */
     private Double sumVolume;
 
+    /**
+     * 线路方量
+     */
     private Double volume;
 
+    /**
+     * 预测偏差（%）
+     */
     private Double predictedDeviation;
 
-    private Double adjustVolume;
 
+    /**
+     * 车型车数(Map<车型,车数>toJson)
+     */
     private String vehicleTypeCount;
 
+    /**
+     * 车型车数变更标识：1-变更
+     */
     private int vehicleChangeFlag;
 
+    /**
+     * 计划发车时间
+     */
     private Date planDepartTime;
 
+    /**
+     * 包裹数量
+     */
     private int packageCount;
 
 
@@ -48,6 +97,30 @@ public class CarTaskResponse implements Serializable {
         this.routeLineCode = routeLineCode;
     }
 
+    public String getBeginNodeCode() {
+        return beginNodeCode;
+    }
+
+    public void setBeginNodeCode(String beginNodeCode) {
+        this.beginNodeCode = beginNodeCode;
+    }
+
+    public String getBeginNodeName() {
+        return beginNodeName;
+    }
+
+    public void setBeginNodeName(String beginNodeName) {
+        this.beginNodeName = beginNodeName;
+    }
+
+    public String getStartNodeType() {
+        return startNodeType;
+    }
+
+    public void setStartNodeType(String startNodeType) {
+        this.startNodeType = startNodeType;
+    }
+
     public String getEndNodeCode() {
         return endNodeCode;
     }
@@ -62,6 +135,14 @@ public class CarTaskResponse implements Serializable {
 
     public void setEndNodeName(String endNodeName) {
         this.endNodeName = endNodeName;
+    }
+
+    public String getEndNodeType() {
+        return endNodeType;
+    }
+
+    public void setEndNodeType(String endNodeType) {
+        this.endNodeType = endNodeType;
     }
 
     public Double getSumVolume() {
@@ -86,14 +167,6 @@ public class CarTaskResponse implements Serializable {
 
     public void setPredictedDeviation(Double predictedDeviation) {
         this.predictedDeviation = predictedDeviation;
-    }
-
-    public Double getAdjustVolume() {
-        return adjustVolume;
-    }
-
-    public void setAdjustVolume(Double adjustVolume) {
-        this.adjustVolume = adjustVolume;
     }
 
     public String getVehicleTypeCount() {
