@@ -437,7 +437,7 @@
 			where pack_user_erp is null and is_delete = 0 and waybill_code = #{waybillCode,jdbcType=VARCHAR}
 	</select>
 
-	<select id="getNoConfirmVolumeRecordCount" parameterType="String" resultType="WaybillConsumableDetailInfo">
+	<select id="getNoConfirmVolumeRecordCount" parameterType="String" resultMap="WaybillConsumableDetailInfo">
 		select
 		<include refid="Base_Column_Detail_List"/>
 		from waybill_consumable_relation
