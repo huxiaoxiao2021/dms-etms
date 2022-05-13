@@ -97,7 +97,7 @@ public class StrandReportGateWayServiceImpl implements StrandReportGateWayServic
    */
   @Override
   @JProfiler(
-          jKey = "DMSWEB.StrandReportGateWayServiceImpl.queryNoColdReasonList",
+          jKey = "DMSWEB.StrandReportGateWayServiceImpl.queryAllReasonList",
           jAppName = Constants.UMP_APP_NAME_DMSWEB,
           mState = {JProEnum.TP, JProEnum.FunctionError}
   )
