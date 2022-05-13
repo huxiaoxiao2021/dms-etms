@@ -38,6 +38,8 @@ public class WaybillConsumableRelationPDADto implements Serializable {
 
     private Date updateTime;
 
+    /** 打包后包装体积（立方米） **/
+    private Double confirmVolume;
 
     /**
      * The set method for waybillCode.
@@ -165,5 +167,13 @@ public class WaybillConsumableRelationPDADto implements Serializable {
 
     public void setUpdateTime(Date updateTime) {
         this.updateTime = updateTime;
+    }
+
+    public Double getConfirmVolume() {
+        return confirmVolume;
+    }
+
+    public void setConfirmVolume(Double confirmVolume) {
+        this.confirmVolume = confirmVolume;
     }
 }

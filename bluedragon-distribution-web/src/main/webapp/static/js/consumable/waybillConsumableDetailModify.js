@@ -29,6 +29,14 @@ $(function () {
                         message:'数量为数字且最多三位小数'
                     }
                 }
+            },
+            confirmVolume: {
+                validators: {
+                    regexp:{
+                        regexp:/^[0-9]+(.[0-9]{1,3})?$/,
+                        message:'数量为数字且最多三位小数'
+                    }
+                }
             }
         }
     });
