@@ -163,6 +163,7 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
     private com.jd.transboard.api.dto.base.OperatorInfo getConvertToTcParam(OperatorInfo operatorInfo) {
         final com.jd.transboard.api.dto.base.OperatorInfo operatorInfoTarget = new com.jd.transboard.api.dto.base.OperatorInfo();
         BeanUtils.copyProperties(operatorInfo, operatorInfoTarget);
+        log.info("operatorInfoTarget={}", JsonHelper.toJson(operatorInfoTarget));
         return operatorInfoTarget;
     }
 
@@ -540,6 +541,12 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
     private Result<List<com.jd.transboard.api.dto.VirtualBoardResultDto>> getExistEnableBoardList(BindToVirtualBoardPo bindToVirtualBoardPo){
         Result<List<com.jd.transboard.api.dto.VirtualBoardResultDto>> result = Result.success();
         final OperatorInfo operatorInfo = bindToVirtualBoardPo.getOperatorInfo();
+        if(bindToVirtualBoardPo.getVersion() != null) {
+            operatorInfo.setVersion(bindToVirtualBoardPo.getVersion());
+        }
+        if(bindToVirtualBoardPo.getBizSource() != null) {
+            operatorInfo.setBizSource(bindToVirtualBoardPo.getBizSource());
+        }
         final Response<List<com.jd.transboard.api.dto.VirtualBoardResultDto>> handleResult = virtualBoardJsfManager.getBoardUnFinishInfo(this.getConvertToTcParam(operatorInfo));
         if(!Objects.equals(handleResult.getCode(), ResponseEnum.SUCCESS.getIndex())){
             log.error("VirtualBoardServiceImpl.getBoardUnFinishInfo--fail-- param {} result {}", JsonHelper.toJson(operatorInfo), JsonHelper.toJson(handleResult));
