@@ -78,7 +78,7 @@ public class CarTaskResponse implements Serializable {
     /**
      * 包裹数量
      */
-    private int packageCount;
+    private Integer packageCount;
 
 
     public int getId() {
