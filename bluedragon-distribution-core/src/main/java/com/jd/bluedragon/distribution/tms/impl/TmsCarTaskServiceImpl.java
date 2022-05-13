@@ -58,7 +58,6 @@ public class TmsCarTaskServiceImpl implements TmsCarTaskService {
         volumeUpdateDto.setVolume(updateDto.getVolume());
         volumeUpdateDto.setAccountCode(updateDto.getAccountCode());
         volumeUpdateDto.setAccountName(updateDto.getAccountName());
-
         return tmsCarTaskManager.updateCarTaskInfo(volumeUpdateDto);
     }
 }

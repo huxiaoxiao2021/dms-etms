@@ -904,6 +904,6 @@
     <jsf:consumer id="tpcLineCargoVolumeApi" interface="com.jd.tms.tpc.api.TpcLineCargoVolumeApi"
                   protocol="jsf" alias="${jsf.tpc.alias}"
                   timeout="${jsf.tpc.timeout}"
-                  retries="${jsf.retries}" >
+                  retries="${jsf.retries}" serialization="hessian">
     </jsf:consumer>
 </beans>
