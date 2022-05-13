@@ -37,8 +37,6 @@ public class PreSellInterceptFilter implements Filter {
     @Autowired
     private FuncSwitchConfigService funcSwitchConfigService;
 
-    @Autowired
-    private WaybillQueryManager waybillQueryManager;
 
     /**
      * 运单预售未付尾款
@@ -69,10 +67,10 @@ public class PreSellInterceptFilter implements Filter {
         //增加接货仓 KA安踏预售逻辑 (只考虑ECLP仓配外单场景  减少调用)
         if(BusinessUtil.isEclpAndWmsForDistribution(waybillSign) && request.getCreateSite() != null && request.getCreateSite().getSubType() !=null &&
                 Integer.valueOf(Constants.JHC_SITE_TYPE).equals(request.getCreateSite().getSubType())){
-            BaseEntity<List<WaybillProductDto>> productAbilities = waybillQueryManager.getProductAbilityInfoByWaybillCode(request.getWaybillCode());
             //获取能力信息
-            if(productAbilities != null && !CollectionUtils.isEmpty(productAbilities.getData())){
-                for(WaybillProductDto productDto : productAbilities.getData()){
+            List<WaybillProductDto> waybillProductDtos = request.getWaybillProductDtos();
+            if(waybillProductDtos != null && !CollectionUtils.isEmpty(waybillProductDtos)){
+                for(WaybillProductDto productDto : waybillProductDtos){
                    if(!CollectionUtils.isEmpty(productDto.getAbilityItems())){
                        for(WaybillAbilityDto abilityDto : productDto.getAbilityItems()){
                            if(!CollectionUtils.isEmpty(abilityDto.getAttrItems())){
@@ -80,8 +78,8 @@ public class PreSellInterceptFilter implements Filter {
                                 if(PRODUCT_ABILITY_OF_PRE_SELL_NO_PAY.equals(abilityAttrDto.getAttrCode())){
                                     throw new SortingCheckException(DmsMessageConstants.CODE_29420,
                                             HintService.getHintWithFuncModule(HintCodeConstants.PRE_SELL_WITHOUT_FULL_PAY, request.getFuncModule()));
+                                    }
                                 }
-                            }
                            }
                        }
                    }
