@@ -189,7 +189,7 @@ public class WaybillConsumableRecordController extends DmsBaseController{
             if (noPackUserErpWaybillBuilder.length() > 0) {
             	rest.setCode(JdResponse.CODE_FAIL);
 				rest.setMessage("选中的运单部分未操作成功，未确认成功原因【运单未完成录入打包人ERP】，请录入后再进行确认！");
-			} if (noConfirmVolumeWaybillBuilder.length() > 0) {
+			} else if (noConfirmVolumeWaybillBuilder.length() > 0) {
 				rest.setCode(JdResponse.CODE_FAIL);
 				rest.setMessage("选中的运单部分未操作成功，未确认成功原因【运单未完成录入打包后包装耗材体积】，请录入后再进行确认！");
 			} else {
