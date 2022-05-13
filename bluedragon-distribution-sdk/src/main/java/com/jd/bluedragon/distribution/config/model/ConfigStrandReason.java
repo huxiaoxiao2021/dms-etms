@@ -86,7 +86,7 @@ public class ConfigStrandReason implements Serializable {
 
 	/**
 	 * 业务标识
-	 * 1：大网；2：冷链
+	 * 1：默认；2：冷链
 	 */
 	private Integer businessTag;
 
