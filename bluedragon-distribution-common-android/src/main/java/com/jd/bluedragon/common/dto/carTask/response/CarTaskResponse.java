@@ -193,11 +193,11 @@ public class CarTaskResponse implements Serializable {
         this.planDepartTime = planDepartTime;
     }
 
-    public int getPackageCount() {
+    public Integer getPackageCount() {
         return packageCount;
     }
 
-    public void setPackageCount(int packageCount) {
+    public void setPackageCount(Integer packageCount) {
         this.packageCount = packageCount;
     }
 }
