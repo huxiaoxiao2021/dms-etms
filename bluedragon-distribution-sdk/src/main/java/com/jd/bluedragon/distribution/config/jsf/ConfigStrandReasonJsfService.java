@@ -52,7 +52,7 @@ public interface ConfigStrandReasonJsfService {
 	/**
 	 * 按条件分页查询
 	 * 工作台查询，根据 businessTag
-	 * businessTag = 1 or 2 分别代表 大网 + 冷链
+	 * businessTag = 1 or 2 分别代表 默认 + 冷链
 	 * @param query
 	 * @return
 	 */
