@@ -105,7 +105,7 @@ public class ConfigStrandReasonJsfServiceImpl implements ConfigStrandReasonJsfSe
 	@Override
 	public Result<Boolean> deleteColdReasonById(ConfigStrandReason deleteData) {
 		Result<ConfigStrandReason> reasonResult = configStrandReasonService.queryById(deleteData.getId());
-		if(reasonResult.isSuccess() && reasonResult.getData() != null && Objects.equals(reasonResult.getData().getBusinessTag(),Constants.CONSTANT_NUMBER_TWO)){
+		if(reasonResult.isSuccess() && reasonResult.getData() != null && Objects.equals(reasonResult.getData().getBusinessTag(),StrandReasonBusinessTagEnum.BUSINESS_TAG_COLD.getCode())){
 			return configStrandReasonService.deleteById(deleteData);
 		}
 		Result<Boolean> result = Result.fail("无权限删除或数据不存在");

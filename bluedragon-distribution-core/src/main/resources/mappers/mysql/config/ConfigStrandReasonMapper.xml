@@ -229,7 +229,7 @@
 		<if test="businessTagList != null and businessTagList.size > 0 ">
 			and business_tag in
 			<foreach collection="businessTagList" separator="," open="(" close=")" item="item">
-				#{item,jdbcType=VARCHAR}
+				#{item,jdbcType=INTEGER}
 			</foreach>
 		</if>
 		</where>
