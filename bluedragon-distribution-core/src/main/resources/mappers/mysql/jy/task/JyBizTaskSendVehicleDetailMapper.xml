@@ -1,0 +1,273 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskSendVehicleDetailDao">
+
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity"
+               id="jyBizTaskSendVehicleDetailMap">
+        <result property="id" column="id"/>
+        <result property="sendVehicleBizId" column="send_vehicle_biz_id"/>
+        <result property="bizId" column="biz_id"/>
+        <result property="transWorkItemCode" column="trans_work_item_code"/>
+        <result property="vehicleStatus" column="vehicle_status"/>
+        <result property="startSiteId" column="start_site_id"/>
+        <result property="startSiteName" column="start_site_name"/>
+        <result property="endSiteId" column="end_site_id"/>
+        <result property="endSiteName" column="end_site_name"/>
+        <result property="planDepartTime" column="plan_depart_time"/>
+        <result property="sealCarTime" column="seal_car_time"/>
+        <result property="createUserErp" column="create_user_erp"/>
+        <result property="createUserName" column="create_user_name"/>
+        <result property="updateUserErp" column="update_user_erp"/>
+        <result property="updateUserName" column="update_user_name"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="yn" column="yn"/>
+        <result property="ts" column="ts"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id
+        ,        send_vehicle_biz_id,        biz_id,        trans_work_item_code,        vehicle_status,        start_site_id,        start_site_name,        end_site_id,        end_site_name,        plan_depart_time,        seal_car_time,        create_user_erp,        create_user_name,        update_user_erp,        update_user_name,        create_time,        update_time,        yn,        ts    </sql>
+
+    <insert id="insert" parameterType="JyBizTaskSendVehicleDetailEntity">
+        INSERT INTO jy_biz_task_send_vehicle_detail (
+        <if test="id != null">
+            id
+        </if>
+        ,
+        <if test="sendVehicleBizId != null">
+            send_vehicle_biz_id
+        </if>
+        ,
+        <if test="bizId != null">
+            biz_id
+        </if>
+        ,
+        <if test="transWorkItemCode != null">
+            trans_work_item_code
+        </if>
+        ,
+        <if test="vehicleStatus != null">
+            vehicle_status
+        </if>
+        ,
+        <if test="startSiteId != null">
+            start_site_id
+        </if>
+        ,
+        <if test="startSiteName != null">
+            start_site_name
+        </if>
+        ,
+        <if test="endSiteId != null">
+            end_site_id
+        </if>
+        ,
+        <if test="endSiteName != null">
+            end_site_name
+        </if>
+        ,
+        <if test="planDepartTime != null">
+            plan_depart_time
+        </if>
+        ,
+        <if test="sealCarTime != null">
+            seal_car_time
+        </if>
+        ,
+        <if test="createUserErp != null">
+            create_user_erp
+        </if>
+        ,
+        <if test="createUserName != null">
+            create_user_name
+        </if>
+        ,
+        <if test="updateUserErp != null">
+            update_user_erp
+        </if>
+        ,
+        <if test="updateUserName != null">
+            update_user_name
+        </if>
+        ,
+        <if test="createTime != null">
+            create_time
+        </if>
+        ,
+        <if test="updateTime != null">
+            update_time
+        </if>
+        ,
+        <if test="yn != null">
+            yn
+        </if>
+        ,
+        <if test="ts != null">
+            ts
+        </if>
+        ) VALUES (
+        <if test="id != null">
+            #{id}
+        </if>
+        ,
+        <if test="sendVehicleBizId != null">
+            #{sendVehicleBizId}
+        </if>
+        ,
+        <if test="bizId != null">
+            #{bizId}
+        </if>
+        ,
+        <if test="transWorkItemCode != null">
+            #{transWorkItemCode}
+        </if>
+        ,
+        <if test="vehicleStatus != null">
+            #{vehicleStatus}
+        </if>
+        ,
+        <if test="startSiteId != null">
+            #{startSiteId}
+        </if>
+        ,
+        <if test="startSiteName != null">
+            #{startSiteName}
+        </if>
+        ,
+        <if test="endSiteId != null">
+            #{endSiteId}
+        </if>
+        ,
+        <if test="endSiteName != null">
+            #{endSiteName}
+        </if>
+        ,
+        <if test="planDepartTime != null">
+            #{planDepartTime}
+        </if>
+        ,
+        <if test="sealCarTime != null">
+            #{sealCarTime}
+        </if>
+        ,
+        <if test="createUserErp != null">
+            #{createUserErp}
+        </if>
+        ,
+        <if test="createUserName != null">
+            #{createUserName}
+        </if>
+        ,
+        <if test="updateUserErp != null">
+            #{updateUserErp}
+        </if>
+        ,
+        <if test="updateUserName != null">
+            #{updateUserName}
+        </if>
+        ,
+        <if test="createTime != null">
+            #{createTime}
+        </if>
+        ,
+        <if test="updateTime != null">
+            #{updateTime}
+        </if>
+        ,
+        <if test="yn != null">
+            #{yn}
+        </if>
+        ,
+        <if test="ts != null">
+            #{ts}
+        </if>
+        )
+    </insert>
+
+    <update id="update" parameterType="JyBizTaskSendVehicleDetailEntity">
+        UPDATE jy_biz_task_send_vehicle_detail
+        <set>
+            <if test="id != null">
+                id = #{id}
+            </if>
+            ,
+            <if test="sendVehicleBizId != null">
+                send_vehicle_biz_id = #{sendVehicleBizId}
+            </if>
+            ,
+            <if test="bizId != null">
+                biz_id = #{bizId}
+            </if>
+            ,
+            <if test="transWorkItemCode != null">
+                trans_work_item_code = #{transWorkItemCode}
+            </if>
+            ,
+            <if test="vehicleStatus != null">
+                vehicle_status = #{vehicleStatus}
+            </if>
+            ,
+            <if test="startSiteId != null">
+                start_site_id = #{startSiteId}
+            </if>
+            ,
+            <if test="startSiteName != null">
+                start_site_name = #{startSiteName}
+            </if>
+            ,
+            <if test="endSiteId != null">
+                end_site_id = #{endSiteId}
+            </if>
+            ,
+            <if test="endSiteName != null">
+                end_site_name = #{endSiteName}
+            </if>
+            ,
+            <if test="planDepartTime != null">
+                plan_depart_time = #{planDepartTime}
+            </if>
+            ,
+            <if test="sealCarTime != null">
+                seal_car_time = #{sealCarTime}
+            </if>
+            ,
+            <if test="createUserErp != null">
+                create_user_erp = #{createUserErp}
+            </if>
+            ,
+            <if test="createUserName != null">
+                create_user_name = #{createUserName}
+            </if>
+            ,
+            <if test="updateUserErp != null">
+                update_user_erp = #{updateUserErp}
+            </if>
+            ,
+            <if test="updateUserName != null">
+                update_user_name = #{updateUserName}
+            </if>
+            ,
+            <if test="createTime != null">
+                create_time = #{createTime}
+            </if>
+            ,
+            <if test="updateTime != null">
+                update_time = #{updateTime}
+            </if>
+            ,
+            <if test="yn != null">
+                yn = #{yn}
+            </if>
+            ,
+            <if test="ts != null">
+                ts = #{ts}
+            </if>
+        </set>
+        <where>
+            id = #{id}
+        </where>
+    </update>
+</mapper>

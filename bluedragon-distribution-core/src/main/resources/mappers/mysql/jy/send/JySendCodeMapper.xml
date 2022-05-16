@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jd.bluedragon.distribution.jy.dao.send.JySendCodeDao">
+
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.jd.bluedragon.distribution.jy.send.JySendCodeEntity" id="jySendCodeMap">
+        <result property="id" column="id"/>
+        <result property="sendVehicleBizId" column="send_vehicle_biz_id"/>
+        <result property="sendDetailBizId" column="send_detail_biz_id"/>
+        <result property="sendCode" column="send_code"/>
+        <result property="createUserErp" column="create_user_erp"/>
+        <result property="createUserName" column="create_user_name"/>
+        <result property="updateUserErp" column="update_user_erp"/>
+        <result property="updateUserName" column="update_user_name"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="yn" column="yn"/>
+        <result property="ts" column="ts"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id
+        ,        send_vehicle_biz_id,        send_detail_biz_id,        send_code,        create_user_erp,        create_user_name,        update_user_erp,        update_user_name,        create_time,        update_time,        yn,        ts    </sql>
+
+    <insert id="insert" parameterType="JySendCodeEntity">
+        INSERT INTO jy_send_code (
+        <if test="id != null">
+            id
+        </if>
+        ,
+        <if test="sendVehicleBizId != null">
+            send_vehicle_biz_id
+        </if>
+        ,
+        <if test="sendDetailBizId != null">
+            send_detail_biz_id
+        </if>
+        ,
+        <if test="sendCode != null">
+            send_code
+        </if>
+        ,
+        <if test="createUserErp != null">
+            create_user_erp
+        </if>
+        ,
+        <if test="createUserName != null">
+            create_user_name
+        </if>
+        ,
+        <if test="updateUserErp != null">
+            update_user_erp
+        </if>
+        ,
+        <if test="updateUserName != null">
+            update_user_name
+        </if>
+        ,
+        <if test="createTime != null">
+            create_time
+        </if>
+        ,
+        <if test="updateTime != null">
+            update_time
+        </if>
+        ,
+        <if test="yn != null">
+            yn
+        </if>
+        ,
+        <if test="ts != null">
+            ts
+        </if>
+        ) VALUES (
+        <if test="id != null">
+            #{id}
+        </if>
+        ,
+        <if test="sendVehicleBizId != null">
+            #{sendVehicleBizId}
+        </if>
+        ,
+        <if test="sendDetailBizId != null">
+            #{sendDetailBizId}
+        </if>
+        ,
+        <if test="sendCode != null">
+            #{sendCode}
+        </if>
+        ,
+        <if test="createUserErp != null">
+            #{createUserErp}
+        </if>
+        ,
+        <if test="createUserName != null">
+            #{createUserName}
+        </if>
+        ,
+        <if test="updateUserErp != null">
+            #{updateUserErp}
+        </if>
+        ,
+        <if test="updateUserName != null">
+            #{updateUserName}
+        </if>
+        ,
+        <if test="createTime != null">
+            #{createTime}
+        </if>
+        ,
+        <if test="updateTime != null">
+            #{updateTime}
+        </if>
+        ,
+        <if test="yn != null">
+            #{yn}
+        </if>
+        ,
+        <if test="ts != null">
+            #{ts}
+        </if>
+        )
+    </insert>
+
+    <update id="update" parameterType="JySendCodeEntity">
+        UPDATE jy_send_code
+        <set>
+            <if test="id != null">
+                id = #{id}
+            </if>
+            ,
+            <if test="sendVehicleBizId != null">
+                send_vehicle_biz_id = #{sendVehicleBizId}
+            </if>
+            ,
+            <if test="sendDetailBizId != null">
+                send_detail_biz_id = #{sendDetailBizId}
+            </if>
+            ,
+            <if test="sendCode != null">
+                send_code = #{sendCode}
+            </if>
+            ,
+            <if test="createUserErp != null">
+                create_user_erp = #{createUserErp}
+            </if>
+            ,
+            <if test="createUserName != null">
+                create_user_name = #{createUserName}
+            </if>
+            ,
+            <if test="updateUserErp != null">
+                update_user_erp = #{updateUserErp}
+            </if>
+            ,
+            <if test="updateUserName != null">
+                update_user_name = #{updateUserName}
+            </if>
+            ,
+            <if test="createTime != null">
+                create_time = #{createTime}
+            </if>
+            ,
+            <if test="updateTime != null">
+                update_time = #{updateTime}
+            </if>
+            ,
+            <if test="yn != null">
+                yn = #{yn}
+            </if>
+            ,
+            <if test="ts != null">
+                ts = #{ts}
+            </if>
+        </set>
+        <where>
+            id = #{id}
+        </where>
+    </update>
+</mapper>

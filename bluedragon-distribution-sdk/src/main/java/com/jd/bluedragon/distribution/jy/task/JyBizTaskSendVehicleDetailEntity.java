@@ -1,0 +1,246 @@
+package com.jd.bluedragon.distribution.jy.task;
+
+
+import java.io.Serializable;
+import java.util.Date;
+
+/**
+ * 发车任务明细表
+ * 
+ * @author liuduo8
+ * @email liuduo3@jd.com
+ * @date 2022-05-16 17:50:07
+ */
+public class JyBizTaskSendVehicleDetailEntity implements Serializable {
+
+	private static final long serialVersionUID = 4089383783438643445L;
+
+	/**
+	 * 主键ID
+	 */
+	private Long id;
+	/**
+	 * send_vehicle业务主键
+	 */
+	private String sendVehicleBizId;
+	/**
+	 * 业务主键
+	 */
+	private String bizId;
+	/**
+	 * 派车明细单号
+	 */
+	private String transWorkItemCode;
+	/**
+	 * 任务状态；0-待发货，1-发货中，2-待封车，3-已封车
+	 */
+	private Integer vehicleStatus;
+	/**
+	 * 始发场地ID
+	 */
+	private Long startSiteId;
+	/**
+	 * 始发场地名称
+	 */
+	private String startSiteName;
+	/**
+	 * 目的场地ID
+	 */
+	private Long endSiteId;
+	/**
+	 * 目的场地名称
+	 */
+	private String endSiteName;
+	/**
+	 * 预计发车时间
+	 */
+	private Date planDepartTime;
+	/**
+	 * 封车时间
+	 */
+	private Date sealCarTime;
+	/**
+	 * 创建人ERP
+	 */
+	private String createUserErp;
+	/**
+	 * 创建人姓名
+	 */
+	private String createUserName;
+	/**
+	 * 更新人ERP
+	 */
+	private String updateUserErp;
+	/**
+	 * 更新人姓名
+	 */
+	private String updateUserName;
+	/**
+	 * 创建时间
+	 */
+	private Date createTime;
+	/**
+	 * 更新时间
+	 */
+	private Date updateTime;
+	/**
+	 * 是否删除：1-有效，0-删除
+	 */
+	private Integer yn;
+	/**
+	 * 数据库时间
+	 */
+	private Date ts;
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public String getSendVehicleBizId() {
+		return sendVehicleBizId;
+	}
+
+	public void setSendVehicleBizId(String sendVehicleBizId) {
+		this.sendVehicleBizId = sendVehicleBizId;
+	}
+
+	public String getBizId() {
+		return bizId;
+	}
+
+	public void setBizId(String bizId) {
+		this.bizId = bizId;
+	}
+
+	public String getTransWorkItemCode() {
+		return transWorkItemCode;
+	}
+
+	public void setTransWorkItemCode(String transWorkItemCode) {
+		this.transWorkItemCode = transWorkItemCode;
+	}
+
+	public Integer getVehicleStatus() {
+		return vehicleStatus;
+	}
+
+	public void setVehicleStatus(Integer vehicleStatus) {
+		this.vehicleStatus = vehicleStatus;
+	}
+
+	public Long getStartSiteId() {
+		return startSiteId;
+	}
+
+	public void setStartSiteId(Long startSiteId) {
+		this.startSiteId = startSiteId;
+	}
+
+	public String getStartSiteName() {
+		return startSiteName;
+	}
+
+	public void setStartSiteName(String startSiteName) {
+		this.startSiteName = startSiteName;
+	}
+
+	public Long getEndSiteId() {
+		return endSiteId;
+	}
+
+	public void setEndSiteId(Long endSiteId) {
+		this.endSiteId = endSiteId;
+	}
+
+	public String getEndSiteName() {
+		return endSiteName;
+	}
+
+	public void setEndSiteName(String endSiteName) {
+		this.endSiteName = endSiteName;
+	}
+
+	public Date getPlanDepartTime() {
+		return planDepartTime;
+	}
+
+	public void setPlanDepartTime(Date planDepartTime) {
+		this.planDepartTime = planDepartTime;
+	}
+
+	public Date getSealCarTime() {
+		return sealCarTime;
+	}
+
+	public void setSealCarTime(Date sealCarTime) {
+		this.sealCarTime = sealCarTime;
+	}
+
+	public String getCreateUserErp() {
+		return createUserErp;
+	}
+
+	public void setCreateUserErp(String createUserErp) {
+		this.createUserErp = createUserErp;
+	}
+
+	public String getCreateUserName() {
+		return createUserName;
+	}
+
+	public void setCreateUserName(String createUserName) {
+		this.createUserName = createUserName;
+	}
+
+	public String getUpdateUserErp() {
+		return updateUserErp;
+	}
+
+	public void setUpdateUserErp(String updateUserErp) {
+		this.updateUserErp = updateUserErp;
+	}
+
+	public String getUpdateUserName() {
+		return updateUserName;
+	}
+
+	public void setUpdateUserName(String updateUserName) {
+		this.updateUserName = updateUserName;
+	}
+
+	public Date getCreateTime() {
+		return createTime;
+	}
+
+	public void setCreateTime(Date createTime) {
+		this.createTime = createTime;
+	}
+
+	public Date getUpdateTime() {
+		return updateTime;
+	}
+
+	public void setUpdateTime(Date updateTime) {
+		this.updateTime = updateTime;
+	}
+
+	public Integer getYn() {
+		return yn;
+	}
+
+	public void setYn(Integer yn) {
+		this.yn = yn;
+	}
+
+	public Date getTs() {
+		return ts;
+	}
+
+	public void setTs(Date ts) {
+		this.ts = ts;
+	}
+}
