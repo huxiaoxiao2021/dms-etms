@@ -109,7 +109,7 @@ public class TmsCarTaskManagerImpl implements TmsCarTaskManager {
             com.jd.tms.tpc.dto.CommonDto<String> result = tpcLineCargoVolumeApi.updateLineCargoVolumeByCondition(updateDto);
             log.info("调用运输更新车辆任务信息结果 result:{}",JSON.toJSONString(result));
             if(CommonDto.CODE_SUCCESS != result.getCode()){
-                response.toFail("调用运输更新车辆任务信息失败!");
+                response.toFail(result.getMessage());
             }
             return response;
         }catch (Exception e){
