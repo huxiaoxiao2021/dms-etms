@@ -57,7 +57,7 @@ public class CarTaskResponse implements Serializable {
     /**
      * 预测偏差（%）
      */
-    private Double predictedDeviation;
+    private Double predictDeviation;
 
 
     /**
@@ -161,12 +161,12 @@ public class CarTaskResponse implements Serializable {
         this.volume = volume;
     }
 
-    public Double getPredictedDeviation() {
-        return predictedDeviation;
+    public Double getPredictDeviation() {
+        return predictDeviation;
     }
 
-    public void setPredictedDeviation(Double predictedDeviation) {
-        this.predictedDeviation = predictedDeviation;
+    public void setPredictDeviation(Double predictDeviation) {
+        this.predictDeviation = predictDeviation;
     }
 
     public String getVehicleTypeCount() {
