@@ -47,7 +47,7 @@ public class WorkingConfigQueryServiceImpl implements WorkingConfigQueryService{
                 return result;
             }
             List<OutsourceCountRuleDto> tysResult = workingConfigProxy.queryTYSWorkingConfig(siteCode, 105);//105表述打木架
-            log.info("查询该场地【{}】在转运工作台配置的打木架外包计提供应商结果为：{}", siteCode, JsonHelper.toJson(dmsResult));
+            log.info("查询该场地【{}】在转运工作台配置的打木架外包计提供应商结果为：{}", siteCode, JsonHelper.toJson(tysResult));
             if (!CollectionUtils.isEmpty(tysResult)) {
                 result.put("code", tysResult.get(0).getSupplierNo());
                 result.put("name", tysResult.get(0).getOutsourceName());
