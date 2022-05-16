@@ -29,6 +29,8 @@ public class TmsCarTaskServiceImpl implements TmsCarTaskService {
         page.setPageSize(100);
         TransportResourceDto transportResourceDto = new TransportResourceDto();
         transportResourceDto.setStartNodeCode(startNodeCode);
+        //只查询目的分拣中心数据
+        transportResourceDto.setEndNodeType(2);
         return tmsCarTaskManager.getEndNodeList(page, transportResourceDto);
     }
 

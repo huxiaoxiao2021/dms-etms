@@ -72,6 +72,7 @@ public class TMSCarTaskGateWayServiceImpl implements TMSCarTaskGateWayService {
             log.info("更新车辆任务 checkResult-{}", checkResult);
             if (StringUtils.isNotBlank(checkResult)) {
                 jdCResponse.toFail(checkResult);
+                return jdCResponse;
             }
             return tmsCarTaskService.updateCarTaskInfo(carTaskUpdateDto);
         } catch (Exception e) {
