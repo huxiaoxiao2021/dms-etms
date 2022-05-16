@@ -29,6 +29,7 @@ import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.ver.domain.Site;
 import com.jd.bluedragon.utils.*;
+import com.jd.coo.sa.mybatis.plugins.id.SequenceGenAdaptor;
 import com.jd.coo.sa.sequence.JimdbSequenceGen;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ql.basic.domain.CrossPackageTagNew;
@@ -76,6 +77,10 @@ public class BoxServiceImpl implements BoxService {
 	public static final Integer LOCK_TTL = 2;
 	private static final String[] REPLACE_CHARS = { "分拣中心", "分拨中心", "中转场", "中转站" };
 
+	private static final String DB_TABLE_NAME = "box";
+
+	@Autowired
+	private SequenceGenAdaptor sequenceGenAdaptor;
     @Autowired
     private BoxDao boxDao;
 
@@ -141,6 +146,12 @@ public class BoxServiceImpl implements BoxService {
 		if (CollectionUtils.isEmpty(boxes)) {
 			return 0;
 		}
+
+		// 生成主键ID
+		for (Box box : boxes) {
+			box.setId(sequenceGenAdaptor.newId(DB_TABLE_NAME));
+		}
+
 		List<List<Box>> list = Lists.partition(boxes, boxAddBatchSize);
 		Integer result = 0;
 		for (List<Box> boxList : list) {
