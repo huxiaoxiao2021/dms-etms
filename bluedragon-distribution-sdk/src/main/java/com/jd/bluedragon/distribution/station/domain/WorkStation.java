@@ -25,14 +25,14 @@ public class WorkStation implements Serializable {
 	private String businessKey;
 
 	/**
-	 * 场地类型编码
+	 * 业务条线编码
 	 */
-	private String siteTypeCode;
+	private String businessLineCode;
 
 	/**
-	 * 场地类型名称
+	 * 业务条线名称
 	 */
-	private String siteTypeName;
+	private String businessLineName;
 
 	/**
 	 * 作业区编码
@@ -126,20 +126,20 @@ public class WorkStation implements Serializable {
 		return this.businessKey;
 	}
 
-	public String getSiteTypeCode() {
-		return siteTypeCode;
+	public String getBusinessLineCode() {
+		return businessLineCode;
 	}
 
-	public void setSiteTypeCode(String siteTypeCode) {
-		this.siteTypeCode = siteTypeCode;
+	public void setBusinessLineCode(String businessLineCode) {
+		this.businessLineCode = businessLineCode;
 	}
 
-	public String getSiteTypeName() {
-		return siteTypeName;
+	public String getBusinessLineName() {
+		return businessLineName;
 	}
 
-	public void setSiteTypeName(String siteTypeName) {
-		this.siteTypeName = siteTypeName;
+	public void setBusinessLineName(String businessLineName) {
+		this.businessLineName = businessLineName;
 	}
 
 	/**

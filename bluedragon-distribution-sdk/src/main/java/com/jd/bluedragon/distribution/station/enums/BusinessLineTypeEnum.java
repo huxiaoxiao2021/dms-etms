@@ -1,19 +1,19 @@
 package com.jd.bluedragon.distribution.station.enums;
 
 /**
- * 场地类型枚举
+ * 业务条线类型枚举
  *
  * @author hujiping
  * @date 2022/5/7 4:29 PM
  */
-public enum SiteTypeEnum {
+public enum BusinessLineTypeEnum {
 
-    FJ_CENTER("1", "分拣中心"),
-    ZY_CENTER("2", "转运中心"),
-    JHC("3", "接货仓"),
-    AIR_RAIL("4", "空铁");
+    BUSINESS_FJ_CENTER("1", "分拣中心"),
+    BUSINESS_ZY_CENTER("2", "转运中心"),
+    BUSINESS_JHC("3", "接货仓"),
+    BUSINESS_AIR_RAIL("4", "空铁");
 
-    SiteTypeEnum(String code, String name) {
+    BusinessLineTypeEnum(String code, String name) {
         this.code = code;
         this.name = name;
     }
@@ -44,7 +44,7 @@ public enum SiteTypeEnum {
      * @return
      */
     public static String getNameByCode(String code) {
-        SiteTypeEnum data = getEnum(code);
+        BusinessLineTypeEnum data = getEnum(code);
         if(data != null) {
             return data.getName();
         }
@@ -56,8 +56,8 @@ public enum SiteTypeEnum {
      * @param code
      * @return
      */
-    public static SiteTypeEnum getEnum(String code) {
-        for (SiteTypeEnum value : SiteTypeEnum.values()) {
+    public static BusinessLineTypeEnum getEnum(String code) {
+        for (BusinessLineTypeEnum value : BusinessLineTypeEnum.values()) {
             if (value.code.equals(code)) {
                 return value;
             }
