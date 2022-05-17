@@ -671,7 +671,6 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             productType = waybillExt.getProductType();
             //从运单中取出备用站点id，转换成站点名称
             target.setBackupSiteId(waybillExt.getBackupSiteId());
-
             target.setBackupSiteName(siteService.getSiteNameByCode(waybillExt.getBackupSiteId()));
         }
 
@@ -729,12 +728,8 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             }
             String customerCode = waybill.getCustomerCode();
             List<String> qlListConfigList = sysConfigService.getStringListConfig(Constants.SYS_WAYBILL_PRINT_ADDIOWN_NUMBER_CONF);
-            log.info("获取本地青龙配置为：{}", JSON.toJSON(qlListConfigList));
-            log.info("配合测试增加打印waybill配置：{}",JSON.toJSON(waybill));
             boolean signInChars = BusinessUtil.isSignInChars(waybill.getWaybillSign(), WaybillSignConstants.POSITION_61, WaybillSignConstants.CHAR_61_1,
                     WaybillSignConstants.CHAR_61_2, WaybillSignConstants.CHAR_61_3, WaybillSignConstants.CHAR_61_6);
-            char positionChar = waybill.getWaybillSign().charAt(WaybillSignConstants.POSITION_61 - 1);
-            log.info("配合测试增加打印positionChar配置：{},打印结果是：{}",JSON.toJSON(positionChar),JSON.toJSON(signInChars));
             if(customerCode!=null&&!CollectionUtils.isEmpty(qlListConfigList)&&qlListConfigList.contains(customerCode)&&signInChars){
                 //获取订单号
 
@@ -746,7 +741,6 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
                     target.appendRemark(Constants.PRINT_TITLES+oldWaybillCode);
                 }else {
                     //二维码为扫码寄快递
-//
                     target.appendRemark(Constants.PRINT_JD_TITLES);
                 }
             }
