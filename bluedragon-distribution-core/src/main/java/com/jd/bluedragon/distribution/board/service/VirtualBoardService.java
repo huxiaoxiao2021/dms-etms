@@ -3,12 +3,12 @@ package com.jd.bluedragon.distribution.board.service;
 import com.jd.bluedragon.common.dto.base.request.OperatorInfo;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.board.request.*;
-import com.jd.bluedragon.common.dto.board.response.VirtualBoardResultDto;
 import com.jd.bluedragon.common.dto.board.response.UnbindVirtualBoardResultDto;
+import com.jd.bluedragon.common.dto.board.response.VirtualBoardDto;
+import com.jd.bluedragon.common.dto.board.response.VirtualBoardResultDto;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.dms.workbench.utils.sdk.base.Result;
-import com.jd.transboard.api.dto.Response;
 
 import java.util.Date;
 import java.util.List;
@@ -30,6 +30,13 @@ public interface VirtualBoardService {
      * @time 2021-08-14 18:25:31 周六
      */
     JdCResponse<List<VirtualBoardResultDto>> getBoardUnFinishInfo(OperatorInfo operatorInfo);
+
+    /**
+     * 同方法：getBoardUnFinishInfo  在该方法基础上，返回值增加了流向类型，PDA使用
+     * @param operatorInfo
+     * @return
+     */
+    JdCResponse<VirtualBoardDto> getBoardUnFinishInfoNew(OperatorInfo operatorInfo);
 
     /**
      * 根据目的地创建新的板或得到已有的可用的板，目的地的板已存在且未完结，则直接返回该板号

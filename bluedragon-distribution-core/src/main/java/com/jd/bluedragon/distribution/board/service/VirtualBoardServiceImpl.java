@@ -9,6 +9,7 @@ import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.board.BizSourceEnum;
 import com.jd.bluedragon.common.dto.board.request.*;
 import com.jd.bluedragon.common.dto.board.response.UnbindVirtualBoardResultDto;
+import com.jd.bluedragon.common.dto.board.response.VirtualBoardDto;
 import com.jd.bluedragon.common.dto.board.response.VirtualBoardResultDto;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
@@ -21,6 +22,8 @@ import com.jd.bluedragon.core.jsf.dms.IVirtualBoardJsfManager;
 import com.jd.bluedragon.distribution.api.request.BoardCombinationRequest;
 import com.jd.bluedragon.distribution.api.response.BoxResponse;
 import com.jd.bluedragon.distribution.base.service.BaseService;
+import com.jd.bluedragon.distribution.board.domain.BoardConstants;
+import com.jd.bluedragon.distribution.board.domain.BoardFlowTypeDto;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.businessIntercept.enums.BusinessInterceptOnlineStatusEnum;
@@ -168,6 +171,74 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
         }
         return result;
     }
+    @Override
+    public JdCResponse<VirtualBoardDto> getBoardUnFinishInfoNew(OperatorInfo operatorInfo) {
+        String descMethod = "VirtualBoardServiceImpl.getBoardUnFinishInfoNew--";
+        JdCResponse<VirtualBoardDto> result = new JdCResponse<>();
+        try{
+            JdCResponse jdCResponse = flowTypeHandler(operatorInfo);
+            if(!Objects.equals(jdCResponse.getCode(), JdCResponse.CODE_SUCCESS)) {
+                result.toFail(jdCResponse.getMessage());
+                return result;
+            }
+            //
+            VirtualBoardDto virtualBoardDto = new VirtualBoardDto();
+            virtualBoardDto.setFlowFlag(operatorInfo.getFlowFlag());
+            JdCResponse<List<VirtualBoardResultDto>> jsfRes = this.getBoardUnFinishInfo(operatorInfo);
+            if(!Objects.equals(jsfRes.getCode(), JdCResponse.CODE_SUCCESS)) {
+                result.toFail(jsfRes.getMessage());
+                return result;
+            }
+            virtualBoardDto.setVirtualBoardResultDtoList(jsfRes.getData());
+            result.setData(virtualBoardDto);
+            result.setCode(JdCResponse.CODE_SUCCESS);
+            return result;
+        }catch (Exception e) {
+            result.toFail("接口异常：" + e.getMessage());
+            log.error("{}exception param {} exception {}", descMethod, JsonHelper.toJson(operatorInfo), e.getMessage(), e);
+            return result;
+        }
+    }
+
+    /**
+     * 流向模式处理
+     * @param operatorInfo
+     */
+    private JdCResponse flowTypeHandler(OperatorInfo operatorInfo) {
+        JdCResponse res = new JdCResponse();
+        if(StringUtils.isBlank(operatorInfo.getUserErp())) {
+            res.toFail("erp不能为空");
+            return res;
+        }
+
+        String key = BoardConstants.CACHE_KEY_BOARD_FLOW_TYPE_ERP + operatorInfo.getUserErp();
+        BoardFlowTypeDto boardFlowTypeDto = jimdbCacheService.get(key, BoardFlowTypeDto.class);
+        if(operatorInfo.getFlowFlag() == null || boardFlowTypeDto == null) {
+            //默认多流向模式
+            Integer flowType = operatorInfo.getFlowFlag() == null ? BoardConstants.MULTI_FLOW_BOARD : operatorInfo.getFlowFlag();
+            boardFlowTypeDto = new BoardFlowTypeDto();
+            boardFlowTypeDto.setFlowType(flowType);
+            boardFlowTypeDto.setCreateTimeStamp(System.currentTimeMillis());
+            jimdbCacheService.setEx(key, JsonHelper.toJson(boardFlowTypeDto), BoardConstants.CACHE_KEY_BOARD_FLOW_TYPE_ERP_TIME, TimeUnit.DAYS);
+            //
+            operatorInfo.setFlowFlag(flowType);
+        }else {
+            //切换类型更新redis
+            if(!boardFlowTypeDto.getFlowType().equals(operatorInfo.getFlowFlag())) {
+                boardFlowTypeDto = new BoardFlowTypeDto();
+                boardFlowTypeDto.setFlowType(operatorInfo.getFlowFlag());
+                boardFlowTypeDto.setCreateTimeStamp(System.currentTimeMillis());
+                jimdbCacheService.setEx(key, JsonHelper.toJson(boardFlowTypeDto), BoardConstants.CACHE_KEY_BOARD_FLOW_TYPE_ERP_TIME, TimeUnit.DAYS);
+            }else if(System.currentTimeMillis() - boardFlowTypeDto.getCreateTimeStamp() - BoardConstants.CACHE_KEY_BOARD_FLOW_TYPE_ERP_TIME_RENEWAL > 0){
+                //redis续期
+                boardFlowTypeDto.setCreateTimeStamp(System.currentTimeMillis());
+                jimdbCacheService.setEx(key, JsonHelper.toJson(boardFlowTypeDto), BoardConstants.CACHE_KEY_BOARD_FLOW_TYPE_ERP_TIME, TimeUnit.DAYS);
+            }
+
+        }
+        res.toSucceed();
+        return res;
+    }
 
     private com.jd.transboard.api.dto.base.OperatorInfo getConvertToTcParam(OperatorInfo operatorInfo) {
         final com.jd.transboard.api.dto.base.OperatorInfo operatorInfoTarget = new com.jd.transboard.api.dto.base.OperatorInfo();
@@ -246,6 +317,9 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
         }
         if(addOrGetVirtualBoardPo.getDestinationId() <= 0){
             return result.toFail("参数错误，destinationId值不合法", ResultCodeConstant.ILLEGAL_ARGUMENT);
+        }
+        if(addOrGetVirtualBoardPo.getFlowFlag() == null) {
+            return result.toFail("参数错误，flowFlag不能为空", ResultCodeConstant.NULL_ARGUMENT);
         }
         return result;
     }
@@ -674,6 +748,9 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
         if(CollectionUtils.isEmpty(bindToVirtualBoardPo.getBoardCodeList())){
             return result.toFail("参数错误，boardCodeList不能为空", ResultCodeConstant.NULL_ARGUMENT);
         }
+        if(bindToVirtualBoardPo.getFlowFlag() == null) {
+            return result.toFail("参数错误，flowFlag不能为空", ResultCodeConstant.NULL_ARGUMENT);
+        }
         List<String> notBlankCodeList = new ArrayList<>();
         for (String boardCode : bindToVirtualBoardPo.getBoardCodeList()) {
             if(StringUtils.isNotBlank(boardCode)){
@@ -840,6 +917,9 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
         }
         if(removeDestinationPo.getDestinationId() == null){
             return result.toFail("参数错误，destinationId不能为空", ResultCodeConstant.NULL_ARGUMENT);
+        }
+        if(removeDestinationPo.getFlowFlag() == null) {
+            return result.toFail("参数错误，flowFlag不能为空", ResultCodeConstant.NULL_ARGUMENT);
         }
         return result;
     }
