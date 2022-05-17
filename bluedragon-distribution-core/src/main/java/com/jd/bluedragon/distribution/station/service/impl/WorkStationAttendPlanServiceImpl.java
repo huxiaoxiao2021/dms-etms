@@ -102,7 +102,7 @@ public class WorkStationAttendPlanServiceImpl implements WorkStationAttendPlanSe
 		if(!CheckHelper.checkStr("方案名称", planName, 50, result).isSuccess()) {
 			return result;
 		}
-		if(!CheckHelper.checkInteger("出勤计划人数", planAttendNum, 1,1000000, result).isSuccess()) {
+		if(!CheckHelper.checkInteger("出勤计划人数", planAttendNum, 0,1000000, result).isSuccess()) {
 			return result;
 		}
 		workStationAttendPlanDao.deleteById(updateData);
@@ -305,7 +305,7 @@ public class WorkStationAttendPlanServiceImpl implements WorkStationAttendPlanSe
 		if(WaveTypeEnum.getEnum(waveCode) == null) {
 			return result.toFail("班次类型只能录入【"+WaveTypeEnum.getAllNames()+"】！");
 		}
-		if(!CheckHelper.checkInteger("出勤计划人数", planAttendNum, 1,1000000, result).isSuccess()) {
+		if(!CheckHelper.checkInteger("出勤计划人数", planAttendNum, 0,1000000, result).isSuccess()) {
 			return result;
 		}
 		BaseStaffSiteOrgDto siteInfo = baseMajorManager.getBaseSiteBySiteId(siteCode);
