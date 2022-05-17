@@ -433,5 +433,10 @@
     <jmq:consumer id="jmq.jyUnloadTaskCompleteConsumer" transport="jmq.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.jy.unload.complete}" listener="jyUnloadTaskCompleteConsumer"/>
     </jmq:consumer>
+
+    <!-- 保温箱逆向处理 -->
+    <jmq:consumer id="jmq.dealMiniStoreOutConsumer" transport="jmq.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.box.inOut}" listener="dealMiniStoreOutConsumer"/>
+    </jmq:consumer>
 </beans>
 

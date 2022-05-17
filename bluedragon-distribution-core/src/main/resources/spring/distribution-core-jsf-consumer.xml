@@ -847,6 +847,11 @@
     <jsf:consumer id="spotCheckQueryService" interface="com.jd.ql.dms.report.SpotCheckQueryService"
                   protocol="jsf" alias="${jsf.spotCheckQuery.alias}" timeout="${jsf.spotCheckQuery.timeout}" retries="${jsf.retries}" serialization="hessian">
     </jsf:consumer>
+    <jsf:consumer id="swDeviceJsfService"
+                  interface="com.jd.cmp.jsf.SwDeviceJsfService"
+                  protocol="jsf"
+                  alias="${jsf.swDevice.alias}" timeout="${jsf.swDevice.timeout}" serialization="hessian">
+    </jsf:consumer>
 
     <!-- 循环物资 -->
     <jsf:consumer id="recycleMaterialJsfService" interface="com.jd.bluedragon.sdk.modules.recyclematerial.RecycleMaterialJsfService"
