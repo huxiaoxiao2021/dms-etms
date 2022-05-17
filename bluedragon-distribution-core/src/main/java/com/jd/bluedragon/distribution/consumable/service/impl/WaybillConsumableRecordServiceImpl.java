@@ -395,7 +395,31 @@ public class WaybillConsumableRecordServiceImpl extends BaseService<WaybillConsu
         //逐个运单发送MQ
         for (WaybillConsumableMessageDto dto : consumableDtoMap.values()){
             try {
+                //推送给财务的小道消息，后续待财务消费了下述的消息之后，可以删除下面的消息发送：
+                PackingConsumableFinanceMessageDto financeMessageDto = new PackingConsumableFinanceMessageDto();
+                financeMessageDto.setWaybillCode(dto.getWaybillCode());
+                financeMessageDto.setPackingTime(DateHelper.formatDateTime(dto.getConfirmTime()));
+                financeMessageDto.setSupplierCode(dto.getSupplierCode());
+                financeMessageDto.setSiteCode(dto.getConfirmSiteCode());
+                if (CollectionUtils.isNotEmpty(dto.getDetails())) {
+                    for (WaybillConsumableDetailMessageDto detailMessageDto : dto.getDetails()) {
+                        if (ConsumableCodeEnums.isWoodenConsumable(detailMessageDto.getConsumableCode()) || PackingTypeEnum.isWoodenConsumable(detailMessageDto.getConsumableType())) {
+                            if (financeMessageDto.getPackingVolume() == null) {
+                                financeMessageDto.setPackingVolume(new BigDecimal(0));
+                            }
+                            financeMessageDto.setPackingVolume(
+                                    financeMessageDto.getPackingVolume().add(
+                                            BigDecimal.valueOf(detailMessageDto.getPackingVolume())
+                                    )
+                            );
+                        }
+                    }
+                }
+                waybillConsumableFinanceProducer.sendOnFailPersistent(dto.getWaybillCode(), JSON.toJSONString(financeMessageDto));
+                //推送给财务的小道消息，后续待财务消费了下述的消息之后，可以删除上面的消息发送：
+
                 waybillConsumableConfirmProducer.sendOnFailPersistent(dto.getWaybillCode(), JSON.toJSONString(dto));
+
             }catch (Exception e){
                 log.error("包装耗材确认消息同步至报表发送失败：{}" , JSON.toJSONString(dto), e);
             }
