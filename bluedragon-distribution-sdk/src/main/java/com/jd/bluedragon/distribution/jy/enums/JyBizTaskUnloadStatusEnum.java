@@ -31,6 +31,7 @@ public enum JyBizTaskUnloadStatusEnum {
     private static Map<Integer, JyBizTaskUnloadStatusEnum> codeMap;
     public static Map<Integer, String> enumMap;
 
+    public static final List<JyBizTaskUnloadStatusEnum> UNSEAL_STATUS_OPTIONS = new ArrayList<JyBizTaskUnloadStatusEnum>();
     public static final List<JyBizTaskUnloadStatusEnum> UNLOAD_STATUS_OPTIONS = new ArrayList<JyBizTaskUnloadStatusEnum>();
 
     static {
@@ -42,9 +43,14 @@ public enum JyBizTaskUnloadStatusEnum {
             enumMap.put(_enum.getCode(), _enum.getName());
         }
 
-        UNLOAD_STATUS_OPTIONS.add(JyBizTaskUnloadStatusEnum.WAIT_UN_LOAD);
-        UNLOAD_STATUS_OPTIONS.add(JyBizTaskUnloadStatusEnum.UN_LOADING);
-        UNLOAD_STATUS_OPTIONS.add(JyBizTaskUnloadStatusEnum.UN_LOAD_DONE);
+        UNSEAL_STATUS_OPTIONS.add(WAIT_UN_SEAL);
+        UNSEAL_STATUS_OPTIONS.add(WAIT_UN_LOAD);
+        UNSEAL_STATUS_OPTIONS.add(UN_LOADING);
+        UNSEAL_STATUS_OPTIONS.add(ON_WAY);
+
+        UNLOAD_STATUS_OPTIONS.add(WAIT_UN_LOAD);
+        UNLOAD_STATUS_OPTIONS.add(UN_LOADING);
+        UNLOAD_STATUS_OPTIONS.add(UN_LOAD_DONE);
     }
 
     /**

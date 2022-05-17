@@ -9,10 +9,10 @@ package com.jd.bluedragon.distribution.jy.enums;
 public enum UnloadProductTypeEnum {
 
     NONE("NONE", "其他", 99),
-    FRESH("FRESH", "生鲜", 1),
-    KA("KA", "KA", 2),
+    FRESH("FRESH", "生鲜", 2),
+    KA("KA", "KA", 4),
     MEDICINE("MEDICINE", "医药", 3),
-    FAST("FAST", "特快送", 4),
+    FAST("FAST", "特快送", 1),
     ;
 
     private String code;
