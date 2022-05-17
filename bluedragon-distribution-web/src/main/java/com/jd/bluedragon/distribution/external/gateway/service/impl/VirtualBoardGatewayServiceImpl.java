@@ -9,6 +9,7 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.board.BizSourceEnum;
 import com.jd.bluedragon.common.dto.board.request.*;
 import com.jd.bluedragon.common.dto.board.response.UnbindVirtualBoardResultDto;
+import com.jd.bluedragon.common.dto.board.response.VirtualBoardDto;
 import com.jd.bluedragon.common.dto.board.response.VirtualBoardResultDto;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.board.SortBoardJsfService;
@@ -59,6 +60,17 @@ public class VirtualBoardGatewayServiceImpl implements VirtualBoardGatewayServic
         }
         return virtualBoardService.getBoardUnFinishInfo(operatorInfo);
     }
+
+    @Override
+    @JProfiler(jKey = "DMSWEB.VirtualBoardServiceImpl.getBoardUnFinishInfoNew",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public JdCResponse<VirtualBoardDto> getBoardUnFinishInfoNew(OperatorInfo operatorInfo) {
+        if(operatorInfo.getBizSource() == null){
+            operatorInfo.setBizSource(BizSourceEnum.PDA.getValue());
+        }
+        return virtualBoardService.getBoardUnFinishInfoNew(operatorInfo);
+
+    }
+
 
     /**
      * 根据目的地创建新的板或得到已有的可用的板，目的地的板已存在且未完结，则直接返回该板号

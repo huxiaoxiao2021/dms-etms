@@ -33,8 +33,6 @@ public interface VirtualBoardService {
 
     /**
      * 同方法：getBoardUnFinishInfo  在该方法基础上，返回值增加了流向类型，PDA使用
-     * @param operatorInfo
-     * @return
      */
     JdCResponse<VirtualBoardDto> getBoardUnFinishInfoNew(OperatorInfo operatorInfo);
 
