@@ -282,7 +282,7 @@ public class WorkStationAttendPlanServiceImpl implements WorkStationAttendPlanSe
 		if(siteCode == null) {
 			return result.toFail("场地ID为空！");
 		}
-		if(!CheckHelper.checkInteger("楼层", floor, 1,3, result).isSuccess()) {
+		if(!CheckHelper.checkInteger("楼层", floor, 1,5, result).isSuccess()) {
 			return result;
 		}
 		//校验gridNo

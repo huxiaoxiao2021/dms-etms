@@ -48,10 +48,18 @@ public interface UserSignGatewayService {
 	JdCResponse<UserSignRecordData> queryLastUserSignRecordData(UserSignQueryRequest query);
 	/**
 	 * 查询上岗码相关信息
+	 * 	校验上岗码是否关联作业app功能码
 	 * @param positionCode
 	 * @return
 	 */
 	JdCResponse<PositionData> queryPositionData(String positionCode);
+
+	/**
+	 * 查询上岗码信息
+	 * @param positionCode
+	 * @return
+	 */
+	JdCResponse<PositionData> queryPositionInfo(String positionCode);
 	/**
 	 * 查询扫描用户信息
 	 * @param scanUserCode
