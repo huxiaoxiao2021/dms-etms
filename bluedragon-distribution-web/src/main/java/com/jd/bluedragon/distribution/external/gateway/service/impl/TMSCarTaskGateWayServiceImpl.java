@@ -50,8 +50,7 @@ public class TMSCarTaskGateWayServiceImpl implements TMSCarTaskGateWayService {
         log.info("TMSCarTaskGateWayServiceImpl.queryCarTaskList获取当前站点的目的站点列表 入参-{}", JSON.toJSONString(request));
         JdCResponse<List<CarTaskResponse>> jdCResponse = new JdCResponse<>();
         try {
-            if (null == request || StringUtils.isBlank(request.getBeginNodeCode())
-                    || StringUtils.isBlank(request.getStartNodeType())) {
+            if (null == request || StringUtils.isBlank(request.getBeginNodeCode())) {
                 jdCResponse.toFail("入参不能为空！");
                 return jdCResponse;
             }
@@ -95,14 +94,8 @@ public class TMSCarTaskGateWayServiceImpl implements TMSCarTaskGateWayService {
         if (StringUtils.isBlank(carTaskUpdateDto.getBeginNodeCode())) {
             return "始发网点编码不能为空!";
         }
-        if (StringUtils.isBlank(carTaskUpdateDto.getStartNodeType())) {
-            return "始发网点类型不能为空!";
-        }
         if (StringUtils.isBlank(carTaskUpdateDto.getEndNodeCode())) {
             return "目的网点编码不能为空!";
-        }
-        if (StringUtils.isBlank(carTaskUpdateDto.getEndNodeType())) {
-            return "目的网点类型不能为空!";
         }
         if (StringUtils.isBlank(carTaskUpdateDto.getRouteLineCode())) {
             return "路由线路编码不能为空!";

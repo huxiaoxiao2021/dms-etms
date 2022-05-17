@@ -39,9 +39,7 @@ public class TmsCarTaskServiceImpl implements TmsCarTaskService {
 
         LineCargoVolumeQueryDto queryDto = new LineCargoVolumeQueryDto();
         queryDto.setBeginNodeCode(queryRequest.getBeginNodeCode());
-        queryDto.setStartNodeType(queryRequest.getStartNodeType());
         queryDto.setEndNodeCode(queryRequest.getEndNodeCode());
-        queryDto.setEndNodeType(queryRequest.getEndNodeType());
         com.jd.tms.tpc.dto.PageDto pageDto = new com.jd.tms.tpc.dto.PageDto();
         pageDto.setCurrentPage(1);
         pageDto.setPageSize(200);
@@ -52,9 +50,7 @@ public class TmsCarTaskServiceImpl implements TmsCarTaskService {
     public JdCResponse updateCarTaskInfo(CarTaskUpdateDto updateDto) {
         LineCargoVolumeUpdateDto volumeUpdateDto = new LineCargoVolumeUpdateDto();
         volumeUpdateDto.setBeginNodeCode(updateDto.getBeginNodeCode());
-        volumeUpdateDto.setStartNodeType(updateDto.getStartNodeType());
         volumeUpdateDto.setEndNodeCode(updateDto.getEndNodeCode());
-        volumeUpdateDto.setEndNodeType(updateDto.getEndNodeType());
         volumeUpdateDto.setRouteLineCode(updateDto.getRouteLineCode());
         volumeUpdateDto.setPlanDepartTime(updateDto.getPlanDepartTime());
         volumeUpdateDto.setVolume(updateDto.getVolume());
