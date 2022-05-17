@@ -51,6 +51,7 @@
 		<sonar.jacoco.reportPaths>${project.basedir}/../coverage-report/jacoco.exec</sonar.jacoco.reportPaths>
 		<aces.version>2.2.0-SNAPSHOT</aces.version>
 		<lombok.version>1.18.20</lombok.version>
+		<eclp-so-api.version>0.0.1-TEST-SNAPSHOT</eclp-so-api.version>
 	</properties>
 	
 	<dependencyManagement>
@@ -278,7 +279,11 @@
                 <artifactId>realtime-service-sdk</artifactId>
                 <version>${jy.realtime.sdk.version}</version>
             </dependency>
-
+			<dependency>
+				<groupId>com.jd.eclp</groupId>
+				<artifactId>eclp-so-api</artifactId>
+				<version>${eclp-so-api.version}</version>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 

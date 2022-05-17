@@ -905,4 +905,10 @@
                   retries="${jsf.retries}" >
     </jsf:consumer>
 
+    <jsf:consumer id="soBindRelationServiceApi" interface="com.jd.eclp.bbp.so.service.SoBindRelationService"
+        protocol="jsf" alias="${jsf.consumer.eclp.bbp.alias}"
+        timeout="${jsf.consumer.eclp.bbp.timeout}"
+        retries="${jsf.retries}" >
+        <jsf:parameter key="token" value="${jsf.consumer.eclp.bbp.token" hide="true"/>
+    </jsf:consumer>
 </beans>
