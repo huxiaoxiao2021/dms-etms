@@ -35,6 +35,11 @@ public class CloseVirtualBoardPo  implements Serializable {
      */
     private Integer version;
 
+    /**
+     * 模式： 1单流向模式   2：多流向模式   初始化：null(默认多流向模式)
+     */
+    private Integer flowFlag;
+
     public OperatorInfo getOperatorInfo() {
         return operatorInfo;
     }
@@ -67,5 +72,13 @@ public class CloseVirtualBoardPo  implements Serializable {
 
     public void setVersion(Integer version) {
         this.version = version;
+    }
+
+    public Integer getFlowFlag() {
+        return flowFlag;
+    }
+
+    public void setFlowFlag(Integer flowFlag) {
+        this.flowFlag = flowFlag;
     }
 }
