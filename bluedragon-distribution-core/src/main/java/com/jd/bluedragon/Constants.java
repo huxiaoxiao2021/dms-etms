@@ -1661,10 +1661,6 @@ public class Constants {
      * 产品类型-医药大票
      */
     public static final String PRODUCT_TYPE_MEDICINE_DP = "ll-m-0018";
-    /**
-     *产品类型-医药零担
-     */
-    public static final String PRODUCT_TYPE_MEDICAL_LESS_FREIGHT = "LL-YYLD-M";
 
     public static final String TOTAL_URL_INTERCEPTOR = "*";
     /**
@@ -1679,4 +1675,9 @@ public class Constants {
      * 医药冷链产品
      */
     public static final String PRODUCT_TYPE_MEDICAL_COLD_BILL = "ll-m-0002";
+    /**
+     * 医冷零担（md-m-0002）
+     */
+    public static final String  PRODUCT_TYPE_MEDICAL_COLD_PART_BILL = "md-m-0002";
+
 }
