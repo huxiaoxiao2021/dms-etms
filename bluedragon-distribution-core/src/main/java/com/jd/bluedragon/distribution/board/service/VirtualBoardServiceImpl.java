@@ -175,14 +175,16 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
     public JdCResponse<VirtualBoardDto> getBoardUnFinishInfoNew(OperatorInfo operatorInfo) {
         String descMethod = "VirtualBoardServiceImpl.getBoardUnFinishInfoNew--";
         JdCResponse<VirtualBoardDto> result = new JdCResponse<>();
+        VirtualBoardDto virtualBoardDto = new VirtualBoardDto();
+        result.setData(virtualBoardDto);
+        result.setCode(JdCResponse.CODE_SUCCESS);
+
         try{
             JdCResponse jdCResponse = flowTypeHandler(operatorInfo);
             if(!Objects.equals(jdCResponse.getCode(), JdCResponse.CODE_SUCCESS)) {
                 result.toFail(jdCResponse.getMessage());
                 return result;
             }
-            //
-            VirtualBoardDto virtualBoardDto = new VirtualBoardDto();
             virtualBoardDto.setFlowFlag(operatorInfo.getFlowFlag());
             JdCResponse<List<VirtualBoardResultDto>> jsfRes = this.getBoardUnFinishInfo(operatorInfo);
             if(!Objects.equals(jsfRes.getCode(), JdCResponse.CODE_SUCCESS)) {
@@ -190,8 +192,6 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
                 return result;
             }
             virtualBoardDto.setVirtualBoardResultDtoList(jsfRes.getData());
-            result.setData(virtualBoardDto);
-            result.setCode(JdCResponse.CODE_SUCCESS);
             return result;
         }catch (Exception e) {
             result.toFail("接口异常：" + e.getMessage());
