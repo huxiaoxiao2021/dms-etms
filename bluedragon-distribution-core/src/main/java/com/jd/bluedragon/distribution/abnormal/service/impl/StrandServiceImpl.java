@@ -114,7 +114,7 @@ public class StrandServiceImpl implements StrandService {
         BaseStaffSiteOrgDto siteOrgDto = siteService.getSite(request.getSiteCode());
         if(siteOrgDto == null){
             log.warn("滞留上报，分拣中心id:{}无信息", request.getSiteCode());
-            result.error("你所在的分拣中心id未查到站点信息,请联系配送系统运营！");
+            result.error("你所在的分拣中心id未查到站点信息,请联系org.wlxt2！");
             return result;
         }
         boolean syncFlag = Constants.YN_YES.equals(request.getSyncFlag());
