@@ -3,12 +3,12 @@ package com.jd.bluedragon.common.dto.send.request;
 import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.request.User;
 
-import com.jd.bluedragon.distribution.api.JdRequest;
+import java.io.Serializable;
 
-public class ThirdWaybillNoWyRequest extends JdRequest {
+public class ThirdWaybillNoWyRequest implements Serializable {
 
+    private static final long serialVersionUID = -7339348136491469940L;
 
-    private static final long serialVersionUID = -3478082301866772905L;
     private String thirdWaybill;
 
     private User user;
