@@ -1,17 +1,22 @@
 package com.jd.bluedragon.distribution.box.service;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BaseMinorManager;
+import com.jd.bluedragon.core.hint.constants.HintArgsConstants;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.objectid.IGenerateObjectId;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.BoxRequest;
 import com.jd.bluedragon.distribution.api.request.box.BoxReq;
 import com.jd.bluedragon.distribution.api.response.BoxResponse;
+import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.SiteService;
@@ -28,6 +33,7 @@ import com.jd.bluedragon.distribution.external.constants.OpBoxNodeEnum;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.ver.domain.Site;
+import com.jd.bluedragon.distribution.ver.exception.SortingCheckException;
 import com.jd.bluedragon.utils.*;
 import com.jd.coo.sa.sequence.JimdbSequenceGen;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
@@ -50,6 +56,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import javax.annotation.Resource;
+import java.text.MessageFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -686,8 +693,17 @@ public class BoxServiceImpl implements BoxService {
         if (Box.BOX_TRANSPORT_TYPE_CITY.equals(request.getTransportType())) {
             Assert.notNull(request.getPredictSendTime(), "request predictSendTime must not be null");
         }
-        this.log.info("BoxRequest's {}", request.toString());
-        BoxResponse response = this.ok();
+		this.log.info("BoxRequest's {}", request.toString());
+		BoxResponse response = this.ok();
+		// 调用冷链接口，校验是否配置了此路径
+		if (BoxTypeEnum.TYPE_MS.getCode().equalsIgnoreCase(request.getType()) && !baseMajorManager.validateDirectlySentLine(request.getCreateSiteCode(),request.getReceiveSiteCode())) {
+			Map<String, String> hintArgs = Maps.newHashMap();
+			hintArgs.put(HintArgsConstants.ARG_FIRST, request.getCreateSiteName());
+			hintArgs.put(HintArgsConstants.ARG_SECOND, request.getReceiveSiteName());
+			response.setCode(SortingResponse.CODE_29461);
+			response.setMessage(HintService.getHint(HintCodeConstants.CODE_COLD_CHAIN_SITE_NO_ROUTE, hintArgs));
+			return response;
+		}
         // 先生成路由信息
         // 获得路由信息创建站点与目的站点之间，用于标签打印，方便站点人员确认下一站发往哪
         CrossBoxResult<String[]> routInfoRes = null;

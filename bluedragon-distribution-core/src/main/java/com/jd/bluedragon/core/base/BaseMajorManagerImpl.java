@@ -11,6 +11,8 @@ import com.jd.bluedragon.sdk.modules.menu.CommonUseMenuApi;
 import com.jd.bluedragon.sdk.modules.menu.dto.MenuPdaRequest;
 import com.jd.bluedragon.utils.BaseContants;
 import com.jd.bluedragon.utils.PropertiesHelper;
+import com.jd.coldchain.distribution.api.WaybillPackageContainerApi;
+import com.jd.coldchain.distribution.dto.BaseResponse;
 import com.jd.etms.basic.jsf.BasicSiteUpdateService;
 import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.ldop.basic.api.BasicTraderAPI;
@@ -84,6 +86,9 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
 
     @Autowired
     private SiteQueryService siteQueryService;
+
+    @Autowired
+    private WaybillPackageContainerApi waybillPackageContainerApi;
 
     /**
      * 站点ID
@@ -835,5 +840,26 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
             Profiler.registerInfoEnd(callerInfo);
         }
         return null;
+    }
+
+    /**
+     * 校验冷链配置路由
+     * @param createSiteCode
+     * @param endSiteCode
+     * @return
+     */
+    @JProfiler(jKey = "DMS.BASE.BaseMajorManagerImpl.validateDirectlySentLine", mState = {JProEnum.TP, JProEnum.FunctionError})
+    @Cache(key = "DMS.BASE.BaseMajorManagerImpl.validateDirectlySentLine@args0@args1", memoryEnable = true, memoryExpiredTime = 1 * 60 * 1000,
+            redisEnable = false, redisExpiredTime = 2 * 60 * 1000)
+    public boolean validateDirectlySentLine(Integer createSiteCode,Integer endSiteCode) {
+        BaseStaffSiteOrgDto boxCreateSiteDto = getBaseSiteBySiteId(createSiteCode);
+        BaseStaffSiteOrgDto boxReceiveSite = getBaseSiteBySiteId(endSiteCode);
+        BaseResponse baseResponse = waybillPackageContainerApi.validateDirectlySentLine(boxCreateSiteDto.getDmsSiteCode(), boxReceiveSite.getDmsSiteCode());
+        if(baseResponse != null && BaseResponse.OK_CODE == baseResponse.getCode()){
+            return (boolean)baseResponse.getData();
+        }else {
+            log.warn("校验路由信息失败!起始分拣中心code{},目的分拣中心code{},",boxCreateSiteDto.getDmsSiteCode(),boxReceiveSite.getDmsSiteCode());
+            return false;
+        }
     }
 }
