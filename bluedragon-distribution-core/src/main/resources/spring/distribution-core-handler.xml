@@ -630,7 +630,8 @@
             <list>
                 <ref bean="initialPrintCompleteHandler" />
                 <ref bean="dealPopPrintHandler" />
-                <ref bean="pushPrintRecordHandler" />
+				<ref bean="popPrintFirstHandler" />
+				<ref bean="pushPrintRecordHandler" />
             </list>
         </property>
     </bean>
@@ -641,7 +642,8 @@
                 <ref bean="initialPrintCompleteHandler" />
                 <ref bean="dealPopPrintHandler" />
                 <ref bean="pushPrintWaybillTrackHandler" />
-                <ref bean="pushPrintRecordHandler" />
+				<ref bean="popPrintFirstHandler" />
+				<ref bean="pushPrintRecordHandler" />
             </list>
         </property>
     </bean>
