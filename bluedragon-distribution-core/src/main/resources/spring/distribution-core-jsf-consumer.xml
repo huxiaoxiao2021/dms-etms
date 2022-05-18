@@ -926,4 +926,7 @@
                   retries="${jsf.retries}" >
     </jsf:consumer>
 
+    <jsf:consumer id="waybillPackageContainerApi" interface="com.jd.coldchain.distribution.api.WaybillPackageContainerApi"
+                  protocol="jsf" alias="${jsf.coldchain.dispatch.alias}" timeout="${jsf.coldchain.dispatch.timeout}" retries="${jsf.retries}" serialization="hessian">
+    </jsf:consumer>
 </beans>
