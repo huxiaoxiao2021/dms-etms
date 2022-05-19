@@ -33,7 +33,7 @@ public class TmsCarTaskServiceImpl implements TmsCarTaskService {
     public JdCResponse<List<CarTaskEndNodeResponse>> getEndNodeList(String startNodeCode) {
         PageDto<com.jd.tms.basic.dto.TransportResourceDto> page = new PageDto<>();
         page.setCurrentPage(1);
-        page.setPageSize(100);
+        page.setPageSize(200);
         TransportResourceDto transportResourceDto = new TransportResourceDto();
         transportResourceDto.setStartNodeCode(startNodeCode);
         //只查询目的分拣中心数据
