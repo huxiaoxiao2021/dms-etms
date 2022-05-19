@@ -9,10 +9,10 @@ import com.jd.tms.basic.dto.CommonDto;
 import com.jd.tms.basic.dto.PageDto;
 import com.jd.tms.basic.dto.TransportResourceDto;
 import com.jd.tms.basic.ws.BasicSelectWS;
-import com.jd.tms.tpc.api.TpcLineCargoVolumeApi;
-import com.jd.tms.tpc.dto.LineCargoVolumeDetailDto;
-import com.jd.tms.tpc.dto.LineCargoVolumeQueryDto;
-import com.jd.tms.tpc.dto.LineCargoVolumeUpdateDto;
+import com.jd.tms.tpc.api.TpcRouteLineCargoApi;
+import com.jd.tms.tpc.dto.RouteLineCargoDto;
+import com.jd.tms.tpc.dto.RouteLineCargoQueryDto;
+import com.jd.tms.tpc.dto.RouteLineCargoUpdateDto;
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +31,7 @@ public class TmsCarTaskManagerImpl implements TmsCarTaskManager {
     @Autowired
     private BasicSelectWS basicSelectWs;
     @Autowired
-    private TpcLineCargoVolumeApi tpcLineCargoVolumeApi;
+    private TpcRouteLineCargoApi tpcLineCargoVolumeApi;
 
     @Override
     public JdCResponse<List<CarTaskEndNodeResponse>> getEndNodeList(PageDto<TransportResourceDto> page, TransportResourceDto transportResourceDto) {
@@ -69,22 +69,22 @@ public class TmsCarTaskManagerImpl implements TmsCarTaskManager {
 
 
     @Override
-    public JdCResponse<List<CarTaskResponse>> queryCarTaskList(LineCargoVolumeQueryDto queryDto
-            , com.jd.tms.tpc.dto.PageDto<LineCargoVolumeDetailDto> pageDto) {
+    public JdCResponse<List<CarTaskResponse>> queryCarTaskList(RouteLineCargoQueryDto queryDto
+            , com.jd.tms.tpc.dto.PageDto<RouteLineCargoDto> pageDto) {
         log.info("TmsCarTaskManagerImpl.queryCarTaskList 调用运输获取车辆任务入参 queryDto:{},PageDao:{}", JSON.toJSONString(queryDto)
                 , JSON.toJSONString(pageDto));
         JdCResponse<List<CarTaskResponse>> response = new JdCResponse<>();
         try {
-            com.jd.tms.tpc.dto.CommonDto<com.jd.tms.tpc.dto.PageDto<LineCargoVolumeDetailDto>> result = tpcLineCargoVolumeApi.selectPageByCondition(queryDto, pageDto);
+            com.jd.tms.tpc.dto.CommonDto<com.jd.tms.tpc.dto.PageDto<RouteLineCargoDto>> result = tpcLineCargoVolumeApi.selectPageByCondition(queryDto, pageDto);
             log.info("调用运输获取车任务 result:{}",JSON.toJSONString(result));
             if (CommonDto.CODE_SUCCESS !=result.getCode() || result == null || result.getData() == null) {
                 response.toFail("调用运输获取车辆任务失败！");
                 return response;
             }
-            List<LineCargoVolumeDetailDto> cargoVolumeList = result.getData().getResult();
+            List<RouteLineCargoDto> cargoVolumeList = result.getData().getResult();
             List<CarTaskResponse> carTaskList = new ArrayList<>();
             if (CollectionUtils.isNotEmpty(cargoVolumeList)) {
-                for (LineCargoVolumeDetailDto detailDto : cargoVolumeList) {
+                for (RouteLineCargoDto detailDto : cargoVolumeList) {
                     CarTaskResponse carTask = new CarTaskResponse();
                     BeanUtils.copyProperties(detailDto,carTask);
                     carTaskList.add(carTask);
@@ -101,7 +101,7 @@ public class TmsCarTaskManagerImpl implements TmsCarTaskManager {
     }
 
     @Override
-    public JdCResponse updateCarTaskInfo(LineCargoVolumeUpdateDto updateDto) {
+    public JdCResponse updateCarTaskInfo(RouteLineCargoUpdateDto updateDto) {
         log.info("调用运输更新车辆任务信息入参 updateDto:{}",JSON.toJSONString(updateDto));
         JdCResponse response = new JdCResponse();
         response.toSucceed("更新车辆任务信息成功!");

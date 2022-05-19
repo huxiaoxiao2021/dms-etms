@@ -13,7 +13,7 @@ public interface TMSCarTaskGateWayService {
 
 
     /**
-     * 根据始发分拣网点ID获取 目的分拣网点列表
+     * 根据当前站点获取可查询运输车辆任务的目的站点列表
      * @param startNodeCode
      */
     JdCResponse<List<CarTaskEndNodeResponse>> getEndNodeList(String startNodeCode);

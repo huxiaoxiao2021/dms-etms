@@ -5,9 +5,6 @@ import com.jd.bluedragon.common.dto.carTask.request.CarTaskQueryRequest;
 import com.jd.bluedragon.common.dto.carTask.request.CarTaskUpdateDto;
 import com.jd.bluedragon.common.dto.carTask.response.CarTaskEndNodeResponse;
 import com.jd.bluedragon.common.dto.carTask.response.CarTaskResponse;
-import com.jd.tms.tpc.dto.LineCargoVolumeDetailDto;
-import com.jd.tms.tpc.dto.LineCargoVolumeQueryDto;
-import com.jd.tms.tpc.dto.LineCargoVolumeUpdateDto;
 
 import java.util.List;
 
@@ -15,7 +12,7 @@ public interface TmsCarTaskService {
 
 
     /**
-     * 根据始发分拣网点ID获取 目的分拣网点列表
+     * 根据当前站点获取可查询运输车辆任务的目的站点列表
      * @param startNodeCode
      */
     JdCResponse<List<CarTaskEndNodeResponse>> getEndNodeList(String startNodeCode);

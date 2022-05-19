@@ -5,17 +5,16 @@ import com.jd.bluedragon.common.dto.carTask.response.CarTaskEndNodeResponse;
 import com.jd.bluedragon.common.dto.carTask.response.CarTaskResponse;
 import com.jd.tms.basic.dto.PageDto;
 import com.jd.tms.basic.dto.TransportResourceDto;
-import com.jd.tms.tpc.dto.AccountDto;
-import com.jd.tms.tpc.dto.LineCargoVolumeDetailDto;
-import com.jd.tms.tpc.dto.LineCargoVolumeQueryDto;
-import com.jd.tms.tpc.dto.LineCargoVolumeUpdateDto;
+import com.jd.tms.tpc.dto.RouteLineCargoDto;
+import com.jd.tms.tpc.dto.RouteLineCargoQueryDto;
+import com.jd.tms.tpc.dto.RouteLineCargoUpdateDto;
 
 import java.util.List;
 
 public interface TmsCarTaskManager {
 
     /**
-     * 根据当前站点获取目的站点列表
+     * 根据当前站点获取可查询运输车辆任务的目的站点列表
      * @param page
      * @param transportResourceDto
      * @return
@@ -28,14 +27,14 @@ public interface TmsCarTaskManager {
      * @param pageDto
      * @return
      */
-    JdCResponse<List<CarTaskResponse>> queryCarTaskList(LineCargoVolumeQueryDto dto, com.jd.tms.tpc.dto.PageDto<LineCargoVolumeDetailDto> pageDto);
+    JdCResponse<List<CarTaskResponse>> queryCarTaskList(RouteLineCargoQueryDto dto, com.jd.tms.tpc.dto.PageDto<RouteLineCargoDto> pageDto);
 
     /**
      * 运输任务更新接口
      * @param updateDto
      * @return
      */
-    JdCResponse updateCarTaskInfo(LineCargoVolumeUpdateDto updateDto);
+    JdCResponse updateCarTaskInfo(RouteLineCargoUpdateDto updateDto);
 
 
 }

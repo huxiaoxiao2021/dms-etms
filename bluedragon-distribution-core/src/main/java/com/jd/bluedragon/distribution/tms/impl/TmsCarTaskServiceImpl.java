@@ -9,8 +9,11 @@ import com.jd.bluedragon.core.jsf.tms.TmsCarTaskManager;
 import com.jd.bluedragon.distribution.tms.TmsCarTaskService;
 import com.jd.tms.basic.dto.PageDto;
 import com.jd.tms.basic.dto.TransportResourceDto;
-import com.jd.tms.tpc.dto.LineCargoVolumeQueryDto;
-import com.jd.tms.tpc.dto.LineCargoVolumeUpdateDto;
+import com.jd.tms.basic.ws.BasicSelectWS;
+
+import com.jd.tms.tpc.dto.RouteLineCargoDto;
+import com.jd.tms.tpc.dto.RouteLineCargoQueryDto;
+import com.jd.tms.tpc.dto.RouteLineCargoUpdateDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +24,10 @@ public class TmsCarTaskServiceImpl implements TmsCarTaskService {
 
     @Autowired
     private TmsCarTaskManager tmsCarTaskManager;
+
+    @Autowired
+    private BasicSelectWS basicSelectWs;
+
 
     @Override
     public JdCResponse<List<CarTaskEndNodeResponse>> getEndNodeList(String startNodeCode) {
@@ -37,10 +44,10 @@ public class TmsCarTaskServiceImpl implements TmsCarTaskService {
     @Override
     public JdCResponse<List<CarTaskResponse>> queryCarTaskList(CarTaskQueryRequest queryRequest) {
 
-        LineCargoVolumeQueryDto queryDto = new LineCargoVolumeQueryDto();
+        RouteLineCargoQueryDto queryDto = new RouteLineCargoQueryDto();
         queryDto.setBeginNodeCode(queryRequest.getBeginNodeCode());
         queryDto.setEndNodeCode(queryRequest.getEndNodeCode());
-        com.jd.tms.tpc.dto.PageDto pageDto = new com.jd.tms.tpc.dto.PageDto();
+        com.jd.tms.tpc.dto.PageDto<RouteLineCargoDto> pageDto = new com.jd.tms.tpc.dto.PageDto();
         pageDto.setCurrentPage(1);
         pageDto.setPageSize(200);
         return tmsCarTaskManager.queryCarTaskList(queryDto, pageDto);
@@ -48,7 +55,7 @@ public class TmsCarTaskServiceImpl implements TmsCarTaskService {
 
     @Override
     public JdCResponse updateCarTaskInfo(CarTaskUpdateDto updateDto) {
-        LineCargoVolumeUpdateDto volumeUpdateDto = new LineCargoVolumeUpdateDto();
+        RouteLineCargoUpdateDto volumeUpdateDto = new RouteLineCargoUpdateDto();
         volumeUpdateDto.setBeginNodeCode(updateDto.getBeginNodeCode());
         volumeUpdateDto.setEndNodeCode(updateDto.getEndNodeCode());
         volumeUpdateDto.setRouteLineCode(updateDto.getRouteLineCode());
