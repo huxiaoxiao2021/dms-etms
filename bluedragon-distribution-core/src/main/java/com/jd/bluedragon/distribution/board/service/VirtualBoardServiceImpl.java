@@ -180,6 +180,7 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
         result.setCode(JdCResponse.CODE_SUCCESS);
 
         try{
+            log.info("{}--start-- param {}", descMethod, JsonHelper.toJson(operatorInfo));
             JdCResponse jdCResponse = flowTypeHandler(operatorInfo);
             if(!Objects.equals(jdCResponse.getCode(), JdCResponse.CODE_SUCCESS)) {
                 result.toFail(jdCResponse.getMessage());
@@ -213,6 +214,7 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
 
         String key = BoardConstants.CACHE_KEY_BOARD_FLOW_TYPE_ERP + operatorInfo.getUserErp();
         BoardFlowTypeDto boardFlowTypeDto = jimdbCacheService.get(key, BoardFlowTypeDto.class);
+        log.info("VirtualBoardServiceImpl.flowTypeHandler--缓存查询分拣组板类型，key={},value{}", key, JsonHelper.toJson(boardFlowTypeDto));
 
         Integer defaultFlowType = BoardConstants.MULTI_FLOW_BOARD;
         if(operatorInfo.getFlowFlag() == null) {
@@ -233,7 +235,7 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
                 boardFlowTypeCacheRenewal(boardFlowTypeDto, key);
             }
         }else {
-            if(boardFlowTypeDto != null && boardFlowTypeDto.getFlowType() != null ||  boardFlowTypeDto.getFlowType() == operatorInfo.getFlowFlag()) {
+            if(boardFlowTypeDto != null && boardFlowTypeDto.getFlowType() != null &&  boardFlowTypeDto.getFlowType() == operatorInfo.getFlowFlag()) {
                 //页面给值和缓存相同时，redis续期
                 boardFlowTypeCacheRenewal(boardFlowTypeDto, key);
             }else {
