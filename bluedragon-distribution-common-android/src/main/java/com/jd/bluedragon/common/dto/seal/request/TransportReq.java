@@ -9,4 +9,5 @@ public class TransportReq extends BaseReq implements Serializable {
      * 运力编码
      */
     private String transportCode;
+    private String vehicleNumber;
 }

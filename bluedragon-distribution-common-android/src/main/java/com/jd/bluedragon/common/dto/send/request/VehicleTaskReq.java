@@ -19,4 +19,9 @@ public class VehicleTaskReq extends BaseReq implements Serializable {
      */
     private Integer vehicleStatus;
 
+    /**
+     * 包裹号
+     */
+    private String packageCode;
+
 }

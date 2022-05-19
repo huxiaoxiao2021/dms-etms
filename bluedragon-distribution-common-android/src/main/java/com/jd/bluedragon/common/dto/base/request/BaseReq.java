@@ -1,8 +1,11 @@
 package com.jd.bluedragon.common.dto.base.request;
 
 
-public class BaseReq {
+import java.io.Serializable;
 
+public class BaseReq implements Serializable {
+
+    private static final long serialVersionUID = 301807412701085234L;
     private CurrentOperate currentOperate;
     private User user;
 

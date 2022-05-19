@@ -1,6 +1,4 @@
 package com.jd.bluedragon.external.gateway.service;
-
-
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.send.request.*;
 import com.jd.bluedragon.common.dto.send.response.CreateVehicleTaskResp;
@@ -31,7 +29,7 @@ public interface JyNoTaskSendGatewayService {
     JdCResponse deleteVehicleTask(DeleteVehicleTaskReq deleteVehicleTaskReq);
 
     /**
-     * 查询运输车辆任务
+     * 查询运输车辆任务列表
      * @param vehicleTaskReq
      * @return
      */
@@ -57,5 +55,8 @@ public interface JyNoTaskSendGatewayService {
      * @return
      */
     JdCResponse cancelSendTask(CancelSendTaskReq cancelSendTaskReq);
+
+
+
 
 }

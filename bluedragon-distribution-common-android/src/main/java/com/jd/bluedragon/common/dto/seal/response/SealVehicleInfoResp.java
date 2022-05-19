@@ -6,7 +6,11 @@ public class SealVehicleInfoResp implements Serializable {
     private static final long serialVersionUID = 4862292928579823809L;
 
     /**
-     * 运力编码，托盘，重量 体积
+     * 运力编码，托盘，重量 体积  车牌号
      */
     // TODO
+    /**
+     * 运力编码
+     */
+    private String transportCode;
 }

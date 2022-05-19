@@ -14,6 +14,7 @@ public class TransferSendTaskReq extends BaseReq implements Serializable {
      * 迁移前的子任务编号
      */
     private String fromSendVehicleDetailBizId;
+
     /**
      * 迁移后的主任务编号
      */
@@ -22,4 +23,9 @@ public class TransferSendTaskReq extends BaseReq implements Serializable {
      * 迁移后的子任务编号
      */
     private String toSendVehicleDetailBizId;
+
+    /**
+     * 迁移前后是否同流向
+     */
+    private Boolean isSameWay;
 }

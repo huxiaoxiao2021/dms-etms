@@ -65,6 +65,9 @@ public interface JySealVehicleGatewayService {
      */
     JdCResponse<SealCodeResponse> sealCodeList(SealCodeRequest request);
 
+
+
+    //--------------------jy封车相关接口----------------------
     /**
      * 根据运输任务bizId查询车的封签号列表
      * @param sealCodeReq
@@ -79,6 +82,22 @@ public interface JySealVehicleGatewayService {
      */
     JdCResponse<SealVehicleInfoResp> getSealVehicleInfo(SealVehicleInfoReq sealVehicleInfoReq);
 
+    /**
+     * 根据运力编码查询运输信息
+     * @param transportReq
+     * @return
+     */
     JdCResponse<TransportResp>  getTransportResourceByTransCode(TransportReq transportReq);
+
+
+    /**
+     * 根据任务简码查询车牌号信息
+     */
+
+    /**
+     * 提交封车，入参
+     */
+
+
 
 }
