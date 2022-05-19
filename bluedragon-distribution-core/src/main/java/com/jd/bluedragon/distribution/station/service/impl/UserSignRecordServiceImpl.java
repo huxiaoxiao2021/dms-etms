@@ -782,12 +782,9 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		signInData.setRefPlanKey(queryPlanKey(signInData));
 		setWarZoneInfo(signInData);
 		
-		String userCode = signInData.getUserCode();
 		Integer jobCode = signInData.getJobCode();
-		boolean isCarId = BusinessUtil.isIdCardNo(userCode);
 		if(JobTypeEnum.JOBTYPE1.getCode().equals(jobCode)
-				||JobTypeEnum.JOBTYPE2.getCode().equals(jobCode)
-				||JobTypeEnum.JOBTYPE6.getCode().equals(jobCode)) {
+				||JobTypeEnum.JOBTYPE2.getCode().equals(jobCode)) {
 			//正式工设置erp对应的名称
 			BaseStaffSiteOrgDto userInfo = baseMajorManager.getBaseStaffIgnoreIsResignByErp(signInData.getUserCode());
 			boolean isEffectErp = false;
@@ -801,19 +798,12 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 					result.toFail("签到失败，ERP在中台基础资料中不存在！");
 					return result;
 				}
-				if(!isCarId){
-					result.toFail("签到失败，无效的Erp|身份证号！");
-					return result;
-				}
 			}
 			//设置用户名称
 			if(isEffectErp
 					&& userInfo.getStaffName() != null) {
 				signInData.setUserName(userInfo.getStaffName());
 			}
-		}else if(!isCarId){
-			result.toFail("签到失败，无效的身份证号！");
-			return result;
 		}
 		return result;
 	}
