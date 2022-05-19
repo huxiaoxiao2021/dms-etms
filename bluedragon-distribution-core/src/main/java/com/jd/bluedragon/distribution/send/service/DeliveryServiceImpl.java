@@ -493,11 +493,13 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
             }
 
             // 围板箱校验
-            Box box = boxService.findBoxByCode(deliveryRequest.getBoxCode());
-            if (Objects.nonNull(box) && BoxTypeEnum.TYPE_MS.getCode().equals(box.getType())) {
-                if (Objects.isNull(deliveryRequest.getSiteCode()) || deliveryRequest.getSiteCode().equals(box.getReceiveSiteCode())) {
-                    result.toFail(SortingResponse.CODE_29462,HintService.getHint(HintCodeConstants.CODE_COLD_CHAIN_SEND_BOX_ERROR));
-                    return result;
+            if(BusinessUtil.isBoxcode(deliveryRequest.getBoxCode())){
+                Box box = boxService.findBoxByCode(deliveryRequest.getBoxCode());
+                if (Objects.nonNull(box) && BoxTypeEnum.TYPE_MS.getCode().equals(box.getType())) {
+                    if (!Objects.isNull(deliveryRequest.getSiteCode()) && deliveryRequest.getSiteCode().equals(box.getReceiveSiteCode())) {
+                        result.toFail(SortingResponse.CODE_29462,HintService.getHint(HintCodeConstants.CODE_COLD_CHAIN_SEND_BOX_ERROR));
+                        return result;
+                    }
                 }
             }
 
