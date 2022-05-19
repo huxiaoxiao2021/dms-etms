@@ -14,14 +14,10 @@ import com.jd.bluedragon.distribution.ver.filter.FilterChain;
 import com.jd.bluedragon.distribution.whitelist.DimensionEnum;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.DmsMessageConstants;
-import com.jd.etms.waybill.domain.BaseEntity;
-import com.jd.etms.waybill.dto.WaybillAbilityAttrDto;
-import com.jd.etms.waybill.dto.WaybillAbilityDto;
 import com.jd.etms.waybill.dto.WaybillProductDto;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 
@@ -37,11 +33,8 @@ public class PreSellInterceptFilter implements Filter {
     @Autowired
     private FuncSwitchConfigService funcSwitchConfigService;
 
-
-    /**
-     * 运单预售未付尾款
-     */
-    private static final String PRODUCT_ABILITY_OF_PRE_SELL_NO_PAY  = "VI007-01";
+    @Autowired
+    private WaybillQueryManager waybillQueryManager;
 
     @Override
     public void doFilter(FilterContext request, FilterChain chain) throws Exception {
@@ -69,21 +62,9 @@ public class PreSellInterceptFilter implements Filter {
                 Integer.valueOf(Constants.JHC_SITE_TYPE).equals(request.getCreateSite().getSubType())){
             //获取能力信息
             List<WaybillProductDto> waybillProductDtos = request.getWaybillProductDtos();
-            if(waybillProductDtos != null && !CollectionUtils.isEmpty(waybillProductDtos)){
-                for(WaybillProductDto productDto : waybillProductDtos){
-                   if(!CollectionUtils.isEmpty(productDto.getAbilityItems())){
-                       for(WaybillAbilityDto abilityDto : productDto.getAbilityItems()){
-                           if(!CollectionUtils.isEmpty(abilityDto.getAttrItems())){
-                            for( WaybillAbilityAttrDto abilityAttrDto : abilityDto.getAttrItems()){
-                                if(PRODUCT_ABILITY_OF_PRE_SELL_NO_PAY.equals(abilityAttrDto.getAttrCode())){
-                                    throw new SortingCheckException(DmsMessageConstants.CODE_29420,
-                                            HintService.getHintWithFuncModule(HintCodeConstants.PRE_SELL_WITHOUT_FULL_PAY, request.getFuncModule()));
-                                    }
-                                }
-                           }
-                       }
-                   }
-                }
+            if(waybillQueryManager.checkWaybillProductAbility(waybillProductDtos,Constants.PRODUCT_ABILITY_OF_PRE_SELL_NO_PAY)){
+                throw new SortingCheckException(DmsMessageConstants.CODE_29420,
+                        HintService.getHintWithFuncModule(HintCodeConstants.PRE_SELL_WITHOUT_FULL_PAY, request.getFuncModule()));
             }
         }
 
