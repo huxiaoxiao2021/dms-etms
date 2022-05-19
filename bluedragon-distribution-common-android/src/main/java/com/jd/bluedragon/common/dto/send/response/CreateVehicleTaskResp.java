@@ -9,7 +9,7 @@ public class CreateVehicleTaskResp implements Serializable {
      */
     private String bizId;
     /**
-     * 自建类型任务编号
+     * 自建类型任务编号（页面展示自建 1、自建2...）
      */
     private String bizNo;
 
