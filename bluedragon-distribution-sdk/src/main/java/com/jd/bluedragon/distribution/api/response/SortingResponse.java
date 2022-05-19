@@ -397,6 +397,9 @@ public class SortingResponse extends JdResponse {
     public static final Integer CODE_29461 = 29461;
     public static final String  MESSAGE_29461 = "未配置发出地[始发分拣名称]至目的地[目的分拣名称]的医药直发包规则，请先创建医药直发规则";
 
+    public static final Integer CODE_29462 = 29462;
+    public static final String  MESSAGE_29462 = "不允许按直发医药箱号进行发货，请拆箱后再进行发货";
+
     public static final Integer CODE_39000 = 39000;
     public static final String MESSAGE_39000 = "此单与分拣[站点]不一致,确定装箱？";
     public static final String MESSAGE_39000_PDA = "注意：包裹/运单与预分拣站点不一致";
