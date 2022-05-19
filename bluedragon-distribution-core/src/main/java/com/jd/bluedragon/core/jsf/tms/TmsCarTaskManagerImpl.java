@@ -41,7 +41,7 @@ public class TmsCarTaskManagerImpl implements TmsCarTaskManager {
         try {
             CommonDto<PageDto<TransportResourceDto>> rest = basicSelectWs.queryPageTransportResource(page, transportResourceDto);
             log.info("获取目的站点列表接口getTransportResourceByPage， 返回结果：{}", JsonHelper.toJson(rest));
-            if (CommonDto.CODE_SUCCESS !=rest.getCode() || null == rest || rest.getData() == null) {
+            if (null == rest || CommonDto.CODE_SUCCESS !=rest.getCode() ||  rest.getData() == null) {
                 result.toFail("获取目的站点列表失败!");
                 return result;
             }
@@ -77,7 +77,7 @@ public class TmsCarTaskManagerImpl implements TmsCarTaskManager {
         try {
             com.jd.tms.tpc.dto.CommonDto<com.jd.tms.tpc.dto.PageDto<RouteLineCargoDto>> result = tpcLineCargoVolumeApi.selectPageByCondition(queryDto, pageDto);
             log.info("调用运输获取车任务 result:{}",JSON.toJSONString(result));
-            if (CommonDto.CODE_SUCCESS !=result.getCode() || result == null || result.getData() == null) {
+            if (result == null || CommonDto.CODE_SUCCESS !=result.getCode() ||  result.getData() == null) {
                 response.toFail("调用运输获取车辆任务失败！");
                 return response;
             }
