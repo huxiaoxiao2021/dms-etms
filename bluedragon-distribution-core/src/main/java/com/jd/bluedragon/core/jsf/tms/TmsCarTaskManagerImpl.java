@@ -75,7 +75,7 @@ public class TmsCarTaskManagerImpl implements TmsCarTaskManager {
                 , JSON.toJSONString(pageDto));
         JdCResponse<List<CarTaskResponse>> response = new JdCResponse<>();
         try {
-            com.jd.tms.tpc.dto.CommonDto<com.jd.tms.tpc.dto.PageDto<RouteLineCargoDto>> result = tpcLineCargoVolumeApi.selectPageByCondition(queryDto, pageDto);
+            com.jd.tms.tpc.dto.CommonDto<com.jd.tms.tpc.dto.PageDto<RouteLineCargoDto>> result = tpcLineCargoVolumeApi.selectPageByConditionForDms(queryDto, pageDto);
             log.info("调用运输获取车任务 result:{}",JSON.toJSONString(result));
             if (result == null || CommonDto.CODE_SUCCESS !=result.getCode() ||  result.getData() == null) {
                 response.toFail("调用运输获取车辆任务失败！");
