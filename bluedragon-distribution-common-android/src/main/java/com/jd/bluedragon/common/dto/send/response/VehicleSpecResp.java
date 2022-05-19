@@ -1,6 +1,5 @@
 package com.jd.bluedragon.common.dto.send.response;
 
-import com.jd.bluedragon.common.dto.base.request.BaseReq;
 
 import java.io.Serializable;
 import java.util.List;

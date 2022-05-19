@@ -7,6 +7,11 @@ import com.jd.bluedragon.common.dto.operation.workbench.unseal.request.SealVehic
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.SealCodeResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.SealTaskInfo;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.SealVehicleTaskResponse;
+import com.jd.bluedragon.common.dto.seal.request.SealCodeReq;
+import com.jd.bluedragon.common.dto.seal.request.SealVehicleInfoReq;
+import com.jd.bluedragon.common.dto.seal.request.TransportReq;
+import com.jd.bluedragon.common.dto.seal.response.SealVehicleInfoResp;
+import com.jd.bluedragon.common.dto.seal.response.TransportResp;
 import com.jd.bluedragon.common.dto.select.SelectOption;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 
@@ -59,5 +64,21 @@ public interface JySealVehicleGatewayService {
      * @return
      */
     JdCResponse<SealCodeResponse> sealCodeList(SealCodeRequest request);
+
+    /**
+     * 根据运输任务bizId查询车的封签号列表
+     * @param sealCodeReq
+     * @return
+     */
+    JdCResponse<SealCodeResponse> listSealCodeBy(SealCodeReq sealCodeReq);
+
+    /**
+     * 查询封车数据详情
+     * @param sealVehicleInfoReq
+     * @return
+     */
+    JdCResponse<SealVehicleInfoResp> getSealVehicleInfo(SealVehicleInfoReq sealVehicleInfoReq);
+
+    JdCResponse<TransportResp>  getTransportResourceByTransCode(TransportReq transportReq);
 
 }
