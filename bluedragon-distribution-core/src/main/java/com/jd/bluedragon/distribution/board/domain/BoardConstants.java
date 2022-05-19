@@ -18,8 +18,9 @@ public class BoardConstants {
     public static final long CACHE_KEY_BOARD_FLOW_TYPE_ERP_TIME_RENEWAL = 30l * 24l * 3600l * 1000l;
 
     /**
-     * 组板流向模式： 1单流向 ， 2 多流向 (默认）
+     * 组板流向模式： 1单流向 ， 2 多流向 (默认） 0: 刚进入页面初始状态
      */
+    public static final int INIT_FLOW_BOARD = 0;
     public static final int SINGLE_FLOW_BOARD = 1;
     public static final int MULTI_FLOW_BOARD = 2;
 

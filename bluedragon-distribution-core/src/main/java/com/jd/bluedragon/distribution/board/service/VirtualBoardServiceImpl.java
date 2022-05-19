@@ -214,16 +214,19 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
         String key = BoardConstants.CACHE_KEY_BOARD_FLOW_TYPE_ERP + operatorInfo.getUserErp();
         BoardFlowTypeDto boardFlowTypeDto = jimdbCacheService.get(key, BoardFlowTypeDto.class);
 
+        Integer defaultFlowType = BoardConstants.MULTI_FLOW_BOARD;
         if(operatorInfo.getFlowFlag() == null) {
+            //老功能没有这个字段，走默认多模式
+            boardFlowTypeDto.setFlowType(defaultFlowType);
+        }else if(operatorInfo.getFlowFlag() == BoardConstants.INIT_FLOW_BOARD) {
             if(boardFlowTypeDto == null) {
                 //首次登录该功能默认多流向模式
-                Integer flowType = BoardConstants.MULTI_FLOW_BOARD;
                 boardFlowTypeDto = new BoardFlowTypeDto();
-                boardFlowTypeDto.setFlowType(flowType);
+                boardFlowTypeDto.setFlowType(defaultFlowType);
                 boardFlowTypeDto.setCreateTimeStamp(System.currentTimeMillis());
                 jimdbCacheService.setEx(key, JsonHelper.toJson(boardFlowTypeDto), BoardConstants.CACHE_KEY_BOARD_FLOW_TYPE_ERP_TIME, TimeUnit.DAYS);
                 //
-                operatorInfo.setFlowFlag(flowType);
+                operatorInfo.setFlowFlag(boardFlowTypeDto.getFlowType());
             }else {
                 // 之前有登陆保存缓存，退出页面重新进来
                 operatorInfo.setFlowFlag(boardFlowTypeDto.getFlowType());
