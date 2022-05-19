@@ -98,7 +98,7 @@ public interface JySealVehicleGatewayService {
     /**
      * 根据任务简码查询车牌号信息
      *
-     * com.jd.bluedragon.distribution.external.gateway.service.impl.NewSealVehicleGatewayServiceImpl#getTaskInfo
+     * NewSealVehicleGatewayServiceImpl#getTaskInfo
      */
     JdCResponse<TransportResp> getVehicleNumberByWorkItemCode(GetVehicleNumberReq getVehicleNumberReq);
 
