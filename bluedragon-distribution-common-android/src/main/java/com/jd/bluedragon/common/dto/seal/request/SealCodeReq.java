@@ -14,4 +14,20 @@ public class SealCodeReq extends BaseReq implements Serializable {
      * 车牌号
      */
     private String vehicleNumber;
+
+    public String getSendVehicleBizId() {
+        return sendVehicleBizId;
+    }
+
+    public void setSendVehicleBizId(String sendVehicleBizId) {
+        this.sendVehicleBizId = sendVehicleBizId;
+    }
+
+    public String getVehicleNumber() {
+        return vehicleNumber;
+    }
+
+    public void setVehicleNumber(String vehicleNumber) {
+        this.vehicleNumber = vehicleNumber;
+    }
 }

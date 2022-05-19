@@ -12,4 +12,28 @@ public class SealVehicleInfoReq extends BaseReq implements Serializable {
     private String sendVehicleDetailBizId;
     //车牌号
     private String vehicleNumber;
+
+    public String getSendVehicleBizId() {
+        return sendVehicleBizId;
+    }
+
+    public void setSendVehicleBizId(String sendVehicleBizId) {
+        this.sendVehicleBizId = sendVehicleBizId;
+    }
+
+    public String getSendVehicleDetailBizId() {
+        return sendVehicleDetailBizId;
+    }
+
+    public void setSendVehicleDetailBizId(String sendVehicleDetailBizId) {
+        this.sendVehicleDetailBizId = sendVehicleDetailBizId;
+    }
+
+    public String getVehicleNumber() {
+        return vehicleNumber;
+    }
+
+    public void setVehicleNumber(String vehicleNumber) {
+        this.vehicleNumber = vehicleNumber;
+    }
 }

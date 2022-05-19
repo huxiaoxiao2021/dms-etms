@@ -7,9 +7,7 @@ import com.jd.bluedragon.common.dto.operation.workbench.unseal.request.SealVehic
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.SealCodeResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.SealTaskInfo;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.SealVehicleTaskResponse;
-import com.jd.bluedragon.common.dto.seal.request.SealCodeReq;
-import com.jd.bluedragon.common.dto.seal.request.SealVehicleInfoReq;
-import com.jd.bluedragon.common.dto.seal.request.TransportReq;
+import com.jd.bluedragon.common.dto.seal.request.*;
 import com.jd.bluedragon.common.dto.seal.response.SealVehicleInfoResp;
 import com.jd.bluedragon.common.dto.seal.response.TransportResp;
 import com.jd.bluedragon.common.dto.select.SelectOption;
@@ -86,17 +84,30 @@ public interface JySealVehicleGatewayService {
      * 根据运力编码查询运输信息
      * @param transportReq
      * @return
+     *
+     *  NewSealVehicleGatewayServiceImpl#getTransportInfoByCode
      */
     JdCResponse<TransportResp>  getTransportResourceByTransCode(TransportReq transportReq);
 
-
+    /**
+     * 校验运力编码和任务简码是否匹配
+     * NewSealVehicleGatewayServiceImpl#checkTransportCode
+     *
+     */
+    JdCResponse checkTransportCode(CheckTransportCodeReq checkTransportCodeReq);
     /**
      * 根据任务简码查询车牌号信息
+     *
+     * com.jd.bluedragon.distribution.external.gateway.service.impl.NewSealVehicleGatewayServiceImpl#getTaskInfo
      */
+    JdCResponse<TransportResp> getVehicleNumberByWorkItemCode(GetVehicleNumberReq getVehicleNumberReq);
 
     /**
-     * 提交封车，入参
+     * 提交封车
+     *
+     * NewSealVehicleGatewayServiceImpl#sealCar
      */
+    JdCResponse sealVehicle(SealVehicleReq sealVehicleReq);
 
 
 
