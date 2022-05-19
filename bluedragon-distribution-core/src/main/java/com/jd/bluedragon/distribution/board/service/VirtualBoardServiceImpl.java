@@ -213,24 +213,30 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
 
         String key = BoardConstants.CACHE_KEY_BOARD_FLOW_TYPE_ERP + operatorInfo.getUserErp();
         BoardFlowTypeDto boardFlowTypeDto = jimdbCacheService.get(key, BoardFlowTypeDto.class);
-        if(operatorInfo.getFlowFlag() == null || boardFlowTypeDto == null) {
-            //默认多流向模式
-            Integer flowType = operatorInfo.getFlowFlag() == null ? BoardConstants.MULTI_FLOW_BOARD : operatorInfo.getFlowFlag();
-            boardFlowTypeDto = new BoardFlowTypeDto();
-            boardFlowTypeDto.setFlowType(flowType);
-            boardFlowTypeDto.setCreateTimeStamp(System.currentTimeMillis());
-            jimdbCacheService.setEx(key, JsonHelper.toJson(boardFlowTypeDto), BoardConstants.CACHE_KEY_BOARD_FLOW_TYPE_ERP_TIME, TimeUnit.DAYS);
-            //
-            operatorInfo.setFlowFlag(flowType);
-        }else {
-            //切换类型更新redis
-            if(!boardFlowTypeDto.getFlowType().equals(operatorInfo.getFlowFlag())) {
+
+        if(operatorInfo.getFlowFlag() == null) {
+            if(boardFlowTypeDto == null) {
+                //首次登录该功能默认多流向模式
+                Integer flowType = BoardConstants.MULTI_FLOW_BOARD;
                 boardFlowTypeDto = new BoardFlowTypeDto();
-                boardFlowTypeDto.setFlowType(operatorInfo.getFlowFlag());
+                boardFlowTypeDto.setFlowType(flowType);
                 boardFlowTypeDto.setCreateTimeStamp(System.currentTimeMillis());
                 jimdbCacheService.setEx(key, JsonHelper.toJson(boardFlowTypeDto), BoardConstants.CACHE_KEY_BOARD_FLOW_TYPE_ERP_TIME, TimeUnit.DAYS);
-            }else if(System.currentTimeMillis() - boardFlowTypeDto.getCreateTimeStamp() - BoardConstants.CACHE_KEY_BOARD_FLOW_TYPE_ERP_TIME_RENEWAL > 0){
-                //redis续期
+                //
+                operatorInfo.setFlowFlag(flowType);
+            }else {
+                // 之前有登陆保存缓存，退出页面重新进来
+                operatorInfo.setFlowFlag(boardFlowTypeDto.getFlowType());
+                boardFlowTypeCacheRenewal(boardFlowTypeDto, key);
+            }
+        }else {
+            if(boardFlowTypeDto != null && boardFlowTypeDto.getFlowType() != null ||  boardFlowTypeDto.getFlowType() == operatorInfo.getFlowFlag()) {
+                //页面给值和缓存相同时，redis续期
+                boardFlowTypeCacheRenewal(boardFlowTypeDto, key);
+            }else {
+                //页面给值和缓存相同时，redis更新创建新的值
+                boardFlowTypeDto = new BoardFlowTypeDto();
+                boardFlowTypeDto.setFlowType(operatorInfo.getFlowFlag());
                 boardFlowTypeDto.setCreateTimeStamp(System.currentTimeMillis());
                 jimdbCacheService.setEx(key, JsonHelper.toJson(boardFlowTypeDto), BoardConstants.CACHE_KEY_BOARD_FLOW_TYPE_ERP_TIME, TimeUnit.DAYS);
             }
@@ -238,6 +244,16 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
         }
         res.toSucceed();
         return res;
+    }
+
+    /**
+     * 分拣组板流向记录缓存续期
+     * @param boardFlowTypeDto
+     * @param cacheKey
+     */
+    public void boardFlowTypeCacheRenewal(BoardFlowTypeDto boardFlowTypeDto, String cacheKey) {
+        boardFlowTypeDto.setCreateTimeStamp(System.currentTimeMillis());
+        jimdbCacheService.setEx(cacheKey, JsonHelper.toJson(boardFlowTypeDto), BoardConstants.CACHE_KEY_BOARD_FLOW_TYPE_ERP_TIME, TimeUnit.DAYS);
     }
 
     private com.jd.transboard.api.dto.base.OperatorInfo getConvertToTcParam(OperatorInfo operatorInfo) {
@@ -918,9 +934,9 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
         if(removeDestinationPo.getDestinationId() == null){
             return result.toFail("参数错误，destinationId不能为空", ResultCodeConstant.NULL_ARGUMENT);
         }
-        if(removeDestinationPo.getFlowFlag() == null) {
-            return result.toFail("参数错误，flowFlag不能为空", ResultCodeConstant.NULL_ARGUMENT);
-        }
+//        if(removeDestinationPo.getFlowFlag() == null) {
+//            return result.toFail("参数错误，flowFlag不能为空", ResultCodeConstant.NULL_ARGUMENT);
+//        }
         return result;
     }
 
