@@ -204,4 +204,15 @@ public interface BaseMajorManager {
 	 * @return
 	 */
 	List<StreamlinedBasicSite> querySiteByConditionFromStreamlinedSite(StreamlinedSiteQueryCondition siteQueryCondition, Integer limit);
+
+	/**
+	 * 校验冷链配置路由
+	 * 		<p>
+	 * 		    查询精简站点数据
+	 * 		</p>
+	 * @param createSiteCode
+	 * @param endSiteCode
+	 * @return
+	 */
+	boolean validateDirectlySentLine(Integer createSiteCode,Integer endSiteCode);
 }
