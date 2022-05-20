@@ -52,7 +52,7 @@ public class TmsCarTaskManagerImpl implements TmsCarTaskManager {
                     CarTaskEndNodeResponse endNode = new CarTaskEndNodeResponse();
                     endNode.setEndNodeCode(item.getEndNodeCode());
                     endNode.setEndNodeName(item.getEndNodeName());
-                    //
+                    //对目的分拣进行去重
                     if(!listData.contains(endNode)){
                         listData.add(endNode);
                     }
