@@ -73,7 +73,7 @@ public class BatchSingleSendServiceImpl implements BatchSingleSendGatewayService
     public JdCResponse<BatchSingleSendCheckDto> batchSingleSendCheck(BatchSingleSendCheckRequest request) {
 
         JdCResponse<BatchSingleSendCheckDto> jdResponse = new JdCResponse<>();
-        jdResponse.toFail("操作失败请联系IT");
+        jdResponse.toFail("非法的包裹号或箱号！");
 
         if(request == null){
             jdResponse.toFail("入参不能为空");
@@ -295,7 +295,7 @@ public class BatchSingleSendServiceImpl implements BatchSingleSendGatewayService
     public JdCResponse<ThirdWaybillNoWyDto> getPackageNoByThirdWaybillNo(ThirdWaybillNoWyRequest request) {
 
         JdCResponse<ThirdWaybillNoWyDto> jdResponse = new JdCResponse<>();
-        jdResponse.toFail("操作失败请联系IT");
+        jdResponse.toFail("非法的包裹号或箱号！");
 
         if (request == null) {
             jdResponse.toFail("入参不能为空");
