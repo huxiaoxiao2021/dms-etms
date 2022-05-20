@@ -1,7 +1,10 @@
 package com.jd.bluedragon.distribution.eclpPackage.service.impl;
 
+import com.jd.bluedragon.distribution.api.request.ThirdWaybillNoRequest;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.eclpPackage.manager.EclpLwbB2bPackageItemManager;
 import com.jd.bluedragon.distribution.eclpPackage.service.EclpLwbB2bPackageItemService;
+import com.jd.bluedragon.distribution.waybill.domain.ThirdWaybillNoResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,5 +23,10 @@ public class EclpLwbB2bPackageItemServiceImpl implements EclpLwbB2bPackageItemSe
     @Override
     public String findSellerPackageCode(String sellerPackageNo) {
         return eclpLwbB2bPackageItemManager.findSellerPackageCode(sellerPackageNo);
+    }
+
+    @Override
+    public InvokeResult<ThirdWaybillNoResult> findPackageNoByThirdWaybillNo(ThirdWaybillNoRequest request) {
+        return eclpLwbB2bPackageItemManager.searchPackageNoByThirdWaybillNo(request);
     }
 }

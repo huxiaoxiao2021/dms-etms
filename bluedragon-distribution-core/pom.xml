@@ -238,7 +238,7 @@
 		<dependency>
             <groupId>com.jd.bluedragon</groupId>
             <artifactId>bluedragon-distribution-common-android</artifactId>
-            <version>1.5.1-SNAPSHOT</version>
+            <version>1.5.1-wy-SNAPSHOT</version>
         </dependency>
 		<dependency>
 			<groupId>com.jd.etms.waybill</groupId>
@@ -1836,6 +1836,10 @@
 			<groupId>com.jd.cmp</groupId>
 			<artifactId>cmp-api-dms</artifactId>
 			<version>0.0.3-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>com.jd.eclp</groupId>
+			<artifactId>eclp-so-api</artifactId>
 		</dependency>
     </dependencies>
 
