@@ -112,6 +112,14 @@ public interface WaybillQueryManager{
 	BaseEntity<List<WaybillProductDto>> getProductAbilityInfoByWaybillCode(String waybillCode);
 
 	/**
+	 * 校验产品能力是否存在
+	 * @param waybillProductDtos 产品能力列表
+	 * @param productAbility 产品能力指
+	 * @return
+	 */
+	boolean checkWaybillProductAbility(List<WaybillProductDto> waybillProductDtos,String productAbility);
+
+	/**
 	 * 根据扫描单号获得换单前单号,主要用于逆向
 	 * @param waybillCode
 	 * @return
