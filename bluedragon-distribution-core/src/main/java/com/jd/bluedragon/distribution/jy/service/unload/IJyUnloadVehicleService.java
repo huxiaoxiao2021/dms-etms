@@ -99,12 +99,6 @@ public interface IJyUnloadVehicleService {
      */
     JyBizTaskUnloadDto createUnloadTask(JyBizTaskUnloadDto dto);
     /**
-     * 卸车完成
-     * @param request
-     * @return
-     */
-    InvokeResult<Boolean> submitUnloadCompletion(UnloadCompleteRequest request);
-    /**
      * 查询待解封车数量
      * @param request
      * @return
