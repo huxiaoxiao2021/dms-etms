@@ -1480,4 +1480,23 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         completeDto.setOperateTime(new Date());
         return transactionManager.completeUnloadTask(completeDto);
     }
+
+	@Override
+	public InvokeResult<Long> countByVehicleNumberAndStatus(UnsealVehicleTaskRequest request) {
+		InvokeResult<Long> invokeResult = new InvokeResult<>();
+        if (StringUtils.isBlank(request.getVehicleNumber())) {
+            invokeResult.parameterError("车牌号不能为空！");
+            return invokeResult;
+        }
+        if (!NumberHelper.gt0(request.getEndSiteCode())) {
+            invokeResult.parameterError("缺少目的场地！");
+            return invokeResult;
+        }
+        JyBizTaskUnloadVehicleEntity condition = new JyBizTaskUnloadVehicleEntity();
+        condition.setStatusCodeList(request.getStatusCodeList());
+        condition.setVehicleNumber(request.getVehicleNumber());
+        condition.setEndSiteId(request.getEndSiteCode().longValue());
+        invokeResult.setData(unloadVehicleService.countByVehicleNumberAndStatus(condition));
+		return invokeResult;
+	}
 }
