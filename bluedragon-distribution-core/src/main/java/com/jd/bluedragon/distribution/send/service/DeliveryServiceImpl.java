@@ -40,6 +40,7 @@ import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.batch.dao.BatchSendDao;
 import com.jd.bluedragon.distribution.batch.domain.BatchSend;
 import com.jd.bluedragon.distribution.board.service.BoardCombinationService;
+import com.jd.bluedragon.distribution.box.constants.BoxTypeEnum;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.domain.BoxRelation;
 import com.jd.bluedragon.distribution.box.service.BoxRelationService;
@@ -141,6 +142,7 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.util.DateUtil;
 import com.jd.ql.dms.common.constants.OperateDeviceTypeConstants;
 import com.jd.ql.dms.common.constants.OperateNodeConstants;
+import com.jd.tp.common.utils.Objects;
 import com.jd.transboard.api.dto.OperatorInfo;
 import com.jd.transboard.api.dto.Response;
 import com.jd.ump.annotation.JProEnum;
@@ -488,6 +490,17 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
             if (!sendChkResult.codeSuccess()) {
                 result.toFail(sendChkResult.getMessage());
                 return result;
+            }
+
+            // 围板箱校验
+            if(BusinessUtil.isBoxcode(deliveryRequest.getBoxCode())){
+                Box box = boxService.findBoxByCode(deliveryRequest.getBoxCode());
+                if (Objects.nonNull(box) && BoxTypeEnum.TYPE_MS.getCode().equals(box.getType())) {
+                    if (!Objects.isNull(deliveryRequest.getSiteCode()) && deliveryRequest.getSiteCode().equals(box.getReceiveSiteCode())) {
+                        result.toFail(SortingResponse.CODE_29462,HintService.getHint(HintCodeConstants.CODE_COLD_CHAIN_SEND_BOX_ERROR));
+                        return result;
+                    }
+                }
             }
 
             //不是快运发货，调用箱号验证
