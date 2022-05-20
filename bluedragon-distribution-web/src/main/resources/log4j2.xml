@@ -83,9 +83,6 @@
         <logger name="com.jd.tbschedule" level="ERROR" additivity="true"/>
         <Logger name="com.jd.dbs.transaction" level="ERROR" additivity="true"/>
         <Logger name="com.jd.etms.basic.cache" level="ERROR" additivity="true"/>
-        <Logger name="com.jd.coo.sa" level="info" additivity="true"/>
-        <Logger name="com.jd.coo.ucc.client" level="info" additivity="true"/>
-
 
         <!--dao-->
         <logger name="com.jd.bluedragon.distribution.site.dao" level="DEBUG" additivity="true"/>

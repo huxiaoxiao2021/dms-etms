@@ -485,5 +485,4 @@
                   alias="${dms.gateway.jsf.alias}"
                   ref="groupMemberGatewayService"
                   server="dmsjsf" />
-
 </beans>
