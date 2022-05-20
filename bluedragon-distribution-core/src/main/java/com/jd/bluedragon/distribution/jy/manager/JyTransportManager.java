@@ -7,7 +7,10 @@ import com.jd.tms.basic.dto.CommonDto;
 import java.util.List;
 
 public interface JyTransportManager {
-    CommonDto<List<BasicDictDto>> getVehicleTypeByType(String owner, Integer type) ;
+    CommonDto<List<BasicDictDto>> getVehicleTypeByType(String owner, Integer type);
+
     CommonDto<BasicVehicleTypeDto> getVehicleTypeByVehicleNum(String vehicleNum) throws Exception;
+
+    CommonDto<List<BasicVehicleTypeDto>> getVehicleTypeList();
 
 }

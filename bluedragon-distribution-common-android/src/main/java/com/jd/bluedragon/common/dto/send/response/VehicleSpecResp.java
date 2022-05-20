@@ -7,11 +7,27 @@ import java.util.List;
 public class VehicleSpecResp implements Serializable {
     private static final long serialVersionUID = -7846057809543529300L;
     /**
-     * 规格信息
+     * 车身长
      */
-    private String spec;
+    private String vehicleLength;
     /**
      * 某规格下的车辆类型列表信息
      */
     private List<VehicleTypeDto> vehicleTypeDtoList;
+
+    public String getVehicleLength() {
+        return vehicleLength;
+    }
+
+    public void setVehicleLength(String vehicleLength) {
+        this.vehicleLength = vehicleLength;
+    }
+
+    public List<VehicleTypeDto> getVehicleTypeDtoList() {
+        return vehicleTypeDtoList;
+    }
+
+    public void setVehicleTypeDtoList(List<VehicleTypeDto> vehicleTypeDtoList) {
+        this.vehicleTypeDtoList = vehicleTypeDtoList;
+    }
 }

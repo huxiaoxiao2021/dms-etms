@@ -12,7 +12,7 @@ public interface JyNoTaskSendGatewayService {
      * 获取车辆类型列表信息
      * @return
      */
-    JdCResponse<List<VehicleSpecResp>> getVehicleType();
+    JdCResponse<List<VehicleSpecResp>> listVehicleType();
 
     /**
      * 创建自建类型的运输车辆任务（主任务）

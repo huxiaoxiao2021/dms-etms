@@ -2,145 +2,119 @@ package com.jd.bluedragon.common.dto.send.response;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 public class VehicleTypeDto implements Serializable {
 
     private static final long serialVersionUID = -3930599933845221946L;
+    private Integer vehicleType;//车型
+    private String vehicleTypeName;//车型名称
+    private Double volume;//标准容积(单位:立方米)
+    private Double weight;//核定载重(单位:吨)
+    private String vehicleLength;//车长（单位：厘米）
+    private String vehicleLengthName;
+    private String vehicleKind;//车辆种类
+    private String vehicleKindName;
+    private Integer minTray;//托盘最小量（托）
+    private Integer maxTray;//托盘理论满载值（托
+    private String vehicleWidth;
+    private String vehicleHeight;
 
-    private Long dictId;
-    private String dictName;
-    private String dictCode;
-    private String parentCode;
-    private Integer dictLevel;
-    private String dictGroup;
-    private Integer dictSequence;
-    private String remark;
-    private String owner;
-    private Date createTime;
-    private Date updateTime;
-    private Date sysTime;
-    private Integer yn;
 
-    public Long getDictId() {
-        return dictId;
+
+    public Integer getVehicleType() {
+        return vehicleType;
     }
 
-    public void setDictId(Long dictId) {
-        this.dictId = dictId;
+    public void setVehicleType(Integer vehicleType) {
+        this.vehicleType = vehicleType;
     }
 
-    public String getDictName() {
-        return dictName;
+    public String getVehicleTypeName() {
+        return vehicleTypeName;
     }
 
-    public void setDictName(String dictName) {
-        this.dictName = dictName;
+    public void setVehicleTypeName(String vehicleTypeName) {
+        this.vehicleTypeName = vehicleTypeName;
     }
 
-    public String getDictCode() {
-        return dictCode;
+    public Double getVolume() {
+        return volume;
     }
 
-    public void setDictCode(String dictCode) {
-        this.dictCode = dictCode;
+    public void setVolume(Double volume) {
+        this.volume = volume;
     }
 
-    public String getParentCode() {
-        return parentCode;
+    public Double getWeight() {
+        return weight;
     }
 
-    public void setParentCode(String parentCode) {
-        this.parentCode = parentCode;
+    public void setWeight(Double weight) {
+        this.weight = weight;
     }
 
-    public Integer getDictLevel() {
-        return dictLevel;
+    public String getVehicleLength() {
+        return vehicleLength;
     }
 
-    public void setDictLevel(Integer dictLevel) {
-        this.dictLevel = dictLevel;
+    public void setVehicleLength(String vehicleLength) {
+        this.vehicleLength = vehicleLength;
     }
 
-    public String getDictGroup() {
-        return dictGroup;
+    public String getVehicleLengthName() {
+        return vehicleLengthName;
     }
 
-    public void setDictGroup(String dictGroup) {
-        this.dictGroup = dictGroup;
+    public void setVehicleLengthName(String vehicleLengthName) {
+        this.vehicleLengthName = vehicleLengthName;
     }
 
-    public Integer getDictSequence() {
-        return dictSequence;
+    public String getVehicleKind() {
+        return vehicleKind;
     }
 
-    public void setDictSequence(Integer dictSequence) {
-        this.dictSequence = dictSequence;
+    public void setVehicleKind(String vehicleKind) {
+        this.vehicleKind = vehicleKind;
     }
 
-    public String getRemark() {
-        return remark;
+    public String getVehicleKindName() {
+        return vehicleKindName;
     }
 
-    public void setRemark(String remark) {
-        this.remark = remark;
+    public void setVehicleKindName(String vehicleKindName) {
+        this.vehicleKindName = vehicleKindName;
     }
 
-    public String getOwner() {
-        return owner;
+    public Integer getMinTray() {
+        return minTray;
     }
 
-    public void setOwner(String owner) {
-        this.owner = owner;
+    public void setMinTray(Integer minTray) {
+        this.minTray = minTray;
     }
 
-    public Date getCreateTime() {
-        return createTime;
+    public Integer getMaxTray() {
+        return maxTray;
     }
 
-    public void setCreateTime(Date createTime) {
-        this.createTime = createTime;
+    public void setMaxTray(Integer maxTray) {
+        this.maxTray = maxTray;
     }
 
-    public Date getUpdateTime() {
-        return updateTime;
+    public String getVehicleWidth() {
+        return vehicleWidth;
     }
 
-    public void setUpdateTime(Date updateTime) {
-        this.updateTime = updateTime;
+    public void setVehicleWidth(String vehicleWidth) {
+        this.vehicleWidth = vehicleWidth;
     }
 
-    public Date getSysTime() {
-        return sysTime;
+    public String getVehicleHeight() {
+        return vehicleHeight;
     }
 
-    public void setSysTime(Date sysTime) {
-        this.sysTime = sysTime;
-    }
-
-    public Integer getYn() {
-        return yn;
-    }
-
-    public void setYn(Integer yn) {
-        this.yn = yn;
-    }
-
-    @Override
-    public String toString() {
-        return "VehicleTypeDto{" +
-                "dictId=" + dictId +
-                ", dictName='" + dictName + '\'' +
-                ", dictCode='" + dictCode + '\'' +
-                ", parentCode='" + parentCode + '\'' +
-                ", dictLevel=" + dictLevel +
-                ", dictGroup='" + dictGroup + '\'' +
-                ", dictSequence=" + dictSequence +
-                ", remark='" + remark + '\'' +
-                ", owner='" + owner + '\'' +
-                ", createTime=" + createTime +
-                ", updateTime=" + updateTime +
-                ", sysTime=" + sysTime +
-                ", yn=" + yn +
-                '}';
+    public void setVehicleHeight(String vehicleHeight) {
+        this.vehicleHeight = vehicleHeight;
     }
 }
