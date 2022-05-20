@@ -209,12 +209,12 @@
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
 			<artifactId>bluedragon-distribution-sdk</artifactId>
-			<version>1.9.0-SNAPSHOT</version>
+			<version>1.9.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
 			<artifactId>bluedragon-distribution-utils</artifactId>
-			<version>1.3.9-SNAPSHOT</version>
+			<version>1.4.0-SNAPSHOT</version>
 		</dependency>
 
 		<!--运单拦截信息接口 2021.3.26-->
@@ -238,7 +238,7 @@
 		<dependency>
             <groupId>com.jd.bluedragon</groupId>
             <artifactId>bluedragon-distribution-common-android</artifactId>
-            <version>1.5.1-wy-SNAPSHOT</version>
+            <version>1.5.2-SNAPSHOT</version>
         </dependency>
 		<dependency>
 			<groupId>com.jd.etms.waybill</groupId>
