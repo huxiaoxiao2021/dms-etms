@@ -106,4 +106,10 @@ public interface JyUnloadVehicleGatewayService {
      * @return
      */
     JdCResponse<Boolean> submitUnloadCompletion(UnloadCompleteRequest request);
+    /**
+     * 查询解封车任务数量
+     * @param request
+     * @return
+     */
+    JdCResponse<Long> countByVehicleNumberAndStatus(UnsealVehicleTaskRequest request);
 }
