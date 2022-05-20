@@ -289,6 +289,16 @@
 				<groupId>com.jd.eclp</groupId>
 				<artifactId>eclp-so-api</artifactId>
 				<version>${eclp-so-api.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.jd.jim.cli</groupId>
+                        <artifactId>jim-cli-jedis</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.jd.jim.cli</groupId>
+                        <artifactId>jim-cli-api</artifactId>
+                    </exclusion>
+                </exclusions>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
