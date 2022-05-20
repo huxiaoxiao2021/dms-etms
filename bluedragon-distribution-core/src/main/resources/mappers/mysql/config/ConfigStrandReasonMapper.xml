@@ -9,6 +9,7 @@
 		<result column="sync_flag" property="syncFlag" javaType="java.lang.Integer" jdbcType="TINYINT" />
 		<result column="order_num" property="orderNum" javaType="java.lang.Integer" jdbcType="INTEGER" />
 		<result column="remark" property="remark" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="business_tag" property="businessTag" javaType="java.lang.Integer" jdbcType="TINYINT" />
 		<result column="create_user" property="createUser" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="create_user_name" property="createUserName" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="update_user" property="updateUser" javaType="java.lang.String" jdbcType="VARCHAR" />
@@ -20,7 +21,7 @@
 	</resultMap>
 
 	<sql id="Base_Column_List" >
-		id,reason_code,reason_name,sync_flag,order_num,remark,
+		id,reason_code,reason_name,sync_flag,order_num,remark,business_tag,
 		create_user,create_user_name,update_user,update_user_name,create_time,
 		update_time,yn,ts
 	</sql>
@@ -46,6 +47,9 @@
 				</if>
 				<if test="remark != null" >
 					remark,
+				</if>
+				<if test="businessTag != null" >
+					business_tag,
 				</if>
 				<if test="createUser != null" >
 					create_user,
@@ -94,6 +98,9 @@
 				<if test="remark != null" >
 					#{remark,jdbcType=VARCHAR},
 				</if>
+				<if test="businessTag != null" >
+					#{businessTag,jdbcType=INTEGER},
+				</if>
 				<if test="createUser != null" >
 					#{createUser,jdbcType=VARCHAR},
 				</if>
@@ -139,6 +146,9 @@
 				</if>
 				<if test="remark != null" >
 					remark = #{remark,jdbcType=VARCHAR},
+				</if>
+				<if test="businessTag != null" >
+					business_tag = #{businessTag,jdbcType=INTEGER},
 				</if>
 				<if test="createUser != null" >
 					create_user = #{createUser,jdbcType=VARCHAR},
@@ -215,7 +225,13 @@
 			yn = 1 
 		<if test="reasonCode != null" >
 			and reason_code = #{reasonCode,jdbcType=INTEGER}
-		</if>			
+		</if>
+		<if test="businessTagList != null and businessTagList.size > 0 ">
+			and business_tag in
+			<foreach collection="businessTagList" separator="," open="(" close=")" item="item">
+				#{item,jdbcType=INTEGER}
+			</foreach>
+		</if>
 		</where>
 	</sql>
 	
