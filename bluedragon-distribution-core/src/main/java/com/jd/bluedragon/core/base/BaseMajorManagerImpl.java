@@ -18,11 +18,7 @@ import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ldop.basic.dto.BasicTraderNeccesaryInfoDTO;
 import com.jd.ldop.basic.dto.PageDTO;
 import com.jd.ldop.basic.dto.ResponseDTO;
-import com.jd.ql.basic.domain.BaseDataDict;
-import com.jd.ql.basic.domain.BaseOrg;
-import com.jd.ql.basic.domain.BaseResult;
-import com.jd.ql.basic.domain.PsStoreInfo;
-import com.jd.ql.basic.domain.SiteExtensionDTO;
+import com.jd.ql.basic.domain.*;
 import com.jd.ql.basic.dto.BaseSiteInfoDto;
 import com.jd.ql.basic.dto.BaseStaffSiteDTO;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -167,6 +163,15 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
     @JProfiler(jKey = "DMS.BASE.BaseMajorManagerImpl.getBaseOrgByOrgId", mState = {JProEnum.TP, JProEnum.FunctionError})
     public BaseOrg getBaseOrgByOrgId(Integer orgId) {
         return basicPrimaryWS.getBaseOrgByOrgId(orgId);
+    }
+
+
+    @Override
+    @Cache(key = "baseMajorManagerImpl.getSiteBySiteCode@args0", memoryEnable = true, memoryExpiredTime = 5 * 60 * 1000,
+            redisEnable = true, redisExpiredTime = 10 * 60 * 1000)
+    @JProfiler(jKey = "DMS.BASE.BaseMajorManagerImpl.getSiteBySiteCode", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public BaseSite getSiteBySiteCode(Integer siteCode) {
+        return basicPrimaryWS.getSiteBySiteCode(String.valueOf(siteCode));
     }
 
     @Cache(key = "baseMajorManagerImpl.getBaseGoodsPositionDmsCodeSiteCode@args0@args1", memoryEnable = true, memoryExpiredTime = 30 * 60 * 1000,
