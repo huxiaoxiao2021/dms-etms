@@ -29,7 +29,6 @@
         <plugin interceptor="com.jd.coo.sa.mybatis.plugins.id.AutoIncrementKeyPlugin">
             <property name="idGen.type" value="com.jd.coo.sa.mybatis.plugins.id.SequenceGenAdaptor"/>
             <property name="interceptTableSettings" value="
-                box=id:box_id,
                 cen_confirm=confirmId:confirm_id,
                 inspection=inspectionId:inspection_id,
                 send_d=sendDId:send_d_id,
