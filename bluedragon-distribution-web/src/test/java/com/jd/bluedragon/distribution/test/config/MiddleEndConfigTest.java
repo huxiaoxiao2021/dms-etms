@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.test.config;
 
+import com.jd.bluedragon.distribution.api.request.BoxRequest;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.domain.BoxSystemTypeEnum;
 import com.jd.bluedragon.distribution.box.service.BoxServiceImpl;
@@ -8,6 +9,7 @@ import com.jd.bluedragon.distribution.middleend.sorting.dao.DynamicSortingQueryD
 import com.jd.bluedragon.distribution.middleend.sorting.dao.ISortingDao;
 import com.jd.bluedragon.distribution.middleend.sorting.service.DmsSortingServiceImpl;
 import com.jd.bluedragon.distribution.middleend.sorting.service.ISortingService;
+import com.jd.bluedragon.distribution.rest.box.BoxResource;
 import com.jd.bluedragon.distribution.sorting.dao.SortingDao;
 import org.junit.Assert;
 import org.junit.Test;
@@ -35,6 +37,9 @@ public class MiddleEndConfigTest {
     @Autowired
     private BoxServiceImpl boxService;
 
+    @Autowired
+    private BoxResource boxResource;
+
     @Test
     public void dynamicSortingQueryDao(){
         ISortingDao sortingDao = dynamicSortingQueryDao.selectDao(364605);
@@ -56,6 +61,25 @@ public class MiddleEndConfigTest {
         boxService.batchAddNew(param, BoxSystemTypeEnum.PRINT_CLIENT.getCode());
 
     }
+
+    @Test
+    public void testBoxResource(){
+        BoxRequest boxRequest = new BoxRequest();
+        boxRequest.setReceiveSiteCode(364605);
+        boxRequest.setReceiveSiteName("测试站点");
+        boxRequest.setReceiveSiteType("64");
+        boxRequest.setQuantity(10);
+        boxRequest.setBoxCode("");
+        boxRequest.setCreateSiteCode(39);
+        boxRequest.setCreateSiteName("测试站点1");
+        boxRequest.setCreateSiteType("64");
+        boxRequest.setMixBoxType(0);
+        boxRequest.setTransportType(2);
+        boxRequest.setType("BC");
+
+        boxResource.autoSortingBoxes(boxRequest);
+    }
+
     @Test
     public void testAllConfig(){
 
