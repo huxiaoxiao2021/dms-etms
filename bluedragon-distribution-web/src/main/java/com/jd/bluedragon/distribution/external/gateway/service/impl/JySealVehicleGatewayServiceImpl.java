@@ -9,9 +9,7 @@ import com.jd.bluedragon.common.dto.operation.workbench.unseal.request.SealVehic
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.SealCodeResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.SealTaskInfo;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.SealVehicleTaskResponse;
-import com.jd.bluedragon.common.dto.seal.request.SealCodeReq;
-import com.jd.bluedragon.common.dto.seal.request.SealVehicleInfoReq;
-import com.jd.bluedragon.common.dto.seal.request.TransportReq;
+import com.jd.bluedragon.common.dto.seal.request.*;
 import com.jd.bluedragon.common.dto.seal.response.SealVehicleInfoResp;
 import com.jd.bluedragon.common.dto.seal.response.TransportResp;
 import com.jd.bluedragon.common.dto.select.SelectOption;
@@ -186,6 +184,21 @@ public class JySealVehicleGatewayServiceImpl implements JySealVehicleGatewayServ
 
     @Override
     public JdCResponse<TransportResp> getTransportResourceByTransCode(TransportReq transportReq) {
+        return null;
+    }
+
+    @Override
+    public JdCResponse checkTransportCode(CheckTransportCodeReq checkTransportCodeReq) {
+        return null;
+    }
+
+    @Override
+    public JdCResponse<TransportResp> getVehicleNumberByWorkItemCode(GetVehicleNumberReq getVehicleNumberReq) {
+        return null;
+    }
+
+    @Override
+    public JdCResponse sealVehicle(SealVehicleReq sealVehicleReq) {
         return null;
     }
 
