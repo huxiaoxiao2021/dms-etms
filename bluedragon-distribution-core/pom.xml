@@ -1865,6 +1865,15 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
+		<dependency>
+			<groupId>com.jd.cmp</groupId>
+			<artifactId>cmp-api-dms</artifactId>
+			<version>0.0.3-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>com.jd.eclp</groupId>
+			<artifactId>eclp-so-api</artifactId>
+		</dependency>
     </dependencies>
 
 	<profiles>

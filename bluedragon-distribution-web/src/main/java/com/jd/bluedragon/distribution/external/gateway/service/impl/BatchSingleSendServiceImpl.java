@@ -4,8 +4,11 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.send.request.BatchSingleSendCheckRequest;
 import com.jd.bluedragon.common.dto.send.request.BatchSingleSendRequest;
+import com.jd.bluedragon.common.dto.send.request.ThirdWaybillNoWyRequest;
 import com.jd.bluedragon.common.dto.send.response.BatchSingleSendCheckDto;
+import com.jd.bluedragon.common.dto.send.response.ThirdWaybillNoWyDto;
 import com.jd.bluedragon.distribution.api.request.PackageSendRequest;
+import com.jd.bluedragon.distribution.api.request.ThirdWaybillNoRequest;
 import com.jd.bluedragon.distribution.api.response.BoxResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
@@ -13,9 +16,11 @@ import com.jd.bluedragon.distribution.rest.box.BoxResource;
 import com.jd.bluedragon.distribution.rest.send.DeliveryResource;
 import com.jd.bluedragon.distribution.rest.waybill.WaybillResource;
 import com.jd.bluedragon.distribution.send.domain.SendResult;
+import com.jd.bluedragon.distribution.waybill.domain.ThirdWaybillNoResult;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.gateway.service.BatchSingleSendGatewayService;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.dms.logger.annotation.BusinessLog;
 import com.jd.ql.basic.util.DateUtil;
 import com.jd.ql.dms.common.domain.JdResponse;
@@ -27,10 +32,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.text.MessageFormat;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * BatchSingleSendServiceImpl
@@ -71,7 +73,7 @@ public class BatchSingleSendServiceImpl implements BatchSingleSendGatewayService
     public JdCResponse<BatchSingleSendCheckDto> batchSingleSendCheck(BatchSingleSendCheckRequest request) {
 
         JdCResponse<BatchSingleSendCheckDto> jdResponse = new JdCResponse<>();
-        jdResponse.toFail("操作失败请联系IT");
+        jdResponse.toFail("非法的包裹号或箱号！");
 
         if(request == null){
             jdResponse.toFail("入参不能为空");
@@ -282,4 +284,54 @@ public class BatchSingleSendServiceImpl implements BatchSingleSendGatewayService
         }
         return null;
     }
+
+    /**
+     * 由运单号查包裹号,安卓入口
+     * @param request
+     * @return
+     */
+    @Override
+    @JProfiler(jKey = "DMSWEB.BatchSingleSendServiceImpl.getPackageNoByThirdWaybillNo", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    public JdCResponse<ThirdWaybillNoWyDto> getPackageNoByThirdWaybillNo(ThirdWaybillNoWyRequest request) {
+
+        JdCResponse<ThirdWaybillNoWyDto> jdResponse = new JdCResponse<>();
+        jdResponse.toFail("非法的包裹号或箱号！");
+
+        if (request == null) {
+            jdResponse.toFail("入参不能为空");
+            return jdResponse;
+        }
+
+        if ( StringUtils.isBlank(request.getThirdWaybill())) {
+            jdResponse.toFail("运单号都不能为空");
+            return jdResponse;
+        }
+        ThirdWaybillNoRequest param = new ThirdWaybillNoRequest();
+        param.setThirdWaybill(request.getThirdWaybill());
+        param.setUserErp(request.getUser().getUserErp());
+        param.setSiteCode(request.getCurrentOperate().getSiteCode());
+        param.setSiteName(request.getCurrentOperate().getSiteName());
+        param.setOperateTime(request.getCurrentOperate().getOperateTime()==null?DateHelper.formatDate(new Date()):DateHelper.formatDateTime(request.getCurrentOperate().getOperateTime()));
+        param.setUserCode(request.getUser().getUserCode());
+        param.setUserName(request.getUser().getUserName());
+        InvokeResult<ThirdWaybillNoResult> response = waybillResource.getWyPackageNoByThirdWaybillNo(param);
+
+        ThirdWaybillNoResult data;
+        if (response == null) {
+            jdResponse.toFail("由三方运单号查包裹号失败！");
+            return jdResponse;
+        } else if (!response.codeSuccess()) {
+            jdResponse.toFail(response.getMessage());
+            return jdResponse;
+        } else {
+            data = response.getData();
+        }
+        ThirdWaybillNoWyDto resultDto =new ThirdWaybillNoWyDto();
+        resultDto.setWaybillCode(data.getWaybillCode());
+
+        jdResponse.setData(resultDto);
+        jdResponse.toSucceed(JdResponse.MESSAGE_SUCCESS);
+        return jdResponse;
+    }
+
 }

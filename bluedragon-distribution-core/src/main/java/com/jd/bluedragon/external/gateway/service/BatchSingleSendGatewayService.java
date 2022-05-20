@@ -3,7 +3,9 @@ package com.jd.bluedragon.external.gateway.service;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.send.request.BatchSingleSendCheckRequest;
 import com.jd.bluedragon.common.dto.send.request.BatchSingleSendRequest;
+import com.jd.bluedragon.common.dto.send.request.ThirdWaybillNoWyRequest;
 import com.jd.bluedragon.common.dto.send.response.BatchSingleSendCheckDto;
+import com.jd.bluedragon.common.dto.send.response.ThirdWaybillNoWyDto;
 
 /**
  * BatchSingleSendGatewayService
@@ -24,4 +26,11 @@ public interface BatchSingleSendGatewayService {
      * 批量一车一单发货
      */
     JdCResponse batchSingleSend(BatchSingleSendRequest request);
+
+    /**
+     * 由运单号查包裹号,安卓入口
+     * @param request
+     * @return
+     */
+    JdCResponse<ThirdWaybillNoWyDto> getPackageNoByThirdWaybillNo(ThirdWaybillNoWyRequest request);
 }
