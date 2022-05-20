@@ -52,9 +52,14 @@ public class TmsCarTaskManagerImpl implements TmsCarTaskManager {
                     CarTaskEndNodeResponse endNode = new CarTaskEndNodeResponse();
                     endNode.setEndNodeCode(item.getEndNodeCode());
                     endNode.setEndNodeName(item.getEndNodeName());
-                    listData.add(endNode);
+                    //
+                    if(!listData.contains(endNode)){
+                        listData.add(endNode);
+                    }
+
                 }
             }
+
             result.setData(listData);
             result.toSucceed("获取目的站点列表成功!");
             log.info("获取目的站点列表接口TmsCarTaskManagerImpl.getEndNodeList， 返回结果：{}", JsonHelper.toJson(result));

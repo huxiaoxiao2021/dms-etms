@@ -32,4 +32,20 @@ public class CarTaskEndNodeResponse implements Serializable {
     public void setEndNodeName(String endNodeName) {
         this.endNodeName = endNodeName;
     }
+
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof CarTaskEndNodeResponse)) return false;
+        CarTaskEndNodeResponse that = (CarTaskEndNodeResponse) o;
+        return getEndNodeCode().equals(that.getEndNodeCode()) && getEndNodeName().equals(that.getEndNodeName());
+    }
+
+    @Override
+    public int hashCode() {
+        int result = endNodeCode.hashCode();
+        result = 31 * result + endNodeName.hashCode();
+        return result;
+    }
 }
