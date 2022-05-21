@@ -21,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -38,14 +39,22 @@ public class JyNoTaskSendGatewayServiceImpl implements JyNoTaskSendGatewayServic
     public JdCResponse<List<VehicleSpecResp>> listVehicleType() {
         CommonDto<List<BasicVehicleTypeDto>> rs = jyTransportManager.getVehicleTypeList();
         if (null != rs && rs.getCode() == 1) {
-            Map<String, List<VehicleTypeDto>> groupByVehicleLength =
-                    StreamSupport.stream(rs.getData())
-                            .filter(basicVehicleTypeDto ->
-                                    ObjectHelper.isNotNull(basicVehicleTypeDto.getVehicleLength()) ? true : false)
-                            .map(basicVehicleTypeDto ->
-                                    BeanUtils.copy(basicVehicleTypeDto, VehicleTypeDto.class))
-                            .collect(Collectors.groupingBy(VehicleTypeDto::getVehicleLength));
 
+            Map<String, List<VehicleTypeDto>> groupByVehicleLength = new HashMap<>();
+            for (BasicVehicleTypeDto basicVehicleTypeDto:rs.getData()){
+                String vehicleLength =basicVehicleTypeDto.getVehicleLength();
+                if (ObjectHelper.isNotNull(vehicleLength)){
+                    VehicleTypeDto vehicleTypeDto =BeanUtils.copy(basicVehicleTypeDto, VehicleTypeDto.class);
+                    if (groupByVehicleLength.containsKey(vehicleLength)){
+                        groupByVehicleLength.get(vehicleLength).add(vehicleTypeDto);
+                    }
+                    else {
+                        List<VehicleTypeDto> vehicleTypeDtoList =new ArrayList<>();
+                        vehicleTypeDtoList.add(vehicleTypeDto);
+                        groupByVehicleLength.put(vehicleLength,vehicleTypeDtoList);
+                    }
+                }
+            }
             List<VehicleSpecResp> vehicleSpecRespList = new ArrayList<>();
             for (Map.Entry<String, List<VehicleTypeDto>> entry : groupByVehicleLength.entrySet()) {
                 String key = entry.getKey();
