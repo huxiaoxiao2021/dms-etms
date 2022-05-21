@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
+import com.jd.bluedragon.common.UnifiedExceptionProcess;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.MSCodeMapping;
 import com.jd.bluedragon.common.dto.send.request.*;
@@ -8,6 +9,7 @@ import com.jd.bluedragon.common.dto.send.response.VehicleSpecResp;
 import com.jd.bluedragon.common.dto.send.response.VehicleTaskResp;
 import com.jd.bluedragon.common.dto.send.response.VehicleTypeDto;
 import com.jd.bluedragon.distribution.jy.manager.JyTransportManager;
+import com.jd.bluedragon.distribution.jy.service.transfer.JySendTransferService;
 import com.jd.bluedragon.external.gateway.service.JyNoTaskSendGatewayService;
 import com.jd.bluedragon.utils.BeanUtils;
 import com.jd.bluedragon.utils.ObjectHelper;
@@ -22,12 +24,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import static com.jd.bluedragon.common.dto.base.response.JdCResponse.*;
 
 @Slf4j
+@UnifiedExceptionProcess
 public class JyNoTaskSendGatewayServiceImpl implements JyNoTaskSendGatewayService {
+
     @Autowired
     JyTransportManager jyTransportManager;
+    @Autowired
+    JySendTransferService jySendTransferService;
 
     @Override
     public JdCResponse<List<VehicleSpecResp>> listVehicleType() {

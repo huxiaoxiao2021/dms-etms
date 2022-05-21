@@ -2,6 +2,7 @@ package com.jd.common.exception;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.MSCodeMapping;
+import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.ministore.exception.MiniStoreBizException;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -9,6 +10,8 @@ import org.aspectj.lang.annotation.Aspect;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+
+import static com.jd.bluedragon.common.dto.base.response.JdCResponse.CODE_ERROR;
 
 @Component
 @Aspect
@@ -25,6 +28,10 @@ public class GateWayServiceExcepHandler {
             if (throwable instanceof MiniStoreBizException) {
                 MiniStoreBizException exception = (MiniStoreBizException) throwable;
                 return new JdCResponse(exception.getCode(), exception.getMessage());
+            }
+            if (throwable instanceof JyBizException) {
+                JyBizException exception = (JyBizException) throwable;
+                return new JdCResponse(CODE_ERROR, exception.getMessage());
             }
             return new JdCResponse(MSCodeMapping.UNKNOW_ERROR.getCode(), MSCodeMapping.UNKNOW_ERROR.getMessage());
         }

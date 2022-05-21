@@ -27,5 +27,45 @@ public class TransferSendTaskReq extends BaseReq implements Serializable {
     /**
      * 迁移前后是否同流向
      */
-    private Boolean isSameWay;
+    private Boolean sameWayFlag;
+
+    public String getFromSendVehicleBizId() {
+        return fromSendVehicleBizId;
+    }
+
+    public void setFromSendVehicleBizId(String fromSendVehicleBizId) {
+        this.fromSendVehicleBizId = fromSendVehicleBizId;
+    }
+
+    public String getFromSendVehicleDetailBizId() {
+        return fromSendVehicleDetailBizId;
+    }
+
+    public void setFromSendVehicleDetailBizId(String fromSendVehicleDetailBizId) {
+        this.fromSendVehicleDetailBizId = fromSendVehicleDetailBizId;
+    }
+
+    public String getToSendVehicleBizId() {
+        return toSendVehicleBizId;
+    }
+
+    public void setToSendVehicleBizId(String toSendVehicleBizId) {
+        this.toSendVehicleBizId = toSendVehicleBizId;
+    }
+
+    public String getToSendVehicleDetailBizId() {
+        return toSendVehicleDetailBizId;
+    }
+
+    public void setToSendVehicleDetailBizId(String toSendVehicleDetailBizId) {
+        this.toSendVehicleDetailBizId = toSendVehicleDetailBizId;
+    }
+
+    public Boolean getSameWayFlag() {
+        return sameWayFlag;
+    }
+
+    public void setSameWayFlag(Boolean sameWayFlag) {
+        this.sameWayFlag = sameWayFlag;
+    }
 }

@@ -1,7 +1,12 @@
 package com.jd.bluedragon.distribution.jy.dao.send;
 
 import com.jd.bluedragon.common.dao.BaseDao;
+import com.jd.bluedragon.distribution.jy.dto.send.BatchTransferDto;
+import com.jd.bluedragon.distribution.jy.dto.send.TransferDto;
 import com.jd.bluedragon.distribution.jy.send.JySendCodeEntity;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 /**
  * 发货批次关系表
@@ -22,5 +27,25 @@ public class JySendCodeDao extends BaseDao<JySendCodeEntity> {
      */
     public int insert(JySendCodeEntity entity) {
         return this.getSqlSession().insert(NAMESPACE + ".insert", entity);
+    }
+
+    /**
+     * 更新
+     *
+     * @param
+     * @return
+     */
+    public int updateBySendCode(TransferDto dto) {
+        return this.getSqlSession().update(NAMESPACE + ".updateBySendCode", dto);
+    }
+
+    /**
+     * 批量更新
+     *
+     * @param
+     * @return
+     */
+    public int batchUpdateBySendCode(BatchTransferDto dto) {
+        return this.getSqlSession().update(NAMESPACE + ".batchUpdateBySendCode", dto);
     }
 }
