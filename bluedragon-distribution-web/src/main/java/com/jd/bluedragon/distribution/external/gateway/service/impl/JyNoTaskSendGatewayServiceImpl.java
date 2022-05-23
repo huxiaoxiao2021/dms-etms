@@ -15,8 +15,6 @@ import com.jd.bluedragon.utils.BeanUtils;
 import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.tms.basic.dto.BasicVehicleTypeDto;
 import com.jd.tms.basic.dto.CommonDto;
-import java8.util.stream.Collectors;
-import java8.util.stream.StreamSupport;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -39,7 +37,7 @@ public class JyNoTaskSendGatewayServiceImpl implements JyNoTaskSendGatewayServic
     public JdCResponse<List<VehicleSpecResp>> listVehicleType() {
         CommonDto<List<BasicVehicleTypeDto>> rs = jyTransportManager.getVehicleTypeList();
         if (null != rs && rs.getCode() == 1) {
-
+            //按照车长做groupBy
             Map<String, List<VehicleTypeDto>> groupByVehicleLength = new HashMap<>();
             for (BasicVehicleTypeDto basicVehicleTypeDto:rs.getData()){
                 String vehicleLength =basicVehicleTypeDto.getVehicleLength();
@@ -55,6 +53,7 @@ public class JyNoTaskSendGatewayServiceImpl implements JyNoTaskSendGatewayServic
                     }
                 }
             }
+            //封装树形结构响应体
             List<VehicleSpecResp> vehicleSpecRespList = new ArrayList<>();
             for (Map.Entry<String, List<VehicleTypeDto>> entry : groupByVehicleLength.entrySet()) {
                 String key = entry.getKey();

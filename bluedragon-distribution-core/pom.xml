@@ -1837,12 +1837,6 @@
 			<artifactId>cmp-api-dms</artifactId>
 			<version>0.0.3-SNAPSHOT</version>
 		</dependency>
-
-		<!--<dependency>
-			<groupId>net.sourceforge.streamsupport</groupId>
-			<artifactId>streamsupport</artifactId>
-			<version>1.7.4</version>
-		</dependency>-->
     </dependencies>
 
 	<profiles>
