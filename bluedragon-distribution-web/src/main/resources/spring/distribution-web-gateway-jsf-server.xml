@@ -485,7 +485,7 @@
                   alias="${dms.gateway.jsf.alias}"
                   ref="groupMemberGatewayService"
                   server="dmsjsf" />
-                  server="dmsjsf" />
+
 
     <!-- 车辆任务服务  -->
     <bean id="tMSCarTaskGateWayServiceImpl" class="com.jd.bluedragon.distribution.external.gateway.service.impl.TMSCarTaskGateWayServiceImpl" />
