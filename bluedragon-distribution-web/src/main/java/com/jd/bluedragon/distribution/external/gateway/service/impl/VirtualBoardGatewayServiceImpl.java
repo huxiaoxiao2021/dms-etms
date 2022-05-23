@@ -9,23 +9,17 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.board.BizSourceEnum;
 import com.jd.bluedragon.common.dto.board.request.*;
 import com.jd.bluedragon.common.dto.board.response.UnbindVirtualBoardResultDto;
+import com.jd.bluedragon.common.dto.board.response.VirtualBoardDto;
 import com.jd.bluedragon.common.dto.board.response.VirtualBoardResultDto;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.board.SortBoardJsfService;
 import com.jd.bluedragon.distribution.board.domain.Response;
 import com.jd.bluedragon.distribution.board.service.VirtualBoardService;
-import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.gateway.service.VirtualBoardGatewayService;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.dms.workbench.utils.sdk.base.Result;
 import com.jd.ldop.utils.StringUtils;
-import com.jd.transboard.api.dto.Board;
-import com.jd.transboard.api.service.GroupBoardService;
-import com.jd.transboard.api.service.IVirtualBoardService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,6 +60,17 @@ public class VirtualBoardGatewayServiceImpl implements VirtualBoardGatewayServic
         }
         return virtualBoardService.getBoardUnFinishInfo(operatorInfo);
     }
+
+    @Override
+    @JProfiler(jKey = "DMSWEB.VirtualBoardServiceImpl.getBoardUnFinishInfoNew",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public JdCResponse<VirtualBoardDto> getBoardUnFinishInfoNew(OperatorInfo operatorInfo) {
+        if(operatorInfo.getBizSource() == null){
+            operatorInfo.setBizSource(BizSourceEnum.PDA.getValue());
+        }
+        return virtualBoardService.getBoardUnFinishInfoNew(operatorInfo);
+
+    }
+
 
     /**
      * 根据目的地创建新的板或得到已有的可用的板，目的地的板已存在且未完结，则直接返回该板号
@@ -122,6 +127,11 @@ public class VirtualBoardGatewayServiceImpl implements VirtualBoardGatewayServic
     @Override
     @JProfiler(jKey = "DMSWEB.VirtualBoardServiceImpl.closeBoard",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<Void> closeBoard(CloseVirtualBoardPo closeVirtualBoardPo) {
+        JdCResponse<Void> result = new JdCResponse<>();
+        if(closeVirtualBoardPo == null) {
+            result.toFail("参数错误，请求信息不能为空");
+            return result;
+        }
         return virtualBoardService.closeBoard(closeVirtualBoardPo);
     }
 

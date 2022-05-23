@@ -9,6 +9,7 @@ import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.board.BizSourceEnum;
 import com.jd.bluedragon.common.dto.board.request.*;
 import com.jd.bluedragon.common.dto.board.response.UnbindVirtualBoardResultDto;
+import com.jd.bluedragon.common.dto.board.response.VirtualBoardDto;
 import com.jd.bluedragon.common.dto.board.response.VirtualBoardResultDto;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
@@ -21,6 +22,8 @@ import com.jd.bluedragon.core.jsf.dms.IVirtualBoardJsfManager;
 import com.jd.bluedragon.distribution.api.request.BoardCombinationRequest;
 import com.jd.bluedragon.distribution.api.response.BoxResponse;
 import com.jd.bluedragon.distribution.base.service.BaseService;
+import com.jd.bluedragon.distribution.board.domain.BoardConstants;
+import com.jd.bluedragon.distribution.board.domain.BoardFlowTypeDto;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.businessIntercept.enums.BusinessInterceptOnlineStatusEnum;
@@ -167,6 +170,95 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
             log.error("VirtualBoardServiceImpl.getBoardUnFinishInfo--exception param {} exception {}", JsonHelper.toJson(operatorInfo), e.getMessage(), e);
         }
         return result;
+    }
+    @Override
+    public JdCResponse<VirtualBoardDto> getBoardUnFinishInfoNew(OperatorInfo operatorInfo) {
+        String descMethod = "VirtualBoardServiceImpl.getBoardUnFinishInfoNew--";
+        JdCResponse<VirtualBoardDto> result = new JdCResponse<>();
+        VirtualBoardDto virtualBoardDto = new VirtualBoardDto();
+        result.setData(virtualBoardDto);
+        result.setCode(JdCResponse.CODE_SUCCESS);
+
+        try{
+            log.info("{}--start-- param {}", descMethod, JsonHelper.toJson(operatorInfo));
+            JdCResponse jdCResponse = flowTypeHandler(operatorInfo);
+            if(!Objects.equals(jdCResponse.getCode(), JdCResponse.CODE_SUCCESS)) {
+                result.toFail(jdCResponse.getMessage());
+                return result;
+            }
+            virtualBoardDto.setFlowFlag(operatorInfo.getFlowFlag());
+            JdCResponse<List<VirtualBoardResultDto>> jsfRes = this.getBoardUnFinishInfo(operatorInfo);
+            if(!Objects.equals(jsfRes.getCode(), JdCResponse.CODE_SUCCESS)) {
+                result.toFail(jsfRes.getMessage());
+                return result;
+            }
+            virtualBoardDto.setVirtualBoardResultDtoList(jsfRes.getData());
+            return result;
+        }catch (Exception e) {
+            result.toFail("接口异常：" + e.getMessage());
+            log.error("{}exception param {} exception {}", descMethod, JsonHelper.toJson(operatorInfo), e.getMessage(), e);
+            return result;
+        }
+    }
+
+    /**
+     * 流向模式处理
+     * @param operatorInfo
+     */
+    private JdCResponse flowTypeHandler(OperatorInfo operatorInfo) {
+        JdCResponse res = new JdCResponse();
+        if(StringUtils.isBlank(operatorInfo.getUserErp())) {
+            res.toFail("erp不能为空");
+            return res;
+        }
+
+        String key = BoardConstants.CACHE_KEY_BOARD_FLOW_TYPE_ERP + operatorInfo.getUserErp();
+        BoardFlowTypeDto boardFlowTypeDto = jimdbCacheService.get(key, BoardFlowTypeDto.class);
+        log.info("VirtualBoardServiceImpl.flowTypeHandler--缓存查询分拣组板类型，key={},value{}", key, JsonHelper.toJson(boardFlowTypeDto));
+
+        Integer defaultFlowType = BoardConstants.MULTI_FLOW_BOARD;
+        if(operatorInfo.getFlowFlag() == null) {
+            //老功能没有这个字段，走默认多模式
+            boardFlowTypeDto.setFlowType(defaultFlowType);
+        }else if(operatorInfo.getFlowFlag() == BoardConstants.INIT_FLOW_BOARD) {
+            if(boardFlowTypeDto == null) {
+                //首次登录该功能默认多流向模式
+                boardFlowTypeDto = new BoardFlowTypeDto();
+                boardFlowTypeDto.setFlowType(defaultFlowType);
+                boardFlowTypeDto.setCreateTimeStamp(System.currentTimeMillis());
+                jimdbCacheService.setEx(key, JsonHelper.toJson(boardFlowTypeDto), BoardConstants.CACHE_KEY_BOARD_FLOW_TYPE_ERP_TIME, TimeUnit.DAYS);
+                //
+                operatorInfo.setFlowFlag(boardFlowTypeDto.getFlowType());
+            }else {
+                // 之前有登陆保存缓存，退出页面重新进来
+                operatorInfo.setFlowFlag(boardFlowTypeDto.getFlowType());
+                boardFlowTypeCacheRenewal(boardFlowTypeDto, key);
+            }
+        }else {
+            if(boardFlowTypeDto != null && boardFlowTypeDto.getFlowType() != null &&  boardFlowTypeDto.getFlowType() == operatorInfo.getFlowFlag()) {
+                //页面给值和缓存相同时，redis续期
+                boardFlowTypeCacheRenewal(boardFlowTypeDto, key);
+            }else {
+                //页面给值和缓存相同时，redis更新创建新的值
+                boardFlowTypeDto = new BoardFlowTypeDto();
+                boardFlowTypeDto.setFlowType(operatorInfo.getFlowFlag());
+                boardFlowTypeDto.setCreateTimeStamp(System.currentTimeMillis());
+                jimdbCacheService.setEx(key, JsonHelper.toJson(boardFlowTypeDto), BoardConstants.CACHE_KEY_BOARD_FLOW_TYPE_ERP_TIME, TimeUnit.DAYS);
+            }
+
+        }
+        res.toSucceed();
+        return res;
+    }
+
+    /**
+     * 分拣组板流向记录缓存续期
+     * @param boardFlowTypeDto
+     * @param cacheKey
+     */
+    public void boardFlowTypeCacheRenewal(BoardFlowTypeDto boardFlowTypeDto, String cacheKey) {
+        boardFlowTypeDto.setCreateTimeStamp(System.currentTimeMillis());
+        jimdbCacheService.setEx(cacheKey, JsonHelper.toJson(boardFlowTypeDto), BoardConstants.CACHE_KEY_BOARD_FLOW_TYPE_ERP_TIME, TimeUnit.DAYS);
     }
 
     private com.jd.transboard.api.dto.base.OperatorInfo getConvertToTcParam(OperatorInfo operatorInfo) {
