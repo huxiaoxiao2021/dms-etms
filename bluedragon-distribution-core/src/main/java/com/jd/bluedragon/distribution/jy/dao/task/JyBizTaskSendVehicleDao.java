@@ -23,4 +23,19 @@ public class JyBizTaskSendVehicleDao extends BaseDao<JyBizTaskSendVehicleEntity>
     public int insert(JyBizTaskSendVehicleEntity entity) {
         return this.getSqlSession().insert(NAMESPACE + ".insert", entity);
     }
+
+    /**
+     * 根据bizID查询任务详情
+     * @param bizId
+     * @return
+     */
+    public JyBizTaskSendVehicleEntity findByBizId(String bizId) {
+        return this.getSqlSession().selectOne(NAMESPACE + ".findByBizId", bizId);
+    }
+    public int updateById(JyBizTaskSendVehicleEntity entity) {
+        return this.getSqlSession().update(NAMESPACE + ".update", entity);
+    }
+    public int updateByBizId(JyBizTaskSendVehicleEntity entity) {
+        return this.getSqlSession().update(NAMESPACE + ".updateByBizId", entity);
+    }
 }

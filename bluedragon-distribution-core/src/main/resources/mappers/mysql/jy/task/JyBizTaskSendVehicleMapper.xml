@@ -308,4 +308,101 @@
             id = #{id}
         </where>
     </update>
+
+    <update id="updateByBizId" parameterType="JyBizTaskSendVehicleEntity">
+        UPDATE jy_biz_task_send_vehicle
+        <set>
+
+            <if test="transWorkCode != null">
+                trans_work_code = #{transWorkCode}
+            </if>
+            ,
+            <if test="vehicleNumber != null">
+                vehicle_number = #{vehicleNumber}
+            </if>
+            ,
+            <if test="vehicleStatus != null">
+                vehicle_status = #{vehicleStatus}
+            </if>
+            ,
+            <if test="manualCreatedFlag != null">
+                manual_created_flag = #{manualCreatedFlag}
+            </if>
+            ,
+            <if test="abnormalFlag != null">
+                abnormal_flag = #{abnormalFlag}
+            </if>
+            ,
+            <if test="bindFlag != null">
+                bind_flag = #{bindFlag}
+            </if>
+            ,
+            <if test="transWay != null">
+                trans_way = #{transWay}
+            </if>
+            ,
+            <if test="transWayName != null">
+                trans_way_name = #{transWayName}
+            </if>
+            ,
+            <if test="vehicleType != null">
+                vehicle_type = #{vehicleType}
+            </if>
+            ,
+            <if test="vehicleTypeName != null">
+                vehicle_type_name = #{vehicleTypeName}
+            </if>
+            ,
+            <if test="lineType != null">
+                line_type = #{lineType}
+            </if>
+            ,
+            <if test="lineTypeName != null">
+                line_type_name = #{lineTypeName}
+            </if>
+            ,
+            <if test="createUserErp != null">
+                create_user_erp = #{createUserErp}
+            </if>
+            ,
+            <if test="createUserName != null">
+                create_user_name = #{createUserName}
+            </if>
+            ,
+            <if test="updateUserErp != null">
+                update_user_erp = #{updateUserErp}
+            </if>
+            ,
+            <if test="updateUserName != null">
+                update_user_name = #{updateUserName}
+            </if>
+            ,
+            <if test="createTime != null">
+                create_time = #{createTime}
+            </if>
+            ,
+            <if test="updateTime != null">
+                update_time = #{updateTime}
+            </if>
+            ,
+            <if test="yn != null">
+                yn = #{yn}
+            </if>
+            ,
+            <if test="ts != null">
+                ts = #{ts}
+            </if>
+        </set>
+        <where>
+            biz_id = #{bizId}
+        </where>
+    </update>
+
+    <select id="findByBizId" resultMap="jyBizTaskSendVehicleMap" parameterType="java.lang.String">
+        select
+        <include refid="Base_Column_List"/>
+        from jy_biz_task_send_vehicle
+        where biz_id = #{bizId}
+        limit 1;
+    </select>
 </mapper>

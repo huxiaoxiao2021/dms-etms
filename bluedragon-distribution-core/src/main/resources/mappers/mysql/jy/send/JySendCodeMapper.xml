@@ -178,4 +178,30 @@
             id = #{id}
         </where>
     </update>
+
+    <update id="updateBySendCode" parameterType="TransferDto">
+        UPDATE jy_send_code
+        set send_vehicle_biz_id = #{toSendVehicleBizId},
+            send_detail_biz_id  = #{toSendVehicleDetailBizId},
+            update_user_erp     = #{updateUserErp},
+            update_user_name    = #{updateUserName},
+            update_time         = now()
+        where send_code = #{sendCode}
+          and send_vehicle_biz_id = #{fromSendVehicleBizId}
+          and send_detail_biz_id = #{fromSendVehicleDetailBizId}
+    </update>
+
+    <update id="updateBySendCode" parameterType="BatchTransferDto">
+        UPDATE jy_send_code
+        set send_vehicle_biz_id = #{toSendVehicleBizId},
+            send_detail_biz_id  = #{toSendVehicleDetailBizId},
+            update_user_erp     = #{updateUserErp},
+            update_user_name    = #{updateUserName},
+            update_time         = now()
+        where send_code in
+        <foreach item="item" index="index" collection="sendCodeList"
+                 open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </update>
 </mapper>
