@@ -12,7 +12,24 @@ public class CancelSendTaskReq extends BaseReq implements Serializable {
      */
     private String code;
     /**
-     * 按照什么类型维度去取消 1包裹 2运单 3箱号 4板号
+     * 按照什么类型维度去取消 1包裹 2运单 3箱号 5板号
+     *
      */
     private Integer type;
+
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
+
+    public Integer getType() {
+        return type;
+    }
+
+    public void setType(Integer type) {
+        this.type = type;
+    }
 }
