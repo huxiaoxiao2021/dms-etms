@@ -339,9 +339,6 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
         if(addOrGetVirtualBoardPo.getDestinationId() <= 0){
             return result.toFail("参数错误，destinationId值不合法", ResultCodeConstant.ILLEGAL_ARGUMENT);
         }
-        if(addOrGetVirtualBoardPo.getFlowFlag() == null) {
-            return result.toFail("参数错误，flowFlag不能为空", ResultCodeConstant.NULL_ARGUMENT);
-        }
         return result;
     }
 
@@ -769,9 +766,6 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
         if(CollectionUtils.isEmpty(bindToVirtualBoardPo.getBoardCodeList())){
             return result.toFail("参数错误，boardCodeList不能为空", ResultCodeConstant.NULL_ARGUMENT);
         }
-        if(bindToVirtualBoardPo.getFlowFlag() == null) {
-            return result.toFail("参数错误，flowFlag不能为空", ResultCodeConstant.NULL_ARGUMENT);
-        }
         List<String> notBlankCodeList = new ArrayList<>();
         for (String boardCode : bindToVirtualBoardPo.getBoardCodeList()) {
             if(StringUtils.isNotBlank(boardCode)){
@@ -939,9 +933,6 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
         if(removeDestinationPo.getDestinationId() == null){
             return result.toFail("参数错误，destinationId不能为空", ResultCodeConstant.NULL_ARGUMENT);
         }
-//        if(removeDestinationPo.getFlowFlag() == null) {
-//            return result.toFail("参数错误，flowFlag不能为空", ResultCodeConstant.NULL_ARGUMENT);
-//        }
         return result;
     }
 

@@ -132,10 +132,6 @@ public class VirtualBoardGatewayServiceImpl implements VirtualBoardGatewayServic
             result.toFail("参数错误，请求信息不能为空");
             return result;
         }
-        if(closeVirtualBoardPo.getFlowFlag() == null) {
-            result.toFail("参数错误，flowFlag不能为空");
-            return result;
-        }
         return virtualBoardService.closeBoard(closeVirtualBoardPo);
     }
 
