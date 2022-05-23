@@ -375,6 +375,36 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
         return null;
     }
 
+    /**
+     * 校验产品能力是否存在
+     * @param waybillProductDtos 产品能力列表
+     * @param productAbility 产品能力指
+     * @return
+     */
+    @Override
+    public boolean checkWaybillProductAbility(List<WaybillProductDto> waybillProductDtos, String productAbility) {
+        if(waybillProductDtos == null || CollectionUtils.isEmpty(waybillProductDtos)){
+            return false;
+        }
+        for(WaybillProductDto productDto : waybillProductDtos) {
+            if (CollectionUtils.isEmpty(productDto.getAbilityItems())) {
+                continue;
+            }
+            for (WaybillAbilityDto abilityDto : productDto.getAbilityItems()) {
+                if (CollectionUtils.isEmpty(abilityDto.getAttrItems())) {
+                    continue;
+                }
+                for (WaybillAbilityAttrDto abilityAttrDto : abilityDto.getAttrItems()) {
+                    if (productAbility.equals(abilityAttrDto.getAttrCode())) {
+                        //能力项匹配成功
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
     @Override
     public Integer checkReDispatch(String waybillCode) {
         Integer result = REDISPATCH_NO;

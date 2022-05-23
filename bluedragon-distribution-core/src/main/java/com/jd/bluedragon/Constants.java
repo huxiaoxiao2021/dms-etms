@@ -1675,4 +1675,14 @@ public class Constants {
      * 医药冷链产品
      */
     public static final String PRODUCT_TYPE_MEDICAL_COLD_BILL = "ll-m-0002";
+
+    /**
+     * 运单预售未付尾款
+     */
+    public static final String PRODUCT_ABILITY_OF_PRE_SELL_NO_PAY  = "VI007-01";
+
+    /**
+     * 运单预售已付尾款
+     */
+    public static final String PRODUCT_ABILITY_OF_PRE_SELL_PAY_DONE  = "VI007-02";
 }
