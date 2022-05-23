@@ -80,6 +80,11 @@ public class CarTaskResponse implements Serializable {
      */
     private Integer packageCount;
 
+    /**
+     * 调整方量
+     */
+    private Double adjustVolume;
+
 
     public int getId() {
         return id;
@@ -199,5 +204,13 @@ public class CarTaskResponse implements Serializable {
 
     public void setPackageCount(Integer packageCount) {
         this.packageCount = packageCount;
+    }
+
+    public Double getAdjustVolume() {
+        return adjustVolume;
+    }
+
+    public void setAdjustVolume(Double adjustVolume) {
+        this.adjustVolume = adjustVolume;
     }
 }
