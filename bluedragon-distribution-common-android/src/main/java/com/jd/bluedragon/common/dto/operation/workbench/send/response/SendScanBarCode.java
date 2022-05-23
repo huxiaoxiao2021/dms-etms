@@ -1,0 +1,25 @@
+package com.jd.bluedragon.common.dto.operation.workbench.send.response;
+
+import com.jd.bluedragon.common.dto.operation.workbench.unload.response.LabelOption;
+
+import java.io.Serializable;
+import java.util.List;
+
+/**
+ * @ClassName SendScanBarCode
+ * @Description
+ * @Author wyh
+ * @Date 2022/5/19 17:57
+ **/
+public class SendScanBarCode implements Serializable {
+
+    /**
+     * 单号
+     */
+    private String barCode;
+
+    /**
+     * 单号标签集合
+     */
+    private List<LabelOption> tags;
+}

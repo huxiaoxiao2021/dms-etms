@@ -11,7 +11,7 @@ import java.util.List;
 
 /**
  * @ClassName JyUnloadVehicleGatewayService
- * @Description
+ * @Description 拣运卸车岗网关服务
  * @Author wyh
  * @Date 2022/4/1 16:39
  **/
