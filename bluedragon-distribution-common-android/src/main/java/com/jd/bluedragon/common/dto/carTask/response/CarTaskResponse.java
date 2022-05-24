@@ -50,7 +50,7 @@ public class CarTaskResponse implements Serializable {
     private Double sumVolume;
 
     /**
-     * 线路方量
+     * 线路方量（弃用）
      */
     private Double volume;
 
@@ -84,6 +84,11 @@ public class CarTaskResponse implements Serializable {
      * 调整方量
      */
     private Double adjustVolume;
+
+    /**
+     * 线路方量
+     */
+    private Double algoVolume;
 
 
     public int getId() {
@@ -212,5 +217,13 @@ public class CarTaskResponse implements Serializable {
 
     public void setAdjustVolume(Double adjustVolume) {
         this.adjustVolume = adjustVolume;
+    }
+
+    public Double getAlgoVolume() {
+        return algoVolume;
+    }
+
+    public void setAlgoVolume(Double algoVolume) {
+        this.algoVolume = algoVolume;
     }
 }
