@@ -6,6 +6,7 @@ import com.jd.bluedragon.common.domain.WaybillCache;
 import com.jd.bluedragon.common.dto.send.request.DeliveryRequest;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.constants.HintModuleConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
@@ -36,6 +37,7 @@ import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
 import com.jd.bluedragon.distribution.businessIntercept.dto.SaveInterceptMsgDto;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.DmsMessageConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
@@ -47,6 +49,9 @@ import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.jd.etms.waybill.dto.WaybillAbilityAttrDto;
+import com.jd.etms.waybill.dto.WaybillAbilityDto;
+import com.jd.etms.waybill.dto.WaybillProductDto;
 import com.jd.ql.basic.util.DateUtil;
 import com.jd.ql.dms.common.constants.OperateDeviceTypeConstants;
 import com.jd.ql.dms.common.constants.OperateNodeConstants;
@@ -104,6 +109,9 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
 
     @Autowired
     private BusinessInterceptConfigHelper businessInterceptConfigHelper;
+
+    @Autowired
+    private WaybillQueryManager waybillQueryManager;
 
     @Override
     @JProfiler(jKey = "DMSWEB.SortingCheckServiceImpl.sortingCheck", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
@@ -492,6 +500,16 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
                     logger.error(String.format("包裹号不存在packageCode[{%s}]", packageCode));
                     throw new SortingCheckException(SortingResponse.CODE_29409, SortingResponse.MESSAGE_29409);
                 }
+            }
+        }
+        //初始增值服务
+        //增加接货仓 KA安踏预售逻辑 (只考虑ECLP仓配外单场景  减少调用)
+        if(BusinessUtil.isEclpAndWmsForDistribution(waybillCache.getWaybillSign()) && filterContext.getCreateSite() != null && filterContext.getCreateSite().getSubType() !=null &&
+                Integer.valueOf(Constants.JHC_SITE_TYPE).equals(filterContext.getCreateSite().getSubType())) {
+            BaseEntity<List<WaybillProductDto>> productAbilities = waybillQueryManager.getProductAbilityInfoByWaybillCode(waybillCache.getWaybillCode());
+            //获取能力信息
+            if (productAbilities != null && !org.springframework.util.CollectionUtils.isEmpty(productAbilities.getData())) {
+                filterContext.setWaybillProductDtos(productAbilities.getData());
             }
         }
 
