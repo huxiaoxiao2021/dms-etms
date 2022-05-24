@@ -5,6 +5,7 @@ import com.jd.bluedragon.distribution.api.request.ThirdWaybillNoRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.eclpPackage.manager.EclpLwbB2bPackageItemManager;
 import com.jd.bluedragon.distribution.waybill.domain.ThirdWaybillNoResult;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.eclp.bbp.co.lwb.service.LwbB2bPackageItemService;
 import com.jd.eclp.bbp.so.param.SoBindRelationParam;
 import com.jd.eclp.bbp.so.param.SoBindRelationResponse;
@@ -79,10 +80,11 @@ public class EclpLwbB2bPackageItemManagerImpl implements EclpLwbB2bPackageItemMa
             param.setThirdWaybill(request.getThirdWaybill());
             ApiResponse<SoBindRelationResponse> response = sellerPackageNo.queryThirdAndWaybillRelation(param);
 
+            if (LOGGER.isInfoEnabled()) {
+                LOGGER.info("由三方运单号查询京东包裹号, request:[{}], response:[{}]", JsonHelper.toJson(request), JsonHelper.toJson(response));
+            }
+
             if (response != null) {
-                if (LOGGER.isInfoEnabled()) {
-                    LOGGER.info("由三方运单号查询京东包裹号, code:[{}], data:[{}]", response.getCode(), response.getData());
-                }
                 if (Objects.equals(1, response.getCode()) && response.getData() != null) {
                     SoBindRelationResponse dataSource = response.getData();
                     ThirdWaybillNoResult dataResult=new ThirdWaybillNoResult();

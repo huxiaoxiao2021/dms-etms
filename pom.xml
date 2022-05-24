@@ -51,7 +51,7 @@
 		<sonar.jacoco.reportPaths>${project.basedir}/../coverage-report/jacoco.exec</sonar.jacoco.reportPaths>
 		<aces.version>2.2.0-SNAPSHOT</aces.version>
 		<lombok.version>1.18.20</lombok.version>
-		<eclp-so-api.version>0.0.1-TEST-SNAPSHOT</eclp-so-api.version>
+		<eclp-so-api.version>0.0.1-SNAPSHOT</eclp-so-api.version>
 	</properties>
 	
 	<dependencyManagement>
