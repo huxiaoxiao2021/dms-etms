@@ -48,7 +48,7 @@ import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -461,7 +461,6 @@ public class BoxServiceImpl implements BoxService {
 		} catch (Exception e) {
 			this.log.error("findBoxByCode获取缓存箱号失败，箱号为:{}" , boxCode, e);
 		}
-
 		return null;
 
 	}
@@ -787,8 +786,8 @@ public class BoxServiceImpl implements BoxService {
             response.setDestinationTabletrolleyCode(crossPackageTag.getDestinationTabletrolleyCode());
         }
         if (null != response) {
-            response.setBoxTypes(BoxTypeEnum.getMap());
-        }
+			response.setBoxTypes(BoxTypeEnum.getMap());
+		}
 
     }
 

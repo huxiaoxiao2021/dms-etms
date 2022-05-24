@@ -226,7 +226,7 @@ public class SiteResource {
 			result.setData(createAndReceiveSite);
 		}catch (Exception e){
 			log.error("根据批次号获取始发和目的分拣信息失败，批次号：{}", sendCode, e);
-			result.error("根据批次号获取始发和目的分拣信息出现异常，请联系配送系统运营(xnpsxt)");
+			result.error("根据批次号获取始发和目的分拣信息出现异常，请联系org.wlxt2");
 		}
 
 		return result;
