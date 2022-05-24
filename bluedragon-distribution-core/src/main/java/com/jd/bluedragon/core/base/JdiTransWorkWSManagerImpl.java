@@ -7,6 +7,7 @@ import com.jd.tms.jdi.dto.CommonDto;
 import com.jd.tms.jdi.ws.JdiTransWorkWS;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -19,7 +20,7 @@ import org.springframework.stereotype.Service;
 @Service("jdiTransWorkWSManager")
 public class JdiTransWorkWSManagerImpl implements JdiTransWorkWSManager{
 
-
+    @Autowired
     private JdiTransWorkWS jdiTransWorkWS;
 
 
