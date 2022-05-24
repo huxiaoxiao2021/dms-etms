@@ -516,4 +516,12 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
         }
         return source.getOrder() < target.getOrder();
     }
+    
+	@Override
+	public Long countByVehicleNumberAndStatus(JyBizTaskUnloadVehicleEntity condition){
+		if(condition == null) {
+			return 0L;
+		}
+		return jyBizTaskUnloadVehicleDao.countByVehicleNumberAndStatus(condition);
+	}
 }
