@@ -16,6 +16,7 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.Md5Helper;
+import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.coo.sa.mybatis.plugins.id.SequenceGenAdaptor;
 import com.jd.jim.cli.Cluster;
 import com.jd.ump.annotation.JProEnum;
@@ -28,8 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -54,6 +54,10 @@ public class DeliveryOperationServiceImpl implements IDeliveryOperationService {
     @Autowired
     @Qualifier("deliveryWaybillHandler")
     private IDeliveryBaseHandler waybillHandler;
+
+    @Autowired
+    @Qualifier("deliveryBoardHandler")
+    private IDeliveryBaseHandler boardHandler;
 
     @Autowired
     private UccPropertyConfiguration uccConfig;
@@ -148,6 +152,68 @@ public class DeliveryOperationServiceImpl implements IDeliveryOperationService {
         return DeliveryResponse.oK();
     }
 
+    @Override
+    @JProfiler(jKey = "DMSWEB.DeliveryOperationService.asyncHandleTransfer", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public DeliveryResponse asyncHandleTransfer(List<SendM> sendMList, String newSendCode) {
+        SendM sendM = makeTransferDomain(sendMList.get(0));
+        log.info("===========asyncHandleTransfer==========发货批次迁移,原批次号：{}，新批次号",sendM.getSendCode(),newSendCode);
+
+        SendMWrapper packageSendWrapper = new SendMWrapper(SendKeyTypeEnum.BY_PACKAGE);
+        SendMWrapper boxSendWrapper = new SendMWrapper(SendKeyTypeEnum.BY_BOX);
+        SendMWrapper boardSendWrapper = new SendMWrapper(SendKeyTypeEnum.BY_BOARD);
+
+        packageSendWrapper.setSendM(sendM);
+        boxSendWrapper.setSendM(sendM);
+        boardSendWrapper.setSendM(sendM);
+
+        Set<String> boardSet =new HashSet<>();
+        for (SendM sendm : sendMList) {
+            String barCode = sendm.getBoxCode();
+            String boardCode =sendm.getBoardCode();
+            //按板发的货
+            if (ObjectHelper.isNotNull(boardCode)){
+                boardSet.add(boardCode);
+            }
+            //按包裹-运单
+            else if (WaybillUtil.isPackageCode(barCode)) {
+                packageSendWrapper.add(barCode);
+            }
+            //按箱
+            else if (BusinessHelper.isBoxcode(barCode)) {
+                boxSendWrapper.add(barCode);
+            }
+        }
+        boardSendWrapper.setBarCodeList(new ArrayList(boardSet));
+
+        if (CollectionUtils.isNotEmpty(packageSendWrapper.getBarCodeList())) {
+            packageHandler.initTransferTask(packageSendWrapper);
+        }
+        if (CollectionUtils.isNotEmpty(boxSendWrapper.getBarCodeList())) {
+            boxHandler.initTransferTask(boxSendWrapper);
+        }
+        if (CollectionUtils.isNotEmpty(boardSendWrapper.getBarCodeList())) {
+            boardHandler.initTransferTask(boardSendWrapper);
+        }
+        return DeliveryResponse.oK();
+    }
+
+    private SendM makeTransferDomain(SendM request) {
+        SendM sendM = new SendM();
+        sendM.setCreateSiteCode(request.getCreateSiteCode());
+        sendM.setReceiveSiteCode(request.getReceiveSiteCode());
+        sendM.setCreateUserCode(request.getCreateUserCode());
+        sendM.setSendType(request.getSendType());
+        sendM.setCreateUser(request.getCreateUser());
+        sendM.setSendCode(request.getSendCode());
+        sendM.setCreateTime(request.getCreateTime());
+        sendM.setOperateTime(request.getOperateTime());
+        sendM.setYn(1);
+        sendM.setTurnoverBoxCode(request.getTurnoverBoxCode());
+        sendM.setTransporttype(request.getTransporttype());
+        sendM.setBizSource(request.getBizSource());
+        return sendM;
+    }
+
     long genSendBatchTaskUniqueId(String nameSpace){
         long sequence;
         try {
@@ -231,6 +297,29 @@ public class DeliveryOperationServiceImpl implements IDeliveryOperationService {
             case BY_WAYBILL:
 
                 waybillHandler.dealCoreDeliveryV2(wrapper);
+                break;
+            default:
+                break;
+        }
+    }
+
+    @Override
+    @JProfiler(jKey = "DMSWEB.DeliveryOperationService.dealSendTransferTask", jAppName = Constants.UMP_APP_NAME_DMSWORKER, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public void dealSendTransferTask(Task task) {
+        final SendMWrapper wrapper = JsonHelper.fromJson(task.getBody(), SendMWrapper.class);
+        if (null == wrapper || null == wrapper.getKeyType()) {
+            return;
+        }
+        SendKeyTypeEnum typeEnum = wrapper.getKeyType();
+        switch (typeEnum) {
+            case BY_PACKAGE:
+                packageHandler.dealSendTransfer(wrapper);
+                break;
+            case BY_BOX:
+                boxHandler.dealSendTransfer(wrapper);
+                break;
+            case BY_BOARD:
+                waybillHandler.dealSendTransfer(wrapper);
                 break;
             default:
                 break;

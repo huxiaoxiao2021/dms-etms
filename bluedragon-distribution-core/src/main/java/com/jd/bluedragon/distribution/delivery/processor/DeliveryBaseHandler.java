@@ -5,26 +5,32 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
 import com.jd.bluedragon.distribution.delivery.entity.SendMWrapper;
+import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
+import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.domain.SendM;
+import com.jd.bluedragon.distribution.send.domain.ThreeDeliveryResponse;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.CollectionHelper;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.Md5Helper;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.utils.*;
 import com.jd.coo.sa.mybatis.plugins.id.SequenceGenAdaptor;
 import com.jd.jim.cli.Cluster;
+import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -59,6 +65,8 @@ public abstract class DeliveryBaseHandler implements IDeliveryBaseHandler {
 
     @Autowired
     protected WaybillPackageManager waybillPackageManager;
+    @Autowired
+    private SendDatailDao sendDatailDao;
 
     /**
      * 生成该次发货操作的唯一标识
@@ -134,6 +142,45 @@ public abstract class DeliveryBaseHandler implements IDeliveryBaseHandler {
 
             String fingerprint = batchUniqKey +
                     Constants.UNDER_LINE + System.currentTimeMillis();
+            task.setFingerprint(Md5Helper.encode(fingerprint));
+
+            taskService.doAddTask(task,false);
+        }
+
+        return DeliveryResponse.oK();
+    }
+
+    @Override
+    public DeliveryResponse initTransferTask(SendMWrapper wrapper) {
+        SendM sendM = wrapper.getSendM();
+
+        int onePageSize = uccConfig.getOldSendSplitPageSize() <= 0 ? SEND_SPLIT_NUM : uccConfig.getOldSendSplitPageSize();
+        int totalNum = wrapper.getBarCodeList().size();
+        int pageTotal = (totalNum % onePageSize) == 0 ? (totalNum / onePageSize) : (totalNum / onePageSize) + 1;
+        List<List<String>> pageBarCode = CollectionHelper.splitList(wrapper.getBarCodeList(), onePageSize);
+
+        //拆分mini-batch
+        for (int i = 0; i < pageTotal; i++) {
+            SendMWrapper copyWrapper = new SendMWrapper();
+            copyWrapper.setSendM(sendM);
+            copyWrapper.setKeyType(wrapper.getKeyType());
+            // 设置本次需要执行的包裹或箱号
+            copyWrapper.setBarCodeList(pageBarCode.get(i));
+            copyWrapper.setPageNo(i + 1);
+            copyWrapper.setPageSize(onePageSize);
+            copyWrapper.setTotalPage(pageTotal);
+
+            Task task = new Task();
+            task.setCreateSiteCode(sendM.getCreateSiteCode());
+            task.setReceiveSiteCode(sendM.getReceiveSiteCode());
+            task.setType(Task.TASK_TYPE_DELIVERY_TRANSFER);
+            task.setTableName(Task.getTableName(task.getType()));
+            task.setSequenceName(Task.getSequenceName(task.getTableName()));
+            task.setKeyword1(wrapper.getKeyType().name());
+            task.setKeyword2(i + 1 + Constants.UNDER_LINE + pageTotal + Constants.UNDER_LINE + sendM.getSendCode());
+            task.setOwnSign(BusinessHelper.getOwnSign());
+            task.setBody(JsonHelper.toJson(copyWrapper));
+            String fingerprint = pageBarCode.get(i).get(0) + Constants.UNDER_LINE + System.currentTimeMillis();
             task.setFingerprint(Md5Helper.encode(fingerprint));
 
             taskService.doAddTask(task,false);
@@ -220,6 +267,61 @@ public abstract class DeliveryBaseHandler implements IDeliveryBaseHandler {
         deliveryService.deliveryCoreLogic(sendMList.get(0).getBizSource(), sendMList);
 
         return competeTaskIncrCount(batchUniqKey);
+    }
+
+    @Override
+    public boolean dealSendTransfer(SendMWrapper wrapper) {
+        final SendM sendM = wrapper.getSendM();
+
+        SendDetail sendDRequest = new SendDetail();
+        sendDRequest.setCreateSiteCode(sendM.getCreateSiteCode());
+        sendDRequest.setReceiveSiteCode(sendM.getReceiveSiteCode());
+        sendDRequest.setIsCancel(Constants.OPERATE_TYPE_CANCEL_L);
+
+        for (String barCode : wrapper.getBarCodeList()) {
+            SendM sendMItem =BeanUtils.copy(sendM, SendM.class);
+            sendMItem.setBoxCode(barCode);
+
+            if (WaybillUtil.isWaybillCode(barCode)) {
+                sendDRequest.setWaybillCode(barCode);
+            } else if (WaybillUtil.isPackageCode(barCode)){
+                sendDRequest.setPackageBarcode(barCode);
+            } else {
+                sendDRequest.setBoxCode(sendMItem.getBoxCode());
+            }
+            List<SendDetail> tlist = sendDatailDao.querySendDatailsBySelective(sendDRequest);//查询sendD明细
+
+            if (WaybillUtil.isWaybillCode(sendMItem.getBoxCode())
+                    || WaybillUtil.isPackageCode(sendMItem.getBoxCode())) {
+                /* 按包裹号和运单号的逻辑走 */
+                ThreeDeliveryResponse responsePack = cancelUpdateDataByPack(sendMItem, tlist);
+                if (responsePack.getCode().equals(200)) {
+                    //同步取消半退明细
+                    reversePartDetailService.cancelPartSend(sendMItem);
+                    // 更新包裹装车记录表的扫描状态为取消扫描状态
+                    updateScanActionByPackageCodes(tlist, sendMItem);
+                } else {
+                    continue;
+                }
+            } else if (BusinessHelper.isBoxcode(sendMItem.getBoxCode())) {
+                /* 按箱号的逻辑走 */
+                List<SendM> sendMs = new ArrayList<>();
+                sendMs.add(sendMItem);
+                ThreeDeliveryResponse threeDeliveryResponse = cancelUpdateDataByBox(sendMItem, sendDRequest, sendMs);
+                if (threeDeliveryResponse.getCode().equals(200)) {
+                    /* 更新箱号缓存状态 */
+                    openBox(sendMItem);
+                } else {
+                    continue;
+                }
+            } else {
+                log.info("该发货明细不属于按运单按包裹按箱号发货范畴：{}" , JsonHelper.toJson(sendMItem));
+                continue;
+            }
+            sendMessage(tlist, sendMItem, true);
+            delDeliveryFromRedis(sendMItem);//取消发货成功，删除redis缓存的发货数据 根据boxCode和createSiteCode
+        }
+        return false;
     }
 
     @Override
