@@ -22,10 +22,4 @@ public interface JdiQueryWSManager {
      */
     CommonDto<TransWorkItemDto> queryTransWorkItemBySimpleCode(String simpleCode);
 
-    /**
-     * 根据派车明细编码获取派车任务明细
-     * @param var1
-     * @return
-     */
-    TransWorkItemDto getTransWorkItemsDtoByItemCode(String var1);
 }
