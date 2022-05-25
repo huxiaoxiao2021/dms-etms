@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.ver.filter.filters;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.hint.constants.HintArgsConstants;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
@@ -14,6 +15,7 @@ import com.jd.bluedragon.distribution.ver.exception.SortingCheckException;
 import com.jd.bluedragon.distribution.ver.filter.Filter;
 import com.jd.bluedragon.distribution.ver.filter.FilterChain;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
+import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.bluedragon.utils.WaybillCacheHelper;
 import org.apache.commons.collections.CollectionUtils;
@@ -38,6 +40,8 @@ public class RouterFilter implements Filter {
 
     @Autowired
     private RouterService routerService;
+    @Autowired
+    private UccPropertyConfiguration uccConfiguration;
 
     @Override
     public void doFilter(FilterContext request, FilterChain chain) throws Exception {
@@ -55,9 +59,10 @@ public class RouterFilter implements Filter {
         } catch (Exception e) {
             logger.warn("站点 [" + request.getCreateSiteCode() + "] 类型 [" + RULE_ROUTER + "] 没有匹配的规则");
         }
-
-        //规则没有配，或者配置了内容不等于1才会进行校验
-        if (rule == null || !SWITCH_ON.equals(rule.getContent())) {
+        List<Integer> dpSiteCodeList = uccConfiguration.getDpSiteCodeList();
+        //规则没有配，或者配置了内容不等于1才会进行校验 发货目的地为德邦虚拟分拣中心的也不校验
+        if ((rule == null || !SWITCH_ON.equals(rule.getContent()))
+                && !BusinessHelper.isDPSiteCode(dpSiteCodeList, request.getReceiveSiteCode())) {
             Integer createSiteCode = request.getCreateSiteCode();
             Integer receiveSiteCode = request.getReceiveSiteCode();
 

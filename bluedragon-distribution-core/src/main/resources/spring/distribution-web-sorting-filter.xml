@@ -112,6 +112,7 @@
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.RouterFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.FastTransferStationFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ChangeWaybillSignFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.DPSendFilter"/>
     </util:list>
 
     <util:list id="deliveryByWaybillFilterList">
@@ -143,6 +144,7 @@
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.RouterFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.FastTransferStationFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ChangeWaybillSignFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.DPSendFilter"/>
     </util:list>
 
     <bean id="deliveryFilterChain" class="com.jd.bluedragon.distribution.ver.filter.chains.DeliveryFilterChain" scope="prototype" destroy-method="destory">

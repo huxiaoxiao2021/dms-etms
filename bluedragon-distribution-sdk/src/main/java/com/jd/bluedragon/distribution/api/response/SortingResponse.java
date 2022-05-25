@@ -404,6 +404,9 @@ public class SortingResponse extends JdResponse {
     public static final Integer CODE_29462 = 29462;
     public static final String  MESSAGE_29462 = "不允许按直发医药箱号进行发货，请拆箱后再进行发货";
 
+    //发货校验-德邦单子校验
+    public static final Integer CODE_DP_SEND_ERROR =29463;
+
     public static final Integer CODE_39000 = 39000;
     public static final String MESSAGE_39000 = "此单与分拣[站点]不一致,确定装箱？";
     public static final String MESSAGE_39000_PDA = "注意：包裹/运单与预分拣站点不一致";
