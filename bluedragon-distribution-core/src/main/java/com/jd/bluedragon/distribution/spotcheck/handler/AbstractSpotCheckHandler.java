@@ -736,6 +736,9 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
             spotCheckContext.setPackageCode(baseEntity.getData().getPackageList().get(0).getPackageBarcode());
         }
         String waybillSign = waybill.getWaybillSign();
+        if(!BusinessUtil.isPurematch(waybillSign)){
+            throw new SpotCheckBusinessException(SpotCheckConstants.SPOT_CHECK_ONLY_SUPPORT_PURE_MATCH);
+        }
         if(BusinessUtil.isCInternet(waybillSign)){
             spotCheckContext.setSpotCheckBusinessType(SpotCheckBusinessTypeEnum.SPOT_CHECK_TYPE_C.getCode());
         }else if(BusinessUtil.isBInternet(waybillSign)){
