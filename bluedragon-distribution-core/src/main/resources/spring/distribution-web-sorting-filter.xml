@@ -17,6 +17,7 @@
     </bean>
 
     <util:list id="forwardFilterList">
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ColdChainAroundPlateBoxFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ForceChangeWaybillSignFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.IsWasteWaybillFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.WaybillPackStateFilter"/>

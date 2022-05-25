@@ -217,5 +217,11 @@ public interface NewSealVehicleService {
      * @return
      */
     NewSealVehicleResponse<String> createTransAbnormalAndDeSealCode(TransAbnormalAndDeSealRequest request);
+    /**
+     * 无货上封签
+     * @param request
+     * @return
+     */
+    NewSealVehicleResponse<String> doSealCodes(DoSealCodeRequest request);
 
 }

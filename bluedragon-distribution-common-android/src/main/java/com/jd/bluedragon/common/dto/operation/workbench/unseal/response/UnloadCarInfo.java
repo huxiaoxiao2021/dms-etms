@@ -1,6 +1,7 @@
 package com.jd.bluedragon.common.dto.operation.workbench.unseal.response;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 /**
  * @ClassName UnloadCarInfo
@@ -10,8 +11,7 @@ import java.io.Serializable;
  **/
 public class UnloadCarInfo extends VehicleBaseInfo implements Serializable {
 
-    private static final long serialVersionUID = 2855098427110256807L;
-
+    private static final long serialVersionUID = 5105812931046178518L;
     /**
      * 总件数
      */
@@ -21,6 +21,11 @@ public class UnloadCarInfo extends VehicleBaseInfo implements Serializable {
      * 已卸件数
      */
     private Long unloadCount;
+
+    /**
+     * 卸车进度
+     */
+    private BigDecimal unloadProgress;
 
     public Long getTotalCount() {
         return totalCount;
@@ -36,6 +41,14 @@ public class UnloadCarInfo extends VehicleBaseInfo implements Serializable {
 
     public void setUnloadCount(Long unloadCount) {
         this.unloadCount = unloadCount;
+    }
+
+    public BigDecimal getUnloadProgress() {
+        return unloadProgress;
+    }
+
+    public void setUnloadProgress(BigDecimal unloadProgress) {
+        this.unloadProgress = unloadProgress;
     }
 
     private Boolean _active;

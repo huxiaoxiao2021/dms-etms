@@ -4,6 +4,7 @@ package com.jd.bluedragon.distribution.jy.task;
 import java.math.BigDecimal;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 卸车业务任务表
@@ -160,6 +161,10 @@ public class JyBizTaskUnloadVehicleEntity implements Serializable {
      * 数据库时间
      */
     private Date ts;
+    /**
+     * 状态列表
+     */
+    private List<Integer> statusCodeList;
 
     public Long setId(Long id) {
         return this.id = id;
@@ -440,5 +445,13 @@ public class JyBizTaskUnloadVehicleEntity implements Serializable {
     public boolean unloadAbnormal() {
         return this.abnormalFlag != null && this.abnormalFlag == 1;
     }
+
+	public List<Integer> getStatusCodeList() {
+		return statusCodeList;
+	}
+
+	public void setStatusCodeList(List<Integer> statusCodeList) {
+		this.statusCodeList = statusCodeList;
+	}
 
 }

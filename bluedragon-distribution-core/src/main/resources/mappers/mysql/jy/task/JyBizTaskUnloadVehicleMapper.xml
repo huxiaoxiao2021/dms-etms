@@ -306,15 +306,8 @@
         from jy_biz_task_unload_vehicle
 
         <where>
-            end_site_id = #{entity.endSiteId}
 
-            <if test="entity.sealCarCode">
-                and seal_car_code = #{entity.sealCarCode}
-            </if>
-
-            <if test="entity.fuzzyVehicleNumber">
-                and fuzzy_vehicle_number = #{entity.fuzzyVehicleNumber}
-            </if>
+            <include refid="queryTaskCondition"/>
 
             <if test="statuses != null">
                 and vehicle_status in
@@ -322,13 +315,40 @@
                     #{item}
                 </foreach>
             </if>
-            and yn = 1
 
         </where>
 
         group by vehicle_status
 
     </select>
+
+    <sql id="queryTaskCondition">
+            yn = 1
+
+            AND end_site_id = #{entity.endSiteId}
+
+            <if test="entity.sealCarCode">
+                and seal_car_code = #{entity.sealCarCode}
+            </if>
+
+            <if test="entity.sortTime != null">
+                AND sort_time >= #{entity.sortTime}
+            </if>
+
+            <choose>
+                <when test="entity.startSiteId != null and entity.fuzzyVehicleNumber != null">
+                    AND (start_site_id = #{entity.startSiteId} OR fuzzy_vehicle_number = #{entity.fuzzyVehicleNumber})
+                </when>
+                <otherwise>
+                    <if test="entity.fuzzyVehicleNumber">
+                        AND fuzzy_vehicle_number = #{entity.fuzzyVehicleNumber}
+                    </if>
+                    <if test="entity.startSiteId != null">
+                        AND start_site_id = #{entity.startSiteId}
+                    </if>
+                </otherwise>
+            </choose>
+    </sql>
 
 
     <select id="findStatusCountByCondition4StatusAndLine" resultMap="JyBizTaskUnloadCountMap">
@@ -337,15 +357,8 @@
         from jy_biz_task_unload_vehicle
 
         <where>
-            end_site_id = #{entity.endSiteId}
 
-            <if test="entity.sealCarCode">
-                and seal_car_code = #{entity.sealCarCode}
-            </if>
-
-            <if test="entity.fuzzyVehicleNumber">
-                and fuzzy_vehicle_number = #{entity.fuzzyVehicleNumber}
-            </if>
+            <include refid="queryTaskCondition"/>
 
             <if test="statuses != null">
                 and vehicle_status in
@@ -353,7 +366,6 @@
                     #{item}
                 </foreach>
             </if>
-            and yn = 1
 
         </where>
 
@@ -368,27 +380,23 @@
         from jy_biz_task_unload_vehicle
 
         <where>
-            end_site_id = #{entity.endSiteId}
-
-            <if test="entity.sealCarCode">
-                and seal_car_code = #{entity.sealCarCode}
-            </if>
-
-            <if test="entity.fuzzyVehicleNumber">
-                and fuzzy_vehicle_number = #{entity.fuzzyVehicleNumber}
-            </if>
+            <include refid="queryTaskCondition"/>
 
             <if test="entity.vehicleStatus != null">
                 and vehicle_status = #{entity.vehicleStatus}
             </if>
-            and yn = 1
+
+            <if test="entity.lineType != null">
+                AND line_type = #{entity.lineType}
+            </if>
+
         </where>
 
         <if test="orderType != null">
             order by
             <choose>
                 <when test="orderType == 1">
-                    sort_time desc
+                    sort_time asc
                 </when>
                 <when test="orderType == 2">
                     abnormal_flag desc,sort_time desc
@@ -531,4 +539,19 @@
             id = #{id} and yn = 1
         </where>
     </update>
+    <select id="countByVehicleNumberAndStatus" resultType="java.lang.Long">
+        select count(1)
+        from jy_biz_task_unload_vehicle
+        <where>
+            end_site_id = #{endSiteId}
+            and vehicle_number = #{vehicleNumber}
+            <if test="statusCodeList != null">
+                and vehicle_status in
+                <foreach collection="statusCodeList" item="item" open="(" close=")" separator=",">
+                    #{item}
+                </foreach>
+            </if>
+            and yn = 1           
+        </where>
+     </select>    
 </mapper>

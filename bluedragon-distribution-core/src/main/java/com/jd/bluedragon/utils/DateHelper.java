@@ -491,6 +491,21 @@ public class DateHelper {
         int days = (int) ((endDate.getTime() - startDate.getTime()) / (24 * 3600 * 1000));
         return days;
     }
+
+    /**
+     * 两个日期分钟差
+     *
+     * @param startDate
+     * @param endDate
+     * @return
+     */
+    public static int getMiniDiff(Date startDate, Date endDate) {
+        if (startDate == null || endDate == null) {
+            return 0;
+        }
+        int days = (int) ((endDate.getTime() - startDate.getTime()) / (60 * 1000));
+        return days;
+    }
     /**
      * 运输时间转date
      * @param dayStr 日期 2021-01-01
@@ -550,4 +565,38 @@ public class DateHelper {
 		}
 		return "";
 	}
+
+    /**
+     * 获取某个时间的小时
+     *
+     * @param date
+     * @return
+     */
+    public static Integer getHour(Date date) {
+        if(date == null){
+            return null;
+        }
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        return calendar.get(Calendar.HOUR_OF_DAY);
+    }
+
+    /**
+     * 获取某个时间的当天0点的时间戳
+     *
+     * @param date
+     * @return
+     */
+    public static Long getZero(Date date) {
+        if(date == null){
+            return null;
+        }
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        return calendar.getTimeInMillis();
+    }
 }

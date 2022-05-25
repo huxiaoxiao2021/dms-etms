@@ -2531,6 +2531,29 @@ public class WaybillResource {
         return result;
     }
 
+	/**
+	 * 返回包裹号由三方运单号
+	 * @param request
+	 * @return
+	 */
+	@POST
+	@Path("/waybill/getWyPackageNoByThirdWaybillNo")
+	@JProfiler(jKey = "DMS.WEB.WaybillResource.getWyPackageNoByThirdWaybillNo", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+	public InvokeResult<ThirdWaybillNoResult> getWyPackageNoByThirdWaybillNo(ThirdWaybillNoRequest request) {
+		InvokeResult<ThirdWaybillNoResult> result = new InvokeResult<>();
+
+		if (StringUtils.isBlank(request.getThirdWaybill()) ) {
+			result.parameterError("请输入三方运单号!");
+			return result;
+		}
+
+		if (log.isInfoEnabled()) {
+			log.info("由三方单号的对应的京东包裹号入参1. req:[{}]", JsonHelper.toJson(request));
+		}
+
+		return eclpLwbB2bPackageItemService.findPackageNoByThirdWaybillNo(request);
+	}
+
 
 	/**
 	 * 现场预分拣

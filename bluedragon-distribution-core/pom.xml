@@ -209,12 +209,12 @@
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
 			<artifactId>bluedragon-distribution-sdk</artifactId>
-			<version>1.8.9-SNAPSHOT</version>
+			<version>1.9.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
 			<artifactId>bluedragon-distribution-utils</artifactId>
-			<version>1.3.9-SNAPSHOT</version>
+			<version>1.4.0-SNAPSHOT</version>
 		</dependency>
 
 		<!--运单拦截信息接口 2021.3.26-->
@@ -238,7 +238,7 @@
 		<dependency>
             <groupId>com.jd.bluedragon</groupId>
             <artifactId>bluedragon-distribution-common-android</artifactId>
-            <version>1.5.1-SNAPSHOT</version>
+            <version>1.5.2-SNAPSHOT</version>
         </dependency>
 		<dependency>
 			<groupId>com.jd.etms.waybill</groupId>
@@ -1831,6 +1831,15 @@
 					<artifactId>ldop-center-api</artifactId>
 				</exclusion>
 			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>com.jd.cmp</groupId>
+			<artifactId>cmp-api-dms</artifactId>
+			<version>0.0.3-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>com.jd.eclp</groupId>
+			<artifactId>eclp-so-api</artifactId>
 		</dependency>
 
 		<!--查询运输车辆任务-->

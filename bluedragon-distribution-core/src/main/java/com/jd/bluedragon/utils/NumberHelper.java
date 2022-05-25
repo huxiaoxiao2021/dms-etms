@@ -266,4 +266,15 @@ public class NumberHelper {
     public static int remainderByNum(int num, int mod) {
         return num % mod;
     }
+
+    /**
+     * 输入项是正整数
+     * @param input
+     * @return
+     */
+    public static boolean isPositiveNumber(String input) {
+        String pattern = "^[1-9]\\d*$";
+        return input.matches(pattern);
+    }
+
 }

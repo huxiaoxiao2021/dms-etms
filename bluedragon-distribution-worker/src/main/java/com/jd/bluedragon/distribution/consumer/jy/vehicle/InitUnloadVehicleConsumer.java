@@ -176,9 +176,6 @@ public class InitUnloadVehicleConsumer extends MessageBaseConsumer {
         if (mqDto.getLineTypeName() != null) {
             unloadVehicleEntity.setLineTypeName(mqDto.getLineTypeName());
         }
-        if (mqDto.getTotalCount() != null) {
-            unloadVehicleEntity.setTotalCount(mqDto.getTotalCount());
-        }
 
         // 处理卸车任务标位
         unloadVehicleEntity.setTagsSign(TagSignHelper.initDefaultPlaceholder());
@@ -201,6 +198,13 @@ public class InitUnloadVehicleConsumer extends MessageBaseConsumer {
                 BigDecimal progress = new BigDecimal(totalScannedPackageProgress + "");
                 unloadVehicleEntity.setUnloadProgress(progress);
             }
+        }
+
+        // 解析封车包裹总数
+        Object totalCountObj = extendInfo.get(UnloadVehicleMqDto.EXTEND_KEY_TOTAL_COUNT);
+        if (totalCountObj != null) {
+            Long totalCount = Long.valueOf(totalCountObj + "");
+            unloadVehicleEntity.setTotalCount(totalCount);
         }
     }
 

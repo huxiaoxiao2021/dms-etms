@@ -146,5 +146,14 @@ public class JyBizTaskUnloadVehicleDao extends BaseDao<JyBizTaskUnloadVehicleEnt
     public int updateOfBusinessInfoById(JyBizTaskUnloadVehicleEntity entity) {
         return this.getSqlSession().update(NAMESPACE + ".updateOfBusinessInfoById",entity);
     }
+    /**
+     * 根据车牌、状态、目的地查询任务数量
+     * @param condition
+     * @return
+     */
+	public Long countByVehicleNumberAndStatus(JyBizTaskUnloadVehicleEntity condition){
+		return this.getSqlSession().selectOne(NAMESPACE + ".countByVehicleNumberAndStatus",condition);
+	}
+
 
 }

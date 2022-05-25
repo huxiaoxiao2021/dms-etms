@@ -8,6 +8,7 @@ import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.SealCode
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.SealTaskInfo;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.SealVehicleTaskResponse;
 import com.jd.bluedragon.common.dto.select.SelectOption;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 
 import java.util.List;
 
@@ -27,6 +28,13 @@ public interface JySealVehicleGatewayService {
     JdCResponse<SealVehicleTaskResponse> fetchSealTask(SealVehicleTaskRequest request);
 
     /**
+     * 拉取待解封车任务
+     * @param request
+     * @return
+     */
+    JdCResponse<SealVehicleTaskResponse> fetchUnSealTask(SealVehicleTaskRequest request);
+
+    /**
      * 封车任务明细
      * @param request
      * @return
@@ -38,6 +46,12 @@ public interface JySealVehicleGatewayService {
      * @return
      */
     JdCResponse<List<SelectOption>> vehicleStatusOptions();
+
+    /**
+     * 待解封车状态枚举
+     * @return
+     */
+    JdCResponse<List<SelectOption>> unSealVehicleStatusOptions();
 
     /**
      * 封签号列表
