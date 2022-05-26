@@ -916,4 +916,13 @@ public class HintCodeConstants {
      * 存在非航空单操作，提示非航空单数量
      */
     public static String AIR_TO_ROAD_TIP_MSG="50004";
+    /**
+     * 非一单一件单错发到德邦虚拟分拣中心
+     */
+    public static String NOT_ONE_PACK_WAYBILL_WRONG_SEND_MSG="50005";
+
+    /**
+     * 非单错发到德邦虚拟分拣中心
+     */
+    public static String NOT_DP_WAYBILL_WRONG_SEND_MSG="50006";
 }
