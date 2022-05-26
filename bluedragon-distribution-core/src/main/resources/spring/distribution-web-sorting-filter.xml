@@ -17,7 +17,6 @@
     </bean>
 
     <util:list id="forwardFilterList">
-        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.DPSendFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ColdChainAroundPlateBoxFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ForceChangeWaybillSignFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.IsWasteWaybillFilter"/>
@@ -31,6 +30,7 @@
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.SevenFreshFilter" />
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.WaybillConsumableFilter" />
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.CancelWaybillFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.DPSendFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.PreSellInterceptFilter" />
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.WaybillTransferFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.WaybillDistributeTypeChangeFilter"/>
@@ -82,13 +82,13 @@
     </bean>
 
     <util:list id="deliveryFilterList">
-        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.DPSendFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ForceChangeWaybillSignFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.IsWasteWaybillFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.AllianceBusiFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.OneWaybillMultiPackFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.BusinessHallFreightSendReceiveFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.CancelWaybillFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.DPSendFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.FilePackageSendingFilter" />
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.PreSellInterceptFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.WaybillTransferFilter"/>
@@ -117,11 +117,11 @@
     </util:list>
 
     <util:list id="deliveryByWaybillFilterList">
-        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.DPSendFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ForceChangeWaybillSignFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.AllianceBusiFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.BusinessHallFreightSendReceiveFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.CancelWaybillFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.DPSendFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.PreSellInterceptFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.WaybillTransferFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.WaybillDistributeTypeChangeFilter"/>
