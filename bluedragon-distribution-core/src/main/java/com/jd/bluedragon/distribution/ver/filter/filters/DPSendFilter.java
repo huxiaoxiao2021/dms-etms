@@ -95,6 +95,8 @@ public class DPSendFilter implements Filter {
                 throw new SortingCheckException(SortingResponse.CODE_DP_SEND_ERROR,
                         HintService.getHintWithFuncModule(HintCodeConstants.NOT_DP_WAYBILL_WRONG_SEND_MSG, request.getFuncModule()));
             }
+        }catch (SortingCheckException se){
+            throw se;
         }catch (Exception e){
             logger.error("德邦发货校验异常", e);
             Profiler.functionError(info);
