@@ -55,7 +55,7 @@ public class DPSendFilter implements Filter {
 
         //查询运单包裹数和 运单扩展属性
         WChoice wChoice = new WChoice();
-        wChoice.setQueryPackList(true);
+        wChoice.setQueryWaybillC(true);
         wChoice.setQueryWaybillExtend(true);
         BaseEntity<BigWaybillDto> baseEntity =  waybillQueryManager.getDataByChoiceNoCache(waybillCode, wChoice);
         if(baseEntity.getData() == null){
@@ -65,7 +65,9 @@ public class DPSendFilter implements Filter {
         }
 
         BigWaybillDto bigWaybillDto = baseEntity.getData();
-        int packageNum = CollectionUtils.isEmpty(bigWaybillDto.getPackageList()) ? 0 : bigWaybillDto.getPackageList().size();
+        //获取信息失败，不拦截
+        Waybill waybill = bigWaybillDto.getWaybill();
+        int packageNum = waybill.getGoodNumber();
         // 非一单一件发到德邦分拣中心时拦截
         if(packageNum > 1){
             logger.warn("非一单一件不能发到德邦分拣中心,waybill:{},receiveSiteCode:{}", waybillCode, receiveSiteCode);
@@ -74,8 +76,7 @@ public class DPSendFilter implements Filter {
         }
 
 
-        //获取信息失败，不拦截
-        Waybill waybill = bigWaybillDto.getWaybill();
+
         if(waybill == null){
             logger.error("非德邦单 发到德邦拦截，获取waybill为null为空，waybill:{}", waybillCode);
             chain.doFilter(request, chain);
