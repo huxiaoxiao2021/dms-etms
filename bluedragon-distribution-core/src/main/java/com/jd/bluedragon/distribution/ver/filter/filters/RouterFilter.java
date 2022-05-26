@@ -52,6 +52,13 @@ public class RouterFilter implements Filter {
             return;
         }
 
+        //发货目的地为德邦虚拟分拣中心的不校验
+        List<Integer> dpSiteCodeList = uccConfiguration.getDpSiteCodeList();
+        if(BusinessHelper.isDPSiteCode(dpSiteCodeList, request.getReceiveSiteCode())){
+            chain.doFilter(request,chain);
+            return;
+        }
+
         //加一个分拣规则
         Rule rule = null;
         try {
@@ -59,10 +66,9 @@ public class RouterFilter implements Filter {
         } catch (Exception e) {
             logger.warn("站点 [" + request.getCreateSiteCode() + "] 类型 [" + RULE_ROUTER + "] 没有匹配的规则");
         }
-        List<Integer> dpSiteCodeList = uccConfiguration.getDpSiteCodeList();
-        //规则没有配，或者配置了内容不等于1才会进行校验 发货目的地为德邦虚拟分拣中心的也不校验
-        if ((rule == null || !SWITCH_ON.equals(rule.getContent()))
-                && !BusinessHelper.isDPSiteCode(dpSiteCodeList, request.getReceiveSiteCode())) {
+
+        //规则没有配，或者配置了内容不等于1才会进行校验
+        if (rule == null || !SWITCH_ON.equals(rule.getContent())) {
             Integer createSiteCode = request.getCreateSiteCode();
             Integer receiveSiteCode = request.getReceiveSiteCode();
 
