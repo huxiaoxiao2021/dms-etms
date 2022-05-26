@@ -508,6 +508,18 @@ public class HintCodeConstants {
      * 此订单目的分拣中心已关闭,确定装箱。
      */
     public static String EMD_DMSSITE_CLOSE="20082";
+    /**
+     * 此单末端非直发包站点，禁止装箱
+     */
+    public static String CODE_DIRECT_SEND_SITE_ERROR = "20083";
+    /**
+     * 未配置发出地[始发分拣名称]至目的地[目的分拣名称]的医药直发包规则，请先创建医药直发规则
+     */
+    public static String CODE_COLD_CHAIN_SITE_NO_ROUTE = "20084";
+    /**
+     * 不允许按直发医药箱号进行发货，请拆箱后再进行发货
+     */
+    public static String CODE_COLD_CHAIN_SEND_BOX_ERROR = "20086";
 
     /*##############################################拦截相关END#########################################################*/
 

@@ -137,6 +137,7 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
      * @time 2021-08-14 18:25:31 周六
      */
     @Override
+    @JProfiler(jKey = "DMSWEB.VirtualBoardServiceImpl.getBoardUnFinishInfo",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<List<VirtualBoardResultDto>> getBoardUnFinishInfo(OperatorInfo operatorInfo) {
         log.info("VirtualBoardServiceImpl.getBoardUnFinishInfo--start-- param {}", JsonHelper.toJson(operatorInfo));
         List<VirtualBoardResultDto> virtualBoardResultDtoList = new ArrayList<>();
