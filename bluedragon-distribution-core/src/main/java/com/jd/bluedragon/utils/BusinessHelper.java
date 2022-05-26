@@ -20,7 +20,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import static com.jd.bluedragon.dms.utils.DmsConstants.WAYBILL_EXTEND_DEPPON_THIRDCARRIERFLAG;
 
 public class BusinessHelper {
 
