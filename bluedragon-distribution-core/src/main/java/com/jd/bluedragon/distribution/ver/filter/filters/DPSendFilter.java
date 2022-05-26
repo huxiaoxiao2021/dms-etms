@@ -77,7 +77,7 @@ public class DPSendFilter implements Filter {
         //获取信息失败，不拦截
         Waybill waybill = bigWaybillDto.getWaybill();
         if(waybill == null){
-            logger.error("非德邦单 发到德邦拦截，获取waybill为null或WaybillExt对象为空，waybill:{}", waybillCode);
+            logger.error("非德邦单 发到德邦拦截，获取waybill为null为空，waybill:{}", waybillCode);
             chain.doFilter(request, chain);
             return;
         }
