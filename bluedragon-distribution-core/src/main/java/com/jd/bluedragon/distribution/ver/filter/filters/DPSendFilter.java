@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.ver.filter.filters;
 
+import IceInternal.Ex;
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
@@ -19,6 +21,8 @@ import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.etms.waybill.dto.WaybillExtraItemDto;
 import com.jd.ump.annotation.JProfiler;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,48 +51,57 @@ public class DPSendFilter implements Filter {
         String waybillCode = request.getWaybillCode();
         Integer receiveSiteCode = request.getReceiveSiteCode();
         List<Integer> dpSiteCodeList = uccConfiguration.getDpSiteCodeList();
-        //发货目的非德邦不校验
-        if(!BusinessHelper.isDPSiteCode(dpSiteCodeList, receiveSiteCode)){
-            chain.doFilter(request, chain);
-            return;
+        CallerInfo info = Profiler.registerInfo("DMSWEB.DPSendFilter.doFilter", false, true);
+        try{
+            //发货目的非德邦不校验
+            if(!BusinessHelper.isDPSiteCode(dpSiteCodeList, receiveSiteCode)){
+                chain.doFilter(request, chain);
+                return;
+            }
+
+            //查询运单包裹数和 运单扩展属性
+            WChoice wChoice = new WChoice();
+            wChoice.setQueryWaybillC(true);
+            wChoice.setQueryWaybillExtend(true);
+            BaseEntity<BigWaybillDto> baseEntity =  waybillQueryManager.getDataByChoiceNoCache(waybillCode, wChoice);
+            if(baseEntity.getData() == null){
+                logger.warn("根据运单号获取BigWaybillDto返回data为null,waybillCode:{},baseEntity.code:{}", waybillCode, baseEntity.getResultCode());
+                chain.doFilter(request, chain);
+                return;
+            }
+
+            BigWaybillDto bigWaybillDto = baseEntity.getData();
+            //获取信息失败，不拦截
+            Waybill waybill = bigWaybillDto.getWaybill();
+            int packageNum = waybill.getGoodNumber() == null ? 0 : waybill.getGoodNumber();
+            // 非一单一件发到德邦分拣中心时拦截
+            if(packageNum > 1){
+                logger.warn("非一单一件不能发到德邦分拣中心,waybill:{},receiveSiteCode:{}", waybillCode, receiveSiteCode);
+                throw new SortingCheckException(SortingResponse.CODE_DP_SEND_ERROR,
+                        HintService.getHintWithFuncModule(HintCodeConstants.NOT_ONE_PACK_WAYBILL_WRONG_SEND_MSG, request.getFuncModule()));
+            }
+
+
+
+            if(waybill == null){
+                logger.error("非德邦单 发到德邦拦截，获取waybill为null为空，waybill:{}", waybillCode);
+                chain.doFilter(request, chain);
+                return;
+            }
+
+            WaybillExt waybillExt = waybill.getWaybillExt();
+            if(waybillExt == null || !BusinessHelper.isDPWaybill(waybillExt.getThirdCarrierFlag())){
+                logger.warn("非德邦单发到德邦分拣中心被拦截,waybillCode:{},receiveSiteCode:{}", waybillCode, receiveSiteCode);
+                throw new SortingCheckException(SortingResponse.CODE_DP_SEND_ERROR,
+                        HintService.getHintWithFuncModule(HintCodeConstants.NOT_DP_WAYBILL_WRONG_SEND_MSG, request.getFuncModule()));
+            }
+        }catch (Exception e){
+            logger.error("德邦发货校验异常", e);
+            Profiler.functionError(info);
+        }finally {
+            Profiler.registerInfoEnd(info);
         }
 
-        //查询运单包裹数和 运单扩展属性
-        WChoice wChoice = new WChoice();
-        wChoice.setQueryWaybillC(true);
-        wChoice.setQueryWaybillExtend(true);
-        BaseEntity<BigWaybillDto> baseEntity =  waybillQueryManager.getDataByChoiceNoCache(waybillCode, wChoice);
-        if(baseEntity.getData() == null){
-            logger.warn("根据运单号获取BigWaybillDto返回data为null,waybillCode:{},baseEntity.code:{}", waybillCode, baseEntity.getResultCode());
-            chain.doFilter(request, chain);
-            return;
-        }
-
-        BigWaybillDto bigWaybillDto = baseEntity.getData();
-        //获取信息失败，不拦截
-        Waybill waybill = bigWaybillDto.getWaybill();
-        int packageNum = waybill.getGoodNumber();
-        // 非一单一件发到德邦分拣中心时拦截
-        if(packageNum > 1){
-            logger.warn("非一单一件不能发到德邦分拣中心,waybill:{},receiveSiteCode:{}", waybillCode, receiveSiteCode);
-            throw new SortingCheckException(SortingResponse.CODE_DP_SEND_ERROR,
-                    HintService.getHintWithFuncModule(HintCodeConstants.NOT_ONE_PACK_WAYBILL_WRONG_SEND_MSG, request.getFuncModule()));
-        }
-
-
-
-        if(waybill == null){
-            logger.error("非德邦单 发到德邦拦截，获取waybill为null为空，waybill:{}", waybillCode);
-            chain.doFilter(request, chain);
-            return;
-        }
-
-        WaybillExt waybillExt = waybill.getWaybillExt();
-        if(waybillExt == null || !BusinessHelper.isDPWaybill(waybillExt.getThirdCarrierFlag())){
-            logger.warn("非德邦单发到德邦分拣中心被拦截,waybillCode:{},receiveSiteCode:{}", waybillCode, receiveSiteCode);
-            throw new SortingCheckException(SortingResponse.CODE_DP_SEND_ERROR,
-                    HintService.getHintWithFuncModule(HintCodeConstants.NOT_DP_WAYBILL_WRONG_SEND_MSG, request.getFuncModule()));
-        }
         chain.doFilter(request, chain);
     }
 
