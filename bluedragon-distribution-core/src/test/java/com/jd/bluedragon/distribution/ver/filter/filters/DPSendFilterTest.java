@@ -49,7 +49,7 @@ public class DPSendFilterTest extends TestCase {
         bigWaybillDto.setWaybill(waybill);
         baseEntity.setData(bigWaybillDto);
         when(uccConfiguration.getDpSiteCodeList()).thenReturn(siteCodes);
-        when(waybillQueryManager.getDataByChoiceNoCache(anyString(), ArgumentMatchers.<WChoice>any())).thenReturn(waybill);
+        when(waybillQueryManager.getDataByChoiceNoCache(anyString(), ArgumentMatchers.<WChoice>any())).thenReturn(baseEntity);
         FilterContext filterContext = new FilterContext();
         filterContext.setWaybillCode("");
         filterContext.setReceiveSiteCode(1999257);
