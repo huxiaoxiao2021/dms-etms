@@ -783,6 +783,8 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		setWarZoneInfo(signInData);
 		
 		Integer jobCode = signInData.getJobCode();
+		String userCode = signInData.getUserCode();
+		boolean isCarId = BusinessUtil.isIdCardNo(userCode);
 		if(JobTypeEnum.JOBTYPE1.getCode().equals(jobCode)
 				||JobTypeEnum.JOBTYPE2.getCode().equals(jobCode)) {
 			//正式工设置erp对应的名称
@@ -804,6 +806,9 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 					&& userInfo.getStaffName() != null) {
 				signInData.setUserName(userInfo.getStaffName());
 			}
+		}else if(!JobTypeEnum.JOBTYPE6.getCode().equals(jobCode) && !isCarId){
+			result.toFail("签到失败，无效的身份证号！");
+			return result;
 		}
 		return result;
 	}

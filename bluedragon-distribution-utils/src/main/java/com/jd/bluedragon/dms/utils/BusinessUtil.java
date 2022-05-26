@@ -2402,4 +2402,5 @@ public class BusinessUtil {
     public static boolean isMedicalFreshProductType(String waybillSign){
         return isSignChar(waybillSign,WaybillSignConstants.POSITION_31,WaybillSignConstants.CHAR_31_D);
     }
+
 }

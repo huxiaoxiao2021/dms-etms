@@ -332,6 +332,7 @@ public class DmsConstants {
      */
     public static final String MESSAGE_TYPE_BAOFEI = "TYPE_BAOFEI";
     public static final String ORDER_TYPE_REVERSE = "20";
+
     /**
      * 暂存类型枚举值
      */
@@ -364,4 +365,5 @@ public class DmsConstants {
             this.name = name;
         }
     }
+
 }
