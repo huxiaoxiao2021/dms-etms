@@ -57,7 +57,7 @@ public class DPSendFilter implements Filter {
         WChoice wChoice = new WChoice();
         wChoice.setQueryPackList(true);
         wChoice.setQueryWaybillExtend(true);
-        BaseEntity<BigWaybillDto> baseEntity =  waybillQueryManager.getDataByChoice(waybillCode, wChoice);
+        BaseEntity<BigWaybillDto> baseEntity =  waybillQueryManager.getDataByChoiceNoCache(waybillCode, wChoice);
         if(baseEntity.getData() == null){
             logger.warn("根据运单号获取BigWaybillDto返回data为null,waybillCode:{},baseEntity.code:{}", waybillCode, baseEntity.getResultCode());
             chain.doFilter(request, chain);
