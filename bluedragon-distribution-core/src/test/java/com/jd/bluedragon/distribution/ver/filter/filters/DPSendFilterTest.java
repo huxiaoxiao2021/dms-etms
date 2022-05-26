@@ -44,12 +44,12 @@ public class DPSendFilterTest extends TestCase {
         BigWaybillDto bigWaybillDto = new BigWaybillDto();
         Waybill waybill = new Waybill();
         WaybillExt waybillExt = new WaybillExt();
-        waybillExt.setThirdCarrierFlag(WAYBILL_EXTEND_DEPPON_THIRDCARRIERFLAG);
+//        waybillExt.setThirdCarrierFlag(WAYBILL_EXTEND_DEPPON_THIRDCARRIERFLAG);
         waybill.setWaybillExt(waybillExt);
         bigWaybillDto.setWaybill(waybill);
         baseEntity.setData(bigWaybillDto);
         when(uccConfiguration.getDpSiteCodeList()).thenReturn(siteCodes);
-        when(waybillQueryManager.getDataByChoiceNoCache(anyString(), ArgumentMatchers.<WChoice>any())).thenReturn(waybill);
+//        when(waybillQueryManager.getDataByChoiceNoCache(anyString(), ArgumentMatchers.<WChoice>any())).thenReturn(waybill);
         FilterContext filterContext = new FilterContext();
         filterContext.setWaybillCode("");
         filterContext.setReceiveSiteCode(1999257);
