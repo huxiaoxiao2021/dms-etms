@@ -305,7 +305,7 @@ public class BatchSingleSendServiceImpl implements BatchSingleSendGatewayService
             }
             BigWaybillDto bigWaybillDto = baseEntity.getData();
             //运单包裹号为空，或非一单一件 ，或运单扩展对象为空
-            if( (bigWaybillDto.getWaybill().getGoodNumber() != null && bigWaybillDto.getWaybill().getGoodNumber() > 1) ||
+            if( bigWaybillDto.getWaybill().getGoodNumber() == null || bigWaybillDto.getWaybill().getGoodNumber() > 1 ||
             bigWaybillDto.getWaybill().getWaybillExt() == null){
                 logger.info("运单包裹号为空，或非一单一件 ，或运单扩展对象为空,waybillCode:{},goodNumber:{}", waybillCode,
                         bigWaybillDto.getWaybill().getGoodNumber());
@@ -330,7 +330,7 @@ public class BatchSingleSendServiceImpl implements BatchSingleSendGatewayService
        InvokeResult<List<Integer>> result = new InvokeResult<List<Integer>>();
        /* 检查参数的有效性 */
        String operateTime = DateUtil.format(request.getCurrentOperate().getOperateTime(), DateUtil.FORMAT_DATE_TIME);
-       if (null == request || StringHelper.isEmpty(request.getPackageOrBoxCode())
+       if (StringHelper.isEmpty(request.getPackageOrBoxCode())
                || StringHelper.isEmpty(operateTime) || 0 == request.getCurrentOperate().getSiteCode()) {
            result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
            result.setMessage(InvokeResult.PARAM_ERROR);
