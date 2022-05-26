@@ -678,6 +678,11 @@ public class UccPropertyConfiguration {
     private String dpSiteCodes;
     private List<Integer> dpSiteCodeList;
 
+    /**
+     * 批量一车一单 德邦单匹配德邦批次号开关
+     */
+    private boolean dpWaybillMatchSendCodeSwitch;
+
     public Integer getOldSendSplitPageSize() {
         return oldSendSplitPageSize;
     }
@@ -1988,5 +1993,13 @@ public class UccPropertyConfiguration {
 
     public void setDpSiteCodeList(List<Integer> dpSiteCodeList) {
         this.dpSiteCodeList = dpSiteCodeList;
+    }
+
+    public boolean isDpWaybillMatchSendCodeSwitch() {
+        return dpWaybillMatchSendCodeSwitch;
+    }
+
+    public void setDpWaybillMatchSendCodeSwitch(boolean dpWaybillMatchSendCodeSwitch) {
+        this.dpWaybillMatchSendCodeSwitch = dpWaybillMatchSendCodeSwitch;
     }
 }
