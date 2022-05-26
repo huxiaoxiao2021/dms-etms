@@ -88,8 +88,9 @@ public class DPSendFilter implements Filter {
             throw new SortingCheckException(SortingResponse.CODE_DP_SEND_ERROR,
                     HintService.getHintWithFuncModule(HintCodeConstants.NOT_DP_WAYBILL_WRONG_SEND_MSG, request.getFuncModule()));
         }
-
+        chain.doFilter(request, chain);
     }
+
 
 
 
