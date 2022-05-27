@@ -191,7 +191,16 @@
           and send_detail_biz_id = #{fromSendVehicleDetailBizId}
     </update>
 
-    <update id="updateBySendCode" parameterType="BatchTransferDto">
+    <update id="deleteVehicleSendRelation" parameterType="TransferDto">
+        UPDATE jy_send_code
+        set yn          =0,
+            update_time = now()
+        where send_code = #{sendCode}
+          and send_vehicle_biz_id = #{fromSendVehicleBizId}
+          and send_detail_biz_id = #{fromSendVehicleDetailBizId}
+    </update>
+
+    <update id="batchUpdateBySendCode" parameterType="BatchTransferDto">
         UPDATE jy_send_code
         set send_vehicle_biz_id = #{toSendVehicleBizId},
         send_detail_biz_id = #{toSendVehicleDetailBizId},

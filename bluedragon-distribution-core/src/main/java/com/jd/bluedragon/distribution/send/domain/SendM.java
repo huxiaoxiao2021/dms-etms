@@ -144,6 +144,16 @@ public class SendM implements Cloneable, java.io.Serializable, Comparable<SendM>
 
     private List<String> boxCodeList;
 
+    private transient Integer cancelPackageCount;
+
+    public Integer getCancelPackageCount() {
+        return cancelPackageCount;
+    }
+
+    public void setCancelPackageCount(Integer cancelPackageCount) {
+        this.cancelPackageCount = cancelPackageCount;
+    }
+
     public Long getSendMId() {
         return sendMId;
     }

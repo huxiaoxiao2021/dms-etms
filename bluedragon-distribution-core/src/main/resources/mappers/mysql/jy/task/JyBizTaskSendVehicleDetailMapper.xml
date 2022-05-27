@@ -270,4 +270,12 @@
             id = #{id}
         </where>
     </update>
+
+    <select id="findByBizId" resultMap="jyBizTaskSendVehicleDetailMap" parameterType="java.lang.String">
+        select
+        <include refid="Base_Column_List"/>
+        from jy_biz_task_send_vehicle_detail
+        where biz_id = #{bizId}
+        limit 1;
+    </select>
 </mapper>

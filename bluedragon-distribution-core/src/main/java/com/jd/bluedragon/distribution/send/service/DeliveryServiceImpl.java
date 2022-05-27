@@ -3098,6 +3098,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                 mSendDetail.setReceiveSiteCode(tSendM.getReceiveSiteCode());
                 mSendDetail.setIsCancel(Constants.OPERATE_TYPE_CANCEL_L);
                 List<SendDetail> tlist = this.sendDatailDao.querySendDatailsBySelective(mSendDetail);
+                tSendM.setCancelPackageCount(tlist.size());
                 if (tlist != null && !tlist.isEmpty()) {
                     ThreeDeliveryResponse responsePack = cancelUpdateDataByPack(tSendM, tlist);
                     if (responsePack.getCode().equals(200)) {
@@ -3127,6 +3128,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                     queryDetail.setCreateSiteCode(dSendM.getCreateSiteCode());
                     queryDetail.setReceiveSiteCode(dSendM.getReceiveSiteCode());
                     List<SendDetail> sendDatails = sendDatailDao.querySendDatailsBySelective(queryDetail);
+                    tSendM.setCancelPackageCount(sendDatails.size());
                     delDeliveryFromRedis(tSendM);     //取消发货成功，删除redis缓存的发货数据
                     //更新箱号状态
                     openBox(tSendM);
@@ -3220,7 +3222,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                     mSendDetail.setReceiveSiteCode(sendMItem.getReceiveSiteCode());
                     mSendDetail.setIsCancel(Constants.OPERATE_TYPE_CANCEL_L);
                     List<SendDetail> tlist = this.sendDatailDao.querySendDatailsBySelective(mSendDetail);//查询sendD明细
-
+                    tSendM.setCancelPackageCount(tlist.size());
                     if (WaybillUtil.isWaybillCode(sendMItem.getBoxCode()) || WaybillUtil.isPackageCode(sendMItem.getBoxCode())) {
                         /* 按包裹号和运单号的逻辑走 */
                         ThreeDeliveryResponse responsePack = cancelUpdateDataByPack(sendMItem, tlist);

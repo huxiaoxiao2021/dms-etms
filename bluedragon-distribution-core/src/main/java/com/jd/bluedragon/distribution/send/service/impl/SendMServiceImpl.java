@@ -72,4 +72,9 @@ public class SendMServiceImpl implements SendMService{
     public String querySendCodeBySelective(SendM sendM) {
         return sendMDao.querySendCodeBySelective(sendM);
     }
+
+    @Override
+    public List<SendM> selectBySiteAndSendCode(Integer createSiteCode, String sendCode) {
+        return sendMDao.selectBySiteAndSendCode(createSiteCode,sendCode);
+    }
 }

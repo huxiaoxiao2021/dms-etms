@@ -23,4 +23,8 @@ public class JyBizTaskSendVehicleDetailDao extends BaseDao<JyBizTaskSendVehicleD
     public int insert(JyBizTaskSendVehicleDetailEntity entity) {
         return this.getSqlSession().insert(NAMESPACE + ".insert", entity);
     }
+
+    public JyBizTaskSendVehicleDetailEntity findByBizId(String bizId){
+        return this.getSqlSession().selectOne(NAMESPACE + ".select", bizId);
+    }
 }

@@ -2,12 +2,10 @@ package com.jd.bluedragon.distribution.jy.dto.send;
 
 import lombok.Data;
 
-import java.io.Serializable;
+import java.util.List;
 @Data
-public class TransferDto implements Serializable {
-    private static final long serialVersionUID = 7753170373197145796L;
-
-    private String sendCode;
+public class VehicleSendRelationDto {
+    private List<String> sendCodes;
     /**
      * 迁移前的主任务编号
      */

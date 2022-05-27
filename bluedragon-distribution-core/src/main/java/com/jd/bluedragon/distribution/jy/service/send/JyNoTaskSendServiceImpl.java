@@ -6,9 +6,17 @@ import com.jd.bluedragon.common.dto.send.request.*;
 import com.jd.bluedragon.common.dto.send.response.*;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.busineCode.sendCode.service.SendCodeService;
+import com.jd.bluedragon.distribution.businessCode.BusinessCodeAttributeKey;
+import com.jd.bluedragon.distribution.delivery.IDeliveryOperationService;
+import com.jd.bluedragon.distribution.jy.dto.send.VehicleSendRelationDto;
 import com.jd.bluedragon.distribution.jy.enums.CancelSendTypeEnum;
 import com.jd.bluedragon.distribution.jy.manager.JyTransportManager;
+import com.jd.bluedragon.distribution.jy.send.JySendCodeEntity;
+import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetailService;
+import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetailServiceImpl;
 import com.jd.bluedragon.distribution.jy.service.transfer.JySendTransferService;
+import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.domain.ThreeDeliveryResponse;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
@@ -27,6 +35,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 
+import static com.jd.bluedragon.distribution.base.domain.InvokeResult.*;
+import static com.jd.bluedragon.distribution.businessCode.BusinessCodeFromSourceEnum.DMS_WEB_SYS;
+
 @Service
 @Slf4j
 public class JyNoTaskSendServiceImpl implements JyNoTaskSendService{
@@ -40,6 +51,15 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService{
     GroupBoardManager groupBoardManager;
     @Autowired
     SendMService sendMService;
+    @Autowired
+    JyVehicleSendRelationService jyVehicleSendRelationService;
+    @Autowired
+    SendCodeService sendCodeService;
+    @Autowired
+    JyBizTaskSendVehicleDetailService jyBizTaskSendVehicleDetailService;
+    @Autowired
+    private IDeliveryOperationService deliveryOperationService;
+
 
     @Override
     public InvokeResult<List<VehicleSpecResp>> listVehicleType() {
@@ -97,14 +117,55 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService{
 
     @Override
     public InvokeResult transferSendTask(TransferSendTaskReq transferSendTaskReq) {
-        InvokeResult result =new InvokeResult();
-        if (transferSendTaskReq.getSameWayFlag()){
+        //查询要迁移的批次信息-sendCodes
+        List<String> sendCodeList =jyVehicleSendRelationService.querySendCodesByVehicleDetailBizId(transferSendTaskReq.getFromSendVehicleDetailBizId());
 
+        VehicleSendRelationDto dto =BeanUtils.copy(transferSendTaskReq,VehicleSendRelationDto.class);
+        dto.setSendCodes(sendCodeList);
+        dto.setUpdateUserErp(transferSendTaskReq.getUser().getUserErp());
+        dto.setUpdateUserName(transferSendTaskReq.getUser().getUserName());
+
+        if (transferSendTaskReq.getSameWayFlag()){
+            //同流向--直接变更绑定关系
+            jyVehicleSendRelationService.updateVehicleSendRelation(dto);
         }
         else {
-
+            //删除原绑定关系
+            jyVehicleSendRelationService.deleteVehicleSendRelation(dto);
+            //增加新流向绑定关系
+            JyBizTaskSendVehicleDetailEntity sendVehicleDetail =jyBizTaskSendVehicleDetailService.findByBizId(transferSendTaskReq.getToSendVehicleDetailBizId());
+            String newSendCode =generateSendCode(sendVehicleDetail,transferSendTaskReq.getUser().getUserErp());
+            JySendCodeEntity jySendCodeEntity = initJySendCodeEntity(transferSendTaskReq,newSendCode);
+            jyVehicleSendRelationService.add(jySendCodeEntity);
+            //生成迁移任务，异步执行迁移逻辑
+            for (String sendCode:sendCodeList){
+                List<SendM> sendMList =sendMService.selectBySiteAndSendCode(transferSendTaskReq.getCurrentOperate().getSiteCode(),sendCode);
+                deliveryOperationService.asyncHandleTransfer(sendMList,newSendCode);
+            }
         }
-        return result;
+        return new InvokeResult(RESULT_SUCCESS_CODE,RESULT_SUCCESS_MESSAGE);
+    }
+
+    private JySendCodeEntity initJySendCodeEntity(TransferSendTaskReq transferSendTaskReq, String sendCode) {
+        JySendCodeEntity jySendCodeEntity =new JySendCodeEntity();
+        jySendCodeEntity.setSendCode(sendCode);
+        jySendCodeEntity.setSendVehicleBizId(transferSendTaskReq.getToSendVehicleBizId());
+        jySendCodeEntity.setSendDetailBizId(transferSendTaskReq.getToSendVehicleDetailBizId());
+        Date now =new Date();
+        jySendCodeEntity.setCreateTime(now);
+        jySendCodeEntity.setUpdateTime(now);
+        jySendCodeEntity.setCreateUserErp(transferSendTaskReq.getUser().getUserErp());
+        jySendCodeEntity.setCreateUserName(transferSendTaskReq.getUser().getUserName());
+        return jySendCodeEntity;
+    }
+
+    private String generateSendCode(JyBizTaskSendVehicleDetailEntity sendVehicleDetail,String createUser) {
+        Map<BusinessCodeAttributeKey.SendCodeAttributeKeyEnum, String> attributeKeyEnumObjectMap = new HashMap<>();
+        attributeKeyEnumObjectMap.put(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.from_site_code, String.valueOf(sendVehicleDetail.getStartSiteId()));
+        attributeKeyEnumObjectMap.put(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.to_site_code, String.valueOf(sendVehicleDetail.getEndSiteId()));
+        attributeKeyEnumObjectMap.put(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.is_fresh, "0");
+        //TODO 这里要不要新增一个jy的来源
+        return sendCodeService.createSendCode(attributeKeyEnumObjectMap, DMS_WEB_SYS, createUser);
     }
 
     @Override
@@ -134,7 +195,11 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService{
 
         ThreeDeliveryResponse tDResponse = deliveryService.dellCancelDeliveryMessageWithServerTime(sendM, true);
         if(ObjectHelper.isNotNull(tDResponse) && JdCResponse.CODE_SUCCESS.equals(tDResponse.getCode())){
-
+            //TODO  根据包裹号掉印辉提供的服务查询列表，从那里面去流向名称
+            CancelSendTaskResp cancelSendTaskResp =new CancelSendTaskResp();
+            cancelSendTaskResp.setCanclePackageCount(sendM.getCancelPackageCount());
+            cancelSendTaskResp.setEndSiteName("");
+            return new InvokeResult(tDResponse.getCode(), tDResponse.getMessage(),cancelSendTaskResp);
         }
         return new InvokeResult(tDResponse.getCode(), tDResponse.getMessage());
     }

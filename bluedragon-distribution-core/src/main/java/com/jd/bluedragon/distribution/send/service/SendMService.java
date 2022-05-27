@@ -56,4 +56,12 @@ public interface SendMService {
      * @return
      */
     public String querySendCodeBySelective(SendM sendM) ;
+
+    /**
+     * 查询批次下的发货记录
+     * @param createSiteCode
+     * @param sendCode
+     * @return
+     */
+    public List<SendM> selectBySiteAndSendCode(Integer createSiteCode, String sendCode);
 }

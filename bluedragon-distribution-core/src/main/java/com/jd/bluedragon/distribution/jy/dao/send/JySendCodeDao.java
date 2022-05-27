@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.jy.dao.send;
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.jy.dto.send.BatchTransferDto;
 import com.jd.bluedragon.distribution.jy.dto.send.TransferDto;
+import com.jd.bluedragon.distribution.jy.dto.send.VehicleSendRelationDto;
 import com.jd.bluedragon.distribution.jy.send.JySendCodeEntity;
 import org.apache.ibatis.annotations.Param;
 
@@ -37,6 +38,10 @@ public class JySendCodeDao extends BaseDao<JySendCodeEntity> {
      */
     public int updateBySendCode(TransferDto dto) {
         return this.getSqlSession().update(NAMESPACE + ".updateBySendCode", dto);
+    }
+
+    public int deleteVehicleSendRelation(TransferDto dto){
+        return this.getSqlSession().update(NAMESPACE + ".deleteVehicleSendRelation", dto);
     }
 
     /**
