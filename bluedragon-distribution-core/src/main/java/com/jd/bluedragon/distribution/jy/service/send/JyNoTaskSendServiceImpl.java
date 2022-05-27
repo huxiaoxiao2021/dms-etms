@@ -3,10 +3,7 @@ package com.jd.bluedragon.distribution.jy.service.send;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.MSCodeMapping;
 import com.jd.bluedragon.common.dto.send.request.*;
-import com.jd.bluedragon.common.dto.send.response.CreateVehicleTaskResp;
-import com.jd.bluedragon.common.dto.send.response.VehicleSpecResp;
-import com.jd.bluedragon.common.dto.send.response.VehicleTaskResp;
-import com.jd.bluedragon.common.dto.send.response.VehicleTypeDto;
+import com.jd.bluedragon.common.dto.send.response.*;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.enums.CancelSendTypeEnum;
@@ -111,7 +108,7 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService{
     }
 
     @Override
-    public InvokeResult cancelSendTask(CancelSendTaskReq request) {
+    public InvokeResult<CancelSendTaskResp> cancelSendTask(CancelSendTaskReq request) {
         SendM sendM = toSendM(request);
         if (WaybillUtil.isPackageCode(request.getCode()) || BusinessUtil.isBoxcode(request.getCode())) {
             String sendCode = sendMService.querySendCodeBySelective(sendM);
@@ -136,6 +133,9 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService{
         }
 
         ThreeDeliveryResponse tDResponse = deliveryService.dellCancelDeliveryMessageWithServerTime(sendM, true);
+        if(ObjectHelper.isNotNull(tDResponse) && JdCResponse.CODE_SUCCESS.equals(tDResponse.getCode())){
+
+        }
         return new InvokeResult(tDResponse.getCode(), tDResponse.getMessage());
     }
     private SendM toSendM(CancelSendTaskReq request) {

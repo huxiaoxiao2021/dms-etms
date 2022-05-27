@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.jy.service.send;
 
 import com.jd.bluedragon.common.dto.send.request.*;
+import com.jd.bluedragon.common.dto.send.response.CancelSendTaskResp;
 import com.jd.bluedragon.common.dto.send.response.CreateVehicleTaskResp;
 import com.jd.bluedragon.common.dto.send.response.VehicleSpecResp;
 import com.jd.bluedragon.common.dto.send.response.VehicleTaskResp;
@@ -55,5 +56,5 @@ public interface JyNoTaskSendService {
      * @param cancelSendTaskReq
      * @return
      */
-    InvokeResult cancelSendTask(CancelSendTaskReq cancelSendTaskReq);
+    InvokeResult<CancelSendTaskResp> cancelSendTask(CancelSendTaskReq cancelSendTaskReq);
 }
