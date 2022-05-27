@@ -11,4 +11,11 @@ public class DeleteVehicleTaskReq extends BaseReq implements Serializable {
      */
     private String bizId;
 
+    public String getBizId() {
+        return bizId;
+    }
+
+    public void setBizId(String bizId) {
+        this.bizId = bizId;
+    }
 }

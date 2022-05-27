@@ -24,4 +24,35 @@ public class VehicleTaskReq extends BaseReq implements Serializable {
      */
     private String packageCode;
 
+    public Long getStartSiteId() {
+        return startSiteId;
+    }
+
+    public void setStartSiteId(Long startSiteId) {
+        this.startSiteId = startSiteId;
+    }
+
+    public Long getEndSiteId() {
+        return endSiteId;
+    }
+
+    public void setEndSiteId(Long endSiteId) {
+        this.endSiteId = endSiteId;
+    }
+
+    public Integer getVehicleStatus() {
+        return vehicleStatus;
+    }
+
+    public void setVehicleStatus(Integer vehicleStatus) {
+        this.vehicleStatus = vehicleStatus;
+    }
+
+    public String getPackageCode() {
+        return packageCode;
+    }
+
+    public void setPackageCode(String packageCode) {
+        this.packageCode = packageCode;
+    }
 }

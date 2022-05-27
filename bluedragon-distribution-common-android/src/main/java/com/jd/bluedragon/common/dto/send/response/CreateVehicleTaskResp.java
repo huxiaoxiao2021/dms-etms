@@ -13,5 +13,19 @@ public class CreateVehicleTaskResp implements Serializable {
      */
     private String bizNo;
 
+    public String getBizId() {
+        return bizId;
+    }
 
+    public void setBizId(String bizId) {
+        this.bizId = bizId;
+    }
+
+    public String getBizNo() {
+        return bizNo;
+    }
+
+    public void setBizNo(String bizNo) {
+        this.bizNo = bizNo;
+    }
 }

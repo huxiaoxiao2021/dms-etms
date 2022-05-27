@@ -16,6 +16,19 @@ public class CreateVehicleTaskReq extends BaseReq implements Serializable {
      */
     private String vehicleTypeName;
 
+    public Integer getVehicleType() {
+        return vehicleType;
+    }
 
+    public void setVehicleType(Integer vehicleType) {
+        this.vehicleType = vehicleType;
+    }
 
+    public String getVehicleTypeName() {
+        return vehicleTypeName;
+    }
+
+    public void setVehicleTypeName(String vehicleTypeName) {
+        this.vehicleTypeName = vehicleTypeName;
+    }
 }
