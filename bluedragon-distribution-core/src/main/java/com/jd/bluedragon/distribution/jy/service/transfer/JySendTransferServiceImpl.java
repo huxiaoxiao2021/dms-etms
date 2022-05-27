@@ -14,6 +14,7 @@ public class JySendTransferServiceImpl implements JySendTransferService{
     @Autowired
 
 
+
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySendTransferServiceImpl.transferSendBatch", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult transferSendBatch(TransferSendTaskReq transferSendTaskReq) {

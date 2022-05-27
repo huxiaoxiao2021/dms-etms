@@ -1,6 +1,7 @@
 package com.jd.bluedragon.external.gateway.service;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.send.request.*;
+import com.jd.bluedragon.common.dto.send.response.CancelSendTaskResp;
 import com.jd.bluedragon.common.dto.send.response.CreateVehicleTaskResp;
 import com.jd.bluedragon.common.dto.send.response.VehicleSpecResp;
 import com.jd.bluedragon.common.dto.send.response.VehicleTaskResp;
@@ -54,7 +55,7 @@ public interface JyNoTaskSendGatewayService {
      * @param cancelSendTaskReq
      * @return
      */
-    JdCResponse cancelSendTask(CancelSendTaskReq cancelSendTaskReq);
+    JdCResponse<CancelSendTaskResp> cancelSendTask(CancelSendTaskReq cancelSendTaskReq);
 
 
 

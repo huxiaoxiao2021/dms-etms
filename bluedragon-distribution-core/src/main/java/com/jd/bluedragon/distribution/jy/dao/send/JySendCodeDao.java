@@ -48,4 +48,8 @@ public class JySendCodeDao extends BaseDao<JySendCodeEntity> {
     public int batchUpdateBySendCode(BatchTransferDto dto) {
         return this.getSqlSession().update(NAMESPACE + ".batchUpdateBySendCode", dto);
     }
+
+    public List<String> querySendCodesByVehicleDetailBizId(String vehicleDetailBizId){
+        return this.getSqlSession().selectList(NAMESPACE + ".querySendCodesByVehicleDetailBizId", vehicleDetailBizId);
+    }
 }

@@ -194,14 +194,21 @@
     <update id="updateBySendCode" parameterType="BatchTransferDto">
         UPDATE jy_send_code
         set send_vehicle_biz_id = #{toSendVehicleBizId},
-            send_detail_biz_id  = #{toSendVehicleDetailBizId},
-            update_user_erp     = #{updateUserErp},
-            update_user_name    = #{updateUserName},
-            update_time         = now()
+        send_detail_biz_id = #{toSendVehicleDetailBizId},
+        update_user_erp = #{updateUserErp},
+        update_user_name = #{updateUserName},
+        update_time = now()
         where send_code in
         <foreach item="item" index="index" collection="sendCodeList"
                  open="(" separator="," close=")">
             #{item}
         </foreach>
     </update>
+
+    <select id="querySendCodesByVehicleDetailBizId" parameterType="java.lang.String">
+        select send_code
+        from jy_send_code
+        where send_detail_biz_id = #{vehicleDetailBizId}
+          and yn = 1
+    </select>
 </mapper>

@@ -34,6 +34,7 @@ import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
 import com.jd.coo.sa.mybatis.plugins.id.SequenceGenAdaptor;
@@ -111,6 +112,8 @@ public abstract class DeliveryBaseHandler implements IDeliveryBaseHandler {
     @Autowired
     @Qualifier("dmsColdChainSendWaybill")
     private DefaultJMQProducer dmsColdChainSendWaybill;
+    @Autowired
+
 
     /**
      * 生成该次发货操作的唯一标识
@@ -213,6 +216,7 @@ public abstract class DeliveryBaseHandler implements IDeliveryBaseHandler {
             copyWrapper.setPageNo(i + 1);
             copyWrapper.setPageSize(onePageSize);
             copyWrapper.setTotalPage(pageTotal);
+            copyWrapper.setNewSendCode(wrapper.getNewSendCode());
 
             Task task = new Task();
             task.setCreateSiteCode(sendM.getCreateSiteCode());
@@ -362,8 +366,14 @@ public abstract class DeliveryBaseHandler implements IDeliveryBaseHandler {
             }
             sendMessage(tlist, sendMItem, true);
             delDeliveryFromRedis(sendMItem);//取消发货成功，删除redis缓存的发货数据 根据boxCode和createSiteCode
+
+            //生成新的发货
+            SendBizSourceEnum bizSource = SendBizSourceEnum.getEnum(sendMItem.getBizSource());
+            sendMItem.setSendCode(wrapper.getNewSendCode());
+            sendMItem.setReceiveSiteCode(BusinessUtil.getReceiveSiteCodeFromSendCode(wrapper.getNewSendCode()));
+            deliveryService.packageSend(bizSource,sendMItem);
         }
-        return false;
+        return true;
     }
 
     private void openBox(SendM tSendM){

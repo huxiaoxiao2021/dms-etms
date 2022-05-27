@@ -75,6 +75,18 @@ public class InvokeResult<T> implements Serializable {
     public InvokeResult(){
         this.code=RESULT_SUCCESS_CODE;
     }
+
+    public InvokeResult(int code, String message) {
+        this.code = code;
+        this.message = message;
+    }
+
+    public InvokeResult(int code, String message, T data) {
+        this.code = code;
+        this.message = message;
+        this.data = data;
+    }
+
     /**
      * 状态码
      */

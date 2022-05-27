@@ -8,6 +8,7 @@ import com.jd.bluedragon.distribution.delivery.constants.SendKeyTypeEnum;
 import com.jd.bluedragon.distribution.delivery.entity.SendMWrapper;
 import com.jd.bluedragon.distribution.delivery.processor.IDeliveryBaseHandler;
 import com.jd.bluedragon.distribution.send.domain.SendM;
+import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
@@ -68,6 +69,8 @@ public class DeliveryOperationServiceImpl implements IDeliveryOperationService {
     @Autowired
     @Qualifier("redisClientCache")
     protected Cluster redisClientCache;
+    @Autowired
+    DeliveryService deliveryService;
 
     /**
      * 按包裹、箱号、运单处理发货数据
@@ -319,7 +322,7 @@ public class DeliveryOperationServiceImpl implements IDeliveryOperationService {
                 boxHandler.dealSendTransfer(wrapper);
                 break;
             case BY_BOARD:
-                waybillHandler.dealSendTransfer(wrapper);
+                boardHandler.dealSendTransfer(wrapper);
                 break;
             default:
                 break;
