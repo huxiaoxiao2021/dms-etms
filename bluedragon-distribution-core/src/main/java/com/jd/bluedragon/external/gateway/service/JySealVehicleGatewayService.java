@@ -17,7 +17,7 @@ import java.util.List;
 
 /**
  * @ClassName JySealVehicleGatewayService
- * @Description
+ * @Description 拣运到车岗网关服务
  * @Author wyh
  * @Date 2022/3/9 17:19
  **/

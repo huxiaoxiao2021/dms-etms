@@ -11,7 +11,7 @@ import java.util.List;
 
 /**
  * @ClassName JyUnloadVehicleGatewayService
- * @Description
+ * @Description 拣运卸车岗网关服务
  * @Author wyh
  * @Date 2022/4/1 16:39
  **/
@@ -106,4 +106,10 @@ public interface JyUnloadVehicleGatewayService {
      * @return
      */
     JdCResponse<Boolean> submitUnloadCompletion(UnloadCompleteRequest request);
+    /**
+     * 查询解封车任务数量
+     * @param request
+     * @return
+     */
+    JdCResponse<Long> countByVehicleNumberAndStatus(UnsealVehicleTaskRequest request);
 }

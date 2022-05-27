@@ -11,6 +11,8 @@ import com.jd.bluedragon.sdk.modules.menu.CommonUseMenuApi;
 import com.jd.bluedragon.sdk.modules.menu.dto.MenuPdaRequest;
 import com.jd.bluedragon.utils.BaseContants;
 import com.jd.bluedragon.utils.PropertiesHelper;
+import com.jd.coldchain.distribution.api.WaybillPackageContainerApi;
+import com.jd.coldchain.distribution.dto.BaseResponse;
 import com.jd.etms.basic.jsf.BasicSiteUpdateService;
 import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.ldop.basic.api.BasicTraderAPI;
@@ -18,11 +20,7 @@ import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ldop.basic.dto.BasicTraderNeccesaryInfoDTO;
 import com.jd.ldop.basic.dto.PageDTO;
 import com.jd.ldop.basic.dto.ResponseDTO;
-import com.jd.ql.basic.domain.BaseDataDict;
-import com.jd.ql.basic.domain.BaseOrg;
-import com.jd.ql.basic.domain.BaseResult;
-import com.jd.ql.basic.domain.PsStoreInfo;
-import com.jd.ql.basic.domain.SiteExtensionDTO;
+import com.jd.ql.basic.domain.*;
 import com.jd.ql.basic.dto.BaseSiteInfoDto;
 import com.jd.ql.basic.dto.BaseStaffSiteDTO;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -88,6 +86,9 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
 
     @Autowired
     private SiteQueryService siteQueryService;
+
+    @Autowired
+    private WaybillPackageContainerApi waybillPackageContainerApi;
 
     /**
      * 站点ID
@@ -167,6 +168,15 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
     @JProfiler(jKey = "DMS.BASE.BaseMajorManagerImpl.getBaseOrgByOrgId", mState = {JProEnum.TP, JProEnum.FunctionError})
     public BaseOrg getBaseOrgByOrgId(Integer orgId) {
         return basicPrimaryWS.getBaseOrgByOrgId(orgId);
+    }
+
+
+    @Override
+    @Cache(key = "baseMajorManagerImpl.getSiteBySiteCode@args0", memoryEnable = true, memoryExpiredTime = 5 * 60 * 1000,
+            redisEnable = true, redisExpiredTime = 10 * 60 * 1000)
+    @JProfiler(jKey = "DMS.BASE.BaseMajorManagerImpl.getSiteBySiteCode", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public BaseSite getSiteBySiteCode(Integer siteCode) {
+        return basicPrimaryWS.getSiteBySiteCode(String.valueOf(siteCode));
     }
 
     @Cache(key = "baseMajorManagerImpl.getBaseGoodsPositionDmsCodeSiteCode@args0@args1", memoryEnable = true, memoryExpiredTime = 30 * 60 * 1000,
@@ -830,5 +840,26 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
             Profiler.registerInfoEnd(callerInfo);
         }
         return null;
+    }
+
+    /**
+     * 校验冷链配置路由
+     * @param createSiteCode
+     * @param endSiteCode
+     * @return
+     */
+    @JProfiler(jKey = "DMS.BASE.BaseMajorManagerImpl.validateDirectlySentLine", mState = {JProEnum.TP, JProEnum.FunctionError})
+    @Cache(key = "DMS.BASE.BaseMajorManagerImpl.validateDirectlySentLine@args0@args1", memoryEnable = true, memoryExpiredTime = 1 * 60 * 1000,
+            redisEnable = false, redisExpiredTime = 2 * 60 * 1000)
+    public boolean validateDirectlySentLine(Integer createSiteCode,Integer endSiteCode) {
+        BaseStaffSiteOrgDto boxCreateSiteDto = getBaseSiteBySiteId(createSiteCode);
+        BaseStaffSiteOrgDto boxReceiveSite = getBaseSiteBySiteId(endSiteCode);
+        BaseResponse baseResponse = waybillPackageContainerApi.validateDirectlySentLine(boxCreateSiteDto.getDmsSiteCode(), boxReceiveSite.getDmsSiteCode());
+        if(baseResponse != null && BaseResponse.OK_CODE == baseResponse.getCode()){
+            return (boolean)baseResponse.getData();
+        }else {
+            log.warn("校验路由信息失败!起始分拣中心code{},目的分拣中心code{},",boxCreateSiteDto.getDmsSiteCode(),boxReceiveSite.getDmsSiteCode());
+            return false;
+        }
     }
 }

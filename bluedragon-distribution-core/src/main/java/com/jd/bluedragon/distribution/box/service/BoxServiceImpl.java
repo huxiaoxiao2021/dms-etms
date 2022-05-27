@@ -1,17 +1,22 @@
 package com.jd.bluedragon.distribution.box.service;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BaseMinorManager;
+import com.jd.bluedragon.core.hint.constants.HintArgsConstants;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.objectid.IGenerateObjectId;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.BoxRequest;
 import com.jd.bluedragon.distribution.api.request.box.BoxReq;
 import com.jd.bluedragon.distribution.api.response.BoxResponse;
+import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.SiteService;
@@ -28,7 +33,9 @@ import com.jd.bluedragon.distribution.external.constants.OpBoxNodeEnum;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.ver.domain.Site;
+import com.jd.bluedragon.distribution.ver.exception.SortingCheckException;
 import com.jd.bluedragon.utils.*;
+import com.jd.coo.sa.mybatis.plugins.id.SequenceGenAdaptor;
 import com.jd.coo.sa.sequence.JimdbSequenceGen;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ql.basic.domain.CrossPackageTagNew;
@@ -46,10 +53,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
 import javax.annotation.Resource;
+import java.text.MessageFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -75,6 +84,10 @@ public class BoxServiceImpl implements BoxService {
 	public static final Integer LOCK_TTL = 2;
 	private static final String[] REPLACE_CHARS = { "分拣中心", "分拨中心", "中转场", "中转站" };
 
+	private static final String DB_TABLE_NAME = "box";
+
+	@Autowired
+	private SequenceGenAdaptor sequenceGenAdaptor;
     @Autowired
     private BoxDao boxDao;
 
@@ -121,7 +134,8 @@ public class BoxServiceImpl implements BoxService {
 
 	@Autowired
 	private BasicPrimaryWS basicPrimaryWS;
-
+	@Value("${box.addBatch.size:20}")
+	private Integer boxAddBatchSize;
 
     public Integer add(Box box) {
         Assert.notNull(box, "box must not be null");
@@ -134,6 +148,33 @@ public class BoxServiceImpl implements BoxService {
 		}
         return result;
     }
+
+	private Integer add(List<Box> boxes) {
+		if (CollectionUtils.isEmpty(boxes)) {
+			return 0;
+		}
+
+		// 生成主键ID
+		for (Box box : boxes) {
+			box.setId(sequenceGenAdaptor.newId(DB_TABLE_NAME));
+		}
+
+		List<List<Box>> list = Lists.partition(boxes, boxAddBatchSize);
+		Integer result = 0;
+		for (List<Box> boxList : list) {
+			//持久化
+			Integer succCount = this.boxDao.addBatch(boxList);
+			result += succCount;
+		}
+		//缓存
+		for (Box box : boxes) {
+			Boolean isCatched = jimdbCacheService.setEx(getCacheKey(box.getCode()),JsonHelper.toJson(box), timeout);
+			if (!isCatched){
+				log.warn("box cache fail. the boxCode is " + box.getCode());
+			}
+		}
+		return result;
+	}
 
     @JProfiler(jKey = "DMSWEB.BoxService.batchAdd",mState = {JProEnum.TP})
     public List<Box> batchAdd(Box param) {
@@ -150,8 +191,8 @@ public class BoxServiceImpl implements BoxService {
             box.setCode(boxCodePrefix + boxCodeSuffix);
             boxes.add(box);
 
-            this.add(box);
         }
+		this.add(boxes);
         return boxes;
     }
 
@@ -185,14 +226,13 @@ public class BoxServiceImpl implements BoxService {
         List<Box> boxes = Lists.newArrayList();
 		List<String> codes = generateCode(param, systemType);
 		for(String code :codes){
-
 			Box box = new Box();
 			BeanHelper.copyProperties(box, param);
 			box.setCode(code);
 			box.setBoxSource(systemType);
 			boxes.add(box);
-			this.add(box);
 		}
+		this.add(boxes);
 		return boxes;
 	}
 
@@ -701,8 +741,17 @@ public class BoxServiceImpl implements BoxService {
         if (Box.BOX_TRANSPORT_TYPE_CITY.equals(request.getTransportType())) {
             Assert.notNull(request.getPredictSendTime(), "request predictSendTime must not be null");
         }
-        this.log.info("BoxRequest's {}", request.toString());
-        BoxResponse response = this.ok();
+		this.log.info("BoxRequest's {}", request.toString());
+		BoxResponse response = this.ok();
+		// 调用冷链接口，校验是否配置了此路径
+		if (BoxTypeEnum.TYPE_MS.getCode().equalsIgnoreCase(request.getType()) && !baseMajorManager.validateDirectlySentLine(request.getCreateSiteCode(),request.getReceiveSiteCode())) {
+			Map<String, String> hintArgs = Maps.newHashMap();
+			hintArgs.put(HintArgsConstants.ARG_FIRST, request.getCreateSiteName());
+			hintArgs.put(HintArgsConstants.ARG_SECOND, request.getReceiveSiteName());
+			response.setCode(SortingResponse.CODE_29461);
+			response.setMessage(HintService.getHint(HintCodeConstants.CODE_COLD_CHAIN_SITE_NO_ROUTE, hintArgs));
+			return response;
+		}
         // 先生成路由信息
         // 获得路由信息创建站点与目的站点之间，用于标签打印，方便站点人员确认下一站发往哪
         CrossBoxResult<String[]> routInfoRes = null;

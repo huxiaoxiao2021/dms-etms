@@ -5,9 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.jd.bluedragon.distribution.station.enums.BusinessLineTypeEnum;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
-import org.apache.lucene.util.CollectionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -82,6 +82,7 @@ public class WorkStationServiceImpl implements WorkStationService {
 			}else {
 				generateAndSetBusinessKey(data);
 			}
+			data.setBusinessLineName(BusinessLineTypeEnum.getNameByCode(data.getBusinessLineCode()));
 			workStationDao.insert(data);
 		}
 		return result;
@@ -125,6 +126,9 @@ public class WorkStationServiceImpl implements WorkStationService {
 			if(uniqueKeysRowNumMap.containsKey(uniqueKeysStr)) {
 				return result0.toFail(rowKey + "和第"+uniqueKeysRowNumMap.get(uniqueKeysStr)+"行数据重复！");
 			}
+			if(BusinessLineTypeEnum.getEnum(data.getBusinessLineCode()) == null){
+				return result0.toFail(rowKey + "的【业务条线ID】不符合要求！");
+			}
 			uniqueKeysRowNumMap.put(uniqueKeysStr, rowNum);
 			rowNum ++;
 		}
@@ -149,6 +153,7 @@ public class WorkStationServiceImpl implements WorkStationService {
 		String workName = data.getWorkName();
 		String areaCode = data.getAreaCode();
 		String areaName = data.getAreaName();
+		data.setBusinessLineName(BusinessLineTypeEnum.getNameByCode(data.getBusinessLineCode()));
 		
 		if(!CheckHelper.checkStr("作业区ID", areaCode, 50, result).isSuccess()) {
 			return result;
@@ -176,6 +181,7 @@ public class WorkStationServiceImpl implements WorkStationService {
 		}
 		workStationDao.deleteById(updateData);
 		updateData.setId(null);
+		updateData.setBusinessLineName(BusinessLineTypeEnum.getNameByCode(updateData.getBusinessLineCode()));
 		result.setData(workStationDao.insert(updateData) == 1);
 		return result;
 	 }
