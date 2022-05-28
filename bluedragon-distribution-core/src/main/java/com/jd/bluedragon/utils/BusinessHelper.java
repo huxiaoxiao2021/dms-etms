@@ -11,6 +11,7 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.report.domain.Enum.SpotCheckTypeEnum;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
+
 
 public class BusinessHelper {
 
@@ -39,6 +41,11 @@ public class BusinessHelper {
      * hash格式分页存储时，分页大小
      */
     public static final int HASH_KEY_PAGESIZE = 200;
+
+    /**
+     * 德邦运单扩展属性值
+     */
+    public static final String WAYBILL_EXTEND_DEPPON_THIRDCARRIERFLAG = "deppon";
 
     static {
         init();
@@ -969,5 +976,24 @@ public class BusinessHelper {
             || (siteType.intValue() == 16 
             	&& subSiteType != null
             	&& SMS_ZZGZT_SITE_SUB_TYPE_LIST16.contains(subSiteType));
+    }
+
+    public static boolean isDPSiteCode(List<Integer> dpSiteCodes, Integer siteCode){
+        if(CollectionUtils.isEmpty(dpSiteCodes) || siteCode == null){
+            return false;
+        }
+        return dpSiteCodes.contains(siteCode);
+
+    }
+
+    /**
+     * 是否为德邦运单
+     *
+     */
+    public static boolean isDPWaybill(String thirdCarrierFlag){
+        if(StringUtils.isBlank(thirdCarrierFlag)){
+            return false;
+        }
+        return WAYBILL_EXTEND_DEPPON_THIRDCARRIERFLAG.equals(thirdCarrierFlag);
     }
 }
