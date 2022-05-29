@@ -9,14 +9,18 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.busineCode.sendCode.service.SendCodeService;
 import com.jd.bluedragon.distribution.businessCode.BusinessCodeAttributeKey;
 import com.jd.bluedragon.distribution.delivery.IDeliveryOperationService;
+import com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskSendVehicleDetailDao;
+import com.jd.bluedragon.distribution.jy.dto.send.JySendCodeDto;
 import com.jd.bluedragon.distribution.jy.dto.send.VehicleSendRelationDto;
 import com.jd.bluedragon.distribution.jy.enums.CancelSendTypeEnum;
 import com.jd.bluedragon.distribution.jy.manager.JyTransportManager;
 import com.jd.bluedragon.distribution.jy.send.JySendCodeEntity;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetailService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetailServiceImpl;
+import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleService;
 import com.jd.bluedragon.distribution.jy.service.transfer.JySendTransferService;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
+import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.domain.ThreeDeliveryResponse;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
@@ -59,6 +63,8 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService{
     JyBizTaskSendVehicleDetailService jyBizTaskSendVehicleDetailService;
     @Autowired
     private IDeliveryOperationService deliveryOperationService;
+    @Autowired
+    JyBizTaskSendVehicleService jyBizTaskSendVehicleService;
 
 
     @Override
@@ -97,12 +103,65 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService{
 
     @Override
     public InvokeResult<CreateVehicleTaskResp> createVehicleTask(CreateVehicleTaskReq createVehicleTaskReq) {
-        return null;
+        JyBizTaskSendVehicleEntity jyBizTaskSendVehicleEntity = initJyBizTaskSendVehicle(createVehicleTaskReq);
+        jyBizTaskSendVehicleService.saveSendVehicleTask(jyBizTaskSendVehicleEntity);
+        return new InvokeResult(RESULT_SUCCESS_CODE,RESULT_SUCCESS_MESSAGE);
+    }
+
+    private JyBizTaskSendVehicleEntity initJyBizTaskSendVehicle(CreateVehicleTaskReq createVehicleTaskReq) {
+        JyBizTaskSendVehicleEntity entity =new JyBizTaskSendVehicleEntity();
+        entity.setBizId("");//TODO
+        entity.setManualCreatedFlag(1);
+        entity.setVehicleType(createVehicleTaskReq.getVehicleType());
+        entity.setVehicleTypeName(createVehicleTaskReq.getVehicleTypeName());
+        entity.setCreateUserErp(createVehicleTaskReq.getUser().getUserErp());
+        entity.setCreateUserName(createVehicleTaskReq.getUser().getUserName());
+        entity.setYn(0);
+        Date now =new Date();
+        entity.setCreateTime(now);
+        entity.setUpdateTime(now);
+        return entity;
     }
 
     @Override
     public InvokeResult deleteVehicleTask(DeleteVehicleTaskReq deleteVehicleTaskReq) {
-        return null;
+        //删除主任务
+        JyBizTaskSendVehicleEntity entity =new JyBizTaskSendVehicleEntity();
+        entity.setBizId(deleteVehicleTaskReq.getBizId());
+        entity.setYn(0);
+        Date now =new Date();
+        entity.setUpdateTime(now);
+        entity.setUpdateUserErp(deleteVehicleTaskReq.getUser().getUserErp());
+        entity.setUpdateUserName(deleteVehicleTaskReq.getUser().getUserName());
+        jyBizTaskSendVehicleService.updateSendVehicleTask(entity);
+        //删除子任务
+        JyBizTaskSendVehicleDetailEntity detailEntity =new JyBizTaskSendVehicleDetailEntity();
+        detailEntity.setSendVehicleBizId(deleteVehicleTaskReq.getBizId());
+        detailEntity.setYn(0);
+        detailEntity.setUpdateTime(now);
+        detailEntity.setUpdateUserErp(deleteVehicleTaskReq.getUser().getUserErp());
+        detailEntity.setUpdateUserName(deleteVehicleTaskReq.getUser().getUserName());
+        jyBizTaskSendVehicleDetailService.updateDateilTaskByVehicleBizId(detailEntity);
+        //删除任务-发货绑定关系+取消发货
+        List<String> sendCodeList =jyVehicleSendRelationService.querySendCodesByVehicleBizId(deleteVehicleTaskReq.getBizId());
+        if (ObjectHelper.isNotNull(sendCodeList) && sendCodeList.size()>0){
+            JySendCodeDto dto =new JySendCodeDto();
+            dto.setSendVehicleBizId(deleteVehicleTaskReq.getBizId());
+            dto.setUpdateUserErp(deleteVehicleTaskReq.getUser().getUserErp());
+            dto.setUpdateUserName(deleteVehicleTaskReq.getUser().getUserName());
+            jyVehicleSendRelationService.deleteVehicleSendRelationByVehicleBizId(dto);
+
+            for (String sendCode:sendCodeList){
+                SendM sendM =new SendM();
+                sendM.setSendCode(sendCode);
+                sendM.setCreateSiteCode(deleteVehicleTaskReq.getCurrentOperate().getSiteCode());
+                ThreeDeliveryResponse tDResponse = deliveryService.dellCancelDeliveryMessageWithServerTime(sendM, true);
+                if (!tDResponse.getCode().equals(RESULT_SUCCESS_CODE)){
+                    return new InvokeResult(tDResponse.getCode(),tDResponse.getMessage());
+                }
+            }
+        }
+        return new InvokeResult(RESULT_SUCCESS_CODE,RESULT_SUCCESS_MESSAGE);
     }
 
     @Override

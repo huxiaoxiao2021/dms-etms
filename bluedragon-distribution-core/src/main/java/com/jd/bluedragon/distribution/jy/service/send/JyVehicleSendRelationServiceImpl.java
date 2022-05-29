@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.jy.service.send;
 
 import com.jd.bluedragon.distribution.jy.dao.send.JySendCodeDao;
+import com.jd.bluedragon.distribution.jy.dto.send.JySendCodeDto;
 import com.jd.bluedragon.distribution.jy.dto.send.TransferDto;
 import com.jd.bluedragon.distribution.jy.dto.send.VehicleSendRelationDto;
 import com.jd.bluedragon.distribution.jy.send.JySendCodeEntity;
@@ -16,6 +17,11 @@ public class JyVehicleSendRelationServiceImpl implements JyVehicleSendRelationSe
     @Override
     public List<String> querySendCodesByVehicleDetailBizId(String vehicleDetailBizId) {
         return jySendCodeDao.querySendCodesByVehicleDetailBizId(vehicleDetailBizId);
+    }
+
+    @Override
+    public List<String> querySendCodesByVehicleBizId(String vehicleBizId) {
+        return jySendCodeDao.querySendCodesByVehicleBizId(vehicleBizId);
     }
 
     @Override
@@ -39,6 +45,11 @@ public class JyVehicleSendRelationServiceImpl implements JyVehicleSendRelationSe
             rs =rs+jySendCodeDao.deleteVehicleSendRelation(transferDto);
         }
         return rs;
+    }
+
+    @Override
+    public int deleteVehicleSendRelationByVehicleBizId(JySendCodeDto dto) {
+        return jySendCodeDao.deleteVehicleSendRelationByVehicleBizId(dto);
     }
 
     @Override

@@ -14,4 +14,9 @@ public class JyBizTaskSendVehicleDetailServiceImpl implements JyBizTaskSendVehic
     public JyBizTaskSendVehicleDetailEntity findByBizId(String bizId) {
         return jyBizTaskSendVehicleDetailDao.findByBizId(bizId);
     }
+
+    @Override
+    public int updateDateilTaskByVehicleBizId(JyBizTaskSendVehicleDetailEntity detailEntity) {
+        return jyBizTaskSendVehicleDetailDao.updateDateilTaskByVehicleBizId(detailEntity);
+    }
 }

@@ -179,7 +179,7 @@
         </where>
     </update>
 
-    <update id="updateBySendCode" parameterType="TransferDto">
+    <update id="updateBySendCode" parameterType="com.jd.bluedragon.distribution.jy.dto.send.TransferDto">
         UPDATE jy_send_code
         set send_vehicle_biz_id = #{toSendVehicleBizId},
             send_detail_biz_id  = #{toSendVehicleDetailBizId},
@@ -191,16 +191,27 @@
           and send_detail_biz_id = #{fromSendVehicleDetailBizId}
     </update>
 
-    <update id="deleteVehicleSendRelation" parameterType="TransferDto">
+    <update id="deleteVehicleSendRelation" parameterType="com.jd.bluedragon.distribution.jy.dto.send.TransferDto">
         UPDATE jy_send_code
-        set yn          =0,
-            update_time = now()
+        set yn               =0,
+            update_time      = now(),
+            update_user_erp  =#{updateUserErp},
+            update_user_name =#{updateUserName}
         where send_code = #{sendCode}
           and send_vehicle_biz_id = #{fromSendVehicleBizId}
           and send_detail_biz_id = #{fromSendVehicleDetailBizId}
     </update>
 
-    <update id="batchUpdateBySendCode" parameterType="BatchTransferDto">
+    <update id="deleteVehicleSendRelationByVehicleBizId" parameterType="com.jd.bluedragon.distribution.jy.dto.send.JySendCodeDto">
+        UPDATE jy_send_code
+        set yn               =0,
+            update_time      = now(),
+            update_user_erp  =#{updateUserErp},
+            update_user_name =#{updateUserName}
+        where send_vehicle_biz_id = #{sendVehicleBizId}
+    </update>
+
+    <update id="batchUpdateBySendCode" parameterType="com.jd.bluedragon.distribution.jy.dto.send.BatchTransferDto">
         UPDATE jy_send_code
         set send_vehicle_biz_id = #{toSendVehicleBizId},
         send_detail_biz_id = #{toSendVehicleDetailBizId},
@@ -218,6 +229,13 @@
         select send_code
         from jy_send_code
         where send_detail_biz_id = #{vehicleDetailBizId}
+          and yn = 1
+    </select>
+
+    <select id="querySendCodesByVehicleBizId" parameterType="java.lang.String">
+        select send_code
+        from jy_send_code
+        where send_vehicle_biz_id = #{vehicleBizId}
           and yn = 1
     </select>
 </mapper>

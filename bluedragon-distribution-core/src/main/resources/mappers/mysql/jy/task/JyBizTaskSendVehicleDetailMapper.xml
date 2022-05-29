@@ -271,6 +271,78 @@
         </where>
     </update>
 
+    <update id="updateDateilTaskByVehicleBizId" parameterType="JyBizTaskSendVehicleDetailEntity">
+        UPDATE jy_biz_task_send_vehicle_detail
+        <set>
+            <if test="transWorkItemCode != null">
+                trans_work_item_code = #{transWorkItemCode}
+            </if>
+            ,
+            <if test="vehicleStatus != null">
+                vehicle_status = #{vehicleStatus}
+            </if>
+            ,
+            <if test="startSiteId != null">
+                start_site_id = #{startSiteId}
+            </if>
+            ,
+            <if test="startSiteName != null">
+                start_site_name = #{startSiteName}
+            </if>
+            ,
+            <if test="endSiteId != null">
+                end_site_id = #{endSiteId}
+            </if>
+            ,
+            <if test="endSiteName != null">
+                end_site_name = #{endSiteName}
+            </if>
+            ,
+            <if test="planDepartTime != null">
+                plan_depart_time = #{planDepartTime}
+            </if>
+            ,
+            <if test="sealCarTime != null">
+                seal_car_time = #{sealCarTime}
+            </if>
+            ,
+            <if test="createUserErp != null">
+                create_user_erp = #{createUserErp}
+            </if>
+            ,
+            <if test="createUserName != null">
+                create_user_name = #{createUserName}
+            </if>
+            ,
+            <if test="updateUserErp != null">
+                update_user_erp = #{updateUserErp}
+            </if>
+            ,
+            <if test="updateUserName != null">
+                update_user_name = #{updateUserName}
+            </if>
+            ,
+            <if test="createTime != null">
+                create_time = #{createTime}
+            </if>
+            ,
+            <if test="updateTime != null">
+                update_time = #{updateTime}
+            </if>
+            ,
+            <if test="yn != null">
+                yn = #{yn}
+            </if>
+            ,
+            <if test="ts != null">
+                ts = #{ts}
+            </if>
+        </set>
+        <where>
+            send_vehicle_biz_id = #{sendVehicleBizId}
+        </where>
+    </update>
+
     <select id="findByBizId" resultMap="jyBizTaskSendVehicleDetailMap" parameterType="java.lang.String">
         select
         <include refid="Base_Column_List"/>

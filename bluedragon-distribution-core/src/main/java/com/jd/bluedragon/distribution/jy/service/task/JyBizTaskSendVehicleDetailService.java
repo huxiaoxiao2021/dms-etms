@@ -4,4 +4,6 @@ import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 
 public interface JyBizTaskSendVehicleDetailService {
     JyBizTaskSendVehicleDetailEntity findByBizId(String bizId);
+
+    int updateDateilTaskByVehicleBizId(JyBizTaskSendVehicleDetailEntity detailEntity);
 }

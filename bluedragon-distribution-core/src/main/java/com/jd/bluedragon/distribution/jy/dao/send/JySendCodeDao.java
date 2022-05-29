@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.jy.dao.send;
 
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.jy.dto.send.BatchTransferDto;
+import com.jd.bluedragon.distribution.jy.dto.send.JySendCodeDto;
 import com.jd.bluedragon.distribution.jy.dto.send.TransferDto;
 import com.jd.bluedragon.distribution.jy.dto.send.VehicleSendRelationDto;
 import com.jd.bluedragon.distribution.jy.send.JySendCodeEntity;
@@ -56,5 +57,13 @@ public class JySendCodeDao extends BaseDao<JySendCodeEntity> {
 
     public List<String> querySendCodesByVehicleDetailBizId(String vehicleDetailBizId){
         return this.getSqlSession().selectList(NAMESPACE + ".querySendCodesByVehicleDetailBizId", vehicleDetailBizId);
+    }
+
+    public List<String> querySendCodesByVehicleBizId(String vehicleBizId) {
+        return this.getSqlSession().selectList(NAMESPACE + ".querySendCodesByVehicleBizId", vehicleBizId);
+    }
+
+    public int deleteVehicleSendRelationByVehicleBizId(JySendCodeDto dto) {
+        return this.getSqlSession().update(NAMESPACE + ".deleteVehicleSendRelationByVehicleBizId", dto);
     }
 }
