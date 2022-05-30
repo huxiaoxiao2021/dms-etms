@@ -5,6 +5,7 @@ import com.jd.bluedragon.common.dto.blockcar.response.SealCarTaskInfoDto;
 import com.jd.bluedragon.common.dto.blockcar.response.TransportInfoDto;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.SealCodeResponse;
 import com.jd.bluedragon.common.dto.seal.request.*;
+import com.jd.bluedragon.common.dto.seal.response.SealCodeResp;
 import com.jd.bluedragon.common.dto.seal.response.SealVehicleInfoResp;
 import com.jd.bluedragon.common.dto.seal.response.TransportResp;
 import com.jd.bluedragon.distribution.api.JdResponse;
@@ -12,6 +13,8 @@ import com.jd.bluedragon.distribution.api.request.NewSealVehicleRequest;
 import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
 import com.jd.bluedragon.distribution.api.response.RouteTypeResponse;
 import com.jd.bluedragon.distribution.api.response.TransWorkItemResponse;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.jy.service.seal.JySealVehicleService;
 import com.jd.bluedragon.distribution.rest.seal.NewSealVehicleResource;
 import com.jd.bluedragon.external.gateway.service.JySealCarGatewayService;
 import org.springframework.beans.BeanUtils;
@@ -22,10 +25,12 @@ public class JySealCarGatewayServiceImpl implements JySealCarGatewayService {
     @Autowired
     @Qualifier("newSealVehicleResource")
     private NewSealVehicleResource newSealVehicleResource;
+    @Autowired
+    JySealVehicleService jySealVehicleService;
 
     @Override
-    public JdCResponse<SealCodeResponse> listSealCodeByBizId(SealCodeReq sealCodeReq) {
-        return null;
+    public JdCResponse<SealCodeResp> listSealCodeByBizId(SealCodeReq sealCodeReq) {
+        return retJdCResponse(jySealVehicleService.listSealCodeByBizId(sealCodeReq));
     }
 
     @Override
@@ -89,5 +94,9 @@ public class JySealCarGatewayServiceImpl implements JySealCarGatewayService {
     @Override
     public JdCResponse sealVehicle(SealVehicleReq sealVehicleReq) {
         return null;
+    }
+
+    private <T> JdCResponse<T> retJdCResponse(InvokeResult<T> invokeResult) {
+        return new JdCResponse<>(invokeResult.getCode(), invokeResult.getMessage(), invokeResult.getData());
     }
 }

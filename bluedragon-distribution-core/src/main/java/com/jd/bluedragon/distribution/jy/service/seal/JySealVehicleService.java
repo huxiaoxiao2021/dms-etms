@@ -3,9 +3,12 @@ package com.jd.bluedragon.distribution.jy.service.seal;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.SealCodeResponse;
 import com.jd.bluedragon.common.dto.seal.request.*;
+import com.jd.bluedragon.common.dto.seal.response.SealCodeResp;
 import com.jd.bluedragon.common.dto.seal.response.SealVehicleInfoResp;
 import com.jd.bluedragon.common.dto.seal.response.TransportResp;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+
+import java.util.List;
 
 public interface JySealVehicleService {
 
@@ -14,7 +17,7 @@ public interface JySealVehicleService {
      * @param sealCodeReq
      * @return
      */
-    InvokeResult<SealCodeResponse> listSealCodeByBizId(SealCodeReq sealCodeReq);
+    InvokeResult<SealCodeResp> listSealCodeByBizId(SealCodeReq sealCodeReq);
 
     /**
      * 查询封车数据详情

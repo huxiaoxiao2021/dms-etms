@@ -4,6 +4,7 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.blockcar.response.TransportInfoDto;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.SealCodeResponse;
 import com.jd.bluedragon.common.dto.seal.request.*;
+import com.jd.bluedragon.common.dto.seal.response.SealCodeResp;
 import com.jd.bluedragon.common.dto.seal.response.SealVehicleInfoResp;
 import com.jd.bluedragon.common.dto.seal.response.TransportResp;
 
@@ -17,7 +18,7 @@ public interface JySealCarGatewayService {
      * @param sealCodeReq
      * @return
      */
-    JdCResponse<SealCodeResponse> listSealCodeByBizId(SealCodeReq sealCodeReq);
+    JdCResponse<SealCodeResp> listSealCodeByBizId(SealCodeReq sealCodeReq);
 
     /**
      * 查询封车数据详情
