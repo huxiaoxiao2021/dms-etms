@@ -41,6 +41,7 @@ import java.util.*;
 
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.*;
 import static com.jd.bluedragon.distribution.businessCode.BusinessCodeFromSourceEnum.DMS_WEB_SYS;
+import static com.jd.bluedragon.distribution.businessCode.BusinessCodeFromSourceEnum.JY_APP;
 
 @Service
 @Slf4j
@@ -245,9 +246,8 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
         Map<BusinessCodeAttributeKey.SendCodeAttributeKeyEnum, String> attributeKeyEnumObjectMap = new HashMap<>();
         attributeKeyEnumObjectMap.put(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.from_site_code, String.valueOf(sendVehicleDetail.getStartSiteId()));
         attributeKeyEnumObjectMap.put(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.to_site_code, String.valueOf(sendVehicleDetail.getEndSiteId()));
-        attributeKeyEnumObjectMap.put(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.is_fresh, "0");
-        //TODO 这里要不要新增一个jy的来源
-        return sendCodeService.createSendCode(attributeKeyEnumObjectMap, DMS_WEB_SYS, createUser);
+        attributeKeyEnumObjectMap.put(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.is_fresh, "0");//TODO 这个从哪获取
+        return sendCodeService.createSendCode(attributeKeyEnumObjectMap, JY_APP, createUser);
     }
 
     @Override
