@@ -7,13 +7,8 @@ import com.jd.bluedragon.common.dto.send.response.CancelSendTaskResp;
 import com.jd.bluedragon.common.dto.send.response.CreateVehicleTaskResp;
 import com.jd.bluedragon.common.dto.send.response.VehicleSpecResp;
 import com.jd.bluedragon.common.dto.send.response.VehicleTaskResp;
-import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.jy.manager.JyTransportManager;
 import com.jd.bluedragon.distribution.jy.service.send.JyNoTaskSendService;
-import com.jd.bluedragon.distribution.jy.service.transfer.JySendTransferService;
-import com.jd.bluedragon.distribution.send.service.DeliveryService;
-import com.jd.bluedragon.distribution.send.service.SendMService;
 import com.jd.bluedragon.external.gateway.service.JyNoTaskSendGatewayService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,28 +30,27 @@ public class JyNoTaskSendGatewayServiceImpl implements JyNoTaskSendGatewayServic
 
     @Override
     public JdCResponse<CreateVehicleTaskResp> createVehicleTask(CreateVehicleTaskReq createVehicleTaskReq) {
-        return null;
+        return retJdCResponse(jyNoTaskSendService.createVehicleTask(createVehicleTaskReq));
     }
 
     @Override
     public JdCResponse deleteVehicleTask(DeleteVehicleTaskReq deleteVehicleTaskReq) {
-        return null;
+        return retJdCResponse(jyNoTaskSendService.deleteVehicleTask(deleteVehicleTaskReq));
     }
 
     @Override
     public JdCResponse<List<VehicleTaskResp>> listVehicleTask(VehicleTaskReq vehicleTaskReq) {
-        return null;
+        return retJdCResponse(jyNoTaskSendService.listVehicleTask(vehicleTaskReq));
     }
 
     @Override
     public JdCResponse bindVehicleDetailTask(BindVehicleDetailTaskReq bindVehicleDetailTaskReq) {
-        return null;
+        return retJdCResponse(jyNoTaskSendService.bindVehicleDetailTask(bindVehicleDetailTaskReq));
     }
 
     @Override
     public JdCResponse transferSendTask(TransferSendTaskReq transferSendTaskReq) {
-
-        return null;
+        return retJdCResponse(jyNoTaskSendService.transferSendTask(transferSendTaskReq));
     }
 
     @Override
@@ -67,7 +61,6 @@ public class JyNoTaskSendGatewayServiceImpl implements JyNoTaskSendGatewayServic
     private <T> JdCResponse<T> retJdCResponse(InvokeResult<T> invokeResult) {
         return new JdCResponse<>(invokeResult.getCode(), invokeResult.getMessage(), invokeResult.getData());
     }
-
 
 
 }
