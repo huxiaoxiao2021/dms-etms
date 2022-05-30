@@ -28,20 +28,20 @@ public interface JySealVehicleService {
      * @param transportReq
      * @return
      *
-     *  NewSealVehicleGatewayServiceImpl#getTransportInfoByCode
+     *
      */
     InvokeResult<TransportResp>  getTransportResourceByTransCode(TransportReq transportReq);
 
     /**
      * 校验运力编码和任务简码是否匹配
-     * NewSealVehicleGatewayServiceImpl#checkTransportCode
+     *
      *
      */
     InvokeResult checkTransportCode(CheckTransportCodeReq checkTransportCodeReq);
     /**
      * 根据任务简码查询车牌号信息
      *
-     * NewSealVehicleGatewayServiceImpl#getTaskInfo
+     *
      */
     InvokeResult<TransportResp> getVehicleNumberByWorkItemCode(GetVehicleNumberReq getVehicleNumberReq);
 
