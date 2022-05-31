@@ -8,7 +8,6 @@ import com.jd.bluedragon.common.dto.seal.response.SealVehicleInfoResp;
 import com.jd.bluedragon.common.dto.seal.response.TransportResp;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 
-import java.util.List;
 
 public interface JySealVehicleService {
 

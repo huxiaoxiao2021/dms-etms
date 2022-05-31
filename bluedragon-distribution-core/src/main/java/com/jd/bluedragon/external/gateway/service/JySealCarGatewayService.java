@@ -32,18 +32,18 @@ public interface JySealCarGatewayService {
      * @param transportReq
      * @return
      *
-     *
      */
     JdCResponse<TransportInfoDto>  getTransportResourceByTransCode(TransportReq transportReq);
 
     /**
      * 校验运力编码和任务简码是否匹配
      *
+     *
      */
     JdCResponse checkTransportCode(CheckTransportCodeReq checkTransportCodeReq);
 
     /**
-     * 根据任务简码查询车牌号信息
+     * 根据任务简码查询运输任务相关信息(可用于 用户录入任务简码后 校验任务简码对应车牌号信息跟当前车牌号是否一致)
      *
      */
     JdCResponse<TransportResp> getVehicleNumberByWorkItemCode(GetVehicleNumberReq getVehicleNumberReq);

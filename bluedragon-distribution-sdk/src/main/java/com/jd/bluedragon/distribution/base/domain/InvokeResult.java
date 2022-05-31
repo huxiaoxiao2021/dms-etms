@@ -75,6 +75,9 @@ public class InvokeResult<T> implements Serializable {
     public static final int RESULT_NO_FOUND_DATA_CODE=313;
     public static final String RESULT_NO_FOUND_DATA_MESSAGE="未查询到相关数据！";
 
+    public static final int RESULT_EXE_GETCARINFO_BYCARNO_CODE=314;
+    public static final String RESULT_EXE_GETCARINFO_BYCARNO_MESSAGE="根据车牌号查询运输任务详情异常！";
+
     public InvokeResult(){
         this.code=RESULT_SUCCESS_CODE;
     }

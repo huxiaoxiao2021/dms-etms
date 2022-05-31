@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="io.renren.modules.generator.dao.JySendTransferLogDao">
+<mapper namespace="com.jd.bluedragon.distribution.jy.dao.send.JySendTransferLogDao">
 
-	<!-- 可根据自己的需求，是否要使用 -->
-    <resultMap type="io.renren.modules.generator.entity.JySendTransferLogEntity" id="jySendTransferLogMap">
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.jd.bluedragon.distribution.jy.send.JySendTransferLogEntity" id="jySendTransferLogMap">
         <result property="id" column="id"/>
         <result property="sendCode" column="send_code"/>
         <result property="fromSendVehicleBizId" column="from_send_vehicle_biz_id"/>
@@ -23,153 +23,196 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        id,        send_code,        from_send_vehicle_biz_id,        from_send_vehicle_detail_biz_id,        to_send_vehicle_biz_id,        to_send_vehicle_detail_biz_id,        create_user_erp,        create_user_name,        update_user_erp,        update_user_name,        create_time,        update_time,        yn,        ts,        type    </sql>
+        id
+        ,        send_code,        from_send_vehicle_biz_id,        from_send_vehicle_detail_biz_id,        to_send_vehicle_biz_id,        to_send_vehicle_detail_biz_id,        create_user_erp,        create_user_name,        update_user_erp,        update_user_name,        create_time,        update_time,        yn,        ts,        type    </sql>
 
     <insert id="insert" parameterType="JySendTransferLogEntity">
         INSERT INTO jy_send_transfer_log (
-                            <if test="id != null">
-                    id
-                </if>
-                ,                            <if test="sendCode != null">
-                    send_code
-                </if>
-                ,                            <if test="fromSendVehicleBizId != null">
-                    from_send_vehicle_biz_id
-                </if>
-                ,                            <if test="fromSendVehicleDetailBizId != null">
-                    from_send_vehicle_detail_biz_id
-                </if>
-                ,                            <if test="toSendVehicleBizId != null">
-                    to_send_vehicle_biz_id
-                </if>
-                ,                            <if test="toSendVehicleDetailBizId != null">
-                    to_send_vehicle_detail_biz_id
-                </if>
-                ,                            <if test="createUserErp != null">
-                    create_user_erp
-                </if>
-                ,                            <if test="createUserName != null">
-                    create_user_name
-                </if>
-                ,                            <if test="updateUserErp != null">
-                    update_user_erp
-                </if>
-                ,                            <if test="updateUserName != null">
-                    update_user_name
-                </if>
-                ,                            <if test="createTime != null">
-                    create_time
-                </if>
-                ,                            <if test="updateTime != null">
-                    update_time
-                </if>
-                ,                            <if test="yn != null">
-                    yn
-                </if>
-                ,                            <if test="ts != null">
-                    ts
-                </if>
-                ,                            <if test="type != null">
-                    type
-                </if>
-                                    ) VALUES (
-                            <if test="id != null">
-                    #{id}
-                </if>
-                ,                            <if test="sendCode != null">
-                    #{sendCode}
-                </if>
-                ,                            <if test="fromSendVehicleBizId != null">
-                    #{fromSendVehicleBizId}
-                </if>
-                ,                            <if test="fromSendVehicleDetailBizId != null">
-                    #{fromSendVehicleDetailBizId}
-                </if>
-                ,                            <if test="toSendVehicleBizId != null">
-                    #{toSendVehicleBizId}
-                </if>
-                ,                            <if test="toSendVehicleDetailBizId != null">
-                    #{toSendVehicleDetailBizId}
-                </if>
-                ,                            <if test="createUserErp != null">
-                    #{createUserErp}
-                </if>
-                ,                            <if test="createUserName != null">
-                    #{createUserName}
-                </if>
-                ,                            <if test="updateUserErp != null">
-                    #{updateUserErp}
-                </if>
-                ,                            <if test="updateUserName != null">
-                    #{updateUserName}
-                </if>
-                ,                            <if test="createTime != null">
-                    #{createTime}
-                </if>
-                ,                            <if test="updateTime != null">
-                    #{updateTime}
-                </if>
-                ,                            <if test="yn != null">
-                    #{yn}
-                </if>
-                ,                            <if test="ts != null">
-                    #{ts}
-                </if>
-                ,                            <if test="type != null">
-                    #{type}
-                </if>
-                                    )
+        <if test="id != null">
+            id
+        </if>
+        ,
+        <if test="sendCode != null">
+            send_code
+        </if>
+        ,
+        <if test="fromSendVehicleBizId != null">
+            from_send_vehicle_biz_id
+        </if>
+        ,
+        <if test="fromSendVehicleDetailBizId != null">
+            from_send_vehicle_detail_biz_id
+        </if>
+        ,
+        <if test="toSendVehicleBizId != null">
+            to_send_vehicle_biz_id
+        </if>
+        ,
+        <if test="toSendVehicleDetailBizId != null">
+            to_send_vehicle_detail_biz_id
+        </if>
+        ,
+        <if test="createUserErp != null">
+            create_user_erp
+        </if>
+        ,
+        <if test="createUserName != null">
+            create_user_name
+        </if>
+        ,
+        <if test="updateUserErp != null">
+            update_user_erp
+        </if>
+        ,
+        <if test="updateUserName != null">
+            update_user_name
+        </if>
+        ,
+        <if test="createTime != null">
+            create_time
+        </if>
+        ,
+        <if test="updateTime != null">
+            update_time
+        </if>
+        ,
+        <if test="yn != null">
+            yn
+        </if>
+        ,
+        <if test="ts != null">
+            ts
+        </if>
+        ,
+        <if test="type != null">
+            type
+        </if>
+        ) VALUES (
+        <if test="id != null">
+            #{id}
+        </if>
+        ,
+        <if test="sendCode != null">
+            #{sendCode}
+        </if>
+        ,
+        <if test="fromSendVehicleBizId != null">
+            #{fromSendVehicleBizId}
+        </if>
+        ,
+        <if test="fromSendVehicleDetailBizId != null">
+            #{fromSendVehicleDetailBizId}
+        </if>
+        ,
+        <if test="toSendVehicleBizId != null">
+            #{toSendVehicleBizId}
+        </if>
+        ,
+        <if test="toSendVehicleDetailBizId != null">
+            #{toSendVehicleDetailBizId}
+        </if>
+        ,
+        <if test="createUserErp != null">
+            #{createUserErp}
+        </if>
+        ,
+        <if test="createUserName != null">
+            #{createUserName}
+        </if>
+        ,
+        <if test="updateUserErp != null">
+            #{updateUserErp}
+        </if>
+        ,
+        <if test="updateUserName != null">
+            #{updateUserName}
+        </if>
+        ,
+        <if test="createTime != null">
+            #{createTime}
+        </if>
+        ,
+        <if test="updateTime != null">
+            #{updateTime}
+        </if>
+        ,
+        <if test="yn != null">
+            #{yn}
+        </if>
+        ,
+        <if test="ts != null">
+            #{ts}
+        </if>
+        ,
+        <if test="type != null">
+            #{type}
+        </if>
+        )
     </insert>
 
     <update id="update" parameterType="JySendTransferLogEntity">
         UPDATE jy_send_transfer_log
         <set>
-                            <if test="id != null">
+            <if test="id != null">
                 id = #{id}
-                </if>
-                ,                            <if test="sendCode != null">
+            </if>
+            ,
+            <if test="sendCode != null">
                 send_code = #{sendCode}
-                </if>
-                ,                            <if test="fromSendVehicleBizId != null">
+            </if>
+            ,
+            <if test="fromSendVehicleBizId != null">
                 from_send_vehicle_biz_id = #{fromSendVehicleBizId}
-                </if>
-                ,                            <if test="fromSendVehicleDetailBizId != null">
+            </if>
+            ,
+            <if test="fromSendVehicleDetailBizId != null">
                 from_send_vehicle_detail_biz_id = #{fromSendVehicleDetailBizId}
-                </if>
-                ,                            <if test="toSendVehicleBizId != null">
+            </if>
+            ,
+            <if test="toSendVehicleBizId != null">
                 to_send_vehicle_biz_id = #{toSendVehicleBizId}
-                </if>
-                ,                            <if test="toSendVehicleDetailBizId != null">
+            </if>
+            ,
+            <if test="toSendVehicleDetailBizId != null">
                 to_send_vehicle_detail_biz_id = #{toSendVehicleDetailBizId}
-                </if>
-                ,                            <if test="createUserErp != null">
+            </if>
+            ,
+            <if test="createUserErp != null">
                 create_user_erp = #{createUserErp}
-                </if>
-                ,                            <if test="createUserName != null">
+            </if>
+            ,
+            <if test="createUserName != null">
                 create_user_name = #{createUserName}
-                </if>
-                ,                            <if test="updateUserErp != null">
+            </if>
+            ,
+            <if test="updateUserErp != null">
                 update_user_erp = #{updateUserErp}
-                </if>
-                ,                            <if test="updateUserName != null">
+            </if>
+            ,
+            <if test="updateUserName != null">
                 update_user_name = #{updateUserName}
-                </if>
-                ,                            <if test="createTime != null">
+            </if>
+            ,
+            <if test="createTime != null">
                 create_time = #{createTime}
-                </if>
-                ,                            <if test="updateTime != null">
+            </if>
+            ,
+            <if test="updateTime != null">
                 update_time = #{updateTime}
-                </if>
-                ,                            <if test="yn != null">
+            </if>
+            ,
+            <if test="yn != null">
                 yn = #{yn}
-                </if>
-                ,                            <if test="ts != null">
+            </if>
+            ,
+            <if test="ts != null">
                 ts = #{ts}
-                </if>
-                ,                            <if test="type != null">
+            </if>
+            ,
+            <if test="type != null">
                 type = #{type}
-                </if>
-                                    </set>
+            </if>
+        </set>
         <where>
             id = #{id}
         </where>

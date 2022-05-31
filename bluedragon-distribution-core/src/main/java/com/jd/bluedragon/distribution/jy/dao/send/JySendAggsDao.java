@@ -1,7 +1,7 @@
 package com.jd.bluedragon.distribution.jy.dao.send;
 
-import io.renren.modules.generator.entity.JySendAggsEntity;
 import com.jd.bluedragon.common.dao.BaseDao;
+import com.jd.bluedragon.distribution.jy.send.JySendAggsEntity;
 
 /**
  * 发货数据统计表
@@ -22,5 +22,9 @@ public class JySendAggsDao extends BaseDao<JySendAggsEntity> {
      */
     public int insert(JySendAggsEntity entity) {
         return this.getSqlSession().insert(NAMESPACE + ".insert", entity);
+    }
+
+    public JySendAggsEntity getVehicleSendStatistics(String sendVehicleBizId){
+        return this.getSqlSession().selectOne(NAMESPACE + ".getVehicleSendStatistics", sendVehicleBizId);
     }
 }
