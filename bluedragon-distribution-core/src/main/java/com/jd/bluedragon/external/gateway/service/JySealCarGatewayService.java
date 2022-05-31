@@ -38,7 +38,6 @@ public interface JySealCarGatewayService {
     /**
      * 校验运力编码和任务简码是否匹配
      *
-     *
      */
     JdCResponse checkTransportCode(CheckTransportCodeReq checkTransportCodeReq);
 

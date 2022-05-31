@@ -7,6 +7,12 @@ import java.util.List;
 
 public class SealVehicleReq extends BaseReq implements Serializable {
     private static final long serialVersionUID = 6675404873010444219L;
+
+    //主任务编号
+    private String sendVehicleBizId;
+    //子任务编号
+    private String sendVehicleDetailBizId;
+
     /**
      * 封车类型
      * SealCarTypeEnum
@@ -27,7 +33,7 @@ public class SealVehicleReq extends BaseReq implements Serializable {
 
     /**
      * 批次信息
-     *  这块暂定先按老逻辑走：根据任务简码查询任务详情时会返回sendCode 批次信息，封车时传一下
+     *  这块暂定先按老逻辑走：根据任务简码查询任务详情时会返回sendCode 批次信息，封车时传一下，没返回就不传
      */
     private List<String> batchCodes;
 

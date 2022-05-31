@@ -1,7 +1,7 @@
 package com.jd.bluedragon.distribution.jy.dao.send;
 
-import io.renren.modules.generator.entity.JySendTransferLogEntity;
 import com.jd.bluedragon.common.dao.BaseDao;
+import com.jd.bluedragon.distribution.jy.send.JySendTransferLogEntity;
 
 /**
  * 发货任务迁移记录表
