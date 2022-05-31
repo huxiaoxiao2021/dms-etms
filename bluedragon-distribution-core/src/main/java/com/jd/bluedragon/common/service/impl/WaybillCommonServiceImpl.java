@@ -959,6 +959,10 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         if(Constants.PRODUCT_TYPE_MEDICINE_DP.equals(productType)){
             target.setjZDFlag(TextConstants.COMMON_TEXT_MEDICINE_DP);
         }
+        /*** 产品类型为md-m-0002时:医冷零担*/
+        if(Constants.PRODUCT_TYPE_MEDICINE_COLD.equals(productType)){
+            target.setjZDFlag(TextConstants.COMMON_TEXT_MEDICINE_COLD);
+        }
 	    //sendPay146位为3时，打传字标
 	    if(BusinessUtil.isSignChar(waybill.getSendPay(),146,'3')){
             target.appendSpecialMark(ComposeService.SPECIAL_MARK_TRANSFER);
