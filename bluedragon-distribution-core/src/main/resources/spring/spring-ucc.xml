@@ -173,6 +173,7 @@
 		<property name="oldSendSplitPageSize" value="${oldSendSplitPageSize:30}"/>
 		<property name="dpSiteCodes" value="${dpSiteCodes:}"/>
 		<property name="dpWaybillMatchSendCodeSwitch" value="${dpWaybillMatchSendCodeSwitch:true}"/>
+		<property name="faceAbnormalReportConfig" value="${faceAbnormalReportConfig:''}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -327,6 +328,7 @@
 				<value>uccPropertyConfiguration.oldSendSplitPageSize</value>
 				<value>uccPropertyConfiguration.dpSiteCodes</value>
 				<value>uccPropertyConfiguration.dpWaybillMatchSendCodeSwitch</value>
+				<value>uccPropertyConfiguration.faceAbnormalReportConfig</value>
 
                 <value>hystrixRouteUccPropertyConfiguration.executionTimeoutInMilliseconds</value>
                 <value>hystrixRouteUccPropertyConfiguration.circuitBreakerEnabled</value>

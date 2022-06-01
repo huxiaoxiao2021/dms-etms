@@ -2,6 +2,8 @@ package com.jd.bluedragon.external.gateway.service;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.exceptionReport.expressBill.Enum.ExpressBillExceptionReportTypeEnum;
+import com.jd.bluedragon.common.dto.exceptionReport.expressBill.reponse.FaceFirstAbnormalType;
+import com.jd.bluedragon.common.dto.exceptionReport.expressBill.reponse.FaceSecondAbnormalType;
 import com.jd.bluedragon.common.dto.exceptionReport.expressBill.reponse.FirstSiteVo;
 import com.jd.bluedragon.common.dto.exceptionReport.expressBill.reponse.ReportTypeVo;
 import com.jd.bluedragon.common.dto.exceptionReport.expressBill.request.ExpressBillExceptionReportRequest;
@@ -30,6 +32,21 @@ public interface ExpressBillExceptionReportGatewayService {
      * @return
      */
     JdCResponse<List<ReportTypeVo>>  getAllExceptionReportTypeNew();
+
+    /**
+     * 获取所有一级举报类型
+     *
+     * @return
+     */
+    JdCResponse<List<FaceFirstAbnormalType>> getFirstAbnormalType();
+
+    /**
+     * 获取二级举报类型
+     *
+     * @param firstAbnormalType
+     * @return
+     */
+    JdCResponse<List<FaceSecondAbnormalType>> getSecondAbnormalType(Integer firstAbnormalType);
 
 
     /**
