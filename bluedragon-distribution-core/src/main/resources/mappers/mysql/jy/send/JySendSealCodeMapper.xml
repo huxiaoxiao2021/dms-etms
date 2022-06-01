@@ -132,6 +132,26 @@
         )
     </insert>
 
+    <insert id="insertBatch" parameterType="com.jd.bluedragon.distribution.jy.send.JySendSealCodeEntity">
+        INSERT INTO jy_send_seal_code (
+        send_vehicle_biz_id, operate_site_id, seal_code,
+        operate_time,create_user_erp,create_user_name,create_time,update_time
+        )
+        VALUES
+        <foreach collection="list" item="item" index="index" separator=",">
+            (
+            #{item.sendVehicleBizId},
+            #{item.operateSiteId},
+            #{item.sealCode},
+            #{item.operateTime},
+            #{item.createUserErp},
+            #{item.createUserName},
+            #{item.createTime},
+            #{item.updateTime}
+            )
+        </foreach>
+    </insert>
+
     <update id="update" parameterType="JySendSealCodeEntity">
         UPDATE jy_send_seal_code
         <set>

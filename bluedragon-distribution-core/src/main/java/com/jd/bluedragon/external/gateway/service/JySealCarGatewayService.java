@@ -2,7 +2,6 @@ package com.jd.bluedragon.external.gateway.service;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.blockcar.response.TransportInfoDto;
-import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.SealCodeResponse;
 import com.jd.bluedragon.common.dto.seal.request.*;
 import com.jd.bluedragon.common.dto.seal.response.SealCodeResp;
 import com.jd.bluedragon.common.dto.seal.response.SealVehicleInfoResp;
@@ -50,7 +49,6 @@ public interface JySealCarGatewayService {
     /**
      * 提交封车
      *
-     * NewSealVehicleGatewayServiceImpl#sealCar
      */
     JdCResponse sealVehicle(SealVehicleReq sealVehicleReq);
 

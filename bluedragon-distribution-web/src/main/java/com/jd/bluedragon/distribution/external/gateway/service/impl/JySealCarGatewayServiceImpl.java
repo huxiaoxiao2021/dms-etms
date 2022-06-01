@@ -91,7 +91,7 @@ public class JySealCarGatewayServiceImpl implements JySealCarGatewayService {
 
     @Override
     public JdCResponse sealVehicle(SealVehicleReq sealVehicleReq) {
-        return null;
+        return retJdCResponse(jySealVehicleService.sealVehicle(sealVehicleReq));
     }
 
     private <T> JdCResponse<T> retJdCResponse(InvokeResult<T> invokeResult) {

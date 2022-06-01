@@ -125,6 +125,22 @@ public class SealVehicleReq extends BaseReq implements Serializable {
     private String billCode;
 
 
+    public String getSendVehicleBizId() {
+        return sendVehicleBizId;
+    }
+
+    public void setSendVehicleBizId(String sendVehicleBizId) {
+        this.sendVehicleBizId = sendVehicleBizId;
+    }
+
+    public String getSendVehicleDetailBizId() {
+        return sendVehicleDetailBizId;
+    }
+
+    public void setSendVehicleDetailBizId(String sendVehicleDetailBizId) {
+        this.sendVehicleDetailBizId = sendVehicleDetailBizId;
+    }
+
     public Integer getSealCarType() {
         return sealCarType;
     }

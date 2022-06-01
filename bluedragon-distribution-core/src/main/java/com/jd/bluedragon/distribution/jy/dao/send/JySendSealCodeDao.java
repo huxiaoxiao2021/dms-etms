@@ -26,6 +26,10 @@ public class JySendSealCodeDao extends BaseDao<JySendSealCodeEntity> {
         return this.getSqlSession().insert(NAMESPACE + ".insert", entity);
     }
 
+    public int insertBatch(List<JySendSealCodeEntity> list) {
+        return this.getSqlSession().insert(NAMESPACE + ".insertBatch", list);
+    }
+
     public List<String> selectSealCodeByBizId(String bizId) {
         return this.getSqlSession().selectList(NAMESPACE + ".selectSealCodeByBizId", bizId);
     }
