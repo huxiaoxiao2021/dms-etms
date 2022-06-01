@@ -131,11 +131,12 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
 
         JyBizTaskUnloadVehicleEntity condition = makeFetchCondition(request);
         if (WaybillUtil.isPackageCode(request.getBarCode())) {
-            String sealCode = getSealCarCodeFromEs(request);
-            if (StringUtils.isBlank(sealCode)) {
+            String sealCarCode = getSealCarCodeFromEs(request);
+            if (StringUtils.isBlank(sealCarCode)) {
                 result.parameterError("该包裹号不存在关联的卸车任务！");
                 return result;
             }
+            condition.setSealCarCode(sealCarCode);
         }
 
         try {
@@ -411,7 +412,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
             result.parameterError("请选择车辆状态");
             return false;
         }
-        if (!NumberHelper.gt0(request.getPageSize()) || !NumberHelper.gt0(request.getPageSize())) {
+        if (!NumberHelper.gt0(request.getPageSize()) || !NumberHelper.gt0(request.getPageNumber())) {
             result.parameterError("缺少分页参数");
             return false;
         }
