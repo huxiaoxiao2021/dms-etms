@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.jy.service.send;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.MSCodeMapping;
 import com.jd.bluedragon.common.dto.send.request.*;
@@ -71,7 +72,7 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
     @Override
     public InvokeResult<List<VehicleSpecResp>> listVehicleType() {
         CommonDto<List<BasicVehicleTypeDto>> rs = jyTransportManager.getVehicleTypeList();
-        if (null != rs && rs.getCode() == 1) {
+        if (null != rs && rs.getCode() == Constants.RESULT_SUCCESS) {
             //按照车长做groupBy
             Map<String, List<VehicleTypeDto>> groupByVehicleLength = new HashMap<>();
             for (BasicVehicleTypeDto basicVehicleTypeDto : rs.getData()) {

@@ -33,6 +33,9 @@ public class GateWayServiceExcepHandler {
                 JyBizException exception = (JyBizException) throwable;
                 return new JdCResponse(CODE_ERROR, exception.getMessage());
             }
+            if (throwable instanceof Exception){
+                return new JdCResponse(CODE_ERROR, throwable.getMessage());
+            }
             return new JdCResponse(MSCodeMapping.UNKNOW_ERROR.getCode(), MSCodeMapping.UNKNOW_ERROR.getMessage());
         }
         return jdCResponse;
