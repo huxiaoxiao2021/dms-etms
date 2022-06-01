@@ -477,7 +477,7 @@ public class WaybillConsumableRecordServiceImpl extends BaseService<WaybillConsu
             if (
                     (ConsumableCodeEnums.isWoodenConsumable(poTemp.getConsumableCode()) || PackingTypeEnum.isWoodenConsumable(poTemp.getConsumableTypeCode()))
                     &&
-                    (poTemp.getConfirmVolume() == null || poTemp.getConfirmVolume() < 0d || poTemp.getConfirmVolume() > 999.999d)
+                    (poTemp.getConfirmVolume() == null || poTemp.getConfirmVolume() <= 0d || poTemp.getConfirmVolume() > 999.999d)
             ) {
                 throw new RuntimeException("数据格式不对，请录入大于0小于1000的数据");
             }
