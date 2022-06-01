@@ -9,6 +9,9 @@ public class SealVehicleInfoResp implements Serializable {
      * 运力编码
      * */
     private String transportCode;
+    /**
+     * 托盘数
+     */
     private String tray;
     /**
      * 已扫总量总计/吨
@@ -18,9 +21,11 @@ public class SealVehicleInfoResp implements Serializable {
      * 已扫体积总计/立方米
      */
     private String volume;
+    /**
+     * 车牌号
+     */
     private String vehicleNumber;
-    private Integer vehicleType;
-    private String vehicleTypeName;
+
 
     public String getTransportCode() {
         return transportCode;
@@ -62,19 +67,4 @@ public class SealVehicleInfoResp implements Serializable {
         this.vehicleNumber = vehicleNumber;
     }
 
-    public Integer getVehicleType() {
-        return vehicleType;
-    }
-
-    public void setVehicleType(Integer vehicleType) {
-        this.vehicleType = vehicleType;
-    }
-
-    public String getVehicleTypeName() {
-        return vehicleTypeName;
-    }
-
-    public void setVehicleTypeName(String vehicleTypeName) {
-        this.vehicleTypeName = vehicleTypeName;
-    }
 }

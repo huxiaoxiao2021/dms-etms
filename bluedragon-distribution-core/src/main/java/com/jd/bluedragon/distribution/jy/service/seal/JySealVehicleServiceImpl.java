@@ -5,15 +5,22 @@ import com.jd.bluedragon.common.dto.seal.request.*;
 import com.jd.bluedragon.common.dto.seal.response.SealCodeResp;
 import com.jd.bluedragon.common.dto.seal.response.SealVehicleInfoResp;
 import com.jd.bluedragon.common.dto.seal.response.TransportResp;
+import com.jd.bluedragon.core.base.JdiTransWorkWSManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.manager.JyTransportManager;
 import com.jd.bluedragon.distribution.jy.send.JySendAggsEntity;
 import com.jd.bluedragon.distribution.jy.service.send.JySendAggsService;
+import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetailService;
+import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
+import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.tms.basic.dto.BasicVehicleTypeDto;
 import com.jd.tms.basic.dto.CommonDto;
 import com.jd.tms.basic.dto.TransportResourceDto;
+import com.jd.tms.jdi.dto.BigQueryOption;
+import com.jd.tms.jdi.dto.BigTransWorkItemDto;
+import com.jd.tms.jdi.dto.TransWorkItemDto;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -32,6 +39,10 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
     JySendAggsService jySendAggsService;
     @Autowired
     JyTransportManager jyTransportManager;
+    @Autowired
+    JyBizTaskSendVehicleDetailService jyBizTaskSendVehicleDetailService;
+    @Autowired
+    JdiTransWorkWSManager jdiTransWorkWSManager;
 
 
     @Override
@@ -49,28 +60,27 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
 
     @Override
     public InvokeResult<SealVehicleInfoResp> getSealVehicleInfo(SealVehicleInfoReq sealVehicleInfoReq) {
+        JyBizTaskSendVehicleDetailEntity detailEntity = jyBizTaskSendVehicleDetailService.findByBizId(sealVehicleInfoReq.getSendVehicleDetailBizId());
+        if (ObjectHelper.isEmpty(detailEntity)){
+            return new InvokeResult(RESULT_NO_FOUND_DATA_CODE, RESULT_NO_FOUND_DATA_MESSAGE);
+        }
         SealVehicleInfoResp sealVehicleInfoResp = new SealVehicleInfoResp();
+        //查询已扫描货物的重量和体积
         JySendAggsEntity jySendAggsEntity = jySendAggsService.getVehicleSendStatistics(sealVehicleInfoReq.getSendVehicleBizId());
         if (ObjectHelper.isNotNull(jySendAggsEntity)) {
             sealVehicleInfoResp.setWeight(String.valueOf(jySendAggsEntity.getTotalScannedWeight()));
             sealVehicleInfoResp.setVolume(String.valueOf(jySendAggsEntity.getTotalScannedVolume()));
         }
-        try {
-            //TODO 缺个接口
-            CommonDto<BasicVehicleTypeDto> basicVehicleTypeResp = jyTransportManager.getVehicleTypeByVehicleNum(sealVehicleInfoReq.getVehicleNumber());
-            if (RESULT_SUCCESS_CODE == basicVehicleTypeResp.getCode()) {
-                BasicVehicleTypeDto basicVehicleTypeDto= basicVehicleTypeResp.getData();
-                sealVehicleInfoResp.setVehicleNumber(sealVehicleInfoReq.getVehicleNumber());
-                sealVehicleInfoResp.setVehicleType(basicVehicleTypeDto.getVehicleType());
-                sealVehicleInfoResp.setVehicleTypeName(basicVehicleTypeDto.getVehicleTypeName());
-                //sealVehicleInfoResp.setTransportCode(basicVehicleTypeDto.getTr);
-                return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, sealVehicleInfoReq);
-            }
-            return new InvokeResult(basicVehicleTypeResp.getCode(), basicVehicleTypeResp.getMessage());
-        } catch (Exception e) {
-            log.error("根据车牌号查询运输任务详情异常", e);
-            return new InvokeResult(RESULT_EXE_GETCARINFO_BYCARNO_CODE, RESULT_EXE_GETCARINFO_BYCARNO_MESSAGE);
+        BigQueryOption queryOption = new BigQueryOption();
+        queryOption.setQueryTransWorkItemDto(Boolean.TRUE);
+        BigTransWorkItemDto bigTransWorkItemDto = jdiTransWorkWSManager.queryTransWorkItemByOptionWithRead(detailEntity.getTransWorkItemCode(), queryOption);
+        if (ObjectHelper.isNotNull(bigTransWorkItemDto) && ObjectHelper.isNotNull(bigTransWorkItemDto.getTransWorkItemDto())) {
+            TransWorkItemDto transWorkItemDto =bigTransWorkItemDto.getTransWorkItemDto();
+            sealVehicleInfoResp.setTransportCode(transWorkItemDto.getTransportCode());
+            sealVehicleInfoResp.setVehicleNumber(transWorkItemDto.getVehicleNumber());
+            return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, sealVehicleInfoResp);
         }
+        return new InvokeResult(RESULT_NO_FOUND_BY_TRANS_WOEK_ITEM_CODE, RESULT_NO_FOUND_BY_TRANS_WOEK_ITEM_MESSAGE);
     }
 
     @Override
