@@ -8,23 +8,26 @@ package com.jd.bluedragon.common.dto.operation.workbench.enums;
  **/
 public enum SendVehiclePhotoEnum {
 
-    CAR_ARRIVED(1, "车辆已到"),
-    CAR_NOT_ARRIVED(0, "车辆未到")
+    CAR_ARRIVED(1, "车辆已到", "*需包含车辆信息"),
+    CAR_NOT_ARRIVED(0, "车辆未到", "*可拍摄空卡位")
     ;
 
     private Integer code;
 
     private String name;
 
-    SendVehiclePhotoEnum(Integer code, String name) {
+    private String desc;
+
+    SendVehiclePhotoEnum(Integer code, String name, String desc) {
         this.code = code;
         this.name = name;
+        this.desc = desc;
     }
 
     public static String getNameByCode(Integer code) {
-        for (SendVehiclePhotoEnum labelOptionEnum : SendVehiclePhotoEnum.values()) {
-            if (labelOptionEnum.code.equals(code)) {
-                return labelOptionEnum.name;
+        for (SendVehiclePhotoEnum _enum : SendVehiclePhotoEnum.values()) {
+            if (_enum.code.equals(code)) {
+                return _enum.name;
             }
         }
         return "";
@@ -34,15 +37,11 @@ public enum SendVehiclePhotoEnum {
         return code;
     }
 
-    public void setCode(Integer code) {
-        this.code = code;
-    }
-
     public String getName() {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public String getDesc() {
+        return desc;
     }
 }

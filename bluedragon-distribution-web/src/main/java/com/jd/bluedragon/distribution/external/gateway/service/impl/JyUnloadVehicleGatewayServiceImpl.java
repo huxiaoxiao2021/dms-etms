@@ -11,6 +11,7 @@ import com.jd.bluedragon.common.dto.operation.workbench.unload.response.*;
 import com.jd.bluedragon.common.dto.select.SelectOption;
 import com.jd.bluedragon.common.dto.select.StringSelectOption;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.command.JdCommand;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyUnloadVehicleStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.UnloadProductTypeEnum;
@@ -100,6 +101,9 @@ public class JyUnloadVehicleGatewayServiceImpl implements JyUnloadVehicleGateway
             SelectOption option = new SelectOption(statusEnum.getCode(), statusEnum.getName(), statusEnum.getCode());
             optionList.add(option);
         }
+
+        Collections.sort(optionList, new SelectOption.OrderComparator());
+
         JdCResponse<List<SelectOption>> response = new JdCResponse<>();
         response.toSucceed();
         response.setData(optionList);
@@ -142,6 +146,7 @@ public class JyUnloadVehicleGatewayServiceImpl implements JyUnloadVehicleGateway
         InvokeResult<Integer> invokeResult = unloadVehicleService.unloadScan(request);
         if (invokeResult.getCode() == InvokeResult.RESULT_SUCCESS_CODE) {
             response.toSuccess();
+            response.setData(invokeResult.getData());
             return response;
         }
         else if (invokeResult.getCode() == InvokeResult.CODE_HINT) {

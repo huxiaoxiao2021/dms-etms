@@ -26,9 +26,9 @@ public enum SendModeEnum {
     }
 
     public static String getNameByCode(Integer code) {
-        for (SendModeEnum labelOptionEnum : SendModeEnum.values()) {
-            if (labelOptionEnum.code.equals(code)) {
-                return labelOptionEnum.name;
+        for (SendModeEnum _enum : SendModeEnum.values()) {
+            if (_enum.code.equals(code)) {
+                return _enum.name;
             }
         }
         return "";

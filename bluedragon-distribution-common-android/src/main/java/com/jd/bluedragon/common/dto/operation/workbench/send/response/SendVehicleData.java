@@ -22,4 +22,20 @@ public class SendVehicleData<T> implements Serializable {
      * 车辆数据
      */
     private List<T> data;
+
+    public Integer getVehicleStatus() {
+        return vehicleStatus;
+    }
+
+    public void setVehicleStatus(Integer vehicleStatus) {
+        this.vehicleStatus = vehicleStatus;
+    }
+
+    public List<T> getData() {
+        return data;
+    }
+
+    public void setData(List<T> data) {
+        this.data = data;
+    }
 }

@@ -38,6 +38,11 @@ public class SendVehicleTaskRequest implements Serializable {
      */
     private String keyword;
 
+    /**
+     * 目的地场地
+     */
+    private Long endSiteId;
+
     public Integer getPageNumber() {
         return pageNumber;
     }
@@ -92,5 +97,13 @@ public class SendVehicleTaskRequest implements Serializable {
 
     public void setKeyword(String keyword) {
         this.keyword = keyword;
+    }
+
+    public Long getEndSiteId() {
+        return endSiteId;
+    }
+
+    public void setEndSiteId(Long endSiteId) {
+        this.endSiteId = endSiteId;
     }
 }

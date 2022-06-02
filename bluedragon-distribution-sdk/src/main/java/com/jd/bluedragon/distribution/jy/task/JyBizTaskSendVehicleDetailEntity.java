@@ -15,6 +15,20 @@ public class JyBizTaskSendVehicleDetailEntity implements Serializable {
 
 	private static final long serialVersionUID = 4089383783438643445L;
 
+    public JyBizTaskSendVehicleDetailEntity() {}
+
+    public JyBizTaskSendVehicleDetailEntity(Long startSiteId, Long endSiteId, Integer vehicleStatus) {
+        this.startSiteId = startSiteId;
+        this.endSiteId = endSiteId;
+        this.vehicleStatus = vehicleStatus;
+    }
+
+    public JyBizTaskSendVehicleDetailEntity(Long startSiteId, Long endSiteId, String sendVehicleBizId) {
+        this.startSiteId = startSiteId;
+        this.endSiteId = endSiteId;
+        this.sendVehicleBizId = sendVehicleBizId;
+    }
+
 	/**
 	 * 主键ID
 	 */

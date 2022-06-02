@@ -26,9 +26,9 @@ public class SendVehicleInfo implements Serializable {
     private String lineTypeShortName;
 
     /**
-     * 车型
+     * 车长
      */
-    private String vehicleTypeName;
+    private String carLengthStr;
 
     /**
      * 发货目的地个数
@@ -64,5 +64,10 @@ public class SendVehicleInfo implements Serializable {
      * 自建任务
      */
     private Boolean manualCreated;
+
+    /**
+     * 是否已拍照
+     */
+    private Boolean photo;
 
 }

@@ -923,4 +923,5 @@
                   timeout="${jsf.tpc.timeout}"
                   retries="${jsf.retries}" serialization="hessian">
     </jsf:consumer>
+
 </beans>

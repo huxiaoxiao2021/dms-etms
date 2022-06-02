@@ -22,4 +22,20 @@ public class SendingVehicle extends BaseSendVehicle{
      * 发货流向
      */
     private List<SendVehicleDetail> sendDestList;
+
+    public BigDecimal getLoadRate() {
+        return loadRate;
+    }
+
+    public void setLoadRate(BigDecimal loadRate) {
+        this.loadRate = loadRate;
+    }
+
+    public List<SendVehicleDetail> getSendDestList() {
+        return sendDestList;
+    }
+
+    public void setSendDestList(List<SendVehicleDetail> sendDestList) {
+        this.sendDestList = sendDestList;
+    }
 }

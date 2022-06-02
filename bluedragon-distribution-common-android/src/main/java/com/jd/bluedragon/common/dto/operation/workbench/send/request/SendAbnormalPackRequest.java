@@ -19,6 +19,10 @@ public class SendAbnormalPackRequest implements Serializable {
 
     private CurrentOperate currentOperate;
 
+    private Integer pageNumber;
+
+    private Integer pageSize;
+
     /**
      * send_vehicle业务主键
      */

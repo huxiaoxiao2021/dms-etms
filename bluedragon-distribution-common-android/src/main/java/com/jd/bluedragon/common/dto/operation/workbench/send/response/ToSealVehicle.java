@@ -16,4 +16,12 @@ public class ToSealVehicle extends BaseSendVehicle{
      * 发货流向
      */
     private List<SendVehicleDetail> sendDestList;
+
+    public List<SendVehicleDetail> getSendDestList() {
+        return sendDestList;
+    }
+
+    public void setSendDestList(List<SendVehicleDetail> sendDestList) {
+        this.sendDestList = sendDestList;
+    }
 }

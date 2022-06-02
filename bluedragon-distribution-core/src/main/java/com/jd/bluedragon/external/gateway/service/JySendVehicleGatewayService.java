@@ -21,13 +21,19 @@ public interface JySendVehicleGatewayService {
      * 发货模式
      * @return
      */
-    JdCResponse<List<SendModeEnum>> sendModeOptions();
+    JdCResponse<List<SelectOption>> sendModeOptions();
 
     /**
      * 车辆状态枚举
      * @return
      */
     JdCResponse<List<SelectOption>> vehicleStatusOptions();
+
+    /**
+     * 线路类型枚举
+     * @return
+     */
+    JdCResponse<List<SelectOption>> lineTypeOptions();
 
     /**
      * 拉取发货任务列表
@@ -40,7 +46,7 @@ public interface JySendVehicleGatewayService {
      * 车辆未到、已到候选
      * @return
      */
-    JdCResponse<List<SendVehiclePhotoEnum>> sendPhotoOptions();
+    JdCResponse<List<SelectOption>> sendPhotoOptions();
 
     /**
      * 进入发货任务前拍照
@@ -108,13 +114,6 @@ public interface JySendVehicleGatewayService {
      * @return
      */
     JdCResponse<ToSealDestAgg> selectSealDest(SelectSealDestRequest request);
-
-    /**
-     * 绑定集包袋
-     * @param request
-     * @return
-     */
-    JdCResponse bindMaterialBox();
 
     /**
      * 发货扫描

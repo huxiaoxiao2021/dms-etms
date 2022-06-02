@@ -20,7 +20,7 @@ public class ToSealDestAgg implements Serializable {
     /**
      * 流向总数
      */
-    private Integer total;
+    private Integer destTotal;
 
     /**
      * 发货流向明细

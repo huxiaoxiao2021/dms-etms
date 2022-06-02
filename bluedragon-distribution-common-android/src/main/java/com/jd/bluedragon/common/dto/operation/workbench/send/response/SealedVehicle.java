@@ -21,4 +21,20 @@ public class SealedVehicle extends BaseSendVehicle {
      * 发货流向
      */
     private List<SendVehicleDetail> sendDestList;
+
+    public Integer getSealCodeCount() {
+        return sealCodeCount;
+    }
+
+    public void setSealCodeCount(Integer sealCodeCount) {
+        this.sealCodeCount = sealCodeCount;
+    }
+
+    public List<SendVehicleDetail> getSendDestList() {
+        return sendDestList;
+    }
+
+    public void setSendDestList(List<SendVehicleDetail> sendDestList) {
+        this.sendDestList = sendDestList;
+    }
 }

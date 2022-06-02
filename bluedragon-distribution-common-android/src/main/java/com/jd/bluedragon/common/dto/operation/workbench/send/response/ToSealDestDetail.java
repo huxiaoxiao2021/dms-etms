@@ -39,6 +39,11 @@ public class ToSealDestDetail implements Serializable {
     private Date planDepartTime;
 
     /**
+     * 状态
+     */
+    private Integer itemStatus;
+
+    /**
      * 状态描述
      */
     private String itemStatusDesc;

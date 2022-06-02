@@ -19,4 +19,20 @@ public class SendVehicleDetail extends BaseSendVehicleDetail{
      * 状态描述
      */
     private String itemStatusDesc;
+
+    public Integer getItemStatus() {
+        return itemStatus;
+    }
+
+    public void setItemStatus(Integer itemStatus) {
+        this.itemStatus = itemStatus;
+    }
+
+    public String getItemStatusDesc() {
+        return itemStatusDesc;
+    }
+
+    public void setItemStatusDesc(String itemStatusDesc) {
+        this.itemStatusDesc = itemStatusDesc;
+    }
 }

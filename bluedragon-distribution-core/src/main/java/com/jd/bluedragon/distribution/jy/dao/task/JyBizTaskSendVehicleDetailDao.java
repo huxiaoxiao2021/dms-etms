@@ -3,6 +3,10 @@ package com.jd.bluedragon.distribution.jy.dao.task;
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 /**
  * 发车任务明细表
  * 
@@ -30,5 +34,20 @@ public class JyBizTaskSendVehicleDetailDao extends BaseDao<JyBizTaskSendVehicleD
 
     public int updateDateilTaskByVehicleBizId(JyBizTaskSendVehicleDetailEntity entity) {
         return this.getSqlSession().update(NAMESPACE + ".updateDateilTaskByVehicleBizId", entity);
+    }
+
+    public long findByTransWorkItem(JyBizTaskSendVehicleDetailEntity entity) {
+        return this.getSqlSession().selectOne(NAMESPACE + ".findByTransWorkItem", entity);
+    }
+
+    public int save(JyBizTaskSendVehicleDetailEntity entity) {
+        return this.getSqlSession().insert(NAMESPACE + ".save", entity);
+    }
+
+    public List<JyBizTaskSendVehicleDetailEntity> findByMainVehicleBiz(JyBizTaskSendVehicleDetailEntity entity, List<String> sendVehicleBizList) {
+        Map<String,Object> params = new HashMap<>();
+        params.put("entity", entity);
+        params.put("sendVehicleBizList", sendVehicleBizList);
+        return this.getSqlSession().selectList(NAMESPACE + "findByMainVehicleBiz", params);
     }
 }

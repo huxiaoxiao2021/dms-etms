@@ -472,6 +472,15 @@
                   alias="${dms.gateway.jsf.alias}"
                   ref="jyUnloadVehicleGatewayServiceImpl"
                   server="dmsjsf" />
+
+    <!--  拣运发货封车服务  -->
+    <bean id="jySendVehicleGatewayServiceImpl" class="com.jd.bluedragon.distribution.external.gateway.service.impl.JySendVehicleGatewayServiceImpl" />
+    <jsf:provider id="jsfJySendVehicleGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.JySendVehicleGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="jySendVehicleGatewayServiceImpl"
+                  server="dmsjsf" />
+
     <!-- 小组成员网关服务   -->
     <jsf:provider id="groupMemberGatewayServiceServer"
                   interface="com.jd.bluedragon.distribution.jy.gateway.group.GroupMemberGatewayService"

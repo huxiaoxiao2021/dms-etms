@@ -39,4 +39,44 @@ public class SendVehicleTaskResponse implements Serializable {
      * 封车完成任务
      */
     private SendVehicleData<SealedVehicle> sealedVehicleData;
+
+    public List<VehicleStatusStatis> getStatusAgg() {
+        return statusAgg;
+    }
+
+    public void setStatusAgg(List<VehicleStatusStatis> statusAgg) {
+        this.statusAgg = statusAgg;
+    }
+
+    public SendVehicleData<ToSendVehicle> getToSendVehicleData() {
+        return toSendVehicleData;
+    }
+
+    public void setToSendVehicleData(SendVehicleData<ToSendVehicle> toSendVehicleData) {
+        this.toSendVehicleData = toSendVehicleData;
+    }
+
+    public SendVehicleData<SendingVehicle> getSendingVehicleData() {
+        return sendingVehicleData;
+    }
+
+    public void setSendingVehicleData(SendVehicleData<SendingVehicle> sendingVehicleData) {
+        this.sendingVehicleData = sendingVehicleData;
+    }
+
+    public SendVehicleData<ToSealVehicle> getToSealVehicleData() {
+        return toSealVehicleData;
+    }
+
+    public void setToSealVehicleData(SendVehicleData<ToSealVehicle> toSealVehicleData) {
+        this.toSealVehicleData = toSealVehicleData;
+    }
+
+    public SendVehicleData<SealedVehicle> getSealedVehicleData() {
+        return sealedVehicleData;
+    }
+
+    public void setSealedVehicleData(SendVehicleData<SealedVehicle> sealedVehicleData) {
+        this.sealedVehicleData = sealedVehicleData;
+    }
 }

@@ -15,6 +15,16 @@ public class JyBizTaskSendVehicleEntity implements Serializable {
 
 	private static final long serialVersionUID = -2352536857784355996L;
 
+    public static final String BIZ_PREFIX = "SST%s";
+    /**
+     * 派车单始发场地（相同派车单不同始发场地会散列成多条）
+     */
+    private Long startSiteId;
+    /**
+     * 派车单最晚预计发车时间（取相同始发地派车明细最晚预计发车时间）
+     */
+    private Date lastPlanDepartTime;
+
 	/**
 	 * 主键ID
 	 */
@@ -27,6 +37,11 @@ public class JyBizTaskSendVehicleEntity implements Serializable {
 	 * 运输派车单编码
 	 */
 	private String transWorkCode;
+    /**
+     * 派车单最晚封车时间（取相同始发地派车明细最晚封车时间）
+     */
+    private Date lastSealCarTime;
+
 	/**
 	 * 车牌号
 	 */
@@ -71,6 +86,14 @@ public class JyBizTaskSendVehicleEntity implements Serializable {
 	 * 线路类型名称
 	 */
 	private String lineTypeName;
+
+    public JyBizTaskSendVehicleEntity() {}
+
+    public JyBizTaskSendVehicleEntity(String transWorkCode, Long startSiteId) {
+        this.transWorkCode = transWorkCode;
+        this.startSiteId = startSiteId;
+    }
+
 	/**
 	 * 创建人ERP
 	 */
@@ -128,7 +151,15 @@ public class JyBizTaskSendVehicleEntity implements Serializable {
 		this.transWorkCode = transWorkCode;
 	}
 
-	public String getVehicleNumber() {
+    public Long getStartSiteId() {
+        return startSiteId;
+    }
+
+    public void setStartSiteId(Long startSiteId) {
+        this.startSiteId = startSiteId;
+    }
+
+    public String getVehicleNumber() {
 		return vehicleNumber;
 	}
 
@@ -216,7 +247,23 @@ public class JyBizTaskSendVehicleEntity implements Serializable {
 		this.lineTypeName = lineTypeName;
 	}
 
-	public String getCreateUserErp() {
+    public Date getLastPlanDepartTime() {
+        return lastPlanDepartTime;
+    }
+
+    public void setLastPlanDepartTime(Date lastPlanDepartTime) {
+        this.lastPlanDepartTime = lastPlanDepartTime;
+    }
+
+    public Date getLastSealCarTime() {
+        return lastSealCarTime;
+    }
+
+    public void setLastSealCarTime(Date lastSealCarTime) {
+        this.lastSealCarTime = lastSealCarTime;
+    }
+
+    public String getCreateUserErp() {
 		return createUserErp;
 	}
 
@@ -279,4 +326,13 @@ public class JyBizTaskSendVehicleEntity implements Serializable {
 	public void setTs(Date ts) {
 		this.ts = ts;
 	}
+
+    public boolean manualCreatedTask() {
+        return this.manualCreatedFlag != null && this.manualCreatedFlag == 1;
+    }
+
+    public boolean noTaskBindVehicle() {
+        return this.bindFlag != null && this.bindFlag == 1;
+    }
+
 }

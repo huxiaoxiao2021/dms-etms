@@ -14,7 +14,7 @@ public class SendVehicleProgress implements Serializable {
     private static final long serialVersionUID = -7310020588075926827L;
 
     /**
-     * 装载率
+     * 重量装载率 100%
      */
     private BigDecimal loadRate;
 
@@ -62,4 +62,14 @@ public class SendVehicleProgress implements Serializable {
      * 强制发包裹数
      */
     private Long forceSendPackCount;
+
+    /**
+     * 封车的流向数量
+     */
+    private Integer sealedTotal;
+
+    /**
+     * 流向总数
+     */
+    private Integer destTotal;
 }

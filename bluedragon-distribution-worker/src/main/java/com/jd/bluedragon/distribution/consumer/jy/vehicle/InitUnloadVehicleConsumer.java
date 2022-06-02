@@ -117,7 +117,7 @@ public class InitUnloadVehicleConsumer extends MessageBaseConsumer {
         BaseStaffSiteOrgDto siteInfo = baseMajorManager.getBaseSiteBySiteId(endSiteId);
         if (siteInfo == null || !BusinessUtil.isSorting(siteInfo.getSiteType())) {
             //丢弃数据
-            logger.info("InitUnloadVehicleConsumer不需要关心的数据丢弃, 目的站点:{}, 目的站点类型:{}, 消息:{}",
+            logger.warn("InitUnloadVehicleConsumer不需要关心的数据丢弃, 目的站点:{}, 目的站点类型:{}, 消息:{}",
                     endSiteId, siteInfo == null ? null : siteInfo.getSiteType(), JsonHelper.toJson(mqDto));
             return true;
         }

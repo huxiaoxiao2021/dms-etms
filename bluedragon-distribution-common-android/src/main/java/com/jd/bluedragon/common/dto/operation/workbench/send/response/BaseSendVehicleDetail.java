@@ -11,6 +11,8 @@ import java.util.Date;
  **/
 public class BaseSendVehicleDetail implements Serializable {
 
+    private static final long serialVersionUID = 3532519446616605954L;
+
     /**
      * 预计发货时间
      */
@@ -19,11 +21,34 @@ public class BaseSendVehicleDetail implements Serializable {
     /**
      * 目的场地
      */
-    private Integer endSiteId;
+    private Long endSiteId;
 
     /**
      * 目的场地名称
      */
     private String endSiteName;
 
+    public Date getPlanDepartTime() {
+        return planDepartTime;
+    }
+
+    public void setPlanDepartTime(Date planDepartTime) {
+        this.planDepartTime = planDepartTime;
+    }
+
+    public Long getEndSiteId() {
+        return endSiteId;
+    }
+
+    public void setEndSiteId(Long endSiteId) {
+        this.endSiteId = endSiteId;
+    }
+
+    public String getEndSiteName() {
+        return endSiteName;
+    }
+
+    public void setEndSiteName(String endSiteName) {
+        this.endSiteName = endSiteName;
+    }
 }
