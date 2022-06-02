@@ -3,6 +3,8 @@ package com.jd.bluedragon.distribution.jy.dao.send;
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.jy.send.JySendSealCodeEntity;
 
+import java.util.List;
+
 /**
  * 发货封签明细表
  * 
@@ -22,5 +24,13 @@ public class JySendSealCodeDao extends BaseDao<JySendSealCodeEntity> {
      */
     public int insert(JySendSealCodeEntity entity) {
         return this.getSqlSession().insert(NAMESPACE + ".insert", entity);
+    }
+
+    public int insertBatch(List<JySendSealCodeEntity> list) {
+        return this.getSqlSession().insert(NAMESPACE + ".insertBatch", list);
+    }
+
+    public List<String> selectSealCodeByBizId(String bizId) {
+        return this.getSqlSession().selectList(NAMESPACE + ".selectSealCodeByBizId", bizId);
     }
 }

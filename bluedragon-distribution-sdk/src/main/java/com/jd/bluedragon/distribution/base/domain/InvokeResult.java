@@ -72,6 +72,15 @@ public class InvokeResult<T> implements Serializable {
     public static final int RESULT_RFID_BIND_BOX_SENT_CODE=311;
     public static final String RESULT_RFID_BIND_BOX_SENT_MESSAGE="该循环集包袋已绑定箱号已发货，不能更换";
 
+    public static final int RESULT_NO_FOUND_DATA_CODE=313;
+    public static final String RESULT_NO_FOUND_DATA_MESSAGE="未查询到相关流向任务数据！";
+
+    public static final int RESULT_EXE_GETCARINFO_BYCARNO_CODE=314;
+    public static final String RESULT_EXE_GETCARINFO_BYCARNO_MESSAGE="根据车牌号查询运输任务详情异常！";
+
+    public static final int RESULT_NO_FOUND_BY_TRANS_WOEK_ITEM_CODE=315;
+    public static final String RESULT_NO_FOUND_BY_TRANS_WOEK_ITEM_MESSAGE="根据派车明细单号未查询到相关运力信息！";
+
     public InvokeResult(){
         this.code=RESULT_SUCCESS_CODE;
     }

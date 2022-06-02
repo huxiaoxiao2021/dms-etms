@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.jy.service.send;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.MSCodeMapping;
 import com.jd.bluedragon.common.dto.send.request.*;
@@ -41,10 +42,11 @@ import java.util.*;
 
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.*;
 import static com.jd.bluedragon.distribution.businessCode.BusinessCodeFromSourceEnum.DMS_WEB_SYS;
+import static com.jd.bluedragon.distribution.businessCode.BusinessCodeFromSourceEnum.JY_APP;
 
 @Service
 @Slf4j
-public class JyNoTaskSendServiceImpl implements JyNoTaskSendService{
+public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
     @Autowired
     JyTransportManager jyTransportManager;
     @Autowired
@@ -70,7 +72,7 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService{
     @Override
     public InvokeResult<List<VehicleSpecResp>> listVehicleType() {
         CommonDto<List<BasicVehicleTypeDto>> rs = jyTransportManager.getVehicleTypeList();
-        if (null != rs && rs.getCode() == 1) {
+        if (null != rs && rs.getCode() == Constants.RESULT_SUCCESS) {
             //按照车长做groupBy
             Map<String, List<VehicleTypeDto>> groupByVehicleLength = new HashMap<>();
             for (BasicVehicleTypeDto basicVehicleTypeDto : rs.getData()) {
@@ -105,11 +107,11 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService{
     public InvokeResult<CreateVehicleTaskResp> createVehicleTask(CreateVehicleTaskReq createVehicleTaskReq) {
         JyBizTaskSendVehicleEntity jyBizTaskSendVehicleEntity = initJyBizTaskSendVehicle(createVehicleTaskReq);
         jyBizTaskSendVehicleService.saveSendVehicleTask(jyBizTaskSendVehicleEntity);
-        return new InvokeResult(RESULT_SUCCESS_CODE,RESULT_SUCCESS_MESSAGE);
+        return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE);
     }
 
     private JyBizTaskSendVehicleEntity initJyBizTaskSendVehicle(CreateVehicleTaskReq createVehicleTaskReq) {
-        JyBizTaskSendVehicleEntity entity =new JyBizTaskSendVehicleEntity();
+        JyBizTaskSendVehicleEntity entity = new JyBizTaskSendVehicleEntity();
         entity.setBizId("");//TODO
         entity.setManualCreatedFlag(1);
         entity.setVehicleType(createVehicleTaskReq.getVehicleType());
@@ -117,7 +119,7 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService{
         entity.setCreateUserErp(createVehicleTaskReq.getUser().getUserErp());
         entity.setCreateUserName(createVehicleTaskReq.getUser().getUserName());
         entity.setYn(0);
-        Date now =new Date();
+        Date now = new Date();
         entity.setCreateTime(now);
         entity.setUpdateTime(now);
         return entity;
@@ -126,16 +128,16 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService{
     @Override
     public InvokeResult deleteVehicleTask(DeleteVehicleTaskReq deleteVehicleTaskReq) {
         //删除主任务
-        JyBizTaskSendVehicleEntity entity =new JyBizTaskSendVehicleEntity();
+        JyBizTaskSendVehicleEntity entity = new JyBizTaskSendVehicleEntity();
         entity.setBizId(deleteVehicleTaskReq.getBizId());
         entity.setYn(0);
-        Date now =new Date();
+        Date now = new Date();
         entity.setUpdateTime(now);
         entity.setUpdateUserErp(deleteVehicleTaskReq.getUser().getUserErp());
         entity.setUpdateUserName(deleteVehicleTaskReq.getUser().getUserName());
         jyBizTaskSendVehicleService.updateSendVehicleTask(entity);
         //删除子任务
-        JyBizTaskSendVehicleDetailEntity detailEntity =new JyBizTaskSendVehicleDetailEntity();
+        JyBizTaskSendVehicleDetailEntity detailEntity = new JyBizTaskSendVehicleDetailEntity();
         detailEntity.setSendVehicleBizId(deleteVehicleTaskReq.getBizId());
         detailEntity.setYn(0);
         detailEntity.setUpdateTime(now);
@@ -143,25 +145,25 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService{
         detailEntity.setUpdateUserName(deleteVehicleTaskReq.getUser().getUserName());
         jyBizTaskSendVehicleDetailService.updateDateilTaskByVehicleBizId(detailEntity);
         //删除任务-发货绑定关系+取消发货
-        List<String> sendCodeList =jyVehicleSendRelationService.querySendCodesByVehicleBizId(deleteVehicleTaskReq.getBizId());
-        if (ObjectHelper.isNotNull(sendCodeList) && sendCodeList.size()>0){
-            JySendCodeDto dto =new JySendCodeDto();
+        List<String> sendCodeList = jyVehicleSendRelationService.querySendCodesByVehicleBizId(deleteVehicleTaskReq.getBizId());
+        if (ObjectHelper.isNotNull(sendCodeList) && sendCodeList.size() > 0) {
+            JySendCodeDto dto = new JySendCodeDto();
             dto.setSendVehicleBizId(deleteVehicleTaskReq.getBizId());
             dto.setUpdateUserErp(deleteVehicleTaskReq.getUser().getUserErp());
             dto.setUpdateUserName(deleteVehicleTaskReq.getUser().getUserName());
             jyVehicleSendRelationService.deleteVehicleSendRelationByVehicleBizId(dto);
 
-            for (String sendCode:sendCodeList){
-                SendM sendM =new SendM();
+            for (String sendCode : sendCodeList) {
+                SendM sendM = new SendM();
                 sendM.setSendCode(sendCode);
                 sendM.setCreateSiteCode(deleteVehicleTaskReq.getCurrentOperate().getSiteCode());
                 ThreeDeliveryResponse tDResponse = deliveryService.dellCancelDeliveryMessageWithServerTime(sendM, true);
-                if (!tDResponse.getCode().equals(RESULT_SUCCESS_CODE)){
-                    return new InvokeResult(tDResponse.getCode(),tDResponse.getMessage());
+                if (!tDResponse.getCode().equals(RESULT_SUCCESS_CODE)) {
+                    return new InvokeResult(tDResponse.getCode(), tDResponse.getMessage());
                 }
             }
         }
-        return new InvokeResult(RESULT_SUCCESS_CODE,RESULT_SUCCESS_MESSAGE);
+        return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE);
     }
 
     @Override
@@ -171,46 +173,69 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService{
 
     @Override
     public InvokeResult bindVehicleDetailTask(BindVehicleDetailTaskReq bindVehicleDetailTaskReq) {
-        return null;
+        //更新任务与发货批次的关联关系
+        List<String> sendCodeList = jyVehicleSendRelationService.querySendCodesByVehicleDetailBizId(bindVehicleDetailTaskReq.getFromSendVehicleDetailBizId());
+        VehicleSendRelationDto dto = BeanUtils.copy(bindVehicleDetailTaskReq, VehicleSendRelationDto.class);
+        dto.setSendCodes(sendCodeList);
+        dto.setUpdateUserErp(bindVehicleDetailTaskReq.getUser().getUserErp());
+        dto.setUpdateUserName(bindVehicleDetailTaskReq.getUser().getUserName());
+        jyVehicleSendRelationService.updateVehicleSendRelation(dto);
+        //删除主任务
+        JyBizTaskSendVehicleEntity entity = new JyBizTaskSendVehicleEntity();
+        entity.setBizId(bindVehicleDetailTaskReq.getFromSendVehicleBizId());
+        entity.setYn(0);
+        Date now = new Date();
+        entity.setUpdateTime(now);
+        entity.setUpdateUserErp(bindVehicleDetailTaskReq.getUser().getUserErp());
+        entity.setUpdateUserName(bindVehicleDetailTaskReq.getUser().getUserName());
+        jyBizTaskSendVehicleService.updateSendVehicleTask(entity);
+        //删除子任务
+        JyBizTaskSendVehicleDetailEntity detailEntity = new JyBizTaskSendVehicleDetailEntity();
+        detailEntity.setSendVehicleBizId(bindVehicleDetailTaskReq.getFromSendVehicleDetailBizId());
+        detailEntity.setYn(0);
+        detailEntity.setUpdateTime(now);
+        detailEntity.setUpdateUserErp(bindVehicleDetailTaskReq.getUser().getUserErp());
+        detailEntity.setUpdateUserName(bindVehicleDetailTaskReq.getUser().getUserName());
+        jyBizTaskSendVehicleDetailService.updateDateilTaskByVehicleBizId(detailEntity);
+        return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE);
     }
 
     @Override
     public InvokeResult transferSendTask(TransferSendTaskReq transferSendTaskReq) {
         //查询要迁移的批次信息-sendCodes
-        List<String> sendCodeList =jyVehicleSendRelationService.querySendCodesByVehicleDetailBizId(transferSendTaskReq.getFromSendVehicleDetailBizId());
+        List<String> sendCodeList = jyVehicleSendRelationService.querySendCodesByVehicleDetailBizId(transferSendTaskReq.getFromSendVehicleDetailBizId());
 
-        VehicleSendRelationDto dto =BeanUtils.copy(transferSendTaskReq,VehicleSendRelationDto.class);
+        VehicleSendRelationDto dto = BeanUtils.copy(transferSendTaskReq, VehicleSendRelationDto.class);
         dto.setSendCodes(sendCodeList);
         dto.setUpdateUserErp(transferSendTaskReq.getUser().getUserErp());
         dto.setUpdateUserName(transferSendTaskReq.getUser().getUserName());
 
-        if (transferSendTaskReq.getSameWayFlag()){
+        if (transferSendTaskReq.getSameWayFlag()) {
             //同流向--直接变更绑定关系
             jyVehicleSendRelationService.updateVehicleSendRelation(dto);
-        }
-        else {
+        } else {
             //删除原绑定关系
             jyVehicleSendRelationService.deleteVehicleSendRelation(dto);
             //增加新流向绑定关系
-            JyBizTaskSendVehicleDetailEntity sendVehicleDetail =jyBizTaskSendVehicleDetailService.findByBizId(transferSendTaskReq.getToSendVehicleDetailBizId());
-            String newSendCode =generateSendCode(sendVehicleDetail,transferSendTaskReq.getUser().getUserErp());
-            JySendCodeEntity jySendCodeEntity = initJySendCodeEntity(transferSendTaskReq,newSendCode);
+            JyBizTaskSendVehicleDetailEntity sendVehicleDetail = jyBizTaskSendVehicleDetailService.findByBizId(transferSendTaskReq.getToSendVehicleDetailBizId());
+            String newSendCode = generateSendCode(sendVehicleDetail, transferSendTaskReq.getUser().getUserErp());
+            JySendCodeEntity jySendCodeEntity = initJySendCodeEntity(transferSendTaskReq, newSendCode);
             jyVehicleSendRelationService.add(jySendCodeEntity);
             //生成迁移任务，异步执行迁移逻辑
-            for (String sendCode:sendCodeList){
-                List<SendM> sendMList =sendMService.selectBySiteAndSendCode(transferSendTaskReq.getCurrentOperate().getSiteCode(),sendCode);
-                deliveryOperationService.asyncHandleTransfer(sendMList,newSendCode);
+            for (String sendCode : sendCodeList) {
+                List<SendM> sendMList = sendMService.selectBySiteAndSendCode(transferSendTaskReq.getCurrentOperate().getSiteCode(), sendCode);
+                deliveryOperationService.asyncHandleTransfer(sendMList, newSendCode);
             }
         }
-        return new InvokeResult(RESULT_SUCCESS_CODE,RESULT_SUCCESS_MESSAGE);
+        return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE);
     }
 
     private JySendCodeEntity initJySendCodeEntity(TransferSendTaskReq transferSendTaskReq, String sendCode) {
-        JySendCodeEntity jySendCodeEntity =new JySendCodeEntity();
+        JySendCodeEntity jySendCodeEntity = new JySendCodeEntity();
         jySendCodeEntity.setSendCode(sendCode);
         jySendCodeEntity.setSendVehicleBizId(transferSendTaskReq.getToSendVehicleBizId());
         jySendCodeEntity.setSendDetailBizId(transferSendTaskReq.getToSendVehicleDetailBizId());
-        Date now =new Date();
+        Date now = new Date();
         jySendCodeEntity.setCreateTime(now);
         jySendCodeEntity.setUpdateTime(now);
         jySendCodeEntity.setCreateUserErp(transferSendTaskReq.getUser().getUserErp());
@@ -218,18 +243,19 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService{
         return jySendCodeEntity;
     }
 
-    private String generateSendCode(JyBizTaskSendVehicleDetailEntity sendVehicleDetail,String createUser) {
+    private String generateSendCode(JyBizTaskSendVehicleDetailEntity sendVehicleDetail, String createUser) {
         Map<BusinessCodeAttributeKey.SendCodeAttributeKeyEnum, String> attributeKeyEnumObjectMap = new HashMap<>();
         attributeKeyEnumObjectMap.put(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.from_site_code, String.valueOf(sendVehicleDetail.getStartSiteId()));
         attributeKeyEnumObjectMap.put(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.to_site_code, String.valueOf(sendVehicleDetail.getEndSiteId()));
-        attributeKeyEnumObjectMap.put(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.is_fresh, "0");
-        //TODO 这里要不要新增一个jy的来源
-        return sendCodeService.createSendCode(attributeKeyEnumObjectMap, DMS_WEB_SYS, createUser);
+        attributeKeyEnumObjectMap.put(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.is_fresh, "0");//TODO 这个从哪获取
+        return sendCodeService.createSendCode(attributeKeyEnumObjectMap, JY_APP, createUser);
     }
 
     @Override
     public InvokeResult<CancelSendTaskResp> cancelSendTask(CancelSendTaskReq request) {
         SendM sendM = toSendM(request);
+        CancelSendTaskResp cancelSendTaskResp = new CancelSendTaskResp();
+        cancelSendTaskResp.setCancelCode(request.getCode());
         if (WaybillUtil.isPackageCode(request.getCode()) || BusinessUtil.isBoxcode(request.getCode())) {
             String sendCode = sendMService.querySendCodeBySelective(sendM);
             if (!ObjectHelper.isNotNull(sendCode)) {
@@ -240,7 +266,9 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService{
         }
 
         if (WaybillUtil.isPackageCode(request.getCode()) && CancelSendTypeEnum.WAYBILL_CODE.getCode().equals(request.getType())) {
-            sendM.setBoxCode(WaybillUtil.getWaybillCode(request.getCode()));
+            String wayBillCode =WaybillUtil.getWaybillCode(request.getCode());
+            sendM.setBoxCode(wayBillCode);
+            cancelSendTaskResp.setCancelCode(wayBillCode);
         }
         if (WaybillUtil.isPackageCode(request.getCode()) && CancelSendTypeEnum.BOARD_NO.getCode().equals(request.getType())) {
             Response<Board> boardResponse = groupBoardManager.getBoardByBoxCode(request.getCode(), request.getCurrentOperate().getSiteCode());
@@ -249,19 +277,22 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService{
                 return new InvokeResult(MSCodeMapping.NO_BOARD_BY_PACKAGECODE.getCode(), MSCodeMapping.NO_BOARD_BY_PACKAGECODE.getMessage());
             }
             log.info("============按板取消发货，扫描的包裹号/箱号：{}，板号：{}", request.getCode(), boardResponse.getData().getCode());
-            sendM.setBoxCode(boardResponse.getData().getCode());
+            String boardCode =boardResponse.getData().getCode();
+            sendM.setBoxCode(boardCode);
+            cancelSendTaskResp.setCancelCode(boardCode);
         }
 
         ThreeDeliveryResponse tDResponse = deliveryService.dellCancelDeliveryMessageWithServerTime(sendM, true);
-        if(ObjectHelper.isNotNull(tDResponse) && JdCResponse.CODE_SUCCESS.equals(tDResponse.getCode())){
+        if (ObjectHelper.isNotNull(tDResponse) && JdCResponse.CODE_SUCCESS.equals(tDResponse.getCode())) {
             //TODO  根据包裹号掉印辉提供的服务查询列表，从那里面去流向名称
-            CancelSendTaskResp cancelSendTaskResp =new CancelSendTaskResp();
+
             cancelSendTaskResp.setCanclePackageCount(sendM.getCancelPackageCount());
             cancelSendTaskResp.setEndSiteName("");
-            return new InvokeResult(tDResponse.getCode(), tDResponse.getMessage(),cancelSendTaskResp);
+            return new InvokeResult(tDResponse.getCode(), tDResponse.getMessage(), cancelSendTaskResp);
         }
         return new InvokeResult(tDResponse.getCode(), tDResponse.getMessage());
     }
+
     private SendM toSendM(CancelSendTaskReq request) {
         SendM sendM = new SendM();
         sendM.setBoxCode(request.getCode());

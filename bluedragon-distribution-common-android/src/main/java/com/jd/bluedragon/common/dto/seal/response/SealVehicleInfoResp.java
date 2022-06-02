@@ -6,15 +6,26 @@ public class SealVehicleInfoResp implements Serializable {
     private static final long serialVersionUID = 4862292928579823809L;
 
     /**
-     * 运力编码，托盘，重量 体积  车牌号 车型 车型名称
+     * 运力编码
      * */
     private String transportCode;
+    /**
+     * 托盘数
+     */
     private String tray;
+    /**
+     * 已扫总量总计/吨
+     */
     private String weight;
-    private Integer volume;
+    /**
+     * 已扫体积总计/立方米
+     */
+    private String volume;
+    /**
+     * 车牌号
+     */
     private String vehicleNumber;
-    private Integer vehicleType;
-    private String vehicleTypeName;
+
 
     public String getTransportCode() {
         return transportCode;
@@ -40,11 +51,11 @@ public class SealVehicleInfoResp implements Serializable {
         this.weight = weight;
     }
 
-    public Integer getVolume() {
+    public String getVolume() {
         return volume;
     }
 
-    public void setVolume(Integer volume) {
+    public void setVolume(String volume) {
         this.volume = volume;
     }
 
@@ -56,19 +67,4 @@ public class SealVehicleInfoResp implements Serializable {
         this.vehicleNumber = vehicleNumber;
     }
 
-    public Integer getVehicleType() {
-        return vehicleType;
-    }
-
-    public void setVehicleType(Integer vehicleType) {
-        this.vehicleType = vehicleType;
-    }
-
-    public String getVehicleTypeName() {
-        return vehicleTypeName;
-    }
-
-    public void setVehicleTypeName(String vehicleTypeName) {
-        this.vehicleTypeName = vehicleTypeName;
-    }
 }

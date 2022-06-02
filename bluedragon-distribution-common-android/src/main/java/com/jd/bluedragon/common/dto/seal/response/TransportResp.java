@@ -6,6 +6,7 @@ public class TransportResp implements Serializable {
     private static final long serialVersionUID = 8116324443064238624L;
     /**
      * 运输方式
+     * TransTypeEnum
      */
     private Integer transType;
 

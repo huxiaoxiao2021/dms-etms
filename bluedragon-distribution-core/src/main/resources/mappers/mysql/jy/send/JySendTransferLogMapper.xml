@@ -1,15 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.jd.bluedragon.distribution.jy.dao.send.JySendSealCodeDao">
+<mapper namespace="com.jd.bluedragon.distribution.jy.dao.send.JySendTransferLogDao">
 
     <!-- 可根据自己的需求，是否要使用 -->
-    <resultMap type="com.jd.bluedragon.distribution.jy.send.JySendSealCodeEntity" id="jySendSealCodeMap">
+    <resultMap type="com.jd.bluedragon.distribution.jy.send.JySendTransferLogEntity" id="jySendTransferLogMap">
         <result property="id" column="id"/>
-        <result property="sendVehicleBizId" column="send_vehicle_biz_id"/>
-        <result property="opeateSiteId" column="opeate_site_id"/>
-        <result property="sealCode" column="seal_code"/>
-        <result property="operateTime" column="operate_time"/>
+        <result property="sendCode" column="send_code"/>
+        <result property="fromSendVehicleBizId" column="from_send_vehicle_biz_id"/>
+        <result property="fromSendVehicleDetailBizId" column="from_send_vehicle_detail_biz_id"/>
+        <result property="toSendVehicleBizId" column="to_send_vehicle_biz_id"/>
+        <result property="toSendVehicleDetailBizId" column="to_send_vehicle_detail_biz_id"/>
         <result property="createUserErp" column="create_user_erp"/>
         <result property="createUserName" column="create_user_name"/>
         <result property="updateUserErp" column="update_user_erp"/>
@@ -18,32 +19,37 @@
         <result property="updateTime" column="update_time"/>
         <result property="yn" column="yn"/>
         <result property="ts" column="ts"/>
+        <result property="type" column="type"/>
     </resultMap>
 
     <sql id="Base_Column_List">
         id
-        ,        send_vehicle_biz_id,        opeate_site_id,        seal_code,        operate_time,        create_user_erp,        create_user_name,        update_user_erp,        update_user_name,        create_time,        update_time,        yn,        ts    </sql>
+        ,        send_code,        from_send_vehicle_biz_id,        from_send_vehicle_detail_biz_id,        to_send_vehicle_biz_id,        to_send_vehicle_detail_biz_id,        create_user_erp,        create_user_name,        update_user_erp,        update_user_name,        create_time,        update_time,        yn,        ts,        type    </sql>
 
-    <insert id="insert" parameterType="JySendSealCodeEntity">
-        INSERT INTO jy_send_seal_code (
+    <insert id="insert" parameterType="JySendTransferLogEntity">
+        INSERT INTO jy_send_transfer_log (
         <if test="id != null">
             id
         </if>
         ,
-        <if test="sendVehicleBizId != null">
-            send_vehicle_biz_id
+        <if test="sendCode != null">
+            send_code
         </if>
         ,
-        <if test="opeateSiteId != null">
-            opeate_site_id
+        <if test="fromSendVehicleBizId != null">
+            from_send_vehicle_biz_id
         </if>
         ,
-        <if test="sealCode != null">
-            seal_code
+        <if test="fromSendVehicleDetailBizId != null">
+            from_send_vehicle_detail_biz_id
         </if>
         ,
-        <if test="operateTime != null">
-            operate_time
+        <if test="toSendVehicleBizId != null">
+            to_send_vehicle_biz_id
+        </if>
+        ,
+        <if test="toSendVehicleDetailBizId != null">
+            to_send_vehicle_detail_biz_id
         </if>
         ,
         <if test="createUserErp != null">
@@ -77,25 +83,33 @@
         <if test="ts != null">
             ts
         </if>
+        ,
+        <if test="type != null">
+            type
+        </if>
         ) VALUES (
         <if test="id != null">
             #{id}
         </if>
         ,
-        <if test="sendVehicleBizId != null">
-            #{sendVehicleBizId}
+        <if test="sendCode != null">
+            #{sendCode}
         </if>
         ,
-        <if test="opeateSiteId != null">
-            #{opeateSiteId}
+        <if test="fromSendVehicleBizId != null">
+            #{fromSendVehicleBizId}
         </if>
         ,
-        <if test="sealCode != null">
-            #{sealCode}
+        <if test="fromSendVehicleDetailBizId != null">
+            #{fromSendVehicleDetailBizId}
         </if>
         ,
-        <if test="operateTime != null">
-            #{operateTime}
+        <if test="toSendVehicleBizId != null">
+            #{toSendVehicleBizId}
+        </if>
+        ,
+        <if test="toSendVehicleDetailBizId != null">
+            #{toSendVehicleDetailBizId}
         </if>
         ,
         <if test="createUserErp != null">
@@ -129,50 +143,38 @@
         <if test="ts != null">
             #{ts}
         </if>
+        ,
+        <if test="type != null">
+            #{type}
+        </if>
         )
     </insert>
 
-    <insert id="insertBatch" parameterType="com.jd.bluedragon.distribution.jy.send.JySendSealCodeEntity">
-        INSERT INTO jy_send_seal_code (
-        send_vehicle_biz_id, operate_site_id, seal_code,
-        operate_time,create_user_erp,create_user_name,create_time,update_time
-        )
-        VALUES
-        <foreach collection="list" item="item" index="index" separator=",">
-            (
-            #{item.sendVehicleBizId},
-            #{item.operateSiteId},
-            #{item.sealCode},
-            #{item.operateTime},
-            #{item.createUserErp},
-            #{item.createUserName},
-            #{item.createTime},
-            #{item.updateTime}
-            )
-        </foreach>
-    </insert>
-
-    <update id="update" parameterType="JySendSealCodeEntity">
-        UPDATE jy_send_seal_code
+    <update id="update" parameterType="JySendTransferLogEntity">
+        UPDATE jy_send_transfer_log
         <set>
             <if test="id != null">
                 id = #{id}
             </if>
             ,
-            <if test="sendVehicleBizId != null">
-                send_vehicle_biz_id = #{sendVehicleBizId}
+            <if test="sendCode != null">
+                send_code = #{sendCode}
             </if>
             ,
-            <if test="opeateSiteId != null">
-                opeate_site_id = #{opeateSiteId}
+            <if test="fromSendVehicleBizId != null">
+                from_send_vehicle_biz_id = #{fromSendVehicleBizId}
             </if>
             ,
-            <if test="sealCode != null">
-                seal_code = #{sealCode}
+            <if test="fromSendVehicleDetailBizId != null">
+                from_send_vehicle_detail_biz_id = #{fromSendVehicleDetailBizId}
             </if>
             ,
-            <if test="operateTime != null">
-                operate_time = #{operateTime}
+            <if test="toSendVehicleBizId != null">
+                to_send_vehicle_biz_id = #{toSendVehicleBizId}
+            </if>
+            ,
+            <if test="toSendVehicleDetailBizId != null">
+                to_send_vehicle_detail_biz_id = #{toSendVehicleDetailBizId}
             </if>
             ,
             <if test="createUserErp != null">
@@ -206,15 +208,13 @@
             <if test="ts != null">
                 ts = #{ts}
             </if>
+            ,
+            <if test="type != null">
+                type = #{type}
+            </if>
         </set>
         <where>
             id = #{id}
         </where>
     </update>
-    <select id="selectSealCodeByBizId" parameterType="java.lang.String">
-        select seal_code
-        from jy_send_seal_code
-        WHERE send_vehicle_biz_id = #{bizId}
-          and yn = 1
-    </select>
 </mapper>
