@@ -254,6 +254,8 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
     @Override
     public InvokeResult<CancelSendTaskResp> cancelSendTask(CancelSendTaskReq request) {
         SendM sendM = toSendM(request);
+        CancelSendTaskResp cancelSendTaskResp = new CancelSendTaskResp();
+        cancelSendTaskResp.setCancelCode(request.getCode());
         if (WaybillUtil.isPackageCode(request.getCode()) || BusinessUtil.isBoxcode(request.getCode())) {
             String sendCode = sendMService.querySendCodeBySelective(sendM);
             if (!ObjectHelper.isNotNull(sendCode)) {
@@ -264,7 +266,9 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
         }
 
         if (WaybillUtil.isPackageCode(request.getCode()) && CancelSendTypeEnum.WAYBILL_CODE.getCode().equals(request.getType())) {
-            sendM.setBoxCode(WaybillUtil.getWaybillCode(request.getCode()));
+            String wayBillCode =WaybillUtil.getWaybillCode(request.getCode());
+            sendM.setBoxCode(wayBillCode);
+            cancelSendTaskResp.setCancelCode(wayBillCode);
         }
         if (WaybillUtil.isPackageCode(request.getCode()) && CancelSendTypeEnum.BOARD_NO.getCode().equals(request.getType())) {
             Response<Board> boardResponse = groupBoardManager.getBoardByBoxCode(request.getCode(), request.getCurrentOperate().getSiteCode());
@@ -273,13 +277,15 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
                 return new InvokeResult(MSCodeMapping.NO_BOARD_BY_PACKAGECODE.getCode(), MSCodeMapping.NO_BOARD_BY_PACKAGECODE.getMessage());
             }
             log.info("============按板取消发货，扫描的包裹号/箱号：{}，板号：{}", request.getCode(), boardResponse.getData().getCode());
-            sendM.setBoxCode(boardResponse.getData().getCode());
+            String boardCode =boardResponse.getData().getCode();
+            sendM.setBoxCode(boardCode);
+            cancelSendTaskResp.setCancelCode(boardCode);
         }
 
         ThreeDeliveryResponse tDResponse = deliveryService.dellCancelDeliveryMessageWithServerTime(sendM, true);
         if (ObjectHelper.isNotNull(tDResponse) && JdCResponse.CODE_SUCCESS.equals(tDResponse.getCode())) {
             //TODO  根据包裹号掉印辉提供的服务查询列表，从那里面去流向名称
-            CancelSendTaskResp cancelSendTaskResp = new CancelSendTaskResp();
+
             cancelSendTaskResp.setCanclePackageCount(sendM.getCancelPackageCount());
             cancelSendTaskResp.setEndSiteName("");
             return new InvokeResult(tDResponse.getCode(), tDResponse.getMessage(), cancelSendTaskResp);
