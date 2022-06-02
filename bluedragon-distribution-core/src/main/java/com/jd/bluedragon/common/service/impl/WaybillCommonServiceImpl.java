@@ -1602,8 +1602,8 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
     @JProfiler(jKey = "DMS.BASE.WaybillCommonServiceImpl.loadWaybillRouter", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public void loadWaybillRouter(BasePrintWaybill printWaybill,Integer originalDmsCode,Integer destinationDmsCode,String waybillSign){
         //非B网的不用查路由
-        log.info("加载路由信息中---");
-        if(!BusinessUtil.isB2b(waybillSign)){
+        log.info("加载路由信息中---waybillSign:{} ",waybillSign);
+        if(!BusinessUtil.isB2bForTransfor(waybillSign)){
             return;
         }
         log.info("加载路由信息判断---");
