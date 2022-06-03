@@ -24,4 +24,19 @@ public class SendAbnormalBarCode implements Serializable {
     private List<SendScanBarCode> barCodeList;
 
 
+    public Long getTotal() {
+        return total;
+    }
+
+    public void setTotal(Long total) {
+        this.total = total;
+    }
+
+    public List<SendScanBarCode> getBarCodeList() {
+        return barCodeList;
+    }
+
+    public void setBarCodeList(List<SendScanBarCode> barCodeList) {
+        this.barCodeList = barCodeList;
+    }
 }

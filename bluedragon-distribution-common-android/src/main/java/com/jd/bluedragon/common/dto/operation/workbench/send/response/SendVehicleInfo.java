@@ -70,4 +70,99 @@ public class SendVehicleInfo implements Serializable {
      */
     private Boolean photo;
 
+    public String getSendDetailBizId() {
+        return sendDetailBizId;
+    }
+
+    public void setSendDetailBizId(String sendDetailBizId) {
+        this.sendDetailBizId = sendDetailBizId;
+    }
+
+    public String getVehicleNumber() {
+        return vehicleNumber;
+    }
+
+    public void setVehicleNumber(String vehicleNumber) {
+        this.vehicleNumber = vehicleNumber;
+    }
+
+    public String getLineTypeShortName() {
+        return lineTypeShortName;
+    }
+
+    public void setLineTypeShortName(String lineTypeShortName) {
+        this.lineTypeShortName = lineTypeShortName;
+    }
+
+    public String getCarLengthStr() {
+        return carLengthStr;
+    }
+
+    public void setCarLengthStr(String carLengthStr) {
+        this.carLengthStr = carLengthStr;
+    }
+
+    public Integer getDestCount() {
+        return destCount;
+    }
+
+    public void setDestCount(Integer destCount) {
+        this.destCount = destCount;
+    }
+
+    public Date getPlanDepartTime() {
+        return planDepartTime;
+    }
+
+    public void setPlanDepartTime(Date planDepartTime) {
+        this.planDepartTime = planDepartTime;
+    }
+
+    public Integer getEndSiteId() {
+        return endSiteId;
+    }
+
+    public void setEndSiteId(Integer endSiteId) {
+        this.endSiteId = endSiteId;
+    }
+
+    public String getEndSiteName() {
+        return endSiteName;
+    }
+
+    public void setEndSiteName(String endSiteName) {
+        this.endSiteName = endSiteName;
+    }
+
+    public String getDriverName() {
+        return driverName;
+    }
+
+    public void setDriverName(String driverName) {
+        this.driverName = driverName;
+    }
+
+    public String getDriverPhone() {
+        return driverPhone;
+    }
+
+    public void setDriverPhone(String driverPhone) {
+        this.driverPhone = driverPhone;
+    }
+
+    public Boolean getManualCreated() {
+        return manualCreated;
+    }
+
+    public void setManualCreated(Boolean manualCreated) {
+        this.manualCreated = manualCreated;
+    }
+
+    public Boolean getPhoto() {
+        return photo;
+    }
+
+    public void setPhoto(Boolean photo) {
+        this.photo = photo;
+    }
 }

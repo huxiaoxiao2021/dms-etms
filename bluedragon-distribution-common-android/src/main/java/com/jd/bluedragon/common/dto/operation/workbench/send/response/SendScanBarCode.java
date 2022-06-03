@@ -22,4 +22,20 @@ public class SendScanBarCode implements Serializable {
      * 单号标签集合
      */
     private List<LabelOption> tags;
+
+    public String getBarCode() {
+        return barCode;
+    }
+
+    public void setBarCode(String barCode) {
+        this.barCode = barCode;
+    }
+
+    public List<LabelOption> getTags() {
+        return tags;
+    }
+
+    public void setTags(List<LabelOption> tags) {
+        this.tags = tags;
+    }
 }

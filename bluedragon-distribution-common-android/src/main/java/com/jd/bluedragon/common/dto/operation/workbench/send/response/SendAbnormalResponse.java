@@ -20,4 +20,20 @@ public class SendAbnormalResponse implements Serializable {
      * 发货是否任务正常 : true 正常
      */
     private Boolean normalFlag;
+
+    public SendAbnormalEnum getAbnormalType() {
+        return abnormalType;
+    }
+
+    public void setAbnormalType(SendAbnormalEnum abnormalType) {
+        this.abnormalType = abnormalType;
+    }
+
+    public Boolean getNormalFlag() {
+        return normalFlag;
+    }
+
+    public void setNormalFlag(Boolean normalFlag) {
+        this.normalFlag = normalFlag;
+    }
 }

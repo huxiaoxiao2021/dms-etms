@@ -50,6 +50,10 @@ public class BaseSendVehicle implements Serializable {
      */
     private List<LabelOption> tags;
 
+    private Integer lineType;
+
+    private Boolean _active;
+
     public String getVehicleNumber() {
         return vehicleNumber;
     }
@@ -104,5 +108,21 @@ public class BaseSendVehicle implements Serializable {
 
     public void setTags(List<LabelOption> tags) {
         this.tags = tags;
+    }
+
+    public Integer getLineType() {
+        return lineType;
+    }
+
+    public void setLineType(Integer lineType) {
+        this.lineType = lineType;
+    }
+
+    public Boolean get_active() {
+        return _active;
+    }
+
+    public void set_active(Boolean _active) {
+        this._active = _active;
     }
 }

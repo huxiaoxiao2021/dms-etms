@@ -26,4 +26,28 @@ public class ToSealDestAgg implements Serializable {
      * 发货流向明细
      */
     private List<ToSealDestDetail> destList;
+
+    public Integer getSealedTotal() {
+        return sealedTotal;
+    }
+
+    public void setSealedTotal(Integer sealedTotal) {
+        this.sealedTotal = sealedTotal;
+    }
+
+    public Integer getDestTotal() {
+        return destTotal;
+    }
+
+    public void setDestTotal(Integer destTotal) {
+        this.destTotal = destTotal;
+    }
+
+    public List<ToSealDestDetail> getDestList() {
+        return destList;
+    }
+
+    public void setDestList(List<ToSealDestDetail> destList) {
+        this.destList = destList;
+    }
 }

@@ -47,4 +47,60 @@ public class ToSealDestDetail implements Serializable {
      * 状态描述
      */
     private String itemStatusDesc;
+
+    public Integer getEndSiteId() {
+        return endSiteId;
+    }
+
+    public void setEndSiteId(Integer endSiteId) {
+        this.endSiteId = endSiteId;
+    }
+
+    public String getEndSiteName() {
+        return endSiteName;
+    }
+
+    public void setEndSiteName(String endSiteName) {
+        this.endSiteName = endSiteName;
+    }
+
+    public Long getToScanPackCount() {
+        return toScanPackCount;
+    }
+
+    public void setToScanPackCount(Long toScanPackCount) {
+        this.toScanPackCount = toScanPackCount;
+    }
+
+    public Long getScannedPackCount() {
+        return scannedPackCount;
+    }
+
+    public void setScannedPackCount(Long scannedPackCount) {
+        this.scannedPackCount = scannedPackCount;
+    }
+
+    public Date getPlanDepartTime() {
+        return planDepartTime;
+    }
+
+    public void setPlanDepartTime(Date planDepartTime) {
+        this.planDepartTime = planDepartTime;
+    }
+
+    public Integer getItemStatus() {
+        return itemStatus;
+    }
+
+    public void setItemStatus(Integer itemStatus) {
+        this.itemStatus = itemStatus;
+    }
+
+    public String getItemStatusDesc() {
+        return itemStatusDesc;
+    }
+
+    public void setItemStatusDesc(String itemStatusDesc) {
+        this.itemStatusDesc = itemStatusDesc;
+    }
 }

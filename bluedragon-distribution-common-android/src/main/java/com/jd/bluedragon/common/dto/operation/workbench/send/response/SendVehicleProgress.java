@@ -72,4 +72,100 @@ public class SendVehicleProgress implements Serializable {
      * 流向总数
      */
     private Integer destTotal;
+
+    public BigDecimal getLoadRate() {
+        return loadRate;
+    }
+
+    public void setLoadRate(BigDecimal loadRate) {
+        this.loadRate = loadRate;
+    }
+
+    public BigDecimal getVolume() {
+        return volume;
+    }
+
+    public void setVolume(BigDecimal volume) {
+        this.volume = volume;
+    }
+
+    public BigDecimal getWeight() {
+        return weight;
+    }
+
+    public void setWeight(BigDecimal weight) {
+        this.weight = weight;
+    }
+
+    public BigDecimal getLoadVolume() {
+        return loadVolume;
+    }
+
+    public void setLoadVolume(BigDecimal loadVolume) {
+        this.loadVolume = loadVolume;
+    }
+
+    public BigDecimal getLoadWeight() {
+        return loadWeight;
+    }
+
+    public void setLoadWeight(BigDecimal loadWeight) {
+        this.loadWeight = loadWeight;
+    }
+
+    public Long getToScanCount() {
+        return toScanCount;
+    }
+
+    public void setToScanCount(Long toScanCount) {
+        this.toScanCount = toScanCount;
+    }
+
+    public Long getScannedPackCount() {
+        return scannedPackCount;
+    }
+
+    public void setScannedPackCount(Long scannedPackCount) {
+        this.scannedPackCount = scannedPackCount;
+    }
+
+    public Long getScannedBoxCount() {
+        return scannedBoxCount;
+    }
+
+    public void setScannedBoxCount(Long scannedBoxCount) {
+        this.scannedBoxCount = scannedBoxCount;
+    }
+
+    public Long getInterceptedPackCount() {
+        return interceptedPackCount;
+    }
+
+    public void setInterceptedPackCount(Long interceptedPackCount) {
+        this.interceptedPackCount = interceptedPackCount;
+    }
+
+    public Long getForceSendPackCount() {
+        return forceSendPackCount;
+    }
+
+    public void setForceSendPackCount(Long forceSendPackCount) {
+        this.forceSendPackCount = forceSendPackCount;
+    }
+
+    public Integer getSealedTotal() {
+        return sealedTotal;
+    }
+
+    public void setSealedTotal(Integer sealedTotal) {
+        this.sealedTotal = sealedTotal;
+    }
+
+    public Integer getDestTotal() {
+        return destTotal;
+    }
+
+    public void setDestTotal(Integer destTotal) {
+        this.destTotal = destTotal;
+    }
 }

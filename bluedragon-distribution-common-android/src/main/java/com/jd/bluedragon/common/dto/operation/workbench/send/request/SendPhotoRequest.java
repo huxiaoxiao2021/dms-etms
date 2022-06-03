@@ -34,4 +34,44 @@ public class SendPhotoRequest implements Serializable {
      * 拍照图片
      */
     private List<String> imgList;
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public CurrentOperate getCurrentOperate() {
+        return currentOperate;
+    }
+
+    public void setCurrentOperate(CurrentOperate currentOperate) {
+        this.currentOperate = currentOperate;
+    }
+
+    public String getSendVehicleBizId() {
+        return sendVehicleBizId;
+    }
+
+    public void setSendVehicleBizId(String sendVehicleBizId) {
+        this.sendVehicleBizId = sendVehicleBizId;
+    }
+
+    public Integer getVehicleArrived() {
+        return vehicleArrived;
+    }
+
+    public void setVehicleArrived(Integer vehicleArrived) {
+        this.vehicleArrived = vehicleArrived;
+    }
+
+    public List<String> getImgList() {
+        return imgList;
+    }
+
+    public void setImgList(List<String> imgList) {
+        this.imgList = imgList;
+    }
 }

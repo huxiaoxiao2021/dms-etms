@@ -2,7 +2,6 @@ package com.jd.bluedragon.common.dto.operation.workbench.send.request;
 
 import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.request.User;
-import com.sun.deploy.util.StringUtils;
 
 import java.io.Serializable;
 

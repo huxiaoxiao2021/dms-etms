@@ -37,4 +37,44 @@ public class SendDestDetail implements Serializable {
      * 预计发货时间
      */
     private Date planDepartTime;
+
+    public Integer getEndSiteId() {
+        return endSiteId;
+    }
+
+    public void setEndSiteId(Integer endSiteId) {
+        this.endSiteId = endSiteId;
+    }
+
+    public String getEndSiteName() {
+        return endSiteName;
+    }
+
+    public void setEndSiteName(String endSiteName) {
+        this.endSiteName = endSiteName;
+    }
+
+    public Long getToScanPackCount() {
+        return toScanPackCount;
+    }
+
+    public void setToScanPackCount(Long toScanPackCount) {
+        this.toScanPackCount = toScanPackCount;
+    }
+
+    public Long getScannedPackCount() {
+        return scannedPackCount;
+    }
+
+    public void setScannedPackCount(Long scannedPackCount) {
+        this.scannedPackCount = scannedPackCount;
+    }
+
+    public Date getPlanDepartTime() {
+        return planDepartTime;
+    }
+
+    public void setPlanDepartTime(Date planDepartTime) {
+        this.planDepartTime = planDepartTime;
+    }
 }
