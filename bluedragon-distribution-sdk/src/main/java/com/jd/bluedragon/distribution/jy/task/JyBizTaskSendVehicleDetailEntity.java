@@ -29,6 +29,11 @@ public class JyBizTaskSendVehicleDetailEntity implements Serializable {
         this.sendVehicleBizId = sendVehicleBizId;
     }
 
+    public JyBizTaskSendVehicleDetailEntity(Long startSiteId, String sendVehicleBizId) {
+        this.startSiteId = startSiteId;
+        this.sendVehicleBizId = sendVehicleBizId;
+    }
+
 	/**
 	 * 业务主键 == 派车明细单号
 	 */
@@ -42,10 +47,6 @@ public class JyBizTaskSendVehicleDetailEntity implements Serializable {
 	 * send_vehicle业务主键
 	 */
 	private String sendVehicleBizId;
-    public JyBizTaskSendVehicleDetailEntity(Long startSiteId, String sendVehicleBizId) {
-        this.startSiteId = startSiteId;
-        this.sendVehicleBizId = sendVehicleBizId;
-    }
 	/**
 	 * 派车明细单号
 	 */

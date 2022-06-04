@@ -762,6 +762,11 @@ public class UccPropertyConfiguration {
      */
     private Integer jyUnSealTaskSwitchToEs;
 
+    /**
+     * 拣运发车任务满载率阈值。eg:80
+     */
+    private Integer jySendTaskFullLoadRate;
+
     public String getScheduleSiteCheckSameCity() {
         return scheduleSiteCheckSameCity;
     }
@@ -1856,7 +1861,15 @@ public class UccPropertyConfiguration {
         this.jyUnSealTaskSwitchToEs = jyUnSealTaskSwitchToEs;
     }
 
-	public boolean isNeedUseNewReverseApi() {
+    public Integer getJySendTaskFullLoadRate() {
+        return jySendTaskFullLoadRate;
+    }
+
+    public void setJySendTaskFullLoadRate(Integer jySendTaskFullLoadRate) {
+        this.jySendTaskFullLoadRate = jySendTaskFullLoadRate;
+    }
+
+    public boolean isNeedUseNewReverseApi() {
 		return needUseNewReverseApi;
 	}
 

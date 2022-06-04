@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.jy.service.task;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskSendVehicleDetailDao;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendDetailStatusEnum;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
@@ -18,6 +19,7 @@ public class JyBizTaskSendVehicleDetailServiceImpl implements JyBizTaskSendVehic
 
     @Autowired
     JyBizTaskSendVehicleDetailDao jyBizTaskSendVehicleDetailDao;
+
     @Override
     public JyBizTaskSendVehicleDetailEntity findByBizId(String bizId) {
         return jyBizTaskSendVehicleDetailDao.findByBizId(bizId);
@@ -40,17 +42,18 @@ public class JyBizTaskSendVehicleDetailServiceImpl implements JyBizTaskSendVehic
 
     @Override
     public List<JyBizTaskSendVehicleDetailEntity> findEffectiveSendVehicleDetail(JyBizTaskSendVehicleDetailEntity entity) {
-        return jyBizTaskSendVehicleDetailDao.findByMainVehicleBiz(entity, JyBizTaskSendDetailStatusEnum.EFFECTIVE_STATUS);
-    }
-
-    @Override
-    public List<JyBizTaskSendVehicleDetailEntity> findSendVehicleDetail(JyBizTaskSendVehicleDetailEntity entity) {
         return jyBizTaskSendVehicleDetailDao.findByMainVehicleBiz(entity, null);
     }
 
     @Override
     public int cancelDetail(JyBizTaskSendVehicleDetailEntity detailEntity) {
         detailEntity.setVehicleStatus(JyBizTaskSendDetailStatusEnum.CANCEL.getCode());
+        detailEntity.setYn(Constants.YN_NO); // 删除取消的流向
         return jyBizTaskSendVehicleDetailDao.updateByBiz(detailEntity);
+    }
+
+    @Override
+    public int countByStatus(JyBizTaskSendVehicleDetailEntity entity) {
+        return jyBizTaskSendVehicleDetailDao.countByStatus(entity);
     }
 }

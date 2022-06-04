@@ -24,17 +24,17 @@ public interface JyBizTaskSendVehicleDetailService {
     List<JyBizTaskSendVehicleDetailEntity> findEffectiveSendVehicleDetail(JyBizTaskSendVehicleDetailEntity entity);
 
     /**
-     * 根据条件查询发车任务明细
-     * @param entity
-     * @return
-     */
-    List<JyBizTaskSendVehicleDetailEntity> findSendVehicleDetail(JyBizTaskSendVehicleDetailEntity entity);
-
-    /**
      * 取消
      * @param detailEntity
      * @return
      */
     int cancelDetail(JyBizTaskSendVehicleDetailEntity detailEntity);
+
+    /**
+     * 按状态统计流向数量
+     * @param entity
+     * @return
+     */
+    int countByStatus(JyBizTaskSendVehicleDetailEntity entity);
 
 }

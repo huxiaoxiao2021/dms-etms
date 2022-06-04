@@ -29,6 +29,11 @@ public class SendAbnormalRequest implements Serializable {
      */
     private String vehicleNumber;
 
+    /**
+     * 是否强制前往封车 默认：false
+     */
+    private Boolean forceGoToSeal = false;
+
     public User getUser() {
         return user;
     }
@@ -59,5 +64,13 @@ public class SendAbnormalRequest implements Serializable {
 
     public void setVehicleNumber(String vehicleNumber) {
         this.vehicleNumber = vehicleNumber;
+    }
+
+    public Boolean getForceGoToSeal() {
+        return forceGoToSeal;
+    }
+
+    public void setForceGoToSeal(Boolean forceGoToSeal) {
+        this.forceGoToSeal = forceGoToSeal;
     }
 }

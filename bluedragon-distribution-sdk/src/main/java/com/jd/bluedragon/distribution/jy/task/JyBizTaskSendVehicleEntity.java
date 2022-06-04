@@ -16,6 +16,13 @@ public class JyBizTaskSendVehicleEntity implements Serializable {
 	private static final long serialVersionUID = -2352536857784355996L;
 
     public static final String BIZ_PREFIX = "SST%s";
+
+    public JyBizTaskSendVehicleEntity() {}
+
+    public JyBizTaskSendVehicleEntity(String transWorkCode, Long startSiteId) {
+        this.transWorkCode = transWorkCode;
+        this.startSiteId = startSiteId;
+    }
     /**
      * 派车单始发场地（相同派车单不同始发场地会散列成多条）
      */
@@ -87,13 +94,6 @@ public class JyBizTaskSendVehicleEntity implements Serializable {
 	 * 线路类型名称
 	 */
 	private String lineTypeName;
-
-    public JyBizTaskSendVehicleEntity() {}
-
-    public JyBizTaskSendVehicleEntity(String transWorkCode, Long startSiteId) {
-        this.transWorkCode = transWorkCode;
-        this.startSiteId = startSiteId;
-    }
 
 	/**
 	 * 创建人ERP

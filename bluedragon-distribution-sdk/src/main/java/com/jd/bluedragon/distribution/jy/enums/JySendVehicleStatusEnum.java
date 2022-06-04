@@ -2,7 +2,7 @@ package com.jd.bluedragon.distribution.jy.enums;
 
 /**
  * @ClassName JySendVehicleStatusEnum
- * @Description
+ * @Description 发车状态枚举，客户端使用
  * @Author wyh
  * @Date 2022/5/29 13:59
  **/

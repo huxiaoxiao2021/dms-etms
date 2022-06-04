@@ -16,62 +16,62 @@ public class SendVehicleProgress implements Serializable {
     /**
      * 重量装载率 100%
      */
-    private BigDecimal loadRate;
+    private BigDecimal loadRate = BigDecimal.ZERO;
 
     /**
      * 车型体积
      */
-    private BigDecimal volume;
+    private BigDecimal volume = BigDecimal.ZERO;
 
     /**
      * 车型重量
      */
-    private BigDecimal weight;
+    private BigDecimal weight = BigDecimal.ZERO;
 
     /**
      * 装载体积
      */
-    private BigDecimal loadVolume;
+    private BigDecimal loadVolume = BigDecimal.ZERO;
 
     /**
      * 装载重量
      */
-    private BigDecimal loadWeight;
+    private BigDecimal loadWeight = BigDecimal.ZERO;
 
     /**
      * 待扫包裹数
      */
-    private Long toScanCount;
+    private Long toScanCount = 0L;
 
     /**
      * 已扫包裹数
      */
-    private Long scannedPackCount;
+    private Long scannedPackCount = 0L;
 
     /**
      * 已扫箱数
      */
-    private Long scannedBoxCount;
+    private Long scannedBoxCount = 0L;
 
     /**
      * 拦截包裹数
      */
-    private Long interceptedPackCount;
+    private Long interceptedPackCount = 0L;
 
     /**
      * 强制发包裹数
      */
-    private Long forceSendPackCount;
+    private Long forceSendPackCount = 0L;
 
     /**
      * 封车的流向数量
      */
-    private Integer sealedTotal;
+    private Integer sealedTotal = 0;
 
     /**
      * 流向总数
      */
-    private Integer destTotal;
+    private Integer destTotal = 0;
 
     public BigDecimal getLoadRate() {
         return loadRate;

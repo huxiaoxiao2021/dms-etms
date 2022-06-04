@@ -333,7 +333,7 @@
         select
         <include refid="Base_Column_List"/>
         from jy_biz_task_send_vehicle_detail
-        where biz_id = #{bizId}
+        where yn = 1 AND biz_id = #{bizId}
         limit 1;
     </select>
 
@@ -438,4 +438,16 @@
         WHERE
             biz_id = #{bizId}
     </update>
+
+    <select id="countByStatus" parameterType="JyBizTaskSendVehicleDetailEntity" resultType="java.lang.Integer">
+        SELECT
+            COUNT(*)
+        FROM jy_biz_task_send_vehicle_detail
+        WHERE
+            yn = 1
+        AND send_vehicle_biz_id = #{sendVehicleBizId}
+        <if test="vehicleStatus != null">
+            AND vehicle_status = #{vehicleStatus}
+        </if>
+    </select>
 </mapper>

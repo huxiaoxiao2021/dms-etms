@@ -243,4 +243,15 @@
             id = #{id}
         </where>
     </update>
+
+    <select id="findSendRecordExistAbnormal" parameterType="JySendEntity" resultMap="jySendMap">
+        SELECT
+            <include refid="Base_Column_List"/>
+        FROM jy_send
+        WHERE
+            yn = 1
+        AND send_vehicle_biz_id = #{sendVehicleBizId}
+        AND (intercept_flag = 1 OR force_send_flag = 1)
+        LIMIT 1
+    </select>
 </mapper>
