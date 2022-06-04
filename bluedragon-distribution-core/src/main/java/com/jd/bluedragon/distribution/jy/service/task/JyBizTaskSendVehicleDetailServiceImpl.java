@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.jy.service.task;
 
 import com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskSendVehicleDetailDao;
+import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendDetailStatusEnum;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.utils.JsonHelper;
 import org.slf4j.Logger;
@@ -38,7 +39,18 @@ public class JyBizTaskSendVehicleDetailServiceImpl implements JyBizTaskSendVehic
     }
 
     @Override
+    public List<JyBizTaskSendVehicleDetailEntity> findEffectiveSendVehicleDetail(JyBizTaskSendVehicleDetailEntity entity) {
+        return jyBizTaskSendVehicleDetailDao.findByMainVehicleBiz(entity, JyBizTaskSendDetailStatusEnum.EFFECTIVE_STATUS);
+    }
+
+    @Override
     public List<JyBizTaskSendVehicleDetailEntity> findSendVehicleDetail(JyBizTaskSendVehicleDetailEntity entity) {
         return jyBizTaskSendVehicleDetailDao.findByMainVehicleBiz(entity, null);
+    }
+
+    @Override
+    public int cancelDetail(JyBizTaskSendVehicleDetailEntity detailEntity) {
+        detailEntity.setVehicleStatus(JyBizTaskSendDetailStatusEnum.CANCEL.getCode());
+        return jyBizTaskSendVehicleDetailDao.updateByBiz(detailEntity);
     }
 }

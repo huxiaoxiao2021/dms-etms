@@ -58,7 +58,6 @@ public class InitUnloadVehicleConsumer extends MessageBaseConsumer {
     private BaseMajorManager baseMajorManager;
 
     @Override
-    @JProfiler(jKey = "DMS.WORKER.jy.initUnloadVehicleConsumer.consume", jAppName = Constants.UMP_APP_NAME_DMSWORKER, mState = {JProEnum.TP,JProEnum.FunctionError})
     public void consume(Message message) throws Exception {
         if (StringHelper.isEmpty(message.getText())) {
             logger.warn("InitUnloadVehicleConsumer consume --> 消息为空");

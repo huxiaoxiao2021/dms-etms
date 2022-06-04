@@ -36,6 +36,12 @@ public interface JySendVehicleGatewayService {
     JdCResponse<List<SelectOption>> lineTypeOptions();
 
     /**
+     * 发货扫描方式枚举
+     * @return
+     */
+    JdCResponse<List<SelectOption>> scanTypeOptions();
+
+    /**
      * 拉取发货任务列表
      * @param request
      * @return
@@ -121,13 +127,6 @@ public interface JySendVehicleGatewayService {
      * @return
      */
     JdCResponse sendScan(SendScanRequest request);
-
-    /**
-     * 封车完成的任务展示封签号列表
-     * @param request
-     * @return
-     */
-    JdCResponse<List<String>> sealCodeList(SendSealCodeRequest request);
 
 
 }

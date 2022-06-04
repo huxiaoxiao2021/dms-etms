@@ -15,6 +15,12 @@ public class JySendAttachmentEntity implements Serializable {
 
 	private static final long serialVersionUID = -5851491920135847337L;
 
+    public JySendAttachmentEntity() {}
+
+    public JySendAttachmentEntity(String sendVehicleBizId) {
+        this.sendVehicleBizId = sendVehicleBizId;
+    }
+
 	/**
 	 * 主键ID
 	 */

@@ -9,8 +9,8 @@ package com.jd.bluedragon.common.dto.operation.workbench.enums;
 public enum SendVehicleScanTypeEnum {
 
     SCAN_PACKAGE(1, "包裹号"),
-    SCAN_BOX(2, "箱号"),
-    SCAN_WAYBILL(3, "运单"),
+    SCAN_WAYBILL(2, "运单号"),
+    SCAN_BOX(3, "箱号"),
     SCAN_BOARD(4, "板号"),
     ;
 

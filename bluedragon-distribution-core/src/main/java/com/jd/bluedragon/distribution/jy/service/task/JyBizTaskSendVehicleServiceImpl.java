@@ -49,6 +49,7 @@ public class JyBizTaskSendVehicleServiceImpl implements JyBizTaskSendVehicleServ
         return jyBizTaskSendVehicleDao.updateByBizId(entity);
     }
 
+    @Override
     public JyBizTaskSendVehicleEntity findByTransWorkAndStartSite(JyBizTaskSendVehicleEntity entity) {
         return jyBizTaskSendVehicleDao.findByTransWorkAndStartSite(entity);
     }
@@ -80,5 +81,19 @@ public class JyBizTaskSendVehicleServiceImpl implements JyBizTaskSendVehicleServ
         }
 
         return jyBizTaskSendVehicleDao.querySendTaskOfPage(entity, sendVehicleBizList, typeEnum, offset, limit);
+    }
+
+    @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyBizTaskSendVehicleService.updateLastPlanDepartTime",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
+    public int updateLastPlanDepartTime(JyBizTaskSendVehicleEntity entity) {
+        return jyBizTaskSendVehicleDao.updateByBizId(entity);
+    }
+
+    @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyBizTaskSendVehicleService.updateLastSealCarTime",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
+    public int updateLastSealCarTime(JyBizTaskSendVehicleEntity entity) {
+        return jyBizTaskSendVehicleDao.updateByBizId(entity);
     }
 }

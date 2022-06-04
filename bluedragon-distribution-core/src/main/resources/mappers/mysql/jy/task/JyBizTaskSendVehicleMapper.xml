@@ -337,7 +337,6 @@
     <update id="updateByBizId" parameterType="JyBizTaskSendVehicleEntity">
         UPDATE jy_biz_task_send_vehicle
         <set>
-
             <if test="transWorkCode != null">
                 trans_work_code = #{transWorkCode}
             </if>
@@ -386,12 +385,12 @@
                 line_type_name = #{lineTypeName}
             </if>
             ,
-            <if test="createUserErp != null">
-                create_user_erp = #{createUserErp}
+            <if test="lastPlanDepartTime != null">
+                last_plan_depart_time = #{lastPlanDepartTime}
             </if>
             ,
-            <if test="createUserName != null">
-                create_user_name = #{createUserName}
+            <if test="lastSealCarTime != null">
+                last_seal_car_time = #{lastSealCarTime}
             </if>
             ,
             <if test="updateUserErp != null">
@@ -400,10 +399,6 @@
             ,
             <if test="updateUserName != null">
                 update_user_name = #{updateUserName}
-            </if>
-            ,
-            <if test="createTime != null">
-                create_time = #{createTime}
             </if>
             ,
             <if test="updateTime != null">
@@ -452,6 +447,8 @@
              vehicle_status,
              trans_way,
              trans_way_name,
+             vehicle_type,
+             vehicle_type_name,
              line_type,
              line_type_name,
              create_user_erp,
@@ -468,6 +465,8 @@
             #{vehicleStatus},
             #{transWay},
             #{transWayName},
+            #{vehicleType},
+            #{vehicleTypeName},
             #{lineType},
             #{lineTypeName} ,
             #{createUserErp},

@@ -127,6 +127,8 @@ public class JySealVehicleGatewayServiceImpl implements JySealVehicleGatewayServ
     }
 
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JySealVehicleGatewayService.vehicleStatusOptions",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public JdCResponse<List<SelectOption>> vehicleStatusOptions() {
         List<SelectOption> optionList = new ArrayList<>();
         for (VehicleStatusEnum _enum : VehicleStatusEnum.values()) {

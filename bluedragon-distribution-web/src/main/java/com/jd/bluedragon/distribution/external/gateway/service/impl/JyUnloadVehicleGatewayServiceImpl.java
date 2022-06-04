@@ -98,7 +98,7 @@ public class JyUnloadVehicleGatewayServiceImpl implements JyUnloadVehicleGateway
     public JdCResponse<List<SelectOption>> vehicleStatusOptions() {
         List<SelectOption> optionList = new ArrayList<>();
         for (JyUnloadVehicleStatusEnum statusEnum : JyUnloadVehicleStatusEnum.values()) {
-            SelectOption option = new SelectOption(statusEnum.getCode(), statusEnum.getName(), statusEnum.getCode());
+            SelectOption option = new SelectOption(statusEnum.getCode(), statusEnum.getName(), statusEnum.getOrder());
             optionList.add(option);
         }
 

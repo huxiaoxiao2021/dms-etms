@@ -26,12 +26,12 @@ public class SendDestDetail implements Serializable {
     /**
      * 待扫包裹数
      */
-    private Long toScanPackCount;
+    private Long toScanPackCount = 0L;
 
     /**
      * 已扫包裹数
      */
-    private Long scannedPackCount;
+    private Long scannedPackCount = 0L;
 
     /**
      * 预计发货时间

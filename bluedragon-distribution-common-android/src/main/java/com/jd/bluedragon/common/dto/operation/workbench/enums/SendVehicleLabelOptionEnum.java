@@ -1,4 +1,4 @@
-package com.jd.bluedragon.distribution.jy.enums;
+package com.jd.bluedragon.common.dto.operation.workbench.enums;
 
 /**
  * @ClassName SendVehicleLabelOptionEnum

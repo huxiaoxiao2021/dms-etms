@@ -30,6 +30,11 @@ public class JyBizTaskSendVehicleDetailEntity implements Serializable {
     }
 
 	/**
+	 * 业务主键 == 派车明细单号
+	 */
+	private String bizId;
+
+	/**
 	 * 主键ID
 	 */
 	private Long id;
@@ -37,10 +42,10 @@ public class JyBizTaskSendVehicleDetailEntity implements Serializable {
 	 * send_vehicle业务主键
 	 */
 	private String sendVehicleBizId;
-	/**
-	 * 业务主键
-	 */
-	private String bizId;
+    public JyBizTaskSendVehicleDetailEntity(Long startSiteId, String sendVehicleBizId) {
+        this.startSiteId = startSiteId;
+        this.sendVehicleBizId = sendVehicleBizId;
+    }
 	/**
 	 * 派车明细单号
 	 */

@@ -1,12 +1,10 @@
 package com.jd.bluedragon.core.base;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.tms.jdi.dto.CommonDto;
-import com.jd.tms.jdi.dto.PageDto;
-import com.jd.tms.jdi.dto.TransWorkBillDto;
-import com.jd.tms.jdi.dto.TransWorkItemDto;
+import com.jd.tms.jdi.dto.*;
 import com.jd.tms.jdi.ws.JdiQueryWS;
 import com.jd.tms.jdi.ws.JdiTransWorkWS;
 import com.jd.ump.annotation.JProEnum;
@@ -63,7 +61,7 @@ public class JdiQueryWSManagerImpl implements JdiQueryWSManager {
     /**
      * 根据派车明细编码获取派车任务明细
      *
-     * @param var1
+     * @param itemCode
      * @return
      */
     @Override
@@ -91,29 +89,29 @@ public class JdiQueryWSManagerImpl implements JdiQueryWSManager {
     }
 
     @Override
-    public List<TransWorkBillDto> queryTransWorkBillByPage(TransWorkBillDto transWorkBillDto, PageDto<TransWorkBillDto> pageDto) {
-        if (transWorkBillDto == null || pageDto == null) {
+    public BigTransWorkDto queryTransWorkByChoice(String transWorkCode, BigQueryOption option) {
+        if (StringUtils.isBlank(transWorkCode)) {
             return null;
         }
 
-        CallerInfo callerInfo = ProfilerHelper.registerInfo("dmsWeb.jsf.JdiQueryWSManager.queryTransWorkBillByPage");
+        CallerInfo callerInfo = ProfilerHelper.registerInfo("dmsWeb.jsf.JdiQueryWSManager.queryTransWorkByChoice");
         try {
-            CommonDto<PageDto<TransWorkBillDto>> commonDto = jdiTransWorkWS.queryPageByCondition(transWorkBillDto, pageDto);
+            CommonDto<BigTransWorkDto> commonDto = jdiTransWorkWS.queryDataByOption(transWorkCode, option);
             if (commonDto.getCode() != CommonDto.CODE_SUCCESS) {
-                logger.warn("查询运输派车单失败. {}, {}, resp:{}",
-                        JsonHelper.toJson(transWorkBillDto), JsonHelper.toJson(pageDto), JsonHelper.toJson(commonDto));
+                logger.warn("根据派车单号查询多表数据失败. {}, {}, resp:{}",
+                        JsonHelper.toJson(transWorkCode), JsonHelper.toJson(option), JsonHelper.toJson(commonDto));
                 return null;
             }
-            if (null == commonDto.getData() || CollectionUtils.isEmpty(commonDto.getData().getResult())) {
-                logger.warn("调用运输接口获取派车单成功，但是数据为空. {}, {}, resp:{}",
-                        JsonHelper.toJson(transWorkBillDto), JsonHelper.toJson(pageDto), JsonHelper.toJson(commonDto));
+            if (commonDto.getData() == null) {
+                logger.warn("根据派车单号查询多表数据成功，返回数据为空. {}, {}, resp:{}",
+                        JsonHelper.toJson(transWorkCode), JsonHelper.toJson(option), JsonHelper.toJson(commonDto));
                 return null;
             }
 
-            return commonDto.getData().getResult();
+            return commonDto.getData();
         }
         catch (Exception ex) {
-            logger.warn("查询运输派车单异常! {}, {}", JsonHelper.toJson(transWorkBillDto), JsonHelper.toJson(pageDto), ex);
+            logger.warn("根据派车单号查询多表数据异常! {}, {}", JsonHelper.toJson(transWorkCode), JsonHelper.toJson(option), ex);
             Profiler.functionError(callerInfo);
         }
         finally {
@@ -121,5 +119,18 @@ public class JdiQueryWSManagerImpl implements JdiQueryWSManager {
         }
 
         return null;
+    }
+
+    @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JdiQueryWSManager.queryTransWork", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public TransWorkBillDto queryTransWork(String transWorkCode) {
+        BigQueryOption option = new BigQueryOption();
+        option.setQueryTransWorkBillDto(true);
+        BigTransWorkDto transWorkDto = queryTransWorkByChoice(transWorkCode, option);
+        if (transWorkDto == null || transWorkDto.getTransWorkBillDto() == null) {
+            logger.warn("根据派车单号查询派车单返回数据为空. {}", transWorkCode);
+            return null;
+        }
+        return transWorkDto.getTransWorkBillDto();
     }
 }

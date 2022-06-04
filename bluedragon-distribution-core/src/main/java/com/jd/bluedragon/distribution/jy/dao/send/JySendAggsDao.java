@@ -3,6 +3,8 @@ package com.jd.bluedragon.distribution.jy.dao.send;
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.jy.send.JySendAggsEntity;
 
+import java.util.List;
+
 /**
  * 发货数据统计表
  * 
@@ -26,5 +28,9 @@ public class JySendAggsDao extends BaseDao<JySendAggsEntity> {
 
     public JySendAggsEntity getVehicleSendStatistics(String sendVehicleBizId){
         return this.getSqlSession().selectOne(NAMESPACE + ".getVehicleSendStatistics", sendVehicleBizId);
+    }
+
+    public List<JySendAggsEntity> findBySendVehicleBiz(String sendVehicleBizId) {
+        return this.getSqlSession().selectList(NAMESPACE + ".findBySendVehicleBiz", sendVehicleBizId);
     }
 }

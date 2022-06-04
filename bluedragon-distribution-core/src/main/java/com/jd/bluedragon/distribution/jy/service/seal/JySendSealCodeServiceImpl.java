@@ -25,4 +25,9 @@ public class JySendSealCodeServiceImpl implements JySendSealCodeService{
     public int addBatch(List<JySendSealCodeEntity> list) {
         return jySendSealCodeDao.insertBatch(list);
     }
+
+    @Override
+    public int countByBiz(String sendVehicleBiz) {
+        return jySendSealCodeDao.countByBiz(sendVehicleBiz);
+    }
 }

@@ -25,6 +25,7 @@
 		<typeAlias type="com.jd.bluedragon.distribution.jy.send.JySendAttachmentEntity" alias="JySendAttachmentEntity" />
 		<typeAlias type="com.jd.bluedragon.distribution.jy.send.JySendCodeEntity" alias="JySendCodeEntity" />
 		<typeAlias type="com.jd.bluedragon.distribution.jy.send.JySendSealCodeEntity" alias="JySendSealCodeEntity" />
+        <typeAlias type="com.jd.bluedragon.distribution.jy.send.JySendAggsEntity" alias="JySendAggsEntity" />
 	</typeAliases>
 
 

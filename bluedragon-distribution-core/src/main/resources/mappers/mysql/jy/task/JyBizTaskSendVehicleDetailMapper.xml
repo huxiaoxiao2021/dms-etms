@@ -192,22 +192,6 @@
     <update id="update" parameterType="JyBizTaskSendVehicleDetailEntity">
         UPDATE jy_biz_task_send_vehicle_detail
         <set>
-            <if test="id != null">
-                id = #{id}
-            </if>
-            ,
-            <if test="sendVehicleBizId != null">
-                send_vehicle_biz_id = #{sendVehicleBizId}
-            </if>
-            ,
-            <if test="bizId != null">
-                biz_id = #{bizId}
-            </if>
-            ,
-            <if test="transWorkItemCode != null">
-                trans_work_item_code = #{transWorkItemCode}
-            </if>
-            ,
             <if test="vehicleStatus != null">
                 vehicle_status = #{vehicleStatus}
             </if>
@@ -415,9 +399,9 @@
             <if test="sendVehicleBizId != null">
                 AND send_vehicle_biz_id = #{sendVehicleBizId}
             </if>
-            <if test="sendVehicleBizList != null and sendVehicleBizList.size() > 0">
-                AND send_vehicle_biz_id IN
-                <foreach collection="sendVehicleBizList" item="item" close=")" open="(" separator=",">
+            <if test="vehicleStatuses != null and vehicleStatuses.size() > 0">
+                AND vehicle_status IN
+                <foreach collection="vehicleStatuses" item="item" close=")" open="(" separator=",">
                     #{item}
                 </foreach>
             </if>
@@ -428,4 +412,30 @@
                 AND end_site_id = #{entity.endSiteId}
             </if>
     </select>
+
+    <update id="updateByBiz" parameterType="JyBizTaskSendVehicleDetailEntity">
+        UPDATE jy_biz_task_send_vehicle_detail
+        <set>
+            <if test="vehicleStatus ! = null">
+                vehicle_status = #{vehicleStatus},
+            </if>
+            <if test="sealCarTime != null">
+                seal_car_time = #{sealCarTime},
+            </if>
+            <if test="updateUserErp != null">
+                update_user_erp = #{updateUserErp},
+            </if>
+            <if test="updateUserName != null">
+                update_user_name = #{updateUserName},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+            <if test="yn != null">
+                yn = #{yn}
+            </if>
+        </set>
+        WHERE
+            biz_id = #{bizId}
+    </update>
 </mapper>

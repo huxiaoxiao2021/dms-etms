@@ -44,10 +44,14 @@ public class JyBizTaskSendVehicleDetailDao extends BaseDao<JyBizTaskSendVehicleD
         return this.getSqlSession().insert(NAMESPACE + ".save", entity);
     }
 
-    public List<JyBizTaskSendVehicleDetailEntity> findByMainVehicleBiz(JyBizTaskSendVehicleDetailEntity entity, List<String> sendVehicleBizList) {
+    public List<JyBizTaskSendVehicleDetailEntity> findByMainVehicleBiz(JyBizTaskSendVehicleDetailEntity entity, List<Integer> vehicleStatuses) {
         Map<String,Object> params = new HashMap<>();
         params.put("entity", entity);
-        params.put("sendVehicleBizList", sendVehicleBizList);
+        params.put("vehicleStatuses", vehicleStatuses);
         return this.getSqlSession().selectList(NAMESPACE + "findByMainVehicleBiz", params);
+    }
+
+    public int updateByBiz(JyBizTaskSendVehicleDetailEntity entity) {
+        return this.getSqlSession().update(NAMESPACE + ".updateByBiz", entity);
     }
 }

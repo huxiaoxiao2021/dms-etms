@@ -26,7 +26,7 @@ public class JySendSealCodeEntity implements Serializable {
 	/**
 	 * 操作场地ID
 	 */
-	private Long opeateSiteId;
+	private Long operateSiteId;
 	/**
 	 * 封签号
 	 */
@@ -84,12 +84,12 @@ public class JySendSealCodeEntity implements Serializable {
 		this.sendVehicleBizId = sendVehicleBizId;
 	}
 
-	public Long getOpeateSiteId() {
-		return opeateSiteId;
+	public Long getOperateSiteId() {
+		return operateSiteId;
 	}
 
-	public void setOpeateSiteId(Long opeateSiteId) {
-		this.opeateSiteId = opeateSiteId;
+	public void setOperateSiteId(Long operateSiteId) {
+		this.operateSiteId = operateSiteId;
 	}
 
 	public String getSealCode() {

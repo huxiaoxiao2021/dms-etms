@@ -3,6 +3,8 @@ package com.jd.bluedragon.distribution.jy.service.send;
 
 import com.jd.bluedragon.distribution.jy.send.JySendAggsEntity;
 
+import java.util.List;
+
 /**
  * 发货数据统计表
  *
@@ -13,6 +15,11 @@ import com.jd.bluedragon.distribution.jy.send.JySendAggsEntity;
 public interface JySendAggsService {
     JySendAggsEntity getVehicleSendStatistics(String sendVehicleBizId);
 
-
+    /**
+     * 按发车任务查发货流向进度
+     * @param sendVehicleBizId
+     * @return
+     */
+    List<JySendAggsEntity> findBySendVehicleBiz(String sendVehicleBizId);
 }
 

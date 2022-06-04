@@ -125,7 +125,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
             JySendSealCodeEntity jySendSealCodeEntity =new JySendSealCodeEntity();
             jySendSealCodeEntity.setSealCode(sealCode);
             jySendSealCodeEntity.setSendVehicleBizId(sealVehicleReq.getSendVehicleBizId());
-            jySendSealCodeEntity.setOpeateSiteId(Long.valueOf(sealVehicleReq.getCurrentOperate().getSiteCode()));
+            jySendSealCodeEntity.setOperateSiteId(Long.valueOf(sealVehicleReq.getCurrentOperate().getSiteCode()));
             jySendSealCodeEntity.setOperateTime(now);
             jySendSealCodeEntity.setCreateTime(now);
             jySendSealCodeEntity.setUpdateTime(now);

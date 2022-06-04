@@ -53,4 +53,19 @@ public interface JyBizTaskSendVehicleService {
                                                          JyBizTaskSendSortTypeEnum typeEnum,
                                                          Integer pageNum, Integer pageSize);
 
+
+    /**
+     * 更细最晚发车时间
+     * @param entity
+     * @return
+     */
+    int updateLastPlanDepartTime(JyBizTaskSendVehicleEntity entity);
+
+    /**
+     * 更新最晚封车时间
+     * @param entity
+     * @return
+     */
+    int updateLastSealCarTime(JyBizTaskSendVehicleEntity entity);
+
 }

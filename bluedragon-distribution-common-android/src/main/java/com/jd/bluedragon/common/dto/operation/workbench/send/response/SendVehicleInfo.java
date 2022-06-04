@@ -21,7 +21,7 @@ public class SendVehicleInfo implements Serializable {
     private String vehicleNumber;
 
     /**
-     * 线路名称简称
+     * 线路类型简称
      */
     private String lineTypeShortName;
 
@@ -33,7 +33,7 @@ public class SendVehicleInfo implements Serializable {
     /**
      * 发货目的地个数
      */
-    private Integer destCount;
+    private Integer destCount = 0;
 
     /**
      * 预计发货时间

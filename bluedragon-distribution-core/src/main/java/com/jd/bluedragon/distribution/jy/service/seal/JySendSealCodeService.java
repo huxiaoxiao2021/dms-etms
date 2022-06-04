@@ -10,4 +10,6 @@ public interface JySendSealCodeService {
     int add(JySendSealCodeEntity entity);
 
     int addBatch(List<JySendSealCodeEntity> list);
+
+    int countByBiz(String sendVehicleBiz);
 }

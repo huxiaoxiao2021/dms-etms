@@ -4,7 +4,7 @@
 <mapper namespace="com.jd.bluedragon.distribution.jy.dao.send.JySendAggsDao">
 
     <!-- 可根据自己的需求，是否要使用 -->
-    <resultMap type="com.jd.bluedragon.distribution.jy.dao.send.JySendAggsDao" id="jySendAggsMap">
+    <resultMap type="com.jd.bluedragon.distribution.jy.send.JySendAggsEntity" id="jySendAggsMap">
         <result property="id" column="id"/>
         <result property="bizId" column="biz_id"/>
         <result property="transWorkItemCode" column="trans_work_item_code"/>
@@ -387,11 +387,20 @@
         </where>
     </update>
 
-    <select id="getVehicleSendStatistics" parameterType="java.lang.String" parameterMap="jySendAggsMap">
+    <select id="getVehicleSendStatistics" parameterType="java.lang.String" resultMap="jySendAggsMap">
         SELECT
         <include refid="Base_Column_List"/>
         from jy_send_aggs
         WHERE send_vehicle_biz_id = #{sendVehicleBizId}
         and yn = 1 limit 1
+    </select>
+
+    <select id="findBySendVehicleBiz" parameterType="java.lang.String" resultMap="jySendAggsMap">
+        SELECT
+            <include refid="Base_Column_List"/>
+        FROM jy_send_aggs
+        WHERE
+            yn = 1
+        AND send_vehicle_biz_id = #{sendVehicleBizId}
     </select>
 </mapper>
