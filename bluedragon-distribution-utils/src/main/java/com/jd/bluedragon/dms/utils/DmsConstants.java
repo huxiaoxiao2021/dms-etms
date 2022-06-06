@@ -48,7 +48,7 @@ public class DmsConstants {
     public static final String BUSI_ORDER_CODE_QWD = "QWD";
     public static final String SOURCE_CODE_CLPS = "CLPS";
     public static final String BUSI_ORDER_CODE_PRE_CLPS = "CSL";
-    
+
     public static final String CODE_PREFIX_WORK_STATION = "GX";
     public static final String CODE_PREFIX_WORK_STATION_GRID = "CDGX";
     public static final String CODE_PREFIX_WORK_STATION_ATTEND_PLAN = "CDGXPL";
@@ -245,6 +245,13 @@ public class DmsConstants {
     public static final Pattern APP_VERSION_REGEX = Pattern.compile("^([0-9]\\d|[0-9])(.([0-9]\\d|\\d)){1,2}$");
 
     /**
+     * （微仓）大保温箱号规则，MZ开头，总长度14到16位
+     */
+    public static final Pattern BIG_WARM_BOX_CODE_REGEX = Pattern.compile("^WCDX[0-9]{10}$");
+
+    public static final Pattern ICE_BOARD_BOX_CODE_REGEX = Pattern.compile("^WCBB[0-9]{10}$");
+
+    /**
      * 预售异常原因-上级编码
      */
     public static final Integer QC_TYPE = 2;
@@ -269,6 +276,11 @@ public class DmsConstants {
      * 集包袋前缀
      */
     public static final String COLLECTION_BAG_PREFIX = "AD";
+
+    /**
+     * 医药直发围板箱前缀
+     */
+    public static final String COLLECTION_AY_PREFIX = "AY";
 
     /**
      * 分拣中心类型（数据字典-站点类型）
@@ -299,9 +311,9 @@ public class DmsConstants {
     public static final String BC_BOX_PREFIX = "BC";
 
     public static final String WJ_BOX_PREFIX = "WJ";
-    
+
     public static final int PAGE_SIZE_DEFAULT = 10;
-    
+
     public static final String KEYS_SPLIT = ":";
     //站点操作的节点
     public static final Set<Integer> SITE_OPERAT_STATES = new HashSet<Integer>(){{
@@ -320,6 +332,7 @@ public class DmsConstants {
      */
     public static final String MESSAGE_TYPE_BAOFEI = "TYPE_BAOFEI";
     public static final String ORDER_TYPE_REVERSE = "20";
+
     /**
      * 暂存类型枚举值
      */
@@ -352,4 +365,5 @@ public class DmsConstants {
             this.name = name;
         }
     }
+
 }

@@ -98,5 +98,11 @@ public interface IJyUnloadVehicleService {
      * @return
      */
     JyBizTaskUnloadDto createUnloadTask(JyBizTaskUnloadDto dto);
+    /**
+     * 查询待解封车数量
+     * @param request
+     * @return
+     */
+	InvokeResult<Long> countByVehicleNumberAndStatus(UnsealVehicleTaskRequest request);
 
 }

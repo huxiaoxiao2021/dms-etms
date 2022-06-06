@@ -437,7 +437,16 @@
     <jsf:provider id="jsfAutoDistService"
                   interface="com.jd.bluedragon.external.gateway.service.AutoDistGatewayService"
                   alias="${dms.gateway.jsf.alias}"
-                  ref="autoDistGatewayServiceImpl" server="dmsjsf">
+                  ref="autoDistGatewayServiceImpl"
+                  server="dmsjsf">
+    </jsf:provider>
+
+    <bean id="miniStoreGatewayServiceImpl" class="com.jd.bluedragon.distribution.external.gateway.service.impl.MiniStoreGatewayServiceImpl" />
+    <jsf:provider id="jsfMiniStoreGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.MiniStoreGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="miniStoreGatewayServiceImpl"
+                  server="dmsjsf">
     </jsf:provider>
 
     <!--  APP升级检测   -->
@@ -468,5 +477,13 @@
                   interface="com.jd.bluedragon.distribution.jy.gateway.group.GroupMemberGatewayService"
                   alias="${dms.gateway.jsf.alias}"
                   ref="groupMemberGatewayService"
-                  server="dmsjsf" />                 
+                  server="dmsjsf" />
+
+    <!-- 车辆任务服务  -->
+    <bean id="tMSCarTaskGateWayServiceImpl" class="com.jd.bluedragon.distribution.external.gateway.service.impl.TMSCarTaskGateWayServiceImpl" />
+    <jsf:provider id="tMSCarTaskGateWayService"
+                  interface="com.jd.bluedragon.external.gateway.service.TMSCarTaskGateWayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="tMSCarTaskGateWayServiceImpl"
+                  server="dmsjsf" />
 </beans>

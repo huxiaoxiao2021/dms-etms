@@ -28,7 +28,8 @@ public enum BoxTypeEnum {
     TYPE_ZK("ZK", "特快混包"),
     TYPE_ZQ("ZQ", "其他混包"),
     TYPE_ZS("ZS", "售后件"),
-    RECYCLE_BASKET("AK", "周转筐")
+    RECYCLE_BASKET("AK", "周转筐"),
+    TYPE_MS("MS", "医药直发")
     ;
 
     private String code;

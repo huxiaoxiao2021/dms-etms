@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.ver.filter.filters;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.hint.constants.HintArgsConstants;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
@@ -14,6 +15,7 @@ import com.jd.bluedragon.distribution.ver.exception.SortingCheckException;
 import com.jd.bluedragon.distribution.ver.filter.Filter;
 import com.jd.bluedragon.distribution.ver.filter.FilterChain;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
+import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.bluedragon.utils.WaybillCacheHelper;
 import org.apache.commons.collections.CollectionUtils;
@@ -38,12 +40,21 @@ public class RouterFilter implements Filter {
 
     @Autowired
     private RouterService routerService;
+    @Autowired
+    private UccPropertyConfiguration uccConfiguration;
 
     @Override
     public void doFilter(FilterContext request, FilterChain chain) throws Exception {
 
         /* 判断如果是填航空仓订单则直接进行返回，不进行下面的下一跳校验 */
         if (WaybillCacheHelper.isAirWaybill(request.getWaybillCache())) {
+            chain.doFilter(request,chain);
+            return;
+        }
+
+        //发货目的地为德邦虚拟分拣中心的不校验
+        List<Integer> dpSiteCodeList = uccConfiguration.getDpSiteCodeList();
+        if(BusinessHelper.isDPSiteCode(dpSiteCodeList, request.getReceiveSiteCode())){
             chain.doFilter(request,chain);
             return;
         }

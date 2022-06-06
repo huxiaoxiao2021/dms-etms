@@ -86,4 +86,20 @@ public class SealCarManagerImpl implements SealCarManager {
 
         return commonDto;
     }
+    
+    @Override
+    @JProfiler(jKey = "dms.web.SealCarManager.doSealCodes" , jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    public CommonDto<String> doSealCodes(SealCodesDto param) {
+        if (log.isInfoEnabled()) {
+            log.info("VOS封签线上化相关接口-无货上封签方法, 参数：{}", JsonHelper.toJson(param));
+        }
+        CommonDto<String> commonDto = sealCarWS.doSealCodes(param);
+        if (log.isInfoEnabled()) {
+            log.info("VOS封签线上化相关接口-无货上封签方法, 参数：{}, 返回值：{}", JsonHelper.toJson(param), JsonHelper.toJson(commonDto));
+        }
+        if (null == commonDto || commonDto.getCode() != CommonDto.CODE_SUCCESS) {
+            log.error("VOS封签线上化相关接口-无货上封签方法-调用失败, 参数：{}, 返回值：{}", JsonHelper.toJson(param), JsonHelper.toJson(commonDto));
+        }
+        return commonDto;
+    }    
 }

@@ -150,4 +150,11 @@ public interface JyBizTaskUnloadVehicleService {
      * @return
      */
     JyBizTaskUnloadVehicleEntity initTaskByNoTask(JyBizTaskUnloadDto dto);
+    
+    /**
+     * 根据车牌、状态、目的地查询任务数量
+     * @param condition
+     * @return
+     */
+    Long countByVehicleNumberAndStatus(JyBizTaskUnloadVehicleEntity condition);
 }
