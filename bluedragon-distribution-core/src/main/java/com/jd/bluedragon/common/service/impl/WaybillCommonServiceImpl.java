@@ -1629,13 +1629,14 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             routeProduct = RouteProductEnum.TB2;
         }
 
-
+        log.info("加载路由信息判断 routerNameList 前---{}",routeProduct.getText());
         List<String> routerNameList = null;
         try {
             routerNameList = vrsRouteTransferRelationManager.loadWaybillRouter(originalDmsCode,destinationDmsCode,routeProduct,predictSendTime);
         } catch (Exception e) {
             log.error("获取路由环节信息失败waybillCode[{}]originalDmsCode[{}]destinationDmsCode[{}]",printWaybill.getWaybillCode(),originalDmsCode,destinationDmsCode,e);
         }
+        log.info("加载路由信息判断 routerNameList 后--{}",JSON.toJSONString(routerNameList));
         log.debug("获取到的城市名列表为:{}" , routerNameList);
         if(routerNameList != null && routerNameList.size() > 0){
             for(int i=0;i<routerNameList.size();i++){
