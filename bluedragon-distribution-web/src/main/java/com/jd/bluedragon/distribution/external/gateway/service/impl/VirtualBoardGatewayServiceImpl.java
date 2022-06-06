@@ -60,6 +60,7 @@ public class VirtualBoardGatewayServiceImpl implements VirtualBoardGatewayServic
      * @time 2021-08-14 18:25:31 周六
      */
     @Override
+    @JProfiler(jKey = "DMSWEB.VirtualBoardGatewayServiceImpl.getBoardUnFinishInfo",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<List<VirtualBoardResultDto>> getBoardUnFinishInfo(OperatorInfo operatorInfo) {
         if(operatorInfo.getBizSource() == null){
             operatorInfo.setBizSource(BizSourceEnum.PDA.getValue());
@@ -75,7 +76,7 @@ public class VirtualBoardGatewayServiceImpl implements VirtualBoardGatewayServic
      * @time 2021-08-14 18:25:31 周六
      */
     @Override
-    @JProfiler(jKey = "DMSWEB.VirtualBoardServiceImpl.createOrGetBoard",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    @JProfiler(jKey = "DMSWEB.VirtualBoardGatewayServiceImpl.createOrGetBoard",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<VirtualBoardResultDto> createOrGetBoard(AddOrGetVirtualBoardPo addOrGetVirtualBoardPo) {
         if(addOrGetVirtualBoardPo.getBizSource() == null){
             addOrGetVirtualBoardPo.setBizSource(BizSourceEnum.PDA.getValue());
@@ -91,7 +92,7 @@ public class VirtualBoardGatewayServiceImpl implements VirtualBoardGatewayServic
      * @time 2021-08-14 18:25:31 周六
      */
     @Override
-    @JProfiler(jKey = "DMSWEB.VirtualBoardServiceImpl.bindToBoard",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    @JProfiler(jKey = "DMSWEB.VirtualBoardGatewayServiceImpl.bindToBoard",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<VirtualBoardResultDto> bindToBoard(BindToVirtualBoardPo bindToVirtualBoardPo) {
         if(bindToVirtualBoardPo.getBizSource() == null){
             bindToVirtualBoardPo.setBizSource(BizSourceEnum.PDA.getValue());
@@ -107,7 +108,7 @@ public class VirtualBoardGatewayServiceImpl implements VirtualBoardGatewayServic
      * @time 2021-08-14 18:25:31 周六
      */
     @Override
-    @JProfiler(jKey = "DMSWEB.VirtualBoardServiceImpl.removeDestination",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    @JProfiler(jKey = "DMSWEB.VirtualBoardGatewayServiceImpl.removeDestination",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<Void> removeDestination(RemoveDestinationPo removeDestinationPo) {
         return virtualBoardService.removeDestination(removeDestinationPo);
     }
@@ -120,7 +121,7 @@ public class VirtualBoardGatewayServiceImpl implements VirtualBoardGatewayServic
      * @time 2021-08-14 18:25:31 周六
      */
     @Override
-    @JProfiler(jKey = "DMSWEB.VirtualBoardServiceImpl.closeBoard",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    @JProfiler(jKey = "DMSWEB.VirtualBoardGatewayServiceImpl.closeBoard",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<Void> closeBoard(CloseVirtualBoardPo closeVirtualBoardPo) {
         return virtualBoardService.closeBoard(closeVirtualBoardPo);
     }
@@ -133,7 +134,7 @@ public class VirtualBoardGatewayServiceImpl implements VirtualBoardGatewayServic
      * @time 2021-08-14 18:25:31 周六
      */
     @Override
-    @JProfiler(jKey = "DMSWEB.VirtualBoardServiceImpl.unbindToBoard",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    @JProfiler(jKey = "DMSWEB.VirtualBoardGatewayServiceImpl.unbindToBoard",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<UnbindVirtualBoardResultDto> unbindToBoard(UnbindToVirtualBoardPo unbindToVirtualBoardPo) {
         return virtualBoardService.unbindToBoard(unbindToVirtualBoardPo);
     }
@@ -146,7 +147,7 @@ public class VirtualBoardGatewayServiceImpl implements VirtualBoardGatewayServic
      * @time 2021-09-14 11:22:19 周二
      */
     @Override
-    @JProfiler(jKey = "DMSWEB.VirtualBoardServiceImpl.canUseMenu",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    @JProfiler(jKey = "DMSWEB.VirtualBoardGatewayServiceImpl.canUseMenu",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<Boolean> canUseMenu(OperatorInfo operatorInfo) {
         return virtualBoardService.canUseMenu(operatorInfo);
     }
@@ -157,13 +158,13 @@ public class VirtualBoardGatewayServiceImpl implements VirtualBoardGatewayServic
      * @return
      */
     @Override
-    @JProfiler(jKey = "DMSWEB.VirtualBoardServiceImpl.handoverBoard",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    @JProfiler(jKey = "DMSWEB.VirtualBoardGatewayServiceImpl.handoverBoard",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<Void> handoverBoard(HandoverVirtualBoardPo handoverVirtualBoardPo) {
         return virtualBoardService.handoverBoard(handoverVirtualBoardPo);
     }
 
     @Override
-    @JProfiler(jKey = "DMSWEB.VirtualBoardServiceImpl.autoBoardComplete",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    @JProfiler(jKey = "DMSWEB.VirtualBoardGatewayServiceImpl.autoBoardComplete",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<Void> autoBoardComplete(AutoBoardCompleteRequest request) {
         JdCResponse jdCResponse = new JdCResponse();
         jdCResponse.toSucceed();
@@ -178,6 +179,7 @@ public class VirtualBoardGatewayServiceImpl implements VirtualBoardGatewayServic
     }
 
     @Override
+    @JProfiler(jKey = "DMSWEB.VirtualBoardGatewayServiceImpl.autoBoardDetail",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<List<VirtualBoardResultDto>> autoBoardDetail(AutoBoardCompleteRequest request) {
         JdCResponse<List<VirtualBoardResultDto>> jdCResponse = new JdCResponse<List<VirtualBoardResultDto>>();
         jdCResponse.toSucceed();
@@ -217,6 +219,7 @@ public class VirtualBoardGatewayServiceImpl implements VirtualBoardGatewayServic
     }
 
     @Override
+    @JProfiler(jKey = "DMSWEB.VirtualBoardGatewayServiceImpl.getSortMachineBySiteCode",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<Map<String, Boolean>> getSortMachineBySiteCode(Integer siteCode) {
         JdCResponse<Map<String, Boolean>> jdCResponse = new JdCResponse<Map<String, Boolean>>();
         jdCResponse.toSucceed();

@@ -12,12 +12,12 @@ import java.io.Serializable;
  *
  */
 public class JdCResponse<E> implements Serializable {
-    
+
     private static final long serialVersionUID = 1L;
-    
+
     public static final Integer CODE_SUCCESS = 200;
     public static final String MESSAGE_SUCCESS = "success";
-    
+
     public static final Integer CODE_FAIL = 400;
     public static final String MESSAGE_FAIL = "fail";
 
@@ -35,10 +35,10 @@ public class JdCResponse<E> implements Serializable {
 
     /** 响应状态码 */
     protected Integer code;
-    
+
     /** 响应消息 */
     protected String message;
-    
+
     /** 响应数据 */
     protected E data;
     /**

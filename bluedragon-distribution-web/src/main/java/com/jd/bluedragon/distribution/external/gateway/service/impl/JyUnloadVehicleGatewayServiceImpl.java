@@ -12,6 +12,7 @@ import com.jd.bluedragon.common.dto.select.SelectOption;
 import com.jd.bluedragon.common.dto.select.StringSelectOption;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadStatusEnum;
+import com.jd.bluedragon.distribution.jy.enums.JyUnloadVehicleStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.UnloadProductTypeEnum;
 import com.jd.bluedragon.distribution.jy.service.unload.IJyUnloadVehicleService;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadDto;
@@ -95,7 +96,7 @@ public class JyUnloadVehicleGatewayServiceImpl implements JyUnloadVehicleGateway
     @Override
     public JdCResponse<List<SelectOption>> vehicleStatusOptions() {
         List<SelectOption> optionList = new ArrayList<>();
-        for (JyBizTaskUnloadStatusEnum statusEnum : JyBizTaskUnloadStatusEnum.UNLOAD_STATUS_OPTIONS) {
+        for (JyUnloadVehicleStatusEnum statusEnum : JyUnloadVehicleStatusEnum.values()) {
             SelectOption option = new SelectOption(statusEnum.getCode(), statusEnum.getName(), statusEnum.getCode());
             optionList.add(option);
         }
@@ -288,5 +289,11 @@ public class JyUnloadVehicleGatewayServiceImpl implements JyUnloadVehicleGateway
 
     private <T> JdCResponse<T> retJdCResponse(InvokeResult<T> invokeResult) {
         return new JdCResponse<>(invokeResult.getCode(), invokeResult.getMessage(), invokeResult.getData());
+    }
+    @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyUnloadVehicleGatewayService.countByVehicleNumberAndStatus",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
+    public JdCResponse<Long> countByVehicleNumberAndStatus(UnsealVehicleTaskRequest request) {
+        return retJdCResponse(unloadVehicleService.countByVehicleNumberAndStatus(request));
     }
 }
