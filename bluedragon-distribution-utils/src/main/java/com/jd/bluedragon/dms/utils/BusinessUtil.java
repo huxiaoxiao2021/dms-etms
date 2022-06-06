@@ -329,19 +329,6 @@ public class BusinessUtil {
         						WaybillSignConstants.CHAR_97_2,WaybillSignConstants.CHAR_97_3));
     }
 
-
-    /**
-     *
-     *判断是否B转C网  waybillSign第97位是1或者4 或者（waybillSign第40位是1、2、3、4、5中的一个 && waybillSign第97位不能是3）
-     * @param waybillSign
-     * @return
-     */
-    public static boolean isB2bForTransfor(String waybillSign) {
-        return isSignInChars(waybillSign, WaybillSignConstants.POSITION_97,WaybillSignConstants.CHAR_97_1, WaybillSignConstants.CHAR_97_4)
-                || (isSignInChars(waybillSign, WaybillSignConstants.POSITION_40, '1', '2', '3', '4', '5')
-                && !isSignInChars(waybillSign, WaybillSignConstants.POSITION_97, WaybillSignConstants.CHAR_97_3));
-    }
-
     /**
      * 判断字符串指定的位置是否在指定的字符范围之内
      *
