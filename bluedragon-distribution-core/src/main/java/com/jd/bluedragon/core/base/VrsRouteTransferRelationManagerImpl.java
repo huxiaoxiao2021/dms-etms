@@ -374,7 +374,7 @@ public class VrsRouteTransferRelationManagerImpl implements VrsRouteTransferRela
      */
     public List<String> loadWaybillRouter(Integer originalDmsCode,Integer destinationDmsCode,RouteProductEnum routeProduct,Date predictSendTime){
         List<String> dmsSiteNameList = new ArrayList<String>();
-        log.info("loadWaybillRouter 获取路由信息1 originalDmsCode:{},destinationDmsCode:{},routeProduct:{},predictSendTime:{}",
+        log.info("loadWaybillRouter 入参 originalDmsCode:{},destinationDmsCode:{},routeProduct:{},predictSendTime:{}",
                 originalDmsCode,destinationDmsCode, JSON.toJSONString(routeProduct),predictSendTime);
         //校验参数
         if(originalDmsCode == null || destinationDmsCode == null || routeProduct == null || predictSendTime == null){
@@ -391,10 +391,10 @@ public class VrsRouteTransferRelationManagerImpl implements VrsRouteTransferRela
         }
 
         //调路由的接口获取路由节点
-        log.info("loadWaybillRouter 获取路由信息2 originalDms:{},destinationDms:{},predictSendTime:{},routeProduct:{}"
+        log.info("queryRecommendRoute 入参originalDms:{},destinationDms:{},predictSendTime:{},routeProduct:{}"
                 ,originalDms.getDmsSiteCode(),destinationDms.getDmsSiteCode(),predictSendTime,JSON.toJSONString(routeProduct));
         String router=queryRecommendRoute(originalDms.getDmsSiteCode(),destinationDms.getDmsSiteCode(),predictSendTime,routeProduct);
-        log.info("loadWaybillRouter 获取路由信息3 router:{}",router);
+        log.info("queryRecommendRoute 出参 router:{}",router);
         if (StringUtils.isEmpty(router)){
             return dmsSiteNameList;
         }

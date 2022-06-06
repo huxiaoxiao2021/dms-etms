@@ -1602,12 +1602,10 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
     @JProfiler(jKey = "DMS.BASE.WaybillCommonServiceImpl.loadWaybillRouter", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public void loadWaybillRouter(BasePrintWaybill printWaybill,Integer originalDmsCode,Integer destinationDmsCode,String waybillSign){
         //非B网的不用查路由
-        log.info("加载路由信息中---waybillSign:{} ",waybillSign);
         if(!BusinessUtil.isB2bForTransfor(waybillSign)){
             return;
         }
-        log.info("加载路由信息判断---");
-
+        log.info("加载路由信息---");
         //调路由的接口获取路由节点
         Date predictSendTime = new Date();
         RouteProductEnum routeProduct = null;
@@ -1628,8 +1626,6 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         }else if(BusinessUtil.isSignChar(waybillSign,80,'9')){
             routeProduct = RouteProductEnum.TB2;
         }
-
-        log.info("加载路由信息判断 routerNameList 前---{}",routeProduct.getText());
         List<String> routerNameList = null;
         try {
             routerNameList = vrsRouteTransferRelationManager.loadWaybillRouter(originalDmsCode,destinationDmsCode,routeProduct,predictSendTime);
