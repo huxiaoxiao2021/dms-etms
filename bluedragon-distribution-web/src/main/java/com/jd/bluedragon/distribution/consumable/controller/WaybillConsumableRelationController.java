@@ -97,8 +97,9 @@ public class WaybillConsumableRelationController extends DmsBaseController{
 				return rest;
 			}
 
+			WaybillConsumableRelation waybillConsumableRelation1 = waybillConsumableRelationService.findById(waybillConsumableRelation.getId());
 			//如果是打木架，则打包后体积必传
-			if ((ConsumableCodeEnums.isWoodenConsumable(waybillConsumableRelation.getConsumableCode()) || PackingTypeEnum.isWoodenConsumable(waybillConsumableRelation.getConsumableType()))
+			if ((ConsumableCodeEnums.isWoodenConsumable(waybillConsumableRelation1.getConsumableCode()) || PackingTypeEnum.isWoodenConsumable(waybillConsumableRelation1.getConsumableType()))
 					&& (waybillConsumableRelation.getConfirmVolume() == null || waybillConsumableRelation.getConfirmVolume() <= 0 || waybillConsumableRelation.getConfirmVolume() > 999.999d)) {
 				rest.toError("数据格式不对，请录入大于0小于1000的数据");
 				return rest;

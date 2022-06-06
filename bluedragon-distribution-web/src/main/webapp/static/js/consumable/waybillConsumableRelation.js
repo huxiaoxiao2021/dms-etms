@@ -202,6 +202,7 @@ $(function () {
                                             var unit = row.unit;
                                             var receiveQuantity = row.receiveQuantity;
                                             var confirmQuantity = row.confirmQuantity;
+                                            var confirmVolume = row.confirmVolume;
                                             var packUserErp = row.packUserErp;
                                             var waybillCode = row.waybillCode;
 
@@ -217,6 +218,7 @@ $(function () {
                                             frameWindow.$('#unit-value-input').val(unit);
                                             frameWindow.$('#receive-value-input').val(receiveQuantity);
                                             frameWindow.$('#confirm-value-input').val(confirmQuantity);
+                                            frameWindow.$('#volume-confirm-value-input').val(confirmVolume);
                                             frameWindow.$('#erp-value-input').val(packUserErp);
                                             frameWindow.$('#waybillCode-value-input').val(waybillCode);
                                         }
