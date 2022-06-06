@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
 import com.jd.bluedragon.common.UnifiedExceptionProcess;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleTaskResponse;
 import com.jd.bluedragon.common.dto.send.request.*;
 import com.jd.bluedragon.common.dto.send.response.CancelSendTaskResp;
 import com.jd.bluedragon.common.dto.send.response.CreateVehicleTaskResp;
@@ -39,7 +40,7 @@ public class JyNoTaskSendGatewayServiceImpl implements JyNoTaskSendGatewayServic
     }
 
     @Override
-    public JdCResponse<List<VehicleTaskResp>> listVehicleTask(VehicleTaskReq vehicleTaskReq) {
+    public JdCResponse<SendVehicleTaskResponse> listVehicleTask(VehicleTaskReq vehicleTaskReq) {
         return retJdCResponse(jyNoTaskSendService.listVehicleTask(vehicleTaskReq));
     }
 

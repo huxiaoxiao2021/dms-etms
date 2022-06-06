@@ -43,6 +43,8 @@
 		<mapper resource="mappers/mysql/jy/send/JySendAttachmentMapper.xml" />
 		<mapper resource="mappers/mysql/jy/send/JySendCodeMapper.xml" />
 		<mapper resource="mappers/mysql/jy/send/JySendSealCodeMapper.xml" />
+		<mapper resource="mappers/mysql/jy/send/JySendAggsMapper.xml" />
+		<mapper resource="mappers/mysql/jy/send/JySendTransferLogMapper.xml" />
 
 
 	</mappers>

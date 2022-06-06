@@ -41,6 +41,10 @@ public class JyBizTaskSendVehicleEntity implements Serializable {
 	 */
 	private String bizId;
 	/**
+	 * 自建任务的流水号
+	 */
+	private String bizNo;
+	/**
 	 * 运输派车单编码
 	 */
 	private String transWorkCode;
@@ -127,6 +131,14 @@ public class JyBizTaskSendVehicleEntity implements Serializable {
 	 * 数据库时间
 	 */
 	private Date ts;
+
+	public String getBizNo() {
+		return bizNo;
+	}
+
+	public void setBizNo(String bizNo) {
+		this.bizNo = bizNo;
+	}
 
 	public Long getId() {
 		return id;
