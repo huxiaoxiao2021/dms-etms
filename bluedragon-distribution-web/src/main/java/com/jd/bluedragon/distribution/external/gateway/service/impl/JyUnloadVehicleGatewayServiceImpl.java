@@ -146,6 +146,7 @@ public class JyUnloadVehicleGatewayServiceImpl implements JyUnloadVehicleGateway
             return response;
         }
         else if (invokeResult.getCode() == InvokeResult.CODE_HINT) {
+            response.setCode(InvokeResult.CODE_HINT);
             response.addPromptBox(0, invokeResult.getMessage());
             return response;
         }
