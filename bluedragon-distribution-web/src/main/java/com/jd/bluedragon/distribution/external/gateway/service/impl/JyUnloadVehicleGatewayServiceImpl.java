@@ -141,6 +141,7 @@ public class JyUnloadVehicleGatewayServiceImpl implements JyUnloadVehicleGateway
 
         InvokeResult<Integer> invokeResult = unloadVehicleService.unloadScan(request);
         if (invokeResult.getCode() == InvokeResult.RESULT_SUCCESS_CODE) {
+            response.setData(invokeResult.getData());
             response.toSuccess();
             return response;
         }
