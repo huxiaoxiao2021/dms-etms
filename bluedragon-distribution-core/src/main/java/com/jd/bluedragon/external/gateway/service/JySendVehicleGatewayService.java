@@ -1,6 +1,7 @@
 package com.jd.bluedragon.external.gateway.service;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.SendModeEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.SendVehiclePhotoEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.*;
@@ -126,7 +127,7 @@ public interface JySendVehicleGatewayService {
      * @param request
      * @return
      */
-    JdCResponse sendScan(SendScanRequest request);
+    JdVerifyResponse<SendScanResponse> sendScan(SendScanRequest request);
 
 
 }

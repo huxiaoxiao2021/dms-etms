@@ -42,7 +42,7 @@ public class JyBizTaskSendVehicleDetailServiceImpl implements JyBizTaskSendVehic
 
     @Override
     public List<JyBizTaskSendVehicleDetailEntity> findEffectiveSendVehicleDetail(JyBizTaskSendVehicleDetailEntity entity) {
-        return jyBizTaskSendVehicleDetailDao.findByMainVehicleBiz(entity, null);
+        return jyBizTaskSendVehicleDetailDao.findByMainVehicleBiz(entity);
     }
 
     @Override
@@ -55,5 +55,10 @@ public class JyBizTaskSendVehicleDetailServiceImpl implements JyBizTaskSendVehic
     @Override
     public int countByStatus(JyBizTaskSendVehicleDetailEntity entity) {
         return jyBizTaskSendVehicleDetailDao.countByStatus(entity);
+    }
+
+    @Override
+    public List<Long> getAllSendDest(JyBizTaskSendVehicleDetailEntity entity) {
+        return jyBizTaskSendVehicleDetailDao.getAllSendDest(entity);
     }
 }

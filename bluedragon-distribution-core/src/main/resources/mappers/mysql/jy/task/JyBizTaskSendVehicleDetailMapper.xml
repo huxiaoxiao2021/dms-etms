@@ -399,12 +399,6 @@
             <if test="sendVehicleBizId != null">
                 AND send_vehicle_biz_id = #{sendVehicleBizId}
             </if>
-            <if test="vehicleStatuses != null and vehicleStatuses.size() > 0">
-                AND vehicle_status IN
-                <foreach collection="vehicleStatuses" item="item" close=")" open="(" separator=",">
-                    #{item}
-                </foreach>
-            </if>
             <if test="entity.vehicleStatus != null">
                 AND vehicle_status = #{entity.vehicleStatus}
             </if>
@@ -450,4 +444,14 @@
             AND vehicle_status = #{vehicleStatus}
         </if>
     </select>
+
+    <select id="getAllSendDest" parameterType="JyBizTaskSendVehicleDetailEntity" resultType="java.util.List">
+        SELECT
+            end_site_id
+        FROM jy_biz_task_send_vehicle_detail
+        WHERE
+            yn = 1
+        AND send_vehicle_biz_id = #{sendVehicleBizId}
+    </select>
+
 </mapper>

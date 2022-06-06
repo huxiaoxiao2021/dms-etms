@@ -47,19 +47,26 @@ public class SendScanRequest implements Serializable {
     private String groupCode;
 
     /**
-     * 跳过拦截强制提交
+     * 跳过发货拦截强制提交
      */
     private Boolean forceSubmit;
-
-    /**
-     * 是否取消上次发货，false - 不取消（默认），true - 取消上次发货
-     */
-    private Boolean cancelLastSend;
 
     /**
      * 是否发送整板
      */
     private Boolean sendForWholeBoard;
+
+    /**
+     * 无任务发货确认目的地
+     */
+    private Boolean noTaskConfirmDest;
+
+    /**
+     * 无任务首次发货备注
+     */
+    private String noTaskRemark;
+
+    private Integer curSendDestId; // 用于校验本次发货目的地是否一致
 
     public User getUser() {
         return user;
@@ -133,19 +140,27 @@ public class SendScanRequest implements Serializable {
         this.forceSubmit = forceSubmit;
     }
 
-    public Boolean getCancelLastSend() {
-        return cancelLastSend;
-    }
-
-    public void setCancelLastSend(Boolean cancelLastSend) {
-        this.cancelLastSend = cancelLastSend;
-    }
-
     public Boolean getSendForWholeBoard() {
         return sendForWholeBoard;
     }
 
     public void setSendForWholeBoard(Boolean sendForWholeBoard) {
         this.sendForWholeBoard = sendForWholeBoard;
+    }
+
+    public Boolean getNoTaskConfirmDest() {
+        return noTaskConfirmDest;
+    }
+
+    public void setNoTaskConfirmDest(Boolean noTaskConfirmDest) {
+        this.noTaskConfirmDest = noTaskConfirmDest;
+    }
+
+    public String getNoTaskRemark() {
+        return noTaskRemark;
+    }
+
+    public void setNoTaskRemark(String noTaskRemark) {
+        this.noTaskRemark = noTaskRemark;
     }
 }

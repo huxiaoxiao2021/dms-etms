@@ -53,7 +53,6 @@ public interface JyBizTaskSendVehicleService {
                                                          JyBizTaskSendSortTypeEnum typeEnum,
                                                          Integer pageNum, Integer pageSize);
 
-
     /**
      * 更细最晚发车时间
      * @param entity

@@ -240,4 +240,10 @@ public class CacheKeyConstants {
      */
     public static final String JY_SEND_TRANS_WORK_KEY = JY_CACHE_PREFIX + "ss:init:%s";
 
+    /**
+     * 发车扫描防重，每个单号只能扫描一次
+     * 单号+场地
+     */
+    public static final String JY_SEND_SCAN_KEY = JY_CACHE_PREFIX + "ss:scan:%s:%s";
+
 }

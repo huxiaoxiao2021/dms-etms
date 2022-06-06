@@ -21,4 +21,14 @@ public class JySendServiceImpl implements IJySendService{
     public JySendEntity findSendRecordExistAbnormal(JySendEntity entity) {
         return sendDao.findSendRecordExistAbnormal(entity);
     }
+
+    @Override
+    public JySendEntity queryByCodeAndSite(JySendEntity entity) {
+        return sendDao.queryByCodeAndSite(entity);
+    }
+
+    @Override
+    public int add(JySendEntity sendEntity) {
+        return sendDao.insert(sendEntity);
+    }
 }

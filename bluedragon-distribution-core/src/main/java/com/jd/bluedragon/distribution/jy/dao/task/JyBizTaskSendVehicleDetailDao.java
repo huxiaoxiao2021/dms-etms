@@ -45,12 +45,9 @@ public class JyBizTaskSendVehicleDetailDao extends BaseDao<JyBizTaskSendVehicleD
         return this.getSqlSession().insert(NAMESPACE + ".save", entity);
     }
 
-    public List<JyBizTaskSendVehicleDetailEntity> findByMainVehicleBiz(JyBizTaskSendVehicleDetailEntity entity, List<Integer> vehicleStatuses) {
+    public List<JyBizTaskSendVehicleDetailEntity> findByMainVehicleBiz(JyBizTaskSendVehicleDetailEntity entity) {
         Map<String,Object> params = new HashMap<>();
         params.put("entity", entity);
-        if (CollectionUtils.isNotEmpty(vehicleStatuses)) {
-            params.put("vehicleStatuses", vehicleStatuses);
-        }
         return this.getSqlSession().selectList(NAMESPACE + "findByMainVehicleBiz", params);
     }
 
@@ -60,5 +57,9 @@ public class JyBizTaskSendVehicleDetailDao extends BaseDao<JyBizTaskSendVehicleD
 
     public int countByStatus(JyBizTaskSendVehicleDetailEntity entity) {
         return this.getSqlSession().selectOne(NAMESPACE + ".countByStatus", entity);
+    }
+
+    public List<Long> getAllSendDest(JyBizTaskSendVehicleDetailEntity entity) {
+        return this.getSqlSession().selectList(NAMESPACE + ".getAllSendDest", entity);
     }
 }

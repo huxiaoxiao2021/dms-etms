@@ -123,7 +123,14 @@ public enum SendBizSourceEnum {
     /**
      * 冷链装车发货
      */
-    COLD_LOAD_CAR_SEND(23, "冷链装车发货");
+    COLD_LOAD_CAR_SEND(23, "冷链装车发货"),
+
+    /**
+     * 作业APP发车
+     */
+    JY_APP_SEND(24, "拣运发车")
+    ;
+
     /**
      * 编码
      */

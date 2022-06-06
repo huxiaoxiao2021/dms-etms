@@ -21,6 +21,11 @@ public class JySendEntity implements Serializable {
         this.sendVehicleBizId = sendVehicleBizId;
     }
 
+    public JySendEntity(String barCode, Long createSiteId) {
+        this.barCode = barCode;
+        this.createSiteId = createSiteId;
+    }
+
 	/**
 	 * 主键ID
 	 */
