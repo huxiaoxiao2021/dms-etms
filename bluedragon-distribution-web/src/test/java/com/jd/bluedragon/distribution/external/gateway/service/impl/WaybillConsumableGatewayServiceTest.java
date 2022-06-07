@@ -68,24 +68,28 @@ public class WaybillConsumableGatewayServiceTest {
         for (int i = 0; i<10; i++) {
             try{
                 WaybillConsumablePackConfirmReq param = new WaybillConsumablePackConfirmReq();
-                param.setBusinessCode("JDVA00001301985");
+                param.setBusinessCode("JDVA00216899403");
                 User user = new User();
-                user.setUserErp("dbsxw");
-                user.setUserName("dbsxw");
-                user.setUserCode(123);
+                user.setUserErp("xumigen");
+                user.setUserName("徐迷根");
+                user.setUserCode(18225);
                 param.setUser(user);
 
                 List<WaybillConsumablePdaDto> ll = new ArrayList<>();
 
                 WaybillConsumablePdaDto d1 = new WaybillConsumablePdaDto();
-                d1.setConsumableCode("HC001");
-                d1.setConfirmQuantity(5.0);
-                WaybillConsumablePdaDto d2 = new WaybillConsumablePdaDto();
-                d2.setConsumableCode("HC009");
-                d2.setConfirmQuantity(8.0);
-                ll.add(d1); ll.add(d2);
+                d1.setConsumableCode("09092049");
+                d1.setConsumableTypeCode("407");
+                d1.setConfirmQuantity(1.1);
+                d1.setConfirmVolume(1.1);
+//                WaybillConsumablePdaDto d2 = new WaybillConsumablePdaDto();
+//                d2.setConsumableCode("HC009");
+//                d2.setConfirmQuantity(1.1);
+                ll.add(d1);
+//                ll.add(d2);
 
                 param.setWaybillConsumableDtoList(ll);
+                //{"businessCode":"JDVA00216899403","user":{"userCode":18225,"userErp":"xumigen","userName":"徐迷根"},"waybillConsumableDtoList":[{"confirmQuantity":1.1,"consumableCode":"09092049","consumableTypeCode":"407"}]}
 
                 JdCResponse<Boolean> res = waybillConsumableGatewayService.doWaybillConsumablePackConfirm(param);
                 System.out.println("--succ---------------");

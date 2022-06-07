@@ -508,6 +508,7 @@ public class WaybillConsumableRecordServiceImpl extends BaseService<WaybillConsu
         record.setConfirmUserName(operateName);
         record.setConfirmUserErp(operateErp);
         record.setConfirmTime(new Date());
+        record.setModifyStatus(WaybillConsumableRecordService.TREATED_STATE);
         confirmRecords.add(record);
         consumablePackAndConfirm(dbBatchUpdateList, confirmRecords);
 
