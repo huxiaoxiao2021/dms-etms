@@ -30,10 +30,6 @@
 
     <insert id="insert" parameterType="JySendEntity">
         INSERT INTO jy_send (
-        <if test="id != null">
-            id
-        </if>
-        ,
         <if test="sendVehicleBizId != null">
             send_vehicle_biz_id
         </if>
@@ -74,34 +70,8 @@
             create_user_name
         </if>
         ,
-        <if test="updateUserErp != null">
-            update_user_erp
-        </if>
-        ,
-        <if test="updateUserName != null">
-            update_user_name
-        </if>
-        ,
-        <if test="createTime != null">
-            create_time
-        </if>
-        ,
-        <if test="updateTime != null">
-            update_time
-        </if>
-        ,
-        <if test="yn != null">
-            yn
-        </if>
-        ,
-        <if test="ts != null">
-            ts
-        </if>
+        create_time
         ) VALUES (
-        <if test="id != null">
-            #{id}
-        </if>
-        ,
         <if test="sendVehicleBizId != null">
             #{sendVehicleBizId}
         </if>
@@ -142,30 +112,7 @@
             #{createUserName}
         </if>
         ,
-        <if test="updateUserErp != null">
-            #{updateUserErp}
-        </if>
-        ,
-        <if test="updateUserName != null">
-            #{updateUserName}
-        </if>
-        ,
-        <if test="createTime != null">
-            #{createTime}
-        </if>
-        ,
-        <if test="updateTime != null">
-            #{updateTime}
-        </if>
-        ,
-        <if test="yn != null">
-            #{yn}
-        </if>
-        ,
-        <if test="ts != null">
-            #{ts}
-        </if>
-        )
+        NOW()
     </insert>
 
     <update id="update" parameterType="JySendEntity">
@@ -252,6 +199,17 @@
             yn = 1
         AND send_vehicle_biz_id = #{sendVehicleBizId}
         AND (intercept_flag = 1 OR force_send_flag = 1)
+        LIMIT 1
+    </select>
+
+    <select id="queryByCodeAndSite" parameterType="JySendEntity" resultMap="jySendMap">
+        SELECT
+            <include refid="Base_Column_List"/>
+        FROM jy_send
+        WHERE
+            yn = 1
+        AND bar_code = #{barCode, jdbcType=VARCHAR}
+        AND create_site_id = #{createSiteId, jdbcType=BIGINT}
         LIMIT 1
     </select>
 </mapper>

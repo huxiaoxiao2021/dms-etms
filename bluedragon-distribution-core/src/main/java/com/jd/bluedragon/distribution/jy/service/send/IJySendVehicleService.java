@@ -1,9 +1,8 @@
 package com.jd.bluedragon.distribution.jy.service.send;
 
-import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.*;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.*;
-import com.jd.bluedragon.common.dto.select.SelectOption;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 
 import java.util.List;
@@ -22,6 +21,13 @@ public interface IJySendVehicleService {
      * @return
      */
     InvokeResult<SendVehicleTaskResponse> fetchSendVehicleTask(SendVehicleTaskRequest request);
+
+    /**
+     * 发货扫描
+     * @param request
+     * @return
+     */
+    JdVerifyResponse<SendScanResponse> sendScan(SendScanRequest request);
 
     /**
      * 进入发货任务前拍照

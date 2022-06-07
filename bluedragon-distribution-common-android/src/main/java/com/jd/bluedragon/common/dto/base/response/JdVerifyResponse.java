@@ -26,6 +26,9 @@ public class JdVerifyResponse<T> implements Serializable {
     public static final Integer CODE_ERROR = 500;
     public static final String MESSAGE_ERROR = "服务器异常";
 
+    public static final Integer CODE_BIZ = 1000;
+    public static final String MESSAGE_BIZ = "业务异常！";
+
     /**
      * 状态码
      */
@@ -76,6 +79,14 @@ public class JdVerifyResponse<T> implements Serializable {
 
     public void toFail(String message){
         this.init(CODE_FAIL, message);
+    }
+
+    public void toBizError() {
+        this.init(CODE_BIZ, MESSAGE_BIZ);
+    }
+
+    public void toBizError(String message) {
+        this.init(CODE_BIZ, message);
     }
 
     public void toError(){

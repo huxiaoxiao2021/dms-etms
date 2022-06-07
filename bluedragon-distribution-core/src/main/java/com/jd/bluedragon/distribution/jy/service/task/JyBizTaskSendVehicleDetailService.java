@@ -37,4 +37,11 @@ public interface JyBizTaskSendVehicleDetailService {
      */
     int countByStatus(JyBizTaskSendVehicleDetailEntity entity);
 
+    /**
+     * 查询发车任务的所有流向
+     * @param entity
+     * @return
+     */
+    List<Long> getAllSendDest(JyBizTaskSendVehicleDetailEntity entity);
+
 }

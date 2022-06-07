@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.external.gateway.service.impl;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.SendModeEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.SendVehiclePhotoEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.SendVehicleScanTypeEnum;
@@ -165,8 +166,8 @@ public class JySendVehicleGatewayServiceImpl implements JySendVehicleGatewayServ
     }
 
     @Override
-    public JdCResponse sendScan(SendScanRequest request) {
-        return null;
+    public JdVerifyResponse<SendScanResponse> sendScan(SendScanRequest request) {
+        return jySendVehicleService.sendScan(request);
     }
 
 }

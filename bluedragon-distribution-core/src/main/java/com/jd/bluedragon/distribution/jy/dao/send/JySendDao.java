@@ -27,4 +27,8 @@ public class JySendDao extends BaseDao<JySendEntity> {
     public JySendEntity findSendRecordExistAbnormal(JySendEntity entity) {
         return this.getSqlSession().selectOne(NAMESPACE + ".findSendRecordExistAbnormal", entity);
     }
+
+    public JySendEntity queryByCodeAndSite(JySendEntity entity) {
+        return this.getSqlSession().selectOne(NAMESPACE + ".queryByCodeAndSite", entity);
+    }
 }

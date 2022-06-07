@@ -8,8 +8,8 @@ package com.jd.bluedragon.distribution.jy.enums;
  **/
 public enum JySendLineTypeEnum {
 
-    TRUNK_LINE(JyLineTypeEnum.TRUNK_LINE.getCode(), JyLineTypeEnum.TRUNK_LINE.getName(), 1),
-    BRANCH_LINE(JyLineTypeEnum.BRANCH_LINE.getCode(), JyLineTypeEnum.BRANCH_LINE.getName(), 2)
+    TRUNK_LINE(JyLineTypeEnum.TRUNK_LINE.getCode(), "干", 1),
+    BRANCH_LINE(JyLineTypeEnum.BRANCH_LINE.getCode(), "支", 2)
     ;
 
     private Integer code;

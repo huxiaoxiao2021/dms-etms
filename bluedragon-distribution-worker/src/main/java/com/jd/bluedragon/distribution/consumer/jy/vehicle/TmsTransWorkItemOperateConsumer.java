@@ -1,10 +1,11 @@
 package com.jd.bluedragon.distribution.consumer.jy.vehicle;
 
-import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.BasicQueryWSManager;
 import com.jd.bluedragon.core.base.JdiQueryWSManager;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
+import com.jd.bluedragon.distribution.jy.dto.send.TransWorkItemDto;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendDetailStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendStatusEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
@@ -22,6 +23,7 @@ import com.jd.coo.sa.sequence.JimdbSequenceGen;
 import com.jd.jim.cli.Cluster;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.tms.basic.dto.BasicVehicleTypeDto;
 import com.jd.tms.jdi.dto.TransWorkBillDto;
 import com.jdl.jy.schedule.dto.task.JyScheduleTaskReq;
 import com.jdl.jy.schedule.dto.task.JyScheduleTaskResp;
@@ -88,6 +90,10 @@ public class TmsTransWorkItemOperateConsumer extends MessageBaseConsumer {
 
     @Autowired
     private JyBizTaskSendVehicleDetailService taskSendVehicleDetailService;
+
+    @Autowired
+    private BasicQueryWSManager basicQueryWSManager;
+
 
     @Override
     public void consume(Message message) throws Exception {
@@ -239,9 +245,13 @@ public class TmsTransWorkItemOperateConsumer extends MessageBaseConsumer {
         sendVehicleEntity.setTransWay(transWorkBillDto.getTransWay());
         sendVehicleEntity.setTransWayName(transWorkBillDto.getTransWayName());
 
-        // FIXME 完善车型
-        sendVehicleEntity.setVehicleType(transWorkBillDto.getVehicleType());
-        sendVehicleEntity.setVehicleTypeName(StringUtils.EMPTY);
+        if (transWorkBillDto.getVehicleType() != null) {
+            sendVehicleEntity.setVehicleType(transWorkBillDto.getVehicleType());
+            BasicVehicleTypeDto basicVehicleTypeDto = basicQueryWSManager.getVehicleTypeByVehicleType(sendVehicleEntity.getVehicleType());
+            if (basicVehicleTypeDto != null) {
+                sendVehicleEntity.setVehicleTypeName(basicVehicleTypeDto.getVehicleTypeName());
+            }
+        }
 
         // FIXME 确认运输线路类型枚举（只要干线、支线）。tms_trans_work_item_operate消息里运输类型代表的是派车单的线路类型么？
         sendVehicleEntity.setLineType(workItemDto.getTransType());
@@ -355,112 +365,4 @@ public class TmsTransWorkItemOperateConsumer extends MessageBaseConsumer {
         return false;
     }
 
-    static class TransWorkItemDto implements Serializable {
-
-        private static final long serialVersionUID = 7099382664379049018L;
-
-        /**
-         * 派车单号
-         */
-        private String transWorkCode;
-
-        /**
-         * 派车明细号
-         */
-        private String transWorkItemCode;
-
-        /**
-         * 始发地编码
-         */
-        private String beginNodeCode;
-
-        /**
-         * 目的地编码
-         */
-        private String endNodeCode;
-
-        /**
-         * 运输类型
-         */
-        private Integer transType;
-
-        /**
-         * 运输方式
-         */
-        private Integer transWay;
-
-        /**
-         * 预计发车时间
-         */
-        private Date planDepartTime;
-
-        /**
-         * 操作类型  10、创建，20、作废
-         */
-        private Integer operateType;
-
-        public String getTransWorkCode() {
-            return transWorkCode;
-        }
-
-        public void setTransWorkCode(String transWorkCode) {
-            this.transWorkCode = transWorkCode;
-        }
-
-        public String getTransWorkItemCode() {
-            return transWorkItemCode;
-        }
-
-        public void setTransWorkItemCode(String transWorkItemCode) {
-            this.transWorkItemCode = transWorkItemCode;
-        }
-
-        public String getBeginNodeCode() {
-            return beginNodeCode;
-        }
-
-        public void setBeginNodeCode(String beginNodeCode) {
-            this.beginNodeCode = beginNodeCode;
-        }
-
-        public String getEndNodeCode() {
-            return endNodeCode;
-        }
-
-        public void setEndNodeCode(String endNodeCode) {
-            this.endNodeCode = endNodeCode;
-        }
-
-        public Integer getTransType() {
-            return transType;
-        }
-
-        public void setTransType(Integer transType) {
-            this.transType = transType;
-        }
-
-        public Integer getTransWay() {
-            return transWay;
-        }
-
-        public void setTransWay(Integer transWay) {
-            this.transWay = transWay;
-        }
-
-        public Date getPlanDepartTime() {
-            return planDepartTime;
-        }
-
-        public void setPlanDepartTime(Date planDepartTime) {
-            this.planDepartTime = planDepartTime;
-        }
-
-        public Integer getOperateType() {
-            return operateType;
-        }
-
-        public void setOperateType(Integer operateType) {
-            this.operateType = operateType;
-        }
-    }
 }

@@ -16,4 +16,13 @@ public interface IJySendService {
      * @return
      */
     JySendEntity findSendRecordExistAbnormal(JySendEntity entity);
+
+    /**
+     * 按barCode查询一条扫描记录
+     * @param entity
+     * @return
+     */
+    JySendEntity queryByCodeAndSite(JySendEntity entity);
+
+    int add(JySendEntity sendEntity);
 }

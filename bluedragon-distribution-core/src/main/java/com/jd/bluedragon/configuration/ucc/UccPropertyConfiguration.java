@@ -763,9 +763,19 @@ public class UccPropertyConfiguration {
     private Integer jyUnSealTaskSwitchToEs;
 
     /**
-     * 拣运发车任务满载率阈值。eg:80
+     * 拣运发车任务满载率上限。eg:150
      */
-    private Integer jySendTaskFullLoadRate;
+    private Integer jySendTaskLoadRateUpperLimit;
+
+    /**
+     * 拣运发车任务满载率下限。eg:80
+     */
+    private Integer jySendTaskLoadRateLowerLimit;
+
+    /**
+     * 拣运发车任务满载率配置
+     */
+    private String jySendTaskLoadRateLimit;
 
     public String getScheduleSiteCheckSameCity() {
         return scheduleSiteCheckSameCity;
@@ -1861,12 +1871,23 @@ public class UccPropertyConfiguration {
         this.jyUnSealTaskSwitchToEs = jyUnSealTaskSwitchToEs;
     }
 
-    public Integer getJySendTaskFullLoadRate() {
-        return jySendTaskFullLoadRate;
+    public Integer getJySendTaskLoadRateUpperLimit() {
+        return jySendTaskLoadRateUpperLimit;
     }
 
-    public void setJySendTaskFullLoadRate(Integer jySendTaskFullLoadRate) {
-        this.jySendTaskFullLoadRate = jySendTaskFullLoadRate;
+    public Integer getJySendTaskLoadRateLowerLimit() {
+        return jySendTaskLoadRateLowerLimit;
+    }
+
+    public String getJySendTaskLoadRateLimit() {
+        return jySendTaskLoadRateLimit;
+    }
+
+    public void setJySendTaskLoadRateLimit(String jySendTaskLoadRateLimit) {
+        this.jySendTaskLoadRateLimit = jySendTaskLoadRateLimit;
+        String[] loadRateLimit = this.jySendTaskLoadRateLimit.split(Constants.SEPARATOR_COMMA);
+        this.jySendTaskLoadRateLowerLimit = Integer.valueOf(loadRateLimit[0]);
+        this.jySendTaskLoadRateUpperLimit = Integer.valueOf(loadRateLimit[1]);
     }
 
     public boolean isNeedUseNewReverseApi() {

@@ -25,10 +25,6 @@
 
     <insert id="insert" parameterType="JySendCodeEntity">
         INSERT INTO jy_send_code (
-        <if test="id != null">
-            id
-        </if>
-        ,
         <if test="sendVehicleBizId != null">
             send_vehicle_biz_id
         </if>
@@ -64,19 +60,7 @@
         <if test="updateTime != null">
             update_time
         </if>
-        ,
-        <if test="yn != null">
-            yn
-        </if>
-        ,
-        <if test="ts != null">
-            ts
-        </if>
         ) VALUES (
-        <if test="id != null">
-            #{id}
-        </if>
-        ,
         <if test="sendVehicleBizId != null">
             #{sendVehicleBizId}
         </if>
@@ -111,14 +95,6 @@
         ,
         <if test="updateTime != null">
             #{updateTime}
-        </if>
-        ,
-        <if test="yn != null">
-            #{yn}
-        </if>
-        ,
-        <if test="ts != null">
-            #{ts}
         </if>
         )
     </insert>
