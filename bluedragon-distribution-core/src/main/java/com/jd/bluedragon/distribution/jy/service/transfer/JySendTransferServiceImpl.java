@@ -11,8 +11,6 @@ import org.springframework.stereotype.Service;
 @Service("jySendTransferService")
 public class JySendTransferServiceImpl implements JySendTransferService{
 
-    @Autowired
-
 
 
     @Override

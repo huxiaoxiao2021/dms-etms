@@ -52,6 +52,10 @@
             biz_id
         </if>
         ,
+        <if test="bizNo != null">
+            biz_no
+        </if>
+        ,
         <if test="transWorkCode != null">
             trans_work_code
         </if>
@@ -146,6 +150,10 @@
         ,
         <if test="bizId != null">
             #{bizId}
+        </if>
+        ,
+        <if test="bizNo != null">
+            #{bizNo}
         </if>
         ,
         <if test="transWorkCode != null">

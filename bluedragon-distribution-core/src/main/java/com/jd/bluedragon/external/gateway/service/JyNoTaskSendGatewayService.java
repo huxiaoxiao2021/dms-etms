@@ -1,5 +1,6 @@
 package com.jd.bluedragon.external.gateway.service;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleTaskResponse;
 import com.jd.bluedragon.common.dto.send.request.*;
 import com.jd.bluedragon.common.dto.send.response.CancelSendTaskResp;
 import com.jd.bluedragon.common.dto.send.response.CreateVehicleTaskResp;
@@ -34,7 +35,7 @@ public interface JyNoTaskSendGatewayService {
      * @param vehicleTaskReq
      * @return
      */
-    JdCResponse<List<VehicleTaskResp>> listVehicleTask(VehicleTaskReq vehicleTaskReq);
+    JdCResponse<SendVehicleTaskResponse> listVehicleTask(VehicleTaskReq vehicleTaskReq);
 
     /**
      * 自建任务绑定-运输真实任务

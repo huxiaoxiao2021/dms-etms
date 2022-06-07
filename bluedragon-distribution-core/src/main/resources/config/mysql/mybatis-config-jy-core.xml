@@ -26,6 +26,7 @@
 		<typeAlias type="com.jd.bluedragon.distribution.jy.send.JySendCodeEntity" alias="JySendCodeEntity" />
 		<typeAlias type="com.jd.bluedragon.distribution.jy.send.JySendSealCodeEntity" alias="JySendSealCodeEntity" />
         <typeAlias type="com.jd.bluedragon.distribution.jy.send.JySendAggsEntity" alias="JySendAggsEntity" />
+		<typeAlias type="com.jd.bluedragon.distribution.jy.send.JySendTransferLogEntity" alias="JySendTransferLogEntity" />
 	</typeAliases>
 
 
@@ -43,6 +44,8 @@
 		<mapper resource="mappers/mysql/jy/send/JySendAttachmentMapper.xml" />
 		<mapper resource="mappers/mysql/jy/send/JySendCodeMapper.xml" />
 		<mapper resource="mappers/mysql/jy/send/JySendSealCodeMapper.xml" />
+		<mapper resource="mappers/mysql/jy/send/JySendAggsMapper.xml" />
+		<mapper resource="mappers/mysql/jy/send/JySendTransferLogMapper.xml" />
 
 
 	</mappers>

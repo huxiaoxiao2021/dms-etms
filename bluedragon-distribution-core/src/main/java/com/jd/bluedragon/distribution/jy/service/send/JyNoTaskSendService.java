@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.jy.service.send;
 
+import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleTaskResponse;
 import com.jd.bluedragon.common.dto.send.request.*;
 import com.jd.bluedragon.common.dto.send.response.CancelSendTaskResp;
 import com.jd.bluedragon.common.dto.send.response.CreateVehicleTaskResp;
@@ -35,7 +36,7 @@ public interface JyNoTaskSendService {
      * @param vehicleTaskReq
      * @return
      */
-    InvokeResult<List<VehicleTaskResp>> listVehicleTask(VehicleTaskReq vehicleTaskReq);
+    InvokeResult<SendVehicleTaskResponse> listVehicleTask(VehicleTaskReq vehicleTaskReq);
 
     /**
      * 自建任务绑定-运输真实任务

@@ -3,9 +3,12 @@ package com.jd.bluedragon.distribution.jy.service.send;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.MSCodeMapping;
+import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicleTaskRequest;
+import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleTaskResponse;
 import com.jd.bluedragon.common.dto.send.request.*;
 import com.jd.bluedragon.common.dto.send.response.*;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
+import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.busineCode.sendCode.service.SendCodeService;
 import com.jd.bluedragon.distribution.businessCode.BusinessCodeAttributeKey;
@@ -17,7 +20,6 @@ import com.jd.bluedragon.distribution.jy.enums.CancelSendTypeEnum;
 import com.jd.bluedragon.distribution.jy.manager.JyTransportManager;
 import com.jd.bluedragon.distribution.jy.send.JySendCodeEntity;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetailService;
-import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetailServiceImpl;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleService;
 import com.jd.bluedragon.distribution.jy.service.transfer.JySendTransferService;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
@@ -28,14 +30,16 @@ import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.send.service.SendMService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.BeanUtils;
-import com.jd.bluedragon.utils.ObjectHelper;
+import com.jd.bluedragon.utils.*;
+import com.jd.coo.sa.sequence.JimdbSequenceGen;
+import com.jd.jim.cli.Cluster;
 import com.jd.tms.basic.dto.BasicVehicleTypeDto;
 import com.jd.tms.basic.dto.CommonDto;
 import com.jd.transboard.api.dto.Board;
 import com.jd.transboard.api.dto.Response;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -43,6 +47,7 @@ import java.util.*;
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.*;
 import static com.jd.bluedragon.distribution.businessCode.BusinessCodeFromSourceEnum.DMS_WEB_SYS;
 import static com.jd.bluedragon.distribution.businessCode.BusinessCodeFromSourceEnum.JY_APP;
+import static com.jd.bluedragon.utils.TimeUtils.yyyyMMdd;
 
 @Service
 @Slf4j
@@ -67,6 +72,14 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
     private IDeliveryOperationService deliveryOperationService;
     @Autowired
     JyBizTaskSendVehicleService jyBizTaskSendVehicleService;
+    @Autowired
+    @Qualifier("redisClientCache")
+    protected Cluster redisClientCache;
+    @Autowired
+    @Qualifier("redisJySendBizIdSequenceGen")
+    private JimdbSequenceGen redisJyBizIdSequenceGen;
+    @Autowired
+    IJySendVehicleService iJySendVehicleService;
 
 
     @Override
@@ -98,9 +111,9 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
                 vehicleSpecResp.setVehicleTypeDtoList(value);
                 vehicleSpecRespList.add(vehicleSpecResp);
             }
-            return new InvokeResult(MSCodeMapping.SUCCESS.getCode(), MSCodeMapping.SUCCESS.getMessage(), vehicleSpecRespList);
+            return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, vehicleSpecRespList);
         }
-        return new InvokeResult(MSCodeMapping.UNKNOW_ERROR.getCode(), MSCodeMapping.UNKNOW_ERROR.getMessage());
+        return new InvokeResult(RESULT_NODATA_GETCARTYPE_CODE, RESULT_NODATA_GETCARTYPE_MESSAGE);
     }
 
     @Override
@@ -112,7 +125,8 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
 
     private JyBizTaskSendVehicleEntity initJyBizTaskSendVehicle(CreateVehicleTaskReq createVehicleTaskReq) {
         JyBizTaskSendVehicleEntity entity = new JyBizTaskSendVehicleEntity();
-        entity.setBizId("");//TODO
+        entity.setBizId(genMainTaskBizId());
+        entity.setBizNo(genSendVehicleTaskBizNo(createVehicleTaskReq));
         entity.setManualCreatedFlag(1);
         entity.setVehicleType(createVehicleTaskReq.getVehicleType());
         entity.setVehicleTypeName(createVehicleTaskReq.getVehicleTypeName());
@@ -123,6 +137,22 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
         entity.setCreateTime(now);
         entity.setUpdateTime(now);
         return entity;
+    }
+
+    private String genSendVehicleTaskBizNo(CreateVehicleTaskReq createVehicleTaskReq) {
+        String bizNoKey = "bizNo:"+createVehicleTaskReq.getCurrentOperate().getSiteCode()+":"+ TimeUtils.date2string(new Date(),yyyyMMdd+":");
+        long bizNo = 0;
+        try {
+            bizNo = redisClientCache.incr(bizNoKey);
+        } catch (Exception e) {
+            return "";
+        }
+        return String.valueOf(bizNo);
+    }
+
+    private String genMainTaskBizId() {
+        String ownerKey = String.format(JyBizTaskSendVehicleEntity.BIZ_PREFIX, DateHelper.formatDate(new Date(), DateHelper.DATE_FORMATE_yyMMdd));
+        return ownerKey + StringHelper.padZero(redisJyBizIdSequenceGen.gen(ownerKey));
     }
 
     @Override
@@ -167,8 +197,21 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
     }
 
     @Override
-    public InvokeResult<List<VehicleTaskResp>> listVehicleTask(VehicleTaskReq vehicleTaskReq) {
-        return null;
+    public InvokeResult<SendVehicleTaskResponse> listVehicleTask(VehicleTaskReq vehicleTaskReq) {
+        SendVehicleTaskRequest sendVehicleTaskRequest =toSendVehicleTaskRequest(vehicleTaskReq);
+        return iJySendVehicleService.fetchSendVehicleTask(sendVehicleTaskRequest);
+    }
+
+    private SendVehicleTaskRequest toSendVehicleTaskRequest(VehicleTaskReq vehicleTaskReq) {
+        SendVehicleTaskRequest sendVehicleTaskRequest =new SendVehicleTaskRequest();
+        sendVehicleTaskRequest.setVehicleStatus(vehicleTaskReq.getVehicleStatus());
+        sendVehicleTaskRequest.setEndSiteId(vehicleTaskReq.getEndSiteId());
+        sendVehicleTaskRequest.setPageNumber(vehicleTaskReq.getPageNumber());
+        sendVehicleTaskRequest.setPageSize(vehicleTaskReq.getPageSize());
+        sendVehicleTaskRequest.setKeyword(vehicleTaskReq.getPackageCode());
+        sendVehicleTaskRequest.setCurrentOperate(vehicleTaskReq.getCurrentOperate());
+        sendVehicleTaskRequest.setUser(vehicleTaskReq.getUser());
+        return sendVehicleTaskRequest;
     }
 
     @Override
@@ -266,7 +309,7 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
         }
 
         if (WaybillUtil.isPackageCode(request.getCode()) && CancelSendTypeEnum.WAYBILL_CODE.getCode().equals(request.getType())) {
-            String wayBillCode =WaybillUtil.getWaybillCode(request.getCode());
+            String wayBillCode = WaybillUtil.getWaybillCode(request.getCode());
             sendM.setBoxCode(wayBillCode);
             cancelSendTaskResp.setCancelCode(wayBillCode);
         }
@@ -277,7 +320,7 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
                 return new InvokeResult(MSCodeMapping.NO_BOARD_BY_PACKAGECODE.getCode(), MSCodeMapping.NO_BOARD_BY_PACKAGECODE.getMessage());
             }
             log.info("============按板取消发货，扫描的包裹号/箱号：{}，板号：{}", request.getCode(), boardResponse.getData().getCode());
-            String boardCode =boardResponse.getData().getCode();
+            String boardCode = boardResponse.getData().getCode();
             sendM.setBoxCode(boardCode);
             cancelSendTaskResp.setCancelCode(boardCode);
         }

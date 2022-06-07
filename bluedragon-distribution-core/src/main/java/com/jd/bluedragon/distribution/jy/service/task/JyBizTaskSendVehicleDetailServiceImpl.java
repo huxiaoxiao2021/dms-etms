@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-@Service
+@Service("jyBizTaskSendVehicleDetailService")
 public class JyBizTaskSendVehicleDetailServiceImpl implements JyBizTaskSendVehicleDetailService{
 
     private static final Logger logger = LoggerFactory.getLogger(JyBizTaskSendVehicleDetailServiceImpl.class);
