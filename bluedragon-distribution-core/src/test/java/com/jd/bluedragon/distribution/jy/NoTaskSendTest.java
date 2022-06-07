@@ -99,8 +99,16 @@ public class NoTaskSendTest {
     public void cancelSendTaskTest() {
 
         CancelSendTaskReq cancelSendTaskReq =new CancelSendTaskReq();
-        cancelSendTaskReq.setCode("JDX000220439311-1-3-");
+        cancelSendTaskReq.setCode("JDX000200462956-1-3-");
         cancelSendTaskReq.setType(1);
+        CurrentOperate currentOperate =new CurrentOperate();
+        currentOperate.setSiteCode(910);
+        currentOperate.setSiteName("北京马驹桥分拣中心6");
+        cancelSendTaskReq.setCurrentOperate(currentOperate);
+        User user =new User();
+        user.setUserErp("wuyoude");
+        user.setUserName("吴有德");
+        cancelSendTaskReq.setUser(user);
 
         InvokeResult invokeResult =jyNoTaskSendService.cancelSendTask(cancelSendTaskReq);
         log.info("==========result code===========:{}", invokeResult.getCode());
