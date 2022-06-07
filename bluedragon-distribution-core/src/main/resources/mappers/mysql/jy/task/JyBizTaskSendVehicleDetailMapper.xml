@@ -34,299 +34,247 @@
     </sql>
 
     <insert id="insert" parameterType="JyBizTaskSendVehicleDetailEntity">
-        INSERT INTO jy_biz_task_send_vehicle_detail (
-        <if test="id != null">
-            id
-        </if>
-        ,
-        <if test="sendVehicleBizId != null">
-            send_vehicle_biz_id
-        </if>
-        ,
-        <if test="bizId != null">
-            biz_id
-        </if>
-        ,
-        <if test="transWorkItemCode != null">
-            trans_work_item_code
-        </if>
-        ,
-        <if test="vehicleStatus != null">
-            vehicle_status
-        </if>
-        ,
-        <if test="startSiteId != null">
-            start_site_id
-        </if>
-        ,
-        <if test="startSiteName != null">
-            start_site_name
-        </if>
-        ,
-        <if test="endSiteId != null">
-            end_site_id
-        </if>
-        ,
-        <if test="endSiteName != null">
-            end_site_name
-        </if>
-        ,
-        <if test="planDepartTime != null">
-            plan_depart_time
-        </if>
-        ,
-        <if test="sealCarTime != null">
-            seal_car_time
-        </if>
-        ,
-        <if test="createUserErp != null">
-            create_user_erp
-        </if>
-        ,
-        <if test="createUserName != null">
-            create_user_name
-        </if>
-        ,
-        <if test="updateUserErp != null">
-            update_user_erp
-        </if>
-        ,
-        <if test="updateUserName != null">
-            update_user_name
-        </if>
-        ,
-        <if test="createTime != null">
-            create_time
-        </if>
-        ,
-        <if test="updateTime != null">
-            update_time
-        </if>
-        ,
-        <if test="yn != null">
-            yn
-        </if>
-        ,
-        <if test="ts != null">
-            ts
-        </if>
-        ) VALUES (
-        <if test="id != null">
-            #{id}
-        </if>
-        ,
-        <if test="sendVehicleBizId != null">
-            #{sendVehicleBizId}
-        </if>
-        ,
-        <if test="bizId != null">
-            #{bizId}
-        </if>
-        ,
-        <if test="transWorkItemCode != null">
-            #{transWorkItemCode}
-        </if>
-        ,
-        <if test="vehicleStatus != null">
-            #{vehicleStatus}
-        </if>
-        ,
-        <if test="startSiteId != null">
-            #{startSiteId}
-        </if>
-        ,
-        <if test="startSiteName != null">
-            #{startSiteName}
-        </if>
-        ,
-        <if test="endSiteId != null">
-            #{endSiteId}
-        </if>
-        ,
-        <if test="endSiteName != null">
-            #{endSiteName}
-        </if>
-        ,
-        <if test="planDepartTime != null">
-            #{planDepartTime}
-        </if>
-        ,
-        <if test="sealCarTime != null">
-            #{sealCarTime}
-        </if>
-        ,
-        <if test="createUserErp != null">
-            #{createUserErp}
-        </if>
-        ,
-        <if test="createUserName != null">
-            #{createUserName}
-        </if>
-        ,
-        <if test="updateUserErp != null">
-            #{updateUserErp}
-        </if>
-        ,
-        <if test="updateUserName != null">
-            #{updateUserName}
-        </if>
-        ,
-        <if test="createTime != null">
-            #{createTime}
-        </if>
-        ,
-        <if test="updateTime != null">
-            #{updateTime}
-        </if>
-        ,
-        <if test="yn != null">
-            #{yn}
-        </if>
-        ,
-        <if test="ts != null">
-            #{ts}
-        </if>
-        )
+        insert into jy_biz_task_send_vehicle_detail
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="sendVehicleBizId != null">
+                send_vehicle_biz_id,
+            </if>
+            <if test="bizId != null">
+                biz_id,
+            </if>
+            <if test="transWorkItemCode != null">
+                trans_work_item_code,
+            </if>
+            <if test="vehicleStatus != null">
+                vehicle_status,
+            </if>
+            <if test="startSiteId != null">
+                start_site_id,
+            </if>
+            <if test="startSiteName != null">
+                start_site_name,
+            </if>
+            <if test="endSiteId != null">
+                end_site_id,
+            </if>
+            <if test="endSiteName != null">
+                end_site_name,
+            </if>
+            <if test="planDepartTime != null">
+                plan_depart_time,
+            </if>
+            <if test="sealCarTime != null">
+                seal_car_time,
+            </if>
+            <if test="createUserErp != null">
+                create_user_erp,
+            </if>
+            <if test="createUserName != null">
+                create_user_name,
+            </if>
+            <if test="updateUserErp != null">
+                update_user_erp,
+            </if>
+            <if test="updateUserName != null">
+                update_user_name,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="updateTime != null">
+                update_time,
+            </if>
+            <if test="yn != null">
+                yn,
+            </if>
+            <if test="ts != null">
+                ts,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="sendVehicleBizId != null">
+                #{sendVehicleBizId,jdbcType=VARCHAR},
+            </if>
+            <if test="bizId != null">
+                #{bizId,jdbcType=VARCHAR},
+            </if>
+            <if test="transWorkItemCode != null">
+                #{transWorkItemCode,jdbcType=VARCHAR},
+            </if>
+            <if test="vehicleStatus != null">
+                #{vehicleStatus,jdbcType=TINYINT},
+            </if>
+            <if test="startSiteId != null">
+                #{startSiteId,jdbcType=BIGINT},
+            </if>
+            <if test="startSiteName != null">
+                #{startSiteName,jdbcType=VARCHAR},
+            </if>
+            <if test="endSiteId != null">
+                #{endSiteId,jdbcType=BIGINT},
+            </if>
+            <if test="endSiteName != null">
+                #{endSiteName,jdbcType=VARCHAR},
+            </if>
+            <if test="planDepartTime != null">
+                #{planDepartTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="sealCarTime != null">
+                #{sealCarTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="createUserErp != null">
+                #{createUserErp,jdbcType=VARCHAR},
+            </if>
+            <if test="createUserName != null">
+                #{createUserName,jdbcType=VARCHAR},
+            </if>
+            <if test="updateUserErp != null">
+                #{updateUserErp,jdbcType=VARCHAR},
+            </if>
+            <if test="updateUserName != null">
+                #{updateUserName,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateTime != null">
+                #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="yn != null">
+                #{yn,jdbcType=BIT},
+            </if>
+            <if test="ts != null">
+                #{ts,jdbcType=TIMESTAMP},
+            </if>
+        </trim>
     </insert>
 
     <update id="update" parameterType="JyBizTaskSendVehicleDetailEntity">
-        UPDATE jy_biz_task_send_vehicle_detail
+        update jy_biz_task_send_vehicle_detail
         <set>
+            <if test="sendVehicleBizId != null">
+                send_vehicle_biz_id = #{sendVehicleBizId,jdbcType=VARCHAR},
+            </if>
+            <if test="bizId != null">
+                biz_id = #{bizId,jdbcType=VARCHAR},
+            </if>
+            <if test="transWorkItemCode != null">
+                trans_work_item_code = #{transWorkItemCode,jdbcType=VARCHAR},
+            </if>
             <if test="vehicleStatus != null">
-                vehicle_status = #{vehicleStatus}
+                vehicle_status = #{vehicleStatus,jdbcType=TINYINT},
             </if>
-            ,
             <if test="startSiteId != null">
-                start_site_id = #{startSiteId}
+                start_site_id = #{startSiteId,jdbcType=BIGINT},
             </if>
-            ,
             <if test="startSiteName != null">
-                start_site_name = #{startSiteName}
+                start_site_name = #{startSiteName,jdbcType=VARCHAR},
             </if>
-            ,
             <if test="endSiteId != null">
-                end_site_id = #{endSiteId}
+                end_site_id = #{endSiteId,jdbcType=BIGINT},
             </if>
-            ,
             <if test="endSiteName != null">
-                end_site_name = #{endSiteName}
+                end_site_name = #{endSiteName,jdbcType=VARCHAR},
             </if>
-            ,
             <if test="planDepartTime != null">
-                plan_depart_time = #{planDepartTime}
+                plan_depart_time = #{planDepartTime,jdbcType=TIMESTAMP},
             </if>
-            ,
             <if test="sealCarTime != null">
-                seal_car_time = #{sealCarTime}
+                seal_car_time = #{sealCarTime,jdbcType=TIMESTAMP},
             </if>
-            ,
             <if test="createUserErp != null">
-                create_user_erp = #{createUserErp}
+                create_user_erp = #{createUserErp,jdbcType=VARCHAR},
             </if>
-            ,
             <if test="createUserName != null">
-                create_user_name = #{createUserName}
+                create_user_name = #{createUserName,jdbcType=VARCHAR},
             </if>
-            ,
             <if test="updateUserErp != null">
-                update_user_erp = #{updateUserErp}
+                update_user_erp = #{updateUserErp,jdbcType=VARCHAR},
             </if>
-            ,
             <if test="updateUserName != null">
-                update_user_name = #{updateUserName}
+                update_user_name = #{updateUserName,jdbcType=VARCHAR},
             </if>
-            ,
             <if test="createTime != null">
-                create_time = #{createTime}
+                create_time = #{createTime,jdbcType=TIMESTAMP},
             </if>
-            ,
             <if test="updateTime != null">
-                update_time = #{updateTime}
+                update_time = #{updateTime,jdbcType=TIMESTAMP},
             </if>
-            ,
             <if test="yn != null">
-                yn = #{yn}
+                yn = #{yn,jdbcType=BIT},
             </if>
-            ,
             <if test="ts != null">
-                ts = #{ts}
+                ts = #{ts,jdbcType=TIMESTAMP},
             </if>
         </set>
-        <where>
-            id = #{id}
-        </where>
+        where id = #{id,jdbcType=BIGINT}
     </update>
 
     <update id="updateDateilTaskByVehicleBizId" parameterType="JyBizTaskSendVehicleDetailEntity">
-        UPDATE jy_biz_task_send_vehicle_detail
+        update jy_biz_task_send_vehicle_detail
         <set>
+            <if test="sendVehicleBizId != null">
+                send_vehicle_biz_id = #{sendVehicleBizId,jdbcType=VARCHAR},
+            </if>
+            <if test="bizId != null">
+                biz_id = #{bizId,jdbcType=VARCHAR},
+            </if>
             <if test="transWorkItemCode != null">
-                trans_work_item_code = #{transWorkItemCode}
+                trans_work_item_code = #{transWorkItemCode,jdbcType=VARCHAR},
             </if>
-            ,
             <if test="vehicleStatus != null">
-                vehicle_status = #{vehicleStatus}
+                vehicle_status = #{vehicleStatus,jdbcType=TINYINT},
             </if>
-            ,
             <if test="startSiteId != null">
-                start_site_id = #{startSiteId}
+                start_site_id = #{startSiteId,jdbcType=BIGINT},
             </if>
-            ,
             <if test="startSiteName != null">
-                start_site_name = #{startSiteName}
+                start_site_name = #{startSiteName,jdbcType=VARCHAR},
             </if>
-            ,
             <if test="endSiteId != null">
-                end_site_id = #{endSiteId}
+                end_site_id = #{endSiteId,jdbcType=BIGINT},
             </if>
-            ,
             <if test="endSiteName != null">
-                end_site_name = #{endSiteName}
+                end_site_name = #{endSiteName,jdbcType=VARCHAR},
             </if>
-            ,
             <if test="planDepartTime != null">
-                plan_depart_time = #{planDepartTime}
+                plan_depart_time = #{planDepartTime,jdbcType=TIMESTAMP},
             </if>
-            ,
             <if test="sealCarTime != null">
-                seal_car_time = #{sealCarTime}
+                seal_car_time = #{sealCarTime,jdbcType=TIMESTAMP},
             </if>
-            ,
             <if test="createUserErp != null">
-                create_user_erp = #{createUserErp}
+                create_user_erp = #{createUserErp,jdbcType=VARCHAR},
             </if>
-            ,
             <if test="createUserName != null">
-                create_user_name = #{createUserName}
+                create_user_name = #{createUserName,jdbcType=VARCHAR},
             </if>
-            ,
             <if test="updateUserErp != null">
-                update_user_erp = #{updateUserErp}
+                update_user_erp = #{updateUserErp,jdbcType=VARCHAR},
             </if>
-            ,
             <if test="updateUserName != null">
-                update_user_name = #{updateUserName}
+                update_user_name = #{updateUserName,jdbcType=VARCHAR},
             </if>
-            ,
             <if test="createTime != null">
-                create_time = #{createTime}
+                create_time = #{createTime,jdbcType=TIMESTAMP},
             </if>
-            ,
             <if test="updateTime != null">
-                update_time = #{updateTime}
+                update_time = #{updateTime,jdbcType=TIMESTAMP},
             </if>
-            ,
             <if test="yn != null">
-                yn = #{yn}
+                yn = #{yn,jdbcType=BIT},
             </if>
-            ,
             <if test="ts != null">
-                ts = #{ts}
+                ts = #{ts,jdbcType=TIMESTAMP},
             </if>
         </set>
-        <where>
-            send_vehicle_biz_id = #{sendVehicleBizId}
-        </where>
+        where send_vehicle_biz_id = #{sendVehicleBizId}
     </update>
 
     <select id="findByBizId" resultMap="jyBizTaskSendVehicleDetailMap" parameterType="java.lang.String">
