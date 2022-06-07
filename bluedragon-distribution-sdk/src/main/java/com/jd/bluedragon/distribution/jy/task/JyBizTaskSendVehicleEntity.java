@@ -16,6 +16,7 @@ public class JyBizTaskSendVehicleEntity implements Serializable {
 	private static final long serialVersionUID = -2352536857784355996L;
 
     public static final String BIZ_PREFIX = "SST%s";
+	public static final String BIZ_PREFIX_NOTASK = "NSST%s";
 
     public JyBizTaskSendVehicleEntity() {}
 

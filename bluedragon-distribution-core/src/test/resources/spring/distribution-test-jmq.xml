@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:jmq="http://code.jd.com/schema/jmq"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://code.jd.com/schema/jmq
+	    http://code.jd.com/schema/jmq/jmq-1.1.xsd
+	    http://www.springframework.org/schema/util
+	    http://www.springframework.org/schema/util/spring-util.xsd">
+	<!-- jmq transport配置区 -->
+	<jmq:transport id="jmq.BlueDragonDistribution.transport"
+	address="${jmq.BlueDragonDistribution.address}" user="${jmq.BlueDragonDistribution.user}"
+	password="${jmq.BlueDragonDistribution.password}" app="${jmq.BlueDragonDistribution.app}" />
+
+    <!--dmsWeb mq应用-->
+    <jmq:transport id="jmq.dmsWeb.transport"
+                   address="${jmq.dmsWeb.address}" user="${jmq.dmsWeb.user}"
+                   password="${jmq.dmsWeb.password}" app="${jmq.dmsWeb.app}" />
+
+	<!--dmsWork mq应用-->
+	<jmq:transport id="jmq.dmsWorker.transport" address="${jmq.dmsWorker.address}" user="${jmq.dmsWorker.user}"
+				   password="${jmq.dmsWorker.password}" app="${jmq.dmsWorker.producer.app}"/>
+
+	<!--UAT特殊配置  uatDmsWeb mq应用-->
+	<jmq:transport id="jmq.uatDmsWeb.transport"
+				   address="${jmq.uatDmsWeb.address}" user="${jmq.uatDmsWeb.user}"
+				   password="${jmq.uatDmsWeb.password}" app="${jmq.uatDmsWeb.app}" />
+
+	<!-- jmq 消费客户端配置区 -->
+
+    <!--########################  JMQ4配置  #############################################-->
+    <jmq:transport id="jmq4.dmsWeb.transport"
+                   address="${jmq4.dmsWeb.address}"
+                   user="${jmq4.dmsWeb.user}"
+                   password="${jmq4.dmsWeb.password}"
+                   app="${jmq4.dmsWeb.app}" />
+
+    <jmq:transport id="jmq4.dmsWorker.transport"
+                   address="${jmq4.dmsWorker.address}"
+                   user="${jmq4.dmsWorker.user}"
+                   password="${jmq4.dmsWorker.password}"
+                   app="${jmq4.dmsWorker.app}"/>
+    <!--########################  JMQ4配置  #############################################-->
+
+</beans>
+
