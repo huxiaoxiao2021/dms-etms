@@ -112,7 +112,6 @@ public abstract class DeliveryBaseHandler implements IDeliveryBaseHandler {
     @Autowired
     @Qualifier("dmsColdChainSendWaybill")
     private DefaultJMQProducer dmsColdChainSendWaybill;
-    @Autowired
 
 
     /**
