@@ -66,8 +66,6 @@ public class SendScanRequest implements Serializable {
      */
     private String noTaskRemark;
 
-    private Integer curSendDestId; // 用于校验本次发货目的地是否一致
-
     public User getUser() {
         return user;
     }

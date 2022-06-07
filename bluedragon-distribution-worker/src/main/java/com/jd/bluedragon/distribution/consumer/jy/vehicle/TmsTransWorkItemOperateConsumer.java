@@ -245,10 +245,12 @@ public class TmsTransWorkItemOperateConsumer extends MessageBaseConsumer {
         sendVehicleEntity.setTransWay(transWorkBillDto.getTransWay());
         sendVehicleEntity.setTransWayName(transWorkBillDto.getTransWayName());
 
-        sendVehicleEntity.setVehicleType(transWorkBillDto.getVehicleType());
-        BasicVehicleTypeDto basicVehicleTypeDto = basicQueryWSManager.getVehicleTypeByVehicleType(sendVehicleEntity.getVehicleType());
-        if (basicVehicleTypeDto != null) {
-            sendVehicleEntity.setVehicleTypeName(basicVehicleTypeDto.getVehicleTypeName());
+        if (transWorkBillDto.getVehicleType() != null) {
+            sendVehicleEntity.setVehicleType(transWorkBillDto.getVehicleType());
+            BasicVehicleTypeDto basicVehicleTypeDto = basicQueryWSManager.getVehicleTypeByVehicleType(sendVehicleEntity.getVehicleType());
+            if (basicVehicleTypeDto != null) {
+                sendVehicleEntity.setVehicleTypeName(basicVehicleTypeDto.getVehicleTypeName());
+            }
         }
 
         // FIXME 确认运输线路类型枚举（只要干线、支线）。tms_trans_work_item_operate消息里运输类型代表的是派车单的线路类型么？

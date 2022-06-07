@@ -568,7 +568,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
         JdVerifyResponse<SendScanResponse> result = new JdVerifyResponse<>();
 
         // 校验
-        if (!sendRequestBaseCheck(result, request) || !sendRequestBizCheck(result, request)) {
+        if (!sendRequestBaseCheck(result, request)) {
             return result;
         }
 
@@ -577,6 +577,11 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
             result.toFail("发货任务不存在！");
             return result;
         }
+
+        if (!sendRequestBizCheck(result, request, taskSend)) {
+            return result;
+        }
+
 
         int siteCode = request.getCurrentOperate().getSiteCode();
         if (taskSend.getStartSiteId().intValue() != siteCode) {
@@ -591,10 +596,14 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
         // 3. 无任务发货生成发货流向，已经生成流向不允许再次确认流向信息
         // 4. 首次发货必须是包裹或者运单
 
+        // FIXME 通知客户端用新目的地
+
         SendScanResponse response = new SendScanResponse();
+        result.setData(response);
 
         response.setScanPackCount(0);
 
+        // 本次扫描的目的地
         long destSiteId = getNextRouter(request);
 
         BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteBySiteId((int) destSiteId);
@@ -609,8 +618,8 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
             // 未确认目的地信息
             if (CollectionUtils.isEmpty(taskSendDetails)) {
                 if (!request.getNoTaskConfirmDest()) {
-                    response.setNoTaskSendDestId(destSiteId);
-                    response.setNoTaskSendDestName(baseSite.getSiteName());
+                    result.toBizError();
+                    result.addConfirmBox(0, "请确认目的地！");
                     return result;
                 }
                 else {
@@ -646,7 +655,6 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
                 sendCode = generateSendCode((long) request.getCurrentOperate().getSiteCode(), destSiteId, request.getUser().getUserErp());
 
                 this.saveSendCode(request, sendCode, detailBiz);
-
             }
             else {
                 sendCode = sendCodeList.get(0);
@@ -735,7 +743,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
 
 
     /**
-     * 发货扫描基础校验
+     * 发货扫描基础校验，校验只返回fail类型
      * @param response
      * @param request
      * @return
@@ -779,13 +787,14 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
      *     <li>装载率超标：{@link com.jd.bluedragon.common.dto.base.response.MsgBoxTypeEnum.WARNING}</li>
      *     <li>拦截链：{@link com.jd.bluedragon.common.dto.base.response.MsgBoxTypeEnum.INTERCEPT}</li>
      *     <li>重复扫描：{@link com.jd.bluedragon.common.dto.base.response.MsgBoxTypeEnum.PROMPT}</li>
-     *     <li>与上一单流向不一致：{@link com.jd.bluedragon.common.dto.base.response.MsgBoxTypeEnum.CONFIRM}</li>
+     *     <li>与上一单流向不一致：{@link com.jd.bluedragon.common.dto.base.response.MsgBoxTypeEnum.WARNING}</li>
      * </ul>
      * @param response
      * @param request
+     * @param taskSend
      * @return
      */
-    private boolean sendRequestBizCheck(JdVerifyResponse<SendScanResponse> response, SendScanRequest request) {
+    private boolean sendRequestBizCheck(JdVerifyResponse<SendScanResponse> response, SendScanRequest request, JyBizTaskSendVehicleEntity taskSend) {
         String barCode = request.getBarCode();
         int siteCode = request.getCurrentOperate().getSiteCode();
 
@@ -810,6 +819,15 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
         }
 
         // FIXME 校验发货流向是否已经封车
+
+
+        // 校验满载率超标
+        BigDecimal loadRate = this.dealLoadRate(taskSend);
+        if (loadRate.compareTo(BigDecimal.valueOf(uccConfig.getJySendTaskLoadRateUpperLimit())) > 0) {
+            response.toBizError();
+            response.addWarningBox(0, "满载率已达到" + uccConfig.getJySendTaskLoadRateUpperLimit());
+            return false;
+        }
 
         return true;
     }
