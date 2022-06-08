@@ -93,6 +93,7 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
                 String vehicleLength = basicVehicleTypeDto.getVehicleLength();
                 if (ObjectHelper.isNotNull(vehicleLength)) {
                     VehicleTypeDto vehicleTypeDto = BeanUtils.copy(basicVehicleTypeDto, VehicleTypeDto.class);
+                    vehicleTypeDto.setVehicleLength(vehicleLength.length()==4?vehicleLength.substring(0,3):vehicleLength);
                     if (groupByVehicleLength.containsKey(vehicleLength)) {
                         groupByVehicleLength.get(vehicleLength).add(vehicleTypeDto);
                     } else {
@@ -108,20 +109,32 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
                 String key = entry.getKey();
                 List<VehicleTypeDto> value = entry.getValue();
                 VehicleSpecResp vehicleSpecResp = new VehicleSpecResp();
-                vehicleSpecResp.setVehicleLength(key);
+                vehicleSpecResp.setVehicleLength(Integer.valueOf(key));
+                vehicleSpecResp.setName(vehicleSpecResp.getVehicleLength()/10+"米");
                 vehicleSpecResp.setVehicleTypeDtoList(value);
                 vehicleSpecRespList.add(vehicleSpecResp);
             }
+            Collections.sort(vehicleSpecRespList,new VehicleTypeComparator());
             return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, vehicleSpecRespList);
         }
         return new InvokeResult(RESULT_NODATA_GETCARTYPE_CODE, RESULT_NODATA_GETCARTYPE_MESSAGE);
+    }
+
+    class VehicleTypeComparator implements Comparator<VehicleSpecResp>{
+        @Override
+        public int compare(VehicleSpecResp o1, VehicleSpecResp o2) {
+            return o1.getVehicleLength()-o2.getVehicleLength();
+        }
     }
 
     @Override
     public InvokeResult<CreateVehicleTaskResp> createVehicleTask(CreateVehicleTaskReq createVehicleTaskReq) {
         JyBizTaskSendVehicleEntity jyBizTaskSendVehicleEntity = initJyBizTaskSendVehicle(createVehicleTaskReq);
         jyBizTaskSendVehicleService.saveSendVehicleTask(jyBizTaskSendVehicleEntity);
-        return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE);
+        CreateVehicleTaskResp createVehicleTaskResp =new CreateVehicleTaskResp();
+        createVehicleTaskResp.setBizId(jyBizTaskSendVehicleEntity.getBizId());
+        createVehicleTaskResp.setBizNo(jyBizTaskSendVehicleEntity.getBizNo());
+        return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE,createVehicleTaskResp);
     }
 
     private JyBizTaskSendVehicleEntity initJyBizTaskSendVehicle(CreateVehicleTaskReq createVehicleTaskReq) {
