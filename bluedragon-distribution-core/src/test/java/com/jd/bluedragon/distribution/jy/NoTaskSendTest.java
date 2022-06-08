@@ -27,6 +27,15 @@ public class NoTaskSendTest {
     @Autowired
     JyNoTaskSendService jyNoTaskSendService;
 
+
+    @Test
+    public void test() {
+
+       String str ="1350";
+        log.info("code",str.length()==4);
+        log.info("code",str.substring(0,3));
+    }
+
     @Test
     public void listVehicleTypeTest() {
 

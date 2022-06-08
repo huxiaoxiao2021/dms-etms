@@ -43,6 +43,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.DecimalFormat;
 import java.util.*;
 
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.*;
@@ -93,7 +94,7 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
                 String vehicleLength = basicVehicleTypeDto.getVehicleLength();
                 if (ObjectHelper.isNotNull(vehicleLength)) {
                     VehicleTypeDto vehicleTypeDto = BeanUtils.copy(basicVehicleTypeDto, VehicleTypeDto.class);
-                    vehicleTypeDto.setVehicleLength(vehicleLength.length()==4?vehicleLength.substring(0,3):vehicleLength);
+                    vehicleLength =vehicleLength.length()==4?vehicleLength.substring(0,3):vehicleLength;
                     if (groupByVehicleLength.containsKey(vehicleLength)) {
                         groupByVehicleLength.get(vehicleLength).add(vehicleTypeDto);
                     } else {
@@ -105,12 +106,13 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
             }
             //封装树形结构响应体
             List<VehicleSpecResp> vehicleSpecRespList = new ArrayList<>();
+            DecimalFormat df  = new DecimalFormat("###.0");
             for (Map.Entry<String, List<VehicleTypeDto>> entry : groupByVehicleLength.entrySet()) {
                 String key = entry.getKey();
                 List<VehicleTypeDto> value = entry.getValue();
                 VehicleSpecResp vehicleSpecResp = new VehicleSpecResp();
                 vehicleSpecResp.setVehicleLength(Integer.valueOf(key));
-                vehicleSpecResp.setName(vehicleSpecResp.getVehicleLength()/10+"米");
+                vehicleSpecResp.setName(df.format((double)vehicleSpecResp.getVehicleLength()/10)+"米");
                 vehicleSpecResp.setVehicleTypeDtoList(value);
                 vehicleSpecRespList.add(vehicleSpecResp);
             }
