@@ -6,8 +6,8 @@ import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicl
 import com.jd.bluedragon.common.dto.send.request.*;
 import com.jd.bluedragon.common.dto.send.response.CancelSendTaskResp;
 import com.jd.bluedragon.common.dto.send.response.CreateVehicleTaskResp;
+import com.jd.bluedragon.common.dto.send.response.GetSendRouterInfoResq;
 import com.jd.bluedragon.common.dto.send.response.VehicleSpecResp;
-import com.jd.bluedragon.common.dto.send.response.VehicleTaskResp;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.service.send.JyNoTaskSendService;
 import com.jd.bluedragon.external.gateway.service.JyNoTaskSendGatewayService;
@@ -57,6 +57,11 @@ public class JyNoTaskSendGatewayServiceImpl implements JyNoTaskSendGatewayServic
     @Override
     public JdCResponse<CancelSendTaskResp> cancelSendTask(CancelSendTaskReq request) {
         return retJdCResponse(jyNoTaskSendService.cancelSendTask(request));
+    }
+
+    @Override
+    public JdCResponse<GetSendRouterInfoResq> getSendRouterInfoByScanCode(GetSendRouterInfoReq getSendRouterInfoReq) {
+        return null;
     }
 
     private <T> JdCResponse<T> retJdCResponse(InvokeResult<T> invokeResult) {
