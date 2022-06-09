@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.jy.service.task;
 
 import com.jd.bluedragon.distribution.jy.dto.send.JyBizTaskSendCountDto;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendSortTypeEnum;
+import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
 
 import java.util.List;
@@ -66,5 +67,13 @@ public interface JyBizTaskSendVehicleService {
      * @return
      */
     int updateLastSealCarTime(JyBizTaskSendVehicleEntity entity);
+
+    /**
+     * 按顺序更新发货状态
+     * @param entity
+     * @param oldStatus
+     * @return
+     */
+    int updateStatus(JyBizTaskSendVehicleEntity entity, Integer oldStatus);
 
 }

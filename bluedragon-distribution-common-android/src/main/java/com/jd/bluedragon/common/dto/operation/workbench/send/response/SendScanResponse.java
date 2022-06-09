@@ -13,6 +13,16 @@ public class SendScanResponse implements Serializable {
     private static final long serialVersionUID = -1410653337122346470L;
 
     /**
+     * 确认发货目的地
+     */
+    public static final int CODE_CONFIRM_DEST = 2001;
+
+    /**
+     * 确认绑定集包袋
+     */
+    public static final int CODE_CONFIRM_MATERIAL = 2002;
+
+    /**
      * 本次扫描的包裹数
      */
     private Integer scanPackCount;

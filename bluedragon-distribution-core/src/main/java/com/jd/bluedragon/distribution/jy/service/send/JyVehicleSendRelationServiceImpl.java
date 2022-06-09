@@ -58,4 +58,9 @@ public class JyVehicleSendRelationServiceImpl implements JyVehicleSendRelationSe
     public int add(JySendCodeEntity jySendCodeEntity) {
         return jySendCodeDao.insert(jySendCodeEntity);
     }
+
+    @Override
+    public String findEarliestSendCode(String vehicleDetailBizId) {
+        return jySendCodeDao.findEarliestSendCode(vehicleDetailBizId);
+    }
 }

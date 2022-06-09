@@ -214,4 +214,15 @@
         where send_vehicle_biz_id = #{vehicleBizId}
           and yn = 1
     </select>
+
+    <select id="findEarliestSendCode" parameterType="java.lang.String" resultType="java.lang.String">
+        SELECT
+            send_code
+        FROM jy_send_code
+        WHERE
+            yn = 1
+        AND send_detail_biz_id = #{vehicleDetailBizId}
+        ORDER BY id
+        LIMIT 1
+    </select>
 </mapper>

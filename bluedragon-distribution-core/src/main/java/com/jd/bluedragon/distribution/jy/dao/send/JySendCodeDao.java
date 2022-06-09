@@ -59,6 +59,10 @@ public class JySendCodeDao extends BaseDao<JySendCodeEntity> {
         return this.getSqlSession().selectList(NAMESPACE + ".querySendCodesByVehicleDetailBizId", vehicleDetailBizId);
     }
 
+    public String findEarliestSendCode(String vehicleDetailBizId){
+        return this.getSqlSession().selectOne(NAMESPACE + ".findEarliestSendCode", vehicleDetailBizId);
+    }
+
     public List<String> querySendCodesByVehicleBizId(String vehicleBizId) {
         return this.getSqlSession().selectList(NAMESPACE + ".querySendCodesByVehicleBizId", vehicleBizId);
     }

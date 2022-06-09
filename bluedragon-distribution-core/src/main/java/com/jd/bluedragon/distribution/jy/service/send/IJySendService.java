@@ -24,5 +24,7 @@ public interface IJySendService {
      */
     JySendEntity queryByCodeAndSite(JySendEntity entity);
 
-    int add(JySendEntity sendEntity);
+    int save(JySendEntity sendEntity);
+
+    JySendEntity findByBizId(JySendEntity entity);
 }

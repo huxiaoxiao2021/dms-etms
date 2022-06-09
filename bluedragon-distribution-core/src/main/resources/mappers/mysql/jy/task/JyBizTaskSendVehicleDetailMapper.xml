@@ -378,7 +378,23 @@
             </if>
         </set>
         WHERE
-            biz_id = #{bizId}
+            yn = 1
+        AND biz_id = #{bizId}
+    </update>
+
+    <update id="updateStatus">
+        UPDATE jy_biz_task_send_vehicle_detail
+        <set>
+            vehicle_status = #{entity.vehicleStatus},
+            update_time = NOW()
+        </set>
+        WHERE
+            yn = 1
+        AND send_vehicle_biz_id = #{entity.sendVehicleBizId}
+        AND start_site_id = #{entity.startSiteId}
+        AND end_site_id = #{entity.endSiteId}
+        AND vehicle_status = #{oldStatus}
+        AND vehicle_status <![CDATA[ < ]]> #{entity.vehicleStatus}
     </update>
 
     <select id="countByStatus" parameterType="JyBizTaskSendVehicleDetailEntity" resultType="java.lang.Integer">

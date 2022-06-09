@@ -31,6 +31,14 @@ public interface JyBizTaskSendVehicleDetailService {
     int cancelDetail(JyBizTaskSendVehicleDetailEntity detailEntity);
 
     /**
+     * 按顺序更新发货明细状态
+     * @param detailEntity
+     * @param oldStatus
+     * @return
+     */
+    int updateStatus(JyBizTaskSendVehicleDetailEntity detailEntity, Integer oldStatus);
+
+    /**
      * 按状态统计流向数量
      * @param entity
      * @return

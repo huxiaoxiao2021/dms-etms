@@ -19,8 +19,8 @@
         <result property="vehicleTypeName" column="vehicle_type_name"/>
         <result property="lineType" column="line_type"/>
         <result property="lineTypeName" column="line_type_name"/>
-        <result property="lastPlanDepartTime" column="last_plan_depart_time"/>
-        <result property="lastSealCarTime" column="last_seal_car_time"/>
+        <result property="lastPlanDepartTime" column="last_plan_depart_time" />
+        <result property="lastSealCarTime" column="last_seal_car_time" />
         <result property="createUserErp" column="create_user_erp"/>
         <result property="createUserName" column="create_user_name"/>
         <result property="updateUserErp" column="update_user_erp"/>
@@ -32,8 +32,8 @@
     </resultMap>
 
     <resultMap id="statusSumResultMap" type="com.jd.bluedragon.distribution.jy.dto.send.JyBizTaskSendCountDto">
-        <result property="vehicleStatus" column="vehicle_status"/>
-        <result property="total" column="total"/>
+        <result property="vehicleStatus" column="vehicle_status" />
+        <result property="total" column="total" />
     </resultMap>
 
     <sql id="Base_Column_List">
@@ -235,7 +235,7 @@
                 abnormal_flag = #{abnormalFlag,jdbcType=BIT},
             </if>
             <if test="bindFlag != null">
-                bind_flag = #{bindFlag,jdbcType=BIT},
+                bind_flag = #{bindFlag,jdbcType=TINYINT},
             </if>
             <if test="transWay != null">
                 trans_way = #{transWay,jdbcType=TINYINT},
@@ -426,58 +426,74 @@
 
     <select id="sumTaskByVehicleStatus" parameterType="JyBizTaskSendVehicleEntity" resultMap="statusSumResultMap">
         SELECT
-        vehicle_status, COUNT(*) total
+            vehicle_status, COUNT(*) total
         FROM
-        jy_biz_task_send_vehicle
+            jy_biz_task_send_vehicle
         WHERE
-        yn = 1
-        AND start_site_id = #{entity.startSiteId}
-        <if test="entity.vehicleType != null">
-            AND vehicle_type = #{entity.vehicleType}
-        </if>
-        <if test="sendVehicleBizList != null and sendVehicleBizList.size() > 0">
-            AND biz_id IN
-            <foreach collection="sendVehicleBizList" separator="," open="(" close=")" item="item">
-                #{item}
-            </foreach>
-        </if>
+            yn = 1
+            AND start_site_id = #{entity.startSiteId}
+            <if test="entity.vehicleType != null">
+                AND vehicle_type = #{entity.vehicleType}
+            </if>
+            <if test="sendVehicleBizList != null and sendVehicleBizList.size() > 0">
+                AND biz_id IN
+                <foreach collection="sendVehicleBizList" separator="," open="(" close=")" item="item">
+                    #{item}
+                </foreach>
+            </if>
     </select>
 
     <select id="querySendTaskOfPage" parameterType="JyBizTaskSendVehicleEntity" resultMap="jyBizTaskSendVehicleMap">
         SELECT
-        <include refid="Base_Column_List"/>
+            <include refid="Base_Column_List"/>
         FROM
-        jy_biz_task_send_vehicle
+            jy_biz_task_send_vehicle
         WHERE
-        yn = 1
-        AND start_site_id = #{entity.startSiteId}
-        AND vehicle_status = #{entity.vehicleStatus}
-        <if test="entity.vehicleType != null">
-            AND vehicle_type = #{entity.vehicleType}
-        </if>
-        <if test="sendVehicleBizList != null and sendVehicleBizList.size() > 0">
-            AND biz_id IN
-            <foreach collection="sendVehicleBizList" separator="," open="(" close=")" item="item">
-                #{item}
-            </foreach>
-        </if>
+            yn = 1
+            AND start_site_id = #{entity.startSiteId}
+            AND vehicle_status = #{entity.vehicleStatus}
+            <if test="entity.vehicleType != null">
+              AND vehicle_type = #{entity.vehicleType}
+            </if>
+            <if test="sendVehicleBizList != null and sendVehicleBizList.size() > 0">
+                AND biz_id IN
+                <foreach collection="sendVehicleBizList" separator="," open="(" close=")" item="item">
+                    #{item}
+                </foreach>
+            </if>
 
-        <if test="orderType != null">
-            ORDER BY
-            <choose>
-                <when test="orderType == 1">
-                    last_plan_depart_time ASC
-                </when>
-                <when test="orderType == 2">
-                    last_seal_car_time DESC
-                </when>
-                <otherwise>
-                    id
-                </otherwise>
-            </choose>
-        </if>
+            <if test="orderType != null">
+                ORDER BY
+                <choose>
+                    <when test="orderType == 1">
+                        last_plan_depart_time ASC
+                    </when>
+                    <when test="orderType == 2">
+                        last_seal_car_time DESC
+                    </when>
+                    <otherwise>
+                        id
+                    </otherwise>
+                </choose>
+            </if>
 
-        LIMIT #{offset},#{limit}
+            LIMIT #{offset},#{limit}
     </select>
+
+    <update id="updateStatus">
+        UPDATE jy_biz_task_send_vehicle
+        <set>
+            vehicle_status = #{entity.vehicleStatus},
+            update_time = NOW()
+        </set>
+        WHERE
+            yn = 1
+        AND biz_id = #{entity.bizId}
+        <if test="entity.startSiteId != null">
+            AND start_site_id = #{entity.startSiteId}
+        </if>
+        AND vehicle_status = #{oldStatus}
+        AND vehicle_status <![CDATA[ < ]]> #{entity.vehicleStatus}
+    </update>
 
 </mapper>

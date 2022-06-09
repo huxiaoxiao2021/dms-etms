@@ -17,11 +17,6 @@ public enum SendAbnormalEnum {
      * 存在拦截或强扫包裹
      */
     EXIST_ABNORMAL_PACK,
-
-    /**
-     * 无任务发货未绑定任务
-     */
-    MANUAL_TASK_NO_BIND,
     ;
 
 }

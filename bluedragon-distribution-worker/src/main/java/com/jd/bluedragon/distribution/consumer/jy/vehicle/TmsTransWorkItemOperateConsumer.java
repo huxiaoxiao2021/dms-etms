@@ -8,6 +8,8 @@ import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.jy.dto.send.TransWorkItemDto;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendDetailStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendStatusEnum;
+import com.jd.bluedragon.distribution.jy.enums.JyLineTypeEnum;
+import com.jd.bluedragon.distribution.jy.enums.TmsLineTypeEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.manager.JyScheduleTaskManager;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetailService;
@@ -93,7 +95,6 @@ public class TmsTransWorkItemOperateConsumer extends MessageBaseConsumer {
 
     @Autowired
     private BasicQueryWSManager basicQueryWSManager;
-
 
     @Override
     public void consume(Message message) throws Exception {
@@ -242,6 +243,7 @@ public class TmsTransWorkItemOperateConsumer extends MessageBaseConsumer {
         sendVehicleEntity.setTransWorkCode(transWorkBillDto.getTransWorkCode());
         sendVehicleEntity.setStartSiteId(startSiteId.longValue());
         sendVehicleEntity.setVehicleStatus(JyBizTaskSendStatusEnum.TO_SEND.getCode());
+        sendVehicleEntity.setVehicleNumber(StringUtils.EMPTY);
         sendVehicleEntity.setTransWay(transWorkBillDto.getTransWay());
         sendVehicleEntity.setTransWayName(transWorkBillDto.getTransWayName());
 
@@ -252,10 +254,9 @@ public class TmsTransWorkItemOperateConsumer extends MessageBaseConsumer {
                 sendVehicleEntity.setVehicleTypeName(basicVehicleTypeDto.getVehicleTypeName());
             }
         }
-
-        // FIXME 确认运输线路类型枚举（只要干线、支线）。tms_trans_work_item_operate消息里运输类型代表的是派车单的线路类型么？
-        sendVehicleEntity.setLineType(workItemDto.getTransType());
-//                sendVehicleEntity.setLineTypeName(workItemDto.getTransType());
+        JyLineTypeEnum lineType = TmsLineTypeEnum.getLineType(transWorkBillDto.getTransType());
+        sendVehicleEntity.setLineType(lineType.getCode());
+        sendVehicleEntity.setLineTypeName(lineType.getName());
         sendVehicleEntity.setCreateUserErp("sys.dms");
         sendVehicleEntity.setCreateUserName("sys.dms");
 

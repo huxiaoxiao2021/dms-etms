@@ -66,6 +66,11 @@ public class SendScanRequest implements Serializable {
      */
     private String noTaskRemark;
 
+    /**
+     * 用户确认的发货目的地
+     */
+    private Long confirmSendDestId;
+
     public User getUser() {
         return user;
     }
@@ -160,5 +165,13 @@ public class SendScanRequest implements Serializable {
 
     public void setNoTaskRemark(String noTaskRemark) {
         this.noTaskRemark = noTaskRemark;
+    }
+
+    public Long getConfirmSendDestId() {
+        return confirmSendDestId;
+    }
+
+    public void setConfirmSendDestId(Long confirmSendDestId) {
+        this.confirmSendDestId = confirmSendDestId;
     }
 }
