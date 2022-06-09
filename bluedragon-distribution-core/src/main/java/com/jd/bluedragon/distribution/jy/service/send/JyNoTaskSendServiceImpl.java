@@ -393,6 +393,12 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
     }
 
     private void validateCancelReq(CancelSendTaskReq request) {
+        if (request.getType()==null){
+            throw new JyBizException("取消扫描类型不能为空！");
+        }
+        if (CancelSendTypeEnum.getReportTypeName(request.getType())==null){
+            throw new JyBizException("不支持该扫描类型！");
+        }
         //按运单-支持运单和包裹
         if (CancelSendTypeEnum.WAYBILL_CODE.getCode().equals(request.getType())) {
             if (!(WaybillUtil.isPackageCode(request.getCode()) || WaybillUtil.isWaybillCode(request.getCode()))) {
