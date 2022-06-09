@@ -37,389 +37,338 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        id, biz_id, trans_work_code, start_site_id, vehicle_number, vehicle_status, manual_created_flag, abnormal_flag,
+        id
+        , biz_id,biz_no, trans_work_code, start_site_id, vehicle_number, vehicle_status, manual_created_flag, abnormal_flag,
         bind_flag, trans_way, trans_way_name, vehicle_type, vehicle_type_name, line_type, line_type_name, last_plan_depart_time, last_seal_car_time,
         create_user_erp, create_user_name, update_user_erp, update_user_name, create_time, update_time, yn, ts
     </sql>
 
     <insert id="insert" parameterType="JyBizTaskSendVehicleEntity">
-        INSERT INTO jy_biz_task_send_vehicle (
-        <if test="id != null">
-            id
-        </if>
-        ,
-        <if test="bizId != null">
-            biz_id
-        </if>
-        ,
-        <if test="bizNo != null">
-            biz_no
-        </if>
-        ,
-        <if test="transWorkCode != null">
-            trans_work_code
-        </if>
-        ,
-        <if test="vehicleNumber != null">
-            vehicle_number
-        </if>
-        ,
-        <if test="vehicleStatus != null">
-            vehicle_status
-        </if>
-        ,
-        <if test="manualCreatedFlag != null">
-            manual_created_flag
-        </if>
-        ,
-        <if test="abnormalFlag != null">
-            abnormal_flag
-        </if>
-        ,
-        <if test="bindFlag != null">
-            bind_flag
-        </if>
-        ,
-        <if test="transWay != null">
-            trans_way
-        </if>
-        ,
-        <if test="transWayName != null">
-            trans_way_name
-        </if>
-        ,
-        <if test="vehicleType != null">
-            vehicle_type
-        </if>
-        ,
-        <if test="vehicleTypeName != null">
-            vehicle_type_name
-        </if>
-        ,
-        <if test="lineType != null">
-            line_type
-        </if>
-        ,
-        <if test="lineTypeName != null">
-            line_type_name
-        </if>
-        ,
-        <if test="lastPlanDepartTime != null">
-            last_plan_depart_time
-        </if>
-        ,
-        <if test="lastSealCarTime != null">
-            last_seal_car_time
-        </if>
-        ,
-        <if test="createUserErp != null">
-            create_user_erp
-        </if>
-        ,
-        <if test="createUserName != null">
-            create_user_name
-        </if>
-        ,
-        <if test="updateUserErp != null">
-            update_user_erp
-        </if>
-        ,
-        <if test="updateUserName != null">
-            update_user_name
-        </if>
-        ,
-        <if test="createTime != null">
-            create_time
-        </if>
-        ,
-        <if test="updateTime != null">
-            update_time
-        </if>
-        ,
-        <if test="yn != null">
-            yn
-        </if>
-        ,
-        <if test="ts != null">
-            ts
-        </if>
-        ) VALUES (
-        <if test="id != null">
-            #{id}
-        </if>
-        ,
-        <if test="bizId != null">
-            #{bizId}
-        </if>
-        ,
-        <if test="bizNo != null">
-            #{bizNo}
-        </if>
-        ,
-        <if test="transWorkCode != null">
-            #{transWorkCode}
-        </if>
-        ,
-        <if test="vehicleNumber != null">
-            #{vehicleNumber}
-        </if>
-        ,
-        <if test="vehicleStatus != null">
-            #{vehicleStatus}
-        </if>
-        ,
-        <if test="manualCreatedFlag != null">
-            #{manualCreatedFlag}
-        </if>
-        ,
-        <if test="abnormalFlag != null">
-            #{abnormalFlag}
-        </if>
-        ,
-        <if test="bindFlag != null">
-            #{bindFlag}
-        </if>
-        ,
-        <if test="transWay != null">
-            #{transWay}
-        </if>
-        ,
-        <if test="transWayName != null">
-            #{transWayName}
-        </if>
-        ,
-        <if test="vehicleType != null">
-            #{vehicleType}
-        </if>
-        ,
-        <if test="vehicleTypeName != null">
-            #{vehicleTypeName}
-        </if>
-        ,
-        <if test="lineType != null">
-            #{lineType}
-        </if>
-        ,
-        <if test="lineTypeName != null">
-            #{lineTypeName}
-        </if>
-        ,
-        <if test="lastPlanDepartTime != null">
-            #{lastPlanDepartTime}
-        </if>
-        ,
-        <if test="lastSealCarTime != null">
-            #{lastSealCarTime}
-        </if>
-        ,
-        <if test="createUserErp != null">
-            #{createUserErp}
-        </if>
-        ,
-        <if test="createUserName != null">
-            #{createUserName}
-        </if>
-        ,
-        <if test="updateUserErp != null">
-            #{updateUserErp}
-        </if>
-        ,
-        <if test="updateUserName != null">
-            #{updateUserName}
-        </if>
-        ,
-        <if test="createTime != null">
-            #{createTime}
-        </if>
-        ,
-        <if test="updateTime != null">
-            #{updateTime}
-        </if>
-        ,
-        <if test="yn != null">
-            #{yn}
-        </if>
-        ,
-        <if test="ts != null">
-            #{ts}
-        </if>
-        )
+        insert into jy_biz_task_send_vehicle
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="bizId != null">
+                biz_id,
+            </if>
+            <if test="bizNo != null">
+                biz_no,
+            </if>
+            <if test="transWorkCode != null">
+                trans_work_code,
+            </if>
+            <if test="startSiteId != null">
+                start_site_id,
+            </if>
+            <if test="vehicleNumber != null">
+                vehicle_number,
+            </if>
+            <if test="vehicleStatus != null">
+                vehicle_status,
+            </if>
+            <if test="manualCreatedFlag != null">
+                manual_created_flag,
+            </if>
+            <if test="abnormalFlag != null">
+                abnormal_flag,
+            </if>
+            <if test="bindFlag != null">
+                bind_flag,
+            </if>
+            <if test="transWay != null">
+                trans_way,
+            </if>
+            <if test="transWayName != null">
+                trans_way_name,
+            </if>
+            <if test="vehicleType != null">
+                vehicle_type,
+            </if>
+            <if test="vehicleTypeName != null">
+                vehicle_type_name,
+            </if>
+            <if test="lineType != null">
+                line_type,
+            </if>
+            <if test="lineTypeName != null">
+                line_type_name,
+            </if>
+            <if test="lastPlanDepartTime != null">
+                last_plan_depart_time,
+            </if>
+            <if test="lastSealCarTime != null">
+                last_seal_car_time,
+            </if>
+            <if test="createUserErp != null">
+                create_user_erp,
+            </if>
+            <if test="createUserName != null">
+                create_user_name,
+            </if>
+            <if test="updateUserErp != null">
+                update_user_erp,
+            </if>
+            <if test="updateUserName != null">
+                update_user_name,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="updateTime != null">
+                update_time,
+            </if>
+            <if test="yn != null">
+                yn,
+            </if>
+            <if test="ts != null">
+                ts,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="bizId != null">
+                #{bizId,jdbcType=VARCHAR},
+            </if>
+            <if test="bizNo != null">
+                #{bizNo,jdbcType=VARCHAR},
+            </if>
+            <if test="transWorkCode != null">
+                #{transWorkCode,jdbcType=VARCHAR},
+            </if>
+            <if test="startSiteId != null">
+                #{startSiteId,jdbcType=BIGINT},
+            </if>
+            <if test="vehicleNumber != null">
+                #{vehicleNumber,jdbcType=VARCHAR},
+            </if>
+            <if test="vehicleStatus != null">
+                #{vehicleStatus,jdbcType=BIT},
+            </if>
+            <if test="manualCreatedFlag != null">
+                #{manualCreatedFlag,jdbcType=BIT},
+            </if>
+            <if test="abnormalFlag != null">
+                #{abnormalFlag,jdbcType=BIT},
+            </if>
+            <if test="bindFlag != null">
+                #{bindFlag,jdbcType=BIT},
+            </if>
+            <if test="transWay != null">
+                #{transWay,jdbcType=TINYINT},
+            </if>
+            <if test="transWayName != null">
+                #{transWayName,jdbcType=VARCHAR},
+            </if>
+            <if test="vehicleType != null">
+                #{vehicleType,jdbcType=INTEGER},
+            </if>
+            <if test="vehicleTypeName != null">
+                #{vehicleTypeName,jdbcType=VARCHAR},
+            </if>
+            <if test="lineType != null">
+                #{lineType,jdbcType=TINYINT},
+            </if>
+            <if test="lineTypeName != null">
+                #{lineTypeName,jdbcType=VARCHAR},
+            </if>
+            <if test="lastPlanDepartTime != null">
+                #{lastPlanDepartTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="lastSealCarTime != null">
+                #{lastSealCarTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="createUserErp != null">
+                #{createUserErp,jdbcType=VARCHAR},
+            </if>
+            <if test="createUserName != null">
+                #{createUserName,jdbcType=VARCHAR},
+            </if>
+            <if test="updateUserErp != null">
+                #{updateUserErp,jdbcType=VARCHAR},
+            </if>
+            <if test="updateUserName != null">
+                #{updateUserName,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateTime != null">
+                #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="yn != null">
+                #{yn,jdbcType=BIT},
+            </if>
+            <if test="ts != null">
+                #{ts,jdbcType=TIMESTAMP},
+            </if>
+        </trim>
     </insert>
 
     <update id="update" parameterType="JyBizTaskSendVehicleEntity">
-        UPDATE jy_biz_task_send_vehicle
+        update jy_biz_task_send_vehicle
         <set>
-            <if test="id != null">
-                id = #{id}
-            </if>
-            ,
             <if test="bizId != null">
-                biz_id = #{bizId}
+                biz_id = #{bizId,jdbcType=VARCHAR},
             </if>
-            ,
+            <if test="bizNo != null">
+                biz_no = #{bizNo,jdbcType=VARCHAR},
+            </if>
             <if test="transWorkCode != null">
-                trans_work_code = #{transWorkCode}
+                trans_work_code = #{transWorkCode,jdbcType=VARCHAR},
             </if>
-            ,
+            <if test="startSiteId != null">
+                start_site_id = #{startSiteId,jdbcType=BIGINT},
+            </if>
             <if test="vehicleNumber != null">
-                vehicle_number = #{vehicleNumber}
+                vehicle_number = #{vehicleNumber,jdbcType=VARCHAR},
             </if>
-            ,
             <if test="vehicleStatus != null">
-                vehicle_status = #{vehicleStatus}
+                vehicle_status = #{vehicleStatus,jdbcType=BIT},
             </if>
-            ,
             <if test="manualCreatedFlag != null">
-                manual_created_flag = #{manualCreatedFlag}
+                manual_created_flag = #{manualCreatedFlag,jdbcType=BIT},
             </if>
-            ,
             <if test="abnormalFlag != null">
-                abnormal_flag = #{abnormalFlag}
+                abnormal_flag = #{abnormalFlag,jdbcType=BIT},
             </if>
-            ,
             <if test="bindFlag != null">
-                bind_flag = #{bindFlag}
+                bind_flag = #{bindFlag,jdbcType=TINYINT},
             </if>
-            ,
             <if test="transWay != null">
-                trans_way = #{transWay}
+                trans_way = #{transWay,jdbcType=TINYINT},
             </if>
-            ,
             <if test="transWayName != null">
-                trans_way_name = #{transWayName}
+                trans_way_name = #{transWayName,jdbcType=VARCHAR},
             </if>
-            ,
             <if test="vehicleType != null">
-                vehicle_type = #{vehicleType}
+                vehicle_type = #{vehicleType,jdbcType=INTEGER},
             </if>
-            ,
             <if test="vehicleTypeName != null">
-                vehicle_type_name = #{vehicleTypeName}
+                vehicle_type_name = #{vehicleTypeName,jdbcType=VARCHAR},
             </if>
-            ,
             <if test="lineType != null">
-                line_type = #{lineType}
+                line_type = #{lineType,jdbcType=TINYINT},
             </if>
-            ,
             <if test="lineTypeName != null">
-                line_type_name = #{lineTypeName}
+                line_type_name = #{lineTypeName,jdbcType=VARCHAR},
             </if>
-            ,
+            <if test="lastPlanDepartTime != null">
+                last_plan_depart_time = #{lastPlanDepartTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="lastSealCarTime != null">
+                last_seal_car_time = #{lastSealCarTime,jdbcType=TIMESTAMP},
+            </if>
             <if test="createUserErp != null">
-                create_user_erp = #{createUserErp}
+                create_user_erp = #{createUserErp,jdbcType=VARCHAR},
             </if>
-            ,
             <if test="createUserName != null">
-                create_user_name = #{createUserName}
+                create_user_name = #{createUserName,jdbcType=VARCHAR},
             </if>
-            ,
             <if test="updateUserErp != null">
-                update_user_erp = #{updateUserErp}
+                update_user_erp = #{updateUserErp,jdbcType=VARCHAR},
             </if>
-            ,
             <if test="updateUserName != null">
-                update_user_name = #{updateUserName}
+                update_user_name = #{updateUserName,jdbcType=VARCHAR},
             </if>
-            ,
             <if test="createTime != null">
-                create_time = #{createTime}
+                create_time = #{createTime,jdbcType=TIMESTAMP},
             </if>
-            ,
             <if test="updateTime != null">
-                update_time = #{updateTime}
+                update_time = #{updateTime,jdbcType=TIMESTAMP},
             </if>
-            ,
             <if test="yn != null">
-                yn = #{yn}
+                yn = #{yn,jdbcType=BIT},
             </if>
-            ,
             <if test="ts != null">
-                ts = #{ts}
+                ts = #{ts,jdbcType=TIMESTAMP},
             </if>
         </set>
-        <where>
-            id = #{id}
-        </where>
+        where id = #{id,jdbcType=BIGINT}
     </update>
 
     <update id="updateByBizId" parameterType="JyBizTaskSendVehicleEntity">
-        UPDATE jy_biz_task_send_vehicle
+        update jy_biz_task_send_vehicle
         <set>
+            <if test="bizId != null">
+                biz_id = #{bizId,jdbcType=VARCHAR},
+            </if>
+            <if test="bizNo != null">
+                biz_no = #{bizNo,jdbcType=VARCHAR},
+            </if>
             <if test="transWorkCode != null">
-                trans_work_code = #{transWorkCode}
+                trans_work_code = #{transWorkCode,jdbcType=VARCHAR},
             </if>
-            ,
+            <if test="startSiteId != null">
+                start_site_id = #{startSiteId,jdbcType=BIGINT},
+            </if>
             <if test="vehicleNumber != null">
-                vehicle_number = #{vehicleNumber}
+                vehicle_number = #{vehicleNumber,jdbcType=VARCHAR},
             </if>
-            ,
             <if test="vehicleStatus != null">
-                vehicle_status = #{vehicleStatus}
+                vehicle_status = #{vehicleStatus,jdbcType=BIT},
             </if>
-            ,
             <if test="manualCreatedFlag != null">
-                manual_created_flag = #{manualCreatedFlag}
+                manual_created_flag = #{manualCreatedFlag,jdbcType=BIT},
             </if>
-            ,
             <if test="abnormalFlag != null">
-                abnormal_flag = #{abnormalFlag}
+                abnormal_flag = #{abnormalFlag,jdbcType=BIT},
             </if>
-            ,
             <if test="bindFlag != null">
-                bind_flag = #{bindFlag}
+                bind_flag = #{bindFlag,jdbcType=BIT},
             </if>
-            ,
             <if test="transWay != null">
-                trans_way = #{transWay}
+                trans_way = #{transWay,jdbcType=TINYINT},
             </if>
-            ,
             <if test="transWayName != null">
-                trans_way_name = #{transWayName}
+                trans_way_name = #{transWayName,jdbcType=VARCHAR},
             </if>
-            ,
             <if test="vehicleType != null">
-                vehicle_type = #{vehicleType}
+                vehicle_type = #{vehicleType,jdbcType=INTEGER},
             </if>
-            ,
             <if test="vehicleTypeName != null">
-                vehicle_type_name = #{vehicleTypeName}
+                vehicle_type_name = #{vehicleTypeName,jdbcType=VARCHAR},
             </if>
-            ,
             <if test="lineType != null">
-                line_type = #{lineType}
+                line_type = #{lineType,jdbcType=TINYINT},
             </if>
-            ,
             <if test="lineTypeName != null">
-                line_type_name = #{lineTypeName}
+                line_type_name = #{lineTypeName,jdbcType=VARCHAR},
             </if>
-            ,
             <if test="lastPlanDepartTime != null">
-                last_plan_depart_time = #{lastPlanDepartTime}
+                last_plan_depart_time = #{lastPlanDepartTime,jdbcType=TIMESTAMP},
             </if>
-            ,
             <if test="lastSealCarTime != null">
-                last_seal_car_time = #{lastSealCarTime}
+                last_seal_car_time = #{lastSealCarTime,jdbcType=TIMESTAMP},
             </if>
-            ,
+            <if test="createUserErp != null">
+                create_user_erp = #{createUserErp,jdbcType=VARCHAR},
+            </if>
+            <if test="createUserName != null">
+                create_user_name = #{createUserName,jdbcType=VARCHAR},
+            </if>
             <if test="updateUserErp != null">
-                update_user_erp = #{updateUserErp}
+                update_user_erp = #{updateUserErp,jdbcType=VARCHAR},
             </if>
-            ,
             <if test="updateUserName != null">
-                update_user_name = #{updateUserName}
+                update_user_name = #{updateUserName,jdbcType=VARCHAR},
             </if>
-            ,
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
             <if test="updateTime != null">
-                update_time = #{updateTime}
+                update_time = #{updateTime,jdbcType=TIMESTAMP},
             </if>
-            ,
             <if test="yn != null">
-                yn = #{yn}
+                yn = #{yn,jdbcType=BIT},
+            </if>
+            <if test="ts != null">
+                ts = #{ts,jdbcType=TIMESTAMP},
             </if>
         </set>
-        <where>
-            biz_id = #{bizId}
-        </where>
+        where biz_id = #{bizId}
     </update>
 
     <select id="findByBizId" resultMap="jyBizTaskSendVehicleMap" parameterType="java.lang.String">
@@ -430,54 +379,49 @@
         limit 1;
     </select>
 
-    <select id="findByTransWorkAndStartSite" parameterType="JyBizTaskSendVehicleEntity" resultMap="jyBizTaskSendVehicleMap">
-        SELECT
-            id, biz_id
+    <select id="findByTransWorkAndStartSite" parameterType="JyBizTaskSendVehicleEntity"
+            resultMap="jyBizTaskSendVehicleMap">
+        SELECT id,
+               biz_id
         FROM jy_biz_task_send_vehicle
-        WHERE
-            yn = 1
-        AND trans_work_code = #{transWorkCode, jdbcType=VARCHAR}
-        AND start_site_id = #{startSiteId, jdbcType=BIGINT}
+        WHERE yn = 1
+          AND trans_work_code = #{transWorkCode, jdbcType=VARCHAR}
+          AND start_site_id = #{startSiteId, jdbcType=BIGINT}
         ORDER BY ts DESC limit 1
     </select>
 
     <insert id="initTaskSendVehicle" parameterType="JyBizTaskSendVehicleEntity">
         INSERT INTO jy_biz_task_send_vehicle
-        (
-             biz_id,
-             trans_work_code,
-             start_site_id,
-             vehicle_number,
-             vehicle_status,
-             trans_way,
-             trans_way_name,
-             vehicle_type,
-             vehicle_type_name,
-             line_type,
-             line_type_name,
-             create_user_erp,
-             create_user_name,
-             create_time,
-             yn
-        )
-        VALUES
-       (
-            #{bizId},
-            #{transWorkCode},
-            #{startSiteId},
-            #{vehicleNumber} ,
-            #{vehicleStatus},
-            #{transWay},
-            #{transWayName},
-            #{vehicleType},
-            #{vehicleTypeName},
-            #{lineType},
-            #{lineTypeName} ,
-            #{createUserErp},
-            #{createUserName},
-            NOW(),
-            1
-       )
+        (biz_id,
+         trans_work_code,
+         start_site_id,
+         vehicle_number,
+         vehicle_status,
+         trans_way,
+         trans_way_name,
+         vehicle_type,
+         vehicle_type_name,
+         line_type,
+         line_type_name,
+         create_user_erp,
+         create_user_name,
+         create_time,
+         yn)
+        VALUES (#{bizId},
+                #{transWorkCode},
+                #{startSiteId},
+                #{vehicleNumber},
+                #{vehicleStatus},
+                #{transWay},
+                #{transWayName},
+                #{vehicleType},
+                #{vehicleTypeName},
+                #{lineType},
+                #{lineTypeName},
+                #{createUserErp},
+                #{createUserName},
+                NOW(),
+                1)
     </insert>
 
     <select id="sumTaskByVehicleStatus" parameterType="JyBizTaskSendVehicleEntity" resultMap="statusSumResultMap">

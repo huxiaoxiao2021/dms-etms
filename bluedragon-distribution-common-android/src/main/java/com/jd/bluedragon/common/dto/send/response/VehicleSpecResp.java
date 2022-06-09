@@ -9,17 +9,26 @@ public class VehicleSpecResp implements Serializable {
     /**
      * 车身长
      */
-    private String vehicleLength;
+    private Integer vehicleLength;
     /**
      * 某规格下的车辆类型列表信息
      */
     private List<VehicleTypeDto> vehicleTypeDtoList;
+    private String name;
 
-    public String getVehicleLength() {
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Integer getVehicleLength() {
         return vehicleLength;
     }
 
-    public void setVehicleLength(String vehicleLength) {
+    public void setVehicleLength(Integer vehicleLength) {
         this.vehicleLength = vehicleLength;
     }
 

@@ -41,7 +41,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.text.DecimalFormat;
 import java.util.*;
 
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.*;
@@ -92,6 +94,7 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
                 String vehicleLength = basicVehicleTypeDto.getVehicleLength();
                 if (ObjectHelper.isNotNull(vehicleLength)) {
                     VehicleTypeDto vehicleTypeDto = BeanUtils.copy(basicVehicleTypeDto, VehicleTypeDto.class);
+                    vehicleLength =vehicleLength.length()==4?vehicleLength.substring(0,3):vehicleLength;
                     if (groupByVehicleLength.containsKey(vehicleLength)) {
                         groupByVehicleLength.get(vehicleLength).add(vehicleTypeDto);
                     } else {
@@ -103,30 +106,44 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
             }
             //封装树形结构响应体
             List<VehicleSpecResp> vehicleSpecRespList = new ArrayList<>();
+            DecimalFormat df  = new DecimalFormat("###.0");
             for (Map.Entry<String, List<VehicleTypeDto>> entry : groupByVehicleLength.entrySet()) {
                 String key = entry.getKey();
                 List<VehicleTypeDto> value = entry.getValue();
                 VehicleSpecResp vehicleSpecResp = new VehicleSpecResp();
-                vehicleSpecResp.setVehicleLength(key);
+                vehicleSpecResp.setVehicleLength(Integer.valueOf(key));
+                vehicleSpecResp.setName(df.format((double)vehicleSpecResp.getVehicleLength()/10)+"米");
                 vehicleSpecResp.setVehicleTypeDtoList(value);
                 vehicleSpecRespList.add(vehicleSpecResp);
             }
+            Collections.sort(vehicleSpecRespList,new VehicleTypeComparator());
             return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, vehicleSpecRespList);
         }
         return new InvokeResult(RESULT_NODATA_GETCARTYPE_CODE, RESULT_NODATA_GETCARTYPE_MESSAGE);
+    }
+
+    class VehicleTypeComparator implements Comparator<VehicleSpecResp>{
+        @Override
+        public int compare(VehicleSpecResp o1, VehicleSpecResp o2) {
+            return o1.getVehicleLength()-o2.getVehicleLength();
+        }
     }
 
     @Override
     public InvokeResult<CreateVehicleTaskResp> createVehicleTask(CreateVehicleTaskReq createVehicleTaskReq) {
         JyBizTaskSendVehicleEntity jyBizTaskSendVehicleEntity = initJyBizTaskSendVehicle(createVehicleTaskReq);
         jyBizTaskSendVehicleService.saveSendVehicleTask(jyBizTaskSendVehicleEntity);
-        return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE);
+        CreateVehicleTaskResp createVehicleTaskResp =new CreateVehicleTaskResp();
+        createVehicleTaskResp.setBizId(jyBizTaskSendVehicleEntity.getBizId());
+        createVehicleTaskResp.setBizNo(jyBizTaskSendVehicleEntity.getBizNo());
+        return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE,createVehicleTaskResp);
     }
 
     private JyBizTaskSendVehicleEntity initJyBizTaskSendVehicle(CreateVehicleTaskReq createVehicleTaskReq) {
         JyBizTaskSendVehicleEntity entity = new JyBizTaskSendVehicleEntity();
         entity.setBizId(genMainTaskBizId());
         entity.setBizNo(genSendVehicleTaskBizNo(createVehicleTaskReq));
+        entity.setStartSiteId(Long.valueOf(createVehicleTaskReq.getCurrentOperate().getSiteCode()));
         entity.setManualCreatedFlag(1);
         entity.setVehicleType(createVehicleTaskReq.getVehicleType());
         entity.setVehicleTypeName(createVehicleTaskReq.getVehicleTypeName());
@@ -151,11 +168,12 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
     }
 
     private String genMainTaskBizId() {
-        String ownerKey = String.format(JyBizTaskSendVehicleEntity.BIZ_PREFIX, DateHelper.formatDate(new Date(), DateHelper.DATE_FORMATE_yyMMdd));
+        String ownerKey = String.format(JyBizTaskSendVehicleEntity.BIZ_PREFIX_NOTASK, DateHelper.formatDate(new Date(), DateHelper.DATE_FORMATE_yyMMdd));
         return ownerKey + StringHelper.padZero(redisJyBizIdSequenceGen.gen(ownerKey));
     }
 
     @Override
+    @Transactional
     public InvokeResult deleteVehicleTask(DeleteVehicleTaskReq deleteVehicleTaskReq) {
         //删除主任务
         JyBizTaskSendVehicleEntity entity = new JyBizTaskSendVehicleEntity();
@@ -197,9 +215,9 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
     }
 
     @Override
-    public InvokeResult<SendVehicleTaskResponse> listVehicleTask(VehicleTaskReq vehicleTaskReq) {
+    public InvokeResult<List<VehicleTaskResp>> listVehicleTask(VehicleTaskReq vehicleTaskReq) {
         SendVehicleTaskRequest sendVehicleTaskRequest =toSendVehicleTaskRequest(vehicleTaskReq);
-        return iJySendVehicleService.fetchSendVehicleTask(sendVehicleTaskRequest);
+        return null;
     }
 
     private SendVehicleTaskRequest toSendVehicleTaskRequest(VehicleTaskReq vehicleTaskReq) {

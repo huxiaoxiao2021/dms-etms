@@ -208,7 +208,7 @@
           and yn = 1
     </select>
 
-    <select id="querySendCodesByVehicleBizId" parameterType="java.lang.String">
+    <select id="querySendCodesByVehicleBizId" parameterType="java.lang.String" resultType="java.lang.String">
         select send_code
         from jy_send_code
         where send_vehicle_biz_id = #{vehicleBizId}

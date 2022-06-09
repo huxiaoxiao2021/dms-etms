@@ -36,7 +36,7 @@ public interface JyNoTaskSendService {
      * @param vehicleTaskReq
      * @return
      */
-    InvokeResult<SendVehicleTaskResponse> listVehicleTask(VehicleTaskReq vehicleTaskReq);
+    InvokeResult<List<VehicleTaskResp>> listVehicleTask(VehicleTaskReq vehicleTaskReq);
 
     /**
      * 自建任务绑定-运输真实任务

@@ -1,11 +1,9 @@
 package com.jd.bluedragon.external.gateway.service;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicleInfoRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleTaskResponse;
 import com.jd.bluedragon.common.dto.send.request.*;
-import com.jd.bluedragon.common.dto.send.response.CancelSendTaskResp;
-import com.jd.bluedragon.common.dto.send.response.CreateVehicleTaskResp;
-import com.jd.bluedragon.common.dto.send.response.VehicleSpecResp;
-import com.jd.bluedragon.common.dto.send.response.VehicleTaskResp;
+import com.jd.bluedragon.common.dto.send.response.*;
 
 import java.util.List;
 
@@ -35,7 +33,7 @@ public interface JyNoTaskSendGatewayService {
      * @param vehicleTaskReq
      * @return
      */
-    JdCResponse<SendVehicleTaskResponse> listVehicleTask(VehicleTaskReq vehicleTaskReq);
+    JdCResponse<List<VehicleTaskResp>> listVehicleTask(VehicleTaskReq vehicleTaskReq);
 
     /**
      * 自建任务绑定-运输真实任务
@@ -58,6 +56,13 @@ public interface JyNoTaskSendGatewayService {
      */
     JdCResponse<CancelSendTaskResp> cancelSendTask(CancelSendTaskReq cancelSendTaskReq);
 
+
+    /**
+     * 扫描包裹号、箱号 获取流向信息
+     * @param getSendRouterInfoReq
+     * @return
+     */
+    JdCResponse<GetSendRouterInfoResq> getSendRouterInfoByScanCode(GetSendRouterInfoReq getSendRouterInfoReq);
 
 
 

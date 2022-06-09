@@ -6,12 +6,14 @@ import com.jd.bluedragon.distribution.jy.dto.send.TransferDto;
 import com.jd.bluedragon.distribution.jy.dto.send.VehicleSendRelationDto;
 import com.jd.bluedragon.distribution.jy.send.JySendCodeEntity;
 import com.jd.bluedragon.utils.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 @Service
 public class JyVehicleSendRelationServiceImpl implements JyVehicleSendRelationService{
+    @Autowired
     JySendCodeDao jySendCodeDao;
 
     @Override
