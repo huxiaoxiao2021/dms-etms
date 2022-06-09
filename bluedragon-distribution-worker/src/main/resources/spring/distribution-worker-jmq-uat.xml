@@ -329,7 +329,7 @@
     </jmq:consumer>
 
     <!--  运输派车明细消息  -->
-    <jmq:consumer id="jmq.tmsTransWorkItemOperateConsumer" transport="jmq.dmsWorker.transport">
+    <jmq:consumer id="jmq.tmsTransWorkItemOperateConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.tms.workItem.operate}" listener="tmsTransWorkItemOperateConsumer"/>
     </jmq:consumer>
 
