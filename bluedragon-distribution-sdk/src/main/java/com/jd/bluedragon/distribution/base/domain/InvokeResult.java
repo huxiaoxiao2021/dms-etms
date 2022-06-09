@@ -84,6 +84,11 @@ public class InvokeResult<T> implements Serializable {
     public static final int RESULT_NO_FOUND_BY_TRANS_WOEK_ITEM_CODE=315;
     public static final String RESULT_NO_FOUND_BY_TRANS_WOEK_ITEM_MESSAGE="根据派车明细单号未查询到相关运力信息！";
 
+    public static final int RESULT_NO_FOUND_BY_BOARD_CODE=316;
+    public static final String RESULT_NO_FOUND_BY_BOARD_MESSAGE="未查询到相关的组板信息！";
+
+    public static final int BOX_NO_FOUND_BY_PACKAGE_CODE=317;
+    public static final String BOX_NO_FOUND_BY_PACKAGE_MESSAGE="未根据包裹号查询到相关的箱号信息！";
     public InvokeResult(){
         this.code=RESULT_SUCCESS_CODE;
     }

@@ -17,6 +17,7 @@ import com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskSendVehicleDetailDao;
 import com.jd.bluedragon.distribution.jy.dto.send.JySendCodeDto;
 import com.jd.bluedragon.distribution.jy.dto.send.VehicleSendRelationDto;
 import com.jd.bluedragon.distribution.jy.enums.CancelSendTypeEnum;
+import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.manager.JyTransportManager;
 import com.jd.bluedragon.distribution.jy.send.JySendCodeEntity;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetailService;
@@ -26,8 +27,12 @@ import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.domain.ThreeDeliveryResponse;
+import com.jd.bluedragon.distribution.send.domain.dto.SendDetailDto;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
+import com.jd.bluedragon.distribution.send.service.SendDetailService;
 import com.jd.bluedragon.distribution.send.service.SendMService;
+import com.jd.bluedragon.distribution.sorting.domain.Sorting;
+import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
@@ -44,6 +49,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.text.DecimalFormat;
+import java.text.MessageFormat;
 import java.util.*;
 
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.*;
@@ -82,6 +88,10 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
     private JimdbSequenceGen redisJyBizIdSequenceGen;
     @Autowired
     IJySendVehicleService iJySendVehicleService;
+    @Autowired
+    private SendDetailService sendDetailService;
+    @Autowired
+    SortingService sortingService;
 
 
     @Override
@@ -94,7 +104,7 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
                 String vehicleLength = basicVehicleTypeDto.getVehicleLength();
                 if (ObjectHelper.isNotNull(vehicleLength)) {
                     VehicleTypeDto vehicleTypeDto = BeanUtils.copy(basicVehicleTypeDto, VehicleTypeDto.class);
-                    vehicleLength =vehicleLength.length()==4?vehicleLength.substring(0,3):vehicleLength;
+                    vehicleLength = vehicleLength.length() == 4 ? vehicleLength.substring(0, 3) : vehicleLength;
                     if (groupByVehicleLength.containsKey(vehicleLength)) {
                         groupByVehicleLength.get(vehicleLength).add(vehicleTypeDto);
                     } else {
@@ -106,26 +116,26 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
             }
             //封装树形结构响应体
             List<VehicleSpecResp> vehicleSpecRespList = new ArrayList<>();
-            DecimalFormat df  = new DecimalFormat("###.0");
+            DecimalFormat df = new DecimalFormat("###.0");
             for (Map.Entry<String, List<VehicleTypeDto>> entry : groupByVehicleLength.entrySet()) {
                 String key = entry.getKey();
                 List<VehicleTypeDto> value = entry.getValue();
                 VehicleSpecResp vehicleSpecResp = new VehicleSpecResp();
                 vehicleSpecResp.setVehicleLength(Integer.valueOf(key));
-                vehicleSpecResp.setName(df.format((double)vehicleSpecResp.getVehicleLength()/10)+"米");
+                vehicleSpecResp.setName(df.format((double) vehicleSpecResp.getVehicleLength() / 10) + "米");
                 vehicleSpecResp.setVehicleTypeDtoList(value);
                 vehicleSpecRespList.add(vehicleSpecResp);
             }
-            Collections.sort(vehicleSpecRespList,new VehicleTypeComparator());
+            Collections.sort(vehicleSpecRespList, new VehicleTypeComparator());
             return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, vehicleSpecRespList);
         }
         return new InvokeResult(RESULT_NODATA_GETCARTYPE_CODE, RESULT_NODATA_GETCARTYPE_MESSAGE);
     }
 
-    class VehicleTypeComparator implements Comparator<VehicleSpecResp>{
+    class VehicleTypeComparator implements Comparator<VehicleSpecResp> {
         @Override
         public int compare(VehicleSpecResp o1, VehicleSpecResp o2) {
-            return o1.getVehicleLength()-o2.getVehicleLength();
+            return o1.getVehicleLength() - o2.getVehicleLength();
         }
     }
 
@@ -133,10 +143,10 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
     public InvokeResult<CreateVehicleTaskResp> createVehicleTask(CreateVehicleTaskReq createVehicleTaskReq) {
         JyBizTaskSendVehicleEntity jyBizTaskSendVehicleEntity = initJyBizTaskSendVehicle(createVehicleTaskReq);
         jyBizTaskSendVehicleService.saveSendVehicleTask(jyBizTaskSendVehicleEntity);
-        CreateVehicleTaskResp createVehicleTaskResp =new CreateVehicleTaskResp();
+        CreateVehicleTaskResp createVehicleTaskResp = new CreateVehicleTaskResp();
         createVehicleTaskResp.setBizId(jyBizTaskSendVehicleEntity.getBizId());
         createVehicleTaskResp.setBizNo(jyBizTaskSendVehicleEntity.getBizNo());
-        return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE,createVehicleTaskResp);
+        return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, createVehicleTaskResp);
     }
 
     private JyBizTaskSendVehicleEntity initJyBizTaskSendVehicle(CreateVehicleTaskReq createVehicleTaskReq) {
@@ -157,7 +167,7 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
     }
 
     private String genSendVehicleTaskBizNo(CreateVehicleTaskReq createVehicleTaskReq) {
-        String bizNoKey = "bizNo:"+createVehicleTaskReq.getCurrentOperate().getSiteCode()+":"+ TimeUtils.date2string(new Date(),yyyyMMdd+":");
+        String bizNoKey = "bizNo:" + createVehicleTaskReq.getCurrentOperate().getSiteCode() + ":" + TimeUtils.date2string(new Date(), yyyyMMdd + ":");
         long bizNo = 0;
         try {
             bizNo = redisClientCache.incr(bizNoKey);
@@ -216,12 +226,12 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
 
     @Override
     public InvokeResult<List<VehicleTaskResp>> listVehicleTask(VehicleTaskReq vehicleTaskReq) {
-        SendVehicleTaskRequest sendVehicleTaskRequest =toSendVehicleTaskRequest(vehicleTaskReq);
+        SendVehicleTaskRequest sendVehicleTaskRequest = toSendVehicleTaskRequest(vehicleTaskReq);
         return null;
     }
 
     private SendVehicleTaskRequest toSendVehicleTaskRequest(VehicleTaskReq vehicleTaskReq) {
-        SendVehicleTaskRequest sendVehicleTaskRequest =new SendVehicleTaskRequest();
+        SendVehicleTaskRequest sendVehicleTaskRequest = new SendVehicleTaskRequest();
         sendVehicleTaskRequest.setVehicleStatus(vehicleTaskReq.getVehicleStatus());
         sendVehicleTaskRequest.setEndSiteId(vehicleTaskReq.getEndSiteId());
         sendVehicleTaskRequest.setPageNumber(vehicleTaskReq.getPageNumber());
@@ -314,44 +324,136 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
 
     @Override
     public InvokeResult<CancelSendTaskResp> cancelSendTask(CancelSendTaskReq request) {
+        log.info("jy取消发货，按{}进行取消,扫描号码：{}", CancelSendTypeEnum.getReportTypeName(request.getType()), request.getCode());
+        validateCancelReq(request);
         SendM sendM = toSendM(request);
         CancelSendTaskResp cancelSendTaskResp = new CancelSendTaskResp();
         cancelSendTaskResp.setCancelCode(request.getCode());
-        if (WaybillUtil.isPackageCode(request.getCode()) || BusinessUtil.isBoxcode(request.getCode())) {
-            String sendCode = sendMService.querySendCodeBySelective(sendM);
-            if (!ObjectHelper.isNotNull(sendCode)) {
-                return new InvokeResult(MSCodeMapping.NO_SENDCODE_BY_PACKAGECODE.getCode(), MSCodeMapping.NO_SENDCODE_BY_PACKAGECODE.getMessage());
-            }
-            sendM.setSendCode(sendCode);
-            sendM.setReceiveSiteCode(BusinessUtil.getReceiveSiteCodeFromSendCode(sendCode));
-        }
 
-        if (WaybillUtil.isPackageCode(request.getCode()) && CancelSendTypeEnum.WAYBILL_CODE.getCode().equals(request.getType())) {
-            String wayBillCode = WaybillUtil.getWaybillCode(request.getCode());
+        //按运单
+        if (CancelSendTypeEnum.WAYBILL_CODE.getCode().equals(request.getType())) {
+            String wayBillCode = WaybillUtil.isPackageCode(request.getCode()) ? WaybillUtil.getWaybillCode(request.getCode()) : request.getCode();
             sendM.setBoxCode(wayBillCode);
             cancelSendTaskResp.setCancelCode(wayBillCode);
         }
-        if (WaybillUtil.isPackageCode(request.getCode()) && CancelSendTypeEnum.BOARD_NO.getCode().equals(request.getType())) {
-            Response<Board> boardResponse = groupBoardManager.getBoardByBoxCode(request.getCode(), request.getCurrentOperate().getSiteCode());
-            if (!JdCResponse.CODE_SUCCESS.equals(boardResponse.getCode())) {
-                log.info("按板取消发货-未根据箱号/包裹号找到匹配的板号！");
-                return new InvokeResult(MSCodeMapping.NO_BOARD_BY_PACKAGECODE.getCode(), MSCodeMapping.NO_BOARD_BY_PACKAGECODE.getMessage());
+        //按箱
+        if (CancelSendTypeEnum.BOX_CODE.getCode().equals(request.getType())) {
+            String boxCode = request.getCode();
+            if (WaybillUtil.isPackageCode(request.getCode())) {
+                //寻找箱号
+                List<Sorting> sortingList = sortingService.findByPackageCode(request.getCurrentOperate().getSiteCode(), request.getCode());
+                if (!ObjectHelper.isNotNull(sortingList) || sortingList.size() != 1) {
+                    log.info("按箱号取消，根据包裹号{}查询箱号数据异常", request.getCode());
+                    return new InvokeResult(BOX_NO_FOUND_BY_PACKAGE_CODE, BOX_NO_FOUND_BY_PACKAGE_MESSAGE);
+                }
+                boxCode = sortingList.get(0).getBoxCode();
             }
-            log.info("============按板取消发货，扫描的包裹号/箱号：{}，板号：{}", request.getCode(), boardResponse.getData().getCode());
-            String boardCode = boardResponse.getData().getCode();
+            sendM.setBoxCode(boxCode);
+            cancelSendTaskResp.setCancelCode(boxCode);
+        }
+        //按板
+        if (CancelSendTypeEnum.BOARD_NO.getCode().equals(request.getType())) {
+            String boardCode = request.getCode();
+            if (WaybillUtil.isPackageCode(request.getCode()) || BusinessUtil.isBoxcode(request.getCode())) {
+                Response<Board> boardResponse = groupBoardManager.getBoardByBoxCode(request.getCode(), request.getCurrentOperate().getSiteCode());
+                if (!JdCResponse.CODE_SUCCESS.equals(boardResponse.getCode())) {
+                    log.info("按板取消发货-未根据箱号/包裹号找到匹配的板号！");
+                    return new InvokeResult(MSCodeMapping.NO_BOARD_BY_PACKAGECODE.getCode(), MSCodeMapping.NO_BOARD_BY_PACKAGECODE.getMessage());
+                }
+                log.info("============按板取消发货，扫描的包裹号/箱号：{}，板号：{}", request.getCode(), boardResponse.getData().getCode());
+                boardCode = boardResponse.getData().getCode();
+            }
             sendM.setBoxCode(boardCode);
             cancelSendTaskResp.setCancelCode(boardCode);
+        }
+
+        if (CancelSendTypeEnum.BOARD_NO.getCode().equals(request.getType()) && BusinessUtil.isBoardCode(sendM.getBoxCode())) {
+            //查询组板信息
+            Response<List<String>> response = groupBoardManager.getBoxesByBoardCode(sendM.getBoxCode());
+            if (!(JdCResponse.CODE_SUCCESS.equals(response.getCode()) && null != response.getData() && response.getData().size() > 0)) {
+                log.info("根据板号：{}未查到包裹/箱号信息", sendM.getBoxCode());
+                return new InvokeResult(RESULT_NO_FOUND_BY_BOARD_CODE, RESULT_NO_FOUND_BY_BOARD_MESSAGE);
+            }
+            List<String> packOrBoxCodes = response.getData();
+            List<String> packageCodes = getPackageCodesFromPackOrBoxCodes(packOrBoxCodes, request.getCurrentOperate().getSiteCode());
+            cancelSendTaskResp.setCanclePackageCount(packageCodes.size());
         }
 
         ThreeDeliveryResponse tDResponse = deliveryService.dellCancelDeliveryMessageWithServerTime(sendM, true);
         if (ObjectHelper.isNotNull(tDResponse) && JdCResponse.CODE_SUCCESS.equals(tDResponse.getCode())) {
             //TODO  根据包裹号掉印辉提供的服务查询列表，从那里面去流向名称
-
-            cancelSendTaskResp.setCanclePackageCount(sendM.getCancelPackageCount());
+            if (cancelSendTaskResp.getCanclePackageCount() == null) {
+                cancelSendTaskResp.setCanclePackageCount(sendM.getCancelPackageCount());
+            }
             cancelSendTaskResp.setEndSiteName("");
             return new InvokeResult(tDResponse.getCode(), tDResponse.getMessage(), cancelSendTaskResp);
         }
         return new InvokeResult(tDResponse.getCode(), tDResponse.getMessage());
+    }
+
+    private void validateCancelReq(CancelSendTaskReq request) {
+        //按运单-支持运单和包裹
+        if (CancelSendTypeEnum.WAYBILL_CODE.getCode().equals(request.getType())) {
+            if (!(WaybillUtil.isPackageCode(request.getCode()) || WaybillUtil.isWaybillCode(request.getCode()))) {
+                throw new JyBizException("无效条码，请扫描运单号或者包裹号！");
+            }
+        }
+        //按箱-支持箱和包裹
+        else if (CancelSendTypeEnum.BOX_CODE.getCode().equals(request.getType())) {
+            if (!(BusinessUtil.isBoxcode(request.getCode()) || WaybillUtil.isPackageCode(request.getCode()))) {
+                throw new JyBizException("无效条码，请扫描箱号或者包裹号！");
+            }
+        }
+        //按板-支持板 箱 包裹
+        if (CancelSendTypeEnum.BOARD_NO.getCode().equals(request.getType())) {
+            if (!(BusinessUtil.isBoardCode(request.getCode()) || BusinessUtil.isBoxcode(request.getCode())
+                    || WaybillUtil.isPackageCode(request.getCode()))) {
+                throw new JyBizException("无效条码，请扫描板号、箱号或者包裹号！");
+            }
+        } else {
+            if (!WaybillUtil.isPackageCode(request.getCode())) {
+                throw new JyBizException("无效条码，请扫描包裹号！");
+            }
+        }
+    }
+
+    private List<String> getPackageCodesFromPackOrBoxCodes(List<String> packOrBoxCodes, Integer siteCode) {
+        List<String> packageCodes = new ArrayList<>();
+        for (String code : packOrBoxCodes) {
+            if (BusinessUtil.isBoxcode(code)) {
+                log.info("=====getPackageCodesFromPackOrBoxCodes=======根据箱号获取集包包裹 {}", code);
+                List<String> pCodes = getPackageCodesByBoxCodeOrSendCode(code, siteCode);
+                if (pCodes != null && pCodes.size() > 0) {
+                    log.info("======getPackageCodesFromPackOrBoxCodes======根据sendD找到包裹信息{}", pCodes.toString());
+                    packageCodes.addAll(pCodes);
+                }
+            } else {
+                packageCodes.add(code);
+            }
+        }
+        return packageCodes;
+    }
+
+    private SendDetailDto initSendDetail(String barcode, int createSiteCode) {
+        SendDetailDto sendDetail = new SendDetailDto();
+        sendDetail.setIsCancel(0);
+        sendDetail.setCreateSiteCode(createSiteCode);
+        if (BusinessUtil.isBoxcode(barcode)) {
+            sendDetail.setBoxCode(barcode);
+        }
+        if (BusinessUtil.isSendCode(barcode)) {
+            sendDetail.setSendCode(barcode);
+        }
+        return sendDetail;
+    }
+
+    private List<String> getPackageCodesByBoxCodeOrSendCode(String boxOrSendCode, Integer siteCode) {
+        //构建查询sendDetail的查询参数
+        SendDetailDto sendDetail = initSendDetail(boxOrSendCode, siteCode);
+        if (BusinessUtil.isBoxcode(boxOrSendCode)) {
+            return sendDetailService.queryPackageCodeByboxCode(sendDetail);
+        }
+        return sendDetailService.queryPackageCodeBySendCode(sendDetail);
     }
 
     private SendM toSendM(CancelSendTaskReq request) {
