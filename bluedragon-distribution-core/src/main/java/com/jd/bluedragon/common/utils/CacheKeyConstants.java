@@ -246,4 +246,10 @@ public class CacheKeyConstants {
      */
     public static final String JY_SEND_SCAN_KEY = JY_CACHE_PREFIX + "ss:scan:%s:%s";
 
+    /**
+     * 拣运发车任务主键
+     * bizId + createSite + receiveSite
+     */
+    public static final String JY_SEND_TASK_FIRST_SCAN_KEY = JY_CACHE_PREFIX + "ss:biz:first:%s:%s:%s";
+
 }

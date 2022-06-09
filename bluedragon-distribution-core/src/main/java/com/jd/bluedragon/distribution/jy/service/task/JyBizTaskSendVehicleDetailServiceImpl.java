@@ -53,6 +53,11 @@ public class JyBizTaskSendVehicleDetailServiceImpl implements JyBizTaskSendVehic
     }
 
     @Override
+    public int updateStatus(JyBizTaskSendVehicleDetailEntity detailEntity, Integer oldStatus) {
+        return jyBizTaskSendVehicleDetailDao.updateStatus(detailEntity, oldStatus);
+    }
+
+    @Override
     public int countByStatus(JyBizTaskSendVehicleDetailEntity entity) {
         return jyBizTaskSendVehicleDetailDao.countByStatus(entity);
     }

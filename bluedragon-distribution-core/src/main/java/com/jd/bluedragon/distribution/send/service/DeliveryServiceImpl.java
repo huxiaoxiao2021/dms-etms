@@ -1517,7 +1517,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                 Profiler.registerInfoEnd(infoSendFindByWaybillCode);
             }
 
-            if (response.getCode() >= 39000) {
+            if (response.getCode() >= SendResult.RESPONSE_CODE_MAPPING_CONFIRM) {
                 result.init(SendResult.CODE_CONFIRM, response.getMessage(), response.getCode(), preSortingSiteCode);
             } else {
                 result.init(SendResult.CODE_SENDED, response.getMessage(), response.getCode(), preSortingSiteCode);
@@ -1533,7 +1533,8 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
      * @param domain
      * @return
      */
-    private SortingCheck getSortingCheck(SendM domain) {
+    @Override
+    public SortingCheck getSortingCheck(SendM domain) {
         //大件分拣拦截验证
         SortingCheck sortingCheck = new SortingCheck();
         sortingCheck.setOperateNode(OperateNodeConstants.SEND);
@@ -4227,7 +4228,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
     /**
      * 按运单发货是否在处理中
      */
-    private boolean isSendByWaybillProcessing(SendM sendM) {
+    public boolean isSendByWaybillProcessing(SendM sendM) {
         try {
             if (sendM == null) {
                 return false;

@@ -37,4 +37,6 @@ public interface JyVehicleSendRelationService {
     int deleteVehicleSendRelationByVehicleBizId(JySendCodeDto dto);
 
     int add(JySendCodeEntity jySendCodeEntity);
+
+    String findEarliestSendCode(String vehicleDetailBizId);
 }

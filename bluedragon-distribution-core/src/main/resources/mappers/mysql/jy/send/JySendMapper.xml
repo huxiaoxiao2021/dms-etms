@@ -29,115 +29,38 @@
         ,        send_vehicle_biz_id,        create_site_id,        receive_site_id,        bar_code,        send_code,        operate_time,        intercept_flag,        force_send_flag,        create_user_erp,        create_user_name,        update_user_erp,        update_user_name,        create_time,        update_time,        yn,        ts    </sql>
 
     <insert id="insert" parameterType="JySendEntity">
-        INSERT INTO jy_send (
-        <if test="sendVehicleBizId != null">
-            send_vehicle_biz_id
-        </if>
-        ,
-        <if test="createSiteId != null">
-            create_site_id
-        </if>
-        ,
-        <if test="receiveSiteId != null">
-            receive_site_id
-        </if>
-        ,
-        <if test="barCode != null">
-            bar_code
-        </if>
-        ,
-        <if test="sendCode != null">
-            send_code
-        </if>
-        ,
-        <if test="operateTime != null">
-            operate_time
-        </if>
-        ,
-        <if test="interceptFlag != null">
-            intercept_flag
-        </if>
-        ,
-        <if test="forceSendFlag != null">
-            force_send_flag
-        </if>
-        ,
-        <if test="createUserErp != null">
-            create_user_erp
-        </if>
-        ,
-        <if test="createUserName != null">
-            create_user_name
-        </if>
-        ,
-        create_time
+        INSERT INTO jy_send(
+             id,
+             send_vehicle_biz_id,
+             create_site_id,
+             receive_site_id,
+             bar_code,
+             send_code,
+             operate_time,
+             intercept_flag,
+             force_send_flag,
+             create_user_erp,
+             create_user_name,
+             create_time
         ) VALUES (
-        <if test="sendVehicleBizId != null">
-            #{sendVehicleBizId}
-        </if>
-        ,
-        <if test="createSiteId != null">
-            #{createSiteId}
-        </if>
-        ,
-        <if test="receiveSiteId != null">
-            #{receiveSiteId}
-        </if>
-        ,
-        <if test="barCode != null">
-            #{barCode}
-        </if>
-        ,
-        <if test="sendCode != null">
-            #{sendCode}
-        </if>
-        ,
-        <if test="operateTime != null">
-            #{operateTime}
-        </if>
-        ,
-        <if test="interceptFlag != null">
-            #{interceptFlag}
-        </if>
-        ,
-        <if test="forceSendFlag != null">
-            #{forceSendFlag}
-        </if>
-        ,
-        <if test="createUserErp != null">
-            #{createUserErp}
-        </if>
-        ,
-        <if test="createUserName != null">
-            #{createUserName}
-        </if>
-        ,
-        NOW()
+            #{id},
+            #{sendVehicleBizId},
+            #{createSiteId},
+            #{receiveSiteId},
+            #{barCode},
+            #{sendCode},
+            #{operateTime},
+            #{interceptFlag},
+            #{forceSendFlag},
+            #{createUserErp},
+            #{createUserName},
+            #{createTime}
+        )
     </insert>
 
-    <update id="update" parameterType="JySendEntity">
+    <update id="updateByCondition" parameterType="JySendEntity">
         UPDATE jy_send
         <set>
-            <if test="id != null">
-                id = #{id}
-            </if>
-            ,
-            <if test="sendVehicleBizId != null">
-                send_vehicle_biz_id = #{sendVehicleBizId}
-            </if>
-            ,
-            <if test="createSiteId != null">
-                create_site_id = #{createSiteId}
-            </if>
-            ,
-            <if test="receiveSiteId != null">
-                receive_site_id = #{receiveSiteId}
-            </if>
-            ,
-            <if test="barCode != null">
-                bar_code = #{barCode}
-            </if>
-            ,
             <if test="sendCode != null">
                 send_code = #{sendCode}
             </if>
@@ -154,14 +77,6 @@
                 force_send_flag = #{forceSendFlag}
             </if>
             ,
-            <if test="createUserErp != null">
-                create_user_erp = #{createUserErp}
-            </if>
-            ,
-            <if test="createUserName != null">
-                create_user_name = #{createUserName}
-            </if>
-            ,
             <if test="updateUserErp != null">
                 update_user_erp = #{updateUserErp}
             </if>
@@ -170,24 +85,14 @@
                 update_user_name = #{updateUserName}
             </if>
             ,
-            <if test="createTime != null">
-                create_time = #{createTime}
-            </if>
-            ,
             <if test="updateTime != null">
                 update_time = #{updateTime}
             </if>
-            ,
-            <if test="yn != null">
-                yn = #{yn}
-            </if>
-            ,
-            <if test="ts != null">
-                ts = #{ts}
-            </if>
         </set>
         <where>
-            id = #{id}
+            yn = 1
+            AND create_site_id = #{createSiteId}
+            AND bar_code = #{barCode}
         </where>
     </update>
 
@@ -197,6 +102,7 @@
         FROM jy_send
         WHERE
             yn = 1
+        AND create_site_id = #{createSiteId}
         AND send_vehicle_biz_id = #{sendVehicleBizId}
         AND (intercept_flag = 1 OR force_send_flag = 1)
         LIMIT 1
@@ -210,6 +116,20 @@
             yn = 1
         AND bar_code = #{barCode, jdbcType=VARCHAR}
         AND create_site_id = #{createSiteId, jdbcType=BIGINT}
+        LIMIT 1
+    </select>
+
+    <select id="findByBizId" parameterType="JySendEntity" resultMap="jySendMap">
+        SELECT
+            <include refid="Base_Column_List"/>
+        FROM jy_send
+        WHERE
+            yn = 1
+        AND send_vehicle_biz_id = #{sendVehicleBizId}
+        AND create_site_id = #{createSiteId}
+        <if test="receiveSiteId != null">
+            AND receive_site_id = #{receiveSiteId}
+        </if>
         LIMIT 1
     </select>
 </mapper>

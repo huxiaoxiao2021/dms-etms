@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.jy.service.send;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.jy.dao.send.JySendDao;
 import com.jd.bluedragon.distribution.jy.send.JySendEntity;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +29,16 @@ public class JySendServiceImpl implements IJySendService{
     }
 
     @Override
-    public int add(JySendEntity sendEntity) {
-        return sendDao.insert(sendEntity);
+    public int save(JySendEntity sendEntity) {
+        int rows = sendDao.updateByCondition(sendEntity);
+        if (rows == Constants.NO_MATCH_DATA) {
+            return sendDao.insert(sendEntity);
+        }
+        return rows;
+    }
+
+    @Override
+    public JySendEntity findByBizId(JySendEntity entity) {
+        return sendDao.findByBizId(entity);
     }
 }

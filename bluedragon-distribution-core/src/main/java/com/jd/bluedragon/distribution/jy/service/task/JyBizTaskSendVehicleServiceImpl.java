@@ -96,4 +96,11 @@ public class JyBizTaskSendVehicleServiceImpl implements JyBizTaskSendVehicleServ
     public int updateLastSealCarTime(JyBizTaskSendVehicleEntity entity) {
         return jyBizTaskSendVehicleDao.updateByBizId(entity);
     }
+
+    @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyBizTaskSendVehicleService.updateStatus",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
+    public int updateStatus(JyBizTaskSendVehicleEntity entity, Integer oldStatus) {
+        return jyBizTaskSendVehicleDao.updateStatus(entity, oldStatus);
+    }
 }

@@ -811,7 +811,7 @@
         <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
     </bean>
     <bean id="jySendDao" class="com.jd.bluedragon.distribution.jy.dao.send.JySendDao">
-        <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
+        <property name="sqlSession" ref="sessionTemplate"/>
     </bean>
     <bean id="jySendSealCodeDao" class="com.jd.bluedragon.distribution.jy.dao.send.JySendSealCodeDao">
         <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>

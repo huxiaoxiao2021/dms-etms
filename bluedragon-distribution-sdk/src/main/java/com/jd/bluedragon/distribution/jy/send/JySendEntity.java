@@ -17,13 +17,20 @@ public class JySendEntity implements Serializable {
 
     public JySendEntity() {}
 
-    public JySendEntity(String sendVehicleBizId) {
+    public JySendEntity(Long createSiteId, String sendVehicleBizId) {
+        this.createSiteId = createSiteId;
         this.sendVehicleBizId = sendVehicleBizId;
     }
 
     public JySendEntity(String barCode, Long createSiteId) {
         this.barCode = barCode;
         this.createSiteId = createSiteId;
+    }
+
+    public JySendEntity(String sendVehicleBizId, Long createSiteId, Long receiveSiteId) {
+        this.sendVehicleBizId = sendVehicleBizId;
+        this.createSiteId = createSiteId;
+        this.receiveSiteId = receiveSiteId;
     }
 
 	/**

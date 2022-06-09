@@ -254,7 +254,7 @@ public class TmsTransWorkItemOperateConsumer extends MessageBaseConsumer {
         }
 
         // FIXME 确认运输线路类型枚举（只要干线、支线）。tms_trans_work_item_operate消息里运输类型代表的是派车单的线路类型么？
-        sendVehicleEntity.setLineType(workItemDto.getTransType());
+        sendVehicleEntity.setLineType(transWorkBillDto.getTransType());
 //                sendVehicleEntity.setLineTypeName(workItemDto.getTransType());
         sendVehicleEntity.setCreateUserErp("sys.dms");
         sendVehicleEntity.setCreateUserName("sys.dms");
