@@ -33,7 +33,7 @@ public interface JyNoTaskSendGatewayService {
      * @param vehicleTaskReq
      * @return
      */
-    JdCResponse<SendVehicleTaskResponse> listVehicleTask(VehicleTaskReq vehicleTaskReq);
+    JdCResponse<List<VehicleTaskResp>> listVehicleTask(VehicleTaskReq vehicleTaskReq);
 
     /**
      * 自建任务绑定-运输真实任务
