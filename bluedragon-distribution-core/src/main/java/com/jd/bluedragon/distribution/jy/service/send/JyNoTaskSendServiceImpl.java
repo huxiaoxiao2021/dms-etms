@@ -225,9 +225,10 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
     }
 
     @Override
-    public InvokeResult<List<VehicleTaskResp>> listVehicleTask(VehicleTaskReq vehicleTaskReq) {
+    public InvokeResult<VehicleTaskResp> listVehicleTask(VehicleTaskReq vehicleTaskReq) {
         SendVehicleTaskRequest sendVehicleTaskRequest = toSendVehicleTaskRequest(vehicleTaskReq);
-        return null;
+        //TODO
+        return new InvokeResult<>();
     }
 
     private SendVehicleTaskRequest toSendVehicleTaskRequest(VehicleTaskReq vehicleTaskReq) {
