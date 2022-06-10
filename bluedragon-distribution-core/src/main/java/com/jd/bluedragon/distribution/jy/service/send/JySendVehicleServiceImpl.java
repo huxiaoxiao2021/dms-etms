@@ -13,6 +13,7 @@ import com.jd.bluedragon.common.dto.operation.workbench.unload.response.LabelOpt
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.VehicleStatusStatis;
 import com.jd.bluedragon.common.dto.send.request.VehicleTaskReq;
 import com.jd.bluedragon.common.dto.send.response.VehicleDetailTaskDto;
+import com.jd.bluedragon.common.dto.send.response.VehicleTaskDto;
 import com.jd.bluedragon.common.dto.send.response.VehicleTaskResp;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
@@ -631,10 +632,10 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
     }
 
     @Override
-    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "IJySendVehicleService.fetchSendVehicleTask",
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "IJySendVehicleService.fetchSendTaskForBinding",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
-    public InvokeResult<List<VehicleTaskResp>> fetchSendVehicleTask(VehicleTaskReq vehicleTaskReq) {
-        InvokeResult<List<VehicleTaskResp>> result = new InvokeResult<>();
+    public InvokeResult<VehicleTaskResp> fetchSendTaskForBinding(VehicleTaskReq vehicleTaskReq) {
+        InvokeResult<VehicleTaskResp> result = new InvokeResult<>();
 
         QueryTaskSendDto queryTaskSendDto = makeSendTaskQuery(vehicleTaskReq);
 
@@ -648,27 +649,36 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
 
             JyBizTaskSendVehicleEntity queryCondition = makeFetchCondition(queryTaskSendDto);
 
+            // 默认按预计发车时间排序
             JyBizTaskSendSortTypeEnum orderTypeEnum = JyBizTaskSendSortTypeEnum.PLAN_DEPART_TIME;
             List<JyBizTaskSendVehicleEntity> vehiclePageList = taskSendVehicleService.querySendTaskOfPage(queryCondition, queryTaskSendDto.getSendVehicleBizList(), orderTypeEnum,
                     queryTaskSendDto.getPageNumber(), queryTaskSendDto.getPageSize(), queryTaskSendDto.getVehicleStatuses());
 
-            List<VehicleTaskResp> vehicleTaskList = new ArrayList<>();
-            result.setData(vehicleTaskList);
+            VehicleTaskResp taskResp = new VehicleTaskResp();
+            result.setData(taskResp);
+            List<VehicleTaskDto> vehicleTaskList = new ArrayList<>();
+            taskResp.setVehicleTaskDtoList(vehicleTaskList);
 
             if (CollectionUtils.isEmpty(vehiclePageList)) {
                 return result;
             }
+
+            // 按目的地检索同流向的任务，同流向封车了，需要剔除发车任务
+            Set<String> needToTwiceRemoveTask = new HashSet<>();
+
             for (JyBizTaskSendVehicleEntity sendVehicleEntity : vehiclePageList) {
                 // 组装发车任务
-                VehicleTaskResp vehicleTaskResp = this.initVehicleTaskResp(sendVehicleEntity);
+                VehicleTaskDto vehicleTaskDto = this.initVehicleTaskDto(sendVehicleEntity);
 
                 List<VehicleDetailTaskDto> vdList = new ArrayList<>();
-                vehicleTaskResp.setVehicleDetailTaskDtoList(vdList);
+                vehicleTaskDto.setVehicleDetailTaskDtoList(vdList);
 
                 // 组装发车任务流向明细
-                this.initVehicleTaskDetails(queryTaskSendDto, sendVehicleEntity, vdList);
+                this.initVehicleTaskDetails(queryTaskSendDto, sendVehicleEntity, vdList, needToTwiceRemoveTask);
 
-                vehicleTaskList.add(vehicleTaskResp);
+                if (!needToTwiceRemoveTask.contains(sendVehicleEntity.getBizId())) {
+                    vehicleTaskList.add(vehicleTaskDto);
+                }
             }
         }
         catch (Exception e) {
@@ -679,11 +689,18 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
         return result;
     }
 
-    private void initVehicleTaskDetails(QueryTaskSendDto queryTaskSendDto, JyBizTaskSendVehicleEntity sendVehicleEntity, List<VehicleDetailTaskDto> vdList) {
+    private void initVehicleTaskDetails(QueryTaskSendDto queryTaskSendDto, JyBizTaskSendVehicleEntity sendVehicleEntity,
+                                        List<VehicleDetailTaskDto> vdList, Set<String> needToRemoveTask) {
         JyBizTaskSendVehicleDetailEntity detailQ = new JyBizTaskSendVehicleDetailEntity(queryTaskSendDto.getStartSiteId(), queryTaskSendDto.getEndSiteId(), sendVehicleEntity.getBizId());
         List<JyBizTaskSendVehicleDetailEntity> vehicleDetailList = taskSendVehicleDetailService.findEffectiveSendVehicleDetail(detailQ);
         if (CollectionUtils.isNotEmpty(vehicleDetailList)) {
             for (JyBizTaskSendVehicleDetailEntity detailEntity : vehicleDetailList) {
+
+                // 根据目的地匹配的发货流向已封车，发车任务需要剔除掉
+                if (detailEntity.getVehicleStatus().equals(JyBizTaskSendDetailStatusEnum.SEALED.getCode()) && detailEntity.getEndSiteId().equals(queryTaskSendDto.getEndSiteId())) {
+                    needToRemoveTask.add(detailEntity.getSendVehicleBizId());
+                }
+
                 VehicleDetailTaskDto detailTaskDto = new VehicleDetailTaskDto();
                 detailTaskDto.setBizId(detailEntity.getBizId());
                 detailTaskDto.setTransWorkItemCode(detailEntity.getTransWorkItemCode());
@@ -699,22 +716,22 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
         }
     }
 
-    private VehicleTaskResp initVehicleTaskResp(JyBizTaskSendVehicleEntity sendVehicleEntity) {
-        VehicleTaskResp vehicleTaskResp = new VehicleTaskResp();
-        vehicleTaskResp.setBizId(sendVehicleEntity.getBizId());
-        vehicleTaskResp.setTransWorkCode(sendVehicleEntity.getTransWorkCode());
+    private VehicleTaskDto initVehicleTaskDto(JyBizTaskSendVehicleEntity sendVehicleEntity) {
+        VehicleTaskDto vehicleTaskDto = new VehicleTaskDto();
+        vehicleTaskDto.setBizId(sendVehicleEntity.getBizId());
+        vehicleTaskDto.setTransWorkCode(sendVehicleEntity.getTransWorkCode());
 
         TransWorkBillDto transWorkBillDto = jdiQueryWSManager.queryTransWork(sendVehicleEntity.getTransWorkCode());
-        vehicleTaskResp.setVehicleNumber(transWorkBillDto == null ? StringUtils.EMPTY : transWorkBillDto.getVehicleNumber());
-        vehicleTaskResp.setVehicleStatus(sendVehicleEntity.getVehicleStatus());
-        vehicleTaskResp.setTransWay(sendVehicleEntity.getTransWay());
-        vehicleTaskResp.setTransWayName(sendVehicleEntity.getTransWayName());
-        vehicleTaskResp.setVehicleType(sendVehicleEntity.getVehicleType());
-        vehicleTaskResp.setVehicleTypeName(sendVehicleEntity.getVehicleTypeName());
-        vehicleTaskResp.setLineType(sendVehicleEntity.getLineType());
-        vehicleTaskResp.setLineTypeName(sendVehicleEntity.getLineTypeName());
+        vehicleTaskDto.setVehicleNumber(transWorkBillDto == null ? StringUtils.EMPTY : transWorkBillDto.getVehicleNumber());
+        vehicleTaskDto.setVehicleStatus(sendVehicleEntity.getVehicleStatus());
+        vehicleTaskDto.setTransWay(sendVehicleEntity.getTransWay());
+        vehicleTaskDto.setTransWayName(sendVehicleEntity.getTransWayName());
+        vehicleTaskDto.setVehicleType(sendVehicleEntity.getVehicleType());
+        vehicleTaskDto.setVehicleTypeName(sendVehicleEntity.getVehicleTypeName());
+        vehicleTaskDto.setLineType(sendVehicleEntity.getLineType());
+        vehicleTaskDto.setLineTypeName(sendVehicleEntity.getLineTypeName());
         
-        return vehicleTaskResp;
+        return vehicleTaskDto;
     }
 
     private QueryTaskSendDto makeSendTaskQuery(VehicleTaskReq vehicleTaskReq) {
@@ -1389,6 +1406,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
         sendVehicleInfo.setDriverName(transWorkBillDto.getCarrierDriverName());
         sendVehicleInfo.setDriverPhone(transWorkBillDto.getCarrierDriverPhone());
         sendVehicleInfo.setCarLengthStr(this.setCarLength(sendVehicleEntity));
+        sendVehicleInfo.setNoTaskBindVehicle(sendVehicleEntity.noTaskBindVehicle());
 
         return true;
     }

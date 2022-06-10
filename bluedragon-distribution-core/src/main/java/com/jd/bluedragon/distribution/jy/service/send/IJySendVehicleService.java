@@ -29,7 +29,7 @@ public interface IJySendVehicleService {
      * @param vehicleTaskReq
      * @return
      */
-    InvokeResult<List<VehicleTaskResp>> fetchSendVehicleTask(VehicleTaskReq vehicleTaskReq);
+    InvokeResult<VehicleTaskResp> fetchSendTaskForBinding(VehicleTaskReq vehicleTaskReq);
 
     /**
      * 发货扫描
