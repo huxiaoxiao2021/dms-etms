@@ -121,51 +121,71 @@ public class JySendVehicleGatewayServiceImpl implements JySendVehicleGatewayServ
     }
 
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JySendVehicleGatewayService.uploadPhoto",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public JdCResponse<Boolean> uploadPhoto(SendPhotoRequest request) {
         return retJdCResponse(jySendVehicleService.uploadPhoto(request));
     }
 
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JySendVehicleGatewayService.sendVehicleInfo",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public JdCResponse<SendVehicleInfo> sendVehicleInfo(SendVehicleInfoRequest request) {
         return retJdCResponse(jySendVehicleService.sendVehicleInfo(request));
     }
 
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JySendVehicleGatewayService.sendDestDetail",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public JdCResponse<List<SendDestDetail>> sendDestDetail(SendDetailRequest request) {
         return retJdCResponse(jySendVehicleService.sendDestDetail(request));
     }
 
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JySendVehicleGatewayService.loadProgress",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public JdCResponse<SendVehicleProgress> loadProgress(SendVehicleProgressRequest request) {
         return retJdCResponse(jySendVehicleService.loadProgress(request));
     }
 
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JySendVehicleGatewayService.checkSendVehicleNormalStatus",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public JdCResponse<SendAbnormalResponse> checkSendVehicleNormalStatus(SendAbnormalRequest request) {
         return retJdCResponse(jySendVehicleService.checkSendVehicleNormalStatus(request));
     }
 
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JySendVehicleGatewayService.interceptedBarCodeDetail",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public JdCResponse<SendAbnormalBarCode> interceptedBarCodeDetail(SendAbnormalPackRequest request) {
         return retJdCResponse(jySendVehicleService.interceptedBarCodeDetail(request));
     }
 
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JySendVehicleGatewayService.forceSendBarCodeDetail",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public JdCResponse<SendAbnormalBarCode> forceSendBarCodeDetail(SendAbnormalPackRequest request) {
         return retJdCResponse(jySendVehicleService.forceSendBarCodeDetail(request));
     }
 
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JySendVehicleGatewayService.abnormalSendBarCodeDetail",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public JdCResponse<SendAbnormalBarCode> abnormalSendBarCodeDetail(SendAbnormalPackRequest request) {
         return retJdCResponse(jySendVehicleService.abnormalSendBarCodeDetail(request));
     }
 
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JySendVehicleGatewayService.selectSealDest",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public JdCResponse<ToSealDestAgg> selectSealDest(SelectSealDestRequest request) {
         return retJdCResponse(jySendVehicleService.selectSealDest(request));
     }
 
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JySendVehicleGatewayService.sendScan",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public JdVerifyResponse<SendScanResponse> sendScan(SendScanRequest request) {
         return jySendVehicleService.sendScan(request);
     }

@@ -465,23 +465,8 @@
         FROM
             jy_biz_task_send_vehicle
         WHERE
-            yn = 1
-            AND start_site_id = #{entity.startSiteId}
-            <if test="entity.vehicleType != null">
-                AND vehicle_type = #{entity.vehicleType}
-            </if>
-            <if test="sendVehicleBizList != null and sendVehicleBizList.size() > 0">
-                AND biz_id IN
-                <foreach collection="sendVehicleBizList" separator="," open="(" close=")" item="item">
-                    #{item}
-                </foreach>
-            </if>
-            <if test="statuses != null and statuses.size() > 0">
-                AND vehicle_status IN
-                <foreach collection="statuses" separator="," open="(" close=")" item="item">
-                    #{item}
-                </foreach>
-            </if>
+
+            <include refid="taskQueryCondition"/>
 
             <if test="orderType != null">
                 ORDER BY
@@ -500,6 +485,34 @@
 
             LIMIT #{offset},#{limit}
     </select>
+
+    <select id="countByCondition" parameterType="JyBizTaskSendVehicleEntity">
+        SELECT
+            COUNT(*)
+        FROM jy_biz_task_send_vehicle
+        WHERE
+            <include refid="taskQueryCondition"/>
+    </select>
+
+    <sql id="taskQueryCondition">
+        yn = 1
+        AND start_site_id = #{entity.startSiteId}
+        <if test="entity.vehicleType != null">
+            AND vehicle_type = #{entity.vehicleType}
+        </if>
+        <if test="sendVehicleBizList != null and sendVehicleBizList.size() > 0">
+            AND biz_id IN
+            <foreach collection="sendVehicleBizList" separator="," open="(" close=")" item="item">
+                #{item}
+            </foreach>
+        </if>
+        <if test="statuses != null and statuses.size() > 0">
+            AND vehicle_status IN
+            <foreach collection="statuses" separator="," open="(" close=")" item="item">
+                #{item}
+            </foreach>
+        </if>
+    </sql>
 
     <update id="updateStatus">
         UPDATE jy_biz_task_send_vehicle

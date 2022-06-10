@@ -368,7 +368,7 @@
     <update id="updateByBiz" parameterType="JyBizTaskSendVehicleDetailEntity">
         UPDATE jy_biz_task_send_vehicle_detail
         <set>
-            <if test="vehicleStatus ! = null">
+            <if test="vehicleStatus != null">
                 vehicle_status = #{vehicleStatus},
             </if>
             <if test="sealCarTime != null">

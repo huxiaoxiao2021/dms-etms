@@ -86,6 +86,15 @@ public class JyBizTaskSendVehicleServiceImpl implements JyBizTaskSendVehicleServ
     }
 
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyBizTaskSendVehicleService.countByCondition",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
+    public int countByCondition(JyBizTaskSendVehicleEntity entity,
+                         List<String> sendVehicleBizList,
+                         List<Integer> statuses) {
+        return jyBizTaskSendVehicleDao.countByCondition(entity, sendVehicleBizList, statuses);
+    }
+
+    @Override
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyBizTaskSendVehicleService.updateLastPlanDepartTime",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public int updateLastPlanDepartTime(JyBizTaskSendVehicleEntity entity) {

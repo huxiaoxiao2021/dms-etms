@@ -58,6 +58,17 @@ public interface JyBizTaskSendVehicleService {
                                                          List<Integer> statuses);
 
     /**
+     * 统计发车任务数量
+     * @param entity
+     * @param sendVehicleBizList
+     * @param statuses
+     * @return
+     */
+    int countByCondition(JyBizTaskSendVehicleEntity entity,
+                         List<String> sendVehicleBizList,
+                         List<Integer> statuses);
+
+    /**
      * 更细最晚发车时间
      * @param entity
      * @return

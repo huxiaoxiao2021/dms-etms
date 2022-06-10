@@ -356,7 +356,6 @@ public class TmsTransWorkItemOperateConsumer extends MessageBaseConsumer {
                 || StringUtils.isEmpty(mqDto.getTransWorkItemCode())
                 || StringUtils.isBlank(mqDto.getBeginNodeCode())
                 || StringUtils.isBlank(mqDto.getEndNodeCode())
-                || null == mqDto.getPlanDepartTime()
                 || null == mqDto.getOperateType()) {
             logger.warn("TmsTransWorkItemOperateConsumer consume -->关键数据为空，内容为【{}】", JsonHelper.toJson(mqDto));
             return true;

@@ -649,13 +649,19 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
 
             JyBizTaskSendVehicleEntity queryCondition = makeFetchCondition(queryTaskSendDto);
 
+            int taskCount = taskSendVehicleService.countByCondition(queryCondition, queryTaskSendDto.getSendVehicleBizList(), queryTaskSendDto.getVehicleStatuses());
+            VehicleTaskResp taskResp = new VehicleTaskResp();
+            taskResp.setCount(taskCount);
+            result.setData(taskResp);
+            if (taskResp.getCount() == 0) {
+                return result;
+            }
+
             // 默认按预计发车时间排序
             JyBizTaskSendSortTypeEnum orderTypeEnum = JyBizTaskSendSortTypeEnum.PLAN_DEPART_TIME;
             List<JyBizTaskSendVehicleEntity> vehiclePageList = taskSendVehicleService.querySendTaskOfPage(queryCondition, queryTaskSendDto.getSendVehicleBizList(), orderTypeEnum,
                     queryTaskSendDto.getPageNumber(), queryTaskSendDto.getPageSize(), queryTaskSendDto.getVehicleStatuses());
 
-            VehicleTaskResp taskResp = new VehicleTaskResp();
-            result.setData(taskResp);
             List<VehicleTaskDto> vehicleTaskList = new ArrayList<>();
             taskResp.setVehicleTaskDtoList(vehicleTaskList);
 

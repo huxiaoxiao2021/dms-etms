@@ -83,6 +83,18 @@ public class JyBizTaskSendVehicleDao extends BaseDao<JyBizTaskSendVehicleEntity>
         return this.getSqlSession().selectList(NAMESPACE + ".querySendTaskOfPage", params);
     }
 
+    public int countByCondition(JyBizTaskSendVehicleEntity entity,
+                                List<String> sendVehicleBizList,
+                                List<Integer> statuses) {
+        Map<String,Object> params = new HashMap<>();
+        params.put("entity", entity);
+        params.put("sendVehicleBizList", sendVehicleBizList);
+        if (statuses != null && statuses.size() > 0) {
+            params.put("statuses", statuses);
+        }
+        return this.getSqlSession().selectOne(NAMESPACE + ".countByCondition", params);
+    }
+
     public int updateStatus(JyBizTaskSendVehicleEntity entity, Integer oldStatus) {
         Map<String,Object> params = new HashMap<>();
         params.put("entity", entity);
