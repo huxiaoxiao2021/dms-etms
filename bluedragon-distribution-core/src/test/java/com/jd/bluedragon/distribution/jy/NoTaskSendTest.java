@@ -119,8 +119,9 @@ public class NoTaskSendTest {
         user.setUserName("吴有德");
         cancelSendTaskReq.setUser(user);
 
-        InvokeResult invokeResult =jyNoTaskSendService.cancelSendTask(cancelSendTaskReq);
+        InvokeResult<CancelSendTaskResp> invokeResult =jyNoTaskSendService.cancelSendTask(cancelSendTaskReq);
         log.info("==========result code===========:{}", invokeResult.getCode());
         log.info("==========result msg===========:{}", invokeResult.getMessage());
+        log.info("==========result msg===========:{}", invokeResult.getData().toString());
     }
 }

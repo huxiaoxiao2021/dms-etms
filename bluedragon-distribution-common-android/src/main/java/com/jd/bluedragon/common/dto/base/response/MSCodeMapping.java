@@ -19,7 +19,7 @@ public enum MSCodeMapping {
   NO_BIND_DATA(5009,"未查询到相关的绑定数据！"),
   NO_BIND_RELATION_BETWEEN_BOX_AND_PACKAGE(5010,"该包裹未在集包码下集包！"),
   NO_SENDCODE_BY_PACKAGECODE(5011,"根据包裹号未找到匹配的发货批次信息"),
-  NO_BOARD_BY_PACKAGECODE(5012,"根据包裹号未找到匹配的板号信息");
+  NO_BOARD_BY_PACKAGECODE(5012,"根据包裹号、箱号未找到匹配的板号信息");
 
 
   MSCodeMapping(Integer code, String message) {

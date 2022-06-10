@@ -4,109 +4,25 @@ import java.io.Serializable;
 import java.util.List;
 
 public class VehicleTaskResp implements Serializable {
-    /**
-     * 主任务相关信息
-     */
-    private String bizId;
-    private String transWorkCode;
-    private String vehicleNumber;
-    private Integer vehicleStatus;
-    private Integer transWay;
-    private String transWayName;
-    private Integer vehicleType;
-    private String vehicleTypeName;
-    private Integer lineType;
-    private String lineTypeName;
-    /**
-     * 子任务列表
-     */
-    List<VehicleDetailTaskDto> vehicleDetailTaskDtoList;
+    private static final long serialVersionUID = -6947165328541242840L;
+    //主任务列表
+    private List<VehicleTaskDto> vehicleTaskDtoList;
+    //同流向任务数量
+    private Integer count;
 
-    public String getBizId() {
-        return bizId;
+    public List<VehicleTaskDto> getVehicleTaskDtoList() {
+        return vehicleTaskDtoList;
     }
 
-    public void setBizId(String bizId) {
-        this.bizId = bizId;
+    public void setVehicleTaskDtoList(List<VehicleTaskDto> vehicleTaskDtoList) {
+        this.vehicleTaskDtoList = vehicleTaskDtoList;
     }
 
-    public String getTransWorkCode() {
-        return transWorkCode;
+    public Integer getCount() {
+        return count;
     }
 
-    public void setTransWorkCode(String transWorkCode) {
-        this.transWorkCode = transWorkCode;
-    }
-
-    public String getVehicleNumber() {
-        return vehicleNumber;
-    }
-
-    public void setVehicleNumber(String vehicleNumber) {
-        this.vehicleNumber = vehicleNumber;
-    }
-
-    public Integer getVehicleStatus() {
-        return vehicleStatus;
-    }
-
-    public void setVehicleStatus(Integer vehicleStatus) {
-        this.vehicleStatus = vehicleStatus;
-    }
-
-    public Integer getTransWay() {
-        return transWay;
-    }
-
-    public void setTransWay(Integer transWay) {
-        this.transWay = transWay;
-    }
-
-    public String getTransWayName() {
-        return transWayName;
-    }
-
-    public void setTransWayName(String transWayName) {
-        this.transWayName = transWayName;
-    }
-
-    public Integer getVehicleType() {
-        return vehicleType;
-    }
-
-    public void setVehicleType(Integer vehicleType) {
-        this.vehicleType = vehicleType;
-    }
-
-    public String getVehicleTypeName() {
-        return vehicleTypeName;
-    }
-
-    public void setVehicleTypeName(String vehicleTypeName) {
-        this.vehicleTypeName = vehicleTypeName;
-    }
-
-    public Integer getLineType() {
-        return lineType;
-    }
-
-    public void setLineType(Integer lineType) {
-        this.lineType = lineType;
-    }
-
-    public String getLineTypeName() {
-        return lineTypeName;
-    }
-
-    public void setLineTypeName(String lineTypeName) {
-        this.lineTypeName = lineTypeName;
-    }
-
-    public List<VehicleDetailTaskDto> getVehicleDetailTaskDtoList() {
-        return vehicleDetailTaskDtoList;
-    }
-
-    public void setVehicleDetailTaskDtoList(List<VehicleDetailTaskDto> vehicleDetailTaskDtoList) {
-        this.vehicleDetailTaskDtoList = vehicleDetailTaskDtoList;
+    public void setCount(Integer count) {
+        this.count = count;
     }
 }

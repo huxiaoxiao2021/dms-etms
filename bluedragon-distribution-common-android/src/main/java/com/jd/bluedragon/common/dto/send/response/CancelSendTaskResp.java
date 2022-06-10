@@ -37,4 +37,13 @@ public class CancelSendTaskResp implements Serializable {
     public void setCanclePackageCount(Integer canclePackageCount) {
         this.canclePackageCount = canclePackageCount;
     }
+
+    @Override
+    public String toString() {
+        return "CancelSendTaskResp{" +
+                "endSiteName='" + endSiteName + '\'' +
+                ", canclePackageCount=" + canclePackageCount +
+                ", cancelCode='" + cancelCode + '\'' +
+                '}';
+    }
 }
