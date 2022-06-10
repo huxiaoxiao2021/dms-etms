@@ -397,10 +397,18 @@
          start_site_id,
          vehicle_number,
          vehicle_status,
-         trans_way,
-         trans_way_name,
-         vehicle_type,
-         vehicle_type_name,
+         <if test="transWay != null">
+             trans_way,
+         </if>
+         <if test="transWayName != null">
+             trans_way_name,
+         </if>
+         <if test="vehicleType != null">
+             vehicle_type,
+         </if>
+         <if test="vehicleTypeName != null">
+             vehicle_type_name,
+         </if>
          line_type,
          line_type_name,
          create_user_erp,
@@ -412,10 +420,18 @@
                 #{startSiteId},
                 #{vehicleNumber},
                 #{vehicleStatus},
-                #{transWay},
-                #{transWayName},
-                #{vehicleType},
-                #{vehicleTypeName},
+                <if test="transWay != null">
+                    #{transWay},
+                </if>
+                <if test="transWayName != null">
+                    #{transWayName},
+                </if>
+                <if test="vehicleType != null">
+                    #{vehicleType},
+                </if>
+                <if test="vehicleTypeName != null">
+                    #{vehicleTypeName},
+                </if>
                 #{lineType},
                 #{lineTypeName},
                 #{createUserErp},
@@ -451,13 +467,18 @@
         WHERE
             yn = 1
             AND start_site_id = #{entity.startSiteId}
-            AND vehicle_status = #{entity.vehicleStatus}
             <if test="entity.vehicleType != null">
-              AND vehicle_type = #{entity.vehicleType}
+                AND vehicle_type = #{entity.vehicleType}
             </if>
             <if test="sendVehicleBizList != null and sendVehicleBizList.size() > 0">
                 AND biz_id IN
                 <foreach collection="sendVehicleBizList" separator="," open="(" close=")" item="item">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="statuses != null and statuses.size() > 0">
+                AND vehicle_status IN
+                <foreach collection="statuses" separator="," open="(" close=")" item="item">
                     #{item}
                 </foreach>
             </if>

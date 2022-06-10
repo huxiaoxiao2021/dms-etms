@@ -24,6 +24,14 @@ public interface JyBizTaskSendVehicleDetailService {
     List<JyBizTaskSendVehicleDetailEntity> findEffectiveSendVehicleDetail(JyBizTaskSendVehicleDetailEntity entity);
 
     /**
+     * 按状态查发货任务流向
+     * @param entity
+     * @param statuses
+     * @return
+     */
+    List<JyBizTaskSendVehicleDetailEntity> findBySiteAndStatus(JyBizTaskSendVehicleDetailEntity entity, List<Integer> statuses);
+
+    /**
      * 取消
      * @param detailEntity
      * @return

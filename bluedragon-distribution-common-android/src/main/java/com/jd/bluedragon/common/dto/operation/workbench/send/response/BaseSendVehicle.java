@@ -46,6 +46,16 @@ public class BaseSendVehicle implements Serializable {
     private String transWorkCode;
 
     /**
+     * 线路类型
+     */
+    private Integer lineType;
+
+    /**
+     * 线路类型
+     */
+    private String lineTypeName;
+
+    /**
      * 任务标签集合
      */
     private List<LabelOption> tags;
@@ -114,5 +124,21 @@ public class BaseSendVehicle implements Serializable {
 
     public void set_active(Boolean _active) {
         this._active = _active;
+    }
+
+    public Integer getLineType() {
+        return lineType;
+    }
+
+    public void setLineType(Integer lineType) {
+        this.lineType = lineType;
+    }
+
+    public String getLineTypeName() {
+        return lineTypeName;
+    }
+
+    public void setLineTypeName(String lineTypeName) {
+        this.lineTypeName = lineTypeName;
     }
 }

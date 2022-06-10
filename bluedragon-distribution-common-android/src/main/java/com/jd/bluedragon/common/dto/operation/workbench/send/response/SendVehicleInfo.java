@@ -70,6 +70,11 @@ public class SendVehicleInfo implements Serializable {
      */
     private Boolean photo;
 
+    /**
+     * 无任务是否绑定了任务 true：绑定
+     */
+    private Boolean noTaskBindVehicle;
+
     public String getSendDetailBizId() {
         return sendDetailBizId;
     }
@@ -164,5 +169,13 @@ public class SendVehicleInfo implements Serializable {
 
     public void setPhoto(Boolean photo) {
         this.photo = photo;
+    }
+
+    public Boolean getNoTaskBindVehicle() {
+        return noTaskBindVehicle;
+    }
+
+    public void setNoTaskBindVehicle(Boolean noTaskBindVehicle) {
+        this.noTaskBindVehicle = noTaskBindVehicle;
     }
 }

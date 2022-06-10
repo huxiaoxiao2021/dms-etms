@@ -164,7 +164,7 @@ public class TmsTransWorkItemOperateConsumer extends MessageBaseConsumer {
             updateSendVehicleLastPlanDepartTime(startSiteInfo.getSiteCode(), endSiteInfo, sendVehicleBiz);
         }
         catch (Exception e) {
-            logger.warn("消费运输派车单明细失败! {}", JsonHelper.toJson(workItemDto));
+            logger.warn("消费运输派车单明细失败! {}", JsonHelper.toJson(workItemDto), e);
             throw new JyBizException("消费运输派车单明细失败! ");
         }
         finally {
@@ -300,8 +300,17 @@ public class TmsTransWorkItemOperateConsumer extends MessageBaseConsumer {
         }
         Date lastPlanDepartTime = vehicleDetailList.get(0).getPlanDepartTime();
         for (JyBizTaskSendVehicleDetailEntity detailEntity : vehicleDetailList) {
-            if (lastPlanDepartTime.before(detailEntity.getPlanDepartTime())) {
-                lastPlanDepartTime = detailEntity.getPlanDepartTime();
+            if (lastPlanDepartTime != null) {
+                if (detailEntity.getPlanDepartTime() != null) {
+                    if (lastPlanDepartTime.before(detailEntity.getPlanDepartTime())) {
+                        lastPlanDepartTime = detailEntity.getPlanDepartTime();
+                    }
+                }
+            }
+            else {
+                if (detailEntity.getPlanDepartTime() != null) {
+                    lastPlanDepartTime = detailEntity.getPlanDepartTime();
+                }
             }
         }
 

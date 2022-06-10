@@ -3,6 +3,8 @@ package com.jd.bluedragon.distribution.jy.service.send;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.*;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.*;
+import com.jd.bluedragon.common.dto.send.request.VehicleTaskReq;
+import com.jd.bluedragon.common.dto.send.response.VehicleTaskResp;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 
 import java.util.List;
@@ -21,6 +23,13 @@ public interface IJySendVehicleService {
      * @return
      */
     InvokeResult<SendVehicleTaskResponse> fetchSendVehicleTask(SendVehicleTaskRequest request);
+
+    /**
+     * 无任务绑定发货任务列表
+     * @param vehicleTaskReq
+     * @return
+     */
+    InvokeResult<VehicleTaskResp> fetchSendTaskForBinding(VehicleTaskReq vehicleTaskReq);
 
     /**
      * 发货扫描

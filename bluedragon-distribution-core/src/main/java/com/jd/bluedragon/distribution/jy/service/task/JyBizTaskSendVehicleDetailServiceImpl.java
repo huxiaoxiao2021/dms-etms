@@ -42,7 +42,12 @@ public class JyBizTaskSendVehicleDetailServiceImpl implements JyBizTaskSendVehic
 
     @Override
     public List<JyBizTaskSendVehicleDetailEntity> findEffectiveSendVehicleDetail(JyBizTaskSendVehicleDetailEntity entity) {
-        return jyBizTaskSendVehicleDetailDao.findByMainVehicleBiz(entity);
+        return jyBizTaskSendVehicleDetailDao.findByMainVehicleBiz(entity, null);
+    }
+
+    @Override
+    public List<JyBizTaskSendVehicleDetailEntity> findBySiteAndStatus(JyBizTaskSendVehicleDetailEntity entity, List<Integer> statuses) {
+        return jyBizTaskSendVehicleDetailDao.findByMainVehicleBiz(entity, statuses);
     }
 
     @Override
