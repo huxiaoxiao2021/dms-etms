@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.jy.service.task;
 
 import com.jd.bluedragon.distribution.jy.dto.send.JyBizTaskSendCountDto;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendSortTypeEnum;
+import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendStatusEnum;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
 
@@ -47,12 +48,14 @@ public interface JyBizTaskSendVehicleService {
      * @param typeEnum
      * @param pageNum
      * @param pageSize
+     * @param statuses
      * @return
      */
     List<JyBizTaskSendVehicleEntity> querySendTaskOfPage(JyBizTaskSendVehicleEntity entity,
                                                          List<String> sendVehicleBizList,
                                                          JyBizTaskSendSortTypeEnum typeEnum,
-                                                         Integer pageNum, Integer pageSize);
+                                                         Integer pageNum, Integer pageSize,
+                                                         List<Integer> statuses);
 
     /**
      * 更细最晚发车时间

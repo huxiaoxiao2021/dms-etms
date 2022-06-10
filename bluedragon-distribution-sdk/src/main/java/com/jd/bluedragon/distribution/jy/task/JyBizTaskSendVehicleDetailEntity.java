@@ -17,10 +17,9 @@ public class JyBizTaskSendVehicleDetailEntity implements Serializable {
 
     public JyBizTaskSendVehicleDetailEntity() {}
 
-    public JyBizTaskSendVehicleDetailEntity(Long startSiteId, Long endSiteId, Integer vehicleStatus) {
+    public JyBizTaskSendVehicleDetailEntity(Long startSiteId, Long endSiteId) {
         this.startSiteId = startSiteId;
         this.endSiteId = endSiteId;
-        this.vehicleStatus = vehicleStatus;
     }
 
     public JyBizTaskSendVehicleDetailEntity(Long startSiteId, Long endSiteId, String sendVehicleBizId) {

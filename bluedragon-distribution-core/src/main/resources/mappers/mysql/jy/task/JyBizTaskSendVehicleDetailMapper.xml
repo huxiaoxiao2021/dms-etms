@@ -313,7 +313,9 @@
             start_site_name,
             end_site_id,
             end_site_name,
-            plan_depart_time,
+            <if test="planDepartTime != null">
+                plan_depart_time,
+            </if>
             create_user_erp,
             create_user_name,
             create_time,
@@ -329,7 +331,9 @@
             #{startSiteName},
             #{endSiteId},
             #{endSiteName},
-            #{planDepartTime},
+            <if test="planDepartTime != null">
+                #{planDepartTime},
+            </if>
             #{createUserErp},
             #{createUserName},
             NOW(),
@@ -345,13 +349,19 @@
             yn = 1
             AND start_site_id = #{entity.startSiteId}
             <if test="sendVehicleBizId != null">
-                AND send_vehicle_biz_id = #{sendVehicleBizId}
+                AND send_vehicle_biz_id = #{entity.sendVehicleBizId}
             </if>
             <if test="entity.vehicleStatus != null">
                 AND vehicle_status = #{entity.vehicleStatus}
             </if>
             <if test="entity.endSiteId != null">
                 AND end_site_id = #{entity.endSiteId}
+            </if>
+            <if test="statuses != null and statuses.size() > 0">
+                AND vehicle_status IN
+                <foreach collection="statuses" separator="," open="(" close=")" item="item">
+                    #{item}
+                </foreach>
             </if>
     </select>
 

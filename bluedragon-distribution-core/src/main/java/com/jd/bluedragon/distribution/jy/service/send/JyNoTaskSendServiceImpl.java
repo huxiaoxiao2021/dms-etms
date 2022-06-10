@@ -83,6 +83,9 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
     @Autowired
     IJySendVehicleService iJySendVehicleService;
 
+    @Autowired
+    private IJySendVehicleService jySendVehicleService;
+
 
     @Override
     public InvokeResult<List<VehicleSpecResp>> listVehicleType() {
@@ -216,21 +219,9 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
 
     @Override
     public InvokeResult<List<VehicleTaskResp>> listVehicleTask(VehicleTaskReq vehicleTaskReq) {
-        SendVehicleTaskRequest sendVehicleTaskRequest =toSendVehicleTaskRequest(vehicleTaskReq);
-        return null;
+        return jySendVehicleService.fetchSendVehicleTask(vehicleTaskReq);
     }
 
-    private SendVehicleTaskRequest toSendVehicleTaskRequest(VehicleTaskReq vehicleTaskReq) {
-        SendVehicleTaskRequest sendVehicleTaskRequest =new SendVehicleTaskRequest();
-        sendVehicleTaskRequest.setVehicleStatus(vehicleTaskReq.getVehicleStatus());
-        sendVehicleTaskRequest.setEndSiteId(vehicleTaskReq.getEndSiteId());
-        sendVehicleTaskRequest.setPageNumber(vehicleTaskReq.getPageNumber());
-        sendVehicleTaskRequest.setPageSize(vehicleTaskReq.getPageSize());
-        sendVehicleTaskRequest.setKeyword(vehicleTaskReq.getPackageCode());
-        sendVehicleTaskRequest.setCurrentOperate(vehicleTaskReq.getCurrentOperate());
-        sendVehicleTaskRequest.setUser(vehicleTaskReq.getUser());
-        return sendVehicleTaskRequest;
-    }
 
     @Override
     public InvokeResult bindVehicleDetailTask(BindVehicleDetailTaskReq bindVehicleDetailTaskReq) {

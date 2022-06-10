@@ -274,4 +274,23 @@ public class TmsConsumerTest {
     }
 
 
+    @Autowired
+    private TmsTransWorkItemOperateConsumer transWorkItemOperateConsumer;
+
+    @Test
+    public void TmsTransWorkItemOperateConsumerTest() throws Exception {
+        String body = "{\n" +
+                "    \"transWorkItemCode\": \"TW22060900790698-001\",\n" +
+                "    \"transWorkCode\": \"TW22060900790698\",\n" +
+                "    \"operateType\": 10,\n" +
+                "    \"transType\": 17,\n" +
+                "    \"transWay\": 2,\n" +
+                "    \"beginNodeCode\": \"731X195\",\n" +
+                "    \"endNodeCode\": \"731X079\",\n" +
+                "    \"planDepartTime\": null\n" +
+                "}";
+        Message message = new Message();
+        message.setText(body);
+        transWorkItemOperateConsumer.consume(message);
+    }
 }

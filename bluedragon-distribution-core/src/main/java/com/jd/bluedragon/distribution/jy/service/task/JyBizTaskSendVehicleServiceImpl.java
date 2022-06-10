@@ -8,6 +8,7 @@ import com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskSendVehicleDao;
 import com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskSendVehicleDetailDao;
 import com.jd.bluedragon.distribution.jy.dto.send.JyBizTaskSendCountDto;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendSortTypeEnum;
+import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendStatusEnum;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -72,7 +73,8 @@ public class JyBizTaskSendVehicleServiceImpl implements JyBizTaskSendVehicleServ
     public List<JyBizTaskSendVehicleEntity> querySendTaskOfPage(JyBizTaskSendVehicleEntity entity,
                                                                 List<String> sendVehicleBizList,
                                                                 JyBizTaskSendSortTypeEnum typeEnum,
-                                                                Integer pageNum, Integer pageSize) {
+                                                                Integer pageNum, Integer pageSize,
+                                                                List<Integer> statuses) {
         Integer limit = pageSize;
         Integer offset = (pageNum - 1) * pageSize;
         // 超过最大分页数据量 直接返回空数据
@@ -80,7 +82,7 @@ public class JyBizTaskSendVehicleServiceImpl implements JyBizTaskSendVehicleServ
             return new ArrayList<>();
         }
 
-        return jyBizTaskSendVehicleDao.querySendTaskOfPage(entity, sendVehicleBizList, typeEnum, offset, limit);
+        return jyBizTaskSendVehicleDao.querySendTaskOfPage(entity, sendVehicleBizList, typeEnum, offset, limit, statuses);
     }
 
     @Override

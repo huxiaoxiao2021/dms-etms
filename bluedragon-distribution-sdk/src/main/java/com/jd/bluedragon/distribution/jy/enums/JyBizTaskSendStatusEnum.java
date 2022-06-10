@@ -1,6 +1,8 @@
 package com.jd.bluedragon.distribution.jy.enums;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -18,12 +20,16 @@ public enum JyBizTaskSendStatusEnum {
     ;
 
     private static final Map<Integer, JyBizTaskSendStatusEnum> codeMap;
+    public static final List<Integer> UN_SEALED_STATUS = new ArrayList<Integer>();
 
     static {
         codeMap = new HashMap<Integer, JyBizTaskSendStatusEnum>();
         for (JyBizTaskSendStatusEnum _enum : JyBizTaskSendStatusEnum.values()) {
             codeMap.put(_enum.getCode(), _enum);
         }
+        UN_SEALED_STATUS.add(TO_SEND.getCode());
+        UN_SEALED_STATUS.add(SENDING.getCode());
+        UN_SEALED_STATUS.add(TO_SEAL.getCode());
     }
 
     private Integer code;

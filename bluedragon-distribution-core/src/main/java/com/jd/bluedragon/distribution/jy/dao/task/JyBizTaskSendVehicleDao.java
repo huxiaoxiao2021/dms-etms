@@ -4,9 +4,11 @@ import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.VehicleStatusStatis;
 import com.jd.bluedragon.distribution.jy.dto.send.JyBizTaskSendCountDto;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendSortTypeEnum;
+import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendStatusEnum;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
 import org.apache.commons.collections4.CollectionUtils;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -65,12 +67,16 @@ public class JyBizTaskSendVehicleDao extends BaseDao<JyBizTaskSendVehicleEntity>
     public List<JyBizTaskSendVehicleEntity> querySendTaskOfPage(JyBizTaskSendVehicleEntity entity,
                                                                 List<String> sendVehicleBizList,
                                                                 JyBizTaskSendSortTypeEnum typeEnum,
-                                                                Integer offset, Integer limit) {
+                                                                Integer offset, Integer limit,
+                                                                List<Integer> statuses) {
         Map<String,Object> params = new HashMap<>();
         params.put("entity", entity);
         params.put("sendVehicleBizList", sendVehicleBizList);
         if (typeEnum != null) {
             params.put("sortType", typeEnum.getCode());
+        }
+        if (statuses != null && statuses.size() > 0) {
+            params.put("statuses", statuses);
         }
         params.put("offset", offset);
         params.put("limit", limit);
