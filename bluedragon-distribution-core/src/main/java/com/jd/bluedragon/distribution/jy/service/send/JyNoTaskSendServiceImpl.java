@@ -17,6 +17,7 @@ import com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskSendVehicleDetailDao;
 import com.jd.bluedragon.distribution.jy.dto.send.JySendCodeDto;
 import com.jd.bluedragon.distribution.jy.dto.send.VehicleSendRelationDto;
 import com.jd.bluedragon.distribution.jy.enums.CancelSendTypeEnum;
+import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendStatusEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.manager.JyTransportManager;
 import com.jd.bluedragon.distribution.jy.send.JySendCodeEntity;
@@ -252,23 +253,31 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
         dto.setUpdateUserErp(bindVehicleDetailTaskReq.getUser().getUserErp());
         dto.setUpdateUserName(bindVehicleDetailTaskReq.getUser().getUserName());
         jyVehicleSendRelationService.updateVehicleSendRelation(dto);
+        //更新流向任务和主任的状态-为发货状态
+        /*JyBizTaskSendVehicleEntity toSvTask = new JyBizTaskSendVehicleEntity();
+        toSvTask.setBizId(bindVehicleDetailTaskReq.getToSendVehicleBizId());
+        toSvTask.setVehicleStatus(JyBizTaskSendStatusEnum.SENDING.getCode());
+        JyBizTaskSendVehicleDetailEntity toSvDetailTask = new JyBizTaskSendVehicleDetailEntity();
+        toSvDetailTask.setBizId(bindVehicleDetailTaskReq.getToSendVehicleDetailBizId());
+        toSvDetailTask.setVehicleStatus(JyBizTaskSendStatusEnum.SENDING.getCode());*/
+
         //删除主任务
-        JyBizTaskSendVehicleEntity entity = new JyBizTaskSendVehicleEntity();
-        entity.setBizId(bindVehicleDetailTaskReq.getFromSendVehicleBizId());
-        entity.setYn(0);
+        JyBizTaskSendVehicleEntity fromSvTask = new JyBizTaskSendVehicleEntity();
+        fromSvTask.setBizId(bindVehicleDetailTaskReq.getFromSendVehicleBizId());
+        fromSvTask.setYn(0);
         Date now = new Date();
-        entity.setUpdateTime(now);
-        entity.setUpdateUserErp(bindVehicleDetailTaskReq.getUser().getUserErp());
-        entity.setUpdateUserName(bindVehicleDetailTaskReq.getUser().getUserName());
-        jyBizTaskSendVehicleService.updateSendVehicleTask(entity);
+        fromSvTask.setUpdateTime(now);
+        fromSvTask.setUpdateUserErp(bindVehicleDetailTaskReq.getUser().getUserErp());
+        fromSvTask.setUpdateUserName(bindVehicleDetailTaskReq.getUser().getUserName());
+        jyBizTaskSendVehicleService.updateSendVehicleTask(fromSvTask);
         //删除子任务
-        JyBizTaskSendVehicleDetailEntity detailEntity = new JyBizTaskSendVehicleDetailEntity();
-        detailEntity.setSendVehicleBizId(bindVehicleDetailTaskReq.getFromSendVehicleDetailBizId());
-        detailEntity.setYn(0);
-        detailEntity.setUpdateTime(now);
-        detailEntity.setUpdateUserErp(bindVehicleDetailTaskReq.getUser().getUserErp());
-        detailEntity.setUpdateUserName(bindVehicleDetailTaskReq.getUser().getUserName());
-        jyBizTaskSendVehicleDetailService.updateDateilTaskByVehicleBizId(detailEntity);
+        JyBizTaskSendVehicleDetailEntity fromSvDetailTask = new JyBizTaskSendVehicleDetailEntity();
+        fromSvDetailTask.setSendVehicleBizId(bindVehicleDetailTaskReq.getFromSendVehicleDetailBizId());
+        fromSvDetailTask.setYn(0);
+        fromSvDetailTask.setUpdateTime(now);
+        fromSvDetailTask.setUpdateUserErp(bindVehicleDetailTaskReq.getUser().getUserErp());
+        fromSvDetailTask.setUpdateUserName(bindVehicleDetailTaskReq.getUser().getUserName());
+        jyBizTaskSendVehicleDetailService.updateDateilTaskByVehicleBizId(fromSvDetailTask);
         return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE);
     }
 
@@ -412,7 +421,7 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
             }
         }
         //按板-支持板 箱 包裹
-        if (CancelSendTypeEnum.BOARD_NO.getCode().equals(request.getType())) {
+        else if (CancelSendTypeEnum.BOARD_NO.getCode().equals(request.getType())) {
             if (!(BusinessUtil.isBoardCode(request.getCode()) || BusinessUtil.isBoxcode(request.getCode())
                     || WaybillUtil.isPackageCode(request.getCode()))) {
                 throw new JyBizException("无效条码，请扫描板号、箱号或者包裹号！");
