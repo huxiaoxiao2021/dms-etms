@@ -59,8 +59,8 @@ public class JyBizTaskSendVehicleEntity implements Serializable {
 	 */
 	private String vehicleNumber;
 	/**
-	 * 任务状态；0-待发货，1-发货中，2-待封车，3-已封车，4-已作废
-     * <see>{@link com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendDetailStatusEnum}</see>
+	 * 任务状态；0-待发货，1-发货中，2-待封车，3-已封车
+     * <see>{@link com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendStatusEnum}</see>
 	 */
 	private Integer vehicleStatus;
 	/**

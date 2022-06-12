@@ -61,7 +61,7 @@ public class JyBizTaskSendVehicleDao extends BaseDao<JyBizTaskSendVehicleEntity>
         if (CollectionUtils.isNotEmpty(sendVehicleBizList)) {
             params.put("sendVehicleBizList", sendVehicleBizList);
         }
-        return this.getSqlSession().selectList(NAMESPACE + "sumTaskByVehicleStatus", params);
+        return this.getSqlSession().selectList(NAMESPACE + ".sumTaskByVehicleStatus", params);
     }
 
     public List<JyBizTaskSendVehicleEntity> querySendTaskOfPage(JyBizTaskSendVehicleEntity entity,

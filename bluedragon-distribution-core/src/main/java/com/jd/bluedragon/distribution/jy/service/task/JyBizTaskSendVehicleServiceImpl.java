@@ -57,7 +57,12 @@ public class JyBizTaskSendVehicleServiceImpl implements JyBizTaskSendVehicleServ
 
     @Override
     public int initTaskSendVehicle(JyBizTaskSendVehicleEntity entity) {
-        return jyBizTaskSendVehicleDao.initTaskSendVehicle(entity);
+        JyBizTaskSendVehicleEntity sendTaskQ = new JyBizTaskSendVehicleEntity(entity.getTransWorkCode(), entity.getStartSiteId());
+        if (this.findByTransWorkAndStartSite(sendTaskQ) == null) {
+            return jyBizTaskSendVehicleDao.initTaskSendVehicle(entity);
+        }
+
+        return 0;
     }
 
     @Override

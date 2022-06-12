@@ -9,8 +9,7 @@ package com.jd.bluedragon.common.dto.operation.workbench.enums;
 public enum SendVehicleLabelOptionEnum {
 
     DRIVER_RECEIVE(1, "司机已领", 1),
-    LINE_TYPE(2, "", 2),
-    CAR_LENGTH(3, "%s车", 3),
+    CAR_LENGTH(2, "%s米车", 2),
     ;
 
     private Integer code;
