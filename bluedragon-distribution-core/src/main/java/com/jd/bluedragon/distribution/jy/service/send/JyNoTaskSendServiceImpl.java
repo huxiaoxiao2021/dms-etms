@@ -5,6 +5,7 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.MSCodeMapping;
 import com.jd.bluedragon.common.dto.send.request.*;
 import com.jd.bluedragon.common.dto.send.response.*;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.busineCode.sendCode.service.SendCodeService;
@@ -22,6 +23,7 @@ import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleServic
 import com.jd.bluedragon.distribution.jy.service.transfer.JySendTransferService;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
+import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.domain.ThreeDeliveryResponse;
 import com.jd.bluedragon.distribution.send.domain.dto.SendDetailDto;
@@ -32,9 +34,11 @@ import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.enums.SendStatusEnum;
 import com.jd.bluedragon.utils.*;
 import com.jd.coo.sa.sequence.JimdbSequenceGen;
 import com.jd.jim.cli.Cluster;
+import com.jd.ql.basic.dto.BaseSiteInfoDto;
 import com.jd.tms.basic.dto.BasicVehicleTypeDto;
 import com.jd.tms.basic.dto.CommonDto;
 import com.jd.transboard.api.dto.Board;
@@ -47,6 +51,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.text.DecimalFormat;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.*;
 import static com.jd.bluedragon.distribution.businessCode.BusinessCodeFromSourceEnum.JY_APP;
@@ -87,9 +92,10 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
     private SendDetailService sendDetailService;
     @Autowired
     SortingService sortingService;
-
     @Autowired
     private IJySendVehicleService jySendVehicleService;
+    @Autowired
+    BaseMajorManager baseMajorManager;
 
 
     @Override
@@ -167,6 +173,9 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
     private String genSendVehicleTaskBizNo(CreateVehicleTaskReq createVehicleTaskReq) {
         String bizNoKey = "bizNo:" + createVehicleTaskReq.getCurrentOperate().getSiteCode() + ":" + TimeUtils.date2string(new Date(), yyyyMMdd + ":");
         long bizNo = 0;
+        if (!ObjectHelper.isNotNull(redisClientCache.get(bizNoKey))) {
+            redisClientCache.set(bizNoKey, "0", 24 * 60, TimeUnit.MINUTES, false);
+        }
         try {
             bizNo = redisClientCache.incr(bizNoKey);
         } catch (Exception e) {
@@ -372,24 +381,63 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
             List<String> packageCodes = getPackageCodesFromPackOrBoxCodes(packOrBoxCodes, request.getCurrentOperate().getSiteCode());
             cancelSendTaskResp.setCanclePackageCount(packageCodes.size());
         }
-
+        //执行取消发货
         ThreeDeliveryResponse tDResponse = deliveryService.dellCancelDeliveryMessageWithServerTime(sendM, true);
         if (ObjectHelper.isNotNull(tDResponse) && JdCResponse.CODE_SUCCESS.equals(tDResponse.getCode())) {
-            //TODO  根据包裹号掉印辉提供的服务查询列表，从那里面去流向名称
             if (cancelSendTaskResp.getCanclePackageCount() == null) {
                 cancelSendTaskResp.setCanclePackageCount(sendM.getCancelPackageCount());
             }
-            cancelSendTaskResp.setEndSiteName("");
+            String sendCode = getSendCodeByScanCode(request.getCode(),request.getCurrentOperate().getSiteCode());
+            if (BusinessUtil.isSendCode(sendCode)) {
+                BaseSiteInfoDto baseSiteInfoDto = baseMajorManager.getBaseSiteInfoBySiteId(BusinessUtil.getReceiveSiteCodeFromSendCode(sendCode));
+                if (ObjectHelper.isNotNull(baseSiteInfoDto) && ObjectHelper.isNotNull(baseSiteInfoDto.getSiteName())) {
+                    cancelSendTaskResp.setEndSiteName(baseSiteInfoDto.getSiteName());
+                }
+            }
+            else {
+                log.info("jy取消发货-根据扫描code获取sendCode异常！");
+            }
             return new InvokeResult(tDResponse.getCode(), tDResponse.getMessage(), cancelSendTaskResp);
         }
         return new InvokeResult(tDResponse.getCode(), tDResponse.getMessage());
     }
 
+    private String getSendCodeByScanCode(String code,int createSiteCode) {
+        /**
+         * 包裹 运单 查sendD  箱号或者板号 查sendM
+         */
+        if (WaybillUtil.isPackageCode(code)){
+            List<SendDetail> sendDetailList=sendDetailService.findByWaybillCodeOrPackageCode(createSiteCode,null,code);
+            if (ObjectHelper.isNotNull(sendDetailList) && sendDetailList.size()>0){
+                return sendDetailList.get(0).getSendCode();
+            }
+        }
+        else if (WaybillUtil.isWaybillCode(code)){
+            List<SendDetail> sendDetailList =sendDetailService.findByWaybillCodeOrPackageCode(createSiteCode,code,null);
+            if (ObjectHelper.isNotNull(sendDetailList) && sendDetailList.size()>0){
+                return sendDetailList.get(0).getSendCode();
+            }
+        }
+        else if (BusinessUtil.isBoxcode(code)){
+            List<SendM> sendMList =sendMService.findDeliveryRecord(createSiteCode,code);
+            if (ObjectHelper.isNotNull(sendMList) && sendMList.size()>0){
+                return sendMList.get(0).getSendCode();
+            }
+        }
+        else if (BusinessUtil.isBoardCode(code)){
+            SendM sendM =sendMService.selectSendByBoardCode(createSiteCode,code, SendStatusEnum.HAS_BEEN_SENDED.getCode());
+            if (ObjectHelper.isNotNull(sendM)){
+                return sendM.getSendCode();
+            }
+        }
+        return null;
+    }
+
     private void validateCancelReq(CancelSendTaskReq request) {
-        if (request.getType()==null){
+        if (request.getType() == null) {
             throw new JyBizException("取消扫描类型不能为空！");
         }
-        if (CancelSendTypeEnum.getReportTypeName(request.getType())==null){
+        if (CancelSendTypeEnum.getReportTypeName(request.getType()) == null) {
             throw new JyBizException("不支持该扫描类型！");
         }
         //按运单-支持运单和包裹
@@ -406,8 +454,7 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
         }
         //按板-支持板 箱 包裹
         else if (CancelSendTypeEnum.BOARD_NO.getCode().equals(request.getType())) {
-            if (!(BusinessUtil.isBoardCode(request.getCode()) || BusinessUtil.isBoxcode(request.getCode())
-                    || WaybillUtil.isPackageCode(request.getCode()))) {
+            if (!(BusinessUtil.isBoardCode(request.getCode()) || BusinessUtil.isBoxcode(request.getCode()) || WaybillUtil.isPackageCode(request.getCode()))) {
                 throw new JyBizException("无效条码，请扫描板号、箱号或者包裹号！");
             }
         } else {
