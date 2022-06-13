@@ -440,7 +440,7 @@
                 1)
     </insert>
 
-    <select id="sumTaskByVehicleStatus" parameterType="JyBizTaskSendVehicleEntity" resultMap="statusSumResultMap">
+    <select id="sumTaskByVehicleStatus" resultMap="statusSumResultMap">
         SELECT
             vehicle_status, COUNT(*) total
         FROM
@@ -459,7 +459,7 @@
             </if>
     </select>
 
-    <select id="querySendTaskOfPage" parameterType="JyBizTaskSendVehicleEntity" resultMap="jyBizTaskSendVehicleMap">
+    <select id="querySendTaskOfPage" resultMap="jyBizTaskSendVehicleMap">
         SELECT
             <include refid="Base_Column_List"/>
         FROM
@@ -486,7 +486,7 @@
             LIMIT #{offset},#{limit}
     </select>
 
-    <select id="countByCondition" parameterType="JyBizTaskSendVehicleEntity">
+    <select id="countByCondition">
         SELECT
             COUNT(*)
         FROM jy_biz_task_send_vehicle

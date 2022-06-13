@@ -341,7 +341,7 @@
        )
     </insert>
 
-    <select id="findByMainVehicleBiz" parameterType="JyBizTaskSendVehicleDetailEntity" resultMap="jyBizTaskSendVehicleDetailMap">
+    <select id="findByMainVehicleBiz" resultMap="jyBizTaskSendVehicleDetailMap">
         SELECT 
             <include refid="Base_Column_List"/>
         FROM jy_biz_task_send_vehicle_detail
