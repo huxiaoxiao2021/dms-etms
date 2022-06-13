@@ -784,7 +784,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
         queryTaskSendDto.setPageNumber(vehicleTaskReq.getPageNumber());
         queryTaskSendDto.setPageSize(vehicleTaskReq.getPageSize());
         queryTaskSendDto.setVehicleStatuses(JyBizTaskSendStatusEnum.UN_SEALED_STATUS);
-        queryTaskSendDto.setStartSiteId(vehicleTaskReq.getStartSiteId());
+        queryTaskSendDto.setStartSiteId((long) vehicleTaskReq.getCurrentOperate().getSiteCode());
         queryTaskSendDto.setEndSiteId(vehicleTaskReq.getEndSiteId());
         queryTaskSendDto.setKeyword(vehicleTaskReq.getPackageCode());
         return queryTaskSendDto;
@@ -958,7 +958,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
                     }
                 }
 
-                // 首次扫描更新发货流向状态为“已发货”
+                // 首次扫描更新发货流向状态为“发货中”
                 JyBizTaskSendVehicleDetailEntity statusQ = new JyBizTaskSendVehicleDetailEntity(taskSend.getStartSiteId(), sendDestId, taskSend.getBizId());
                 statusQ.setVehicleStatus(JyBizTaskSendDetailStatusEnum.SENDING.getCode());
                 taskSendVehicleDetailService.updateStatus(statusQ, curSendDetail.getVehicleStatus());
@@ -1382,6 +1382,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
         if (taskSend.manualCreatedTask() && taskSend.noTaskBindVehicle()) {
             response.toBizError();
             response.addInterceptBox(0, "无任务已经绑定，不能继续操作发货！");
+            return false;
         }
 
         // 校验车辆装载率是否超标
