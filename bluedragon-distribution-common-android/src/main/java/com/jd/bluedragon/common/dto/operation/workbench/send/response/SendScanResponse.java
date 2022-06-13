@@ -23,6 +23,11 @@ public class SendScanResponse implements Serializable {
     public static final int CODE_CONFIRM_MATERIAL = 2002;
 
     /**
+     * 无任务发货场景，扫描第一单确认目的地
+     */
+    public static final int CODE_NO_TASK_CONFIRM_DEST = 2003;
+
+    /**
      * 本次扫描的包裹数
      */
     private Integer scanPackCount;

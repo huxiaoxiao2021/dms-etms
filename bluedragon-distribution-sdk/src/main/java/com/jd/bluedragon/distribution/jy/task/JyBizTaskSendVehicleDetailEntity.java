@@ -15,6 +15,8 @@ public class JyBizTaskSendVehicleDetailEntity implements Serializable {
 
 	private static final long serialVersionUID = 4089383783438643445L;
 
+    public static final String NO_TASK_BIZ_PREFIX = "NTSD%s";
+
     public JyBizTaskSendVehicleDetailEntity() {}
 
     public JyBizTaskSendVehicleDetailEntity(Long startSiteId, Long endSiteId) {
@@ -50,9 +52,10 @@ public class JyBizTaskSendVehicleDetailEntity implements Serializable {
 	 * 派车明细单号
 	 */
 	private String transWorkItemCode;
-	/**
-	 * 任务状态；0-待发货，1-发货中，2-待封车，3-已封车
-	 */
+    /**
+     * 任务状态；0-待发货，1-发货中，2-待封车，3-已封车，4-已作废
+     * <see>{@link com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendDetailStatusEnum}</see>
+     */
 	private Integer vehicleStatus;
 	/**
 	 * 始发场地ID

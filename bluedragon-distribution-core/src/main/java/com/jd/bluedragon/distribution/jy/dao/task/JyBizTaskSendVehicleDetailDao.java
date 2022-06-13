@@ -37,7 +37,7 @@ public class JyBizTaskSendVehicleDetailDao extends BaseDao<JyBizTaskSendVehicleD
         return this.getSqlSession().update(NAMESPACE + ".updateDateilTaskByVehicleBizId", entity);
     }
 
-    public long findByTransWorkItem(JyBizTaskSendVehicleDetailEntity entity) {
+    public Long findByTransWorkItem(JyBizTaskSendVehicleDetailEntity entity) {
         return this.getSqlSession().selectOne(NAMESPACE + ".findByTransWorkItem", entity);
     }
 
@@ -51,7 +51,7 @@ public class JyBizTaskSendVehicleDetailDao extends BaseDao<JyBizTaskSendVehicleD
         if (CollectionUtils.isNotEmpty(statuses)) {
             params.put("statuses", statuses);
         }
-        return this.getSqlSession().selectList(NAMESPACE + "findByMainVehicleBiz", params);
+        return this.getSqlSession().selectList(NAMESPACE + ".findByMainVehicleBiz", params);
     }
 
     public int updateByBiz(JyBizTaskSendVehicleDetailEntity entity) {

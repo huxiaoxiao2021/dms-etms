@@ -341,14 +341,14 @@
        )
     </insert>
 
-    <select id="findByMainVehicleBiz" parameterType="JyBizTaskSendVehicleDetailEntity" resultMap="jyBizTaskSendVehicleDetailMap">
+    <select id="findByMainVehicleBiz" resultMap="jyBizTaskSendVehicleDetailMap">
         SELECT 
             <include refid="Base_Column_List"/>
         FROM jy_biz_task_send_vehicle_detail
         WHERE
             yn = 1
             AND start_site_id = #{entity.startSiteId}
-            <if test="sendVehicleBizId != null">
+            <if test="entity.sendVehicleBizId != null">
                 AND send_vehicle_biz_id = #{entity.sendVehicleBizId}
             </if>
             <if test="entity.vehicleStatus != null">

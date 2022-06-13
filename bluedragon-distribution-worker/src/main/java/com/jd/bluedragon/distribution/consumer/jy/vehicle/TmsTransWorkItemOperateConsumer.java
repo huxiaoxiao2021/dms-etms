@@ -11,7 +11,8 @@ import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyLineTypeEnum;
 import com.jd.bluedragon.distribution.jy.enums.TmsLineTypeEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
-import com.jd.bluedragon.distribution.jy.manager.JyScheduleTaskManager;
+import com.jd.bluedragon.distribution.jy.service.send.IJySendVehicleService;
+import com.jd.bluedragon.distribution.jy.service.send.SendVehicleTransactionManager;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetailService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleService;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
@@ -27,9 +28,6 @@ import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.tms.basic.dto.BasicVehicleTypeDto;
 import com.jd.tms.jdi.dto.TransWorkBillDto;
-import com.jdl.jy.schedule.dto.task.JyScheduleTaskReq;
-import com.jdl.jy.schedule.dto.task.JyScheduleTaskResp;
-import com.jdl.jy.schedule.enums.task.JyScheduleTaskTypeEnum;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -38,7 +36,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import java.io.Serializable;
 import java.text.MessageFormat;
 import java.util.Date;
 import java.util.List;
@@ -85,9 +82,6 @@ public class TmsTransWorkItemOperateConsumer extends MessageBaseConsumer {
     private JdiQueryWSManager jdiQueryWSManager;
 
     @Autowired
-    private JyScheduleTaskManager jyScheduleTaskManager;
-
-    @Autowired
     private JyBizTaskSendVehicleService taskSendVehicleService;
 
     @Autowired
@@ -95,6 +89,9 @@ public class TmsTransWorkItemOperateConsumer extends MessageBaseConsumer {
 
     @Autowired
     private BasicQueryWSManager basicQueryWSManager;
+
+    @Autowired
+    private SendVehicleTransactionManager transactionManager;
 
     @Override
     public void consume(Message message) throws Exception {
@@ -106,6 +103,8 @@ public class TmsTransWorkItemOperateConsumer extends MessageBaseConsumer {
             logger.warn("TmsTransWorkItemOperateConsumer consume -->消息体非JSON格式，内容为【{}】", message.getText());
             return;
         }
+
+        logInfo("消费运输派车明细消息. {}", message.getText());
 
         TransWorkItemDto workItemDto = JsonHelper.fromJson(message.getText(), TransWorkItemDto.class);
         // 过滤丢弃的数据
@@ -144,15 +143,17 @@ public class TmsTransWorkItemOperateConsumer extends MessageBaseConsumer {
         String sendVehicleBiz = getSendVehicleBiz(existSendTaskMain);
         try {
             // 初始化发货任务
+            JyBizTaskSendVehicleEntity sendVehicleEntity = null;
             if (existSendTaskMain == null) {
-
-                initSendVehicleTask(workItemDto, transWorkBillDto, startSiteInfo.getSiteCode(), sendVehicleBiz);
+                sendVehicleEntity = createSendTaskDomain(transWorkBillDto, startSiteInfo.getSiteCode(), sendVehicleBiz);
             }
 
             // 发货任务追加流向
             if (OPERATE_TYPE_CREATED == workItemDto.getOperateType()) {
+                JyBizTaskSendVehicleDetailEntity taskSendVehicleDetailEntity = addSendTaskDetail(workItemDto, startSiteInfo, endSiteInfo, sendVehicleBiz);
 
-                addSendTaskDetail(workItemDto, startSiteInfo, endSiteInfo, sendVehicleBiz);
+                transactionManager.saveTaskSendAndDetail(sendVehicleEntity, taskSendVehicleDetailEntity);
+
             }
             // 取消发货任务流向
             else if (OPERATE_TYPE_CANCEL == workItemDto.getOperateType()) {
@@ -164,7 +165,7 @@ public class TmsTransWorkItemOperateConsumer extends MessageBaseConsumer {
             updateSendVehicleLastPlanDepartTime(startSiteInfo.getSiteCode(), endSiteInfo, sendVehicleBiz);
         }
         catch (Exception e) {
-            logger.warn("消费运输派车单明细失败! {}", JsonHelper.toJson(workItemDto), e);
+            logger.error("消费运输派车单明细失败! {}", JsonHelper.toJson(workItemDto), e);
             throw new JyBizException("消费运输派车单明细失败! ");
         }
         finally {
@@ -193,9 +194,10 @@ public class TmsTransWorkItemOperateConsumer extends MessageBaseConsumer {
         JyBizTaskSendVehicleDetailEntity cancelQ = new JyBizTaskSendVehicleDetailEntity();
         cancelQ.setBizId(workItemDto.getTransWorkItemCode());
         cancelQ.setUpdateTime(new Date());
-        if (taskSendVehicleDetailService.cancelDetail(cancelQ) <= 0) {
+
+        int rows = taskSendVehicleDetailService.cancelDetail(cancelQ);
+        if (rows <= 0) {
             logger.warn("取消派车单明细失败! {}", JsonHelper.toJson(workItemDto));
-            throw new JyBizException("取消派车单明细失败!");
         }
 
         logInfo("取消派车单明细.{}", JsonHelper.toJson(workItemDto));
@@ -207,8 +209,29 @@ public class TmsTransWorkItemOperateConsumer extends MessageBaseConsumer {
      * @param startSiteInfo
      * @param endSiteInfo
      * @param sendVehicleBiz
+     * @return
      */
-    private void addSendTaskDetail(TransWorkItemDto workItemDto, BaseStaffSiteOrgDto startSiteInfo, BaseStaffSiteOrgDto endSiteInfo, String sendVehicleBiz) {
+    private JyBizTaskSendVehicleDetailEntity addSendTaskDetail(TransWorkItemDto workItemDto, BaseStaffSiteOrgDto startSiteInfo, BaseStaffSiteOrgDto endSiteInfo, String sendVehicleBiz) {
+
+        // FIXME 判断是作废不保存
+        if (judgeTransWorkItemCancel()) {
+            logger.warn("派车明细创建时已作废. {}", JsonHelper.toJson(workItemDto));
+            return null;
+        }
+
+        return createSendDetailDomain(workItemDto, startSiteInfo, endSiteInfo, sendVehicleBiz);
+    }
+
+    /**
+     * 校验派车明细是否作废
+     * @return
+     */
+    private boolean judgeTransWorkItemCancel() {
+
+        return false;
+    }
+
+    private JyBizTaskSendVehicleDetailEntity createSendDetailDomain(TransWorkItemDto workItemDto, BaseStaffSiteOrgDto startSiteInfo, BaseStaffSiteOrgDto endSiteInfo, String sendVehicleBiz) {
         JyBizTaskSendVehicleDetailEntity taskSendVehicleDetailEntity = new JyBizTaskSendVehicleDetailEntity();
         taskSendVehicleDetailEntity.setSendVehicleBizId(sendVehicleBiz);
         taskSendVehicleDetailEntity.setBizId(workItemDto.getTransWorkItemCode());
@@ -221,23 +244,10 @@ public class TmsTransWorkItemOperateConsumer extends MessageBaseConsumer {
         taskSendVehicleDetailEntity.setPlanDepartTime(workItemDto.getPlanDepartTime());
         taskSendVehicleDetailEntity.setCreateUserErp("sys.dms");
         taskSendVehicleDetailEntity.setCreateUserName("sys.dms");
-
-        if (taskSendVehicleDetailService.saveTaskSendDetail(taskSendVehicleDetailEntity) <= 0) {
-            logger.warn("初始化派车单明细失败! {}", JsonHelper.toJson(taskSendVehicleDetailEntity));
-            throw new JyBizException("初始化派车单明细失败!");
-        }
-
-        logInfo("初始化派车单明细.{}", JsonHelper.toJson(workItemDto));
+        return taskSendVehicleDetailEntity;
     }
 
-    /**
-     * 初始化发货任务
-     * @param workItemDto
-     * @param transWorkBillDto
-     * @param startSiteId
-     * @param sendVehicleBiz
-     */
-    private void initSendVehicleTask(TransWorkItemDto workItemDto, TransWorkBillDto transWorkBillDto, Integer startSiteId, String sendVehicleBiz) {
+    private JyBizTaskSendVehicleEntity createSendTaskDomain(TransWorkBillDto transWorkBillDto, Integer startSiteId, String sendVehicleBiz) {
         JyBizTaskSendVehicleEntity sendVehicleEntity = new JyBizTaskSendVehicleEntity();
         sendVehicleEntity.setBizId(sendVehicleBiz);
         sendVehicleEntity.setTransWorkCode(transWorkBillDto.getTransWorkCode());
@@ -259,31 +269,7 @@ public class TmsTransWorkItemOperateConsumer extends MessageBaseConsumer {
         sendVehicleEntity.setLineTypeName(lineType.getName());
         sendVehicleEntity.setCreateUserErp("sys.dms");
         sendVehicleEntity.setCreateUserName("sys.dms");
-
-        if (taskSendVehicleService.initTaskSendVehicle(sendVehicleEntity) <= 0) {
-            logger.warn("初始化派车单失败！{}", JsonHelper.toJson(sendVehicleEntity));
-            throw new JyBizException("初始化派车单失败！");
-        }
-
-        logInfo("初始化派车单.{}", JsonHelper.toJson(workItemDto));
-
-        // 创建发货调度任务
-        createSendScheduleTask(sendVehicleEntity);
-    }
-
-    /**
-     * 创建发货调度任务
-     * @param sendVehicleEntity
-     * @return
-     */
-    private JyScheduleTaskResp createSendScheduleTask(JyBizTaskSendVehicleEntity sendVehicleEntity){
-        JyScheduleTaskReq req = new JyScheduleTaskReq();
-        req.setBizId(sendVehicleEntity.getBizId());
-        req.setTaskType(JyScheduleTaskTypeEnum.SEND.getCode());
-        req.setOpeUser(sendVehicleEntity.getCreateUserErp());
-        req.setOpeUserName(sendVehicleEntity.getCreateUserName());
-        req.setOpeTime(new Date());
-        return jyScheduleTaskManager.createScheduleTask(req);
+        return sendVehicleEntity;
     }
 
     /**

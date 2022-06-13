@@ -280,14 +280,14 @@ public class TmsConsumerTest {
     @Test
     public void TmsTransWorkItemOperateConsumerTest() throws Exception {
         String body = "{\n" +
-                "    \"transWorkItemCode\": \"TW22060900790698-001\",\n" +
+                "    \"transWorkItemCode\": \"TW22060900790698-002\",\n" +
                 "    \"transWorkCode\": \"TW22060900790698\",\n" +
                 "    \"operateType\": 10,\n" +
                 "    \"transType\": 17,\n" +
                 "    \"transWay\": 2,\n" +
-                "    \"beginNodeCode\": \"731X195\",\n" +
+                "    \"beginNodeCode\": \"010F002\",\n" +
                 "    \"endNodeCode\": \"731X079\",\n" +
-                "    \"planDepartTime\": null\n" +
+                "    \"planDepartTime\": \"2022-06-10 00:00:00\"\n" +
                 "}";
         Message message = new Message();
         message.setText(body);

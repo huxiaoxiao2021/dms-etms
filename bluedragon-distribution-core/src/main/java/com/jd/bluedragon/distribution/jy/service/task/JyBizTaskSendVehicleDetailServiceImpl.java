@@ -5,6 +5,7 @@ import com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskSendVehicleDetailDao;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendDetailStatusEnum;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.NumberHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,8 +33,8 @@ public class JyBizTaskSendVehicleDetailServiceImpl implements JyBizTaskSendVehic
 
     @Override
     public int saveTaskSendDetail(JyBizTaskSendVehicleDetailEntity detailEntity) {
-        long detailId = jyBizTaskSendVehicleDetailDao.findByTransWorkItem(detailEntity);
-        if (detailId > 0) {
+        Long detailId = jyBizTaskSendVehicleDetailDao.findByTransWorkItem(detailEntity);
+        if (NumberHelper.gt0(detailId)) {
             logger.warn("派车单明细已经存在. id:{}, {}", detailId, JsonHelper.toJson(detailEntity));
             return 0;
         }

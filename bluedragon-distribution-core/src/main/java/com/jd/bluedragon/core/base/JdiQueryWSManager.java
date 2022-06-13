@@ -33,6 +33,7 @@ public interface JdiQueryWSManager {
      * @param transWorkCode
      * @param option
      * @return
+     * @see <see>https://cf.jd.com/pages/viewpage.action?pageId=309509770</see>
      */
     BigTransWorkDto queryTransWorkByChoice(String transWorkCode, BigQueryOption option);
 

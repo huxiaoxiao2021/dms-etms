@@ -61,7 +61,7 @@ public class JyBizTaskSendVehicleDao extends BaseDao<JyBizTaskSendVehicleEntity>
         if (CollectionUtils.isNotEmpty(sendVehicleBizList)) {
             params.put("sendVehicleBizList", sendVehicleBizList);
         }
-        return this.getSqlSession().selectList(NAMESPACE + "sumTaskByVehicleStatus", params);
+        return this.getSqlSession().selectList(NAMESPACE + ".sumTaskByVehicleStatus", params);
     }
 
     public List<JyBizTaskSendVehicleEntity> querySendTaskOfPage(JyBizTaskSendVehicleEntity entity,
@@ -83,9 +83,7 @@ public class JyBizTaskSendVehicleDao extends BaseDao<JyBizTaskSendVehicleEntity>
         return this.getSqlSession().selectList(NAMESPACE + ".querySendTaskOfPage", params);
     }
 
-    public int countByCondition(JyBizTaskSendVehicleEntity entity,
-                                List<String> sendVehicleBizList,
-                                List<Integer> statuses) {
+    public Integer countByCondition(JyBizTaskSendVehicleEntity entity, List<String> sendVehicleBizList, List<Integer> statuses) {
         Map<String,Object> params = new HashMap<>();
         params.put("entity", entity);
         params.put("sendVehicleBizList", sendVehicleBizList);
