@@ -486,7 +486,7 @@
             LIMIT #{offset},#{limit}
     </select>
 
-    <select id="countByCondition">
+    <select id="countByCondition" resultType="java.lang.Integer">
         SELECT
             COUNT(*)
         FROM jy_biz_task_send_vehicle

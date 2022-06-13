@@ -18,10 +18,7 @@ import com.jd.bluedragon.common.dto.send.response.VehicleTaskDto;
 import com.jd.bluedragon.common.dto.send.response.VehicleTaskResp;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
-import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.core.base.BasicQueryWSManager;
-import com.jd.bluedragon.core.base.JdiQueryWSManager;
-import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.distribution.api.JdResponse;
@@ -103,6 +100,9 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
     private static final Logger log = LoggerFactory.getLogger(JySendVehicleServiceImpl.class);
 
     private static final int SEND_SCAN_BAR_EXPIRE = 6;
+
+    private static final int TRANS_BILL_STATUS_CONFIRM = 15;
+    private static final int TRANS_BILL_WORK_STATUS = 20;
 
     /**
      * 运单路由字段使用的分隔符
@@ -364,7 +364,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
      * @return
      */
     private List<SendVehicleDetail> getSendVehicleDetail(QueryTaskSendDto queryTaskSendDto, JyBizTaskSendStatusEnum curQueryStatus, JyBizTaskSendVehicleEntity entity) {
-        JyBizTaskSendVehicleDetailEntity detailQ = new JyBizTaskSendVehicleDetailEntity(queryTaskSendDto.getStartSiteId(), queryTaskSendDto.getEndSiteId(),  entity.getBizId());
+        JyBizTaskSendVehicleDetailEntity detailQ = new JyBizTaskSendVehicleDetailEntity(queryTaskSendDto.getStartSiteId(), queryTaskSendDto.getEndSiteId(), entity.getBizId());
         List<JyBizTaskSendVehicleDetailEntity> vehicleDetailList = taskSendVehicleDetailService.findEffectiveSendVehicleDetail(detailQ);
         if (CollectionUtils.isEmpty(vehicleDetailList)) {
             return Lists.newArrayList();
@@ -394,10 +394,10 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
         String fmtDesc;
         switch (curStatus) {
             case TO_SEND:
-                fmtDesc = JyBizTaskSendStatusEnum.getNameByCode(vehicleDetail.getVehicleStatus());
+                fmtDesc = JyBizTaskSendDetailStatusEnum.getNameByCode(vehicleDetail.getVehicleStatus());
                 break;
             case SENDING:
-                if (JyBizTaskSendStatusEnum.TO_SEND.getCode().equals(vehicleDetail.getVehicleStatus())) {
+                if (JyBizTaskSendDetailStatusEnum.TO_SEND.getCode().equals(vehicleDetail.getVehicleStatus())) {
                     fmtDesc = "未扫";
                 }
                 else {
@@ -405,8 +405,14 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
                 }
                 break;
             case TO_SEAL:
-                if (JyBizTaskSendStatusEnum.SEALED.getCode().equals(vehicleDetail.getVehicleStatus())) {
-                    fmtDesc = "已封车";
+                if (JyBizTaskSendDetailStatusEnum.SEALED.getCode().equals(vehicleDetail.getVehicleStatus())) {
+                    if (vehicleDetail.getSealCarTime() != null) {
+                        String formatTime = DateHelper.formatDate(vehicleDetail.getSealCarTime(), DateHelper.DATE_FORMAT_HHmm);
+                        fmtDesc = formatTime + "封";
+                    }
+                    else {
+                        fmtDesc = "已封车";
+                    }
                 }
                 else {
                     fmtDesc = "待封车";
@@ -417,7 +423,9 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
                     String formatTime = DateHelper.formatDate(vehicleDetail.getSealCarTime(), DateHelper.DATE_FORMAT_HHmm);
                     fmtDesc = formatTime + "封";
                 }
-                fmtDesc = "-";
+                else {
+                    fmtDesc = "已封车";
+                }
                 break;
             default:
                 return "未知";
@@ -484,9 +492,12 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
         List<LabelOption> tagList = new ArrayList<>();
 
         // 司机是否领取任务
-        if (transWorkBillDto != null && StringUtils.isNotBlank(transWorkBillDto.getCarrierDriverName())) {
-            SendVehicleLabelOptionEnum driverRecvTaskTag = SendVehicleLabelOptionEnum.DRIVER_RECEIVE;
-            tagList.add(new LabelOption(driverRecvTaskTag.getCode(), driverRecvTaskTag.getName(), driverRecvTaskTag.getDisplayOrder()));
+        if (transWorkBillDto != null) {
+            // work_status = 20(已开始), status > 15(待接受)
+            if (Objects.equals(TRANS_BILL_WORK_STATUS, transWorkBillDto.getWorkStatus()) && NumberHelper.gt(transWorkBillDto.getStatus(), TRANS_BILL_STATUS_CONFIRM)) {
+                SendVehicleLabelOptionEnum driverRecvTaskTag = SendVehicleLabelOptionEnum.DRIVER_RECEIVE;
+                tagList.add(new LabelOption(driverRecvTaskTag.getCode(), driverRecvTaskTag.getName(), driverRecvTaskTag.getDisplayOrder()));
+            }
         }
 
         // 车长
@@ -688,7 +699,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
 
             JyBizTaskSendVehicleEntity queryCondition = makeFetchCondition(queryTaskSendDto);
 
-            int taskCount = taskSendVehicleService.countByCondition(queryCondition, queryTaskSendDto.getSendVehicleBizList(), queryTaskSendDto.getVehicleStatuses());
+            Integer taskCount = taskSendVehicleService.countByCondition(queryCondition, queryTaskSendDto.getSendVehicleBizList(), queryTaskSendDto.getVehicleStatuses());
             VehicleTaskResp taskResp = new VehicleTaskResp();
             taskResp.setCount(taskCount);
             result.setData(taskResp);
