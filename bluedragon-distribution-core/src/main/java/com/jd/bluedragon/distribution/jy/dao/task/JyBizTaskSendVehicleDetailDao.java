@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.jy.dao.task;
 
 import com.jd.bluedragon.common.dao.BaseDao;
+import com.jd.bluedragon.distribution.jy.dto.send.JyBizTaskSendCountDto;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import org.apache.commons.collections.CollectionUtils;
 
@@ -65,11 +66,19 @@ public class JyBizTaskSendVehicleDetailDao extends BaseDao<JyBizTaskSendVehicleD
         return this.getSqlSession().update(NAMESPACE + ".updateStatus", params);
     }
 
-    public int countByStatus(JyBizTaskSendVehicleDetailEntity entity) {
-        return this.getSqlSession().selectOne(NAMESPACE + ".countByStatus", entity);
+    public Integer countByCondition(JyBizTaskSendVehicleDetailEntity entity) {
+        return this.getSqlSession().selectOne(NAMESPACE + ".countByCondition", entity);
     }
 
     public List<Long> getAllSendDest(JyBizTaskSendVehicleDetailEntity entity) {
         return this.getSqlSession().selectList(NAMESPACE + ".getAllSendDest", entity);
+    }
+
+    public JyBizTaskSendVehicleDetailEntity findSendDetail(JyBizTaskSendVehicleDetailEntity entity) {
+        return this.getSqlSession().selectOne(NAMESPACE + ".findSendDetail", entity);
+    }
+
+    public List<JyBizTaskSendCountDto> sumByVehicleStatus(JyBizTaskSendVehicleDetailEntity entity) {
+        return this.getSqlSession().selectList(NAMESPACE + ".sumByVehicleStatus", entity);
     }
 }

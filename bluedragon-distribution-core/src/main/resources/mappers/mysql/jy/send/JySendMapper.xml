@@ -37,8 +37,12 @@
              bar_code,
              send_code,
              operate_time,
-             intercept_flag,
-             force_send_flag,
+            <if test="interceptFlag != null">
+                intercept_flag ,
+            </if>
+            <if test="forceSendFlag != null">
+                force_send_flag,
+            </if>
              create_user_erp,
              create_user_name,
              create_time
@@ -50,8 +54,12 @@
             #{barCode},
             #{sendCode},
             #{operateTime},
-            #{interceptFlag},
-            #{forceSendFlag},
+            <if test="interceptFlag != null">
+                #{interceptFlag},
+            </if>
+            <if test="forceSendFlag != null">
+                #{forceSendFlag},
+            </if>
             #{createUserErp},
             #{createUserName},
             #{createTime}

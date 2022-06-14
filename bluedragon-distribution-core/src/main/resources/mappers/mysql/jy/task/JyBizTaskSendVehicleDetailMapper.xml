@@ -27,6 +27,11 @@
         <result property="ts" column="ts"/>
     </resultMap>
 
+    <resultMap id="statusSumResultMap" type="com.jd.bluedragon.distribution.jy.dto.send.JyBizTaskSendCountDto">
+        <result property="vehicleStatus" column="vehicle_status" />
+        <result property="total" column="total" />
+    </resultMap>
+
     <sql id="Base_Column_List">
         id, send_vehicle_biz_id, biz_id, trans_work_item_code, vehicle_status, start_site_id, start_site_name,
         end_site_id, end_site_name, plan_depart_time, seal_car_time,
@@ -407,15 +412,23 @@
         AND vehicle_status <![CDATA[ < ]]> #{entity.vehicleStatus}
     </update>
 
-    <select id="countByStatus" parameterType="JyBizTaskSendVehicleDetailEntity" resultType="java.lang.Integer">
+    <select id="countByCondition" parameterType="JyBizTaskSendVehicleDetailEntity" resultType="java.lang.Integer">
         SELECT
             COUNT(*)
         FROM jy_biz_task_send_vehicle_detail
         WHERE
             yn = 1
-        AND send_vehicle_biz_id = #{sendVehicleBizId}
+        <if test="sendVehicleBizId != null">
+            AND send_vehicle_biz_id = #{sendVehicleBizId}
+        </if>
         <if test="vehicleStatus != null">
             AND vehicle_status = #{vehicleStatus}
+        </if>
+        <if test="startSiteId != null">
+            AND start_site_id = #{startSiteId}
+        </if>
+        <if test="endSiteId != null">
+            AND end_site_id = #{endSiteId}
         </if>
     </select>
 
@@ -425,6 +438,36 @@
         FROM jy_biz_task_send_vehicle_detail
         WHERE
             yn = 1
+        AND send_vehicle_biz_id = #{sendVehicleBizId}
+    </select>
+
+    <select id="findSendDetail" parameterType="JyBizTaskSendVehicleDetailEntity" resultMap="jyBizTaskSendVehicleDetailMap">
+        SELECT
+            <include refid="Base_Column_List"/>
+        FROM jy_biz_task_send_vehicle_detail
+        WHERE
+            yn = 1
+        AND start_site_id = #{startSiteId}
+        <if test="sendVehicleBizId != null">
+            AND send_vehicle_biz_id = #{sendVehicleBizId}
+        </if>
+        <if test="vehicleStatus != null">
+            AND vehicle_status = #{vehicleStatus}
+        </if>
+        <if test="endSiteId != null">
+            AND end_site_id = #{endSiteId}
+        </if>
+        LIMIT 1
+    </select>
+
+    <select id="sumByVehicleStatus" parameterType="JyBizTaskSendVehicleDetailEntity" resultMap="statusSumResultMap">
+        SELECT
+            vehicle_status, COUNT(*) total
+        FROM
+            jy_biz_task_send_vehicle_detail
+        WHERE
+            yn = 1
+        AND start_site_id = #{startSiteId}
         AND send_vehicle_biz_id = #{sendVehicleBizId}
     </select>
 

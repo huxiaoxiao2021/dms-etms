@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.jy.service.send;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.jy.dao.send.JySendAttachmentDao;
 import com.jd.bluedragon.distribution.jy.send.JySendAttachmentEntity;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,16 @@ public class JySendAttachmentServiceImpl implements IJySendAttachmentService{
 
     @Override
     public Boolean sendVehicleTakePhoto(JySendAttachmentEntity entity) {
-        return null;
+        return sendAttachmentDao.hasPhoto(entity) != null;
     }
+
+    @Override
+    public Integer savePhoto(JySendAttachmentEntity entity) {
+        int rows = sendAttachmentDao.updateByBiz(entity);
+        if (rows == Constants.NO_MATCH_DATA) {
+            return sendAttachmentDao.insert(entity);
+        }
+        return rows;
+    }
+
 }

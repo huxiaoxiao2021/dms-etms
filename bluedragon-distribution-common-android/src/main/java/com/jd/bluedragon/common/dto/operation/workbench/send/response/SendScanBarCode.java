@@ -13,6 +13,8 @@ import java.util.List;
  **/
 public class SendScanBarCode implements Serializable {
 
+    private static final long serialVersionUID = -9041548101278236982L;
+
     /**
      * 单号
      */

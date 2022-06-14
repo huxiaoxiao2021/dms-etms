@@ -241,15 +241,15 @@ public class CacheKeyConstants {
     public static final String JY_SEND_TRANS_WORK_KEY = JY_CACHE_PREFIX + "ss:init:%s";
 
     /**
-     * 发车扫描防重，每个单号只能扫描一次
-     * 单号+场地
+     * 拣运发车任务主键
+     * bizId
      */
-    public static final String JY_SEND_SCAN_KEY = JY_CACHE_PREFIX + "ss:scan:%s:%s";
+    public static final String JY_SEND_TASK_FIRST_SCAN_KEY = JY_CACHE_PREFIX + "ss:biz:first:%s";
 
     /**
-     * 拣运发车任务主键
+     * 拣运发车任务明细主键
      * bizId + createSite + receiveSite
      */
-    public static final String JY_SEND_TASK_FIRST_SCAN_KEY = JY_CACHE_PREFIX + "ss:biz:first:%s:%s:%s";
+    public static final String JY_SEND_TASK_DETAIL_FIRST_SCAN_KEY = JY_CACHE_PREFIX + "ssd:biz:first:%s:%s:%s";
 
 }

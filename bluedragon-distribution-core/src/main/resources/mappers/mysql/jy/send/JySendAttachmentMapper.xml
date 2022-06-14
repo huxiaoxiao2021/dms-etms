@@ -28,10 +28,6 @@
 
     <insert id="insert" parameterType="JySendAttachmentEntity">
         INSERT INTO jy_send_attachment (
-        <if test="id != null">
-            id
-        </if>
-        ,
         <if test="sendVehicleBizId != null">
             send_vehicle_biz_id
         </if>
@@ -79,19 +75,7 @@
         <if test="updateTime != null">
             update_time
         </if>
-        ,
-        <if test="yn != null">
-            yn
-        </if>
-        ,
-        <if test="ts != null">
-            ts
-        </if>
         ) VALUES (
-        <if test="id != null">
-            #{id}
-        </if>
-        ,
         <if test="sendVehicleBizId != null">
             #{sendVehicleBizId}
         </if>
@@ -139,28 +123,12 @@
         <if test="updateTime != null">
             #{updateTime}
         </if>
-        ,
-        <if test="yn != null">
-            #{yn}
-        </if>
-        ,
-        <if test="ts != null">
-            #{ts}
-        </if>
         )
     </insert>
 
-    <update id="update" parameterType="JySendAttachmentEntity">
+    <update id="updateByBiz" parameterType="JySendAttachmentEntity">
         UPDATE jy_send_attachment
         <set>
-            <if test="id != null">
-                id = #{id}
-            </if>
-            ,
-            <if test="sendVehicleBizId != null">
-                send_vehicle_biz_id = #{sendVehicleBizId}
-            </if>
-            ,
             <if test="operateSiteId != null">
                 operate_site_id = #{operateSiteId}
             </if>
@@ -181,14 +149,6 @@
                 operate_time = #{operateTime}
             </if>
             ,
-            <if test="createUserErp != null">
-                create_user_erp = #{createUserErp}
-            </if>
-            ,
-            <if test="createUserName != null">
-                create_user_name = #{createUserName}
-            </if>
-            ,
             <if test="updateUserErp != null">
                 update_user_erp = #{updateUserErp}
             </if>
@@ -197,24 +157,22 @@
                 update_user_name = #{updateUserName}
             </if>
             ,
-            <if test="createTime != null">
-                create_time = #{createTime}
-            </if>
-            ,
             <if test="updateTime != null">
                 update_time = #{updateTime}
             </if>
-            ,
-            <if test="yn != null">
-                yn = #{yn}
-            </if>
-            ,
-            <if test="ts != null">
-                ts = #{ts}
-            </if>
         </set>
         <where>
-            id = #{id}
+            send_vehicle_biz_id = #{sendVehicleBizId}
         </where>
     </update>
+
+    <select id="hasPhoto" parameterType="JySendAttachmentEntity" resultMap="jySendAttachmentMap">
+        SELECT
+            <include refid="Base_Column_List"/>
+        FROM jy_send_attachment
+        WHERE
+            yn = 1
+        AND send_vehicle_biz_id = #{sendVehicleBizId}
+        AND img_url !=''
+</select>
 </mapper>

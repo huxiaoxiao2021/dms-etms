@@ -16,4 +16,11 @@ public interface IJySendAttachmentService {
      * @return true：拍照了
      */
     Boolean sendVehicleTakePhoto(JySendAttachmentEntity entity);
+
+    /**
+     * 记录拍照
+     * @param entity
+     * @return
+     */
+    Integer savePhoto(JySendAttachmentEntity entity);
 }
