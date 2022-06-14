@@ -409,6 +409,7 @@ public class VrsRouteTransferRelationManagerImpl implements VrsRouteTransferRela
         for(int i=0;i<siteArr.length;i++){
             //获取站点信息
             BaseStaffSiteOrgDto baseStaffSiteOrgDto= baseMajorManager.getBaseSiteByDmsCode(siteArr[i]);
+            log.info("queryRecommendRoute 获取baseStaffSiteOrgDto-{}",JSON.toJSONString(baseStaffSiteOrgDto));
             if (baseStaffSiteOrgDto!=null){
                 String dmsName = baseStaffSiteOrgDto.getDmsShortName();
                 if(StringUtils.isBlank(dmsName)){
