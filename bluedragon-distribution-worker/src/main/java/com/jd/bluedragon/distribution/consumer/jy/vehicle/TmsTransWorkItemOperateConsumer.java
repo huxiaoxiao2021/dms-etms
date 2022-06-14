@@ -4,6 +4,7 @@ import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BasicQueryWSManager;
 import com.jd.bluedragon.core.base.JdiQueryWSManager;
+import com.jd.bluedragon.core.base.JdiTransWorkWSManager;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.jy.dto.send.TransWorkItemDto;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendDetailStatusEnum;
@@ -27,7 +28,10 @@ import com.jd.jim.cli.Cluster;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.tms.basic.dto.BasicVehicleTypeDto;
+import com.jd.tms.jdi.dto.BigQueryOption;
+import com.jd.tms.jdi.dto.BigTransWorkItemDto;
 import com.jd.tms.jdi.dto.TransWorkBillDto;
+import javafx.embed.swing.JFXPanel;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -39,6 +43,7 @@ import org.springframework.stereotype.Service;
 import java.text.MessageFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -66,6 +71,7 @@ public class TmsTransWorkItemOperateConsumer extends MessageBaseConsumer {
     private static final int WORK_STATUS_INIT = 10; // 初始化
     private static final int WORK_STATUS_START = 20; // 已开始
     private static final int WORK_STATUS_END = 30; // 已结束
+    private static final Integer WORK_ITEM_STATUS_CANCEL = 200; // 作废
 
     @Autowired
     @Qualifier("redisJySendBizIdSequenceGen")
@@ -92,6 +98,9 @@ public class TmsTransWorkItemOperateConsumer extends MessageBaseConsumer {
 
     @Autowired
     private SendVehicleTransactionManager transactionManager;
+
+    @Autowired
+    private JdiTransWorkWSManager transWorkWSManager;
 
     @Override
     public void consume(Message message) throws Exception {
@@ -152,8 +161,9 @@ public class TmsTransWorkItemOperateConsumer extends MessageBaseConsumer {
             if (OPERATE_TYPE_CREATED == workItemDto.getOperateType()) {
                 JyBizTaskSendVehicleDetailEntity taskSendVehicleDetailEntity = addSendTaskDetail(workItemDto, startSiteInfo, endSiteInfo, sendVehicleBiz);
 
-                transactionManager.saveTaskSendAndDetail(sendVehicleEntity, taskSendVehicleDetailEntity);
-
+                if (taskSendVehicleDetailEntity != null) {
+                    transactionManager.saveTaskSendAndDetail(sendVehicleEntity, taskSendVehicleDetailEntity);
+                }
             }
             // 取消发货任务流向
             else if (OPERATE_TYPE_CANCEL == workItemDto.getOperateType()) {
@@ -162,7 +172,7 @@ public class TmsTransWorkItemOperateConsumer extends MessageBaseConsumer {
             }
 
             // 更新lastPlanDepartTime最晚发车时间
-            updateSendVehicleLastPlanDepartTime(startSiteInfo.getSiteCode(), endSiteInfo, sendVehicleBiz);
+            updateSendVehicleLastPlanDepartTime(startSiteInfo.getSiteCode(), endSiteInfo.getSiteCode(), sendVehicleBiz);
         }
         catch (Exception e) {
             logger.error("消费运输派车单明细失败! {}", JsonHelper.toJson(workItemDto), e);
@@ -213,8 +223,8 @@ public class TmsTransWorkItemOperateConsumer extends MessageBaseConsumer {
      */
     private JyBizTaskSendVehicleDetailEntity addSendTaskDetail(TransWorkItemDto workItemDto, BaseStaffSiteOrgDto startSiteInfo, BaseStaffSiteOrgDto endSiteInfo, String sendVehicleBiz) {
 
-        // FIXME 判断是作废不保存
-        if (judgeTransWorkItemCancel()) {
+        // 判断是作废不保存
+        if (judgeTransWorkItemCancel(workItemDto)) {
             logger.warn("派车明细创建时已作废. {}", JsonHelper.toJson(workItemDto));
             return null;
         }
@@ -226,7 +236,16 @@ public class TmsTransWorkItemOperateConsumer extends MessageBaseConsumer {
      * 校验派车明细是否作废
      * @return
      */
-    private boolean judgeTransWorkItemCancel() {
+    private boolean judgeTransWorkItemCancel(TransWorkItemDto workItemDto) {
+        BigQueryOption queryOption = new BigQueryOption();
+        queryOption.setQueryTransWorkItemDto(Boolean.TRUE);
+        BigTransWorkItemDto bigTransWorkItemDto = transWorkWSManager.queryTransWorkItemByOptionWithRead(workItemDto.getTransWorkItemCode(), queryOption);
+        if (bigTransWorkItemDto != null) {
+            com.jd.tms.jdi.dto.TransWorkItemDto transWorkItemDto = bigTransWorkItemDto.getTransWorkItemDto();
+            if (transWorkItemDto != null && Objects.equals(WORK_ITEM_STATUS_CANCEL, transWorkItemDto.getStatus())) {
+                return true;
+            }
+        }
 
         return false;
     }
@@ -275,11 +294,11 @@ public class TmsTransWorkItemOperateConsumer extends MessageBaseConsumer {
     /**
      * 更新发货任务最晚发车时间
      * @param startSiteId
-     * @param endSiteInfo
+     * @param endSiteId
      * @param sendVehicleBiz
      */
-    private void updateSendVehicleLastPlanDepartTime(Integer startSiteId, BaseStaffSiteOrgDto endSiteInfo, String sendVehicleBiz) {
-        JyBizTaskSendVehicleDetailEntity detailQ = new JyBizTaskSendVehicleDetailEntity(startSiteId.longValue(), Long.valueOf(endSiteInfo.getSiteCode()), sendVehicleBiz);
+    private void updateSendVehicleLastPlanDepartTime(Integer startSiteId, Integer endSiteId, String sendVehicleBiz) {
+        JyBizTaskSendVehicleDetailEntity detailQ = new JyBizTaskSendVehicleDetailEntity(startSiteId.longValue(), endSiteId.longValue(), sendVehicleBiz);
         List<JyBizTaskSendVehicleDetailEntity> vehicleDetailList = taskSendVehicleDetailService.findEffectiveSendVehicleDetail(detailQ);
         if (CollectionUtils.isEmpty(vehicleDetailList)) {
             return;
