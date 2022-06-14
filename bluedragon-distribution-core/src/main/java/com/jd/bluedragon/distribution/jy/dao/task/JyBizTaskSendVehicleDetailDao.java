@@ -30,7 +30,7 @@ public class JyBizTaskSendVehicleDetailDao extends BaseDao<JyBizTaskSendVehicleD
     }
 
     public JyBizTaskSendVehicleDetailEntity findByBizId(String bizId){
-        return this.getSqlSession().selectOne(NAMESPACE + ".select", bizId);
+        return this.getSqlSession().selectOne(NAMESPACE + ".findByBizId", bizId);
     }
 
     public int updateDateilTaskByVehicleBizId(JyBizTaskSendVehicleDetailEntity entity) {
