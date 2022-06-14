@@ -211,7 +211,7 @@
             id = #{id}
         </where>
     </update>
-    <select id="selectSealCodeByBizId" parameterType="java.lang.String">
+    <select id="selectSealCodeByBizId" parameterType="java.lang.String" resultType="java.lang.String">
         select seal_code
         from jy_send_seal_code
         WHERE send_vehicle_biz_id = #{bizId}
