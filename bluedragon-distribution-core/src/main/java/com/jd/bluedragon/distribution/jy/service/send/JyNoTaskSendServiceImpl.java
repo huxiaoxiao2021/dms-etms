@@ -270,7 +270,7 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
             jyBizTaskSendVehicleService.updateSendVehicleTask(fromSvTask);
             //删除子任务
             JyBizTaskSendVehicleDetailEntity fromSvDetailTask = new JyBizTaskSendVehicleDetailEntity();
-            fromSvDetailTask.setSendVehicleBizId(bindVehicleDetailTaskReq.getFromSendVehicleDetailBizId());
+            fromSvDetailTask.setSendVehicleBizId(bindVehicleDetailTaskReq.getFromSendVehicleBizId());
             fromSvDetailTask.setYn(0);
             fromSvDetailTask.setUpdateTime(now);
             fromSvDetailTask.setUpdateUserErp(bindVehicleDetailTaskReq.getUser().getUserErp());
