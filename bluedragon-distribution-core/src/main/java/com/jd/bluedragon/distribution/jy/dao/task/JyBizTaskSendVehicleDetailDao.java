@@ -72,4 +72,8 @@ public class JyBizTaskSendVehicleDetailDao extends BaseDao<JyBizTaskSendVehicleD
     public List<Long> getAllSendDest(JyBizTaskSendVehicleDetailEntity entity) {
         return this.getSqlSession().selectList(NAMESPACE + ".getAllSendDest", entity);
     }
+
+    public int updateBizTaskSendDetailStatus(JyBizTaskSendVehicleDetailEntity entity) {
+        return this.getSqlSession().update(NAMESPACE + ".updateBizTaskSendDetailStatus", entity);
+    }
 }

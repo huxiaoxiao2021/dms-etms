@@ -64,6 +64,10 @@ public class JyBizTaskSendVehicleEntity implements Serializable {
 	 */
 	private Integer vehicleStatus;
 	/**
+	 * 前一个状态
+	 */
+	private Integer preVehicleStatus;
+	/**
 	 * 是否无任务发车；0-否 1-是
 	 */
 	private Integer manualCreatedFlag;
@@ -132,6 +136,14 @@ public class JyBizTaskSendVehicleEntity implements Serializable {
 	 * 数据库时间
 	 */
 	private Date ts;
+
+	public Integer getPreVehicleStatus() {
+		return preVehicleStatus;
+	}
+
+	public void setPreVehicleStatus(Integer preVehicleStatus) {
+		this.preVehicleStatus = preVehicleStatus;
+	}
 
 	public String getBizNo() {
 		return bizNo;

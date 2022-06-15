@@ -201,7 +201,7 @@
         </foreach>
     </update>
 
-    <select id="querySendCodesByVehicleDetailBizId" parameterType="java.lang.String">
+    <select id="querySendCodesByVehicleDetailBizId" parameterType="java.lang.String" resultType="java.lang.String">
         select send_code
         from jy_send_code
         where send_detail_biz_id = #{vehicleDetailBizId}

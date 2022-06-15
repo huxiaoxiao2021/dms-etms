@@ -82,4 +82,6 @@ public class TransportResp implements Serializable {
     public void setSendCode(String sendCode) {
         this.sendCode = sendCode;
     }
+
+
 }

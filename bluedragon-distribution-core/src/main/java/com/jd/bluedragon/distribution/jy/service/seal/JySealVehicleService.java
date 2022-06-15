@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.jy.service.seal;
 import com.jd.bluedragon.common.dto.seal.request.*;
 import com.jd.bluedragon.common.dto.seal.response.SealCodeResp;
 import com.jd.bluedragon.common.dto.seal.response.SealVehicleInfoResp;
+import com.jd.bluedragon.common.dto.seal.response.TransportResp;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 
 
@@ -28,5 +29,12 @@ public interface JySealVehicleService {
      *
      */
     InvokeResult sealVehicle(SealVehicleReq sealVehicleReq);
+
+
+    /**
+     * 根据任务简码 获取任务详情
+     * @return
+     */
+    InvokeResult<TransportResp> getTransWorkItemByWorkItemCode(GetVehicleNumberReq getVehicleNumberReq);
 
 }

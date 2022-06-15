@@ -4,6 +4,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskSendVehicleDetailDao;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendDetailStatusEnum;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
+import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import org.slf4j.Logger;
@@ -71,5 +72,10 @@ public class JyBizTaskSendVehicleDetailServiceImpl implements JyBizTaskSendVehic
     @Override
     public List<Long> getAllSendDest(JyBizTaskSendVehicleDetailEntity entity) {
         return jyBizTaskSendVehicleDetailDao.getAllSendDest(entity);
+    }
+
+    @Override
+    public int updateBizTaskSendDetailStatus(JyBizTaskSendVehicleDetailEntity entity) {
+        return jyBizTaskSendVehicleDetailDao.updateBizTaskSendDetailStatus(entity);
     }
 }

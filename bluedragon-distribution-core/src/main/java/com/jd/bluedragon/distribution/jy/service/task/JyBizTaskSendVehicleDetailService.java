@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.jy.service.task;
 
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
+import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
 
 import java.util.List;
 
@@ -60,4 +61,5 @@ public interface JyBizTaskSendVehicleDetailService {
      */
     List<Long> getAllSendDest(JyBizTaskSendVehicleDetailEntity entity);
 
+    int updateBizTaskSendDetailStatus(JyBizTaskSendVehicleDetailEntity entity);
 }

@@ -92,6 +92,11 @@ public class JySealCarGatewayServiceImpl implements JySealCarGatewayService {
     }
 
     @Override
+    public JdCResponse<TransportResp> getTransWorkItemByWorkItemCode(GetVehicleNumberReq getVehicleNumberReq) {
+        return retJdCResponse(jySealVehicleService.getTransWorkItemByWorkItemCode(getVehicleNumberReq));
+    }
+
+    @Override
     public JdCResponse sealVehicle(SealVehicleReq sealVehicleReq) {
         return retJdCResponse(jySealVehicleService.sealVehicle(sealVehicleReq));
     }

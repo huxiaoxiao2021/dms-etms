@@ -4,8 +4,12 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.seal.request.*;
 import com.jd.bluedragon.common.dto.seal.response.SealCodeResp;
 import com.jd.bluedragon.common.dto.seal.response.SealVehicleInfoResp;
+import com.jd.bluedragon.common.dto.seal.response.TransportResp;
+import com.jd.bluedragon.core.base.JdiQueryWSManager;
 import com.jd.bluedragon.core.base.JdiTransWorkWSManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.coldchain.domain.ColdChainSend;
+import com.jd.bluedragon.distribution.coldchain.service.ColdChainSendService;
 import com.jd.bluedragon.distribution.jy.manager.JyTransportManager;
 import com.jd.bluedragon.distribution.jy.send.JySendAggsEntity;
 import com.jd.bluedragon.distribution.jy.send.JySendSealCodeEntity;
@@ -23,6 +27,7 @@ import com.jd.tms.jdi.dto.BigQueryOption;
 import com.jd.tms.jdi.dto.BigTransWorkItemDto;
 import com.jd.tms.jdi.dto.TransWorkItemDto;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -48,6 +53,11 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
     NewSealVehicleService newSealVehicleService;
     @Autowired
     JyVehicleSendRelationService jyVehicleSendRelationService;
+    @Autowired
+    JdiQueryWSManager jdiQueryWSManager;
+    @Autowired
+    private ColdChainSendService coldChainSendService;
+    private static final Integer SCHEDULE_TYPE_KA_BAN = 1;
 
 
     @Override
@@ -107,7 +117,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
         try {
             CommonDto<String> sealResp = newSealVehicleService.seal(sealCarDtoList, emptyBatchCode);
             if (sealResp != null && Constants.RESULT_SUCCESS == sealResp.getCode()) {
-                List<JySendSealCodeEntity> entityList =generateSendSealCodeList(sealVehicleReq);
+                List<JySendSealCodeEntity> entityList = generateSendSealCodeList(sealVehicleReq);
                 jySendSealCodeService.addBatch(entityList);
                 return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE);
             }
@@ -118,11 +128,36 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
         return new InvokeResult(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
     }
 
+    @Override
+    public InvokeResult<TransportResp> getTransWorkItemByWorkItemCode(GetVehicleNumberReq getVehicleNumberReq) {
+        //调用运输-根据任务简码查询任务详情信息
+        com.jd.tms.jdi.dto.CommonDto<TransWorkItemDto> transWorkItemResp = jdiQueryWSManager.queryTransWorkItemBySimpleCode(getVehicleNumberReq.getTransWorkItemCode());
+        if (ObjectHelper.isNotNull(transWorkItemResp) && Constants.RESULT_SUCCESS == transWorkItemResp.getCode()) {
+            TransWorkItemDto transWorkItemDto = transWorkItemResp.getData();
+            TransportResp transportResp = new TransportResp();
+            transportResp.setTransType(transWorkItemDto.getTransType());
+            transportResp.setVehicleNumber(transWorkItemDto.getVehicleNumber());
+            transportResp.setRouteLineCode(transWorkItemDto.getRouteLineCode());
+            transportResp.setRouteLineName(transWorkItemDto.getRouteLineName());
+            transportResp.setTransWorkItemCode(transWorkItemDto.getTransWorkItemCode());
+            if (SCHEDULE_TYPE_KA_BAN.equals(transWorkItemDto.getScheduleType())) {
+                if (StringUtils.isNotEmpty(transWorkItemDto.getTransPlanCode())) {
+                    ColdChainSend coldChainSend = coldChainSendService.getByTransCode(transWorkItemDto.getTransPlanCode());
+                    if (coldChainSend != null) {
+                        transportResp.setSendCode(coldChainSend.getSendCode());
+                    }
+                }
+            }
+            return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE,transportResp);
+        }
+        return new InvokeResult(transWorkItemResp.getCode(), transWorkItemResp.getMessage());
+    }
+
     private List<JySendSealCodeEntity> generateSendSealCodeList(SealVehicleReq sealVehicleReq) {
-        List<JySendSealCodeEntity> entityList =new ArrayList<>();
-        Date now =new Date();
-        for (String sealCode:sealVehicleReq.getSealCodes()){
-            JySendSealCodeEntity jySendSealCodeEntity =new JySendSealCodeEntity();
+        List<JySendSealCodeEntity> entityList = new ArrayList<>();
+        Date now = new Date();
+        for (String sealCode : sealVehicleReq.getSealCodes()) {
+            JySendSealCodeEntity jySendSealCodeEntity = new JySendSealCodeEntity();
             jySendSealCodeEntity.setSealCode(sealCode);
             jySendSealCodeEntity.setSendVehicleBizId(sealVehicleReq.getSendVehicleBizId());
             jySendSealCodeEntity.setOperateSiteId(Long.valueOf(sealVehicleReq.getCurrentOperate().getSiteCode()));

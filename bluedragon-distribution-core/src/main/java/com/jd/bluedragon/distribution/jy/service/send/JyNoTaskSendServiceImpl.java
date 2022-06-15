@@ -241,37 +241,44 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
     public InvokeResult bindVehicleDetailTask(BindVehicleDetailTaskReq bindVehicleDetailTaskReq) {
         //更新任务与发货批次的关联关系
         List<String> sendCodeList = jyVehicleSendRelationService.querySendCodesByVehicleDetailBizId(bindVehicleDetailTaskReq.getFromSendVehicleDetailBizId());
-        VehicleSendRelationDto dto = BeanUtils.copy(bindVehicleDetailTaskReq, VehicleSendRelationDto.class);
-        dto.setSendCodes(sendCodeList);
-        dto.setUpdateUserErp(bindVehicleDetailTaskReq.getUser().getUserErp());
-        dto.setUpdateUserName(bindVehicleDetailTaskReq.getUser().getUserName());
-        jyVehicleSendRelationService.updateVehicleSendRelation(dto);
-        //更新流向任务和主任的状态-为发货状态
-        /*JyBizTaskSendVehicleEntity toSvTask = new JyBizTaskSendVehicleEntity();
-        toSvTask.setBizId(bindVehicleDetailTaskReq.getToSendVehicleBizId());
-        toSvTask.setVehicleStatus(JyBizTaskSendStatusEnum.SENDING.getCode());
-        JyBizTaskSendVehicleDetailEntity toSvDetailTask = new JyBizTaskSendVehicleDetailEntity();
-        toSvDetailTask.setBizId(bindVehicleDetailTaskReq.getToSendVehicleDetailBizId());
-        toSvDetailTask.setVehicleStatus(JyBizTaskSendStatusEnum.SENDING.getCode());*/
+        if (ObjectHelper.isNotNull(sendCodeList) && sendCodeList.size()>0){
+            VehicleSendRelationDto dto = BeanUtils.copy(bindVehicleDetailTaskReq, VehicleSendRelationDto.class);
+            dto.setSendCodes(sendCodeList);
+            dto.setUpdateUserErp(bindVehicleDetailTaskReq.getUser().getUserErp());
+            dto.setUpdateUserName(bindVehicleDetailTaskReq.getUser().getUserName());
+            jyVehicleSendRelationService.updateVehicleSendRelation(dto);
+            //更新流向任务和主任的状态-为发货状态
+            JyBizTaskSendVehicleEntity toSvTask = new JyBizTaskSendVehicleEntity();
+            toSvTask.setBizId(bindVehicleDetailTaskReq.getToSendVehicleBizId());
+            toSvTask.setVehicleStatus(JyBizTaskSendStatusEnum.SENDING.getCode());
+            toSvTask.setPreVehicleStatus(JyBizTaskSendStatusEnum.TO_SEND.getCode());
+            jyBizTaskSendVehicleService.updateBizTaskSendStatus(toSvTask);
+            JyBizTaskSendVehicleDetailEntity toSvDetailTask = new JyBizTaskSendVehicleDetailEntity();
+            toSvDetailTask.setBizId(bindVehicleDetailTaskReq.getToSendVehicleDetailBizId());
+            toSvDetailTask.setVehicleStatus(JyBizTaskSendStatusEnum.SENDING.getCode());
+            toSvDetailTask.setPreVehicleStatus(JyBizTaskSendStatusEnum.TO_SEND.getCode());
+            jyBizTaskSendVehicleDetailService.updateBizTaskSendDetailStatus(toSvDetailTask);
 
-        //删除主任务
-        JyBizTaskSendVehicleEntity fromSvTask = new JyBizTaskSendVehicleEntity();
-        fromSvTask.setBizId(bindVehicleDetailTaskReq.getFromSendVehicleBizId());
-        fromSvTask.setYn(0);
-        Date now = new Date();
-        fromSvTask.setUpdateTime(now);
-        fromSvTask.setUpdateUserErp(bindVehicleDetailTaskReq.getUser().getUserErp());
-        fromSvTask.setUpdateUserName(bindVehicleDetailTaskReq.getUser().getUserName());
-        jyBizTaskSendVehicleService.updateSendVehicleTask(fromSvTask);
-        //删除子任务
-        JyBizTaskSendVehicleDetailEntity fromSvDetailTask = new JyBizTaskSendVehicleDetailEntity();
-        fromSvDetailTask.setSendVehicleBizId(bindVehicleDetailTaskReq.getFromSendVehicleDetailBizId());
-        fromSvDetailTask.setYn(0);
-        fromSvDetailTask.setUpdateTime(now);
-        fromSvDetailTask.setUpdateUserErp(bindVehicleDetailTaskReq.getUser().getUserErp());
-        fromSvDetailTask.setUpdateUserName(bindVehicleDetailTaskReq.getUser().getUserName());
-        jyBizTaskSendVehicleDetailService.updateDateilTaskByVehicleBizId(fromSvDetailTask);
-        return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE);
+            //删除主任务
+            JyBizTaskSendVehicleEntity fromSvTask = new JyBizTaskSendVehicleEntity();
+            fromSvTask.setBizId(bindVehicleDetailTaskReq.getFromSendVehicleBizId());
+            fromSvTask.setYn(0);
+            Date now = new Date();
+            fromSvTask.setUpdateTime(now);
+            fromSvTask.setUpdateUserErp(bindVehicleDetailTaskReq.getUser().getUserErp());
+            fromSvTask.setUpdateUserName(bindVehicleDetailTaskReq.getUser().getUserName());
+            jyBizTaskSendVehicleService.updateSendVehicleTask(fromSvTask);
+            //删除子任务
+            JyBizTaskSendVehicleDetailEntity fromSvDetailTask = new JyBizTaskSendVehicleDetailEntity();
+            fromSvDetailTask.setSendVehicleBizId(bindVehicleDetailTaskReq.getFromSendVehicleDetailBizId());
+            fromSvDetailTask.setYn(0);
+            fromSvDetailTask.setUpdateTime(now);
+            fromSvDetailTask.setUpdateUserErp(bindVehicleDetailTaskReq.getUser().getUserErp());
+            fromSvDetailTask.setUpdateUserName(bindVehicleDetailTaskReq.getUser().getUserName());
+            jyBizTaskSendVehicleDetailService.updateDateilTaskByVehicleBizId(fromSvDetailTask);
+            return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE);
+        }
+        return new InvokeResult(NO_SEND_DATA_UNDER_TASK_CODE, NO_SEND_DATA_UNDER_TASK_MESSAGE);
     }
 
     @Override
