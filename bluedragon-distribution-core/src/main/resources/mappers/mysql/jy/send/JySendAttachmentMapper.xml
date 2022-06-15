@@ -29,97 +29,75 @@
     <insert id="insert" parameterType="JySendAttachmentEntity">
         INSERT INTO jy_send_attachment (
         <if test="sendVehicleBizId != null">
-            send_vehicle_biz_id
+            send_vehicle_biz_id,
         </if>
-        ,
         <if test="operateSiteId != null">
-            operate_site_id
+            operate_site_id,
         </if>
-        ,
         <if test="vehicleArrived != null">
-            vehicle_arrived
+            vehicle_arrived,
         </if>
-        ,
         <if test="imgUrl != null">
-            img_url
+            img_url,
         </if>
-        ,
         <if test="remark != null">
-            remark
+            remark,
         </if>
-        ,
         <if test="operateTime != null">
-            operate_time
+            operate_time,
         </if>
-        ,
         <if test="createUserErp != null">
-            create_user_erp
+            create_user_erp,
         </if>
-        ,
         <if test="createUserName != null">
-            create_user_name
+            create_user_name,
         </if>
-        ,
         <if test="updateUserErp != null">
-            update_user_erp
+            update_user_erp,
         </if>
-        ,
         <if test="updateUserName != null">
-            update_user_name
+            update_user_name,
         </if>
-        ,
         <if test="createTime != null">
-            create_time
+            create_time,
         </if>
-        ,
         <if test="updateTime != null">
             update_time
         </if>
         ) VALUES (
         <if test="sendVehicleBizId != null">
-            #{sendVehicleBizId}
+            #{sendVehicleBizId},
         </if>
-        ,
         <if test="operateSiteId != null">
-            #{operateSiteId}
+            #{operateSiteId},
         </if>
-        ,
         <if test="vehicleArrived != null">
-            #{vehicleArrived}
+            #{vehicleArrived},
         </if>
-        ,
         <if test="imgUrl != null">
-            #{imgUrl}
+            #{imgUrl},
         </if>
-        ,
         <if test="remark != null">
-            #{remark}
+            #{remark},
         </if>
-        ,
         <if test="operateTime != null">
-            #{operateTime}
+            #{operateTime},
         </if>
-        ,
         <if test="createUserErp != null">
-            #{createUserErp}
+            #{createUserErp},
         </if>
-        ,
         <if test="createUserName != null">
-            #{createUserName}
+            #{createUserName},
         </if>
-        ,
         <if test="updateUserErp != null">
-            #{updateUserErp}
+            #{updateUserErp},
         </if>
-        ,
         <if test="updateUserName != null">
-            #{updateUserName}
+            #{updateUserName},
         </if>
-        ,
         <if test="createTime != null">
-            #{createTime}
+            #{createTime},
         </if>
-        ,
         <if test="updateTime != null">
             #{updateTime}
         </if>
@@ -130,35 +108,28 @@
         UPDATE jy_send_attachment
         <set>
             <if test="operateSiteId != null">
-                operate_site_id = #{operateSiteId}
+                operate_site_id = #{operateSiteId},
             </if>
-            ,
             <if test="vehicleArrived != null">
-                vehicle_arrived = #{vehicleArrived}
+                vehicle_arrived = #{vehicleArrived},
             </if>
-            ,
             <if test="imgUrl != null">
-                img_url = #{imgUrl}
+                img_url = #{imgUrl},
             </if>
-            ,
             <if test="remark != null">
-                remark = #{remark}
+                remark = #{remark},
             </if>
-            ,
             <if test="operateTime != null">
-                operate_time = #{operateTime}
+                operate_time = #{operateTime},
             </if>
-            ,
             <if test="updateUserErp != null">
-                update_user_erp = #{updateUserErp}
+                update_user_erp = #{updateUserErp},
             </if>
-            ,
             <if test="updateUserName != null">
-                update_user_name = #{updateUserName}
+                update_user_name = #{updateUserName},
             </if>
-            ,
             <if test="updateTime != null">
-                update_time = #{updateTime}
+                update_time = #{updateTime},
             </if>
         </set>
         <where>

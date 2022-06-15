@@ -12,7 +12,6 @@ import com.jd.bluedragon.common.dto.operation.workbench.enums.SendAbnormalEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.SendVehicleLabelOptionEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.*;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.*;
-import com.jd.bluedragon.common.dto.operation.workbench.unload.request.UnloadProductTypeRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.unload.response.LabelOption;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.VehicleStatusStatis;
 import com.jd.bluedragon.common.dto.send.request.VehicleTaskReq;
@@ -73,7 +72,6 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.proxy.Profiler;
 import com.jdl.jy.realtime.base.Pager;
-import com.jdl.jy.realtime.model.es.unload.JyVehicleTaskUnloadDetail;
 import com.jdl.jy.realtime.model.query.send.SendVehicleTaskQuery;
 import com.jdl.jy.realtime.model.vo.send.SendBarCodeDetailVo;
 import com.jdl.jy.schedule.dto.task.JyScheduleTaskReq;
@@ -875,9 +873,12 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
                 result.addInterceptBox(0, "强制发货时请确认发货目的地！");
                 return result;
             }
-            else {
-                sendDestId = request.getConfirmSendDestId();
+            if (!allDestId.contains(request.getConfirmSendDestId())) {
+                result.toBizError();
+                result.addInterceptBox(0, "强制发货的目的地必须是当前发车任务流向之一！");
+                return result;
             }
+            sendDestId = request.getConfirmSendDestId();
         }
 
         try {
@@ -899,6 +900,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
                 return result;
             }
 
+            boolean taskSendFirstScan = judgeBarCodeIsFirstScanFromTaskDest(request, sendDestId);
             // 执行发货前前置校验逻辑
             boolean oldForceSend = true; // 跳过原有拦截校验，使用新的校验逻辑
             boolean cancelLastSend = true;
@@ -919,7 +921,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
                 }
                 if (!sendResultToJdResp(result, sendResult)) {
                     // 拦截时保存拦截记录
-                    JySendEntity sendEntity = this.saveJySendRecord(request, sendDestId, sendCode, barCode);
+                    JySendEntity sendEntity = this.createJySendRecord(request, sendDestId, sendCode, barCode);
                     sendEntity.setForceSendFlag(0);
                     sendEntity.setInterceptFlag(1);
                     jySendService.save(sendEntity);
@@ -927,12 +929,12 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
                 }
             }
             if (request.getForceSubmit()) {
-                JySendEntity sendEntity = this.saveJySendRecord(request, sendDestId, sendCode, barCode);
+                JySendEntity sendEntity = this.createJySendRecord(request, sendDestId, sendCode, barCode);
                 sendEntity.setForceSendFlag(1);
                 jySendService.save(sendEntity);
             }
             else {
-                JySendEntity sendEntity = this.saveJySendRecord(request, sendDestId, sendCode, barCode);
+                JySendEntity sendEntity = this.createJySendRecord(request, sendDestId, sendCode, barCode);
                 sendEntity.setForceSendFlag(0);
                 jySendService.save(sendEntity);
             }
@@ -950,12 +952,16 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
             switch (sendType) {
                 case BY_WAYBILL:
                     sendResult = deliveryService.packageSendByWaybill(sendM, oldForceSend, cancelLastSend);
+                    break;
                 case BY_PACKAGE:
                     sendResult = deliveryService.packageSend(SendBizSourceEnum.JY_APP_SEND, sendM, oldForceSend, cancelLastSend);
+                    break;
                 case BY_BOX:
                     sendResult = deliveryService.packageSend(SendBizSourceEnum.JY_APP_SEND, sendM, oldForceSend, cancelLastSend);
+                    break;
                 case BY_BOARD:
                     // TODO 支持扫描板号
+                    break;
             }
 
             if (!sendResultToJdResp(result, sendResult)) {
@@ -965,7 +971,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
             // FIXME 记录扫描进度
 
             // 修改任务状态
-            if (judgeBarCodeIsFirstScanFromTaskDest(request, sendDestId)) {
+            if (taskSendFirstScan) {
 
                 updateSendTaskDetailStatus(taskSend, taskSendDetails, sendDestId);
 
@@ -981,8 +987,8 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
             result.setData(sendScanResponse);
 
             sendScanResponse.setScanPackCount(this.calculateScanPackageCount(request, sendType));
-            BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteBySiteId(destSiteId.intValue());
-            sendScanResponse.setCurScanDestId(destSiteId);
+            BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteBySiteId(sendDestId.intValue());
+            sendScanResponse.setCurScanDestId(sendDestId);
             sendScanResponse.setCurScanDestName(baseSite.getSiteName());
         }
         catch (Exception ex) {
@@ -1102,11 +1108,13 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
                 if (allDestId.contains(matchDestId)) {
                     destSiteId = matchDestId;
                 }
+                break;
             case BY_PACKAGE:
                 Long matchDestIdByPack = getWaybillNextRouter(WaybillUtil.getWaybillCode(barCode), siteCode);
                 if (allDestId.contains(matchDestIdByPack)) {
                     destSiteId = matchDestIdByPack;
                 }
+                break;
             case BY_BOX:
                 // 先根据箱号目的地取，再从箱号里取三个运单，根据路由匹配发货流向，需要弹窗提示
                 Box box = boxService.findBoxByCode(barCode);
@@ -1149,15 +1157,18 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
                         }
                     }
                 }
+                break;
             case BY_BOARD:
                 // TODO 支持扫描板号
+                break;
         }
 
         return destSiteId;
     }
 
-    private JySendEntity saveJySendRecord(SendScanRequest request, long destSiteId, String sendCode, String barCode) {
+    private JySendEntity createJySendRecord(SendScanRequest request, long destSiteId, String sendCode, String barCode) {
         JySendEntity sendEntity = new JySendEntity();
+
         sendEntity.setSendVehicleBizId(request.getSendVehicleBizId());
         sendEntity.setCreateSiteId((long) request.getCurrentOperate().getSiteCode());
         sendEntity.setReceiveSiteId(destSiteId);
@@ -1167,6 +1178,9 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
         sendEntity.setCreateUserErp(request.getUser().getUserErp());
         sendEntity.setCreateUserName(request.getUser().getUserName());
         sendEntity.setCreateTime(new Date());
+        sendEntity.setUpdateUserErp(request.getUser().getUserErp());
+        sendEntity.setUpdateUserName(request.getUser().getUserName());
+        sendEntity.setUpdateTime(new Date());
 
         return sendEntity;
     }
@@ -1182,17 +1196,21 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
         switch (sendType) {
             case BY_PACKAGE:
                 scanCount = 1;
+                break;
             case BY_WAYBILL:
                 Waybill waybill = waybillQueryManager.getOnlyWaybillByWaybillCode(barCode);
                 if (waybill != null && NumberHelper.gt0(waybill.getGoodNumber())) {
                     scanCount = waybill.getGoodNumber();
                 }
+                break;
             case BY_BOX:
                 List<SendDetail> list = deliveryService.getCancelSendByBox(barCode);
                 if (CollectionUtils.isNotEmpty(list)) {
                     scanCount = list.size();
                 }
+                break;
             case BY_BOARD:
+                break;
         }
 
         return scanCount;
@@ -1885,7 +1903,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
         }
 
         try {
-            querySendBarCodeList(invokeResult, request, SendVehicleTaskQuery.QUERY_INTERCEPT);
+            querySendBarCodeList(invokeResult, request, SendBarCodeQueryEntranceEnum.INTERCEPT, SendVehicleTaskQuery.QUERY_INTERCEPT);
         }
         catch (Exception ex) {
             log.error("查询发车拦截包裹记录异常. {}", JsonHelper.toJson(request), ex);
@@ -1895,7 +1913,8 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
         return invokeResult;
     }
 
-    private void querySendBarCodeList(InvokeResult<SendAbnormalBarCode> invokeResult, SendAbnormalPackRequest request, Integer queryFlag) {
+    private void querySendBarCodeList(InvokeResult<SendAbnormalBarCode> invokeResult, SendAbnormalPackRequest request,
+                                      SendBarCodeQueryEntranceEnum entranceEnum, Integer queryFlag) {
         Pager<SendVehicleTaskQuery> queryPager = this.getInterceptOrForceBarCodeQuery(request);
         queryPager.getSearchVo().setQueryBarCodeFlag(queryFlag);
 
@@ -1911,7 +1930,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
             for (SendBarCodeDetailVo detailVo : retPager.getData()) {
                 SendScanBarCode barCodeItem = new SendScanBarCode();
                 barCodeItem.setBarCode(detailVo.getPackageCode());
-                barCodeItem.setTags(this.resolveBarCodeTag(SendBarCodeQueryEntranceEnum.INTERCEPT, detailVo));
+                barCodeItem.setTags(this.resolveBarCodeTag(entranceEnum, detailVo));
                 barCodeList.add(barCodeItem);
             }
         }
@@ -1931,10 +1950,12 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
                 if (detailVo.getInterceptFlag() == Constants.CONSTANT_NUMBER_ONE) {
                     tags.add(new LabelOption(BarCodeLabelOptionEnum.INTERCEPT.getCode(), BarCodeLabelOptionEnum.INTERCEPT.getName()));
                 }
+                break;
             case FORCE_SEND:
                 if (detailVo.getForceSendFlag() == Constants.CONSTANT_NUMBER_ONE) {
                     tags.add(new LabelOption(BarCodeLabelOptionEnum.SEND_FORCE_SEND.getCode(), BarCodeLabelOptionEnum.SEND_FORCE_SEND.getName()));
                 }
+                break;
             case GO_TO_SEAL_PREVIEW:
                 if (detailVo.getForceSendFlag() != Constants.CONSTANT_NUMBER_ONE) {
                     if (detailVo.getInterceptFlag() == Constants.CONSTANT_NUMBER_ONE) {
@@ -1944,6 +1965,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
                 else {
                     tags.add(new LabelOption(BarCodeLabelOptionEnum.SEND_FORCE_SEND.getCode(), BarCodeLabelOptionEnum.SEND_FORCE_SEND.getName()));
                 }
+                break;
         }
 
         return tags;
@@ -1962,7 +1984,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
         }
 
         try {
-            querySendBarCodeList(invokeResult, request, SendVehicleTaskQuery.QUERY_FORCE_SEND);
+            querySendBarCodeList(invokeResult, request, SendBarCodeQueryEntranceEnum.FORCE_SEND, SendVehicleTaskQuery.QUERY_FORCE_SEND);
         }
         catch (Exception ex) {
             log.error("查询发车强制发货包裹记录异常. {}", JsonHelper.toJson(request), ex);
@@ -1985,7 +2007,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
         }
 
         try {
-            querySendBarCodeList(invokeResult, request, SendVehicleTaskQuery.QUERY_BOTH_INTERCEPT_AND_FORCE_SEND);
+            querySendBarCodeList(invokeResult, request, SendBarCodeQueryEntranceEnum.GO_TO_SEAL_PREVIEW, SendVehicleTaskQuery.QUERY_BOTH_INTERCEPT_AND_FORCE_SEND);
         }
         catch (Exception ex) {
             log.error("查询发车异常包裹记录异常. {}", JsonHelper.toJson(request), ex);
