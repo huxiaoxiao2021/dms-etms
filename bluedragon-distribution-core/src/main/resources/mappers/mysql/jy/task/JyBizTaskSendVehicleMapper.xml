@@ -8,6 +8,7 @@
         <result property="id" column="id"/>
         <result property="bizId" column="biz_id"/>
         <result property="transWorkCode" column="trans_work_code"/>
+        <result property="startSiteId" column="start_site_id" />
         <result property="vehicleNumber" column="vehicle_number"/>
         <result property="vehicleStatus" column="vehicle_status"/>
         <result property="manualCreatedFlag" column="manual_created_flag"/>
@@ -445,9 +446,7 @@
         WHERE
             yn = 1
             AND start_site_id = #{entity.startSiteId}
-            <if test="entity.vehicleType != null">
-                AND vehicle_type = #{entity.vehicleType}
-            </if>
+            AND line_type = #{entity.lineType}
             <if test="sendVehicleBizList != null and sendVehicleBizList.size() > 0">
                 AND biz_id IN
                 <foreach collection="sendVehicleBizList" separator="," open="(" close=")" item="item">
@@ -494,9 +493,7 @@
     <sql id="taskQueryCondition">
         yn = 1
         AND start_site_id = #{entity.startSiteId}
-        <if test="entity.vehicleType != null">
-            AND vehicle_type = #{entity.vehicleType}
-        </if>
+        AND line_type = #{entity.lineType}
         <if test="sendVehicleBizList != null and sendVehicleBizList.size() > 0">
             AND biz_id IN
             <foreach collection="sendVehicleBizList" separator="," open="(" close=")" item="item">

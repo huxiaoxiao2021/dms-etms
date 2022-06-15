@@ -80,7 +80,7 @@ public class JySendAggsEntity implements Serializable {
      */
     private Integer totalForceSendCount;
     /**
-     * 按派车任务汇总的已扫总量总计/吨
+     * 按派车任务汇总的已扫总量总计/千克
      */
     private BigDecimal totalScannedWeight;
     /**

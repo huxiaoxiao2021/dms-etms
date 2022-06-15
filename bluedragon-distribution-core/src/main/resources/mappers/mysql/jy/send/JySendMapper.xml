@@ -37,8 +37,12 @@
              bar_code,
              send_code,
              operate_time,
-             intercept_flag,
-             force_send_flag,
+            <if test="interceptFlag != null">
+                intercept_flag ,
+            </if>
+            <if test="forceSendFlag != null">
+                force_send_flag,
+            </if>
              create_user_erp,
              create_user_name,
              create_time
@@ -50,8 +54,12 @@
             #{barCode},
             #{sendCode},
             #{operateTime},
-            #{interceptFlag},
-            #{forceSendFlag},
+            <if test="interceptFlag != null">
+                #{interceptFlag},
+            </if>
+            <if test="forceSendFlag != null">
+                #{forceSendFlag},
+            </if>
             #{createUserErp},
             #{createUserName},
             #{createTime}
@@ -62,29 +70,23 @@
         UPDATE jy_send
         <set>
             <if test="sendCode != null">
-                send_code = #{sendCode}
+                send_code = #{sendCode},
             </if>
-            ,
             <if test="operateTime != null">
-                operate_time = #{operateTime}
+                operate_time = #{operateTime},
             </if>
-            ,
             <if test="interceptFlag != null">
-                intercept_flag = #{interceptFlag}
+                intercept_flag = #{interceptFlag},
             </if>
-            ,
             <if test="forceSendFlag != null">
-                force_send_flag = #{forceSendFlag}
+                force_send_flag = #{forceSendFlag},
             </if>
-            ,
             <if test="updateUserErp != null">
-                update_user_erp = #{updateUserErp}
+                update_user_erp = #{updateUserErp},
             </if>
-            ,
             <if test="updateUserName != null">
-                update_user_name = #{updateUserName}
+                update_user_name = #{updateUserName},
             </if>
-            ,
             <if test="updateTime != null">
                 update_time = #{updateTime}
             </if>

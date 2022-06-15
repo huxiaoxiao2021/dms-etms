@@ -28,7 +28,7 @@ public class JySendDao extends BaseDao<JySendEntity> {
      * @return
      */
     public int insert(JySendEntity entity) {
-        sequenceGenAdaptor.newId(DB_TABLE_NAME);
+        entity.setId(sequenceGenAdaptor.newId(DB_TABLE_NAME));
         return this.getSqlSession().insert(NAMESPACE + ".insert", entity);
     }
 

@@ -23,4 +23,12 @@ public class JySendAttachmentDao extends BaseDao<JySendAttachmentEntity> {
     public int insert(JySendAttachmentEntity entity) {
         return this.getSqlSession().insert(NAMESPACE + ".insert", entity);
     }
+
+    public int updateByBiz(JySendAttachmentEntity entity) {
+        return this.getSqlSession().update(NAMESPACE + ".updateByBiz", entity);
+    }
+
+    public JySendAttachmentEntity hasPhoto(JySendAttachmentEntity entity) {
+        return this.getSqlSession().selectOne(NAMESPACE + ".hasPhoto", entity);
+    }
 }

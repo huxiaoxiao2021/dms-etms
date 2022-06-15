@@ -127,6 +127,12 @@ public class TmsTransWorkItemOperateConsumer extends MessageBaseConsumer {
             logger.warn("根据派车任务查询派车单为空. {}", JsonHelper.toJson(workItemDto));
             return;
         }
+        JyLineTypeEnum lineType = TmsLineTypeEnum.getLineType(transWorkBillDto.getTransType());
+        if (!JyLineTypeEnum.TRUNK_LINE.equals(lineType) && !JyLineTypeEnum.BRANCH_LINE.equals(lineType)) {
+            logger.warn("派车单类型非干、只类型. {}", JsonHelper.toJson(workItemDto));
+            return;
+        }
+
         BaseStaffSiteOrgDto startSiteInfo = baseMajorManager.getBaseSiteByDmsCode(workItemDto.getBeginNodeCode());
         if (startSiteInfo == null || !NumberHelper.gt0(startSiteInfo.getSiteCode())) {
             logger.warn("派车单明细始发场地不存在. {}", JsonHelper.toJson(workItemDto));

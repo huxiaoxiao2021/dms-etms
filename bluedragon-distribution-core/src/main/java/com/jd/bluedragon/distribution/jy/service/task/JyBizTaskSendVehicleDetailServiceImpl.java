@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.jy.service.task;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskSendVehicleDetailDao;
+import com.jd.bluedragon.distribution.jy.dto.send.JyBizTaskSendCountDto;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendDetailStatusEnum;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
@@ -65,13 +66,23 @@ public class JyBizTaskSendVehicleDetailServiceImpl implements JyBizTaskSendVehic
     }
 
     @Override
-    public int countByStatus(JyBizTaskSendVehicleDetailEntity entity) {
-        return jyBizTaskSendVehicleDetailDao.countByStatus(entity);
+    public Integer countByCondition(JyBizTaskSendVehicleDetailEntity entity) {
+        return jyBizTaskSendVehicleDetailDao.countByCondition(entity);
     }
 
     @Override
     public List<Long> getAllSendDest(JyBizTaskSendVehicleDetailEntity entity) {
         return jyBizTaskSendVehicleDetailDao.getAllSendDest(entity);
+    }
+
+    @Override
+    public JyBizTaskSendVehicleDetailEntity findSendDetail(JyBizTaskSendVehicleDetailEntity entity) {
+        return jyBizTaskSendVehicleDetailDao.findSendDetail(entity);
+    }
+
+    @Override
+    public List<JyBizTaskSendCountDto> sumByVehicleStatus(JyBizTaskSendVehicleDetailEntity entity) {
+        return jyBizTaskSendVehicleDetailDao.sumByVehicleStatus(entity);
     }
 
     @Override

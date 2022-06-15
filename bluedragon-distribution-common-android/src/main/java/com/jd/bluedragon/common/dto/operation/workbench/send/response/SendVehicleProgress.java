@@ -19,22 +19,22 @@ public class SendVehicleProgress implements Serializable {
     private BigDecimal loadRate = BigDecimal.ZERO;
 
     /**
-     * 车型体积
+     * 车型体积 单位：立方米
      */
     private BigDecimal volume = BigDecimal.ZERO;
 
     /**
-     * 车型重量
+     * 车型重量 单位：吨
      */
     private BigDecimal weight = BigDecimal.ZERO;
 
     /**
-     * 装载体积
+     * 装载体积 单位：立方厘米
      */
     private BigDecimal loadVolume = BigDecimal.ZERO;
 
     /**
-     * 装载重量
+     * 装载重量 单位：千克
      */
     private BigDecimal loadWeight = BigDecimal.ZERO;
 

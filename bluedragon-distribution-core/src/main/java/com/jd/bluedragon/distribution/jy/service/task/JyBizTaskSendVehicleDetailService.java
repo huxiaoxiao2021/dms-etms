@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.jy.service.task;
 
+import com.jd.bluedragon.distribution.jy.dto.send.JyBizTaskSendCountDto;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
 
@@ -52,7 +53,7 @@ public interface JyBizTaskSendVehicleDetailService {
      * @param entity
      * @return
      */
-    int countByStatus(JyBizTaskSendVehicleDetailEntity entity);
+    Integer countByCondition(JyBizTaskSendVehicleDetailEntity entity);
 
     /**
      * 查询发车任务的所有流向
@@ -60,6 +61,20 @@ public interface JyBizTaskSendVehicleDetailService {
      * @return
      */
     List<Long> getAllSendDest(JyBizTaskSendVehicleDetailEntity entity);
+
+    /**
+     * 查询一条发货流向记录
+     * @param entity
+     * @return
+     */
+    JyBizTaskSendVehicleDetailEntity findSendDetail(JyBizTaskSendVehicleDetailEntity entity);
+
+    /**
+     * 按状态统计发货明细数量
+     * @param entity
+     * @return
+     */
+    List<JyBizTaskSendCountDto> sumByVehicleStatus(JyBizTaskSendVehicleDetailEntity entity);
 
     int updateBizTaskSendDetailStatus(JyBizTaskSendVehicleDetailEntity entity);
 }
