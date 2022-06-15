@@ -192,6 +192,7 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
     @Override
     @Transactional
     public InvokeResult deleteVehicleTask(DeleteVehicleTaskReq deleteVehicleTaskReq) {
+        log.info("删除自建任务,deleteVehicleTaskReq:{}",JsonHelper.toJson(deleteVehicleTaskReq));
         //删除主任务
         JyBizTaskSendVehicleEntity entity = new JyBizTaskSendVehicleEntity();
         entity.setBizId(deleteVehicleTaskReq.getBizId());
@@ -239,6 +240,7 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
 
     @Override
     public InvokeResult bindVehicleDetailTask(BindVehicleDetailTaskReq bindVehicleDetailTaskReq) {
+        log.info("自建任务绑定运输任务,bindVehicleDetailTaskReq:{}",JsonHelper.toJson(bindVehicleDetailTaskReq));
         //更新任务与发货批次的关联关系
         List<String> sendCodeList = jyVehicleSendRelationService.querySendCodesByVehicleDetailBizId(bindVehicleDetailTaskReq.getFromSendVehicleDetailBizId());
         if (ObjectHelper.isNotNull(sendCodeList) && sendCodeList.size()>0){
@@ -283,6 +285,7 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
 
     @Override
     public InvokeResult transferSendTask(TransferSendTaskReq transferSendTaskReq) {
+        log.info("任务迁移,transferSendTaskReq:{}",JsonHelper.toJson(transferSendTaskReq));
         //查询要迁移的批次信息-sendCodes
         List<String> sendCodeList = jyVehicleSendRelationService.querySendCodesByVehicleDetailBizId(transferSendTaskReq.getFromSendVehicleDetailBizId());
 
