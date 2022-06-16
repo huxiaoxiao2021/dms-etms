@@ -313,7 +313,7 @@ public class TmsTransWorkItemOperateConsumer extends MessageBaseConsumer {
         for (JyBizTaskSendVehicleDetailEntity detailEntity : vehicleDetailList) {
             if (lastPlanDepartTime != null) {
                 if (detailEntity.getPlanDepartTime() != null) {
-                    if (lastPlanDepartTime.before(detailEntity.getPlanDepartTime())) {
+                    if (lastPlanDepartTime.after(detailEntity.getPlanDepartTime())) {
                         lastPlanDepartTime = detailEntity.getPlanDepartTime();
                     }
                 }
