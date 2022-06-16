@@ -57,6 +57,11 @@ public class JyBizTaskSendVehicleDetailEntity implements Serializable {
      * <see>{@link com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendDetailStatusEnum}</see>
      */
 	private Integer vehicleStatus;
+
+	/**
+	 * 前一个状态
+	 */
+	private Integer preVehicleStatus;
 	/**
 	 * 始发场地ID
 	 */
@@ -113,6 +118,14 @@ public class JyBizTaskSendVehicleDetailEntity implements Serializable {
 	 * 数据库时间
 	 */
 	private Date ts;
+
+	public Integer getPreVehicleStatus() {
+		return preVehicleStatus;
+	}
+
+	public void setPreVehicleStatus(Integer preVehicleStatus) {
+		this.preVehicleStatus = preVehicleStatus;
+	}
 
 	public Long getId() {
 		return id;

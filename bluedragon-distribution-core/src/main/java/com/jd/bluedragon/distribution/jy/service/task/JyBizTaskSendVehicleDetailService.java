@@ -76,4 +76,5 @@ public interface JyBizTaskSendVehicleDetailService {
      */
     List<JyBizTaskSendCountDto> sumByVehicleStatus(JyBizTaskSendVehicleDetailEntity entity);
 
+    int updateBizTaskSendDetailStatus(JyBizTaskSendVehicleDetailEntity entity);
 }

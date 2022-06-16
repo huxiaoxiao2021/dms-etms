@@ -81,4 +81,8 @@ public class JyBizTaskSendVehicleDetailDao extends BaseDao<JyBizTaskSendVehicleD
     public List<JyBizTaskSendCountDto> sumByVehicleStatus(JyBizTaskSendVehicleDetailEntity entity) {
         return this.getSqlSession().selectList(NAMESPACE + ".sumByVehicleStatus", entity);
     }
+
+    public int updateBizTaskSendDetailStatus(JyBizTaskSendVehicleDetailEntity entity) {
+        return this.getSqlSession().update(NAMESPACE + ".updateBizTaskSendDetailStatus", entity);
+    }
 }

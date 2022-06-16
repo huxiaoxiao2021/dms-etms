@@ -299,7 +299,7 @@ public class NewSealVehicleResource {
                 return sealVehicleResponse;
             }
             TransWorkItemWsDto transWorkItemWsDto = new TransWorkItemWsDto();
-            transWorkItemWsDto.setTransWorkItemCode(request.getTransWorkItemCode());
+            transWorkItemWsDto.setTransWorkItemCode(request.getTransWorkItemCode());//任务简码
             transWorkItemWsDto.setVehicleNumber(request.getVehicleNumber());
             transWorkItemWsDto.setOperateUserCode(request.getUserErp());
             transWorkItemWsDto.setOperateNodeCode(request.getDmsCode());

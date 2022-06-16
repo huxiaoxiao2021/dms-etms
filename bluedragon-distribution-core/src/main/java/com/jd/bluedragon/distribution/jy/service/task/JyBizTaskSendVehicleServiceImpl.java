@@ -117,4 +117,9 @@ public class JyBizTaskSendVehicleServiceImpl implements JyBizTaskSendVehicleServ
     public int updateStatus(JyBizTaskSendVehicleEntity entity, Integer oldStatus) {
         return jyBizTaskSendVehicleDao.updateStatus(entity, oldStatus);
     }
+
+    @Override
+    public int updateBizTaskSendStatus(JyBizTaskSendVehicleEntity entity) {
+        return jyBizTaskSendVehicleDao.updateBizTaskSendStatus(entity);
+    }
 }

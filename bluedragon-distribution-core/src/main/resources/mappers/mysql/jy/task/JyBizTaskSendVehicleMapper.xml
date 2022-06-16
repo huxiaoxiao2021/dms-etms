@@ -293,9 +293,6 @@
     <update id="updateByBizId" parameterType="JyBizTaskSendVehicleEntity">
         update jy_biz_task_send_vehicle
         <set>
-            <if test="bizId != null">
-                biz_id = #{bizId,jdbcType=VARCHAR},
-            </if>
             <if test="bizNo != null">
                 biz_no = #{bizNo,jdbcType=VARCHAR},
             </if>
@@ -530,4 +527,9 @@
         AND vehicle_status <![CDATA[ < ]]> #{entity.vehicleStatus}
     </update>
 
+    <update id="updateBizTaskSendStatus">
+        update jy_biz_task_send_vehicle
+        set vehicle_status =#{vehicleStatus},update_time = NOW()
+        where biz_id =#{bizId} and vehicle_status =#{preVehicleStatus}
+    </update>
 </mapper>

@@ -88,4 +88,5 @@ public interface JyBizTaskSendVehicleService {
      */
     int updateStatus(JyBizTaskSendVehicleEntity entity, Integer oldStatus);
 
+    int updateBizTaskSendStatus(JyBizTaskSendVehicleEntity entity);
 }

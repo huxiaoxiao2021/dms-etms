@@ -100,4 +100,7 @@ public class JyBizTaskSendVehicleDao extends BaseDao<JyBizTaskSendVehicleEntity>
         return this.getSqlSession().update(NAMESPACE + ".updateStatus", params);
     }
 
+    public int updateBizTaskSendStatus(JyBizTaskSendVehicleEntity toSvTask) {
+        return this.getSqlSession().update(NAMESPACE + ".updateBizTaskSendStatus", toSvTask);
+    }
 }

@@ -89,6 +89,9 @@ public class InvokeResult<T> implements Serializable {
 
     public static final int BOX_NO_FOUND_BY_PACKAGE_CODE=317;
     public static final String BOX_NO_FOUND_BY_PACKAGE_MESSAGE="未根据包裹号查询到相关的箱号信息！";
+
+    public static final int NO_SEND_DATA_UNDER_TASK_CODE=318;
+    public static final String NO_SEND_DATA_UNDER_TASK_MESSAGE="该自建任务下未找到相应的发货数据！";
     public InvokeResult(){
         this.code=RESULT_SUCCESS_CODE;
     }
