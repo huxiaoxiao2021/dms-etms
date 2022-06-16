@@ -409,7 +409,7 @@
         AND vehicle_status <![CDATA[ < ]]> #{entity.vehicleStatus}
     </update>
 
-    <select id="countByStatus" parameterType="JyBizTaskSendVehicleDetailEntity" resultType="java.lang.Integer">
+    <select id="countByCondition" parameterType="JyBizTaskSendVehicleDetailEntity" resultType="java.lang.Integer">
         SELECT
             COUNT(*)
         FROM jy_biz_task_send_vehicle_detail

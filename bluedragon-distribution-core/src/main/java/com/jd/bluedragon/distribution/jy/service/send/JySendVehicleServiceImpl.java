@@ -756,6 +756,11 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
                 // 组装发车任务流向明细
                 this.initVehicleTaskDetails(queryTaskSendDto, sendVehicleEntity, vdList, needToTwiceRemoveTask);
 
+                // 去除自建任务
+                if (sendVehicleEntity.manualCreatedTask()) {
+                    needToTwiceRemoveTask.add(sendVehicleEntity.getBizId());
+                }
+
                 if (!needToTwiceRemoveTask.contains(sendVehicleEntity.getBizId())) {
                     vehicleTaskList.add(vehicleTaskDto);
                 }
@@ -777,9 +782,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
             for (JyBizTaskSendVehicleDetailEntity detailEntity : vehicleDetailList) {
 
                 // 根据目的地匹配的发货流向已封车，发车任务需要剔除掉
-                if (detailEntity.getVehicleStatus().equals(JyBizTaskSendDetailStatusEnum.SEALED.getCode()) && detailEntity.getEndSiteId().equals(queryTaskSendDto.getEndSiteId())) {
-                    needToRemoveTask.add(detailEntity.getSendVehicleBizId());
-                }
+                this.needToRemoveSendTask(queryTaskSendDto, needToRemoveTask, detailEntity);
 
                 VehicleDetailTaskDto detailTaskDto = new VehicleDetailTaskDto();
                 detailTaskDto.setBizId(detailEntity.getBizId());
@@ -793,6 +796,12 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
 
                 vdList.add(detailTaskDto);
             }
+        }
+    }
+
+    private void needToRemoveSendTask(QueryTaskSendDto queryTaskSendDto, Set<String> needToRemoveTask, JyBizTaskSendVehicleDetailEntity detailEntity) {
+        if (detailEntity.getVehicleStatus().equals(JyBizTaskSendDetailStatusEnum.SEALED.getCode()) && detailEntity.getEndSiteId().equals(queryTaskSendDto.getEndSiteId())) {
+            needToRemoveTask.add(detailEntity.getSendVehicleBizId());
         }
     }
 
@@ -2124,6 +2133,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
 
         for (JyBizTaskSendVehicleDetailEntity detailEntity : vehicleDetailList) {
             ToSealDestDetail sendDestDetail = new ToSealDestDetail();
+            sendDestDetail.setSendDetailBizId(detailEntity.getBizId());
             sendDestDetail.setItemStatus(detailEntity.getVehicleStatus());
             sendDestDetail.setItemStatusDesc(JyBizTaskSendDetailStatusEnum.getNameByCode(detailEntity.getVehicleStatus()));
 
