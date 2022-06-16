@@ -456,6 +456,7 @@
                     #{item}
                 </foreach>
             </if>
+            GROUP BY vehicle_status
     </select>
 
     <select id="querySendTaskOfPage" resultMap="jyBizTaskSendVehicleMap">
@@ -496,7 +497,9 @@
     <sql id="taskQueryCondition">
         yn = 1
         AND start_site_id = #{entity.startSiteId}
-        AND line_type = #{entity.lineType}
+        <if test="entity.lineType != null">
+            AND line_type = #{entity.lineType}
+        </if>
         <if test="sendVehicleBizList != null and sendVehicleBizList.size() > 0">
             AND biz_id IN
             <foreach collection="sendVehicleBizList" separator="," open="(" close=")" item="item">

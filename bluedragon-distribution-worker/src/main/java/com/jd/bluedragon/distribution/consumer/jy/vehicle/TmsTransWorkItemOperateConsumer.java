@@ -129,7 +129,7 @@ public class TmsTransWorkItemOperateConsumer extends MessageBaseConsumer {
         }
         JyLineTypeEnum lineType = TmsLineTypeEnum.getLineType(transWorkBillDto.getTransType());
         if (!JyLineTypeEnum.TRUNK_LINE.equals(lineType) && !JyLineTypeEnum.BRANCH_LINE.equals(lineType)) {
-            logger.warn("派车单类型非干、只类型. {}", JsonHelper.toJson(workItemDto));
+            logger.warn("派车单类型非干、支类型. {}", JsonHelper.toJson(workItemDto));
             return;
         }
 

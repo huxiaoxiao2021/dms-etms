@@ -26,75 +26,59 @@
     <insert id="insert" parameterType="JySendCodeEntity">
         INSERT INTO jy_send_code (
         <if test="sendVehicleBizId != null">
-            send_vehicle_biz_id
+            send_vehicle_biz_id,
         </if>
-        ,
         <if test="sendDetailBizId != null">
-            send_detail_biz_id
+            send_detail_biz_id,
         </if>
-        ,
         <if test="sendCode != null">
-            send_code
+            send_code,
         </if>
-        ,
         <if test="createUserErp != null">
-            create_user_erp
+            create_user_erp,
         </if>
-        ,
         <if test="createUserName != null">
-            create_user_name
+            create_user_name,
         </if>
-        ,
         <if test="updateUserErp != null">
-            update_user_erp
+            update_user_erp,
         </if>
-        ,
         <if test="updateUserName != null">
-            update_user_name
+            update_user_name,
         </if>
-        ,
         <if test="createTime != null">
-            create_time
+            create_time,
         </if>
-        ,
         <if test="updateTime != null">
-            update_time
+            update_time,
         </if>
         ) VALUES (
         <if test="sendVehicleBizId != null">
-            #{sendVehicleBizId}
+            #{sendVehicleBizId},
         </if>
-        ,
         <if test="sendDetailBizId != null">
-            #{sendDetailBizId}
+            #{sendDetailBizId},
         </if>
-        ,
         <if test="sendCode != null">
-            #{sendCode}
+            #{sendCode},
         </if>
-        ,
         <if test="createUserErp != null">
-            #{createUserErp}
+            #{createUserErp},
         </if>
-        ,
         <if test="createUserName != null">
-            #{createUserName}
+            #{createUserName},
         </if>
-        ,
         <if test="updateUserErp != null">
-            #{updateUserErp}
+            #{updateUserErp},
         </if>
-        ,
         <if test="updateUserName != null">
-            #{updateUserName}
+            #{updateUserName},
         </if>
-        ,
         <if test="createTime != null">
-            #{createTime}
+            #{createTime},
         </if>
-        ,
         <if test="updateTime != null">
-            #{updateTime}
+            #{updateTime},
         </if>
         )
     </insert>
