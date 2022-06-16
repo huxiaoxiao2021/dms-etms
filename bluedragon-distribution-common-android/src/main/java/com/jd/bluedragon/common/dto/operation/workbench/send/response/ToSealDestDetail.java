@@ -14,6 +14,11 @@ public class ToSealDestDetail implements Serializable {
     private static final long serialVersionUID = -3526443184706137200L;
 
     /**
+     * 发货流向任务明细
+     */
+    private String sendDetailBizId;
+
+    /**
      * 发货目的地
      */
     private Integer endSiteId;
@@ -102,5 +107,13 @@ public class ToSealDestDetail implements Serializable {
 
     public void setItemStatusDesc(String itemStatusDesc) {
         this.itemStatusDesc = itemStatusDesc;
+    }
+
+    public String getSendDetailBizId() {
+        return sendDetailBizId;
+    }
+
+    public void setSendDetailBizId(String sendDetailBizId) {
+        this.sendDetailBizId = sendDetailBizId;
     }
 }

@@ -78,7 +78,7 @@
             #{createTime},
         </if>
         <if test="updateTime != null">
-            #{updateTime},
+            #{updateTime}
         </if>
         )
     </insert>
