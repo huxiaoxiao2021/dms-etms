@@ -50,7 +50,7 @@
             create_time,
         </if>
         <if test="updateTime != null">
-            update_time,
+            update_time
         </if>
         ) VALUES (
         <if test="sendVehicleBizId != null">
@@ -82,62 +82,6 @@
         </if>
         )
     </insert>
-
-    <update id="update" parameterType="JySendCodeEntity">
-        UPDATE jy_send_code
-        <set>
-            <if test="id != null">
-                id = #{id}
-            </if>
-            ,
-            <if test="sendVehicleBizId != null">
-                send_vehicle_biz_id = #{sendVehicleBizId}
-            </if>
-            ,
-            <if test="sendDetailBizId != null">
-                send_detail_biz_id = #{sendDetailBizId}
-            </if>
-            ,
-            <if test="sendCode != null">
-                send_code = #{sendCode}
-            </if>
-            ,
-            <if test="createUserErp != null">
-                create_user_erp = #{createUserErp}
-            </if>
-            ,
-            <if test="createUserName != null">
-                create_user_name = #{createUserName}
-            </if>
-            ,
-            <if test="updateUserErp != null">
-                update_user_erp = #{updateUserErp}
-            </if>
-            ,
-            <if test="updateUserName != null">
-                update_user_name = #{updateUserName}
-            </if>
-            ,
-            <if test="createTime != null">
-                create_time = #{createTime}
-            </if>
-            ,
-            <if test="updateTime != null">
-                update_time = #{updateTime}
-            </if>
-            ,
-            <if test="yn != null">
-                yn = #{yn}
-            </if>
-            ,
-            <if test="ts != null">
-                ts = #{ts}
-            </if>
-        </set>
-        <where>
-            id = #{id}
-        </where>
-    </update>
 
     <update id="updateBySendCode" parameterType="com.jd.bluedragon.distribution.jy.dto.send.TransferDto">
         UPDATE jy_send_code
