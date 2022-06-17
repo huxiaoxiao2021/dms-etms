@@ -713,7 +713,6 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
     public FilterChain matchJyDeliveryFilterChain(SendKeyTypeEnum sendType) {
         switch (sendType) {
             case BY_PACKAGE:
-            case BY_BOX:
                 return getJyDeliveryFilterChain();
             case BY_WAYBILL:
                 return getDeliveryByWaybillFilterChain();
