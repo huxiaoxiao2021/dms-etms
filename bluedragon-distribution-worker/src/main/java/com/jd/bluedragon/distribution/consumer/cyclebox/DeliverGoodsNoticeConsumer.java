@@ -113,7 +113,7 @@ public class DeliverGoodsNoticeConsumer extends MessageBaseConsumer {
         }
         BoxMaterialRelationMQ context = JsonHelper.fromJsonUseGson(message.getText(), BoxMaterialRelationMQ.class);
         if (StringUtils.isBlank(context.getBoxCode()) || !BusinessUtil.isBoxcode(context.getBoxCode()) || StringUtils.isBlank(context.getSiteCode())){
-            log.error("移动微仓发货推送节点消息异常：箱号为空！");
+            log.info("移动微仓发货推送节点消息异常：箱号为空！");
             return;
         }
         DeviceDto deviceDto = new DeviceDto();

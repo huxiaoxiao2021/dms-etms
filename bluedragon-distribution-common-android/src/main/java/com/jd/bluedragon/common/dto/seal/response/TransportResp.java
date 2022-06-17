@@ -10,6 +10,8 @@ public class TransportResp implements Serializable {
      */
     private Integer transType;
 
+    private String transTypeName;
+
     /**
      * 车牌号
      */
@@ -34,6 +36,14 @@ public class TransportResp implements Serializable {
      * 批次号
      */
     private String sendCode;
+
+    public String getTransTypeName() {
+        return transTypeName;
+    }
+
+    public void setTransTypeName(String transTypeName) {
+        this.transTypeName = transTypeName;
+    }
 
     public Integer getTransType() {
         return transType;

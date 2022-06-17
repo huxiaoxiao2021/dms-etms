@@ -1,6 +1,7 @@
 package com.jd.bluedragon.common.dto.seal.response;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 public class SealVehicleInfoResp implements Serializable {
     private static final long serialVersionUID = 4862292928579823809L;
@@ -14,13 +15,13 @@ public class SealVehicleInfoResp implements Serializable {
      */
     private String tray;
     /**
-     * 已扫总量总计/吨
+     * 已扫总量总计/千克
      */
-    private String weight;
+    private BigDecimal weight;
     /**
-     * 已扫体积总计/立方米
+     * 已扫体积总计/立方厘米
      */
-    private String volume;
+    private BigDecimal volume;
     /**
      * 车牌号
      */
@@ -43,19 +44,19 @@ public class SealVehicleInfoResp implements Serializable {
         this.tray = tray;
     }
 
-    public String getWeight() {
+    public BigDecimal getWeight() {
         return weight;
     }
 
-    public void setWeight(String weight) {
+    public void setWeight(BigDecimal weight) {
         this.weight = weight;
     }
 
-    public String getVolume() {
+    public BigDecimal getVolume() {
         return volume;
     }
 
-    public void setVolume(String volume) {
+    public void setVolume(BigDecimal volume) {
         this.volume = volume;
     }
 

@@ -84,7 +84,7 @@ public class JySendAggsEntity implements Serializable {
      */
     private BigDecimal totalScannedWeight;
     /**
-     * 按派车任务汇总已扫体积总计/立方米
+     * 按派车任务汇总已扫体积总计/立方厘米
      */
     private BigDecimal totalScannedVolume;
     /**

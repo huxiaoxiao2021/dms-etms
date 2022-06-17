@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.jy.service.seal;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.dto.blockcar.enumeration.TransTypeEnum;
 import com.jd.bluedragon.common.dto.seal.request.*;
 import com.jd.bluedragon.common.dto.seal.response.SealCodeResp;
 import com.jd.bluedragon.common.dto.seal.response.SealVehicleInfoResp;
@@ -83,8 +84,8 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
         //查询已扫描货物的重量和体积
         JySendAggsEntity jySendAggsEntity = jySendAggsService.getVehicleSendStatistics(sealVehicleInfoReq.getSendVehicleBizId());
         if (ObjectHelper.isNotNull(jySendAggsEntity)) {
-            sealVehicleInfoResp.setWeight(String.valueOf(jySendAggsEntity.getTotalScannedWeight()));
-            sealVehicleInfoResp.setVolume(String.valueOf(jySendAggsEntity.getTotalScannedVolume()));
+            sealVehicleInfoResp.setWeight(jySendAggsEntity.getTotalScannedWeight());
+            sealVehicleInfoResp.setVolume(jySendAggsEntity.getTotalScannedVolume());
         }
         BigQueryOption queryOption = new BigQueryOption();
         queryOption.setQueryTransWorkItemDto(Boolean.TRUE);
@@ -136,6 +137,10 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
             TransWorkItemDto transWorkItemDto = transWorkItemResp.getData();
             TransportResp transportResp = new TransportResp();
             transportResp.setTransType(transWorkItemDto.getTransType());
+            if (ObjectHelper.isNotNull(transportResp.getTransType())
+                    && ObjectHelper.isNotNull(TransTypeEnum.getEnum(transportResp.getTransType()))){
+                transportResp.setTransTypeName(TransTypeEnum.getEnum(transportResp.getTransType()).getName());
+            }
             transportResp.setVehicleNumber(transWorkItemDto.getVehicleNumber());
             transportResp.setRouteLineCode(transWorkItemDto.getRouteLineCode());
             transportResp.setRouteLineName(transWorkItemDto.getRouteLineName());
