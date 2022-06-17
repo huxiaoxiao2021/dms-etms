@@ -110,7 +110,7 @@ public class JySendVehicleGatewayServiceImpl implements JySendVehicleGatewayServ
     public JdCResponse<List<SelectOption>> sendPhotoOptions() {
         List<SelectOption> optionList = new ArrayList<>();
         for (SendVehiclePhotoEnum _enum : SendVehiclePhotoEnum.values()) {
-            SelectOption option = new SelectOption(_enum.getCode(), _enum.getName());
+            SelectOption option = new SelectOption(_enum.getCode(), _enum.getName(), _enum.getDesc());
             optionList.add(option);
         }
 

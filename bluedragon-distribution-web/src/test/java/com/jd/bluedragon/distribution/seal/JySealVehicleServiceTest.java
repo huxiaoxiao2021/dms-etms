@@ -8,6 +8,7 @@ import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendPhotoRe
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendScanRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.request.SealVehicleTaskRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.SealVehicleTaskResponse;
+import com.jd.bluedragon.common.dto.send.request.VehicleTaskReq;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.dao.send.JySendAggsDao;
 import com.jd.bluedragon.distribution.jy.send.JySendAttachmentEntity;
@@ -99,30 +100,54 @@ public class JySealVehicleServiceTest {
     @Test
     public void sendScanTest() {
         String body = "{\n" +
-                "    \"barCode\": \"JDVF00001888813-1-5-\",\n" +
-                "    \"barCodeType\": 1,\n" +
-                "    \"currentOperate\": {\n" +
-                "        \"operateTime\": 1655202395041,\n" +
-                "        \"orgId\": 6,\n" +
-                "        \"orgName\": \"总公司\",\n" +
-                "        \"siteCode\": 910,\n" +
-                "        \"siteName\": \"北京通州分拣中心\"\n" +
-                "    },\n" +
-                "    \"forceSubmit\": true,\n" +
-                "    \"confirmSendDestId\": 364605,\n" +
-                "    \"groupCode\": \"G00000018001\",\n" +
-                "    \"sendForWholeBoard\": false,\n" +
-                "    \"sendVehicleBizId\": \"NSST22060700000005\",\n" +
                 "    \"user\": {\n" +
                 "        \"userCode\": 17331,\n" +
-                "        \"userErp\": \"wuyoude\",\n" +
-                "        \"userName\": \"吴有德\"\n" +
+                "        \"userName\": \"吴有德\",\n" +
+                "        \"userErp\": \"wuyoude\"\n" +
                 "    },\n" +
-                "    \"vehicleNumber\": \"辽AQ1Y688\"\n" +
+                "    \"currentOperate\": {\n" +
+                "        \"siteCode\": 910,\n" +
+                "        \"siteName\": \"北京马驹桥分拣中心6\",\n" +
+                "        \"operateTime\": 1655279072582,\n" +
+                "        \"orgId\": 6,\n" +
+                "        \"orgName\": \"总公司\"\n" +
+                "    },\n" +
+                "    \"sendVehicleBizId\": \"SST22061500000026\",\n" +
+                "    \"vehicleNumber\": \"京E84824\",\n" +
+                "    \"barCode\": \"BC1001220615240000200218\",\n" +
+                "    \"barCodeType\": 3,\n" +
+                "    \"groupCode\": \"G00000016001\",\n" +
+                "    \"forceSubmit\": false,\n" +
+                "    \"sendForWholeBoard\": false,\n" +
+                "    \"confirmSendDestId\": 2860\n" +
                 "}";
 
         SendScanRequest request = JsonHelper.fromJson(body, SendScanRequest.class);
         jySendVehicleService.sendScan(request);
+    }
+
+    @Test
+    public void fetchSendTaskForBindingTest() {
+        String json = "{\n" +
+                "    \"currentOperate\": {\n" +
+                "        \"operateTime\": 1655274482318,\n" +
+                "        \"orgId\": 6,\n" +
+                "        \"orgName\": \"华北\",\n" +
+                "        \"siteCode\": 910,\n" +
+                "        \"siteName\": \"马驹桥\"\n" +
+                "    },\n" +
+                "    \"pageNumber\": 1,\n" +
+                "    \"pageSize\": 15,\n" +
+                "    \"startSiteId\": 910,\n" +
+                "    \"endSiteId\": 2860,\n" +
+                "    \"user\": {\n" +
+                "        \"userCode\": 0,\n" +
+                "        \"userErp\": \"wuyoude\",\n" +
+                "        \"userName\": \"吴有德\"\n" +
+                "    }\n" +
+                "}";
+        VehicleTaskReq req = JsonHelper.fromJson(json, VehicleTaskReq.class);
+        jySendVehicleService.fetchSendTaskForBinding(req);
     }
 
 }

@@ -78,10 +78,10 @@ public class SendVehicleTransactionManager {
 
             logInfo("初始化派车单明细.{}", JsonHelper.toJson(detailEntity));
 
-            taskSendVehicleDetailService.saveTaskSendDetail(detailEntity);
-
-            // 首次创建发货流向时，同时生成批次
-            saveSendCode(detailEntity);
+            if (taskSendVehicleDetailService.saveTaskSendDetail(detailEntity) > 0) {
+                // 首次创建发货流向时，同时生成批次
+                saveSendCode(detailEntity);
+            }
         }
 
         return true;

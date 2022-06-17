@@ -46,6 +46,8 @@ public class SendScanRequest implements Serializable {
      */
     private String groupCode;
 
+    private String taskId;
+
     /**
      * 跳过发货拦截强制提交
      */
@@ -173,5 +175,13 @@ public class SendScanRequest implements Serializable {
 
     public void setConfirmSendDestId(Long confirmSendDestId) {
         this.confirmSendDestId = confirmSendDestId;
+    }
+
+    public String getTaskId() {
+        return taskId;
+    }
+
+    public void setTaskId(String taskId) {
+        this.taskId = taskId;
     }
 }
