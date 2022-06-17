@@ -82,7 +82,8 @@
 
         <dt><a href="#" class="curr">企配仓功能</a></dt>
         <dd><a href="#springUrl('/schedule/dmsScheduleInfo/toDmsEdnPickingIndex')" target="mainFrame">拣货功能</a></dd>
-        
+        <dd><a href="#springUrl('/enterpriseDistribution/toQualityInspection')" target="mainFrame">增值服务-质检报表</a></dd>
+
         <dt><a href="#" class="curr">工具</a></dt>
         <dd><a href="#springUrl('/notice/manage')" target="mainFrame">通知栏管理</a></dd>
         <dd><a href="#springUrl('/inspectionCheck/toIndex')" target="mainFrame">验货集齐查询</a></dd>

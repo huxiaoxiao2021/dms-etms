@@ -24,7 +24,8 @@ public enum ExportConcurrencyLimitEnum {
     DMS_SCHEDULE_INFO_REPORT("DMS_SCHEDULE_INFO_REPORT","拣货功能"),
     REVIEW_WEIGHT_SPOT_CHECK_REPORT("ReviewWeightSpotCheck","重复抽检任务导入"),
     WEIGHT_AND_VOLUME_CHECK_REPORT("WEIGHT_AND_VOLUME_CHECK_REPORT","重量体积抽检统计报表"),
-    SIGN_RETURN_REPORT("SIGN_RETURN_REPORT","签单返回合单打印交接单");
+    SIGN_RETURN_REPORT("SIGN_RETURN_REPORT","签单返回合单打印交接单"),
+    ENTERPRISE_DISTRIBUTION_QUALITY_INSPECTION("ENTERPRISE_DISTRIBUTION_QUALITY_INSPECTION", "企配仓质检报表");
 
     private String code;
 
@@ -51,4 +52,4 @@ public enum ExportConcurrencyLimitEnum {
         this.name = name;
     }
 }
-    
+
