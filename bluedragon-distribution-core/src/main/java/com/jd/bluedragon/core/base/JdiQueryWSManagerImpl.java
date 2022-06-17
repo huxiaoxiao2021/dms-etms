@@ -128,6 +128,7 @@ public class JdiQueryWSManagerImpl implements JdiQueryWSManager {
         option.setQueryTransWorkBillDto(true);
         BigTransWorkDto transWorkDto = queryTransWorkByChoice(transWorkCode, option);
         if (transWorkDto == null || transWorkDto.getTransWorkBillDto() == null) {
+            Profiler.businessAlarm("dms.web.JdiQueryWSManager.queryTransWork", "查询运输派车单数据为空:" + transWorkCode);
             logger.warn("根据派车单号查询派车单返回数据为空. {}", transWorkCode);
             return null;
         }

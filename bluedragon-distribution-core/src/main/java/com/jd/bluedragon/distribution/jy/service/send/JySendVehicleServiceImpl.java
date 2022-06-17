@@ -842,6 +842,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
         logInfo("拣运发货扫描:{}", JsonHelper.toJson(request));
 
         JdVerifyResponse<SendScanResponse> result = new JdVerifyResponse<>();
+        result.toSuccess();
 
         // 基础校验
         if (!sendRequestBaseCheck(result, request)) {
@@ -1452,8 +1453,6 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
      *     <li>无任务首次扫描确认目的地：{@link com.jd.bluedragon.common.dto.base.response.MsgBoxTypeEnum.CONFIRM}</li>
      *     <li>装载率超标：{@link com.jd.bluedragon.common.dto.base.response.MsgBoxTypeEnum.WARNING}</li>
      *     <li>拦截链：{@link com.jd.bluedragon.common.dto.base.response.MsgBoxTypeEnum.INTERCEPT}</li>
-     *     <li>重复扫描：{@link com.jd.bluedragon.common.dto.base.response.MsgBoxTypeEnum.PROMPT}</li>
-     *     <li>与上一单流向不一致：{@link com.jd.bluedragon.common.dto.base.response.MsgBoxTypeEnum.WARNING}</li>
      * </ul>
      * @param response
      * @param request
@@ -1484,6 +1483,9 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
                     JyBizTaskSendVehicleDetailEntity noTaskDetail = makeNoTaskSendDetail(request, taskSend);
                     logInfo("初始化无任务发货明细. {}", JsonHelper.toJson(noTaskDetail));
                     transactionManager.saveTaskSendAndDetail(null, noTaskDetail);
+
+                    logInfo("启用无任务发货任务. {}", JsonHelper.toJson(taskSend));
+                    this.enableNoTask(taskSend);
                 }
             }
             else {
@@ -1532,6 +1534,18 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
 
 
         return true;
+    }
+
+    /**
+     * 启用无任务发货
+     * @param taskSend
+     */
+    private void enableNoTask(JyBizTaskSendVehicleEntity taskSend) {
+        JyBizTaskSendVehicleEntity enableNoTask = new JyBizTaskSendVehicleEntity();
+        enableNoTask.setBizId(taskSend.getBizId());
+        enableNoTask.setYn(Constants.CONSTANT_NUMBER_ONE);
+        enableNoTask.setUpdateTime(new Date());
+        taskSendVehicleService.updateSendVehicleTask(enableNoTask);
     }
 
     private JyBizTaskSendVehicleDetailEntity makeNoTaskSendDetail(SendScanRequest request, JyBizTaskSendVehicleEntity taskSend) {
@@ -1661,20 +1675,17 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
 
     private Boolean setSendVehicleBaseInfo(SendVehicleInfoRequest request, InvokeResult<SendVehicleInfo> invokeResult,
                                            JyBizTaskSendVehicleEntity sendVehicleEntity, SendVehicleInfo sendVehicleInfo) {
-        TransWorkBillDto transWorkBillDto = jdiQueryWSManager.queryTransWork(sendVehicleEntity.getTransWorkCode());
-        if (transWorkBillDto == null) {
-            invokeResult.hintMessage("派车单不存在！");
-            return false;
-        }
-
         sendVehicleInfo.setManualCreated(sendVehicleEntity.manualCreatedTask());
         sendVehicleInfo.setPhoto(sendAttachmentService.sendVehicleTakePhoto(new JySendAttachmentEntity(request.getSendVehicleBizId())));
-        sendVehicleInfo.setVehicleNumber(transWorkBillDto.getVehicleNumber());
         sendVehicleInfo.setLineTypeShortName(sendVehicleEntity.getLineTypeName());
-        sendVehicleInfo.setDriverName(transWorkBillDto.getCarrierDriverName());
-        sendVehicleInfo.setDriverPhone(transWorkBillDto.getCarrierDriverPhone());
         sendVehicleInfo.setCarLengthStr(this.setCarLength(sendVehicleEntity));
         sendVehicleInfo.setNoTaskBindVehicle(sendVehicleEntity.noTaskBindVehicle());
+        TransWorkBillDto transWorkBillDto = jdiQueryWSManager.queryTransWork(sendVehicleEntity.getTransWorkCode());
+        if (transWorkBillDto != null) {
+            sendVehicleInfo.setVehicleNumber(transWorkBillDto.getVehicleNumber());
+            sendVehicleInfo.setDriverName(transWorkBillDto.getCarrierDriverName());
+            sendVehicleInfo.setDriverPhone(transWorkBillDto.getCarrierDriverPhone());
+        }
 
         return true;
     }
