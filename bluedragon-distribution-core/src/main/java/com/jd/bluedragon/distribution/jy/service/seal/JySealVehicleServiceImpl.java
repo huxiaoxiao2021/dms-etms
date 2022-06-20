@@ -80,6 +80,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
         if (ObjectHelper.isEmpty(detailEntity)) {
             return new InvokeResult(RESULT_NO_FOUND_DATA_CODE, RESULT_NO_FOUND_DATA_MESSAGE);
         }
+        //查询已经发货的批次信息sendcodeList TODO
         SealVehicleInfoResp sealVehicleInfoResp = new SealVehicleInfoResp();
         //查询已扫描货物的重量和体积
         JySendAggsEntity jySendAggsEntity = jySendAggsService.getVehicleSendStatistics(sealVehicleInfoReq.getSendVehicleBizId());
@@ -103,30 +104,37 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
     public InvokeResult sealVehicle(SealVehicleReq sealVehicleReq) {
         //查询流向下所有发货批次
         List<String> sendCodes = jyVehicleSendRelationService.querySendCodesByVehicleDetailBizId(sealVehicleReq.getSendVehicleDetailBizId());
-        //车上已经封了的封签号
-        List<String> sealCodes = jySendSealCodeService.selectSealCodeByBizId(sealVehicleReq.getSendVehicleBizId());
+        if (ObjectHelper.isNotNull(sendCodes) && sendCodes.size() > 0) {
+            //车上已经封了的封签号
+            List<String> sealCodes = jySendSealCodeService.selectSealCodeByBizId(sealVehicleReq.getSendVehicleBizId());
 
-        SealCarDto sealCarDto = convertSealCarDto(sealVehicleReq);
-        sealCarDto.setBatchCodes(sendCodes);
-        sealCarDto.getSealCodes().addAll(sealCodes);
-        //封装提交封车请求的dto
-        List<SealCarDto> sealCarDtoList = new ArrayList<>();
-        sealCarDtoList.add(sealCarDto);
-
-        //批次为空的列表信息
-        Map<String, String> emptyBatchCode = new HashMap<>();
-        try {
-            CommonDto<String> sealResp = newSealVehicleService.seal(sealCarDtoList, emptyBatchCode);
-            if (sealResp != null && Constants.RESULT_SUCCESS == sealResp.getCode()) {
-                List<JySendSealCodeEntity> entityList = generateSendSealCodeList(sealVehicleReq);
-                jySendSealCodeService.addBatch(entityList);
-                return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE);
+            SealCarDto sealCarDto = convertSealCarDto(sealVehicleReq);
+            if (sealCarDto.getBatchCodes() != null) {
+                sealCarDto.getBatchCodes().addAll(sendCodes);
+            } else {
+                sealCarDto.setBatchCodes(sendCodes);
             }
-            return new InvokeResult(sealResp.getCode(), sealResp.getMessage());
-        } catch (Exception e) {
-            log.error("newSealVehicleService.seal封车异常", e);
+            sealCarDto.getSealCodes().addAll(sealCodes);
+            //封装提交封车请求的dto
+            List<SealCarDto> sealCarDtoList = new ArrayList<>();
+            sealCarDtoList.add(sealCarDto);
+
+            //批次为空的列表信息
+            Map<String, String> emptyBatchCode = new HashMap<>();
+            try {
+                CommonDto<String> sealResp = newSealVehicleService.seal(sealCarDtoList, emptyBatchCode);
+                if (sealResp != null && Constants.RESULT_SUCCESS == sealResp.getCode()) {
+                    List<JySendSealCodeEntity> entityList = generateSendSealCodeList(sealVehicleReq);
+                    jySendSealCodeService.addBatch(entityList);
+                    return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE);
+                }
+                return new InvokeResult(sealResp.getCode(), sealResp.getMessage());
+            } catch (Exception e) {
+                log.error("newSealVehicleService.seal封车异常", e);
+                return new InvokeResult(COMMIT_SEAL_CAR_EXCEPTION_CODE, COMMIT_SEAL_CAR_EXCEPTION_MESSAGE);
+            }
         }
-        return new InvokeResult(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
+        return new InvokeResult(NO_SEND_CODE_DATA_UNDER_BIZTASK_CODE, NO_SEND_CODE_DATA_UNDER_BIZTASK_MESSAGE);
     }
 
     @Override
@@ -137,8 +145,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
             TransWorkItemDto transWorkItemDto = transWorkItemResp.getData();
             TransportResp transportResp = new TransportResp();
             transportResp.setTransType(transWorkItemDto.getTransType());
-            if (ObjectHelper.isNotNull(transportResp.getTransType())
-                    && ObjectHelper.isNotNull(TransTypeEnum.getEnum(transportResp.getTransType()))){
+            if (ObjectHelper.isNotNull(transportResp.getTransType()) && ObjectHelper.isNotNull(TransTypeEnum.getEnum(transportResp.getTransType()))) {
                 transportResp.setTransTypeName(TransTypeEnum.getEnum(transportResp.getTransType()).getName());
             }
             transportResp.setVehicleNumber(transWorkItemDto.getVehicleNumber());
@@ -153,7 +160,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
                     }
                 }
             }
-            return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE,transportResp);
+            return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, transportResp);
         }
         return new InvokeResult(transWorkItemResp.getCode(), transWorkItemResp.getMessage());
     }
