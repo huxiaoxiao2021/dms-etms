@@ -390,6 +390,14 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
             List<String> packOrBoxCodes = response.getData();
             List<String> packageCodes = getPackageCodesFromPackOrBoxCodes(packOrBoxCodes, request.getCurrentOperate().getSiteCode());
             cancelSendTaskResp.setCanclePackageCount(packageCodes.size());
+
+            //查询一下sendCode信息
+            SendM sendMDto =sendMService.selectSendByBoardCode(request.getCurrentOperate().getSiteCode(),sendM.getBoxCode(),1);
+            if (sendMDto==null){
+                log.info("按板取消发货==========没有找到按板的sendM(发货)记录");
+                return new InvokeResult(NO_SEND_DATA_UNDER_BOARD_CODE, NO_SEND_DATA_UNDER_BOARD_MESSAGE);
+            }
+            sendM.setSendCode(sendMDto.getSendCode());
         }
         //执行取消发货
         ThreeDeliveryResponse tDResponse = deliveryService.dellCancelDeliveryMessageWithServerTime(sendM, true);
