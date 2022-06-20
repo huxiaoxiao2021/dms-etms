@@ -2,8 +2,6 @@ package com.jd.bluedragon.distribution.enterpriseDistribution.domain;
 
 import com.jd.ql.dms.common.web.mvc.api.BasePagerCondition;
 
-import java.util.Date;
-
 /**
  * @Description 质检报表查询
  * @Author chenjunyan
@@ -34,22 +32,22 @@ public class QualityInspectionQueryCondition extends BasePagerCondition {
     /**
      * 创建开始时间
      */
-    private Date createStartTime;
+    private String createStartTime;
 
     /**
      * 创建结束时间
      */
-    private Date createEndTime;
+    private String createEndTime;
 
     /**
      * 更新开始时间
      */
-    private Date updateStartTime;
+    private String updateStartTime;
 
     /**
      * 更新结束时间
      */
-    private Date updateEndTime;
+    private String updateEndTime;
 
     public String getWaybillNo() {
         return waybillNo;
@@ -83,35 +81,35 @@ public class QualityInspectionQueryCondition extends BasePagerCondition {
         this.updateUser = updateUser;
     }
 
-    public Date getCreateStartTime() {
+    public String getCreateStartTime() {
         return createStartTime;
     }
 
-    public void setCreateStartTime(Date createStartTime) {
+    public void setCreateStartTime(String createStartTime) {
         this.createStartTime = createStartTime;
     }
 
-    public Date getCreateEndTime() {
+    public String getCreateEndTime() {
         return createEndTime;
     }
 
-    public void setCreateEndTime(Date createEndTime) {
+    public void setCreateEndTime(String createEndTime) {
         this.createEndTime = createEndTime;
     }
 
-    public Date getUpdateStartTime() {
+    public String getUpdateStartTime() {
         return updateStartTime;
     }
 
-    public void setUpdateStartTime(Date updateStartTime) {
+    public void setUpdateStartTime(String updateStartTime) {
         this.updateStartTime = updateStartTime;
     }
 
-    public Date getUpdateEndTime() {
+    public String getUpdateEndTime() {
         return updateEndTime;
     }
 
-    public void setUpdateEndTime(Date updateEndTime) {
+    public void setUpdateEndTime(String updateEndTime) {
         this.updateEndTime = updateEndTime;
     }
 }
