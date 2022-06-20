@@ -2,7 +2,9 @@ package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
 import com.jd.bluedragon.common.UnifiedExceptionProcess;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.blockcar.enumeration.SealCarSourceEnum;
 import com.jd.bluedragon.common.dto.blockcar.enumeration.TransTypeEnum;
+import com.jd.bluedragon.common.dto.blockcar.request.SealCarPreRequest;
 import com.jd.bluedragon.common.dto.blockcar.response.TransportInfoDto;
 import com.jd.bluedragon.common.dto.seal.request.*;
 import com.jd.bluedragon.common.dto.seal.response.SealCodeResp;
@@ -105,6 +107,11 @@ public class JySealCarGatewayServiceImpl implements JySealCarGatewayService {
     @Override
     public JdCResponse sealVehicle(SealVehicleReq sealVehicleReq) {
         return retJdCResponse(jySealVehicleService.sealVehicle(sealVehicleReq));
+    }
+
+    @Override
+    public JdCResponse validateTranCodeAndSendCode(ValidSendCodeReq validSendCodeReq) {
+        return null;
     }
 
     private <T> JdCResponse<T> retJdCResponse(InvokeResult<T> invokeResult) {
