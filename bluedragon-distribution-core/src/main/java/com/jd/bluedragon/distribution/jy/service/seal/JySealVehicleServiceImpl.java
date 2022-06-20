@@ -131,6 +131,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
                 return new InvokeResult(sealResp.getCode(), sealResp.getMessage());
             } catch (Exception e) {
                 log.error("newSealVehicleService.seal封车异常", e);
+                return new InvokeResult(COMMIT_SEAL_CAR_EXCEPTION_CODE, COMMIT_SEAL_CAR_EXCEPTION_MESSAGE);
             }
         }
         return new InvokeResult(NO_SEND_CODE_DATA_UNDER_BIZTASK_CODE, NO_SEND_CODE_DATA_UNDER_BIZTASK_MESSAGE);
