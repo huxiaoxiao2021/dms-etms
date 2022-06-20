@@ -52,7 +52,7 @@ public class JySendAggsEntity implements Serializable {
      */
     private BigDecimal actualScanWeight;
     /**
-     * 当前流向已扫总体积/立方米
+     * 当前流向已扫总体积/立方厘米
      */
     private BigDecimal actualScanVolume;
     /**
