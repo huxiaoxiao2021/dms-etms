@@ -28,6 +28,11 @@ public class BaseSendVehicleDetail implements Serializable {
      */
     private String endSiteName;
 
+    /**
+     * 发货明细流向ID
+     */
+    private String sendDetailBizId;
+
     public Date getPlanDepartTime() {
         return planDepartTime;
     }
@@ -50,5 +55,13 @@ public class BaseSendVehicleDetail implements Serializable {
 
     public void setEndSiteName(String endSiteName) {
         this.endSiteName = endSiteName;
+    }
+
+    public String getSendDetailBizId() {
+        return sendDetailBizId;
+    }
+
+    public void setSendDetailBizId(String sendDetailBizId) {
+        this.sendDetailBizId = sendDetailBizId;
     }
 }

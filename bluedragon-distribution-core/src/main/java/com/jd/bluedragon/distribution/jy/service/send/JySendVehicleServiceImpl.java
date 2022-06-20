@@ -403,6 +403,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
             detailVo.setPlanDepartTime(vehicleDetail.getPlanDepartTime());
             detailVo.setEndSiteId(vehicleDetail.getEndSiteId());
             detailVo.setEndSiteName(vehicleDetail.getEndSiteName());
+            detailVo.setSendDetailBizId(vehicleDetail.getBizId());
 
             sendDestList.add(detailVo);
         }
@@ -864,8 +865,6 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
         SendKeyTypeEnum sendType = getSendType(barCode);
 
         // 1. 获取本次扫描匹配的发货目的地
-        long siteCode = request.getCurrentOperate().getSiteCode();
-
         List<JyBizTaskSendVehicleDetailEntity> taskSendDetails = taskSendVehicleDetailService.findEffectiveSendVehicleDetail(new JyBizTaskSendVehicleDetailEntity((long) request.getCurrentOperate().getSiteCode(), request.getSendVehicleBizId()));
         Set<Long> allDestId = new HashSet<>();
         for (JyBizTaskSendVehicleDetailEntity sendDetail : taskSendDetails) {
@@ -879,7 +878,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
 
         // 实际发货目的地
         Long sendDestId = destSiteId;
-        if (!request.getForceSubmit()) {
+        if (Boolean.FALSE.equals(request.getForceSubmit())) {
             if (destSiteId == null) {
                 result.setCode(SendScanResponse.CODE_CONFIRM_DEST);
                 result.addConfirmBox(0, "未匹配到发货下一站，请手动选择！");
@@ -924,7 +923,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
             boolean cancelLastSend = true;
             SendResult sendResult = new SendResult(SendResult.CODE_OK, SendResult.MESSAGE_OK);
 
-            if (!request.getForceSubmit()) {
+            if (Boolean.FALSE.equals(request.getForceSubmit())) {
                 // FIXME 抽出拣运发货的拦截链
                 if (!BusinessHelper.isBoxcode(barCode)) {
                     SortingCheck sortingCheck = deliveryService.getSortingCheck(sendM);
@@ -950,7 +949,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
                     return result;
                 }
             }
-            if (request.getForceSubmit()) {
+            if (Boolean.TRUE.equals(request.getForceSubmit())) {
                 JySendEntity sendEntity = this.createJySendRecord(request, sendDestId, sendCode, barCode);
                 sendEntity.setForceSendFlag(1);
                 jySendService.save(sendEntity);
@@ -1473,9 +1472,13 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
         if (!NumberHelper.gt0(existSendDetail)) {
             // 无任务发货未确认目的地信息
             if (taskSend.manualCreatedTask()) {
-                if (!request.getNoTaskConfirmDest() || !NumberHelper.gt0(request.getConfirmSendDestId())) {
+                if (Boolean.FALSE.equals(request.getNoTaskConfirmDest()) || !NumberHelper.gt0(request.getConfirmSendDestId())) {
                     response.setCode(SendScanResponse.CODE_NO_TASK_CONFIRM_DEST);
                     response.addConfirmBox(0, "无任务发货请确认发货流向！");
+
+                    // FIXME 无任务首次扫描返回目的地
+                    waybillCacheService.getRouterByWaybillCode(WaybillUtil.getWaybillCode(barCode));
+
                     return false;
                 }
                 else {
@@ -1666,7 +1669,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
         // 单流向
         if (Objects.equals(sendVehicleInfo.getDestCount(), Constants.CONSTANT_NUMBER_ONE)) {
             JyBizTaskSendVehicleDetailEntity oneTargetItem = vehicleDetailList.get(0);
-            sendVehicleInfo.setSendDetailBizId(oneTargetItem.getSendVehicleBizId());
+            sendVehicleInfo.setSendDetailBizId(oneTargetItem.getBizId());
             sendVehicleInfo.setPlanDepartTime(oneTargetItem.getPlanDepartTime());
             sendVehicleInfo.setEndSiteId(oneTargetItem.getEndSiteId().intValue());
             sendVehicleInfo.setEndSiteName(oneTargetItem.getEndSiteName());

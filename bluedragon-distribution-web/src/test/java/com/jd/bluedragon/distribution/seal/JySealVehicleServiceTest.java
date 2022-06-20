@@ -100,26 +100,25 @@ public class JySealVehicleServiceTest {
     @Test
     public void sendScanTest() {
         String body = "{\n" +
+                "    \"barCode\": \"JDVF00002007265-2-5-\",\n" +
+                "    \"barCodeType\": 1,\n" +
+                "    \"currentOperate\": {\n" +
+                "        \"operateTime\": 1655705689845,\n" +
+                "        \"orgId\": 6,\n" +
+                "        \"orgName\": \"总公司\",\n" +
+                "        \"siteCode\": 40240,\n" +
+                "        \"siteName\": \"北京通州分拣中心\"\n" +
+                "    },\n" +
+                "    \"forceSubmit\": false,\n" +
+                "    \"groupCode\": \"G00000018001\",\n" +
+                "    \"sendForWholeBoard\": false,\n" +
+                "    \"sendVehicleBizId\": \"NSST22062000000005\",\n" +
                 "    \"user\": {\n" +
                 "        \"userCode\": 17331,\n" +
-                "        \"userName\": \"吴有德\",\n" +
-                "        \"userErp\": \"wuyoude\"\n" +
+                "        \"userErp\": \"wuyoude\",\n" +
+                "        \"userName\": \"吴有德\"\n" +
                 "    },\n" +
-                "    \"currentOperate\": {\n" +
-                "        \"siteCode\": 910,\n" +
-                "        \"siteName\": \"北京马驹桥分拣中心6\",\n" +
-                "        \"operateTime\": 1655279072582,\n" +
-                "        \"orgId\": 6,\n" +
-                "        \"orgName\": \"总公司\"\n" +
-                "    },\n" +
-                "    \"sendVehicleBizId\": \"SST22061500000026\",\n" +
-                "    \"vehicleNumber\": \"京E84824\",\n" +
-                "    \"barCode\": \"BC1001220615240000200218\",\n" +
-                "    \"barCodeType\": 3,\n" +
-                "    \"groupCode\": \"G00000016001\",\n" +
-                "    \"forceSubmit\": false,\n" +
-                "    \"sendForWholeBoard\": false,\n" +
-                "    \"confirmSendDestId\": 2860\n" +
+                "    \"vehicleNumber\": \"自建1\"\n" +
                 "}";
 
         SendScanRequest request = JsonHelper.fromJson(body, SendScanRequest.class);

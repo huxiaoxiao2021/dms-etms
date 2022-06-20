@@ -25,6 +25,11 @@ public class SendAbnormalRequest implements Serializable {
     private String sendDetailBizId;
 
     /**
+     * 发货任务主键
+     */
+    private String sendVehicleBizId;
+
+    /**
      * 车牌号
      */
     private String vehicleNumber;
@@ -72,5 +77,13 @@ public class SendAbnormalRequest implements Serializable {
 
     public void setForceGoToSeal(Boolean forceGoToSeal) {
         this.forceGoToSeal = forceGoToSeal;
+    }
+
+    public String getSendVehicleBizId() {
+        return sendVehicleBizId;
+    }
+
+    public void setSendVehicleBizId(String sendVehicleBizId) {
+        this.sendVehicleBizId = sendVehicleBizId;
     }
 }
