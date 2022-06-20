@@ -403,6 +403,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
             detailVo.setPlanDepartTime(vehicleDetail.getPlanDepartTime());
             detailVo.setEndSiteId(vehicleDetail.getEndSiteId());
             detailVo.setEndSiteName(vehicleDetail.getEndSiteName());
+            detailVo.setSendDetailBizId(vehicleDetail.getBizId());
 
             sendDestList.add(detailVo);
         }
