@@ -28,6 +28,19 @@ public class VehicleTaskReq extends BaseReq implements Serializable {
 
     private Integer pageSize;
 
+    /**
+     * 1 source（出） 2 target （入）
+     */
+    private Integer transferFlag;
+
+    public Integer getTransferFlag() {
+        return transferFlag;
+    }
+
+    public void setTransferFlag(Integer transferFlag) {
+        this.transferFlag = transferFlag;
+    }
+
     public Integer getPageNumber() {
         return pageNumber;
     }
