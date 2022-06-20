@@ -2,6 +2,7 @@ package com.jd.bluedragon.common.dto.seal.response;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.List;
 
 public class SealVehicleInfoResp implements Serializable {
     private static final long serialVersionUID = 4862292928579823809L;
@@ -27,6 +28,15 @@ public class SealVehicleInfoResp implements Serializable {
      */
     private String vehicleNumber;
 
+    private List<String> sendCodeList;
+
+    public List<String> getSendCodeList() {
+        return sendCodeList;
+    }
+
+    public void setSendCodeList(List<String> sendCodeList) {
+        this.sendCodeList = sendCodeList;
+    }
 
     public String getTransportCode() {
         return transportCode;

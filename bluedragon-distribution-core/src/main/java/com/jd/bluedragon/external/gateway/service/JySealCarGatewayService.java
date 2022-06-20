@@ -20,7 +20,7 @@ public interface JySealCarGatewayService {
     JdCResponse<SealCodeResp> listSealCodeByBizId(SealCodeReq sealCodeReq);
 
     /**
-     * 查询封车数据详情
+     * 查询流向任务封车数据详情
      * @param sealVehicleInfoReq
      * @return
      */

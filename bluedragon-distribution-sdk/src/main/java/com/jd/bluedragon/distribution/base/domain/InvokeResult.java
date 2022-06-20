@@ -96,6 +96,9 @@ public class InvokeResult<T> implements Serializable {
     public static final int NO_SEND_DATA_UNDER_BOARD_CODE=319;
     public static final String NO_SEND_DATA_UNDER_BOARD_MESSAGE="未找到相应的按板发货数据！";
 
+    public static final int NO_SEND_CODE_DATA_UNDER_BIZTASK_CODE=320;
+    public static final String NO_SEND_CODE_DATA_UNDER_BIZTASK_MESSAGE="未找到相应的发货数据，请前去扫描发货";
+
     public InvokeResult(){
         this.code=RESULT_SUCCESS_CODE;
     }
