@@ -17,7 +17,7 @@ public interface JySealVehicleService {
     InvokeResult<SealCodeResp> listSealCodeByBizId(SealCodeReq sealCodeReq);
 
     /**
-     * 查询封车数据详情
+     * 查询流向任务的相关封车数据
      * @param sealVehicleInfoReq
      * @return
      */

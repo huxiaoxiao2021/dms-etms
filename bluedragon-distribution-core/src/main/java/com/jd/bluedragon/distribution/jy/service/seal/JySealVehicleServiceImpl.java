@@ -80,8 +80,12 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
         if (ObjectHelper.isEmpty(detailEntity)) {
             return new InvokeResult(RESULT_NO_FOUND_DATA_CODE, RESULT_NO_FOUND_DATA_MESSAGE);
         }
-        //查询已经发货的批次信息sendcodeList TODO
         SealVehicleInfoResp sealVehicleInfoResp = new SealVehicleInfoResp();
+        //查询已经发货的批次信息sendcodeList
+        List<String> sendCodeList =jyVehicleSendRelationService.querySendCodesByVehicleDetailBizId(sealVehicleInfoReq.getSendVehicleDetailBizId());
+        if (ObjectHelper.isNotNull(sendCodeList)){
+            sealVehicleInfoResp.setSendCodeList(sendCodeList);
+        }
         //查询已扫描货物的重量和体积
         JySendAggsEntity jySendAggsEntity = jySendAggsService.getVehicleSendStatistics(sealVehicleInfoReq.getSendVehicleBizId());
         if (ObjectHelper.isNotNull(jySendAggsEntity)) {
