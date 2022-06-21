@@ -2,7 +2,6 @@ package com.jd.bluedragon.distribution.spotcheck.handler;
 
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.spotcheck.domain.*;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
@@ -17,42 +16,11 @@ import java.util.Objects;
 @Service("webSpotCheckHandler")
 public class WebSpotCheckHandler extends AbstractSpotCheckHandler {
 
-    @Autowired
-    private AbstractExcessStandardHandler abstractExcessStandardHandler;
-
-    @Override
-    protected void spotCheck(SpotCheckContext spotCheckContext, InvokeResult<Boolean> result) {
-        super.spotCheck(spotCheckContext, result);
-    }
-
     @Override
     protected void uniformityCheck(SpotCheckDto spotCheckDto, SpotCheckContext spotCheckContext, InvokeResult<Boolean> result) {
         if(!Objects.equals(spotCheckDto.getExcessStatus(), spotCheckContext.getExcessStatus())
                 || !Objects.equals(spotCheckDto.getExcessType(), spotCheckContext.getExcessType())){
             result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_RESULT_CHANGE);
         }
-    }
-
-    @Override
-    protected InvokeResult<CheckExcessResult> checkIsExcessB(SpotCheckContext spotCheckContext) {
-        obtainContrast(spotCheckContext);
-        SpotCheckReviewDetail spotCheckReviewDetail = spotCheckContext.getSpotCheckReviewDetail();
-        SpotCheckContrastDetail spotCheckContrastDetail = spotCheckContext.getSpotCheckContrastDetail();
-        if(Objects.equals(spotCheckReviewDetail.getReviewSiteCode(), spotCheckContrastDetail.getContrastSiteCode())){
-            InvokeResult<CheckExcessResult> result = new InvokeResult<CheckExcessResult>();
-            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_SAME_SITE);
-            return result;
-        }
-        return abstractExcessStandardHandler.checkIsExcess(spotCheckContext);
-    }
-
-    @Override
-    protected InvokeResult<CheckExcessResult> checkIsExcessC(SpotCheckContext spotCheckContext) {
-        return checkIsExcessB(spotCheckContext);
-    }
-
-    @Override
-    protected void dealAfterCheckSuc(SpotCheckContext spotCheckContext) {
-        onceDataDeal(spotCheckContext);
     }
 }

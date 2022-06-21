@@ -2,23 +2,8 @@ package com.jd.bluedragon.distribution.spotcheck.handler;
 
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.spotcheck.domain.*;
-import com.jd.bluedragon.distribution.spotcheck.enums.ExcessStatusEnum;
-import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckBusinessTypeEnum;
-import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckDimensionEnum;
-import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckHandlerTypeEnum;
-import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckDealService;
-import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
-import com.jd.bluedragon.distribution.weightVolume.service.DMSWeightVolumeService;
-import com.jd.bluedragon.distribution.weightvolume.FromSourceEnum;
-import com.jd.bluedragon.distribution.weightvolume.WeightVolumeBusinessTypeEnum;
-import com.jd.bluedragon.utils.JsonHelper;
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
 import java.util.Objects;
 
 /**
@@ -30,124 +15,11 @@ import java.util.Objects;
 @Service("artificialSpotCheckHandler")
 public class ArtificialSpotCheckHandler extends AbstractSpotCheckHandler {
 
-    private static final Logger logger = LoggerFactory.getLogger(ArtificialSpotCheckHandler.class);
-
-    @Autowired
-    private SpotCheckDealService spotCheckDealService;
-
-    @Autowired
-    private AbstractExcessStandardHandler abstractExcessStandardHandler;
-
-    @Autowired
-    private DMSWeightVolumeService dmsWeightVolumeService;
-
-    @Override
-    protected void spotCheck(SpotCheckContext spotCheckContext, InvokeResult<Boolean> result) {
-        // B网不支持包裹维度抽检
-        if(Objects.equals(spotCheckContext.getSpotCheckBusinessType(), SpotCheckBusinessTypeEnum.SPOT_CHECK_TYPE_B.getCode())
-                && Objects.equals(spotCheckContext.getSpotCheckDimensionType(), SpotCheckDimensionEnum.SPOT_CHECK_PACK.getCode())){
-            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_ARTIFICIAL_PACK_FORBID_B);
-            return;
-        }
-        super.spotCheck(spotCheckContext, result);
-    }
-
-    /**
-     * 超标校验
-     *  1、获取复核数据、核对数据
-     *      1）、一单多件
-     *          a、未集齐返回'待集齐计算'
-     *          b、集齐则汇总复核数据
-     *          c、核对数据从计费获取
-     *      2）、一单一件
-     *          a、核对数据从计费获取
-     *  2、超标判断
-     * @param spotCheckContext
-     * @return
-     */
-    @Override
-    protected InvokeResult<CheckExcessResult> checkIsExcessC(SpotCheckContext spotCheckContext) {
-        InvokeResult<CheckExcessResult> result = new InvokeResult<CheckExcessResult>();
-        // 是否集齐
-        if(Objects.equals(spotCheckContext.getSpotCheckDimensionType(), SpotCheckDimensionEnum.SPOT_CHECK_PACK.getCode())) {
-            if(spotCheckContext.getIsMultiPack() && !spotCheckDealService.gatherTogether(spotCheckContext)){
-                CheckExcessResult excessData = new CheckExcessResult();
-                excessData.setExcessCode(ExcessStatusEnum.EXCESS_ENUM_COMPUTE.getCode());
-                result.setData(excessData);
-                return result;
-            }
-            summaryReviewWeightVolume(spotCheckContext);
-        }
-        // 获取核对数据
-        obtainContrast(spotCheckContext);
-        result = abstractExcessStandardHandler.checkIsExcess(spotCheckContext);
-        // 对比复核校验时判定的超标结果  与  提交超标数据时判定的超标结果  是否一致
-        if(Objects.equals(spotCheckContext.getSpotCheckHandlerType(), SpotCheckHandlerTypeEnum.CHECK_AND_DEAL.getCode())
-                && StringUtils.isEmpty(spotCheckContext.getPictureAddress())
-                && Objects.equals(result.getCode(), ExcessStatusEnum.EXCESS_ENUM_YES.getCode())){
-            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_RESULT_CHANGE);
-        }
-        if(logger.isInfoEnabled()){
-            logger.info("人工抽检入参:{},校验结果:{}", JsonHelper.toJson(spotCheckContext), JsonHelper.toJson(result));
-        }
-        return result;
-    }
-
-    @Override
-    protected InvokeResult<CheckExcessResult> checkIsExcessB(SpotCheckContext spotCheckContext) {
-        return checkIsExcessC(spotCheckContext);
-    }
-
-    @Override
-    protected void dealAfterCheckSuc(SpotCheckContext spotCheckContext) {
-        if(Objects.equals(spotCheckContext.getSpotCheckDimensionType(), SpotCheckDimensionEnum.SPOT_CHECK_WAYBILL.getCode())){
-            // 运单维度
-            onceDataDeal(spotCheckContext);
-        }else {
-            // 包裹维度
-            if(spotCheckContext.getIsMultiPack()){
-                multiDataDeal(spotCheckContext);
-            }else {
-                onceDataDeal(spotCheckContext);
-            }
-        }
-        if(Objects.equals(spotCheckContext.getSpotCheckBusinessType(), SpotCheckBusinessTypeEnum.SPOT_CHECK_TYPE_C.getCode())){
-            // 上传称重数据
-            dmsWeightVolumeService.dealWeightAndVolume(transferWeightVolumeEntity(spotCheckContext), false);
-        }
-    }
-
     @Override
     protected void uniformityCheck(SpotCheckDto spotCheckDto, SpotCheckContext spotCheckContext, InvokeResult<Boolean> result) {
         if(!Objects.equals(spotCheckDto.getExcessStatus(), spotCheckContext.getExcessStatus())
                 || !Objects.equals(spotCheckDto.getExcessType(), spotCheckContext.getExcessType())){
             result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_RESULT_CHANGE);
         }
-    }
-
-    private WeightVolumeEntity transferWeightVolumeEntity(SpotCheckContext spotCheckContext) {
-        WeightVolumeEntity weightVolumeEntity = new WeightVolumeEntity();
-        weightVolumeEntity.setBarCode(spotCheckContext.getWaybillCode());
-        weightVolumeEntity.setWaybillCode(spotCheckContext.getWaybillCode());
-        weightVolumeEntity.setPackageCode(spotCheckContext.getPackageCode());
-        SpotCheckReviewDetail spotCheckReviewDetail = spotCheckContext.getSpotCheckReviewDetail();
-        weightVolumeEntity.setWeight(spotCheckReviewDetail.getReviewWeight());
-        weightVolumeEntity.setVolume(spotCheckReviewDetail.getReviewVolume());
-        boolean isWaybillSpotCheck = Objects.equals(SpotCheckDimensionEnum.SPOT_CHECK_WAYBILL.getCode(), spotCheckContext.getSpotCheckDimensionType());
-        if(!isWaybillSpotCheck){
-            weightVolumeEntity.setBarCode(spotCheckContext.getPackageCode());
-            weightVolumeEntity.setLength(spotCheckReviewDetail.getReviewLength());
-            weightVolumeEntity.setWidth(spotCheckReviewDetail.getReviewWidth());
-            weightVolumeEntity.setHeight(spotCheckReviewDetail.getReviewHeight());
-        }
-        weightVolumeEntity.setBusinessType(isWaybillSpotCheck ? WeightVolumeBusinessTypeEnum.BY_WAYBILL : WeightVolumeBusinessTypeEnum.BY_PACKAGE);
-        weightVolumeEntity.setSourceCode(FromSourceEnum.SPOT_CHECK);
-        weightVolumeEntity.setOperateSiteCode(spotCheckReviewDetail.getReviewSiteCode());
-        weightVolumeEntity.setOperateSiteName(spotCheckReviewDetail.getReviewSiteName());
-        weightVolumeEntity.setOperatorCode(spotCheckReviewDetail.getReviewUserErp());
-        weightVolumeEntity.setOperatorId(spotCheckReviewDetail.getReviewUserId());
-        weightVolumeEntity.setOperatorName(spotCheckReviewDetail.getReviewUserName());
-        weightVolumeEntity.setOperateTime(new Date());
-        return weightVolumeEntity;
     }
 }

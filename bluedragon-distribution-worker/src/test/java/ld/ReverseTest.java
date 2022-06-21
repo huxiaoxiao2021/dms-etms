@@ -1,26 +1,18 @@
 package ld;
 
-import com.google.gson.reflect.TypeToken;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
-import com.jd.bluedragon.distribution.api.request.InspectionRequest;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
-import com.jd.bluedragon.distribution.asynbuffer.service.AsynBufferService;
-import com.jd.bluedragon.distribution.asynbuffer.service.AsynBufferServiceImpl;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.consumer.reverse.PickWareConsumer;
 import com.jd.bluedragon.distribution.consumer.reverse.ReversePopConsumer;
 import com.jd.bluedragon.distribution.consumer.reverse.ReverseReceiveConsumer;
 import com.jd.bluedragon.distribution.departure.service.DepartureService;
-import com.jd.bluedragon.distribution.flow.handler.PrintHandoverApprovePostHandlerTest;
-import com.jd.bluedragon.distribution.framework.AbstractTaskExecute;
 import com.jd.bluedragon.distribution.reverse.domain.Product;
 import com.jd.bluedragon.distribution.reverse.service.ReverseSendService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
-import com.jd.bluedragon.distribution.weightAndVolumeCheck.service.WeightAndVolumeCheckService;
-import com.jd.bluedragon.distribution.worker.InspectionTask;
 import com.jd.bluedragon.utils.AsynBufferDemotionUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.waybill.domain.BaseEntity;
@@ -30,7 +22,6 @@ import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.domain.BaseDataDict;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.poi.hssf.record.formula.functions.T;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -112,26 +103,6 @@ public class ReverseTest {
 
 
     }
-
-    @Autowired
-    private WeightAndVolumeCheckService weightAndVolumeCheckService;
-
-    @Test
-    public void getExcessPicture(){
-        try {
-            InvokeResult<String> pictureUrlC = weightAndVolumeCheckService.searchExcessPicture("JDK000000055923", 910);
-            System.out.println(pictureUrlC.getData());
-            InvokeResult<List<String>> pictureUrlBList = weightAndVolumeCheckService.searchExcessPictureOfB2b("JDK000000055923", 910);
-            for (String datum : pictureUrlBList.getData()) {
-                System.out.println(datum);
-            }
-            Assert.assertTrue(true);
-        }catch (Exception e){
-            logger.error("服务异常!", e);
-            Assert.fail();
-        }
-    }
-
 
     @Test
     public void WaybillStatus(){
