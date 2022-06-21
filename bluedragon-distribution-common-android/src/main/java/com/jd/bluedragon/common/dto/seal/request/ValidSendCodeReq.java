@@ -37,14 +37,14 @@ public class ValidSendCodeReq extends BaseReq implements Serializable {
     /**
      * 批次号
      */
-    private String batchCode;
+    private String sendCode;
 
     public String getBatchCode() {
-        return batchCode;
+        return sendCode;
     }
 
-    public void setBatchCode(String batchCode) {
-        this.batchCode = batchCode;
+    public void setBatchCode(String sendCode) {
+        this.sendCode = sendCode;
     }
 
     public Integer getSealCarType() {

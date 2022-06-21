@@ -434,7 +434,6 @@ public class NewSealVehicleResource {
         String sendCode = sealCarPreRequest.getSendCode();
         Integer sealCarType = sealCarPreRequest.getSealCarType();
         String transportCode = sealCarPreRequest.getTransportCode();
-        Integer sealCarSource = sealCarPreRequest.getSealCarSource();
         try {
             //1.检查批次号
             checkBatchCode(sealVehicleResponse, sendCode);
