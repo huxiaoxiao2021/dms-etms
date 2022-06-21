@@ -399,6 +399,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
     private String getSealCarCodeFromEs(UnloadVehicleTaskRequest request) {
         JyVehicleTaskUnloadDetail query = new JyVehicleTaskUnloadDetail();
         query.setPackageCode(request.getBarCode());
+        query.setEndSiteId(request.getEndSiteCode());
         JyVehicleTaskUnloadDetail unloadDetail = unloadVehicleManager.findOneUnloadDetail(query);
         if (unloadDetail != null) {
             return unloadDetail.getSealCarCode();
@@ -465,7 +466,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
             log.error("卸车扫描失败. {}", JsonHelper.toJson(request), ex);
             result.error("服务器异常，卸车扫描失败，请咚咚联系分拣小秘！");
 
-            redisClientOfJy.del(getBizBarCodeCacheKey(request.getBarCode(), request.getCurrentOperate().getSiteCode()));
+            redisClientOfJy.del(getBizBarCodeCacheKey(request.getBarCode(), request.getCurrentOperate().getSiteCode(), request.getBizId()));
         }
 
         return result;
@@ -566,11 +567,8 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
      * @return
      */
     private boolean checkBeforeScan(InvokeResult<Integer> result, UnloadScanRequest request) {
-        String barCode = request.getBarCode();
-        int siteCode = request.getCurrentOperate().getSiteCode();
-
         // 一个单号只能扫描一次
-        if (checkBarScannedAlready(barCode, siteCode)) {
+        if (checkBarScannedAlready(request)) {
             result.hintMessage("单号已扫描！");
             return false;
         }
@@ -633,17 +631,18 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
     }
 
     /**
-     * 校验卸车是否已经扫描过该单号
+     * 校验卸车是否已经扫描过该单号，同一个任务只能扫描一次
      * @param barCode 包裹、运单、箱号
      * @param siteCode 操作场地
      * @return true：扫描过
      */
-    private boolean checkBarScannedAlready(String barCode, int siteCode) {
+    private boolean checkBarScannedAlready(UnloadScanRequest request) {
+        String barCode = request.getBarCode();
+        int siteCode = request.getCurrentOperate().getSiteCode();
         boolean alreadyScanned = false;
-        // 同场地一个单号只能扫描一次
-        String mutexKey = getBizBarCodeCacheKey(barCode, siteCode);
+        String mutexKey = getBizBarCodeCacheKey(barCode, siteCode, request.getBizId());
         if (redisClientOfJy.set(mutexKey, String.valueOf(System.currentTimeMillis()), UNLOAD_SCAN_BAR_EXPIRE, TimeUnit.HOURS, false)) {
-            JyUnloadEntity queryDb = new JyUnloadEntity(barCode, (long) siteCode);
+            JyUnloadEntity queryDb = new JyUnloadEntity(barCode, (long) siteCode, request.getBizId());
             if (jyUnloadDao.queryByCodeAndSite(queryDb) != null) {
                 alreadyScanned = true;
             }
@@ -655,8 +654,8 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         return alreadyScanned;
     }
 
-    private String getBizBarCodeCacheKey(String barCode, int siteCode) {
-        return String.format(CacheKeyConstants.JY_UNLOAD_SCAN_KEY, barCode, siteCode);
+    private String getBizBarCodeCacheKey(String barCode, int siteCode, String bizId) {
+        return String.format(CacheKeyConstants.JY_UNLOAD_SCAN_KEY, barCode, siteCode, bizId);
     }
 
     @Override

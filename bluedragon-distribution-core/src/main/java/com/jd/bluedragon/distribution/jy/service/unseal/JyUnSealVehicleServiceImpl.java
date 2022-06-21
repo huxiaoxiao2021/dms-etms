@@ -338,11 +338,20 @@ public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
     }
 
     private JyBizTaskUnloadOrderTypeEnum setTaskOrderType(JyBizTaskUnloadStatusEnum curQueryStatus) {
-        if (Objects.equals(Constants.CONSTANT_NUMBER_ONE, uccConfig.getJyUnSealTaskOrderByIntegral())) {
-            return JyBizTaskUnloadOrderTypeEnum.RANKING;
-        }
-        else {
-            return JyBizTaskUnloadOrderTypeEnum.ORDER_TIME;
+        switch (curQueryStatus) {
+            case WAIT_UN_SEAL:
+                if (Objects.equals(Constants.CONSTANT_NUMBER_ONE, uccConfig.getJyUnSealTaskOrderByIntegral())) {
+                    return JyBizTaskUnloadOrderTypeEnum.RANKING;
+                }
+                else {
+                    return JyBizTaskUnloadOrderTypeEnum.ORDER_TIME;
+                }
+            case WAIT_UN_LOAD:
+            case UN_LOADING:
+            case ON_WAY:
+                return JyBizTaskUnloadOrderTypeEnum.ORDER_TIME;
+            default:
+                return null;
         }
     }
 
