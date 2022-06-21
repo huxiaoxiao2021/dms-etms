@@ -6,6 +6,11 @@ import java.io.Serializable;
 
 public class VehicleTaskReq extends BaseReq implements Serializable {
     private static final long serialVersionUID = -381204869459707754L;
+
+    /**
+     * 任务id
+     */
+    private String bizId;
     /**
      * 目的场地ID
      */
@@ -22,6 +27,14 @@ public class VehicleTaskReq extends BaseReq implements Serializable {
     private Integer pageNumber;
 
     private Integer pageSize;
+
+    public String getBizId() {
+        return bizId;
+    }
+
+    public void setBizId(String bizId) {
+        this.bizId = bizId;
+    }
 
     public Integer getPageNumber() {
         return pageNumber;
