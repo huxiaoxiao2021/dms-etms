@@ -14,6 +14,8 @@ public class HintCheckRequest implements Serializable {
 
     private int createSiteCode;
 
+    private boolean newInspectionCheck = false;
+
     public String getPackageCode() {
         return packageCode;
     }
@@ -28,5 +30,13 @@ public class HintCheckRequest implements Serializable {
 
     public void setCreateSiteCode(int createSiteCode) {
         this.createSiteCode = createSiteCode;
+    }
+
+    public boolean getNewInspectionCheck() {
+        return newInspectionCheck;
+    }
+
+    public void setNewInspectionCheck(boolean newInspectionCheck) {
+        this.newInspectionCheck = newInspectionCheck;
     }
 }
