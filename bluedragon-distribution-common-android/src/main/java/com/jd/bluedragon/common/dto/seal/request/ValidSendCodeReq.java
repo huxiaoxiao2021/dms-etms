@@ -39,11 +39,11 @@ public class ValidSendCodeReq extends BaseReq implements Serializable {
      */
     private String sendCode;
 
-    public String getBatchCode() {
+    public String getSendCode() {
         return sendCode;
     }
 
-    public void setBatchCode(String sendCode) {
+    public void setSendCode(String sendCode) {
         this.sendCode = sendCode;
     }
 
