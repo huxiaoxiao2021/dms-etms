@@ -34,6 +34,9 @@ public class ValidSendCodeReq extends BaseReq implements Serializable {
      * */
     private String vehicleNumber;
 
+    /**
+     * 批次号
+     */
     private String batchCode;
 
     public String getBatchCode() {
