@@ -330,7 +330,7 @@ $(function () {
                 title: '图片',
                 align: 'center',
                 formatter: function (val, row, index) {
-                    return '<a  href="' + val + '" target= "_self">' + '图片' + '</a>'
+                    return '<a  href="' + val + '" target= "_blank">' + '图片' + '</a>'
                 }
             }, {
                 field: 'updateUser',
