@@ -32,11 +32,20 @@ public interface JyNoTaskSendService {
     InvokeResult deleteVehicleTask(DeleteVehicleTaskReq deleteVehicleTaskReq);
 
     /**
-     * 查询运输车辆任务列表
+     * 查询运输车辆任务列表：根据流向或者报告号筛选任务列表
      * @param vehicleTaskReq
      * @return
      */
     InvokeResult<VehicleTaskResp> listVehicleTask(VehicleTaskReq vehicleTaskReq);
+
+
+    /**
+     * 查询运输车辆任务列表：任务迁移场景时会根据迁入或者迁出做不同逻辑计算
+     * 迁出时 扫包裹号定位包裹所在任务，迁入时 @1可扫包裹 @2也可录入站点id
+     * @param transferVehicleTaskReq
+     * @return
+     */
+    InvokeResult<VehicleTaskResp> listVehicleTaskSupportTransfer(TransferVehicleTaskReq transferVehicleTaskReq);
 
     /**
      * 自建任务绑定-运输真实任务

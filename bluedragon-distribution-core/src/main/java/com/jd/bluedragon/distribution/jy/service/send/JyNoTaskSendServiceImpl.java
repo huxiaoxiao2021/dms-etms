@@ -237,6 +237,12 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
         return jySendVehicleService.fetchSendTaskForBinding(vehicleTaskReq);
     }
 
+    @Override
+    public InvokeResult<VehicleTaskResp> listVehicleTaskSupportTransfer(
+        TransferVehicleTaskReq transferVehicleTaskReq) {
+        return null;
+    }
+
 
     @Override
     public InvokeResult bindVehicleDetailTask(BindVehicleDetailTaskReq bindVehicleDetailTaskReq) {
