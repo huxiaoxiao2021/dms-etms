@@ -335,6 +335,10 @@
                 AND sort_time >= #{entity.sortTime}
             </if>
 
+            <if test="entity.desealCarTime != null">
+                AND deseal_car_time >= #{entity.desealCarTime}
+            </if>
+
             <choose>
                 <when test="entity.startSiteId != null and entity.fuzzyVehicleNumber != null">
                     AND (start_site_id = #{entity.startSiteId} OR fuzzy_vehicle_number = #{entity.fuzzyVehicleNumber})

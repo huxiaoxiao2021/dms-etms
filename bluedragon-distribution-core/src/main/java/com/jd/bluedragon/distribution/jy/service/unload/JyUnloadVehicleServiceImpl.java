@@ -387,6 +387,12 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         if (StringUtils.isNotBlank(request.getBarCode()) && !WaybillUtil.isPackageCode(request.getBarCode())) {
             condition.setFuzzyVehicleNumber(request.getBarCode());
         }
+        if (StringUtils.isBlank(request.getBarCode())) {
+            // 非搜索条件下，待卸状态默认查询解封车6小时之内的任务
+            if (JyBizTaskUnloadStatusEnum.WAIT_UN_LOAD.getCode().equals(request.getVehicleStatus())) {
+                condition.setDesealCarTime(DateHelper.newTimeRangeHoursAgo(new Date(), 6));
+            }
+        }
 
         return condition;
     }
