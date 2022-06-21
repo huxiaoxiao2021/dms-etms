@@ -60,6 +60,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -248,7 +249,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
                     UnloadVehicleInfo unloadVehicleInfo = (UnloadVehicleInfo) vehicleBaseInfo;
                     unloadVehicleInfo.setManualCreatedTask(entity.unloadWithoutTask());
                     unloadVehicleInfo.setTags(resolveTagSign(entity.getTagsSign()));
-                    unloadVehicleInfo.setUnloadProgress(entity.getUnloadProgress());
+                    unloadVehicleInfo.setUnloadProgress(this.setUnloadProgress(entity));
                     unloadVehicleInfo.setTaskId(getJyScheduleTaskId(entity.getBizId()));
                     unloadVehicleInfo.setBizId(entity.getBizId());
                     vehicleList.add(unloadVehicleInfo);
@@ -266,6 +267,13 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
                     break;
             }
         }
+    }
+
+    private BigDecimal setUnloadProgress(JyBizTaskUnloadVehicleEntity entity) {
+        if (NumberHelper.gt0(entity.getUnloadProgress())) {
+            return entity.getUnloadProgress().multiply(new BigDecimal(100)).setScale(6, BigDecimal.ROUND_HALF_UP);
+        }
+        return BigDecimal.ZERO;
     }
 
     /**
@@ -386,6 +394,12 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         condition.setLineType(request.getLineType());
         if (StringUtils.isNotBlank(request.getBarCode()) && !WaybillUtil.isPackageCode(request.getBarCode())) {
             condition.setFuzzyVehicleNumber(request.getBarCode());
+        }
+        if (StringUtils.isBlank(request.getBarCode())) {
+            // 非搜索条件下，待卸状态默认查询解封车6小时之内的任务
+            if (JyBizTaskUnloadStatusEnum.WAIT_UN_LOAD.getCode().equals(request.getVehicleStatus())) {
+                condition.setDesealCarTime(DateHelper.newTimeRangeHoursAgo(new Date(), 6));
+            }
         }
 
         return condition;
