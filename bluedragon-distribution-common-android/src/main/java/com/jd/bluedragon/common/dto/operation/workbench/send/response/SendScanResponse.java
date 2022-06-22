@@ -28,6 +28,11 @@ public class SendScanResponse implements Serializable {
     public static final int CODE_NO_TASK_CONFIRM_DEST = 2003;
 
     /**
+     * 装载率超标
+     */
+    public static final int CODE_LOAD_RATE_EXCEED = 2004;
+
+    /**
      * 本次扫描的包裹数
      */
     private Integer scanPackCount;

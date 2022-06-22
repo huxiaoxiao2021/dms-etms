@@ -469,7 +469,7 @@
                 ORDER BY
                 <choose>
                     <when test="orderType == 1">
-                        last_plan_depart_time ASC
+                        last_plan_depart_time DESC
                     </when>
                     <when test="orderType == 2">
                         last_seal_car_time DESC
@@ -508,6 +508,9 @@
             <foreach collection="statuses" separator="," open="(" close=")" item="item">
                 #{item}
             </foreach>
+        </if>
+        <if test="manualCreatedFlag != null">
+            AND manual_created_flag = #{manualCreatedFlag}
         </if>
     </sql>
 
