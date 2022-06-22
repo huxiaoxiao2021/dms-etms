@@ -131,18 +131,18 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         logInfo("拉取卸车任务. {}", JsonHelper.toJson(request));
 
         JyBizTaskUnloadVehicleEntity condition = makeFetchCondition(request);
+        List<String> sealCarCodes = new ArrayList<>();
         if (WaybillUtil.isPackageCode(request.getBarCode())) {
-            String sealCarCode = getSealCarCodeFromEs(request);
-            if (StringUtils.isBlank(sealCarCode)) {
+            sealCarCodes = getSealCarCodeFromEs(request);
+            if (CollectionUtils.isEmpty(sealCarCodes)) {
                 result.parameterError("该包裹号不存在关联的卸车任务！");
                 return result;
             }
-            condition.setSealCarCode(sealCarCode);
         }
 
         try {
             List<JyBizTaskUnloadCountDto> vehicleStatusAggList =
-                    unloadVehicleService.findStatusCountByCondition4Status(condition, JyBizTaskUnloadStatusEnum.UNLOAD_STATUS_OPTIONS.toArray(new JyBizTaskUnloadStatusEnum[JyBizTaskUnloadStatusEnum.UNLOAD_STATUS_OPTIONS.size()]));
+                    unloadVehicleService.findStatusCountByCondition4Status(condition, sealCarCodes, JyBizTaskUnloadStatusEnum.UNLOAD_STATUS_OPTIONS.toArray(new JyBizTaskUnloadStatusEnum[JyBizTaskUnloadStatusEnum.UNLOAD_STATUS_OPTIONS.size()]));
             if (CollectionUtils.isEmpty(vehicleStatusAggList)) {
                 return result;
             }
@@ -153,7 +153,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
             assembleUnloadStatusAgg(vehicleStatusAggList, response);
 
             // 按卸车状态组装车辆数据
-            assembleUnloadVehicleData(request, condition, response);
+            assembleUnloadVehicleData(request, response, condition, sealCarCodes);
 
             result.setData(response);
         }
@@ -168,18 +168,20 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
     /**
      * 按卸车状态组装车辆数据
      * @param request
-     * @param condition
      * @param response
+     * @param condition
+     * @param sealCarCodes
      */
-    private void assembleUnloadVehicleData(UnloadVehicleTaskRequest request, JyBizTaskUnloadVehicleEntity condition, UnloadVehicleTaskResponse response) {
+    private void assembleUnloadVehicleData(UnloadVehicleTaskRequest request, UnloadVehicleTaskResponse response,
+                                           JyBizTaskUnloadVehicleEntity condition, List<String> sealCarCodes) {
         JyBizTaskUnloadStatusEnum curQueryStatus = JyBizTaskUnloadStatusEnum.getEnumByCode(request.getVehicleStatus());
-        List<LineTypeStatis> lineTypeList = getVehicleLineTypeList(condition, curQueryStatus);
+        List<LineTypeStatis> lineTypeList = this.getVehicleLineTypeList(condition, curQueryStatus, sealCarCodes);
         UnloadVehicleData unloadVehicleData = new UnloadVehicleData();
         unloadVehicleData.setVehicleStatus(curQueryStatus.getCode());
         unloadVehicleData.setLineStatistics(lineTypeList);
 
         // 按车辆状态组装
-        makeVehicleList(condition, request, curQueryStatus, unloadVehicleData);
+        makeVehicleList(condition, request, curQueryStatus, unloadVehicleData, sealCarCodes);
 
         switch (curQueryStatus) {
             case WAIT_UN_LOAD:
@@ -218,14 +220,15 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
      * @param request
      * @param curQueryStatus
      * @param unloadVehicleData
+     * @param sealCarCodes
      */
     private void makeVehicleList(JyBizTaskUnloadVehicleEntity condition, UnloadVehicleTaskRequest request,
-                                 JyBizTaskUnloadStatusEnum curQueryStatus, UnloadVehicleData unloadVehicleData) {
+                                 JyBizTaskUnloadStatusEnum curQueryStatus, UnloadVehicleData unloadVehicleData, List<String> sealCarCodes) {
         List<VehicleBaseInfo> vehicleList = Lists.newArrayList();
         unloadVehicleData.setData(vehicleList);
 
         JyBizTaskUnloadOrderTypeEnum orderTypeEnum = setTaskOrderType(curQueryStatus);
-        List<JyBizTaskUnloadVehicleEntity> vehiclePageList = unloadVehicleService.findByConditionOfPage(condition, orderTypeEnum, request.getPageNumber(), request.getPageSize());
+        List<JyBizTaskUnloadVehicleEntity> vehiclePageList = unloadVehicleService.findByConditionOfPage(condition, orderTypeEnum, request.getPageNumber(), request.getPageSize(), sealCarCodes);
         if (CollectionUtils.isEmpty(vehiclePageList)) {
             return;
         }
@@ -348,9 +351,9 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         return tagList;
     }
 
-    private List<LineTypeStatis> getVehicleLineTypeList(JyBizTaskUnloadVehicleEntity condition, JyBizTaskUnloadStatusEnum curQueryStatus) {
+    private List<LineTypeStatis> getVehicleLineTypeList(JyBizTaskUnloadVehicleEntity condition, JyBizTaskUnloadStatusEnum curQueryStatus, List<String> sealCarCodes) {
         List<LineTypeStatis> lineTypeList = new ArrayList<>();
-        List<JyBizTaskUnloadCountDto> lineTypeAgg = unloadVehicleService.findStatusCountByCondition4StatusAndLine(condition, curQueryStatus);
+        List<JyBizTaskUnloadCountDto> lineTypeAgg = unloadVehicleService.findStatusCountByCondition4StatusAndLine(condition, sealCarCodes, curQueryStatus);
         if (CollectionUtils.isNotEmpty(lineTypeAgg)) {
             for (JyBizTaskUnloadCountDto countDto : lineTypeAgg) {
                 LineTypeStatis lineTypeStatis = createLineTypeAgg(countDto);
@@ -395,12 +398,6 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         if (StringUtils.isNotBlank(request.getBarCode()) && !WaybillUtil.isPackageCode(request.getBarCode())) {
             condition.setFuzzyVehicleNumber(request.getBarCode());
         }
-        if (StringUtils.isBlank(request.getBarCode())) {
-            // 非搜索条件下，待卸状态默认查询解封车6小时之内的任务
-            if (JyBizTaskUnloadStatusEnum.WAIT_UN_LOAD.getCode().equals(request.getVehicleStatus())) {
-                condition.setDesealCarTime(DateHelper.newTimeRangeHoursAgo(new Date(), 6));
-            }
-        }
 
         return condition;
     }
@@ -410,13 +407,18 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
      * @param request
      * @return
      */
-    private String getSealCarCodeFromEs(UnloadVehicleTaskRequest request) {
+    private List<String> getSealCarCodeFromEs(UnloadVehicleTaskRequest request) {
         JyVehicleTaskUnloadDetail query = new JyVehicleTaskUnloadDetail();
         query.setPackageCode(request.getBarCode());
         query.setEndSiteId(request.getEndSiteCode());
-        JyVehicleTaskUnloadDetail unloadDetail = unloadVehicleManager.findOneUnloadDetail(query);
-        if (unloadDetail != null) {
-            return unloadDetail.getSealCarCode();
+        List<JyVehicleTaskUnloadDetail> unloadDetails = unloadVehicleManager.findUnloadDetail(query);
+
+        Set<String> sealCarCodes = new HashSet<>();
+        if (CollectionUtils.isNotEmpty(unloadDetails)) {
+            for (JyVehicleTaskUnloadDetail unloadDetail : unloadDetails) {
+                sealCarCodes.add(unloadDetail.getSealCarCode());
+            }
+            return new ArrayList<>(sealCarCodes);
         }
 
         return null;
