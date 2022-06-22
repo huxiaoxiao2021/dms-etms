@@ -39,6 +39,11 @@ public class SendVehicleProgress implements Serializable {
     private BigDecimal loadWeight = BigDecimal.ZERO;
 
     /**
+     * 装载率上限
+     */
+    private Integer loadRateUpperLimit;
+
+    /**
      * 待扫包裹数
      */
     private Long toScanCount = 0L;
@@ -167,5 +172,13 @@ public class SendVehicleProgress implements Serializable {
 
     public void setDestTotal(Integer destTotal) {
         this.destTotal = destTotal;
+    }
+
+    public Integer getLoadRateUpperLimit() {
+        return loadRateUpperLimit;
+    }
+
+    public void setLoadRateUpperLimit(Integer loadRateUpperLimit) {
+        this.loadRateUpperLimit = loadRateUpperLimit;
     }
 }

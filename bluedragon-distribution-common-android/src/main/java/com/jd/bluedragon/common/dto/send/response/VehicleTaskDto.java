@@ -1,6 +1,7 @@
 package com.jd.bluedragon.common.dto.send.response;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.List;
 
 public class VehicleTaskDto implements Serializable {
@@ -18,6 +19,11 @@ public class VehicleTaskDto implements Serializable {
     private String vehicleTypeName;
     private Integer lineType;
     private String lineTypeName;
+
+    /**
+     * 装载率 百分制
+     */
+    private BigDecimal loadRate;
     /**
      * 子任务列表
      */
@@ -109,5 +115,13 @@ public class VehicleTaskDto implements Serializable {
 
     public void setVehicleDetailTaskDtoList(List<VehicleDetailTaskDto> vehicleDetailTaskDtoList) {
         this.vehicleDetailTaskDtoList = vehicleDetailTaskDtoList;
+    }
+
+    public BigDecimal getLoadRate() {
+        return loadRate;
+    }
+
+    public void setLoadRate(BigDecimal loadRate) {
+        this.loadRate = loadRate;
     }
 }

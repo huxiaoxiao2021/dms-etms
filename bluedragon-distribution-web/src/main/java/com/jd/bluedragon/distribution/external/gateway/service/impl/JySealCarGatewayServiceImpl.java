@@ -2,7 +2,10 @@ package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
 import com.jd.bluedragon.common.UnifiedExceptionProcess;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.blockcar.enumeration.SealCarSourceEnum;
+import com.jd.bluedragon.common.dto.blockcar.enumeration.SealCarTypeEnum;
 import com.jd.bluedragon.common.dto.blockcar.enumeration.TransTypeEnum;
+import com.jd.bluedragon.common.dto.blockcar.request.SealCarPreRequest;
 import com.jd.bluedragon.common.dto.blockcar.response.TransportInfoDto;
 import com.jd.bluedragon.common.dto.seal.request.*;
 import com.jd.bluedragon.common.dto.seal.response.SealCodeResp;
@@ -17,8 +20,8 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.service.seal.JySealVehicleService;
 import com.jd.bluedragon.distribution.rest.seal.NewSealVehicleResource;
 import com.jd.bluedragon.external.gateway.service.JySealCarGatewayService;
+import com.jd.bluedragon.utils.BeanUtils;
 import com.jd.bluedragon.utils.ObjectHelper;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
@@ -57,8 +60,7 @@ public class JySealCarGatewayServiceImpl implements JySealCarGatewayService {
         } else {
             jdCResponse.toFail(routeTypeResponse.getMessage());
         }
-        TransportInfoDto transportInfoDto = new TransportInfoDto();
-        BeanUtils.copyProperties(routeTypeResponse, transportInfoDto);
+        TransportInfoDto transportInfoDto = BeanUtils.copy(routeTypeResponse, TransportInfoDto.class);
         jdCResponse.setData(transportInfoDto);
         return jdCResponse;
     }
@@ -105,6 +107,19 @@ public class JySealCarGatewayServiceImpl implements JySealCarGatewayService {
     @Override
     public JdCResponse sealVehicle(SealVehicleReq sealVehicleReq) {
         return retJdCResponse(jySealVehicleService.sealVehicle(sealVehicleReq));
+    }
+
+    @Override
+    public JdCResponse validateTranCodeAndSendCode(ValidSendCodeReq validSendCodeReq) {
+        SealCarPreRequest sealCarPreRequest = BeanUtils.copy(validSendCodeReq,SealCarPreRequest.class);
+        if (ObjectHelper.isEmpty(sealCarPreRequest.getSealCarType())){
+            sealCarPreRequest.setSealCarType(SealCarTypeEnum.SEAL_BY_TASK.getType());
+        }
+        if (ObjectHelper.isEmpty(sealCarPreRequest.getSealCarSource())){
+            sealCarPreRequest.setSealCarSource(SealCarSourceEnum.COMMON_SEAL_CAR.getCode());
+        }
+        NewSealVehicleResponse newSealVehicleResponse = newSealVehicleResource.newCheckTranCodeAndBatchCode(sealCarPreRequest);
+        return new JdCResponse(newSealVehicleResponse.getCode(),newSealVehicleResponse.getMessage());
     }
 
     private <T> JdCResponse<T> retJdCResponse(InvokeResult<T> invokeResult) {

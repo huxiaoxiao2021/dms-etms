@@ -5,6 +5,7 @@ import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicl
 import com.jd.bluedragon.common.dto.send.request.*;
 import com.jd.bluedragon.common.dto.send.response.*;
 
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import java.util.List;
 
 public interface JyNoTaskSendGatewayService {
@@ -34,6 +35,15 @@ public interface JyNoTaskSendGatewayService {
      * @return
      */
     JdCResponse<VehicleTaskResp> listVehicleTask(VehicleTaskReq vehicleTaskReq);
+
+    /**
+     * 查询运输车辆任务列表：提供给任务迁移场景查询使用
+     * 迁出时 扫包裹号定位包裹所在任务；迁入时 @1可扫包裹 @2也可录入站点id
+     * @param transferVehicleTaskReq
+     * @return
+     */
+    JdCResponse<VehicleTaskResp> listVehicleTaskSupportTransfer(TransferVehicleTaskReq transferVehicleTaskReq);
+
 
     /**
      * 自建任务绑定-运输真实任务

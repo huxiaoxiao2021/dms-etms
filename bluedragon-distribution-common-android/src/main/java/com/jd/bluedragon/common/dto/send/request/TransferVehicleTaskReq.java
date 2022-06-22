@@ -1,24 +1,24 @@
 package com.jd.bluedragon.common.dto.send.request;
 
 import com.jd.bluedragon.common.dto.base.request.BaseReq;
-
 import java.io.Serializable;
 
-public class VehicleTaskReq extends BaseReq implements Serializable {
-    private static final long serialVersionUID = -381204869459707754L;
+public class TransferVehicleTaskReq extends BaseReq implements Serializable {
 
+    private static final long serialVersionUID = 420640648074010581L;
     /**
-     * 任务id
+     * 迁入迁出标识
+     * 1 source（出） 2 target （入）
      */
-    private String bizId;
-    /**
-     * 目的场地ID
-     */
-    private Long endSiteId;
+    private Integer transferFlag;
     /**
      * 包裹号
      */
     private String packageCode;
+    /**
+     * 目的场地ID
+     */
+    private Long endSiteId;
     /**
      * 任务状态；0-待发货，1-发货中，2-待封车，3-已封车
      */
@@ -27,14 +27,6 @@ public class VehicleTaskReq extends BaseReq implements Serializable {
     private Integer pageNumber;
 
     private Integer pageSize;
-
-    public String getBizId() {
-        return bizId;
-    }
-
-    public void setBizId(String bizId) {
-        this.bizId = bizId;
-    }
 
     public Integer getPageNumber() {
         return pageNumber;
@@ -75,4 +67,7 @@ public class VehicleTaskReq extends BaseReq implements Serializable {
     public void setPackageCode(String packageCode) {
         this.packageCode = packageCode;
     }
+    public Integer getTransferFlag() { return transferFlag; }
+
+    public void setTransferFlag(Integer transferFlag) { this.transferFlag = transferFlag; }
 }

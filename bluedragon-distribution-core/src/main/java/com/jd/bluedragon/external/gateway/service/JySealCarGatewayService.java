@@ -1,6 +1,7 @@
 package com.jd.bluedragon.external.gateway.service;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.blockcar.request.SealCarPreRequest;
 import com.jd.bluedragon.common.dto.blockcar.response.TransportInfoDto;
 import com.jd.bluedragon.common.dto.seal.request.*;
 import com.jd.bluedragon.common.dto.seal.response.SealCodeResp;
@@ -58,5 +59,10 @@ public interface JySealCarGatewayService {
      *
      */
     JdCResponse sealVehicle(SealVehicleReq sealVehicleReq);
+
+    /**
+     * 校验运力编码和发货批次的目的地是否一致
+     */
+    JdCResponse validateTranCodeAndSendCode(ValidSendCodeReq validSendCodeReq);
 
 }
