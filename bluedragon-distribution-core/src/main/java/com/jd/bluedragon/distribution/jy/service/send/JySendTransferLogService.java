@@ -1,6 +1,8 @@
 package com.jd.bluedragon.distribution.jy.service.send;
 
 
+import com.jd.bluedragon.distribution.jy.dto.send.VehicleSendRelationDto;
+import com.jd.bluedragon.distribution.jy.send.JySendTransferLogEntity;
 import java.util.Map;
 
 /**
@@ -10,7 +12,9 @@ import java.util.Map;
  * @email liuduo3@jd.com
  * @date 2022-05-30 15:26:08
  */
-public interface JySendTransferLogService  {
+public interface JySendTransferLogService {
+
+  int saveTransferLog(VehicleSendRelationDto vehicleSendRelationDto);
 
 }
 

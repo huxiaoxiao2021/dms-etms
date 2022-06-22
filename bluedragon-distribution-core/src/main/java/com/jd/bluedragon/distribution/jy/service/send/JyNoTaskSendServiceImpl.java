@@ -96,6 +96,8 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
     private IJySendVehicleService jySendVehicleService;
     @Autowired
     BaseMajorManager baseMajorManager;
+    @Autowired
+    JySendTransferLogService jySendTransferLogService;
 
 
     @Override
@@ -293,30 +295,36 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
         log.info("任务迁移,transferSendTaskReq:{}",JsonHelper.toJson(transferSendTaskReq));
         //查询要迁移的批次信息-sendCodes
         List<String> sendCodeList = jyVehicleSendRelationService.querySendCodesByVehicleDetailBizId(transferSendTaskReq.getFromSendVehicleDetailBizId());
+        if (ObjectHelper.isNotNull(sendCodeList) && sendCodeList.size()>0){
+            VehicleSendRelationDto dto = BeanUtils.copy(transferSendTaskReq, VehicleSendRelationDto.class);
+            dto.setSendCodes(sendCodeList);
+            dto.setUpdateUserErp(transferSendTaskReq.getUser().getUserErp());
+            dto.setUpdateUserName(transferSendTaskReq.getUser().getUserName());
 
-        VehicleSendRelationDto dto = BeanUtils.copy(transferSendTaskReq, VehicleSendRelationDto.class);
-        dto.setSendCodes(sendCodeList);
-        dto.setUpdateUserErp(transferSendTaskReq.getUser().getUserErp());
-        dto.setUpdateUserName(transferSendTaskReq.getUser().getUserName());
+            if (transferSendTaskReq.getSameWayFlag()) {
+                //同流向--直接变更绑定关系
+                jyVehicleSendRelationService.updateVehicleSendRelation(dto);
+                jySendTransferLogService.saveTransferLog(dto);
 
-        if (transferSendTaskReq.getSameWayFlag()) {
-            //同流向--直接变更绑定关系
-            jyVehicleSendRelationService.updateVehicleSendRelation(dto);
-        } else {
-            //删除原绑定关系
-            jyVehicleSendRelationService.deleteVehicleSendRelation(dto);
-            //增加新流向绑定关系
-            JyBizTaskSendVehicleDetailEntity sendVehicleDetail = jyBizTaskSendVehicleDetailService.findByBizId(transferSendTaskReq.getToSendVehicleDetailBizId());
-            String newSendCode = generateSendCode(sendVehicleDetail, transferSendTaskReq.getUser().getUserErp());
-            JySendCodeEntity jySendCodeEntity = initJySendCodeEntity(transferSendTaskReq, newSendCode);
-            jyVehicleSendRelationService.add(jySendCodeEntity);
-            //生成迁移任务，异步执行迁移逻辑
-            for (String sendCode : sendCodeList) {
-                List<SendM> sendMList = sendMService.selectBySiteAndSendCode(transferSendTaskReq.getCurrentOperate().getSiteCode(), sendCode);
-                deliveryOperationService.asyncHandleTransfer(sendMList, newSendCode);
+            } else {
+                //删除原绑定关系
+                jyVehicleSendRelationService.deleteVehicleSendRelation(dto);
+                //增加新流向绑定关系
+                JyBizTaskSendVehicleDetailEntity sendVehicleDetail = jyBizTaskSendVehicleDetailService.findByBizId(transferSendTaskReq.getToSendVehicleDetailBizId());
+                String newSendCode = generateSendCode(sendVehicleDetail, transferSendTaskReq.getUser().getUserErp());
+                JySendCodeEntity jySendCodeEntity = initJySendCodeEntity(transferSendTaskReq, newSendCode);
+                jyVehicleSendRelationService.add(jySendCodeEntity);
+                dto.setNewSendCode(newSendCode);
+                jySendTransferLogService.saveTransferLog(dto);
+                //生成迁移任务，异步执行迁移逻辑
+                for (String sendCode : sendCodeList) {
+                    List<SendM> sendMList = sendMService.selectBySiteAndSendCode(transferSendTaskReq.getCurrentOperate().getSiteCode(), sendCode);
+                    deliveryOperationService.asyncHandleTransfer(sendMList, newSendCode);
+                }
             }
+            return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE);
         }
-        return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE);
+        return new InvokeResult(NO_SEND_DATA_UNDER_TASK_CODE, NO_SEND_DATA_UNDER_TASK_MESSAGE);
     }
 
     private JySendCodeEntity initJySendCodeEntity(TransferSendTaskReq transferSendTaskReq, String sendCode) {
