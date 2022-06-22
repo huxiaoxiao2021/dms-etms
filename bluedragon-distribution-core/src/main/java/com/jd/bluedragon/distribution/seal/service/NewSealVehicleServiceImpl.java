@@ -119,16 +119,16 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 
     @Autowired
     private SendDetailService sendDetailService;
-    
+
 	@Autowired
 	private BaseMajorManager baseMajorManager;
-	
+
 	@Autowired
 	private TmsServiceManager tmsServiceManager;
-	
+
 	@Autowired
 	private PreSealVehicleService preSealVehicleService;
-	
+
 	@Autowired
 	private PreSealBatchService preSealBatchService;
 
@@ -200,15 +200,18 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
         List<SealVehicles> saveSealDataList=new ArrayList<>();
         String msg = "";
         try {
+            log.info("开始调用运输封车,params:{}",JsonHelper.toJson(doSealCarDtos));
             sealCarInfo = vosBusinessWS.doSealCar(doSealCarDtos);
             if(sealCarInfo == null) {
                 msg = "封车JSF接口返回为空";
                 saveSealDataList.addAll(convert2SealVehicles(doSealCarDtos,SealVehicleExecute.FAIL,msg));
             }else if(Constants.RESULT_SUCCESS == sealCarInfo.getCode()){
+                log.info("提交运输封车成功！");
                 msg = MESSAGE_SEAL_SUCCESS;
                 //封车成功，发送封车mq消息
                 addRedisCache(doSealCarDtos);
                 sendBatchSendCodeStatusMsg(doSealCarDtos,null,BatchSendStatusEnum.USED);
+                log.info("封车成功，发送封车mq消息成功");
                 saveSealDataList.addAll(convert2SealVehicles(doSealCarDtos,SealVehicleExecute.SUCCESS,SealVehicleExecute.SUCCESS.getName()));
             }else{
                 msg = "["+sealCarInfo.getCode()+":"+sealCarInfo.getMessage()+"]";
@@ -218,6 +221,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
             saveSealDataList.addAll(convert2SealVehicles(removeSealCarDtos,SealVehicleExecute.REMOVE_EMPTY_BATCH,SealVehicleExecute.REMOVE_EMPTY_BATCH.getName()));
 
             saveSealData(saveSealDataList);
+            log.info("持久化封车数据成功");
         }catch (Exception e){
             this.log.error("封车-error，参数：{}", JsonHelper.toJson(paramList), e);
             msg = "封车异常：["+ e.getMessage() +"]";
@@ -1392,7 +1396,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 	@Override
 	public JdResult<List<String>> getUnSealSendCodes(NewSealVehicleRequest request){
 		JdResult<List<String>> result = new JdResult<List<String>>();
-		if(request != null 
+		if(request != null
 				&& request.getSiteCode() != null
 				&& StringHelper.isNotEmpty(request.getTransportCode())
 				&& StringHelper.isNotEmpty(request.getVehicleNumber())) {
@@ -1582,7 +1586,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 	    response.setBillCode(sealCodesDto.getBillCode());
 	    return response;
     }
-    
+
     private SealCodesDto convertToSealCodesDto(DoSealCodeRequest request) {
 	    SealCodesDto sealCodesDto = new SealCodesDto();
 	    sealCodesDto.setVehicleNumber(request.getVehicleNumber());
