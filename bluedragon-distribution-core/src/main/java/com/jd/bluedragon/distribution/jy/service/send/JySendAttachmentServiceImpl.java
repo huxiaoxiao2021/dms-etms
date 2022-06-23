@@ -24,7 +24,7 @@ public class JySendAttachmentServiceImpl implements IJySendAttachmentService{
     }
 
     @Override
-    public Integer savePhoto(JySendAttachmentEntity entity) {
+    public Integer saveAttachment(JySendAttachmentEntity entity) {
         int rows = sendAttachmentDao.updateByBiz(entity);
         if (rows == Constants.NO_MATCH_DATA) {
             return sendAttachmentDao.insert(entity);

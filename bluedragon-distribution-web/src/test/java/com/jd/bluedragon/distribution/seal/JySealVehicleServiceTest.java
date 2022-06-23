@@ -11,11 +11,9 @@ import com.jd.bluedragon.common.dto.operation.workbench.unseal.request.SealVehic
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.SealVehicleTaskResponse;
 import com.jd.bluedragon.common.dto.send.request.VehicleTaskReq;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.jy.dao.send.JySendAggsDao;
 import com.jd.bluedragon.distribution.jy.send.JySendAttachmentEntity;
 import com.jd.bluedragon.distribution.jy.service.send.IJySendAttachmentService;
 import com.jd.bluedragon.distribution.jy.service.send.IJySendVehicleService;
-import com.jd.bluedragon.distribution.jy.service.send.JySendAggsService;
 import com.jd.bluedragon.distribution.jy.service.unseal.IJyUnSealVehicleService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jdl.jy.realtime.model.query.seal.SealVehicleTaskQuery;
@@ -95,29 +93,32 @@ public class JySealVehicleServiceTest {
         attachment.setUpdateTime(request.getCurrentOperate().getOperateTime());
         attachment.setUpdateUserErp(attachment.getCreateUserErp());
         attachment.setUpdateUserName(attachment.getCreateUserName());
-        sendAttachmentService.savePhoto(attachment);
+        sendAttachmentService.saveAttachment(attachment);
     }
 
     @Test
     public void sendScanTest() {
         String body = "{\n" +
-                "    \"barCode\": \"JDVF00002007265-2-5-\",\n" +
+                "    \"barCode\": \"JDVF00002011756-1-5-\",\n" +
                 "    \"barCodeType\": 1,\n" +
+                "    \"confirmSendDestId\": 56506,\n" +
                 "    \"currentOperate\": {\n" +
-                "        \"operateTime\": 1655705689845,\n" +
+                "        \"operateTime\": 1655964896169,\n" +
                 "        \"orgId\": 6,\n" +
                 "        \"orgName\": \"总公司\",\n" +
                 "        \"siteCode\": 40240,\n" +
                 "        \"siteName\": \"北京通州分拣中心\"\n" +
                 "    },\n" +
-                "    \"forceSubmit\": false,\n" +
+                "    \"forceSubmit\": true,\n" +
                 "    \"groupCode\": \"G00000018001\",\n" +
+                "    \"noTaskConfirmDest\": true,\n" +
                 "    \"sendForWholeBoard\": false,\n" +
-                "    \"sendVehicleBizId\": \"NSST22062000000005\",\n" +
+                "    \"sendVehicleBizId\": \"NSST22062300000008\",\n" +
+                "    \"noTaskRemark\": \"reakadgasgdsadgagdad昂大哥大使馆打得过\",\n" +
                 "    \"user\": {\n" +
-                "        \"userCode\": 17331,\n" +
-                "        \"userErp\": \"wuyoude\",\n" +
-                "        \"userName\": \"吴有德\"\n" +
+                "        \"userCode\": 16698,\n" +
+                "        \"userErp\": \"liuaihui3\",\n" +
+                "        \"userName\": \"刘爱慧\"\n" +
                 "    },\n" +
                 "    \"vehicleNumber\": \"自建1\"\n" +
                 "}";

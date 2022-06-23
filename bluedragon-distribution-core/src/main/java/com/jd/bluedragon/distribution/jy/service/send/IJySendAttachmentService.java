@@ -22,5 +22,5 @@ public interface IJySendAttachmentService {
      * @param entity
      * @return
      */
-    Integer savePhoto(JySendAttachmentEntity entity);
+    Integer saveAttachment(JySendAttachmentEntity entity);
 }
