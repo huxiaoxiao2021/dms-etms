@@ -163,4 +163,12 @@ public class UserSignRecordDaoImpl extends BaseDao<UserSignRecord> implements Us
 	public List<UserSignRecord> queryUnSignOutListWithPosition(UserSignQueryRequest query) {
 		return this.getSqlSession().selectList(NAMESPACE+".queryUnSignOutListWithPosition",query);
 	}
+	@Override
+	public Long queryCountByOperateUser(UserSignQueryRequest query) {
+		return this.getSqlSession().selectOne(NAMESPACE+".queryCountByOperateUser",query);
+	}
+	@Override
+	public List<UserSignRecordData> queryListByOperateUser(UserSignQueryRequest query) {
+		return this.getSqlSession().selectList(NAMESPACE+".queryListByOperateUser",query);
+	}
 }

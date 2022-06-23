@@ -583,16 +583,22 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		//查询签到记录，先签退
         UserSignRecord lastSignRecord = this.queryLastUnSignOutRecord(lastSignRecordQuery);
         UserSignRecord signOutRequest = new UserSignRecord();
+        boolean needSignOut = false;
         if(lastSignRecord != null) {
         	signOutRequest.setId(lastSignRecord.getId());
         	signOutRequest.setUpdateUser(signInRequest.getOperateUserCode());
         	signOutRequest.setUpdateUserName(signInRequest.getOperateUserName());
     		this.doSignOut(signOutRequest);
+    		needSignOut = true;
     		context.signOutData = this.toUserSignRecordData(lastSignRecord);
 		}
         if(this.doSignIn(signInData)) {
         	result.setData(this.toUserSignRecordData(signInData));
-        	result.toSucceed("签到成功！");
+        	if(needSignOut) {
+        		result.toSucceed("签到成功，自动将上次签到数据签退！");
+        	}else {
+        		result.toSucceed("签到成功！");
+        	}
         	context.signInData = result.getData();
         	context.signInFlag = true;
         }else {
@@ -701,7 +707,11 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 
         if(this.doSignIn(signInData)) {
         	result.setData(this.toUserSignRecordData(signInData));
-        	result.toSucceed("签到成功！");
+        	if(needSignOut) {
+        		result.toSucceed("签到成功，自动将上次签到数据签退！");
+        	}else {
+        		result.toSucceed("签到成功！");
+        	}
         	context.signInData = result.getData();
         	context.signInFlag = true;
         }else {
@@ -1140,5 +1150,40 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		public void setGroupData(GroupMemberData groupData) {
 			this.groupData = groupData;
 		}
+	}
+	@Override
+	public JdCResponse<PageDto<UserSignRecordData>> querySignListByOperateUser(UserSignQueryRequest query) {
+		JdCResponse<PageDto<UserSignRecordData>> result = new JdCResponse<>();
+		result.toSucceed();
+		Date signDate = query.getSignDate();
+		if(signDate == null && StringHelper.isNotEmpty(query.getSignDateStr())) {
+			signDate = DateHelper.parseDate(query.getSignDateStr(),DateHelper.DATE_FORMAT_YYYYMMDD);
+		}
+		query.setSignDate(signDate);
+		if(query.getPageSize() == null
+				|| query.getPageSize() <= 0) {
+			query.setPageSize(DmsConstants.PAGE_SIZE_DEFAULT);
+		}
+		query.setOffset(0);
+		query.setLimit(query.getPageSize());
+		if(query.getPageNumber() > 0) {
+			query.setOffset((query.getPageNumber() - 1) * query.getPageSize());
+		}
+		PageDto<UserSignRecordData> PageDto = new PageDto<>(query.getPageNumber(), query.getPageSize());
+		Long totalCount = userSignRecordDao.queryCountByOperateUser(query);
+		if(totalCount != null && totalCount > 0){
+		    List<UserSignRecordData> dataList = userSignRecordDao.queryListByOperateUser(query);
+		    Date currentDate = new Date();
+		    for(UserSignRecordData data: dataList) {
+		    	fillOtherInfo(data,currentDate);
+		    }
+		    PageDto.setResult(dataList);
+			PageDto.setTotalRow(totalCount.intValue());
+		}else {
+		    PageDto.setResult(new ArrayList<UserSignRecordData>());
+			PageDto.setTotalRow(0);
+		}
+		result.setData(PageDto);
+		return result;
 	}
 }

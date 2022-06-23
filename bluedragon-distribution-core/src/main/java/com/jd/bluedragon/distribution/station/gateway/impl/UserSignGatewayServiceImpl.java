@@ -56,6 +56,10 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 		return userSignRecordService.querySignListWithPosition(query);
 	}
 	@Override
+	public JdCResponse<PageDto<UserSignRecordData>> querySignListByOperateUser(UserSignQueryRequest query) {
+		return userSignRecordService.querySignListByOperateUser(query);
+	}	
+	@Override
 	public JdCResponse<PositionData> queryPositionData(String positionCode) {
 		return positionRecordService.queryPositionWithIsMatchAppFunc(positionCode);
 	}
