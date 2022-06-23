@@ -1,6 +1,4 @@
 package com.jd.bluedragon.distribution.jy.service.send;
-import java.text.DecimalFormat;
-import java.util.Date;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
@@ -21,7 +19,10 @@ import com.jd.bluedragon.common.dto.send.response.VehicleTaskDto;
 import com.jd.bluedragon.common.dto.send.response.VehicleTaskResp;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
-import com.jd.bluedragon.core.base.*;
+import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.BasicQueryWSManager;
+import com.jd.bluedragon.core.base.JdiQueryWSManager;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.distribution.api.JdResponse;
@@ -32,6 +33,7 @@ import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.busineCode.sendCode.service.SendCodeService;
 import com.jd.bluedragon.distribution.businessCode.BusinessCodeAttributeKey;
+import com.jd.bluedragon.distribution.businessCode.BusinessCodeFromSourceEnum;
 import com.jd.bluedragon.distribution.cyclebox.CycleBoxService;
 import com.jd.bluedragon.distribution.delivery.constants.SendKeyTypeEnum;
 import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigEnum;
@@ -54,7 +56,6 @@ import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetail
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleService;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
-import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadDto;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.domain.SendResult;
@@ -92,10 +93,11 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
-import static com.jd.bluedragon.distribution.businessCode.BusinessCodeFromSourceEnum.JY_APP;
 
 /**
  * @ClassName JySendVehicleServiceImpl
@@ -122,6 +124,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
     @Qualifier("redisClientOfJy")
     private Cluster redisClientOfJy;
 
+    @Autowired
     @Qualifier("redisJyNoTaskSendDetailBizIdSequenceGen")
     private JimdbSequenceGen redisJyNoTaskSendDetailBizIdSequenceGen;
 
@@ -601,7 +604,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
         }
 
         if (endSiteId == null) {
-            result.hintMessage("该包裹的路由没有当前场地！");
+            result.hintMessage("运单的路由没有当前场地！");
             return null;
         }
 
@@ -863,7 +866,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
                 if (WaybillUtil.isPackageCode(vehicleTaskReq.getPackageCode())) {
                     Long nextRouter = getWaybillNextRouter(WaybillUtil.getWaybillCode(vehicleTaskReq.getPackageCode()), queryTaskSendDto.getStartSiteId());
                     if (nextRouter == null) {
-                        result.hintMessage("该包裹的路由没有当前场地！");
+                        result.hintMessage("运单的路由没有当前场地！");
                         return result;
                     }
                     if (!getSendTaskByDestId(result, queryTaskSendDto, sendVehicleBizList, nextRouter, true)) {
@@ -1017,25 +1020,20 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
         }
 
         // 根据发货流向匹配出来的发货目的地
-        Long destSiteId = this.matchSendDest(request, sendType, taskSend, allDestId);
+        Long matchSendDestId = this.matchSendDest(request, sendType, taskSend, allDestId);
 
-        logInfo("拣运发货匹配的目的地为: {}-{}-{}", request.getBarCode(), taskSend.getStartSiteId(), destSiteId);
+        logInfo("拣运发货匹配的目的地为: {}-{}-{}", request.getBarCode(), taskSend.getStartSiteId(), matchSendDestId);
+
+        if (matchSendDestId == null && !NumberHelper.gt0(request.getConfirmSendDestId())) {
+            result.toBizError();
+            result.addInterceptBox(0, "未匹配到发货下一站，请手动选择！");
+            return result;
+        }
 
         // 实际发货目的地
-        Long sendDestId = destSiteId;
-        if (Boolean.FALSE.equals(request.getForceSubmit())) {
-            if (destSiteId == null) {
-                result.setCode(SendScanResponse.CODE_CONFIRM_DEST);
-                result.addConfirmBox(0, "未匹配到发货下一站，请手动选择！");
-                return result;
-            }
-        }
-        else {
-            if (destSiteId == null && !NumberHelper.gt0(request.getConfirmSendDestId())) {
-                result.toBizError();
-                result.addInterceptBox(0, "强制发货时请确认发货目的地！");
-                return result;
-            }
+        Long sendDestId = matchSendDestId;
+        
+        if (NumberHelper.gt0(request.getConfirmSendDestId())) {
             if (!allDestId.contains(request.getConfirmSendDestId())) {
                 result.toBizError();
                 result.addInterceptBox(0, "强制发货的目的地必须是当前发车任务流向之一！");
@@ -1544,7 +1542,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
         Map<BusinessCodeAttributeKey.SendCodeAttributeKeyEnum, String> attributeKeyEnumObjectMap = new HashMap<>();
         attributeKeyEnumObjectMap.put(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.from_site_code, String.valueOf(startSiteId));
         attributeKeyEnumObjectMap.put(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.to_site_code, String.valueOf(destSiteId));
-        return sendCodeService.createSendCode(attributeKeyEnumObjectMap, JY_APP, createUser);
+        return sendCodeService.createSendCode(attributeKeyEnumObjectMap, BusinessCodeFromSourceEnum.JY_APP, createUser);
     }
 
 
@@ -1617,11 +1615,28 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
             // 无任务发货未确认目的地信息
             if (taskSend.manualCreatedTask()) {
                 if (Boolean.FALSE.equals(request.getNoTaskConfirmDest()) || !NumberHelper.gt0(request.getConfirmSendDestId())) {
+                    if (!WaybillUtil.isPackageCode(barCode) && !WaybillUtil.isWaybillCode(barCode)) {
+                        response.toBizError();
+                        response.addInterceptBox(0, "无任务首次扫描只能是运单或包裹！");
+                        return false;
+                    }
+
+                    // 无任务首次扫描返回目的地
+                    Long routeNextSite = getWaybillNextRouter(WaybillUtil.getWaybillCode(barCode), taskSend.getStartSiteId());
+                    if (routeNextSite == null) {
+                        response.toBizError();
+                        response.addInterceptBox(0, "运单的路由没有当前场地！");
+                        return false;
+                    }
+
                     response.setCode(SendScanResponse.CODE_NO_TASK_CONFIRM_DEST);
                     response.addConfirmBox(0, "无任务发货请确认发货流向！");
 
-                    // FIXME 无任务首次扫描返回目的地
-                    waybillCacheService.getRouterByWaybillCode(WaybillUtil.getWaybillCode(barCode));
+                    SendScanResponse sendScanResponse = new SendScanResponse();
+                    response.setData(sendScanResponse);
+                    BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteBySiteId(routeNextSite.intValue());
+                    sendScanResponse.setCurScanDestId(routeNextSite);
+                    sendScanResponse.setCurScanDestName(baseSite.getSiteName());
 
                     return false;
                 }
@@ -1985,7 +2000,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
         if (!NumberHelper.gt0(standardWeight)) {
             return BigDecimal.ZERO;
         }
-        return BigDecimal.valueOf(BigDecimalHelper.div(loadWeight, standardWeight, 6) * 100);
+        return BigDecimal.valueOf(BigDecimalHelper.div(loadWeight, standardWeight, 6)).multiply(new BigDecimal(100)).setScale(6, RoundingMode.HALF_UP);
     }
 
     @Override

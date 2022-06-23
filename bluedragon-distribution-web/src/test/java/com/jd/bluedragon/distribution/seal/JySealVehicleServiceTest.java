@@ -6,6 +6,7 @@ import com.jd.bluedragon.common.dto.base.request.User;
 
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendPhotoRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendScanRequest;
+import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicleProgressRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.request.SealVehicleTaskRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.SealVehicleTaskResponse;
 import com.jd.bluedragon.common.dto.send.request.VehicleTaskReq;
@@ -147,6 +148,29 @@ public class JySealVehicleServiceTest {
                 "}";
         VehicleTaskReq req = JsonHelper.fromJson(json, VehicleTaskReq.class);
         jySendVehicleService.fetchSendTaskForBinding(req);
+    }
+
+    @Test
+    public void loadProgressTest() {
+        String json = "{\n" +
+                "    \"currentOperate\": {\n" +
+                "        \"operateTime\": 1655904091422,\n" +
+                "        \"orgId\": 6,\n" +
+                "        \"orgName\": \"总公司\",\n" +
+                "        \"siteCode\": 40240,\n" +
+                "        \"siteName\": \"北京通州分拣中心\"\n" +
+                "    },\n" +
+                "    \"sendVehicleBizId\": \"SST22061600000106\",\n" +
+                "    \"user\": {\n" +
+                "        \"userCode\": 16698,\n" +
+                "        \"userErp\": \"liuaihui3\",\n" +
+                "        \"userName\": \"刘爱慧\"\n" +
+                "    },\n" +
+                "    \"vehicleNumber\": \"\"\n" +
+                "}";
+
+        SendVehicleProgressRequest request = JsonHelper.fromJson(json, SendVehicleProgressRequest.class);
+        jySendVehicleService.loadProgress(request);
     }
 
 }
