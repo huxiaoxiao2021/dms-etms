@@ -287,13 +287,18 @@
         limit 1;
     </select>
 
-    <select id="findByTransWorkItem" parameterType="JyBizTaskSendVehicleDetailEntity" resultType="java.lang.Long">
+    <select id="findByCondition" parameterType="JyBizTaskSendVehicleDetailEntity" resultType="java.lang.Long">
         SELECT
             id
         FROM jy_biz_task_send_vehicle_detail
         WHERE
             yn = 1
-        AND trans_work_item_code = #{transWorkItemCode}
+        <if test="transWorkItemCode != null and transWorkItemCode !='' ">
+            AND trans_work_item_code = #{transWorkItemCode}
+        </if>
+        <if test="sendVehicleBizId != null">
+            AND send_vehicle_biz_id = #{sendVehicleBizId}
+        </if>
         <if test="startSiteId != null">
             AND start_site_id = #{startSiteId}
         </if>
@@ -453,6 +458,9 @@
         </if>
         <if test="endSiteId != null">
             AND end_site_id = #{endSiteId}
+        </if>
+        <if test="transWorkItemCode != null and transWorkItemCode !='' ">
+            AND trans_work_item_code = #{transWorkItemCode}
         </if>
         LIMIT 1
     </select>

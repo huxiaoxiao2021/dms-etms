@@ -1026,7 +1026,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
 
         if (matchSendDestId == null && !NumberHelper.gt0(request.getConfirmSendDestId())) {
             result.setCode(SendScanResponse.CODE_CONFIRM_DEST);
-            result.addInterceptBox(0, "未匹配到发货下一站，请手动选择！");
+            result.addWarningBox(0, "未匹配到发货下一站，请手动选择！");
             return result;
         }
 
@@ -1643,6 +1643,9 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
 
                     logInfo("启用无任务发货任务. {}", JsonHelper.toJson(taskSend));
                     this.enableNoTask(taskSend);
+
+                    // 保存无任务发货备注
+                    saveNoTaskRemark(request, taskSend);
                 }
             }
             else {
@@ -1683,6 +1686,23 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
 
 
         return true;
+    }
+
+    private void saveNoTaskRemark(SendScanRequest request, JyBizTaskSendVehicleEntity taskSend) {
+        if (StringUtils.isNotBlank(request.getNoTaskRemark())) {
+            JySendAttachmentEntity attachment = new JySendAttachmentEntity();
+            attachment.setSendVehicleBizId(request.getSendVehicleBizId());
+            attachment.setOperateSiteId((long) request.getCurrentOperate().getSiteCode());
+            attachment.setOperateTime(request.getCurrentOperate().getOperateTime());
+            attachment.setCreateTime(request.getCurrentOperate().getOperateTime());
+            attachment.setCreateUserErp(request.getUser().getUserErp());
+            attachment.setCreateUserName(request.getUser().getUserName());
+            attachment.setUpdateTime(request.getCurrentOperate().getOperateTime());
+            attachment.setUpdateUserErp(attachment.getCreateUserErp());
+            attachment.setUpdateUserName(attachment.getCreateUserName());
+            attachment.setRemark(request.getNoTaskRemark());
+            sendAttachmentService.saveAttachment(attachment);
+        }
     }
 
     /**
@@ -1740,7 +1760,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
 
         try {
             JySendAttachmentEntity attachment = genSendAttachment(request);
-            sendAttachmentService.savePhoto(attachment);
+            sendAttachmentService.saveAttachment(attachment);
         }
         catch (Exception ex) {
             log.error("发货拍照上传失败. {}", JsonHelper.toJson(request), ex);

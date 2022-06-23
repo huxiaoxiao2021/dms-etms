@@ -38,8 +38,8 @@ public class JyBizTaskSendVehicleDetailDao extends BaseDao<JyBizTaskSendVehicleD
         return this.getSqlSession().update(NAMESPACE + ".updateDateilTaskByVehicleBizId", entity);
     }
 
-    public Long findByTransWorkItem(JyBizTaskSendVehicleDetailEntity entity) {
-        return this.getSqlSession().selectOne(NAMESPACE + ".findByTransWorkItem", entity);
+    public Long findByCondition(JyBizTaskSendVehicleDetailEntity entity) {
+        return this.getSqlSession().selectOne(NAMESPACE + ".findByCondition", entity);
     }
 
     public int save(JyBizTaskSendVehicleDetailEntity entity) {
