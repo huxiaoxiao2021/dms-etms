@@ -16,9 +16,10 @@ public class JyUnloadEntity implements Serializable {
 
     public JyUnloadEntity() {}
 
-    public JyUnloadEntity(String barCode, Long operateSiteId) {
+    public JyUnloadEntity(String barCode, Long operateSiteId, String bizId) {
         this.barCode = barCode;
         this.operateSiteId = operateSiteId;
+        this.bizId = bizId;
     }
 
     public JyUnloadEntity(Long operateSiteId, String bizId) {
