@@ -1025,20 +1025,15 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
         logInfo("拣运发货匹配的目的地为: {}-{}-{}", request.getBarCode(), taskSend.getStartSiteId(), matchSendDestId);
 
         if (matchSendDestId == null && !NumberHelper.gt0(request.getConfirmSendDestId())) {
-            result.toBizError();
+            result.setCode(SendScanResponse.CODE_CONFIRM_DEST);
             result.addInterceptBox(0, "未匹配到发货下一站，请手动选择！");
             return result;
         }
 
         // 实际发货目的地
         Long sendDestId = matchSendDestId;
-        
+
         if (NumberHelper.gt0(request.getConfirmSendDestId())) {
-            if (!allDestId.contains(request.getConfirmSendDestId())) {
-                result.toBizError();
-                result.addInterceptBox(0, "强制发货的目的地必须是当前发车任务流向之一！");
-                return result;
-            }
             sendDestId = request.getConfirmSendDestId();
         }
 
@@ -1972,7 +1967,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
             progress.setLoadVolume(sendAgg.getTotalScannedVolume());
             progress.setLoadWeight(sendAgg.getTotalScannedWeight());
             progress.setToScanCount(this.dealMinus(sendAgg.getTotalShouldScanCount(), sendAgg.getTotalScannedCount()));
-            progress.setScannedPackCount(sendAgg.getTotalShouldScanCount().longValue());
+            progress.setScannedPackCount(sendAgg.getTotalScannedCount().longValue());
             progress.setScannedBoxCount(sendAgg.getTotalScannedBoxCodeCount().longValue());
             progress.setInterceptedPackCount(sendAgg.getTotalInterceptCount().longValue());
             progress.setForceSendPackCount(sendAgg.getTotalForceSendCount().longValue());
