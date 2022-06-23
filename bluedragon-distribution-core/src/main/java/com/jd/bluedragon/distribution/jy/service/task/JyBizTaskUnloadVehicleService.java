@@ -43,7 +43,7 @@ public interface JyBizTaskUnloadVehicleService {
      * @param condition 条件 车牌后四位 封车编码  目的场地（必填）状态集合
      * @return
      */
-    List<JyBizTaskUnloadCountDto> findStatusCountByCondition4Status(JyBizTaskUnloadVehicleEntity condition,JyBizTaskUnloadStatusEnum... enums);
+    List<JyBizTaskUnloadCountDto> findStatusCountByCondition4Status(JyBizTaskUnloadVehicleEntity condition, List<String> sealCarCodes, JyBizTaskUnloadStatusEnum... enums);
 
 
     /**
@@ -52,7 +52,7 @@ public interface JyBizTaskUnloadVehicleService {
      * @param condition 条件 车牌后四位 封车编码  目的场地（必填）状态集合
      * @return
      */
-    List<JyBizTaskUnloadCountDto> findStatusCountByCondition4StatusAndLine(JyBizTaskUnloadVehicleEntity condition, JyBizTaskUnloadStatusEnum... enums);
+    List<JyBizTaskUnloadCountDto> findStatusCountByCondition4StatusAndLine(JyBizTaskUnloadVehicleEntity condition, List<String> sealCarCodes, JyBizTaskUnloadStatusEnum... enums);
 
 
     /**
@@ -62,9 +62,10 @@ public interface JyBizTaskUnloadVehicleService {
      * @param typeEnum  排序类型
      * @param pageNum   页码  不小于0
      * @param pageSize  每页数量
+     * @param sealCarCodes 封车编码
      * @return
      */
-    List<JyBizTaskUnloadVehicleEntity> findByConditionOfPage(JyBizTaskUnloadVehicleEntity condition, JyBizTaskUnloadOrderTypeEnum typeEnum, Integer pageNum, Integer pageSize);
+    List<JyBizTaskUnloadVehicleEntity> findByConditionOfPage(JyBizTaskUnloadVehicleEntity condition, JyBizTaskUnloadOrderTypeEnum typeEnum, Integer pageNum, Integer pageSize, List<String> sealCarCodes);
 
     /**
      * 改变状态

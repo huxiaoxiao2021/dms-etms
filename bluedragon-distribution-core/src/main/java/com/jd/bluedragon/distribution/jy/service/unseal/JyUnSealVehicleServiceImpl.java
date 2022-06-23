@@ -243,7 +243,7 @@ public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
             }
 
             List<JyBizTaskUnloadCountDto> vehicleStatusAggList =
-                    jyBizTaskUnloadVehicleService.findStatusCountByCondition4Status(condition, JyBizTaskUnloadStatusEnum.UNSEAL_STATUS_OPTIONS.toArray(new JyBizTaskUnloadStatusEnum[JyBizTaskUnloadStatusEnum.UNSEAL_STATUS_OPTIONS.size()]));
+                    jyBizTaskUnloadVehicleService.findStatusCountByCondition4Status(condition, null, JyBizTaskUnloadStatusEnum.UNSEAL_STATUS_OPTIONS.toArray(new JyBizTaskUnloadStatusEnum[JyBizTaskUnloadStatusEnum.UNSEAL_STATUS_OPTIONS.size()]));
             if (CollectionUtils.isEmpty(vehicleStatusAggList)) {
                 return result;
             }
@@ -346,11 +346,20 @@ public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
     }
 
     private JyBizTaskUnloadOrderTypeEnum setTaskOrderType(JyBizTaskUnloadStatusEnum curQueryStatus) {
-        if (Objects.equals(Constants.CONSTANT_NUMBER_ONE, uccConfig.getJyUnSealTaskOrderByIntegral())) {
-            return JyBizTaskUnloadOrderTypeEnum.RANKING;
-        }
-        else {
-            return JyBizTaskUnloadOrderTypeEnum.ORDER_TIME;
+        switch (curQueryStatus) {
+            case WAIT_UN_SEAL:
+                if (Objects.equals(Constants.CONSTANT_NUMBER_ONE, uccConfig.getJyUnSealTaskOrderByIntegral())) {
+                    return JyBizTaskUnloadOrderTypeEnum.RANKING;
+                }
+                else {
+                    return JyBizTaskUnloadOrderTypeEnum.ORDER_TIME;
+                }
+            case WAIT_UN_LOAD:
+            case UN_LOADING:
+            case ON_WAY:
+                return JyBizTaskUnloadOrderTypeEnum.ORDER_TIME;
+            default:
+                return null;
         }
     }
 
@@ -365,7 +374,7 @@ public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
 
         JyBizTaskUnloadOrderTypeEnum orderTypeEnum = setTaskOrderType(curQueryStatus);
 
-        List<JyBizTaskUnloadVehicleEntity> vehiclePageList = jyBizTaskUnloadVehicleService.findByConditionOfPage(condition, orderTypeEnum, request.getPageNumber(), request.getPageSize());
+        List<JyBizTaskUnloadVehicleEntity> vehiclePageList = jyBizTaskUnloadVehicleService.findByConditionOfPage(condition, orderTypeEnum, request.getPageNumber(), request.getPageSize(), null);
         if (CollectionUtils.isEmpty(vehiclePageList)) {
             return;
         }
@@ -437,7 +446,7 @@ public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
 
     private List<LineTypeStatis> getVehicleLineTypeList(JyBizTaskUnloadVehicleEntity condition, JyBizTaskUnloadStatusEnum curQueryStatus) {
         List<LineTypeStatis> lineTypeList = new ArrayList<>();
-        List<JyBizTaskUnloadCountDto> lineTypeAgg = jyBizTaskUnloadVehicleService.findStatusCountByCondition4StatusAndLine(condition, curQueryStatus);
+        List<JyBizTaskUnloadCountDto> lineTypeAgg = jyBizTaskUnloadVehicleService.findStatusCountByCondition4StatusAndLine(condition, null, curQueryStatus);
         if (CollectionUtils.isNotEmpty(lineTypeAgg)) {
             for (JyBizTaskUnloadCountDto countDto : lineTypeAgg) {
                 LineTypeStatis lineTypeStatis = createLineTypeAgg(countDto);
