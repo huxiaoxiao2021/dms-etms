@@ -148,8 +148,10 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
             try {
                 CommonDto<String> sealResp = newSealVehicleService.seal(sealCarDtoList, emptyBatchCode);
                 if (sealResp != null && Constants.RESULT_SUCCESS == sealResp.getCode()) {
-                    List<JySendSealCodeEntity> entityList = generateSendSealCodeList(sealVehicleReq);
-                    jySendSealCodeService.addBatch(entityList);
+                    if(ObjectHelper.isNotNull(sealVehicleReq.getSealCodes()) && sealVehicleReq.getSealCodes().size()>0){
+                        List<JySendSealCodeEntity> entityList = generateSendSealCodeList(sealVehicleReq);
+                        jySendSealCodeService.addBatch(entityList);
+                    }
                     updateTaskStatus(sealVehicleReq);
                     return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE);
                 }
