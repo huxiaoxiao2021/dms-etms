@@ -24,15 +24,22 @@ import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.distribution.wss.dto.SealCarDto;
 import com.jd.bluedragon.utils.BeanUtils;
+import com.jd.bluedragon.utils.CollectionHelper;
+import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.ListUtil;
 import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.bluedragon.utils.TimeUtils;
+import com.jd.dbs.util.CollectionUtils;
 import com.jd.etms.vos.dto.CommonDto;
 import com.jd.tms.jdi.dto.BigQueryOption;
 import com.jd.tms.jdi.dto.BigTransWorkItemDto;
 import com.jd.tms.jdi.dto.TransWorkItemDto;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import com.jdl.jy.realtime.enums.seal.VehicleStatusEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
+import org.apache.lucene.util.CollectionUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -68,6 +75,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
 
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySealVehicleServiceImpl.listSealCodeByBizId", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<SealCodeResp> listSealCodeByBizId(SealCodeReq sealCodeReq) {
         //根据运输任务查询 sealcode模型
         List<String> sendCodeList = jySendSealCodeService.selectSealCodeByBizId(sealCodeReq.getSendVehicleBizId());
@@ -81,6 +89,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySealVehicleServiceImpl.getSealVehicleInfo", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<SealVehicleInfoResp> getSealVehicleInfo(SealVehicleInfoReq sealVehicleInfoReq) {
         JyBizTaskSendVehicleDetailEntity detailEntity = jyBizTaskSendVehicleDetailService.findByBizId(sealVehicleInfoReq.getSendVehicleDetailBizId());
         if (ObjectHelper.isEmpty(detailEntity)) {
@@ -111,7 +120,9 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySealVehicleServiceImpl.sealVehicle", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult sealVehicle(SealVehicleReq sealVehicleReq) {
+        log.info("jy提交封车,sealVehicleReq:{}",JsonHelper.toJson(sealVehicleReq));
         //查询流向下所有发货批次
         List<String> sendCodes = jyVehicleSendRelationService.querySendCodesByVehicleDetailBizId(sealVehicleReq.getSendVehicleDetailBizId());
         if (ObjectHelper.isNotNull(sendCodes) && sendCodes.size() > 0) {
@@ -124,6 +135,9 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
             } else {
                 sealCarDto.setBatchCodes(sendCodes);
             }
+            List<String> afterFilterDuplicate = ListUtil.processDuplicateByContains(sealCarDto.getBatchCodes());
+            sealCarDto.setBatchCodes(afterFilterDuplicate);
+
             sealCarDto.getSealCodes().addAll(sealCodes);
             //封装提交封车请求的dto
             List<SealCarDto> sealCarDtoList = new ArrayList<>();
@@ -163,6 +177,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySealVehicleServiceImpl.getTransWorkItemByWorkItemCode", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<TransportResp> getTransWorkItemByWorkItemCode(GetVehicleNumberReq getVehicleNumberReq) {
         //调用运输-根据任务简码查询任务详情信息
         com.jd.tms.jdi.dto.CommonDto<TransWorkItemDto> transWorkItemResp = jdiQueryWSManager.queryTransWorkItemBySimpleCode(getVehicleNumberReq.getTransWorkItemCode());

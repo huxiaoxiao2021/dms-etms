@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.UnifiedExceptionProcess;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.blockcar.enumeration.SealCarSourceEnum;
@@ -22,6 +23,8 @@ import com.jd.bluedragon.distribution.rest.seal.NewSealVehicleResource;
 import com.jd.bluedragon.external.gateway.service.JySealCarGatewayService;
 import com.jd.bluedragon.utils.BeanUtils;
 import com.jd.bluedragon.utils.ObjectHelper;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
@@ -44,6 +47,7 @@ public class JySealCarGatewayServiceImpl implements JySealCarGatewayService {
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySealCarGatewayServiceImpl.getTransportResourceByTransCode", mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<TransportInfoDto> getTransportResourceByTransCode(TransportReq transportReq) {
         JdCResponse<TransportInfoDto> jdCResponse = new JdCResponse<>();
         NewSealVehicleRequest param = new NewSealVehicleRequest();
@@ -66,6 +70,7 @@ public class JySealCarGatewayServiceImpl implements JySealCarGatewayService {
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySealCarGatewayServiceImpl.checkTransportCode", mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse checkTransportCode(CheckTransportCodeReq checkTransportCodeReq) {
         NewSealVehicleRequest param = new NewSealVehicleRequest();
         param.setTransportCode(checkTransportCodeReq.getTransportCode());
@@ -75,6 +80,7 @@ public class JySealCarGatewayServiceImpl implements JySealCarGatewayService {
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySealCarGatewayServiceImpl.getVehicleNumberByWorkItemCode", mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<TransportResp> getVehicleNumberByWorkItemCode(GetVehicleNumberReq getVehicleNumberReq) {
 
         NewSealVehicleRequest param = new NewSealVehicleRequest();
@@ -110,6 +116,7 @@ public class JySealCarGatewayServiceImpl implements JySealCarGatewayService {
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySealCarGatewayServiceImpl.validateTranCodeAndSendCode", mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse validateTranCodeAndSendCode(ValidSendCodeReq validSendCodeReq) {
         SealCarPreRequest sealCarPreRequest = BeanUtils.copy(validSendCodeReq,SealCarPreRequest.class);
         if (ObjectHelper.isEmpty(sealCarPreRequest.getSealCarType())){

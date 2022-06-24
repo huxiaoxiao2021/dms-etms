@@ -43,6 +43,8 @@ import com.jd.tms.basic.dto.BasicVehicleTypeDto;
 import com.jd.tms.basic.dto.CommonDto;
 import com.jd.transboard.api.dto.Board;
 import com.jd.transboard.api.dto.Response;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -101,6 +103,7 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
 
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyNoTaskSendServiceImpl.listVehicleType", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<List<VehicleSpecResp>> listVehicleType() {
         CommonDto<List<BasicVehicleTypeDto>> rs = jyTransportManager.getVehicleTypeList();
         if (null != rs && rs.getCode() == Constants.RESULT_SUCCESS) {
@@ -146,6 +149,7 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyNoTaskSendServiceImpl.createVehicleTask", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<CreateVehicleTaskResp> createVehicleTask(CreateVehicleTaskReq createVehicleTaskReq) {
         JyBizTaskSendVehicleEntity jyBizTaskSendVehicleEntity = initJyBizTaskSendVehicle(createVehicleTaskReq);
         jyBizTaskSendVehicleService.saveSendVehicleTask(jyBizTaskSendVehicleEntity);
@@ -193,6 +197,7 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
 
     @Override
     @Transactional
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyNoTaskSendServiceImpl.deleteVehicleTask", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult deleteVehicleTask(DeleteVehicleTaskReq deleteVehicleTaskReq) {
         log.info("删除自建任务,deleteVehicleTaskReq:{}",JsonHelper.toJson(deleteVehicleTaskReq));
         //删除主任务
@@ -235,17 +240,20 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyNoTaskSendServiceImpl.listVehicleTask", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<VehicleTaskResp> listVehicleTask(VehicleTaskReq vehicleTaskReq) {
         return jySendVehicleService.fetchSendTaskForBinding(vehicleTaskReq);
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyNoTaskSendServiceImpl.listVehicleTaskSupportTransfer", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<VehicleTaskResp> listVehicleTaskSupportTransfer(TransferVehicleTaskReq transferVehicleTaskReq) {
         return jySendVehicleService.fetchSendTaskForTransfer(transferVehicleTaskReq);
     }
 
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyNoTaskSendServiceImpl.bindVehicleDetailTask", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult bindVehicleDetailTask(BindVehicleDetailTaskReq bindVehicleDetailTaskReq) {
         log.info("自建任务绑定运输任务,bindVehicleDetailTaskReq:{}",JsonHelper.toJson(bindVehicleDetailTaskReq));
         //更新任务与发货批次的关联关系
@@ -256,6 +264,7 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
             dto.setUpdateUserErp(bindVehicleDetailTaskReq.getUser().getUserErp());
             dto.setUpdateUserName(bindVehicleDetailTaskReq.getUser().getUserName());
             jyVehicleSendRelationService.updateVehicleSendRelation(dto);
+
             //更新流向任务和主任的状态-为发货状态
             JyBizTaskSendVehicleEntity toSvTask = new JyBizTaskSendVehicleEntity();
             toSvTask.setBizId(bindVehicleDetailTaskReq.getToSendVehicleBizId());
@@ -268,7 +277,7 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
             toSvDetailTask.setPreVehicleStatus(JyBizTaskSendStatusEnum.TO_SEND.getCode());
             jyBizTaskSendVehicleDetailService.updateBizTaskSendDetailStatus(toSvDetailTask);
 
-            //删除主任务
+            //删除自建主任务
             JyBizTaskSendVehicleEntity fromSvTask = new JyBizTaskSendVehicleEntity();
             fromSvTask.setBizId(bindVehicleDetailTaskReq.getFromSendVehicleBizId());
             fromSvTask.setYn(0);
@@ -277,7 +286,7 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
             fromSvTask.setUpdateUserErp(bindVehicleDetailTaskReq.getUser().getUserErp());
             fromSvTask.setUpdateUserName(bindVehicleDetailTaskReq.getUser().getUserName());
             jyBizTaskSendVehicleService.updateSendVehicleTask(fromSvTask);
-            //删除子任务
+            //删除自建子任务
             JyBizTaskSendVehicleDetailEntity fromSvDetailTask = new JyBizTaskSendVehicleDetailEntity();
             fromSvDetailTask.setSendVehicleBizId(bindVehicleDetailTaskReq.getFromSendVehicleBizId());
             fromSvDetailTask.setYn(0);
@@ -291,6 +300,7 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyNoTaskSendServiceImpl.transferSendTask", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult transferSendTask(TransferSendTaskReq transferSendTaskReq) {
         log.info("任务迁移,transferSendTaskReq:{}",JsonHelper.toJson(transferSendTaskReq));
         //查询要迁移的批次信息-sendCodes
@@ -349,6 +359,7 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
     }
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyNoTaskSendServiceImpl.cancelSendTask", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<CancelSendTaskResp> cancelSendTask(CancelSendTaskReq request) {
         log.info("jy取消发货，按{}进行取消,扫描号码：{}", CancelSendTypeEnum.getReportTypeName(request.getType()), request.getCode());
         validateCancelReq(request);
