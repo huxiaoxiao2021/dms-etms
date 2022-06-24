@@ -257,9 +257,27 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
     public InvokeResult bindVehicleDetailTask(BindVehicleDetailTaskReq bindVehicleDetailTaskReq) {
         log.info("自建任务绑定运输任务,bindVehicleDetailTaskReq:{}",JsonHelper.toJson(bindVehicleDetailTaskReq));
         //更新任务与发货批次的关联关系
-        List<String> sendCodeList = jyVehicleSendRelationService.querySendCodesByVehicleDetailBizId(bindVehicleDetailTaskReq.getFromSendVehicleDetailBizId());
+        List<String> sendCodeList = jyVehicleSendRelationService.querySendCodesByVehicleBizId(bindVehicleDetailTaskReq.getFromSendVehicleBizId());
         if (ObjectHelper.isNotNull(sendCodeList) && sendCodeList.size()>0){
+            JyBizTaskSendVehicleDetailEntity queryFromDetailTaskParams =new JyBizTaskSendVehicleDetailEntity();
+            queryFromDetailTaskParams.setSendVehicleBizId(bindVehicleDetailTaskReq.getFromSendVehicleBizId());
+            queryFromDetailTaskParams.setStartSiteId(Long.valueOf(bindVehicleDetailTaskReq.getCurrentOperate().getSiteCode()));
+            JyBizTaskSendVehicleDetailEntity fromSvdTask =jyBizTaskSendVehicleDetailService.findSendDetail(queryFromDetailTaskParams);
+            if (!ObjectHelper.isNotNull(fromSvdTask)){
+                return new InvokeResult(DETAIL_TASK_NO_FOUND_BY_MAIN_TASK_CODE, DETAIL_TASK_NO_FOUND_BY_MAIN_TASK_MESSAGE);
+            }
+
+            JyBizTaskSendVehicleDetailEntity queryToDetailTaskParams =new JyBizTaskSendVehicleDetailEntity();
+            queryToDetailTaskParams.setStartSiteId(Long.valueOf(bindVehicleDetailTaskReq.getCurrentOperate().getSiteCode()));
+            queryToDetailTaskParams.setEndSiteId(fromSvdTask.getEndSiteId());
+            JyBizTaskSendVehicleDetailEntity toSvdTask =jyBizTaskSendVehicleDetailService.findSendDetail(queryToDetailTaskParams);
+            if (!ObjectHelper.isNotNull(toSvdTask)){
+                return new InvokeResult(DETAIL_TASK_NO_FOUND_BY_SITE_ID_CODE, DETAIL_TASK_NO_FOUND_BY_SITE_ID_MESSAGE);
+            }
+
             VehicleSendRelationDto dto = BeanUtils.copy(bindVehicleDetailTaskReq, VehicleSendRelationDto.class);
+            dto.setFromSendVehicleDetailBizId(fromSvdTask.getBizId());
+            dto.setToSendVehicleDetailBizId(toSvdTask.getBizId());
             dto.setSendCodes(sendCodeList);
             dto.setUpdateUserErp(bindVehicleDetailTaskReq.getUser().getUserErp());
             dto.setUpdateUserName(bindVehicleDetailTaskReq.getUser().getUserName());
@@ -267,12 +285,13 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
 
             //更新流向任务和主任的状态-为发货状态
             JyBizTaskSendVehicleEntity toSvTask = new JyBizTaskSendVehicleEntity();
-            toSvTask.setBizId(bindVehicleDetailTaskReq.getToSendVehicleBizId());
+            toSvTask.setBizId(dto.getToSendVehicleBizId());
             toSvTask.setVehicleStatus(JyBizTaskSendStatusEnum.SENDING.getCode());
             toSvTask.setPreVehicleStatus(JyBizTaskSendStatusEnum.TO_SEND.getCode());
             jyBizTaskSendVehicleService.updateBizTaskSendStatus(toSvTask);
+
             JyBizTaskSendVehicleDetailEntity toSvDetailTask = new JyBizTaskSendVehicleDetailEntity();
-            toSvDetailTask.setBizId(bindVehicleDetailTaskReq.getToSendVehicleDetailBizId());
+            toSvDetailTask.setBizId(dto.getToSendVehicleDetailBizId());
             toSvDetailTask.setVehicleStatus(JyBizTaskSendStatusEnum.SENDING.getCode());
             toSvDetailTask.setPreVehicleStatus(JyBizTaskSendStatusEnum.TO_SEND.getCode());
             jyBizTaskSendVehicleDetailService.updateBizTaskSendDetailStatus(toSvDetailTask);
