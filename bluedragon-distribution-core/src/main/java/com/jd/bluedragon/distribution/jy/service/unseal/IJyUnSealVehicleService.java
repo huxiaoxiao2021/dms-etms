@@ -23,6 +23,7 @@ public interface IJyUnSealVehicleService {
      * @param request
      * @return
      */
+    @Deprecated
     InvokeResult<SealVehicleTaskResponse> fetchSealTask(SealVehicleTaskRequest request);
 
     /**

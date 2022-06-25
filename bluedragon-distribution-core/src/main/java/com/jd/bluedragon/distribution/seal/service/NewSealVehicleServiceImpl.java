@@ -218,17 +218,21 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
         List<SealVehicles> saveSealDataList=new ArrayList<>();
         String msg = "";
         try {
+            log.info("开始调用运输封车,params:{}",JsonHelper.toJson(doSealCarDtos));
             sealCarInfo = vosBusinessWS.doSealCar(doSealCarDtos);
             if(sealCarInfo == null) {
                 msg = "封车JSF接口返回为空";
                 saveSealDataList.addAll(convert2SealVehicles(doSealCarDtos,SealVehicleExecute.FAIL,msg));
             }else if(Constants.RESULT_SUCCESS == sealCarInfo.getCode()){
+                log.info("提交运输封车成功！");
                 msg = MESSAGE_SEAL_SUCCESS;
                 //封车成功，发送封车mq消息
                 addRedisCache(doSealCarDtos);
                 sendBatchSendCodeStatusMsg(doSealCarDtos,null,BatchSendStatusEnum.USED);
+                log.info("封车成功，发送封车mq消息成功");
                 saveSealDataList.addAll(convert2SealVehicles(doSealCarDtos,SealVehicleExecute.SUCCESS,SealVehicleExecute.SUCCESS.getName()));
             }else{
+                log.info("提交运输封车失败，返回：{}",JsonHelper.toJson(sealCarInfo));
                 msg = "["+sealCarInfo.getCode()+":"+sealCarInfo.getMessage()+"]";
                 saveSealDataList.addAll(convert2SealVehicles(doSealCarDtos,SealVehicleExecute.FAIL,msg));
             }
@@ -1652,7 +1656,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 	    response.setBillCode(sealCodesDto.getBillCode());
 	    return response;
     }
-    
+
     private SealCodesDto convertToSealCodesDto(DoSealCodeRequest request) {
 	    SealCodesDto sealCodesDto = new SealCodesDto();
 	    sealCodesDto.setVehicleNumber(request.getVehicleNumber());

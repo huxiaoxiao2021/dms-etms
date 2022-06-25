@@ -488,7 +488,7 @@ public class StrandServiceImpl implements StrandService {
         }
         if (ReportTypeEnum.BOARD_NO.getCode().equals(request.getReportType())){
             SendM sendm =sendMService.selectSendByBoardCode(request.getSiteCode(),request.getBarcode(),1);
-            if (sendM==null){
+            if (sendm==null){
                 log.info("按板滞留上报==========没有找到按板的sendM(发货)记录");
                 return;
             }

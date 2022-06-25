@@ -28,6 +28,7 @@ import com.jd.bluedragon.distribution.loadAndUnload.exception.LoadIllegalExcepti
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
 import com.jd.bluedragon.distribution.router.RouterService;
 import com.jd.bluedragon.distribution.router.domain.dto.RouteNextDto;
+import com.jd.bluedragon.distribution.send.domain.SendResult;
 import com.jd.bluedragon.distribution.ver.service.SortingCheckService;
 import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.external.LogEngine;
@@ -361,7 +362,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
             }
 
             if (!response.getCode().equals(200)) {//如果校验不OK
-                if (response.getCode() >= 39000) {
+                if (response.getCode() >= SendResult.RESPONSE_CODE_MAPPING_CONFIRM) {
                     boardResponse.addStatusInfo(response.getCode(), response.getMessage());
                     return JdResponse.CODE_CONFIRM;
                 } else {
@@ -560,7 +561,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
             }
 
             if (!response.getCode().equals(200)) {//如果校验不OK
-                if (response.getCode() >= 39000) {
+                if (response.getCode() >= SendResult.RESPONSE_CODE_MAPPING_CONFIRM) {
                     boardResponse.addStatusInfo(response.getCode(), response.getMessage());
                     return JdResponse.CODE_CONFIRM;
                 } else {
@@ -790,7 +791,7 @@ public class BoardCombinationServiceImpl implements BoardCombinationService {
 
             //如果校验未通过
             if ( ! response.getCode().equals(200)) {
-                if (response.getCode() >= 39000) {
+                if (response.getCode() >= SendResult.RESPONSE_CODE_MAPPING_CONFIRM) {
                     boardResponse.addStatusInfo(response.getCode(), response.getMessage());
                     return JdResponse.CODE_CONFIRM;
                 } else {

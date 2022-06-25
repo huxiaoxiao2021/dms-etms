@@ -35,6 +35,8 @@ public class SendResult implements Serializable {
      */
     public static final Integer CODE_WARN = 6;
 
+    public static final Integer RESPONSE_CODE_MAPPING_CONFIRM = 39000;
+
     public SendResult() {
 
     }

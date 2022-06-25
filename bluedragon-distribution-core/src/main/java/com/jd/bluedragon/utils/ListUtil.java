@@ -1,5 +1,6 @@
 package com.jd.bluedragon.utils;
 
+import java.util.HashSet;
 import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
@@ -29,5 +30,39 @@ public class ListUtil {
         }
         return result;
     }
+
+    /**
+     * List集合去除重复数据 ,通过List中的contians方法
+     去除List集合中重复数据 前提是需要重重写对象的 hashcode和equal方法
+     *
+     * @param <T>
+     * @param list
+     * @return
+     */
+    public static <T> List<T> processDuplicateByContains(List<T> list) {
+        List<T> listAll = new ArrayList<T>();
+        for (T t : list) {
+            if (!listAll.contains(t)) {
+                listAll.add(t);
+            }
+        }
+        return listAll;
+    }
+
+    /**
+     * List集合去除重复数据 , 通过List中的contians方法去除
+     List集合中重复数据 前提是需要重重写对象的 hashcode和equal方法
+     *
+     * @param <T>
+     * @param list
+     * @return
+     */
+    public static <T> List<T> processDuplicateByHashSet(List<T> list) {
+        List<T> listAll = new ArrayList<T>();
+        HashSet<T> hashSet = new HashSet<T>(list);
+        listAll.addAll(hashSet);
+        return listAll;
+    }
+
 
 }
