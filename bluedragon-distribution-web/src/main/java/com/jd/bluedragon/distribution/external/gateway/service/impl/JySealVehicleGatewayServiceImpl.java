@@ -9,6 +9,9 @@ import com.jd.bluedragon.common.dto.operation.workbench.unseal.request.SealVehic
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.SealCodeResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.SealTaskInfo;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.SealVehicleTaskResponse;
+import com.jd.bluedragon.common.dto.seal.request.*;
+import com.jd.bluedragon.common.dto.seal.response.SealVehicleInfoResp;
+import com.jd.bluedragon.common.dto.seal.response.TransportResp;
 import com.jd.bluedragon.common.dto.select.SelectOption;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -124,6 +127,8 @@ public class JySealVehicleGatewayServiceImpl implements JySealVehicleGatewayServ
     }
 
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JySealVehicleGatewayService.vehicleStatusOptions",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public JdCResponse<List<SelectOption>> vehicleStatusOptions() {
         List<SelectOption> optionList = new ArrayList<>();
         for (VehicleStatusEnum _enum : VehicleStatusEnum.values()) {
@@ -167,6 +172,36 @@ public class JySealVehicleGatewayServiceImpl implements JySealVehicleGatewayServ
         }
         InvokeResult<SealCodeResponse> invokeResult = jyUnSealVehicleService.sealCodeList(request);
         return new JdCResponse<>(invokeResult.getCode(), invokeResult.getMessage(), invokeResult.getData());
+    }
+
+    @Override
+    public JdCResponse<SealCodeResponse> listSealCodeBy(SealCodeReq sealCodeReq) {
+        return null;
+    }
+
+    @Override
+    public JdCResponse<SealVehicleInfoResp> getSealVehicleInfo(SealVehicleInfoReq sealVehicleInfoReq) {
+        return null;
+    }
+
+    @Override
+    public JdCResponse<TransportResp> getTransportResourceByTransCode(TransportReq transportReq) {
+        return null;
+    }
+
+    @Override
+    public JdCResponse checkTransportCode(CheckTransportCodeReq checkTransportCodeReq) {
+        return null;
+    }
+
+    @Override
+    public JdCResponse<TransportResp> getVehicleNumberByWorkItemCode(GetVehicleNumberReq getVehicleNumberReq) {
+        return null;
+    }
+
+    @Override
+    public JdCResponse sealVehicle(SealVehicleReq sealVehicleReq) {
+        return null;
     }
 
     private <T> JdCResponse<T> retJdCResponse(InvokeResult<T> invokeResult) {

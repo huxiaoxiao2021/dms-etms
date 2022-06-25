@@ -235,4 +235,21 @@ public class CacheKeyConstants {
      */
     public static final String JY_UNLOAD_SEAL_CAR_MONITOR_SEAL_CAR_CODE = JY_CACHE_PREFIX + "sealCarMonitor:%s";
 
+    /**
+     * 派车单
+     */
+    public static final String JY_SEND_TRANS_WORK_KEY = JY_CACHE_PREFIX + "ss:init:%s";
+
+    /**
+     * 拣运发车任务主键
+     * bizId
+     */
+    public static final String JY_SEND_TASK_FIRST_SCAN_KEY = JY_CACHE_PREFIX + "ss:biz:first:%s";
+
+    /**
+     * 拣运发车任务明细主键
+     * bizId + createSite + receiveSite
+     */
+    public static final String JY_SEND_TASK_DETAIL_FIRST_SCAN_KEY = JY_CACHE_PREFIX + "sst:biz:first:%s:%s:%s";
+
 }

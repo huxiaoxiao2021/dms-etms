@@ -17,7 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  **/
 public class DeliveryAsyncTask extends DBSingleScheduler {
 
-    private static final Logger log = LoggerFactory.getLogger(InspectionSplitTask.class);
+    private static final Logger log = LoggerFactory.getLogger(DeliveryAsyncTask.class);
 
     @Autowired
     private IDeliveryOperationService deliveryOperationService;

@@ -419,6 +419,11 @@
         <jmq:listener topic="${jmq.topic.tms.vehicle.detail.status}" listener="tmsVehicleDetailStatusConsumer"/>
     </jmq:consumer>
 
+    <!--  运输派车明细消息  -->
+    <jmq:consumer id="jmq.tmsTransWorkItemOperateConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.tms.workItem.operate}" listener="tmsTransWorkItemOperateConsumer"/>
+    </jmq:consumer>
+
     <!--  接收卸车任务  -->
     <jmq:consumer id="jmq.initUnloadVehicleConsumer" transport="jmq.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.jy.flink.unload}" listener="initUnloadVehicleConsumer"/>

@@ -49,4 +49,19 @@ public interface SendMService {
      * @return
      */
     public SendM selectSendByBoardCode(Integer createSiteCode, String boardCode, Integer sendmStatus);
+
+    /**
+     * 根据箱号或者包裹号查询 发货批次号
+     * @param sendM
+     * @return
+     */
+    public String querySendCodeBySelective(SendM sendM) ;
+
+    /**
+     * 查询批次下的发货记录
+     * @param createSiteCode
+     * @param sendCode
+     * @return
+     */
+    public List<SendM> selectBySiteAndSendCode(Integer createSiteCode, String sendCode);
 }

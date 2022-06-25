@@ -23,6 +23,11 @@ public class SelectOption implements Serializable {
     private String name;
 
     /**
+     * 详细描述
+     */
+    private String desc;
+
+    /**
      * 排序
      */
     private Integer order;
@@ -32,6 +37,12 @@ public class SelectOption implements Serializable {
     public SelectOption(Integer code, String name) {
         this.code = code;
         this.name = name;
+    }
+
+    public SelectOption(Integer code, String name, String desc) {
+        this.code = code;
+        this.name = name;
+        this.desc = desc;
     }
 
     public SelectOption(Integer code, String name, Integer order) {
@@ -68,6 +79,14 @@ public class SelectOption implements Serializable {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getDesc() {
+        return desc;
+    }
+
+    public void setDesc(String desc) {
+        this.desc = desc;
     }
 
     public Integer getOrder() {
