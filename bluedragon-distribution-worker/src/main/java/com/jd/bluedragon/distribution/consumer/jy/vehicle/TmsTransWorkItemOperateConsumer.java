@@ -176,7 +176,7 @@ public class TmsTransWorkItemOperateConsumer extends MessageBaseConsumer {
             }
 
             // 更新lastPlanDepartTime最晚发车时间
-            updateSendVehicleLastPlanDepartTime(startSiteInfo.getSiteCode(), endSiteInfo.getSiteCode(), sendVehicleBiz);
+            updateSendVehicleLastPlanDepartTime(startSiteInfo.getSiteCode(), sendVehicleBiz);
         }
         catch (Exception e) {
             logger.error("消费运输派车单明细失败! {}", JsonHelper.toJson(workItemDto), e);
@@ -298,11 +298,10 @@ public class TmsTransWorkItemOperateConsumer extends MessageBaseConsumer {
     /**
      * 更新发货任务最晚发车时间
      * @param startSiteId
-     * @param endSiteId
      * @param sendVehicleBiz
      */
-    private void updateSendVehicleLastPlanDepartTime(Integer startSiteId, Integer endSiteId, String sendVehicleBiz) {
-        JyBizTaskSendVehicleDetailEntity detailQ = new JyBizTaskSendVehicleDetailEntity(startSiteId.longValue(), endSiteId.longValue(), sendVehicleBiz);
+    private void updateSendVehicleLastPlanDepartTime(Integer startSiteId, String sendVehicleBiz) {
+        JyBizTaskSendVehicleDetailEntity detailQ = new JyBizTaskSendVehicleDetailEntity(startSiteId.longValue(), sendVehicleBiz);
         List<JyBizTaskSendVehicleDetailEntity> vehicleDetailList = taskSendVehicleDetailService.findEffectiveSendVehicleDetail(detailQ);
         if (CollectionUtils.isEmpty(vehicleDetailList)) {
             return;
@@ -311,7 +310,7 @@ public class TmsTransWorkItemOperateConsumer extends MessageBaseConsumer {
         for (JyBizTaskSendVehicleDetailEntity detailEntity : vehicleDetailList) {
             if (lastPlanDepartTime != null) {
                 if (detailEntity.getPlanDepartTime() != null) {
-                    if (lastPlanDepartTime.after(detailEntity.getPlanDepartTime())) {
+                    if (lastPlanDepartTime.before(detailEntity.getPlanDepartTime())) {
                         lastPlanDepartTime = detailEntity.getPlanDepartTime();
                     }
                 }

@@ -11,24 +11,21 @@ import com.jd.bluedragon.core.base.JdiTransWorkWSManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.coldchain.domain.ColdChainSend;
 import com.jd.bluedragon.distribution.coldchain.service.ColdChainSendService;
+import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendDetailStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendStatusEnum;
 import com.jd.bluedragon.distribution.jy.manager.JyTransportManager;
 import com.jd.bluedragon.distribution.jy.send.JySendAggsEntity;
 import com.jd.bluedragon.distribution.jy.send.JySendSealCodeEntity;
 import com.jd.bluedragon.distribution.jy.service.send.JySendAggsService;
 import com.jd.bluedragon.distribution.jy.service.send.JyVehicleSendRelationService;
+import com.jd.bluedragon.distribution.jy.service.send.SendVehicleTransactionManager;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetailService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleService;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.distribution.wss.dto.SealCarDto;
-import com.jd.bluedragon.utils.BeanUtils;
-import com.jd.bluedragon.utils.CollectionHelper;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.ListUtil;
-import com.jd.bluedragon.utils.ObjectHelper;
-import com.jd.bluedragon.utils.TimeUtils;
+import com.jd.bluedragon.utils.*;
 import com.jd.dbs.util.CollectionUtils;
 import com.jd.etms.vos.dto.CommonDto;
 import com.jd.tms.jdi.dto.BigQueryOption;
@@ -72,6 +69,9 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
     @Autowired
     private ColdChainSendService coldChainSendService;
     private static final Integer SCHEDULE_TYPE_KA_BAN = 1;
+
+    @Autowired
+    private SendVehicleTransactionManager sendVehicleTransactionManager;
 
 
     @Override
@@ -152,7 +152,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
                         List<JySendSealCodeEntity> entityList = generateSendSealCodeList(sealVehicleReq);
                         jySendSealCodeService.addBatch(entityList);
                     }
-                    updateTaskStatus(sealVehicleReq);
+                    updateTaskStatus(sealVehicleReq, sealCarDto);
                     return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE);
                 }
                 return new InvokeResult(sealResp.getCode(), sealResp.getMessage());
@@ -164,18 +164,18 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
         return new InvokeResult(NO_SEND_CODE_DATA_UNDER_BIZTASK_CODE, NO_SEND_CODE_DATA_UNDER_BIZTASK_MESSAGE);
     }
 
-    private void updateTaskStatus(SealVehicleReq sealVehicleReq) {
-        JyBizTaskSendVehicleEntity sendVehicleEntity = new JyBizTaskSendVehicleEntity();
-        sendVehicleEntity.setBizId(sealVehicleReq.getSendVehicleBizId());
-        sendVehicleEntity.setVehicleStatus(JyBizTaskSendStatusEnum.SEALED.getCode());
-        sendVehicleEntity.setPreVehicleStatus(JyBizTaskSendStatusEnum.TO_SEAL.getCode());
-        jyBizTaskSendVehicleService.updateBizTaskSendStatus(sendVehicleEntity);
+    private void updateTaskStatus(SealVehicleReq sealVehicleReq, SealCarDto sealCarDto) {
+        JyBizTaskSendVehicleDetailEntity taskSendDetail = jyBizTaskSendVehicleDetailService.findByBizId(sealVehicleReq.getSendVehicleDetailBizId());
+        JyBizTaskSendVehicleEntity taskSend = jyBizTaskSendVehicleService.findByBizId(sealVehicleReq.getSendVehicleBizId());
+        taskSend.setUpdateTime(new Date());
+        taskSend.setUpdateUserErp(sealVehicleReq.getUser().getUserErp());
+        taskSend.setUpdateUserName(sealVehicleReq.getUser().getUserName());
 
-        JyBizTaskSendVehicleDetailEntity sendVehicleDetailEntity = new JyBizTaskSendVehicleDetailEntity();
-        sendVehicleDetailEntity.setBizId(sealVehicleReq.getSendVehicleDetailBizId());
-        sendVehicleDetailEntity.setVehicleStatus(JyBizTaskSendStatusEnum.SEALED.getCode());
-        sendVehicleDetailEntity.setPreVehicleStatus(JyBizTaskSendStatusEnum.TO_SEAL.getCode());
-        jyBizTaskSendVehicleDetailService.updateBizTaskSendDetailStatus(sendVehicleDetailEntity);
+        taskSendDetail.setSealCarTime(DateHelper.parseDate(sealCarDto.getSealCarTime(), Constants.DATE_TIME_FORMAT));
+        taskSendDetail.setUpdateTime(taskSend.getUpdateTime());
+        taskSendDetail.setUpdateUserErp(taskSend.getUpdateUserErp());
+        taskSendDetail.setUpdateUserName(taskSend.getUpdateUserName());
+        sendVehicleTransactionManager.updateTaskStatus(taskSend, taskSendDetail, JyBizTaskSendDetailStatusEnum.SEALED);
     }
 
     @Override
