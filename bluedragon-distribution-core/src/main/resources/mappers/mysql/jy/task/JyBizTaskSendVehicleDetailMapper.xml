@@ -401,10 +401,23 @@
 
     <update id="updateStatus">
         UPDATE jy_biz_task_send_vehicle_detail
-        <set>
-            vehicle_status = #{entity.vehicleStatus},
-            update_time = NOW()
-        </set>
+        <trim prefix="set" suffixOverrides=",">
+            <if test="entity.updateTime != null">
+                update_time = #{entity.updateTime},
+            </if>
+            <if test="entity.updateUserErp != null">
+                update_user_erp = #{entity.updateUserErp},
+            </if>
+            <if test="entity.updateUserName != null">
+                update_user_name = #{entity.updateUserName},
+            </if>
+            <if test="entity.vehicleStatus != null">
+                vehicle_status = #{entity.vehicleStatus},
+            </if>
+            <if test="entity.sealCarTime != null">
+                seal_car_time = #{entity.sealCarTime, jdbcType=TIMESTAMP}
+            </if>
+        </trim>
         WHERE
             yn = 1
         AND send_vehicle_biz_id = #{entity.sendVehicleBizId}
@@ -474,6 +487,7 @@
             yn = 1
         AND start_site_id = #{startSiteId}
         AND send_vehicle_biz_id = #{sendVehicleBizId}
+        GROUP BY vehicle_status
     </select>
 
     <update id="updateBizTaskSendDetailStatus">

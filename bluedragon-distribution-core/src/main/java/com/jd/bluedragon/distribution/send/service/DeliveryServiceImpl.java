@@ -1070,13 +1070,22 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
             }
         }
 
+        if (!packageSendByRealWaybill(domain, isCancelLastSend, result)) {
+            return result;
+        }
+        return result;
+    }
+
+    @Override
+    @JProfiler(jKey = "DMSWEB.DeliveryServiceImpl.packageSendByRealWaybill", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public boolean packageSendByRealWaybill(SendM domain, Boolean isCancelLastSend, SendResult result) {
         String waybillCode = WaybillUtil.getWaybillCode(domain.getBoxCode());
         Integer createSiteCode = domain.getCreateSiteCode();
         Waybill waybill = waybillQueryManager.getOnlyWaybillByWaybillCode(waybillCode);
         if (waybill == null) {
             log.error("按运单发货任务处理,查询运单不存在:waybillCode={}", waybillCode);
             result.init(SendResult.CODE_SENDED, "查询运单不存在:" + waybillCode);
-            return result;
+            return false;
         }
         // 校验是否已有包裹操作过发货 v2新需求：如果有包裹号单独先发货，则跳过已发货包裹号，剩余的包裹号执行发货逻辑
 //        if (redisClientCache.exists(getSendByWaybillPackLockKey(waybillCode, createSiteCode))) {
@@ -1086,7 +1095,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         // 锁定运单发货
         if (!lockWaybillSend(waybillCode, createSiteCode, waybill.getGoodNumber())) {
             result.init(SendResult.CODE_SENDED, DeliveryResponse.MESSAGE_DELIVERY_ALL_PROCESSING);
-            return result;
+            return false;
         }
         if (Boolean.TRUE.equals(isCancelLastSend)) {
             this.doCancelLastSend(domain);
@@ -1098,9 +1107,12 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
             unlockWaybillSend(waybillCode, createSiteCode);
             log.error("写入按运单发货任务出错:waybill={}", waybillCode, e);
             result.init(SendResult.CODE_SERVICE_ERROR, "写入按运单发货任务出错:" + waybillCode);
+            return false;
         }
-        return result;
+
+        return true;
     }
+
     /**
      * 按运单发货任务
      * @param domain 发货数据
@@ -1423,7 +1435,8 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
      * @param result
      * @return
      */
-    private boolean multiSendVerification(SendM domain, SendResult result) {
+    @Override
+    public boolean multiSendVerification(SendM domain, SendResult result) {
         // 根据箱号/包裹号 + 始发站点 + 目的站点获取发货记录
         SendM lastSendM = this.getRecentSendMByParam(domain.getBoxCode(), domain.getCreateSiteCode(), null, domain.getOperateTime());
         if (lastSendM != null) {

@@ -11,10 +11,16 @@ import com.jd.bluedragon.common.dto.operation.workbench.unseal.request.SealVehic
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.SealVehicleTaskResponse;
 import com.jd.bluedragon.common.dto.send.request.VehicleTaskReq;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendDetailStatusEnum;
 import com.jd.bluedragon.distribution.jy.send.JySendAttachmentEntity;
 import com.jd.bluedragon.distribution.jy.service.send.IJySendAttachmentService;
 import com.jd.bluedragon.distribution.jy.service.send.IJySendVehicleService;
+import com.jd.bluedragon.distribution.jy.service.send.SendVehicleTransactionManager;
+import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetailService;
 import com.jd.bluedragon.distribution.jy.service.unseal.IJyUnSealVehicleService;
+import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
+import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jdl.jy.realtime.model.query.seal.SealVehicleTaskQuery;
 import org.junit.Test;
@@ -22,6 +28,9 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import java.util.Date;
+import java.util.List;
 
 /**
  * @ClassName JySealVehicleServiceTest
@@ -172,6 +181,38 @@ public class JySealVehicleServiceTest {
 
         SendVehicleProgressRequest request = JsonHelper.fromJson(json, SendVehicleProgressRequest.class);
         jySendVehicleService.loadProgress(request);
+    }
+
+    @Autowired
+    private SendVehicleTransactionManager sendVehicleTransactionManager;
+
+    @Autowired
+    private JyBizTaskSendVehicleDetailService taskSendVehicleDetailService;
+
+    @Test
+    public void updateTaskStatusTest() {
+
+        JyBizTaskSendVehicleEntity taskSend = new JyBizTaskSendVehicleEntity();
+        taskSend.setVehicleStatus(0);
+        taskSend.setBizId("SST22061600000106");
+        taskSend.setStartSiteId(40240L);
+        taskSend.setUpdateTime(new Date());
+        taskSend.setUpdateUserErp("bjxings");
+        taskSend.setUpdateUserName("邢松");
+
+        JyBizTaskSendVehicleDetailEntity taskSendDetail = new JyBizTaskSendVehicleDetailEntity();
+        taskSendDetail.setSendVehicleBizId(taskSend.getBizId());
+        taskSendDetail.setBizId("TW22061600792381-002");
+        taskSendDetail.setVehicleStatus(0);
+        taskSendDetail.setStartSiteId(taskSend.getStartSiteId());
+        taskSendDetail.setEndSiteId(56506L);
+        taskSendDetail.setSealCarTime(new Date());
+        taskSendDetail.setUpdateTime(taskSend.getUpdateTime());
+        taskSendDetail.setUpdateUserErp(taskSend.getUpdateUserErp());
+        taskSendDetail.setUpdateUserName(taskSend.getUpdateUserName());
+        sendVehicleTransactionManager.updateTaskStatus(taskSend, taskSendDetail, JyBizTaskSendDetailStatusEnum.SEALED);
+
+
     }
 
 }
