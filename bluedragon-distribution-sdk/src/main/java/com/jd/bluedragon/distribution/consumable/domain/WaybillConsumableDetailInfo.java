@@ -25,6 +25,9 @@ public class WaybillConsumableDetailInfo extends PackingConsumableInfo {
     /** 包装耗材价格 **/
     private BigDecimal packingCharge;
 
+    /** 打包后包装体积（立方米） **/
+    private Double confirmVolume;
+
     public String getWaybillCode() {
         return waybillCode;
     }
@@ -71,5 +74,13 @@ public class WaybillConsumableDetailInfo extends PackingConsumableInfo {
 
     public void setPackingCharge(BigDecimal packingCharge) {
         this.packingCharge = packingCharge;
+    }
+
+    public Double getConfirmVolume() {
+        return confirmVolume;
+    }
+
+    public void setConfirmVolume(Double confirmVolume) {
+        this.confirmVolume = confirmVolume;
     }
 }

@@ -1730,6 +1730,12 @@
 		</dependency>
 
 		<dependency>
+			<groupId>com.jd.tys</groupId>
+			<artifactId>workbench-api</artifactId>
+			<version>1.0.0-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
 			<groupId>com.jd.dms.wb</groupId>
 			<artifactId>dms-workbench-utils-sdk</artifactId>
 			<version>jdk1.7-1.0.1-SNAPSHOT</version>
