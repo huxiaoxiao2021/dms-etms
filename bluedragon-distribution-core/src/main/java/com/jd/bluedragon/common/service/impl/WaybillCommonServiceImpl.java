@@ -16,6 +16,7 @@ import com.jd.bluedragon.distribution.popPrint.domain.PopPrint;
 import com.jd.bluedragon.distribution.popPrint.service.PopPrintService;
 import com.jd.bluedragon.distribution.print.domain.BasePrintWaybill;
 import com.jd.bluedragon.distribution.print.domain.TemplateGroupEnum;
+import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
 import com.jd.bluedragon.distribution.print.service.ComposeService;
 import com.jd.bluedragon.distribution.print.service.HideInfoService;
 import com.jd.bluedragon.distribution.print.service.WaybillPrintService;
@@ -1614,8 +1615,8 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
     public void loadWaybillRouter(WaybillPrintRequest request, BasePrintWaybill printWaybill, Integer originalDmsCode, Integer destinationDmsCode, String waybillSign){
 
         //京象或者京管家调用直接添加路由信息
-        if(request != null && request.getBusinessType().equals(1003) && request.getOperateType().equals(100310)){
-
+        if(request != null && WaybillPrintOperateTypeEnum.SMS_PDA_REPRINT.getType().equals(request.getOperateType())){
+            log.info("直接获取路由，跳过B网检查 {}",printWaybill.getWaybillCode());
         }else {
             //非B网的不用查路由
             if(!BusinessUtil.isB2b(waybillSign)){
