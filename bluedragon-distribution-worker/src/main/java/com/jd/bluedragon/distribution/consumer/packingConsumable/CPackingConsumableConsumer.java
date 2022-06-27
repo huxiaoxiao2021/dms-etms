@@ -122,10 +122,9 @@ public class CPackingConsumableConsumer extends MessageBaseConsumer {
     private boolean isNeedConfirmConsumable(ReceivePackingConsumableDto packingConsumableDto) {
         if (CollectionUtils.isNotEmpty(packingConsumableDto.getBoxChargeDetails())) {
             for(BoxChargeDetail waybillConsumableDetailDto : packingConsumableDto.getBoxChargeDetails()) {
-                if(PackingTypeEnum.TY003.getTypeCode().equals(waybillConsumableDetailDto.getMaterialTypeCode())
-                        || PackingTypeEnum.TY004.getTypeCode().equals(waybillConsumableDetailDto.getMaterialTypeCode())
-                        || PackingTypeEnum.TY008.getTypeCode().equals(waybillConsumableDetailDto.getMaterialTypeCode())
+                if(PackingTypeEnum.isWoodenConsumable(waybillConsumableDetailDto.getMaterialTypeCode())
                         || ConsumableCodeEnums.isWoodenConsumable(waybillConsumableDetailDto.getBarCode())
+
                 ) {
                     return false;
                 }
