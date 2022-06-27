@@ -516,10 +516,23 @@
 
     <update id="updateStatus">
         UPDATE jy_biz_task_send_vehicle
-        <set>
-            vehicle_status = #{entity.vehicleStatus},
-            update_time = NOW()
-        </set>
+        <trim prefix="set" suffixOverrides=",">
+            <if test="entity.updateTime != null">
+                update_time = #{entity.updateTime},
+            </if>
+            <if test="entity.updateUserErp != null">
+                update_user_erp = #{entity.updateUserErp},
+            </if>
+            <if test="entity.updateUserName != null">
+                update_user_name = #{entity.updateUserName},
+            </if>
+            <if test="entity.vehicleStatus != null">
+                vehicle_status = #{entity.vehicleStatus},
+            </if>
+            <if test="entity.lastSealCarTime != null">
+                last_seal_car_time = #{entity.lastSealCarTime},
+            </if>
+        </trim>
         WHERE
             yn = 1
         AND biz_id = #{entity.bizId}
