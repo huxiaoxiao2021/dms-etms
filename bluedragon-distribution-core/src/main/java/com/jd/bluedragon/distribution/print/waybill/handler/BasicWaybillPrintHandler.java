@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.print.waybill.handler;
 
+import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.TextConstants;
 import com.jd.bluedragon.common.domain.Waybill;
@@ -196,7 +197,8 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
             //根据预分拣站点加载始发及目的站点信息
             loadBasicData(context,context.getResponse());
             //加载路由信息
-            waybillCommonService.loadWaybillRouter(context.getResponse(),context.getResponse().getOriginalDmsCode(),context.getResponse().getPurposefulDmsCode(),context.getWaybill().getWaybillSign());
+            log.info("加载路由信息---context.getResponse() :{},context.getWaybill() :{}", JSON.toJSONString(context.getResponse()),JSON.toJSONString(context.getWaybill()));
+            waybillCommonService.loadWaybillRouter(context.getRequest(),context.getResponse(),context.getResponse().getOriginalDmsCode(),context.getResponse().getPurposefulDmsCode(),context.getWaybill().getWaybillSign());
         }catch (Exception ex){
             log.error("标签打印接口异常，运单号:{}", waybillCode,ex);
             interceptResult.toError();

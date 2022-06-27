@@ -1,6 +1,7 @@
 package com.jd.bluedragon.common.service;
 
 import com.jd.bluedragon.common.domain.Waybill;
+import com.jd.bluedragon.distribution.api.request.WaybillPrintRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.print.domain.BasePrintWaybill;
 import com.jd.bluedragon.distribution.print.waybill.handler.WaybillPrintContext;
@@ -193,12 +194,13 @@ public interface WaybillCommonService {
 
 	/**
 	 * B网面单获取路由
+	 * @param request
 	 * @param printWaybill
 	 * @param originalDmsCode
 	 * @param destinationDmsCode
 	 * @param waybillSign
 	 */
-	void loadWaybillRouter(BasePrintWaybill printWaybill,Integer originalDmsCode,Integer destinationDmsCode,String waybillSign);
+	void loadWaybillRouter(WaybillPrintRequest request,BasePrintWaybill printWaybill, Integer originalDmsCode, Integer destinationDmsCode, String waybillSign);
 
 	/**
 	 * 通过运单号获取包裹数量
