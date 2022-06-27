@@ -974,7 +974,7 @@ public class BaseServiceImpl extends AbstractClient implements BaseService, ErpV
 		currentOperate.setSiteCode(siteCode);
 		menuUsageConfigRequestDto.setCurrentOperate(currentOperate);
 		final MenuUsageProcessDto clientMenuUsageConfig = getClientMenuUsageConfig(menuUsageConfigRequestDto);
-		return ImmutablePair.of(Objects.equals(clientMenuUsageConfig == null ? true : clientMenuUsageConfig.getCanUse(), Constants.YN_YES),
+		return ImmutablePair.of(clientMenuUsageConfig == null || Objects.equals(clientMenuUsageConfig.getCanUse(), Constants.YN_YES),
 				clientMenuUsageConfig == null ? null : clientMenuUsageConfig.getMsg());
 	}
 
