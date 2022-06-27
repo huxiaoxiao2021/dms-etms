@@ -179,7 +179,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
         if (CollectionUtils.isEmpty(doSealCarDtos)){
             sealCarInfo = new CommonDto<String>();
             sealCarInfo.setCode(0);
-            sealCarInfo.setMessage("封车失败。无有效的封车信息，请重新录入");
+            sealCarInfo.setMessage("空批次禁止封车！");
             log.warn("封车失败。无有效的封车信息sealCars[{}]sealCarResultDto[{}]", JsonHelper.toJson(sealCars),JsonHelper.toJson(sealCarResultDto));
             return sealCarInfo;
         }
@@ -200,7 +200,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
         List<SealVehicles> saveSealDataList=new ArrayList<>();
         String msg = "";
         try {
-            log.info("开始调用运输封车,params:{}",JsonHelper.toJson(doSealCarDtos));
+            log.info("开始调用运输封车接口,params:{}",JsonHelper.toJson(doSealCarDtos));
             sealCarInfo = vosBusinessWS.doSealCar(doSealCarDtos);
             if(sealCarInfo == null) {
                 msg = "封车JSF接口返回为空";
@@ -299,6 +299,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
               }
 
           }else {
+              //没有发货批次信息的
               keepsourceSealDtos.add(sourceSealDto);
           }
       }
@@ -334,7 +335,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 	private boolean checkBatchCodeIsSend(String batchCode){
         boolean res=true;
 
-	    //批次号不存在sendm记录
+	    //批次号不存在sendd记录
 	    if(!checkSendIsExist(batchCode)) {
 
             JdResult<Integer> materialSendRet = sortingMaterialSendService.countMaterialSendRecordByBatchCode(batchCode, null);
