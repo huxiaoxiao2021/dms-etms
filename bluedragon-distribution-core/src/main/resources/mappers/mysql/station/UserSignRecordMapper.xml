@@ -683,7 +683,7 @@
 		select
 			<include refid="Base_Column_List"/>
 		from
-			(select t.* from user_sign_record t
+			(select t.* from user_sign_record t force index(`idx_user_code`)
 			     where t.yn = 1
 		            and t.site_code = #{siteCode,jdbcType=INTEGER}
 		            and t.user_code = #{userCode,jdbcType=VARCHAR}
@@ -828,7 +828,7 @@
         select
             <include refid="Main_Column_List"/>
         from
-            user_sign_record r
+            user_sign_record r force index(`idx_site_and_create_user_code`)
         <include refid="queryByOperateUser"/>
         order by id desc
         limit #{offset}, #{limit}
@@ -838,7 +838,7 @@
         select
             count(1)
         from
-            user_sign_record r
+            user_sign_record r force index(`idx_site_and_create_user_code`)
         <include refid="queryByOperateUser"/>
     </select>
     <sql id="queryByOperateUser">
