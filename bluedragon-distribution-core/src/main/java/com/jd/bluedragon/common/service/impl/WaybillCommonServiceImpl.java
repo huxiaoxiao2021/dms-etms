@@ -1615,11 +1615,13 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
     public void loadWaybillRouter(WaybillPrintRequest request, BasePrintWaybill printWaybill, Integer originalDmsCode, Integer destinationDmsCode, String waybillSign){
 
         //京象或者京管家调用直接添加路由信息
+        log.info("loadWaybillRouter-request {}",JSON.toJSONString(request));
         if(request != null && WaybillPrintOperateTypeEnum.SMS_PDA_REPRINT.getType().equals(request.getOperateType())){
             log.info("直接获取路由，跳过B网检查 {}",printWaybill.getWaybillCode());
         }else {
             //非B网的不用查路由
             if(!BusinessUtil.isB2b(waybillSign)){
+                log.info("非B网的不用查路由 {}",waybillSign);
                 return;
             }
         }
