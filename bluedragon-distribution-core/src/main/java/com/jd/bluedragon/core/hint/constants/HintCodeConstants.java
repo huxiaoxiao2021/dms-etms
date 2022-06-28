@@ -414,17 +414,17 @@ public class HintCodeConstants {
     public static String SCAN_BARCODE_LIMIT = "20063";
 
     /**
-     * 支付类型为空，联系IT咚咚：XNPSXT处理
+     * 支付类型为空，联系IT咚咚：org.wlxt2 处理
      */
     public static String WAYBILL_MISSING_PAYMENT_TYPE = "20064";
 
     /**
-     * 特殊属性为空，联系IT咚咚：XNPSXT处理
+     * 特殊属性为空，联系IT咚咚：org.wlxt2 处理
      */
     public static String WAYBILL_MISSING_SEND_PAY = "20065";
 
     /**
-     * 运单类型为空，联系IT咚咚：XNPSXT处理
+     * 运单类型为空，联系IT咚咚：org.wlxt2 处理
      */
     public static String WAYBILL_TYPE_MISSING = "20066";
 
