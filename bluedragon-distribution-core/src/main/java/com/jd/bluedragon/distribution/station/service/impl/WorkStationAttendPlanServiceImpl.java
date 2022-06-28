@@ -105,6 +105,10 @@ public class WorkStationAttendPlanServiceImpl implements WorkStationAttendPlanSe
 		if(!CheckHelper.checkInteger("出勤计划人数", planAttendNum, 0,1000000, result).isSuccess()) {
 			return result;
 		}
+		WorkStationAttendPlan oldData = workStationAttendPlanDao.queryById(updateData.getId());
+		if(oldData == null) {
+			return result.toFail("该计划数据已变更，请重新查询后修改！");
+		}		
 		workStationAttendPlanDao.deleteById(updateData);
 		updateData.setId(null);		
 		result.setData(workStationAttendPlanDao.insert(updateData) == 1);
