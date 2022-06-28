@@ -119,7 +119,29 @@ public class JyBizTaskSendVehicleServiceImpl implements JyBizTaskSendVehicleServ
     }
 
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyBizTaskSendVehicleService.updateBizTaskSendStatus",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public int updateBizTaskSendStatus(JyBizTaskSendVehicleEntity entity) {
         return jyBizTaskSendVehicleDao.updateBizTaskSendStatus(entity);
+    }
+
+    @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyBizTaskSendVehicleService.findSendTaskByDestOfPage",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
+    public List<JyBizTaskSendVehicleEntity> findSendTaskByDestOfPage(JyBizTaskSendVehicleDetailEntity entity, Integer pageNum, Integer pageSize) {
+        Integer limit = pageSize;
+        Integer offset = (pageNum - 1) * pageSize;
+        // 超过最大分页数据量 直接返回空数据
+        if (offset + limit > ucc.getJyTaskPageMax()) {
+            return new ArrayList<>();
+        }
+        return jyBizTaskSendVehicleDao.findSendTaskByDestOfPage(entity, offset, limit);
+    }
+
+    @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyBizTaskSendVehicleService.countSendTaskByDest",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
+    public Integer countSendTaskByDest(JyBizTaskSendVehicleDetailEntity entity) {
+        return jyBizTaskSendVehicleDao.countSendTaskByDest(entity);
     }
 }
