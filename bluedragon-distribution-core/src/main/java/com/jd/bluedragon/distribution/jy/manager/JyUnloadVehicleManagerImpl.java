@@ -14,6 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 /**
  * @ClassName JyUnloadVehicleManagerImpl
  * @Description
@@ -122,10 +124,10 @@ public class JyUnloadVehicleManagerImpl implements IJyUnloadVehicleManager {
     }
 
     @Override
-    public JyVehicleTaskUnloadDetail findOneUnloadDetail(JyVehicleTaskUnloadDetail query) {
-        CallerInfo ump = ProfilerHelper.registerInfo("dms.web.IJyUnloadVehicleManager.findOneUnloadDetail");
+    public List<JyVehicleTaskUnloadDetail> findUnloadDetail(JyVehicleTaskUnloadDetail query) {
+        CallerInfo ump = ProfilerHelper.registerInfo("dms.web.IJyUnloadVehicleManager.findUnloadDetail");
         try {
-            ServiceResult<JyVehicleTaskUnloadDetail> serviceResult = unloadVehicleJsfService.findSealCarCode(query);
+            ServiceResult<List<JyVehicleTaskUnloadDetail>> serviceResult = unloadVehicleJsfService.findSealCarCode(query);
             if (serviceResult.retSuccess()) {
                 return serviceResult.getData();
             }
