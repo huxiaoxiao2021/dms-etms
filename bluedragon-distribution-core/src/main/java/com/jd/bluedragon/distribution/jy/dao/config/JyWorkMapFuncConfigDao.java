@@ -44,4 +44,8 @@ public class JyWorkMapFuncConfigDao extends BaseDao<JyWorkMapFuncConfigEntity> {
     public int queryCount(JyWorkMapFuncQuery query) {
         return this.getSqlSession().selectOne(NAMESPACE+".queryCount",query);
     }
+
+    public List<JyWorkMapFuncConfigEntity> queryByCondition(JyWorkMapFuncConfigEntity entity) {
+        return this.getSqlSession().selectList(NAMESPACE+".queryByCondition", entity);
+    }
 }

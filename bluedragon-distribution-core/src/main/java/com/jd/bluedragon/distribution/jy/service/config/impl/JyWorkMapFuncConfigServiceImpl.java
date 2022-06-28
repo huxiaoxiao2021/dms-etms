@@ -6,10 +6,12 @@ import com.jd.bluedragon.distribution.jy.config.JyWorkMapFuncQuery;
 import com.jd.bluedragon.distribution.jy.dao.config.JyWorkMapFuncConfigDao;
 import com.jd.bluedragon.distribution.jy.service.config.JyWorkMapFuncConfigService;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 拣运功能与工序配置接口实现
@@ -62,5 +64,13 @@ public class JyWorkMapFuncConfigServiceImpl implements JyWorkMapFuncConfigServic
             pageDto.setTotalRow(0);
         }
         return pageDto;
+    }
+
+    @Override
+    public List<JyWorkMapFuncConfigEntity> queryByCondition(JyWorkMapFuncConfigEntity entity) {
+        if(entity == null || StringUtils.isEmpty(entity.getFuncCode()) || StringUtils.isEmpty(entity.getRefWorkKey())){
+            throw new RuntimeException("请求参数不合法!");
+        }
+        return jyWorkMapFuncConfigDao.queryByCondition(entity);
     }
 }
