@@ -907,7 +907,7 @@ public class Task implements java.io.Serializable, TaskModeAware{
             return "DeliverySendAsyncTask";
         }
         else if (TASK_TYPE_DELIVERY_ASYNC_V2.equals(type)) {
-            return "DeliverySendAsyncTaskV2";
+            return "DeliveryAsyncTaskV2";
         }
         else if (TASK_TYPE_DELIVERY_TRANSFER.equals(type)) {
             return "DeliverySendTransferTask";

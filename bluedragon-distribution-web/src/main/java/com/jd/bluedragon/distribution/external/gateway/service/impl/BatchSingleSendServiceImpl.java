@@ -26,6 +26,7 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.gateway.service.BatchSingleSendGatewayService;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.dms.logger.annotation.BusinessLog;
 import com.jd.etms.waybill.domain.BaseEntity;
@@ -160,7 +161,10 @@ public class BatchSingleSendServiceImpl implements BatchSingleSendGatewayService
             return jdResponse;
         }
 
-        jdResponse.toFail(result.getData().getValue());
+        jdResponse.toFail(result.getMessage());
+        if (ObjectHelper.isNotNull(result.getData())){
+            jdResponse.toFail(result.getData().getValue());
+        }
         return jdResponse;
     }
 

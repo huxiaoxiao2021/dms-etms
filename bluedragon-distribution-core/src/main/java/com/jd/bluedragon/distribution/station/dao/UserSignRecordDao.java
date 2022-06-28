@@ -152,4 +152,16 @@ public interface UserSignRecordDao {
 	 * @return
 	 */
 	List<UserSignRecord> queryUnSignOutListWithPosition(UserSignQueryRequest query);
+	/**
+	 * 查询操作人签到的数量
+	 * @param query
+	 * @return
+	 */
+	Long queryCountByOperateUser(UserSignQueryRequest query);
+	/**
+	 * 查询操作人签到的数据
+	 * @param query
+	 * @return
+	 */
+	List<UserSignRecordData> queryListByOperateUser(UserSignQueryRequest query);
 }
