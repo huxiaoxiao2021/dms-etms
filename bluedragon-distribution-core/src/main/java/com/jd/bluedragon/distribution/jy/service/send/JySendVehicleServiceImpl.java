@@ -734,6 +734,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
 
                 List<VehicleDetailTaskDto> vdList = new ArrayList<>();
                 vehicleTaskDto.setVehicleDetailTaskDtoList(vdList);
+                vehicleTaskList.add(vehicleTaskDto);
 
                 // 组装发车任务流向明细
                 this.initVehicleTaskDetails(sendVehicleEntity, vdList);
