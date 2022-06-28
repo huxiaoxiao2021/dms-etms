@@ -54,6 +54,13 @@ public interface WaybillConsumableRelationService extends Service<WaybillConsuma
      */
     int getNoPackUserErpRecordCount(String waybillCode);
 
+    /**
+     * 通过运单号查询未录入打包后包装耗材体积的耗材数
+     * @param
+     * @return
+     */
+    List<WaybillConsumableDetailInfo> getNoConfirmVolumeRecordCount(String waybillCode);
+
     void updateByWaybillCode(WaybillConsumableRelationPDADto waybillConsumableRelationPDADto);
 
     List<WaybillConsumableRelation> convert2WaybillConsumableRelation(ReceivePackingConsumableDto packingConsumableDto);
