@@ -67,6 +67,15 @@ public class UserSignQueryRequest implements Serializable {
 	private Integer pageNumber;
 	
 	private Integer pageSize;
+	/**
+	 * 创建人ERP
+	 */
+	private String createUser;
+	
+	/**
+	 * 签到日期
+	 */
+	private String signDateStr;
 	
 	public Long getId() {
 		return id;
@@ -151,5 +160,17 @@ public class UserSignQueryRequest implements Serializable {
 	}
 	public void setPageSize(Integer pageSize) {
 		this.pageSize = pageSize;
+	}
+	public String getCreateUser() {
+		return createUser;
+	}
+	public void setCreateUser(String createUser) {
+		this.createUser = createUser;
+	}
+	public String getSignDateStr() {
+		return signDateStr;
+	}
+	public void setSignDateStr(String signDateStr) {
+		this.signDateStr = signDateStr;
 	}
 }
