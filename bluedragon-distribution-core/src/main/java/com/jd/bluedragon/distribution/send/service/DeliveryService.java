@@ -547,4 +547,14 @@ public interface DeliveryService {
      * @return
      */
     SortingCheck getSortingCheck(SendM domain);
+
+    /**
+     * 校验是否已经发货
+     * @param domain
+     * @param result
+     * @return
+     */
+    boolean multiSendVerification(SendM domain, SendResult result);
+
+    boolean packageSendByRealWaybill(SendM domain, Boolean isCancelLastSend, SendResult result);
 }
