@@ -662,19 +662,6 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
         return condition;
     }
 
-    /**
-     * 组装发车任务查询条件
-     * @param request
-     * @return
-     */
-    private JyBizTaskSendVehicleEntity makeFetchCondition(SendVehicleTaskRequest request) {
-        JyBizTaskSendVehicleEntity condition = new JyBizTaskSendVehicleEntity();
-        condition.setStartSiteId((long) request.getCurrentOperate().getSiteCode());
-        condition.setLineType(request.getLineType());
-
-        return condition;
-    }
-
     private boolean checkBeforeFetchTask(SendVehicleTaskRequest request, InvokeResult<SendVehicleTaskResponse> result) {
         if (request.getVehicleStatus() == null) {
             result.parameterError("请选择车辆状态！");
@@ -707,23 +694,23 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public InvokeResult<VehicleTaskResp> fetchSendTaskForBinding(VehicleTaskReq vehicleTaskReq) {
         InvokeResult<VehicleTaskResp> result = new InvokeResult<>();
+        if (StringUtils.isBlank(vehicleTaskReq.getBizId())) {
+            result.parameterError();
+            return result;
+        }
 
-        JyBizTaskSendVehicleDetailEntity totalQ = new JyBizTaskSendVehicleDetailEntity();
-        totalQ.setSendVehicleBizId(vehicleTaskReq.getBizId());
-        totalQ.setStartSiteId((long) vehicleTaskReq.getCurrentOperate().getSiteCode());
-        JyBizTaskSendVehicleDetailEntity curSendDest = taskSendVehicleDetailService.findSendDetail(totalQ);
+        // 无任务发货只有一个流向
+        JyBizTaskSendVehicleDetailEntity sendDestQ = new JyBizTaskSendVehicleDetailEntity();
+        sendDestQ.setSendVehicleBizId(vehicleTaskReq.getBizId());
+        sendDestQ.setStartSiteId((long) vehicleTaskReq.getCurrentOperate().getSiteCode());
+        JyBizTaskSendVehicleDetailEntity curSendDest = taskSendVehicleDetailService.findSendDetail(sendDestQ);
         if (curSendDest == null) {
             result.hintMessage("无任务绑定之前必须发货！");
             return result;
         }
         try {
-            QueryTaskSendDto queryTaskSendDto = makeSendTaskQuery(vehicleTaskReq);
-            JyBizTaskSendVehicleEntity queryCondition = makeFetchCondition(queryTaskSendDto);
-            queryCondition.setManualCreatedFlag(Constants.NUMBER_ZERO); // 不查询自建任务
-            queryTaskSendDto.setSendVehicleBizList(Collections.singletonList(curSendDest.getSendVehicleBizId()));
-
             // 统计发货任务数量
-            Integer taskCount = taskSendVehicleService.countByCondition(queryCondition, queryTaskSendDto.getSendVehicleBizList(), queryTaskSendDto.getVehicleStatuses());
+            Integer taskCount = taskSendVehicleService.countSendTaskByDest(curSendDest);
             VehicleTaskResp taskResp = new VehicleTaskResp();
             result.setData(taskResp);
             taskResp.setCount(taskCount);
@@ -734,16 +721,13 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
             }
 
             // 默认按预计发车时间排序
-            JyBizTaskSendSortTypeEnum orderTypeEnum = JyBizTaskSendSortTypeEnum.PLAN_DEPART_TIME;
-            List<JyBizTaskSendVehicleEntity> vehiclePageList = taskSendVehicleService.querySendTaskOfPage(queryCondition, queryTaskSendDto.getSendVehicleBizList(), orderTypeEnum,
-                    queryTaskSendDto.getPageNumber(), queryTaskSendDto.getPageSize(), queryTaskSendDto.getVehicleStatuses());
+            List<JyBizTaskSendVehicleEntity> vehiclePageList = taskSendVehicleService.findSendTaskByDestOfPage(curSendDest,
+                    vehicleTaskReq.getPageNumber(), vehicleTaskReq.getPageSize());
 
             if (CollectionUtils.isEmpty(vehiclePageList)) {
                 return result;
             }
 
-            // 按目的地检索同流向的任务，同流向封车了，需要剔除发车任务
-            Set<String> needToTwiceRemoveTask = new HashSet<>();
             for (JyBizTaskSendVehicleEntity sendVehicleEntity : vehiclePageList) {
                 // 组装发车任务
                 VehicleTaskDto vehicleTaskDto = this.initVehicleTaskDto(sendVehicleEntity);
@@ -752,11 +736,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
                 vehicleTaskDto.setVehicleDetailTaskDtoList(vdList);
 
                 // 组装发车任务流向明细
-                this.initVehicleTaskDetails(queryTaskSendDto, sendVehicleEntity, vdList, needToTwiceRemoveTask);
-
-                if (!needToTwiceRemoveTask.contains(sendVehicleEntity.getBizId())) {
-                    vehicleTaskList.add(vehicleTaskDto);
-                }
+                this.initVehicleTaskDetails(sendVehicleEntity, vdList);
             }
         }
         catch (Exception e) {
@@ -765,6 +745,24 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
         }
 
         return result;
+    }
+
+    private void initVehicleTaskDetails(JyBizTaskSendVehicleEntity sendVehicleEntity, List<VehicleDetailTaskDto> vdList) {
+        JyBizTaskSendVehicleDetailEntity detailQ = new JyBizTaskSendVehicleDetailEntity(sendVehicleEntity.getStartSiteId(), sendVehicleEntity.getBizId());
+        List<JyBizTaskSendVehicleDetailEntity> vehicleDetailList = taskSendVehicleDetailService.findEffectiveSendVehicleDetail(detailQ);
+        for (JyBizTaskSendVehicleDetailEntity detailEntity : vehicleDetailList) {
+            VehicleDetailTaskDto detailTaskDto = new VehicleDetailTaskDto();
+            detailTaskDto.setBizId(detailEntity.getBizId());
+            detailTaskDto.setTransWorkItemCode(detailEntity.getTransWorkItemCode());
+            detailTaskDto.setVehicleStatus(detailEntity.getVehicleStatus());
+            detailTaskDto.setStartSiteId(detailEntity.getStartSiteId());
+            detailTaskDto.setStartSiteName(detailEntity.getStartSiteName());
+            detailTaskDto.setEndSiteId(detailEntity.getEndSiteId());
+            detailTaskDto.setEndSiteName(detailEntity.getEndSiteName());
+            detailTaskDto.setPlanDepartTime(detailEntity.getPlanDepartTime());
+
+            vdList.add(detailTaskDto);
+        }
     }
 
     private void initVehicleTaskDetails(QueryTaskSendDto queryTaskSendDto, JyBizTaskSendVehicleEntity sendVehicleEntity,
@@ -827,8 +825,6 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
         queryTaskSendDto.setPageSize(vehicleTaskReq.getPageSize());
         queryTaskSendDto.setVehicleStatuses(JyBizTaskSendStatusEnum.UN_SEALED_STATUS);
         queryTaskSendDto.setStartSiteId((long) vehicleTaskReq.getCurrentOperate().getSiteCode());
-        queryTaskSendDto.setEndSiteId(vehicleTaskReq.getEndSiteId());
-        queryTaskSendDto.setKeyword(vehicleTaskReq.getPackageCode());
         return queryTaskSendDto;
     }
 
@@ -870,7 +866,6 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
                     return result;
                 }
             }
-
             VehicleTaskResp taskResp = new VehicleTaskResp();
             result.setData(taskResp);
             List<VehicleTaskDto> vehicleTaskList = new ArrayList<>();
@@ -884,14 +879,12 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
             JyBizTaskSendSortTypeEnum orderTypeEnum = JyBizTaskSendSortTypeEnum.PLAN_DEPART_TIME;
             List<JyBizTaskSendVehicleEntity> vehiclePageList = taskSendVehicleService.querySendTaskOfPage(queryCondition, queryTaskSendDto.getSendVehicleBizList(), orderTypeEnum,
                     queryTaskSendDto.getPageNumber(), queryTaskSendDto.getPageSize(), queryTaskSendDto.getVehicleStatuses());
-
             if (CollectionUtils.isEmpty(vehiclePageList)) {
                 return result;
             }
 
             // 按目的地检索同流向的任务，同流向封车了，需要剔除发车任务
             Set<String> needToTwiceRemoveTask = new HashSet<>();
-
             for (JyBizTaskSendVehicleEntity sendVehicleEntity : vehiclePageList) {
                 // 组装发车任务
                 VehicleTaskDto vehicleTaskDto = this.initVehicleTaskDto(sendVehicleEntity);
@@ -1040,7 +1033,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
             SendM sendM = toSendMDomain(request, sendDestId, sendCode);
             sendM.setBoxCode(barCode);
 
-            if (deliveryService.isSendByWaybillProcessing(sendM)) {
+            if (SendKeyTypeEnum.BY_PACKAGE.equals(sendType) && deliveryService.isSendByWaybillProcessing(sendM)) {
                 result.toBizError();
                 result.addInterceptBox(0, HintService.getHint(HintCodeConstants.SEND_BY_WAYBILL_PROCESSING));
                 return result;
@@ -1624,8 +1617,6 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
             }
         }
 
-        // FIXME 判断是否已经发货
-
         // 校验箱号是否绑定集包袋
         if (BusinessHelper.isBoxcode(barCode)) {
             Box box = boxService.findBoxByCode(barCode);
@@ -1650,9 +1641,6 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
             response.addInterceptBox(0, "无任务已经绑定，不能继续操作发货！");
             return false;
         }
-
-        // FIXME 判定运单、包裹是否存在
-
 
         return true;
     }
@@ -1777,7 +1765,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
             SendVehicleInfo sendVehicleInfo = new SendVehicleInfo();
             invokeResult.setData(sendVehicleInfo);
 
-            if (!setSendVehicleBaseInfo(request, invokeResult, sendVehicleEntity, sendVehicleInfo)) {
+            if (!setSendVehicleBaseInfo(request, sendVehicleEntity, sendVehicleInfo)) {
                 return invokeResult;
             }
 
@@ -1811,10 +1799,14 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
         }
     }
 
-    private Boolean setSendVehicleBaseInfo(SendVehicleInfoRequest request, InvokeResult<SendVehicleInfo> invokeResult,
+    private Boolean setSendVehicleBaseInfo(SendVehicleInfoRequest request,
                                            JyBizTaskSendVehicleEntity sendVehicleEntity, SendVehicleInfo sendVehicleInfo) {
         sendVehicleInfo.setManualCreated(sendVehicleEntity.manualCreatedTask());
         sendVehicleInfo.setPhoto(sendAttachmentService.sendVehicleTakePhoto(new JySendAttachmentEntity(request.getSendVehicleBizId())));
+        // 无任务不需拍照
+        if (sendVehicleInfo.getManualCreated()) {
+            sendVehicleInfo.setPhoto(Boolean.TRUE);
+        }
         sendVehicleInfo.setLineTypeShortName(sendVehicleEntity.getLineTypeName());
         sendVehicleInfo.setCarLengthStr(this.setCarLength(sendVehicleEntity));
         sendVehicleInfo.setNoTaskBindVehicle(sendVehicleEntity.noTaskBindVehicle());
@@ -1992,7 +1984,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public InvokeResult<SendAbnormalResponse> checkSendVehicleNormalStatus(SendAbnormalRequest request) {
         InvokeResult<SendAbnormalResponse> invokeResult = new InvokeResult<>();
-        if (StringUtils.isBlank(request.getSendDetailBizId())) {
+        if (StringUtils.isBlank(request.getSendVehicleBizId())) {
             invokeResult.parameterError();
             return invokeResult;
         }
@@ -2067,8 +2059,8 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
 
         // 无任务发货校验是否绑定了发车任务
         JyBizTaskSendVehicleEntity taskSend = taskSendVehicleService.findByBizId(sendVehicleBizId);
-        if (taskSend.manualCreatedTask() && !taskSend.noTaskBindVehicle()) {
-            invokeResult.hintMessage("无任务发货未绑定任务！");
+        if (taskSend.manualCreatedTask()) {
+            invokeResult.hintMessage("无任务不允许封车！");
             return false;
         }
 

@@ -446,7 +446,12 @@
         WHERE
             yn = 1
             AND start_site_id = #{entity.startSiteId}
-            AND line_type = #{entity.lineType}
+            <if test="lineTypeList != null and lineTypeList.size() > 0">
+                AND line_type IN
+                <foreach collection="lineTypeList" separator="," open="(" close=")" item="item">
+                    #{item}
+                </foreach>
+            </if>
             <if test="sendVehicleBizList != null and sendVehicleBizList.size() > 0">
                 AND biz_id IN
                 <foreach collection="sendVehicleBizList" separator="," open="(" close=")" item="item">
@@ -465,13 +470,13 @@
 
             <include refid="taskQueryCondition"/>
 
-            <if test="orderType != null">
+            <if test="sortType != null">
                 ORDER BY
                 <choose>
-                    <when test="orderType == 1">
+                    <when test="sortType == 1">
                         last_plan_depart_time DESC
                     </when>
-                    <when test="orderType == 2">
+                    <when test="sortType == 2">
                         last_seal_car_time DESC
                     </when>
                     <otherwise>
@@ -494,8 +499,11 @@
     <sql id="taskQueryCondition">
         yn = 1
         AND start_site_id = #{entity.startSiteId}
-        <if test="entity.lineType != null">
-            AND line_type = #{entity.lineType}
+        <if test="lineTypeList != null and lineTypeList.size() > 0">
+            AND line_type IN
+            <foreach collection="lineTypeList" separator="," open="(" close=")" item="item">
+                #{item}
+            </foreach>
         </if>
         <if test="sendVehicleBizList != null and sendVehicleBizList.size() > 0">
             AND biz_id IN
@@ -548,4 +556,40 @@
         set vehicle_status =#{vehicleStatus},update_time = NOW()
         where biz_id =#{bizId} and vehicle_status =#{preVehicleStatus}
     </update>
+
+    <select id="findSendTaskByDestOfPage" resultMap="jyBizTaskSendVehicleMap">
+        SELECT
+            m.id, m.biz_id
+        FROM
+            jy_biz_task_send_vehicle m
+        INNER JOIN jy_biz_task_send_vehicle_detail d ON m.biz_id = d.send_vehicle_biz_id
+        WHERE
+            m.yn = 1
+        AND m.manual_created_flag = 0
+        AND d.yn = 1
+        AND d.start_site_id = #{entity.startSiteId, jdbcType=BIGINT}
+        AND d.end_site_id = #{entity.endSiteId, jdbcType=BIGINT}
+        AND d.vehicle_status IN ( 0, 1, 2 )
+        GROUP BY m.biz_id
+        ORDER BY m.last_plan_depart_time DESC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <select id="countSendTaskByDest" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM (
+             SELECT m.id,
+                    m.biz_id
+             FROM jy_biz_task_send_vehicle m
+             INNER JOIN jy_biz_task_send_vehicle_detail d ON m.biz_id = d.send_vehicle_biz_id
+             WHERE m.yn = 1
+                AND m.manual_created_flag = 0
+                AND d.yn = 1
+                AND d.start_site_id = #{startSiteId, jdbcType=BIGINT}
+                AND d.end_site_id = #{endSiteId, jdbcType=BIGINT}
+                AND d.vehicle_status IN (0, 1, 2)
+             GROUP BY m.biz_id
+        ) t
+    </select>
+
 </mapper>

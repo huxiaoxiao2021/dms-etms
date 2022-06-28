@@ -17,6 +17,7 @@ import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetail
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleService;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
+import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadDto;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -170,12 +171,32 @@ public class SendVehicleTransactionManager {
 
                 // 发货流向全部封闭完成，关闭调度任务
                 if (JyBizTaskSendDetailStatusEnum.SEALED.getCode().equals(taskSendMinStatus)) {
+
                     finishUnloadTaskGroup(detailQ);
+
+                    // 关闭调度任务
+                    closeScheduleTask(detailQ);
                 }
             }
         }
 
         return true;
+    }
+
+    /**
+     * 关闭调度任务
+     * @param detailQ
+     * @return
+     */
+    private boolean closeScheduleTask(JyBizTaskSendVehicleDetailEntity detailQ){
+        JyScheduleTaskReq req = new JyScheduleTaskReq();
+        req.setBizId(detailQ.getSendVehicleBizId());
+        req.setTaskType(String.valueOf(JyScheduleTaskTypeEnum.SEND.getCode()));
+        req.setOpeUser(detailQ.getUpdateUserErp());
+        req.setOpeUserName(detailQ.getUpdateUserName());
+        req.setOpeTime(detailQ.getSealCarTime());
+        JyScheduleTaskResp jyScheduleTaskResp = jyScheduleTaskManager.closeScheduleTask(req);
+        return jyScheduleTaskResp != null;
     }
 
     /**

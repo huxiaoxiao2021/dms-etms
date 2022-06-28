@@ -9,6 +9,7 @@ import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendScanReq
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicleProgressRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.request.SealVehicleTaskRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.SealVehicleTaskResponse;
+import com.jd.bluedragon.common.dto.send.request.TransferVehicleTaskReq;
 import com.jd.bluedragon.common.dto.send.request.VehicleTaskReq;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendDetailStatusEnum;
@@ -108,11 +109,11 @@ public class JySealVehicleServiceTest {
     @Test
     public void sendScanTest() {
         String body = "{\n" +
-                "    \"barCode\": \"JDVF00002011756-1-5-\",\n" +
+                "    \"barCode\": \"JDVF00001901110-1-5-\",\n" +
                 "    \"barCodeType\": 1,\n" +
                 "    \"confirmSendDestId\": 56506,\n" +
                 "    \"currentOperate\": {\n" +
-                "        \"operateTime\": 1655964896169,\n" +
+                "        \"operateTime\": 1656071420850,\n" +
                 "        \"orgId\": 6,\n" +
                 "        \"orgName\": \"总公司\",\n" +
                 "        \"siteCode\": 40240,\n" +
@@ -120,16 +121,14 @@ public class JySealVehicleServiceTest {
                 "    },\n" +
                 "    \"forceSubmit\": true,\n" +
                 "    \"groupCode\": \"G00000018001\",\n" +
-                "    \"noTaskConfirmDest\": true,\n" +
                 "    \"sendForWholeBoard\": false,\n" +
-                "    \"sendVehicleBizId\": \"NSST22062300000008\",\n" +
-                "    \"noTaskRemark\": \"reakadgasgdsadgagdad昂大哥大使馆打得过\",\n" +
+                "    \"sendVehicleBizId\": \"SST22062100000035\",\n" +
                 "    \"user\": {\n" +
-                "        \"userCode\": 16698,\n" +
-                "        \"userErp\": \"liuaihui3\",\n" +
-                "        \"userName\": \"刘爱慧\"\n" +
+                "        \"userCode\": 17331,\n" +
+                "        \"userErp\": \"wuyoude\",\n" +
+                "        \"userName\": \"吴有德\"\n" +
                 "    },\n" +
-                "    \"vehicleNumber\": \"自建1\"\n" +
+                "    \"vehicleNumber\": \"京MM6666\"\n" +
                 "}";
 
         SendScanRequest request = JsonHelper.fromJson(body, SendScanRequest.class);
@@ -213,6 +212,24 @@ public class JySealVehicleServiceTest {
         sendVehicleTransactionManager.updateTaskStatus(taskSend, taskSendDetail, JyBizTaskSendDetailStatusEnum.SEALED);
 
 
+    }
+
+    @Test
+    public void fetchSendTaskForTransferTest() {
+        String json = "{\n" +
+                "    \"currentOperate\": {\n" +
+                "        \"operateTime\": 1656325398495,\n" +
+                "        \"orgId\": 6,\n" +
+                "        \"orgName\": \"总公司\",\n" +
+                "        \"siteCode\": 40240,\n" +
+                "        \"siteName\": \"北京通州分拣中心\"\n" +
+                "    },\n" +
+                "    \"transferFlag\": 2,\n" +
+                "    \"packageCode\": \"JD0003360857749-1-1-\",\n" +
+                "    \"pageNumber\": 1,\n" +
+                "    \"pageSize\": 30\n" +
+                "}";
+        jySendVehicleService.fetchSendTaskForTransfer(JsonHelper.fromJson(json, TransferVehicleTaskReq.class));
     }
 
 }
