@@ -207,9 +207,9 @@ public class CacheKeyConstants {
 
     /**
      * 卸车扫描防重，每个单号只能扫描一次
-     * 单号+场地
+     * 单号+场地+卸车任务
      */
-    public static final String JY_UNLOAD_SCAN_KEY = JY_CACHE_PREFIX + "ul:scan:%s:%s";
+    public static final String JY_UNLOAD_SCAN_KEY = JY_CACHE_PREFIX + "ul:scan:%s:%s:%s";
 
     /**
      * 拣运卸车任务主键
