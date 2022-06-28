@@ -5,6 +5,8 @@ import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.VehicleS
 import com.jd.bluedragon.distribution.jy.dto.send.JyBizTaskSendCountDto;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendSortTypeEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendStatusEnum;
+import com.jd.bluedragon.distribution.jy.enums.JyLineTypeEnum;
+import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
 import org.apache.commons.collections4.CollectionUtils;
 
@@ -58,6 +60,10 @@ public class JyBizTaskSendVehicleDao extends BaseDao<JyBizTaskSendVehicleEntity>
     public List<JyBizTaskSendCountDto> sumTaskByVehicleStatus(JyBizTaskSendVehicleEntity entity, List<String> sendVehicleBizList) {
         Map<String,Object> params = new HashMap<>();
         params.put("entity", entity);
+        List<Integer> lineType = new ArrayList<>();
+        lineType.add(JyLineTypeEnum.OTHER.getCode());
+        lineType.add(entity.getLineType());
+        params.put("lineTypeList", lineType);
         if (CollectionUtils.isNotEmpty(sendVehicleBizList)) {
             params.put("sendVehicleBizList", sendVehicleBizList);
         }
@@ -72,6 +78,12 @@ public class JyBizTaskSendVehicleDao extends BaseDao<JyBizTaskSendVehicleEntity>
         Map<String,Object> params = new HashMap<>();
         params.put("entity", entity);
         params.put("sendVehicleBizList", sendVehicleBizList);
+        if (entity.getLineType() != null) {
+            List<Integer> lineType = new ArrayList<>();
+            lineType.add(JyLineTypeEnum.OTHER.getCode());
+            lineType.add(entity.getLineType());
+            params.put("lineTypeList", lineType);
+        }
         if (typeEnum != null) {
             params.put("sortType", typeEnum.getCode());
         }
@@ -102,5 +114,18 @@ public class JyBizTaskSendVehicleDao extends BaseDao<JyBizTaskSendVehicleEntity>
 
     public int updateBizTaskSendStatus(JyBizTaskSendVehicleEntity toSvTask) {
         return this.getSqlSession().update(NAMESPACE + ".updateBizTaskSendStatus", toSvTask);
+    }
+
+    public List<JyBizTaskSendVehicleEntity> findSendTaskByDestOfPage(JyBizTaskSendVehicleDetailEntity entity,
+                                                                     Integer offset, Integer limit) {
+        Map<String,Object> params = new HashMap<>();
+        params.put("entity", entity);
+        params.put("offset", offset);
+        params.put("limit", limit);
+        return this.getSqlSession().selectList(NAMESPACE + ".findSendTaskByDestOfPage", params);
+    }
+
+    public Integer countSendTaskByDest(JyBizTaskSendVehicleDetailEntity entity) {
+        return this.getSqlSession().selectOne(NAMESPACE + ".countSendTaskByDest", entity);
     }
 }

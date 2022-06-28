@@ -6,6 +6,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.KeyConstants;
+import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.domain.Pack;
 import com.jd.bluedragon.common.domain.WaybillCache;
 import com.jd.bluedragon.common.service.WaybillCommonService;
@@ -6030,6 +6031,8 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
     }
 
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "DeliveryServiceImpl.getCancelSendByBox",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public List<SendDetail> getCancelSendByBox(String boxCode) {
         Box box = null;
         box = this.boxService.findBoxByCode(boxCode);

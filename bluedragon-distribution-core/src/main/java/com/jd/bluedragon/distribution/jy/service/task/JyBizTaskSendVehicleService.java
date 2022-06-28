@@ -89,4 +89,17 @@ public interface JyBizTaskSendVehicleService {
     int updateStatus(JyBizTaskSendVehicleEntity entity, Integer oldStatus);
 
     int updateBizTaskSendStatus(JyBizTaskSendVehicleEntity entity);
+
+    /**
+     * 分页查询未封车的发货任务
+     * @param entity
+     * @param pageNum
+     * @param pageSize
+     * @return
+     */
+    List<JyBizTaskSendVehicleEntity> findSendTaskByDestOfPage(JyBizTaskSendVehicleDetailEntity entity,
+                                                              Integer pageNum, Integer pageSize);
+
+
+    Integer countSendTaskByDest(JyBizTaskSendVehicleDetailEntity entity);
 }
