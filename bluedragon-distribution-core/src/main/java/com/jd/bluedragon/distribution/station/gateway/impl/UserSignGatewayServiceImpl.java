@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.station.PositionData;
 import com.jd.bluedragon.common.dto.station.ScanUserData;
@@ -18,6 +19,8 @@ import com.jd.bluedragon.distribution.station.gateway.UserSignGatewayService;
 import com.jd.bluedragon.distribution.station.service.UserSignRecordService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -51,10 +54,18 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 	public JdCResponse<UserSignRecordData> signAuto(UserSignRequest userSignRequest) {
 		return userSignRecordService.signAuto(userSignRequest);
 	}
+	@JProfiler(jKey = "dmsWeb.server.userSignGatewayService.querySignListWithPosition",
+			jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	@Override
 	public JdCResponse<PageDto<UserSignRecordData>> querySignListWithPosition(UserSignQueryRequest query) {
 		return userSignRecordService.querySignListWithPosition(query);
 	}
+	@JProfiler(jKey = "dmsWeb.server.userSignGatewayService.querySignListByOperateUser",
+			jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+	@Override
+	public JdCResponse<PageDto<UserSignRecordData>> querySignListByOperateUser(UserSignQueryRequest query) {
+		return userSignRecordService.querySignListByOperateUser(query);
+	}	
 	@Override
 	public JdCResponse<PositionData> queryPositionData(String positionCode) {
 		return positionRecordService.queryPositionWithIsMatchAppFunc(positionCode);
@@ -111,6 +122,8 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 	public JdCResponse<UserSignRecordData> signOutWithGroup(UserSignRequest signOutRequest) {
 		return userSignRecordService.signOutWithGroup(signOutRequest);
 	}
+	@JProfiler(jKey = "dmsWeb.server.userSignGatewayService.signAutoWithGroup",
+			jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	@Override
 	public JdCResponse<UserSignRecordData> signAutoWithGroup(UserSignRequest userSignRequest) {
 		return userSignRecordService.signAutoWithGroup(userSignRequest);
