@@ -8,6 +8,7 @@
 		<result column="consumable_code" property="consumableCode" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="receive_quantity" property="receiveQuantity" javaType="java.lang.Double" jdbcType="DECIMAL" />
 		<result column="confirm_quantity" property="confirmQuantity" javaType="java.lang.Double" jdbcType="DECIMAL" />
+		<result column="confirm_volume" property="confirmVolume" javaType="java.lang.Double" jdbcType="DECIMAL" />
 		<result column="operate_user_code" property="operateUserCode" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="operate_user_erp" property="operateUserErp" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="pack_user_erp" property="packUserErp" javaType="java.lang.String" jdbcType="VARCHAR" />
@@ -32,6 +33,7 @@
 		<result column="consumable_code" property="consumableCode" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="receive_quantity" property="receiveQuantity" javaType="java.lang.Double" jdbcType="DECIMAL" />
 		<result column="confirm_quantity" property="confirmQuantity" javaType="java.lang.Double" jdbcType="DECIMAL" />
+		<result column="confirm_volume" property="confirmVolume" javaType="java.lang.Double" jdbcType="DECIMAL" />
 		<result column="name" property="name" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="type" property="type" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="type_name" property="typeName" javaType="java.lang.String" jdbcType="VARCHAR" />
@@ -59,13 +61,13 @@
 	</resultMap>
 
 	<sql id="Base_Column_List" >
-		id,waybill_code,consumable_code,receive_quantity,confirm_quantity,operate_user_code,
+		id,waybill_code,consumable_code,receive_quantity,confirm_quantity,confirm_volume,operate_user_code,
 		operate_user_erp,pack_user_erp,operate_time,create_time,update_time,is_delete,
 		ts
 	</sql>
 
 	<sql id="Base_Column_Detail_List" >
-		id,waybill_code,consumable_code,receive_quantity,confirm_quantity,operate_user_code,
+		id,waybill_code,consumable_code,receive_quantity,confirm_quantity,confirm_volume,operate_user_code,
 		operate_user_erp,pack_user_erp,operate_time,create_time,update_time,is_delete,ts,
 		consumable_name,consumable_type,consumable_type_name,volume,volume_coefficient,specification,unit,packing_charge
 	</sql>
@@ -136,7 +138,10 @@
 					unit,
 				</if>
 				<if test="packingCharge != null">
-					packing_charge
+					packing_charge,
+				</if>
+				<if test="confirmVolume != null">
+					confirm_volume
 				</if>
 			</trim>
 			)
@@ -204,7 +209,10 @@
 					#{item.unit,jdbcType=VARCHAR},
 				</if>
 				<if test="packingCharge != null">
-					#{item.packingCharge,jdbcType=DECIMAL}
+					#{item.packingCharge,jdbcType=DECIMAL},
+				</if>
+				<if test="confirmVolume != null">
+					#{item.confirmVolume,jdbcType=DECIMAL}
 				</if>
 			</trim>
 			)
@@ -215,7 +223,7 @@
 			(
 				waybill_code,consumable_code,receive_quantity,confirm_quantity,
 				operate_user_erp,operate_time,create_time,is_delete,ts,
-				consumable_name,consumable_type,consumable_type_name,volume,volume_coefficient,specification,unit,packing_charge
+				consumable_name,consumable_type,consumable_type_name,volume,volume_coefficient,specification,unit,packing_charge,confirm_volume
 			)
 			values
 			<foreach collection="list" item="item" index="index" separator=",">
@@ -236,7 +244,8 @@
 					#{item.volumeCoefficient,jdbcType=DECIMAL},
 					#{item.specification,jdbcType=VARCHAR},
 					#{item.unit,jdbcType=VARCHAR},
-					#{item.packingCharge,jdbcType=DECIMAL}
+					#{item.packingCharge,jdbcType=DECIMAL},
+					#{item.confirmVolume,jdbcType=DECIMAL}
 				)
 			</foreach>
 	</insert>
@@ -255,6 +264,9 @@
 				</if>
 				<if test="confirmQuantity != null">
 					confirm_quantity = #{confirmQuantity,jdbcType=DOUBLE},
+				</if>
+				<if test="confirmVolume != null">
+					confirm_volume = #{confirmVolume,jdbcType=DOUBLE},
 				</if>
 				<if test="operateUserCode != null">
 					operate_user_code = #{operateUserCode,jdbcType=VARCHAR},
@@ -300,7 +312,7 @@
 	</update>
 
     <select id="queryByWaybillCodes" parameterType="List" resultMap="WaybillConsumableDetailInfo">
-        select waybill_code,receive_quantity,confirm_quantity,pack_user_erp,consumable_code,name,type,type_name,pci.volume,pci.volume_coefficient,pci.specification,pci.unit, packing_charge
+        select waybill_code,receive_quantity,confirm_quantity,pack_user_erp,consumable_code,name,type,type_name,pci.volume,pci.volume_coefficient,pci.specification,pci.unit, packing_charge,confirm_volume
         from waybill_consumable_relation wcr left join packing_consumable_info pci on wcr.consumable_code = pci.code
 		where wcr.is_delete = 0 and  wcr.waybill_code in
 		<foreach collection="list" item="item" index="index" open="(" separator="," close=")">
@@ -369,7 +381,7 @@
 	</select>
 
 	<select id="queryDetailInfoByPagerCondition" parameterType="com.jd.ql.dms.common.web.mvc.api.PagerCondition" resultMap="WaybillConsumableDetailInfo">
-		select wcr.id,waybill_code,receive_quantity,confirm_quantity,pack_user_erp,consumable_code,name,type,type_name,pci.volume,pci.volume_coefficient,pci.specification,pci.unit,wcr.operate_time,wcr.operate_user_code,wcr.operate_user_erp,wcr.create_time,wcr.update_time,wcr.is_delete
+		select wcr.id,waybill_code,receive_quantity,confirm_quantity,confirm_volume,pack_user_erp,consumable_code,name,type,type_name,pci.volume,pci.volume_coefficient,pci.specification,pci.unit,wcr.operate_time,wcr.operate_user_code,wcr.operate_user_erp,wcr.create_time,wcr.update_time,wcr.is_delete
 			from packing_consumable_info pci
 			inner join waybill_consumable_relation wcr
 			on pci.code = wcr.consumable_code
@@ -425,6 +437,13 @@
 			where pack_user_erp is null and is_delete = 0 and waybill_code = #{waybillCode,jdbcType=VARCHAR}
 	</select>
 
+	<select id="getNoConfirmVolumeRecordCount" parameterType="String" resultMap="WaybillConsumableDetailInfo">
+		select
+		<include refid="Base_Column_Detail_List"/>
+		from waybill_consumable_relation
+		where confirm_volume is null and is_delete = 0 and waybill_code = #{waybillCode,jdbcType=VARCHAR}
+	</select>
+
 
 	<update id="updateByWaybillCode" parameterType="com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRelationPDADto">
 		update waybill_consumable_relation
@@ -434,7 +453,8 @@
 			operate_user_erp = #{operateUserErp,jdbcType=VARCHAR},
 			update_time = #{updateTime,jdbcType=TIMESTAMP},
 			operate_time = #{operateTime,jdbcType=TIMESTAMP},
-			confirm_quantity = #{confirmQuantity, jdbcType=DOUBLE}
+			confirm_quantity = #{confirmQuantity, jdbcType=DOUBLE},
+			confirm_volume = #{confirmVolume, jdbcType=DOUBLE}
 		where
 			waybill_code = #{waybillCode, jdbcType=VARCHAR}
 			and consumable_code = #{consumableCode, jdbcType=VARCHAR}

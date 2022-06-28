@@ -7,6 +7,7 @@ import com.jd.bluedragon.common.domain.Pack;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.core.base.*;
+import com.jd.bluedragon.distribution.api.request.WaybillPrintRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.base.service.SiteService;
@@ -15,6 +16,7 @@ import com.jd.bluedragon.distribution.popPrint.domain.PopPrint;
 import com.jd.bluedragon.distribution.popPrint.service.PopPrintService;
 import com.jd.bluedragon.distribution.print.domain.BasePrintWaybill;
 import com.jd.bluedragon.distribution.print.domain.TemplateGroupEnum;
+import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
 import com.jd.bluedragon.distribution.print.service.ComposeService;
 import com.jd.bluedragon.distribution.print.service.HideInfoService;
 import com.jd.bluedragon.distribution.print.service.WaybillPrintService;
@@ -1610,10 +1612,16 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
      */
     @Override
     @JProfiler(jKey = "DMS.BASE.WaybillCommonServiceImpl.loadWaybillRouter", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
-    public void loadWaybillRouter(BasePrintWaybill printWaybill,Integer originalDmsCode,Integer destinationDmsCode,String waybillSign){
-        //非B网的不用查路由
-        if(!BusinessUtil.isB2b(waybillSign)){
-            return;
+    public void loadWaybillRouter(WaybillPrintRequest request, BasePrintWaybill printWaybill, Integer originalDmsCode, Integer destinationDmsCode, String waybillSign){
+
+        //京象或者京管家调用直接添加路由信息
+        if(request != null && WaybillPrintOperateTypeEnum.SMS_PDA_REPRINT.getType().equals(request.getOperateType())){
+            log.info("直接获取路由，跳过B网检查 {}",printWaybill.getWaybillCode());
+        }else {
+            //非B网的不用查路由
+            if(!BusinessUtil.isB2b(waybillSign)){
+                return;
+            }
         }
         //调路由的接口获取路由节点
         List<String> routerNameList = null;
@@ -1623,6 +1631,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         } catch (Exception e) {
             log.error("获取路由环节信息失败waybillCode[{}]originalDmsCode[{}]destinationDmsCode[{}]",printWaybill.getWaybillCode(),originalDmsCode,destinationDmsCode,e);
         }
+        log.info("加载路由信息判断 routerNameList 后--{}",JSON.toJSONString(routerNameList));
         log.debug("获取到的城市名列表为:{}" , routerNameList);
         if(routerNameList != null && routerNameList.size() > 0){
             for(int i=0;i<routerNameList.size();i++){

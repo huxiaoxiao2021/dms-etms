@@ -29,6 +29,14 @@ $(function () {
                         message:'数量为数字且最多三位小数'
                     }
                 }
+            },
+            confirmVolume: {
+                validators: {
+                    regexp:{
+                        regexp:/^[0-9]{1,3}(.[0-9]{1,3})?$/,
+                        message:'数据格式不对，请录入大于0小于1000的数据(保留三位小数)'
+                    }
+                }
             }
         }
     });
@@ -80,8 +88,6 @@ $(function () {
                 });
                 $.pageBlocker.close(blocker);
             });
-        }else{
-            $.msg.warn('参数有误','请您检查服务器信息是否有误');
         }
     });
 
