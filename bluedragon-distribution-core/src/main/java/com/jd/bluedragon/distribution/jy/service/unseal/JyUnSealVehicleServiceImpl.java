@@ -56,6 +56,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.*;
 
 /**
@@ -399,7 +400,7 @@ public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
                     break;
                 case UN_LOADING:
                     UnloadCarInfo unloadCarInfo = (UnloadCarInfo) vehicleBaseInfo;
-                    unloadCarInfo.setUnloadProgress(entity.getUnloadProgress());
+                    unloadCarInfo.setUnloadProgress(this.setUnloadProgress(entity));
 
                     vehicleList.add(unloadCarInfo);
                     break;
@@ -411,6 +412,13 @@ public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
                     break;
             }
         }
+    }
+
+    private BigDecimal setUnloadProgress(JyBizTaskUnloadVehicleEntity entity) {
+        if (NumberHelper.gt0(entity.getUnloadProgress())) {
+            return entity.getUnloadProgress().multiply(new BigDecimal(100)).setScale(6, BigDecimal.ROUND_HALF_UP);
+        }
+        return BigDecimal.ZERO;
     }
 
     private VehicleBaseInfo assembleVehicleBase(JyBizTaskUnloadStatusEnum curQueryStatus, JyBizTaskUnloadVehicleEntity entity) {
