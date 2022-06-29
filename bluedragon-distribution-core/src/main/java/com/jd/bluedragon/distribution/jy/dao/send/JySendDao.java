@@ -47,4 +47,8 @@ public class JySendDao extends BaseDao<JySendEntity> {
     public JySendEntity findByBizId(JySendEntity entity) {
         return this.getSqlSession().selectOne(NAMESPACE + ".findByBizId", entity);
     }
+
+    public int updateTransferProperBySendCode(JySendEntity entity) {
+        return this.getSqlSession().update(NAMESPACE + ".updateTransferProperBySendCode", entity);
+    }
 }

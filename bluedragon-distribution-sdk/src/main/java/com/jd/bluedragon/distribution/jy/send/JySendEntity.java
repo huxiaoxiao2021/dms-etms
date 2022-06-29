@@ -102,6 +102,16 @@ public class JySendEntity implements Serializable {
 	 */
 	private Date ts;
 
+	private transient String newSendCode;
+
+	public String getNewSendCode() {
+		return newSendCode;
+	}
+
+	public void setNewSendCode(String newSendCode) {
+		this.newSendCode = newSendCode;
+	}
+
 	public Long getId() {
 		return id;
 	}

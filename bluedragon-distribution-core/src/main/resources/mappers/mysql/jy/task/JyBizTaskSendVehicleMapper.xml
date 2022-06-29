@@ -517,8 +517,8 @@
                 #{item}
             </foreach>
         </if>
-        <if test="manualCreatedFlag != null">
-            AND manual_created_flag = #{manualCreatedFlag}
+        <if test="entity.manualCreatedFlag != null">
+            AND manual_created_flag = #{entity.manualCreatedFlag}
         </if>
     </sql>
 
