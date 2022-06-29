@@ -19,6 +19,7 @@ import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.station.dao.WorkStationDao;
 import com.jd.bluedragon.distribution.station.domain.DeleteRequest;
 import com.jd.bluedragon.distribution.station.domain.WorkStation;
+import com.jd.bluedragon.distribution.station.domain.WorkStationAttendPlan;
 import com.jd.bluedragon.distribution.station.domain.WorkStationCountVo;
 import com.jd.bluedragon.distribution.station.query.WorkStationQuery;
 import com.jd.bluedragon.distribution.station.service.WorkStationGridService;
@@ -178,6 +179,10 @@ public class WorkStationServiceImpl implements WorkStationService {
 		Result<Boolean> result = checkAndFillNewData(updateData);
 		if(!result.isSuccess()) {
 			return result;
+		}
+		WorkStation oldData = workStationDao.queryById(updateData.getId());
+		if(oldData == null) {
+			return result.toFail("该工序数据已变更，请重新查询后修改！");
 		}
 		workStationDao.deleteById(updateData);
 		updateData.setId(null);
