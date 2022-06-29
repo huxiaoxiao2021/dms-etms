@@ -1616,7 +1616,7 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
 
         //京象或者京管家调用直接添加路由信息
         log.info("loadWaybillRouter-request {}",JSON.toJSONString(request));
-        if(request != null && WaybillPrintOperateTypeEnum.SMS_PDA_REPRINT.getType().equals(request.getOperateType())){
+        if(request != null && WaybillPrintOperateTypeEnum.SMS_REPRINT.getType().equals(request.getOperateType())){
             log.info("直接获取路由，跳过B网检查 {}",printWaybill.getWaybillCode());
         }else {
             //非B网的不用查路由
