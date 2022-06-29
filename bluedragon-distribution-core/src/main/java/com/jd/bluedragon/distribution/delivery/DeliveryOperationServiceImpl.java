@@ -165,9 +165,9 @@ public class DeliveryOperationServiceImpl implements IDeliveryOperationService {
         SendMWrapper boxSendWrapper = new SendMWrapper(SendKeyTypeEnum.BY_BOX);
         SendMWrapper boardSendWrapper = new SendMWrapper(SendKeyTypeEnum.BY_BOARD);
 
-        packageSendWrapper.setSendM(sendM);
-        boxSendWrapper.setSendM(sendM);
-        boardSendWrapper.setSendM(sendM);
+        packageSendWrapper.setSendM(sendM);packageSendWrapper.setNewSendCode(newSendCode);
+        boxSendWrapper.setSendM(sendM);boxSendWrapper.setNewSendCode(newSendCode);
+        boardSendWrapper.setSendM(sendM);boardSendWrapper.setNewSendCode(newSendCode);
 
         Set<String> boardSet =new HashSet<>();
         for (SendM sendm : sendMList) {

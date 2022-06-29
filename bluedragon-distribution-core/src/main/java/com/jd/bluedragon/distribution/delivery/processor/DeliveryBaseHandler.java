@@ -322,10 +322,12 @@ public abstract class DeliveryBaseHandler implements IDeliveryBaseHandler {
         sendDRequest.setCreateSiteCode(sendM.getCreateSiteCode());
         sendDRequest.setReceiveSiteCode(sendM.getReceiveSiteCode());
         sendDRequest.setIsCancel(Constants.OPERATE_TYPE_CANCEL_L);
+        Date now =new Date();
 
         for (String barCode : wrapper.getBarCodeList()) {
             SendM sendMItem =BeanUtils.copy(sendM, SendM.class);
             sendMItem.setBoxCode(barCode);
+            sendMItem.setUpdateTime(now);
 
             if (WaybillUtil.isWaybillCode(barCode)) {
                 sendDRequest.setWaybillCode(barCode);
@@ -504,6 +506,7 @@ public abstract class DeliveryBaseHandler implements IDeliveryBaseHandler {
                     if (needSendMQ) {
                         // 发送取消发货MQ
                         sendMQ(model, tSendM);
+                        log.info("发送取消发货全程跟踪成功：{}",JsonHelper.toJson(model));
                         if (this.isColdChainSend(model, tSendM, coldChainWaybillSet)) {
                             coldChainSendDetails.add(model);
                         }

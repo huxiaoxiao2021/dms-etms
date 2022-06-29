@@ -356,6 +356,18 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
                     deliveryOperationService.asyncHandleTransfer(sendMList, newSendCode);
                 }
             }
+            JyBizTaskSendVehicleEntity toSvTask = new JyBizTaskSendVehicleEntity();
+            toSvTask.setBizId(dto.getToSendVehicleBizId());
+            toSvTask.setVehicleStatus(JyBizTaskSendStatusEnum.SENDING.getCode());
+            toSvTask.setPreVehicleStatus(JyBizTaskSendStatusEnum.TO_SEND.getCode());
+            jyBizTaskSendVehicleService.updateBizTaskSendStatus(toSvTask);
+
+            JyBizTaskSendVehicleDetailEntity toSvDetailTask = new JyBizTaskSendVehicleDetailEntity();
+            toSvDetailTask.setBizId(dto.getToSendVehicleDetailBizId());
+            toSvDetailTask.setVehicleStatus(JyBizTaskSendStatusEnum.SENDING.getCode());
+            toSvDetailTask.setPreVehicleStatus(JyBizTaskSendStatusEnum.TO_SEND.getCode());
+            jyBizTaskSendVehicleDetailService.updateBizTaskSendDetailStatus(toSvDetailTask);
+
             return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE);
         }
         return new InvokeResult(NO_SEND_DATA_UNDER_TASK_CODE, NO_SEND_DATA_UNDER_TASK_MESSAGE);
