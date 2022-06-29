@@ -218,16 +218,21 @@ public class JySealVehicleServiceTest {
     public void fetchSendTaskForTransferTest() {
         String json = "{\n" +
                 "    \"currentOperate\": {\n" +
-                "        \"operateTime\": 1656325398495,\n" +
+                "        \"operateTime\": 1656412849865,\n" +
                 "        \"orgId\": 6,\n" +
                 "        \"orgName\": \"总公司\",\n" +
                 "        \"siteCode\": 40240,\n" +
                 "        \"siteName\": \"北京通州分拣中心\"\n" +
                 "    },\n" +
+                "    \"packageCode\": \"JD0003363015114-1-1-\",\n" +
+                "    \"pageNumber\": 2,\n" +
+                "    \"pageSize\": 15,\n" +
                 "    \"transferFlag\": 2,\n" +
-                "    \"packageCode\": \"JD0003360857749-1-1-\",\n" +
-                "    \"pageNumber\": 1,\n" +
-                "    \"pageSize\": 30\n" +
+                "    \"user\": {\n" +
+                "        \"userCode\": 17331,\n" +
+                "        \"userErp\": \"wuyoude\",\n" +
+                "        \"userName\": \"吴有德\"\n" +
+                "    }\n" +
                 "}";
         jySendVehicleService.fetchSendTaskForTransfer(JsonHelper.fromJson(json, TransferVehicleTaskReq.class));
     }

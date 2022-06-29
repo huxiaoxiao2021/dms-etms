@@ -51,6 +51,13 @@ public class SelectOption implements Serializable {
         this.order = order;
     }
 
+    public SelectOption(Integer code, String name, String desc, Integer order) {
+        this.code = code;
+        this.name = name;
+        this.desc = desc;
+        this.order = order;
+    }
+
     public static class OrderComparator implements java.util.Comparator<SelectOption> {
         @Override
         public int compare(SelectOption o1, SelectOption o2) {

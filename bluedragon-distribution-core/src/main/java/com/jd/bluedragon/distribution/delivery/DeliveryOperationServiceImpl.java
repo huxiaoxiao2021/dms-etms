@@ -159,7 +159,7 @@ public class DeliveryOperationServiceImpl implements IDeliveryOperationService {
     @JProfiler(jKey = "DMSWEB.DeliveryOperationService.asyncHandleTransfer", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public DeliveryResponse asyncHandleTransfer(List<SendM> sendMList, String newSendCode) {
         SendM sendM = makeTransferDomain(sendMList.get(0));
-        log.info("===========asyncHandleTransfer==========发货批次迁移,原批次号：{}，新批次号",sendM.getSendCode(),newSendCode);
+        log.info("===========asyncHandleTransfer==========发货批次迁移,原批次号：{}，新批次号:{}",sendM.getSendCode(),newSendCode);
 
         SendMWrapper packageSendWrapper = new SendMWrapper(SendKeyTypeEnum.BY_PACKAGE);
         SendMWrapper boxSendWrapper = new SendMWrapper(SendKeyTypeEnum.BY_BOX);

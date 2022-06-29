@@ -87,7 +87,7 @@ public class JySendVehicleGatewayServiceImpl implements JySendVehicleGatewayServ
     public JdCResponse<List<SelectOption>> scanTypeOptions() {
         List<SelectOption> optionList = new ArrayList<>();
         for (SendVehicleScanTypeEnum _enum : SendVehicleScanTypeEnum.values()) {
-            SelectOption option = new SelectOption(_enum.getCode(), _enum.getName(), _enum.getDesc());
+            SelectOption option = new SelectOption(_enum.getCode(), _enum.getName(), _enum.getDesc(), _enum.getCode());
             optionList.add(option);
         }
 

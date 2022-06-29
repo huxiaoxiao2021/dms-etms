@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.jy.service.send;
 
+import com.jd.bluedragon.distribution.jy.dto.send.VehicleSendRelationDto;
 import com.jd.bluedragon.distribution.jy.send.JySendEntity;
 
 /**
@@ -27,4 +28,10 @@ public interface IJySendService {
     int save(JySendEntity sendEntity);
 
     JySendEntity findByBizId(JySendEntity entity);
+
+    /**
+     * 任务迁移时更新 任务bizid和新的sendCode
+     * @return
+     */
+    int updateTransferProperBySendCode(VehicleSendRelationDto dto);
 }

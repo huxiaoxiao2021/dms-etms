@@ -100,6 +100,8 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
     BaseMajorManager baseMajorManager;
     @Autowired
     JySendTransferLogService jySendTransferLogService;
+    @Autowired
+    private IJySendService jySendService;
 
 
     @Override
@@ -329,11 +331,13 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
             dto.setSendCodes(sendCodeList);
             dto.setUpdateUserErp(transferSendTaskReq.getUser().getUserErp());
             dto.setUpdateUserName(transferSendTaskReq.getUser().getUserName());
+            dto.setCreateSiteId(Long.valueOf(transferSendTaskReq.getCurrentOperate().getSiteCode()));
 
             if (transferSendTaskReq.getSameWayFlag()) {
                 //同流向--直接变更绑定关系
                 jyVehicleSendRelationService.updateVehicleSendRelation(dto);
                 jySendTransferLogService.saveTransferLog(dto);
+                jySendService.updateTransferProperBySendCode(dto);
 
             } else {
                 //删除原绑定关系
@@ -345,6 +349,7 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
                 jyVehicleSendRelationService.add(jySendCodeEntity);
                 dto.setNewSendCode(newSendCode);
                 jySendTransferLogService.saveTransferLog(dto);
+                jySendService.updateTransferProperBySendCode(dto);
                 //生成迁移任务，异步执行迁移逻辑
                 for (String sendCode : sendCodeList) {
                     List<SendM> sendMList = sendMService.selectBySiteAndSendCode(transferSendTaskReq.getCurrentOperate().getSiteCode(), sendCode);
