@@ -1985,7 +1985,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public InvokeResult<SendAbnormalResponse> checkSendVehicleNormalStatus(SendAbnormalRequest request) {
         InvokeResult<SendAbnormalResponse> invokeResult = new InvokeResult<>();
-        if (StringUtils.isBlank(request.getSendVehicleBizId())) {
+        if (StringUtils.isBlank(request.getSendDetailBizId())) {
             invokeResult.parameterError();
             return invokeResult;
         }
