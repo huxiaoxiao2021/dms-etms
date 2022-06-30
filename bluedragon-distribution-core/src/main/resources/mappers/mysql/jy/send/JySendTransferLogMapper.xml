@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jd.bluedragon.distribution.jy.dao.send.JySendTransferLogDao">
+
+  <!-- 可根据自己的需求，是否要使用 -->
+  <resultMap type="com.jd.bluedragon.distribution.jy.send.JySendTransferLogEntity"
+    id="jySendTransferLogMap">
+    <result property="id" column="id"/>
+    <result property="sendCode" column="send_code"/>
+    <result property="fromSendVehicleBizId" column="from_send_vehicle_biz_id"/>
+    <result property="fromSendVehicleDetailBizId" column="from_send_vehicle_detail_biz_id"/>
+    <result property="toSendVehicleBizId" column="to_send_vehicle_biz_id"/>
+    <result property="toSendVehicleDetailBizId" column="to_send_vehicle_detail_biz_id"/>
+    <result property="createUserErp" column="create_user_erp"/>
+    <result property="createUserName" column="create_user_name"/>
+    <result property="updateUserErp" column="update_user_erp"/>
+    <result property="updateUserName" column="update_user_name"/>
+    <result property="createTime" column="create_time"/>
+    <result property="updateTime" column="update_time"/>
+    <result property="yn" column="yn"/>
+    <result property="ts" column="ts"/>
+    <result property="type" column="type"/>
+  </resultMap>
+
+  <sql id="Base_Column_List">
+    id
+        ,        send_code,        from_send_vehicle_biz_id,        from_send_vehicle_detail_biz_id,        to_send_vehicle_biz_id,        to_send_vehicle_detail_biz_id,        create_user_erp,        create_user_name,        update_user_erp,        update_user_name,        create_time,        update_time,        yn,        ts,        type    </sql>
+
+  <insert id="insert" parameterType="JySendTransferLogEntity">
+    insert into jy_send_transfer_log
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="sendCode != null">
+        send_code,
+      </if>
+      <if test="fromSendVehicleBizId != null">
+        from_send_vehicle_biz_id,
+      </if>
+      <if test="fromSendVehicleDetailBizId != null">
+        from_send_vehicle_detail_biz_id,
+      </if>
+      <if test="toSendVehicleBizId != null">
+        to_send_vehicle_biz_id,
+      </if>
+      <if test="toSendVehicleDetailBizId != null">
+        to_send_vehicle_detail_biz_id,
+      </if>
+      <if test="createUserErp != null">
+        create_user_erp,
+      </if>
+      <if test="createUserName != null">
+        create_user_name,
+      </if>
+      <if test="updateUserErp != null">
+        update_user_erp,
+      </if>
+      <if test="updateUserName != null">
+        update_user_name,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="updateTime != null">
+        update_time,
+      </if>
+      <if test="yn != null">
+        yn,
+      </if>
+      <if test="ts != null">
+        ts,
+      </if>
+      <if test="type != null">
+        type,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="sendCode != null">
+        #{sendCode,jdbcType=VARCHAR},
+      </if>
+      <if test="fromSendVehicleBizId != null">
+        #{fromSendVehicleBizId,jdbcType=VARCHAR},
+      </if>
+      <if test="fromSendVehicleDetailBizId != null">
+        #{fromSendVehicleDetailBizId,jdbcType=VARCHAR},
+      </if>
+      <if test="toSendVehicleBizId != null">
+        #{toSendVehicleBizId,jdbcType=VARCHAR},
+      </if>
+      <if test="toSendVehicleDetailBizId != null">
+        #{toSendVehicleDetailBizId,jdbcType=VARCHAR},
+      </if>
+      <if test="createUserErp != null">
+        #{createUserErp,jdbcType=VARCHAR},
+      </if>
+      <if test="createUserName != null">
+        #{createUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="updateUserErp != null">
+        #{updateUserErp,jdbcType=VARCHAR},
+      </if>
+      <if test="updateUserName != null">
+        #{updateUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null">
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="yn != null">
+        #{yn,jdbcType=BIT},
+      </if>
+      <if test="ts != null">
+        #{ts,jdbcType=TIMESTAMP},
+      </if>
+      <if test="type != null">
+        #{type,jdbcType=TINYINT},
+      </if>
+    </trim>
+  </insert>
+
+  <update id="update" parameterType="JySendTransferLogEntity">
+    update jy_send_transfer_log
+    <set>
+      <if test="sendCode != null">
+        send_code = #{sendCode,jdbcType=VARCHAR},
+      </if>
+      <if test="fromSendVehicleBizId != null">
+        from_send_vehicle_biz_id = #{fromSendVehicleBizId,jdbcType=VARCHAR},
+      </if>
+      <if test="fromSendVehicleDetailBizId != null">
+        from_send_vehicle_detail_biz_id = #{fromSendVehicleDetailBizId,jdbcType=VARCHAR},
+      </if>
+      <if test="toSendVehicleBizId != null">
+        to_send_vehicle_biz_id = #{toSendVehicleBizId,jdbcType=VARCHAR},
+      </if>
+      <if test="toSendVehicleDetailBizId != null">
+        to_send_vehicle_detail_biz_id = #{toSendVehicleDetailBizId,jdbcType=VARCHAR},
+      </if>
+      <if test="createUserErp != null">
+        create_user_erp = #{createUserErp,jdbcType=VARCHAR},
+      </if>
+      <if test="createUserName != null">
+        create_user_name = #{createUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="updateUserErp != null">
+        update_user_erp = #{updateUserErp,jdbcType=VARCHAR},
+      </if>
+      <if test="updateUserName != null">
+        update_user_name = #{updateUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null">
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="yn != null">
+        yn = #{yn,jdbcType=BIT},
+      </if>
+      <if test="ts != null">
+        ts = #{ts,jdbcType=TIMESTAMP},
+      </if>
+      <if test="type != null">
+        type = #{type,jdbcType=TINYINT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+
+  <insert id="batchInsert" parameterType="List">
+    insert into jy_send_transfer_log
+    (
+    send_code,from_send_vehicle_biz_id,from_send_vehicle_detail_biz_id,
+    to_send_vehicle_biz_id,to_send_vehicle_detail_biz_id,
+    create_user_erp,create_user_name,create_time,update_time,type
+    )
+    values
+    <foreach collection="list" item="item" index="index" separator=",">
+      (
+      #{item.sendCode},
+      #{item.fromSendVehicleBizId},
+      #{item.fromSendVehicleDetailBizId},
+      #{item.toSendVehicleBizId},
+      #{item.toSendVehicleDetailBizId},
+      #{item.createUserErp},
+      #{item.createUserName},
+      #{item.createTime},
+      #{item.updateTime},
+      #{item.type}
+      )
+    </foreach>
+  </insert>
+</mapper>

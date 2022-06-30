@@ -25,6 +25,20 @@
         <constructor-arg index="1" value="s:jy:bi:%s" />
     </bean>
 
+    <bean id="redisJySendBizIdSequenceGen"
+          class="com.jd.coo.sa.sequence.JimdbSequenceGen">
+        <constructor-arg index="0" ref="redisClientOfJy"/>
+        <!-- %s 为ownerKey的占位符 -->
+        <constructor-arg index="1" value="s:jy:send:%s" />
+    </bean>
+
+    <bean id="redisJyNoTaskSendDetailBizIdSequenceGen"
+          class="com.jd.coo.sa.sequence.JimdbSequenceGen">
+        <constructor-arg index="0" ref="redisClientOfJy"/>
+        <!-- %s 为ownerKey的占位符 -->
+        <constructor-arg index="1" value="s:jy:nt:send:detail:%s" />
+    </bean>
+
     <!-- snowFlake 自动递增的序列号生成器 -->
     <bean class="com.jd.coo.sa.mybatis.plugins.id.SequenceGenAdaptor" id="sequenceGenAdaptor">
         <constructor-arg index="0">

@@ -20,7 +20,13 @@
 		<typeAlias type="com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity" alias="JyBizTaskUnloadVehicleEntity"/>
 		<typeAlias type="com.jd.bluedragon.distribution.jy.unload.JyBizUnloadVehicleBatchEntity" alias="JyBizUnloadVehicleBatchEntity"/>
 		<typeAlias type="com.jd.bluedragon.distribution.jy.unload.JyUnloadAggsEntity" alias="JyUnloadAggsEntity"/>
-
+		<typeAlias type="com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity" alias="JyBizTaskSendVehicleEntity" />
+		<typeAlias type="com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity" alias="JyBizTaskSendVehicleDetailEntity" />
+		<typeAlias type="com.jd.bluedragon.distribution.jy.send.JySendAttachmentEntity" alias="JySendAttachmentEntity" />
+		<typeAlias type="com.jd.bluedragon.distribution.jy.send.JySendCodeEntity" alias="JySendCodeEntity" />
+		<typeAlias type="com.jd.bluedragon.distribution.jy.send.JySendSealCodeEntity" alias="JySendSealCodeEntity" />
+        <typeAlias type="com.jd.bluedragon.distribution.jy.send.JySendAggsEntity" alias="JySendAggsEntity" />
+		<typeAlias type="com.jd.bluedragon.distribution.jy.send.JySendTransferLogEntity" alias="JySendTransferLogEntity" />
 	</typeAliases>
 
 
@@ -33,6 +39,13 @@
 		<mapper resource="mappers/mysql/jy/unload/JyBizUnloadVehicleBatchMapper.xml" />
 		<mapper resource="mappers/mysql/jy/unload/JyUnloadAggsMapper.xml" />
 		<mapper resource="mappers/mysql/jy/config/JyWorkMapFuncConfigMapper.xml" />
+		<mapper resource="mappers/mysql/jy/task/JyBizTaskSendVehicleMapper.xml" />
+		<mapper resource="mappers/mysql/jy/task/JyBizTaskSendVehicleDetailMapper.xml" />
+		<mapper resource="mappers/mysql/jy/send/JySendAttachmentMapper.xml" />
+		<mapper resource="mappers/mysql/jy/send/JySendCodeMapper.xml" />
+		<mapper resource="mappers/mysql/jy/send/JySendSealCodeMapper.xml" />
+		<mapper resource="mappers/mysql/jy/send/JySendAggsMapper.xml" />
+		<mapper resource="mappers/mysql/jy/send/JySendTransferLogMapper.xml" />
 
 
 	</mappers>

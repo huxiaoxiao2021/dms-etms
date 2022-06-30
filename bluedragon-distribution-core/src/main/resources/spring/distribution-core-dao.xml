@@ -801,6 +801,31 @@
         <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
     </bean>
 
+    <bean id="jySendAggsDao" class="com.jd.bluedragon.distribution.jy.dao.send.JySendAggsDao">
+        <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
+    </bean>
+    <bean id="jySendCodeDao" class="com.jd.bluedragon.distribution.jy.dao.send.JySendCodeDao">
+        <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
+    </bean>
+    <bean id="jySendAttachmentDao" class="com.jd.bluedragon.distribution.jy.dao.send.JySendAttachmentDao">
+        <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
+    </bean>
+    <bean id="jySendDao" class="com.jd.bluedragon.distribution.jy.dao.send.JySendDao">
+        <property name="sqlSession" ref="sessionTemplate"/>
+    </bean>
+    <bean id="jySendSealCodeDao" class="com.jd.bluedragon.distribution.jy.dao.send.JySendSealCodeDao">
+        <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
+    </bean>
+    <bean id="jySendTransferLogDao" class="com.jd.bluedragon.distribution.jy.dao.send.JySendTransferLogDao">
+        <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
+    </bean>
+    <bean id="jyBizTaskSendVehicleDetailDao" class="com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskSendVehicleDetailDao">
+        <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
+    </bean>
+    <bean id="jyBizTaskSendVehicleDao" class="com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskSendVehicleDao">
+        <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
+    </bean>
+
     <!--################################## jy_core 相关DAO END ############################################ -->
 
 

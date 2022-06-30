@@ -1,0 +1,499 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskSendVehicleDetailDao">
+
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity"
+               id="jyBizTaskSendVehicleDetailMap">
+        <result property="id" column="id"/>
+        <result property="sendVehicleBizId" column="send_vehicle_biz_id"/>
+        <result property="bizId" column="biz_id"/>
+        <result property="transWorkItemCode" column="trans_work_item_code"/>
+        <result property="vehicleStatus" column="vehicle_status"/>
+        <result property="startSiteId" column="start_site_id"/>
+        <result property="startSiteName" column="start_site_name"/>
+        <result property="endSiteId" column="end_site_id"/>
+        <result property="endSiteName" column="end_site_name"/>
+        <result property="planDepartTime" column="plan_depart_time"/>
+        <result property="sealCarTime" column="seal_car_time"/>
+        <result property="createUserErp" column="create_user_erp"/>
+        <result property="createUserName" column="create_user_name"/>
+        <result property="updateUserErp" column="update_user_erp"/>
+        <result property="updateUserName" column="update_user_name"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="yn" column="yn"/>
+        <result property="ts" column="ts"/>
+    </resultMap>
+
+    <resultMap id="statusSumResultMap" type="com.jd.bluedragon.distribution.jy.dto.send.JyBizTaskSendCountDto">
+        <result property="vehicleStatus" column="vehicle_status" />
+        <result property="total" column="total" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, send_vehicle_biz_id, biz_id, trans_work_item_code, vehicle_status, start_site_id, start_site_name,
+        end_site_id, end_site_name, plan_depart_time, seal_car_time,
+        create_user_erp, create_user_name, update_user_erp, update_user_name, create_time, update_time, yn, ts
+    </sql>
+
+    <insert id="insert" parameterType="JyBizTaskSendVehicleDetailEntity">
+        insert into jy_biz_task_send_vehicle_detail
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="sendVehicleBizId != null">
+                send_vehicle_biz_id,
+            </if>
+            <if test="bizId != null">
+                biz_id,
+            </if>
+            <if test="transWorkItemCode != null">
+                trans_work_item_code,
+            </if>
+            <if test="vehicleStatus != null">
+                vehicle_status,
+            </if>
+            <if test="startSiteId != null">
+                start_site_id,
+            </if>
+            <if test="startSiteName != null">
+                start_site_name,
+            </if>
+            <if test="endSiteId != null">
+                end_site_id,
+            </if>
+            <if test="endSiteName != null">
+                end_site_name,
+            </if>
+            <if test="planDepartTime != null">
+                plan_depart_time,
+            </if>
+            <if test="sealCarTime != null">
+                seal_car_time,
+            </if>
+            <if test="createUserErp != null">
+                create_user_erp,
+            </if>
+            <if test="createUserName != null">
+                create_user_name,
+            </if>
+            <if test="updateUserErp != null">
+                update_user_erp,
+            </if>
+            <if test="updateUserName != null">
+                update_user_name,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="updateTime != null">
+                update_time,
+            </if>
+            <if test="yn != null">
+                yn,
+            </if>
+            <if test="ts != null">
+                ts,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="sendVehicleBizId != null">
+                #{sendVehicleBizId,jdbcType=VARCHAR},
+            </if>
+            <if test="bizId != null">
+                #{bizId,jdbcType=VARCHAR},
+            </if>
+            <if test="transWorkItemCode != null">
+                #{transWorkItemCode,jdbcType=VARCHAR},
+            </if>
+            <if test="vehicleStatus != null">
+                #{vehicleStatus,jdbcType=TINYINT},
+            </if>
+            <if test="startSiteId != null">
+                #{startSiteId,jdbcType=BIGINT},
+            </if>
+            <if test="startSiteName != null">
+                #{startSiteName,jdbcType=VARCHAR},
+            </if>
+            <if test="endSiteId != null">
+                #{endSiteId,jdbcType=BIGINT},
+            </if>
+            <if test="endSiteName != null">
+                #{endSiteName,jdbcType=VARCHAR},
+            </if>
+            <if test="planDepartTime != null">
+                #{planDepartTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="sealCarTime != null">
+                #{sealCarTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="createUserErp != null">
+                #{createUserErp,jdbcType=VARCHAR},
+            </if>
+            <if test="createUserName != null">
+                #{createUserName,jdbcType=VARCHAR},
+            </if>
+            <if test="updateUserErp != null">
+                #{updateUserErp,jdbcType=VARCHAR},
+            </if>
+            <if test="updateUserName != null">
+                #{updateUserName,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateTime != null">
+                #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="yn != null">
+                #{yn,jdbcType=BIT},
+            </if>
+            <if test="ts != null">
+                #{ts,jdbcType=TIMESTAMP},
+            </if>
+        </trim>
+    </insert>
+
+    <update id="update" parameterType="JyBizTaskSendVehicleDetailEntity">
+        update jy_biz_task_send_vehicle_detail
+        <set>
+            <if test="sendVehicleBizId != null">
+                send_vehicle_biz_id = #{sendVehicleBizId,jdbcType=VARCHAR},
+            </if>
+            <if test="bizId != null">
+                biz_id = #{bizId,jdbcType=VARCHAR},
+            </if>
+            <if test="transWorkItemCode != null">
+                trans_work_item_code = #{transWorkItemCode,jdbcType=VARCHAR},
+            </if>
+            <if test="vehicleStatus != null">
+                vehicle_status = #{vehicleStatus,jdbcType=TINYINT},
+            </if>
+            <if test="startSiteId != null">
+                start_site_id = #{startSiteId,jdbcType=BIGINT},
+            </if>
+            <if test="startSiteName != null">
+                start_site_name = #{startSiteName,jdbcType=VARCHAR},
+            </if>
+            <if test="endSiteId != null">
+                end_site_id = #{endSiteId,jdbcType=BIGINT},
+            </if>
+            <if test="endSiteName != null">
+                end_site_name = #{endSiteName,jdbcType=VARCHAR},
+            </if>
+            <if test="planDepartTime != null">
+                plan_depart_time = #{planDepartTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="sealCarTime != null">
+                seal_car_time = #{sealCarTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="createUserErp != null">
+                create_user_erp = #{createUserErp,jdbcType=VARCHAR},
+            </if>
+            <if test="createUserName != null">
+                create_user_name = #{createUserName,jdbcType=VARCHAR},
+            </if>
+            <if test="updateUserErp != null">
+                update_user_erp = #{updateUserErp,jdbcType=VARCHAR},
+            </if>
+            <if test="updateUserName != null">
+                update_user_name = #{updateUserName,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="yn != null">
+                yn = #{yn,jdbcType=BIT},
+            </if>
+            <if test="ts != null">
+                ts = #{ts,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+
+    <update id="updateDateilTaskByVehicleBizId" parameterType="JyBizTaskSendVehicleDetailEntity">
+        update jy_biz_task_send_vehicle_detail
+        <set>
+            <if test="bizId != null">
+                biz_id = #{bizId,jdbcType=VARCHAR},
+            </if>
+            <if test="transWorkItemCode != null">
+                trans_work_item_code = #{transWorkItemCode,jdbcType=VARCHAR},
+            </if>
+            <if test="vehicleStatus != null">
+                vehicle_status = #{vehicleStatus,jdbcType=TINYINT},
+            </if>
+            <if test="startSiteId != null">
+                start_site_id = #{startSiteId,jdbcType=BIGINT},
+            </if>
+            <if test="startSiteName != null">
+                start_site_name = #{startSiteName,jdbcType=VARCHAR},
+            </if>
+            <if test="endSiteId != null">
+                end_site_id = #{endSiteId,jdbcType=BIGINT},
+            </if>
+            <if test="endSiteName != null">
+                end_site_name = #{endSiteName,jdbcType=VARCHAR},
+            </if>
+            <if test="planDepartTime != null">
+                plan_depart_time = #{planDepartTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="sealCarTime != null">
+                seal_car_time = #{sealCarTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="createUserErp != null">
+                create_user_erp = #{createUserErp,jdbcType=VARCHAR},
+            </if>
+            <if test="createUserName != null">
+                create_user_name = #{createUserName,jdbcType=VARCHAR},
+            </if>
+            <if test="updateUserErp != null">
+                update_user_erp = #{updateUserErp,jdbcType=VARCHAR},
+            </if>
+            <if test="updateUserName != null">
+                update_user_name = #{updateUserName,jdbcType=VARCHAR},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="yn != null">
+                yn = #{yn,jdbcType=BIT},
+            </if>
+            <if test="ts != null">
+                ts = #{ts,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        where send_vehicle_biz_id = #{sendVehicleBizId}
+    </update>
+
+    <select id="findByBizId" resultMap="jyBizTaskSendVehicleDetailMap" parameterType="java.lang.String">
+        select
+        <include refid="Base_Column_List"/>
+        from jy_biz_task_send_vehicle_detail
+        where yn = 1 AND biz_id = #{bizId}
+        limit 1;
+    </select>
+
+    <select id="findByCondition" parameterType="JyBizTaskSendVehicleDetailEntity" resultType="java.lang.Long">
+        SELECT
+            id
+        FROM jy_biz_task_send_vehicle_detail
+        WHERE
+            yn = 1
+        <if test="transWorkItemCode != null and transWorkItemCode !='' ">
+            AND trans_work_item_code = #{transWorkItemCode}
+        </if>
+        <if test="sendVehicleBizId != null">
+            AND send_vehicle_biz_id = #{sendVehicleBizId}
+        </if>
+        <if test="startSiteId != null">
+            AND start_site_id = #{startSiteId}
+        </if>
+        <if test="endSiteId != null">
+            AND end_site_id = #{endSiteId}
+        </if>
+
+        ORDER BY ts DESC limit 1
+    </select>
+
+    <insert id="save" parameterType="JyBizTaskSendVehicleDetailEntity">
+        INSERT INTO jy_biz_task_send_vehicle_detail
+        (
+            send_vehicle_biz_id,
+            biz_id,
+            trans_work_item_code,
+            vehicle_status,
+            start_site_id,
+            start_site_name,
+            end_site_id,
+            end_site_name,
+            <if test="planDepartTime != null">
+                plan_depart_time,
+            </if>
+            create_user_erp,
+            create_user_name,
+            create_time,
+            yn
+        )
+        VALUES
+       (
+            #{sendVehicleBizId},
+            #{bizId},
+            #{transWorkItemCode},
+            #{vehicleStatus},
+            #{startSiteId},
+            #{startSiteName},
+            #{endSiteId},
+            #{endSiteName},
+            <if test="planDepartTime != null">
+                #{planDepartTime},
+            </if>
+            #{createUserErp},
+            #{createUserName},
+            NOW(),
+            1
+       )
+    </insert>
+
+    <select id="findByMainVehicleBiz" resultMap="jyBizTaskSendVehicleDetailMap">
+        SELECT 
+            <include refid="Base_Column_List"/>
+        FROM jy_biz_task_send_vehicle_detail
+        WHERE
+            yn = 1
+            AND start_site_id = #{entity.startSiteId}
+            <if test="entity.sendVehicleBizId != null">
+                AND send_vehicle_biz_id = #{entity.sendVehicleBizId}
+            </if>
+            <if test="entity.vehicleStatus != null">
+                AND vehicle_status = #{entity.vehicleStatus}
+            </if>
+            <if test="entity.endSiteId != null">
+                AND end_site_id = #{entity.endSiteId}
+            </if>
+            <if test="statuses != null and statuses.size() > 0">
+                AND vehicle_status IN
+                <foreach collection="statuses" separator="," open="(" close=")" item="item">
+                    #{item}
+                </foreach>
+            </if>
+    </select>
+
+    <update id="updateByBiz" parameterType="JyBizTaskSendVehicleDetailEntity">
+        UPDATE jy_biz_task_send_vehicle_detail
+        <set>
+            <if test="vehicleStatus != null">
+                vehicle_status = #{vehicleStatus},
+            </if>
+            <if test="sealCarTime != null">
+                seal_car_time = #{sealCarTime},
+            </if>
+            <if test="updateUserErp != null">
+                update_user_erp = #{updateUserErp},
+            </if>
+            <if test="updateUserName != null">
+                update_user_name = #{updateUserName},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+            <if test="yn != null">
+                yn = #{yn}
+            </if>
+        </set>
+        WHERE
+            yn = 1
+        AND biz_id = #{bizId}
+    </update>
+
+    <update id="updateStatus">
+        UPDATE jy_biz_task_send_vehicle_detail
+        <trim prefix="set" suffixOverrides=",">
+            <if test="entity.updateTime != null">
+                update_time = #{entity.updateTime},
+            </if>
+            <if test="entity.updateUserErp != null">
+                update_user_erp = #{entity.updateUserErp},
+            </if>
+            <if test="entity.updateUserName != null">
+                update_user_name = #{entity.updateUserName},
+            </if>
+            <if test="entity.vehicleStatus != null">
+                vehicle_status = #{entity.vehicleStatus},
+            </if>
+            <if test="entity.sealCarTime != null">
+                seal_car_time = #{entity.sealCarTime, jdbcType=TIMESTAMP}
+            </if>
+        </trim>
+        WHERE
+            yn = 1
+        AND send_vehicle_biz_id = #{entity.sendVehicleBizId}
+        AND start_site_id = #{entity.startSiteId}
+        AND end_site_id = #{entity.endSiteId}
+        AND vehicle_status = #{oldStatus}
+        AND vehicle_status <![CDATA[ < ]]> #{entity.vehicleStatus}
+    </update>
+
+    <select id="countByCondition" parameterType="JyBizTaskSendVehicleDetailEntity" resultType="java.lang.Integer">
+        SELECT
+            COUNT(*)
+        FROM jy_biz_task_send_vehicle_detail
+        WHERE
+            yn = 1
+        <if test="sendVehicleBizId != null">
+            AND send_vehicle_biz_id = #{sendVehicleBizId}
+        </if>
+        <if test="vehicleStatus != null">
+            AND vehicle_status = #{vehicleStatus}
+        </if>
+        <if test="startSiteId != null">
+            AND start_site_id = #{startSiteId}
+        </if>
+        <if test="endSiteId != null">
+            AND end_site_id = #{endSiteId}
+        </if>
+    </select>
+
+    <select id="getAllSendDest" parameterType="JyBizTaskSendVehicleDetailEntity" resultType="java.util.List">
+        SELECT
+            end_site_id
+        FROM jy_biz_task_send_vehicle_detail
+        WHERE
+            yn = 1
+        AND send_vehicle_biz_id = #{sendVehicleBizId}
+    </select>
+
+    <select id="findSendDetail" parameterType="JyBizTaskSendVehicleDetailEntity" resultMap="jyBizTaskSendVehicleDetailMap">
+        SELECT
+            <include refid="Base_Column_List"/>
+        FROM jy_biz_task_send_vehicle_detail
+        WHERE
+            yn = 1
+        AND start_site_id = #{startSiteId}
+        <if test="sendVehicleBizId != null">
+            AND send_vehicle_biz_id = #{sendVehicleBizId}
+        </if>
+        <if test="vehicleStatus != null">
+            AND vehicle_status = #{vehicleStatus}
+        </if>
+        <if test="endSiteId != null">
+            AND end_site_id = #{endSiteId}
+        </if>
+        <if test="transWorkItemCode != null and transWorkItemCode !='' ">
+            AND trans_work_item_code = #{transWorkItemCode}
+        </if>
+        LIMIT 1
+    </select>
+
+    <select id="sumByVehicleStatus" parameterType="JyBizTaskSendVehicleDetailEntity" resultMap="statusSumResultMap">
+        SELECT
+            vehicle_status, COUNT(*) total
+        FROM
+            jy_biz_task_send_vehicle_detail
+        WHERE
+            yn = 1
+        AND start_site_id = #{startSiteId}
+        AND send_vehicle_biz_id = #{sendVehicleBizId}
+        GROUP BY vehicle_status
+    </select>
+
+    <update id="updateBizTaskSendDetailStatus">
+        update jy_biz_task_send_vehicle_detail
+        set vehicle_status =#{vehicleStatus},update_time = NOW()
+        where biz_id =#{bizId} and vehicle_status =#{preVehicleStatus}
+    </update>
+
+</mapper>

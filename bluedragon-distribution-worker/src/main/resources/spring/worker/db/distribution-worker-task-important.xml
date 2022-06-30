@@ -274,6 +274,16 @@
         <property name="desc" value="发货异步任务定时调度独立处理-未涉及多级异步框架"/>
     </bean>
 
+    <bean id="deliverySendTransferTask" class="com.jd.bluedragon.distribution.worker.delivery.DeliverySendTransferTask"
+          init-method="init" lazy-init="false" depends-on="managerFactory">
+        <property name="dataSource" ref="taskDataSource"/>
+        <property name="managerFactory" ref="managerFactory"/>
+        <property name="taskType" value="DeliverySendTransferTask"/>
+        <property name="ownSign" value="${ownSign}"/>
+        <property name="type" value="1370"/>
+        <property name="desc" value="jy发货任务迁移逻辑"/>
+    </bean>
+
 
     <bean id="createSendTask" class="com.jd.bluedragon.distribution.worker.delivery.CreateSendTask"
           init-method="init" lazy-init="false" depends-on="managerFactory">
