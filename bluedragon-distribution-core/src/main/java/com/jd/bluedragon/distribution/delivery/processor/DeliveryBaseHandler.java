@@ -327,22 +327,29 @@ public abstract class DeliveryBaseHandler implements IDeliveryBaseHandler {
         for (String barCode : wrapper.getBarCodeList()) {
             SendM sendMItem =BeanUtils.copy(sendM, SendM.class);
             sendMItem.setBoxCode(barCode);
-            sendMItem.setUpdateTime(now);
+            if (!ObjectHelper.isNotNull(sendM.getUpdateTime())){
+                sendMItem.setUpdateTime(now);
+            }
 
             if (WaybillUtil.isWaybillCode(barCode)) {
                 sendDRequest.setWaybillCode(barCode);
             } else if (WaybillUtil.isPackageCode(barCode)){
                 sendDRequest.setPackageBarcode(barCode);
             } else {
-                sendDRequest.setBoxCode(sendMItem.getBoxCode());
+                sendDRequest.setBoxCode(barCode);
             }
             List<SendDetail> tlist = sendDatailDao.querySendDatailsBySelective(sendDRequest);//查询sendD明细
+            log.info("取消发货查询sendd明细,{}条数据",tlist.size());
 
             if (WaybillUtil.isWaybillCode(sendMItem.getBoxCode())
                     || WaybillUtil.isPackageCode(sendMItem.getBoxCode())) {
+                log.info("dealSendTransfer按运单/包裹维度进行取消：{}",sendMItem.getBoxCode());
                 /* 按包裹号和运单号的逻辑走 */
                 ThreeDeliveryResponse responsePack = cancelUpdateDataByPack(sendMItem, tlist);
                 if (responsePack.getCode().equals(200)) {
+                    log.info("dealSendTransfer按运单/包裹维度进行取消成功");
+                    delDeliveryFromRedis(sendMItem);
+                    sendMessage(tlist, sendMItem, true);
                     //同步取消半退明细
                     reversePartDetailService.cancelPartSend(sendMItem);
                     // 更新包裹装车记录表的扫描状态为取消扫描状态
@@ -356,8 +363,11 @@ public abstract class DeliveryBaseHandler implements IDeliveryBaseHandler {
                 sendMs.add(sendMItem);
                 ThreeDeliveryResponse threeDeliveryResponse = cancelUpdateDataByBox(sendMItem, sendDRequest, sendMs);
                 if (threeDeliveryResponse.getCode().equals(200)) {
-                    /* 更新箱号缓存状态 */
+                    log.info("dealSendTransfer按箱维度进行取消成功");
+                    delDeliveryFromRedis(sendMItem);     //取消发货成功，删除redis缓存的发货数据
+                    //更新箱号状态
                     openBox(sendMItem);
+                    sendMessage(tlist, sendMItem, true);
                 } else {
                     continue;
                 }
@@ -365,8 +375,6 @@ public abstract class DeliveryBaseHandler implements IDeliveryBaseHandler {
                 log.info("该发货明细不属于按运单按包裹按箱号发货范畴：{}" , JsonHelper.toJson(sendMItem));
                 continue;
             }
-            sendMessage(tlist, sendMItem, true);
-            delDeliveryFromRedis(sendMItem);//取消发货成功，删除redis缓存的发货数据 根据boxCode和createSiteCode
 
             //生成新的发货
             SendBizSourceEnum bizSource = SendBizSourceEnum.getEnum(sendMItem.getBizSource());
