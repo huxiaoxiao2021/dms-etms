@@ -23,6 +23,10 @@ public enum SendKeyTypeEnum {
      */
     BY_BOX,
     /**
+     * 按照板号发货
+     */
+    BY_BOARD,
+    /**
      * 按批次号
      */
 

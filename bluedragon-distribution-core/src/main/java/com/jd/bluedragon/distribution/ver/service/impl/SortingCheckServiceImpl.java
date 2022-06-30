@@ -19,6 +19,7 @@ import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.businessIntercept.constants.Constant;
 import com.jd.bluedragon.distribution.businessIntercept.helper.BusinessInterceptConfigHelper;
 import com.jd.bluedragon.distribution.businessIntercept.service.IBusinessInterceptReportService;
+import com.jd.bluedragon.distribution.delivery.constants.SendKeyTypeEnum;
 import com.jd.bluedragon.distribution.jsf.domain.BoardCombinationJsfResponse;
 import com.jd.bluedragon.distribution.jsf.domain.SortingCheck;
 import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
@@ -37,7 +38,6 @@ import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
 import com.jd.bluedragon.distribution.businessIntercept.dto.SaveInterceptMsgDto;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
-import com.jd.bluedragon.dms.utils.DmsMessageConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
@@ -49,8 +49,6 @@ import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.jd.etms.waybill.dto.WaybillAbilityAttrDto;
-import com.jd.etms.waybill.dto.WaybillAbilityDto;
 import com.jd.etms.waybill.dto.WaybillProductDto;
 import com.jd.ql.basic.util.DateUtil;
 import com.jd.ql.dms.common.constants.OperateDeviceTypeConstants;
@@ -65,7 +63,6 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -259,7 +256,13 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
     }
 
     private SortingJsfResponse singleSendCheck(SortingCheck sortingCheck, boolean reportIntercept) {
+        DeliveryFilterChain deliveryFilterChain = SendBizSourceEnum.WAYBILL_SEND.getCode().equals(sortingCheck.getBizSourceType()) ? getDeliveryByWaybillFilterChain() : getDeliveryFilterChain();
+        return doSingleSendCheckWithChain(sortingCheck, reportIntercept, deliveryFilterChain);
+    }
 
+    @Override
+    @JProfiler(jKey = "DMSWEB.SortingCheckServiceImpl.doSingleSendCheckWithChain", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    public SortingJsfResponse doSingleSendCheckWithChain(SortingCheck sortingCheck, boolean reportIntercept, FilterChain filterChain) {
         if (sortingCheck == null) {
             return new SortingJsfResponse(SortingResponse.CODE_PARAM_IS_NULL, SortingResponse.MESSAGE_PARAM_IS_NULL);
         }
@@ -273,8 +276,7 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
                 //初始化拦截链上下文
                 filterContext = this.initContext(pdaOperateRequest);
                 filterContext.setFuncModule(HintModuleConstants.FORWARD_DELIVERY);
-                DeliveryFilterChain deliveryFilterChain = SendBizSourceEnum.WAYBILL_SEND.getCode().equals(sortingCheck.getBizSourceType()) ? getDeliveryByWaybillFilterChain() : getDeliveryFilterChain();
-                deliveryFilterChain.doFilter(filterContext, deliveryFilterChain);
+                filterChain.doFilter(filterContext, filterChain);
             } catch (IllegalWayBillCodeException e) {
                 logger.error("新发货验证服务异常，非法运单号：IllegalWayBillCodeException", e);
                 response.setCode(JdResponse.CODE_PARAM_ERROR);
@@ -701,6 +703,22 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
      */
     public FilterChain getVirtualBoardCombinationFilterChain(){
         return (VirtualBoardCombinationChain) beanFactory.getBean("virtualBoardCombinationChain");
+    }
+
+    private FilterChain getJyDeliveryFilterChain() {
+        return (DeliveryFilterChain) beanFactory.getBean("jyDeliveryFilterChain");
+    }
+
+    @Override
+    public FilterChain matchJyDeliveryFilterChain(SendKeyTypeEnum sendType) {
+        switch (sendType) {
+            case BY_PACKAGE:
+                return getJyDeliveryFilterChain();
+            case BY_WAYBILL:
+                return getDeliveryByWaybillFilterChain();
+            default:
+                return null;
+        }
     }
 
     private SortingCheck convertToSortingCheck(PdaOperateRequest request){

@@ -31,15 +31,16 @@
 				<value>classpath:configured/print.properties</value>
 				<value>classpath:configured/sms.properties</value>
 				<value>classpath:configured/dms_crossbow.properties</value>
+				<value>classpath:configured/important.properties</value>
 			</list>
 		</property>
-		<property name="properties" ref="secApplicationProperties"/>
+<!--		<property name="properties" ref="secApplicationProperties"/>-->
 	</bean>
 	<!--公司安全要求 importants文件未防止运行环境泄露 应用secsdk加密-->
-	<bean id ="secApplicationProperties" class="com.jd.security.configsec.spring.config.JDSecurityPropertyFactoryBean">
-		<property name="ignoreResourceNotFound" value="true" />
-		<property name="secLocation" value="classpath:configured/important.properties"/>
-	</bean>
+<!--	<bean id ="secApplicationProperties" class="com.jd.security.configsec.spring.config.JDSecurityPropertyFactoryBean">-->
+<!--		<property name="ignoreResourceNotFound" value="true" />-->
+<!--		<property name="secLocation" value="classpath:configured/important.properties"/>-->
+<!--	</bean>-->
 
 <!--	<context:component-scan base-package="com.jd.bluedragon.distribution.web" />-->
 <!--	<context:component-scan base-package="com.jd.bluedragon.distribution.rest" />-->

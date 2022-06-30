@@ -116,7 +116,7 @@
 <!--    </logger>-->
 
     <root>
-        <priority value="DEBUG" />
+        <priority value="info" />
         <appender-ref ref="console" />
 <!--        <appender-ref ref="bluedragon" />-->
         <!--<appender-ref ref="CoalescingStatistics" />-->

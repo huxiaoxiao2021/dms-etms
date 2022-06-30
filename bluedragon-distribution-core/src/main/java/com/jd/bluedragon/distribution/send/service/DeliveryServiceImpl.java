@@ -6,6 +6,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.KeyConstants;
+import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.domain.Pack;
 import com.jd.bluedragon.common.domain.WaybillCache;
 import com.jd.bluedragon.common.service.WaybillCommonService;
@@ -1070,13 +1071,22 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
             }
         }
 
+        if (!packageSendByRealWaybill(domain, isCancelLastSend, result)) {
+            return result;
+        }
+        return result;
+    }
+
+    @Override
+    @JProfiler(jKey = "DMSWEB.DeliveryServiceImpl.packageSendByRealWaybill", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public boolean packageSendByRealWaybill(SendM domain, Boolean isCancelLastSend, SendResult result) {
         String waybillCode = WaybillUtil.getWaybillCode(domain.getBoxCode());
         Integer createSiteCode = domain.getCreateSiteCode();
         Waybill waybill = waybillQueryManager.getOnlyWaybillByWaybillCode(waybillCode);
         if (waybill == null) {
             log.error("按运单发货任务处理,查询运单不存在:waybillCode={}", waybillCode);
             result.init(SendResult.CODE_SENDED, "查询运单不存在:" + waybillCode);
-            return result;
+            return false;
         }
         // 校验是否已有包裹操作过发货 v2新需求：如果有包裹号单独先发货，则跳过已发货包裹号，剩余的包裹号执行发货逻辑
 //        if (redisClientCache.exists(getSendByWaybillPackLockKey(waybillCode, createSiteCode))) {
@@ -1086,7 +1096,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         // 锁定运单发货
         if (!lockWaybillSend(waybillCode, createSiteCode, waybill.getGoodNumber())) {
             result.init(SendResult.CODE_SENDED, DeliveryResponse.MESSAGE_DELIVERY_ALL_PROCESSING);
-            return result;
+            return false;
         }
         if (Boolean.TRUE.equals(isCancelLastSend)) {
             this.doCancelLastSend(domain);
@@ -1098,9 +1108,12 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
             unlockWaybillSend(waybillCode, createSiteCode);
             log.error("写入按运单发货任务出错:waybill={}", waybillCode, e);
             result.init(SendResult.CODE_SERVICE_ERROR, "写入按运单发货任务出错:" + waybillCode);
+            return false;
         }
-        return result;
+
+        return true;
     }
+
     /**
      * 按运单发货任务
      * @param domain 发货数据
@@ -1423,7 +1436,8 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
      * @param result
      * @return
      */
-    private boolean multiSendVerification(SendM domain, SendResult result) {
+    @Override
+    public boolean multiSendVerification(SendM domain, SendResult result) {
         // 根据箱号/包裹号 + 始发站点 + 目的站点获取发货记录
         SendM lastSendM = this.getRecentSendMByParam(domain.getBoxCode(), domain.getCreateSiteCode(), null, domain.getOperateTime());
         if (lastSendM != null) {
@@ -1517,7 +1531,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                 Profiler.registerInfoEnd(infoSendFindByWaybillCode);
             }
 
-            if (response.getCode() >= 39000) {
+            if (response.getCode() >= SendResult.RESPONSE_CODE_MAPPING_CONFIRM) {
                 result.init(SendResult.CODE_CONFIRM, response.getMessage(), response.getCode(), preSortingSiteCode);
             } else {
                 result.init(SendResult.CODE_SENDED, response.getMessage(), response.getCode(), preSortingSiteCode);
@@ -1533,7 +1547,8 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
      * @param domain
      * @return
      */
-    private SortingCheck getSortingCheck(SendM domain) {
+    @Override
+    public SortingCheck getSortingCheck(SendM domain) {
         //大件分拣拦截验证
         SortingCheck sortingCheck = new SortingCheck();
         sortingCheck.setOperateNode(OperateNodeConstants.SEND);
@@ -3098,6 +3113,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                 mSendDetail.setReceiveSiteCode(tSendM.getReceiveSiteCode());
                 mSendDetail.setIsCancel(Constants.OPERATE_TYPE_CANCEL_L);
                 List<SendDetail> tlist = this.sendDatailDao.querySendDatailsBySelective(mSendDetail);
+                tSendM.setCancelPackageCount(tlist.size());
                 if (tlist != null && !tlist.isEmpty()) {
                     ThreeDeliveryResponse responsePack = cancelUpdateDataByPack(tSendM, tlist);
                     if (responsePack.getCode().equals(200)) {
@@ -3127,6 +3143,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                     queryDetail.setCreateSiteCode(dSendM.getCreateSiteCode());
                     queryDetail.setReceiveSiteCode(dSendM.getReceiveSiteCode());
                     List<SendDetail> sendDatails = sendDatailDao.querySendDatailsBySelective(queryDetail);
+                    tSendM.setCancelPackageCount(sendDatails.size());
                     delDeliveryFromRedis(tSendM);     //取消发货成功，删除redis缓存的发货数据
                     //更新箱号状态
                     openBox(tSendM);
@@ -3220,7 +3237,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                     mSendDetail.setReceiveSiteCode(sendMItem.getReceiveSiteCode());
                     mSendDetail.setIsCancel(Constants.OPERATE_TYPE_CANCEL_L);
                     List<SendDetail> tlist = this.sendDatailDao.querySendDatailsBySelective(mSendDetail);//查询sendD明细
-
+                    tSendM.setCancelPackageCount(tlist.size());
                     if (WaybillUtil.isWaybillCode(sendMItem.getBoxCode()) || WaybillUtil.isPackageCode(sendMItem.getBoxCode())) {
                         /* 按包裹号和运单号的逻辑走 */
                         ThreeDeliveryResponse responsePack = cancelUpdateDataByPack(sendMItem, tlist);
@@ -4225,7 +4242,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
     /**
      * 按运单发货是否在处理中
      */
-    private boolean isSendByWaybillProcessing(SendM sendM) {
+    public boolean isSendByWaybillProcessing(SendM sendM) {
         try {
             if (sendM == null) {
                 return false;
@@ -6011,6 +6028,8 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
     }
 
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "DeliveryServiceImpl.getCancelSendByBox",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public List<SendDetail> getCancelSendByBox(String boxCode) {
         Box box = null;
         box = this.boxService.findBoxByCode(boxCode);
