@@ -1695,9 +1695,4 @@ public class Constants {
      * 验货菜单编码：0101019
      */
     public static final String MENU_CODE_INSPECTION  = "0101019";
-    /**
-     * 医冷零担（md-m-0002）
-     */
-    public static final String  PRODUCT_TYPE_MEDICAL_COLD_PART_BILL = "md-m-0002";
-
 }
