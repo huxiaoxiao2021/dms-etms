@@ -1685,4 +1685,9 @@ public class Constants {
      * 运单预售已付尾款
      */
     public static final String PRODUCT_ABILITY_OF_PRE_SELL_PAY_DONE  = "VI007-02";
+
+    /**
+     * 验货菜单编码：0101019
+     */
+    public static final String MENU_CODE_INSPECTION  = "0101019";
 }
