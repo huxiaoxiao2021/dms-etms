@@ -26,6 +26,7 @@ public class VehicleSendRelationDto {
 
     private String updateUserErp;
     private String updateUserName;
+    private Integer updateUserCode;
     private Boolean sameWayFlag;
     private String newSendCode;
     private Long createSiteId;

@@ -327,9 +327,7 @@ public abstract class DeliveryBaseHandler implements IDeliveryBaseHandler {
         for (String barCode : wrapper.getBarCodeList()) {
             SendM sendMItem =BeanUtils.copy(sendM, SendM.class);
             sendMItem.setBoxCode(barCode);
-            if (!ObjectHelper.isNotNull(sendM.getUpdateTime())){
-                sendMItem.setUpdateTime(now);
-            }
+            sendMItem.setUpdateTime(now);
 
             if (WaybillUtil.isWaybillCode(barCode)) {
                 sendDRequest.setWaybillCode(barCode);
@@ -339,7 +337,7 @@ public abstract class DeliveryBaseHandler implements IDeliveryBaseHandler {
                 sendDRequest.setBoxCode(barCode);
             }
             List<SendDetail> tlist = sendDatailDao.querySendDatailsBySelective(sendDRequest);//查询sendD明细
-            log.info("取消发货查询sendd明细,{}条数据",tlist.size());
+            log.info("取消发货查询sendd明细,{}",tlist.toString());
 
             if (WaybillUtil.isWaybillCode(sendMItem.getBoxCode())
                     || WaybillUtil.isPackageCode(sendMItem.getBoxCode())) {
@@ -372,7 +370,7 @@ public abstract class DeliveryBaseHandler implements IDeliveryBaseHandler {
                     continue;
                 }
             } else {
-                log.info("该发货明细不属于按运单按包裹按箱号发货范畴：{}" , JsonHelper.toJson(sendMItem));
+                log.info("暂时不支持按该范畴进行取消：{}" , JsonHelper.toJson(sendMItem));
                 continue;
             }
 

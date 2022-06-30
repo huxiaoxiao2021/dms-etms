@@ -331,6 +331,7 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
             dto.setSendCodes(sendCodeList);
             dto.setUpdateUserErp(transferSendTaskReq.getUser().getUserErp());
             dto.setUpdateUserName(transferSendTaskReq.getUser().getUserName());
+            dto.setUpdateUserCode(transferSendTaskReq.getUser().getUserCode());
             dto.setCreateSiteId(Long.valueOf(transferSendTaskReq.getCurrentOperate().getSiteCode()));
 
             if (transferSendTaskReq.getSameWayFlag()) {
@@ -353,7 +354,7 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
                 //生成迁移任务，异步执行迁移逻辑
                 for (String sendCode : sendCodeList) {
                     List<SendM> sendMList = sendMService.selectBySiteAndSendCode(transferSendTaskReq.getCurrentOperate().getSiteCode(), sendCode);
-                    deliveryOperationService.asyncHandleTransfer(sendMList, newSendCode);
+                    deliveryOperationService.asyncHandleTransfer(sendMList, dto);
                 }
             }
             JyBizTaskSendVehicleEntity toSvTask = new JyBizTaskSendVehicleEntity();
