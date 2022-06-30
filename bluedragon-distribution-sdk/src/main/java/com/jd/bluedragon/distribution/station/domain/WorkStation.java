@@ -25,6 +25,16 @@ public class WorkStation implements Serializable {
 	private String businessKey;
 
 	/**
+	 * 业务条线编码
+	 */
+	private String businessLineCode;
+
+	/**
+	 * 业务条线名称
+	 */
+	private String businessLineName;
+
+	/**
 	 * 作业区编码
 	 */
 	private String areaCode;
@@ -114,6 +124,22 @@ public class WorkStation implements Serializable {
 	 */
 	public String getBusinessKey() {
 		return this.businessKey;
+	}
+
+	public String getBusinessLineCode() {
+		return businessLineCode;
+	}
+
+	public void setBusinessLineCode(String businessLineCode) {
+		this.businessLineCode = businessLineCode;
+	}
+
+	public String getBusinessLineName() {
+		return businessLineName;
+	}
+
+	public void setBusinessLineName(String businessLineName) {
+		this.businessLineName = businessLineName;
 	}
 
 	/**

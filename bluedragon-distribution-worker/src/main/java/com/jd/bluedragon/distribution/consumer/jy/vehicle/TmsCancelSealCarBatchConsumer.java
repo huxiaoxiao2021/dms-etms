@@ -104,7 +104,7 @@ public class TmsCancelSealCarBatchConsumer extends MessageBaseConsumer {
         }
         CommonDto<SealCarDto> sealCarDtoCommonDto = vosManager.querySealCarInfoBySealCarCode(sealCarCode);
         if(logger.isInfoEnabled()){
-            logger.info("TmsCancelSealCarBatchConsumer获取封车信息返回数据 {},{}",sealCarCode,JsonHelper.toJson(sealCarCode));
+            logger.info("TmsCancelSealCarBatchConsumer获取封车信息返回数据 {},{}",sealCarCode,JsonHelper.toJson(sealCarDtoCommonDto));
         }
         if(sealCarDtoCommonDto == null || Constants.RESULT_SUCCESS != sealCarDtoCommonDto.getCode()){
             throw new JyBizException("querySealCarInfoBySealCarCode fail!");

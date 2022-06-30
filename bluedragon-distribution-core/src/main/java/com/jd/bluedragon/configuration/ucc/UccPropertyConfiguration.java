@@ -2,6 +2,8 @@ package com.jd.bluedragon.configuration.ucc;
 
 import com.jd.bluedragon.Constants;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -634,6 +636,31 @@ public class UccPropertyConfiguration {
     private Integer jyUnloadSingleWaybillThreshold;
     private Integer createSendTaskExecuteCount;
     private Integer createSendTasktimeOut;
+
+
+    /** 老发货拆分任务 每页执行的包裹或箱号数据了**/
+    private Integer oldSendSplitPageSize;
+
+
+    /**
+     * 德邦虚拟分拣中心id,字符串以逗号分割
+     * @return
+     */
+    private String dpSiteCodes;
+    private List<Integer> dpSiteCodeList;
+
+    /**
+     * 批量一车一单 德邦单匹配德邦批次号开关
+     */
+    private boolean dpWaybillMatchSendCodeSwitch;
+
+    public Integer getOldSendSplitPageSize() {
+        return oldSendSplitPageSize;
+    }
+
+    public void setOldSendSplitPageSize(Integer oldSendSplitPageSize) {
+        this.oldSendSplitPageSize = oldSendSplitPageSize;
+    }
 
     public Integer getCreateSendTaskExecuteCount() {
         return createSendTaskExecuteCount;
@@ -1851,4 +1878,41 @@ public class UccPropertyConfiguration {
 	public void setNeedUseNewReverseApi(boolean needUseNewReverseApi) {
 		this.needUseNewReverseApi = needUseNewReverseApi;
 	}
+
+    public String getDpSiteCodes() {
+        return dpSiteCodes;
+    }
+
+    public void setDpSiteCodes(String dpSiteCodes) {
+        if(StringUtils.isBlank(dpSiteCodes)){
+            return;
+        }
+        String[] siteCodesStr = dpSiteCodes.split("[,，]");
+        if(ArrayUtils.isEmpty(siteCodesStr)){
+            return;
+        }
+        List<Integer> siteCodeList = new ArrayList<>();
+        for(String siteCode : siteCodesStr){
+            if(StringUtils.isNumeric(siteCode)){
+                siteCodeList.add(Integer.parseInt(siteCode));
+            }
+        }
+        setDpSiteCodeList(siteCodeList);
+    }
+
+    public List<Integer> getDpSiteCodeList() {
+        return dpSiteCodeList;
+    }
+
+    public void setDpSiteCodeList(List<Integer> dpSiteCodeList) {
+        this.dpSiteCodeList = dpSiteCodeList;
+    }
+
+    public boolean isDpWaybillMatchSendCodeSwitch() {
+        return dpWaybillMatchSendCodeSwitch;
+    }
+
+    public void setDpWaybillMatchSendCodeSwitch(boolean dpWaybillMatchSendCodeSwitch) {
+        this.dpWaybillMatchSendCodeSwitch = dpWaybillMatchSendCodeSwitch;
+    }
 }

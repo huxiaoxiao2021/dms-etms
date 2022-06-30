@@ -616,4 +616,20 @@
         <property name="timeout" value="1000" />
     </bean>
 
+
+    <bean id="miniStoreSealBoxProducer" parent="jmq4DmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.ministore.bind.relation}"/>
+        <property name="timeout" value="1000"/>
+    </bean>
+
+    <bean id="miniStoreSortProcessProducer" parent="jmq4DmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.ministore.sorting.process}"/>
+        <property name="timeout" value="1000"/>
+    </bean>
+    <!--  首次打印  -->
+    <bean id="popPrintFirstProducer" parent="jmq4DmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.pop.print.first}" />
+        <property name="timeout" value="1000" />
+    </bean>
+
 </beans>

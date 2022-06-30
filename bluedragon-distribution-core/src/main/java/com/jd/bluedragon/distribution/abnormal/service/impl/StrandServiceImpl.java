@@ -114,7 +114,7 @@ public class StrandServiceImpl implements StrandService {
         BaseStaffSiteOrgDto siteOrgDto = siteService.getSite(request.getSiteCode());
         if(siteOrgDto == null){
             log.warn("滞留上报，分拣中心id:{}无信息", request.getSiteCode());
-            result.error("你所在的分拣中心id未查到站点信息,请联系配送系统运营！");
+            result.error("你所在的分拣中心id未查到站点信息,请联系org.wlxt2！");
             return result;
         }
         boolean syncFlag = Constants.YN_YES.equals(request.getSyncFlag());
@@ -487,12 +487,12 @@ public class StrandServiceImpl implements StrandService {
             return;
         }
         if (ReportTypeEnum.BOARD_NO.getCode().equals(request.getReportType())){
-            SendM sendm =sendMService.selectSendByBoardCode(request.getSiteCode(),request.getBarcode(),1);
-            if (sendM==null){
+            SendM sendMDto =sendMService.selectSendByBoardCode(request.getSiteCode(),request.getBarcode(),1);
+            if (sendMDto==null){
                 log.info("按板滞留上报==========没有找到按板的sendM(发货)记录");
                 return;
             }
-            sendM.setSendCode(sendm.getSendCode());
+            sendM.setSendCode(sendMDto.getSendCode());
         }
         ThreeDeliveryResponse response = deliveryService.dellCancelDeliveryMessageWithServerTime(sendM, true);
         //取消发货时异常

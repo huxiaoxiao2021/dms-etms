@@ -1582,7 +1582,17 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 	    response.setBillCode(sealCodesDto.getBillCode());
 	    return response;
     }
-
+    
+    private SealCodesDto convertToSealCodesDto(DoSealCodeRequest request) {
+	    SealCodesDto sealCodesDto = new SealCodesDto();
+	    sealCodesDto.setVehicleNumber(request.getVehicleNumber());
+	    sealCodesDto.setSealCodes(request.getSealCodes());
+	    sealCodesDto.setSealSiteId(request.getSealSiteId());
+	    sealCodesDto.setSealSiteName(request.getSealSiteName());
+	    sealCodesDto.setSealUserCode(request.getSealUserCode());
+	    sealCodesDto.setSealUserName(request.getSealUserName());
+	    return sealCodesDto;
+    }
     private SealCodesDto convertToSealCodesDto(DeSealCodeRequest request) {
 	    SealCodesDto sealCodesDto = new SealCodesDto();
 	    sealCodesDto.setVehicleNumber(request.getVehicleNumber());
@@ -1668,6 +1678,57 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 	        return response;
         }
 	    response = this.doDeSealCodes(request.getDeSealCodeRequest());
+        return response;
+    }
+    @Override
+    public NewSealVehicleResponse<String> doSealCodes(DoSealCodeRequest request) {
+        NewSealVehicleResponse<String> response = new NewSealVehicleResponse<>();
+
+        if (null == request) {
+            log.error("VOS封签线上化相关接口-无货上封签方法, 参数为空");
+            response.setCode(NewSealVehicleResponse.CODE_PARAM_ERROR);
+            response.setMessage(NewSealVehicleResponse.MESSAGE_PARAM_ERROR);
+            return response;
+        }
+        if (StringUtils.isEmpty(request.getVehicleNumber())) {
+            log.error("VOS封签线上化相关接口-无货上封签方法, 车牌号为空:{}", JsonHelper.toJson(request) );
+            response.setCode(NewSealVehicleResponse.CODE_PARAM_ERROR);
+            response.setMessage(NewSealVehicleResponse.MESSAGE_PARAM_ERROR);
+            return response;
+        }
+        if (null == request.getSealSiteId() || null == request.getSealSiteName()
+                || null == request.getSealUserCode() || null == request.getSealUserName()) {
+            log.error("VOS封签线上化相关接口-无货上封签方法, 操作人信息为空:{}", JsonHelper.toJson(request) );
+            response.setCode(NewSealVehicleResponse.CODE_PARAM_ERROR);
+            response.setMessage(NewSealVehicleResponse.MESSAGE_PARAM_ERROR);
+            return response;
+        }
+
+        try {
+            CommonDto<String> sealCodesDtoCommonDto = sealCarManager.doSealCodes(convertToSealCodesDto(request));
+            if (null == sealCodesDtoCommonDto) {
+                response.setCode(NewSealVehicleResponse.CODE_INTERNAL_ERROR);
+                response.setMessage(NewSealVehicleResponse.MESSAGE_SERVICE_ERROR_C);
+                return response;
+            }
+            if (sealCodesDtoCommonDto.getCode() == CommonDto.CODE_SUCCESS) {
+                response.setCode(NewSealVehicleResponse.CODE_OK);
+                response.setMessage(NewSealVehicleResponse.MESSAGE_OK);
+                response.setData(sealCodesDtoCommonDto.getData());
+                return response;
+            }
+            if (sealCodesDtoCommonDto.getCode() != CommonDto.CODE_SUCCESS || null == sealCodesDtoCommonDto.getData()) {
+                response.setCode(NewSealVehicleResponse.CODE_OK_NULL);
+                response.setMessage(sealCodesDtoCommonDto.getMessage());
+                return response;
+            }
+        } catch (RuntimeException e) {
+            log.error("VOS封签线上化相关接口-无货解封签方法, 调用异常, 参数：{}", JsonHelper.toJson(request), e);
+            response.setCode(NewSealVehicleResponse.CODE_INTERNAL_ERROR);
+            response.setMessage(NewSealVehicleResponse.MESSAGE_SERVICE_ERROR_C);
+            return response;
+        }
+
         return response;
     }
 }

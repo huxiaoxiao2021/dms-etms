@@ -27,6 +27,12 @@ public class UserSignRecordData implements Serializable {
 	private Integer orgCode;
 
 	/**
+	 * 战区
+	 */
+	private String warZoneCode;
+	private String warZoneName;
+
+	/**
 	 * 场地编码
 	 */
 	private Integer siteCode;
@@ -206,6 +212,23 @@ public class UserSignRecordData implements Serializable {
 	public void setOrgCode(Integer orgCode) {
 		this.orgCode = orgCode;
 	}
+
+	public String getWarZoneCode() {
+		return warZoneCode;
+	}
+
+	public void setWarZoneCode(String warZoneCode) {
+		this.warZoneCode = warZoneCode;
+	}
+
+	public String getWarZoneName() {
+		return warZoneName;
+	}
+
+	public void setWarZoneName(String warZoneName) {
+		this.warZoneName = warZoneName;
+	}
+
 	public Integer getSiteCode() {
 		return siteCode;
 	}

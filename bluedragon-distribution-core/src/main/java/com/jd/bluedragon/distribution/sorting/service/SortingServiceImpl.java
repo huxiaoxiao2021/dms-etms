@@ -1568,4 +1568,14 @@ public class SortingServiceImpl implements SortingService {
 		return sortingJsfResponse;
 	}
 
+	@Override
+	public Long findByPackageCodeAndBoxCode(Sorting sorting) {
+		return sortingDao.findByPackageCodeAndBoxCode(sorting);
+	}
+
+	@Override
+	public List<Sorting> listSortingByBoxCode(Sorting sorting) {
+		return sortingDao.listSortingByBoxCode(sorting);
+	}
+
 }

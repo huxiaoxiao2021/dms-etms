@@ -74,6 +74,12 @@ public class ObjectHelper {
         
         return Boolean.TRUE;
     }
+	public static Boolean isNotNull(Object object) {
+		if (object == null || "".equals(object)) {
+			return Boolean.FALSE;
+		}
+		return Boolean.TRUE;
+	}
     /**
      * 获取class对象的所有属性(不含父类)
      * @param classType

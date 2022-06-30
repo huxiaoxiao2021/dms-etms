@@ -256,6 +256,9 @@
     <jsf:consumer id="jdiQueryWS" interface="com.jd.tms.jdi.ws.JdiQueryWS"
                   protocol="jsf" alias="${jdi.jsf.alias}" serialization="hessian" timeout="${jdi.jsf.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
     </jsf:consumer>
+    <jsf:consumer id="jdiTransWorkWS" interface="com.jd.tms.jdi.ws.JdiTransWorkWS"
+                  protocol="jsf" alias="${jdi.jsf.alias}" serialization="hessian" timeout="${jdi.jsf.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
     <!--  (TFC)运输流程中心系统 jsf接口  王京-->
     <jsf:consumer id="tfcSelectWS" interface="com.jd.tms.tfc.ws.TfcSelectWS"
                   protocol="jsf" alias="${tfc.jsf.alias}" serialization="hessian" timeout="${tfc.jsf.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
@@ -847,6 +850,11 @@
     <jsf:consumer id="spotCheckQueryService" interface="com.jd.ql.dms.report.SpotCheckQueryService"
                   protocol="jsf" alias="${jsf.spotCheckQuery.alias}" timeout="${jsf.spotCheckQuery.timeout}" retries="${jsf.retries}" serialization="hessian">
     </jsf:consumer>
+    <jsf:consumer id="swDeviceJsfService"
+                  interface="com.jd.cmp.jsf.SwDeviceJsfService"
+                  protocol="jsf"
+                  alias="${jsf.swDevice.alias}" timeout="${jsf.swDevice.timeout}" serialization="hessian">
+    </jsf:consumer>
 
     <!-- 循环物资 -->
     <jsf:consumer id="recycleMaterialJsfService" interface="com.jd.bluedragon.sdk.modules.recyclematerial.RecycleMaterialJsfService"
@@ -900,4 +908,19 @@
                   retries="${jsf.retries}" >
     </jsf:consumer>
 
+    <jsf:consumer id="waybillPackageContainerApi" interface="com.jd.coldchain.distribution.api.WaybillPackageContainerApi"
+                  protocol="jsf" alias="${jsf.coldchain.dispatch.alias}" timeout="${jsf.coldchain.dispatch.timeout}" retries="${jsf.retries}" serialization="hessian">
+    </jsf:consumer>
+    <jsf:consumer id="soBindRelationServiceApi" interface="com.jd.eclp.bbp.so.service.SoBindRelationService"
+        protocol="jsf" alias="${jsf.consumer.eclp.bbp.alias}"
+        timeout="${jsf.consumer.eclp.bbp.timeout}"
+        retries="${jsf.retries}" >
+        <jsf:parameter key="token" value="${jsf.consumer.eclp.bbp.token}" hide="true"/>
+    </jsf:consumer>
+    <!-- 运输任务相关接口 -->
+    <jsf:consumer id="tpcLineCargoVolumeApi" interface="com.jd.tms.tpc.api.TpcRouteLineCargoApi"
+                  protocol="jsf" alias="${jsf.tpc.alias}"
+                  timeout="${jsf.tpc.timeout}"
+                  retries="${jsf.retries}" serialization="hessian">
+    </jsf:consumer>
 </beans>

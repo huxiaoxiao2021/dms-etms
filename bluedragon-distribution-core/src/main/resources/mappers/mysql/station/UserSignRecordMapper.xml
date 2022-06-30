@@ -5,6 +5,8 @@
 	<resultMap id="UserSignRecord" type="com.jd.bluedragon.distribution.station.domain.UserSignRecord" >
 		<id column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT" />
 		<result column="org_code" property="orgCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="war_zone_code" property="warZoneCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="war_zone_name" property="warZoneName" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="site_code" property="siteCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
 		<result column="user_code" property="userCode" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="user_name" property="userName" javaType="java.lang.String" jdbcType="VARCHAR" />
@@ -41,6 +43,8 @@
 		<result column="sign_date" property="signDate" javaType="java.util.Date" jdbcType="DATE" />	
 		<result column="org_code" property="orgCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
 		<result column="org_name" property="orgName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="war_zone_code" property="warZoneCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="war_zone_name" property="warZoneName" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="site_code" property="siteCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
 		<result column="site_name" property="siteName" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="floor" property="floor" javaType="java.lang.Integer" jdbcType="INTEGER" />
@@ -87,6 +91,8 @@
 	<resultMap id="UserSignRecordData" type="com.jd.bluedragon.common.dto.station.UserSignRecordData" >
 		<result column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT" />
 		<result column="org_code" property="orgCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="war_zone_code" property="warZoneCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="war_zone_name" property="warZoneName" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="site_code" property="siteCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
 		<result column="user_code" property="userCode" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="user_name" property="userName" javaType="java.lang.String" jdbcType="VARCHAR" />
@@ -120,7 +126,7 @@
 	</resultMap>
 		
 	<sql id="Base_Column_List" >
-		r.id,r.org_code,r.site_code,r.user_code,r.user_name,r.wave_code,r.job_code,
+		r.id,r.org_code,r.site_code,r.war_zone_code,r.war_zone_name,r.user_code,r.user_name,r.wave_code,r.job_code,
 		r.sign_date,r.sign_in_time,r.sign_out_time,r.ref_plan_key,r.ref_grid_key,
 		r.ref_station_key,r.create_user,r.create_user_name,r.update_user,r.update_user_name,
 		r.create_time,r.update_time,r.yn,r.ts,
@@ -144,6 +150,12 @@
 				</if>
 				<if test="orgCode != null" >
 					org_code,
+				</if>
+				<if test="warZoneCode != null" >
+					war_zone_code,
+				</if>
+				<if test="warZoneName != null" >
+					war_zone_name,
 				</if>
 				<if test="siteCode != null" >
 					site_code,
@@ -212,6 +224,12 @@
 				</if>
 				<if test="orgCode != null" >
 					#{orgCode,jdbcType=INTEGER},
+				</if>
+				<if test="warZoneCode != null" >
+					#{warZoneCode,jdbcType=VARCHAR},
+				</if>
+				<if test="warZoneName != null" >
+					#{warZoneName,jdbcType=VARCHAR},
 				</if>
 				<if test="siteCode != null" >
 					#{siteCode,jdbcType=INTEGER},
@@ -282,6 +300,12 @@
 				</if>
 				<if test="siteCode != null" >
 					site_code = #{siteCode,jdbcType=INTEGER},
+				</if>
+				<if test="warZoneCode != null" >
+					war_zone_code = #{warZoneCode,jdbcType=VARCHAR},
+				</if>
+				<if test="warZoneName != null" >
+					war_zone_name = #{warZoneName,jdbcType=VARCHAR},
 				</if>
 				<if test="userCode != null" >
 					user_code = #{userCode,jdbcType=VARCHAR},
@@ -659,7 +683,7 @@
 		select
 			<include refid="Base_Column_List"/>
 		from
-			(select t.* from user_sign_record t
+			(select t.* from user_sign_record t force index(`idx_user_code`)
 			     where t.yn = 1
 		            and t.site_code = #{siteCode,jdbcType=INTEGER}
 		            and t.user_code = #{userCode,jdbcType=VARCHAR}
@@ -799,5 +823,30 @@
           and r.ref_grid_key = #{refGridKey,jdbcType=VARCHAR}
           and r.sign_out_time is null
         order by id
-    </select>    
+    </select> 
+    <select id="queryListByOperateUser" parameterType="com.jd.bluedragon.common.dto.station.UserSignQueryRequest" resultMap="UserSignRecordData">
+        select
+            <include refid="Main_Column_List"/>
+        from
+            user_sign_record r force index(`idx_site_and_create_user_code`)
+        <include refid="queryByOperateUser"/>
+        order by id desc
+        limit #{offset}, #{limit}
+    </select>
+
+    <select id="queryCountByOperateUser" parameterType="com.jd.bluedragon.common.dto.station.UserSignQueryRequest" resultType="long">
+        select
+            count(1)
+        from
+            user_sign_record r force index(`idx_site_and_create_user_code`)
+        <include refid="queryByOperateUser"/>
+    </select>
+    <sql id="queryByOperateUser">
+        <where>
+            r.yn = 1
+	        and r.site_code = #{siteCode,jdbcType=INTEGER}
+            and r.create_user = #{createUser,jdbcType=VARCHAR}
+            and r.sign_date = #{signDate,jdbcType=DATE}
+        </where>
+    </sql>
 </mapper>

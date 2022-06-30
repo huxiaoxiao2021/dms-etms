@@ -64,7 +64,11 @@ public class StrandReportGateWayServiceImpl implements StrandReportGateWayServic
 
     return res;
     }
-  
+
+  /**
+   * 查询默认
+   * @return
+   */
   @Override
   @JProfiler(
     jKey = "DMSWEB.StrandReportGateWayServiceImpl.queryReasonList",
@@ -85,4 +89,31 @@ public class StrandReportGateWayServiceImpl implements StrandReportGateWayServic
     res.toSucceed();
     return res;
   }
+
+  /**
+   * 查询全部的滞留原因
+   * 默认+冷链
+   * @return
+   */
+  @Override
+  @JProfiler(
+          jKey = "DMSWEB.StrandReportGateWayServiceImpl.queryAllReasonList",
+          jAppName = Constants.UMP_APP_NAME_DMSWEB,
+          mState = {JProEnum.TP, JProEnum.FunctionError}
+  )
+  public JdCResponse<List<ConfigStrandReasonData>> queryAllReasonList() {
+    JdCResponse<List<ConfigStrandReasonData>> res = new JdCResponse<>();
+
+    InvokeResult<List<ConfigStrandReasonData>> invokeResult = strandResouce.queryAllReasonList();
+    if (null == invokeResult) {
+      res.toFail("获取异常原因列表失败！");
+    } else {
+      res.setData(invokeResult.getData());
+      res.setCode(invokeResult.getCode());
+      res.setMessage(invokeResult.getMessage());
+    }
+    res.toSucceed();
+    return res;
+  }
+
 }

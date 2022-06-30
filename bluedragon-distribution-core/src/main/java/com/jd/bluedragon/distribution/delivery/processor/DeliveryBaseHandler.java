@@ -37,7 +37,7 @@ public abstract class DeliveryBaseHandler implements IDeliveryBaseHandler {
 
     protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
-    static int SEND_SPLIT_NUM = 100;
+    static int SEND_SPLIT_NUM = 30;
 
     static int EXPIRE_TIME_SECOND = 2 * 60 * 60;
 
@@ -90,7 +90,7 @@ public abstract class DeliveryBaseHandler implements IDeliveryBaseHandler {
     @Override
     public DeliveryResponse initDeliveryTask(SendMWrapper wrapper) {
 
-        int onePageSize = uccConfig.getWaybillSplitPageSize() == 0 ? SEND_SPLIT_NUM : uccConfig.getWaybillSplitPageSize();
+        int onePageSize = uccConfig.getOldSendSplitPageSize() <= 0 ? SEND_SPLIT_NUM : uccConfig.getOldSendSplitPageSize();
         int totalNum = wrapper.getBarCodeList().size();
         int pageTotal = (totalNum % onePageSize) == 0 ? (totalNum / onePageSize) : (totalNum / onePageSize) + 1;
 

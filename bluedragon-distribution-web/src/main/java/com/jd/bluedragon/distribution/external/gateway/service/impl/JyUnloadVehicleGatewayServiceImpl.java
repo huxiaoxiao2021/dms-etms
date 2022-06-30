@@ -141,10 +141,12 @@ public class JyUnloadVehicleGatewayServiceImpl implements JyUnloadVehicleGateway
 
         InvokeResult<Integer> invokeResult = unloadVehicleService.unloadScan(request);
         if (invokeResult.getCode() == InvokeResult.RESULT_SUCCESS_CODE) {
+            response.setData(invokeResult.getData());
             response.toSuccess();
             return response;
         }
         else if (invokeResult.getCode() == InvokeResult.CODE_HINT) {
+            response.setCode(InvokeResult.CODE_HINT);
             response.addPromptBox(0, invokeResult.getMessage());
             return response;
         }
@@ -288,5 +290,11 @@ public class JyUnloadVehicleGatewayServiceImpl implements JyUnloadVehicleGateway
 
     private <T> JdCResponse<T> retJdCResponse(InvokeResult<T> invokeResult) {
         return new JdCResponse<>(invokeResult.getCode(), invokeResult.getMessage(), invokeResult.getData());
+    }
+    @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyUnloadVehicleGatewayService.countByVehicleNumberAndStatus",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
+    public JdCResponse<Long> countByVehicleNumberAndStatus(UnsealVehicleTaskRequest request) {
+        return retJdCResponse(unloadVehicleService.countByVehicleNumberAndStatus(request));
     }
 }

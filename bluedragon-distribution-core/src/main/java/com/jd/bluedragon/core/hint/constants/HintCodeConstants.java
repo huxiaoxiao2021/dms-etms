@@ -414,17 +414,17 @@ public class HintCodeConstants {
     public static String SCAN_BARCODE_LIMIT = "20063";
 
     /**
-     * 支付类型为空，联系IT咚咚：XNPSXT处理
+     * 支付类型为空，联系IT咚咚：org.wlxt2 处理
      */
     public static String WAYBILL_MISSING_PAYMENT_TYPE = "20064";
 
     /**
-     * 特殊属性为空，联系IT咚咚：XNPSXT处理
+     * 特殊属性为空，联系IT咚咚：org.wlxt2 处理
      */
     public static String WAYBILL_MISSING_SEND_PAY = "20065";
 
     /**
-     * 运单类型为空，联系IT咚咚：XNPSXT处理
+     * 运单类型为空，联系IT咚咚：org.wlxt2 处理
      */
     public static String WAYBILL_TYPE_MISSING = "20066";
 
@@ -508,6 +508,18 @@ public class HintCodeConstants {
      * 此订单目的分拣中心已关闭,确定装箱。
      */
     public static String EMD_DMSSITE_CLOSE="20082";
+    /**
+     * 此单末端非直发包站点，禁止装箱
+     */
+    public static String CODE_DIRECT_SEND_SITE_ERROR = "20083";
+    /**
+     * 未配置发出地[始发分拣名称]至目的地[目的分拣名称]的医药直发包规则，请先创建医药直发规则
+     */
+    public static String CODE_COLD_CHAIN_SITE_NO_ROUTE = "20084";
+    /**
+     * 不允许按直发医药箱号进行发货，请拆箱后再进行发货
+     */
+    public static String CODE_COLD_CHAIN_SEND_BOX_ERROR = "20086";
 
     /*##############################################拦截相关END#########################################################*/
 
@@ -904,4 +916,13 @@ public class HintCodeConstants {
      * 存在非航空单操作，提示非航空单数量
      */
     public static String AIR_TO_ROAD_TIP_MSG="50004";
+    /**
+     * 非一单一件单错发到德邦虚拟分拣中心
+     */
+    public static String NOT_ONE_PACK_WAYBILL_WRONG_SEND_MSG="50005";
+
+    /**
+     * 非单错发到德邦虚拟分拣中心
+     */
+    public static String NOT_DP_WAYBILL_WRONG_SEND_MSG="50006";
 }

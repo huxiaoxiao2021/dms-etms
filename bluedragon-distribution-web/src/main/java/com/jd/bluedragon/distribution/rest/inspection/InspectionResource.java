@@ -38,6 +38,7 @@ import com.jd.ql.basic.ws.BasicPrimaryWS;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -540,6 +541,11 @@ public class InspectionResource {
 	public com.jd.ql.dms.common.domain.JdResponse getStorageCode(
 			@PathParam("packageOrWaybillCode") String packageBarOrWaybillCode,
 			@PathParam("siteCode") Integer siteCode){
+		// 校验'验货'功能是否可用
+		ImmutablePair<Boolean, String> checkResult = baseService.checkMenuIsAvailable(Constants.MENU_CODE_INSPECTION, siteCode);
+		if(!checkResult.getLeft()){
+			return new com.jd.ql.dms.common.domain.JdResponse(com.jd.ql.dms.common.domain.JdResponse.CODE_FAIL, checkResult.getRight());
+		}
 		return inspectionService.getStorageCode(packageBarOrWaybillCode,siteCode);
 	}
 

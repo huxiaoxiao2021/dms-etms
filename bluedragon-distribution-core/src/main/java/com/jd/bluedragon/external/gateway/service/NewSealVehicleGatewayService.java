@@ -9,6 +9,7 @@ import com.jd.bluedragon.common.dto.blockcar.response.TransportInfoDto;
 import com.jd.bluedragon.common.dto.seal.request.CancelSealRequest;
 import com.jd.bluedragon.distribution.api.domain.TransAbnormalTypeDto;
 import com.jd.bluedragon.distribution.api.request.*;
+import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
 import com.jd.bluedragon.distribution.api.response.NewUnsealVehicleResponse;
 import com.jd.bluedragon.distribution.api.response.SealCodesResponse;
 
@@ -132,4 +133,9 @@ public interface NewSealVehicleGatewayService {
      * @return
      */
     NewUnsealVehicleResponse<Boolean> createTransAbnormalAndUnseal(TransAbnormalAndUnsealRequest request);
+    /**
+     * 无货上封签
+     * @return
+     */
+    NewSealVehicleResponse<String> doSealCodes(DoSealCodeRequest request);
 }

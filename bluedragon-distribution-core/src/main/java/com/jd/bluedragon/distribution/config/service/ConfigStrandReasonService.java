@@ -44,6 +44,8 @@ public interface ConfigStrandReasonService {
 	Result<ConfigStrandReason> queryByReasonCode(Integer reasonCode);	
 	/**
 	 * 按条件分页查询
+	 * businessTag = 1 or 2 分别代表 默认 + 冷链
+	 * 不传businessTagList，代表查询全部
 	 * @param query
 	 * @return
 	 */

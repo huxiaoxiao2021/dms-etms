@@ -28,9 +28,11 @@ import com.jd.bluedragon.distribution.cyclebox.CycleBoxService;
 import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigEnum;
 import com.jd.bluedragon.distribution.funcSwitchConfig.service.FuncSwitchConfigService;
 import com.jd.bluedragon.distribution.jsf.domain.BoardCombinationJsfResponse;
+import com.jd.bluedragon.distribution.middleend.sorting.dao.DynamicSortingQueryDao;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.service.SendMService;
+import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.ver.service.SortingCheckService;
@@ -125,6 +127,8 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
     @Autowired
     private BaseService baseService;
 
+    @Autowired
+    private DynamicSortingQueryDao dynamicSortingQueryDao;
     /**
      * 获取组板已存在的未完成数据
      * @param operatorInfo 操作人信息
@@ -133,6 +137,7 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
      * @time 2021-08-14 18:25:31 周六
      */
     @Override
+    @JProfiler(jKey = "DMSWEB.VirtualBoardServiceImpl.getBoardUnFinishInfo",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<List<VirtualBoardResultDto>> getBoardUnFinishInfo(OperatorInfo operatorInfo) {
         log.info("VirtualBoardServiceImpl.getBoardUnFinishInfo--start-- param {}", JsonHelper.toJson(operatorInfo));
         List<VirtualBoardResultDto> virtualBoardResultDtoList = new ArrayList<>();
@@ -163,6 +168,7 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
     private com.jd.transboard.api.dto.base.OperatorInfo getConvertToTcParam(OperatorInfo operatorInfo) {
         final com.jd.transboard.api.dto.base.OperatorInfo operatorInfoTarget = new com.jd.transboard.api.dto.base.OperatorInfo();
         BeanUtils.copyProperties(operatorInfo, operatorInfoTarget);
+        log.info("operatorInfoTarget={}", JsonHelper.toJson(operatorInfoTarget));
         return operatorInfoTarget;
     }
 
@@ -415,6 +421,25 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
                         return result;
                     }
                 }
+                //集包禁止组板拦截
+                if(isPackageCode) {
+                    Sorting sorting = new Sorting();
+                    sorting.setCreateSiteCode(operatorInfo.getSiteCode());
+                    sorting.setPackageCode(barCode);
+                    List<Sorting> sortingList = dynamicSortingQueryDao.findByWaybillCodeOrPackageCode(sorting);
+                    if(CollectionUtils.isNotEmpty(sortingList)) {
+                        for (Sorting sortingTemp : sortingList) {
+                            final BarCodeType barCodeType = BusinessUtil.getBarCodeType(sortingTemp.getBoxCode());
+                            if (barCodeType != null && Objects.equals(barCodeType, BarCodeType.BOX_CODE)) {
+                                log.info("VirtualBoardServiceImpl.bindToBoard--包裹【{}】分拣组板时校验拦截，该包裹已经集包【{}】,request=【{}】", barCode, JsonHelper.toJson(sortingTemp), JsonHelper.toJson(bindToVirtualBoardPo));
+                                result.setCode(BoxResponse.CODE_PACKAGE_BOX);
+                                result.setMessage(BoxResponse.MESSAGE_CODE_PACKAGE_BOX);
+                                return result;
+                            }
+                        }
+                    }
+                }
+
                 // 调板号服务绑定到板号
                 bindToVirtualBoardPo.setMaxItemCount(uccPropertyConfiguration.getVirtualBoardMaxItemCount());
                 final com.jd.transboard.api.dto.BindToVirtualBoardPo convertToTcParam = this.getConvertToTcParam(bindToVirtualBoardPo);
@@ -540,6 +565,12 @@ public class VirtualBoardServiceImpl implements VirtualBoardService {
     private Result<List<com.jd.transboard.api.dto.VirtualBoardResultDto>> getExistEnableBoardList(BindToVirtualBoardPo bindToVirtualBoardPo){
         Result<List<com.jd.transboard.api.dto.VirtualBoardResultDto>> result = Result.success();
         final OperatorInfo operatorInfo = bindToVirtualBoardPo.getOperatorInfo();
+        if(bindToVirtualBoardPo.getVersion() != null) {
+            operatorInfo.setVersion(bindToVirtualBoardPo.getVersion());
+        }
+        if(bindToVirtualBoardPo.getBizSource() != null) {
+            operatorInfo.setBizSource(bindToVirtualBoardPo.getBizSource());
+        }
         final Response<List<com.jd.transboard.api.dto.VirtualBoardResultDto>> handleResult = virtualBoardJsfManager.getBoardUnFinishInfo(this.getConvertToTcParam(operatorInfo));
         if(!Objects.equals(handleResult.getCode(), ResponseEnum.SUCCESS.getIndex())){
             log.error("VirtualBoardServiceImpl.getBoardUnFinishInfo--fail-- param {} result {}", JsonHelper.toJson(operatorInfo), JsonHelper.toJson(handleResult));

@@ -84,6 +84,14 @@ public class ConfigStrandReason implements Serializable {
 	 */
 	private Date ts;
 
+	/**
+	 * 业务标识
+	 * 1：默认；2：冷链
+	 */
+	private Integer businessTag;
+
+//====================================
+
 	public Long getId() {
 		return id;
 	}
@@ -194,5 +202,13 @@ public class ConfigStrandReason implements Serializable {
 
 	public void setTs(Date ts) {
 		this.ts = ts;
+	}
+
+	public Integer getBusinessTag() {
+		return businessTag;
+	}
+
+	public void setBusinessTag(Integer businessTag) {
+		this.businessTag = businessTag;
 	}
 }

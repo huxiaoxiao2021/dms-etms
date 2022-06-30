@@ -102,9 +102,13 @@ public class WorkStationAttendPlanServiceImpl implements WorkStationAttendPlanSe
 		if(!CheckHelper.checkStr("方案名称", planName, 50, result).isSuccess()) {
 			return result;
 		}
-		if(!CheckHelper.checkInteger("出勤计划人数", planAttendNum, 1,1000000, result).isSuccess()) {
+		if(!CheckHelper.checkInteger("出勤计划人数", planAttendNum, 0,1000000, result).isSuccess()) {
 			return result;
 		}
+		WorkStationAttendPlan oldData = workStationAttendPlanDao.queryById(updateData.getId());
+		if(oldData == null) {
+			return result.toFail("该计划数据已变更，请重新查询后修改！");
+		}		
 		workStationAttendPlanDao.deleteById(updateData);
 		updateData.setId(null);		
 		result.setData(workStationAttendPlanDao.insert(updateData) == 1);
@@ -282,7 +286,7 @@ public class WorkStationAttendPlanServiceImpl implements WorkStationAttendPlanSe
 		if(siteCode == null) {
 			return result.toFail("场地ID为空！");
 		}
-		if(!CheckHelper.checkInteger("楼层", floor, 1,3, result).isSuccess()) {
+		if(!CheckHelper.checkInteger("楼层", floor, 1,5, result).isSuccess()) {
 			return result;
 		}
 		//校验gridNo
@@ -305,7 +309,7 @@ public class WorkStationAttendPlanServiceImpl implements WorkStationAttendPlanSe
 		if(WaveTypeEnum.getEnum(waveCode) == null) {
 			return result.toFail("班次类型只能录入【"+WaveTypeEnum.getAllNames()+"】！");
 		}
-		if(!CheckHelper.checkInteger("出勤计划人数", planAttendNum, 1,1000000, result).isSuccess()) {
+		if(!CheckHelper.checkInteger("出勤计划人数", planAttendNum, 0,1000000, result).isSuccess()) {
 			return result;
 		}
 		BaseStaffSiteOrgDto siteInfo = baseMajorManager.getBaseSiteBySiteId(siteCode);

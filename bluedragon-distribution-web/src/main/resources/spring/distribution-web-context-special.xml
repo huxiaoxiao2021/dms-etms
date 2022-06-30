@@ -91,6 +91,7 @@
 		<entry key="TW" value="逆向内配" />
 		<entry key="LP" value="理赔完成" />
         <entry key="WJ" value="文件" />
+		<entry key="MS" value="医药直发" />
 	</util:map>
 
 </beans>

@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.jd.ql.basic.domain.BaseSite;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -101,7 +102,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	
 	@Autowired
 	private BaseMajorManager baseMajorManager;
-	
+
 	private static final DecimalFormat NUMBER_FORMAT = new DecimalFormat("0.00");
 	private static final DecimalFormat RATE_FORMAT = new DecimalFormat("0.00%");
 
@@ -333,6 +334,8 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
         signInRequest.setCreateTime(signInTime);
         signInRequest.setSignInTime(signInTime);
         signInRequest.setSignDate(signInRequest.getSignInTime());
+		// 设置战区信息
+		setWarZoneInfo(signInRequest);
         userSignRecordDao.insert(signInRequest);
 
         if (autoSignOutSuccess) {
@@ -574,22 +577,28 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
         if(!result.isSucceed()) {
         	return result;
         }
-        
+
 		UserSignRecordQuery lastSignRecordQuery = new UserSignRecordQuery();
 		lastSignRecordQuery.setUserCode(signInRequest.getUserCode());
 		//查询签到记录，先签退
         UserSignRecord lastSignRecord = this.queryLastUnSignOutRecord(lastSignRecordQuery);
         UserSignRecord signOutRequest = new UserSignRecord();
+        boolean needSignOut = false;
         if(lastSignRecord != null) {
         	signOutRequest.setId(lastSignRecord.getId());
         	signOutRequest.setUpdateUser(signInRequest.getOperateUserCode());
         	signOutRequest.setUpdateUserName(signInRequest.getOperateUserName());
     		this.doSignOut(signOutRequest);
+    		needSignOut = true;
     		context.signOutData = this.toUserSignRecordData(lastSignRecord);
 		}
         if(this.doSignIn(signInData)) {
         	result.setData(this.toUserSignRecordData(signInData));
-        	result.toSucceed("签到成功！");
+        	if(needSignOut) {
+        		result.toSucceed("签到成功，自动将上次签到数据签退！");
+        	}else {
+        		result.toSucceed("签到成功！");
+        	}
         	context.signInData = result.getData();
         	context.signInFlag = true;
         }else {
@@ -698,7 +707,11 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 
         if(this.doSignIn(signInData)) {
         	result.setData(this.toUserSignRecordData(signInData));
-        	result.toSucceed("签到成功！");
+        	if(needSignOut) {
+        		result.toSucceed("签到成功，自动将上次签到数据签退！");
+        	}else {
+        		result.toSucceed("签到成功！");
+        	}
         	context.signInData = result.getData();
         	context.signInFlag = true;
         }else {
@@ -755,10 +768,10 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		result.setData(workStationGridData.getData());
 		return result;
 	}
-	private JdCResponse<UserSignRecordData> checkAndFillSignInInfo(UserSignRequest signInRequest,UserSignRecord signInData,WorkStationGrid gridInfo){
+	private JdCResponse<UserSignRecordData> checkAndFillSignInInfo(UserSignRequest signInRequest,UserSignRecord signInData, WorkStationGrid gridInfo){
 		JdCResponse<UserSignRecordData> result = new JdCResponse<>();
 		result.toSucceed();
-		
+
 		String gridKey = gridInfo.getBusinessKey();
 		String stationKey = gridInfo.getRefStationKey();
 		signInData.setJobCode(signInRequest.getJobCode());
@@ -770,13 +783,20 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		signInData.setRefGridKey(gridKey);
 		signInData.setRefStationKey(stationKey);
 		signInData.setUserName(signInData.getUserCode());
+		// 获取最近一次签到记录
+		UserSignQueryRequest query = new UserSignQueryRequest();
+		query.setUserCode(signInRequest.getUserCode());
+		Integer waveCode = calculateWave(userSignRecordDao.queryLastUserSignRecordData(query));
+		signInData.setWaveCode(waveCode);
+		signInData.setWaveName(WaveTypeEnum.getNameByCode(waveCode));
+		signInData.setRefPlanKey(queryPlanKey(signInData));
+		setWarZoneInfo(signInData);
 		
-		String userCode = signInData.getUserCode();
 		Integer jobCode = signInData.getJobCode();
+		String userCode = signInData.getUserCode();
 		boolean isCarId = BusinessUtil.isIdCardNo(userCode);
 		if(JobTypeEnum.JOBTYPE1.getCode().equals(jobCode)
-				||JobTypeEnum.JOBTYPE2.getCode().equals(jobCode)
-				||JobTypeEnum.JOBTYPE6.getCode().equals(jobCode)) {
+				||JobTypeEnum.JOBTYPE2.getCode().equals(jobCode)) {
 			//正式工设置erp对应的名称
 			BaseStaffSiteOrgDto userInfo = baseMajorManager.getBaseStaffIgnoreIsResignByErp(signInData.getUserCode());
 			boolean isEffectErp = false;
@@ -790,22 +810,93 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 					result.toFail("签到失败，ERP在中台基础资料中不存在！");
 					return result;
 				}
-				if(!isCarId){
-					result.toFail("签到失败，无效的Erp|身份证号！");
-					return result;
-				}
 			}
 			//设置用户名称
 			if(isEffectErp
 					&& userInfo.getStaffName() != null) {
 				signInData.setUserName(userInfo.getStaffName());
 			}
-		}else if(!isCarId){
+		}else if(!JobTypeEnum.JOBTYPE6.getCode().equals(jobCode) && !isCarId){
 			result.toFail("签到失败，无效的身份证号！");
 			return result;
 		}
 		return result;
 	}
+
+	private void setWarZoneInfo(UserSignRecord signInData) {
+		if(signInData.getSiteCode() == null){
+			return;
+		}
+		BaseSite baseSite = baseMajorManager.getSiteBySiteCode(signInData.getSiteCode());
+		signInData.setWarZoneCode(baseSite == null ? null : baseSite.getProvinceCompanyCode());
+		signInData.setWarZoneName(baseSite == null ? null : baseSite.getProvinceCompanyName());
+	}
+
+	private String queryPlanKey(UserSignRecord signInData) {
+		//查询设置计划信息
+		WorkStationAttendPlan workStationAttendPlanQuery = new WorkStationAttendPlan();
+		workStationAttendPlanQuery.setRefGridKey(signInData.getRefGridKey());
+		workStationAttendPlanQuery.setWaveCode(signInData.getWaveCode());
+		Result<WorkStationAttendPlan> planData = workStationAttendPlanService.queryByBusinessKeys(workStationAttendPlanQuery);
+		if(planData != null
+				&& planData.getData() != null) {
+			return planData.getData().getBusinessKey();
+		}
+		return null;
+	}
+
+	/**
+	 * 计算班次
+	 * 	fix：
+	 * 		1、0<h<=6: 如果前一天18-24未签到过则为白班，签到过则为晚班
+	 * 		2、6<h<=12: 如果当天0-6未签到过则为白班，签到过则为晚班
+	 * 		3、12<h<=18: 如果当天6-12未签到过则为中班，签到过则为白班
+	 * 		4、18<h<=24: 如果当天12-18未签到过则为晚班，签到过则为中班
+	 * @param lastSignRecord
+	 * @return
+	 */
+	private Integer calculateWave(UserSignRecordData lastSignRecord) {
+		Date lastSignInTime = lastSignRecord == null ? null : lastSignRecord.getSignInTime() == null ? null : lastSignRecord.getSignInTime();
+		// 当前时间
+		Date currentDate = new Date();
+		long currentTime = currentDate.getTime();
+		// 当天零点、6、12、18、24
+		long currentZero = DateHelper.getZero(currentDate);
+		long currentZeroAdd6 = DateHelper.add(new Date(currentZero), Calendar.HOUR_OF_DAY, 6).getTime();
+		long currentZeroAdd12 = DateHelper.add(new Date(currentZero), Calendar.HOUR_OF_DAY, 12).getTime();
+		long currentZeroAdd18 = DateHelper.add(new Date(currentZero), Calendar.HOUR_OF_DAY, 18).getTime();
+		long currentZeroAdd24 = DateHelper.add(new Date(currentZero), Calendar.HOUR_OF_DAY, 24).getTime();
+		// 昨天零点、18、24
+		long yesterdayZero = DateHelper.getZero(DateHelper.addDate(currentDate, -1));
+		long yesterdayZeroAdd18 = DateHelper.add(new Date(yesterdayZero), Calendar.HOUR_OF_DAY, 18).getTime();
+		if(currentZero < currentTime && currentTime <= currentZeroAdd6){
+			if(lastSignInTime == null ||
+					!(lastSignInTime.getTime() > yesterdayZeroAdd18 && lastSignInTime.getTime() <= currentZero)){
+				return WaveTypeEnum.DAY.getCode();
+			}
+			return WaveTypeEnum.NIGHT.getCode();
+		}else if (currentZeroAdd6 < currentTime && currentTime <= currentZeroAdd12){
+			if(lastSignInTime == null ||
+					!(lastSignInTime.getTime() > currentZero && lastSignInTime.getTime() <= currentZeroAdd6)){
+				return WaveTypeEnum.DAY.getCode();
+			}
+			return WaveTypeEnum.NIGHT.getCode();
+		}else if(currentZeroAdd12 < currentTime && currentTime <= currentZeroAdd18){
+			if(lastSignInTime == null ||
+					!(lastSignInTime.getTime() > currentZeroAdd6 && lastSignInTime.getTime() <= currentZeroAdd12)){
+				return WaveTypeEnum.MIDDLE.getCode();
+			}
+			return WaveTypeEnum.DAY.getCode();
+		}else if(currentZeroAdd18 < currentTime && currentTime <= currentZeroAdd24){
+			if(lastSignInTime == null ||
+					!(lastSignInTime.getTime() > currentZeroAdd12 && lastSignInTime.getTime() <= currentZeroAdd18)){
+				return WaveTypeEnum.NIGHT.getCode();
+			}
+			return WaveTypeEnum.MIDDLE.getCode();
+		}
+		return null;
+	}
+
 	private boolean doSignIn(UserSignRecord userSignRecord) {
 		Date date = new Date();
 		userSignRecord.setCreateTime(date);
@@ -1059,5 +1150,40 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		public void setGroupData(GroupMemberData groupData) {
 			this.groupData = groupData;
 		}
+	}
+	@Override
+	public JdCResponse<PageDto<UserSignRecordData>> querySignListByOperateUser(UserSignQueryRequest query) {
+		JdCResponse<PageDto<UserSignRecordData>> result = new JdCResponse<>();
+		result.toSucceed();
+		Date signDate = query.getSignDate();
+		if(signDate == null && StringHelper.isNotEmpty(query.getSignDateStr())) {
+			signDate = DateHelper.parseDate(query.getSignDateStr(),DateHelper.DATE_FORMAT_YYYYMMDD);
+		}
+		query.setSignDate(signDate);
+		if(query.getPageSize() == null
+				|| query.getPageSize() <= 0) {
+			query.setPageSize(DmsConstants.PAGE_SIZE_DEFAULT);
+		}
+		query.setOffset(0);
+		query.setLimit(query.getPageSize());
+		if(query.getPageNumber() > 0) {
+			query.setOffset((query.getPageNumber() - 1) * query.getPageSize());
+		}
+		PageDto<UserSignRecordData> PageDto = new PageDto<>(query.getPageNumber(), query.getPageSize());
+		Long totalCount = userSignRecordDao.queryCountByOperateUser(query);
+		if(totalCount != null && totalCount > 0){
+		    List<UserSignRecordData> dataList = userSignRecordDao.queryListByOperateUser(query);
+		    Date currentDate = new Date();
+		    for(UserSignRecordData data: dataList) {
+		    	fillOtherInfo(data,currentDate);
+		    }
+		    PageDto.setResult(dataList);
+			PageDto.setTotalRow(totalCount.intValue());
+		}else {
+		    PageDto.setResult(new ArrayList<UserSignRecordData>());
+			PageDto.setTotalRow(0);
+		}
+		result.setData(PageDto);
+		return result;
 	}
 }

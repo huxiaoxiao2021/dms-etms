@@ -53,6 +53,30 @@
        )
 	</insert>
 
+	<insert id="addBatch" parameterType="list">
+		INSERT INTO  Box (
+			box_id, box_code, box_type, create_site_code, create_site_name,
+			receive_site_code, receive_site_name, create_user_code, create_user,
+			update_user_code, update_user, transport_type,mix_box_type,
+			create_time, update_time, times, box_status, yn,predict_send_time,
+			router,router_name,last_node_type
+			,box_source
+		) VALUES
+		<foreach collection="list" item="item" index="index" open="" separator="," close="">
+			(
+			#{item.id,jdbcType=BIGINT}, #{item.code,jdbcType=VARCHAR}, #{item.type,jdbcType=VARCHAR},
+			#{item.createSiteCode,jdbcType=INTEGER}, #{item.createSiteName,jdbcType=VARCHAR},
+			#{item.receiveSiteCode,jdbcType=VARCHAR}, #{item.receiveSiteName,jdbcType=VARCHAR},
+			#{item.createUserCode,jdbcType=INTEGER}, #{item.createUser,jdbcType=VARCHAR},
+			#{item.createUserCode,jdbcType=INTEGER}, #{item.createUser,jdbcType=VARCHAR},
+			#{item.transportType,jdbcType=INTEGER}, #{item.mixBoxType,jdbcType=INTEGER},
+			NOW(), NOW(), 1, #{item.status}, 1,#{item.predictSendTime,jdbcType=TIMESTAMP},
+			#{item.router,jdbcType=VARCHAR},#{item.routerName,jdbcType=VARCHAR},#{item.lastNodeType}
+			,#{item.boxSource,jdbcType=VARCHAR}
+			)
+		</foreach>
+	</insert>
+
 	<select id="findBoxByCode" resultMap="box" parameterType="String" >
 
 		SELECT box_id, box_code, box_type, create_site_code, create_site_name,

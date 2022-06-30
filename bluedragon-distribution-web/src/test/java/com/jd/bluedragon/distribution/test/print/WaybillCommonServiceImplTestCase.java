@@ -1,5 +1,8 @@
 package com.jd.bluedragon.distribution.test.print;
 
+import com.alibaba.fastjson.JSON;
+import com.google.common.collect.Lists;
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.service.impl.WaybillCommonServiceImpl;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BasicSafInterfaceManager;
@@ -8,8 +11,10 @@ import com.jd.bluedragon.core.base.VrsRouteTransferRelationManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.base.service.SiteService;
+import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.order.ws.OrderWebService;
 import com.jd.bluedragon.distribution.popPrint.service.PopPrintService;
+import com.jd.bluedragon.distribution.print.domain.BasePrintWaybill;
 import com.jd.bluedragon.distribution.print.service.HideInfoComposeServiceImpl;
 import com.jd.bluedragon.distribution.print.service.HideInfoService;
 import com.jd.bluedragon.distribution.print.service.WaybillPrintService;
@@ -22,9 +27,12 @@ import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
+import com.jd.etms.waybill.domain.BaseEntity;
+import com.jd.etms.waybill.domain.Waybill;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.bluedragon.dms.utils.SendPayConstants;
+import com.sun.el.stream.Stream;
 import junit.framework.Assert;
 
 import org.junit.Test;
@@ -34,6 +42,8 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -58,7 +68,8 @@ public class WaybillCommonServiceImplTestCase {
 	HideInfoComposeServiceImpl hideInfoComposeServiceImpl;
     @Mock
     private ProductService productService;
-
+	@Mock
+	SysConfigService sysConfigService;
     /**
      * 运单包裹查询
      */
@@ -326,6 +337,45 @@ public class WaybillCommonServiceImplTestCase {
     	waybillCommonServiceImpl.loadOriginalDmsInfo(context, context.getBasePrintWaybill(), context.getBigWaybillDto());
     	Assert.assertEquals(new Integer(50),context.getBasePrintWaybill().getOriginalDmsCode());
     }
+
+
+	/**
+	 * 测试打印二维码
+	 */
+	@Test
+	public void testBasePrintInfoByWaybill() throws Exception{
+    	//todo 沟通入参怎么获取  帮忙看下逻辑
+		//生产两个对象
+		BasePrintWaybill basePrintWaybill = new BasePrintWaybill();
+		Waybill waybill =  new Waybill();
+
+		waybill.setWaybillSign(UtilsForTestCase.getSignString(500,61,'1'));
+		waybill.setSendPay("1");
+		waybill.setCustomerCode("010K1750468- for SF outbound");
+		waybill.setWaybillCode("22");
+
+		when(siteService.getSiteNameByCode(50)).thenReturn("20");
+
+		BaseStaffSiteOrgDto siteInfo = new BaseStaffSiteOrgDto();
+		siteInfo.setCityId(66);
+		siteInfo.setCityName("哈尔滨");
+		when(baseService.queryDmsBaseSiteByCode("22")).thenReturn(siteInfo);
+		 List<String> objects = Lists.newArrayList();
+		objects.add("010K1750468- for SF outbound");
+		when(sysConfigService.getStringListConfig(Constants.SYS_WAYBILL_PRINT_ADDIOWN_NUMBER_CONF)).thenReturn(objects);
+
+
+		BaseEntity<Waybill> oldWaybilla=new BaseEntity<Waybill>();
+		Waybill waybill1 = new Waybill();
+		waybill1.setWaybillCode("666");
+
+		oldWaybilla.setData(waybill1);
+		when(waybillQueryManager.getWaybillByReturnWaybillCode(waybill.getWaybillCode())).thenReturn(oldWaybilla);
+
+		BasePrintWaybill basePrintWaybill1 = waybillCommonServiceImpl.setBasePrintInfoByWaybill(basePrintWaybill, waybill);
+
+		System.out.println("basePrintWaybill1 = " + JSON.toJSON(basePrintWaybill1));
+	}
 
 
 

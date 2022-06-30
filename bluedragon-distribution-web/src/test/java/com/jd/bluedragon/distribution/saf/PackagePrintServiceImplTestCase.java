@@ -74,6 +74,8 @@ public class PackagePrintServiceImplTestCase {
 //		Assert.assertTrue(result.isSucceed() && result.getData().intValue() == 10);
     }
 
+
+
 	@Test
 	public void testHideStartSitePrint() throws Exception{
 		JdCommand<String> printRequest = new JdCommand<String>();

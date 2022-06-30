@@ -26,6 +26,14 @@ public class UserSignRecordReportVo implements Serializable {
 	 */
 	private String orgName;
 	/**
+	 * 战区编码
+	 */
+	private String warZoneCode;
+	/**
+	 * 战区名称
+	 */
+	private String warZoneName;
+	/**
 	 * 场地编码
 	 */
 	private Integer siteCode;
@@ -119,6 +127,23 @@ public class UserSignRecordReportVo implements Serializable {
 	public void setOrgName(String orgName) {
 		this.orgName = orgName;
 	}
+
+	public String getWarZoneCode() {
+		return warZoneCode;
+	}
+
+	public void setWarZoneCode(String warZoneCode) {
+		this.warZoneCode = warZoneCode;
+	}
+
+	public String getWarZoneName() {
+		return warZoneName;
+	}
+
+	public void setWarZoneName(String warZoneName) {
+		this.warZoneName = warZoneName;
+	}
+
 	public Integer getSiteCode() {
 		return siteCode;
 	}

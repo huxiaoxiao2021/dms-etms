@@ -45,6 +45,10 @@ public class DealPopPrintHandler implements Handler<WaybillPrintCompleteContext,
     private static final List<Integer> FIRST_PRINT_OPERATE_TYPE = new ArrayList<>();
 
     static {
+        // 平台打印和驻场打印单独插入1180任务，发了验货全程跟踪，此处先去掉
+        EXCLUDE_INSPECTION_OPERATE_TYPE.add(WaybillPrintOperateTypeEnum.PLATE_PRINT.getType());
+        EXCLUDE_INSPECTION_OPERATE_TYPE.add(WaybillPrintOperateTypeEnum.FIELD_PRINT.getType());
+
         EXCLUDE_INSPECTION_OPERATE_TYPE.add(WaybillPrintOperateTypeEnum.SITE_PLATE_PRINT.getType());
         EXCLUDE_INSPECTION_OPERATE_TYPE.add(WaybillPrintOperateTypeEnum.SMS_REPRINT.getType());
         EXCLUDE_INSPECTION_OPERATE_TYPE.add(WaybillPrintOperateTypeEnum.SITE_3PL_PACKAGE_AGAIN_REPRINT.getType());

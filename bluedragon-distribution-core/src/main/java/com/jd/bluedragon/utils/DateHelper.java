@@ -565,4 +565,38 @@ public class DateHelper {
 		}
 		return "";
 	}
+
+    /**
+     * 获取某个时间的小时
+     *
+     * @param date
+     * @return
+     */
+    public static Integer getHour(Date date) {
+        if(date == null){
+            return null;
+        }
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        return calendar.get(Calendar.HOUR_OF_DAY);
+    }
+
+    /**
+     * 获取某个时间的当天0点的时间戳
+     *
+     * @param date
+     * @return
+     */
+    public static Long getZero(Date date) {
+        if(date == null){
+            return null;
+        }
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        return calendar.getTimeInMillis();
+    }
 }

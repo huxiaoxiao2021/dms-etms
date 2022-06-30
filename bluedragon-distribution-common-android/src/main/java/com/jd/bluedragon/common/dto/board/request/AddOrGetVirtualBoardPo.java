@@ -35,6 +35,11 @@ public class AddOrGetVirtualBoardPo implements Serializable {
      */
     private Integer bizSource;
 
+    /**
+     * 版本：做数据隔离
+     */
+    private Integer version;
+
     public OperatorInfo getOperatorInfo() {
         return operatorInfo;
     }
@@ -68,5 +73,13 @@ public class AddOrGetVirtualBoardPo implements Serializable {
 
     public void setBizSource(Integer bizSource) {
         this.bizSource = bizSource;
+    }
+
+    public Integer getVersion() {
+        return version;
+    }
+
+    public void setVersion(Integer version) {
+        this.version = version;
     }
 }

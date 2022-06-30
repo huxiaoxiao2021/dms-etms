@@ -131,7 +131,7 @@ public class WorkStationGridServiceImpl implements WorkStationGridService {
 		if(siteCode == null) {
 			return result.toFail("场地ID为空！");
 		}
-		if(!CheckHelper.checkInteger("楼层", floor, 1,3, result).isSuccess()) {
+		if(!CheckHelper.checkInteger("楼层", floor, 1,5, result).isSuccess()) {
 			return result;
 		}
 		//校验gridNo
@@ -197,6 +197,10 @@ public class WorkStationGridServiceImpl implements WorkStationGridService {
 		}
 		if(!CheckHelper.checkStr("负责人ERP", ownerUserErp, 50, result).isSuccess()) {
 			return result;
+		}
+		WorkStationGrid oldData = workStationGridDao.queryById(updateData.getId());
+		if(oldData == null) {
+			return result.toFail("该网格数据已变更，请重新查询后修改！");
 		}
 		workStationGridDao.deleteById(updateData);
 		updateData.setId(null);

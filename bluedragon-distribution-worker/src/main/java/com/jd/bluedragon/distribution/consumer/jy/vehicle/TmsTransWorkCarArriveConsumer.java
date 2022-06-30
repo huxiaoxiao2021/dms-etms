@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.consumer.jy.vehicle;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.JdiQueryWSManager;
+import com.jd.bluedragon.core.base.JdiTransWorkWSManager;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadStatusEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
@@ -14,6 +15,8 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.tms.jdi.dto.BigQueryOption;
+import com.jd.tms.jdi.dto.BigTransWorkItemDto;
 import com.jd.tms.jdi.dto.CommonDto;
 import com.jd.tms.jdi.dto.TransWorkItemDto;
 import com.jd.ump.annotation.JProEnum;
@@ -48,7 +51,7 @@ public class TmsTransWorkCarArriveConsumer extends MessageBaseConsumer {
     private JyBizTaskUnloadVehicleService jyBizTaskUnloadVehicleService;
 
     @Autowired
-    private JdiQueryWSManager jdiQueryWSManager;
+    private JdiTransWorkWSManager jdiTransWorkWSManager;
 
     @Autowired
     private BaseMajorManager baseMajorManager;
@@ -90,7 +93,10 @@ public class TmsTransWorkCarArriveConsumer extends MessageBaseConsumer {
                 logger.info("消费处理TmsTransWorkCarArriveConsumer 执行到达状态 不存在 逻辑，内容{}", JsonHelper.toJson(mqBody));
             }
             //获取派车任务对应数据的目的地类型，如果是分拣的则进入重试，反之直接丢弃
-            TransWorkItemDto transWorkItemDto = jdiQueryWSManager.getTransWorkItemsDtoByItemCode(mqBody.getTransWorkItemCode());
+            BigQueryOption queryOption = new BigQueryOption();
+            queryOption.setQueryTransWorkItemDto(Boolean.TRUE);
+            BigTransWorkItemDto bigTransWorkItemDto = jdiTransWorkWSManager.queryTransWorkItemByOptionWithRead(mqBody.getTransWorkItemCode(),queryOption);
+            TransWorkItemDto transWorkItemDto = bigTransWorkItemDto == null ? null : bigTransWorkItemDto.getTransWorkItemDto();
             if(transWorkItemDto != null ){
                 String endNodeCode = transWorkItemDto.getEndNodeCode();
                 if(!StringUtils.isEmpty(endNodeCode)){

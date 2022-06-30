@@ -25,6 +25,15 @@ public class UserSignRecord implements Serializable {
 	private Integer orgCode;
 
 	/**
+	 * 战区编码
+	 */
+	private String warZoneCode;
+	/**
+	 * 战区名称
+	 */
+	private String warZoneName;
+
+	/**
 	 * 场地编码
 	 */
 	private Integer siteCode;
@@ -183,6 +192,11 @@ public class UserSignRecord implements Serializable {
 	 * 签到人员名称
 	 */
 	private String userName;
+
+	/**
+	 * 签到次数
+	 */
+	private Integer quotaStationTime;
 	/**
 	 *
 	 * @param id
@@ -213,6 +227,22 @@ public class UserSignRecord implements Serializable {
 	 */
 	public Integer getOrgCode() {
 		return this.orgCode;
+	}
+
+	public String getWarZoneCode() {
+		return warZoneCode;
+	}
+
+	public void setWarZoneCode(String warZoneCode) {
+		this.warZoneCode = warZoneCode;
+	}
+
+	public String getWarZoneName() {
+		return warZoneName;
+	}
+
+	public void setWarZoneName(String warZoneName) {
+		this.warZoneName = warZoneName;
 	}
 
 	/**
@@ -711,5 +741,11 @@ public class UserSignRecord implements Serializable {
 		this.userName = userName;
 	}
 
+	public Integer getQuotaStationTime() {
+		return quotaStationTime;
+	}
 
+	public void setQuotaStationTime(Integer quotaStationTime) {
+		this.quotaStationTime = quotaStationTime;
+	}
 }

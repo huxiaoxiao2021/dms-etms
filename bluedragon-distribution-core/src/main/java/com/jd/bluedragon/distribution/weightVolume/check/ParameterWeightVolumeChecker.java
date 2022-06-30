@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.weightVolume.check;
 
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -11,6 +12,7 @@ import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -29,6 +31,9 @@ public class ParameterWeightVolumeChecker implements IWeightVolumeChecker {
         WeightVolumeChecker.register(this);
     }
 
+    @Autowired
+    private BaseMajorManager baseMajorManager;
+
     @Override
     public InvokeResult<Boolean> checkOperateWeightVolume(WeightVolumeEntity entity) {
         InvokeResult<Boolean> result = new InvokeResult<>();
@@ -45,6 +50,14 @@ public class ParameterWeightVolumeChecker implements IWeightVolumeChecker {
                         && !WaybillUtil.isWaybillCode(entity.getBarCode())
                         && !BusinessUtil.isBoxcode(entity.getBarCode()))) {
             result.parameterError("当前操作单号无效【" + String.valueOf(entity.getBarCode()) + "】");
+            result.setData(Boolean.FALSE);
+            return result;
+        }
+
+        /* 场地校验 */
+        if(entity.getOperateSiteCode() == null
+                || baseMajorManager.getBaseSiteBySiteId(entity.getOperateSiteCode()) == null){
+            result.parameterError("场地ID不存在，请联系分拣小秘!");
             result.setData(Boolean.FALSE);
             return result;
         }

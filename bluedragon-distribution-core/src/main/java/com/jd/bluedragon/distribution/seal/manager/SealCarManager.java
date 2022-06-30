@@ -48,4 +48,15 @@ public interface SealCarManager {
      * @return
      */
     com.jd.tms.dtp.dto.CommonDto<String> createTransAbnormalStandard (AccountDto accountDto, TransAbnormalBillCreateDto transAbnormalBillCreateDto);
+    /**
+     * 无货上封签方法
+     * @param param vehicleNumber
+     * @param param sealCodes
+     * @param param sealSiteId
+     * @param param sealSiteName
+     * @param param sealUserCode
+     * @param param sealUserName
+     * @return
+     */
+    CommonDto<String> doSealCodes(SealCodesDto param);
 }

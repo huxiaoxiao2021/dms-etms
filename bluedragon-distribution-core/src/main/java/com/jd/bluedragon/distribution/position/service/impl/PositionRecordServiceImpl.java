@@ -174,25 +174,33 @@ public class PositionRecordServiceImpl implements PositionRecordService {
     }
 
 	@Override
-	public JdCResponse<PositionData> queryPositionData(String positionCode) {
-		JdCResponse<PositionData> result = new JdCResponse<PositionData>();
-		result.toSucceed();
-		Result<PositionDetailRecord> positionDetailResult = this.queryOneByPositionCode(positionCode);
-		if(positionDetailResult == null
-				|| positionDetailResult.getData() == null) {
-			result.toFail("无效的上岗码！");
-		}
-		PositionData positionData = new PositionData();
-		BeanUtils.copyProperties(positionDetailResult.getData(), positionData);
-        setDefaultMenuCode(positionCode, positionData, result);
-        if(!result.isSucceed()){
-           return result;
+	public JdCResponse<PositionData> queryPositionWithIsMatchAppFunc(String positionCode) {
+		JdCResponse<PositionData> result = queryPositionInfo(positionCode);
+		if(!result.isSucceed()){
+            return result;
         }
-		result.setData(positionData);
+        setDefaultMenuCode(positionCode, result);
 		return result;
 	}
 
-    private void setDefaultMenuCode(String positionCode, PositionData positionData, JdCResponse<PositionData> result) {
+    @Override
+    public JdCResponse<PositionData> queryPositionInfo(String positionCode) {
+        JdCResponse<PositionData> result = new JdCResponse<PositionData>();
+        result.toSucceed();
+        Result<PositionDetailRecord> positionDetailResult = this.queryOneByPositionCode(positionCode);
+        if(positionDetailResult == null
+                || positionDetailResult.getData() == null) {
+            result.toFail("无效的上岗码！");
+            return result;
+        }
+        PositionData positionData = new PositionData();
+        BeanUtils.copyProperties(positionDetailResult.getData(), positionData);
+        result.setData(positionData);
+        return result;
+    }
+
+    private void setDefaultMenuCode(String positionCode, JdCResponse<PositionData> result) {
+        PositionData positionData = result.getData();
         WorkStation workStation = new WorkStation();
         workStation.setAreaCode(positionData.getAreaCode());
         workStation.setWorkCode(positionData.getWorkCode());

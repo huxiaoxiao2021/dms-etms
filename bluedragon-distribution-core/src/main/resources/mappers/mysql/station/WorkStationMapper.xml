@@ -5,6 +5,8 @@
 	<resultMap id="WorkStation" type="com.jd.bluedragon.distribution.station.domain.WorkStation" >
 		<id column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT" />
 		<result column="business_key" property="businessKey" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="business_line_code" property="businessLineCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="business_line_name" property="businessLineName" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="area_code" property="areaCode" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="area_name" property="areaName" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="work_code" property="workCode" javaType="java.lang.String" jdbcType="VARCHAR" />
@@ -25,7 +27,7 @@
 	</resultMap>
 	
 	<sql id="Base_Column_List" >
-		id,business_key,area_code,area_name,work_code,work_name,
+		id,business_key,business_line_code,business_line_name,area_code,area_name,work_code,work_name,
 		create_user,create_user_name,update_user,update_user_name,create_time,
 		update_time,yn,ts
 	</sql>
@@ -39,6 +41,12 @@
 				</if>
 				<if test="businessKey != null" >
 					business_key,
+				</if>
+				<if test="businessLineCode != null" >
+					business_line_code,
+				</if>
+				<if test="businessLineName != null" >
+					business_line_name,
 				</if>
 				<if test="areaCode != null" >
 					area_code,
@@ -86,6 +94,12 @@
 				</if>
 				<if test="businessKey != null" >
 					#{businessKey,jdbcType=VARCHAR},
+				</if>
+				<if test="businessLineCode != null" >
+					#{businessLineCode,jdbcType=VARCHAR},
+				</if>
+				<if test="businessLineName != null" >
+					#{businessLineName,jdbcType=VARCHAR},
 				</if>
 				<if test="areaCode != null" >
 					#{areaCode,jdbcType=VARCHAR},
@@ -135,6 +149,12 @@
 				</if>
 				<if test="businessKey != null" >
 					business_key = #{businessKey,jdbcType=VARCHAR},
+				</if>
+				<if test="businessLineCode != null" >
+					business_line_code = #{businessLineCode,jdbcType=VARCHAR},
+				</if>
+				<if test="businessLineName != null" >
+					business_line_name = #{businessLineName,jdbcType=VARCHAR},
 				</if>
 				<if test="areaCode != null" >
 					area_code = #{areaCode,jdbcType=VARCHAR},

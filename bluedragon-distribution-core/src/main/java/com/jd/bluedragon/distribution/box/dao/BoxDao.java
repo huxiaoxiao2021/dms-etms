@@ -3,6 +3,8 @@ package com.jd.bluedragon.distribution.box.dao;
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.box.domain.Box;
 
+import java.util.List;
+
 public class BoxDao extends BaseDao<Box> {
 
     public static final String namespace = BoxDao.class.getName();
@@ -30,5 +32,9 @@ public class BoxDao extends BaseDao<Box> {
 
     public Integer updateBoxStatus(Box box) {
         return super.getSqlSession().update(BoxDao.namespace + ".updateBoxStatus", box);
+    }
+
+    public Integer addBatch(List<Box> boxes) {
+        return this.getSqlSession().insert(BoxDao.namespace + ".addBatch", boxes);
     }
 }

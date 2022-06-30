@@ -3,6 +3,8 @@ package com.jd.bluedragon.distribution.receive.service.impl;
 import java.util.*;
 
 import com.alibaba.fastjson.JSON;
+import com.jd.bluedragon.common.dto.ministore.MiniStoreProcessStatusEnum;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
@@ -13,10 +15,17 @@ import com.jd.bluedragon.distribution.economic.domain.EconomicNetException;
 import com.jd.bluedragon.distribution.economic.service.IEconomicNetService;
 import com.jd.bluedragon.distribution.inspection.domain.InspectionMQBody;
 import com.jd.bluedragon.distribution.inspection.service.InspectionNotifyService;
+import com.jd.bluedragon.distribution.ministore.domain.MiniStoreBindRelation;
+import com.jd.bluedragon.distribution.ministore.dto.DeviceDto;
+import com.jd.bluedragon.distribution.ministore.dto.MiniStoreSortingProcessEvent;
+import com.jd.bluedragon.distribution.ministore.enums.ProcessTypeEnum;
+import com.jd.bluedragon.distribution.ministore.enums.SiteTypeEnum;
+import com.jd.bluedragon.distribution.ministore.service.MiniStoreService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
 import com.jd.common.util.StringUtils;
+import com.jd.ldop.center.api.receive.dto.SignTypeEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,6 +66,9 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 
 import javax.ws.rs.HEAD;
+
+import static com.jd.bluedragon.distribution.ministore.enums.ProcessTypeEnum.*;
+import static com.jd.bluedragon.distribution.ministore.enums.SiteTypeEnum.JIEHUOCANG;
 
 public abstract class BaseReceiveTaskExecutor<T extends Receive> extends DmsTaskExecutor<T> {
 
@@ -120,6 +132,13 @@ public abstract class BaseReceiveTaskExecutor<T extends Receive> extends DmsTask
 
 	@Autowired
 	private SiteService siteService;
+	@Autowired
+	BaseMajorManager baseMajorManager;
+	@Autowired
+	MiniStoreService miniStoreService;
+	@Autowired
+	@Qualifier("miniStoreSortProcessProducer")
+	private DefaultJMQProducer miniStoreSortProcessProducer;
 
 	/**
 	 * 收货
@@ -154,7 +173,48 @@ public abstract class BaseReceiveTaskExecutor<T extends Receive> extends DmsTask
 		// 循环集包袋发送消息
 		pushCycleMaterialMQ(taskContext);
 
+		//移动微仓同步业务节点数据
+		pushMiniStoreProcessDataMQ(taskContext);
 		return true;
+	}
+
+	private void pushMiniStoreProcessDataMQ(TaskContext<T> context) {
+		log.info("<==========pushMiniStoreProcessDataMQ===========>");
+			if (null == context || null == context.getBody()){
+				log.error("移动微仓推送节点数据异常：context为空！");
+				return;
+			}
+			Receive receive = context.getBody();
+			if (StringUtils.isNotBlank(receive.getBoxCode()) && BusinessUtil.isBoxcode(receive.getBoxCode())) {
+				DeviceDto deviceDto = new DeviceDto();
+				deviceDto.setBoxCode(receive.getBoxCode());
+				MiniStoreBindRelation miniStoreBindRelation = miniStoreService.selectBindRelation(deviceDto);
+				if (miniStoreBindRelation!=null){
+					ProcessTypeEnum processType = INSPECTION_SORT_CENTER;
+					log.info("MiniStoreSyncProcessDataTask start，current processType is {}",processType.getMsg());
+					//TODO 这里要不要做状态拦截校验
+					if (MiniStoreProcessStatusEnum.DELIVER_GOODS.getCode().equals(String.valueOf(miniStoreBindRelation.getState()))){
+						log.info("分拣中心验货同步节点数据...");
+						MiniStoreBindRelation m =new MiniStoreBindRelation();
+						m.setId(miniStoreBindRelation.getId());
+						m.setUpdateUser(receive.getCreateUser());
+						m.setUpdateUserCode(Long.valueOf(receive.getCreateUserCode()));
+						m.setState(Byte.valueOf(MiniStoreProcessStatusEnum.CHECK_GOODS.getCode()));
+						m.setUpdateTime(new Date());
+						miniStoreService.updateById(m);
+					}
+					MiniStoreSortingProcessEvent event =new MiniStoreSortingProcessEvent();
+					event.setStoreCode(miniStoreBindRelation.getStoreCode());
+					event.setProcessType(processType.getType());
+					event.setSiteName(receive.getCreateSiteName());
+					Date time =new Date();
+					event.setOperateTime(TimeUtils.date2string(time,TimeUtils.yyyy_MM_dd_HH_mm_ss));
+					event.setOperateUser(receive.getCreateUser());
+					event.setCreateTime(TimeUtils.date2string(time,TimeUtils.yyyy_MM_dd_HH_mm_ss));
+					log.info("MiniStoreSyncProcessDataTask send mq消息体："+JsonHelper.toJson(event));
+					miniStoreSortProcessProducer.sendOnFailPersistent(receive.getBoxCode(), JsonHelper.toJson(event));
+				}
+			}
 	}
 
 	protected void pushCycleMaterialMQ(TaskContext<T> context) {

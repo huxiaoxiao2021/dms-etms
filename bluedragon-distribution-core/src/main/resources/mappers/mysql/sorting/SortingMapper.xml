@@ -284,6 +284,9 @@
 		update_user = #{updateUser,jdbcType=VARCHAR}, update_time = NOW()
 		WHERE yn=1 AND is_cancel = 0
 		AND create_site_code = #{createSiteCode}
+		<if test="id != null">
+			and SORTING_ID =#{id}
+		</if>
 		<if test="packageCode != null">
 			AND package_code = #{packageCode}
 		</if>
@@ -347,5 +350,15 @@
 		order by operate_time limit #{startIndex},#{pageSize}
 	</select>
 
+	<update id="invaliSortRealtion">
+		update sorting set YN=0,UPDATE_TIME=now() where box_code =#{boxCode} and create_site_code = #{createSiteCode}
+	</update>
+	<select id="findByPackageCodeAndBoxCode" parameterType="sorting" resultType="java.lang.Long">
+		SELECT SORTING_ID FROM sorting WHERE PACKAGE_CODE =#{packageCode} AND BOX_CODE = #{boxCode} AND CREATE_SITE_CODE =#{createSiteCode} AND YN =1 limit 1
+	</select>
 
+	<select id="listSortingByBoxCode" parameterType="sorting" resultMap="sorting">
+		SELECT package_code FROM sorting
+		where box_code =#{boxCode} and create_site_code = #{createSiteCode}
+	</select>
 </mapper>

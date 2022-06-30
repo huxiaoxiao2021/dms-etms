@@ -85,5 +85,13 @@ public interface PositionRecordService {
      * @param positionCode
      * @return
      */
-	JdCResponse<PositionData> queryPositionData(String positionCode);
+	JdCResponse<PositionData> queryPositionWithIsMatchAppFunc(String positionCode);
+
+    /**
+     * 查询岗位信息，并校验是否关联作业app功能
+     *
+     * @param positionCode
+     * @return
+     */
+	JdCResponse<PositionData> queryPositionInfo(String positionCode);
 }

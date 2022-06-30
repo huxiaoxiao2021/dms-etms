@@ -55,7 +55,8 @@ public class SendCodeGenTest {
     @Before
     public void before() throws Exception {
         ReloadableJimClientFactoryBean reloadableJimClientFactoryBean = new ReloadableJimClientFactoryBean();
-        reloadableJimClientFactoryBean.setJimUrl("jim://2581594387536019499/80000013");
+        reloadableJimClientFactoryBean.setJimUrl("jim://2914173422341158041/110000259");
+
         Cluster cluster = (Cluster) reloadableJimClientFactoryBean.getObject();
 
         JimDBUniqueStrategy jimDBUniqueStrategy = new JimDBUniqueStrategy(cluster, "send-code-gen-");

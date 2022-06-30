@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.ver.filter.filters;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
@@ -25,6 +26,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
+import java.util.List;
+
 /**
  * @author dudong
  * @version 1.0
@@ -45,10 +48,20 @@ public class CrossDistributionFilter implements Filter {
     @Autowired
     private MixedPackageConfigService mixedPackageConfigService;
 
+    @Autowired
+    private UccPropertyConfiguration uccConfiguration;
+
     public static final String RULE_TYPE_MIX_BOX = "1125";
 
     @Override
     public void doFilter(FilterContext request, FilterChain chain) throws Exception {
+        //发货目的地为德邦虚拟分拣中心的不校验
+        List<Integer> dpSiteCodeList = uccConfiguration.getDpSiteCodeList();
+        if(BusinessHelper.isDPSiteCode(dpSiteCodeList, request.getReceiveSiteCode())){
+            chain.doFilter(request,chain);
+            return;
+        }
+
         //大件订单 不进行预分拣相关校验 tangcq2018年11月2日10:28:42
         if (BusinessHelper.isLasOrder(request.getWaybillCache().getWaybillSign())){
             chain.doFilter(request, chain);

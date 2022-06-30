@@ -49,33 +49,5 @@ public class JdiQueryWSManagerImpl implements JdiQueryWSManager {
         return null;
     }
 
-    /**
-     * 根据派车明细编码获取派车任务明细
-     *
-     * @param var1
-     * @return
-     */
-    @Override
-    public TransWorkItemDto getTransWorkItemsDtoByItemCode(String itemCode) {
-        CommonDto<List<TransWorkItemDto>> resp = null;
-        try {
-            if(StringUtils.isEmpty(itemCode)){
-                return null;
-            }
-            resp = jdiQueryWS.getTransWorkItemsDtoByItemCode(itemCode);
-            if(resp.isSuccess() && !CollectionUtils.isEmpty(resp.getData())){
-                for(TransWorkItemDto dto : resp.getData()){
-                    if(itemCode.equals(dto.getTransWorkItemCode())){
-                        return dto;
-                    }
-                }
-            }
-            return null;
-        }catch (Exception e){
-            logger.error("getTransWorkItemsDtoByItemCode:{}获取派车任务明细异常!",itemCode,e.getMessage(),e);
-        }finally {
-            logger.info("JdiQueryWS.getTransWorkItemsDtoByItemCode,req:{},resp:{}",itemCode, JsonHelper.toJson(resp));
-        }
-        return null;
-    }
+
 }

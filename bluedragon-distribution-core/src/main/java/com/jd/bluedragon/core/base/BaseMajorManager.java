@@ -6,6 +6,7 @@ import com.jd.bluedragon.distribution.middleend.sorting.domain.DmsCustomSite;
 import com.jd.ldop.basic.dto.BasicTraderNeccesaryInfoDTO;
 import com.jd.ql.basic.domain.BaseDataDict;
 import com.jd.ql.basic.domain.BaseOrg;
+import com.jd.ql.basic.domain.BaseSite;
 import com.jd.ql.basic.domain.PsStoreInfo;
 import com.jd.ql.basic.dto.BaseSiteInfoDto;
 import com.jd.ql.basic.dto.BaseStaffSiteDTO;
@@ -29,7 +30,15 @@ public interface BaseMajorManager {
 	public abstract List<BaseStaffSiteOrgDto> getDmsSiteAll();
 
 	public abstract BaseOrg getBaseOrgByOrgId(Integer orgId);
-	
+
+	/**
+	 * 根据站点编号获取网点信息(包含新增组织机构字段)
+	 *
+	 * @param siteCode
+	 * @return
+	 */
+	BaseSite getSiteBySiteCode(Integer siteCode);
+
 	/**
 	 * 根据分拣中心id与目的地id获取任务区和电子标签信息
 	 * @param 
@@ -195,4 +204,15 @@ public interface BaseMajorManager {
 	 * @return
 	 */
 	List<StreamlinedBasicSite> querySiteByConditionFromStreamlinedSite(StreamlinedSiteQueryCondition siteQueryCondition, Integer limit);
+
+	/**
+	 * 校验冷链配置路由
+	 * 		<p>
+	 * 		    查询精简站点数据
+	 * 		</p>
+	 * @param createSiteCode
+	 * @param endSiteCode
+	 * @return
+	 */
+	boolean validateDirectlySentLine(Integer createSiteCode,Integer endSiteCode);
 }

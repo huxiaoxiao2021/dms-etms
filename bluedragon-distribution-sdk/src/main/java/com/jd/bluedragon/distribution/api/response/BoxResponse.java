@@ -27,6 +27,8 @@ public class BoxResponse extends JdResponse {
     public static final Integer CODE_BC_BOX_NO_BINDING = 20107;
     public static final String MESSAGE_BC_NO_BINDING = "此箱号未绑定循环集包袋";
 
+    public static final Integer CODE_PACKAGE_BOX = 20108;
+    public static final String MESSAGE_CODE_PACKAGE_BOX = "该包裹已集包，请使用箱号组板";
 
     /**
      * 全局唯一ID

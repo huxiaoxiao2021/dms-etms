@@ -4,8 +4,15 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.send.request.BatchSingleSendCheckRequest;
 import com.jd.bluedragon.common.dto.send.request.BatchSingleSendRequest;
+import com.jd.bluedragon.common.dto.send.request.ThirdWaybillNoWyRequest;
 import com.jd.bluedragon.common.dto.send.response.BatchSingleSendCheckDto;
+import com.jd.bluedragon.common.dto.send.response.ThirdWaybillNoWyDto;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.distribution.api.request.PackageSendRequest;
+import com.jd.bluedragon.distribution.api.request.ThirdWaybillNoRequest;
 import com.jd.bluedragon.distribution.api.response.BoxResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
@@ -13,24 +20,30 @@ import com.jd.bluedragon.distribution.rest.box.BoxResource;
 import com.jd.bluedragon.distribution.rest.send.DeliveryResource;
 import com.jd.bluedragon.distribution.rest.waybill.WaybillResource;
 import com.jd.bluedragon.distribution.send.domain.SendResult;
+import com.jd.bluedragon.distribution.waybill.domain.ThirdWaybillNoResult;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.gateway.service.BatchSingleSendGatewayService;
+import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.StringHelper;
 import com.jd.dms.logger.annotation.BusinessLog;
+import com.jd.etms.waybill.domain.BaseEntity;
+import com.jd.etms.waybill.dto.BigWaybillDto;
+import com.jd.etms.waybill.dto.WChoice;
 import com.jd.ql.basic.util.DateUtil;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.text.MessageFormat;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * BatchSingleSendServiceImpl
@@ -40,6 +53,7 @@ import java.util.Objects;
  */
 @Service("batchSingleSendService")
 public class BatchSingleSendServiceImpl implements BatchSingleSendGatewayService {
+    Logger logger = LoggerFactory.getLogger(BatchSingleSendServiceImpl.class);
 
 
     /**
@@ -63,6 +77,11 @@ public class BatchSingleSendServiceImpl implements BatchSingleSendGatewayService
     @Qualifier("deliveryResource")
     private DeliveryResource deliveryResource;
 
+    @Autowired
+    private UccPropertyConfiguration uccConfiguration;
+    @Autowired
+    private WaybillQueryManager waybillQueryManager;
+
     /**
      * 处理批量一车一单发货参数校验
      */
@@ -71,7 +90,7 @@ public class BatchSingleSendServiceImpl implements BatchSingleSendGatewayService
     public JdCResponse<BatchSingleSendCheckDto> batchSingleSendCheck(BatchSingleSendCheckRequest request) {
 
         JdCResponse<BatchSingleSendCheckDto> jdResponse = new JdCResponse<>();
-        jdResponse.toFail("操作失败请联系IT");
+        jdResponse.toFail("非法的包裹号或箱号！");
 
         if(request == null){
             jdResponse.toFail("入参不能为空");
@@ -205,9 +224,25 @@ public class BatchSingleSendServiceImpl implements BatchSingleSendGatewayService
                                                              BatchSingleSendCheckRequest request,
                                                              BatchSingleSendCheckDto checkVO,
                                                              Map<Integer, String> batchCodeMap) {
+        //参数校验
+        InvokeResult<List<Integer>> routerResult = null;
+        if(!(routerResult =checkPackageCode(request)).codeSuccess()){
+            jdResponse.toFail(routerResult.getMessage());
+            return jdResponse;
+        }
+
+        //如果扫了目的地德邦分拣中心的批次号 而且改单子为一单一件德邦单，则该单匹配该批次号
+        String dpSendCode = getSendCodeByDpWaybillCode(request.getPackageOrBoxCode(), batchCodeMap);
+        if(org.apache.commons.lang3.StringUtils.isNotBlank(dpSendCode)){
+            checkVO.setReceiveSiteCode(BusinessUtil.getReceiveSiteCodeFromSendCode(dpSendCode));
+            checkVO.setSendCode(dpSendCode);
+            jdResponse.setData(checkVO);
+            jdResponse.toSucceed(JdResponse.MESSAGE_SUCCESS);
+            return jdResponse;
+        }
 
         List<Integer> siteCodes;
-        InvokeResult<List<Integer>> routerResult = getPackageRouter(request);
+        routerResult = getPackageRouter(request);
         if (routerResult == null) {
             jdResponse.toFail("查询运单失败，没有该运单对应的站点");
             return jdResponse;
@@ -238,6 +273,80 @@ public class BatchSingleSendServiceImpl implements BatchSingleSendGatewayService
         }
     }
 
+    private String getSendCodeByDpWaybillCode(String packageCode, Map<Integer, String> batchCodeMap){
+        String dpSendCode = null;
+        try {
+            if(!uccConfiguration.isDpWaybillMatchSendCodeSwitch()){
+                logger.info("批量一单一件发货德邦运单匹配德邦批次号开关未开启，packageCode:{}", packageCode);
+                return null;
+            }
+            List<Integer> dpSiteCodeList = uccConfiguration.getDpSiteCodeList();
+            for(Integer siteCode : batchCodeMap.keySet()){
+                if(BusinessHelper.isDPSiteCode(dpSiteCodeList, siteCode)){
+                    dpSendCode = batchCodeMap.get(siteCode);
+                    break;
+                }
+            }
+
+            if(StringUtils.isBlank(dpSendCode)){
+                return null;
+            }
+
+            String waybillCode = WaybillUtil.isWaybillCode(packageCode) ? packageCode : WaybillUtil.getWaybillCode(packageCode);
+            //查询运单包裹数和 运单扩展属性
+            WChoice wChoice = new WChoice();
+            wChoice.setQueryWaybillC(true);
+            wChoice.setQueryWaybillExtend(true);
+            BaseEntity<BigWaybillDto> baseEntity =  waybillQueryManager.getDataByChoiceNoCache(waybillCode, wChoice);
+            //为查到运单信息
+            if(baseEntity.getData() == null || baseEntity.getData().getWaybill() == null){
+                logger.warn("根据运单号获取BigWaybillDto返回data为null,waybillCode:{},baseEntity.code:{}", waybillCode, baseEntity.getResultCode());
+                return null;
+            }
+            BigWaybillDto bigWaybillDto = baseEntity.getData();
+            //运单包裹号为空，或非一单一件 ，或运单扩展对象为空
+            if( bigWaybillDto.getWaybill().getGoodNumber() == null || bigWaybillDto.getWaybill().getGoodNumber() > 1 ||
+            bigWaybillDto.getWaybill().getWaybillExt() == null){
+                logger.info("运单包裹号为空，或非一单一件 ，或运单扩展对象为空,waybillCode:{},goodNumber:{}", waybillCode,
+                        bigWaybillDto.getWaybill().getGoodNumber());
+                return null;
+            }
+            //to
+            //非德邦单
+            if(!BusinessHelper.isDPWaybill(bigWaybillDto.getWaybill().getWaybillExt().getThirdCarrierFlag())){
+                logger.info("批量发货该单非德邦单，不匹配德邦批次号,waybillCode:{},ThirdCarrierFlag:{}", waybillCode,
+                        bigWaybillDto.getWaybill().getWaybillExt().getThirdCarrierFlag());
+                return null;
+            }
+            logger.info("批量发货该单:{}为德邦单匹配德邦批次号:{}成功", waybillCode, dpSendCode);
+        }catch (Exception e){
+            logger.error("批量一单一件发货德邦运单匹配德邦批次号异常", e);
+        }
+        return dpSendCode;
+
+    }
+
+   private InvokeResult<List<Integer>> checkPackageCode(BatchSingleSendCheckRequest request){
+       InvokeResult<List<Integer>> result = new InvokeResult<List<Integer>>();
+       /* 检查参数的有效性 */
+       String operateTime = DateUtil.format(request.getCurrentOperate().getOperateTime(), DateUtil.FORMAT_DATE_TIME);
+       if (StringHelper.isEmpty(request.getPackageOrBoxCode())
+               || StringHelper.isEmpty(operateTime) || 0 == request.getCurrentOperate().getSiteCode()) {
+           result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
+           result.setMessage(InvokeResult.PARAM_ERROR);
+           return result;
+       }
+
+       /* 校验单号是否是运单号或者是包裹号 */
+       if (!WaybillUtil.isWaybillCode(request.getPackageOrBoxCode()) && !WaybillUtil.isPackageCode(request.getPackageOrBoxCode())) {
+           logger.warn("WaybillResource.getBarCodeAllRouters-->参数错误：{}，单号不是京东单号", request.getPackageOrBoxCode());
+           result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
+           result.setMessage(HintService.getHint(HintCodeConstants.WAYBILL_RULE_ILLEGAL));
+           return result;
+       }
+       result.success();
+       return result;
+   }
 
     /**
      * 处理批次号
@@ -282,4 +391,54 @@ public class BatchSingleSendServiceImpl implements BatchSingleSendGatewayService
         }
         return null;
     }
+
+    /**
+     * 由运单号查包裹号,安卓入口
+     * @param request
+     * @return
+     */
+    @Override
+    @JProfiler(jKey = "DMSWEB.BatchSingleSendServiceImpl.getPackageNoByThirdWaybillNo", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    public JdCResponse<ThirdWaybillNoWyDto> getPackageNoByThirdWaybillNo(ThirdWaybillNoWyRequest request) {
+
+        JdCResponse<ThirdWaybillNoWyDto> jdResponse = new JdCResponse<>();
+        jdResponse.toFail("操作失败请联系IT");
+
+        if (request == null) {
+            jdResponse.toFail("入参不能为空");
+            return jdResponse;
+        }
+
+        if ( StringUtils.isBlank(request.getThirdWaybill())) {
+            jdResponse.toFail("运单号都不能为空");
+            return jdResponse;
+        }
+        ThirdWaybillNoRequest param = new ThirdWaybillNoRequest();
+        param.setThirdWaybill(request.getThirdWaybill());
+        param.setUserErp(request.getUser().getUserErp());
+        param.setSiteCode(request.getCurrentOperate().getSiteCode());
+        param.setSiteName(request.getCurrentOperate().getSiteName());
+        param.setOperateTime(request.getCurrentOperate().getOperateTime()==null?DateHelper.formatDate(new Date()):DateHelper.formatDateTime(request.getCurrentOperate().getOperateTime()));
+        param.setUserCode(request.getUser().getUserCode());
+        param.setUserName(request.getUser().getUserName());
+        InvokeResult<ThirdWaybillNoResult> response = waybillResource.getWyPackageNoByThirdWaybillNo(param);
+
+        ThirdWaybillNoResult data;
+        if (response == null) {
+            jdResponse.toFail("由三方运单号查包裹号失败！");
+            return jdResponse;
+        } else if (!response.codeSuccess()) {
+            jdResponse.toFail(response.getMessage());
+            return jdResponse;
+        } else {
+            data = response.getData();
+        }
+        ThirdWaybillNoWyDto resultDto =new ThirdWaybillNoWyDto();
+        resultDto.setWaybillCode(data.getWaybillCode());
+
+        jdResponse.setData(resultDto);
+        jdResponse.toSucceed(JdResponse.MESSAGE_SUCCESS);
+        return jdResponse;
+    }
+
 }

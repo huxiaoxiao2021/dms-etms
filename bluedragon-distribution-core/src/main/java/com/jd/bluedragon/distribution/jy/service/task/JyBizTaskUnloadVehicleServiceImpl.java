@@ -118,7 +118,7 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
      */
     @Override
     @JProfiler(jKey = "DMSWEB.jy.JyBizTaskUnloadVehicleServiceImpl.findStatusCountByCondition4Status",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
-    public List<JyBizTaskUnloadCountDto> findStatusCountByCondition4Status(JyBizTaskUnloadVehicleEntity condition,JyBizTaskUnloadStatusEnum... enums) {
+    public List<JyBizTaskUnloadCountDto> findStatusCountByCondition4Status(JyBizTaskUnloadVehicleEntity condition, List<String> sealCarCodes, JyBizTaskUnloadStatusEnum... enums) {
         if(enums == null){
             // 如果入参状态为空 则全部状态匹配
             enums = JyBizTaskUnloadStatusEnum.values();
@@ -128,7 +128,7 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
             statusOfCodes.add(statusEnum.getCode());
         }
         //获取数据
-        List<JyBizTaskUnloadCountDto> jyBizTaskUnloadCountDtoList = jyBizTaskUnloadVehicleDao.findStatusCountByCondition4Status(condition, statusOfCodes);
+        List<JyBizTaskUnloadCountDto> jyBizTaskUnloadCountDtoList = jyBizTaskUnloadVehicleDao.findStatusCountByCondition4Status(condition, statusOfCodes, sealCarCodes);
 
         return jyBizTaskUnloadCountDtoList;
     }
@@ -141,7 +141,7 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
      */
     @Override
     @JProfiler(jKey = "DMSWEB.jy.JyBizTaskUnloadVehicleServiceImpl.findStatusCountByCondition4StatusAndLine",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
-    public List<JyBizTaskUnloadCountDto> findStatusCountByCondition4StatusAndLine(JyBizTaskUnloadVehicleEntity condition,JyBizTaskUnloadStatusEnum... enums) {
+    public List<JyBizTaskUnloadCountDto> findStatusCountByCondition4StatusAndLine(JyBizTaskUnloadVehicleEntity condition, List<String> sealCarCodes, JyBizTaskUnloadStatusEnum... enums) {
         if(enums == null){
             // 如果入参状态为空 则全部状态匹配
             enums = JyBizTaskUnloadStatusEnum.values();
@@ -152,7 +152,7 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
         }
 
         //获取数据
-        List<JyBizTaskUnloadCountDto> jyBizTaskUnloadCountDtoList = jyBizTaskUnloadVehicleDao.findStatusCountByCondition4StatusAndLine(condition, statusOfCodes);
+        List<JyBizTaskUnloadCountDto> jyBizTaskUnloadCountDtoList = jyBizTaskUnloadVehicleDao.findStatusCountByCondition4StatusAndLine(condition, statusOfCodes, sealCarCodes);
 
         return jyBizTaskUnloadCountDtoList;
     }
@@ -169,7 +169,7 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
      */
     @Override
     @JProfiler(jKey = "DMSWEB.jy.JyBizTaskUnloadVehicleServiceImpl.findByConditionOfPage",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
-    public List<JyBizTaskUnloadVehicleEntity> findByConditionOfPage(JyBizTaskUnloadVehicleEntity condition, JyBizTaskUnloadOrderTypeEnum typeEnum, Integer pageNum, Integer pageSize) {
+    public List<JyBizTaskUnloadVehicleEntity> findByConditionOfPage(JyBizTaskUnloadVehicleEntity condition, JyBizTaskUnloadOrderTypeEnum typeEnum, Integer pageNum, Integer pageSize, List<String> sealCarCodes) {
         Integer offset = 0;
         Integer limit = pageSize;
         if(pageNum > 0 ){
@@ -180,7 +180,7 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
             return new ArrayList<>();
         }
 
-        return jyBizTaskUnloadVehicleDao.findByConditionOfPage(condition,typeEnum,offset,limit);
+        return jyBizTaskUnloadVehicleDao.findByConditionOfPage(condition,typeEnum,offset,limit, sealCarCodes);
     }
 
     /**
@@ -194,6 +194,9 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
     @Transactional(value = "tm_jy_core",propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     @JProfiler(jKey = "DMSWEB.jy.JyBizTaskUnloadVehicleServiceImpl.changeStatus",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
     public boolean changeStatus(JyBizTaskUnloadVehicleEntity entity) {
+        if(logger.isInfoEnabled()){
+            logger.info("changeStatus begin ,bizId:{},req:{}",entity.getBizId(),JsonHelper.toJson(entity));
+        }
         if(StringUtils.isEmpty(entity.getBizId()) || entity.getVehicleStatus() == null){
             return false;
         }
@@ -205,6 +208,9 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
         try{
             if(locked(bizId)){
                 JyBizTaskUnloadVehicleEntity nowStatus = jyBizTaskUnloadVehicleDao.findIdAndStatusByBizId(bizId);
+                if(logger.isInfoEnabled()){
+                    logger.info("changeStatus findNow bizId:{} nowStatus:{}",entity.getBizId(),JsonHelper.toJson(nowStatus));
+                }
                 if(nowStatus == null){
                     //未获得当前状态数据
                     throw new JyBizException(String.format("未获取到需要更新状态的任务数据，bizId:%s", bizId));
@@ -215,7 +221,9 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
                     logger.warn("bizId:{}尝试错误更新状态，丢弃此次操作，更新前{}，更新后{}",bizId,nowStatus.getVehicleStatus(),changeStatus);
                     return true;
                 }
-
+                if(logger.isInfoEnabled()){
+                    logger.info("changeStatus change bizId:{} before:{} after:{} ",entity.getBizId(),nowStatus.getVehicleStatus(),changeStatus);
+                }
                 return jyBizTaskUnloadVehicleDao.changeStatus(entity) > 0;
             }else {
                 //未锁定成功 抛出异常
@@ -223,6 +231,9 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
             }
         }finally {
             unLocked(bizId);
+            if(logger.isInfoEnabled()){
+                logger.info("changeStatus end ,bizId:{}",entity.getBizId());
+            }
         }
     }
 
@@ -516,4 +527,12 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
         }
         return source.getOrder() < target.getOrder();
     }
+    
+	@Override
+	public Long countByVehicleNumberAndStatus(JyBizTaskUnloadVehicleEntity condition){
+		if(condition == null) {
+			return 0L;
+		}
+		return jyBizTaskUnloadVehicleDao.countByVehicleNumberAndStatus(condition);
+	}
 }

@@ -5,6 +5,7 @@ import com.jd.bluedragon.distribution.jy.dto.task.JyBizTaskUnloadCountDto;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadOrderTypeEnum;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
 import com.jd.coo.sa.mybatis.plugins.id.SequenceGenAdaptor;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Date;
@@ -78,10 +79,13 @@ public class JyBizTaskUnloadVehicleDao extends BaseDao<JyBizTaskUnloadVehicleEnt
      * @param statuses
      * @return
      */
-    public List<JyBizTaskUnloadCountDto> findStatusCountByCondition4Status(JyBizTaskUnloadVehicleEntity entity, List<Integer> statuses){
+    public List<JyBizTaskUnloadCountDto> findStatusCountByCondition4Status(JyBizTaskUnloadVehicleEntity entity, List<Integer> statuses, List<String> sealCarCodes){
         Map<String,Object> params = new HashMap<>();
         params.put("entity",entity);
         params.put("statuses",statuses);
+        if (CollectionUtils.isNotEmpty(sealCarCodes)) {
+            params.put("sealCarCodes", sealCarCodes);
+        }
         return this.getSqlSession().selectList(NAMESPACE + ".findStatusCountByCondition4Status", params);
 
     }
@@ -92,10 +96,13 @@ public class JyBizTaskUnloadVehicleDao extends BaseDao<JyBizTaskUnloadVehicleEnt
      * @param statuses
      * @return
      */
-    public List<JyBizTaskUnloadCountDto> findStatusCountByCondition4StatusAndLine(JyBizTaskUnloadVehicleEntity entity, List<Integer> statuses){
+    public List<JyBizTaskUnloadCountDto> findStatusCountByCondition4StatusAndLine(JyBizTaskUnloadVehicleEntity entity, List<Integer> statuses, List<String> sealCarCodes){
         Map<String,Object> params = new HashMap<>();
         params.put("entity",entity);
         params.put("statuses",statuses);
+        if (CollectionUtils.isNotEmpty(sealCarCodes)) {
+            params.put("sealCarCodes", sealCarCodes);
+        }
         return this.getSqlSession().selectList(NAMESPACE + ".findStatusCountByCondition4StatusAndLine", params);
 
     }
@@ -106,9 +113,10 @@ public class JyBizTaskUnloadVehicleDao extends BaseDao<JyBizTaskUnloadVehicleEnt
      * @param typeEnum
      * @param offset
      * @param limit
+     * @param sealCarCodes
      * @return
      */
-    public List<JyBizTaskUnloadVehicleEntity> findByConditionOfPage(JyBizTaskUnloadVehicleEntity condition, JyBizTaskUnloadOrderTypeEnum typeEnum, Integer offset, Integer limit) {
+    public List<JyBizTaskUnloadVehicleEntity> findByConditionOfPage(JyBizTaskUnloadVehicleEntity condition, JyBizTaskUnloadOrderTypeEnum typeEnum, Integer offset, Integer limit, List<String> sealCarCodes) {
         Map<String,Object> params = new HashMap<>();
         params.put("entity",condition);
         if(typeEnum != null) {
@@ -116,6 +124,9 @@ public class JyBizTaskUnloadVehicleDao extends BaseDao<JyBizTaskUnloadVehicleEnt
         }
         params.put("offset",offset);
         params.put("limit",limit);
+        if (CollectionUtils.isNotEmpty(sealCarCodes)) {
+            params.put("sealCarCodes", sealCarCodes);
+        }
         return this.getSqlSession().selectList(NAMESPACE + ".findByConditionOfPage", params);
     }
 
@@ -146,5 +157,14 @@ public class JyBizTaskUnloadVehicleDao extends BaseDao<JyBizTaskUnloadVehicleEnt
     public int updateOfBusinessInfoById(JyBizTaskUnloadVehicleEntity entity) {
         return this.getSqlSession().update(NAMESPACE + ".updateOfBusinessInfoById",entity);
     }
+    /**
+     * 根据车牌、状态、目的地查询任务数量
+     * @param condition
+     * @return
+     */
+	public Long countByVehicleNumberAndStatus(JyBizTaskUnloadVehicleEntity condition){
+		return this.getSqlSession().selectOne(NAMESPACE + ".countByVehicleNumberAndStatus",condition);
+	}
+
 
 }

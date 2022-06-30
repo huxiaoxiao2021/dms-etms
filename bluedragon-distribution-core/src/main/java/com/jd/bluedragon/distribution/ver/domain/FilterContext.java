@@ -5,6 +5,9 @@ import com.jd.bluedragon.core.hint.constants.HintModuleConstants;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
 import com.jd.bluedragon.distribution.rule.domain.Rule;
+import com.jd.etms.waybill.dto.WaybillAbilityAttrDto;
+import com.jd.etms.waybill.dto.WaybillAbilityDto;
+import com.jd.etms.waybill.dto.WaybillProductDto;
 
 import java.util.List;
 import java.util.Map;
@@ -80,6 +83,11 @@ public class FilterContext {
      * 运单中的目的分拣中心信息
      */
     private Site waybillEndDmsSite;
+
+    /**
+     * 运单增值服务
+     */
+    private List<WaybillProductDto> waybillProductDtos;
     /**
      * 判断是否有预分拣站点
      * @return
@@ -315,4 +323,12 @@ public class FilterContext {
 	public void setWaybillEndDmsSite(Site waybillEndDmsSite) {
 		this.waybillEndDmsSite = waybillEndDmsSite;
 	}
+
+    public List<WaybillProductDto> getWaybillProductDtos() {
+        return waybillProductDtos;
+    }
+
+    public void setWaybillProductDtos(List<WaybillProductDto> waybillProductDtos) {
+        this.waybillProductDtos = waybillProductDtos;
+    }
 }

@@ -103,6 +103,27 @@ public class BusinessUtil {
         }
         return isMatchBoxCode(s);
     }
+    public static Boolean isStoreCode(String s) {
+        if (StringUtils.isEmpty(s)) {
+            return Boolean.FALSE;
+        }
+        return isMatchStoreCode(s);
+    }
+
+    private static Boolean isMatchStoreCode(String s) {
+        return  BIG_WARM_BOX_CODE_REGEX.matcher(s.toUpperCase().trim()).matches();
+    }
+
+    public static Boolean isIceBoardCode(String s) {
+        if (StringUtils.isEmpty(s)) {
+            return Boolean.FALSE;
+        }
+        return isMatchIceBoardCode(s);
+    }
+
+    private static Boolean isMatchIceBoardCode(String s) {
+        return  DmsConstants.ICE_BOARD_BOX_CODE_REGEX.matcher(s.trim().toUpperCase()).matches();
+    }
 
     /**
      * 判断是否为箱号
@@ -1590,7 +1611,8 @@ public class BusinessUtil {
         if (StringUtils.isEmpty(boxCode)) {
             return Boolean.FALSE;
         }
-        return DmsConstants.WARM_BOX_CODE_REGEX.matcher(boxCode.toUpperCase().trim()).matches();
+        return DmsConstants.WARM_BOX_CODE_REGEX.matcher(boxCode.toUpperCase().trim()).matches() ||
+                BIG_WARM_BOX_CODE_REGEX.matcher(boxCode.toUpperCase().trim()).matches();
     }
 
     /**
@@ -1773,7 +1795,8 @@ public class BusinessUtil {
         if (StringUtils.isBlank(materialCode)) {
             return false;
         }
-        return materialCode.toUpperCase().startsWith(COLLECTION_BAG_PREFIX) && materialCode.length() == 16;
+        return (materialCode.toUpperCase().startsWith(COLLECTION_BAG_PREFIX) && materialCode.length() == 16) ||
+                (materialCode.toUpperCase().startsWith(COLLECTION_AY_PREFIX) && materialCode.length() == 15);
     }
     /**
      * 判断是否无人车配送，sendpay第307位=1
@@ -2354,4 +2377,5 @@ public class BusinessUtil {
     public static boolean isMedicalFreshProductType(String waybillSign){
         return isSignChar(waybillSign,WaybillSignConstants.POSITION_31,WaybillSignConstants.CHAR_31_D);
     }
+
 }

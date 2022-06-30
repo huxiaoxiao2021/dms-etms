@@ -798,7 +798,12 @@ public class Constants {
     /**
      * 配置信息-终端站点客户端菜单配置黑名单
      */
-    public static final String SYS_CONFIG_CLIENT_SMSSITEMENUBLACKLIST = "sys.config.client.smsSiteMenuBlacklist";    
+    public static final String SYS_CONFIG_CLIENT_SMSSITEMENUBLACKLIST = "sys.config.client.smsSiteMenuBlacklist";
+    /**
+     *  配置信息-青龙打印配置  qinglong.print.type.use
+     *
+     */
+    public static final String SYS_WAYBILL_PRINT_ADDIOWN_NUMBER_CONF = "waybill.print.addiOwnNumberConf";
 
     /**
      * 配置信息-拼多多不允许获取接口的打印类型 pdd.print.type.not.use;
@@ -816,6 +821,11 @@ public class Constants {
     public static final String SYS_CONFIG_CLIENT_RUNNING_MODE_PRE = "sys.config.client.runningMode.";
 
     public static final String SYS_CONFIG_CROUTER_OPEN_DMS_CODES= "crouter.verify.allowed";
+    /**
+     * print titles
+     */
+    public static final  String  PRINT_TITLES="【原退】原运单号:";
+    public static final  String  PRINT_JD_TITLES="【原退】原运单号:联系京东项目组获取运单号”。";
 
     /**
      * 安卓菜单可用性配置
@@ -1665,6 +1675,26 @@ public class Constants {
      * 医药冷链产品
      */
     public static final String PRODUCT_TYPE_MEDICAL_COLD_BILL = "ll-m-0002";
+
+    /**
+     * 运单预售未付尾款
+     */
+    public static final String PRODUCT_ABILITY_OF_PRE_SELL_NO_PAY  = "VI007-01";
+
+    /**
+     * 运单预售已付尾款
+     */
+    public static final String PRODUCT_ABILITY_OF_PRE_SELL_PAY_DONE  = "VI007-02";
+
+    /**
+     * 产品类型-医冷零担
+     */
+    public static final String PRODUCT_TYPE_MEDICINE_COLD = "md-m-0002";
+
+    /**
+     * 验货菜单编码：0101019
+     */
+    public static final String MENU_CODE_INSPECTION  = "0101019";
     /**
      * 医冷零担（md-m-0002）
      */

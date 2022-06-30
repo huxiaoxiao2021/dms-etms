@@ -1,12 +1,12 @@
 package com.jd.bluedragon.common.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.TextConstants;
 import com.jd.bluedragon.common.domain.Pack;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.core.base.*;
-import com.jd.bluedragon.distribution.api.response.WaybillPrintResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.base.service.SiteService;
@@ -37,7 +37,7 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
-
+import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -106,7 +106,8 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
 
     @Autowired
     private VrsRouteTransferRelationManager vrsRouteTransferRelationManager;
-
+    @Autowired
+    SysConfigService sysConfigService;
     @Autowired
     private WaybillService waybillService;
 
@@ -725,6 +726,24 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
                     }
                 }
             }
+            String customerCode = waybill.getCustomerCode();
+            List<String> qlListConfigList = sysConfigService.getStringListConfig(Constants.SYS_WAYBILL_PRINT_ADDIOWN_NUMBER_CONF);
+            boolean signInChars = BusinessUtil.isSignInChars(waybill.getWaybillSign(), WaybillSignConstants.POSITION_61, WaybillSignConstants.CHAR_61_1,
+                    WaybillSignConstants.CHAR_61_2, WaybillSignConstants.CHAR_61_3, WaybillSignConstants.CHAR_61_6);
+            if(customerCode!=null&&!CollectionUtils.isEmpty(qlListConfigList)&&qlListConfigList.contains(customerCode)&&signInChars){
+                //获取订单号
+
+                BaseEntity<com.jd.etms.waybill.domain.Waybill> oldWaybill= waybillQueryManager.getWaybillByReturnWaybillCode(waybill.getWaybillCode());
+                if(oldWaybill != null && oldWaybill.getData()!=null&&oldWaybill.getData().getWaybillCode()!=null) {
+                    String oldWaybillCode = oldWaybill.getData().getWaybillCode();
+                    target.setPopularizeMatrixCode(oldWaybillCode);
+                    target.setPopularizeMatrixCodeDesc("原运单号");
+                    target.appendRemark(Constants.PRINT_TITLES+oldWaybillCode);
+                }else {
+                    //二维码为扫码寄快递
+                    target.appendRemark(Constants.PRINT_JD_TITLES);
+                }
+            }
         }
         target.setBusiOrderCode(waybill.getBusiOrderCode());
 
@@ -939,6 +958,10 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         /*** 产品类型为ll-m-0018时:医药大票*/
         if(Constants.PRODUCT_TYPE_MEDICINE_DP.equals(productType)){
             target.setjZDFlag(TextConstants.COMMON_TEXT_MEDICINE_DP);
+        }
+        /*** 产品类型为md-m-0002时:医冷零担*/
+        if(Constants.PRODUCT_TYPE_MEDICINE_COLD.equals(productType)){
+            target.setjZDFlag(TextConstants.COMMON_TEXT_MEDICINE_COLD);
         }
 	    //sendPay146位为3时，打传字标
 	    if(BusinessUtil.isSignChar(waybill.getSendPay(),146,'3')){
@@ -1415,6 +1438,13 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         		dmsCode = dmsCodeC2c;
         	}
         }
+
+//        when(baseMajorManager.getBaseSiteBySiteId(5)).thenReturn(pickSite);
+//
+//        BaseStaffSiteOrgDto userSite = new BaseStaffSiteOrgDto();
+//        userSite.setCollectionDmsId(390);
+//        userSite.setSiteType(4);
+//        when(baseMajorManager.getBaseSiteBySiteId(39)).thenReturn(userSite);
         if (!isVaildDms(dmsCode)) {
             log.debug("参数中无始发分拣中心编码，从外部系统获取.运单号:{}" , waybillCode);
 

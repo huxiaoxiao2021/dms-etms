@@ -166,5 +166,11 @@ public interface UserSignRecordService {
      * @param signInRequest
      * @return
      */
-	JdCResponse<UserSignRecordData> signAutoWithGroup(UserSignRequest userSignRequest);	
+	JdCResponse<UserSignRecordData> signAutoWithGroup(UserSignRequest userSignRequest);
+	/**
+	 * 按操作人查询列表
+	 * @param query
+	 * @return
+	 */
+	JdCResponse<PageDto<UserSignRecordData>> querySignListByOperateUser(UserSignQueryRequest query);	
 }

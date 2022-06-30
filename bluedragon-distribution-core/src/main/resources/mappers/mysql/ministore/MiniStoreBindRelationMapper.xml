@@ -1,0 +1,369 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jd.bluedragon.distribution.ministore.dao.MiniStoreBindRelationDao">
+    <resultMap id="BaseResultMap" type="com.jd.bluedragon.distribution.ministore.domain.MiniStoreBindRelation">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="store_code" jdbcType="VARCHAR" property="storeCode"/>
+        <result column="box_code" jdbcType="VARCHAR" property="boxCode"/>
+        <result column="ice_board_code1" jdbcType="VARCHAR" property="iceBoardCode1"/>
+        <result column="ice_board_code2" jdbcType="VARCHAR" property="iceBoardCode2"/>
+        <result column="state" jdbcType="TINYINT" property="state"/>
+        <result column="occupied_flag" jdbcType="BIT" property="occupiedFlag"/>
+        <result column="des" jdbcType="VARCHAR" property="des"/>
+        <result column="sort_count" jdbcType="INTEGER" property="sortCount"/>
+        <result column="unbox_count" jdbcType="INTEGER" property="unboxCount"/>
+        <result column="create_site_code" jdbcType="BIGINT" property="createSiteCode"/>
+        <result column="create_site_name" jdbcType="VARCHAR" property="createSiteName"/>
+        <result column="receive_site_code" jdbcType="BIGINT" property="receiveSiteCode"/>
+        <result column="receive_site_name" jdbcType="VARCHAR" property="receiveSiteName"/>
+        <result column="create_user" jdbcType="VARCHAR" property="createUser"/>
+        <result column="create_user_code" jdbcType="BIGINT" property="createUserCode"/>
+        <result column="update_user" jdbcType="VARCHAR" property="updateUser"/>
+        <result column="update_user_code" jdbcType="BIGINT" property="updateUserCode"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        id
+        , store_code, box_code, ice_board_code1, ice_board_code2, state, occupied_flag,
+    des, sort_count, unbox_count, create_site_code, create_site_name, receive_site_code,
+    receive_site_name, create_user, create_user_code, update_user, update_user_code,
+    create_time, update_time
+    </sql>
+    <select id="selectStoreBindStatus" resultType="java.lang.Integer">
+        select id
+        from mini_store_bind_relation
+        where store_code = #{storeCode}
+          and occupied_flag = 1 LIMIT 1;
+    </select>
+
+    <select id="selectBoxBindStatus" resultType="java.lang.Integer">
+        select id
+        from mini_store_bind_relation
+        where box_code = #{boxCode}
+          and occupied_flag = 1 LIMIT 1;
+    </select>
+    <select id="selectIceBoardStatus" resultType="java.lang.Integer">
+        select id
+        from mini_store_bind_relation
+        where ice_board_code1 = #{iceBoardCode}
+          and occupied_flag = 1
+        UNION ALL
+        select id
+        from mini_store_bind_relation
+        where ice_board_code2 = #{iceBoardCode}
+          and occupied_flag = 1 LIMIT 1;
+    </select>
+    <select id="selectDeviceBindStatus" resultType="java.lang.Integer">
+        SELECT id
+        from mini_store_bind_relation
+        WHERE store_code = #{storeCode}
+          AND box_code = #{boxCode}
+          AND ice_board_code1 = #{iceBoardCode1}
+          AND ice_board_code2 = #{iceBoardCode2}
+          AND occupied_flag = 1
+        UNION ALL
+        SELECT id
+        from mini_store_bind_relation
+        WHERE store_code = #{storeCode}
+          AND box_code = #{boxCode}
+          AND ice_board_code1 = #{iceBoardCode2}
+          AND ice_board_code2 = #{iceBoardCode1}
+          AND occupied_flag = 1 LIMIT 1
+    </select>
+
+
+    <select id="selectDeviceBindRelation" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        from mini_store_bind_relation
+        WHERE occupied_flag = 1
+        <if test="storeCode!=null and storeCode!='' ">
+            and store_code = #{storeCode}
+        </if>
+        <if test="boxCode!=null and boxCode!='' ">
+            AND box_code = #{boxCode}
+        </if>
+        <if test="iceBoardCode1!=null and iceBoardCode1!='' ">
+            AND ice_board_code1 = #{iceBoardCode1}
+        </if>
+        <if test="iceBoardCode2!=null and iceBoardCode2!='' ">
+            AND ice_board_code2 = #{iceBoardCode2}
+        </if>
+        UNION
+        SELECT
+        <include refid="Base_Column_List"/>
+        from mini_store_bind_relation
+        WHERE occupied_flag = 1
+        <if test="storeCode!=null and storeCode!='' ">
+            and store_code = #{storeCode}
+        </if>
+        <if test="boxCode!=null and boxCode!='' ">
+            AND box_code = #{boxCode}
+        </if>
+        <if test="iceBoardCode2!=null and iceBoardCode2!='' ">
+            AND ice_board_code1 = #{iceBoardCode2}
+        </if>
+        <if test="iceBoardCode1!=null and iceBoardCode1!='' ">
+            AND ice_board_code2 = #{iceBoardCode1}
+        </if>
+    </select>
+
+    <select id="listBindDate" resultMap="BaseResultMap">
+        SELECT id, store_code, box_code, ice_board_code1, ice_board_code2
+        from mini_store_bind_relation
+        where create_user_code = #{createUserCode}
+          AND state = 1
+    </select>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from mini_store_bind_relation
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+        delete
+        from mini_store_bind_relation
+        where id = #{id,jdbcType=BIGINT}
+    </delete>
+    <insert id="insert" parameterType="com.jd.bluedragon.distribution.ministore.domain.MiniStoreBindRelation">
+        insert into mini_store_bind_relation (id, store_code, box_code,
+                                              ice_board_code1, ice_board_code2, state,
+                                              occupied_flag, des, sort_count,
+                                              unbox_count, create_site_code, create_site_name,
+                                              receive_site_code, receive_site_name, create_user,
+                                              create_user_code, update_user, update_user_code,
+                                              create_time, update_time)
+        values (#{id,jdbcType=BIGINT}, #{storeCode,jdbcType=VARCHAR}, #{boxCode,jdbcType=VARCHAR},
+                #{iceBoardCode1,jdbcType=VARCHAR}, #{iceBoardCode2,jdbcType=VARCHAR}, #{state,jdbcType=TINYINT},
+                #{occupiedFlag,jdbcType=BIT}, #{des,jdbcType=VARCHAR}, #{sortCount,jdbcType=INTEGER},
+                #{unboxCount,jdbcType=INTEGER}, #{createSiteCode,jdbcType=BIGINT}, #{createSiteName,jdbcType=VARCHAR},
+                #{receiveSiteCode,jdbcType=BIGINT}, #{receiveSiteName,jdbcType=VARCHAR}, #{createUser,jdbcType=VARCHAR},
+                #{createUserCode,jdbcType=BIGINT}, #{updateUser,jdbcType=VARCHAR}, #{updateUserCode,jdbcType=BIGINT},
+                #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP})
+    </insert>
+    <insert id="insertSelective" parameterType="com.jd.bluedragon.distribution.ministore.domain.MiniStoreBindRelation">
+        insert into mini_store_bind_relation
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="storeCode != null">
+                store_code,
+            </if>
+            <if test="boxCode != null">
+                box_code,
+            </if>
+            <if test="iceBoardCode1 != null">
+                ice_board_code1,
+            </if>
+            <if test="iceBoardCode2 != null">
+                ice_board_code2,
+            </if>
+            <if test="state != null">
+                state,
+            </if>
+            <if test="occupiedFlag != null">
+                occupied_flag,
+            </if>
+            <if test="des != null">
+                des,
+            </if>
+            <if test="sortCount != null">
+                sort_count,
+            </if>
+            <if test="unboxCount != null">
+                unbox_count,
+            </if>
+            <if test="createSiteCode != null">
+                create_site_code,
+            </if>
+            <if test="createSiteName != null">
+                create_site_name,
+            </if>
+            <if test="receiveSiteCode != null">
+                receive_site_code,
+            </if>
+            <if test="receiveSiteName != null">
+                receive_site_name,
+            </if>
+            <if test="createUser != null">
+                create_user,
+            </if>
+            <if test="createUserCode != null">
+                create_user_code,
+            </if>
+            <if test="updateUser != null">
+                update_user,
+            </if>
+            <if test="updateUserCode != null">
+                update_user_code,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="updateTime != null">
+                update_time,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="storeCode != null">
+                #{storeCode,jdbcType=VARCHAR},
+            </if>
+            <if test="boxCode != null">
+                #{boxCode,jdbcType=VARCHAR},
+            </if>
+            <if test="iceBoardCode1 != null">
+                #{iceBoardCode1,jdbcType=VARCHAR},
+            </if>
+            <if test="iceBoardCode2 != null">
+                #{iceBoardCode2,jdbcType=VARCHAR},
+            </if>
+            <if test="state != null">
+                #{state,jdbcType=TINYINT},
+            </if>
+            <if test="occupiedFlag != null">
+                #{occupiedFlag,jdbcType=BIT},
+            </if>
+            <if test="des != null">
+                #{des,jdbcType=VARCHAR},
+            </if>
+            <if test="sortCount != null">
+                #{sortCount,jdbcType=INTEGER},
+            </if>
+            <if test="unboxCount != null">
+                #{unboxCount,jdbcType=INTEGER},
+            </if>
+            <if test="createSiteCode != null">
+                #{createSiteCode,jdbcType=BIGINT},
+            </if>
+            <if test="createSiteName != null">
+                #{createSiteName,jdbcType=VARCHAR},
+            </if>
+            <if test="receiveSiteCode != null">
+                #{receiveSiteCode,jdbcType=BIGINT},
+            </if>
+            <if test="receiveSiteName != null">
+                #{receiveSiteName,jdbcType=VARCHAR},
+            </if>
+            <if test="createUser != null">
+                #{createUser,jdbcType=VARCHAR},
+            </if>
+            <if test="createUserCode != null">
+                #{createUserCode,jdbcType=BIGINT},
+            </if>
+            <if test="updateUser != null">
+                #{updateUser,jdbcType=VARCHAR},
+            </if>
+            <if test="updateUserCode != null">
+                #{updateUserCode,jdbcType=BIGINT},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateTime != null">
+                #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective"
+            parameterType="com.jd.bluedragon.distribution.ministore.domain.MiniStoreBindRelation">
+        update mini_store_bind_relation
+        <set>
+            <if test="storeCode != null">
+                store_code = #{storeCode,jdbcType=VARCHAR},
+            </if>
+            <if test="boxCode != null">
+                box_code = #{boxCode,jdbcType=VARCHAR},
+            </if>
+            <if test="iceBoardCode1 != null">
+                ice_board_code1 = #{iceBoardCode1,jdbcType=VARCHAR},
+            </if>
+            <if test="iceBoardCode2 != null">
+                ice_board_code2 = #{iceBoardCode2,jdbcType=VARCHAR},
+            </if>
+            <if test="state != null">
+                state = #{state,jdbcType=TINYINT},
+            </if>
+            <if test="occupiedFlag != null">
+                occupied_flag = #{occupiedFlag,jdbcType=BIT},
+            </if>
+            <if test="des != null">
+                des = #{des,jdbcType=VARCHAR},
+            </if>
+            <if test="sortCount != null">
+                sort_count = #{sortCount,jdbcType=INTEGER},
+            </if>
+            <if test="unboxCount != null">
+                unbox_count = #{unboxCount,jdbcType=INTEGER},
+            </if>
+            <if test="createSiteCode != null">
+                create_site_code = #{createSiteCode,jdbcType=BIGINT},
+            </if>
+            <if test="createSiteName != null">
+                create_site_name = #{createSiteName,jdbcType=VARCHAR},
+            </if>
+            <if test="receiveSiteCode != null">
+                receive_site_code = #{receiveSiteCode,jdbcType=BIGINT},
+            </if>
+            <if test="receiveSiteName != null">
+                receive_site_name = #{receiveSiteName,jdbcType=VARCHAR},
+            </if>
+            <if test="createUser != null">
+                create_user = #{createUser,jdbcType=VARCHAR},
+            </if>
+            <if test="createUserCode != null">
+                create_user_code = #{createUserCode,jdbcType=BIGINT},
+            </if>
+            <if test="updateUser != null">
+                update_user = #{updateUser,jdbcType=VARCHAR},
+            </if>
+            <if test="updateUserCode != null">
+                update_user_code = #{updateUserCode,jdbcType=BIGINT},
+            </if>
+            <if test="createTime != null">
+                create_time = #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="updateByPrimaryKey"
+            parameterType="com.jd.bluedragon.distribution.ministore.domain.MiniStoreBindRelation">
+        update mini_store_bind_relation
+        set store_code        = #{storeCode,jdbcType=VARCHAR},
+            box_code          = #{boxCode,jdbcType=VARCHAR},
+            ice_board_code1   = #{iceBoardCode1,jdbcType=VARCHAR},
+            ice_board_code2   = #{iceBoardCode2,jdbcType=VARCHAR},
+            state             = #{state,jdbcType=TINYINT},
+            occupied_flag     = #{occupiedFlag,jdbcType=BIT},
+            des               = #{des,jdbcType=VARCHAR},
+            sort_count        = #{sortCount,jdbcType=INTEGER},
+            unbox_count       = #{unboxCount,jdbcType=INTEGER},
+            create_site_code  = #{createSiteCode,jdbcType=BIGINT},
+            create_site_name  = #{createSiteName,jdbcType=VARCHAR},
+            receive_site_code = #{receiveSiteCode,jdbcType=BIGINT},
+            receive_site_name = #{receiveSiteName,jdbcType=VARCHAR},
+            create_user       = #{createUser,jdbcType=VARCHAR},
+            create_user_code  = #{createUserCode,jdbcType=BIGINT},
+            update_user       = #{updateUser,jdbcType=VARCHAR},
+            update_user_code  = #{updateUserCode,jdbcType=BIGINT},
+            create_time       = #{createTime,jdbcType=TIMESTAMP},
+            update_time       = now()
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+    <update id="incrSortCount">
+        update mini_store_bind_relation
+        set sort_count       =sort_count + 1,
+            update_user_code =#{updateUserCode},
+            update_user=#{updateUser},
+            state            =3,
+            update_time      =now()
+        where id = #{id}
+    </update>
+</mapper>

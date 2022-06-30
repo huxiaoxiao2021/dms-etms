@@ -41,7 +41,7 @@
 		<business-sdk.version>1.1.1-SNAPSHOT</business-sdk.version>
 		<dms-component-sdk.version>1.0.1-SNAPSHOT</dms-component-sdk.version>
 		<workbench.services.sdk.version>1.0.8-SNAPSHOT</workbench.services.sdk.version>
-        <jy.realtime.sdk.version>1.0.3-SNAPSHOT</jy.realtime.sdk.version>
+        <jy.realtime.sdk.version>1.0.4-SNAPSHOT</jy.realtime.sdk.version>
 		<!-- 用于源码tag -->
 		<maven.build.timestamp.format>yyyyMMddHHmm</maven.build.timestamp.format>
 		<project.scm.id>xnqlarch-gitlab</project.scm.id>
@@ -51,6 +51,7 @@
 		<sonar.jacoco.reportPaths>${project.basedir}/../coverage-report/jacoco.exec</sonar.jacoco.reportPaths>
 		<aces.version>2.2.0-SNAPSHOT</aces.version>
 		<lombok.version>1.18.20</lombok.version>
+		<eclp-so-api.version>0.0.1-SNAPSHOT</eclp-so-api.version>
 	</properties>
 	
 	<dependencyManagement>
@@ -278,7 +279,21 @@
                 <artifactId>realtime-service-sdk</artifactId>
                 <version>${jy.realtime.sdk.version}</version>
             </dependency>
-
+			<dependency>
+				<groupId>com.jd.eclp</groupId>
+				<artifactId>eclp-so-api</artifactId>
+				<version>${eclp-so-api.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>com.jd.jim.cli</groupId>
+                        <artifactId>jim-cli-jedis</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>com.jd.jim.cli</groupId>
+                        <artifactId>jim-cli-api</artifactId>
+                    </exclusion>
+                </exclusions>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
 

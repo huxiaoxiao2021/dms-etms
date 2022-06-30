@@ -118,9 +118,9 @@ public class ColdChainExternalServiceImpl implements IColdChainService {
         boolean isBox = BusinessUtil.isBoxcode(vo.getBarCode());
         boolean isWaybill = !BusinessUtil.isBoxcode(vo.getBarCode()) && WaybillUtil.isWaybillCode(vo.getBarCode());
         boolean isPack = WaybillUtil.isPackageCode(vo.getBarCode());
-        //本次仅支持运单
-        if(!(isWaybill)){
-            result.customMessage(com.jd.bluedragon.distribution.api.JdResponse.CODE_PARAM_ERROR,"请扫描正确的运单号");
+        //本次仅支持运单、包裹号
+        if( !(isWaybill || isPack) ){
+            result.customMessage(com.jd.bluedragon.distribution.api.JdResponse.CODE_PARAM_ERROR,"请扫描正确的运单号|包裹号");
             result.getData().setForced(true);
             return result;
         }
@@ -357,9 +357,9 @@ public class ColdChainExternalServiceImpl implements IColdChainService {
         boolean isBox = BusinessUtil.isBoxcode(vo.getBoxCode());
         boolean isWaybill = !BusinessUtil.isBoxcode(vo.getBoxCode()) && WaybillUtil.isWaybillCode(vo.getBoxCode());
         boolean isPack = WaybillUtil.isPackageCode(vo.getBoxCode());
-        //本次仅支持运单
-        if(!(isWaybill)){
-            result.customMessage(com.jd.bluedragon.distribution.api.JdResponse.CODE_PARAM_ERROR,"请扫描正确的运单号");
+        //本次仅支持运单、包裹号
+        if( !(isWaybill || isPack) ){
+            result.customMessage(com.jd.bluedragon.distribution.api.JdResponse.CODE_PARAM_ERROR,"请扫描正确的运单号|包裹号");
             result.getData().setForced(true);
             return result;
         }
