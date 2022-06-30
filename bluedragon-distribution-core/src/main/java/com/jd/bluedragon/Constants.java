@@ -1685,4 +1685,9 @@ public class Constants {
      * 运单预售已付尾款
      */
     public static final String PRODUCT_ABILITY_OF_PRE_SELL_PAY_DONE  = "VI007-02";
+
+    /**
+     * 产品类型-医冷零担
+     */
+    public static final String PRODUCT_TYPE_MEDICINE_COLD = "md-m-0002";
 }
