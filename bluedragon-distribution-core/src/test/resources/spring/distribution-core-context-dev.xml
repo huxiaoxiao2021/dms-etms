@@ -39,27 +39,34 @@
 
 	<bean class="org.springframework.context.annotation.CommonAnnotationBeanPostProcessor"/>
 
-	<import resource="classpath:spring/distribution-core-datasource-jddl-test.xml" />
-	<import resource="classpath:spring/distribution-core-datasource-task-config.xml" />
-	<import resource="classpath:spring/distribution-core-datasource-undiv.xml" />
-	<import resource="classpath:spring/distribution-core-datasource-loadunload.xml"/>
-	<import resource="classpath:spring/distribution-core-datasource-task.xml" />
-	<import resource="classpath:spring/distribution-core-business.xml" />
+    <import resource="classpath:spring/distribution-core-datasource-jddl-test.xml" />
+    <import resource="classpath:spring/distribution-core-datasource-task-config.xml" />
+    <import resource="classpath:spring/distribution-core-datasource-undiv.xml" />
+    <import resource="classpath:spring/distribution-core-datasource-jy-core.xml" />
 
-    <import resource="classpath:spring/distribution-core-datasource-dynamic.xml" />
-    <import resource="classpath:spring/distribution-core-dao-dev.xml" />
-
-
-
+    <import resource="classpath:spring/distribution-core-datasource-loadunload.xml"/>
+    <import resource="classpath:spring/distribution-core-datasource-task.xml" />
+    <import resource="classpath:spring/distribution-core-dao.xml" />
+    <import resource="classpath:spring/distribution-core-ws.xml" />
+    <import resource="classpath:spring/distribution-core-business.xml" />
 
 
 
+    <import resource="classpath:spring/distribution-core-redis.xml" />
+    <import resource="classpath:spring/distribution-core-cassandra.xml" />
+
+    <import resource="classpath:spring/distribution-core-jsf-consumer.xml" />
 
 
 <!--	<import resource="classpath*:cdf/crossbow.comp" />-->
+    <!--	<import resource="classpath*:cdf/crossbow.comp" />-->
+    <import resource="classpath:spring/distribution-core-sequence-gen.xml" />
 
+    <import resource="distribution-beans.xml" />
 	<import resource="classpath:spring/distribution-core-datasource-waybill.xml" />
+    <import resource="classpath:spring/distribution-core-aces.xml" />
 
+    <import resource="classpath:spring/spring-ucc.xml" />
 	<context:component-scan base-package="com.jd.bluedragon.distribution.popAbnormal.helper"/>
 	<context:component-scan base-package="com.jd.bluedragon.distribution.*.dao" />
 	<context:component-scan base-package="com.jd.bluedragon.distribution.product.service" />
@@ -82,4 +89,14 @@
             </bean>
         </constructor-arg>
     </bean>
+    <import resource="classpath:spring/distribution-core-log.xml" />
+    <import resource="distribution-core-manual-bean.xml"/>
+    <import resource="classpath:spring/distribution-test-jmq.xml" />
+    <import resource="classpath:spring/distribution-core-jmq.xml" />
+    <import resource="distribution-core-crossbow-manager.xml"></import>
+    <import resource="distribution-core-jss.xml"></import>
+    <import resource="distribution-core-special-jsf.xml"></import>
+    <import resource="distribution-core-asynBuffer-producer.xml"></import>
+
+
 </beans>

@@ -299,7 +299,7 @@ public class NewSealVehicleResource {
                 return sealVehicleResponse;
             }
             TransWorkItemWsDto transWorkItemWsDto = new TransWorkItemWsDto();
-            transWorkItemWsDto.setTransWorkItemCode(request.getTransWorkItemCode());
+            transWorkItemWsDto.setTransWorkItemCode(request.getTransWorkItemCode());//任务简码
             transWorkItemWsDto.setVehicleNumber(request.getVehicleNumber());
             transWorkItemWsDto.setOperateUserCode(request.getUserErp());
             transWorkItemWsDto.setOperateNodeCode(request.getDmsCode());
@@ -434,7 +434,6 @@ public class NewSealVehicleResource {
         String sendCode = sealCarPreRequest.getSendCode();
         Integer sealCarType = sealCarPreRequest.getSealCarType();
         String transportCode = sealCarPreRequest.getTransportCode();
-        Integer sealCarSource = sealCarPreRequest.getSealCarSource();
         try {
             //1.检查批次号
             checkBatchCode(sealVehicleResponse, sendCode);

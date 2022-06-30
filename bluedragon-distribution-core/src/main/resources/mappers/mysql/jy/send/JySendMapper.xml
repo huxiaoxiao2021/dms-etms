@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jd.bluedragon.distribution.jy.dao.send.JySendDao">
+
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.jd.bluedragon.distribution.jy.send.JySendEntity" id="jySendMap">
+        <result property="id" column="id"/>
+        <result property="sendVehicleBizId" column="send_vehicle_biz_id"/>
+        <result property="createSiteId" column="create_site_id"/>
+        <result property="receiveSiteId" column="receive_site_id"/>
+        <result property="barCode" column="bar_code"/>
+        <result property="sendCode" column="send_code"/>
+        <result property="operateTime" column="operate_time"/>
+        <result property="interceptFlag" column="intercept_flag"/>
+        <result property="forceSendFlag" column="force_send_flag"/>
+        <result property="createUserErp" column="create_user_erp"/>
+        <result property="createUserName" column="create_user_name"/>
+        <result property="updateUserErp" column="update_user_erp"/>
+        <result property="updateUserName" column="update_user_name"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="yn" column="yn"/>
+        <result property="ts" column="ts"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id
+        ,        send_vehicle_biz_id,        create_site_id,        receive_site_id,        bar_code,        send_code,        operate_time,        intercept_flag,        force_send_flag,        create_user_erp,        create_user_name,        update_user_erp,        update_user_name,        create_time,        update_time,        yn,        ts    </sql>
+
+    <insert id="insert" parameterType="JySendEntity">
+        INSERT INTO jy_send(
+             id,
+             send_vehicle_biz_id,
+             create_site_id,
+             receive_site_id,
+             bar_code,
+             send_code,
+             operate_time,
+            <if test="interceptFlag != null">
+                intercept_flag ,
+            </if>
+            <if test="forceSendFlag != null">
+                force_send_flag,
+            </if>
+             create_user_erp,
+             create_user_name,
+             create_time
+        ) VALUES (
+            #{id},
+            #{sendVehicleBizId},
+            #{createSiteId},
+            #{receiveSiteId},
+            #{barCode},
+            #{sendCode},
+            #{operateTime},
+            <if test="interceptFlag != null">
+                #{interceptFlag},
+            </if>
+            <if test="forceSendFlag != null">
+                #{forceSendFlag},
+            </if>
+            #{createUserErp},
+            #{createUserName},
+            #{createTime}
+        )
+    </insert>
+
+    <update id="updateByCondition" parameterType="JySendEntity">
+        UPDATE jy_send
+        <set>
+            <if test="sendCode != null">
+                send_code = #{sendCode},
+            </if>
+            <if test="operateTime != null">
+                operate_time = #{operateTime},
+            </if>
+            <if test="interceptFlag != null">
+                intercept_flag = #{interceptFlag},
+            </if>
+            <if test="forceSendFlag != null">
+                force_send_flag = #{forceSendFlag},
+            </if>
+            <if test="updateUserErp != null">
+                update_user_erp = #{updateUserErp},
+            </if>
+            <if test="updateUserName != null">
+                update_user_name = #{updateUserName},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime}
+            </if>
+        </set>
+        <where>
+            yn = 1
+            AND create_site_id = #{createSiteId}
+            AND bar_code = #{barCode}
+        </where>
+    </update>
+
+    <select id="findSendRecordExistAbnormal" parameterType="JySendEntity" resultMap="jySendMap">
+        SELECT
+            <include refid="Base_Column_List"/>
+        FROM jy_send
+        WHERE
+            yn = 1
+        AND create_site_id = #{createSiteId}
+        AND send_vehicle_biz_id = #{sendVehicleBizId}
+        AND (intercept_flag = 1 OR force_send_flag = 1)
+        LIMIT 1
+    </select>
+
+    <select id="queryByCodeAndSite" parameterType="JySendEntity" resultMap="jySendMap">
+        SELECT
+            <include refid="Base_Column_List"/>
+        FROM jy_send
+        WHERE
+            yn = 1
+        AND bar_code = #{barCode, jdbcType=VARCHAR}
+        AND create_site_id = #{createSiteId, jdbcType=BIGINT}
+        LIMIT 1
+    </select>
+
+    <select id="findByBizId" parameterType="JySendEntity" resultMap="jySendMap">
+        SELECT
+            <include refid="Base_Column_List"/>
+        FROM jy_send
+        WHERE
+            yn = 1
+        AND send_vehicle_biz_id = #{sendVehicleBizId}
+        AND create_site_id = #{createSiteId}
+        <if test="receiveSiteId != null">
+            AND receive_site_id = #{receiveSiteId}
+        </if>
+        LIMIT 1
+    </select>
+
+    <update id="updateTransferProperBySendCode" parameterType="JySendEntity">
+        UPDATE jy_send
+        <set>
+            <if test="sendVehicleBizId != null">
+                send_vehicle_biz_id = #{sendVehicleBizId},
+            </if>
+            <if test="newSendCode != null">
+                send_code = #{newSendCode},
+            </if>
+            <if test="updateUserErp != null">
+                update_user_erp = #{updateUserErp},
+            </if>
+            <if test="updateUserName != null">
+                update_user_name = #{updateUserName},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime}
+            </if>
+        </set>
+        <where>
+            yn = 1
+            AND create_site_id = #{createSiteId}
+            AND send_code = #{sendCode}
+        </where>
+    </update>
+</mapper>

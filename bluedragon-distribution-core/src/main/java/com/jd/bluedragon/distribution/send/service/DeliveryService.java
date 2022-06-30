@@ -6,6 +6,7 @@ import com.jd.bluedragon.distribution.api.response.CheckBeforeSendResponse;
 import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
 import com.jd.bluedragon.distribution.auto.domain.UploadData;
 import com.jd.bluedragon.distribution.command.JdResult;
+import com.jd.bluedragon.distribution.jsf.domain.SortingCheck;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.domain.SendResult;
@@ -532,4 +533,28 @@ public interface DeliveryService {
      * @param sendMList
      */
     void deliveryCoreLogic(Integer source, List<SendM> sendMList);
+
+    /**
+     * 按运单发货是否在处理中
+     * @param sendM
+     * @return
+     */
+    boolean isSendByWaybillProcessing(SendM sendM);
+
+    /**
+     * 初始化拦截链校验实体
+     * @param domain
+     * @return
+     */
+    SortingCheck getSortingCheck(SendM domain);
+
+    /**
+     * 校验是否已经发货
+     * @param domain
+     * @param result
+     * @return
+     */
+    boolean multiSendVerification(SendM domain, SendResult result);
+
+    boolean packageSendByRealWaybill(SendM domain, Boolean isCancelLastSend, SendResult result);
 }

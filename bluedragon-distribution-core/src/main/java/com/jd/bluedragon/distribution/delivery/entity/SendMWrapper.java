@@ -36,6 +36,7 @@ public class SendMWrapper implements Serializable {
      * 批次任务唯一标识
      */
     private String batchUniqKey;
+    private String newSendCode;
 
     /**
      * 运单号
@@ -50,6 +51,14 @@ public class SendMWrapper implements Serializable {
 
     public SendMWrapper() {
 
+    }
+
+    public String getNewSendCode() {
+        return newSendCode;
+    }
+
+    public void setNewSendCode(String newSendCode) {
+        this.newSendCode = newSendCode;
     }
 
     public SendMWrapper(SendKeyTypeEnum keyType) {

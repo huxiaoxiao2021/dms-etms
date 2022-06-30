@@ -23,6 +23,15 @@ public interface IDeliveryOperationService {
      */
     DeliveryResponse asyncHandleDelivery(List<SendM> requests, SendBizSourceEnum sourceEnum);
 
+
+    /**
+     * 按包裹、箱号、板处理迁移数据
+     * @param sendMList
+     * @param newSendCode
+     * @return
+     */
+    DeliveryResponse asyncHandleTransfer(List<SendM> sendMList, String newSendCode);
+
     /**
      * 执行发货任务
      * @param task
@@ -34,6 +43,12 @@ public interface IDeliveryOperationService {
      * @param task
      */
     void dealDeliveryTaskV2(Task task);
+
+    /**
+     * 执行迁移任务：取消发货+生成新的发货
+     * @param task
+     */
+    void dealSendTransferTask(Task task);
 
     /**
      * 异步任务开关

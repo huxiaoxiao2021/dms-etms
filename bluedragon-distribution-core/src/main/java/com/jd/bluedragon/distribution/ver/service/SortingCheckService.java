@@ -3,9 +3,11 @@ package com.jd.bluedragon.distribution.ver.service;
 import com.jd.bluedragon.common.dto.send.request.DeliveryRequest;
 import com.jd.bluedragon.distribution.api.request.BoardCombinationRequest;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
+import com.jd.bluedragon.distribution.delivery.constants.SendKeyTypeEnum;
 import com.jd.bluedragon.distribution.jsf.domain.BoardCombinationJsfResponse;
 import com.jd.bluedragon.distribution.jsf.domain.SortingCheck;
 import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
+import com.jd.bluedragon.distribution.ver.filter.FilterChain;
 
 public interface SortingCheckService {
 
@@ -33,6 +35,9 @@ public interface SortingCheckService {
      */
     SortingJsfResponse singleSendCheckAndReportIntercept(SortingCheck sortingCheck);
 
+    FilterChain matchJyDeliveryFilterChain(SendKeyTypeEnum sendType);
+
+    SortingJsfResponse doSingleSendCheckWithChain(SortingCheck sortingCheck, boolean reportIntercept, FilterChain filterChain);
 
     /*
      * 组板校验
