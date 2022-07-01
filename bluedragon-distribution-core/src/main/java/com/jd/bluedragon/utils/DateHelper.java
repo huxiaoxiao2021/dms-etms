@@ -87,6 +87,8 @@ public class DateHelper {
 
     public static final String DATE_FORMAT_HHmmss = "HH:mm:ss";
 
+    public static final String DATE_FORMAT_HHmm = "HH:mm";
+
     public static final String DATE_FORMATE_yyyyMMdd = "yyyyMMdd";
 
     public static final String DATE_FORMATE_yyMMdd = "yyMMdd";

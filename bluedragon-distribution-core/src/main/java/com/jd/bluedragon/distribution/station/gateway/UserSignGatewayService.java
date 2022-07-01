@@ -41,6 +41,12 @@ public interface UserSignGatewayService {
 	 */
 	JdCResponse<PageDto<UserSignRecordData>> querySignListWithPosition(UserSignQueryRequest query);
 	/**
+	 * 按条件分页查询-按操作人
+	 * @param query
+	 * @return
+	 */
+	JdCResponse<PageDto<UserSignRecordData>> querySignListByOperateUser(UserSignQueryRequest query);
+	/**
 	 * 查询用户最近一次签到数据
 	 * @param query
 	 * @return

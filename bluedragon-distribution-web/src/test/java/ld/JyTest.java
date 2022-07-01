@@ -47,7 +47,7 @@ public class JyTest {
         Integer pageSize = 20;
         condition.setEndSiteId(910L);
         condition.setVehicleStatus(JyBizTaskUnloadStatusEnum.ON_WAY.getCode());
-        jyBizTaskUnloadVehicleService.findByConditionOfPage(condition,typeEnum,pageNum,pageSize);
+        jyBizTaskUnloadVehicleService.findByConditionOfPage(condition,typeEnum,pageNum,pageSize, null);
 
     }
 

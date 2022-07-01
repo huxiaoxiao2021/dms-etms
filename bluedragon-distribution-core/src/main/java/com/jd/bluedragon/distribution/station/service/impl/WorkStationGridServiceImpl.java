@@ -198,6 +198,10 @@ public class WorkStationGridServiceImpl implements WorkStationGridService {
 		if(!CheckHelper.checkStr("负责人ERP", ownerUserErp, 50, result).isSuccess()) {
 			return result;
 		}
+		WorkStationGrid oldData = workStationGridDao.queryById(updateData.getId());
+		if(oldData == null) {
+			return result.toFail("该网格数据已变更，请重新查询后修改！");
+		}
 		workStationGridDao.deleteById(updateData);
 		updateData.setId(null);
 		result.setData(workStationGridDao.insert(updateData) == 1);
