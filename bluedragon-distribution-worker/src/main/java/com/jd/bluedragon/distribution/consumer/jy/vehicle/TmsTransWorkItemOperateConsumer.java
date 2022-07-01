@@ -322,12 +322,14 @@ public class TmsTransWorkItemOperateConsumer extends MessageBaseConsumer {
             }
         }
 
-        JyBizTaskSendVehicleEntity updateSendTaskReq = new JyBizTaskSendVehicleEntity();
-        updateSendTaskReq.setBizId(sendVehicleBiz);
-        updateSendTaskReq.setLastPlanDepartTime(lastPlanDepartTime);
-        int rows = taskSendVehicleService.updateLastPlanDepartTime(updateSendTaskReq);
+        if (lastPlanDepartTime != null) {
+            JyBizTaskSendVehicleEntity updateSendTaskReq = new JyBizTaskSendVehicleEntity();
+            updateSendTaskReq.setBizId(sendVehicleBiz);
+            updateSendTaskReq.setLastPlanDepartTime(lastPlanDepartTime);
+            int rows = taskSendVehicleService.updateLastPlanDepartTime(updateSendTaskReq);
 
-        logInfo("更新派车单最晚发车时间. {}-{}", updateSendTaskReq.getBizId(), rows);
+            logInfo("更新派车单最晚发车时间. {}-{}", updateSendTaskReq.getBizId(), rows);
+        }
     }
 
     private void logInfo(String message, Object ...objects) {
