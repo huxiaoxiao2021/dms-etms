@@ -82,6 +82,18 @@ public class ExpressBillExceptionReport implements Serializable {
      * 商家编码
      */
     private String traderCode;
+    /**
+     * 商家名称
+     */
+    private String traderName;
+    /**
+     * 商家所属大区编码
+     */
+    private Integer traderOrgCode;
+    /**
+     * 商家所属大区名称
+     */
+    private String traderOrgName;
 
     /**
      * 被举报人ID
@@ -97,6 +109,19 @@ public class ExpressBillExceptionReport implements Serializable {
      * 被举报人姓名
      */
     private String reportedUserName;
+
+    /**
+     * 销售人员ERP
+     */
+    private String saleStaffErp;
+    /**
+     * 工单状态
+     */
+    private String orderStatus;
+    /**
+     * 驳回原因
+     */
+    private String rejectedReason;
 
     /**
      * 数据库时间
@@ -328,6 +353,54 @@ public class ExpressBillExceptionReport implements Serializable {
     public ExpressBillExceptionReport setLineType(Integer lineType) {
         this.lineType = lineType;
         return this;
+    }
+
+    public String getTraderName() {
+        return traderName;
+    }
+
+    public void setTraderName(String traderName) {
+        this.traderName = traderName;
+    }
+
+    public Integer getTraderOrgCode() {
+        return traderOrgCode;
+    }
+
+    public void setTraderOrgCode(Integer traderOrgCode) {
+        this.traderOrgCode = traderOrgCode;
+    }
+
+    public String getTraderOrgName() {
+        return traderOrgName;
+    }
+
+    public void setTraderOrgName(String traderOrgName) {
+        this.traderOrgName = traderOrgName;
+    }
+
+    public String getSaleStaffErp() {
+        return saleStaffErp;
+    }
+
+    public void setSaleStaffErp(String saleStaffErp) {
+        this.saleStaffErp = saleStaffErp;
+    }
+
+    public String getOrderStatus() {
+        return orderStatus;
+    }
+
+    public void setOrderStatus(String orderStatus) {
+        this.orderStatus = orderStatus;
+    }
+
+    public String getRejectedReason() {
+        return rejectedReason;
+    }
+
+    public void setRejectedReason(String rejectedReason) {
+        this.rejectedReason = rejectedReason;
     }
 }
     

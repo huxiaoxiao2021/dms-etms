@@ -352,5 +352,10 @@
     <jmq:consumer id="jmq.dealMiniStoreOutConsumer" transport="jmq.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.box.inOut}" listener="dealMiniStoreOutConsumer"/>
     </jmq:consumer>
+
+    <!--  面单举报回传消息处理  -->
+    <jmq:consumer id="jmq.faceReportNotifyConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.face.report.notify}" listener="faceReportNotifyConsumer"/>
+    </jmq:consumer>
 </beans>
 
