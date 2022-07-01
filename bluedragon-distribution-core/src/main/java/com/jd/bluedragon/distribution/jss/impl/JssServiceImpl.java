@@ -4,16 +4,19 @@ import com.jd.bluedragon.distribution.exception.jss.JssStorageException;
 import com.jd.bluedragon.distribution.jss.JssService;
 import com.jd.bluedragon.distribution.jss.utils.JssStorageClient;
 import com.jd.jss.JingdongStorageService;
+import com.jd.jss.http.Scheme;
 import com.jd.jss.service.ObjectService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.util.HashSet;
 import java.util.UUID;
 
 /**
@@ -29,6 +32,9 @@ public class JssServiceImpl implements JssService {
 
     @Autowired
     private JssStorageClient jssStorageClient;
+
+    @Value("#{'${jss.httpsSet}'.split(',')}")
+    private HashSet<String> httpsSet;
 
     @Override
     public void uploadFile(String bucket, String keyName, long length, InputStream inputStream) throws JssStorageException {
@@ -93,6 +99,10 @@ public class JssServiceImpl implements JssService {
     public URI getURI(String bucket, String keyName, int timeout) throws JssStorageException {
         try {
             JingdongStorageService jss = jssStorageClient.getStorageService();
+            if (httpsSet.contains(jssStorageClient.getEndpoint())){
+                return jss.bucket(bucket).object(keyName).
+                        presignedUrlProtocol(Scheme.HTTPS).generatePresignedUrl(timeout);
+            }
             return jss.bucket(bucket).object(keyName).generatePresignedUrl(timeout);
         } catch (Exception e) {
             log.error("[JSS存储服务]调用JSS服务异常：", e);
@@ -102,6 +112,9 @@ public class JssServiceImpl implements JssService {
 
     @Override
     public String getPublicBucketUrl(String bucket, String keyName) {
+        if (httpsSet.contains(jssStorageClient.getEndpoint())){
+            return "https://" + jssStorageClient.getEndpoint() + "/" + bucket + "/" + keyName;
+        }
         return "http://" + jssStorageClient.getEndpoint() + "/" + bucket + "/" + keyName;
     }
 
@@ -123,7 +136,14 @@ public class JssServiceImpl implements JssService {
 
             jss.bucket(bucket).object(key).entity(bytes.length, inStream).put();
             inStream.close();
-            URI uri = jss.bucket(bucket).object(key).generatePresignedUrl(315360000);
+            URI uri;
+            if (httpsSet.contains(jssStorageClient.getEndpoint())){
+                uri = jss.bucket(bucket).object(key).presignedUrlProtocol(Scheme.HTTPS)
+                        .generatePresignedUrl(315360000);
+            }
+            else{
+                uri = jss.bucket(bucket).object(key).generatePresignedUrl(315360000);
+            }
             return uri.toString();
         } catch (Exception e) {
             log.error("异常上行处理异常:", e);

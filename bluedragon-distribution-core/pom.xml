@@ -1050,7 +1050,7 @@
 		<dependency>
 		    <groupId>com.jd.jss</groupId>
 		    <artifactId>jss-sdk-java</artifactId>
-		    <version>1.4.2-SNAPSHOT</version>
+		    <version>1.4.7-SNAPSHOT</version>
 		</dependency>
         <!-- 用户组接口 -->
         <dependency>
