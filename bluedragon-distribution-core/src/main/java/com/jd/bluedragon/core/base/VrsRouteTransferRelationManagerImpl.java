@@ -1,6 +1,5 @@
 package com.jd.bluedragon.core.base;
 
-import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration;
@@ -374,8 +373,7 @@ public class VrsRouteTransferRelationManagerImpl implements VrsRouteTransferRela
      */
     public List<String> loadWaybillRouter(Integer originalDmsCode,Integer destinationDmsCode,RouteProductEnum routeProduct,Date predictSendTime){
         List<String> dmsSiteNameList = new ArrayList<String>();
-        log.info("loadWaybillRouter 入参 originalDmsCode:{},destinationDmsCode:{},routeProduct:{},predictSendTime:{}",
-                originalDmsCode,destinationDmsCode, JSON.toJSONString(routeProduct),predictSendTime);
+
         //校验参数
         if(originalDmsCode == null || destinationDmsCode == null || routeProduct == null || predictSendTime == null){
             return dmsSiteNameList;
@@ -391,10 +389,8 @@ public class VrsRouteTransferRelationManagerImpl implements VrsRouteTransferRela
         }
 
         //调路由的接口获取路由节点
-        log.info("queryRecommendRoute 入参originalDms:{},destinationDms:{},predictSendTime:{},routeProduct:{}"
-                ,originalDms.getDmsSiteCode(),destinationDms.getDmsSiteCode(),predictSendTime,JSON.toJSONString(routeProduct));
         String router=queryRecommendRoute(originalDms.getDmsSiteCode(),destinationDms.getDmsSiteCode(),predictSendTime,routeProduct);
-        log.info("queryRecommendRoute 出参 router:{}",router);
+
         if (StringUtils.isEmpty(router)){
             return dmsSiteNameList;
         }
@@ -409,7 +405,6 @@ public class VrsRouteTransferRelationManagerImpl implements VrsRouteTransferRela
         for(int i=0;i<siteArr.length;i++){
             //获取站点信息
             BaseStaffSiteOrgDto baseStaffSiteOrgDto= baseMajorManager.getBaseSiteByDmsCode(siteArr[i]);
-            log.info("queryRecommendRoute 获取baseStaffSiteOrgDto-{}",JSON.toJSONString(baseStaffSiteOrgDto));
             if (baseStaffSiteOrgDto!=null){
                 String dmsName = baseStaffSiteOrgDto.getDmsShortName();
                 if(StringUtils.isBlank(dmsName)){
