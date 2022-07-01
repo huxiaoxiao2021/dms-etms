@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.delivery;
 
 import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
+import com.jd.bluedragon.distribution.jy.dto.send.VehicleSendRelationDto;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
 import com.jd.bluedragon.distribution.task.domain.Task;
@@ -27,10 +28,10 @@ public interface IDeliveryOperationService {
     /**
      * 按包裹、箱号、板处理迁移数据
      * @param sendMList
-     * @param newSendCode
+     * @param vehicleSendRelationDto
      * @return
      */
-    DeliveryResponse asyncHandleTransfer(List<SendM> sendMList, String newSendCode);
+    DeliveryResponse asyncHandleTransfer(List<SendM> sendMList, VehicleSendRelationDto vehicleSendRelationDto);
 
     /**
      * 执行发货任务
