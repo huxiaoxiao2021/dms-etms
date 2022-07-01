@@ -661,9 +661,13 @@ public class SendDetailConsumer extends MessageBaseConsumer {
         String waybillCode = waybill.getWaybillCode();
         try {
             List<String> productTypes = Arrays.asList(waybill.getWaybillExt().getProductType().split(Constants.SEPARATOR_COMMA));
-            boolean isColdProductType = productTypes.contains(DmsConstants.PRODUCT_TYPE_COLD_CHAIN_KB) || productTypes.contains(Constants.PRODUCT_TYPE_MEDICINE_DP) || productTypes.contains(Constants.PRODUCT_TYPE_COLD_CHAIN_XP);
+            //冷链卡班、医药大票、冷链小票、医药零担、医冷零担
+            boolean isColdProductType = productTypes.contains(DmsConstants.PRODUCT_TYPE_COLD_CHAIN_KB)
+                                        || productTypes.contains(Constants.PRODUCT_TYPE_MEDICINE_DP)
+                                        || productTypes.contains(Constants.PRODUCT_TYPE_COLD_CHAIN_XP)
+                                        || productTypes.contains(Constants.PRODUCT_TYPE_MEDICINE_COLD);
             if(!isColdProductType){
-                log.warn("处理冷链拦截快退逻辑，非冷链卡班、医药大票、冷链小票产品类型，无须处理，运单号：{}",waybillCode);
+                log.warn("处理冷链拦截快退逻辑，非冷链产品类型，无须处理，运单号：{}",waybillCode);
                 return;
             }
             Integer createSiteCode = sendDetail.getCreateSiteCode();
@@ -696,7 +700,7 @@ public class SendDetailConsumer extends MessageBaseConsumer {
                 String waybillsign = waybill.getWaybillSign();
                 if (waybillsign != null && waybillsign.length() > 0) {
                     if (BusinessUtil.isSick(waybill.getWaybillSign())) {
-                        this.log.warn("分拣中心逆向病单,冷链卡班、医药大票、冷链小票产品屏蔽退款100分MQ,运单号：{}", wayBillCode);
+                        this.log.warn("分拣中心逆向病单,冷链产品屏蔽退款100分MQ,运单号：{}", wayBillCode);
                         return;
                     }
                 }
@@ -704,10 +708,10 @@ public class SendDetailConsumer extends MessageBaseConsumer {
                         DateHelper.formatDateTimeMs(OperateTime));
                 //bd_blocker_complete的MQ
                 this.bdBlockerCompleteMQ.send(wayBillCode, refundMessage);
-                this.log.info("冷链卡班、医药大票、冷链小票产品 退款100分MQ消息推送成功,运单号：{}", wayBillCode);
+                this.log.info("冷链产品 退款100分MQ消息推送成功,运单号：{}", wayBillCode);
             }
         } catch (Exception e) {
-            this.log.error("冷链卡班、医药大票、冷链小票产品回传退款100分逆向分拣信息失败，运单号：" + wayBillCode, e);
+            this.log.error("冷链产品回传退款100分逆向分拣信息失败，运单号：" + wayBillCode, e);
         }
     }
     private String refundMessage(String waybillCode, String operateTime) {
@@ -736,18 +740,18 @@ public class SendDetailConsumer extends MessageBaseConsumer {
             //waybillsign  1=T  ||  waybillsign  15=6表示逆向订单
             if((waybill.getWaybillSign().charAt(0)=='T' || waybill.getWaybillSign().charAt(14)=='6')){
                 if(BusinessUtil.isSick(waybill.getWaybillSign())){
-                    this.log.warn("分拣中心逆向病单,冷链卡班、医药大票、冷链小票产品屏蔽快退MQ,运单号：{}", wayBillCode);
+                    this.log.warn("分拣中心逆向病单,冷链产品屏蔽快退MQ,运单号：{}", wayBillCode);
                     return;
                 }
                 //组装FastRefundBlockerComplete
                 FastRefundBlockerComplete frbc = toMakeFastRefundBlockerComplete(wayBillCode,sendDetail);
                 String json = JsonHelper.toJson(frbc);
-                this.log.info("冷链卡班、医药大票、冷链小票产品,分拣中心逆向订单快退:运单号[{}]",wayBillCode);
+                this.log.info("冷链产品,分拣中心逆向订单快退:运单号[{}]",wayBillCode);
                 try {
                     blockerComOrbrefundRqMQ.send(wayBillCode,json);
-                    this.log.info("冷链卡班、医药大票、冷链小票产品发送blockerComOrbrefundRq成功,运单号：{}", wayBillCode);
+                    this.log.info("冷链产品发送blockerComOrbrefundRq成功,运单号：{}", wayBillCode);
                 } catch (Exception e) {
-                    this.log.error("冷链卡班、医药大票、冷链小票产品,分拣中心逆向订单快退MQ失败[{}]",json , e);
+                    this.log.error("冷链产品,分拣中心逆向订单快退MQ失败[{}]",json , e);
                 }
             }else{
                 log.info("订单:{}为非逆向订单,waybillsign:{}",wayBillCode,waybillsign);
@@ -778,7 +782,7 @@ public class SendDetailConsumer extends MessageBaseConsumer {
                 frbc.setOrderId("0");
             }
         }catch(Exception e){
-            this.log.error("冷链卡班、医药大票、冷链小票产品,发送blockerComOrbrefundRq的MQ时新运单号获取老运单号失败,waybillcode:"+waybillCode, e);
+            this.log.error("冷链产品,发送blockerComOrbrefundRq的MQ时新运单号获取老运单号失败,waybillcode:"+waybillCode, e);
         }
         Date operatorTime = sendDetail.getOperateTime() == null? new Date():new Date(sendDetail.getOperateTime());
         frbc.setWaybillcode(waybillCode);
