@@ -799,6 +799,11 @@ public class UccPropertyConfiguration {
     private Integer jyUnSealTaskSwitchToEs;
 
     /**
+     * 面单举报异常配置
+     */
+    private String faceAbnormalReportConfig;
+
+    /**
      * 拣运发车任务满载率上限。eg:150
      */
     private Integer jySendTaskLoadRateUpperLimit;
@@ -2035,5 +2040,13 @@ public class UccPropertyConfiguration {
 
     public void setDpWaybillMatchSendCodeSwitch(boolean dpWaybillMatchSendCodeSwitch) {
         this.dpWaybillMatchSendCodeSwitch = dpWaybillMatchSendCodeSwitch;
+    }
+
+    public String getFaceAbnormalReportConfig() {
+        return faceAbnormalReportConfig;
+    }
+
+    public void setFaceAbnormalReportConfig(String faceAbnormalReportConfig) {
+        this.faceAbnormalReportConfig = faceAbnormalReportConfig;
     }
 }

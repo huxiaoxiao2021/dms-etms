@@ -97,7 +97,6 @@ public class ExpressBillExceptionReportVo implements Serializable {
      * 商家编码
      */
     private String traderCode;
-
     /**
      * 被举报人ID
      */
@@ -127,6 +126,32 @@ public class ExpressBillExceptionReportVo implements Serializable {
      * 商城订单号
      */
     private String orderId;
+
+    /**
+     * 商家名称
+     */
+    private String traderName;
+    /**
+     * 商家所属大区编码
+     */
+    private Integer traderOrgCode;
+    /**
+     * 商家所属大区名称
+     */
+    private String traderOrgName;
+
+    /**
+     * 销售人员ERP
+     */
+    private String saleStaffErp;
+    /**
+     * 工单状态
+     */
+    private String orderStatus;
+    /**
+     * 驳回原因
+     */
+    private String rejectedReason;
 
     public Boolean getYn() {
         return yn;
@@ -289,6 +314,7 @@ public class ExpressBillExceptionReportVo implements Serializable {
         return this;
     }
 
+
     public Long getReportedUserId() {
         return reportedUserId;
     }
@@ -314,6 +340,54 @@ public class ExpressBillExceptionReportVo implements Serializable {
     public ExpressBillExceptionReportVo setReportedUserName(String reportedUserName) {
         this.reportedUserName = reportedUserName;
         return this;
+    }
+
+    public String getTraderName() {
+        return traderName;
+    }
+
+    public void setTraderName(String traderName) {
+        this.traderName = traderName;
+    }
+
+    public Integer getTraderOrgCode() {
+        return traderOrgCode;
+    }
+
+    public void setTraderOrgCode(Integer traderOrgCode) {
+        this.traderOrgCode = traderOrgCode;
+    }
+
+    public String getTraderOrgName() {
+        return traderOrgName;
+    }
+
+    public void setTraderOrgName(String traderOrgName) {
+        this.traderOrgName = traderOrgName;
+    }
+
+    public String getSaleStaffErp() {
+        return saleStaffErp;
+    }
+
+    public void setSaleStaffErp(String saleStaffErp) {
+        this.saleStaffErp = saleStaffErp;
+    }
+
+    public String getOrderStatus() {
+        return orderStatus;
+    }
+
+    public void setOrderStatus(String orderStatus) {
+        this.orderStatus = orderStatus;
+    }
+
+    public String getRejectedReason() {
+        return rejectedReason;
+    }
+
+    public void setRejectedReason(String rejectedReason) {
+        this.rejectedReason = rejectedReason;
     }
 }
     
