@@ -1,8 +1,7 @@
 package com.jd.bluedragon.core.base;
 
 
-import com.jd.tms.jdi.dto.CommonDto;
-import com.jd.tms.jdi.dto.TransWorkItemDto;
+import com.jd.tms.jdi.dto.*;
 
 import java.util.List;
 
@@ -22,4 +21,26 @@ public interface JdiQueryWSManager {
      */
     CommonDto<TransWorkItemDto> queryTransWorkItemBySimpleCode(String simpleCode);
 
+    /**
+     * 根据派车明细编码获取派车任务明细
+     * @param var1
+     * @return
+     */
+    TransWorkItemDto getTransWorkItemsDtoByItemCode(String var1);
+
+    /**
+     * 根据条件查派车单
+     * @param transWorkCode
+     * @param option
+     * @return
+     * @see <see>https://cf.jd.com/pages/viewpage.action?pageId=309509770</see>
+     */
+    BigTransWorkDto queryTransWorkByChoice(String transWorkCode, BigQueryOption option);
+
+    /**
+     * 根据条件查派车单
+     * @param transWorkCode
+     * @return
+     */
+    TransWorkBillDto queryTransWork(String transWorkCode);
 }

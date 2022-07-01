@@ -94,6 +94,9 @@
             yn = 1
         AND bar_code = #{barCode, jdbcType=VARCHAR}
         AND operate_site_id = #{operateSiteId, jdbcType=BIGINT}
+        <if test="bizId != null">
+            AND biz_id = #{bizId, jdbcType=VARCHAR}
+        </if>
         limit 1
     </select>
 

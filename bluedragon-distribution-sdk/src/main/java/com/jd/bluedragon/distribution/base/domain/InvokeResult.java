@@ -72,9 +72,57 @@ public class InvokeResult<T> implements Serializable {
     public static final int RESULT_RFID_BIND_BOX_SENT_CODE=311;
     public static final String RESULT_RFID_BIND_BOX_SENT_MESSAGE="该循环集包袋已绑定箱号已发货，不能更换";
 
+    public static final int RESULT_NODATA_GETCARTYPE_CODE=312;
+    public static final String RESULT_NODATA_GETCARTYPE_MESSAGE="查询运输车型列表数据异常！";
+
+    public static final int RESULT_NO_FOUND_DATA_CODE=313;
+    public static final String RESULT_NO_FOUND_DATA_MESSAGE="未查询到相关流向任务数据！";
+
+    public static final int RESULT_EXE_GETCARINFO_BYCARNO_CODE=314;
+    public static final String RESULT_EXE_GETCARINFO_BYCARNO_MESSAGE="根据车牌号查询运输任务详情异常！";
+
+    public static final int RESULT_NO_FOUND_BY_TRANS_WOEK_ITEM_CODE=315;
+    public static final String RESULT_NO_FOUND_BY_TRANS_WOEK_ITEM_MESSAGE="根据派车明细单号未查询到相关运力信息！";
+
+    public static final int RESULT_NO_FOUND_BY_BOARD_CODE=316;
+    public static final String RESULT_NO_FOUND_BY_BOARD_MESSAGE="未查询到相关的组板信息！";
+
+    public static final int BOX_NO_FOUND_BY_PACKAGE_CODE=317;
+    public static final String BOX_NO_FOUND_BY_PACKAGE_MESSAGE="未根据包裹号查询到相关的箱号信息！";
+
+    public static final int NO_SEND_DATA_UNDER_TASK_CODE=318;
+    public static final String NO_SEND_DATA_UNDER_TASK_MESSAGE="该任务下未找到相应的发货数据！";
+
+    public static final int NO_SEND_DATA_UNDER_BOARD_CODE=319;
+    public static final String NO_SEND_DATA_UNDER_BOARD_MESSAGE="未找到相应的按板发货数据！";
+
+    public static final int NO_SEND_CODE_DATA_UNDER_BIZTASK_CODE=320;
+    public static final String NO_SEND_CODE_DATA_UNDER_BIZTASK_MESSAGE="未找到相应的发货数据，请前去扫描发货";
+
+    public static final int COMMIT_SEAL_CAR_EXCEPTION_CODE=321;
+    public static final String COMMIT_SEAL_CAR_EXCEPTION_MESSAGE="提交封车异常";
+
+    public static final int DETAIL_TASK_NO_FOUND_BY_MAIN_TASK_CODE=322;
+    public static final String DETAIL_TASK_NO_FOUND_BY_MAIN_TASK_MESSAGE="数据异常，该自建任务下未找到有效的流向任务数据！";
+
+    public static final int DETAIL_TASK_NO_FOUND_BY_SITE_ID_CODE=323;
+    public static final String DETAIL_TASK_NO_FOUND_BY_SITE_ID_MESSAGE="未找到匹配的流向任务数据！";
+
     public InvokeResult(){
         this.code=RESULT_SUCCESS_CODE;
     }
+
+    public InvokeResult(int code, String message) {
+        this.code = code;
+        this.message = message;
+    }
+
+    public InvokeResult(int code, String message, T data) {
+        this.code = code;
+        this.message = message;
+        this.data = data;
+    }
+
     /**
      * 状态码
      */

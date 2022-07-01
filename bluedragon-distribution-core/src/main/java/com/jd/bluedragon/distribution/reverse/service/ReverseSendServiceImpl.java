@@ -1608,7 +1608,7 @@ public class ReverseSendServiceImpl implements ReverseSendService {
             } catch (RuntimeException e) {
                 this.log.error("运单号=[{}]send_d_id=[{}]send_code[{}][spwms发货备件库失败]",
                         waybillCode, sendDetail.getSendDId(),sendDetail.getSendCode(), e);
-                throw e;
+                //throw e; 异常失败后也无人感知，没有重置处理过任务，阻碍后续任务执行，决定吞掉异常只记录日志
             } catch (Exception ex) {
                 this.log.error("运单号=[{}]send_d_id=[{}]send_code[{}][spwms发货备件库失败]",
                         waybillCode, sendDetail.getSendDId(),sendDetail.getSendCode(), ex);

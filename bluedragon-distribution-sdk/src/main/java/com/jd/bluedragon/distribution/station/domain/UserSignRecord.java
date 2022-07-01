@@ -192,6 +192,11 @@ public class UserSignRecord implements Serializable {
 	 * 签到人员名称
 	 */
 	private String userName;
+
+	/**
+	 * 签到次数
+	 */
+	private Integer quotaStationTime;
 	/**
 	 *
 	 * @param id
@@ -736,5 +741,11 @@ public class UserSignRecord implements Serializable {
 		this.userName = userName;
 	}
 
+	public Integer getQuotaStationTime() {
+		return quotaStationTime;
+	}
 
+	public void setQuotaStationTime(Integer quotaStationTime) {
+		this.quotaStationTime = quotaStationTime;
+	}
 }

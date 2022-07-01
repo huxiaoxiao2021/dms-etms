@@ -67,4 +67,14 @@ public class SendMServiceImpl implements SendMService{
     public SendM selectSendByBoardCode(Integer createSiteCode, String boardCode, Integer sendmStatus){
         return sendMDao.selectSendByBoardCode(createSiteCode, boardCode, sendmStatus);
     }
+
+    @Override
+    public String querySendCodeBySelective(SendM sendM) {
+        return sendMDao.querySendCodeBySelective(sendM);
+    }
+
+    @Override
+    public List<SendM> selectBySiteAndSendCode(Integer createSiteCode, String sendCode) {
+        return sendMDao.selectBySiteAndSendCode(createSiteCode,sendCode);
+    }
 }
