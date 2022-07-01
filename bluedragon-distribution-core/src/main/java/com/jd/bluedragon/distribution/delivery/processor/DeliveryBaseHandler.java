@@ -337,7 +337,7 @@ public abstract class DeliveryBaseHandler implements IDeliveryBaseHandler {
                 sendDRequest.setBoxCode(barCode);
             }
             List<SendDetail> tlist = sendDatailDao.querySendDatailsBySelective(sendDRequest);//查询sendD明细
-            log.info("取消发货查询sendd明细,{}",tlist.toString());
+            //log.info("取消发货查询sendd明细,{}",tlist.toString());
 
             if (WaybillUtil.isWaybillCode(sendMItem.getBoxCode())
                     || WaybillUtil.isPackageCode(sendMItem.getBoxCode())) {
@@ -378,6 +378,9 @@ public abstract class DeliveryBaseHandler implements IDeliveryBaseHandler {
             SendBizSourceEnum bizSource = SendBizSourceEnum.getEnum(sendMItem.getBizSource());
             sendMItem.setSendCode(wrapper.getNewSendCode());
             sendMItem.setReceiveSiteCode(BusinessUtil.getReceiveSiteCodeFromSendCode(wrapper.getNewSendCode()));
+            sendMItem.setCreateTime(now);
+            sendMItem.setOperateTime(now);
+            sendMItem.setUpdateTime(now);
             deliveryService.packageSend(bizSource,sendMItem);
         }
         return true;
