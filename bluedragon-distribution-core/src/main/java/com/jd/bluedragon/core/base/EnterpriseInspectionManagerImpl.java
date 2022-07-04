@@ -36,7 +36,7 @@ public class EnterpriseInspectionManagerImpl implements EnterpriseInspectionMana
     @Override
     public PageInfo<QualityInspectionReportResponse> queryQualityInspectionPage(QualityInspectionReportRequest reportRequest) {
         BaseResponse<PageInfo<QualityInspectionReportResponse>> response =  enterpriseInspectionJsfService.queryQualityInspectionPage(reportRequest);
-        if (response != null && response.getCode() == 0) {
+        if (response != null && response.getCode() == 200) {
             return response.getData();
         } else {
             log.error("查询企配质检报表列表服务入参:{},返回异常:{}", JSONObject.toJSONString(reportRequest), JSONObject.toJSONString(response));

@@ -62,6 +62,8 @@ public class EnterpriseDistributionController extends DmsBaseController {
     @RequestMapping("/listData")
     @ResponseBody
     public PagerResult<QualityInspectionDto> listData(@RequestBody QualityInspectionQueryCondition condition){
+        LoginUser loginUser = this.getLoginUser();
+        condition.setSiteCode(loginUser.getSiteCode());
         return enterpriseDistributionService.queryQualityInspectionPage(condition);
     }
 

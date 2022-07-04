@@ -286,9 +286,20 @@ $(function () {
 
     $("[data-toggle='tooltip']").tooltip();
 
+    function initDateQuery(){
+        var v = $.dateHelper.formatDate(new Date());
+        $("#createStartTime").val(v+" 00:00:00");
+        $("#createEndTime").val($.dateHelper.formatDate($.dateHelper.addDays(new Date(), 0)) + " 23:59:59");
+
+        $("#updateStartTime").val(v+" 00:00:00");
+        $("#updateEndTime").val($.dateHelper.formatDate($.dateHelper.addDays(new Date(), 0)) + " 23:59:59");
+    }
+
     tableInit().init();
     pageInit().init();
     initExport(tableInit());
+    initDateQuery();
+
 
     // 一单多件包裹明细
     const detailTable = {

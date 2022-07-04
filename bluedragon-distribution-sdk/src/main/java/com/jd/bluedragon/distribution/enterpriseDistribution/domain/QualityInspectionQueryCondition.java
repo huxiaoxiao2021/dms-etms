@@ -49,6 +49,19 @@ public class QualityInspectionQueryCondition extends BasePagerCondition {
      */
     private String updateEndTime;
 
+    /**
+     * 网点编码
+     */
+    private Integer siteCode;
+
+    public Integer getSiteCode() {
+        return siteCode;
+    }
+
+    public void setSiteCode(Integer siteCode) {
+        this.siteCode = siteCode;
+    }
+
     public String getWaybillNo() {
         return waybillNo;
     }
