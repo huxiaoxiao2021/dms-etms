@@ -13,9 +13,10 @@ public interface JyUnloadVehicleTysService {
 
     /**
      * 根据车牌号或者包裹号检索任务信息
+     *
      * @return
      */
-    InvokeResult<List<UnloadVehicleTaskDto>>  queryUnloadVehicleTaskByVehicleNumOrPackage(QueryUnloadTaskDto queryUnloadTaskDto);
+    InvokeResult<List<UnloadVehicleTaskDto>> queryUnloadVehicleTaskByVehicleNumOrPackage(QueryUnloadTaskDto queryUnloadTaskDto);
 
     /**
      * 变更任务属性
@@ -25,6 +26,7 @@ public interface JyUnloadVehicleTysService {
 
     /**
      * 统计数据维度查询(按包裹 、运单 、板、任务查询统计数据（已扫 应扫 待扫 多扫 拦截）)
+     *
      * @param dto
      * @return
      */
@@ -32,8 +34,52 @@ public interface JyUnloadVehicleTysService {
 
     /**
      * 查询卸车任务详情
+     *
      * @param bizId
      * @return
      */
     InvokeResult<UnloadVehicleTaskDto> queryStatisticsDetailByDiffDimension(String bizId);
+
+
+    /**
+     * 扫描组板
+     *
+     * @param scanPackageDto
+     * @return
+     */
+    InvokeResult<ScanPackageRespDto> scanAndComBoard(ScanPackageDto scanPackageDto);
+
+
+    /**
+     * 查询下钻运单/包裹明细（按不同维度）
+     *
+     * @param queryUnloadDetailDto
+     * @return
+     */
+    InvokeResult<List<UnloadWaybillDto>> queryUnloadDetailByDiffDimension(QueryUnloadDetailDto queryUnloadDetailDto);
+
+
+    /**
+     * 查询卸车任务下流向信息
+     *
+     * @param bizId
+     * @return
+     */
+    InvokeResult<List<UnloadTaskFlowDto>> queryUnloadTaskFlow(String bizId);
+
+
+    /**
+     * 根据任务流向信息 查询组板信息
+     * @param taskFlowDto
+     * @return
+     */
+    InvokeResult<List<ComBoardDto>> queryComBoarUnderTaskFlow(TaskFlowDto taskFlowDto);
+
+    /**
+     * 查询货物分类信息（按不同维度查询： 按任务 按板）
+     * @param queryGoodsCategory
+     * @return
+     */
+    InvokeResult<List<GoodsCategoryDto>> queryGoodsCategoryByDiffDimension(QueryGoodsCategory queryGoodsCategory);
+
 }
