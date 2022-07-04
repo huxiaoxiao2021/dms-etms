@@ -117,6 +117,9 @@
             <button id="btn_query" type="button" class="btn btn-default">
                 <span class="glyphicon glyphicon-search" aria-hidden="true"></span>&nbsp;查询
             </button>
+            <button id="btn_reset" type="reset" class="btn btn-default">
+                <span class="glyphicon glyphicon-search" aria-hidden="true"></span>&nbsp;重置
+            </button>
             <button id="btn_export" type="button" class="btn btn-default" data-toggle="tooltip"  title="再导出需重新查询">
                 <span class="glyphicon glyphicon-export" aria-hidden="true"></span>导出
             </button>

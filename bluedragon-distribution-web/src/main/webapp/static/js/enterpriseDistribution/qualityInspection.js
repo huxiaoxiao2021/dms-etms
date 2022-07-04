@@ -229,6 +229,10 @@ $(function () {
                 tableInit().refresh();
             });
 
+            $('#btn_reset').click(function () {
+                $('#query-form').resetForm();
+                tableInit().refresh();
+            });
         };
 
         return oInit;
