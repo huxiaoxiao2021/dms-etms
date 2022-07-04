@@ -104,7 +104,7 @@ $(function () {
                         shadeClose: true,
                         shade: 0.7,
                         maxmin: true,
-                        area: ['1200px', '800px'],
+                        area: ['1100px', '700px'],
                         content: $packageDetailContainer,
                         success: function (layero, index) {
                         },
@@ -295,10 +295,10 @@ $(function () {
         $("#updateEndTime").val($.dateHelper.formatDate($.dateHelper.addDays(new Date(), 0)) + " 23:59:59");
     }
 
+    initDateQuery();
     tableInit().init();
     pageInit().init();
     initExport(tableInit());
-    initDateQuery();
 
 
     // 一单多件包裹明细
