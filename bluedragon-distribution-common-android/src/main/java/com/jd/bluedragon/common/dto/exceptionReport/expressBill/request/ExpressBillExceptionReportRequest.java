@@ -11,6 +11,12 @@ import java.util.Date;
  * @Date: create in 2020/12/21 15:02
  */
 public class ExpressBillExceptionReportRequest {
+
+    /**
+     * 是否是改造后的
+     */
+    private Boolean isReform = false;
+
     /**
      *包裹号
      */
@@ -27,7 +33,16 @@ public class ExpressBillExceptionReportRequest {
     private CurrentOperate currentOperate;
 
     /**
-     * 举报类型
+     * 一级举报类型编码
+     */
+    private Integer firstReportType;
+    /**
+     * 一级举报类型名称
+     */
+    private String firstReportTypeName;
+
+    /**
+     * 举报类型（二级）
      */
     private Integer reportType;
 
@@ -61,6 +76,14 @@ public class ExpressBillExceptionReportRequest {
      */
     private String remark;
 
+    public Boolean getIsReform() {
+        return isReform;
+    }
+
+    public void setIsReform(Boolean reform) {
+        isReform = reform;
+    }
+
     public String getPackageCode() {
         return packageCode;
     }
@@ -83,6 +106,22 @@ public class ExpressBillExceptionReportRequest {
 
     public void setCurrentOperate(CurrentOperate currentOperate) {
         this.currentOperate = currentOperate;
+    }
+
+    public Integer getFirstReportType() {
+        return firstReportType;
+    }
+
+    public void setFirstReportType(Integer firstReportType) {
+        this.firstReportType = firstReportType;
+    }
+
+    public String getFirstReportTypeName() {
+        return firstReportTypeName;
+    }
+
+    public void setFirstReportTypeName(String firstReportTypeName) {
+        this.firstReportTypeName = firstReportTypeName;
     }
 
     public Integer getReportType() {
