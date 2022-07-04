@@ -1852,6 +1852,12 @@
 			<artifactId>tms-tpc-api</artifactId>
 			<version>1.0-SNAPSHOT</version>
 		</dependency>
+		<!--安全日志-->
+		<dependency>
+			<groupId>com.jd.security</groupId>
+			<artifactId>security-log</artifactId>
+			<version>3.9-SNAPSHOT</version>
+		</dependency>
 
     </dependencies>
 
