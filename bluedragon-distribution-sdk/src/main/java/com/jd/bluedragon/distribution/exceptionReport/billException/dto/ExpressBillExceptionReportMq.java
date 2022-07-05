@@ -100,6 +100,23 @@ public class ExpressBillExceptionReportMq implements Serializable {
      */
     private String remark;
 
+    /**
+     * 来源系统：2-分拣
+     */
+    private Integer sourceSystem;
+    /**
+     * 来源单据：2-分拣异常举报
+     */
+    private Integer sourceBill;
+    /**
+     * 来源单据号：traderCCode_reportType
+     */
+    private String sourceBillCode;
+    /**
+     * 是否紧急，默认值：true
+     */
+    private Boolean urGent;
+
     public String getPackageCode() {
         return packageCode;
     }
@@ -296,5 +313,37 @@ public class ExpressBillExceptionReportMq implements Serializable {
     public ExpressBillExceptionReportMq setRemark(String remark) {
         this.remark = remark;
         return this;
+    }
+
+    public Integer getSourceSystem() {
+        return sourceSystem;
+    }
+
+    public void setSourceSystem(Integer sourceSystem) {
+        this.sourceSystem = sourceSystem;
+    }
+
+    public Integer getSourceBill() {
+        return sourceBill;
+    }
+
+    public void setSourceBill(Integer sourceBill) {
+        this.sourceBill = sourceBill;
+    }
+
+    public String getSourceBillCode() {
+        return sourceBillCode;
+    }
+
+    public void setSourceBillCode(String sourceBillCode) {
+        this.sourceBillCode = sourceBillCode;
+    }
+
+    public Boolean getUrGent() {
+        return urGent;
+    }
+
+    public void setUrGent(Boolean urGent) {
+        this.urGent = urGent;
     }
 }

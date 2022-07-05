@@ -792,6 +792,11 @@ public class UccPropertyConfiguration {
      */
     private String jySendTaskLoadRateLimit;
 
+    /**
+     * 面单举报异常配置
+     */
+    private String faceAbnormalReportConfig;
+
     public String getScheduleSiteCheckSameCity() {
         return scheduleSiteCheckSameCity;
     }
@@ -1948,5 +1953,13 @@ public class UccPropertyConfiguration {
 
     public void setDpWaybillMatchSendCodeSwitch(boolean dpWaybillMatchSendCodeSwitch) {
         this.dpWaybillMatchSendCodeSwitch = dpWaybillMatchSendCodeSwitch;
+    }
+
+    public String getFaceAbnormalReportConfig() {
+        return faceAbnormalReportConfig;
+    }
+
+    public void setFaceAbnormalReportConfig(String faceAbnormalReportConfig) {
+        this.faceAbnormalReportConfig = faceAbnormalReportConfig;
     }
 }

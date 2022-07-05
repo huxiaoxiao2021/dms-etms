@@ -4,9 +4,12 @@ import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.exceptionReport.expressBill.Enum.ExpressBillExceptionReportTypeEnum;
+import com.jd.bluedragon.common.dto.exceptionReport.expressBill.reponse.FaceFirstAbnormalType;
+import com.jd.bluedragon.common.dto.exceptionReport.expressBill.reponse.FaceSecondAbnormalType;
 import com.jd.bluedragon.common.dto.exceptionReport.expressBill.reponse.FirstSiteVo;
 import com.jd.bluedragon.common.dto.exceptionReport.expressBill.reponse.ReportTypeVo;
 import com.jd.bluedragon.common.dto.exceptionReport.expressBill.request.ExpressBillExceptionReportRequest;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.base.WaybillTraceManager;
@@ -18,9 +21,7 @@ import com.jd.bluedragon.distribution.base.service.DmsBaseDictService;
 import com.jd.bluedragon.distribution.exceptionReport.billException.dao.ExpressBillExceptionReportDao;
 import com.jd.bluedragon.distribution.exceptionReport.billException.domain.ExpressBillExceptionReport;
 import com.jd.bluedragon.distribution.exceptionReport.billException.dto.ExpressBillExceptionReportMq;
-import com.jd.bluedragon.distribution.exceptionReport.billException.enums.ExpressBillLineTypeEnum;
-import com.jd.bluedragon.distribution.exceptionReport.billException.enums.ExpressReportTypeCategoryEnum;
-import com.jd.bluedragon.distribution.exceptionReport.billException.enums.ExpressReportTypeEnum;
+import com.jd.bluedragon.distribution.exceptionReport.billException.enums.*;
 import com.jd.bluedragon.distribution.exceptionReport.billException.service.ExpressBillExceptionReportService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.dms.wb.report.api.wmspack.dto.DmsPackRecordPo;
@@ -28,6 +29,7 @@ import com.jd.dms.wb.report.api.wmspack.dto.DmsPackRecordVo;
 import com.jd.dms.wb.report.api.wmspack.jsf.IWmsPackRecordJsfService;
 import com.jd.dms.workbench.utils.sdk.base.PageData;
 import com.jd.dms.workbench.utils.sdk.base.Result;
+import com.jd.etms.waybill.domain.PackageState;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.PackageStateDto;
 import com.jd.jmq.common.exception.JMQException;
@@ -36,6 +38,7 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -76,6 +79,9 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
     @Autowired
     private IWmsPackRecordJsfService wmsPackRecordJsfService;
 
+    @Autowired
+    private UccPropertyConfiguration uccPropertyConfiguration;
+
     /**
      * 面单异常提交
      * @param reportRequest
@@ -97,8 +103,9 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
                 return result;
             }
 
-            //2.校验该包裹是否已经举报过
-            if(this.selectPackageIsReport(reportRequest.getPackageCode())){
+            //2.校验包裹是否举报
+            ImmutablePair<Boolean, String> checkResult = checkIsCanReport(reportRequest.getPackageCode());
+            if(checkResult.getLeft()){
                 result.toFail("举报失败,该包裹已被举报过");
                 result.setData(false);
                 return result;
@@ -115,7 +122,8 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
             }
 
             // 获取始发信息，被举报人信息
-            JdCResponse<Void> assembleFirstSiteInfoResult = this.assembleFirstSiteInfo(reportRequest, record);
+            JdCResponse<Void> assembleFirstSiteInfoResult = this.assembleFirstSiteAndReportedInfo(reportRequest, record,
+                    JsonHelper.fromJson(checkResult.getRight(), PackageState.class));
             if(!assembleFirstSiteInfoResult.isSucceed()){
                 result.toFail(assembleFirstSiteInfoResult.getMessage());
                 return result;
@@ -143,7 +151,7 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
 
             //3.数据增加
             expressBillExceptionReportDao.insertReport(record);
-            this.sendDmsExpressBillExceptionReport(record);
+            this.sendDmsExpressBillExceptionReport(record, reportRequest);
             result.toSucceed("举报成功");
             result.setData(true);
         }catch (Exception e){
@@ -303,7 +311,7 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
      * @param record
      * @return
      */
-    private JdCResponse<Void> sendDmsExpressBillExceptionReport(ExpressBillExceptionReport record){
+    private JdCResponse<Void> sendDmsExpressBillExceptionReport(ExpressBillExceptionReport record, ExpressBillExceptionReportRequest request){
         JdCResponse<Void> result = new JdCResponse<>();
         result.toSucceed();
         try {
@@ -311,12 +319,8 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
             ExpressBillExceptionReportMq expressBillExceptionReportMq = new ExpressBillExceptionReportMq();
             BeanUtils.copyProperties(record, expressBillExceptionReportMq);
             expressBillExceptionReportMq.setReportTime(record.getReportTime().getTime());
-            // 增加大类信息
-            final Integer reportCategoryType = ExpressReportTypeEnum.CODE_2_REPORT_CATEGORY_MAP.get(expressBillExceptionReportMq.getReportType());
-            if(reportCategoryType != null){
-                expressBillExceptionReportMq.setReportTypeCategory(reportCategoryType);
-                expressBillExceptionReportMq.setReportTypeCategoryName(ExpressReportTypeCategoryEnum.ENUM_MAP.get(reportCategoryType));
-            }
+            // 特殊字段处理
+            specialFiledDeal(expressBillExceptionReportMq, request);
             if(log.isDebugEnabled()){
                 log.debug("ExpressBillExceptionReportServiceImpl.sendDmsExpressBillExceptionReport content: [{}]", JsonHelper.toJson(expressBillExceptionReportMq));
             }
@@ -326,6 +330,27 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
             result.toFail("发送mq消息异常");
         }
         return result;
+    }
+
+    private void specialFiledDeal(ExpressBillExceptionReportMq expressBillExceptionReportMq, ExpressBillExceptionReportRequest request) {
+        Integer secondAbnormalType = expressBillExceptionReportMq.getReportType();
+        if(request.getIsReform()){
+            // 2、改造后设置一级原因
+            expressBillExceptionReportMq.setReportTypeCategory(request.getFirstReportType());
+            expressBillExceptionReportMq.setReportTypeCategoryName(request.getFirstReportTypeName());
+        }else {
+            // 3、改造前设置一级原因
+            Integer reportCategoryType = ExpressReportTypeEnum.CODE_2_REPORT_CATEGORY_MAP.get(secondAbnormalType);
+            if(reportCategoryType != null){
+                expressBillExceptionReportMq.setReportTypeCategory(reportCategoryType);
+                expressBillExceptionReportMq.setReportTypeCategoryName(ExpressReportTypeCategoryEnum.ENUM_MAP.get(reportCategoryType));
+            }
+        }
+        // 推送给'销售服务研发组'所需字段
+        expressBillExceptionReportMq.setSourceSystem(2);
+        expressBillExceptionReportMq.setSourceBill(2);
+        expressBillExceptionReportMq.setSourceBillCode(expressBillExceptionReportMq.getTraderCode() + Constants.UNDER_LINE + expressBillExceptionReportMq.getReportType());
+        expressBillExceptionReportMq.setUrGent(true);
     }
 
     /**
@@ -388,17 +413,98 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
     }
 
     /**
-     * 判断包裹是否举报过
+     * 校验包裹是否可以操作上报
+     *  hit：
+     *      left表示是否可以操作上报
+     *      right表示最近一次补打记录
      * @param packageCode
-     * @return  true:举报过   false: 未举报过
+     * @return
      */
-    @Override
-    public boolean selectPackageIsReport(String packageCode) {
-        int num = expressBillExceptionReportDao.selectPackageIsReport(packageCode);
-        if(num>0){
-            return  true;
+    private ImmutablePair<Boolean, String> checkIsCanReport(String packageCode) {
+        ExpressBillExceptionReport report = expressBillExceptionReportDao.selectOneRecent(packageCode);
+        if(report == null){
+            return ImmutablePair.of(false, Constants.EMPTY_FILL);
         }
-        return false;
+        // 最近一条上报时间在最近一条补打时间之后则提示：'包裹已举报'，反之最近一条上报记录之后操作了补打则可以继续操作上报
+        Date reportTime = report.getReportTime() == null ? report.getCreateTime() : report.getReportTime();
+        Set<Integer> stateSet = new HashSet<>();
+        stateSet.add(Integer.parseInt(Constants.WAYBILL_TRACE_STATE_RE_PRINT));
+        List<PackageState> packStateList = waybillTraceManager.getAllOperationsByOpeCodeAndState(packageCode, stateSet);
+        if(CollectionUtils.isEmpty(packStateList)){
+            return ImmutablePair.of(true, Constants.EMPTY_FILL);
+        }
+        // 按操作时间倒叙排序
+        Collections.sort(packStateList, new Comparator<PackageState>() {
+            @Override
+            public int compare(PackageState dto1, PackageState dto2) {
+                if(dto1.getCreateTime() == null || dto2.getCreateTime() == null){
+                    return -1;
+                }
+                return dto2.getCreateTime().compareTo(dto1.getCreateTime());
+            }
+        });
+        Date rePrintTime = packStateList.get(0).getCreateTime();
+        if(rePrintTime == null){
+            return ImmutablePair.of(false, Constants.EMPTY_FILL);
+        }
+        return ImmutablePair.of(rePrintTime.before(reportTime), JsonHelper.toJson(packStateList.get(0)));
+    }
+
+    @Override
+    public List<FaceFirstAbnormalType> getFirstAbnormalType() {
+        List<FaceFirstAbnormalType> firstList = new ArrayList<>();
+        try {
+            FaceFirstAbnormalType[] faceFirstAbnormalTypes = JsonHelper.jsonToArray(uccPropertyConfiguration.getFaceAbnormalReportConfig(), FaceFirstAbnormalType[].class);
+            if(faceFirstAbnormalTypes != null){
+                firstList = Arrays.asList(faceFirstAbnormalTypes);
+            }
+        }catch (Exception e){
+            // 从ucc拉取异常后走兜底方案
+            log.error("从ucc拉取面单异常举报原因配置失败！", e);
+            for (FaceReportFirstTypeEnum item : FaceReportFirstTypeEnum.values()) {
+                FaceFirstAbnormalType firstAbnormalType = new FaceFirstAbnormalType();
+                firstAbnormalType.setAbnormalCode(item.getCode());
+                firstAbnormalType.setAbnormalName(item.getName());
+                firstList.add(firstAbnormalType);
+            }
+        }
+        return firstList;
+    }
+
+    @Override
+    public List<FaceSecondAbnormalType> getSecondAbnormalType(Integer firstAbnormalType) {
+        List<FaceSecondAbnormalType> secondList = new ArrayList<>();
+        try {
+            FaceFirstAbnormalType[] faceFirstAbnormalTypes = JsonHelper.jsonToArray(uccPropertyConfiguration.getFaceAbnormalReportConfig(), FaceFirstAbnormalType[].class);
+            if(faceFirstAbnormalTypes != null){
+                for (FaceFirstAbnormalType item : faceFirstAbnormalTypes) {
+                    if(Objects.equals(item.getAbnormalCode(), firstAbnormalType)){
+                        secondList = item.getList();
+                    }
+                }
+            }
+        }catch (Exception e){
+            // 从ucc拉取异常后走兜底方案
+            log.error("从ucc拉取面单异常举报原因配置失败！", e);
+            for (FaceReportSecondTypeEnum item : FaceReportSecondTypeEnum.values()) {
+                if(Objects.equals(item.getParentCode(), firstAbnormalType)){
+                    FaceSecondAbnormalType secondAbnormalType = new FaceSecondAbnormalType();
+                    secondAbnormalType.setAbnormalCode(item.getCode());
+                    secondAbnormalType.setAbnormalName(item.getName());
+                    secondList.add(secondAbnormalType);
+                }
+            }
+        }
+        return secondList;
+    }
+
+    @Override
+    public boolean updateByBusiCode(ExpressBillExceptionReport query) {
+        if(query == null || StringUtils.isEmpty(query.getTraderCode()) || query.getReportType() == null){
+            throw new RuntimeException("商家编码和举报类型不能为空!");
+        }
+        expressBillExceptionReportDao.updateByBusiCode(query);
+        return true;
     }
 
     /**
@@ -429,12 +535,14 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
     }
 
     /**
-     * 组装始发地相关信息
+     * 组装始发地和被举报人信息
+     *
      * @param reportRequest
      * @param report
      * @return
      */
-    private JdCResponse<Void> assembleFirstSiteInfo(ExpressBillExceptionReportRequest reportRequest, ExpressBillExceptionReport report){
+    private JdCResponse<Void> assembleFirstSiteAndReportedInfo(ExpressBillExceptionReportRequest reportRequest,
+                                                               ExpressBillExceptionReport report, PackageState reprintRecord){
         JdCResponse<Void> result = new JdCResponse<>();
         result.toSucceed();
 
@@ -451,7 +559,14 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
         report.setReportedUserErp(firstSiteVo.getReportedUserErp());
         report.setReportedUserName(firstSiteVo.getReportedUserName());
         report.setLineType(firstSiteVo.getLineType());
-
+        // 如果全流程存在过补打，则将补打人设置为被举报人
+        if(reprintRecord != null){
+            report.setFirstSiteCode(reprintRecord.getOperatorSiteId());
+            report.setFirstSiteName(reprintRecord.getOperatorSite());
+            report.setReportedUserId(reprintRecord.getOperatorUserId() == null ? null : Long.parseLong(reprintRecord.getOperatorUserId().toString()));
+            report.setReportedUserErp(reprintRecord.getOperatorUserErp());
+            report.setReportedUserName(reprintRecord.getOperatorUser());
+        }
         return result;
     }
 }
