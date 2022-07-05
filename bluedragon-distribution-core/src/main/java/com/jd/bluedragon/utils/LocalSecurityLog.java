@@ -8,6 +8,7 @@ import com.jd.bluedragon.distribution.sendprint.domain.BasicQueryEntity;
 import com.jd.bluedragon.distribution.sendprint.domain.BasicQueryEntityResponse;
 import com.jd.bluedragon.distribution.sendprint.domain.PrintQueryCriteria;
 import com.jd.bluedragon.distribution.sendprint.domain.SummaryPrintResult;
+import com.jd.common.web.LoginContext;
 import com.jd.fastjson.JSON;
 import com.jd.jsf.gd.util.RpcContext;
 import com.jd.jsf.gd.util.StringUtils;
@@ -72,14 +73,13 @@ public class LocalSecurityLog {
      */
     public static void writeBatchSummaryPrintSecurityLog(String interfaceName, PrintQueryCriteria request, List<SummaryPrintResult> response) {
         try {
-            if (request == null || StringUtils.isBlank(request.getUserCode())) {
+            if (request == null) {
                 return;
             }
-
             // 创建头部信息
             SecurityLog securityLog = new SecurityLog();
             // 新建头
-            Head head = createHead(interfaceName, request.getUserCode());
+            Head head = createHead(interfaceName);
             securityLog.setHead(head);
             // 新建请求
             ReqInfo reqInfo = createSendPrintReqInfo(request);
@@ -108,14 +108,13 @@ public class LocalSecurityLog {
      */
     public static void writeSummaryPrintSecurityLog(String interfaceName, PrintQueryCriteria request, BasicQueryEntityResponse response) {
         try {
-            if (request == null || StringUtils.isBlank(request.getUserCode())) {
+            if (request == null) {
                 return;
             }
-
             // 创建头部信息
             SecurityLog securityLog = new SecurityLog();
             // 新建头
-            Head head = createHead(interfaceName, request.getUserCode());
+            Head head = createHead(interfaceName);
             securityLog.setHead(head);
             // 新建请求
             ReqInfo reqInfo = createSendPrintReqInfo(request);
@@ -144,17 +143,20 @@ public class LocalSecurityLog {
      */
     public static void writeJsonCommandSecurityLog(String interfaceName, JdCommand<String> jsonCommand, String commandResult) {
         try {
+            if (jsonCommand == null) {
+                return;
+            }
             //构建入参
             WaybillPrintRequest waybillPrintRequest = JsonHelper.fromJson(jsonCommand.getData(), WaybillPrintRequest.class);
             //构建响应结果
             JdResult jdResult = JsonHelper.fromJson(commandResult, JdResult.class);
-            if (null == waybillPrintRequest || null == jdResult) {
+            if (null == waybillPrintRequest || null == jdResult || StringUtils.isBlank(String.valueOf(waybillPrintRequest.getUserCode()))) {
                 return;
             }
             // 创建头部信息
             SecurityLog securityLog = new SecurityLog();
             // 新建头
-            Head head = createHead(interfaceName, waybillPrintRequest.getUserERP());
+            Head head = createHead(interfaceName);
             securityLog.setHead(head);
             // 新建请求
             ReqInfo reqInfo = createJsonCommandReqInfo(waybillPrintRequest);
@@ -174,7 +176,15 @@ public class LocalSecurityLog {
     }
 
 
-    private static Head createHead(String interfaceName, String account) throws UnknownHostException {
+    private static Head createHead(String interfaceName) throws UnknownHostException {
+
+        String account = "";
+        String accountName ="";
+        LoginContext loginContext = LoginContext.getLoginContext();
+        if(loginContext != null){
+            accountName = loginContext.getPin();
+        }
+
         Head head = new Head();
         head.setUuid(UUID.randomUUID().toString());
         head.setOp(OpTypeEnum.QUERY.ordinal());
@@ -195,7 +205,7 @@ public class LocalSecurityLog {
             head.setClientIp("0.0.0.0");
         }
         head.setVersion("V1.0");
-        head.setAccountName(account);
+        head.setAccountName(accountName);
         head.setAccountType(AccountTypeEnum.SELFCREATED.ordinal());
         return head;
     }
@@ -225,12 +235,16 @@ public class LocalSecurityLog {
      */
     private static ReqInfo createJsonCommandReqInfo(WaybillPrintRequest request) {
 
+        log.info("createJsonCommandReqInfo -request -1{}",JsonHelper.toJson(request));
+
+
+        log.info("createJsonCommandReqInfo -request 2-{}",JSON.toJSONString(request));
         ReqInfo reqInfo = new ReqInfo();
-        reqInfo.setErpId(request.getUserERP());
+        reqInfo.setErpId(String.valueOf(request.getUserCode()));
         reqInfo.setTimeFrom(request.getRequestTime().getTime() / 1000);
         reqInfo.setTimeTo(System.currentTimeMillis() / 1000);
         reqInfo.setCarryBillId(request.getBarCode());
-        reqInfo.setInputParam(JsonHelper.toJson(request));
+        reqInfo.setInputParam(JSON.toJSONString(request));
         return reqInfo;
     }
 
@@ -338,7 +352,7 @@ public class LocalSecurityLog {
             UniqueIdentifier identifier = new UniqueIdentifier();
             String senderUser = "null";
             String senderPhone = "null";
-            String sendAddress ="null";
+            String sendAddress = "null";
             String receiverName = "null";
             String receiveAddress = "null";
             String receiverMobile = "null";
