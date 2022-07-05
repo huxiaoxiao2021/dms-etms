@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,8 +56,8 @@ public class WorkingConfigQueryServiceImpl implements WorkingConfigQueryService{
             }
         } catch (RuntimeException e) {
             log.error("查询该场地【{}】在分拣工作台配置的打木架外包计提供应商结果发生异常", siteCode, e);
-            return null;
+            return Collections.emptyMap();
         }
-        return null;
+        return Collections.emptyMap();
     }
 }
