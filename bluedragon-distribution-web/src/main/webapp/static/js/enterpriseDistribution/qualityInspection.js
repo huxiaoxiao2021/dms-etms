@@ -270,16 +270,17 @@ $(function () {
             // checkConcurrencyLimit({
             //     currentKey: exportReportEnum.ENTERPRISE_DISTRIBUTION_QUALITY_INSPECTION,
             //     checkPassCallback: function (result) {
-            if ($("#dataTable").bootstrapTable("getOptions").totalRows > 200000) {
+            const params = tableInit.getSearchCondition();
+            if ($("#dataTable").bootstrapTable("getOptions").totalRows > 2) {
                 Jd.confirm("已选择的数据超出20w，单次最多只支持20w数据导出，是否仍要超出？", function(val) {
                     if (!val) {
                         return;
                     } else {
-                        exportData();
+                        exportData(params);
                     }
                 })
             } else {
-                exportData();
+                exportData(params);
             }
             //   },checkFailCallback: function (result) {
             //         // 导出校验失败，弹出提示消息
@@ -289,9 +290,7 @@ $(function () {
         });
     }
 
-    function exportData () {
-        const params = tableInit.getSearchCondition();
-
+    function exportData (params) {
         let param = "";
         if(params.waybillNo != undefined && params.waybillNo != "undefined"){
             param = "&waybillNo=" + params.waybillNo;

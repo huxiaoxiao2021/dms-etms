@@ -83,6 +83,8 @@ public class EnterpriseDistributionController extends DmsBaseController {
     public void toExport(QualityInspectionQueryCondition condition, HttpServletResponse response) {
         BufferedWriter bfw = null;
         try{
+            LoginUser loginUser = this.getLoginUser();
+            condition.setSiteCode(loginUser.getSiteCode());
             exportConcurrencyLimitService.incrKey(ExportConcurrencyLimitEnum.ENTERPRISE_DISTRIBUTION_QUALITY_INSPECTION.getCode());
             String fileName = "增值服务质检报表";
             //设置文件后缀
