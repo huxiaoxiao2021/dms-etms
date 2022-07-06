@@ -206,7 +206,7 @@ public class JyGroupMemberServiceImpl implements JyGroupMemberService {
 		result.toSucceed();
 		//根据签到id查询小组成员
 		JyGroupMemberEntity memberData = jyGroupMemberDao.queryBySignRecordId(removeMemberRequest.getSignRecordId());
-		if(memberData != null) {
+		if(memberData != null && !JyGroupMemberStatusEnum.OUT.getCode().equals(memberData.getStatus())) {
 			JyGroupMemberEntity removeMemberData = new JyGroupMemberEntity();
 			Date currentDate = new Date();
 			//剔除小组成员
@@ -275,5 +275,30 @@ public class JyGroupMemberServiceImpl implements JyGroupMemberService {
 	@Override
 	public Integer queryGroupMemberNum(String groupCode) {
 		return jyGroupMemberDao.queryGroupMemberNum(groupCode);
+	}
+	@Override
+	public JdCResponse<Boolean> removeMembers(GroupMemberRequest removeMemberRequest) {
+		JdCResponse<Boolean> result = new JdCResponse<>();
+		result.toSucceed();
+		//根据签到id查询小组成员
+		List<String> memberCodes = jyGroupMemberDao.queryMemberCodesBySignRecordIds(removeMemberRequest.getSignRecordIdList());
+		if(CollectionUtils.isNotEmpty(memberCodes)) {
+			JyGroupMemberEntity removeMemberData = new JyGroupMemberEntity();
+			Date currentDate = new Date();
+			//剔除小组成员
+			removeMemberData.setStatus(JyGroupMemberStatusEnum.OUT.getCode());
+			removeMemberData.setUpdateTime(currentDate);
+			removeMemberData.setUpdateUser(removeMemberRequest.getOperateUserCode());
+			removeMemberData.setUpdateUserName(removeMemberRequest.getOperateUserName());
+			jyGroupMemberDao.removeMembers(removeMemberData,removeMemberRequest.getSignRecordIdList());
+			JyTaskGroupMemberEntity taskGroupMember = new JyTaskGroupMemberEntity();
+			taskGroupMember.setEndTime(currentDate);
+			taskGroupMember.setUpdateTime(currentDate);
+			taskGroupMember.setUpdateUser(removeMemberRequest.getOperateUserCode());
+			taskGroupMember.setUpdateUserName(removeMemberRequest.getOperateUserName());
+			//小组任务成员，设置结束时间
+			jyTaskGroupMemberService.endWorkByMemberCodeList(taskGroupMember,memberCodes);
+		}
+		return result;
 	}
 }

@@ -33,6 +33,12 @@ public interface JyGroupMemberService {
 	 */
 	JdCResponse<GroupMemberData> removeMember(GroupMemberRequest removeMemberRequest);
 	/**
+	 * 批量删除小组成员
+	 * @param removeMemberRequest
+	 * @return
+	 */
+	JdCResponse<Boolean> removeMembers(GroupMemberRequest removeMemberRequest);
+	/**
 	 * 按条件分页查询
 	 * @param query
 	 * @return

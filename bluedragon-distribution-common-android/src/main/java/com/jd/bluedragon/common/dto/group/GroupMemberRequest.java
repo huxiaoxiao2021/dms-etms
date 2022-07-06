@@ -1,6 +1,7 @@
 package com.jd.bluedragon.common.dto.group;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * @ClassName: GroupMemberRequest
@@ -57,6 +58,11 @@ public class GroupMemberRequest implements Serializable {
 	 * 操作人name
 	 */
 	private String operateUserName;
+	/**
+	 * 签到记录Id列表
+	 */
+	private List<Long> signRecordIdList;
+	
 	public String getGroupCode() {
 		return groupCode;
 	}
@@ -122,5 +128,11 @@ public class GroupMemberRequest implements Serializable {
 	}
 	public void setOperateUserName(String operateUserName) {
 		this.operateUserName = operateUserName;
+	}
+	public List<Long> getSignRecordIdList() {
+		return signRecordIdList;
+	}
+	public void setSignRecordIdList(List<Long> signRecordIdList) {
+		this.signRecordIdList = signRecordIdList;
 	}
 }

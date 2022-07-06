@@ -167,4 +167,20 @@
         where yn = 1
           and ref_task_id = #{taskId}
     </select>
+    
+    <update id="endWorkByMemberCodeList" parameterType="JyTaskGroupMemberEntity">
+        UPDATE jy_task_group_member
+        SET
+            update_time = #{endData.updateTime, jdbcType=TIMESTAMP},
+            update_user = #{endData.updateUser, jdbcType=VARCHAR},
+            update_user_name = #{endData.updateUserName, jdbcType=VARCHAR},
+            end_time = #{endData.endTime,jdbcType=TIMESTAMP}
+        WHERE
+            yn = 1
+        AND ref_task_id in
+        <foreach collection="memberCodes" item="item" separator=",">
+        
+        </foreach>
+        AND end_time is null
+    </update>    
 </mapper>

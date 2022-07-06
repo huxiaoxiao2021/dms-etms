@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.jy.service.group;
 
+import java.util.List;
+
 import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.jy.group.JyTaskGroupMemberEntity;
 
@@ -34,4 +36,10 @@ public interface JyTaskGroupMemberService {
 	 * @return
 	 */
 	Result<Boolean> endTask(JyTaskGroupMemberEntity endData);
+	/**
+	 * 结束多个任务
+	 * @param endData
+	 * @return
+	 */
+	Result<Boolean> endWorkByMemberCodeList(JyTaskGroupMemberEntity taskGroupMember, List<String> memberCodes);
 }

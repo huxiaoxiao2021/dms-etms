@@ -139,6 +139,7 @@
         WHERE
             yn = 1
         AND id = #{id}
+        AND status != #{status,jdbcType=INTEGER}
     </update>      
      
     <select id="querySignIdListByGroup" parameterType="com.jd.bluedragon.common.dto.group.GroupMemberQueryRequest" resultType="long">
