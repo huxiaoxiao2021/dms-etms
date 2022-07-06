@@ -62,6 +62,19 @@ public class UnloadVehicleTaskDto extends UnloadBaseDto implements Serializable 
 
 
     /**
+     * 应扫包裹数量
+     */
+    private String shouldScanPackageCount;
+    /**
+     * 应扫运单数量
+     */
+    private String shouldScanWaybillCount;
+
+    /**
+     * 待卸包裹数量
+     */
+    private String toUnloadPackageCount;
+    /**
      * 创建时间
      */
     private Date createTime;
@@ -69,4 +82,17 @@ public class UnloadVehicleTaskDto extends UnloadBaseDto implements Serializable 
      * 更新时间
      */
     private Date updateTime;
+
+    /**状态
+     * com.jdl.jy.realtime.enums.seal.VehicleStatusEnum
+     */
+    private Integer vehicleStatus;
+    /**
+     * 类型：1人工 2流水线'
+     */
+    private Integer unloadType;
+    /**
+     * 月台号
+     */
+    private String railwayPfNo;
 }

@@ -16,8 +16,4 @@ public class ScanPackageRespDto implements Serializable {
     private String endSiteName;
     private Long endSiteId;
 
-    /**
-     * 当前板已扫数量
-     */
-    private Integer currentScanCount;
 }

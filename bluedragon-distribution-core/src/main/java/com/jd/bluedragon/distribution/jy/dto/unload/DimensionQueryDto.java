@@ -11,4 +11,6 @@ public class DimensionQueryDto extends UnloadBaseDto implements Serializable {
     private Integer type;
 
     private String bizId;
+
+    private String boardCode;
 }

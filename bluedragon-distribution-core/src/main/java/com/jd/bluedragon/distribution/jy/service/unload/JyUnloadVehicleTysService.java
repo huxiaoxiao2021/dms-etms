@@ -42,7 +42,7 @@ public interface JyUnloadVehicleTysService {
 
 
     /**
-     * 扫描组板
+     * 扫描组板（开新版+组板）
      *
      * @param scanPackageDto
      * @return
@@ -86,7 +86,7 @@ public interface JyUnloadVehicleTysService {
     /**
      * 根据任务流向信息 查询组板信息
      * @param taskFlowDto
-     * @return
+     * @return TODO
      */
     InvokeResult<List<ComBoardDto>> queryComBoarUnderTaskFlow(TaskFlowDto taskFlowDto);
 

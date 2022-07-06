@@ -17,4 +17,5 @@ public class ComBoardDto implements Serializable {
      */
     private Integer shouldNotScanCount;
 
+
 }

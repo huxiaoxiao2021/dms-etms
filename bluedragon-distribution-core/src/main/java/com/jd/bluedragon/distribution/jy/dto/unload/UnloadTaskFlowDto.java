@@ -1,7 +1,9 @@
 package com.jd.bluedragon.distribution.jy.dto.unload;
 
-import java.io.Serializable;
+import lombok.Data;
 
+import java.io.Serializable;
+@Data
 public class UnloadTaskFlowDto implements Serializable {
     private static final long serialVersionUID = 7911106472951275134L;
     /**

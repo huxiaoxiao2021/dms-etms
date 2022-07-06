@@ -3,8 +3,8 @@ package com.jd.bluedragon.distribution.jy.enums;
 public enum DimensionQueryTypeEnum {
     TASK(1,"按任务"),
     BOARD(2,"按板"),
-    WAYBILL(3,"按板"),
-    PACKAGE(4,"按板");
+    WAYBILL(3,"运单"),
+    PACKAGE(4,"包裹");
     private Integer code;
     private String desc;
 
