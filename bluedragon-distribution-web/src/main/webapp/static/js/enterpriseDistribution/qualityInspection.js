@@ -226,6 +226,26 @@ $(function () {
                 //     Jd.alert("查询时间不能超过30天，请缩小时间范围!");
                 //     return;
                 // }
+                if ($("#waybillNo").val() != undefined && $("#waybillNo").val().length > 50) {
+                    Jd.alert("运单号长度超出限制!");
+                    return;
+                }
+                if ($("#updateUser").val() != undefined && $("#updateUser").val().length > 50) {
+                    Jd.alert("操作人ERP长度超出限制!", );
+                    return;
+                }
+                if ($("#createStartTime").val() != undefined && $("#createEndTime").val() != undefined ) {
+                    if ($.dateHelper.formateDateTimeOfTs($("#createStartTime").val()) > $.dateHelper.formateDateTimeOfTs($("#createEndTime").val())) {
+                        Jd.alert(" 结束时间不能小于开始时间!", "info");
+                        return;
+                    }
+                }
+                if ($("#updateStartTime").val() != undefined && $("#updateEndTime").val() != undefined ) {
+                    if ($.dateHelper.formateDateTimeOfTs($("#updateStartTime").val()) > $.dateHelper.formateDateTimeOfTs($("#updateEndTime").val())) {
+                        Jd.alert(" 结束时间不能小于开始时间!", "info");
+                        return;
+                    }
+                }
                 tableInit().refresh();
             });
 
@@ -250,42 +270,55 @@ $(function () {
             // checkConcurrencyLimit({
             //     currentKey: exportReportEnum.ENTERPRISE_DISTRIBUTION_QUALITY_INSPECTION,
             //     checkPassCallback: function (result) {
-                    var params = tableInit.getSearchCondition();
-
-                    var param = "";
-                    if(params.waybillNo != undefined && params.waybillNo != "undefined"){
-                        param = "&waybillNo=" + params.waybillNo;
+            if ($("#dataTable").bootstrapTable("getOptions").totalRows > 200000) {
+                Jd.confirm("已选择的数据超出20w，单次最多只支持20w数据导出，是否仍要超出？", function(val) {
+                    if (!val) {
+                        return;
+                    } else {
+                        exportData();
                     }
-                    if(params.optStatus != undefined && params.optStatus != "undefined"){
-                        param += "&optStatus=" +  params.optStatus;
-                    }
-                    if(params.exceptionReason != undefined && params.exceptionReason != "undefined"){
-                        param += "&exceptionReason=" +  params.exceptionReason;
-                    }
-                    if(params.updateUser != undefined && params.updateUser != "undefined"){
-                        param += "&updateUser=" +  params.updateUser;
-                    }
-                    if(params.createStartTime != undefined && params.createStartTime != "undefined"){
-                        param += "&createStartTime=" +  params.createStartTime;
-                    }
-                    if(params.createEndTime != undefined && params.createEndTime != "undefined"){
-                        param += "&createEndTime=" +  params.createEndTime;
-                    }
-                    if(params.updateStartTime != undefined && params.updateStartTime != "undefined"){
-                        param += "&updateStartTime=" +  params.updateStartTime;
-                    }
-                    if(params.updateEndTime != undefined && params.updateEndTime != "undefined"){
-                        param += "&updateEndTime=" +  params.updateEndTime;
-                    }
-                    $('#btn_export').attr("disabled",true);
-                    location.href = exportUrl + "?" + param;
-
+                })
+            } else {
+                exportData();
+            }
             //   },checkFailCallback: function (result) {
             //         // 导出校验失败，弹出提示消息
             //         alert(result.message)
             //     }
             // });
         });
+    }
+
+    function exportData () {
+        const params = tableInit.getSearchCondition();
+
+        let param = "";
+        if(params.waybillNo != undefined && params.waybillNo != "undefined"){
+            param = "&waybillNo=" + params.waybillNo;
+        }
+        if(params.optStatus != undefined && params.optStatus != "undefined"){
+            param += "&optStatus=" +  params.optStatus;
+        }
+        if(params.exceptionReason != undefined && params.exceptionReason != "undefined"){
+            param += "&exceptionReason=" +  params.exceptionReason;
+        }
+        if(params.updateUser != undefined && params.updateUser != "undefined"){
+            param += "&updateUser=" +  params.updateUser;
+        }
+        if(params.createStartTime != undefined && params.createStartTime != "undefined"){
+            param += "&createStartTime=" +  params.createStartTime;
+        }
+        if(params.createEndTime != undefined && params.createEndTime != "undefined"){
+            param += "&createEndTime=" +  params.createEndTime;
+        }
+        if(params.updateStartTime != undefined && params.updateStartTime != "undefined"){
+            param += "&updateStartTime=" +  params.updateStartTime;
+        }
+        if(params.updateEndTime != undefined && params.updateEndTime != "undefined"){
+            param += "&updateEndTime=" +  params.updateEndTime;
+        }
+        $('#btn_export').attr("disabled",true);
+        location.href = exportUrl + "?" + param;
     }
 
     $("[data-toggle='tooltip']").tooltip();
