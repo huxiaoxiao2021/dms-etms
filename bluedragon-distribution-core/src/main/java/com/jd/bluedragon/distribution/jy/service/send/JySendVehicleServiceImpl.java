@@ -1057,7 +1057,10 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
                     FilterChain filterChain = sortingCheckService.matchJyDeliveryFilterChain(sendType);
                     SortingJsfResponse chainResp = sortingCheckService.doSingleSendCheckWithChain(sortingCheck, true, filterChain);
                     if (!chainResp.getCode().equals(JdResponse.CODE_OK)) {
-                        if (chainResp.getCode() >= SendResult.RESPONSE_CODE_MAPPING_CONFIRM) {
+                        if (JdResponse.CODE_SERVICE_ERROR.equals(chainResp.getCode())) {
+                            sendResult.init(SendResult.CODE_CONFIRM, chainResp.getMessage(), chainResp.getCode(), null);
+                        }
+                        else if (chainResp.getCode() >= SendResult.RESPONSE_CODE_MAPPING_CONFIRM) {
                             sendResult.init(SendResult.CODE_CONFIRM, chainResp.getMessage(), chainResp.getCode(), null);
                         }
                         else {

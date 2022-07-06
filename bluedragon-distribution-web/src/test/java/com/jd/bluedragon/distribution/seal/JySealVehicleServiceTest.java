@@ -138,19 +138,18 @@ public class JySealVehicleServiceTest {
     @Test
     public void fetchSendTaskForBindingTest() {
         String json = "{\n" +
+                "    \"bizId\": \"NSST22070400000001\",\n" +
                 "    \"currentOperate\": {\n" +
-                "        \"operateTime\": 1655274482318,\n" +
+                "        \"operateTime\": 1656916444602,\n" +
                 "        \"orgId\": 6,\n" +
-                "        \"orgName\": \"华北\",\n" +
-                "        \"siteCode\": 910,\n" +
-                "        \"siteName\": \"马驹桥\"\n" +
+                "        \"orgName\": \"总公司\",\n" +
+                "        \"siteCode\": 40240,\n" +
+                "        \"siteName\": \"北京通州分拣中心\"\n" +
                 "    },\n" +
                 "    \"pageNumber\": 1,\n" +
                 "    \"pageSize\": 15,\n" +
-                "    \"startSiteId\": 910,\n" +
-                "    \"endSiteId\": 2860,\n" +
                 "    \"user\": {\n" +
-                "        \"userCode\": 0,\n" +
+                "        \"userCode\": 17331,\n" +
                 "        \"userErp\": \"wuyoude\",\n" +
                 "        \"userName\": \"吴有德\"\n" +
                 "    }\n" +

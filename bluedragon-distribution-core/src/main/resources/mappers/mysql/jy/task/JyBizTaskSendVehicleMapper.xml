@@ -559,7 +559,8 @@
 
     <select id="findSendTaskByDestOfPage" resultMap="jyBizTaskSendVehicleMap">
         SELECT
-            m.id, m.biz_id
+            m.id, m.biz_id,m.trans_work_code,m.start_site_id,m.vehicle_number,m.vehicle_status,m.manual_created_flag,m.abnormal_flag,
+            m.bind_flag,m.trans_way,m.trans_way_name,m.vehicle_type,m.vehicle_type_name,m.line_type,m.line_type_name,m.last_plan_depart_time,m.last_seal_car_time
         FROM
             jy_biz_task_send_vehicle m
         INNER JOIN jy_biz_task_send_vehicle_detail d ON m.biz_id = d.send_vehicle_biz_id
