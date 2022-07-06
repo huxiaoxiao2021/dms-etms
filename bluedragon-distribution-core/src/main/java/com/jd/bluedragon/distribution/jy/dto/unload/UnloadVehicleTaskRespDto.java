@@ -1,9 +1,11 @@
 package com.jd.bluedragon.distribution.jy.dto.unload;
 
+import lombok.Data;
+
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
-
+@Data
 public class UnloadVehicleTaskRespDto implements Serializable {
     private static final long serialVersionUID = 8081617853216976050L;
     //待卸车数量

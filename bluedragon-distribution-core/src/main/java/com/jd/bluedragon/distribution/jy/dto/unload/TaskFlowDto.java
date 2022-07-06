@@ -1,7 +1,11 @@
 package com.jd.bluedragon.distribution.jy.dto.unload;
 
-import java.io.Serializable;
+import lombok.Data;
 
-public class TaskFlowDto implements Serializable {
+import java.io.Serializable;
+@Data
+public class TaskFlowDto extends UnloadBaseDto implements Serializable {
     private static final long serialVersionUID = 3984465078328831447L;
+    private Long endSiteId;
+    private String goodsAreaCode;
 }

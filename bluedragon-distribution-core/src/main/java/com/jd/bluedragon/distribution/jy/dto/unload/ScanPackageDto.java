@@ -1,10 +1,9 @@
 package com.jd.bluedragon.distribution.jy.dto.unload;
 
-import com.jd.bluedragon.common.dto.base.request.BaseReq;
 
 import java.io.Serializable;
 
-public class ScanPackageDto extends BaseReq implements Serializable {
+public class ScanPackageDto extends UnloadBaseDto implements Serializable {
     private static final long serialVersionUID = 1954736364227854974L;
     /**
      * 卸车任务

@@ -57,9 +57,16 @@ public interface JyUnloadVehicleTysService {
      */
     InvokeResult<ScanPackageRespDto> queryComBoardDataByBoardCode(String boardCode);
 
+    /**
+     * 查询货物分类信息（按不同维度查询： 按任务 按板）
+     * @param queryGoodsCategory
+     * @return
+     */
+    InvokeResult<List<GoodsCategoryDto>> queryGoodsCategoryByDiffDimension(QueryGoodsCategory queryGoodsCategory);
+
 
     /**
-     * 查询下钻运单/包裹明细（按不同维度）
+     * 查询下钻运单明细（按不同维度）
      *
      * @param queryUnloadDetailDto
      * @return
@@ -99,12 +106,6 @@ public interface JyUnloadVehicleTysService {
 
     InvokeResult<List<UnloadPackageDto>>  queryPackageUnderWaybill(QueryWaybillDto queryWaybillDto);
 
-    /**
-     * 查询货物分类信息（按不同维度查询： 按任务 按板）
-     * @param queryGoodsCategory
-     * @return
-     */
-    InvokeResult<List<GoodsCategoryDto>> queryGoodsCategoryByDiffDimension(QueryGoodsCategory queryGoodsCategory);
 
     /**
      * 取消组板

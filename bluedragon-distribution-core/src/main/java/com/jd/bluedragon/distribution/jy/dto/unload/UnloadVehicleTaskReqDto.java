@@ -5,7 +5,7 @@ import lombok.Data;
 import java.io.Serializable;
 
 @Data
-public class UnloadVehicleTaskReqDto extends BaseReq implements Serializable {
+public class UnloadVehicleTaskReqDto extends UnloadBaseDto implements Serializable {
     private static final long serialVersionUID = 8483802798838866603L;
 
     private Integer pageNo;

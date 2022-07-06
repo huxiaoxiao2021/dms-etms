@@ -1,9 +1,11 @@
 package com.jd.bluedragon.distribution.jy.dto.unload;
 
+import lombok.Data;
+
 import java.io.Serializable;
 import java.util.Date;
-
-public class UnloadVehicleTaskDto implements Serializable {
+@Data
+public class UnloadVehicleTaskDto extends UnloadBaseDto implements Serializable {
     private static final long serialVersionUID = -4856090554484728089L;
     /**
      * 业务主键
