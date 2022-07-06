@@ -1058,24 +1058,22 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
                     SortingJsfResponse chainResp = sortingCheckService.doSingleSendCheckWithChain(sortingCheck, true, filterChain);
                     if (!chainResp.getCode().equals(JdResponse.CODE_OK)) {
                         if (JdResponse.CODE_SERVICE_ERROR.equals(chainResp.getCode())) {
-                            sendResult.init(SendResult.CODE_CONFIRM, chainResp.getMessage(), chainResp.getCode(), null);
+                            sendResult.init(SendResult.CODE_SENDED, chainResp.getMessage(), chainResp.getCode(), null);
                         }
                         else if (chainResp.getCode() >= SendResult.RESPONSE_CODE_MAPPING_CONFIRM) {
                             sendResult.init(SendResult.CODE_CONFIRM, chainResp.getMessage(), chainResp.getCode(), null);
                         }
                         else {
                             sendResult.init(SendResult.CODE_SENDED, chainResp.getMessage(), chainResp.getCode(), null);
+                            // 拦截时保存拦截记录
+                            JySendEntity sendEntity = this.createJySendRecord(request, sendDestId, sendCode, barCode);
+                            sendEntity.setForceSendFlag(0);
+                            sendEntity.setInterceptFlag(1);
+                            jySendService.save(sendEntity);
                         }
                     }
                 }
                 if (!sendResultToJdResp(result, sendResult)) {
-                    if (SendResult.CODE_SENDED.equals(sendResult.getKey())) {
-                        // 拦截时保存拦截记录
-                        JySendEntity sendEntity = this.createJySendRecord(request, sendDestId, sendCode, barCode);
-                        sendEntity.setForceSendFlag(0);
-                        sendEntity.setInterceptFlag(1);
-                        jySendService.save(sendEntity);
-                    }
                     return result;
                 }
             }
