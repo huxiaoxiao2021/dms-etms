@@ -79,7 +79,7 @@ public class LocalSecurityLog {
             // 创建头部信息
             SecurityLog securityLog = new SecurityLog();
             // 新建头
-            Head head = createHead(interfaceName);
+            Head head = createHead(interfaceName,request.getUserCode());
             securityLog.setHead(head);
             // 新建请求
             ReqInfo reqInfo = createSendPrintReqInfo(request);
@@ -104,9 +104,9 @@ public class LocalSecurityLog {
      *
      * @param interfaceName
      * @param request
-     * @param response
+     * @param tList
      */
-    public static void writeSummaryPrintSecurityLog(String interfaceName, PrintQueryCriteria request, BasicQueryEntityResponse response) {
+    public static void writeSummaryPrintSecurityLog(String interfaceName, PrintQueryCriteria request, List<BasicQueryEntity> tList) {
         try {
             if (request == null) {
                 return;
@@ -114,7 +114,7 @@ public class LocalSecurityLog {
             // 创建头部信息
             SecurityLog securityLog = new SecurityLog();
             // 新建头
-            Head head = createHead(interfaceName);
+            Head head = createHead(interfaceName,request.getUserCode());
             securityLog.setHead(head);
             // 新建请求
             ReqInfo reqInfo = createSendPrintReqInfo(request);
@@ -122,7 +122,7 @@ public class LocalSecurityLog {
             LogAcesUtil.encryptSecEntity(reqInfo);
             securityLog.setReqInfo(reqInfo);
             // 新建响应
-            List<UniqueIdentifier> uniqueIdentifier = createSummaryPrintUniqueIdentifier(response.getData());
+            List<UniqueIdentifier> uniqueIdentifier = createSummaryPrintUniqueIdentifier(tList);
             RespInfo respInfo = createResp(uniqueIdentifier);
             securityLog.setRespInfo(respInfo);
             // 转成json，打印日志
@@ -156,7 +156,7 @@ public class LocalSecurityLog {
             // 创建头部信息
             SecurityLog securityLog = new SecurityLog();
             // 新建头
-            Head head = createHead(interfaceName);
+            Head head = createHead(interfaceName,"");
             securityLog.setHead(head);
             // 新建请求
             ReqInfo reqInfo = createJsonCommandReqInfo(waybillPrintRequest);
@@ -175,16 +175,23 @@ public class LocalSecurityLog {
 
     }
 
-
-    private static Head createHead(String interfaceName) throws UnknownHostException {
-
-        String account = "";
-        String accountName ="";
+    /**
+     * 创建请求头
+     * @param interfaceName
+     * @param account
+     * @return
+     * @throws UnknownHostException
+     */
+    private static Head createHead(String interfaceName,String account) throws UnknownHostException {
+        String accountName ="test";
         LoginContext loginContext = LoginContext.getLoginContext();
-        if(loginContext != null){
+        log.info("LoginContext {}",JSON.toJSONString(loginContext));
+        if(StringUtils.isNotBlank(account)){
+            accountName =account;
+        }
+        if(loginContext != null || StringUtils.isBlank(account)){
             accountName = loginContext.getPin();
         }
-
         Head head = new Head();
         head.setUuid(UUID.randomUUID().toString());
         head.setOp(OpTypeEnum.QUERY.ordinal());
@@ -248,6 +255,11 @@ public class LocalSecurityLog {
         return reqInfo;
     }
 
+    /**
+     * 构建响应数据
+     * @param uniqueIdentifiers
+     * @return
+     */
     private static RespInfo createResp(List<UniqueIdentifier> uniqueIdentifiers) {
         RespInfo respInfo = new RespInfo();
         respInfo.setStatus(0);

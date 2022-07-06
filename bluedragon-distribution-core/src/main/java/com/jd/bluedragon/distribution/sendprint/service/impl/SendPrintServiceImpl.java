@@ -1828,7 +1828,7 @@ public class SendPrintServiceImpl implements SendPrintService {
         log.debug("打印交接清单-基本信息查询结束-{}" , (startDate.getTime() - endDate.getTime()));
         // 记录安全日志
         //writeSecurityLog(criteria);
-        writeSummaryPrintSecurityLog(SendPrintServiceImpl.class.getName(),criteria,tBasicQueryEntityResponse);
+        writeSummaryPrintSecurityLog(SendPrintServiceImpl.class.getName(),criteria,tBasicQueryEntityResponse.getData());
         return tBasicQueryEntityResponse;
     }
 
@@ -1878,7 +1878,7 @@ public class SendPrintServiceImpl implements SendPrintService {
         log.debug("打印交接清单-分页-基本信息查询结束-{}" , (startTime - System.currentTimeMillis()));
         // 记录安全日志
         //writeSecurityLog(criteria);
-        writeSummaryPrintSecurityLog(SendPrintServiceImpl.class.getName(),criteria,tBasicQueryEntityResponse);
+        writeSummaryPrintSecurityLog(SendPrintServiceImpl.class.getName(),criteria,tBasicQueryEntityResponse.getData());
         return tBasicQueryEntityResponse;
     }
 
