@@ -51,7 +51,7 @@ public interface JyUnloadVehicleTysService {
 
 
     /**
-     * 根据板号 查询组板数据
+     * 根据板号 查询组板基础详情
      * @param boardCode
      * @return
      */
@@ -82,6 +82,22 @@ public interface JyUnloadVehicleTysService {
      * @return
      */
     InvokeResult<List<ComBoardDto>> queryComBoarUnderTaskFlow(TaskFlowDto taskFlowDto);
+
+
+    /**
+     * 根据板号查询组板下的运单信息
+     * @param queryBoardDto
+     * @return
+     */
+    InvokeResult<List<UnloadWaybillDto>>  queryWaybillUnderBoard(QueryBoardDto queryBoardDto);
+
+    /**
+     * 根据运单查询包裹明细
+     * @param queryWaybillDto
+     * @return
+     */
+
+    InvokeResult<List<UnloadPackageDto>>  queryPackageUnderWaybill(QueryWaybillDto queryWaybillDto);
 
     /**
      * 查询货物分类信息（按不同维度查询： 按任务 按板）
