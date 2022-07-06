@@ -37,6 +37,7 @@ public class LocalSecurityLog {
 
     private static final Logger log = LoggerFactory.getLogger("security.log");
 
+    public static final String ACCOUNTNAME = "pin";
     private final static String SYSTEMNAME = "QLFJZXJT";
     private final static String APPNAME = "dms.etms";
     private final static String IP_KEY = "IP";
@@ -183,7 +184,7 @@ public class LocalSecurityLog {
      * @throws UnknownHostException
      */
     private static Head createHead(String interfaceName,String account) throws UnknownHostException {
-        String accountName ="test";
+        String accountName =ACCOUNTNAME;
         LoginContext loginContext = LoginContext.getLoginContext();
         log.info("LoginContext {}",JSON.toJSONString(loginContext));
         if(StringUtils.isNotBlank(account)){
