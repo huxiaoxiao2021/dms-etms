@@ -141,7 +141,7 @@ $(function() {
                     layer.open({
                         id:'detailFrame',
                         type: 2,
-                        title:'耗材明细修改确认',
+                        title:'耗材明细信息确认',
                         shadeClose: true,
                         shade: 0.7,
                         shadeClose: false,

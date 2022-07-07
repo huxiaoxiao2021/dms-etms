@@ -86,7 +86,7 @@ public class WaybillConsumableRelationController extends DmsBaseController{
 		JdResponse<Boolean> rest = new JdResponse<Boolean>();
 		try {
 			String packUserErp = waybillConsumableRelation.getPackUserErp();
-			if (packUserErp == null) {
+			if (StringUtils.isEmpty(packUserErp)) {
 				rest.toError("打包人的ERP为空，请检查！");
 				return rest;
 			}
@@ -94,6 +94,14 @@ public class WaybillConsumableRelationController extends DmsBaseController{
 			BaseStaffSiteOrgDto userOrgInfo = baseMajorManager.getBaseStaffByErpNoCache(packUserErp);
 			if (userOrgInfo == null){
 				rest.toError("【" + packUserErp + "】不存在与青龙基础资料中，请核实后录入！");
+				return rest;
+			}
+
+			WaybillConsumableRelation waybillConsumableRelation1 = waybillConsumableRelationService.findById(waybillConsumableRelation.getId());
+			//如果是打木架，则打包后体积必传
+			if ((ConsumableCodeEnums.isWoodenConsumable(waybillConsumableRelation1.getConsumableCode()) || PackingTypeEnum.isWoodenConsumable(waybillConsumableRelation1.getConsumableType()))
+					&& (waybillConsumableRelation.getConfirmVolume() == null || waybillConsumableRelation.getConfirmVolume() <= 0 || waybillConsumableRelation.getConfirmVolume() > 999.999d)) {
+				rest.toError("数据格式不对，请录入大于0小于1000的数据");
 				return rest;
 			}
 
@@ -108,7 +116,9 @@ public class WaybillConsumableRelationController extends DmsBaseController{
 				//更新record表的状态
 				WaybillConsumableRecord waybillConsumableRecord = new WaybillConsumableRecord();
 				waybillConsumableRecord.setWaybillCode(waybillConsumableRelation.getWaybillCode());
-				waybillConsumableRecord.setModifyStatus(WaybillConsumableRecordService.TREATED_STATE);
+				if (!Objects.equals(waybillConsumableRelation1.getConfirmQuantity(),waybillConsumableRelation.getConfirmQuantity())) {
+					waybillConsumableRecord.setModifyStatus(WaybillConsumableRecordService.TREATED_STATE);
+				}
 				waybillConsumableRecordService.updateByCondition(waybillConsumableRecord);
 			}
 		} catch (Exception e) {

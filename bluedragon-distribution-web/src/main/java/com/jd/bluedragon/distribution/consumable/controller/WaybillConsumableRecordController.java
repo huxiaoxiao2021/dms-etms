@@ -7,9 +7,7 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.domain.LoginUser;
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableExportDto;
-import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRecord;
-import com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRecordCondition;
+import com.jd.bluedragon.distribution.consumable.domain.*;
 import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableExportCol;
 import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRecordService;
 import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRelationService;
@@ -149,10 +147,12 @@ public class WaybillConsumableRecordController extends DmsBaseController{
             LoginUser loginUser = getLoginUser();
             List<WaybillConsumableRecord> confirmRecords = new ArrayList<WaybillConsumableRecord>(records.size());
 			StringBuilder noPackUserErpWaybillBuilder = new StringBuilder();
+			StringBuilder noConfirmVolumeWaybillBuilder = new StringBuilder();
             for (WaybillConsumableRecord data : records){
                 WaybillConsumableRecord record = new WaybillConsumableRecord();
                 String waybillCode = data.getWaybillCode();
                 int count = waybillConsumableRelationService.getNoPackUserErpRecordCount(waybillCode);
+                List<WaybillConsumableDetailInfo> noConfirmVolumeRecords = waybillConsumableRelationService.getNoConfirmVolumeRecordCount(waybillCode);
                 if (count > 0) {
                 	log.warn("{}相关耗材未完成录入打包人，无法确认！",waybillCode);
                 	if (noPackUserErpWaybillBuilder.length() == 0) {
@@ -162,6 +162,23 @@ public class WaybillConsumableRecordController extends DmsBaseController{
 					}
                 	continue;
 				}
+                int noConfirmVolumeRecordCount = 0;
+                for (WaybillConsumableDetailInfo detailInfo : noConfirmVolumeRecords) {
+                	if (ConsumableCodeEnums.isWoodenConsumable(detailInfo.getConsumableCode()) || PackingTypeEnum.isWoodenConsumable(detailInfo.getType())) {
+						noConfirmVolumeRecordCount++;
+						break;
+					}
+				}
+                if (noConfirmVolumeRecordCount > 0) {
+					log.warn("{}相关耗材未完成录入打包后包装耗材体积，无法确认！",waybillCode);
+					if (noConfirmVolumeWaybillBuilder.length() == 0) {
+						noConfirmVolumeWaybillBuilder.append(waybillCode);
+					} else {
+						noConfirmVolumeWaybillBuilder.append(",").append(waybillCode);
+					}
+					continue;
+				}
+
                 record.setId(data.getId());
                 record.setConfirmUserName(loginUser.getUserName());
                 record.setConfirmUserErp(loginUser.getUserErp());
@@ -172,15 +189,18 @@ public class WaybillConsumableRecordController extends DmsBaseController{
             if (noPackUserErpWaybillBuilder.length() > 0) {
             	rest.setCode(JdResponse.CODE_FAIL);
 				rest.setMessage("选中的运单部分未操作成功，未确认成功原因【运单未完成录入打包人ERP】，请录入后再进行确认！");
+			} else if (noConfirmVolumeWaybillBuilder.length() > 0) {
+				rest.setCode(JdResponse.CODE_FAIL);
+				rest.setMessage("选中的运单部分未操作成功，未确认成功原因【运单未完成录入打包后包装耗材体积】，请录入后再进行确认！");
 			} else {
 				rest.setMessage("成功操作" + successCount + "条！");
 			}
 
 		} catch (IllegalArgumentException e) {
-			log.error("B网耗材批量确认失败，参数异常：",e);
+			log.error("快递快运耗材批量确认失败，参数异常：",e);
 			rest.toError(e.getMessage());
 		} catch (Exception e) {
-			log.error("B网耗材批量确认失败：",e);
+			log.error("快递快运耗材批量确认失败：",e);
 			rest.toError("确认失败，服务异常！");
 		}
 		return rest;
