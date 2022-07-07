@@ -96,7 +96,7 @@ public class WaybillConsumableGatewayServiceImpl implements WaybillConsumableGat
             return waybillConsumablePDAService.doWaybillConsumablePackConfirm(waybillConsumablePackConfirmReq);
         } catch (Exception e) {
             log.error(methodDesc + "耗材确认失败，操作异常，参数=【{}】", JsonHelper.toJson(waybillConsumablePackConfirmReq), e);
-            res.toError("耗材确认失败，服务异常！");
+            res.toError(e.getMessage());
             return res;
         }
     }

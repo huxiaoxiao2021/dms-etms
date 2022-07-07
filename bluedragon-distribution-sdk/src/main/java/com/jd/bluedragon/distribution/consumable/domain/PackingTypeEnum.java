@@ -75,4 +75,14 @@ public enum PackingTypeEnum {
         map.put(TY010.getTypeCode(), TY010.getTypeName());
         return map;
     }
+
+    /**
+     * （旧耗材）
+     * 判断该耗材编码是不是木质类型的包装耗材
+     * @param typeCode 包装耗材类型
+     * @return
+     */
+    public static boolean isWoodenConsumable(String typeCode) {
+        return TY003.getTypeCode().equals(typeCode) || TY004.getTypeCode().equals(typeCode) || TY008.getTypeCode().equals(typeCode);
+    }
 }

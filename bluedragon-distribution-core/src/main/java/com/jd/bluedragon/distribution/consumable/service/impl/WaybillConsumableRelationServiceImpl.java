@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.consumable.service.impl;
 
+import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.distribution.api.domain.LoginUser;
 import com.jd.bluedragon.distribution.consumable.dao.WaybillConsumableRelationDao;
 import com.jd.bluedragon.distribution.consumable.domain.*;
@@ -15,6 +16,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 
 /**
@@ -67,6 +69,16 @@ public class WaybillConsumableRelationServiceImpl extends BaseService<WaybillCon
 			result = waybillConsumableRelationDao.queryDetailInfoByPagerCondition(waybillConsumableRelationCondition);
 		}
 
+		if (CollectionUtils.isNotEmpty(result.getRows())) {
+			for (WaybillConsumableDetailInfo detailInfo : result.getRows()) {
+				if (detailInfo.getVolume() != null) {
+					//页面显示 将立方厘米转换为立方米
+					detailInfo.setVolume(detailInfo.getVolume().divide(BigDecimal.valueOf(1000000), 3, RoundingMode.HALF_UP));
+				}
+			}
+
+		}
+
 		return result;
 	}
 
@@ -98,6 +110,11 @@ public class WaybillConsumableRelationServiceImpl extends BaseService<WaybillCon
     public int getNoPackUserErpRecordCount(String waybillCode) {
         return waybillConsumableRelationDao.getNoPackUserErpRecordCount(waybillCode);
     }
+
+	@Override
+	public List<WaybillConsumableDetailInfo> getNoConfirmVolumeRecordCount(String waybillCode) {
+		return waybillConsumableRelationDao.getNoConfirmVolumeRecordCount(waybillCode);
+	}
 
 	@Override
 	public void updateByWaybillCode(WaybillConsumableRelationPDADto waybillConsumableRelationPDADto) {
