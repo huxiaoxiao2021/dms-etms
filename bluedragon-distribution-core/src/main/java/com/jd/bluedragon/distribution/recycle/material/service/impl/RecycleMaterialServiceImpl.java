@@ -58,12 +58,6 @@ public class RecycleMaterialServiceImpl implements RecycleMaterialService {
 
         // 校验条码
         String recycleBasketCode = recycleBasketEntity.getRecycleBasketCode();
-        ApiResult<RecycleMaterial> materialApiResult = recycleMaterialJsfService.findByMaterialCode(recycleBasketCode);
-        if (materialApiResult.getData() == null || Objects.equals(MaterialTypeEnum.BASKET.getCode(), materialApiResult.getData().getMaterialType())) {
-            response.toFail("当前周转筐条码不存在：" + recycleBasketCode);
-            return response;
-        }
-
         // 作废
         ApiResult<RecycleMaterial> materialCode = recycleMaterialJsfService.disableMaterialByCode(
                 recycleBasketCode,
