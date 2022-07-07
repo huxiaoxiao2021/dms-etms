@@ -13,6 +13,7 @@ import com.jd.bluedragon.distribution.command.handler.JsonCommandHandlerMapping;
 import com.jd.bluedragon.distribution.handler.Handler;
 import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.LocalSecurityLog;
 import com.jd.bluedragon.utils.SecurityLog;
 import com.jd.dms.logger.aop.BusinessLogWriter;
 import com.jd.dms.logger.external.BusinessLogProfiler;
@@ -117,8 +118,8 @@ public class JsonCommandServiceImpl implements JdCommandService{
 		//写入自定义日志
 		writeBusinessLog(jsonCommand,jsonResponse,jdCommand.getOperateType());
 		//写入安全日志
-		this.writeSecurityLog(jdCommand);
-
+		//this.writeSecurityLog(jdCommand);
+		LocalSecurityLog.writeJsonCommandSecurityLog(JsonCommandServiceImpl.class.getName(),jdCommand,jsonResponse);
 		return jsonResponse;
 	}
 

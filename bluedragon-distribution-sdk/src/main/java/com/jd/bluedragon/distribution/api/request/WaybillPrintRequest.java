@@ -3,6 +3,8 @@ package com.jd.bluedragon.distribution.api.request;
 import com.jd.bluedragon.distribution.api.JdRequest;
 import com.jd.bluedragon.distribution.api.domain.WeightOperFlow;
 
+import java.util.Date;
+
 /**
  * 
  * @ClassName: WaybillPrintRequest
@@ -157,6 +159,11 @@ public class WaybillPrintRequest extends JdRequest{
 	 * 拦截提示时，是否确认
 	 */
 	private Boolean confirm;
+
+	/**
+	 * 请求时间
+	 */
+	private Date requestTime = new Date();
 
 	public Boolean getTrustBusinessFlag() {
 		return trustBusinessFlag;
@@ -462,5 +469,13 @@ public class WaybillPrintRequest extends JdRequest{
 
 	public void setConfirm(Boolean confirm) {
 		this.confirm = confirm;
+	}
+
+	public Date getRequestTime() {
+		return requestTime;
+	}
+
+	public void setRequestTime(Date requestTime) {
+		this.requestTime = requestTime;
 	}
 }
