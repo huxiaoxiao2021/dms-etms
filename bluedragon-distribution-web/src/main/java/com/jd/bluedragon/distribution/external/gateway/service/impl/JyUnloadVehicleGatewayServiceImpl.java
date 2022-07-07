@@ -135,7 +135,6 @@ public class JyUnloadVehicleGatewayServiceImpl implements JyUnloadVehicleGateway
         List<SelectOption> optionList = new ArrayList<>();
         // 仅支持包裹、箱号、运单号
         optionList.add(new SelectOption(UnloadScanTypeEnum.SCAN_ONE.getCode(), UnloadScanTypeEnum.SCAN_ONE.getName(), UnloadScanTypeEnum.SCAN_ONE.getDesc(), UnloadScanTypeEnum.SCAN_ONE.getCode()));
-        // optionList.add(new SelectOption(UnloadScanTypeEnum.SCAN_PACKAGE.getCode(), UnloadScanTypeEnum.SCAN_PACKAGE.getName(), UnloadScanTypeEnum.SCAN_PACKAGE.getDesc(), UnloadScanTypeEnum.SCAN_PACKAGE.getCode()));
         optionList.add(new SelectOption(UnloadScanTypeEnum.SCAN_WAYBILL.getCode(), UnloadScanTypeEnum.SCAN_WAYBILL.getName(), UnloadScanTypeEnum.SCAN_WAYBILL.getDesc(), UnloadScanTypeEnum.SCAN_WAYBILL.getCode()));
 
         Collections.sort(optionList, new SelectOption.OrderComparator());
@@ -224,10 +223,6 @@ public class JyUnloadVehicleGatewayServiceImpl implements JyUnloadVehicleGateway
             final BarCodeType barCodeType = BusinessUtil.getBarCodeType(request.getBarCode());
             if(barCodeType == null) {
                 response.toFail("请扫描正确的条码！");
-                return false;
-            }
-            if(Objects.equals(UnloadScanTypeEnum.SCAN_PACKAGE.getCode(), request.getScanType()) && !Objects.equals(BarCodeType.PACKAGE_CODE.getCode(), barCodeType.getCode())){
-                response.toFail("请扫描包裹号！");
                 return false;
             }
             if(Objects.equals(UnloadScanTypeEnum.SCAN_ONE.getCode(), request.getScanType()) &&
