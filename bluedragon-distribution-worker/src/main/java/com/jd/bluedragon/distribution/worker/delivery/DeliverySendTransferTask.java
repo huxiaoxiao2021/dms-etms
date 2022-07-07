@@ -17,6 +17,7 @@ public class DeliverySendTransferTask extends DBSingleScheduler {
     @Override
     protected boolean executeSingleTask(Task task, String ownSign) throws Exception {
         try {
+            log.info("DeliverySendTransferTask starting deal task:{}",JsonHelper.toJson(task));
             deliveryOperationService.dealSendTransferTask(task);
         }
         catch (Exception ex) {

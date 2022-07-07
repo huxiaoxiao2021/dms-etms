@@ -1710,4 +1710,9 @@ public class Constants {
      * 产品类型-医冷零担
      */
     public static final String PRODUCT_TYPE_MEDICINE_COLD = "md-m-0002";
+
+    /**
+     * 验货菜单编码：0101019
+     */
+    public static final String MENU_CODE_INSPECTION  = "0101019";
 }

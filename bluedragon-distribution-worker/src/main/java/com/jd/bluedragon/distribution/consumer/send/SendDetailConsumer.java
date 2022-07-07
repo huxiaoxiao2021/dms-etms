@@ -665,8 +665,7 @@ public class SendDetailConsumer extends MessageBaseConsumer {
             boolean isColdProductType = productTypes.contains(DmsConstants.PRODUCT_TYPE_COLD_CHAIN_KB)
                                         || productTypes.contains(Constants.PRODUCT_TYPE_MEDICINE_DP)
                                         || productTypes.contains(Constants.PRODUCT_TYPE_COLD_CHAIN_XP)
-                                        || productTypes.contains(Constants.PRODUCT_TYPE_MEDICAL_PART_BILL)
-                                        || productTypes.contains(Constants.PRODUCT_TYPE_MEDICAL_COLD_PART_BILL);
+                                        || productTypes.contains(Constants.PRODUCT_TYPE_MEDICINE_COLD);
             if(!isColdProductType){
                 log.warn("处理冷链拦截快退逻辑，非冷链产品类型，无须处理，运单号：{}",waybillCode);
                 return;

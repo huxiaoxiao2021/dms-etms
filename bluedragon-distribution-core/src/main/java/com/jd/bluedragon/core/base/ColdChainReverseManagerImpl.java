@@ -82,8 +82,7 @@ public class ColdChainReverseManagerImpl implements ColdChainReverseManager {
         return productTypes.contains(DmsConstants.PRODUCT_TYPE_COLD_CHAIN_KB)
                 || productTypes.contains(Constants.PRODUCT_TYPE_MEDICINE_DP)
                 || productTypes.contains(Constants.PRODUCT_TYPE_COLD_CHAIN_XP)
-                || productTypes.contains(Constants.PRODUCT_TYPE_MEDICAL_PART_BILL)
-                || productTypes.contains(Constants.PRODUCT_TYPE_MEDICAL_COLD_PART_BILL);
+                || productTypes.contains(Constants.PRODUCT_TYPE_MEDICINE_COLD);
     }
 
     /**
@@ -117,7 +116,7 @@ public class ColdChainReverseManagerImpl implements ColdChainReverseManager {
             requestDto.setPackageCount(exchangeWaybillDto.getPackageCount());
         }
         //系统来源:  1:城配，2:一体机，3:冷链调度，4:分拣
-        requestDto.setSystemSource(LDOPManagerImpl.RETURN_TYPE_4);
+        //requestDto.setSystemSource(LDOPManagerImpl.RETURN_TYPE_4);
         return requestDto;
     }
 

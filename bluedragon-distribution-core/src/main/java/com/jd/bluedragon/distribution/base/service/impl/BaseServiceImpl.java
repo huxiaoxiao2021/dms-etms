@@ -3,12 +3,14 @@ package com.jd.bluedragon.distribution.base.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
+import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.sysConfig.request.MenuUsageConfigRequestDto;
 import com.jd.bluedragon.common.dto.sysConfig.response.MenuUsageConditionConfigDto;
 import com.jd.bluedragon.common.dto.sysConfig.response.MenuUsageConfigDto;
 import com.jd.bluedragon.common.dto.sysConfig.response.MenuUsageProcessDto;
 import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.core.redis.TaskMode;
+import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.base.dao.SysConfigDao;
 import com.jd.bluedragon.distribution.base.domain.BasePdaUserDto;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -46,6 +48,7 @@ import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -964,7 +967,19 @@ public class BaseServiceImpl extends AbstractClient implements BaseService, ErpV
 
     }
 
-    /**
+	@Override
+	public ImmutablePair<Boolean, String> checkMenuIsAvailable(String menuCode, Integer siteCode) {
+		final MenuUsageConfigRequestDto menuUsageConfigRequestDto = new MenuUsageConfigRequestDto();
+		menuUsageConfigRequestDto.setMenuCode(menuCode);
+		final CurrentOperate currentOperate = new CurrentOperate();
+		currentOperate.setSiteCode(siteCode);
+		menuUsageConfigRequestDto.setCurrentOperate(currentOperate);
+		final MenuUsageProcessDto clientMenuUsageConfig = getClientMenuUsageConfig(menuUsageConfigRequestDto);
+		return ImmutablePair.of(clientMenuUsageConfig == null || Objects.equals(clientMenuUsageConfig.getCanUse(), Constants.YN_YES),
+				clientMenuUsageConfig == null ? null : clientMenuUsageConfig.getMsg());
+	}
+
+	/**
      * 获取指定具体场地或区域的配置
      */
     public MenuUsageProcessDto getClientMenuUsageByCodeConfig(MenuUsageConfigRequestDto menuUsageConfigRequestDto) {
