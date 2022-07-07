@@ -135,7 +135,7 @@ public class JyUnloadVehicleGatewayServiceImpl implements JyUnloadVehicleGateway
         List<SelectOption> optionList = new ArrayList<>();
         // 仅支持包裹、箱号、运单号
         optionList.add(new SelectOption(UnloadScanTypeEnum.SCAN_ONE.getCode(), UnloadScanTypeEnum.SCAN_ONE.getName(), UnloadScanTypeEnum.SCAN_ONE.getDesc(), UnloadScanTypeEnum.SCAN_ONE.getCode()));
-        optionList.add(new SelectOption(UnloadScanTypeEnum.SCAN_PACKAGE.getCode(), UnloadScanTypeEnum.SCAN_PACKAGE.getName(), UnloadScanTypeEnum.SCAN_PACKAGE.getDesc(), UnloadScanTypeEnum.SCAN_PACKAGE.getCode()));
+        // optionList.add(new SelectOption(UnloadScanTypeEnum.SCAN_PACKAGE.getCode(), UnloadScanTypeEnum.SCAN_PACKAGE.getName(), UnloadScanTypeEnum.SCAN_PACKAGE.getDesc(), UnloadScanTypeEnum.SCAN_PACKAGE.getCode()));
         optionList.add(new SelectOption(UnloadScanTypeEnum.SCAN_WAYBILL.getCode(), UnloadScanTypeEnum.SCAN_WAYBILL.getName(), UnloadScanTypeEnum.SCAN_WAYBILL.getDesc(), UnloadScanTypeEnum.SCAN_WAYBILL.getCode()));
 
         Collections.sort(optionList, new SelectOption.OrderComparator());
