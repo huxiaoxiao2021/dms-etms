@@ -7,8 +7,8 @@ package com.jd.bluedragon.common.dto.operation.workbench.enums;
  **/
 public enum UnloadScanTypeEnum {
 
-    SCAN_ONE(0, "按件发货", "支持扫描包裹号或箱号"),
-    SCAN_WAYBILL(2, "按单发货", "扫描包裹号转成运单号，或扫描运单号"),
+    SCAN_ONE(0, "按件扫描", "支持扫描包裹号或箱号"),
+    SCAN_WAYBILL(2, "按单扫描", "扫描包裹号转成运单号，或扫描运单号"),
     ;
 
     private Integer code;
