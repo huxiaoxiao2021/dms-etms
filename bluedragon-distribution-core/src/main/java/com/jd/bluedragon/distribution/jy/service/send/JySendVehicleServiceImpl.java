@@ -601,7 +601,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
 
         // 根据路由下一节点查询发货流向的任务
         JyBizTaskSendVehicleDetailEntity detailQ = new JyBizTaskSendVehicleDetailEntity(startSiteId, endSiteId);
-        List<JyBizTaskSendVehicleDetailEntity> vehicleDetailList = taskSendVehicleDetailService.findBySiteAndStatus(detailQ, queryTaskSendDto.getVehicleStatuses());
+        List<JyBizTaskSendVehicleDetailEntity> vehicleDetailList = taskSendVehicleDetailService.findBySiteAndStatus(detailQ, null);
         if (CollectionUtils.isEmpty(vehicleDetailList)) {
             String msg = String.format("该包裹没有路由下一站[%s]的发货任务！", endSiteId);
             result.hintMessage(msg);
@@ -1162,7 +1162,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
     private void recordTaskMembers(SendScanRequest request) {
         JyTaskGroupMemberEntity startData = new JyTaskGroupMemberEntity();
         startData.setRefGroupCode(request.getGroupCode());
-        startData.setRefTaskId(request.getTaskId());
+        startData.setRefTaskId(getJyScheduleTaskId(request.getSendVehicleBizId()));
 
         startData.setSiteCode(request.getCurrentOperate().getSiteCode());
         BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteBySiteId(startData.getSiteCode());
@@ -1985,7 +1985,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public InvokeResult<SendAbnormalResponse> checkSendVehicleNormalStatus(SendAbnormalRequest request) {
         InvokeResult<SendAbnormalResponse> invokeResult = new InvokeResult<>();
-        if (StringUtils.isBlank(request.getSendVehicleBizId())) {
+        if (StringUtils.isBlank(request.getSendDetailBizId())) {
             invokeResult.parameterError();
             return invokeResult;
         }

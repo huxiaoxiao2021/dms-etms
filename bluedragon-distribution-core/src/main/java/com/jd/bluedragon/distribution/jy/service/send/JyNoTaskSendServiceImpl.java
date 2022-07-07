@@ -331,6 +331,7 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
             dto.setSendCodes(sendCodeList);
             dto.setUpdateUserErp(transferSendTaskReq.getUser().getUserErp());
             dto.setUpdateUserName(transferSendTaskReq.getUser().getUserName());
+            dto.setUpdateUserCode(transferSendTaskReq.getUser().getUserCode());
             dto.setCreateSiteId(Long.valueOf(transferSendTaskReq.getCurrentOperate().getSiteCode()));
 
             if (transferSendTaskReq.getSameWayFlag()) {
@@ -353,9 +354,21 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
                 //生成迁移任务，异步执行迁移逻辑
                 for (String sendCode : sendCodeList) {
                     List<SendM> sendMList = sendMService.selectBySiteAndSendCode(transferSendTaskReq.getCurrentOperate().getSiteCode(), sendCode);
-                    deliveryOperationService.asyncHandleTransfer(sendMList, newSendCode);
+                    deliveryOperationService.asyncHandleTransfer(sendMList, dto);
                 }
             }
+            JyBizTaskSendVehicleEntity toSvTask = new JyBizTaskSendVehicleEntity();
+            toSvTask.setBizId(dto.getToSendVehicleBizId());
+            toSvTask.setVehicleStatus(JyBizTaskSendStatusEnum.SENDING.getCode());
+            toSvTask.setPreVehicleStatus(JyBizTaskSendStatusEnum.TO_SEND.getCode());
+            jyBizTaskSendVehicleService.updateBizTaskSendStatus(toSvTask);
+
+            JyBizTaskSendVehicleDetailEntity toSvDetailTask = new JyBizTaskSendVehicleDetailEntity();
+            toSvDetailTask.setBizId(dto.getToSendVehicleDetailBizId());
+            toSvDetailTask.setVehicleStatus(JyBizTaskSendStatusEnum.SENDING.getCode());
+            toSvDetailTask.setPreVehicleStatus(JyBizTaskSendStatusEnum.TO_SEND.getCode());
+            jyBizTaskSendVehicleDetailService.updateBizTaskSendDetailStatus(toSvDetailTask);
+
             return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE);
         }
         return new InvokeResult(NO_SEND_DATA_UNDER_TASK_CODE, NO_SEND_DATA_UNDER_TASK_MESSAGE);

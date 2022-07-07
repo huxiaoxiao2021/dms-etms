@@ -4,6 +4,8 @@ import com.jd.bluedragon.distribution.jy.config.JyWorkMapFuncConfigEntity;
 import com.jd.bluedragon.distribution.jy.config.JyWorkMapFuncQuery;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
 
+import java.util.List;
+
 /**
  * 拣运功能与工序配置接口
  *
@@ -43,4 +45,12 @@ public interface JyWorkMapFuncConfigService {
      * @return
      */
     PageDto<JyWorkMapFuncConfigEntity> queryPageList(JyWorkMapFuncQuery query);
+
+    /**
+     * 根据条件查询
+     *
+     * @param query
+     * @return
+     */
+    List<JyWorkMapFuncConfigEntity> queryByCondition(JyWorkMapFuncConfigEntity query);
 }

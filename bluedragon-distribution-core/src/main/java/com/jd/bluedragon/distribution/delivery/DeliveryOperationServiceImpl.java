@@ -7,6 +7,7 @@ import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
 import com.jd.bluedragon.distribution.delivery.constants.SendKeyTypeEnum;
 import com.jd.bluedragon.distribution.delivery.entity.SendMWrapper;
 import com.jd.bluedragon.distribution.delivery.processor.IDeliveryBaseHandler;
+import com.jd.bluedragon.distribution.jy.dto.send.VehicleSendRelationDto;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
@@ -157,17 +158,19 @@ public class DeliveryOperationServiceImpl implements IDeliveryOperationService {
 
     @Override
     @JProfiler(jKey = "DMSWEB.DeliveryOperationService.asyncHandleTransfer", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
-    public DeliveryResponse asyncHandleTransfer(List<SendM> sendMList, String newSendCode) {
+    public DeliveryResponse asyncHandleTransfer(List<SendM> sendMList, VehicleSendRelationDto dto) {
         SendM sendM = makeTransferDomain(sendMList.get(0));
-        log.info("===========asyncHandleTransfer==========发货批次迁移,原批次号：{}，新批次号:{}",sendM.getSendCode(),newSendCode);
+        sendM.setUpdateUserCode(dto.getUpdateUserCode());
+        sendM.setUpdaterUser(dto.getUpdateUserName());
+        log.info("===========asyncHandleTransfer==========发货批次迁移,原批次号：{}，新批次号:{}",sendM.getSendCode(),dto.getNewSendCode());
 
         SendMWrapper packageSendWrapper = new SendMWrapper(SendKeyTypeEnum.BY_PACKAGE);
         SendMWrapper boxSendWrapper = new SendMWrapper(SendKeyTypeEnum.BY_BOX);
         SendMWrapper boardSendWrapper = new SendMWrapper(SendKeyTypeEnum.BY_BOARD);
 
-        packageSendWrapper.setSendM(sendM);
-        boxSendWrapper.setSendM(sendM);
-        boardSendWrapper.setSendM(sendM);
+        packageSendWrapper.setSendM(sendM);packageSendWrapper.setNewSendCode(dto.getNewSendCode());
+        boxSendWrapper.setSendM(sendM);boxSendWrapper.setNewSendCode(dto.getNewSendCode());
+        boardSendWrapper.setSendM(sendM);boardSendWrapper.setNewSendCode(dto.getNewSendCode());
 
         Set<String> boardSet =new HashSet<>();
         for (SendM sendm : sendMList) {

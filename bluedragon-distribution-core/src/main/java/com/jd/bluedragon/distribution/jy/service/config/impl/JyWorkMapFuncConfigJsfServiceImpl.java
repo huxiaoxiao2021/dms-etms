@@ -62,6 +62,10 @@ public class JyWorkMapFuncConfigJsfServiceImpl implements JyWorkMapFuncConfigJsf
             entity.setFuncCode(record.getFuncCode());
             entity.setCreateUser(record.getCreateUser());
             entity.setUpdateUser(record.getUpdateUser());
+            if(CollectionUtils.isNotEmpty(jyWorkMapFuncConfigService.queryByCondition(entity))){
+                result.toFail("此配置已存在，请勿重复添加!");
+                return result;
+            }
             result.setData(jyWorkMapFuncConfigService.addWorkMapFunConfig(entity));
         }catch (Exception e){
             logger.error("新增数据:{}异常!", JsonHelper.toJson(record), e);
