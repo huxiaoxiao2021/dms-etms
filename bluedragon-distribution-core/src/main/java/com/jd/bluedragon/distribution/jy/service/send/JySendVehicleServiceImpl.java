@@ -840,65 +840,52 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
         }
 
         try {
-            QueryTaskSendDto queryTaskSendDto = makeSendTaskQuery(vehicleTaskReq);
-
-            List<String> sendVehicleBizList = Lists.newArrayList();
+            Long startSiteId = (long) vehicleTaskReq.getCurrentOperate().getSiteCode();
+            JyBizTaskSendVehicleDetailEntity queryDetail = new JyBizTaskSendVehicleDetailEntity();
+            queryDetail.setStartSiteId(startSiteId);
             // 选择转出任务，转出按包裹扫描记录匹配发货任务
             if (Objects.equals(Constants.CONSTANT_NUMBER_ONE, vehicleTaskReq.getTransferFlag())) {
-                if (!getSendTaskByPackage(vehicleTaskReq, result, sendVehicleBizList)) {
+                if (!getSendTaskByPackage(vehicleTaskReq, result, queryDetail)) {
                     return result;
                 }
             }
             // 选择转入任务，包裹按路由目的地匹配发货任务
             else {
                 if (WaybillUtil.isPackageCode(vehicleTaskReq.getPackageCode())) {
-                    Long nextRouter = getWaybillNextRouter(WaybillUtil.getWaybillCode(vehicleTaskReq.getPackageCode()), queryTaskSendDto.getStartSiteId());
+                    Long nextRouter = getWaybillNextRouter(WaybillUtil.getWaybillCode(vehicleTaskReq.getPackageCode()), startSiteId);
                     if (nextRouter == null) {
-                        result.hintMessage("运单的路由没有当前场地！");
+                        result.hintMessage("运单路由里没有当前场地！");
                         return result;
                     }
-                    if (!getSendTaskByDestId(result, queryTaskSendDto, sendVehicleBizList, nextRouter, true)) {
-                        return result;
-                    }
+                    queryDetail.setEndSiteId(nextRouter);
                 }
             }
             if (NumberHelper.gt0(vehicleTaskReq.getEndSiteId())) {
-                if (!getSendTaskByDestId(result, queryTaskSendDto, sendVehicleBizList, vehicleTaskReq.getEndSiteId(), false)) {
-                    return result;
-                }
+                queryDetail.setEndSiteId(vehicleTaskReq.getEndSiteId());
             }
+
             VehicleTaskResp taskResp = new VehicleTaskResp();
             result.setData(taskResp);
             List<VehicleTaskDto> vehicleTaskList = new ArrayList<>();
             taskResp.setVehicleTaskDtoList(vehicleTaskList);
 
-            queryTaskSendDto.setSendVehicleBizList(sendVehicleBizList);
-            JyBizTaskSendVehicleEntity queryCondition = makeFetchCondition(queryTaskSendDto);
-            queryCondition.setManualCreatedFlag(Constants.NUMBER_ZERO); // 不查询自建任务
+            List<JyBizTaskSendVehicleEntity> vehiclePageList = taskSendVehicleService.findSendTaskByDestOfPage(queryDetail,
+                    vehicleTaskReq.getPageNumber(), vehicleTaskReq.getPageSize());
 
-            // 默认按预计发车时间排序
-            JyBizTaskSendSortTypeEnum orderTypeEnum = JyBizTaskSendSortTypeEnum.PLAN_DEPART_TIME;
-            List<JyBizTaskSendVehicleEntity> vehiclePageList = taskSendVehicleService.querySendTaskOfPage(queryCondition, queryTaskSendDto.getSendVehicleBizList(), orderTypeEnum,
-                    queryTaskSendDto.getPageNumber(), queryTaskSendDto.getPageSize(), queryTaskSendDto.getVehicleStatuses());
             if (CollectionUtils.isEmpty(vehiclePageList)) {
                 return result;
             }
 
-            // 按目的地检索同流向的任务，同流向封车了，需要剔除发车任务
-            Set<String> needToTwiceRemoveTask = new HashSet<>();
             for (JyBizTaskSendVehicleEntity sendVehicleEntity : vehiclePageList) {
                 // 组装发车任务
                 VehicleTaskDto vehicleTaskDto = this.initVehicleTaskDto(sendVehicleEntity);
 
                 List<VehicleDetailTaskDto> vdList = new ArrayList<>();
                 vehicleTaskDto.setVehicleDetailTaskDtoList(vdList);
+                vehicleTaskList.add(vehicleTaskDto);
 
                 // 组装发车任务流向明细
-                this.initVehicleTaskDetails(queryTaskSendDto, sendVehicleEntity, vdList, needToTwiceRemoveTask);
-
-                if (!needToTwiceRemoveTask.contains(sendVehicleEntity.getBizId())) {
-                    vehicleTaskList.add(vehicleTaskDto);
-                }
+                this.initVehicleTaskDetails(sendVehicleEntity, vdList);
             }
         }
         catch (Exception e) {
@@ -941,23 +928,34 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
      * 根据包裹号查发货任务
      * @param vehicleTaskReq
      * @param result
-     * @param sendVehicleBizList
+     * @param queryDetail
      * @return
      */
-    private boolean getSendTaskByPackage(TransferVehicleTaskReq vehicleTaskReq, InvokeResult<VehicleTaskResp> result, List<String> sendVehicleBizList) {
+    private boolean getSendTaskByPackage(TransferVehicleTaskReq vehicleTaskReq, InvokeResult<VehicleTaskResp> result, JyBizTaskSendVehicleDetailEntity queryDetail) {
         if (WaybillUtil.isPackageCode(vehicleTaskReq.getPackageCode())) {
             Long startSiteId = (long) vehicleTaskReq.getCurrentOperate().getSiteCode();
             JySendEntity sendEntity = jySendService.queryByCodeAndSite(new JySendEntity(vehicleTaskReq.getPackageCode(), startSiteId));
             if (sendEntity == null) {
-                result.hintMessage("没有该单号的发货记录!");
+                result.hintMessage("没有该包裹的发货记录!");
                 return false;
             }
-            sendVehicleBizList.add(sendEntity.getSendVehicleBizId());
+
+            JyBizTaskSendVehicleDetailEntity searchExistRecord = new JyBizTaskSendVehicleDetailEntity();
+            searchExistRecord.setSendVehicleBizId(sendEntity.getSendVehicleBizId());
+            searchExistRecord.setStartSiteId(sendEntity.getCreateSiteId());
+            searchExistRecord.setEndSiteId(sendEntity.getReceiveSiteId());
+            JyBizTaskSendVehicleDetailEntity sendDetail = taskSendVehicleDetailService.findSendDetail(searchExistRecord);
+            if (sendDetail != null && JyBizTaskSendDetailStatusEnum.SEALED.getCode().equals(sendDetail.getVehicleStatus())) {
+                result.hintMessage("该包裹匹配的发货流向已经封车，不允许转移!");
+                return false;
+            }
+
+            queryDetail.setSendVehicleBizId(sendEntity.getSendVehicleBizId());
+            queryDetail.setEndSiteId(sendEntity.getReceiveSiteId());
         }
 
         return true;
     }
-
 
     private QueryTaskSendDto makeSendTaskQuery(TransferVehicleTaskReq vehicleTaskReq) {
         QueryTaskSendDto queryTaskSendDto = new QueryTaskSendDto();
@@ -1021,8 +1019,13 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
         }
 
         try {
-            JyBizTaskSendVehicleDetailEntity queryDetail = new JyBizTaskSendVehicleDetailEntity(taskSend.getStartSiteId(), sendDestId, taskSend.getBizId());
-            JyBizTaskSendVehicleDetailEntity curSendDetail = taskSendVehicleDetailService.findSendDetail(queryDetail);
+            JyBizTaskSendVehicleDetailEntity curSendDetail = null;
+            for (JyBizTaskSendVehicleDetailEntity sendDetail : taskSendDetails) {
+                if (sendDetail.getEndSiteId().equals(sendDestId)) {
+                    curSendDetail = sendDetail;
+                    break;
+                }
+            }
             if (curSendDetail != null && JyBizTaskSendDetailStatusEnum.SEALED.getCode().equals(curSendDetail.getVehicleStatus())) {
                 result.toBizError();
                 result.addInterceptBox(0, "该发货流向已封车！");

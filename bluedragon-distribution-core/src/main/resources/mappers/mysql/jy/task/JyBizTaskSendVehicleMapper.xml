@@ -570,6 +570,9 @@
         AND d.yn = 1
         AND d.start_site_id = #{entity.startSiteId, jdbcType=BIGINT}
         AND d.end_site_id = #{entity.endSiteId, jdbcType=BIGINT}
+        <if test="entity.sendVehicleBizId != null">
+            AND d.send_vehicle_biz_id = #{entity.sendVehicleBizId}
+        </if>
         AND d.vehicle_status IN ( 0, 1, 2 )
         GROUP BY m.biz_id
         ORDER BY m.last_plan_depart_time DESC

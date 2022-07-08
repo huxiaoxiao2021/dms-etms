@@ -217,16 +217,16 @@ public class JySealVehicleServiceTest {
     public void fetchSendTaskForTransferTest() {
         String json = "{\n" +
                 "    \"currentOperate\": {\n" +
-                "        \"operateTime\": 1656412849865,\n" +
+                "        \"operateTime\": 1656928548911,\n" +
                 "        \"orgId\": 6,\n" +
                 "        \"orgName\": \"总公司\",\n" +
                 "        \"siteCode\": 40240,\n" +
                 "        \"siteName\": \"北京通州分拣中心\"\n" +
                 "    },\n" +
-                "    \"packageCode\": \"JD0003363015114-1-1-\",\n" +
-                "    \"pageNumber\": 2,\n" +
+                "    \"packageCode\": \"JD0003360897087-1-1-\",\n" +
+                "    \"pageNumber\": 1,\n" +
                 "    \"pageSize\": 15,\n" +
-                "    \"transferFlag\": 2,\n" +
+                "    \"transferFlag\": 1,\n" +
                 "    \"user\": {\n" +
                 "        \"userCode\": 17331,\n" +
                 "        \"userErp\": \"wuyoude\",\n" +
