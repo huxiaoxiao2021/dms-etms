@@ -110,8 +110,8 @@ public class EnterpriseDistributionServiceImpl implements EnterpriseDistribution
             // 写入表头
             Map<String, String> headerMap = getHeaderMap();
             CsvExporterUtils.writeTitleOfCsv(headerMap, innerBfw, headerMap.values().size());
-            int pageSize = 1;
-            int maxPage = 2;
+            int pageSize = 1000;
+            int maxPage = 2000;
             int index = 1;
             int totalSize = 0;
             while (index <= maxPage) {

@@ -246,6 +246,12 @@ $(function () {
                         return;
                     }
                 }
+                if ($("#updateEndTime").val() != undefined && $("#createStartTime").val() != undefined) {
+                    if ($.dateHelper.formateDateTimeOfTs($("#updateEndTime").val()) < $.dateHelper.formateDateTimeOfTs($("#createStartTime").val())) {
+                        Jd.alert(" 结束时间不能小于开始时间!", "info");
+                        return;
+                    }
+                }
                 tableInit().refresh();
             });
 
@@ -271,7 +277,7 @@ $(function () {
             //     currentKey: exportReportEnum.ENTERPRISE_DISTRIBUTION_QUALITY_INSPECTION,
             //     checkPassCallback: function (result) {
             const params = tableInit.getSearchCondition();
-            if ($("#dataTable").bootstrapTable("getOptions").totalRows > 2) {
+            if ($("#dataTable").bootstrapTable("getOptions").totalRows > 200000) {
                 Jd.confirm("已选择的数据超出20w，单次最多只支持20w数据导出，是否仍要超出？", function(val) {
                     if (!val) {
                         return;
