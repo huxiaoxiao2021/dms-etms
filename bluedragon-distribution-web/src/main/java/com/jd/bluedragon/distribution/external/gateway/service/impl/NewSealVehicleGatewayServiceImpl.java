@@ -98,8 +98,10 @@ public class NewSealVehicleGatewayServiceImpl implements NewSealVehicleGatewaySe
         sealCarTaskInfoDto.setVehicleNumber(transWorkItemResponse.getVehicleNumber());
 
         response.setCode(transWorkItemResponse.getCode());
-        response.setData(sealCarTaskInfoDto);
         response.setMessage(transWorkItemResponse.getMessage());
+        response.setExtraBusinessCode(transWorkItemResponse.getExtraBusinessCode());
+        response.setExtraBusinessMessage(transWorkItemResponse.getExtraBusinessMessage());
+        response.setData(sealCarTaskInfoDto);
 
         return response;
     }
@@ -281,6 +283,8 @@ public class NewSealVehicleGatewayServiceImpl implements NewSealVehicleGatewaySe
 
         jdCResponse.setCode(response.getCode());
         jdCResponse.setMessage(response.getMessage());
+        jdCResponse.setExtraBusinessCode(response.getExtraBusinessCode());
+        jdCResponse.setExtraBusinessMessage(response.getExtraBusinessMessage());
 
         return jdCResponse;
     }

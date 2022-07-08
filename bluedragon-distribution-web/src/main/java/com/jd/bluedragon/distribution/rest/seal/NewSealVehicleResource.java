@@ -26,6 +26,7 @@ import com.jd.bluedragon.distribution.coldchain.domain.ColdChainSend;
 import com.jd.bluedragon.distribution.coldchain.service.ColdChainSendService;
 import com.jd.bluedragon.distribution.seal.service.CarLicenseChangeUtil;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
+import com.jd.bluedragon.distribution.transport.service.TransportRelatedService;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
@@ -46,6 +47,7 @@ import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.map.HashedMap;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -135,6 +137,9 @@ public class NewSealVehicleResource {
 
     @Autowired
     private BaseService baseService;
+
+    @Autowired
+    private TransportRelatedService transportRelatedService;
 
     /**
      * 校验并获取运力编码信息
@@ -313,6 +318,12 @@ public class NewSealVehicleResource {
                     sealVehicleResponse.setMessage(NewSealVehicleResponse.MESSAGE_OK);
                     sealVehicleResponse.setTransWorkItemCode(returnCommonDto.getData().getTransWorkItemCode());
                     sealVehicleResponse.setVehicleNumber(returnCommonDto.getData().getVehicleNumber());
+                    // 校验运输任务（返回结果只做提示展示）
+                    String transWorkItemCode = StringUtils.isEmpty(request.getTransWorkItemCode()) ? returnCommonDto.getData().getTransWorkItemCode() : request.getTransWorkItemCode();
+                    ImmutablePair<Integer, String> checkResult = transportRelatedService.checkTransportTask(request.getSiteCode(),
+                            null, null, transWorkItemCode, null);
+                    sealVehicleResponse.setExtraBusinessCode(checkResult.left);
+                    sealVehicleResponse.setExtraBusinessMessage(checkResult.right);
                 } else {
                     sealVehicleResponse.setCode(NewSealVehicleResponse.CODE_EXCUTE_ERROR);
                     sealVehicleResponse.setMessage("[" + returnCommonDto.getCode() + ":" + returnCommonDto.getMessage() + "]");
@@ -548,6 +559,11 @@ public class NewSealVehicleResource {
                 if (Constants.RESULT_SUCCESS == dto.getCode()) {
                     sealVehicleResponse.setCode(JdResponse.CODE_OK);
                     sealVehicleResponse.setMessage(JdResponse.MESSAGE_OK);
+                    // 校验运输任务（返回结果只做提示展示）
+                    ImmutablePair<Integer, String> checkResult = transportRelatedService.checkTransportTask(sealCarPreRequest.getCreateSiteCode(),
+                            null, null, null, sealCarPreRequest.getVehicleNumber());
+                    sealVehicleResponse.setExtraBusinessCode(checkResult.left);
+                    sealVehicleResponse.setExtraBusinessMessage(checkResult.right);
                 }else {
                     sealVehicleResponse.setCode(NewSealVehicleResponse.CODE_EXCUTE_ERROR);
                     sealVehicleResponse.setMessage(dto.getMessage());
