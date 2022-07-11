@@ -176,6 +176,16 @@ public class WaybillConsumableRecordServiceImpl extends BaseService<WaybillConsu
     }
 
     @Override
+    public boolean canModifyNew(String waybillCode) {
+        WaybillConsumableRecord oldRecord = queryOneByWaybillCode(waybillCode);
+        //1.该运单未被确认
+        if(oldRecord != null && oldRecord.getId() != null && UNTREATED_STATE.equals(oldRecord.getConfirmStatus())){
+            return true;
+        }
+        return false;
+    }
+
+    @Override
     public Boolean isConfirmed(String waybillCode) {
         WaybillConsumableRecord record = queryOneByWaybillCode(waybillCode);
         if (record != null) {
@@ -469,6 +479,8 @@ public class WaybillConsumableRecordServiceImpl extends BaseService<WaybillConsu
         int operateCode = waybillConsumablePackConfirmReq.getUser().getUserCode();
         String operateName =  waybillConsumablePackConfirmReq.getUser().getUserName();
 
+        boolean canModify = canModify(waybillCode);
+
         //组装运单耗材打包人关系表数据
         List<WaybillConsumableRelationPDADto> dbBatchUpdateList = new ArrayList<>();
         for(WaybillConsumablePdaDto poTemp : waybillConsumablePackConfirmReq.getWaybillConsumableDtoList()) {
@@ -494,7 +506,9 @@ public class WaybillConsumableRecordServiceImpl extends BaseService<WaybillConsu
             if(poTemp.getConsumableCode() == null || poTemp.getConfirmQuantity() == null) {
                 throw new RuntimeException("运单耗材编码及确认数量不可为空");
             }
-            dbParam.setConfirmQuantity(poTemp.getConfirmQuantity());
+            if (canModify) {
+                dbParam.setConfirmQuantity(poTemp.getConfirmQuantity());
+            }
             dbParam.setConsumableCode(poTemp.getConsumableCode());
             dbParam.setConfirmVolume(poTemp.getConfirmVolume());
             dbBatchUpdateList.add(dbParam);
