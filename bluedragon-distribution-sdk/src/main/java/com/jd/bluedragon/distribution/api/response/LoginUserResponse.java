@@ -4,7 +4,7 @@ import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.domain.DmsClientConfigInfo;
 
 /**
- * 
+ *
  * @ClassName: LoginUserRespnse
  * @Description: 登录账户信息返回实体
  * @author: wuyoude
@@ -87,25 +87,31 @@ public class LoginUserResponse extends JdResponse {
 	 * 登录id
 	 */
 	private Long loginId;
-    /**
-     * 标识是否需要更新
-     */
-    private Boolean needUpdate = Boolean.FALSE;
+	/**
+	 * 标识是否需要更新
+	 */
+	private Boolean needUpdate = Boolean.FALSE;
 	/**
 	 * 标识是否强制升级
 	 */
 	private Boolean forceUpdate = Boolean.FALSE;
-	 /**
-	  *  客户端配置信息
-	  */
+	/**
+	 *  客户端配置信息
+	 */
 	private DmsClientConfigInfo dmsClientConfigInfo;
 
 	private String token;
 
-    /**
-     * 物流网关外网erp认证插件 ticket
-     */
-    private String wlGwTicket;
+	/**
+	 * 物流网关外网erp认证插件 ticket
+	 */
+	private String wlGwTicket;
+
+	private Integer siteSortType;
+
+	private Integer siteSortSubType;
+
+	private Integer siteSortThirdType;
 
 	/**
 	 * @return the dmsSiteCode
@@ -311,16 +317,40 @@ public class LoginUserResponse extends JdResponse {
 		this.token = token;
 	}
 
-    public String getWlGwTicket() {
-        return wlGwTicket;
-    }
+	public String getWlGwTicket() {
+		return wlGwTicket;
+	}
 
-    public LoginUserResponse setWlGwTicket(String wlGwTicket) {
-        this.wlGwTicket = wlGwTicket;
-        return this;
-    }
+	public LoginUserResponse setWlGwTicket(String wlGwTicket) {
+		this.wlGwTicket = wlGwTicket;
+		return this;
+	}
 
-    public BaseResponse toOldLoginResponse() {
+	public Integer getSiteSortType() {
+		return siteSortType;
+	}
+
+	public void setSiteSortType(Integer siteSortType) {
+		this.siteSortType = siteSortType;
+	}
+
+	public Integer getSiteSortSubType() {
+		return siteSortSubType;
+	}
+
+	public void setSiteSortSubType(Integer siteSortSubType) {
+		this.siteSortSubType = siteSortSubType;
+	}
+
+	public Integer getSiteSortThirdType() {
+		return siteSortThirdType;
+	}
+
+	public void setSiteSortThirdType(Integer siteSortThirdType) {
+		this.siteSortThirdType = siteSortThirdType;
+	}
+
+	public BaseResponse toOldLoginResponse() {
 		BaseResponse baseResponse = new BaseResponse(super.getCode(), super.getMessage());
 		baseResponse.setErpAccount(this.erpAccount);
 		baseResponse.setPassword(this.password);
@@ -363,6 +393,9 @@ public class LoginUserResponse extends JdResponse {
 				", dmsClientConfigInfo=" + dmsClientConfigInfo +
 				", token='" + token + '\'' +
 				", wlGwTicket='" + wlGwTicket + '\'' +
+				", siteSortType=" + siteSortType +
+				", siteSortSubType=" + siteSortSubType +
+				", siteSortThirdType=" + siteSortThirdType +
 				'}';
 	}
 }
