@@ -25,7 +25,7 @@ public interface JyUnloadVehicleTysService {
 
 
     /**
-     * 统计数据维度查询(按包裹 、运单 、板、任务查询统计数据（已扫 应扫 待扫 多扫 拦截）)
+     * 统计数据维度查询(按板、任务查询统计数据（已扫 应扫 待扫 多扫 拦截）)
      *
      * @param dto
      * @return
@@ -42,13 +42,20 @@ public interface JyUnloadVehicleTysService {
 
 
     /**
-     * 扫描组板（开新版+组板）
+     * 人工作业扫描（开新版+组板）
      *
      * @param scanPackageDto
      * @return
      */
     InvokeResult<ScanPackageRespDto> scanAndComBoard(ScanPackageDto scanPackageDto);
 
+
+    /**
+     * 流水线作业扫描
+     * @param scanPackageDto
+     * @return
+     */
+    InvokeResult<ScanPackageRespDto> scanAndComBoardForPipelining (ScanPackageDto scanPackageDto);
 
     /**
      * 根据板号 查询组板基础详情

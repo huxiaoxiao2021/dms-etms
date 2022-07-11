@@ -1,9 +1,12 @@
 package com.jd.bluedragon.distribution.jy.dto.unload;
 
+import com.jd.bluedragon.common.dto.operation.workbench.unload.response.LabelOption;
 import lombok.Data;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
+
 @Data
 public class UnloadVehicleTaskDto extends UnloadBaseDto implements Serializable {
     private static final long serialVersionUID = -4856090554484728089L;
@@ -29,6 +32,10 @@ public class UnloadVehicleTaskDto extends UnloadBaseDto implements Serializable 
     private String lineTypeName;
     private String tagsSign;
     /**
+     * 属性标签
+     */
+    private List<LabelOption> labelOptionList;
+    /**
      * 始发场地ID（上游场地）
      */
     private Long startSiteId;
@@ -46,7 +53,7 @@ public class UnloadVehicleTaskDto extends UnloadBaseDto implements Serializable 
     /**
      * 卸车进度
      */
-    private String processPercent;
+    private Integer processPercent;
     /**
      * 组板数量
      */
@@ -62,18 +69,20 @@ public class UnloadVehicleTaskDto extends UnloadBaseDto implements Serializable 
 
 
     /**
-     * 应扫包裹数量
+     * 应扫包裹/运单数量(总数)
      */
-    private String shouldScanPackageCount;
-    /**
-     * 应扫运单数量
-     */
-    private String shouldScanWaybillCount;
+    private Integer shouldScanCount;
 
     /**
-     * 待卸包裹数量
+     * 待扫
      */
-    private String toUnloadPackageCount;
+    private Integer waitScanCount;
+
+    /**
+     * 已扫
+     */
+    private Integer haveScanCount;
+
     /**
      * 创建时间
      */
@@ -83,6 +92,8 @@ public class UnloadVehicleTaskDto extends UnloadBaseDto implements Serializable 
      */
     private Date updateTime;
     private Date actualArriveTime;
+    private Date unloadStartTime;
+    private Date unloadFinishTime;
 
     /**
      * JyBizTaskUnloadStatusEnum

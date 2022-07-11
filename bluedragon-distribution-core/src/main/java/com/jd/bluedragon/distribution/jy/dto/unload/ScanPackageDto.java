@@ -13,4 +13,11 @@ public class ScanPackageDto extends UnloadBaseDto implements Serializable {
      * 扫描的包裹/箱号
      */
     private String scanCode;
+
+    private Integer type;
+
+    /**
+     * 进行中的板，基于这个板进行组板
+     */
+    private String boardCode;
 }

@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.jy.service.task;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.dto.operation.workbench.unload.response.LabelOption;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.VosManager;
 import com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskUnloadVehicleDao;
@@ -8,9 +9,12 @@ import com.jd.bluedragon.distribution.jy.dto.task.JyBizTaskUnloadCountDto;
 import com.jd.bluedragon.distribution.jy.dto.unload.UnloadVehicleTaskDto;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadOrderTypeEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadStatusEnum;
+import com.jd.bluedragon.distribution.jy.enums.UnloadTaskLabelEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadDto;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.JyUnloadTaskSignConstants;
 import com.jd.bluedragon.utils.*;
 import com.jd.coo.sa.sequence.JimdbSequenceGen;
 import com.jd.etms.vos.dto.CommonDto;
@@ -548,21 +552,75 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
             Date now =new Date();
             List<UnloadVehicleTaskDto> unloadVehicleTaskDtoList =new ArrayList<>();
             for (JyBizTaskUnloadVehicleEntity unloadTask : jyBizTaskUnloadVehicleEntityList) {
-                UnloadVehicleTaskDto unloadVehicleTaskDto =BeanUtils.copy(unloadTask,UnloadVehicleTaskDto.class);
-                calculationProcessTime(unloadVehicleTaskDto);//TODO
+                UnloadVehicleTaskDto unloadVehicleTaskDto = dtoConvert(unloadTask);
+                unloadVehicleTaskDtoList.add(unloadVehicleTaskDto);
             }
+            return unloadVehicleTaskDtoList;
         }
-
         return null;
     }
 
-    private void calculationProcessTime(UnloadVehicleTaskDto unloadVehicleTaskDto) {
-        switch (unloadVehicleTaskDto.getVehicleStatus()) {
+    private UnloadVehicleTaskDto dtoConvert(JyBizTaskUnloadVehicleEntity unloadTask) {
+        UnloadVehicleTaskDto unloadVehicleTaskDto =BeanUtils.copy(unloadTask,UnloadVehicleTaskDto.class);
+        calculationProcessTime(unloadVehicleTaskDto);
+        if (ObjectHelper.isNotNull(unloadTask.getUnloadProgress())){
+            unloadVehicleTaskDto.setProcessPercent(unloadTask.getUnloadProgress().intValue());
+        }
+        if (ObjectHelper.isNotNull(unloadTask.getMoreCount())){
+            unloadVehicleTaskDto.setExtraScanCount(unloadTask.getMoreCount().intValue());
+        }
+        if (ObjectHelper.isNotNull(unloadTask.getComboardCount())){
+            unloadVehicleTaskDto.setComBoardCount(unloadTask.getComboardCount());
+        }
+        if (ObjectHelper.isNotNull(unloadTask.getInterceptCount())){
+            unloadVehicleTaskDto.setInterceptCount(unloadTask.getInterceptCount());
+        }
+        if (ObjectHelper.isNotNull(unloadTask.getTagsSign())){
+           unloadVehicleTaskDto.setLabelOptionList(resolveTagSign(unloadTask.getTagsSign()));
+        }
+        return unloadVehicleTaskDto;
+    }
+
+    private List<LabelOption> resolveTagSign(String tagSign) {
+        List<LabelOption> tagList = new ArrayList<>();
+
+        // 是否抽检
+        if (BusinessUtil.isSignY(tagSign, JyUnloadTaskSignConstants.POSITION_1)) {
+            UnloadTaskLabelEnum spotCheck = UnloadTaskLabelEnum.SPOT_CHECK;
+            tagList.add(new LabelOption(spotCheck.getCode(), spotCheck.getName(), spotCheck.getDisplayOrder()));
+        }
+
+        // 逐单卸
+        if (BusinessUtil.isSignY(tagSign, JyUnloadTaskSignConstants.POSITION_2)) {
+            UnloadTaskLabelEnum unloadSingleBill = UnloadTaskLabelEnum.UNLOAD_SINGLE_BILL;
+            tagList.add(new LabelOption(unloadSingleBill.getCode(), unloadSingleBill.getName(), unloadSingleBill.getDisplayOrder()));
+        }
+
+        // 半车卸
+        if (BusinessUtil.isSignY(tagSign, JyUnloadTaskSignConstants.POSITION_3)) {
+            UnloadTaskLabelEnum unloadHalfCar = UnloadTaskLabelEnum.UNLOAD_HALF_CAR;
+            tagList.add(new LabelOption(unloadHalfCar.getCode(), unloadHalfCar.getName(), unloadHalfCar.getDisplayOrder()));
+        }
+
+        return tagList;
+    }
+    private void calculationProcessTime(UnloadVehicleTaskDto dto) {
+        Date now =new Date();
+        switch (dto.getVehicleStatus()) {
             case 3:
+                int hourArrive =(int)DateHelper.betweenHours(dto.getActualArriveTime(),now);
+                int minutesArrive =(int)DateHelper.betweenMinutes(dto.getActualArriveTime(),now);
+                dto.setProcessTime("已到车 "+hourArrive+"时"+minutesArrive+"分");
                 break;
             case 4:
+                int hourUnload =(int)DateHelper.betweenHours(dto.getUnloadStartTime(),now);
+                int minutesUnload =(int)DateHelper.betweenMinutes(dto.getUnloadStartTime(),now);
+                dto.setProcessTime("卸车 "+hourUnload+"时"+minutesUnload+"分");
                 break;
             case 5:
+                int hourComplete =(int)DateHelper.betweenHours(dto.getUnloadStartTime(),dto.getUnloadFinishTime());
+                int minutesComplete =(int)DateHelper.betweenMinutes(dto.getUnloadStartTime(),dto.getUnloadFinishTime());
+                dto.setProcessTime("总计 "+hourComplete+"时"+minutesComplete+"分");
                 break;
             default:
         }

@@ -11,10 +11,7 @@ import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskUnloadVehicleServ
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.JyUnloadTaskSignConstants;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.NumberHelper;
-import com.jd.bluedragon.utils.StringHelper;
-import com.jd.bluedragon.utils.TagSignHelper;
+import com.jd.bluedragon.utils.*;
 import com.jd.jim.cli.Cluster;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -198,7 +195,18 @@ public class InitUnloadVehicleConsumer extends MessageBaseConsumer {
                 unloadVehicleEntity.setUnloadProgress(progress);
             }
         }
-
+        Object moreScanCount =extendInfo.get(UnloadVehicleMqDto.EXTEND_KEY_MORESCAN_COUNT);
+        if (ObjectHelper.isNotNull(moreScanCount)){
+            unloadVehicleEntity.setMoreCount((Long)moreScanCount);
+        }
+        Object boardCount =extendInfo.get(UnloadVehicleMqDto.EXTEND_KEY_BOARD_COUNT);
+        if (ObjectHelper.isNotNull(boardCount)){
+            unloadVehicleEntity.setComboardCount((Integer) boardCount);
+        }
+        Object interceptCount =extendInfo.get(UnloadVehicleMqDto.EXTEND_KEY_INTERCEPT_COUNT);
+        if (ObjectHelper.isNotNull(interceptCount)){
+            unloadVehicleEntity.setInterceptCount((Integer) interceptCount);
+        }
         // 解析封车包裹总数
         Object totalCountObj = extendInfo.get(UnloadVehicleMqDto.EXTEND_KEY_TOTAL_COUNT);
         if (totalCountObj != null) {

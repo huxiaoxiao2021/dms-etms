@@ -15,5 +15,6 @@ public class ScanPackageRespDto implements Serializable {
     private String boardCode;
     private String endSiteName;
     private Long endSiteId;
+    private Integer comBoardCount;
 
 }

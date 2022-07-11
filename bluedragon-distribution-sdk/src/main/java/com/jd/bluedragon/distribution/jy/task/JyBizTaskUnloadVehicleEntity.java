@@ -104,6 +104,14 @@ public class JyBizTaskUnloadVehicleEntity implements Serializable {
      */
     private Long moreCount;
     /**
+     * 组板数量
+     */
+    private Integer comboardCount;
+    /**
+     * 拦截数量
+     */
+    private Integer interceptCount;
+    /**
      * 是否异常；0-否 1-是
      */
     private Integer abnormalFlag;
@@ -153,6 +161,14 @@ public class JyBizTaskUnloadVehicleEntity implements Serializable {
      * 更新时间
      */
     private Date updateTime;
+    /**
+     * 卸车开始时间
+     */
+    private Date unloadStartTime;
+    /**
+     * 卸车类型 1人工 2流水线
+     */
+    private Integer unloadType;
     /**
      * 是否删除：1-有效，0-删除
      */
@@ -454,4 +470,35 @@ public class JyBizTaskUnloadVehicleEntity implements Serializable {
 		this.statusCodeList = statusCodeList;
 	}
 
+    public Integer getComboardCount() {
+        return comboardCount;
+    }
+
+    public void setComboardCount(Integer comboardCount) {
+        this.comboardCount = comboardCount;
+    }
+
+    public Integer getInterceptCount() {
+        return interceptCount;
+    }
+
+    public void setInterceptCount(Integer interceptCount) {
+        this.interceptCount = interceptCount;
+    }
+
+    public Date getUnloadStartTime() {
+        return unloadStartTime;
+    }
+
+    public void setUnloadStartTime(Date unloadStartTime) {
+        this.unloadStartTime = unloadStartTime;
+    }
+
+    public Integer getUnloadType() {
+        return unloadType;
+    }
+
+    public void setUnloadType(Integer unloadType) {
+        this.unloadType = unloadType;
+    }
 }
