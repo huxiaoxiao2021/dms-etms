@@ -209,7 +209,7 @@
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
 			<artifactId>bluedragon-distribution-sdk</artifactId>
-			<version>1.9.2-SNAPSHOT</version>
+			<version>1.9.3-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
@@ -238,7 +238,7 @@
 		<dependency>
             <groupId>com.jd.bluedragon</groupId>
             <artifactId>bluedragon-distribution-common-android</artifactId>
-            <version>1.5.3-SNAPSHOT</version>
+            <version>1.5.5-SNAPSHOT</version>
         </dependency>
 		<dependency>
 			<groupId>com.jd.etms.waybill</groupId>
@@ -1693,13 +1693,19 @@
 		<dependency>
 			<groupId>com.jd.dms.wb</groupId>
 			<artifactId>workbench-report-api</artifactId>
-			<version>1.0.5-SNAPSHOT</version>
+			<version>1.0.0-TEST-SNAPSHOT</version>
 			<exclusions>
 				<exclusion>
 					<groupId>com.jd.dms.wb</groupId>
 					<artifactId>dms-workbench-utils-sdk</artifactId>
 				</exclusion>
 			</exclusions>
+		</dependency>
+
+		<dependency>
+			<groupId>com.jd.tys</groupId>
+			<artifactId>workbench-api</artifactId>
+			<version>1.0.0-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>

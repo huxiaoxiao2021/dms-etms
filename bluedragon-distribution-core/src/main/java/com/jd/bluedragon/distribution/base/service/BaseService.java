@@ -12,6 +12,7 @@ import com.jd.ql.basic.domain.BaseOrg;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.tms.basic.dto.BasicDictDto;
 import com.jd.tms.basic.dto.CarrierDto;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import java.util.List;
 import java.util.Map;
@@ -262,4 +263,14 @@ public interface BaseService{
      */
     MenuUsageProcessDto getClientMenuUsageConfig(MenuUsageConfigRequestDto menuUsageConfigRequestDto);
 
+	/**
+	 * 校验菜单是否可用
+	 * 	left：菜单是否可以操作
+	 * 	right：提示信息
+	 *
+	 * @param menuCode
+	 * @param siteCode
+	 * @return
+	 */
+	ImmutablePair<Boolean, String> checkMenuIsAvailable(String menuCode, Integer siteCode);
 }

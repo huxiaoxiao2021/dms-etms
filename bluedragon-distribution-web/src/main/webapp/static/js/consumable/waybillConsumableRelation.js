@@ -116,7 +116,7 @@ $(function () {
             },
             {
                 field: 'volume',
-                title: '体积（立方厘米）'
+                title: '体积（m³）'
             },
             {
                 field: 'volumeCoefficient',
@@ -137,6 +137,10 @@ $(function () {
             {
                 field: 'confirmQuantity',
                 title: '确认数量'
+            },
+            {
+                field: 'confirmVolume',
+                title: '打包装后体积（m³）'
             },
             {
                 field: 'operateUserErp',
@@ -161,7 +165,7 @@ $(function () {
                 field: 'op',
                 title: '操作',
                 formatter : function (value, row, index) {
-                    return '<a class="mdinfo" href="javascript:void(0)" ><i class="glyphicon glyphicon-pencil"></i>&nbsp;修改数量&nbsp;</a>';
+                    return '<a class="mdinfo" href="javascript:void(0)" ><i class="glyphicon glyphicon-pencil"></i>&nbsp;补充/修改信息&nbsp;</a>';
                 },
                 events: {
                     'click .mdinfo': function(e, value, row, index) {
@@ -179,7 +183,7 @@ $(function () {
                                     layer.open({
                                         id:'modifyInfoFrame',
                                         type: 2,
-                                        title:'耗材信息修改',
+                                        title:'耗材信息确认',
                                         shadeClose: true,
                                         shade: 0.7,
                                         shadeClose: false,
@@ -198,6 +202,7 @@ $(function () {
                                             var unit = row.unit;
                                             var receiveQuantity = row.receiveQuantity;
                                             var confirmQuantity = row.confirmQuantity;
+                                            var confirmVolume = row.confirmVolume;
                                             var packUserErp = row.packUserErp;
                                             var waybillCode = row.waybillCode;
 
@@ -213,6 +218,7 @@ $(function () {
                                             frameWindow.$('#unit-value-input').val(unit);
                                             frameWindow.$('#receive-value-input').val(receiveQuantity);
                                             frameWindow.$('#confirm-value-input').val(confirmQuantity);
+                                            frameWindow.$('#volume-confirm-value-input').val(confirmVolume);
                                             frameWindow.$('#erp-value-input').val(packUserErp);
                                             frameWindow.$('#waybillCode-value-input').val(waybillCode);
                                         }

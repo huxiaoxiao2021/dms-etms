@@ -20,6 +20,11 @@ public class WaybillConsumablePdaDto implements Serializable {
     /** 确认数量 */
     private Double confirmQuantity;
 
+    /** 确认体积 **/
+    private Double confirmVolume;
+
+    /** 耗材类型 **/
+    private String consumableTypeCode;
 
     public String getWaybillCode() {
         return waybillCode;
@@ -43,5 +48,21 @@ public class WaybillConsumablePdaDto implements Serializable {
 
     public void setConfirmQuantity(Double confirmQuantity) {
         this.confirmQuantity = confirmQuantity;
+    }
+
+    public Double getConfirmVolume() {
+        return confirmVolume;
+    }
+
+    public void setConfirmVolume(Double confirmVolume) {
+        this.confirmVolume = confirmVolume;
+    }
+
+    public String getConsumableTypeCode() {
+        return consumableTypeCode;
+    }
+
+    public void setConsumableTypeCode(String consumableTypeCode) {
+        this.consumableTypeCode = consumableTypeCode;
     }
 }

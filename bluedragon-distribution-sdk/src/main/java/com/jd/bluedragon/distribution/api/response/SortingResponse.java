@@ -484,7 +484,7 @@ public class SortingResponse extends JdResponse {
     public static final Integer CODE_39123=39123;
     public static final Integer CODE_29333=29333;
     public static final String MESSAGE_39123="订单信息变更,请补打包裹标签,是否继续分拣";
-    public static final String WAYBILL_ERROR_WAYBILLSIGN = "运单-运单标示为空,提交IT或咚咚：xnpsxt";
+    public static final String WAYBILL_ERROR_WAYBILLSIGN = "运单-运单标示为空,提交IT或咚咚：org.wlxt2";
 
     public static final Integer CODE_39133 = 39133;
     public static final String MESSAGE_DMS_TO_VENDOR_ERROR = "不允许转网，是否强制操作？";
@@ -504,10 +504,10 @@ public class SortingResponse extends JdResponse {
     public static final Integer CODE_WAYBILL_EMD_DMSSITE_CLOSE=39138;
     public static final String MESSAGE_WAYBILL_EMD_DMSSITE_CLOSE ="此订单目的分拣中心已关闭,确定装箱";    
 
-    public static final String WAYBILL_ERROR_ORGID = "运单-机构为空，提交IT或咚咚：xnpsxt";
+    public static final String WAYBILL_ERROR_ORGID = "运单-机构为空，提交IT或咚咚：org.wlxt2";
 
     public static final Integer CODE_WAYBILL_ERROR_WAYBILLCODE = 10002;
-    public static final String WAYBILL_ERROR_WAYBILLCODE = "运单-运单编码为空,提交IT或咚咚：xnpsxt";
+    public static final String WAYBILL_ERROR_WAYBILLCODE = "运单-运单编码为空,提交IT或咚咚：org.wlxt2";
 
     public static final Integer CODE_WAYBILL_ERROR_SITECODE = 10003;
     public static final String WAYBILL_ERROR_SITECODE = "运单-站点编码为空";
@@ -516,14 +516,14 @@ public class SortingResponse extends JdResponse {
     public static final String WAYBILL_ERROR_SITENAME = "运单-站点名称为空";
 
     public static final Integer CODE_WAYBILL_ERROR_PAYMENTTYPE = 10005;
-    public static final String WAYBILL_ERROR_PAYMENTTYPE = "支付类型为空，联系IT咚咚：XNPSXT处理";
+    public static final String WAYBILL_ERROR_PAYMENTTYPE = "支付类型为空，联系IT咚咚：org.wlxt2 处理";
 
     public static final Integer CODE_WAYBILL_ERROR_SENDPAY = 10006;
-    public static final String WAYBILL_ERROR_SENDPAY = "特殊属性为空，联系IT咚咚：XNPSXT处理";
+    public static final String WAYBILL_ERROR_SENDPAY = "特殊属性为空，联系IT咚咚：org.wlxt2 处理";
 
 
     public static final Integer CODE_WAYBILL_ERROR_TYPE = 10007;
-    public static final String WAYBILL_ERROR_TYPE = "运单类型为空，联系IT咚咚：XNPSXT处理";
+    public static final String WAYBILL_ERROR_TYPE = "运单类型为空，联系IT咚咚：org.wlxt2 处理";
 
     public static final Integer CODE_10008=10008;
     public static final String MESSAGE_WAYBILL_SPS_RECEIVED="备件库已收货！";

@@ -17,9 +17,15 @@
         <result property="reportTime" column="report_time"/>
         <result property="reportImgUrls" column="report_img_urls"/>
         <result property="traderCode" column="trader_code"/>
+        <result property="traderName" column="trader_name"/>
+        <result property="traderOrgCode" column="trader_org_code"/>
+        <result property="traderOrgName" column="trader_org_name"/>
         <result property="reportedUserId" column="reported_user_id"/>
         <result property="reportedUserErp" column="reported_user_erp"/>
         <result property="reportedUserName" column="reported_user_name"/>
+        <result property="saleStaffErp" column="sale_staff_erp"/>
+        <result property="orderStatus" column="order_status"/>
+        <result property="rejectedReason" column="rejected_reason"/>
         <result property="createTime" column="create_time"/>
         <result property="updateTime" column="update_time"/>
         <result property="yn" column="yn"/>
@@ -32,7 +38,8 @@
     <!-- 用于select查询公用抽取的列 -->
     <sql id="Base_Column_List">
         id, package_code, org_code, org_name, site_code, site_name,first_site_code,first_site_name, report_type_name, report_type, report_user_erp, report_time, report_img_urls,
-        trader_code, reported_user_id, reported_user_erp, reported_user_name, line_type, create_time, update_time, yn, ts, remark, order_id
+        trader_code, reported_user_id, reported_user_erp, reported_user_name, line_type, create_time, update_time, yn, ts, remark, order_id,
+        trader_name, trader_org_code, trader_org_name, sale_staff_erp, order_status, rejected_reason
     </sql>
 
 
@@ -46,6 +53,15 @@
         AND package_code = #{packageCode}
     </select>
 
+    <select id="selectOneRecent" resultMap="RM_ExpressBillExceptionReport" parameterType="java.lang.String">
+        select <include refid="Base_Column_List"/>
+        from express_bill_exception_report
+        where yn = 1
+        and package_code = #{packageCode}
+        order by create_time desc
+        limit 1
+    </select>
+
     <!--分页查询-->
     <select id="queryList" parameterType="com.jd.bluedragon.distribution.exceptionReport.billException.request.ExpressBillExceptionReportQuery" resultMap="RM_ExpressBillExceptionReport">
      select
@@ -57,6 +73,25 @@
     <if test="basePagerCondition.pageNumber > 0">
         limit #{basePagerCondition.offset}, #{basePagerCondition.limit}
     </if>
+    </select>
+
+    <!--分页查询（解决深度分页问题）-->
+    <select id="newQueryList" parameterType="com.jd.bluedragon.distribution.exceptionReport.billException.request.ExpressBillExceptionReportQuery" resultMap="RM_ExpressBillExceptionReport">
+        select
+            e1.id, e1.package_code, e1.org_code, e1.org_name, e1.site_code, e1.site_name, e1.first_site_code, e1.first_site_name, e1.report_type_name, e1.report_type, e1.report_user_erp, e1.report_time, e1.report_img_urls,
+            e1.trader_code, e1.reported_user_id, e1.reported_user_erp, e1.reported_user_name, e1.line_type, e1.create_time, e1.update_time, e1.yn, e1.ts, e1.remark, e1.order_id,
+            e1.trader_name, e1.trader_org_code, e1.trader_org_name, e1.sale_staff_erp, e1.order_status, e1.rejected_reason
+        from
+            express_bill_exception_report e1
+        inner join
+            ( select id from express_bill_exception_report where  yn = 1
+            <include refid="where_sql"/>
+            limit #{basePagerCondition.offset}, #{basePagerCondition.limit} ) e2
+        on
+            e1.id = e2.id
+        where
+            e1.yn = 1
+        order by id desc
     </select>
 
     <!--查询举报总记录数-->
@@ -213,6 +248,33 @@
             </if>
         </trim>
     </insert>
+
+    <update id="updateByBusiCode" parameterType="com.jd.bluedragon.distribution.exceptionReport.billException.domain.ExpressBillExceptionReport">
+        update express_bill_exception_report
+        <set>
+            update_time = now(),
+            <if test="traderName != null and traderName !=''">
+                trader_name = #{traderName,jdbcType=VARCHAR},
+            </if>
+            <if test="traderOrgCode != null">
+                trader_org_code = #{traderOrgCode,jdbcType=INTEGER},
+            </if>
+            <if test="traderOrgName != null and traderOrgName !=''">
+                trader_org_name = #{traderOrgName,jdbcType=VARCHAR},
+            </if>
+            <if test="saleStaffErp != null and saleStaffErp !=''">
+                sale_staff_erp = #{saleStaffErp,jdbcType=VARCHAR},
+            </if>
+            <if test="orderStatus != null and orderStatus !=''">
+                order_status = #{orderStatus,jdbcType=VARCHAR},
+            </if>
+            <if test="rejectedReason != null and rejectedReason !=''">
+                rejected_reason = #{rejectedReason,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where trader_code = #{traderCode,jdbcType=VARCHAR}
+        and report_type = #{reportType,jdbcType=INTEGER}
+    </update>
 
     <!-- 判断空值 -->
     <sql id="where_sql">

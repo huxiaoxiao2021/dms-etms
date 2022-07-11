@@ -204,7 +204,7 @@ public class SitePlateBasicHandler implements Handler<WaybillPrintContext,JdResu
             }
             Integer originalDmsCode = labelPrinting.getOriginalDmsCode();
             Integer destinationDmsCode = labelPrinting.getPurposefulDmsCode();
-            waybillCommonService.loadWaybillRouter(labelPrinting,originalDmsCode,destinationDmsCode,waybillSign);
+            waybillCommonService.loadWaybillRouter(context.getRequest(),labelPrinting,originalDmsCode,destinationDmsCode,waybillSign);
 
             if (response != null) {
             	waybill.setAddress(labelPrinting.getOrderAddress());

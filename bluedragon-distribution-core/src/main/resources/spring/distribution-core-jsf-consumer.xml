@@ -881,6 +881,15 @@
                   retries="${jsf.retries}"
                   serialization="hessian"/>
 
+    <!--  拣运实时发车服务  -->
+    <jsf:consumer id="jySendVehicleJsfService"
+                  interface="com.jdl.jy.realtime.api.send.ISendVehicleJsfService"
+                  protocol="jsf"
+                  alias="${jsf.jy.realtime.alias}"
+                  timeout="10000"
+                  retries="${jsf.retries}"
+                  serialization="hessian"/>
+
     <!--  拣运调度服务  -->
     <jsf:consumer id="jyScheduleTaskApi"
                   interface="com.jdl.jy.schedule.api.task.IJyScheduleTaskApi"
@@ -923,4 +932,13 @@
                   timeout="${jsf.tpc.timeout}"
                   retries="${jsf.retries}" serialization="hessian">
     </jsf:consumer>
+    <!--  分拣工作台外包计提配置  -->
+    <jsf:consumer id="workingConfigJsfService" interface="com.jd.dms.wb.report.api.working.WorkingConfigJsfService"
+                  protocol="jsf" alias="${jsf.dmsWbReport.alias}" timeout="${jsf.dmsWbReport.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
+    <!--  转运工作台外包计提配置  -->
+    <jsf:consumer id="outsourceCountRuleServiceWS" interface="com.jd.tys.api.outsource.ws.OutsourceCountRuleServiceWS"
+                  protocol="jsf" alias="${jsf.tysWorkbenchCenter.alias}" timeout="${jsf.tysWorkbenchCenter.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
+
 </beans>

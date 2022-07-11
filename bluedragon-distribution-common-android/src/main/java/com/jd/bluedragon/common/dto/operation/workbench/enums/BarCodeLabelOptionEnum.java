@@ -9,7 +9,8 @@ package com.jd.bluedragon.common.dto.operation.workbench.enums;
 public enum BarCodeLabelOptionEnum {
 
     PRODUCT_TYPE(1, "产品类型"),
-    INTERCEPT(2, "拦截")
+    INTERCEPT(2, "拦截"),
+    SEND_FORCE_SEND(3, "强扫")
     ;
 
     private Integer code;
