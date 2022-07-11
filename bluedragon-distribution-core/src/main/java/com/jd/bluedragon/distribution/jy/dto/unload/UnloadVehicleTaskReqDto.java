@@ -11,6 +11,5 @@ public class UnloadVehicleTaskReqDto extends UnloadBaseDto implements Serializab
     private Integer pageNo;
     private Integer PageSize;
     private Integer vehicleStatus;
-    private Integer groupId;
 
 }

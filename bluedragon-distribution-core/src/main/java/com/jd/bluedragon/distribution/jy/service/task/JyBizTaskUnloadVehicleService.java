@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.jy.service.task;
 
 import com.jd.bluedragon.distribution.jy.dto.task.JyBizTaskUnloadCountDto;
+import com.jd.bluedragon.distribution.jy.dto.unload.UnloadVehicleTaskDto;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadOrderTypeEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyLineTypeEnum;
@@ -158,4 +159,6 @@ public interface JyBizTaskUnloadVehicleService {
      * @return
      */
     Long countByVehicleNumberAndStatus(JyBizTaskUnloadVehicleEntity condition);
+
+    List<UnloadVehicleTaskDto> listUnloadVehicleTask(JyBizTaskUnloadVehicleEntity entity);
 }

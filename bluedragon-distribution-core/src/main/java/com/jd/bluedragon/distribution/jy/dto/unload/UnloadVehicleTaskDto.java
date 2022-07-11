@@ -82,9 +82,10 @@ public class UnloadVehicleTaskDto extends UnloadBaseDto implements Serializable 
      * 更新时间
      */
     private Date updateTime;
+    private Date actualArriveTime;
 
-    /**状态
-     * com.jdl.jy.realtime.enums.seal.VehicleStatusEnum
+    /**
+     * JyBizTaskUnloadStatusEnum
      */
     private Integer vehicleStatus;
     /**
