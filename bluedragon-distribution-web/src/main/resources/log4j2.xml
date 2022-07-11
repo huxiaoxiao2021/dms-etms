@@ -111,9 +111,9 @@
             <AppenderRef ref="bluedragon"/>
             <AppenderRef ref="bluedragon.error"/>
         </AsyncRoot>
-        <AsyncLogger name="security.log" level="INFO" additivity="false">
+        <!--<AsyncLogger name="security.log" level="INFO" additivity="false">
             <AppenderRef ref="security.log"/>
-        </AsyncLogger>
+        </AsyncLogger>-->
     </Loggers>
 
 </Configuration>
