@@ -91,11 +91,11 @@ public interface JyUnloadVehicleTysService {
 
 
     /**
-     * 根据任务流向信息 查询组板信息
+     * 根据任务流向信息 查询流向下组板信息
      * @param taskFlowDto
-     * @return TODO
+     * @return
      */
-    InvokeResult<List<ComBoardDto>> queryComBoarUnderTaskFlow(TaskFlowDto taskFlowDto);
+    InvokeResult<ComBoardAggDto> queryComBoarUnderTaskFlow(TaskFlowDto taskFlowDto);
 
 
     /**

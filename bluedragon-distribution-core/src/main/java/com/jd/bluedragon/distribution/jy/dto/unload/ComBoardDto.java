@@ -9,13 +9,13 @@ public class ComBoardDto implements Serializable {
      */
     private String boardCode;
     /**
-     * 板下应扫包裹数量
+     * 板下已扫包裹数量
      */
-    private Integer shouldScanCount;
+    private Integer haveScanCount;
     /**
      * 板下多扫包裹数量
      */
-    private Integer shouldNotScanCount;
+    private Integer extraScanCount;
 
 
 }

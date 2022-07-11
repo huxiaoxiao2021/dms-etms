@@ -148,7 +148,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     }
 
     @Override
-    public InvokeResult<List<ComBoardDto>> queryComBoarUnderTaskFlow(TaskFlowDto taskFlowDto) {
+    public InvokeResult<ComBoardAggDto> queryComBoarUnderTaskFlow(TaskFlowDto taskFlowDto) {
         return null;
     }
 
