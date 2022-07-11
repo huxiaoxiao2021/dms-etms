@@ -49,7 +49,7 @@ public class FaceReportNotifyConsumer extends MessageBaseConsumer {
             // 根据商家编码和举报类型更新
             ExpressBillExceptionReport query = new ExpressBillExceptionReport();
             query.setReportType(faceReportNotifyMQ.getSecondProblem());
-            query.setTraderCode(faceReportNotifyMQ.getCompanyCode());
+            query.setTraderCode(faceReportNotifyMQ.getBusinessSystemAccount());
             query.setTraderName(faceReportNotifyMQ.getCompanyName());
             query.setTraderOrgCode(faceReportNotifyMQ.getRegionNo());
             query.setTraderOrgName(faceReportNotifyMQ.getRegionName());
@@ -75,6 +75,8 @@ public class FaceReportNotifyConsumer extends MessageBaseConsumer {
         private Integer sourceBill;
         // 来源单据号：由商家编码和举报类型组成
         private String sourceBillCode;
+        // 业务账号
+        private String businessSystemAccount;
         // 客户编号
         private String companyCode;
         // 客户名称
@@ -124,6 +126,14 @@ public class FaceReportNotifyConsumer extends MessageBaseConsumer {
 
         public void setSourceBillCode(String sourceBillCode) {
             this.sourceBillCode = sourceBillCode;
+        }
+
+        public String getBusinessSystemAccount() {
+            return businessSystemAccount;
+        }
+
+        public void setBusinessSystemAccount(String businessSystemAccount) {
+            this.businessSystemAccount = businessSystemAccount;
         }
 
         public String getCompanyCode() {
