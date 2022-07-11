@@ -56,24 +56,14 @@
         </RollingFile>
 
         <!--安全日志-->
-        <!--<RollingFile name="security.log" fileName="${LOG_HOME}/security.log"
+        <RollingFile name="security.log" fileName="${LOG_HOME}/security.log"
                      filePattern="${LOG_HOME}/security.%i.log">
             <Policies>
                 <SizeBasedTriggeringPolicy size="1G"/>
             </Policies>
             <DefaultRolloverStrategy max="2"/>
-        </RollingFile>-->
-        <RollingRandomAccessFile name="securityLog" fileName="${LOG.PATH}/security.log" filePattern="${LOG.PATH}/security.%i.log">
-            <Filters>
-                <ThresholdFilter level="INFO" onMatch="ACCEPT" onMismatch="DENY"/>
-            </Filters>
-            <PatternLayout charset="UTF-8"/>
+        </RollingFile>
 
-            <Policies>
-                <SizeBasedTriggeringPolicy size="1G" />
-            </Policies>
-            <DefaultRolloverStrategy max="2" />
-        </RollingRandomAccessFile>
     </Appenders>
 
     <Loggers>
@@ -97,10 +87,6 @@
         <!--dao-->
         <logger name="com.jd.bluedragon.distribution.site.dao" level="DEBUG" additivity="true"/>
 
-        <!--安全日志-->
-        <logger name="com.jd.bluedragon.utils.LocalSecurityLog" level="INFO" additivity="false">
-            <AppenderRef ref="securityLog" />
-        </logger>
         <!-- 操作日志 -->
         <AsyncLogger name="com.jd.dms.logger.aop.BusinessLogWriter" level="INFO" additivity="false">
             <appender-ref ref="business.log"/>
@@ -111,9 +97,9 @@
             <AppenderRef ref="bluedragon"/>
             <AppenderRef ref="bluedragon.error"/>
         </AsyncRoot>
-        <!--<AsyncLogger name="security.log" level="INFO" additivity="false">
+        <AsyncLogger name="security.log" level="INFO" additivity="false">
             <AppenderRef ref="security.log"/>
-        </AsyncLogger>-->
+        </AsyncLogger>
     </Loggers>
 
 </Configuration>
