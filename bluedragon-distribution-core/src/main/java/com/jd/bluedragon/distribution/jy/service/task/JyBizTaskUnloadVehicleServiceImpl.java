@@ -552,7 +552,7 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
             Date now =new Date();
             List<UnloadVehicleTaskDto> unloadVehicleTaskDtoList =new ArrayList<>();
             for (JyBizTaskUnloadVehicleEntity unloadTask : jyBizTaskUnloadVehicleEntityList) {
-                UnloadVehicleTaskDto unloadVehicleTaskDto = dtoConvert(unloadTask);
+                UnloadVehicleTaskDto unloadVehicleTaskDto = entityConvertDto(unloadTask);
                 unloadVehicleTaskDtoList.add(unloadVehicleTaskDto);
             }
             return unloadVehicleTaskDtoList;
@@ -560,23 +560,24 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
         return null;
     }
 
-    private UnloadVehicleTaskDto dtoConvert(JyBizTaskUnloadVehicleEntity unloadTask) {
-        UnloadVehicleTaskDto unloadVehicleTaskDto =BeanUtils.copy(unloadTask,UnloadVehicleTaskDto.class);
+    @Override
+    public UnloadVehicleTaskDto entityConvertDto(JyBizTaskUnloadVehicleEntity entity) {
+        UnloadVehicleTaskDto unloadVehicleTaskDto =BeanUtils.copy(entity,UnloadVehicleTaskDto.class);
         calculationProcessTime(unloadVehicleTaskDto);
-        if (ObjectHelper.isNotNull(unloadTask.getUnloadProgress())){
-            unloadVehicleTaskDto.setProcessPercent(unloadTask.getUnloadProgress().intValue());
+        if (ObjectHelper.isNotNull(entity.getUnloadProgress())){
+            unloadVehicleTaskDto.setProcessPercent(entity.getUnloadProgress().intValue());
         }
-        if (ObjectHelper.isNotNull(unloadTask.getMoreCount())){
-            unloadVehicleTaskDto.setExtraScanCount(unloadTask.getMoreCount().intValue());
+        if (ObjectHelper.isNotNull(entity.getMoreCount())){
+            unloadVehicleTaskDto.setExtraScanCount(entity.getMoreCount().intValue());
         }
-        if (ObjectHelper.isNotNull(unloadTask.getComboardCount())){
-            unloadVehicleTaskDto.setComBoardCount(unloadTask.getComboardCount());
+        if (ObjectHelper.isNotNull(entity.getComboardCount())){
+            unloadVehicleTaskDto.setComBoardCount(entity.getComboardCount());
         }
-        if (ObjectHelper.isNotNull(unloadTask.getInterceptCount())){
-            unloadVehicleTaskDto.setInterceptCount(unloadTask.getInterceptCount());
+        if (ObjectHelper.isNotNull(entity.getInterceptCount())){
+            unloadVehicleTaskDto.setInterceptCount(entity.getInterceptCount());
         }
-        if (ObjectHelper.isNotNull(unloadTask.getTagsSign())){
-           unloadVehicleTaskDto.setLabelOptionList(resolveTagSign(unloadTask.getTagsSign()));
+        if (ObjectHelper.isNotNull(entity.getTagsSign())){
+            unloadVehicleTaskDto.setLabelOptionList(resolveTagSign(entity.getTagsSign()));
         }
         return unloadVehicleTaskDto;
     }

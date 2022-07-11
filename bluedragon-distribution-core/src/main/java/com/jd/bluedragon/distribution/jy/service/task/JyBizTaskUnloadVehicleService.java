@@ -161,4 +161,6 @@ public interface JyBizTaskUnloadVehicleService {
     Long countByVehicleNumberAndStatus(JyBizTaskUnloadVehicleEntity condition);
 
     List<UnloadVehicleTaskDto> listUnloadVehicleTask(JyBizTaskUnloadVehicleEntity entity);
+
+    UnloadVehicleTaskDto entityConvertDto(JyBizTaskUnloadVehicleEntity entity);
 }

@@ -56,7 +56,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         for (JyBizTaskUnloadCountDto unloadCountDto : unloadCountDtos) {
             switch (unloadCountDto.getVehicleStatus()) {
                 case 3:
-                    unloadVehicleTaskRespDto.setToUnloadCount(unloadCountDto.getSum());
+                    unloadVehicleTaskRespDto.setWaitUnloadCount(unloadCountDto.getSum());
                     break;
                 case 4:
                     unloadVehicleTaskRespDto.setUnloadingCount(unloadCountDto.getSum());
@@ -77,7 +77,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             detail.setPackageCode(queryUnloadTaskDto.getPackageCode());
             List<JyVehicleTaskUnloadDetail> unloadDetailList = iJyUnloadVehicleManager.findUnloadDetail(detail);
             if (ObjectHelper.isNotNull(unloadDetailList)) {
-                List<UnloadVehicleTaskDto> unloadVehicleTaskDtoList = convertUnloadVehicleTaskDto(unloadDetailList, UnloadVehicleTaskDto.class);
+                List<UnloadVehicleTaskDto> unloadVehicleTaskDtoList = convertUnloadVehicleTaskDto(unloadDetailList);
                 return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, unloadVehicleTaskDtoList);
             }
         } else if (ObjectHelper.isNotNull(queryUnloadTaskDto.getVehicleNumber())) {
@@ -90,8 +90,13 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         return new InvokeResult(TASK_NO_FOUND_BY_PARAMS_CODE, TASK_NO_FOUND_BY_PARAMS_MESSAGE);
     }
 
-    private List<UnloadVehicleTaskDto> convertUnloadVehicleTaskDto(List<JyVehicleTaskUnloadDetail> unloadDetailList, Class<UnloadVehicleTaskDto> unloadVehicleTaskDtoClass) {
-        return null;
+    private List<UnloadVehicleTaskDto> convertUnloadVehicleTaskDto(List<JyVehicleTaskUnloadDetail> unloadDetailList) {
+        List<UnloadVehicleTaskDto> unloadVehicleTaskDtoList =new ArrayList<>();
+        JyVehicleTaskUnloadDetail detail =unloadDetailList.get(0);
+        JyBizTaskUnloadVehicleEntity entity = jyBizTaskUnloadVehicleService.findByBizId(detail.getBizId());
+        UnloadVehicleTaskDto unloadVehicleTaskDto =jyBizTaskUnloadVehicleService.entityConvertDto(entity);
+        unloadVehicleTaskDtoList.add(unloadVehicleTaskDto);
+        return unloadVehicleTaskDtoList;
     }
 
     @Override
