@@ -104,6 +104,11 @@ public class WaybillConsumableRelationController extends DmsBaseController{
 				rest.toError("数据格式不对，请录入大于0小于1000的数据");
 				return rest;
 			}
+			if (!waybillConsumableRecordService.canModify(waybillConsumableRelation1.getWaybillCode())
+					&& !Objects.equals(waybillConsumableRelation1.getConfirmQuantity(),waybillConsumableRelation.getConfirmQuantity())) {
+				rest.toError("【已确认】或为【寄付运费运单】，不允许修改耗材使用数量！");
+				return rest;
+			}
 
 			Date date = new Date();
 			waybillConsumableRelation.setUpdateTime(date);
