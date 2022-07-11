@@ -190,7 +190,7 @@ public class LocalSecurityLog {
         if(StringUtils.isNotBlank(account)){
             accountName =account;
         }
-        if(loginContext != null || StringUtils.isBlank(account)){
+        if(loginContext != null && StringUtils.isNotBlank(loginContext.getPin()) && StringUtils.isBlank(account)){
             accountName = loginContext.getPin();
         }
         Head head = new Head();
@@ -410,5 +410,10 @@ public class LocalSecurityLog {
             identifiers.add(identifier);
         }
         return identifiers;
+    }
+
+
+    public static void main(String[] args) {
+        System.out.println(StringUtils.isBlank(null));
     }
 }
