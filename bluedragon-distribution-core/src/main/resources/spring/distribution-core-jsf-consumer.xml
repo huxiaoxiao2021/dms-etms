@@ -917,6 +917,13 @@
                   retries="${jsf.retries}" >
     </jsf:consumer>
 
+    <jsf:consumer id="idcrServiceJsf" interface="com.jd.wl.ai.cv.center.outter.api.service.IDCRService"
+                  protocol="jsf" alias="${jsf.idcrService.alias}"
+                  timeout="${jsf.idcrService.timeout}"
+                  retries="${jsf.retries}" >
+        <jsf:parameter key="token" value="${jsf.idcrService.token}" hide="true"/>
+    </jsf:consumer>
+
     <jsf:consumer id="waybillPackageContainerApi" interface="com.jd.coldchain.distribution.api.WaybillPackageContainerApi"
                   protocol="jsf" alias="${jsf.coldchain.dispatch.alias}" timeout="${jsf.coldchain.dispatch.timeout}" retries="${jsf.retries}" serialization="hessian">
     </jsf:consumer>

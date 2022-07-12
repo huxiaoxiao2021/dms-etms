@@ -19,8 +19,8 @@ public interface IdentityScanGatewayService {
 
     /**
      * 身份证识别
-     * @param IdentityBase64
+     * @param identityBase64
      * @return
      */
-    JdCResponse<IdentityContentEntity> scanAndDistinguishIdentity(String IdentityBase64);
+    JdCResponse<IdentityContentEntity> scanAndSaveIdentity(String identityBase64);
 }
