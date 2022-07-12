@@ -1,10 +1,6 @@
 package com.jd.bluedragon.distribution.station.service.impl;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -12,6 +8,7 @@ import org.apache.commons.lang.ObjectUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -49,6 +46,10 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service("workStationGridService")
 public class WorkStationGridServiceImpl implements WorkStationGridService {
+
+	// 工序删除无限制人ERP
+	@Value("${workStation.delete.noLimit.erps:}")
+	private String noLimitErps;
 
 	@Autowired
 	@Qualifier("workStationGridDao")
@@ -429,7 +430,8 @@ public class WorkStationGridServiceImpl implements WorkStationGridService {
 			return result.toFail("参数错误，数据已变更请刷新列表后重新选择！");
 		}
 		for(WorkStationGrid oldData : oldDataList) {
-			if(!ObjectUtils.equals(oldData.getSiteCode(), deleteRequest.getOperateSiteCode())) {
+			if(!ObjectUtils.equals(oldData.getSiteCode(), deleteRequest.getOperateSiteCode())
+					&& !Arrays.asList(noLimitErps.split(Constants.SEPARATOR_COMMA)).contains(deleteRequest.getOperateUserCode())) {
 				return result.toFail("网格【"+oldData.getGridName()+ "】非本人所在场地数据，无法删除！");
 			}
 		}
