@@ -104,9 +104,11 @@ $(function () {
                         shadeClose: true,
                         shade: 0.7,
                         maxmin: true,
-                        area: ['1100px', '700px'],
+                        area: ['90%', '90%'],
+                        offset:'40px',
                         content: $packageDetailContainer,
                         success: function (layero, index) {
+                            // layer.iframeAuto(index);
                         },
                         cancel: function (index, layero) {
                             layer.close(index)

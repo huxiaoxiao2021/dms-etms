@@ -1,9 +1,8 @@
 package com.jd.bluedragon.distribution.enterpriseDistribution.service;
 
-import com.github.pagehelper.PageInfo;
 import com.jd.bluedragon.distribution.enterpriseDistribution.domain.QualityInspectionQueryCondition;
-import com.jd.bluedragon.distribution.enterpriseDistribution.service.dto.QualityInspectionDetailDto;
-import com.jd.bluedragon.distribution.enterpriseDistribution.service.dto.QualityInspectionDto;
+import com.jd.bluedragon.distribution.enterpriseDistribution.dto.QualityInspectionDetailDto;
+import com.jd.bluedragon.distribution.enterpriseDistribution.dto.QualityInspectionDto;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 
 import java.io.BufferedWriter;

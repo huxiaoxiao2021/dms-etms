@@ -25,7 +25,7 @@
                             <div class="col-xs-4">
                                 <div class="form-group">
                                     <label class="control-label col-xs-4">运单号：</label>
-                                    <div class="col-xs-4">
+                                    <div class="col-xs-7">
                                         <input type="text" id="waybillNo" name="waybillNo" class="form-control search-param" >
                                     </div>
                                 </div>
@@ -33,7 +33,7 @@
                             <div class="col-xs-4">
                                 <div class="form-group" >
                                     <label class="control-label col-xs-4" for="box-code-input">状态：</label>
-                                    <div class="col-xs-4 ">
+                                    <div class="col-xs-7 ">
                                         <select type="text" class="form-control search-param" id="optStatus" name="optStatus">
                                             <option value="" selected></option>
                                             <option value="1" >初始化</option>
@@ -47,7 +47,7 @@
                             <div class="col-xs-4">
                                 <div class="form-group" >
                                     <label class="control-label col-xs-4" for="box-code-input">异常原因：</label>
-                                    <div class="col-xs-4 ">
+                                    <div class="col-xs-7 ">
                                         <select type="text" class="form-control  search-param" id="exceptionReason" name="exceptionReason">
                                             <option value="" selected></option>
                                             <option value="1" >少货</option>
@@ -65,7 +65,7 @@
                             <div class="col-xs-4">
                                 <div class="form-group">
                                     <label class="control-label col-xs-4">操作人ERP：</label>
-                                    <div class="col-xs-4">
+                                    <div class="col-xs-7">
                                         <input type="text" id="updateUser" name="updateUser" class="form-control search-param" >
                                     </div>
                                 </div>
@@ -73,7 +73,7 @@
                             <div class="col-xs-4">
                                 <div class="form-group">
                                     <label class="control-label col-xs-4 ">创建时间：</label>
-                                    <div class=" col-xs-6">
+                                    <div class=" col-xs-7">
                                         <input type="text" id="createStartTime" name="createStartTime"  readonly="readonly" class="form-control search-param ">
                                     </div>
                                 </div>
@@ -81,7 +81,7 @@
                             <div class="col-xs-4">
                                 <div class="form-group">
                                     <label class="control-label col-xs-4 "> 至 </label>
-                                    <div class=" col-xs-6">
+                                    <div class=" col-xs-7">
                                         <input type="text" id="createEndTime" name="createEndTime"  readonly="readonly" class="form-control search-param " >
                                     </div>
                                 </div>
@@ -93,7 +93,7 @@
                             <div class="col-xs-4">
                                 <div class="form-group">
                                     <label class="control-label col-xs-4 ">更新时间：</label>
-                                    <div class=" col-xs-6">
+                                    <div class=" col-xs-7">
                                         <input type="text" id="updateStartTime" name="updateStartTime"  readonly="readonly" class="form-control search-param ">
                                     </div>
                                 </div>
@@ -101,7 +101,7 @@
                             <div class="col-xs-4">
                                 <div class="form-group">
                                     <label class="control-label col-xs-4 "> 至 </label>
-                                    <div class=" col-xs-6">
+                                    <div class=" col-xs-7">
                                         <input type="text" id="updateEndTime" name="updateEndTime"  readonly="readonly" class="form-control search-param " >
                                     </div>
                                 </div>
