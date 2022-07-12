@@ -1,4 +1,4 @@
-package com.jd.bluedragon.distribution.enterpriseDistribution.service.dto;
+package com.jd.bluedragon.distribution.enterpriseDistribution.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
