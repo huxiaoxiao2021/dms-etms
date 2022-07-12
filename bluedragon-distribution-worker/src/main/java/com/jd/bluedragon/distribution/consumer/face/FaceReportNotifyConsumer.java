@@ -34,7 +34,7 @@ public class FaceReportNotifyConsumer extends MessageBaseConsumer {
         CallerInfo info = Profiler.registerInfo("FaceReportNotifyConsumer.consume", Constants.UMP_APP_NAME_DMSWORKER,false, true);
         try {
             if (!JsonHelper.isJsonString(message.getText())) {
-                logger.warn("面单举报回传消息dws_spot_check 非JSON格式，内容为【{}】", message.getText());
+                logger.warn("面单举报回传消息spm_question_order_state_circulation 非JSON格式，内容为【{}】", message.getText());
                 return;
             }
             FaceReportNotifyMQ faceReportNotifyMQ = JsonHelper.fromJsonUseGson(message.getText(), FaceReportNotifyMQ.class);
