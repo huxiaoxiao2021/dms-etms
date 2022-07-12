@@ -8,6 +8,7 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.jmq.common.message.Message;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.avro.data.Json;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,6 +33,9 @@ public class FaceReportNotifyConsumer extends MessageBaseConsumer {
     @Override
     public void consume(Message message) throws Exception {
         CallerInfo info = Profiler.registerInfo("FaceReportNotifyConsumer.consume", Constants.UMP_APP_NAME_DMSWORKER,false, true);
+        if(logger.isInfoEnabled()){
+            logger.info("面单举报回传消息开始消费！消息体:{}", message.getText());
+        }
         try {
             if (!JsonHelper.isJsonString(message.getText())) {
                 logger.warn("面单举报回传消息spm_question_order_state_circulation 非JSON格式，内容为【{}】", message.getText());
@@ -58,6 +62,9 @@ public class FaceReportNotifyConsumer extends MessageBaseConsumer {
             if(Objects.equals(faceReportNotifyMQ.getStatus(), 5)){
                 // 驳回
                 query.setRejectedReason(faceReportNotifyMQ.getOperationDesc());
+            }
+            if(logger.isInfoEnabled()){
+                logger.info("面单举报开始更新数据!更新内容:{}", JsonHelper.toJson(query));
             }
             expressBillExceptionReportService.updateByBusiCode(query);
         }catch(Exception e){
