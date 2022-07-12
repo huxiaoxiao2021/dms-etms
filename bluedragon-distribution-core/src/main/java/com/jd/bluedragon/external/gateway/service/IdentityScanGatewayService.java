@@ -22,5 +22,5 @@ public interface IdentityScanGatewayService {
      * @param identityBase64
      * @return
      */
-    JdCResponse<IdentityContentEntity> scanAndSaveIdentity(String identityBase64);
+    JdCResponse<IdentityContentEntity> recognise(String identityBase64);
 }

@@ -35,7 +35,7 @@ public class IdentityScanGatewayServiceImpl implements IdentityScanGatewayServic
     private IDCRServiceProxy idcrServiceProxy;
 
     @Override
-    public JdCResponse<IdentityContentEntity> scanAndSaveIdentity(String identityBase64) {
+    public JdCResponse<IdentityContentEntity> recognise(String identityBase64) {
 
         IDCRRequestDto idcrRequestDto = new IDCRRequestDto();
         idcrRequestDto.setServiceUUID(UUID.randomUUID().toString());
