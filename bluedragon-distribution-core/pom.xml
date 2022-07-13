@@ -1806,7 +1806,7 @@
 
 		<dependency>
 			<groupId>com.jd.wl.ai.cv</groupId>
-			<artifactId>ai-cv-center-outter-api-uat</artifactId>
+			<artifactId>ai-cv-center-outter-api-uat-7</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 
