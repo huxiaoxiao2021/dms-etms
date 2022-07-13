@@ -186,11 +186,10 @@ public class LocalSecurityLog {
     private static Head createHead(String interfaceName,String account) throws UnknownHostException {
         String accountName =ACCOUNTNAME;
         LoginContext loginContext = LoginContext.getLoginContext();
-        log.info("LoginContext {}",JSON.toJSONString(loginContext));
         if(StringUtils.isNotBlank(account)){
             accountName =account;
         }
-        if(loginContext != null || StringUtils.isBlank(account)){
+        if(loginContext != null && StringUtils.isNotBlank(loginContext.getPin()) && StringUtils.isBlank(account)){
             accountName = loginContext.getPin();
         }
         Head head = new Head();
@@ -242,11 +241,6 @@ public class LocalSecurityLog {
      * @return
      */
     private static ReqInfo createJsonCommandReqInfo(WaybillPrintRequest request) {
-
-        log.info("createJsonCommandReqInfo -request -1{}",JsonHelper.toJson(request));
-
-
-        log.info("createJsonCommandReqInfo -request 2-{}",JSON.toJSONString(request));
         ReqInfo reqInfo = new ReqInfo();
         reqInfo.setErpId(String.valueOf(request.getUserCode()));
         reqInfo.setTimeFrom(request.getRequestTime().getTime() / 1000);
