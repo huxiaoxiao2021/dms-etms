@@ -3,7 +3,7 @@ package com.jd.bluedragon.common.dto.group;
 import java.io.Serializable;
 
 /**
- * @ClassName: UserSignQueryRequest
+ * @ClassName: GroupMemberQueryRequest
  * @Description: 小组成员查询请求
  * @author wuyoude
  * @date 2022年03月30日 11:01:53
