@@ -13,4 +13,19 @@ public class QueryUnloadDetailDto extends UnloadBaseDto implements Serializable 
      */
     private Integer expType;
 
+    public Integer getGoodsType() {
+        return goodsType;
+    }
+
+    public void setGoodsType(Integer goodsType) {
+        this.goodsType = goodsType;
+    }
+
+    public Integer getExpType() {
+        return expType;
+    }
+
+    public void setExpType(Integer expType) {
+        this.expType = expType;
+    }
 }

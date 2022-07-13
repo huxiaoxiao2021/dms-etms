@@ -1,4 +1,4 @@
-package com.jd.bluedragon.distribution.jy.service.unload;
+package com.jd.bluedragon.distribution.jy.api;
 
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.dto.unload.*;
@@ -16,7 +16,7 @@ public interface JyUnloadVehicleTysService {
      *
      * @return
      */
-    InvokeResult<List<UnloadVehicleTaskDto>> queryUnloadVehicleTaskByVehicleNumOrPackage(QueryUnloadTaskDto queryUnloadTaskDto);
+    InvokeResult<UnloadVehicleTaskRespDto> queryUnloadVehicleTaskByVehicleNumOrPackage(QueryUnloadTaskDto queryUnloadTaskDto);
 
     /**
      * 变更任务属性

@@ -356,7 +356,9 @@
         <if test="entity.sortTime != null">
             AND sort_time >= #{entity.sortTime}
         </if>
-
+        <if test="entity.lineType!=null">
+           and line_type =#{entity.lineType}
+        </if>
         <choose>
             <when test="entity.startSiteId != null and entity.fuzzyVehicleNumber != null">
                 AND (start_site_id = #{entity.startSiteId} OR fuzzy_vehicle_number = #{entity.fuzzyVehicleNumber})
@@ -377,11 +379,15 @@
         <include refid="Base_Column_List"/>
         from jy_biz_task_unload_vehicle
         where end_site_id =#{endSiteId}
+          and yn=1
         <if test="vehicleStatus != null">
             and vehicle_status =#{vehicleStatus}
         </if>
         <if test="fuzzyVehicleNumber!=null">
             and fuzzy_vehicle_number =#{fuzzyVehicleNumber}
+        </if>
+        <if test="lineType!=null" >
+            and line_type =#{lineType}
         </if>
         <if test="vehicleStatus !=null and vehicleStatus==3">
             order by actual_arrive_time asc

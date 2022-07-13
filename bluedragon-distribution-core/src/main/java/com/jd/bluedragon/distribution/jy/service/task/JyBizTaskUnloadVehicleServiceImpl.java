@@ -6,6 +6,7 @@ import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.VosManager;
 import com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskUnloadVehicleDao;
 import com.jd.bluedragon.distribution.jy.dto.task.JyBizTaskUnloadCountDto;
+import com.jd.bluedragon.distribution.jy.dto.unload.LabelOptionDto;
 import com.jd.bluedragon.distribution.jy.dto.unload.UnloadVehicleTaskDto;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadOrderTypeEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadStatusEnum;
@@ -548,8 +549,6 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
     public List<UnloadVehicleTaskDto> listUnloadVehicleTask(JyBizTaskUnloadVehicleEntity entity) {
         List<JyBizTaskUnloadVehicleEntity> jyBizTaskUnloadVehicleEntityList = jyBizTaskUnloadVehicleDao.listUnloadVehicleTask(entity);
         if (ObjectHelper.isNotNull(jyBizTaskUnloadVehicleEntityList) && jyBizTaskUnloadVehicleEntityList.size() > 0) {
-            //加工数据
-            Date now =new Date();
             List<UnloadVehicleTaskDto> unloadVehicleTaskDtoList =new ArrayList<>();
             for (JyBizTaskUnloadVehicleEntity unloadTask : jyBizTaskUnloadVehicleEntityList) {
                 UnloadVehicleTaskDto unloadVehicleTaskDto = entityConvertDto(unloadTask);
@@ -582,25 +581,25 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
         return unloadVehicleTaskDto;
     }
 
-    private List<LabelOption> resolveTagSign(String tagSign) {
-        List<LabelOption> tagList = new ArrayList<>();
+    private List<LabelOptionDto> resolveTagSign(String tagSign) {
+        List<LabelOptionDto> tagList = new ArrayList<>();
 
         // 是否抽检
         if (BusinessUtil.isSignY(tagSign, JyUnloadTaskSignConstants.POSITION_1)) {
             UnloadTaskLabelEnum spotCheck = UnloadTaskLabelEnum.SPOT_CHECK;
-            tagList.add(new LabelOption(spotCheck.getCode(), spotCheck.getName(), spotCheck.getDisplayOrder()));
+            tagList.add(new LabelOptionDto(spotCheck.getCode(), spotCheck.getName(), spotCheck.getDisplayOrder()));
         }
 
         // 逐单卸
         if (BusinessUtil.isSignY(tagSign, JyUnloadTaskSignConstants.POSITION_2)) {
             UnloadTaskLabelEnum unloadSingleBill = UnloadTaskLabelEnum.UNLOAD_SINGLE_BILL;
-            tagList.add(new LabelOption(unloadSingleBill.getCode(), unloadSingleBill.getName(), unloadSingleBill.getDisplayOrder()));
+            tagList.add(new LabelOptionDto(unloadSingleBill.getCode(), unloadSingleBill.getName(), unloadSingleBill.getDisplayOrder()));
         }
 
         // 半车卸
         if (BusinessUtil.isSignY(tagSign, JyUnloadTaskSignConstants.POSITION_3)) {
             UnloadTaskLabelEnum unloadHalfCar = UnloadTaskLabelEnum.UNLOAD_HALF_CAR;
-            tagList.add(new LabelOption(unloadHalfCar.getCode(), unloadHalfCar.getName(), unloadHalfCar.getDisplayOrder()));
+            tagList.add(new LabelOptionDto(unloadHalfCar.getCode(), unloadHalfCar.getName(), unloadHalfCar.getDisplayOrder()));
         }
 
         return tagList;

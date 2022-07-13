@@ -12,4 +12,20 @@ public class UnloadWaybillDto implements Serializable {
      * 运单下包裹数量
      */
     private Integer packageCount;
+
+    public String getWaybillCode() {
+        return waybillCode;
+    }
+
+    public void setWaybillCode(String waybillCode) {
+        this.waybillCode = waybillCode;
+    }
+
+    public Integer getPackageCount() {
+        return packageCount;
+    }
+
+    public void setPackageCount(Integer packageCount) {
+        this.packageCount = packageCount;
+    }
 }
