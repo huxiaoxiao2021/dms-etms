@@ -6,6 +6,7 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.api.JyUnloadVehicleTysService;
 import com.jd.bluedragon.distribution.jy.dto.task.JyBizTaskUnloadCountDto;
 import com.jd.bluedragon.distribution.jy.dto.unload.*;
+import com.jd.bluedragon.distribution.jy.enums.UnloadStatisticsQueryTypeEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadStatusEnum;
 import com.jd.bluedragon.distribution.jy.manager.IJyUnloadVehicleManager;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskUnloadVehicleService;
@@ -43,7 +44,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     public InvokeResult<UnloadVehicleTaskRespDto> listUnloadVehicleTask(UnloadVehicleTaskReqDto unloadVehicleTaskReqDto) {
         //查询统计数据
         JyBizTaskUnloadStatusEnum[] statusEnums = {WAIT_UN_LOAD, UN_LOADING, UN_LOAD_DONE};
-        JyBizTaskUnloadVehicleEntity condition =new JyBizTaskUnloadVehicleEntity();
+        JyBizTaskUnloadVehicleEntity condition = new JyBizTaskUnloadVehicleEntity();
         condition.setLineType(unloadVehicleTaskReqDto.getLineType());
         condition.setEndSiteId(Long.valueOf(unloadVehicleTaskReqDto.getCurrentOperate().getSiteCode()));
         List<JyBizTaskUnloadCountDto> unloadCountDtos = jyBizTaskUnloadVehicleService.findStatusCountByCondition4Status(condition, null, statusEnums);
@@ -83,14 +84,14 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
 
     @Override
     public InvokeResult<UnloadVehicleTaskRespDto> queryUnloadVehicleTaskByVehicleNumOrPackage(QueryUnloadTaskDto queryUnloadTaskDto) {
-        UnloadVehicleTaskRespDto unloadVehicleTaskRespDto =new UnloadVehicleTaskRespDto();
+        UnloadVehicleTaskRespDto unloadVehicleTaskRespDto = new UnloadVehicleTaskRespDto();
         if (ObjectHelper.isNotNull(queryUnloadTaskDto.getPackageCode()) && WaybillUtil.isPackageCode(queryUnloadTaskDto.getPackageCode())) {
             JyVehicleTaskUnloadDetail detail = new JyVehicleTaskUnloadDetail();
             detail.setPackageCode(queryUnloadTaskDto.getPackageCode());
             List<JyVehicleTaskUnloadDetail> unloadDetailList = iJyUnloadVehicleManager.findUnloadDetail(detail);
             if (ObjectHelper.isNotNull(unloadDetailList)) {
                 List<UnloadVehicleTaskDto> unloadVehicleTaskDtoList = convertUnloadVehicleTaskDto(unloadDetailList);
-                calculationCount(unloadVehicleTaskRespDto,unloadVehicleTaskDtoList);
+                calculationCount(unloadVehicleTaskRespDto, unloadVehicleTaskDtoList);
                 return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, unloadVehicleTaskRespDto);
             }
         } else if (ObjectHelper.isNotNull(queryUnloadTaskDto.getVehicleNumber())) {
@@ -98,7 +99,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             entity.setFuzzyVehicleNumber(queryUnloadTaskDto.getVehicleNumber());
             entity.setEndSiteId(Long.valueOf(queryUnloadTaskDto.getCurrentOperate().getSiteCode()));
             List<UnloadVehicleTaskDto> unloadVehicleTaskDtoList = jyBizTaskUnloadVehicleService.listUnloadVehicleTask(entity);
-            calculationCount(unloadVehicleTaskRespDto,unloadVehicleTaskDtoList);
+            calculationCount(unloadVehicleTaskRespDto, unloadVehicleTaskDtoList);
             return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, unloadVehicleTaskRespDto);
         }
         return new InvokeResult(TASK_NO_FOUND_BY_PARAMS_CODE, TASK_NO_FOUND_BY_PARAMS_MESSAGE);
@@ -132,10 +133,10 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     }
 
     private List<UnloadVehicleTaskDto> convertUnloadVehicleTaskDto(List<JyVehicleTaskUnloadDetail> unloadDetailList) {
-        List<UnloadVehicleTaskDto> unloadVehicleTaskDtoList =new ArrayList<>();
-        JyVehicleTaskUnloadDetail detail =unloadDetailList.get(0);
+        List<UnloadVehicleTaskDto> unloadVehicleTaskDtoList = new ArrayList<>();
+        JyVehicleTaskUnloadDetail detail = unloadDetailList.get(0);
         JyBizTaskUnloadVehicleEntity entity = jyBizTaskUnloadVehicleService.findByBizId(detail.getBizId());
-        UnloadVehicleTaskDto unloadVehicleTaskDto =jyBizTaskUnloadVehicleService.entityConvertDto(entity);
+        UnloadVehicleTaskDto unloadVehicleTaskDto = jyBizTaskUnloadVehicleService.entityConvertDto(entity);
         unloadVehicleTaskDtoList.add(unloadVehicleTaskDto);
         return unloadVehicleTaskDtoList;
     }
@@ -147,7 +148,11 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
 
     @Override
     public InvokeResult<UnloadVehicleTaskDto> queryStatisticsByDiffDimension(DimensionQueryDto dto) {
-        return null;
+        if (UnloadStatisticsQueryTypeEnum.PACKAGE.getCode().equals(dto.getType()) || UnloadStatisticsQueryTypeEnum.WAYBILL.getCode().equals(dto.getType())) {
+            UnloadVehicleTaskDto unloadVehicleTaskDto = jyBizTaskUnloadVehicleService.queryStatisticsByDiffDimension(dto);
+            return new InvokeResult<>(RESULT_SUCCESS_CODE,RESULT_SUCCESS_MESSAGE,unloadVehicleTaskDto);
+        }
+        return new InvokeResult(NOT_SUPPORT_TYPE_QUERY_CODE, NOT_SUPPORT_TYPE_QUERY_MESSAGE);
     }
 
     @Override
@@ -159,13 +164,12 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     public InvokeResult<ScanPackageRespDto> scanAndComBoard(ScanPackageDto scanPackageDto) {
         log.info("invoking jy scanAndComBoard,params: {}", JsonHelper.toJson(scanPackageDto));
         //校验一下当前有没有进行中的板，有
-        if (ObjectHelper.isNotNull(scanPackageDto.getBoardCode())){
+        if (ObjectHelper.isNotNull(scanPackageDto.getBoardCode())) {
 
-        }
-        else {
+        } else {
             //根据包裹获取流向
 
-            AddBoardRequest addBoardRequest =new AddBoardRequest();
+            AddBoardRequest addBoardRequest = new AddBoardRequest();
             addBoardRequest.setBoardCount(1);
             addBoardRequest.setDestinationId(1);
             addBoardRequest.setDestination("");
@@ -175,9 +179,9 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             addBoardRequest.setSiteName(scanPackageDto.getCurrentOperate().getSiteName());
             addBoardRequest.setBizSource(1);
             Response<List<Board>> createBoardResp = groupBoardManager.createBoards(addBoardRequest);
-            if (ObjectHelper.isNotNull(createBoardResp) &&  ResponseEnum.SUCCESS.getIndex()==createBoardResp.getCode()){
-                Board board =createBoardResp.getData().get(0);
-                AddBoardBox addBoardBox =new AddBoardBox();
+            if (ObjectHelper.isNotNull(createBoardResp) && ResponseEnum.SUCCESS.getIndex() == createBoardResp.getCode()) {
+                Board board = createBoardResp.getData().get(0);
+                AddBoardBox addBoardBox = new AddBoardBox();
                 addBoardBox.setBoardCode(board.getCode());
                 addBoardBox.setBoxCode(scanPackageDto.getScanCode());
                 groupBoardManager.addBoxToBoard(addBoardBox);

@@ -93,6 +93,88 @@ public class JyUnloadAggsEntity implements Serializable {
      */
     private Date ts;
 
+    private String boardCode;
+    private Integer shouldScanWaybillCount;
+    private Integer actualScanWaybillCount;
+    private Integer interceptShouldScanWaybillCount;
+    private Integer interceptActualScanWaybillCount;
+    private Integer moreScanLocalWaybillCount;
+    private Integer moreScanOutWaybillCount;
+    private Integer totalScannedBoardCount;
+    private Integer totalScannedInterceptCount;
+
+    public String getBoardCode() {
+        return boardCode;
+    }
+
+    public void setBoardCode(String boardCode) {
+        this.boardCode = boardCode;
+    }
+
+    public Integer getShouldScanWaybillCount() {
+        return shouldScanWaybillCount;
+    }
+
+    public void setShouldScanWaybillCount(Integer shouldScanWaybillCount) {
+        this.shouldScanWaybillCount = shouldScanWaybillCount;
+    }
+
+    public Integer getActualScanWaybillCount() {
+        return actualScanWaybillCount;
+    }
+
+    public void setActualScanWaybillCount(Integer actualScanWaybillCount) {
+        this.actualScanWaybillCount = actualScanWaybillCount;
+    }
+
+    public Integer getInterceptShouldScanWaybillCount() {
+        return interceptShouldScanWaybillCount;
+    }
+
+    public void setInterceptShouldScanWaybillCount(Integer interceptShouldScanWaybillCount) {
+        this.interceptShouldScanWaybillCount = interceptShouldScanWaybillCount;
+    }
+
+    public Integer getInterceptActualScanWaybillCount() {
+        return interceptActualScanWaybillCount;
+    }
+
+    public void setInterceptActualScanWaybillCount(Integer interceptActualScanWaybillCount) {
+        this.interceptActualScanWaybillCount = interceptActualScanWaybillCount;
+    }
+
+    public Integer getMoreScanLocalWaybillCount() {
+        return moreScanLocalWaybillCount;
+    }
+
+    public void setMoreScanLocalWaybillCount(Integer moreScanLocalWaybillCount) {
+        this.moreScanLocalWaybillCount = moreScanLocalWaybillCount;
+    }
+
+    public Integer getMoreScanOutWaybillCount() {
+        return moreScanOutWaybillCount;
+    }
+
+    public void setMoreScanOutWaybillCount(Integer moreScanOutWaybillCount) {
+        this.moreScanOutWaybillCount = moreScanOutWaybillCount;
+    }
+
+    public Integer getTotalScannedBoardCount() {
+        return totalScannedBoardCount;
+    }
+
+    public void setTotalScannedBoardCount(Integer totalScannedBoardCount) {
+        this.totalScannedBoardCount = totalScannedBoardCount;
+    }
+
+    public Integer getTotalScannedInterceptCount() {
+        return totalScannedInterceptCount;
+    }
+
+    public void setTotalScannedInterceptCount(Integer totalScannedInterceptCount) {
+        this.totalScannedInterceptCount = totalScannedInterceptCount;
+    }
+
     public Long setId(Long id) {
         return this.id = id;
     }

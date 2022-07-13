@@ -1,6 +1,8 @@
 package com.jd.bluedragon.distribution.jy.dao.unload;
 
 import com.jd.bluedragon.common.dao.BaseDao;
+import com.jd.bluedragon.distribution.jy.dto.unload.DimensionQueryDto;
+import com.jd.bluedragon.distribution.jy.dto.unload.UnloadAggDto;
 import com.jd.bluedragon.distribution.jy.unload.JyUnloadAggsEntity;
 import com.jd.coo.sa.mybatis.plugins.id.SequenceGenAdaptor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,5 +38,13 @@ public class JyUnloadAggsDao extends BaseDao<JyUnloadAggsEntity> {
 
     public List<JyUnloadAggsEntity> queryByBizId(JyUnloadAggsEntity entity) {
         return this.getSqlSession().selectList(NAMESPACE + ".queryByBizId", entity);
+    }
+
+    public JyUnloadAggsEntity queryStatisticsUnderPackage(DimensionQueryDto dto) {
+        return this.getSqlSession().selectOne(NAMESPACE + ".queryStatisticsUnderPackage", dto);
+    }
+
+    public JyUnloadAggsEntity queryStatisticsUnderWaybill(DimensionQueryDto dto) {
+        return this.getSqlSession().selectOne(NAMESPACE + ".queryStatisticsUnderWaybill", dto);
     }
 }

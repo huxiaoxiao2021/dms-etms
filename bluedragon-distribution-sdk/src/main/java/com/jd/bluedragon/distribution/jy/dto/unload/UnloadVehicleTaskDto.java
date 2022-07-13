@@ -56,15 +56,31 @@ public class UnloadVehicleTaskDto extends UnloadBaseDto implements Serializable 
      */
     private Integer comBoardCount;
     /**
-     * 拦截数量
+     * 总拦截数量
      */
     private Integer interceptCount;
     /**
-     * 多扫数量
+     * 总多扫数量
      */
     private Integer extraScanCount;
 
+    /**
+     * 拦截应扫数量
+     */
+    private Integer interceptShouldScanCount;
+    /**
+     * 拦截已扫数量
+     */
+    private Integer interceptActualScanCount;
+    /**
+     * 多扫数量本场地
+     */
+    private Integer extraScanCountCurrSite;
 
+    /**
+     * 多扫数量非本场地
+     */
+    private Integer extraScanCountOutCurrSite;
     /**
      * 应扫包裹/运单数量(总数)
      */
@@ -233,6 +249,38 @@ public class UnloadVehicleTaskDto extends UnloadBaseDto implements Serializable 
 
     public void setExtraScanCount(Integer extraScanCount) {
         this.extraScanCount = extraScanCount;
+    }
+
+    public Integer getInterceptShouldScanCount() {
+        return interceptShouldScanCount;
+    }
+
+    public void setInterceptShouldScanCount(Integer interceptShouldScanCount) {
+        this.interceptShouldScanCount = interceptShouldScanCount;
+    }
+
+    public Integer getInterceptActualScanCount() {
+        return interceptActualScanCount;
+    }
+
+    public void setInterceptActualScanCount(Integer interceptActualScanCount) {
+        this.interceptActualScanCount = interceptActualScanCount;
+    }
+
+    public Integer getExtraScanCountCurrSite() {
+        return extraScanCountCurrSite;
+    }
+
+    public void setExtraScanCountCurrSite(Integer extraScanCountCurrSite) {
+        this.extraScanCountCurrSite = extraScanCountCurrSite;
+    }
+
+    public Integer getExtraScanCountOutCurrSite() {
+        return extraScanCountOutCurrSite;
+    }
+
+    public void setExtraScanCountOutCurrSite(Integer extraScanCountOutCurrSite) {
+        this.extraScanCountOutCurrSite = extraScanCountOutCurrSite;
     }
 
     public Integer getShouldScanCount() {

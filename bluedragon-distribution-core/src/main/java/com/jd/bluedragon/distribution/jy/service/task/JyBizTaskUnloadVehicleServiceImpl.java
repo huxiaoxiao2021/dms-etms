@@ -5,15 +5,20 @@ import com.jd.bluedragon.common.dto.operation.workbench.unload.response.LabelOpt
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.VosManager;
 import com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskUnloadVehicleDao;
+import com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadAggsDao;
 import com.jd.bluedragon.distribution.jy.dto.task.JyBizTaskUnloadCountDto;
+import com.jd.bluedragon.distribution.jy.dto.unload.DimensionQueryDto;
 import com.jd.bluedragon.distribution.jy.dto.unload.LabelOptionDto;
+import com.jd.bluedragon.distribution.jy.dto.unload.UnloadAggDto;
 import com.jd.bluedragon.distribution.jy.dto.unload.UnloadVehicleTaskDto;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadOrderTypeEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadStatusEnum;
+import com.jd.bluedragon.distribution.jy.enums.UnloadStatisticsQueryTypeEnum;
 import com.jd.bluedragon.distribution.jy.enums.UnloadTaskLabelEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadDto;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
+import com.jd.bluedragon.distribution.jy.unload.JyUnloadAggsEntity;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.JyUnloadTaskSignConstants;
 import com.jd.bluedragon.utils.*;
@@ -77,6 +82,9 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
     @Autowired
     @Qualifier("redisJyBizIdSequenceGen")
     private JimdbSequenceGen redisJyBizIdSequenceGen;
+
+    @Autowired
+    JyUnloadAggsDao jyUnloadAggsDao;
 
     /**
      * 根据bizId获取数据
@@ -549,7 +557,7 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
     public List<UnloadVehicleTaskDto> listUnloadVehicleTask(JyBizTaskUnloadVehicleEntity entity) {
         List<JyBizTaskUnloadVehicleEntity> jyBizTaskUnloadVehicleEntityList = jyBizTaskUnloadVehicleDao.listUnloadVehicleTask(entity);
         if (ObjectHelper.isNotNull(jyBizTaskUnloadVehicleEntityList) && jyBizTaskUnloadVehicleEntityList.size() > 0) {
-            List<UnloadVehicleTaskDto> unloadVehicleTaskDtoList =new ArrayList<>();
+            List<UnloadVehicleTaskDto> unloadVehicleTaskDtoList = new ArrayList<>();
             for (JyBizTaskUnloadVehicleEntity unloadTask : jyBizTaskUnloadVehicleEntityList) {
                 UnloadVehicleTaskDto unloadVehicleTaskDto = entityConvertDto(unloadTask);
                 unloadVehicleTaskDtoList.add(unloadVehicleTaskDto);
@@ -561,22 +569,61 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
 
     @Override
     public UnloadVehicleTaskDto entityConvertDto(JyBizTaskUnloadVehicleEntity entity) {
-        UnloadVehicleTaskDto unloadVehicleTaskDto =BeanUtils.copy(entity,UnloadVehicleTaskDto.class);
+        UnloadVehicleTaskDto unloadVehicleTaskDto = BeanUtils.copy(entity, UnloadVehicleTaskDto.class);
         calculationProcessTime(unloadVehicleTaskDto);
-        if (ObjectHelper.isNotNull(entity.getUnloadProgress())){
+        if (ObjectHelper.isNotNull(entity.getUnloadProgress())) {
             unloadVehicleTaskDto.setProcessPercent(entity.getUnloadProgress().intValue());
         }
-        if (ObjectHelper.isNotNull(entity.getMoreCount())){
+        if (ObjectHelper.isNotNull(entity.getMoreCount())) {
             unloadVehicleTaskDto.setExtraScanCount(entity.getMoreCount().intValue());
         }
-        if (ObjectHelper.isNotNull(entity.getComboardCount())){
+        if (ObjectHelper.isNotNull(entity.getComboardCount())) {
             unloadVehicleTaskDto.setComBoardCount(entity.getComboardCount());
         }
-        if (ObjectHelper.isNotNull(entity.getInterceptCount())){
+        if (ObjectHelper.isNotNull(entity.getInterceptCount())) {
             unloadVehicleTaskDto.setInterceptCount(entity.getInterceptCount());
         }
-        if (ObjectHelper.isNotNull(entity.getTagsSign())){
+        if (ObjectHelper.isNotNull(entity.getTagsSign())) {
             unloadVehicleTaskDto.setLabelOptionList(resolveTagSign(entity.getTagsSign()));
+        }
+        return unloadVehicleTaskDto;
+    }
+
+    @Override
+    public UnloadVehicleTaskDto queryStatisticsByDiffDimension(DimensionQueryDto dto) {
+        JyUnloadAggsEntity jyUnloadAggsEntity = null;
+        if (UnloadStatisticsQueryTypeEnum.PACKAGE.getCode().equals(dto.getType())) {
+            jyUnloadAggsEntity =jyUnloadAggsDao.queryStatisticsUnderPackage(dto);
+        } else if (UnloadStatisticsQueryTypeEnum.PACKAGE.getCode().equals(dto.getType())) {
+            jyUnloadAggsEntity =jyUnloadAggsDao.queryStatisticsUnderWaybill(dto);
+        }
+        if (ObjectHelper.isNotNull(jyUnloadAggsEntity)){
+            UnloadVehicleTaskDto unloadVehicleTaskDto =dtoConvert(jyUnloadAggsEntity,dto);
+            return unloadVehicleTaskDto;
+        }
+        return null;
+    }
+
+    private UnloadVehicleTaskDto dtoConvert(JyUnloadAggsEntity entity,DimensionQueryDto dto) {
+        UnloadVehicleTaskDto unloadVehicleTaskDto =new UnloadVehicleTaskDto();
+        unloadVehicleTaskDto.setProcessPercent((entity.getTotalScannedPackageCount()/entity.getTotalSealPackageCount()));
+        if (UnloadStatisticsQueryTypeEnum.PACKAGE.getCode().equals(dto.getType())){
+            unloadVehicleTaskDto.setShouldScanCount(entity.getShouldScanCount());
+            unloadVehicleTaskDto.setHaveScanCount(entity.getActualScanCount());
+            unloadVehicleTaskDto.setWaitScanCount(entity.getShouldScanCount()-entity.getActualScanCount());
+            unloadVehicleTaskDto.setInterceptShouldScanCount(entity.getInterceptShouldScanCount());
+            unloadVehicleTaskDto.setInterceptActualScanCount(entity.getInterceptActualScanCount());
+            unloadVehicleTaskDto.setExtraScanCountCurrSite(entity.getMoreScanLocalCount());
+            unloadVehicleTaskDto.setExtraScanCountOutCurrSite(entity.getMoreScanOutCount());
+        }
+        else if (UnloadStatisticsQueryTypeEnum.WAYBILL.getCode().equals(dto.getType())){
+            unloadVehicleTaskDto.setShouldScanCount(entity.getShouldScanWaybillCount());
+            unloadVehicleTaskDto.setHaveScanCount(entity.getActualScanWaybillCount());
+            unloadVehicleTaskDto.setWaitScanCount(entity.getShouldScanWaybillCount()-entity.getActualScanWaybillCount());
+            unloadVehicleTaskDto.setInterceptShouldScanCount(entity.getInterceptShouldScanWaybillCount());
+            unloadVehicleTaskDto.setInterceptActualScanCount(entity.getInterceptActualScanWaybillCount());
+            unloadVehicleTaskDto.setExtraScanCountCurrSite(entity.getMoreScanLocalWaybillCount());
+            unloadVehicleTaskDto.setExtraScanCountOutCurrSite(entity.getMoreScanOutWaybillCount());
         }
         return unloadVehicleTaskDto;
     }
@@ -604,23 +651,24 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
 
         return tagList;
     }
+
     private void calculationProcessTime(UnloadVehicleTaskDto dto) {
-        Date now =new Date();
+        Date now = new Date();
         switch (dto.getVehicleStatus()) {
             case 3:
-                int hourArrive =(int)DateHelper.betweenHours(dto.getActualArriveTime(),now);
-                int minutesArrive =(int)DateHelper.betweenMinutes(dto.getActualArriveTime(),now);
-                dto.setProcessTime("已到车 "+hourArrive+"时"+minutesArrive+"分");
+                int hourArrive = (int) DateHelper.betweenHours(dto.getActualArriveTime(), now);
+                int minutesArrive = (int) DateHelper.betweenMinutes(dto.getActualArriveTime(), now);
+                dto.setProcessTime("已到车 " + hourArrive + "时" + minutesArrive + "分");
                 break;
             case 4:
-                int hourUnload =(int)DateHelper.betweenHours(dto.getUnloadStartTime(),now);
-                int minutesUnload =(int)DateHelper.betweenMinutes(dto.getUnloadStartTime(),now);
-                dto.setProcessTime("卸车 "+hourUnload+"时"+minutesUnload+"分");
+                int hourUnload = (int) DateHelper.betweenHours(dto.getUnloadStartTime(), now);
+                int minutesUnload = (int) DateHelper.betweenMinutes(dto.getUnloadStartTime(), now);
+                dto.setProcessTime("卸车 " + hourUnload + "时" + minutesUnload + "分");
                 break;
             case 5:
-                int hourComplete =(int)DateHelper.betweenHours(dto.getUnloadStartTime(),dto.getUnloadFinishTime());
-                int minutesComplete =(int)DateHelper.betweenMinutes(dto.getUnloadStartTime(),dto.getUnloadFinishTime());
-                dto.setProcessTime("总计 "+hourComplete+"时"+minutesComplete+"分");
+                int hourComplete = (int) DateHelper.betweenHours(dto.getUnloadStartTime(), dto.getUnloadFinishTime());
+                int minutesComplete = (int) DateHelper.betweenMinutes(dto.getUnloadStartTime(), dto.getUnloadFinishTime());
+                dto.setProcessTime("总计 " + hourComplete + "时" + minutesComplete + "分");
                 break;
             default:
         }

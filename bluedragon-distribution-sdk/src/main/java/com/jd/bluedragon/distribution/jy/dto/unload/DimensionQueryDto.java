@@ -6,13 +6,13 @@ public class DimensionQueryDto extends UnloadBaseDto implements Serializable {
     private static final long serialVersionUID = 4185711426354946641L;
 
     /**
-     * DimensionQueryTypeEnum 查询维度
+     * UnloadStatisticsQueryTypeEnum 查询类型
      */
     private Integer type;
 
-    private String bizId;
+    private String bizId;//按任务维度查询
 
-    private String boardCode;
+    private String boardCode;//按板维度查询
 
     public Integer getType() {
         return type;

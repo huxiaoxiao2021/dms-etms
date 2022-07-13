@@ -114,6 +114,9 @@ public class InvokeResult<T> implements Serializable {
     public static final int TASK_NO_FOUND_BY_PARAMS_CODE=326;
     public static final String TASK_NO_FOUND_BY_PARAMS_MESSAGE="未找到相应的卸车任务数据！";
 
+    public static final int NOT_SUPPORT_TYPE_QUERY_CODE=327;
+    public static final String NOT_SUPPORT_TYPE_QUERY_MESSAGE="暂不支持该类型的统计数据查询！";
+
     public InvokeResult(){
         this.code=RESULT_SUCCESS_CODE;
     }
