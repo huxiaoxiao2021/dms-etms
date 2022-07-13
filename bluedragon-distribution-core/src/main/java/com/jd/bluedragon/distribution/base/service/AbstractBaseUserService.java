@@ -121,23 +121,26 @@ public abstract class AbstractBaseUserService implements LoginService {
     private void bindSite2LoginUser(LoginUserResponse response) {
         response.setDmsId(response.getSiteCode());
         response.setDmsName(response.getSiteName());
+        // 非分拣中心类型的站点查询分拣中心ID和名称，兼容打印客户端登录后再查询站点的逻辑
+        if (!Constants.DMS_SITE_TYPE.equals(response.getSiteType())) {
+            BaseStaffSiteOrgDto dtoStaff = basicPrimaryWS.getBaseSiteBySiteId(response.getSiteCode());
+            if (null != dtoStaff) {
+                response.setSiteType(dtoStaff.getSiteType());
+                response.setSubType(dtoStaff.getSubType());
+                if (null != dtoStaff.getDmsId() && !dtoStaff.getDmsId().equals(dtoStaff.getSiteCode()) && dtoStaff.getDmsId() > 0) {
+                    response.setDmsId(dtoStaff.getDmsId());
+                    response.setDmsName(dtoStaff.getDmsName());
+                }
+                if (log.isInfoEnabled()) {
+                    log.info("set sortingCenter and type, response:[{}]", response.toString());
+                }
+            }
+        }
         BaseSiteInfoDto dtoStaff = baseMajorManager.getBaseSiteInfoBySiteId(response.getSiteCode());
         if (null != dtoStaff) {
-            response.setSiteType(dtoStaff.getSiteType());
-            response.setSubType(dtoStaff.getSubType());
             response.setSiteSortType(dtoStaff.getSortType());
             response.setSiteSortSubType(dtoStaff.getSortSubType());
             response.setSiteSortThirdType(dtoStaff.getSortThirdType());
-            if (null != dtoStaff.getDmsId() && !dtoStaff.getDmsId().equals(dtoStaff.getSiteCode()) && dtoStaff.getDmsId() > 0) {
-                response.setDmsId(dtoStaff.getDmsId());
-                BaseStaffSiteOrgDto baseStaffSiteOrgDto = basicPrimaryWS.getBaseSiteBySiteId(response.getSiteCode());
-                if (null != baseStaffSiteOrgDto) {
-                    response.setDmsName(baseStaffSiteOrgDto.getDmsName());
-                }
-            }
-            if (log.isInfoEnabled()) {
-                log.info("set sortingCenter and type, response:[{}]", response.toString());
-            }
         }
     }
 
