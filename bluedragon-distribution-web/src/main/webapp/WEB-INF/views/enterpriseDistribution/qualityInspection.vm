@@ -198,8 +198,7 @@
                 </form>
             </div>
             <hr>
-            <div style="margin-left: 23px;">质检明细</div>
-            <hr>
+            <div style="margin-left: 23px;margin-bottom:-42px;color:black;">质检明细</div>
             <table id="packageDetailTable"></table>
         </div>
 </div>
