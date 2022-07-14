@@ -39,6 +39,8 @@ import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
 import com.jd.etms.waybill.domain.Waybill;
+import com.jd.fastjson.JSON;
+import com.jd.jsf.gd.util.RpcContext;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.print.engine.TemplateEngine;
 import com.jd.ql.dms.print.engine.TemplateFactory;
@@ -135,6 +137,8 @@ public class PackagePrintServiceImpl implements PackagePrintService {
     		mState = {JProEnum.TP, JProEnum.FunctionError})
     @Override
     public JdResult<Map<String, Object>> getPrintInfo(JdCommand<String> printRequest) {
+		RpcContext context = RpcContext.getContext();
+		log.info("RpcContext  www {}", JSON.toJSONString(context));
     	if(log.isInfoEnabled()){
 			log.info("查询包裹信息参数：{}", JsonHelper.toJson(printRequest));
 		}
