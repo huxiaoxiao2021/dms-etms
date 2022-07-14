@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.sorting.service;
 
+import com.jd.bluedragon.distribution.api.request.SortingPageRequest;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
 import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
@@ -222,4 +223,11 @@ public interface SortingService {
      * @return
      */
     Integer getSumByBoxCode(String boxCode);
+
+    /**
+     *
+     * @param request
+     * @return
+     */
+    List<String> getPagePackageNoByBoxCode(SortingPageRequest request);
 }

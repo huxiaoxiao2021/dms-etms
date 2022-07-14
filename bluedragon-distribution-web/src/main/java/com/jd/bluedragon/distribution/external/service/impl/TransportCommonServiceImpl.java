@@ -382,13 +382,18 @@ public class TransportCommonServiceImpl implements TransportCommonService {
      */
     @Override
     @JProfiler(jKey = "DMS.BASE.TransportCommonServiceImpl.getPackageNoByBoxCode", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
-    public InvokeResult<List<String>> getPackageNoByBoxCode(SortingPageRequest request){
+    public InvokeResult<List<String>> getPagePackageNoByBoxCode(SortingPageRequest request){
         InvokeResult<List<String>> result = new InvokeResult<>();
         result.success();
         if (request == null || StringUtils.isBlank(request.getBoxCode())) {
             result.parameterError("缺少必要查询参数");
             return result;
         }
+        if(request.getOffset() < 0 || request.getLimit() < 1){
+            result.parameterError("分页参数不合法");
+            return result;
+        }
+        result.setData(sortingService.getPagePackageNoByBoxCode(request));
         return result;
     }
 }

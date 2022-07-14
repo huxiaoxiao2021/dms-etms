@@ -113,8 +113,9 @@ public interface TransportCommonService {
 
     /**
      * 查询集包下的包裹号
+     * 分页
      * @param request
      * @return
      */
-    InvokeResult<List<String>> SortingPageRequest(SortingPageRequest request);
+    InvokeResult<List<String>> getPagePackageNoByBoxCode(SortingPageRequest request);
 }
