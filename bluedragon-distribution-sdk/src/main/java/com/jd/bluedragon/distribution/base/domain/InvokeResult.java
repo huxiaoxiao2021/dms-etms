@@ -59,9 +59,6 @@ public class InvokeResult<T> implements Serializable {
     public static final int RESULT_NO_GROUP_CODE = 307;
     public static final String RESULT_NO_GROUP_MESSAGE = "查询同组箱号异常";
 
-    public static final int RESULT_CONFIRM_CODE = 310;
-    public static final String RESULT_CONFIRM_MESSAGE = "调度站点无滑道信息，是否继续操作?";
-
 
     public static final int RESULT_EXPORT_CODE = 308;
     public static final String RESULT_EXPORT_MESSAGE = "导出执行异常";
@@ -110,6 +107,9 @@ public class InvokeResult<T> implements Serializable {
 
     public static final int DETAIL_TASK_NO_FOUND_BY_SITE_ID_CODE=323;
     public static final String DETAIL_TASK_NO_FOUND_BY_SITE_ID_MESSAGE="未找到匹配的流向任务数据！";
+
+    public static final int BATCH_SIGLE_SEND_EXCEP_CODE= 325;
+    public static final String BATCH_SIGLE_SEND_EXCEP_MESSAGE ="批量一车一单发货异常";
 
     public InvokeResult(){
         this.code=RESULT_SUCCESS_CODE;
