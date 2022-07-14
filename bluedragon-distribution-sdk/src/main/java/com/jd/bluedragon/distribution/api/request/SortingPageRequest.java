@@ -16,6 +16,10 @@ public class SortingPageRequest extends BasePagerCondition {
      * 箱号
      */
     private String boxCode;
+    /**
+     * 创建站点编码
+     */
+    private Integer createSiteCode;
 
     public String getBoxCode() {
         return boxCode;
@@ -23,5 +27,13 @@ public class SortingPageRequest extends BasePagerCondition {
 
     public void setBoxCode(String boxCode) {
         this.boxCode = boxCode;
+    }
+
+    public Integer getCreateSiteCode() {
+        return createSiteCode;
+    }
+
+    public void setCreateSiteCode(Integer createSiteCode) {
+        this.createSiteCode = createSiteCode;
     }
 }

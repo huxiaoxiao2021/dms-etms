@@ -1601,6 +1601,11 @@ public class SortingServiceImpl implements SortingService {
 	 */
 	@Override
 	public List<String> getPagePackageNoByBoxCode(SortingPageRequest request) {
+		Box box = boxService.findBoxByCode(request.getBoxCode());
+		if(box == null){
+			return new ArrayList<>(0);
+		}
+		request.setCreateSiteCode(box.getCreateSiteCode());
 		List<Sorting> sortingList = dynamicSortingQueryDao.getPagePackageNoByBoxCode(request);
 		if(CollectionUtils.isEmpty(sortingList)){
 			return new ArrayList<>(0);
