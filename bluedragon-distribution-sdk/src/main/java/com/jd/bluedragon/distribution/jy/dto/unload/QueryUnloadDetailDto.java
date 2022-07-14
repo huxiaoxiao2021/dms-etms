@@ -9,7 +9,7 @@ public class QueryUnloadDetailDto extends UnloadBaseDto implements Serializable 
      */
     private Integer goodsType;
     /**
-     * 扫描异常类型 待扫 多扫 拦截
+     * 扫描异常类型: 待扫 多扫 拦截
      */
     private Integer expType;
 

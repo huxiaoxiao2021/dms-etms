@@ -13,6 +13,7 @@ public class UnloadVehicleTaskReqDto extends UnloadBaseDto implements Serializab
      * com.jd.bluedragon.distribution.jy.enums.JyLineTypeEnum
      */
     private Integer lineType;
+    private String packageCode;
 
     public Integer getPageNo() {
         return pageNo;
@@ -44,5 +45,13 @@ public class UnloadVehicleTaskReqDto extends UnloadBaseDto implements Serializab
 
     public void setLineType(Integer lineType) {
         this.lineType = lineType;
+    }
+
+    public String getPackageCode() {
+        return packageCode;
+    }
+
+    public void setPackageCode(String packageCode) {
+        this.packageCode = packageCode;
     }
 }

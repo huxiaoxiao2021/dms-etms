@@ -16,7 +16,7 @@ public interface JyUnloadVehicleTysService {
      *
      * @return
      */
-    InvokeResult<UnloadVehicleTaskRespDto> queryUnloadVehicleTaskByVehicleNumOrPackage(QueryUnloadTaskDto queryUnloadTaskDto);
+    InvokeResult<UnloadVehicleTaskRespDto> queryUnloadVehicleTaskByVehicleNumOrPackage(UnloadVehicleTaskReqDto queryUnloadTaskDto);
 
     /**
      * 变更任务属性
@@ -25,12 +25,12 @@ public interface JyUnloadVehicleTysService {
 
 
     /**
-     * 统计数据维度查询(按板、任务查询统计数据（已扫 应扫 待扫 多扫 拦截）)
+     * 统计数据维度查询(按任务、板查询统计数据（已扫 应扫 待扫 多扫 拦截）) TODO
      *
      * @param dto
      * @return
      */
-    InvokeResult<UnloadVehicleTaskDto> queryStatisticsByDiffDimension(DimensionQueryDto dto);
+    InvokeResult<ScanStatisticsDto> queryStatisticsByDiffDimension(DimensionQueryDto dto);
 
     /**
      * 查询卸车任务详情
@@ -38,7 +38,14 @@ public interface JyUnloadVehicleTysService {
      * @param bizId
      * @return
      */
-    InvokeResult<UnloadVehicleTaskDto> queryStatisticsDetailByDiffDimension(String bizId);
+    InvokeResult<UnloadVehicleTaskDto> queryTaskDataByBizId(String bizId);
+
+    /**
+     * 查询组板基础详情
+     * @param boardCode
+     * @return
+     */
+    InvokeResult<ComBoardDto> queryComBoardDataByBoardCode(String boardCode);
 
 
     /**
@@ -57,12 +64,6 @@ public interface JyUnloadVehicleTysService {
      */
     InvokeResult<ScanPackageRespDto> scanAndComBoardForPipelining (ScanPackageDto scanPackageDto);
 
-    /**
-     * 根据板号 查询组板基础详情
-     * @param boardCode
-     * @return
-     */
-    InvokeResult<ScanPackageRespDto> queryComBoardDataByBoardCode(String boardCode);
 
     /**
      * 查询货物分类信息（按不同维度查询： 按任务 按板）
@@ -73,12 +74,12 @@ public interface JyUnloadVehicleTysService {
 
 
     /**
-     * 查询下钻运单明细（按不同维度）
+     * 查询扫描（待扫 拦截 多扫）下钻运单明细
      *
      * @param queryUnloadDetailDto
      * @return
      */
-    InvokeResult<List<UnloadWaybillDto>> queryUnloadDetailByDiffDimension(QueryUnloadDetailDto queryUnloadDetailDto);
+    InvokeResult<ScanStatisticsInnerDto> queryUnloadDetailByDiffDimension(QueryUnloadDetailDto queryUnloadDetailDto);
 
 
     /**
@@ -91,11 +92,11 @@ public interface JyUnloadVehicleTysService {
 
 
     /**
-     * 根据任务流向信息 查询流向下组板信息
+     * 查询流向下组板信息
      * @param taskFlowDto
      * @return
      */
-    InvokeResult<ComBoardAggDto> queryComBoarUnderTaskFlow(TaskFlowDto taskFlowDto);
+    InvokeResult<TaskFlowComBoardDto> queryComBoarUnderTaskFlow(TaskFlowDto taskFlowDto);
 
 
     /**

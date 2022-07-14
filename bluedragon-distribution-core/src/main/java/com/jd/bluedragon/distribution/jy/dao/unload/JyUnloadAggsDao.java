@@ -43,8 +43,10 @@ public class JyUnloadAggsDao extends BaseDao<JyUnloadAggsEntity> {
     public JyUnloadAggsEntity queryStatisticsUnderPackage(DimensionQueryDto dto) {
         return this.getSqlSession().selectOne(NAMESPACE + ".queryStatisticsUnderPackage", dto);
     }
-
     public JyUnloadAggsEntity queryStatisticsUnderWaybill(DimensionQueryDto dto) {
         return this.getSqlSession().selectOne(NAMESPACE + ".queryStatisticsUnderWaybill", dto);
+    }
+    public JyUnloadAggsEntity queryUnloadStatistics(DimensionQueryDto dto) {
+        return this.getSqlSession().selectOne(NAMESPACE + ".queryUnloadStatistics", dto);
     }
 }

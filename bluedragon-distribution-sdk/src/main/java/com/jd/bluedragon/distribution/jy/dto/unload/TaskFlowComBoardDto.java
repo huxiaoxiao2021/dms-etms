@@ -1,32 +1,27 @@
 package com.jd.bluedragon.distribution.jy.dto.unload;
 
-import java.io.Serializable;
 
-/**
- * 板维度的统计数据信息
- */
-public class ComBoardAggDto implements Serializable {
-    private static final long serialVersionUID = 8723860956859377453L;
+import java.io.Serializable;
+import java.util.List;
+
+public class TaskFlowComBoardDto implements Serializable {
+    private static final long serialVersionUID = -7931113868979801874L;
+    private List<ComBoardAggDto> comBoardDtoList;
     /**
-     * 板号
-     */
-    private String boardCode;
-    /**
-     * 已扫包裹数量
+     * 流向下已扫包裹数量
      */
     private Integer haveScanCount;
     /**
-     * 多扫包裹数量
+     * 流向下多扫包裹数量
      */
     private Integer extraScanCount;
 
-
-    public String getBoardCode() {
-        return boardCode;
+    public List<ComBoardAggDto> getComBoardDtoList() {
+        return comBoardDtoList;
     }
 
-    public void setBoardCode(String boardCode) {
-        this.boardCode = boardCode;
+    public void setComBoardDtoList(List<ComBoardAggDto> comBoardDtoList) {
+        this.comBoardDtoList = comBoardDtoList;
     }
 
     public Integer getHaveScanCount() {

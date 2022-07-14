@@ -65,27 +65,9 @@ public class UnloadVehicleTaskDto extends UnloadBaseDto implements Serializable 
     private Integer extraScanCount;
 
     /**
-     * 拦截应扫数量
-     */
-    private Integer interceptShouldScanCount;
-    /**
-     * 拦截已扫数量
-     */
-    private Integer interceptActualScanCount;
-    /**
-     * 多扫数量本场地
-     */
-    private Integer extraScanCountCurrSite;
-
-    /**
-     * 多扫数量非本场地
-     */
-    private Integer extraScanCountOutCurrSite;
-    /**
-     * 应扫包裹/运单数量(总数)
+     * 应扫数量
      */
     private Integer shouldScanCount;
-
     /**
      * 待扫
      */
@@ -95,6 +77,11 @@ public class UnloadVehicleTaskDto extends UnloadBaseDto implements Serializable 
      * 已扫
      */
     private Integer haveScanCount;
+
+    /**
+     * 应扫运单数量
+     */
+    private Integer shouldScanWaybillCount;
 
     /**
      * 创建时间
@@ -251,36 +238,12 @@ public class UnloadVehicleTaskDto extends UnloadBaseDto implements Serializable 
         this.extraScanCount = extraScanCount;
     }
 
-    public Integer getInterceptShouldScanCount() {
-        return interceptShouldScanCount;
+    public Integer getShouldScanWaybillCount() {
+        return shouldScanWaybillCount;
     }
 
-    public void setInterceptShouldScanCount(Integer interceptShouldScanCount) {
-        this.interceptShouldScanCount = interceptShouldScanCount;
-    }
-
-    public Integer getInterceptActualScanCount() {
-        return interceptActualScanCount;
-    }
-
-    public void setInterceptActualScanCount(Integer interceptActualScanCount) {
-        this.interceptActualScanCount = interceptActualScanCount;
-    }
-
-    public Integer getExtraScanCountCurrSite() {
-        return extraScanCountCurrSite;
-    }
-
-    public void setExtraScanCountCurrSite(Integer extraScanCountCurrSite) {
-        this.extraScanCountCurrSite = extraScanCountCurrSite;
-    }
-
-    public Integer getExtraScanCountOutCurrSite() {
-        return extraScanCountOutCurrSite;
-    }
-
-    public void setExtraScanCountOutCurrSite(Integer extraScanCountOutCurrSite) {
-        this.extraScanCountOutCurrSite = extraScanCountOutCurrSite;
+    public void setShouldScanWaybillCount(Integer shouldScanWaybillCount) {
+        this.shouldScanWaybillCount = shouldScanWaybillCount;
     }
 
     public Integer getShouldScanCount() {

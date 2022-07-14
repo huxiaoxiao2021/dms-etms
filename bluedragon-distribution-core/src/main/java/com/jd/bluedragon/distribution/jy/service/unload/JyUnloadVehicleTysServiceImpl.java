@@ -11,6 +11,7 @@ import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadStatusEnum;
 import com.jd.bluedragon.distribution.jy.manager.IJyUnloadVehicleManager;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskUnloadVehicleService;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.ObjectHelper;
@@ -42,11 +43,15 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
 
     @Override
     public InvokeResult<UnloadVehicleTaskRespDto> listUnloadVehicleTask(UnloadVehicleTaskReqDto unloadVehicleTaskReqDto) {
+        if (ObjectHelper.isNotNull(unloadVehicleTaskReqDto.getPackageCode())){
+            return queryUnloadVehicleTaskByVehicleNumOrPackage(unloadVehicleTaskReqDto);
+        }
         //查询统计数据
         JyBizTaskUnloadStatusEnum[] statusEnums = {WAIT_UN_LOAD, UN_LOADING, UN_LOAD_DONE};
         JyBizTaskUnloadVehicleEntity condition = new JyBizTaskUnloadVehicleEntity();
         condition.setLineType(unloadVehicleTaskReqDto.getLineType());
         condition.setEndSiteId(Long.valueOf(unloadVehicleTaskReqDto.getCurrentOperate().getSiteCode()));
+        condition.setFuzzyVehicleNumber(unloadVehicleTaskReqDto.getVehicleNumber());
         List<JyBizTaskUnloadCountDto> unloadCountDtos = jyBizTaskUnloadVehicleService.findStatusCountByCondition4Status(condition, null, statusEnums);
         if (!ObjectHelper.isNotNull(unloadCountDtos)) {
             return new InvokeResult(TASK_NO_FOUND_BY_STATUS_CODE, TASK_NO_FOUND_BY_STATUS_MESSAGE);
@@ -59,6 +64,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         entity.setVehicleStatus(unloadVehicleTaskReqDto.getVehicleStatus());
         entity.setEndSiteId(Long.valueOf(unloadVehicleTaskReqDto.getCurrentOperate().getSiteCode()));
         entity.setLineType(unloadVehicleTaskReqDto.getLineType());
+        entity.setFuzzyVehicleNumber(unloadVehicleTaskReqDto.getVehicleNumber());
         List<UnloadVehicleTaskDto> unloadVehicleTaskDtoList = jyBizTaskUnloadVehicleService.listUnloadVehicleTask(entity);
         respDto.setUnloadVehicleTaskDtoList(unloadVehicleTaskDtoList);
         return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, respDto);
@@ -83,7 +89,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     }
 
     @Override
-    public InvokeResult<UnloadVehicleTaskRespDto> queryUnloadVehicleTaskByVehicleNumOrPackage(QueryUnloadTaskDto queryUnloadTaskDto) {
+    public InvokeResult<UnloadVehicleTaskRespDto> queryUnloadVehicleTaskByVehicleNumOrPackage(UnloadVehicleTaskReqDto queryUnloadTaskDto) {
         UnloadVehicleTaskRespDto unloadVehicleTaskRespDto = new UnloadVehicleTaskRespDto();
         if (ObjectHelper.isNotNull(queryUnloadTaskDto.getPackageCode()) && WaybillUtil.isPackageCode(queryUnloadTaskDto.getPackageCode())) {
             JyVehicleTaskUnloadDetail detail = new JyVehicleTaskUnloadDetail();
@@ -147,16 +153,16 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     }
 
     @Override
-    public InvokeResult<UnloadVehicleTaskDto> queryStatisticsByDiffDimension(DimensionQueryDto dto) {
+    public InvokeResult<ScanStatisticsDto> queryStatisticsByDiffDimension(DimensionQueryDto dto) {
         if (UnloadStatisticsQueryTypeEnum.PACKAGE.getCode().equals(dto.getType()) || UnloadStatisticsQueryTypeEnum.WAYBILL.getCode().equals(dto.getType())) {
-            UnloadVehicleTaskDto unloadVehicleTaskDto = jyBizTaskUnloadVehicleService.queryStatisticsByDiffDimension(dto);
-            return new InvokeResult<>(RESULT_SUCCESS_CODE,RESULT_SUCCESS_MESSAGE,unloadVehicleTaskDto);
+            ScanStatisticsDto scanStatisticsDto = jyBizTaskUnloadVehicleService.queryStatisticsByDiffDimension(dto);
+            return new InvokeResult<>(RESULT_SUCCESS_CODE,RESULT_SUCCESS_MESSAGE,scanStatisticsDto);
         }
         return new InvokeResult(NOT_SUPPORT_TYPE_QUERY_CODE, NOT_SUPPORT_TYPE_QUERY_MESSAGE);
     }
 
     @Override
-    public InvokeResult<UnloadVehicleTaskDto> queryStatisticsDetailByDiffDimension(String bizId) {
+    public InvokeResult<UnloadVehicleTaskDto> queryTaskDataByBizId(String bizId) {
         return null;
     }
 
@@ -199,7 +205,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     }
 
     @Override
-    public InvokeResult<ScanPackageRespDto> queryComBoardDataByBoardCode(String boardCode) {
+    public InvokeResult<ComBoardDto> queryComBoardDataByBoardCode(String boardCode) {
         return null;
     }
 
@@ -209,7 +215,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     }
 
     @Override
-    public InvokeResult<List<UnloadWaybillDto>> queryUnloadDetailByDiffDimension(QueryUnloadDetailDto queryUnloadDetailDto) {
+    public InvokeResult<ScanStatisticsInnerDto> queryUnloadDetailByDiffDimension(QueryUnloadDetailDto queryUnloadDetailDto) {
         return null;
     }
 
@@ -219,7 +225,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     }
 
     @Override
-    public InvokeResult<ComBoardAggDto> queryComBoarUnderTaskFlow(TaskFlowDto taskFlowDto) {
+    public InvokeResult<TaskFlowComBoardDto> queryComBoarUnderTaskFlow(TaskFlowDto taskFlowDto) {
         return null;
     }
 
@@ -236,5 +242,9 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     @Override
     public InvokeResult cancelComBoard(CancelComBoardDto cancelComBoardDto) {
         return null;
+    }
+
+    public static void main(String[] args) {
+        System.out.println(BusinessUtil.isSendCode("333833-841276-2022071411736219212"));
     }
 }

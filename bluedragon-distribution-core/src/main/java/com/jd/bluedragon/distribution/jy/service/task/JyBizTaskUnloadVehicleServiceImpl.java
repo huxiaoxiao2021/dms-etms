@@ -7,10 +7,7 @@ import com.jd.bluedragon.core.base.VosManager;
 import com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskUnloadVehicleDao;
 import com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadAggsDao;
 import com.jd.bluedragon.distribution.jy.dto.task.JyBizTaskUnloadCountDto;
-import com.jd.bluedragon.distribution.jy.dto.unload.DimensionQueryDto;
-import com.jd.bluedragon.distribution.jy.dto.unload.LabelOptionDto;
-import com.jd.bluedragon.distribution.jy.dto.unload.UnloadAggDto;
-import com.jd.bluedragon.distribution.jy.dto.unload.UnloadVehicleTaskDto;
+import com.jd.bluedragon.distribution.jy.dto.unload.*;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadOrderTypeEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.UnloadStatisticsQueryTypeEnum;
@@ -590,42 +587,42 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
     }
 
     @Override
-    public UnloadVehicleTaskDto queryStatisticsByDiffDimension(DimensionQueryDto dto) {
-        JyUnloadAggsEntity jyUnloadAggsEntity = null;
+    public ScanStatisticsDto queryStatisticsByDiffDimension(DimensionQueryDto dto) {
+        JyUnloadAggsEntity entity = null;
         if (UnloadStatisticsQueryTypeEnum.PACKAGE.getCode().equals(dto.getType())) {
-            jyUnloadAggsEntity =jyUnloadAggsDao.queryStatisticsUnderPackage(dto);
+            entity =jyUnloadAggsDao.queryStatisticsUnderPackage(dto);
         } else if (UnloadStatisticsQueryTypeEnum.PACKAGE.getCode().equals(dto.getType())) {
-            jyUnloadAggsEntity =jyUnloadAggsDao.queryStatisticsUnderWaybill(dto);
+            entity =jyUnloadAggsDao.queryStatisticsUnderWaybill(dto);
         }
-        if (ObjectHelper.isNotNull(jyUnloadAggsEntity)){
-            UnloadVehicleTaskDto unloadVehicleTaskDto =dtoConvert(jyUnloadAggsEntity,dto);
-            return unloadVehicleTaskDto;
+        if (ObjectHelper.isNotNull(entity)){
+            ScanStatisticsDto scanStatisticsDto =dtoConvert(entity,dto);
+            return scanStatisticsDto;
         }
         return null;
     }
 
-    private UnloadVehicleTaskDto dtoConvert(JyUnloadAggsEntity entity,DimensionQueryDto dto) {
-        UnloadVehicleTaskDto unloadVehicleTaskDto =new UnloadVehicleTaskDto();
-        unloadVehicleTaskDto.setProcessPercent((entity.getTotalScannedPackageCount()/entity.getTotalSealPackageCount()));
+    private ScanStatisticsDto dtoConvert(JyUnloadAggsEntity entity,DimensionQueryDto dto) {
+        ScanStatisticsDto scanStatisticsDto =new ScanStatisticsDto();
+        scanStatisticsDto.setProcessPercent((entity.getTotalScannedPackageCount()/entity.getTotalSealPackageCount()));
         if (UnloadStatisticsQueryTypeEnum.PACKAGE.getCode().equals(dto.getType())){
-            unloadVehicleTaskDto.setShouldScanCount(entity.getShouldScanCount());
-            unloadVehicleTaskDto.setHaveScanCount(entity.getActualScanCount());
-            unloadVehicleTaskDto.setWaitScanCount(entity.getShouldScanCount()-entity.getActualScanCount());
-            unloadVehicleTaskDto.setInterceptShouldScanCount(entity.getInterceptShouldScanCount());
-            unloadVehicleTaskDto.setInterceptActualScanCount(entity.getInterceptActualScanCount());
-            unloadVehicleTaskDto.setExtraScanCountCurrSite(entity.getMoreScanLocalCount());
-            unloadVehicleTaskDto.setExtraScanCountOutCurrSite(entity.getMoreScanOutCount());
+            scanStatisticsDto.setShouldScanCount(entity.getShouldScanCount());
+            scanStatisticsDto.setHaveScanCount(entity.getActualScanCount());
+            scanStatisticsDto.setWaitScanCount(entity.getShouldScanCount()-entity.getActualScanCount());
+            scanStatisticsDto.setInterceptShouldScanCount(entity.getInterceptShouldScanCount());
+            scanStatisticsDto.setInterceptActualScanCount(entity.getInterceptActualScanCount());
+            scanStatisticsDto.setExtraScanCountCurrSite(entity.getMoreScanLocalCount());
+            scanStatisticsDto.setExtraScanCountOutCurrSite(entity.getMoreScanOutCount());
         }
         else if (UnloadStatisticsQueryTypeEnum.WAYBILL.getCode().equals(dto.getType())){
-            unloadVehicleTaskDto.setShouldScanCount(entity.getShouldScanWaybillCount());
-            unloadVehicleTaskDto.setHaveScanCount(entity.getActualScanWaybillCount());
-            unloadVehicleTaskDto.setWaitScanCount(entity.getShouldScanWaybillCount()-entity.getActualScanWaybillCount());
-            unloadVehicleTaskDto.setInterceptShouldScanCount(entity.getInterceptShouldScanWaybillCount());
-            unloadVehicleTaskDto.setInterceptActualScanCount(entity.getInterceptActualScanWaybillCount());
-            unloadVehicleTaskDto.setExtraScanCountCurrSite(entity.getMoreScanLocalWaybillCount());
-            unloadVehicleTaskDto.setExtraScanCountOutCurrSite(entity.getMoreScanOutWaybillCount());
+            scanStatisticsDto.setShouldScanCount(entity.getShouldScanWaybillCount());
+            scanStatisticsDto.setHaveScanCount(entity.getActualScanWaybillCount());
+            scanStatisticsDto.setWaitScanCount(entity.getShouldScanWaybillCount()-entity.getActualScanWaybillCount());
+            scanStatisticsDto.setInterceptShouldScanCount(entity.getInterceptShouldScanWaybillCount());
+            scanStatisticsDto.setInterceptActualScanCount(entity.getInterceptActualScanWaybillCount());
+            scanStatisticsDto.setExtraScanCountCurrSite(entity.getMoreScanLocalWaybillCount());
+            scanStatisticsDto.setExtraScanCountOutCurrSite(entity.getMoreScanOutWaybillCount());
         }
-        return unloadVehicleTaskDto;
+        return scanStatisticsDto;
     }
 
     private List<LabelOptionDto> resolveTagSign(String tagSign) {

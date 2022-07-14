@@ -156,4 +156,30 @@
             and board_code =#{boardCode}
         </if>
     </select>
+
+    <select id="queryUnloadStatistics" parameterType="com.jd.bluedragon.distribution.jy.dto.unload.DimensionQueryDto"
+            resultMap="jyUnloadAggsMap">
+        SELECT
+        SUM(should_scan_count) should_scan_count,
+        SUM(actual_scan_count) actual_scan_count,
+        SUM(intercept_should_scan_count) intercept_should_scan_count,
+        SUM(intercept_actual_scan_count) intercept_actual_scan_count,
+        SUM(more_scan_local_count) more_scan_local_count,
+        SUM(more_scan_out_count) more_scan_out_count,
+        SUM(should_scan_waybill_count) should_scan_waybill_count,
+        SUM(actual_scan_waybill_count) actual_scan_waybill_count,
+        SUM(intercept_should_scan_waybill_count) intercept_should_scan_waybill_count,
+        SUM(intercept_actual_scan_waybill_count) intercept_actual_scan_waybill_count,
+        SUM(more_scan_local_waybill_count) more_scan_local_waybill_count,
+        SUM(more_scan_out_waybill_count) more_scan_out_waybill_count,
+        total_seal_package_count ,
+        total_scanned_package_count
+        FROM
+        jy_unload_aggs
+        WHERE
+        biz_id = #{bizId}
+        <if test="boardCode!=null">
+            and board_code =#{boardCode}
+        </if>
+    </select>
 </mapper>
