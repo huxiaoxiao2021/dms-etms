@@ -157,7 +157,7 @@ public class LocalSecurityLog {
             // 创建头部信息
             SecurityLog securityLog = new SecurityLog();
             // 新建头
-            Head head = createHead(interfaceName,"");
+            Head head = createHead(interfaceName,waybillPrintRequest.getUserERP());
             securityLog.setHead(head);
             // 新建请求
             ReqInfo reqInfo = createJsonCommandReqInfo(waybillPrintRequest);
@@ -202,10 +202,11 @@ public class LocalSecurityLog {
         head.setAppName(APPNAME);
 
         RpcContext context = RpcContext.getContext();
+        log.info("RpcContext {}",JSON.toJSONString(context));
         if (context != null && context.getRemoteHostName() != null) {
             String clientIp = context.getRemoteHostName();
             head.setClientIp(clientIp);
-        } else if (context.getAttachment(IP_KEY) != null) {
+        } else if (context != null && context.getAttachment(IP_KEY) != null) {
             String clientIp = context.getAttachment(IP_KEY).toString();
             head.setClientIp(clientIp);
         } else {
