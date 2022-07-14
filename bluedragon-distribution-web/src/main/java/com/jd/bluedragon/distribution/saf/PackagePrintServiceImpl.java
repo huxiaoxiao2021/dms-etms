@@ -137,8 +137,6 @@ public class PackagePrintServiceImpl implements PackagePrintService {
     		mState = {JProEnum.TP, JProEnum.FunctionError})
     @Override
     public JdResult<Map<String, Object>> getPrintInfo(JdCommand<String> printRequest) {
-		RpcContext context = RpcContext.getContext();
-		log.info("RpcContext  www {}", JSON.toJSONString(context));
     	if(log.isInfoEnabled()){
 			log.info("查询包裹信息参数：{}", JsonHelper.toJson(printRequest));
 		}

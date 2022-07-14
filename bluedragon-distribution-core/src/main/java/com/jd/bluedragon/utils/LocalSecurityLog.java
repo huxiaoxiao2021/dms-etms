@@ -80,7 +80,12 @@ public class LocalSecurityLog {
             // 创建头部信息
             SecurityLog securityLog = new SecurityLog();
             // 新建头
-            Head head = createHead(interfaceName,request.getUserCode());
+            String clientIp="";
+            RpcContext context = RpcContext.getContext();
+            if (context != null && context.getRemoteHostName() != null) {
+                clientIp = context.getRemoteHostName();
+            }
+            Head head = createHead(interfaceName,request.getUserCode(),clientIp);
             securityLog.setHead(head);
             // 新建请求
             ReqInfo reqInfo = createSendPrintReqInfo(request);
@@ -115,7 +120,12 @@ public class LocalSecurityLog {
             // 创建头部信息
             SecurityLog securityLog = new SecurityLog();
             // 新建头
-            Head head = createHead(interfaceName,request.getUserCode());
+            String clientIp="";
+            RpcContext context = RpcContext.getContext();
+            if (context != null && context.getRemoteHostName() != null) {
+                clientIp = context.getRemoteHostName();
+            }
+            Head head = createHead(interfaceName,request.getUserCode(),clientIp);
             securityLog.setHead(head);
             // 新建请求
             ReqInfo reqInfo = createSendPrintReqInfo(request);
@@ -142,7 +152,7 @@ public class LocalSecurityLog {
      * @param jsonCommand
      * @param commandResult
      */
-    public static void writeJsonCommandSecurityLog(String interfaceName, JdCommand<String> jsonCommand, String commandResult) {
+    public static void writeJsonCommandSecurityLog(String interfaceName, JdCommand<String> jsonCommand, String commandResult,String clientIp) {
         try {
             if (jsonCommand == null) {
                 return;
@@ -157,7 +167,7 @@ public class LocalSecurityLog {
             // 创建头部信息
             SecurityLog securityLog = new SecurityLog();
             // 新建头
-            Head head = createHead(interfaceName,waybillPrintRequest.getUserERP());
+            Head head = createHead(interfaceName,waybillPrintRequest.getUserERP(),clientIp);
             securityLog.setHead(head);
             // 新建请求
             ReqInfo reqInfo = createJsonCommandReqInfo(waybillPrintRequest);
@@ -183,7 +193,7 @@ public class LocalSecurityLog {
      * @return
      * @throws UnknownHostException
      */
-    private static Head createHead(String interfaceName,String account) throws UnknownHostException {
+    private static Head createHead(String interfaceName,String account,String clientIp) throws UnknownHostException {
         String accountName =ACCOUNTNAME;
         LoginContext loginContext = LoginContext.getLoginContext();
         if(StringUtils.isNotBlank(account)){
@@ -200,14 +210,7 @@ public class LocalSecurityLog {
         head.setServerIp(InetAddress.getLocalHost().getHostAddress());
         head.setSystemName(SYSTEMNAME);
         head.setAppName(APPNAME);
-
-        RpcContext context = RpcContext.getContext();
-        log.info("RpcContext {}",JSON.toJSONString(context));
-        if (context != null && context.getRemoteHostName() != null) {
-            String clientIp = context.getRemoteHostName();
-            head.setClientIp(clientIp);
-        } else if (context != null && context.getAttachment(IP_KEY) != null) {
-            String clientIp = context.getAttachment(IP_KEY).toString();
+        if (StringUtils.isBlank(clientIp)) {
             head.setClientIp(clientIp);
         } else {
             head.setClientIp("0.0.0.0");
