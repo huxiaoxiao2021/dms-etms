@@ -1,6 +1,15 @@
 package com.jd.bluedragon.distribution.aicv;
 
+import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
+import com.jd.wl.ai.cv.center.outter.api.dto.IDCRRequestDto;
+import com.jd.wl.ai.cv.center.outter.api.dto.IDCRResponseDto;
+import com.jd.wl.ai.cv.center.outter.api.dto.IDCRStatusEnum;
+import com.jd.wl.ai.cv.center.outter.api.service.IDCRService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
@@ -18,28 +27,28 @@ import org.springframework.stereotype.Component;
 @Component
 public class IDCRServiceProxy {
 
-//    @Autowired
-//    private IDCRService idcrService;
-//
-//    public IDCRResponseDto recognisePhoto(IDCRRequestDto idcrRequestDto) {
-//
-//        log.info("调用AI识别身份证信息，调用链ID:{}", idcrRequestDto.getServiceUUID());
-//        CallerInfo callerInfo = Profiler.registerInfo("DMSWEB.IDCRServiceProxy.recognisePhoto", Constants.UMP_APP_NAME_DMSWEB,false, true);
-//        try {
-//            IDCRResponseDto idcrResponseDto = idcrService.recognisePhoto(idcrRequestDto);
-//            log.info("调用AI识别身份证信息，返回信息: {}", JsonHelper.toJson(idcrResponseDto));
-//            if (idcrResponseDto == null || !IDCRStatusEnum.OK.getCode().equals(idcrResponseDto.getStatus())) {
-//                log.error("调用AI识别身份证信息失败，返回值：{}", JsonHelper.toJson(idcrResponseDto));
-//            }
-//            return idcrResponseDto;
-//        } catch (RuntimeException e) {
-//            Profiler.functionError(callerInfo);
-//            log.error("调用AI识别身份证信息异常，返回值：{}", JsonHelper.toJson(idcrRequestDto));
-//            return null;
-//        } finally {
-//            Profiler.registerInfoEnd(callerInfo);
-//        }
-//
-//    }
+    @Autowired
+    private IDCRService idcrService;
+
+    public IDCRResponseDto recognisePhoto(IDCRRequestDto idcrRequestDto) {
+
+        log.info("调用AI识别身份证信息，调用链ID:{}", idcrRequestDto.getServiceUUID());
+        CallerInfo callerInfo = Profiler.registerInfo("DMSWEB.IDCRServiceProxy.recognisePhoto", Constants.UMP_APP_NAME_DMSWEB,false, true);
+        try {
+            IDCRResponseDto idcrResponseDto = idcrService.recognisePhoto(idcrRequestDto);
+            log.info("调用AI识别身份证信息，返回信息: {}", JsonHelper.toJson(idcrResponseDto));
+            if (idcrResponseDto == null || !IDCRStatusEnum.OK.getCode().equals(idcrResponseDto.getStatus())) {
+                log.error("调用AI识别身份证信息失败，返回值：{}", JsonHelper.toJson(idcrResponseDto));
+            }
+            return idcrResponseDto;
+        } catch (RuntimeException e) {
+            Profiler.functionError(callerInfo);
+            log.error("调用AI识别身份证信息异常，返回值：{}", JsonHelper.toJson(idcrRequestDto));
+            return null;
+        } finally {
+            Profiler.registerInfoEnd(callerInfo);
+        }
+
+    }
 
 }
