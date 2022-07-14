@@ -366,6 +366,9 @@ public class LocalSecurityLog {
             String receiverMobile = "null";
             String waybill = "null";
 
+            if(map == null){
+                return identifiers;
+            }
             //寄件人姓名
             if (StringUtils.isNotEmpty(String.valueOf(map.get("consigner")))) {
                 senderUser = String.valueOf(map.get("consigner"));
