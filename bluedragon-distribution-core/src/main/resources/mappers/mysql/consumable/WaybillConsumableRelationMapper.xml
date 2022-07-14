@@ -453,9 +453,9 @@
 			operate_user_erp = #{operateUserErp,jdbcType=VARCHAR},
 			update_time = #{updateTime,jdbcType=TIMESTAMP},
 			operate_time = #{operateTime,jdbcType=TIMESTAMP},
-			<if test="confirmQuantity != null">
-				confirm_quantity = #{confirmQuantity, jdbcType=DOUBLE},
-			</if>
+<!--			<if test="confirmQuantity != null">-->
+<!--				confirm_quantity = #{confirmQuantity, jdbcType=DOUBLE},-->
+<!--			</if>-->
 			confirm_volume = #{confirmVolume, jdbcType=DOUBLE}
 		</set>
 		where
