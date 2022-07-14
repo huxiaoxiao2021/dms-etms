@@ -72,6 +72,9 @@ public class InvokeResult<T> implements Serializable {
     public static final int RESULT_RFID_BIND_BOX_SENT_CODE=311;
     public static final String RESULT_RFID_BIND_BOX_SENT_MESSAGE="该循环集包袋已绑定箱号已发货，不能更换";
 
+    public static final int BATCH_SIGLE_SEND_EXCEP_CODE= 312;
+    public static final String BATCH_SIGLE_SEND_EXCEP_MESSAGE ="批量一车一单发货异常";
+
     public InvokeResult(){
         this.code=RESULT_SUCCESS_CODE;
     }

@@ -46,6 +46,8 @@ import org.springframework.stereotype.Service;
 import java.text.MessageFormat;
 import java.util.*;
 
+import static com.jd.bluedragon.distribution.base.domain.InvokeResult.BATCH_SIGLE_SEND_EXCEP_MESSAGE;
+
 /**
  * BatchSingleSendServiceImpl
  * 处理批量一车一单发货校验
@@ -161,9 +163,9 @@ public class BatchSingleSendServiceImpl implements BatchSingleSendGatewayService
             return jdResponse;
         }
 
-        jdResponse.toFail(result.getMessage());
-        if (ObjectHelper.isNotNull(result.getData())){
-            jdResponse.toFail(result.getData().getValue());
+        jdResponse.toFail(result.getMessage() != null ? result.getMessage() : BATCH_SIGLE_SEND_EXCEP_MESSAGE);
+        if (ObjectHelper.isNotNull(result.getData())) {
+            jdResponse.toFail(result.getData().getValue() != null ? result.getData().getValue() : BATCH_SIGLE_SEND_EXCEP_MESSAGE);
         }
         return jdResponse;
     }
