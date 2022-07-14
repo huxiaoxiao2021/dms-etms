@@ -88,6 +88,10 @@ public class JsonCommandServiceImpl implements JdCommandService{
 	public String execute(String jsonCommand) {
 		RpcContext context = RpcContext.getContext();
 		log.info("RpcContext 哈哈哈 {}", com.jd.fastjson.JSON.toJSONString(context));
+		String clientIp ="";
+		if(context != null){
+			clientIp =context.getRemoteHostName();
+		}
 		//设置初始化为成功
 		JdResult<?> jdResult = new JdResult<String>(JdResult.CODE_SUC,200,"200-调用服务成功。");
 		JdCommand<String> jdCommand = null;
@@ -122,11 +126,6 @@ public class JsonCommandServiceImpl implements JdCommandService{
 		writeBusinessLog(jsonCommand,jsonResponse,jdCommand.getOperateType());
 		//写入安全日志
 		//this.writeSecurityLog(jdCommand);
-		String clientIp ="";
-		if(context != null){
-			clientIp =context.getRemoteHostName();
-		}
-		log.info("execute {}",clientIp);
 		LocalSecurityLog.writeJsonCommandSecurityLog(JsonCommandServiceImpl.class.getName(),jdCommand,jsonResponse,clientIp);
 		return jsonResponse;
 	}
