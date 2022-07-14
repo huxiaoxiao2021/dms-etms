@@ -153,6 +153,7 @@ public class LocalSecurityLog {
      * @param commandResult
      */
     public static void writeJsonCommandSecurityLog(String interfaceName, JdCommand<String> jsonCommand, String commandResult,String clientIp) {
+        log.info("writeJsonCommandSecurityLog {}",clientIp);
         try {
             if (jsonCommand == null) {
                 return;
@@ -194,6 +195,7 @@ public class LocalSecurityLog {
      * @throws UnknownHostException
      */
     private static Head createHead(String interfaceName,String account,String clientIp) throws UnknownHostException {
+        log.info("createHead {}",clientIp);
         String accountName =ACCOUNTNAME;
         LoginContext loginContext = LoginContext.getLoginContext();
         if(StringUtils.isNotBlank(account)){

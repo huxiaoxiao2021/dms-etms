@@ -126,6 +126,7 @@ public class JsonCommandServiceImpl implements JdCommandService{
 		if(context != null){
 			clientIp =context.getRemoteHostName();
 		}
+		log.info("execute {}",clientIp);
 		LocalSecurityLog.writeJsonCommandSecurityLog(JsonCommandServiceImpl.class.getName(),jdCommand,jsonResponse,clientIp);
 		return jsonResponse;
 	}
