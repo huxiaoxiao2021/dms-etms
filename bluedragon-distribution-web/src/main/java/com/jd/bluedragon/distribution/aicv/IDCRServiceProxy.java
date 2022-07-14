@@ -1,0 +1,45 @@
+package com.jd.bluedragon.distribution.aicv;
+
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
+
+/**
+ * @ProjectName：bluedragon-distribution
+ * @Package： com.jd.bluedragon.distribution.aicv
+ * @ClassName: IDCRServiceProxy
+ * @Description:
+ * @Author： wuzuxiang
+ * @CreateDate 2022/7/11 23:39
+ * @Copyright: Copyright (c)2020 JDL.CN All Right Reserved
+ * @Since: JDK 1.8
+ * @Version： V1.0
+ */
+@Slf4j
+@Component
+public class IDCRServiceProxy {
+
+//    @Autowired
+//    private IDCRService idcrService;
+//
+//    public IDCRResponseDto recognisePhoto(IDCRRequestDto idcrRequestDto) {
+//
+//        log.info("调用AI识别身份证信息，调用链ID:{}", idcrRequestDto.getServiceUUID());
+//        CallerInfo callerInfo = Profiler.registerInfo("DMSWEB.IDCRServiceProxy.recognisePhoto", Constants.UMP_APP_NAME_DMSWEB,false, true);
+//        try {
+//            IDCRResponseDto idcrResponseDto = idcrService.recognisePhoto(idcrRequestDto);
+//            log.info("调用AI识别身份证信息，返回信息: {}", JsonHelper.toJson(idcrResponseDto));
+//            if (idcrResponseDto == null || !IDCRStatusEnum.OK.getCode().equals(idcrResponseDto.getStatus())) {
+//                log.error("调用AI识别身份证信息失败，返回值：{}", JsonHelper.toJson(idcrResponseDto));
+//            }
+//            return idcrResponseDto;
+//        } catch (RuntimeException e) {
+//            Profiler.functionError(callerInfo);
+//            log.error("调用AI识别身份证信息异常，返回值：{}", JsonHelper.toJson(idcrRequestDto));
+//            return null;
+//        } finally {
+//            Profiler.registerInfoEnd(callerInfo);
+//        }
+//
+//    }
+
+}
