@@ -13,10 +13,11 @@ import java.util.List;
 public interface TerminalManager {
 
     /**
-     * 获取终端箱号中所有运单信息
+     * 从终端获取发货明细
+     *
      * @param boxCode
      * @return
      */
-    com.jd.etms.erp.service.domain.BaseEntity<List<SendInfoDto>> getSendDetails(String boxCode);
+    List<SendInfoDto> getSendDetailsFromZD(String boxCode);
 
 }
