@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.waybill.service;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
+import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.TerminalManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
@@ -926,17 +927,20 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 			String boxCode = tWaybillStatus.getPackageCode();
 			// 1.查询分拣sorting
 			Box box = boxService.findBoxByCode(boxCode);
-			Sorting sorting = new Sorting();
-			sorting.setBoxCode(box.getCode());
-			sorting.setCreateSiteCode(box.getCreateSiteCode());
-			List<Sorting> sortByDms = sortingService.findByBoxCode(sorting);
+			List<Sorting> sortByDms = Lists.newArrayList();
+			if(box != null){
+				Sorting sorting = new Sorting();
+				sorting.setBoxCode(box.getCode());
+				sorting.setCreateSiteCode(box.getCreateSiteCode());
+				sortByDms = sortingService.findByBoxCode(sorting);
+			}
 			if(CollectionUtils.isNotEmpty(sortByDms)){
 				for (Sorting sortDto : sortByDms) {
 					list.add(ImmutablePair.of(sortDto.getPackageCode(), sortDto.getWaybillCode()));
 				}
 			}else {
 				// 2.无分拣记录则从终端获取发货明细
-				List<SendInfoDto> sendDetailsFromZD = terminalManager.getSendDetailsFromZD(box.getCode());
+				List<SendInfoDto> sendDetailsFromZD = terminalManager.getSendDetailsFromZD(boxCode);
 				if(CollectionUtils.isNotEmpty(sendDetailsFromZD)){
 					for (SendInfoDto zdSendDto : sendDetailsFromZD) {
 						list.add(ImmutablePair.of(zdSendDto.getPackageBarcode(), zdSendDto.getWaybillCode()));
