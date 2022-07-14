@@ -210,7 +210,7 @@ public class LocalSecurityLog {
         head.setServerIp(InetAddress.getLocalHost().getHostAddress());
         head.setSystemName(SYSTEMNAME);
         head.setAppName(APPNAME);
-        if (StringUtils.isBlank(clientIp)) {
+        if (StringUtils.isNotBlank(clientIp)) {
             head.setClientIp(clientIp);
         } else {
             head.setClientIp("0.0.0.0");
