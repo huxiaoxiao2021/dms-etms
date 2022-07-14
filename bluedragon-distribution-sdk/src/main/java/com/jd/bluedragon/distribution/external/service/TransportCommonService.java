@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.external.service;
 
 import com.jd.bluedragon.distribution.api.request.BoardCommonRequest;
+import com.jd.bluedragon.distribution.api.request.SortingPageRequest;
 import com.jd.bluedragon.distribution.api.request.TransportServiceRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.dock.entity.DockInfoEntity;
@@ -103,4 +104,17 @@ public interface TransportCommonService {
      */
     InvokeResult<DockInfoEntity> findDockInfoByDockCode(Integer siteCode, String dockCode);
 
+    /**
+     * 查询集包下的包裹总数
+     * @param boxCode
+     * @return
+     */
+    InvokeResult<Integer> getSumByBoxCode(String boxCode);
+
+    /**
+     * 查询集包下的包裹号
+     * @param request
+     * @return
+     */
+    InvokeResult<List<String>> SortingPageRequest(SortingPageRequest request);
 }

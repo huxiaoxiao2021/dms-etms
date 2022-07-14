@@ -1578,4 +1578,19 @@ public class SortingServiceImpl implements SortingService {
 		return sortingDao.listSortingByBoxCode(sorting);
 	}
 
+	/**
+	 * 通过箱号查询包裹数
+	 * @param boxCode
+	 * @return
+	 */
+	@Override
+	public Integer getSumByBoxCode(String boxCode) {
+		Integer sum = 0;
+		Box box = boxService.findBoxByCode(boxCode);
+		if (box != null) {
+			sum = dynamicSortingQueryDao.findPackCount(box.getCreateSiteCode(),boxCode);
+		}
+		return sum;
+	}
+
 }

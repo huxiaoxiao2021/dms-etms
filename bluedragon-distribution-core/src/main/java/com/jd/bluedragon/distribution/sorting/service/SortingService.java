@@ -215,4 +215,11 @@ public interface SortingService {
     Long findByPackageCodeAndBoxCode(Sorting sorting);
 
     List<Sorting> listSortingByBoxCode(Sorting sorting);
+
+    /**
+     *
+     * @param boxCode
+     * @return
+     */
+    Integer getSumByBoxCode(String boxCode);
 }
