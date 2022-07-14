@@ -447,14 +447,17 @@
 
 	<update id="updateByWaybillCode" parameterType="com.jd.bluedragon.distribution.consumable.domain.WaybillConsumableRelationPDADto">
 		update waybill_consumable_relation
-		set
+		<set>
 			pack_user_erp = #{packUserErp,jdbcType=VARCHAR},
 			operate_user_code = #{operateUserCode,jdbcType=VARCHAR},
 			operate_user_erp = #{operateUserErp,jdbcType=VARCHAR},
 			update_time = #{updateTime,jdbcType=TIMESTAMP},
 			operate_time = #{operateTime,jdbcType=TIMESTAMP},
-			confirm_quantity = #{confirmQuantity, jdbcType=DOUBLE},
+			<if test="confirmQuantity != null">
+				confirm_quantity = #{confirmQuantity, jdbcType=DOUBLE},
+			</if>
 			confirm_volume = #{confirmVolume, jdbcType=DOUBLE}
+		</set>
 		where
 			waybill_code = #{waybillCode, jdbcType=VARCHAR}
 			and consumable_code = #{consumableCode, jdbcType=VARCHAR}
