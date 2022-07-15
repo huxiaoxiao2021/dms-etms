@@ -87,7 +87,6 @@ public class JsonCommandServiceImpl implements JdCommandService{
 	@JProfiler(jKey = "DMSWEB.JsonCommandServiceImpl.execute",jAppName=Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
 	public String execute(String jsonCommand) {
 		RpcContext context = RpcContext.getContext();
-		log.info("RpcContext 哈哈哈 {}", com.jd.fastjson.JSON.toJSONString(context));
 		String clientIp ="";
 		if(context != null){
 			clientIp =context.getRemoteHostName();
