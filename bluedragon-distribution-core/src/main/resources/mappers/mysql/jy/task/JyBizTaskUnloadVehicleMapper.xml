@@ -536,7 +536,7 @@
             <if test="updateTime != null">
                 update_time = #{updateTime},
             </if>
-        </set>
+            </set>
         <where>
             id = #{id} and yn = 1
         </where>
@@ -602,7 +602,19 @@
             <if test="updateTime != null">
                 update_time = #{updateTime},
             </if>
-        </set>
+            <if test="vehicleStatus!=null">
+                vehicle_status =#{vehicleStatus},
+            </if>
+            <if test="unloadStartTime">
+                unload_start_time =#{unloadStartTime},
+            </if>
+            <if test="railwayPfNo">
+                railway_pf_no =#{railwayPfNo},
+            </if>
+            <if test="unloadType">
+                unload_type =#{unloadType},
+            </if>
+            </set>
         <where>
             id = #{id} and yn = 1
         </where>

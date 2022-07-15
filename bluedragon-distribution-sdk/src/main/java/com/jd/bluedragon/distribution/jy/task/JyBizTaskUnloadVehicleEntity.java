@@ -161,6 +161,7 @@ public class JyBizTaskUnloadVehicleEntity implements Serializable {
      * 更新时间
      */
     private Date updateTime;
+    private String railwayPfNo;
     /**
      * 卸车开始时间
      */

@@ -21,11 +21,11 @@ public interface JyUnloadVehicleTysService {
     /**
      * 变更任务属性
      */
-    InvokeResult updateUnloadVehicleTaskProper(UnloadVehicleTaskDto unloadVehicleTask);
+    InvokeResult updateUnloadVehicleTaskProperty(UnloadVehicleTaskDto unloadVehicleTask);
 
 
     /**
-     * 统计数据维度查询(按任务、板查询统计数据（已扫 应扫 待扫 多扫 拦截）) TODO
+     * 统计数据维度查询(按任务、板查询统计数据（已扫 应扫 待扫 多扫 拦截）)
      *
      * @param dto
      * @return

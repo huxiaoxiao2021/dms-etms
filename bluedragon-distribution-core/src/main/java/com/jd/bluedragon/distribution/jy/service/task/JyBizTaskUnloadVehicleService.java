@@ -167,4 +167,6 @@ public interface JyBizTaskUnloadVehicleService {
     UnloadVehicleTaskDto entityConvertDto(JyBizTaskUnloadVehicleEntity entity);
 
     ScanStatisticsDto queryStatisticsByDiffDimension(DimensionQueryDto dto);
+
+    UnloadVehicleTaskDto queryTaskDataByBizId(String bizId);
 }

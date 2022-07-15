@@ -12,6 +12,14 @@ public class ScanStatisticsDto implements Serializable {
      * 卸车进度
      */
     private Integer processPercent;
+    /**
+     * 拦截数量
+     */
+    private Integer interceptCount;
+    /**
+     * 多扫数量
+     */
+    private Integer extraScanCount;
 
     /**
      * 应扫
@@ -45,6 +53,13 @@ public class ScanStatisticsDto implements Serializable {
      * 多扫数量非本场地
      */
     private Integer extraScanCountOutCurrSite;
+
+    /**
+     * 应扫运单数量
+     */
+    private Integer shouldScanWaybillCount;
+
+
 
     public Integer getProcessPercent() {
         return processPercent;
@@ -108,5 +123,29 @@ public class ScanStatisticsDto implements Serializable {
 
     public void setExtraScanCountOutCurrSite(Integer extraScanCountOutCurrSite) {
         this.extraScanCountOutCurrSite = extraScanCountOutCurrSite;
+    }
+
+    public Integer getInterceptCount() {
+        return interceptCount;
+    }
+
+    public void setInterceptCount(Integer interceptCount) {
+        this.interceptCount = interceptCount;
+    }
+
+    public Integer getExtraScanCount() {
+        return extraScanCount;
+    }
+
+    public void setExtraScanCount(Integer extraScanCount) {
+        this.extraScanCount = extraScanCount;
+    }
+
+    public Integer getShouldScanWaybillCount() {
+        return shouldScanWaybillCount;
+    }
+
+    public void setShouldScanWaybillCount(Integer shouldScanWaybillCount) {
+        this.shouldScanWaybillCount = shouldScanWaybillCount;
     }
 }

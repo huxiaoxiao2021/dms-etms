@@ -601,6 +601,12 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
         return null;
     }
 
+    @Override
+    public UnloadVehicleTaskDto queryTaskDataByBizId(String bizId) {
+        JyBizTaskUnloadVehicleEntity entity =findByBizId(bizId);
+        return entityConvertDto(entity);
+    }
+
     private ScanStatisticsDto dtoConvert(JyUnloadAggsEntity entity,DimensionQueryDto dto) {
         ScanStatisticsDto scanStatisticsDto =new ScanStatisticsDto();
         scanStatisticsDto.setProcessPercent((entity.getTotalScannedPackageCount()/entity.getTotalSealPackageCount()));
