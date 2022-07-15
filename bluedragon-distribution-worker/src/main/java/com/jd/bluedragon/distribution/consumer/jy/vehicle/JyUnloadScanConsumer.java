@@ -14,6 +14,7 @@ import com.jd.bluedragon.distribution.jy.dto.unload.UnloadScanDto;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.group.JyTaskGroupMemberEntity;
 import com.jd.bluedragon.distribution.jy.service.group.JyTaskGroupMemberService;
+import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskUnloadVehicleService;
 import com.jd.bluedragon.distribution.jy.service.unload.UnloadVehicleTransactionManager;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadDto;
 import com.jd.bluedragon.distribution.jy.unload.JyUnloadEntity;
@@ -69,6 +70,9 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
     @Qualifier("jyTaskGroupMemberService")
     private JyTaskGroupMemberService taskGroupMemberService;
 
+    @Autowired
+    JyBizTaskUnloadVehicleService jyBizTaskUnloadVehicleService;
+
     @Override
     @JProfiler(jKey = "DMS.WORKER.jyUnloadScanConsumer.consume",
             jAppName = Constants.UMP_APP_NAME_DMSWORKER, mState = {JProEnum.TP,JProEnum.FunctionError})
@@ -103,6 +107,11 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
 
         JyUnloadEntity unloadEntity = copyFromDto(unloadScanDto);
 
+        if (unloadScanDto.getTaskType()==2){
+            //查询子任务id 赋值 TODO
+        }
+
+
         if (jyUnloadDao.insert(unloadEntity) <= 0) {
             logger.error("保存卸车扫描记录异常. {}", JsonHelper.toJson(unloadEntity));
             throw new RuntimeException("保存卸车扫描记录异常");
@@ -129,6 +138,7 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
         unloadEntity.setUpdateUserName(unloadScanDto.getUpdateUserName());
         unloadEntity.setCreateTime(unloadScanDto.getCreateTime());
         unloadEntity.setUpdateTime(unloadScanDto.getUpdateTime());
+        unloadEntity.setStageBizId(unloadScanDto.getStageBizId());
 
         return unloadEntity;
     }

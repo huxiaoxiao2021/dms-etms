@@ -1,8 +1,10 @@
 package com.jd.bluedragon.distribution.jy.service.unload;
 
 import com.github.pagehelper.PageHelper;
+import com.jd.bluedragon.common.dto.operation.workbench.unload.request.UnloadScanRequest;
 import com.jd.bluedragon.core.base.BoardCommonManager;
 import com.jd.bluedragon.core.base.BoardCommonManagerImpl;
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.distribution.api.request.BoardCommonRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -29,10 +31,13 @@ import com.jd.transboard.api.enums.BizSourceEnum;
 import com.jd.transboard.api.enums.ResponseEnum;
 import com.jdl.jy.realtime.model.es.unload.JyVehicleTaskUnloadDetail;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.*;
@@ -49,7 +54,9 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     GroupBoardManager groupBoardManager;
     @Autowired
     BoardCommonManager boardCommonManager;
-
+    @Autowired
+    @Qualifier("jyUnloadScanProducer")
+    private DefaultJMQProducer unloadScanProducer;
     @Override
     public InvokeResult<UnloadVehicleTaskRespDto> listUnloadVehicleTask(UnloadVehicleTaskReqDto unloadVehicleTaskReqDto) {
         if (ObjectHelper.isNotNull(unloadVehicleTaskReqDto.getPackageCode())) {
@@ -187,24 +194,58 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     @Override
     public InvokeResult<ScanPackageRespDto> scanAndComBoard(ScanPackageDto scanPackageDto) {
         log.info("invoking jy scanAndComBoard,params: {}", JsonHelper.toJson(scanPackageDto));
-        checkPackageCode(scanPackageDto);
+        JyBizTaskUnloadVehicleEntity unloadVehicleEntity = jyBizTaskUnloadVehicleService.findByBizId(scanPackageDto.getBizId());
+        if (!ObjectHelper.isNotNull(unloadVehicleEntity)) {
+           return new InvokeResult(TASK_NO_FOUND_BY_PARAMS_CODE,TASK_NO_FOUND_BY_PARAMS_MESSAGE);
+        }
+        checkPackageCode(scanPackageDto,unloadVehicleEntity);
         //校验一下当前有没有进行中的板，有 直接组板
+        Boolean comBoardSuccess =false;
         if (ObjectHelper.isNotNull(scanPackageDto.getBoardCode())) {
             ExecComBoardDto comBoardDto =new ExecComBoardDto(scanPackageDto.getBoardCode(),scanPackageDto.getScanCode());
-            Boolean success =execComBoard(comBoardDto,scanPackageDto);
+            comBoardSuccess =execComBoard(comBoardDto,scanPackageDto);
         } else {
-            //根据包裹获取流向
+            //生成新板
             String boardCode =generateBoard(scanPackageDto);
             if (ObjectHelper.isNotNull(boardCode)){
                 ExecComBoardDto comBoardDto =new ExecComBoardDto(boardCode,scanPackageDto.getScanCode());
-                execComBoard(comBoardDto,scanPackageDto);
+                comBoardSuccess=execComBoard(comBoardDto,scanPackageDto);
             }
         }
-
-        return null;
+        if (comBoardSuccess){
+            UnloadScanDto unloadScanDto = createUnloadDto(scanPackageDto, unloadVehicleEntity);
+            unloadScanProducer.sendOnFailPersistent(unloadScanDto.getBarCode(), JsonHelper.toJson(unloadScanDto));
+        }
+        return new InvokeResult(RESULT_SUCCESS_CODE,RESULT_SUCCESS_MESSAGE);
     }
 
-    private void checkPackageCode(ScanPackageDto scanPackageDto) {
+    private UnloadScanDto createUnloadDto(ScanPackageDto request, JyBizTaskUnloadVehicleEntity taskUnloadVehicle) {
+        Date operateTime = new Date();
+        UnloadScanDto unloadScanDto = new UnloadScanDto();
+        unloadScanDto.setBizId(request.getBizId());
+        // 无任务场景下没有sealCarCode
+        unloadScanDto.setSealCarCode(StringUtils.isBlank(request.getSealCarCode()) ? StringUtils.EMPTY : request.getSealCarCode());
+        unloadScanDto.setVehicleNumber(taskUnloadVehicle.getVehicleNumber());
+        unloadScanDto.setStartSiteId(taskUnloadVehicle.getStartSiteId());
+        unloadScanDto.setEndSiteId(taskUnloadVehicle.getEndSiteId());
+        unloadScanDto.setManualCreatedFlag(taskUnloadVehicle.getManualCreatedFlag());
+        unloadScanDto.setOperateSiteId((long) request.getCurrentOperate().getSiteCode());
+        unloadScanDto.setBarCode(request.getScanCode());
+        unloadScanDto.setOperateTime(operateTime);
+        unloadScanDto.setCreateUserErp(request.getUser().getUserErp());
+        unloadScanDto.setCreateUserName(request.getUser().getUserName());
+        unloadScanDto.setUpdateUserErp(request.getUser().getUserErp());
+        unloadScanDto.setUpdateUserName(request.getUser().getUserName());
+        unloadScanDto.setCreateTime(operateTime);
+        unloadScanDto.setUpdateTime(operateTime);
+
+        //unloadScanDto.setGroupCode(request.getGroupCode());
+        unloadScanDto.setTaskId(request.getTaskId());
+
+        return unloadScanDto;
+    }
+
+    private void checkPackageCode(ScanPackageDto scanPackageDto,JyBizTaskUnloadVehicleEntity entity) {
         //校验流向
     }
 
