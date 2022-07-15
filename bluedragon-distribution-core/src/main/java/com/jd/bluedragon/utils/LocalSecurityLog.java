@@ -161,13 +161,13 @@ public class LocalSecurityLog {
             WaybillPrintRequest waybillPrintRequest = JsonHelper.fromJson(jsonCommand.getData(), WaybillPrintRequest.class);
             //构建响应结果
             JdResult jdResult = JsonHelper.fromJson(commandResult, JdResult.class);
-            if (null == waybillPrintRequest || null == jdResult || StringUtils.isBlank(String.valueOf(waybillPrintRequest.getUserCode()))) {
+            if (null == waybillPrintRequest || null == jdResult || StringUtils.isBlank(waybillPrintRequest.getUserName())) {
                 return;
             }
             // 创建头部信息
             SecurityLog securityLog = new SecurityLog();
             // 新建头
-            Head head = createHead(interfaceName,waybillPrintRequest.getUserERP(),clientIp);
+            Head head = createHead(interfaceName,waybillPrintRequest.getUserName(),clientIp);
             securityLog.setHead(head);
             // 新建请求
             ReqInfo reqInfo = createJsonCommandReqInfo(waybillPrintRequest);
