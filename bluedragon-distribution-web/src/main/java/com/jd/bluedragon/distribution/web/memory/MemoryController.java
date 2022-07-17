@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.client.RestTemplate;
 
+import java.net.URL;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -146,7 +147,14 @@ public class MemoryController {
             headers.setContentType(MediaType.parseMediaType("application/json; charset=UTF-8"));
             headers.add("Accept", MediaType.APPLICATION_JSON.toString());
             HttpEntity<String> formEntity = new HttpEntity<String>(JsonHelper.toJson(new MemoryCacheRequest(ip, key)), headers);
+
+            URL u = new URL(url);
+            boolean safe = jdSsrfCheck(u);
+            if(!safe){
+                return new MemoryCacheDto(ip, "1.value is null");
+            }
             ResponseEntity<MemoryCacheResponse> response = template.postForEntity(url, formEntity, MemoryCacheResponse.class);
+
             if (null == response || null == response.getBody()) {
                 return new MemoryCacheDto(ip, "1.value is null");
             }
@@ -256,4 +264,51 @@ public class MemoryController {
 
     }
 
+
+    public boolean jdSsrfCheck(URL urlObj){
+        //定义请求协议白名单列表
+        String[] allowProtocols = new String[]{"http", "https"};
+        //定义请求域名白名单列表
+        String[] allowDomains = new String[]{"www.jd.com"};
+        //定义请求端口白名单列表
+        int[] allowPorts = new int[]{80, 443};
+        boolean ssrfCheck = false, protocolCheck = false, domianCheck = false;
+
+        // 首先进行协议校验，若协议校验不通过，SSRF校验不通过
+        String protocol = urlObj.getProtocol();
+        for(String item : allowProtocols){
+            if(protocol.equals(item)){
+                protocolCheck = true;
+                break;
+            }
+        }
+        // 协议校验通过后，再进行域名校验，反之不进行域名校验，SSRF校验不通过
+        if(protocolCheck){
+            String host = urlObj.getHost();
+            for(String domain: allowDomains){
+                if(domain.equals(host)){
+                    domianCheck = true;
+                    break;
+                }
+            }
+        }
+        //域名校验通过后，再进行端口校验，反之不进行端口校验，SSRF校验不通过
+        if(domianCheck){
+            int port = urlObj.getPort();
+            if(port == -1) {
+                port = 80;
+            }
+            for (Integer item : allowPorts) {
+                if (item == port) {
+                    ssrfCheck = true;
+                    break;
+                }
+            }
+        }
+        if(ssrfCheck){
+            return true;
+        }else{
+            return false;
+        }
+    }
 }
