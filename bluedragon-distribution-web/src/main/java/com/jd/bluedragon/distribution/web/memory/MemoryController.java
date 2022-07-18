@@ -272,7 +272,7 @@ public class MemoryController {
         //定义请求协议白名单列表
         String[] allowProtocols = new String[]{"http", "https"};
         //定义请求域名白名单列表
-        String[] allowDomains = new String[]{"dmsw.jdl.com"};
+        String[] allowDomains = new String[]{"dms.etms.jd.com","dms.etms.jdl.com"};
         //定义请求端口白名单列表
         int[] allowPorts = new int[]{80, 443};
         boolean ssrfCheck = false, protocolCheck = false, domianCheck = false;
