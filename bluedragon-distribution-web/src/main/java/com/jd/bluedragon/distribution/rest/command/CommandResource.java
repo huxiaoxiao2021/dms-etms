@@ -1,11 +1,13 @@
 package com.jd.bluedragon.distribution.rest.command;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.PopPrintRequest;
 import com.jd.bluedragon.distribution.api.response.PopPrintResponse;
@@ -14,6 +16,7 @@ import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.popPrint.domain.ResidentTypeEnum;
 import com.jd.bluedragon.distribution.print.request.PrintCompleteRequest;
 import com.jd.bluedragon.distribution.print.service.PackagePrintInternalService;
+import com.jd.bluedragon.distribution.rest.IpUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -52,8 +55,14 @@ public class CommandResource {
     @POST
     @GZIP
     @Path("/command/execute")
-    public String execute(String jsonCommand){
-       return packagePrintInternalService.getPrintInfo(jsonCommand);
+    public String execute(String jsonCommand, HttpServletRequest request){
+        logger.info("remoteAddr :"+ JSON.toJSONString(request));
+        String remoteAddr = request.getRemoteAddr();
+        logger.info("remoteAddr :"+remoteAddr);
+        String ipAddress = IpUtil.getIpAddress(request);
+        logger.info("ipAddress :"+ipAddress);
+
+        return packagePrintInternalService.getPrintInfo(jsonCommand);
     }
 
     @POST
