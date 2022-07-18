@@ -58,14 +58,13 @@ public class CommandResource {
     @GZIP
     @Path("/command/execute")
     public String execute(String jsonCommand){
-        ServletRequestAttributes servletRequestAttributes =  (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
-        HttpServletRequest request = servletRequestAttributes.getRequest();
-        logger.info("remoteAddr :"+ JSON.toJSONString(request));
-        String remoteAddr = request.getRemoteAddr();
-        logger.info("remoteAddr :"+remoteAddr);
-        String ipAddress = IpUtil.getIpAddress(request);
-        logger.info("ipAddress :"+ipAddress);
-
+//        ServletRequestAttributes servletRequestAttributes =  (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+//        HttpServletRequest request = servletRequestAttributes.getRequest();
+//        logger.info("remoteAddr :"+ JSON.toJSONString(request));
+//        String remoteAddr = request.getRemoteAddr();
+//        logger.info("remoteAddr :"+remoteAddr);
+//        String ipAddress = IpUtil.getIpAddress(request);
+//        logger.info("ipAddress :"+ipAddress);
         return packagePrintInternalService.getPrintInfo(jsonCommand);
     }
 
