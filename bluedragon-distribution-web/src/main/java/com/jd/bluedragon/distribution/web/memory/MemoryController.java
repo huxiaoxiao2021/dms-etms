@@ -150,7 +150,7 @@ public class MemoryController {
             URL u = new URL(url);
             boolean safe = jdSsrfCheck(u);
             if(!safe){
-                return new MemoryCacheDto(ip, "value is null");
+                return new MemoryCacheDto(ip, "This request is not safe!");
             }
             ResponseEntity<MemoryCacheResponse> response = template.postForEntity(url, formEntity, MemoryCacheResponse.class);
 
