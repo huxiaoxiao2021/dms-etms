@@ -125,7 +125,7 @@ public class WaybillConsumableGatewayServiceImpl implements WaybillConsumableGat
             waybillCode = WaybillUtil.getWaybillCode(businessCode);
         }
         try {
-            res.setData(waybillConsumableRecordService.canModify(waybillCode));
+            res.setData(waybillConsumableRecordService.canModifyNew(waybillCode));
             return res;
         } catch (Exception e) {
             log.error(methodDesc + "校验失败，操作异常，参数=【{}】", JsonHelper.toJson(waybillConsumablePackConfirmReq), e);

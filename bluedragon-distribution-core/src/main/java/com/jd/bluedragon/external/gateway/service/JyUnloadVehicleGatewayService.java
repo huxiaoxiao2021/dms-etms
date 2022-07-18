@@ -46,6 +46,14 @@ public interface JyUnloadVehicleGatewayService {
     JdCResponse<List<StringSelectOption>> productTypeOptions();
 
     /**
+     * 卸车扫描方式枚举
+     * @return 扫描方式列表
+     * @author fanggang7
+     * @time 2022-07-05 23:20:20 周二
+     */
+    JdCResponse<List<SelectOption>> scanTypeOptions();
+
+    /**
      * 卸车扫描
      * @param request
      * @return
