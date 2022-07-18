@@ -147,11 +147,10 @@ public class MemoryController {
             headers.setContentType(MediaType.parseMediaType("application/json; charset=UTF-8"));
             headers.add("Accept", MediaType.APPLICATION_JSON.toString());
             HttpEntity<String> formEntity = new HttpEntity<String>(JsonHelper.toJson(new MemoryCacheRequest(ip, key)), headers);
-
             URL u = new URL(url);
             boolean safe = jdSsrfCheck(u);
             if(!safe){
-                return new MemoryCacheDto(ip, "1.value is null");
+                return new MemoryCacheDto(ip, "value is null");
             }
             ResponseEntity<MemoryCacheResponse> response = template.postForEntity(url, formEntity, MemoryCacheResponse.class);
 
@@ -264,12 +263,16 @@ public class MemoryController {
 
     }
 
-
+    /**
+     * web漏洞修复
+     * @param urlObj
+     * @return
+     */
     public boolean jdSsrfCheck(URL urlObj){
         //定义请求协议白名单列表
         String[] allowProtocols = new String[]{"http", "https"};
         //定义请求域名白名单列表
-        String[] allowDomains = new String[]{"www.jd.com"};
+        String[] allowDomains = new String[]{"dmsw.jdl.com"};
         //定义请求端口白名单列表
         int[] allowPorts = new int[]{80, 443};
         boolean ssrfCheck = false, protocolCheck = false, domianCheck = false;
