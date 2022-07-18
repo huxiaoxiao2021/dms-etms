@@ -39,6 +39,10 @@
     <jsf:consumer id="supportServiceJsf" interface="com.jd.etms.erp.ws.SupportServiceInterface"
                   protocol="jsf" alias="${erp.jsf.alias}" timeout="${erp.jsf.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
     </jsf:consumer>
+    <!-- 3PL erp接口 苗延超 杨庭柱 -->
+    <jsf:consumer id="support3plServiceJsf" interface="com.jd.etms.erp.ws.SupportServiceInterface"
+                  protocol="jsf" alias="${erp.3pl.jsf.alias}" timeout="${erp.3pl.jsf.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
 
     <!-- 仓储dtc接口 乔洪佥 -->
     <jsf:consumer id="dtcDataReceiverServiceJsf" interface="com.jd.staig.receiver.rpc.DataReceiver"

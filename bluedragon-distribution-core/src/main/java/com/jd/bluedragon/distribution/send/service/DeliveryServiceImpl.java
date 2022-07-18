@@ -128,7 +128,6 @@ import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.dms.logger.external.LogEngine;
 import com.jd.etms.erp.service.dto.SendInfoDto;
-import com.jd.etms.erp.ws.SupportServiceInterface;
 import com.jd.etms.vos.dto.CommonDto;
 import com.jd.etms.vos.dto.SealCarDto;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
