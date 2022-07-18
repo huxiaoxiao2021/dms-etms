@@ -11,6 +11,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -27,7 +28,12 @@ public class TerminalManagerImpl implements TerminalManager {
     private static final Logger logger = LoggerFactory.getLogger(TerminalManagerImpl.class);
 
     @Autowired
+    @Qualifier("supportServiceJsf")
     private SupportServiceInterface supportProxy;
+
+    @Autowired
+    @Qualifier("support3plServiceJsf")
+    private SupportServiceInterface supportProxyOf3pl;
 
     @Override
     public List<SendInfoDto> getSendDetailsFromZD(String boxCode) {
@@ -39,6 +45,11 @@ public class TerminalManagerImpl implements TerminalManager {
             BaseEntity<List<SendInfoDto>> baseEntity = supportProxy.getSendDetails(sendInfoDto);
             if (baseEntity != null && baseEntity.getResultCode() > 0 && CollectionUtils.isNotEmpty(baseEntity.getData())) {
                 return baseEntity.getData();
+            }
+            //自营未获取到在尝试从3PL获取
+            BaseEntity<List<SendInfoDto>> baseEntityOf3pl = supportProxyOf3pl.getSendDetails(sendInfoDto);
+            if (baseEntityOf3pl != null && baseEntityOf3pl.getResultCode() > 0 && CollectionUtils.isNotEmpty(baseEntityOf3pl.getData())) {
+                return baseEntityOf3pl.getData();
             }
         }catch (Exception e){
             logger.error("根据箱号:{}查询终端发货明细异常!", boxCode, e);
