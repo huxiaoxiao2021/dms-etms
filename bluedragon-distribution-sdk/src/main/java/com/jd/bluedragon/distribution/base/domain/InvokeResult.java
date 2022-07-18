@@ -117,6 +117,9 @@ public class InvokeResult<T> implements Serializable {
     public static final int NOT_SUPPORT_TYPE_QUERY_CODE=327;
     public static final String NOT_SUPPORT_TYPE_QUERY_MESSAGE="暂不支持该类型的统计数据查询！";
 
+    public static final int UNLOAD_SCAN_EXCEPTION_CODE=328;
+    public static final String UNLOAD_SCAN_EXCEPTION_MESSAGE="卸车扫描异常！";
+
     public InvokeResult(){
         this.code=RESULT_SUCCESS_CODE;
     }

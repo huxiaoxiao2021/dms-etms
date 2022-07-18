@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.jy.service.unload;
 import com.github.pagehelper.PageHelper;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.LineTypeStatis;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BoardCommonManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
@@ -26,6 +27,7 @@ import com.jd.bluedragon.utils.BeanUtils;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.jim.cli.Cluster;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.ws.BasicGoodsAreaWS;
 import com.jd.transboard.api.dto.AddBoardBox;
 import com.jd.transboard.api.dto.AddBoardRequest;
@@ -75,6 +77,8 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     private Cluster redisClientOfJy;
     @Autowired
     private JyUnloadDao jyUnloadDao;
+    @Autowired
+    BaseMajorManager baseMajorManager;
 
 
     @Override
@@ -250,11 +254,24 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         }
         //开始组板
         Integer comBoardCount =comBoard(scanPackageDto);
-        if (comBoardCount>0){
+        if (ObjectHelper.isNotNull(comBoardCount) && comBoardCount>0){
             UnloadScanDto unloadScanDto = createUnloadDto(scanPackageDto, unloadVehicleEntity);
             unloadScanProducer.sendOnFailPersistent(unloadScanDto.getBarCode(), JsonHelper.toJson(unloadScanDto));
+
+            ScanPackageRespDto scanPackageRespDto =new ScanPackageRespDto();
+            BaseStaffSiteOrgDto baseStaffSiteOrgDto=baseMajorManager.getBaseSiteBySiteId(scanPackageDto.getNextSiteCode());
+            if (ObjectHelper.isNotNull(baseStaffSiteOrgDto)){
+                scanPackageRespDto.setEndSiteId(Long.valueOf(baseStaffSiteOrgDto.getSiteCode()));
+                scanPackageRespDto.setEndSiteName(baseStaffSiteOrgDto.getSiteName());
+            }
+            scanPackageRespDto.setBizId(scanPackageDto.getBizId());
+            scanPackageRespDto.setBoardCode(scanPackageDto.getBoardCode());
+            scanPackageRespDto.setGoodsAreaCode(scanPackageDto.getGoodsAreaCode());
+            scanPackageRespDto.setComBoardCount(comBoardCount);
+            result.setData(scanPackageRespDto);
+            return result;
         }
-        return result;
+        return new InvokeResult(UNLOAD_SCAN_EXCEPTION_CODE,UNLOAD_SCAN_EXCEPTION_MESSAGE);
     }
 
     private Integer comBoard(ScanPackageDto scanPackageDto) {
@@ -263,6 +280,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             comBoardCount =doComBoard(scanPackageDto.getBoardCode(),scanPackageDto);
         } else {
             String boardCode =generateBoard(scanPackageDto);
+            scanPackageDto.setBoardCode(boardCode);
             if (ObjectHelper.isNotNull(boardCode)){
                 comBoardCount=doComBoard(boardCode,scanPackageDto);
             }
@@ -344,7 +362,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
 
 
     private Integer doComBoard(String boardCode,ScanPackageDto scanPackageDto) {
-        int count =0;
+        Integer count =0;
         AddBoardBox addBoardBox = new AddBoardBox();
         addBoardBox.setBoardCode(boardCode);
         addBoardBox.setBoxCode(scanPackageDto.getScanCode());
@@ -459,6 +477,14 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             }
         }
         return null;
+    }
+
+    public static void main(String[] args) {
+        Integer a =null;
+        int b=a;
+        if (b>0){
+            System.out.println(1);
+        }
     }
 
 }
