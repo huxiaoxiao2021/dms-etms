@@ -30,6 +30,8 @@ import org.springframework.stereotype.Component;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.command.JdCommandService;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 /**
  * 根据运单打印相关RESTful接口
@@ -55,7 +57,9 @@ public class CommandResource {
     @POST
     @GZIP
     @Path("/command/execute")
-    public String execute(String jsonCommand, HttpServletRequest request){
+    public String execute(String jsonCommand){
+        ServletRequestAttributes servletRequestAttributes =  (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        HttpServletRequest request = servletRequestAttributes.getRequest();
         logger.info("remoteAddr :"+ JSON.toJSONString(request));
         String remoteAddr = request.getRemoteAddr();
         logger.info("remoteAddr :"+remoteAddr);
