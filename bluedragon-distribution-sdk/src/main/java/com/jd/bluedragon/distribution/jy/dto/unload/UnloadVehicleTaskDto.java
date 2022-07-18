@@ -12,6 +12,10 @@ public class UnloadVehicleTaskDto extends UnloadBaseDto implements Serializable 
      */
     private String bizId;
     /**
+     * 任务id
+     */
+    private String taskId;
+    /**
      * 封车编码
      */
     private String sealCarCode;
@@ -332,5 +336,13 @@ public class UnloadVehicleTaskDto extends UnloadBaseDto implements Serializable 
 
     public void setRailwayPfNo(String railwayPfNo) {
         this.railwayPfNo = railwayPfNo;
+    }
+
+    public String getTaskId() {
+        return taskId;
+    }
+
+    public void setTaskId(String taskId) {
+        this.taskId = taskId;
     }
 }

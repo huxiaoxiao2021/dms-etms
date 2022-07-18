@@ -29,6 +29,11 @@ public class ScanPackageDto extends UnloadBaseDto implements Serializable {
      * 进行中的板，基于这个板进行组板
      */
     private String boardCode;
+    /**
+     * 货区编码
+     */
+    private String goodsAreaCode;
+    private Integer nextSiteCode;
 
     public String getBizId() {
         return bizId;
@@ -76,5 +81,21 @@ public class ScanPackageDto extends UnloadBaseDto implements Serializable {
 
     public void setTaskId(String taskId) {
         this.taskId = taskId;
+    }
+
+    public String getGoodsAreaCode() {
+        return goodsAreaCode;
+    }
+
+    public void setGoodsAreaCode(String goodsAreaCode) {
+        this.goodsAreaCode = goodsAreaCode;
+    }
+
+    public Integer getNextSiteCode() {
+        return nextSiteCode;
+    }
+
+    public void setNextSiteCode(Integer nextSiteCode) {
+        this.nextSiteCode = nextSiteCode;
     }
 }

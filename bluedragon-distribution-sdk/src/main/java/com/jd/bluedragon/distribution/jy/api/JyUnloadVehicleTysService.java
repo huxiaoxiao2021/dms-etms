@@ -49,20 +49,20 @@ public interface JyUnloadVehicleTysService {
 
 
     /**
-     * 人工作业扫描（开新版+组板）
+     * 人工作业扫描（组板+扫描）
      *
      * @param scanPackageDto
      * @return
      */
-    InvokeResult<ScanPackageRespDto> scanAndComBoard(ScanPackageDto scanPackageDto);
+    InvokeResult<ScanPackageRespDto> scan(ScanPackageDto scanPackageDto);
 
 
     /**
-     * 流水线作业扫描
+     * 流水线作业扫描（扫描）
      * @param scanPackageDto
      * @return
      */
-    InvokeResult<ScanPackageRespDto> scanAndComBoardForPipelining (ScanPackageDto scanPackageDto);
+    InvokeResult<ScanPackageRespDto> scanForPipelining (ScanPackageDto scanPackageDto);
 
 
     /**
@@ -122,6 +122,22 @@ public interface JyUnloadVehicleTysService {
      */
     InvokeResult cancelComBoard(CancelComBoardDto cancelComBoardDto);
 
+
+    /**
+     * 查询路由信息
+     * @param waybillCode
+     * @param startSiteId
+     * @return
+     */
+    Integer getWaybillNextRouter(String waybillCode, Integer startSiteId);
+
+    /**
+     * 查询获取编码
+     * @param currentSiteCode
+     * @param nextSiteCode
+     * @return
+     */
+    String getGoodsAreaCode(Integer currentSiteCode, Integer nextSiteCode);
 
 
 }

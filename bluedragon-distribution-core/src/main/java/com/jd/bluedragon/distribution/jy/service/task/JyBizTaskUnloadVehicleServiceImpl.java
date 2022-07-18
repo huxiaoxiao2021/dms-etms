@@ -13,6 +13,7 @@ import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.UnloadStatisticsQueryTypeEnum;
 import com.jd.bluedragon.distribution.jy.enums.UnloadTaskLabelEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
+import com.jd.bluedragon.distribution.jy.manager.JyScheduleTaskManager;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadDto;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
 import com.jd.bluedragon.distribution.jy.unload.JyUnloadAggsEntity;
@@ -25,6 +26,9 @@ import com.jd.etms.vos.dto.SealCarDto;
 import com.jd.jim.cli.Cluster;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jdl.jy.schedule.dto.task.JyScheduleTaskReq;
+import com.jdl.jy.schedule.dto.task.JyScheduleTaskResp;
+import com.jdl.jy.schedule.enums.task.JyScheduleTaskTypeEnum;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -82,6 +86,8 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
 
     @Autowired
     JyUnloadAggsDao jyUnloadAggsDao;
+    @Autowired
+    private JyScheduleTaskManager jyScheduleTaskManager;
 
     /**
      * 根据bizId获取数据
@@ -564,6 +570,14 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
         return null;
     }
 
+    private String getJyScheduleTaskId(String bizId) {
+        JyScheduleTaskReq req = new JyScheduleTaskReq();
+        req.setBizId(bizId);
+        req.setTaskType(JyScheduleTaskTypeEnum.UNLOAD.getCode());
+        JyScheduleTaskResp scheduleTask = jyScheduleTaskManager.findScheduleTaskByBizId(req);
+        return null != scheduleTask ? scheduleTask.getTaskId() : StringUtils.EMPTY;
+    }
+
     @Override
     public UnloadVehicleTaskDto entityConvertDto(JyBizTaskUnloadVehicleEntity entity) {
         UnloadVehicleTaskDto unloadVehicleTaskDto = BeanUtils.copy(entity, UnloadVehicleTaskDto.class);
@@ -583,6 +597,7 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
         if (ObjectHelper.isNotNull(entity.getTagsSign())) {
             unloadVehicleTaskDto.setLabelOptionList(resolveTagSign(entity.getTagsSign()));
         }
+        unloadVehicleTaskDto.setTaskId(getJyScheduleTaskId(entity.getBizId()));
         return unloadVehicleTaskDto;
     }
 

@@ -1,28 +1,32 @@
 package com.jd.bluedragon.distribution.jy.service.unload;
 
 import com.github.pagehelper.PageHelper;
-import com.jd.bluedragon.common.dto.operation.workbench.unload.request.UnloadScanRequest;
+import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.LineTypeStatis;
+import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.core.base.BoardCommonManager;
-import com.jd.bluedragon.core.base.BoardCommonManagerImpl;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.distribution.api.request.BoardCommonRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.api.JyUnloadVehicleTysService;
+import com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadDao;
 import com.jd.bluedragon.distribution.jy.dto.task.JyBizTaskUnloadCountDto;
 import com.jd.bluedragon.distribution.jy.dto.unload.*;
+import com.jd.bluedragon.distribution.jy.enums.JyLineTypeEnum;
 import com.jd.bluedragon.distribution.jy.enums.UnloadStatisticsQueryTypeEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadStatusEnum;
 import com.jd.bluedragon.distribution.jy.manager.IJyUnloadVehicleManager;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskUnloadVehicleService;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
+import com.jd.bluedragon.distribution.jy.unload.JyUnloadEntity;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
-import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.BeanCopyUtil;
 import com.jd.bluedragon.utils.BeanUtils;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.ObjectHelper;
+import com.jd.jim.cli.Cluster;
+import com.jd.ql.basic.ws.BasicGoodsAreaWS;
 import com.jd.transboard.api.dto.AddBoardBox;
 import com.jd.transboard.api.dto.AddBoardRequest;
 import com.jd.transboard.api.dto.Board;
@@ -31,6 +35,7 @@ import com.jd.transboard.api.enums.BizSourceEnum;
 import com.jd.transboard.api.enums.ResponseEnum;
 import com.jdl.jy.realtime.model.es.unload.JyVehicleTaskUnloadDetail;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -39,7 +44,9 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
+import static com.jd.bluedragon.Constants.WAYBILL_ROUTER_SPLIT;
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.*;
 import static com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadStatusEnum.*;
 
@@ -57,6 +64,19 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     @Autowired
     @Qualifier("jyUnloadScanProducer")
     private DefaultJMQProducer unloadScanProducer;
+    @Autowired
+    private WaybillCacheService waybillCacheService;
+    @Autowired
+    private BasicGoodsAreaWS basicGoodsAreaWS;
+    @Autowired
+    IJyUnloadVehicleManager jyUnloadVehicleManager;
+    @Autowired
+    @Qualifier("redisClientOfJy")
+    private Cluster redisClientOfJy;
+    @Autowired
+    private JyUnloadDao jyUnloadDao;
+
+
     @Override
     public InvokeResult<UnloadVehicleTaskRespDto> listUnloadVehicleTask(UnloadVehicleTaskReqDto unloadVehicleTaskReqDto) {
         if (ObjectHelper.isNotNull(unloadVehicleTaskReqDto.getPackageCode())) {
@@ -82,9 +102,34 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         entity.setLineType(unloadVehicleTaskReqDto.getLineType());
         entity.setFuzzyVehicleNumber(unloadVehicleTaskReqDto.getVehicleNumber());
         List<UnloadVehicleTaskDto> unloadVehicleTaskDtoList = jyBizTaskUnloadVehicleService.listUnloadVehicleTask(entity);
+
+        condition.setVehicleStatus(unloadVehicleTaskReqDto.getVehicleStatus());
+        List<LineTypeStatisDto> lineTypeStatisDtoList=calculationLineTypeStatis(condition);
         respDto.setUnloadVehicleTaskDtoList(unloadVehicleTaskDtoList);
+        respDto.setLineTypeStatisDtoList(lineTypeStatisDtoList);
         return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, respDto);
     }
+
+    private List<LineTypeStatisDto> calculationLineTypeStatis(JyBizTaskUnloadVehicleEntity condition) {
+        List<LineTypeStatisDto> lineTypeList = new ArrayList<>();
+        JyBizTaskUnloadStatusEnum statusEnum = JyBizTaskUnloadStatusEnum.getEnumByCode(condition.getVehicleStatus());
+        List<JyBizTaskUnloadCountDto> lineTypeAgg =jyBizTaskUnloadVehicleService.findStatusCountByCondition4StatusAndLine(condition,null,statusEnum);
+        if (CollectionUtils.isNotEmpty(lineTypeAgg)) {
+            for (JyBizTaskUnloadCountDto countDto : lineTypeAgg) {
+                LineTypeStatisDto lineTypeStatis = convertLineTypeDto(countDto);
+                lineTypeList.add(lineTypeStatis);
+            }
+        }
+        return lineTypeList;
+    }
+    private LineTypeStatisDto convertLineTypeDto(JyBizTaskUnloadCountDto countDto) {
+        LineTypeStatisDto lineTypeStatis = new LineTypeStatisDto();
+        lineTypeStatis.setLineType(countDto.getLineType());
+        lineTypeStatis.setLineTypeName(JyLineTypeEnum.getNameByCode(countDto.getLineType()));
+        lineTypeStatis.setCount(countDto.getSum());
+        return lineTypeStatis;
+    }
+
 
     private void initCountToResp(UnloadVehicleTaskRespDto unloadVehicleTaskRespDto, List<JyBizTaskUnloadCountDto> unloadCountDtos) {
         for (JyBizTaskUnloadCountDto unloadCountDto : unloadCountDtos) {
@@ -192,31 +237,82 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     }
 
     @Override
-    public InvokeResult<ScanPackageRespDto> scanAndComBoard(ScanPackageDto scanPackageDto) {
+    public InvokeResult<ScanPackageRespDto> scan(ScanPackageDto scanPackageDto) {
         log.info("invoking jy scanAndComBoard,params: {}", JsonHelper.toJson(scanPackageDto));
+        InvokeResult result = new InvokeResult();
         JyBizTaskUnloadVehicleEntity unloadVehicleEntity = jyBizTaskUnloadVehicleService.findByBizId(scanPackageDto.getBizId());
         if (!ObjectHelper.isNotNull(unloadVehicleEntity)) {
-           return new InvokeResult(TASK_NO_FOUND_BY_PARAMS_CODE,TASK_NO_FOUND_BY_PARAMS_MESSAGE);
+            result.error(TASK_NO_FOUND_BY_PARAMS_MESSAGE);
+            return result;
         }
-        checkPackageCode(scanPackageDto,unloadVehicleEntity);
-        //校验一下当前有没有进行中的板，有 直接组板
-        Boolean comBoardSuccess =false;
-        if (ObjectHelper.isNotNull(scanPackageDto.getBoardCode())) {
-            ExecComBoardDto comBoardDto =new ExecComBoardDto(scanPackageDto.getBoardCode(),scanPackageDto.getScanCode());
-            comBoardSuccess =execComBoard(comBoardDto,scanPackageDto);
-        } else {
-            //生成新板
-            String boardCode =generateBoard(scanPackageDto);
-            if (ObjectHelper.isNotNull(boardCode)){
-                ExecComBoardDto comBoardDto =new ExecComBoardDto(boardCode,scanPackageDto.getScanCode());
-                comBoardSuccess=execComBoard(comBoardDto,scanPackageDto);
-            }
+        if (!checkScanCode(result,scanPackageDto)){
+            return result;
         }
-        if (comBoardSuccess){
+        //开始组板
+        Integer comBoardCount =comBoard(scanPackageDto);
+        if (comBoardCount>0){
             UnloadScanDto unloadScanDto = createUnloadDto(scanPackageDto, unloadVehicleEntity);
             unloadScanProducer.sendOnFailPersistent(unloadScanDto.getBarCode(), JsonHelper.toJson(unloadScanDto));
         }
-        return new InvokeResult(RESULT_SUCCESS_CODE,RESULT_SUCCESS_MESSAGE);
+        return result;
+    }
+
+    private Integer comBoard(ScanPackageDto scanPackageDto) {
+        Integer comBoardCount=0;
+        if (ObjectHelper.isNotNull(scanPackageDto.getBoardCode())) {
+            comBoardCount =doComBoard(scanPackageDto.getBoardCode(),scanPackageDto);
+        } else {
+            String boardCode =generateBoard(scanPackageDto);
+            if (ObjectHelper.isNotNull(boardCode)){
+                comBoardCount=doComBoard(boardCode,scanPackageDto);
+            }
+        }
+        return comBoardCount;
+    }
+
+    private boolean checkScanCode(InvokeResult<ScanPackageRespDto> resp, ScanPackageDto scanPackageDto) {
+        if (checkBarCodeScannedAlready(scanPackageDto)){
+            resp.hintMessage("单号已扫描！");
+            return false;
+        }
+        String scanCode =scanPackageDto.getScanCode();
+        if (WaybillUtil.isPackageCode(scanCode)){
+            scanCode =WaybillUtil.getWaybillCode(scanCode);
+        }
+        Integer nextSiteCode=getWaybillNextRouter(scanCode,scanPackageDto.getCurrentOperate().getSiteCode());
+        if (!ObjectHelper.isNotNull(nextSiteCode)){
+            resp.hintMessage("未获取到该运单"+scanCode+"的下游站点信息,当前站点为"+scanPackageDto.getCurrentOperate().getSiteCode());
+            return false;
+        }
+        String goodsAreaCode=getGoodsAreaCode(scanPackageDto.getCurrentOperate().getSiteCode(), nextSiteCode);
+        if (!ObjectHelper.isNotNull(goodsAreaCode)){
+            resp.hintMessage("未获取到该运单"+scanCode+"对应的货区编码信息");
+            return false;
+        }
+        if (ObjectHelper.isNotNull(scanPackageDto.getGoodsAreaCode()) && !goodsAreaCode.equals(scanPackageDto.getGoodsAreaCode())){
+            resp.hintMessage("扫描包裹非本货区，请移除本区！");
+            return false;
+        }
+        scanPackageDto.setGoodsAreaCode(goodsAreaCode);
+        scanPackageDto.setNextSiteCode(nextSiteCode);
+        return true;
+    }
+
+    private boolean checkBarCodeScannedAlready(ScanPackageDto request) {
+        String barCode = request.getScanCode();
+        int siteCode = request.getCurrentOperate().getSiteCode();
+        boolean alreadyScanned = false;
+        String mutexKey=String.format(CacheKeyConstants.JY_UNLOAD_SCAN_KEY, barCode, siteCode, request.getBizId());
+        if (redisClientOfJy.set(mutexKey, String.valueOf(System.currentTimeMillis()), 6, TimeUnit.HOURS, false)) {
+            JyUnloadEntity queryDb = new JyUnloadEntity(barCode, (long) siteCode, request.getBizId());
+            if (jyUnloadDao.queryByCodeAndSite(queryDb) != null) {
+                alreadyScanned = true;
+            }
+        }
+        else {
+            alreadyScanned = true;
+        }
+        return alreadyScanned;
     }
 
     private UnloadScanDto createUnloadDto(ScanPackageDto request, JyBizTaskUnloadVehicleEntity taskUnloadVehicle) {
@@ -245,14 +341,13 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         return unloadScanDto;
     }
 
-    private void checkPackageCode(ScanPackageDto scanPackageDto,JyBizTaskUnloadVehicleEntity entity) {
-        //校验流向
-    }
 
-    private Boolean execComBoard(ExecComBoardDto comBoardDto,ScanPackageDto scanPackageDto) {
+
+    private Integer doComBoard(String boardCode,ScanPackageDto scanPackageDto) {
+        int count =0;
         AddBoardBox addBoardBox = new AddBoardBox();
-        addBoardBox.setBoardCode(comBoardDto.getBoardCode());
-        addBoardBox.setBoxCode(comBoardDto.getBarCode());
+        addBoardBox.setBoardCode(boardCode);
+        addBoardBox.setBoxCode(scanPackageDto.getScanCode());
         addBoardBox.setOperatorErp(scanPackageDto.getUser().getUserErp());
         addBoardBox.setOperatorName(scanPackageDto.getUser().getUserName());
         addBoardBox.setSiteCode(scanPackageDto.getCurrentOperate().getSiteCode());
@@ -262,10 +357,16 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
 
         Response<Integer> rs =groupBoardManager.addBoxToBoard(addBoardBox);
         if (ObjectHelper.isNotNull(rs) &&  ResponseEnum.SUCCESS.getIndex()==rs.getCode()) {
-            BoardCommonRequest boardCommonRequest = new BoardCommonRequest();//TODO
+            BoardCommonRequest boardCommonRequest = new BoardCommonRequest();
+            boardCommonRequest.setBarCode(scanPackageDto.getScanCode());
+            boardCommonRequest.setOperateSiteCode(scanPackageDto.getCurrentOperate().getSiteCode());
+            boardCommonRequest.setOperateSiteName(scanPackageDto.getCurrentOperate().getSiteName());
+            boardCommonRequest.setOperateUserCode(scanPackageDto.getUser().getUserCode());
+            boardCommonRequest.setOperateUserName(scanPackageDto.getUser().getUserName());
             boardCommonManager.sendWaybillTrace(boardCommonRequest, WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION);
+            count= rs.getData();
         }
-        return false;
+        return count;
     }
 
     private String generateBoard(ScanPackageDto scanPackageDto) {
@@ -283,11 +384,12 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             Board board = createBoardResp.getData().get(0);
             return board.getCode();
         }
+        log.warn("jy卸车岗扫描创建新板异常{}",JsonHelper.toJson(createBoardResp));
         return null;
     }
 
     @Override
-    public InvokeResult<ScanPackageRespDto> scanAndComBoardForPipelining(ScanPackageDto scanPackageDto) {
+    public InvokeResult<ScanPackageRespDto> scanForPipelining(ScanPackageDto scanPackageDto) {
         return null;
     }
 
@@ -331,7 +433,32 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         return null;
     }
 
-    public static void main(String[] args) {
-        System.out.println(BusinessUtil.isSendCode("333833-841276-2022071411736219212"));
+    @Override
+    public Integer getWaybillNextRouter(String waybillCode, Integer startSiteId) {
+        String routerStr = waybillCacheService.getRouterByWaybillCode(waybillCode);
+        return getRouteNextSite(startSiteId, routerStr);
     }
+
+    @Override
+    public String getGoodsAreaCode(Integer currentSiteCode, Integer nextSiteCode) {
+        if(currentSiteCode == null || nextSiteCode == null) {
+            log.warn("jy转运卸车岗查询货区编码参数错误，currentSiteCode={}不可为空，nextSiteCode={}不可为空", currentSiteCode, nextSiteCode);
+        }
+        return jyUnloadVehicleManager.getGoodsAreaCode(currentSiteCode,nextSiteCode);
+    }
+
+    private Integer getRouteNextSite(Integer startSiteId, String routerStr) {
+        if (StringUtils.isNotBlank(routerStr)) {
+            String [] routerNodes = routerStr.split(WAYBILL_ROUTER_SPLIT);
+            for (int i = 0; i < routerNodes.length - 1; i++) {
+                Integer curNode = Integer.valueOf(routerNodes[i]);
+                Integer nextNode = Integer.valueOf(routerNodes[i + 1]);
+                if (startSiteId.equals(curNode)) {
+                    return nextNode;
+                }
+            }
+        }
+        return null;
+    }
+
 }

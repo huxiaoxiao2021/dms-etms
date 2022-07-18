@@ -47,4 +47,12 @@ public interface IJyUnloadVehicleManager {
      * @return
      */
     List<JyVehicleTaskUnloadDetail> findUnloadDetail(JyVehicleTaskUnloadDetail query);
+
+    /**
+     * 查询获取编码
+     * @param currentSiteCode
+     * @param nextSiteCode
+     * @return
+     */
+    String getGoodsAreaCode(Integer currentSiteCode, Integer nextSiteCode) ;
 }
