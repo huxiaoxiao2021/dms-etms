@@ -2378,4 +2378,13 @@ public class BusinessUtil {
         return isSignChar(waybillSign,WaybillSignConstants.POSITION_31,WaybillSignConstants.CHAR_31_D);
     }
 
+    /**
+     * 是否自营逆向单
+     *
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isSelfReverse(String waybillSign){
+        return isSignChar(waybillSign, WaybillSignConstants.POSITION_1, 'T');
+    }
 }
