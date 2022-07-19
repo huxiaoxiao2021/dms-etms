@@ -86,6 +86,7 @@ public class NewSealVehicleGatewayServiceImpl implements NewSealVehicleGatewaySe
         param.setVehicleNumber(request.getVehicleNumber());
         param.setUserErp(request.getErp());
         param.setDmsCode(request.getDmsCode());
+        param.setDmsSiteId(request.getDmsSiteId());
 
         TransWorkItemResponse transWorkItemResponse = newSealVehicleResource.getVehicleNumberOrItemCodeByParam(param);
 

@@ -6,6 +6,7 @@ import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.blockcar.enumeration.FerrySealCarSceneEnum;
 import com.jd.bluedragon.common.dto.blockcar.enumeration.SealCarSourceEnum;
+import com.jd.bluedragon.common.dto.blockcar.enumeration.SealCarTypeEnum;
 import com.jd.bluedragon.common.dto.blockcar.request.SealCarPreRequest;
 import com.jd.bluedragon.common.dto.sysConfig.request.MenuUsageConfigRequestDto;
 import com.jd.bluedragon.common.dto.sysConfig.response.MenuUsageProcessDto;
@@ -320,8 +321,7 @@ public class NewSealVehicleResource {
                     sealVehicleResponse.setVehicleNumber(returnCommonDto.getData().getVehicleNumber());
                     // 校验运输任务（返回结果只做提示展示）
                     String transWorkItemCode = StringUtils.isEmpty(request.getTransWorkItemCode()) ? returnCommonDto.getData().getTransWorkItemCode() : request.getTransWorkItemCode();
-                    ImmutablePair<Integer, String> checkResult = transportRelatedService.checkTransportTask(request.getSiteCode(),
-                            null, null, transWorkItemCode, null);
+                    ImmutablePair<Integer, String> checkResult = transportRelatedService.checkTransportTask(request.getDmsSiteId(), null, null, transWorkItemCode, null);
                     sealVehicleResponse.setExtraBusinessCode(checkResult.left);
                     sealVehicleResponse.setExtraBusinessMessage(checkResult.right);
                 } else {
@@ -545,29 +545,30 @@ public class NewSealVehicleResource {
     @BusinessLog(sourceSys = Constants.BUSINESS_LOG_SOURCE_SYS_DMSWEB,bizType = 1011,operateType = 101103)
     @JProfiler(jKey = "DMS.WEB.NewSealVehicleResource.newVerifyVehicleJobByVehicleNumber", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public NewSealVehicleResponse newVerifyVehicleJobByVehicleNumber(SealCarPreRequest sealCarPreRequest) {
-        NewSealVehicleResponse sealVehicleResponse = new NewSealVehicleResponse(JdResponse.CODE_SERVICE_ERROR, JdResponse.MESSAGE_SERVICE_ERROR);
+        NewSealVehicleResponse sealVehicleResponse = new NewSealVehicleResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK);
         try {
-            //按运力封车，需要校验车牌号能否生成车次任务
-            if (Constants.SEAL_TYPE_TRANSPORT.equals(sealCarPreRequest.getSealCarType())) {
+            if(!Objects.equals(sealCarPreRequest.getSealCarType(), SealCarTypeEnum.SEAL_BY_TRANSPORT_CAPABILITY.getType())){
+                return sealVehicleResponse;
+            }
+            // 校验封车任务标识
+            boolean transportTaskCheck;
+            if(Objects.equals(sealCarPreRequest.getSealCarSource(), SealCarSourceEnum.COMMON_SEAL_CAR.getCode())){
+                // 普通封车：只需校验运输任务
+                transportTaskCheck = true;
+            }else {
+                // 传摆封车：需要校验车牌号能否生成车次任务
                 CommonDto<String> dto = newsealVehicleService.newVerifyVehicleJobByVehicleNumber(sealCarPreRequest);
-                if (dto == null) {
-                    log.warn("校验车牌号能否封车创建车次任务失败,请求参数：【{}】",JsonHelper.toJson(sealCarPreRequest));
-                    sealVehicleResponse.setCode(JdResponse.CODE_SERVICE_ERROR);
-                    sealVehicleResponse.setMessage("校验车牌号能否封车创建车次任务失败!");
-                    return sealVehicleResponse;
-                }
-                if (Constants.RESULT_SUCCESS == dto.getCode()) {
-                    sealVehicleResponse.setCode(JdResponse.CODE_OK);
-                    sealVehicleResponse.setMessage(JdResponse.MESSAGE_OK);
-                    // 校验运输任务（返回结果只做提示展示）
-                    ImmutablePair<Integer, String> checkResult = transportRelatedService.checkTransportTask(sealCarPreRequest.getCreateSiteCode(),
-                            null, null, null, sealCarPreRequest.getVehicleNumber());
-                    sealVehicleResponse.setExtraBusinessCode(checkResult.left);
-                    sealVehicleResponse.setExtraBusinessMessage(checkResult.right);
-                }else {
-                    sealVehicleResponse.setCode(NewSealVehicleResponse.CODE_EXCUTE_ERROR);
-                    sealVehicleResponse.setMessage(dto.getMessage());
-                }
+                boolean sucFlag = dto != null && Constants.RESULT_SUCCESS != dto.getCode();
+                sealVehicleResponse.setCode(sucFlag ? JdResponse.CODE_OK : NewSealVehicleResponse.CODE_EXCUTE_ERROR);
+                sealVehicleResponse.setMessage(sucFlag ? JdResponse.MESSAGE_OK : "校验车牌号能否封车创建车次任务失败");
+                transportTaskCheck = sucFlag;
+            }
+            if(transportTaskCheck){
+                // 校验运输任务（返回结果只做提示展示）
+                ImmutablePair<Integer, String> checkResult = transportRelatedService.checkTransportTask(sealCarPreRequest.getCreateSiteCode(),
+                        null, null, null, sealCarPreRequest.getVehicleNumber());
+                sealVehicleResponse.setExtraBusinessCode(checkResult.left);
+                sealVehicleResponse.setExtraBusinessMessage(checkResult.right);
             }
         } catch (Exception e) {
             sealVehicleResponse.setCode(JdResponse.CODE_SERVICE_ERROR);
