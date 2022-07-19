@@ -853,7 +853,7 @@
     <jsf:consumer id="swDeviceJsfService"
                   interface="com.jd.cmp.jsf.SwDeviceJsfService"
                   protocol="jsf"
-                  alias="cmp_test" timeout="5000" serialization="hessian">
+                  alias="${jsf.swDevice.alias}" timeout="${jsf.swDevice.timeout}" serialization="hessian">
     </jsf:consumer>
 
     <!-- 循环物资 -->
