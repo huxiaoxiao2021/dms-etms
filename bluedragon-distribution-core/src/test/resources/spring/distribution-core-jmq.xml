@@ -23,6 +23,29 @@
         <property name="jmqProducer" ref="workerProducerSplit"/>
     </bean>
 
+    <!--########################  JMQ4配置  #############################################-->
+
+    <jmq:producer id="jmq4DmsWebProducer" transport="jmq4.dmsWeb.transport" retryTimes="3" />
+    <jmq:producer id="jmq4WorkerProducer" transport="jmq4.dmsWorker.transport" retryTimes="3" />
+
+    <bean id="jmq4DmsWebProducerSplit" class="com.jd.jspliter.jmq.producer.EnvMessageProducer" parent="jmq4DmsWebProducer">
+        <property name="uat" value="${jmq.split.uat.switch:false}"/>
+    </bean>
+    <bean id="jmq4WorkerProducerSplit" class="com.jd.jspliter.jmq.producer.EnvMessageProducer" parent="jmq4WorkerProducer">
+        <property name="uat" value="${jmq.split.uat.switch:false}"/>
+    </bean>
+
+    <bean id="jmq4DmsWebDefaultJMQProducer" abstract="true" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+        <property name="timeout" value="1000"/>
+        <property name="jmqProducer" ref="jmq4DmsWebProducerSplit"/>
+    </bean>
+    <bean id="jmq4DmsWorkerDefaultJMQProducer" abstract="true" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
+        <property name="timeout" value="1000"/>
+        <property name="jmqProducer" ref="jmq4WorkerProducerSplit"/>
+    </bean>
+
+    <!--########################  JMQ4配置  #############################################-->
+
     <!--BlueDragonDistribution生产者配置 该生产者禁用，请使用dmsWebProducer， 适配JMQ分离组件-->
     <bean id="jmqProducerSpilt" class="com.jd.jspliter.jmq.producer.EnvMessageProducer" parent="jmqProducer">
         <property name="uat" value="${jmq.split.uat.switch:false}"/>
@@ -335,6 +358,18 @@
         <property name="topic" value="${jmq.topic.waybillConsumable.report}"/>
     </bean>
 
+    <!-- 包装耗材确认消息同步财务-->
+    <bean id="waybillConsumableFinanceProducer" parent="jmq4DmsWebDefaultJMQProducer">
+        <property name="timeout" value="10000"/>
+        <property name="topic" value="${jmq.topic.waybillConsumable.finance}"/>
+    </bean>
+
+    <!-- 包装耗材确认消息（总）-->
+    <bean id="waybillConsumableConfirmProducer" parent="jmq4DmsWebDefaultJMQProducer">
+        <property name="timeout" value="10000"/>
+        <property name="topic" value="${jmq.topic.waybillConsumable.confirm}"/>
+    </bean>
+
     <!-- 签单返回合单mq，提供运单新单号和旧单号列表 -->
     <bean id="mergeWaybillReturnMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
         <property name="topic" value="${jmq.topic.mergeWaybillReturn.track}"/>
@@ -425,7 +460,7 @@
     <!-- 滞留上报wb明细消息 -->
     <bean id="strandReportDetailWbProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.strand.report.detailWb}"/>
-    </bean>    
+    </bean>
 
     <!-- 银行卡运单号校验 -->
     <bean id="waybillCodeCheckMQ" parent="dmsWebDefaultJMQProducer">
@@ -511,24 +546,102 @@
     <bean id="changeBoxStatusLogProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.box.status.change.log}"/>
     </bean>
+    <!--  封车批次号状态变更记录 -->
+    <bean id="batchSendStatusChangeProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.batch.send.status.change}"/>
+    </bean>
 
     <!-- 面单异常举报 -->
     <bean id="dmsExpressBillExceptionReportProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.dmsExpressBillExceptionReport}"/>
     </bean>
-    <!--  无预分拣站点消息-生产者 -->
-    <bean id="dmsHasnoPresiteWaybillMqProducer" parent="dmsWebDefaultJMQProducer">
-        <property name="topic" value="${jmq.topic.dmsHasnoPresiteWaybillMq}"/>
-    </bean>    
     <!--跨箱号中转修改发MQ-->
     <bean id="crossBoxSendProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.crossbox.change}"/>
         <property name="timeout" value="1000"/>
     </bean>
-
+    <!--  无预分拣站点消息-生产者 -->
+    <bean id="dmsHasnoPresiteWaybillMqProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.dmsHasnoPresiteWaybillMq}"/>
+    </bean>
+    <!--  拦截消息-生产者 -->
+    <bean id="bdBlockerInitMqProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.bdBlockerInitMq}"/>
+    </bean>
     <!-- dws抽检 -->
     <bean id="dwsSpotCheckProducer" parent="dmsWorkerDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.dwsSpotCheck}"/>
+    </bean>
+
+    <!-- 全量包裹打印数据MQ -->
+    <bean id="packagePrintRecordProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.packagePrintRecord}"/>
+    </bean>
+
+    <!-- 弃件暂存 -->
+    <bean id="discardedPackageStorageProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.discardedPackageStorage}"/>
+    </bean>
+
+    <!-- 抽检明细外推MQ -->
+    <bean id="spotCheckDetailProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.spotCheck.detail}"/>
+        <property name="timeout" value="1000"/>
+    </bean>
+
+    <!-- 抽检超标下发至称重再造系统 -->
+    <bean id="spotCheckIssueProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.spotCheck.issue}"/>
+        <property name="timeout" value="1000"/>
+    </bean>
+    <!-- 抽检体积超标下发至终端系统 -->
+    <bean id="spotCheckIssueZDProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.spotCheck.issue.zd}"/>
+        <property name="timeout" value="1000"/>
+    </bean>
+
+    <!-- 设备图片AI识别下发至大数据识别系统 -->
+    <bean id="dwsAIDistinguishBigProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.dws.aiDistinguish_big}"/>
+        <property name="timeout" value="1000"/>
+    </bean>
+    <bean id="dwsAIDistinguishSmallProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.dws.aiDistinguish_small}"/>
+        <property name="timeout" value="1000"/>
+    </bean>
+
+    <!-- 设备抽检下发处理MQ -->
+    <bean id="dwsIssueDealProducer" parent="dmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.spotCheck.dwsIssueDeal}"/>
+        <property name="timeout" value="1000"/>
+    </bean>
+
+    <!--  拣运卸车扫描  -->
+    <bean id="jyUnloadScanProducer" parent="jmq4DmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.jy.unload.scan}" />
+        <property name="timeout" value="1000" />
+    </bean>
+
+    <!--  拣运卸车完成  -->
+    <bean id="jyUnloadTaskCompleteProducer" parent="jmq4DmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.jy.unload.complete}" />
+        <property name="timeout" value="1000" />
+    </bean>
+
+
+    <bean id="miniStoreSealBoxProducer" parent="jmq4DmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.ministore.bind.relation}"/>
+        <property name="timeout" value="1000"/>
+    </bean>
+
+    <bean id="miniStoreSortProcessProducer" parent="jmq4DmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.ministore.sorting.process}"/>
+        <property name="timeout" value="1000"/>
+    </bean>
+    <!--  首次打印  -->
+    <bean id="popPrintFirstProducer" parent="jmq4DmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.pop.print.first}" />
+        <property name="timeout" value="1000" />
     </bean>
 
 </beans>

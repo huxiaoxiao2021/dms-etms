@@ -168,11 +168,13 @@
 		<property name="jyUnloadSingleWaybillThreshold" value="${jyUnloadSingleWaybillThreshold:20}"/>
         <property name="jyUnSealTaskOrderByIntegral" value="${jyUnSealTaskOrderByIntegral:0}"/>
         <property name="jyUnSealTaskSwitchToEs" value="${jyUnSealTaskSwitchToEs:0}"/>
+        <property name="jySendTaskLoadRateLimit" value="${jySendTaskLoadRateLimit:'80,150'}" />
 		<property name="createSendTaskExecuteCount" value="${createSendTaskExecuteCount:30}"/>
 		<property name="createSendTasktimeOut" value="${createSendTasktimeOut:30}"/>
 		<property name="oldSendSplitPageSize" value="${oldSendSplitPageSize:30}"/>
 		<property name="dpSiteCodes" value="${dpSiteCodes:}"/>
 		<property name="dpWaybillMatchSendCodeSwitch" value="${dpWaybillMatchSendCodeSwitch:true}"/>
+		<property name="faceAbnormalReportConfig" value="${faceAbnormalReportConfig:''}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -322,11 +324,13 @@
 				<value>uccPropertyConfiguration.checkBoxSendedSwitchOn</value>
 				<value>uccPropertyConfiguration.jyUnSealTaskOrderByIntegral</value>
 				<value>uccPropertyConfiguration.jyUnSealTaskSwitchToEs</value>
+				<value>uccPropertyConfiguration.jySendTaskLoadRateLimit</value>
 				<value>uccPropertyConfiguration.createSendTaskExecuteCount</value>
 				<value>uccPropertyConfiguration.createSendTasktimeOut</value>
 				<value>uccPropertyConfiguration.oldSendSplitPageSize</value>
 				<value>uccPropertyConfiguration.dpSiteCodes</value>
 				<value>uccPropertyConfiguration.dpWaybillMatchSendCodeSwitch</value>
+				<value>uccPropertyConfiguration.faceAbnormalReportConfig</value>
 
                 <value>hystrixRouteUccPropertyConfiguration.executionTimeoutInMilliseconds</value>
                 <value>hystrixRouteUccPropertyConfiguration.circuitBreakerEnabled</value>

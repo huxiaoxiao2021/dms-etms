@@ -683,7 +683,7 @@
 		select
 			<include refid="Base_Column_List"/>
 		from
-			(select t.* from user_sign_record t
+			(select t.* from user_sign_record t force index(`idx_user_code`)
 			     where t.yn = 1
 		            and t.site_code = #{siteCode,jdbcType=INTEGER}
 		            and t.user_code = #{userCode,jdbcType=VARCHAR}
@@ -823,5 +823,30 @@
           and r.ref_grid_key = #{refGridKey,jdbcType=VARCHAR}
           and r.sign_out_time is null
         order by id
-    </select>    
+    </select> 
+    <select id="queryListByOperateUser" parameterType="com.jd.bluedragon.common.dto.station.UserSignQueryRequest" resultMap="UserSignRecordData">
+        select
+            <include refid="Main_Column_List"/>
+        from
+            user_sign_record r force index(`idx_site_and_create_user_code`)
+        <include refid="queryByOperateUser"/>
+        order by id desc
+        limit #{offset}, #{limit}
+    </select>
+
+    <select id="queryCountByOperateUser" parameterType="com.jd.bluedragon.common.dto.station.UserSignQueryRequest" resultType="long">
+        select
+            count(1)
+        from
+            user_sign_record r force index(`idx_site_and_create_user_code`)
+        <include refid="queryByOperateUser"/>
+    </select>
+    <sql id="queryByOperateUser">
+        <where>
+            r.yn = 1
+	        and r.site_code = #{siteCode,jdbcType=INTEGER}
+            and r.create_user = #{createUser,jdbcType=VARCHAR}
+            and r.sign_date = #{signDate,jdbcType=DATE}
+        </where>
+    </sql>
 </mapper>

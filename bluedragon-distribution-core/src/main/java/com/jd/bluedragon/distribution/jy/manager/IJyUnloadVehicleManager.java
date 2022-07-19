@@ -3,6 +3,8 @@ package com.jd.bluedragon.distribution.jy.manager;
 import com.jdl.jy.realtime.base.Pager;
 import com.jdl.jy.realtime.model.es.unload.JyVehicleTaskUnloadDetail;
 
+import java.util.List;
+
 /**
  * @ClassName IJyUnloadVehicleManager
  * @Description
@@ -40,9 +42,9 @@ public interface IJyUnloadVehicleManager {
     Pager<JyVehicleTaskUnloadDetail> queryMoreScanAndToScanBarCodeDetail(Pager<JyVehicleTaskUnloadDetail> query);
 
     /**
-     * 查询一条卸车包裹数据
+     * 查询卸车包裹数据
      * @param query
      * @return
      */
-    JyVehicleTaskUnloadDetail findOneUnloadDetail(JyVehicleTaskUnloadDetail query);
+    List<JyVehicleTaskUnloadDetail> findUnloadDetail(JyVehicleTaskUnloadDetail query);
 }

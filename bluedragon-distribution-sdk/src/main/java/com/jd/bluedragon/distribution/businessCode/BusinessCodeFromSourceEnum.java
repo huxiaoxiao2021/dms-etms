@@ -38,6 +38,10 @@ public enum BusinessCodeFromSourceEnum {
      * 分拣自动化系统
      */
     DMS_AUTOMATIC_WEB_SYS,
+    /**
+     * 拣运应用
+     */
+    JY_APP,
 
     /**
      * 未知来源

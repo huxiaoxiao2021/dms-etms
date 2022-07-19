@@ -1047,6 +1047,11 @@ public class Constants {
     public static final String WAYBILL_TRACE_STATE_EXCHANGE = "-280";
 
     /**
+     * 全程跟踪状态 包裹补打
+     */
+    public static final String WAYBILL_TRACE_STATE_RE_PRINT = "-220";
+
+    /**
      * 全程跟踪状态  揽收完成
      */
     public static final String WAYBILL_TRACE_STATE_COLLECT_COMPLETE ="-640";
@@ -1132,6 +1137,16 @@ public class Constants {
      * 字典的面单举报类型父节点
      */
     public static final Integer EXPRESS_BILL_REPORT_PARENT_ID = 601;
+
+    /**
+     * 字典的面单举报类型：一级原因父节点
+     */
+    public static final Integer FIRST_FACE_ABNORMAL_REPORT_PARENT_ID = 701;
+    /**
+     * 字典的面单举报类型：二级原因父节点
+     */
+    public static final Integer SECOND_FACE_ABNORMAL_REPORT_PARENT_ID = 701;
+
     /**
      * 货物类型
      */
@@ -1685,4 +1700,14 @@ public class Constants {
      * 运单预售已付尾款
      */
     public static final String PRODUCT_ABILITY_OF_PRE_SELL_PAY_DONE  = "VI007-02";
+
+    /**
+     * 产品类型-医冷零担
+     */
+    public static final String PRODUCT_TYPE_MEDICINE_COLD = "md-m-0002";
+
+    /**
+     * 验货菜单编码：0101019
+     */
+    public static final String MENU_CODE_INSPECTION  = "0101019";
 }

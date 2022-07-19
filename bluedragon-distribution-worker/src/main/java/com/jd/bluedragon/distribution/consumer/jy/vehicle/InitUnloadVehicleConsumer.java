@@ -58,7 +58,6 @@ public class InitUnloadVehicleConsumer extends MessageBaseConsumer {
     private BaseMajorManager baseMajorManager;
 
     @Override
-    @JProfiler(jKey = "DMS.WORKER.jy.initUnloadVehicleConsumer.consume", jAppName = Constants.UMP_APP_NAME_DMSWORKER, mState = {JProEnum.TP,JProEnum.FunctionError})
     public void consume(Message message) throws Exception {
         if (StringHelper.isEmpty(message.getText())) {
             logger.warn("InitUnloadVehicleConsumer consume --> 消息为空");
@@ -117,7 +116,7 @@ public class InitUnloadVehicleConsumer extends MessageBaseConsumer {
         BaseStaffSiteOrgDto siteInfo = baseMajorManager.getBaseSiteBySiteId(endSiteId);
         if (siteInfo == null || !BusinessUtil.isSorting(siteInfo.getSiteType())) {
             //丢弃数据
-            logger.info("InitUnloadVehicleConsumer不需要关心的数据丢弃, 目的站点:{}, 目的站点类型:{}, 消息:{}",
+            logger.warn("InitUnloadVehicleConsumer不需要关心的数据丢弃, 目的站点:{}, 目的站点类型:{}, 消息:{}",
                     endSiteId, siteInfo == null ? null : siteInfo.getSiteType(), JsonHelper.toJson(mqDto));
             return true;
         }

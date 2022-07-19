@@ -29,6 +29,13 @@ public interface IDeliveryBaseHandler {
     DeliveryResponse initDeliveryTask(SendMWrapper wrapper);
 
     /**
+     * 生成迁移异步任务
+     * @param wrapper
+     * @return
+     */
+    DeliveryResponse initTransferTask(SendMWrapper wrapper);
+
+    /**
      * 锁定批次任务
      * @param batchUniqKey
      * @param pageTotal
@@ -49,6 +56,13 @@ public interface IDeliveryBaseHandler {
      * @return
      */
     boolean dealCoreDeliveryV2(SendMWrapper wrapper);
+
+    /**
+     * 执行迁移任务
+     * @param wrapper
+     * @return
+     */
+    boolean dealSendTransfer(SendMWrapper wrapper);
 
     boolean competeTaskIncrCount(String batchUniqKey);
 }

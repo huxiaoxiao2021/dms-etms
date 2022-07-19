@@ -315,7 +315,12 @@
                     #{item}
                 </foreach>
             </if>
-
+            <if test="sealCarCodes != null">
+                AND seal_car_code IN
+                <foreach collection="sealCarCodes" item="item" open="(" close=")" separator=",">
+                    #{item}
+                </foreach>
+            </if>
         </where>
 
         group by vehicle_status
@@ -366,7 +371,12 @@
                     #{item}
                 </foreach>
             </if>
-
+            <if test="sealCarCodes != null">
+                AND seal_car_code IN
+                <foreach collection="sealCarCodes" item="item" open="(" close=")" separator=",">
+                    #{item}
+                </foreach>
+            </if>
         </where>
 
         group by vehicle_status,line_type
@@ -388,6 +398,13 @@
 
             <if test="entity.lineType != null">
                 AND line_type = #{entity.lineType}
+            </if>
+
+            <if test="sealCarCodes != null">
+                AND seal_car_code IN
+                <foreach collection="sealCarCodes" item="item" open="(" close=")" separator=",">
+                    #{item}
+                </foreach>
             </if>
 
         </where>

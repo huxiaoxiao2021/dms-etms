@@ -11,7 +11,7 @@ import java.util.List;
 
 /**
  * @ClassName JyUnloadVehicleGatewayService
- * @Description
+ * @Description 拣运卸车岗网关服务
  * @Author wyh
  * @Date 2022/4/1 16:39
  **/
@@ -43,6 +43,14 @@ public interface JyUnloadVehicleGatewayService {
      * @return
      */
     JdCResponse<List<StringSelectOption>> productTypeOptions();
+
+    /**
+     * 卸车扫描方式枚举
+     * @return 扫描方式列表
+     * @author fanggang7
+     * @time 2022-07-05 23:20:20 周二
+     */
+    JdCResponse<List<SelectOption>> scanTypeOptions();
 
     /**
      * 卸车扫描

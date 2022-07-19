@@ -328,6 +328,11 @@
         <jmq:listener topic="${jmq.topic.tms.vehicle.detail.status}" listener="tmsVehicleDetailStatusConsumer"/>
     </jmq:consumer>
 
+    <!--  运输派车明细消息  -->
+    <jmq:consumer id="jmq.tmsTransWorkItemOperateConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.tms.workItem.operate}" listener="tmsTransWorkItemOperateConsumer"/>
+    </jmq:consumer>
+
     <!--  接收卸车任务  -->
     <jmq:consumer id="jmq.initUnloadVehicleConsumer" transport="jmq.uatDmsWeb.transport">
         <jmq:listener topic="${jmq.topic.jy.flink.unload}" listener="initUnloadVehicleConsumer"/>
@@ -346,6 +351,11 @@
     <!-- 保温箱逆向处理 -->
     <jmq:consumer id="jmq.dealMiniStoreOutConsumer" transport="jmq.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.box.inOut}" listener="dealMiniStoreOutConsumer"/>
+    </jmq:consumer>
+
+    <!--  面单举报回传消息处理  -->
+    <jmq:consumer id="jmq.faceReportNotifyConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.face.report.notify}" listener="faceReportNotifyConsumer"/>
     </jmq:consumer>
 </beans>
 

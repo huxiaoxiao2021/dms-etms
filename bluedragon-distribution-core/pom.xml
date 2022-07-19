@@ -209,7 +209,7 @@
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
 			<artifactId>bluedragon-distribution-sdk</artifactId>
-			<version>1.9.1-SNAPSHOT</version>
+			<version>1.9.3-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
@@ -238,7 +238,7 @@
 		<dependency>
             <groupId>com.jd.bluedragon</groupId>
             <artifactId>bluedragon-distribution-common-android</artifactId>
-            <version>1.5.3-SNAPSHOT</version>
+            <version>1.5.5-SNAPSHOT</version>
         </dependency>
 		<dependency>
 			<groupId>com.jd.etms.waybill</groupId>
@@ -859,6 +859,10 @@
                     <artifactId>log4j-slf4j-impl</artifactId>
                     <groupId>org.apache.logging.log4j</groupId>
                 </exclusion>
+                <exclusion>
+                    <artifactId>jaxen</artifactId>
+                    <groupId>jaxen</groupId>
+                </exclusion>
             </exclusions>
         </dependency>
         <!-- cassandra -->
@@ -1050,7 +1054,7 @@
 		<dependency>
 		    <groupId>com.jd.jss</groupId>
 		    <artifactId>jss-sdk-java</artifactId>
-		    <version>1.4.2-SNAPSHOT</version>
+		    <version>1.4.7-SNAPSHOT</version>
 		</dependency>
         <!-- 用户组接口 -->
         <dependency>
@@ -1689,13 +1693,19 @@
 		<dependency>
 			<groupId>com.jd.dms.wb</groupId>
 			<artifactId>workbench-report-api</artifactId>
-			<version>1.0.5-SNAPSHOT</version>
+			<version>1.0.0-TEST-SNAPSHOT</version>
 			<exclusions>
 				<exclusion>
 					<groupId>com.jd.dms.wb</groupId>
 					<artifactId>dms-workbench-utils-sdk</artifactId>
 				</exclusion>
 			</exclusions>
+		</dependency>
+
+		<dependency>
+			<groupId>com.jd.tys</groupId>
+			<artifactId>workbench-api</artifactId>
+			<version>1.0.0-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
@@ -1847,6 +1857,12 @@
 			<groupId>com.jd.tms.tpc</groupId>
 			<artifactId>tms-tpc-api</artifactId>
 			<version>1.0-SNAPSHOT</version>
+		</dependency>
+		<!--安全日志-->
+		<dependency>
+			<groupId>com.jd.security</groupId>
+			<artifactId>security-log</artifactId>
+			<version>3.9-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>

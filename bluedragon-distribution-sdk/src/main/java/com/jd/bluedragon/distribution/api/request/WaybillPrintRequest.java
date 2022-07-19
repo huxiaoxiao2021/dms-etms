@@ -3,6 +3,8 @@ package com.jd.bluedragon.distribution.api.request;
 import com.jd.bluedragon.distribution.api.JdRequest;
 import com.jd.bluedragon.distribution.api.domain.WeightOperFlow;
 
+import java.util.Date;
+
 /**
  * 
  * @ClassName: WaybillPrintRequest
@@ -152,6 +154,11 @@ public class WaybillPrintRequest extends JdRequest{
      * 包裹号或运单号，目前只有包裹补打使用
      */
     private String packageBarCode;
+
+	/**
+	 * 请求时间
+	 */
+	private Date requestTime = new Date();
 
 	public Boolean getTrustBusinessFlag() {
 		return trustBusinessFlag;
@@ -450,4 +457,12 @@ public class WaybillPrintRequest extends JdRequest{
     public void setPackageBarCode(String packageBarCode) {
         this.packageBarCode = packageBarCode;
     }
+
+	public Date getRequestTime() {
+		return requestTime;
+	}
+
+	public void setRequestTime(Date requestTime) {
+		this.requestTime = requestTime;
+	}
 }

@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.station.api.UserSignRecordJsfService;
 import com.jd.bluedragon.distribution.station.domain.UserSignNoticeVo;
@@ -16,6 +17,8 @@ import com.jd.bluedragon.distribution.station.domain.UserSignRecordReportVo;
 import com.jd.bluedragon.distribution.station.query.UserSignRecordQuery;
 import com.jd.bluedragon.distribution.station.service.UserSignRecordService;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -71,6 +74,8 @@ public class UserSignRecordJsfServiceImpl implements UserSignRecordJsfService {
 	 * @param query
 	 * @return
 	 */
+	@JProfiler(jKey = "dmsWeb.server.userSignRecordJsfService.queryPageList",
+			jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public Result<PageDto<UserSignRecord>> queryPageList(UserSignRecordQuery query){
 		return userSignRecordService.queryPageList(query);
 	 }
@@ -98,6 +103,8 @@ public class UserSignRecordJsfServiceImpl implements UserSignRecordJsfService {
 	public Result<Long> queryCount(UserSignRecordQuery query) {
 		return userSignRecordService.queryCount(query);
 	}
+	@JProfiler(jKey = "dmsWeb.server.userSignRecordJsfService.queryListForExport",
+			jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})	
 	@Override
 	public Result<List<UserSignRecord>> queryListForExport(UserSignRecordQuery query) {
 		return userSignRecordService.queryListForExport(query);

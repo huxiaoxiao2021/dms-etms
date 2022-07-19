@@ -16,6 +16,7 @@ import com.jd.bluedragon.distribution.api.request.HintCheckRequest;
 import com.jd.bluedragon.distribution.api.request.ThirdWaybillRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.domain.JdCancelWaybillResponse;
+import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
 import com.jd.bluedragon.distribution.coldChain.domain.InspectionCheckResult;
 import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRecordService;
@@ -24,7 +25,6 @@ import com.jd.bluedragon.distribution.inspection.domain.InspectionResult;
 import com.jd.bluedragon.distribution.inspection.service.InspectionService;
 import com.jd.bluedragon.distribution.rest.allianceBusi.AllianceBusiResouse;
 import com.jd.bluedragon.distribution.rest.inspection.InspectionResource;
-import com.jd.bluedragon.distribution.rest.storage.StorageResource;
 import com.jd.bluedragon.distribution.rest.waybill.WaybillResource;
 import com.jd.bluedragon.distribution.storage.service.StoragePackageMService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
@@ -37,9 +37,9 @@ import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
@@ -59,12 +59,6 @@ public class InspectionGatewayServiceImpl implements InspectionGatewayService {
     @Autowired
     @Qualifier("inspectionResource")
     private InspectionResource inspectionResource;
-
-    @Autowired
-    private WaybillConsumableRecordService waybillConsumableRecordService;
-
-    @Autowired
-    private WaybillQueryManager waybillQueryManager;
 
     @Autowired
     private DmsPackingConsumableService dmsPackingConsumableService;
@@ -90,6 +84,9 @@ public class InspectionGatewayServiceImpl implements InspectionGatewayService {
     private StoragePackageMService storagePackageMService;
 
     @Autowired
+    private BaseService baseService;
+
+    @Autowired
     private InspectionService inspectionService;
 
     private final static Logger log = LoggerFactory.getLogger(InspectionGatewayServiceImpl.class);
@@ -108,7 +105,7 @@ public class InspectionGatewayServiceImpl implements InspectionGatewayService {
             jdCResponse.toFail("站点不能为空");
             return jdCResponse;
         }
-        JdResponse<InspectionResult> response = inspectionResource.getStorageCode(packageBarOrWaybillCode, siteCode);
+        JdResponse<InspectionResult> response = inspectionService.getStorageCode(packageBarOrWaybillCode, siteCode);
         if (!Objects.equals(response.getCode(), JdResponse.CODE_SUCCESS)) {
             jdCResponse.toError(response.getMessage());
             return jdCResponse;
@@ -151,6 +148,15 @@ public class InspectionGatewayServiceImpl implements InspectionGatewayService {
         resultDto.toSucceed();
         InspectionCheckResultDto inspectionCheckResultDto = new InspectionCheckResultDto();
         resultDto.setData(inspectionCheckResultDto);
+
+        // 老验货需校验菜单是否可用
+        if(!request.getNewInspectionCheck()){
+            ImmutablePair<Boolean, String> checkResult = baseService.checkMenuIsAvailable(Constants.MENU_CODE_INSPECTION, request.getCreateSiteCode());
+            if(!checkResult.getLeft()){
+                resultDto.toError(checkResult.getRight());
+                return resultDto;
+            }
+        }
 
         //获取储位号
         JdCResponse<InspectionResultDto> response = this.getStorageCode(request.getPackageCode(), request.getCreateSiteCode());
@@ -259,6 +265,7 @@ public class InspectionGatewayServiceImpl implements InspectionGatewayService {
         HintCheckRequest hintCheckRequest = new HintCheckRequest();
         hintCheckRequest.setPackageCode(barCode);
         hintCheckRequest.setCreateSiteCode(request.getCreateSiteCode());
+        hintCheckRequest.setNewInspectionCheck(true);
 
         JdCResponse<InspectionCheckResultDto> hintCheckResult = hintCheck(hintCheckRequest);
         if (!Objects.equals(hintCheckResult.getCode(), BaseEntity.CODE_SUCCESS)) {

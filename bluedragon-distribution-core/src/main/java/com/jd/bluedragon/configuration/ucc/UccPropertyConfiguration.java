@@ -777,6 +777,26 @@ public class UccPropertyConfiguration {
      */
     private Integer jyUnSealTaskSwitchToEs;
 
+    /**
+     * 拣运发车任务满载率上限。eg:150
+     */
+    private Integer jySendTaskLoadRateUpperLimit;
+
+    /**
+     * 拣运发车任务满载率下限。eg:80
+     */
+    private Integer jySendTaskLoadRateLowerLimit;
+
+    /**
+     * 拣运发车任务满载率配置
+     */
+    private String jySendTaskLoadRateLimit;
+
+    /**
+     * 面单举报异常配置
+     */
+    private String faceAbnormalReportConfig;
+
     public String getScheduleSiteCheckSameCity() {
         return scheduleSiteCheckSameCity;
     }
@@ -1871,7 +1891,26 @@ public class UccPropertyConfiguration {
         this.jyUnSealTaskSwitchToEs = jyUnSealTaskSwitchToEs;
     }
 
-	public boolean isNeedUseNewReverseApi() {
+    public Integer getJySendTaskLoadRateUpperLimit() {
+        return jySendTaskLoadRateUpperLimit;
+    }
+
+    public Integer getJySendTaskLoadRateLowerLimit() {
+        return jySendTaskLoadRateLowerLimit;
+    }
+
+    public String getJySendTaskLoadRateLimit() {
+        return jySendTaskLoadRateLimit;
+    }
+
+    public void setJySendTaskLoadRateLimit(String jySendTaskLoadRateLimit) {
+        this.jySendTaskLoadRateLimit = jySendTaskLoadRateLimit;
+        String[] loadRateLimit = this.jySendTaskLoadRateLimit.split(Constants.SEPARATOR_COMMA);
+        this.jySendTaskLoadRateLowerLimit = Integer.valueOf(loadRateLimit[0]);
+        this.jySendTaskLoadRateUpperLimit = Integer.valueOf(loadRateLimit[1]);
+    }
+
+    public boolean isNeedUseNewReverseApi() {
 		return needUseNewReverseApi;
 	}
 
@@ -1914,5 +1953,13 @@ public class UccPropertyConfiguration {
 
     public void setDpWaybillMatchSendCodeSwitch(boolean dpWaybillMatchSendCodeSwitch) {
         this.dpWaybillMatchSendCodeSwitch = dpWaybillMatchSendCodeSwitch;
+    }
+
+    public String getFaceAbnormalReportConfig() {
+        return faceAbnormalReportConfig;
+    }
+
+    public void setFaceAbnormalReportConfig(String faceAbnormalReportConfig) {
+        this.faceAbnormalReportConfig = faceAbnormalReportConfig;
     }
 }
