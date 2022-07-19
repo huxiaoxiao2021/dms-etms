@@ -6,11 +6,9 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URI;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
+import com.jd.jss.http.Scheme;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
@@ -81,6 +79,17 @@ public class JdCloudPrintServiceImpl implements JdCloudPrintService {
     @Autowired
     @Qualifier("pdfOutJssStorage")
     private JingdongStorageService pdfOutJssStorage;
+
+	/**
+	 * 需要进行过滤的https域名
+	 */
+	@Value("#{'${jss.httpsSet}'.split(',')}")
+    private HashSet<String> httpsSet;
+	/**
+	 * pdfOutJssStorage配置的endpoint
+	 */
+	@Value("${print.out.config.jss.endpoint}")
+	private String printOutJssEndpoint;
     /**
      * pdf生成服务
      */
@@ -243,7 +252,15 @@ public class JdCloudPrintServiceImpl implements JdCloudPrintService {
         				&& jdCloudPrintResponse.getOutputMsg().size()>0){
         			String pdfPath = jdCloudPrintResponse.getOutputMsg().get(0);
         			//生成外链接
-        			URI uri = pdfOutJssStorage.bucket(pdfPrintOssConfig.getBucket()).object(pdfPath).generatePresignedUrl();
+					URI uri;
+					if (httpsSet.contains(printOutJssEndpoint)){
+						uri = pdfOutJssStorage.bucket(pdfPrintOssConfig.getBucket()).object(pdfPath)
+								.presignedUrlProtocol(Scheme.HTTPS).generatePresignedUrl();
+					}
+					else{
+						uri = pdfOutJssStorage.bucket(pdfPrintOssConfig.getBucket()).object(pdfPath)
+								.generatePresignedUrl();
+					}
         			if(uri != null){
         				result.setData(uri.toString());
         				result.toSuccess();
