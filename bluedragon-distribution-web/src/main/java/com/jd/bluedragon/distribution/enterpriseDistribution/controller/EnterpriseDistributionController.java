@@ -1,16 +1,18 @@
 package com.jd.bluedragon.distribution.enterpriseDistribution.controller;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.ExportConcurrencyLimitEnum;
 import com.jd.bluedragon.common.service.ExportConcurrencyLimitService;
 import com.jd.bluedragon.distribution.api.domain.LoginUser;
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
 import com.jd.bluedragon.distribution.enterpriseDistribution.domain.QualityInspectionQueryCondition;
-import com.jd.bluedragon.distribution.enterpriseDistribution.service.EnterpriseDistributionService;
 import com.jd.bluedragon.distribution.enterpriseDistribution.dto.QualityInspectionDetailDto;
 import com.jd.bluedragon.distribution.enterpriseDistribution.dto.QualityInspectionDto;
+import com.jd.bluedragon.distribution.enterpriseDistribution.service.EnterpriseDistributionService;
 import com.jd.bluedragon.utils.CsvExporterUtils;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
+import com.jd.uim.annotation.Authorization;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,6 +50,7 @@ public class EnterpriseDistributionController extends DmsBaseController {
      * @return
      */
     @RequestMapping(value = "/toQualityInspection")
+    @Authorization(Constants.ENTERPRISE_DISTRIBUTION_R)
     public String toIndex(Model model) {
         LoginUser loginUser = this.getLoginUser();
         model.addAttribute("orgId",loginUser.getOrgId()).addAttribute("createSiteCode",loginUser.getSiteCode());
@@ -60,6 +63,7 @@ public class EnterpriseDistributionController extends DmsBaseController {
      * @return
      */
     @RequestMapping("/listData")
+    @Authorization(Constants.ENTERPRISE_DISTRIBUTION_R)
     @ResponseBody
     public PagerResult<QualityInspectionDto> listData(@RequestBody QualityInspectionQueryCondition condition){
         LoginUser loginUser = this.getLoginUser();
@@ -73,13 +77,19 @@ public class EnterpriseDistributionController extends DmsBaseController {
      * @return
      */
     @RequestMapping("/detailListData")
+    @Authorization(Constants.ENTERPRISE_DISTRIBUTION_R)
     @ResponseBody
     public PagerResult<QualityInspectionDetailDto> detailListData(@RequestBody QualityInspectionQueryCondition condition){
         return enterpriseDistributionService.queryQualityInspectionDetailPage(condition);
     }
 
-
+    /**
+     * 企配质检导出
+     * @param condition
+     * @param response
+     */
     @RequestMapping(value = "/toExport")
+    @Authorization(Constants.ENTERPRISE_DISTRIBUTION_R)
     public void toExport(QualityInspectionQueryCondition condition, HttpServletResponse response) {
         BufferedWriter bfw = null;
         try{
