@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jd.bluedragon.distribution.jy.dao.unload.JyBizTaskUnloadVehicleStageDao">
+  <resultMap id="BaseResultMap" type="com.jd.bluedragon.distribution.jy.unload.JyBizTaskUnloadVehicleStageEntity">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="unload_vehicle_biz_id" jdbcType="VARCHAR" property="unloadVehicleBizId" />
+    <result column="biz_id" jdbcType="VARCHAR" property="bizId" />
+    <result column="type" jdbcType="TINYINT" property="type" />
+    <result column="status" jdbcType="TINYINT" property="status" />
+    <result column="start_time" jdbcType="TIMESTAMP" property="startTime" />
+    <result column="end_time" jdbcType="TIMESTAMP" property="endTime" />
+    <result column="create_user_erp" jdbcType="VARCHAR" property="createUserErp" />
+    <result column="create_user_name" jdbcType="VARCHAR" property="createUserName" />
+    <result column="update_user_erp" jdbcType="VARCHAR" property="updateUserErp" />
+    <result column="update_user_name" jdbcType="VARCHAR" property="updateUserName" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="yn" jdbcType="BIT" property="yn" />
+    <result column="ts" jdbcType="TIMESTAMP" property="ts" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, unload_vehicle_biz_id, biz_id, type, status, start_time, end_time, create_user_erp, 
+    create_user_name, update_user_erp, update_user_name, create_time, update_time, yn, 
+    ts
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from jy_biz_task_unload_vehicle_stage
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <select id="queryCurrentStage" resultMap="BaseResultMap" parameterType="com.jd.bluedragon.distribution.jy.unload.JyBizTaskUnloadVehicleStageEntity">
+    select
+    <include refid="Base_Column_List" />
+    from jy_biz_task_unload_vehicle_stage
+    where unload_vehicle_biz_id = #{unloadVehicleBizId} and yn=1 and status =1
+    <if test="type!=null">
+      and type =#{type}
+    </if>  limit 1;
+  </select>
+
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from jy_biz_task_unload_vehicle_stage
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.jd.bluedragon.distribution.jy.unload.JyBizTaskUnloadVehicleStageEntity">
+    insert into jy_biz_task_unload_vehicle_stage (id, unload_vehicle_biz_id, biz_id, 
+      type, status, start_time, 
+      end_time, create_user_erp, create_user_name, 
+      update_user_erp, update_user_name, create_time, 
+      update_time, yn, ts)
+    values (#{id,jdbcType=BIGINT}, #{unloadVehicleBizId,jdbcType=VARCHAR}, #{bizId,jdbcType=VARCHAR}, 
+      #{type,jdbcType=TINYINT}, #{status,jdbcType=TINYINT}, #{startTime,jdbcType=TIMESTAMP}, 
+      #{endTime,jdbcType=TIMESTAMP}, #{createUserErp,jdbcType=VARCHAR}, #{createUserName,jdbcType=VARCHAR}, 
+      #{updateUserErp,jdbcType=VARCHAR}, #{updateUserName,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, 
+      #{updateTime,jdbcType=TIMESTAMP}, #{yn,jdbcType=BIT}, #{ts,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertBatch" parameterType="java.util.List">
+
+    insert into jy_biz_task_unload_vehicle_stage (unload_vehicle_biz_id, biz_id,
+    type, status, start_time, create_user_erp, create_user_name, create_time,update_time)
+    ) VALUES
+    <foreach collection="list" item="item" separator=",">
+      ( #{item.unloadVehicleBizId,jdbcType=VARCHAR}, #{item.bizId,jdbcType=VARCHAR},
+      #{item.type,jdbcType=TINYINT}, #{item.status,jdbcType=TINYINT}, #{item.startTime,jdbcType=TIMESTAMP},
+      #{item.createUserErp,jdbcType=VARCHAR}, #{item.createUserName,jdbcType=VARCHAR}, #{item.createTime,jdbcType=TIMESTAMP},
+      #{item.updateTime,jdbcType=TIMESTAMP})
+    </foreach>
+  </insert>
+  <insert id="insertSelective" parameterType="com.jd.bluedragon.distribution.jy.unload.JyBizTaskUnloadVehicleStageEntity">
+    insert into jy_biz_task_unload_vehicle_stage
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="unloadVehicleBizId != null">
+        unload_vehicle_biz_id,
+      </if>
+      <if test="bizId != null">
+        biz_id,
+      </if>
+      <if test="type != null">
+        type,
+      </if>
+      <if test="status != null">
+        status,
+      </if>
+      <if test="startTime != null">
+        start_time,
+      </if>
+      <if test="endTime != null">
+        end_time,
+      </if>
+      <if test="createUserErp != null">
+        create_user_erp,
+      </if>
+      <if test="createUserName != null">
+        create_user_name,
+      </if>
+      <if test="updateUserErp != null">
+        update_user_erp,
+      </if>
+      <if test="updateUserName != null">
+        update_user_name,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="updateTime != null">
+        update_time,
+      </if>
+      <if test="yn != null">
+        yn,
+      </if>
+      <if test="ts != null">
+        ts,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="unloadVehicleBizId != null">
+        #{unloadVehicleBizId,jdbcType=VARCHAR},
+      </if>
+      <if test="bizId != null">
+        #{bizId,jdbcType=VARCHAR},
+      </if>
+      <if test="type != null">
+        #{type,jdbcType=TINYINT},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=TINYINT},
+      </if>
+      <if test="startTime != null">
+        #{startTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="endTime != null">
+        #{endTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createUserErp != null">
+        #{createUserErp,jdbcType=VARCHAR},
+      </if>
+      <if test="createUserName != null">
+        #{createUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="updateUserErp != null">
+        #{updateUserErp,jdbcType=VARCHAR},
+      </if>
+      <if test="updateUserName != null">
+        #{updateUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null">
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="yn != null">
+        #{yn,jdbcType=BIT},
+      </if>
+      <if test="ts != null">
+        #{ts,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.jd.bluedragon.distribution.jy.unload.JyBizTaskUnloadVehicleStageEntity">
+    update jy_biz_task_unload_vehicle_stage
+    <set>
+      <if test="unloadVehicleBizId != null">
+        unload_vehicle_biz_id = #{unloadVehicleBizId,jdbcType=VARCHAR},
+      </if>
+      <if test="bizId != null">
+        biz_id = #{bizId,jdbcType=VARCHAR},
+      </if>
+      <if test="type != null">
+        type = #{type,jdbcType=TINYINT},
+      </if>
+      <if test="status != null">
+        status = #{status,jdbcType=TINYINT},
+      </if>
+      <if test="startTime != null">
+        start_time = #{startTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="endTime != null">
+        end_time = #{endTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createUserErp != null">
+        create_user_erp = #{createUserErp,jdbcType=VARCHAR},
+      </if>
+      <if test="createUserName != null">
+        create_user_name = #{createUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="updateUserErp != null">
+        update_user_erp = #{updateUserErp,jdbcType=VARCHAR},
+      </if>
+      <if test="updateUserName != null">
+        update_user_name = #{updateUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null">
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="yn != null">
+        yn = #{yn,jdbcType=BIT},
+      </if>
+      <if test="ts != null">
+        ts = #{ts,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.jd.bluedragon.distribution.jy.unload.JyBizTaskUnloadVehicleStageEntity">
+    update jy_biz_task_unload_vehicle_stage
+    set unload_vehicle_biz_id = #{unloadVehicleBizId,jdbcType=VARCHAR},
+      biz_id = #{bizId,jdbcType=VARCHAR},
+      type = #{type,jdbcType=TINYINT},
+      status = #{status,jdbcType=TINYINT},
+      start_time = #{startTime,jdbcType=TIMESTAMP},
+      end_time = #{endTime,jdbcType=TIMESTAMP},
+      create_user_erp = #{createUserErp,jdbcType=VARCHAR},
+      create_user_name = #{createUserName,jdbcType=VARCHAR},
+      update_user_erp = #{updateUserErp,jdbcType=VARCHAR},
+      update_user_name = #{updateUserName,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      yn = #{yn,jdbcType=BIT},
+      ts = #{ts,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

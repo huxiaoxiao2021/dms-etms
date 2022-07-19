@@ -793,6 +793,12 @@
     <bean id="jyUnloadAggsDao" class="com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadAggsDao">
         <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
     </bean>
+    <bean id="jyBizTaskUnloadVehicleStageDao" class="com.jd.bluedragon.distribution.jy.dao.unload.JyBizTaskUnloadVehicleStageDao">
+        <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
+    </bean>
+    <bean id="jyUnloadVehicleBoardDao" class="com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadVehicleBoardDao">
+        <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
+    </bean>
     <bean id="jyUnloadDao" class="com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadDao">
         <property name="sqlSession" ref="sessionTemplate"/>
     </bean>

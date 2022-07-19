@@ -1,7 +1,6 @@
 package com.jd.bluedragon.distribution.jy.service.unload;
 
 import com.github.pagehelper.PageHelper;
-import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.LineTypeStatis;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BoardCommonManager;
@@ -11,6 +10,7 @@ import com.jd.bluedragon.distribution.api.request.BoardCommonRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.api.JyUnloadVehicleTysService;
 import com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadDao;
+import com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadVehicleBoardDao;
 import com.jd.bluedragon.distribution.jy.dto.task.JyBizTaskUnloadCountDto;
 import com.jd.bluedragon.distribution.jy.dto.unload.*;
 import com.jd.bluedragon.distribution.jy.enums.JyLineTypeEnum;
@@ -20,6 +20,7 @@ import com.jd.bluedragon.distribution.jy.manager.IJyUnloadVehicleManager;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskUnloadVehicleService;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
 import com.jd.bluedragon.distribution.jy.unload.JyUnloadEntity;
+import com.jd.bluedragon.distribution.jy.unload.JyUnloadVehicleBoardEntity;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -77,6 +78,8 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     private Cluster redisClientOfJy;
     @Autowired
     private JyUnloadDao jyUnloadDao;
+    @Autowired
+    JyUnloadVehicleBoardDao jyUnloadVehicleBoardDao;
     @Autowired
     BaseMajorManager baseMajorManager;
 
@@ -284,8 +287,24 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             if (ObjectHelper.isNotNull(boardCode)){
                 comBoardCount=doComBoard(boardCode,scanPackageDto);
             }
+            JyUnloadVehicleBoardEntity entity =convertUnloadVehicleBoard(scanPackageDto);
+            jyUnloadVehicleBoardDao.insertSelective(entity);
         }
         return comBoardCount;
+    }
+
+    private JyUnloadVehicleBoardEntity convertUnloadVehicleBoard(ScanPackageDto scanPackageDto) {
+        Date now =new Date();
+        JyUnloadVehicleBoardEntity entity =new JyUnloadVehicleBoardEntity();
+        entity.setUnloadVehicleBizId(scanPackageDto.getBizId());
+        entity.setBoardCode(scanPackageDto.getBoardCode());
+        entity.setEndSiteId(Long.valueOf(scanPackageDto.getNextSiteCode()));
+        entity.setGoodsAreaCode(scanPackageDto.getGoodsAreaCode());
+        entity.setCreateTime(now);
+        entity.setUpdateTime(now);
+        entity.setCreateUserErp(scanPackageDto.getUser().getUserErp());
+        entity.setCreateUserName(scanPackageDto.getUser().getUserName());
+        return entity;
     }
 
     private boolean checkScanCode(InvokeResult<ScanPackageRespDto> resp, ScanPackageDto scanPackageDto) {
@@ -352,10 +371,9 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         unloadScanDto.setUpdateUserName(request.getUser().getUserName());
         unloadScanDto.setCreateTime(operateTime);
         unloadScanDto.setUpdateTime(operateTime);
-
         //unloadScanDto.setGroupCode(request.getGroupCode());
         unloadScanDto.setTaskId(request.getTaskId());
-
+        unloadScanDto.setTaskType(2);
         return unloadScanDto;
     }
 

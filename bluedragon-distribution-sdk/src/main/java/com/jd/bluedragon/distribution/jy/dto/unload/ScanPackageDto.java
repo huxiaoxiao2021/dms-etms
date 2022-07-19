@@ -14,6 +14,9 @@ public class ScanPackageDto extends UnloadBaseDto implements Serializable {
      * 卸车任务
      */
     private String bizId;
+    /**
+     * 封车编码
+     */
     private String sealCarCode;
     /**
      * 扫描的包裹/运单号
@@ -34,6 +37,11 @@ public class ScanPackageDto extends UnloadBaseDto implements Serializable {
      */
     private String goodsAreaCode;
     private Integer nextSiteCode;
+
+    /**
+     * 补扫标识
+     */
+    private boolean supplementary;
 
     public String getBizId() {
         return bizId;
@@ -97,5 +105,13 @@ public class ScanPackageDto extends UnloadBaseDto implements Serializable {
 
     public void setNextSiteCode(Integer nextSiteCode) {
         this.nextSiteCode = nextSiteCode;
+    }
+
+    public boolean isSupplementary() {
+        return supplementary;
+    }
+
+    public void setSupplementary(boolean supplementary) {
+        this.supplementary = supplementary;
     }
 }

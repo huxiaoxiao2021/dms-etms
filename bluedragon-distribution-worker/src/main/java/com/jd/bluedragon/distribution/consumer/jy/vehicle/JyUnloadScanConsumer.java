@@ -9,17 +9,21 @@ import com.jd.bluedragon.distribution.coldChain.domain.InspectionVO;
 import com.jd.bluedragon.distribution.inspection.InspectionBizSourceEnum;
 import com.jd.bluedragon.distribution.inspection.service.InspectionService;
 import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
+import com.jd.bluedragon.distribution.jy.dao.unload.JyBizTaskUnloadVehicleStageDao;
 import com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadDao;
 import com.jd.bluedragon.distribution.jy.dto.unload.UnloadScanDto;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.group.JyTaskGroupMemberEntity;
 import com.jd.bluedragon.distribution.jy.service.group.JyTaskGroupMemberService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskUnloadVehicleService;
+import com.jd.bluedragon.distribution.jy.service.unload.JyBizTaskUnloadVehicleStageService;
 import com.jd.bluedragon.distribution.jy.service.unload.UnloadVehicleTransactionManager;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadDto;
+import com.jd.bluedragon.distribution.jy.unload.JyBizTaskUnloadVehicleStageEntity;
 import com.jd.bluedragon.distribution.jy.unload.JyUnloadEntity;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.jim.cli.Cluster;
 import com.jd.jmq.common.message.Message;
@@ -34,7 +38,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -72,10 +79,12 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
 
     @Autowired
     JyBizTaskUnloadVehicleService jyBizTaskUnloadVehicleService;
+    @Autowired
+    JyBizTaskUnloadVehicleStageService jyBizTaskUnloadVehicleStageService;
 
     @Override
     @JProfiler(jKey = "DMS.WORKER.jyUnloadScanConsumer.consume",
-            jAppName = Constants.UMP_APP_NAME_DMSWORKER, mState = {JProEnum.TP,JProEnum.FunctionError})
+            jAppName = Constants.UMP_APP_NAME_DMSWORKER, mState = {JProEnum.TP, JProEnum.FunctionError})
     public void consume(Message message) throws Exception {
         if (StringHelper.isEmpty(message.getText())) {
             logger.warn("jyUnloadScanConsumer consume --> 消息为空");
@@ -98,6 +107,7 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
 
     /**
      * 保存扫描记录，发运单全程跟踪
+     *
      * @param unloadScanDto
      */
     private void doUnloadScan(UnloadScanDto unloadScanDto) {
@@ -107,10 +117,17 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
 
         JyUnloadEntity unloadEntity = copyFromDto(unloadScanDto);
 
-        if (unloadScanDto.getTaskType()==2){
-            //查询子任务id 赋值 TODO
+        if (unloadScanDto.getTaskType() == 2) {
+            //查询子任务bizId
+            JyBizTaskUnloadVehicleStageEntity condition =new JyBizTaskUnloadVehicleStageEntity();
+            condition.setUnloadVehicleBizId(unloadScanDto.getBizId());
+            condition.setType(unloadScanDto.getSupplementary()?new Byte("1"):new Byte("2"));
+            condition.setStatus(new Byte("1"));
+            JyBizTaskUnloadVehicleStageEntity entity =jyBizTaskUnloadVehicleStageService.queryCurrentStage(condition);
+            if (ObjectHelper.isNotNull(entity)){
+                unloadEntity.setStageBizId(entity.getBizId());
+            }
         }
-
 
         if (jyUnloadDao.insert(unloadEntity) <= 0) {
             logger.error("保存卸车扫描记录异常. {}", JsonHelper.toJson(unloadEntity));
@@ -152,8 +169,7 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
             try {
                 Thread.sleep(100);
                 addInspectionTask(unloadScanDto);
-            }
-            catch (InterruptedException e) {
+            } catch (InterruptedException e) {
                 logger.error("再次插入卸车验货任务异常. {}", JsonHelper.toJson(unloadScanDto), e);
             }
         }
@@ -161,6 +177,7 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
 
     /**
      * 扫描第一单时开始卸车任务
+     *
      * @param unloadScanDto
      */
     private void startAndDistributeUnloadTask(UnloadScanDto unloadScanDto) {
@@ -171,7 +188,45 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
             startJyScheduleTask(unloadScanDto);
 
             recordTaskMembers(unloadScanDto);
+
+            if (unloadScanDto.getTaskType() == 2) {
+                //初始化子任务
+                List<JyBizTaskUnloadVehicleStageEntity> entityList = generateUnloadTaskStage(unloadScanDto);
+                jyBizTaskUnloadVehicleStageService.insertBatch(entityList);
+            }
         }
+    }
+
+    private List<JyBizTaskUnloadVehicleStageEntity> generateUnloadTaskStage(UnloadScanDto unloadScanDto) {
+        Date now = new Date();
+        List<JyBizTaskUnloadVehicleStageEntity> entityList = new ArrayList<>();
+
+        JyBizTaskUnloadVehicleStageEntity firstStage = new JyBizTaskUnloadVehicleStageEntity();
+        firstStage.setUnloadVehicleBizId(unloadScanDto.getBizId());
+        firstStage.setBizId(jyBizTaskUnloadVehicleStageService.generateStageBizId(unloadScanDto.getBizId()));
+        firstStage.setStatus(new Byte("1"));
+        firstStage.setType(new Byte("2"));
+        firstStage.setStartTime(now);
+        firstStage.setCreateTime(now);
+        firstStage.setUpdateTime(now);
+        firstStage.setCreateUserErp(unloadScanDto.getCreateUserErp());
+        firstStage.setCreateUserName(unloadScanDto.getCreateUserName());
+        entityList.add(firstStage);
+
+        JyBizTaskUnloadVehicleStageEntity supplementary = new JyBizTaskUnloadVehicleStageEntity();
+        supplementary.setUnloadVehicleBizId(unloadScanDto.getBizId());
+        supplementary.setBizId(jyBizTaskUnloadVehicleStageService.generateStageBizId(unloadScanDto.getBizId()));
+        supplementary.setStatus(new Byte("1"));
+        supplementary.setType(new Byte("1"));
+        supplementary.setStartTime(now);
+        supplementary.setCreateTime(now);
+        supplementary.setUpdateTime(now);
+        supplementary.setCreateUserErp(unloadScanDto.getCreateUserErp());
+        supplementary.setCreateUserName(unloadScanDto.getCreateUserName());
+        entityList.add(supplementary);
+
+        return entityList;
+
     }
 
     private void recordTaskMembers(UnloadScanDto unloadScanDto) {
@@ -193,8 +248,7 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
                     unloadScanDto.getBizId(), unloadScanDto.getVehicleNumber(), JsonHelper.toJson(unloadScanDto));
 
             logInfo("卸车任务首次扫描记录组员. {}, {}, {}", unloadScanDto.getBizId(), JsonHelper.toJson(unloadScanDto), JsonHelper.toJson(startTask));
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             // 异常不重试
             logger.error("卸车任务记录组员异常. {}", JsonHelper.toJson(unloadScanDto), e);
         }
@@ -207,16 +261,14 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
 
             JyBizTaskUnloadDto taskUnloadDto = getJyBizTaskUnloadDto(unloadScanDto);
             transactionManager.drawUnloadTask(taskUnloadDto);
-        }
-        catch (JyBizException bizException) {
+        } catch (JyBizException bizException) {
             logger.warn("卸车任务领取和分配发生业务异常，将重试！ {}", JsonHelper.toJson(unloadScanDto), bizException);
 
             // 任务分配失败，删除缓存
             redisClientOfJy.del(getUnloadBizCacheKey(unloadScanDto));
 
             throw bizException;
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             Profiler.businessAlarm("dms.web.jyUnloadScanConsumer.drawUnloadTask", "拣运卸车任务领取和分配失败");
             logger.error("卸车任务领取和分配失败. {}", JsonHelper.toJson(unloadScanDto), ex);
 
@@ -239,6 +291,7 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
 
     /**
      * 判断该单号是否是本次卸车任务扫描的第一单
+     *
      * @param unloadScanDto
      * @return
      */
@@ -264,6 +317,7 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
 
     /**
      * 插入验货或收货任务
+     *
      * @param unloadScanDto
      * @return
      */
