@@ -108,6 +108,9 @@ public class InvokeResult<T> implements Serializable {
     public static final int DETAIL_TASK_NO_FOUND_BY_SITE_ID_CODE=323;
     public static final String DETAIL_TASK_NO_FOUND_BY_SITE_ID_MESSAGE="未找到匹配的流向任务数据！";
 
+    public static final int BATCH_SIGLE_SEND_EXCEP_CODE= 325;
+    public static final String BATCH_SIGLE_SEND_EXCEP_MESSAGE ="批量一车一单发货异常";
+
     public InvokeResult(){
         this.code=RESULT_SUCCESS_CODE;
     }

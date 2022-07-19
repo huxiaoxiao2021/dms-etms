@@ -17,6 +17,7 @@ import com.jd.bluedragon.utils.LocalSecurityLog;
 import com.jd.bluedragon.utils.SecurityLog;
 import com.jd.dms.logger.aop.BusinessLogWriter;
 import com.jd.dms.logger.external.BusinessLogProfiler;
+import com.jd.jsf.gd.util.RpcContext;
 import com.jd.ql.basic.util.DateUtil;
 import com.jd.ql.dms.common.constants.OperateDeviceTypeConstants;
 import com.jd.ql.dms.common.constants.OperateNodeConstants;
@@ -85,6 +86,11 @@ public class JsonCommandServiceImpl implements JdCommandService{
 	@PFTracing(name = "DMSWEB.JsonCommandServiceImpl.execute.Tracing")
 	@JProfiler(jKey = "DMSWEB.JsonCommandServiceImpl.execute",jAppName=Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
 	public String execute(String jsonCommand) {
+		RpcContext context = RpcContext.getContext();
+		String clientIp ="";
+		if(context != null){
+			clientIp =context.getRemoteHostName();
+		}
 		//设置初始化为成功
 		JdResult<?> jdResult = new JdResult<String>(JdResult.CODE_SUC,200,"200-调用服务成功。");
 		JdCommand<String> jdCommand = null;
@@ -119,7 +125,7 @@ public class JsonCommandServiceImpl implements JdCommandService{
 		writeBusinessLog(jsonCommand,jsonResponse,jdCommand.getOperateType());
 		//写入安全日志
 		//this.writeSecurityLog(jdCommand);
-		LocalSecurityLog.writeJsonCommandSecurityLog(JsonCommandServiceImpl.class.getName(),jdCommand,jsonResponse);
+		LocalSecurityLog.writeJsonCommandSecurityLog(JsonCommandServiceImpl.class.getName(),jdCommand,jsonResponse,clientIp);
 		return jsonResponse;
 	}
 
