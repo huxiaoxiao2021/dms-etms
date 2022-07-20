@@ -169,6 +169,11 @@ public class DynamicSortingQueryDao implements ISortingDao{
         this.sortingDao = sortingDao;
     }
 
+    /**
+     * 分页查询
+     * @param request
+     * @return
+     */
     @Override
     public List<Sorting> getPagePackageNoByBoxCode(SortingPageRequest request) {
         return selectDao(request.getCreateSiteCode()).getPagePackageNoByBoxCode(request);

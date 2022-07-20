@@ -218,14 +218,14 @@ public interface SortingService {
     List<Sorting> listSortingByBoxCode(Sorting sorting);
 
     /**
-     *
+     * 通过箱号查询包裹数
      * @param boxCode
      * @return
      */
     Integer getSumByBoxCode(String boxCode);
 
     /**
-     *
+     * 通过箱号查询包裹分页
      * @param request
      * @return
      */

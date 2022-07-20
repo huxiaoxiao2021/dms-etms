@@ -149,6 +149,11 @@ public class SortingDao extends BaseDao<Sorting>  implements ISortingDao {
         return this.getSqlSession().selectList(namespace + ".listSortingByBoxCode", sorting);
     }
 
+    /**
+     * 分页查询
+     * @param request
+     * @return
+     */
     public List<Sorting> getPagePackageNoByBoxCode(SortingPageRequest request) {
         return this.getSqlSession().selectList(namespace + ".getPagePackageNoByBoxCode", request);
     }
