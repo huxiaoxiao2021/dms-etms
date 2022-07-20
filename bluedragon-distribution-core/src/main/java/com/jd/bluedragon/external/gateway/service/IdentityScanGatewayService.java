@@ -19,8 +19,8 @@ public interface IdentityScanGatewayService {
 
     /**
      * 身份证识别
-     * @param identityBase64
+     * @param picUrl
      * @return
      */
-    JdCResponse<IdentityContentEntity> recognise(String identityBase64);
+    JdCResponse<IdentityContentEntity> recognise(String picUrl);
 }

@@ -36,14 +36,14 @@ public class IDCRServiceProxy {
         CallerInfo callerInfo = Profiler.registerInfo("DMSWEB.IDCRServiceProxy.recognisePhoto", Constants.UMP_APP_NAME_DMSWEB,false, true);
         try {
             IDCRResponseDto idcrResponseDto = idcrService.recognisePhoto(idcrRequestDto);
-            log.info("调用AI识别身份证信息，返回信息: {}", JsonHelper.toJson(idcrResponseDto));
+            log.info("调用AI识别身份证信息，请求参数：{}，返回信息: {}", JsonHelper.toJson(idcrRequestDto), JsonHelper.toJson(idcrResponseDto));
             if (idcrResponseDto == null || !IDCRStatusEnum.OK.getCode().equals(idcrResponseDto.getStatus())) {
-                log.error("调用AI识别身份证信息失败，返回值：{}", JsonHelper.toJson(idcrResponseDto));
+                log.error("调用AI识别身份证信息失败，请求参数：{}，返回值：{}", JsonHelper.toJson(idcrRequestDto), JsonHelper.toJson(idcrResponseDto));
             }
             return idcrResponseDto;
         } catch (RuntimeException e) {
             Profiler.functionError(callerInfo);
-            log.error("调用AI识别身份证信息异常，返回值：{}", JsonHelper.toJson(idcrRequestDto));
+            log.error("调用AI识别身份证信息异常，请求参数：{}", JsonHelper.toJson(idcrRequestDto), e);
             return null;
         } finally {
             Profiler.registerInfoEnd(callerInfo);
