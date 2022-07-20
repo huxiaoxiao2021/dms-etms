@@ -692,6 +692,7 @@ public class WaybillReverseManagerImpl implements WaybillReverseManager {
 			reverseWaybillRequest.setPackageQuantity(dmsWaybillReverseDTO.getPackageCount());
 			//rejectionType：对应原逻辑的reverseType 1: 整单拒收    2: 包裹维度拒收
 			reverseWaybillRequest.setRejectionType(dmsWaybillReverseDTO.getReverseType());
+			reverseWaybillRequest.setChargeType(dmsWaybillReverseDTO.getChargeType());
 			//二次换单字段
 			reverseWaybillRequest.setAllowReverseCount(dmsWaybillReverseDTO.getAllowReverseCount());
 			reverseWaybillRequest.setLimitReverseFlag(dmsWaybillReverseDTO.getLimitReverseFlag());
