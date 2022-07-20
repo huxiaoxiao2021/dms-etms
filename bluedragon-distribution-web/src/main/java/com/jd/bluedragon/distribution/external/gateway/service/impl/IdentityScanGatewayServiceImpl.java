@@ -32,11 +32,11 @@ public class IdentityScanGatewayServiceImpl implements IdentityScanGatewayServic
     private IDCRServiceProxy idcrServiceProxy;
 
     @Override
-    public JdCResponse<IdentityContentEntity> recognise(String identityBase64) {
+    public JdCResponse<IdentityContentEntity> recognise(String picUrl) {
 
         IDCRRequestDto idcrRequestDto = new IDCRRequestDto();
         idcrRequestDto.setServiceUUID(UUID.randomUUID().toString());
-        idcrRequestDto.setBase64Str(identityBase64);
+        idcrRequestDto.setPicUrl(picUrl);
 
         JdCResponse<IdentityContentEntity> jdCResponse = new JdCResponse<>();
         jdCResponse.toSucceed();
