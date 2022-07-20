@@ -48,6 +48,7 @@ public class IdentityScanGatewayServiceImpl implements IdentityScanGatewayServic
             identityContentEntity.setName(idcrResponseDto.getRecognizedName());
             identityContentEntity.setIdNumber(idcrResponseDto.getRecognizedIDNo());
             jdCResponse.toSucceed();
+            jdCResponse.setData(identityContentEntity);
         } else {
             jdCResponse.toFail(idcrResponseDto == null? IDCRStatusEnum.ERROR.getMessage() : idcrResponseDto.getMessage());
             return jdCResponse;
