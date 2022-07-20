@@ -393,6 +393,10 @@ public class TransportCommonServiceImpl implements TransportCommonService {
             result.parameterError("分页参数不合法");
             return result;
         }
+        if(request.getLimit() > 500){
+            result.parameterError("数据条数不能大于500");
+            return result;
+        }
         result.setData(sortingService.getPagePackageNoByBoxCode(request));
         return result;
     }
