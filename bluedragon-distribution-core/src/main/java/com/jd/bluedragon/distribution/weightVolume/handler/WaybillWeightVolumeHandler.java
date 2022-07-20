@@ -46,6 +46,9 @@ public class WaybillWeightVolumeHandler extends AbstractWeightVolumeHandler {
 
     @Override
     protected void weightVolumeRuleCheckHandler(WeightVolumeContext weightVolumeContext, InvokeResult<Boolean> result) {
+        if(commonCheckIntercept(weightVolumeContext, result)){
+            return;
+        }
         if(BusinessUtil.isCInternet(weightVolumeContext.getWaybill().getWaybillSign())){
             checkCInternetRule(weightVolumeContext, result);
             return;

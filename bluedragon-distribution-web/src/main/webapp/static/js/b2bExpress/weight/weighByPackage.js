@@ -26,6 +26,7 @@
     var NO_NEED_WEIGHT = 201; //不需要称重
     var WAYBILL_STATES_FINISHED=202; //
     var KAWAYBILL_NEEDPACKAGE_WEIGHT=203;//KA 需要包裹维度称重量方
+    var JP_FORBID_WEIGHT = 204; // 集配场地揽收后禁止称重
 
     var forcedToSubmitCount = 0 ; //强制提交
     var errorData = []; //导入失败记录
@@ -437,6 +438,11 @@
                                     $.messager.alert('提示',res.message,'error');
                                     $('#waybill-weight-btn').linkbutton('disable');
                                     $('#waybill-weight-import-btn').linkbutton('disable');
+                                    return ;
+                                }
+                                // 集配场地揽收后禁止称重
+                                if(res.code === JP_FORBID_WEIGHT){
+                                    $.messager.alert('提示', res.message,'error');
                                     return ;
                                 }
                                 if(res.code == WAYBILL_STATES_FINISHED){

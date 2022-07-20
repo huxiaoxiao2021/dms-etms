@@ -9,9 +9,8 @@ import com.jd.bluedragon.distribution.kuaiyun.weight.exception.WeighByWaybillExc
 import com.jd.bluedragon.distribution.kuaiyun.weight.service.WeighByPackageService;
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
 import com.jd.bluedragon.distribution.systemLog.domain.Goddess;
-import com.jd.bluedragon.distribution.systemLog.service.GoddessService;
-import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
+import com.jd.bluedragon.distribution.weightVolume.service.DMSWeightVolumeCheckService;
 import com.jd.bluedragon.distribution.weightVolume.service.DMSWeightVolumeService;
 import com.jd.bluedragon.distribution.weightvolume.FromSourceEnum;
 import com.jd.bluedragon.distribution.weightvolume.WeightVolumeBusinessTypeEnum;
@@ -32,7 +31,7 @@ import com.jd.jsf.gd.util.JsonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -53,6 +52,7 @@ public class WeighByPackageServiceImpl implements WeighByPackageService
     private final Integer NO_NEED_WEIGHT = 201;
     private final Integer WAYBILL_STATE_FINISHED = 202;
     private final Integer KAWAYBILL_NEEDPACKAGE_WEIGHT=203;
+    private final Integer JP_FORBID_WEIGHT = 204;
 
     private final Integer EXCESS_CODE = 600;
     private static final String PACKAGE_WEIGHT_VOLUME_EXCESS_HIT = "您的包裹超规，请确认。超过'200kg/包裹'或'1方/包裹'为超规件";
@@ -71,39 +71,31 @@ public class WeighByPackageServiceImpl implements WeighByPackageService
     private static final Integer WAYBILLCHECKSUCCESS = 5;
     //包裹号存在
     private static final Integer PACKAGECODEEXITES = 6;
-
-    @Value("${weight.transfer.b2c.min:5}")
-    private double weightTransferB2cMin;
-
-    @Value("${weight.transfer.b2c.max:30}")
-    private double weightTransferB2cMax;
-    @Value("${preseparate.systemCode}")
-    private String preseparateSystemCode;
+    // 集配揽收后禁止称重
+    private static final Integer JP_FORBID_WEIGHT_AFTER_LL  = 7;
 
     @Autowired
     private WaybillQueryManager waybillQueryManager;
 
     @Autowired
     private WaybillTraceManager waybillTraceManager;
-    @Autowired
-    private BaseMajorManager baseMajorManager;
 
     @Autowired
     private LogEngine logEngine;
-    @Autowired
-    private GoddessService goddessService;
-    @Autowired
-    private PreseparateWaybillManager preseparateWaybillManager;
-    @Autowired
-    private TaskService taskService;
+
     @Autowired
     private DMSWeightVolumeService dmsWeightVolumeService;
+
     @Autowired
     private WaybillPackageManager waybillPackageManager;
 
+    @Qualifier("dmsWeightVolumeCheckService")
+    @Autowired
+    private DMSWeightVolumeCheckService dmsWeightVolumeCheckService;
+
     /**校验是否是包裹号 且包裹号是否存在运单中*/
     @Override
-    public InvokeResult<Boolean> verifyPackageReality(String codeStr, Map<String, Integer> threadLocal) {
+    public InvokeResult<Boolean> verifyPackageReality(String codeStr, Map<String, Integer> threadLocal, Integer siteCode) {
         InvokeResult<Boolean> result = new InvokeResult<Boolean>();
         result.setData(true);
         result.setCode(InvokeResult.RESULT_SUCCESS_CODE);
@@ -112,7 +104,7 @@ public class WeighByPackageServiceImpl implements WeighByPackageService
             /*1 将包裹号正则校验*/
             String packageCode = this.checkPackageCode(codeStr);
             /*2 对包裹进行存在进行校验*/
-            boolean isExist = this.validatePackageCodeReality(packageCode,threadLocal);
+            boolean isExist = this.validatePackageCodeReality(packageCode, threadLocal, siteCode);
             result.setData(isExist);
             if (isExist) {
                 result.setMessage("存在该包裹相关信息，可以录入！");
@@ -133,15 +125,15 @@ public class WeighByPackageServiceImpl implements WeighByPackageService
                     //运单已经妥投，不允许录入
                     result.setCode(WAYBILL_STATE_FINISHED);
                     log.warn("运单称重:{}-{} ", codeStr, exceptionType.exceptionMessage);
+                }else if(exceptionType.equals(WeightByWaybillExceptionTypeEnum.JPForbidWeightAfterLLException)){
+                    // 集配站点揽收后限制称重
+                    result.setCode(JP_FORBID_WEIGHT);
                 }else if(exceptionType.equals(WeightByWaybillExceptionTypeEnum.NoPackageException)){
                     result.setCode(InvokeResult.RESULT_NULL_CODE);
-                    result.setMessage(exceptionType.exceptionMessage);
                 }else if(exceptionType.equals(WeightByWaybillExceptionTypeEnum.NotSupportUpWeightByPackageException)){
                     result.setCode(InvokeResult.RESULT_NULL_CODE);
-                    result.setMessage(exceptionType.exceptionMessage);
                 }else if(exceptionType.equals(WeightByWaybillExceptionTypeEnum.NotSupportUpCWaybillException)){
                     result.setCode(InvokeResult.RESULT_NULL_CODE);
-                    result.setMessage(exceptionType.exceptionMessage);
                 }
                 result.setData(false);
                 result.setMessage(exceptionType.exceptionMessage);
@@ -333,7 +325,7 @@ public class WeighByPackageServiceImpl implements WeighByPackageService
      * @throws WeighByWaybillExcpetion
      */
 
-    private boolean validatePackageCodeReality(String packageCode,  Map<String,Integer> packageMap) throws WeighByWaybillExcpetion {
+    private boolean validatePackageCodeReality(String packageCode,  Map<String,Integer> packageMap, Integer siteCode) throws WeighByWaybillExcpetion {
 
         BaseEntity<BigWaybillDto> baseEntity = null;
         String waybillCode = WaybillUtil.getWaybillCode(packageCode);
@@ -355,6 +347,9 @@ public class WeighByPackageServiceImpl implements WeighByPackageService
             throw new WeighByWaybillExcpetion(WeightByWaybillExceptionTypeEnum.WaybillFinishedException);
         }else if(Objects.equals(packageMap.get(waybillCode),NOTSUPPORTUPCWAYBILL)){
             throw new WeighByWaybillExcpetion(WeightByWaybillExceptionTypeEnum.NotSupportUpCWaybillException);
+        }else if(Objects.equals(packageMap.get(waybillCode), JP_FORBID_WEIGHT_AFTER_LL)){
+            // 集配站点揽收不能称重
+            throw new WeighByWaybillExcpetion(WeightByWaybillExceptionTypeEnum.JPForbidWeightAfterLLException);
         }
 
 
@@ -401,6 +396,12 @@ public class WeighByPackageServiceImpl implements WeighByPackageService
                 //弹出提示
                 packageMap.put(waybillCode,WAYBILLFINISHED);
                 throw new WeighByWaybillExcpetion(WeightByWaybillExceptionTypeEnum.WaybillFinishedException);
+            }
+            // 集配站点揽收后不能操作称重
+            InvokeResult<Boolean> jpSiteCanWeightResult = dmsWeightVolumeCheckService.checkJPIsCanWeight(waybillCode, siteCode);
+            if(!jpSiteCanWeightResult.codeSuccess()){
+                packageMap.put(waybillCode, JP_FORBID_WEIGHT_AFTER_LL);
+                throw new WeighByWaybillExcpetion(WeightByWaybillExceptionTypeEnum.JPForbidWeightAfterLLException);
             }
         }else {
             log.error("根据包裹号:{}查询运单包裹信息返回数据为空!",packageCode);
