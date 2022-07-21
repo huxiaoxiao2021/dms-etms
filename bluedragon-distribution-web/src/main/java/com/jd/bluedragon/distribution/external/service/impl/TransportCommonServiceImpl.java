@@ -413,9 +413,10 @@ public class TransportCommonServiceImpl implements TransportCommonService {
                     String msg = StringUtils.isBlank(AppVersionEnums.getDescByCode(pdaVersion)) ? "其他版本" : AppVersionEnums.getDescByCode(pdaVersion);
                     res.error(msg + "正在操作中");
                     return res;
+                }else {
+                    redisClientOfJy.del(key);
                 }
             }
-            redisClientOfJy.del(key);
             res.setData(true);
             return res;
         }catch (Exception e) {
