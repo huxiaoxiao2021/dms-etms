@@ -25,6 +25,10 @@
         <result property="updateTime" column="update_time"/>
         <result property="yn" column="yn"/>
         <result property="ts" column="ts"/>
+        <result property="member_type" column="memberType"/>
+        <result property="device_type_code" column="deviceTypeCode"/>
+        <result property="device_type_name" column="deviceTypeName"/>
+        <result property="machine_code" column="machineCode"/>        
     </resultMap>
 
     <sql id="Base_Column_List">
@@ -47,7 +51,11 @@
         create_time,
         update_time,
         yn,
-        ts
+        ts,
+        member_type,
+        device_type_code,
+        device_type_name,
+        machine_code
     </sql>
 
     <insert id="insert" parameterType="JyTaskGroupMemberEntity">
@@ -69,7 +77,10 @@
                             update_user,
                             update_user_name,
                             create_time,
-                            update_time
+                            update_time,
+                            device_type_code,
+                            device_type_name,
+                            machine_code
                     ) VALUES (
                             #{id},
                             #{refTaskId},
@@ -88,7 +99,11 @@
                             #{updateUser},
                             #{updateUserName},
                             #{createTime},
-                            #{updateTime}
+                            #{updateTime},
+                            #{memberType},
+                            #{deviceTypeCode},
+                            #{deviceTypeName},
+                            #{machineCode}
                     )
     </insert>
     <insert id="batchInsert" parameterType="java.util.List">
@@ -110,7 +125,10 @@
                             update_user,
                             update_user_name,
                             create_time,
-                            update_time
+                            update_time,
+                            device_type_code,
+                            device_type_name,
+                            machine_code
                     ) VALUES 
                     <foreach collection="list" item="item" separator=",">
                     (
@@ -131,7 +149,11 @@
                       #{item.updateUser},
                       #{item.updateUserName},
                       #{item.createTime},
-                      #{item.updateTime}
+                      #{item.updateTime},
+                      #{item.memberType},
+                      #{item.deviceTypeCode},
+                      #{item.deviceTypeName},
+                      #{item.machineCode}
                     )
                     </foreach>
     </insert>    
@@ -167,4 +189,12 @@
         where yn = 1
           and ref_task_id = #{taskId}
     </select>
+    <select id="queryMemberListByTaskId" parameterType="com.jd.bluedragon.distribution.jy.group.JyTaskGroupMemberQuery" resultMap="jyTaskGroupMemberMap">
+        select
+            <include refid="Base_Column_List"/>
+        from
+            jy_task_group_member
+        where yn = 1
+          and ref_task_id = #{taskId}
+    </select>    
 </mapper>

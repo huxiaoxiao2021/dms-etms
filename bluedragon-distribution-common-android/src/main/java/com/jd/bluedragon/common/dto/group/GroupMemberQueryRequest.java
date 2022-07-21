@@ -1,6 +1,7 @@
 package com.jd.bluedragon.common.dto.group;
 
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  * @ClassName: GroupMemberQueryRequest
@@ -37,6 +38,18 @@ public class GroupMemberQueryRequest implements Serializable {
 	private Integer pageNumber;
 	
 	private Integer pageSize;
+	/**
+	 * 组员类型
+	 */
+	private Integer memberType;
+	/**
+	 * 签到日期-开始
+	 */
+	private Date signInTimeStart;
+	/**
+	 * 签到日期-结束
+	 */
+	private Date signInTimeEnd;	
 
 	public String getGroupCode() {
 		return groupCode;
@@ -92,5 +105,29 @@ public class GroupMemberQueryRequest implements Serializable {
 
 	public void setPageSize(Integer pageSize) {
 		this.pageSize = pageSize;
+	}
+
+	public Integer getMemberType() {
+		return memberType;
+	}
+
+	public void setMemberType(Integer memberType) {
+		this.memberType = memberType;
+	}
+
+	public Date getSignInTimeStart() {
+		return signInTimeStart;
+	}
+
+	public void setSignInTimeStart(Date signInTimeStart) {
+		this.signInTimeStart = signInTimeStart;
+	}
+
+	public Date getSignInTimeEnd() {
+		return signInTimeEnd;
+	}
+
+	public void setSignInTimeEnd(Date signInTimeEnd) {
+		this.signInTimeEnd = signInTimeEnd;
 	}
 }

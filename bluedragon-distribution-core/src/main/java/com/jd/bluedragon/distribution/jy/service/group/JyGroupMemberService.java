@@ -6,6 +6,7 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.group.GroupMemberData;
 import com.jd.bluedragon.common.dto.group.GroupMemberQueryRequest;
 import com.jd.bluedragon.common.dto.group.GroupMemberRequest;
+import com.jd.bluedragon.common.dto.group.JyGroupMemberResponse;
 import com.jd.bluedragon.common.dto.station.UserSignRecordData;
 import com.jd.bluedragon.distribution.jy.group.JyGroupMemberEntity;
 import com.jd.bluedragon.distribution.jy.group.JyGroupMemberQuery;
@@ -50,4 +51,10 @@ public interface JyGroupMemberService {
 	 * @return
 	 */
 	Integer queryGroupMemberNum(String groupCode);
+	/**
+	 * 按条件分页查询
+	 * @param query
+	 * @return
+	 */
+	JdCResponse<JyGroupMemberResponse> queryMemberListByGroup(GroupMemberQueryRequest query);
 }

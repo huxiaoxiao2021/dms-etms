@@ -5,6 +5,7 @@ import java.util.List;
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.common.dto.group.GroupMemberQueryRequest;
 import com.jd.bluedragon.distribution.jy.group.JyTaskGroupMemberEntity;
+import com.jd.bluedragon.distribution.jy.group.JyTaskGroupMemberQuery;
 
 /**
  * 任务-小组人员明细表
@@ -58,5 +59,13 @@ public class JyTaskGroupMemberDao extends BaseDao<JyTaskGroupMemberEntity> {
      */
 	public List<String> queryMemberCodeListByTaskId(GroupMemberQueryRequest query) {
 		return this.getSqlSession().selectList(NAMESPACE + ".queryMemberCodeListByTaskId", query);
+	}
+    /**
+     * 根据taskId查询已存在的member列表
+     * @param query
+     * @return
+     */
+	public List<JyTaskGroupMemberEntity> queryMemberListByTaskId(JyTaskGroupMemberQuery query) {
+		return this.getSqlSession().selectList(NAMESPACE + ".queryMemberListByTaskId", query);
 	}
 }
