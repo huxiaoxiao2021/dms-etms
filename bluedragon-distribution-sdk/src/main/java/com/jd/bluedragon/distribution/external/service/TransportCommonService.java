@@ -103,4 +103,21 @@ public interface TransportCommonService {
      */
     InvokeResult<DockInfoEntity> findDockInfoByDockCode(Integer siteCode, String dockCode);
 
+
+    /**
+     * 保存操作版本， 不成功给返回提示
+     * @param sealCarCode
+     * @param sealCarCode AppVersionEnums
+     * @return
+     */
+    InvokeResult<Boolean> saveOperatePdaVersion(String sealCarCode, String pdaVersion);
+
+    /**
+     *
+     * @param sealCarCode
+     * @param sealCarCode AppVersionEnums
+     * @return
+     */
+    InvokeResult<Boolean> delOperatePdaVersion(String sealCarCode, String pdaVersion);
+
 }

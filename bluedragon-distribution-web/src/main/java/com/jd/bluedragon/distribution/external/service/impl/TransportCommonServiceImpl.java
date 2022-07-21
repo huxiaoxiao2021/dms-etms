@@ -10,6 +10,8 @@ import com.jd.bluedragon.distribution.dock.convert.DockInfoConverter;
 import com.jd.bluedragon.distribution.dock.dao.DockBaseInfoDao;
 import com.jd.bluedragon.distribution.dock.domain.DockBaseInfoPo;
 import com.jd.bluedragon.distribution.dock.entity.DockInfoEntity;
+import com.jd.bluedragon.distribution.external.constants.TransportServiceConstants;
+import com.jd.bluedragon.distribution.external.enums.AppVersionEnums;
 import com.jd.bluedragon.distribution.external.service.FuncSwitchConfigApiService;
 import com.jd.bluedragon.distribution.external.service.TransportCommonService;
 import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigEnum;
@@ -20,12 +22,14 @@ import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.common.util.StringUtils;
+import com.jd.jim.cli.Cluster;
 import com.jd.tp.common.utils.Objects;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -33,6 +37,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 转运依赖分拣相关服务
@@ -58,6 +63,11 @@ public class TransportCommonServiceImpl implements TransportCommonService {
 
     @Resource
     private DockBaseInfoDao dockBaseInfoDao;
+
+    @Autowired
+    @Qualifier("redisClientOfJy")
+    private Cluster redisClientOfJy;
+
 
 
     @Override
@@ -351,4 +361,68 @@ public class TransportCommonServiceImpl implements TransportCommonService {
 
         return result;
     }
+
+    @Override
+    public InvokeResult<Boolean> saveOperatePdaVersion(String sealCarCode, String pdaVersion) {
+        InvokeResult<Boolean> res = new InvokeResult<>();
+        res.success();
+
+        if(StringUtils.isBlank(sealCarCode) || StringUtils.isBlank(pdaVersion)) {
+            res.error("参数不能为空");
+            return res;
+        }
+        if(!AppVersionEnums.existValidation(pdaVersion)) {
+            res.error("版本暂不支持");
+            return res;
+        }
+        try{
+
+            boolean resData = true;
+            String key = TransportServiceConstants.CACHE_PREFIX_PDA_ACTUAL_OPERATE_VERSION + sealCarCode;
+            if (redisClientOfJy.exists(key)) {
+                resData = Integer.valueOf(redisClientOfJy.get(key)).equals(pdaVersion);
+            }else {
+                redisClientOfJy.setEx(key, String.valueOf(Boolean.FALSE), TransportServiceConstants.CACHE_PREFIX_PDA_ACTUAL_OPERATE_VERSION_EXPIRE, TimeUnit.HOURS);
+            }
+            res.setData(resData);
+            return res;
+        }catch (Exception e) {
+            log.error("TransportCommonServiceImpl.saveOperatePdaVersion--服务异常--sealCarCode={}，pdaVersion={}, srrMsg={}", sealCarCode, pdaVersion, e.getMessage(), e);
+            res.error("保存PDA操作版本服务异常" + e.getMessage());
+            return res;
+        }
+    }
+
+    @Override
+    public InvokeResult<Boolean> delOperatePdaVersion(String sealCarCode, String pdaVersion) {
+        InvokeResult<Boolean> res = new InvokeResult<>();
+        res.success();
+
+        if(StringUtils.isBlank(sealCarCode) || StringUtils.isBlank(pdaVersion)) {
+            res.error("参数不能为空");
+            return res;
+        }
+        if(!AppVersionEnums.existValidation(pdaVersion)) {
+            res.error("版本暂不支持");
+            return res;
+        }
+        try{
+            String key = TransportServiceConstants.CACHE_PREFIX_PDA_ACTUAL_OPERATE_VERSION + sealCarCode;
+            if (redisClientOfJy.exists(key)) {
+                if(!Integer.valueOf(redisClientOfJy.get(key)).equals(pdaVersion)) {
+                    String msg = StringUtils.isBlank(AppVersionEnums.getDescByCode(pdaVersion)) ? "其他版本" : AppVersionEnums.getDescByCode(pdaVersion);
+                    res.error(msg + "正在操作中");
+                    return res;
+                }
+            }
+            redisClientOfJy.del(key);
+            res.setData(true);
+            return res;
+        }catch (Exception e) {
+            log.error("TransportCommonServiceImpl.delOperatePdaVersion--服务异常--sealCarCode={}，pdaVersion={}, srrMsg={}", sealCarCode, pdaVersion, e.getMessage(), e);
+            res.error("删除PDA操作版本服务异常" + e.getMessage());
+            return res;
+        }
+    }
+
 }
