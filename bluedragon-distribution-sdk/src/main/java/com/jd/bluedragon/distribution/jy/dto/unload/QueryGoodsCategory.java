@@ -6,27 +6,27 @@ import java.io.Serializable;
 public class QueryGoodsCategory extends UnloadBaseDto implements Serializable {
     private static final long serialVersionUID = -3384319549017831122L;
     /**
-     * 任务或者板号
+     * 任务bizId
      */
-    private String barCode;
+    private String bizId;
     /**
-     * 1 按任务 2按板
+     * 板号
      */
-    private Integer type;
+    private String boardCode;
 
-    public String getBarCode() {
-        return barCode;
+    public String getBizId() {
+        return bizId;
     }
 
-    public void setBarCode(String barCode) {
-        this.barCode = barCode;
+    public void setBizId(String bizId) {
+        this.bizId = bizId;
     }
 
-    public Integer getType() {
-        return type;
+    public String getBoardCode() {
+        return boardCode;
     }
 
-    public void setType(Integer type) {
-        this.type = type;
+    public void setBoardCode(String boardCode) {
+        this.boardCode = boardCode;
     }
 }

@@ -1,8 +1,7 @@
 package com.jd.bluedragon.distribution.jy.dao.unload;
 
 import com.jd.bluedragon.common.dao.BaseDao;
-import com.jd.bluedragon.distribution.jy.dto.unload.DimensionQueryDto;
-import com.jd.bluedragon.distribution.jy.dto.unload.UnloadAggDto;
+import com.jd.bluedragon.distribution.jy.dto.unload.*;
 import com.jd.bluedragon.distribution.jy.unload.JyUnloadAggsEntity;
 import com.jd.coo.sa.mybatis.plugins.id.SequenceGenAdaptor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,13 +39,24 @@ public class JyUnloadAggsDao extends BaseDao<JyUnloadAggsEntity> {
         return this.getSqlSession().selectList(NAMESPACE + ".queryByBizId", entity);
     }
 
-    public JyUnloadAggsEntity queryStatisticsUnderPackage(DimensionQueryDto dto) {
-        return this.getSqlSession().selectOne(NAMESPACE + ".queryStatisticsUnderPackage", dto);
+    public JyUnloadAggsEntity queryPackageStatistics(DimensionQueryDto dto) {
+        return this.getSqlSession().selectOne(NAMESPACE + ".queryPackageStatistics", dto);
     }
-    public JyUnloadAggsEntity queryStatisticsUnderWaybill(DimensionQueryDto dto) {
-        return this.getSqlSession().selectOne(NAMESPACE + ".queryStatisticsUnderWaybill", dto);
+    public JyUnloadAggsEntity queryWaybillStatisticsUnderTask(DimensionQueryDto dto) {
+        return this.getSqlSession().selectOne(NAMESPACE + ".queryWaybillStatisticsUnderTask", dto);
+    }
+    public JyUnloadAggsEntity queryWaybillStatisticsUnderBoard(DimensionQueryDto dto) {
+        return this.getSqlSession().selectOne(NAMESPACE + ".queryWaybillStatisticsUnderBoard", dto);
     }
     public JyUnloadAggsEntity queryUnloadStatistics(DimensionQueryDto dto) {
         return this.getSqlSession().selectOne(NAMESPACE + ".queryUnloadStatistics", dto);
+    }
+
+    public List<GoodsCategoryDto> queryGoodsCategoryStatistics(JyUnloadAggsEntity entity) {
+        return this.getSqlSession().selectList(NAMESPACE + ".queryGoodsCategoryStatistics", entity);
+    }
+
+    public ScanStatisticsDto queryExcepScanStatistics(JyUnloadAggsEntity entity) {
+        return this.getSqlSession().selectOne(NAMESPACE + ".queryExcepScanStatistics", entity);
     }
 }

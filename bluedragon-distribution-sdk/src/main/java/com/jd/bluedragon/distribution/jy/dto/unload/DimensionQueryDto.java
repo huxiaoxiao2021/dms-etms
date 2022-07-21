@@ -10,9 +10,9 @@ public class DimensionQueryDto extends UnloadBaseDto implements Serializable {
      */
     private Integer type;
 
-    private String bizId;//按任务维度查询
+    private String bizId;//任务bizId
 
-    private String boardCode;//按板维度查询
+    private String boardCode;//板号
 
     public Integer getType() {
         return type;

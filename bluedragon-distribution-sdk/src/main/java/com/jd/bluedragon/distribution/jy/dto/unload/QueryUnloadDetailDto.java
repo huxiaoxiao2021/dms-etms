@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 public class QueryUnloadDetailDto extends UnloadBaseDto implements Serializable {
     private static final long serialVersionUID = -4224506737591286259L;
+    private String bizId;
 
     /**
      * 异常标识：false 待扫 ,true(拦截、多扫)
@@ -19,6 +20,8 @@ public class QueryUnloadDetailDto extends UnloadBaseDto implements Serializable 
      * 扫描异常类型: 1待扫 2拦截 3多扫
      */
     private Integer expType;
+    private Integer pageNo;
+    private Integer pageSize;
 
     public Boolean getExpFlag() {
         return expFlag;
@@ -44,5 +47,27 @@ public class QueryUnloadDetailDto extends UnloadBaseDto implements Serializable 
         this.expType = expType;
     }
 
+    public String getBizId() {
+        return bizId;
+    }
 
+    public void setBizId(String bizId) {
+        this.bizId = bizId;
+    }
+
+    public Integer getPageNo() {
+        return pageNo;
+    }
+
+    public void setPageNo(Integer pageNo) {
+        this.pageNo = pageNo;
+    }
+
+    public Integer getPageSize() {
+        return pageSize;
+    }
+
+    public void setPageSize(Integer pageSize) {
+        this.pageSize = pageSize;
+    }
 }

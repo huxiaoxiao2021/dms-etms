@@ -115,7 +115,7 @@
         AND biz_id = #{bizId, jdbcType=VARCHAR}
     </select>
 
-    <select id="queryStatisticsUnderPackage" parameterType="com.jd.bluedragon.distribution.jy.dto.unload.DimensionQueryDto"
+    <select id="queryPackageStatistics" parameterType="com.jd.bluedragon.distribution.jy.dto.unload.DimensionQueryDto"
     resultMap="jyUnloadAggsMap">
         SELECT
             SUM(should_scan_count) should_scan_count,
@@ -136,9 +136,8 @@
 
     </select>
 
-    <select id="queryStatisticsUnderWaybill" parameterType="com.jd.bluedragon.distribution.jy.dto.unload.DimensionQueryDto"
+    <select id="queryWaybillStatisticsUnderBoard" parameterType="com.jd.bluedragon.distribution.jy.dto.unload.DimensionQueryDto"
             resultMap="jyUnloadAggsMap">
-
         SELECT
         SUM(should_scan_waybill_count) should_scan_waybill_count,
         SUM(actual_scan_waybill_count) actual_scan_waybill_count,
@@ -151,10 +150,7 @@
         FROM
         jy_unload_aggs
         WHERE
-        biz_id = #{bizId}
-        <if test="boardCode!=null">
-            and board_code =#{boardCode}
-        </if>
+        biz_id = #{bizId} and board_code =#{boardCode} and  yn=1
     </select>
 
     <select id="queryUnloadStatistics" parameterType="com.jd.bluedragon.distribution.jy.dto.unload.DimensionQueryDto"
@@ -180,6 +176,34 @@
         biz_id = #{bizId}
         <if test="boardCode!=null">
             and board_code =#{boardCode}
+        </if>
+    </select>
+
+    <select id="queryGoodsCategoryStatistics" parameterType="JyUnloadAggsEntity"
+            resultType="com.jd.bluedragon.distribution.jy.dto.unload.GoodsCategoryDto">
+        SELECT product_type type,SUM(should_scan_count) shouldScanCount,
+               SUM(actual_scan_count) haveScanCount
+        from jy_unload_aggs
+        WHERE biz_id = #{bizId}
+          <if test="boardCode!=null and boardCode!='' ">
+              AND board_code =#{boardCode}
+          </if>
+              GROUP BY product_type
+    </select>
+    <select id="queryExcepScanStatistics" parameterType="JyUnloadAggsEntity"
+    resultType="com.jd.bluedragon.distribution.jy.dto.unload.ScanStatisticsDto">
+        SELECT
+        SUM(should_scan_count) shouldScanCount,
+        SUM(actual_scan_count) haveScanCount,
+        SUM(should_scan_count)-SUM(actual_scan_count) waitScanCount,
+        SUM(more_scan_total_count) extraScanCount,
+        SUM(intercept_actual_scan_count) interceptCount
+        FROM
+        jy_unload_aggs
+        WHERE
+        biz_id = #{bizId}
+        <if test="boardCode!=null and boardCode!='' " >
+            AND board_code =#{boardCode}
         </if>
     </select>
 </mapper>

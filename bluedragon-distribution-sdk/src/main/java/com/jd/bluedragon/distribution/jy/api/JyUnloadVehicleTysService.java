@@ -5,6 +5,11 @@ import com.jd.bluedragon.distribution.jy.dto.unload.*;
 
 import java.util.List;
 
+/**
+ * @author weixiaofeng12
+ * @date 2022-07-01
+ * 转运卸车岗相关服务
+ */
 public interface JyUnloadVehicleTysService {
     /**
      * 查询转运卸车任务列表-分页查询
@@ -138,6 +143,9 @@ public interface JyUnloadVehicleTysService {
      * @return
      */
     String getGoodsAreaCode(Integer currentSiteCode, Integer nextSiteCode);
+
+
+
 
 
 }

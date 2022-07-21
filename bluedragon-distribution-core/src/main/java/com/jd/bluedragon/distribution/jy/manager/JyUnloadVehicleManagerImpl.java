@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.jy.manager;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.ObjectHelper;
@@ -7,11 +8,14 @@ import com.jd.jsf.gd.util.JsonUtils;
 import com.jd.ql.basic.dto.BaseGoodsAreaNextSiteDto;
 import com.jd.ql.basic.dto.ResultDTO;
 import com.jd.ql.basic.ws.BasicGoodsAreaWS;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import com.jdl.jy.realtime.api.unload.IUnloadVehicleJsfService;
 import com.jdl.jy.realtime.base.Pager;
 import com.jdl.jy.realtime.base.ServiceResult;
+import com.jdl.jy.realtime.model.es.unload.JyUnloadTaskWaybillAgg;
 import com.jdl.jy.realtime.model.es.unload.JyVehicleTaskUnloadDetail;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -161,5 +165,23 @@ public class JyUnloadVehicleManagerImpl implements IJyUnloadVehicleManager {
         }
         log.warn("调用基础资料查询获取编码失败，当前场地：{}，下一场地：{}", currentSiteCode, nextSiteCode);
         return null;
+    }
+
+    @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "dms.web.IJyUnloadVehicleManager.queryUnloadTaskWaybill", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public Pager<JyUnloadTaskWaybillAgg> queryUnloadTaskWaybill(Pager<JyVehicleTaskUnloadDetail> query) {
+        Pager<JyUnloadTaskWaybillAgg> waybillAggPager = new Pager<>();
+
+        try {
+            ServiceResult<Pager<JyUnloadTaskWaybillAgg>> serviceResult = unloadVehicleJsfService.queryUnloadTaskWaybill(query);
+            if (serviceResult.retSuccess()) {
+                return serviceResult.getData();
+            } else {
+                log.warn("查询卸车岗统计下钻运单明细. {}. {}", JsonHelper.toJson(query), JsonHelper.toJson(serviceResult));
+            }
+        } catch (Exception ex) {
+            log.error("查询卸车岗统计下钻运单明细. {}", JsonHelper.toJson(query), ex);
+        }
+        return waybillAggPager;
     }
 }

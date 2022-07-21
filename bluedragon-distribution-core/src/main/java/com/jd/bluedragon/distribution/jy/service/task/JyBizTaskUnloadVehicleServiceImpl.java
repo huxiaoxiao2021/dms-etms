@@ -605,9 +605,9 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
     public ScanStatisticsDto queryStatisticsByDiffDimension(DimensionQueryDto dto) {
         JyUnloadAggsEntity entity = null;
         if (UnloadStatisticsQueryTypeEnum.PACKAGE.getCode().equals(dto.getType())) {
-            entity =jyUnloadAggsDao.queryStatisticsUnderPackage(dto);
+            entity =jyUnloadAggsDao.queryPackageStatistics(dto);
         } else if (UnloadStatisticsQueryTypeEnum.PACKAGE.getCode().equals(dto.getType())) {
-            entity =jyUnloadAggsDao.queryStatisticsUnderWaybill(dto);
+            entity =jyUnloadAggsDao.queryWaybillStatisticsUnderTask(dto);
         }
         if (ObjectHelper.isNotNull(entity)){
             ScanStatisticsDto scanStatisticsDto =dtoConvert(entity,dto);
