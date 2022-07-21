@@ -128,5 +128,10 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 	public JdCResponse<UserSignRecordData> signAutoWithGroup(UserSignRequest userSignRequest) {
 		return userSignRecordService.signAutoWithGroup(userSignRequest);
 	}
-
+	@JProfiler(jKey = "dmsWeb.server.userSignGatewayService.signAutoWithGroup",
+			jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+	@Override
+	public JdCResponse<UserSignRecordData> deleteUserSignRecord(UserSignRequest userSignRequest) {
+		return userSignRecordService.deleteUserSignRecord(userSignRequest);
+	}
 }

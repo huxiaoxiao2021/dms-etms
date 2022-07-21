@@ -16,6 +16,7 @@ import com.jd.bluedragon.distribution.jy.group.JyGroupMemberEntity;
 import com.jd.bluedragon.distribution.jy.group.JyGroupMemberQuery;
 import com.jd.bluedragon.distribution.jy.group.JyGroupMemberStatusEnum;
 import com.jd.bluedragon.distribution.jy.group.JyTaskGroupMemberEntity;
+import com.jd.bluedragon.distribution.jy.group.JyTaskGroupMemberQuery;
 import com.jd.bluedragon.distribution.jy.service.group.JyGroupMemberService;
 import com.jd.bluedragon.distribution.jy.service.group.JyTaskGroupMemberService;
 
@@ -110,6 +111,14 @@ public class JyTaskGroupMemberServiceImpl implements JyTaskGroupMemberService {
 		taskGroupMember.setUpdateUser(endData.getUpdateUser());
 		taskGroupMember.setUpdateUserName(endData.getUpdateUserName());
 		jyTaskGroupMemberDao.endWorkByTaskId(taskGroupMember);
+		return result;
+	}
+
+	@Override
+	public Result<List<JyTaskGroupMemberEntity>> queryMemberListByTaskId(JyTaskGroupMemberQuery query) {
+		Result<List<JyTaskGroupMemberEntity>> result = new Result<>();
+		result.toSuccess();
+		result.setData(jyTaskGroupMemberDao.queryMemberListByTaskId(query));
 		return result;
 	}
 }

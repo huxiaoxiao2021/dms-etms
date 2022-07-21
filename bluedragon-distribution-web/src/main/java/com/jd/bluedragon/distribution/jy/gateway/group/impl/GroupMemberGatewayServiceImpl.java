@@ -9,6 +9,7 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.group.GroupMemberData;
 import com.jd.bluedragon.common.dto.group.GroupMemberQueryRequest;
 import com.jd.bluedragon.common.dto.group.GroupMemberRequest;
+import com.jd.bluedragon.common.dto.group.JyGroupMemberResponse;
 import com.jd.bluedragon.common.dto.station.UserSignRecordData;
 import com.jd.bluedragon.distribution.jy.gateway.group.GroupMemberGatewayService;
 import com.jd.bluedragon.distribution.jy.service.group.JyGroupMemberService;
@@ -48,6 +49,10 @@ public class GroupMemberGatewayServiceImpl implements GroupMemberGatewayService 
 	@Override
 	public JdCResponse<GroupMemberData> queryGroupData(String groupCode) {
 		return jyGroupService.queryGroupData(groupCode);
+	}
+	@Override
+	public JdCResponse<JyGroupMemberResponse> queryMemberListByGroup(GroupMemberQueryRequest query) {
+		return jyGroupMemberService.queryMemberListByGroup(query);
 	}
 
 }

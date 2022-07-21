@@ -13,6 +13,9 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.group.GroupMemberData;
 import com.jd.bluedragon.common.dto.group.GroupMemberQueryRequest;
 import com.jd.bluedragon.common.dto.group.GroupMemberRequest;
+import com.jd.bluedragon.common.dto.group.JyGroupMemberCountData;
+import com.jd.bluedragon.common.dto.group.JyGroupMemberData;
+import com.jd.bluedragon.common.dto.group.JyGroupMemberResponse;
 import com.jd.bluedragon.common.dto.station.UserSignQueryRequest;
 import com.jd.bluedragon.common.dto.station.UserSignRecordData;
 import com.jd.bluedragon.core.objectid.IGenerateObjectId;
@@ -22,6 +25,7 @@ import com.jd.bluedragon.distribution.jy.group.JyGroupEntity;
 import com.jd.bluedragon.distribution.jy.group.JyGroupMemberEntity;
 import com.jd.bluedragon.distribution.jy.group.JyGroupMemberQuery;
 import com.jd.bluedragon.distribution.jy.group.JyGroupMemberStatusEnum;
+import com.jd.bluedragon.distribution.jy.group.JyGroupMemberTypeEnum;
 import com.jd.bluedragon.distribution.jy.group.JyGroupQuery;
 import com.jd.bluedragon.distribution.jy.group.JyTaskGroupMemberEntity;
 import com.jd.bluedragon.distribution.jy.manager.JyScheduleTaskManager;
@@ -97,6 +101,9 @@ public class JyGroupMemberServiceImpl implements JyGroupMemberService {
 			result.toFail("岗位码无效！");
 			return result;
 		}
+		if(addMemberRequest.getSignInTime() == null) {
+			addMemberRequest.setSignInTime(new Date());
+		}
 		String gridKey = positionData.getData().getRefGridKey();
 		//查询岗位码对应的小组信息
 		JyGroupQuery groupQuery = new JyGroupQuery();
@@ -122,6 +129,10 @@ public class JyGroupMemberServiceImpl implements JyGroupMemberService {
 		}
 		String groupCode = groupData.getGroupCode();
 		JyGroupMemberEntity memberData = new JyGroupMemberEntity();
+		memberData.setMemberType(addMemberRequest.getMemberType());
+		memberData.setDeviceTypeCode(addMemberRequest.getDeviceTypeCode());
+		memberData.setDeviceTypeName(addMemberRequest.getDeviceTypeName());
+		memberData.setMachineCode(addMemberRequest.getMachineCode());
 		generateAndSetMemberCode(memberData);
 		memberData.setRefGroupCode(groupCode);
 		memberData.setRefSignRecordId(addMemberRequest.getSignRecordId());
@@ -134,6 +145,7 @@ public class JyGroupMemberServiceImpl implements JyGroupMemberService {
 		memberData.setCreateTime(currentDate);
 		memberData.setCreateUser(addMemberRequest.getOperateUserCode());
 		memberData.setCreateUserName(addMemberRequest.getOperateUserName());
+		memberData.setSignInTime(addMemberRequest.getSignInTime());
 
 		//新小组，将已签未退人员加入到小组中，正常应该只有当前人员
 		if(isNewGroup) {
@@ -146,6 +158,7 @@ public class JyGroupMemberServiceImpl implements JyGroupMemberService {
 			if(!CollectionUtils.isEmpty(signList)) {
 				for(UserSignRecord signData: signList) {
 					JyGroupMemberEntity member = new JyGroupMemberEntity();
+					member.setMemberType(JyGroupMemberTypeEnum.PERSON.getCode());
 					generateAndSetMemberCode(member);
 					member.setRefGroupCode(groupCode);
 					member.setRefSignRecordId(signData.getId());
@@ -158,6 +171,7 @@ public class JyGroupMemberServiceImpl implements JyGroupMemberService {
 					member.setCreateTime(currentDate);
 					member.setCreateUser(addMemberRequest.getOperateUserCode());
 					member.setCreateUserName(addMemberRequest.getOperateUserName());
+					member.setSignInTime(signData.getSignInTime());
 					memberList.add(member);
 				}
 			}
@@ -175,6 +189,10 @@ public class JyGroupMemberServiceImpl implements JyGroupMemberService {
 				for(JyScheduleTaskResp task : taskList) {
 					String taskId = task.getTaskId();
 					JyTaskGroupMemberEntity taskMember = new JyTaskGroupMemberEntity();
+					taskMember.setMemberType(memberData.getMemberType());
+					taskMember.setDeviceTypeCode(memberData.getDeviceTypeCode());
+					taskMember.setDeviceTypeName(memberData.getDeviceTypeName());
+					taskMember.setMachineCode(memberData.getMachineCode());					
 					taskMember.setRefGroupMemberCode(memberData.getMemberCode());
 					taskMember.setRefGroupCode(groupCode);
 					taskMember.setRefTaskId(taskId);
@@ -205,7 +223,12 @@ public class JyGroupMemberServiceImpl implements JyGroupMemberService {
 		JdCResponse<GroupMemberData> result = new JdCResponse<>();
 		result.toSucceed();
 		//根据签到id查询小组成员
-		JyGroupMemberEntity memberData = jyGroupMemberDao.queryBySignRecordId(removeMemberRequest.getSignRecordId());
+		JyGroupMemberEntity memberData = null;
+		if(JyGroupMemberTypeEnum.PERSON.getCode().equals(removeMemberRequest.getMemberType())) {
+			memberData = jyGroupMemberDao.queryBySignRecordId(removeMemberRequest.getSignRecordId());
+		}else {
+			memberData = jyGroupMemberDao.queryByMemberCode(removeMemberRequest.getMemberCode());
+		}
 		if(memberData != null) {
 			JyGroupMemberEntity removeMemberData = new JyGroupMemberEntity();
 			Date currentDate = new Date();
@@ -275,5 +298,31 @@ public class JyGroupMemberServiceImpl implements JyGroupMemberService {
 	@Override
 	public Integer queryGroupMemberNum(String groupCode) {
 		return jyGroupMemberDao.queryGroupMemberNum(groupCode);
+	}
+	@Override
+	public JdCResponse<JyGroupMemberResponse> queryMemberListByGroup(GroupMemberQueryRequest query) {
+		if(query.getPageSize() == null
+				|| query.getPageSize() <= 0) {
+			query.setPageSize(DmsConstants.PAGE_SIZE_DEFAULT);
+		}
+		query.setOffset(0);
+		query.setLimit(query.getPageSize());
+		if(query.getPageNumber() > 0) {
+			query.setOffset((query.getPageNumber() - 1) * query.getPageSize());
+		}
+		JdCResponse<JyGroupMemberResponse> result = new JdCResponse<>();
+		result.toSucceed();
+		JyGroupMemberResponse data = new JyGroupMemberResponse();
+		result.setData(data);
+		List<JyGroupMemberCountData> countDataList= jyGroupMemberDao.queryMemberDataCountByGroup(query);
+		if(countDataList != null && countDataList.size() > 0){
+		    List<JyGroupMemberData> dataList = jyGroupMemberDao.queryMemberDataListByGroup(query);
+		    data.setDataList(dataList);
+		    data.setCountDataList(countDataList);
+		}else {
+			data.setDataList(new ArrayList<JyGroupMemberData>());
+			data.setCountDataList(new ArrayList<JyGroupMemberCountData>());
+		}
+		return result;
 	}
 }
