@@ -233,7 +233,7 @@ public class DeviceInfoServiceImpl implements DeviceInfoService {
 		query.setSiteCode(deviceInfoRequest.getSiteCode());
 		query.setMachineCode(deviceInfoRequest.getMachineCode());
 		query.setDeviceTypeCode(deviceInfoRequest.getDeviceTypeCode());
-        BaseDmsAutoJsfResponse<List<DeviceConfigSimpleDto>> response = deviceConfigInfoJsfService.queryDeviceConfig(query);
+        BaseDmsAutoJsfResponse<List<DeviceConfigSimpleDto>> response = deviceConfigInfoJsfService.queryDeviceConfigListForPdaSelect(query);
         if (null == response || BaseDmsAutoJsfResponse.SUCCESS_CODE != response.getStatusCode()) {
             logger.warn("查询设备信息失败，请求参数：{}，返回值：{}",JsonHelper.toJson(deviceInfoRequest), JsonHelper.toJson(response));
         }
