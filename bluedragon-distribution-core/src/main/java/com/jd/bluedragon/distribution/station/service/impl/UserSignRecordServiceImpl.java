@@ -623,6 +623,11 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		UserSignRecord signOutData = new UserSignRecord();
 		if(signOutRequest.getRecordId() != null) {
 			signOutData.setId(signOutRequest.getRecordId());
+			UserSignRecordData lastSignRecord = queryUserSignRecordDataById(signOutRequest.getRecordId());
+			if(lastSignRecord == null || lastSignRecord.getSignOutTime() != null) {
+				result.toFail("签到数据无效|已签退！");
+				return result;
+			}
 		}else {
 			UserSignRecordQuery lastSignRecordQuery = new UserSignRecordQuery();
 			lastSignRecordQuery.setUserCode(signOutRequest.getUserCode());
@@ -1070,6 +1075,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 			removeMemberRequest.setSignRecordId(context.signOutData.getId());
 			removeMemberRequest.setOperateUserCode(context.userSignRequest.getOperateUserCode());
 			removeMemberRequest.setOperateUserName(context.userSignRequest.getOperateUserName());
+			removeMemberRequest.setSignOutTime(context.signOutData.getSignOutTime());
 			JdCResponse<GroupMemberData> removeMemberResult = jyGroupMemberService.removeMember(removeMemberRequest);
 			//签退设置-组
 			if(removeMemberResult.isSucceed() && !context.signInFlag) {
@@ -1133,6 +1139,8 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		deleteData.setUpdateUserName(userSignRequest.getOperateUserName());
 		this.deleteById(deleteData);
 		context.signOutData = data;
+		data.setYn(Constants.YN_NO);
+		result.setData(data);
 		return result;
 	}
 	/**

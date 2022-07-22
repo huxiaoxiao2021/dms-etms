@@ -36,7 +36,9 @@ import com.jd.bluedragon.distribution.position.domain.PositionDetailRecord;
 import com.jd.bluedragon.distribution.position.service.PositionRecordService;
 import com.jd.bluedragon.distribution.station.domain.UserSignRecord;
 import com.jd.bluedragon.distribution.station.service.UserSignRecordService;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.DmsConstants;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
 import com.jd.ql.dms.print.utils.StringHelper;
 import com.jdl.jy.schedule.dto.task.JyScheduleTaskReq;
@@ -238,6 +240,7 @@ public class JyGroupMemberServiceImpl implements JyGroupMemberService {
 			removeMemberData.setUpdateTime(currentDate);
 			removeMemberData.setUpdateUser(removeMemberRequest.getOperateUserCode());
 			removeMemberData.setUpdateUserName(removeMemberRequest.getOperateUserName());
+			removeMemberData.setSignOutTime(removeMemberRequest.getSignOutTime());
 			jyGroupMemberDao.removeMember(removeMemberData);
 			JyTaskGroupMemberEntity taskGroupMember = new JyTaskGroupMemberEntity();
 			taskGroupMember.setRefGroupMemberCode(memberData.getMemberCode());
@@ -317,6 +320,12 @@ public class JyGroupMemberServiceImpl implements JyGroupMemberService {
 		List<JyGroupMemberCountData> countDataList= jyGroupMemberDao.queryMemberDataCountByGroup(query);
 		if(countDataList != null && countDataList.size() > 0){
 		    List<JyGroupMemberData> dataList = jyGroupMemberDao.queryMemberDataListByGroup(query);
+			if(!CollectionUtils.isEmpty(dataList)) {
+				Date currentDate = new Date();
+			    for(JyGroupMemberData item: dataList) {
+			    	fillOtherInfo(item,currentDate);
+			    }
+			}
 		    data.setDataList(dataList);
 		    data.setCountDataList(countDataList);
 		}else {
@@ -324,5 +333,23 @@ public class JyGroupMemberServiceImpl implements JyGroupMemberService {
 			data.setCountDataList(new ArrayList<JyGroupMemberCountData>());
 		}
 		return result;
+	}
+	private void fillOtherInfo(JyGroupMemberData data, Date currentDate) {
+		data.setUserName(BusinessUtil.encryptIdCard(data.getUserName()));
+		if(data.getSignInTime() != null) {
+			String workTimes = "--";
+			double workHoursDouble = calculateWorkHours(data.getSignInTime(),data.getSignOutTime(),currentDate);
+			if(workHoursDouble > 0) {
+				workTimes = DateHelper.hoursToHHMM(workHoursDouble);
+			}
+			data.setWorkTimeStr(workTimes);
+		}
+	}
+	private double calculateWorkHours(Date signInTime,Date signOutTime,Date currentDate) {
+		Date workEndTime = signOutTime;
+		if(workEndTime == null) {
+			workEndTime = currentDate;
+		}
+		return DateHelper.betweenHours(signInTime,workEndTime);
 	}
 }
