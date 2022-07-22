@@ -2,12 +2,15 @@ package com.jd.bluedragon.core.base;
 
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.PageInfo;
+import com.jd.bluedragon.Constants;
 import com.jd.ningde.enterprise.request.QualityInspectionDetailRequest;
 import com.jd.ningde.enterprise.request.QualityInspectionReportRequest;
 import com.jd.ningde.enterprise.response.BaseResponse;
 import com.jd.ningde.enterprise.response.QualityInspectionDetailResponse;
 import com.jd.ningde.enterprise.response.QualityInspectionReportResponse;
 import com.jd.ningde.enterprise.service.EnterpriseInspectionJsfService;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -34,6 +37,7 @@ public class EnterpriseInspectionManagerImpl implements EnterpriseInspectionMana
      * @return
      */
     @Override
+    @JProfiler(jKey = "DMS.WEB.EnterpriseDistribution.queryQualityInspectionPage", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public PageInfo<QualityInspectionReportResponse> queryQualityInspectionPage(QualityInspectionReportRequest reportRequest) {
         BaseResponse<PageInfo<QualityInspectionReportResponse>> response =  enterpriseInspectionJsfService.queryQualityInspectionPage(reportRequest);
         if (response != null && response.getCode() == 200) {
@@ -50,6 +54,7 @@ public class EnterpriseInspectionManagerImpl implements EnterpriseInspectionMana
      * @return
      */
     @Override
+    @JProfiler(jKey = "DMS.WEB.EnterpriseDistribution.queryQualityInspectionDetailPage", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public PageInfo<QualityInspectionDetailResponse> queryQualityInspectionDetailPage(QualityInspectionDetailRequest request) {
         BaseResponse<PageInfo<QualityInspectionDetailResponse>> response = enterpriseInspectionJsfService.queryQualityInspectionDetailPage(request);
         if (response != null && response.getCode() == 200) {

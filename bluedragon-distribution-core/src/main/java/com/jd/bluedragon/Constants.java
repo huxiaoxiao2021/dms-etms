@@ -7,7 +7,7 @@ public class Constants {
     public static final char WAYBILL_SIGN_B='3';
     public static final String MAX_PACK_NUM = "MAX_PACK_NUM";
     public static final String REST_KEY = "REST_KEY";
-    
+
     public static final String DATE_FORMAT = "yyyy-MM-dd";
     public static final String DATE_FORMAT1 = "yyyyMMdd";
     public static final String DATE_FORMAT2 = "yyMMdd";
@@ -16,20 +16,20 @@ public class Constants {
     public static final String DATE_TIME_MS_STRING = "yyyyMMddHHmmssSSS";
     /* 默认系统开始时间的标值 */
     public static final String DATE_START = "2012-01-01";
-    
+
     public static final String HTTP_METHOD_GET = "GET";
     public static final String HTTP_METHOD_POST = "POST";
-    
+
     public static final String MAIN_CONFIGNAME = "app.properties";
-    
+
     public static final String IMPORTANT_CONFIGNAME = "important.properties";
-    
+
     public static final String POPABNORMAL_CONFIGNAME = "popabnormal.properties";
 
     public static final String DMS_IP_MAPPING_CONFIGNAME = "dms_ip_mapper.properties";
-    
+
     public static final String REST_URL = "/services";
-    
+
     public static final String SEPARATOR_COMMA = ",";
     public static final String SEPARATOR_APOSTROPHE = "'";
     public static final String SEPARATOR_SEMICOLON = ";";
@@ -56,18 +56,18 @@ public class Constants {
 
     public static final Integer YN_YES = 1; // 使用
     public static final Integer YN_NO = 0; // 已删除
-    
+
     public static final int NO_MATCH_DATA = 0;
-    
+
     public static final String ENCODE = "UTF-8";
-    
+
     public static final Integer STATUS_UNHANDLED = 0; // 未处理
     public static final Integer STATUS_FINISHED = 1; // 完成
-    
+
     public static final Integer OPERATE_TYPE_INSPECTION = 1;
     public static final Integer OPERATE_TYPE_SORTING = 2;
     public static final Integer OPERATE_TYPE_SEND = 3;
-    
+
     /** 业务类型 **/
     public static final int BUSSINESS_TYPE_POSITIVE = 10;
     public static final int BUSSINESS_TYPE_REVERSE = 20;
@@ -87,10 +87,10 @@ public class Constants {
     public static final int BUSSINESS_TYPE_OEM_52=52; //协同仓storeid
     public static final int BUSSINESS_TYPE_OEM_58=58; //协同仓storeid
     public static final int BUSSINESS_TYPE_OEM_59=59; //协同仓storeid
-    
+
     /** 接口调用返回code **/
     public static final int INTERFACE_CALL_SUCCESS = 1;
-    
+
     /** 返调度再投状态 **/
     public static final int RETURN_SCHEDULING_STATE = 140;
     /** 三方退货站点类型 **/
@@ -765,6 +765,8 @@ public class Constants {
     public static final String DMS_WEB_DEVELOP_OPERATE_R ="DMS_WEB_DEVELOP_OPERATE_R"; //分拣实操查询
     public static final String DMS_WEB_DEVELOP_DICT_R ="DMS_WEB_DEVELOP_DICT_R"; //分拣数据字典
     public static final String DMS_WEB_DEVELOP_RULE_CONFIG_R ="DMS_WEB_DEVELOP_RULE_CONFIG_R"; //规则管理
+    public static final String ENTERPRISE_DISTRIBUTION_R ="ENTERPRISE_DISTRIBUTION_R"; //企配质检界面
+
 
     /********************************************* 研发UIM权限资源码相关end ***********************************************/
     public static final String DMS_WEB_COMMON_R ="DMS_WEB_COMMON_R"; //通用权限

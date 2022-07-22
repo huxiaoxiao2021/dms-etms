@@ -45,7 +45,7 @@ public class CommandResource {
     private PackagePrintInternalService packagePrintInternalService;
 
     /**
-     * 
+     *
      * @param jsonCommand
      * @return
      */

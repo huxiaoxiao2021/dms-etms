@@ -363,8 +363,8 @@ public class DriverBoardSendServiceImpl implements DriverBoardSendService {
         domain.setBizSource(request.getBizSource());
 
         domain.setYn(1);
-        domain.setCreateTime(new Date(System.currentTimeMillis() + Constants.DELIVERY_DELAY_TIME));
-        domain.setOperateTime(new Date(System.currentTimeMillis() + Constants.DELIVERY_DELAY_TIME));
+        domain.setCreateTime(new Date(System.currentTimeMillis()));
+        domain.setOperateTime(new Date(System.currentTimeMillis()));
         return domain;
     }
 
