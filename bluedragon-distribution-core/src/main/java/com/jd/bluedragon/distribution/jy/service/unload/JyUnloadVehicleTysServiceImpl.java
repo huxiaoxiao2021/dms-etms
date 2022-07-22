@@ -9,16 +9,19 @@ import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.distribution.api.request.BoardCommonRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.api.JyUnloadVehicleTysService;
+import com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskUnloadVehicleDao;
+import com.jd.bluedragon.distribution.jy.dao.unload.JyBizTaskUnloadVehicleStageDao;
 import com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadDao;
 import com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadVehicleBoardDao;
 import com.jd.bluedragon.distribution.jy.dto.task.JyBizTaskUnloadCountDto;
 import com.jd.bluedragon.distribution.jy.dto.unload.*;
+import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyLineTypeEnum;
 import com.jd.bluedragon.distribution.jy.enums.UnloadStatisticsQueryTypeEnum;
-import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadStatusEnum;
 import com.jd.bluedragon.distribution.jy.manager.IJyUnloadVehicleManager;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskUnloadVehicleService;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
+import com.jd.bluedragon.distribution.jy.unload.JyBizTaskUnloadVehicleStageEntity;
 import com.jd.bluedragon.distribution.jy.unload.JyUnloadEntity;
 import com.jd.bluedragon.distribution.jy.unload.JyUnloadVehicleBoardEntity;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
@@ -79,11 +82,13 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     @Autowired
     private JyUnloadDao jyUnloadDao;
     @Autowired
-    JyUnloadVehicleBoardDao jyUnloadVehicleBoardDao;
+    private JyUnloadVehicleBoardDao jyUnloadVehicleBoardDao;
     @Autowired
-    BaseMajorManager baseMajorManager;
-
-
+    private BaseMajorManager baseMajorManager;
+    @Autowired
+    private JyBizTaskUnloadVehicleStageDao jyBizTaskUnloadVehicleStageDao;
+    @Autowired
+    private JyBizTaskUnloadVehicleDao jyBizTaskUnloadVehicleDao;
     @Override
     public InvokeResult<UnloadVehicleTaskRespDto> listUnloadVehicleTask(UnloadVehicleTaskReqDto unloadVehicleTaskReqDto) {
         if (ObjectHelper.isNotNull(unloadVehicleTaskReqDto.getPackageCode())) {
@@ -502,6 +507,37 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         int b=a;
         if (b>0){
             System.out.println(1);
+        }
+    }
+
+
+
+    @Override
+    public InvokeResult<UnloadMasterChildTaskRespDto> queryMasterChildTaskInfoByBizId(String masterBizId) {
+        final String methodDesc = "JyUnloadVehicleTysServiceImpl.queryMasterChildTaskInfoByBizId--根据主BizId查询主子任务服务--";
+        InvokeResult<UnloadMasterChildTaskRespDto> res = new InvokeResult<>();
+        try{
+
+            UnloadMasterChildTaskRespDto resData = new UnloadMasterChildTaskRespDto();
+            //主任务
+            JyBizTaskUnloadVehicleEntity jyMasterTask = jyBizTaskUnloadVehicleDao.findByBizId(masterBizId);
+            UnloadMasterTaskDto masterTask = BeanUtils.convert(jyMasterTask, UnloadMasterTaskDto.class);
+            resData.setUnloadMasterTaskDto(masterTask);
+            //子任务
+            List<UnloadChildTaskDto> unloadChildTaskDtoList = new ArrayList<>();
+            List<JyBizTaskUnloadVehicleStageEntity> jyChildTaskList = jyBizTaskUnloadVehicleStageDao.queryByParentBizId(masterBizId);
+            if(CollectionUtils.isNotEmpty(jyChildTaskList)) {
+                for (JyBizTaskUnloadVehicleStageEntity childTaskInfo : jyChildTaskList) {
+                    unloadChildTaskDtoList.add(BeanUtils.convert(childTaskInfo, UnloadChildTaskDto.class));
+                }
+            }
+            resData.setUnloadChildTaskDtoList(unloadChildTaskDtoList);
+            res.setData(resData);
+            return res;
+        }catch (Exception e) {
+            log.error("{}服务异常，masterBizId={}，errMsg={}", methodDesc, masterBizId, e.getMessage(), e);
+            res.error("根据主BizId查询主子任务服务异常 " + e.getMessage());
+            return  res;
         }
     }
 

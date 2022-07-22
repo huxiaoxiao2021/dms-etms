@@ -9,9 +9,9 @@ public class JyBizTaskUnloadVehicleStageEntity {
 
     private String bizId;
 
-    private Byte type;
+    private Integer type;
 
-    private Byte status;
+    private Integer status;
 
     private Date startTime;
 
@@ -32,6 +32,8 @@ public class JyBizTaskUnloadVehicleStageEntity {
     private Boolean yn;
 
     private Date ts;
+
+    private Integer taskType;
 
     public Long getId() {
         return id;
@@ -57,19 +59,19 @@ public class JyBizTaskUnloadVehicleStageEntity {
         this.bizId = bizId;
     }
 
-    public Byte getType() {
+    public Integer getType() {
         return type;
     }
 
-    public void setType(Byte type) {
+    public void setType(Integer type) {
         this.type = type;
     }
 
-    public Byte getStatus() {
+    public Integer getStatus() {
         return status;
     }
 
-    public void setStatus(Byte status) {
+    public void setStatus(Integer status) {
         this.status = status;
     }
 
@@ -151,5 +153,13 @@ public class JyBizTaskUnloadVehicleStageEntity {
 
     public void setTs(Date ts) {
         this.ts = ts;
+    }
+
+    public Integer getTaskType() {
+        return taskType;
+    }
+
+    public void setTaskType(Integer taskType) {
+        this.taskType = taskType;
     }
 }
