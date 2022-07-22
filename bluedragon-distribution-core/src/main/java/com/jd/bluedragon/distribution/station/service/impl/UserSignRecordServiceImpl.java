@@ -1128,8 +1128,8 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 			return result;
 		}
 		UserSignRecordData data = queryUserSignRecordDataById(userSignRequest.getRecordId());
-		if(data == null || data.getSignOutTime() != null) {
-			result.toFail("签到数据无效|已签退！");
+		if(data == null) {
+			result.toFail("签到数据无效|已作废！");
 			return result;
 		}
 		UserSignRecord deleteData = new UserSignRecord();

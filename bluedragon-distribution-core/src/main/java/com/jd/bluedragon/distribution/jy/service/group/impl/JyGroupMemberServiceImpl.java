@@ -316,6 +316,7 @@ public class JyGroupMemberServiceImpl implements JyGroupMemberService {
 		JdCResponse<JyGroupMemberResponse> result = new JdCResponse<>();
 		result.toSucceed();
 		JyGroupMemberResponse data = new JyGroupMemberResponse();
+		data.setMemberType(query.getMemberType());
 		result.setData(data);
 		List<JyGroupMemberCountData> countDataList= jyGroupMemberDao.queryMemberDataCountByGroup(query);
 		if(countDataList != null && countDataList.size() > 0){

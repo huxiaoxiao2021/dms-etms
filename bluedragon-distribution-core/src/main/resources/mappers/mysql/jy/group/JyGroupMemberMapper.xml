@@ -262,7 +262,7 @@
     
     <select id="queryMemberDataListByGroup" parameterType="com.jd.bluedragon.common.dto.group.GroupMemberQueryRequest"  resultMap="jyGroupMemberDataMap">
         select
-            t.*
+            <include refid="Base_Column_List"/>
         from
             jy_group_member t
         <include refid="queryMemberDataCondition"/>
@@ -272,7 +272,7 @@
     
     <select id="queryMemberDataCountByGroup" parameterType="com.jd.bluedragon.common.dto.group.GroupMemberQueryRequest" resultMap="jyGroupMemberCountData">
         select
-            member_type,count(1) as count
+            t.member_type as member_type,count(1) as count
         from
             jy_group_member t
         <include refid="queryMemberDataCondition"/>
