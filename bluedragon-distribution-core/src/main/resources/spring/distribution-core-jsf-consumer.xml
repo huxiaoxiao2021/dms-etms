@@ -877,7 +877,7 @@
     <jsf:consumer id="swDeviceJsfService"
                   interface="com.jd.cmp.jsf.SwDeviceJsfService"
                   protocol="jsf"
-                  alias="cmp_test" timeout="5000" serialization="hessian">
+                  alias="${jsf.swDevice.alias}" timeout="${jsf.swDevice.timeout}" serialization="hessian">
     </jsf:consumer>
 
     <!-- 循环物资 -->
@@ -966,6 +966,12 @@
                   retries="${jsf.retries}" serialization="hessian">
     </jsf:consumer>
 
+    <jsf:consumer id="enterpriseInspectionJsfService" interface="com.jd.ningde.enterprise.service.EnterpriseInspectionJsfService"
+                  protocol="jsf" alias="${jsf.enterpriseDistribution.alias}"
+                  timeout="${jsf.enterpriseDistribution.timeout}"
+                  retries="${jsf.retries}" serialization="hessian">
+    </jsf:consumer>
+
     <!--  分拣工作台外包计提配置  -->
     <jsf:consumer id="workingConfigJsfService" interface="com.jd.dms.wb.report.api.working.WorkingConfigJsfService"
                   protocol="jsf" alias="${jsf.dmsWbReport.alias}" timeout="${jsf.dmsWbReport.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
@@ -975,10 +981,4 @@
                   protocol="jsf" alias="${jsf.tysWorkbenchCenter.alias}" timeout="${jsf.tysWorkbenchCenter.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
     </jsf:consumer>
 
-
-    <jsf:consumer id="enterpriseInspectionJsfService" interface="com.jd.ningde.enterprise.service.EnterpriseInspectionJsfService"
-                  protocol="jsf" alias="${jsf.enterpriseDistribution.alias}"
-                  timeout="${jsf.enterpriseDistribution.timeout}"
-                  retries="${jsf.retries}" serialization="hessian">
-    </jsf:consumer>
 </beans>

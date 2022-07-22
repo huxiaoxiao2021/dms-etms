@@ -99,11 +99,16 @@ public class JssServiceImpl implements JssService {
     public URI getURI(String bucket, String keyName, int timeout) throws JssStorageException {
         try {
             JingdongStorageService jss = jssStorageClient.getStorageService();
+            URI uri;
             if (httpsSet.contains(jssStorageClient.getEndpoint())){
-                return jss.bucket(bucket).object(keyName).
+                uri = jss.bucket(bucket).object(keyName).
                         presignedUrlProtocol(Scheme.HTTPS).generatePresignedUrl(timeout);
             }
-            return jss.bucket(bucket).object(keyName).generatePresignedUrl(timeout);
+            else{
+                uri = jss.bucket(bucket).object(keyName).generatePresignedUrl(timeout);
+            }
+            log.info("文件 {} 生成的URL为 {}",keyName,uri.toString());
+            return uri;
         } catch (Exception e) {
             log.error("[JSS存储服务]调用JSS服务异常：", e);
             throw new JssStorageException("[JSS存储服务]调用JSS服务异常", e);
@@ -112,10 +117,12 @@ public class JssServiceImpl implements JssService {
 
     @Override
     public String getPublicBucketUrl(String bucket, String keyName) {
+        String url = "http://" + jssStorageClient.getEndpoint() + "/" + bucket + "/" + keyName;
         if (httpsSet.contains(jssStorageClient.getEndpoint())){
-            return "https://" + jssStorageClient.getEndpoint() + "/" + bucket + "/" + keyName;
-        }
-        return "http://" + jssStorageClient.getEndpoint() + "/" + bucket + "/" + keyName;
+            url = "https://" + jssStorageClient.getEndpoint() + "/" + bucket + "/" + keyName;
+    }
+        log.info("文件 {} 生成的URL为 {}",keyName,url);
+        return url;
     }
 
     @Override
@@ -144,7 +151,9 @@ public class JssServiceImpl implements JssService {
             else{
                 uri = jss.bucket(bucket).object(key).generatePresignedUrl(315360000);
             }
-            return uri.toString();
+            String url = uri.toString();
+            log.info("文件 {} 生成的URL为 {}",key,url);
+            return url;
         } catch (Exception e) {
             log.error("异常上行处理异常:", e);
         }
