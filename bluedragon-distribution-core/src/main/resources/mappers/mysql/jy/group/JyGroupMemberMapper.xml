@@ -24,12 +24,12 @@
         <result property="updateTime" column="update_time"/>
         <result property="yn" column="yn"/>
         <result property="ts" column="ts"/>
-        <result property="member_type" column="memberType"/>
-        <result property="device_type_code" column="deviceTypeCode"/>
-        <result property="device_type_name" column="deviceTypeName"/>
-        <result property="machine_code" column="machineCode"/>
-        <result column="sign_in_time" property="signInTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
-        <result column="sign_out_time" property="signOutTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />        
+        <result property="memberType" column="member_type"/>
+        <result property="deviceTypeCode" column="device_type_code"/>
+        <result property="deviceTypeName" column="device_type_name"/>
+        <result property="machineCode" column="machine_code"/>
+        <result property="signInTime" column="sign_in_time" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+        <result property="signOutTime" column="sign_out_time" javaType="java.util.Date" jdbcType="TIMESTAMP" />        
     </resultMap>
 
     <resultMap type="com.jd.bluedragon.common.dto.group.JyGroupMemberData" id="jyGroupMemberDataMap">
@@ -52,16 +52,16 @@
         <result property="updateTime" column="update_time"/>
         <result property="yn" column="yn"/>
         <result property="ts" column="ts"/>
-        <result property="member_type" column="memberType"/>
-        <result property="device_type_code" column="deviceTypeCode"/>
-        <result property="device_type_name" column="deviceTypeName"/>
-        <result property="machine_code" column="machineCode"/>
-        <result column="sign_in_time" property="signInTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
-        <result column="sign_out_time" property="signOutTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />         
+        <result property="memberType" column="member_type"/>
+        <result property="deviceTypeCode" column="device_type_code"/>
+        <result property="deviceTypeName" column="device_type_name"/>
+        <result property="machineCode" column="machine_code"/>
+        <result property="signInTime" column="sign_in_time" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+        <result property="signOutTime" column="sign_out_time" javaType="java.util.Date" jdbcType="TIMESTAMP" />       
     </resultMap>
     
     <resultMap type="com.jd.bluedragon.common.dto.group.JyGroupMemberCountData" id="jyGroupMemberCountData">
-	    <result property="member_type" column="memberType"/>
+	    <result property="memberType" column="member_type"/>
 	    <result property="count" column="count"/>
     </resultMap>
     
@@ -275,9 +275,18 @@
             t.member_type as member_type,count(1) as count
         from
             jy_group_member t
-        <include refid="queryMemberDataCondition"/>
+        <include refid="queryMemberDataCountCondition"/>
         group by member_type
     </select>
+    <sql id="queryMemberDataCountCondition">
+        where t.yn = 1
+            and t.ref_group_code = #{groupCode} 
+        <if test="status != null" >
+            and t.status = #{status,jdbcType=INTEGER}
+        </if>
+        and t.sign_in_time >= #{signInTimeStart,jdbcType=TIMESTAMP}
+        and t.sign_in_time &lt;= #{signInTimeEnd,jdbcType=TIMESTAMP}       
+    </sql>    
     <sql id="queryMemberDataCondition">
         where t.yn = 1
             and t.ref_group_code = #{groupCode} 

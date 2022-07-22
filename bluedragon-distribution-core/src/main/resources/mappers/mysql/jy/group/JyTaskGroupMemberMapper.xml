@@ -25,10 +25,10 @@
         <result property="updateTime" column="update_time"/>
         <result property="yn" column="yn"/>
         <result property="ts" column="ts"/>
-        <result property="member_type" column="memberType"/>
-        <result property="device_type_code" column="deviceTypeCode"/>
-        <result property="device_type_name" column="deviceTypeName"/>
-        <result property="machine_code" column="machineCode"/>        
+        <result property="memberType" column="member_type"/>
+        <result property="deviceTypeCode" column="device_type_code"/>
+        <result property="deviceTypeName" column="device_type_name"/>
+        <result property="machineCode" column="machine_code"/>       
     </resultMap>
 
     <sql id="Base_Column_List">
