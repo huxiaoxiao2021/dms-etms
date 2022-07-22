@@ -236,24 +236,24 @@ $(function () {
                     Jd.alert("操作人ERP长度超出限制!", );
                     return;
                 }
-                if ($("#createStartTime").val() != undefined && $("#createEndTime").val() != undefined ) {
+                if ($("#createStartTime").val() != "" && $("#createEndTime").val() != "" ) {
                     if ($.dateHelper.formateDateTimeOfTs($("#createStartTime").val()) > $.dateHelper.formateDateTimeOfTs($("#createEndTime").val())) {
                         Jd.alert(" 结束时间不能小于开始时间!", "info");
                         return;
                     }
                 }
-                if ($("#updateStartTime").val() != undefined && $("#updateEndTime").val() != undefined ) {
+                if ($("#updateStartTime").val() != "" && $("#updateEndTime").val() != "" ) {
                     if ($.dateHelper.formateDateTimeOfTs($("#updateStartTime").val()) > $.dateHelper.formateDateTimeOfTs($("#updateEndTime").val())) {
                         Jd.alert(" 结束时间不能小于开始时间!", "info");
                         return;
                     }
                 }
-                if ($("#updateEndTime").val() != undefined && $("#createStartTime").val() != undefined) {
-                    if ($.dateHelper.formateDateTimeOfTs($("#updateEndTime").val()) < $.dateHelper.formateDateTimeOfTs($("#createStartTime").val())) {
-                        Jd.alert(" 结束时间不能小于开始时间!", "info");
-                        return;
-                    }
-                }
+                // if ($("#updateEndTime").val() != undefined && $("#createStartTime").val() != undefined) {
+                //     if ($.dateHelper.formateDateTimeOfTs($("#updateEndTime").val()) < $.dateHelper.formateDateTimeOfTs($("#createStartTime").val())) {
+                //         Jd.alert(" 结束时间不能小于开始时间!", "info");
+                //         return;
+                //     }
+                // }
                 tableInit().refresh();
             });
 
