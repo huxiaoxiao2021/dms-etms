@@ -118,7 +118,7 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
                 if (ObjectHelper.isNotNull(vehicleLength)) {
                     VehicleTypeDto vehicleTypeDto = BeanUtils.copy(basicVehicleTypeDto, VehicleTypeDto.class);
                     final BigDecimal vehicleLengthVal = new BigDecimal(vehicleLength);
-                    final BigDecimal vehicleLengthGroupVal = vehicleLengthVal.divide(new BigDecimal(100), 0, RoundingMode.DOWN);
+                    final BigDecimal vehicleLengthGroupVal = vehicleLengthVal.divide(new BigDecimal(100), 1, RoundingMode.DOWN);
                     if (groupByVehicleLength.containsKey(vehicleLengthGroupVal.toString())) {
                         groupByVehicleLength.get(vehicleLengthGroupVal.toString()).add(vehicleTypeDto);
                     } else {
@@ -135,8 +135,8 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
                 String key = entry.getKey();
                 List<VehicleTypeDto> value = entry.getValue();
                 VehicleSpecResp vehicleSpecResp = new VehicleSpecResp();
-                vehicleSpecResp.setVehicleLength(Integer.valueOf(key));
-                vehicleSpecResp.setName(df.format((double) vehicleSpecResp.getVehicleLength() / 100) + "米");
+                vehicleSpecResp.setVehicleLength(new BigDecimal(key).intValue());
+                vehicleSpecResp.setName(new BigDecimal(key) + "米");
                 vehicleSpecResp.setVehicleTypeDtoList(value);
                 vehicleSpecRespList.add(vehicleSpecResp);
             }
