@@ -1,7 +1,10 @@
 package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.identity.IdentityContentEntity;
+import com.jd.bluedragon.common.dto.identity.IdentityRecogniseRequest;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.distribution.aicv.IDCRServiceProxy;
 import com.jd.bluedragon.external.gateway.service.IdentityScanGatewayService;
 import com.jd.wl.ai.cv.center.outter.api.dto.IDCRRequestDto;
@@ -31,15 +34,24 @@ public class IdentityScanGatewayServiceImpl implements IdentityScanGatewayServic
     @Autowired
     private IDCRServiceProxy idcrServiceProxy;
 
+    @Autowired
+    private UccPropertyConfiguration uccPropertyConfiguration;
+
     @Override
-    public JdCResponse<IdentityContentEntity> recognise(String picUrl) {
+    public JdCResponse<IdentityContentEntity> recognise(IdentityRecogniseRequest recogniseRequest) {
 
         IDCRRequestDto idcrRequestDto = new IDCRRequestDto();
         idcrRequestDto.setServiceUUID(UUID.randomUUID().toString());
-        idcrRequestDto.setPicUrl(picUrl);
+        idcrRequestDto.setPicUrl(recogniseRequest.getPicUrl());
 
         JdCResponse<IdentityContentEntity> jdCResponse = new JdCResponse<>();
         jdCResponse.toSucceed();
+
+        if (!uccPropertyConfiguration.getIdentityRecogniseSiteSwitch().contains(Constants.STR_ALL)
+                && !uccPropertyConfiguration.getIdentityRecogniseSiteSwitch().contains(String.valueOf(recogniseRequest.getSiteCode()))) {
+            jdCResponse.toFail("该场地暂不支持身份证识别");
+            return jdCResponse;
+        }
 
         IDCRResponseDto idcrResponseDto = idcrServiceProxy.recognisePhoto(idcrRequestDto);
 
