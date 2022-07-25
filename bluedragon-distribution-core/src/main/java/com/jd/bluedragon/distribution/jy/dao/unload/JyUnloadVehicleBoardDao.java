@@ -19,4 +19,8 @@ public class JyUnloadVehicleBoardDao extends BaseDao<JyUnloadVehicleBoardEntity>
         return this.getSqlSession().update(NAMESPACE + ".updateByPrimaryKeySelective", entity);
     }
 
+    public JyUnloadVehicleBoardEntity selectByBoardCode(String boardCode){
+        return this.getSqlSession().selectOne(NAMESPACE + ".selectByBoardCode", boardCode);
+    }
+
 }

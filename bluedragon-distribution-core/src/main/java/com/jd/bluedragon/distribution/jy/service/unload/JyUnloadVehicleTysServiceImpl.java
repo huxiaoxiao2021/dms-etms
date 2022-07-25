@@ -436,7 +436,41 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
 
     @Override
     public InvokeResult<ComBoardDto> queryComBoardDataByBoardCode(String boardCode) {
-        return null;
+        final String methodDesc = "JyUnloadVehicleTysServiceImpl.queryComBoardDataByBoardCode--根据板号查询板号信息--";
+        InvokeResult<ComBoardDto> res = new InvokeResult<>();
+        res.success();
+        ComBoardDto resData = new ComBoardDto();
+        try{
+
+            Response<Board> response = groupBoardManager.getBoard(boardCode);
+            if(response != null && response.getCode() == ResponseEnum.SUCCESS.getIndex()) {
+                if(response.getData() != null) {
+                    res.setMessage("查询板信息为空");
+                    return res;
+                }
+                resData.setBoardCode(boardCode);
+                resData.setEndSiteId(Long.valueOf(response.getData().getDestinationId()));
+                resData.setEndSiteName(response.getData().getDestination());
+            }else {
+                log.error("{}查询失败，板号={}，res={}", methodDesc, boardCode, JsonHelper.toJson(response));
+                String errMsg = res == null || StringUtils.isBlank(res.getMessage()) ? "根据板号查询板信息异常" : res.getMessage();
+                res.error(errMsg);
+                return res;
+            }
+            JyUnloadVehicleBoardEntity jyUnloadVehicleBoardEntity = jyUnloadVehicleBoardDao.selectByBoardCode(boardCode);
+            if(jyUnloadVehicleBoardEntity != null) {
+                resData.setGoodsAreaCode(jyUnloadVehicleBoardEntity.getGoodsAreaCode());
+            }else {
+                //实操非核心展示：不做强拦截
+                log.error("{}--根据板号{}查任务板关系表中货区编码为空", methodDesc, boardCode);
+            }
+            res.setData(resData);
+            return res;
+        }catch (Exception e) {
+            log.error("{}服务异常，请求={}，errMsg={}", methodDesc, boardCode, e.getMessage(), e);
+            res.setMessage("根据板号查询板号信息服务异常");
+            return res;
+        }
     }
 
     @Override
