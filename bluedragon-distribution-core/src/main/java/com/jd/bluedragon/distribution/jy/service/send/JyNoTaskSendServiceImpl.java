@@ -51,6 +51,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -115,13 +117,14 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
                 String vehicleLength = basicVehicleTypeDto.getVehicleLength();
                 if (ObjectHelper.isNotNull(vehicleLength)) {
                     VehicleTypeDto vehicleTypeDto = BeanUtils.copy(basicVehicleTypeDto, VehicleTypeDto.class);
-                    vehicleLength = vehicleLength.length() == 4 ? vehicleLength.substring(0, 3) : vehicleLength;
-                    if (groupByVehicleLength.containsKey(vehicleLength)) {
-                        groupByVehicleLength.get(vehicleLength).add(vehicleTypeDto);
+                    final BigDecimal vehicleLengthVal = new BigDecimal(vehicleLength);
+                    final BigDecimal vehicleLengthGroupVal = vehicleLengthVal.divide(new BigDecimal(100), 1, RoundingMode.DOWN);
+                    if (groupByVehicleLength.containsKey(vehicleLengthGroupVal.toString())) {
+                        groupByVehicleLength.get(vehicleLengthGroupVal.toString()).add(vehicleTypeDto);
                     } else {
                         List<VehicleTypeDto> vehicleTypeDtoList = new ArrayList<>();
                         vehicleTypeDtoList.add(vehicleTypeDto);
-                        groupByVehicleLength.put(vehicleLength, vehicleTypeDtoList);
+                        groupByVehicleLength.put(vehicleLengthGroupVal.toString(), vehicleTypeDtoList);
                     }
                 }
             }
@@ -133,7 +136,7 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
                 List<VehicleTypeDto> value = entry.getValue();
                 VehicleSpecResp vehicleSpecResp = new VehicleSpecResp();
                 vehicleSpecResp.setVehicleLength(Integer.valueOf(key));
-                vehicleSpecResp.setName(df.format((double) vehicleSpecResp.getVehicleLength() / 10) + "米");
+                vehicleSpecResp.setName(df.format((double) vehicleSpecResp.getVehicleLength() / 100) + "米");
                 vehicleSpecResp.setVehicleTypeDtoList(value);
                 vehicleSpecRespList.add(vehicleSpecResp);
             }
