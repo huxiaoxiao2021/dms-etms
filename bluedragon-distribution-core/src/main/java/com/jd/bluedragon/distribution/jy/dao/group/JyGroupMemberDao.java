@@ -94,4 +94,20 @@ public class JyGroupMemberDao extends BaseDao<JyGroupMemberEntity> {
 	public JyGroupMemberEntity queryByMemberCode(String memberCode) {
 		return this.getSqlSession().selectOne(NAMESPACE + ".queryByMemberCode", memberCode);
 	}
+	/**
+	 * 根据签到列表查询小组成员MemberCodes
+	 * @param signRecordIdList
+	 * @return
+	 */
+	public List<String> queryMemberCodesBySignRecordIds(List<Long> signRecordIdList) {
+		return this.getSqlSession().selectList(NAMESPACE + ".queryMemberCodesBySignRecordIds", signRecordIdList);
+	}
+	/**
+	 * 根据signRecordIdList移除小组成员
+	 * @param signRecordIdList
+	 * @return
+	 */
+	public int removeMembers(JyGroupMemberEntity removeMemberData, List<Long> signRecordIdList) {
+		return this.getSqlSession().update(NAMESPACE + ".removeMembers", removeMemberData);
+	}
 }

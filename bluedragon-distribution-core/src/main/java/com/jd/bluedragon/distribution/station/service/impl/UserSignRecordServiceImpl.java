@@ -458,6 +458,11 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
                     updateData.setUpdateUserName(updateData.getUpdateUser());
 
                     updateRows += userSignRecordDao.signOutById(updateData, toSignOutPks);
+        			GroupMemberRequest removeMemberRequest = new GroupMemberRequest();
+        			removeMemberRequest.setSignRecordIdList(toSignOutPks);
+        			removeMemberRequest.setOperateUserCode(updateData.getUpdateUser());
+        			removeMemberRequest.setOperateUserName(updateData.getUpdateUserName());
+                    this.jyGroupMemberService.removeMembers(removeMemberRequest);
                 }
 
                 Thread.sleep(200);

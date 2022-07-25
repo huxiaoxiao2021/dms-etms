@@ -43,4 +43,10 @@ public interface JyTaskGroupMemberService {
 	 * @return
 	 */
 	Result<List<JyTaskGroupMemberEntity>> queryMemberListByTaskId(JyTaskGroupMemberQuery query);
+	/**
+	 * 结束多个任务
+	 * @param endData
+	 * @return
+	 */
+	Result<Boolean> endWorkByMemberCodeList(JyTaskGroupMemberEntity taskGroupMember, List<String> memberCodes);
 }

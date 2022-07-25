@@ -121,4 +121,12 @@ public class JyTaskGroupMemberServiceImpl implements JyTaskGroupMemberService {
 		result.setData(jyTaskGroupMemberDao.queryMemberListByTaskId(query));
 		return result;
 	}
+
+	@Override
+	public Result<Boolean> endWorkByMemberCodeList(JyTaskGroupMemberEntity endData, List<String> memberCodes) {
+		Result<Boolean> result = new Result<Boolean>();
+		result.toSuccess();
+		jyTaskGroupMemberDao.endWorkByMemberCodeList(endData,memberCodes);
+		return result;
+	}
 }

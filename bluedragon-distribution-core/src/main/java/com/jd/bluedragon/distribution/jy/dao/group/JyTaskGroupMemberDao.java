@@ -1,6 +1,8 @@
 package com.jd.bluedragon.distribution.jy.dao.group;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.common.dto.group.GroupMemberQueryRequest;
@@ -67,5 +69,11 @@ public class JyTaskGroupMemberDao extends BaseDao<JyTaskGroupMemberEntity> {
      */
 	public List<JyTaskGroupMemberEntity> queryMemberListByTaskId(JyTaskGroupMemberQuery query) {
 		return this.getSqlSession().selectList(NAMESPACE + ".queryMemberListByTaskId", query);
+	}
+	public int endWorkByMemberCodeList(JyTaskGroupMemberEntity endData, List<String> memberCodes) {
+		Map<String,Object> params = new HashMap<String,Object>();
+		params.put("endData", endData);
+		params.put("memberCodes", memberCodes);
+		return this.getSqlSession().update(NAMESPACE + ".endWorkByMemberCodeList", params);
 	}
 }
