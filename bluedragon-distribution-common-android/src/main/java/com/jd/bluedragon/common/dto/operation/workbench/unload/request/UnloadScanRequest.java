@@ -25,6 +25,11 @@ public class UnloadScanRequest implements Serializable {
     private String barCode;
 
     /**
+     * 扫描方式
+     */
+    private Integer scanType;
+
+    /**
      * 任务主键
      */
     private String taskId;
@@ -71,6 +76,14 @@ public class UnloadScanRequest implements Serializable {
 
     public void setBarCode(String barCode) {
         this.barCode = barCode;
+    }
+
+    public Integer getScanType() {
+        return scanType;
+    }
+
+    public void setScanType(Integer scanType) {
+        this.scanType = scanType;
     }
 
     public String getTaskId() {

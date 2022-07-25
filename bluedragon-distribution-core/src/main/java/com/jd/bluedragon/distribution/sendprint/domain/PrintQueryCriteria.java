@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.sendprint.domain;
 
 import java.io.Serializable;
+import java.util.Date;
 
 public class PrintQueryCriteria implements Serializable{
 
@@ -53,6 +54,11 @@ public class PrintQueryCriteria implements Serializable{
      * 操作人ERP
      */
     private String userCode;
+
+    /**
+     * 请求时间
+     */
+    private Date requestTime = new Date();
 
     public Integer getSiteCode() {
         return siteCode;
@@ -164,5 +170,13 @@ public class PrintQueryCriteria implements Serializable{
 
     public void setUserCode(String userCode) {
         this.userCode = userCode;
+    }
+
+    public Date getRequestTime() {
+        return requestTime;
+    }
+
+    public void setRequestTime(Date requestTime) {
+        this.requestTime = requestTime;
     }
 }

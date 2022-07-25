@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.base.service;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.domain.DmsClientConfigInfo;
 import com.jd.bluedragon.distribution.api.request.LoginRequest;
@@ -19,6 +20,7 @@ import com.jd.bluedragon.sdk.modules.client.dto.DmsClientLoginRequest;
 import com.jd.bluedragon.sdk.modules.client.dto.DmsClientLoginResponse;
 import com.jd.bluedragon.service.remote.client.DmsClientManager;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.ql.basic.dto.BaseSiteInfoDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.ws.BasicPrimaryWS;
 import com.jd.ump.annotation.JProEnum;
@@ -91,6 +93,9 @@ public abstract class AbstractBaseUserService implements LoginService {
     @Qualifier("basicPrimaryWS")
     private BasicPrimaryWS basicPrimaryWS;
 
+    @Autowired
+    private BaseMajorManager baseMajorManager;
+
     @Override
     @JProfiler(jKey = "DMS.BASE.AbstractBaseUserService.clientLoginIn", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public LoginUserResponse clientLoginIn(LoginRequest request) {
@@ -136,6 +141,12 @@ public abstract class AbstractBaseUserService implements LoginService {
                     log.info("set sortingCenter and type, response:[{}]", response.toString());
                 }
             }
+        }
+        BaseSiteInfoDto dtoStaff = baseMajorManager.getBaseSiteInfoBySiteId(response.getSiteCode());
+        if (null != dtoStaff) {
+            response.setSiteSortType(dtoStaff.getSortType());
+            response.setSiteSortSubType(dtoStaff.getSortSubType());
+            response.setSiteSortThirdType(dtoStaff.getSortThirdType());
         }
     }
 
@@ -279,10 +290,10 @@ public abstract class AbstractBaseUserService implements LoginService {
                     JsonHelper.fromJson(checkConfig.getConfigContent(), LoginCheckConfig.class);
             //校验底包版本号
             if(StringHelper.isEmpty(request.getBaseVersionCode())
-            		||(loginCheckConfig.getBaseVersionCodes() != null 
-            			&&!loginCheckConfig.getBaseVersionCodes().contains(request.getBaseVersionCode()))){
-            	checkResult.toFail(this.INSTALL_WARN);
-            	return checkResult;
+                    ||(loginCheckConfig.getBaseVersionCodes() != null
+                    &&!loginCheckConfig.getBaseVersionCodes().contains(request.getBaseVersionCode()))){
+                checkResult.toFail(this.INSTALL_WARN);
+                return checkResult;
             }
             boolean needCheck = loginCheckConfig.getMasterSwitch();
             //2、校验总开关开启或者programTypes里包含登录客户端所属类型则进行校验
@@ -310,8 +321,8 @@ public abstract class AbstractBaseUserService implements LoginService {
             }
             //客户端设置了不校验版本，改为false
             if(needCheck
-            		&& Boolean.FALSE.equals(request.getCheckVersion())){
-            	needCheck = false;
+                    && Boolean.FALSE.equals(request.getCheckVersion())){
+                needCheck = false;
             }
             /**
              * 4、版本校验：

@@ -1054,7 +1054,7 @@
 		<dependency>
 		    <groupId>com.jd.jss</groupId>
 		    <artifactId>jss-sdk-java</artifactId>
-		    <version>1.4.2-SNAPSHOT</version>
+		    <version>1.4.7-SNAPSHOT</version>
 		</dependency>
         <!-- 用户组接口 -->
         <dependency>
@@ -1693,13 +1693,19 @@
 		<dependency>
 			<groupId>com.jd.dms.wb</groupId>
 			<artifactId>workbench-report-api</artifactId>
-			<version>1.0.5-SNAPSHOT</version>
+			<version>1.0.0-TEST-SNAPSHOT</version>
 			<exclusions>
 				<exclusion>
 					<groupId>com.jd.dms.wb</groupId>
 					<artifactId>dms-workbench-utils-sdk</artifactId>
 				</exclusion>
 			</exclusions>
+		</dependency>
+
+		<dependency>
+			<groupId>com.jd.tys</groupId>
+			<artifactId>workbench-api</artifactId>
+			<version>1.0.0-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
@@ -1857,6 +1863,32 @@
 			<groupId>com.jd.tms.tpc</groupId>
 			<artifactId>tms-tpc-api</artifactId>
 			<version>1.0-SNAPSHOT</version>
+		</dependency>
+		<!--安全日志-->
+		<dependency>
+			<groupId>com.jd.security</groupId>
+			<artifactId>security-log</artifactId>
+			<version>3.9-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.jd</groupId>
+			<artifactId>ningde-enterprise-api</artifactId>
+			<version>1.0.0-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.projectlombok</groupId>
+					<artifactId>lombok</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-starter-validation</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.github.pagehelper</groupId>
+					<artifactId>pagehelper-spring-boot-starter</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
     </dependencies>

@@ -26,6 +26,7 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.gateway.service.BatchSingleSendGatewayService;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.dms.logger.annotation.BusinessLog;
 import com.jd.etms.waybill.domain.BaseEntity;
@@ -44,6 +45,8 @@ import org.springframework.stereotype.Service;
 
 import java.text.MessageFormat;
 import java.util.*;
+
+import static com.jd.bluedragon.distribution.base.domain.InvokeResult.BATCH_SIGLE_SEND_EXCEP_MESSAGE;
 
 /**
  * BatchSingleSendServiceImpl
@@ -160,7 +163,10 @@ public class BatchSingleSendServiceImpl implements BatchSingleSendGatewayService
             return jdResponse;
         }
 
-        jdResponse.toFail(result.getData().getValue());
+        jdResponse.toFail(result.getMessage() != null ? result.getMessage() : BATCH_SIGLE_SEND_EXCEP_MESSAGE);
+        if (ObjectHelper.isNotNull(result.getData())) {
+            jdResponse.toFail(result.getData().getValue() != null ? result.getData().getValue() : BATCH_SIGLE_SEND_EXCEP_MESSAGE);
+        }
         return jdResponse;
     }
 
