@@ -378,4 +378,40 @@ public class JyGroupMemberServiceImpl implements JyGroupMemberService {
 		}
 		return result;
 	}
+	@Override
+	public JdCResponse<GroupMemberData> deleteMember(GroupMemberRequest deleteMemberRequest) {
+		JdCResponse<GroupMemberData> result = new JdCResponse<>();
+		result.toSucceed();
+		//根据签到id查询小组成员
+		JyGroupMemberEntity memberData = null;
+		if(JyGroupMemberTypeEnum.PERSON.getCode().equals(deleteMemberRequest.getMemberType())) {
+			memberData = jyGroupMemberDao.queryBySignRecordId(deleteMemberRequest.getSignRecordId());
+		}else {
+			memberData = jyGroupMemberDao.queryByMemberCode(deleteMemberRequest.getMemberCode());
+		}
+		if(memberData == null) {
+			result.toFail("小组数据无效|已删除！");
+			return result;
+		}
+		JyGroupMemberEntity removeMemberData = new JyGroupMemberEntity();
+		Date currentDate = new Date();
+		//剔除小组成员
+		removeMemberData.setId(memberData.getId());
+		removeMemberData.setUpdateTime(currentDate);
+		removeMemberData.setUpdateUser(deleteMemberRequest.getOperateUserCode());
+		removeMemberData.setUpdateUserName(deleteMemberRequest.getOperateUserName());
+		jyGroupMemberDao.deleteMember(removeMemberData);
+		JyTaskGroupMemberEntity taskGroupMember = new JyTaskGroupMemberEntity();
+		taskGroupMember.setRefGroupMemberCode(memberData.getMemberCode());
+		taskGroupMember.setUpdateTime(currentDate);
+		taskGroupMember.setUpdateUser(deleteMemberRequest.getOperateUserCode());
+		taskGroupMember.setUpdateUserName(deleteMemberRequest.getOperateUserName());
+		//小组任务成员，设置结束时间
+		jyTaskGroupMemberService.deleteByMemberCode(taskGroupMember);
+		GroupMemberData returnData = new GroupMemberData();
+		returnData.setGroupCode(memberData.getRefGroupCode());
+		returnData.setGroupMemberNum(jyGroupMemberDao.queryGroupMemberNum(memberData.getRefGroupCode()));
+		result.setData(returnData);
+		return result;
+	}
 }

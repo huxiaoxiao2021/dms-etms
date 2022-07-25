@@ -76,4 +76,12 @@ public class JyTaskGroupMemberDao extends BaseDao<JyTaskGroupMemberEntity> {
 		params.put("memberCodes", memberCodes);
 		return this.getSqlSession().update(NAMESPACE + ".endWorkByMemberCodeList", params);
 	}
+	/**
+	 * 删除小组对应的任务成员信息
+	 * @param taskGroupMember
+	 * @return
+	 */
+	public int deleteByMemberCode(JyTaskGroupMemberEntity taskGroupMember) {
+		return this.getSqlSession().update(NAMESPACE + ".deleteByMemberCode", taskGroupMember);
+	}
 }

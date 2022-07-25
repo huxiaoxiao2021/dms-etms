@@ -110,4 +110,12 @@ public class JyGroupMemberDao extends BaseDao<JyGroupMemberEntity> {
 	public int removeMembers(JyGroupMemberEntity removeMemberData, List<Long> signRecordIdList) {
 		return this.getSqlSession().update(NAMESPACE + ".removeMembers", removeMemberData);
 	}
+	/**
+	 * 删除小组成员
+	 * @param deleteMemberData
+	 * @return
+	 */
+	public int deleteMember(JyGroupMemberEntity deleteMemberData) {
+		return this.getSqlSession().update(NAMESPACE + ".deleteMember", deleteMemberData);
+	}
 }

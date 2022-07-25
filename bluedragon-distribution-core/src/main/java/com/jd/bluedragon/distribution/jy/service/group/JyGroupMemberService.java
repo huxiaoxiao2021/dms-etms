@@ -28,11 +28,17 @@ public interface JyGroupMemberService {
 	 */
 	JdCResponse<GroupMemberData> addMember(GroupMemberRequest addMemberRequest);
 	/**
-	 * 删除小组成员
+	 * 移除小组成员
 	 * @param addMemberRequest
 	 * @return
 	 */
 	JdCResponse<GroupMemberData> removeMember(GroupMemberRequest removeMemberRequest);
+	/**
+	 * 删除小组成员
+	 * @param deleteMemberRequest
+	 * @return
+	 */
+	JdCResponse<GroupMemberData> deleteMember(GroupMemberRequest deleteMemberRequest);	
 	/**
 	 * 批量删除小组成员
 	 * @param removeMemberRequest

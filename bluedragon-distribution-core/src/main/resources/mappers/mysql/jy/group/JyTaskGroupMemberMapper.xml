@@ -212,5 +212,16 @@
         
         </foreach>
         AND end_time is null
-    </update>    
+    </update> 
+    <update id="deleteByMemberCode" parameterType="JyTaskGroupMemberEntity">
+        UPDATE jy_task_group_member
+        SET
+            update_time = #{updateTime, jdbcType=TIMESTAMP},
+            update_user = #{updateUser, jdbcType=VARCHAR},
+            update_user_name = #{updateUserName, jdbcType=VARCHAR},
+            yn = 0
+        WHERE
+            yn = 1
+        AND ref_group_member_code = #{refGroupMemberCode}
+    </update>       
 </mapper>

@@ -309,4 +309,15 @@
             and t.member_code = #{memberCode}
         limit 1
     </select>    
+    <update id="deleteMember">
+        UPDATE jy_group_member
+        SET
+            update_time = #{updateTime, jdbcType=TIMESTAMP},
+            update_user = #{updateUser, jdbcType=VARCHAR},
+            update_user_name = #{updateUserName, jdbcType=VARCHAR},
+            yn = 0
+        WHERE
+            yn = 1
+        AND id = #{id}
+    </update>     
 </mapper>

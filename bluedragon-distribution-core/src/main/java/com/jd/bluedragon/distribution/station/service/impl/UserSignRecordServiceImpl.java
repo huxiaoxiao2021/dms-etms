@@ -1074,6 +1074,21 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	 * @return
 	 */
 	private void addOrRemoveMember(UserSignContext context){
+		
+		if(context.deleteData != null) {
+			GroupMemberRequest removeMemberRequest = new GroupMemberRequest();
+			removeMemberRequest.setMemberType(JyGroupMemberTypeEnum.PERSON.getCode());
+			removeMemberRequest.setSignRecordId(context.deleteData.getId());
+			removeMemberRequest.setOperateUserCode(context.userSignRequest.getOperateUserCode());
+			removeMemberRequest.setOperateUserName(context.userSignRequest.getOperateUserName());
+			removeMemberRequest.setSignOutTime(context.deleteData.getSignOutTime());
+			JdCResponse<GroupMemberData> removeMemberResult = jyGroupMemberService.deleteMember(removeMemberRequest);
+			//签退设置-组
+			if(removeMemberResult.isSucceed()) {
+				context.groupData = removeMemberResult.getData();
+			}
+			return;
+		}
 		if(context.signOutData != null) {
 			GroupMemberRequest removeMemberRequest = new GroupMemberRequest();
 			removeMemberRequest.setMemberType(JyGroupMemberTypeEnum.PERSON.getCode());
@@ -1143,7 +1158,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		deleteData.setUpdateUser(userSignRequest.getOperateUserCode());
 		deleteData.setUpdateUserName(userSignRequest.getOperateUserName());
 		this.deleteById(deleteData);
-		context.signOutData = data;
+		context.deleteData = data;
 		data.setYn(Constants.YN_NO);
 		result.setData(data);
 		return result;
@@ -1167,6 +1182,10 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		 * 签退数据
 		 */
 		UserSignRecordData signOutData;
+		/**
+		 * 作废数据
+		 */
+		UserSignRecordData deleteData;
 		/**
 		 * 签到标识
 		 */
@@ -1206,6 +1225,12 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		}
 		public void setSignOutData(UserSignRecordData signOutData) {
 			this.signOutData = signOutData;
+		}
+		public UserSignRecordData getDeleteData() {
+			return deleteData;
+		}
+		public void setDeleteData(UserSignRecordData deleteData) {
+			this.deleteData = deleteData;
 		}
 		public boolean isSignInFlag() {
 			return signInFlag;

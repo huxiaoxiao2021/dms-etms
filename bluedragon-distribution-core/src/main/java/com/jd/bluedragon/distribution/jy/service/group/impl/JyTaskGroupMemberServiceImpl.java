@@ -129,4 +129,12 @@ public class JyTaskGroupMemberServiceImpl implements JyTaskGroupMemberService {
 		jyTaskGroupMemberDao.endWorkByMemberCodeList(endData,memberCodes);
 		return result;
 	}
+
+	@Override
+	public Result<Boolean> deleteByMemberCode(JyTaskGroupMemberEntity taskGroupMember) {
+		Result<Boolean> result = new Result<Boolean>();
+		result.toSuccess();
+		jyTaskGroupMemberDao.deleteByMemberCode(taskGroupMember);
+		return result;
+	}
 }
