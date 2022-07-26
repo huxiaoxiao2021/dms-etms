@@ -105,7 +105,7 @@ public interface JyUnloadVehicleTysService {
 
 
     /**
-     * 根据板号查询组板下的运单信息
+     * 根据板号查询组板下的运单信息 查板箱关系表
      * @param queryBoardDto
      * @return
      */

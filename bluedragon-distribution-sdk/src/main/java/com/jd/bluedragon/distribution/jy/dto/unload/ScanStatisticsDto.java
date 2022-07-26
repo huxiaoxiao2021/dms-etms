@@ -54,10 +54,12 @@ public class ScanStatisticsDto implements Serializable {
      */
     private Integer extraScanCountOutCurrSite;
 
+
     /**
-     * 应扫运单数量
+     * 运单数量(额外使用)
      */
-    private Integer shouldScanWaybillCount;
+    private Integer waybillCount;
+
 
 
 
@@ -141,11 +143,11 @@ public class ScanStatisticsDto implements Serializable {
         this.extraScanCount = extraScanCount;
     }
 
-    public Integer getShouldScanWaybillCount() {
-        return shouldScanWaybillCount;
+    public Integer getWaybillCount() {
+        return waybillCount;
     }
 
-    public void setShouldScanWaybillCount(Integer shouldScanWaybillCount) {
-        this.shouldScanWaybillCount = shouldScanWaybillCount;
+    public void setWaybillCount(Integer waybillCount) {
+        this.waybillCount = waybillCount;
     }
 }

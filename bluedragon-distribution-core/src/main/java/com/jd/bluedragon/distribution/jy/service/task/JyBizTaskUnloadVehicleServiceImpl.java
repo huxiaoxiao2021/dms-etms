@@ -608,7 +608,7 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
             ScanStatisticsDto scanStatisticsDto = dtoConvert(entity, dto);
             if (dto.getNeedWaybillInfo()) {
                 JyUnloadAggsEntity waybillStatistics = dto.getBoardCode() != null ? jyUnloadAggsDao.queryWaybillStatisticsUnderBoard(dto) : jyUnloadAggsDao.queryWaybillStatisticsUnderTask(dto);
-                scanStatisticsDto.setShouldScanWaybillCount(dto.getBoardCode() != null ? waybillStatistics.getShouldScanWaybillCount() : waybillStatistics.getTotalSealWaybillCount());
+                scanStatisticsDto.setWaybillCount(dto.getBoardCode() != null ? waybillStatistics.getActualScanWaybillCount() : waybillStatistics.getTotalSealWaybillCount());
             }
             return scanStatisticsDto;
         }
@@ -634,13 +634,7 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
             scanStatisticsDto.setExtraScanCountOutCurrSite(entity.getMoreScanOutCount());
         } else if (UnloadStatisticsQueryTypeEnum.WAYBILL.getCode().equals(dto.getType())) {
             if (ObjectHelper.isNotNull(dto.getBoardCode())) {
-                scanStatisticsDto.setShouldScanCount(entity.getShouldScanWaybillCount());
                 scanStatisticsDto.setHaveScanCount(entity.getActualScanWaybillCount());
-                scanStatisticsDto.setWaitScanCount(entity.getShouldScanWaybillCount() - entity.getActualScanWaybillCount());
-                scanStatisticsDto.setInterceptShouldScanCount(entity.getInterceptShouldScanWaybillCount());
-                scanStatisticsDto.setInterceptActualScanCount(entity.getInterceptActualScanWaybillCount());
-                scanStatisticsDto.setExtraScanCountCurrSite(entity.getMoreScanLocalWaybillCount());
-                scanStatisticsDto.setExtraScanCountOutCurrSite(entity.getMoreScanOutWaybillCount());
             } else {
                 scanStatisticsDto.setShouldScanCount(entity.getTotalSealWaybillCount());
                 scanStatisticsDto.setHaveScanCount(entity.getTotalScannedWaybillCount());
