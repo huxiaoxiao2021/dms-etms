@@ -3,6 +3,8 @@ package com.jd.bluedragon.distribution.jy.dao.unload;
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.jy.unload.JyUnloadVehicleBoardEntity;
 
+import java.util.List;
+
 public class JyUnloadVehicleBoardDao extends BaseDao<JyUnloadVehicleBoardEntity> {
 
     final static String NAMESPACE = JyUnloadVehicleBoardDao.class.getName();
@@ -21,6 +23,10 @@ public class JyUnloadVehicleBoardDao extends BaseDao<JyUnloadVehicleBoardEntity>
 
     public JyUnloadVehicleBoardEntity selectByBoardCode(String boardCode){
         return this.getSqlSession().selectOne(NAMESPACE + ".selectByBoardCode", boardCode);
+    }
+
+    public List<JyUnloadVehicleBoardEntity> getFlowStatisticsByBizId(String bizId){
+        return this.getSqlSession().selectOne(NAMESPACE + ".getFlowStatisticsByBizId", bizId);
     }
 
 }

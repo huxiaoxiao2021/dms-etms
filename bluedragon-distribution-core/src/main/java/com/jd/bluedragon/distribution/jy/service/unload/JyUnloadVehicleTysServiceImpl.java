@@ -524,6 +524,8 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
                     gc.setName(UnloadProductTypeEnum.getNameByCode(aggs.getProductType()));
                     resData.add(gc);
                 }
+            }else{
+                res.setMessage("查询为空");
             }
             res.setData(resData);
             return res;
@@ -541,7 +543,35 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
 
     @Override
     public InvokeResult<List<UnloadTaskFlowDto>> queryUnloadTaskFlow(String bizId) {
-        return null;
+        final String methodDesc = "JyUnloadVehicleTysServiceImpl.queryUnloadTaskFlow--查询任务内流向统计服务--";
+        InvokeResult<List<UnloadTaskFlowDto>> res = new InvokeResult<>();
+        res.success();
+        try{
+            if(StringUtils.isBlank(bizId)) {
+                res.error("参数缺失：bizId为空");
+                return  res;
+            }
+
+            List<UnloadTaskFlowDto> resData = new ArrayList<>();
+            List<JyUnloadVehicleBoardEntity> jyUnloadVehicleBoardEntityList = jyUnloadVehicleBoardDao.getFlowStatisticsByBizId(bizId);
+            if(CollectionUtils.isNotEmpty(jyUnloadVehicleBoardEntityList)) {
+                for(JyUnloadVehicleBoardEntity entity : jyUnloadVehicleBoardEntityList) {
+                    UnloadTaskFlowDto unloadTaskFlowDto = new UnloadTaskFlowDto();
+                    unloadTaskFlowDto.setGoodsAreaCode(entity.getGoodsAreaCode());
+                    unloadTaskFlowDto.setEndSiteId(entity.getEndSiteId());
+                    unloadTaskFlowDto.setEndSiteName(entity.getEndSiteName());
+                    unloadTaskFlowDto.setComBoardCount(entity.getBoardCodeNum());
+                }
+            }else {
+                res.setMessage("查询数据为空");
+            }
+            res.setData(resData);
+            return res;
+        }catch (Exception e) {
+            log.error("{}服务异常, req={}, errMsg={}", methodDesc, bizId, e.getMessage(), e);
+            res.error("查询任务内流向统计服务异常");
+            return res;
+        }
     }
 
     @Override

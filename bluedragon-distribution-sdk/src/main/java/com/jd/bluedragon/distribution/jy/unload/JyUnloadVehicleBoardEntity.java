@@ -35,6 +35,12 @@ public class JyUnloadVehicleBoardEntity {
 
     private Date ts;
 
+    /**
+     * 组板数量
+     */
+    private Integer boardCodeNum;
+
+
     public Long getId() {
         return id;
     }
@@ -161,5 +167,13 @@ public class JyUnloadVehicleBoardEntity {
 
     public void setTs(Date ts) {
         this.ts = ts;
+    }
+
+    public Integer getBoardCodeNum() {
+        return boardCodeNum;
+    }
+
+    public void setBoardCodeNum(Integer boardCodeNum) {
+        this.boardCodeNum = boardCodeNum;
     }
 }

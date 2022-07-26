@@ -5,7 +5,7 @@ import java.io.Serializable;
 public class UnloadTaskFlowDto implements Serializable {
     private static final long serialVersionUID = 7911106472951275134L;
     /**
-     * 获取编码
+     * 货区编码
      */
     private String goodsAreaCode;
     /**
