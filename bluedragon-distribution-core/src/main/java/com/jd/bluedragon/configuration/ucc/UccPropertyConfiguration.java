@@ -816,10 +816,6 @@ public class UccPropertyConfiguration {
      */
     private String jySendTaskLoadRateLimit;
 
-    /**
-     * 面单举报异常配置
-     */
-    private String faceAbnormalReportConfig;
 
     /**
      * 身份证识别切量开关，全量上线之后，可以删除
