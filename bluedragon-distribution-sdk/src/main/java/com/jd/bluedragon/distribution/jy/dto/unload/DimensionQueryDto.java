@@ -14,6 +14,16 @@ public class DimensionQueryDto extends UnloadBaseDto implements Serializable {
 
     private String boardCode;//板号
 
+    private Boolean needWaybillInfo;
+
+    public Boolean getNeedWaybillInfo() {
+        return needWaybillInfo;
+    }
+
+    public void setNeedWaybillInfo(Boolean needWaybillInfo) {
+        this.needWaybillInfo = needWaybillInfo;
+    }
+
     public Integer getType() {
         return type;
     }

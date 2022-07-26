@@ -436,4 +436,12 @@
                   server="dmsjsf">
     </jsf:provider>
 
+    <!--  转运卸车岗服务   -->
+    <jsf:provider id="jsfJyUnloadVehicleTysService"
+                  interface="com.jd.bluedragon.distribution.jy.api.JyUnloadVehicleTysService"
+                  alias="${dms.jsf.alias}"
+                  ref="jyUnloadVehicleTysService"
+                  server="dmsjsf">
+    </jsf:provider>
+
 </beans>

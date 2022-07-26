@@ -64,4 +64,6 @@ public interface IJyUnloadVehicleManager {
      * @return
      */
     Pager<JyUnloadTaskWaybillAgg> queryUnloadTaskWaybill(Pager<JyVehicleTaskUnloadDetail> query);
+
+    //Pager<JyUnloadTaskWaybillAgg> queryUnloadTaskWaybill(Pager<JyVehicleTaskUnloadDetail> query);
 }

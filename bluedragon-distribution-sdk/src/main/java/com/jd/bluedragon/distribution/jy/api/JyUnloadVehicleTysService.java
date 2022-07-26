@@ -137,7 +137,7 @@ public interface JyUnloadVehicleTysService {
     Integer getWaybillNextRouter(String waybillCode, Integer startSiteId);
 
     /**
-     * 查询获取编码
+     * 查询货区编码
      * @param currentSiteCode
      * @param nextSiteCode
      * @return

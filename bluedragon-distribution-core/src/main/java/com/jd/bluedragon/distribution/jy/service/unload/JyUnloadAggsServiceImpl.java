@@ -3,7 +3,6 @@ package com.jd.bluedragon.distribution.jy.service.unload;
 import com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadAggsDao;
 import com.jd.bluedragon.distribution.jy.dto.unload.ExcepScanDto;
 import com.jd.bluedragon.distribution.jy.dto.unload.GoodsCategoryDto;
-import com.jd.bluedragon.distribution.jy.dto.unload.QueryGoodsCategory;
 import com.jd.bluedragon.distribution.jy.dto.unload.ScanStatisticsDto;
 import com.jd.bluedragon.distribution.jy.enums.UnloadBarCodeQueryEntranceEnum;
 import com.jd.bluedragon.distribution.jy.unload.JyUnloadAggsEntity;
