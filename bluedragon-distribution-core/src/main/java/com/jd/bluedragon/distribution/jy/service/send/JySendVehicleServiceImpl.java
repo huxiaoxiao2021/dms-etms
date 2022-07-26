@@ -1740,25 +1740,26 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
     }
 
     private void sendCarArriveStatus(JySendAttachmentEntity attachment,SendPhotoRequest request) {
-        JySendArriveStatusDto jySendArriveStatusDto = new JySendArriveStatusDto();
-        jySendArriveStatusDto.setOperateTime(attachment.getOperateTime().getTime());
-        jySendArriveStatusDto.setVehicleArrived(attachment.getVehicleArrived());
-        jySendArriveStatusDto.setOperateSiteId(attachment.getOperateSiteId());
-        JyBizTaskSendVehicleEntity jyBizTaskSendVehicle = taskSendVehicleService.findByBizId(attachment.getSendVehicleBizId());
-        if (jyBizTaskSendVehicle!=null){
-            String transWorkCode = jyBizTaskSendVehicle.getTransWorkCode();
-            jySendArriveStatusDto.setTransWorkCode(transWorkCode);
-        }
-        jySendArriveStatusDto.setOperateUserErp(attachment.getCreateUserErp());
-        jySendArriveStatusDto.setOperateUserName(attachment.getCreateUserName());
-        if (request.getImgList().size()>0){
-            jySendArriveStatusDto.setImgList(request.getImgList());
-        }
+
         try{
+            JySendArriveStatusDto jySendArriveStatusDto = new JySendArriveStatusDto();
+            jySendArriveStatusDto.setOperateTime(attachment.getOperateTime().getTime());
+            jySendArriveStatusDto.setVehicleArrived(attachment.getVehicleArrived());
+            jySendArriveStatusDto.setOperateSiteId(attachment.getOperateSiteId());
+            JyBizTaskSendVehicleEntity jyBizTaskSendVehicle = taskSendVehicleService.findByBizId(attachment.getSendVehicleBizId());
+            if (jyBizTaskSendVehicle!=null){
+                String transWorkCode = jyBizTaskSendVehicle.getTransWorkCode();
+                jySendArriveStatusDto.setTransWorkCode(transWorkCode);
+            }
+            jySendArriveStatusDto.setOperateUserErp(attachment.getCreateUserErp());
+            jySendArriveStatusDto.setOperateUserName(attachment.getCreateUserName());
+            if (CollectionUtils.isNotEmpty(request.getImgList())){
+                jySendArriveStatusDto.setImgList(request.getImgList());
+            }
             sendCarArriveStatusProducer.send(jySendArriveStatusDto.getTransWorkCode(),JsonHelper.toJson(jySendArriveStatusDto));
             log.info("推送MQ数据为topic:{}->body:{}", "sendCarArriveStatusProducer", JsonHelper.toJson(jySendArriveStatusDto));
         }catch (Exception e) {
-            log.error("拣运发货任务车辆拍照MQ发送失败");
+            log.error("拣运发货任务车辆拍照MQ发送失败: ",e);
         }
     }
 
