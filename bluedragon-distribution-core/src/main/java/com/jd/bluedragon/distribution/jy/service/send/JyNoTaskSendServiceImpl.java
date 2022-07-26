@@ -135,7 +135,7 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
                 String key = entry.getKey();
                 List<VehicleTypeDto> value = entry.getValue();
                 VehicleSpecResp vehicleSpecResp = new VehicleSpecResp();
-                vehicleSpecResp.setVehicleLength(new BigDecimal(key).intValue());
+                vehicleSpecResp.setVehicleLength(new BigDecimal(key).multiply(new BigDecimal(10)).intValue());
                 vehicleSpecResp.setName(new BigDecimal(key) + "米");
                 vehicleSpecResp.setVehicleTypeDtoList(value);
                 vehicleSpecRespList.add(vehicleSpecResp);
