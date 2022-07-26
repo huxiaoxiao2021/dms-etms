@@ -99,7 +99,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
 
 
     @Override
-    public InvokeResult<UnloadVehicleTaskRespDto> listUnloadVehicleTask(@Validated UnloadVehicleTaskReqDto unloadVehicleTaskReqDto) {
+    public InvokeResult<UnloadVehicleTaskRespDto> listUnloadVehicleTask(UnloadVehicleTaskReqDto unloadVehicleTaskReqDto) {
         if (ObjectHelper.isNotNull(unloadVehicleTaskReqDto.getPackageCode())) {
             return queryUnloadVehicleTaskByVehicleNumOrPackage(unloadVehicleTaskReqDto);
         }
