@@ -2,6 +2,7 @@ package com.jd.bluedragon.external.gateway.service;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.identity.IdentityContentEntity;
+import com.jd.bluedragon.common.dto.identity.IdentityRecogniseRequest;
 
 /**
  * @ProjectName：bluedragon-distribution
@@ -16,11 +17,18 @@ import com.jd.bluedragon.common.dto.identity.IdentityContentEntity;
  */
 public interface IdentityScanGatewayService {
 
-
     /**
      * 身份证识别
      * @param picUrl
      * @return
      */
     JdCResponse<IdentityContentEntity> recognise(String picUrl);
+
+
+    /**
+     * 身份证识别
+     * @param recogniseRequest
+     * @return
+     */
+    JdCResponse<IdentityContentEntity> recogniseWithSwitch(IdentityRecogniseRequest recogniseRequest);
 }
