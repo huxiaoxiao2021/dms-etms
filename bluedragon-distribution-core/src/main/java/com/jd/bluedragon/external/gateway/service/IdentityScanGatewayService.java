@@ -17,11 +17,18 @@ import com.jd.bluedragon.common.dto.identity.IdentityRecogniseRequest;
  */
 public interface IdentityScanGatewayService {
 
+    /**
+     * 身份证识别
+     * @param picUrl
+     * @return
+     */
+    JdCResponse<IdentityContentEntity> recognise(String picUrl);
+
 
     /**
      * 身份证识别
      * @param recogniseRequest
      * @return
      */
-    JdCResponse<IdentityContentEntity> recognise(IdentityRecogniseRequest recogniseRequest);
+    JdCResponse<IdentityContentEntity> recogniseWithSwitch(IdentityRecogniseRequest recogniseRequest);
 }

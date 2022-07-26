@@ -38,20 +38,13 @@ public class IdentityScanGatewayServiceImpl implements IdentityScanGatewayServic
     private UccPropertyConfiguration uccPropertyConfiguration;
 
     @Override
-    public JdCResponse<IdentityContentEntity> recognise(IdentityRecogniseRequest recogniseRequest) {
-
+    public JdCResponse<IdentityContentEntity> recognise(String picUrl) {
         IDCRRequestDto idcrRequestDto = new IDCRRequestDto();
         idcrRequestDto.setServiceUUID(UUID.randomUUID().toString());
-        idcrRequestDto.setPicUrl(recogniseRequest.getPicUrl());
+        idcrRequestDto.setPicUrl(picUrl);
 
         JdCResponse<IdentityContentEntity> jdCResponse = new JdCResponse<>();
         jdCResponse.toSucceed();
-
-        if (!uccPropertyConfiguration.getIdentityRecogniseSiteSwitch().contains(Constants.STR_ALL)
-                && !uccPropertyConfiguration.getIdentityRecogniseSiteSwitch().contains(String.valueOf(recogniseRequest.getSiteCode()))) {
-            jdCResponse.toFail("该场地暂不支持身份证识别");
-            return jdCResponse;
-        }
 
         IDCRResponseDto idcrResponseDto = idcrServiceProxy.recognisePhoto(idcrRequestDto);
 
@@ -66,6 +59,21 @@ public class IdentityScanGatewayServiceImpl implements IdentityScanGatewayServic
             return jdCResponse;
         }
         return jdCResponse;
+    }
+
+    @Override
+    public JdCResponse<IdentityContentEntity> recogniseWithSwitch(IdentityRecogniseRequest recogniseRequest) {
+
+        JdCResponse<IdentityContentEntity> jdCResponse = new JdCResponse<>();
+        jdCResponse.toSucceed();
+
+        if (!uccPropertyConfiguration.getIdentityRecogniseSiteSwitch().contains(Constants.STR_ALL)
+                && !uccPropertyConfiguration.getIdentityRecogniseSiteSwitch().contains(String.valueOf(recogniseRequest.getSiteCode()))) {
+            jdCResponse.toFail("该场地暂不支持身份证识别");
+            return jdCResponse;
+        }
+
+        return this.recognise(recogniseRequest.getPicUrl());
 
     }
 }
