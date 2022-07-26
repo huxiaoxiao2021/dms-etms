@@ -182,4 +182,19 @@
             and board_code =#{boardCode}
         </if>
     </select>
+
+    <select id="queryProductBoardStatistics" parameterType="com.jd.bluedragon.distribution.jy.dto.unload.DimensionQueryDto"
+            resultMap="jyUnloadAggsMap">
+        SELECT board_code, product_type, sum(actual_scan_count) actual_scan_count
+        FROM jy_unload_aggs
+        WHERE yn = 1 and board_code =#{boardCode}
+    </select>
+
+    <select id="queryProductTaskStatistics" parameterType="com.jd.bluedragon.distribution.jy.dto.unload.DimensionQueryDto"
+            resultMap="jyUnloadAggsMap">
+        SELECT biz_id, product_type, sum(actual_scan_count) actual_scan_count
+        FROM  jy_unload_aggs
+        WHERE yn = 1 and biz_id = #{bizId}
+    </select>
+
 </mapper>

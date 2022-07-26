@@ -4,15 +4,24 @@ package com.jd.bluedragon.distribution.jy.dto.unload;
 import java.io.Serializable;
 public class GoodsCategoryDto implements Serializable {
     private static final long serialVersionUID = 7431307375891856971L;
-    private Integer type;
+    /**
+     * 货物类型： UnloadProductTypeEnum
+     */
+    private String  type;
+    /**
+     *名称： UnloadProductTypeEnum
+     */
     private String name;
+    /**
+     * 货物计数
+     */
     private Integer count;
 
-    public Integer getType() {
+    public String getType() {
         return type;
     }
 
-    public void setType(Integer type) {
+    public void setType(String type) {
         this.type = type;
     }
 

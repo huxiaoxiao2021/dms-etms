@@ -9,19 +9,23 @@ import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.distribution.api.request.BoardCommonRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.api.JyUnloadVehicleTysService;
+import com.jd.bluedragon.distribution.jy.constants.UnloadCarPostConstants;
 import com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskUnloadVehicleDao;
 import com.jd.bluedragon.distribution.jy.dao.unload.JyBizTaskUnloadVehicleStageDao;
+import com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadAggsDao;
 import com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadDao;
 import com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadVehicleBoardDao;
 import com.jd.bluedragon.distribution.jy.dto.task.JyBizTaskUnloadCountDto;
 import com.jd.bluedragon.distribution.jy.dto.unload.*;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyLineTypeEnum;
+import com.jd.bluedragon.distribution.jy.enums.UnloadProductTypeEnum;
 import com.jd.bluedragon.distribution.jy.enums.UnloadStatisticsQueryTypeEnum;
 import com.jd.bluedragon.distribution.jy.manager.IJyUnloadVehicleManager;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskUnloadVehicleService;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
 import com.jd.bluedragon.distribution.jy.unload.JyBizTaskUnloadVehicleStageEntity;
+import com.jd.bluedragon.distribution.jy.unload.JyUnloadAggsEntity;
 import com.jd.bluedragon.distribution.jy.unload.JyUnloadEntity;
 import com.jd.bluedragon.distribution.jy.unload.JyUnloadVehicleBoardEntity;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
@@ -89,6 +93,8 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     private JyBizTaskUnloadVehicleStageDao jyBizTaskUnloadVehicleStageDao;
     @Autowired
     private JyBizTaskUnloadVehicleDao jyBizTaskUnloadVehicleDao;
+    @Autowired
+    private JyUnloadAggsDao jyUnloadAggsDao;
     @Override
     public InvokeResult<UnloadVehicleTaskRespDto> listUnloadVehicleTask(UnloadVehicleTaskReqDto unloadVehicleTaskReqDto) {
         if (ObjectHelper.isNotNull(unloadVehicleTaskReqDto.getPackageCode())) {
@@ -475,7 +481,57 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
 
     @Override
     public InvokeResult<List<GoodsCategoryDto>> queryGoodsCategoryByDiffDimension(QueryGoodsCategory queryGoodsCategory) {
-        return null;
+        final String methodDesc = "JyUnloadVehicleTysServiceImpl.queryGoodsCategoryByDiffDimension--查询货物分类服务--";
+        InvokeResult<List<GoodsCategoryDto>> res = new InvokeResult<>();
+        res.success();
+        try{
+            if(queryGoodsCategory == null) {
+                res.error("请求参数为空");
+                return  res;
+            }
+            if(queryGoodsCategory.getType() == null) {
+                res.error("参数缺失：type为空");
+                return  res;
+            }
+            if(StringUtils.isBlank(queryGoodsCategory.getBarCode())) {
+                res.error("参数缺失：barCode为空");
+                return  res;
+            }
+            if(UnloadCarPostConstants.DIMENSION_TASK != queryGoodsCategory.getType()
+                    && UnloadCarPostConstants.DIMENSION_BOARD != queryGoodsCategory.getType()) {
+                res.error("参数错误：type仅支持：1-任务维度，2-板维度");
+                return  res;
+            }
+
+            DimensionQueryDto dto = new DimensionQueryDto();
+            List<JyUnloadAggsEntity> jyUnloadAggsEntity = new ArrayList<>();
+            if(UnloadCarPostConstants.DIMENSION_TASK == queryGoodsCategory.getType()) {
+                dto.setBizId(queryGoodsCategory.getBarCode());
+                jyUnloadAggsEntity = jyUnloadAggsDao.queryProductTaskStatistics(dto);
+            }
+
+            if(UnloadCarPostConstants.DIMENSION_BOARD != queryGoodsCategory.getType()) {
+                dto.setBoardCode(queryGoodsCategory.getBarCode());
+                jyUnloadAggsEntity = jyUnloadAggsDao.queryProductBoardStatistics(dto);
+            }
+
+            List<GoodsCategoryDto> resData = new ArrayList<>();
+            if(CollectionUtils.isNotEmpty(jyUnloadAggsEntity)) {
+                for(JyUnloadAggsEntity aggs : jyUnloadAggsEntity) {
+                    GoodsCategoryDto gc = new GoodsCategoryDto();
+                    gc.setType(aggs.getProductType());
+                    gc.setCount(aggs.getActualScanCount());
+                    gc.setName(UnloadProductTypeEnum.getNameByCode(aggs.getProductType()));
+                    resData.add(gc);
+                }
+            }
+            res.setData(resData);
+            return res;
+        }catch (Exception e) {
+            log.error("{}服务异常, req={}, errMsg={}", methodDesc, JsonHelper.toJson(queryGoodsCategory), e.getMessage(), e);
+            res.error("查询货物分类服务服务异常");
+            return res;
+        }
     }
 
     @Override
