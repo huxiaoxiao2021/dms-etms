@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.middleend.sorting.dao;
 
 
+import com.jd.bluedragon.distribution.api.request.SortingPageRequest;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 
 import java.util.List;
@@ -95,4 +96,11 @@ public interface ISortingDao {
      * @return
      */
     List<Sorting>  findPackageCodesByWaybillCode(Sorting sorting);
+
+    /**
+     * 分页查询箱下包裹
+     * @param request
+     * @return
+     */
+    List<Sorting> getPagePackageNoByBoxCode(SortingPageRequest request);
 }
