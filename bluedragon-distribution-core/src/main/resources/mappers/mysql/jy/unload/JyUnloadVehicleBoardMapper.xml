@@ -18,6 +18,8 @@
     <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
     <result column="yn" jdbcType="BIT" property="yn" />
     <result column="ts" jdbcType="TIMESTAMP" property="ts" />
+    <result column="board_code_num" jdbcType="INTEGER" property="boardCodeNum" />
+
   </resultMap>
   <sql id="Base_Column_List">
     id, unload_vehicle_biz_id, board_code, start_site_id, start_site_name, end_site_id,
@@ -221,4 +223,21 @@
       ts = #{ts,jdbcType=TIMESTAMP}
     where id = #{id,jdbcType=BIGINT}
   </update>
+
+  <select id="selectByBoardCode" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from jy_unload_vehicle_board
+    where board_code = #{boardCode,jdbcType=VARCHAR}
+    and yn = 1
+    order by create_time desc
+    limit 1
+  </select>
+
+  <select id="getFlowStatisticsByBizId" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select unload_vehicle_biz_id,start_site_id,start_site_name,end_site_id,end_site_name,goods_area_code, count(board_code) board_code_num
+    from jy_unload_vehicle_board
+    where yn = 1 and unload_vehicle_biz_id = #{bizId,jdbcType=BIGINT},
+    GROUP BY end_site_id
+  </select>
 </mapper>

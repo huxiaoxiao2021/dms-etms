@@ -56,6 +56,19 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
     private static final Logger logger = LoggerFactory.getLogger(JyUnloadScanConsumer.class);
 
     private static final int UNLOAD_SCAN_BIZ_EXPIRE = 6;
+    /**
+     * 子任务类型： 1：补扫类型 2：交接班类型
+     */
+    private static final int CHILD_TASK_TYPE_SUPPLEMENT = 1;
+    private static final int CHILD_TASK_TYPE_HANDOVER = 2;
+
+    /**
+     * 子任务状态： 1 进行中 2完成
+     */
+    private static final int CHILD_TASK_STATUS_DOING = 1;
+    private static final int CHILD_TASK_STATUS_COMPLETE = 2;  //todo zcf 子任务完成动作确认
+
+
 
     @Autowired
     @Qualifier("redisClientOfJy")
@@ -121,8 +134,8 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
             //查询子任务bizId
             JyBizTaskUnloadVehicleStageEntity condition =new JyBizTaskUnloadVehicleStageEntity();
             condition.setUnloadVehicleBizId(unloadScanDto.getBizId());
-            condition.setType(unloadScanDto.getSupplementary()?new Byte("1"):new Byte("2"));
-            condition.setStatus(new Byte("1"));
+            condition.setType(unloadScanDto.getSupplementary() ? CHILD_TASK_TYPE_SUPPLEMENT : CHILD_TASK_TYPE_HANDOVER);
+            condition.setStatus(CHILD_TASK_STATUS_DOING);
             JyBizTaskUnloadVehicleStageEntity entity =jyBizTaskUnloadVehicleStageService.queryCurrentStage(condition);
             if (ObjectHelper.isNotNull(entity)){
                 unloadEntity.setStageBizId(entity.getBizId());
@@ -204,8 +217,8 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
         JyBizTaskUnloadVehicleStageEntity firstStage = new JyBizTaskUnloadVehicleStageEntity();
         firstStage.setUnloadVehicleBizId(unloadScanDto.getBizId());
         firstStage.setBizId(jyBizTaskUnloadVehicleStageService.generateStageBizId(unloadScanDto.getBizId()));
-        firstStage.setStatus(new Byte("1"));
-        firstStage.setType(new Byte("2"));
+        firstStage.setStatus(CHILD_TASK_STATUS_DOING);
+        firstStage.setType(CHILD_TASK_TYPE_HANDOVER);
         firstStage.setStartTime(now);
         firstStage.setCreateTime(now);
         firstStage.setUpdateTime(now);
@@ -216,8 +229,8 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
         JyBizTaskUnloadVehicleStageEntity supplementary = new JyBizTaskUnloadVehicleStageEntity();
         supplementary.setUnloadVehicleBizId(unloadScanDto.getBizId());
         supplementary.setBizId(jyBizTaskUnloadVehicleStageService.generateStageBizId(unloadScanDto.getBizId()));
-        supplementary.setStatus(new Byte("1"));
-        supplementary.setType(new Byte("1"));
+        supplementary.setStatus(CHILD_TASK_STATUS_DOING);
+        supplementary.setType(CHILD_TASK_TYPE_SUPPLEMENT);
         supplementary.setStartTime(now);
         supplementary.setCreateTime(now);
         supplementary.setUpdateTime(now);
