@@ -103,6 +103,13 @@ public class JyUnloadAggsEntity implements Serializable {
     private Integer totalScannedBoardCount;
     private Integer totalScannedInterceptCount;
 
+    private Integer totalSealWaybillCount;
+    private Integer totalScannedWaybillCount;
+    private Integer totalScannedInterceptWaybillCount;
+    private Integer totalShouldInterceptWaybillCount;
+    private Integer totalMoreScanLocalWaybillCount;
+    private Integer totalMoreScanOutWaybillCount;
+
     public String getBoardCode() {
         return boardCode;
     }
@@ -319,4 +326,51 @@ public class JyUnloadAggsEntity implements Serializable {
         return this.ts;
     }
 
+    public Integer getTotalSealWaybillCount() {
+        return totalSealWaybillCount;
+    }
+
+    public void setTotalSealWaybillCount(Integer totalSealWaybillCount) {
+        this.totalSealWaybillCount = totalSealWaybillCount;
+    }
+
+    public Integer getTotalScannedWaybillCount() {
+        return totalScannedWaybillCount;
+    }
+
+    public void setTotalScannedWaybillCount(Integer totalScannedWaybillCount) {
+        this.totalScannedWaybillCount = totalScannedWaybillCount;
+    }
+
+    public Integer getTotalScannedInterceptWaybillCount() {
+        return totalScannedInterceptWaybillCount;
+    }
+
+    public void setTotalScannedInterceptWaybillCount(Integer totalScannedInterceptWaybillCount) {
+        this.totalScannedInterceptWaybillCount = totalScannedInterceptWaybillCount;
+    }
+
+    public Integer getTotalShouldInterceptWaybillCount() {
+        return totalShouldInterceptWaybillCount;
+    }
+
+    public void setTotalShouldInterceptWaybillCount(Integer totalShouldInterceptWaybillCount) {
+        this.totalShouldInterceptWaybillCount = totalShouldInterceptWaybillCount;
+    }
+
+    public Integer getTotalMoreScanLocalWaybillCount() {
+        return totalMoreScanLocalWaybillCount;
+    }
+
+    public void setTotalMoreScanLocalWaybillCount(Integer totalMoreScanLocalWaybillCount) {
+        this.totalMoreScanLocalWaybillCount = totalMoreScanLocalWaybillCount;
+    }
+
+    public Integer getTotalMoreScanOutWaybillCount() {
+        return totalMoreScanOutWaybillCount;
+    }
+
+    public void setTotalMoreScanOutWaybillCount(Integer totalMoreScanOutWaybillCount) {
+        this.totalMoreScanOutWaybillCount = totalMoreScanOutWaybillCount;
+    }
 }

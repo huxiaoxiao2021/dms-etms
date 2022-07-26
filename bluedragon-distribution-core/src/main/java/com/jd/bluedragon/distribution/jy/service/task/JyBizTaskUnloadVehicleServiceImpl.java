@@ -601,19 +601,15 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
         JyUnloadAggsEntity entity = null;
         if (UnloadStatisticsQueryTypeEnum.PACKAGE.getCode().equals(dto.getType())) {
             entity = jyUnloadAggsDao.queryPackageStatistics(dto);
-            if (dto.getNeedWaybillInfo()){
-                JyUnloadAggsEntity waybill = dto.getBoardCode() != null ?
-                        jyUnloadAggsDao.queryWaybillStatisticsUnderBoard(dto)
-                        : jyUnloadAggsDao.queryWaybillStatisticsUnderTask(dto);
-
-
-            }
         } else if (UnloadStatisticsQueryTypeEnum.WAYBILL.getCode().equals(dto.getType())) {
-            entity = dto.getBoardCode() != null ?
-                    jyUnloadAggsDao.queryWaybillStatisticsUnderBoard(dto) : jyUnloadAggsDao.queryWaybillStatisticsUnderTask(dto);
+            entity = dto.getBoardCode() != null ? jyUnloadAggsDao.queryWaybillStatisticsUnderBoard(dto) : jyUnloadAggsDao.queryWaybillStatisticsUnderTask(dto);
         }
         if (ObjectHelper.isNotNull(entity)) {
             ScanStatisticsDto scanStatisticsDto = dtoConvert(entity, dto);
+            if (dto.getNeedWaybillInfo()) {
+                JyUnloadAggsEntity waybillStatistics = dto.getBoardCode() != null ? jyUnloadAggsDao.queryWaybillStatisticsUnderBoard(dto) : jyUnloadAggsDao.queryWaybillStatisticsUnderTask(dto);
+                scanStatisticsDto.setShouldScanWaybillCount(dto.getBoardCode() != null ? waybillStatistics.getShouldScanWaybillCount() : waybillStatistics.getTotalSealWaybillCount());
+            }
             return scanStatisticsDto;
         }
         return null;
@@ -637,13 +633,23 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
             scanStatisticsDto.setExtraScanCountCurrSite(entity.getMoreScanLocalCount());
             scanStatisticsDto.setExtraScanCountOutCurrSite(entity.getMoreScanOutCount());
         } else if (UnloadStatisticsQueryTypeEnum.WAYBILL.getCode().equals(dto.getType())) {
-            scanStatisticsDto.setShouldScanCount(entity.getShouldScanWaybillCount());
-            scanStatisticsDto.setHaveScanCount(entity.getActualScanWaybillCount());
-            scanStatisticsDto.setWaitScanCount(entity.getShouldScanWaybillCount() - entity.getActualScanWaybillCount());
-            scanStatisticsDto.setInterceptShouldScanCount(entity.getInterceptShouldScanWaybillCount());
-            scanStatisticsDto.setInterceptActualScanCount(entity.getInterceptActualScanWaybillCount());
-            scanStatisticsDto.setExtraScanCountCurrSite(entity.getMoreScanLocalWaybillCount());
-            scanStatisticsDto.setExtraScanCountOutCurrSite(entity.getMoreScanOutWaybillCount());
+            if (ObjectHelper.isNotNull(dto.getBoardCode())) {
+                scanStatisticsDto.setShouldScanCount(entity.getShouldScanWaybillCount());
+                scanStatisticsDto.setHaveScanCount(entity.getActualScanWaybillCount());
+                scanStatisticsDto.setWaitScanCount(entity.getShouldScanWaybillCount() - entity.getActualScanWaybillCount());
+                scanStatisticsDto.setInterceptShouldScanCount(entity.getInterceptShouldScanWaybillCount());
+                scanStatisticsDto.setInterceptActualScanCount(entity.getInterceptActualScanWaybillCount());
+                scanStatisticsDto.setExtraScanCountCurrSite(entity.getMoreScanLocalWaybillCount());
+                scanStatisticsDto.setExtraScanCountOutCurrSite(entity.getMoreScanOutWaybillCount());
+            } else {
+                scanStatisticsDto.setShouldScanCount(entity.getTotalSealWaybillCount());
+                scanStatisticsDto.setHaveScanCount(entity.getTotalScannedWaybillCount());
+                scanStatisticsDto.setWaitScanCount(entity.getTotalSealWaybillCount() - entity.getTotalScannedWaybillCount());
+                scanStatisticsDto.setInterceptShouldScanCount(entity.getTotalShouldInterceptWaybillCount());
+                scanStatisticsDto.setInterceptActualScanCount(entity.getTotalScannedInterceptWaybillCount());
+                scanStatisticsDto.setExtraScanCountCurrSite(entity.getTotalMoreScanLocalWaybillCount());
+                scanStatisticsDto.setExtraScanCountOutCurrSite(entity.getTotalMoreScanOutWaybillCount());
+            }
         }
         return scanStatisticsDto;
     }

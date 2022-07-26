@@ -33,6 +33,14 @@
         <result property="totalScannedBoardCount" column="total_scanned_board_count"/>
         <result property="totalScannedInterceptCount" column="total_scanned_intercept_count"/>
 
+
+        <result property="totalSealWaybillCount" column="total_seal_waybill_count"/>
+        <result property="totalScannedWaybillCount" column="total_scanned_waybill_count"/>
+        <result property="totalScannedInterceptWaybillCount" column="total_scanned_intercept_waybill_count"/>
+        <result property="totalShouldInterceptWaybillCount" column="total_should_intercept_waybill_count"/>
+        <result property="totalMoreScanLocalWaybillCount" column="total_more_scan_local_waybill_count"/>
+        <result property="totalMoreScanOutWaybillCount" column="total_more_scan_out_waybill_count"/>
+
     </resultMap>
 
     <sql id="Base_Column_List">
