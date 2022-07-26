@@ -35,10 +35,10 @@ public class UnifiedExceptionHandler {
                 return new InvokeResult(CODE_ERROR, exception.getMessage());
             }
             if (EnvEnum.TEST.getCode().equals(env) && throwable instanceof Exception) {
-                log.info("serviceExceptionHandler检测到jy服务调用发生异常",throwable);
+                log.info("jy服务调用发生异常",throwable);
                 return new InvokeResult(CODE_ERROR, throwable.getMessage());
             }
-            log.info("serviceExceptionHandler检测到jy服务调用发生异常",throwable);
+            log.error("UnifiedExceptionHandler检测到jy服务调用发生异常",throwable);
             return new InvokeResult(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
         }
         return invokeResult;

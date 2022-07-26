@@ -103,32 +103,43 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         if (ObjectHelper.isNotNull(unloadVehicleTaskReqDto.getPackageCode())) {
             return queryUnloadVehicleTaskByVehicleNumOrPackage(unloadVehicleTaskReqDto);
         }
-        //查询统计数据
+        //查询状态统计数据(按状态分组聚合)
         JyBizTaskUnloadStatusEnum[] statusEnums = {WAIT_UN_LOAD, UN_LOADING, UN_LOAD_DONE};
-        JyBizTaskUnloadVehicleEntity condition = new JyBizTaskUnloadVehicleEntity();
-        condition.setLineType(unloadVehicleTaskReqDto.getLineType());
-        condition.setEndSiteId(Long.valueOf(unloadVehicleTaskReqDto.getCurrentOperate().getSiteCode()));
-        condition.setFuzzyVehicleNumber(unloadVehicleTaskReqDto.getVehicleNumber());
-        List<JyBizTaskUnloadCountDto> unloadCountDtos = jyBizTaskUnloadVehicleService.findStatusCountByCondition4Status(condition, null, statusEnums);
+        JyBizTaskUnloadVehicleEntity statusStatisticsQueryParams = assembleQueryStatusStatisticsCondition(unloadVehicleTaskReqDto);
+        List<JyBizTaskUnloadCountDto> unloadCountDtos = jyBizTaskUnloadVehicleService.findStatusCountByCondition4Status(statusStatisticsQueryParams, null, statusEnums);
         if (!ObjectHelper.isNotNull(unloadCountDtos)) {
             return new InvokeResult(TASK_NO_FOUND_BY_STATUS_CODE, TASK_NO_FOUND_BY_STATUS_MESSAGE);
         }
         UnloadVehicleTaskRespDto respDto = new UnloadVehicleTaskRespDto();
         initCountToResp(respDto, unloadCountDtos);
+        //查询卸车任务列表
         PageHelper.startPage(unloadVehicleTaskReqDto.getPageNo(), unloadVehicleTaskReqDto.getPageSize());
-        JyBizTaskUnloadVehicleEntity entity = new JyBizTaskUnloadVehicleEntity();
-        entity.setVehicleStatus(unloadVehicleTaskReqDto.getVehicleStatus());
-        entity.setEndSiteId(Long.valueOf(unloadVehicleTaskReqDto.getCurrentOperate().getSiteCode()));
-        entity.setLineType(unloadVehicleTaskReqDto.getLineType());
-        entity.setFuzzyVehicleNumber(unloadVehicleTaskReqDto.getVehicleNumber());
-        List<UnloadVehicleTaskDto> unloadVehicleTaskDtoList = jyBizTaskUnloadVehicleService.listUnloadVehicleTask(entity);
+        JyBizTaskUnloadVehicleEntity unloadTaskQueryParams = assembleQueryTaskCondition(unloadVehicleTaskReqDto);
+        List<UnloadVehicleTaskDto> unloadVehicleTaskDtoList = jyBizTaskUnloadVehicleService.listUnloadVehicleTask(unloadTaskQueryParams);
         respDto.setUnloadVehicleTaskDtoList(unloadVehicleTaskDtoList);
 
-        condition.setVehicleStatus(unloadVehicleTaskReqDto.getVehicleStatus());
-        List<LineTypeStatisDto> lineTypeStatisDtoList = calculationLineTypeStatis(condition);
+        statusStatisticsQueryParams.setVehicleStatus(unloadVehicleTaskReqDto.getVehicleStatus());
+        List<LineTypeStatisDto> lineTypeStatisDtoList = calculationLineTypeStatis(statusStatisticsQueryParams);
         respDto.setLineTypeStatisDtoList(lineTypeStatisDtoList);
 
         return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, respDto);
+    }
+
+    private JyBizTaskUnloadVehicleEntity assembleQueryTaskCondition(UnloadVehicleTaskReqDto unloadVehicleTaskReqDto) {
+        JyBizTaskUnloadVehicleEntity condition = new JyBizTaskUnloadVehicleEntity();
+        condition.setVehicleStatus(unloadVehicleTaskReqDto.getVehicleStatus());
+        condition.setEndSiteId(Long.valueOf(unloadVehicleTaskReqDto.getCurrentOperate().getSiteCode()));
+        condition.setLineType(unloadVehicleTaskReqDto.getLineType());
+        condition.setFuzzyVehicleNumber(unloadVehicleTaskReqDto.getVehicleNumber());
+        return condition;
+    }
+
+    private JyBizTaskUnloadVehicleEntity assembleQueryStatusStatisticsCondition(UnloadVehicleTaskReqDto unloadVehicleTaskReqDto) {
+        JyBizTaskUnloadVehicleEntity condition = new JyBizTaskUnloadVehicleEntity();
+        condition.setLineType(unloadVehicleTaskReqDto.getLineType());
+        condition.setEndSiteId(Long.valueOf(unloadVehicleTaskReqDto.getCurrentOperate().getSiteCode()));
+        condition.setFuzzyVehicleNumber(unloadVehicleTaskReqDto.getVehicleNumber());
+        return condition;
     }
 
     private List<LineTypeStatisDto> calculationLineTypeStatis(JyBizTaskUnloadVehicleEntity condition) {

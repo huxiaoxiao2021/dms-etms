@@ -168,6 +168,6 @@ public class JyBizTaskUnloadVehicleDao extends BaseDao<JyBizTaskUnloadVehicleEnt
 
 
     public List<JyBizTaskUnloadVehicleEntity> listUnloadVehicleTask(JyBizTaskUnloadVehicleEntity entity) {
-        return this.getSqlSession().selectOne(NAMESPACE + ".listUnloadVehicleTask",entity);
+        return this.getSqlSession().selectList(NAMESPACE + ".listUnloadVehicleTask",entity);
     }
 }
