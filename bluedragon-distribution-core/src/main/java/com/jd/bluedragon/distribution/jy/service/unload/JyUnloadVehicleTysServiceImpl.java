@@ -770,9 +770,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
          //任务内查询仅做展示，查ES
             Pager<JyVehicleTaskUnloadDetail> condition = assembleScanQueryCondition(queryWaybillDto);
             Pager<JyVehicleTaskUnloadDetail> pagerResp = null;
-            if (ObjectHelper.isNotNull(queryWaybillDto.getGoodsType())) {
-                pagerResp = iJyUnloadVehicleManager.queryToScanBarCodeDetail(condition);
-            } else if (UnloadBarCodeQueryEntranceEnum.TO_SCAN.getCode().equals(queryWaybillDto.getExpType())) {
+            if (UnloadBarCodeQueryEntranceEnum.TO_SCAN.getCode().equals(queryWaybillDto.getExpType())) {
                 pagerResp = iJyUnloadVehicleManager.queryToScanBarCodeDetail(condition);
             } else if (UnloadBarCodeQueryEntranceEnum.MORE_SCAN.getCode().equals(queryWaybillDto.getExpType())) {
                 pagerResp = iJyUnloadVehicleManager.queryMoreScanBarCodeDetail(condition);
