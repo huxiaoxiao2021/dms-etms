@@ -1,0 +1,84 @@
+package com.jd.bluedragon.distribution.worker.jy;
+
+import com.jd.bluedragon.distribution.jy.service.task.JYBizTaskCleanService;
+import com.jd.bluedragon.distribution.jy.service.task.JYBizUnloadTaskCleanServiceImpl;
+import com.jd.bluedragon.distribution.task.domain.Task;
+import com.jd.bluedragon.distribution.worker.AbstractScheduleTask;
+import com.jd.bluedragon.distribution.worker.AbstractScheduler;
+import com.jd.bluedragon.utils.DateHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.List;
+
+/**
+ * 天官赐福 ◎ 百无禁忌
+ *
+ * 拣运作业APP业务任务定时清理入口
+ * @Auther: 刘铎（liuduo8）
+ * @Date: 2022/7/14
+ * @Description:
+ */
+public class JYBizTaskCleanTask extends AbstractScheduler<Task> {
+
+    private static final Logger logger = LoggerFactory.getLogger(JYBizTaskCleanTask.class);
+
+    /**
+     * 由淘宝调度控制单实例单线程执行，故可以使用成员变量控制执行
+     */
+    private Date lastExecuteDate;
+
+    @Autowired
+    @Qualifier("jyBizUnloadTaskCleanService")
+    private JYBizTaskCleanService jyBizUnloadTaskCleanService;
+
+    @Autowired
+    @Qualifier("jyBizSendTaskCleanService")
+    private JYBizTaskCleanService jyBizSendTaskCleanService;
+
+    @Override
+    public boolean execute(Object[] objects, String s) throws Exception {
+        if(logger.isInfoEnabled()){
+            logger.info("JYBizTaskCleanTask execute start!");
+        }
+
+        Boolean flag = Boolean.TRUE;
+        if(!jyBizUnloadTaskCleanService.clean()){
+            flag = Boolean.FALSE;
+        }
+        if(!jyBizSendTaskCleanService.clean()){
+            flag = Boolean.FALSE;
+        }
+        if(logger.isInfoEnabled()){
+            logger.info("JYBizTaskCleanTask execute end! flag:{}",flag);
+        }
+        if(flag){
+            lastExecuteDate = DateHelper.getCurrentDayWithOutTimes();
+        }
+        return flag;
+    }
+
+    @Override
+    public List<Task> selectTasks(String s, int i, List<String> list, int i1) throws Exception {
+        //每天只调度一次
+        if(lastExecuteDate != null && DateHelper.compare(DateHelper.getCurrentDayWithOutTimes(),lastExecuteDate) == 0){
+            //今天执行过直接返回空任务集合不调用execute
+            logger.info("JYBizTaskCleanTask today executed !");
+            return new ArrayList<>();
+        }
+        //模拟任务
+        List<Task> tasks = new ArrayList<>();
+        tasks.add(new Task());
+        return tasks;
+    }
+
+    @Override
+    public Comparator<Task> getComparator() {
+        return null;
+    }
+}

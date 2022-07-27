@@ -570,5 +570,24 @@
             </if>
             and yn = 1           
         </where>
-     </select>    
+     </select>
+
+    <select id="needCleanSite" parameterType="JyBizTaskUnloadVehicleEntity" resultType="Integer">
+        select end_site_id
+        from jy_biz_task_unload_vehicle
+        where yn = 1
+        and vehicle_status = #{vehicleStatus}
+        group by end_site_id
+
+    </select>
+
+    <update id="cleanByParam" parameterType="JyBizTaskUnloadVehicleEntity">
+        update jy_biz_task_unload_vehicle
+        set yn = 0
+        where yn = 1
+        and end_site_id = #{endSiteId}
+        and vehicle_status = #{vehicleStatus}
+        and ts <![CDATA[ < ]]> #{ts}
+
+    </update>
 </mapper>

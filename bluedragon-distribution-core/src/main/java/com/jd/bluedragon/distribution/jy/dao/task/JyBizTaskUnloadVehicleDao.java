@@ -166,5 +166,22 @@ public class JyBizTaskUnloadVehicleDao extends BaseDao<JyBizTaskUnloadVehicleEnt
 		return this.getSqlSession().selectOne(NAMESPACE + ".countByVehicleNumberAndStatus",condition);
 	}
 
+    /**
+     * 根据条件清理数据，将数据yn字段设置成0,等待卸数使用
+     * @param condition
+     * @return
+     */
+	public int cleanByParam(JyBizTaskUnloadVehicleEntity condition){
+        return this.getSqlSession().update(NAMESPACE + ".cleanByParam",condition);
+    }
+
+    /**
+     * 根据状态获取需要清理的数据的场地ID
+     * @param condition
+     * @return
+     */
+    public List<Integer> needCleanSite(JyBizTaskUnloadVehicleEntity condition){
+        return this.getSqlSession().selectList(NAMESPACE + ".needCleanSite",condition);
+    }
 
 }
