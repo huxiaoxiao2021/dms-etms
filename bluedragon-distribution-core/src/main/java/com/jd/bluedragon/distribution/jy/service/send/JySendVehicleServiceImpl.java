@@ -25,6 +25,7 @@ import com.jd.bluedragon.core.base.JdiQueryWSManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.BoxMaterialRelationRequest;
 import com.jd.bluedragon.distribution.api.response.base.Result;
@@ -41,6 +42,7 @@ import com.jd.bluedragon.distribution.funcSwitchConfig.service.FuncSwitchConfigS
 import com.jd.bluedragon.distribution.jsf.domain.SortingCheck;
 import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
 import com.jd.bluedragon.distribution.jy.dto.send.JyBizTaskSendCountDto;
+import com.jd.bluedragon.distribution.jy.dto.send.JySendArriveStatusDto;
 import com.jd.bluedragon.distribution.jy.dto.send.QueryTaskSendDto;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendDetailStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendSortTypeEnum;
@@ -201,6 +203,10 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
     @Autowired
     @Qualifier("jyTaskGroupMemberService")
     private JyTaskGroupMemberService taskGroupMemberService;
+
+    @Autowired
+    @Qualifier("sendCarArriveStatusProducer")
+    private DefaultJMQProducer sendCarArriveStatusProducer;
 
     @Autowired
     private SendVehicleTransactionManager sendVehicleTransactionManager;
@@ -816,7 +822,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
         vehicleTaskDto.setLineType(sendVehicleEntity.getLineType());
         vehicleTaskDto.setLineTypeName(sendVehicleEntity.getLineTypeName());
         vehicleTaskDto.setLoadRate(this.dealLoadRate(sendVehicleEntity));
-        
+
         return vehicleTaskDto;
     }
 
@@ -1126,7 +1132,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
                         JsonHelper.toJson(request));
                 updateSendVehicleStatus(request, taskSend, curSendDetail);
             }
-            
+
             // 发货任务首次扫描记录组员信息
             if (taskSendFirstScan(request)) {
                 logInfo("发货任务[{}]首次扫描, 任务状态变为“发货中”. {}", request.getSendVehicleBizId(), JsonHelper.toJson(request));
@@ -1723,6 +1729,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
         try {
             JySendAttachmentEntity attachment = genSendAttachment(request);
             sendAttachmentService.saveAttachment(attachment);
+            sendCarArriveStatus(attachment,request);
         }
         catch (Exception ex) {
             log.error("发货拍照上传失败. {}", JsonHelper.toJson(request), ex);
@@ -1730,6 +1737,30 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
         }
 
         return invokeResult;
+    }
+
+    private void sendCarArriveStatus(JySendAttachmentEntity attachment,SendPhotoRequest request) {
+        JyBizTaskSendVehicleEntity jyBizTaskSendVehicle = new JyBizTaskSendVehicleEntity();
+        try{
+            JySendArriveStatusDto jySendArriveStatusDto = new JySendArriveStatusDto();
+            jySendArriveStatusDto.setOperateTime(attachment.getOperateTime().getTime());
+            jySendArriveStatusDto.setVehicleArrived(attachment.getVehicleArrived());
+            jySendArriveStatusDto.setOperateSiteId(attachment.getOperateSiteId());
+            jyBizTaskSendVehicle = taskSendVehicleService.findByBizId(attachment.getSendVehicleBizId());
+            if (jyBizTaskSendVehicle!=null){
+                String transWorkCode = jyBizTaskSendVehicle.getTransWorkCode();
+                jySendArriveStatusDto.setTransWorkCode(transWorkCode);
+            }
+            jySendArriveStatusDto.setOperateUserErp(attachment.getCreateUserErp());
+            jySendArriveStatusDto.setOperateUserName(attachment.getCreateUserName());
+            if (CollectionUtils.isNotEmpty(request.getImgList())){
+                jySendArriveStatusDto.setImgList(request.getImgList());
+            }
+            sendCarArriveStatusProducer.send(jySendArriveStatusDto.getTransWorkCode(),JsonHelper.toJson(jySendArriveStatusDto));
+            log.info("推送MQ数据为topic:{}->body:{}", "sendCarArriveStatusProducer", JsonHelper.toJson(jySendArriveStatusDto));
+        }catch (Exception e) {
+            log.error("拣运发货任务车辆拍照MQ发送失败,派车单号:{} :  ",jyBizTaskSendVehicle.getTransWorkCode(),e);
+        }
     }
 
     private JySendAttachmentEntity genSendAttachment(SendPhotoRequest request) {
