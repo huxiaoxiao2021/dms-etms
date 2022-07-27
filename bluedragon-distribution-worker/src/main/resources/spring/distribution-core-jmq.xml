@@ -662,5 +662,9 @@
         <property name="topic" value="${jmq.topic.pop.print.first}" />
         <property name="timeout" value="1000" />
     </bean>
-
+    <!--  拣运发货任务车辆拍照  -->
+    <bean id="sendCarArriveStatusProducer" parent="jmq4DmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.send.car.arrive.status}" />
+        <property name="timeout" value="1000" />
+    </bean>
 </beans>
