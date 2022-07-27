@@ -237,7 +237,21 @@
   <select id="getFlowStatisticsByBizId" parameterType="java.lang.String" resultMap="BaseResultMap">
     select unload_vehicle_biz_id,start_site_id,start_site_name,end_site_id,end_site_name,goods_area_code, count(board_code) board_code_num
     from jy_unload_vehicle_board
-    where yn = 1 and unload_vehicle_biz_id = #{bizId,jdbcType=BIGINT},
+    where yn = 1 and unload_vehicle_biz_id = #{bizId,jdbcType=VARCHAR},
     GROUP BY end_site_id
+  </select>
+
+
+  <select id="getBoardCodeList" parameterType="com.jd.bluedragon.distribution.jy.unload.JyUnloadVehicleBoardEntity" resultType="java.lang.String">
+    select board_code
+    from jy_unload_vehicle_board
+    where yn = 1
+    and unload_vehicle_biz_id = #{bizId,jdbcType=VARCHAR}
+    <if test="endSiteId != null">
+      and end_site_id = #{endSiteId,jdbcType=BIGINT}
+    </if>
+    <if test="goodsAreaCode != null">
+      goods_area_code = #{goodsAreaCode,jdbcType=VARCHAR},
+    </if>
   </select>
 </mapper>

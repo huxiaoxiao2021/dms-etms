@@ -221,4 +221,12 @@
             AND board_code =#{boardCode}
         </if>
     </select>
+
+
+    <select id="queryBoardStatistics" parameterType="com.jd.bluedragon.distribution.jy.dto.unload.DimensionQueryDto"
+            resultMap="jyUnloadAggsMap">
+        SELECT biz_id, board_code, sum(actual_scan_count) actual_scan_count, sum(more_scan_total_count) more_scan_total_count
+        FROM  jy_unload_aggs
+        WHERE yn = 1 and biz_id = #{bizId} and board_code =#{boardCode}
+    </select>
 </mapper>

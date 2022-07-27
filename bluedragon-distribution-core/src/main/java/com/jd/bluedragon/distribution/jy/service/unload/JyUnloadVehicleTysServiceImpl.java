@@ -11,6 +11,7 @@ import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.distribution.api.request.BoardCommonRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.api.JyUnloadVehicleTysService;
+import com.jd.bluedragon.distribution.jy.constants.UnloadCarPostConstants;
 import com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadAggsDao;
 import com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadDao;
 import com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadVehicleBoardDao;
@@ -96,7 +97,8 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     BaseMajorManager baseMajorManager;
 
     private static final int SCAN_EXPIRE_TIME_HOUR = 6;
-
+    @Autowired
+    private JyUnloadAggsDao jyUnloadAggsDao;
 
     @Override
     public InvokeResult<UnloadVehicleTaskRespDto> listUnloadVehicleTask(UnloadVehicleTaskReqDto unloadVehicleTaskReqDto) {
@@ -449,16 +451,66 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
 
     @Override
     public InvokeResult<ComBoardDto> queryComBoardDataByBoardCode(String boardCode) {
-        return null;
+        final String methodDesc = "JyUnloadVehicleTysServiceImpl.queryComBoardDataByBoardCode--根据板号查询板号信息--";
+        InvokeResult<ComBoardDto> res = new InvokeResult<>();
+        res.success();
+        ComBoardDto resData = new ComBoardDto();
+        try{
+
+            Response<Board> response = groupBoardManager.getBoard(boardCode);
+            if(response != null && response.getCode() == ResponseEnum.SUCCESS.getIndex()) {
+                if(response.getData() != null) {
+                    res.setMessage("查询板信息为空");
+                    return res;
+                }
+                resData.setBoardCode(boardCode);
+                resData.setEndSiteId(Long.valueOf(response.getData().getDestinationId()));
+                resData.setEndSiteName(response.getData().getDestination());
+            }else {
+                log.error("{}查询失败，板号={}，res={}", methodDesc, boardCode, JsonHelper.toJson(response));
+                String errMsg = res == null || StringUtils.isBlank(res.getMessage()) ? "根据板号查询板信息异常" : res.getMessage();
+                res.error(errMsg);
+                return res;
+            }
+            JyUnloadVehicleBoardEntity jyUnloadVehicleBoardEntity = jyUnloadVehicleBoardDao.selectByBoardCode(boardCode);
+            if(jyUnloadVehicleBoardEntity != null) {
+                resData.setGoodsAreaCode(jyUnloadVehicleBoardEntity.getGoodsAreaCode());
+            }else {
+                //实操非核心展示：不做强拦截
+                log.error("{}--根据板号{}查任务板关系表中货区编码为空", methodDesc, boardCode);
+            }
+            res.setData(resData);
+            return res;
+        }catch (Exception e) {
+            log.error("{}服务异常，请求={}，errMsg={}", methodDesc, boardCode, e.getMessage(), e);
+            res.setMessage("根据板号查询板号信息服务异常");
+            return res;
+        }
     }
 
     @Override
     public InvokeResult<List<GoodsCategoryDto>> queryGoodsCategoryByDiffDimension(QueryGoodsCategory queryGoodsCategory) {
-        JyUnloadAggsEntity entity = new JyUnloadAggsEntity();
-        entity.setBizId(queryGoodsCategory.getBizId());
-        entity.setBoardCode(queryGoodsCategory.getBoardCode());
-        List<GoodsCategoryDto> goodsCategoryDtoList = jyUnloadAggsService.queryGoodsCategoryStatistics(entity);
-        return new InvokeResult<>(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, goodsCategoryDtoList);
+        final String methodDesc = "JyUnloadVehicleTysServiceImpl.queryGoodsCategoryByDiffDimension--查询货物分类服务--";
+        InvokeResult<List<GoodsCategoryDto>> res = new InvokeResult<>();
+        res.success();
+        try{
+            if(queryGoodsCategory == null) {
+                res.error("请求参数为空");
+                return  res;
+            }
+
+            JyUnloadAggsEntity entity = new JyUnloadAggsEntity();
+            entity.setBizId(queryGoodsCategory.getBizId());
+            entity.setBoardCode(queryGoodsCategory.getBoardCode());
+            List<GoodsCategoryDto> goodsCategoryDtoList = jyUnloadAggsService.queryGoodsCategoryStatistics(entity);
+
+            res.setData(goodsCategoryDtoList);
+            return res;
+        }catch (Exception e) {
+            log.error("{}服务异常, req={}, errMsg={}", methodDesc, JsonHelper.toJson(queryGoodsCategory), e.getMessage(), e);
+            res.error("查询货物分类服务服务异常");
+            return res;
+        }
     }
 
     @Override
@@ -515,12 +567,95 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
 
     @Override
     public InvokeResult<List<UnloadTaskFlowDto>> queryUnloadTaskFlow(String bizId) {
-        return null;
+        final String methodDesc = "JyUnloadVehicleTysServiceImpl.queryUnloadTaskFlow--查询任务内流向统计服务--";
+        InvokeResult<List<UnloadTaskFlowDto>> res = new InvokeResult<>();
+        res.success();
+        try{
+            if(StringUtils.isBlank(bizId)) {
+                res.error("参数缺失：bizId为空");
+                return  res;
+            }
+
+            List<UnloadTaskFlowDto> resData = new ArrayList<>();
+            List<JyUnloadVehicleBoardEntity> jyUnloadVehicleBoardEntityList = jyUnloadVehicleBoardDao.getFlowStatisticsByBizId(bizId);
+            if(CollectionUtils.isNotEmpty(jyUnloadVehicleBoardEntityList)) {
+                for(JyUnloadVehicleBoardEntity entity : jyUnloadVehicleBoardEntityList) {
+                    UnloadTaskFlowDto unloadTaskFlowDto = new UnloadTaskFlowDto();
+                    unloadTaskFlowDto.setGoodsAreaCode(entity.getGoodsAreaCode());
+                    unloadTaskFlowDto.setEndSiteId(entity.getEndSiteId());
+                    unloadTaskFlowDto.setEndSiteName(entity.getEndSiteName());
+                    unloadTaskFlowDto.setComBoardCount(entity.getBoardCodeNum());
+                }
+            }else {
+                res.setMessage("查询数据为空");
+            }
+            res.setData(resData);
+            return res;
+        }catch (Exception e) {
+            log.error("{}服务异常, req={}, errMsg={}", methodDesc, bizId, e.getMessage(), e);
+            res.error("查询任务内流向统计服务异常");
+            return res;
+        }
     }
 
     @Override
     public InvokeResult<TaskFlowComBoardDto> queryComBoarUnderTaskFlow(TaskFlowDto taskFlowDto) {
-        return null;
+        final String methodDesc = "JyUnloadVehicleTysServiceImpl.queryComBoarUnderTaskFlow--查询流向内板维度统计数据服务--";
+        InvokeResult<TaskFlowComBoardDto> res = new InvokeResult<>();
+        res.success();
+        try{
+            if(taskFlowDto == null) {
+                res.error("请求对象为空");
+                return  res;
+            }
+            if(StringUtils.isBlank(taskFlowDto.getBizId())) {
+                res.error("参数缺失：bizId为空");
+                return  res;
+            }
+            if(taskFlowDto.getEndSiteId() == null) {
+                res.error("参数缺失：endSiteId为空");
+                return  res;
+            }
+
+            TaskFlowComBoardDto resData = new TaskFlowComBoardDto();
+            List<ComBoardAggDto> comBoardDtoList = new ArrayList<>();
+            Integer extraScanCount = 0;
+            Integer haveScanCount = 0;
+
+            JyUnloadVehicleBoardEntity entityParam = new JyUnloadVehicleBoardEntity();
+            entityParam.setUnloadVehicleBizId(taskFlowDto.getBizId());
+            entityParam.setEndSiteId(taskFlowDto.getEndSiteId());
+            List<String> boardCodeList = jyUnloadVehicleBoardDao.getBoardCodeList(entityParam);
+
+            if(CollectionUtils.isEmpty(boardCodeList)) {
+                res.setMessage("查询为空");
+                return  res;
+            }
+            for(String boardCode : boardCodeList) {
+                DimensionQueryDto aggsQueryParams = new DimensionQueryDto();
+                aggsQueryParams.setBizId(taskFlowDto.getBizId());
+                aggsQueryParams.setBoardCode(boardCode);
+                JyUnloadAggsEntity jyaggs = jyUnloadAggsDao.queryBoardStatistics(aggsQueryParams);
+                if(jyaggs != null) {
+                    ComBoardAggDto aggDto = new ComBoardAggDto();
+                    aggDto.setBoardCode(boardCode);
+                    aggDto.setHaveScanCount(jyaggs.getActualScanCount());
+                    aggDto.setExtraScanCount(jyaggs.getMoreScanTotalCount());
+                    comBoardDtoList.add(aggDto);
+                    extraScanCount = extraScanCount + jyaggs.getMoreScanTotalCount();
+                    haveScanCount = haveScanCount + jyaggs.getActualScanCount();
+                }
+            }
+            resData.setComBoardDtoList(comBoardDtoList);
+            resData.setExtraScanCount(extraScanCount);
+            resData.setHaveScanCount(haveScanCount);
+            res.setData(resData);
+            return res;
+        }catch (Exception e) {
+            log.error("{}服务异常, req={}, errMsg={}", methodDesc, JsonHelper.toJson(taskFlowDto), e.getMessage(), e);
+            res.error("查询流向内板维度统计数据服务异常");
+            return res;
+        }
     }
 
     @Override

@@ -5,6 +5,7 @@ import com.jd.bluedragon.distribution.jy.dto.unload.ExcepScanDto;
 import com.jd.bluedragon.distribution.jy.dto.unload.GoodsCategoryDto;
 import com.jd.bluedragon.distribution.jy.dto.unload.ScanStatisticsDto;
 import com.jd.bluedragon.distribution.jy.enums.UnloadBarCodeQueryEntranceEnum;
+import com.jd.bluedragon.distribution.jy.enums.UnloadProductTypeEnum;
 import com.jd.bluedragon.distribution.jy.unload.JyUnloadAggsEntity;
 import com.jd.bluedragon.utils.ObjectHelper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,8 @@ public class JyUnloadAggsServiceImpl implements JyUnloadAggsService {
         List<GoodsCategoryDto> categoryDtoList = jyUnloadAggsDao.queryGoodsCategoryStatistics(entity);
         if (ObjectHelper.isNotNull(categoryDtoList)) {
             for (GoodsCategoryDto categoryDto : categoryDtoList) {
+                categoryDto.setName(UnloadProductTypeEnum.getNameByCode(categoryDto.getType()));
+
                 if (!ObjectHelper.isNotNull(entity.getBoardCode())) {//板没有待扫的语义数据
                     categoryDto.setWaitScanCount(categoryDto.getShouldScanCount() - categoryDto.getHaveScanCount());
                 }
