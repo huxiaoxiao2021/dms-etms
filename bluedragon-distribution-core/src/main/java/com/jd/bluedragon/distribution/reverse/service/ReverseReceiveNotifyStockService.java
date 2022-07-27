@@ -1,20 +1,18 @@
 package com.jd.bluedragon.distribution.reverse.service;
 
+import com.google.common.base.Function;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.Waybill;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
-import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.core.base.ChuguanExportManager;
-import com.jd.bluedragon.core.base.SearchOrganizationOtherManager;
-import com.jd.bluedragon.core.base.StockExportManager;
-import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.core.exception.OrderCallTimeoutException;
 import com.jd.bluedragon.core.exception.StockCallPayTypeException;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.kuguan.domain.KuGuanDomain;
 
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
-import com.jd.bluedragon.distribution.order.domain.InternationDetailOrderDto;
 import com.jd.bluedragon.distribution.order.domain.InternationOrderDto;
 import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.external.LogEngine;
@@ -38,16 +36,17 @@ import com.jd.bluedragon.utils.XmlHelper;
 import com.jd.common.util.StringUtils;
 import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.alibaba.fastjson.JSONObject;
-import com.jd.ioms.jsf.export.domain.Order;
+import com.jd.ipc.csa.model.*;
 import com.jd.ql.basic.domain.BaseOrg;
 import com.jd.stock.iwms.export.param.ChuguanParam;
-import com.jd.stock.iwms.export.param.StockVOParam;
 import com.jd.stock.iwms.export.vo.ChuguanDetailVo;
+import com.jd.stock.iwms.export.vo.ChuguanVo;
 import com.jd.stock.iwms.export.vo.StockDetailVO;
-import com.jd.stock.iwms.export.vo.StockExtVO;
 import com.jd.ufo.domain.ufo.Organization;
 import com.jd.ufo.domain.ufo.SendpayOrdertype;
+import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.avro.data.Json;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 import org.slf4j.Logger;
@@ -57,13 +56,10 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
+import javax.annotation.Nullable;
 import javax.annotation.Resource;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 /**
@@ -136,6 +132,8 @@ public class ReverseReceiveNotifyStockService {
 
     @Autowired
 	private ChuguanExportManager chuguanExportManager;
+    @Autowired
+	private GeneralStockAllotOutInterfaceManager generalStockAllotOutInterfaceManager;
 
     @Resource
     protected UccPropertyConfiguration uccPropertyConfiguration;
@@ -180,7 +178,7 @@ public class ReverseReceiveNotifyStockService {
 
 
 	public Boolean nodifyStock(Long waybillCode) throws Exception {
-        long startTime=new Date().getTime();
+        long startTime= System.currentTimeMillis();
 
         this.log.debug("运单号：{}" , waybillCode);
 
@@ -191,7 +189,6 @@ public class ReverseReceiveNotifyStockService {
 		SystemLog sysLog = new SystemLog();//日志对象
 		sysLog.setKeyword1(waybillCode.toString());
 		sysLog.setType(SystemLogContants.TYPE_REVERSE_STOCK);//设置日志类型
-		boolean isOldForNewType = false;
 		try{
 			InternationOrderDto order = orderWebService.getInternationOrder(waybillCode);
 			List<Product> products =  productService.getInternationProducts(waybillCode); //订单详情
@@ -245,22 +242,22 @@ public class ReverseReceiveNotifyStockService {
 			//此区域:符合主动推送的条件的单子判断是否推送过,获得支付类型
 			KuGuanDomain kuguanDomain = null;
 			Integer payType = PAY_TYPE_UNKNOWN;
-			if (Waybill.TYPE_GENERAL.equals(order.getOrderType()) || Waybill.TYPE_POP_FBP.equals(order.getOrderType())
-                    ||needRetunWaybillTypes.contains(Integer.valueOf(order.getOrderType())) || isTelecomOrder(order.getOrderType(),order.getSendPay())){
-				kuguanDomain = queryKuguanDomainByWaybillCode(String.valueOf(waybillCode));
-				if(kuguanDomain==null) {
-					return Boolean.FALSE;
-				}else if(isReverseLogistics(kuguanDomain)){
-					return Boolean.TRUE;
-				}else{
-					payType = getPayType(kuguanDomain);
-				}
-			} else {
-				sysLog.setContent("订单类型不需要回传库存中间件"+order.getOrderType());
-				this.log.warn("运单号：{}, 不需要回传库存中间件。",waybillCode);
-				return Boolean.TRUE;
+			if (!isPushChuguan(order)){
+                sysLog.setContent("订单类型不需要回传库存中间件"+order.getOrderType());
+                this.log.warn("运单号：{}, 不需要回传库存中间件。",waybillCode);
+                return Boolean.TRUE;
+
 			}
-			
+
+            kuguanDomain = queryKuguanDomainByWaybillCode(String.valueOf(waybillCode));
+            if(kuguanDomain==null) {
+                return Boolean.FALSE;
+            }
+            if(isReverseLogistics(kuguanDomain)){
+                return Boolean.TRUE;
+            }
+            payType = getPayType(kuguanDomain);
+
 			//开始根据类型的不同推送
 			if (needRetunWaybillTypes.contains(Integer.valueOf(order.getOrderType())) || isTelecomOrder(order.getOrderType(),order.getSendPay())) {
 				if (isPrePay(payType)) {
@@ -275,32 +272,7 @@ public class ReverseReceiveNotifyStockService {
 				sysLog.setKeyword3("MQ");
                 sysLog.setContent("推出管成功!");
 			}else if (Waybill.TYPE_GENERAL.equals(order.getOrderType()) || Waybill.TYPE_POP_FBP.equals(order.getOrderType())) {
-                long result = 0;
-                //判断是否是已旧换新
-                isOldForNewType = BusinessHelper.isYJHX(order.getSendPay());
-                OrderBankResponse orderBank = orderBankService.getOrderBankResponse(String.valueOf(waybillCode));
-                result = insertChuguan(waybillCode, isOldForNewType, order, products, payType,orderBank);
-                /** 新逻辑结束 */
-
-                try {
-                    //业务流程监控, 备件库埋点
-                    Map<String, String> data = new HashMap<String, String>();
-                    data.put("orderId", waybillCode.toString());
-                    Profiler.bizNode("Reverse_mq_dms2stock", data);
-                } catch (Exception e) {
-                    this.log.error("推送UMP发生异常.", e);
-                }
-
-                this.log.debug("运单号：{}, 库存中间件返回结果：{}" ,waybillCode, result);
-
-                sysLog.setKeyword3("WEBSERVICE");
-                sysLog.setKeyword4(result);
-                if(result!=0)
-                    sysLog.setContent("推出管成功!");
-                else{
-                    sysLog.setContent("推出管失败!");
-                    return Boolean.FALSE;
-                }
+                return insertChuguan(waybillCode, sysLog, order, products, payType);
             }
 
         }catch(Exception e){
@@ -310,7 +282,7 @@ public class ReverseReceiveNotifyStockService {
 			}
 			return Boolean.FALSE;
 		}finally{
-            long endTime = new Date().getTime();
+            long endTime = System.currentTimeMillis();
 
             JSONObject request=new JSONObject();
             request.put("waybillCode",sysLog.getKeyword1());
@@ -330,12 +302,219 @@ public class ReverseReceiveNotifyStockService {
                     .processTime(endTime,startTime)
                     .build();
 
-            logEngine.addLog(businessLogProfiler);
+//            logEngine.addLog(businessLogProfiler);
             SystemLogUtil.log(sysLog);
 		}
 		
 		return Boolean.TRUE;
 	}
+
+    private Boolean insertChuguan(Long orderId, SystemLog sysLog, InternationOrderDto order, List<Product> products, Integer payType) {
+        //判断是否是已旧换新
+        boolean isOldForNewType = BusinessHelper.isYJHX(order.getSendPay());
+        OrderBankResponse orderBank = orderBankService.getOrderBankResponse(String.valueOf(orderId));
+        List<ChuguanDetailVo> chuguanDetailVos = getChuguanDetailVos(orderId);
+        if(uccPropertyConfiguration.isChuguanPurchaseAndSaleSwitch() && CollectionUtils.isNotEmpty(chuguanDetailVos)) {
+            purchaseAndSaleInsertChuguan(orderId, order, payType, isOldForNewType, orderBank, chuguanDetailVos);
+        }
+        //
+        removePurchaseAndSaleVO(products, chuguanDetailVos);
+        if(CollectionUtils.isEmpty(products)){
+            return true;
+        }
+        long result = 0;
+        List<ChuguanDetailVo> intChuguanDetailVoList = getInChuguanDetailVoList(products,payType);
+        List<ChuguanDetailVo> outChuguanDetailVoList = getOutChuguanDetailVoList(products);
+        result = insertNewChuguan(orderId, isOldForNewType, order, payType,orderBank,intChuguanDetailVoList,outChuguanDetailVoList);
+        /** 新逻辑结束 */
+
+        try {
+            //业务流程监控, 备件库埋点
+            Map<String, String> data = new HashMap<String, String>();
+            data.put("orderId", orderId.toString());
+            Profiler.bizNode("Reverse_mq_dms2stock", data);
+        } catch (Exception e) {
+            this.log.error("推送UMP发生异常.", e);
+        }
+
+        this.log.debug("运单号：{}, 库存中间件返回结果：{}" , orderId, result);
+
+        sysLog.setKeyword3("WEBSERVICE");
+        sysLog.setKeyword4(result);
+        if(result!=0){
+            sysLog.setContent("推出管成功!");
+            return Boolean.TRUE;
+        }
+        sysLog.setContent("推出管失败!");
+        return Boolean.FALSE;
+    }
+
+    /**
+     * 删除渠道化的sku
+     * @param products
+     * @param chuguanDetailVos
+     */
+    private void removePurchaseAndSaleVO(List<Product> products, List<ChuguanDetailVo> chuguanDetailVos) {
+        Map<Long,ChuguanDetailVo> chuguanDetailVosMap = Maps.uniqueIndex(chuguanDetailVos.iterator(), new Function<ChuguanDetailVo, Long>() {
+            @Nullable
+            @Override
+            public Long apply(@Nullable ChuguanDetailVo detailVo) {
+                return detailVo.getSkuId();
+            }
+        });
+        Iterator<Product> productsIterator = products.iterator();
+        while (productsIterator.hasNext()){
+            Product product = productsIterator.next();
+            if(chuguanDetailVosMap.containsKey(product.getSkuId())){
+                productsIterator.remove();
+            }
+        }
+    }
+
+    private List<ChuguanDetailVo> getChuguanDetailVos(Long orderId) {
+        List<ChuguanVo> chuguanVos = chuguanExportManager.queryChuGuan(String.valueOf(orderId), ConstantEnums.ChuGuanTypeId.ORDER_MONEY_OUT);
+        Collections.sort(chuguanVos, new Comparator<ChuguanVo>() {
+            @Override
+            public int compare(ChuguanVo o1, ChuguanVo o2) {
+                if(o1.getBusinessTime() == null ){
+                    return 0;
+                }
+                if(o2.getBusinessTime() == null){
+                    return 0;
+                }
+                return  o2.getBusinessTime().compareTo(o1.getBusinessTime());
+            }
+        });
+        ChuguanVo chuguanVo = chuguanVos.get(0);
+        List<ChuguanDetailVo> chuguanDetailVoList = chuguanVo.getChuguanDetailVos();
+        List<ChuguanDetailVo> result = Lists.newArrayList();
+        for(ChuguanDetailVo item : chuguanDetailVoList){
+            if(isPurchaseAndSale(item)){
+                result.add(item);
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * 供应链二期插入出管
+     * @param orderId
+     * @param order
+     * @param products
+     * @param payType
+     * @param isOldForNewType
+     * @param orderBank
+     * @param chuguanDetailVos
+     * @return
+     */
+    private Boolean purchaseAndSaleInsertChuguan(Long orderId, InternationOrderDto order,Integer payType, boolean isOldForNewType, OrderBankResponse orderBank, List<ChuguanDetailVo> chuguanDetailVos) {
+        CallerInfo info = Profiler.registerInfo("DMS.BASE.ReverseReceiveNotifyStockService.purchaseAndSaleInsertChuguan", Constants.UMP_APP_NAME_DMSWEB, false, true);
+        try {
+            log.info("供应链中台二期写出管orderId[{}]chuguanDetailVos[{}]",orderId, JsonHelper.toJson(chuguanDetailVos));
+            Map<Long, ChuguanDetailVo> skuMappingChuguanDetailVo = getSkuIdChuguanDetailVoMap(chuguanDetailVos);
+            List<AllotRequestDetail> allotRequestDetails = getAllotRequestDetailList(orderId, chuguanDetailVos,order);
+            AllotScenarioEnum scenario = AllotScenarioEnum.SO_BACK;
+            String bizUniqueKey = "qldms".concat("-").concat(String.valueOf(orderId));
+            boolean isIdempotent = true;
+            String sysName = "(J-one)bluedragon-distribution-worker";
+            List<ChuguanDetailVo> chuguanDetailVoList = new ArrayList<>();
+            List<AllotResponseDetail> allotResponseDetailList = generalStockAllotOutInterfaceManager.batchAllotStock(allotRequestDetails,scenario,bizUniqueKey,isIdempotent,sysName);
+
+            for(AllotResponseDetail allotResponseDetail : allotResponseDetailList){
+                List<DimAllotResult> allotResultList = allotResponseDetail.getDimAllotResultList();
+                for(DimAllotResult dimAllotResult : allotResultList){
+                    Long skuId = allotResponseDetail.getSkuId();
+                    String dimValue = dimAllotResult.getDimValue();
+                    if(org.apache.commons.lang3.StringUtils.isNotEmpty(dimValue) && dimValue.split("-").length>1){
+                        dimValue = dimAllotResult.getDimValue().split("-")[1];
+                    }
+                    BigDecimal zongJinE = null;// TODO: 2022/7/13 怎么取？
+                    Integer quantity = dimAllotResult.getAllotQty();
+                    BigDecimal jiaGe = null;// TODO: 2022/7/13   怎么取？
+                    String profitLossId = null;
+                    List<String> distriOrderIds = null;
+                    if(skuMappingChuguanDetailVo.get(skuId) != null ){
+                        profitLossId = skuMappingChuguanDetailVo.get(skuId).getProfitLossId();
+                        distriOrderIds = skuMappingChuguanDetailVo.get(skuId).getDistriOrderIds();
+                    }
+                    chuguanDetailVoList.add(getChuguanDetailVo(skuId,zongJinE,quantity,jiaGe,profitLossId,distriOrderIds,dimValue));
+                }
+            }
+            // TODO: 2022/7/18  ChuguanParam zongJinE 怎么传？ 
+            int result = insertNewChuguan(orderId, isOldForNewType, order, payType, orderBank,chuguanDetailVoList,chuguanDetailVoList);
+            log.info("供应链中台二期写出管orderId[{}]chuguanDetailVos[{}]result[{}]",orderId, JsonHelper.toJson(chuguanDetailVos),result);
+            return Boolean.TRUE;
+        } catch (Exception e) {
+            log.error("供应链二期插入出管报错orderId[{}]",orderId,e);
+            Profiler.functionError(info);
+        } finally {
+            Profiler.registerInfoEnd(info);
+        }
+        return false;
+    }
+
+    private Map<Long, ChuguanDetailVo> getSkuIdChuguanDetailVoMap(List<ChuguanDetailVo> chuguanDetailVos) {
+        Map<Long, ChuguanDetailVo> skuMappingChuguanDetailVo = Maps.newHashMap();
+        for(ChuguanDetailVo detailVo : chuguanDetailVos){
+            skuMappingChuguanDetailVo.put(detailVo.getSkuId(),detailVo);
+        }
+        return skuMappingChuguanDetailVo;
+    }
+
+    private List<AllotRequestDetail> getAllotRequestDetailList(Long orderId, List<ChuguanDetailVo> chuguanDetailVos,InternationOrderDto order) {
+        List<AllotRequestDetail> allotRequestDetails = Lists.newArrayList();
+        for(ChuguanDetailVo detailVo : chuguanDetailVos){
+            Integer num = detailVo.getNum();
+            String profitLossId = detailVo.getProfitLossId();//损益渠道ID
+            Long skuId = detailVo.getSkuId();
+            Map<String, String>  salesModelMap = detailVo.getSalesModel();
+            String purchaseChannel = detailVo.getPurchaseChannel();//采购渠道
+            Map<String, String> paramExtMap = detailVo.getParamExtMap();
+            AllotRequestDetail allotRequestDetail = new AllotRequestDetail();
+            allotRequestDetail.setSkuId(skuId);
+            allotRequestDetail.setAllotQty(detailVo.getNum());
+            allotRequestDetail.setRule(4);
+            allotRequestDetail.setRowKey("qldms".concat(UUID.randomUUID().toString()));
+            allotRequestDetail.setDcId(order.getDeliveryCenterID());
+            allotRequestDetail.setStoreId(order.getStoreId());
+            Map<String, Object> extAttrMap = Maps.newHashMap();
+            extAttrMap.put("profitLossId",profitLossId);
+            extAttrMap.put("purchaseChannel",purchaseChannel);
+            extAttrMap.put("salesOrderId",String.valueOf(orderId));
+            List<StockOutInfo> stockOutInfoList = Lists.newArrayList();
+            for(Map.Entry<String,String> entry : salesModelMap.entrySet()){
+                StockOutInfo stockOutInfo = new StockOutInfo();
+                stockOutInfo.setPurchaseChannel(purchaseChannel);
+                stockOutInfo.setSalesType(entry.getKey());
+                stockOutInfo.setSalesChannel(profitLossId);
+                stockOutInfo.setStockOutNum(Integer.valueOf(entry.getValue()));
+                stockOutInfoList.add(stockOutInfo);
+            }
+            extAttrMap.put("stockOutInfoList",stockOutInfoList);
+            allotRequestDetail.setExtAttrMap(extAttrMap);
+            allotRequestDetails.add(allotRequestDetail);
+        }
+        return allotRequestDetails;
+    }
+
+    /**
+     * 判断是否是采销控
+     * @param detailVo
+     * @return
+     */
+    private boolean isPurchaseAndSale(ChuguanDetailVo detailVo) {
+        String purchaseChannel = detailVo.getPurchaseChannel();//采购渠道
+        if(StringUtils.isNotEmpty(purchaseChannel)){
+            return true;
+        }
+        return false;
+    }
+
+    private boolean isPushChuguan(InternationOrderDto order) {
+        return Waybill.TYPE_GENERAL.equals(order.getOrderType()) || Waybill.TYPE_POP_FBP.equals(order.getOrderType())
+                || needRetunWaybillTypes.contains(Integer.valueOf(order.getOrderType())) || isTelecomOrder(order.getOrderType(), order.getSendPay());
+    }
 
     private boolean isReverseLogistics(KuGuanDomain kuguanDomain) {
         if(CHUGUAN_FIELD_QITAFANGSHI.equals(kuguanDomain.getLblOtherWay())){
@@ -347,26 +526,14 @@ public class ReverseReceiveNotifyStockService {
         return Boolean.FALSE;
     }
 
-    private KuGuanDomain queryKuguanDomainByWaybillCode(String waybillCode){
-        if(uccPropertyConfiguration.isChuguanNewInterfaceQuerySwitch()){
-            return chuguanExportManager.queryByWaybillCode(waybillCode);
-        }
-        return stockExportManager.queryByWaybillCode(waybillCode);
+    private KuGuanDomain queryKuguanDomainByWaybillCode(String orderId){
+        return chuguanExportManager.queryByWaybillCode(orderId);
     }
 
-    private long insertChuguan(Long waybillCode, boolean isOldForNewType, InternationOrderDto order, List<Product> products, Integer payType,
-                               OrderBankResponse orderBank) {
-        if(uccPropertyConfiguration.isChuguanNewInterfaceInsertSwitch()){
-            return insertNewChuguan(waybillCode,isOldForNewType,order,products,payType,orderBank);
-        }
-        return insertOldChuguan(waybillCode, isOldForNewType, order, products, payType,orderBank);
-    }
-
-    public int insertNewChuguan(Long waybillCode, boolean isOldForNewType,InternationOrderDto order, List<Product> products,
-                                  Integer payType,OrderBankResponse orderBank){
+    public int insertNewChuguan(Long waybillCode, boolean isOldForNewType,InternationOrderDto order,
+                                  Integer payType,OrderBankResponse orderBank,List<ChuguanDetailVo> chuguanDetailVoListIn,List<ChuguanDetailVo> chuguanDetailVoListOut){
         List<ChuguanParam> chuGuanParamList = Lists.newArrayList();// 需要放两个 一个出一个入；他们会根据 typeId 区分
 
-        //入
         ConstantEnums.ChuGuanChuruId chuGuanParam = isPrePay(payType) ? ConstantEnums.ChuGuanChuruId.IN_KU : ConstantEnums.ChuGuanChuruId.OUT_KU;
 
         ConstantEnums.ChuGuanTypeId inTypeId = isPrePay(payType) ? ConstantEnums.ChuGuanTypeId.REVERSE_LOGISTICS_MONEY_REJECTION :
@@ -382,8 +549,8 @@ public class ReverseReceiveNotifyStockService {
                 chuGuanFenLei,
                 BigDecimal.valueOf(1),
                 zongJinE);
-        List<ChuguanDetailVo> intChuguanDetailVoList = getInChuguanDetailVoList(products,payType);
-        inChuguanParam.setChuguanDetailVoList(intChuguanDetailVoList);
+
+        inChuguanParam.setChuguanDetailVoList(chuguanDetailVoListIn);
 
         //出
         ConstantEnums.ChuGuanTypeId outTypeId = ConstantEnums.ChuGuanTypeId.REVERSE_LOGISTICS_OUT;
@@ -395,8 +562,8 @@ public class ReverseReceiveNotifyStockService {
                 ConstantEnums.ChuGuanFenLei.OTHER,
                 BigDecimal.valueOf(0),
                 orderBank.getShouldPay());
-        List<ChuguanDetailVo> outChuguanDetailVoList = getOutChuguanDetailVoList(products);
-        outChuguanParam.setChuguanDetailVoList(outChuguanDetailVoList);
+
+        outChuguanParam.setChuguanDetailVoList(chuguanDetailVoListOut);
 
         chuGuanParamList.add(inChuguanParam);
         chuGuanParamList.add(outChuguanParam);
@@ -465,6 +632,23 @@ public class ReverseReceiveNotifyStockService {
         return chuguanParam;
     }
 
+    // TODO: 2022/7/13  
+    private ChuguanDetailVo getChuguanDetailVo(Long skuId,BigDecimal zongJinE,Integer quantity,BigDecimal jiaGe,String profitLossId,List<String> distriOrderIds,String dimValue) {
+        ChuguanDetailVo chuguanDetailVo = new ChuguanDetailVo();
+        chuguanDetailVo.setSkuId(skuId);
+        chuguanDetailVo.setNum(quantity);
+        chuguanDetailVo.setZongJinE(zongJinE);
+        chuguanDetailVo.setJiaGe(jiaGe);
+        chuguanDetailVo.setYn(1);
+        chuguanDetailVo.setCaiGouRenNo(skuId);
+        chuguanDetailVo.setBiLv(1);
+        chuguanDetailVo.setProfitLossId(profitLossId);
+        chuguanDetailVo.setDistriOrderIds(distriOrderIds);
+        chuguanDetailVo.setPurchaseChannel(dimValue);
+        return chuguanDetailVo;
+    }
+
+
     private List<ChuguanDetailVo> getChuguanDetailVoList(List<Product> products,Integer paidType) {
         List<ChuguanDetailVo> chuguanDetailVoList = new ArrayList<>();
         for(Product item:products){
@@ -496,109 +680,6 @@ public class ReverseReceiveNotifyStockService {
 
     private List<ChuguanDetailVo> getOutChuguanDetailVoList(List<Product> products){
         return getChuguanDetailVoList(products,null);
-    }
-
-
-    private long insertOldChuguan(Long waybillCode, boolean isOldForNewType, InternationOrderDto order, List<Product> products,
-                                  Integer payType,OrderBankResponse orderBank) {
-        long result;
-        this.log.debug("运单号：{}, 使用推库管新接口",waybillCode);
-        /** 新逻辑开始 */
-        Date creatDate = new Date();//给扩展属性使用的创建时间
-        //设置扩展属性
-        StockExtVO stockExtVO0 = new StockExtVO();
-        stockExtVO0.setTypeID(isPrePay(payType) ? 1402 : 1401);//保留 原先逻辑
-        stockExtVO0.setBusiType("订单退货");
-        stockExtVO0.setSubType(isPrePay(payType) ? "先款拒收" : "先货拒收");
-        stockExtVO0.setExtType(CHUGUAN_FIELD_QITAFANGSHI);
-        stockExtVO0.setBusiNo(String.valueOf(waybillCode));
-        stockExtVO0.setSys("ql.dms");
-        stockExtVO0.setCreatDate(creatDate);
-        stockExtVO0.setAdjust(0);
-        stockExtVO0.setVirtual(1);
-
-        StockVOParam inWmsStock0 = new StockVOParam();
-        inWmsStock0.setRfId(String.valueOf(waybillCode));
-        inWmsStock0.setRfType(6);
-        inWmsStock0.setOrderId(waybillCode);
-        inWmsStock0.setMoneyn(1);
-        inWmsStock0.setCity(DateHelper.formatDateTime(new Date()));
-        inWmsStock0.setJigou(order.getIdCompanyBranchName());
-        inWmsStock0.setLaiyuan(order.getIdCompanyBranchName());
-        inWmsStock0.setShanghai(order.getIdCompanyBranch());
-        inWmsStock0.setActor(BigDecimal.valueOf(0));
-        inWmsStock0.setQianzi(1);
-        /*inWmsStock0.setYun(order.getTotalFee());*/
-        inWmsStock0.setYouhui(orderBank.getDiscount());
-        inWmsStock0.setQite(BigDecimal.valueOf(1));//与潘文华确认改为1，已不用区分先款先货
-        inWmsStock0.setPhdanhao(0);
-        inWmsStock0.setCgdanhao(0);
-
-        if(isOldForNewType){
-            inWmsStock0.setQtfs(CHUGUAN_FIELD_STILL_NEW_QTFS);
-            //开票机构ID
-            inWmsStock0.setLaiyuancode(getKPJGID(order));
-        }else{
-            inWmsStock0.setQtfs(CHUGUAN_FIELD_QITAFANGSHI);
-            inWmsStock0.setLaiyuancode(order.getCustomerName());
-        }
-        inWmsStock0.setOrgId(order.getDeliveryCenterID());
-        inWmsStock0.setSid(order.getStoreId());
-        inWmsStock0.setChuruId(isPrePay(payType) ? 1 : 2);
-        inWmsStock0.setFeileiId(isPrePay(payType) ? 2 : 1);
-        inWmsStock0.setKuanx(isPrePay(payType) ? "已收" : "未收");
-        inWmsStock0.setZjine(isPrePay(payType) ? orderBank.getShouldPay()
-                : orderBank.getShouldPay().negate());
-        inWmsStock0.setStockDetails(this.getStockDetailVO(products, payType));
-        inWmsStock0.setStockExtVO(stockExtVO0);
-
-        //设置扩展属性
-        StockExtVO stockExtVO1 = new StockExtVO();
-        stockExtVO1.setTypeID(1403);
-        stockExtVO1.setBusiType("大库出备件库");
-//						stockExtVO1.setSubType(isPrePay(payType) ? "先款拒收" : "先货拒收");
-        stockExtVO1.setExtType(CHUGUAN_FIELD_QITAFANGSHI);
-        stockExtVO1.setBusiNo(String.valueOf(waybillCode));
-        stockExtVO1.setSys("ql.dms");
-        stockExtVO1.setCreatDate(creatDate);
-        stockExtVO1.setAdjust(0);
-        stockExtVO1.setVirtual(1);
-
-        StockVOParam outSpwmsStock0 = new StockVOParam();
-        outSpwmsStock0.setRfId(String.valueOf(waybillCode));
-        outSpwmsStock0.setRfType(2);
-        outSpwmsStock0.setOrderId(waybillCode);
-        outSpwmsStock0.setMoneyn(1);
-        outSpwmsStock0.setCity(DateHelper.formatDateTime(new Date()));
-        outSpwmsStock0.setJigou(order.getIdCompanyBranchName());
-        outSpwmsStock0.setLaiyuan(order.getIdCompanyBranchName());
-        outSpwmsStock0.setShanghai(order.getIdCompanyBranch());
-        outSpwmsStock0.setActor(BigDecimal.valueOf(0));
-        outSpwmsStock0.setQianzi(1);
-        /*outSpwmsStock0.setYun(order.getTotalFee());*/
-        outSpwmsStock0.setYouhui(orderBank.getDiscount());
-        outSpwmsStock0.setQite(BigDecimal.valueOf(0));
-        outSpwmsStock0.setPhdanhao(0);
-        outSpwmsStock0.setCgdanhao(0);
-        if(isOldForNewType){
-            outSpwmsStock0.setQtfs(CHUGUAN_FIELD_STILL_NEW_QTFS);
-            //开票机构ID
-            outSpwmsStock0.setLaiyuancode(getKPJGID(order));
-        }else {
-            outSpwmsStock0.setLaiyuancode(order.getCustomerName());
-            outSpwmsStock0.setQtfs(CHUGUAN_FIELD_QITAFANGSHI);
-        }
-        outSpwmsStock0.setOrgId(order.getDeliveryCenterID());
-        outSpwmsStock0.setSid(order.getStoreId());
-        outSpwmsStock0.setChuruId(2);
-        outSpwmsStock0.setFeileiId(6);
-        outSpwmsStock0.setKuanx("未知 ");
-        outSpwmsStock0.setZjine(orderBank.getShouldPay());
-        outSpwmsStock0.setStockDetails(this.getStockDetailVO(products));
-        outSpwmsStock0.setStockExtVO(stockExtVO0);
-
-        result = stockExportManager.insertStockVirtualIntOut(inWmsStock0, outSpwmsStock0);
-        return result;
     }
 
     public String stockMessage(InternationOrderDto order, List<Product> products, Integer stockType, Integer payType) {
@@ -641,51 +722,6 @@ public class ReverseReceiveNotifyStockService {
 		} else {
 			return -1;
 		}
-	}
-
-	private List<StockDetailVO> getStockDetailVO(List<Product> products, Integer paidType) {
-		List<StockDetailVO> stockDetailVOs = new ArrayList<StockDetailVO>();
-		for (Product product : products) {
-			StockDetailVO sdVO = new StockDetailVO();
-			sdVO.setBilv(1);
-			sdVO.setWareId(new Long(product.getProductId()));
-			sdVO.setWare(product.getName());
-			sdVO.setJiage(product.getPrice());
-			sdVO.setNum(this.isPrePay(paidType) ? product.getQuantity() : this.negate(product
-					.getQuantity()));
-			sdVO.setZjine(this.isPrePay(paidType) ? product.getPrice().multiply(
-					new BigDecimal(product.getQuantity())) : product.getPrice()
-					.multiply(new BigDecimal(product.getQuantity())).negate());
-			//added by zhanglei 增加影分skuid
-			sdVO.setCaiguo(product.getSkuId());
-			stockDetailVOs.add(sdVO);
-		}
-
-		return stockDetailVOs;
-	}
-
-	/**
-	 * 将商品明细转换
-	 * @param products
-	 * @return
-	 */
-	private List<StockDetailVO> getStockDetailVO(List<Product> products) {
-		List<StockDetailVO> stockDetailVOs = new ArrayList<StockDetailVO>();
-		for (Product product : products) {
-			StockDetailVO sdVO = new StockDetailVO();
-			sdVO.setBilv(1);
-			sdVO.setWareId(new Long(product.getProductId()));
-			sdVO.setWare(product.getName());
-			sdVO.setJiage(product.getPrice());
-			sdVO.setNum(product.getQuantity());
-			sdVO.setZjine(product.getPrice().multiply(new BigDecimal(product.getQuantity())));
-			//added by zhanglei 增加影分skuId
-			sdVO.setCaiguo(product.getSkuId());
-
-			stockDetailVOs.add(sdVO);
-		}
-
-		return stockDetailVOs;
 	}
 	
 	private Integer negate(Integer num) {
@@ -731,7 +767,7 @@ public class ReverseReceiveNotifyStockService {
 		}
 		return result;
 	}
-	
+
 	private boolean isPrePay(Integer payType) {
 		return payType.equals(PAY_TYPE_PRE);
 	}
