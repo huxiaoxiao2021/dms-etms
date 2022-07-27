@@ -505,6 +505,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     }
 
     @Override
+    @JProfiler(jKey = "JyUnloadVehicleTysServiceImpl.handoverTask",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<Void> handoverTask(UnloadVehicleTaskDto unloadVehicleTask) {
         InvokeResult<Void> result = new InvokeResult<>();
         result.success();
