@@ -109,4 +109,13 @@ public class GroupBoardManagerImpl implements GroupBoardManager {
         return null;
     }
 
+    @Override
+    @JProfiler(jKey = "dmsWeb.jsf.tc.groupBoardService.getBoardStatisticsByBoardCode",jAppName= Constants.UMP_APP_NAME_DMSWEB,
+            mState = {JProEnum.TP, JProEnum.FunctionError})
+    public Response<BoardBoxStatisticsResDto> getBoardStatisticsByBoardCode(String boardCode) {
+        return groupBoardService.getBoardStatisticsByBoardCode(boardCode);
+
+    }
+
+
 }
