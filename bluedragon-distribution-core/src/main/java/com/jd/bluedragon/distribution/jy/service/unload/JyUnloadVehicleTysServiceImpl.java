@@ -277,7 +277,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
 
         JyBizTaskUnloadVehicleEntity unloadVehicleEntity = jyBizTaskUnloadVehicleService.findByBizId(scanPackageDto.getBizId());
         if (!ObjectHelper.isNotNull(unloadVehicleEntity)) {
-            return new InvokeResult<>(TASK_NO_FOUND_BY_PARAMS_CODE,TASK_NO_FOUND_BY_PARAMS_MESSAGE);
+            return new InvokeResult<>(TASK_NO_FOUND_BY_PARAMS_CODE, TASK_NO_FOUND_BY_PARAMS_MESSAGE);
         }
         //开始组板
         Integer comBoardCount = comBoard(scanPackageDto);
@@ -295,7 +295,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             scanPackageRespDto.setBoardCode(scanPackageDto.getBoardCode());
             scanPackageRespDto.setGoodsAreaCode(scanPackageDto.getGoodsAreaCode());
             scanPackageRespDto.setComBoardCount(comBoardCount);
-            return new InvokeResult(RESULT_SUCCESS_CODE,RESULT_SUCCESS_MESSAGE,scanPackageRespDto);
+            return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, scanPackageRespDto);
         }
         return new InvokeResult(UNLOAD_SCAN_EXCEPTION_CODE, UNLOAD_SCAN_EXCEPTION_MESSAGE);
     }
@@ -406,7 +406,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         addBoardBox.setSiteName(scanPackageDto.getCurrentOperate().getSiteName());
         addBoardBox.setSiteType(BOARD_COMBINATION_SITE_TYPE);
         addBoardBox.setBizSource(BizSourceEnum.PDA.getValue());
-        String waybillCode =WaybillUtil.isPackageCode(scanPackageDto.getScanCode())?WaybillUtil.getWaybillCode(scanPackageDto.getScanCode()):scanPackageDto.getScanCode();
+        String waybillCode = WaybillUtil.isPackageCode(scanPackageDto.getScanCode()) ? WaybillUtil.getWaybillCode(scanPackageDto.getScanCode()) : scanPackageDto.getScanCode();
         addBoardBox.setWaybillCode(waybillCode);
 
         Response<Integer> rs = groupBoardManager.addBoxToBoard(addBoardBox);
@@ -530,13 +530,12 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
 
     @Override
     public InvokeResult<List<UnloadPackageDto>> queryPackageUnderWaybill(QueryWaybillDto queryWaybillDto) {
-        if (ObjectHelper.isNotNull(queryWaybillDto.getBoardCode())){
+        if (ObjectHelper.isNotNull(queryWaybillDto.getBoardCode())) {
             //search DB
-            List<PackageDto> packageDtos=groupBoardManager.getPackageCodeUnderComBoard(queryWaybillDto.getBoardCode(),queryWaybillDto.getWaybillCode());
-            List<UnloadPackageDto> unloadPackageDtoList =BeanUtils.copy(packageDtos,UnloadPackageDto.class);
-            return new InvokeResult(RESULT_SUCCESS_CODE,RESULT_SUCCESS_MESSAGE,unloadPackageDtoList);
-        }
-        else {
+            List<PackageDto> packageDtos = groupBoardManager.getPackageCodeUnderComBoard(queryWaybillDto.getBoardCode(), queryWaybillDto.getWaybillCode());
+            List<UnloadPackageDto> unloadPackageDtoList = BeanUtils.copy(packageDtos, UnloadPackageDto.class);
+            return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, unloadPackageDtoList);
+        } else {
             Pager<JyVehicleTaskUnloadDetail> condition = assembleScanQueryCondition(queryWaybillDto);
             Pager<JyVehicleTaskUnloadDetail> pagerResp = null;
             if (ObjectHelper.isNotNull(queryWaybillDto.getGoodsType())) {
@@ -548,45 +547,39 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             } else if (UnloadBarCodeQueryEntranceEnum.INTERCEPT.getCode().equals(queryWaybillDto.getExpType())) {
                 pagerResp = iJyUnloadVehicleManager.queryInterceptBarCodeDetail(condition);
             }
-            if (ObjectHelper.isNotNull(pagerResp.getData())){
-                List<UnloadPackageDto>  unloadPackageDtoList =new ArrayList<>();
-                List<JyVehicleTaskUnloadDetail> unloadDetailList =pagerResp.getData();
-                for (JyVehicleTaskUnloadDetail unloadDetail:unloadDetailList){
-                    UnloadPackageDto unloadPackageDto =new UnloadPackageDto();
+            if (ObjectHelper.isNotNull(pagerResp.getData())) {
+                List<UnloadPackageDto> unloadPackageDtoList = new ArrayList<>();
+                List<JyVehicleTaskUnloadDetail> unloadDetailList = pagerResp.getData();
+                for (JyVehicleTaskUnloadDetail unloadDetail : unloadDetailList) {
+                    UnloadPackageDto unloadPackageDto = new UnloadPackageDto();
                     unloadPackageDto.setPackageCode(unloadDetail.getPackageCode());
                     unloadPackageDtoList.add(unloadPackageDto);
                 }
-                return new InvokeResult(RESULT_SUCCESS_CODE,RESULT_SUCCESS_MESSAGE,unloadPackageDtoList);
+                return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, unloadPackageDtoList);
             }
         }
-        return new InvokeResult(SERVER_ERROR_CODE,SERVER_ERROR_MESSAGE);
+        return new InvokeResult(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
     }
 
     private Pager<JyVehicleTaskUnloadDetail> assembleScanQueryCondition(QueryWaybillDto queryWaybillDto) {
         JyVehicleTaskUnloadDetail condition = new JyVehicleTaskUnloadDetail();
         condition.setBizId(queryWaybillDto.getBizId());
         condition.setWaybillCode(queryWaybillDto.getWaybillCode());
-        if (ObjectHelper.isNotNull(queryWaybillDto.getBoardCode())){
-            condition.setBoardCode(queryWaybillDto.getBoardCode());
-        }
-        else {
-            if (ObjectHelper.isNotNull(queryWaybillDto.getGoodsType())){
-                condition.setProductType(queryWaybillDto.getGoodsType());
-            }
-            else {
-                switch (queryWaybillDto.getExpType()) {
-                    case 1:
-                        condition.setScannedFlag(0);
-                        break;
-                    case 2:
-                        condition.setInterceptFlag(1);
-                        break;
-                    case 3:
-                        condition.setManualCreatedFlag(1);
-                        break;
-                    default:
-                        log.info("");
-                }
+        if (ObjectHelper.isNotNull(queryWaybillDto.getGoodsType())) {
+            condition.setProductType(queryWaybillDto.getGoodsType());
+        } else {
+            switch (queryWaybillDto.getExpType()) {
+                case 1:
+                    condition.setScannedFlag(0);
+                    break;
+                case 2:
+                    condition.setInterceptFlag(1);
+                    break;
+                case 3:
+                    condition.setManualCreatedFlag(1);
+                    break;
+                default:
+                    log.info("");
             }
         }
         Pager<JyVehicleTaskUnloadDetail> pager = new Pager<>();
