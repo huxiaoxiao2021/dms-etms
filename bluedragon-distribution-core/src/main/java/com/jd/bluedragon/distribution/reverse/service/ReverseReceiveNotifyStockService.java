@@ -37,7 +37,6 @@ import com.jd.common.util.StringUtils;
 import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.fastjson.JSONObject;
 import com.jd.ioms.jsf.export.domain.Order;
-import com.alibaba.fastjson.JSONObject;
 import com.jd.ipc.csa.model.*;
 import com.jd.ql.basic.domain.BaseOrg;
 import com.jd.stock.iwms.export.param.ChuguanParam;
@@ -177,7 +176,6 @@ public class ReverseReceiveNotifyStockService {
         }
         return Long.valueOf(orderId);
     }
-
 
 	public Boolean nodifyStock(Long waybillCode) throws Exception {
         long startTime= System.currentTimeMillis();
@@ -464,7 +462,7 @@ public class ReverseReceiveNotifyStockService {
         return skuMappingChuguanDetailVo;
     }
 
-    private List<AllotRequestDetail> getAllotRequestDetailList(Long orderId, List<ChuguanDetailVo> chuguanDetailVos,InternationOrderDto order) {
+    private List<AllotRequestDetail> getAllotRequestDetailList(Long orderId, List<ChuguanDetailVo> chuguanDetailVos, InternationOrderDto order) {
         List<AllotRequestDetail> allotRequestDetails = Lists.newArrayList();
         for(ChuguanDetailVo detailVo : chuguanDetailVos){
             Integer num = detailVo.getNum();
