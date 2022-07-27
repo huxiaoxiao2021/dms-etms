@@ -822,7 +822,47 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     @Override
     @JProfiler(jKey = "JyUnloadVehicleTysServiceImpl.cancelComBoard",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult cancelComBoard(CancelComBoardDto cancelComBoardDto) {
-        return null;
+        final String methodDesc = "JyUnloadVehicleTysServiceImpl.cancelComBoard--批量取消组板服务--";
+        InvokeResult<List<UnloadWaybillDto>> res = new InvokeResult<>();
+        res.success();
+        try{
+            if(cancelComBoardDto == null) {
+                res.error("请求对象为空");
+                return  res;
+            }
+            if(StringUtils.isBlank(cancelComBoardDto.getBoardCode()) || CollectionUtils.isEmpty(cancelComBoardDto.getPackageCodeList())) {
+                res.error("参数缺失：板号或包裹号为空");
+                return  res;
+            }
+            if(cancelComBoardDto.getUser() == null || StringUtils.isBlank(cancelComBoardDto.getUser().getUserErp())) {
+                res.error("参数缺失：操作人erp为空");
+                return  res;
+            }
+            if(cancelComBoardDto.getCurrentOperate() == null ) {
+                res.error("参数缺失：操作人场地为空");
+                return  res;
+            }
+
+            RemoveBoardBoxDto removeBoardBoxDto = new RemoveBoardBoxDto();
+            removeBoardBoxDto.setBoardCode(cancelComBoardDto.getBoardCode());
+            removeBoardBoxDto.setBoxCodeList(cancelComBoardDto.getPackageCodeList());
+            removeBoardBoxDto.setOperatorErp(cancelComBoardDto.getUser().getUserErp());
+            removeBoardBoxDto.setOperatorName(cancelComBoardDto.getUser().getUserName());
+            removeBoardBoxDto.setSiteCode(cancelComBoardDto.getCurrentOperate().getSiteCode());
+
+            Response removeBoardBoxRes = groupBoardManager.batchRemoveBardBoxByBoxCodes(removeBoardBoxDto);
+            if(removeBoardBoxRes == null || removeBoardBoxRes.getCode() != JdCResponse.CODE_SUCCESS) {
+               log.error("{}，操作失败，接口参数={}，异常返回结果={}", methodDesc, JsonHelper.toJson(removeBoardBoxDto), JsonHelper.toJson(removeBoardBoxRes));
+               String errMsg =  (removeBoardBoxRes == null || StringUtils.isBlank(removeBoardBoxRes.getMesseage())) ? "批量取消组板服务失败" : removeBoardBoxRes.getMesseage();
+               res.error(errMsg);
+               return res;
+            }
+            return res;
+        }catch (Exception e) {
+            log.error("{}服务异常, req={}, errMsg={}", methodDesc, JsonHelper.toJson(cancelComBoardDto), e.getMessage(), e);
+            res.error("批量取消组板服务异常");
+            return res;
+        }
     }
 
     @Override
