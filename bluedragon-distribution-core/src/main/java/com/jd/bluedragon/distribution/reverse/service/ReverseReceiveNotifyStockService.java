@@ -180,10 +180,10 @@ public class ReverseReceiveNotifyStockService {
 	public Boolean nodifyStock(Long orderId) throws Exception {
         long startTime= System.currentTimeMillis();
 
-        this.log.debug("运单号：{}" , orderId);
+        this.log.info("备件库消费处理出管orderId[{}]" , orderId);
 
 		if (!NumberHelper.isPositiveNumber(orderId)) {
-			this.log.warn("运单号非法, 运单号 为：{}" , orderId);
+			this.log.info("备件库消费处理出管-订单号非法orderId[{}]" , orderId);
 			return Boolean.TRUE;
 		}
 		SystemLog sysLog = new SystemLog();//日志对象
@@ -196,7 +196,7 @@ public class ReverseReceiveNotifyStockService {
 			//修改逻辑当order获取不到时，取归档历史信息。
 			//原抛异常逻辑if(order==null || products==null) 即有一项为空即抛出，更改后的逻辑等价于if( (order==null&&hisOrder==null) || products==null )
 			if (CollectionUtils.isEmpty(products)) {
-				this.log.warn("无商品信息!");
+				this.log.error("备件库消费处理出管-无商品信息orderId[{}]" , orderId);
 				sysLog.setContent("无商品信息");
 				throw new OrderCallTimeoutException("order has no products.");
 			}else if(order == null){//为空时，取一下历史的订单信息
@@ -204,7 +204,7 @@ public class ReverseReceiveNotifyStockService {
 				jd.oom.client.orderfile.Order hisOrder = this.orderWebService.getHistoryOrder(orderId);
 				
 				if (hisOrder == null) {
-					this.log.warn("运单信息为空!订单号:{}", orderId);
+                    this.log.error("备件库消费处理出管-订单信息为空orderId[{}]" , orderId);
 					sysLog.setContent("运单信息为空");
 					throw new OrderCallTimeoutException("order is not exist.");
 				}else {//如果历史订单信息不为空，则拷贝属性值
@@ -243,7 +243,7 @@ public class ReverseReceiveNotifyStockService {
 			KuGuanDomain kuguanDomain = null;
 			Integer payType = PAY_TYPE_UNKNOWN;
 			if (!isPushChuguan(order)){
-                sysLog.setContent("订单类型不需要回传库存中间件"+order.getOrderType());
+                this.log.info("备件库消费处理出管-订单类型不需要回传库存中间件orderId[{}]OrderType[{}]" , orderId,order.getOrderType());
                 this.log.warn("运单号：{}, 不需要回传库存中间件。",orderId);
                 return Boolean.TRUE;
 
