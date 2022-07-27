@@ -31,6 +31,9 @@ public class SealCarTaskInfoRequest implements Serializable {
      */
     private String dmsCode;
 
+    // 分拣中心ID
+    private Integer dmsSiteId;
+
     @Override
     public String toString() {
         return "SealCarTaskInfoRequest{" +
@@ -71,5 +74,13 @@ public class SealCarTaskInfoRequest implements Serializable {
 
     public void setDmsCode(String dmsCode) {
         this.dmsCode = dmsCode;
+    }
+
+    public Integer getDmsSiteId() {
+        return dmsSiteId;
+    }
+
+    public void setDmsSiteId(Integer dmsSiteId) {
+        this.dmsSiteId = dmsSiteId;
     }
 }

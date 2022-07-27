@@ -297,6 +297,12 @@ public class JdResponse extends JdObject {
     
     /** 响应消息 */
     private String message;
+
+    /** 额外的业务编码 */
+    private Integer extraBusinessCode;
+
+    /** 额外的业务响应消息 */
+    private String extraBusinessMessage;
     
     public JdResponse() {
     }
@@ -338,5 +344,20 @@ public class JdResponse extends JdObject {
     public void setMessage(String message) {
         this.message = message;
     }
-    
+
+    public Integer getExtraBusinessCode() {
+        return extraBusinessCode;
+    }
+
+    public void setExtraBusinessCode(Integer extraBusinessCode) {
+        this.extraBusinessCode = extraBusinessCode;
+    }
+
+    public String getExtraBusinessMessage() {
+        return extraBusinessMessage;
+    }
+
+    public void setExtraBusinessMessage(String extraBusinessMessage) {
+        this.extraBusinessMessage = extraBusinessMessage;
+    }
 }
