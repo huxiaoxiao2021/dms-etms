@@ -68,4 +68,8 @@ public interface GroupBoardManager {
 
 
     List<PackageDto> getPackageCodeUnderComBoard(String boardCode,String waybillCode);
+
+    Response<BoardBoxStatisticsResDto> getBoardStatisticsByBoardCode(String boardCode);
+
+
 }
