@@ -1,14 +1,12 @@
 package com.jd.bluedragon.configuration.ucc;
 
 import com.jd.bluedragon.Constants;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * Created by xumei3 on 2017/12/15.
@@ -825,6 +823,12 @@ public class UccPropertyConfiguration {
      * 拣运发车任务满载率配置
      */
     private String jySendTaskLoadRateLimit;
+
+
+    /**
+     * 身份证识别切量开关，全量上线之后，可以删除
+     */
+    private String identityRecogniseSiteSwitch;
 
     public String getScheduleSiteCheckSameCity() {
         return scheduleSiteCheckSameCity;
@@ -2040,5 +2044,15 @@ public class UccPropertyConfiguration {
 
     public void setFaceAbnormalReportConfig(String faceAbnormalReportConfig) {
         this.faceAbnormalReportConfig = faceAbnormalReportConfig;
+    }
+
+    public List<String> getIdentityRecogniseSiteSwitch() {
+        return StringUtils.isNotEmpty(identityRecogniseSiteSwitch)?
+                Arrays.asList(identityRecogniseSiteSwitch.split(Constants.SEPARATOR_COMMA).clone())
+                : Collections.singletonList("0");
+    }
+
+    public void setIdentityRecogniseSiteSwitch(String identityRecogniseSiteSwitch) {
+        this.identityRecogniseSiteSwitch = identityRecogniseSiteSwitch;
     }
 }

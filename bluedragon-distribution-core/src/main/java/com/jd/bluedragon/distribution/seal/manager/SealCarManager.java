@@ -2,6 +2,8 @@ package com.jd.bluedragon.distribution.seal.manager;
 
 import com.jd.etms.vos.dto.CommonDto;
 import com.jd.etms.vos.dto.SealCodesDto;
+import com.jd.etms.vos.dto.StopoverInfoDto;
+import com.jd.etms.vos.dto.StopoverQueryDto;
 import com.jd.tms.dtp.dto.AccountDto;
 import com.jd.tms.dtp.dto.TransAbnormalBillCreateDto;
 
@@ -59,4 +61,12 @@ public interface SealCarManager {
      * @return
      */
     CommonDto<String> doSealCodes(SealCodesDto param);
+
+    /**
+     * 查询经停点装卸信息
+     *
+     * @param stopOverQueryDto
+     * @return
+     */
+    StopoverInfoDto queryStopoverInfo(StopoverQueryDto stopOverQueryDto);
 }

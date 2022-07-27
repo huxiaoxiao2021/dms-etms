@@ -14,6 +14,7 @@ import com.jd.bluedragon.distribution.handler.InterceptHandler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.print.service.ScheduleSiteSupportInterceptService;
 import com.jd.bluedragon.distribution.print.service.WaybillPrintService;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -107,6 +108,12 @@ public class ScheduleSiteSupportInterceptHandler implements InterceptHandler<Way
                     result.toError(JdResponse.CODE_THREEPL_SCHEDULE_ERROR, JdResponse.MESSAGE_THREEPL_SCHEDULE_ERROR);
                     return result;
                 }
+            }
+
+            // 自营逆向单不能返调度到仓
+            if(BusinessUtil.isSelfReverse(waybill.getWaybillSign()) && BusinessUtil.isWmsSite(scheduleSiteOrgDto.getSiteType())){
+                result.toError(JdResponse.CODE_SELF_REVERSE_SCHEDULE_ERROR, JdResponse.MESSAGE_SELF_REVERSE_SCHEDULE_ERROR);
+                return result;
             }
 
             if(waybillPrintService.isCodMoneyGtZeroAndSiteThird(scheduleSiteOrgDto.getSiteType(),scheduleSiteOrgDto.getSubType()

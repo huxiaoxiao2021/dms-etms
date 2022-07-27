@@ -180,6 +180,7 @@
 		<property name="dpWaybillMatchSendCodeSwitch" value="${dpWaybillMatchSendCodeSwitch:true}"/>
 		<property name="faceAbnormalReportConfig" value="${faceAbnormalReportConfig:''}"/>
 		<property name="chuguanPurchaseAndSaleSwitch" value="${chuguanPurchaseAndSaleSwitch:false}"/>
+		<property name="identityRecogniseSiteSwitch" value="${identityRecogniseSiteSwitch:''}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -342,6 +343,7 @@
 				<value>uccPropertyConfiguration.dpWaybillMatchSendCodeSwitch</value>
 				<value>uccPropertyConfiguration.faceAbnormalReportConfig</value>
 				<value>uccPropertyConfiguration.chuguanPurchaseAndSaleSwitch</value>
+				<value>uccPropertyConfiguration.identityRecogniseSiteSwitch</value>
 
                 <value>hystrixRouteUccPropertyConfiguration.executionTimeoutInMilliseconds</value>
                 <value>hystrixRouteUccPropertyConfiguration.circuitBreakerEnabled</value>

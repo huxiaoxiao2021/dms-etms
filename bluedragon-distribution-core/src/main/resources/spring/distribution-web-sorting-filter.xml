@@ -96,6 +96,7 @@
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.WaybillTypeFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.LPNewWaybillFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.SevenFreshFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.WaybillConsumableFilter" />
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.ZeroWeightVolumeFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.FreightFilter"/>
         <bean class="com.jd.bluedragon.distribution.ver.filter.filters.TrustToThirdFilter"/>

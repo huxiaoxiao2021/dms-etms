@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.sorting.service;
 
+import com.jd.bluedragon.distribution.api.request.SortingPageRequest;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
 import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
@@ -215,4 +216,18 @@ public interface SortingService {
     Long findByPackageCodeAndBoxCode(Sorting sorting);
 
     List<Sorting> listSortingByBoxCode(Sorting sorting);
+
+    /**
+     * 通过箱号查询包裹数
+     * @param boxCode
+     * @return
+     */
+    Integer getSumByBoxCode(String boxCode);
+
+    /**
+     * 通过箱号查询包裹分页
+     * @param request
+     * @return
+     */
+    List<String> getPagePackageNoByBoxCode(SortingPageRequest request);
 }
