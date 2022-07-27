@@ -758,7 +758,7 @@
         <dependency>
             <groupId>com.jd.stock.iwms</groupId>
             <artifactId>iwms-app-export</artifactId>
-            <version>1.1.0-SNAPSHOT</version>
+			<version>3.1.0-temp-jdk6-SNAPSHOT</version>
 			<exclusions>
 				<exclusion>
 					<artifactId>jsf</artifactId>
@@ -773,6 +773,12 @@
                     <groupId>commons-beanutils</groupId>
                 </exclusion>
             </exclusions>
+		</dependency>
+		<!-- 供应链二期 渠道库存分配接口 -->
+		<dependency>
+			<groupId>com.jd.ipc.csa</groupId>
+			<artifactId>channel-stock-allot-api</artifactId>
+			<version>1.4-SNAPSHOT</version>
 		</dependency>
         <dependency>
             <groupId>stock-sdk</groupId>
