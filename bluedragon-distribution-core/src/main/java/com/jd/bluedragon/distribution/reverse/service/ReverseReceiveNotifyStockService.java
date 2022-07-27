@@ -177,21 +177,21 @@ public class ReverseReceiveNotifyStockService {
     }
 
 
-	public Boolean nodifyStock(Long waybillCode) throws Exception {
+	public Boolean nodifyStock(Long orderId) throws Exception {
         long startTime= System.currentTimeMillis();
 
-        this.log.debug("运单号：{}" , waybillCode);
+        this.log.debug("运单号：{}" , orderId);
 
-		if (!NumberHelper.isPositiveNumber(waybillCode)) {
-			this.log.warn("运单号非法, 运单号 为：{}" , waybillCode);
+		if (!NumberHelper.isPositiveNumber(orderId)) {
+			this.log.warn("运单号非法, 运单号 为：{}" , orderId);
 			return Boolean.TRUE;
 		}
 		SystemLog sysLog = new SystemLog();//日志对象
-		sysLog.setKeyword1(waybillCode.toString());
+		sysLog.setKeyword1(orderId.toString());
 		sysLog.setType(SystemLogContants.TYPE_REVERSE_STOCK);//设置日志类型
 		try{
-			InternationOrderDto order = orderWebService.getInternationOrder(waybillCode);
-			List<Product> products =  productService.getInternationProducts(waybillCode); //订单详情
+			InternationOrderDto order = orderWebService.getInternationOrder(orderId);
+			List<Product> products =  productService.getInternationProducts(orderId); //订单详情
 
 			//修改逻辑当order获取不到时，取归档历史信息。
 			//原抛异常逻辑if(order==null || products==null) 即有一项为空即抛出，更改后的逻辑等价于if( (order==null&&hisOrder==null) || products==null )
@@ -200,11 +200,11 @@ public class ReverseReceiveNotifyStockService {
 				sysLog.setContent("无商品信息");
 				throw new OrderCallTimeoutException("order has no products.");
 			}else if(order == null){//为空时，取一下历史的订单信息
-				this.log.debug("订单可能转历史，获取历史订单, 运单号 为：{}" , waybillCode);
-				jd.oom.client.orderfile.Order hisOrder = this.orderWebService.getHistoryOrder(waybillCode);
+				this.log.debug("订单可能转历史，获取历史订单, 运单号 为：{}" , orderId);
+				jd.oom.client.orderfile.Order hisOrder = this.orderWebService.getHistoryOrder(orderId);
 				
 				if (hisOrder == null) {
-					this.log.warn("运单信息为空!订单号:{}", waybillCode);
+					this.log.warn("运单信息为空!订单号:{}", orderId);
 					sysLog.setContent("运单信息为空");
 					throw new OrderCallTimeoutException("order is not exist.");
 				}else {//如果历史订单信息不为空，则拷贝属性值
@@ -218,7 +218,7 @@ public class ReverseReceiveNotifyStockService {
 					order.setStoreId(hisOrder.getStoreId());
 					order.setOrderType(hisOrder.getOrderType());
 					if(log.isDebugEnabled()){
-                        this.log.debug("历史订单信息orderId：{}.order:{}"+waybillCode,JsonHelper.toJson(order));
+                        this.log.debug("历史订单信息orderId：{}.order:{}"+orderId,JsonHelper.toJson(order));
                     }
                 }
 			}
@@ -233,7 +233,7 @@ public class ReverseReceiveNotifyStockService {
 	            if (bo != null) {
 	            	order.setIdCompanyBranchName(bo.getOrgName());//需要调用基本资料接口根据机构ID获取机构Name
 	            }
-	            this.log.info("原机构名为空，从基础资料重新获得订单{}机构名 IdCompanyBranchName:{}",waybillCode,order.getIdCompanyBranchName());
+	            this.log.info("原机构名为空，从基础资料重新获得订单{}机构名 IdCompanyBranchName:{}",orderId,order.getIdCompanyBranchName());
 	        }
 			
 			sysLog.setKeyword2(String.valueOf(order.getOrderType()));//设置订单的类型
@@ -244,39 +244,42 @@ public class ReverseReceiveNotifyStockService {
 			Integer payType = PAY_TYPE_UNKNOWN;
 			if (!isPushChuguan(order)){
                 sysLog.setContent("订单类型不需要回传库存中间件"+order.getOrderType());
-                this.log.warn("运单号：{}, 不需要回传库存中间件。",waybillCode);
+                this.log.warn("运单号：{}, 不需要回传库存中间件。",orderId);
                 return Boolean.TRUE;
 
 			}
 
-            kuguanDomain = queryKuguanDomainByWaybillCode(String.valueOf(waybillCode));
+            kuguanDomain = queryKuguanDomainByWaybillCode(String.valueOf(orderId));
             if(kuguanDomain==null) {
+                log.warn("备件库消费处理出管-查询出管无信息orderId[{}]",orderId);
                 return Boolean.FALSE;
             }
             if(isReverseLogistics(kuguanDomain)){
+                log.warn("备件库消费处理出管-不是逆向物流orderId[{}]",orderId);
                 return Boolean.TRUE;
             }
             payType = getPayType(kuguanDomain);
 
 			//开始根据类型的不同推送
 			if (needRetunWaybillTypes.contains(Integer.valueOf(order.getOrderType())) || isTelecomOrder(order.getOrderType(),order.getSendPay())) {
+                log.warn("备件库消费处理出管-推送出管消息orderId[{}]",orderId);
 				if (isPrePay(payType)) {
 
-					this.wmsStockChuGuanMQ.send(String.valueOf(waybillCode),this.stockMessage(order, products, STOCK_TYPE_1602, payType));
-					this.wmsStockChuGuanMQ.send(String.valueOf(waybillCode),this.stockMessage(order, products, STOCK_TYPE_1603, payType));
+					this.wmsStockChuGuanMQ.send(String.valueOf(orderId),this.stockMessage(order, products, STOCK_TYPE_1602, payType));
+					this.wmsStockChuGuanMQ.send(String.valueOf(orderId),this.stockMessage(order, products, STOCK_TYPE_1603, payType));
 				} else {
-					this.wmsStockChuGuanMQ.send(String.valueOf(waybillCode),this.stockMessage(order, products, STOCK_TYPE_1601, payType));
-					this.wmsStockChuGuanMQ.send(String.valueOf(waybillCode),this.stockMessage(order, products, STOCK_TYPE_1602, payType));
+					this.wmsStockChuGuanMQ.send(String.valueOf(orderId),this.stockMessage(order, products, STOCK_TYPE_1601, payType));
+					this.wmsStockChuGuanMQ.send(String.valueOf(orderId),this.stockMessage(order, products, STOCK_TYPE_1602, payType));
 				}
 				
 				sysLog.setKeyword3("MQ");
                 sysLog.setContent("推出管成功!");
 			}else if (Waybill.TYPE_GENERAL.equals(order.getOrderType()) || Waybill.TYPE_POP_FBP.equals(order.getOrderType())) {
-                return insertChuguan(waybillCode, sysLog, order, products, payType);
+                return insertChuguan(orderId, sysLog, order, products, payType);
             }
-
+            log.info("备件库消费处理出管-不符合写出管逻辑orderId[{}]",orderId);
         }catch(Exception e){
-			this.log.error("运单号：{}, 推出管失败。",waybillCode, e);
+			this.log.error("运单号：{}, 推出管失败。",orderId, e);
 			if(StringHelper.isEmpty(sysLog.getContent())){
 				sysLog.setContent(e.getMessage());
 			}
@@ -310,6 +313,7 @@ public class ReverseReceiveNotifyStockService {
 	}
 
     private Boolean insertChuguan(Long orderId, SystemLog sysLog, InternationOrderDto order, List<Product> products, Integer payType) {
+        log.info("备件库消费处理出管-调用写出管逻辑开始orderId[{}]",orderId);
         //判断是否是已旧换新
         boolean isOldForNewType = BusinessHelper.isYJHX(order.getSendPay());
         OrderBankResponse orderBank = orderBankService.getOrderBankResponse(String.valueOf(orderId));
@@ -320,6 +324,7 @@ public class ReverseReceiveNotifyStockService {
         //
         removePurchaseAndSaleVO(products, chuguanDetailVos);
         if(CollectionUtils.isEmpty(products)){
+            log.info("备件库消费处理出管-订单下的sku全部是采销控orderId[{}]",orderId);
             return true;
         }
         long result = 0;
@@ -327,14 +332,14 @@ public class ReverseReceiveNotifyStockService {
         List<ChuguanDetailVo> outChuguanDetailVoList = getOutChuguanDetailVoList(products);
         result = insertNewChuguan(orderId, isOldForNewType, order, payType,orderBank,intChuguanDetailVoList,outChuguanDetailVoList);
         /** 新逻辑结束 */
-
+        log.info("备件库消费处理出管-调用写出管逻辑结束orderId[{}]",orderId);
         try {
             //业务流程监控, 备件库埋点
             Map<String, String> data = new HashMap<String, String>();
             data.put("orderId", orderId.toString());
             Profiler.bizNode("Reverse_mq_dms2stock", data);
         } catch (Exception e) {
-            this.log.error("推送UMP发生异常.", e);
+            this.log.error("推送UMP发生异常orderId[{}]", orderId,e);
         }
 
         this.log.debug("运单号：{}, 库存中间件返回结果：{}" , orderId, result);
