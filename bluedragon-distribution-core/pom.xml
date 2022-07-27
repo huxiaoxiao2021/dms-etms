@@ -1119,7 +1119,8 @@
 		<dependency>
 			<groupId>com.jd.transboard</groupId>
 			<artifactId>transboard-api</artifactId>
-			<version>1.0.9-SNAPSHOT</version>
+<!--			上线需到新包  20220727-->
+			<version>1.0.11-test-SNAPSHOT</version>
 		</dependency>
 
 		<!--路由系统-->
