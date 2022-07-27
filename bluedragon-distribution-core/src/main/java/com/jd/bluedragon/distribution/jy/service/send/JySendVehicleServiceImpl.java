@@ -1740,13 +1740,13 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
     }
 
     private void sendCarArriveStatus(JySendAttachmentEntity attachment,SendPhotoRequest request) {
-
+        JyBizTaskSendVehicleEntity jyBizTaskSendVehicle = new JyBizTaskSendVehicleEntity();
         try{
             JySendArriveStatusDto jySendArriveStatusDto = new JySendArriveStatusDto();
             jySendArriveStatusDto.setOperateTime(attachment.getOperateTime().getTime());
             jySendArriveStatusDto.setVehicleArrived(attachment.getVehicleArrived());
             jySendArriveStatusDto.setOperateSiteId(attachment.getOperateSiteId());
-            JyBizTaskSendVehicleEntity jyBizTaskSendVehicle = taskSendVehicleService.findByBizId(attachment.getSendVehicleBizId());
+            jyBizTaskSendVehicle = taskSendVehicleService.findByBizId(attachment.getSendVehicleBizId());
             if (jyBizTaskSendVehicle!=null){
                 String transWorkCode = jyBizTaskSendVehicle.getTransWorkCode();
                 jySendArriveStatusDto.setTransWorkCode(transWorkCode);
@@ -1759,7 +1759,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
             sendCarArriveStatusProducer.send(jySendArriveStatusDto.getTransWorkCode(),JsonHelper.toJson(jySendArriveStatusDto));
             log.info("推送MQ数据为topic:{}->body:{}", "sendCarArriveStatusProducer", JsonHelper.toJson(jySendArriveStatusDto));
         }catch (Exception e) {
-            log.error("拣运发货任务车辆拍照MQ发送失败: ",e);
+            log.error("拣运发货任务车辆拍照MQ发送失败,派车单号:{} :  ",jyBizTaskSendVehicle.getTransWorkCode(),e);
         }
     }
 
