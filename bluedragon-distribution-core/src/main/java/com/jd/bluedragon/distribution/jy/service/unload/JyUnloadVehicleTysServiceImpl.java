@@ -22,6 +22,7 @@ import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.manager.IJyUnloadVehicleManager;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskUnloadVehicleService;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
+import com.jd.bluedragon.distribution.jy.unload.JyBizTaskUnloadVehicleStageEntity;
 import com.jd.bluedragon.distribution.jy.unload.JyUnloadAggsEntity;
 import com.jd.bluedragon.distribution.jy.unload.JyUnloadEntity;
 import com.jd.bluedragon.distribution.jy.unload.JyUnloadVehicleBoardEntity;
@@ -99,6 +100,9 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     private static final int SCAN_EXPIRE_TIME_HOUR = 6;
     @Autowired
     private JyUnloadAggsDao jyUnloadAggsDao;
+
+    @Autowired
+    JyBizTaskUnloadVehicleStageService jyBizTaskUnloadVehicleStageService;
 
     @Override
     public InvokeResult<UnloadVehicleTaskRespDto> listUnloadVehicleTask(UnloadVehicleTaskReqDto unloadVehicleTaskReqDto) {
@@ -486,6 +490,42 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             res.setMessage("根据板号查询板号信息服务异常");
             return res;
         }
+    }
+
+    @Override
+    public InvokeResult<Void> handoverTask(UnloadVehicleTaskDto unloadVehicleTask) {
+        InvokeResult<Void> result = new InvokeResult<>();
+        result.success();
+        try {
+            JyBizTaskUnloadVehicleEntity taskUnloadVehicle = jyBizTaskUnloadVehicleService.findByBizId(unloadVehicleTask.getBizId());
+            if (taskUnloadVehicle == null) {
+                result.error("任务不存在，交班失败！");
+                return result;
+            }
+            // 只有处于卸车状态的任务才能交班
+            if (!JyBizTaskUnloadStatusEnum.UN_LOADING.getCode().equals(taskUnloadVehicle.getVehicleStatus())) {
+                result.error("当前任务状态不支持交班！");
+                return result;
+            }
+            //查询子任务bizId
+            JyBizTaskUnloadVehicleStageEntity condition = new JyBizTaskUnloadVehicleStageEntity();
+            condition.setUnloadVehicleBizId(unloadVehicleTask.getBizId());
+            condition.setStatus(JyBizTaskStageStatusEnum.DOING.getCode());
+            JyBizTaskUnloadVehicleStageEntity entity = jyBizTaskUnloadVehicleStageService.queryCurrentStage(condition);
+            if (entity == null) {
+                result.error("当前任务状态不支持交班！");
+                return result;
+            }
+            entity.setUpdateUserErp(unloadVehicleTask.getUser().getUserErp());
+            entity.setUpdateUserName(unloadVehicleTask.getUser().getUserName());
+            entity.setUpdateTime(new Date());
+            entity.setStatus(JyBizTaskStageStatusEnum.COMPLETE.getCode());
+            jyBizTaskUnloadVehicleStageService.updateByPrimaryKeySelective(entity);
+        } catch (Exception e) {
+            log.error("handoverTask|交班服务异常,req={},errMsg=", JsonHelper.toJson(unloadVehicleTask), e);
+            result.error("交班服务异常");
+        }
+        return result;
     }
 
     @Override

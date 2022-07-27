@@ -52,6 +52,13 @@ public interface JyUnloadVehicleTysService {
      */
     InvokeResult<ComBoardDto> queryComBoardDataByBoardCode(String boardCode);
 
+    /**
+     * 交班
+     * @param unloadVehicleTask
+     * @return
+     */
+    InvokeResult<Void> handoverTask(UnloadVehicleTaskDto unloadVehicleTask);
+
 
     /**
      * 人工作业扫描（组板+扫描）

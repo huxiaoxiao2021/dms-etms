@@ -20,7 +20,7 @@ public class JyBizTaskUnloadVehicleStageDao extends BaseDao<JyBizTaskUnloadVehic
         return this.getSqlSession().selectOne(NAMESPACE + ".selectByPrimaryKey", id);
     }
 
-    int updateByPrimaryKeySelective(JyBizTaskUnloadVehicleStageEntity entity){
+    public int updateByPrimaryKeySelective(JyBizTaskUnloadVehicleStageEntity entity){
         return this.getSqlSession().update(NAMESPACE + ".updateByPrimaryKeySelective", entity);
     }
 
