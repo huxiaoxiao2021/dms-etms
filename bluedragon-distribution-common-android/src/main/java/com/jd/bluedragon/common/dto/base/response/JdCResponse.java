@@ -27,6 +27,8 @@ public class JdCResponse<E> implements Serializable {
 	public static final Integer CODE_CONFIRM = 30001;
 	public static final String  MESSAGE_CONFIRM = "confirm";
 
+	public static final Integer CODE_HINT = 30002;
+
 	/**
 	 * 部分成功 交易码
 	 */
@@ -38,6 +40,12 @@ public class JdCResponse<E> implements Serializable {
 
     /** 响应消息 */
     protected String message;
+
+	/** 额外的业务响应状态码 */
+	protected Integer extraBusinessCode;
+
+	/** 额外的业务响应消息 */
+	protected String extraBusinessMessage;
 
     /** 响应数据 */
     protected E data;
@@ -157,6 +165,22 @@ public class JdCResponse<E> implements Serializable {
 	 */
 	public void setMessage(String message) {
 		this.message = message;
+	}
+
+	public Integer getExtraBusinessCode() {
+		return extraBusinessCode;
+	}
+
+	public void setExtraBusinessCode(Integer extraBusinessCode) {
+		this.extraBusinessCode = extraBusinessCode;
+	}
+
+	public String getExtraBusinessMessage() {
+		return extraBusinessMessage;
+	}
+
+	public void setExtraBusinessMessage(String extraBusinessMessage) {
+		this.extraBusinessMessage = extraBusinessMessage;
 	}
 
 	/**

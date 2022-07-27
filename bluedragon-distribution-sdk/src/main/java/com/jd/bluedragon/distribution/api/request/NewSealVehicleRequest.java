@@ -78,6 +78,9 @@ public class NewSealVehicleRequest extends JdRequest {
     /** 当前站点7为编码	 */
     private String dmsCode;
 
+	/** 当前站点ID	 */
+    private Integer dmsSiteId;
+
 	public static long getSerialVersionUID() {
 		return serialVersionUID;
 	}
@@ -193,4 +196,12 @@ public class NewSealVehicleRequest extends JdRequest {
     public void setDmsCode(String dmsCode) {
         this.dmsCode = dmsCode;
     }
+
+	public Integer getDmsSiteId() {
+		return dmsSiteId;
+	}
+
+	public void setDmsSiteId(Integer dmsSiteId) {
+		this.dmsSiteId = dmsSiteId;
+	}
 }
