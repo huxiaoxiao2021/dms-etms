@@ -153,6 +153,12 @@ public interface JyUnloadVehicleTysService {
 
 
 
+    /**
+     * 查询主子任务信息
+     * @param masterBizId  主任务Id
+     * @return
+     */
+    InvokeResult<UnloadMasterChildTaskRespDto> queryMasterChildTaskInfoByBizId(String masterBizId);
 
 
 }
