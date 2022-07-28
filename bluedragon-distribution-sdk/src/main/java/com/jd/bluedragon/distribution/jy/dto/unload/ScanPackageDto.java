@@ -32,16 +32,35 @@ public class ScanPackageDto extends UnloadBaseDto implements Serializable {
      * 进行中的板，基于这个板进行组板
      */
     private String boardCode;
+
     /**
      * 货区编码
      */
     private String goodsAreaCode;
+
+    /**
+     * 下游场地编码
+     * */
     private Integer nextSiteCode;
+    /**
+     * 下游场地名称
+     * */
+    private String nextSiteName;
 
     /**
      * 补扫标识
      */
     private boolean supplementary;
+
+    /**
+     * 是否强制组板
+     * **/
+    private boolean isForceCombination = false;
+
+    /**
+     * 1:组板转移标识
+     */
+    private Integer isCombinationTransfer;
 
     public String getBizId() {
         return bizId;
@@ -113,5 +132,33 @@ public class ScanPackageDto extends UnloadBaseDto implements Serializable {
 
     public void setSupplementary(boolean supplementary) {
         this.supplementary = supplementary;
+    }
+
+    public boolean getIsForceCombination() {
+        return isForceCombination;
+    }
+
+    public boolean isForceCombination() {
+        return isForceCombination;
+    }
+
+    public void setForceCombination(boolean forceCombination) {
+        isForceCombination = forceCombination;
+    }
+
+    public Integer getIsCombinationTransfer() {
+        return isCombinationTransfer;
+    }
+
+    public void setIsCombinationTransfer(Integer isCombinationTransfer) {
+        this.isCombinationTransfer = isCombinationTransfer;
+    }
+
+    public String getNextSiteName() {
+        return nextSiteName;
+    }
+
+    public void setNextSiteName(String nextSiteName) {
+        this.nextSiteName = nextSiteName;
     }
 }

@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.jy.dto.unload;
 
 import java.io.Serializable;
+import java.util.Map;
 
 public class ScanPackageRespDto implements Serializable {
     private static final long serialVersionUID = -6963372061306635997L;
@@ -16,6 +17,14 @@ public class ScanPackageRespDto implements Serializable {
     private String endSiteName;
     private Long endSiteId;
     private Integer comBoardCount;
+
+    /**
+     * 卸车扫描非弹框消息提示  K-优先级  V-话术
+     * 见：UnloadCarWarnEnum
+     */
+    Map<String, String> warnMsg;
+
+    Map<String, String> confirmMsg;
 
     public String getBizId() {
         return bizId;
@@ -63,5 +72,21 @@ public class ScanPackageRespDto implements Serializable {
 
     public void setComBoardCount(Integer comBoardCount) {
         this.comBoardCount = comBoardCount;
+    }
+
+    public Map<String, String> getWarnMsg() {
+        return warnMsg;
+    }
+
+    public void setWarnMsg(Map<String, String> warnMsg) {
+        this.warnMsg = warnMsg;
+    }
+
+    public Map<String, String> getConfirmMsg() {
+        return confirmMsg;
+    }
+
+    public void setConfirmMsg(Map<String, String> confirmMsg) {
+        this.confirmMsg = confirmMsg;
     }
 }
