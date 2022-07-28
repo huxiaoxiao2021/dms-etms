@@ -1,6 +1,5 @@
 package com.jd.bluedragon.distribution.jy.service.unload;
 
-import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.UnifiedExceptionProcess;
@@ -15,7 +14,8 @@ import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.distribution.api.request.BoardCommonRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.api.JyUnloadVehicleTysService;
-import com.jd.bluedragon.distribution.jy.constants.UnloadCarPostConstants;
+import com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskUnloadVehicleDao;
+import com.jd.bluedragon.distribution.jy.dao.unload.JyBizTaskUnloadVehicleStageDao;
 import com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadAggsDao;
 import com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadDao;
 import com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadVehicleBoardDao;
@@ -58,7 +58,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.annotation.Validated;
 
 import javax.validation.Valid;
 import java.math.BigDecimal;
@@ -113,6 +112,12 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
 
     @Autowired
     JyBizTaskUnloadVehicleStageService jyBizTaskUnloadVehicleStageService;
+
+    @Autowired
+    private JyBizTaskUnloadVehicleStageDao jyBizTaskUnloadVehicleStageDao;
+    @Autowired
+    private JyBizTaskUnloadVehicleDao jyBizTaskUnloadVehicleDao;
+
 
     @Autowired
     private WaybillQueryManager waybillQueryManager;
@@ -983,4 +988,32 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         return null;
     }
 
+    @Override
+    public InvokeResult<UnloadMasterChildTaskRespDto> queryMasterChildTaskInfoByBizId(String masterBizId) {
+        final String methodDesc = "JyUnloadVehicleTysServiceImpl.queryMasterChildTaskInfoByBizId--根据主BizId查询主子任务服务--";
+        InvokeResult<UnloadMasterChildTaskRespDto> res = new InvokeResult<>();
+        try{
+
+            UnloadMasterChildTaskRespDto resData = new UnloadMasterChildTaskRespDto();
+            //主任务
+            JyBizTaskUnloadVehicleEntity jyMasterTask = jyBizTaskUnloadVehicleDao.findByBizId(masterBizId);
+            UnloadMasterTaskDto masterTask = BeanUtils.convert(jyMasterTask, UnloadMasterTaskDto.class);
+            resData.setUnloadMasterTaskDto(masterTask);
+            //子任务
+            List<UnloadChildTaskDto> unloadChildTaskDtoList = new ArrayList<>();
+            List<JyBizTaskUnloadVehicleStageEntity> jyChildTaskList = jyBizTaskUnloadVehicleStageDao.queryByParentBizId(masterBizId);
+            if(CollectionUtils.isNotEmpty(jyChildTaskList)) {
+                for (JyBizTaskUnloadVehicleStageEntity childTaskInfo : jyChildTaskList) {
+                    unloadChildTaskDtoList.add(BeanUtils.convert(childTaskInfo, UnloadChildTaskDto.class));
+                }
+            }
+            resData.setUnloadChildTaskDtoList(unloadChildTaskDtoList);
+            res.setData(resData);
+            return res;
+        }catch (Exception e) {
+            log.error("{}服务异常，masterBizId={}，errMsg={}", methodDesc, masterBizId, e.getMessage(), e);
+            res.error("根据主BizId查询主子任务服务异常 " + e.getMessage());
+            return  res;
+        }
+    }
 }
