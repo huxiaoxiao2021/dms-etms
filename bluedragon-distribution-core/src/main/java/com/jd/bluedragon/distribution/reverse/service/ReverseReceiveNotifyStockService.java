@@ -319,7 +319,10 @@ public class ReverseReceiveNotifyStockService {
         OrderBankResponse orderBank = orderBankService.getOrderBankResponse(String.valueOf(orderId));
         List<ChuguanDetailVo> chuguanDetailVos = getChuguanDetailVos(orderId);
         if(uccPropertyConfiguration.isChuguanPurchaseAndSaleSwitch() && CollectionUtils.isNotEmpty(chuguanDetailVos)) {
-            purchaseAndSaleInsertChuguan(orderId, order, payType, isOldForNewType, orderBank, chuguanDetailVos);
+            boolean purchaseFlag = purchaseAndSaleInsertChuguan(orderId, order, payType, isOldForNewType, orderBank, chuguanDetailVos);
+            if(!purchaseFlag){
+                chuguanDetailVos.clear();
+            }
         }
         //
         removePurchaseAndSaleVO(products, chuguanDetailVos);
@@ -416,7 +419,7 @@ public class ReverseReceiveNotifyStockService {
     private Boolean purchaseAndSaleInsertChuguan(Long orderId, InternationOrderDto order,Integer payType, boolean isOldForNewType, OrderBankResponse orderBank, List<ChuguanDetailVo> chuguanDetailVos) {
         CallerInfo info = Profiler.registerInfo("DMS.BASE.ReverseReceiveNotifyStockService.purchaseAndSaleInsertChuguan", Constants.UMP_APP_NAME_DMSWEB, false, true);
         try {
-            log.info("供应链中台二期写出管orderId[{}]chuguanDetailVos[{}]",orderId, JsonHelper.toJson(chuguanDetailVos));
+            log.info("供应链中台二期写出管orderId-开始orderId[{}]chuguanDetailVos[{}]",orderId, JsonHelper.toJson(chuguanDetailVos));
             Map<Long, ChuguanDetailVo> skuMappingChuguanDetailVo = getSkuIdChuguanDetailVoMap(chuguanDetailVos);
             List<AllotRequestDetail> allotRequestDetails = getAllotRequestDetailList(orderId, chuguanDetailVos,order);
             AllotScenarioEnum scenario = AllotScenarioEnum.SO_BACK;
@@ -425,7 +428,10 @@ public class ReverseReceiveNotifyStockService {
             String sysName = "(J-one)bluedragon-distribution-worker";
             List<ChuguanDetailVo> chuguanDetailVoList = new ArrayList<>();
             List<AllotResponseDetail> allotResponseDetailList = generalStockAllotOutInterfaceManager.batchAllotStock(allotRequestDetails,scenario,bizUniqueKey,isIdempotent,sysName);
-
+            if(CollectionUtils.isEmpty(allotResponseDetailList)){
+                log.info("供应链中台二期写出管-渠道库存分配接口无返回结果-orderId[{}]chuguanDetailVos[{}]",orderId, JsonHelper.toJson(allotRequestDetails));
+                return false;
+            }
             for(AllotResponseDetail allotResponseDetail : allotResponseDetailList){
                 List<DimAllotResult> allotResultList = allotResponseDetail.getDimAllotResultList();
                 for(DimAllotResult dimAllotResult : allotResultList){
@@ -448,8 +454,9 @@ public class ReverseReceiveNotifyStockService {
             }
             // TODO: 2022/7/18  ChuguanParam zongJinE 怎么传？ 
             int result = insertNewChuguan(orderId, isOldForNewType, order, payType, orderBank,chuguanDetailVoList,chuguanDetailVoList);
-            log.info("供应链中台二期写出管orderId[{}]chuguanDetailVos[{}]result[{}]",orderId, JsonHelper.toJson(chuguanDetailVos),result);
-            return Boolean.TRUE;
+            boolean resultBoolean = (result == 1 || result == -2) ? true : false;
+            log.info("供应链中台二期写出管orderId-结束result[{}]orderId[{}]chuguanDetailVos[{}]",resultBoolean,orderId, JsonHelper.toJson(chuguanDetailVos),resultBoolean);
+            return resultBoolean;
         } catch (Exception e) {
             log.error("供应链二期插入出管报错orderId[{}]",orderId,e);
             Profiler.functionError(info);
