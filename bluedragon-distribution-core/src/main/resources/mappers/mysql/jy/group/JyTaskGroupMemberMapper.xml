@@ -78,6 +78,7 @@
                             update_user_name,
                             create_time,
                             update_time,
+                            member_type,
                             device_type_code,
                             device_type_name,
                             machine_code
@@ -126,6 +127,7 @@
                             update_user_name,
                             create_time,
                             update_time,
+                            member_type,
                             device_type_code,
                             device_type_name,
                             machine_code
