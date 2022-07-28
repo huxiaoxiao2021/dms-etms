@@ -62,4 +62,14 @@ public class BoxMaterialRelationImpl implements BoxMaterialRelationService {
     public int updateUnBindByMaterialCode(BoxMaterialRelation boxMaterialRelation) {
         return boxMaterialRelationDao.updateUnBindByMaterialCode(boxMaterialRelation);
     }
+
+    @Override
+    public BoxMaterialRelation getBoxMaterialRelationByMaterialCodeAndBoxcode(String boxCode, String materialCode){
+        BoxMaterialRelation po = new BoxMaterialRelation();
+        po.setBoxCode(boxCode);
+        po.setMaterialCode(materialCode);
+        return boxMaterialRelationDao.getDataByBean(po);
+    }
+
+
 }
