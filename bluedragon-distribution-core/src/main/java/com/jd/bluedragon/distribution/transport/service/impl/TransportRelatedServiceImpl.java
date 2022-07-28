@@ -1,11 +1,13 @@
 package com.jd.bluedragon.distribution.transport.service.impl;
 
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.seal.manager.SealCarManager;
 import com.jd.bluedragon.distribution.transport.service.TransportRelatedService;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.etms.vos.dto.StopoverInfoDto;
 import com.jd.etms.vos.dto.StopoverQueryDto;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +27,9 @@ public class TransportRelatedServiceImpl implements TransportRelatedService {
     @Autowired
     private SealCarManager sealCarManager;
 
+    @Autowired
+    private BaseMajorManager baseMajorManager;
+
     /**
      * 校验运输任务
      *  left：code编码表示成功或失败
@@ -43,8 +48,9 @@ public class TransportRelatedServiceImpl implements TransportRelatedService {
                 && StringUtils.isEmpty(simpleCode) && StringUtils.isEmpty(vehicleNumber)){
             return ImmutablePair.of(InvokeResult.RESULT_PARAMETER_ERROR_CODE, InvokeResult.PARAM_ERROR);
         }
+        BaseStaffSiteOrgDto operateSite = baseMajorManager.getBaseSiteBySiteId(siteCode);
         StopoverQueryDto stopoverQueryDto = new StopoverQueryDto();
-        stopoverQueryDto.setSiteCode(String.valueOf(siteCode));
+        stopoverQueryDto.setSiteCode(operateSite == null ? null : operateSite.getDmsSiteCode());
         stopoverQueryDto.setTransWorkCode(transWorkCode);
         stopoverQueryDto.setSealCarCode(sealCarCode);
         stopoverQueryDto.setSimpleCode(simpleCode);
