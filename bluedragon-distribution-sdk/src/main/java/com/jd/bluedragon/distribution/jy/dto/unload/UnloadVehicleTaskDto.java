@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.jy.dto.unload;
 
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
@@ -46,15 +47,15 @@ public class UnloadVehicleTaskDto extends UnloadBaseDto implements Serializable 
      */
     private Long endSiteId;
     private String endSiteName;
-    /**
-     * 进度时间
-     */
-    private String processTime;
+//    /**
+//     * 进度时间: jy返回原始字段，加工数据tys处理
+//     */
+//    private String processTime;
 
     /**
-     * 卸车进度
+     * 卸车进度： 保留原始类型，样式前端处理，利于后期扩展
      */
-    private Integer processPercent;
+    private BigDecimal processPercent;
     /**
      * 组板数量
      */
@@ -202,19 +203,11 @@ public class UnloadVehicleTaskDto extends UnloadBaseDto implements Serializable 
         this.endSiteName = endSiteName;
     }
 
-    public String getProcessTime() {
-        return processTime;
-    }
-
-    public void setProcessTime(String processTime) {
-        this.processTime = processTime;
-    }
-
-    public Integer getProcessPercent() {
+    public BigDecimal getProcessPercent() {
         return processPercent;
     }
 
-    public void setProcessPercent(Integer processPercent) {
+    public void setProcessPercent(BigDecimal processPercent) {
         this.processPercent = processPercent;
     }
 

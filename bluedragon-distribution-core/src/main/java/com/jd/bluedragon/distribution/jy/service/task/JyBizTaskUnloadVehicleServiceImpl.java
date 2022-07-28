@@ -576,9 +576,8 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
     @Override
     public UnloadVehicleTaskDto entityConvertDto(JyBizTaskUnloadVehicleEntity entity) {
         UnloadVehicleTaskDto unloadVehicleTaskDto = BeanUtils.copy(entity, UnloadVehicleTaskDto.class);
-        calculationProcessTime(unloadVehicleTaskDto);
         if (ObjectHelper.isNotNull(entity.getUnloadProgress())) {
-            unloadVehicleTaskDto.setProcessPercent(entity.getUnloadProgress().intValue());
+            unloadVehicleTaskDto.setProcessPercent(entity.getUnloadProgress());
         }
         if (ObjectHelper.isNotNull(entity.getMoreCount())) {
             unloadVehicleTaskDto.setExtraScanCount(entity.getMoreCount().intValue());
@@ -672,25 +671,4 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
         return tagList;
     }
 
-    private void calculationProcessTime(UnloadVehicleTaskDto dto) {
-        Date now = new Date();
-        switch (dto.getVehicleStatus()) {
-            case 3:
-                int hourArrive = (int) DateHelper.betweenHours(dto.getActualArriveTime(), now);
-                int minutesArrive = (int) DateHelper.betweenMinutes(dto.getActualArriveTime(), now);
-                dto.setProcessTime("已到车 " + hourArrive + "时" + minutesArrive + "分");
-                break;
-            case 4:
-                int hourUnload = (int) DateHelper.betweenHours(dto.getUnloadStartTime(), now);
-                int minutesUnload = (int) DateHelper.betweenMinutes(dto.getUnloadStartTime(), now);
-                dto.setProcessTime("卸车 " + hourUnload + "时" + minutesUnload + "分");
-                break;
-            case 5:
-                int hourComplete = (int) DateHelper.betweenHours(dto.getUnloadStartTime(), dto.getUnloadFinishTime());
-                int minutesComplete = (int) DateHelper.betweenMinutes(dto.getUnloadStartTime(), dto.getUnloadFinishTime());
-                dto.setProcessTime("总计 " + hourComplete + "时" + minutesComplete + "分");
-                break;
-            default:
-        }
-    }
 }
