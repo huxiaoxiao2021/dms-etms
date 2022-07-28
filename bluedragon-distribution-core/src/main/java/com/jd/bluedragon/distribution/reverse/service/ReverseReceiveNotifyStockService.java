@@ -320,7 +320,7 @@ public class ReverseReceiveNotifyStockService {
         OrderBankResponse orderBank = orderBankService.getOrderBankResponse(String.valueOf(orderId));
         List<ChuguanDetailVo> chuguanDetailVos = getChuguanDetailVos(orderId);
         if(uccPropertyConfiguration.isChuguanPurchaseAndSaleSwitch() && CollectionUtils.isNotEmpty(chuguanDetailVos)) {
-            boolean purchaseFlag = purchaseAndSaleInsertChuguan(orderId, order, payType, isOldForNewType, orderBank, chuguanDetailVos);
+            boolean purchaseFlag = purchaseAndSaleInsertChuguan(orderId,products, order, payType, isOldForNewType, orderBank, chuguanDetailVos);
             if(!purchaseFlag){
                 chuguanDetailVos.clear();
             }
@@ -375,9 +375,19 @@ public class ReverseReceiveNotifyStockService {
         Iterator<Product> productsIterator = products.iterator();
         while (productsIterator.hasNext()){
             Product product = productsIterator.next();
-            if(chuguanDetailVosMap.containsKey(product.getSkuId())){
-                productsIterator.remove();
+            /*
+            根据日志看 product skuid 有为0的情况，ProductId有值，不能确定是不是查询接口返的有问题，暂时这样处理
+             */
+            if(product.getSkuId() == 0 ){
+                if(NumberUtils.isDigits(product.getProductId()) && chuguanDetailVosMap.containsKey(Long.valueOf(product.getProductId()))){
+                    productsIterator.remove();
+                }
+            }else {
+                if(chuguanDetailVosMap.containsKey(product.getSkuId())){
+                    productsIterator.remove();
+                }
             }
+
         }
     }
 
@@ -431,12 +441,13 @@ public class ReverseReceiveNotifyStockService {
      * @param chuguanDetailVos
      * @return
      */
-    private Boolean purchaseAndSaleInsertChuguan(Long orderId, InternationOrderDto order,Integer payType, boolean isOldForNewType, OrderBankResponse orderBank, List<ChuguanDetailVo> chuguanDetailVos) {
+    private Boolean purchaseAndSaleInsertChuguan(Long orderId,List<Product> products, InternationOrderDto order,Integer payType, boolean isOldForNewType, OrderBankResponse orderBank, List<ChuguanDetailVo> chuguanDetailVos) {
         CallerInfo info = Profiler.registerInfo("DMS.BASE.ReverseReceiveNotifyStockService.purchaseAndSaleInsertChuguan", Constants.UMP_APP_NAME_DMSWEB, false, true);
         try {
             log.info("供应链中台二期写出管orderId-开始orderId[{}]chuguanDetailVos[{}]",orderId, JsonHelper.toJson(chuguanDetailVos));
             Map<Long, ChuguanDetailVo> skuMappingChuguanDetailVo = getSkuIdChuguanDetailVoMap(chuguanDetailVos);
             List<AllotRequestDetail> allotRequestDetails = getAllotRequestDetailList(orderId, chuguanDetailVos,order);
+            Map<Long,Product>  productsMap = getProductsMap(products);
             AllotScenarioEnum scenario = AllotScenarioEnum.SO_BACK;
             String bizUniqueKey = "qldms".concat("-").concat(String.valueOf(orderId));
             boolean isIdempotent = true;
@@ -447,6 +458,7 @@ public class ReverseReceiveNotifyStockService {
                 log.info("供应链中台二期写出管-渠道库存分配接口无返回结果-orderId[{}]chuguanDetailVos[{}]",orderId, JsonHelper.toJson(allotRequestDetails));
                 return false;
             }
+
             for(AllotResponseDetail allotResponseDetail : allotResponseDetailList){
                 List<DimAllotResult> allotResultList = allotResponseDetail.getDimAllotResultList();
                 for(DimAllotResult dimAllotResult : allotResultList){
@@ -455,9 +467,14 @@ public class ReverseReceiveNotifyStockService {
                     if(org.apache.commons.lang3.StringUtils.isNotEmpty(dimValue) && dimValue.split("-").length>1){
                         dimValue = dimAllotResult.getDimValue().split("-")[1];
                     }
-                    BigDecimal zongJinE = null;// TODO: 2022/7/13 怎么取？
+                    Product product = productsMap.get(skuId);
+                    BigDecimal zongJinE = null;
+                    BigDecimal jiaGe = null;
+                    if(product != null){
+                        zongJinE = product.getPrice().multiply(new BigDecimal(product.getQuantity()));
+                        jiaGe = product.getPrice();
+                    }
                     Integer quantity = dimAllotResult.getAllotQty();
-                    BigDecimal jiaGe = null;// TODO: 2022/7/13   怎么取？
                     String profitLossId = null;
                     List<String> distriOrderIds = null;
                     if(skuMappingChuguanDetailVo.get(skuId) != null ){
@@ -479,6 +496,24 @@ public class ReverseReceiveNotifyStockService {
             Profiler.registerInfoEnd(info);
         }
         return false;
+    }
+
+    private Map<Long,Product> getProductsMap(List<Product> products) {
+        Map<Long,Product> productsMap = Maps.uniqueIndex(products.iterator(), new Function<Product, Long>() {
+            @Nullable
+            @Override
+            public Long apply(@Nullable Product detailVo) {
+                if(detailVo.getSkuId() != 0){
+                    return detailVo.getSkuId();
+                }
+                if(NumberUtils.isDigits(detailVo.getProductId())){
+                    return new Long(detailVo.getProductId());
+                }
+                return detailVo.getSkuId();
+            }
+        });
+
+        return productsMap;
     }
 
     private Map<Long, ChuguanDetailVo> getSkuIdChuguanDetailVoMap(List<ChuguanDetailVo> chuguanDetailVos) {
