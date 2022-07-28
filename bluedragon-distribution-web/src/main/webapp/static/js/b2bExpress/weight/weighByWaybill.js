@@ -122,7 +122,6 @@
                         $.messager.alert('提示',res.message,'error');
                     }else if(res.code === JP_FORBID_WEIGHT){
                         $.messager.alert('提示', res.message,'error');
-                        $('#waybill-weight-btn').linkbutton('disable');
                     }else{
                         $.messager.alert('运单验证结果','不存在运单相关信息，请确认运单真实性再录入操作','warning');
                     }
@@ -276,7 +275,6 @@ function doWaybillWeight(insertParam,removeFailData,removeIndex){
                 }
                 if(res.code === JP_FORBID_WEIGHT){
                     $.messager.alert('提示', res.message, 'error');
-                    $('#waybill-weight-btn').linkbutton('disable');
                     return ;
                 }
                 if(res.code == WAYBILL_STATES_FINISHED){
