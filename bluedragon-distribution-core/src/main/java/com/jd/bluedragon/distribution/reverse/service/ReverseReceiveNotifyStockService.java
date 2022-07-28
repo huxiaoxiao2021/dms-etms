@@ -325,8 +325,9 @@ public class ReverseReceiveNotifyStockService {
                 chuguanDetailVos.clear();
             }
         }
-        //
+        log.info("备件库消费处理出管-开始剔除商品-orderId[{}]products[{}]chuguanDetailVos[{}]",orderId,JsonHelper.toJson(products),JsonHelper.toJson(chuguanDetailVos));
         removePurchaseAndSaleVO(products, chuguanDetailVos);
+        log.info("备件库消费处理出管-剔除商品结束-orderId[{}]products[{}]chuguanDetailVos[{}]",orderId,JsonHelper.toJson(products),JsonHelper.toJson(chuguanDetailVos));
         if(CollectionUtils.isEmpty(products)){
             log.info("备件库消费处理出管-订单下的sku全部是采销控orderId[{}]",orderId);
             return true;
@@ -363,7 +364,7 @@ public class ReverseReceiveNotifyStockService {
      * @param products
      * @param chuguanDetailVos
      */
-    private void removePurchaseAndSaleVO(List<Product> products, List<ChuguanDetailVo> chuguanDetailVos) {
+    private static void removePurchaseAndSaleVO(List<Product> products, List<ChuguanDetailVo> chuguanDetailVos) {
         Map<Long,ChuguanDetailVo> chuguanDetailVosMap = Maps.uniqueIndex(chuguanDetailVos.iterator(), new Function<ChuguanDetailVo, Long>() {
             @Nullable
             @Override
@@ -378,6 +379,19 @@ public class ReverseReceiveNotifyStockService {
                 productsIterator.remove();
             }
         }
+    }
+
+    public static void main(String[] args) {
+        List<Product> products = Lists.newArrayList();
+        List<ChuguanDetailVo> chuguanDetailVos = Lists.newArrayList();
+        Product product = new Product();
+        product.setSkuId(100030716207L);
+        products.add(product);
+        ChuguanDetailVo  chuguanDetailVo = new ChuguanDetailVo();
+        chuguanDetailVo.setSkuId(100030716207L);
+        chuguanDetailVos.add(chuguanDetailVo);
+        removePurchaseAndSaleVO(products,chuguanDetailVos);
+        System.out.println(products);
     }
 
     private List<ChuguanDetailVo> getChuguanDetailVos(Long orderId) {
