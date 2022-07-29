@@ -135,7 +135,6 @@ public class JyGroupMemberServiceImpl implements JyGroupMemberService {
 		memberData.setDeviceTypeCode(addMemberRequest.getDeviceTypeCode());
 		memberData.setDeviceTypeName(addMemberRequest.getDeviceTypeName());
 		memberData.setMachineCode(addMemberRequest.getMachineCode());
-		generateAndSetMemberCode(memberData);
 		memberData.setRefGroupCode(groupCode);
 		memberData.setRefSignRecordId(addMemberRequest.getSignRecordId());
 		memberData.setStatus(JyGroupMemberStatusEnum.IN.getCode());
@@ -148,7 +147,16 @@ public class JyGroupMemberServiceImpl implements JyGroupMemberService {
 		memberData.setCreateUser(addMemberRequest.getOperateUserCode());
 		memberData.setCreateUserName(addMemberRequest.getOperateUserName());
 		memberData.setSignInTime(addMemberRequest.getSignInTime());
-
+		//校验组员是否存在
+		if(!isNewGroup) {
+			Result<Boolean> checkResult = checkBeforeAddMember(memberData);
+			if(checkResult != null 
+					&& !checkResult.isSuccess()) {
+				result.toFail(checkResult.getMessage());
+				return result;
+			}
+		}
+		generateAndSetMemberCode(memberData);
 		//新小组，将已签未退人员加入到小组中，正常应该只有当前人员
 		if(isNewGroup) {
 			List<JyGroupMemberEntity> memberList = new ArrayList<JyGroupMemberEntity>();
@@ -218,6 +226,30 @@ public class JyGroupMemberServiceImpl implements JyGroupMemberService {
 		return result;
 	}
 	/**
+	 * 判断能否添加组员
+	 * @param memberData
+	 * @return
+	 */
+	private Result<Boolean> checkBeforeAddMember(JyGroupMemberEntity memberData) {
+		Result<Boolean> result = new Result<>();
+		result.toSuccess();
+		//根据签到id查询小组成员
+		JyGroupMemberEntity oldData = null;
+		if(JyGroupMemberTypeEnum.PERSON.getCode().equals(memberData.getMemberType())) {
+			oldData = jyGroupMemberDao.queryInDataBySignRecordId(memberData);
+			if(oldData != null) {
+				result.toFail("该人员已在岗！");
+			}
+		}else {
+			//根据设备编码查询小组成员
+			oldData = jyGroupMemberDao.queryInDataByMachineCode(memberData);
+			if(oldData != null) {
+				result.toFail("该设备已在岗！");
+			}
+		}
+		return result;
+	}
+	/**
 	 * 移除小组成员，目前由签退触发
 	 */
 	@Override
@@ -229,6 +261,7 @@ public class JyGroupMemberServiceImpl implements JyGroupMemberService {
 		if(JyGroupMemberTypeEnum.PERSON.getCode().equals(removeMemberRequest.getMemberType())) {
 			memberData = jyGroupMemberDao.queryBySignRecordId(removeMemberRequest.getSignRecordId());
 		}else {
+			//根据签到memberCode查询小组成员
 			memberData = jyGroupMemberDao.queryByMemberCode(removeMemberRequest.getMemberCode());
 		}
 		if(memberData != null && !JyGroupMemberStatusEnum.OUT.getCode().equals(memberData.getStatus())) {

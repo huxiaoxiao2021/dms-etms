@@ -154,4 +154,23 @@ public class JyScheduleTaskManagerImpl implements JyScheduleTaskManager {
         }
         return null;
     }
+
+	@Override
+	@JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.JyScheduleTaskManagerImpl.findStartedScheduleTasksForAddMember", mState = {JProEnum.TP, JProEnum.FunctionError})	
+	public List<JyScheduleTaskResp> findStartedScheduleTasksForAddMember(JyScheduleTaskReq req) {
+        ServiceResult<List<JyScheduleTaskResp>> apiResult = null;
+        try{
+            apiResult = jyScheduleTaskApi.findStartedScheduleTasksForAddMember(req);
+            if(apiResult.getSuccess()){
+                return apiResult.getData();
+            }
+        }catch (Exception e){
+            logger.error("JyScheduleTaskManagerImpl.findStartedScheduleTasksForAddMember error req:{}",  JsonHelper.toJson(req),e);
+        }finally {
+            if(logger.isInfoEnabled()){
+                logger.info("JyScheduleTaskManagerImpl.findStartedScheduleTasksForAddMember req:{} resp:{}", JsonHelper.toJson(req),JsonHelper.toJson(apiResult));
+            }
+        }
+        return null;
+	}
 }

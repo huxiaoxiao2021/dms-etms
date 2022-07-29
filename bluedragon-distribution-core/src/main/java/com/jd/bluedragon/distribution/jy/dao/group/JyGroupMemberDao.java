@@ -118,4 +118,20 @@ public class JyGroupMemberDao extends BaseDao<JyGroupMemberEntity> {
 	public int deleteMember(JyGroupMemberEntity deleteMemberData) {
 		return this.getSqlSession().update(NAMESPACE + ".deleteMember", deleteMemberData);
 	}
+	/**
+	 * 根据签到记录查询在岗人员
+	 * @param memberData
+	 * @return
+	 */
+	public JyGroupMemberEntity queryInDataBySignRecordId(JyGroupMemberEntity memberData) {
+		return this.getSqlSession().selectOne(NAMESPACE + ".queryInDataBySignRecordId", memberData);
+	}
+	/**
+	 * 根据设备编码查询在岗设备
+	 * @param memberData
+	 * @return
+	 */	
+	public JyGroupMemberEntity queryInDataByMachineCode(JyGroupMemberEntity memberData) {
+		return this.getSqlSession().selectOne(NAMESPACE + ".queryInDataByMachineCode", memberData);
+	}
 }
