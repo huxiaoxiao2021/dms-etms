@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.middleend.sorting.dao;
 
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.distribution.api.request.SortingPageRequest;
 import com.jd.bluedragon.distribution.sorting.dao.SortingDao;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import org.slf4j.Logger;
@@ -168,6 +169,14 @@ public class DynamicSortingQueryDao implements ISortingDao{
         this.sortingDao = sortingDao;
     }
 
-
+    /**
+     * 分页查询
+     * @param request
+     * @return
+     */
+    @Override
+    public List<Sorting> getPagePackageNoByBoxCode(SortingPageRequest request) {
+        return selectDao(request.getCreateSiteCode()).getPagePackageNoByBoxCode(request);
+    }
 }
 
