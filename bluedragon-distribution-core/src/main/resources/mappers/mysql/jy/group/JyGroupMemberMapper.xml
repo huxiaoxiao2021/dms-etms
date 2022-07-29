@@ -326,7 +326,7 @@
         from
             jy_group_member t
         where t.yn = 1
-            and t.ref_group_code = #{groupCode}
+            and t.ref_group_code = #{refGroupCode}
             and t.machine_code = #{machineCode}
             and t.status = 1
         limit 1
@@ -337,7 +337,7 @@
         from
             jy_group_member t
         where t.yn = 1
-            and t.ref_group_code = #{groupCode}
+            and t.ref_group_code = #{refGroupCode}
             and t.ref_sign_record_id = #{refSignRecordId}
             and t.status = 1
         limit 1
