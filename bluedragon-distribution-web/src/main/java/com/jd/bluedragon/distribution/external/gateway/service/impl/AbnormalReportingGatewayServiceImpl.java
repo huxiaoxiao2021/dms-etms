@@ -32,6 +32,7 @@ import com.jd.bluedragon.dms.utils.AreaEnum;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.common.dto.abnormal.response.SiteDto;
 import com.jd.bluedragon.external.gateway.service.AbnormalReportingGatewayService;
+import com.jd.bluedragon.utils.IntegerHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.waybill.domain.BaseEntity;
@@ -324,6 +325,12 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
             jdCResponse.toFail("参数不全");
             return jdCResponse;
         }
+
+        if(!IntegerHelper.isInIntegerRange(siteCode)){
+            jdCResponse.toFail("站点编号输入错误，请确认后在输入！");
+            return jdCResponse;
+        }
+
         List<SiteDto> siteDtoList = new ArrayList<>();
         SiteQueryCondition siteQueryCondition = new SiteQueryCondition();
 
