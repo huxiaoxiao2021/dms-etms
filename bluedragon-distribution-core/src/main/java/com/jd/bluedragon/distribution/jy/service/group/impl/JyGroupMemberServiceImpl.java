@@ -194,7 +194,7 @@ public class JyGroupMemberServiceImpl implements JyGroupMemberService {
 			JyScheduleTaskReq taskQuery = new JyScheduleTaskReq();
 			taskQuery.setDistributionType(JyScheduleTaskDistributionTypeEnum.GROUP.getCode());
 			taskQuery.setDistributionTarget(groupCode);
-			List<JyScheduleTaskResp> taskList = jyScheduleTaskManager.findStartedScheduleTasksByDistribute(taskQuery);
+			List<JyScheduleTaskResp> taskList = jyScheduleTaskManager.findStartedScheduleTasksForAddMember(taskQuery);
 			if(!CollectionUtils.isEmpty(taskList)) {
 				for(JyScheduleTaskResp task : taskList) {
 					String taskId = task.getTaskId();
