@@ -232,6 +232,8 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
         sealCarDto.setSealSiteName(sealVehicleReq.getCurrentOperate().getSiteName());
         sealCarDto.setSealUserCode(sealVehicleReq.getUser().getUserErp());
         sealCarDto.setSealUserName(sealVehicleReq.getUser().getUserName());
+        //转换体积单位 立方厘米转换为立方米
+        sealCarDto.setVolume(NumberHelper.cm3ToM3(sealVehicleReq.getVolume()));
         return sealCarDto;
     }
 }
