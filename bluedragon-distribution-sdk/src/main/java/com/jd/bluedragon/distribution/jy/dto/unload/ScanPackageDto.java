@@ -29,6 +29,11 @@ public class ScanPackageDto extends UnloadBaseDto implements Serializable {
     private Integer type;
 
     /**
+     * 作业类型  0-流水线  1-人工
+     */
+    private Integer workType;
+
+    /**
      * 进行中的板，基于这个板进行组板
      */
     private String boardCode;
@@ -46,6 +51,11 @@ public class ScanPackageDto extends UnloadBaseDto implements Serializable {
      * 下游场地名称
      * */
     private String nextSiteName;
+
+    /**
+     * 上下游场地编码
+     * */
+    private Integer prevSiteCode;
 
     /**
      * 补扫标识
@@ -160,5 +170,21 @@ public class ScanPackageDto extends UnloadBaseDto implements Serializable {
 
     public void setNextSiteName(String nextSiteName) {
         this.nextSiteName = nextSiteName;
+    }
+
+    public Integer getPrevSiteCode() {
+        return prevSiteCode;
+    }
+
+    public void setPrevSiteCode(Integer prevSiteCode) {
+        this.prevSiteCode = prevSiteCode;
+    }
+
+    public Integer getWorkType() {
+        return workType;
+    }
+
+    public void setWorkType(Integer workType) {
+        this.workType = workType;
     }
 }

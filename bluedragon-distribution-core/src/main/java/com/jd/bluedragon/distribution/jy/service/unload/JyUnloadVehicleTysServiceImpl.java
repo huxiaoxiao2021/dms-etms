@@ -30,9 +30,12 @@ import com.jd.bluedragon.distribution.jy.unload.JyBizTaskUnloadVehicleStageEntit
 import com.jd.bluedragon.distribution.jy.unload.JyUnloadAggsEntity;
 import com.jd.bluedragon.distribution.jy.unload.JyUnloadEntity;
 import com.jd.bluedragon.distribution.jy.unload.JyUnloadVehicleBoardEntity;
+import com.jd.bluedragon.distribution.loadAndUnload.exception.LoadIllegalException;
+import com.jd.bluedragon.distribution.loadAndUnload.exception.UnloadPackageBoardException;
 import com.jd.bluedragon.distribution.loadAndUnload.neum.UnloadCarWarnEnum;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BeanUtils;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -130,6 +133,9 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
      */
     @Value("${packageWeightLimit:2000}")
     private String packageWeightLimit;
+
+    @Value("${dazongPackageOperateMax}")
+    private Integer dazongPackageOperateMax;
 
 
     @Override
@@ -316,71 +322,107 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         invokeResult.success();
         ScanPackageRespDto scanPackageRespDto = new ScanPackageRespDto();
         scanPackageRespDto.setWarnMsg(new HashMap<String, String>(5));
+        scanPackageRespDto.setConfirmMsg(new HashMap<String, String>(1));
         invokeResult.setData(scanPackageRespDto);
 
-        Integer operateSiteCode = scanPackageDto.getCurrentOperate().getSiteCode();
-        String barCode = scanPackageDto.getScanCode();
-        String bizId = scanPackageDto.getBizId();
-        String boardCode = scanPackageDto.getBoardCode();
         log.info("invoking jy scanAndComBoard,params: {}", JsonHelper.toJson(scanPackageDto));
-        checkScan(scanPackageDto);
-
-        JyBizTaskUnloadVehicleEntity unloadVehicleEntity = jyBizTaskUnloadVehicleService.findByBizId(scanPackageDto.getBizId());
-        if (!ObjectHelper.isNotNull(unloadVehicleEntity)) {
-            return new InvokeResult<>(TASK_NO_FOUND_BY_PARAMS_CODE, TASK_NO_FOUND_BY_PARAMS_MESSAGE);
-        }
-        // 校验跨场地支援权限
-        if (!unloadVehicleEntity.getEndSiteId().equals((long) scanPackageDto.getCurrentOperate().getSiteCode())) {
-            log.warn("支援人员无需操作:bizId={},erp={}", scanPackageDto.getBizId(), scanPackageDto.getUser().getUserErp());
-            invokeResult.customMessage(RESULT_PARAMETER_ERROR_CODE, "支援人员无需操作该任务，待任务完成后该任务会自动清除");
-            return invokeResult;
-        }
-        if (ScanTypeEnum.PACKAGE.getCode().equals(scanPackageDto.getType())) {
-            DeliveryPackageD packageD = waybillPackageManager.getPackageInfoByPackageCode(barCode);
-            if (packageD == null) {
-                return null;
+        try {
+            checkScan(scanPackageDto);
+            JyBizTaskUnloadVehicleEntity unloadVehicleEntity = jyBizTaskUnloadVehicleService.findByBizId(scanPackageDto.getBizId());
+            if (!ObjectHelper.isNotNull(unloadVehicleEntity)) {
+                return new InvokeResult<>(TASK_NO_FOUND_BY_PARAMS_CODE, TASK_NO_FOUND_BY_PARAMS_MESSAGE);
             }
-            String waybillCode = WaybillUtil.getWaybillCode(scanPackageDto.getScanCode());
-            Waybill waybill = waybillQueryManager.getWaybillByWayCode(waybillCode);
-            if (waybill == null) {
-                return null;
-            }
-            // 判断是否是跨越的取消订单
-            String kyCancelCheckStr = jyUnloadVehicleCheckTysService.kyExpressCancelCheck(operateSiteCode, waybill);
-            if (StringUtils.isNotBlank(kyCancelCheckStr)) {
-                invokeResult.customMessage(RESULT_PARAMETER_ERROR_CODE, kyCancelCheckStr);
+            // 校验跨场地支援权限
+            if (!unloadVehicleEntity.getEndSiteId().equals((long) scanPackageDto.getCurrentOperate().getSiteCode())) {
+                log.warn("支援人员无需操作:bizId={},erp={}", scanPackageDto.getBizId(), scanPackageDto.getUser().getUserErp());
+                invokeResult.customMessage(RESULT_PARAMETER_ERROR_CODE, "支援人员无需操作该任务，待任务完成后该任务会自动清除");
                 return invokeResult;
             }
-            // 包裹超重校验
-            BigDecimal packageWeight = jyUnloadVehicleCheckTysService.getPackageWeight(packageD, waybill);
-            if (packageWeight != null && packageWeight.compareTo(new BigDecimal(packageWeightLimit)) > 0) {
-                log.info("包裹超重:packageCode={},weight={},limit={}", barCode, packageWeight.toPlainString(), packageWeightLimit);
-                Map<String, String> warnMsg = invokeResult.getData().getWarnMsg();
-                warnMsg.put(UnloadCarWarnEnum.PACKAGE_OVER_WEIGHT_MESSAGE.getLevel(), String.format(UnloadCarWarnEnum.PACKAGE_OVER_WEIGHT_MESSAGE.getDesc(), packageWeight.toPlainString()));
+            // 按包裹扫描
+            if (ScanTypeEnum.PACKAGE.getCode().equals(scanPackageDto.getType())) {
+                return packageScan(scanPackageDto, unloadVehicleEntity, invokeResult);
+                // 按运单扫描
+            } else if (ScanTypeEnum.WAYBILL.getCode().equals(scanPackageDto.getType())) {
+                return waybillScan(scanPackageDto, unloadVehicleEntity, invokeResult);
+                // 按箱扫描
+            } else if (ScanTypeEnum.BOX.getCode().equals(scanPackageDto.getType())) {
+
             }
-            // 包裹是否扫描成功
-            jyUnloadVehicleCheckTysService.packageIsScanBoard(bizId, barCode, boardCode);
-            if (!scanPackageDto.getIsForceCombination()) {
-                UnloadScanDto unloadScanDto = createUnloadDto(scanPackageDto, unloadVehicleEntity);
-                // 验货校验
-                jyUnloadVehicleCheckTysService.inspectionIntercept(barCode, waybill, unloadScanDto);
-                // 拦截校验
-                String interceptResult = jyUnloadVehicleCheckTysService.interceptValidateUnloadCar(waybill, packageD, scanPackageRespDto, barCode);
-                if (StringUtils.isNotBlank(interceptResult)) {
-                    invokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, interceptResult);
-                    return invokeResult;
-                }
-                // 专网校验
-                boolean privateNetworkFlag = jyUnloadVehicleCheckTysService.privateNetworkCheck(waybill, scanPackageRespDto);
-                if (privateNetworkFlag) {
-                    return invokeResult;
-                }
-                // 跨越目的转运中心自提校验
-                String kyResult = jyUnloadVehicleCheckTysService.kyExpressCheck(waybill, operateSiteCode);
-                if (StringUtils.isNotBlank(kyResult)) {
-                    invokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, kyResult);
-                    return invokeResult;
-                }
+        } catch (JyBizException e) {
+            invokeResult.customMessage(RESULT_INTERCEPT_CODE, e.getMessage());
+            return invokeResult;
+        } catch (LoadIllegalException e) {
+            invokeResult.customMessage(RESULT_INTERCEPT_CODE, e.getMessage());
+            return invokeResult;
+        } catch (Exception e) {
+            if (e instanceof UnloadPackageBoardException) {
+                invokeResult.customMessage(RESULT_PACKAGE_ALREADY_BIND, e.getMessage());
+                return invokeResult;
+            }
+            log.error("人工卸车扫描接口发生异常：e=", e);
+            invokeResult.customMessage(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
+        }
+        return invokeResult;
+    }
+
+    private InvokeResult<ScanPackageRespDto> packageScan(ScanPackageDto scanPackageDto, JyBizTaskUnloadVehicleEntity unloadVehicleEntity,
+                                                         InvokeResult<ScanPackageRespDto> invokeResult) {
+        String barCode = scanPackageDto.getScanCode();
+        String bizId = scanPackageDto.getBizId();
+        Integer operateSiteCode = scanPackageDto.getCurrentOperate().getSiteCode();
+        String boardCode = scanPackageDto.getBoardCode();
+        ScanPackageRespDto scanPackageRespDto = invokeResult.getData();
+        DeliveryPackageD packageD = waybillPackageManager.getPackageInfoByPackageCode(barCode);
+        if (packageD == null) {
+            invokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, "该包裹号不存在，请检查包裹号是否正确！");
+            return invokeResult;
+        }
+        String waybillCode = WaybillUtil.getWaybillCode(scanPackageDto.getScanCode());
+        Waybill waybill = waybillQueryManager.getWaybillByWayCode(waybillCode);
+        if (waybill == null) {
+            invokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, "该运单号不存在，请检查运单号是否正确！");
+            return invokeResult;
+        }
+        // 判断是否是跨越的取消订单
+        String kyCancelCheckStr = jyUnloadVehicleCheckTysService.kyExpressCancelCheck(operateSiteCode, waybill);
+        if (StringUtils.isNotBlank(kyCancelCheckStr)) {
+            invokeResult.customMessage(RESULT_PARAMETER_ERROR_CODE, kyCancelCheckStr);
+            return invokeResult;
+        }
+        // 包裹超重校验
+        BigDecimal packageWeight = jyUnloadVehicleCheckTysService.getPackageWeight(packageD, waybill);
+        if (packageWeight != null && packageWeight.compareTo(new BigDecimal(packageWeightLimit)) > 0) {
+            log.info("包裹超重:packageCode={},weight={},limit={}", barCode, packageWeight.toPlainString(), packageWeightLimit);
+            Map<String, String> warnMsg = invokeResult.getData().getWarnMsg();
+            warnMsg.put(UnloadCarWarnEnum.PACKAGE_OVER_WEIGHT_MESSAGE.getLevel(), String.format(UnloadCarWarnEnum.PACKAGE_OVER_WEIGHT_MESSAGE.getDesc(), packageWeight.toPlainString()));
+        }
+        // 包裹是否扫描成功
+        jyUnloadVehicleCheckTysService.packageIsScanBoard(bizId, barCode, boardCode);
+        if (!scanPackageDto.getIsForceCombination()) {
+            UnloadScanDto unloadScanDto = createUnloadDto(scanPackageDto, unloadVehicleEntity);
+            // 验货校验
+            jyUnloadVehicleCheckTysService.inspectionIntercept(barCode, waybill, unloadScanDto);
+            // 无任务设置上游站点
+            jyUnloadVehicleCheckTysService.setStartSiteForJyUnloadVehicle(scanPackageDto, scanPackageRespDto, unloadVehicleEntity);
+            // B网快运发货规则校验
+            String interceptResult = jyUnloadVehicleCheckTysService.interceptValidateUnloadCar(waybill, packageD, scanPackageRespDto, barCode);
+            if (StringUtils.isNotBlank(interceptResult)) {
+                invokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, interceptResult);
+                return invokeResult;
+            }
+            // 专网校验
+            boolean privateNetworkFlag = jyUnloadVehicleCheckTysService.privateNetworkCheck(waybill, scanPackageRespDto);
+            if (privateNetworkFlag) {
+                return invokeResult;
+            }
+            // 跨越目的转运中心自提校验
+            String kyResult = jyUnloadVehicleCheckTysService.kyExpressCheck(waybill, operateSiteCode);
+            if (StringUtils.isNotBlank(kyResult)) {
+                invokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, kyResult);
+                return invokeResult;
+            }
+            // 人工卸车模式组板校验
+            if (UnloadCarTypeEnum.MANUAL_TYPE.getCode().equals(scanPackageDto.getWorkType())) {
                 // 路由校验、生成板号
                 boolean routerCheckResult = jyUnloadVehicleCheckTysService.routerCheck(scanPackageRespDto, scanPackageDto);
                 if (!routerCheckResult) {
@@ -396,13 +438,72 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
                 if (StringUtils.isNotBlank(boardCheckStr)) {
                     return invokeResult;
                 }
-                // 卸车处理并回传TC组板关系
-                jyUnloadVehicleCheckTysService.dealUnloadAndBoxToBoard(scanPackageDto, scanPackageRespDto);
+            }
+        }
+        // 人工卸车模式组板
+        if (UnloadCarTypeEnum.MANUAL_TYPE.getCode().equals(scanPackageDto.getWorkType())) {
+            // 卸车处理并回传TC组板关系
+            jyUnloadVehicleCheckTysService.dealUnloadAndBoxToBoard(scanPackageDto, scanPackageRespDto);
+        }
+        // 设置拦截缓存
+        jyUnloadVehicleCheckTysService.setCacheOfSealCarAndPackageIntercept(bizId, barCode);
+        return invokeResult;
+    }
+
+    private InvokeResult<ScanPackageRespDto> waybillScan(ScanPackageDto scanPackageDto, JyBizTaskUnloadVehicleEntity unloadVehicleEntity,
+                                                         InvokeResult<ScanPackageRespDto> invokeResult) {
+        String barCode = scanPackageDto.getScanCode();
+        String bizId = scanPackageDto.getBizId();
+        ScanPackageRespDto scanPackageRespDto = invokeResult.getData();
+        DeliveryPackageD packageD = null;
+        String waybillCode = scanPackageDto.getScanCode();
+        if (WaybillUtil.isPackageCode(barCode)) {
+            packageD = waybillPackageManager.getPackageInfoByPackageCode(barCode);
+            if (packageD == null) {
+                invokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, "该包裹号不存在，请检查包裹号是否正确！");
                 return invokeResult;
             }
-        } else if (ScanTypeEnum.WAYBILL.getCode().equals(scanPackageDto.getType())) {
-
+            waybillCode = WaybillUtil.getWaybillCode(scanPackageDto.getScanCode());
+            scanPackageDto.setScanCode(waybillCode);
+            barCode = waybillCode;
         }
+        Waybill waybill = waybillQueryManager.getWaybillByWayCode(waybillCode);
+        if (waybill == null) {
+            invokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, "该运单号不存在，请检查运单号是否正确！");
+            return invokeResult;
+        }
+        // 校验是否为KA运单
+        boolean isKaWaybill = jyUnloadVehicleCheckTysService.checkIsKaWaybill(waybill);
+        if (isKaWaybill) {
+            log.warn("此包裹为大件KA运单,不支持大宗按单操作,请逐包裹扫描！运单号={}", waybillCode);
+            invokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, "此包裹为大件KA运单,不支持大宗按单操作,请逐包裹扫描!");
+            return invokeResult;
+        }
+        boolean isRepeatScan = jyUnloadVehicleCheckTysService.checkWaybillScanIsRepeat(bizId, waybillCode);
+        // 运单是否扫描成功
+        if (isRepeatScan) {
+            log.warn("运单卸车扫描--该运单已经扫描过，请勿重复扫:bizId={},waybillCode={}", bizId, waybillCode);
+            invokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, "该运单已经扫描过，请勿重复扫！");
+            return invokeResult;
+        }
+        UnloadScanDto unloadScanDto = createUnloadDto(scanPackageDto, unloadVehicleEntity);
+        // 验货校验
+        jyUnloadVehicleCheckTysService.inspectionIntercept(barCode, waybill, unloadScanDto);
+        // 无任务设置上游站点
+        jyUnloadVehicleCheckTysService.setStartSiteForJyUnloadVehicle(scanPackageDto, scanPackageRespDto, unloadVehicleEntity);
+        // 专网校验
+        boolean privateNetworkFlag = jyUnloadVehicleCheckTysService.privateNetworkCheck(waybill, scanPackageRespDto);
+        if (privateNetworkFlag) {
+            return invokeResult;
+        }
+        // B网快运发货规则校验
+        String interceptResult = jyUnloadVehicleCheckTysService.interceptValidateUnloadCar(waybill, packageD, scanPackageRespDto, barCode);
+        if (StringUtils.isNotBlank(interceptResult)) {
+            invokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, interceptResult);
+            return invokeResult;
+        }
+        // 设置拦截缓存
+        jyUnloadVehicleCheckTysService.waybillInspectSuccessAfter(bizId, waybillCode);
         return invokeResult;
     }
 
@@ -437,6 +538,9 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     }
 
     private void checkScan(ScanPackageDto scanPackageDto) {
+        if (BusinessUtil.isBoxcode(scanPackageDto.getScanCode())) {
+            return;
+        }
         if (checkBarCodeScannedAlready(scanPackageDto)) {
             throw new JyBizException("单号已扫描！");
         }
@@ -444,19 +548,18 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         if (WaybillUtil.isPackageCode(scanCode)) {
             scanCode = WaybillUtil.getWaybillCode(scanCode);
         }
-        Integer nextSiteCode = getWaybillNextRouter(scanCode, scanPackageDto.getCurrentOperate().getSiteCode());
-        if (!ObjectHelper.isNotNull(nextSiteCode)) {
-            throw new JyBizException("未获取到该运单" + scanCode + "的下游站点信息,当前站点为" + scanPackageDto.getCurrentOperate().getSiteCode());
-        }
+        String routerStr = waybillCacheService.getRouterByWaybillCode(scanCode);
+        Integer nextSiteCode = getRouteNextSite(scanPackageDto.getCurrentOperate().getSiteCode(), routerStr);
+        Integer prevSiteCode = getPrevSiteCodeByRouter(routerStr, scanPackageDto.getCurrentOperate().getSiteCode());
+        scanPackageDto.setPrevSiteCode(prevSiteCode);
+        scanPackageDto.setNextSiteCode(nextSiteCode);
         String goodsAreaCode = getGoodsAreaCode(scanPackageDto.getCurrentOperate().getSiteCode(), nextSiteCode);
-        if (!ObjectHelper.isNotNull(goodsAreaCode)) {
-            throw new JyBizException("未获取到该运单" + scanCode + "对应的货区编码信息");
-        }
-        if (ObjectHelper.isNotNull(scanPackageDto.getGoodsAreaCode()) && !goodsAreaCode.equals(scanPackageDto.getGoodsAreaCode())) {
-            throw new JyBizException("扫描包裹非本货区，请移除本区！");
+        if (ObjectHelper.isNotNull(scanPackageDto.getGoodsAreaCode()) && ObjectHelper.isNotNull(goodsAreaCode)) {
+            if (!goodsAreaCode.equals(scanPackageDto.getGoodsAreaCode())) {
+                throw new JyBizException("扫描包裹非本货区，请移除本区！");
+            }
         }
         scanPackageDto.setGoodsAreaCode(goodsAreaCode);
-        scanPackageDto.setNextSiteCode(nextSiteCode);
     }
 
     private boolean checkBarCodeScannedAlready(ScanPackageDto request) {
@@ -551,7 +654,51 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     @Override
     @JProfiler(jKey = "JyUnloadVehicleTysServiceImpl.scanForPipelining",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<ScanPackageRespDto> scanForPipelining(ScanPackageDto scanPackageDto) {
-        return null;
+        InvokeResult<ScanPackageRespDto> invokeResult = new InvokeResult<>();
+        invokeResult.success();
+        ScanPackageRespDto scanPackageRespDto = new ScanPackageRespDto();
+        scanPackageRespDto.setWarnMsg(new HashMap<String, String>(5));
+        scanPackageRespDto.setConfirmMsg(new HashMap<String, String>(1));
+        invokeResult.setData(scanPackageRespDto);
+
+        log.info("invoking jy scanAndComBoard,params: {}", JsonHelper.toJson(scanPackageDto));
+        try {
+            checkScan(scanPackageDto);
+            JyBizTaskUnloadVehicleEntity unloadVehicleEntity = jyBizTaskUnloadVehicleService.findByBizId(scanPackageDto.getBizId());
+            if (!ObjectHelper.isNotNull(unloadVehicleEntity)) {
+                return new InvokeResult<>(TASK_NO_FOUND_BY_PARAMS_CODE, TASK_NO_FOUND_BY_PARAMS_MESSAGE);
+            }
+            // 校验跨场地支援权限
+            if (!unloadVehicleEntity.getEndSiteId().equals((long) scanPackageDto.getCurrentOperate().getSiteCode())) {
+                log.warn("支援人员无需操作:bizId={},erp={}", scanPackageDto.getBizId(), scanPackageDto.getUser().getUserErp());
+                invokeResult.customMessage(RESULT_PARAMETER_ERROR_CODE, "支援人员无需操作该任务，待任务完成后该任务会自动清除");
+                return invokeResult;
+            }
+            // 按包裹扫描
+            if (ScanTypeEnum.PACKAGE.getCode().equals(scanPackageDto.getType())) {
+                return packageScan(scanPackageDto, unloadVehicleEntity, invokeResult);
+                // 按运单扫描
+            } else if (ScanTypeEnum.WAYBILL.getCode().equals(scanPackageDto.getType())) {
+                return waybillScan(scanPackageDto, unloadVehicleEntity, invokeResult);
+                // 按箱扫描
+            } else if (ScanTypeEnum.BOX.getCode().equals(scanPackageDto.getType())) {
+
+            }
+        } catch (JyBizException e) {
+            invokeResult.customMessage(RESULT_INTERCEPT_CODE, e.getMessage());
+            return invokeResult;
+        } catch (LoadIllegalException e) {
+            invokeResult.customMessage(RESULT_INTERCEPT_CODE, e.getMessage());
+            return invokeResult;
+        } catch (Exception e) {
+            if (e instanceof UnloadPackageBoardException) {
+                invokeResult.customMessage(RESULT_PACKAGE_ALREADY_BIND, e.getMessage());
+                return invokeResult;
+            }
+            log.error("流水线卸车扫描接口发生异常：e=", e);
+            invokeResult.customMessage(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
+        }
+        return invokeResult;
     }
 
     @Override
@@ -983,6 +1130,32 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             }
         }
         return null;
+    }
+
+    /**
+     * 根据当前站点ID从路由链路中筛选出上一路由
+     * @param router 路由链路 10186|364605|910......
+     * @param createSiteCode 当前站点ID
+     * @return 上游站点ID
+     */
+    public static Integer getPrevSiteCodeByRouter(String router, int createSiteCode) {
+        if (org.apache.commons.lang.StringUtils.isBlank(router)) {
+            return null;
+        }
+        Integer prevSiteCode = null;
+        String[] routerNodes = router.split("\\|");
+        for (int i = 0; i < routerNodes.length - 1; i ++) {
+            int curNode = Integer.parseInt(routerNodes[i]);
+            // 如果该网点ID等于当前操作站点ID
+            if (curNode == createSiteCode) {
+                // 如果当前路由节点不是第一个
+                if (i != 0) {
+                    // 获取上一个
+                    prevSiteCode = Integer.parseInt(routerNodes[i - 1]);
+                }
+            }
+        }
+        return prevSiteCode;
     }
 
     @Override

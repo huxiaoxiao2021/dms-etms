@@ -18,6 +18,9 @@ public class ScanPackageRespDto implements Serializable {
     private Long endSiteId;
     private Integer comBoardCount;
 
+    private String prevSiteName;
+    private Long prevSiteId;
+
     /**
      * 卸车扫描非弹框消息提示  K-优先级  V-话术
      * 见：UnloadCarWarnEnum
@@ -88,5 +91,21 @@ public class ScanPackageRespDto implements Serializable {
 
     public void setConfirmMsg(Map<String, String> confirmMsg) {
         this.confirmMsg = confirmMsg;
+    }
+
+    public String getPrevSiteName() {
+        return prevSiteName;
+    }
+
+    public void setPrevSiteName(String prevSiteName) {
+        this.prevSiteName = prevSiteName;
+    }
+
+    public Long getPrevSiteId() {
+        return prevSiteId;
+    }
+
+    public void setPrevSiteId(Long prevSiteId) {
+        this.prevSiteId = prevSiteId;
     }
 }
