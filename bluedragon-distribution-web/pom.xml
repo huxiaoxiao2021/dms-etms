@@ -62,10 +62,6 @@
 					<artifactId>log4j-jcl</artifactId>
 					<groupId>org.apache.logging.log4j</groupId>
 				</exclusion>
-				<exclusion>
-					<artifactId>spring-webmvc</artifactId>
-					<groupId>org.springframework</groupId>
-				</exclusion>
 			</exclusions>
 		</dependency>
 
