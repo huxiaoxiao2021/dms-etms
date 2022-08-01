@@ -18,13 +18,14 @@
     <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
     <result column="yn" jdbcType="BIT" property="yn" />
     <result column="ts" jdbcType="TIMESTAMP" property="ts" />
+    <result column="unload_vehicle_stage_biz_id" jdbcType="VARCHAR" property="unloadVehicleStageBizId" />
     <result column="board_code_num" jdbcType="INTEGER" property="boardCodeNum" />
 
   </resultMap>
   <sql id="Base_Column_List">
     id, unload_vehicle_biz_id, board_code, start_site_id, start_site_name, end_site_id,
     end_site_name, goods_area_code, create_user_erp, create_user_name, update_user_erp, 
-    update_user_name, create_time, update_time, yn, ts
+    update_user_name, create_time, update_time, yn, ts, unload_vehicle_stage_biz_id
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select 
@@ -42,13 +43,13 @@
       end_site_name, goods_area_code, create_user_erp, 
       create_user_name, update_user_erp, update_user_name, 
       create_time, update_time, yn, 
-      ts)
+      ts, unload_vehicle_stage_biz_id)
     values (#{id,jdbcType=BIGINT}, #{unload_vehicle_biz_id,jdbcType=BIGINT}, #{boardCode,jdbcType=VARCHAR},
       #{startSiteId,jdbcType=BIGINT}, #{startSiteName,jdbcType=VARCHAR}, #{endSiteId,jdbcType=BIGINT}, 
       #{endSiteName,jdbcType=VARCHAR}, #{goodsAreaCode,jdbcType=VARCHAR}, #{createUserErp,jdbcType=VARCHAR}, 
       #{createUserName,jdbcType=VARCHAR}, #{updateUserErp,jdbcType=VARCHAR}, #{updateUserName,jdbcType=VARCHAR}, 
       #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, #{yn,jdbcType=BIT}, 
-      #{ts,jdbcType=TIMESTAMP})
+      #{ts,jdbcType=TIMESTAMP}, #{unloadVehicleStageBizId,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="com.jd.bluedragon.distribution.jy.unload.JyUnloadVehicleBoardEntity">
     insert into jy_unload_vehicle_board
@@ -101,6 +102,9 @@
       <if test="ts != null">
         ts,
       </if>
+      <if test="unloadVehicleStageBizId != null">
+        unload_vehicle_stage_biz_id,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -150,6 +154,9 @@
       </if>
       <if test="ts != null">
         #{ts,jdbcType=TIMESTAMP},
+      </if>
+      <if test="unloadVehicleStageBizId != null">
+        #{unloadVehicleStageBizId,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>

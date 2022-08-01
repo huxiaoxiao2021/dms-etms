@@ -40,6 +40,10 @@ public class JyUnloadVehicleBoardEntity {
      */
     private Integer boardCodeNum;
 
+    /**
+     * 子任务ID
+     */
+    private String unloadVehicleStageBizId;
 
     public Long getId() {
         return id;
@@ -176,4 +180,13 @@ public class JyUnloadVehicleBoardEntity {
     public void setBoardCodeNum(Integer boardCodeNum) {
         this.boardCodeNum = boardCodeNum;
     }
+
+    public String getUnloadVehicleStageBizId() {
+        return unloadVehicleStageBizId;
+    }
+
+    public void setUnloadVehicleStageBizId(String unloadVehicleStageBizId) {
+        this.unloadVehicleStageBizId = unloadVehicleStageBizId;
+    }
+
 }
