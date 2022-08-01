@@ -348,10 +348,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             } else if (ScanTypeEnum.BOX.getCode().equals(scanPackageDto.getType())) {
 
             }
-        } catch (JyBizException e) {
-            invokeResult.customMessage(RESULT_INTERCEPT_CODE, e.getMessage());
-            return invokeResult;
-        } catch (LoadIllegalException e) {
+        } catch (JyBizException | LoadIllegalException e) {
             invokeResult.customMessage(RESULT_INTERCEPT_CODE, e.getMessage());
             return invokeResult;
         } catch (Exception e) {
@@ -684,10 +681,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             } else if (ScanTypeEnum.BOX.getCode().equals(scanPackageDto.getType())) {
 
             }
-        } catch (JyBizException e) {
-            invokeResult.customMessage(RESULT_INTERCEPT_CODE, e.getMessage());
-            return invokeResult;
-        } catch (LoadIllegalException e) {
+        } catch (JyBizException | LoadIllegalException e) {
             invokeResult.customMessage(RESULT_INTERCEPT_CODE, e.getMessage());
             return invokeResult;
         } catch (Exception e) {
