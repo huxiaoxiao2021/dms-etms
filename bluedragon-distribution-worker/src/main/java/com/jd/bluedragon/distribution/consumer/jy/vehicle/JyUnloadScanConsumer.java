@@ -12,6 +12,7 @@ import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.dao.unload.JyBizTaskUnloadVehicleStageDao;
 import com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadDao;
 import com.jd.bluedragon.distribution.jy.dto.unload.UnloadScanDto;
+import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadStatusEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.group.JyTaskGroupMemberEntity;
 import com.jd.bluedragon.distribution.jy.service.group.JyTaskGroupMemberService;
@@ -19,6 +20,7 @@ import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskUnloadVehicleServ
 import com.jd.bluedragon.distribution.jy.service.unload.JyBizTaskUnloadVehicleStageService;
 import com.jd.bluedragon.distribution.jy.service.unload.UnloadVehicleTransactionManager;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadDto;
+import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
 import com.jd.bluedragon.distribution.jy.unload.JyBizTaskUnloadVehicleStageEntity;
 import com.jd.bluedragon.distribution.jy.unload.JyUnloadEntity;
 import com.jd.bluedragon.utils.DateHelper;
@@ -43,6 +45,9 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+
+import static com.jd.bluedragon.distribution.base.domain.InvokeResult.TASK_NO_FOUND_BY_PARAMS_CODE;
+import static com.jd.bluedragon.distribution.base.domain.InvokeResult.TASK_NO_FOUND_BY_PARAMS_MESSAGE;
 
 /**
  * @ClassName JyUnloadScanConsumer
@@ -134,6 +139,14 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
             //查询子任务bizId
             JyBizTaskUnloadVehicleStageEntity condition =new JyBizTaskUnloadVehicleStageEntity();
             condition.setUnloadVehicleBizId(unloadScanDto.getBizId());
+            // 查询主任务状态
+            JyBizTaskUnloadVehicleEntity unloadVehicleEntity = jyBizTaskUnloadVehicleService.findByBizId(unloadScanDto.getBizId());
+            if (ObjectHelper.isNotNull(unloadVehicleEntity)) {
+                // 只有已完成的卸车任务，才算补扫
+                if (JyBizTaskUnloadStatusEnum.UN_LOAD_DONE.getCode().equals(unloadVehicleEntity.getVehicleStatus())) {
+                    unloadScanDto.setSupplementary(Boolean.TRUE);
+                }
+            }
             condition.setType(unloadScanDto.getSupplementary() ? CHILD_TASK_TYPE_SUPPLEMENT : CHILD_TASK_TYPE_HANDOVER);
             condition.setStatus(CHILD_TASK_STATUS_DOING);
             JyBizTaskUnloadVehicleStageEntity entity =jyBizTaskUnloadVehicleStageService.queryCurrentStage(condition);
