@@ -199,4 +199,11 @@ public interface UnloadCarService {
     UnloadCarTaskDto getUnloadCarTaskDuration(UnloadCarTaskReq unloadCarTaskReq);
 
     List<UnloadCar> getTaskInfoBySealCarCodes(List<String> sealCarCodes);
-}
+
+    /**
+     * 新老app互斥拦截,查询新版操作的任务信息
+     * @param sealCarCodeList
+     * @return
+     */
+    public List<String> newAppOperateIntercept(List<String> sealCarCodeList);
+    }

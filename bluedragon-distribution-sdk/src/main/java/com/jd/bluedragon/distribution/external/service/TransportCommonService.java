@@ -120,4 +120,13 @@ public interface TransportCommonService {
      */
     InvokeResult<Boolean> delOperatePdaVersion(String sealCarCode, String pdaVersion);
 
+
+    /**
+     *
+     * @param sealCarCode
+     * @param sealCarCode AppVersionEnums
+     * @return
+     */
+    InvokeResult<String> getOperatePdaVersion(String sealCarCode);
+
 }

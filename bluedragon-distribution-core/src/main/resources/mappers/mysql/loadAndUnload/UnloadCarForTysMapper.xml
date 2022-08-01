@@ -341,9 +341,11 @@
         operate_user_name = #{operateUserName, jdbcType=VARCHAR},
         distribute_time = #{distributeTime, jdbcType=TIMESTAMP},
         status = 1,
+        version = #{version, jdbcType=VARCHAR},
         update_time = NOW()
         WHERE
         YN = 1
+        and (version is null or version == #{version, jdbcType=VARCHAR})
         <if test="unloadCarIds != null">
             AND unload_car_id in
             <foreach item="item" index="index" collection="unloadCarIds"

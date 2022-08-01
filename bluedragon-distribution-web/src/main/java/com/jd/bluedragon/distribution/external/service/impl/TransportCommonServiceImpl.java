@@ -380,9 +380,9 @@ public class TransportCommonServiceImpl implements TransportCommonService {
             boolean resData = true;
             String key = TransportServiceConstants.CACHE_PREFIX_PDA_ACTUAL_OPERATE_VERSION + sealCarCode;
             if (redisClientOfJy.exists(key)) {
-                resData = Integer.valueOf(redisClientOfJy.get(key)).equals(pdaVersion);
+                resData = redisClientOfJy.get(key).equals(pdaVersion);
             }else {
-                redisClientOfJy.setEx(key, String.valueOf(Boolean.FALSE), TransportServiceConstants.CACHE_PREFIX_PDA_ACTUAL_OPERATE_VERSION_EXPIRE, TimeUnit.HOURS);
+                redisClientOfJy.setEx(key, pdaVersion, TransportServiceConstants.CACHE_PREFIX_PDA_ACTUAL_OPERATE_VERSION_EXPIRE, TimeUnit.DAYS);
             }
             res.setData(resData);
             return res;
@@ -409,7 +409,7 @@ public class TransportCommonServiceImpl implements TransportCommonService {
         try{
             String key = TransportServiceConstants.CACHE_PREFIX_PDA_ACTUAL_OPERATE_VERSION + sealCarCode;
             if (redisClientOfJy.exists(key)) {
-                if(!Integer.valueOf(redisClientOfJy.get(key)).equals(pdaVersion)) {
+                if(!redisClientOfJy.get(key).equals(pdaVersion)) {
                     String msg = StringUtils.isBlank(AppVersionEnums.getDescByCode(pdaVersion)) ? "其他版本" : AppVersionEnums.getDescByCode(pdaVersion);
                     res.error(msg + "正在操作中");
                     return res;
@@ -422,6 +422,28 @@ public class TransportCommonServiceImpl implements TransportCommonService {
         }catch (Exception e) {
             log.error("TransportCommonServiceImpl.delOperatePdaVersion--服务异常--sealCarCode={}，pdaVersion={}, srrMsg={}", sealCarCode, pdaVersion, e.getMessage(), e);
             res.error("删除PDA操作版本服务异常" + e.getMessage());
+            return res;
+        }
+    }
+
+
+
+    @Override
+    public InvokeResult<String> getOperatePdaVersion(String sealCarCode) {
+        InvokeResult<String> res = new InvokeResult<>();
+        res.success();
+
+        if(StringUtils.isBlank(sealCarCode)) {
+            res.error("参数不能为空");
+            return res;
+        }
+        try{
+            String key = TransportServiceConstants.CACHE_PREFIX_PDA_ACTUAL_OPERATE_VERSION + sealCarCode;
+            res.setData(redisClientOfJy.get(key));
+            return res;
+        }catch (Exception e) {
+            log.error("TransportCommonServiceImpl.getOperatePdaVersion--服务异常--sealCarCode={}， srrMsg={}", sealCarCode, e.getMessage(), e);
+            res.error("查询PDA操作版本服务异常" + e.getMessage());
             return res;
         }
     }

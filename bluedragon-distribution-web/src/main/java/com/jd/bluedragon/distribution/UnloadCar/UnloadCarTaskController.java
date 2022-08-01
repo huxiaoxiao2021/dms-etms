@@ -95,22 +95,15 @@ public class UnloadCarTaskController extends DmsBaseController {
                     }
                 }
 
-                List<UnloadCar> unloadCarList = unloadCarService.getTaskInfoBySealCarCodes(request.getSealCarCodes());
-                //
-                if(CollectionUtils.isNotEmpty(unloadCarList)) {
-                    String msgCodes = "";
-                    int count = 0;
-                    for(UnloadCar uc : unloadCarList) {
-                        if(StringUtils.isNotBlank(uc.getVersion()) && AppVersionEnums.PDA_GUIDED.getVersion().equals(uc.getVersion())) {
-                            msgCodes =  StringUtils.isEmpty(msgCodes) ? uc.getVersion() : (msgCodes + "," + uc.getVersion());
-                            count++;
-                        }
+                List<String> sealCarCodes = unloadCarService.newAppOperateIntercept(request.getSealCarCodes());
+                if(CollectionUtils.isNotEmpty(sealCarCodes)) {
+                    String interceptSealCarCodes = "";
+                    for(String sealCarCode : sealCarCodes) {
+                        interceptSealCarCodes =  StringUtils.isEmpty(interceptSealCarCodes) ? sealCarCode : (interceptSealCarCodes + "," + sealCarCode);
                     }
-                    if(count > 0) {
-                        log.warn("distributeTask|分配卸车任务的负责人封车编码已被新版APP操作:request={}，新版操作封车编码为={}", JSON.toJSONString(request), msgCodes);
-                        result.toFail(count+"个任务正被新版app操作，无法领取，封车编码为："+msgCodes);
-                        return result;
-                    }
+                    log.warn("distributeTask|分配卸车任务的负责人封车编码已被新版APP操作:request={}，新版操作封车编码为={}", JSON.toJSONString(request), interceptSealCarCodes);
+                    result.toFail(sealCarCodes.size()+"个任务正被新版app操作，无法领取，封车编码为："+interceptSealCarCodes);
+                    return result;
                 }
                 if (unloadCarService.distributeTask(request)) {
                     result.setCode(JdResponse.CODE_SUCCESS);
