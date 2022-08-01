@@ -1,16 +1,19 @@
 package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
+import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.inspection.request.InspectionRequest;
 import com.jd.bluedragon.common.dto.inspection.response.InspectionCheckResultDto;
+import com.jd.bluedragon.common.dto.operation.workbench.transport.request.TransportTaskRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.UnloadScanTypeEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.unload.request.*;
 import com.jd.bluedragon.common.dto.operation.workbench.unload.response.*;
 import com.jd.bluedragon.common.dto.select.SelectOption;
 import com.jd.bluedragon.common.dto.select.StringSelectOption;
+import com.jd.bluedragon.distribution.api.response.TransWorkItemResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.enums.JyUnloadVehicleStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.UnloadProductTypeEnum;
@@ -18,6 +21,7 @@ import com.jd.bluedragon.distribution.jy.service.unload.IJyUnloadVehicleService;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadDto;
 import com.jd.bluedragon.dms.utils.BarCodeType;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.distribution.transport.service.TransportRelatedService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.gateway.service.InspectionGatewayService;
 import com.jd.bluedragon.external.gateway.service.JyUnloadVehicleGatewayService;
@@ -31,6 +35,7 @@ import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,6 +57,9 @@ public class JyUnloadVehicleGatewayServiceImpl implements JyUnloadVehicleGateway
 
     @Autowired
     private InspectionGatewayService inspectionGatewayService;
+
+    @Autowired
+    private TransportRelatedService transportRelatedService;
 
     @Override
     public JdCResponse<UnloadNoTaskResponse> createNoTaskUnloadTask(UnloadNoTaskRequest request) {
@@ -344,5 +352,20 @@ public class JyUnloadVehicleGatewayServiceImpl implements JyUnloadVehicleGateway
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public JdCResponse<Long> countByVehicleNumberAndStatus(UnsealVehicleTaskRequest request) {
         return retJdCResponse(unloadVehicleService.countByVehicleNumberAndStatus(request));
+    }
+
+    @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyUnloadVehicleGatewayService.transportTaskHint",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
+    public JdVerifyResponse<Void> transportTaskHint(TransportTaskRequest request) {
+        JdVerifyResponse<Void> jdVerifyResponse = new JdVerifyResponse<Void>();
+        jdVerifyResponse.toSuccess();
+        // 校验运输任务（返回结果只做提示展示）
+        ImmutablePair<Integer, String> checkResult = transportRelatedService.checkTransportTask(request.getSiteCode(),
+                request.getTransWorkCode(), request.getSealCarCode(), request.getSimpleCode(), request.getVehicleNumber());
+        if(Objects.equals(checkResult.left, TransWorkItemResponse.CODE_HINT)){
+            jdVerifyResponse.addPromptBox(checkResult.left, checkResult.right);
+        }
+        return jdVerifyResponse;
     }
 }

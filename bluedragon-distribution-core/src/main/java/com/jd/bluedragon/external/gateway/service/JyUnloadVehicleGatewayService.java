@@ -2,6 +2,7 @@ package com.jd.bluedragon.external.gateway.service;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
+import com.jd.bluedragon.common.dto.operation.workbench.transport.request.TransportTaskRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.unload.request.*;
 import com.jd.bluedragon.common.dto.operation.workbench.unload.response.*;
 import com.jd.bluedragon.common.dto.select.SelectOption;
@@ -120,4 +121,12 @@ public interface JyUnloadVehicleGatewayService {
      * @return
      */
     JdCResponse<Long> countByVehicleNumberAndStatus(UnsealVehicleTaskRequest request);
+
+    /**
+     * 串点运输任务提示
+     *
+     * @param request
+     * @return
+     */
+    JdVerifyResponse<Void> transportTaskHint(TransportTaskRequest request);
 }

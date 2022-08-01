@@ -291,7 +291,7 @@ public class JdResponse extends JdObject {
     
     /** 响应消息 */
     private String message;
-    
+
     public JdResponse() {
     }
     
@@ -332,5 +332,5 @@ public class JdResponse extends JdObject {
     public void setMessage(String message) {
         this.message = message;
     }
-    
+
 }

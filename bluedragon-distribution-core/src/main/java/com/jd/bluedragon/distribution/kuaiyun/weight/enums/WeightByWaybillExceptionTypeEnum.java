@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.kuaiyun.weight.enums;
 
+import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeRuleConstant;
+
 /**
  * 运单称重自定义异常类型枚举
  * luyue5
@@ -41,7 +43,10 @@ public enum WeightByWaybillExceptionTypeEnum
     //不支持按包裹维度批量导入
     NotSupportUpWeightByPackageException(true,WeightByWaybillExceptionTypeEnum.NotSupportUpWeightByPackageMessage),
     //C网运单不支持在快运处录入复重量方
-    NotSupportUpCWaybillException(true,WeightByWaybillExceptionTypeEnum.NotSupportUpCWaybillMessage);
+    NotSupportUpCWaybillException(true,WeightByWaybillExceptionTypeEnum.NotSupportUpCWaybillMessage),
+
+    // 集配场地揽收后不能称重
+    JPForbidWeightAfterLLException(true, WeightVolumeRuleConstant.RESULT_WEIGHT_INTERCEPT_AFTER_LL);
 
     public static final String UnknownCodeExceptionMessage = "所输入的编码格式有误：既不符合运单号也不符合包裹号编码规则";
     public static final String WaybillServiceNotAvailableExceptionMessage = "调取运单系统失败，运单查询接口不可用";

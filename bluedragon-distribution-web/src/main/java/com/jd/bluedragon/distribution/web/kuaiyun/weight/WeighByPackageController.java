@@ -4,6 +4,8 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.redis.service.impl.RedisCommonUtil;
+import com.jd.bluedragon.distribution.api.domain.LoginUser;
+import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.basic.DataResolver;
@@ -56,7 +58,7 @@ import java.util.concurrent.TimeUnit;
  */
 @Controller
 @RequestMapping("/b2b/express/weightpackage")
-public class WeighByPackageController {
+public class WeighByPackageController extends DmsBaseController {
     private static final Logger log = LoggerFactory.getLogger(WeighByPackageController.class);
 
     /*10：表示经调取运单接口WaybillQueryApi，已查到该运单，可直接入库*/
@@ -225,8 +227,7 @@ public class WeighByPackageController {
     @ResponseBody
     public InvokeResult<Boolean> verifyPackageReality(String codeStr) {
         Map<String,Integer> maps = new HashMap<>();
-        InvokeResult<Boolean> result = service.verifyPackageReality(codeStr, maps);
-        return result;
+        return service.verifyPackageReality(codeStr, maps, getLoginUser().getSiteCode());
     }
 
 
@@ -268,7 +269,7 @@ public class WeighByPackageController {
         Double volume = MathUtils.mul(length,width,high,6);
         vo.setVolume(volume);
         //存在性校验
-        InvokeResult<Boolean> verifyWaybillRealityResult = service.verifyPackageReality(vo.getCodeStr(),map);
+        InvokeResult<Boolean> verifyWaybillRealityResult = service.verifyPackageReality(vo.getCodeStr(), map, getLoginUser().getSiteCode());
         if(InvokeResult.RESULT_NULL_CODE == verifyWaybillRealityResult.getCode()){
             //不存在
             vo.setErrorMessage(verifyWaybillRealityResult.getMessage());
