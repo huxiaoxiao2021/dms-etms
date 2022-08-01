@@ -40,4 +40,8 @@ public class JyUnloadVehicleBoardDao extends BaseDao<JyUnloadVehicleBoardEntity>
     public List<String> getBoardCodeList(JyUnloadVehicleBoardEntity jyUnloadVehicleBoardEntity){
         return this.getSqlSession().selectOne(NAMESPACE + ".getBoardCodeList", jyUnloadVehicleBoardEntity);
     }
+    public List<JyUnloadVehicleBoardEntity> getTaskBoardInfoList(JyUnloadVehicleBoardEntity jyUnloadVehicleBoardEntity){
+        return this.getSqlSession().selectOne(NAMESPACE + ".getTaskBoardInfoList", jyUnloadVehicleBoardEntity);
+    }
+
 }

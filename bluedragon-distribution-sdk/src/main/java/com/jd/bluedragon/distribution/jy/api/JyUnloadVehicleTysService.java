@@ -161,4 +161,11 @@ public interface JyUnloadVehicleTysService {
     InvokeResult<UnloadMasterChildTaskRespDto> queryMasterChildTaskInfoByBizId(String masterBizId);
 
 
+    /**
+     * 根据主任务bizId查询卸车任务板关系信息
+     */
+    InvokeResult<List<UnloadBoardRespDto>> queryTaskBoardInfoByBizId(String masterBizId);
+
+
+
 }
