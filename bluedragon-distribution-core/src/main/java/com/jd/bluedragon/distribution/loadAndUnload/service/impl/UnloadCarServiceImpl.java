@@ -3823,5 +3823,9 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         res.setPlanEndTime(planEndTime);
         return res;
     }
+    @Override
+    public List<UnloadCar> getTaskInfoBySealCarCodes(List<String> sealCarCodes) {
+        return unloadCarDao.getTaskInfoBySealCarCodes(sealCarCodes);
+    }
 
 }

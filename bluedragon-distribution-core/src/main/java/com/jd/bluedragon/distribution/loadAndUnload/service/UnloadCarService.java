@@ -197,4 +197,6 @@ public interface UnloadCarService {
     public void fillUnloadCarTaskDuration(UnloadCar unloadCar);
 
     UnloadCarTaskDto getUnloadCarTaskDuration(UnloadCarTaskReq unloadCarTaskReq);
+
+    List<UnloadCar> getTaskInfoBySealCarCodes(List<String> sealCarCodes);
 }

@@ -144,5 +144,14 @@ public class UnloadCarCommonServiceImpl implements UnloadCarCommonService {
         return unloadCarDao.selectByCondition(unloadCar);
     }
 
+    //
+    @Override
+    public List<UnloadCar> getTaskInfoBySealCarCodes(List<String> sealCarCodes) {
+        if (uccPropertyConfiguration.isReadUnloadFromTys()) {
+            return unloadCarForTysDao.getTaskInfoBySealCarCodes(sealCarCodes);
+        }
+        return null;
+    }
+
 
 }

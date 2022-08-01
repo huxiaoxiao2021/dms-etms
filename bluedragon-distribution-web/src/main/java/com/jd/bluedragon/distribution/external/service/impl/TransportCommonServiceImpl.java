@@ -376,7 +376,7 @@ public class TransportCommonServiceImpl implements TransportCommonService {
             return res;
         }
         try{
-
+            //todo zcf 考虑加锁
             boolean resData = true;
             String key = TransportServiceConstants.CACHE_PREFIX_PDA_ACTUAL_OPERATE_VERSION + sealCarCode;
             if (redisClientOfJy.exists(key)) {
