@@ -134,7 +134,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     @Value("${packageWeightLimit:2000}")
     private String packageWeightLimit;
 
-    @Value("${dazongPackageOperateMax}")
+    @Value("${dazongPackageOperateMax:100}")
     private Integer dazongPackageOperateMax;
 
 
