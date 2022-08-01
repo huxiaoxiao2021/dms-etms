@@ -4,6 +4,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.api.Response;
+import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.basic.DataResolver;
 import com.jd.bluedragon.distribution.basic.ExcelDataResolverFactory;
@@ -57,7 +58,7 @@ import java.util.Map;
  */
 @Controller
 @RequestMapping("/b2b/express/weight")
-public class WeighByWaybillController {
+public class WeighByWaybillController extends DmsBaseController {
     private static final Logger log = LoggerFactory.getLogger(WeighByWaybillController.class);
 
     private final Double MAX_WEIGHT = 999999.99;
@@ -71,6 +72,7 @@ public class WeighByWaybillController {
     private final Integer NO_NEED_WEIGHT = 201;
     private final Integer WAYBILL_STATE_FINISHED = 202;
     private final Integer KAWAYBILL_NEEDPACKAGE_WEIGHT=203;
+    private final Integer JP_FORBID_WEIGHT=204;
 
     private final Integer EXCESS_CODE = 600;
     private static final String PACKAGE_WEIGHT_VOLUME_EXCESS_HIT = "您的包裹超规，请确认。超过'200kg/包裹'或'1方/包裹'为超规件";
@@ -273,7 +275,7 @@ public class WeighByWaybillController {
             /*1 将单号或包裹号正则校验 通过后 如果是包裹号需要转成运单号*/
             String waybillCode = service.convertToWaybillCode(codeStr);
             /*2 对运单进行存在校验*/
-            boolean isExist = service.validateWaybillCodeReality(waybillCode);
+            boolean isExist = service.validateWaybillCodeReality(waybillCode, getLoginUser().getSiteCode());
 
             result.setData(isExist);
             if (isExist) {
@@ -299,6 +301,9 @@ public class WeighByWaybillController {
                     //运单已经妥投，不允许录入
                     result.setCode(WAYBILL_STATE_FINISHED);
                     log.warn("运单称重:{}-{} ", codeStr, exceptionType.exceptionMessage);
+                }else if(exceptionType.equals(WeightByWaybillExceptionTypeEnum.JPForbidWeightAfterLLException)){
+                    // 集配站点不能操作称重
+                    result.setCode(JP_FORBID_WEIGHT);
                 }
                 result.setData(false);
                 result.setMessage(exceptionType.exceptionMessage);

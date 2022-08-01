@@ -16,7 +16,7 @@ public interface WeighByWaybillService
 
     public String convertToWaybillCode(String codeStr) throws WeighByWaybillExcpetion;
 
-    public boolean validateWaybillCodeReality(String waybillCode) throws WeighByWaybillExcpetion;
+    public boolean validateWaybillCodeReality(String waybillCode, Integer siteCode) throws WeighByWaybillExcpetion;
 
     public void validWaybillProcess(WaybillWeightDTO dto) throws WeighByWaybillExcpetion;
 

@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.weightVolume.domain;
 
 
 import com.jd.etms.waybill.domain.Waybill;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 
 import java.io.Serializable;
 
@@ -80,6 +81,11 @@ public class WeightVolumeContext implements Serializable {
      * 操作站点名称
      */
     private String operateSiteName;
+
+    /**
+     * 操作场地
+     */
+    private BaseStaffSiteOrgDto operateSite;
 
     /**
      * 操作人ERP编号
@@ -203,6 +209,14 @@ public class WeightVolumeContext implements Serializable {
 
     public void setOperateSiteName(String operateSiteName) {
         this.operateSiteName = operateSiteName;
+    }
+
+    public BaseStaffSiteOrgDto getOperateSite() {
+        return operateSite;
+    }
+
+    public void setOperateSite(BaseStaffSiteOrgDto operateSite) {
+        this.operateSite = operateSite;
     }
 
     public String getOperatorCode() {

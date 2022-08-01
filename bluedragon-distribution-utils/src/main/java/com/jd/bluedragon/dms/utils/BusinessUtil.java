@@ -9,6 +9,7 @@ import org.apache.commons.lang.StringUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -1719,6 +1720,26 @@ public class BusinessUtil {
 	public static boolean isEdnDmsSite(Integer subType) {
 		return SITE_SUB_TYPE_EDN.equals(subType);
 	}
+
+    /**
+     * 是否集配站点
+     *
+     * @param subType
+     * @return
+     */
+    public static boolean isJPSite(Integer subType) {
+        return Objects.equals(subType, 9605);
+    }
+
+    /**
+     * 是否城配站点
+     *
+     * @param subType
+     * @return
+     */
+    public static boolean isCPSite(Integer subType) {
+        return Objects.equals(subType, 9607);
+    }
 
     /**
      * 是否外单自提点
