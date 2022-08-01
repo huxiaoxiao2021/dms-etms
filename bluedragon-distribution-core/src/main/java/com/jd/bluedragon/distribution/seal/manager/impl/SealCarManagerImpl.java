@@ -5,6 +5,8 @@ import com.jd.bluedragon.distribution.seal.manager.SealCarManager;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.vos.dto.CommonDto;
 import com.jd.etms.vos.dto.SealCodesDto;
+import com.jd.etms.vos.dto.StopoverInfoDto;
+import com.jd.etms.vos.dto.StopoverQueryDto;
 import com.jd.etms.vos.ws.SealCarWS;
 import com.jd.tms.dtp.api.DtpTransAbnormalApi;
 import com.jd.tms.dtp.dto.AccountDto;
@@ -101,5 +103,22 @@ public class SealCarManagerImpl implements SealCarManager {
             log.error("VOS封签线上化相关接口-无货上封签方法-调用失败, 参数：{}, 返回值：{}", JsonHelper.toJson(param), JsonHelper.toJson(commonDto));
         }
         return commonDto;
-    }    
+    }
+
+    @Override
+    @JProfiler(jKey = "dms.web.SealCarManager.queryStopoverInfo" , jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    public StopoverInfoDto queryStopoverInfo(StopoverQueryDto stopOverQueryDto) {
+        if (log.isInfoEnabled()) {
+            log.info("VOS封签线上化相关接口-查询经停点装卸信息, 参数：{}", JsonHelper.toJson(stopOverQueryDto));
+        }
+        CommonDto<StopoverInfoDto> commonDto = sealCarWS.queryStopoverInfo(stopOverQueryDto);
+        if (log.isInfoEnabled()) {
+            log.info("VOS封签线上化相关接口-查询经停点装卸信息, 参数：{}, 返回值：{}", JsonHelper.toJson(stopOverQueryDto), JsonHelper.toJson(commonDto));
+        }
+        if (null == commonDto || commonDto.getCode() != CommonDto.CODE_SUCCESS) {
+            log.error("VOS封签线上化相关接口-查询经停点装卸信息-调用失败, 参数：{}, 返回值：{}", JsonHelper.toJson(stopOverQueryDto), JsonHelper.toJson(commonDto));
+            return null;
+        }
+        return commonDto.getData();
+    }
 }
