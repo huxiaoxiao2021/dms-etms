@@ -15,6 +15,8 @@ import com.jd.bluedragon.distribution.external.enums.AppVersionEnums;
 import com.jd.bluedragon.distribution.external.service.FuncSwitchConfigApiService;
 import com.jd.bluedragon.distribution.external.service.TransportCommonService;
 import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigEnum;
+import com.jd.bluedragon.distribution.loadAndUnload.UnloadCar;
+import com.jd.bluedragon.distribution.loadAndUnload.service.UnloadCarCommonService;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.domain.dto.SendDetailDto;
@@ -68,7 +70,8 @@ public class TransportCommonServiceImpl implements TransportCommonService {
     @Qualifier("redisClientOfJy")
     private Cluster redisClientOfJy;
 
-
+    @Resource
+    private UnloadCarCommonService unloadCarCommonService;
 
     @Override
     @JProfiler(jKey = "DMSWEB.TransportCommonServiceImpl.interceptValidateUnloadCar", jAppName = Constants.UMP_APP_NAME_DMSWEB , mState = {JProEnum.TP})
@@ -382,7 +385,19 @@ public class TransportCommonServiceImpl implements TransportCommonService {
             if (redisClientOfJy.exists(key)) {
                 resData = redisClientOfJy.get(key).equals(pdaVersion);
             }else {
-                redisClientOfJy.setEx(key, pdaVersion, TransportServiceConstants.CACHE_PREFIX_PDA_ACTUAL_OPERATE_VERSION_EXPIRE, TimeUnit.DAYS);
+                //兼容历史数据：
+                UnloadCar uc = unloadCarCommonService.selectBySealCarCodeWithStatus(sealCarCode);
+                if(uc.getStatus() == 1 || uc.getStatus() == 2 || uc.getStatus() == 3) {
+                    //老PDA已经操作领取status=1或者已经开始扫描status=2或任务完成status=3，但是无redis
+                    redisClientOfJy.setEx(key, AppVersionEnums.PDA_OLD.getVersion(), TransportServiceConstants.CACHE_PREFIX_PDA_ACTUAL_OPERATE_VERSION_EXPIRE, TimeUnit.DAYS);
+                    if(AppVersionEnums.PDA_OLD.getVersion().equals(pdaVersion)) {
+                        resData = true;
+                    }else {
+                        resData = false;
+                    }
+                }else {
+                    redisClientOfJy.setEx(key, pdaVersion, TransportServiceConstants.CACHE_PREFIX_PDA_ACTUAL_OPERATE_VERSION_EXPIRE, TimeUnit.DAYS);
+                }
             }
             res.setData(resData);
             return res;
