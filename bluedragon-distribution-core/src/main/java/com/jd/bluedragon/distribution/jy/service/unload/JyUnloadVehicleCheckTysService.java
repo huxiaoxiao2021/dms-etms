@@ -13,11 +13,16 @@ import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.domain.JdCancelWaybillResponse;
 import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRecordService;
+import com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadVehicleBoardDao;
 import com.jd.bluedragon.distribution.jy.dto.unload.ScanPackageDto;
 import com.jd.bluedragon.distribution.jy.dto.unload.ScanPackageRespDto;
 import com.jd.bluedragon.distribution.jy.dto.unload.UnloadScanDto;
+import com.jd.bluedragon.distribution.jy.enums.JyBizTaskStageStatusEnum;
+import com.jd.bluedragon.distribution.jy.enums.JyBizTaskStageTypeEnum;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskUnloadVehicleService;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
+import com.jd.bluedragon.distribution.jy.unload.JyBizTaskUnloadVehicleStageEntity;
+import com.jd.bluedragon.distribution.jy.unload.JyUnloadVehicleBoardEntity;
 import com.jd.bluedragon.distribution.loadAndUnload.exception.LoadIllegalException;
 import com.jd.bluedragon.distribution.loadAndUnload.exception.UnloadPackageBoardException;
 import com.jd.bluedragon.distribution.loadAndUnload.neum.UnloadCarWarnEnum;
@@ -26,6 +31,7 @@ import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.domain.WaybillExt;
@@ -89,6 +95,12 @@ public class JyUnloadVehicleCheckTysService {
 
     @Autowired
     private JyBizTaskUnloadVehicleService jyBizTaskUnloadVehicleService;
+
+    @Autowired
+    private JyBizTaskUnloadVehicleStageService jyBizTaskUnloadVehicleStageService;
+
+    @Autowired
+    private JyUnloadVehicleBoardDao jyUnloadVehicleBoardDao;
 
     @Autowired
     private BoardCommonManager boardCommonManager;
@@ -515,6 +527,9 @@ public class JyUnloadVehicleCheckTysService {
             BoardCommonRequest boardCommonRequest = new BoardCommonRequest();
             BeanUtils.copyProperties(request, boardCommonRequest);
             if (response.getCode() == ResponseEnum.SUCCESS.getIndex()) {
+                // 保存任务和板的关系
+                JyUnloadVehicleBoardEntity entity = convertUnloadVehicleBoard(request);
+                jyUnloadVehicleBoardDao.insertSelective(entity);
                 // 设置板上已组包裹数
                 result.setComBoardCount(response.getData());
                 // 组板成功
@@ -571,6 +586,32 @@ public class JyUnloadVehicleCheckTysService {
             log.warn("推TC组板关系异常，入参【{}】", JsonHelper.toJson(addBoardBox));
         }
         throw new LoadIllegalException(LoadIllegalException.BOARD_TOTC_FAIL_INTERCEPT_MESSAGE);
+    }
+
+    private JyUnloadVehicleBoardEntity convertUnloadVehicleBoard(ScanPackageDto scanPackageDto) {
+        Date now = new Date();
+        JyUnloadVehicleBoardEntity entity = new JyUnloadVehicleBoardEntity();
+        entity.setUnloadVehicleBizId(scanPackageDto.getBizId());
+        entity.setBoardCode(scanPackageDto.getBoardCode());
+        entity.setEndSiteId(Long.valueOf(scanPackageDto.getNextSiteCode()));
+        entity.setGoodsAreaCode(scanPackageDto.getGoodsAreaCode());
+        entity.setCreateTime(now);
+        entity.setUpdateTime(now);
+        entity.setCreateUserErp(scanPackageDto.getUser().getUserErp());
+        entity.setCreateUserName(scanPackageDto.getUser().getUserName());
+        return entity;
+    }
+
+    private String getStageBizId(ScanPackageDto scanPackageDto) {
+        JyBizTaskUnloadVehicleStageEntity condition =new JyBizTaskUnloadVehicleStageEntity();
+        condition.setUnloadVehicleBizId(scanPackageDto.getBizId());
+        condition.setType(scanPackageDto.isSupplementary() ? JyBizTaskStageTypeEnum.SUPPLEMENT.getCode() : JyBizTaskStageTypeEnum.HANDOVER.getCode());
+        condition.setStatus(JyBizTaskStageStatusEnum.DOING.getCode());
+        JyBizTaskUnloadVehicleStageEntity entity = jyBizTaskUnloadVehicleStageService.queryCurrentStage(condition);
+        if (ObjectHelper.isNotNull(entity)){
+            return entity.getBizId();
+        }
+        return null;
     }
 
     /**

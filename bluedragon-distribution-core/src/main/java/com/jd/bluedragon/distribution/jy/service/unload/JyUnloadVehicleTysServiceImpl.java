@@ -534,19 +534,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         return comBoardCount;
     }
 
-    private JyUnloadVehicleBoardEntity convertUnloadVehicleBoard(ScanPackageDto scanPackageDto) {
-        Date now = new Date();
-        JyUnloadVehicleBoardEntity entity = new JyUnloadVehicleBoardEntity();
-        entity.setUnloadVehicleBizId(scanPackageDto.getBizId());
-        entity.setBoardCode(scanPackageDto.getBoardCode());
-        entity.setEndSiteId(Long.valueOf(scanPackageDto.getNextSiteCode()));
-        entity.setGoodsAreaCode(scanPackageDto.getGoodsAreaCode());
-        entity.setCreateTime(now);
-        entity.setUpdateTime(now);
-        entity.setCreateUserErp(scanPackageDto.getUser().getUserErp());
-        entity.setCreateUserName(scanPackageDto.getUser().getUserName());
-        return entity;
-    }
+
 
     private void checkScan(ScanPackageDto scanPackageDto) {
         if (BusinessUtil.isBoxcode(scanPackageDto.getScanCode())) {
