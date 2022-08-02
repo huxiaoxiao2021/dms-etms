@@ -34,7 +34,6 @@ import com.jd.bluedragon.distribution.jy.unload.JyUnloadEntity;
 import com.jd.bluedragon.distribution.jy.unload.JyUnloadVehicleBoardEntity;
 import com.jd.bluedragon.distribution.loadAndUnload.exception.LoadIllegalException;
 import com.jd.bluedragon.distribution.loadAndUnload.exception.UnloadPackageBoardException;
-import com.jd.bluedragon.distribution.loadAndUnload.neum.UnloadCarWarnEnum;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
@@ -59,10 +58,8 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -111,33 +108,22 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     private static final int SCAN_EXPIRE_TIME_HOUR = 6;
     @Autowired
     private JyUnloadAggsDao jyUnloadAggsDao;
-
     @Autowired
     JyBizTaskUnloadVehicleStageService jyBizTaskUnloadVehicleStageService;
-
     @Autowired
     private JyBizTaskUnloadVehicleStageDao jyBizTaskUnloadVehicleStageDao;
     @Autowired
     private JyBizTaskUnloadVehicleDao jyBizTaskUnloadVehicleDao;
-
-
     @Autowired
     private WaybillQueryManager waybillQueryManager;
-
     @Autowired
     private WaybillPackageManager waybillPackageManager;
-
     @Autowired
     private JyUnloadVehicleCheckTysService jyUnloadVehicleCheckTysService;
-
     @Autowired
     private TransportCommonService transportCommonService;
 
-    /**
-     * 包裹重量上限值，单位kg
-     */
-    @Value("${packageWeightLimit:'2000'}")
-    private String packageWeightLimit;
+
 
 
 
@@ -324,9 +310,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     public InvokeResult<ScanPackageRespDto> scan(ScanPackageDto scanPackageDto) {
         InvokeResult<ScanPackageRespDto> invokeResult = new InvokeResult<>();
         invokeResult.success();
-        ScanPackageRespDto scanPackageRespDto = new ScanPackageRespDto();
-        scanPackageRespDto.setWarnMsg(new HashMap<String, String>(5));
-        scanPackageRespDto.setConfirmMsg(new HashMap<String, String>(1));
+        ScanPackageRespDto scanPackageRespDto = convertToScanResult(scanPackageDto);
         invokeResult.setData(scanPackageRespDto);
 
         log.info("invoking jy scanAndComBoard,params: {}", JsonHelper.toJson(scanPackageDto));
@@ -376,6 +360,28 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         return invokeResult;
     }
 
+    /**
+     * 设置扫描返回对象
+     */
+    private ScanPackageRespDto convertToScanResult(ScanPackageDto request) {
+        ScanPackageRespDto scanResult = new ScanPackageRespDto();
+        scanResult.setBizId(request.getBizId());
+        scanResult.setBoardCode(request.getBoardCode());
+        scanResult.setGoodsAreaCode(request.getGoodsAreaCode());
+        scanResult.setBarCode(request.getScanCode());
+        if (request.getPrevSiteCode() != null) {
+            scanResult.setPrevSiteId(Long.valueOf(request.getPrevSiteCode()));
+        }
+        scanResult.setPrevSiteName(request.getPrevSiteName());
+        if (request.getNextSiteCode() != null) {
+            scanResult.setEndSiteId(Long.valueOf(request.getNextSiteCode()));
+        }
+        scanResult.setEndSiteName(request.getNextSiteName());
+        scanResult.setWarnMsg(new HashMap<String, String>(5));
+        scanResult.setConfirmMsg(new HashMap<String, String>(1));
+        return scanResult;
+    }
+
     private InvokeResult<ScanPackageRespDto> packageScan(ScanPackageDto scanPackageDto, JyBizTaskUnloadVehicleEntity unloadVehicleEntity,
                                                          InvokeResult<ScanPackageRespDto> invokeResult) {
         String barCode = scanPackageDto.getScanCode();
@@ -401,18 +407,15 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             return invokeResult;
         }
         // 包裹超重校验
-        BigDecimal packageWeight = jyUnloadVehicleCheckTysService.getPackageWeight(packageD, waybill);
-        if (packageWeight != null && packageWeight.compareTo(new BigDecimal(packageWeightLimit)) > 0) {
-            log.info("包裹超重:packageCode={},weight={},limit={}", barCode, packageWeight.toPlainString(), packageWeightLimit);
-            Map<String, String> warnMsg = invokeResult.getData().getWarnMsg();
-            warnMsg.put(UnloadCarWarnEnum.PACKAGE_OVER_WEIGHT_MESSAGE.getLevel(), String.format(UnloadCarWarnEnum.PACKAGE_OVER_WEIGHT_MESSAGE.getDesc(), packageWeight.toPlainString()));
-        }
+        jyUnloadVehicleCheckTysService.checkPackageOverWeight(packageD, waybill, scanPackageRespDto);
         // 包裹是否扫描成功
         jyUnloadVehicleCheckTysService.packageIsScanBoard(bizId, barCode, boardCode);
         if (!scanPackageDto.getIsForceCombination()) {
             UnloadScanDto unloadScanDto = createUnloadDto(scanPackageDto, unloadVehicleEntity);
             // 验货校验
             jyUnloadVehicleCheckTysService.inspectionIntercept(barCode, waybill, unloadScanDto);
+            scanPackageRespDto.setSupplementary(unloadScanDto.getSupplementary());
+            scanPackageRespDto.setGoodsAreaCode(scanPackageDto.getGoodsAreaCode());
             // 无任务设置上游站点
             jyUnloadVehicleCheckTysService.setStartSiteForJyUnloadVehicle(scanPackageDto, scanPackageRespDto, unloadVehicleEntity);
             // B网快运发货规则校验
@@ -506,6 +509,8 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         UnloadScanDto unloadScanDto = createUnloadDto(scanPackageDto, unloadVehicleEntity);
         // 验货校验
         jyUnloadVehicleCheckTysService.inspectionIntercept(barCode, waybill, unloadScanDto);
+        scanPackageRespDto.setSupplementary(unloadScanDto.getSupplementary());
+        scanPackageRespDto.setGoodsAreaCode(scanPackageDto.getGoodsAreaCode());
         // 无任务设置上游站点
         jyUnloadVehicleCheckTysService.setStartSiteForJyUnloadVehicle(scanPackageDto, scanPackageRespDto, unloadVehicleEntity);
         // 专网校验
@@ -594,7 +599,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         }
         //unloadScanDto.setGroupCode(request.getGroupCode());
         unloadScanDto.setTaskId(request.getTaskId());
-        unloadScanDto.setTaskType(2);
+        unloadScanDto.setTaskType(JyBizTaskSourceTypeEnum.TRANSPORT.getCode());
         return unloadScanDto;
     }
 
@@ -651,9 +656,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     public InvokeResult<ScanPackageRespDto> scanForPipelining(ScanPackageDto scanPackageDto) {
         InvokeResult<ScanPackageRespDto> invokeResult = new InvokeResult<>();
         invokeResult.success();
-        ScanPackageRespDto scanPackageRespDto = new ScanPackageRespDto();
-        scanPackageRespDto.setWarnMsg(new HashMap<String, String>(5));
-        scanPackageRespDto.setConfirmMsg(new HashMap<String, String>(1));
+        ScanPackageRespDto scanPackageRespDto = convertToScanResult(scanPackageDto);
         invokeResult.setData(scanPackageRespDto);
 
         log.info("invoking jy scanAndComBoard,params: {}", JsonHelper.toJson(scanPackageDto));

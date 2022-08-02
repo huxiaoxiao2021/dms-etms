@@ -22,6 +22,16 @@ public class ScanPackageRespDto implements Serializable {
     private Long prevSiteId;
 
     /**
+     * 扫描的号码
+     */
+    private String barCode;
+
+    /**
+     * 补扫标识
+     */
+    private boolean supplementary;
+
+    /**
      * 卸车扫描非弹框消息提示  K-优先级  V-话术
      * 见：UnloadCarWarnEnum
      */
@@ -107,5 +117,21 @@ public class ScanPackageRespDto implements Serializable {
 
     public void setPrevSiteId(Long prevSiteId) {
         this.prevSiteId = prevSiteId;
+    }
+
+    public String getBarCode() {
+        return barCode;
+    }
+
+    public void setBarCode(String barCode) {
+        this.barCode = barCode;
+    }
+
+    public boolean isSupplementary() {
+        return supplementary;
+    }
+
+    public void setSupplementary(boolean supplementary) {
+        this.supplementary = supplementary;
     }
 }

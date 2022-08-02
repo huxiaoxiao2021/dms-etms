@@ -123,14 +123,29 @@ public class JyUnloadVehicleCheckTysService {
     @Resource
     private Cluster redisClientCache;
 
+    /**
+     * 缓存时长
+     */
     @Value("${unload_cache_duration_hours:24}")
     private Integer unloadCacheDurationHours;
 
+    /**
+     * 板上最多包裹数
+     */
     @Value("${unload.board.bindings.count.max:100}")
     private Integer unloadBoardBindingsMaxCount;
 
+    /**
+     * 大宗扫描最少包裹数
+     */
     @Value("${daZongPackageOperateMax:100}")
     private Integer daZongPackageOperateMax;
+
+    /**
+     * 包裹重量上限值，单位kg
+     */
+    @Value("${packageWeightLimit:'2000'}")
+    private String packageWeightLimit;
 
 
     /**
@@ -179,6 +194,15 @@ public class JyUnloadVehicleCheckTysService {
             }
         }
         return null;
+    }
+
+    public void checkPackageOverWeight(DeliveryPackageD packageD, Waybill waybill, ScanPackageRespDto response) {
+        BigDecimal packageWeight = getPackageWeight(packageD, waybill);
+        if (packageWeight != null && packageWeight.compareTo(new BigDecimal(packageWeightLimit)) > 0) {
+            log.info("包裹超重:packageCode={},weight={},limit={}", packageD.getPackageBarcode(), packageWeight.toPlainString(), packageWeightLimit);
+            Map<String, String> warnMsg = response.getWarnMsg();
+            warnMsg.put(UnloadCarWarnEnum.PACKAGE_OVER_WEIGHT_MESSAGE.getLevel(), String.format(UnloadCarWarnEnum.PACKAGE_OVER_WEIGHT_MESSAGE.getDesc(), packageWeight.toPlainString()));
+        }
     }
 
     public BigDecimal getPackageWeight(DeliveryPackageD packageD, Waybill waybill) {
@@ -412,13 +436,13 @@ public class JyUnloadVehicleCheckTysService {
      */
     public boolean routerCheck(ScanPackageRespDto response, ScanPackageDto request) throws LoadIllegalException {
         if (StringUtils.isEmpty(request.getBoardCode())) {
-            // 第一次则生成板号
             //第一次则生成板号
             BoardCommonRequest boardCommonRequest = new BoardCommonRequest();
             boardCommonRequest.setOperateUserErp(request.getUser().getUserErp());
             boardCommonRequest.setOperateUserName(request.getUser().getUserName());
             boardCommonRequest.setOperateSiteCode(request.getCurrentOperate().getSiteCode());
             boardCommonRequest.setOperateSiteName(request.getCurrentOperate().getSiteName());
+            boardCommonRequest.setReceiveSiteCode(request.getNextSiteCode());
             boardCommonRequest.setBizSource(BizSourceEnum.PDA.getValue());
             boardCommonRequest.setBarCode(request.getScanCode());
             InvokeResult<Board> invokeResult = boardCommonManager.createBoardCode(boardCommonRequest);
@@ -445,7 +469,7 @@ public class JyUnloadVehicleCheckTysService {
         Integer nextSiteCode;
         Integer destinationId = null;
         try {
-            nextSiteCode = waybillService.getRouterFromMasterDb(waybillCode, request.getCurrentOperate().getSiteCode());
+            nextSiteCode = request.getNextSiteCode();
             if (nextSiteCode == null) {
                 // 此处直接返回，因为ver组板校验链会判断
                 return true;
@@ -720,8 +744,6 @@ public class JyUnloadVehicleCheckTysService {
                             // 更新无任务上游站点为当前站点
                             request.setPrevSiteCode(unloadVehicleEntity.getEndSiteId().intValue());
                             updateJyUnloadVehicleStartSite(request, response, unloadVehicleEntity);
-                            response.setPrevSiteId(unloadVehicleEntity.getEndSiteId());
-                            response.setPrevSiteName(unloadVehicleEntity.getEndSiteName());
                             redisClientCache.del(key);
                         }
                     }

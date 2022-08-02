@@ -58,6 +58,11 @@ public class ScanPackageDto extends UnloadBaseDto implements Serializable {
     private Integer prevSiteCode;
 
     /**
+     * 上下游场地名称
+     * */
+    private String prevSiteName;
+
+    /**
      * 补扫标识
      */
     private boolean supplementary;
@@ -186,5 +191,13 @@ public class ScanPackageDto extends UnloadBaseDto implements Serializable {
 
     public void setWorkType(Integer workType) {
         this.workType = workType;
+    }
+
+    public String getPrevSiteName() {
+        return prevSiteName;
+    }
+
+    public void setPrevSiteName(String prevSiteName) {
+        this.prevSiteName = prevSiteName;
     }
 }

@@ -300,7 +300,10 @@ public class BoardCommonManagerImpl implements BoardCommonManager {
                 return result;
             }
             String waybillCode = WaybillUtil.getWaybillCode(request.getBarCode());
-            Integer nextSiteCode = getNextSiteCodeByRouter(waybillCode, request.getOperateSiteCode());
+            Integer nextSiteCode = request.getReceiveSiteCode();
+            if (nextSiteCode == null || nextSiteCode <= 0) {
+                nextSiteCode = getNextSiteCodeByRouter(waybillCode, request.getOperateSiteCode());
+            }
             if(nextSiteCode == null){
                 logger.warn("根据运单号【{}】操作站点【{}】获取路由下一节点为空!",waybillCode,request.getOperateSiteCode());
                 result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,

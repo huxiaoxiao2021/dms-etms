@@ -12,6 +12,9 @@ import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.dao.unload.JyBizTaskUnloadVehicleStageDao;
 import com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadDao;
 import com.jd.bluedragon.distribution.jy.dto.unload.UnloadScanDto;
+import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSourceTypeEnum;
+import com.jd.bluedragon.distribution.jy.enums.JyBizTaskStageStatusEnum;
+import com.jd.bluedragon.distribution.jy.enums.JyBizTaskStageTypeEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadStatusEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.group.JyTaskGroupMemberEntity;
@@ -61,18 +64,6 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
     private static final Logger logger = LoggerFactory.getLogger(JyUnloadScanConsumer.class);
 
     private static final int UNLOAD_SCAN_BIZ_EXPIRE = 6;
-    /**
-     * 子任务类型： 1：补扫类型 2：交接班类型
-     */
-    private static final int CHILD_TASK_TYPE_SUPPLEMENT = 1;
-    private static final int CHILD_TASK_TYPE_HANDOVER = 2;
-
-    /**
-     * 子任务状态： 1 进行中 2完成
-     */
-    private static final int CHILD_TASK_STATUS_DOING = 1;
-    private static final int CHILD_TASK_STATUS_COMPLETE = 2;  //todo zcf 子任务完成动作确认
-
 
 
     @Autowired
@@ -135,12 +126,12 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
 
         JyUnloadEntity unloadEntity = copyFromDto(unloadScanDto);
 
-        if (unloadScanDto.getTaskType() == 2) {
+        if (JyBizTaskSourceTypeEnum.TRANSPORT.getCode().equals(unloadScanDto.getTaskType())) {
             //查询子任务bizId
             JyBizTaskUnloadVehicleStageEntity condition =new JyBizTaskUnloadVehicleStageEntity();
             condition.setUnloadVehicleBizId(unloadScanDto.getBizId());
-            condition.setType(unloadScanDto.getSupplementary() ? CHILD_TASK_TYPE_SUPPLEMENT : CHILD_TASK_TYPE_HANDOVER);
-            condition.setStatus(CHILD_TASK_STATUS_DOING);
+            condition.setType(unloadScanDto.getSupplementary() ? JyBizTaskStageTypeEnum.SUPPLEMENT.getCode() : JyBizTaskStageTypeEnum.HANDOVER.getCode());
+            condition.setStatus(JyBizTaskStageStatusEnum.DOING.getCode());
             JyBizTaskUnloadVehicleStageEntity entity =jyBizTaskUnloadVehicleStageService.queryCurrentStage(condition);
             if (ObjectHelper.isNotNull(entity)){
                 unloadEntity.setStageBizId(entity.getBizId());
@@ -207,7 +198,7 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
 
             recordTaskMembers(unloadScanDto);
 
-            if (unloadScanDto.getTaskType() == 2) {
+            if (JyBizTaskSourceTypeEnum.TRANSPORT.getCode().equals(unloadScanDto.getTaskType())) {
                 //初始化子任务
                 List<JyBizTaskUnloadVehicleStageEntity> entityList = generateUnloadTaskStage(unloadScanDto);
                 jyBizTaskUnloadVehicleStageService.insertBatch(entityList);
@@ -222,27 +213,14 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
         JyBizTaskUnloadVehicleStageEntity firstStage = new JyBizTaskUnloadVehicleStageEntity();
         firstStage.setUnloadVehicleBizId(unloadScanDto.getBizId());
         firstStage.setBizId(jyBizTaskUnloadVehicleStageService.generateStageBizId(unloadScanDto.getBizId()));
-        firstStage.setStatus(CHILD_TASK_STATUS_DOING);
-        firstStage.setType(CHILD_TASK_TYPE_HANDOVER);
+        firstStage.setStatus(JyBizTaskStageStatusEnum.DOING.getCode());
+        firstStage.setType(unloadScanDto.getSupplementary() ? JyBizTaskStageTypeEnum.SUPPLEMENT.getCode() : JyBizTaskStageTypeEnum.HANDOVER.getCode());
         firstStage.setStartTime(now);
         firstStage.setCreateTime(now);
         firstStage.setUpdateTime(now);
         firstStage.setCreateUserErp(unloadScanDto.getCreateUserErp());
         firstStage.setCreateUserName(unloadScanDto.getCreateUserName());
         entityList.add(firstStage);
-
-        JyBizTaskUnloadVehicleStageEntity supplementary = new JyBizTaskUnloadVehicleStageEntity();
-        supplementary.setUnloadVehicleBizId(unloadScanDto.getBizId());
-        supplementary.setBizId(jyBizTaskUnloadVehicleStageService.generateStageBizId(unloadScanDto.getBizId()));
-        supplementary.setStatus(CHILD_TASK_STATUS_DOING);
-        supplementary.setType(CHILD_TASK_TYPE_SUPPLEMENT);
-        supplementary.setStartTime(now);
-        supplementary.setCreateTime(now);
-        supplementary.setUpdateTime(now);
-        supplementary.setCreateUserErp(unloadScanDto.getCreateUserErp());
-        supplementary.setCreateUserName(unloadScanDto.getCreateUserName());
-        entityList.add(supplementary);
-
         return entityList;
 
     }

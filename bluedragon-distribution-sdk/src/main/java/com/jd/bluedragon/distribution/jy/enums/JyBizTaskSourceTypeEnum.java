@@ -1,18 +1,18 @@
 package com.jd.bluedragon.distribution.jy.enums;
 
 /**
- * 卸车子任务模式
- */
-public enum JyBizTaskStageTypeEnum {
+ *  卸车任务来源
+ **/
+public enum JyBizTaskSourceTypeEnum {
 
-    SUPPLEMENT(1,"补扫"),
+    SORTING(1, "分拣"),
 
-    HANDOVER(2,"交接班");
+    TRANSPORT(2, "转运");
 
     private Integer code;
     private String name;
 
-    JyBizTaskStageTypeEnum(Integer code, String name) {
+    JyBizTaskSourceTypeEnum(Integer code, String name) {
         this.code = code;
         this.name = name;
     }
@@ -24,6 +24,5 @@ public enum JyBizTaskStageTypeEnum {
     public String getName() {
         return name;
     }
-
 
 }
