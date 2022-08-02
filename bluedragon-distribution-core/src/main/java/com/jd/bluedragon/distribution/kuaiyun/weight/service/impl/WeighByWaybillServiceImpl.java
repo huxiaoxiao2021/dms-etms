@@ -240,10 +240,12 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
             throw new WeighByWaybillExcpetion(WeightByWaybillExceptionTypeEnum.WaybillFinishedException);
         }
 
-        // 集配站点揽收后不能操作称重
-        InvokeResult<Boolean> jpSiteCanWeightResult = dmsWeightVolumeCheckService.checkJPIsCanWeight(waybillCode, siteCode);
-        if(!jpSiteCanWeightResult.codeSuccess()){
-            throw new WeighByWaybillExcpetion(WeightByWaybillExceptionTypeEnum.JPForbidWeightAfterLLException);
+        if(siteCode != null){
+            // 集配站点揽收后不能操作称重
+            InvokeResult<Boolean> jpSiteCanWeightResult = dmsWeightVolumeCheckService.checkJPIsCanWeight(waybillCode, siteCode);
+            if(!jpSiteCanWeightResult.codeSuccess()){
+                throw new WeighByWaybillExcpetion(WeightByWaybillExceptionTypeEnum.JPForbidWeightAfterLLException);
+            }
         }
 
         return true;

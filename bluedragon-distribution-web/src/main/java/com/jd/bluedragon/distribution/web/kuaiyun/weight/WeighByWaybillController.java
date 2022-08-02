@@ -275,7 +275,8 @@ public class WeighByWaybillController extends DmsBaseController {
             /*1 将单号或包裹号正则校验 通过后 如果是包裹号需要转成运单号*/
             String waybillCode = service.convertToWaybillCode(codeStr);
             /*2 对运单进行存在校验*/
-            boolean isExist = service.validateWaybillCodeReality(waybillCode, getLoginUser().getSiteCode());
+            Integer siteCode = getLoginUser() == null ? null : getLoginUser().getSiteCode();
+            boolean isExist = service.validateWaybillCodeReality(waybillCode, siteCode);
 
             result.setData(isExist);
             if (isExist) {
