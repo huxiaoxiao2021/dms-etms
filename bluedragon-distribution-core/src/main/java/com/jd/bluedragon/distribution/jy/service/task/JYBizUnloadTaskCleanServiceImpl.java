@@ -1,11 +1,15 @@
 package com.jd.bluedragon.distribution.jy.service.task;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskUnloadVehicleDao;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadStatusEnum;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
 import com.jd.bluedragon.utils.DateHelper;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -43,12 +47,13 @@ public class JYBizUnloadTaskCleanServiceImpl implements JYBizTaskCleanService{
      * @return
      */
     @Override
+    @JProfiler(jKey = "DMS.WORKER.JYBizUnloadTaskCleanServiceImpl.clean", jAppName = Constants.UMP_APP_NAME_DMSWORKER, mState = {JProEnum.TP, JProEnum.FunctionError})
     public boolean clean() {
         Boolean cleanSucFlag = Boolean.TRUE;
         //获取所有清理规则
-        for(CleanRule cleanRule : CleanRule.values()){
+        for(JyBizTaskUnloadVehicleEntity cleanRule : getCleanRule()){
             //优先获取需要清理的站点ID
-            List<Integer> sites = getNeedCleanSites(cleanRule.status);
+            List<Integer> sites = getNeedCleanSites(JyBizTaskUnloadStatusEnum.getEnumByCode(cleanRule.getVehicleStatus()));
             if(CollectionUtils.isEmpty(sites)){
                 continue;
             }
@@ -99,7 +104,7 @@ public class JYBizUnloadTaskCleanServiceImpl implements JYBizTaskCleanService{
      * @param siteCode
      * @return
      */
-    private boolean cleanData(CleanRule cleanRule,Integer siteCode){
+    private boolean cleanData(JyBizTaskUnloadVehicleEntity cleanRule,Integer siteCode){
         if(cleanRule == null || siteCode == null){
             return true;
         }
@@ -108,19 +113,18 @@ public class JYBizUnloadTaskCleanServiceImpl implements JYBizTaskCleanService{
         long cleanDataSize = 0;
         try{
             JyBizTaskUnloadVehicleEntity param = new JyBizTaskUnloadVehicleEntity();
-            param.setVehicleStatus(cleanRule.getStatus().getCode());
+            BeanUtils.copyProperties(cleanRule,param);
             param.setEndSiteId(Long.valueOf(siteCode));
-            param.setTs(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(),-cleanRule.getMoreThanDays()));
             cleanDataSize = jyBizTaskUnloadVehicleDao.cleanByParam(param);
         }catch (Exception e){
             logger.error("清理作业APP卸车+到车任务,清理站点:{}规则:{}时异常！",
-                    siteCode,cleanRule.getStatus().getName(),e);
+                    siteCode,JyBizTaskUnloadStatusEnum.getNameByCode(cleanRule.getVehicleStatus()),e);
             return false;
         }finally {
             sw.stop();
             if(logger.isInfoEnabled()){
                 logger.info("清理作业APP卸车+到车任务,清理站点:{}规则:{},清理条数:{},耗时:{}ms",
-                        siteCode,cleanRule.getStatus().getName(),cleanDataSize,sw.getLastTaskTimeMillis());
+                        siteCode,JyBizTaskUnloadStatusEnum.getNameByCode(cleanRule.getVehicleStatus()),cleanDataSize,sw.getLastTaskTimeMillis());
             }
         }
         return true;
@@ -129,41 +133,54 @@ public class JYBizUnloadTaskCleanServiceImpl implements JYBizTaskCleanService{
 
     /**
      * 清理规则
+     *
+     *
+     *
+     *      * 到车 + 卸车
+     *      * 在途状态 上游封车时间超过60天
+     *      * 待解状态 上游封车时间超过30天
+     *      * 待卸状态 距离解封车时间超过10天
+     *      * 卸车中状态 距离卸车任务开始时间超过5天
+     *      * 完成状态 距离完成时间超过30天
      */
-    private enum CleanRule{
-        INIT(JyBizTaskUnloadStatusEnum.INIT,60),
-        ON_WAY(JyBizTaskUnloadStatusEnum.ON_WAY,60),
-        WAIT_UN_SEAL(JyBizTaskUnloadStatusEnum.WAIT_UN_SEAL,30),
-        WAIT_UN_LOAD(JyBizTaskUnloadStatusEnum.WAIT_UN_LOAD,10),
-        UN_LOADING(JyBizTaskUnloadStatusEnum.UN_LOADING,5),
-        UN_LOAD_DONE(JyBizTaskUnloadStatusEnum.UN_LOAD_DONE,30),
-        CANCEL(JyBizTaskUnloadStatusEnum.CANCEL,60);
 
-        CleanRule(JyBizTaskUnloadStatusEnum status, Integer moreThanDays) {
-            this.status = status;
-            this.moreThanDays = moreThanDays;
-        }
+    private List<JyBizTaskUnloadVehicleEntity> getCleanRule(){
+        List<JyBizTaskUnloadVehicleEntity> cleanRules = new ArrayList<>();
+        // 初始化
+        JyBizTaskUnloadVehicleEntity initRule = new JyBizTaskUnloadVehicleEntity();
+        initRule.setVehicleStatus(JyBizTaskUnloadStatusEnum.INIT.getCode());
+        initRule.setCreateTime(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(),-60));
+        cleanRules.add(initRule);
+        //在途
+        JyBizTaskUnloadVehicleEntity onWayRule = new JyBizTaskUnloadVehicleEntity();
+        onWayRule.setVehicleStatus(JyBizTaskUnloadStatusEnum.ON_WAY.getCode());
+        onWayRule.setCreateTime(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(),-60));
+        cleanRules.add(onWayRule);
+        //待解
+        JyBizTaskUnloadVehicleEntity waitUnSealRule = new JyBizTaskUnloadVehicleEntity();
+        waitUnSealRule.setVehicleStatus(JyBizTaskUnloadStatusEnum.WAIT_UN_SEAL.getCode());
+        waitUnSealRule.setUpdateTime(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(),-30));
+        cleanRules.add(waitUnSealRule);
+        //待卸
+        JyBizTaskUnloadVehicleEntity waitUnLoadRule = new JyBizTaskUnloadVehicleEntity();
+        waitUnLoadRule.setVehicleStatus(JyBizTaskUnloadStatusEnum.WAIT_UN_LOAD.getCode());
+        waitUnLoadRule.setUpdateTime(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(),-10));
+        cleanRules.add(waitUnLoadRule);
+        //卸车
+        JyBizTaskUnloadVehicleEntity unLoadingRule = new JyBizTaskUnloadVehicleEntity();
+        unLoadingRule.setVehicleStatus(JyBizTaskUnloadStatusEnum.UN_LOADING.getCode());
+        unLoadingRule.setUpdateTime(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(),-5));
+        cleanRules.add(unLoadingRule);
+        //完成
+        JyBizTaskUnloadVehicleEntity doneRule = new JyBizTaskUnloadVehicleEntity();
+        doneRule.setVehicleStatus(JyBizTaskUnloadStatusEnum.UN_LOAD_DONE.getCode());
+        doneRule.setUnloadFinishTime(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(),-30));
+        cleanRules.add(doneRule);
 
-        /**
-         * 任务状态
-         */
-        private JyBizTaskUnloadStatusEnum status;
 
-        /**
-         * 过期超过日期（单位：天）
-         */
-        private Integer moreThanDays;
-
-
-        public JyBizTaskUnloadStatusEnum getStatus() {
-            return status;
-        }
-
-        public Integer getMoreThanDays() {
-            return moreThanDays;
-        }
-
+        return cleanRules;
     }
+
 
 
 

@@ -1,5 +1,8 @@
 package com.jd.bluedragon.distribution.jy.service.task;
 
+import com.jd.bluedragon.Constants;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.springframework.stereotype.Service;
 
 /**
@@ -18,6 +21,7 @@ public class JYBizSendTaskCleanServiceImpl implements JYBizTaskCleanService{
      * @return
      */
     @Override
+    @JProfiler(jKey = "DMS.WORKER.JYBizSendTaskCleanServiceImpl.clean", jAppName = Constants.UMP_APP_NAME_DMSWORKER, mState = {JProEnum.TP, JProEnum.FunctionError})
     public boolean clean() {
         return true;
     }
