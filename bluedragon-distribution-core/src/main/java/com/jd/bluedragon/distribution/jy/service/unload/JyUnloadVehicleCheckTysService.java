@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.jy.service.unload;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
@@ -52,7 +53,6 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -102,6 +102,9 @@ public class JyUnloadVehicleCheckTysService {
     private JyBizTaskUnloadVehicleStageService jyBizTaskUnloadVehicleStageService;
 
     @Autowired
+    private UccPropertyConfiguration uccPropertyConfiguration ;
+
+    @Autowired
     private JyUnloadVehicleBoardDao jyUnloadVehicleBoardDao;
 
     @Autowired
@@ -123,29 +126,7 @@ public class JyUnloadVehicleCheckTysService {
     @Resource
     private Cluster redisClientCache;
 
-    /**
-     * 缓存时长
-     */
-    @Value("${unload_cache_duration_hours:24}")
-    private Integer unloadCacheDurationHours;
 
-    /**
-     * 板上最多包裹数
-     */
-    @Value("${unload.board.bindings.count.max:100}")
-    private Integer unloadBoardBindingsMaxCount;
-
-    /**
-     * 大宗扫描最少包裹数
-     */
-    @Value("${daZongPackageOperateMax:100}")
-    private Integer daZongPackageOperateMax;
-
-    /**
-     * 包裹重量上限值，单位kg
-     */
-    @Value("${packageWeightLimit:'2000'}")
-    private String packageWeightLimit;
 
 
     /**
@@ -197,6 +178,7 @@ public class JyUnloadVehicleCheckTysService {
     }
 
     public void checkPackageOverWeight(DeliveryPackageD packageD, Waybill waybill, ScanPackageRespDto response) {
+        String packageWeightLimit = uccPropertyConfiguration.getPackageWeightLimit();
         BigDecimal packageWeight = getPackageWeight(packageD, waybill);
         if (packageWeight != null && packageWeight.compareTo(new BigDecimal(packageWeightLimit)) > 0) {
             log.info("包裹超重:packageCode={},weight={},limit={}", packageD.getPackageBarcode(), packageWeight.toPlainString(), packageWeightLimit);
@@ -508,6 +490,7 @@ public class JyUnloadVehicleCheckTysService {
      * 板上包裹数校验
      */
     public void packageCountCheck(ScanPackageDto scanPackageDto) {
+        Integer unloadBoardBindingsMaxCount = uccPropertyConfiguration.getUnloadBoardBindingsMaxCount();
         boardCommonManager.packageCountCheck(scanPackageDto.getBoardCode(), unloadBoardBindingsMaxCount);
     }
 
@@ -661,6 +644,7 @@ public class JyUnloadVehicleCheckTysService {
      */
     private void setCacheOfBoardAndPack(String boardCode, String packageCode) {
         try {
+            int unloadCacheDurationHours = uccPropertyConfiguration.getUnloadCacheDurationHours();
             String key = REDIS_PREFIX_BOARD_PACK + boardCode + Constants.SEPARATOR_HYPHEN + packageCode;
             redisClientCache.setEx(key, String.valueOf(true), unloadCacheDurationHours, TimeUnit.HOURS);
         } catch (Exception e) {
@@ -705,6 +689,7 @@ public class JyUnloadVehicleCheckTysService {
      */
     public void setCacheOfSealCarAndPackageIntercept(String bizId, String barCode) {
         try {
+            int unloadCacheDurationHours = uccPropertyConfiguration.getUnloadCacheDurationHours();
             String key = REDIS_PREFIX_SEAL_PACK_INTERCEPT + bizId + Constants.SEPARATOR_HYPHEN + barCode;
             redisClientCache.setEx(key, barCode, unloadCacheDurationHours, TimeUnit.HOURS);
         } catch (Exception e) {
@@ -811,7 +796,7 @@ public class JyUnloadVehicleCheckTysService {
 
     public String checkIsMeetWaybillStandard(Waybill waybill) {
         // 默认使用ucc的配置
-        int waybillLimit = daZongPackageOperateMax;
+        int waybillLimit = uccPropertyConfiguration.getDazongPackageOperateMax();
         int packageNum = waybill.getGoodNumber();
         // 查询运单件数配置表最新的配置记录
         WaybillConfig configPo = waybillConfigDao.findLatestWaybillConfig();
