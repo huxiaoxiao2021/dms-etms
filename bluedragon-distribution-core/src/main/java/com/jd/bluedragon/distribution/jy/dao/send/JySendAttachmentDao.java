@@ -31,4 +31,15 @@ public class JySendAttachmentDao extends BaseDao<JySendAttachmentEntity> {
     public JySendAttachmentEntity hasPhoto(JySendAttachmentEntity entity) {
         return this.getSqlSession().selectOne(NAMESPACE + ".hasPhoto", entity);
     }
+
+    /**
+     * 根据sendVehicleBizId查询记录
+     * @param entity 查询参数
+     * @return 对应记录数据
+     * @author fanggang7
+     * @time 2022-08-02 19:41:01 周二
+     */
+    public JySendAttachmentEntity selectBySendVehicleBizId(JySendAttachmentEntity entity) {
+        return this.getSqlSession().selectOne(NAMESPACE + ".selectBySendVehicleBizId", entity);
+    }
 }
