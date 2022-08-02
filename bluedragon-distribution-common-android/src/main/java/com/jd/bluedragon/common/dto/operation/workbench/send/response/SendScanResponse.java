@@ -38,6 +38,21 @@ public class SendScanResponse implements Serializable {
     private Integer scanPackCount;
 
     /**
+     * 本次扫描箱数
+     */
+    private Integer scanBoxCount;
+
+    /**
+     * 本次扫描拦截包裹数
+     */
+    private Integer interceptPackCount;
+
+    /**
+     * 本次扫描强制发货包裹数
+     */
+    private Integer forceSendPackCount;
+
+    /**
      * 本次扫描目的地
      */
     private Long curScanDestId;
@@ -69,5 +84,29 @@ public class SendScanResponse implements Serializable {
 
     public void setCurScanDestName(String curScanDestName) {
         this.curScanDestName = curScanDestName;
+    }
+
+    public Integer getScanBoxCount() {
+        return scanBoxCount;
+    }
+
+    public void setScanBoxCount(Integer scanBoxCount) {
+        this.scanBoxCount = scanBoxCount;
+    }
+
+    public Integer getInterceptPackCount() {
+        return interceptPackCount;
+    }
+
+    public void setInterceptPackCount(Integer interceptPackCount) {
+        this.interceptPackCount = interceptPackCount;
+    }
+
+    public Integer getForceSendPackCount() {
+        return forceSendPackCount;
+    }
+
+    public void setForceSendPackCount(Integer forceSendPackCount) {
+        this.forceSendPackCount = forceSendPackCount;
     }
 }

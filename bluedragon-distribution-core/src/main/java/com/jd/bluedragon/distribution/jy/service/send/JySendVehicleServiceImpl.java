@@ -1841,7 +1841,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
     private Boolean setSendVehicleBaseInfo(SendVehicleInfoRequest request,
                                            JyBizTaskSendVehicleEntity sendVehicleEntity, SendVehicleInfo sendVehicleInfo) {
         sendVehicleInfo.setManualCreated(sendVehicleEntity.manualCreatedTask());
-        sendVehicleInfo.setPhoto(sendAttachmentService.sendVehicleTakePhoto(new JySendAttachmentEntity(request.getSendVehicleBizId())));
+        sendVehicleInfo.setPhoto(sendAttachmentService.sendVehicleHasSelectStatus(new JySendAttachmentEntity(request.getSendVehicleBizId())));
         // 无任务不需拍照
         if (sendVehicleInfo.getManualCreated()) {
             sendVehicleInfo.setPhoto(Boolean.TRUE);
