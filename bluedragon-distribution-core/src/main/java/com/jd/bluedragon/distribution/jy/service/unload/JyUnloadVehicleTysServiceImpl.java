@@ -139,8 +139,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     @Value("${packageWeightLimit:'2000'}")
     private String packageWeightLimit;
 
-    @Value("${dazongPackageOperateMax:100}")
-    private Integer dazongPackageOperateMax;
+
 
 
     @Override
@@ -367,6 +366,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             return invokeResult;
         } catch (Exception e) {
             if (e instanceof UnloadPackageBoardException) {
+                scanPackageRespDto.getConfirmMsg().put(e.getMessage(), e.getMessage());
                 invokeResult.customMessage(RESULT_PACKAGE_ALREADY_BIND, e.getMessage());
                 return invokeResult;
             }
@@ -483,6 +483,12 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             invokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, "该运单号不存在，请检查运单号是否正确！");
             return invokeResult;
         }
+        // 校验是否达到大宗使用标准
+        String checkStr = jyUnloadVehicleCheckTysService.checkIsMeetWaybillStandard(waybill);
+        if (StringUtils.isNotBlank(checkStr)) {
+            invokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, checkStr);
+            return invokeResult;
+        }
         // 校验是否为KA运单
         boolean isKaWaybill = jyUnloadVehicleCheckTysService.checkIsKaWaybill(waybill);
         if (isKaWaybill) {
@@ -518,21 +524,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         return invokeResult;
     }
 
-    private Integer comBoard(ScanPackageDto scanPackageDto) {
-        Integer comBoardCount = 0;
-        if (ObjectHelper.isNotNull(scanPackageDto.getBoardCode())) {
-            comBoardCount = doComBoard(scanPackageDto.getBoardCode(), scanPackageDto);
-        } else {
-            String boardCode = generateBoard(scanPackageDto);
-            scanPackageDto.setBoardCode(boardCode);
-            if (ObjectHelper.isNotNull(boardCode)) {
-                comBoardCount = doComBoard(boardCode, scanPackageDto);
-            }
-            JyUnloadVehicleBoardEntity entity = convertUnloadVehicleBoard(scanPackageDto);
-            jyUnloadVehicleBoardDao.insertSelective(entity);
-        }
-        return comBoardCount;
-    }
+
 
 
 

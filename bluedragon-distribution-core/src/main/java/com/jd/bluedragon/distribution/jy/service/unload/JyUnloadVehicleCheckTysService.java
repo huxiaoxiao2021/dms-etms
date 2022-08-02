@@ -13,6 +13,8 @@ import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.domain.JdCancelWaybillResponse;
 import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRecordService;
+import com.jd.bluedragon.distribution.jy.config.WaybillConfig;
+import com.jd.bluedragon.distribution.jy.dao.config.WaybillConfigDao;
 import com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadVehicleBoardDao;
 import com.jd.bluedragon.distribution.jy.dto.unload.ScanPackageDto;
 import com.jd.bluedragon.distribution.jy.dto.unload.ScanPackageRespDto;
@@ -103,6 +105,9 @@ public class JyUnloadVehicleCheckTysService {
     private JyUnloadVehicleBoardDao jyUnloadVehicleBoardDao;
 
     @Autowired
+    private WaybillConfigDao waybillConfigDao;
+
+    @Autowired
     private BoardCommonManager boardCommonManager;
 
     @Autowired
@@ -123,6 +128,9 @@ public class JyUnloadVehicleCheckTysService {
 
     @Value("${unload.board.bindings.count.max:100}")
     private Integer unloadBoardBindingsMaxCount;
+
+    @Value("${daZongPackageOperateMax:100}")
+    private Integer daZongPackageOperateMax;
 
 
     /**
@@ -562,6 +570,9 @@ public class JyUnloadVehicleCheckTysService {
                                 invokeResult.getData(), request.getBoardCode(), response.getMesseage());
                         throw new LoadIllegalException(LoadIllegalException.BOARD_TOTC_FAIL_INTERCEPT_MESSAGE);
                     }
+                    // 保存任务和板的关系
+                    JyUnloadVehicleBoardEntity entity = convertUnloadVehicleBoard(request);
+                    jyUnloadVehicleBoardDao.insertSelective(entity);
                     // 设置板上已组包裹数
                     result.setComBoardCount(1);
                     // 重新组板成功处理
@@ -592,6 +603,11 @@ public class JyUnloadVehicleCheckTysService {
         Date now = new Date();
         JyUnloadVehicleBoardEntity entity = new JyUnloadVehicleBoardEntity();
         entity.setUnloadVehicleBizId(scanPackageDto.getBizId());
+        // 获取阶段子任务ID
+        String stageBizId = getStageBizId(scanPackageDto);
+        if (StringUtils.isNotBlank(stageBizId)) {
+            entity.setUnloadVehicleStageBizId(stageBizId);
+        }
         entity.setBoardCode(scanPackageDto.getBoardCode());
         entity.setEndSiteId(Long.valueOf(scanPackageDto.getNextSiteCode()));
         entity.setGoodsAreaCode(scanPackageDto.getGoodsAreaCode());
@@ -616,6 +632,8 @@ public class JyUnloadVehicleCheckTysService {
 
     /**
      * 设置板包裹缓存：默认7天
+     * @param boardCode 板号
+     * @param packageCode 包裹号
      */
     private void setCacheOfBoardAndPack(String boardCode, String packageCode) {
         try {
@@ -766,6 +784,23 @@ public class JyUnloadVehicleCheckTysService {
         } catch (Exception e) {
             log.error("按运单卸车扫描处理异常,参数bizId={},waybillCode={}", bizId, waybillCode, e);
         }
+    }
+
+
+    public String checkIsMeetWaybillStandard(Waybill waybill) {
+        // 默认使用ucc的配置
+        int waybillLimit = daZongPackageOperateMax;
+        int packageNum = waybill.getGoodNumber();
+        // 查询运单件数配置表最新的配置记录
+        WaybillConfig configPo = waybillConfigDao.findLatestWaybillConfig();
+        if (configPo != null  && configPo.getNewValue() != null) {
+            // 如果配置表配置过运单件数，则使用运单配置表的限制
+            waybillLimit = configPo.getNewValue();
+        }
+        if (packageNum < waybillLimit) {
+            return "该运单总包裹数小于" + waybillLimit + "，请逐包裹进行扫描！";
+        }
+        return null;
     }
 
 

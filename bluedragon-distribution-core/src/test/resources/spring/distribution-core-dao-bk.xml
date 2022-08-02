@@ -644,6 +644,11 @@
         <property name="sqlSession" ref="loadUnloadSqlSessionTemplate"/>
     </bean>
 
+    <bean id="waybillConfigDao" parent="businessBaseDao"
+          class="com.jd.bluedragon.distribution.jy.dao.config.WaybillConfigDao" >
+        <property name="sqlSession" ref="loadUnloadSqlSessionTemplate"/>
+    </bean>
+
     <!-- 集包异常举报 -->
     <bean id="collectionBagExceptionReportDao" class="com.jd.bluedragon.distribution.bagException.dao.CollectionBagExceptionReportDao">
         <property name="sqlSession" ref="unDivSqlSessionTemplate"/>
