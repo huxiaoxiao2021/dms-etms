@@ -1,57 +1,45 @@
-package com.jd.bluedragon.distribution.jy.unload;
+package com.jd.bluedragon.distribution.jy.dto.unload;
 
+import java.io.Serializable;
 import java.util.Date;
 
-public class JyUnloadVehicleBoardEntity {
-    private Long id;
+/**
+ * @Author zhengchengfa
+ * @Description //卸车任务组板映射关系Dto
+ * @date
+ **/
+public class UnloadBoardRespDto  implements Serializable {
 
-    private String unloadVehicleBizId;
-
-    private String boardCode;
-
-    private Long startSiteId;
-
-    private String startSiteName;
-
-    private Long endSiteId;
-
-    private String endSiteName;
-
-    private String goodsAreaCode;
-
-    private String createUserErp;
-
-    private String createUserName;
-
-    private String updateUserErp;
-
-    private String updateUserName;
-
-    private Date createTime;
-
-    private Date updateTime;
-
-    private Boolean yn;
-
-    private Date ts;
+    private static final long serialVersionUID = 2419641078080000602L;
 
     /**
-     * 组板数量
+     * 任务ID
      */
-    private Integer boardCodeNum;
-
+    private String unloadVehicleBizId;
     /**
      * 子任务ID
      */
     private String unloadVehicleStageBizId;
 
-    public Long getId() {
-        return id;
-    }
+    /**
+     * 板号
+     */
+    private String boardCode;
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+    private Long startSiteId;
+    private String startSiteName;
+    private Long endSiteId;
+    private String endSiteName;
+
+    private String goodsAreaCode;
+
+    private String createUserErp;
+    private String createUserName;
+    private String updateUserErp;
+    private String updateUserName;
+
+    private Date createTime;
+    private Date updateTime;
 
     public String getUnloadVehicleBizId() {
         return unloadVehicleBizId;
@@ -59,6 +47,14 @@ public class JyUnloadVehicleBoardEntity {
 
     public void setUnloadVehicleBizId(String unloadVehicleBizId) {
         this.unloadVehicleBizId = unloadVehicleBizId;
+    }
+
+    public String getUnloadVehicleStageBizId() {
+        return unloadVehicleStageBizId;
+    }
+
+    public void setUnloadVehicleStageBizId(String unloadVehicleStageBizId) {
+        this.unloadVehicleStageBizId = unloadVehicleStageBizId;
     }
 
     public String getBoardCode() {
@@ -156,37 +152,4 @@ public class JyUnloadVehicleBoardEntity {
     public void setUpdateTime(Date updateTime) {
         this.updateTime = updateTime;
     }
-
-    public Boolean getYn() {
-        return yn;
-    }
-
-    public void setYn(Boolean yn) {
-        this.yn = yn;
-    }
-
-    public Date getTs() {
-        return ts;
-    }
-
-    public void setTs(Date ts) {
-        this.ts = ts;
-    }
-
-    public Integer getBoardCodeNum() {
-        return boardCodeNum;
-    }
-
-    public void setBoardCodeNum(Integer boardCodeNum) {
-        this.boardCodeNum = boardCodeNum;
-    }
-
-    public String getUnloadVehicleStageBizId() {
-        return unloadVehicleStageBizId;
-    }
-
-    public void setUnloadVehicleStageBizId(String unloadVehicleStageBizId) {
-        this.unloadVehicleStageBizId = unloadVehicleStageBizId;
-    }
-
 }

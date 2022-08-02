@@ -1195,4 +1195,33 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             return  res;
         }
     }
+
+    @Override
+    public InvokeResult<List<UnloadBoardRespDto>> queryTaskBoardInfoByBizId(String masterBizId) {
+        final String methodDesc = "JyUnloadVehicleTysServiceImpl.queryTaskBoardInfoByBizId--根据主BizId查询任务板关系服务--";
+        InvokeResult<List<UnloadBoardRespDto>> res = new InvokeResult<>();
+        res.success();
+        try{
+            //主任务
+            JyUnloadVehicleBoardEntity param = new JyUnloadVehicleBoardEntity();
+            param.setUnloadVehicleBizId(masterBizId);
+            List<JyUnloadVehicleBoardEntity> jyMasterTask = jyUnloadVehicleBoardDao.getTaskBoardInfoList(param);
+            if(CollectionUtils.isEmpty(jyMasterTask)) {
+                res.setMessage("查询数据为空");
+                return res;
+            }
+            List<UnloadBoardRespDto> resDataList = new ArrayList<>();
+            for(JyUnloadVehicleBoardEntity entity : jyMasterTask) {
+                UnloadBoardRespDto taskBoardInfo = BeanUtils.convert(entity, UnloadBoardRespDto.class);
+                resDataList.add(taskBoardInfo);
+            }
+            res.setData(resDataList);
+            return res;
+        }catch (Exception e) {
+            log.error("{}服务异常，masterBizId={}，errMsg={}", methodDesc, masterBizId, e.getMessage(), e);
+            res.error("根据主BizId查询任务板关系服务异常 " + e.getMessage());
+            return  res;
+        }
+    }
+
 }
