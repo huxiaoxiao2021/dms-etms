@@ -23,6 +23,11 @@ import java.util.List;
  * @Auther: 刘铎（liuduo8）
  * @Date: 2022/7/14
  * @Description:
+ *
+ *
+ * 任务配置SQL
+ * INSERT INTO `bd_dms_worker`.`pamirs_schedule_tasktype`(`TASK_TYPE`, `DEAL_BEAN_NAME`, `HEARTBEAT_RATE`, `JUDGE_DEAD_INTERVAL`, `THREAD_NUMBER`, `EXECUTE_NUMBER`, `FETCH_NUMBER`, `SLEEP_TIME_NODATA`, `SLEEP_TIME_INTERVAL`, `PROCESSOR_TYPE`, `PERMIT_RUN_START_TIME`, `PERMIT_RUN_END_TIME`, `LAST_ASSIGN_TIME`, `LAST_ASSIGN_UUID`, `EXPIRE_OWN_SIGN_INTERVAL`, `GMT_CREATE`, `GMT_MODIFIED`) VALUES ( 'JYBizTaskCleanTask', 'jyBizTaskCleanTask', 30, 300, 1, 50, 100, 10, 5, 'NOTSLEEP', '0 0 2 ? * *', '0 0 9 ? * *', now(), '', NULL, now(), now());
+ * INSERT INTO `bd_dms_worker`.`pamirs_schedule_queue`( `TASK_TYPE`, `QUEUE_ID`, `OWN_SIGN`, `BASE_TASK_TYPE`, `CUR_SERVER`, `REQ_SERVER`, `GMT_CREATE`, `GMT_MODIFIED`) VALUES ('JYBizTaskCleanTask', '0', 'DMS', NULL, NULL, NULL, now(), now());
  */
 public class JYBizTaskCleanTask extends AbstractScheduler<Task> {
 
