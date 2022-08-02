@@ -761,7 +761,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
                 result.error("当前任务状态不支持交班！");
                 return result;
             }
-            //查询子任务bizId
+            // 查询子任务bizId
             JyBizTaskUnloadVehicleStageEntity condition = new JyBizTaskUnloadVehicleStageEntity();
             condition.setUnloadVehicleBizId(unloadVehicleTask.getBizId());
             condition.setStatus(JyBizTaskStageStatusEnum.DOING.getCode());

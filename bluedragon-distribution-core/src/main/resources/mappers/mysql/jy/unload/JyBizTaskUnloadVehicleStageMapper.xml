@@ -33,10 +33,14 @@
     select
     <include refid="Base_Column_List" />
     from jy_biz_task_unload_vehicle_stage
-    where unload_vehicle_biz_id = #{unloadVehicleBizId} and yn=1 and status =1
+    where unload_vehicle_biz_id = #{unloadVehicleBizId} and yn=1
+    <if test="status!=null">
+      and status =#{status}
+    </if>
     <if test="type!=null">
       and type =#{type}
-    </if>  limit 1;
+    </if>
+      limit 1
   </select>
 
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">

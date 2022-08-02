@@ -48,6 +48,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Condition;
 
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.TASK_NO_FOUND_BY_PARAMS_CODE;
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.TASK_NO_FOUND_BY_PARAMS_MESSAGE;
@@ -126,21 +127,32 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
 
         JyUnloadEntity unloadEntity = copyFromDto(unloadScanDto);
 
+        Long id = null;
         if (JyBizTaskSourceTypeEnum.TRANSPORT.getCode().equals(unloadScanDto.getTaskType())) {
             //查询子任务bizId
             JyBizTaskUnloadVehicleStageEntity condition =new JyBizTaskUnloadVehicleStageEntity();
             condition.setUnloadVehicleBizId(unloadScanDto.getBizId());
             condition.setType(unloadScanDto.getSupplementary() ? JyBizTaskStageTypeEnum.SUPPLEMENT.getCode() : JyBizTaskStageTypeEnum.HANDOVER.getCode());
-            condition.setStatus(JyBizTaskStageStatusEnum.DOING.getCode());
+            if (!unloadScanDto.getSupplementary()) {
+                condition.setStatus(JyBizTaskStageStatusEnum.DOING.getCode());
+            }
             JyBizTaskUnloadVehicleStageEntity entity =jyBizTaskUnloadVehicleStageService.queryCurrentStage(condition);
             if (ObjectHelper.isNotNull(entity)){
                 unloadEntity.setStageBizId(entity.getBizId());
+                id = entity.getId();
             }
         }
 
         if (jyUnloadDao.insert(unloadEntity) <= 0) {
             logger.error("保存卸车扫描记录异常. {}", JsonHelper.toJson(unloadEntity));
             throw new RuntimeException("保存卸车扫描记录异常");
+        }
+        // 转运补扫子任务完结
+        if (JyBizTaskSourceTypeEnum.TRANSPORT.getCode().equals(unloadScanDto.getTaskType()) && id != null) {
+            JyBizTaskUnloadVehicleStageEntity condition = new JyBizTaskUnloadVehicleStageEntity();
+            condition.setId(id);
+            condition.setStatus(JyBizTaskStageStatusEnum.COMPLETE.getCode());
+            jyBizTaskUnloadVehicleStageService.updateByPrimaryKeySelective(condition);
         }
 
         // 插入验货或收货任务，发全程跟踪

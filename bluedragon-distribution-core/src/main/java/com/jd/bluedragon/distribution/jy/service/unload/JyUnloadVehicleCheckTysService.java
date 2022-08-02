@@ -629,7 +629,9 @@ public class JyUnloadVehicleCheckTysService {
         JyBizTaskUnloadVehicleStageEntity condition =new JyBizTaskUnloadVehicleStageEntity();
         condition.setUnloadVehicleBizId(scanPackageDto.getBizId());
         condition.setType(scanPackageDto.isSupplementary() ? JyBizTaskStageTypeEnum.SUPPLEMENT.getCode() : JyBizTaskStageTypeEnum.HANDOVER.getCode());
-        condition.setStatus(JyBizTaskStageStatusEnum.DOING.getCode());
+        if (!scanPackageDto.isSupplementary()) {
+            condition.setStatus(JyBizTaskStageStatusEnum.DOING.getCode());
+        }
         JyBizTaskUnloadVehicleStageEntity entity = jyBizTaskUnloadVehicleStageService.queryCurrentStage(condition);
         if (ObjectHelper.isNotNull(entity)){
             return entity.getBizId();
