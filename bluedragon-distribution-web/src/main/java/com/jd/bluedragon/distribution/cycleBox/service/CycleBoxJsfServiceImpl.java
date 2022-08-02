@@ -67,7 +67,7 @@ public class CycleBoxJsfServiceImpl implements CycleBoxJsfService{
         BoxMaterialRelation bo = new BoxMaterialRelation();
         bo.setMaterialCode(materialCode);
         bo.setBoxCode(boxCode);
-        int count = boxMaterialRelationService.updateUnBindByMaterialCode(bo);
+        int count = boxMaterialRelationService.updateUnBindByMaterialCodeAndBoxCode(bo);
         logger.info("集包袋解绑箱号：{}集包袋号：{}，结果:{}", boxCode, materialCode, count);
         return result;
     }

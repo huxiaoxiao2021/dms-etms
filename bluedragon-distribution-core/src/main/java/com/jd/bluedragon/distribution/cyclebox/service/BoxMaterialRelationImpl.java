@@ -58,10 +58,25 @@ public class BoxMaterialRelationImpl implements BoxMaterialRelationService {
         return boxMaterialRelationDao.getDataByMaterialCode(materialCode);
     }
 
+    /**
+     * 除了当前箱号，其他和此集包袋的绑定关系都解绑
+     * @param boxMaterialRelation
+     * @return
+     */
     @Override
     public int updateUnBindByMaterialCode(BoxMaterialRelation boxMaterialRelation) {
         return boxMaterialRelationDao.updateUnBindByMaterialCode(boxMaterialRelation);
     }
+    /**
+     * 解绑此箱号和集包袋绑定关系
+     * @param boxMaterialRelation
+     * @return
+     */
+    @Override
+    public int updateUnBindByMaterialCodeAndBoxCode(BoxMaterialRelation boxMaterialRelation) {
+        return boxMaterialRelationDao.updateUnBindByMaterialCodeAndBoxCode(boxMaterialRelation);
+    }
+
 
     @Override
     public BoxMaterialRelation getBoxMaterialRelationByMaterialCodeAndBoxcode(String boxCode, String materialCode){
