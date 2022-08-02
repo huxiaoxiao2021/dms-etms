@@ -139,14 +139,6 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
             //查询子任务bizId
             JyBizTaskUnloadVehicleStageEntity condition =new JyBizTaskUnloadVehicleStageEntity();
             condition.setUnloadVehicleBizId(unloadScanDto.getBizId());
-            // 查询主任务状态
-            JyBizTaskUnloadVehicleEntity unloadVehicleEntity = jyBizTaskUnloadVehicleService.findByBizId(unloadScanDto.getBizId());
-            if (ObjectHelper.isNotNull(unloadVehicleEntity)) {
-                // 只有已完成的卸车任务，才算补扫
-                if (JyBizTaskUnloadStatusEnum.UN_LOAD_DONE.getCode().equals(unloadVehicleEntity.getVehicleStatus())) {
-                    unloadScanDto.setSupplementary(Boolean.TRUE);
-                }
-            }
             condition.setType(unloadScanDto.getSupplementary() ? CHILD_TASK_TYPE_SUPPLEMENT : CHILD_TASK_TYPE_HANDOVER);
             condition.setStatus(CHILD_TASK_STATUS_DOING);
             JyBizTaskUnloadVehicleStageEntity entity =jyBizTaskUnloadVehicleStageService.queryCurrentStage(condition);
