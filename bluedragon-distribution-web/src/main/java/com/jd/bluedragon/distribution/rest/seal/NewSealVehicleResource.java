@@ -558,9 +558,9 @@ public class NewSealVehicleResource {
             }else {
                 // 传摆封车：需要校验车牌号能否生成车次任务
                 CommonDto<String> dto = newsealVehicleService.newVerifyVehicleJobByVehicleNumber(sealCarPreRequest);
-                boolean sucFlag = dto != null && Constants.RESULT_SUCCESS != dto.getCode();
+                boolean sucFlag = dto != null && Constants.RESULT_SUCCESS == dto.getCode();
                 sealVehicleResponse.setCode(sucFlag ? JdResponse.CODE_OK : NewSealVehicleResponse.CODE_EXCUTE_ERROR);
-                sealVehicleResponse.setMessage(sucFlag ? JdResponse.MESSAGE_OK : "校验车牌号能否封车创建车次任务失败");
+                sealVehicleResponse.setMessage(sucFlag ? JdResponse.MESSAGE_OK : dto == null ? "校验车牌号能否封车创建车次任务失败" : dto.getMessage());
                 transportTaskCheck = sucFlag;
             }
             if(transportTaskCheck){
