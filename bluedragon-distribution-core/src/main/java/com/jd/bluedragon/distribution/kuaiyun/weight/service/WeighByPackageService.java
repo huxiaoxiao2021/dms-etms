@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 public interface WeighByPackageService {
-    InvokeResult<Boolean> verifyPackageReality(String codeStr, Map<String,Integer> maps);
+    InvokeResult<Boolean> verifyPackageReality(String codeStr, Map<String,Integer> maps, Integer siteCode);
 
     boolean validateParam(PackageWeightVO waybillWeightVO);
 

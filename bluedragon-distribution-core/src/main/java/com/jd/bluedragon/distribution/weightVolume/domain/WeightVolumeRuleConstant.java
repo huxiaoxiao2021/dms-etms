@@ -95,6 +95,8 @@ public class WeightVolumeRuleConstant {
 
     public static final String RESULT_SPECIAL_MESSAGE_RECORD= "系统将按%s记录！";
 
+    public static final String RESULT_WEIGHT_INTERCEPT_AFTER_LL = "揽收后无法修改重量体积！";
+
     /**
      * C网-边长限制：300CM
      */
