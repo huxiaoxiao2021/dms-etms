@@ -1062,6 +1062,12 @@ public class Constants {
      * 全程跟踪状态 站点发货
      * */
     public static final String WAYBILL_TRACE_STATE_SEND_BY_SITE = "200";
+
+    /**
+     * 全程跟踪状态 分拣验货
+     * */
+    public static final String WAYBILL_TRACE_STATE_INSPECTION_BY_CENTER = "10";
+
     /**
      * 全程跟踪状态 退货装箱
      */

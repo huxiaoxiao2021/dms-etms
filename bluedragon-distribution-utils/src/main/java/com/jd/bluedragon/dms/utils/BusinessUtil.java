@@ -1724,6 +1724,26 @@ public class BusinessUtil {
 	}
 
     /**
+     * 是否集配站点
+     *
+     * @param subType
+     * @return
+     */
+    public static boolean isJPSite(Integer subType) {
+        return Objects.equals(subType, 9605);
+    }
+
+    /**
+     * 是否城配站点
+     *
+     * @param subType
+     * @return
+     */
+    public static boolean isCPSite(Integer subType) {
+        return Objects.equals(subType, 9607);
+    }
+
+    /**
      * 是否外单自提点
      *  C网 waybillsign第40位=0
      *  订单类型 SOP Waybillsign第1位=2

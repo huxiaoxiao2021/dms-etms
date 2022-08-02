@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.weightVolume.handler;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -9,13 +10,16 @@ import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeContext;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeRuleCheckDto;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeRuleConstant;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
+import com.jd.bluedragon.distribution.weightVolume.service.DMSWeightVolumeCheckService;
 import com.jd.bluedragon.distribution.weightvolume.FromSourceEnum;
 import com.jd.bluedragon.distribution.weightvolume.WeightVolumeBusinessTypeEnum;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BeanHelper;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.waybill.domain.Waybill;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.report.weightVolumeFlow.WeightVolumeFlowJSFService;
 import com.jd.ql.dms.report.weightVolumeFlow.domain.WeightVolumeFlowEntity;
 import org.apache.commons.lang.StringUtils;
@@ -49,6 +53,13 @@ public abstract class AbstractWeightVolumeHandler implements IWeightVolumeHandle
 
     @Autowired
     private WaybillQueryManager waybillQueryManager;
+
+    @Autowired
+    private BaseMajorManager baseMajorManager;
+
+    @Qualifier("dmsWeightVolumeCheckService")
+    @Autowired
+    private DMSWeightVolumeCheckService dmsWeightVolumeCheckService;
 
     @Override
     public InvokeResult<Boolean> handlerOperateWeightVolume(WeightVolumeEntity entity) {
@@ -152,6 +163,13 @@ public abstract class AbstractWeightVolumeHandler implements IWeightVolumeHandle
             }
             weightVolumeContext.setWaybill(waybill);
         }
+        // 初始化场地数据
+        BaseStaffSiteOrgDto operateSite = baseMajorManager.getBaseSiteBySiteId(condition.getOperateSiteCode());
+        if(operateSite == null){
+            throw new RuntimeException("操作人场地不存在!");
+        }
+        weightVolumeContext.setOperateSite(operateSite);
+
         // 设置称重量方规则
         weightVolumeContext.setWeightVolumeRuleConstant(JsonHelper.fromJson(uccPropertyConfiguration.getWeightVolumeRuleStandard(), WeightVolumeRuleConstant.class));
         return weightVolumeContext;
@@ -337,6 +355,18 @@ public abstract class AbstractWeightVolumeHandler implements IWeightVolumeHandle
         }
         // 设置提示结尾提示语
         setEndConfirmMessage(confirmMessage,result);
+    }
+
+    protected boolean commonCheckIntercept(WeightVolumeContext weightVolumeContext, InvokeResult<Boolean> result) {
+        // 1、集配、城配不能操作称重（前提：揽收站点操作了发货 或 揽收站点下游站点操作了验货）
+        BaseStaffSiteOrgDto operateSite = weightVolumeContext.getOperateSite();
+        InvokeResult<Boolean> jpCheckResult = dmsWeightVolumeCheckService.checkJPIsCanWeight(weightVolumeContext.getBarCode(), operateSite.getSiteCode());
+        if(!jpCheckResult.codeSuccess()){
+            result.customMessage(jpCheckResult.getCode(), jpCheckResult.getMessage());
+            return true;
+        }
+        // 后续公共拦截待补充
+        return false;
     }
 
     /**
