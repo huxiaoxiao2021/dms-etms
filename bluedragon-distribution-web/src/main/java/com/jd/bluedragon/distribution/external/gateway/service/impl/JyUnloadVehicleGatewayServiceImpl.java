@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
+import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
@@ -12,6 +13,7 @@ import com.jd.bluedragon.common.dto.operation.workbench.unload.request.*;
 import com.jd.bluedragon.common.dto.operation.workbench.unload.response.*;
 import com.jd.bluedragon.common.dto.select.SelectOption;
 import com.jd.bluedragon.common.dto.select.StringSelectOption;
+import com.jd.bluedragon.distribution.api.response.TransWorkItemResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.enums.JyUnloadVehicleStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.UnloadProductTypeEnum;
@@ -355,14 +357,15 @@ public class JyUnloadVehicleGatewayServiceImpl implements JyUnloadVehicleGateway
     @Override
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyUnloadVehicleGatewayService.transportTaskHint",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
-    public JdCResponse<Void> transportTaskHint(TransportTaskRequest request) {
-        JdCResponse<Void> jdCResponse = new JdCResponse<>();
-        jdCResponse.toSucceed();
+    public JdVerifyResponse<Void> transportTaskHint(TransportTaskRequest request) {
+        JdVerifyResponse<Void> jdVerifyResponse = new JdVerifyResponse<Void>();
+        jdVerifyResponse.toSuccess();
         // 校验运输任务（返回结果只做提示展示）
         ImmutablePair<Integer, String> checkResult = transportRelatedService.checkTransportTask(request.getSiteCode(),
                 request.getTransWorkCode(), request.getSealCarCode(), request.getSimpleCode(), request.getVehicleNumber());
-        jdCResponse.setExtraBusinessCode(checkResult.left);
-        jdCResponse.setExtraBusinessMessage(checkResult.right);
-        return jdCResponse;
+        if(Objects.equals(checkResult.left, TransWorkItemResponse.CODE_HINT)){
+            jdVerifyResponse.addPromptBox(checkResult.left, checkResult.right);
+        }
+        return jdVerifyResponse;
     }
 }

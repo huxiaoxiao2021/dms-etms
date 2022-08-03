@@ -89,7 +89,7 @@ import java.util.*;
  * @author wangzichen
  */
 @Service
-public class InspectionServiceImpl implements InspectionService, InspectionJsfService {
+public class InspectionServiceImpl implements InspectionService , InspectionJsfService {
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
@@ -1227,11 +1227,13 @@ public class InspectionServiceImpl implements InspectionService, InspectionJsfSe
 		}
 	}
 
+
+
 	/**
 	 * @param request
 	 * @return InvokeResult
 	 * @throws Exception
-	 * @author chenlingfeng 2022/07/29
+	 * @author chenlingfeng 2022/08/03-revised
 	 * @description 将web包中的autoAddInspectionTask的调用方式由REST改为JSF
 	 */
 	@Override
@@ -1272,7 +1274,7 @@ public class InspectionServiceImpl implements InspectionService, InspectionJsfSe
 		request.setBody(JsonHelper.toJson(inspections));
 		try {
 			response = taskService.add(request);
-			if (response.getCode() == com.jd.bluedragon.distribution.api.JdResponse.CODE_OK) {
+			if (Objects.equals(response.getCode(), com.jd.bluedragon.distribution.api.JdResponse.CODE_OK)) {
 				invokeResult.success();
 			} else {
 				invokeResult.customMessage(InvokeResult.SERVICE_FAIL_CODE, InvokeResult.SERVICE_FAIL_MESSAGE);

@@ -1,8 +1,8 @@
 package com.jd.bluedragon.distribution.api.response;
 
-import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.JdExtraMessageResponse;
 
-public class NewSealVehicleResponse<T> extends JdResponse {
+public class NewSealVehicleResponse<T> extends JdExtraMessageResponse {
 
 	private static final long serialVersionUID = -9096768337471427500L;
 

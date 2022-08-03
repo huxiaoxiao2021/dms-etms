@@ -622,7 +622,7 @@ public class ReversePrintServiceImpl implements ReversePrintService {
                     BaseStaffSiteOrgDto orgDto = baseMajorManager.getBaseSiteBySiteId(waybill.getOldSiteId());
                     if(orgDto!=null && orgDto.getSiteType().equals(Integer.parseInt(spwms_type))){
                        // errorMessage = "新单" + newWaybillCode + "无商品信息，请在慧眼录入!";
-                        errorMessage = "此运单无商品信息，请在【慧眼】录入再【换单打印】或咚咚联系: org.wlxt2  !";
+                        errorMessage = "此运单无商品信息，请在【慧眼】(http://exp.ql.jd.com/summary/foreignOrderMain)录入再【换单打印】或咚咚联系: org.wlxt2  !";
                     }
                 }
 

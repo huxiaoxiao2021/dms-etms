@@ -24,7 +24,7 @@ import java.util.List;
 public interface NewSealVehicleGatewayService {
     JdCResponse cancelSeal(CancelSealRequest gatewayRequest);
 
-    JdCResponse<SealCarTaskInfoDto> getTaskInfo(SealCarTaskInfoRequest request);
+    JdVerifyResponse<SealCarTaskInfoDto> getTaskInfo(SealCarTaskInfoRequest request);
 
     JdCResponse<Integer> getAndCheckTransportCode(CapacityInfoRequest request);
 
@@ -40,7 +40,7 @@ public interface NewSealVehicleGatewayService {
 
     JdCResponse verifyVehicleJobByVehicleNumber(String transportCode, String vehicleNumber, Integer sealCarType);
 
-    JdCResponse newVerifyVehicleJobByVehicleNumber(SealCarPreRequest sealCarPreRequest);
+    JdVerifyResponse<Void> newVerifyVehicleJobByVehicleNumber(SealCarPreRequest sealCarPreRequest);
 
     JdCResponse verifySendVolume(SealVehicleVolumeVerifyRequest request);
 
