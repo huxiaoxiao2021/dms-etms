@@ -53,9 +53,10 @@ import com.jd.ump.annotation.JProfiler;
 import com.jdl.jy.realtime.base.Pager;
 import com.jdl.jy.realtime.model.es.unload.JyUnloadTaskWaybillAgg;
 import com.jdl.jy.realtime.model.es.unload.JyVehicleTaskUnloadDetail;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -74,10 +75,13 @@ import static com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadStatusEnum.
  * @date 2022-07-01
  * 转运卸车岗相关服务实现
  */
-@Slf4j
+
 @Service("jyUnloadVehicleTysService")
 @UnifiedExceptionProcess
 public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService {
+
+    private static final Logger log = LoggerFactory.getLogger(JyUnloadVehicleTysServiceImpl.class);
+
     @Autowired
     JyBizTaskUnloadVehicleService jyBizTaskUnloadVehicleService;
     @Autowired
