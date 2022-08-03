@@ -196,6 +196,21 @@ public class DateHelper {
         return target;
     }
 
+    /**
+     * 获取当前0点0分0秒的时间
+     *
+     * @param timeStr 格式
+     * @return Date
+     */
+    public static Date getCurrentDayWithOutTimes() {
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.HOUR_OF_DAY, 0);
+        calendar.set(Calendar.MINUTE, 0);
+        calendar.set(Calendar.SECOND, 0);
+        calendar.set(Calendar.MILLISECOND, 0);
+        return calendar.getTime();
+    }
+
     public static void main(String[] args) {
 
         Date date = DateHelper.parseDate("2019-04-28 02:38:01", Constants.DATE_TIME_MS_FORMAT,Constants.DATE_TIME_FORMAT);
