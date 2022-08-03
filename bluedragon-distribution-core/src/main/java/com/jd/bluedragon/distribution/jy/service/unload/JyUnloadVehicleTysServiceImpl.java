@@ -420,6 +420,8 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             jyUnloadVehicleCheckTysService.inspectionIntercept(barCode, waybill, unloadScanDto);
             scanPackageRespDto.setSupplementary(unloadScanDto.getSupplementary());
             scanPackageRespDto.setGoodsAreaCode(scanPackageDto.getGoodsAreaCode());
+            // 设置拦截缓存
+            jyUnloadVehicleCheckTysService.setCacheOfSealCarAndPackageIntercept(bizId, barCode);
             // 无任务设置上游站点
             jyUnloadVehicleCheckTysService.setStartSiteForJyUnloadVehicle(scanPackageDto, scanPackageRespDto, unloadVehicleEntity);
             // B网快运发货规则校验
@@ -463,8 +465,6 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             // 卸车处理并回传TC组板关系
             jyUnloadVehicleCheckTysService.dealUnloadAndBoxToBoard(scanPackageDto, scanPackageRespDto);
         }
-        // 设置拦截缓存
-        jyUnloadVehicleCheckTysService.setCacheOfSealCarAndPackageIntercept(bizId, barCode);
         return invokeResult;
     }
 
@@ -515,6 +515,8 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         jyUnloadVehicleCheckTysService.inspectionIntercept(barCode, waybill, unloadScanDto);
         scanPackageRespDto.setSupplementary(unloadScanDto.getSupplementary());
         scanPackageRespDto.setGoodsAreaCode(scanPackageDto.getGoodsAreaCode());
+        // 设置拦截缓存
+        jyUnloadVehicleCheckTysService.waybillInspectSuccessAfter(bizId, waybillCode);
         // 无任务设置上游站点
         jyUnloadVehicleCheckTysService.setStartSiteForJyUnloadVehicle(scanPackageDto, scanPackageRespDto, unloadVehicleEntity);
         // 专网校验
@@ -528,8 +530,6 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             invokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, interceptResult);
             return invokeResult;
         }
-        // 设置拦截缓存
-        jyUnloadVehicleCheckTysService.waybillInspectSuccessAfter(bizId, waybillCode);
         return invokeResult;
     }
 
@@ -540,9 +540,6 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     private void checkScan(ScanPackageDto scanPackageDto) {
         if (BusinessUtil.isBoxcode(scanPackageDto.getScanCode())) {
             return;
-        }
-        if (checkBarCodeScannedAlready(scanPackageDto)) {
-            throw new JyBizException("单号已扫描！");
         }
         String scanCode = scanPackageDto.getScanCode();
         if (WaybillUtil.isPackageCode(scanCode)) {
