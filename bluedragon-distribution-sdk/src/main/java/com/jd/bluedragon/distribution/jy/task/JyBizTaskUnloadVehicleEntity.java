@@ -182,6 +182,10 @@ public class JyBizTaskUnloadVehicleEntity implements Serializable {
      * 状态列表
      */
     private List<Integer> statusCodeList;
+    /**
+     * 任务类别：1 分拣任务 2转运任务
+     */
+    private Integer taskType;
 
     public Long setId(Long id) {
         return this.id = id;
@@ -501,5 +505,13 @@ public class JyBizTaskUnloadVehicleEntity implements Serializable {
 
     public void setUnloadType(Integer unloadType) {
         this.unloadType = unloadType;
+    }
+
+    public Integer getTaskType() {
+        return taskType;
+    }
+
+    public void setTaskType(Integer taskType) {
+        this.taskType = taskType;
     }
 }
