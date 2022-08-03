@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.jy.service.task;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.operation.workbench.unload.response.LabelOption;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.VosManager;
 import com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskUnloadVehicleDao;
 import com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadAggsDao;
@@ -24,6 +25,7 @@ import com.jd.coo.sa.sequence.JimdbSequenceGen;
 import com.jd.etms.vos.dto.CommonDto;
 import com.jd.etms.vos.dto.SealCarDto;
 import com.jd.jim.cli.Cluster;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jdl.jy.schedule.dto.task.JyScheduleTaskReq;
@@ -65,6 +67,12 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
      */
     private final static int SPIN_TIME_OF_MS = 100;
 
+    /**
+     * 卸车岗任务类型： 1 分拣 2转运
+     */
+    public static final Integer UNLOAD_TASK_CATEGORY_TYS = 1;
+    public static final Integer UNLOAD_TASK_CATEGORY_DMS = 2;
+
     private Logger logger = LoggerFactory.getLogger(JyBizTaskUnloadVehicleServiceImpl.class);
 
     @Autowired
@@ -89,6 +97,8 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
     @Autowired
     private JyScheduleTaskManager jyScheduleTaskManager;
 
+    @Autowired
+    private BaseMajorManager baseMajorManager;
     /**
      * 根据bizId获取数据
      *
@@ -300,6 +310,7 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
         if (entity.getManualCreatedFlag() == null) {
             entity.setManualCreatedFlag(0);
         }
+        entity.setTaskType(getTaskType(entity.getEndSiteId()));
         // 锁定数据
         boolean result;
         try {
@@ -344,6 +355,7 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
         if (StringUtils.isEmpty(bizId)) {
             throw new JyBizException("未传入bizId！请检查入参");
         }
+        entity.setTaskType(getTaskType(entity.getEndSiteId()));
         // 锁定数据
         boolean result;
         try {
@@ -671,4 +683,14 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
         return tagList;
     }
 
+
+    /**
+     * 根据操作场地区分卸车任务为分拣任务还是转运任务
+     * @param endSiteId
+     * @return
+     */
+    private Integer getTaskType(Long endSiteId) {
+        BaseStaffSiteOrgDto baseStaffSiteOrgDto = baseMajorManager.getBaseSiteBySiteId(endSiteId.intValue());
+        return Constants.B2B_SITE_TYPE == baseStaffSiteOrgDto.getSubType() ? UNLOAD_TASK_CATEGORY_TYS : UNLOAD_TASK_CATEGORY_DMS;
+    }
 }
