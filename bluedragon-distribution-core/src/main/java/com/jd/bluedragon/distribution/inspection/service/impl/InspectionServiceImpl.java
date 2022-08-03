@@ -1210,7 +1210,7 @@ public class InspectionServiceImpl implements InspectionService , InspectionJsfS
 	 * @param request
 	 * @return InvokeResult
 	 * @throws Exception
-	 * @author chenlingfeng 2022/07/29
+	 * @author chenlingfeng 2022/08/03-revised
 	 * @description 将web包中的autoAddInspectionTask的调用方式由REST改为JSF
 	 */
 	@Override
