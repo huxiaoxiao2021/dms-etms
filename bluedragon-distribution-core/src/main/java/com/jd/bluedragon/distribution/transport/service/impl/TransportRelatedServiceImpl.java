@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.transport.service.impl;
 
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.distribution.api.JdExtraMessageResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.seal.manager.SealCarManager;
 import com.jd.bluedragon.distribution.transport.service.TransportRelatedService;
@@ -64,13 +65,13 @@ public class TransportRelatedServiceImpl implements TransportRelatedService {
         if(Objects.equals(stopoverInfoDto.getSiteType(), 2)
                 && NumberHelper.isPositiveNumber(stopoverInfoDto.getLoadCount())
                 && Objects.equals(stopoverInfoDto.getUnloadCount(), 0)){
-            return ImmutablePair.of(InvokeResult.CODE_HINT, "途径本场地只装不卸，请先操作无任务解封签!");
+            return ImmutablePair.of(JdExtraMessageResponse.CODE_HINT, "途径本场地只装不卸，请先操作无任务解封签!");
         }
         // 站点类型=经停  且 装车计数=0  且 卸车计数＞0
         if(Objects.equals(stopoverInfoDto.getSiteType(), 2)
                 && Objects.equals(stopoverInfoDto.getLoadCount(), 0)
                 && NumberHelper.isPositiveNumber(stopoverInfoDto.getUnloadCount())){
-            return ImmutablePair.of(InvokeResult.CODE_HINT, "途径本场地只卸不装，卸车完成后请操作无货上封签!");
+            return ImmutablePair.of(JdExtraMessageResponse.CODE_HINT, "途径本场地只卸不装，卸车完成后请操作无货上封签!");
         }
         return ImmutablePair.of(InvokeResult.RESULT_SUCCESS_CODE, InvokeResult.RESULT_SUCCESS_MESSAGE);
     }
