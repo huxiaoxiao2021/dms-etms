@@ -9,6 +9,7 @@ import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.AssertQueryManager;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
@@ -165,6 +166,9 @@ public class InspectionServiceImpl implements InspectionService , InspectionJsfS
 
 	@Autowired
 	private BasicPrimaryWS basicPrimaryWS;
+
+	@Autowired
+	private WaybillTraceManager waybillTraceManager;
 
     public boolean isExists(Integer Storeid)
     {
@@ -1199,6 +1203,67 @@ public class InspectionServiceImpl implements InspectionService , InspectionJsfS
 
 				others.add(map);
 			}
+		}
+	}
+
+	/**
+	 * @param request
+	 * @return InvokeResult
+	 * @throws Exception
+	 * @author chenlingfeng 2022/07/29
+	 * @description 将web包中的autoAddInspectionTask的调用方式由REST改为JSF
+	 */
+	@Override
+	public InvokeResult<Void> autoAddInspectionTask(TaskRequest request) {
+		TaskResponse response = null;
+		InvokeResult<Void> invokeResult = new InvokeResult<Void>();
+		if (StringUtils.isBlank(request.getBody())) {
+			invokeResult.customMessage(InvokeResult.PARAMETER_ERROR_CODE,"参数错误,body内容为空");
+			this.log.info("参数错误，body内容为空，request:[{}]", JsonHelper.toJson(request));
+			return invokeResult;
+		}
+		List<InspectionAS> inspections = JsonHelper.jsonToList(request.getBody(), InspectionAS.class);
+		if (CollectionUtils.isEmpty(inspections)) {
+			invokeResult.customMessage(InvokeResult.PARAMETER_ERROR_CODE,"body格式错误，内容反序列化后为空");
+			this.log.info("body格式错误，body:[{}]，内容反序列化后为空，request:[{}]", inspections.toString(), JsonHelper.toJson(request));
+			return invokeResult;
+		}
+		//过滤妥投的运单
+		Iterator<InspectionAS> it = inspections.iterator();
+		while (it.hasNext()) {
+			InspectionAS inspection = it.next();
+			String waybillCode = WaybillUtil.getWaybillCode(inspection.getPackageBarOrWaybillCode());
+			if (StringUtils.isBlank(waybillCode)) {
+				log.warn("验货数据{}非包裹或运单号", inspection.getPackageBarOrWaybillCode());
+				it.remove();
+			}
+			if (waybillTraceManager.isWaybillFinished(waybillCode)) {
+				log.warn("运单{}已妥投", waybillCode);
+				it.remove();
+			}
+
+			//inspection.setBizSource(InspectionBizSourceEnum.AUTOMATIC_SORTING_MACHINE_INSPECTION.getCode());
+		}
+		if (inspections.size() == 0) {
+			invokeResult.customMessage(com.jd.bluedragon.distribution.api.JdResponse.CODE_OK, com.jd.bluedragon.distribution.api.JdResponse.MESSAGE_OK);
+			return invokeResult;
+		}
+		request.setBody(JsonHelper.toJson(inspections));
+		try {
+			response = taskService.add(request);
+			if (Objects.equals(response.getCode(), com.jd.bluedragon.distribution.api.JdResponse.CODE_OK)) {
+				invokeResult.success();
+			} else {
+				invokeResult.customMessage(InvokeResult.SERVICE_FAIL_CODE, InvokeResult.SERVICE_FAIL_MESSAGE);
+				this.log.info("InspectionService调用taskService.add返回响应码错误，request:[{}]，response code:[{}], response message:[{}]",
+						JsonHelper.toJson(request), response.getCode(), response.getMessage());
+			}
+			return invokeResult;
+		} catch (Exception e) {
+			log.error("InspectionService调用taskService.add发生异常，request:[{}]，response code:[{}], response message:[{}]",
+					JsonHelper.toJson(request), response.getCode(), response.getMessage(), e);
+			invokeResult.customMessage(InvokeResult.SERVICE_ERROR_CODE, InvokeResult.SERVICE_ERROR_MESSAGE);
+			return invokeResult;
 		}
 	}
 
