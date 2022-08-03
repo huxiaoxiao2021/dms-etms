@@ -70,7 +70,10 @@ public class UnloadMasterTaskDto implements Serializable {
     private Date createTime;
     private Date updateTime;
 
-
+    /**
+     * 任务类别：1 分拣任务 2转运任务
+     */
+    private Integer taskType;
     public String getBizId() {
         return bizId;
     }
@@ -229,5 +232,13 @@ public class UnloadMasterTaskDto implements Serializable {
 
     public void setUpdateTime(Date updateTime) {
         this.updateTime = updateTime;
+    }
+
+    public Integer getTaskType() {
+        return taskType;
+    }
+
+    public void setTaskType(Integer taskType) {
+        this.taskType = taskType;
     }
 }

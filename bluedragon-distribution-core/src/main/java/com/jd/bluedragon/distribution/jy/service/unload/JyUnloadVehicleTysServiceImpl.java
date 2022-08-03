@@ -1163,25 +1163,30 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     }
 
     @Override
-    public InvokeResult<UnloadMasterChildTaskRespDto> queryMasterChildTaskInfoByBizId(String masterBizId) {
+    public InvokeResult<UnloadMasterChildTaskRespDto> queryMasterChildTaskInfoByBizId(String masterBizId, Boolean queryChildTaskFlag) {
         final String methodDesc = "JyUnloadVehicleTysServiceImpl.queryMasterChildTaskInfoByBizId--根据主BizId查询主子任务服务--";
         InvokeResult<UnloadMasterChildTaskRespDto> res = new InvokeResult<>();
         try{
-
+            if(StringUtils.isBlank(masterBizId)) {
+                res.error("参数缺失：必传任务bizId");
+                return res;
+            }
             UnloadMasterChildTaskRespDto resData = new UnloadMasterChildTaskRespDto();
             //主任务
             JyBizTaskUnloadVehicleEntity jyMasterTask = jyBizTaskUnloadVehicleDao.findByBizId(masterBizId);
             UnloadMasterTaskDto masterTask = BeanUtils.convert(jyMasterTask, UnloadMasterTaskDto.class);
             resData.setUnloadMasterTaskDto(masterTask);
-            //子任务
-            List<UnloadChildTaskDto> unloadChildTaskDtoList = new ArrayList<>();
-            List<JyBizTaskUnloadVehicleStageEntity> jyChildTaskList = jyBizTaskUnloadVehicleStageDao.queryByParentBizId(masterBizId);
-            if(CollectionUtils.isNotEmpty(jyChildTaskList)) {
-                for (JyBizTaskUnloadVehicleStageEntity childTaskInfo : jyChildTaskList) {
-                    unloadChildTaskDtoList.add(BeanUtils.convert(childTaskInfo, UnloadChildTaskDto.class));
+            if(queryChildTaskFlag != null && queryChildTaskFlag) {
+                //子任务
+                List<UnloadChildTaskDto> unloadChildTaskDtoList = new ArrayList<>();
+                List<JyBizTaskUnloadVehicleStageEntity> jyChildTaskList = jyBizTaskUnloadVehicleStageDao.queryByParentBizId(masterBizId);
+                if(CollectionUtils.isNotEmpty(jyChildTaskList)) {
+                    for (JyBizTaskUnloadVehicleStageEntity childTaskInfo : jyChildTaskList) {
+                        unloadChildTaskDtoList.add(BeanUtils.convert(childTaskInfo, UnloadChildTaskDto.class));
+                    }
                 }
+                resData.setUnloadChildTaskDtoList(unloadChildTaskDtoList);
             }
-            resData.setUnloadChildTaskDtoList(unloadChildTaskDtoList);
             res.setData(resData);
             return res;
         }catch (Exception e) {
