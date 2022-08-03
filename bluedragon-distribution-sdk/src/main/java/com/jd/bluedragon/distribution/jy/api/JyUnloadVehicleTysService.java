@@ -152,13 +152,13 @@ public interface JyUnloadVehicleTysService {
     String getGoodsAreaCode(Integer currentSiteCode, Integer nextSiteCode);
 
 
-
     /**
      * 查询主子任务信息
      * @param masterBizId  主任务Id
+     * @param queryChildTaskFlag  true : 查子任务   false: 不传
      * @return
      */
-    InvokeResult<UnloadMasterChildTaskRespDto> queryMasterChildTaskInfoByBizId(String masterBizId);
+    InvokeResult<UnloadMasterChildTaskRespDto> queryMasterChildTaskInfoByBizId(String masterBizId, Boolean queryChildTaskFlag);
 
 
     /**
