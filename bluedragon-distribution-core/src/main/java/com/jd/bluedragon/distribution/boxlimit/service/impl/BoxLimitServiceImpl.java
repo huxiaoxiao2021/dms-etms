@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.jsf.boxlimit.BoxLimitConfigManager;
 import com.jd.bluedragon.distribution.api.domain.LoginUser;
 import com.jd.bluedragon.distribution.box.constants.BoxTypeEnum;
 import com.jd.bluedragon.distribution.boxlimit.BoxLimitDTO;
@@ -38,6 +39,8 @@ public class BoxLimitServiceImpl implements BoxLimitService {
     private BaseMajorManager baseMajorManager;
     @Autowired
     private BoxLimitConfigDao boxLimitConfigDao;
+    @Autowired
+    private BoxLimitConfigManager boxLimitConfigManager;
 
     @Override
     public PagerResult<BoxLimitVO> listData(BoxLimitQueryDTO dto) {
@@ -308,19 +311,7 @@ public class BoxLimitServiceImpl implements BoxLimitService {
     }
 
     @Override
-    @Cache(key = "BoxLimitServiceImpl.getLimitNums@args0@args1", memoryEnable = true, memoryExpiredTime = 2 * 60 * 1000
-            ,redisEnable = true, redisExpiredTime = 2 * 60 * 1000)
     public Integer getLimitNums( Integer createSiteCode, String type){
-        Integer limitNum = this.queryLimitNumBySiteIdAndBoxNumberType(createSiteCode, type);
-        log.info("分拣数量限制拦截 createSiteCode:{}, type:{}", createSiteCode, type);
-        if (limitNum != null) {
-            return limitNum;
-        }
-        Integer commonLimitNum = this.queryCommonLimitNum(type);
-        log.info("分拣集包通用数量限制 箱号类型{}， 限制数量 {} ",type,commonLimitNum);
-        if(commonLimitNum != null){
-            return commonLimitNum;
-        }
-        return null;
+        return boxLimitConfigManager.getLimitNums(createSiteCode,type);
     }
 }

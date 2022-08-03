@@ -959,4 +959,14 @@
                   protocol="jsf" alias="${jsf.tysWorkbenchCenter.alias}" timeout="${jsf.tysWorkbenchCenter.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
     </jsf:consumer>
 
+    <!--  集箱包裹数量限制服务  -->
+    <jsf:consumer id="boxlimitConfigApi"
+                  interface="com.jdl.basic.api.service.BoxlimitConfigApi"
+                  alias="${jsf.alias.jy_basic}"
+                  timeout="${jsf.jy_basic.timeout}"
+                  retries="${jsf.retries}"
+                  serialization="hessian"
+                  lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
+
 </beans>
