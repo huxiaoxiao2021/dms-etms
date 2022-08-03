@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.external.service.impl;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.dto.unloadCar.UnloadCarStatusEnum;
 import com.jd.bluedragon.core.base.BoardCommonManager;
 import com.jd.bluedragon.distribution.alliance.service.AllianceBusiDeliveryDetailService;
 import com.jd.bluedragon.distribution.api.request.BoardCommonRequest;
@@ -387,15 +388,11 @@ public class TransportCommonServiceImpl implements TransportCommonService {
             }else {
                 //兼容历史数据：
                 UnloadCar uc = unloadCarCommonService.selectBySealCarCodeWithStatus(sealCarCode);
-                if(uc.getStatus() == 1 || uc.getStatus() == 2 || uc.getStatus() == 3) {
+                if (uc != null && !uc.getStatus().equals(UnloadCarStatusEnum.UNLOAD_CAR_UN_DISTRIBUTE.getType())) {
                     //老PDA已经操作领取status=1或者已经开始扫描status=2或任务完成status=3，但是无redis
                     redisClientOfJy.setEx(key, AppVersionEnums.PDA_OLD.getVersion(), TransportServiceConstants.CACHE_PREFIX_PDA_ACTUAL_OPERATE_VERSION_EXPIRE, TimeUnit.DAYS);
-                    if(AppVersionEnums.PDA_OLD.getVersion().equals(pdaVersion)) {
-                        resData = true;
-                    }else {
-                        resData = false;
-                    }
-                }else {
+                    resData = AppVersionEnums.PDA_OLD.getVersion().equals(pdaVersion);
+                } else {
                     redisClientOfJy.setEx(key, pdaVersion, TransportServiceConstants.CACHE_PREFIX_PDA_ACTUAL_OPERATE_VERSION_EXPIRE, TimeUnit.DAYS);
                 }
             }
