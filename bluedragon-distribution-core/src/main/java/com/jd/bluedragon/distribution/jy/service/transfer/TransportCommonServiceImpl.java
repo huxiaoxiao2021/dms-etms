@@ -1,4 +1,4 @@
-package com.jd.bluedragon.distribution.external.service.impl;
+package com.jd.bluedragon.distribution.jy.service.transfer;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.unloadCar.UnloadCarStatusEnum;
