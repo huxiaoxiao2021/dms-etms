@@ -1,7 +1,7 @@
 package com.jd.bluedragon.core.jsf.boxlimit;
 
 import com.jdl.basic.api.response.JDResponse;
-import com.jdl.basic.api.service.BoxlimitConfigApi;
+import com.jdl.basic.api.service.boxLimit.BoxlimitConfigApi;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

@@ -969,4 +969,14 @@
                   lazy="${jsf.consumer.lazy}">
     </jsf:consumer>
 
+    <!--  三定网格工序管理服务  -->
+    <jsf:consumer id="workStationJsfService"
+                  interface="com.jdl.basic.api.service.workStation.WorkStationJsfService"
+                  alias="${jsf.alias.jy_basic}"
+                  timeout="${jsf.jy_basic.timeout}"
+                  retries="${jsf.retries}"
+                  serialization="hessian"
+                  lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
+
 </beans>

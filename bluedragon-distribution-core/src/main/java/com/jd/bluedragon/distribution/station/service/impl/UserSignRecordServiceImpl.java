@@ -9,7 +9,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.jd.bluedragon.core.jsf.workStation.WorkStationManager;
 import com.jd.ql.basic.domain.BaseSite;
+import com.jdl.basic.api.domain.workStation.WorkStation;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +40,6 @@ import com.jd.bluedragon.distribution.station.domain.UserSignNoticeWaveItemVo;
 import com.jd.bluedragon.distribution.station.domain.UserSignRecord;
 import com.jd.bluedragon.distribution.station.domain.UserSignRecordReportSumVo;
 import com.jd.bluedragon.distribution.station.domain.UserSignRecordReportVo;
-import com.jd.bluedragon.distribution.station.domain.WorkStation;
 import com.jd.bluedragon.distribution.station.domain.WorkStationAttendPlan;
 import com.jd.bluedragon.distribution.station.domain.WorkStationGrid;
 import com.jd.bluedragon.distribution.station.enums.JobTypeEnum;
@@ -82,9 +83,9 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	@Value("${beans.userSignRecordService.queryByPositionRangeDays:2}")
 	private int queryByPositionRangeDays;
 	
-	@Autowired
-	@Qualifier("workStationService")
-	WorkStationService workStationService;
+//	@Autowired
+//	@Qualifier("workStationService")
+//	WorkStationService workStationService;
 	
 	@Autowired
 	@Qualifier("workStationGridService")
@@ -108,6 +109,9 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 
     @Autowired
     private UccPropertyConfiguration uccConfiguration;
+	
+	@Autowired
+	private WorkStationManager workStationManager;
 
 	/**
 	 * 插入一条数据
@@ -289,10 +293,10 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		String gridNo = signInRequest.getGridNo();
 		String areaCode = signInRequest.getAreaCode();
 		String workCode = signInRequest.getWorkCode();
-		WorkStation workStationCheckQuery = new WorkStation();
+		WorkStation workStationCheckQuery = new WorkStation ();
 		workStationCheckQuery.setWorkCode(workCode);
 		workStationCheckQuery.setAreaCode(areaCode);
-		Result<WorkStation> workStationData = workStationService.queryByBusinessKey(workStationCheckQuery);
+		com.jdl.basic.common.utils.Result<WorkStation> workStationData = workStationManager.queryByBusinessKey(workStationCheckQuery);
 		if(workStationData == null
 				|| workStationData.getData() == null) {
 			return result.toFail("作业区工序信息不存在，请先维护作业区及工序信息！");

@@ -1,18 +1,19 @@
 package com.jd.bluedragon.distribution.jy.service.config.impl;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.core.jsf.workStation.WorkStationManager;
 import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.jy.api.JyWorkMapFuncConfigJsfService;
 import com.jd.bluedragon.distribution.jy.config.JyWorkMapFuncConfigDetailVO;
 import com.jd.bluedragon.distribution.jy.config.JyWorkMapFuncConfigEntity;
 import com.jd.bluedragon.distribution.jy.config.JyWorkMapFuncQuery;
 import com.jd.bluedragon.distribution.jy.service.config.JyWorkMapFuncConfigService;
-import com.jd.bluedragon.distribution.station.domain.WorkStation;
-import com.jd.bluedragon.distribution.station.service.WorkStationService;
+
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import com.jdl.basic.api.domain.workStation.WorkStation;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -37,8 +38,11 @@ public class JyWorkMapFuncConfigJsfServiceImpl implements JyWorkMapFuncConfigJsf
     @Autowired
     private JyWorkMapFuncConfigService jyWorkMapFuncConfigService;
 
+//    @Autowired
+//    private WorkStationService workStationService;
+
     @Autowired
-    private WorkStationService workStationService;
+    private WorkStationManager workStationManager;
 
     @Override
     public Result<Integer> addWorkMapFunConfig(JyWorkMapFuncConfigDetailVO record) {
@@ -52,7 +56,7 @@ public class JyWorkMapFuncConfigJsfServiceImpl implements JyWorkMapFuncConfigJsf
             WorkStation workStation = new WorkStation();
             workStation.setAreaCode(record.getAreaCode());
             workStation.setWorkCode(record.getWorkCode());
-            Result<WorkStation> workStationResult = workStationService.queryByBusinessKey(workStation);
+            com.jdl.basic.common.utils.Result<WorkStation> workStationResult = workStationManager.queryByBusinessKey(workStation);
             if(workStationResult == null || workStationResult.getData() == null){
                 result.toFail(String.format("根据作业区:%s和网格:%s未查询到数据!", record.getAreaCode(), record.getWorkCode()));
                 return result;
@@ -110,7 +114,7 @@ public class JyWorkMapFuncConfigJsfServiceImpl implements JyWorkMapFuncConfigJsf
             WorkStation workStation = new WorkStation();
             workStation.setAreaCode(detailVO.getAreaCode());
             workStation.setWorkCode(detailVO.getWorkCode());
-            Result<WorkStation> workStationResult = workStationService.queryByBusinessKey(workStation);
+            com.jdl.basic.common.utils.Result<WorkStation> workStationResult = workStationManager.queryByBusinessKey(workStation);
             if(workStationResult == null || workStationResult.getData() == null){
                 result.toFail(String.format("根据作业区:%s和网格:%s未查询到数据!", detailVO.getAreaCode(), detailVO.getWorkCode()));
                 return result;
@@ -173,7 +177,7 @@ public class JyWorkMapFuncConfigJsfServiceImpl implements JyWorkMapFuncConfigJsf
                 detailVO.setCreateTime(entity.getCreateTime());
                 detailVO.setUpdateUser(entity.getUpdateUser());
                 detailVO.setUpdateTime(entity.getUpdateTime());
-                Result<WorkStation> workStationResult = workStationService.queryByRealBusinessKey(entity.getRefWorkKey());
+                com.jdl.basic.common.utils.Result<WorkStation> workStationResult = workStationManager.queryByRealBusinessKey(entity.getRefWorkKey());
                 if(workStationResult != null && workStationResult.getData() != null){
                     detailVO.setAreaCode(workStationResult.getData().getAreaCode());
                     detailVO.setAreaName(workStationResult.getData().getAreaName());
