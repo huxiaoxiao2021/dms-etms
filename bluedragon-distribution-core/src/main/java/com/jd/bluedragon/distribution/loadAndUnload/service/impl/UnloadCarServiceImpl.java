@@ -3,16 +3,6 @@ package com.jd.bluedragon.distribution.loadAndUnload.service.impl;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
-import com.jd.bluedragon.common.dto.unloadCar.HelperDto;
-import com.jd.bluedragon.common.dto.unloadCar.OperateTypeEnum;
-import com.jd.bluedragon.common.dto.unloadCar.TaskHelpersReq;
-import com.jd.bluedragon.common.dto.unloadCar.UnloadCarDetailScanResult;
-import com.jd.bluedragon.common.dto.unloadCar.UnloadCarScanRequest;
-import com.jd.bluedragon.common.dto.unloadCar.UnloadCarScanResult;
-import com.jd.bluedragon.common.dto.unloadCar.UnloadCarStatusEnum;
-import com.jd.bluedragon.common.dto.unloadCar.UnloadCarTaskDto;
-import com.jd.bluedragon.common.dto.unloadCar.UnloadCarTaskReq;
-import com.jd.bluedragon.common.dto.unloadCar.UnloadUserTypeEnum;
 import com.jd.bluedragon.common.dto.unloadCar.*;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
@@ -33,7 +23,6 @@ import com.jd.bluedragon.distribution.board.service.BoardCombinationService;
 import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRecordService;
 import com.jd.bluedragon.distribution.external.constants.TransportServiceConstants;
 import com.jd.bluedragon.distribution.external.enums.AppVersionEnums;
-import com.jd.bluedragon.distribution.external.service.TransportCommonService;
 import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigEnum;
 import com.jd.bluedragon.distribution.funcSwitchConfig.service.FuncSwitchConfigService;
 import com.jd.bluedragon.distribution.goodsLoadScan.GoodsLoadScanConstants;
@@ -41,10 +30,8 @@ import com.jd.bluedragon.distribution.goodsLoadScan.service.impl.LoadScanService
 import com.jd.bluedragon.distribution.inspection.InspectionBizSourceEnum;
 import com.jd.bluedragon.distribution.loadAndUnload.*;
 import com.jd.bluedragon.distribution.loadAndUnload.constants.UnloadCarConstant;
-import com.jd.bluedragon.distribution.loadAndUnload.dao.UnloadCarDao;
-import com.jd.bluedragon.distribution.loadAndUnload.dao.UnloadCarDistributionDao;
-import com.jd.bluedragon.distribution.loadAndUnload.dao.UnloadCarTransBoardDao;
-import com.jd.bluedragon.distribution.loadAndUnload.dao.*;
+import com.jd.bluedragon.distribution.loadAndUnload.dao.UnloadScanDao;
+import com.jd.bluedragon.distribution.loadAndUnload.dao.UnloadScanRecordDao;
 import com.jd.bluedragon.distribution.loadAndUnload.domain.DistributeTaskRequest;
 import com.jd.bluedragon.distribution.loadAndUnload.exception.LoadIllegalException;
 import com.jd.bluedragon.distribution.loadAndUnload.exception.UnloadPackageBoardException;
@@ -63,12 +50,12 @@ import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.distribution.whitelist.DimensionEnum;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
-import com.jd.bluedragon.dms.utils.ParamsMapUtil;
-import com.jd.bluedragon.dms.utils.WaybillSignConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.*;
+import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.coo.ucc.common.utils.JsonUtils;
-import com.jd.etms.cache.util.EnumBusiCode;
 import com.jd.etms.vos.dto.CommonDto;
 import com.jd.etms.vos.dto.SealCarDto;
 import com.jd.etms.waybill.api.WaybillPackageApi;
@@ -110,7 +97,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.*;
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 
@@ -241,8 +227,6 @@ public class UnloadCarServiceImpl implements UnloadCarService {
     @Autowired
     private BasicQueryWSManager basicQueryWSManager;
 
-    @Autowired
-    private TransportCommonService transportCommonService;
     @Autowired
     @Qualifier("redisClientOfJy")
     private Cluster redisClientOfJy;
