@@ -13,8 +13,6 @@ import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.distribution.api.request.BoardCommonRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.external.enums.AppVersionEnums;
-import com.jd.bluedragon.distribution.external.service.TransportCommonService;
 import com.jd.bluedragon.distribution.jy.api.JyUnloadVehicleTysService;
 import com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskUnloadVehicleDao;
 import com.jd.bluedragon.distribution.jy.dao.unload.JyBizTaskUnloadVehicleStageDao;
@@ -124,8 +122,6 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     private WaybillPackageManager waybillPackageManager;
     @Autowired
     private JyUnloadVehicleCheckTysService jyUnloadVehicleCheckTysService;
-    @Autowired
-    private TransportCommonService transportCommonService;
 
 
 
@@ -319,13 +315,6 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
 
         log.info("invoking jy scanAndComBoard,params: {}", JsonHelper.toJson(scanPackageDto));
         try {
-            // 新老版本互斥
-            InvokeResult<Boolean> permissionResult = transportCommonService.saveOperatePdaVersion(scanPackageDto.getSealCarCode(), AppVersionEnums.PDA_GUIDED.getVersion());
-            if (permissionResult.getCode() != RESULT_SUCCESS_CODE || Boolean.FALSE.equals(permissionResult.getData())) {
-                log.warn("人工扫描新版本获取锁失败或卸车任务已在老版本操作:bizId={}", scanPackageDto.getBizId());
-                invokeResult.customMessage(RESULT_INTERCEPT_CODE, permissionResult.getMessage());
-                return invokeResult;
-            }
             // 校验任务
             JyBizTaskUnloadVehicleEntity unloadVehicleEntity = jyBizTaskUnloadVehicleService.findByBizId(scanPackageDto.getBizId());
             if (!ObjectHelper.isNotNull(unloadVehicleEntity)) {
@@ -662,13 +651,6 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
 
         log.info("invoking jy scanAndComBoard,params: {}", JsonHelper.toJson(scanPackageDto));
         try {
-            // 新老版本互斥
-            InvokeResult<Boolean> permissionResult = transportCommonService.saveOperatePdaVersion(scanPackageDto.getSealCarCode(), AppVersionEnums.PDA_GUIDED.getVersion());
-            if (permissionResult.getCode() != RESULT_SUCCESS_CODE || Boolean.FALSE.equals(permissionResult.getData())) {
-                log.warn("人工扫描新版本获取锁失败或卸车任务已在老版本操作:bizId={}", scanPackageDto.getBizId());
-                invokeResult.customMessage(RESULT_INTERCEPT_CODE, permissionResult.getMessage());
-                return invokeResult;
-            }
             // 校验任务
             JyBizTaskUnloadVehicleEntity unloadVehicleEntity = jyBizTaskUnloadVehicleService.findByBizId(scanPackageDto.getBizId());
             if (!ObjectHelper.isNotNull(unloadVehicleEntity)) {
