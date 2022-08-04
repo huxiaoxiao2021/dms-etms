@@ -690,9 +690,6 @@ public class ReverseReceiveNotifyStockService {
         chuguanDetailVo.setProfitLossId(profitLossId);
         chuguanDetailVo.setDistriOrderIds(distriOrderIds);
         chuguanDetailVo.setPurchaseChannel(dimValue);
-        Map<String, String> paramExtMap = new HashMap<>();
-        paramExtMap.put("skuLevelData","1");
-        chuguanDetailVo.setParamExtMap(paramExtMap);
         return chuguanDetailVo;
     }
 
@@ -717,6 +714,9 @@ public class ReverseReceiveNotifyStockService {
             if(item.getProfitChannelId()!=null){
                 chuguanDetailVo.setProfitLossId(String.valueOf(item.getProfitChannelId()));
             }
+            Map<String, String> paramExtMap = new HashMap<>();
+            paramExtMap.put("skuLevelData","1");
+            chuguanDetailVo.setParamExtMap(paramExtMap);
             chuguanDetailVoList.add(chuguanDetailVo);
         }
         return chuguanDetailVoList;
