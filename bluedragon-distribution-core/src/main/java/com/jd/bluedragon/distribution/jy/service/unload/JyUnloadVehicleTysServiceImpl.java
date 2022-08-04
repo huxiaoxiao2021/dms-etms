@@ -598,7 +598,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         if (JyBizTaskUnloadStatusEnum.UN_LOAD_DONE.getCode().equals(taskUnloadVehicle.getVehicleStatus())) {
             unloadScanDto.setSupplementary(Boolean.TRUE);
         }
-        //unloadScanDto.setGroupCode(request.getGroupCode());
+        unloadScanDto.setGroupCode(request.getGroupCode());
         unloadScanDto.setTaskId(request.getTaskId());
         unloadScanDto.setTaskType(JyBizTaskSourceTypeEnum.TRANSPORT.getCode());
         return unloadScanDto;

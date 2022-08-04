@@ -68,6 +68,11 @@ public class ScanPackageDto extends UnloadBaseDto implements Serializable {
     private boolean supplementary;
 
     /**
+     * 任务组号
+     */
+    private String groupCode;
+
+    /**
      * 是否强制组板
      * **/
     private boolean isForceCombination = false;
@@ -199,5 +204,13 @@ public class ScanPackageDto extends UnloadBaseDto implements Serializable {
 
     public void setPrevSiteName(String prevSiteName) {
         this.prevSiteName = prevSiteName;
+    }
+
+    public String getGroupCode() {
+        return groupCode;
+    }
+
+    public void setGroupCode(String groupCode) {
+        this.groupCode = groupCode;
     }
 }
