@@ -10,6 +10,7 @@ import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.core.exception.OrderCallTimeoutException;
 import com.jd.bluedragon.core.exception.StockCallPayTypeException;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
+import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.kuguan.domain.KuGuanDomain;
 
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
@@ -27,7 +28,6 @@ import com.jd.bluedragon.distribution.systemLog.domain.SystemLog;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.ConstantEnums;
 import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.bluedragon.utils.SystemLogContants;
@@ -364,7 +364,7 @@ public class ReverseReceiveNotifyStockService {
      * @param products
      * @param chuguanDetailVos
      */
-    private static void removePurchaseAndSaleVO(List<Product> products, List<ChuguanDetailVo> chuguanDetailVos) {
+    private void removePurchaseAndSaleVO(List<Product> products, List<ChuguanDetailVo> chuguanDetailVos) {
         Map<Long,ChuguanDetailVo> chuguanDetailVosMap = Maps.uniqueIndex(chuguanDetailVos.iterator(), new Function<ChuguanDetailVo, Long>() {
             @Nullable
             @Override
@@ -389,19 +389,6 @@ public class ReverseReceiveNotifyStockService {
             }
 
         }
-    }
-
-    public static void main(String[] args) {
-        List<Product> products = Lists.newArrayList();
-        List<ChuguanDetailVo> chuguanDetailVos = Lists.newArrayList();
-        Product product = new Product();
-        product.setSkuId(100030716207L);
-        products.add(product);
-        ChuguanDetailVo  chuguanDetailVo = new ChuguanDetailVo();
-        chuguanDetailVo.setSkuId(100030716207L);
-        chuguanDetailVos.add(chuguanDetailVo);
-        removePurchaseAndSaleVO(products,chuguanDetailVos);
-        System.out.println(products);
     }
 
     private List<ChuguanDetailVo> getChuguanDetailVos(Long orderId) {
@@ -484,7 +471,6 @@ public class ReverseReceiveNotifyStockService {
                     chuguanDetailVoList.add(getChuguanDetailVo(skuId,zongJinE,quantity,jiaGe,profitLossId,distriOrderIds,dimValue));
                 }
             }
-            // TODO: 2022/7/18  ChuguanParam zongJinE 怎么传？
             int result = insertNewChuguan(orderId, isOldForNewType, order, payType, orderBank,chuguanDetailVoList,chuguanDetailVoList);
             boolean resultBoolean = (result == 1 || result == -2) ? true : false;
             log.info("供应链中台二期写出管orderId-结束result[{}]orderId[{}]chuguanDetailVos[{}]",resultBoolean,orderId, JsonHelper.toJson(chuguanDetailVos),resultBoolean);
@@ -524,7 +510,7 @@ public class ReverseReceiveNotifyStockService {
         return skuMappingChuguanDetailVo;
     }
 
-    private List<AllotRequestDetail> getAllotRequestDetailList(Long orderId, List<ChuguanDetailVo> chuguanDetailVos, InternationOrderDto order) {
+    private List<AllotRequestDetail> getAllotRequestDetailList(Long orderId, List<ChuguanDetailVo> chuguanDetailVos,InternationOrderDto order) {
         List<AllotRequestDetail> allotRequestDetails = Lists.newArrayList();
         for(ChuguanDetailVo detailVo : chuguanDetailVos){
             Integer num = detailVo.getNum();
@@ -694,7 +680,6 @@ public class ReverseReceiveNotifyStockService {
         return chuguanParam;
     }
 
-    // TODO: 2022/7/13
     private ChuguanDetailVo getChuguanDetailVo(Long skuId,BigDecimal zongJinE,Integer quantity,BigDecimal jiaGe,String profitLossId,List<String> distriOrderIds,String dimValue) {
         ChuguanDetailVo chuguanDetailVo = new ChuguanDetailVo();
         chuguanDetailVo.setSkuId(skuId);
@@ -734,9 +719,6 @@ public class ReverseReceiveNotifyStockService {
             if(item.getProfitChannelId()!=null){
                 chuguanDetailVo.setProfitLossId(String.valueOf(item.getProfitChannelId()));
             }
-            Map<String, String> paramExtMap = new HashMap<>();
-            paramExtMap.put("skuLevelData","1");
-            chuguanDetailVo.setParamExtMap(paramExtMap);
             chuguanDetailVoList.add(chuguanDetailVo);
         }
         return chuguanDetailVoList;
