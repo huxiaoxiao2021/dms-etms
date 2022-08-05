@@ -441,6 +441,7 @@ public class JyUnloadVehicleCheckTysService {
             request.setBoardCode(board.getCode());
             request.setNextSiteCode(board.getDestinationId());
             request.setNextSiteName(board.getDestination());
+            request.setBoardDestinationId(board.getDestinationId());
 
             response.setBizId(request.getBizId());
             response.setBoardCode(board.getCode());
@@ -470,6 +471,7 @@ public class JyUnloadVehicleCheckTysService {
         if (destinationId == null) {
             throw new LoadIllegalException(LoadIllegalException.BOARD_RECIEVE_EMPEY_INTERCEPT_MESSAGE);
         }
+        request.setBoardDestinationId(destinationId);
         if (!nextSiteCode.equals(destinationId)) {
             Map<String, String> warnMsg = response.getWarnMsg();
             warnMsg.put(UnloadCarWarnEnum.FLOW_DISACCORD.getLevel(), UnloadCarWarnEnum.FLOW_DISACCORD.getDesc());
@@ -512,6 +514,7 @@ public class JyUnloadVehicleCheckTysService {
         if (invokeResult.getCode() != InvokeResult.RESULT_SUCCESS_CODE) {
             if (SortingResponse.CODE_CROUTER_ERROR.equals(invokeResult.getCode())) {
                 result.getConfirmMsg().put(invokeResult.getMessage(), invokeResult.getMessage());
+                throw new UnloadPackageBoardException(invokeResult.getMessage());
             }
             return invokeResult.getMessage();
         }
@@ -541,6 +544,9 @@ public class JyUnloadVehicleCheckTysService {
                 addBoardBox.setBarCodeType(BarCodeTypeEnum.PACKAGE_TYPE.getCode());
             } else if (BusinessHelper.isBoxcode(request.getScanCode())) {
                 addBoardBox.setBarCodeType(BarCodeTypeEnum.BOX_TYPE.getCode());
+            }
+            if (request.getNextSiteCode() != null && request.getNextSiteCode().equals(request.getBoardDestinationId())) {
+                addBoardBox.setFlowDisaccord(1);
             }
             Response<Integer> response = groupBoardManager.addBoxToBoard(addBoardBox);
             if (response == null) {

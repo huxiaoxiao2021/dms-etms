@@ -344,7 +344,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         } catch (Exception e) {
             if (e instanceof UnloadPackageBoardException) {
                 scanPackageRespDto.getConfirmMsg().put(e.getMessage(), e.getMessage());
-                invokeResult.customMessage(RESULT_PACKAGE_ALREADY_BIND, e.getMessage());
+                invokeResult.customMessage(JdCResponse.CODE_CONFIRM, e.getMessage());
                 return invokeResult;
             }
             log.error("人工卸车扫描接口发生异常：e=", e);
@@ -445,6 +445,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
                 // ver组板拦截校验
                 String boardCheckStr = jyUnloadVehicleCheckTysService.boardCombinationCheck(scanPackageDto, scanPackageRespDto);
                 if (StringUtils.isNotBlank(boardCheckStr)) {
+                    invokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, boardCheckStr);
                     return invokeResult;
                 }
             }
@@ -669,7 +670,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             return invokeResult;
         } catch (Exception e) {
             if (e instanceof UnloadPackageBoardException) {
-                invokeResult.customMessage(RESULT_PACKAGE_ALREADY_BIND, e.getMessage());
+                invokeResult.customMessage(JdCResponse.CODE_CONFIRM, e.getMessage());
                 return invokeResult;
             }
             log.error("流水线卸车扫描接口发生异常：e=", e);
