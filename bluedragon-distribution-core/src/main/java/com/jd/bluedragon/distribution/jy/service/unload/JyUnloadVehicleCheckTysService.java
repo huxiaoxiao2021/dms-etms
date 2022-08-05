@@ -503,13 +503,7 @@ public class JyUnloadVehicleCheckTysService {
      * ver组板拦截
      */
     public String boardCombinationCheck(ScanPackageDto request, ScanPackageRespDto result) {
-        BoardCommonRequest boardCommonRequest = new BoardCommonRequest();
-        boardCommonRequest.setBarCode(request.getScanCode());
-        boardCommonRequest.setOperateSiteCode(request.getCurrentOperate().getSiteCode());
-        boardCommonRequest.setReceiveSiteCode(request.getNextSiteCode());
-        boardCommonRequest.setOperateUserName(request.getUser().getUserName());
-        boardCommonRequest.setOperateUserCode(request.getUser().getUserCode());
-        boardCommonRequest.setBoardCode(request.getBoardCode());
+        BoardCommonRequest boardCommonRequest = createBoardCommonRequest(request);
         InvokeResult invokeResult = boardCommonManager.boardCombinationCheck(boardCommonRequest);
         if (invokeResult.getCode() != InvokeResult.RESULT_SUCCESS_CODE) {
             if (SortingResponse.CODE_CROUTER_ERROR.equals(invokeResult.getCode())) {
@@ -519,6 +513,20 @@ public class JyUnloadVehicleCheckTysService {
             return invokeResult.getMessage();
         }
         return null;
+    }
+
+    private BoardCommonRequest createBoardCommonRequest(ScanPackageDto request) {
+        BoardCommonRequest boardCommonRequest = new BoardCommonRequest();
+        boardCommonRequest.setBarCode(request.getScanCode());
+        boardCommonRequest.setOperateSiteCode(request.getCurrentOperate().getSiteCode());
+        boardCommonRequest.setOperateSiteName(request.getCurrentOperate().getSiteName());
+        boardCommonRequest.setReceiveSiteCode(request.getNextSiteCode());
+        boardCommonRequest.setReceiveSiteName(request.getNextSiteName());
+        boardCommonRequest.setOperateUserName(request.getUser().getUserName());
+        boardCommonRequest.setOperateUserCode(request.getUser().getUserCode());
+        boardCommonRequest.setBoardCode(request.getBoardCode());
+        boardCommonRequest.setBizSource(BizSourceEnum.PDA.getValue());
+        return boardCommonRequest;
     }
 
     /**
@@ -553,8 +561,7 @@ public class JyUnloadVehicleCheckTysService {
                 log.warn("推组板关系失败!");
                 throw new LoadIllegalException(LoadIllegalException.BOARD_TOTC_FAIL_INTERCEPT_MESSAGE);
             }
-            BoardCommonRequest boardCommonRequest = new BoardCommonRequest();
-            BeanUtils.copyProperties(request, boardCommonRequest);
+            BoardCommonRequest boardCommonRequest = createBoardCommonRequest(request);
             if (response.getCode() == ResponseEnum.SUCCESS.getIndex()) {
                 // 保存任务和板的关系
                 JyUnloadVehicleBoardEntity entity = convertUnloadVehicleBoard(request);
@@ -621,6 +628,7 @@ public class JyUnloadVehicleCheckTysService {
         }
         throw new LoadIllegalException(LoadIllegalException.BOARD_TOTC_FAIL_INTERCEPT_MESSAGE);
     }
+
 
     private JyUnloadVehicleBoardEntity convertUnloadVehicleBoard(ScanPackageDto scanPackageDto) {
         Date now = new Date();
