@@ -10,5 +10,7 @@ public interface JyBizTaskUnloadVehicleStageService {
 
     int insertBatch(List<JyBizTaskUnloadVehicleStageEntity> entityList);
 
+    int insertSelective(JyBizTaskUnloadVehicleStageEntity entity);
+
     int updateByPrimaryKeySelective(JyBizTaskUnloadVehicleStageEntity condition);
 }

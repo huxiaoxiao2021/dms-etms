@@ -78,9 +78,9 @@ public class ScanPackageDto extends UnloadBaseDto implements Serializable {
     private boolean isForceCombination = false;
 
     /**
-     * 1:组板转移标识
+     * 是否组板转移
      */
-    private Integer isCombinationTransfer;
+    private boolean isCombinationTransfer = false;
 
     public String getBizId() {
         return bizId;
@@ -166,12 +166,16 @@ public class ScanPackageDto extends UnloadBaseDto implements Serializable {
         isForceCombination = forceCombination;
     }
 
-    public Integer getIsCombinationTransfer() {
+    public boolean getIsCombinationTransfer() {
         return isCombinationTransfer;
     }
 
-    public void setIsCombinationTransfer(Integer isCombinationTransfer) {
-        this.isCombinationTransfer = isCombinationTransfer;
+    public boolean isCombinationTransfer() {
+        return isCombinationTransfer;
+    }
+
+    public void setCombinationTransfer(boolean combinationTransfer) {
+        isCombinationTransfer = combinationTransfer;
     }
 
     public String getNextSiteName() {

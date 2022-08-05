@@ -8,15 +8,15 @@ import java.util.List;
 public class JyBizTaskUnloadVehicleStageDao extends BaseDao<JyBizTaskUnloadVehicleStageEntity> {
     final static String NAMESPACE = JyBizTaskUnloadVehicleStageDao.class.getName();
 
-    int insert(JyBizTaskUnloadVehicleStageEntity entity){
+    public int insert(JyBizTaskUnloadVehicleStageEntity entity){
         return this.getSqlSession().insert(NAMESPACE + ".insert", entity);
     }
 
-    int insertSelective(JyBizTaskUnloadVehicleStageEntity entity){
+    public int insertSelective(JyBizTaskUnloadVehicleStageEntity entity){
         return this.getSqlSession().insert(NAMESPACE + ".insertSelective", entity);
     }
 
-    JyBizTaskUnloadVehicleStageEntity selectByPrimaryKey(Long id){
+    public JyBizTaskUnloadVehicleStageEntity selectByPrimaryKey(Long id){
         return this.getSqlSession().selectOne(NAMESPACE + ".selectByPrimaryKey", id);
     }
 

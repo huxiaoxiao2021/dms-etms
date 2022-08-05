@@ -211,17 +211,15 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
             recordTaskMembers(unloadScanDto);
 
             if (JyBizTaskSourceTypeEnum.TRANSPORT.getCode().equals(unloadScanDto.getTaskType())) {
-                //初始化子任务
-                List<JyBizTaskUnloadVehicleStageEntity> entityList = generateUnloadTaskStage(unloadScanDto);
-                jyBizTaskUnloadVehicleStageService.insertBatch(entityList);
+                // 初始化子任务
+                JyBizTaskUnloadVehicleStageEntity entity = generateUnloadTaskStage(unloadScanDto);
+                jyBizTaskUnloadVehicleStageService.insertSelective(entity);
             }
         }
     }
 
-    private List<JyBizTaskUnloadVehicleStageEntity> generateUnloadTaskStage(UnloadScanDto unloadScanDto) {
+    private JyBizTaskUnloadVehicleStageEntity generateUnloadTaskStage(UnloadScanDto unloadScanDto) {
         Date now = new Date();
-        List<JyBizTaskUnloadVehicleStageEntity> entityList = new ArrayList<>();
-
         JyBizTaskUnloadVehicleStageEntity firstStage = new JyBizTaskUnloadVehicleStageEntity();
         firstStage.setUnloadVehicleBizId(unloadScanDto.getBizId());
         firstStage.setBizId(jyBizTaskUnloadVehicleStageService.generateStageBizId(unloadScanDto.getBizId()));
@@ -232,9 +230,10 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
         firstStage.setUpdateTime(now);
         firstStage.setCreateUserErp(unloadScanDto.getCreateUserErp());
         firstStage.setCreateUserName(unloadScanDto.getCreateUserName());
-        entityList.add(firstStage);
-        return entityList;
-
+        firstStage.setUpdateUserErp(unloadScanDto.getCreateUserErp());
+        firstStage.setUpdateUserName(unloadScanDto.getCreateUserName());
+        firstStage.setYn(Constants.YN_YES);
+        return firstStage;
     }
 
     private void recordTaskMembers(UnloadScanDto unloadScanDto) {

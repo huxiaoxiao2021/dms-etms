@@ -565,16 +565,18 @@ public class JyUnloadVehicleCheckTysService {
              *  二期优化增加【组板转移】提示
              * */
             if (response.getCode() == JdCResponse.CODE_ERROR) {
-                if (null == request.getIsCombinationTransfer() || Constants.IS_COMBITION_TRANSFER.equals(request.getIsCombinationTransfer())) {
+                log.warn("添加板箱关系失败,板号={},barCode={},原因={}", request.getBoardCode(), request.getScanCode(), response.getMesseage());
+                if (request.getIsCombinationTransfer()) {
                     // 调用TC的板号转移接口
                     InvokeResult<String> invokeResult = boardCommonManager.boardMove(boardCommonRequest);
+                    log.info("组板转移结果【{}】", JsonHelper.toJson(invokeResult));
                     if (invokeResult == null) {
                         throw new LoadIllegalException(LoadIllegalException.BOARD_MOVED_INTERCEPT_MESSAGE);
                     }
                     // 重新组板失败
                     if (invokeResult.getCode() != ResponseEnum.SUCCESS.getIndex()) {
-                        log.warn("组板转移成功.原板号【{}】新板号【{}】失败原因【{}】",
-                                invokeResult.getData(), request.getBoardCode(), response.getMesseage());
+                        log.warn("组板转移失败.原板号【{}】新板号【{}】失败原因【{}】",
+                                invokeResult.getData(), request.getBoardCode(), invokeResult.getMessage());
                         throw new LoadIllegalException(LoadIllegalException.BOARD_TOTC_FAIL_INTERCEPT_MESSAGE);
                     }
                     // 保存任务和板的关系

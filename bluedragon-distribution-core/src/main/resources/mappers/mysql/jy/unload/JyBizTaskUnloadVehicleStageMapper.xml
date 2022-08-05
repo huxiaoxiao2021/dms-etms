@@ -15,7 +15,7 @@
     <result column="update_user_name" jdbcType="VARCHAR" property="updateUserName" />
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
     <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
-    <result column="yn" jdbcType="BIT" property="yn" />
+    <result column="yn" jdbcType="TINYINT" property="yn" />
     <result column="ts" jdbcType="TIMESTAMP" property="ts" />
   </resultMap>
   <sql id="Base_Column_List">
@@ -48,27 +48,28 @@
     where id = #{id,jdbcType=BIGINT}
   </delete>
   <insert id="insert" parameterType="com.jd.bluedragon.distribution.jy.unload.JyBizTaskUnloadVehicleStageEntity">
-    insert into jy_biz_task_unload_vehicle_stage (id, unload_vehicle_biz_id, biz_id, 
+    insert into jy_biz_task_unload_vehicle_stage (unload_vehicle_biz_id, biz_id,
       type, status, start_time, 
       end_time, create_user_erp, create_user_name, 
       update_user_erp, update_user_name, create_time, 
       update_time, yn, ts)
-    values (#{id,jdbcType=BIGINT}, #{unloadVehicleBizId,jdbcType=VARCHAR}, #{bizId,jdbcType=VARCHAR}, 
+    values (#{unloadVehicleBizId,jdbcType=VARCHAR}, #{bizId,jdbcType=VARCHAR},
       #{type,jdbcType=TINYINT}, #{status,jdbcType=TINYINT}, #{startTime,jdbcType=TIMESTAMP}, 
       #{endTime,jdbcType=TIMESTAMP}, #{createUserErp,jdbcType=VARCHAR}, #{createUserName,jdbcType=VARCHAR}, 
       #{updateUserErp,jdbcType=VARCHAR}, #{updateUserName,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, 
-      #{updateTime,jdbcType=TIMESTAMP}, #{yn,jdbcType=BIT}, #{ts,jdbcType=TIMESTAMP})
+      #{updateTime,jdbcType=TIMESTAMP}, #{yn,jdbcType=TINYINT}, #{ts,jdbcType=TIMESTAMP})
   </insert>
   <insert id="insertBatch" parameterType="java.util.List">
 
     insert into jy_biz_task_unload_vehicle_stage (unload_vehicle_biz_id, biz_id,
-    type, status, start_time, create_user_erp, create_user_name, create_time,update_time)
+    type, status, start_time, create_user_erp, create_user_name, update_user_erp, update_user_name, create_time,update_time,yn,ts)
     ) VALUES
     <foreach collection="list" item="item" separator=",">
       ( #{item.unloadVehicleBizId,jdbcType=VARCHAR}, #{item.bizId,jdbcType=VARCHAR},
       #{item.type,jdbcType=TINYINT}, #{item.status,jdbcType=TINYINT}, #{item.startTime,jdbcType=TIMESTAMP},
-      #{item.createUserErp,jdbcType=VARCHAR}, #{item.createUserName,jdbcType=VARCHAR}, #{item.createTime,jdbcType=TIMESTAMP},
-      #{item.updateTime,jdbcType=TIMESTAMP})
+      #{item.createUserErp,jdbcType=VARCHAR}, #{item.createUserName,jdbcType=VARCHAR},
+      #{item.updateUserErp,jdbcType=VARCHAR}, #{item.updateUserName,jdbcType=VARCHAR},#{item.createTime,jdbcType=TIMESTAMP},
+      #{item.updateTime,jdbcType=TIMESTAMP}, #{item.yn,jdbcType=TINYINT}, now(3))
     </foreach>
   </insert>
   <insert id="insertSelective" parameterType="com.jd.bluedragon.distribution.jy.unload.JyBizTaskUnloadVehicleStageEntity">
@@ -116,9 +117,7 @@
       <if test="yn != null">
         yn,
       </if>
-      <if test="ts != null">
-        ts,
-      </if>
+        ts
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -161,11 +160,9 @@
         #{updateTime,jdbcType=TIMESTAMP},
       </if>
       <if test="yn != null">
-        #{yn,jdbcType=BIT},
+        #{yn,jdbcType=TINYINT},
       </if>
-      <if test="ts != null">
-        #{ts,jdbcType=TIMESTAMP},
-      </if>
+       now(3)
     </trim>
   </insert>
   <update id="updateByPrimaryKeySelective" parameterType="com.jd.bluedragon.distribution.jy.unload.JyBizTaskUnloadVehicleStageEntity">
@@ -208,7 +205,7 @@
         update_time = #{updateTime,jdbcType=TIMESTAMP},
       </if>
       <if test="yn != null">
-        yn = #{yn,jdbcType=BIT},
+        yn = #{yn,jdbcType=TINYINT},
       </if>
       <if test="ts != null">
         ts = #{ts,jdbcType=TIMESTAMP},
@@ -230,7 +227,7 @@
       update_user_name = #{updateUserName,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=TIMESTAMP},
       update_time = #{updateTime,jdbcType=TIMESTAMP},
-      yn = #{yn,jdbcType=BIT},
+      yn = #{yn,jdbcType=TINYINT},
       ts = #{ts,jdbcType=TIMESTAMP}
     where id = #{id,jdbcType=BIGINT}
   </update>

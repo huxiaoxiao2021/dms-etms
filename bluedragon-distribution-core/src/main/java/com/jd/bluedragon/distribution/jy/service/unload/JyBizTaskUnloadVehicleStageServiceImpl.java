@@ -45,6 +45,11 @@ public class JyBizTaskUnloadVehicleStageServiceImpl implements JyBizTaskUnloadVe
     }
 
     @Override
+    public int insertSelective(JyBizTaskUnloadVehicleStageEntity entityList) {
+        return jyBizTaskUnloadVehicleStageDao.insertSelective(entityList);
+    }
+
+    @Override
     public int insertBatch(List<JyBizTaskUnloadVehicleStageEntity> entityList) {
         return jyBizTaskUnloadVehicleStageDao.insertBatch(entityList);
     }
