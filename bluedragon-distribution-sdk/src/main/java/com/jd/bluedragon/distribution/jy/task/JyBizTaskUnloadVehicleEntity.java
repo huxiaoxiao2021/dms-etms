@@ -514,4 +514,13 @@ public class JyBizTaskUnloadVehicleEntity implements Serializable {
     public void setTaskType(Integer taskType) {
         this.taskType = taskType;
     }
+
+
+    public String getRailwayPfNo() {
+        return railwayPfNo;
+    }
+
+    public void setRailwayPfNo(String railwayPfNo) {
+        this.railwayPfNo = railwayPfNo;
+    }
 }
