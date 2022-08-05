@@ -34,6 +34,7 @@ import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.Waybill;
@@ -45,6 +46,7 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.transboard.api.dto.AddBoardBox;
 import com.jd.transboard.api.dto.Board;
 import com.jd.transboard.api.dto.Response;
+import com.jd.transboard.api.enums.BarCodeTypeEnum;
 import com.jd.transboard.api.enums.BizSourceEnum;
 import com.jd.transboard.api.enums.ResponseEnum;
 import lombok.extern.slf4j.Slf4j;
@@ -534,6 +536,11 @@ public class JyUnloadVehicleCheckTysService {
             addBoardBox.setSiteName(request.getCurrentOperate().getSiteName());
             addBoardBox.setSiteType(BoardCommonManagerImpl.BOARD_COMBINATION_SITE_TYPE);
             addBoardBox.setBizSource(BizSourceEnum.PDA.getValue());
+            if (WaybillUtil.isPackageCode(request.getScanCode())) {
+                addBoardBox.setBarCodeType(BarCodeTypeEnum.PACKAGE_TYPE.getCode());
+            } else if (BusinessHelper.isBoxcode(request.getScanCode())) {
+                addBoardBox.setBarCodeType(BarCodeTypeEnum.BOX_TYPE.getCode());
+            }
             Response<Integer> response = groupBoardManager.addBoxToBoard(addBoardBox);
             if (response == null) {
                 log.warn("推组板关系失败!");
