@@ -617,13 +617,20 @@ public class JyUnloadVehicleCheckTysService {
         if (StringUtils.isNotBlank(stageBizId)) {
             entity.setUnloadVehicleStageBizId(stageBizId);
         }
+        if (scanPackageDto.getPrevSiteCode() != null) {
+            entity.setStartSiteId(Long.valueOf(scanPackageDto.getPrevSiteCode()));
+            entity.setStartSiteName(scanPackageDto.getPrevSiteName());
+        }
         entity.setBoardCode(scanPackageDto.getBoardCode());
-        entity.setEndSiteId(Long.valueOf(scanPackageDto.getNextSiteCode()));
+        entity.setEndSiteId((long) scanPackageDto.getCurrentOperate().getSiteCode());
+        entity.setEndSiteName(scanPackageDto.getCurrentOperate().getSiteName());
         entity.setGoodsAreaCode(scanPackageDto.getGoodsAreaCode());
         entity.setCreateTime(now);
         entity.setUpdateTime(now);
         entity.setCreateUserErp(scanPackageDto.getUser().getUserErp());
         entity.setCreateUserName(scanPackageDto.getUser().getUserName());
+        entity.setUpdateUserErp(scanPackageDto.getUser().getUserErp());
+        entity.setUpdateUserName(scanPackageDto.getUser().getUserName());
         return entity;
     }
 
@@ -732,6 +739,7 @@ public class JyUnloadVehicleCheckTysService {
                                     request.getBizId(), request.getScanCode());
                             // 更新无任务上游站点为当前站点
                             request.setPrevSiteCode(unloadVehicleEntity.getEndSiteId().intValue());
+                            request.setPrevSiteName(unloadVehicleEntity.getEndSiteName());
                             updateJyUnloadVehicleStartSite(request, response, unloadVehicleEntity);
                             redisClientCache.del(key);
                         }
@@ -748,6 +756,9 @@ public class JyUnloadVehicleCheckTysService {
                     redisClientCache.incr(key);
                 }
             }
+        } else {
+            request.setPrevSiteCode(unloadVehicleEntity.getStartSiteId().intValue());
+            request.setPrevSiteName(unloadVehicleEntity.getStartSiteName());
         }
     }
 
