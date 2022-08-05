@@ -545,7 +545,7 @@ public class JyUnloadVehicleCheckTysService {
             } else if (BusinessHelper.isBoxcode(request.getScanCode())) {
                 addBoardBox.setBarCodeType(BarCodeTypeEnum.BOX_TYPE.getCode());
             }
-            if (request.getNextSiteCode() != null && request.getNextSiteCode().equals(request.getBoardDestinationId())) {
+            if (request.getNextSiteCode() != null && !request.getNextSiteCode().equals(request.getBoardDestinationId())) {
                 addBoardBox.setFlowDisaccord(1);
             }
             Response<Integer> response = groupBoardManager.addBoxToBoard(addBoardBox);
