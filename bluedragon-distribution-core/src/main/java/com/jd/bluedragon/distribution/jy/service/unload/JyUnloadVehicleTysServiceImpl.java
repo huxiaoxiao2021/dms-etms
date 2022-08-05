@@ -321,7 +321,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
                 return new InvokeResult<>(TASK_NO_FOUND_BY_PARAMS_CODE, TASK_NO_FOUND_BY_PARAMS_MESSAGE);
             }
             // 通用校验
-            checkScan(scanPackageDto);
+            checkScan(scanPackageDto, unloadVehicleEntity);
             // 校验跨场地支援权限
             if (!unloadVehicleEntity.getEndSiteId().equals((long) scanPackageDto.getCurrentOperate().getSiteCode())) {
                 log.warn("支援人员无需操作:bizId={},erp={}", scanPackageDto.getBizId(), scanPackageDto.getUser().getUserErp());
@@ -407,8 +407,8 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             UnloadScanDto unloadScanDto = createUnloadDto(scanPackageDto, unloadVehicleEntity);
             // 验货校验
             jyUnloadVehicleCheckTysService.inspectionIntercept(barCode, waybill, unloadScanDto);
-            scanPackageRespDto.setSupplementary(unloadScanDto.getSupplementary());
-            scanPackageRespDto.setGoodsAreaCode(scanPackageDto.getGoodsAreaCode());
+            // 组装返回数据
+            jyUnloadVehicleCheckTysService.assembleReturnData(scanPackageDto, scanPackageRespDto, unloadVehicleEntity, unloadScanDto);
             // 设置拦截缓存
             jyUnloadVehicleCheckTysService.setCacheOfSealCarAndPackageIntercept(bizId, barCode);
             // 无任务设置上游站点
@@ -502,8 +502,8 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         UnloadScanDto unloadScanDto = createUnloadDto(scanPackageDto, unloadVehicleEntity);
         // 验货校验
         jyUnloadVehicleCheckTysService.inspectionIntercept(barCode, waybill, unloadScanDto);
-        scanPackageRespDto.setSupplementary(unloadScanDto.getSupplementary());
-        scanPackageRespDto.setGoodsAreaCode(scanPackageDto.getGoodsAreaCode());
+        // 组装返回数据
+        jyUnloadVehicleCheckTysService.assembleReturnData(scanPackageDto, scanPackageRespDto, unloadVehicleEntity, unloadScanDto);
         // 设置拦截缓存
         jyUnloadVehicleCheckTysService.waybillInspectSuccessAfter(bizId, waybillCode);
         // 无任务设置上游站点
@@ -526,7 +526,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
 
 
 
-    private void checkScan(ScanPackageDto scanPackageDto) {
+    private void checkScan(ScanPackageDto scanPackageDto, JyBizTaskUnloadVehicleEntity unloadVehicleEntity) {
         if (BusinessUtil.isBoxcode(scanPackageDto.getScanCode())) {
             return;
         }
@@ -536,9 +536,14 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         }
         String routerStr = waybillCacheService.getRouterByWaybillCode(scanCode);
         Integer nextSiteCode = getRouteNextSite(scanPackageDto.getCurrentOperate().getSiteCode(), routerStr);
-        Integer prevSiteCode = getPrevSiteCodeByRouter(routerStr, scanPackageDto.getCurrentOperate().getSiteCode());
-        scanPackageDto.setPrevSiteCode(prevSiteCode);
         scanPackageDto.setNextSiteCode(nextSiteCode);
+        if (StringUtils.isBlank(unloadVehicleEntity.getStartSiteName())) {
+            Integer prevSiteCode = getPrevSiteCodeByRouter(routerStr, scanPackageDto.getCurrentOperate().getSiteCode());
+            scanPackageDto.setPrevSiteCode(prevSiteCode);
+        } else {
+            scanPackageDto.setPrevSiteCode(unloadVehicleEntity.getStartSiteId().intValue());
+            scanPackageDto.setPrevSiteName(unloadVehicleEntity.getStartSiteName());
+        }
         String goodsAreaCode = getGoodsAreaCode(scanPackageDto.getCurrentOperate().getSiteCode(), nextSiteCode);
         if (ObjectHelper.isNotNull(scanPackageDto.getGoodsAreaCode()) && ObjectHelper.isNotNull(goodsAreaCode)) {
             if (!goodsAreaCode.equals(scanPackageDto.getGoodsAreaCode())) {
@@ -548,21 +553,6 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         scanPackageDto.setGoodsAreaCode(goodsAreaCode);
     }
 
-    private boolean checkBarCodeScannedAlready(ScanPackageDto request) {
-        String barCode = request.getScanCode();
-        int siteCode = request.getCurrentOperate().getSiteCode();
-        boolean alreadyScanned = false;
-        String mutexKey = String.format(CacheKeyConstants.JY_UNLOAD_SCAN_KEY, barCode, siteCode, request.getBizId());
-        if (redisClientOfJy.set(mutexKey, String.valueOf(System.currentTimeMillis()), SCAN_EXPIRE_TIME_HOUR, TimeUnit.HOURS, false)) {
-            JyUnloadEntity queryDb = new JyUnloadEntity(barCode, (long) siteCode, request.getBizId());
-            if (jyUnloadDao.queryByCodeAndSite(queryDb) != null) {
-                alreadyScanned = true;
-            }
-        } else {
-            alreadyScanned = true;
-        }
-        return alreadyScanned;
-    }
 
     private UnloadScanDto createUnloadDto(ScanPackageDto request, JyBizTaskUnloadVehicleEntity taskUnloadVehicle) {
         Date operateTime = new Date();
@@ -657,7 +647,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
                 return new InvokeResult<>(TASK_NO_FOUND_BY_PARAMS_CODE, TASK_NO_FOUND_BY_PARAMS_MESSAGE);
             }
             // 通用校验
-            checkScan(scanPackageDto);
+            checkScan(scanPackageDto, unloadVehicleEntity);
             // 校验跨场地支援权限
             if (!unloadVehicleEntity.getEndSiteId().equals((long) scanPackageDto.getCurrentOperate().getSiteCode())) {
                 log.warn("支援人员无需操作:bizId={},erp={}", scanPackageDto.getBizId(), scanPackageDto.getUser().getUserErp());

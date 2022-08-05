@@ -427,6 +427,7 @@ public class JyUnloadVehicleCheckTysService {
             boardCommonRequest.setOperateSiteCode(request.getCurrentOperate().getSiteCode());
             boardCommonRequest.setOperateSiteName(request.getCurrentOperate().getSiteName());
             boardCommonRequest.setReceiveSiteCode(request.getNextSiteCode());
+            boardCommonRequest.setReceiveSiteName(request.getNextSiteName());
             boardCommonRequest.setBizSource(BizSourceEnum.PDA.getValue());
             boardCommonRequest.setBarCode(request.getScanCode());
             InvokeResult<Board> invokeResult = boardCommonManager.createBoardCode(boardCommonRequest);
@@ -763,9 +764,6 @@ public class JyUnloadVehicleCheckTysService {
                     redisClientCache.incr(key);
                 }
             }
-        } else {
-            request.setPrevSiteCode(unloadVehicleEntity.getStartSiteId().intValue());
-            request.setPrevSiteName(unloadVehicleEntity.getStartSiteName());
         }
     }
 
@@ -775,13 +773,31 @@ public class JyUnloadVehicleCheckTysService {
         unloadVehicleEntity.setUpdateUserErp(request.getUser().getUserErp());
         unloadVehicleEntity.setUpdateUserName(request.getUser().getUserName());
         unloadVehicleEntity.setStartSiteId(Long.valueOf(request.getPrevSiteCode()));
-        BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteBySiteId(request.getPrevSiteCode());
-        if (baseSite != null) {
-            unloadVehicleEntity.setStartSiteName(baseSite.getSiteName());
-        }
+        unloadVehicleEntity.setStartSiteName(request.getPrevSiteName());
         jyBizTaskUnloadVehicleService.saveOrUpdateOfBaseInfo(unloadVehicleEntity);
         response.setPrevSiteId(Long.valueOf(request.getPrevSiteCode()));
         response.setPrevSiteName(unloadVehicleEntity.getStartSiteName());
+    }
+
+    public void assembleReturnData(ScanPackageDto request, ScanPackageRespDto response, JyBizTaskUnloadVehicleEntity unloadVehicleEntity, UnloadScanDto unloadScanDto) {
+        response.setSupplementary(unloadScanDto.getSupplementary());
+        response.setGoodsAreaCode(request.getGoodsAreaCode());
+        if (StringUtils.isNotBlank(unloadVehicleEntity.getStartSiteName())) {
+            response.setPrevSiteName(unloadVehicleEntity.getStartSiteName());
+            response.setPrevSiteId(unloadVehicleEntity.getStartSiteId());
+        } else if (request.getPrevSiteCode() != null) {
+            BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteBySiteId(request.getPrevSiteCode());
+            if (baseSite != null) {
+                request.setPrevSiteName(baseSite.getSiteName());
+            }
+        }
+        if (request.getNextSiteCode() != null) {
+            BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteBySiteId(request.getPrevSiteCode());
+            if (baseSite != null) {
+                request.setNextSiteName(baseSite.getSiteName());
+                response.setEndSiteName(baseSite.getSiteName());
+            }
+        }
     }
 
     /**
