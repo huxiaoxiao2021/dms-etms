@@ -149,10 +149,12 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
         }
         // 转运补扫子任务完结
         if (JyBizTaskSourceTypeEnum.TRANSPORT.getCode().equals(unloadScanDto.getTaskType()) && id != null) {
-            JyBizTaskUnloadVehicleStageEntity condition = new JyBizTaskUnloadVehicleStageEntity();
-            condition.setId(id);
-            condition.setStatus(JyBizTaskStageStatusEnum.COMPLETE.getCode());
-            jyBizTaskUnloadVehicleStageService.updateByPrimaryKeySelective(condition);
+            if (unloadScanDto.getSupplementary()) {
+                JyBizTaskUnloadVehicleStageEntity condition = new JyBizTaskUnloadVehicleStageEntity();
+                condition.setId(id);
+                condition.setStatus(JyBizTaskStageStatusEnum.COMPLETE.getCode());
+                jyBizTaskUnloadVehicleStageService.updateByPrimaryKeySelective(condition);
+            }
         }
 
         // 插入验货或收货任务，发全程跟踪

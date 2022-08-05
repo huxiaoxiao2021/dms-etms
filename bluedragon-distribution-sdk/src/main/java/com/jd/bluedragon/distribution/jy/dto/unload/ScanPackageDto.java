@@ -73,6 +73,11 @@ public class ScanPackageDto extends UnloadBaseDto implements Serializable {
     private String groupCode;
 
     /**
+     * 板流向
+     */
+    private Integer boardDestinationId;
+
+    /**
      * 是否强制组板
      * **/
     private boolean isForceCombination = false;
@@ -216,5 +221,13 @@ public class ScanPackageDto extends UnloadBaseDto implements Serializable {
 
     public void setGroupCode(String groupCode) {
         this.groupCode = groupCode;
+    }
+
+    public Integer getBoardDestinationId() {
+        return boardDestinationId;
+    }
+
+    public void setBoardDestinationId(Integer boardDestinationId) {
+        this.boardDestinationId = boardDestinationId;
     }
 }
