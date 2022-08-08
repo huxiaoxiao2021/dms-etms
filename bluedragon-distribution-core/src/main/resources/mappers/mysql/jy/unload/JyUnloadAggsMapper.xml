@@ -165,7 +165,7 @@
                total_scanned_package_count
         FROM jy_unload_aggs
         WHERE biz_id = #{bizId}
-          and yn = 1
+          and yn = 1 limit 1
     </select>
 
     <select id="queryUnloadStatistics" parameterType="com.jd.bluedragon.distribution.jy.dto.unload.DimensionQueryDto"
