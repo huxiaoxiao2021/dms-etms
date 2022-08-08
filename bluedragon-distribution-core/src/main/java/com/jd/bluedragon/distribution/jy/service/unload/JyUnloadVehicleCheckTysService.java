@@ -549,9 +549,9 @@ public class JyUnloadVehicleCheckTysService {
             addBoardBox.setSiteType(BoardCommonManagerImpl.BOARD_COMBINATION_SITE_TYPE);
             addBoardBox.setBizSource(BizSourceEnum.PDA.getValue());
             if (WaybillUtil.isPackageCode(request.getScanCode())) {
-                addBoardBox.setBarCodeType(BarCodeTypeEnum.PACKAGE_TYPE.getCode());
+                addBoardBox.setBarcodeType(BarCodeTypeEnum.PACKAGE_TYPE.getCode());
             } else if (BusinessHelper.isBoxcode(request.getScanCode())) {
-                addBoardBox.setBarCodeType(BarCodeTypeEnum.BOX_TYPE.getCode());
+                addBoardBox.setBarcodeType(BarCodeTypeEnum.BOX_TYPE.getCode());
             }
             if (request.getNextSiteCode() != null && !request.getNextSiteCode().equals(request.getBoardDestinationId())) {
                 addBoardBox.setFlowDisaccord(1);
