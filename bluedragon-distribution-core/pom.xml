@@ -748,7 +748,7 @@
         <dependency>
             <groupId>com.jd.stock.iwms</groupId>
             <artifactId>iwms-app-export</artifactId>
-			<version>3.1.0-temp-jdk6-SNAPSHOT</version>
+			<version>2.2.0-jdk6-SNAPSHOT</version>
 			<exclusions>
 				<exclusion>
 					<artifactId>jsf</artifactId>
