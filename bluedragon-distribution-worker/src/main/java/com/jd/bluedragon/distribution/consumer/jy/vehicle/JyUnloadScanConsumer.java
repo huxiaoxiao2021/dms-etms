@@ -129,14 +129,8 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
 
         Long id = null;
         if (JyBizTaskSourceTypeEnum.TRANSPORT.getCode().equals(unloadScanDto.getTaskType())) {
-            //查询子任务bizId
-            JyBizTaskUnloadVehicleStageEntity condition =new JyBizTaskUnloadVehicleStageEntity();
-            condition.setUnloadVehicleBizId(unloadScanDto.getBizId());
-            condition.setType(unloadScanDto.getSupplementary() ? JyBizTaskStageTypeEnum.SUPPLEMENT.getCode() : JyBizTaskStageTypeEnum.HANDOVER.getCode());
-            if (!unloadScanDto.getSupplementary()) {
-                condition.setStatus(JyBizTaskStageStatusEnum.DOING.getCode());
-            }
-            JyBizTaskUnloadVehicleStageEntity entity =jyBizTaskUnloadVehicleStageService.queryCurrentStage(condition);
+            // 查询子任务bizId
+            JyBizTaskUnloadVehicleStageEntity entity = getCurrentUnloadTaskStage(unloadScanDto);
             if (ObjectHelper.isNotNull(entity)){
                 unloadEntity.setStageBizId(entity.getBizId());
                 id = entity.getId();
@@ -214,10 +208,29 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
 
             if (JyBizTaskSourceTypeEnum.TRANSPORT.getCode().equals(unloadScanDto.getTaskType())) {
                 // 初始化子任务
-                JyBizTaskUnloadVehicleStageEntity entity = generateUnloadTaskStage(unloadScanDto);
-                jyBizTaskUnloadVehicleStageService.insertSelective(entity);
+                jyBizTaskUnloadVehicleStageService.insertSelective(generateUnloadTaskStage(unloadScanDto));
+            }
+        } else {
+            // 转运卸车非首次扫描
+            if (JyBizTaskSourceTypeEnum.TRANSPORT.getCode().equals(unloadScanDto.getTaskType())) {
+                // 查询子任务bizId
+                JyBizTaskUnloadVehicleStageEntity entity = getCurrentUnloadTaskStage(unloadScanDto);
+                if (entity == null) {
+                    // 初始化子任务
+                    jyBizTaskUnloadVehicleStageService.insertSelective(generateUnloadTaskStage(unloadScanDto));
+                }
             }
         }
+    }
+
+    private JyBizTaskUnloadVehicleStageEntity getCurrentUnloadTaskStage(UnloadScanDto unloadScanDto) {
+        JyBizTaskUnloadVehicleStageEntity condition = new JyBizTaskUnloadVehicleStageEntity();
+        condition.setUnloadVehicleBizId(unloadScanDto.getBizId());
+        condition.setType(unloadScanDto.getSupplementary() ? JyBizTaskStageTypeEnum.SUPPLEMENT.getCode() : JyBizTaskStageTypeEnum.HANDOVER.getCode());
+        if (!unloadScanDto.getSupplementary()) {
+            condition.setStatus(JyBizTaskStageStatusEnum.DOING.getCode());
+        }
+        return jyBizTaskUnloadVehicleStageService.queryCurrentStage(condition);
     }
 
     private JyBizTaskUnloadVehicleStageEntity generateUnloadTaskStage(UnloadScanDto unloadScanDto) {
