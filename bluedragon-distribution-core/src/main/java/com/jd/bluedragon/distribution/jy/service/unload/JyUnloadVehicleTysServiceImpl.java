@@ -995,18 +995,17 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             } else if (UnloadBarCodeQueryEntranceEnum.INTERCEPT.getCode().equals(queryWaybillDto.getExpType())) {
                 pagerResp = iJyUnloadVehicleManager.queryInterceptBarCodeDetail(condition);
             }
+            List<UnloadPackageDto> unloadPackageDtoList = new ArrayList<>();
             if (ObjectHelper.isNotNull(pagerResp.getData())) {
-                List<UnloadPackageDto> unloadPackageDtoList = new ArrayList<>();
                 List<JyVehicleTaskUnloadDetail> unloadDetailList = pagerResp.getData();
                 for (JyVehicleTaskUnloadDetail unloadDetail : unloadDetailList) {
                     UnloadPackageDto unloadPackageDto = new UnloadPackageDto();
                     unloadPackageDto.setPackageCode(unloadDetail.getPackageCode());
                     unloadPackageDtoList.add(unloadPackageDto);
                 }
-                return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, unloadPackageDtoList);
             }
+            return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, unloadPackageDtoList);
         }
-        return new InvokeResult(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
     }
 
     private Pager<JyVehicleTaskUnloadDetail> assembleScanQueryCondition(QueryWaybillDto queryWaybillDto) {
