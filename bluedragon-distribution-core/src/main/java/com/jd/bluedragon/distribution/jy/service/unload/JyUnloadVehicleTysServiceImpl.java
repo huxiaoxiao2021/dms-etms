@@ -1011,6 +1011,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     private Pager<JyVehicleTaskUnloadDetail> assembleScanQueryCondition(QueryWaybillDto queryWaybillDto) {
         JyVehicleTaskUnloadDetail condition = new JyVehicleTaskUnloadDetail();
         condition.setBizId(queryWaybillDto.getBizId());
+        condition.setEndSiteId(queryWaybillDto.getCurrentOperate().getSiteCode());
         condition.setWaybillCode(queryWaybillDto.getWaybillCode());
         if (ObjectHelper.isNotNull(queryWaybillDto.getGoodsType())) {
             condition.setProductType(queryWaybillDto.getGoodsType());
