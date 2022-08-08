@@ -214,6 +214,9 @@
 				<if test="ts != null" >
 					ts,
 				</if>
+			 	<if test="modeType != null">
+					mode_type
+				</if>
 			</trim>
 			)
 			values
@@ -288,6 +291,9 @@
 				<if test="ts != null" >
 					#{ts,jdbcType=TIMESTAMP},
 				</if>
+			 	<if test="modeType != null">
+					#{modeType,jdbcType=TINYINT}
+				</if>
 			</trim>
 			)
 	</insert>
@@ -360,6 +366,9 @@
 				</if>
 				<if test="ts != null" >
 					ts = #{ts,jdbcType=TIMESTAMP},
+				</if>
+		    	<if test="modeType != null">
+					mode_type = #{modeType,jdbcType=TINYINT}
 				</if>
 			</set>
 		where id = #{id,jdbcType=BIGINT}

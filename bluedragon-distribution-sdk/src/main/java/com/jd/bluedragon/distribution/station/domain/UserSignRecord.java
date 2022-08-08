@@ -197,6 +197,12 @@ public class UserSignRecord implements Serializable {
 	 * 签到次数
 	 */
 	private Integer quotaStationTime;
+
+	/**
+	 * 身份证拍照签到标识
+	 */
+	private Integer modeType;
+
 	/**
 	 *
 	 * @param id
@@ -747,5 +753,13 @@ public class UserSignRecord implements Serializable {
 
 	public void setQuotaStationTime(Integer quotaStationTime) {
 		this.quotaStationTime = quotaStationTime;
+	}
+
+	public Integer getModeType() {
+		return modeType;
+	}
+
+	public void setModeType(Integer modeType) {
+		this.modeType = modeType;
 	}
 }

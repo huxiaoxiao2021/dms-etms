@@ -358,6 +358,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
             signOutRequest.setId(lastSignRecord.getId());
             signOutRequest.setUpdateTime(signOutTime);
             signOutRequest.setSignOutTime(signOutTime);
+			signOutRequest.setModeType(lastSignRecord.getModeType());
             return userSignRecordDao.updateById(signOutRequest) > 0;
         }
 
@@ -377,6 +378,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 				return result.toFail("该用户未签到，无法签退！");
 			}
 			data.setId(lastSignRecord.getId());
+			data.setModeType(lastSignRecord.getModeType());
 		}
 		data.setUpdateTime(new Date());
 		data.setSignOutTime(new Date());
@@ -632,6 +634,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 				return result;
 			}
 			signOutData.setId(lastSignRecord.getId());
+			signOutData.setModeType(lastSignRecord.getModeType());
 		}
         signOutData.setUpdateUser(signOutRequest.getOperateUserCode());
         signOutData.setUpdateUserName(signOutRequest.getOperateUserName());
@@ -679,9 +682,9 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
             	needSignIn = false;
             }
 		}
-		
+
         UserSignRecord signInData = new UserSignRecord();
-        //校验并组装签到数据
+        //校验并组装签到数据z
         if(needSignIn) {
             result = this.checkAndFillSignInInfo(userSignRequest,signInData,gridResult.getData());
             if(!result.isSucceed()) {
@@ -693,6 +696,8 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
         	signOutData.setId(lastSignRecord.getId());
         	signOutData.setUpdateUser(userSignRequest.getOperateUserCode());
         	signOutData.setUpdateUserName(userSignRequest.getOperateUserName());
+			//签到时使用身份证签到，签到标识不变
+			signOutData.setModeType(lastSignRecord.getModeType());
             this.doSignOut(signOutData);
             //不需要签到，直接返回签退结果
             if(!needSignIn) {
@@ -783,6 +788,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		signInData.setRefGridKey(gridKey);
 		signInData.setRefStationKey(stationKey);
 		signInData.setUserName(signInData.getUserCode());
+		signInData.setModeType(signInRequest.getModeType());
 		// 获取最近一次签到记录
 		UserSignQueryRequest query = new UserSignQueryRequest();
 		query.setUserCode(signInRequest.getUserCode());
