@@ -36,6 +36,7 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -237,7 +238,11 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
         Date now = new Date();
         JyBizTaskUnloadVehicleStageEntity firstStage = new JyBizTaskUnloadVehicleStageEntity();
         firstStage.setUnloadVehicleBizId(unloadScanDto.getBizId());
-        firstStage.setBizId(jyBizTaskUnloadVehicleStageService.generateStageBizId(unloadScanDto.getBizId()));
+        // 用于判断当前子任务的序号
+        List<Long> idList = jyBizTaskUnloadVehicleStageService.countByBizId(unloadScanDto.getBizId());
+        int serialNumber = CollectionUtils.isEmpty(idList) ? 1 : idList.size() + 1;
+        firstStage.setBizId(unloadScanDto.getBizId() + Constants.SEPARATOR_HYPHEN + serialNumber);
+        // firstStage.setBizId(jyBizTaskUnloadVehicleStageService.generateStageBizId(unloadScanDto.getBizId()));
         firstStage.setStatus(JyBizTaskStageStatusEnum.DOING.getCode());
         firstStage.setType(unloadScanDto.getSupplementary() ? JyBizTaskStageTypeEnum.SUPPLEMENT.getCode() : JyBizTaskStageTypeEnum.HANDOVER.getCode());
         firstStage.setStartTime(now);

@@ -13,4 +13,6 @@ public interface JyBizTaskUnloadVehicleStageService {
     int insertSelective(JyBizTaskUnloadVehicleStageEntity entity);
 
     int updateByPrimaryKeySelective(JyBizTaskUnloadVehicleStageEntity condition);
+
+    List<Long> countByBizId(String unloadVehicleBizId);
 }
