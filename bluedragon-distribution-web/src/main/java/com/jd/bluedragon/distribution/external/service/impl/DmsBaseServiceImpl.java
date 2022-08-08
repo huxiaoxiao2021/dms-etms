@@ -3,13 +3,16 @@ package com.jd.bluedragon.distribution.external.service.impl;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.request.DmsClientHeartbeatRequest;
 import com.jd.bluedragon.distribution.api.request.LoginRequest;
 import com.jd.bluedragon.distribution.api.response.BaseResponse;
+import com.jd.bluedragon.distribution.api.response.DmsClientHeartbeatResponse;
 import com.jd.bluedragon.distribution.api.response.LoginUserResponse;
 import com.jd.bluedragon.distribution.base.service.UserService;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.external.service.DmsBaseService;
 import com.jd.bluedragon.distribution.rest.base.BaseResource;
+import com.jd.bluedragon.utils.BeanUtils;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -69,6 +72,24 @@ public class DmsBaseServiceImpl implements DmsBaseService {
     @JProfiler(jKey = "DMSWEB.DmsBaseServiceImpl.clientLoginNew", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public LoginUserResponse clientLoginNew(LoginRequest request) {
         return userService.jsfLoginWithToken(request);
+    }
+
+    /**
+     * 客户端登陆，发送心跳（android PDA）
+     * @param request
+     * @return
+     */
+    @Override
+    @JProfiler(jKey = "DMSWEB.DmsBaseServiceImpl.sendHeartbeat", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    public JdResult<DmsClientHeartbeatResponse> sendHeartbeat(DmsClientHeartbeatRequest request) {
+        JdResult<com.jd.bluedragon.sdk.modules.client.dto.DmsClientHeartbeatResponse> result = userService
+                .sendHeartbeat(BeanUtils.copy(request, com.jd.bluedragon.sdk.modules.client.dto.DmsClientHeartbeatRequest.class));
+
+        JdResult<DmsClientHeartbeatResponse> jdResult = new JdResult<>();
+        jdResult.setCode(result.getCode());
+        jdResult.setMessage(result.getMessage());
+        jdResult.setData(BeanUtils.copy(result.getData(),DmsClientHeartbeatResponse.class));
+        return jdResult;
     }
 
     /**
