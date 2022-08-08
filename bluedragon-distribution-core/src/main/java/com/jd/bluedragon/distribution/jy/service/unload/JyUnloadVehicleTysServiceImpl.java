@@ -1024,7 +1024,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
                     condition.setInterceptFlag(1);
                     break;
                 case 3:
-                    condition.setManualCreatedFlag(1);
+                    condition.setMoreScanFlag(1);
                     break;
                 default:
                     log.info("");
