@@ -801,11 +801,16 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             scanStatisticsInnerDto.setExcepScanDtoList(excepScanDtoList);
         }
         //运单列表查询
-        List<UnloadWaybillDto> unloadWaybillDtoList;
         Pager<JyVehicleTaskUnloadDetail> query = assembleQueryUnloadTaskWaybillCondition(queryUnloadDetailDto);
         Pager<JyUnloadTaskWaybillAgg> waybillAggPager = jyUnloadVehicleManager.queryUnloadTaskWaybill(query);
-        if (ObjectHelper.isNotNull(waybillAggPager) && ObjectHelper.isNotNull(waybillAggPager.getData())) {
-            unloadWaybillDtoList = BeanUtils.copy(waybillAggPager.getData(), UnloadWaybillDto.class);
+        if (ObjectHelper.isNotNull(waybillAggPager) && CollectionUtils.isNotEmpty(waybillAggPager.getData())) {
+            List<UnloadWaybillDto> unloadWaybillDtoList = new ArrayList<>();
+            for (JyUnloadTaskWaybillAgg data : waybillAggPager.getData()) {
+                UnloadWaybillDto unloadWaybillDto = new UnloadWaybillDto();
+                unloadWaybillDto.setWaybillCode(data.getWaybillCode());
+                unloadWaybillDto.setPackageCount(data.getPackageCount());
+                unloadWaybillDtoList.add(unloadWaybillDto);
+            }
             scanStatisticsInnerDto.setUnloadWaybillDtoList(unloadWaybillDtoList);
         }
         return new InvokeResult<>(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, scanStatisticsInnerDto);
