@@ -38,13 +38,13 @@
     where id = #{id,jdbcType=BIGINT}
   </delete>
   <insert id="insert" parameterType="com.jd.bluedragon.distribution.jy.unload.JyUnloadVehicleBoardEntity">
-    insert into jy_unload_vehicle_board (id, unload_vehicle_biz_id, board_code,
+    insert into jy_unload_vehicle_board (unload_vehicle_biz_id, board_code,
       start_site_id, start_site_name, end_site_id, 
       end_site_name, goods_area_code, create_user_erp, 
       create_user_name, update_user_erp, update_user_name, 
       create_time, update_time, yn, 
       ts, unload_vehicle_stage_biz_id)
-    values (#{id,jdbcType=BIGINT}, #{unload_vehicle_biz_id,jdbcType=BIGINT}, #{boardCode,jdbcType=VARCHAR},
+    values (#{unload_vehicle_biz_id,jdbcType=VARCHAR}, #{boardCode,jdbcType=VARCHAR},
       #{startSiteId,jdbcType=BIGINT}, #{startSiteName,jdbcType=VARCHAR}, #{endSiteId,jdbcType=BIGINT}, 
       #{endSiteName,jdbcType=VARCHAR}, #{goodsAreaCode,jdbcType=VARCHAR}, #{createUserErp,jdbcType=VARCHAR}, 
       #{createUserName,jdbcType=VARCHAR}, #{updateUserErp,jdbcType=VARCHAR}, #{updateUserName,jdbcType=VARCHAR}, 
@@ -111,7 +111,7 @@
         #{id,jdbcType=BIGINT},
       </if>
       <if test="unloadVehicleBizId != null">
-        #{unloadVehicleBizId,jdbcType=BIGINT},
+        #{unloadVehicleBizId,jdbcType=VARCHAR},
       </if>
       <if test="boardCode != null">
         #{boardCode,jdbcType=VARCHAR},
@@ -164,7 +164,7 @@
     update jy_unload_vehicle_board
     <set>
       <if test="unloadVehicleBizId != null">
-        unload_vehicle_biz_id = #{unloadVehicleBizId,jdbcType=BIGINT},
+        unload_vehicle_biz_id = #{unloadVehicleBizId,jdbcType=VARCHAR},
       </if>
       <if test="boardCode != null">
         board_code = #{boardCode,jdbcType=VARCHAR},
@@ -213,7 +213,7 @@
   </update>
   <update id="updateByPrimaryKey" parameterType="com.jd.bluedragon.distribution.jy.unload.JyUnloadVehicleBoardEntity">
     update jy_unload_vehicle_board
-    set unload_vehicle_biz_id = #{unloadVehicleBizId,jdbcType=BIGINT},
+    set unload_vehicle_biz_id = #{unloadVehicleBizId,jdbcType=VARCHAR},
       board_code = #{boardCode,jdbcType=VARCHAR},
       start_site_id = #{startSiteId,jdbcType=BIGINT},
       start_site_name = #{startSiteName,jdbcType=VARCHAR},
@@ -239,6 +239,14 @@
     and yn = 1
     order by create_time desc
     limit 1
+  </select>
+
+  <select id="selectByBizIdAndBoardCode" parameterType="com.jd.bluedragon.distribution.jy.unload.JyUnloadVehicleBoardEntity" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from jy_unload_vehicle_board
+    where unload_vehicle_biz_id = #{unloadVehicleBizId,jdbcType=VARCHAR} and board_code = #{boardCode,jdbcType=VARCHAR}
+    and yn = 1 limit 1
   </select>
 
   <select id="getFlowStatisticsByBizId" parameterType="java.lang.String" resultMap="BaseResultMap">
