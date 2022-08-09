@@ -232,6 +232,11 @@
     where id = #{id,jdbcType=BIGINT}
   </update>
 
+  <update id="updateStatusByUnloadVehicleBizId" parameterType="java.lang.String">
+    update jy_biz_task_unload_vehicle_stage set status = 2
+     where unload_vehicle_biz_id = #{unloadVehicleBizId,jdbcType=VARCHAR} and status = 1 and yn = 1
+  </update>
+
   <select id="queryByParentBizId" parameterType="java.lang.String" resultMap="BaseResultMap">
     select
     <include refid="Base_Column_List" />
@@ -240,7 +245,7 @@
     order by ts desc
   </select>
 
-  <select id="countByBizId" parameterType="java.lang.String" resultType="java.lang.Long">
+  <select id="countByUnloadVehicleBizId" parameterType="java.lang.String" resultType="java.lang.Long">
     select
      id
     from jy_biz_task_unload_vehicle_stage

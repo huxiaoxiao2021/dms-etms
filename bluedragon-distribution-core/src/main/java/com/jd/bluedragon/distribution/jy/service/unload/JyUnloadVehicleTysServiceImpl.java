@@ -4,12 +4,10 @@ import com.github.pagehelper.PageHelper;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.UnifiedExceptionProcess;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
-import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BoardCommonManager;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
-import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.distribution.api.request.BoardCommonRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -28,7 +26,6 @@ import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskUnloadVehicleServ
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
 import com.jd.bluedragon.distribution.jy.unload.JyBizTaskUnloadVehicleStageEntity;
 import com.jd.bluedragon.distribution.jy.unload.JyUnloadAggsEntity;
-import com.jd.bluedragon.distribution.jy.unload.JyUnloadEntity;
 import com.jd.bluedragon.distribution.jy.unload.JyUnloadVehicleBoardEntity;
 import com.jd.bluedragon.distribution.loadAndUnload.exception.LoadIllegalException;
 import com.jd.bluedragon.distribution.loadAndUnload.exception.UnloadPackageBoardException;
@@ -60,7 +57,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 
 import static com.jd.bluedragon.Constants.WAYBILL_ROUTER_SPLIT;
 import static com.jd.bluedragon.core.base.BoardCommonManagerImpl.BOARD_COMBINATION_SITE_TYPE;
@@ -89,25 +85,15 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     @Autowired
     BoardCommonManager boardCommonManager;
     @Autowired
-    @Qualifier("jyUnloadScanProducer")
-    private DefaultJMQProducer unloadScanProducer;
-    @Autowired
     private WaybillCacheService waybillCacheService;
     @Autowired
     IJyUnloadVehicleManager jyUnloadVehicleManager;
-    @Autowired
-    @Qualifier("redisClientOfJy")
-    private Cluster redisClientOfJy;
-    @Autowired
-    private JyUnloadDao jyUnloadDao;
     @Autowired
     private JyUnloadAggsService jyUnloadAggsService;
     @Autowired
     JyUnloadVehicleBoardDao jyUnloadVehicleBoardDao;
     @Autowired
     BaseMajorManager baseMajorManager;
-
-    private static final int SCAN_EXPIRE_TIME_HOUR = 6;
     @Autowired
     private JyUnloadAggsDao jyUnloadAggsDao;
     @Autowired
@@ -283,6 +269,11 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
 
         Boolean success = jyBizTaskUnloadVehicleService.saveOrUpdateOfBusinessInfo(entity);
         if (success) {
+            // 如果本次是卸车完成动作
+            if (JyBizTaskUnloadStatusEnum.UN_LOAD_DONE.getCode().equals(unloadVehicleTask.getVehicleStatus())) {
+                // 将此卸车任务的子阶段结束
+                jyBizTaskUnloadVehicleStageService.updateStatusByUnloadVehicleBizId(unloadVehicleTask.getBizId());
+            }
             return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE);
         }
         return new InvokeResult(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);

@@ -239,7 +239,7 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
         JyBizTaskUnloadVehicleStageEntity firstStage = new JyBizTaskUnloadVehicleStageEntity();
         firstStage.setUnloadVehicleBizId(unloadScanDto.getBizId());
         // 用于判断当前子任务的序号
-        List<Long> idList = jyBizTaskUnloadVehicleStageService.countByBizId(unloadScanDto.getBizId());
+        List<Long> idList = jyBizTaskUnloadVehicleStageService.countByUnloadVehicleBizId(unloadScanDto.getBizId());
         int serialNumber = CollectionUtils.isEmpty(idList) ? 1 : idList.size() + 1;
         firstStage.setBizId(unloadScanDto.getBizId() + Constants.SEPARATOR_HYPHEN + serialNumber);
         // firstStage.setBizId(jyBizTaskUnloadVehicleStageService.generateStageBizId(unloadScanDto.getBizId()));
