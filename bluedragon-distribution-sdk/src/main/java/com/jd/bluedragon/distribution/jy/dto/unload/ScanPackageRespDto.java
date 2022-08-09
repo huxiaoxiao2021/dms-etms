@@ -22,6 +22,16 @@ public class ScanPackageRespDto implements Serializable {
     private Long prevSiteId;
 
     /**
+     * 本次扫描成功的包裹数
+     */
+    private Integer packageAmount;
+
+    /**
+     * 本次扫描成功的运单数
+     */
+    private Integer waybillAmount;
+
+    /**
      * 扫描的号码
      */
     private String barCode;
@@ -133,5 +143,21 @@ public class ScanPackageRespDto implements Serializable {
 
     public void setSupplementary(boolean supplementary) {
         this.supplementary = supplementary;
+    }
+
+    public Integer getPackageAmount() {
+        return packageAmount;
+    }
+
+    public void setPackageAmount(Integer packageAmount) {
+        this.packageAmount = packageAmount;
+    }
+
+    public Integer getWaybillAmount() {
+        return waybillAmount;
+    }
+
+    public void setWaybillAmount(Integer waybillAmount) {
+        this.waybillAmount = waybillAmount;
     }
 }

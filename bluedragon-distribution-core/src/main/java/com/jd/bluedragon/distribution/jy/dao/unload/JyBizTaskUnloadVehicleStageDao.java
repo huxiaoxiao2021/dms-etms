@@ -24,6 +24,10 @@ public class JyBizTaskUnloadVehicleStageDao extends BaseDao<JyBizTaskUnloadVehic
         return this.getSqlSession().update(NAMESPACE + ".updateByPrimaryKeySelective", entity);
     }
 
+    public int updateStatusByUnloadVehicleBizId(JyBizTaskUnloadVehicleStageEntity entity){
+        return this.getSqlSession().update(NAMESPACE + ".updateStatusByUnloadVehicleBizId", entity);
+    }
+
     public int insertBatch(List<JyBizTaskUnloadVehicleStageEntity> entityList) {
         return this.getSqlSession().insert(NAMESPACE + ".insertBatch", entityList);
     }
@@ -36,7 +40,7 @@ public class JyBizTaskUnloadVehicleStageDao extends BaseDao<JyBizTaskUnloadVehic
         return this.getSqlSession().selectOne(NAMESPACE + ".queryByParentBizId", parentBizId);
     }
 
-    public List<Long> countByBizId(String unloadVehicleBizId) {
-        return this.getSqlSession().selectList(NAMESPACE + ".countByBizId", unloadVehicleBizId);
+    public List<Long> countByUnloadVehicleBizId(String unloadVehicleBizId) {
+        return this.getSqlSession().selectList(NAMESPACE + ".countByUnloadVehicleBizId", unloadVehicleBizId);
     }
 }

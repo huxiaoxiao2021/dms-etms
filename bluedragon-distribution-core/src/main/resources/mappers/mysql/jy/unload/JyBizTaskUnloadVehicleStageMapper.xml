@@ -232,6 +232,28 @@
     where id = #{id,jdbcType=BIGINT}
   </update>
 
+  <update id="updateStatusByUnloadVehicleBizId" parameterType="com.jd.bluedragon.distribution.jy.unload.JyBizTaskUnloadVehicleStageEntity">
+    update jy_biz_task_unload_vehicle_stage
+    <set>
+      <if test="status != null">
+        status = #{status,jdbcType=TINYINT},
+      </if>
+      <if test="endTime != null">
+        end_time = #{endTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateUserErp != null">
+        update_user_erp = #{updateUserErp,jdbcType=VARCHAR},
+      </if>
+      <if test="updateUserName != null">
+        update_user_name = #{updateUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="updateTime != null">
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+     where unload_vehicle_biz_id = #{unloadVehicleBizId,jdbcType=VARCHAR} and status = 1 and yn = 1
+  </update>
+
   <select id="queryByParentBizId" parameterType="java.lang.String" resultMap="BaseResultMap">
     select
     <include refid="Base_Column_List" />
@@ -240,7 +262,7 @@
     order by ts desc
   </select>
 
-  <select id="countByBizId" parameterType="java.lang.String" resultType="java.lang.Long">
+  <select id="countByUnloadVehicleBizId" parameterType="java.lang.String" resultType="java.lang.Long">
     select
      id
     from jy_biz_task_unload_vehicle_stage

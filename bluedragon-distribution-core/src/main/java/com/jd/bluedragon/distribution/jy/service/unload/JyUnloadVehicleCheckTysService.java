@@ -3,7 +3,10 @@ package com.jd.bluedragon.distribution.jy.service.unload;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
-import com.jd.bluedragon.core.base.*;
+import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.BoardCommonManager;
+import com.jd.bluedragon.core.base.BoardCommonManagerImpl;
+import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.distribution.alliance.service.AllianceBusiDeliveryDetailService;
@@ -22,6 +25,7 @@ import com.jd.bluedragon.distribution.jy.dto.unload.ScanPackageRespDto;
 import com.jd.bluedragon.distribution.jy.dto.unload.UnloadScanDto;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskStageStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskStageTypeEnum;
+import com.jd.bluedragon.distribution.jy.enums.ScanTypeEnum;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskUnloadVehicleService;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
 import com.jd.bluedragon.distribution.jy.unload.JyBizTaskUnloadVehicleStageEntity;
@@ -52,7 +56,6 @@ import com.jd.transboard.api.enums.ResponseEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -565,8 +568,7 @@ public class JyUnloadVehicleCheckTysService {
             BoardCommonRequest boardCommonRequest = createBoardCommonRequest(request);
             if (response.getCode() == ResponseEnum.SUCCESS.getIndex()) {
                 // 保存任务和板的关系
-                JyUnloadVehicleBoardEntity entity = convertUnloadVehicleBoard(request);
-                jyUnloadVehicleBoardDao.insertSelective(entity);
+                saveUnloadVehicleBoard(request);
                 // 设置板上已组包裹数
                 result.setComBoardCount(response.getData());
                 // 组板成功
@@ -602,8 +604,7 @@ public class JyUnloadVehicleCheckTysService {
                         throw new LoadIllegalException(LoadIllegalException.BOARD_TOTC_FAIL_INTERCEPT_MESSAGE);
                     }
                     // 保存任务和板的关系
-                    JyUnloadVehicleBoardEntity entity = convertUnloadVehicleBoard(request);
-                    jyUnloadVehicleBoardDao.insertSelective(entity);
+                    saveUnloadVehicleBoard(request);
                     // 设置板上已组包裹数
                     result.setComBoardCount(1);
                     // 重新组板成功处理
@@ -632,10 +633,20 @@ public class JyUnloadVehicleCheckTysService {
         throw new LoadIllegalException(LoadIllegalException.BOARD_TOTC_FAIL_INTERCEPT_MESSAGE);
     }
 
-
-    private JyUnloadVehicleBoardEntity convertUnloadVehicleBoard(ScanPackageDto scanPackageDto) {
-        Date now = new Date();
+    private void saveUnloadVehicleBoard(ScanPackageDto scanPackageDto) {
+        // 查询是否已经保存过此板
         JyUnloadVehicleBoardEntity entity = new JyUnloadVehicleBoardEntity();
+        entity.setUnloadVehicleBizId(scanPackageDto.getBizId());
+        entity.setBoardCode(scanPackageDto.getBoardCode());
+        JyUnloadVehicleBoardEntity result = jyUnloadVehicleBoardDao.selectByBizIdAndBoardCode(entity);
+        if (result == null) {
+            createUnloadVehicleBoard(entity, scanPackageDto);
+            jyUnloadVehicleBoardDao.insertSelective(entity);
+        }
+    }
+
+    private void createUnloadVehicleBoard(JyUnloadVehicleBoardEntity entity, ScanPackageDto scanPackageDto) {
+        Date now = new Date();
         entity.setUnloadVehicleBizId(scanPackageDto.getBizId());
         // 获取阶段子任务ID
         String stageBizId = getStageBizId(scanPackageDto);
@@ -656,7 +667,6 @@ public class JyUnloadVehicleCheckTysService {
         entity.setCreateUserName(scanPackageDto.getUser().getUserName());
         entity.setUpdateUserErp(scanPackageDto.getUser().getUserErp());
         entity.setUpdateUserName(scanPackageDto.getUser().getUserName());
-        return entity;
     }
 
     private String getStageBizId(ScanPackageDto scanPackageDto) {
@@ -797,6 +807,18 @@ public class JyUnloadVehicleCheckTysService {
     }
 
     public void assembleReturnData(ScanPackageDto request, ScanPackageRespDto response, JyBizTaskUnloadVehicleEntity unloadVehicleEntity, UnloadScanDto unloadScanDto) {
+        // 按包裹扫描
+        if (ScanTypeEnum.PACKAGE.getCode().equals(request.getType())) {
+            response.setPackageAmount(1);
+            response.setWaybillAmount(1);
+            // 按运单扫描
+        } else if (ScanTypeEnum.WAYBILL.getCode().equals(request.getType())) {
+            response.setPackageAmount(request.getGoodsNumber());
+            response.setWaybillAmount(1);
+            // 按箱扫描
+        } else if (ScanTypeEnum.BOX.getCode().equals(request.getType())) {
+
+        }
         response.setSupplementary(unloadScanDto.getSupplementary());
         response.setGoodsAreaCode(request.getGoodsAreaCode());
         if (StringUtils.isNotBlank(unloadVehicleEntity.getStartSiteName())) {
@@ -809,7 +831,8 @@ public class JyUnloadVehicleCheckTysService {
             }
         }
         if (request.getNextSiteCode() != null) {
-            BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteBySiteId(request.getPrevSiteCode());
+            response.setEndSiteId(Long.valueOf(request.getNextSiteCode()));
+            BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteBySiteId(request.getNextSiteCode());
             if (baseSite != null) {
                 request.setNextSiteName(baseSite.getSiteName());
                 response.setEndSiteName(baseSite.getSiteName());

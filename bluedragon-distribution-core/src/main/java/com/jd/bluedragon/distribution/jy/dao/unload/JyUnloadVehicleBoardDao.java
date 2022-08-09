@@ -24,6 +24,11 @@ public class JyUnloadVehicleBoardDao extends BaseDao<JyUnloadVehicleBoardEntity>
     public JyUnloadVehicleBoardEntity selectByBoardCode(String boardCode){
         return this.getSqlSession().selectOne(NAMESPACE + ".selectByBoardCode", boardCode);
     }
+
+    public JyUnloadVehicleBoardEntity selectByBizIdAndBoardCode(JyUnloadVehicleBoardEntity entity){
+        return this.getSqlSession().selectOne(NAMESPACE + ".selectByBizIdAndBoardCode", entity);
+    }
+
     /**
      * 按任务查询流向统计数据
      * @param bizId
