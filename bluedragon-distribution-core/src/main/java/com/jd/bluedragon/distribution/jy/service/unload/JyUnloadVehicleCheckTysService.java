@@ -866,7 +866,7 @@ public class JyUnloadVehicleCheckTysService {
         // 根据运单号获取卸车扫描记录
         String key = REDIS_PREFIX_SEAL_WAYBILL + bizId + Constants.SEPARATOR_HYPHEN + waybillCode;
         String isExistIntercept = redisClientCache.get(key);
-        return StringUtils.isNotBlank(isExistIntercept);
+        return isExistIntercept != null;
     }
 
     /**
