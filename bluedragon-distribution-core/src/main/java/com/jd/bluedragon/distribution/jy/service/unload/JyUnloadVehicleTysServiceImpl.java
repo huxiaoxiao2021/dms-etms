@@ -579,52 +579,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     }
 
 
-    private Integer doComBoard(String boardCode, ScanPackageDto scanPackageDto) {
-        Integer count = 0;
-        AddBoardBox addBoardBox = new AddBoardBox();
-        addBoardBox.setBoardCode(boardCode);
-        addBoardBox.setBoxCode(scanPackageDto.getScanCode());
-        addBoardBox.setOperatorErp(scanPackageDto.getUser().getUserErp());
-        addBoardBox.setOperatorName(scanPackageDto.getUser().getUserName());
-        addBoardBox.setSiteCode(scanPackageDto.getCurrentOperate().getSiteCode());
-        addBoardBox.setSiteName(scanPackageDto.getCurrentOperate().getSiteName());
-        addBoardBox.setSiteType(BOARD_COMBINATION_SITE_TYPE);
-        addBoardBox.setBizSource(BizSourceEnum.PDA.getValue());
-        String waybillCode = WaybillUtil.isPackageCode(scanPackageDto.getScanCode()) ? WaybillUtil.getWaybillCode(scanPackageDto.getScanCode()) : scanPackageDto.getScanCode();
-        addBoardBox.setWaybillCode(waybillCode);
 
-        Response<Integer> rs = groupBoardManager.addBoxToBoard(addBoardBox);
-        if (ObjectHelper.isNotNull(rs) && ResponseEnum.SUCCESS.getIndex() == rs.getCode()) {
-            BoardCommonRequest boardCommonRequest = new BoardCommonRequest();
-            boardCommonRequest.setBarCode(scanPackageDto.getScanCode());
-            boardCommonRequest.setOperateSiteCode(scanPackageDto.getCurrentOperate().getSiteCode());
-            boardCommonRequest.setOperateSiteName(scanPackageDto.getCurrentOperate().getSiteName());
-            boardCommonRequest.setOperateUserCode(scanPackageDto.getUser().getUserCode());
-            boardCommonRequest.setOperateUserName(scanPackageDto.getUser().getUserName());
-            boardCommonManager.sendWaybillTrace(boardCommonRequest, WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION);
-            count = rs.getData();
-        }
-        return count;
-    }
-
-    private String generateBoard(ScanPackageDto scanPackageDto) {
-        AddBoardRequest addBoardRequest = new AddBoardRequest();
-        addBoardRequest.setBoardCount(1);
-        addBoardRequest.setDestinationId(1);
-        addBoardRequest.setDestination("");
-        addBoardRequest.setOperatorErp(scanPackageDto.getUser().getUserErp());
-        addBoardRequest.setOperatorName(scanPackageDto.getUser().getUserName());
-        addBoardRequest.setSiteCode(scanPackageDto.getCurrentOperate().getSiteCode());
-        addBoardRequest.setSiteName(scanPackageDto.getCurrentOperate().getSiteName());
-        addBoardRequest.setBizSource(1);
-        Response<List<Board>> createBoardResp = groupBoardManager.createBoards(addBoardRequest);
-        if (ObjectHelper.isNotNull(createBoardResp) && ResponseEnum.SUCCESS.getIndex() == createBoardResp.getCode()) {
-            Board board = createBoardResp.getData().get(0);
-            return board.getCode();
-        }
-        log.warn("jy卸车岗扫描创建新板异常{}", JsonHelper.toJson(createBoardResp));
-        return null;
-    }
 
     @Override
     @JProfiler(jKey = "JyUnloadVehicleTysServiceImpl.scanForPipelining",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
