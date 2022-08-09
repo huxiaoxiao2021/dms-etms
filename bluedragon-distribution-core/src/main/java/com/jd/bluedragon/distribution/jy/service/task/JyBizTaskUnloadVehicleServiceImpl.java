@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.jy.service.task;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.operation.workbench.unload.response.LabelOption;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.VosManager;
 import com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskUnloadVehicleDao;
 import com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadAggsDao;
@@ -24,11 +25,14 @@ import com.jd.coo.sa.sequence.JimdbSequenceGen;
 import com.jd.etms.vos.dto.CommonDto;
 import com.jd.etms.vos.dto.SealCarDto;
 import com.jd.jim.cli.Cluster;
+import com.jd.jsf.gd.util.JsonUtils;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jdl.jy.schedule.dto.task.JyScheduleTaskReq;
 import com.jdl.jy.schedule.dto.task.JyScheduleTaskResp;
 import com.jdl.jy.schedule.enums.task.JyScheduleTaskTypeEnum;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,6 +52,7 @@ import java.util.concurrent.TimeUnit;
  * @Date: 2022/4/1
  * @Description: 到车卸车任务服务类
  */
+@Slf4j
 @Service("jyBizTaskUnloadVehicleService")
 public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicleService {
 
@@ -64,6 +69,12 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
      * 一次自旋时间 单位毫秒
      */
     private final static int SPIN_TIME_OF_MS = 100;
+
+    /**
+     * 卸车岗任务类型： 1 分拣 2转运
+     */
+    public static final Integer UNLOAD_TASK_CATEGORY_TYS = 1;
+    public static final Integer UNLOAD_TASK_CATEGORY_DMS = 2;
 
     private Logger logger = LoggerFactory.getLogger(JyBizTaskUnloadVehicleServiceImpl.class);
 
@@ -89,6 +100,8 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
     @Autowired
     private JyScheduleTaskManager jyScheduleTaskManager;
 
+    @Autowired
+    private BaseMajorManager baseMajorManager;
     /**
      * 根据bizId获取数据
      *
@@ -312,6 +325,7 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
                     result = jyBizTaskUnloadVehicleDao.updateOfBaseInfoById(entity) > 0;
                     entity.setId(null);
                 } else {
+                    entity.setTaskType(getTaskType(entity.getEndSiteId()));
                     //不存在则新增
                     result = jyBizTaskUnloadVehicleDao.insert(entity) > 0;
                 }
@@ -339,6 +353,7 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
     @Transactional(value = "tm_jy_core", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     @JProfiler(jKey = "DMSWEB.jy.JyBizTaskUnloadVehicleServiceImpl.saveOrUpdateOfOtherBusinessInfo", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public boolean saveOrUpdateOfBusinessInfo(JyBizTaskUnloadVehicleEntity entity) {
+        log.info("JyBizTaskUnloadVehicleServiceImpl.saveOrUpdateOfBusinessInfo--请求参数={}", JsonUtils.toJSONString(entity));
 
         String bizId = entity.getBizId();
         if (StringUtils.isEmpty(bizId)) {
@@ -357,6 +372,7 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
                     entity.setId(null);
                 } else {
                     //不存在则新增
+                    entity.setTaskType(getTaskType(entity.getEndSiteId()));
                     result = jyBizTaskUnloadVehicleDao.insert(entity) > 0;
                 }
             } else {
@@ -576,9 +592,8 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
     @Override
     public UnloadVehicleTaskDto entityConvertDto(JyBizTaskUnloadVehicleEntity entity) {
         UnloadVehicleTaskDto unloadVehicleTaskDto = BeanUtils.copy(entity, UnloadVehicleTaskDto.class);
-        calculationProcessTime(unloadVehicleTaskDto);
         if (ObjectHelper.isNotNull(entity.getUnloadProgress())) {
-            unloadVehicleTaskDto.setProcessPercent(entity.getUnloadProgress().intValue());
+            unloadVehicleTaskDto.setProcessPercent(entity.getUnloadProgress());
         }
         if (ObjectHelper.isNotNull(entity.getMoreCount())) {
             unloadVehicleTaskDto.setExtraScanCount(entity.getMoreCount().intValue());
@@ -672,25 +687,14 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
         return tagList;
     }
 
-    private void calculationProcessTime(UnloadVehicleTaskDto dto) {
-        Date now = new Date();
-        switch (dto.getVehicleStatus()) {
-            case 3:
-                int hourArrive = (int) DateHelper.betweenHours(dto.getActualArriveTime(), now);
-                int minutesArrive = (int) DateHelper.betweenMinutes(dto.getActualArriveTime(), now);
-                dto.setProcessTime("已到车 " + hourArrive + "时" + minutesArrive + "分");
-                break;
-            case 4:
-                int hourUnload = (int) DateHelper.betweenHours(dto.getUnloadStartTime(), now);
-                int minutesUnload = (int) DateHelper.betweenMinutes(dto.getUnloadStartTime(), now);
-                dto.setProcessTime("卸车 " + hourUnload + "时" + minutesUnload + "分");
-                break;
-            case 5:
-                int hourComplete = (int) DateHelper.betweenHours(dto.getUnloadStartTime(), dto.getUnloadFinishTime());
-                int minutesComplete = (int) DateHelper.betweenMinutes(dto.getUnloadStartTime(), dto.getUnloadFinishTime());
-                dto.setProcessTime("总计 " + hourComplete + "时" + minutesComplete + "分");
-                break;
-            default:
-        }
+
+    /**
+     * 根据操作场地区分卸车任务为分拣任务还是转运任务
+     * @param endSiteId
+     * @return
+     */
+    private Integer getTaskType(Long endSiteId) {
+        BaseStaffSiteOrgDto baseStaffSiteOrgDto = baseMajorManager.getBaseSiteBySiteId(endSiteId.intValue());
+        return Constants.B2B_SITE_TYPE == baseStaffSiteOrgDto.getSubType() ? UNLOAD_TASK_CATEGORY_TYS : UNLOAD_TASK_CATEGORY_DMS;
     }
 }

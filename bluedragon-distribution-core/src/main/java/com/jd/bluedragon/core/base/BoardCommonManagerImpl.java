@@ -300,22 +300,29 @@ public class BoardCommonManagerImpl implements BoardCommonManager {
                 return result;
             }
             String waybillCode = WaybillUtil.getWaybillCode(request.getBarCode());
-            Integer nextSiteCode = getNextSiteCodeByRouter(waybillCode, request.getOperateSiteCode());
+            Integer nextSiteCode = request.getReceiveSiteCode();
+            if (nextSiteCode == null || nextSiteCode <= 0) {
+                nextSiteCode = getNextSiteCodeByRouter(waybillCode, request.getOperateSiteCode());
+            }
             if(nextSiteCode == null){
                 logger.warn("根据运单号【{}】操作站点【{}】获取路由下一节点为空!",waybillCode,request.getOperateSiteCode());
                 result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,
                         "此单路由信息获取失败,无法判断流向生成板号,请扫描其他包裹号尝试开板");
                 return result;
             }
-            BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteBySiteId(nextSiteCode);
-            if(baseSite == null || StringUtils.isEmpty(baseSite.getSiteName())){
-                logger.warn("根据站点【{}】获取站点名称为空!",nextSiteCode);
-                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,"站点【" + nextSiteCode + "】不存在!");
-                return result;
+            String nextSiteName = request.getReceiveSiteName();
+            if (StringUtils.isBlank(nextSiteName)) {
+                BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteBySiteId(nextSiteCode);
+                if (baseSite == null || StringUtils.isEmpty(baseSite.getSiteName())) {
+                    logger.warn("根据站点【{}】获取站点名称为空!", nextSiteCode);
+                    result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, "站点【" + nextSiteCode + "】不存在!");
+                    return result;
+                }
+                nextSiteName = baseSite.getSiteName();
             }
             addBoardRequest.setBoardCount(SINGLE_BOARD_CODE);
             addBoardRequest.setDestinationId(nextSiteCode);
-            addBoardRequest.setDestination(baseSite.getSiteName());
+            addBoardRequest.setDestination(nextSiteName);
             addBoardRequest.setOperatorErp(request.getOperateUserErp());
             addBoardRequest.setOperatorName(request.getOperateUserName());
             addBoardRequest.setSiteCode(request.getOperateSiteCode());

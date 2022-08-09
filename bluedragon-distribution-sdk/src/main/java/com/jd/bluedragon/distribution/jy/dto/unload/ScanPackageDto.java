@@ -29,19 +29,63 @@ public class ScanPackageDto extends UnloadBaseDto implements Serializable {
     private Integer type;
 
     /**
+     * 作业类型  0-流水线  1-人工
+     */
+    private Integer workType;
+
+    /**
      * 进行中的板，基于这个板进行组板
      */
     private String boardCode;
+
     /**
      * 货区编码
      */
     private String goodsAreaCode;
+
+    /**
+     * 下游场地编码
+     * */
     private Integer nextSiteCode;
+    /**
+     * 下游场地名称
+     * */
+    private String nextSiteName;
+
+    /**
+     * 上下游场地编码
+     * */
+    private Integer prevSiteCode;
+
+    /**
+     * 上下游场地名称
+     * */
+    private String prevSiteName;
 
     /**
      * 补扫标识
      */
     private boolean supplementary;
+
+    /**
+     * 任务组号
+     */
+    private String groupCode;
+
+    /**
+     * 板流向
+     */
+    private Integer boardDestinationId;
+
+    /**
+     * 是否强制组板
+     * **/
+    private boolean isForceCombination = false;
+
+    /**
+     * 是否组板转移
+     */
+    private boolean isCombinationTransfer = false;
 
     public String getBizId() {
         return bizId;
@@ -113,5 +157,77 @@ public class ScanPackageDto extends UnloadBaseDto implements Serializable {
 
     public void setSupplementary(boolean supplementary) {
         this.supplementary = supplementary;
+    }
+
+    public boolean getIsForceCombination() {
+        return isForceCombination;
+    }
+
+    public boolean isForceCombination() {
+        return isForceCombination;
+    }
+
+    public void setForceCombination(boolean forceCombination) {
+        isForceCombination = forceCombination;
+    }
+
+    public boolean getIsCombinationTransfer() {
+        return isCombinationTransfer;
+    }
+
+    public boolean isCombinationTransfer() {
+        return isCombinationTransfer;
+    }
+
+    public void setCombinationTransfer(boolean combinationTransfer) {
+        isCombinationTransfer = combinationTransfer;
+    }
+
+    public String getNextSiteName() {
+        return nextSiteName;
+    }
+
+    public void setNextSiteName(String nextSiteName) {
+        this.nextSiteName = nextSiteName;
+    }
+
+    public Integer getPrevSiteCode() {
+        return prevSiteCode;
+    }
+
+    public void setPrevSiteCode(Integer prevSiteCode) {
+        this.prevSiteCode = prevSiteCode;
+    }
+
+    public Integer getWorkType() {
+        return workType;
+    }
+
+    public void setWorkType(Integer workType) {
+        this.workType = workType;
+    }
+
+    public String getPrevSiteName() {
+        return prevSiteName;
+    }
+
+    public void setPrevSiteName(String prevSiteName) {
+        this.prevSiteName = prevSiteName;
+    }
+
+    public String getGroupCode() {
+        return groupCode;
+    }
+
+    public void setGroupCode(String groupCode) {
+        this.groupCode = groupCode;
+    }
+
+    public Integer getBoardDestinationId() {
+        return boardDestinationId;
+    }
+
+    public void setBoardDestinationId(Integer boardDestinationId) {
+        this.boardDestinationId = boardDestinationId;
     }
 }

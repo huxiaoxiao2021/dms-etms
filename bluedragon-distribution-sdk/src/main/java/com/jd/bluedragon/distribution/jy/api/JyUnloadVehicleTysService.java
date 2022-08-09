@@ -52,6 +52,13 @@ public interface JyUnloadVehicleTysService {
      */
     InvokeResult<ComBoardDto> queryComBoardDataByBoardCode(String boardCode);
 
+    /**
+     * 交班
+     * @param unloadVehicleTask
+     * @return
+     */
+    InvokeResult<Void> handoverTask(UnloadVehicleTaskDto unloadVehicleTask);
+
 
     /**
      * 人工作业扫描（组板+扫描）
@@ -145,6 +152,19 @@ public interface JyUnloadVehicleTysService {
     String getGoodsAreaCode(Integer currentSiteCode, Integer nextSiteCode);
 
 
+    /**
+     * 查询主子任务信息
+     * @param masterBizId  主任务Id
+     * @param queryChildTaskFlag  true : 查子任务   false: 不传
+     * @return
+     */
+    InvokeResult<UnloadMasterChildTaskRespDto> queryMasterChildTaskInfoByBizId(String masterBizId, Boolean queryChildTaskFlag);
+
+
+    /**
+     * 根据主任务bizId查询卸车任务板关系信息
+     */
+    InvokeResult<List<UnloadBoardRespDto>> queryTaskBoardInfoByBizId(String masterBizId);
 
 
 

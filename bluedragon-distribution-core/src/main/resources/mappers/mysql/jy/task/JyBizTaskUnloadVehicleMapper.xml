@@ -44,6 +44,7 @@
         <result property="unloadType" column="unload_type"/>
         <result property="yn" column="yn"/>
         <result property="ts" column="ts"/>
+        <result property="taskType" column="task_type"/>
     </resultMap>
 
     <resultMap type="com.jd.bluedragon.distribution.jy.dto.task.JyBizTaskUnloadCountDto" id="JyBizTaskUnloadCountMap">
@@ -87,7 +88,8 @@
         create_time,
         update_time,
         yn,
-        ts
+        ts,
+        task_type
     </sql>
 
 
@@ -183,6 +185,9 @@
         <if test="createTime != null">
             create_time,
         </if>
+        <if test="taskType != null">
+            task_type,
+        </if>
         yn
 
         ) VALUES (
@@ -276,7 +281,9 @@
         <if test="createTime != null">
             #{createTime},
         </if>
-
+        <if test="taskType != null">
+            #{taskType},
+        </if>
         1
 
         )
@@ -613,6 +620,9 @@
             </if>
             <if test="unloadType">
                 unload_type =#{unloadType},
+            </if>
+            <if test="taskType != null">
+                task_type = #{taskType},
             </if>
             </set>
         <where>

@@ -165,7 +165,7 @@
                total_scanned_package_count
         FROM jy_unload_aggs
         WHERE biz_id = #{bizId}
-          and yn = 1
+          and yn = 1 limit 1
     </select>
 
     <select id="queryUnloadStatistics" parameterType="com.jd.bluedragon.distribution.jy.dto.unload.DimensionQueryDto"
@@ -220,5 +220,13 @@
         <if test="boardCode!=null and boardCode!='' ">
             AND board_code =#{boardCode}
         </if>
+    </select>
+
+
+    <select id="queryBoardStatistics" parameterType="com.jd.bluedragon.distribution.jy.dto.unload.DimensionQueryDto"
+            resultMap="jyUnloadAggsMap">
+        SELECT biz_id, board_code, sum(actual_scan_count) actual_scan_count, sum(more_scan_total_count) more_scan_total_count
+        FROM  jy_unload_aggs
+        WHERE yn = 1 and biz_id = #{bizId} and board_code =#{boardCode}
     </select>
 </mapper>

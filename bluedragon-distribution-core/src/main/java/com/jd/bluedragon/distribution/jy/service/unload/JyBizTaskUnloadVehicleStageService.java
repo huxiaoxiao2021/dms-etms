@@ -9,4 +9,10 @@ public interface JyBizTaskUnloadVehicleStageService {
     JyBizTaskUnloadVehicleStageEntity queryCurrentStage(JyBizTaskUnloadVehicleStageEntity condition);
 
     int insertBatch(List<JyBizTaskUnloadVehicleStageEntity> entityList);
+
+    int insertSelective(JyBizTaskUnloadVehicleStageEntity entity);
+
+    int updateByPrimaryKeySelective(JyBizTaskUnloadVehicleStageEntity condition);
+
+    List<Long> countByBizId(String unloadVehicleBizId);
 }

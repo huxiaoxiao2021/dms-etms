@@ -46,4 +46,6 @@ public interface UnloadCarCommonService {
 
     public List<UnloadCar> selectByCondition(UnloadCar unloadCar);
 
+    List<UnloadCar> getTaskInfoBySealCarCodes(List<String> sealCarCodes);
+
 }

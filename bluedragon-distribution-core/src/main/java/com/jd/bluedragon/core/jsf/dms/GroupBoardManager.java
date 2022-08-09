@@ -68,4 +68,18 @@ public interface GroupBoardManager {
 
 
     List<PackageDto> getPackageCodeUnderComBoard(String boardCode,String waybillCode);
+
+    /**
+     * 查询板上统计数据： 箱号 运单号 及运单中包裹号
+     * @param boardCode
+     * @return
+     */
+    Response<BoardBoxStatisticsResDto> getBoardStatisticsByBoardCode(String boardCode);
+
+    /**
+     * 批量取消组板
+     * @param removeBoardBoxDto
+     * @return
+     */
+    public Response batchRemoveBardBoxByBoxCodes(RemoveBoardBoxDto removeBoardBoxDto);
 }

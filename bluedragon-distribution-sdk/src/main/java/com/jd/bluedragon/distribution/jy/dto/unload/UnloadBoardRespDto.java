@@ -5,49 +5,41 @@ import java.util.Date;
 
 /**
  * @Author zhengchengfa
- * @Description //TODO
+ * @Description //卸车任务组板映射关系Dto
  * @date
  **/
-public class UnloadChildTaskDto implements Serializable {
+public class UnloadBoardRespDto  implements Serializable {
 
     private static final long serialVersionUID = 2419641078080000602L;
 
-    private String bizId;
     /**
-     * 父任务BizID
+     * 任务ID
      */
     private String unloadVehicleBizId;
     /**
-     * 子任务类型： 1 补扫任务 2...
-      */
-    private Integer type;
-    /**
-     * 子任务状态： 1 进行中 2完
+     * 子任务ID
      */
-    private Integer status;
+    private String unloadVehicleStageBizId;
+
     /**
-     * 子任务开始时间
+     * 板号
      */
-    private Date startTime;
-    /**
-     * 子任务结束时间
-     */
-    private Date endTime;
+    private String boardCode;
+
+    private Long startSiteId;
+    private String startSiteName;
+    private Long endSiteId;
+    private String endSiteName;
+
+    private String goodsAreaCode;
 
     private String createUserErp;
     private String createUserName;
     private String updateUserErp;
     private String updateUserName;
+
     private Date createTime;
     private Date updateTime;
-
-    public String getBizId() {
-        return bizId;
-    }
-
-    public void setBizId(String bizId) {
-        this.bizId = bizId;
-    }
 
     public String getUnloadVehicleBizId() {
         return unloadVehicleBizId;
@@ -57,36 +49,60 @@ public class UnloadChildTaskDto implements Serializable {
         this.unloadVehicleBizId = unloadVehicleBizId;
     }
 
-    public Integer getType() {
-        return type;
+    public String getUnloadVehicleStageBizId() {
+        return unloadVehicleStageBizId;
     }
 
-    public void setType(Integer type) {
-        this.type = type;
+    public void setUnloadVehicleStageBizId(String unloadVehicleStageBizId) {
+        this.unloadVehicleStageBizId = unloadVehicleStageBizId;
     }
 
-    public Integer getStatus() {
-        return status;
+    public String getBoardCode() {
+        return boardCode;
     }
 
-    public void setStatus(Integer status) {
-        this.status = status;
+    public void setBoardCode(String boardCode) {
+        this.boardCode = boardCode;
     }
 
-    public Date getStartTime() {
-        return startTime;
+    public Long getStartSiteId() {
+        return startSiteId;
     }
 
-    public void setStartTime(Date startTime) {
-        this.startTime = startTime;
+    public void setStartSiteId(Long startSiteId) {
+        this.startSiteId = startSiteId;
     }
 
-    public Date getEndTime() {
-        return endTime;
+    public String getStartSiteName() {
+        return startSiteName;
     }
 
-    public void setEndTime(Date endTime) {
-        this.endTime = endTime;
+    public void setStartSiteName(String startSiteName) {
+        this.startSiteName = startSiteName;
+    }
+
+    public Long getEndSiteId() {
+        return endSiteId;
+    }
+
+    public void setEndSiteId(Long endSiteId) {
+        this.endSiteId = endSiteId;
+    }
+
+    public String getEndSiteName() {
+        return endSiteName;
+    }
+
+    public void setEndSiteName(String endSiteName) {
+        this.endSiteName = endSiteName;
+    }
+
+    public String getGoodsAreaCode() {
+        return goodsAreaCode;
+    }
+
+    public void setGoodsAreaCode(String goodsAreaCode) {
+        this.goodsAreaCode = goodsAreaCode;
     }
 
     public String getCreateUserErp() {

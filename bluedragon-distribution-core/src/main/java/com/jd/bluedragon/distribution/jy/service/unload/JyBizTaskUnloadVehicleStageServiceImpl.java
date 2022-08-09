@@ -1,20 +1,15 @@
 package com.jd.bluedragon.distribution.jy.service.unload;
 
-import com.jd.bluedragon.common.dto.send.request.CreateVehicleTaskReq;
 import com.jd.bluedragon.distribution.jy.dao.unload.JyBizTaskUnloadVehicleStageDao;
 import com.jd.bluedragon.distribution.jy.unload.JyBizTaskUnloadVehicleStageEntity;
 import com.jd.bluedragon.utils.ObjectHelper;
-import com.jd.bluedragon.utils.TimeUtils;
 import com.jd.jim.cli.Cluster;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
-
-import static com.jd.bluedragon.utils.TimeUtils.yyyyMMdd;
 
 @Service
 public class JyBizTaskUnloadVehicleStageServiceImpl implements JyBizTaskUnloadVehicleStageService{
@@ -45,7 +40,22 @@ public class JyBizTaskUnloadVehicleStageServiceImpl implements JyBizTaskUnloadVe
     }
 
     @Override
+    public int insertSelective(JyBizTaskUnloadVehicleStageEntity entityList) {
+        return jyBizTaskUnloadVehicleStageDao.insertSelective(entityList);
+    }
+
+    @Override
     public int insertBatch(List<JyBizTaskUnloadVehicleStageEntity> entityList) {
         return jyBizTaskUnloadVehicleStageDao.insertBatch(entityList);
+    }
+
+    @Override
+    public int updateByPrimaryKeySelective(JyBizTaskUnloadVehicleStageEntity condition) {
+        return jyBizTaskUnloadVehicleStageDao.updateByPrimaryKeySelective(condition);
+    }
+
+    @Override
+    public List<Long> countByBizId(String unloadVehicleBizId) {
+        return jyBizTaskUnloadVehicleStageDao.countByBizId(unloadVehicleBizId);
     }
 }

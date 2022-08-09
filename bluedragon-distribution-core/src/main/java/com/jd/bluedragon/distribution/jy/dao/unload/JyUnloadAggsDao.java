@@ -59,4 +59,8 @@ public class JyUnloadAggsDao extends BaseDao<JyUnloadAggsEntity> {
     public ScanStatisticsDto queryExcepScanStatistics(JyUnloadAggsEntity entity) {
         return this.getSqlSession().selectOne(NAMESPACE + ".queryExcepScanStatistics", entity);
     }
+
+    public JyUnloadAggsEntity queryBoardStatistics(DimensionQueryDto dto) {
+        return this.getSqlSession().selectOne(NAMESPACE + ".queryBoardStatistics", dto);
+    }
 }
