@@ -4,8 +4,11 @@ import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.jy.dto.task.JyBizTaskUnloadCountDto;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadOrderTypeEnum;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.coo.sa.mybatis.plugins.id.SequenceGenAdaptor;
 import org.apache.commons.collections4.CollectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Date;
@@ -21,6 +24,8 @@ import java.util.Map;
  * @date 2022-04-01 16:23:34
  */
 public class JyBizTaskUnloadVehicleDao extends BaseDao<JyBizTaskUnloadVehicleEntity> {
+
+    private static Logger logger = LoggerFactory.getLogger(JyBizTaskUnloadVehicleDao.class);
 
     final static String NAMESPACE = JyBizTaskUnloadVehicleDao.class.getName();
 
@@ -166,5 +171,27 @@ public class JyBizTaskUnloadVehicleDao extends BaseDao<JyBizTaskUnloadVehicleEnt
 		return this.getSqlSession().selectOne(NAMESPACE + ".countByVehicleNumberAndStatus",condition);
 	}
 
+    /**
+     * 根据条件清理数据，将数据yn字段设置成0,等待卸数使用
+     * @param condition
+     * @return
+     */
+	public int cleanByParam(JyBizTaskUnloadVehicleEntity condition){
+	    if(condition.getCreateTime() == null && condition.getUpdateTime() == null && condition.getUnloadFinishTime() == null){
+	        // 必填时间范围防止全部清理
+            logger.error("JyBizTaskUnloadVehicleDao.cleanByParam param error! {}", JsonHelper.toJson(condition));
+	        return 0;
+        }
+        return this.getSqlSession().update(NAMESPACE + ".cleanByParam",condition);
+    }
+
+    /**
+     * 根据状态获取需要清理的数据的场地ID
+     * @param condition
+     * @return
+     */
+    public List<Integer> needCleanSite(JyBizTaskUnloadVehicleEntity condition){
+        return this.getSqlSession().selectList(NAMESPACE + ".needCleanSite",condition);
+    }
 
 }
