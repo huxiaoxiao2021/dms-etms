@@ -605,8 +605,8 @@ public class JyUnloadVehicleCheckTysService {
                     }
                     // 保存任务和板的关系
                     saveUnloadVehicleBoard(request);
-                    // 设置板上已组包裹数
-                    result.setComBoardCount(1);
+                    // 设置板上已组包裹数，组板转移需要重新查询新板上已组包裹数
+                    setComBoardCount(request, result);
                     // 重新组板成功处理
                     log.info("组板转移成功.原板号【{}】新板号【{}】包裹号【{}】站点【{}】",
                             invokeResult.getData(), request.getBoardCode(), request.getScanCode(), request.getCurrentOperate().getSiteCode());
@@ -622,6 +622,7 @@ public class JyUnloadVehicleCheckTysService {
                     throw new UnloadPackageBoardException(String.format(LoadIllegalException.PACKAGE_ALREADY_BIND, boardCode));
                 }
             } else {
+                log.warn("添加板箱关系失败,板号={},barCode={},resultCode={},原因={}", request.getBoardCode(), request.getScanCode(), response.getCode(), response.getMesseage());
                 throw new LoadIllegalException(response.getMesseage());
             }
         } catch (Exception e) {
@@ -631,6 +632,16 @@ public class JyUnloadVehicleCheckTysService {
             log.warn("推TC组板关系异常，入参【{}】", JsonHelper.toJson(addBoardBox), e);
         }
         throw new LoadIllegalException(LoadIllegalException.BOARD_TOTC_FAIL_INTERCEPT_MESSAGE);
+    }
+
+
+    private void setComBoardCount(ScanPackageDto request, ScanPackageRespDto result) {
+        Response<List<String>> tcResponse = groupBoardManager.getBoxesByBoardCode(request.getBoardCode());
+        if (tcResponse != null && InvokeResult.RESULT_SUCCESS_CODE == tcResponse.getCode()) {
+            if (CollectionUtils.isNotEmpty(tcResponse.getData())) {
+                result.setComBoardCount(tcResponse.getData().size());
+            }
+        }
     }
 
     private void saveUnloadVehicleBoard(ScanPackageDto scanPackageDto) {
