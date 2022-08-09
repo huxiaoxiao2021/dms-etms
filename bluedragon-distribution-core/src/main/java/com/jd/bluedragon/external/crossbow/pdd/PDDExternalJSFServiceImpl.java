@@ -49,7 +49,7 @@ public class PDDExternalJSFServiceImpl implements DMSExternalInPDDService {
             return new BaseEntity<>(BaseEntity.CODE_SUCCESS_NO, BaseEntity.MESSAGE_SUCCESS_NO);
         }
         /* 接口调用失败，则返回具体信息 */
-        if (!response.getSuccess()) {
+        if (!response.getSuccess() || response.getResult() == null) {
             log.warn("拼多多接口调用失败，返回值：{}",JsonHelper.toJson(response));
             return new BaseEntity<>(BaseEntity.CODE_SUCCESS_NO, response.getErrorMsg());
         }
