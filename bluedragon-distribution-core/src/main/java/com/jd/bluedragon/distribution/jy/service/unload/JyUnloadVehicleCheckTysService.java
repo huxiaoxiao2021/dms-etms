@@ -522,6 +522,7 @@ public class JyUnloadVehicleCheckTysService {
         boardCommonRequest.setOperateSiteName(request.getCurrentOperate().getSiteName());
         boardCommonRequest.setReceiveSiteCode(request.getNextSiteCode());
         boardCommonRequest.setReceiveSiteName(request.getNextSiteName());
+        boardCommonRequest.setOperateUserErp(request.getUser().getUserErp());
         boardCommonRequest.setOperateUserName(request.getUser().getUserName());
         boardCommonRequest.setOperateUserCode(request.getUser().getUserCode());
         boardCommonRequest.setBoardCode(request.getBoardCode());
@@ -619,6 +620,8 @@ public class JyUnloadVehicleCheckTysService {
                     }
                     throw new UnloadPackageBoardException(String.format(LoadIllegalException.PACKAGE_ALREADY_BIND, boardCode));
                 }
+            } else {
+                throw new LoadIllegalException(response.getMesseage());
             }
         } catch (Exception e) {
             if (e instanceof UnloadPackageBoardException) {
