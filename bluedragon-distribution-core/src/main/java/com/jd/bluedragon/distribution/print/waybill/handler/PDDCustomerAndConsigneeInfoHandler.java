@@ -82,7 +82,8 @@ public class PDDCustomerAndConsigneeInfoHandler implements InterceptHandler<Wayb
             return result;
         }
 
-        String sourceKey = String.valueOf(context.getRequest().getOperateType()) + dto.getSiteType();
+        String siteTypeStr = dto == null? "0" : String.valueOf(dto.getSiteType());
+        String sourceKey = context.getRequest().getOperateType() + "_" + siteTypeStr;
         PDDResponse<PDDWaybillDetailDto> pddWaybillDetailDtoPDDResponse = pddService.queryPDDWaybillInfoByWaybillCodeWithCacheAndSource
                 (waybillCode, sourceKey, true, false);
         if (pddWaybillDetailDtoPDDResponse == null || !Boolean.TRUE.equals(pddWaybillDetailDtoPDDResponse.getSuccess())
