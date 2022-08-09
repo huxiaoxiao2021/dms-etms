@@ -815,6 +815,7 @@ public class JyUnloadVehicleCheckTysService {
             }
         }
         if (request.getNextSiteCode() != null) {
+            response.setEndSiteId(Long.valueOf(request.getNextSiteCode()));
             BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteBySiteId(request.getNextSiteCode());
             if (baseSite != null) {
                 request.setNextSiteName(baseSite.getSiteName());
