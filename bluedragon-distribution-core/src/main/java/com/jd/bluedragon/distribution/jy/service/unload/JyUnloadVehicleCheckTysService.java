@@ -25,6 +25,7 @@ import com.jd.bluedragon.distribution.jy.dto.unload.ScanPackageRespDto;
 import com.jd.bluedragon.distribution.jy.dto.unload.UnloadScanDto;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskStageStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskStageTypeEnum;
+import com.jd.bluedragon.distribution.jy.enums.ScanTypeEnum;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskUnloadVehicleService;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
 import com.jd.bluedragon.distribution.jy.unload.JyBizTaskUnloadVehicleStageEntity;
@@ -803,6 +804,18 @@ public class JyUnloadVehicleCheckTysService {
     }
 
     public void assembleReturnData(ScanPackageDto request, ScanPackageRespDto response, JyBizTaskUnloadVehicleEntity unloadVehicleEntity, UnloadScanDto unloadScanDto) {
+        // 按包裹扫描
+        if (ScanTypeEnum.PACKAGE.getCode().equals(request.getType())) {
+            response.setPackageAmount(1);
+            response.setWaybillAmount(1);
+            // 按运单扫描
+        } else if (ScanTypeEnum.WAYBILL.getCode().equals(request.getType())) {
+            response.setPackageAmount(request.getGoodsNumber());
+            response.setWaybillAmount(1);
+            // 按箱扫描
+        } else if (ScanTypeEnum.BOX.getCode().equals(request.getType())) {
+
+        }
         response.setSupplementary(unloadScanDto.getSupplementary());
         response.setGoodsAreaCode(request.getGoodsAreaCode());
         if (StringUtils.isNotBlank(unloadVehicleEntity.getStartSiteName())) {

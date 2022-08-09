@@ -403,8 +403,6 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             jyUnloadVehicleCheckTysService.inspectionIntercept(barCode, waybill, unloadScanDto);
             // 组装返回数据
             jyUnloadVehicleCheckTysService.assembleReturnData(scanPackageDto, scanPackageRespDto, unloadVehicleEntity, unloadScanDto);
-            // 设置拦截缓存
-            jyUnloadVehicleCheckTysService.setCacheOfSealCarAndPackageIntercept(bizId, barCode);
             // 无任务设置上游站点
             jyUnloadVehicleCheckTysService.setStartSiteForJyUnloadVehicle(scanPackageDto, scanPackageRespDto, unloadVehicleEntity);
             // B网快运发货规则校验
@@ -449,6 +447,8 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             // 卸车处理并回传TC组板关系
             jyUnloadVehicleCheckTysService.dealUnloadAndBoxToBoard(scanPackageDto, scanPackageRespDto);
         }
+        // 设置拦截缓存
+        jyUnloadVehicleCheckTysService.setCacheOfSealCarAndPackageIntercept(bizId, barCode);
         return invokeResult;
     }
 
@@ -474,6 +474,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             invokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, "该运单号不存在，请检查运单号是否正确！");
             return invokeResult;
         }
+        scanPackageDto.setGoodsNumber(waybill.getGoodNumber());
         // 校验是否达到大宗使用标准
         String checkStr = jyUnloadVehicleCheckTysService.checkIsMeetWaybillStandard(waybill);
         if (StringUtils.isNotBlank(checkStr)) {
