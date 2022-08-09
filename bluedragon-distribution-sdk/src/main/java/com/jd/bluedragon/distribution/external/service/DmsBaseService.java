@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.external.service;
 
 import com.jd.bluedragon.distribution.api.request.DmsClientHeartbeatRequest;
+import com.jd.bluedragon.distribution.api.request.DmsClientLogoutRequest;
 import com.jd.bluedragon.distribution.api.request.LoginRequest;
 import com.jd.bluedragon.distribution.api.response.BaseResponse;
 import com.jd.bluedragon.distribution.api.response.DmsClientHeartbeatResponse;
@@ -48,6 +49,11 @@ public interface DmsBaseService {
      * @return
      */
     JdResult<DmsClientHeartbeatResponse> sendHeartbeat(DmsClientHeartbeatRequest request);
+
+    /**
+     * 客户端退出登陆
+     */
+    JdResult<Boolean> logout(DmsClientLogoutRequest dmsClientLogoutRequest);
 
     /**
      * 客户端登录token验证

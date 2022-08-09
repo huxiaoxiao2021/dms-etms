@@ -4,6 +4,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.DmsClientHeartbeatRequest;
+import com.jd.bluedragon.distribution.api.request.DmsClientLogoutRequest;
 import com.jd.bluedragon.distribution.api.request.LoginRequest;
 import com.jd.bluedragon.distribution.api.response.BaseResponse;
 import com.jd.bluedragon.distribution.api.response.DmsClientHeartbeatResponse;
@@ -12,6 +13,7 @@ import com.jd.bluedragon.distribution.base.service.UserService;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.external.service.DmsBaseService;
 import com.jd.bluedragon.distribution.rest.base.BaseResource;
+import com.jd.bluedragon.service.remote.client.DmsClientManager;
 import com.jd.bluedragon.utils.BeanUtils;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -34,6 +36,9 @@ public class DmsBaseServiceImpl implements DmsBaseService {
 
 	@Autowired
 	private UserService userService;
+
+    @Autowired
+    private DmsClientManager dmsClientManager;
 
 	@Autowired
     UccPropertyConfiguration uccPropertyConfiguration;
@@ -90,6 +95,17 @@ public class DmsBaseServiceImpl implements DmsBaseService {
         jdResult.setMessage(result.getMessage());
         jdResult.setData(BeanUtils.copy(result.getData(),DmsClientHeartbeatResponse.class));
         return jdResult;
+    }
+
+    /**
+     * 客户端退出
+     * @param dmsClientLogoutRequest
+     * @return
+     */
+    @Override
+    @JProfiler(jKey = "DMSWEB.DmsBaseServiceImpl.logout", mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    public JdResult<Boolean> logout(DmsClientLogoutRequest dmsClientLogoutRequest) {
+        return dmsClientManager.logout(BeanUtils.copy(dmsClientLogoutRequest, com.jd.bluedragon.sdk.modules.client.dto.DmsClientLogoutRequest.class));
     }
 
     /**
