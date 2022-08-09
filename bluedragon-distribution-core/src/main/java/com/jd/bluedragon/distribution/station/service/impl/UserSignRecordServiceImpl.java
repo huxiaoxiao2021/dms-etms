@@ -787,7 +787,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		signInData.setOrgCode(gridInfo.getOrgCode());
 		signInData.setRefGridKey(gridKey);
 		signInData.setRefStationKey(stationKey);
-		signInData.setUserName(signInData.getUserName());
+		signInData.setUserName(signInData.getUserCode());
 		signInData.setModeType(signInRequest.getModeType());
 		// 获取最近一次签到记录
 		UserSignQueryRequest query = new UserSignQueryRequest();
