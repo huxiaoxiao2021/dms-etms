@@ -265,7 +265,14 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             // 如果本次是卸车完成动作
             if (JyBizTaskUnloadStatusEnum.UN_LOAD_DONE.getCode().equals(unloadVehicleTask.getVehicleStatus())) {
                 // 将此卸车任务的子阶段结束
-                jyBizTaskUnloadVehicleStageService.updateStatusByUnloadVehicleBizId(unloadVehicleTask.getBizId());
+                JyBizTaskUnloadVehicleStageEntity stageEntity = new JyBizTaskUnloadVehicleStageEntity();
+                stageEntity.setUnloadVehicleBizId(unloadVehicleTask.getBizId());
+                stageEntity.setStatus(JyBizTaskStageStatusEnum.COMPLETE.getCode());
+                stageEntity.setEndTime(new Date());
+                stageEntity.setUpdateTime(new Date());
+                stageEntity.setUpdateUserErp(unloadVehicleTask.getUser().getUserErp());
+                stageEntity.setUpdateUserName(unloadVehicleTask.getUser().getUserName());
+                jyBizTaskUnloadVehicleStageService.updateStatusByUnloadVehicleBizId(stageEntity);
             }
             return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE);
         }

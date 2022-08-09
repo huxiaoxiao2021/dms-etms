@@ -232,8 +232,25 @@
     where id = #{id,jdbcType=BIGINT}
   </update>
 
-  <update id="updateStatusByUnloadVehicleBizId" parameterType="java.lang.String">
-    update jy_biz_task_unload_vehicle_stage set status = 2
+  <update id="updateStatusByUnloadVehicleBizId" parameterType="com.jd.bluedragon.distribution.jy.unload.JyBizTaskUnloadVehicleStageEntity">
+    update jy_biz_task_unload_vehicle_stage
+    <set>
+      <if test="status != null">
+        status = #{status,jdbcType=TINYINT},
+      </if>
+      <if test="endTime != null">
+        end_time = #{endTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateUserErp != null">
+        update_user_erp = #{updateUserErp,jdbcType=VARCHAR},
+      </if>
+      <if test="updateUserName != null">
+        update_user_name = #{updateUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="updateTime != null">
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+    </set>
      where unload_vehicle_biz_id = #{unloadVehicleBizId,jdbcType=VARCHAR} and status = 1 and yn = 1
   </update>
 

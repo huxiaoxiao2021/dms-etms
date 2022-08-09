@@ -55,8 +55,8 @@ public class JyBizTaskUnloadVehicleStageServiceImpl implements JyBizTaskUnloadVe
     }
 
     @Override
-    public int updateStatusByUnloadVehicleBizId(String unloadVehicleBizId) {
-        return jyBizTaskUnloadVehicleStageDao.updateStatusByUnloadVehicleBizId(unloadVehicleBizId);
+    public int updateStatusByUnloadVehicleBizId(JyBizTaskUnloadVehicleStageEntity condition) {
+        return jyBizTaskUnloadVehicleStageDao.updateStatusByUnloadVehicleBizId(condition);
     }
 
     @Override

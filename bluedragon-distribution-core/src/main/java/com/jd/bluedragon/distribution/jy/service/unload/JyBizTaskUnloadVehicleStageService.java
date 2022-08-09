@@ -14,7 +14,7 @@ public interface JyBizTaskUnloadVehicleStageService {
 
     int updateByPrimaryKeySelective(JyBizTaskUnloadVehicleStageEntity condition);
 
-    int updateStatusByUnloadVehicleBizId(String unloadVehicleBizId);
+    int updateStatusByUnloadVehicleBizId(JyBizTaskUnloadVehicleStageEntity condition);
 
     List<Long> countByUnloadVehicleBizId(String unloadVehicleBizId);
 }
