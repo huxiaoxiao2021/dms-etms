@@ -750,6 +750,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             entity.setUpdateUserErp(unloadVehicleTask.getUser().getUserErp());
             entity.setUpdateUserName(unloadVehicleTask.getUser().getUserName());
             entity.setUpdateTime(new Date());
+            entity.setEndTime(new Date());
             entity.setStatus(JyBizTaskStageStatusEnum.COMPLETE.getCode());
             jyBizTaskUnloadVehicleStageService.updateByPrimaryKeySelective(entity);
         } catch (Exception e) {
@@ -818,6 +819,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
 
     private Pager<JyVehicleTaskUnloadDetail> assembleQueryUnloadTaskWaybillCondition(QueryUnloadDetailDto queryUnloadDetailDto) {
         JyVehicleTaskUnloadDetail condition = new JyVehicleTaskUnloadDetail();
+        condition.setEndSiteId(queryUnloadDetailDto.getCurrentOperate().getSiteCode());
         condition.setBizId(queryUnloadDetailDto.getBizId());
         if (queryUnloadDetailDto.getExpFlag()) {
             switch (queryUnloadDetailDto.getExpType()) {
@@ -828,7 +830,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
                     condition.setInterceptFlag(1);
                     break;
                 case 3:
-                    condition.setManualCreatedFlag(1);
+                    condition.setMoreScanFlag(1);
                     break;
                 default:
                     log.info("");
