@@ -1775,8 +1775,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
     public InvokeResult<Boolean> uploadPhoto(SendPhotoRequest request) {
         InvokeResult<Boolean> invokeResult = new InvokeResult<>();
         if (StringUtils.isBlank(request.getSendVehicleBizId())
-                || request.getVehicleArrived() == null
-                || CollectionUtils.isEmpty(request.getImgList())) {
+                || request.getVehicleArrived() == null) {
             invokeResult.parameterError();
             return invokeResult;
         }
@@ -1823,7 +1822,11 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
         attachment.setSendVehicleBizId(request.getSendVehicleBizId());
         attachment.setOperateSiteId((long) request.getCurrentOperate().getSiteCode());
         attachment.setVehicleArrived(request.getVehicleArrived());
-        attachment.setImgUrl(Joiner.on(Constants.SEPARATOR_COMMA).join(request.getImgList()));
+        if(CollectionUtils.isNotEmpty(request.getImgList())){
+            attachment.setImgUrl(Joiner.on(Constants.SEPARATOR_COMMA).join(request.getImgList()));
+        } else {
+            attachment.setImgUrl(Constants.EMPTY_FILL);
+        }
         attachment.setOperateTime(request.getCurrentOperate().getOperateTime());
         attachment.setCreateTime(request.getCurrentOperate().getOperateTime());
         attachment.setCreateUserErp(request.getUser().getUserErp());
@@ -1893,7 +1896,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
     private Boolean setSendVehicleBaseInfo(SendVehicleInfoRequest request,
                                            JyBizTaskSendVehicleEntity sendVehicleEntity, SendVehicleInfo sendVehicleInfo) {
         sendVehicleInfo.setManualCreated(sendVehicleEntity.manualCreatedTask());
-        sendVehicleInfo.setPhoto(sendAttachmentService.sendVehicleTakePhoto(new JySendAttachmentEntity(request.getSendVehicleBizId())));
+        sendVehicleInfo.setPhoto(sendAttachmentService.sendVehicleHasSelectStatus(new JySendAttachmentEntity(request.getSendVehicleBizId())));
         // 无任务不需拍照
         if (sendVehicleInfo.getManualCreated()) {
             sendVehicleInfo.setPhoto(Boolean.TRUE);
