@@ -148,6 +148,10 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
                 JyBizTaskUnloadVehicleStageEntity condition = new JyBizTaskUnloadVehicleStageEntity();
                 condition.setId(id);
                 condition.setStatus(JyBizTaskStageStatusEnum.COMPLETE.getCode());
+                condition.setEndTime(new Date());
+                condition.setUpdateTime(new Date());
+                condition.setUpdateUserErp(unloadScanDto.getUpdateUserErp());
+                condition.setUpdateUserName(unloadScanDto.getUpdateUserName());
                 jyBizTaskUnloadVehicleStageService.updateByPrimaryKeySelective(condition);
             }
         }
