@@ -458,10 +458,10 @@
                     #{item}
                 </foreach>
             </if>
-            <if test="entity.lastPlanDepartTimeBegin">
+            <if test="entity.lastPlanDepartTimeBegin !=null">
                 and last_plan_depart_time &gt;=  #{entity.lastPlanDepartTimeBegin}
             </if>
-            <if test="entity.lastPlanDepartTimeEnd">
+            <if test="entity.lastPlanDepartTimeEnd !=null">
                 and last_plan_depart_time &lt;= #{entity.lastPlanDepartTimeEnd}
             </if>
             GROUP BY vehicle_status
