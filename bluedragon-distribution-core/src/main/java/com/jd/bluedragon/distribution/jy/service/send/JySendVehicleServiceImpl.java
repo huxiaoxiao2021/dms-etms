@@ -273,7 +273,15 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
         queryTaskSendDto.setStartSiteId((long) request.getCurrentOperate().getSiteCode());
         queryTaskSendDto.setEndSiteId(request.getEndSiteId());
         queryTaskSendDto.setKeyword(request.getKeyword());
-
+        //设置默认预计发货时间查询范围
+        try{
+            Date jySendTaskPlanTimeBegin = DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(),-uccConfig.getJySendTaskPlanTimeBeginDay());
+            Date jySendTaskPlanTimeEnd =DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(),uccConfig.getJySendTaskPlanTimeEndDay());
+            queryTaskSendDto.setLastPlanDepartTimeBegin(jySendTaskPlanTimeBegin);
+            queryTaskSendDto.setLastPlanDepartTimeEnd(jySendTaskPlanTimeEnd);
+        }catch (Exception e){
+            log.error("查询发货任务设置默认查询条件异常，入参{}",JsonHelper.toJson(request),e.getMessage(),e);
+        }
         return queryTaskSendDto;
     }
 
