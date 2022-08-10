@@ -13,6 +13,7 @@ import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.redis.service.RedisManager;
+import com.jd.bluedragon.distribution.api.request.SortingPageRequest;
 import com.jd.bluedragon.distribution.api.request.SortingRequest;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.base.domain.SysConfigContent;
@@ -1576,6 +1577,44 @@ public class SortingServiceImpl implements SortingService {
 	@Override
 	public List<Sorting> listSortingByBoxCode(Sorting sorting) {
 		return sortingDao.listSortingByBoxCode(sorting);
+	}
+
+	/**
+	 * 通过箱号查询包裹数
+	 * @param boxCode
+	 * @return
+	 */
+	@Override
+	public Integer getSumByBoxCode(String boxCode) {
+		Integer sum = 0;
+		Box box = boxService.findBoxByCode(boxCode);
+		if (box != null) {
+			sum = dynamicSortingQueryDao.findPackCount(box.getCreateSiteCode(),boxCode);
+		}
+		return sum;
+	}
+
+	/**
+	 * 分页查询
+	 * @param request
+	 * @return
+	 */
+	@Override
+	public List<String> getPagePackageNoByBoxCode(SortingPageRequest request) {
+		Box box = boxService.findBoxByCode(request.getBoxCode());
+		if(box == null){
+			return new ArrayList<>(0);
+		}
+		request.setCreateSiteCode(box.getCreateSiteCode());
+		List<Sorting> sortingList = dynamicSortingQueryDao.getPagePackageNoByBoxCode(request);
+		if(CollectionUtils.isEmpty(sortingList)){
+			return new ArrayList<>(0);
+		}
+		List<String> list = new ArrayList<>(sortingList.size());
+		for(Sorting sort : sortingList){
+			list.add(sort.getPackageCode());
+		}
+		return list;
 	}
 
 }

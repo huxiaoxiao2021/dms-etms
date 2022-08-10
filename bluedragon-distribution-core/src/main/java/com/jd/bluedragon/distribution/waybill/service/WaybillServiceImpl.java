@@ -54,6 +54,7 @@ import com.jd.etms.waybill.dto.PackOpeFlowDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.etms.waybill.dto.WaybillVasDto;
 import com.jd.jsf.gd.util.JsonUtils;
+import com.jd.ql.basic.domain.PsStoreInfo;
 import com.jd.ql.basic.dto.BaseSiteInfoDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.collections.CollectionUtils;
@@ -1177,7 +1178,7 @@ public class WaybillServiceImpl implements WaybillService {
                 log.warn("运单不存在：{}" , com.jd.bluedragon.utils.JsonHelper.toJson(waybillForPreSortOnSiteRequest));
                 return result;
             }
-                //获取站点信息-预分拣站点
+            // 获取站点信息-预分拣站点
             BaseStaffSiteOrgDto siteOfSchedulingOnSite = baseMajorManager.getBaseSiteBySiteId(waybillForPreSortOnSiteRequest.getSiteOfSchedulingOnSite());
             if (siteOfSchedulingOnSite == null){
                 result.error("预分拣站点信息不存在");
@@ -1187,7 +1188,7 @@ public class WaybillServiceImpl implements WaybillService {
             Site site = new Site();
             site.setType(siteOfSchedulingOnSite.getSiteType());
             site.setSubType(siteOfSchedulingOnSite.getSubType());
-                //获取登录人信息
+            // 获取登录人信息
             BaseStaffSiteOrgDto userInfo = baseMajorManager.getBaseStaffByErpNoCache(waybillForPreSortOnSiteRequest.getErp());
             if (userInfo == null){
                 result.error("登陆人信息不存在");
@@ -1195,6 +1196,11 @@ public class WaybillServiceImpl implements WaybillService {
                 return result;
             }
             /*------------------------------------------------------------规则校验----------------------------------------------------------------------------*/
+            // 自营逆向单不能返调度到仓
+//            if(BusinessUtil.isSelfReverse(waybill.getWaybillSign()) && BusinessUtil.isWmsSite(siteOfSchedulingOnSite.getSiteType())){
+//                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, JdResponse.MESSAGE_SELF_REVERSE_SCHEDULE_ERROR);
+//                return result;
+//            }
             //规则1
             if(BusinessUtil.isSignChar(waybill.getWaybillSign(),36,'4') &&
                     SiteTypeEnum.SORTING_CENTER.getCode().equals(userInfo.getSiteType())){

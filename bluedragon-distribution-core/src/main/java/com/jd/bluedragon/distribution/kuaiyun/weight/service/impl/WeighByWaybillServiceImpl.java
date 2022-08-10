@@ -7,6 +7,7 @@ import com.jd.bluedragon.core.base.PreseparateWaybillManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.kuaiyun.weight.domain.WaybillWeightDTO;
 import com.jd.bluedragon.distribution.kuaiyun.weight.domain.WaybillWeightVO;
@@ -15,6 +16,7 @@ import com.jd.bluedragon.distribution.kuaiyun.weight.exception.WeighByWaybillExc
 import com.jd.bluedragon.distribution.kuaiyun.weight.service.WeighByWaybillService;
 
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
+import com.jd.bluedragon.distribution.weightVolume.service.DMSWeightVolumeCheckService;
 import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.external.LogEngine;
 import com.jd.bluedragon.distribution.systemLog.domain.Goddess;
@@ -116,6 +118,10 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
     @Autowired
     private LogEngine logEngine;
 
+    @Qualifier("dmsWeightVolumeCheckService")
+    @Autowired
+    private DMSWeightVolumeCheckService dmsWeightVolumeCheckService;
+
 
     /**
      * 运单称重信息录入入口 最终发送mq消息给运单部门
@@ -202,7 +208,7 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
      * @return 是否存在运单
      * @throws WeighByWaybillExcpetion 运单称重异常 WaybillServiceNotAvailableException WaybillNotFindException
      */
-    public boolean validateWaybillCodeReality(String waybillCode) throws WeighByWaybillExcpetion {
+    public boolean validateWaybillCodeReality(String waybillCode, Integer siteCode) throws WeighByWaybillExcpetion {
         BaseEntity<Waybill> waybillBaseEntity = null;
 
         try {
@@ -233,6 +239,15 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
             //弹出提示
             throw new WeighByWaybillExcpetion(WeightByWaybillExceptionTypeEnum.WaybillFinishedException);
         }
+
+        if(siteCode != null){
+            // 集配站点揽收后不能操作称重
+            InvokeResult<Boolean> jpSiteCanWeightResult = dmsWeightVolumeCheckService.checkJPIsCanWeight(waybillCode, siteCode);
+            if(!jpSiteCanWeightResult.codeSuccess()){
+                throw new WeighByWaybillExcpetion(WeightByWaybillExceptionTypeEnum.JPForbidWeightAfterLLException);
+            }
+        }
+
         return true;
     }
 

@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.sorting.dao;
 
 import com.jd.bluedragon.common.dao.BaseDao;
+import com.jd.bluedragon.distribution.api.request.SortingPageRequest;
 import com.jd.bluedragon.distribution.middleend.sorting.dao.ISortingDao;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 
@@ -148,5 +149,12 @@ public class SortingDao extends BaseDao<Sorting>  implements ISortingDao {
         return this.getSqlSession().selectList(namespace + ".listSortingByBoxCode", sorting);
     }
 
-
+    /**
+     * 分页查询
+     * @param request
+     * @return
+     */
+    public List<Sorting> getPagePackageNoByBoxCode(SortingPageRequest request) {
+        return this.getSqlSession().selectList(namespace + ".getPagePackageNoByBoxCode", request);
+    }
 }
