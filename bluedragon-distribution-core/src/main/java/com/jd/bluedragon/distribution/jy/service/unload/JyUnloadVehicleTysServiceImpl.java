@@ -640,7 +640,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
 
             Response<Board> response = groupBoardManager.getBoard(boardCode);
             if(response != null && response.getCode() == ResponseEnum.SUCCESS.getIndex()) {
-                if(response.getData() != null) {
+                if(response.getData() == null) {
                     res.setMessage("查询板信息为空");
                     return res;
                 }
