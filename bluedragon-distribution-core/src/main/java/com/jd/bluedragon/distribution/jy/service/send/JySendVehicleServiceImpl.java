@@ -682,7 +682,8 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
         if (queryTaskSendDto.getLineType() != null) {
             condition.setLineType(queryTaskSendDto.getLineType());
         }
-
+        condition.setLastPlanDepartTimeBegin(queryTaskSendDto.getLastPlanDepartTimeBegin());
+        condition.setLastPlanDepartTimeEnd(queryTaskSendDto.getLastPlanDepartTimeEnd());
         return condition;
     }
 
