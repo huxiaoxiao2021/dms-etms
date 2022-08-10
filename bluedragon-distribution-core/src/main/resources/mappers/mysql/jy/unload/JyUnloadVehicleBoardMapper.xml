@@ -258,7 +258,7 @@
 
 
   <select id="getBoardCodeList" parameterType="com.jd.bluedragon.distribution.jy.unload.JyUnloadVehicleBoardEntity" resultType="java.lang.String">
-    select board_code
+    select distinct board_code
     from jy_unload_vehicle_board
     where yn = 1
     and unload_vehicle_biz_id = #{unloadVehicleBizId,jdbcType=VARCHAR}
