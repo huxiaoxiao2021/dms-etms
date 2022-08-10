@@ -261,7 +261,7 @@
     select board_code
     from jy_unload_vehicle_board
     where yn = 1
-    and unload_vehicle_biz_id = #{bizId,jdbcType=VARCHAR}
+    and unload_vehicle_biz_id = #{unloadVehicleBizId,jdbcType=VARCHAR}
     <if test="endSiteId != null">
       and end_site_id = #{endSiteId,jdbcType=BIGINT}
     </if>
@@ -274,6 +274,6 @@
     select  <include refid="Base_Column_List" />
     from jy_unload_vehicle_board
     where yn = 1
-    and unload_vehicle_biz_id = #{bizId,jdbcType=VARCHAR}
+    and unload_vehicle_biz_id = #{unloadVehicleBizId,jdbcType=VARCHAR}
   </select>
 </mapper>
