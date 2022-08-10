@@ -82,7 +82,10 @@ public class PDDCustomerAndConsigneeInfoHandler implements InterceptHandler<Wayb
             return result;
         }
 
-        PDDResponse<PDDWaybillDetailDto> pddWaybillDetailDtoPDDResponse = pddService.queryPDDWaybillByWaybillCode(waybillCode);
+        String siteTypeStr = dto == null? "0" : String.valueOf(dto.getSiteType());
+        String sourceKey = context.getRequest().getOperateType() + "_" + siteTypeStr;
+        PDDResponse<PDDWaybillDetailDto> pddWaybillDetailDtoPDDResponse = pddService.queryPDDWaybillInfoByWaybillCodeWithCacheAndSource
+                (waybillCode, sourceKey, true, false);
         if (pddWaybillDetailDtoPDDResponse == null || !Boolean.TRUE.equals(pddWaybillDetailDtoPDDResponse.getSuccess())
                 || pddWaybillDetailDtoPDDResponse.getResult() == null) {
             log.warn("拼多多订单信息获取失败:{}",waybillCode);
