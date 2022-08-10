@@ -813,6 +813,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
                     unloadTaskFlowDto.setEndSiteId(entity.getEndSiteId());
                     unloadTaskFlowDto.setEndSiteName(entity.getEndSiteName());
                     unloadTaskFlowDto.setComBoardCount(entity.getBoardCodeNum());
+                    resData.add(unloadTaskFlowDto);
                 }
             }else {
                 res.setMessage("查询数据为空");
