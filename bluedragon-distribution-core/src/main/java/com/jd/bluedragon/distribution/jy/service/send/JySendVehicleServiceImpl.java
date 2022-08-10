@@ -275,10 +275,16 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
         queryTaskSendDto.setKeyword(request.getKeyword());
         //设置默认预计发货时间查询范围
         try{
-            Date jySendTaskPlanTimeBegin = DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(),-uccConfig.getJySendTaskPlanTimeBeginDay());
-            Date jySendTaskPlanTimeEnd =DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(),uccConfig.getJySendTaskPlanTimeEndDay());
-            queryTaskSendDto.setLastPlanDepartTimeBegin(jySendTaskPlanTimeBegin);
-            queryTaskSendDto.setLastPlanDepartTimeEnd(jySendTaskPlanTimeEnd);
+            if (ObjectHelper.isNotNull(request.getLastPlanDepartTimeBegin())){
+                queryTaskSendDto.setLastPlanDepartTimeBegin(request.getLastPlanDepartTimeBegin());
+            }else {
+                queryTaskSendDto.setLastPlanDepartTimeBegin(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(),-uccConfig.getJySendTaskPlanTimeBeginDay()));
+            }
+            if (ObjectHelper.isNotNull(request.getLastPlanDepartTimeEnd())){
+                queryTaskSendDto.setLastPlanDepartTimeEnd(request.getLastPlanDepartTimeEnd());
+            }else {
+                queryTaskSendDto.setLastPlanDepartTimeEnd(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(),uccConfig.getJySendTaskPlanTimeEndDay()));
+            }
         }catch (Exception e){
             log.error("查询发货任务设置默认查询条件异常，入参{}",JsonHelper.toJson(request),e.getMessage(),e);
         }
