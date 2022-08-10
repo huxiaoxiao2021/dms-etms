@@ -18,23 +18,10 @@ import com.jd.bluedragon.external.crossbow.pdd.domain.PDDWaybillDetailDto;
 public interface PDDService {
 
     /**
-     * 拼多多面单打印接口的逻辑处理类
-     * @param waybillCode 拼多多电子面单号
-     * @return 返回拼多多电子面单处理对象
+     * 查询pdd信息，先从运单中查，再从cache中查，最后从pdd接口中差。同时记录查询来源
+     * @param waybillCode pdd单号
+     * @param source
+     * @return
      */
-    PDDWaybillDetailDto queryWaybillDetailByWaybillCode(String waybillCode);
-
-    /**
-     * 拼多多面单打印接口的逻辑处理类,包含pdd返回值
-     * @param waybillCode 拼多多电子面单号
-     * @return 返回拼多多电子面单处理对象
-     */
-    PDDResponse<PDDWaybillDetailDto> queryPDDWaybillByWaybillCode(String waybillCode);
-
-    /**
-     * 刷新缓存,包含pdd返回值
-     * @param waybillCode 拼多多电子面单号
-     * @return 返回拼多多电子面单处理对象
-     */
-    PDDResponse<PDDWaybillDetailDto> refreshPDDWaybillByWaybillCode(String waybillCode);
+    PDDResponse<PDDWaybillDetailDto> queryPDDWaybillInfoByWaybillCodeWithCacheAndSource(String waybillCode, String source, Boolean cacheSwitch, Boolean waybillSwitch);
 }

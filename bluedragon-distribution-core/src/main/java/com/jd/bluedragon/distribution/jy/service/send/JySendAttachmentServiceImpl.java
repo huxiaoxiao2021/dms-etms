@@ -24,6 +24,11 @@ public class JySendAttachmentServiceImpl implements IJySendAttachmentService{
     }
 
     @Override
+    public Boolean sendVehicleHasSelectStatus(JySendAttachmentEntity entity) {
+        return sendAttachmentDao.selectBySendVehicleBizId(entity) != null;
+    }
+
+    @Override
     public Integer saveAttachment(JySendAttachmentEntity entity) {
         int rows = sendAttachmentDao.updateByBiz(entity);
         if (rows == Constants.NO_MATCH_DATA) {
