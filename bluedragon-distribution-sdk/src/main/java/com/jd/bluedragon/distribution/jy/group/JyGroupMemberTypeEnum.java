@@ -1,5 +1,8 @@
 package com.jd.bluedragon.distribution.jy.group;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * @ClassName JyGroupMemberTypeEnum
  * @Description 小组成员类型
@@ -10,6 +13,8 @@ public enum JyGroupMemberTypeEnum {
 	PERSON(1,"人员"),
 	DEVICE(2,"设备")
     ;
+
+    public static Map<Integer, String> ENUM_MAP;
 	
 	private JyGroupMemberTypeEnum(Integer code, String name) {
 		this.code = code;
@@ -59,4 +64,12 @@ public enum JyGroupMemberTypeEnum {
 	public String getName() {
 		return name;
 	}
+
+    static {
+        //将所有枚举装载到map中
+        ENUM_MAP = new HashMap<Integer, String>();
+        for (JyGroupMemberTypeEnum enumItem : JyGroupMemberTypeEnum.values()) {
+            ENUM_MAP.put(enumItem.getCode(), enumItem.getName());
+        }
+    }
 }
