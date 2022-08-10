@@ -35,7 +35,7 @@ public class JyUnloadVehicleBoardDao extends BaseDao<JyUnloadVehicleBoardEntity>
      * @return
      */
     public List<JyUnloadVehicleBoardEntity> getFlowStatisticsByBizId(String bizId){
-        return this.getSqlSession().selectOne(NAMESPACE + ".getFlowStatisticsByBizId", bizId);
+        return this.getSqlSession().selectList(NAMESPACE + ".getFlowStatisticsByBizId", bizId);
     }
     /**
      * 按流向查询板维度统计信息
@@ -43,10 +43,10 @@ public class JyUnloadVehicleBoardDao extends BaseDao<JyUnloadVehicleBoardEntity>
      * @return
      */
     public List<String> getBoardCodeList(JyUnloadVehicleBoardEntity jyUnloadVehicleBoardEntity){
-        return this.getSqlSession().selectOne(NAMESPACE + ".getBoardCodeList", jyUnloadVehicleBoardEntity);
+        return this.getSqlSession().selectList(NAMESPACE + ".getBoardCodeList", jyUnloadVehicleBoardEntity);
     }
     public List<JyUnloadVehicleBoardEntity> getTaskBoardInfoList(JyUnloadVehicleBoardEntity jyUnloadVehicleBoardEntity){
-        return this.getSqlSession().selectOne(NAMESPACE + ".getTaskBoardInfoList", jyUnloadVehicleBoardEntity);
+        return this.getSqlSession().selectList(NAMESPACE + ".getTaskBoardInfoList", jyUnloadVehicleBoardEntity);
     }
 
 }
