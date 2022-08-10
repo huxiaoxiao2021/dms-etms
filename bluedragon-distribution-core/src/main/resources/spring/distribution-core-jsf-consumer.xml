@@ -979,4 +979,15 @@
                   lazy="${jsf.consumer.lazy}">
     </jsf:consumer>
 
+    <!-- 岗位管理接口 -->
+    <jsf:consumer id="positionQueryJsfService"
+                  interface="com.jdl.basic.api.service.position.PositionQueryJsfService"
+                  alias="${jsf.alias.jy_basic}"
+                  timeout="${jsf.jy_basic.timeout}"
+                  retries="${jsf.retries}"
+                  serialization="hessian"
+                  lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
+
+
 </beans>

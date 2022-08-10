@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.jd.bluedragon.core.jsf.position.PositionManager;
 import com.jd.bluedragon.core.jsf.workStation.WorkStationManager;
 import com.jd.ql.basic.domain.BaseSite;
 import com.jdl.basic.api.domain.workStation.WorkStation;
@@ -96,7 +97,10 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	WorkStationAttendPlanService workStationAttendPlanService;
 	
 	@Autowired
-	private PositionRecordService positionRecordService;
+	private PositionManager positionManager;
+	//private PositionRecordService positionRecordService;
+
+
 	@Autowired
 	@Qualifier("jyGroupMemberService")
 	private JyGroupMemberService jyGroupMemberService;
@@ -754,7 +758,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 			result.toFail("岗位码不能为空！");
 			return result;
 		}
-		Result<PositionDetailRecord> positionData = positionRecordService.queryOneByPositionCode(signInRequest.getPositionCode());
+		com.jdl.basic.common.utils.Result<com.jdl.basic.api.domain.position.PositionDetailRecord> positionData = positionManager.queryOneByPositionCode(signInRequest.getPositionCode());
 		if(positionData == null
 				|| positionData.getData() == null) {
 			result.toFail("岗位码无效！");
@@ -922,7 +926,8 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 			result.toFail("岗位码不能为空！");
 			return result;
 		}
-		Result<PositionDetailRecord> positionData = positionRecordService.queryOneByPositionCode(query.getPositionCode());
+		com.jdl.basic.common.utils.Result<com.jdl.basic.api.domain.position.PositionDetailRecord> positionData
+				= positionManager.queryOneByPositionCode(query.getPositionCode());
 		if(positionData == null
 				|| positionData.getData() == null) {
 			result.toFail("岗位码无效！");
