@@ -1,13 +1,12 @@
 package com.jd.bluedragon.utils;
 
+import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.WaybillCache;
 import com.jd.bluedragon.distribution.api.request.WaybillPrintRequest;
 import com.jd.bluedragon.distribution.box.constants.BoxTypeEnum;
 import com.jd.bluedragon.distribution.reverse.domain.LocalClaimInfoRespDTO;
-import com.jd.bluedragon.dms.utils.BusinessUtil;
-import com.jd.bluedragon.dms.utils.DmsConstants;
-import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.dms.utils.*;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.report.domain.Enum.SpotCheckTypeEnum;
@@ -18,6 +17,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 
@@ -1024,5 +1025,15 @@ public class BusinessHelper {
             return false;
         }
         return WAYBILL_EXTEND_DEPPON_THIRDCARRIERFLAG.equals(thirdCarrierFlag);
+    }
+
+    /**
+     * 是否特殊品类运单（黄金或珠宝等贵重物品）
+     *
+     * @param sendPayMap
+     * @return
+     */
+    public static boolean isSpecialOrder(Map<String, Object> sendPayMap){
+        return sendPayMap != null && Objects.equals(sendPayMap.get(SendPayConstants.POSITION_596), SendPayConstants.STR_596_1);
     }
 }

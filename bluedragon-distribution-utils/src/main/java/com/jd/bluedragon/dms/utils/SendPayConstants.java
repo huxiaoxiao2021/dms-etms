@@ -92,6 +92,11 @@ public interface SendPayConstants {
 	 * 第292位,1-合约机业务
 	 */
 	int POSITION_292 = 292;
-	char CHAR_292_1 = 1;
+	char CHAR_292_1 = '1';
 
+	/**
+	 * 第596位，1-特殊品类（黄金珠宝等贵重物品）
+	 */
+	String POSITION_596 = "596";
+	String STR_596_1 = "1";
 }
