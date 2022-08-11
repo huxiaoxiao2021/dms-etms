@@ -111,10 +111,10 @@ public class ScheduleSiteSupportInterceptHandler implements InterceptHandler<Way
             }
 
             // 自营逆向单不能返调度到仓
-            if(BusinessUtil.isSelfReverse(waybill.getWaybillSign()) && BusinessUtil.isWmsSite(scheduleSiteOrgDto.getSiteType())){
-                result.toError(JdResponse.CODE_SELF_REVERSE_SCHEDULE_ERROR, JdResponse.MESSAGE_SELF_REVERSE_SCHEDULE_ERROR);
-                return result;
-            }
+//            if(BusinessUtil.isSelfReverse(waybill.getWaybillSign()) && BusinessUtil.isWmsSite(scheduleSiteOrgDto.getSiteType())){
+//                result.toError(JdResponse.CODE_SELF_REVERSE_SCHEDULE_ERROR, JdResponse.MESSAGE_SELF_REVERSE_SCHEDULE_ERROR);
+//                return result;
+//            }
 
             if(waybillPrintService.isCodMoneyGtZeroAndSiteThird(scheduleSiteOrgDto.getSiteType(),scheduleSiteOrgDto.getSubType()
                     ,waybill.getCodMoney())){
