@@ -5,6 +5,7 @@ import com.jd.bluedragon.distribution.product.domain.Product;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author zhaohc
@@ -217,6 +218,17 @@ public class Waybill implements Serializable {
      * COD代收款数
      */
     private Double codMoney;
+
+	// 来源于waybillExt中，sendPay超过500位则在sendPayMap中展示，格式：{"593":"1","590":"1"}
+	private Map<String, Object> sendPayMap;
+
+	public Map<String, Object> getSendPayMap() {
+		return sendPayMap;
+	}
+
+	public void setSendPayMap(Map<String, Object> sendPayMap) {
+		this.sendPayMap = sendPayMap;
+	}
 
 	public String getWaybillCode() {
 		return this.waybillCode;

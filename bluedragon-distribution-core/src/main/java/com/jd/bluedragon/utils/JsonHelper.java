@@ -2,13 +2,14 @@ package com.jd.bluedragon.utils;
 
 import static org.codehaus.jackson.map.DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonParser;
 
-import com.jd.etms.framework.utils.JsonUtils;
+import org.apache.commons.lang.StringUtils;
 import org.codehaus.jackson.JsonGenerator;
 import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -292,6 +293,19 @@ public class JsonHelper {
             return null;
         }
     }
+
+    public static Map<String, Object> json2MapByJSON(String jsonVal) {
+        try {
+            if(StringUtils.isEmpty(jsonVal)){
+                return null;
+            }
+            return JSON.parseObject(jsonVal);
+        } catch (Exception e) {
+            log.error("json:{}反序列化为map异常!", jsonVal);
+            return null;
+        }
+    }
+
     /**
      * json转成list对象
      * @param json
