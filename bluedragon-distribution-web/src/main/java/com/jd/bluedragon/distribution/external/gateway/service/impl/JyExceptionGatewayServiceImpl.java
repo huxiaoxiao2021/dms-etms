@@ -6,13 +6,11 @@ import com.jd.bluedragon.common.dto.jyexpection.request.ExpUploadScanReq;
 import com.jd.bluedragon.common.dto.jyexpection.response.StatisticsByStatusDto;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.JyExpStatusEnum;
 import com.jd.bluedragon.external.gateway.service.JyExceptionGatewayService;
-import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-@Service
 public class JyExceptionGatewayServiceImpl implements JyExceptionGatewayService {
     @Override
     public JdCResponse<Object> uploadScan(ExpUploadScanReq req) {
