@@ -3,6 +3,8 @@ package com.jd.bluedragon.external.gateway.service;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.jyexpection.request.ExpBaseReq;
 import com.jd.bluedragon.common.dto.jyexpection.request.ExpUploadScanReq;
+import com.jd.bluedragon.common.dto.jyexpection.request.StatisticsByGridReq;
+import com.jd.bluedragon.common.dto.jyexpection.response.StatisticsByGridDto;
 import com.jd.bluedragon.common.dto.jyexpection.response.StatisticsByStatusDto;
 
 import java.util.List;
@@ -21,4 +23,9 @@ public interface JyExceptionGatewayService {
      * 按取件状态统计
      */
     JdCResponse<List<StatisticsByStatusDto>> statisticsByStatus(ExpBaseReq req);
+
+    /**
+     * 网格待取件列表统计接口
+     */
+    JdCResponse<List<StatisticsByGridDto>> getGridStatisticsPageList(StatisticsByGridReq req);
 }

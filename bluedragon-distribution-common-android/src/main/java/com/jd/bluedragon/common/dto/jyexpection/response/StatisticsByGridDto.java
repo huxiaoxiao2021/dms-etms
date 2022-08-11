@@ -1,6 +1,7 @@
 package com.jd.bluedragon.common.dto.jyexpection.response;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * 按网格统计
@@ -21,6 +22,8 @@ public class StatisticsByGridDto implements Serializable {
 
     // 超时数量
     private Integer timeoutNum;
+
+    private List<TagDto> tags;
 
     public String getGridNo() {
         return gridNo;
@@ -60,5 +63,13 @@ public class StatisticsByGridDto implements Serializable {
 
     public void setTimeoutNum(Integer timeoutNum) {
         this.timeoutNum = timeoutNum;
+    }
+
+    public List<TagDto> getTags() {
+        return tags;
+    }
+
+    public void setTags(List<TagDto> tags) {
+        this.tags = tags;
     }
 }

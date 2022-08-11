@@ -1,7 +1,5 @@
 package com.jd.bluedragon.common.dto.jyexpection.request;
 
-import java.io.Serializable;
-
 /**
  * 按网格统计
  */
