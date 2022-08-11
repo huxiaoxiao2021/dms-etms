@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jd.bluedragon.distribution.jy.dao.exception.JyExceptionDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.jd.bluedragon.distribution.jy.exception.JyExceptionEntity" id="jyExceptionMap">
+        <result property="id" column="id"/>
+        <result property="bizId" column="biz_id"/>
+        <result property="barCode" column="bar_code"/>
+        <result property="packageCode" column="package_code"/>
+        <result property="siteCode" column="site_code"/>
+        <result property="siteName" column="site_name"/>
+        <result property="shelfErp" column="shelf_erp"/>
+        <result property="shelfNo" column="shelf_no"/>
+        <result property="shelfTime" column="shelf_time" />
+        <result property="createUserErp" column="create_user_erp"/>
+        <result property="createUserName" column="create_user_name"/>
+        <result property="updateUserErp" column="update_user_erp"/>
+        <result property="updateUserName" column="update_user_name"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="yn" column="yn"/>
+        <result property="ts" column="ts"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,
+        biz_id,
+        bar_code,
+        package_code,
+        site_code,
+        site_name,
+        shelf_erp,
+        shelf_no,
+        shelf_time,
+        create_user_erp,
+        create_user_name,
+        update_user_erp,
+        update_user_name,
+        create_time,
+        update_time,
+        yn,
+        ts
+    </sql>
+
+    <insert id="insert" parameterType="JyUnloadEntity">
+        INSERT INTO jy_exception (
+                        id,
+                        biz_id,
+                        bar_code,
+                        package_code,
+                        site_code,
+                        site_name,
+                        shelf_erp,
+                        shelf_no,
+                        shelf_time,
+                        create_user_erp,
+                        create_user_name,
+                        update_user_erp,
+                        update_user_name,
+                        create_time,
+                        update_time,
+                        yn,
+                        ts
+                    ) VALUES (
+                            #{id},
+                            #{bizId},
+                            #{barCode},
+                            #{packageCode},
+                            #{siteCode},
+                            #{siteName},
+                            #{shelfErp},
+                            #{shelfNo},
+                            #{shelfTime},
+                            #{createUserErp},
+                            #{createUserName},
+                            #{updateUserErp},
+                            #{updateUserName},
+                            #{createTime},
+                            #{updateTime},
+                            1
+                    )
+    </insert>
+
+</mapper>
