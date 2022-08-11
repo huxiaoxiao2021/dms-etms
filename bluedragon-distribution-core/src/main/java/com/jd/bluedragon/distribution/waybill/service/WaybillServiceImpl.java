@@ -1205,8 +1205,10 @@ public class WaybillServiceImpl implements WaybillService {
                 return result;
             }
             /*------------------------------------------------------------规则校验----------------------------------------------------------------------------*/
-            // 自营逆向单不能返调度到仓
-            if(BusinessUtil.isSelfReverse(waybill.getWaybillSign()) && BusinessUtil.isWmsSite(siteOfSchedulingOnSite.getSiteType())){
+            // 特殊品类自营逆向单不能返调度到仓
+            String sendPayMap = waybill.getWaybillExt() == null ? null : waybill.getWaybillExt().getSendPayMap();
+            if(BusinessUtil.isSelfReverse(waybill.getWaybillSign()) && BusinessHelper.isSpecialOrder(com.jd.bluedragon.utils.JsonHelper.json2MapByJSON(sendPayMap))
+                    && BusinessUtil.isWmsSite(siteOfSchedulingOnSite.getSiteType())){
                 result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, JdResponse.MESSAGE_SELF_REVERSE_SCHEDULE_ERROR);
                 return result;
             }

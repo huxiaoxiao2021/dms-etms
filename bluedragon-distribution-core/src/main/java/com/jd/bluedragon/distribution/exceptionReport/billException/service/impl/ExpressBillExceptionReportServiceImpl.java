@@ -105,7 +105,7 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
 
             //2.校验包裹是否举报
             ImmutablePair<Boolean, String> checkResult = checkIsCanReport(reportRequest.getPackageCode());
-            if(checkResult.getLeft()){
+            if(!checkResult.getLeft()){
                 result.toFail("举报失败,该包裹已被举报过");
                 result.setData(false);
                 return result;
@@ -414,6 +414,7 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
 
     /**
      * 校验包裹是否可以操作上报
+     *  detail：最近一条上报时间在最近一条补打时间之后则提示：'包裹已举报'，反之最近一条上报记录之后操作了补打则可以继续操作上报
      *  hit：
      *      left表示是否可以操作上报
      *      right表示最近一次补打记录
@@ -421,17 +422,27 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
      * @return
      */
     private ImmutablePair<Boolean, String> checkIsCanReport(String packageCode) {
+        // 最近一条上报记录
         ExpressBillExceptionReport report = expressBillExceptionReportDao.selectOneRecent(packageCode);
-        if(report == null){
+        Date lastReportTime = report == null ? null : report.getReportTime() == null ? report.getCreateTime() : report.getReportTime();
+        // 最近一条补打记录
+        PackageState lastReprintRecord = getLastReprintRecord(packageCode);
+        Date rePrintTime = lastReprintRecord == null ? null : lastReprintRecord.getCreateTime();
+        if(lastReportTime == null){
+            return ImmutablePair.of(true, lastReprintRecord == null ? Constants.EMPTY_FILL : JsonHelper.toJson(lastReprintRecord));
+        }
+        if(rePrintTime == null){
             return ImmutablePair.of(false, Constants.EMPTY_FILL);
         }
-        // 最近一条上报时间在最近一条补打时间之后则提示：'包裹已举报'，反之最近一条上报记录之后操作了补打则可以继续操作上报
-        Date reportTime = report.getReportTime() == null ? report.getCreateTime() : report.getReportTime();
+        return ImmutablePair.of(lastReportTime.before(rePrintTime), JsonHelper.toJson(lastReprintRecord));
+    }
+
+    private PackageState getLastReprintRecord(String packageCode) {
         Set<Integer> stateSet = new HashSet<>();
         stateSet.add(Integer.parseInt(Constants.WAYBILL_TRACE_STATE_RE_PRINT));
         List<PackageState> packStateList = waybillTraceManager.getAllOperationsByOpeCodeAndState(packageCode, stateSet);
         if(CollectionUtils.isEmpty(packStateList)){
-            return ImmutablePair.of(true, Constants.EMPTY_FILL);
+            return null;
         }
         // 按操作时间倒叙排序
         Collections.sort(packStateList, new Comparator<PackageState>() {
@@ -443,11 +454,7 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
                 return dto2.getCreateTime().compareTo(dto1.getCreateTime());
             }
         });
-        Date rePrintTime = packStateList.get(0).getCreateTime();
-        if(rePrintTime == null){
-            return ImmutablePair.of(false, Constants.EMPTY_FILL);
-        }
-        return ImmutablePair.of(rePrintTime.before(reportTime), JsonHelper.toJson(packStateList.get(0)));
+        return packStateList.get(0);
     }
 
     @Override
