@@ -1,10 +1,10 @@
-package com.jd.bluedragon.common.dto.jyexpection.sanwu.request;
+package com.jd.bluedragon.common.dto.jyexpection.request;
 
-public class SwUploadScanReq extends SanwuReq {
+public class ExpUploadScanReq extends ExpBaseReq {
 
     private String barCode;
 
-    private String source;
+    private Integer source;
 
     public String getBarCode() {
         return barCode;
@@ -14,11 +14,11 @@ public class SwUploadScanReq extends SanwuReq {
         this.barCode = barCode;
     }
 
-    public String getSource() {
+    public Integer getSource() {
         return source;
     }
 
-    public void setSource(String source) {
+    public void setSource(Integer source) {
         this.source = source;
     }
 }

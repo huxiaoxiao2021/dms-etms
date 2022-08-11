@@ -1,4 +1,4 @@
-package com.jd.bluedragon.common.dto.jyexpection.sanwu.response;
+package com.jd.bluedragon.common.dto.jyexpection.response;
 
 import java.io.Serializable;
 

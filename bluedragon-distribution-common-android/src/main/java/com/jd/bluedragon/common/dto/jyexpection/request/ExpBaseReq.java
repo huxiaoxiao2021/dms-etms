@@ -1,8 +1,8 @@
-package com.jd.bluedragon.common.dto.jyexpection.sanwu.request;
+package com.jd.bluedragon.common.dto.jyexpection.request;
 
 import java.io.Serializable;
 
-public class SanwuReq implements Serializable {
+public class ExpBaseReq implements Serializable {
 
     // 用户ERP
     private String userErp;
