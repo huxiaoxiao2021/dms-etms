@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.seal.service;
 
 import com.jd.bluedragon.common.dto.blockcar.request.SealCarPreRequest;
+import com.jd.bluedragon.common.dto.seal.request.SealVehicleReq;
 import com.jd.bluedragon.distribution.api.domain.TransAbnormalTypeDto;
 import com.jd.bluedragon.distribution.api.request.*;
 import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;

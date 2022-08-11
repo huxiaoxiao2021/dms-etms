@@ -76,9 +76,9 @@ public class NewSealVehicleGatewayServiceImpl implements NewSealVehicleGatewaySe
      */
     @Override
     @JProfiler(jKey = "DMSWEB.NewSealVehicleGatewayServiceImpl.getTaskInfo",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
-    public JdCResponse<SealCarTaskInfoDto> getTaskInfo(SealCarTaskInfoRequest request) {
+    public JdVerifyResponse<SealCarTaskInfoDto> getTaskInfo(SealCarTaskInfoRequest request) {
 
-        JdCResponse<SealCarTaskInfoDto> response = new JdCResponse<>();
+        JdVerifyResponse<SealCarTaskInfoDto> response = new JdVerifyResponse<SealCarTaskInfoDto>();
         SealCarTaskInfoDto sealCarTaskInfoDto = new SealCarTaskInfoDto();
 
         NewSealVehicleRequest param = new NewSealVehicleRequest();
@@ -86,6 +86,7 @@ public class NewSealVehicleGatewayServiceImpl implements NewSealVehicleGatewaySe
         param.setVehicleNumber(request.getVehicleNumber());
         param.setUserErp(request.getErp());
         param.setDmsCode(request.getDmsCode());
+        param.setDmsSiteId(request.getDmsSiteId());
 
         TransWorkItemResponse transWorkItemResponse = newSealVehicleResource.getVehicleNumberOrItemCodeByParam(param);
 
@@ -98,8 +99,11 @@ public class NewSealVehicleGatewayServiceImpl implements NewSealVehicleGatewaySe
         sealCarTaskInfoDto.setVehicleNumber(transWorkItemResponse.getVehicleNumber());
 
         response.setCode(transWorkItemResponse.getCode());
-        response.setData(sealCarTaskInfoDto);
         response.setMessage(transWorkItemResponse.getMessage());
+        if(Objects.equals(transWorkItemResponse.getExtraBusinessCode(), TransWorkItemResponse.CODE_HINT)){
+            response.addPromptBox(transWorkItemResponse.getExtraBusinessCode(), transWorkItemResponse.getExtraBusinessMessage());
+        }
+        response.setData(sealCarTaskInfoDto);
 
         return response;
     }
@@ -274,15 +278,17 @@ public class NewSealVehicleGatewayServiceImpl implements NewSealVehicleGatewaySe
      */
     @Override
     @JProfiler(jKey = "DMSWEB.NewSealVehicleGatewayServiceImpl.newVerifyVehicleJobByVehicleNumber",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
-    public JdCResponse newVerifyVehicleJobByVehicleNumber(SealCarPreRequest sealCarPreRequest) {
-        JdCResponse jdCResponse = new JdCResponse();
+    public JdVerifyResponse<Void> newVerifyVehicleJobByVehicleNumber(SealCarPreRequest sealCarPreRequest) {
+        JdVerifyResponse<Void> jdVerifyResponse = new JdVerifyResponse<Void>();
 
         NewSealVehicleResponse response = newSealVehicleResource.newVerifyVehicleJobByVehicleNumber(sealCarPreRequest);
 
-        jdCResponse.setCode(response.getCode());
-        jdCResponse.setMessage(response.getMessage());
-
-        return jdCResponse;
+        jdVerifyResponse.setCode(response.getCode());
+        jdVerifyResponse.setMessage(response.getMessage());
+        if(Objects.equals(response.getExtraBusinessCode(), NewSealVehicleResponse.CODE_HINT)){
+            jdVerifyResponse.addPromptBox(response.getExtraBusinessCode(), response.getExtraBusinessMessage());
+        }
+        return jdVerifyResponse;
     }
 
     /**

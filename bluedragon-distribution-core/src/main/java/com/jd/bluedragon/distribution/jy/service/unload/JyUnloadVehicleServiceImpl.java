@@ -6,6 +6,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.BarCodeLabelOptionEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.UnloadBarCodeScanTypeEnum;
+import com.jd.bluedragon.common.dto.operation.workbench.enums.UnloadScanTypeEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.unload.request.*;
 import com.jd.bluedragon.common.dto.operation.workbench.unload.response.*;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.LineTypeStatis;
@@ -60,6 +61,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -130,18 +132,18 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         logInfo("拉取卸车任务. {}", JsonHelper.toJson(request));
 
         JyBizTaskUnloadVehicleEntity condition = makeFetchCondition(request);
+        List<String> sealCarCodes = new ArrayList<>();
         if (WaybillUtil.isPackageCode(request.getBarCode())) {
-            String sealCarCode = getSealCarCodeFromEs(request);
-            if (StringUtils.isBlank(sealCarCode)) {
+            sealCarCodes = getSealCarCodeFromEs(request);
+            if (CollectionUtils.isEmpty(sealCarCodes)) {
                 result.parameterError("该包裹号不存在关联的卸车任务！");
                 return result;
             }
-            condition.setSealCarCode(sealCarCode);
         }
 
         try {
             List<JyBizTaskUnloadCountDto> vehicleStatusAggList =
-                    unloadVehicleService.findStatusCountByCondition4Status(condition, JyBizTaskUnloadStatusEnum.UNLOAD_STATUS_OPTIONS.toArray(new JyBizTaskUnloadStatusEnum[JyBizTaskUnloadStatusEnum.UNLOAD_STATUS_OPTIONS.size()]));
+                    unloadVehicleService.findStatusCountByCondition4Status(condition, sealCarCodes, JyBizTaskUnloadStatusEnum.UNLOAD_STATUS_OPTIONS.toArray(new JyBizTaskUnloadStatusEnum[JyBizTaskUnloadStatusEnum.UNLOAD_STATUS_OPTIONS.size()]));
             if (CollectionUtils.isEmpty(vehicleStatusAggList)) {
                 return result;
             }
@@ -152,7 +154,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
             assembleUnloadStatusAgg(vehicleStatusAggList, response);
 
             // 按卸车状态组装车辆数据
-            assembleUnloadVehicleData(request, condition, response);
+            assembleUnloadVehicleData(request, response, condition, sealCarCodes);
 
             result.setData(response);
         }
@@ -167,18 +169,20 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
     /**
      * 按卸车状态组装车辆数据
      * @param request
-     * @param condition
      * @param response
+     * @param condition
+     * @param sealCarCodes
      */
-    private void assembleUnloadVehicleData(UnloadVehicleTaskRequest request, JyBizTaskUnloadVehicleEntity condition, UnloadVehicleTaskResponse response) {
+    private void assembleUnloadVehicleData(UnloadVehicleTaskRequest request, UnloadVehicleTaskResponse response,
+                                           JyBizTaskUnloadVehicleEntity condition, List<String> sealCarCodes) {
         JyBizTaskUnloadStatusEnum curQueryStatus = JyBizTaskUnloadStatusEnum.getEnumByCode(request.getVehicleStatus());
-        List<LineTypeStatis> lineTypeList = getVehicleLineTypeList(condition, curQueryStatus);
+        List<LineTypeStatis> lineTypeList = this.getVehicleLineTypeList(condition, curQueryStatus, sealCarCodes);
         UnloadVehicleData unloadVehicleData = new UnloadVehicleData();
         unloadVehicleData.setVehicleStatus(curQueryStatus.getCode());
         unloadVehicleData.setLineStatistics(lineTypeList);
 
         // 按车辆状态组装
-        makeVehicleList(condition, request, curQueryStatus, unloadVehicleData);
+        makeVehicleList(condition, request, curQueryStatus, unloadVehicleData, sealCarCodes);
 
         switch (curQueryStatus) {
             case WAIT_UN_LOAD:
@@ -217,14 +221,15 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
      * @param request
      * @param curQueryStatus
      * @param unloadVehicleData
+     * @param sealCarCodes
      */
     private void makeVehicleList(JyBizTaskUnloadVehicleEntity condition, UnloadVehicleTaskRequest request,
-                                 JyBizTaskUnloadStatusEnum curQueryStatus, UnloadVehicleData unloadVehicleData) {
+                                 JyBizTaskUnloadStatusEnum curQueryStatus, UnloadVehicleData unloadVehicleData, List<String> sealCarCodes) {
         List<VehicleBaseInfo> vehicleList = Lists.newArrayList();
         unloadVehicleData.setData(vehicleList);
 
         JyBizTaskUnloadOrderTypeEnum orderTypeEnum = setTaskOrderType(curQueryStatus);
-        List<JyBizTaskUnloadVehicleEntity> vehiclePageList = unloadVehicleService.findByConditionOfPage(condition, orderTypeEnum, request.getPageNumber(), request.getPageSize());
+        List<JyBizTaskUnloadVehicleEntity> vehiclePageList = unloadVehicleService.findByConditionOfPage(condition, orderTypeEnum, request.getPageNumber(), request.getPageSize(), sealCarCodes);
         if (CollectionUtils.isEmpty(vehiclePageList)) {
             return;
         }
@@ -248,7 +253,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
                     UnloadVehicleInfo unloadVehicleInfo = (UnloadVehicleInfo) vehicleBaseInfo;
                     unloadVehicleInfo.setManualCreatedTask(entity.unloadWithoutTask());
                     unloadVehicleInfo.setTags(resolveTagSign(entity.getTagsSign()));
-                    unloadVehicleInfo.setUnloadProgress(entity.getUnloadProgress());
+                    unloadVehicleInfo.setUnloadProgress(this.setUnloadProgress(entity));
                     unloadVehicleInfo.setTaskId(getJyScheduleTaskId(entity.getBizId()));
                     unloadVehicleInfo.setBizId(entity.getBizId());
                     vehicleList.add(unloadVehicleInfo);
@@ -266,6 +271,13 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
                     break;
             }
         }
+    }
+
+    private BigDecimal setUnloadProgress(JyBizTaskUnloadVehicleEntity entity) {
+        if (NumberHelper.gt0(entity.getUnloadProgress())) {
+            return entity.getUnloadProgress().multiply(new BigDecimal(100)).setScale(6, BigDecimal.ROUND_HALF_UP);
+        }
+        return BigDecimal.ZERO;
     }
 
     /**
@@ -340,9 +352,9 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         return tagList;
     }
 
-    private List<LineTypeStatis> getVehicleLineTypeList(JyBizTaskUnloadVehicleEntity condition, JyBizTaskUnloadStatusEnum curQueryStatus) {
+    private List<LineTypeStatis> getVehicleLineTypeList(JyBizTaskUnloadVehicleEntity condition, JyBizTaskUnloadStatusEnum curQueryStatus, List<String> sealCarCodes) {
         List<LineTypeStatis> lineTypeList = new ArrayList<>();
-        List<JyBizTaskUnloadCountDto> lineTypeAgg = unloadVehicleService.findStatusCountByCondition4StatusAndLine(condition, curQueryStatus);
+        List<JyBizTaskUnloadCountDto> lineTypeAgg = unloadVehicleService.findStatusCountByCondition4StatusAndLine(condition, sealCarCodes, curQueryStatus);
         if (CollectionUtils.isNotEmpty(lineTypeAgg)) {
             for (JyBizTaskUnloadCountDto countDto : lineTypeAgg) {
                 LineTypeStatis lineTypeStatis = createLineTypeAgg(countDto);
@@ -396,12 +408,18 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
      * @param request
      * @return
      */
-    private String getSealCarCodeFromEs(UnloadVehicleTaskRequest request) {
+    private List<String> getSealCarCodeFromEs(UnloadVehicleTaskRequest request) {
         JyVehicleTaskUnloadDetail query = new JyVehicleTaskUnloadDetail();
         query.setPackageCode(request.getBarCode());
-        JyVehicleTaskUnloadDetail unloadDetail = unloadVehicleManager.findOneUnloadDetail(query);
-        if (unloadDetail != null) {
-            return unloadDetail.getSealCarCode();
+        query.setEndSiteId(request.getEndSiteCode());
+        List<JyVehicleTaskUnloadDetail> unloadDetails = unloadVehicleManager.findUnloadDetail(query);
+
+        Set<String> sealCarCodes = new HashSet<>();
+        if (CollectionUtils.isNotEmpty(unloadDetails)) {
+            for (JyVehicleTaskUnloadDetail unloadDetail : unloadDetails) {
+                sealCarCodes.add(unloadDetail.getSealCarCode());
+            }
+            return new ArrayList<>(sealCarCodes);
         }
 
         return null;
@@ -465,7 +483,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
             log.error("卸车扫描失败. {}", JsonHelper.toJson(request), ex);
             result.error("服务器异常，卸车扫描失败，请咚咚联系分拣小秘！");
 
-            redisClientOfJy.del(getBizBarCodeCacheKey(request.getBarCode(), request.getCurrentOperate().getSiteCode()));
+            redisClientOfJy.del(getBizBarCodeCacheKey(request.getBarCode(), request.getCurrentOperate().getSiteCode(), request.getBizId()));
         }
 
         return result;
@@ -566,11 +584,8 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
      * @return
      */
     private boolean checkBeforeScan(InvokeResult<Integer> result, UnloadScanRequest request) {
-        String barCode = request.getBarCode();
-        int siteCode = request.getCurrentOperate().getSiteCode();
-
         // 一个单号只能扫描一次
-        if (checkBarScannedAlready(barCode, siteCode)) {
+        if (checkBarScannedAlready(request)) {
             result.hintMessage("单号已扫描！");
             return false;
         }
@@ -584,6 +599,9 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
      */
     private Integer calculateScanPackageCount(UnloadScanRequest request) {
         String barCode = request.getBarCode();
+        if(Objects.equals(UnloadScanTypeEnum.SCAN_WAYBILL.getCode(), request.getScanType())){
+            barCode = WaybillUtil.getWaybillCode(request.getBarCode());
+        }
         Integer scanCount = 0;
         if (WaybillUtil.isPackageCode(barCode)) {
             scanCount = 1;
@@ -618,6 +636,9 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         unloadScanDto.setManualCreatedFlag(taskUnloadVehicle.getManualCreatedFlag());
         unloadScanDto.setOperateSiteId((long) request.getCurrentOperate().getSiteCode());
         unloadScanDto.setBarCode(request.getBarCode());
+        if(Objects.equals(UnloadScanTypeEnum.SCAN_WAYBILL.getCode(), request.getScanType())){
+            unloadScanDto.setBarCode(WaybillUtil.getWaybillCode(request.getBarCode()));
+        }
         unloadScanDto.setOperateTime(operateTime);
         unloadScanDto.setCreateUserErp(request.getUser().getUserErp());
         unloadScanDto.setCreateUserName(request.getUser().getUserName());
@@ -633,17 +654,19 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
     }
 
     /**
-     * 校验卸车是否已经扫描过该单号
-     * @param barCode 包裹、运单、箱号
-     * @param siteCode 操作场地
+     * 校验卸车是否已经扫描过该单号，同一个任务只能扫描一次
      * @return true：扫描过
      */
-    private boolean checkBarScannedAlready(String barCode, int siteCode) {
+    private boolean checkBarScannedAlready(UnloadScanRequest request) {
+        String barCode = request.getBarCode();
+        int siteCode = request.getCurrentOperate().getSiteCode();
         boolean alreadyScanned = false;
-        // 同场地一个单号只能扫描一次
-        String mutexKey = getBizBarCodeCacheKey(barCode, siteCode);
+        if(Objects.equals(UnloadScanTypeEnum.SCAN_WAYBILL.getCode(), request.getScanType())){
+            barCode = WaybillUtil.getWaybillCode(request.getBarCode());
+        }
+        String mutexKey = getBizBarCodeCacheKey(barCode, siteCode, request.getBizId());
         if (redisClientOfJy.set(mutexKey, String.valueOf(System.currentTimeMillis()), UNLOAD_SCAN_BAR_EXPIRE, TimeUnit.HOURS, false)) {
-            JyUnloadEntity queryDb = new JyUnloadEntity(barCode, (long) siteCode);
+            JyUnloadEntity queryDb = new JyUnloadEntity(barCode, (long) siteCode, request.getBizId());
             if (jyUnloadDao.queryByCodeAndSite(queryDb) != null) {
                 alreadyScanned = true;
             }
@@ -655,8 +678,8 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         return alreadyScanned;
     }
 
-    private String getBizBarCodeCacheKey(String barCode, int siteCode) {
-        return String.format(CacheKeyConstants.JY_UNLOAD_SCAN_KEY, barCode, siteCode);
+    private String getBizBarCodeCacheKey(String barCode, int siteCode, String bizId) {
+        return String.format(CacheKeyConstants.JY_UNLOAD_SCAN_KEY, barCode, siteCode, bizId);
     }
 
     @Override

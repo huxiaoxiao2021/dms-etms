@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jd.bluedragon.distribution.jy.dao.send.JySendAttachmentDao">
+
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.jd.bluedragon.distribution.jy.send.JySendAttachmentEntity" id="jySendAttachmentMap">
+        <result property="id" column="id"/>
+        <result property="sendVehicleBizId" column="send_vehicle_biz_id"/>
+        <result property="operateSiteId" column="operate_site_id"/>
+        <result property="vehicleArrived" column="vehicle_arrived"/>
+        <result property="imgUrl" column="img_url"/>
+        <result property="remark" column="remark"/>
+        <result property="operateTime" column="operate_time"/>
+        <result property="createUserErp" column="create_user_erp"/>
+        <result property="createUserName" column="create_user_name"/>
+        <result property="updateUserErp" column="update_user_erp"/>
+        <result property="updateUserName" column="update_user_name"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="yn" column="yn"/>
+        <result property="ts" column="ts"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id
+        ,        send_vehicle_biz_id,        operate_site_id,        vehicle_arrived,        img_url,        remark,        operate_time,        create_user_erp,        create_user_name,        update_user_erp,        update_user_name,        create_time,        update_time,        yn,        ts    </sql>
+
+    <insert id="insert" parameterType="JySendAttachmentEntity">
+        INSERT INTO jy_send_attachment (
+        <if test="sendVehicleBizId != null">
+            send_vehicle_biz_id,
+        </if>
+        <if test="operateSiteId != null">
+            operate_site_id,
+        </if>
+        <if test="vehicleArrived != null">
+            vehicle_arrived,
+        </if>
+        <if test="imgUrl != null">
+            img_url,
+        </if>
+        <if test="remark != null">
+            remark,
+        </if>
+        <if test="operateTime != null">
+            operate_time,
+        </if>
+        <if test="createUserErp != null">
+            create_user_erp,
+        </if>
+        <if test="createUserName != null">
+            create_user_name,
+        </if>
+        <if test="updateUserErp != null">
+            update_user_erp,
+        </if>
+        <if test="updateUserName != null">
+            update_user_name,
+        </if>
+        <if test="createTime != null">
+            create_time,
+        </if>
+        <if test="updateTime != null">
+            update_time
+        </if>
+        ) VALUES (
+        <if test="sendVehicleBizId != null">
+            #{sendVehicleBizId},
+        </if>
+        <if test="operateSiteId != null">
+            #{operateSiteId},
+        </if>
+        <if test="vehicleArrived != null">
+            #{vehicleArrived},
+        </if>
+        <if test="imgUrl != null">
+            #{imgUrl},
+        </if>
+        <if test="remark != null">
+            #{remark},
+        </if>
+        <if test="operateTime != null">
+            #{operateTime},
+        </if>
+        <if test="createUserErp != null">
+            #{createUserErp},
+        </if>
+        <if test="createUserName != null">
+            #{createUserName},
+        </if>
+        <if test="updateUserErp != null">
+            #{updateUserErp},
+        </if>
+        <if test="updateUserName != null">
+            #{updateUserName},
+        </if>
+        <if test="createTime != null">
+            #{createTime},
+        </if>
+        <if test="updateTime != null">
+            #{updateTime}
+        </if>
+        )
+    </insert>
+
+    <update id="updateByBiz" parameterType="JySendAttachmentEntity">
+        UPDATE jy_send_attachment
+        <set>
+            <if test="operateSiteId != null">
+                operate_site_id = #{operateSiteId},
+            </if>
+            <if test="vehicleArrived != null">
+                vehicle_arrived = #{vehicleArrived},
+            </if>
+            <if test="imgUrl != null">
+                img_url = #{imgUrl},
+            </if>
+            <if test="remark != null">
+                remark = #{remark},
+            </if>
+            <if test="operateTime != null">
+                operate_time = #{operateTime},
+            </if>
+            <if test="updateUserErp != null">
+                update_user_erp = #{updateUserErp},
+            </if>
+            <if test="updateUserName != null">
+                update_user_name = #{updateUserName},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+        </set>
+        <where>
+            send_vehicle_biz_id = #{sendVehicleBizId}
+        </where>
+    </update>
+
+    <select id="hasPhoto" parameterType="JySendAttachmentEntity" resultMap="jySendAttachmentMap">
+        SELECT
+            <include refid="Base_Column_List"/>
+        FROM jy_send_attachment
+        WHERE
+            yn = 1
+        AND send_vehicle_biz_id = #{sendVehicleBizId}
+        AND img_url !=''
+    </select>
+
+    <select id="selectBySendVehicleBizId" parameterType="JySendAttachmentEntity" resultMap="jySendAttachmentMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM jy_send_attachment
+        WHERE
+        yn = 1
+        AND send_vehicle_biz_id = #{sendVehicleBizId}
+    </select>
+</mapper>

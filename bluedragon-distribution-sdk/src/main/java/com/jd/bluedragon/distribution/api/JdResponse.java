@@ -92,6 +92,9 @@ public class JdResponse extends JdObject {
     public static final Integer CODE_TARGET_SITE_NO_ROUTE_CONFIRM = 20017;
     public static final String  MESSAGE_TARGET_SITE_NO_ROUTE_CONFIRM = "调度站点无滑道信息，是否继续操作?";
 
+    public static final Integer CODE_SELF_REVERSE_SCHEDULE_ERROR = 20018;
+    public static final String MESSAGE_SELF_REVERSE_SCHEDULE_ERROR = "特殊品类逆向订单禁止直接返调度到库房，请操作返调度到就近【备件库】";
+
     public static final Integer CODE_UNLOADBILL = 2424;
     public static final String MESSAGE_UNLOADBILL = "已经装载不允许取消";
 
@@ -146,7 +149,7 @@ public class JdResponse extends JdObject {
     public static final String MESSAGE_RE_PRINT_IN_ONE_HOUR = "条码在1小时内重复打印，是否继续？";
 
     public static final Integer CODE_RE_PRINT_NO_PACK_LIST = 30101;
-    public static final String MESSAGE_RE_PRINT_NO_PACK_LIST = "运单没有包裹数据，请查看运单详情包裹信息或联系IT，咚咚：xnpsxt";
+    public static final String MESSAGE_RE_PRINT_NO_PACK_LIST = "运单没有包裹数据，请查看运单详情包裹信息或联系IT，咚咚：org.wlxt2";
 
     public static final Integer CODE_RE_PRINT_NO_THIS_PACK = 30102;
     public static final String MESSAGE_RE_PRINT_NO_THIS_PACK = "运单{0}中不存在该包裹号!";
@@ -288,7 +291,7 @@ public class JdResponse extends JdObject {
     
     /** 响应消息 */
     private String message;
-    
+
     public JdResponse() {
     }
     
@@ -329,5 +332,5 @@ public class JdResponse extends JdObject {
     public void setMessage(String message) {
         this.message = message;
     }
-    
+
 }

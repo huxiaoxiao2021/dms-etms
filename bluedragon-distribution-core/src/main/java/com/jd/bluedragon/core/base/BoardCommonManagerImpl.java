@@ -21,6 +21,7 @@ import com.jd.bluedragon.distribution.loadAndUnload.exception.LoadIllegalExcepti
 import com.jd.bluedragon.distribution.loadAndUnload.neum.UnloadCarWarnEnum;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
+import com.jd.bluedragon.distribution.send.domain.SendResult;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.storage.service.StoragePackageMService;
@@ -234,7 +235,7 @@ public class BoardCommonManagerImpl implements BoardCommonManager {
             }
 
             if (response != null && !response.getCode().equals(200)) {
-                if (response.getCode() >= 39000) {
+                if (response.getCode() >= SendResult.RESPONSE_CODE_MAPPING_CONFIRM) {
                     result.customMessage(com.jd.ql.dms.common.domain.JdResponse.CODE_CONFIRM, response.getMessage());
                 } else {
                     result.customMessage(response.getCode(), response.getMessage());

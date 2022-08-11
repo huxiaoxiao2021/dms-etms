@@ -1,14 +1,12 @@
 package com.jd.bluedragon.configuration.ucc;
 
 import com.jd.bluedragon.Constants;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * Created by xumei3 on 2017/12/15.
@@ -776,6 +774,31 @@ public class UccPropertyConfiguration {
      * 到车任务切换ES逻辑开关 1：开启
      */
     private Integer jyUnSealTaskSwitchToEs;
+
+    /**
+     * 拣运发车任务满载率上限。eg:150
+     */
+    private Integer jySendTaskLoadRateUpperLimit;
+
+    /**
+     * 拣运发车任务满载率下限。eg:80
+     */
+    private Integer jySendTaskLoadRateLowerLimit;
+
+    /**
+     * 拣运发车任务满载率配置
+     */
+    private String jySendTaskLoadRateLimit;
+
+    /**
+     * 面单举报异常配置
+     */
+    private String faceAbnormalReportConfig;
+
+    /**
+     * 身份证识别切量开关，全量上线之后，可以删除
+     */
+    private String identityRecogniseSiteSwitch;
 
     public String getScheduleSiteCheckSameCity() {
         return scheduleSiteCheckSameCity;
@@ -1871,7 +1894,26 @@ public class UccPropertyConfiguration {
         this.jyUnSealTaskSwitchToEs = jyUnSealTaskSwitchToEs;
     }
 
-	public boolean isNeedUseNewReverseApi() {
+    public Integer getJySendTaskLoadRateUpperLimit() {
+        return jySendTaskLoadRateUpperLimit;
+    }
+
+    public Integer getJySendTaskLoadRateLowerLimit() {
+        return jySendTaskLoadRateLowerLimit;
+    }
+
+    public String getJySendTaskLoadRateLimit() {
+        return jySendTaskLoadRateLimit;
+    }
+
+    public void setJySendTaskLoadRateLimit(String jySendTaskLoadRateLimit) {
+        this.jySendTaskLoadRateLimit = jySendTaskLoadRateLimit;
+        String[] loadRateLimit = this.jySendTaskLoadRateLimit.split(Constants.SEPARATOR_COMMA);
+        this.jySendTaskLoadRateLowerLimit = Integer.valueOf(loadRateLimit[0]);
+        this.jySendTaskLoadRateUpperLimit = Integer.valueOf(loadRateLimit[1]);
+    }
+
+    public boolean isNeedUseNewReverseApi() {
 		return needUseNewReverseApi;
 	}
 
@@ -1914,5 +1956,23 @@ public class UccPropertyConfiguration {
 
     public void setDpWaybillMatchSendCodeSwitch(boolean dpWaybillMatchSendCodeSwitch) {
         this.dpWaybillMatchSendCodeSwitch = dpWaybillMatchSendCodeSwitch;
+    }
+
+    public String getFaceAbnormalReportConfig() {
+        return faceAbnormalReportConfig;
+    }
+
+    public void setFaceAbnormalReportConfig(String faceAbnormalReportConfig) {
+        this.faceAbnormalReportConfig = faceAbnormalReportConfig;
+    }
+
+    public List<String> getIdentityRecogniseSiteSwitch() {
+        return StringUtils.isNotEmpty(identityRecogniseSiteSwitch)?
+                Arrays.asList(identityRecogniseSiteSwitch.split(Constants.SEPARATOR_COMMA).clone())
+                : Collections.singletonList("0");
+    }
+
+    public void setIdentityRecogniseSiteSwitch(String identityRecogniseSiteSwitch) {
+        this.identityRecogniseSiteSwitch = identityRecogniseSiteSwitch;
     }
 }

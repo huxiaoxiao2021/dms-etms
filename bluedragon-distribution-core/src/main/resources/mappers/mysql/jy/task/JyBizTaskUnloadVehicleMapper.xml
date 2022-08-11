@@ -315,7 +315,12 @@
                     #{item}
                 </foreach>
             </if>
-
+            <if test="sealCarCodes != null">
+                AND seal_car_code IN
+                <foreach collection="sealCarCodes" item="item" open="(" close=")" separator=",">
+                    #{item}
+                </foreach>
+            </if>
         </where>
 
         group by vehicle_status
@@ -366,7 +371,12 @@
                     #{item}
                 </foreach>
             </if>
-
+            <if test="sealCarCodes != null">
+                AND seal_car_code IN
+                <foreach collection="sealCarCodes" item="item" open="(" close=")" separator=",">
+                    #{item}
+                </foreach>
+            </if>
         </where>
 
         group by vehicle_status,line_type
@@ -388,6 +398,13 @@
 
             <if test="entity.lineType != null">
                 AND line_type = #{entity.lineType}
+            </if>
+
+            <if test="sealCarCodes != null">
+                AND seal_car_code IN
+                <foreach collection="sealCarCodes" item="item" open="(" close=")" separator=",">
+                    #{item}
+                </foreach>
             </if>
 
         </where>
@@ -553,5 +570,36 @@
             </if>
             and yn = 1           
         </where>
-     </select>    
+     </select>
+
+    <select id="needCleanSite" parameterType="JyBizTaskUnloadVehicleEntity" resultType="Integer">
+        select end_site_id
+        from jy_biz_task_unload_vehicle
+        where yn = 1
+        and vehicle_status = #{vehicleStatus}
+        group by end_site_id
+
+    </select>
+
+    <update id="cleanByParam" parameterType="JyBizTaskUnloadVehicleEntity">
+        update jy_biz_task_unload_vehicle
+        set yn = 0
+        where yn = 1
+        and end_site_id = #{endSiteId}
+        and vehicle_status = #{vehicleStatus}
+        <if test="createTime != null">
+            and create_time <![CDATA[ < ]]> #{createTime}
+        </if>
+        <if test="updateTime != null">
+            and update_time <![CDATA[ < ]]> #{updateTime}
+        </if>
+        <if test="unloadFinishTime != null">
+            and unload_finish_time <![CDATA[ < ]]> #{unloadFinishTime}
+        </if>
+        <if test="ts != null">
+            and ts <![CDATA[ < ]]> #{ts}
+        </if>
+
+
+    </update>
 </mapper>

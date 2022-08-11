@@ -59,7 +59,7 @@
     <Loggers>
         <!--自定义：过滤掉spring和mybatis的一些无用的DEBUG信息-->
         <!-- sql  -->
-        <logger name="java.sql" level="ERROR" additivity="true"/>
+        <logger name="java.sql" level="DEBUG" additivity="true"/>
         <!-- mybatis  -->
         <logger name="org.mybatis" level="ERROR" additivity="true"/>
         <logger name="org.apache.ibatis" level="ERROR" additivity="true"/>

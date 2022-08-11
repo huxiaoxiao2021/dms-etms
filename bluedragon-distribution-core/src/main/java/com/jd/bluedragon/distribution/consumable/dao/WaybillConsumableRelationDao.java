@@ -72,5 +72,12 @@ public interface WaybillConsumableRelationDao extends Dao<WaybillConsumableRelat
      */
     int getNoPackUserErpRecordCount(String waybillCode);
 
+    /**
+     * 通过运单号查询未录入打包后包装耗材体积的耗材数
+     * @param waybillCode
+     * @return
+     */
+    List<WaybillConsumableDetailInfo> getNoConfirmVolumeRecordCount(String waybillCode);
+
     int updateByWaybillCode(WaybillConsumableRelationPDADto waybillConsumableRelationPDADto);
 }

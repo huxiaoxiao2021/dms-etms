@@ -10,6 +10,13 @@ public class InvokeResult<T> implements Serializable {
     private static final String     SERVER_ERROR_MESSAGE="服务器执行异常";
 
     public static final int RESULT_SUCCESS_CODE = 200;
+    public static final String RESULT_SUCCESS_MESSAGE = "OK";
+    public static final int PARAMETER_ERROR_CODE = 4120;
+    public static final String PARAMETER_ERROR_MESSAGE = "请求参数错误";
+    public static final int SERVICE_ERROR_CODE = 5000;
+    public static final String SERVICE_ERROR_MESSAGE = "服务内部错误";
+    public static final int SERVICE_FAIL_CODE = 5001;
+    public static final String SERVICE_FAIL_MESSAGE = "服务处理失败";
 
     public InvokeResult(){
         this.code=200;
@@ -54,9 +61,9 @@ public class InvokeResult<T> implements Serializable {
         this.data = data;
     }
 
-    public void success(){
-        this.code=200;
-        this.message="OK";
+    public void success() {
+        this.code = RESULT_SUCCESS_CODE;
+        this.message = RESULT_SUCCESS_MESSAGE;
     }
 
     /**

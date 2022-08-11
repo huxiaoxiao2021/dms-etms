@@ -4,7 +4,11 @@ import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.jy.dto.task.JyBizTaskUnloadCountDto;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadOrderTypeEnum;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.coo.sa.mybatis.plugins.id.SequenceGenAdaptor;
+import org.apache.commons.collections4.CollectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.Date;
@@ -20,6 +24,8 @@ import java.util.Map;
  * @date 2022-04-01 16:23:34
  */
 public class JyBizTaskUnloadVehicleDao extends BaseDao<JyBizTaskUnloadVehicleEntity> {
+
+    private static Logger logger = LoggerFactory.getLogger(JyBizTaskUnloadVehicleDao.class);
 
     final static String NAMESPACE = JyBizTaskUnloadVehicleDao.class.getName();
 
@@ -78,10 +84,13 @@ public class JyBizTaskUnloadVehicleDao extends BaseDao<JyBizTaskUnloadVehicleEnt
      * @param statuses
      * @return
      */
-    public List<JyBizTaskUnloadCountDto> findStatusCountByCondition4Status(JyBizTaskUnloadVehicleEntity entity, List<Integer> statuses){
+    public List<JyBizTaskUnloadCountDto> findStatusCountByCondition4Status(JyBizTaskUnloadVehicleEntity entity, List<Integer> statuses, List<String> sealCarCodes){
         Map<String,Object> params = new HashMap<>();
         params.put("entity",entity);
         params.put("statuses",statuses);
+        if (CollectionUtils.isNotEmpty(sealCarCodes)) {
+            params.put("sealCarCodes", sealCarCodes);
+        }
         return this.getSqlSession().selectList(NAMESPACE + ".findStatusCountByCondition4Status", params);
 
     }
@@ -92,10 +101,13 @@ public class JyBizTaskUnloadVehicleDao extends BaseDao<JyBizTaskUnloadVehicleEnt
      * @param statuses
      * @return
      */
-    public List<JyBizTaskUnloadCountDto> findStatusCountByCondition4StatusAndLine(JyBizTaskUnloadVehicleEntity entity, List<Integer> statuses){
+    public List<JyBizTaskUnloadCountDto> findStatusCountByCondition4StatusAndLine(JyBizTaskUnloadVehicleEntity entity, List<Integer> statuses, List<String> sealCarCodes){
         Map<String,Object> params = new HashMap<>();
         params.put("entity",entity);
         params.put("statuses",statuses);
+        if (CollectionUtils.isNotEmpty(sealCarCodes)) {
+            params.put("sealCarCodes", sealCarCodes);
+        }
         return this.getSqlSession().selectList(NAMESPACE + ".findStatusCountByCondition4StatusAndLine", params);
 
     }
@@ -106,9 +118,10 @@ public class JyBizTaskUnloadVehicleDao extends BaseDao<JyBizTaskUnloadVehicleEnt
      * @param typeEnum
      * @param offset
      * @param limit
+     * @param sealCarCodes
      * @return
      */
-    public List<JyBizTaskUnloadVehicleEntity> findByConditionOfPage(JyBizTaskUnloadVehicleEntity condition, JyBizTaskUnloadOrderTypeEnum typeEnum, Integer offset, Integer limit) {
+    public List<JyBizTaskUnloadVehicleEntity> findByConditionOfPage(JyBizTaskUnloadVehicleEntity condition, JyBizTaskUnloadOrderTypeEnum typeEnum, Integer offset, Integer limit, List<String> sealCarCodes) {
         Map<String,Object> params = new HashMap<>();
         params.put("entity",condition);
         if(typeEnum != null) {
@@ -116,6 +129,9 @@ public class JyBizTaskUnloadVehicleDao extends BaseDao<JyBizTaskUnloadVehicleEnt
         }
         params.put("offset",offset);
         params.put("limit",limit);
+        if (CollectionUtils.isNotEmpty(sealCarCodes)) {
+            params.put("sealCarCodes", sealCarCodes);
+        }
         return this.getSqlSession().selectList(NAMESPACE + ".findByConditionOfPage", params);
     }
 
@@ -155,5 +171,27 @@ public class JyBizTaskUnloadVehicleDao extends BaseDao<JyBizTaskUnloadVehicleEnt
 		return this.getSqlSession().selectOne(NAMESPACE + ".countByVehicleNumberAndStatus",condition);
 	}
 
+    /**
+     * 根据条件清理数据，将数据yn字段设置成0,等待卸数使用
+     * @param condition
+     * @return
+     */
+	public int cleanByParam(JyBizTaskUnloadVehicleEntity condition){
+	    if(condition.getCreateTime() == null && condition.getUpdateTime() == null && condition.getUnloadFinishTime() == null){
+	        // 必填时间范围防止全部清理
+            logger.error("JyBizTaskUnloadVehicleDao.cleanByParam param error! {}", JsonHelper.toJson(condition));
+	        return 0;
+        }
+        return this.getSqlSession().update(NAMESPACE + ".cleanByParam",condition);
+    }
+
+    /**
+     * 根据状态获取需要清理的数据的场地ID
+     * @param condition
+     * @return
+     */
+    public List<Integer> needCleanSite(JyBizTaskUnloadVehicleEntity condition){
+        return this.getSqlSession().selectList(NAMESPACE + ".needCleanSite",condition);
+    }
 
 }

@@ -59,6 +59,11 @@ public class WaybillConsumableRelationDaoImpl extends BaseDao<WaybillConsumableR
     }
 
     @Override
+    public List<WaybillConsumableDetailInfo> getNoConfirmVolumeRecordCount(String waybillCode) {
+        return sqlSession.selectList(this.nameSpace+".getNoConfirmVolumeRecordCount", waybillCode);
+    }
+
+    @Override
     public int updateByWaybillCode(WaybillConsumableRelationPDADto waybillConsumableRelationPDADto) {
         return sqlSession.update(this.nameSpace+".updateByWaybillCode", waybillConsumableRelationPDADto);
     }

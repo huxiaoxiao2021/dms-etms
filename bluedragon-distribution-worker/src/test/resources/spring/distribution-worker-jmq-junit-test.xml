@@ -31,6 +31,18 @@
     <jmq:transport id="jmq.dmsWorkerForTibet.transport" address="${jmq.dmsWorkerForTibet.address}" user="${jmq.dmsWorkerForTibet.user}"
                    password="${jmq.dmsWorkerForTibet.password}" app="${jmq.dmsWorkerForTibet.app}"/>
 
+    <!--########################  JMQ4配置  #############################################-->
+    <jmq:transport id="jmq4.dmsWeb.transport"
+                   address="${jmq4.dmsWeb.address}"
+                   user="${jmq4.dmsWeb.user}"
+                   password="${jmq4.dmsWeb.password}"
+                   app="${jmq4.dmsWeb.app}" />
 
+    <jmq:transport id="jmq4.dmsWorker.transport"
+                   address="${jmq4.dmsWorker.address}"
+                   user="${jmq4.dmsWorker.user}"
+                   password="${jmq4.dmsWorker.password}"
+                   app="${jmq4.dmsWorker.app}"/>
+    <!--########################  JMQ4配置  #############################################-->
 </beans>
 

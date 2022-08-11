@@ -62,7 +62,7 @@ public class ExpressBillExceptionReportCenterServiceImpl implements ExpressBillE
             query.setYn(1);
             total = expressBillExceptionReportDao.queryCount(query);
             if(total > 0){
-                List<ExpressBillExceptionReport> recordList = expressBillExceptionReportDao.queryList(query);
+                List<ExpressBillExceptionReport> recordList = expressBillExceptionReportDao.newQueryList(query);
                 for (ExpressBillExceptionReport expressBillExceptionReport : recordList) {
                     dataList.add(this.generateExpressBillExceptionReportVo(expressBillExceptionReport));
                 }

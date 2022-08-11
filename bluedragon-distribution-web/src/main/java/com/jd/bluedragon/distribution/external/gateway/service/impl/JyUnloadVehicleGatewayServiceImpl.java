@@ -1,21 +1,27 @@
 package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
+import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.inspection.request.InspectionRequest;
 import com.jd.bluedragon.common.dto.inspection.response.InspectionCheckResultDto;
+import com.jd.bluedragon.common.dto.operation.workbench.transport.request.TransportTaskRequest;
+import com.jd.bluedragon.common.dto.operation.workbench.enums.UnloadScanTypeEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.unload.request.*;
 import com.jd.bluedragon.common.dto.operation.workbench.unload.response.*;
 import com.jd.bluedragon.common.dto.select.SelectOption;
 import com.jd.bluedragon.common.dto.select.StringSelectOption;
+import com.jd.bluedragon.distribution.api.response.TransWorkItemResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyUnloadVehicleStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.UnloadProductTypeEnum;
 import com.jd.bluedragon.distribution.jy.service.unload.IJyUnloadVehicleService;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadDto;
+import com.jd.bluedragon.dms.utils.BarCodeType;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.distribution.transport.service.TransportRelatedService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.gateway.service.InspectionGatewayService;
 import com.jd.bluedragon.external.gateway.service.JyUnloadVehicleGatewayService;
@@ -29,14 +35,12 @@ import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * @ClassName JyUnloadVehicleGatewayServiceImpl
@@ -53,6 +57,9 @@ public class JyUnloadVehicleGatewayServiceImpl implements JyUnloadVehicleGateway
 
     @Autowired
     private InspectionGatewayService inspectionGatewayService;
+
+    @Autowired
+    private TransportRelatedService transportRelatedService;
 
     @Override
     public JdCResponse<UnloadNoTaskResponse> createNoTaskUnloadTask(UnloadNoTaskRequest request) {
@@ -97,9 +104,12 @@ public class JyUnloadVehicleGatewayServiceImpl implements JyUnloadVehicleGateway
     public JdCResponse<List<SelectOption>> vehicleStatusOptions() {
         List<SelectOption> optionList = new ArrayList<>();
         for (JyUnloadVehicleStatusEnum statusEnum : JyUnloadVehicleStatusEnum.values()) {
-            SelectOption option = new SelectOption(statusEnum.getCode(), statusEnum.getName(), statusEnum.getCode());
+            SelectOption option = new SelectOption(statusEnum.getCode(), statusEnum.getName(), statusEnum.getOrder());
             optionList.add(option);
         }
+
+        Collections.sort(optionList, new SelectOption.OrderComparator());
+
         JdCResponse<List<SelectOption>> response = new JdCResponse<>();
         response.toSucceed();
         response.setData(optionList);
@@ -117,6 +127,27 @@ public class JyUnloadVehicleGatewayServiceImpl implements JyUnloadVehicleGateway
         Collections.sort(optionList, new StringSelectOption.OrderComparator());
 
         JdCResponse<List<StringSelectOption>> response = new JdCResponse<>();
+        response.toSucceed();
+        response.setData(optionList);
+        return response;
+    }
+
+    /**
+     * 卸车扫描方式枚举
+     * @return 扫描方式列表
+     * @author fanggang7
+     * @time 2022-07-05 23:20:20 周二
+     */
+    @Override
+    public JdCResponse<List<SelectOption>> scanTypeOptions() {
+        List<SelectOption> optionList = new ArrayList<>();
+        // 仅支持包裹、箱号、运单号
+        optionList.add(new SelectOption(UnloadScanTypeEnum.SCAN_ONE.getCode(), UnloadScanTypeEnum.SCAN_ONE.getName(), UnloadScanTypeEnum.SCAN_ONE.getDesc(), UnloadScanTypeEnum.SCAN_ONE.getCode()));
+        optionList.add(new SelectOption(UnloadScanTypeEnum.SCAN_WAYBILL.getCode(), UnloadScanTypeEnum.SCAN_WAYBILL.getName(), UnloadScanTypeEnum.SCAN_WAYBILL.getDesc(), UnloadScanTypeEnum.SCAN_WAYBILL.getCode()));
+
+        Collections.sort(optionList, new SelectOption.OrderComparator());
+
+        JdCResponse<List<SelectOption>> response = new JdCResponse<>();
         response.toSucceed();
         response.setData(optionList);
         return response;
@@ -143,6 +174,7 @@ public class JyUnloadVehicleGatewayServiceImpl implements JyUnloadVehicleGateway
         if (invokeResult.getCode() == InvokeResult.RESULT_SUCCESS_CODE) {
             response.setData(invokeResult.getData());
             response.toSuccess();
+            response.setData(invokeResult.getData());
             return response;
         }
         else if (invokeResult.getCode() == InvokeResult.CODE_HINT) {
@@ -192,6 +224,27 @@ public class JyUnloadVehicleGatewayServiceImpl implements JyUnloadVehicleGateway
             return false;
         }
 
+        // 设置默认扫描方式
+        if(request.getScanType() == null){
+            request.setScanType(UnloadScanTypeEnum.SCAN_ONE.getCode());
+        } else {
+            final BarCodeType barCodeType = BusinessUtil.getBarCodeType(request.getBarCode());
+            if(barCodeType == null) {
+                response.toFail("请扫描正确的条码！");
+                return false;
+            }
+            if(Objects.equals(UnloadScanTypeEnum.SCAN_ONE.getCode(), request.getScanType()) &&
+                    (!Objects.equals(BarCodeType.PACKAGE_CODE.getCode(), barCodeType.getCode()) && !Objects.equals(BarCodeType.BOX_CODE.getCode(), barCodeType.getCode()))){
+                response.toFail("请扫描包裹号或箱号！");
+                return false;
+            }
+            if(Objects.equals(UnloadScanTypeEnum.SCAN_WAYBILL.getCode(), request.getScanType()) &&
+                    (!Objects.equals(BarCodeType.PACKAGE_CODE.getCode(), barCodeType.getCode()) && !Objects.equals(BarCodeType.WAYBILL_CODE.getCode(), barCodeType.getCode()))){
+                response.toFail("请扫描包裹号或运单号！");
+                return false;
+            }
+        }
+
         return true;
     }
 
@@ -206,6 +259,9 @@ public class JyUnloadVehicleGatewayServiceImpl implements JyUnloadVehicleGateway
         if (!request.getForceSubmit()) {
             InspectionRequest inspectionRequest = new InspectionRequest();
             inspectionRequest.setBarCode(request.getBarCode());
+            if(Objects.equals(UnloadScanTypeEnum.SCAN_WAYBILL.getCode(), request.getScanType())){
+                inspectionRequest.setBarCode(WaybillUtil.getWaybillCode(request.getBarCode()));
+            }
             inspectionRequest.setBusinessType(10);
             inspectionRequest.setCreateSiteCode(request.getCurrentOperate().getSiteCode());
             inspectionRequest.setCreateSiteName(request.getCurrentOperate().getSiteName());
@@ -296,5 +352,20 @@ public class JyUnloadVehicleGatewayServiceImpl implements JyUnloadVehicleGateway
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public JdCResponse<Long> countByVehicleNumberAndStatus(UnsealVehicleTaskRequest request) {
         return retJdCResponse(unloadVehicleService.countByVehicleNumberAndStatus(request));
+    }
+
+    @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyUnloadVehicleGatewayService.transportTaskHint",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
+    public JdVerifyResponse<Void> transportTaskHint(TransportTaskRequest request) {
+        JdVerifyResponse<Void> jdVerifyResponse = new JdVerifyResponse<Void>();
+        jdVerifyResponse.toSuccess();
+        // 校验运输任务（返回结果只做提示展示）
+        ImmutablePair<Integer, String> checkResult = transportRelatedService.checkTransportTask(request.getSiteCode(),
+                request.getTransWorkCode(), request.getSealCarCode(), request.getSimpleCode(), request.getVehicleNumber());
+        if(Objects.equals(checkResult.left, TransWorkItemResponse.CODE_HINT)){
+            jdVerifyResponse.addPromptBox(checkResult.left, checkResult.right);
+        }
+        return jdVerifyResponse;
     }
 }
