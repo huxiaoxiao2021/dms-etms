@@ -64,7 +64,7 @@ public class PDDServiceImpl implements PDDService {
             return response;
         }
 
-        CallerInfo callerInfo = Profiler.registerInfo("DMS.WEB.PDDService.queryPDDWaybillInfoByWaybillCodeWithCacheAndSource_all_" + source, Constants.UMP_APP_NAME_DMSWEB, false,false);
+        CallerInfo callerInfo = Profiler.registerInfo("DMS.WEB.PDDService.queryPDDWaybillInfoByWaybillCodeWithCacheAndSource_all_" + source, Constants.UMP_APP_NAME_DMSWEB, false,true);
         // 1. 检查缓存信息，是否包含pdd的缓存信息，如果包含，则从缓存中获取pdd信息
         if (Boolean.TRUE.equals(cacheSwitch) && this.queryPDDWaybillInCache(waybillCode, response)) {
             return response;
@@ -75,11 +75,11 @@ public class PDDServiceImpl implements PDDService {
             return response;
         }
 
-        CallerInfo callerInfo1 = Profiler.registerInfo("DMS.WEB.PDDService.queryPDDWaybillInfoByWaybillCodeWithCacheAndSource_to_pdd_all_" + source, Constants.UMP_APP_NAME_DMSWEB, false,false);
+        CallerInfo callerInfo1 = Profiler.registerInfo("DMS.WEB.PDDService.queryPDDWaybillInfoByWaybillCodeWithCacheAndSource_to_pdd_all_" + source,Constants.UMP_APP_NAME_DMSWEB, false,true);
         CallerInfo callerInfo2 = null;
         // 3. 调用pdd的外部接口，获取返回值信息
         if (this.queryPDDWaybillInPDD(waybillCode, response)) {
-            callerInfo2 = Profiler.registerInfo("DMS.WEB.PDDService.queryPDDWaybillInfoByWaybillCodeWithCacheAndSource_to_pdd_success_" + source, Constants.UMP_APP_NAME_DMSWEB, false,false);
+            callerInfo2 = Profiler.registerInfo("DMS.WEB.PDDService.queryPDDWaybillInfoByWaybillCodeWithCacheAndSource_to_pdd_success_" + source, Constants.UMP_APP_NAME_DMSWEB, false,true);
         }
         Profiler.registerInfoEnd(callerInfo);
         Profiler.registerInfoEnd(callerInfo1);
