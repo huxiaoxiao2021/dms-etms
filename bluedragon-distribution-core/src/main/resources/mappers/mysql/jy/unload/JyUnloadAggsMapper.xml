@@ -145,7 +145,7 @@
     <select id="queryWaybillStatisticsUnderBoard"
             parameterType="com.jd.bluedragon.distribution.jy.dto.unload.DimensionQueryDto"
             resultMap="jyUnloadAggsMap">
-               SUM(actual_scan_waybill_count)   actual_scan_waybill_count
+               select SUM(actual_scan_waybill_count)   actual_scan_waybill_count
         FROM jy_unload_aggs
         WHERE biz_id = #{bizId}
           and board_code = #{boardCode}

@@ -38,6 +38,12 @@ public interface JyUnloadVehicleTysService {
     InvokeResult<ScanStatisticsDto> queryStatisticsByDiffDimension(DimensionQueryDto dto);
 
     /**
+     * 查询包裹和运单维度统计数据
+     */
+    InvokeResult<StatisticsDto> queryStatistics(DimensionQueryDto dto);
+
+
+    /**
      * 查询卸车任务详情
      *
      * @param bizId

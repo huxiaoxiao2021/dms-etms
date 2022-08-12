@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.jy.service.task;
 import com.jd.bluedragon.distribution.jy.dto.task.JyBizTaskUnloadCountDto;
 import com.jd.bluedragon.distribution.jy.dto.unload.DimensionQueryDto;
 import com.jd.bluedragon.distribution.jy.dto.unload.ScanStatisticsDto;
+import com.jd.bluedragon.distribution.jy.dto.unload.StatisticsDto;
 import com.jd.bluedragon.distribution.jy.dto.unload.UnloadVehicleTaskDto;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadOrderTypeEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadStatusEnum;
@@ -169,4 +170,6 @@ public interface JyBizTaskUnloadVehicleService {
     ScanStatisticsDto queryStatisticsByDiffDimension(DimensionQueryDto dto);
 
     UnloadVehicleTaskDto queryTaskDataByBizId(String bizId);
+
+    StatisticsDto queryStatistics(DimensionQueryDto dto);
 }
