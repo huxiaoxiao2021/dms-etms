@@ -377,7 +377,6 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 				return result.toFail("该用户未签到，无法签退！");
 			}
 			data.setId(lastSignRecord.getId());
-			data.setModeType(lastSignRecord.getModeType());
 		}
 		data.setUpdateTime(new Date());
 		data.setSignOutTime(new Date());
