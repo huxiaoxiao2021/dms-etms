@@ -94,12 +94,15 @@ public class ChuguanExportManagerImpl implements ChuguanExportManager{
         return callerParam;
     }
 
+
+
     /**
      * 查询出管数据；查询逆向物流的数据。
      * @param businessNo 业务单号 可能是订单号
      * @return
      */
-    private List<ChuguanVo> getFullStockByBusinNo(String businessNo,ConstantEnums.ChuGuanTypeId chuGuanTypeId) {
+    @Override
+    public List<ChuguanVo> queryChuGuan(String businessNo,ConstantEnums.ChuGuanTypeId chuGuanTypeId) {
         CallerInfo info = Profiler.registerInfo("DMS.BASE.ChuguanExportManagerImpl.queryChuGuan", Constants.UMP_APP_NAME_DMSWEB, false, true);
         List<ChuguanVo> result = null;
             ChuguanQueryParam chuguanQueryParam = new ChuguanQueryParam();
@@ -138,13 +141,13 @@ public class ChuguanExportManagerImpl implements ChuguanExportManager{
     public KuGuanDomain queryByOrderCode(String orderCode,String lKdanhao) {
 
         //由于出管限制了 typeId业务类型Id。如果需要查询逆向物流场景的数据，那就把所有的typeId 枚举的场景都查询一遍。因为不确定 写入出管 的TypeId 是什么
-        List<ChuguanVo> chuguanVos = getFullStockByBusinNo(orderCode,ConstantEnums.ChuGuanTypeId.REVERSE_LOGISTICS_GOODS_REJECTION);
+        List<ChuguanVo> chuguanVos = queryChuGuan(orderCode,ConstantEnums.ChuGuanTypeId.REVERSE_LOGISTICS_GOODS_REJECTION);
         if(chuguanVos == null){
-            chuguanVos = getFullStockByBusinNo(orderCode,ConstantEnums.ChuGuanTypeId.REVERSE_LOGISTICS_MONEY_REJECTION);
+            chuguanVos = queryChuGuan(orderCode,ConstantEnums.ChuGuanTypeId.REVERSE_LOGISTICS_MONEY_REJECTION);
         }
 
         if(chuguanVos == null){//如果逆向物流的业务类型没有数据，那就查询 订单出库
-            chuguanVos = getFullStockByBusinNo(orderCode,ConstantEnums.ChuGuanTypeId.ORDER_MONEY_OUT);
+            chuguanVos = queryChuGuan(orderCode,ConstantEnums.ChuGuanTypeId.ORDER_MONEY_OUT);
         }
         KuGuanDomain domain = null;
         if (chuguanVos != null && !chuguanVos.isEmpty()) {
@@ -181,16 +184,16 @@ public class ChuguanExportManagerImpl implements ChuguanExportManager{
     }
 
     @Override
-    public KuGuanDomain queryByWaybillCode(String waybillCode) {
+    public KuGuanDomain queryByWaybillCode(String orderId) {
 
         KuGuanDomain result = null;
         try {
-            result = this.queryByOrderCode(waybillCode,null);
+            result = this.queryByOrderCode(orderId,null);
             if(log.isDebugEnabled()){
-                log.debug("根据订单号获取库管单信息-结束waybillCode[{}]result[{}]",waybillCode, JsonHelper.toJson(result));
+                log.debug("根据订单号获取库管单信息-结束waybillCode[{}]result[{}]",orderId, JsonHelper.toJson(result));
             }
         } catch (Exception e) {
-            log.error("根据订单号获取库管单信息服务异常waybillCode[{}]",waybillCode, e);
+            log.error("根据订单号获取库管单信息服务异常waybillCode[{}]",orderId, e);
         }
         return result;
     }
