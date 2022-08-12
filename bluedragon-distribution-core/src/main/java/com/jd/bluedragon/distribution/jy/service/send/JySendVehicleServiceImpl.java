@@ -1604,25 +1604,24 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
         // 设置默认扫描方式
         if(request.getBarCodeType() == null){
             request.setBarCodeType(SendVehicleScanTypeEnum.SCAN_ONE.getCode());
-        } else {
-            final BarCodeType barCodeType = BusinessUtil.getBarCodeType(request.getBarCode());
-            if(barCodeType == null) {
-                response.toFail("请扫描正确的条码！");
+        }
+        final BarCodeType barCodeType = BusinessUtil.getBarCodeType(request.getBarCode());
+        if(barCodeType == null) {
+            response.toFail("请扫描正确的条码！");
+            return false;
+        }
+        if(Objects.equals(SendVehicleScanTypeEnum.SCAN_ONE.getCode(), request.getBarCodeType()) &&
+                (!Objects.equals(BarCodeType.PACKAGE_CODE.getCode(), barCodeType.getCode()) && !Objects.equals(BarCodeType.BOX_CODE.getCode(), barCodeType.getCode()))){
+            response.toFail("请扫描包裹号或箱号！");
+            return false;
+        }
+        if (Objects.equals(SendVehicleScanTypeEnum.SCAN_WAYBILL.getCode(), request.getBarCodeType())) {
+            if (!Objects.equals(BarCodeType.PACKAGE_CODE.getCode(), barCodeType.getCode()) && !Objects.equals(BarCodeType.WAYBILL_CODE.getCode(), barCodeType.getCode())) {
+                response.toFail("请扫描包裹号或运单号！");
                 return false;
             }
-            if(Objects.equals(SendVehicleScanTypeEnum.SCAN_ONE.getCode(), request.getBarCodeType()) &&
-                    (!Objects.equals(BarCodeType.PACKAGE_CODE.getCode(), barCodeType.getCode()) && !Objects.equals(BarCodeType.BOX_CODE.getCode(), barCodeType.getCode()))){
-                response.toFail("请扫描包裹号或箱号！");
-                return false;
-            }
-            if (Objects.equals(SendVehicleScanTypeEnum.SCAN_WAYBILL.getCode(), request.getBarCodeType())) {
-                if (!Objects.equals(BarCodeType.PACKAGE_CODE.getCode(), barCodeType.getCode()) && !Objects.equals(BarCodeType.WAYBILL_CODE.getCode(), barCodeType.getCode())) {
-                    response.toFail("请扫描包裹号或运单号！");
-                    return false;
-                }
-                // @mark 注意此处，按运单号扫描时，如果是扫的包裹号，则将包裹号转成运单号
-                request.setBarCode(WaybillUtil.getWaybillCode(request.getBarCode()));
-            }
+            // @mark 注意此处，按运单号扫描时，如果是扫的包裹号，则将包裹号转成运单号
+            request.setBarCode(WaybillUtil.getWaybillCode(request.getBarCode()));
         }
 
         return true;
