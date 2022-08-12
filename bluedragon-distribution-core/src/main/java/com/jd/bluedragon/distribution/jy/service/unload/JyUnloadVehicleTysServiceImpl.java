@@ -1200,7 +1200,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
                 response.error("包裹号为空");
                 return response;
             }
-            if(WaybillUtil.isPackageCode(flowBoardDto.getPackageCode())) {
+            if(!WaybillUtil.isPackageCode(flowBoardDto.getPackageCode())) {
                 response.error("扫描非包裹号");
                 return response;
             }
