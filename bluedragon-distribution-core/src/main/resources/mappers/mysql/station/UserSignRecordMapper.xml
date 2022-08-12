@@ -215,7 +215,7 @@
 					ts,
 				</if>
 			 	<if test="modeType != null">
-					mode_type
+					mode_type,
 				</if>
 			</trim>
 			)
@@ -292,7 +292,7 @@
 					#{ts,jdbcType=TIMESTAMP},
 				</if>
 			 	<if test="modeType != null">
-					#{modeType,jdbcType=TINYINT}
+					#{modeType,jdbcType=TINYINT},
 				</if>
 			</trim>
 			)
@@ -368,7 +368,7 @@
 					ts = #{ts,jdbcType=TIMESTAMP},
 				</if>
 		    	<if test="modeType != null">
-					mode_type = #{modeType,jdbcType=TINYINT}
+					mode_type = #{modeType,jdbcType=TINYINT},
 				</if>
 			</set>
 		where id = #{id,jdbcType=BIGINT}

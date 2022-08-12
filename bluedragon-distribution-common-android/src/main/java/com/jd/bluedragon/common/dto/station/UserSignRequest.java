@@ -51,7 +51,7 @@ public class UserSignRequest implements Serializable {
 	 */
 	private String operateUserName;
 	/**
-	 * 是否拍身份证
+	 * 签到模式
 	 */
 	private Integer modeType;
 	

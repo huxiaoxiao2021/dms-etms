@@ -199,7 +199,7 @@ public class UserSignRecord implements Serializable {
 	private Integer quotaStationTime;
 
 	/**
-	 * 身份证拍照签到标识
+	 * 签到模式
 	 */
 	private Integer modeType;
 
