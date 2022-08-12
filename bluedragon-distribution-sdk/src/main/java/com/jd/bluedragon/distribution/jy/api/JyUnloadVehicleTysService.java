@@ -172,6 +172,12 @@ public interface JyUnloadVehicleTysService {
      */
     InvokeResult<List<UnloadBoardRespDto>> queryTaskBoardInfoByBizId(String masterBizId);
 
+    /**
+     * 根据包裹号查询任务下流向及板信息
+     * @param flowBoardDto
+     * @return
+     */
+    InvokeResult<FlowBoardDto> getTaskFlowBoardInfoByPackageCode(FlowBoardDto flowBoardDto);
 
 
 }

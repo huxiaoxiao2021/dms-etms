@@ -49,4 +49,8 @@ public class JyUnloadVehicleBoardDao extends BaseDao<JyUnloadVehicleBoardEntity>
         return this.getSqlSession().selectList(NAMESPACE + ".getTaskBoardInfoList", jyUnloadVehicleBoardEntity);
     }
 
+    public List<JyUnloadVehicleBoardEntity> getFlowStatisticsByFlow(JyUnloadVehicleBoardEntity jyUnloadVehicleBoardEntity){
+        return this.getSqlSession().selectList(NAMESPACE + ".getFlowStatisticsByFlow", jyUnloadVehicleBoardEntity);
+    }
+
 }

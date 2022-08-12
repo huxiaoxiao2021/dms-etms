@@ -1171,4 +1171,99 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         }
     }
 
+    @Override
+    @JProfiler(jKey = "JyUnloadVehicleTysServiceImpl.getTaskFlowBoardInfoByPackageCode",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
+    public InvokeResult<FlowBoardDto> getTaskFlowBoardInfoByPackageCode(FlowBoardDto flowBoardDto) {
+        InvokeResult<FlowBoardDto> response = new InvokeResult<>();
+        response.success();
+        FlowBoardDto res = new FlowBoardDto();
+        final String methodDesc = "JyUnloadVehicleTysServiceImpl.getTaskFlowBoardInfoByPackageCode--根据包裹号查询任务下已经组板的流向板数据--";
+        if(flowBoardDto == null) {
+            response.error("参数为空");
+            return response;
+        }
+        try{
+            log.info("{}start--参数={}", methodDesc, JsonUtils.toJSONString(flowBoardDto));
+            if(flowBoardDto.getUser() == null || com.jd.jsf.gd.util.StringUtils.isBlank(flowBoardDto.getUser().getUserErp())) {
+                response.error("请求操作人erp为空");
+                return response;
+            }
+            if(flowBoardDto.getCurrentOperate() == null || flowBoardDto.getCurrentOperate().getSiteCode() < 0) {
+                response.error("请求场地编码为空");
+                return response;
+            }
+            if(com.jd.jsf.gd.util.StringUtils.isBlank(flowBoardDto.getBizId())){
+                response.error("任务编码为空");
+                return response;
+            }
+            if(com.jd.jsf.gd.util.StringUtils.isBlank(flowBoardDto.getPackageCode())){
+                response.error("包裹号为空");
+                return response;
+            }
+            if(WaybillUtil.isPackageCode(flowBoardDto.getPackageCode())) {
+                response.error("扫描非包裹号");
+                return response;
+            }
+            //查流向
+            String waybillCode = WaybillUtil.getWaybillCode(flowBoardDto.getPackageCode());
+            String routerStr = waybillCacheService.getRouterByWaybillCode(waybillCode);
+            Integer nextSiteCode = getRouteNextSite(flowBoardDto.getCurrentOperate().getSiteCode(), routerStr);
+            if(nextSiteCode == null) {
+                log.warn("{}--包裹未查到路由信息--packageCode={},route={}", methodDesc, waybillCode, routerStr);
+                response.error("未查到该包裹流向信息");
+                return response;
+            }
+            //查询任务流向
+            JyUnloadVehicleBoardEntity param = new JyUnloadVehicleBoardEntity();
+            param.setUnloadVehicleBizId(flowBoardDto.getBizId());
+            param.setStartSiteId((long)flowBoardDto.getCurrentOperate().getSiteCode());
+            param.setEndSiteId(nextSiteCode.longValue());
+            List<JyUnloadVehicleBoardEntity> jyUnloadVehicleBoardEntityList = jyUnloadVehicleBoardDao.getFlowStatisticsByFlow(param);
+            if(CollectionUtils.isEmpty(jyUnloadVehicleBoardEntityList)) {
+                response.error("该任务下未查到该包裹同流向信息");
+                return response;
+            }
+            JyUnloadVehicleBoardEntity entity = jyUnloadVehicleBoardEntityList.get(0);
+            UnloadTaskFlowDto unloadTaskFlowDto = new UnloadTaskFlowDto();
+            unloadTaskFlowDto.setGoodsAreaCode(entity.getGoodsAreaCode());
+            unloadTaskFlowDto.setEndSiteId(entity.getEndSiteId());
+            unloadTaskFlowDto.setEndSiteName(entity.getEndSiteName());
+            unloadTaskFlowDto.setComBoardCount(entity.getBoardCodeNum());
+            res.setUnloadTaskFlowDto(unloadTaskFlowDto);
+            //查询板号
+            Response<Board>  boardResponse = groupBoardManager.getBoardByBoxCode(flowBoardDto.getPackageCode(), flowBoardDto.getCurrentOperate().getSiteCode());
+            if (null == boardResponse || boardResponse.getCode() != 200) {
+                log.warn("{}--查询包裹所在板异常--packageCode={},siteCode={}", methodDesc, flowBoardDto.getCurrentOperate().getSiteCode(), routerStr);
+                response.error("查询包裹所在板异常");
+                return response;
+            }
+            if(boardResponse.getData() == null) {
+                response.error("该包裹未组板");
+                return response;
+            }
+            //查询任务流向下板数据
+            DimensionQueryDto aggsQueryParams = new DimensionQueryDto();
+            aggsQueryParams.setBizId(flowBoardDto.getBizId());
+            aggsQueryParams.setBoardCode(boardResponse.getData().getCode());
+            JyUnloadAggsEntity jyaggs = jyUnloadAggsDao.queryBoardStatistics(aggsQueryParams);
+            if(jyaggs == null) {
+                log.warn("{}，查到该包裹已组板，但是没有生成任务流向板数据，参数={}", methodDesc, JsonUtils.toJSONString(flowBoardDto));
+                response.error("查询流向板数据异常");
+                return response;
+            }
+            ComBoardAggDto aggDto = new ComBoardAggDto();
+            aggDto.setBoardCode(boardResponse.getData().getCode());
+            aggDto.setHaveScanCount(jyaggs.getActualScanCount());
+            aggDto.setExtraScanCount(jyaggs.getMoreScanTotalCount());
+            res.setComBoardAggDto(aggDto);
+
+            response.setData(res);
+        }catch (Exception e) {
+            log.error("{} 服务异常，请求={},error={}：", methodDesc, JsonUtils.toJSONString(flowBoardDto), e.getMessage(), e);
+            response.error("根据包裹号查询任务下已经组板的流向板数据服务异常");
+            return response;
+        }
+        return response;
+    }
+
 }
