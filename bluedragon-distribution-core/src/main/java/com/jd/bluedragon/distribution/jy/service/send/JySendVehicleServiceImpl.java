@@ -735,6 +735,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
                     vehicleTaskReq.getPageNumber(), vehicleTaskReq.getPageSize());
 
             if (CollectionUtils.isEmpty(vehiclePageList)) {
+                result.setMessage(HintService.getHint(HintCodeConstants.NOT_FOUND_BINDING_TASK_DATA_MSG));
                 return result;
             }
 
@@ -884,6 +885,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
                     vehicleTaskReq.getPageNumber(), vehicleTaskReq.getPageSize());
 
             if (CollectionUtils.isEmpty(vehiclePageList)) {
+                result.setMessage(HintService.getHint(HintCodeConstants.NOT_FOUND_TRANSFER_TASK_DATA_MSG));
                 return result;
             }
 
