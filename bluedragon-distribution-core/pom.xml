@@ -769,7 +769,7 @@
 		<dependency>
 			<groupId>com.jd.ipc.csa</groupId>
 			<artifactId>channel-stock-allot-api</artifactId>
-			<version>1.4-SNAPSHOT</version>
+			<version>1.4</version>
 		</dependency>
         <dependency>
             <groupId>stock-sdk</groupId>
