@@ -87,6 +87,8 @@ public class ScanPackageDto extends UnloadBaseDto implements Serializable {
      */
     private boolean isCombinationTransfer = false;
 
+    private Integer goodsNumber;
+
     public String getBizId() {
         return bizId;
     }
@@ -229,5 +231,13 @@ public class ScanPackageDto extends UnloadBaseDto implements Serializable {
 
     public void setBoardDestinationId(Integer boardDestinationId) {
         this.boardDestinationId = boardDestinationId;
+    }
+
+    public Integer getGoodsNumber() {
+        return goodsNumber;
+    }
+
+    public void setGoodsNumber(Integer goodsNumber) {
+        this.goodsNumber = goodsNumber;
     }
 }

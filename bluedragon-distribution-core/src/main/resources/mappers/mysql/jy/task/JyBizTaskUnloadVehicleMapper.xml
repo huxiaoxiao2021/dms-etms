@@ -89,7 +89,9 @@
         update_time,
         yn,
         ts,
-        task_type
+        task_type,
+        unload_type,
+        unload_start_time
     </sql>
 
 
