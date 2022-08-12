@@ -119,6 +119,11 @@ public class JyBizTaskSendVehicleDetailEntity implements Serializable {
 	 */
 	private Date ts;
 
+	/**
+	 * 是否无任务发车；0-否 1-是
+	 */
+	private transient Integer manualCreatedFlag;
+
 	public Integer getPreVehicleStatus() {
 		return preVehicleStatus;
 	}
@@ -277,5 +282,13 @@ public class JyBizTaskSendVehicleDetailEntity implements Serializable {
 
 	public void setTs(Date ts) {
 		this.ts = ts;
+	}
+
+	public Integer getManualCreatedFlag() {
+		return manualCreatedFlag;
+	}
+
+	public void setManualCreatedFlag(Integer manualCreatedFlag) {
+		this.manualCreatedFlag = manualCreatedFlag;
 	}
 }

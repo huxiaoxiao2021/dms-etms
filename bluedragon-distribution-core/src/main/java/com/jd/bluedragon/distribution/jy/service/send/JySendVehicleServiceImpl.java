@@ -729,6 +729,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
                 return result;
             }
 
+            curSendDest.setManualCreatedFlag(1);
             // 默认按预计发车时间排序
             List<JyBizTaskSendVehicleEntity> vehiclePageList = taskSendVehicleService.findSendTaskByDestOfPage(curSendDest,
                     vehicleTaskReq.getPageNumber(), vehicleTaskReq.getPageSize());
@@ -878,6 +879,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
             List<VehicleTaskDto> vehicleTaskList = new ArrayList<>();
             taskResp.setVehicleTaskDtoList(vehicleTaskList);
 
+            queryDetail.setManualCreatedFlag(0);
             List<JyBizTaskSendVehicleEntity> vehiclePageList = taskSendVehicleService.findSendTaskByDestOfPage(queryDetail,
                     vehicleTaskReq.getPageNumber(), vehicleTaskReq.getPageSize());
 
