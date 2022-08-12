@@ -1,11 +1,8 @@
 package com.jd.bluedragon.external.gateway.service;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
-import com.jd.bluedragon.common.dto.jyexpection.request.ExpBaseReq;
-import com.jd.bluedragon.common.dto.jyexpection.request.ExpUploadScanReq;
-import com.jd.bluedragon.common.dto.jyexpection.request.StatisticsByGridReq;
-import com.jd.bluedragon.common.dto.jyexpection.response.StatisticsByGridDto;
-import com.jd.bluedragon.common.dto.jyexpection.response.StatisticsByStatusDto;
+import com.jd.bluedragon.common.dto.jyexpection.request.*;
+import com.jd.bluedragon.common.dto.jyexpection.response.*;
 
 import java.util.List;
 
@@ -28,4 +25,29 @@ public interface JyExceptionGatewayService {
      * 网格待取件列表统计接口
      */
     JdCResponse<List<StatisticsByGridDto>> getGridStatisticsPageList(StatisticsByGridReq req);
+
+    /**
+     * 取件进行中数据统计
+     */
+    JdCResponse<List<StatisticsByGridDto>> getReceivingCount(StatisticsByGridReq req);
+
+    /**
+     * 任务列表接口
+     */
+    JdCResponse<List<StatisticsByGridDto>> getExceptionTaskPageList(ExpTaskPageReq req);
+
+    /**
+     * 任务领取接口
+     */
+    JdCResponse<Object> receive(ExpReceiveReq req);
+
+    /**
+     * 任务明细
+     */
+    JdCResponse<ExpTaskDetailDto> getTaskDetail(ExpTaskByIdReq req);
+
+    /**
+     * 处理任务接口
+     */
+    JdCResponse<Object> processTask(ExpTaskDetailReq req);
 }

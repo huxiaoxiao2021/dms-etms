@@ -1,25 +1,13 @@
 package com.jd.bluedragon.common.dto.jyexpection.request;
 
 public class ExpTaskPageReq extends ExpBaseReq {
+
+    private Integer floor;
+
     // 网格号
-    private String gridNo;
+    private String gridCode;
 
     // 状态 JyExpStatusEnum
     private String status;
 
-    public String getGridNo() {
-        return gridNo;
-    }
-
-    public void setGridNo(String gridNo) {
-        this.gridNo = gridNo;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
 }

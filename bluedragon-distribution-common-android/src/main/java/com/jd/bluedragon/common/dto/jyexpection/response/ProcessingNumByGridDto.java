@@ -6,7 +6,7 @@ import java.util.List;
 /**
  * 按网格统计
  */
-public class StatisticsByGridDto implements Serializable {
+public class ProcessingNumByGridDto implements Serializable {
 
     // 楼层
     private Integer floor;
@@ -20,16 +20,8 @@ public class StatisticsByGridDto implements Serializable {
     // 作业区编号
     private String areaCode;
 
-    // 作业区
-    private String areaName;
-
-    // 待取数量
-    private Integer pendingNum;
-
-    // 超时数量
-    private Integer timeoutNum;
-
-    private List<TagDto> tags;
+    // 进行中的数据量
+    private Integer processingNum;
 
     public Integer getFloor() {
         return floor;
@@ -63,35 +55,11 @@ public class StatisticsByGridDto implements Serializable {
         this.areaCode = areaCode;
     }
 
-    public String getAreaName() {
-        return areaName;
+    public Integer getProcessingNum() {
+        return processingNum;
     }
 
-    public void setAreaName(String areaName) {
-        this.areaName = areaName;
-    }
-
-    public Integer getPendingNum() {
-        return pendingNum;
-    }
-
-    public void setPendingNum(Integer pendingNum) {
-        this.pendingNum = pendingNum;
-    }
-
-    public Integer getTimeoutNum() {
-        return timeoutNum;
-    }
-
-    public void setTimeoutNum(Integer timeoutNum) {
-        this.timeoutNum = timeoutNum;
-    }
-
-    public List<TagDto> getTags() {
-        return tags;
-    }
-
-    public void setTags(List<TagDto> tags) {
-        this.tags = tags;
+    public void setProcessingNum(Integer processingNum) {
+        this.processingNum = processingNum;
     }
 }
