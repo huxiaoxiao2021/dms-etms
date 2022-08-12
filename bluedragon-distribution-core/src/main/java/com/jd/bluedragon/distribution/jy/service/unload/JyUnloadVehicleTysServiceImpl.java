@@ -257,6 +257,15 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     @JProfiler(jKey = "JyUnloadVehicleTysServiceImpl.updateUnloadVehicleTaskProperty",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult updateUnloadVehicleTaskProperty(UnloadVehicleTaskDto unloadVehicleTask) {
         log.info("JyUnloadVehicleTysServiceImpl.updateUnloadVehicleTaskProperty--请求参数={}", JsonUtils.toJSONString(unloadVehicleTask));
+        if(unloadVehicleTask.getUser() == null || StringUtils.isBlank(unloadVehicleTask.getUser().getUserErp())) {
+            return new InvokeResult(RESULT_PARAMETER_ERROR_CODE, "操作人为空");
+        }
+        if(unloadVehicleTask.getCurrentOperate() == null || unloadVehicleTask.getCurrentOperate().getSiteCode() <= 0) {
+            return new InvokeResult(RESULT_PARAMETER_ERROR_CODE, "操作场地为空");
+        }
+        if (StringUtils.isBlank(unloadVehicleTask.getBizId())) {
+            return new InvokeResult(RESULT_PARAMETER_ERROR_CODE, "操作任务BizId为空");
+        }
         JyBizTaskUnloadVehicleEntity entity = new JyBizTaskUnloadVehicleEntity();
         org.springframework.beans.BeanUtils.copyProperties(unloadVehicleTask, entity);
 
