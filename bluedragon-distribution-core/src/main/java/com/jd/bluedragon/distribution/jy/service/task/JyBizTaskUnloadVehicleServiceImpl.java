@@ -645,6 +645,7 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
         statisticsDto.setHaveScanCount(packageStatistics.getActualScanCount());
         statisticsDto.setWaitScanCount(packageStatistics.getShouldScanCount() - packageStatistics.getActualScanCount());
         statisticsDto.setInterceptCount(packageStatistics.getInterceptActualScanCount());
+        statisticsDto.setExtraScanCount(packageStatistics.getMoreScanTotalCount());
         statisticsDto.setWaybillCount(dto.getBoardCode()!=null?waybillStatistics.getActualScanWaybillCount():waybillStatistics.getTotalScannedWaybillCount());
 
         return statisticsDto;
