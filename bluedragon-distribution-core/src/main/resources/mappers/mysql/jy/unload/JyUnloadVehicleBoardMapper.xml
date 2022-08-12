@@ -281,7 +281,7 @@
   <select id="getFlowStatisticsByFlow" parameterType="com.jd.bluedragon.distribution.jy.unload.JyUnloadVehicleBoardEntity" resultMap="BaseResultMap">
     select unload_vehicle_biz_id,start_site_id,start_site_name,end_site_id,end_site_name,goods_area_code, count(board_code) board_code_num
     from jy_unload_vehicle_board
-    where yn = 1 and unload_vehicle_biz_id = #{bizId,jdbcType=VARCHAR}
+    where yn = 1 and unload_vehicle_biz_id = #{unloadVehicleBizId,jdbcType=VARCHAR}
           and start_site_id = #{startSiteId,jdbcType=BIGINT}
           and end_site_id = #{endSiteId,jdbcType=BIGINT}
     GROUP BY end_site_id
