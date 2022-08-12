@@ -1204,6 +1204,33 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
                 response.error("扫描非包裹号");
                 return response;
             }
+            //查询板号
+            Response<Board>  boardResponse = groupBoardManager.getBoardByBoxCode(flowBoardDto.getPackageCode(), flowBoardDto.getCurrentOperate().getSiteCode());
+            if (null == boardResponse || boardResponse.getCode() != 200) {
+                log.warn("{}--查询包裹所在板异常--packageCode={},siteCode={}", methodDesc, flowBoardDto.getPackageCode(), flowBoardDto.getCurrentOperate().getSiteCode());
+                response.error("查询包裹所在板异常");
+                return response;
+            }
+            if(boardResponse.getData() == null) {
+                response.success();
+                response.setMessage("未查到该包裹组板信息");
+                return response;
+            }
+            //查询任务流向下板数据
+            DimensionQueryDto aggsQueryParams = new DimensionQueryDto();
+            aggsQueryParams.setBizId(flowBoardDto.getBizId());
+            aggsQueryParams.setBoardCode(boardResponse.getData().getCode());
+            JyUnloadAggsEntity jyaggs = jyUnloadAggsDao.queryBoardStatistics(aggsQueryParams);
+            if(jyaggs == null) {
+                log.warn("{}，查到该包裹已组板，但是jyUnloadAggs没有生成板上聚合数据，参数={}", methodDesc, JsonUtils.toJSONString(flowBoardDto));
+                response.error("查询板上包裹数据异常");
+                return response;
+            }
+            ComBoardAggDto aggDto = new ComBoardAggDto();
+            aggDto.setBoardCode(boardResponse.getData().getCode());
+            aggDto.setHaveScanCount(jyaggs.getActualScanCount());
+            aggDto.setExtraScanCount(jyaggs.getMoreScanTotalCount());
+            res.setComBoardAggDto(aggDto);
             //查流向
             String waybillCode = WaybillUtil.getWaybillCode(flowBoardDto.getPackageCode());
             String routerStr = waybillCacheService.getRouterByWaybillCode(waybillCode);
@@ -1220,6 +1247,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             param.setEndSiteId(nextSiteCode.longValue());
             List<JyUnloadVehicleBoardEntity> jyUnloadVehicleBoardEntityList = jyUnloadVehicleBoardDao.getFlowStatisticsByFlow(param);
             if(CollectionUtils.isEmpty(jyUnloadVehicleBoardEntityList)) {
+                log.warn("{}，查到该包裹已组板，但是jyUnloadVehicleBoard 任务板关系没有查到流向数据，参数={}", methodDesc, JsonUtils.toJSONString(flowBoardDto));
                 response.error("该任务下未查到该包裹同流向信息");
                 return response;
             }
@@ -1230,32 +1258,6 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             unloadTaskFlowDto.setEndSiteName(entity.getEndSiteName());
             unloadTaskFlowDto.setComBoardCount(entity.getBoardCodeNum());
             res.setUnloadTaskFlowDto(unloadTaskFlowDto);
-            //查询板号
-            Response<Board>  boardResponse = groupBoardManager.getBoardByBoxCode(flowBoardDto.getPackageCode(), flowBoardDto.getCurrentOperate().getSiteCode());
-            if (null == boardResponse || boardResponse.getCode() != 200) {
-                log.warn("{}--查询包裹所在板异常--packageCode={},siteCode={}", methodDesc, flowBoardDto.getCurrentOperate().getSiteCode(), routerStr);
-                response.error("查询包裹所在板异常");
-                return response;
-            }
-            if(boardResponse.getData() == null) {
-                response.error("该包裹未组板");
-                return response;
-            }
-            //查询任务流向下板数据
-            DimensionQueryDto aggsQueryParams = new DimensionQueryDto();
-            aggsQueryParams.setBizId(flowBoardDto.getBizId());
-            aggsQueryParams.setBoardCode(boardResponse.getData().getCode());
-            JyUnloadAggsEntity jyaggs = jyUnloadAggsDao.queryBoardStatistics(aggsQueryParams);
-            if(jyaggs == null) {
-                log.warn("{}，查到该包裹已组板，但是没有生成任务流向板数据，参数={}", methodDesc, JsonUtils.toJSONString(flowBoardDto));
-                response.error("查询流向板数据异常");
-                return response;
-            }
-            ComBoardAggDto aggDto = new ComBoardAggDto();
-            aggDto.setBoardCode(boardResponse.getData().getCode());
-            aggDto.setHaveScanCount(jyaggs.getActualScanCount());
-            aggDto.setExtraScanCount(jyaggs.getMoreScanTotalCount());
-            res.setComBoardAggDto(aggDto);
 
             response.setData(res);
         }catch (Exception e) {
