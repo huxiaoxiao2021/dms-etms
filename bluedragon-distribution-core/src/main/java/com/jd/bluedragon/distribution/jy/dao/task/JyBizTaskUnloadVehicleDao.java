@@ -186,7 +186,7 @@ public class JyBizTaskUnloadVehicleDao extends BaseDao<JyBizTaskUnloadVehicleEnt
     }
 
     /**
-     * 根据状态获取需要清理的数据的场地ID
+     * 根据状态获取需要清理的数据的场地ID(因为带入状态后不走索引需要移除状态限制，多返回一些数据无碍)
      * @param condition
      * @return
      */
