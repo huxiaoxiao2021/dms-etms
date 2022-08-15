@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.jy.service.exception.impl;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.jyexpection.request.*;
 import com.jd.bluedragon.common.dto.jyexpection.response.*;
@@ -17,18 +19,23 @@ import com.jd.ql.basic.ws.BasicPrimaryWS;
 import com.jdl.basic.api.service.position.PositionQueryJsfService;
 import com.jdl.basic.api.domain.position.PositionDetailRecord;
 import com.jdl.basic.common.utils.Result;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 public class JyExceptionServiceImpl implements JyExceptionService {
 
-    private Logger logger = LoggerFactory.getLogger(JyExceptionServiceImpl.class);
+    private final Logger logger = LoggerFactory.getLogger(JyExceptionServiceImpl.class);
+    private static final String TASK_CACHE_PRE = "DMS:JYAPP:EXP:TASK_CACHE:";
 
     @Autowired
     private JyBizTaskExceptionDao jyBizTaskExceptionDao;
@@ -42,7 +49,9 @@ public class JyExceptionServiceImpl implements JyExceptionService {
     private SendDetailService sendDetailService;
     @Autowired
     @Qualifier("redisClientCache")
-    private Cluster redisClientCache;
+    private Cluster redisClient;
+
+
     /**
      * 通用异常上报入口-扫描
      *
@@ -51,26 +60,46 @@ public class JyExceptionServiceImpl implements JyExceptionService {
     @Override
     public JdCResponse<Object> uploadScan(ExpUploadScanReq req) {
 
+        ExpTaskDetailCacheDto taskCache = new ExpTaskDetailCacheDto();
+        taskCache.setExpBarcode(req.getBarCode());
 
 //        9.	卸车入口：根据操作异常上报人员此前扫描验货的3个包裹号获取到对应上游发货批次号，后续作为批次号信息辅助录入
 //        10.	通用扫描入口（右上角点点点）：上报时不记录任何信息
 //        11.	发货入口：操作异常上报人员此前扫描发货的3个包裹对应的发货目的地id，后续作为下级地信息辅助录入
-        if (req.getRecentPackageCodeList() != null && !req.getRecentPackageCodeList().isEmpty()) {
+        if (CollectionUtils.isNotEmpty(req.getRecentPackageCodeList())) {
             // 发货
             if (Objects.equals(req.getSource(), JyBizTaskExceptionSourceEnum.SEND.getCode())) {
-                queryRecentSendInfo(req);
+                List<Integer> receiveSiteList = queryRecentSendInfo(req);
+                if (CollectionUtils.isNotEmpty(receiveSiteList)) {
+                    taskCache.setRecentReceiveSiteList(receiveSiteList);
+                }
             }
             // 卸车
             if (Objects.equals(req.getSource(), JyBizTaskExceptionSourceEnum.UN_LOAD.getCode())) {
-                queryRecentSendInfo(req);
+                List<String> sendCodeList = queryRecentInspectInfo(req);
+                if (CollectionUtils.isNotEmpty(sendCodeList)) {
+                    taskCache.setRecentSendCodeList(sendCodeList);
+                }
             }
         }
 
+        JSONObject json = (JSONObject) JSONObject.toJSON(taskCache);
 
-        return null;
+        String redisKey = TASK_CACHE_PRE + req.getBarCode();
+        String s = redisClient.get(redisKey);
+        if (StringUtils.isNotBlank(s)) {
+            JSONObject cacheJson = JSON.parseObject(s);
+            cacheJson.putAll(json);
+            json = cacheJson;
+        }
+        redisClient.set(redisKey, json.toJSONString());
+        redisClient.expire(redisKey, 30, TimeUnit.DAYS);
+
+        return JdCResponse.ok();
     }
 
-    private void queryRecentSendInfo(ExpUploadScanReq req) {
+    private List<Integer> queryRecentSendInfo(ExpUploadScanReq req) {
+        List<Integer> siteIdList = new ArrayList<>();
         for (String barcode : req.getRecentPackageCodeList()) {
             if (!WaybillUtil.isPackageCode(barcode)) {
                 continue;
@@ -85,11 +114,21 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             if (sendDetail == null) {
                 continue;
             }
+            siteIdList.add(sendDetail.getReceiveSiteCode());
         }
+        return siteIdList;
     }
 
-    private void queryRecentInspectInfo(ExpUploadScanReq req) {
+    private List<String> queryRecentInspectInfo(ExpUploadScanReq req) {
+        List<String> sendCodeList = new ArrayList<>();
+        for (String packageCode : req.getRecentPackageCodeList()) {
+            if (!WaybillUtil.isPackageCode(packageCode)) {
+                continue;
+            }
+            // 查询上游场地
 
+        }
+        return null;
     }
 
     /**
