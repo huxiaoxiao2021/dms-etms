@@ -2,9 +2,7 @@ package com.jd.bluedragon.distribution.jy.service.exception;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.jyexpection.request.*;
-import com.jd.bluedragon.common.dto.jyexpection.response.ExpTaskDetailDto;
-import com.jd.bluedragon.common.dto.jyexpection.response.StatisticsByGridDto;
-import com.jd.bluedragon.common.dto.jyexpection.response.StatisticsByStatusDto;
+import com.jd.bluedragon.common.dto.jyexpection.response.*;
 
 import java.util.List;
 
@@ -27,12 +25,12 @@ public interface JyExceptionService {
     /**
      * 取件进行中数据统计
      */
-    JdCResponse<List<StatisticsByGridDto>> getReceivingCount(StatisticsByGridReq req);
+    JdCResponse<List<ProcessingNumByGridDto>> getReceivingCount(StatisticsByGridReq req);
 
     /**
      * 任务列表接口
      */
-    JdCResponse<List<StatisticsByGridDto>> getExceptionTaskPageList(ExpTaskPageReq req);
+    JdCResponse<List<ExpTaskDto>> getExceptionTaskPageList(ExpTaskPageReq req);
 
     /**
      * 任务领取接口

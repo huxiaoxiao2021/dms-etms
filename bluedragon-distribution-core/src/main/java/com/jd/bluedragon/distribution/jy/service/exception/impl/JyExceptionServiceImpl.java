@@ -2,9 +2,7 @@ package com.jd.bluedragon.distribution.jy.service.exception.impl;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.jyexpection.request.*;
-import com.jd.bluedragon.common.dto.jyexpection.response.ExpTaskDetailDto;
-import com.jd.bluedragon.common.dto.jyexpection.response.StatisticsByGridDto;
-import com.jd.bluedragon.common.dto.jyexpection.response.StatisticsByStatusDto;
+import com.jd.bluedragon.common.dto.jyexpection.response.*;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyBizTaskExceptionDao;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskExceptionSourceEnum;
 import com.jd.bluedragon.distribution.jy.exception.*;
@@ -132,7 +130,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
      * @param req
      */
     @Override
-    public JdCResponse<List<StatisticsByGridDto>> getReceivingCount(StatisticsByGridReq req) {
+    public JdCResponse<List<ProcessingNumByGridDto>> getReceivingCount(StatisticsByGridReq req) {
         return null;
     }
 
@@ -142,7 +140,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
      * @param req
      */
     @Override
-    public JdCResponse<List<StatisticsByGridDto>> getExceptionTaskPageList(ExpTaskPageReq req) {
+    public JdCResponse<List<ExpTaskDto>> getExceptionTaskPageList(ExpTaskPageReq req) {
         return null;
     }
 
