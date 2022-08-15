@@ -345,7 +345,7 @@
         update_time = NOW()
         WHERE
         YN = 1
-        and (version is null or version = #{version, jdbcType=VARCHAR})
+        and (version is null or version = '' or version = #{version, jdbcType=VARCHAR})
         <if test="unloadCarIds != null">
             AND unload_car_id in
             <foreach item="item" index="index" collection="unloadCarIds"
