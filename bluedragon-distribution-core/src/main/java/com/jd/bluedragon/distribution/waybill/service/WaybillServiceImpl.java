@@ -4,6 +4,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.SecurityCheckManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
@@ -125,6 +126,9 @@ public class WaybillServiceImpl implements WaybillService {
 
     @Autowired
     private ScheduleSiteSupportInterceptService scheduleSiteSupportInterceptService;
+
+    @Autowired
+    private SecurityCheckManager securityCheckManager;
 
     /**
      * 普通运单类型（非移动仓内配）
@@ -1163,6 +1167,13 @@ public class WaybillServiceImpl implements WaybillService {
         InvokeResult<String> result = new InvokeResult<>();
         result.success();
         if (!uccPropertyConfiguration.getPreSortOnSiteSwitchOn()){
+            return result;
+        }
+        // 信息安全校验
+        com.jd.bluedragon.distribution.jsf.domain.InvokeResult<Boolean> securityCheckResult
+                = securityCheckManager.verifyWaybillDetailPermissionByErp(waybillForPreSortOnSiteRequest.getErp(), WaybillUtil.getWaybillCodeByPackCode(waybillForPreSortOnSiteRequest.getWaybill()));
+        if(!securityCheckResult.codeSuccess()){
+            result.error(securityCheckResult.getMessage());
             return result;
         }
         try{
