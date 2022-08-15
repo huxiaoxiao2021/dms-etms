@@ -1891,7 +1891,10 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-
+		<dependency>
+			<groupId>com.jdl.basic</groupId>
+			<artifactId>jy-basic-api</artifactId>
+		</dependency>
     </dependencies>
 
 	<profiles>
