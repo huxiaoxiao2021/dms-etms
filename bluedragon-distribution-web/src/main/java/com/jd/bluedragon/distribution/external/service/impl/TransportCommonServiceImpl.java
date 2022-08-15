@@ -419,11 +419,16 @@ public class TransportCommonServiceImpl implements TransportCommonService {
             return res;
         }
         try{
+            UnloadCar uc = unloadCarCommonService.selectBySealCarCodeWithStatus(sealCarCode);
+            if (uc != null && (uc.getStatus().equals(UnloadCarStatusEnum.UNLOAD_CAR_STARTED.getType()) || uc.getStatus().equals(UnloadCarStatusEnum.UNLOAD_CAR_END.getType()))) {
+                res.error("任务已开始进行或已完成，不允许删除");
+                return res;
+            }
             String key = TransportServiceConstants.CACHE_PREFIX_PDA_ACTUAL_OPERATE_VERSION + sealCarCode;
             if (redisClientOfJy.exists(key)) {
                 if(!redisClientOfJy.get(key).equals(pdaVersion)) {
                     String msg = StringUtils.isBlank(AppVersionEnums.getDescByCode(pdaVersion)) ? "其他版本" : AppVersionEnums.getDescByCode(pdaVersion);
-                    res.error(msg + "正在操作中");
+                    res.error(msg + "正在操作中，不允许删除");
                     return res;
                 }else {
                     redisClientOfJy.del(key);
