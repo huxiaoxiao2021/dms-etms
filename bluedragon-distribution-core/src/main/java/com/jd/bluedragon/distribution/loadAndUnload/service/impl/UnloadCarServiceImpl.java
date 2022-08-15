@@ -2446,11 +2446,6 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             unloadCarDistribution.setCreateTime(new Date());
             // 使用卸车任务的创建时间作为负责人进入的时间
             UnloadCar unloadCar = unloadCarDao.selectBySealCarCodeWithStatus(request.getSealCarCodes().get(i));
-            //避免问题： 读（旧app）写（新app）写（旧app）产生并发
-            if(unloadCar != null && StringUtils.isNotBlank(unloadCar.getVersion()) && !unloadCar.getVersion().equals(AppVersionEnums.PDA_OLD.getVersion())) {
-                logger.warn("UnloadCarServiceImpl.distributeTask--老板app分配接口，发现被新版app领取了，不在处理后续数据，sealCarCode={}， unloadCar={}", request.getSealCarCodes().get(i), JsonHelper.toJson(unloadCar));
-                continue;
-            }
             if (unloadCar != null) {
                 unloadCarDistribution.setUpdateTime(unloadCar.getCreateTime());
                 unloadCarDistribution.setCreateTime(unloadCar.getCreateTime());
