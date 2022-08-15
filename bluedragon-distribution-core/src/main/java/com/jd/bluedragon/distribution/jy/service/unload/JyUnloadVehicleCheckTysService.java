@@ -559,7 +559,7 @@ public class JyUnloadVehicleCheckTysService {
             if (request.getNextSiteCode() != null && !request.getNextSiteCode().equals(request.getBoardDestinationId())) {
                 addBoardBox.setFlowDisaccord(1);
             }
-            Response<Integer> response = groupBoardManager.addBoxToBoard(addBoardBox);
+            Response<Integer> response = groupBoardManager.addBoxToBoardIgnoreStatus(addBoardBox);
             if (response == null) {
                 log.warn("推组板关系失败!");
                 throw new LoadIllegalException(LoadIllegalException.BOARD_TOTC_FAIL_INTERCEPT_MESSAGE);
@@ -591,7 +591,7 @@ public class JyUnloadVehicleCheckTysService {
                 log.warn("添加板箱关系失败,板号={},barCode={},原因={}", request.getBoardCode(), request.getScanCode(), response.getMesseage());
                 if (request.getIsCombinationTransfer()) {
                     // 调用TC的板号转移接口
-                    InvokeResult<String> invokeResult = boardCommonManager.boardMove(boardCommonRequest);
+                    InvokeResult<String> invokeResult = boardCommonManager.boardMoveIgnoreStatus(boardCommonRequest);
                     log.info("组板转移结果【{}】", JsonHelper.toJson(invokeResult));
                     if (invokeResult == null) {
                         throw new LoadIllegalException(LoadIllegalException.BOARD_MOVED_INTERCEPT_MESSAGE);

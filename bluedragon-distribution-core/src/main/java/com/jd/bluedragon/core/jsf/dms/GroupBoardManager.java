@@ -38,11 +38,25 @@ public interface GroupBoardManager {
     Response<Integer> addBoxToBoard(AddBoardBox addBoardBox);
 
     /**
+     * 将板、箱/包裹关系推给TC(不校验板状态)
+     * @param addBoardBox
+     * @return
+     */
+    Response<Integer> addBoxToBoardIgnoreStatus(AddBoardBox addBoardBox);
+
+    /**
      * 组板转移
      * @param moveBoxRequest
      * @return
      */
     Response<String> moveBoxToNewBoard(MoveBoxRequest moveBoxRequest);
+
+    /**
+     * 组板转移(不校验板状态)
+     * @param moveBoxRequest
+     * @return
+     */
+    Response<String> moveBoxToNewBoardIgnoreStatus(MoveBoxRequest moveBoxRequest);
 
     /**
      * 根据板号获取已绑定箱号/包裹号

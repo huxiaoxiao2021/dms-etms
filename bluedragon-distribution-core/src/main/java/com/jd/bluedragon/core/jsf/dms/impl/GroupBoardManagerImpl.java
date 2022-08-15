@@ -53,11 +53,27 @@ public class GroupBoardManagerImpl implements GroupBoardManager {
     }
 
     @Override
+    @JProfiler(jKey = "dmsWeb.jsf.tc.groupBoardService.addBoxToBoardIgnoreStatus",jAppName= Constants.UMP_APP_NAME_DMSWEB,
+            mState = {JProEnum.TP, JProEnum.FunctionError})
+    public Response<Integer> addBoxToBoardIgnoreStatus(AddBoardBox addBoardBox) {
+
+        return groupBoardService.addBoxToBoardIgnoreStatus(addBoardBox);
+    }
+
+    @Override
     @JProfiler(jKey = "dmsWeb.jsf.tc.groupBoardService.moveBoxToNewBoard",jAppName= Constants.UMP_APP_NAME_DMSWEB,
             mState = {JProEnum.TP, JProEnum.FunctionError})
     public Response<String> moveBoxToNewBoard(MoveBoxRequest moveBoxRequest) {
 
         return groupBoardService.moveBoxToNewBoard(moveBoxRequest);
+    }
+
+    @Override
+    @JProfiler(jKey = "dmsWeb.jsf.tc.groupBoardService.moveBoxToNewBoardIgnoreStatus",jAppName= Constants.UMP_APP_NAME_DMSWEB,
+            mState = {JProEnum.TP, JProEnum.FunctionError})
+    public Response<String> moveBoxToNewBoardIgnoreStatus(MoveBoxRequest moveBoxRequest) {
+
+        return groupBoardService.moveBoxToNewBoardIgnoreStatus(moveBoxRequest);
     }
 
     @Override
