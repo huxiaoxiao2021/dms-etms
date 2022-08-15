@@ -529,10 +529,12 @@
             AND manual_created_flag = #{entity.manualCreatedFlag}
         </if>
         <if test="entity.lastPlanDepartTimeBegin !=null">
-            and last_plan_depart_time &gt;= #{entity.lastPlanDepartTimeBegin}
+            and ((last_plan_depart_time &gt;= #{entity.lastPlanDepartTimeBegin} and manual_created_flag=0) or
+            manual_created_flag=1)
         </if>
         <if test="entity.lastPlanDepartTimeEnd !=null">
-            and last_plan_depart_time &lt;= #{entity.lastPlanDepartTimeEnd}
+            and ((last_plan_depart_time &lt;= #{entity.lastPlanDepartTimeEnd} and manual_created_flag=0) or
+            manual_created_flag=1)
         </if>
     </sql>
 
