@@ -1,10 +1,15 @@
 package com.jd.bluedragon.common.dto.jyexpection.request;
 
+import java.util.List;
+
 public class ExpUploadScanReq extends ExpBaseReq {
 
     private String barCode;
 
     private Integer source;
+
+    // 近期扫描的 包裹号
+    private List<String> recentPackageCodeList;
 
     public String getBarCode() {
         return barCode;
@@ -20,5 +25,13 @@ public class ExpUploadScanReq extends ExpBaseReq {
 
     public void setSource(Integer source) {
         this.source = source;
+    }
+
+    public List<String> getRecentPackageCodeList() {
+        return recentPackageCodeList;
+    }
+
+    public void setRecentPackageCodeList(List<String> recentPackageCodeList) {
+        this.recentPackageCodeList = recentPackageCodeList;
     }
 }
