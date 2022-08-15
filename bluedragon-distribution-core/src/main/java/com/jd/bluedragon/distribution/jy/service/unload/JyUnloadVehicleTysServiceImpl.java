@@ -10,6 +10,7 @@ import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.board.service.BoardCombinationService;
 import com.jd.bluedragon.distribution.jy.api.JyUnloadVehicleTysService;
 import com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskUnloadVehicleDao;
 import com.jd.bluedragon.distribution.jy.dao.unload.JyBizTaskUnloadVehicleStageDao;
@@ -101,6 +102,8 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     private WaybillPackageManager waybillPackageManager;
     @Autowired
     private JyUnloadVehicleCheckTysService jyUnloadVehicleCheckTysService;
+    @Autowired
+    private BoardCombinationService boardCombinationService;
 
 
 
@@ -1051,6 +1054,29 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             res.error("批量取消组板服务异常");
             return res;
         }
+    }
+
+    @Override
+    public InvokeResult<Void> comBoardComplete(String boardCode) {
+        InvokeResult<Void> res = new InvokeResult<>();
+        res.success();
+        if (StringUtils.isBlank(boardCode)) {
+            res.parameterError("板号不能为空");
+            return res;
+        }
+        try {
+            Response<Boolean> closeBoardResponse = boardCombinationService.closeBoard(boardCode);
+            // 关板失败
+            if (InvokeResult.RESULT_SUCCESS_CODE != closeBoardResponse.getCode() || !closeBoardResponse.getData()) {
+                log.warn("组板完成调用TC关板失败,板号：{}，关板结果：{}", boardCode, JsonHelper.toJson(closeBoardResponse));
+                res.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, closeBoardResponse.getMesseage());
+                return res;
+            }
+        } catch (Exception e) {
+            log.error("组板完成调用TC关板异常：板号={}" , boardCode, e);
+            res.error("组板完成发生异常");
+        }
+        return res;
     }
 
     @Override

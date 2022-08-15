@@ -384,6 +384,48 @@ public class BoardCommonManagerImpl implements BoardCommonManager {
     }
 
     /**
+     * 组板转移(不校验板状态)
+     * <p>
+     *  1、将包裹号/箱号从原来的板上取消，绑定到新板
+     *  2、发送取消旧板的全称跟踪和组到新板的全称跟踪
+     * <p/>
+     * @param request
+     * @return
+     */
+    @JProfiler(jKey = "DMSWEB.BoardCombinationServiceImpl.boardMoveIgnoreStatus", jAppName = Constants.UMP_APP_NAME_DMSWEB,
+            mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
+    @Override
+    public InvokeResult<String> boardMoveIgnoreStatus(BoardCommonRequest request) {
+        InvokeResult<String> result = new InvokeResult<>();
+        MoveBoxRequest moveBoxRequest = new MoveBoxRequest();
+        // 新板标
+        moveBoxRequest.setBoardCode(request.getBoardCode());
+        moveBoxRequest.setBoxCode(request.getBarCode());
+        moveBoxRequest.setSiteCode(request.getOperateSiteCode());
+        moveBoxRequest.setOperatorErp(request.getOperateUserErp());
+        moveBoxRequest.setOperatorName(request.getOperateUserName());
+        moveBoxRequest.setBizSource(request.getBizSource());
+        Response<String> tcResponse = groupBoardManager.moveBoxToNewBoardIgnoreStatus(moveBoxRequest);
+        // 组新板成功
+        if (tcResponse != null && tcResponse.getCode() == ResponseEnum.SUCCESS.getIndex()) {
+            String boardOld = tcResponse.getData();
+            String boardNew = request.getBoardCode();
+            // 取消组板的全称跟踪 -- 旧板号
+            request.setBoardCode(boardOld);
+            sendWaybillTrace(request, WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION_CANCEL);
+
+            // 组板的全称跟踪 -- 新板号
+            request.setBoardCode(boardNew);
+            sendWaybillTrace(request, WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION);
+
+            result.setData(tcResponse.getData());
+        } else {
+            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,"组板失败!");
+        }
+        return result;
+    }
+
+    /**
      * 获取路由下一跳
      * @param waybillCode 运单号
      * @param siteCode 当前站点

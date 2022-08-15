@@ -140,6 +140,12 @@ public interface JyUnloadVehicleTysService {
      */
     InvokeResult cancelComBoard(CancelComBoardDto cancelComBoardDto);
 
+    /**
+     * 组板完成
+     * @param boardCode 板号
+     * @return
+     */
+    InvokeResult<Void> comBoardComplete(String boardCode);
 
     /**
      * 查询路由信息
