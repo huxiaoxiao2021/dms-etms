@@ -10,6 +10,7 @@ import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.board.service.BoardCombinationService;
 import com.jd.bluedragon.distribution.jy.api.JyUnloadVehicleTysService;
 import com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskUnloadVehicleDao;
 import com.jd.bluedragon.distribution.jy.dao.unload.JyBizTaskUnloadVehicleStageDao;
@@ -101,6 +102,8 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     private WaybillPackageManager waybillPackageManager;
     @Autowired
     private JyUnloadVehicleCheckTysService jyUnloadVehicleCheckTysService;
+    @Autowired
+    private BoardCombinationService boardCombinationService;
 
 
 
@@ -257,6 +260,15 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     @JProfiler(jKey = "JyUnloadVehicleTysServiceImpl.updateUnloadVehicleTaskProperty",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult updateUnloadVehicleTaskProperty(UnloadVehicleTaskDto unloadVehicleTask) {
         log.info("JyUnloadVehicleTysServiceImpl.updateUnloadVehicleTaskProperty--请求参数={}", JsonUtils.toJSONString(unloadVehicleTask));
+        if(unloadVehicleTask.getUser() == null || StringUtils.isBlank(unloadVehicleTask.getUser().getUserErp())) {
+            return new InvokeResult(RESULT_PARAMETER_ERROR_CODE, "操作人为空");
+        }
+        if(unloadVehicleTask.getCurrentOperate() == null || unloadVehicleTask.getCurrentOperate().getSiteCode() <= 0) {
+            return new InvokeResult(RESULT_PARAMETER_ERROR_CODE, "操作场地为空");
+        }
+        if (StringUtils.isBlank(unloadVehicleTask.getBizId())) {
+            return new InvokeResult(RESULT_PARAMETER_ERROR_CODE, "操作任务BizId为空");
+        }
         JyBizTaskUnloadVehicleEntity entity = new JyBizTaskUnloadVehicleEntity();
         org.springframework.beans.BeanUtils.copyProperties(unloadVehicleTask, entity);
 
@@ -287,6 +299,12 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             return new InvokeResult<>(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, scanStatisticsDto);
         }
         return new InvokeResult(NOT_SUPPORT_TYPE_QUERY_CODE, NOT_SUPPORT_TYPE_QUERY_MESSAGE);
+    }
+
+    @Override
+    public InvokeResult<StatisticsDto> queryStatistics(DimensionQueryDto dto) {
+        StatisticsDto statisticsDto = jyBizTaskUnloadVehicleService.queryStatistics(dto);
+        return new InvokeResult<>(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, statisticsDto);
     }
 
     @Override
@@ -640,7 +658,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
 
             Response<Board> response = groupBoardManager.getBoard(boardCode);
             if(response != null && response.getCode() == ResponseEnum.SUCCESS.getIndex()) {
-                if(response.getData() != null) {
+                if(response.getData() == null) {
                     res.setMessage("查询板信息为空");
                     return res;
                 }
@@ -813,6 +831,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
                     unloadTaskFlowDto.setEndSiteId(entity.getEndSiteId());
                     unloadTaskFlowDto.setEndSiteName(entity.getEndSiteName());
                     unloadTaskFlowDto.setComBoardCount(entity.getBoardCodeNum());
+                    resData.add(unloadTaskFlowDto);
                 }
             }else {
                 res.setMessage("查询数据为空");
@@ -1038,6 +1057,29 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     }
 
     @Override
+    public InvokeResult<Void> comBoardComplete(String boardCode) {
+        InvokeResult<Void> res = new InvokeResult<>();
+        res.success();
+        if (StringUtils.isBlank(boardCode)) {
+            res.parameterError("板号不能为空");
+            return res;
+        }
+        try {
+            Response<Boolean> closeBoardResponse = boardCombinationService.closeBoard(boardCode);
+            // 关板失败
+            if (InvokeResult.RESULT_SUCCESS_CODE != closeBoardResponse.getCode() || !closeBoardResponse.getData()) {
+                log.warn("组板完成调用TC关板失败,板号：{}，关板结果：{}", boardCode, JsonHelper.toJson(closeBoardResponse));
+                res.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, closeBoardResponse.getMesseage());
+                return res;
+            }
+        } catch (Exception e) {
+            log.error("组板完成调用TC关板异常：板号={}" , boardCode, e);
+            res.error("组板完成发生异常");
+        }
+        return res;
+    }
+
+    @Override
     @JProfiler(jKey = "JyUnloadVehicleTysServiceImpl.getWaybillNextRouter",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
     public Integer getWaybillNextRouter(String waybillCode, Integer startSiteId) {
         String routerStr = waybillCacheService.getRouterByWaybillCode(waybillCode);
@@ -1153,6 +1195,103 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             res.error("根据主BizId查询任务板关系服务异常 " + e.getMessage());
             return  res;
         }
+    }
+
+    @Override
+    @JProfiler(jKey = "JyUnloadVehicleTysServiceImpl.getTaskFlowBoardInfoByPackageCode",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
+    public InvokeResult<FlowBoardDto> getTaskFlowBoardInfoByPackageCode(FlowBoardDto flowBoardDto) {
+        InvokeResult<FlowBoardDto> response = new InvokeResult<>();
+        response.success();
+        FlowBoardDto res = new FlowBoardDto();
+        final String methodDesc = "JyUnloadVehicleTysServiceImpl.getTaskFlowBoardInfoByPackageCode--根据包裹号查询任务下已经组板的流向板数据--";
+        if(flowBoardDto == null) {
+            response.error("参数为空");
+            return response;
+        }
+        try{
+            log.info("{}start--参数={}", methodDesc, JsonUtils.toJSONString(flowBoardDto));
+            if(flowBoardDto.getUser() == null || com.jd.jsf.gd.util.StringUtils.isBlank(flowBoardDto.getUser().getUserErp())) {
+                response.error("请求操作人erp为空");
+                return response;
+            }
+            if(flowBoardDto.getCurrentOperate() == null || flowBoardDto.getCurrentOperate().getSiteCode() < 0) {
+                response.error("请求场地编码为空");
+                return response;
+            }
+            if(com.jd.jsf.gd.util.StringUtils.isBlank(flowBoardDto.getBizId())){
+                response.error("任务编码为空");
+                return response;
+            }
+            if(com.jd.jsf.gd.util.StringUtils.isBlank(flowBoardDto.getPackageCode())){
+                response.error("包裹号为空");
+                return response;
+            }
+            if(!WaybillUtil.isPackageCode(flowBoardDto.getPackageCode())) {
+                response.error("扫描非包裹号");
+                return response;
+            }
+            //查询板号
+            Response<Board>  boardResponse = groupBoardManager.getBoardByBoxCode(flowBoardDto.getPackageCode(), flowBoardDto.getCurrentOperate().getSiteCode());
+            if (null == boardResponse || boardResponse.getCode() != 200) {
+                log.warn("{}--查询包裹所在板异常--packageCode={},siteCode={}", methodDesc, flowBoardDto.getPackageCode(), flowBoardDto.getCurrentOperate().getSiteCode());
+                response.error("查询包裹所在板异常");
+                return response;
+            }
+            if(boardResponse.getData() == null) {
+                response.success();
+                response.setMessage("未查到该包裹组板信息");
+                return response;
+            }
+            //查询任务流向下板数据
+            DimensionQueryDto aggsQueryParams = new DimensionQueryDto();
+            aggsQueryParams.setBizId(flowBoardDto.getBizId());
+            aggsQueryParams.setBoardCode(boardResponse.getData().getCode());
+            JyUnloadAggsEntity jyaggs = jyUnloadAggsDao.queryBoardStatistics(aggsQueryParams);
+            if(jyaggs == null) {
+                log.warn("{}，查到该包裹已组板，但是jyUnloadAggs没有生成板上聚合数据，参数={}", methodDesc, JsonUtils.toJSONString(flowBoardDto));
+                response.error("查询板上包裹数据异常");
+                return response;
+            }
+            ComBoardAggDto aggDto = new ComBoardAggDto();
+            aggDto.setBoardCode(boardResponse.getData().getCode());
+            aggDto.setHaveScanCount(jyaggs.getActualScanCount());
+            aggDto.setExtraScanCount(jyaggs.getMoreScanTotalCount());
+            res.setComBoardAggDto(aggDto);
+            //查流向
+            String waybillCode = WaybillUtil.getWaybillCode(flowBoardDto.getPackageCode());
+            String routerStr = waybillCacheService.getRouterByWaybillCode(waybillCode);
+            Integer nextSiteCode = getRouteNextSite(flowBoardDto.getCurrentOperate().getSiteCode(), routerStr);
+            if(nextSiteCode == null) {
+                log.warn("{}--包裹未查到路由信息--packageCode={},route={}", methodDesc, waybillCode, routerStr);
+                response.error("未查到该包裹流向信息");
+                return response;
+            }
+            //查询任务流向
+            JyUnloadVehicleBoardEntity param = new JyUnloadVehicleBoardEntity();
+            param.setUnloadVehicleBizId(flowBoardDto.getBizId());
+            param.setStartSiteId((long)flowBoardDto.getCurrentOperate().getSiteCode());
+            param.setEndSiteId(nextSiteCode.longValue());
+            List<JyUnloadVehicleBoardEntity> jyUnloadVehicleBoardEntityList = jyUnloadVehicleBoardDao.getFlowStatisticsByFlow(param);
+            if(CollectionUtils.isEmpty(jyUnloadVehicleBoardEntityList)) {
+                log.warn("{}，查到该包裹已组板，但是jyUnloadVehicleBoard 任务板关系没有查到流向数据，参数={}", methodDesc, JsonUtils.toJSONString(flowBoardDto));
+                response.error("该任务下未查到该包裹同流向信息");
+                return response;
+            }
+            JyUnloadVehicleBoardEntity entity = jyUnloadVehicleBoardEntityList.get(0);
+            UnloadTaskFlowDto unloadTaskFlowDto = new UnloadTaskFlowDto();
+            unloadTaskFlowDto.setGoodsAreaCode(entity.getGoodsAreaCode());
+            unloadTaskFlowDto.setEndSiteId(entity.getEndSiteId());
+            unloadTaskFlowDto.setEndSiteName(entity.getEndSiteName());
+            unloadTaskFlowDto.setComBoardCount(entity.getBoardCodeNum());
+            res.setUnloadTaskFlowDto(unloadTaskFlowDto);
+
+            response.setData(res);
+        }catch (Exception e) {
+            log.error("{} 服务异常，请求={},error={}：", methodDesc, JsonUtils.toJSONString(flowBoardDto), e.getMessage(), e);
+            response.error("根据包裹号查询任务下已经组板的流向板数据服务异常");
+            return response;
+        }
+        return response;
     }
 
 }

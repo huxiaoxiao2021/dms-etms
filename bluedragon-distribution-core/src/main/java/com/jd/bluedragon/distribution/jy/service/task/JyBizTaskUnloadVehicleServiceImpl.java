@@ -102,6 +102,7 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
 
     @Autowired
     private BaseMajorManager baseMajorManager;
+
     /**
      * 根据bizId获取数据
      *
@@ -617,14 +618,10 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
         if (UnloadStatisticsQueryTypeEnum.PACKAGE.getCode().equals(dto.getType())) {
             entity = jyUnloadAggsDao.queryPackageStatistics(dto);
         } else if (UnloadStatisticsQueryTypeEnum.WAYBILL.getCode().equals(dto.getType())) {
-            entity = dto.getBoardCode() != null ? jyUnloadAggsDao.queryWaybillStatisticsUnderBoard(dto) : jyUnloadAggsDao.queryWaybillStatisticsUnderTask(dto);
+            entity = jyUnloadAggsDao.queryWaybillStatisticsUnderTask(dto);
         }
         if (ObjectHelper.isNotNull(entity)) {
             ScanStatisticsDto scanStatisticsDto = dtoConvert(entity, dto);
-            if (dto.getNeedWaybillInfo()) {
-                JyUnloadAggsEntity waybillStatistics = dto.getBoardCode() != null ? jyUnloadAggsDao.queryWaybillStatisticsUnderBoard(dto) : jyUnloadAggsDao.queryWaybillStatisticsUnderTask(dto);
-                scanStatisticsDto.setWaybillCount(dto.getBoardCode() != null ? waybillStatistics.getActualScanWaybillCount() : waybillStatistics.getTotalSealWaybillCount());
-            }
             return scanStatisticsDto;
         }
         return null;
@@ -634,6 +631,24 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
     public UnloadVehicleTaskDto queryTaskDataByBizId(String bizId) {
         JyBizTaskUnloadVehicleEntity entity = findByBizId(bizId);
         return entityConvertDto(entity);
+    }
+
+    @Override
+    public StatisticsDto queryStatistics(DimensionQueryDto dto) {
+        JyUnloadAggsEntity packageStatistics = jyUnloadAggsDao.queryPackageStatistics(dto);
+        JyUnloadAggsEntity waybillStatistics = dto.getBoardCode() != null ?
+                jyUnloadAggsDao.queryWaybillStatisticsUnderBoard(dto) : jyUnloadAggsDao.queryWaybillStatisticsUnderTask(dto);
+
+        StatisticsDto statisticsDto = new StatisticsDto();
+        statisticsDto.setProcessPercent((packageStatistics.getTotalScannedPackageCount() / packageStatistics.getTotalSealPackageCount()));
+        statisticsDto.setShouldScanCount(packageStatistics.getShouldScanCount());
+        statisticsDto.setHaveScanCount(packageStatistics.getActualScanCount());
+        statisticsDto.setWaitScanCount(packageStatistics.getShouldScanCount() - packageStatistics.getActualScanCount());
+        statisticsDto.setInterceptCount(packageStatistics.getInterceptActualScanCount());
+        statisticsDto.setExtraScanCount(packageStatistics.getMoreScanTotalCount());
+        statisticsDto.setWaybillCount(dto.getBoardCode()!=null?waybillStatistics.getActualScanWaybillCount():waybillStatistics.getTotalScannedWaybillCount());
+
+        return statisticsDto;
     }
 
     private ScanStatisticsDto dtoConvert(JyUnloadAggsEntity entity, DimensionQueryDto dto) {
@@ -648,17 +663,13 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
             scanStatisticsDto.setExtraScanCountCurrSite(entity.getMoreScanLocalCount());
             scanStatisticsDto.setExtraScanCountOutCurrSite(entity.getMoreScanOutCount());
         } else if (UnloadStatisticsQueryTypeEnum.WAYBILL.getCode().equals(dto.getType())) {
-            if (ObjectHelper.isNotNull(dto.getBoardCode())) {
-                scanStatisticsDto.setHaveScanCount(entity.getActualScanWaybillCount());
-            } else {
-                scanStatisticsDto.setShouldScanCount(entity.getTotalSealWaybillCount());
-                scanStatisticsDto.setHaveScanCount(entity.getTotalScannedWaybillCount());
-                scanStatisticsDto.setWaitScanCount(entity.getTotalSealWaybillCount() - entity.getTotalScannedWaybillCount());
-                scanStatisticsDto.setInterceptShouldScanCount(entity.getTotalShouldInterceptWaybillCount());
-                scanStatisticsDto.setInterceptActualScanCount(entity.getTotalScannedInterceptWaybillCount());
-                scanStatisticsDto.setExtraScanCountCurrSite(entity.getTotalMoreScanLocalWaybillCount());
-                scanStatisticsDto.setExtraScanCountOutCurrSite(entity.getTotalMoreScanOutWaybillCount());
-            }
+            scanStatisticsDto.setShouldScanCount(entity.getTotalSealWaybillCount());
+            scanStatisticsDto.setHaveScanCount(entity.getTotalScannedWaybillCount());
+            scanStatisticsDto.setWaitScanCount(entity.getTotalSealWaybillCount() - entity.getTotalScannedWaybillCount());
+            scanStatisticsDto.setInterceptShouldScanCount(entity.getTotalShouldInterceptWaybillCount());
+            scanStatisticsDto.setInterceptActualScanCount(entity.getTotalScannedInterceptWaybillCount());
+            scanStatisticsDto.setExtraScanCountCurrSite(entity.getTotalMoreScanLocalWaybillCount());
+            scanStatisticsDto.setExtraScanCountOutCurrSite(entity.getTotalMoreScanOutWaybillCount());
         }
         return scanStatisticsDto;
     }
@@ -690,6 +701,7 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
 
     /**
      * 根据操作场地区分卸车任务为分拣任务还是转运任务
+     *
      * @param endSiteId
      * @return
      */

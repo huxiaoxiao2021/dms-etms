@@ -130,6 +130,7 @@
         SUM(intercept_actual_scan_count) intercept_actual_scan_count,
         SUM(more_scan_local_count) more_scan_local_count,
         SUM(more_scan_out_count) more_scan_out_count,
+        sum(more_scan_total_count) more_scan_total_count,
         total_seal_package_count,
         total_scanned_package_count
         FROM
@@ -145,7 +146,7 @@
     <select id="queryWaybillStatisticsUnderBoard"
             parameterType="com.jd.bluedragon.distribution.jy.dto.unload.DimensionQueryDto"
             resultMap="jyUnloadAggsMap">
-               SUM(actual_scan_waybill_count)   actual_scan_waybill_count
+               select SUM(actual_scan_waybill_count)   actual_scan_waybill_count
         FROM jy_unload_aggs
         WHERE biz_id = #{bizId}
           and board_code = #{boardCode}

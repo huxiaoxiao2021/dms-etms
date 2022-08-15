@@ -38,6 +38,12 @@ public interface JyUnloadVehicleTysService {
     InvokeResult<ScanStatisticsDto> queryStatisticsByDiffDimension(DimensionQueryDto dto);
 
     /**
+     * 查询包裹和运单维度统计数据
+     */
+    InvokeResult<StatisticsDto> queryStatistics(DimensionQueryDto dto);
+
+
+    /**
      * 查询卸车任务详情
      *
      * @param bizId
@@ -134,6 +140,12 @@ public interface JyUnloadVehicleTysService {
      */
     InvokeResult cancelComBoard(CancelComBoardDto cancelComBoardDto);
 
+    /**
+     * 组板完成
+     * @param boardCode 板号
+     * @return
+     */
+    InvokeResult<Void> comBoardComplete(String boardCode);
 
     /**
      * 查询路由信息
@@ -166,6 +178,12 @@ public interface JyUnloadVehicleTysService {
      */
     InvokeResult<List<UnloadBoardRespDto>> queryTaskBoardInfoByBizId(String masterBizId);
 
+    /**
+     * 根据包裹号查询任务下流向及板信息
+     * @param flowBoardDto
+     * @return
+     */
+    InvokeResult<FlowBoardDto> getTaskFlowBoardInfoByPackageCode(FlowBoardDto flowBoardDto);
 
 
 }
