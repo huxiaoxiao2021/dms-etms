@@ -23,6 +23,7 @@ import com.jd.bluedragon.distribution.board.service.BoardCombinationService;
 import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRecordService;
 import com.jd.bluedragon.distribution.external.constants.TransportServiceConstants;
 import com.jd.bluedragon.distribution.external.enums.AppVersionEnums;
+import com.jd.bluedragon.distribution.external.service.TransportCommonService;
 import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigEnum;
 import com.jd.bluedragon.distribution.funcSwitchConfig.service.FuncSwitchConfigService;
 import com.jd.bluedragon.distribution.goodsLoadScan.GoodsLoadScanConstants;
@@ -230,7 +231,8 @@ public class UnloadCarServiceImpl implements UnloadCarService {
     @Autowired
     @Qualifier("redisClientOfJy")
     private Cluster redisClientOfJy;
-
+    @Autowired
+    private TransportCommonService transportCommonService;
 
     @Override
     public InvokeResult<UnloadCarScanResult> getUnloadCarBySealCarCode(String sealCarCode) {
@@ -2434,9 +2436,9 @@ public class UnloadCarServiceImpl implements UnloadCarService {
             logger.warn("分配任务失败，请求体：{}",JsonHelper.toJson(request));
             return false;
         }
-
         //同步卸车负责人与卸车任务之间关系
         for (int i=0;i<request.getSealCarCodes().size();i++) {
+            transportCommonService.saveOperatePdaVersion(request.getSealCarCodes().get(i), AppVersionEnums.PDA_OLD.getVersion());
             UnloadCarDistribution unloadCarDistribution = new UnloadCarDistribution();
             unloadCarDistribution.setSealCarCode(request.getSealCarCodes().get(i));
             unloadCarDistribution.setUnloadUserErp(request.getUnloadUserErp());
