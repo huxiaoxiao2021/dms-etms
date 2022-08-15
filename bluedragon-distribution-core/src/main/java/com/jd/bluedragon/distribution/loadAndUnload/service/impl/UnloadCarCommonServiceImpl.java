@@ -83,7 +83,7 @@ public class UnloadCarCommonServiceImpl implements UnloadCarCommonService {
             }
             throw new LoadIllegalException(Constants.UNLOAD_TRANSFER_WARN_MESSAGE);
         }
-        log.info("转运DB卸车任务分配负责人{}", JsonUtils.toJSONString(params));
+        log.info("卸车任务分配负责人{}", JsonUtils.toJSONString(params));
         return unloadCarDao.distributeTaskByParams(params);
     }
 
