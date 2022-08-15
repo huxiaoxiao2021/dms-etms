@@ -2,10 +2,7 @@ package com.jd.bluedragon.distribution.jy.dao.exception;
 
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.common.dto.jyexpection.response.StatisticsByStatusDto;
-import com.jd.bluedragon.distribution.jy.dto.exception.StatisticStatusDto;
 import com.jd.bluedragon.distribution.jy.exception.JyBizTaskExceptionEntity;
-import com.jd.bluedragon.distribution.jy.exception.JyExceptionEntity;
-import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
 
 import java.util.List;
 
@@ -28,11 +25,11 @@ public class JyBizTaskExceptionDao  extends BaseDao<JyBizTaskExceptionEntity> {
      * @param bizId
      * @return
      */
-    public JyBizTaskSendVehicleEntity findByBizId(String bizId) {
+    public JyBizTaskExceptionEntity findByBizId(String bizId) {
         return this.getSqlSession().selectOne(NAMESPACE + ".findByBizId", bizId);
     }
 
-    public int updateByBizId(JyBizTaskSendVehicleEntity entity) {
+    public int updateByBizId(JyBizTaskExceptionEntity entity) {
         return this.getSqlSession().update(NAMESPACE + ".updateByBizId", entity);
     }
     public List<StatisticsByStatusDto> getStatusStatistic(String gridRefId){
