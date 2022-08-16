@@ -80,7 +80,7 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
      * 需要进行过滤的https域名
      */
     @Value("#{'${jss.httpsSet}'.split(',')}")
-    private HashSet<String> httpsSet;
+    private Set<String> httpsSet;
 
     @Value("${jss.endpoint}")
     private String dmsWebJssEndpoint;
