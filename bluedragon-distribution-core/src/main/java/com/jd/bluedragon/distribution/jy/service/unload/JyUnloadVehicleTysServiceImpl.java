@@ -1229,6 +1229,31 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     }
 
     @Override
+    public InvokeResult<UnloadBoardRespDto> queryTaskBoardInfoByChildTaskBizId(String childTaskBizId) {
+        final String methodDesc = "JyUnloadVehicleTysServiceImpl.queryTaskBoardInfoByChildTaskBizId--根据子BizId查询任务板关系服务--";
+        InvokeResult<UnloadBoardRespDto> res = new InvokeResult<>();
+        res.success();
+        try{
+            JyUnloadVehicleBoardEntity param = new JyUnloadVehicleBoardEntity();
+            param.setUnloadVehicleStageBizId(childTaskBizId);
+            JyUnloadVehicleBoardEntity jyMasterTask = jyUnloadVehicleBoardDao.getTaskBoardInfoByChildTaskBizId(param);
+            if(jyMasterTask == null) {
+                res.setMessage("查询数据为空");
+                return res;
+            }
+            UnloadBoardRespDto resData = new UnloadBoardRespDto();
+            org.springframework.beans.BeanUtils.copyProperties(jyMasterTask,resData);
+
+            res.setData(resData);
+            return res;
+        }catch (Exception e) {
+            log.error("{}服务异常，childTaskBizId={}，errMsg={}", methodDesc, childTaskBizId, e.getMessage(), e);
+            res.error("根据子BizId查询任务板关系服务异常 " + e.getMessage());
+            return  res;
+        }
+    }
+
+    @Override
     @JProfiler(jKey = "JyUnloadVehicleTysServiceImpl.getTaskFlowBoardInfoByPackageCode",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<FlowBoardDto> getTaskFlowBoardInfoByPackageCode(FlowBoardDto flowBoardDto) {
         InvokeResult<FlowBoardDto> response = new InvokeResult<>();
