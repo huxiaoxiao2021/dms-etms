@@ -67,11 +67,13 @@ public class PDDServiceImpl implements PDDService {
         CallerInfo callerInfo = Profiler.registerInfo("DMS.WEB.PDDService.queryPDDWaybillInfoByWaybillCodeWithCacheAndSource_all_" + source, Constants.UMP_APP_NAME_DMSWEB, false,true);
         // 1. 检查缓存信息，是否包含pdd的缓存信息，如果包含，则从缓存中获取pdd信息
         if (Boolean.TRUE.equals(cacheSwitch) && this.queryPDDWaybillInCache(waybillCode, response)) {
+            Profiler.registerInfoEnd(callerInfo);
             return response;
         }
 
         // 2. 检查运单接口，是否包含运单的明文信息，如果包含，则从运单的信息中获取
         if (Boolean.TRUE.equals(waybillSwitch) && this.queryPDDWaybillInWaybill(waybillCode, response)) {
+            Profiler.registerInfoEnd(callerInfo);
             return response;
         }
 
