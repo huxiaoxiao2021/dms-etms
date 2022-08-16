@@ -223,21 +223,28 @@ public class JyUnloadVehicleCheckTysService {
     }
 
     /**
-     * 判断包裹是否扫描并组板成功
+     * 判断包裹是否扫描成功
      */
-    public void packageIsScanBoard(String bizId, String barCode, String boardCode) throws LoadIllegalException {
+    public void packageIsScan(String bizId, String barCode) throws LoadIllegalException {
         // 拦截的包裹不能重复扫描
+        String isExistIntercept = null;
         try {
             log.info("packageIsScanBoard-校验拦截缓存【{}】【{}】", barCode, bizId);
             String key = REDIS_PREFIX_SEAL_PACK_INTERCEPT + bizId + Constants.SEPARATOR_HYPHEN + barCode;
-            String isExistIntercept = redisClientCache.get(key);
-            if (StringUtils.isNotBlank(isExistIntercept)) {
-                throw new LoadIllegalException(LoadIllegalException.BORCODE_SEALCAR_INTERCEPT_EXIST_MESSAGE);
-            }
-        } catch (LoadIllegalException e) {
-            throw new LoadIllegalException(e.getMessage());
+            isExistIntercept = redisClientCache.get(key);
+        } catch (Exception e) {
+            log.error("packageIsScan|获取缓存【{}】异常", "", e);
         }
+        if (StringUtils.isNotBlank(isExistIntercept)) {
+            throw new LoadIllegalException(LoadIllegalException.BORCODE_SEALCAR_INTERCEPT_EXIST_MESSAGE);
+        }
+    }
 
+    /**
+     * 判断包裹是否组板成功
+     */
+    public void packageIsComBoard(String barCode, String boardCode) throws LoadIllegalException {
+        // 拦截的包裹不能重复组板
         if (StringUtils.isEmpty(boardCode)) {
             return;
         }
@@ -248,13 +255,15 @@ public class JyUnloadVehicleCheckTysService {
             scanIsSuccessStr = redisClientCache.get(key);
             scanIsSuccess = Boolean.parseBoolean(scanIsSuccessStr);
         } catch (Exception e) {
-            log.error("获取缓存【{}】异常", "", e);
+            log.error("packageIsComBoard|获取缓存【{}】异常", "", e);
         }
         if (scanIsSuccess) {
             // 包裹已扫描组板成功则提示拦截
             throw new LoadIllegalException(String.format(LoadIllegalException.PACKAGE_IS_SCAN_INTERCEPT_MESSAGE, barCode, boardCode));
         }
     }
+
+
 
     /**
      * 验货拦截及验货处理

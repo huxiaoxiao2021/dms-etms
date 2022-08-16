@@ -413,12 +413,16 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         }
         // 包裹超重校验
         jyUnloadVehicleCheckTysService.checkPackageOverWeight(packageD, waybill, scanPackageRespDto);
-        // 包裹是否扫描成功
-        jyUnloadVehicleCheckTysService.packageIsScanBoard(bizId, barCode, boardCode);
+        // 包裹是否组板成功
+        jyUnloadVehicleCheckTysService.packageIsComBoard(barCode, boardCode);
         if (!scanPackageDto.getIsForceCombination()) {
+            // 包裹是否扫描成功
+            jyUnloadVehicleCheckTysService.packageIsScan(bizId, barCode);
             UnloadScanDto unloadScanDto = createUnloadDto(scanPackageDto, unloadVehicleEntity);
             // 验货校验
             jyUnloadVehicleCheckTysService.inspectionIntercept(barCode, waybill, unloadScanDto);
+            // 设置拦截缓存
+            jyUnloadVehicleCheckTysService.setCacheOfSealCarAndPackageIntercept(bizId, barCode);
             // 组装返回数据
             jyUnloadVehicleCheckTysService.assembleReturnData(scanPackageDto, scanPackageRespDto, unloadVehicleEntity, unloadScanDto);
             // 无任务设置上游站点
@@ -465,8 +469,6 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             // 卸车处理并回传TC组板关系
             jyUnloadVehicleCheckTysService.dealUnloadAndBoxToBoard(scanPackageDto, scanPackageRespDto);
         }
-        // 设置拦截缓存
-        jyUnloadVehicleCheckTysService.setCacheOfSealCarAndPackageIntercept(bizId, barCode);
         return invokeResult;
     }
 
