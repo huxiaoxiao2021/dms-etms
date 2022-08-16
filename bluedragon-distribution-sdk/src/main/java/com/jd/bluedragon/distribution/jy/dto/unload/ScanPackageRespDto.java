@@ -7,6 +7,10 @@ public class ScanPackageRespDto implements Serializable {
     private static final long serialVersionUID = -6963372061306635997L;
     private String bizId;
     /**
+     * 子阶段卸车任务
+     */
+    private String stageBizId;
+    /**
      * 货区编码
      */
     private String goodsAreaCode;
@@ -42,6 +46,16 @@ public class ScanPackageRespDto implements Serializable {
     private boolean supplementary;
 
     /**
+     * 是否是首次扫描
+     */
+    private boolean firstScan;
+
+    /**
+     * 是否是子阶段首次扫描
+     */
+    private boolean stageFirstScan;
+
+    /**
      * 卸车扫描非弹框消息提示  K-优先级  V-话术
      * 见：UnloadCarWarnEnum
      */
@@ -55,6 +69,14 @@ public class ScanPackageRespDto implements Serializable {
 
     public void setBizId(String bizId) {
         this.bizId = bizId;
+    }
+
+    public String getStageBizId() {
+        return stageBizId;
+    }
+
+    public void setStageBizId(String stageBizId) {
+        this.stageBizId = stageBizId;
     }
 
     public String getGoodsAreaCode() {
@@ -143,6 +165,22 @@ public class ScanPackageRespDto implements Serializable {
 
     public void setSupplementary(boolean supplementary) {
         this.supplementary = supplementary;
+    }
+
+    public boolean isFirstScan() {
+        return firstScan;
+    }
+
+    public void setFirstScan(boolean firstScan) {
+        this.firstScan = firstScan;
+    }
+
+    public boolean isStageFirstScan() {
+        return stageFirstScan;
+    }
+
+    public void setStageFirstScan(boolean stageFirstScan) {
+        this.stageFirstScan = stageFirstScan;
     }
 
     public Integer getPackageAmount() {

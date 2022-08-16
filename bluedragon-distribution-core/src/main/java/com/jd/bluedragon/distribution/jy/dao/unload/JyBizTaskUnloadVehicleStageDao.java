@@ -28,6 +28,10 @@ public class JyBizTaskUnloadVehicleStageDao extends BaseDao<JyBizTaskUnloadVehic
         return this.getSqlSession().update(NAMESPACE + ".updateStatusByUnloadVehicleBizId", entity);
     }
 
+    public int updateStatusByBizId(JyBizTaskUnloadVehicleStageEntity entity){
+        return this.getSqlSession().update(NAMESPACE + ".updateStatusByBizId", entity);
+    }
+
     public int insertBatch(List<JyBizTaskUnloadVehicleStageEntity> entityList) {
         return this.getSqlSession().insert(NAMESPACE + ".insertBatch", entityList);
     }

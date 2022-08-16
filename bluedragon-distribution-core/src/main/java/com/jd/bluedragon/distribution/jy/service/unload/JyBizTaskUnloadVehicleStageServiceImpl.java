@@ -60,6 +60,11 @@ public class JyBizTaskUnloadVehicleStageServiceImpl implements JyBizTaskUnloadVe
     }
 
     @Override
+    public int updateStatusByBizId(JyBizTaskUnloadVehicleStageEntity condition) {
+        return jyBizTaskUnloadVehicleStageDao.updateStatusByBizId(condition);
+    }
+
+    @Override
     public List<Long> countByUnloadVehicleBizId(String unloadVehicleBizId) {
         return jyBizTaskUnloadVehicleStageDao.countByUnloadVehicleBizId(unloadVehicleBizId);
     }

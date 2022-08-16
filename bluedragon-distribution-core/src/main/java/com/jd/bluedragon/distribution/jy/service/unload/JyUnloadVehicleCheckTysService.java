@@ -39,7 +39,6 @@ import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.domain.WaybillExt;
@@ -71,6 +70,9 @@ import java.util.concurrent.TimeUnit;
 
 import static com.jd.bluedragon.common.utils.CacheKeyConstants.*;
 
+/**
+ * @author lvyuan21
+ */
 @Slf4j
 @Service("jyUnloadVehicleCheckTysService")
 public class JyUnloadVehicleCheckTysService {
@@ -95,7 +97,7 @@ public class JyUnloadVehicleCheckTysService {
     private WaybillService waybillService;
 
     @Autowired
-    private StoragePackageMService storagePackageMService;
+    private StoragePackageMService storagePackageMservice;
 
     @Autowired
     private AllianceBusiDeliveryDetailService allianceBusiDeliveryDetailService;
@@ -335,7 +337,7 @@ public class JyUnloadVehicleCheckTysService {
                 return LoadIllegalException.PACK_SERVICE_NO_CONFIRM_FORBID_SEND_MESSAGE;
             }
             // 金鹏订单
-            if (!storagePackageMService.checkWaybillCanSend(waybill.getWaybillCode(), waybillSign)) {
+            if (!storagePackageMservice.checkWaybillCanSend(waybill.getWaybillCode(), waybillSign)) {
                 log.warn("loadUnloadInterceptValidate 装卸车金鹏订单未上架集齐禁止发货单号：{}", barCode);
                 return LoadIllegalException.JIN_PENG_NO_TOGETHER_FORBID_SEND_MESSAGE;
             }
@@ -659,11 +661,7 @@ public class JyUnloadVehicleCheckTysService {
     private void createUnloadVehicleBoard(JyUnloadVehicleBoardEntity entity, ScanPackageDto scanPackageDto) {
         Date now = new Date();
         entity.setUnloadVehicleBizId(scanPackageDto.getBizId());
-        // 获取阶段子任务ID
-        String stageBizId = getStageBizId(scanPackageDto);
-        if (StringUtils.isNotBlank(stageBizId)) {
-            entity.setUnloadVehicleStageBizId(stageBizId);
-        }
+        entity.setUnloadVehicleStageBizId(scanPackageDto.getStageBizId());
         if (scanPackageDto.getPrevSiteCode() != null) {
             entity.setStartSiteId(Long.valueOf(scanPackageDto.getPrevSiteCode()));
             entity.setStartSiteName(scanPackageDto.getPrevSiteName());
@@ -680,19 +678,43 @@ public class JyUnloadVehicleCheckTysService {
         entity.setUpdateUserName(scanPackageDto.getUser().getUserName());
     }
 
-    private String getStageBizId(ScanPackageDto scanPackageDto) {
-        JyBizTaskUnloadVehicleStageEntity condition =new JyBizTaskUnloadVehicleStageEntity();
-        condition.setUnloadVehicleBizId(scanPackageDto.getBizId());
-        condition.setType(scanPackageDto.isSupplementary() ? JyBizTaskStageTypeEnum.SUPPLEMENT.getCode() : JyBizTaskStageTypeEnum.HANDOVER.getCode());
-        if (!scanPackageDto.isSupplementary()) {
+    public void setStageBizId(UnloadScanDto unloadScanDto) {
+        JyBizTaskUnloadVehicleStageEntity condition = new JyBizTaskUnloadVehicleStageEntity();
+        condition.setUnloadVehicleBizId(unloadScanDto.getBizId());
+        condition.setType(unloadScanDto.getSupplementary() ? JyBizTaskStageTypeEnum.SUPPLEMENT.getCode() : JyBizTaskStageTypeEnum.HANDOVER.getCode());
+        if (!unloadScanDto.getSupplementary()) {
             condition.setStatus(JyBizTaskStageStatusEnum.DOING.getCode());
         }
         JyBizTaskUnloadVehicleStageEntity entity = jyBizTaskUnloadVehicleStageService.queryCurrentStage(condition);
-        if (ObjectHelper.isNotNull(entity)){
-            return entity.getBizId();
+        if (entity == null) {
+            unloadScanDto.setStageFirstScan(Boolean.TRUE);
+            entity = generateUnloadTaskStage(unloadScanDto);
+            jyBizTaskUnloadVehicleStageService.insertSelective(entity);
         }
-        return null;
+        unloadScanDto.setStageBizId(entity.getBizId());
     }
+
+    private JyBizTaskUnloadVehicleStageEntity generateUnloadTaskStage(UnloadScanDto unloadScanDto) {
+        Date now = new Date();
+        JyBizTaskUnloadVehicleStageEntity stageEntity = new JyBizTaskUnloadVehicleStageEntity();
+        stageEntity.setUnloadVehicleBizId(unloadScanDto.getBizId());
+        // 用于判断当前子任务的序号
+        List<Long> idList = jyBizTaskUnloadVehicleStageService.countByUnloadVehicleBizId(unloadScanDto.getBizId());
+        int serialNumber = CollectionUtils.isEmpty(idList) ? 1 : idList.size() + 1;
+        stageEntity.setBizId(unloadScanDto.getBizId() + Constants.SEPARATOR_HYPHEN + serialNumber);
+        stageEntity.setStatus(JyBizTaskStageStatusEnum.DOING.getCode());
+        stageEntity.setType(unloadScanDto.getSupplementary() ? JyBizTaskStageTypeEnum.SUPPLEMENT.getCode() : JyBizTaskStageTypeEnum.HANDOVER.getCode());
+        stageEntity.setStartTime(now);
+        stageEntity.setCreateTime(now);
+        stageEntity.setUpdateTime(now);
+        stageEntity.setCreateUserErp(unloadScanDto.getCreateUserErp());
+        stageEntity.setCreateUserName(unloadScanDto.getCreateUserName());
+        stageEntity.setUpdateUserErp(unloadScanDto.getCreateUserErp());
+        stageEntity.setUpdateUserName(unloadScanDto.getCreateUserName());
+        stageEntity.setYn(Constants.YN_YES);
+        return stageEntity;
+    }
+
 
     /**
      * 设置板包裹缓存：默认7天
@@ -818,6 +840,10 @@ public class JyUnloadVehicleCheckTysService {
     }
 
     public void assembleReturnData(ScanPackageDto request, ScanPackageRespDto response, JyBizTaskUnloadVehicleEntity unloadVehicleEntity, UnloadScanDto unloadScanDto) {
+        request.setStageBizId(unloadScanDto.getStageBizId());
+        response.setStageBizId(unloadScanDto.getStageBizId());
+        response.setStageFirstScan(unloadScanDto.isStageFirstScan());
+        response.setFirstScan(checkIsFirstScan(request.getBizId()));
         // 按包裹扫描
         if (ScanTypeEnum.PACKAGE.getCode().equals(request.getType())) {
             response.setPackageAmount(1);
@@ -856,6 +882,22 @@ public class JyUnloadVehicleCheckTysService {
      */
     public boolean checkIsKaWaybill(Waybill waybill) {
         return BusinessUtil.needWeighingSquare(waybill.getWaybillSign());
+    }
+
+    /**
+     * 判断是否是卸车任务扫描的第一个包裹
+     * @param bizId 卸车任务业务主键
+     * @return 是或否
+     */
+    private boolean checkIsFirstScan(String bizId) {
+        // 判断是否是
+        String key = JY_UNLOAD_TASK_FIRST_SCAN_KEY + bizId;
+        String isFirstScan = redisClientCache.get(key);
+        if (isFirstScan == null) {
+            redisClientCache.setEx(key, StringUtils.EMPTY, 7, TimeUnit.DAYS);
+            return true;
+        }
+        return false;
     }
 
     /**

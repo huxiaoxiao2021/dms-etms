@@ -15,6 +15,10 @@ public class ScanPackageDto extends UnloadBaseDto implements Serializable {
      */
     private String bizId;
     /**
+     * 子阶段卸车任务
+     */
+    private String stageBizId;
+    /**
      * 封车编码
      */
     private String sealCarCode;
@@ -95,6 +99,14 @@ public class ScanPackageDto extends UnloadBaseDto implements Serializable {
 
     public void setBizId(String bizId) {
         this.bizId = bizId;
+    }
+
+    public String getStageBizId() {
+        return stageBizId;
+    }
+
+    public void setStageBizId(String stageBizId) {
+        this.stageBizId = stageBizId;
     }
 
     public String getScanCode() {

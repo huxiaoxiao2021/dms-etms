@@ -594,6 +594,8 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         unloadScanDto.setGroupCode(request.getGroupCode());
         unloadScanDto.setTaskId(request.getTaskId());
         unloadScanDto.setTaskType(JyBizTaskSourceTypeEnum.TRANSPORT.getCode());
+        // 设置子阶段bizId
+        jyUnloadVehicleCheckTysService.setStageBizId(unloadScanDto);
         return unloadScanDto;
     }
 
