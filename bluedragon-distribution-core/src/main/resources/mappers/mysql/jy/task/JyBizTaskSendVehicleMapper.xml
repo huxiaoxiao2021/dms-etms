@@ -592,6 +592,12 @@
         <if test="entity.sendVehicleBizId != null">
             AND d.send_vehicle_biz_id = #{entity.sendVehicleBizId}
         </if>
+        <if test="entity.lastPlanDepartTimeBegin !=null">
+            and m.last_plan_depart_time &gt;= #{entity.lastPlanDepartTimeBegin}
+        </if>
+        <if test="entity.lastPlanDepartTimeEnd !=null">
+            and m.last_plan_depart_time &lt;= #{entity.lastPlanDepartTimeEnd}
+        </if>
         AND d.vehicle_status IN ( 0, 1, 2 )
         GROUP BY m.biz_id
         ORDER BY m.last_plan_depart_time DESC
@@ -611,6 +617,12 @@
                    AND d.start_site_id = #{startSiteId, jdbcType=BIGINT}
                    AND d.end_site_id = #{endSiteId, jdbcType=BIGINT}
                    AND d.vehicle_status IN (0, 1, 2)
+                    <if test="lastPlanDepartTimeBegin !=null">
+                        and m.last_plan_depart_time &gt;= #{lastPlanDepartTimeBegin}
+                    </if>
+                    <if test="lastPlanDepartTimeEnd !=null">
+                        and m.last_plan_depart_time &lt;= #{lastPlanDepartTimeEnd}
+                    </if>
                  GROUP BY m.biz_id
              ) t
     </select>
