@@ -1,4 +1,5 @@
 package com.jd.bluedragon.distribution.jy.service.exception.impl;
+import com.google.common.collect.Lists;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -26,10 +27,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 public class JyExceptionServiceImpl implements JyExceptionService {
@@ -98,39 +96,6 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         return JdCResponse.ok();
     }
 
-    private List<Integer> queryRecentSendInfo(ExpUploadScanReq req) {
-        List<Integer> siteIdList = new ArrayList<>();
-        for (String barcode : req.getRecentPackageCodeList()) {
-            if (!WaybillUtil.isPackageCode(barcode)) {
-                continue;
-            }
-            SendDetail param = new SendDetail();
-            param.setPackageBarcode(barcode);
-            param.setCreateSiteCode(req.getSiteId());
-            //未取消 & 已发货
-            param.setIsCancel(0);
-            param.setStatus(1);
-            SendDetail sendDetail = sendDetailService.queryOneSendDatailBySendM(param);
-            if (sendDetail == null) {
-                continue;
-            }
-            siteIdList.add(sendDetail.getReceiveSiteCode());
-        }
-        return siteIdList;
-    }
-
-    private List<String> queryRecentInspectInfo(ExpUploadScanReq req) {
-        List<String> sendCodeList = new ArrayList<>();
-        for (String packageCode : req.getRecentPackageCodeList()) {
-            if (!WaybillUtil.isPackageCode(packageCode)) {
-                continue;
-            }
-            // 查询上游场地
-
-        }
-        return null;
-    }
-
     /**
      * 按取件状态统计
      *
@@ -160,7 +125,27 @@ public class JyExceptionServiceImpl implements JyExceptionService {
      */
     @Override
     public JdCResponse<List<StatisticsByGridDto>> getGridStatisticsPageList(StatisticsByGridReq req) {
-        return null;
+
+        TagDto tag = new TagDto();
+        tag.setCode(0);
+        tag.setName("三无");
+        tag.setStyle("");
+
+        List<StatisticsByGridDto> list = new ArrayList<>();
+        for (int i = 0; i < 3; i++) {
+            StatisticsByGridDto dto = new StatisticsByGridDto();
+            dto.setFloor(0);
+            dto.setGridNo("GN" +i);
+            dto.setGriCode("GC" + i);
+            dto.setAreaCode("AC" + i);
+            dto.setAreaName("AN" + i);
+            dto.setPendingNum(i+10);
+            dto.setTimeoutNum(i);
+            dto.setTags(Arrays.asList(tag));
+            list.add(dto);
+        }
+
+        return JdCResponse.ok(list);
     }
 
     /**
@@ -170,17 +155,44 @@ public class JyExceptionServiceImpl implements JyExceptionService {
      */
     @Override
     public JdCResponse<List<ProcessingNumByGridDto>> getReceivingCount(StatisticsByGridReq req) {
-        return null;
+        List<ProcessingNumByGridDto> list = new ArrayList<>();
+
+        for (int i = 0; i < 20; i++) {
+            ProcessingNumByGridDto dto = new ProcessingNumByGridDto();
+            dto.setFloor(i % 2);
+            dto.setGridNo("");
+            dto.setGriCode("");
+            dto.setAreaCode("");
+            dto.setProcessingNum(0);
+
+        }
+        return JdCResponse.ok(list);
     }
 
     /**
      * 任务列表接口
      *
-     * @param req
      */
     @Override
     public JdCResponse<List<ExpTaskDto>> getExceptionTaskPageList(ExpTaskPageReq req) {
-        return null;
+        List<ExpTaskDto> list = new ArrayList<>();
+        for (int i = 0; i < 2; i++) {
+            ExpTaskDto dto = new ExpTaskDto();
+            dto.setTaskId("T" + i);
+            dto.setBarCode("SW" + i);
+            dto.setStayTime("10");
+            dto.setFloor("" + (i % 2));
+            dto.setGridCode("GC" + i);
+            dto.setGridNo("GN" + i);
+            dto.setAreaName("AN" + i);
+            dto.setReporterName("");
+            dto.setTags("");
+            dto.setSaved("");
+
+            list.add(dto);
+        }
+
+        return JdCResponse.ok(list);
     }
 
     /**
@@ -190,7 +202,8 @@ public class JyExceptionServiceImpl implements JyExceptionService {
      */
     @Override
     public JdCResponse<Object> receive(ExpReceiveReq req) {
-        return null;
+
+        return JdCResponse.ok();
     }
 
     /**
@@ -200,7 +213,30 @@ public class JyExceptionServiceImpl implements JyExceptionService {
      */
     @Override
     public JdCResponse<ExpTaskDetailDto> getTaskDetail(ExpTaskByIdReq req) {
-        return null;
+
+        ExpTaskDetailDto dto = new ExpTaskDetailCacheDto();
+        dto.setWeight("");
+        dto.setVolume("");
+        dto.setTogetherPackageCodes("");
+        dto.setBatchNo("");
+        dto.setInnerDesc("");
+        dto.setOuterDesc("");
+        dto.setFrom("");
+        dto.setTo("");
+        dto.setVolumeDetail("");
+        dto.setSn("");
+        dto.setGoodsNo("");
+        dto.setYardSixNine("");
+        dto.setGoodsNum("");
+        dto.setSealNumber("");
+        dto.setPrice("");
+        dto.setStorage("");
+        dto.setTaskId("");
+        dto.setSaveType("");
+        dto.setUserErp("");
+        dto.setImageUrls("");
+
+        return JdCResponse.ok(dto);
     }
 
     /**
@@ -210,7 +246,8 @@ public class JyExceptionServiceImpl implements JyExceptionService {
      */
     @Override
     public JdCResponse<Object> processTask(ExpTaskDetailReq req) {
-        return null;
+
+        return JdCResponse.ok();
     }
 
 
@@ -251,6 +288,45 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         entity.setUpdateUserName(baseStaffByErp.getStaffName());
         entity.setUpdateTime(now);
         return entity;
+    }
+
+    /**
+     * 近期发货的下游场地
+     */
+    private List<Integer> queryRecentSendInfo(ExpUploadScanReq req) {
+        List<Integer> siteIdList = new ArrayList<>();
+        for (String barcode : req.getRecentPackageCodeList()) {
+            if (!WaybillUtil.isPackageCode(barcode)) {
+                continue;
+            }
+            SendDetail param = new SendDetail();
+            param.setPackageBarcode(barcode);
+            param.setCreateSiteCode(req.getSiteId());
+            //未取消 & 已发货
+            param.setIsCancel(0);
+            param.setStatus(1);
+            SendDetail sendDetail = sendDetailService.queryOneSendDatailBySendM(param);
+            if (sendDetail == null) {
+                continue;
+            }
+            siteIdList.add(sendDetail.getReceiveSiteCode());
+        }
+        return siteIdList;
+    }
+
+    /**
+     * 近期验货的上游发货批次
+     */
+    private List<String> queryRecentInspectInfo(ExpUploadScanReq req) {
+        List<String> sendCodeList = new ArrayList<>();
+        for (String packageCode : req.getRecentPackageCodeList()) {
+            if (!WaybillUtil.isPackageCode(packageCode)) {
+                continue;
+            }
+            // 查询上游场地
+
+        }
+        return null;
     }
 
 }

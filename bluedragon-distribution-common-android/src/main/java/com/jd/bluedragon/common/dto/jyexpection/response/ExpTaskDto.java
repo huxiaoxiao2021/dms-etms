@@ -36,4 +36,84 @@ public class ExpTaskDto implements Serializable {
 
     //是否保存过
     private String saved;
+
+    public String getTaskId() {
+        return taskId;
+    }
+
+    public void setTaskId(String taskId) {
+        this.taskId = taskId;
+    }
+
+    public String getBarCode() {
+        return barCode;
+    }
+
+    public void setBarCode(String barCode) {
+        this.barCode = barCode;
+    }
+
+    public String getStayTime() {
+        return stayTime;
+    }
+
+    public void setStayTime(String stayTime) {
+        this.stayTime = stayTime;
+    }
+
+    public String getFloor() {
+        return floor;
+    }
+
+    public void setFloor(String floor) {
+        this.floor = floor;
+    }
+
+    public String getGridCode() {
+        return gridCode;
+    }
+
+    public void setGridCode(String gridCode) {
+        this.gridCode = gridCode;
+    }
+
+    public String getGridNo() {
+        return gridNo;
+    }
+
+    public void setGridNo(String gridNo) {
+        this.gridNo = gridNo;
+    }
+
+    public String getAreaName() {
+        return areaName;
+    }
+
+    public void setAreaName(String areaName) {
+        this.areaName = areaName;
+    }
+
+    public String getReporterName() {
+        return reporterName;
+    }
+
+    public void setReporterName(String reporterName) {
+        this.reporterName = reporterName;
+    }
+
+    public String getTags() {
+        return tags;
+    }
+
+    public void setTags(String tags) {
+        this.tags = tags;
+    }
+
+    public String getSaved() {
+        return saved;
+    }
+
+    public void setSaved(String saved) {
+        this.saved = saved;
+    }
 }
