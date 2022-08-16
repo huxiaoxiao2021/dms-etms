@@ -1174,6 +1174,33 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     }
 
     @Override
+    public InvokeResult<UnloadChildTaskDto> queryChildTaskInfoByBizId(String childBizId) {
+        final String methodDesc = "JyUnloadVehicleTysServiceImpl.queryChildTaskInfoByBizId--根据子任务BizId查询子任务服务--";
+        InvokeResult<UnloadChildTaskDto> res = new InvokeResult<>();
+        res.success();
+        try{
+            if(StringUtils.isBlank(childBizId)) {
+                res.error("参数缺失：必传任务bizId");
+                return res;
+            }
+            JyBizTaskUnloadVehicleStageEntity jyBizTaskUnloadVehicleStageEntity = jyBizTaskUnloadVehicleStageDao.queryByBizId(childBizId);
+            if(jyBizTaskUnloadVehicleStageEntity == null) {
+                res.setMessage("未查到数据");
+                return res;
+            }
+            UnloadChildTaskDto resData = new UnloadChildTaskDto();
+            org.springframework.beans.BeanUtils.copyProperties(jyBizTaskUnloadVehicleStageEntity,resData);
+            res.setData(resData);
+            return res;
+        }catch (Exception e) {
+            log.error("{}服务异常，childBizId={}，errMsg={}", methodDesc, childBizId, e.getMessage(), e);
+            res.error("根据子BizId查询子任务服务异常 " + e.getMessage());
+            return  res;
+        }
+    }
+
+
+    @Override
     public InvokeResult<List<UnloadBoardRespDto>> queryTaskBoardInfoByBizId(String masterBizId) {
         final String methodDesc = "JyUnloadVehicleTysServiceImpl.queryTaskBoardInfoByBizId--根据主BizId查询任务板关系服务--";
         InvokeResult<List<UnloadBoardRespDto>> res = new InvokeResult<>();

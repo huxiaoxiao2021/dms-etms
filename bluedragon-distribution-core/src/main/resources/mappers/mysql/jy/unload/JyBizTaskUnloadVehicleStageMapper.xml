@@ -290,4 +290,12 @@
     from jy_biz_task_unload_vehicle_stage
     where  yn = 1 and unload_vehicle_biz_id = #{unloadVehicleBizId,jdbcType=VARCHAR}
   </select>
+
+  <select id="queryByBizId" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from jy_biz_task_unload_vehicle_stage
+    where  yn = 1 and biz_id = #{bizId,jdbcType=VARCHAR}
+    order by ts desc
+  </select>
 </mapper>
