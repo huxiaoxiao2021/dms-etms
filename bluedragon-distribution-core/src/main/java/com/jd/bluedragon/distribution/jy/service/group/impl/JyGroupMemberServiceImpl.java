@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.device.response.DeviceInfoDto;
 import com.jd.bluedragon.common.dto.group.GroupMemberData;
 import com.jd.bluedragon.common.dto.group.GroupMemberQueryRequest;
 import com.jd.bluedragon.common.dto.group.GroupMemberRequest;
@@ -20,6 +21,8 @@ import com.jd.bluedragon.common.dto.station.UserSignQueryRequest;
 import com.jd.bluedragon.common.dto.station.UserSignRecordData;
 import com.jd.bluedragon.core.objectid.IGenerateObjectId;
 import com.jd.bluedragon.distribution.api.response.base.Result;
+import com.jd.bluedragon.distribution.command.JdResult;
+import com.jd.bluedragon.distribution.device.service.DeviceInfoService;
 import com.jd.bluedragon.distribution.jy.dao.group.JyGroupMemberDao;
 import com.jd.bluedragon.distribution.jy.group.JyGroupEntity;
 import com.jd.bluedragon.distribution.jy.group.JyGroupMemberEntity;
@@ -84,6 +87,10 @@ public class JyGroupMemberServiceImpl implements JyGroupMemberService {
 	
 	@Autowired
 	private IGenerateObjectId genObjectId;
+	
+	@Autowired
+	private DeviceInfoService deviceInfoService;
+	
 	/**
 	 * 添加小组成员
 	 */
@@ -148,13 +155,11 @@ public class JyGroupMemberServiceImpl implements JyGroupMemberService {
 		memberData.setCreateUserName(addMemberRequest.getOperateUserName());
 		memberData.setSignInTime(addMemberRequest.getSignInTime());
 		//校验组员是否存在
-		if(!isNewGroup) {
-			Result<Boolean> checkResult = checkBeforeAddMember(memberData);
-			if(checkResult != null 
-					&& !checkResult.isSuccess()) {
-				result.toFail(checkResult.getMessage());
-				return result;
-			}
+		Result<Boolean> checkResult = checkBeforeAddMember(memberData);
+		if(checkResult != null 
+				&& !checkResult.isSuccess()) {
+			result.toFail(checkResult.getMessage());
+			return result;
 		}
 		generateAndSetMemberCode(memberData);
 		//新小组，将已签未退人员加入到小组中，正常应该只有当前人员
@@ -239,12 +244,31 @@ public class JyGroupMemberServiceImpl implements JyGroupMemberService {
 			oldData = jyGroupMemberDao.queryInDataBySignRecordId(memberData);
 			if(oldData != null) {
 				result.toFail("该人员已在岗！");
+				return result;
 			}
 		}else {
 			//根据设备编码查询小组成员
 			oldData = jyGroupMemberDao.queryInDataByMachineCode(memberData);
 			if(oldData != null) {
 				result.toFail("该设备已在岗！");
+				//不在当前岗位，查询在岗信息
+				if(!oldData.getRefGroupCode().equals(memberData.getRefGroupCode())) {
+					JyGroupEntity groupInfo = this.jyGroupService.queryGroupByGroupCode(oldData.getRefGroupCode());
+					if(groupInfo != null) {
+						result.toFail("该设备已在岗["+groupInfo.getPositionCode()+"]！");
+					}
+				}
+				return result;
+			}
+			//校验并获取设备其他信息
+			if(StringHelper.isEmpty(memberData.getDeviceTypeCode())) {
+				JdResult<DeviceInfoDto> deviceInfo = this.deviceInfoService.queryDeviceConfigByMachineCode(memberData.getMachineCode(), memberData.getSiteCode());
+				if(deviceInfo == null || deviceInfo.getData() == null) {
+					result.toFail("场地中不存在设备编码！");
+					return result;
+				}
+				memberData.setDeviceTypeCode(deviceInfo.getData().getDeviceTypeCode());
+				memberData.setDeviceTypeName(deviceInfo.getData().getDeviceTypeName());
 			}
 		}
 		return result;

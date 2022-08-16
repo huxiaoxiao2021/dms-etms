@@ -261,4 +261,25 @@ public class DeviceInfoServiceImpl implements DeviceInfoService {
         }
 		return result;
 	}
+
+	@Override
+	public JdResult<DeviceInfoDto> queryDeviceConfigByMachineCode(String machineCode,Integer siteCode) {
+        JdResult<DeviceInfoDto> result = new JdResult<>();
+        result.toSuccess();
+        String siteCodeStr = "";
+        if(siteCode != null) {
+        	siteCodeStr = siteCode.toString();
+        }
+        DeviceConfigDto deviceConfig = deviceConfigInfoJsfService.findDeviceConfigByMachineCode(machineCode, siteCodeStr);
+        if(deviceConfig == null) {
+        	result.toFail("场地中不存在设备编码！");
+        	return result;
+        }
+    	DeviceInfoDto data = new DeviceInfoDto();
+    	data.setDeviceTypeCode(deviceConfig.getTypeCode());
+    	data.setDeviceTypeName(deviceConfig.getTypeName());
+    	data.setMachineCode(machineCode);
+    	result.setData(data);
+        return result;
+	}
 }

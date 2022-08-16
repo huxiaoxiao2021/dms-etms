@@ -35,4 +35,11 @@ public interface DeviceInfoService {
      * @return 返回满足条件的设备列表
      */
 	JdCResponse<List<DeviceTypeWithInfoDto>> queryDeviceTypeWithInfoList(DeviceInfoDto deviceInfoDto);
+	/**
+	 * 根据设备编码和场地查询设备配置信息
+	 * @param machineCode
+	 * @param siteCode
+	 * @return
+	 */
+	JdResult<DeviceInfoDto> queryDeviceConfigByMachineCode(String machineCode,Integer siteCode);
 }
