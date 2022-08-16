@@ -14,18 +14,18 @@ public class JyBizTaskConstraintJsfServiceImpl implements JyBizTaskConstraintJsf
     @Override
     public Result<BizTaskConstraint> getBizTaskConstraint(Long bizId, String taskType) {
         Result<BizTaskConstraint> result = Result.success();
-        BizConstraintAssemble bizConstraintAssemble = bizProcessorAssemble(taskType);
-        if (bizConstraintAssemble == null){
+        BizTaskService bizTaskServoce = bizProcessorAssemble(taskType);
+        if (bizTaskServoce == null){
             return result.toFail("未找到业务约束提供者");
         }
-        BizTaskConstraint bizTaskConstraint = bizConstraintAssemble.bizConstraintAssemble(bizId);
+        BizTaskConstraint bizTaskConstraint = bizTaskServoce.bizConstraintAssemble(bizId);
         result.setData(bizTaskConstraint);
         return result;
     }
 
-    private BizConstraintAssemble bizProcessorAssemble(String taskType) {
-        Map<String, BizConstraintAssemble> beans = SpringHelper.getBeans(BizConstraintAssemble.class);
-        for (Map.Entry<String,BizConstraintAssemble> entry:beans.entrySet()){
+    private BizTaskService bizProcessorAssemble(String taskType) {
+        Map<String, BizTaskService> beans = SpringHelper.getBeans(BizTaskService.class);
+        for (Map.Entry<String,BizTaskService> entry:beans.entrySet()){
             BizType annotation = entry.getClass().getAnnotation(BizType.class);
             for (JyScheduleTaskTypeEnum en:annotation.value()){
                 if (Objects.equals(en.getCode(),taskType)){

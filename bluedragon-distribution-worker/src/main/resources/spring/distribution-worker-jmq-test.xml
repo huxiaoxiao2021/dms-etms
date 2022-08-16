@@ -448,5 +448,10 @@
     <jmq:consumer id="jmq.faceReportNotifyConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.face.report.notify}" listener="faceReportNotifyConsumer"/>
     </jmq:consumer>
+
+    <!--  任务调度通知消息  -->
+    <jmq:consumer id="jmq.jyScheduleTaskConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.schedule.task.notify}" listener="jyScheduleTaskConsumer"/>
+    </jmq:consumer>
 </beans>
 
