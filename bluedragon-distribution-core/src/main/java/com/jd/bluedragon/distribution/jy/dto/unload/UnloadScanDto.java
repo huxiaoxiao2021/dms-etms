@@ -30,15 +30,6 @@ public class UnloadScanDto extends JyUnloadEntity {
      */
     private boolean supplementary;
 
-    /**
-     * 是否是首次扫描
-     */
-    private boolean firstScan;
-
-    /**
-     * 是否是子阶段首次扫描
-     */
-    private boolean stageFirstScan;
 
     public String getGroupCode() {
         return groupCode;
@@ -72,19 +63,4 @@ public class UnloadScanDto extends JyUnloadEntity {
         this.supplementary = supplementary;
     }
 
-    public boolean isFirstScan() {
-        return firstScan;
-    }
-
-    public void setFirstScan(boolean firstScan) {
-        this.firstScan = firstScan;
-    }
-
-    public boolean isStageFirstScan() {
-        return stageFirstScan;
-    }
-
-    public void setStageFirstScan(boolean stageFirstScan) {
-        this.stageFirstScan = stageFirstScan;
-    }
 }

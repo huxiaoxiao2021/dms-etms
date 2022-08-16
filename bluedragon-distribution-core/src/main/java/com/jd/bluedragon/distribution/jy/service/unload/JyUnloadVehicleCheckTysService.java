@@ -687,7 +687,6 @@ public class JyUnloadVehicleCheckTysService {
         }
         JyBizTaskUnloadVehicleStageEntity entity = jyBizTaskUnloadVehicleStageService.queryCurrentStage(condition);
         if (entity == null) {
-            unloadScanDto.setStageFirstScan(Boolean.TRUE);
             entity = generateUnloadTaskStage(unloadScanDto);
             jyBizTaskUnloadVehicleStageService.insertSelective(entity);
         }
@@ -842,7 +841,7 @@ public class JyUnloadVehicleCheckTysService {
     public void assembleReturnData(ScanPackageDto request, ScanPackageRespDto response, JyBizTaskUnloadVehicleEntity unloadVehicleEntity, UnloadScanDto unloadScanDto) {
         request.setStageBizId(unloadScanDto.getStageBizId());
         response.setStageBizId(unloadScanDto.getStageBizId());
-        response.setStageFirstScan(unloadScanDto.isStageFirstScan());
+        response.setStageFirstScan(checkIsStageFirstScan(unloadScanDto.getStageBizId()));
         response.setFirstScan(checkIsFirstScan(request.getBizId()));
         // 按包裹扫描
         if (ScanTypeEnum.PACKAGE.getCode().equals(request.getType())) {
@@ -892,6 +891,22 @@ public class JyUnloadVehicleCheckTysService {
     private boolean checkIsFirstScan(String bizId) {
         // 判断是否是
         String key = JY_UNLOAD_TASK_FIRST_SCAN_KEY + bizId;
+        String isFirstScan = redisClientCache.get(key);
+        if (isFirstScan == null) {
+            redisClientCache.setEx(key, StringUtils.EMPTY, 7, TimeUnit.DAYS);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * 判断是否是卸车任务子阶段扫描的第一个包裹
+     * @param stageBizId 卸车任务子阶段业务主键
+     * @return 是或否
+     */
+    private boolean checkIsStageFirstScan(String stageBizId) {
+        // 判断是否是
+        String key = JY_UNLOAD_TASK_FIRST_SCAN_KEY + stageBizId;
         String isFirstScan = redisClientCache.get(key);
         if (isFirstScan == null) {
             redisClientCache.setEx(key, StringUtils.EMPTY, 7, TimeUnit.DAYS);
