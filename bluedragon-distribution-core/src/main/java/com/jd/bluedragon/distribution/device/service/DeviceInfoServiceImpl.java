@@ -14,6 +14,7 @@ import com.jd.bluedragon.common.dto.device.response.DeviceTypeWithInfoDto;
 import com.jd.bluedragon.distribution.api.request.DeviceInfoRequest;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.ql.dms.print.utils.StringHelper;
 import com.jd.security.tde.util.Base64;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -271,7 +272,8 @@ public class DeviceInfoServiceImpl implements DeviceInfoService {
         	siteCodeStr = siteCode.toString();
         }
         DeviceConfigDto deviceConfig = deviceConfigInfoJsfService.findDeviceConfigByMachineCode(machineCode, siteCodeStr);
-        if(deviceConfig == null) {
+        if(deviceConfig == null
+        		|| StringHelper.isEmpty(deviceConfig.getMachineCode())) {
         	result.toFail("场地中不存在设备编码！");
         	return result;
         }
