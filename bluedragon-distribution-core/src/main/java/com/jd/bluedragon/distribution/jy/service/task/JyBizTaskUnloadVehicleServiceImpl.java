@@ -523,6 +523,13 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
         initParams.setEndSiteName(dto.getOperateSiteName());
         initParams.setVehicleStatus(JyBizTaskUnloadStatusEnum.WAIT_UN_LOAD.getCode());
         initParams.setManualCreatedFlag(1);
+
+        initParams.setCreateUserErp(dto.getOperateUserErp());
+        initParams.setCreateUserName(dto.getOperateUserName());
+        initParams.setUpdateUserErp(dto.getOperateUserName());
+        initParams.setUpdateUserName(dto.getOperateUserErp());
+        initParams.setCreateTime(new Date());
+        initParams.setUpdateTime(new Date());
         //本身已带锁
         if (saveOrUpdateOfBaseInfo(initParams)) {
             return initParams;

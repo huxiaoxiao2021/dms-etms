@@ -22,6 +22,7 @@ import com.jd.bluedragon.distribution.jy.enums.*;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.manager.IJyUnloadVehicleManager;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskUnloadVehicleService;
+import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadDto;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
 import com.jd.bluedragon.distribution.jy.unload.JyBizTaskUnloadVehicleStageEntity;
 import com.jd.bluedragon.distribution.jy.unload.JyUnloadAggsEntity;
@@ -104,7 +105,8 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     private JyUnloadVehicleCheckTysService jyUnloadVehicleCheckTysService;
     @Autowired
     private BoardCombinationService boardCombinationService;
-
+    @Autowired
+    private IJyUnloadVehicleService unloadVehicleService;
 
 
 
@@ -689,6 +691,40 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             res.setMessage("根据板号查询板号信息服务异常");
             return res;
         }
+    }
+
+    @Override
+    @JProfiler(jKey = "JyUnloadVehicleTysServiceImpl.createUnloadTask",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
+    public InvokeResult<UnloadNoTaskRespDto> createUnloadTask(UnloadNoTaskDto request) {
+        InvokeResult<UnloadNoTaskRespDto> result = new InvokeResult<>();
+        result.success();
+        try {
+            JyBizTaskUnloadDto dto = new JyBizTaskUnloadDto();
+            dto.setManualCreatedFlag(Constants.CONSTANT_NUMBER_ONE);
+            dto.setVehicleNumber(request.getVehicleNumber());
+            dto.setOperateSiteId(request.getOperateSiteId());
+            dto.setOperateSiteName(request.getOperateSiteName());
+            dto.setOperateUserErp(request.getUser().getUserErp());
+            dto.setOperateUserName(request.getUser().getUserName());
+            JyBizTaskUnloadDto noTaskUnloadDto = unloadVehicleService.createUnloadTask(dto);
+            if (noTaskUnloadDto == null) {
+                log.warn("createUnloadTask|创建无任务卸车返回空,req={}", JsonHelper.toJson(request));
+                result.customMessage(RESULT_INTERCEPT_CODE, "创建无任务卸车失败");
+                return result;
+            }
+            UnloadNoTaskRespDto unloadNoTaskResponse = new UnloadNoTaskRespDto();
+            unloadNoTaskResponse.setOperateSiteId(noTaskUnloadDto.getOperateSiteId());
+            unloadNoTaskResponse.setOperateSiteName(noTaskUnloadDto.getOperateSiteName());
+            unloadNoTaskResponse.setBizId(noTaskUnloadDto.getBizId());
+            unloadNoTaskResponse.setTaskId(noTaskUnloadDto.getTaskId());
+            unloadNoTaskResponse.setSealCarCode(noTaskUnloadDto.getSealCarCode());
+            unloadNoTaskResponse.setVehicleNumber(noTaskUnloadDto.getVehicleNumber());
+            result.setData(unloadNoTaskResponse);
+        } catch (Exception e) {
+            log.error("createUnloadTask|创建无任务卸车服务异常,req={},errMsg=", JsonHelper.toJson(request), e);
+            result.error("创建无任务卸车服务异常");
+        }
+        return result;
     }
 
     @Override

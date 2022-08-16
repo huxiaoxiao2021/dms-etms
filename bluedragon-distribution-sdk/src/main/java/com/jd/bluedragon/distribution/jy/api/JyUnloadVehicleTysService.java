@@ -59,6 +59,13 @@ public interface JyUnloadVehicleTysService {
     InvokeResult<ComBoardDto> queryComBoardDataByBoardCode(String boardCode);
 
     /**
+     * 创建卸车任务
+     * @param unloadNoTaskDto
+     * @return
+     */
+    InvokeResult<UnloadNoTaskRespDto> createUnloadTask(UnloadNoTaskDto unloadNoTaskDto);
+
+    /**
      * 交班
      * @param unloadVehicleTask
      * @return
