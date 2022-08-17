@@ -9,6 +9,8 @@ import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jsf.dms.BlockerQueryWSJsfManager;
 import com.jd.bluedragon.core.jsf.dms.CancelWaybillJsfManager;
+import com.jd.bluedragon.core.security.SecurityCheckerExecutor;
+import com.jd.bluedragon.core.security.enums.SecurityDataMapFuncEnum;
 import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBill;
 import com.jd.bluedragon.distribution.abnormalwaybill.service.AbnormalWayBillService;
 import com.jd.bluedragon.distribution.api.JdResponse;
@@ -27,7 +29,6 @@ import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
-import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.mixedPackageConfig.enums.SiteTypeEnum;
 import com.jd.bluedragon.distribution.print.service.ScheduleSiteSupportInterceptService;
 import com.jd.bluedragon.distribution.reverse.domain.ReverseReceive;
@@ -40,7 +41,6 @@ import com.jd.bluedragon.distribution.ver.domain.Site;
 import com.jd.bluedragon.distribution.waybill.dao.CancelWaybillDao;
 import com.jd.bluedragon.distribution.waybill.domain.*;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
-import com.jd.bluedragon.dms.utils.WaybillSignConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.service.LossServiceManager;
 import com.jd.bluedragon.utils.*;
@@ -53,9 +53,6 @@ import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.PackOpeFlowDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.etms.waybill.dto.WaybillVasDto;
-import com.jd.jsf.gd.util.JsonUtils;
-import com.jd.ql.basic.domain.PsStoreInfo;
-import com.jd.ql.basic.dto.BaseSiteInfoDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -125,6 +122,9 @@ public class WaybillServiceImpl implements WaybillService {
 
     @Autowired
     private ScheduleSiteSupportInterceptService scheduleSiteSupportInterceptService;
+
+    @Autowired
+    private SecurityCheckerExecutor securityCheckerExecutor;
 
     /**
      * 普通运单类型（非移动仓内配）
@@ -1172,6 +1172,13 @@ public class WaybillServiceImpl implements WaybillService {
         InvokeResult<String> result = new InvokeResult<>();
         result.success();
         if (!uccPropertyConfiguration.getPreSortOnSiteSwitchOn()){
+            return result;
+        }
+        // 信息安全校验
+        com.jd.bluedragon.distribution.jsf.domain.InvokeResult<Boolean> securityCheckResult
+                = securityCheckerExecutor.verifyWaybillDetailPermission(SecurityDataMapFuncEnum.WAYBILL_PRINT, waybillForPreSortOnSiteRequest.getErp(), WaybillUtil.getWaybillCodeByPackCode(waybillForPreSortOnSiteRequest.getWaybill()));
+        if(!securityCheckResult.codeSuccess()){
+            result.error(securityCheckResult.getMessage());
             return result;
         }
         try{

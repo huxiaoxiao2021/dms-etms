@@ -989,4 +989,13 @@
                   protocol="jsf" alias="${jsf.tysWorkbenchCenter.alias}" timeout="${jsf.tysWorkbenchCenter.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
     </jsf:consumer>
 
+    <!-- 运单切片查询服务（安全校验） -->
+    <jsf:consumer id="dataAmWaybillBusinessService" interface="com.jd.security.data.am.jsf.client.service.DataAmWaybillBusinessService"
+                  protocol="jsf" alias="${jsf.dataAmWaybill.alias}" timeout="${jsf.dataAmWaybill.timeout}" retries="0" check="false">
+    </jsf:consumer>
+    <!-- 订单切片查询服务（安全校验） -->
+    <jsf:consumer id="dataAmOrderBusinessService" interface="com.jd.security.data.am.jsf.client.service.DataAmOrderBusinessService"
+                  protocol="jsf" alias="${jsf.dataAmOrder.alias}" timeout="${jsf.dataAmOrder.timeout}" retries="0" check="false">
+    </jsf:consumer>
+
 </beans>

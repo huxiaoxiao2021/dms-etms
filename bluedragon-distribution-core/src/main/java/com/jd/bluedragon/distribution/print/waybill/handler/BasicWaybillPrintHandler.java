@@ -1,6 +1,5 @@
 package com.jd.bluedragon.distribution.print.waybill.handler;
 
-import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.TextConstants;
 import com.jd.bluedragon.common.domain.Waybill;
@@ -9,11 +8,14 @@ import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.core.security.SecurityCheckerExecutor;
+import com.jd.bluedragon.core.security.enums.SecurityDataMapFuncEnum;
 import com.jd.bluedragon.distribution.api.response.WaybillPrintResponse;
 import com.jd.bluedragon.distribution.base.service.AirTransportService;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.handler.InterceptHandler;
 import com.jd.bluedragon.distribution.handler.InterceptResult;
+import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
 import com.jd.bluedragon.distribution.print.domain.PrintPackage;
 import com.jd.bluedragon.distribution.print.domain.PrintWaybill;
 import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
@@ -84,6 +86,9 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
 
     @Autowired
     private UccPropertyConfiguration uccPropertyConfiguration;
+
+    @Autowired
+    private SecurityCheckerExecutor securityCheckerExecutor;
 
     /**
      * 奢侈品订单打标位起始值
@@ -168,6 +173,13 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
 		InterceptResult<String> interceptResult = context.getResult();
         String waybillCode = WaybillUtil.getWaybillCode(context.getRequest().getBarCode());
         try {
+            // 信息安全校验
+            InvokeResult<Boolean> securityCheckResult
+                    = securityCheckerExecutor.verifyWaybillDetailPermission(SecurityDataMapFuncEnum.WAYBILL_PRINT, context.getRequest().getUserERP(), waybillCode);
+            if(!securityCheckResult.codeSuccess()){
+                interceptResult.toError(InterceptResult.CODE_ERROR, securityCheckResult.getMessage());
+                return interceptResult;
+            }
             BaseEntity<BigWaybillDto> baseEntity =  waybillQueryManager.getWaybillDataForPrint(waybillCode);
             if (null == baseEntity){
                 interceptResult.toError(InterceptResult.CODE_ERROR, "运单数据为空！");
@@ -220,6 +232,7 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
             com.jd.etms.waybill.domain.Waybill tmsWaybill=bigWaybillDto.getWaybill();
             WaybillManageDomain tmsWaybillManageDomain=bigWaybillDto.getWaybillState();
             commonWaybill.setWaybillCode(tmsWaybill.getWaybillCode());
+            commonWaybill.setOutputType(context.getRequest().getOutputType());
             //B网面单要求将运单号后四位突出显示
             String waybillCode = tmsWaybill.getWaybillCode();
             if(StringUtils.isNotBlank(waybillCode) && waybillCode.length()>=WAYBILL_CODE_HIGHLIGHT_NUMBER) {
