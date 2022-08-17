@@ -654,7 +654,10 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
                 jyUnloadAggsDao.queryWaybillStatisticsUnderBoard(dto) : jyUnloadAggsDao.queryWaybillStatisticsUnderTask(dto);
 
         StatisticsDto statisticsDto = new StatisticsDto();
-        statisticsDto.setProcessPercent((packageStatistics.getTotalScannedPackageCount() / packageStatistics.getTotalSealPackageCount()));
+        Integer processPercent = (packageStatistics.getTotalSealPackageCount() == null || packageStatistics.getTotalSealPackageCount() == 0 ) ? 0
+                : (packageStatistics.getTotalScannedPackageCount() / packageStatistics.getTotalSealPackageCount());
+        statisticsDto.setProcessPercent(processPercent);
+//        statisticsDto.setProcessPercent((packageStatistics.getTotalScannedPackageCount() / packageStatistics.getTotalSealPackageCount()));
         statisticsDto.setShouldScanCount(packageStatistics.getShouldScanCount());
         statisticsDto.setHaveScanCount(packageStatistics.getActualScanCount());
         statisticsDto.setWaitScanCount(packageStatistics.getShouldScanCount() - packageStatistics.getActualScanCount());
