@@ -5,6 +5,7 @@ import com.jd.bluedragon.common.dto.operation.workbench.unload.response.LabelOpt
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.VosManager;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskUnloadVehicleDao;
 import com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadAggsDao;
 import com.jd.bluedragon.distribution.jy.dto.task.JyBizTaskUnloadCountDto;
@@ -44,6 +45,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+
+import static com.jd.bluedragon.distribution.base.domain.InvokeResult.RESULT_SUCCESS_CODE;
+import static com.jd.bluedragon.distribution.base.domain.InvokeResult.RESULT_SUCCESS_MESSAGE;
 
 /**
  * 天官赐福 ◎ 百无禁忌
@@ -641,8 +645,11 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
     }
 
     @Override
-    public StatisticsDto queryStatistics(DimensionQueryDto dto) {
+    public InvokeResult<StatisticsDto> queryStatistics(DimensionQueryDto dto) {
         JyUnloadAggsEntity packageStatistics = jyUnloadAggsDao.queryPackageStatistics(dto);
+        if(packageStatistics == null) {
+            return new InvokeResult<>(RESULT_SUCCESS_CODE, "未查到数据");
+        }
         JyUnloadAggsEntity waybillStatistics = dto.getBoardCode() != null ?
                 jyUnloadAggsDao.queryWaybillStatisticsUnderBoard(dto) : jyUnloadAggsDao.queryWaybillStatisticsUnderTask(dto);
 
@@ -654,8 +661,7 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
         statisticsDto.setInterceptCount(packageStatistics.getInterceptActualScanCount());
         statisticsDto.setExtraScanCount(packageStatistics.getMoreScanTotalCount());
         statisticsDto.setWaybillCount(dto.getBoardCode()!=null?waybillStatistics.getActualScanWaybillCount():waybillStatistics.getTotalScannedWaybillCount());
-
-        return statisticsDto;
+        return new InvokeResult<>(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, statisticsDto);
     }
 
     private ScanStatisticsDto dtoConvert(JyUnloadAggsEntity entity, DimensionQueryDto dto) {
