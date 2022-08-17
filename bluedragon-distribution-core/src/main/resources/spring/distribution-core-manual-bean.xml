@@ -45,12 +45,12 @@
         </constructor-arg>
     </bean>
 
-
-    <bean id="securityCheckerExecutorBean" class="com.jd.bluedragon.core.security.SecurityCheckerExecutor">
+    <!-- 安全校验策略 -->
+    <bean id="securityCheckerExecutor" class="com.jd.bluedragon.core.security.SecurityCheckerExecutor">
         <constructor-arg type="java.util.Map">
-            <map key-type="com.jd.bluedragon.core.security.manage.SecurityCheckEnums" value-type="java.lang.String">
-                <!--验货消费-->
-                <entry key="print_function"  value="${waybill.am.sys.token}"/>
+            <map key-type="com.jd.bluedragon.core.security.enums.SecurityDataMapFuncEnum" value-type="java.lang.String">
+                <!-- 打印获取运单信息 -->
+                <entry key="WAYBILL_PRINT"  value="${security.waybill.print.token}"/>
             </map>
         </constructor-arg>
     </bean>

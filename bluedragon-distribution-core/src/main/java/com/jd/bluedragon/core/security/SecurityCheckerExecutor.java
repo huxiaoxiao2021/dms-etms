@@ -1,6 +1,6 @@
 package com.jd.bluedragon.core.security;
 
-import com.jd.bluedragon.core.security.manage.SecurityCheckEnums;
+import com.jd.bluedragon.core.security.enums.SecurityDataMapFuncEnum;
 import com.jd.bluedragon.core.security.manage.SecurityCheckManager;
 import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,21 +20,21 @@ import java.util.Map;
  */
 public class SecurityCheckerExecutor{
 
-    private final Map<SecurityCheckEnums, String> securityCheckEnumsStringMap;
+    private final Map<SecurityDataMapFuncEnum, String> securityCheckEnumsStringMap;
 
     @Autowired
     private SecurityCheckManager securityCheckManager;
 
 
-    public SecurityCheckerExecutor(Map<SecurityCheckEnums, String> securityCheckEnumsStringMap) {
+    public SecurityCheckerExecutor(Map<SecurityDataMapFuncEnum, String> securityCheckEnumsStringMap) {
         this.securityCheckEnumsStringMap = securityCheckEnumsStringMap;
     }
 
-    public InvokeResult<Boolean> verifyWaybillDetailPermission(SecurityCheckEnums securityCheckEnums, String erpCode, String waybillNo) {
+    public InvokeResult<Boolean> verifyWaybillDetailPermission(SecurityDataMapFuncEnum securityCheckEnums, String erpCode, String waybillNo) {
         return securityCheckManager.verifyWaybillDetailPermissionByErp(erpCode, waybillNo, securityCheckEnumsStringMap.get(securityCheckEnums));
     }
 
-    public InvokeResult<Boolean> verifyOrderDetailPermission(SecurityCheckEnums securityCheckEnums, String erpCode, String waybillNo) {
+    public InvokeResult<Boolean> verifyOrderDetailPermission(SecurityDataMapFuncEnum securityCheckEnums, String erpCode, String waybillNo) {
         return securityCheckManager.verifyOrderDetailPermissionByErp(erpCode,waybillNo, securityCheckEnumsStringMap.get(securityCheckEnums));
     }
 

@@ -63,6 +63,12 @@ public class HideInfoServiceImpl implements HideInfoService{
             hideRule = LLKB_CP_CP_YYLD_RULE;
         }
 
+        // 面单输出方式为'预览'时：收寄人姓名电话地址都隐藏
+        if(Objects.equals(waybill.getOutputType(), SurfaceOutputTypeEnum.OUTPUT_TYPE_PREVIEW.getCode())){
+            customerInfoHide(CHAR_VAL_7, waybill, hideRule);
+            consignerInfoHide(CHAR_VAL_7, waybill, hideRule);
+            return;
+        }
 
     	boolean customerInfoHideFlag = false;
         //收件人信息隐藏，根据waybill_sign第37位判断
@@ -81,11 +87,6 @@ public class HideInfoServiceImpl implements HideInfoService{
         if(waybillSign.length() >= WaybillSignConstants.POSITION_47 && !BusinessUtil.isNoNeedHideConsigner(waybillSign)){
             char consignerInfoHideType = waybillSign.charAt(WaybillSignConstants.POSITION_47 - 1);
             consignerInfoHide(consignerInfoHideType,waybill,hideRule);
-        }
-        // 面单输出方式为'预览'时：收寄人姓名电话地址都隐藏
-        if(Objects.equals(waybill.getOutputType(), SurfaceOutputTypeEnum.OUTPUT_TYPE_PREVIEW.getCode())){
-            customerInfoHide(CHAR_VAL_7, waybill, hideRule);
-            consignerInfoHide(CHAR_VAL_7, waybill, hideRule);
         }
     }
 
