@@ -640,7 +640,7 @@ public class JyUnloadVehicleCheckTysService {
             if (e instanceof UnloadPackageBoardException) {
                 throw new UnloadPackageBoardException(String.format(LoadIllegalException.PACKAGE_ALREADY_BIND, boardCode));
             }
-            log.warn("推TC组板关系异常，入参【{}】", JsonHelper.toJson(addBoardBox), e);
+            log.warn("推TC组板关系异常,入参【{}】,message={}", JsonHelper.toJson(addBoardBox), e.getMessage());
         }
         throw new LoadIllegalException(LoadIllegalException.BOARD_TOTC_FAIL_INTERCEPT_MESSAGE);
     }

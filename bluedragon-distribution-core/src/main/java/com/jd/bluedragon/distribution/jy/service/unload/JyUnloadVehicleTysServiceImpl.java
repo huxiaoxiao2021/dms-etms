@@ -560,7 +560,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         String routerStr = waybillCacheService.getRouterByWaybillCode(scanCode);
         Integer nextSiteCode = getRouteNextSite(scanPackageDto.getCurrentOperate().getSiteCode(), routerStr);
         scanPackageDto.setNextSiteCode(nextSiteCode);
-        if (StringUtils.isBlank(unloadVehicleEntity.getStartSiteName())) {
+        if (Constants.START_SITE_INITIAL_VALUE.equals(unloadVehicleEntity.getStartSiteId())) {
             Integer prevSiteCode = getPrevSiteCodeByRouter(routerStr, scanPackageDto.getCurrentOperate().getSiteCode());
             scanPackageDto.setPrevSiteCode(prevSiteCode);
         } else {
