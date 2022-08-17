@@ -68,6 +68,16 @@ public class JyBizTaskUnloadVehicleDao extends BaseDao<JyBizTaskUnloadVehicleEnt
         params.put("bizId",bizId);
         return this.getSqlSession().selectOne(NAMESPACE + ".findIdByBizId", params);
     }
+
+    /**
+     * 根据bizId获取数据只返回逻辑主键  不依赖YN状态
+     * @return
+     */
+    public Long findIdByBizIdWithoutYn(String bizId){
+        Map<String,Object> params = new HashMap<>();
+        params.put("bizId",bizId);
+        return this.getSqlSession().selectOne(NAMESPACE + ".findIdByBizIdWithoutYn", params);
+    }
     /**
      * 根据bizId获取数据只返回逻辑主键和状态
      * @return

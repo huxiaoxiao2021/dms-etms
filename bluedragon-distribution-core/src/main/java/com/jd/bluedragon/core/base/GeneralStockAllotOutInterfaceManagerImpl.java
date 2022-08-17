@@ -1,6 +1,7 @@
 package com.jd.bluedragon.core.base;
 
 import com.google.common.collect.Lists;
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ipc.csa.GeneralStockAllotOutInterface;
 import com.jd.ipc.csa.model.AllotRequestDetail;
@@ -8,6 +9,8 @@ import com.jd.ipc.csa.model.AllotResponseDetail;
 import com.jd.ipc.csa.model.AllotScenarioEnum;
 import com.jd.ipc.csa.model.ApiResult;
 import com.jd.ql.dms.report.ReportExternalService;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +32,8 @@ public class GeneralStockAllotOutInterfaceManagerImpl implements GeneralStockAll
     private GeneralStockAllotOutInterface generalStockAllotOutInterface;
 
     @Override
+    @JProfiler(jKey = "DMS.BASE.GeneralStockAllotOutInterfaceManagerImpl.batchAllotStock" , jAppName = Constants.UMP_APP_NAME_DMSWEB,
+            mState = {JProEnum.TP, JProEnum.FunctionError})
     public List<AllotResponseDetail> batchAllotStock(List<AllotRequestDetail> allotRequestDetails, AllotScenarioEnum scenario, String bizUniqueKey, Boolean isIdempotent, String sysName) {
         ApiResult<List<AllotResponseDetail>> apiResult = generalStockAllotOutInterface.batchAllotStock(allotRequestDetails,scenario.getValue(),bizUniqueKey,isIdempotent,sysName);
         logger.info("渠道库存分配接口返回结果apiResult[{}]allotRequestDetails[{}]scenario[{}]bizUniqueKey[{}]isIdempotent[{}]sysName[{}]",
