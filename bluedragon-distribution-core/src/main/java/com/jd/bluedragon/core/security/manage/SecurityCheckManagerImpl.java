@@ -1,4 +1,4 @@
-package com.jd.bluedragon.core.base;
+package com.jd.bluedragon.core.security.manage;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
@@ -44,7 +44,7 @@ public class SecurityCheckManagerImpl implements SecurityCheckManager {
     private DataAmOrderBusinessService dataAmOrderBusinessService;
 
     @Override
-    public InvokeResult<Boolean> verifyWaybillDetailPermissionByPin(String userPin, String waybillNo) {
+    public InvokeResult<Boolean> verifyWaybillDetailPermissionByPin(String userPin, String waybillNo, String waybillAMToken) {
         CallerInfo callerInfo = Profiler.registerInfo("dmsWeb.jsf.SecurityCheckManager.verifyWaybillDetailPermissionByPin",
                 Constants.UMP_APP_NAME_DMSWEB,false,true);
         InvokeResult<Boolean> result = new InvokeResult<>();
@@ -67,7 +67,7 @@ public class SecurityCheckManagerImpl implements SecurityCheckManager {
     }
 
     @Override
-    public InvokeResult<Boolean> verifyWaybillDetailPermissionByErp(String userErp, String waybillNo) {
+    public InvokeResult<Boolean> verifyWaybillDetailPermissionByErp(String userErp, String waybillNo, String waybillAMToken) {
         CallerInfo callerInfo = Profiler.registerInfo("dmsWeb.jsf.SecurityCheckManager.verifyWaybillDetailPermissionByErp",
                 Constants.UMP_APP_NAME_DMSWEB,false,true);
         InvokeResult<Boolean> result = new InvokeResult<>();
@@ -90,7 +90,7 @@ public class SecurityCheckManagerImpl implements SecurityCheckManager {
     }
 
     @Override
-    public InvokeResult<Boolean> verifyOrderDetailPermissionByPin(String userPin, String orderNo) {
+    public InvokeResult<Boolean> verifyOrderDetailPermissionByPin(String userPin, String orderNo, String waybillAMToken) {
         CallerInfo callerInfo = Profiler.registerInfo("dmsWeb.jsf.SecurityCheckManager.verifyOrderDetailPermissionByPin",
                 Constants.UMP_APP_NAME_DMSWEB,false,true);
         InvokeResult<Boolean> result = new InvokeResult<>();
@@ -113,7 +113,7 @@ public class SecurityCheckManagerImpl implements SecurityCheckManager {
     }
 
     @Override
-    public InvokeResult<Boolean> verifyOrderDetailPermissionByErp(String userErp, String orderNo) {
+    public InvokeResult<Boolean> verifyOrderDetailPermissionByErp(String userErp, String orderNo, String waybillAMToken) {
         CallerInfo callerInfo = Profiler.registerInfo("dmsWeb.jsf.SecurityCheckManager.verifyOrderDetailPermissionByErp",
                 Constants.UMP_APP_NAME_DMSWEB,false,true);
         InvokeResult<Boolean> result = new InvokeResult<>();

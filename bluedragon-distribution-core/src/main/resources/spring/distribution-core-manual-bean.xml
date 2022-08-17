@@ -45,4 +45,14 @@
         </constructor-arg>
     </bean>
 
+
+    <bean id="verifyPermissionCheckerBean" class="com.jd.bluedragon.core.security.SecurityCheckerStrategy">
+        <constructor-arg type="java.util.Map">
+            <map key-type="com.jd.bluedragon.core.security.manage.SecurityCheckEnums" value-type="java.lang.String">
+                <!--验货消费-->
+                <entry key="print_function"  value="${waybill.am.sys.token}"/>
+            </map>
+        </constructor-arg>
+    </bean>
+
 </beans>

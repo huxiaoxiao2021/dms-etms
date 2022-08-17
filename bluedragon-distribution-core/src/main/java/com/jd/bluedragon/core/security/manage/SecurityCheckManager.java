@@ -1,4 +1,4 @@
-package com.jd.bluedragon.core.base;
+package com.jd.bluedragon.core.security.manage;
 
 import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
 
@@ -17,7 +17,7 @@ public interface SecurityCheckManager {
      * @param waybillNo 运单号
      * @return
      */
-    InvokeResult<Boolean> verifyWaybillDetailPermissionByPin(String userPin, String waybillNo);
+    InvokeResult<Boolean> verifyWaybillDetailPermissionByPin(String userPin, String waybillNo, String waybillAMToken);
 
     /**
      * 根据PERP和运单号，判断是否有访问权限
@@ -26,7 +26,7 @@ public interface SecurityCheckManager {
      * @param waybillNo 运单号
      * @return
      */
-    InvokeResult<Boolean> verifyWaybillDetailPermissionByErp(String userErp, String waybillNo);
+    InvokeResult<Boolean> verifyWaybillDetailPermissionByErp(String userErp, String waybillNo, String waybillAMToken);
 
     /**
      * 根据PIN和订单号，判断是否有访问权限
@@ -35,7 +35,7 @@ public interface SecurityCheckManager {
      * @param waybillNo 运单号
      * @return
      */
-    InvokeResult<Boolean> verifyOrderDetailPermissionByPin(String userPin, String waybillNo);
+    InvokeResult<Boolean> verifyOrderDetailPermissionByPin(String userPin, String waybillNo, String waybillAMToken);
 
     /**
      * 根据PERP和订单号，判断是否有访问权限
@@ -44,5 +44,5 @@ public interface SecurityCheckManager {
      * @param waybillNo 运单号
      * @return
      */
-    InvokeResult<Boolean> verifyOrderDetailPermissionByErp(String userErp, String waybillNo);
+    InvokeResult<Boolean> verifyOrderDetailPermissionByErp(String userErp, String waybillNo, String waybillAMToken);
 }
