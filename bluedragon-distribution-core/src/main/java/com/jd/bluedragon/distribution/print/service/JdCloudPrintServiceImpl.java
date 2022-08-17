@@ -84,7 +84,7 @@ public class JdCloudPrintServiceImpl implements JdCloudPrintService {
 	 * 需要进行过滤的https域名
 	 */
 	@Value("#{'${jss.httpsSet}'.split(',')}")
-    private HashSet<String> httpsSet;
+    private Set<String> httpsSet;
 	/**
 	 * pdfOutJssStorage配置的endpoint
 	 */
