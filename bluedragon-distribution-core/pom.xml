@@ -759,7 +759,7 @@
         <dependency>
             <groupId>com.jd.stock.iwms</groupId>
             <artifactId>iwms-app-export</artifactId>
-			<version>3.1.0-temp-jdk6-SNAPSHOT</version>
+			<version>2.2.0-jdk6-SNAPSHOT</version>
 			<exclusions>
 				<exclusion>
 					<artifactId>jsf</artifactId>
@@ -779,7 +779,7 @@
 		<dependency>
 			<groupId>com.jd.ipc.csa</groupId>
 			<artifactId>channel-stock-allot-api</artifactId>
-			<version>1.4-SNAPSHOT</version>
+			<version>1.4</version>
 		</dependency>
         <dependency>
             <groupId>stock-sdk</groupId>

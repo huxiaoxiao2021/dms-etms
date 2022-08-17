@@ -925,4 +925,6 @@ public class HintCodeConstants {
      * 非单错发到德邦虚拟分拣中心
      */
     public static String NOT_DP_WAYBILL_WRONG_SEND_MSG="50006";
+    public static String NOT_FOUND_TRANSFER_TASK_DATA_MSG="50008";
+    public static String NOT_FOUND_BINDING_TASK_DATA_MSG="50009";
 }

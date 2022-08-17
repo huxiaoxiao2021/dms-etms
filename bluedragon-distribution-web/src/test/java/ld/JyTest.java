@@ -61,6 +61,31 @@ public class JyTest {
         jyBizTaskUnloadVehicleService.saveOrUpdateOfBusinessInfo(entity);
     }
 
+    @Test
+    public void testChangeStatus(){
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                JyBizTaskUnloadVehicleEntity entity = new JyBizTaskUnloadVehicleEntity();
+                entity.setBizId("SC22080200019413");
+                entity.setVehicleStatus(JyBizTaskUnloadStatusEnum.WAIT_UN_SEAL.getCode());
+                jyBizTaskUnloadVehicleService.changeStatus(entity);
+            }
+        },"LD1").start();
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                JyBizTaskUnloadVehicleEntity entity2 = new JyBizTaskUnloadVehicleEntity();
+                entity2.setBizId("SC22080200019413");
+                entity2.setVehicleStatus(JyBizTaskUnloadStatusEnum.WAIT_UN_LOAD.getCode());
+                jyBizTaskUnloadVehicleService.changeStatus(entity2);
+            }
+        },"LD2").start();
+
+        System.out.println("end");
+    }
+
     @Autowired
     private JyUnloadVehicleGatewayService jyUnloadVehicleGatewayService;
 

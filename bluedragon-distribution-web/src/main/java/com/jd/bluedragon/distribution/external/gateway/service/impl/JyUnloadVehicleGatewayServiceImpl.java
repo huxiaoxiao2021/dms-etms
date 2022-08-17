@@ -227,22 +227,21 @@ public class JyUnloadVehicleGatewayServiceImpl implements JyUnloadVehicleGateway
         // 设置默认扫描方式
         if(request.getScanType() == null){
             request.setScanType(UnloadScanTypeEnum.SCAN_ONE.getCode());
-        } else {
-            final BarCodeType barCodeType = BusinessUtil.getBarCodeType(request.getBarCode());
-            if(barCodeType == null) {
-                response.toFail("请扫描正确的条码！");
-                return false;
-            }
-            if(Objects.equals(UnloadScanTypeEnum.SCAN_ONE.getCode(), request.getScanType()) &&
-                    (!Objects.equals(BarCodeType.PACKAGE_CODE.getCode(), barCodeType.getCode()) && !Objects.equals(BarCodeType.BOX_CODE.getCode(), barCodeType.getCode()))){
-                response.toFail("请扫描包裹号或箱号！");
-                return false;
-            }
-            if(Objects.equals(UnloadScanTypeEnum.SCAN_WAYBILL.getCode(), request.getScanType()) &&
-                    (!Objects.equals(BarCodeType.PACKAGE_CODE.getCode(), barCodeType.getCode()) && !Objects.equals(BarCodeType.WAYBILL_CODE.getCode(), barCodeType.getCode()))){
-                response.toFail("请扫描包裹号或运单号！");
-                return false;
-            }
+        }
+        final BarCodeType barCodeType = BusinessUtil.getBarCodeType(request.getBarCode());
+        if(barCodeType == null) {
+            response.toFail("请扫描正确的条码！");
+            return false;
+        }
+        if(Objects.equals(UnloadScanTypeEnum.SCAN_ONE.getCode(), request.getScanType()) &&
+                (!Objects.equals(BarCodeType.PACKAGE_CODE.getCode(), barCodeType.getCode()) && !Objects.equals(BarCodeType.BOX_CODE.getCode(), barCodeType.getCode()))){
+            response.toFail("请扫描包裹号或箱号！");
+            return false;
+        }
+        if(Objects.equals(UnloadScanTypeEnum.SCAN_WAYBILL.getCode(), request.getScanType()) &&
+                (!Objects.equals(BarCodeType.PACKAGE_CODE.getCode(), barCodeType.getCode()) && !Objects.equals(BarCodeType.WAYBILL_CODE.getCode(), barCodeType.getCode()))){
+            response.toFail("请扫描包裹号或运单号！");
+            return false;
         }
 
         return true;
