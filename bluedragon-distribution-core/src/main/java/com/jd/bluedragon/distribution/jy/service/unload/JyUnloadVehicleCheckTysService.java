@@ -795,7 +795,7 @@ public class JyUnloadVehicleCheckTysService {
         String key = TYS_UNLOAD_PREFIX_SITE + Constants.SEPARATOR_HYPHEN + Constants.PDA_UNLOAD_TASK_PREFIX
                 + Constants.SEPARATOR_HYPHEN + request.getBizId();
         // 如果是无任务卸车
-        if (unloadVehicleEntity.getStartSiteId() == null) {
+        if (Constants.START_SITE_INITIAL_VALUE.equals(unloadVehicleEntity.getStartSiteId())) {
             // 从缓存中取包裹的顺序，判断是否到第三次了
             String packageCount = redisClientCache.get(key);
             if (packageCount != null) {
@@ -866,7 +866,7 @@ public class JyUnloadVehicleCheckTysService {
         }
         response.setSupplementary(unloadScanDto.getSupplementary());
         response.setGoodsAreaCode(request.getGoodsAreaCode());
-        if (StringUtils.isNotBlank(unloadVehicleEntity.getStartSiteName())) {
+        if (!Constants.START_SITE_INITIAL_VALUE.equals(unloadVehicleEntity.getStartSiteId())) {
             response.setPrevSiteName(unloadVehicleEntity.getStartSiteName());
             response.setPrevSiteId(unloadVehicleEntity.getStartSiteId());
         } else if (request.getPrevSiteCode() != null) {

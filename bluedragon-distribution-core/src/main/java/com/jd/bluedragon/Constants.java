@@ -1695,4 +1695,11 @@ public class Constants {
      * 验货菜单编码：0101019
      */
     public static final String MENU_CODE_INSPECTION  = "0101019";
+
+
+    /**
+     * 无任务卸车上游站点初始值
+     */
+    public static final Long START_SITE_INITIAL_VALUE = 0L;
+
 }
