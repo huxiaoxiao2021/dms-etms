@@ -216,7 +216,14 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
             Integer lineType = null;
             //1.先找出仓配的始发地
             Waybill baseEntity = waybillQueryManager.getWaybillByWayCode(waybillCode);
-            if(baseEntity.getDistributeStoreId()!=null && StringUtils.isNotEmpty(baseEntity.getDistributeStoreName())){
+            /**
+             * 1、判断仓ID是否为空，不为空则是仓配业务
+             * 2、仓ID为空，再判断wayBillSign的第53位是否为1，1为仓配业务
+             * 3、其他为纯配业务
+             */
+            if(baseEntity.getDistributeStoreId()!=null
+                && StringUtils.isNotEmpty(baseEntity.getDistributeStoreName())
+                || baseEntity.getWaybillSign().charAt(52) == '1'){
                 firstSiteVo = this.packageFirstSiteVo(baseEntity.getDistributeStoreId(),baseEntity.getDistributeStoreName());
                 // 查询仓打包记录，获得被举报人
                 DmsPackRecordPo paramObj = new DmsPackRecordPo();
