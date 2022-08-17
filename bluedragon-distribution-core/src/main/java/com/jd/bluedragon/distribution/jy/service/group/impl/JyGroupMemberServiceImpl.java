@@ -298,6 +298,9 @@ public class JyGroupMemberServiceImpl implements JyGroupMemberService {
 			removeMemberData.setUpdateUser(removeMemberRequest.getOperateUserCode());
 			removeMemberData.setUpdateUserName(removeMemberRequest.getOperateUserName());
 			removeMemberData.setSignOutTime(removeMemberRequest.getSignOutTime());
+			if(removeMemberData.getSignOutTime() == null) {
+				removeMemberData.setSignOutTime(new Date());
+			}
 			jyGroupMemberDao.removeMember(removeMemberData);
 			JyTaskGroupMemberEntity taskGroupMember = new JyTaskGroupMemberEntity();
 			taskGroupMember.setRefGroupMemberCode(memberData.getMemberCode());
