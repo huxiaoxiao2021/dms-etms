@@ -597,6 +597,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
     		this.doSignOut(signOutRequest);
     		needSignOut = true;
     		context.signOutData = this.toUserSignRecordData(lastSignRecord);
+    		context.signOutData.setSignOutTime(signOutRequest.getSignOutTime());
 		}
         if(this.doSignIn(signInData)) {
         	result.setData(this.toUserSignRecordData(signInData));
@@ -650,6 +651,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
         	result.setData(this.queryUserSignRecordDataById(signOutData.getId()));
         	result.toSucceed("签退成功！"); 
         	context.signOutData = result.getData();
+    		context.signOutData.setSignOutTime(signOutData.getSignOutTime());
         }else {
         	result.toFail("签退失败！");
         }
@@ -690,7 +692,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
             	needSignIn = false;
             }
 		}
-		
+
         UserSignRecord signInData = new UserSignRecord();
         //校验并组装签到数据
         if(needSignIn) {
@@ -713,6 +715,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
         		return result;
             }else {
             	context.signOutData = this.toUserSignRecordData(lastSignRecord);
+            	context.signOutData.setSignOutTime(signOutData.getSignOutTime());
             }
         }
 
@@ -794,6 +797,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		signInData.setRefGridKey(gridKey);
 		signInData.setRefStationKey(stationKey);
 		signInData.setUserName(signInData.getUserCode());
+		signInData.setModeType(signInRequest.getModeType());
 		// 获取最近一次签到记录
 		UserSignQueryRequest query = new UserSignQueryRequest();
 		query.setUserCode(signInRequest.getUserCode());
