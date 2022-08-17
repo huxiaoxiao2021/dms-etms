@@ -33,10 +33,6 @@ public class SecurityCheckManagerImpl implements SecurityCheckManager {
     private static final String AM_CHECK_TYPE_PIN = "pin";
     private static final String AM_CHECK_TYPE_ERP = "erp";
 
-    // 安全授权系统token @see <a href="http://data-am.jd.com/#/dashboard"/>
-    @Value("${waybill.am.sys.token:'1ef1fa90-06e2-4aed-876b-cc26c97b8b87'}")
-    private String waybillAMToken;
-
     @Autowired
     private DataAmWaybillBusinessService dataAmWaybillBusinessService;
 

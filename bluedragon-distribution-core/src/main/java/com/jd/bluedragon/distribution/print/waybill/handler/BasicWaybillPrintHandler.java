@@ -8,7 +8,7 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.core.security.manage.SecurityCheckEnums;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
-import com.jd.bluedragon.core.security.SecurityCheckerStrategy;
+import com.jd.bluedragon.core.security.SecurityCheckerExecutor;
 import com.jd.bluedragon.distribution.api.response.WaybillPrintResponse;
 import com.jd.bluedragon.distribution.base.service.AirTransportService;
 import com.jd.bluedragon.distribution.command.JdResult;
@@ -84,7 +84,7 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
     private BaseMajorManager baseMajorManager;
 
     @Autowired
-    private SecurityCheckerStrategy securityCheckerStrategy;
+    private SecurityCheckerExecutor securityCheckerExecutor;
 
     /**
      * 奢侈品订单打标位起始值
@@ -171,7 +171,7 @@ public class BasicWaybillPrintHandler implements InterceptHandler<WaybillPrintCo
         try {
             // 信息安全校验
             InvokeResult<Boolean> securityCheckResult
-                    = securityCheckerStrategy.verifyWaybillDetailPermission(SecurityCheckEnums.print_function, context.getRequest().getUserERP(), waybillCode);
+                    = securityCheckerExecutor.verifyWaybillDetailPermission(SecurityCheckEnums.print_function, context.getRequest().getUserERP(), waybillCode);
             if(!securityCheckResult.codeSuccess()){
                 interceptResult.toError(InterceptResult.CODE_ERROR, securityCheckResult.getMessage());
                 return interceptResult;
