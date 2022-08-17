@@ -189,4 +189,40 @@
             send_vehicle_biz_id = #{sendVehicleBizId}
         </where>
     </update>
+
+
+    <select id="getStatisticsByGrid" parameterType="com.jd.bluedragon.common.dto.jyexpection.request.StatisticsByGridReq" resultType="com.jd.bluedragon.common.dto.jyexpection.response.StatisticsByGridDto">
+        SELECT
+        site_code AS siteCode,
+        site_name AS siteName,
+        floor AS floor,
+        grid_code AS gridCode,
+        grid_no AS gridNo,
+        area_code AS areaCode,
+        area_name AS areaName,
+        count(*) AS pendingNum,
+        SUM(time_out) AS timeoutNum
+        FROM jy_biz_task_exception
+        WHERE
+        yn = 1
+        AND site_code = #{siteId}
+        AND status = #{status}
+        GROUP BY grid_code,floor
+        <if test="pageSize !=null">
+            LIMIT #{offSet}, #{pageSize};
+        </if>
+    </select>
+
+    <select id="queryExceptionTaskList" parameterType="com.jd.bluedragon.common.dto.jyexpection.request.ExpTaskPageReq" resultMap="StatisticStatusResp">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM jy_biz_task_exception
+        WHERE
+        yn = 1
+        AND site_code = #{siteId}
+        AND status = #{status}
+        <if test="gridCode !=null and gridCode!=''">
+            AND grid_code = #{gridCode}
+        </if>
+    </select>
 </mapper>

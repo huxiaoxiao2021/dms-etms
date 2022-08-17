@@ -8,11 +8,13 @@ public class ExpTaskPageReq extends ExpBaseReq {
     private String gridCode;
 
     // 状态 JyExpStatusEnum
-    private String status;
+    private Integer status;
 
     private Integer pageNumber;
 
     private Integer pageSize;
+
+    private Integer offSet;
 
     public Integer getFloor() {
         return floor;
@@ -30,11 +32,11 @@ public class ExpTaskPageReq extends ExpBaseReq {
         this.gridCode = gridCode;
     }
 
-    public String getStatus() {
+    public Integer getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(Integer status) {
         this.status = status;
     }
 
@@ -52,5 +54,9 @@ public class ExpTaskPageReq extends ExpBaseReq {
 
     public void setPageSize(Integer pageSize) {
         this.pageSize = pageSize;
+    }
+
+    public Integer getOffSet() {
+        return (pageSize - 1) * pageSize;
     }
 }

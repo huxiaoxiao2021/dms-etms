@@ -1,5 +1,6 @@
 package com.jd.bluedragon.common.dto.jyexpection.response;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -10,10 +11,10 @@ public class ExpTaskDetailCacheDto extends ExpTaskDetailDto {
     private String expBarcode;
 
     // 验货-上游发货批次号
-    private List<String> recentSendCodeList;
+    private Collection<String> recentSendCodeList;
 
     // 发货-目的场地
-    private List<Integer> recentReceiveSiteList;
+    private Collection<Integer> recentReceiveSiteList;
 
     public String getExpBarcode() {
         return expBarcode;
@@ -23,19 +24,19 @@ public class ExpTaskDetailCacheDto extends ExpTaskDetailDto {
         this.expBarcode = expBarcode;
     }
 
-    public List<String> getRecentSendCodeList() {
+    public Collection<String> getRecentSendCodeList() {
         return recentSendCodeList;
     }
 
-    public void setRecentSendCodeList(List<String> recentSendCodeList) {
+    public void setRecentSendCodeList(Collection<String> recentSendCodeList) {
         this.recentSendCodeList = recentSendCodeList;
     }
 
-    public List<Integer> getRecentReceiveSiteList() {
+    public Collection<Integer> getRecentReceiveSiteList() {
         return recentReceiveSiteList;
     }
 
-    public void setRecentReceiveSiteList(List<Integer> recentReceiveSiteList) {
+    public void setRecentReceiveSiteList(Collection<Integer> recentReceiveSiteList) {
         this.recentReceiveSiteList = recentReceiveSiteList;
     }
 }

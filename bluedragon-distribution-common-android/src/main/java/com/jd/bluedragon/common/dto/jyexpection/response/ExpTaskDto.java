@@ -7,8 +7,8 @@ import java.util.List;
  * 任务列表
  */
 public class ExpTaskDto implements Serializable {
-    //任务id
-    private String taskId;
+    //业务ID
+    private String bizId;
 
     //提交条码
     private String barCode;
@@ -17,7 +17,7 @@ public class ExpTaskDto implements Serializable {
     private String stayTime;
 
     //楼层
-    private String floor;
+    private Integer floor;
 
     //网格编号
     private String gridCode;
@@ -32,17 +32,17 @@ public class ExpTaskDto implements Serializable {
     private String reporterName;
 
     //标签列表
-    private String tags;
+    private List<TagDto> tags;
 
     //是否保存过
-    private String saved;
+    private boolean saved;
 
-    public String getTaskId() {
-        return taskId;
+    public String getBizId() {
+        return bizId;
     }
 
-    public void setTaskId(String taskId) {
-        this.taskId = taskId;
+    public void setBizId(String bizId) {
+        this.bizId = bizId;
     }
 
     public String getBarCode() {
@@ -61,11 +61,11 @@ public class ExpTaskDto implements Serializable {
         this.stayTime = stayTime;
     }
 
-    public String getFloor() {
+    public Integer getFloor() {
         return floor;
     }
 
-    public void setFloor(String floor) {
+    public void setFloor(Integer floor) {
         this.floor = floor;
     }
 
@@ -101,19 +101,19 @@ public class ExpTaskDto implements Serializable {
         this.reporterName = reporterName;
     }
 
-    public String getTags() {
+    public List<TagDto> getTags() {
         return tags;
     }
 
-    public void setTags(String tags) {
+    public void setTags(List<TagDto> tags) {
         this.tags = tags;
     }
 
-    public String getSaved() {
+    public boolean getSaved() {
         return saved;
     }
 
-    public void setSaved(String saved) {
+    public void setSaved(boolean saved) {
         this.saved = saved;
     }
 }

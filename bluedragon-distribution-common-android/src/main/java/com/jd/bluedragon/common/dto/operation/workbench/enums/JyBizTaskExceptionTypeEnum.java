@@ -1,4 +1,4 @@
-package com.jd.bluedragon.distribution.jy.enums;
+package com.jd.bluedragon.common.dto.operation.workbench.enums;
 /**
  * 天官赐福 ◎ 百无禁忌
  *
@@ -6,17 +6,18 @@ package com.jd.bluedragon.distribution.jy.enums;
  * @Date: 2022/4/6
  * @Description:
  */
-public enum JyBizTaskExceptionTimeOutEnum {
+public enum JyBizTaskExceptionTypeEnum {
 
-    UN_TIMEOUT(0, "异常未超时"),
-    TIMEOUT(1, "异常超时"),
+    SANWU(0, "三无"),
+    DAMAGED(1, "破损"),
+    SCRAPPED(2, "报废"),
     ;
 
     private Integer code;
     private String name;
 
 
-    JyBizTaskExceptionTimeOutEnum(Integer code, String name) {
+    JyBizTaskExceptionTypeEnum(Integer code, String name) {
         this.code = code;
         this.name = name;
     }

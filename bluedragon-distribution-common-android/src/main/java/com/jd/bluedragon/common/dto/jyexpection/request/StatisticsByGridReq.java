@@ -5,9 +5,21 @@ package com.jd.bluedragon.common.dto.jyexpection.request;
  */
 public class StatisticsByGridReq extends ExpBaseReq {
 
+    private Integer status;
+
     private Integer pageNumber;
 
     private Integer pageSize;
+
+    private Integer offSet;
+
+    public Integer getStatus() {
+        return status;
+    }
+
+    public void setStatus(Integer status) {
+        this.status = status;
+    }
 
     public Integer getPageNumber() {
         return pageNumber;
@@ -24,4 +36,9 @@ public class StatisticsByGridReq extends ExpBaseReq {
     public void setPageSize(Integer pageSize) {
         this.pageSize = pageSize;
     }
+
+    public Integer getOffSet() {
+        return (pageSize - 1) * pageSize;
+    }
+
 }

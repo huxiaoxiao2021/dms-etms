@@ -1,13 +1,13 @@
 package com.jd.bluedragon.distribution.jy.service.exception.impl;
-import com.google.common.collect.Lists;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.jyexpection.request.*;
 import com.jd.bluedragon.common.dto.jyexpection.response.*;
+import com.jd.bluedragon.common.dto.operation.workbench.enums.JyExpStatusEnum;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyBizTaskExceptionDao;
-import com.jd.bluedragon.distribution.jy.enums.JyBizTaskExceptionSourceEnum;
+import com.jd.bluedragon.common.dto.operation.workbench.enums.JyBizTaskExceptionSourceEnum;
 import com.jd.bluedragon.distribution.jy.exception.*;
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionService;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
@@ -67,14 +67,14 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         if (CollectionUtils.isNotEmpty(req.getRecentPackageCodeList())) {
             // 发货
             if (Objects.equals(req.getSource(), JyBizTaskExceptionSourceEnum.SEND.getCode())) {
-                List<Integer> receiveSiteList = queryRecentSendInfo(req);
+                Collection<Integer> receiveSiteList = queryRecentSendInfo(req);
                 if (CollectionUtils.isNotEmpty(receiveSiteList)) {
                     taskCache.setRecentReceiveSiteList(receiveSiteList);
                 }
             }
             // 卸车
             if (Objects.equals(req.getSource(), JyBizTaskExceptionSourceEnum.UN_LOAD.getCode())) {
-                List<String> sendCodeList = queryRecentInspectInfo(req);
+                Collection<String> sendCodeList = queryRecentInspectInfo(req);
                 if (CollectionUtils.isNotEmpty(sendCodeList)) {
                     taskCache.setRecentSendCodeList(sendCodeList);
                 }
@@ -125,27 +125,23 @@ public class JyExceptionServiceImpl implements JyExceptionService {
      */
     @Override
     public JdCResponse<List<StatisticsByGridDto>> getGridStatisticsPageList(StatisticsByGridReq req) {
-
-        TagDto tag = new TagDto();
-        tag.setCode(0);
-        tag.setName("三无");
-        tag.setStyle("");
-
-        List<StatisticsByGridDto> list = new ArrayList<>();
-        for (int i = 0; i < 3; i++) {
-            StatisticsByGridDto dto = new StatisticsByGridDto();
-            dto.setFloor(0);
-            dto.setGridNo("GN" +i);
-            dto.setGriCode("GC" + i);
-            dto.setAreaCode("AC" + i);
-            dto.setAreaName("AN" + i);
-            dto.setPendingNum(i+10);
-            dto.setTimeoutNum(i);
-            dto.setTags(Arrays.asList(tag));
-            list.add(dto);
+        if (req.getSiteId() == null) {
+            return JdCResponse.fail("场地ID不能为空!");
         }
 
-        return JdCResponse.ok(list);
+        // 待取件
+        req.setStatus(JyExpStatusEnum.TO_PICK.getCode());
+
+        if (req.getPageNumber() == null || req.getPageNumber() <= 0) {
+            req.setPageNumber(1);
+        }
+        if (req.getPageSize() == null || req.getPageSize() <= 0) {
+            req.setPageNumber(10);
+        }
+
+        List<StatisticsByGridDto> statisticsByGrid = jyBizTaskExceptionDao.getStatisticsByGrid(req);
+
+        return JdCResponse.ok(statisticsByGrid);
     }
 
     /**
@@ -175,21 +171,36 @@ public class JyExceptionServiceImpl implements JyExceptionService {
      */
     @Override
     public JdCResponse<List<ExpTaskDto>> getExceptionTaskPageList(ExpTaskPageReq req) {
-        List<ExpTaskDto> list = new ArrayList<>();
-        for (int i = 0; i < 2; i++) {
-            ExpTaskDto dto = new ExpTaskDto();
-            dto.setTaskId("T" + i);
-            dto.setBarCode("SW" + i);
-            dto.setStayTime("10");
-            dto.setFloor("" + (i % 2));
-            dto.setGridCode("GC" + i);
-            dto.setGridNo("GN" + i);
-            dto.setAreaName("AN" + i);
-            dto.setReporterName("");
-            dto.setTags("");
-            dto.setSaved("");
+        if (req.getSiteId() == null) {
+            return JdCResponse.fail("场地ID不能为空!");
+        }
+        if (req.getStatus() == null || JyExpStatusEnum.getEnumByCode(req.getStatus()) == null) {
+            return JdCResponse.fail("status参数有误!");
+        }
 
-            list.add(dto);
+        if (req.getPageNumber() == null || req.getPageNumber() <= 0) {
+            req.setPageNumber(1);
+        }
+        if (req.getPageSize() == null || req.getPageSize() <= 0) {
+            req.setPageNumber(10);
+        }
+        List<JyBizTaskExceptionEntity> taskList = jyBizTaskExceptionDao.queryExceptionTaskList(req);
+        List<ExpTaskDto> list = new ArrayList<>();
+        if (CollectionUtils.isNotEmpty(taskList)) {
+            for (JyBizTaskExceptionEntity entity : taskList) {
+                ExpTaskDto dto = new ExpTaskDto();
+                dto.setBizId(entity.getBizId());
+                dto.setBarCode(entity.getBarCode());
+                dto.setStayTime(getStayTime(entity.getCreateTime()));
+                dto.setFloor(entity.getFloor());
+                dto.setGridCode(entity.getGridCode());
+                dto.setGridNo(entity.getGridNo());
+                dto.setAreaName(entity.getAreaName());
+                dto.setReporterName(entity.getCreateUserName());
+//                dto.setTags();
+//                dto.setSaved(false);
+
+            }
         }
 
         return JdCResponse.ok(list);
@@ -293,8 +304,8 @@ public class JyExceptionServiceImpl implements JyExceptionService {
     /**
      * 近期发货的下游场地
      */
-    private List<Integer> queryRecentSendInfo(ExpUploadScanReq req) {
-        List<Integer> siteIdList = new ArrayList<>();
+    private Collection<Integer> queryRecentSendInfo(ExpUploadScanReq req) {
+        Set<Integer> siteIdList = new HashSet<>();
         for (String barcode : req.getRecentPackageCodeList()) {
             if (!WaybillUtil.isPackageCode(barcode)) {
                 continue;
@@ -317,8 +328,8 @@ public class JyExceptionServiceImpl implements JyExceptionService {
     /**
      * 近期验货的上游发货批次
      */
-    private List<String> queryRecentInspectInfo(ExpUploadScanReq req) {
-        List<String> sendCodeList = new ArrayList<>();
+    private Collection<String> queryRecentInspectInfo(ExpUploadScanReq req) {
+        Set<String> sendCodeList = new HashSet<>();
         for (String packageCode : req.getRecentPackageCodeList()) {
             if (!WaybillUtil.isPackageCode(packageCode)) {
                 continue;
@@ -329,4 +340,32 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         return null;
     }
 
+    /**
+     * 格式化停留时间
+     */
+    private String getStayTime(Date createTime) {
+        if (createTime == null) {
+            return "";
+        }
+        long millis = System.currentTimeMillis() - createTime.getTime();
+        long hours = TimeUnit.MILLISECONDS.toHours(millis);
+        long minutes = TimeUnit.MILLISECONDS.toMinutes(millis - TimeUnit.HOURS.toMillis(hours));
+        return hours + ":" + minutes;
+    }
+
+    /**
+     * 格式化标签
+     */
+    private List<TagDto> getTags(String tags) {
+        List<TagDto> list = new ArrayList<>();
+        if (StringUtils.isBlank(tags)) {
+            return list;
+        }
+        String[] split = tags.split(",");
+        for (String s : split) {
+            TagDto dto = new TagDto();
+//            dto.setName();
+        }
+        return list;
+    }
 }

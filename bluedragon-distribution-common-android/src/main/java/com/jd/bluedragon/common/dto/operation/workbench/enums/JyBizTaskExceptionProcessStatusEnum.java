@@ -1,4 +1,4 @@
-package com.jd.bluedragon.distribution.jy.enums;
+package com.jd.bluedragon.common.dto.operation.workbench.enums;
 /**
  * 天官赐福 ◎ 百无禁忌
  *
@@ -6,18 +6,19 @@ package com.jd.bluedragon.distribution.jy.enums;
  * @Date: 2022/4/6
  * @Description:
  */
-public enum JyBizTaskExceptionSourceEnum {
+public enum JyBizTaskExceptionProcessStatusEnum {
 
-    COMMON(0, "通用入口"),
-    UN_LOAD(1, "卸车入口"),
-    SEND(2, "发货入口")
+    PENDING_ENTRY(0, "待录入"),
+    WAITING_MATCH(1, "待匹配"),
+    ON_SHELF(2, "上架"),
+    DONE(3, "处理完成"),
     ;
 
     private Integer code;
     private String name;
 
 
-    JyBizTaskExceptionSourceEnum(Integer code, String name) {
+    JyBizTaskExceptionProcessStatusEnum(Integer code, String name) {
         this.code = code;
         this.name = name;
     }

@@ -23,4 +23,16 @@ public enum JyExpStatusEnum {
     public String getText() {
         return text;
     }
+
+    public static JyExpStatusEnum getEnumByCode(Integer code) {
+        if (code == null) {
+            return null;
+        }
+        for (JyExpStatusEnum value : JyExpStatusEnum.values()) {
+            if (code.equals(value.getCode())) {
+                return value;
+            }
+        }
+        return null;
+    }
 }

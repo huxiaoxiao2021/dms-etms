@@ -1,6 +1,5 @@
-package com.jd.bluedragon.distribution.jy.enums;
+package com.jd.bluedragon.common.dto.operation.workbench.enums;
 
-import java.util.Objects;
 
 /**
  * 天官赐福 ◎ 百无禁忌
@@ -42,7 +41,7 @@ public enum JyBizTaskNotifyTypeEnum {
 
     public static JyBizTaskNotifyTypeEnum valueOf(Integer code){
         for (JyBizTaskNotifyTypeEnum e:JyBizTaskNotifyTypeEnum.values()){
-            if (Objects.equals(e.getCode(),code)){
+            if (code.equals(e.getCode())){
                 return e;
             }
         }

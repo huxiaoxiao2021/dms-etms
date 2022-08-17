@@ -1,6 +1,10 @@
 package com.jd.bluedragon.distribution.jy.dao.exception;
 
 import com.jd.bluedragon.common.dao.BaseDao;
+import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.jyexpection.request.ExpTaskPageReq;
+import com.jd.bluedragon.common.dto.jyexpection.request.StatisticsByGridReq;
+import com.jd.bluedragon.common.dto.jyexpection.response.StatisticsByGridDto;
 import com.jd.bluedragon.common.dto.jyexpection.response.StatisticsByStatusDto;
 import com.jd.bluedragon.distribution.jy.exception.JyBizTaskExceptionEntity;
 
@@ -34,6 +38,18 @@ public class JyBizTaskExceptionDao  extends BaseDao<JyBizTaskExceptionEntity> {
     }
     public List<StatisticsByStatusDto> getStatusStatistic(String gridRefId){
         return this.getSqlSession().selectList(NAMESPACE + ".getStatusStatistic", gridRefId);
+    }
+
+    /**
+     * 按网格统计带取件数量
+     */
+    public List<StatisticsByGridDto> getStatisticsByGrid(StatisticsByGridReq entity){
+        return this.getSqlSession().selectList(NAMESPACE + ".getStatisticsByGrid", entity);
+    }
+
+
+    public List<JyBizTaskExceptionEntity> queryExceptionTaskList(ExpTaskPageReq entity) {
+        return this.getSqlSession().selectOne(NAMESPACE + ".queryExceptionTaskList", entity);
     }
 
 }
