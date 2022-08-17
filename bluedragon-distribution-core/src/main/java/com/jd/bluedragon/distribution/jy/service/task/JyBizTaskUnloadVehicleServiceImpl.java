@@ -49,7 +49,7 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
     /**
      * 锁失效时间 单位秒
      */
-    private final static int LOCK_LOSE_TIME_OF_S = 10*60*1000;
+    private final static int LOCK_LOSE_TIME_OF_S = 10*60;
     /**
      * 一次自旋时间 单位毫秒
      */
@@ -205,6 +205,7 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
         }
         String bizId = entity.getBizId();
         Integer changeStatus = entity.getVehicleStatus();
+        boolean needUnLock = Boolean.TRUE;
         try{
             if(locked(bizId)){
                 JyBizTaskUnloadVehicleEntity nowStatus = jyBizTaskUnloadVehicleDao.findIdAndStatusByBizId(bizId);
@@ -226,13 +227,16 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
                 }
                 return jyBizTaskUnloadVehicleDao.changeStatus(entity) > 0;
             }else {
+                needUnLock = Boolean.FALSE;
                 //未锁定成功 抛出异常
                 throw new JyBizException(String.format("锁定数据数据失败，bizId:%s", bizId));
             }
         }finally {
-            unLocked(bizId);
+            if(needUnLock){
+                unLocked(bizId);
+            }
             if(logger.isInfoEnabled()){
-                logger.info("changeStatus end ,bizId:{}",entity.getBizId());
+                logger.info("changeStatus end ,bizId:{} ,needUnLock:{}",entity.getBizId(),needUnLock);
             }
         }
     }
@@ -286,6 +290,7 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
         }
         // 锁定数据
         boolean result;
+        boolean needUnLock = Boolean.TRUE;
         try{
             if(locked(bizId)){
                 //获取数据判断是否存在
@@ -300,11 +305,14 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
                     result = jyBizTaskUnloadVehicleDao.insert(entity) > 0;
                 }
             }else{
+                needUnLock = Boolean.FALSE;
                 //未锁定成功 抛出异常
                 throw new JyBizException(String.format("锁定数据数据失败，bizId:%s", bizId));
             }
         }finally {
-            unLocked(bizId);
+            if(needUnLock){
+                unLocked(bizId);
+            }
         }
         return result;
     }
@@ -330,10 +338,11 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
         }
         // 锁定数据
         boolean result;
+        boolean needUnLock = Boolean.TRUE;
         try{
             if(locked(bizId)){
-                //获取数据判断是否存在
-                Long id = jyBizTaskUnloadVehicleDao.findIdByBizId(bizId);
+                //获取数据判断是否存在 防止数据卸载 使用忽略YN模式
+                Long id = jyBizTaskUnloadVehicleDao.findIdByBizIdWithoutYn(bizId);
                 if(id != null && id > 0){
                     //存在即更新
                     entity.setId(id);
@@ -344,11 +353,15 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
                     result = jyBizTaskUnloadVehicleDao.insert(entity) > 0;
                 }
             }else{
+                needUnLock = Boolean.FALSE;
                 //未锁定成功 抛出异常
                 throw new JyBizException(String.format("锁定数据数据失败，bizId:%s", bizId));
             }
         }finally {
-            unLocked(bizId);
+            if(needUnLock){
+                unLocked(bizId);
+            }
+
         }
 
         return result;

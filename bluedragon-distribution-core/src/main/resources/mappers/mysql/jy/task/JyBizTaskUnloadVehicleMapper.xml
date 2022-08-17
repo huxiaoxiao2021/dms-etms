@@ -292,6 +292,13 @@
         order by ts desc limit 1;
     </select>
 
+    <select id="findIdByBizIdWithoutYn" resultType="java.lang.Long">
+        select id
+        from jy_biz_task_unload_vehicle
+        where biz_id = #{bizId}
+        order by ts desc limit 1;
+    </select>
+
     <select id="findIdAndStatusByBizId" resultMap="jyBizTaskUnloadVehicleMap">
         select id,
                vehicle_status
@@ -553,7 +560,7 @@
             </if>
         </set>
         <where>
-            id = #{id} and yn = 1
+            id = #{id}
         </where>
     </update>
     <select id="countByVehicleNumberAndStatus" resultType="java.lang.Long">
