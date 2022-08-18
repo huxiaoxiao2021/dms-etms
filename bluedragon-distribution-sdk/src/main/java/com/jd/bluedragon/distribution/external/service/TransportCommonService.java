@@ -4,6 +4,7 @@ import com.jd.bluedragon.distribution.api.request.BoardCommonRequest;
 import com.jd.bluedragon.distribution.api.request.TransportServiceRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.dock.entity.DockInfoEntity;
+import com.jd.bluedragon.distribution.jy.group.JyGroupMemberEntity;
 
 import java.util.List;
 import java.util.Map;
@@ -128,5 +129,13 @@ public interface TransportCommonService {
      * @return
      */
     InvokeResult<String> getOperatePdaVersion(String sealCarCode);
+
+
+    /**
+     * 根据组编码查询组成员
+     * @param groupCode
+     * @return
+     */
+    InvokeResult<List<JyGroupMemberEntity>> queryMemberListByGroup(String groupCode);
 
 }
