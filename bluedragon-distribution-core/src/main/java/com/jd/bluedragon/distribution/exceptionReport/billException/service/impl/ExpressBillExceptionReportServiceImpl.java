@@ -218,7 +218,7 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
             Waybill baseEntity = waybillQueryManager.getWaybillByWayCode(waybillCode);
             /**
              * 1、判断仓ID是否为空，不为空则是仓配业务
-             * 2、仓ID为空，再判断wayBillSign的第53位是否为1，1为仓配业务
+             * 2、仓ID为空，再判断wayBillSign的第53位是否为1，1为仓配业务,2为纯配业务
              * 3、其他为纯配业务
              */
             if(baseEntity.getDistributeStoreId()!=null
