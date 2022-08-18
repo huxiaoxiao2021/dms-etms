@@ -10,6 +10,7 @@ import com.jd.bluedragon.utils.SpringHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.dms.logger.aop.BusinessLogWriter;
 import com.jd.dms.logger.external.BusinessLogProfiler;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +23,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static com.jd.bluedragon.Constants.TOTAL_URL_INTERCEPTOR;
 
@@ -49,26 +52,15 @@ public class DmsOAuthInterceptFilter extends DmsAuthorizationFilter {
         boolean secretBool = StringHelper.isNotEmpty(opCode) && opCode.equals(PropertiesHelper.newInstance().getValue(secretKey));/* 内部后门 */
         boolean temporaryBool = StringHelper.isEmpty(authorization);/* 过渡期的临时保护 */
         /* 过渡期间对传空的的进行保护处理，和内部后门JD-opCode的特殊值进行保护处理 */
-        UccPropertyConfiguration uccPropertyConfiguration =(UccPropertyConfiguration)SpringHelper.getBean("uccPropertyConfiguration");
         String ipAddress =ServletRequestHelper.getRealIpAddress(httpServletRequest);
         String uri =httpServletRequest.getRequestURI();
-        String needInterceptUrls = uccPropertyConfiguration.getNeedInterceptUrls();
         if (temporaryBool) {
-            LOGGER.warn("该客户端本次调用未进行rest加密鉴权,客户端IP:{}，请求路径：{}", ipAddress,uri);
             writeLogToHive(ipAddress,uri);
             //部分拦截
-            if (null!=needInterceptUrls && !TOTAL_URL_INTERCEPTOR.equals(needInterceptUrls)){
-                List urlList =uccPropertyConfiguration.getNeedInterceptUrlList();
-                if (null!=urlList && urlList.contains(uri)){
-                    super.doFilterInternal(httpServletRequest, httpServletResponse, filterChain);
-                }
-                else {
-                    filterChain.doFilter(httpServletRequest,httpServletResponse);
-                }
-            }else if(Constants.TOTAL_URL_INTERCEPTOR.equals(needInterceptUrls)){//全部拦截
+            if (pathMatch(uri)) {
                 super.doFilterInternal(httpServletRequest, httpServletResponse, filterChain);
-            }
-            else {//全部放行
+            } else {
+                LOGGER.warn("该客户端本次调用未进行rest加密鉴权,客户端IP:{}，请求路径：{}", ipAddress,uri);
                 filterChain.doFilter(httpServletRequest,httpServletResponse);
             }
         } else if (secretBool) {
@@ -89,5 +81,24 @@ public class DmsOAuthInterceptFilter extends DmsAuthorizationFilter {
         request.put("uri",uri);
         businessLogProfiler.setOperateRequest(JSONObject.toJSONString(request));
         BusinessLogWriter.writeLog(businessLogProfiler);
+    }
+
+    private boolean pathMatch(String url) {
+        UccPropertyConfiguration uccPropertyConfiguration =(UccPropertyConfiguration)SpringHelper.getBean("uccPropertyConfiguration");
+        List<String> urlAllowedList =uccPropertyConfiguration.getNeedInterceptUrlList();
+
+        if (CollectionUtils.isEmpty(urlAllowedList)) {
+            return false;
+        }
+
+        for (String urlAllowedItem : urlAllowedList) {
+            Matcher matcher = Pattern.compile(urlAllowedItem).matcher(url);
+            if (matcher.find()) {
+                return true;
+            }
+        }
+        return false;
+
+
     }
 }
