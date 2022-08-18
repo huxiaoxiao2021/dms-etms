@@ -18,7 +18,7 @@
         <result property="gridCode" column="grid_code"/>
         <result property="areaCode" column="area_code"/>
         <result property="areaName" column="area_name"/>
-        <result property="handerleErp" column="handler_erp"/>
+        <result property="handlerErp" column="handler_erp"/>
         <result property="status" column="status"/>
         <result property="processingStatus" column="processing_status"/>
         <result property="distributionType" column="distribution_type"/>
@@ -126,7 +126,7 @@
                    #{gridCode},
                    #{areaCode},
                    #{areaName},
-                   #{handerleErp},
+                   #{handlerErp},
                    #{status},
                    #{processingStatus},
                    #{distributionType},
@@ -264,8 +264,8 @@
         <if test="areaName != null">
             #{areaName},
         </if>
-        <if test="handerleErp != null">
-            #{handerleErp},
+        <if test="handlerErp != null">
+            #{handlerErp},
         </if>
         <if test="status != null">
             #{status},
@@ -336,6 +336,9 @@
             <if test="status != null">
                 `status` = #{status},
             </if>
+            <if test="handlerErp != null">
+                handler_erp = #{handlerErp},
+            </if>
             <if test="updateUser != null">
                 update_user = #{updateUser},
             </if>
@@ -375,7 +378,7 @@
         AND site_code = #{siteId}
         AND status = #{status}
         AND distribution_target = #{gridRid}
-        GROUP BY grid_code,floor
+        GROUP BY grid_code,area_code,floor
         <if test="pageSize !=null">
             LIMIT #{offSet}, #{pageSize};
         </if>
