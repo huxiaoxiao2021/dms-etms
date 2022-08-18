@@ -36,20 +36,20 @@ public class JyExceptionEntity implements Serializable {
      */
     private String bizId;
     /**
-     * 封车编码
+     *  异常条码
      */
     private String barCode;
     /**
-     * 车牌号
+     * 包裹号
      */
     private String packageCode;
     /**
-     * 始发场地ID
+     * 场地ID
      */
     private Long siteCode;
 
     /**
-     * 是否无任务卸车；1：是：0：否
+     * 场地名称
      */
     private String siteName;
 

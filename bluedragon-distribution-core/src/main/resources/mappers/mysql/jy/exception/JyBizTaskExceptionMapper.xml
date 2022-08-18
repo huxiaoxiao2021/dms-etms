@@ -327,22 +327,21 @@
             <if test="distributionType != null">
                 distribution_type = #{distributionType},
             </if>
-
             <if test="distributionTarget != null">
                 distribution_target = #{distributionTarget},
             </if>
-
             <if test="distributionTime != null">
                 distribution_time = #{distributionTime},
             </if>
-
+            <if test="status != null">
+                `status` = #{status},
+            </if>
             <if test="updateUser != null">
                 update_user = #{updateUser},
             </if>
             <if test="updateUserName != null">
                 update_user_name = #{updateUserName},
             </if>
-
             <if test="updateTime != null">
                 update_time = #{updateTime},
             </if>
@@ -354,7 +353,7 @@
             </if>
         </set>
         <where>
-            send_vehicle_biz_id = #{sendVehicleBizId}
+            biz_id = #{bizId}
         </where>
     </update>
 

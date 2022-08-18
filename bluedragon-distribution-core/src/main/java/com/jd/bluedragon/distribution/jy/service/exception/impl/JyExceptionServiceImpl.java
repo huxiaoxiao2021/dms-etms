@@ -66,9 +66,15 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         if (StringUtils.isBlank(req.getBarCode())) {
             return JdCResponse.fail("扫描条码不能为空!");
         }
-        if (StringUtils.isBlank(req.getUserErp()) || req.getSiteId() == null) {
-            return JdCResponse.fail("操作人erp和场地ID不能为空!");
+        if (StringUtils.isBlank(req.getPositionCode())) {
+            return JdCResponse.fail("岗位码不能为空!");
         }
+        Result<PositionDetailRecord> positionResult = positionQueryJsfService.queryOneByPositionCode(req.getPositionCode());
+        if (positionResult == null || positionResult.isFail() || positionResult.getData() == null) {
+            return JdCResponse.fail("岗位码错误!");
+        }
+        PositionDetailRecord position = positionResult.getData();
+        req.setSiteId(position.getSiteCode());
 
         ExpTaskDetailCacheDto taskCache = new ExpTaskDetailCacheDto();
         taskCache.setExpBarcode(req.getBarCode());
@@ -112,7 +118,15 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         taskEntity.setSource(source.getCode());
         taskEntity.setBarCode(req.getBarCode());
         taskEntity.setTags(JyBizTaskExceptionTagEnum.SANWU.getCode());
-        taskEntity.setSiteCode(new Long(req.getSiteId()));
+
+        taskEntity.setSiteCode(new Long(position.getSiteCode()));
+        taskEntity.setSiteName(position.getSiteName());
+        taskEntity.setFloor(position.getFloor());
+        taskEntity.setAreaCode(position.getAreaCode());
+        taskEntity.setAreaName(position.getAreaName());
+        taskEntity.setGridCode(position.getGridCode());
+        taskEntity.setGridNo(position.getGridNo());
+
         taskEntity.setStatus(JyExpStatusEnum.TO_PICK.getCode());
         taskEntity.setProcessingStatus(JyBizTaskExceptionProcessStatusEnum.PENDING_ENTRY.getCode());
         taskEntity.setCreateUserErp(req.getUserErp());
@@ -123,15 +137,20 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         JyExceptionEntity expEntity = new JyExceptionEntity();
         expEntity.setBizId(bizId);
         expEntity.setBarCode(req.getBarCode());
-        expEntity.setSiteCode(new Long(req.getSiteId()));
-//        expEntity.setSiteName();
+        expEntity.setSiteCode(new Long(position.getSiteCode()));
+        expEntity.setSiteName(position.getSiteName());
         expEntity.setCreateUserErp(req.getUserErp());
 //        expEntity.setCreateUserName();
         expEntity.setCreateTime(new Date());
 
 
-        jyBizTaskExceptionDao.insertSelective(taskEntity);
-        jyExceptionDao.insertSelective(expEntity);
+        try {
+            jyBizTaskExceptionDao.insertSelective(taskEntity);
+            jyExceptionDao.insertSelective(expEntity);
+        } catch (Exception e) {
+            logger.error("写入异常提报数据出错了,request=" + JSON.toJSONString(req), e);
+            return JdCResponse.fail("异常提报数据保存出错了,请稍后重试！");
+        }
 
         return JdCResponse.ok();
     }
@@ -143,6 +162,10 @@ public class JyExceptionServiceImpl implements JyExceptionService {
      */
     @Override
     public JdCResponse<List<StatisticsByStatusDto>> statisticsByStatus(ExpBaseReq req) {
+        if (StringUtils.isBlank(req.getPositionCode())) {
+            return JdCResponse.fail("岗位码不能为空!");
+        }
+
         JdCResponse<List<StatisticsByStatusDto>> result = new JdCResponse<>();
         //岗位码相关
         Result<PositionDetailRecord> positionDetailRecordResult = positionQueryJsfService.queryOneByPositionCode(req.getPositionCode());
@@ -165,9 +188,11 @@ public class JyExceptionServiceImpl implements JyExceptionService {
      */
     @Override
     public JdCResponse<List<StatisticsByGridDto>> getGridStatisticsPageList(StatisticsByGridReq req) {
-        if (req.getSiteId() == null) {
-            return JdCResponse.fail("场地ID不能为空!");
+        if (StringUtils.isBlank(req.getPositionCode())) {
+            return JdCResponse.fail("岗位码不能为空!");
         }
+        //岗位码相关
+        Result<PositionDetailRecord> positionDetailRecordResult = positionQueryJsfService.queryOneByPositionCode(req.getPositionCode());
 
         // 待取件
         req.setStatus(JyExpStatusEnum.TO_PICK.getCode());
