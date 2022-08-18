@@ -235,6 +235,9 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
                 SendM sendM = new SendM();
                 sendM.setSendCode(sendCode);
                 sendM.setCreateSiteCode(deleteVehicleTaskReq.getCurrentOperate().getSiteCode());
+                sendM.setUpdateTime(new Date());
+                sendM.setUpdaterUser(deleteVehicleTaskReq.getUser().getUserName());
+                sendM.setUpdateUserCode(deleteVehicleTaskReq.getUser().getUserCode());
                 ThreeDeliveryResponse tDResponse = deliveryService.dellCancelDeliveryMessageWithServerTime(sendM, true);
                 if (!tDResponse.getCode().equals(RESULT_SUCCESS_CODE)) {
                     return new InvokeResult(tDResponse.getCode(), tDResponse.getMessage());
