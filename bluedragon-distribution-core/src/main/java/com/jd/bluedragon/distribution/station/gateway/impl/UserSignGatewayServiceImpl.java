@@ -1,6 +1,9 @@
 package com.jd.bluedragon.distribution.station.gateway.impl;
 
 
+import com.jd.bluedragon.core.jsf.position.PositionManager;
+import com.jdl.basic.api.response.JDResponse;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -38,9 +41,9 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 	@Autowired
 	@Qualifier("userSignRecordService")
 	private UserSignRecordService userSignRecordService;
-	
+
 	@Autowired
-	private PositionRecordService positionRecordService;
+	private PositionManager positionManager;
 	
 	@Override
 	public JdCResponse<UserSignRecordData> signInWithPosition(UserSignRequest signInRequest) {
@@ -68,12 +71,42 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 	}	
 	@Override
 	public JdCResponse<PositionData> queryPositionData(String positionCode) {
-		return positionRecordService.queryPositionWithIsMatchAppFunc(positionCode);
+		JdCResponse<PositionData> response = new JdCResponse<>();
+		response.toFail();
+		try{
+			JDResponse<com.jdl.basic.api.domain.position.PositionData> result = positionManager.queryPositionWithIsMatchAppFunc(positionCode);
+			if(result.isSuccess() && result.getData()!= null ){
+				PositionData positionData = new PositionData();
+				BeanUtils.copyProperties(result.getData(),positionData);
+				response.toSucceed();
+				response.setData(positionData);
+			}
+
+		}catch (Exception e){
+			log.error("queryPositionData查询岗位信息异常-{}",e.getMessage(),e);
+			response.toError("查询岗位信息异常");
+		}
+		return response ;
 	}
 
 	@Override
 	public JdCResponse<PositionData> queryPositionInfo(String positionCode) {
-		return positionRecordService.queryPositionInfo(positionCode);
+		JdCResponse<PositionData> response = new JdCResponse<>();
+		response.toFail();
+		try{
+			JDResponse<com.jdl.basic.api.domain.position.PositionData> result = positionManager.queryPositionInfo(positionCode);
+			if(result.isSuccess() && result.getData()!= null ){
+				PositionData positionData = new PositionData();
+				BeanUtils.copyProperties(result.getData(),positionData);
+				response.toSucceed();
+				response.setData(positionData);
+			}
+
+		}catch (Exception e){
+			log.error("queryPositionData查询岗位信息异常-{}",e.getMessage(),e);
+			response.toError("查询岗位信息异常");
+		}
+		return response ;
 	}
 
 	@Override

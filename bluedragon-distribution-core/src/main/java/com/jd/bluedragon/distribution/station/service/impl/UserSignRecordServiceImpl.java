@@ -10,9 +10,13 @@ import java.util.List;
 import java.util.Map;
 
 import com.jd.bluedragon.core.jsf.position.PositionManager;
+import com.jd.bluedragon.core.jsf.workStation.WorkStationAttendPlanManager;
+import com.jd.bluedragon.core.jsf.workStation.WorkStationGridManager;
 import com.jd.bluedragon.core.jsf.workStation.WorkStationManager;
 import com.jd.ql.basic.domain.BaseSite;
 import com.jdl.basic.api.domain.workStation.WorkStation;
+import com.jdl.basic.api.domain.workStation.WorkStationAttendPlan;
+import com.jdl.basic.api.domain.workStation.WorkStationGridQuery;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,12 +45,10 @@ import com.jd.bluedragon.distribution.station.domain.UserSignNoticeWaveItemVo;
 import com.jd.bluedragon.distribution.station.domain.UserSignRecord;
 import com.jd.bluedragon.distribution.station.domain.UserSignRecordReportSumVo;
 import com.jd.bluedragon.distribution.station.domain.UserSignRecordReportVo;
-import com.jd.bluedragon.distribution.station.domain.WorkStationAttendPlan;
 import com.jd.bluedragon.distribution.station.domain.WorkStationGrid;
 import com.jd.bluedragon.distribution.station.enums.JobTypeEnum;
 import com.jd.bluedragon.distribution.station.enums.WaveTypeEnum;
 import com.jd.bluedragon.distribution.station.query.UserSignRecordQuery;
-import com.jd.bluedragon.distribution.station.query.WorkStationGridQuery;
 import com.jd.bluedragon.distribution.station.service.UserSignRecordService;
 import com.jd.bluedragon.distribution.station.service.WorkStationAttendPlanService;
 import com.jd.bluedragon.distribution.station.service.WorkStationGridService;
@@ -88,13 +90,14 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 //	@Qualifier("workStationService")
 //	WorkStationService workStationService;
 	
-	@Autowired
-	@Qualifier("workStationGridService")
-	WorkStationGridService workStationGridService;
+//	@Autowired
+//	@Qualifier("workStationGridService")
+//	WorkStationGridService workStationGridService;
 	
 	@Autowired
-	@Qualifier("workStationAttendPlanService")
-	WorkStationAttendPlanService workStationAttendPlanService;
+	private WorkStationAttendPlanManager workStationAttendPlanManager;
+	//@Qualifier("workStationAttendPlanService")
+	//WorkStationAttendPlanService workStationAttendPlanService;
 	
 	@Autowired
 	private PositionManager positionManager;
@@ -116,6 +119,8 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	
 	@Autowired
 	private WorkStationManager workStationManager;
+	@Autowired
+	private WorkStationGridManager workStationGridManager;
 
 	/**
 	 * 插入一条数据
@@ -308,12 +313,12 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		WorkStation workStation = workStationData.getData();
 		signInRequest.setRefStationKey(workStation.getBusinessKey());
 		//校验并设置网格信息
-		WorkStationGrid workStationGridCheckQuery = new WorkStationGrid();
+		com.jdl.basic.api.domain.workStation.WorkStationGrid  workStationGridCheckQuery = new com.jdl.basic.api.domain.workStation.WorkStationGrid ();
 		workStationGridCheckQuery.setFloor(floor);
 		workStationGridCheckQuery.setSiteCode(siteCode);
 		workStationGridCheckQuery.setGridNo(gridNo);
 		workStationGridCheckQuery.setRefStationKey(workStation.getBusinessKey());
-		Result<WorkStationGrid> workStationGridData = workStationGridService.queryByBusinessKey(workStationGridCheckQuery);
+		com.jdl.basic.common.utils.Result<com.jdl.basic.api.domain.workStation.WorkStationGrid> workStationGridData = workStationGridManager.queryByBusinessKey(workStationGridCheckQuery);
 		if(workStationGridData == null
 				|| workStationGridData.getData() == null) {
 			return result.toFail("网格信息不存在，请先维护场地网格信息！");
@@ -321,10 +326,10 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 
 		signInRequest.setRefGridKey(workStationGridData.getData().getBusinessKey());
 		//查询设置计划信息
-		WorkStationAttendPlan workStationAttendPlanQuery = new WorkStationAttendPlan();
+		com.jdl.basic.api.domain.workStation.WorkStationAttendPlan  workStationAttendPlanQuery = new com.jdl.basic.api.domain.workStation.WorkStationAttendPlan ();
 		workStationAttendPlanQuery.setRefGridKey(workStationGridData.getData().getBusinessKey());
 		workStationAttendPlanQuery.setWaveCode(signInRequest.getWaveCode());
-		Result<WorkStationAttendPlan> planData = workStationAttendPlanService.queryByBusinessKeys(workStationAttendPlanQuery);
+		com.jdl.basic.common.utils.Result<com.jdl.basic.api.domain.workStation.WorkStationAttendPlan> planData = workStationAttendPlanManager.queryByBusinessKeys(workStationAttendPlanQuery);
 		if(planData != null
 				&& planData.getData() != null) {
 			signInRequest.setRefPlanKey(planData.getData().getBusinessKey());
@@ -765,15 +770,18 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 			return result;
 		}
 		String gridKey = positionData.getData().getRefGridKey();
-		WorkStationGridQuery workStationGridCheckQuery = new WorkStationGridQuery();
+		com.jdl.basic.api.domain.workStation.WorkStationGridQuery  workStationGridCheckQuery = new com.jdl.basic.api.domain.workStation.WorkStationGridQuery ();
 		workStationGridCheckQuery.setBusinessKey(gridKey);
-		Result<WorkStationGrid> workStationGridData = workStationGridService.queryByGridKey(workStationGridCheckQuery);
+		com.jdl.basic.common.utils.Result<com.jdl.basic.api.domain.workStation.WorkStationGrid> workStationGridData = workStationGridManager.queryByGridKey(workStationGridCheckQuery);
 		if(workStationGridData == null
 				|| workStationGridData.getData() == null) {
 			result.toFail("岗位码对应的网格信息不存在，请先维护场地网格信息！");
 			return result;
 		}
-		result.setData(workStationGridData.getData());
+		com.jdl.basic.api.domain.workStation.WorkStationGrid data = workStationGridData.getData();
+		WorkStationGrid resultData = new WorkStationGrid();
+		BeanUtils.copyProperties(data,resultData);
+		result.setData(resultData);
 		return result;
 	}
 	private JdCResponse<UserSignRecordData> checkAndFillSignInInfo(UserSignRequest signInRequest,UserSignRecord signInData, WorkStationGrid gridInfo){
@@ -842,10 +850,10 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 
 	private String queryPlanKey(UserSignRecord signInData) {
 		//查询设置计划信息
-		WorkStationAttendPlan workStationAttendPlanQuery = new WorkStationAttendPlan();
+		com.jdl.basic.api.domain.workStation.WorkStationAttendPlan  workStationAttendPlanQuery = new com.jdl.basic.api.domain.workStation.WorkStationAttendPlan ();
 		workStationAttendPlanQuery.setRefGridKey(signInData.getRefGridKey());
 		workStationAttendPlanQuery.setWaveCode(signInData.getWaveCode());
-		Result<WorkStationAttendPlan> planData = workStationAttendPlanService.queryByBusinessKeys(workStationAttendPlanQuery);
+		com.jdl.basic.common.utils.Result<WorkStationAttendPlan> planData = workStationAttendPlanManager.queryByBusinessKeys(workStationAttendPlanQuery);
 		if(planData != null
 				&& planData.getData() != null) {
 			return planData.getData().getBusinessKey();

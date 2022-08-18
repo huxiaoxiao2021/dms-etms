@@ -17,7 +17,7 @@ import org.springframework.stereotype.Service;
  */
 @Slf4j
 @Service("workStationManager")
-public class workStationManagerImpl implements WorkStationManager {
+public class WorkStationManagerImpl implements WorkStationManager {
 
     @Autowired
     private WorkStationJsfService workStationJsfService;

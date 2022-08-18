@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.ver.filter.filters;
 import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.core.jsf.boxlimit.BoxLimitConfigManager;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;
@@ -47,7 +48,7 @@ public class SortingNumberLimitFilter implements Filter {
     private SysConfigService sysConfigService;
 
     @Autowired
-    private BoxLimitService boxLimitService;
+    private BoxLimitConfigManager boxLimitConfigManager;
 
     @Autowired
     private UccPropertyConfiguration uccPropertyConfiguration;
@@ -72,7 +73,7 @@ public class SortingNumberLimitFilter implements Filter {
                     //校验开关是否开启
                     NumberLimitConfig siteCheckConfig = this.getSwitchStatus(CONFIG_SITE_PACKAGE_NUM_CHECK);
                     if (siteCheckConfig != null && Boolean.TRUE.equals(siteCheckConfig.getIsOpen())) {
-                        Integer configNum = boxLimitService.getLimitNums(request.getCreateSiteCode(), request.getBox().getType());
+                        Integer configNum = boxLimitConfigManager.getLimitNums(request.getCreateSiteCode(), request.getBox().getType());
                         logger.info("分拣数量限制拦截 createSiteCode:{},queryLimitNumBySiteId:{},sysConfigNum:{}", request.getCreateSiteCode(), configNum, siteCheckConfig.getMaxNum());
                         if (configNum != null) {
                             limitNums.add(configNum);
