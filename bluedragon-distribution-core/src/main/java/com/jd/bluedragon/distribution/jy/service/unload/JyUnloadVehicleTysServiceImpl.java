@@ -309,7 +309,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         try{
             return jyBizTaskUnloadVehicleService.queryStatistics(dto);
         }catch (Exception e) {
-            log.info("JyUnloadVehicleTysServiceImpl.queryStatistics--异常--errMsg={},req={}", e.getMessage(), JsonUtils.toJSONString(dto));
+            log.info("JyUnloadVehicleTysServiceImpl.queryStatistics--异常--errMsg={},req={}", e.getMessage(), JsonUtils.toJSONString(dto), e);
             return new InvokeResult<>(RESULT_PARAMETER_ERROR_CODE, e.getMessage());
         }
     }
