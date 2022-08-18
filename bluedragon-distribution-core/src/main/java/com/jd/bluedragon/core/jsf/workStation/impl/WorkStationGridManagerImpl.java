@@ -20,17 +20,17 @@ import org.springframework.stereotype.Service;
 public class WorkStationGridManagerImpl implements WorkStationGridManager {
 
     @Autowired
-    private WorkStationGridJsfService workStationGridJsfService;
+    private WorkStationGridJsfService basicWorkStationGridJsfService;
 
     @Override
     public Result<WorkStationGrid> queryByBusinessKey(WorkStationGrid data) {
         log.info("三定场地网格工序管理 queryByBusinessKey WorkStationGrid 入参:"+ JSON.toJSONString(data));
-        return workStationGridJsfService.queryByBusinessKey(data);
+        return basicWorkStationGridJsfService.queryByBusinessKey(data);
     }
 
     @Override
     public Result<WorkStationGrid> queryByGridKey(WorkStationGridQuery workStationGridCheckQuery) {
         log.info("三定场地网格工序管理 queryByGridKey WorkStationGridQuery 入参:"+ JSON.toJSONString(workStationGridCheckQuery));
-        return workStationGridJsfService.queryByGridKey(workStationGridCheckQuery);
+        return basicWorkStationGridJsfService.queryByGridKey(workStationGridCheckQuery);
     }
 }

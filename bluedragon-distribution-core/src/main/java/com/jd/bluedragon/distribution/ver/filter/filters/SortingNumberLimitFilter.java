@@ -3,7 +3,8 @@ package com.jd.bluedragon.distribution.ver.filter.filters;
 import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
-import com.jd.bluedragon.core.jsf.boxlimit.BoxLimitConfigManager;
+
+import com.jd.bluedragon.core.jsf.boxLimit.BoxLimitConfigManager;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.base.service.SysConfigService;

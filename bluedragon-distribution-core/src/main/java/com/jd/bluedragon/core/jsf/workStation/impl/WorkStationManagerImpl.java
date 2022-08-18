@@ -20,17 +20,17 @@ import org.springframework.stereotype.Service;
 public class WorkStationManagerImpl implements WorkStationManager {
 
     @Autowired
-    private WorkStationJsfService workStationJsfService;
+    private WorkStationJsfService basicWorkStationJsfService;
 
     @Override
     public Result<WorkStation> queryByBusinessKey(WorkStation data) {
         log.info("三定网格工序管理 queryByBusinessKey-入参 {}", JSON.toJSONString(data));
-        return  workStationJsfService.queryByBusinessKey(data);
+        return  basicWorkStationJsfService.queryByBusinessKey(data);
     }
 
     @Override
     public Result<WorkStation> queryByRealBusinessKey(String businessKey) {
         log.info("三定网格工序管理 queryByRealBusinessKey-入参 {}", businessKey);
-        return workStationJsfService.queryByRealBusinessKey(businessKey);
+        return basicWorkStationJsfService.queryByRealBusinessKey(businessKey);
     }
 }

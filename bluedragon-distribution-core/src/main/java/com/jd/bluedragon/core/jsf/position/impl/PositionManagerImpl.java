@@ -18,21 +18,21 @@ import org.springframework.stereotype.Service;
 public class PositionManagerImpl implements PositionManager {
 
     @Autowired
-    private PositionQueryJsfService positionQueryJsfService;
+    private PositionQueryJsfService basicPositionQueryJsfService;
 
     @Override
     public Result<PositionDetailRecord> queryOneByPositionCode(String positionCode) {
-        return positionQueryJsfService.queryOneByPositionCode(positionCode);
+        return basicPositionQueryJsfService.queryOneByPositionCode(positionCode);
     }
 
     @Override
     public JDResponse<PositionData> queryPositionWithIsMatchAppFunc(String positionCode) {
-        return positionQueryJsfService.queryPositionWithIsMatchAppFunc(positionCode);
+        return basicPositionQueryJsfService.queryPositionWithIsMatchAppFunc(positionCode);
     }
 
     @Override
     public JDResponse<PositionData> queryPositionInfo(String positionCode) {
-        return positionQueryJsfService.queryPositionInfo(positionCode);
+        return basicPositionQueryJsfService.queryPositionInfo(positionCode);
     }
 
 

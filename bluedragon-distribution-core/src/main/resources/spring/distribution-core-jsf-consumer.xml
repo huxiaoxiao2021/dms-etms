@@ -960,8 +960,8 @@
     </jsf:consumer>
 
     <!--  集箱包裹数量限制服务  -->
-    <jsf:consumer id="boxlimitConfigApi"
-                  interface="com.jdl.basic.api.service.BoxlimitConfigApi"
+    <jsf:consumer id="basicBoxlimitConfigApi"
+                  interface="com.jdl.basic.api.service.boxLimit.BoxlimitConfigApi"
                   alias="${jsf.alias.jy_basic}"
                   timeout="${jsf.jy_basic.timeout}"
                   retries="${jsf.retries}"
@@ -970,7 +970,7 @@
     </jsf:consumer>
 
     <!--  三定网格工序管理服务  -->
-    <jsf:consumer id="workStationJsfService"
+    <jsf:consumer id="basicWorkStationJsfService"
                   interface="com.jdl.basic.api.service.workStation.WorkStationJsfService"
                   alias="${jsf.alias.jy_basic}"
                   timeout="${jsf.jy_basic.timeout}"
@@ -980,7 +980,7 @@
     </jsf:consumer>
 
     <!--  三定场地网格工序管理服务  -->
-    <jsf:consumer id="workStationGridJsfService"
+    <jsf:consumer id="basicWorkStationGridJsfService"
                   interface="com.jdl.basic.api.service.workStation.WorkStationGridJsfService"
                   alias="${jsf.alias.jy_basic}"
                   timeout="${jsf.jy_basic.timeout}"
@@ -990,7 +990,7 @@
     </jsf:consumer>
 
     <!--  三定场地人员出勤计划jsf服务  -->
-    <jsf:consumer id="workStationAttendPlanJsfService"
+    <jsf:consumer id="basicWorkStationAttendPlanJsfService"
                   interface="com.jdl.basic.api.service.workStation.WorkStationAttendPlanJsfService"
                   alias="${jsf.alias.jy_basic}"
                   timeout="${jsf.jy_basic.timeout}"
@@ -1000,7 +1000,7 @@
     </jsf:consumer>
 
     <!-- 岗位管理接口 -->
-    <jsf:consumer id="positionQueryJsfService"
+    <jsf:consumer id="basicPositionQueryJsfService"
                   interface="com.jdl.basic.api.service.position.PositionQueryJsfService"
                   alias="${jsf.alias.jy_basic}"
                   timeout="${jsf.jy_basic.timeout}"

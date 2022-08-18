@@ -19,11 +19,11 @@ import org.springframework.stereotype.Service;
 public class WorkStationAttendPlanManagerImpl implements WorkStationAttendPlanManager {
 
     @Autowired
-    private WorkStationAttendPlanJsfService workStationAttendPlanJsfService;
+    private WorkStationAttendPlanJsfService basicWorkStationAttendPlanJsfService;
 
     @Override
     public Result<WorkStationAttendPlan> queryByBusinessKeys(WorkStationAttendPlan data) {
         log.info("三定实时监控-场地人员出勤计划 queryByBusinessKeys-WorkStationAttendPlan-{} "+ JSON.toJSONString(data));
-        return workStationAttendPlanJsfService.queryByBusinessKeys(data);
+        return basicWorkStationAttendPlanJsfService.queryByBusinessKeys(data);
     }
 }
