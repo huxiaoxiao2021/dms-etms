@@ -1,6 +1,5 @@
 package com.jd.bluedragon.distribution.print.service;
 
-import com.jd.bluedragon.distribution.print.domain.BasePrintWaybill;
 import com.jd.bluedragon.distribution.print.domain.PrintWaybill;
 import com.jd.bluedragon.utils.StringHelper;
 
