@@ -34,7 +34,8 @@ public class JyExceptionServiceImpl implements JyExceptionService {
 
     private final Logger logger = LoggerFactory.getLogger(JyExceptionServiceImpl.class);
     private static final String TASK_CACHE_PRE = "DMS:JYAPP:EXP:TASK_CACHE:";
-    private static final String RECEIVING_COUNT_PRE = "DMS:JYAPP:EXP:RECEIVING_COUNT:";
+    private static final String RECEIVING_POSITION_COUNT_PRE = "DMS:JYAPP:EXP:RECEIVING_POSITION_COUNT_PRE:";
+    private static final String RECEIVING_SITE_COUNT_PRE = "DMS:JYAPP:EXP:RECEIVING_SITE_COUNT_PRE:";
 
     @Autowired
     private JyBizTaskExceptionDao jyBizTaskExceptionDao;
@@ -65,9 +66,6 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         }
         if (StringUtils.isBlank(req.getBarCode())) {
             return JdCResponse.fail("扫描条码不能为空!");
-        }
-        if (StringUtils.isBlank(req.getPositionCode())) {
-            return JdCResponse.fail("岗位码不能为空!");
         }
         PositionDetailRecord position = getPosition(req.getPositionCode());
         if (position == null) {
@@ -169,10 +167,6 @@ public class JyExceptionServiceImpl implements JyExceptionService {
      */
     @Override
     public JdCResponse<List<StatisticsByStatusDto>> statisticsByStatus(ExpBaseReq req) {
-        if (StringUtils.isBlank(req.getPositionCode())) {
-            return JdCResponse.fail("岗位码不能为空!");
-        }
-
         JdCResponse<List<StatisticsByStatusDto>> result = new JdCResponse<>();
         //岗位码相关
         PositionDetailRecord position = getPosition(req.getPositionCode());
@@ -193,9 +187,6 @@ public class JyExceptionServiceImpl implements JyExceptionService {
      */
     @Override
     public JdCResponse<List<StatisticsByGridDto>> getGridStatisticsPageList(StatisticsByGridReq req) {
-        if (StringUtils.isBlank(req.getPositionCode())) {
-            return JdCResponse.fail("岗位码不能为空!");
-        }
         //岗位码相关
         PositionDetailRecord position = getPosition(req.getPositionCode());
         if (position == null) {
@@ -232,12 +223,32 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         }
 
         List<ProcessingNumByGridDto> list = new ArrayList<>();
-        String key = RECEIVING_COUNT_PRE + position.getSiteCode();
-        String cacheData = redisClient.get(key);
 
-        if (StringUtils.isNotBlank(cacheData)) {
-            list = JSON.parseArray(cacheData, ProcessingNumByGridDto.class);
+        // 按场地统计
+        String siteCountKey = RECEIVING_SITE_COUNT_PRE + position.getSiteCode();
+        Map<String, String> map = redisClient.hGetAll(siteCountKey);
+
+        if (map==null||map.isEmpty()) {
+            return JdCResponse.ok(list);
         }
+
+        for (Map.Entry<String, String> entry : map.entrySet()) {
+            String key = entry.getKey();
+            String[] split = key.split("\\|");
+
+            try {
+                ProcessingNumByGridDto dto = new ProcessingNumByGridDto();
+                dto.setFloor(new Integer(split[2]));
+                dto.setAreaCode(split[3]);
+                dto.setGriCode(split[4]);
+                dto.setGridNo(split[5]);
+                dto.setProcessingNum(StringUtils.isNumeric(entry.getValue()) ? 0 : new Integer(entry.getValue()));
+                list.add(dto);
+            } catch (Exception e) {
+                logger.error("解析取件进行中数据出错了" + entry.getKey(), e);
+            }
+        }
+
 
         return JdCResponse.ok(list);
     }
@@ -252,12 +263,20 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             return JdCResponse.fail("status参数有误!");
         }
 
+        PositionDetailRecord position = getPosition(req.getPositionCode());
+        if (position == null) {
+            return JdCResponse.fail("岗位码有误!");
+        }
+
         if (req.getPageNumber() == null || req.getPageNumber() <= 0) {
             req.setPageNumber(1);
         }
         if (req.getPageSize() == null || req.getPageSize() <= 0) {
             req.setPageNumber(10);
         }
+
+        req.setSiteId(position.getSiteCode());
+
         List<JyBizTaskExceptionEntity> taskList = jyBizTaskExceptionDao.queryExceptionTaskList(req);
         List<ExpTaskDto> list = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(taskList)) {
@@ -277,6 +296,19 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             }
         }
 
+        // 记录取件进行中
+        // 按岗位统计
+        String positionCountKey = RECEIVING_POSITION_COUNT_PRE +"|"+ position.getSiteCode() + "|"
+                + position.getFloor() + "|" + position.getAreaCode() + "|" + position.getGridCode() + "|" + position.getGridNo();
+        redisClient.sAdd(positionCountKey, req.getUserErp());
+        Long size = redisClient.sCard(positionCountKey);
+
+        // 按场地统计
+        String siteCountKey = RECEIVING_SITE_COUNT_PRE + position.getSiteCode();
+        redisClient.hSet(siteCountKey, positionCountKey, String.valueOf(size));
+
+        redisClient.expire(positionCountKey, 30, TimeUnit.DAYS);
+        redisClient.expire(siteCountKey, 30, TimeUnit.DAYS);
 
         return JdCResponse.ok(list);
     }
@@ -290,9 +322,6 @@ public class JyExceptionServiceImpl implements JyExceptionService {
     public JdCResponse<Object> receive(ExpReceiveReq req) {
 
         String positionCode = req.getPositionCode();
-        if (StringUtils.isBlank(positionCode)) {
-            return JdCResponse.fail("上岗码不能为空!");
-        }
         PositionDetailRecord position = getPosition(positionCode);
         if (position == null) {
             return JdCResponse.fail("岗位码有误!" + positionCode);
@@ -369,6 +398,11 @@ public class JyExceptionServiceImpl implements JyExceptionService {
      */
     @Override
     public JdCResponse<Object> processTask(ExpTaskDetailReq req) {
+
+        PositionDetailRecord position = getPosition(req.getPositionCode());
+        if (position == null) {
+            return JdCResponse.fail("岗位码有误!");
+        }
 
         return JdCResponse.ok();
     }
@@ -490,6 +524,9 @@ public class JyExceptionServiceImpl implements JyExceptionService {
     }
 
     private PositionDetailRecord getPosition(String positionCode) {
+        if (StringUtils.isBlank(positionCode)) {
+            return null;
+        }
         Result<PositionDetailRecord> positionResult = positionQueryJsfManager.queryOneByPositionCode(positionCode);
         if (positionResult == null || positionResult.isFail() || positionResult.getData() == null) {
             return null;
