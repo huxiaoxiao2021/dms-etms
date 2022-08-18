@@ -929,15 +929,18 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
                 aggsQueryParams.setBizId(taskFlowDto.getBizId());
                 aggsQueryParams.setBoardCode(boardCode);
                 JyUnloadAggsEntity jyaggs = jyUnloadAggsDao.queryBoardStatistics(aggsQueryParams);
+                ComBoardAggDto aggDto = new ComBoardAggDto();
+                aggDto.setBoardCode(boardCode);
                 if(jyaggs != null) {
-                    ComBoardAggDto aggDto = new ComBoardAggDto();
-                    aggDto.setBoardCode(boardCode);
                     aggDto.setHaveScanCount(jyaggs.getActualScanCount());
                     aggDto.setExtraScanCount(jyaggs.getMoreScanTotalCount());
-                    comBoardDtoList.add(aggDto);
                     extraScanCount = extraScanCount + jyaggs.getMoreScanTotalCount();
                     haveScanCount = haveScanCount + jyaggs.getActualScanCount();
+                }else {
+                    aggDto.setHaveScanCount(0);
+                    aggDto.setExtraScanCount(0);
                 }
+                comBoardDtoList.add(aggDto);
             }
             resData.setComBoardDtoList(comBoardDtoList);
             resData.setExtraScanCount(extraScanCount);
