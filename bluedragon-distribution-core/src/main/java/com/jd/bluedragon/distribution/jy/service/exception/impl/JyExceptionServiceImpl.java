@@ -24,6 +24,7 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
@@ -76,7 +77,11 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         if (baseStaffByErp == null) {
             return JdCResponse.fail("登录人ERP有误!" + req.getUserErp());
         }
-
+        String bizId = getBizId(JyBizTaskExceptionTypeEnum.SANWU, req.getBarCode());
+        JyBizTaskExceptionEntity byBizId = jyBizTaskExceptionDao.findByBizId(bizId);
+        if (byBizId != null) {
+            return JdCResponse.fail("已存在当前条码的任务,请勿重复提交!");
+        }
 
         req.setSiteId(position.getSiteCode());
 
@@ -105,7 +110,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
 
         JSONObject json = (JSONObject) JSONObject.toJSON(taskCache);
 
-        String redisKey = TASK_CACHE_PRE + req.getBarCode();
+        String redisKey = TASK_CACHE_PRE + bizId;
         String s = redisClient.get(redisKey);
         if (StringUtils.isNotBlank(s)) {
             JSONObject cacheJson = JSON.parseObject(s);
@@ -115,7 +120,6 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         redisClient.set(redisKey, json.toJSONString());
         redisClient.expire(redisKey, 30, TimeUnit.DAYS);
 
-        String bizId = getBizId(JyBizTaskExceptionTypeEnum.SANWU, req.getBarCode());
         JyBizTaskExceptionEntity taskEntity = new JyBizTaskExceptionEntity();
         taskEntity.setBizId(bizId);
         taskEntity.setType(JyBizTaskExceptionTypeEnum.SANWU.getCode());
@@ -156,6 +160,8 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             logger.error("写入异常提报数据出错了,request=" + JSON.toJSONString(req), e);
             return JdCResponse.fail("异常提报数据保存出错了,请稍后重试！");
         }
+
+        // TODO 发送 mq 通知调度系统
 
         return JdCResponse.ok();
     }
@@ -206,6 +212,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         req.setGridRid(getGridRid(position));
 
         List<StatisticsByGridDto> statisticsByGrid = jyBizTaskExceptionDao.getStatisticsByGrid(req);
+        // TODO 标签处理
 
         return JdCResponse.ok(statisticsByGrid);
     }
@@ -290,8 +297,11 @@ public class JyExceptionServiceImpl implements JyExceptionService {
                 dto.setGridNo(entity.getGridNo());
                 dto.setAreaName(entity.getAreaName());
                 dto.setReporterName(entity.getCreateUserName());
-//                dto.setTags();
-//                dto.setSaved(false);
+                dto.setTags(getTags(entity.getTags()));
+
+                String s = redisClient.get(TASK_CACHE_PRE + entity.getBizId());
+                boolean saved = !StringUtils.isBlank(s) && Objects.equals(JSON.parseObject(s, ExpTaskDetailCacheDto.class).getSaveType(), "0");
+                dto.setSaved(saved);
 
             }
         }
@@ -366,27 +376,9 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             return JdCResponse.fail("无相关任务明细!" + req.getTaskId());
         }
 
+        ExpTaskDetailCacheDto cacheDto = JSON.parseObject(s, ExpTaskDetailCacheDto.class);
         ExpTaskDetailDto dto = new ExpTaskDetailCacheDto();
-        dto.setWeight("");
-        dto.setVolume("");
-        dto.setTogetherPackageCodes("");
-        dto.setBatchNo("");
-        dto.setInnerDesc("");
-        dto.setOuterDesc("");
-        dto.setFrom("");
-        dto.setTo("");
-        dto.setVolumeDetail("");
-        dto.setSn("");
-        dto.setGoodsNo("");
-        dto.setYardSixNine("");
-        dto.setGoodsNum("");
-        dto.setSealNumber("");
-        dto.setPrice("");
-        dto.setStorage("");
-        dto.setTaskId("");
-        dto.setSaveType("");
-        dto.setUserErp("");
-        dto.setImageUrls("");
+        BeanUtils.copyProperties(cacheDto, dto);
 
         return JdCResponse.ok(dto);
     }
@@ -402,6 +394,23 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         PositionDetailRecord position = getPosition(req.getPositionCode());
         if (position == null) {
             return JdCResponse.fail("岗位码有误!");
+        }
+        JSONObject cacheObj = new JSONObject();
+        String key = TASK_CACHE_PRE + req.getTaskId();
+        String s = redisClient.get(key);
+        if (StringUtils.isNotBlank(s)) {
+            cacheObj = JSON.parseObject(s);
+        }
+        JSONObject reqObj = (JSONObject) JSONObject.toJSON(req);
+        cacheObj.putAll(reqObj);
+
+        // 存储类型 0暂存 1提交
+        if ("0".equals(req.getSaveType())) {
+            redisClient.set(key, cacheObj.toJSONString());
+            redisClient.expire(key, 30, TimeUnit.DAYS);
+        }else {
+            redisClient.del(key);
+            // TODO 调用 三无接口
         }
 
         return JdCResponse.ok();
@@ -510,7 +519,10 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         String[] split = tags.split(",");
         for (String s : split) {
             TagDto dto = new TagDto();
-//            dto.setName();
+            dto.setName(s);
+            dto.setCode(0);
+            dto.setStyle("info");
+            list.add(dto);
         }
         return list;
     }
