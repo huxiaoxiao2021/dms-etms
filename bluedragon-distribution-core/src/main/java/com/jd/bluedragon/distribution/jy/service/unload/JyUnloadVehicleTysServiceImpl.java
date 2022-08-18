@@ -304,9 +304,14 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     }
 
     @Override
+    @JProfiler(jKey = "JyUnloadVehicleTysServiceImpl.queryStatistics",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<StatisticsDto> queryStatistics(DimensionQueryDto dto) {
-        StatisticsDto statisticsDto = jyBizTaskUnloadVehicleService.queryStatistics(dto);
-        return new InvokeResult<>(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, statisticsDto);
+        try{
+            return jyBizTaskUnloadVehicleService.queryStatistics(dto);
+        }catch (Exception e) {
+            log.info("JyUnloadVehicleTysServiceImpl.queryStatistics--异常--errMsg={},req={}", e.getMessage(), JsonUtils.toJSONString(dto));
+            return new InvokeResult<>(RESULT_PARAMETER_ERROR_CODE, e.getMessage());
+        }
     }
 
     @Override
@@ -555,7 +560,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         String routerStr = waybillCacheService.getRouterByWaybillCode(scanCode);
         Integer nextSiteCode = getRouteNextSite(scanPackageDto.getCurrentOperate().getSiteCode(), routerStr);
         scanPackageDto.setNextSiteCode(nextSiteCode);
-        if (StringUtils.isBlank(unloadVehicleEntity.getStartSiteName())) {
+        if (Constants.START_SITE_INITIAL_VALUE.equals(unloadVehicleEntity.getStartSiteId())) {
             Integer prevSiteCode = getPrevSiteCodeByRouter(routerStr, scanPackageDto.getCurrentOperate().getSiteCode());
             scanPackageDto.setPrevSiteCode(prevSiteCode);
         } else {

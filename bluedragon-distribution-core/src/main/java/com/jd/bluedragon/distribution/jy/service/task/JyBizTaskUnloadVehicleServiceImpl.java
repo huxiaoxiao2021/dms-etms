@@ -5,6 +5,7 @@ import com.jd.bluedragon.common.dto.operation.workbench.unload.response.LabelOpt
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.VosManager;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskUnloadVehicleDao;
 import com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadAggsDao;
 import com.jd.bluedragon.distribution.jy.dto.task.JyBizTaskUnloadCountDto;
@@ -44,6 +45,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+
+import static com.jd.bluedragon.distribution.base.domain.InvokeResult.RESULT_SUCCESS_CODE;
+import static com.jd.bluedragon.distribution.base.domain.InvokeResult.RESULT_SUCCESS_MESSAGE;
 
 /**
  * 天官赐福 ◎ 百无禁忌
@@ -641,30 +645,40 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
     }
 
     @Override
-    public StatisticsDto queryStatistics(DimensionQueryDto dto) {
+    public InvokeResult<StatisticsDto> queryStatistics(DimensionQueryDto dto) {
         JyUnloadAggsEntity packageStatistics = jyUnloadAggsDao.queryPackageStatistics(dto);
+        if(packageStatistics == null) {
+            return new InvokeResult<>(RESULT_SUCCESS_CODE, "未查到数据");
+        }
         JyUnloadAggsEntity waybillStatistics = dto.getBoardCode() != null ?
                 jyUnloadAggsDao.queryWaybillStatisticsUnderBoard(dto) : jyUnloadAggsDao.queryWaybillStatisticsUnderTask(dto);
 
         StatisticsDto statisticsDto = new StatisticsDto();
-        statisticsDto.setProcessPercent((packageStatistics.getTotalScannedPackageCount() / packageStatistics.getTotalSealPackageCount()));
+        Integer processPercent = (packageStatistics.getTotalSealPackageCount() == null || packageStatistics.getTotalSealPackageCount() == 0 ) ? 0
+                : (packageStatistics.getTotalScannedPackageCount() / packageStatistics.getTotalSealPackageCount());
+        statisticsDto.setProcessPercent(processPercent);
+//        statisticsDto.setProcessPercent((packageStatistics.getTotalScannedPackageCount() / packageStatistics.getTotalSealPackageCount()));
         statisticsDto.setShouldScanCount(packageStatistics.getShouldScanCount());
         statisticsDto.setHaveScanCount(packageStatistics.getActualScanCount());
         statisticsDto.setWaitScanCount(packageStatistics.getShouldScanCount() - packageStatistics.getActualScanCount());
         statisticsDto.setInterceptCount(packageStatistics.getInterceptActualScanCount());
         statisticsDto.setExtraScanCount(packageStatistics.getMoreScanTotalCount());
         statisticsDto.setWaybillCount(dto.getBoardCode()!=null?waybillStatistics.getActualScanWaybillCount():waybillStatistics.getTotalScannedWaybillCount());
-
-        return statisticsDto;
+        return new InvokeResult<>(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, statisticsDto);
     }
 
     private ScanStatisticsDto dtoConvert(JyUnloadAggsEntity entity, DimensionQueryDto dto) {
         ScanStatisticsDto scanStatisticsDto = new ScanStatisticsDto();
-        scanStatisticsDto.setProcessPercent((entity.getTotalScannedPackageCount() / entity.getTotalSealPackageCount()));
+        Integer processPercent = (entity.getTotalSealPackageCount() == null || entity.getTotalSealPackageCount() == 0) ? 0 : (entity.getTotalScannedPackageCount() / entity.getTotalSealPackageCount());
+        scanStatisticsDto.setProcessPercent(processPercent);
         if (UnloadStatisticsQueryTypeEnum.PACKAGE.getCode().equals(dto.getType())) {
             scanStatisticsDto.setShouldScanCount(entity.getShouldScanCount());
             scanStatisticsDto.setHaveScanCount(entity.getActualScanCount());
-            scanStatisticsDto.setWaitScanCount(entity.getShouldScanCount() - entity.getActualScanCount());
+            if(entity.getShouldScanCount() == null || entity.getActualScanCount() == null) {
+                scanStatisticsDto.setWaitScanCount(0);
+            }else {
+                scanStatisticsDto.setWaitScanCount(entity.getShouldScanCount() - entity.getActualScanCount());
+            }
             scanStatisticsDto.setInterceptShouldScanCount(entity.getInterceptShouldScanCount());
             scanStatisticsDto.setInterceptActualScanCount(entity.getInterceptActualScanCount());
             scanStatisticsDto.setExtraScanCountCurrSite(entity.getMoreScanLocalCount());
@@ -672,7 +686,11 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
         } else if (UnloadStatisticsQueryTypeEnum.WAYBILL.getCode().equals(dto.getType())) {
             scanStatisticsDto.setShouldScanCount(entity.getTotalSealWaybillCount());
             scanStatisticsDto.setHaveScanCount(entity.getTotalScannedWaybillCount());
-            scanStatisticsDto.setWaitScanCount(entity.getTotalSealWaybillCount() - entity.getTotalScannedWaybillCount());
+            if(entity.getTotalSealWaybillCount() == null || entity.getTotalScannedWaybillCount() == null) {
+                scanStatisticsDto.setWaitScanCount(0);
+            }else {
+                scanStatisticsDto.setWaitScanCount(entity.getTotalSealWaybillCount() - entity.getTotalScannedWaybillCount());
+            }
             scanStatisticsDto.setInterceptShouldScanCount(entity.getTotalShouldInterceptWaybillCount());
             scanStatisticsDto.setInterceptActualScanCount(entity.getTotalScannedInterceptWaybillCount());
             scanStatisticsDto.setExtraScanCountCurrSite(entity.getTotalMoreScanLocalWaybillCount());

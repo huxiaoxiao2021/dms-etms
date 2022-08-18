@@ -13,7 +13,6 @@ import com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadDao;
 import com.jd.bluedragon.distribution.jy.dto.unload.UnloadScanDto;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSourceTypeEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskStageStatusEnum;
-import com.jd.bluedragon.distribution.jy.enums.JyBizTaskStageTypeEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.group.JyTaskGroupMemberEntity;
 import com.jd.bluedragon.distribution.jy.service.group.JyTaskGroupMemberService;
@@ -192,15 +191,6 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
         }
     }
 
-    private JyBizTaskUnloadVehicleStageEntity getCurrentUnloadTaskStage(UnloadScanDto unloadScanDto) {
-        JyBizTaskUnloadVehicleStageEntity condition = new JyBizTaskUnloadVehicleStageEntity();
-        condition.setUnloadVehicleBizId(unloadScanDto.getBizId());
-        condition.setType(unloadScanDto.getSupplementary() ? JyBizTaskStageTypeEnum.SUPPLEMENT.getCode() : JyBizTaskStageTypeEnum.HANDOVER.getCode());
-        if (!unloadScanDto.getSupplementary()) {
-            condition.setStatus(JyBizTaskStageStatusEnum.DOING.getCode());
-        }
-        return jyBizTaskUnloadVehicleStageService.queryCurrentStage(condition);
-    }
 
     private void recordTaskMembers(UnloadScanDto unloadScanDto) {
         JyTaskGroupMemberEntity startData = new JyTaskGroupMemberEntity();
