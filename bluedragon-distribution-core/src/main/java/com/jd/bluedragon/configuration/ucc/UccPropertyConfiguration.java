@@ -688,6 +688,14 @@ public class UccPropertyConfiguration {
      * 批量一车一单 德邦单匹配德邦批次号开关
      */
     private boolean dpWaybillMatchSendCodeSwitch;
+    /**
+     * 发货岗计划发车时间查询条件前X天
+     */
+    private Integer jySendTaskPlanTimeBeginDay;
+    /**
+     * 发货岗计划发车时间查询条件后X天
+     */
+    private Integer jySendTaskPlanTimeEndDay;
 
     public Integer getOldSendSplitPageSize() {
         return oldSendSplitPageSize;
@@ -2054,5 +2062,21 @@ public class UccPropertyConfiguration {
 
     public void setIdentityRecogniseSiteSwitch(String identityRecogniseSiteSwitch) {
         this.identityRecogniseSiteSwitch = identityRecogniseSiteSwitch;
+    }
+
+    public Integer getJySendTaskPlanTimeBeginDay() {
+        return jySendTaskPlanTimeBeginDay;
+    }
+
+    public void setJySendTaskPlanTimeBeginDay(Integer jySendTaskPlanTimeBeginDay) {
+        this.jySendTaskPlanTimeBeginDay = jySendTaskPlanTimeBeginDay;
+    }
+
+    public Integer getJySendTaskPlanTimeEndDay() {
+        return jySendTaskPlanTimeEndDay;
+    }
+
+    public void setJySendTaskPlanTimeEndDay(Integer jySendTaskPlanTimeEndDay) {
+        this.jySendTaskPlanTimeEndDay = jySendTaskPlanTimeEndDay;
     }
 }
