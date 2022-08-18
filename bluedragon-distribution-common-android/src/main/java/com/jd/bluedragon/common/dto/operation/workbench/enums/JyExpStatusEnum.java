@@ -4,6 +4,7 @@ public enum JyExpStatusEnum {
     TO_PICK(0,"待取件"),
     TO_PROCESS(1,"待处理"),
     TO_PRINT(2,"待打印"),
+    COMPLATE(3,"已完成"),
     ;
 
 

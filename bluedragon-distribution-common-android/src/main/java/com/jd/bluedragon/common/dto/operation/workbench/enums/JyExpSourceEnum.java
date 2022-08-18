@@ -4,6 +4,7 @@ public enum JyExpSourceEnum {
     COMMON(0,"通用入口"),
     UNLOAD(1,"卸车入口"),
     SEND(2,"发货入口"),
+    SANWU_PC(3,"三无系统"),
     ;
 
 

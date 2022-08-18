@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.jy.service.exception;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.jyexpection.request.*;
 import com.jd.bluedragon.common.dto.jyexpection.response.*;
+import com.jd.bluedragon.distribution.jy.dto.exception.ExpefResultNotify;
 
 import java.util.List;
 
@@ -46,4 +47,10 @@ public interface JyExceptionService {
      * 处理任务接口
      */
     JdCResponse<Object> processTask(ExpTaskDetailReq req);
+
+    /**
+     * 三无系统结果通知
+     * @param mqDto
+     */
+    void expefResultNotify(ExpefResultNotify mqDto);
 }

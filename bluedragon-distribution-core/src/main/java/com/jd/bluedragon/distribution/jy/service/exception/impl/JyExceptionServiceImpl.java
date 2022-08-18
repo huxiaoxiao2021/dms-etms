@@ -6,8 +6,11 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.jyexpection.request.*;
 import com.jd.bluedragon.common.dto.jyexpection.response.*;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.*;
+import com.jd.bluedragon.distribution.jy.api.biz.exception.BizTaskExceptionService;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyBizTaskExceptionDao;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyExceptionDao;
+import com.jd.bluedragon.distribution.jy.dto.exception.ExpefResultNotify;
+import com.jd.bluedragon.distribution.jy.enums.ExpefNotifyTypeEnum;
 import com.jd.bluedragon.distribution.jy.exception.*;
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionService;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
@@ -323,6 +326,85 @@ public class JyExceptionServiceImpl implements JyExceptionService {
     public JdCResponse<Object> processTask(ExpTaskDetailReq req) {
 
         return JdCResponse.ok();
+    }
+
+    @Override
+    public void expefResultNotify(ExpefResultNotify mqDto) {
+        if (null == mqDto.getNotifyType()){
+            logger.warn("三无系统通知数据缺少通知类型，消息丢弃");
+            return;
+        }
+        JyExceptionEntity jyExceptionEntity = new JyExceptionEntity();
+        jyExceptionEntity.setBarCode(mqDto.getBarCode());
+        jyExceptionEntity.setSiteCode(Long.valueOf(mqDto.getSiteCode()));
+        JyExceptionEntity entity = jyExceptionDao.queryByBarCodeAndSite(jyExceptionEntity);
+        if (entity == null){
+            logger.error("获取异常业务数据失败！");
+            return;
+        }
+        JyBizTaskExceptionEntity bizTaskException = jyBizTaskExceptionDao.findByBizId(entity.getBizId());
+        if (bizTaskException == null){
+            logger.error("获取异常业务任务数据失败！");
+            return;
+        }
+        BaseStaffSiteOrgDto baseStaffByErp = basicPrimaryWS.getBaseStaffByErp(mqDto.getNotifyErp());
+        if (baseStaffByErp == null){
+            logger.error("获取操作人信息失败！");
+            return;
+        }
+        switch (ExpefNotifyTypeEnum.valueOf(mqDto.getNotifyType())){
+            case MATCH_SUCCESS:
+                matchSuccessProcess(mqDto, entity, bizTaskException, baseStaffByErp);
+                break;
+            case PROCESSED:
+                complate(mqDto, bizTaskException,baseStaffByErp);
+                break;
+            default:
+                break;
+        }
+    }
+    /**
+     * 异常任务完成处理
+     * @param mqDto
+     * @param
+     * @param bizTaskException
+     * @param baseStaffByErp
+     */
+    private void complate(ExpefResultNotify mqDto, JyBizTaskExceptionEntity bizTaskException, BaseStaffSiteOrgDto baseStaffByErp) {
+        // biz表修改状态
+        JyBizTaskExceptionEntity conditon = new JyBizTaskExceptionEntity();
+        conditon.setStatus(JyExpStatusEnum.COMPLATE.getCode());
+        conditon.setProcessingStatus(JyBizTaskExceptionProcessStatusEnum.DONE.getCode());
+        conditon.setUpdateTime(mqDto.getNotifyTime());
+        conditon.setUpdateUserErp(mqDto.getNotifyErp());
+        conditon.setBizId(bizTaskException.getBizId());
+        conditon.setUpdateUserName(baseStaffByErp.getErp());
+        jyBizTaskExceptionDao.updateByBizId(conditon);
+        // todo 通知任务调度系统任务完成
+
+    }
+
+    /**
+     * 匹配成功处理
+     * @param mqDto
+     * @param entity
+     * @param bizTaskException
+     * @param baseStaffByErp
+     */
+    private void matchSuccessProcess(ExpefResultNotify mqDto, JyExceptionEntity entity, JyBizTaskExceptionEntity bizTaskException, BaseStaffSiteOrgDto baseStaffByErp) {
+        //业务表记录匹配成功单号
+        entity.setPackageCode(mqDto.getPackageCode());
+        entity.setUpdateTime(mqDto.getNotifyTime());
+        entity.setUpdateUserErp(mqDto.getNotifyErp());
+        entity.setUpdateUserName(baseStaffByErp.getStaffName());
+        jyExceptionDao.update(entity);
+        // biz表修改状态
+        JyBizTaskExceptionEntity conditon = new JyBizTaskExceptionEntity();
+        conditon.setStatus(JyExpStatusEnum.TO_PRINT.getCode());
+        conditon.setUpdateTime(mqDto.getNotifyTime());
+        conditon.setUpdateUserErp(mqDto.getNotifyErp());
+        conditon.setBizId(bizTaskException.getBizId());
+        jyBizTaskExceptionDao.updateByBizId(conditon);
     }
 
 
