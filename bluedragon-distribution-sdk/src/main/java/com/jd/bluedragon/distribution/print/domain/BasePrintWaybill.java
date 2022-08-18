@@ -479,6 +479,14 @@ public class BasePrintWaybill implements Serializable {
      * 水印
      */
 	private String waterMark;
+
+	/**
+	 * 面单输出方式
+	 * @see SurfaceOutputTypeEnum
+	 *  0、打印
+	 *  1、预览
+	 */
+	private Integer outputType = 0;
 	
 	public String getServiceCode() {
 		return serviceCode;
@@ -1723,4 +1731,12 @@ public class BasePrintWaybill implements Serializable {
     public void setWaterMark(String waterMark) {
         this.waterMark = waterMark;
     }
+
+	public Integer getOutputType() {
+		return outputType;
+	}
+
+	public void setOutputType(Integer outputType) {
+		this.outputType = outputType;
+	}
 }
