@@ -688,39 +688,38 @@ public class JyUnloadVehicleCheckTysService {
     }
 
     public void setStageBizId(UnloadScanDto unloadScanDto) {
-        JyBizTaskUnloadVehicleStageEntity condition = new JyBizTaskUnloadVehicleStageEntity();
-        condition.setUnloadVehicleBizId(unloadScanDto.getBizId());
-        condition.setType(unloadScanDto.getSupplementary() ? JyBizTaskStageTypeEnum.SUPPLEMENT.getCode() : JyBizTaskStageTypeEnum.HANDOVER.getCode());
+        JyBizTaskUnloadVehicleStageEntity entity = new JyBizTaskUnloadVehicleStageEntity();
+        entity.setUnloadVehicleBizId(unloadScanDto.getBizId());
+        entity.setType(unloadScanDto.getSupplementary() ? JyBizTaskStageTypeEnum.SUPPLEMENT.getCode() : JyBizTaskStageTypeEnum.HANDOVER.getCode());
         if (!unloadScanDto.getSupplementary()) {
-            condition.setStatus(JyBizTaskStageStatusEnum.DOING.getCode());
+            entity.setStatus(JyBizTaskStageStatusEnum.DOING.getCode());
         }
-        JyBizTaskUnloadVehicleStageEntity entity = jyBizTaskUnloadVehicleStageService.queryCurrentStage(condition);
-        if (entity == null) {
-            entity = generateUnloadTaskStage(unloadScanDto);
+        JyBizTaskUnloadVehicleStageEntity result = jyBizTaskUnloadVehicleStageService.queryCurrentStage(entity);
+        if (result == null) {
+            createUnloadVehicleStage(entity, unloadScanDto);
             jyBizTaskUnloadVehicleStageService.insertSelective(entity);
         }
         unloadScanDto.setStageBizId(entity.getBizId());
     }
 
-    private JyBizTaskUnloadVehicleStageEntity generateUnloadTaskStage(UnloadScanDto unloadScanDto) {
+    private JyBizTaskUnloadVehicleStageEntity createUnloadVehicleStage(JyBizTaskUnloadVehicleStageEntity entity, UnloadScanDto unloadScanDto) {
         Date now = new Date();
-        JyBizTaskUnloadVehicleStageEntity stageEntity = new JyBizTaskUnloadVehicleStageEntity();
-        stageEntity.setUnloadVehicleBizId(unloadScanDto.getBizId());
+        entity.setUnloadVehicleBizId(unloadScanDto.getBizId());
         // 用于判断当前子任务的序号
         List<Long> idList = jyBizTaskUnloadVehicleStageService.countByUnloadVehicleBizId(unloadScanDto.getBizId());
         int serialNumber = CollectionUtils.isEmpty(idList) ? 1 : idList.size() + 1;
-        stageEntity.setBizId(unloadScanDto.getBizId() + Constants.SEPARATOR_HYPHEN + serialNumber);
-        stageEntity.setStatus(JyBizTaskStageStatusEnum.DOING.getCode());
-        stageEntity.setType(unloadScanDto.getSupplementary() ? JyBizTaskStageTypeEnum.SUPPLEMENT.getCode() : JyBizTaskStageTypeEnum.HANDOVER.getCode());
-        stageEntity.setStartTime(now);
-        stageEntity.setCreateTime(now);
-        stageEntity.setUpdateTime(now);
-        stageEntity.setCreateUserErp(unloadScanDto.getCreateUserErp());
-        stageEntity.setCreateUserName(unloadScanDto.getCreateUserName());
-        stageEntity.setUpdateUserErp(unloadScanDto.getCreateUserErp());
-        stageEntity.setUpdateUserName(unloadScanDto.getCreateUserName());
-        stageEntity.setYn(Constants.YN_YES);
-        return stageEntity;
+        entity.setBizId(unloadScanDto.getBizId() + Constants.SEPARATOR_HYPHEN + serialNumber);
+        entity.setStatus(JyBizTaskStageStatusEnum.DOING.getCode());
+        entity.setType(unloadScanDto.getSupplementary() ? JyBizTaskStageTypeEnum.SUPPLEMENT.getCode() : JyBizTaskStageTypeEnum.HANDOVER.getCode());
+        entity.setStartTime(now);
+        entity.setCreateTime(now);
+        entity.setUpdateTime(now);
+        entity.setCreateUserErp(unloadScanDto.getCreateUserErp());
+        entity.setCreateUserName(unloadScanDto.getCreateUserName());
+        entity.setUpdateUserErp(unloadScanDto.getCreateUserErp());
+        entity.setUpdateUserName(unloadScanDto.getCreateUserName());
+        entity.setYn(Constants.YN_YES);
+        return entity;
     }
 
 
