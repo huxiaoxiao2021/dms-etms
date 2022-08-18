@@ -23,7 +23,6 @@ import com.jd.bluedragon.distribution.board.service.BoardCombinationService;
 import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRecordService;
 import com.jd.bluedragon.distribution.external.constants.TransportServiceConstants;
 import com.jd.bluedragon.distribution.external.enums.AppVersionEnums;
-import com.jd.bluedragon.distribution.external.service.TransportCommonService;
 import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigEnum;
 import com.jd.bluedragon.distribution.funcSwitchConfig.service.FuncSwitchConfigService;
 import com.jd.bluedragon.distribution.goodsLoadScan.GoodsLoadScanConstants;
@@ -46,6 +45,7 @@ import com.jd.bluedragon.distribution.send.domain.dto.SendDetailDto;
 import com.jd.bluedragon.distribution.storage.service.StoragePackageMService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
+import com.jd.bluedragon.distribution.transfer.service.TransferService;
 import com.jd.bluedragon.distribution.unloadCar.domain.UnloadCarCondition;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
@@ -232,7 +232,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
     @Qualifier("redisClientOfJy")
     private Cluster redisClientOfJy;
     @Autowired
-    private TransportCommonService transportCommonService;
+    private TransferService transferService;
 
     @Override
     public InvokeResult<UnloadCarScanResult> getUnloadCarBySealCarCode(String sealCarCode) {
@@ -2438,7 +2438,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         }
         //同步卸车负责人与卸车任务之间关系
         for (int i=0;i<request.getSealCarCodes().size();i++) {
-            transportCommonService.saveOperatePdaVersion(request.getSealCarCodes().get(i), AppVersionEnums.PDA_OLD.getVersion());
+            transferService.saveOperatePdaVersion(request.getSealCarCodes().get(i), AppVersionEnums.PDA_OLD.getVersion());
             UnloadCarDistribution unloadCarDistribution = new UnloadCarDistribution();
             unloadCarDistribution.setSealCarCode(request.getSealCarCodes().get(i));
             unloadCarDistribution.setUnloadUserErp(request.getUnloadUserErp());

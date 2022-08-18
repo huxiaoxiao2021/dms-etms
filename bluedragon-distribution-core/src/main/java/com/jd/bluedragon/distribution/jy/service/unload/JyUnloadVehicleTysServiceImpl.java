@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.jy.service.unload;
 
+import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.PageHelper;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.UnifiedExceptionProcess;
@@ -11,6 +12,7 @@ import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.board.service.BoardCombinationService;
+import com.jd.bluedragon.distribution.external.enums.AppVersionEnums;
 import com.jd.bluedragon.distribution.jy.api.JyUnloadVehicleTysService;
 import com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskUnloadVehicleDao;
 import com.jd.bluedragon.distribution.jy.dao.unload.JyBizTaskUnloadVehicleStageDao;
@@ -29,6 +31,7 @@ import com.jd.bluedragon.distribution.jy.unload.JyUnloadAggsEntity;
 import com.jd.bluedragon.distribution.jy.unload.JyUnloadVehicleBoardEntity;
 import com.jd.bluedragon.distribution.loadAndUnload.exception.LoadIllegalException;
 import com.jd.bluedragon.distribution.loadAndUnload.exception.UnloadPackageBoardException;
+import com.jd.bluedragon.distribution.transfer.service.TransferService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -107,6 +110,8 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     private BoardCombinationService boardCombinationService;
     @Autowired
     private IJyUnloadVehicleService unloadVehicleService;
+    @Autowired
+    private TransferService transferService;
 
 
 
@@ -329,40 +334,24 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     public InvokeResult<ScanPackageRespDto> scan(ScanPackageDto scanPackageDto) {
         InvokeResult<ScanPackageRespDto> invokeResult = new InvokeResult<>();
         invokeResult.success();
-        ScanPackageRespDto scanPackageRespDto = convertToScanResult(scanPackageDto);
-        invokeResult.setData(scanPackageRespDto);
-
         log.info("invoking jy scanAndComBoard,params: {}", JsonHelper.toJson(scanPackageDto));
         try {
-            // 校验任务
-            JyBizTaskUnloadVehicleEntity unloadVehicleEntity = jyBizTaskUnloadVehicleService.findByBizId(scanPackageDto.getBizId());
-            if (!ObjectHelper.isNotNull(unloadVehicleEntity)) {
-                return new InvokeResult<>(TASK_NO_FOUND_BY_PARAMS_CODE, TASK_NO_FOUND_BY_PARAMS_MESSAGE);
+            // 非空任务才需要互斥
+            if (StringUtils.isNotBlank(scanPackageDto.getSealCarCode())) {
+                // 新老版本互斥
+                InvokeResult<Boolean> permissionResult = transferService.saveOperatePdaVersion(scanPackageDto.getSealCarCode(), AppVersionEnums.PDA_GUIDED.getVersion());
+                if (permissionResult.getCode() != RESULT_SUCCESS_CODE || Boolean.FALSE.equals(permissionResult.getData())) {
+                    log.warn("人工扫描新版本获取锁失败或卸车任务已在老版本操作:request={},permissionResult={}", JSON.toJSONString(scanPackageDto), JSON.toJSONString(permissionResult));
+                    invokeResult.customMessage(RESULT_INTERCEPT_CODE, "人工扫描新版本获取锁失败或卸车任务已在老版本操作");
+                    return invokeResult;
+                }
             }
-            // 通用校验
-            checkScan(scanPackageDto, unloadVehicleEntity);
-            // 校验跨场地支援权限
-            if (!unloadVehicleEntity.getEndSiteId().equals((long) scanPackageDto.getCurrentOperate().getSiteCode())) {
-                log.warn("支援人员无需操作:bizId={},erp={}", scanPackageDto.getBizId(), scanPackageDto.getUser().getUserErp());
-                invokeResult.customMessage(RESULT_PARAMETER_ERROR_CODE, "支援人员无需操作该任务，待任务完成后该任务会自动清除");
-                return invokeResult;
-            }
-            // 按包裹扫描
-            if (ScanTypeEnum.PACKAGE.getCode().equals(scanPackageDto.getType())) {
-                return packageScan(scanPackageDto, unloadVehicleEntity, invokeResult);
-                // 按运单扫描
-            } else if (ScanTypeEnum.WAYBILL.getCode().equals(scanPackageDto.getType())) {
-                return waybillScan(scanPackageDto, unloadVehicleEntity, invokeResult);
-                // 按箱扫描
-            } else if (ScanTypeEnum.BOX.getCode().equals(scanPackageDto.getType())) {
-
-            }
+            return startScanningFlow(scanPackageDto, invokeResult);
         } catch (JyBizException | LoadIllegalException e) {
             invokeResult.customMessage(RESULT_INTERCEPT_CODE, e.getMessage());
             return invokeResult;
         } catch (Exception e) {
             if (e instanceof UnloadPackageBoardException) {
-                scanPackageRespDto.getConfirmMsg().put(e.getMessage(), e.getMessage());
                 invokeResult.customMessage(JdCResponse.CODE_CONFIRM, e.getMessage());
                 return invokeResult;
             }
@@ -609,6 +598,36 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     }
 
 
+    private InvokeResult<ScanPackageRespDto> startScanningFlow(ScanPackageDto scanPackageDto, InvokeResult<ScanPackageRespDto> invokeResult) {
+        // 校验任务
+        JyBizTaskUnloadVehicleEntity unloadVehicleEntity = jyBizTaskUnloadVehicleService.findByBizId(scanPackageDto.getBizId());
+        if (unloadVehicleEntity == null) {
+            invokeResult.customMessage(RESULT_INTERCEPT_CODE, TASK_NO_FOUND_BY_PARAMS_MESSAGE);
+            return invokeResult;
+        }
+        // 通用校验
+        checkScan(scanPackageDto, unloadVehicleEntity);
+        // 校验跨场地支援权限
+        if (!unloadVehicleEntity.getEndSiteId().equals((long) scanPackageDto.getCurrentOperate().getSiteCode())) {
+            log.warn("支援人员无需操作:bizId={},erp={}", scanPackageDto.getBizId(), scanPackageDto.getUser().getUserErp());
+            invokeResult.customMessage(RESULT_INTERCEPT_CODE, "支援人员无需操作该任务，待任务完成后该任务会自动清除");
+            return invokeResult;
+        }
+        ScanPackageRespDto scanPackageRespDto = convertToScanResult(scanPackageDto);
+        invokeResult.setData(scanPackageRespDto);
+        // 按包裹扫描
+        if (ScanTypeEnum.PACKAGE.getCode().equals(scanPackageDto.getType())) {
+            return packageScan(scanPackageDto, unloadVehicleEntity, invokeResult);
+            // 按运单扫描
+        } else if (ScanTypeEnum.WAYBILL.getCode().equals(scanPackageDto.getType())) {
+            return waybillScan(scanPackageDto, unloadVehicleEntity, invokeResult);
+            // 按箱扫描
+        } else if (ScanTypeEnum.BOX.getCode().equals(scanPackageDto.getType())) {
+
+        }
+        return invokeResult;
+    }
+
 
 
     @Override
@@ -616,34 +635,19 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     public InvokeResult<ScanPackageRespDto> scanForPipelining(ScanPackageDto scanPackageDto) {
         InvokeResult<ScanPackageRespDto> invokeResult = new InvokeResult<>();
         invokeResult.success();
-        ScanPackageRespDto scanPackageRespDto = convertToScanResult(scanPackageDto);
-        invokeResult.setData(scanPackageRespDto);
-
-        log.info("invoking jy scanAndComBoard,params: {}", JsonHelper.toJson(scanPackageDto));
+        log.info("invoking jy scanForPipelining,params: {}", JsonHelper.toJson(scanPackageDto));
         try {
-            // 校验任务
-            JyBizTaskUnloadVehicleEntity unloadVehicleEntity = jyBizTaskUnloadVehicleService.findByBizId(scanPackageDto.getBizId());
-            if (!ObjectHelper.isNotNull(unloadVehicleEntity)) {
-                return new InvokeResult<>(TASK_NO_FOUND_BY_PARAMS_CODE, TASK_NO_FOUND_BY_PARAMS_MESSAGE);
+            // 非空任务才需要互斥
+            if (StringUtils.isNotBlank(scanPackageDto.getSealCarCode())) {
+                // 新老版本互斥
+                InvokeResult<Boolean> permissionResult = transferService.saveOperatePdaVersion(scanPackageDto.getSealCarCode(), AppVersionEnums.PDA_GUIDED.getVersion());
+                if (permissionResult.getCode() != RESULT_SUCCESS_CODE || Boolean.FALSE.equals(permissionResult.getData())) {
+                    log.warn("流水线扫描新版本获取锁失败或卸车任务已在老版本操作:request={},permissionResult={}", JSON.toJSONString(scanPackageDto), JSON.toJSONString(permissionResult));
+                    invokeResult.customMessage(RESULT_INTERCEPT_CODE, "流水线扫描新版本获取锁失败或卸车任务已在老版本操作");
+                    return invokeResult;
+                }
             }
-            // 通用校验
-            checkScan(scanPackageDto, unloadVehicleEntity);
-            // 校验跨场地支援权限
-            if (!unloadVehicleEntity.getEndSiteId().equals((long) scanPackageDto.getCurrentOperate().getSiteCode())) {
-                log.warn("支援人员无需操作:bizId={},erp={}", scanPackageDto.getBizId(), scanPackageDto.getUser().getUserErp());
-                invokeResult.customMessage(RESULT_PARAMETER_ERROR_CODE, "支援人员无需操作该任务，待任务完成后该任务会自动清除");
-                return invokeResult;
-            }
-            // 按包裹扫描
-            if (ScanTypeEnum.PACKAGE.getCode().equals(scanPackageDto.getType())) {
-                return packageScan(scanPackageDto, unloadVehicleEntity, invokeResult);
-                // 按运单扫描
-            } else if (ScanTypeEnum.WAYBILL.getCode().equals(scanPackageDto.getType())) {
-                return waybillScan(scanPackageDto, unloadVehicleEntity, invokeResult);
-                // 按箱扫描
-            } else if (ScanTypeEnum.BOX.getCode().equals(scanPackageDto.getType())) {
-
-            }
+            return startScanningFlow(scanPackageDto, invokeResult);
         } catch (JyBizException | LoadIllegalException e) {
             invokeResult.customMessage(RESULT_INTERCEPT_CODE, e.getMessage());
             return invokeResult;
