@@ -702,7 +702,7 @@ public class JyUnloadVehicleCheckTysService {
         unloadScanDto.setStageBizId(entity.getBizId());
     }
 
-    private JyBizTaskUnloadVehicleStageEntity createUnloadVehicleStage(JyBizTaskUnloadVehicleStageEntity entity, UnloadScanDto unloadScanDto) {
+    private void createUnloadVehicleStage(JyBizTaskUnloadVehicleStageEntity entity, UnloadScanDto unloadScanDto) {
         Date now = new Date();
         entity.setUnloadVehicleBizId(unloadScanDto.getBizId());
         // 用于判断当前子任务的序号
@@ -719,7 +719,6 @@ public class JyUnloadVehicleCheckTysService {
         entity.setUpdateUserErp(unloadScanDto.getCreateUserErp());
         entity.setUpdateUserName(unloadScanDto.getCreateUserName());
         entity.setYn(Constants.YN_YES);
-        return entity;
     }
 
 
