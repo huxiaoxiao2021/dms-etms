@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.consumer.jy;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.jy.api.BizTaskService;
@@ -7,6 +8,8 @@ import com.jd.bluedragon.distribution.jy.api.BizType;
 import com.jd.bluedragon.distribution.jy.dto.JyBizTaskMessage;
 import com.jd.bluedragon.utils.*;
 import com.jd.jmq.common.message.Message;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import com.jdl.jy.schedule.enums.task.JyScheduleTaskTypeEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +29,8 @@ public class JyScheduleTaskNotifyConsumer extends MessageBaseConsumer {
     private UccPropertyConfiguration uccConfig;
 
     @Override
+    @JProfiler(jKey = "DMS.WORKER.jyScheduleTaskNotifyConsumer.consume",
+            jAppName = Constants.UMP_APP_NAME_DMSWORKER, mState = {JProEnum.TP,JProEnum.FunctionError})
     public void consume(Message message) throws Exception {
         if (StringHelper.isEmpty(message.getText())) {
             logger.warn("JyScheduleTaskConsumer consume --> 消息为空");

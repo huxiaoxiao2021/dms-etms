@@ -1,24 +1,18 @@
 package com.jd.bluedragon.distribution.consumer.jy.exception;
 
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
-import com.jd.bluedragon.distribution.jy.api.BizTaskService;
-import com.jd.bluedragon.distribution.jy.api.BizType;
-import com.jd.bluedragon.distribution.jy.dto.JyBizTaskMessage;
-import com.jd.bluedragon.distribution.jy.dto.exception.ExpefResultNotify;
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionService;
 import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.SpringHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.jmq.common.message.Message;
-import com.jdl.jy.schedule.enums.task.JyScheduleTaskTypeEnum;
+import com.jd.ps.data.epf.dto.ExpefNotify;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.util.Map;
-import java.util.Objects;
 
 /**
  * 三无匹配结果通知接口
@@ -32,6 +26,8 @@ public class JyExpefNotifyConsumer extends MessageBaseConsumer {
     private JyExceptionService jyExceptionService;
 
     @Override
+    @JProfiler(jKey = "DMS.WORKER.jyExpefNotifyConsumer.consume",
+            jAppName = Constants.UMP_APP_NAME_DMSWORKER, mState = {JProEnum.TP,JProEnum.FunctionError})
     public void consume(Message message) throws Exception {
         if (StringHelper.isEmpty(message.getText())) {
             logger.warn("jyExpefNotifyConsumer consume --> 消息为空");
@@ -42,9 +38,8 @@ public class JyExpefNotifyConsumer extends MessageBaseConsumer {
             return;
         }
 
-        ExpefResultNotify mqDto = JsonHelper.fromJson(message.getText(), ExpefResultNotify.class);
-        //todo jy_exception补充包裹号，jy_biz_task_exception 修改状态，完成情况需要，告诉任务调度系统任务完成
-        jyExceptionService.expefResultNotify(mqDto);
+        ExpefNotify mqDto = JsonHelper.fromJson(message.getText(), ExpefNotify.class);
+        jyExceptionService.expefNotifyProcesser(mqDto);
     }
 
 

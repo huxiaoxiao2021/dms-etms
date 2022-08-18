@@ -6,23 +6,30 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.jyexpection.request.*;
 import com.jd.bluedragon.common.dto.jyexpection.response.*;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.*;
-import com.jd.bluedragon.distribution.jy.api.biz.exception.BizTaskExceptionService;
+import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyBizTaskExceptionDao;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyExceptionDao;
-import com.jd.bluedragon.distribution.jy.dto.exception.ExpefResultNotify;
-import com.jd.bluedragon.distribution.jy.enums.ExpefNotifyTypeEnum;
-import com.jd.bluedragon.distribution.jy.exception.*;
+import com.jd.bluedragon.distribution.jy.exception.JyBizTaskExceptionEntity;
+import com.jd.bluedragon.distribution.jy.exception.JyExceptionEntity;
 import com.jd.bluedragon.distribution.jy.manager.PositionQueryJsfManager;
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionService;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.service.SendDetailService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.jim.cli.Cluster;
+import com.jd.jmq.common.exception.JMQException;
+import com.jd.ps.data.epf.dto.ExpefNotify;
+import com.jd.ps.data.epf.enums.NotifyTypeEnum;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.ql.basic.ws.BasicPrimaryWS;
 import com.jdl.basic.api.domain.position.PositionDetailRecord;
 import com.jdl.basic.common.utils.Result;
+import com.jdl.jy.schedule.dto.task.JyScheduleTaskChangeStatusReq;
+import com.jdl.jy.schedule.dto.task.JyScheduleTaskReq;
+import com.jdl.jy.schedule.enums.task.JyScheduleTaskStatusEnum;
+import com.jdl.jy.schedule.enums.task.JyScheduleTaskTypeEnum;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -48,7 +55,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
     @Autowired
     private PositionQueryJsfManager positionQueryJsfManager;
     @Autowired
-    private BasicPrimaryWS basicPrimaryWS;
+    private BaseMajorManager baseMajorManager;
     @Autowired
     private WaybillCacheService waybillCacheService;
     @Autowired
@@ -57,6 +64,18 @@ public class JyExceptionServiceImpl implements JyExceptionService {
     @Qualifier("redisClientCache")
     private Cluster redisClient;
 
+    @Autowired
+    @Qualifier("scheduleTaskChangeStatusWorkerProducer")
+    private DefaultJMQProducer scheduleTaskChangeStatusWorkerProducer;
+    @Autowired
+    @Qualifier("scheduleTaskAddWorkerProducer")
+    private DefaultJMQProducer scheduleTaskAddWorkerProducer;
+    @Autowired
+    @Qualifier("scheduleTaskChangeStatusWebProducer")
+    private DefaultJMQProducer scheduleTaskChangeStatusWebProducer;
+    @Autowired
+    @Qualifier("scheduleTaskAddWebProducer")
+    private DefaultJMQProducer scheduleTaskAddWebProducer;
 
     /**
      * 通用异常上报入口-扫描
@@ -76,7 +95,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             return JdCResponse.fail("网格码有误!");
         }
 
-        BaseStaffSiteOrgDto baseStaffByErp = basicPrimaryWS.getBaseStaffByErp(req.getUserErp());
+        BaseStaffSiteOrgDto baseStaffByErp = baseMajorManager.getBaseStaffByErpNoCache(req.getUserErp());
         if (baseStaffByErp == null) {
             return JdCResponse.fail("登录人ERP有误!" + req.getUserErp());
         }
@@ -340,7 +359,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             return JdCResponse.fail("岗位码有误!" + positionCode);
         }
 
-        BaseStaffSiteOrgDto baseStaffByErp = basicPrimaryWS.getBaseStaffByErp(req.getUserErp());
+        BaseStaffSiteOrgDto baseStaffByErp = baseMajorManager.getBaseStaffByErpNoCache(req.getUserErp());
         if (baseStaffByErp == null) {
             return JdCResponse.fail("登录人ERP有误!" + req.getUserErp());
         }
@@ -420,11 +439,91 @@ public class JyExceptionServiceImpl implements JyExceptionService {
     }
 
     @Override
-    public void expefResultNotify(ExpefResultNotify mqDto) {
+    public void expefNotifyProcesser(ExpefNotify mqDto) {
         if (null == mqDto.getNotifyType()){
             logger.warn("三无系统通知数据缺少通知类型，消息丢弃");
             return;
         }
+        switch (mqDto.getNotifyType()){
+            case CREATED:
+                //新增异常任务
+                createSanWuTask(mqDto);
+                break;
+            case MATCH_SUCCESS:
+                matchSuccessProcess(mqDto);
+                break;
+            case PROCESSED:
+                complate(mqDto);
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void createSanWuTask(ExpefNotify mqDto) {
+        String bizId = getBizId(JyBizTaskExceptionTypeEnum.SANWU, mqDto.getBarCode());
+        JyBizTaskExceptionEntity byBizId = jyBizTaskExceptionDao.findByBizId(bizId);
+        if (byBizId != null) {
+            logger.warn("已存在当前条码的任务,请勿重复提交!");
+            return ;
+        }
+        JyBizTaskExceptionEntity taskEntity = new JyBizTaskExceptionEntity();
+        taskEntity.setBizId(bizId);
+        taskEntity.setType(JyBizTaskExceptionTypeEnum.SANWU.getCode());
+        taskEntity.setSource(JyExpSourceEnum.SANWU_PC.getCode());
+        taskEntity.setBarCode(mqDto.getBarCode());
+        taskEntity.setTags(JyBizTaskExceptionTagEnum.SANWU.getCode());
+        taskEntity.setSiteCode(new Long(mqDto.getSiteCode()));
+        taskEntity.setSiteName(mqDto.getSiteName());
+
+        taskEntity.setStatus(JyExpStatusEnum.TO_PROCESS.getCode());
+        taskEntity.setProcessingStatus(JyBizTaskExceptionProcessStatusEnum.WAITING_MATCH.getCode());
+        taskEntity.setCreateUserErp(mqDto.getNotifyErp());
+        BaseStaffSiteOrgDto baseStaffByErp = baseMajorManager.getBaseStaffByErpNoCache(mqDto.getNotifyErp());
+        if (baseStaffByErp == null){
+            logger.error("获取操作人信息失败！");
+            return;
+        }
+        taskEntity.setCreateUserName(baseStaffByErp.getStaffName());
+        taskEntity.setCreateTime(new Date());
+        taskEntity.setTimeOut(JyBizTaskExceptionTimeOutEnum.UN_TIMEOUT.getCode());
+        taskEntity.setYn(1);
+
+        JyExceptionEntity expEntity = new JyExceptionEntity();
+        expEntity.setBizId(bizId);
+        expEntity.setBarCode(mqDto.getBarCode());
+        expEntity.setSiteCode(new Long(mqDto.getSiteCode()));
+        expEntity.setSiteName(mqDto.getSiteName());
+        expEntity.setCreateUserErp(mqDto.getNotifyErp());
+        expEntity.setCreateUserName(baseStaffByErp.getStaffName());
+        expEntity.setCreateTime(new Date());
+
+        try {
+            jyBizTaskExceptionDao.insertSelective(taskEntity);
+            jyExceptionDao.insertSelective(expEntity);
+            //发送 mq 通知调度系统
+            sendToSchedule(mqDto, bizId, baseStaffByErp);
+        } catch (Exception e) {
+            logger.error("写入异常提报数据出错了,request=" + JSON.toJSONString(mqDto), e);
+        }
+    }
+
+    private void sendToSchedule(ExpefNotify mqDto, String bizId, BaseStaffSiteOrgDto baseStaffByErp) throws JMQException {
+        JyScheduleTaskReq req = new JyScheduleTaskReq();
+        req.setTaskType(JyScheduleTaskTypeEnum.EXCEPTION.getCode());
+        req.setBizId(bizId);
+        req.setOpeUser(mqDto.getNotifyErp());
+        req.setOpeUserName(baseStaffByErp.getStaffName());
+        req.setOpeTime(new Date());
+        req.setTaskStatus(JyScheduleTaskStatusEnum.STARTED.getCode());
+        scheduleTaskAddWorkerProducer.send(bizId,JsonHelper.toJson(req));
+    }
+
+    /**
+     * 异常任务完成处理
+     * @param
+     */
+    private void complate(ExpefNotify mqDto) {
         JyExceptionEntity jyExceptionEntity = new JyExceptionEntity();
         jyExceptionEntity.setBarCode(mqDto.getBarCode());
         jyExceptionEntity.setSiteCode(Long.valueOf(mqDto.getSiteCode()));
@@ -438,51 +537,63 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             logger.error("获取异常业务任务数据失败！");
             return;
         }
-        BaseStaffSiteOrgDto baseStaffByErp = basicPrimaryWS.getBaseStaffByErp(mqDto.getNotifyErp());
+        BaseStaffSiteOrgDto baseStaffByErp = baseMajorManager.getBaseStaffByErpNoCache(mqDto.getNotifyErp());
         if (baseStaffByErp == null){
             logger.error("获取操作人信息失败！");
             return;
         }
-        switch (ExpefNotifyTypeEnum.valueOf(mqDto.getNotifyType())){
-            case MATCH_SUCCESS:
-                matchSuccessProcess(mqDto, entity, bizTaskException, baseStaffByErp);
-                break;
-            case PROCESSED:
-                complate(mqDto, bizTaskException,baseStaffByErp);
-                break;
-            default:
-                break;
-        }
-    }
-    /**
-     * 异常任务完成处理
-     * @param mqDto
-     * @param
-     * @param bizTaskException
-     * @param baseStaffByErp
-     */
-    private void complate(ExpefResultNotify mqDto, JyBizTaskExceptionEntity bizTaskException, BaseStaffSiteOrgDto baseStaffByErp) {
         // biz表修改状态
         JyBizTaskExceptionEntity conditon = new JyBizTaskExceptionEntity();
         conditon.setStatus(JyExpStatusEnum.COMPLATE.getCode());
         conditon.setProcessingStatus(JyBizTaskExceptionProcessStatusEnum.DONE.getCode());
         conditon.setUpdateTime(mqDto.getNotifyTime());
-        conditon.setUpdateUserErp(mqDto.getNotifyErp());
+        conditon.setUpdateUserErp(baseStaffByErp.getErp());
         conditon.setBizId(bizTaskException.getBizId());
-        conditon.setUpdateUserName(baseStaffByErp.getErp());
+        conditon.setUpdateUserName(baseStaffByErp.getStaffName());
         jyBizTaskExceptionDao.updateByBizId(conditon);
-        // todo 通知任务调度系统任务完成
+        //发送修改状态消息
+        sendScheduleTaskCloseMsg(bizTaskException, baseStaffByErp,JyScheduleTaskStatusEnum.CLOSED,scheduleTaskChangeStatusWorkerProducer);
+    }
 
+    private void sendScheduleTaskCloseMsg(JyBizTaskExceptionEntity bizTaskException, BaseStaffSiteOrgDto baseStaffByErp,JyScheduleTaskStatusEnum status,DefaultJMQProducer producer) {
+        //通知任务调度系统状态修改
+        JyScheduleTaskChangeStatusReq req = new JyScheduleTaskChangeStatusReq();
+        try{
+            req.setBizId(bizTaskException.getBizId());
+            req.setChangeTime(new Date());
+            req.setOpeUser(baseStaffByErp.getErp());
+            req.setOpeUserName(baseStaffByErp.getStaffName());
+            req.setTaskStatus(status);
+            req.setTaskType(JyScheduleTaskTypeEnum.EXCEPTION);
+            producer.send(bizTaskException.getBizId(), JsonHelper.toJson(req));
+        }catch (Exception e) {
+            logger.error("拣运异常任务关闭消息MQ发送失败,message:{} :  ", JsonHelper.toJson(req),e);
+        }
     }
 
     /**
      * 匹配成功处理
      * @param mqDto
-     * @param entity
-     * @param bizTaskException
-     * @param baseStaffByErp
      */
-    private void matchSuccessProcess(ExpefResultNotify mqDto, JyExceptionEntity entity, JyBizTaskExceptionEntity bizTaskException, BaseStaffSiteOrgDto baseStaffByErp) {
+    private void matchSuccessProcess(ExpefNotify mqDto) {
+        JyExceptionEntity jyExceptionEntity = new JyExceptionEntity();
+        jyExceptionEntity.setBarCode(mqDto.getBarCode());
+        jyExceptionEntity.setSiteCode(Long.valueOf(mqDto.getSiteCode()));
+        JyExceptionEntity entity = jyExceptionDao.queryByBarCodeAndSite(jyExceptionEntity);
+        if (entity == null){
+            logger.error("获取异常业务数据失败！");
+            return;
+        }
+        JyBizTaskExceptionEntity bizTaskException = jyBizTaskExceptionDao.findByBizId(entity.getBizId());
+        if (bizTaskException == null){
+            logger.error("获取异常业务任务数据失败！");
+            return;
+        }
+        BaseStaffSiteOrgDto baseStaffByErp = baseMajorManager.getBaseStaffByErpNoCache(mqDto.getNotifyErp());
+        if (baseStaffByErp == null){
+            logger.error("获取操作人信息失败！");
+            return;
+        }
         //业务表记录匹配成功单号
         entity.setPackageCode(mqDto.getPackageCode());
         entity.setUpdateTime(mqDto.getNotifyTime());
@@ -498,45 +609,6 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         jyBizTaskExceptionDao.updateByBizId(conditon);
     }
 
-
-    /**
-     * 组织entity
-     * @param req
-     * @return
-     */
-    private JyBizTaskExceptionEntity convertDto2Entity(ExpUploadScanReq req){
-        JyBizTaskExceptionEntity entity = new JyBizTaskExceptionEntity();
-
-        //entity.setType(req.getType().getCode());
-        //entity.setBizId(req.getBizId());
-        //entity.setType(req.getType().getCode());
-        //entity.setBarCode(req.getBarCode());
-        //entity.setTags(JyBizTaskExceptionTagEnum.valueOf(req.getTags()));
-        //entity.setSource(req.getSource().getCode());
-
-        //岗位码相关
-        Result<PositionDetailRecord> positionDetailRecordResult = positionQueryJsfManager.queryOneByPositionCode(req.getPositionCode());
-        PositionDetailRecord data = positionDetailRecordResult.getData();
-        if (data == null){
-            logger.error("createScheduleTask req:{}",req.getPositionCode());
-            throw new RuntimeException("无效的网格码");
-        }
-        entity.setFloor(data.getFloor());
-        entity.setAreaCode(data.getAreaCode());
-        entity.setAreaName(data.getAreaName());
-        entity.setGridCode(data.getGridCode());
-        entity.setGridNo(data.getGridNo());
-
-        BaseStaffSiteOrgDto baseStaffByErp = basicPrimaryWS.getBaseStaffByErp(req.getUserErp());
-        entity.setCreateUserErp(req.getUserErp());
-        entity.setCreateUserName(baseStaffByErp.getStaffName());
-        Date now = new Date();
-        entity.setCreateTime(now);
-        entity.setUpdateUserErp(req.getUserErp());
-        entity.setUpdateUserName(baseStaffByErp.getStaffName());
-        entity.setUpdateTime(now);
-        return entity;
-    }
 
     /**
      * 近期发货的下游场地
