@@ -23,4 +23,16 @@ public enum JyExpSourceEnum {
     public String getText() {
         return text;
     }
+
+    public static JyExpSourceEnum getEnumByCode(Integer code) {
+        if (code == null) {
+            return null;
+        }
+        for (JyExpSourceEnum value : JyExpSourceEnum.values()) {
+            if (code.equals(value.getCode())) {
+                return value;
+            }
+        }
+        return null;
+    }
 }

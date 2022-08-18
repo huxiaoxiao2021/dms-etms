@@ -2,7 +2,6 @@ package com.jd.bluedragon.distribution.jy.dao.exception;
 
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.jy.exception.JyExceptionEntity;
-import com.jd.bluedragon.distribution.jy.unload.JyUnloadEntity;
 import com.jd.coo.sa.mybatis.plugins.id.SequenceGenAdaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -28,9 +27,13 @@ public class JyExceptionDao extends BaseDao<JyExceptionEntity> {
      * @param
      * @return
      */
-    public int insert(JyUnloadEntity entity) {
+    public int insert(JyExceptionEntity entity) {
         entity.setId(sequenceGenAdaptor.newId(DB_TABLE_NAME));
         return this.getSqlSession().insert(NAMESPACE + ".insert", entity);
+    }
+    public int insertSelective(JyExceptionEntity entity) {
+        entity.setId(sequenceGenAdaptor.newId(DB_TABLE_NAME));
+        return this.getSqlSession().insert(NAMESPACE + ".insertSelective", entity);
     }
 
 }

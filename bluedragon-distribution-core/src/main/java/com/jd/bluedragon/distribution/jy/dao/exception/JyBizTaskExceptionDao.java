@@ -24,6 +24,10 @@ public class JyBizTaskExceptionDao  extends BaseDao<JyBizTaskExceptionEntity> {
         return this.getSqlSession().insert(NAMESPACE + ".insert", entity);
     }
 
+    public int insertSelective(JyBizTaskExceptionEntity entity) {
+        return this.getSqlSession().insert(NAMESPACE + ".insertSelective", entity);
+    }
+
     /**
      * 根据bizID查询任务详情
      * @param bizId

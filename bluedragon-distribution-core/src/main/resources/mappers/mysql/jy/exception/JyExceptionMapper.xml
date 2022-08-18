@@ -44,7 +44,7 @@
         ts
     </sql>
 
-    <insert id="insert" parameterType="JyUnloadEntity">
+    <insert id="insert" parameterType="com.jd.bluedragon.distribution.jy.exception.JyExceptionEntity">
         INSERT INTO jy_exception (
                         id,
                         biz_id,
@@ -81,6 +81,106 @@
                             #{updateTime},
                             1
                     )
+    </insert>
+
+    <insert id="insertSelective" parameterType="com.jd.bluedragon.distribution.jy.exception.JyExceptionEntity">
+        INSERT INTO jy_exception (
+        <if test="id!=null">
+            id,
+        </if>
+        <if test="bizId!=null">
+            biz_id,
+        </if>
+        <if test="barCode!=null">
+            bar_code,
+        </if>
+        <if test="packageCode!=null">
+            package_code,
+        </if>
+        <if test="siteCode!=null">
+            site_code,
+        </if>
+        <if test="siteName!=null">
+            site_name,
+        </if>
+        <if test="shelfErp!=null">
+            shelf_erp,
+        </if>
+        <if test="shelfNo!=null">
+            shelf_no,
+        </if>
+        <if test="shelfTime!=null">
+            shelf_time,
+        </if>
+        <if test="createUserErp!=null">
+            create_user_erp,
+        </if>
+        <if test="createUserName!=null">
+            create_user_name,
+        </if>
+        <if test="updateUserErp!=null">
+            update_user_erp,
+        </if>
+        <if test="updateUserName!=null">
+            update_user_name,
+        </if>
+        <if test="createTime!=null">
+            create_time,
+        </if>
+        <if test="updateTime!=null">
+            update_time,
+        </if>
+        <if test="ts!=null">
+            ts,
+        </if>
+            yn)
+        VALUES (
+        <if test="id">
+            #{id},
+        </if>
+        <if test="bizId">
+            #{bizId},
+        </if>
+        <if test="barCode">
+            #{barCode},
+        </if>
+        <if test="packageCode">
+            #{packageCode},
+        </if>
+        <if test="siteCode">
+            #{siteCode},
+        </if>
+        <if test="siteName">
+            #{siteName},
+        </if>
+        <if test="shelfErp">
+            #{shelfErp},
+        </if>
+        <if test="shelfNo">
+            #{shelfNo},
+        </if>
+        <if test="shelfTime">
+            #{shelfTime},
+        </if>
+        <if test="createUserErp">
+            #{createUserErp},
+        </if>
+        <if test="createUserName">
+            #{createUserName},
+        </if>
+        <if test="updateUserErp">
+            #{updateUserErp},
+        </if>
+        <if test="updateUserName">
+            #{updateUserName},
+        </if>
+        <if test="createTime">
+            #{createTime},
+        </if>
+        <if test="updateTime">
+            #{updateTime},
+        </if>
+            1)
     </insert>
 
 </mapper>

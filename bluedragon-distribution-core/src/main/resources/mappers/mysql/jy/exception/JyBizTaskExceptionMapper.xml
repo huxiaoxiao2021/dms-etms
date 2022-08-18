@@ -143,6 +143,174 @@
                    #{timeOut},
                    1)
     </insert>
+    <insert id="insertSelective" parameterType="com.jd.bluedragon.distribution.jy.exception.JyBizTaskExceptionEntity">
+        INSERT INTO jy_biz_task_exception (
+        <if test="bizId != null">
+            biz_id,
+        </if>
+        <if test="type != null">
+            `type`,
+        </if>
+        <if test="source != null">
+            `source`,
+        </if>
+        <if test="barCode != null">
+            bar_code,
+        </if>
+        <if test="tags != null">
+            tags,
+        </if>
+        <if test="siteCode != null">
+            site_code,
+        </if>
+        <if test="siteName != null">
+            site_name,
+        </if>
+        <if test="floor != null">
+            floor,
+        </if>
+        <if test="gridNo != null">
+            grid_no,
+        </if>
+        <if test="gridCode != null">
+            grid_code,
+        </if>
+        <if test="areaCode != null">
+            area_code,
+        </if>
+        <if test="areaName != null">
+            area_name,
+        </if>
+        <if test="distributionType != null">
+            distribution_type,
+        </if>
+        <if test="distributionTarget != null">
+            distribution_target,
+        </if>
+        <if test="distributionTime != null">
+            distribution_time,
+        </if>
+        <if test="handlerErp != null">
+            handler_erp,
+        </if>
+        <if test="status != null">
+            status,
+        </if>
+        <if test="processingStatus != null">
+            processing_status,
+        </if>
+        <if test="processBeginTime != null">
+            process_begin_time,
+        </if>
+        <if test="processEndTime != null">
+            process_end_time,
+        </if>
+        <if test="createUserErp != null">
+            create_user_erp,
+        </if>
+        <if test="createUserName != null">
+            create_user_name,
+        </if>
+        <if test="updateUserErp != null">
+            update_user_erp,
+        </if>
+        <if test="updateUserName != null">
+            update_user_name,
+        </if>
+        <if test="createTime != null">
+            create_time,
+        </if>
+        <if test="updateTime != null">
+            update_time,
+        </if>
+        <if test="timeOut != null">
+            time_out,
+        </if>
+        yn )
+        VALUES (
+        <if test="type != null">
+            #{type},
+        </if>
+        <if test="bizId != null">
+            #{bizId},
+        </if>
+        <if test="source != null">
+            #{source},
+        </if>
+        <if test="barCode != null">
+            #{barCode},
+        </if>
+        <if test="tags != null">
+            #{tags},
+        </if>
+        <if test="siteCode != null">
+            #{siteCode},
+        </if>
+        <if test="siteName != null">
+            #{siteName},
+        </if>
+        <if test="floor != null">
+            #{floor},
+        </if>
+        <if test="gridNo != null">
+            #{gridNo},
+        </if>
+        <if test="gridCode != null">
+            #{gridCode},
+        </if>
+        <if test="areaCode != null">
+            #{areaCode},
+        </if>
+        <if test="areaName != null">
+            #{areaName},
+        </if>
+        <if test="handerleErp != null">
+            #{handerleErp},
+        </if>
+        <if test="status != null">
+            #{status},
+        </if>
+        <if test="processingStatus != null">
+            #{processingStatus},
+        </if>
+        <if test="distributionType != null">
+            #{distributionType},
+        </if>
+        <if test="distributionTarget != null">
+            #{distributionTarget},
+        </if>
+        <if test="distributionTime != null">
+            #{distributionTime},
+        </if>
+        <if test="processBeginTime != null">
+            #{processBeginTime},
+        </if>
+        <if test="processEndTime != null">
+            #{processEndTime},
+        </if>
+        <if test="createUserErp != null">
+            #{createUserErp},
+        </if>
+        <if test="createUserName != null">
+            #{createUserName},
+        </if>
+        <if test="updateUserErp != null">
+            #{updateUserErp},
+        </if>
+        <if test="updateUserName != null">
+            #{updateUserName},
+        </if>
+        <if test="createTime != null">
+            #{createTime},
+        </if>
+        <if test="updateTime != null">
+            #{updateTime},
+        </if>
+        <if test="timeOut != null">
+            #{timeOut},
+        </if>
+                   1)
+    </insert>
 
     <select id="getStatusStatistic" resultMap="StatisticStatusResp">
         select status,count(*) as `count`

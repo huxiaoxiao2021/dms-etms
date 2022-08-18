@@ -5,9 +5,9 @@ import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.jyexpection.request.*;
 import com.jd.bluedragon.common.dto.jyexpection.response.*;
-import com.jd.bluedragon.common.dto.operation.workbench.enums.JyExpStatusEnum;
+import com.jd.bluedragon.common.dto.operation.workbench.enums.*;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyBizTaskExceptionDao;
-import com.jd.bluedragon.common.dto.operation.workbench.enums.JyBizTaskExceptionSourceEnum;
+import com.jd.bluedragon.distribution.jy.dao.exception.JyExceptionDao;
 import com.jd.bluedragon.distribution.jy.exception.*;
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionService;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
@@ -34,9 +34,12 @@ public class JyExceptionServiceImpl implements JyExceptionService {
 
     private final Logger logger = LoggerFactory.getLogger(JyExceptionServiceImpl.class);
     private static final String TASK_CACHE_PRE = "DMS:JYAPP:EXP:TASK_CACHE:";
+    private static final String RECEIVING_COUNT_PRE = "DMS:JYAPP:EXP:RECEIVING_COUNT:";
 
     @Autowired
     private JyBizTaskExceptionDao jyBizTaskExceptionDao;
+    @Autowired
+    private JyExceptionDao jyExceptionDao;
     @Autowired
     private PositionQueryJsfService positionQueryJsfService;
     @Autowired
@@ -53,10 +56,19 @@ public class JyExceptionServiceImpl implements JyExceptionService {
     /**
      * 通用异常上报入口-扫描
      *
-     * @param req
      */
     @Override
     public JdCResponse<Object> uploadScan(ExpUploadScanReq req) {
+        JyExpSourceEnum source = JyExpSourceEnum.getEnumByCode(req.getSource());
+        if (source == null) {
+            return JdCResponse.fail("异常提报source有误!");
+        }
+        if (StringUtils.isBlank(req.getBarCode())) {
+            return JdCResponse.fail("扫描条码不能为空!");
+        }
+        if (StringUtils.isBlank(req.getUserErp()) || req.getSiteId() == null) {
+            return JdCResponse.fail("操作人erp和场地ID不能为空!");
+        }
 
         ExpTaskDetailCacheDto taskCache = new ExpTaskDetailCacheDto();
         taskCache.setExpBarcode(req.getBarCode());
@@ -66,14 +78,14 @@ public class JyExceptionServiceImpl implements JyExceptionService {
 //        11.	发货入口：操作异常上报人员此前扫描发货的3个包裹对应的发货目的地id，后续作为下级地信息辅助录入
         if (CollectionUtils.isNotEmpty(req.getRecentPackageCodeList())) {
             // 发货
-            if (Objects.equals(req.getSource(), JyBizTaskExceptionSourceEnum.SEND.getCode())) {
+            if (Objects.equals(source, JyExpSourceEnum.SEND)) {
                 Collection<Integer> receiveSiteList = queryRecentSendInfo(req);
                 if (CollectionUtils.isNotEmpty(receiveSiteList)) {
                     taskCache.setRecentReceiveSiteList(receiveSiteList);
                 }
             }
             // 卸车
-            if (Objects.equals(req.getSource(), JyBizTaskExceptionSourceEnum.UN_LOAD.getCode())) {
+            if (Objects.equals(source, JyExpSourceEnum.UNLOAD)) {
                 Collection<String> sendCodeList = queryRecentInspectInfo(req);
                 if (CollectionUtils.isNotEmpty(sendCodeList)) {
                     taskCache.setRecentSendCodeList(sendCodeList);
@@ -92,6 +104,34 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         }
         redisClient.set(redisKey, json.toJSONString());
         redisClient.expire(redisKey, 30, TimeUnit.DAYS);
+
+        String bizId = UUID.randomUUID().toString();
+        JyBizTaskExceptionEntity taskEntity = new JyBizTaskExceptionEntity();
+        taskEntity.setBizId(bizId);
+        taskEntity.setType(JyBizTaskExceptionTypeEnum.SANWU.getCode());
+        taskEntity.setSource(source.getCode());
+        taskEntity.setBarCode(req.getBarCode());
+        taskEntity.setTags(JyBizTaskExceptionTagEnum.SANWU.getCode());
+        taskEntity.setSiteCode(new Long(req.getSiteId()));
+        taskEntity.setStatus(JyExpStatusEnum.TO_PICK.getCode());
+        taskEntity.setProcessingStatus(JyBizTaskExceptionProcessStatusEnum.PENDING_ENTRY.getCode());
+        taskEntity.setCreateUserErp(req.getUserErp());
+        taskEntity.setCreateTime(new Date());
+        taskEntity.setTimeOut(JyBizTaskExceptionTimeOutEnum.UN_TIMEOUT.getCode());
+        taskEntity.setYn(1);
+
+        JyExceptionEntity expEntity = new JyExceptionEntity();
+        expEntity.setBizId(bizId);
+        expEntity.setBarCode(req.getBarCode());
+        expEntity.setSiteCode(new Long(req.getSiteId()));
+//        expEntity.setSiteName();
+        expEntity.setCreateUserErp(req.getUserErp());
+//        expEntity.setCreateUserName();
+        expEntity.setCreateTime(new Date());
+
+
+        jyBizTaskExceptionDao.insertSelective(taskEntity);
+        jyExceptionDao.insertSelective(expEntity);
 
         return JdCResponse.ok();
     }
@@ -147,21 +187,17 @@ public class JyExceptionServiceImpl implements JyExceptionService {
     /**
      * 取件进行中数据统计
      *
-     * @param req
      */
     @Override
     public JdCResponse<List<ProcessingNumByGridDto>> getReceivingCount(StatisticsByGridReq req) {
         List<ProcessingNumByGridDto> list = new ArrayList<>();
+        String key = RECEIVING_COUNT_PRE + req.getSiteId();
+        String cacheData = redisClient.get(key);
 
-        for (int i = 0; i < 20; i++) {
-            ProcessingNumByGridDto dto = new ProcessingNumByGridDto();
-            dto.setFloor(i % 2);
-            dto.setGridNo("");
-            dto.setGriCode("");
-            dto.setAreaCode("");
-            dto.setProcessingNum(0);
-
+        if (StringUtils.isNotBlank(cacheData)) {
+            list = JSON.parseArray(cacheData, ProcessingNumByGridDto.class);
         }
+
         return JdCResponse.ok(list);
     }
 
@@ -202,6 +238,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
 
             }
         }
+
 
         return JdCResponse.ok(list);
     }
