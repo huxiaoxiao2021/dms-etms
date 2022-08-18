@@ -669,11 +669,16 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
 
     private ScanStatisticsDto dtoConvert(JyUnloadAggsEntity entity, DimensionQueryDto dto) {
         ScanStatisticsDto scanStatisticsDto = new ScanStatisticsDto();
-        scanStatisticsDto.setProcessPercent((entity.getTotalScannedPackageCount() / entity.getTotalSealPackageCount()));
+        Integer processPercent = (entity.getTotalSealPackageCount() == null || entity.getTotalSealPackageCount() == 0) ? 0 : (entity.getTotalScannedPackageCount() / entity.getTotalSealPackageCount());
+        scanStatisticsDto.setProcessPercent(processPercent);
         if (UnloadStatisticsQueryTypeEnum.PACKAGE.getCode().equals(dto.getType())) {
             scanStatisticsDto.setShouldScanCount(entity.getShouldScanCount());
             scanStatisticsDto.setHaveScanCount(entity.getActualScanCount());
-            scanStatisticsDto.setWaitScanCount(entity.getShouldScanCount() - entity.getActualScanCount());
+            if(entity.getShouldScanCount() == null || entity.getActualScanCount() == null) {
+                scanStatisticsDto.setWaitScanCount(0);
+            }else {
+                scanStatisticsDto.setWaitScanCount(entity.getShouldScanCount() - entity.getActualScanCount());
+            }
             scanStatisticsDto.setInterceptShouldScanCount(entity.getInterceptShouldScanCount());
             scanStatisticsDto.setInterceptActualScanCount(entity.getInterceptActualScanCount());
             scanStatisticsDto.setExtraScanCountCurrSite(entity.getMoreScanLocalCount());
@@ -681,7 +686,11 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
         } else if (UnloadStatisticsQueryTypeEnum.WAYBILL.getCode().equals(dto.getType())) {
             scanStatisticsDto.setShouldScanCount(entity.getTotalSealWaybillCount());
             scanStatisticsDto.setHaveScanCount(entity.getTotalScannedWaybillCount());
-            scanStatisticsDto.setWaitScanCount(entity.getTotalSealWaybillCount() - entity.getTotalScannedWaybillCount());
+            if(entity.getTotalSealWaybillCount() == null || entity.getTotalScannedWaybillCount() == null) {
+                scanStatisticsDto.setWaitScanCount(0);
+            }else {
+                scanStatisticsDto.setWaitScanCount(entity.getTotalSealWaybillCount() - entity.getTotalScannedWaybillCount());
+            }
             scanStatisticsDto.setInterceptShouldScanCount(entity.getTotalShouldInterceptWaybillCount());
             scanStatisticsDto.setInterceptActualScanCount(entity.getTotalScannedInterceptWaybillCount());
             scanStatisticsDto.setExtraScanCountCurrSite(entity.getTotalMoreScanLocalWaybillCount());
