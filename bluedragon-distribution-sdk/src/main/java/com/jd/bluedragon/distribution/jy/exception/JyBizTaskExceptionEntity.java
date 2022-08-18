@@ -80,7 +80,7 @@ public class JyBizTaskExceptionEntity implements Serializable {
     /**
      * 处理人erp
      */
-    private String handerleErp;
+    private String handlerErp;
     /**
      * 异常状态:0：待取件 1：待处理 2：待打印 3：已完成
      */
@@ -262,12 +262,12 @@ public class JyBizTaskExceptionEntity implements Serializable {
         this.distributionTime = distributionTime;
     }
 
-    public String getHanderleErp() {
-        return handerleErp;
+    public String getHandlerErp() {
+        return handlerErp;
     }
 
-    public void setHanderleErp(String handerleErp) {
-        this.handerleErp = handerleErp;
+    public void setHandlerErp(String handlerErp) {
+        this.handlerErp = handlerErp;
     }
 
     public Integer getStatus() {

@@ -9,6 +9,7 @@ import com.jd.bluedragon.common.dto.operation.workbench.enums.*;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyBizTaskExceptionDao;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyExceptionDao;
 import com.jd.bluedragon.distribution.jy.exception.*;
+import com.jd.bluedragon.distribution.jy.manager.PositionQueryJsfManager;
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionService;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.service.SendDetailService;
@@ -17,7 +18,6 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.jim.cli.Cluster;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.ws.BasicPrimaryWS;
-import com.jdl.basic.api.service.position.PositionQueryJsfService;
 import com.jdl.basic.api.domain.position.PositionDetailRecord;
 import com.jdl.basic.common.utils.Result;
 import org.apache.commons.collections.CollectionUtils;
@@ -41,7 +41,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
     @Autowired
     private JyExceptionDao jyExceptionDao;
     @Autowired
-    private PositionQueryJsfService positionQueryJsfService;
+    private PositionQueryJsfManager positionQueryJsfManager;
     @Autowired
     private BasicPrimaryWS basicPrimaryWS;
     @Autowired
@@ -73,6 +73,13 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         if (position == null) {
             return JdCResponse.fail("网格码有误!");
         }
+
+        BaseStaffSiteOrgDto baseStaffByErp = basicPrimaryWS.getBaseStaffByErp(req.getUserErp());
+        if (baseStaffByErp == null) {
+            return JdCResponse.fail("登录人ERP有误!" + req.getUserErp());
+        }
+
+
         req.setSiteId(position.getSiteCode());
 
         ExpTaskDetailCacheDto taskCache = new ExpTaskDetailCacheDto();
@@ -110,7 +117,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         redisClient.set(redisKey, json.toJSONString());
         redisClient.expire(redisKey, 30, TimeUnit.DAYS);
 
-        String bizId = UUID.randomUUID().toString();
+        String bizId = getBizId(JyBizTaskExceptionTypeEnum.SANWU, req.getBarCode());
         JyBizTaskExceptionEntity taskEntity = new JyBizTaskExceptionEntity();
         taskEntity.setBizId(bizId);
         taskEntity.setType(JyBizTaskExceptionTypeEnum.SANWU.getCode());
@@ -129,6 +136,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         taskEntity.setStatus(JyExpStatusEnum.TO_PICK.getCode());
         taskEntity.setProcessingStatus(JyBizTaskExceptionProcessStatusEnum.PENDING_ENTRY.getCode());
         taskEntity.setCreateUserErp(req.getUserErp());
+        taskEntity.setCreateUserName(baseStaffByErp.getStaffName());
         taskEntity.setCreateTime(new Date());
         taskEntity.setTimeOut(JyBizTaskExceptionTimeOutEnum.UN_TIMEOUT.getCode());
         taskEntity.setYn(1);
@@ -139,7 +147,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         expEntity.setSiteCode(new Long(position.getSiteCode()));
         expEntity.setSiteName(position.getSiteName());
         expEntity.setCreateUserErp(req.getUserErp());
-//        expEntity.setCreateUserName();
+        expEntity.setCreateUserName(baseStaffByErp.getStaffName());
         expEntity.setCreateTime(new Date());
 
 
@@ -217,8 +225,14 @@ public class JyExceptionServiceImpl implements JyExceptionService {
      */
     @Override
     public JdCResponse<List<ProcessingNumByGridDto>> getReceivingCount(StatisticsByGridReq req) {
+        //岗位码相关
+        PositionDetailRecord position = getPosition(req.getPositionCode());
+        if (position == null) {
+            return JdCResponse.fail("网格码有误!");
+        }
+
         List<ProcessingNumByGridDto> list = new ArrayList<>();
-        String key = RECEIVING_COUNT_PRE + req.getSiteId();
+        String key = RECEIVING_COUNT_PRE + position.getSiteCode();
         String cacheData = redisClient.get(key);
 
         if (StringUtils.isNotBlank(cacheData)) {
@@ -234,9 +248,6 @@ public class JyExceptionServiceImpl implements JyExceptionService {
      */
     @Override
     public JdCResponse<List<ExpTaskDto>> getExceptionTaskPageList(ExpTaskPageReq req) {
-        if (req.getSiteId() == null) {
-            return JdCResponse.fail("场地ID不能为空!");
-        }
         if (req.getStatus() == null || JyExpStatusEnum.getEnumByCode(req.getStatus()) == null) {
             return JdCResponse.fail("status参数有误!");
         }
@@ -278,6 +289,37 @@ public class JyExceptionServiceImpl implements JyExceptionService {
     @Override
     public JdCResponse<Object> receive(ExpReceiveReq req) {
 
+        String positionCode = req.getPositionCode();
+        if (StringUtils.isBlank(positionCode)) {
+            return JdCResponse.fail("上岗码不能为空!");
+        }
+        PositionDetailRecord position = getPosition(positionCode);
+        if (position == null) {
+            return JdCResponse.fail("岗位码有误!" + positionCode);
+        }
+
+        BaseStaffSiteOrgDto baseStaffByErp = basicPrimaryWS.getBaseStaffByErp(req.getUserErp());
+        if (baseStaffByErp == null) {
+            return JdCResponse.fail("登录人ERP有误!" + req.getUserErp());
+        }
+
+        // 校验操作人的岗位 与 任务被分配岗位是否匹配
+        String gridRid = getGridRid(position);
+        String bizId = getBizId(JyBizTaskExceptionTypeEnum.SANWU, req.getBarCode());
+        JyBizTaskExceptionEntity taskEntity = jyBizTaskExceptionDao.findByBizId(bizId);
+        if (!Objects.equals(gridRid, taskEntity.getDistributionTarget())) {
+            return JdCResponse.fail("领取人的岗位与任务被分配的岗位不匹配!" + taskEntity.getDistributionTarget());
+        }
+
+        JyBizTaskExceptionEntity update = new JyBizTaskExceptionEntity();
+        update.setBizId(bizId);
+        update.setStatus(JyExpStatusEnum.TO_PROCESS.getCode());
+        update.setHandlerErp(req.getUserErp());
+        update.setUpdateUserErp(req.getUserErp());
+        update.setUpdateUserName(baseStaffByErp.getStaffName());
+
+        jyBizTaskExceptionDao.updateByBizId(update);
+
         return JdCResponse.ok();
     }
 
@@ -288,6 +330,12 @@ public class JyExceptionServiceImpl implements JyExceptionService {
      */
     @Override
     public JdCResponse<ExpTaskDetailDto> getTaskDetail(ExpTaskByIdReq req) {
+
+        String redisKey = TASK_CACHE_PRE + req.getTaskId();
+        String s = redisClient.get(redisKey);
+        if (StringUtils.isBlank(s)) {
+            return JdCResponse.fail("无相关任务明细!" + req.getTaskId());
+        }
 
         ExpTaskDetailDto dto = new ExpTaskDetailCacheDto();
         dto.setWeight("");
@@ -342,7 +390,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         //entity.setSource(req.getSource().getCode());
 
         //岗位码相关
-        Result<PositionDetailRecord> positionDetailRecordResult = positionQueryJsfService.queryOneByPositionCode(req.getPositionCode());
+        Result<PositionDetailRecord> positionDetailRecordResult = positionQueryJsfManager.queryOneByPositionCode(req.getPositionCode());
         PositionDetailRecord data = positionDetailRecordResult.getData();
         if (data == null){
             logger.error("createScheduleTask req:{}",req.getPositionCode());
@@ -442,10 +490,14 @@ public class JyExceptionServiceImpl implements JyExceptionService {
     }
 
     private PositionDetailRecord getPosition(String positionCode) {
-        Result<PositionDetailRecord> positionResult = positionQueryJsfService.queryOneByPositionCode(positionCode);
+        Result<PositionDetailRecord> positionResult = positionQueryJsfManager.queryOneByPositionCode(positionCode);
         if (positionResult == null || positionResult.isFail() || positionResult.getData() == null) {
             return null;
         }
         return positionResult.getData();
+    }
+
+    private String getBizId(JyBizTaskExceptionTypeEnum en, String barCode) {
+        return en.name() + "_" + barCode;
     }
 }
