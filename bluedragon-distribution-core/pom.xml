@@ -1647,6 +1647,12 @@
 			<artifactId>aces-mybatisclient</artifactId>
 		</dependency>
 
+		<!-- 数据安全 -->
+		<dependency>
+			<groupId>com.jd.security.data.am</groupId>
+			<artifactId>data-am-jsf-client</artifactId>
+		</dependency>
+
 		<dependency>
 			<groupId>com.jd.security</groupId>
 			<artifactId>aces-springclient</artifactId>

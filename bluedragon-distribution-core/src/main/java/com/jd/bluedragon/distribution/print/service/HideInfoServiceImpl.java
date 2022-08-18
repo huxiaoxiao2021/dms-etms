@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.print.service;
 
 import com.jd.bluedragon.distribution.print.domain.BasePrintWaybill;
+import com.jd.bluedragon.distribution.print.domain.SurfaceOutputTypeEnum;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillSignConstants;
 import com.jd.bluedragon.dms.utils.SendPayConstants;
@@ -9,6 +10,8 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+
+import java.util.Objects;
 
 @Service("hideInfoService")
 public class HideInfoServiceImpl implements HideInfoService{
@@ -22,6 +25,14 @@ public class HideInfoServiceImpl implements HideInfoService{
     private static final int LLKB_CP_CP_YYLD_RULE = 1;
     //原隐藏规则
     private static final int NOMAL_RULE = 0;
+
+    private static final char CHAR_VAL_1 = '1';
+    private static final char CHAR_VAL_2 = '2';
+    private static final char CHAR_VAL_3 = '3';
+    private static final char CHAR_VAL_4 = '4';
+    private static final char CHAR_VAL_5 = '5';
+    private static final char CHAR_VAL_6 = '6';
+    private static final char CHAR_VAL_7 = '7';
 
     /**
      *   原隐藏规则未维护
@@ -52,6 +63,12 @@ public class HideInfoServiceImpl implements HideInfoService{
             hideRule = LLKB_CP_CP_YYLD_RULE;
         }
 
+        // 面单输出方式为'预览'时：收寄人姓名电话地址都隐藏
+        if(Objects.equals(waybill.getOutputType(), SurfaceOutputTypeEnum.OUTPUT_TYPE_PREVIEW.getCode())){
+            customerInfoHide(CHAR_VAL_7, waybill, hideRule);
+            consignerInfoHide(CHAR_VAL_7, waybill, hideRule);
+            return;
+        }
 
     	boolean customerInfoHideFlag = false;
         //收件人信息隐藏，根据waybill_sign第37位判断
@@ -80,34 +97,34 @@ public class HideInfoServiceImpl implements HideInfoService{
      */
     private boolean customerInfoHide(char hideType, BasePrintWaybill waybill,int hideRule){
         switch(hideType) {
-            case '1':
+            case CHAR_VAL_1:
                 //1、隐藏姓名
                 hideCustomerName(waybill,hideRule);
                 break;
-            case '2':
+            case CHAR_VAL_2:
                 //2、隐藏电话
                 hideCustomerContacts(waybill,hideRule);
                 break;
-            case '3':
+            case CHAR_VAL_3:
                 //3、隐藏姓名 + 隐藏电话
                 hideCustomerName(waybill,hideRule);
                 hideCustomerContacts(waybill,hideRule);
                 break;
-            case '4':
+            case CHAR_VAL_4:
                 //4、隐藏地址
                 hideCustomerAddress(waybill,hideRule);
                 break;
-            case '5':
+            case CHAR_VAL_5:
                 //5、隐藏姓名 + 隐藏地址
                 hideCustomerName(waybill,hideRule);
                 hideCustomerAddress(waybill,hideRule);
                 break;
-            case '6':
+            case CHAR_VAL_6:
                 //6、隐藏电话 + 隐藏地址
                 hideCustomerContacts(waybill,hideRule);
                 hideCustomerAddress(waybill,hideRule);
                 break;
-            case '7':
+            case CHAR_VAL_7:
                 //7、隐藏全部
                 hideCustomerName(waybill,hideRule);
                 hideCustomerContacts(waybill,hideRule);
@@ -128,34 +145,34 @@ public class HideInfoServiceImpl implements HideInfoService{
      */
     private void consignerInfoHide(char hideType, BasePrintWaybill waybill,int hideRule){
         switch(hideType) {
-            case '1':
+            case CHAR_VAL_1:
                 //1、隐藏姓名
                 hideConsignerName(waybill,hideRule);
                 break;
-            case '2':
+            case CHAR_VAL_2:
                 //2、隐藏电话
                 hideConsignerTel(waybill,hideRule);
                 break;
-            case '3':
+            case CHAR_VAL_3:
                 //3、隐藏姓名 + 隐藏电话
                 hideConsignerName(waybill,hideRule);
                 hideConsignerTel(waybill,hideRule);
                 break;
-            case '4':
+            case CHAR_VAL_4:
                 //4、隐藏地址
                 hideConsignerAddress(waybill,hideRule);
                 break;
-            case '5':
+            case CHAR_VAL_5:
                 //5、隐藏姓名 + 隐藏地址
                 hideConsignerName(waybill,hideRule);
                 hideConsignerAddress(waybill,hideRule);
                 break;
-            case '6':
+            case CHAR_VAL_6:
                 //6、隐藏电话 + 隐藏地址
                 hideConsignerTel(waybill,hideRule);
                 hideConsignerAddress(waybill,hideRule);
                 break;
-            case '7':
+            case CHAR_VAL_7:
                 //7、隐藏全部（姓名、地址、电话）
                 hideConsignerName(waybill,hideRule);
                 hideConsignerTel(waybill,hideRule);
