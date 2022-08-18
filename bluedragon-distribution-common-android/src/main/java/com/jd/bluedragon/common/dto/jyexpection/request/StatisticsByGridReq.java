@@ -7,6 +7,8 @@ public class StatisticsByGridReq extends ExpBaseReq {
 
     private Integer status;
 
+    private String gridRid;
+
     private Integer pageNumber;
 
     private Integer pageSize;
@@ -19,6 +21,14 @@ public class StatisticsByGridReq extends ExpBaseReq {
 
     public void setStatus(Integer status) {
         this.status = status;
+    }
+
+    public String getGridRid() {
+        return gridRid;
+    }
+
+    public void setGridRid(String gridRid) {
+        this.gridRid = gridRid;
     }
 
     public Integer getPageNumber() {

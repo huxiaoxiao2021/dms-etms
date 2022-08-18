@@ -69,11 +69,10 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         if (StringUtils.isBlank(req.getPositionCode())) {
             return JdCResponse.fail("岗位码不能为空!");
         }
-        Result<PositionDetailRecord> positionResult = positionQueryJsfService.queryOneByPositionCode(req.getPositionCode());
-        if (positionResult == null || positionResult.isFail() || positionResult.getData() == null) {
-            return JdCResponse.fail("岗位码错误!");
+        PositionDetailRecord position = getPosition(req.getPositionCode());
+        if (position == null) {
+            return JdCResponse.fail("网格码有误!");
         }
-        PositionDetailRecord position = positionResult.getData();
         req.setSiteId(position.getSiteCode());
 
         ExpTaskDetailCacheDto taskCache = new ExpTaskDetailCacheDto();
@@ -168,13 +167,11 @@ public class JyExceptionServiceImpl implements JyExceptionService {
 
         JdCResponse<List<StatisticsByStatusDto>> result = new JdCResponse<>();
         //岗位码相关
-        Result<PositionDetailRecord> positionDetailRecordResult = positionQueryJsfService.queryOneByPositionCode(req.getPositionCode());
-        PositionDetailRecord data = positionDetailRecordResult.getData();
-        if (data == null){
-            logger.error("createScheduleTask req:{}",req.getPositionCode());
-            result.toFail("无效的网格码");
+        PositionDetailRecord position = getPosition(req.getPositionCode());
+        if (position == null) {
+            return JdCResponse.fail("网格码有误!");
         }
-        String gridRid = data.getSiteCode()+"-"+data.getFloor()+"-"+data.getGridCode();
+        String gridRid = getGridRid(position);
         List<StatisticsByStatusDto> statisticStatusResps = jyBizTaskExceptionDao.getStatusStatistic(gridRid);
         result.setData(statisticStatusResps);
         result.toSucceed();
@@ -192,7 +189,10 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             return JdCResponse.fail("岗位码不能为空!");
         }
         //岗位码相关
-        Result<PositionDetailRecord> positionDetailRecordResult = positionQueryJsfService.queryOneByPositionCode(req.getPositionCode());
+        PositionDetailRecord position = getPosition(req.getPositionCode());
+        if (position == null) {
+            return JdCResponse.fail("网格码有误!");
+        }
 
         // 待取件
         req.setStatus(JyExpStatusEnum.TO_PICK.getCode());
@@ -203,6 +203,8 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         if (req.getPageSize() == null || req.getPageSize() <= 0) {
             req.setPageNumber(10);
         }
+
+        req.setGridRid(getGridRid(position));
 
         List<StatisticsByGridDto> statisticsByGrid = jyBizTaskExceptionDao.getStatisticsByGrid(req);
 
@@ -429,5 +431,21 @@ public class JyExceptionServiceImpl implements JyExceptionService {
 //            dto.setName();
         }
         return list;
+    }
+
+
+    /**
+     * 拼接唯一网格标识
+     */
+    private String getGridRid(PositionDetailRecord data) {
+        return data.getSiteCode() + "-" + data.getFloor() + "-" + data.getGridCode();
+    }
+
+    private PositionDetailRecord getPosition(String positionCode) {
+        Result<PositionDetailRecord> positionResult = positionQueryJsfService.queryOneByPositionCode(positionCode);
+        if (positionResult == null || positionResult.isFail() || positionResult.getData() == null) {
+            return null;
+        }
+        return positionResult.getData();
     }
 }

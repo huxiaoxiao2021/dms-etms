@@ -374,6 +374,7 @@
         yn = 1
         AND site_code = #{siteId}
         AND status = #{status}
+        AND distribution_target = #{gridRid}
         GROUP BY grid_code,floor
         <if test="pageSize !=null">
             LIMIT #{offSet}, #{pageSize};
