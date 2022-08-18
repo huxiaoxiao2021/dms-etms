@@ -119,6 +119,13 @@ public class JyBizTaskSendVehicleDetailEntity implements Serializable {
 	 */
 	private Date ts;
 
+	private transient Date lastPlanDepartTimeBegin;
+
+	/**
+	 * 最晚计划发车时间 范围查找-结束时间
+	 */
+	private transient Date lastPlanDepartTimeEnd;
+
 	public Integer getPreVehicleStatus() {
 		return preVehicleStatus;
 	}
@@ -277,5 +284,21 @@ public class JyBizTaskSendVehicleDetailEntity implements Serializable {
 
 	public void setTs(Date ts) {
 		this.ts = ts;
+	}
+
+	public Date getLastPlanDepartTimeBegin() {
+		return lastPlanDepartTimeBegin;
+	}
+
+	public void setLastPlanDepartTimeBegin(Date lastPlanDepartTimeBegin) {
+		this.lastPlanDepartTimeBegin = lastPlanDepartTimeBegin;
+	}
+
+	public Date getLastPlanDepartTimeEnd() {
+		return lastPlanDepartTimeEnd;
+	}
+
+	public void setLastPlanDepartTimeEnd(Date lastPlanDepartTimeEnd) {
+		this.lastPlanDepartTimeEnd = lastPlanDepartTimeEnd;
 	}
 }
