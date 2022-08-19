@@ -40,6 +40,7 @@
 		<mapper resource="mappers/mysql/jy/unload/JyUnloadAggsMapper.xml" />
 		<mapper resource="mappers/mysql/jy/config/JyWorkMapFuncConfigMapper.xml" />
 		<mapper resource="mappers/mysql/jy/task/JyBizTaskSendVehicleMapper.xml" />
+		<mapper resource="mappers/mysql/jy/exception/JyBizTaskExceptionMapper.xml"/>
 		<mapper resource="mappers/mysql/jy/task/JyBizTaskSendVehicleDetailMapper.xml" />
 		<mapper resource="mappers/mysql/jy/send/JySendAttachmentMapper.xml" />
 		<mapper resource="mappers/mysql/jy/send/JySendCodeMapper.xml" />

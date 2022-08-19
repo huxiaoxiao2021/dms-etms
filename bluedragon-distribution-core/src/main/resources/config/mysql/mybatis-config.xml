@@ -55,6 +55,7 @@
         <mapper resource="mappers/mysql/BusinessCode/BusinessCodeMapper.xml"/>
         <mapper resource="mappers/mysql/jy/unload/JyUnloadMapper.xml" />
         <mapper resource="mappers/mysql/jy/send/JySendMapper.xml" />
+        <mapper resource="mappers/mysql/jy/exception/JyExceptionMapper.xml"/>
     </mappers>
 
 </configuration>

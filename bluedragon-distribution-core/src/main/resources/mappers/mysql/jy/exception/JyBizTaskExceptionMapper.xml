@@ -181,15 +181,6 @@
         <if test="areaName != null">
             area_name,
         </if>
-        <if test="distributionType != null">
-            distribution_type,
-        </if>
-        <if test="distributionTarget != null">
-            distribution_target,
-        </if>
-        <if test="distributionTime != null">
-            distribution_time,
-        </if>
         <if test="handlerErp != null">
             handler_erp,
         </if>
@@ -198,6 +189,15 @@
         </if>
         <if test="processingStatus != null">
             processing_status,
+        </if>
+        <if test="distributionType != null">
+            distribution_type,
+        </if>
+        <if test="distributionTarget != null">
+            distribution_target,
+        </if>
+        <if test="distributionTime != null">
+            distribution_time,
         </if>
         <if test="processBeginTime != null">
             process_begin_time,
@@ -228,11 +228,11 @@
         </if>
         yn )
         VALUES (
-        <if test="type != null">
-            #{type},
-        </if>
         <if test="bizId != null">
             #{bizId},
+        </if>
+        <if test="type != null">
+            #{type},
         </if>
         <if test="source != null">
             #{source},

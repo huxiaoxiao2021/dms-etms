@@ -44,11 +44,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
+@Service
 public class JyExceptionServiceImpl implements JyExceptionService {
 
     private final Logger logger = LoggerFactory.getLogger(JyExceptionServiceImpl.class);
@@ -533,20 +535,26 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             logger.warn("三无系统通知数据缺少通知类型，消息丢弃");
             return;
         }
-        switch (mqDto.getNotifyType()){
-            case CREATED:
-                //新增异常任务
-                createSanWuTask(mqDto);
-                break;
-            case MATCH_SUCCESS:
-                matchSuccessProcess(mqDto);
-                break;
-            case PROCESSED:
-                complate(mqDto);
-                break;
-            default:
-                break;
+        try{
+            switch (mqDto.getNotifyType()){
+                case CREATED:
+                    //新增异常任务
+                    createSanWuTask(mqDto);
+                    break;
+                case MATCH_SUCCESS:
+                    matchSuccessProcess(mqDto);
+                    break;
+                case PROCESSED:
+                    complate(mqDto);
+                    break;
+                default:
+                    break;
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+            logger.error("xxx",e);
         }
+
     }
 
     private void createSanWuTask(ExpefNotify mqDto) {
