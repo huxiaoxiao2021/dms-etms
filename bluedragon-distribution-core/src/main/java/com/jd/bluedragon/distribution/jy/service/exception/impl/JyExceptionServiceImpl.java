@@ -2,6 +2,9 @@ package com.jd.bluedragon.distribution.jy.service.exception.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.jyexpection.request.*;
 import com.jd.bluedragon.common.dto.jyexpection.response.*;
@@ -10,6 +13,7 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyBizTaskExceptionDao;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyExceptionDao;
+import com.jd.bluedragon.distribution.jy.dto.exception.JyExpTaskChangeMessage;
 import com.jd.bluedragon.distribution.jy.dto.exception.JyExpTaskMessage;
 import com.jd.bluedragon.distribution.jy.exception.JyBizTaskExceptionEntity;
 import com.jd.bluedragon.distribution.jy.exception.JyExceptionEntity;
@@ -192,16 +196,18 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             return JdCResponse.fail("异常提报数据保存出错了,请稍后重试！");
         }
 
-        // TODO 发送 mq 通知调度系统
+        // 发送 mq 通知调度系统
         JyExpTaskMessage taskMessage = new JyExpTaskMessage();
         taskMessage.setTaskType(JyBizTaskExceptionTypeEnum.SANWU.getCode());
+        taskMessage.setTaskStatus(JyExpStatusEnum.TO_PICK.getCode());
         taskMessage.setBizId(bizId);
         taskMessage.setOpeUser(req.getUserErp());
         taskMessage.setOpeUserName(baseStaffByErp.getStaffName());
         taskMessage.setOpeTime(new Date().getTime());
 
-        scheduleTaskAddProducer.sendOnFailPersistent(bizId, JSON.toJSONString(taskMessage));
-
+        String body = JSON.toJSONString(taskMessage);
+        scheduleTaskAddProducer.sendOnFailPersistent(bizId, body);
+        logger.info("异常岗-写入任务发送mq完成:body={}", body);
 
         return JdCResponse.ok();
     }
@@ -252,7 +258,53 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         req.setGridRid(getGridRid(position));
 
         List<StatisticsByGridDto> statisticsByGrid = jyBizTaskExceptionDao.getStatisticsByGrid(req);
-        // TODO 标签处理
+        if (CollectionUtils.isEmpty(statisticsByGrid)) {
+            return JdCResponse.ok(statisticsByGrid);
+        }
+
+        // 标签处理
+        List<JyBizTaskExceptionEntity> tagsByGrid = jyBizTaskExceptionDao.getTagsByGrid(req);
+
+        // 排前三的标签
+        final List<String> top3Tags = new ArrayList<>();
+        for (int i = 0; i < 3; i++) {
+            top3Tags.add(JyBizTaskExceptionTagEnum.values()[i].getCode());
+        }
+
+        // 取出所有网格的 属于前三的标签
+        Multimap<String, String> gridTags = HashMultimap.create();
+        for (JyBizTaskExceptionEntity entity : tagsByGrid) {
+            if (StringUtils.isNotBlank(entity.getTags())) {
+                String[] split = entity.getTags().split(",");
+                for (String tag : split) {
+                    if (top3Tags.contains(tag)) {
+                        String key  = entity.getFloor() + ":" + entity.getAreaCode() + ":" + entity.getGridCode();
+                        gridTags.put(key, entity.getTags());
+                    }
+                }
+            }
+        }
+
+        // 转换标签格式
+        ArrayListMultimap<String, TagDto> gridTagList = ArrayListMultimap.create();
+        for (String key : gridTags.keys()) {
+            List<String> tags = new ArrayList<>(gridTags.get(key));
+            // 排序标签
+            Collections.sort(tags, new Comparator<String>() {
+                @Override
+                public int compare(String o1, String o2) {
+                    return top3Tags.indexOf(o1) - top3Tags.indexOf(o2);
+                }
+            });
+            List<TagDto> tagList = getTags(StringUtils.join(tags, ','));
+            gridTagList.putAll(key, tagList);
+        }
+
+        // 填充标签
+        for (StatisticsByGridDto dto : statisticsByGrid) {
+            String key  = dto.getFloor() + ":" + dto.getAreaCode() + ":" + dto.getGridCode();
+            dto.setTags(gridTagList.get(key));
+        }
 
         return JdCResponse.ok(statisticsByGrid);
     }
@@ -399,6 +451,18 @@ public class JyExceptionServiceImpl implements JyExceptionService {
 
         jyBizTaskExceptionDao.updateByBizId(update);
 
+        JyExpTaskChangeMessage message = new JyExpTaskChangeMessage();
+        message.setTaskType(JyBizTaskExceptionTypeEnum.SANWU.getCode());
+        message.setTaskStatus(JyExpStatusEnum.TO_PROCESS.getCode());
+        message.setBizId(bizId);
+        message.setOpeUser(req.getUserErp());
+        message.setOpeUserName(baseStaffByErp.getStaffName());
+        message.setOpeTime(new Date().getTime());
+
+        String body = JSON.toJSONString(message);
+        scheduleTaskChangeStatusProducer.sendOnFailPersistent(bizId, body);
+        logger.info("异常岗-任务领取发送状态更新发送mq完成:body={}", body);
+
         return JdCResponse.ok();
     }
 
@@ -450,50 +514,9 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             redisClient.expire(key, 30, TimeUnit.DAYS);
         }else {
             ExpTaskDetailCacheDto cacheDto = cacheObj.toJavaObject(ExpTaskDetailCacheDto.class);
-            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            // TODO 调用 三无接口
-            ExpInfoSumaryInputDto dto = new ExpInfoSumaryInputDto();
-            // 提报人
-            dto.setReporterErp(cacheDto.getUserErp());
-            // 三无码
-            dto.setExpCode(cacheDto.getExpBarcode());
-            // 上报时间
-            if (cacheDto.getExpCreateTime() != null) {
-                dto.setHappenTimeNew(format.format(new Date(cacheDto.getExpCreateTime())));
-            }
-            // 重量
-            dto.setProductWeight(cacheDto.getWeight());
-            // 内件描述
-            dto.setProductName(cacheDto.getInnerDesc());
-            // 外包装描述
-            dto.setProductState(cacheDto.getOuterDesc());
-            // 发现环节
-            dto.setDiscoveryLink(cacheDto.getSource());
-            // 上级地
-            dto.setPreNodeCodeNew(cacheDto.getFrom());
-            // 长宽高
-            dto.setLwh(cacheDto.getVolumeDetail());
-            // SN码
-            dto.setSnCode(cacheDto.getSn());
-            // 商品编码
-            dto.setProductCode(cacheDto.getGoodsNo());
-            // 69码
-            dto.setCode69(cacheDto.getYardSixNine());
-            // 件数
-            dto.setProductNum(cacheDto.getGoodsNum());
-            // 车牌号
-//            dto.setVehicleNumber(cacheDto.getSealNumber());
-            // 封签号 或批次号
-            dto.setSealCodeOrBatchCode(cacheDto.getSealNumber());
-            // 下级地
-            dto.setFollowNodeCode(cacheDto.getTo());
-            // 价值
-            dto.setProductPrice(cacheDto.getPrice());
-            // 储位
-            dto.setStoreLocation(cacheDto.getStorage());
-            // 同车包裹号
-            dto.setSameCarPackageCode(cacheDto.getTogetherPackageCodes());
 
+            // 调用 三无接口
+            ExpInfoSumaryInputDto dto = getExpInfoDto(cacheDto);
             CommonDto commonDto = expInfoSummaryJsfManager.addExpInfoDetail(dto);
             if (!Objects.equals(commonDto.getCode(), CommonDto.CODE_SUCCESS)) {
                 return JdCResponse.fail("提报三无系统失败:" + commonDto.getMessage());
@@ -769,7 +792,55 @@ public class JyExceptionServiceImpl implements JyExceptionService {
     private String getBizId(JyBizTaskExceptionTypeEnum en, String barCode) {
         return en.name() + "_" + barCode;
     }
-    private String getBarcodeFromBizId(JyBizTaskExceptionTypeEnum en, String bizId) {
-        return bizId.replace(en.getName()+"_","");
+
+
+    /**
+     * 拼装三无录入对象
+     */
+    private ExpInfoSumaryInputDto getExpInfoDto(ExpTaskDetailCacheDto cacheDto) {
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+        ExpInfoSumaryInputDto dto = new ExpInfoSumaryInputDto();
+        // 提报人
+        dto.setReporterErp(cacheDto.getUserErp());
+        // 三无码
+        dto.setExpCode(cacheDto.getExpBarcode());
+        // 上报时间
+        if (cacheDto.getExpCreateTime() != null) {
+            dto.setHappenTimeNew(format.format(new Date(cacheDto.getExpCreateTime())));
+        }
+        // 重量
+        dto.setProductWeight(cacheDto.getWeight());
+        // 内件描述
+        dto.setProductName(cacheDto.getInnerDesc());
+        // 外包装描述
+        dto.setProductState(cacheDto.getOuterDesc());
+        // 发现环节
+        dto.setDiscoveryLink(cacheDto.getSource());
+        // 上级地
+        dto.setPreNodeCodeNew(cacheDto.getFrom());
+        // 长宽高
+        dto.setLwh(cacheDto.getVolumeDetail());
+        // SN码
+        dto.setSnCode(cacheDto.getSn());
+        // 商品编码
+        dto.setProductCode(cacheDto.getGoodsNo());
+        // 69码
+        dto.setCode69(cacheDto.getYardSixNine());
+        // 件数
+        dto.setProductNum(cacheDto.getGoodsNum());
+        // 车牌号
+//            dto.setVehicleNumber(cacheDto.getSealNumber());
+        // 封签号 或批次号
+        dto.setSealCodeOrBatchCode(cacheDto.getSealNumber());
+        // 下级地
+        dto.setFollowNodeCode(cacheDto.getTo());
+        // 价值
+        dto.setProductPrice(cacheDto.getPrice());
+        // 储位
+        dto.setStoreLocation(cacheDto.getStorage());
+        // 同车包裹号
+        dto.setSameCarPackageCode(cacheDto.getTogetherPackageCodes());
+        return dto;
     }
 }

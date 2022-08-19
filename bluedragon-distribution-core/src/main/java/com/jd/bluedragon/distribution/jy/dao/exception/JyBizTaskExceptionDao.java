@@ -51,6 +51,13 @@ public class JyBizTaskExceptionDao  extends BaseDao<JyBizTaskExceptionEntity> {
         return this.getSqlSession().selectList(NAMESPACE + ".getStatisticsByGrid", entity);
     }
 
+    /**
+     * 按网格查询标签
+     */
+    public List<JyBizTaskExceptionEntity> getTagsByGrid(StatisticsByGridReq entity){
+        return this.getSqlSession().selectList(NAMESPACE + ".getTagsByGrid", entity);
+    }
+
 
     public List<JyBizTaskExceptionEntity> queryExceptionTaskList(ExpTaskPageReq entity) {
         return this.getSqlSession().selectOne(NAMESPACE + ".queryExceptionTaskList", entity);
