@@ -6,6 +6,7 @@ import com.jd.bluedragon.common.dto.exceptionReport.expressBill.request.ExpressB
 import com.jd.bluedragon.distribution.exceptionReport.billException.service.impl.ExpressBillExceptionReportServiceImpl;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 /**
@@ -14,6 +15,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
  * @Date: create in 2021/3/1 10:40
  */
 @RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = "/spring/distribution-core-context-dev.xml")
 public class ExpressBillExceptionReportImplTest {
 
     ExpressBillExceptionReportServiceImpl expressBillExceptionReportServiceImpl;

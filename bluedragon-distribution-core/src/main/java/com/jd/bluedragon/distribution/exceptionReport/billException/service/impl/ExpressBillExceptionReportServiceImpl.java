@@ -23,6 +23,7 @@ import com.jd.bluedragon.distribution.exceptionReport.billException.domain.Expre
 import com.jd.bluedragon.distribution.exceptionReport.billException.dto.ExpressBillExceptionReportMq;
 import com.jd.bluedragon.distribution.exceptionReport.billException.enums.*;
 import com.jd.bluedragon.distribution.exceptionReport.billException.service.ExpressBillExceptionReportService;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.dms.wb.report.api.wmspack.dto.DmsPackRecordPo;
 import com.jd.dms.wb.report.api.wmspack.dto.DmsPackRecordVo;
@@ -221,9 +222,9 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
              * 2、仓ID为空，再判断wayBillSign的第53位是否为1，1为仓配业务,2为纯配业务
              * 3、其他为纯配业务
              */
-            if(baseEntity.getDistributeStoreId()!=null
-                && StringUtils.isNotEmpty(baseEntity.getDistributeStoreName())
-                || baseEntity.getWaybillSign().charAt(52) == '1'){
+            if((baseEntity.getDistributeStoreId()!=null
+                && StringUtils.isNotEmpty(baseEntity.getDistributeStoreName()))
+                || BusinessUtil.isWarehouseAndDistributionBusiness(baseEntity.getWaybillSign())){
                 firstSiteVo = this.packageFirstSiteVo(baseEntity.getDistributeStoreId(),baseEntity.getDistributeStoreName());
                 // 查询仓打包记录，获得被举报人
                 DmsPackRecordPo paramObj = new DmsPackRecordPo();
