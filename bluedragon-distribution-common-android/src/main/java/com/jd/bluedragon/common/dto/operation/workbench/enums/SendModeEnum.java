@@ -10,7 +10,8 @@ public enum SendModeEnum {
 
     TRUNK_AND_BRANCH_DELIVERY(1, "干支发货", "用于干支进行发货和封车操作"),
     TRANSFER_AND_FERRY_DELIVERY(2, "传摆发货", "传站/摆渡业务进行发货操作"),
-    SORTING_BIND_BOARD(3, "分拣组板", "分拣传站业务进行组板操作")
+    SORTING_BIND_BOARD(3, "分拣组板", "分拣传站业务进行组板操作"),
+    TRANSFER_BLOCK_CAR(4, "传摆封车", "传摆封车功能")
     ;
 
     private Integer code;
