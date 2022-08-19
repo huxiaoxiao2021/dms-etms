@@ -808,6 +808,11 @@ public class UccPropertyConfiguration {
      */
     private String identityRecogniseSiteSwitch;
 
+    /**
+     * 敏感信息微笑处理开关，0不处理 1处理
+     */
+    private Integer sensitiveInformationSmile;
+
     public String getScheduleSiteCheckSameCity() {
         return scheduleSiteCheckSameCity;
     }
@@ -1966,5 +1971,13 @@ public class UccPropertyConfiguration {
 
     public void setIdentityRecogniseSiteSwitch(String identityRecogniseSiteSwitch) {
         this.identityRecogniseSiteSwitch = identityRecogniseSiteSwitch;
+    }
+
+    public Integer getSensitiveInformationSmile() {
+        return sensitiveInformationSmile;
+    }
+
+    public void setSensitiveInformationSmile(Integer sensitiveInformationSmile) {
+        this.sensitiveInformationSmile = sensitiveInformationSmile;
     }
 }

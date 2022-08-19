@@ -28,9 +28,7 @@ public class HideInfoSmileServiceImpl implements HideInfoSmileService{
     public void setHideInfo(Waybill waybill) {
         String waybillSign = waybill.getWaybillSign();
 
-        String sendPay = waybill.getSendPay();
-
-        if(StringUtils.isBlank(waybillSign) && StringUtils.isBlank(sendPay)){
+        if(StringUtils.isBlank(waybillSign)){
             return;
         }
 

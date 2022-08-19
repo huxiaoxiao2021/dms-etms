@@ -11,6 +11,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.distribution.print.service.HideInfoSmileService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
@@ -47,6 +48,9 @@ public class CenterServiceResource {
 	@Autowired
 	@Qualifier("hideInfoSmileService")
 	private HideInfoSmileService hideInfoSmileService;
+
+	@Autowired
+	private UccPropertyConfiguration uccConfig;
 
 	@Autowired
 	private BaseMajorManager baseMajorManager;
@@ -157,7 +161,9 @@ public class CenterServiceResource {
 		try {
 			result = waybillQueryManager.getDataByChoice(waybillCode,
 					isWaybillC, isWaybillE, isWaybillM, isGoodList, isPackList, isPickupTask, isServiceBillPay);
-			hideInfoSmileService.setHideInfo(result.getData().getWaybill());
+			if (Constants.SWITCH_OPEN.equals(uccConfig.getSensitiveInformationSmile())) {
+				hideInfoSmileService.setHideInfo(result.getData().getWaybill());
+			}
 		} catch (Exception e) {
 			StringBuilder errorMsg = new StringBuilder(
 					"中心服务调用运单getDataByChoice出错").append("waybillCode=")
@@ -196,7 +202,9 @@ public class CenterServiceResource {
 		BaseEntity<BigWaybillDto> result = null;
 		try {
 			result = waybillQueryManager.getDataByChoice(waybillCode,choice);
-			hideInfoSmileService.setHideInfo(result.getData().getWaybill());
+			if (Constants.SWITCH_OPEN.equals(uccConfig.getSensitiveInformationSmile())) {
+				hideInfoSmileService.setHideInfo(result.getData().getWaybill());
+			}
 		} catch (Exception e) {
 			log.error("中心服务调用运单getDataByChoice出错", e);
 		}
