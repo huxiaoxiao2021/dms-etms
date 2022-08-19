@@ -27,6 +27,7 @@
                 <value>classpath:configured/sms.properties</value>
                 <value>classpath:aces.properties</value>
                 <value>classpath*:conf/comp.properties</value>
+                <value>classpath:configured/jsf.properties</value>
             </list>
         </property>
     </bean>
