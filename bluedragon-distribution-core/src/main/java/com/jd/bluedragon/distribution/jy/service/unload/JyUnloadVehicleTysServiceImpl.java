@@ -4,7 +4,9 @@ import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.PageHelper;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.UnifiedExceptionProcess;
+import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.operation.workbench.unload.request.UnloadCompleteRequest;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BoardCommonManager;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
@@ -18,6 +20,7 @@ import com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskUnloadVehicleDao;
 import com.jd.bluedragon.distribution.jy.dao.unload.JyBizTaskUnloadVehicleStageDao;
 import com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadAggsDao;
 import com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadVehicleBoardDao;
+import com.jd.bluedragon.distribution.jy.dto.CurrentOperate;
 import com.jd.bluedragon.distribution.jy.dto.task.JyBizTaskUnloadCountDto;
 import com.jd.bluedragon.distribution.jy.dto.unload.*;
 import com.jd.bluedragon.distribution.jy.enums.*;
@@ -281,21 +284,37 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
 
         Boolean success = jyBizTaskUnloadVehicleService.saveOrUpdateOfBusinessInfo(entity);
         if (success) {
-            // 如果本次是卸车完成动作
-            if (JyBizTaskUnloadStatusEnum.UN_LOAD_DONE.getCode().equals(unloadVehicleTask.getVehicleStatus())) {
-                // 将此卸车任务的子阶段结束
-                JyBizTaskUnloadVehicleStageEntity stageEntity = new JyBizTaskUnloadVehicleStageEntity();
-                stageEntity.setUnloadVehicleBizId(unloadVehicleTask.getBizId());
-                stageEntity.setStatus(JyBizTaskStageStatusEnum.COMPLETE.getCode());
-                stageEntity.setEndTime(new Date());
-                stageEntity.setUpdateTime(new Date());
-                stageEntity.setUpdateUserErp(unloadVehicleTask.getUser().getUserErp());
-                stageEntity.setUpdateUserName(unloadVehicleTask.getUser().getUserName());
-                jyBizTaskUnloadVehicleStageService.updateStatusByUnloadVehicleBizId(stageEntity);
-            }
             return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE);
         }
         return new InvokeResult(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
+    }
+
+    @Override
+    @JProfiler(jKey = "JyUnloadVehicleTysServiceImpl.completeUnloadTask",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
+    public InvokeResult<Boolean> completeUnloadTask(UnloadCompleteDto request) {
+        UnloadCompleteRequest unloadCompleteRequest = new UnloadCompleteRequest();
+        unloadCompleteRequest.setTaskId(request.getTaskId());
+        unloadCompleteRequest.setAbnormalFlag(request.getAbnormalFlag());
+        unloadCompleteRequest.setBizId(request.getBizId());
+        unloadCompleteRequest.setSealCarCode(request.getSealCarCode());
+        unloadCompleteRequest.setUser(copyUser(request.getUser()));
+        unloadCompleteRequest.setCurrentOperate(copyCurrentOperate(request.getCurrentOperate()));
+        unloadCompleteRequest.setToScanCount(request.getToScanCount());
+        unloadCompleteRequest.setMoreScanLocalCount(request.getMoreScanLocalCount());
+        unloadCompleteRequest.setMoreScanOutCount(request.getMoreScanOutCount());
+        InvokeResult<Boolean> result = unloadVehicleService.submitUnloadCompletion(unloadCompleteRequest);
+        if (RESULT_SUCCESS_CODE == result.getCode()) {
+            // 将此卸车任务的子阶段结束
+            JyBizTaskUnloadVehicleStageEntity stageEntity = new JyBizTaskUnloadVehicleStageEntity();
+            stageEntity.setUnloadVehicleBizId(request.getBizId());
+            stageEntity.setStatus(JyBizTaskStageStatusEnum.COMPLETE.getCode());
+            stageEntity.setEndTime(new Date());
+            stageEntity.setUpdateTime(new Date());
+            stageEntity.setUpdateUserErp(request.getUser().getUserErp());
+            stageEntity.setUpdateUserName(request.getUser().getUserName());
+            jyBizTaskUnloadVehicleStageService.updateStatusByUnloadVehicleBizId(stageEntity);
+        }
+        return result;
     }
 
     @Override
@@ -1396,6 +1415,21 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             return response;
         }
         return response;
+    }
+
+    private com.jd.bluedragon.common.dto.base.request.User copyUser(com.jd.bluedragon.distribution.jy.dto.User userParam) {
+        com.jd.bluedragon.common.dto.base.request.User user = new com.jd.bluedragon.common.dto.base.request.User();
+        user.setUserCode(userParam.getUserCode());
+        user.setUserName(userParam.getUserName());
+        user.setUserErp(userParam.getUserErp());
+        return user;
+    }
+
+    private com.jd.bluedragon.common.dto.base.request.CurrentOperate copyCurrentOperate(com.jd.bluedragon.distribution.jy.dto.CurrentOperate currentOperateParam) {
+        com.jd.bluedragon.common.dto.base.request.CurrentOperate currentOperate = new com.jd.bluedragon.common.dto.base.request.CurrentOperate();
+        currentOperate.setSiteCode(currentOperateParam.getSiteCode());
+        currentOperate.setSiteName(currentOperateParam.getSiteName());
+        return currentOperate;
     }
 
 }

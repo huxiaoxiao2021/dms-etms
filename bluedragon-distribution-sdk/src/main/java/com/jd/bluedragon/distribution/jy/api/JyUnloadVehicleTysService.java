@@ -28,6 +28,10 @@ public interface JyUnloadVehicleTysService {
      */
     InvokeResult updateUnloadVehicleTaskProperty(UnloadVehicleTaskDto unloadVehicleTask);
 
+    /**
+     * 卸车完成
+     */
+    InvokeResult<Boolean> completeUnloadTask(UnloadCompleteDto request);
 
     /**
      * 统计数据维度查询(按任务、板查询统计数据（已扫 应扫 待扫 多扫 拦截）)
