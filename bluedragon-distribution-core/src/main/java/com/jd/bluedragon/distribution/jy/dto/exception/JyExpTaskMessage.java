@@ -8,6 +8,8 @@ import java.io.Serializable;
 public class JyExpTaskMessage implements Serializable {
     // 任务类型
     private Integer taskType;
+    // 任务状态
+    private Integer taskStatus;
     // 业务主键
     private String bizId;
     // 操作人
@@ -23,6 +25,14 @@ public class JyExpTaskMessage implements Serializable {
 
     public void setTaskType(Integer taskType) {
         this.taskType = taskType;
+    }
+
+    public Integer getTaskStatus() {
+        return taskStatus;
+    }
+
+    public void setTaskStatus(Integer taskStatus) {
+        this.taskStatus = taskStatus;
     }
 
     public String getBizId() {

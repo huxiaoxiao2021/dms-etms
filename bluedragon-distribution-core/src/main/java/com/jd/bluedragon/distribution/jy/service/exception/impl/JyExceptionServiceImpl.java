@@ -10,6 +10,7 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyBizTaskExceptionDao;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyExceptionDao;
+import com.jd.bluedragon.distribution.jy.dto.exception.JyExpTaskChangeMessage;
 import com.jd.bluedragon.distribution.jy.dto.exception.JyExpTaskMessage;
 import com.jd.bluedragon.distribution.jy.exception.JyBizTaskExceptionEntity;
 import com.jd.bluedragon.distribution.jy.exception.JyExceptionEntity;
@@ -192,16 +193,18 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             return JdCResponse.fail("异常提报数据保存出错了,请稍后重试！");
         }
 
-        // TODO 发送 mq 通知调度系统
+        // 发送 mq 通知调度系统
         JyExpTaskMessage taskMessage = new JyExpTaskMessage();
         taskMessage.setTaskType(JyBizTaskExceptionTypeEnum.SANWU.getCode());
+        taskMessage.setTaskStatus(JyExpStatusEnum.TO_PICK.getCode());
         taskMessage.setBizId(bizId);
         taskMessage.setOpeUser(req.getUserErp());
         taskMessage.setOpeUserName(baseStaffByErp.getStaffName());
         taskMessage.setOpeTime(new Date().getTime());
 
-        scheduleTaskAddProducer.sendOnFailPersistent(bizId, JSON.toJSONString(taskMessage));
-
+        String body = JSON.toJSONString(taskMessage);
+        scheduleTaskAddProducer.sendOnFailPersistent(bizId, body);
+        logger.info("异常岗-写入任务发送mq完成:body={}", body);
 
         return JdCResponse.ok();
     }
@@ -399,6 +402,18 @@ public class JyExceptionServiceImpl implements JyExceptionService {
 
         jyBizTaskExceptionDao.updateByBizId(update);
 
+        JyExpTaskChangeMessage message = new JyExpTaskChangeMessage();
+        message.setTaskType(JyBizTaskExceptionTypeEnum.SANWU.getCode());
+        message.setTaskStatus(JyExpStatusEnum.TO_PROCESS.getCode());
+        message.setBizId(bizId);
+        message.setOpeUser(req.getUserErp());
+        message.setOpeUserName(baseStaffByErp.getStaffName());
+        message.setOpeTime(new Date().getTime());
+
+        String body = JSON.toJSONString(message);
+        scheduleTaskChangeStatusProducer.sendOnFailPersistent(bizId, body);
+        logger.info("异常岗-任务领取发送状态更新发送mq完成:body={}", body);
+
         return JdCResponse.ok();
     }
 
@@ -450,50 +465,9 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             redisClient.expire(key, 30, TimeUnit.DAYS);
         }else {
             ExpTaskDetailCacheDto cacheDto = cacheObj.toJavaObject(ExpTaskDetailCacheDto.class);
-            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            // TODO 调用 三无接口
-            ExpInfoSumaryInputDto dto = new ExpInfoSumaryInputDto();
-            // 提报人
-            dto.setReporterErp(cacheDto.getUserErp());
-            // 三无码
-            dto.setExpCode(cacheDto.getExpBarcode());
-            // 上报时间
-            if (cacheDto.getExpCreateTime() != null) {
-                dto.setHappenTimeNew(format.format(new Date(cacheDto.getExpCreateTime())));
-            }
-            // 重量
-            dto.setProductWeight(cacheDto.getWeight());
-            // 内件描述
-            dto.setProductName(cacheDto.getInnerDesc());
-            // 外包装描述
-            dto.setProductState(cacheDto.getOuterDesc());
-            // 发现环节
-            dto.setDiscoveryLink(cacheDto.getSource());
-            // 上级地
-            dto.setPreNodeCodeNew(cacheDto.getFrom());
-            // 长宽高
-            dto.setLwh(cacheDto.getVolumeDetail());
-            // SN码
-            dto.setSnCode(cacheDto.getSn());
-            // 商品编码
-            dto.setProductCode(cacheDto.getGoodsNo());
-            // 69码
-            dto.setCode69(cacheDto.getYardSixNine());
-            // 件数
-            dto.setProductNum(cacheDto.getGoodsNum());
-            // 车牌号
-//            dto.setVehicleNumber(cacheDto.getSealNumber());
-            // 封签号 或批次号
-            dto.setSealCodeOrBatchCode(cacheDto.getSealNumber());
-            // 下级地
-            dto.setFollowNodeCode(cacheDto.getTo());
-            // 价值
-            dto.setProductPrice(cacheDto.getPrice());
-            // 储位
-            dto.setStoreLocation(cacheDto.getStorage());
-            // 同车包裹号
-            dto.setSameCarPackageCode(cacheDto.getTogetherPackageCodes());
 
+            // 调用 三无接口
+            ExpInfoSumaryInputDto dto = getExpInfoDto(cacheDto);
             CommonDto commonDto = expInfoSummaryJsfManager.addExpInfoDetail(dto);
             if (!Objects.equals(commonDto.getCode(), CommonDto.CODE_SUCCESS)) {
                 return JdCResponse.fail("提报三无系统失败:" + commonDto.getMessage());
@@ -769,7 +743,55 @@ public class JyExceptionServiceImpl implements JyExceptionService {
     private String getBizId(JyBizTaskExceptionTypeEnum en, String barCode) {
         return en.name() + "_" + barCode;
     }
-    private String getBarcodeFromBizId(JyBizTaskExceptionTypeEnum en, String bizId) {
-        return bizId.replace(en.getName()+"_","");
+
+
+    /**
+     * 拼装三无录入对象
+     */
+    private ExpInfoSumaryInputDto getExpInfoDto(ExpTaskDetailCacheDto cacheDto) {
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+        ExpInfoSumaryInputDto dto = new ExpInfoSumaryInputDto();
+        // 提报人
+        dto.setReporterErp(cacheDto.getUserErp());
+        // 三无码
+        dto.setExpCode(cacheDto.getExpBarcode());
+        // 上报时间
+        if (cacheDto.getExpCreateTime() != null) {
+            dto.setHappenTimeNew(format.format(new Date(cacheDto.getExpCreateTime())));
+        }
+        // 重量
+        dto.setProductWeight(cacheDto.getWeight());
+        // 内件描述
+        dto.setProductName(cacheDto.getInnerDesc());
+        // 外包装描述
+        dto.setProductState(cacheDto.getOuterDesc());
+        // 发现环节
+        dto.setDiscoveryLink(cacheDto.getSource());
+        // 上级地
+        dto.setPreNodeCodeNew(cacheDto.getFrom());
+        // 长宽高
+        dto.setLwh(cacheDto.getVolumeDetail());
+        // SN码
+        dto.setSnCode(cacheDto.getSn());
+        // 商品编码
+        dto.setProductCode(cacheDto.getGoodsNo());
+        // 69码
+        dto.setCode69(cacheDto.getYardSixNine());
+        // 件数
+        dto.setProductNum(cacheDto.getGoodsNum());
+        // 车牌号
+//            dto.setVehicleNumber(cacheDto.getSealNumber());
+        // 封签号 或批次号
+        dto.setSealCodeOrBatchCode(cacheDto.getSealNumber());
+        // 下级地
+        dto.setFollowNodeCode(cacheDto.getTo());
+        // 价值
+        dto.setProductPrice(cacheDto.getPrice());
+        // 储位
+        dto.setStoreLocation(cacheDto.getStorage());
+        // 同车包裹号
+        dto.setSameCarPackageCode(cacheDto.getTogetherPackageCodes());
+        return dto;
     }
 }
