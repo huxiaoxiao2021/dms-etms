@@ -4,7 +4,6 @@ import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.PageHelper;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.UnifiedExceptionProcess;
-import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.unload.request.UnloadCompleteRequest;
 import com.jd.bluedragon.core.base.BaseMajorManager;
@@ -21,7 +20,6 @@ import com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskUnloadVehicleDao;
 import com.jd.bluedragon.distribution.jy.dao.unload.JyBizTaskUnloadVehicleStageDao;
 import com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadAggsDao;
 import com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadVehicleBoardDao;
-import com.jd.bluedragon.distribution.jy.dto.CurrentOperate;
 import com.jd.bluedragon.distribution.jy.dto.task.JyBizTaskUnloadCountDto;
 import com.jd.bluedragon.distribution.jy.dto.unload.*;
 import com.jd.bluedragon.distribution.jy.enums.*;
@@ -336,6 +334,52 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     }
 
     @Override
+    @JProfiler(jKey = "JyUnloadVehicleTysServiceImpl.previewBeforeUnloadComplete",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
+    public InvokeResult<UnloadPreviewRespDto> previewBeforeUnloadComplete(UnloadPreviewDto request) {
+        InvokeResult<UnloadPreviewRespDto> result = new InvokeResult<>();
+        try {
+            UnloadPreviewRespDto previewData = new UnloadPreviewRespDto();
+            // 默认正常
+            previewData.setAbnormalFlag(Constants.NUMBER_ZERO.byteValue());
+            // 查询异常统计数据
+            QueryUnloadDetailDto queryUnloadDetailDto = new QueryUnloadDetailDto();
+            queryUnloadDetailDto.setExpFlag(Boolean.TRUE);
+            queryUnloadDetailDto.setExpType(request.getExceptionType());
+            queryUnloadDetailDto.setBizId(request.getBizId());
+            queryUnloadDetailDto.setCurrentOperate(request.getCurrentOperate());
+            queryUnloadDetailDto.setUser(request.getUser());
+            queryUnloadDetailDto.setVehicleNumber(request.getVehicleNumber());
+            queryUnloadDetailDto.setPageNo(request.getPageNumber());
+            queryUnloadDetailDto.setPageSize(request.getPageSize());
+            InvokeResult<ScanStatisticsInnerDto> invokeResult = queryUnloadDetailByDiffDimension(queryUnloadDetailDto);
+            if (RESULT_SUCCESS_CODE != invokeResult.getCode()) {
+                log.warn("previewBeforeUnloadComplete|卸车完成前预览获取异常统计数据返回失败:request={},statisticsData={}", JsonHelper.toJson(request), JsonHelper.toJson(invokeResult));
+                result.customMessage(invokeResult.getCode(), invokeResult.getMessage());
+                return result;
+            }
+            ScanStatisticsInnerDto statisticsData = invokeResult.getData();
+            if (statisticsData == null) {
+                log.warn("previewBeforeUnloadComplete|卸车完成前预览获取异常统计数据返回空:request={},statisticsData={}", JsonHelper.toJson(request), JsonHelper.toJson(invokeResult));
+                return result;
+            }
+            previewData.setExceptScanDtoList(statisticsData.getExcepScanDtoList());
+            previewData.setUnloadWaybillDtoList(statisticsData.getUnloadWaybillDtoList());
+            // 查询待扫、本场地/非本场地多扫
+            JyUnloadAggsEntity aggsEntity = jyUnloadAggsDao.queryToScanAndMoreScanStatistics(request.getBizId());
+            if (aggsEntity != null) {
+                previewData.setToScanCount(aggsEntity.getShouldScanCount() - aggsEntity.getActualScanCount());
+                previewData.setMoreScanLocalCount(aggsEntity.getMoreScanLocalCount());
+                previewData.setMoreScanOutCount(aggsEntity.getMoreScanOutCount());
+            }
+            result.setData(previewData);
+        } catch (Exception ex) {
+            log.error("previewBeforeUnloadComplete|卸车完成预览数据发生异常. {}", JsonHelper.toJson(request), ex);
+            result.error("校验卸车完成发生异常，请咚咚联系分拣小秘！");
+        }
+        return result;
+    }
+
+    @Override
     @JProfiler(jKey = "JyUnloadVehicleTysServiceImpl.queryStatisticsByDiffDimension",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<ScanStatisticsDto> queryStatisticsByDiffDimension(DimensionQueryDto dto) {
         if (UnloadStatisticsQueryTypeEnum.PACKAGE.getCode().equals(dto.getType()) || UnloadStatisticsQueryTypeEnum.WAYBILL.getCode().equals(dto.getType())) {
@@ -383,7 +427,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
                     return invokeResult;
                 }
             }
-            return startScanningFlow(scanPackageDto, invokeResult);
+            return startScanningProcess(scanPackageDto, invokeResult);
         } catch (JyBizException | LoadIllegalException e) {
             invokeResult.customMessage(RESULT_INTERCEPT_CODE, e.getMessage());
             return invokeResult;
@@ -635,7 +679,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     }
 
 
-    private InvokeResult<ScanPackageRespDto> startScanningFlow(ScanPackageDto scanPackageDto, InvokeResult<ScanPackageRespDto> invokeResult) {
+    private InvokeResult<ScanPackageRespDto> startScanningProcess(ScanPackageDto scanPackageDto, InvokeResult<ScanPackageRespDto> invokeResult) {
         // 校验任务
         JyBizTaskUnloadVehicleEntity unloadVehicleEntity = jyBizTaskUnloadVehicleService.findByBizId(scanPackageDto.getBizId());
         if (unloadVehicleEntity == null) {
@@ -684,7 +728,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
                     return invokeResult;
                 }
             }
-            return startScanningFlow(scanPackageDto, invokeResult);
+            return startScanningProcess(scanPackageDto, invokeResult);
         } catch (JyBizException | LoadIllegalException e) {
             invokeResult.customMessage(RESULT_INTERCEPT_CODE, e.getMessage());
             return invokeResult;

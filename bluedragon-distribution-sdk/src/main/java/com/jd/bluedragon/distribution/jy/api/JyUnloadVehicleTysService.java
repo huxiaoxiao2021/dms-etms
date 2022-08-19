@@ -34,6 +34,13 @@ public interface JyUnloadVehicleTysService {
     InvokeResult<Boolean> completeUnloadTask(UnloadCompleteDto request);
 
     /**
+     * 卸车完成前预览是否有异常数据
+     * @param request
+     * @return
+     */
+    InvokeResult<UnloadPreviewRespDto> previewBeforeUnloadComplete(UnloadPreviewDto request);
+
+    /**
      * 统计数据维度查询(按任务、板查询统计数据（已扫 应扫 待扫 多扫 拦截）)
      *
      * @param dto

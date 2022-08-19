@@ -131,6 +131,17 @@
 
     </select>
 
+    <select id="queryToScanAndMoreScanStatistics" parameterType="java.lang.String" resultMap="jyUnloadAggsMap">
+        SELECT
+        SUM(should_scan_count) should_scan_count,
+        SUM(actual_scan_count) actual_scan_count,
+        SUM(more_scan_local_count) more_scan_local_count,
+        SUM(more_scan_out_count) more_scan_out_count,
+        FROM
+        jy_unload_aggs
+        WHERE yn = 1 and biz_id = #{bizId}
+    </select>
+
     <select id="queryWaybillStatisticsUnderBoard"
             parameterType="com.jd.bluedragon.distribution.jy.dto.unload.DimensionQueryDto"
             resultMap="jyUnloadAggsMap">
