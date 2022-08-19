@@ -959,7 +959,7 @@
                   protocol="jsf" alias="${jsf.tysWorkbenchCenter.alias}" timeout="${jsf.tysWorkbenchCenter.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
     </jsf:consumer>
 
-    <jsf:consumer id="positionQueryJsfService"
+    <jsf:consumer id="positionQueryBasicJsfService"
                   interface="com.jdl.basic.api.service.position.PositionQueryJsfService"
                   alias="${jsf.alias.jy_basic}"
                   protocol="jsf"  timeout="${jsf.timeout.jy_basic}">
