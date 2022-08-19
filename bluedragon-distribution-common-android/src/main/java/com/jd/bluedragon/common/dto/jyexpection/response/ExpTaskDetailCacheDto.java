@@ -10,6 +10,10 @@ public class ExpTaskDetailCacheDto extends ExpTaskDetailDto {
 
     private String expBarcode;
 
+    private Long expCreateTime;
+
+    private String source;
+
     // 验货-上游发货批次号
     private Collection<String> recentSendCodeList;
 
@@ -22,6 +26,22 @@ public class ExpTaskDetailCacheDto extends ExpTaskDetailDto {
 
     public void setExpBarcode(String expBarcode) {
         this.expBarcode = expBarcode;
+    }
+
+    public Long getExpCreateTime() {
+        return expCreateTime;
+    }
+
+    public void setExpCreateTime(Long expCreateTime) {
+        this.expCreateTime = expCreateTime;
+    }
+
+    public String getSource() {
+        return source;
+    }
+
+    public void setSource(String source) {
+        this.source = source;
     }
 
     public Collection<String> getRecentSendCodeList() {

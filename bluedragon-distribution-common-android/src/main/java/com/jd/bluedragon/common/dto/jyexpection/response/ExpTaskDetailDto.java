@@ -1,7 +1,6 @@
 package com.jd.bluedragon.common.dto.jyexpection.response;
 
 import java.io.Serializable;
-import java.util.List;
 
 /**
  * 异常任务详情
@@ -56,8 +55,8 @@ public class ExpTaskDetailDto implements Serializable {
     // 储位
     private String storage;
 
-    // 任务id
-    private String taskId;
+    // 业务id
+    private String bizId;
 
     // 存储类型 0暂存 1提交
     private String saveType;
@@ -196,12 +195,12 @@ public class ExpTaskDetailDto implements Serializable {
         this.storage = storage;
     }
 
-    public String getTaskId() {
-        return taskId;
+    public String getBizId() {
+        return bizId;
     }
 
-    public void setTaskId(String taskId) {
-        this.taskId = taskId;
+    public void setBizId(String bizId) {
+        this.bizId = bizId;
     }
 
     public String getSaveType() {

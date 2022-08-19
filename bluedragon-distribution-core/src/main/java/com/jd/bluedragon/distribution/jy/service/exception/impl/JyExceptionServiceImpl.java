@@ -10,8 +10,10 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyBizTaskExceptionDao;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyExceptionDao;
+import com.jd.bluedragon.distribution.jy.dto.exception.JyExpTaskMessage;
 import com.jd.bluedragon.distribution.jy.exception.JyBizTaskExceptionEntity;
 import com.jd.bluedragon.distribution.jy.exception.JyExceptionEntity;
+import com.jd.bluedragon.distribution.jy.manager.ExpInfoSummaryJsfManager;
 import com.jd.bluedragon.distribution.jy.manager.PositionQueryJsfManager;
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionService;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
@@ -21,8 +23,9 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.jim.cli.Cluster;
 import com.jd.jmq.common.exception.JMQException;
+import com.jd.ps.data.epf.dto.CommonDto;
+import com.jd.ps.data.epf.dto.ExpInfoSumaryInputDto;
 import com.jd.ps.data.epf.dto.ExpefNotify;
-import com.jd.ps.data.epf.enums.NotifyTypeEnum;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jdl.basic.api.domain.position.PositionDetailRecord;
 import com.jdl.basic.common.utils.Result;
@@ -38,6 +41,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -54,6 +58,9 @@ public class JyExceptionServiceImpl implements JyExceptionService {
     private JyExceptionDao jyExceptionDao;
     @Autowired
     private PositionQueryJsfManager positionQueryJsfManager;
+    // 三无接口
+    @Autowired
+    private ExpInfoSummaryJsfManager expInfoSummaryJsfManager;
     @Autowired
     private BaseMajorManager baseMajorManager;
     @Autowired
@@ -71,11 +78,11 @@ public class JyExceptionServiceImpl implements JyExceptionService {
     @Qualifier("scheduleTaskAddWorkerProducer")
     private DefaultJMQProducer scheduleTaskAddWorkerProducer;
     @Autowired
-    @Qualifier("scheduleTaskChangeStatusWebProducer")
-    private DefaultJMQProducer scheduleTaskChangeStatusWebProducer;
+    @Qualifier("scheduleTaskChangeStatusProducer")
+    private DefaultJMQProducer scheduleTaskChangeStatusProducer;
     @Autowired
-    @Qualifier("scheduleTaskAddWebProducer")
-    private DefaultJMQProducer scheduleTaskAddWebProducer;
+    @Qualifier("scheduleTaskAddProducer")
+    private DefaultJMQProducer scheduleTaskAddProducer;
 
     /**
      * 通用异常上报入口-扫描
@@ -109,6 +116,8 @@ public class JyExceptionServiceImpl implements JyExceptionService {
 
         ExpTaskDetailCacheDto taskCache = new ExpTaskDetailCacheDto();
         taskCache.setExpBarcode(req.getBarCode());
+        taskCache.setExpCreateTime(System.currentTimeMillis());
+        taskCache.setSource(source.getText());
 
 //        9.	卸车入口：根据操作异常上报人员此前扫描验货的3个包裹号获取到对应上游发货批次号，后续作为批次号信息辅助录入
 //        10.	通用扫描入口（右上角点点点）：上报时不记录任何信息
@@ -184,6 +193,15 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         }
 
         // TODO 发送 mq 通知调度系统
+        JyExpTaskMessage taskMessage = new JyExpTaskMessage();
+        taskMessage.setTaskType(JyBizTaskExceptionTypeEnum.SANWU.getCode());
+        taskMessage.setBizId(bizId);
+        taskMessage.setOpeUser(req.getUserErp());
+        taskMessage.setOpeUserName(baseStaffByErp.getStaffName());
+        taskMessage.setOpeTime(new Date().getTime());
+
+        scheduleTaskAddProducer.sendOnFailPersistent(bizId, JSON.toJSONString(taskMessage));
+
 
         return JdCResponse.ok();
     }
@@ -418,7 +436,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             return JdCResponse.fail("岗位码有误!");
         }
         JSONObject cacheObj = new JSONObject();
-        String key = TASK_CACHE_PRE + req.getTaskId();
+        String key = TASK_CACHE_PRE + req.getBizId();
         String s = redisClient.get(key);
         if (StringUtils.isNotBlank(s)) {
             cacheObj = JSON.parseObject(s);
@@ -431,8 +449,56 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             redisClient.set(key, cacheObj.toJSONString());
             redisClient.expire(key, 30, TimeUnit.DAYS);
         }else {
-            redisClient.del(key);
+            ExpTaskDetailCacheDto cacheDto = cacheObj.toJavaObject(ExpTaskDetailCacheDto.class);
+            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             // TODO 调用 三无接口
+            ExpInfoSumaryInputDto dto = new ExpInfoSumaryInputDto();
+            // 提报人
+            dto.setReporterErp(cacheDto.getUserErp());
+            // 三无码
+            dto.setExpCode(cacheDto.getExpBarcode());
+            // 上报时间
+            if (cacheDto.getExpCreateTime() != null) {
+                dto.setHappenTimeNew(format.format(new Date(cacheDto.getExpCreateTime())));
+            }
+            // 重量
+            dto.setProductWeight(cacheDto.getWeight());
+            // 内件描述
+            dto.setProductName(cacheDto.getInnerDesc());
+            // 外包装描述
+            dto.setProductState(cacheDto.getOuterDesc());
+            // 发现环节
+            dto.setDiscoveryLink(cacheDto.getSource());
+            // 上级地
+            dto.setPreNodeCodeNew(cacheDto.getFrom());
+            // 长宽高
+            dto.setLwh(cacheDto.getVolumeDetail());
+            // SN码
+            dto.setSnCode(cacheDto.getSn());
+            // 商品编码
+            dto.setProductCode(cacheDto.getGoodsNo());
+            // 69码
+            dto.setCode69(cacheDto.getYardSixNine());
+            // 件数
+            dto.setProductNum(cacheDto.getGoodsNum());
+            // 车牌号
+//            dto.setVehicleNumber(cacheDto.getSealNumber());
+            // 封签号 或批次号
+            dto.setSealCodeOrBatchCode(cacheDto.getSealNumber());
+            // 下级地
+            dto.setFollowNodeCode(cacheDto.getTo());
+            // 价值
+            dto.setProductPrice(cacheDto.getPrice());
+            // 储位
+            dto.setStoreLocation(cacheDto.getStorage());
+            // 同车包裹号
+            dto.setSameCarPackageCode(cacheDto.getTogetherPackageCodes());
+
+            CommonDto commonDto = expInfoSummaryJsfManager.addExpInfoDetail(dto);
+            if (!Objects.equals(commonDto.getCode(), CommonDto.CODE_SUCCESS)) {
+                return JdCResponse.fail("提报三无系统失败:" + commonDto.getMessage());
+            }
+            redisClient.del(key);
         }
 
         return JdCResponse.ok();
@@ -702,5 +768,8 @@ public class JyExceptionServiceImpl implements JyExceptionService {
 
     private String getBizId(JyBizTaskExceptionTypeEnum en, String barCode) {
         return en.name() + "_" + barCode;
+    }
+    private String getBarcodeFromBizId(JyBizTaskExceptionTypeEnum en, String bizId) {
+        return bizId.replace(en.getName()+"_","");
     }
 }

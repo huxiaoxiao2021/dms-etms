@@ -49,8 +49,8 @@ public class ExpTaskDetailReq extends ExpBaseReq {
     // 储位
     private String storage;
 
-    // 任务id
-    private String taskId;
+    // 业务主键id
+    private String bizId;
 
     // 存储类型 0暂存 1提交
     private String saveType;
@@ -189,12 +189,12 @@ public class ExpTaskDetailReq extends ExpBaseReq {
         this.storage = storage;
     }
 
-    public String getTaskId() {
-        return taskId;
+    public String getBizId() {
+        return bizId;
     }
 
-    public void setTaskId(String taskId) {
-        this.taskId = taskId;
+    public void setBizId(String bizId) {
+        this.bizId = bizId;
     }
 
     public String getSaveType() {
