@@ -303,7 +303,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         unloadCompleteRequest.setMoreScanLocalCount(request.getMoreScanLocalCount());
         unloadCompleteRequest.setMoreScanOutCount(request.getMoreScanOutCount());
         InvokeResult<Boolean> result = unloadVehicleService.submitUnloadCompletion(unloadCompleteRequest);
-        if (RESULT_SUCCESS_CODE == result.getCode()) {
+        if (RESULT_SUCCESS_CODE == result.getCode() && Boolean.TRUE.equals(result.getData())) {
             // 将此卸车任务的子阶段结束
             JyBizTaskUnloadVehicleStageEntity stageEntity = new JyBizTaskUnloadVehicleStageEntity();
             stageEntity.setUnloadVehicleBizId(request.getBizId());
