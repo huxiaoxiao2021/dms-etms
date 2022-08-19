@@ -52,4 +52,8 @@ public class JyBizTaskUnloadVehicleStageDao extends BaseDao<JyBizTaskUnloadVehic
         return this.getSqlSession().selectOne(NAMESPACE + ".queryByBizId", bizId);
     }
 
+    public JyBizTaskUnloadVehicleStageEntity selectUnloadDoingStageTask(String parentBizId) {
+        return this.getSqlSession().selectOne(NAMESPACE + ".selectUnloadDoingStageTask", parentBizId);
+    }
+
 }

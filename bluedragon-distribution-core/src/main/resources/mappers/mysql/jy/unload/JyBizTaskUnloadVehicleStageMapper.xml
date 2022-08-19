@@ -251,7 +251,7 @@
         update_time = #{updateTime,jdbcType=TIMESTAMP},
       </if>
     </set>
-     where unload_vehicle_biz_id = #{unloadVehicleBizId,jdbcType=VARCHAR} and status = 1 and yn = 1
+     where unload_vehicle_biz_id = #{unloadVehicleBizId,jdbcType=VARCHAR} and biz_id = #{bizId,jdbcType=VARCHAR} and yn = 1
   </update>
 
   <update id="updateStatusByBizId" parameterType="com.jd.bluedragon.distribution.jy.unload.JyBizTaskUnloadVehicleStageEntity">
@@ -298,4 +298,14 @@
     where  yn = 1 and biz_id = #{bizId,jdbcType=VARCHAR}
     order by ts desc
   </select>
+
+
+  <select id="selectUnloadDoingStageTask" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from jy_biz_task_unload_vehicle_stage
+    where unload_vehicle_biz_id = #{parentBizId,jdbcType=VARCHAR} and status = 1 and yn = 1
+  </select>
+
+
 </mapper>
