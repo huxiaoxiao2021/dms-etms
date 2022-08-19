@@ -15,7 +15,7 @@ public class StatisticsByGridDto implements Serializable {
     private String gridNo;
 
     // 网格编码
-    private String griCode;
+    private String gridCode;
 
     // 作业区编号
     private String areaCode;
@@ -47,12 +47,12 @@ public class StatisticsByGridDto implements Serializable {
         this.gridNo = gridNo;
     }
 
-    public String getGriCode() {
-        return griCode;
+    public String getGridCode() {
+        return gridCode;
     }
 
-    public void setGriCode(String griCode) {
-        this.griCode = griCode;
+    public void setGridCode(String gridCode) {
+        this.gridCode = gridCode;
     }
 
     public String getAreaCode() {

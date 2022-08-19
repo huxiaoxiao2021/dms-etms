@@ -2,6 +2,9 @@ package com.jd.bluedragon.distribution.jy.service.exception.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.jyexpection.request.*;
 import com.jd.bluedragon.common.dto.jyexpection.response.*;
@@ -255,7 +258,53 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         req.setGridRid(getGridRid(position));
 
         List<StatisticsByGridDto> statisticsByGrid = jyBizTaskExceptionDao.getStatisticsByGrid(req);
-        // TODO 标签处理
+        if (CollectionUtils.isEmpty(statisticsByGrid)) {
+            return JdCResponse.ok(statisticsByGrid);
+        }
+
+        // 标签处理
+        List<JyBizTaskExceptionEntity> tagsByGrid = jyBizTaskExceptionDao.getTagsByGrid(req);
+
+        // 排前三的标签
+        final List<String> top3Tags = new ArrayList<>();
+        for (int i = 0; i < 3; i++) {
+            top3Tags.add(JyBizTaskExceptionTagEnum.values()[i].getCode());
+        }
+
+        // 取出所有网格的 属于前三的标签
+        Multimap<String, String> gridTags = HashMultimap.create();
+        for (JyBizTaskExceptionEntity entity : tagsByGrid) {
+            if (StringUtils.isNotBlank(entity.getTags())) {
+                String[] split = entity.getTags().split(",");
+                for (String tag : split) {
+                    if (top3Tags.contains(tag)) {
+                        String key  = entity.getFloor() + ":" + entity.getAreaCode() + ":" + entity.getGridCode();
+                        gridTags.put(key, entity.getTags());
+                    }
+                }
+            }
+        }
+
+        // 转换标签格式
+        ArrayListMultimap<String, TagDto> gridTagList = ArrayListMultimap.create();
+        for (String key : gridTags.keys()) {
+            List<String> tags = new ArrayList<>(gridTags.get(key));
+            // 排序标签
+            Collections.sort(tags, new Comparator<String>() {
+                @Override
+                public int compare(String o1, String o2) {
+                    return top3Tags.indexOf(o1) - top3Tags.indexOf(o2);
+                }
+            });
+            List<TagDto> tagList = getTags(StringUtils.join(tags, ','));
+            gridTagList.putAll(key, tagList);
+        }
+
+        // 填充标签
+        for (StatisticsByGridDto dto : statisticsByGrid) {
+            String key  = dto.getFloor() + ":" + dto.getAreaCode() + ":" + dto.getGridCode();
+            dto.setTags(gridTagList.get(key));
+        }
 
         return JdCResponse.ok(statisticsByGrid);
     }

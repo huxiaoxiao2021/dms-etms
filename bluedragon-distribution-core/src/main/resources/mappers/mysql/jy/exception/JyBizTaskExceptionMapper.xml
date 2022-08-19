@@ -378,13 +378,28 @@
         AND site_code = #{siteId}
         AND status = #{status}
         AND distribution_target = #{gridRid}
-        GROUP BY grid_code,area_code,floor
+        GROUP BY floor,area_code,grid_code,tags
         <if test="pageSize !=null">
             LIMIT #{offSet}, #{pageSize};
         </if>
     </select>
+    <select id="getTagsByGrid" parameterType="com.jd.bluedragon.common.dto.jyexpection.request.StatisticsByGridReq" resultMap="jyBizTaskExceptionMap">
+        SELECT
+        site_code ,
+        floor ,
+        grid_code ,
+        area_code ,
+        tags
+        FROM jy_biz_task_exception
+        WHERE
+        yn = 1
+        AND site_code = #{siteId}
+        AND status = #{status}
+        AND distribution_target = #{gridRid}
+        GROUP BY floor,area_code,grid_code,tags
+    </select>
 
-    <select id="queryExceptionTaskList" parameterType="com.jd.bluedragon.common.dto.jyexpection.request.ExpTaskPageReq" resultMap="StatisticStatusResp">
+    <select id="queryExceptionTaskList" parameterType="com.jd.bluedragon.common.dto.jyexpection.request.ExpTaskPageReq" resultMap="jyBizTaskExceptionMap">
         SELECT
         <include refid="Base_Column_List"/>
         FROM jy_biz_task_exception
