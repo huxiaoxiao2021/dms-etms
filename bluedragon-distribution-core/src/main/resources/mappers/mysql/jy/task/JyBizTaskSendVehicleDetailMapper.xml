@@ -25,6 +25,7 @@
         <result property="updateTime" column="update_time"/>
         <result property="yn" column="yn"/>
         <result property="ts" column="ts"/>
+        <result property="excepLabel" column="excep_label"/>
     </resultMap>
 
     <resultMap id="statusSumResultMap" type="com.jd.bluedragon.distribution.jy.dto.send.JyBizTaskSendCountDto">
@@ -35,7 +36,7 @@
     <sql id="Base_Column_List">
         id, send_vehicle_biz_id, biz_id, trans_work_item_code, vehicle_status, start_site_id, start_site_name,
         end_site_id, end_site_name, plan_depart_time, seal_car_time,
-        create_user_erp, create_user_name, update_user_erp, update_user_name, create_time, update_time, yn, ts
+        create_user_erp, create_user_name, update_user_erp, update_user_name, create_time, update_time, yn, ts,excep_label
     </sql>
 
     <insert id="insert" parameterType="JyBizTaskSendVehicleDetailEntity">
@@ -349,7 +350,7 @@
     </insert>
 
     <select id="findByMainVehicleBiz" resultMap="jyBizTaskSendVehicleDetailMap">
-        SELECT 
+        SELECT
             <include refid="Base_Column_List"/>
         FROM jy_biz_task_send_vehicle_detail
         WHERE
@@ -495,5 +496,11 @@
         set vehicle_status =#{vehicleStatus},update_time = NOW()
         where biz_id =#{bizId} and vehicle_status =#{preVehicleStatus}
     </update>
+
+    <select id="countNoCancelSendDetail" parameterType="JyBizTaskSendVehicleDetailEntity" resultType="java.lang.Integer">
+        select count(id) from jy_biz_task_send_vehicle_detail
+        WHERE send_vehicle_biz_id =#{sendVehicleBizId}
+          and vehicle_status IN (0,1,2,3) AND yn =1
+    </select>
 
 </mapper>

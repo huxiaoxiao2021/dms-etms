@@ -119,6 +119,8 @@ public class JyBizTaskSendVehicleDetailEntity implements Serializable {
 	 */
 	private Date ts;
 
+	private Integer excepLabel;
+
 	public Integer getPreVehicleStatus() {
 		return preVehicleStatus;
 	}
@@ -277,5 +279,13 @@ public class JyBizTaskSendVehicleDetailEntity implements Serializable {
 
 	public void setTs(Date ts) {
 		this.ts = ts;
+	}
+
+	public Integer getExcepLabel() {
+		return excepLabel;
+	}
+
+	public void setExcepLabel(Integer excepLabel) {
+		this.excepLabel = excepLabel;
 	}
 }

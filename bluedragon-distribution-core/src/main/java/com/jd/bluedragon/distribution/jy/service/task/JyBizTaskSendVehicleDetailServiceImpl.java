@@ -1,9 +1,12 @@
 package com.jd.bluedragon.distribution.jy.service.task;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleInfo;
 import com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskSendVehicleDetailDao;
 import com.jd.bluedragon.distribution.jy.dto.send.JyBizTaskSendCountDto;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendDetailStatusEnum;
+import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendStatusEnum;
+import com.jd.bluedragon.distribution.jy.enums.JySendVehicleStatusEnum;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
@@ -12,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service("jyBizTaskSendVehicleDetailService")
@@ -33,6 +37,11 @@ public class JyBizTaskSendVehicleDetailServiceImpl implements JyBizTaskSendVehic
     }
 
     @Override
+    public int updateByBiz(JyBizTaskSendVehicleDetailEntity detailEntity) {
+        return jyBizTaskSendVehicleDetailDao.updateByBiz(detailEntity);
+    }
+
+    @Override
     public int saveTaskSendDetail(JyBizTaskSendVehicleDetailEntity detailEntity) {
         Long detailId = jyBizTaskSendVehicleDetailDao.findByCondition(detailEntity);
         if (NumberHelper.gt0(detailId)) {
@@ -45,6 +54,15 @@ public class JyBizTaskSendVehicleDetailServiceImpl implements JyBizTaskSendVehic
     @Override
     public List<JyBizTaskSendVehicleDetailEntity> findEffectiveSendVehicleDetail(JyBizTaskSendVehicleDetailEntity entity) {
         return jyBizTaskSendVehicleDetailDao.findByMainVehicleBiz(entity, null);
+    }
+
+    @Override
+    public List<JyBizTaskSendVehicleDetailEntity> findNoSealCarSendVehicleDetail(JyBizTaskSendVehicleDetailEntity entity) {
+        List<Integer> status =new ArrayList<>();
+        status.add(JyBizTaskSendStatusEnum.TO_SEND.getCode());
+        status.add(JyBizTaskSendStatusEnum.SENDING.getCode());
+        status.add(JyBizTaskSendStatusEnum.TO_SEAL.getCode());
+        return jyBizTaskSendVehicleDetailDao.findByMainVehicleBiz(entity, status);
     }
 
     @Override
@@ -87,5 +105,10 @@ public class JyBizTaskSendVehicleDetailServiceImpl implements JyBizTaskSendVehic
     @Override
     public int updateBizTaskSendDetailStatus(JyBizTaskSendVehicleDetailEntity entity) {
         return jyBizTaskSendVehicleDetailDao.updateBizTaskSendDetailStatus(entity);
+    }
+
+    @Override
+    public Integer countNoCancelSendDetail(JyBizTaskSendVehicleDetailEntity entity) {
+        return jyBizTaskSendVehicleDetailDao.countNoCancelSendDetail(entity);
     }
 }
