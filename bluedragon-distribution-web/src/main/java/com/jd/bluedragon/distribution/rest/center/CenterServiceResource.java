@@ -12,6 +12,7 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
 import com.jd.bluedragon.core.base.*;
+import com.jd.bluedragon.distribution.print.service.HideInfoSmileService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
@@ -24,6 +25,7 @@ import org.jboss.resteasy.annotations.GZIP;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import com.jd.bluedragon.Constants;
@@ -43,11 +45,15 @@ public class CenterServiceResource {
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	@Autowired
+	@Qualifier("hideInfoSmileService")
+	private HideInfoSmileService hideInfoSmileService;
+
+	@Autowired
 	private BaseMajorManager baseMajorManager;
-	
+
 	@Autowired
 	private VrsRouteTransferRelationManager vrsRouteTransferRelationManager;
-	
+
 	@Autowired
 	private BaseService baseService;
 
@@ -151,6 +157,7 @@ public class CenterServiceResource {
 		try {
 			result = waybillQueryManager.getDataByChoice(waybillCode,
 					isWaybillC, isWaybillE, isWaybillM, isGoodList, isPackList, isPickupTask, isServiceBillPay);
+			hideInfoSmileService.setHideInfo(result.getData().getWaybill());
 		} catch (Exception e) {
 			StringBuilder errorMsg = new StringBuilder(
 					"中心服务调用运单getDataByChoice出错").append("waybillCode=")
@@ -189,6 +196,7 @@ public class CenterServiceResource {
 		BaseEntity<BigWaybillDto> result = null;
 		try {
 			result = waybillQueryManager.getDataByChoice(waybillCode,choice);
+			hideInfoSmileService.setHideInfo(result.getData().getWaybill());
 		} catch (Exception e) {
 			log.error("中心服务调用运单getDataByChoice出错", e);
 		}
