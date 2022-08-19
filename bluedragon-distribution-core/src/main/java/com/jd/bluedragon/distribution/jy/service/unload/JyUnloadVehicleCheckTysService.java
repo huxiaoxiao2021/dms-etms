@@ -850,17 +850,20 @@ public class JyUnloadVehicleCheckTysService {
         response.setStageBizId(unloadScanDto.getStageBizId());
         response.setStageFirstScan(checkIsStageFirstScan(unloadScanDto.getStageBizId()));
         response.setFirstScan(checkIsFirstScan(request.getBizId()));
-        // 按包裹扫描
-        if (ScanTypeEnum.PACKAGE.getCode().equals(request.getType())) {
-            response.setPackageAmount(1);
-            response.setWaybillAmount(1);
-            // 按运单扫描
-        } else if (ScanTypeEnum.WAYBILL.getCode().equals(request.getType())) {
+        // 按件扫描
+        if (ScanTypeEnum.SCAN_ONE.getCode().equals(request.getType())) {
+            // 包裹号
+            if (WaybillUtil.isPackageCode(request.getScanCode())) {
+                response.setPackageAmount(1);
+                response.setWaybillAmount(1);
+                // 箱号
+            } else if (BusinessUtil.isBoxcode(request.getScanCode())) {
+
+            }
+            // 按单扫描
+        } else if (ScanTypeEnum.SCAN_WAYBILL.getCode().equals(request.getType())) {
             response.setPackageAmount(request.getGoodsNumber());
             response.setWaybillAmount(1);
-            // 按箱扫描
-        } else if (ScanTypeEnum.BOX.getCode().equals(request.getType())) {
-
         }
         response.setSupplementary(unloadScanDto.getSupplementary());
         response.setGoodsAreaCode(request.getGoodsAreaCode());

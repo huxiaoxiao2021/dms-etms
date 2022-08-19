@@ -696,15 +696,19 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         }
         ScanPackageRespDto scanPackageRespDto = convertToScanResult(scanPackageDto);
         invokeResult.setData(scanPackageRespDto);
-        // 按包裹扫描
-        if (ScanTypeEnum.PACKAGE.getCode().equals(scanPackageDto.getType())) {
-            return packageScan(scanPackageDto, unloadVehicleEntity, invokeResult);
-            // 按运单扫描
-        } else if (ScanTypeEnum.WAYBILL.getCode().equals(scanPackageDto.getType())) {
+        // 按件扫描
+        if (ScanTypeEnum.SCAN_ONE.getCode().equals(scanPackageDto.getType())) {
+            // 包裹号
+            if (WaybillUtil.isPackageCode(scanPackageDto.getScanCode())) {
+                return packageScan(scanPackageDto, unloadVehicleEntity, invokeResult);
+                // 箱号
+            } else if (BusinessUtil.isBoxcode(scanPackageDto.getScanCode())) {
+                invokeResult.customMessage(RESULT_INTERCEPT_CODE, "暂不支持箱号");
+                return invokeResult;
+            }
+            // 按单扫描
+        } else if (ScanTypeEnum.SCAN_WAYBILL.getCode().equals(scanPackageDto.getType())) {
             return waybillScan(scanPackageDto, unloadVehicleEntity, invokeResult);
-            // 按箱扫描
-        } else if (ScanTypeEnum.BOX.getCode().equals(scanPackageDto.getType())) {
-
         }
         return invokeResult;
     }
