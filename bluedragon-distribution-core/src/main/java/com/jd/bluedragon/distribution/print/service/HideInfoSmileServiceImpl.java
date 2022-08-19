@@ -59,8 +59,26 @@ public class HideInfoSmileServiceImpl implements HideInfoSmileService{
         if (!StringUtils.isBlank(waybill.getConsignerAddress())){
             waybill.setConsignerAddress(hideAddress(waybill.getConsignerAddress(),hideRule));
         }
+        hideName(waybill);
+
     }
 
+    /**
+     * 设置客户姓名隐藏信息
+     * @param waybill 运单
+     */
+    private void hideName(Waybill waybill){
+        String receiverName = waybill.getReceiverName();
+        if(StringUtils.isNotBlank(receiverName)){
+            receiverName = receiverName.trim().substring(0, 1) + StringHelper.SMILE;
+            waybill.setReceiverName(receiverName);
+        }
+        String consigner = waybill.getConsigner();
+        if(StringUtils.isNotBlank(consigner)){
+            consigner = consigner.trim().substring(0, 1) + StringHelper.SMILE;
+            waybill.setConsigner(consigner);
+        }
+    }
     private static String hidePhone(String mobile){
         StringBuilder mobileSmile =new StringBuilder();
         //国内：普通城市座机、4位数区号+7位数座机电话号码=11位
