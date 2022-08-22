@@ -68,6 +68,16 @@ public class JyBizTaskUnloadVehicleDao extends BaseDao<JyBizTaskUnloadVehicleEnt
         params.put("bizId",bizId);
         return this.getSqlSession().selectOne(NAMESPACE + ".findIdByBizId", params);
     }
+
+    /**
+     * 根据bizId获取数据只返回逻辑主键  不依赖YN状态
+     * @return
+     */
+    public Long findIdByBizIdWithoutYn(String bizId){
+        Map<String,Object> params = new HashMap<>();
+        params.put("bizId",bizId);
+        return this.getSqlSession().selectOne(NAMESPACE + ".findIdByBizIdWithoutYn", params);
+    }
     /**
      * 根据bizId获取数据只返回逻辑主键和状态
      * @return
@@ -186,7 +196,7 @@ public class JyBizTaskUnloadVehicleDao extends BaseDao<JyBizTaskUnloadVehicleEnt
     }
 
     /**
-     * 根据状态获取需要清理的数据的场地ID
+     * 根据状态获取需要清理的数据的场地ID(因为带入状态后不走索引需要移除状态限制，多返回一些数据无碍)
      * @param condition
      * @return
      */

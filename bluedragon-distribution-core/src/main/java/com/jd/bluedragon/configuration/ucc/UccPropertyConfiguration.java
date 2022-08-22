@@ -62,11 +62,6 @@ public class UccPropertyConfiguration {
     /** 分拣动作选取的service DMS、MIDDLEEND、FAILOVER**/
     private String sortingServiceMode;
 
-    /** 出管新接口-写入方法开关 true 调用新接口，false 调用老接口**/
-    private boolean chuguanNewInterfaceInsertSwitch;
-
-    /** 出管新接口-查询方法开关 true 调用新接口，false 调用老接口**/
-    private boolean chuguanNewInterfaceQuerySwitch;
 
     /**
      * 大运单告警数量
@@ -501,6 +496,19 @@ public class UccPropertyConfiguration {
      * 日志查询功能开关 1：启用 0：禁用
      */
     private String businessLogQueryPageSwitch;
+
+    /**
+     * 出管供应链二期改造 开关。true 开启，false 不开启
+     */
+    private boolean chuguanPurchaseAndSaleSwitch;
+
+    public boolean isChuguanPurchaseAndSaleSwitch() {
+        return chuguanPurchaseAndSaleSwitch;
+    }
+
+    public void setChuguanPurchaseAndSaleSwitch(boolean chuguanPurchaseAndSaleSwitch) {
+        this.chuguanPurchaseAndSaleSwitch = chuguanPurchaseAndSaleSwitch;
+    }
 
     public String getBusinessLogQueryPageSwitch() {
         return businessLogQueryPageSwitch;
@@ -958,22 +966,6 @@ public class UccPropertyConfiguration {
 
     public void setSortingServiceMode(String sortingServiceMode) {
         this.sortingServiceMode = sortingServiceMode;
-    }
-
-    public boolean isChuguanNewInterfaceInsertSwitch() {
-        return chuguanNewInterfaceInsertSwitch;
-    }
-
-    public void setChuguanNewInterfaceInsertSwitch(boolean chuguanNewInterfaceInsertSwitch) {
-        this.chuguanNewInterfaceInsertSwitch = chuguanNewInterfaceInsertSwitch;
-    }
-
-    public boolean isChuguanNewInterfaceQuerySwitch() {
-        return chuguanNewInterfaceQuerySwitch;
-    }
-
-    public void setChuguanNewInterfaceQuerySwitch(boolean chuguanNewInterfaceQuerySwitch) {
-        this.chuguanNewInterfaceQuerySwitch = chuguanNewInterfaceQuerySwitch;
     }
 
     public String getSortingQueryMode() {

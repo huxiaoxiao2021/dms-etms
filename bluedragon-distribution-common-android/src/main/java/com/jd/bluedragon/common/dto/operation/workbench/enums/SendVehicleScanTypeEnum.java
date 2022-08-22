@@ -8,10 +8,10 @@ package com.jd.bluedragon.common.dto.operation.workbench.enums;
  **/
 public enum SendVehicleScanTypeEnum {
 
-    SCAN_PACKAGE(1, "包裹号", "支持扫描包裹号"),
-    SCAN_WAYBILL(2, "运单号", "扫描包裹号转成运单号，或扫描运单号"),
-    SCAN_BOX(3, "箱号", "扫描包裹号转成箱号，或扫描箱号"),
-    SCAN_BOARD(4, "板号", "扫描包裹号转成板号，或扫描板号"),
+    SCAN_ONE(1, "按件扫描", "支持扫描包裹号或箱号"),
+    SCAN_WAYBILL(2, "按单扫描", "扫描包裹号转成运单号，或扫描运单号"),
+    // SCAN_BOX(3, "箱号", "扫描包裹号转成箱号，或扫描箱号"),
+    // SCAN_BOARD(4, "板号", "扫描包裹号转成板号，或扫描板号"),
     ;
 
     private Integer code;
