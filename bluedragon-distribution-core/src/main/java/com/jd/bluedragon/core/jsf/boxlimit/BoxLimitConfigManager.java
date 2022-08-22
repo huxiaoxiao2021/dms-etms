@@ -1,4 +1,4 @@
-package com.jd.bluedragon.core.jsf.boxLimit;
+package com.jd.bluedragon.core.jsf.boxlimit;
 
 /**
  * @Author: chenyaguo@jd.com

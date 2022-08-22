@@ -1,6 +1,6 @@
-package com.jd.bluedragon.core.jsf.boxLimit.impl;
+package com.jd.bluedragon.core.jsf.boxlimit.impl;
 
-import com.jd.bluedragon.core.jsf.boxLimit.BoxLimitConfigManager;
+import com.jd.bluedragon.core.jsf.boxlimit.BoxLimitConfigManager;
 import com.jdl.basic.api.response.JDResponse;
 import com.jdl.basic.api.service.boxLimit.BoxlimitConfigApi;
 
