@@ -698,8 +698,10 @@ public class JyUnloadVehicleCheckTysService {
         if (result == null) {
             createUnloadVehicleStage(entity, unloadScanDto);
             jyBizTaskUnloadVehicleStageService.insertSelective(entity);
+            unloadScanDto.setStageBizId(entity.getBizId());
+        } else {
+            unloadScanDto.setStageBizId(result.getBizId());
         }
-        unloadScanDto.setStageBizId(entity.getBizId());
     }
 
     private void createUnloadVehicleStage(JyBizTaskUnloadVehicleStageEntity entity, UnloadScanDto unloadScanDto) {
