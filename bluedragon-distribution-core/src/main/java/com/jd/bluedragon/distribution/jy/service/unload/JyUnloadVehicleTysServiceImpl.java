@@ -1379,13 +1379,18 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     }
 
     @Override
-    public InvokeResult<UnloadBoardRespDto> queryTaskBoardInfoByChildTaskBizId(String childTaskBizId) {
+    public InvokeResult<UnloadBoardRespDto> queryTaskBoardInfoByChildTaskBizId(String childTaskBizId, String boardCode) {
         final String methodDesc = "JyUnloadVehicleTysServiceImpl.queryTaskBoardInfoByChildTaskBizId--根据子BizId查询任务板关系服务--";
         InvokeResult<UnloadBoardRespDto> res = new InvokeResult<>();
         res.success();
         try{
+            if(StringUtils.isBlank(childTaskBizId) || StringUtils.isBlank(boardCode)) {
+                res.error("参数缺失");
+                return res;
+            }
             JyUnloadVehicleBoardEntity param = new JyUnloadVehicleBoardEntity();
             param.setUnloadVehicleStageBizId(childTaskBizId);
+            param.setBoardCode(boardCode);
             JyUnloadVehicleBoardEntity jyMasterTask = jyUnloadVehicleBoardDao.getTaskBoardInfoByChildTaskBizId(param);
             if(jyMasterTask == null) {
                 res.setMessage("查询数据为空");
