@@ -5,6 +5,7 @@ import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
+import com.jd.bluedragon.common.dto.board.BizSourceEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.*;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.*;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.*;
@@ -100,6 +101,8 @@ import java.math.RoundingMode;
 import java.text.DecimalFormat;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+
+import static com.jd.bluedragon.distribution.base.domain.InvokeResult.*;
 
 
 /**
@@ -2376,6 +2379,24 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
         }
 
         return invokeResult;
+    }
+
+    @Override
+    public InvokeResult checkMainLineSendTask(CheckBatchCodeRequest request) {
+        log.info("jy checkMainLineSendTask request:{}",JsonHelper.toJson(request));
+        if  (ObjectHelper.isNotNull(request.getBizSource()) && ObjectHelper.isNotNull(uccConfig.getNeedValidateMainLineBizSources())){
+            if (uccConfig.getNeedValidateMainLineBizSources().contains(String.valueOf(request.getBizSource()))){
+                Integer endSiteId =BusinessUtil.getReceiveSiteCodeFromSendCode(request.getBatchCode());
+                Integer startSiteId =request.getCurrentOperate().getSiteCode();
+
+                JyBizTaskSendVehicleDetailEntity detailEntity = new JyBizTaskSendVehicleDetailEntity(Long.valueOf(startSiteId),Long.valueOf(endSiteId));
+                Integer count= taskSendVehicleDetailService.countByCondition(detailEntity);
+                if (ObjectHelper.isEmpty(count) || count<=0){
+                    return new InvokeResult(NOT_SUPPORT_MAIN_LINE_TASK_CODE,NOT_SUPPORT_MAIN_LINE_TASK_MESSAGE);
+                }
+            }
+        }
+        return new InvokeResult(RESULT_SUCCESS_CODE,RESULT_SUCCESS_MESSAGE);
     }
 
     /**

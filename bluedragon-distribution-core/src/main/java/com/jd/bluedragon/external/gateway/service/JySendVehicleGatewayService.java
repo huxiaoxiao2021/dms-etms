@@ -7,6 +7,7 @@ import com.jd.bluedragon.common.dto.operation.workbench.enums.SendVehiclePhotoEn
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.*;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.*;
 import com.jd.bluedragon.common.dto.select.SelectOption;
+import com.jd.bluedragon.distribution.api.request.driver.DriverBoardSendCheckBatchCodeRequest;
 
 import java.util.List;
 
@@ -128,6 +129,13 @@ public interface JySendVehicleGatewayService {
      * @return
      */
     JdVerifyResponse<SendScanResponse> sendScan(SendScanRequest request);
+
+    /**
+     * 校验批次任务是否为干线发货任务
+     * @param request
+     * @return
+     */
+    JdCResponse checkMainLineSendTask(CheckBatchCodeRequest request);
 
 
 }

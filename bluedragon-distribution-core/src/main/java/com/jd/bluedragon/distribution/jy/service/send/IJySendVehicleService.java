@@ -114,4 +114,6 @@ public interface IJySendVehicleService {
      * @return
      */
     InvokeResult<ToSealDestAgg> selectSealDest(SelectSealDestRequest request);
+
+    InvokeResult checkMainLineSendTask(CheckBatchCodeRequest request);
 }
