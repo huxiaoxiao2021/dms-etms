@@ -74,14 +74,20 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 		JdCResponse<PositionData> response = new JdCResponse<>();
 		response.toFail();
 		try{
+			log.info("UserSignGatewayServiceImpl.queryPositionData 入参-{}",positionCode);
 			JDResponse<com.jdl.basic.api.domain.position.PositionData> result = positionManager.queryPositionWithIsMatchAppFunc(positionCode);
-			if(result.isSuccess() && result.getData()!= null ){
-				PositionData positionData = new PositionData();
-				BeanUtils.copyProperties(result.getData(),positionData);
-				response.toSucceed();
-				response.setData(positionData);
+			if(result == null){
+				response.setMessage("查询岗位码失败！");
+				return response;
 			}
-
+			PositionData positionData = new PositionData();
+			BeanUtils.copyProperties(result.getData(),positionData);
+			response.setData(positionData);
+			if(result.isSuccess() && result.getData()!= null ){
+				response.toSucceed();
+				return response;
+			}
+			response.setMessage(result.getMessage());
 		}catch (Exception e){
 			log.error("queryPositionData查询岗位信息异常-{}",e.getMessage(),e);
 			response.toError("查询岗位信息异常");
@@ -94,13 +100,20 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 		JdCResponse<PositionData> response = new JdCResponse<>();
 		response.toFail();
 		try{
+			log.info("UserSignGatewayServiceImpl.queryPositionInfo 入参-{}",positionCode);
 			JDResponse<com.jdl.basic.api.domain.position.PositionData> result = positionManager.queryPositionInfo(positionCode);
-			if(result.isSuccess() && result.getData()!= null ){
-				PositionData positionData = new PositionData();
-				BeanUtils.copyProperties(result.getData(),positionData);
-				response.toSucceed();
-				response.setData(positionData);
+			if(result == null){
+				response.setMessage("查询岗位码失败！");
+				return response;
 			}
+			PositionData positionData = new PositionData();
+			BeanUtils.copyProperties(result.getData(),positionData);
+			response.setData(positionData);
+			if(result.isSuccess() && result.getData()!= null ){
+				response.toSucceed();
+				return response;
+			}
+			response.setMessage(result.getMessage());
 
 		}catch (Exception e){
 			log.error("queryPositionData查询岗位信息异常-{}",e.getMessage(),e);
