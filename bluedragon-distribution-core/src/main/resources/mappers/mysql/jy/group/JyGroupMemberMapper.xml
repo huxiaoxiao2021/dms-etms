@@ -267,7 +267,7 @@
         from
             jy_group_member t
         <include refid="queryMemberDataCondition"/>
-          order by id
+          order by id desc
           limit #{offset}, #{limit}
     </select>
     
