@@ -2,13 +2,13 @@ package com.jd.bluedragon.common.dto.jyexpection.request;
 
 public class ExpTaskByIdReq extends ExpBaseReq {
 
-   private String taskId;
+   private String bizId;
 
-    public String getTaskId() {
-        return taskId;
+    public String getBizId() {
+        return bizId;
     }
 
-    public void setTaskId(String taskId) {
-        this.taskId = taskId;
+    public void setBizId(String bizId) {
+        this.bizId = bizId;
     }
 }

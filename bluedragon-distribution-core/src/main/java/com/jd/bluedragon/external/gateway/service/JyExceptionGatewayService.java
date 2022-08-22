@@ -29,12 +29,12 @@ public interface JyExceptionGatewayService {
     /**
      * 取件进行中数据统计
      */
-    JdCResponse<List<StatisticsByGridDto>> getReceivingCount(StatisticsByGridReq req);
+    JdCResponse<List<ProcessingNumByGridDto>> getReceivingCount(StatisticsByGridReq req);
 
     /**
      * 任务列表接口
      */
-    JdCResponse<List<StatisticsByGridDto>> getExceptionTaskPageList(ExpTaskPageReq req);
+    JdCResponse<List<ExpTaskDto>> getExceptionTaskPageList(ExpTaskPageReq req);
 
     /**
      * 任务领取接口

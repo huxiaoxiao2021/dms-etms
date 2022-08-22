@@ -476,10 +476,10 @@ public class JyExceptionServiceImpl implements JyExceptionService {
     @Override
     public JdCResponse<ExpTaskDetailDto> getTaskDetail(ExpTaskByIdReq req) {
 
-        String redisKey = TASK_CACHE_PRE + req.getTaskId();
+        String redisKey = TASK_CACHE_PRE + req.getBizId();
         String s = redisClient.get(redisKey);
         if (StringUtils.isBlank(s)) {
-            return JdCResponse.fail("无相关任务明细!" + req.getTaskId());
+            return JdCResponse.fail("无相关任务明细!" + req.getBizId());
         }
 
         ExpTaskDetailCacheDto cacheDto = JSON.parseObject(s, ExpTaskDetailCacheDto.class);
