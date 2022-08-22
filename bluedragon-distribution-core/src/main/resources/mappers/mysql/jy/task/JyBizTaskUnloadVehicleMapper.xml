@@ -621,7 +621,7 @@
             <if test="railwayPfNo">
                 railway_pf_no =#{railwayPfNo},
             </if>
-            <if test="unloadType">
+            <if test="unloadType != null">
                 unload_type =#{unloadType},
             </if>
             <if test="taskType != null">
