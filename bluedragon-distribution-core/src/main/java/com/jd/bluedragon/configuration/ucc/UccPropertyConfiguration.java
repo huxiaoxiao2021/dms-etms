@@ -809,9 +809,9 @@ public class UccPropertyConfiguration {
     private String identityRecogniseSiteSwitch;
 
     /**
-     * 敏感信息微笑处理开关，0不处理 1处理
+     * 敏感信息隐藏开关
      */
-    private Integer sensitiveInformationSmile;
+    private Boolean sensitiveInfoHideSwitch;
 
     public String getScheduleSiteCheckSameCity() {
         return scheduleSiteCheckSameCity;
@@ -1973,11 +1973,11 @@ public class UccPropertyConfiguration {
         this.identityRecogniseSiteSwitch = identityRecogniseSiteSwitch;
     }
 
-    public Integer getSensitiveInformationSmile() {
-        return sensitiveInformationSmile;
+    public Boolean getSensitiveInfoHideSwitch() {
+        return sensitiveInfoHideSwitch;
     }
 
-    public void setSensitiveInformationSmile(Integer sensitiveInformationSmile) {
-        this.sensitiveInformationSmile = sensitiveInformationSmile;
+    public void setSensitiveInfoHideSwitch(Boolean sensitiveInfoHideSwitch) {
+        this.sensitiveInfoHideSwitch = sensitiveInfoHideSwitch;
     }
 }

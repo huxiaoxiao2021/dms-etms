@@ -13,10 +13,10 @@ import javax.ws.rs.core.MediaType;
 
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.*;
-import com.jd.bluedragon.distribution.print.service.HideInfoSmileService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
+import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ldop.center.api.print.WaybillPrintApi;
@@ -26,7 +26,6 @@ import org.jboss.resteasy.annotations.GZIP;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import com.jd.bluedragon.Constants;
@@ -37,6 +36,8 @@ import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 
+import static com.jd.bluedragon.dms.utils.BusinessUtil.*;
+
 @Component
 @Path(Constants.REST_URL)
 @Consumes({ MediaType.APPLICATION_JSON })
@@ -44,10 +45,6 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 public class CenterServiceResource {
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
-
-	@Autowired
-	@Qualifier("hideInfoSmileService")
-	private HideInfoSmileService hideInfoSmileService;
 
 	@Autowired
 	private UccPropertyConfiguration uccConfig;
@@ -161,8 +158,8 @@ public class CenterServiceResource {
 		try {
 			result = waybillQueryManager.getDataByChoice(waybillCode,
 					isWaybillC, isWaybillE, isWaybillM, isGoodList, isPackList, isPickupTask, isServiceBillPay);
-			if (Constants.SWITCH_OPEN.equals(uccConfig.getSensitiveInformationSmile())) {
-				hideInfoSmileService.setHideInfo(result.getData().getWaybill());
+			if (uccConfig.getSensitiveInfoHideSwitch()&&result.getData()!= null) {
+				hideInfo(result.getData().getWaybill());
 			}
 		} catch (Exception e) {
 			StringBuilder errorMsg = new StringBuilder(
@@ -202,13 +199,24 @@ public class CenterServiceResource {
 		BaseEntity<BigWaybillDto> result = null;
 		try {
 			result = waybillQueryManager.getDataByChoice(waybillCode,choice);
-			if (Constants.SWITCH_OPEN.equals(uccConfig.getSensitiveInformationSmile())) {
-				hideInfoSmileService.setHideInfo(result.getData().getWaybill());
+			if (uccConfig.getSensitiveInfoHideSwitch()&&result.getData()!= null) {
+				hideInfo(result.getData().getWaybill());
 			}
 		} catch (Exception e) {
 			log.error("中心服务调用运单getDataByChoice出错", e);
 		}
 		return result;
+	}
+
+	private void hideInfo(Waybill waybill) {
+		waybill.setReceiverName(getHideName(waybill.getReceiverName()));
+		waybill.setConsigner(getHideName(waybill.getConsigner()));
+		waybill.setConsignerMobile(getHidePhone(waybill.getConsignerMobile()));
+		waybill.setConsignerTel(getHidePhone(waybill.getConsignerTel()));
+		waybill.setReceiverMobile(getHidePhone(waybill.getReceiverMobile()));
+		waybill.setReceiverTel(getHidePhone(waybill.getReceiverTel()));
+		waybill.setConsignerAddress(getHideAddress(waybill.getConsignerAddress()));
+		waybill.setReceiverAddress(getHideName(waybill.getReceiverAddress()));
 	}
 
 	@GET
