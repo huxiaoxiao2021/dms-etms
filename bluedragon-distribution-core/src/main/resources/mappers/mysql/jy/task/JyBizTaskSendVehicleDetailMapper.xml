@@ -391,6 +391,9 @@
             <if test="updateTime != null">
                 update_time = #{updateTime},
             </if>
+            <if test="excepLabel != null">
+                excep_label = #{excepLabel},
+            </if>
             <if test="yn != null">
                 yn = #{yn}
             </if>

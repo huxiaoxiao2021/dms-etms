@@ -138,7 +138,18 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
             List<String> afterFilterDuplicate = ListUtil.processDuplicateByContains(sealCarDto.getBatchCodes());
             sealCarDto.setBatchCodes(afterFilterDuplicate);
 
-            sealCarDto.getSealCodes().addAll(sealCodes);
+            if (sealCarDto.getSealCodes() != null) {
+                sealCarDto.getSealCodes().addAll(sealCodes);
+            } else {
+                sealCarDto.setSealCodes(sealCodes);
+            }
+            if (ObjectHelper.isNotNull(sealVehicleReq.getTransWay())
+                    && TransTypeEnum.ROAD_ZHENGCHE.getType()==sealVehicleReq.getTransWay()){
+                if (ObjectHelper.isEmpty(sealCarDto.getSealCodes()) || sealCarDto.getSealCodes().size()<=0){
+                    return new InvokeResult(COMMIT_SEAL_CAR_EXCEPTION_CODE, COMMIT_SEAL_CAR_EXCEPTION_MESSAGE);
+                }
+            }
+
             //封装提交封车请求的dto
             List<SealCarDto> sealCarDtoList = new ArrayList<>();
             sealCarDtoList.add(sealCarDto);
@@ -235,5 +246,17 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
         //转换体积单位 立方厘米转换为立方米
         sealCarDto.setVolume(NumberHelper.cm3ToM3(sealVehicleReq.getVolume()));
         return sealCarDto;
+    }
+
+    public static void main(String[] args) {
+        SealCarDto sealCarDto =new SealCarDto();
+        List<String> sealCodes =new ArrayList<>();
+        sealCodes.add("1");
+        sealCodes.add("2");
+        sealCarDto.setSealCodes(null);
+
+
+        sealCarDto.getSealCodes().addAll(sealCodes);
+        System.out.println(sealCarDto.getSealCodes());
     }
 }
