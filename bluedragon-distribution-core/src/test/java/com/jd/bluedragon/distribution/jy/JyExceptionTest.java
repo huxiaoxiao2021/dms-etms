@@ -1,17 +1,10 @@
 package com.jd.bluedragon.distribution.jy;
 
-import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
-import com.jd.bluedragon.common.dto.base.request.User;
+import com.alibaba.fastjson.JSON;
+import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.jyexpection.request.StatisticsByGridReq;
-import com.jd.bluedragon.common.dto.send.request.CancelSendTaskReq;
-import com.jd.bluedragon.common.dto.send.request.CreateVehicleTaskReq;
-import com.jd.bluedragon.common.dto.send.request.DeleteVehicleTaskReq;
-import com.jd.bluedragon.common.dto.send.response.CancelSendTaskResp;
-import com.jd.bluedragon.common.dto.send.response.CreateVehicleTaskResp;
-import com.jd.bluedragon.common.dto.send.response.VehicleSpecResp;
-import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.common.dto.jyexpection.response.StatisticsByGridDto;
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionService;
-import com.jd.bluedragon.distribution.jy.service.send.JyNoTaskSendService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -40,6 +33,9 @@ public class JyExceptionTest {
         req.setSiteId(0);
         req.setPositionCode("");
 
-        jyExceptionService.getGridStatisticsPageList(req);
+        System.out.println("测试请求:"+JSON.toJSONString(req));
+        JdCResponse<List<StatisticsByGridDto>> response = jyExceptionService.getGridStatisticsPageList(req);
+        System.out.println("测试响应:"+JSON.toJSONString(response));
+
     }
 }
