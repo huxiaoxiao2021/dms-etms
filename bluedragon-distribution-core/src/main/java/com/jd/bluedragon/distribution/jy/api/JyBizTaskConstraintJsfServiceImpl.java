@@ -26,7 +26,7 @@ public class JyBizTaskConstraintJsfServiceImpl implements JyBizTaskConstraintJsf
     private BizTaskService bizProcessorAssemble(String taskType) {
         Map<String, BizTaskService> beans = SpringHelper.getBeans(BizTaskService.class);
         for (Map.Entry<String,BizTaskService> entry:beans.entrySet()){
-            BizType annotation = entry.getClass().getAnnotation(BizType.class);
+            BizType annotation = entry.getValue().getClass().getAnnotation(BizType.class);
             for (JyScheduleTaskTypeEnum en:annotation.value()){
                 if (Objects.equals(en.getCode(),taskType)){
                     return entry.getValue();
