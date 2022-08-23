@@ -77,8 +77,8 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
     /**
      * 卸车岗任务类型： 1 分拣 2转运
      */
-    public static final Integer UNLOAD_TASK_CATEGORY_TYS = 1;
-    public static final Integer UNLOAD_TASK_CATEGORY_DMS = 2;
+    public static final Integer UNLOAD_TASK_CATEGORY_TYS = 2;
+    public static final Integer UNLOAD_TASK_CATEGORY_DMS = 1;
 
     private Logger logger = LoggerFactory.getLogger(JyBizTaskUnloadVehicleServiceImpl.class);
 
