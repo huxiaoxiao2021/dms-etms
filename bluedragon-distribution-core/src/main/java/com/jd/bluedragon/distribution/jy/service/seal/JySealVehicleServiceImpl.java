@@ -117,11 +117,13 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
         BigTransWorkItemDto bigTransWorkItemDto = jdiTransWorkWSManager.queryTransWorkItemByOptionWithRead(detailEntity.getTransWorkItemCode(), queryOption);
         if (ObjectHelper.isNotNull(bigTransWorkItemDto) && ObjectHelper.isNotNull(bigTransWorkItemDto.getTransWorkItemDto())) {
             TransWorkItemDto transWorkItemDto = bigTransWorkItemDto.getTransWorkItemDto();
-            sealVehicleInfoResp.setTransportCode(transWorkItemDto.getTransportCode());
+            if (ObjectHelper.isNotNull(transWorkItemDto.getTransportCode()) &&
+                    !transWorkItemDto.getTransportCode().toUpperCase().startsWith("T")){
+                sealVehicleInfoResp.setTransportCode(transWorkItemDto.getTransportCode());
+            }
             sealVehicleInfoResp.setVehicleNumber(transWorkItemDto.getVehicleNumber());
-            return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, sealVehicleInfoResp);
         }
-        return new InvokeResult(RESULT_NO_FOUND_BY_TRANS_WOEK_ITEM_CODE, RESULT_NO_FOUND_BY_TRANS_WOEK_ITEM_MESSAGE);
+        return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, sealVehicleInfoResp);
     }
 
     @Override
