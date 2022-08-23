@@ -78,10 +78,10 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySealVehicleServiceImpl.listSealCodeByBizId", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<SealCodeResp> listSealCodeByBizId(SealCodeReq sealCodeReq) {
         //根据运输任务查询 sealcode模型
-        List<String> sendCodeList = jySendSealCodeService.selectSealCodeByBizId(sealCodeReq.getSendVehicleBizId());
-        if (sendCodeList != null && sendCodeList.size() > 0) {
+        List<String> sealCodeList = jySendSealCodeService.selectSealCodeByBizId(sealCodeReq.getSendVehicleBizId());
+        if (sealCodeList != null && sealCodeList.size() > 0) {
             SealCodeResp sealCodeResp = new SealCodeResp();
-            sealCodeResp.setSealCodeList(sendCodeList);
+            sealCodeResp.setSealCodeList(sealCodeList);
             sealCodeResp.setVehicleNumber(sealCodeReq.getVehicleNumber());
             return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, sealCodeResp);
         }
@@ -100,6 +100,11 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
         List<String> sendCodeList =jyVehicleSendRelationService.querySendCodesByVehicleDetailBizId(sealVehicleInfoReq.getSendVehicleDetailBizId());
         if (ObjectHelper.isNotNull(sendCodeList)){
             sealVehicleInfoResp.setSendCodeList(sendCodeList);
+        }
+        //查询封签号
+        List<String> sealCodeList = jySendSealCodeService.selectSealCodeByBizId(sealVehicleInfoReq.getSendVehicleBizId());
+        if (ObjectHelper.isNotNull(sealCodeList)){
+            sealVehicleInfoResp.setSealCodeList(sealCodeList);
         }
         //查询已扫描货物的重量和体积
         JySendAggsEntity jySendAggsEntity = jySendAggsService.getVehicleSendStatistics(sealVehicleInfoReq.getSendVehicleBizId());
@@ -256,7 +261,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
         sealCarDto.setSealCodes(null);
 
 
-        sealCarDto.getSealCodes().addAll(sealCodes);
-        System.out.println(sealCarDto.getSealCodes());
+
+        //System.out.println(sealCarDto.getSealCodes());
     }
 }

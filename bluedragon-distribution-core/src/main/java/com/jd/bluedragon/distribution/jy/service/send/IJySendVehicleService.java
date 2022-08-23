@@ -7,8 +7,6 @@ import com.jd.bluedragon.common.dto.send.request.TransferVehicleTaskReq;
 import com.jd.bluedragon.common.dto.send.request.VehicleTaskReq;
 import com.jd.bluedragon.common.dto.send.response.VehicleTaskResp;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
-import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
 
 import java.util.List;
 
@@ -115,5 +113,5 @@ public interface IJySendVehicleService {
      */
     InvokeResult<ToSealDestAgg> selectSealDest(SelectSealDestRequest request);
 
-    InvokeResult checkMainLineSendTask(CheckBatchCodeRequest request);
+    InvokeResult checkMainLineSendTask(CheckSendCodeRequest request);
 }

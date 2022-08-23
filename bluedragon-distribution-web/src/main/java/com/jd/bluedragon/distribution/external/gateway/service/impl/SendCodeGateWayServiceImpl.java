@@ -5,15 +5,20 @@ import com.jd.bluedragon.common.domain.ServiceMessage;
 import com.jd.bluedragon.common.domain.ServiceResultEnum;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
+import com.jd.bluedragon.common.dto.operation.workbench.send.request.CheckSendCodeRequest;
 import com.jd.bluedragon.common.dto.sendcode.response.BatchSendCarInfoDto;
 import com.jd.bluedragon.common.dto.sendcode.response.SendCodeCheckDto;
 import com.jd.bluedragon.common.dto.sendcode.response.SendCodeInfoDto;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.base.domain.CreateAndReceiveSiteInfo;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.batch.domain.BatchSend;
 import com.jd.bluedragon.distribution.departure.service.DepartureService;
+import com.jd.bluedragon.distribution.jy.service.send.JySendVehicleServiceImpl;
+import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetailService;
+import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.rest.base.SiteResource;
 import com.jd.bluedragon.distribution.rest.send.DeliveryResource;
 import com.jd.bluedragon.distribution.rest.sendprint.SendPrintResource;
@@ -21,11 +26,15 @@ import com.jd.bluedragon.distribution.sendprint.domain.BatchSendInfoResponse;
 import com.jd.bluedragon.distribution.sendprint.domain.BatchSendResult;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.external.gateway.service.SendCodeGateWayService;
+import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
@@ -35,11 +44,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import static com.jd.bluedragon.distribution.base.domain.InvokeResult.NOT_SUPPORT_MAIN_LINE_TASK_CODE;
+import static com.jd.bluedragon.distribution.base.domain.InvokeResult.NOT_SUPPORT_MAIN_LINE_TASK_MESSAGE;
+
 /**
  * @author : xumigen
  * @date : 2019/7/27
  */
 public class SendCodeGateWayServiceImpl implements SendCodeGateWayService {
+    private static final Logger log = LoggerFactory.getLogger(SendCodeGateWayServiceImpl.class);
 
     @Resource
     private SendPrintResource sendPrintResource;
@@ -57,6 +70,10 @@ public class SendCodeGateWayServiceImpl implements SendCodeGateWayService {
     @Autowired
     @Qualifier("siteResource")
     private SiteResource siteResource;
+    @Autowired
+    private UccPropertyConfiguration uccConfig;
+    @Autowired
+    private JyBizTaskSendVehicleDetailService taskSendVehicleDetailService;
 
     @Override
     @JProfiler(jKey = "DMSWEB.SendCodeGateWayServiceImpl.carrySendCarInfoNew",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -146,6 +163,43 @@ public class SendCodeGateWayServiceImpl implements SendCodeGateWayService {
         jdVerifyResponse.setData(jdCResponse.getData());
         //判断加盟 给页面返回提示类型信息
         Integer receiveSite = BusinessUtil.getReceiveSiteCodeFromSendCode(sendCode);
+        if(receiveSite == null){
+            return jdVerifyResponse;
+        }
+        BaseStaffSiteOrgDto dto = baseService.queryDmsBaseSiteByCode(String.valueOf(receiveSite));
+        if(dto != null && BusinessUtil.isAllianceBusiSite(dto.getSiteType(),dto.getSubType())){
+            jdVerifyResponse.addPromptBox(0,"派送至加盟商请复重！");
+        }
+        return jdVerifyResponse;
+    }
+
+    @Override
+    public JdVerifyResponse<SendCodeCheckDto> checkSendCodeAndAllianceForJy(CheckSendCodeRequest request) {
+        log.info("jy checkSendCodeAndAllianceForJy request:{}", JsonHelper.toJson(request));
+        if  (ObjectHelper.isNotNull(request.getBizSource()) && ObjectHelper.isNotNull(uccConfig.getNeedValidateMainLineBizSources())){
+            if (uccConfig.getNeedValidateMainLineBizSources().contains(String.valueOf(request.getBizSource()))){
+                Integer endSiteId =BusinessUtil.getReceiveSiteCodeFromSendCode(request.getSendCode());
+                Integer startSiteId =request.getCurrentOperate().getSiteCode();
+
+                JyBizTaskSendVehicleDetailEntity detailEntity = new JyBizTaskSendVehicleDetailEntity(Long.valueOf(startSiteId),Long.valueOf(endSiteId));
+                Integer count= taskSendVehicleDetailService.countByCondition(detailEntity);
+                if (ObjectHelper.isEmpty(count) || count<=0){
+                    return new JdVerifyResponse(NOT_SUPPORT_MAIN_LINE_TASK_CODE,NOT_SUPPORT_MAIN_LINE_TASK_MESSAGE);
+                }
+            }
+        }
+
+        JdCResponse<SendCodeCheckDto> jdCResponse = this.checkSendCodeStatus(request.getSendCode());
+        JdVerifyResponse<SendCodeCheckDto> jdVerifyResponse = new JdVerifyResponse<>();
+        if(!Objects.equals(jdCResponse.getCode(),JdCResponse.CODE_SUCCESS)){
+            jdVerifyResponse.toError(jdCResponse.getMessage());
+            return jdVerifyResponse;
+        }
+
+        jdVerifyResponse.toSuccess(jdCResponse.getMessage());
+        jdVerifyResponse.setData(jdCResponse.getData());
+        //判断加盟 给页面返回提示类型信息
+        Integer receiveSite = BusinessUtil.getReceiveSiteCodeFromSendCode(request.getSendCode());
         if(receiveSite == null){
             return jdVerifyResponse;
         }

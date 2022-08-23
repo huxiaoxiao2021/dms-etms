@@ -191,7 +191,7 @@ public class JySendVehicleGatewayServiceImpl implements JySendVehicleGatewayServ
     }
 
     @Override
-    public JdCResponse checkMainLineSendTask(CheckBatchCodeRequest request) {
+    public JdCResponse checkMainLineSendTask(CheckSendCodeRequest request) {
         return retJdCResponse(jySendVehicleService.checkMainLineSendTask(request));
     }
 

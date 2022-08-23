@@ -4,10 +4,10 @@ import com.jd.bluedragon.common.dto.base.request.BaseReq;
 
 import java.io.Serializable;
 
-public class CheckBatchCodeRequest extends BaseReq implements Serializable {
+public class CheckSendCodeRequest extends BaseReq implements Serializable {
     private static final long serialVersionUID = -7225230560689771768L;
     private Integer bizSource;
-    private String batchCode;
+    private String sendCode;
 
     public Integer getBizSource() {
         return bizSource;
@@ -17,11 +17,11 @@ public class CheckBatchCodeRequest extends BaseReq implements Serializable {
         this.bizSource = bizSource;
     }
 
-    public String getBatchCode() {
-        return batchCode;
+    public String getSendCode() {
+        return sendCode;
     }
 
-    public void setBatchCode(String batchCode) {
-        this.batchCode = batchCode;
+    public void setSendCode(String sendCode) {
+        this.sendCode = sendCode;
     }
 }

@@ -2,12 +2,9 @@ package com.jd.bluedragon.external.gateway.service;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
-import com.jd.bluedragon.common.dto.operation.workbench.enums.SendModeEnum;
-import com.jd.bluedragon.common.dto.operation.workbench.enums.SendVehiclePhotoEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.*;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.*;
 import com.jd.bluedragon.common.dto.select.SelectOption;
-import com.jd.bluedragon.distribution.api.request.driver.DriverBoardSendCheckBatchCodeRequest;
 
 import java.util.List;
 
@@ -135,7 +132,7 @@ public interface JySendVehicleGatewayService {
      * @param request
      * @return
      */
-    JdCResponse checkMainLineSendTask(CheckBatchCodeRequest request);
+    JdCResponse checkMainLineSendTask(CheckSendCodeRequest request);
 
 
 }
