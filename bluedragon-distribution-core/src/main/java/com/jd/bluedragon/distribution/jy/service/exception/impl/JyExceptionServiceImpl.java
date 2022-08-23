@@ -200,8 +200,8 @@ public class JyExceptionServiceImpl implements JyExceptionService {
 
         // 发送 mq 通知调度系统
         JyExpTaskMessage taskMessage = new JyExpTaskMessage();
-        taskMessage.setTaskType(JyBizTaskExceptionTypeEnum.SANWU.getCode());
-        taskMessage.setTaskStatus(JyExpStatusEnum.TO_PICK.getCode());
+        taskMessage.setTaskType(JyScheduleTaskTypeEnum.EXCEPTION.getCode());
+        taskMessage.setTaskStatus(JyScheduleTaskStatusEnum.INIT.getCode());
         taskMessage.setBizId(bizId);
         taskMessage.setOpeUser(req.getUserErp());
         taskMessage.setOpeUserName(baseStaffByErp.getStaffName());

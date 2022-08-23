@@ -7,7 +7,7 @@ import java.io.Serializable;
  */
 public class JyExpTaskMessage implements Serializable {
     // 任务类型
-    private Integer taskType;
+    private String taskType;
     // 任务状态
     private Integer taskStatus;
     // 业务主键
@@ -19,11 +19,11 @@ public class JyExpTaskMessage implements Serializable {
     // 操作时间
     private Long opeTime;
 
-    public Integer getTaskType() {
+    public String getTaskType() {
         return taskType;
     }
 
-    public void setTaskType(Integer taskType) {
+    public void setTaskType(String taskType) {
         this.taskType = taskType;
     }
 
