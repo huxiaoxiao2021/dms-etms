@@ -17,6 +17,7 @@ import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.Waybill;
+import com.jd.etms.waybill.domain.WaybillPickup;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ldop.center.api.print.WaybillPrintApi;
@@ -159,7 +160,7 @@ public class CenterServiceResource {
 			result = waybillQueryManager.getDataByChoice(waybillCode,
 					isWaybillC, isWaybillE, isWaybillM, isGoodList, isPackList, isPickupTask, isServiceBillPay);
 			if (uccConfig.getSensitiveInfoHideSwitch()&&result.getData()!= null) {
-				hideInfo(result.getData().getWaybill());
+				hideInfo(result.getData().getWaybill(),result.getData().getWaybillPickup());
 			}
 		} catch (Exception e) {
 			StringBuilder errorMsg = new StringBuilder(
@@ -200,7 +201,7 @@ public class CenterServiceResource {
 		try {
 			result = waybillQueryManager.getDataByChoice(waybillCode,choice);
 			if (uccConfig.getSensitiveInfoHideSwitch()&&result.getData()!= null) {
-				hideInfo(result.getData().getWaybill());
+				hideInfo(result.getData().getWaybill(),result.getData().getWaybillPickup());
 			}
 		} catch (Exception e) {
 			log.error("中心服务调用运单getDataByChoice出错", e);
@@ -208,7 +209,7 @@ public class CenterServiceResource {
 		return result;
 	}
 
-	private void hideInfo(Waybill waybill) {
+	private void hideInfo(Waybill waybill, WaybillPickup waybillPickup) {
 		waybill.setReceiverName(getHideName(waybill.getReceiverName()));
 		waybill.setConsigner(getHideName(waybill.getConsigner()));
 		waybill.setConsignerMobile(getHidePhone(waybill.getConsignerMobile()));
@@ -216,7 +217,8 @@ public class CenterServiceResource {
 		waybill.setReceiverMobile(getHidePhone(waybill.getReceiverMobile()));
 		waybill.setReceiverTel(getHidePhone(waybill.getReceiverTel()));
 		waybill.setConsignerAddress(getHideAddress(waybill.getConsignerAddress()));
-		waybill.setReceiverAddress(getHideName(waybill.getReceiverAddress()));
+		waybill.setReceiverAddress(getHideAddress(waybill.getReceiverAddress()));
+		waybillPickup.setConsignerAddress(getHideAddress(waybillPickup.getConsignerAddress()));
 	}
 
 	@GET
