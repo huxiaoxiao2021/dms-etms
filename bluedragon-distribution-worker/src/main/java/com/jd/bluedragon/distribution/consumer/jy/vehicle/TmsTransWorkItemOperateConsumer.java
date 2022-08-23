@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.consumer.jy.vehicle;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleData;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
@@ -229,11 +230,11 @@ public class TmsTransWorkItemOperateConsumer extends MessageBaseConsumer {
         }
         else {
             Integer noCancelCount =taskSendVehicleDetailService.countNoCancelSendDetail(detailEntity);
-            if (noCancelCount==null || noCancelCount==0){
+            if (noCancelCount==null || noCancelCount<=0){
                 JyBizTaskSendVehicleEntity entity =new JyBizTaskSendVehicleEntity();
                 entity.setBizId(detailEntity.getSendVehicleBizId());
                 entity.setVehicleStatus(JyBizTaskSendStatusEnum.CANCEL.getCode());
-                entity.setYn(0);
+                entity.setYn(Constants.YN_NO);
                 entity.setUpdateTime(new Date());
                 taskSendVehicleService.updateSendVehicleTask(entity);
             }

@@ -49,6 +49,8 @@ public interface JyBizTaskSendVehicleDetailService {
      */
     int cancelDetail(JyBizTaskSendVehicleDetailEntity detailEntity);
 
+    int cancelDetailTaskAndMainTask(JyBizTaskSendVehicleDetailEntity detailEntity);
+
     /**
      * 按顺序更新发货明细状态
      * @param detailEntity
