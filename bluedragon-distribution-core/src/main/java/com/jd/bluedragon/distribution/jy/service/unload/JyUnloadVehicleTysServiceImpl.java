@@ -138,7 +138,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         JyBizTaskUnloadStatusEnum[] statusEnums = {WAIT_UN_LOAD, UN_LOADING, UN_LOAD_DONE};
         JyBizTaskUnloadVehicleEntity statusStatisticsQueryParams = assembleQueryStatusStatisticsCondition(unloadVehicleTaskReqDto);
         List<JyBizTaskUnloadCountDto> unloadCountDtos = jyBizTaskUnloadVehicleService.findStatusCountByCondition4Status(statusStatisticsQueryParams, null, statusEnums);
-        if (!ObjectHelper.isNotNull(unloadCountDtos)) {
+        if (!CollectionUtils.isNotEmpty(unloadCountDtos)) {
             return new InvokeResult(TASK_NO_FOUND_BY_STATUS_CODE, TASK_NO_FOUND_BY_STATUS_MESSAGE);
         }
         UnloadVehicleTaskRespDto respDto = new UnloadVehicleTaskRespDto();
@@ -222,7 +222,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             detail.setPackageCode(queryUnloadTaskDto.getPackageCode());
             detail.setEndSiteId(queryUnloadTaskDto.getCurrentOperate().getSiteCode());
             List<JyVehicleTaskUnloadDetail> unloadDetailList = iJyUnloadVehicleManager.findUnloadDetail(detail);
-            if (ObjectHelper.isNotNull(unloadDetailList)) {
+            if (CollectionUtils.isNotEmpty(unloadDetailList)) {
                 List<UnloadVehicleTaskDto> unloadVehicleTaskDtoList = convertUnloadVehicleTaskDto(unloadDetailList);
                 calculationCount(unloadVehicleTaskRespDto, unloadVehicleTaskDtoList);
                 return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, unloadVehicleTaskRespDto);
