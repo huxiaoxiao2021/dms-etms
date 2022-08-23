@@ -670,6 +670,12 @@ public class JyUnloadVehicleCheckTysService {
     private void createUnloadVehicleBoard(JyUnloadVehicleBoardEntity entity, ScanPackageDto scanPackageDto) {
         Date now = new Date();
         entity.setUnloadVehicleBizId(scanPackageDto.getBizId());
+        if (scanPackageDto.getStageBizId() == null) {
+            JyBizTaskUnloadVehicleStageEntity result = queryCurrentStage(scanPackageDto.getBizId(), scanPackageDto.isTaskFinish());
+            if (result != null) {
+                scanPackageDto.setStageBizId(result.getBizId());
+            }
+        }
         entity.setUnloadVehicleStageBizId(scanPackageDto.getStageBizId());
         if (scanPackageDto.getPrevSiteCode() != null) {
             entity.setStartSiteId(Long.valueOf(scanPackageDto.getPrevSiteCode()));
@@ -688,20 +694,25 @@ public class JyUnloadVehicleCheckTysService {
     }
 
     public void setStageBizId(UnloadScanDto unloadScanDto) {
-        JyBizTaskUnloadVehicleStageEntity entity = new JyBizTaskUnloadVehicleStageEntity();
-        entity.setUnloadVehicleBizId(unloadScanDto.getBizId());
-        entity.setType(unloadScanDto.getSupplementary() ? JyBizTaskStageTypeEnum.SUPPLEMENT.getCode() : JyBizTaskStageTypeEnum.HANDOVER.getCode());
-        if (!unloadScanDto.getSupplementary()) {
-            entity.setStatus(JyBizTaskStageStatusEnum.DOING.getCode());
-        }
-        JyBizTaskUnloadVehicleStageEntity result = jyBizTaskUnloadVehicleStageService.queryCurrentStage(entity);
-        if (result == null) {
+        JyBizTaskUnloadVehicleStageEntity entity = queryCurrentStage(unloadScanDto.getBizId(), unloadScanDto.getSupplementary());
+        if (entity == null) {
+            entity = new JyBizTaskUnloadVehicleStageEntity();
             createUnloadVehicleStage(entity, unloadScanDto);
             jyBizTaskUnloadVehicleStageService.insertSelective(entity);
             unloadScanDto.setStageBizId(entity.getBizId());
         } else {
-            unloadScanDto.setStageBizId(result.getBizId());
+            unloadScanDto.setStageBizId(entity.getBizId());
         }
+    }
+
+    private JyBizTaskUnloadVehicleStageEntity queryCurrentStage(String bizId, boolean isSupplementary) {
+        JyBizTaskUnloadVehicleStageEntity entity = new JyBizTaskUnloadVehicleStageEntity();
+        entity.setUnloadVehicleBizId(bizId);
+        entity.setType(isSupplementary ? JyBizTaskStageTypeEnum.SUPPLEMENT.getCode() : JyBizTaskStageTypeEnum.HANDOVER.getCode());
+        if (!isSupplementary) {
+            entity.setStatus(JyBizTaskStageStatusEnum.DOING.getCode());
+        }
+        return jyBizTaskUnloadVehicleStageService.queryCurrentStage(entity);
     }
 
     private void createUnloadVehicleStage(JyBizTaskUnloadVehicleStageEntity entity, UnloadScanDto unloadScanDto) {

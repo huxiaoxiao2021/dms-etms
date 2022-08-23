@@ -644,6 +644,9 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             }
         }
         scanPackageDto.setGoodsAreaCode(goodsAreaCode);
+        if (JyBizTaskUnloadStatusEnum.UN_LOAD_DONE.getCode().equals(unloadVehicleEntity.getVehicleStatus())) {
+            scanPackageDto.setTaskFinish(Boolean.TRUE);
+        }
     }
 
 

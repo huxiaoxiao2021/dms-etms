@@ -93,6 +93,8 @@ public class ScanPackageDto extends UnloadBaseDto implements Serializable {
 
     private Integer goodsNumber;
 
+    private boolean taskFinish;
+
     public String getBizId() {
         return bizId;
     }
@@ -251,5 +253,13 @@ public class ScanPackageDto extends UnloadBaseDto implements Serializable {
 
     public void setGoodsNumber(Integer goodsNumber) {
         this.goodsNumber = goodsNumber;
+    }
+
+    public boolean isTaskFinish() {
+        return taskFinish;
+    }
+
+    public void setTaskFinish(boolean taskFinish) {
+        this.taskFinish = taskFinish;
     }
 }
