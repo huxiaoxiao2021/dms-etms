@@ -382,21 +382,9 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         List<ExpTaskDto> list = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(taskList)) {
             for (JyBizTaskExceptionEntity entity : taskList) {
-                ExpTaskDto dto = new ExpTaskDto();
-                dto.setBizId(entity.getBizId());
-                dto.setBarCode(entity.getBarCode());
-                dto.setStayTime(getStayTime(entity.getCreateTime()));
-                dto.setFloor(entity.getFloor());
-                dto.setGridCode(entity.getGridCode());
-                dto.setGridNo(entity.getGridNo());
-                dto.setAreaName(entity.getAreaName());
-                dto.setReporterName(entity.getCreateUserName());
-                dto.setTags(getTags(entity.getTags()));
-
-                String s = redisClient.get(TASK_CACHE_PRE + entity.getBizId());
-                boolean saved = !StringUtils.isBlank(s) && Objects.equals(JSON.parseObject(s, ExpTaskDetailCacheDto.class).getSaveType(), "0");
-                dto.setSaved(saved);
-
+                // 拼装dto
+                ExpTaskDto dto = getTaskDto(entity);
+                list.add(dto);
             }
         }
 
@@ -465,7 +453,9 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         scheduleTaskChangeStatusProducer.sendOnFailPersistent(bizId, body);
         logger.info("异常岗-任务领取发送状态更新发送mq完成:body={}", body);
 
-        return JdCResponse.ok();
+        // 拼装已领取的任务
+        Object taskDto = getTaskDto(taskEntity);
+        return JdCResponse.ok(taskDto);
     }
 
     /**
@@ -849,6 +839,27 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         dto.setStoreLocation(cacheDto.getStorage());
         // 同车包裹号
         dto.setSameCarPackageCode(cacheDto.getTogetherPackageCodes());
+        return dto;
+    }
+
+
+    // bizTask转dto
+    private ExpTaskDto getTaskDto(JyBizTaskExceptionEntity entity) {
+        ExpTaskDto dto = new ExpTaskDto();
+        dto.setBizId(entity.getBizId());
+        dto.setSource(entity.getSource());
+        dto.setBarCode(entity.getBarCode());
+        dto.setStayTime(getStayTime(entity.getCreateTime()));
+        dto.setFloor(entity.getFloor());
+        dto.setGridCode(entity.getGridCode());
+        dto.setGridNo(entity.getGridNo());
+        dto.setAreaName(entity.getAreaName());
+        dto.setReporterName(entity.getCreateUserName());
+        dto.setTags(getTags(entity.getTags()));
+
+        String s = redisClient.get(TASK_CACHE_PRE + entity.getBizId());
+        boolean saved = !StringUtils.isBlank(s) && Objects.equals(JSON.parseObject(s, ExpTaskDetailCacheDto.class).getSaveType(), "0");
+        dto.setSaved(saved);
         return dto;
     }
 }

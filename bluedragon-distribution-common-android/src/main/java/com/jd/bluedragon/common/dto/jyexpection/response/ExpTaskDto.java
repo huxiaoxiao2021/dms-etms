@@ -10,6 +10,9 @@ public class ExpTaskDto implements Serializable {
     //业务ID
     private String bizId;
 
+    // 提报入口
+    private Integer source;
+
     //提交条码
     private String barCode;
 
@@ -43,6 +46,14 @@ public class ExpTaskDto implements Serializable {
 
     public void setBizId(String bizId) {
         this.bizId = bizId;
+    }
+
+    public Integer getSource() {
+        return source;
+    }
+
+    public void setSource(Integer source) {
+        this.source = source;
     }
 
     public String getBarCode() {
