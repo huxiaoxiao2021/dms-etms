@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -34,7 +35,7 @@ public class JssServiceImpl implements JssService {
     private JssStorageClient jssStorageClient;
 
     @Value("#{'${jss.httpsSet}'.split(',')}")
-    private HashSet<String> httpsSet;
+    private Set<String> httpsSet;
 
     @Override
     public void uploadFile(String bucket, String keyName, long length, InputStream inputStream) throws JssStorageException {

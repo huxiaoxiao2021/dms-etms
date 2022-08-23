@@ -1,7 +1,9 @@
 package com.jd.bluedragon.core.base;
 
 import com.jd.bluedragon.distribution.kuguan.domain.KuGuanDomain;
+import com.jd.bluedragon.utils.ConstantEnums;
 import com.jd.stock.iwms.export.param.ChuguanParam;
+import com.jd.stock.iwms.export.vo.ChuguanVo;
 
 import java.util.List;
 
@@ -36,5 +38,13 @@ public interface ChuguanExportManager {
      * @param waybillCode 订单号
      * @return 返回一个KuGuanDomain对象,如果查不到对应运单的库管对象,则返回null
      */
-    KuGuanDomain queryByWaybillCode(String waybillCode);
+    KuGuanDomain queryByWaybillCode(String orderId);
+
+    /**
+     * 查询出管
+     * @param businessNo
+     * @param chuGuanTypeId
+     * @return
+     */
+    List<ChuguanVo> queryChuGuan(String businessNo, ConstantEnums.ChuGuanTypeId chuGuanTypeId);
 }

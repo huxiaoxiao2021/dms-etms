@@ -5,9 +5,7 @@ import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
-import com.jd.bluedragon.common.dto.operation.workbench.enums.BarCodeLabelOptionEnum;
-import com.jd.bluedragon.common.dto.operation.workbench.enums.SendAbnormalEnum;
-import com.jd.bluedragon.common.dto.operation.workbench.enums.SendVehicleLabelOptionEnum;
+import com.jd.bluedragon.common.dto.operation.workbench.enums.*;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.*;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.*;
 import com.jd.bluedragon.common.dto.operation.workbench.unload.response.LabelOption;
@@ -71,6 +69,7 @@ import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
 import com.jd.bluedragon.distribution.ver.filter.FilterChain;
 import com.jd.bluedragon.distribution.ver.service.SortingCheckService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
+import com.jd.bluedragon.dms.utils.BarCodeType;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -731,10 +730,12 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
             }
 
             // 默认按预计发车时间排序
+            curSendDest.setSendVehicleBizId(null);
             List<JyBizTaskSendVehicleEntity> vehiclePageList = taskSendVehicleService.findSendTaskByDestOfPage(curSendDest,
                     vehicleTaskReq.getPageNumber(), vehicleTaskReq.getPageSize());
 
             if (CollectionUtils.isEmpty(vehiclePageList)) {
+                result.setMessage(HintService.getHint(HintCodeConstants.NOT_FOUND_BINDING_TASK_DATA_MSG));
                 return result;
             }
 
@@ -883,6 +884,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
                     vehicleTaskReq.getPageNumber(), vehicleTaskReq.getPageSize());
 
             if (CollectionUtils.isEmpty(vehiclePageList)) {
+                result.setMessage(HintService.getHint(HintCodeConstants.NOT_FOUND_TRANSFER_TASK_DATA_MSG));
                 return result;
             }
 
@@ -1600,6 +1602,29 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
         if (StringUtils.isBlank(request.getSendVehicleBizId())) {
             response.toFail("请选择发车任务！");
             return false;
+        }
+
+        // 设置默认扫描方式
+        if(request.getBarCodeType() == null){
+            request.setBarCodeType(SendVehicleScanTypeEnum.SCAN_ONE.getCode());
+        }
+        final BarCodeType barCodeType = BusinessUtil.getBarCodeType(request.getBarCode());
+        if(barCodeType == null) {
+            response.toFail("请扫描正确的条码！");
+            return false;
+        }
+        if(Objects.equals(SendVehicleScanTypeEnum.SCAN_ONE.getCode(), request.getBarCodeType()) &&
+                (!Objects.equals(BarCodeType.PACKAGE_CODE.getCode(), barCodeType.getCode()) && !Objects.equals(BarCodeType.BOX_CODE.getCode(), barCodeType.getCode()))){
+            response.toFail("请扫描包裹号或箱号！");
+            return false;
+        }
+        if (Objects.equals(SendVehicleScanTypeEnum.SCAN_WAYBILL.getCode(), request.getBarCodeType())) {
+            if (!Objects.equals(BarCodeType.PACKAGE_CODE.getCode(), barCodeType.getCode()) && !Objects.equals(BarCodeType.WAYBILL_CODE.getCode(), barCodeType.getCode())) {
+                response.toFail("请扫描包裹号或运单号！");
+                return false;
+            }
+            // @mark 注意此处，按运单号扫描时，如果是扫的包裹号，则将包裹号转成运单号
+            request.setBarCode(WaybillUtil.getWaybillCode(request.getBarCode()));
         }
 
         return true;

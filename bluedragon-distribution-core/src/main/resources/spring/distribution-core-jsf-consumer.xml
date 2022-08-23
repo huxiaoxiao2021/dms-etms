@@ -517,6 +517,13 @@
         <jsf:parameter key="authToken" value="${jsf.chuguan.cjg.authToken}" hide="true" />
         <jsf:parameter key="alias" value="${jsf.chuguan.alias}" hide="true" />
     </jsf:consumer>
+    <jsf:consumer id="generalStockAllotOutInterface" interface="com.jd.ipc.csa.GeneralStockAllotOutInterface"
+                  protocol="jsf" alias="${jsf.stockAllotApi.alias}" timeout="${jsf.stockAllotApi.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
+        <!-- 藏经阁分配的客户端名称，特别注意：藏经阁分配的客户端名称会在接入方应用英文名称前带“(J-one)”或“(J-dos)”前缀，如果有前缀，需要带上 -->
+        <jsf:parameter key="clientName" value="${jsf.stockAllotApi.clientName}" hide="true" />
+        <!-- 藏经阁生成token，藏经阁生成token，藏经阁生成token -->
+        <jsf:parameter key="authToken" value="${jsf.stockAllotApi.authToken}" hide="true" />
+    </jsf:consumer>
 
     <jsf:consumer id="eclpOpenServiceJsf" interface="com.jd.eclp.isv.service.EclpOpenService"
                   protocol="jsf" alias="${jsf.eclpOpenServiceJsf.alias}" timeout="${jsf.eclpOpenServiceJsf.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
@@ -957,6 +964,15 @@
     <!--  转运工作台外包计提配置  -->
     <jsf:consumer id="outsourceCountRuleServiceWS" interface="com.jd.tys.api.outsource.ws.OutsourceCountRuleServiceWS"
                   protocol="jsf" alias="${jsf.tysWorkbenchCenter.alias}" timeout="${jsf.tysWorkbenchCenter.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
+
+    <!-- 运单切片查询服务（安全校验） -->
+    <jsf:consumer id="dataAmWaybillBusinessService" interface="com.jd.security.data.am.jsf.client.service.DataAmWaybillBusinessService"
+                  protocol="jsf" alias="${jsf.dataAmWaybill.alias}" timeout="${jsf.dataAmWaybill.timeout}" retries="0" check="false">
+    </jsf:consumer>
+    <!-- 订单切片查询服务（安全校验） -->
+    <jsf:consumer id="dataAmOrderBusinessService" interface="com.jd.security.data.am.jsf.client.service.DataAmOrderBusinessService"
+                  protocol="jsf" alias="${jsf.dataAmOrder.alias}" timeout="${jsf.dataAmOrder.timeout}" retries="0" check="false">
     </jsf:consumer>
 
 </beans>

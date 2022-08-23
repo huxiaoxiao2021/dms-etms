@@ -273,6 +273,7 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
             }
 
             JyBizTaskSendVehicleDetailEntity queryToDetailTaskParams =new JyBizTaskSendVehicleDetailEntity();
+            queryToDetailTaskParams.setSendVehicleBizId(bindVehicleDetailTaskReq.getToSendVehicleBizId());
             queryToDetailTaskParams.setStartSiteId(Long.valueOf(bindVehicleDetailTaskReq.getCurrentOperate().getSiteCode()));
             queryToDetailTaskParams.setEndSiteId(fromSvdTask.getEndSiteId());
             JyBizTaskSendVehicleDetailEntity toSvdTask =jyBizTaskSendVehicleDetailService.findSendDetail(queryToDetailTaskParams);
@@ -286,7 +287,12 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
             dto.setSendCodes(sendCodeList);
             dto.setUpdateUserErp(bindVehicleDetailTaskReq.getUser().getUserErp());
             dto.setUpdateUserName(bindVehicleDetailTaskReq.getUser().getUserName());
+            dto.setCreateSiteId(Long.valueOf(bindVehicleDetailTaskReq.getCurrentOperate().getSiteCode()));
+            dto.setSameWayFlag(true);
+            dto.setBindFlag(true);
             jyVehicleSendRelationService.updateVehicleSendRelation(dto);
+            jySendTransferLogService.saveTransferLog(dto);
+            jySendService.updateTransferProperBySendCode(dto);
 
             //更新流向任务和主任的状态-为发货状态
             JyBizTaskSendVehicleEntity toSvTask = new JyBizTaskSendVehicleEntity();
