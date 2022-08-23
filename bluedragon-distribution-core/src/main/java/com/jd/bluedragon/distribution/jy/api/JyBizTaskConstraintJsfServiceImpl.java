@@ -12,7 +12,7 @@ import java.util.Objects;
 @Service("jyBizTaskConstraintJsfService")
 public class JyBizTaskConstraintJsfServiceImpl implements JyBizTaskConstraintJsfService{
     @Override
-    public Result<BizTaskConstraint> getBizTaskConstraint(Long bizId, String taskType) {
+    public Result<BizTaskConstraint> getBizTaskConstraint(String bizId, String taskType) {
         Result<BizTaskConstraint> result = Result.success();
         BizTaskService bizTaskServoce = bizProcessorAssemble(taskType);
         if (bizTaskServoce == null){

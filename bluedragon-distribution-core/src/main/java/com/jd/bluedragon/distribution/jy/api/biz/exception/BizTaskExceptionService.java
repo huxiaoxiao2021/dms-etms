@@ -24,7 +24,7 @@ public class BizTaskExceptionService implements BizTaskService {
     private JyBizTaskExceptionDao bizTaskExceptionDao;
 
     @Override
-    public BizTaskConstraint bizConstraintAssemble(Long bizId) {
+    public BizTaskConstraint bizConstraintAssemble(String bizId) {
         JyBizTaskExceptionEntity e = bizTaskExceptionDao.findByBizId(bizId.toString());
         BizTaskConstraint bizConstraint = new BizTaskConstraint();
         bizConstraint.setSiteCode(e.getSiteCode());

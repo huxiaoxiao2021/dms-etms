@@ -5,7 +5,7 @@ import com.jd.bluedragon.distribution.jy.dto.JyBizTaskMessage;
 
 public interface BizTaskService {
 
-    BizTaskConstraint bizConstraintAssemble(Long bizId);
+    BizTaskConstraint bizConstraintAssemble(String bizId);
 
     void bizTaskNotify(JyBizTaskMessage message);
 }

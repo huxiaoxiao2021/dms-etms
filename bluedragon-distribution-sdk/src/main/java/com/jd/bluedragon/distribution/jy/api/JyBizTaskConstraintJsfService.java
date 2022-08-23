@@ -5,6 +5,6 @@ import com.jd.bluedragon.distribution.jy.dto.BizTaskConstraint;
 
 public interface JyBizTaskConstraintJsfService {
 
-    Result<BizTaskConstraint> getBizTaskConstraint(Long bizId, String taskType);
+    Result<BizTaskConstraint> getBizTaskConstraint(String bizId, String taskType);
 
 }
