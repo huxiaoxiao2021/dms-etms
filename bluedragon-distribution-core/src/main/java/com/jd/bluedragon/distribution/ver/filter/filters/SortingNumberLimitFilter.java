@@ -76,7 +76,7 @@ public class SortingNumberLimitFilter implements Filter {
                     if (siteCheckConfig != null && Boolean.TRUE.equals(siteCheckConfig.getIsOpen())) {
                         Integer configNum = boxLimitConfigManager.getLimitNums(request.getCreateSiteCode(), request.getBox().getType());
                         logger.info("分拣数量限制拦截 createSiteCode:{},queryLimitNumBySiteId:{},sysConfigNum:{}", request.getCreateSiteCode(), configNum, siteCheckConfig.getMaxNum());
-                        if (configNum != null) {
+                        if (configNum != null && configNum > 0) {
                             limitNums.add(configNum);
                         } else {
                             limitNums.add(siteCheckConfig.getMaxNum());
