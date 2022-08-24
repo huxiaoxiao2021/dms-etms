@@ -38,7 +38,7 @@ public class BizTaskExceptionService implements BizTaskService {
         JyBizTaskExceptionEntity jyBizTaskExceptionEntity = bizTaskExceptionDao.findByBizId(message.getBizId());
         switch (JyBizTaskNotifyTypeEnum.valueOf(message.getNotifyType())){
             case DISTRIBUTE:
-                if (StringUtils.isEmpty(jyBizTaskExceptionEntity.getDistributionTarget())){
+                if (StringUtils.isNotEmpty(jyBizTaskExceptionEntity.getDistributionTarget())){
                     jyBizTaskExceptionEntity.setDistributionType(message.getDistributionType());
                     jyBizTaskExceptionEntity.setDistributionTarget(message.getDistributionTarget());
                     jyBizTaskExceptionEntity.setDistributionTime(message.getDistributionTime());
