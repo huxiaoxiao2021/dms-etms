@@ -784,7 +784,8 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         if (positionResult == null || positionResult.isFail() || positionResult.getData() == null) {
             return null;
         }
-        return positionResult.getData();
+        // 处理jsf泛型丢失问题z
+        return JSON.parseObject(JSON.toJSONString(positionResult.getData()), PositionDetailRecord.class);
     }
 
     private String getBizId(JyBizTaskExceptionTypeEnum en, String barCode) {

@@ -60,7 +60,7 @@ public class JyBizTaskExceptionDao  extends BaseDao<JyBizTaskExceptionEntity> {
 
 
     public List<JyBizTaskExceptionEntity> queryExceptionTaskList(ExpTaskPageReq entity) {
-        return this.getSqlSession().selectOne(NAMESPACE + ".queryExceptionTaskList", entity);
+        return this.getSqlSession().selectList(NAMESPACE + ".queryExceptionTaskList", entity);
     }
 
 }
