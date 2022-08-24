@@ -2390,7 +2390,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
 
                 JyBizTaskSendVehicleDetailEntity detailEntity = new JyBizTaskSendVehicleDetailEntity(Long.valueOf(startSiteId),Long.valueOf(endSiteId));
                 Integer count= taskSendVehicleDetailService.countByCondition(detailEntity);
-                if (ObjectHelper.isEmpty(count) || count<=0){
+                if (ObjectHelper.isNotNull(count) && count>0){
                     return new InvokeResult(NOT_SUPPORT_MAIN_LINE_TASK_CODE,NOT_SUPPORT_MAIN_LINE_TASK_MESSAGE);
                 }
             }
