@@ -29,6 +29,9 @@ public class StatisticsByGridDto implements Serializable {
     // 超时数量
     private Integer timeoutNum;
 
+    // 进行中的数据量
+    private String processingNum;
+
     private List<TagDto> tags;
 
     public Integer getFloor() {
@@ -93,5 +96,13 @@ public class StatisticsByGridDto implements Serializable {
 
     public void setTags(List<TagDto> tags) {
         this.tags = tags;
+    }
+
+    public String getProcessingNum() {
+        return processingNum;
+    }
+
+    public void setProcessingNum(String processingNum) {
+        this.processingNum = processingNum;
     }
 }

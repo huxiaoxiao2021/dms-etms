@@ -254,17 +254,29 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             req.setPageNumber(1);
         }
         if (req.getPageSize() == null || req.getPageSize() <= 0) {
-            req.setPageNumber(10);
+            req.setPageSize(10);
         }
 
+        req.setSiteId(position.getSiteCode());
         req.setGridRid(getGridRid(position));
 
+        logger.info("查询待取件统计数据参数:{}", JSON.toJSONString(req));
         List<StatisticsByGridDto> statisticsByGrid = jyBizTaskExceptionDao.getStatisticsByGrid(req);
         if (CollectionUtils.isEmpty(statisticsByGrid)) {
             return JdCResponse.ok(statisticsByGrid);
         }
 
         // 标签处理
+        try {
+            porcessTags(req, statisticsByGrid);
+        } catch (Exception e) {
+            logger.error("异常岗-查询待取件统计数据-处理标签出错了", e);
+        }
+
+        return JdCResponse.ok(statisticsByGrid);
+    }
+
+    private void porcessTags(StatisticsByGridReq req, List<StatisticsByGridDto> statisticsByGrid) {
         List<JyBizTaskExceptionEntity> tagsByGrid = jyBizTaskExceptionDao.getTagsByGrid(req);
 
         // 排前三的标签
@@ -307,8 +319,6 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             String key  = dto.getFloor() + ":" + dto.getAreaCode() + ":" + dto.getGridCode();
             dto.setTags(gridTagList.get(key));
         }
-
-        return JdCResponse.ok(statisticsByGrid);
     }
 
     /**
