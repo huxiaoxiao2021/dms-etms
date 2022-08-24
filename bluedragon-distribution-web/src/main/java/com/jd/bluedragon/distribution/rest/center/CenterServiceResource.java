@@ -210,15 +210,24 @@ public class CenterServiceResource {
 	}
 
 	private void hideInfo(Waybill waybill, WaybillPickup waybillPickup) {
-		waybill.setReceiverName(getHideName(waybill.getReceiverName()));
-		waybill.setConsigner(getHideName(waybill.getConsigner()));
-		waybill.setConsignerMobile(getHidePhone(waybill.getConsignerMobile()));
-		waybill.setConsignerTel(getHidePhone(waybill.getConsignerTel()));
-		waybill.setReceiverMobile(getHidePhone(waybill.getReceiverMobile()));
-		waybill.setReceiverTel(getHidePhone(waybill.getReceiverTel()));
-		waybill.setConsignerAddress(getHideAddress(waybill.getConsignerAddress()));
-		waybill.setReceiverAddress(getHideAddress(waybill.getReceiverAddress()));
-		waybillPickup.setConsignerAddress(getHideAddress(waybillPickup.getConsignerAddress()));
+		try{
+			if (waybill != null) {
+				waybill.setReceiverName(getHideName(waybill.getReceiverName()));
+				waybill.setConsigner(getHideName(waybill.getConsigner()));
+				waybill.setConsignerMobile(getHidePhone(waybill.getConsignerMobile()));
+				waybill.setConsignerTel(getHidePhone(waybill.getConsignerTel()));
+				waybill.setReceiverMobile(getHidePhone(waybill.getReceiverMobile()));
+				waybill.setReceiverTel(getHidePhone(waybill.getReceiverTel()));
+				waybill.setConsignerAddress(getHideAddress(waybill.getConsignerAddress()));
+				waybill.setReceiverAddress(getHideAddress(waybill.getReceiverAddress()));
+			}
+			if (waybillPickup != null) {
+				waybillPickup.setConsignerAddress(getHideAddress(waybillPickup.getConsignerAddress()));
+			}
+		}catch (Exception e) {
+			log.error("敏感信息微笑处理hideInfo出错 waybill={} waybillPickup={}", waybill,waybillPickup, e);
+		}
+
 	}
 
 	@GET
