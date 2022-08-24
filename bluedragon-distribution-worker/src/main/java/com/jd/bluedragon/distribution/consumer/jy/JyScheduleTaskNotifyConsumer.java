@@ -5,6 +5,7 @@ import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.jy.api.BizTaskService;
 import com.jd.bluedragon.distribution.jy.api.BizType;
+import com.jd.bluedragon.distribution.jy.api.BizTypeProcessor;
 import com.jd.bluedragon.distribution.jy.dto.JyBizTaskMessage;
 import com.jd.bluedragon.utils.*;
 import com.jd.jmq.common.message.Message;
@@ -26,7 +27,7 @@ public class JyScheduleTaskNotifyConsumer extends MessageBaseConsumer {
     private static final Logger logger = LoggerFactory.getLogger(JyScheduleTaskNotifyConsumer.class);
 
     @Autowired
-    private UccPropertyConfiguration uccConfig;
+    private BizTypeProcessor bizTypeProcessor;
 
     @Override
     @JProfiler(jKey = "DMS.WORKER.jyScheduleTaskNotifyConsumer.consume",
@@ -42,21 +43,7 @@ public class JyScheduleTaskNotifyConsumer extends MessageBaseConsumer {
         }
 
         JyBizTaskMessage mqDto = JsonHelper.fromJson(message.getText(), JyBizTaskMessage.class);
-        BizTaskService bizTaskService = bizTaskServoce(mqDto.getTaskType());
+        BizTaskService bizTaskService = bizTypeProcessor.processor(mqDto.getTaskType());
         bizTaskService.bizTaskNotify(mqDto);
     }
-
-    private BizTaskService bizTaskServoce(String taskType) {
-        Map<String, BizTaskService> beans = SpringHelper.getBeans(BizTaskService.class);
-        for (Map.Entry<String,BizTaskService> entry:beans.entrySet()){
-            BizType annotation = entry.getClass().getAnnotation(BizType.class);
-            for (JyScheduleTaskTypeEnum en:annotation.value()){
-                if (Objects.equals(en.getCode(),taskType)){
-                    return entry.getValue();
-                }
-            }
-        }
-        return null;
-    }
-
 }

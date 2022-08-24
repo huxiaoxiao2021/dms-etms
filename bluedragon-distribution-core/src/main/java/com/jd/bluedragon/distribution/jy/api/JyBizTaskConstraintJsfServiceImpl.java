@@ -4,6 +4,7 @@ import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.jy.dto.BizTaskConstraint;
 import com.jd.bluedragon.utils.SpringHelper;
 import com.jdl.jy.schedule.enums.task.JyScheduleTaskTypeEnum;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
@@ -11,10 +12,14 @@ import java.util.Objects;
 
 @Service("jyBizTaskConstraintJsfService")
 public class JyBizTaskConstraintJsfServiceImpl implements JyBizTaskConstraintJsfService{
+
+    @Autowired
+    private BizTypeProcessor bizTypeProcessor;
+
     @Override
     public Result<BizTaskConstraint> getBizTaskConstraint(String bizId, String taskType) {
         Result<BizTaskConstraint> result = Result.success();
-        BizTaskService bizTaskServoce = bizProcessorAssemble(taskType);
+        BizTaskService bizTaskServoce = bizTypeProcessor.processor(taskType);
         if (bizTaskServoce == null){
             return result.toFail("未找到业务约束提供者");
         }
@@ -23,17 +28,6 @@ public class JyBizTaskConstraintJsfServiceImpl implements JyBizTaskConstraintJsf
         return result;
     }
 
-    private BizTaskService bizProcessorAssemble(String taskType) {
-        Map<String, BizTaskService> beans = SpringHelper.getBeans(BizTaskService.class);
-        for (Map.Entry<String,BizTaskService> entry:beans.entrySet()){
-            BizType annotation = entry.getValue().getClass().getAnnotation(BizType.class);
-            for (JyScheduleTaskTypeEnum en:annotation.value()){
-                if (Objects.equals(en.getCode(),taskType)){
-                    return entry.getValue();
-                }
-            }
-        }
-        return null;
-    }
+
 
 }
