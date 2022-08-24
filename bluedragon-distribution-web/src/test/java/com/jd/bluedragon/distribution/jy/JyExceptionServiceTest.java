@@ -30,4 +30,15 @@ public class JyExceptionServiceTest {
 
         jyExceptionService.uploadScan(req);
     }
+
+
+    @Test
+    public void getGridStatisticsPageList() {
+
+
+        StatisticsByGridReq req = new StatisticsByGridReq();
+        req.setUserErp("bjxings");
+        req.setPositionCode("GW00007007");
+        jyExceptionService.getGridStatisticsPageList(req);
+    }
 }
