@@ -48,7 +48,17 @@ public class StatisticsByGridReq extends ExpBaseReq {
     }
 
     public Integer getOffSet() {
+        if (pageNumber == null || pageSize == null) {
+            return 0;
+        }
         return (pageNumber - 1) * pageSize;
     }
 
+    public void setOffSet(Integer offSet) {
+        if (pageNumber == null || pageSize == null) {
+            this.offSet = 0;
+        }else {
+            this.offSet = (pageNumber - 1) * pageSize;
+        }
+    }
 }
