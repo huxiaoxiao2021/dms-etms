@@ -48,7 +48,7 @@ public class StatisticsByGridReq extends ExpBaseReq {
     }
 
     public Integer getOffSet() {
-        return (pageSize - 1) * pageSize;
+        return (pageNumber - 1) * pageSize;
     }
 
 }
