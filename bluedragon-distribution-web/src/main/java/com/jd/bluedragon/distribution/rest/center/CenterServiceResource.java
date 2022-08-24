@@ -11,10 +11,13 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
+import com.jd.etms.waybill.domain.Waybill;
+import com.jd.etms.waybill.domain.WaybillPickup;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ldop.center.api.print.WaybillPrintApi;
@@ -34,6 +37,8 @@ import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 
+import static com.jd.bluedragon.dms.utils.BusinessUtil.*;
+
 @Component
 @Path(Constants.REST_URL)
 @Consumes({ MediaType.APPLICATION_JSON })
@@ -43,11 +48,14 @@ public class CenterServiceResource {
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
 
 	@Autowired
+	private UccPropertyConfiguration uccConfig;
+
+	@Autowired
 	private BaseMajorManager baseMajorManager;
-	
+
 	@Autowired
 	private VrsRouteTransferRelationManager vrsRouteTransferRelationManager;
-	
+
 	@Autowired
 	private BaseService baseService;
 
@@ -151,6 +159,9 @@ public class CenterServiceResource {
 		try {
 			result = waybillQueryManager.getDataByChoice(waybillCode,
 					isWaybillC, isWaybillE, isWaybillM, isGoodList, isPackList, isPickupTask, isServiceBillPay);
+			if (uccConfig.getSensitiveInfoHideSwitch()&&result.getData()!= null) {
+				hideInfo(result.getData().getWaybill(),result.getData().getWaybillPickup());
+			}
 		} catch (Exception e) {
 			StringBuilder errorMsg = new StringBuilder(
 					"中心服务调用运单getDataByChoice出错").append("waybillCode=")
@@ -189,10 +200,25 @@ public class CenterServiceResource {
 		BaseEntity<BigWaybillDto> result = null;
 		try {
 			result = waybillQueryManager.getDataByChoice(waybillCode,choice);
+			if (uccConfig.getSensitiveInfoHideSwitch()&&result.getData()!= null) {
+				hideInfo(result.getData().getWaybill(),result.getData().getWaybillPickup());
+			}
 		} catch (Exception e) {
 			log.error("中心服务调用运单getDataByChoice出错", e);
 		}
 		return result;
+	}
+
+	private void hideInfo(Waybill waybill, WaybillPickup waybillPickup) {
+		waybill.setReceiverName(getHideName(waybill.getReceiverName()));
+		waybill.setConsigner(getHideName(waybill.getConsigner()));
+		waybill.setConsignerMobile(getHidePhone(waybill.getConsignerMobile()));
+		waybill.setConsignerTel(getHidePhone(waybill.getConsignerTel()));
+		waybill.setReceiverMobile(getHidePhone(waybill.getReceiverMobile()));
+		waybill.setReceiverTel(getHidePhone(waybill.getReceiverTel()));
+		waybill.setConsignerAddress(getHideAddress(waybill.getConsignerAddress()));
+		waybill.setReceiverAddress(getHideAddress(waybill.getReceiverAddress()));
+		waybillPickup.setConsignerAddress(getHideAddress(waybillPickup.getConsignerAddress()));
 	}
 
 	@GET

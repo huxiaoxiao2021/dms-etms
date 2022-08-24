@@ -3263,6 +3263,12 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                         log.info("该发货明细不属于按运单按包裹按箱号发货范畴：{}" , JsonHelper.toJson(sendMItem));
                         continue;
                     }
+                    if (!ObjectHelper.isNotNull(sendMItem.getUpdaterUser())){
+                        sendMItem.setUpdaterUser(tSendM.getUpdaterUser());
+                    }
+                    if (!ObjectHelper.isNotNull(sendMItem.getUpdateUserCode())){
+                        sendMItem.setUpdateUserCode(tSendM.getUpdateUserCode());
+                    }
                     sendMessage(tlist, sendMItem, needSendMQ);
                     delDeliveryFromRedis(sendMItem);//取消发货成功，删除redis缓存的发货数据 根据boxCode和createSiteCode
                 }

@@ -2,6 +2,7 @@ package com.jd.bluedragon.external.gateway.service;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
+import com.jd.bluedragon.common.dto.operation.workbench.send.request.CheckSendCodeRequest;
 import com.jd.bluedragon.common.dto.sendcode.response.BatchSendCarInfoDto;
 import com.jd.bluedragon.common.dto.sendcode.response.SendCodeCheckDto;
 import com.jd.bluedragon.common.dto.sendcode.response.SendCodeInfoDto;
@@ -48,6 +49,12 @@ public interface SendCodeGateWayService {
      * @return
      */
     JdVerifyResponse<SendCodeCheckDto> checkSendCodeAndAlliance(String sendCode);
+
+    /**
+     * 判断批次号状态与是否是加盟商站点（额外校验： 批次的流向是否支持干支任务）
+     * @return
+     */
+    JdVerifyResponse<SendCodeCheckDto> checkSendCodeAndAllianceForJy(CheckSendCodeRequest request);
 
     /**
      * 校验是否封车，没有封车就返回 站点信息等

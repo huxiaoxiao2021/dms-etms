@@ -27,8 +27,15 @@ public class SealVehicleInfoResp implements Serializable {
      * 车牌号
      */
     private String vehicleNumber;
-
+    /**
+     * 批次号列表
+     */
     private List<String> sendCodeList;
+
+    /**
+     * 封签号列表
+     */
+    private List<String> sealCodeList;
 
     public List<String> getSendCodeList() {
         return sendCodeList;
@@ -78,4 +85,11 @@ public class SealVehicleInfoResp implements Serializable {
         this.vehicleNumber = vehicleNumber;
     }
 
+    public List<String> getSealCodeList() {
+        return sealCodeList;
+    }
+
+    public void setSealCodeList(List<String> sealCodeList) {
+        this.sealCodeList = sealCodeList;
+    }
 }
