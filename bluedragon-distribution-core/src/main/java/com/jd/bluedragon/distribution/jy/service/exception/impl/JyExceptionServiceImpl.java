@@ -453,18 +453,9 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         update.setUpdateUserName(baseStaffByErp.getStaffName());
 
         jyBizTaskExceptionDao.updateByBizId(update);
+        //发送修改状态消息
+        sendScheduleTaskStatusMsg(bizId, baseStaffByErp,JyScheduleTaskStatusEnum.STARTED,scheduleTaskChangeStatusProducer);
 
-        JyExpTaskChangeMessage message = new JyExpTaskChangeMessage();
-        message.setTaskType(JyBizTaskExceptionTypeEnum.SANWU.getCode());
-        message.setTaskStatus(JyExpStatusEnum.TO_PROCESS.getCode());
-        message.setBizId(bizId);
-        message.setOpeUser(req.getUserErp());
-        message.setOpeUserName(baseStaffByErp.getStaffName());
-        message.setOpeTime(new Date().getTime());
-
-        String body = JSON.toJSONString(message);
-        scheduleTaskChangeStatusProducer.sendOnFailPersistent(bizId, body);
-        logger.info("异常岗-任务领取发送状态更新发送mq完成:body={}", body);
 
         // 拼装已领取的任务
         Object taskDto = getTaskDto(taskEntity);
@@ -526,6 +517,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             if (!Objects.equals(commonDto.getCode(), CommonDto.CODE_SUCCESS)) {
                 return JdCResponse.fail("提报三无系统失败:" + commonDto.getMessage());
             }
+            //todo 修改processStatus 为待匹配
             redisClient.del(key);
         }
 
@@ -616,7 +608,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         req.setOpeUserName(baseStaffByErp.getStaffName());
         req.setOpeTime(new Date());
         req.setTaskStatus(JyScheduleTaskStatusEnum.STARTED.getCode());
-        scheduleTaskAddWorkerProducer.send(bizId,JsonHelper.toJson(req));
+        scheduleTaskAddWorkerProducer.sendOnFailPersistent(bizId,JsonHelper.toJson(req));
     }
 
     /**
@@ -652,22 +644,23 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         conditon.setUpdateUserName(baseStaffByErp.getStaffName());
         jyBizTaskExceptionDao.updateByBizId(conditon);
         //发送修改状态消息
-        sendScheduleTaskCloseMsg(bizTaskException, baseStaffByErp,JyScheduleTaskStatusEnum.CLOSED,scheduleTaskChangeStatusWorkerProducer);
+        sendScheduleTaskStatusMsg(bizTaskException.getBizId(), baseStaffByErp,JyScheduleTaskStatusEnum.CLOSED,scheduleTaskChangeStatusWorkerProducer);
     }
 
-    private void sendScheduleTaskCloseMsg(JyBizTaskExceptionEntity bizTaskException, BaseStaffSiteOrgDto baseStaffByErp,JyScheduleTaskStatusEnum status,DefaultJMQProducer producer) {
+    private void sendScheduleTaskStatusMsg(String bizId, BaseStaffSiteOrgDto baseStaffByErp,JyScheduleTaskStatusEnum status,DefaultJMQProducer producer) {
         //通知任务调度系统状态修改
         JyScheduleTaskChangeStatusReq req = new JyScheduleTaskChangeStatusReq();
         try{
-            req.setBizId(bizTaskException.getBizId());
+            req.setBizId(bizId);
             req.setChangeTime(new Date());
             req.setOpeUser(baseStaffByErp.getErp());
             req.setOpeUserName(baseStaffByErp.getStaffName());
             req.setTaskStatus(status);
             req.setTaskType(JyScheduleTaskTypeEnum.EXCEPTION);
-            producer.send(bizTaskException.getBizId(), JsonHelper.toJson(req));
+            producer.sendOnFailPersistent(bizId, JsonHelper.toJson(req));
+            logger.info("异常岗-任务领取发送状态更新发送mq完成:body={}", JsonHelper.toJson(req));
         }catch (Exception e) {
-            logger.error("拣运异常任务关闭消息MQ发送失败,message:{} :  ", JsonHelper.toJson(req),e);
+            logger.error("异常岗-任务领取发送状态更新发送mq失败,message:{} :  ", JsonHelper.toJson(req),e);
         }
     }
 

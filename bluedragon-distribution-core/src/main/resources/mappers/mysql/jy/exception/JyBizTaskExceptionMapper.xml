@@ -336,6 +336,9 @@
             <if test="status != null">
                 `status` = #{status},
             </if>
+            <if test="processingStatus != null">
+                processing_status = #{processingStatus},
+            </if>
             <if test="handlerErp != null">
                 handler_erp = #{handlerErp},
             </if>
