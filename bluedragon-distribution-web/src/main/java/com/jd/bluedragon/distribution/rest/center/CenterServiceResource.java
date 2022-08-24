@@ -14,6 +14,7 @@ import javax.ws.rs.core.MediaType;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.Waybill;
@@ -225,7 +226,7 @@ public class CenterServiceResource {
 				waybillPickup.setConsignerAddress(getHideAddress(waybillPickup.getConsignerAddress()));
 			}
 		}catch (Exception e) {
-			log.error("敏感信息微笑处理hideInfo出错 waybill={} waybillPickup={}", waybill,waybillPickup, e);
+			log.error("敏感信息微笑处理hideInfo出错 waybill={} waybillPickup={}", JsonHelper.toJson(waybill),JsonHelper.toJson(waybillPickup), e);
 		}
 
 	}
