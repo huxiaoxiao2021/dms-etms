@@ -85,4 +85,8 @@ public class JyBizTaskSendVehicleDetailDao extends BaseDao<JyBizTaskSendVehicleD
     public int updateBizTaskSendDetailStatus(JyBizTaskSendVehicleDetailEntity entity) {
         return this.getSqlSession().update(NAMESPACE + ".updateBizTaskSendDetailStatus", entity);
     }
+
+    public Integer countNoCancelSendDetail(JyBizTaskSendVehicleDetailEntity entity) {
+        return this.getSqlSession().selectOne(NAMESPACE + ".countNoCancelSendDetail", entity);
+    }
 }
