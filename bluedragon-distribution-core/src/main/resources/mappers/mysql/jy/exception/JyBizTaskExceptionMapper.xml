@@ -339,8 +339,8 @@
             <if test="handlerErp != null">
                 handler_erp = #{handlerErp},
             </if>
-            <if test="updateUser != null">
-                update_user = #{updateUser},
+            <if test="updateUserErp != null">
+                update_user_erp = #{updateUserErp},
             </if>
             <if test="updateUserName != null">
                 update_user_name = #{updateUserName},
