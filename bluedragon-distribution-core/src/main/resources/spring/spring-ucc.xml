@@ -175,6 +175,7 @@
 		<property name="faceAbnormalReportConfig" value="${faceAbnormalReportConfig:''}"/>
 		<property name="identityRecogniseSiteSwitch" value="${identityRecogniseSiteSwitch:''}"/>
 		<property name="chuguanPurchaseAndSaleSwitch" value="${chuguanPurchaseAndSaleSwitch:false}"/>
+		<property name="addiOwnNumberConf" value="${addiOwnNumberConf:10K44616,}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -331,7 +332,7 @@
 				<value>uccPropertyConfiguration.faceAbnormalReportConfig</value>
 				<value>uccPropertyConfiguration.identityRecogniseSiteSwitch</value>
 				<value>uccPropertyConfiguration.chuguanPurchaseAndSaleSwitch</value>
-
+				<value>uccPropertyConfiguration.addiOwnNumberConf</value>
                 <value>hystrixRouteUccPropertyConfiguration.executionTimeoutInMilliseconds</value>
                 <value>hystrixRouteUccPropertyConfiguration.circuitBreakerEnabled</value>
                 <value>hystrixRouteUccPropertyConfiguration.fallbackEnabled</value>

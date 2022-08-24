@@ -119,6 +119,8 @@ public class UccPropertyConfiguration {
     * */
     private String switchVerToWebSites;
 
+
+
     /**
      * 禁用老版本登陆
      * @return
@@ -501,6 +503,21 @@ public class UccPropertyConfiguration {
      * 出管供应链二期改造 开关。true 开启，false 不开启
      */
     private boolean chuguanPurchaseAndSaleSwitch;
+
+
+
+    /**
+     * 阿迪青龙业主号配置
+     */
+    private  String addiOwnNumberConf;
+
+    public String getAddiOwnNumberConf() {
+        return addiOwnNumberConf;
+    }
+
+    public void setAddiOwnNumberConf(String addiOwnNumberConf) {
+        this.addiOwnNumberConf = addiOwnNumberConf;
+    }
 
     public boolean isChuguanPurchaseAndSaleSwitch() {
         return chuguanPurchaseAndSaleSwitch;
