@@ -816,6 +816,8 @@ public class UccPropertyConfiguration {
      */
     private String identityRecogniseSiteSwitch;
 
+    private String needValidateMainLineBizSources;
+
     public String getScheduleSiteCheckSameCity() {
         return scheduleSiteCheckSameCity;
     }
@@ -1990,5 +1992,13 @@ public class UccPropertyConfiguration {
 
     public void setJySendTaskPlanTimeEndDay(Integer jySendTaskPlanTimeEndDay) {
         this.jySendTaskPlanTimeEndDay = jySendTaskPlanTimeEndDay;
+    }
+
+    public String getNeedValidateMainLineBizSources() {
+        return needValidateMainLineBizSources;
+    }
+
+    public void setNeedValidateMainLineBizSources(String needValidateMainLineBizSources) {
+        this.needValidateMainLineBizSources = needValidateMainLineBizSources;
     }
 }
