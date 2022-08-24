@@ -225,9 +225,7 @@ public class CenterServiceResource {
 				waybillPickup.setConsignerAddress(getHideAddress(waybillPickup.getConsignerAddress()));
 			}
 		}catch (Exception e) {
-			StringBuilder errorMsg = new StringBuilder(
-					"敏感信息微笑处理出错").append(waybill).append(waybillPickup);
-			log.error(errorMsg.toString(), e);
+			log.error("敏感信息微笑处理hideInfo出错 waybill={} waybillPickup={}", waybill,waybillPickup, e);
 		}
 
 	}
