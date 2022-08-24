@@ -438,6 +438,9 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         String gridRid = getGridRid(position);
         String bizId = getBizId(JyBizTaskExceptionTypeEnum.SANWU, req.getBarCode());
         JyBizTaskExceptionEntity taskEntity = jyBizTaskExceptionDao.findByBizId(bizId);
+        if (taskEntity == null) {
+            return JdCResponse.fail("该条码无相关任务!" + req.getBarCode());
+        }
         if (!Objects.equals(gridRid, taskEntity.getDistributionTarget())) {
             return JdCResponse.fail("领取人的岗位与任务被分配的岗位不匹配!" + taskEntity.getDistributionTarget());
         }
