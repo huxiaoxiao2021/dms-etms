@@ -114,6 +114,9 @@ public class InvokeResult<T> implements Serializable {
     public static final int BATCH_SIGLE_SEND_EXCEP_CODE= 325;
     public static final String BATCH_SIGLE_SEND_EXCEP_MESSAGE ="批量一车一单发货异常";
 
+    public static final int NOT_SUPPORT_MAIN_LINE_TASK_CODE= 328;
+    public static final String NOT_SUPPORT_MAIN_LINE_TASK_MESSAGE ="干支批次禁止使用传摆发货！";
+
     public InvokeResult(){
         this.code=RESULT_SUCCESS_CODE;
     }

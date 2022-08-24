@@ -6,7 +6,7 @@
 
 	<!-- ucc 配置 -->
 	<bean id="uccConfigInsPostProcessor" class="com.jd.coo.ucc.client.service.UccConfigInsPostProcessor"/>
-	
+
 	<bean id="uccConfigCenter" class="com.jd.coo.ucc.client.service.UccConfigCenter" lazy-init="false">
 		<constructor-arg index="0" ref="zkConfig"/>
 		<constructor-arg index="1" ref="uccConfig"/>
@@ -18,7 +18,7 @@
 		<property name="appPath" value="${app.path}"/>
 		<property name="appGroup" value="${app.group}"/>
 	</bean>
-	
+
 	<bean id="uccConfig" class="com.jd.coo.ucc.client.config.UccConfig">
 		<property name="propertyConfig" ref="propertyConfig"/>
 		<property name="logConfig" ref="log2Config"/>
@@ -154,10 +154,11 @@
 		<property name="sitePlateIsCheckFunc" value="${sitePlateIsCheckFunc:false}"/>
 		<property name="scheduleSiteCheckSameCity" value="${scheduleSiteCheckSameCity:''}"/>
 		<property name="bTemplateRouterExecuteNew" value="${bTemplateRouterExecuteNew:false}"/>
-        <property name="judgePackagePrintedIncludeSiteTerminal" value="${judgePackagePrintedIncludeSiteTerminal:'0'}"/>
-        <property name="printCompleteCallbackAsyncPackageNum" value="${printCompleteCallbackAsyncPackageNum:500}"/>
-        <property name="sendCodeEffectiveValidation" value="${sendCodeEffectiveValidation:''}" />
-        <property name="limitSiteUsePackReprint" value="${limitSiteUsePackReprint:'0'}" />
+		<property name="judgePackagePrintedIncludeSiteTerminal" value="${judgePackagePrintedIncludeSiteTerminal:'0'}"/>
+		<property name="sensitiveInfoHideSwitch" value="${sensitiveInfoHideSwitch: false}"/>
+		<property name="printCompleteCallbackAsyncPackageNum" value="${printCompleteCallbackAsyncPackageNum:500}"/>
+		<property name="limitSiteUsePackReprint" value="${limitSiteUsePackReprint:'0'}"/>
+		<property name="sendCodeEffectiveValidation" value="${sendCodeEffectiveValidation:''}"/>
 		<property name="restApiOuthSwitch" value="${restApiOuthSwitch:true}"/>
 		<property name="needInterceptUrls" value="${needInterceptUrls:*}"/>
 		<property name="notSignedOutRecordMoreThanHours" value="${notSignedOutRecordMoreThanHours:-1}"/>
@@ -183,6 +184,7 @@
 		<property name="chuguanPurchaseAndSaleSwitch" value="${chuguanPurchaseAndSaleSwitch:false}"/>
 		<property name="jySendTaskPlanTimeBeginDay" value="${jySendTaskPlanTimeBeginDay:1}"/>
 		<property name="jySendTaskPlanTimeEndDay" value="${jySendTaskPlanTimeEndDay:2}"/>
+		<property name="needValidateMainLineBizSources" value="${needValidateMainLineBizSources:'25'}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -318,6 +320,7 @@
 				<value>uccPropertyConfiguration.sitePlateIsCheckFunc</value>
 				<value>uccPropertyConfiguration.bTemplateRouterExecuteNew</value>
 				<value>uccPropertyConfiguration.judgePackagePrintedIncludeSiteTerminal</value>
+				<value>uccPropertyConfiguration.sensitiveInfoHideSwitch</value>
 				<value>uccPropertyConfiguration.printCompleteCallbackAsyncPackageNum</value>
 				<value>uccPropertyConfiguration.scheduleSiteCheckSameCity</value>
 				<value>uccPropertyConfiguration.sendCodeEffectiveValidation</value>
@@ -348,6 +351,7 @@
 				<value>uccPropertyConfiguration.chuguanPurchaseAndSaleSwitch</value>
 				<value>uccPropertyConfiguration.jySendTaskPlanTimeBeginDay</value>
 				<value>uccPropertyConfiguration.jySendTaskPlanTimeEndDay</value>
+				<value>uccPropertyConfiguration.needValidateMainLineBizSources</value>
 
                 <value>hystrixRouteUccPropertyConfiguration.executionTimeoutInMilliseconds</value>
                 <value>hystrixRouteUccPropertyConfiguration.circuitBreakerEnabled</value>

@@ -128,7 +128,12 @@ public enum SendBizSourceEnum {
     /**
      * 拣运APP发车
      */
-    JY_APP_SEND(24, "拣运APP发车")
+    JY_APP_SEND(24, "拣运APP发车"),
+
+    /**
+     * 拣运APP传摆发货
+     */
+    JY_APP_TRANSFER_AND_FERRY_SEND(25, "拣运APP传摆发货"),
     ;
 
     /**
