@@ -50,6 +50,10 @@ public class UserSignRequest implements Serializable {
 	 * 操作人name
 	 */
 	private String operateUserName;
+	/**
+	 * 签到模式
+	 */
+	private Integer modeType;
 	
 	public Long getRecordId() {
 		return recordId;
@@ -104,5 +108,13 @@ public class UserSignRequest implements Serializable {
 	}
 	public void setOperateUserName(String operateUserName) {
 		this.operateUserName = operateUserName;
+	}
+
+	public Integer getModeType() {
+		return modeType;
+	}
+
+	public void setModeType(Integer modeType) {
+		this.modeType = modeType;
 	}
 }
