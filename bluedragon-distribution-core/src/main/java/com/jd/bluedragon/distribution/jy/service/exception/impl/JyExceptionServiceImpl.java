@@ -569,6 +569,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             redisClient.expire(key, 30, TimeUnit.DAYS);
         }else {
             ExpTaskDetailCacheDto cacheDto = cacheObj.toJavaObject(ExpTaskDetailCacheDto.class);
+            cacheDto.setExpBarcode(bizEntity.getBarCode());
             // 调用 三无接口
             ExpInfoSumaryInputDto dto = getExpInfoDto(cacheDto);
             try {
