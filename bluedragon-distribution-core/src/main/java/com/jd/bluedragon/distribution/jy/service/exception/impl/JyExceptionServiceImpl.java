@@ -13,7 +13,6 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyBizTaskExceptionDao;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyExceptionDao;
-import com.jd.bluedragon.distribution.jy.dto.exception.JyExpTaskChangeMessage;
 import com.jd.bluedragon.distribution.jy.dto.exception.JyExpTaskMessage;
 import com.jd.bluedragon.distribution.jy.exception.JyBizTaskExceptionEntity;
 import com.jd.bluedragon.distribution.jy.exception.JyExceptionEntity;
@@ -398,6 +397,11 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             }
         }
 
+        // 仅待取件列表 记录"进行中"的人数
+        if (StringUtils.isBlank(req.getGridCode())) {
+            return JdCResponse.ok(list);
+        }
+
         // 记录取件进行中
         // 按岗位统计
         String positionCountKey = RECEIVING_POSITION_COUNT_PRE +"|"+ position.getSiteCode() + "|"
@@ -495,6 +499,17 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         if (position == null) {
             return JdCResponse.fail("岗位码有误!");
         }
+
+        BaseStaffSiteOrgDto baseStaffByErp = baseMajorManager.getBaseStaffByErpNoCache(req.getUserErp());
+        if (baseStaffByErp == null) {
+            return JdCResponse.fail("登录人ERP有误!" + req.getUserErp());
+        }
+
+        JyBizTaskExceptionEntity bizEntity = jyBizTaskExceptionDao.findByBizId(req.getBizId());
+        if (bizEntity == null) {
+            return JdCResponse.fail("无相关任务!bizId=" + req.getBizId());
+        }
+
         JSONObject cacheObj = new JSONObject();
         String key = TASK_CACHE_PRE + req.getBizId();
         String s = redisClient.get(key);
@@ -510,14 +525,26 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             redisClient.expire(key, 30, TimeUnit.DAYS);
         }else {
             ExpTaskDetailCacheDto cacheDto = cacheObj.toJavaObject(ExpTaskDetailCacheDto.class);
-
             // 调用 三无接口
             ExpInfoSumaryInputDto dto = getExpInfoDto(cacheDto);
-            CommonDto commonDto = expInfoSummaryJsfManager.addExpInfoDetail(dto);
-            if (!Objects.equals(commonDto.getCode(), CommonDto.CODE_SUCCESS)) {
-                return JdCResponse.fail("提报三无系统失败:" + commonDto.getMessage());
+            try {
+                CommonDto commonDto = expInfoSummaryJsfManager.addExpInfoDetail(dto);
+                if (!Objects.equals(commonDto.getCode(), CommonDto.CODE_SUCCESS)) {
+                    return JdCResponse.fail("提报三无系统失败:" + commonDto.getMessage());
+                }
+            } catch (Exception e) {
+                logger.error("调用三无接口异常-参数:" + JSON.toJSONString(dto), e);
+                return JdCResponse.fail("提报三无系统失败请稍后再试!");
             }
-            //todo 修改processStatus 为待匹配
+            //修改processStatus 为待匹配
+            JyBizTaskExceptionEntity update = new JyBizTaskExceptionEntity();
+            update.setBizId(req.getBizId());
+            update.setProcessingStatus(JyBizTaskExceptionProcessStatusEnum.WAITING_MATCH.getCode());
+            update.setHandlerErp(req.getUserErp());
+            update.setUpdateUserErp(req.getUserErp());
+            update.setUpdateUserName(baseStaffByErp.getStaffName());
+            jyBizTaskExceptionDao.updateByBizId(update);
+
             redisClient.del(key);
         }
 
@@ -809,7 +836,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         // 提报人
         dto.setReporterErp(cacheDto.getUserErp());
         // 三无码
-        dto.setExpCode(cacheDto.getExpBarcode());
+        dto.setExpCode(cacheDto.getExpBarcode().toUpperCase());
         // 上报时间
         if (cacheDto.getExpCreateTime() != null) {
             dto.setHappenTimeNew(format.format(new Date(cacheDto.getExpCreateTime())));
