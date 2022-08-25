@@ -76,7 +76,7 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 		try{
 			log.info("UserSignGatewayServiceImpl.queryPositionData 入参-{}",positionCode);
 			JDResponse<com.jdl.basic.api.domain.position.PositionData> result = positionManager.queryPositionWithIsMatchAppFunc(positionCode);
-			if(result == null){
+			if(result == null || result.getData() == null){
 				response.setMessage("查询岗位码失败！");
 				return response;
 			}
@@ -102,7 +102,7 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 		try{
 			log.info("UserSignGatewayServiceImpl.queryPositionInfo 入参-{}",positionCode);
 			JDResponse<com.jdl.basic.api.domain.position.PositionData> result = positionManager.queryPositionInfo(positionCode);
-			if(result == null){
+			if(result == null || result.getData() == null){
 				response.setMessage("查询岗位码失败！");
 				return response;
 			}
