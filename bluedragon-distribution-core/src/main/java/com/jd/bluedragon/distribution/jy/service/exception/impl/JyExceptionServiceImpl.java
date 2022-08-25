@@ -570,6 +570,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         }else {
             ExpTaskDetailCacheDto cacheDto = cacheObj.toJavaObject(ExpTaskDetailCacheDto.class);
             cacheDto.setExpBarcode(bizEntity.getBarCode());
+            cacheDto.setExpCreateTime(bizEntity.getCreateTime() == null ? System.currentTimeMillis() : bizEntity.getCreateTime().getTime());
             // 调用 三无接口
             ExpInfoSumaryInputDto dto = getExpInfoDto(cacheDto);
             try {
