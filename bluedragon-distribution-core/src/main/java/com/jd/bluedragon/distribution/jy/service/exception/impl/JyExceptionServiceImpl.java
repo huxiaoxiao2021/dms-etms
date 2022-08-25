@@ -57,6 +57,12 @@ public class JyExceptionServiceImpl implements JyExceptionService {
     private static final String RECEIVING_POSITION_COUNT_PRE = "DMS:JYAPP:EXP:RECEIVING_POSITION_COUNT_PRE:";
     private static final String RECEIVING_SITE_COUNT_PRE = "DMS:JYAPP:EXP:RECEIVING_SITE_COUNT_PRE:";
 
+    // 统计数据缓存时间：半小时
+    private static final int COUNT_CACHE_SECOND = 30 * 60 * 60;
+
+    // 任务明细缓存时间
+    private static final int TASK_DETAIL_CACHE_DAYS = 30;
+
     @Autowired
     private JyBizTaskExceptionDao jyBizTaskExceptionDao;
     @Autowired
@@ -334,28 +340,42 @@ public class JyExceptionServiceImpl implements JyExceptionService {
 
         List<ProcessingNumByGridDto> list = new ArrayList<>();
 
-        // 按场地统计
+        // 场地内所有进行中的 岗位
         String siteCountKey = RECEIVING_SITE_COUNT_PRE + position.getSiteCode();
-        Map<String, String> map = redisClient.hGetAll(siteCountKey);
+        Set<String> receivingPositionSet = redisClient.sMembers(siteCountKey);
 
-        if (map==null||map.isEmpty()) {
+        if (receivingPositionSet == null || receivingPositionSet.isEmpty()) {
             return JdCResponse.ok(list);
         }
 
-        for (Map.Entry<String, String> entry : map.entrySet()) {
-            String key = entry.getKey();
+        for (String key : receivingPositionSet) {
             String[] split = key.split("\\|");
-
             try {
                 ProcessingNumByGridDto dto = new ProcessingNumByGridDto();
                 dto.setFloor(new Integer(split[2]));
                 dto.setAreaCode(split[3]);
                 dto.setGriCode(split[4]);
                 dto.setGridNo(split[5]);
-                dto.setProcessingNum(StringUtils.isNumeric(entry.getValue()) ? 0 : new Integer(entry.getValue()));
+                dto.setProcessingNum(0);
                 list.add(dto);
+
+                // 岗位内 进行中的ERP
+                Map<String, String> receivingCountByPosition = redisClient.hGetAll(key);
+                if (receivingCountByPosition == null || receivingCountByPosition.isEmpty()) {
+                    continue;
+                }
+
+                // 比较开始进行时间距当前时间是否 小于 COUNT_REDIS_SECOND
+                for (String value : receivingCountByPosition.values()) {
+                    if (StringUtils.isBlank(value)) {
+                        if (System.currentTimeMillis() - Long.parseLong(value) < (COUNT_CACHE_SECOND * 1000)) {
+                            dto.setProcessingNum(dto.getProcessingNum() + 1);
+                        }
+                    }
+                }
+
             } catch (Exception e) {
-                logger.error("解析取件进行中数据出错了" + entry.getKey(), e);
+                logger.error("解析取件进行中数据出错了" + key, e);
             }
         }
 
@@ -404,20 +424,44 @@ public class JyExceptionServiceImpl implements JyExceptionService {
 
         // 记录取件进行中
         // 按岗位统计
-        String positionCountKey = RECEIVING_POSITION_COUNT_PRE +"|"+ position.getSiteCode() + "|"
-                + position.getFloor() + "|" + position.getAreaCode() + "|" + position.getGridCode() + "|" + position.getGridNo();
-        redisClient.sAdd(positionCountKey, req.getUserErp());
-        Long size = redisClient.sCard(positionCountKey);
+        String positionCountKey = getPositionCountKey(position);
+        redisClient.hSet(positionCountKey, req.getUserErp(), System.currentTimeMillis() + "");
+        redisClient.expire(positionCountKey, COUNT_CACHE_SECOND, TimeUnit.SECONDS);
 
-        // 按场地统计
+
+        // 记录场地进行中的 网格码
         String siteCountKey = RECEIVING_SITE_COUNT_PRE + position.getSiteCode();
-        redisClient.hSet(siteCountKey, positionCountKey, String.valueOf(size));
-
-        redisClient.expire(positionCountKey, 30, TimeUnit.DAYS);
-        redisClient.expire(siteCountKey, 30, TimeUnit.DAYS);
+        redisClient.sAdd(siteCountKey, positionCountKey);
+        redisClient.expire(siteCountKey, COUNT_CACHE_SECOND, TimeUnit.SECONDS);
 
         return JdCResponse.ok(list);
     }
+
+    /**
+     * 释放进行中的人数
+     *
+     */
+    @Override
+    public JdCResponse<Object> releaseReceivingCount(ExpTaskPageReq req) {
+        // 仅待取件的 任务 支持进行中计数
+        if (StringUtils.isBlank(req.getGridCode())) {
+            return JdCResponse.ok();
+        }
+
+        PositionDetailRecord position = getPosition(req.getPositionCode());
+        if (position == null) {
+            return JdCResponse.fail("岗位码有误!");
+        }
+
+        // 记录取件进行中
+        // 按岗位统计
+        String positionCountKey = getPositionCountKey(position);
+        redisClient.hSet(positionCountKey, req.getUserErp(), Long.MIN_VALUE + "");
+        redisClient.expire(positionCountKey, COUNT_CACHE_SECOND, TimeUnit.SECONDS);
+
+        return JdCResponse.ok();
+    }
+
 
     /**
      * 任务领取接口
@@ -545,7 +589,8 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             update.setUpdateUserName(baseStaffByErp.getStaffName());
             jyBizTaskExceptionDao.updateByBizId(update);
 
-            redisClient.del(key);
+            // 处理任务后 更新任务明细过期时间：继续保留30天
+            redisClient.expire(key, TASK_DETAIL_CACHE_DAYS, TimeUnit.DAYS);
         }
 
         return JdCResponse.ok();
@@ -895,5 +940,10 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         boolean saved = !StringUtils.isBlank(s) && Objects.equals(JSON.parseObject(s, ExpTaskDetailCacheDto.class).getSaveType(), "0");
         dto.setSaved(saved);
         return dto;
+    }
+
+    private String getPositionCountKey(PositionDetailRecord position) {
+        return RECEIVING_POSITION_COUNT_PRE + "|" + position.getSiteCode() + "|"
+                + position.getFloor() + "|" + position.getAreaCode() + "|" + position.getGridCode() + "|" + position.getGridNo();
     }
 }

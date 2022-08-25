@@ -29,6 +29,11 @@ public interface JyExceptionService {
     JdCResponse<List<ProcessingNumByGridDto>> getReceivingCount(StatisticsByGridReq req);
 
     /**
+     * 释放进行中的人数
+     */
+    JdCResponse<Object> releaseReceivingCount(ExpTaskPageReq req);
+
+    /**
      * 任务列表接口
      */
     JdCResponse<List<ExpTaskDto>> getExceptionTaskPageList(ExpTaskPageReq req);

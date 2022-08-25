@@ -59,6 +59,16 @@ public class JyExceptionGatewayServiceImpl implements JyExceptionGatewayService 
     }
 
     /**
+     * 释放进行中的人数
+     *
+     * @param req
+     */
+    @Override
+    public JdCResponse<Object> releaseReceivingCount(ExpTaskPageReq req) {
+        return jyExceptionService.releaseReceivingCount(req);
+    }
+
+    /**
      * 任务列表接口
      *
      * @param req
