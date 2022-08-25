@@ -28,4 +28,14 @@
     </bean>
 
 
+    <!-- 作业APP任务定时清理任务 -->
+    <bean id="jyBizTaskCleanTask"
+          class="com.jd.bluedragon.distribution.worker.jy.JYBizTaskCleanTask"
+          init-method="init" lazy-init="false" depends-on="managerFactory">
+        <property name="dataSource" ref="taskDataSource"/>
+        <property name="taskType" value="JYBizTaskCleanTask"/>
+        <property name="managerFactory" ref="managerFactory"/>
+        <property name="ownSign" value="${ownSign}"/>
+    </bean>
+
 </beans>

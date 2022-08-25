@@ -361,4 +361,14 @@
 		SELECT package_code FROM sorting
 		where box_code =#{boxCode} and create_site_code = #{createSiteCode}
 	</select>
+	<!--分页查询-->
+	<select id="getPagePackageNoByBoxCode" parameterType="com.jd.bluedragon.distribution.api.request.SortingPageRequest" resultMap="sorting">
+		SELECT package_code
+		FROM sorting
+		WHERE yn=1 AND is_cancel = 0
+		and box_code =#{boxCode}
+		and create_site_code = #{createSiteCode}
+		limit #{offset}, #{limit}
+	</select>
+
 </mapper>

@@ -209,13 +209,14 @@
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
 			<artifactId>bluedragon-distribution-sdk</artifactId>
-			<version>1.9.2-SNAPSHOT</version>
+			<version>1.9.8-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
 			<artifactId>bluedragon-distribution-utils</artifactId>
 			<version>1.4.0-SNAPSHOT</version>
 		</dependency>
+
 
 		<!--运单拦截信息接口 2021.3.26-->
 		<dependency>
@@ -238,7 +239,7 @@
 		<dependency>
             <groupId>com.jd.bluedragon</groupId>
             <artifactId>bluedragon-distribution-common-android</artifactId>
-            <version>1.5.4-SNAPSHOT</version>
+            <version>1.5.7-SNAPSHOT</version>
         </dependency>
 		<dependency>
 			<groupId>com.jd.etms.waybill</groupId>
@@ -748,7 +749,7 @@
         <dependency>
             <groupId>com.jd.stock.iwms</groupId>
             <artifactId>iwms-app-export</artifactId>
-            <version>1.1.0-SNAPSHOT</version>
+			<version>2.2.0-jdk6-SNAPSHOT</version>
 			<exclusions>
 				<exclusion>
 					<artifactId>jsf</artifactId>
@@ -763,6 +764,12 @@
                     <groupId>commons-beanutils</groupId>
                 </exclusion>
             </exclusions>
+		</dependency>
+		<!-- 供应链二期 渠道库存分配接口 -->
+		<dependency>
+			<groupId>com.jd.ipc.csa</groupId>
+			<artifactId>channel-stock-allot-api</artifactId>
+			<version>1.4</version>
 		</dependency>
         <dependency>
             <groupId>stock-sdk</groupId>
@@ -1054,7 +1061,7 @@
 		<dependency>
 		    <groupId>com.jd.jss</groupId>
 		    <artifactId>jss-sdk-java</artifactId>
-		    <version>1.4.2-SNAPSHOT</version>
+		    <version>1.4.7-SNAPSHOT</version>
 		</dependency>
         <!-- 用户组接口 -->
         <dependency>
@@ -1641,6 +1648,12 @@
 			<artifactId>aces-mybatisclient</artifactId>
 		</dependency>
 
+		<!-- 数据安全 -->
+		<dependency>
+			<groupId>com.jd.security.data.am</groupId>
+			<artifactId>data-am-jsf-client</artifactId>
+		</dependency>
+
 		<dependency>
 			<groupId>com.jd.security</groupId>
 			<artifactId>aces-springclient</artifactId>
@@ -1694,13 +1707,19 @@
 		<dependency>
 			<groupId>com.jd.dms.wb</groupId>
 			<artifactId>workbench-report-api</artifactId>
-			<version>1.0.5-SNAPSHOT</version>
+			<version>1.0.0-TEST-SNAPSHOT</version>
 			<exclusions>
 				<exclusion>
 					<groupId>com.jd.dms.wb</groupId>
 					<artifactId>dms-workbench-utils-sdk</artifactId>
 				</exclusion>
 			</exclusions>
+		</dependency>
+
+		<dependency>
+			<groupId>com.jd.tys</groupId>
+			<artifactId>workbench-api</artifactId>
+			<version>1.0.0-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
@@ -1806,6 +1825,12 @@
         </dependency>
 
 		<dependency>
+			<groupId>com.jd.wl.ai.cv</groupId>
+			<artifactId>ai-cv-center-outter-api-7</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
 			<groupId>com.jd.bluedragon</groupId>
 			<artifactId>business-sdk</artifactId>
 			<exclusions>
@@ -1852,6 +1877,32 @@
 			<groupId>com.jd.tms.tpc</groupId>
 			<artifactId>tms-tpc-api</artifactId>
 			<version>1.0-SNAPSHOT</version>
+		</dependency>
+		<!--安全日志-->
+		<dependency>
+			<groupId>com.jd.security</groupId>
+			<artifactId>security-log</artifactId>
+			<version>3.9-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.jd</groupId>
+			<artifactId>ningde-enterprise-api</artifactId>
+			<version>1.0.0-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.projectlombok</groupId>
+					<artifactId>lombok</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.springframework.boot</groupId>
+					<artifactId>spring-boot-starter-validation</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.github.pagehelper</groupId>
+					<artifactId>pagehelper-spring-boot-starter</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<dependency>

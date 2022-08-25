@@ -16,6 +16,7 @@ import com.jd.bluedragon.distribution.jy.enums.JyBizTaskStageStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskStageTypeEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.group.JyTaskGroupMemberEntity;
+import com.jd.bluedragon.distribution.jy.manager.JyScheduleTaskManager;
 import com.jd.bluedragon.distribution.jy.service.group.JyTaskGroupMemberService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskUnloadVehicleService;
 import com.jd.bluedragon.distribution.jy.service.unload.JyBizTaskUnloadVehicleStageService;
@@ -32,6 +33,9 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.proxy.Profiler;
+import com.jdl.jy.schedule.dto.task.JyScheduleTaskReq;
+import com.jdl.jy.schedule.dto.task.JyScheduleTaskResp;
+import com.jdl.jy.schedule.enums.task.JyScheduleTaskTypeEnum;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,7 +61,6 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
 
     private static final int UNLOAD_SCAN_BIZ_EXPIRE = 6;
 
-
     @Autowired
     @Qualifier("redisClientOfJy")
     private Cluster redisClientOfJy;
@@ -82,6 +85,9 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
     JyBizTaskUnloadVehicleService jyBizTaskUnloadVehicleService;
     @Autowired
     JyBizTaskUnloadVehicleStageService jyBizTaskUnloadVehicleStageService;
+
+    @Autowired
+    private JyScheduleTaskManager jyScheduleTaskManager;
 
     @Override
     @JProfiler(jKey = "DMS.WORKER.jyUnloadScanConsumer.consume",
@@ -182,6 +188,10 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
      * @param unloadScanDto
      */
     private void startAndDistributeUnloadTask(UnloadScanDto unloadScanDto) {
+        if (!judgeStartScheduleTask(unloadScanDto)) {
+            logger.warn("不满足开始卸车任务的条件, 扫描时间晚于任务结束的时间或任务已结束. {}", JsonHelper.toJson(unloadScanDto));
+            return;
+        }
 
         // 卸车任务首次扫描
         if (judgeBarCodeIsFirstScanFromTask(unloadScanDto)) {
@@ -200,6 +210,28 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
             condition.setStatus(JyBizTaskStageStatusEnum.DOING.getCode());
         }
         return jyBizTaskUnloadVehicleStageService.queryCurrentStage(condition);
+    }
+
+    /**
+     * 判断是否触发开始调度任务
+     * @param unloadScanDto
+     * @return
+     */
+    private boolean judgeStartScheduleTask(UnloadScanDto unloadScanDto) {
+        JyScheduleTaskReq req = new JyScheduleTaskReq();
+        req.setBizId(unloadScanDto.getBizId());
+        req.setTaskType(JyScheduleTaskTypeEnum.UNLOAD.getCode());
+        JyScheduleTaskResp scheduleTask = jyScheduleTaskManager.findScheduleTaskByBizId(req);
+        if (scheduleTask != null) {
+            if (scheduleTask.getTaskEndTime() == null) {
+                return true;
+            }
+            else {
+                return unloadScanDto.getOperateTime().before(scheduleTask.getTaskEndTime());
+            }
+        }
+
+        return false;
     }
 
     private void recordTaskMembers(UnloadScanDto unloadScanDto) {

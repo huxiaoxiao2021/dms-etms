@@ -2,7 +2,9 @@ package com.jd.bluedragon.distribution.waybill.service;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
+import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.core.base.TerminalManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.base.service.SiteService;
 import com.jd.bluedragon.distribution.box.domain.Box;
@@ -12,7 +14,6 @@ import com.jd.bluedragon.distribution.half.domain.PackageHalfDetail;
 import com.jd.bluedragon.distribution.half.domain.PackageHalfReasonTypeEnum;
 import com.jd.bluedragon.distribution.half.domain.PackageHalfResultTypeEnum;
 import com.jd.bluedragon.distribution.inventory.service.PackageStatusService;
-import com.jd.bluedragon.distribution.reverse.service.ReversePrintService;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
@@ -26,6 +27,7 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.etms.erp.service.dto.SendInfoDto;
 import com.jd.etms.waybill.api.WaybillSyncApi;
 import com.jd.etms.waybill.common.Result;
 import com.jd.etms.waybill.domain.BaseEntity;
@@ -38,19 +40,15 @@ import com.jd.etms.waybill.handler.WaybillSyncParameterExtend;
 import com.jd.etms.waybill.handler.WaybillSyncPartParameter;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Service("waybillStatusService")
 public class WaybillStatusServiceImpl implements WaybillStatusService {
@@ -79,8 +77,6 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 	private SortingService sortingService;
 
 	@Autowired
-	private ReversePrintService reversePrintService;
-	@Autowired
 	private StoragePackageMService storagePackageMService;
 
 	@Autowired
@@ -88,6 +84,9 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 	
     @Autowired
     private WaybillCancelService waybillCancelService;
+
+	@Autowired
+	private TerminalManager terminalManager;
 
 	public void sendModifyWaybillStatusNotify(List<Task> tasks) throws Exception{
 		if (tasks.isEmpty()) {
@@ -746,27 +745,8 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 			if (null != task.getKeyword2() &&
 					(String.valueOf(WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION).equals(task.getKeyword2())
 					|| String.valueOf(WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION_CANCEL).equals(task.getKeyword2()))) {
-
-				String boxOrPackageCode = tWaybillStatus.getPackageCode();
-				if (BusinessUtil.isBoxcode(boxOrPackageCode)) {
-					//先取出box表的始发，然后查sorting表
-					List<Sorting> sortingList = getPackagesByBoxCode(boxOrPackageCode);
-					for (Sorting sorting : sortingList) {
-						tWaybillStatus.setWaybillCode(sorting.getWaybillCode());
-						tWaybillStatus.setPackageCode(sorting.getPackageCode());
-						toWaybillStatus(tWaybillStatus, bdTraceDto);
-						bdTraceDto.setOperatorDesp(tWaybillStatus.getRemark());
-						waybillQueryManager.sendBdTrace(bdTraceDto);
-					}
-
-				} else {
-					tWaybillStatus.setPackageCode(boxOrPackageCode);
-					tWaybillStatus.setWaybillCode(WaybillUtil.getWaybillCode(boxOrPackageCode));
-					toWaybillStatus(tWaybillStatus, bdTraceDto);
-					bdTraceDto.setOperatorDesp(tWaybillStatus.getRemark());
-					waybillQueryManager.sendBdTrace(bdTraceDto);
-
-				}
+				// 发送板内明细全程跟踪
+				sendBdTraceOfBoard(tWaybillStatus, bdTraceDto);
 				task.setYn(0);
 			}
 
@@ -932,7 +912,56 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 		}
 	}
 
-    private BdTraceDto getPackagePrintBdTraceDto(WaybillStatus tWaybillStatus) {
+	/**
+	 * 发送板内明细全程跟踪
+	 *
+	 * @param tWaybillStatus
+	 * @param bdTraceDto
+	 */
+	private void sendBdTraceOfBoard(WaybillStatus tWaybillStatus, BdTraceDto bdTraceDto) {
+		String boxOrPackageCode = tWaybillStatus.getPackageCode();
+		// left：包裹号，right：运单号
+		List<ImmutablePair<String, String>> list = new ArrayList<>();
+		if (BusinessUtil.isBoxcode(boxOrPackageCode)){
+			// 箱号处理
+			String boxCode = tWaybillStatus.getPackageCode();
+			// 1.查询分拣sorting
+			Box box = boxService.findBoxByCode(boxCode);
+			List<Sorting> sortByDms = Lists.newArrayList();
+			if(box != null){
+				Sorting sorting = new Sorting();
+				sorting.setBoxCode(box.getCode());
+				sorting.setCreateSiteCode(box.getCreateSiteCode());
+				sortByDms = sortingService.findByBoxCode(sorting);
+			}
+			if(CollectionUtils.isNotEmpty(sortByDms)){
+				for (Sorting sortDto : sortByDms) {
+					list.add(ImmutablePair.of(sortDto.getPackageCode(), sortDto.getWaybillCode()));
+				}
+			}else {
+				// 2.无分拣记录则从终端获取发货明细
+				List<SendInfoDto> sendDetailsFromZD = terminalManager.getSendDetailsFromZD(boxCode);
+				if(CollectionUtils.isNotEmpty(sendDetailsFromZD)){
+					for (SendInfoDto zdSendDto : sendDetailsFromZD) {
+						list.add(ImmutablePair.of(zdSendDto.getPackageBarcode(), zdSendDto.getWaybillCode()));
+					}
+				}
+			}
+		}else {
+			// 包裹号处理
+			list.add(ImmutablePair.of(boxOrPackageCode, WaybillUtil.getWaybillCode(boxOrPackageCode)));
+		}
+		// 循环发送全程跟踪
+		for (ImmutablePair<String, String> dto : list) {
+			tWaybillStatus.setPackageCode(dto.left);
+			tWaybillStatus.setWaybillCode(dto.right);
+			toWaybillStatus(tWaybillStatus, bdTraceDto);
+			bdTraceDto.setOperatorDesp(tWaybillStatus.getRemark());
+			waybillQueryManager.sendBdTrace(bdTraceDto);
+		}
+	}
+
+	private BdTraceDto getPackagePrintBdTraceDto(WaybillStatus tWaybillStatus) {
         BdTraceDto bdTraceDto2 = new BdTraceDto();
         bdTraceDto2.setWaybillCode(tWaybillStatus.getWaybillCode());
         bdTraceDto2.setOperateType(WaybillStatus.WAYBILL_TRACK_WAYBILL_BD);
@@ -944,22 +973,6 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
         bdTraceDto2.setOperatorTime(new Date());
         return bdTraceDto2;
     }
-
-    /**
-	 * 根据箱号获取箱内的包裹信息
-	 * @param boxCode
-	 * @return
-	 */
-	private List<Sorting> getPackagesByBoxCode(String boxCode) {
-		Box box = boxService.findBoxByCode(boxCode);
-		if (box != null) {
-			Sorting sorting = new Sorting();
-			sorting.setBoxCode(boxCode);
-			sorting.setCreateSiteCode(box.getCreateSiteCode());
-			return sortingService.findByBoxCode(sorting);
-		}
-		return null;
-	}
 
 	public boolean batchUpdateWaybillPartByOperateType(PackageHalf packageHalf , List<PackageHalfDetail> packageHalfDetails, Integer waybillOpeType, Integer operatorId, String operatorName, Date operateTime,Integer orgId){
 		CallerInfo info = null;

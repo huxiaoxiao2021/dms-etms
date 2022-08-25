@@ -24,6 +24,7 @@ import com.jd.jss.client.Request;
 import com.jd.jss.domain.ObjectListing;
 import com.jd.jss.domain.ObjectSummary;
 import com.jd.jss.http.JssInputStreamEntity;
+import com.jd.jss.http.Scheme;
 import com.jd.jss.service.BucketService;
 import com.jd.jss.service.ObjectService;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
@@ -75,6 +76,14 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
     private static final String STORAGE_DOMAIN_LOCAL = "storage.jd.local";
     /** 预签名过期时间 */
     private static final Integer SIGNATURE_TIMEOUT = 2592000;
+    /**
+     * 需要进行过滤的https域名
+     */
+    @Value("#{'${jss.httpsSet}'.split(',')}")
+    private Set<String> httpsSet;
+
+    @Value("${jss.endpoint}")
+    private String dmsWebJssEndpoint;
 
     @Autowired
     private ExportConcurrencyLimitService exportConcurrencyLimitService;
@@ -611,7 +620,15 @@ public class WeightAndVolumeCheckServiceImpl implements WeightAndVolumeCheckServ
      */
     public URI getURI(String keyName){
         //获得带有预签名的下载地址timeout为30天
-        URI uri = dmsWebJingdongStorageService.bucket(bucket).object(keyName).generatePresignedUrl(SIGNATURE_TIMEOUT);
+        URI uri;
+        if (httpsSet.contains(dmsWebJssEndpoint)){
+            uri = dmsWebJingdongStorageService.bucket(bucket).object(keyName)
+                    .presignedUrlProtocol(Scheme.HTTPS).generatePresignedUrl(SIGNATURE_TIMEOUT);
+        }
+        else{
+            uri = dmsWebJingdongStorageService.bucket(bucket).object(keyName)
+                    .generatePresignedUrl(SIGNATURE_TIMEOUT);
+        }
         return uri;
     }
 

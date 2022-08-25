@@ -7,6 +7,7 @@ import com.jd.bluedragon.distribution.alliance.service.AllianceBusiDeliveryDetai
 import com.jd.bluedragon.distribution.api.request.BoardCommonRequest;
 import com.jd.bluedragon.distribution.api.request.TransportServiceRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.api.request.SortingPageRequest;
 import com.jd.bluedragon.distribution.dock.convert.DockInfoConverter;
 import com.jd.bluedragon.distribution.dock.dao.DockBaseInfoDao;
 import com.jd.bluedragon.distribution.dock.domain.DockBaseInfoPo;
@@ -21,6 +22,7 @@ import com.jd.bluedragon.distribution.loadAndUnload.service.UnloadCarCommonServi
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.domain.dto.SendDetailDto;
+import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
@@ -67,6 +69,8 @@ public class TransportCommonServiceImpl implements TransportCommonService {
     @Resource
     private DockBaseInfoDao dockBaseInfoDao;
 
+    @Resource
+    private SortingService sortingService;
     @Autowired
     @Qualifier("redisClientOfJy")
     private Cluster redisClientOfJy;
@@ -363,6 +367,51 @@ public class TransportCommonServiceImpl implements TransportCommonService {
         }
         result.setData(DockInfoConverter.convertToEntity(dockBaseInfoPoRes));
 
+        return result;
+    }
+
+    /**
+     * 按箱号查询集包的包裹总数
+     * @param boxCode
+     * @return
+     */
+    @Override
+    @JProfiler(jKey = "DMS.BASE.TransportCommonServiceImpl.getSumByBoxCode", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public InvokeResult<Integer> getSumByBoxCode(String boxCode){
+        InvokeResult<Integer> result = new InvokeResult<>();
+        result.success();
+        if (StringUtils.isBlank(boxCode)) {
+            result.parameterError("缺少必要查询参数");
+            return result;
+        }
+        Integer sum = sortingService.getSumByBoxCode(boxCode);
+        result.setData(sum);
+        return result;
+    }
+
+    /**
+     *
+     * @param request
+     * @return
+     */
+    @Override
+    @JProfiler(jKey = "DMS.BASE.TransportCommonServiceImpl.getPackageNoByBoxCode", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public InvokeResult<List<String>> getPagePackageNoByBoxCode(SortingPageRequest request){
+        InvokeResult<List<String>> result = new InvokeResult<>();
+        result.success();
+        if (request == null || StringUtils.isBlank(request.getBoxCode())) {
+            result.parameterError("缺少必要查询参数");
+            return result;
+        }
+        if(request.getOffset() < 0 || request.getLimit() < 1){
+            result.parameterError("分页参数不合法");
+            return result;
+        }
+        if(request.getLimit() > 500){
+            result.parameterError("数据条数不能大于500");
+            return result;
+        }
+        result.setData(sortingService.getPagePackageNoByBoxCode(request));
         return result;
     }
 

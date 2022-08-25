@@ -39,6 +39,10 @@
     <jsf:consumer id="supportServiceJsf" interface="com.jd.etms.erp.ws.SupportServiceInterface"
                   protocol="jsf" alias="${erp.jsf.alias}" timeout="${erp.jsf.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
     </jsf:consumer>
+    <!-- 3PL erp接口 苗延超 杨庭柱 -->
+    <jsf:consumer id="support3plServiceJsf" interface="com.jd.etms.erp.ws.SupportServiceInterface"
+                  protocol="jsf" alias="${erp.3pl.jsf.alias}" timeout="${erp.3pl.jsf.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
 
     <!-- 仓储dtc接口 乔洪佥 -->
     <jsf:consumer id="dtcDataReceiverServiceJsf" interface="com.jd.staig.receiver.rpc.DataReceiver"
@@ -513,6 +517,13 @@
         <jsf:parameter key="authToken" value="${jsf.chuguan.cjg.authToken}" hide="true" />
         <jsf:parameter key="alias" value="${jsf.chuguan.alias}" hide="true" />
     </jsf:consumer>
+    <jsf:consumer id="generalStockAllotOutInterface" interface="com.jd.ipc.csa.GeneralStockAllotOutInterface"
+                  protocol="jsf" alias="${jsf.stockAllotApi.alias}" timeout="${jsf.stockAllotApi.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
+        <!-- 藏经阁分配的客户端名称，特别注意：藏经阁分配的客户端名称会在接入方应用英文名称前带“(J-one)”或“(J-dos)”前缀，如果有前缀，需要带上 -->
+        <jsf:parameter key="clientName" value="${jsf.stockAllotApi.clientName}" hide="true" />
+        <!-- 藏经阁生成token，藏经阁生成token，藏经阁生成token -->
+        <jsf:parameter key="authToken" value="${jsf.stockAllotApi.authToken}" hide="true" />
+    </jsf:consumer>
 
     <jsf:consumer id="eclpOpenServiceJsf" interface="com.jd.eclp.isv.service.EclpOpenService"
                   protocol="jsf" alias="${jsf.eclpOpenServiceJsf.alias}" timeout="${jsf.eclpOpenServiceJsf.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
@@ -589,7 +600,7 @@
     </jsf:consumer>
     <jsf:consumer id="qcJsfDeptService" interface="com.jd.wl.data.qc.abnormal.jsf.jar.abnormal.service.DeptService" alias="${qcAbnPdaAPI.alias}" timeout="${qcAbnPdaAPI.timeout}" retries="1" lazy="${jsf.consumer.lazy}">
         <jsf:parameter key="token" value="${qcAbnPdaAPI.token}" hide="true" />
-    </jsf:consumer>    
+    </jsf:consumer>
     <jsf:consumer id="jsfTypeService" interface="com.jd.dms.logger.service.BusinessLogQueryService"
                   protocol="jsf"
                   alias="${dms.jsfbusinesslog.alias}" timeout="10000"
@@ -917,6 +928,13 @@
                   retries="${jsf.retries}" >
     </jsf:consumer>
 
+    <jsf:consumer id="idcrServiceJsf" interface="com.jd.wl.ai.cv.center.outter.api.service.IDCRService"
+                  protocol="jsf" alias="${jsf.idcrService.alias}"
+                  timeout="${jsf.idcrService.timeout}"
+                  retries="${jsf.retries}" >
+        <jsf:parameter key="token" value="${jsf.idcrService.token}" hide="true"/>
+    </jsf:consumer>
+
     <jsf:consumer id="waybillPackageContainerApi" interface="com.jd.coldchain.distribution.api.WaybillPackageContainerApi"
                   protocol="jsf" alias="${jsf.coldchain.dispatch.alias}" timeout="${jsf.coldchain.dispatch.timeout}" retries="${jsf.retries}" serialization="hessian">
     </jsf:consumer>
@@ -931,6 +949,30 @@
                   protocol="jsf" alias="${jsf.tpc.alias}"
                   timeout="${jsf.tpc.timeout}"
                   retries="${jsf.retries}" serialization="hessian">
+    </jsf:consumer>
+
+    <jsf:consumer id="enterpriseInspectionJsfService" interface="com.jd.ningde.enterprise.service.EnterpriseInspectionJsfService"
+                  protocol="jsf" alias="${jsf.enterpriseDistribution.alias}"
+                  timeout="${jsf.enterpriseDistribution.timeout}"
+                  retries="${jsf.retries}" serialization="hessian">
+    </jsf:consumer>
+
+    <!--  分拣工作台外包计提配置  -->
+    <jsf:consumer id="workingConfigJsfService" interface="com.jd.dms.wb.report.api.working.WorkingConfigJsfService"
+                  protocol="jsf" alias="${jsf.dmsWbReport.alias}" timeout="${jsf.dmsWbReport.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
+    <!--  转运工作台外包计提配置  -->
+    <jsf:consumer id="outsourceCountRuleServiceWS" interface="com.jd.tys.api.outsource.ws.OutsourceCountRuleServiceWS"
+                  protocol="jsf" alias="${jsf.tysWorkbenchCenter.alias}" timeout="${jsf.tysWorkbenchCenter.timeout}" retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
+
+    <!-- 运单切片查询服务（安全校验） -->
+    <jsf:consumer id="dataAmWaybillBusinessService" interface="com.jd.security.data.am.jsf.client.service.DataAmWaybillBusinessService"
+                  protocol="jsf" alias="${jsf.dataAmWaybill.alias}" timeout="${jsf.dataAmWaybill.timeout}" retries="0" check="false">
+    </jsf:consumer>
+    <!-- 订单切片查询服务（安全校验） -->
+    <jsf:consumer id="dataAmOrderBusinessService" interface="com.jd.security.data.am.jsf.client.service.DataAmOrderBusinessService"
+                  protocol="jsf" alias="${jsf.dataAmOrder.alias}" timeout="${jsf.dataAmOrder.timeout}" retries="0" check="false">
     </jsf:consumer>
 
     <!--  基础资料获取货区编码  -->

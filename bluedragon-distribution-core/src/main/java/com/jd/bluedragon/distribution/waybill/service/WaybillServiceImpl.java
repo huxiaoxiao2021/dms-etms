@@ -9,6 +9,8 @@ import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jsf.dms.BlockerQueryWSJsfManager;
 import com.jd.bluedragon.core.jsf.dms.CancelWaybillJsfManager;
+import com.jd.bluedragon.core.security.SecurityCheckerExecutor;
+import com.jd.bluedragon.core.security.enums.SecurityDataMapFuncEnum;
 import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBill;
 import com.jd.bluedragon.distribution.abnormalwaybill.service.AbnormalWayBillService;
 import com.jd.bluedragon.distribution.api.JdResponse;
@@ -27,7 +29,6 @@ import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
-import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.mixedPackageConfig.enums.SiteTypeEnum;
 import com.jd.bluedragon.distribution.print.service.ScheduleSiteSupportInterceptService;
 import com.jd.bluedragon.distribution.reverse.domain.ReverseReceive;
@@ -40,7 +41,6 @@ import com.jd.bluedragon.distribution.ver.domain.Site;
 import com.jd.bluedragon.distribution.waybill.dao.CancelWaybillDao;
 import com.jd.bluedragon.distribution.waybill.domain.*;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
-import com.jd.bluedragon.dms.utils.WaybillSignConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.service.LossServiceManager;
 import com.jd.bluedragon.utils.*;
@@ -53,8 +53,6 @@ import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.PackOpeFlowDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.etms.waybill.dto.WaybillVasDto;
-import com.jd.jsf.gd.util.JsonUtils;
-import com.jd.ql.basic.dto.BaseSiteInfoDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -124,6 +122,9 @@ public class WaybillServiceImpl implements WaybillService {
 
     @Autowired
     private ScheduleSiteSupportInterceptService scheduleSiteSupportInterceptService;
+
+    @Autowired
+    private SecurityCheckerExecutor securityCheckerExecutor;
 
     /**
      * 普通运单类型（非移动仓内配）
@@ -1164,6 +1165,13 @@ public class WaybillServiceImpl implements WaybillService {
         if (!uccPropertyConfiguration.getPreSortOnSiteSwitchOn()){
             return result;
         }
+        // 信息安全校验
+        com.jd.bluedragon.distribution.jsf.domain.InvokeResult<Boolean> securityCheckResult
+                = securityCheckerExecutor.verifyWaybillDetailPermission(SecurityDataMapFuncEnum.WAYBILL_PRINT, waybillForPreSortOnSiteRequest.getErp(), WaybillUtil.getWaybillCodeByPackCode(waybillForPreSortOnSiteRequest.getWaybill()));
+        if(!securityCheckResult.codeSuccess()){
+            result.error(securityCheckResult.getMessage());
+            return result;
+        }
         try{
             /*------------------------------------------------------------数据准备--------------------------------------------------------------*/
             //获取运单
@@ -1177,7 +1185,7 @@ public class WaybillServiceImpl implements WaybillService {
                 log.warn("运单不存在：{}" , com.jd.bluedragon.utils.JsonHelper.toJson(waybillForPreSortOnSiteRequest));
                 return result;
             }
-                //获取站点信息-预分拣站点
+            // 获取站点信息-预分拣站点
             BaseStaffSiteOrgDto siteOfSchedulingOnSite = baseMajorManager.getBaseSiteBySiteId(waybillForPreSortOnSiteRequest.getSiteOfSchedulingOnSite());
             if (siteOfSchedulingOnSite == null){
                 result.error("预分拣站点信息不存在");
@@ -1187,7 +1195,7 @@ public class WaybillServiceImpl implements WaybillService {
             Site site = new Site();
             site.setType(siteOfSchedulingOnSite.getSiteType());
             site.setSubType(siteOfSchedulingOnSite.getSubType());
-                //获取登录人信息
+            // 获取登录人信息
             BaseStaffSiteOrgDto userInfo = baseMajorManager.getBaseStaffByErpNoCache(waybillForPreSortOnSiteRequest.getErp());
             if (userInfo == null){
                 result.error("登陆人信息不存在");
@@ -1195,6 +1203,13 @@ public class WaybillServiceImpl implements WaybillService {
                 return result;
             }
             /*------------------------------------------------------------规则校验----------------------------------------------------------------------------*/
+            // 特殊品类自营逆向单不能返调度到仓
+            String sendPayMap = waybill.getWaybillExt() == null ? null : waybill.getWaybillExt().getSendPayMap();
+            if(BusinessUtil.isSelfReverse(waybill.getWaybillSign()) && BusinessHelper.isSpecialOrder(com.jd.bluedragon.utils.JsonHelper.json2MapByJSON(sendPayMap))
+                    && BusinessUtil.isWmsSite(siteOfSchedulingOnSite.getSiteType())){
+                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, JdResponse.MESSAGE_SELF_REVERSE_SCHEDULE_ERROR);
+                return result;
+            }
             //规则1
             if(BusinessUtil.isSignChar(waybill.getWaybillSign(),36,'4') &&
                     SiteTypeEnum.SORTING_CENTER.getCode().equals(userInfo.getSiteType())){

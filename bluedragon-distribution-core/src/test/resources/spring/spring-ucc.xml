@@ -51,8 +51,6 @@
 		<property name="workerFetchWithoutFailedTable" value="${worker.fetch.without.failed.table}"/>
 		<property name="waybillSplitPageSize" value="${waybill.split.page.size}"/>
 		<property name="sortingServiceMode" value="${sorting.service.mode}"/>
-		<property name="chuguanNewInterfaceInsertSwitch" value="${chuguanNewInterfaceInsertSwitch:false}"/>
-		<property name="chuguanNewInterfaceQuerySwitch" value="${chuguanNewInterfaceQuerySwitch:false}"/>
 		<property name="sortingQueryMode" value="${sorting.query.mode}"/>
 		<property name="chuguanNewPageQuerySwitch" value="${chuguanNewPageQuerySwitch:false}"/>
 		<property name="preOutZoneSwitch" value="${preOutZoneSwitch:true}"/>
@@ -130,6 +128,7 @@
 		<property name="paralleGetPackageSwitch" value="${paralleGetPackageSwitch:false}" />
 		<property name="packRePrintInterceptStatus" value="${packRePrintInterceptStatus:-790}" />
 		<property name="spotCheckNoExcessLimit" value="${spotCheckNoExcessLimit:1.5}" />
+		<property name="chuguanPurchaseAndSaleSwitch" value="${chuguanPurchaseAndSaleSwitch:true}" />
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -159,8 +158,6 @@
 				<value>uccPropertyConfiguration.workerFetchWithoutFailedTable</value>
 				<value>uccPropertyConfiguration.waybillSplitPageSize</value>
 				<value>uccPropertyConfiguration.sortingServiceMode</value>
-				<value>uccPropertyConfiguration.chuguanNewInterfaceInsertSwitch</value>
-				<value>uccPropertyConfiguration.chuguanNewInterfaceQuerySwitch</value>
 				<value>uccPropertyConfiguration.sortingQueryMode</value>
 				<value>uccPropertyConfiguration.chuguanNewPageQuerySwitch</value>
 				<value>uccPropertyConfiguration.preOutZoneSwitch</value>

@@ -16,7 +16,8 @@ public enum JyBizTaskSendStatusEnum {
     TO_SEND(0, "待发货"),
     SENDING(1, "发货中"),
     TO_SEAL(2, "待封车"),
-    SEALED(3, "已封车")
+    SEALED(3, "已封车"),
+    CANCEL(4, "已作废")
     ;
 
     private static final Map<Integer, JyBizTaskSendStatusEnum> codeMap;

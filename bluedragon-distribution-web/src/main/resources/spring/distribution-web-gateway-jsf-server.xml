@@ -504,6 +504,12 @@
                   ref="groupMemberGatewayService"
                   server="dmsjsf" />
 
+    <jsf:provider id="identityScanGatewayServiceJsf"
+                  interface="com.jd.bluedragon.external.gateway.service.IdentityScanGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="identityScanGatewayService"
+                  server="dmsjsf" />
+
     <!-- 车辆任务服务  -->
     <bean id="tMSCarTaskGateWayServiceImpl" class="com.jd.bluedragon.distribution.external.gateway.service.impl.TMSCarTaskGateWayServiceImpl" />
     <jsf:provider id="tMSCarTaskGateWayService"

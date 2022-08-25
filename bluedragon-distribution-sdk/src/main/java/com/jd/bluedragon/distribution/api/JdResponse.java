@@ -92,6 +92,9 @@ public class JdResponse extends JdObject {
     public static final Integer CODE_TARGET_SITE_NO_ROUTE_CONFIRM = 20017;
     public static final String  MESSAGE_TARGET_SITE_NO_ROUTE_CONFIRM = "调度站点无滑道信息，是否继续操作?";
 
+    public static final Integer CODE_SELF_REVERSE_SCHEDULE_ERROR = 20018;
+    public static final String MESSAGE_SELF_REVERSE_SCHEDULE_ERROR = "特殊品类逆向订单禁止直接返调度到库房，请操作返调度到就近【备件库】";
+
     public static final Integer CODE_UNLOADBILL = 2424;
     public static final String MESSAGE_UNLOADBILL = "已经装载不允许取消";
 
@@ -288,7 +291,7 @@ public class JdResponse extends JdObject {
     
     /** 响应消息 */
     private String message;
-    
+
     public JdResponse() {
     }
     
@@ -329,5 +332,5 @@ public class JdResponse extends JdObject {
     public void setMessage(String message) {
         this.message = message;
     }
-    
+
 }

@@ -16,6 +16,24 @@ public class NumberHelper {
 	
     public static DecimalFormat doubleFormat = new DecimalFormat("#.00");    //保留两位小数
     private static final DecimalFormat MONEY_FORMAT = new DecimalFormat("0.00");   //保留两位小数
+    /**
+     * cm3和m3的转换值
+     */
+    public static final long CM3_M3_MAGNIFICATION = 1000000;
+
+    /**
+     * 立方厘米转换成立方米 小数点后保留2位
+     * @param cm3
+     * @return
+     */
+    public static Double cm3ToM3(Double cm3){
+        if(cm3 == null){
+            return 0.00;
+        }
+        Double m3 = cm3 / CM3_M3_MAGNIFICATION;
+        return doubleFormat(m3);
+    }
+
     public static Double getDoubleValue(Object object) {
         return ObjectHelper.isNotEmpty(object) ? Double.valueOf(object.toString()) : 0.0D;
     }
@@ -277,4 +295,23 @@ public class NumberHelper {
         return input.matches(pattern);
     }
 
+    public static void main(String[] args) {
+        Double d1 = 7000000.0;
+        System.out.println(cm3ToM3(d1));
+        Double d2 = 77000000.0;
+        System.out.println(cm3ToM3(d2));
+        Double d3 = 7700000.0;
+        System.out.println(cm3ToM3(d3));
+        Double d4 = 770000.0;
+        System.out.println(cm3ToM3(d4));
+        Double d5 = 77000.0;
+        System.out.println(cm3ToM3(d5));
+        Double d6 = 7700.0;
+        System.out.println(cm3ToM3(d6));
+        Double d7 = 0.0;
+        System.out.println(cm3ToM3(d7));
+        Double d8 = null;
+        System.out.println(cm3ToM3(d8));
+
+    }
 }

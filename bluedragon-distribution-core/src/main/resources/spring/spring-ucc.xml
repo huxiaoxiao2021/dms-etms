@@ -49,8 +49,6 @@
 		<property name="workerFetchWithoutFailedTable" value="${worker.fetch.without.failed.table}"/>
 		<property name="waybillSplitPageSize" value="${waybill.split.page.size}"/>
 		<property name="sortingServiceMode" value="${sorting.service.mode}"/>
-		<property name="chuguanNewInterfaceInsertSwitch" value="${chuguanNewInterfaceInsertSwitch:false}"/>
-		<property name="chuguanNewInterfaceQuerySwitch" value="${chuguanNewInterfaceQuerySwitch:false}"/>
 		<property name="sortingQueryMode" value="${sorting.query.mode}"/>
         <property name="chuguanNewPageQuerySwitch" value="${chuguanNewPageQuerySwitch:false}"/>
         <property name="preOutZoneSwitch" value="${preOutZoneSwitch:true}"/>
@@ -151,6 +149,7 @@
 		<property name="sitePlateIsCheckFunc" value="${sitePlateIsCheckFunc:false}"/>
 		<property name="scheduleSiteCheckSameCity" value="${scheduleSiteCheckSameCity:''}"/>
 		<property name="judgePackagePrintedIncludeSiteTerminal" value="${judgePackagePrintedIncludeSiteTerminal:'0'}"/>
+		<property name="sensitiveInfoHideSwitch" value="${sensitiveInfoHideSwitch: false}"/>
 		<property name="printCompleteCallbackAsyncPackageNum" value="${printCompleteCallbackAsyncPackageNum:500}"/>
 		<property name="limitSiteUsePackReprint" value="${limitSiteUsePackReprint:'0'}"/>
 		<property name="sendCodeEffectiveValidation" value="${sendCodeEffectiveValidation:''}"/>
@@ -174,6 +173,12 @@
 		<property name="oldSendSplitPageSize" value="${oldSendSplitPageSize:30}"/>
 		<property name="dpSiteCodes" value="${dpSiteCodes:}"/>
 		<property name="dpWaybillMatchSendCodeSwitch" value="${dpWaybillMatchSendCodeSwitch:true}"/>
+		<property name="faceAbnormalReportConfig" value="${faceAbnormalReportConfig:''}"/>
+		<property name="identityRecogniseSiteSwitch" value="${identityRecogniseSiteSwitch:''}"/>
+		<property name="chuguanPurchaseAndSaleSwitch" value="${chuguanPurchaseAndSaleSwitch:false}"/>
+		<property name="jySendTaskPlanTimeBeginDay" value="${jySendTaskPlanTimeBeginDay:1}"/>
+		<property name="jySendTaskPlanTimeEndDay" value="${jySendTaskPlanTimeEndDay:2}"/>
+		<property name="needValidateMainLineBizSources" value="${needValidateMainLineBizSources:'25'}"/>
 		<property name="unloadCacheDurationHours" value="${unloadCacheDurationHours:24}"/>
 		<property name="unloadBoardBindingsMaxCount" value="${unloadBoardBindingsMaxCount:100}"/>
 		<property name="packageWeightLimit" value="${packageWeightLimit:'2000'}"/>
@@ -206,8 +211,6 @@
                 <value>uccPropertyConfiguration.workerFetchWithoutFailedTable</value>
 				<value>uccPropertyConfiguration.waybillSplitPageSize</value>
                 <value>uccPropertyConfiguration.sortingServiceMode</value>
-                <value>uccPropertyConfiguration.chuguanNewInterfaceInsertSwitch</value>
-                <value>uccPropertyConfiguration.chuguanNewInterfaceQuerySwitch</value>
 				<value>uccPropertyConfiguration.sortingQueryMode</value>
 				<value>uccPropertyConfiguration.chuguanNewPageQuerySwitch</value>
 				<value>uccPropertyConfiguration.preOutZoneSwitch</value>
@@ -308,6 +311,7 @@
 				<value>uccPropertyConfiguration.sitePlateIsCheckFunc</value>
 				<value>uccPropertyConfiguration.scheduleSiteCheckSameCity</value>
 				<value>uccPropertyConfiguration.judgePackagePrintedIncludeSiteTerminal</value>
+				<value>uccPropertyConfiguration.sensitiveInfoHideSwitch</value>
 				<value>uccPropertyConfiguration.printCompleteCallbackAsyncPackageNum</value>
 				<value>uccPropertyConfiguration.limitSiteUsePackReprint</value>
 				<value>uccPropertyConfiguration.sendCodeEffectiveValidation</value>
@@ -332,6 +336,12 @@
 				<value>uccPropertyConfiguration.oldSendSplitPageSize</value>
 				<value>uccPropertyConfiguration.dpSiteCodes</value>
 				<value>uccPropertyConfiguration.dpWaybillMatchSendCodeSwitch</value>
+				<value>uccPropertyConfiguration.faceAbnormalReportConfig</value>
+				<value>uccPropertyConfiguration.identityRecogniseSiteSwitch</value>
+				<value>uccPropertyConfiguration.chuguanPurchaseAndSaleSwitch</value>
+				<value>uccPropertyConfiguration.jySendTaskPlanTimeBeginDay</value>
+				<value>uccPropertyConfiguration.jySendTaskPlanTimeEndDay</value>
+				<value>uccPropertyConfiguration.needValidateMainLineBizSources</value>
 				<value>uccPropertyConfiguration.unloadCacheDurationHours</value>
 				<value>uccPropertyConfiguration.unloadBoardBindingsMaxCount</value>
 				<value>uccPropertyConfiguration.packageWeightLimit</value>

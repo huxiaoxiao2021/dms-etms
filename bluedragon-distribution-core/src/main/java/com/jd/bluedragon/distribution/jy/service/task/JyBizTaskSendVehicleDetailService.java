@@ -11,6 +11,8 @@ public interface JyBizTaskSendVehicleDetailService {
 
     int updateDateilTaskByVehicleBizId(JyBizTaskSendVehicleDetailEntity detailEntity);
 
+    int updateByBiz(JyBizTaskSendVehicleDetailEntity entity);
+
     /**
      * 保存发货流向
      * @param detailEntity
@@ -26,6 +28,13 @@ public interface JyBizTaskSendVehicleDetailService {
     List<JyBizTaskSendVehicleDetailEntity> findEffectiveSendVehicleDetail(JyBizTaskSendVehicleDetailEntity entity);
 
     /**
+     * 按条件查询未封车的流向任务
+     * @param entity
+     * @return
+     */
+    List<JyBizTaskSendVehicleDetailEntity> findNoSealCarSendVehicleDetail(JyBizTaskSendVehicleDetailEntity entity);
+
+    /**
      * 按状态查发货任务流向
      * @param entity
      * @param statuses
@@ -39,6 +48,8 @@ public interface JyBizTaskSendVehicleDetailService {
      * @return
      */
     int cancelDetail(JyBizTaskSendVehicleDetailEntity detailEntity);
+
+    int cancelDetailTaskAndMainTask(JyBizTaskSendVehicleDetailEntity detailEntity);
 
     /**
      * 按顺序更新发货明细状态
@@ -77,4 +88,6 @@ public interface JyBizTaskSendVehicleDetailService {
     List<JyBizTaskSendCountDto> sumByVehicleStatus(JyBizTaskSendVehicleDetailEntity entity);
 
     int updateBizTaskSendDetailStatus(JyBizTaskSendVehicleDetailEntity entity);
+
+    Integer countNoCancelSendDetail(JyBizTaskSendVehicleDetailEntity entity);
 }

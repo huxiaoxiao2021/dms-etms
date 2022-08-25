@@ -2,9 +2,12 @@ package com.jd.bluedragon.distribution.exceptionReport.billException.service;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.exceptionReport.expressBill.Enum.ExpressBillExceptionReportTypeEnum;
+import com.jd.bluedragon.common.dto.exceptionReport.expressBill.reponse.FaceFirstAbnormalType;
+import com.jd.bluedragon.common.dto.exceptionReport.expressBill.reponse.FaceSecondAbnormalType;
 import com.jd.bluedragon.common.dto.exceptionReport.expressBill.reponse.FirstSiteVo;
 import com.jd.bluedragon.common.dto.exceptionReport.expressBill.reponse.ReportTypeVo;
 import com.jd.bluedragon.common.dto.exceptionReport.expressBill.request.ExpressBillExceptionReportRequest;
+import com.jd.bluedragon.distribution.exceptionReport.billException.domain.ExpressBillExceptionReport;
 
 import java.util.List;
 import java.util.Map;
@@ -48,11 +51,25 @@ public interface ExpressBillExceptionReportService {
     JdCResponse<List<ReportTypeVo>> getAllExceptionReportTypeListNew();
 
     /**
-     * 查询包裹是否举报过
-     * @param packageCode
+     * 获取一级原因
+     *
      * @return
      */
-    boolean selectPackageIsReport(String packageCode);
+    List<FaceFirstAbnormalType> getFirstAbnormalType();
 
+    /**
+     * 根据一级原因编码获取二级原因
+     *
+     * @return
+     */
+    List<FaceSecondAbnormalType> getSecondAbnormalType(Integer firstAbnormalType);
+
+    /**
+     * 根据商家编码更新数据
+     * 
+     * @param query
+     * @return
+     */
+    boolean updateByBusiCode(ExpressBillExceptionReport query);
 }
     

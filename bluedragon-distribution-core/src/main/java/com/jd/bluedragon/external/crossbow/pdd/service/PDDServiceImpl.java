@@ -1,5 +1,7 @@
 package com.jd.bluedragon.external.crossbow.pdd.service;
 
+import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.crossbow.pdd.domain.PDDResponse;
 import com.jd.bluedragon.external.crossbow.pdd.domain.PDDWaybillDetailDto;
@@ -7,8 +9,14 @@ import com.jd.bluedragon.external.crossbow.pdd.domain.PDDWaybillQueryDto;
 import com.jd.bluedragon.external.crossbow.pdd.manager.PDDBusinessManager;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.etms.waybill.domain.Waybill;
+import com.jd.etms.waybill.dto.BigWaybillDto;
+import com.jd.etms.waybill.dto.WChoice;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ql.dms.common.domain.JdResponse;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,100 +50,129 @@ public class PDDServiceImpl implements PDDService {
     @Qualifier("jimdbCacheService")
     private CacheService jimdbCacheService;
 
-    @Override
-    public PDDWaybillDetailDto queryWaybillDetailByWaybillCode(String waybillCode) {
-        if (!WaybillUtil.isPDDWaybillCode(waybillCode)) {
-            return null;
-        }
-        PDDWaybillQueryDto pddWaybillQueryDto = new PDDWaybillQueryDto();
-        pddWaybillQueryDto.setWaybillCode(waybillCode);
-
-        PDDResponse<PDDWaybillDetailDto> response = null;
-        try {
-            response = pddWaybillQueryManager.doRestInterface(pddWaybillQueryDto);
-        } catch (Exception e) {
-            log.error("获取拼多多电子面信息失败，信息获取为空,waybillCode={},e:{}", waybillCode, e.getMessage());
-        }
-        if(log.isDebugEnabled()){
-            log.debug("获取拼多多的电子面单处理信息，参数为：{}，返回结果为：{}",waybillCode, JsonHelper.toJson(response));
-        }
-        if (response == null) {
-            log.error("获取拼多多电子面信息失败，信息获取为空,{}",waybillCode);
-            return null;
-        }
-        if (!response.getSuccess()) {
-            log.warn("获取拼多多电子面单信息失败，单号为：{}, 原因：{}",waybillCode,response.getErrorMsg());
-            return null;
-        }
-        return response.getResult();
-    }
+    @Autowired
+    private WaybillQueryManager waybillQueryManager;
 
     @Override
-    public PDDResponse<PDDWaybillDetailDto> queryPDDWaybillByWaybillCode(String waybillCode) {
-        return queryPDDWaybillByWaybillCode(waybillCode,true);
-    }
-
-    /**
-     * 刷新缓存,包含pdd返回值
-     *
-     * @param waybillCode 拼多多电子面单号
-     * @return 返回拼多多电子面单处理对象
-     */
-    @Override
-    public PDDResponse<PDDWaybillDetailDto> refreshPDDWaybillByWaybillCode(String waybillCode) {
-        return queryPDDWaybillByWaybillCode(waybillCode,false);
-    }
-
-
-    private PDDResponse<PDDWaybillDetailDto> queryPDDWaybillByWaybillCode(String waybillCode,boolean useCache){
+    public PDDResponse<PDDWaybillDetailDto> queryPDDWaybillInfoByWaybillCodeWithCacheAndSource(String waybillCode, String source, Boolean cacheSwitch, Boolean waybillSwitch) {
         PDDResponse<PDDWaybillDetailDto> response = new PDDResponse<>();
-        response.setSuccess(Boolean.TRUE);
-        response.setErrorCode(String.valueOf(JdResponse.CODE_SUCCESS));
-        response.setErrorMsg(JdResponse.MESSAGE_SUCCESS);
-        String redisKey = MessageFormat.format(redis_key,waybillCode);
+        response.setSuccess(Boolean.FALSE);
+        response.setErrorCode(String.valueOf(JdResponse.CODE_FAIL));
+        response.setErrorMsg(JdResponse.MESSAGE_ERROR);
 
-        /**************************     获取缓存    *******************************/
-        if(useCache) {
-            try {
-                String redisValue = jimdbCacheService.get(redisKey);
-                if (StringHelper.isNotEmpty(redisValue)) {
-                    /* 如果從redis中可以獲取到value值，則直接反序列化，不走pdd接口 */
-                    log.info("拼多多订单redis命中缓存，waybillCode:{}，返回值：{}", waybillCode, redisValue);
-                    response.setResult(JsonHelper.fromJsonUseGson(redisValue, PDDWaybillDetailDto.class));
-                    return response;
-                }
-            } catch (Exception e) {
-                log.error("拼多多获取缓存发生异常，请求参数：{}", waybillCode, e);
-            }
-        }
-
-        /**************************     调用接口    *******************************/
-        try {
-            /* 调用拼多多的接口 */
-            PDDWaybillQueryDto condition = new PDDWaybillQueryDto();
-            condition.setWaybillCode(waybillCode);
-            response = pddWaybillQueryManager.doRestInterface(condition);
-            if(log.isInfoEnabled()){
-                log.info("PddService.queryPDDWaybillByWaybillCode,req:{},resp:{}", waybillCode,JsonHelper.toJson(response));
-            }
-        } catch (RuntimeException e) {
-            log.error("拼多多接口调用发生异常，请求参数：{}", waybillCode, e);
-            response.setSuccess(Boolean.FALSE);
-            response.setErrorCode(String.valueOf(JdResponse.CODE_ERROR));
-            response.setErrorMsg(JdResponse.MESSAGE_ERROR);
+        if (!WaybillUtil.isPDDWaybillCode(waybillCode)) {
             return response;
         }
 
-        /**************************       缓存      *******************************/
-        try {
-            /* 如果從拼多多的訂單中獲取成功的話，則進行redis緩存 */
-            if (response != null && Boolean.TRUE.equals(response.getSuccess()) && response.getResult() != null) {
-                jimdbCacheService.setEx(redisKey, JsonHelper.toJson(response.getResult()), EXPIRED_TIME, TimeUnit.DAYS);
-            }
-        }catch (Exception e){
-            log.error("拼多多缓存发生异常，请求参数：{}", waybillCode, e);
+        CallerInfo callerInfo = Profiler.registerInfo("DMS.WEB.PDDService.queryPDDWaybillInfoByWaybillCodeWithCacheAndSource_all_" + source, Constants.UMP_APP_NAME_DMSWEB, false,true);
+        // 1. 检查缓存信息，是否包含pdd的缓存信息，如果包含，则从缓存中获取pdd信息
+        if (Boolean.TRUE.equals(cacheSwitch) && this.queryPDDWaybillInCache(waybillCode, response)) {
+            Profiler.registerInfoEnd(callerInfo);
+            return response;
         }
 
+        // 2. 检查运单接口，是否包含运单的明文信息，如果包含，则从运单的信息中获取
+        if (Boolean.TRUE.equals(waybillSwitch) && this.queryPDDWaybillInWaybill(waybillCode, response)) {
+            Profiler.registerInfoEnd(callerInfo);
+            return response;
+        }
+
+        CallerInfo callerInfo1 = Profiler.registerInfo("DMS.WEB.PDDService.queryPDDWaybillInfoByWaybillCodeWithCacheAndSource_to_pdd_all_" + source,Constants.UMP_APP_NAME_DMSWEB, false,true);
+        CallerInfo callerInfo2 = null;
+        // 3. 调用pdd的外部接口，获取返回值信息
+        if (this.queryPDDWaybillInPDD(waybillCode, response)) {
+            callerInfo2 = Profiler.registerInfo("DMS.WEB.PDDService.queryPDDWaybillInfoByWaybillCodeWithCacheAndSource_to_pdd_success_" + source, Constants.UMP_APP_NAME_DMSWEB, false,true);
+        }
+        Profiler.registerInfoEnd(callerInfo);
+        Profiler.registerInfoEnd(callerInfo1);
+        Profiler.registerInfoEnd(callerInfo2);
         return response;
+    }
+
+    private Boolean queryPDDWaybillInCache(String waybillCode,PDDResponse<PDDWaybillDetailDto> response) {
+
+        String redisKey = MessageFormat.format(redis_key,waybillCode);
+
+        try {
+            String redisValue = jimdbCacheService.get(redisKey);
+            if (StringHelper.isNotEmpty(redisValue)) {
+                /* 如果從redis中可以獲取到value值，則直接反序列化，不走pdd接口 */
+                log.info("拼多多订单redis命中缓存，waybillCode:{}，返回值：{}", waybillCode, redisValue);
+                response.setSuccess(Boolean.TRUE);
+                response.setErrorCode(String.valueOf(JdResponse.CODE_SUCCESS));
+                response.setErrorMsg(JdResponse.MESSAGE_SUCCESS);
+                response.setResult(JsonHelper.fromJsonUseGson(redisValue, PDDWaybillDetailDto.class));
+                return Boolean.TRUE;
+            }
+        } catch (Exception e) {
+            log.error("拼多多获取缓存发生异常，请求参数：{}", waybillCode, e);
+        }
+        return Boolean.FALSE;
+    }
+
+    private Boolean queryPDDWaybillInWaybill(String waybillCode, PDDResponse<PDDWaybillDetailDto> response) {
+        //初始化运单数据
+        WChoice wChoice = new WChoice();
+        wChoice.setQueryWaybillC(Boolean.TRUE);
+        wChoice.setQueryWaybillE(Boolean.TRUE);
+        wChoice.setQueryWaybillM(Boolean.TRUE);
+        wChoice.setQueryWaybillExtend(Boolean.TRUE);
+        wChoice.setQueryWaybillP(Boolean.TRUE);
+
+        com.jd.etms.waybill.domain.BaseEntity<BigWaybillDto> waybillDtoBaseEntity = waybillQueryManager.getDataByChoice(waybillCode, wChoice);
+
+        //如果运单中收件人电话或收件都是密文，则调用拼多多接口，否则直接返回运单数据
+        if(waybillDtoBaseEntity != null && Constants.RESULT_SUCCESS == waybillDtoBaseEntity.getResultCode()
+                && waybillDtoBaseEntity.getData()!=null && waybillDtoBaseEntity.getData().getWaybill() != null) {
+            Waybill waybill = waybillDtoBaseEntity.getData().getWaybill();
+
+            if ((StringUtils.isNotBlank(waybill.getReceiverMobile())
+                    && waybill.getReceiverMobile().indexOf('*') == -1)
+                    || (StringUtils.isNotBlank(waybill.getReceiverTel())
+                    && waybill.getReceiverTel().indexOf('*') == -1)) {
+
+                /* 对运单接口接口返回内容进行重新组装返回 */
+                PDDWaybillDetailDto pddWaybillPrintInfoDto = new PDDWaybillDetailDto();
+                pddWaybillPrintInfoDto.setWaybillCode(waybillCode);
+                pddWaybillPrintInfoDto.setSenderName(waybill.getConsigner());
+                pddWaybillPrintInfoDto.setSenderMobile(waybill.getConsignerMobile());
+                pddWaybillPrintInfoDto.setSenderPhone(waybill.getConsignerTel());
+                pddWaybillPrintInfoDto.setConsigneeName(waybill.getReceiverName());
+                pddWaybillPrintInfoDto.setConsigneeMobile(waybill.getReceiverMobile());
+                pddWaybillPrintInfoDto.setConsigneePhone(waybill.getReceiverTel());
+
+                response.setSuccess(Boolean.TRUE);
+                response.setErrorCode(String.valueOf(JdResponse.CODE_SUCCESS));
+                response.setErrorMsg(JdResponse.MESSAGE_SUCCESS);
+                response.setResult(pddWaybillPrintInfoDto);
+                return Boolean.TRUE;
+            }
+        }
+
+        return Boolean.FALSE;
+    }
+
+    private Boolean queryPDDWaybillInPDD(String waybillCode, PDDResponse<PDDWaybillDetailDto> response) {
+        PDDWaybillQueryDto pddWaybillQueryDto = new PDDWaybillQueryDto();
+        pddWaybillQueryDto.setWaybillCode(waybillCode);
+
+        try {
+            PDDResponse<PDDWaybillDetailDto> pddResponse = pddWaybillQueryManager.doRestInterface(pddWaybillQueryDto);
+            if (pddResponse != null && pddResponse.getResult() != null) {
+                /* 如果從拼多多的訂單中獲取成功的話，則進行redis緩存 */
+                String redisKey = MessageFormat.format(redis_key,waybillCode);
+                jimdbCacheService.setEx(redisKey, JsonHelper.toJson(pddResponse.getResult()), EXPIRED_TIME, TimeUnit.DAYS);
+
+                response.setSuccess(Boolean.TRUE);
+                response.setErrorCode(String.valueOf(JdResponse.CODE_SUCCESS));
+                response.setErrorMsg(JdResponse.MESSAGE_SUCCESS);
+                response.setResult(pddResponse.getResult());
+                return Boolean.TRUE;
+            }
+        } catch (Exception e) {
+            log.error("获取拼多多电子面信息失败，信息获取为空,waybillCode={},e:{}", waybillCode, e.getMessage());
+        }
+
+        return Boolean.FALSE;
     }
 }

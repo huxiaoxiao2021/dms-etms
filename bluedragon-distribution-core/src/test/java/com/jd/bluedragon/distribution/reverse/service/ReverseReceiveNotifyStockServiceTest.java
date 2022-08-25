@@ -48,8 +48,8 @@ public class ReverseReceiveNotifyStockServiceTest {
         OrderBankResponse orderBank = new OrderBankResponse();
         orderBank.setShouldPay(new BigDecimal(3333));
         orderBank.setDiscount(new BigDecimal(22333.33));
-        int result = reverseReceiveNotifyStockService.insertNewChuguan(444444444444555555L,true,order,products,2,orderBank);
-        Assert.assertEquals(result,1);
+//        int result = reverseReceiveNotifyStockService.insertNewChuguan(444444444444555555L,true,order,products,2,orderBank);
+//        Assert.assertEquals(result,1);
 
 //        Order order = new Order();
 //        order.setDeliveryCenterID(3);//DcId 源配送中心Id	3;上海(3)
