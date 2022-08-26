@@ -72,8 +72,8 @@ public interface BaseMajorManager {
 	 * @param storeType 库房类型 wms
 	 * @param cky2 配送中心==cky2?
 	 * @param storeID 库房ID
-	 * @param sys 调用系统 dms   */
-	public PsStoreInfo getStoreByCky2(String storeType, Integer cky2, Integer storeID, String sys);
+	 */
+	public PsStoreInfo getStoreByCky2(String storeType, Integer cky2, Integer storeID);
 	
 	/**
 	 * 根据机构ID,获取对应的分拣中心
