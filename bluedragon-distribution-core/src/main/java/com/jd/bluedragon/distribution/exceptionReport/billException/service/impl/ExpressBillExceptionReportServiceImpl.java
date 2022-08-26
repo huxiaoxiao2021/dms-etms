@@ -30,10 +30,14 @@ import com.jd.dms.wb.report.api.wmspack.dto.DmsPackRecordVo;
 import com.jd.dms.wb.report.api.wmspack.jsf.IWmsPackRecordJsfService;
 import com.jd.dms.workbench.utils.sdk.base.PageData;
 import com.jd.dms.workbench.utils.sdk.base.Result;
+import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.PackageState;
 import com.jd.etms.waybill.domain.Waybill;
+import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.PackageStateDto;
+import com.jd.etms.waybill.dto.WChoice;
 import com.jd.jmq.common.exception.JMQException;
+import com.jd.ql.basic.domain.PsStoreInfo;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -216,23 +220,26 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
 
             Integer lineType = null;
             //1.先找出仓配的始发地
-            Waybill baseEntity = waybillQueryManager.getWaybillByWayCode(waybillCode);
-            /**
-             * 1、判断仓ID是否为空，不为空则是仓配业务
-             * 2、仓ID为空，再判断wayBillSign的第53位是否为1，1为仓配业务,2为纯配业务
-             * 3、其他为纯配业务
+            WChoice choice = new WChoice();
+            choice.setQueryWaybillC(Boolean.TRUE);
+            choice.setQueryWaybillExtend(Boolean.TRUE);
+            BaseEntity<BigWaybillDto> entity = waybillQueryManager.getDataByChoice(waybillCode, choice);
+            if(entity.getData() == null || entity.getData().getWaybill() == null){
+                result.toFail("查询运单为空");
+                return result;
+            }
+            Waybill waybill = entity.getData().getWaybill();
+            /**先判断仓ID是否为空，不为空则是仓配业务
+             * 若仓ID为空，再判断waybillSign的53位是否为1，1为仓配业务
+             * 其他位纯配业务
              */
-            if((baseEntity.getDistributeStoreId()!=null
-                && StringUtils.isNotEmpty(baseEntity.getDistributeStoreName()))
-                || BusinessUtil.isWarehouseAndDistributionBusiness(baseEntity.getWaybillSign())){
-                firstSiteVo = this.packageFirstSiteVo(baseEntity.getDistributeStoreId(),baseEntity.getDistributeStoreName());
-                // 查询仓打包记录，获得被举报人
-                DmsPackRecordPo paramObj = new DmsPackRecordPo();
-                paramObj.setPackageCode(packageCode);
-                paramObj.setPageNumber(1);
-                paramObj.setPageSize(10);
-                Result<PageData<DmsPackRecordVo>> wmsPackRecordResult = wmsPackRecordJsfService.selectPageList(paramObj);
-                if(!wmsPackRecordResult.isSuccess()){
+            if((waybill.getDistributeStoreId() != null
+                && StringUtils.isNotEmpty(waybill.getDistributeStoreName()))
+                || BusinessUtil.isWarehouseAndDistributionBusiness(waybill.getWaybillSign())) {
+
+                // 查询仓打包记录，获得被举报人和被举报场地
+                Result<PageData<DmsPackRecordVo>> wmsPackRecordResult = queryPackRecord(packageCode, 1, 10);
+                if(!wmsPackRecordResult.isSuccess()) {
                     result.toFail("查询仓打包记录失败");
                     return result;
                 }
@@ -241,6 +248,40 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
                     return result;
                 }
                 DmsPackRecordVo dmsPackRecordVo = wmsPackRecordResult.getData().getRecords().get(0);
+
+                Integer siteCode;
+                String siteName;
+                //自营仓配逻辑
+                if(waybill.getDistributeStoreId() != null
+                    && StringUtils.isNotEmpty(waybill.getDistributeStoreName())) {
+                    siteCode = waybill.getDistributeStoreId();
+                    siteName = waybill.getDistributeStoreName();
+                } else{
+                    //外单仓配逻辑
+                    //获取包裹对应的仓类型
+                    if(waybill.getWaybillExt() == null || waybill.getWaybillExt().getStoreType() == null){
+                        result.toFail("查询包裹对应的仓类型为空");
+                        return result;
+                    }
+                    String storeType = waybill.getWaybillExt().getStoreType();
+
+                    //根据 库房类型、配送中心编号、库房编号、系统标识查取被举报场地ID
+                    PsStoreInfo storeInfo = baseMajorManager.getStoreByCky2(storeType, dmsPackRecordVo.getDistributeNo(), dmsPackRecordVo.getWarehouseNo());
+                    if(storeInfo == null){
+                        result.toFail("查询被举报场地ID为空");
+                        return result;
+                    }
+                    Integer sortSiteId = storeInfo.getDmsSiteId();
+                    //查出站点区域
+                    BaseStaffSiteOrgDto baseStaffSiteOrgDto = baseMajorManager.getBaseSiteBySiteId(sortSiteId);
+                    if (baseStaffSiteOrgDto == null) {
+                        result.toFail("找不到站点ID为 " + sortSiteId + " 的站点");
+                        return result;
+                    }
+                    siteCode = baseStaffSiteOrgDto.getSiteCode();
+                    siteName = baseStaffSiteOrgDto.getSiteName();
+                }
+                firstSiteVo = this.packageFirstSiteVo(siteCode, siteName);
                 firstSiteVo.setReportedUserErp(dmsPackRecordVo.getOperateErp());
                 lineType = ExpressBillLineTypeEnum.WAREHOUSE.getCode();
                 firstSiteVo.setLineType(lineType);
@@ -248,6 +289,7 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
                 return result;
             }
 
+            //纯配业务开始
             //2.找揽收完成的--满足纯配营业部、驻场、车队
             List<PackageStateDto> stateList  = waybillTraceManager.getPkStateDtoByWCodeAndState(waybillCode, Constants.WAYBILL_TRACE_STATE_COLLECT_COMPLETE);
             if(CollectionUtils.isNotEmpty(stateList)){
@@ -312,6 +354,14 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
         firstSiteVo.setReportedUserErp(packageState.getOperatorUserErp())
                 .setReportedUserName(packageState.getOperatorUser());
         return firstSiteVo;
+    }
+
+    private Result<PageData<DmsPackRecordVo>> queryPackRecord(String packageCode, Integer pageNumber, Integer pageSize){
+        DmsPackRecordPo paramObj = new DmsPackRecordPo();
+        paramObj.setPackageCode(packageCode);
+        paramObj.setPageNumber(pageNumber);
+        paramObj.setPageSize(pageSize);
+        return wmsPackRecordJsfService.selectPageList(paramObj);
     }
 
     /**

@@ -25,7 +25,7 @@ public class ExpressBillExceptionReportImplTest {
     public void test1(){
         ExpressBillExceptionReportRequest request = new ExpressBillExceptionReportRequest();
         request.setReportType(1);
-        request.setPackageCode("JDV123456789-1-1");
+        request.setPackageCode("JD0003364894562-1-1");
         JdCResponse<Boolean> response  = expressBillExceptionReportServiceImpl.reportExpressBillException(request);
         System.out.println(JSON.toJSONString(response));
     }

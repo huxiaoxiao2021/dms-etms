@@ -56,6 +56,8 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
 
     private Logger log = LoggerFactory.getLogger(BaseMajorManagerImpl.class);
     private static final String PROTOCOL = PropertiesHelper.newInstance().getValue("DMSVER_ADDRESS") + "/services/bases/siteString/";
+    //系统标识
+    private final String DMS = "dms";
     /**
      * 监控key的前缀
      */
@@ -277,10 +279,10 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
     @Override
     @Cache(key = "baseMajorManagerImpl.getStoreByCky2@args0@args1@args2@args3", memoryEnable = true, memoryExpiredTime = 30 * 60 * 1000,
             redisEnable = true, redisExpiredTime = 30 * 60 * 1000)
-    public PsStoreInfo getStoreByCky2(String storeType, Integer cky2, Integer storeID, String sys) {
+    public PsStoreInfo getStoreByCky2(String storeType, Integer cky2, Integer storeID) {
         CallerInfo info = Profiler.registerInfo("DMS.BASE.BaseMajorManagerImpl.getStoreByCky2", false, true);
         try {
-            BaseResult<PsStoreInfo> storeInfoResult = basicPrimaryWS.getStoreByCky2Id(storeType, cky2, storeID, sys);
+            BaseResult<PsStoreInfo> storeInfoResult = basicPrimaryWS.getStoreByCky2Id(storeType, cky2, storeID, DMS);
             if (0 == storeInfoResult.getResultCode()) {
                 return storeInfoResult.getData();
             } else {

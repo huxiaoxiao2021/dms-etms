@@ -2410,7 +2410,7 @@ public class BusinessUtil {
     }
 
     /**
-     * 是否是仓配业务
+     * 是否是外单仓配业务
      * @param waybillSign
      * @return
      */
