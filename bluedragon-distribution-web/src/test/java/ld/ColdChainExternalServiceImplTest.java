@@ -5,6 +5,7 @@ import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.operation.workbench.unload.request.UnloadScanRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.unload.request.UnloadVehicleTaskRequest;
 import com.jd.bluedragon.distribution.coldChain.domain.*;
+import com.jd.bluedragon.distribution.coldChain.service.IColdChainService;
 import com.jd.bluedragon.distribution.coldchain.service.ColdChainExternalServiceImpl;
 import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.service.unload.IJyUnloadVehicleService;
@@ -18,6 +19,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.Arrays;
+import java.util.Date;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = "classpath:distribution-web-context.xml")
@@ -166,5 +168,18 @@ public class ColdChainExternalServiceImplTest {
 
         unloadVehicleGatewayService.unloadScan(request);
 
+    }
+
+    @Test
+    public void sendAndInspection() {
+        SendInspectionVO sendInspectionReq = new SendInspectionVO();
+        sendInspectionReq.setSendCode("910-364605-20220825188454650");
+        sendInspectionReq.setBoxCode("JDVE00004325207-1-1-");
+        sendInspectionReq.setCreateSiteCode(910);
+        sendInspectionReq.setReceiveSiteCode(364605);
+        sendInspectionReq.setOperateTime(new Date(System.currentTimeMillis()));
+        sendInspectionReq.setCreateUserCode(17331);
+        InvokeResult<Boolean> result = coldChainExternalService.sendAndInspectionOfPack(sendInspectionReq);
+        Assert.assertTrue(result.codeSuccess());
     }
 }

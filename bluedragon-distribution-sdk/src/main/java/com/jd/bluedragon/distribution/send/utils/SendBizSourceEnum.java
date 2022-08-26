@@ -134,6 +134,11 @@ public enum SendBizSourceEnum {
      * 拣运APP传摆发货
      */
     JY_APP_TRANSFER_AND_FERRY_SEND(25, "拣运APP传摆发货"),
+
+    /**
+     * 按包裹无任务揽收自动发货
+     */
+    AUTO_SEND(26, "无任务揽收自动发货")
     ;
 
     /**

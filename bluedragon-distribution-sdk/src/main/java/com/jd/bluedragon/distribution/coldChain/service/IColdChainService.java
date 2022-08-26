@@ -64,4 +64,10 @@ public interface IColdChainService {
      */
     InvokeResult<Boolean> checkSendCodeOfSeal(SendVO vo);
 
+    /**
+     * 冷链-发货并验货接口
+     * @param vo
+     * @return
+     */
+    InvokeResult<Boolean> sendAndInspectionOfPack(SendInspectionVO vo);
 }

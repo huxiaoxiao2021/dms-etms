@@ -3,19 +3,21 @@ package com.jd.bluedragon.distribution.coldchain.service;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.request.User;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.alliance.service.AllianceBusiDeliveryDetailService;
 import com.jd.bluedragon.distribution.api.request.ColdChainDeliveryRequest;
 import com.jd.bluedragon.distribution.api.request.DeliveryRequest;
-import com.jd.bluedragon.distribution.api.request.TaskRequest;
+import com.jd.bluedragon.distribution.api.request.PackageCodeRequest;
 import com.jd.bluedragon.distribution.api.response.CheckBeforeSendResponse;
 import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
-import com.jd.bluedragon.distribution.api.response.TaskResponse;
 import com.jd.bluedragon.distribution.base.service.SiteService;
+import com.jd.bluedragon.distribution.busineCode.sendCode.service.SendCodeService;
 import com.jd.bluedragon.distribution.coldChain.domain.*;
 import com.jd.bluedragon.distribution.coldChain.service.IColdChainService;
 import com.jd.bluedragon.distribution.coldchain.domain.ColdChainSend;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.external.service.DmsPackingConsumableService;
+import com.jd.bluedragon.distribution.inspection.InspectionBizSourceEnum;
 import com.jd.bluedragon.distribution.inspection.service.InspectionService;
 import com.jd.bluedragon.distribution.inspection.service.WaybillPackageBarcodeService;
 import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
@@ -26,18 +28,23 @@ import com.jd.bluedragon.distribution.send.domain.ThreeDeliveryResponse;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
 import com.jd.bluedragon.distribution.storage.service.StoragePackageMService;
-import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.ver.service.SortingCheckService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.SerialRuleUtil;
+import com.jd.dms.wb.report.util.ObjectUtil;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -100,6 +107,11 @@ public class ColdChainExternalServiceImpl implements IColdChainService {
     @Autowired
     private NewSealVehicleService newSealVehicleService;
 
+    @Autowired
+    private SendCodeService sendCodeService;
+
+    @Autowired
+    private BaseMajorManager baseMajorManager;
     /**
      * 冷链验货校验
      *
@@ -509,6 +521,115 @@ public class ColdChainExternalServiceImpl implements IColdChainService {
         return result;
     }
 
+    /**
+     * 发货并验货接口
+     *
+     * @param vo
+     * @return
+     */
+    @Override
+    public InvokeResult<Boolean> sendAndInspectionOfPack(SendInspectionVO vo) {
+        log.info("自动发货接口入参，{}", JsonHelper.toJson(vo));
+        InvokeResult<Boolean> result = new InvokeResult<>();
+        result.setData(Boolean.TRUE);
+        result.success();
+        if (!checkParam(vo,result)) {
+            return result;
+        }
+        // 验货
+        InspectionVO inspectionVO = new InspectionVO();
+        List<String> barCodes = new ArrayList<>();
+        barCodes.add(vo.getBoxCode());
+        inspectionVO.setBarCodes(barCodes);
+        inspectionVO.setSiteCode(vo.getCreateSiteCode());
+        inspectionVO.setUserCode(vo.getCreateUserCode());
+        inspectionVO.setUserName(vo.getCreateUser());
+        inspectionVO.setOperateTime(DateHelper.formatDateTime(vo.getOperateTime()));
+        InvokeResult<Boolean> inspectionResult = inspectionService.addInspection(inspectionVO, InspectionBizSourceEnum.SEND_INSPECTION);
+        if (!inspectionResult.codeSuccess()) {
+            log.info("自动发货时验货任务失败，{}，{}", JsonHelper.toJson(inspectionVO), JsonHelper.toJson(inspectionResult));
+            return inspectionResult;
+        }
+        // 发货且分拣
+        SendM sendM = new SendM();
+        BeanUtils.copyProperties(vo,sendM);
+        sendM.setOperateTime(new Date(vo.getOperateTime().getTime() + Constants.DELIVERY_DELAY_TIME));
+        sendM.setSendType(Constants.BUSSINESS_TYPE_POSITIVE);
+        deliveryService.packageSend(SendBizSourceEnum.AUTO_SEND, sendM);
+        return result;
+    }
+
+    /**
+     * 自动发货参数校验
+     * @param vo
+     * @param result
+     * @return
+     */
+    private boolean checkParam(SendInspectionVO vo, InvokeResult result){
+        if (ObjectUtil.isNull(vo.getCreateUserCode())) {
+            result.parameterError("操作人不能为空！");
+            return false;
+        }
+        if (StringUtils.isBlank(vo.getSendCode())) {
+            result.parameterError("批次号不能为空！");
+            return false;
+        }
+        if (ObjectUtil.isNull(vo.getReceiveSiteCode())) {
+            result.parameterError("发货目的站点不能为空！");
+            return false;
+        }
+        if (ObjectUtil.isNull(vo.getCreateSiteCode())) {
+            result.parameterError("起始站点不能为空！");
+            return false;
+        }
+        if (StringUtils.isBlank(vo.getBoxCode())) {
+            result.parameterError("包裹号不能为空！");
+            return false;
+        }
+        if (ObjectUtil.isNull(vo.getOperateTime())) {
+            result.parameterError("操作时间不能为空！");
+            return false;
+        }
+        // 验证发货起始和目的站点是否存在
+        try {
+            BaseStaffSiteOrgDto cbDto = baseMajorManager.getBaseSiteBySiteId(vo.getCreateSiteCode());
+            BaseStaffSiteOrgDto rbDto = baseMajorManager.getBaseSiteBySiteId(vo.getReceiveSiteCode());
+            if (ObjectUtil.isNull(cbDto)) {
+                cbDto = baseMajorManager.queryDmsBaseSiteByCodeDmsver(String.valueOf(vo.getCreateSiteCode()));
+            }
+            if (ObjectUtil.isNull(rbDto)) {
+                rbDto = baseMajorManager.queryDmsBaseSiteByCodeDmsver(String.valueOf(vo.getReceiveSiteCode()));
+            }
+            if (ObjectUtil.isNull(cbDto)) {
+                result.parameterError(MessageFormat.format("起始站点编号[{0}]不合法，在基础资料未查到！", vo.getCreateSiteCode()));
+                return false;
+            }
+            if (ObjectUtil.isNull(rbDto)) {
+                result.parameterError(MessageFormat.format("发货目的站点编号[{0}]不合法，在基础资料未查到！", vo.getReceiveSiteCode()));
+                return false;
+            }
+        } catch (Exception e) {
+            log.error("调分拣自动发货接口校验参数，检查站点信息，调用站点信息异常:{}", JsonHelper.toJson(vo), e);
+        }
+        // 检查批次号是否合法
+        Integer receiveSiteCode = SerialRuleUtil.getReceiveSiteCodeFromSendCode(vo.getSendCode());
+        if (ObjectUtil.isNull(receiveSiteCode)) {
+            result.parameterError(MessageFormat.format("发货批次号[{0}]不合法,正则校验未通过！", vo.getSendCode()));
+            return false;
+        }
+        // 校验批次号
+        com.jd.bluedragon.distribution.base.domain.InvokeResult<Boolean> invokeResult = sendCodeService.validateSendCodeEffective(vo.getSendCode());
+        if (!invokeResult.codeSuccess()) {
+            result.parameterError(invokeResult.getMessage());
+            return false;
+        }
+        // 校验包裹号是否符合规则
+        if (!WaybillUtil.isPackageCode(vo.getBoxCode())) {
+            result.parameterError(MessageFormat.format("包裹号[{0}]不合法,正则校验未通过！",vo.getBoxCode()));
+            return false;
+        }
+        return true;
+    }
 
     private InvokeResult<ColdCheckCommonResult> initCommonResult(){
         InvokeResult<ColdCheckCommonResult> result = new InvokeResult<>();
