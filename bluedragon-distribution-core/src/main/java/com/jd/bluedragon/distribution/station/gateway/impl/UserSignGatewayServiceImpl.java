@@ -84,10 +84,10 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 				response.setMessage(result.getMessage());
 				return response;
 			}
+			PositionData positionData = new PositionData();
+			BeanUtils.copyProperties(result.getData(),positionData);
+			response.setData(positionData);
 			if(result.isSuccess()){
-				PositionData positionData = new PositionData();
-				BeanUtils.copyProperties(result.getData(),positionData);
-				response.setData(positionData);
 				response.toSucceed();
 				return response;
 			}
@@ -113,10 +113,10 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 				response.setMessage(result.getMessage());
 				return response;
 			}
+			PositionData positionData = new PositionData();
+			BeanUtils.copyProperties(result.getData(),positionData);
+			response.setData(positionData);
 			if(result.isSuccess()){
-				PositionData positionData = new PositionData();
-				BeanUtils.copyProperties(result.getData(),positionData);
-				response.setData(positionData);
 				response.toSucceed();
 				return response;
 			}
