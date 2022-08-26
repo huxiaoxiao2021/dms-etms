@@ -818,6 +818,11 @@ public class UccPropertyConfiguration {
 
     private String needValidateMainLineBizSources;
 
+    /**
+     * 敏感信息隐藏开关
+     */
+    private Boolean sensitiveInfoHideSwitch;
+
     public String getScheduleSiteCheckSameCity() {
         return scheduleSiteCheckSameCity;
     }
@@ -2000,5 +2005,13 @@ public class UccPropertyConfiguration {
 
     public void setNeedValidateMainLineBizSources(String needValidateMainLineBizSources) {
         this.needValidateMainLineBizSources = needValidateMainLineBizSources;
+    }
+
+    public Boolean getSensitiveInfoHideSwitch() {
+        return sensitiveInfoHideSwitch;
+    }
+
+    public void setSensitiveInfoHideSwitch(Boolean sensitiveInfoHideSwitch) {
+        this.sensitiveInfoHideSwitch = sensitiveInfoHideSwitch;
     }
 }
