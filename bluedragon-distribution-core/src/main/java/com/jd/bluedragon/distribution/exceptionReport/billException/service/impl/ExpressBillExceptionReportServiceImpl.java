@@ -271,15 +271,8 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
                         result.toFail("查询被举报场地ID为空");
                         return result;
                     }
-                    Integer sortSiteId = storeInfo.getDmsSiteId();
-                    //查出站点区域
-                    BaseStaffSiteOrgDto baseStaffSiteOrgDto = baseMajorManager.getBaseSiteBySiteId(sortSiteId);
-                    if (baseStaffSiteOrgDto == null) {
-                        result.toFail("找不到站点ID为 " + sortSiteId + " 的站点");
-                        return result;
-                    }
-                    siteCode = baseStaffSiteOrgDto.getSiteCode();
-                    siteName = baseStaffSiteOrgDto.getSiteName();
+                    siteCode = storeInfo.getDmsSiteId();
+                    siteName = storeInfo.getDmsStoreName();
                 }
                 firstSiteVo = this.packageFirstSiteVo(siteCode, siteName);
                 firstSiteVo.setReportedUserErp(dmsPackRecordVo.getOperateErp());
