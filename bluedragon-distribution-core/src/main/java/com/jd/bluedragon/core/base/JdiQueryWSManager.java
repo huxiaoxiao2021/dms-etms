@@ -43,4 +43,10 @@ public interface JdiQueryWSManager {
      * @return
      */
     TransWorkBillDto queryTransWork(String transWorkCode);
+    /**
+     * 根据条件查派车单以及所有派车明细
+     * @param transWorkCode
+     * @return
+     */
+    TransWorkBillDto queryTransWorkAndAllItem(String transWorkCode);
 }

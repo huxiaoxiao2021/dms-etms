@@ -36,6 +36,7 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.lang3.StringUtils;
 import org.jboss.resteasy.client.ClientRequest;
 import org.jboss.resteasy.client.ClientResponse;
 import org.slf4j.Logger;
@@ -271,6 +272,30 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
     @JProfiler(jKey = "DMS.BASE.BaseMajorManagerImpl.getBaseDataDictById", mState = {JProEnum.TP, JProEnum.FunctionError})
     public BaseDataDict getBaseDataDictById(Integer id) {
         return basicPrimaryWS.getBaseDataDictById(id);
+    }
+
+    /**
+     * 获取库房信息
+     * code 如：spwms-709-712
+     *
+     * @param code
+     */
+    @Override
+    @Cache(key = "baseMajorManagerImpl.getStoreByCode@args0", memoryEnable = true, memoryExpiredTime = 30 * 60 * 1000,
+            redisEnable = true, redisExpiredTime = 30 * 60 * 1000)
+    public PsStoreInfo getStoreByCode(String code) {
+        try{
+            if(StringUtils.isNotBlank(code)){
+                String[] endNodeTmp = code.split(Constants.SEPARATOR_HYPHEN);
+                if(endNodeTmp.length == 3){
+                    return getStoreByCky2(endNodeTmp[0], Integer.valueOf(endNodeTmp[1]), Integer.valueOf(endNodeTmp[2]),  Constants.UMP_APP_NAME_DMSWEB);
+                }
+            }
+        }catch (Exception e){
+            log.error("根据code获取仓库信息失败：code={}",code, e.getMessage(),e);
+        }
+
+        return null;
     }
 
 
