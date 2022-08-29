@@ -108,6 +108,8 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         if (StringUtils.isBlank(req.getBarCode())) {
             return JdCResponse.fail("扫描条码不能为空!");
         }
+        // 三无系统只处理大写字母
+        req.setBarCode(req.getBarCode().toUpperCase());
         PositionDetailRecord position = getPosition(req.getPositionCode());
         if (position == null) {
             return JdCResponse.fail("网格码有误!");
@@ -410,9 +412,26 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         List<JyBizTaskExceptionEntity> taskList = jyBizTaskExceptionDao.queryExceptionTaskList(req);
         List<ExpTaskDto> list = new ArrayList<>();
         if (CollectionUtils.isNotEmpty(taskList)) {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             for (JyBizTaskExceptionEntity entity : taskList) {
                 // 拼装dto
                 ExpTaskDto dto = getTaskDto(entity);
+
+                // 待打印特殊处理
+                if (Objects.equals(JyExpStatusEnum.TO_PRINT.getCode(), entity.getStatus())) {
+                    // 待打印时间
+                    dto.setCreateTime(entity.getProcessEndTime() == null ? null : dateFormat.format(entity.getProcessEndTime()));
+
+                    // 查询照片地址
+                    JyExceptionEntity query = new JyExceptionEntity();
+                    query.setSiteCode(entity.getSiteCode());
+                    query.setBarCode(entity.getBarCode());
+                    query.setBizId(entity.getBizId());
+                    JyExceptionEntity jyExp = jyExceptionDao.queryByBarCodeAndSite(query);
+                    if (jyExp != null && StringUtils.isNotBlank(jyExp.getImageUrls())) {
+                        dto.setImageUrls(jyExp.getImageUrls());
+                    }
+                }
                 list.add(dto);
             }
         }
@@ -470,6 +489,11 @@ public class JyExceptionServiceImpl implements JyExceptionService {
      */
     @Override
     public JdCResponse<Object> receive(ExpReceiveReq req) {
+        if (StringUtils.isBlank(req.getBarCode())) {
+            return JdCResponse.fail("条码不能为空!");
+        }
+        // 三无系统只处理大写字母
+        req.setBarCode(req.getBarCode().toUpperCase());
 
         String positionCode = req.getPositionCode();
         PositionDetailRecord position = getPosition(positionCode);
@@ -488,6 +512,9 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         JyBizTaskExceptionEntity taskEntity = jyBizTaskExceptionDao.findByBizId(bizId);
         if (taskEntity == null) {
             return JdCResponse.fail("该条码无相关任务!" + req.getBarCode());
+        }
+        if (!Objects.equals(JyExpStatusEnum.TO_PICK.getCode(), taskEntity.getStatus())) {
+            return JdCResponse.fail("当前任务已被领取,请勿重复操作!" + req.getBarCode());
         }
         if (!Objects.equals(gridRid, taskEntity.getDistributionTarget())) {
             return JdCResponse.fail("领取人的岗位与任务被分配的岗位不匹配!" + taskEntity.getDistributionTarget());
@@ -522,7 +549,8 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         String redisKey = TASK_CACHE_PRE + req.getBizId();
         String s = redisClient.get(redisKey);
         if (StringUtils.isBlank(s)) {
-            return JdCResponse.fail("无相关任务明细!" + req.getBizId());
+            logger.info("三无异常岗-无相关任务redisKey={}", redisKey);
+            return JdCResponse.ok();
         }
 
         ExpTaskDetailCacheDto cacheDto = JSON.parseObject(s, ExpTaskDetailCacheDto.class);
@@ -593,6 +621,18 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             update.setUpdateUserErp(req.getUserErp());
             update.setUpdateUserName(baseStaffByErp.getStaffName());
             jyBizTaskExceptionDao.updateByBizId(update);
+
+            JyExceptionEntity query = new JyExceptionEntity();
+            query.setBarCode(bizEntity.getBarCode());
+            query.setSiteCode(bizEntity.getSiteCode());
+            query.setBizId(bizEntity.getBizId());
+
+            JyExceptionEntity entity = jyExceptionDao.queryByBarCodeAndSite(query);
+            // 更新 图片地址
+            if (entity != null){
+                entity.setImageUrls(req.getImageUrls());
+                jyExceptionDao.update(entity);
+            }
 
             // 处理任务后 更新任务明细过期时间：继续保留30天
             redisClient.expire(key, TASK_DETAIL_CACHE_DAYS, TimeUnit.DAYS);
