@@ -668,6 +668,8 @@ public class UccPropertyConfiguration {
      */
     private Integer jySendTaskPlanTimeEndDay;
 
+    private Integer jySendTaskCreateTimeBeginDay;
+
     public Integer getOldSendSplitPageSize() {
         return oldSendSplitPageSize;
     }
@@ -2000,5 +2002,13 @@ public class UccPropertyConfiguration {
 
     public void setNeedValidateMainLineBizSources(String needValidateMainLineBizSources) {
         this.needValidateMainLineBizSources = needValidateMainLineBizSources;
+    }
+
+    public Integer getJySendTaskCreateTimeBeginDay() {
+        return jySendTaskCreateTimeBeginDay;
+    }
+
+    public void setJySendTaskCreateTimeBeginDay(Integer jySendTaskCreateTimeBeginDay) {
+        this.jySendTaskCreateTimeBeginDay = jySendTaskCreateTimeBeginDay;
     }
 }
