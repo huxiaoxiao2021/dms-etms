@@ -1,8 +1,10 @@
 package com.jd.bluedragon.distribution.external.service;
 
+import com.jd.bluedragon.distribution.api.request.DmsClientHeartbeatRequest;
+import com.jd.bluedragon.distribution.api.request.DmsClientLogoutRequest;
 import com.jd.bluedragon.distribution.api.request.LoginRequest;
-import com.jd.bluedragon.distribution.api.request.LoginWithTokenVerifyRequest;
 import com.jd.bluedragon.distribution.api.response.BaseResponse;
+import com.jd.bluedragon.distribution.api.response.DmsClientHeartbeatResponse;
 import com.jd.bluedragon.distribution.api.response.LoginUserResponse;
 import com.jd.bluedragon.distribution.command.JdResult;
 
@@ -39,6 +41,19 @@ public interface DmsBaseService {
      * @time 2021-03-09 19:32:02 周二
      */
     LoginUserResponse clientLoginNew(LoginRequest request);
+
+
+    /**
+     * 客户端登陆，发送心跳（android PDA）
+     * @param request
+     * @return
+     */
+    JdResult<DmsClientHeartbeatResponse> sendHeartbeat(DmsClientHeartbeatRequest request);
+
+    /**
+     * 客户端退出登陆
+     */
+    JdResult<Boolean> logout(DmsClientLogoutRequest dmsClientLogoutRequest);
 
     /**
      * 客户端登录token验证
