@@ -207,6 +207,9 @@
             <if test="updateUserName != null">
                 update_user_name=#{updateUserName,jdbcType=INTEGER},
             </if>
+            <if test="imageUrls != null">
+                image_urls=#{imageUrls},
+            </if>
         </set>
         WHERE id = #{id} AND site_code = #{siteCode, jdbcType=BIGINT}
     </update>
