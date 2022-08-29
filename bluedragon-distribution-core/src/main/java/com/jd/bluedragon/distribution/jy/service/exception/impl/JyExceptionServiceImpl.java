@@ -627,12 +627,12 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             query.setSiteCode(bizEntity.getSiteCode());
             query.setBizId(bizEntity.getBizId());
 
-            JyExceptionEntity entity = jyExceptionDao.queryByBarCodeAndSite(query);
-            // 更新 图片地址
-            if (entity != null){
-                entity.setImageUrls(req.getImageUrls());
-                jyExceptionDao.update(entity);
-            }
+            //JyExceptionEntity entity = jyExceptionDao.queryByBarCodeAndSite(query);
+            //// 更新 图片地址
+            //if (entity != null){
+            //    entity.setImageUrls(req.getImageUrls());
+            //    jyExceptionDao.update(entity);
+            //}
 
             // 处理任务后 更新任务明细过期时间：继续保留30天
             redisClient.expire(key, TASK_DETAIL_CACHE_DAYS, TimeUnit.DAYS);
@@ -967,6 +967,8 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         dto.setStoreLocation(cacheDto.getStorage());
         // 同车包裹号
         dto.setSameCarPackageCode(cacheDto.getTogetherPackageCodes());
+        //图片地址
+        dto.setImageUrls(cacheDto.getImageUrls());
         return dto;
     }
 
