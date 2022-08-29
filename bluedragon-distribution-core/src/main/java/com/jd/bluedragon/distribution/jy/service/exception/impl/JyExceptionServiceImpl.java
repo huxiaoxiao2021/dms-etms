@@ -571,6 +571,8 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             ExpTaskDetailCacheDto cacheDto = cacheObj.toJavaObject(ExpTaskDetailCacheDto.class);
             cacheDto.setExpBarcode(bizEntity.getBarCode());
             cacheDto.setExpCreateTime(bizEntity.getCreateTime() == null ? System.currentTimeMillis() : bizEntity.getCreateTime().getTime());
+            JyExpSourceEnum source = JyExpSourceEnum.getEnumByCode(bizEntity.getSource());
+            cacheDto.setSource(source==null?"通用": source.getText());
             // 调用 三无接口
             ExpInfoSumaryInputDto dto = getExpInfoDto(cacheDto);
             try {
@@ -909,7 +911,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         // 件数
         dto.setProductNum(cacheDto.getGoodsNum());
         // 车牌号
-//            dto.setVehicleNumber(cacheDto.getSealNumber());
+        dto.setVehicleNumber(cacheDto.getVehicleNumber());
         // 封签号 或批次号
         dto.setSealCodeOrBatchCode(cacheDto.getSealNumber());
         // 下级地
