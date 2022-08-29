@@ -60,6 +60,8 @@ public class BaseSendVehicle implements Serializable {
      */
     private List<LabelOption> tags;
 
+    private String bizNo;
+
     private Boolean _active;
 
     public String getVehicleNumber() {
@@ -116,6 +118,14 @@ public class BaseSendVehicle implements Serializable {
 
     public void setTags(List<LabelOption> tags) {
         this.tags = tags;
+    }
+
+    public String getBizNo() {
+        return bizNo;
+    }
+
+    public void setBizNo(String bizNo) {
+        this.bizNo = bizNo;
     }
 
     public Boolean get_active() {
