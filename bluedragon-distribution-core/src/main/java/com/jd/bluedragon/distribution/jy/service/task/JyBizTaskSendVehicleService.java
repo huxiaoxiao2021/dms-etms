@@ -67,11 +67,11 @@ public interface JyBizTaskSendVehicleService {
     Integer countByCondition(JyBizTaskSendVehicleEntity entity, List<String> sendVehicleBizList, List<Integer> statuses);
 
     /**
-     * 更细最晚发车时间
+     * 更新最晚发车时间 和 线路信息
      * @param entity
      * @return
      */
-    int updateLastPlanDepartTime(JyBizTaskSendVehicleEntity entity);
+    int updateLastPlanDepartTimeAndLineType(JyBizTaskSendVehicleEntity entity);
 
     /**
      * 更新最晚封车时间
