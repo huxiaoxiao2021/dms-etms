@@ -37,6 +37,12 @@ public class ExpTaskDto implements Serializable {
     //标签列表
     private List<TagDto> tags;
 
+    // 产生时间
+    private String createTime;
+
+    // 图片地址 逗号分割
+    private String imageUrls;
+
     //是否保存过
     private boolean saved;
 
@@ -126,5 +132,25 @@ public class ExpTaskDto implements Serializable {
 
     public void setSaved(boolean saved) {
         this.saved = saved;
+    }
+
+    public String getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(String createTime) {
+        this.createTime = createTime;
+    }
+
+    public String getImageUrls() {
+        return imageUrls;
+    }
+
+    public void setImageUrls(String imageUrls) {
+        this.imageUrls = imageUrls;
+    }
+
+    public boolean isSaved() {
+        return saved;
     }
 }
