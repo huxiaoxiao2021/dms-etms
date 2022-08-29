@@ -79,7 +79,11 @@ public class CustomerAndConsignerInfoHandler implements Handler<WaybillPrintCont
 		//地址追加备注信息
 		appendAdressRemark(context);
 		//阿迪隐藏
-		removeAddiConsigner(context);
+		try {
+			removeAddiConsigner(context);
+		} catch (Exception e) {
+			log.warn("阿迪隐藏寄件人信息异常:{}" , JSON.toJSONString(e));
+		}
 
 		return context.getResult();
 	}
