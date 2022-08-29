@@ -216,26 +216,39 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     @Override
     @JProfiler(jKey = "JyUnloadVehicleTysServiceImpl.queryUnloadVehicleTaskByVehicleNumOrPackage",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<UnloadVehicleTaskRespDto> queryUnloadVehicleTaskByVehicleNumOrPackage(UnloadVehicleTaskReqDto queryUnloadTaskDto) {
-        UnloadVehicleTaskRespDto unloadVehicleTaskRespDto = new UnloadVehicleTaskRespDto();
-        if (ObjectHelper.isNotNull(queryUnloadTaskDto.getPackageCode()) && WaybillUtil.isPackageCode(queryUnloadTaskDto.getPackageCode())) {
-            JyVehicleTaskUnloadDetail detail = new JyVehicleTaskUnloadDetail();
-            detail.setPackageCode(queryUnloadTaskDto.getPackageCode());
-            detail.setEndSiteId(queryUnloadTaskDto.getCurrentOperate().getSiteCode());
-            List<JyVehicleTaskUnloadDetail> unloadDetailList = iJyUnloadVehicleManager.findUnloadDetail(detail);
-            if (CollectionUtils.isNotEmpty(unloadDetailList)) {
-                List<UnloadVehicleTaskDto> unloadVehicleTaskDtoList = convertUnloadVehicleTaskDto(unloadDetailList);
+        String methodDesc = "JyUnloadVehicleTysServiceImpl.queryUnloadVehicleTaskByVehicleNumOrPackage--扫描包裹号查询任务信息--";
+        try{
+            log.info("{}请求信息={}", methodDesc, JsonUtils.toJSONString(queryUnloadTaskDto));
+            UnloadVehicleTaskRespDto unloadVehicleTaskRespDto = new UnloadVehicleTaskRespDto();
+            if (ObjectHelper.isNotNull(queryUnloadTaskDto.getPackageCode()) && WaybillUtil.isPackageCode(queryUnloadTaskDto.getPackageCode())) {
+                JyVehicleTaskUnloadDetail detail = new JyVehicleTaskUnloadDetail();
+                detail.setPackageCode(queryUnloadTaskDto.getPackageCode());
+                detail.setEndSiteId(queryUnloadTaskDto.getCurrentOperate().getSiteCode());
+                List<JyVehicleTaskUnloadDetail> unloadDetailList = iJyUnloadVehicleManager.findUnloadDetail(detail);
+                if (CollectionUtils.isNotEmpty(unloadDetailList)) {
+                    List<UnloadVehicleTaskDto> unloadVehicleTaskDtoList = convertUnloadVehicleTaskDto(unloadDetailList);
+                    calculationCount(unloadVehicleTaskRespDto, unloadVehicleTaskDtoList);
+                    return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, unloadVehicleTaskRespDto);
+                }else {
+                    log.info("{}未查到包裹号对应任务信息；请求信息={}", methodDesc, JsonUtils.toJSONString(queryUnloadTaskDto));
+                    return new InvokeResult(RESULT_SUCCESS_CODE, TASK_NO_FOUND_BY_PARAMS_MESSAGE);
+                }
+            } else if (ObjectHelper.isNotNull(queryUnloadTaskDto.getVehicleNumber())) {
+                JyBizTaskUnloadVehicleEntity entity = new JyBizTaskUnloadVehicleEntity();
+                entity.setFuzzyVehicleNumber(queryUnloadTaskDto.getVehicleNumber());
+                entity.setEndSiteId(Long.valueOf(queryUnloadTaskDto.getCurrentOperate().getSiteCode()));
+                List<UnloadVehicleTaskDto> unloadVehicleTaskDtoList = jyBizTaskUnloadVehicleService.listUnloadVehicleTask(entity);
                 calculationCount(unloadVehicleTaskRespDto, unloadVehicleTaskDtoList);
                 return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, unloadVehicleTaskRespDto);
+            }else {
+                log.info("{}参数缺失：该接口包裹号或车牌号不能全部为空；请求信息={}", methodDesc, JsonUtils.toJSONString(queryUnloadTaskDto));
+                return new InvokeResult(RESULT_PARAMETER_ERROR_CODE, "该接口包裹号或车牌号不能全部为空");
             }
-        } else if (ObjectHelper.isNotNull(queryUnloadTaskDto.getVehicleNumber())) {
-            JyBizTaskUnloadVehicleEntity entity = new JyBizTaskUnloadVehicleEntity();
-            entity.setFuzzyVehicleNumber(queryUnloadTaskDto.getVehicleNumber());
-            entity.setEndSiteId(Long.valueOf(queryUnloadTaskDto.getCurrentOperate().getSiteCode()));
-            List<UnloadVehicleTaskDto> unloadVehicleTaskDtoList = jyBizTaskUnloadVehicleService.listUnloadVehicleTask(entity);
-            calculationCount(unloadVehicleTaskRespDto, unloadVehicleTaskDtoList);
-            return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, unloadVehicleTaskRespDto);
+        }catch (Exception e) {
+            log.error("{}服务异常；请求信息={}， 错误={}", methodDesc, JsonUtils.toJSONString(queryUnloadTaskDto), e.getMessage(), e);
+            String errMsg = StringUtils.isNotBlank(e.getMessage()) ? e.getMessage() : "扫描包裹号查询任务信息服务异常";
+            return new InvokeResult(SERVER_ERROR_CODE, errMsg);
         }
-        return new InvokeResult(TASK_NO_FOUND_BY_PARAMS_CODE, TASK_NO_FOUND_BY_PARAMS_MESSAGE);
     }
 
     private void calculationCount(UnloadVehicleTaskRespDto unloadVehicleTaskRespDto, List<UnloadVehicleTaskDto> unloadVehicleTaskDtoList) {
