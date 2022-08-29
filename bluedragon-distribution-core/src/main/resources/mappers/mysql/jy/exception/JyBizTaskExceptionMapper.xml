@@ -339,6 +339,12 @@
             <if test="processingStatus != null">
                 processing_status = #{processingStatus},
             </if>
+            <if test="processBeginTime != null">
+                process_begin_time=#{processBeginTime},
+            </if>
+            <if test="processEndTime != null">
+                process_end_time = #{processEndTime},
+            </if>
             <if test="handlerErp != null">
                 handler_erp = #{handlerErp},
             </if>

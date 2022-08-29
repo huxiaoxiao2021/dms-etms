@@ -2,10 +2,7 @@ package com.jd.bluedragon.distribution.jy;
 
 import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
-import com.jd.bluedragon.common.dto.jyexpection.request.ExpReceiveReq;
-import com.jd.bluedragon.common.dto.jyexpection.request.ExpTaskDetailReq;
-import com.jd.bluedragon.common.dto.jyexpection.request.ExpUploadScanReq;
-import com.jd.bluedragon.common.dto.jyexpection.request.StatisticsByGridReq;
+import com.jd.bluedragon.common.dto.jyexpection.request.*;
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
@@ -43,6 +40,21 @@ public class JyExceptionServiceTest {
         req.setPositionCode("GW00007007");
         jyExceptionService.getGridStatisticsPageList(req);
     }
+
+
+    @Test
+    public void getExceptionTaskPageList() {
+
+        ExpTaskPageReq req = new ExpTaskPageReq();
+        req.setFloor(2);
+        req.setStatus(0);
+        req.setGridCode("CLLQ-07");
+        req.setPositionCode("GW00003001");
+        req.setUserErp("userErp");
+        req.setOffSet(0);
+        jyExceptionService.getExceptionTaskPageList(req);
+    }
+
 
     @Test
     public void receiveTest() {

@@ -499,6 +499,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         update.setHandlerErp(req.getUserErp());
         update.setUpdateUserErp(req.getUserErp());
         update.setUpdateUserName(baseStaffByErp.getStaffName());
+        update.setProcessBeginTime(new Date());
 
         jyBizTaskExceptionDao.updateByBizId(update);
         //发送修改状态消息
@@ -644,6 +645,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
 
         taskEntity.setStatus(JyExpStatusEnum.TO_PROCESS.getCode());
         taskEntity.setProcessingStatus(JyBizTaskExceptionProcessStatusEnum.WAITING_MATCH.getCode());
+        taskEntity.setProcessBeginTime(mqDto.getNotifyTime());
         taskEntity.setCreateUserErp(mqDto.getNotifyErp());
         BaseStaffSiteOrgDto baseStaffByErp = baseMajorManager.getBaseStaffByErpNoCache(mqDto.getNotifyErp());
         if (baseStaffByErp == null){
@@ -712,6 +714,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         JyBizTaskExceptionEntity conditon = new JyBizTaskExceptionEntity();
         conditon.setStatus(JyExpStatusEnum.COMPLATE.getCode());
         conditon.setProcessingStatus(JyBizTaskExceptionProcessStatusEnum.DONE.getCode());
+        conditon.setProcessEndTime(mqDto.getNotifyTime());
         conditon.setUpdateTime(mqDto.getNotifyTime());
         conditon.setUpdateUserErp(baseStaffByErp.getErp());
         conditon.setBizId(bizTaskException.getBizId());
@@ -770,6 +773,8 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         // biz表修改状态
         JyBizTaskExceptionEntity conditon = new JyBizTaskExceptionEntity();
         conditon.setStatus(JyExpStatusEnum.TO_PRINT.getCode());
+        conditon.setProcessingStatus(JyBizTaskExceptionProcessStatusEnum.DONE.getCode());
+        conditon.setProcessEndTime(mqDto.getNotifyTime());
         conditon.setUpdateTime(mqDto.getNotifyTime());
         conditon.setUpdateUserErp(mqDto.getNotifyErp());
         conditon.setBizId(bizTaskException.getBizId());
