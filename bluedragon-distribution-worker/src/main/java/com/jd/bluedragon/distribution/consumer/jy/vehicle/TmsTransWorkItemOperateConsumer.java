@@ -383,16 +383,22 @@ public class TmsTransWorkItemOperateConsumer extends MessageBaseConsumer {
             }
         }
 
+        JyBizTaskSendVehicleEntity updateSendTaskReq = new JyBizTaskSendVehicleEntity();
+        updateSendTaskReq.setBizId(sendVehicleBiz);
+        Boolean needUpdate = Boolean.FALSE;
         if (lastPlanDepartTime != null) {
-            JyBizTaskSendVehicleEntity updateSendTaskReq = new JyBizTaskSendVehicleEntity();
-            updateSendTaskReq.setBizId(sendVehicleBiz);
             updateSendTaskReq.setLastPlanDepartTime(lastPlanDepartTime);
-            if(lineType != null){
-                updateSendTaskReq.setLineType(lineType.getCode());
-                updateSendTaskReq.setLineTypeName(lineType.getName());
-            }
+            needUpdate = Boolean.TRUE;
+        }
+        if(lineType != null){
+            updateSendTaskReq.setLineType(lineType.getCode());
+            updateSendTaskReq.setLineTypeName(lineType.getName());
+            needUpdate = Boolean.TRUE;
+        }
+        if(needUpdate){
+            updateSendTaskReq.setUpdateTime(new Date());
             int rows = taskSendVehicleService.updateLastPlanDepartTimeAndLineType(updateSendTaskReq);
-            logInfo("更新派车单最晚发车时间和线路类型.{}-{}", updateSendTaskReq.getBizId(), rows);
+            logInfo("更新派车单最晚发车时间和线路类型.{}-{} , req:{}", updateSendTaskReq.getBizId(), rows,JsonHelper.toJson(updateSendTaskReq));
         }
     }
 

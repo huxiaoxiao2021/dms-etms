@@ -208,7 +208,7 @@ public class DeliveryResource {
                 // 一车一单下的组板发货
                 domain.setBoardCode(request.getBoxCode());
                 //组板发货时间以PDA上传时间为准
-                Date opeTime = DateHelper.parseDateTime(request.getOperateTime())
+                Date opeTime = DateHelper.parseDateTime(request.getOperateTime());
                 if(opeTime != null) {
                     domain.setOperateTime(opeTime);
                 }
