@@ -132,7 +132,8 @@ public class TmsTransWorkItemOperateConsumer extends MessageBaseConsumer {
         JyLineTypeEnum lineType = TmsLineTypeEnum.getLineType(transWorkBillDto.getTransType());
         if (!JyLineTypeEnum.TRUNK_LINE.equals(lineType) && !JyLineTypeEnum.BRANCH_LINE.equals(lineType)) {
             logger.warn("派车单类型非干、支类型. {},tmsTransWorkBill:{}", JsonHelper.toJson(workItemDto),JsonHelper.toJson(transWorkBillDto));
-            return;
+            //调整仅记录日志不阻碍运行防止后增加派车明细将派车单线路类型回刷
+            //return;
         }
 
         BaseStaffSiteOrgDto startSiteInfo = baseMajorManager.getBaseSiteByDmsCode(workItemDto.getBeginNodeCode());
