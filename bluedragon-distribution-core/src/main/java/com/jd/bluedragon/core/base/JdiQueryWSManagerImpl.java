@@ -134,4 +134,19 @@ public class JdiQueryWSManagerImpl implements JdiQueryWSManager {
         }
         return transWorkDto.getTransWorkBillDto();
     }
+
+    @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JdiQueryWSManager.queryTransWorkAndAllItem", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public TransWorkBillDto queryTransWorkAndAllItem(String transWorkCode) {
+        BigQueryOption option = new BigQueryOption();
+        option.setQueryTransWorkBillDto(true);
+        option.setQueryTransWorkItemDtoList(true);
+        BigTransWorkDto transWorkDto = queryTransWorkByChoice(transWorkCode, option);
+        if (transWorkDto == null || transWorkDto.getTransWorkBillDto() == null) {
+            Profiler.businessAlarm("dms.web.JdiQueryWSManager.queryTransWork", "查询运输派车单数据为空:" + transWorkCode);
+            logger.warn("根据派车单号查询派车单返回数据为空. {}", transWorkCode);
+            return null;
+        }
+        return transWorkDto.getTransWorkBillDto();
+    }
 }

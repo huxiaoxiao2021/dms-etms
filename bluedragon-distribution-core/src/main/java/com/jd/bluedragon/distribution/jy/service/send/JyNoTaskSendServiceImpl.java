@@ -24,6 +24,7 @@ import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleServic
 import com.jd.bluedragon.distribution.jy.service.transfer.JySendTransferService;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
+import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.domain.ThreeDeliveryResponse;
@@ -106,7 +107,8 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
     JySendTransferLogService jySendTransferLogService;
     @Autowired
     private IJySendService jySendService;
-
+    @Autowired
+    private NewSealVehicleService newsealVehicleService;
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyNoTaskSendServiceImpl.listVehicleType", mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -240,10 +242,14 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
                 sendM.setUpdateTime(new Date());
                 sendM.setUpdaterUser(deleteVehicleTaskReq.getUser().getUserName());
                 sendM.setUpdateUserCode(deleteVehicleTaskReq.getUser().getUserCode());
-                ThreeDeliveryResponse tDResponse = deliveryService.dellCancelDeliveryMessageWithServerTime(sendM, true);
-                if (!tDResponse.getCode().equals(RESULT_SUCCESS_CODE)) {
-                    return new InvokeResult(tDResponse.getCode(), tDResponse.getMessage());
+                //如果已封车的批次不触发取消发货
+                if (!newsealVehicleService.newCheckSendCodeSealed(sendCode, new StringBuffer())) {
+                    ThreeDeliveryResponse tDResponse = deliveryService.dellCancelDeliveryMessageWithServerTime(sendM, true);
+                    if (!tDResponse.getCode().equals(RESULT_SUCCESS_CODE)) {
+                        return new InvokeResult(tDResponse.getCode(), tDResponse.getMessage());
+                    }
                 }
+
             }
         }
         return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE);

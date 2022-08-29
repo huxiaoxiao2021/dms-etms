@@ -207,7 +207,14 @@ public class DeliveryResource {
             }else if (BusinessUtil.isBoardCode(request.getBoxCode())) {
                 // 一车一单下的组板发货
                 domain.setBoardCode(request.getBoxCode());
-                log.warn("组板发货newpackagesend：{}" , JsonHelper.toJson(request));
+                //组板发货时间以PDA上传时间为准
+                Date opeTime = DateHelper.parseDateTime(request.getOperateTime());
+                if(opeTime != null) {
+                    domain.setOperateTime(opeTime);
+                }
+                if(log.isInfoEnabled()){
+                    log.info("组板发货newpackagesend：req:{} domain: {}" , JsonHelper.toJson(request),JsonHelper.toJson(domain));
+                }
                 result.setData(deliveryService.boardSend(domain, request.getIsForceSend()));
             } else {
                 SendBizSourceEnum bizSource = SendBizSourceEnum.getEnum(request.getBizSource());
