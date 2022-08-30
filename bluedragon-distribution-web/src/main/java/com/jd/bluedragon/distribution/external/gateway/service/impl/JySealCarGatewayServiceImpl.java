@@ -95,10 +95,6 @@ public class JySealCarGatewayServiceImpl implements JySealCarGatewayService {
         transportResp.setRouteLineName(transWorkItemResponse.getRouteLineName());
         transportResp.setSendCode(transWorkItemResponse.getSendCode());
         transportResp.setTransType(transWorkItemResponse.getTransType());
-        if (ObjectHelper.isNotNull(transportResp.getTransType())
-                && ObjectHelper.isNotNull(TransTypeEnum.getEnum(transportResp.getTransType()))){
-            transportResp.setTransTypeName(TransTypeEnum.getEnum(transportResp.getTransType()).getName());
-        }
         transportResp.setTransWorkItemCode(transWorkItemResponse.getTransWorkItemCode());
         transportResp.setVehicleNumber(transWorkItemResponse.getVehicleNumber());
 

@@ -204,9 +204,10 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
         if (ObjectHelper.isNotNull(transWorkItemResp) && Constants.RESULT_SUCCESS == transWorkItemResp.getCode()) {
             TransWorkItemDto transWorkItemDto = transWorkItemResp.getData();
             TransportResp transportResp = new TransportResp();
-            transportResp.setTransType(transWorkItemDto.getTransType());
-            if (ObjectHelper.isNotNull(transportResp.getTransType()) && ObjectHelper.isNotNull(TransTypeEnum.getEnum(transportResp.getTransType()))) {
-                transportResp.setTransTypeName(TransTypeEnum.getEnum(transportResp.getTransType()).getName());
+            transportResp.setTransType(transWorkItemDto.getTransWay());
+            transportResp.setTransWay(transWorkItemDto.getTransWay());
+            if (ObjectHelper.isNotNull(transportResp.getTransWay()) && ObjectHelper.isNotNull(TransTypeEnum.getEnum(transportResp.getTransWay()))) {
+                transportResp.setTransWayName(TransTypeEnum.getEnum(transportResp.getTransWay()).getName());
             }
             transportResp.setVehicleNumber(transWorkItemDto.getVehicleNumber());
             transportResp.setRouteLineCode(transWorkItemDto.getRouteLineCode());
