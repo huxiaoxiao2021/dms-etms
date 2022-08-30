@@ -105,9 +105,10 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
             result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_ONLY_SUPPORT_PURE_MATCH);
             return;
         }
-        // BC网校验
-        if(!BusinessUtil.isBInternet(waybillSign) && !BusinessUtil.isCInternet(waybillSign)){
-            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_BC);
+        // 业务类型校验
+        if(!BusinessUtil.isBInternet(waybillSign) && !BusinessUtil.isCInternet(waybillSign)
+                && !(BusinessUtil.isMedicalFreshProductType(waybillSign) || BusinessUtil.isMedicine(waybillSign))){
+            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_FORBID);
             return;
         }
         // 泡重比校验
@@ -411,9 +412,11 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
             spotCheckContext.setSpotCheckBusinessType(SpotCheckBusinessTypeEnum.SPOT_CHECK_TYPE_C.getCode());
         }else if(BusinessUtil.isBInternet(waybillSign)){
             spotCheckContext.setSpotCheckBusinessType(SpotCheckBusinessTypeEnum.SPOT_CHECK_TYPE_B.getCode());
+        }else if(BusinessUtil.isMedicalFreshProductType(waybillSign) || BusinessUtil.isMedicine(waybillSign)){
+            spotCheckContext.setSpotCheckBusinessType(SpotCheckBusinessTypeEnum.SPOT_CHECK_TYPE_MEDICAL.getCode());
         }else {
-            logger.warn("未知业务类型不支持!（非B非C）");
-            throw new SpotCheckBusinessException("未知业务类型不支持!（非B非C）");
+            logger.warn(SpotCheckConstants.SPOT_CHECK_FORBID);
+            throw new SpotCheckBusinessException(SpotCheckConstants.SPOT_CHECK_FORBID);
         }
         // 集齐
         if(!spotCheckContext.getIsMultiPack() || Objects.equals(spotCheckContext.getSpotCheckDimensionType(), SpotCheckDimensionEnum.SPOT_CHECK_WAYBILL.getCode())){
@@ -428,17 +431,6 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
         // 站点
         spotCheckContext.setReviewSiteCode(spotCheckDto.getSiteCode());
         spotCheckContext.setReviewSite(baseMajorManager.getBaseSiteBySiteId(spotCheckDto.getSiteCode()));
-
-        // 计泡比系数
-        int volumeRate;
-        if(Objects.equals(spotCheckContext.getSpotCheckBusinessType(), SpotCheckBusinessTypeEnum.SPOT_CHECK_TYPE_B.getCode())){
-            volumeRate = BusinessUtil.isTKZH(waybillSign) ? SpotCheckConstants.B_VOLUME_RATIO_TKZH : SpotCheckConstants.B_VOLUME_RATIO_NOT_TKZH;
-        }else if(Objects.equals(spotCheckContext.getSpotCheckBusinessType(), SpotCheckBusinessTypeEnum.SPOT_CHECK_TYPE_C.getCode())){
-            volumeRate = BusinessUtil.isExpress(waybillSign) ? SpotCheckConstants.C_VOLUME_RATIO_KY : SpotCheckConstants.C_VOLUME_RATIO_DEFAULT;
-        }else {
-            throw new SpotCheckBusinessException("未知业务类型不支持!（非B非C）");
-        }
-        spotCheckContext.setVolumeRate(volumeRate);
 
         // 产品标识
         DmsBaseDict dmsBaseDict = spotCheckDealService.getProductType(waybillSign);
@@ -471,9 +463,6 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
         }
         spotCheckReviewDetail.setReviewVolume(volume);
         spotCheckReviewDetail.setReviewTotalVolume(volume);
-        double reviewVolumeWeight = MathUtils.keepScale(volume / volumeRate, 2);
-        spotCheckReviewDetail.setReviewVolumeWeight(reviewVolumeWeight);
-        spotCheckReviewDetail.setReviewLarge(Math.max(reviewWeight, reviewVolumeWeight));
         spotCheckReviewDetail.setReviewOrgId(spotCheckDto.getOrgId());
         spotCheckReviewDetail.setReviewOrgName(spotCheckDto.getOrgName());
         spotCheckReviewDetail.setReviewSiteCode(spotCheckDto.getSiteCode());
