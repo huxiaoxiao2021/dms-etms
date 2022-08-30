@@ -97,7 +97,7 @@ public class JyGroupMemberServiceImpl implements JyGroupMemberService {
 				= positionManager.queryOneByPositionCode(addMemberRequest.getPositionCode());
 		if(positionData == null
 				|| positionData.getData() == null) {
-			result.toFail("岗位码无效！");
+			result.toFail("岗位码无效，联系【作业流程组】小哥维护岗位码！");
 			return result;
 		}
 		String gridKey = positionData.getData().getRefGridKey();
