@@ -411,7 +411,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         req.setSiteId(position.getSiteCode());
         // 待处理 只查询 处理状态=待录入
         if (Objects.equals(req.getStatus(), JyExpStatusEnum.TO_PROCESS.getCode())) {
-            req.setProcessingStatus(JyBizTaskExceptionProcessStatusEnum.WAITING_MATCH.getCode());
+            req.setProcessingStatus(JyBizTaskExceptionProcessStatusEnum.PENDING_ENTRY.getCode());
         }
 
         List<JyBizTaskExceptionEntity> taskList = jyBizTaskExceptionDao.queryExceptionTaskList(req);
