@@ -513,6 +513,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
      */
     private void setBaseSendVehicle(JyBizTaskSendVehicleEntity entity, BaseSendVehicle baseSendVehicle) {
         TransWorkBillDto transWorkBillDto = jdiQueryWSManager.queryTransWork(entity.getTransWorkCode());
+        baseSendVehicle.setBizNo(entity.getBizNo());
         baseSendVehicle.setVehicleNumber(transWorkBillDto == null ? StringUtils.EMPTY : transWorkBillDto.getVehicleNumber());
         baseSendVehicle.setManualCreatedFlag(entity.manualCreatedTask());
         baseSendVehicle.setNoTaskBindVehicle(entity.noTaskBindVehicle());
