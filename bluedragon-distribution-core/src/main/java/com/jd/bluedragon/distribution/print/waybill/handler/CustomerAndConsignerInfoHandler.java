@@ -84,12 +84,14 @@ public class CustomerAndConsignerInfoHandler implements Handler<WaybillPrintCont
 
 		return context.getResult();
 	}
+
+
     //移除阿迪寄件人信息
 	private void removeAddiConsigner(WaybillPrintContext context) {
-
 		try {
 			//获取阿迪 ucc配置
 			String addiOwnNumberConf = uccPropertyConfiguration.getAddiOwnNumberConf();
+			log.info("获取阿迪青龙配置信息：{}, 获取逆向单context信息为：{}",addiOwnNumberConf,JSON.toJSON(context));
 			if(StringHelper.isNotEmpty(addiOwnNumberConf)){
 				List<String> asList = Arrays.asList(addiOwnNumberConf.split(Constants.SEPARATOR_COMMA));
 				//获取商家青龙业主号
