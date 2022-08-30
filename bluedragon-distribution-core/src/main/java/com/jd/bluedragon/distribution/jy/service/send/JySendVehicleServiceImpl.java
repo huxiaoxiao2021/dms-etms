@@ -1319,7 +1319,8 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
             }
         }
         // 非同流向迁移会生成新批次，一个流向不止一个批次
-        String curDestSendCode = jySendCodeService.findEarliestSendCode(detailBiz);
+        //String curDestSendCode = jySendCodeService.findEarliestSendCode(detailBiz);
+        String curDestSendCode =jySendCodeService.findEarliestNoSealCarSendCode(detailBiz);
 
         String sendCode;
         if (StringUtils.isBlank(curDestSendCode)) {
