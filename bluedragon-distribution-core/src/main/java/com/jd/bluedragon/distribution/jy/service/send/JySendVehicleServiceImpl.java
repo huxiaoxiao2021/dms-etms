@@ -77,6 +77,7 @@ import com.jd.jim.cli.Cluster;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.tms.basic.dto.BasicVehicleTypeDto;
 import com.jd.tms.jdi.dto.TransWorkBillDto;
+import com.jd.tms.jdi.dto.TransWorkFuzzyQueryParam;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.proxy.Profiler;
@@ -614,6 +615,22 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
         // 取当前操作网点的路由下一节点
         if (WaybillUtil.isPackageCode(queryTaskSendDto.getKeyword())) {
             endSiteId = getWaybillNextRouter(WaybillUtil.getWaybillCode(queryTaskSendDto.getKeyword()), startSiteId);
+        }
+        else if (BusinessUtil.isSendCode(queryTaskSendDto.getKeyword())) {
+            endSiteId = Long.valueOf(BusinessUtil.getReceiveSiteCodeFromSendCode(queryTaskSendDto.getKeyword()));
+        }
+        else {
+            //车牌号后四位
+            TransWorkFuzzyQueryParam param =new TransWorkFuzzyQueryParam();
+            param.setVehicleNumber(queryTaskSendDto.getKeyword());
+
+            List<String> tranWorkCodes =jdiQueryWSManager.getCarNoByVehicleFuzzy(param);
+            if (ObjectHelper.isNotNull(tranWorkCodes)){
+                //todo
+
+            }
+            result.hintMessage("未检索到相应的发货任务数据！");
+            return null;
         }
 
         if (endSiteId == null) {
@@ -1320,7 +1337,6 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
         }
         // 非同流向迁移会生成新批次，一个流向不止一个批次
         String curDestSendCode = jySendCodeService.findEarliestSendCode(detailBiz);
-        //String curDestSendCode =jySendCodeService.findEarliestNoSealCarSendCode(detailBiz);
 
         String sendCode;
         if (StringUtils.isBlank(curDestSendCode)) {

@@ -43,4 +43,11 @@ public interface JdiQueryWSManager {
      * @return
      */
     TransWorkBillDto queryTransWork(String transWorkCode);
+
+    /**
+     * 根据车牌号后四位 检索派车单号
+     * @param param
+     * @return
+     */
+    List<String> getCarNoByVehicleFuzzy(TransWorkFuzzyQueryParam  param);
 }

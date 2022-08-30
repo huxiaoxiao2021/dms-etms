@@ -4,6 +4,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.tms.jdi.dto.*;
 import com.jd.tms.jdi.ws.JdiQueryWS;
 import com.jd.tms.jdi.ws.JdiTransWorkWS;
@@ -19,6 +20,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -133,5 +135,24 @@ public class JdiQueryWSManagerImpl implements JdiQueryWSManager {
             return null;
         }
         return transWorkDto.getTransWorkBillDto();
+    }
+
+    @Override
+    public List<String> getCarNoByVehicleFuzzy(TransWorkFuzzyQueryParam param) {
+        logger.info("invoke queryTransWorkByVehicleFuzzy req：{}",JsonHelper.toJson(param));
+        CommonDto<List<TransWorkBillDto>> rs =jdiTransWorkWS.queryTransWorkByVehicleFuzzy(param);
+        if (ObjectHelper.isNotNull(rs) && Constants.RESULT_SUCCESS ==rs.getCode()){
+            logger.info("invoke queryTransWorkByVehicleFuzzy resp：{}",JsonHelper.toJson(rs));
+            List<TransWorkBillDto> transWorkBillDtoList =rs.getData();
+            if (ObjectHelper.isNotNull(rs.getData()) && rs.getData().size()>0){
+                List<String> transWorkCodeList =new ArrayList<>();
+                for (TransWorkBillDto transWorkBillDto:transWorkBillDtoList){
+                    transWorkCodeList.add(transWorkBillDto.getTransWorkCode());
+                }
+                return transWorkCodeList;
+            }
+        }
+        logger.error("jy 根据车牌号后四位模糊检索派车单异常，{}",rs.getMessage());
+        return null;
     }
 }
