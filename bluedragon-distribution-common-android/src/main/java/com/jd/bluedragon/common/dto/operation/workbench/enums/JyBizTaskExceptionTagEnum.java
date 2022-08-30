@@ -1,7 +1,5 @@
 package com.jd.bluedragon.common.dto.operation.workbench.enums;
 
-import com.sun.org.apache.bcel.internal.util.Objects;
-
 /**
  * 天官赐福 ◎ 百无禁忌
  *
@@ -51,7 +49,7 @@ public enum JyBizTaskExceptionTagEnum {
 
     public static JyBizTaskExceptionTagEnum getByCode(String code) {
         for (JyBizTaskExceptionTagEnum value : JyBizTaskExceptionTagEnum.values()) {
-            if (Objects.equals(code, value.getCode())) {
+            if (value.getCode().equals(code)) {
                 return value;
             }
         }
