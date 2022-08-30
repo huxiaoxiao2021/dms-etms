@@ -275,7 +275,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
 
         // 标签处理
         try {
-            porcessTags(req, statisticsByGrid);
+            processTags(req, statisticsByGrid);
         } catch (Exception e) {
             logger.error("异常岗-查询待取件统计数据-处理标签出错了", e);
         }
@@ -283,30 +283,28 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         return JdCResponse.ok(statisticsByGrid);
     }
 
-    private void porcessTags(StatisticsByGridReq req, List<StatisticsByGridDto> statisticsByGrid) {
+    private void processTags(StatisticsByGridReq req, List<StatisticsByGridDto> statisticsByGrid) {
         List<JyBizTaskExceptionEntity> tagsByGrid = jyBizTaskExceptionDao.getTagsByGrid(req);
 
-        // 排前三的标签
-        final List<String> top3Tags = new ArrayList<>();
-        for (int i = 0; i < 3; i++) {
-            top3Tags.add(JyBizTaskExceptionTagEnum.values()[i].getCode());
+        // 标签优先级
+        final List<String> tagPriority = new ArrayList<>();
+        for (JyBizTaskExceptionTagEnum value : JyBizTaskExceptionTagEnum.values()) {
+            tagPriority.add(value.getCode());
         }
 
-        // 取出所有网格的 属于前三的标签
+        // 取出所有网格的 属于前三优先级的标签
         Multimap<String, String> gridTags = HashMultimap.create();
         for (JyBizTaskExceptionEntity entity : tagsByGrid) {
             if (StringUtils.isNotBlank(entity.getTags())) {
                 String[] split = entity.getTags().split(",");
-                for (String tag : split) {
-                    if (top3Tags.contains(tag)) {
-                        String key  = entity.getFloor() + ":" + entity.getAreaCode() + ":" + entity.getGridCode();
-                        gridTags.put(key, entity.getTags());
-                    }
+                String key  = entity.getFloor() + ":" + entity.getAreaCode() + ":" + entity.getGridCode();
+                for (String s : split) {
+                    gridTags.put(key, s);
                 }
             }
         }
 
-        // 转换标签格式
+        // 按标签优先级排序并取前三
         ArrayListMultimap<String, TagDto> gridTagList = ArrayListMultimap.create();
         for (String key : gridTags.keys()) {
             List<String> tags = new ArrayList<>(gridTags.get(key));
@@ -314,9 +312,12 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             Collections.sort(tags, new Comparator<String>() {
                 @Override
                 public int compare(String o1, String o2) {
-                    return top3Tags.indexOf(o1) - top3Tags.indexOf(o2);
+                    return tagPriority.indexOf(o1) - tagPriority.indexOf(o2);
                 }
             });
+            // 取前三个标签
+            tags = tags.subList(0, Math.min(3, tags.size()));
+            // 转换标签格式
             List<TagDto> tagList = getTags(StringUtils.join(tags, ','));
             gridTagList.putAll(key, tagList);
         }
@@ -423,13 +424,13 @@ public class JyExceptionServiceImpl implements JyExceptionService {
                     dto.setCreateTime(entity.getProcessEndTime() == null ? null : dateFormat.format(entity.getProcessEndTime()));
 
                     // 查询照片地址
-                    JyExceptionEntity query = new JyExceptionEntity();
-                    query.setSiteCode(entity.getSiteCode());
-                    query.setBarCode(entity.getBarCode());
-                    query.setBizId(entity.getBizId());
-                    JyExceptionEntity jyExp = jyExceptionDao.queryByBarCodeAndSite(query);
-                    if (jyExp != null && StringUtils.isNotBlank(jyExp.getImageUrls())) {
-                        dto.setImageUrls(jyExp.getImageUrls());
+                    String key = TASK_CACHE_PRE + entity.getBizId();
+                    String taskCache = redisClient.get(key);
+                    if (StringUtils.isNotBlank(taskCache)) {
+                        ExpTaskDetailCacheDto cacheDto = JSON.parseObject(taskCache, ExpTaskDetailCacheDto.class);
+                        if (cacheDto != null && StringUtils.isNotBlank(cacheDto.getImageUrls())) {
+                            dto.setImageUrls(cacheDto.getImageUrls());
+                        }
                     }
                 }
                 list.add(dto);
@@ -625,21 +626,6 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         update.setUpdateUserErp(req.getUserErp());
         update.setUpdateUserName(baseStaffByErp.getStaffName());
         jyBizTaskExceptionDao.updateByBizId(update);
-
-        JyExceptionEntity query = new JyExceptionEntity();
-        query.setBarCode(bizEntity.getBarCode());
-        query.setSiteCode(bizEntity.getSiteCode());
-        query.setBizId(bizEntity.getBizId());
-
-            //JyExceptionEntity entity = jyExceptionDao.queryByBarCodeAndSite(query);
-            //// 更新 图片地址
-            //if (entity != null){
-            //    entity.setImageUrls(req.getImageUrls());
-            //    jyExceptionDao.update(entity);
-            //}
-
-
-
         return JdCResponse.ok();
     }
 
@@ -969,6 +955,8 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         dto.setStoreLocation(cacheDto.getStorage());
         // 同车包裹号
         dto.setSameCarPackageCode(cacheDto.getTogetherPackageCodes());
+        // 图片
+        dto.setImageUrls(cacheDto.getImageUrls());
         return dto;
     }
 
