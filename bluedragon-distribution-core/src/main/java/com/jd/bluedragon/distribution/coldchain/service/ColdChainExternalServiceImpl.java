@@ -36,7 +36,6 @@ import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
-import com.jd.dms.wb.report.util.ObjectUtil;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ump.annotation.JProEnum;
@@ -573,7 +572,7 @@ public class ColdChainExternalServiceImpl implements IColdChainService {
      * @return
      */
     private boolean checkParam(SendInspectionVO vo, InvokeResult result){
-        if (ObjectUtil.isNull(vo.getCreateUserCode())) {
+        if (vo.getCreateUserCode() == null) {
             result.parameterError("操作人不能为空！");
             return false;
         }
@@ -581,11 +580,11 @@ public class ColdChainExternalServiceImpl implements IColdChainService {
             result.parameterError("批次号不能为空！");
             return false;
         }
-        if (ObjectUtil.isNull(vo.getReceiveSiteCode())) {
+        if (vo.getReceiveSiteCode() == null) {
             result.parameterError("发货目的站点不能为空！");
             return false;
         }
-        if (ObjectUtil.isNull(vo.getCreateSiteCode())) {
+        if (vo.getCreateSiteCode() == null) {
             result.parameterError("起始站点不能为空！");
             return false;
         }
@@ -593,7 +592,7 @@ public class ColdChainExternalServiceImpl implements IColdChainService {
             result.parameterError("包裹号不能为空！");
             return false;
         }
-        if (ObjectUtil.isNull(vo.getOperateTime())) {
+        if (vo.getOperateTime() == null) {
             result.parameterError("操作时间不能为空！");
             return false;
         }
@@ -601,11 +600,11 @@ public class ColdChainExternalServiceImpl implements IColdChainService {
         try {
             BaseStaffSiteOrgDto cbDto = baseMajorManager.getBaseSiteBySiteId(vo.getCreateSiteCode());
             BaseStaffSiteOrgDto rbDto = baseMajorManager.getBaseSiteBySiteId(vo.getReceiveSiteCode());
-            if (ObjectUtil.isNull(cbDto)) {
+            if (cbDto == null) {
                 result.parameterError(MessageFormat.format("起始站点编号[{0}]不合法，在基础资料未查到！", vo.getCreateSiteCode()));
                 return false;
             }
-            if (ObjectUtil.isNull(rbDto)) {
+            if (rbDto == null) {
                 result.parameterError(MessageFormat.format("发货目的站点编号[{0}]不合法，在基础资料未查到！", vo.getReceiveSiteCode()));
                 return false;
             }
