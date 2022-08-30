@@ -48,26 +48,20 @@ public class DmsOAuthInterceptFilter extends DmsAuthorizationFilter {
     protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, FilterChain filterChain) throws ServletException, IOException {
 
         String opCode = httpServletRequest.getHeader(GodHeader.OP_CODE);
-        String authorization = httpServletRequest.getHeader(GodHeader.AUTHORIZATION);
         boolean secretBool = StringHelper.isNotEmpty(opCode) && opCode.equals(PropertiesHelper.newInstance().getValue(secretKey));/* 内部后门 */
-        boolean temporaryBool = StringHelper.isEmpty(authorization);/* 过渡期的临时保护 */
         /* 过渡期间对传空的的进行保护处理，和内部后门JD-opCode的特殊值进行保护处理 */
         String ipAddress =ServletRequestHelper.getRealIpAddress(httpServletRequest);
         String uri =httpServletRequest.getRequestURI();
-        if (temporaryBool) {
-            writeLogToHive(ipAddress,uri);
-            //部分拦截
-            if (pathMatch(uri)) {
-                super.doFilterInternal(httpServletRequest, httpServletResponse, filterChain);
-            } else {
-                LOGGER.warn("该客户端本次调用未进行rest加密鉴权,客户端IP:{}，请求路径：{}", ipAddress,uri);
-                filterChain.doFilter(httpServletRequest,httpServletResponse);
-            }
-        } else if (secretBool) {
+
+        if (secretBool) {
             LOGGER.info("内部调用，未拦截，客户端IP:{}", ServletRequestHelper.getRealIpAddress(httpServletRequest));
             filterChain.doFilter(httpServletRequest,httpServletResponse);
-        } else {
+        } else if (pathMatch(uri)) {
             super.doFilterInternal(httpServletRequest, httpServletResponse, filterChain);
+        } else {
+            LOGGER.warn("该客户端本次调用未进行rest加密鉴权,客户端IP:{}，请求路径：{}", ipAddress,uri);
+            writeLogToHive(ipAddress,uri);
+            filterChain.doFilter(httpServletRequest,httpServletResponse);
         }
     }
 
