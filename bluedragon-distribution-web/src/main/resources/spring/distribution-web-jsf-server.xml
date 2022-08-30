@@ -444,4 +444,14 @@
                   server="dmsjsf">
     </jsf:provider>
 
+    <!--  转运发货封车岗服务   -->
+    <jsf:provider id="jsfJySendVehicleTysService"
+                  interface="com.jd.bluedragon.distribution.jy.api.JySendVehicleTysService"
+                  alias="${dms.jsf.alias}"
+                  ref="jySendVehicleTysService"
+                  server="dmsjsf">
+    </jsf:provider>
+
+
+
 </beans>
