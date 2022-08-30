@@ -91,11 +91,11 @@ public class CustomerAndConsignerInfoHandler implements Handler<WaybillPrintCont
 		try {
 			//获取阿迪 ucc配置
 			String addiOwnNumberConf = uccPropertyConfiguration.getAddiOwnNumberConf();
-			log.info("获取阿迪青龙配置信息：{}, 获取逆向单context信息为：{}",addiOwnNumberConf,JSON.toJSON(context));
+			Waybill waybill = context.getBigWaybillDto().getWaybill();
+			log.info("获取阿迪青龙配置信息：{}, 获取逆向单waybill信息为：{}",addiOwnNumberConf,JSON.toJSON(waybill));
 			if(StringHelper.isNotEmpty(addiOwnNumberConf)){
 				List<String> asList = Arrays.asList(addiOwnNumberConf.split(Constants.SEPARATOR_COMMA));
 				//获取商家青龙业主号
-				Waybill waybill = context.getBigWaybillDto().getWaybill();
 				String customerCode = waybill.getCustomerCode();
 				String waybillSign = waybill.getWaybillSign();
 				if(asList.contains(customerCode)&&BusinessUtil.isJDConsigner(waybillSign)){
