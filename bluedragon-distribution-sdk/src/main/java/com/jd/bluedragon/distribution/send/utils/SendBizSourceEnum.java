@@ -138,7 +138,7 @@ public enum SendBizSourceEnum {
     /**
      * 按包裹无任务揽收自动发货
      */
-    AUTO_SEND(26, "无任务揽收自动发货")
+    COLD_CHAIN_AUTO_SEND(26, "无任务揽收自动发货")
     ;
 
     /**

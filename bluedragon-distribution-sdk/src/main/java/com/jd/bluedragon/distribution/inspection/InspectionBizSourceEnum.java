@@ -72,7 +72,7 @@ public enum InspectionBizSourceEnum {
 
         JY_UNLOAD_INSPECTION(45, "拣运卸车验货"),
 
-        SEND_INSPECTION(46, "无任务揽收自动验货")
+        COLD_CHAIN_SEND_INSPECTION(46, "无任务揽收自动验货")
     ;
 
         /**
