@@ -528,34 +528,41 @@ public class ColdChainExternalServiceImpl implements IColdChainService {
      * @return
      */
     @Override
+    @JProfiler(jKey = "DMSWEB.ColdChainExternalService.sendAndInspectionOfPack", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
     public InvokeResult<Boolean> sendAndInspectionOfPack(SendInspectionVO vo) {
-        log.info("自动发货接口入参，{}", JsonHelper.toJson(vo));
+        if (log.isInfoEnabled()) {
+            log.info("自动发货接口入参，{}", JsonHelper.toJson(vo));
+        }
         InvokeResult<Boolean> result = new InvokeResult<>();
         result.setData(Boolean.TRUE);
         result.success();
         if (!checkParam(vo,result)) {
             return result;
         }
-        // 验货
-        InspectionVO inspectionVO = new InspectionVO();
-        List<String> barCodes = new ArrayList<>();
-        barCodes.add(vo.getBoxCode());
-        inspectionVO.setBarCodes(barCodes);
-        inspectionVO.setSiteCode(vo.getCreateSiteCode());
-        inspectionVO.setUserCode(vo.getCreateUserCode());
-        inspectionVO.setUserName(vo.getCreateUser());
-        inspectionVO.setOperateTime(DateHelper.formatDateTime(vo.getOperateTime()));
-        InvokeResult<Boolean> inspectionResult = inspectionService.addInspection(inspectionVO, InspectionBizSourceEnum.SEND_INSPECTION);
-        if (!inspectionResult.codeSuccess()) {
-            log.info("自动发货时验货任务失败，{}，{}", JsonHelper.toJson(inspectionVO), JsonHelper.toJson(inspectionResult));
-            return inspectionResult;
+        try {
+            // 验货
+            InspectionVO inspectionVO = new InspectionVO();
+            List<String> barCodes = new ArrayList<>();
+            barCodes.add(vo.getBoxCode());
+            inspectionVO.setBarCodes(barCodes);
+            inspectionVO.setSiteCode(vo.getCreateSiteCode());
+            inspectionVO.setUserCode(vo.getCreateUserCode());
+            inspectionVO.setUserName(vo.getCreateUser());
+            inspectionVO.setOperateTime(DateHelper.formatDateTime(vo.getOperateTime()));
+            InvokeResult<Boolean> inspectionResult = inspectionService.addInspection(inspectionVO, InspectionBizSourceEnum.COLD_CHAIN_SEND_INSPECTION);
+            if (!inspectionResult.codeSuccess()) {
+                log.info("自动发货时验货任务失败，{}，{}", JsonHelper.toJson(inspectionVO), JsonHelper.toJson(inspectionResult));
+                return inspectionResult;
+            }
+            // 发货且分拣
+            SendM sendM = new SendM();
+            BeanUtils.copyProperties(vo,sendM);
+            sendM.setOperateTime(new Date(vo.getOperateTime().getTime() + Constants.DELIVERY_DELAY_TIME));
+            sendM.setSendType(Constants.BUSSINESS_TYPE_POSITIVE);
+            deliveryService.packageSend(SendBizSourceEnum.COLD_CHAIN_AUTO_SEND, sendM);
+        } catch (Exception e) {
+            result.error(e);
         }
-        // 发货且分拣
-        SendM sendM = new SendM();
-        BeanUtils.copyProperties(vo,sendM);
-        sendM.setOperateTime(new Date(vo.getOperateTime().getTime() + Constants.DELIVERY_DELAY_TIME));
-        sendM.setSendType(Constants.BUSSINESS_TYPE_POSITIVE);
-        deliveryService.packageSend(SendBizSourceEnum.AUTO_SEND, sendM);
         return result;
     }
 
@@ -595,12 +602,6 @@ public class ColdChainExternalServiceImpl implements IColdChainService {
             BaseStaffSiteOrgDto cbDto = baseMajorManager.getBaseSiteBySiteId(vo.getCreateSiteCode());
             BaseStaffSiteOrgDto rbDto = baseMajorManager.getBaseSiteBySiteId(vo.getReceiveSiteCode());
             if (ObjectUtil.isNull(cbDto)) {
-                cbDto = baseMajorManager.queryDmsBaseSiteByCodeDmsver(String.valueOf(vo.getCreateSiteCode()));
-            }
-            if (ObjectUtil.isNull(rbDto)) {
-                rbDto = baseMajorManager.queryDmsBaseSiteByCodeDmsver(String.valueOf(vo.getReceiveSiteCode()));
-            }
-            if (ObjectUtil.isNull(cbDto)) {
                 result.parameterError(MessageFormat.format("起始站点编号[{0}]不合法，在基础资料未查到！", vo.getCreateSiteCode()));
                 return false;
             }
@@ -610,18 +611,6 @@ public class ColdChainExternalServiceImpl implements IColdChainService {
             }
         } catch (Exception e) {
             log.error("调分拣自动发货接口校验参数，检查站点信息，调用站点信息异常:{}", JsonHelper.toJson(vo), e);
-        }
-        // 检查批次号是否合法
-        Integer receiveSiteCode = SerialRuleUtil.getReceiveSiteCodeFromSendCode(vo.getSendCode());
-        if (ObjectUtil.isNull(receiveSiteCode)) {
-            result.parameterError(MessageFormat.format("发货批次号[{0}]不合法,正则校验未通过！", vo.getSendCode()));
-            return false;
-        }
-        // 校验批次号
-        com.jd.bluedragon.distribution.base.domain.InvokeResult<Boolean> invokeResult = sendCodeService.validateSendCodeEffective(vo.getSendCode());
-        if (!invokeResult.codeSuccess()) {
-            result.parameterError(invokeResult.getMessage());
-            return false;
         }
         // 校验包裹号是否符合规则
         if (!WaybillUtil.isPackageCode(vo.getBoxCode())) {
