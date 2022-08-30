@@ -592,51 +592,53 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         JSONObject reqObj = (JSONObject) JSONObject.toJSON(req);
         cacheObj.putAll(reqObj);
 
+        redisClient.set(key, cacheObj.toJSONString());
+        // 处理任务后 更新任务明细过期时间：继续保留30天
+        redisClient.expire(key, TASK_DETAIL_CACHE_DAYS, TimeUnit.DAYS);
+
         // 存储类型 0暂存 1提交
         if ("0".equals(req.getSaveType())) {
-            redisClient.set(key, cacheObj.toJSONString());
-            redisClient.expire(key, 30, TimeUnit.DAYS);
-        }else {
-            ExpTaskDetailCacheDto cacheDto = cacheObj.toJavaObject(ExpTaskDetailCacheDto.class);
-            cacheDto.setExpBarcode(bizEntity.getBarCode());
-            cacheDto.setExpCreateTime(bizEntity.getCreateTime() == null ? System.currentTimeMillis() : bizEntity.getCreateTime().getTime());
-            JyExpSourceEnum source = JyExpSourceEnum.getEnumByCode(bizEntity.getSource());
-            cacheDto.setSource(source==null?"通用": source.getText());
-            // 调用 三无接口
-            ExpInfoSumaryInputDto dto = getExpInfoDto(cacheDto);
-            try {
-                CommonDto commonDto = expInfoSummaryJsfManager.addExpInfoDetail(dto);
-                if (!Objects.equals(commonDto.getCode(), CommonDto.CODE_SUCCESS)) {
-                    return JdCResponse.fail("提报三无系统失败:" + commonDto.getMessage());
-                }
-            } catch (Exception e) {
-                logger.error("调用三无接口异常-参数:" + JSON.toJSONString(dto), e);
-                return JdCResponse.fail("提报三无系统失败请稍后再试!");
-            }
-            //修改processStatus 为待匹配
-            JyBizTaskExceptionEntity update = new JyBizTaskExceptionEntity();
-            update.setBizId(req.getBizId());
-            update.setProcessingStatus(JyBizTaskExceptionProcessStatusEnum.WAITING_MATCH.getCode());
-            update.setHandlerErp(req.getUserErp());
-            update.setUpdateUserErp(req.getUserErp());
-            update.setUpdateUserName(baseStaffByErp.getStaffName());
-            jyBizTaskExceptionDao.updateByBizId(update);
-
-            JyExceptionEntity query = new JyExceptionEntity();
-            query.setBarCode(bizEntity.getBarCode());
-            query.setSiteCode(bizEntity.getSiteCode());
-            query.setBizId(bizEntity.getBizId());
-
-            JyExceptionEntity entity = jyExceptionDao.queryByBarCodeAndSite(query);
-            // 更新 图片地址
-            if (entity != null){
-                entity.setImageUrls(req.getImageUrls());
-                jyExceptionDao.update(entity);
-            }
-
-            // 处理任务后 更新任务明细过期时间：继续保留30天
-            redisClient.expire(key, TASK_DETAIL_CACHE_DAYS, TimeUnit.DAYS);
+            return JdCResponse.ok();
         }
+
+        ExpTaskDetailCacheDto cacheDto = cacheObj.toJavaObject(ExpTaskDetailCacheDto.class);
+        cacheDto.setExpBarcode(bizEntity.getBarCode());
+        cacheDto.setExpCreateTime(bizEntity.getCreateTime() == null ? System.currentTimeMillis() : bizEntity.getCreateTime().getTime());
+        JyExpSourceEnum source = JyExpSourceEnum.getEnumByCode(bizEntity.getSource());
+        cacheDto.setSource(source==null?"通用": source.getText());
+        // 调用 三无接口
+        ExpInfoSumaryInputDto dto = getExpInfoDto(cacheDto);
+        try {
+            CommonDto commonDto = expInfoSummaryJsfManager.addExpInfoDetail(dto);
+            if (!Objects.equals(commonDto.getCode(), CommonDto.CODE_SUCCESS)) {
+                return JdCResponse.fail("提报三无系统失败:" + commonDto.getMessage());
+            }
+        } catch (Exception e) {
+            logger.error("调用三无接口异常-参数:" + JSON.toJSONString(dto), e);
+            return JdCResponse.fail("提报三无系统失败请稍后再试!");
+        }
+        //修改processStatus 为待匹配
+        JyBizTaskExceptionEntity update = new JyBizTaskExceptionEntity();
+        update.setBizId(req.getBizId());
+        update.setProcessingStatus(JyBizTaskExceptionProcessStatusEnum.WAITING_MATCH.getCode());
+        update.setHandlerErp(req.getUserErp());
+        update.setUpdateUserErp(req.getUserErp());
+        update.setUpdateUserName(baseStaffByErp.getStaffName());
+        jyBizTaskExceptionDao.updateByBizId(update);
+
+        JyExceptionEntity query = new JyExceptionEntity();
+        query.setBarCode(bizEntity.getBarCode());
+        query.setSiteCode(bizEntity.getSiteCode());
+        query.setBizId(bizEntity.getBizId());
+
+        JyExceptionEntity entity = jyExceptionDao.queryByBarCodeAndSite(query);
+        // 更新 图片地址
+        if (entity != null){
+            entity.setImageUrls(req.getImageUrls());
+            jyExceptionDao.update(entity);
+        }
+
+
 
         return JdCResponse.ok();
     }
@@ -977,7 +979,8 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         dto.setBizId(entity.getBizId());
         dto.setSource(entity.getSource());
         dto.setBarCode(entity.getBarCode());
-        dto.setStayTime(getStayTime(entity.getCreateTime()));
+        // 停留时间：当前时间-分配时间
+        dto.setStayTime(getStayTime(entity.getDistributionTime()));
         dto.setFloor(entity.getFloor());
         dto.setGridCode(entity.getGridCode());
         dto.setGridNo(entity.getGridNo());
