@@ -153,7 +153,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
             if (ObjectHelper.isNotNull(sealVehicleReq.getTransWay())
                     && TransTypeEnum.ROAD_ZHENGCHE.getType()==sealVehicleReq.getTransWay()){
                 if (ObjectHelper.isEmpty(sealCarDto.getSealCodes()) || sealCarDto.getSealCodes().size()<=0){
-                    return new InvokeResult(COMMIT_SEAL_CAR_EXCEPTION_CODE, COMMIT_SEAL_CAR_EXCEPTION_MESSAGE);
+                    return new InvokeResult(COMMIT_SEAL_CAR_EXCEPTION_CODE, COMMIT_SEAL_CAR_NO_SEAL_CODES_MESSAGE);
                 }
             }
 
@@ -204,9 +204,10 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
         if (ObjectHelper.isNotNull(transWorkItemResp) && Constants.RESULT_SUCCESS == transWorkItemResp.getCode()) {
             TransWorkItemDto transWorkItemDto = transWorkItemResp.getData();
             TransportResp transportResp = new TransportResp();
-            transportResp.setTransType(transWorkItemDto.getTransType());
-            if (ObjectHelper.isNotNull(transportResp.getTransType()) && ObjectHelper.isNotNull(TransTypeEnum.getEnum(transportResp.getTransType()))) {
-                transportResp.setTransTypeName(TransTypeEnum.getEnum(transportResp.getTransType()).getName());
+            transportResp.setTransType(transWorkItemDto.getTransWay());
+            transportResp.setTransWay(transWorkItemDto.getTransWay());
+            if (ObjectHelper.isNotNull(transportResp.getTransWay()) && ObjectHelper.isNotNull(TransTypeEnum.getEnum(transportResp.getTransWay()))) {
+                transportResp.setTransWayName(TransTypeEnum.getEnum(transportResp.getTransWay()).getName());
             }
             transportResp.setVehicleNumber(transWorkItemDto.getVehicleNumber());
             transportResp.setRouteLineCode(transWorkItemDto.getRouteLineCode());

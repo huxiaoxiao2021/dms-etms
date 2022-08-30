@@ -12,19 +12,20 @@ import java.util.Map;
  */
 public enum JyLineTypeEnum {
 
-    OTHER(0, "其他"),
+    OTHER(0, "其他",9),
 
-    TRUNK_LINE(1, "干线"),
+    TRUNK_LINE(1, "干线",1),
 
-    BRANCH_LINE(2, "支线"),
+    BRANCH_LINE(2, "支线",2),
 
-    TRANSFER(3, "传"),
+    TRANSFER(3, "传",3),
 
-    SHUTTLE(4, "摆")
+    SHUTTLE(4, "摆",4)
     ;
 
     private Integer code;
     private String name;
+    private Integer order;
     private static Map<Integer, JyLineTypeEnum> codeMap;
     public static Map<Integer, String> enumMap;
 
@@ -62,9 +63,10 @@ public enum JyLineTypeEnum {
         return "未知";
     }
 
-    JyLineTypeEnum(Integer code, String name) {
+    JyLineTypeEnum(Integer code, String name, Integer order) {
         this.code = code;
         this.name = name;
+        this.order = order;
     }
 
     public Integer getCode() {
@@ -73,5 +75,9 @@ public enum JyLineTypeEnum {
 
     public String getName() {
         return name;
+    }
+
+    public Integer getOrder() {
+        return order;
     }
 }

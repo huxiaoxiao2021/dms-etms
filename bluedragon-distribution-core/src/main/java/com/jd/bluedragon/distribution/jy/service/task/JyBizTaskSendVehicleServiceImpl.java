@@ -98,9 +98,9 @@ public class JyBizTaskSendVehicleServiceImpl implements JyBizTaskSendVehicleServ
     }
 
     @Override
-    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyBizTaskSendVehicleService.updateLastPlanDepartTime",
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyBizTaskSendVehicleService.updateLastPlanDepartTimeAndLineType",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
-    public int updateLastPlanDepartTime(JyBizTaskSendVehicleEntity entity) {
+    public int updateLastPlanDepartTimeAndLineType(JyBizTaskSendVehicleEntity entity) {
         return jyBizTaskSendVehicleDao.updateByBizId(entity);
     }
 

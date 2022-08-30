@@ -5,12 +5,24 @@ import java.io.Serializable;
 public class TransportResp implements Serializable {
     private static final long serialVersionUID = 8116324443064238624L;
     /**
-     * 运输方式
-     * TransTypeEnum
+     * 线路类型
+     *
      */
     private Integer transType;
 
     private String transTypeName;
+
+
+    /**
+     * 运输方式
+     */
+    private Integer transWay;
+    /**
+     * 运输方式名称
+     */
+    private String transWayName;
+
+
 
     /**
      * 车牌号
@@ -93,5 +105,19 @@ public class TransportResp implements Serializable {
         this.sendCode = sendCode;
     }
 
+    public Integer getTransWay() {
+        return transWay;
+    }
 
+    public void setTransWay(Integer transWay) {
+        this.transWay = transWay;
+    }
+
+    public String getTransWayName() {
+        return transWayName;
+    }
+
+    public void setTransWayName(String transWayName) {
+        this.transWayName = transWayName;
+    }
 }
