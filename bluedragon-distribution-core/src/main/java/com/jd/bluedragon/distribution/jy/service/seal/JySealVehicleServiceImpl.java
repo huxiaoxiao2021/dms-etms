@@ -153,7 +153,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
             if (ObjectHelper.isNotNull(sealVehicleReq.getTransWay())
                     && TransTypeEnum.ROAD_ZHENGCHE.getType()==sealVehicleReq.getTransWay()){
                 if (ObjectHelper.isEmpty(sealCarDto.getSealCodes()) || sealCarDto.getSealCodes().size()<=0){
-                    return new InvokeResult(COMMIT_SEAL_CAR_EXCEPTION_CODE, COMMIT_SEAL_CAR_EXCEPTION_MESSAGE);
+                    return new InvokeResult(COMMIT_SEAL_CAR_EXCEPTION_CODE, COMMIT_SEAL_CAR_NO_SEAL_CODES_MESSAGE);
                 }
             }
 

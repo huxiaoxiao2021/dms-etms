@@ -10,7 +10,9 @@ import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.api.response.CheckBeforeSendResponse;
 import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
 import com.jd.bluedragon.distribution.api.response.TaskResponse;
+import com.jd.bluedragon.distribution.base.domain.JdCancelWaybillResponse;
 import com.jd.bluedragon.distribution.base.service.SiteService;
+import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
 import com.jd.bluedragon.distribution.coldChain.domain.*;
 import com.jd.bluedragon.distribution.coldChain.service.IColdChainService;
 import com.jd.bluedragon.distribution.coldchain.domain.ColdChainSend;
@@ -29,6 +31,7 @@ import com.jd.bluedragon.distribution.storage.service.StoragePackageMService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.ver.service.SortingCheckService;
+import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
@@ -100,6 +103,9 @@ public class ColdChainExternalServiceImpl implements IColdChainService {
     @Autowired
     private NewSealVehicleService newSealVehicleService;
 
+    @Autowired
+    private WaybillService waybillService;
+
     /**
      * 冷链验货校验
      *
@@ -135,6 +141,14 @@ public class ColdChainExternalServiceImpl implements IColdChainService {
 
         //扫描的是包裹或运单校验逻辑
         if(isWaybill || isPack){
+            //拦截校验
+            JdCancelWaybillResponse cancelWaybillResponse = waybillService.dealCancelWaybill(waybillCode);
+            if (!Objects.equals(JdResponse.CODE_SUCCESS, cancelWaybillResponse.getCode())) {
+                result.getData().setWeak(true);
+                result.customMessage(cancelWaybillResponse.getCode(),cancelWaybillResponse.getMessage());
+                return result;
+            }
+
             //加盟商余额校验
             if(!allianceBusiDeliveryDetailService.checkExist(waybillCode)) {
                 if(!allianceBusiDeliveryDetailService.checkMoney(waybillCode)){
