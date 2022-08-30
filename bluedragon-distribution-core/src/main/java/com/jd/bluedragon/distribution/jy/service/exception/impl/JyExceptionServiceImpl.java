@@ -1001,6 +1001,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         dto.setBarCode(entity.getBarCode());
         // 停留时间：当前时间-分配时间
         dto.setStayTime(getStayTime(entity.getDistributionTime()));
+        dto.setTimeOut(entity.getTimeOut());
         dto.setFloor(entity.getFloor());
         dto.setGridCode(entity.getGridCode());
         dto.setGridNo(entity.getGridNo());
