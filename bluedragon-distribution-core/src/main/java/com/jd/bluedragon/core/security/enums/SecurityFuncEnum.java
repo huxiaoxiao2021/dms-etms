@@ -13,7 +13,8 @@ package com.jd.bluedragon.core.security.enums;
  */
 public enum SecurityFuncEnum {
 
-    FUNC_PRINT(1, "打印");
+    FUNC_PRINT(1, "打印"),
+    FUNC_RMA(2, "RMA查询");
 
     SecurityFuncEnum(int code, String name){
         this.code = code;
