@@ -409,6 +409,10 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         }
 
         req.setSiteId(position.getSiteCode());
+        // 待处理 只查询 处理状态=待录入
+        if (Objects.equals(req.getStatus(), JyExpStatusEnum.TO_PROCESS.getCode())) {
+            req.setProcessingStatus(JyBizTaskExceptionProcessStatusEnum.WAITING_MATCH.getCode());
+        }
 
         List<JyBizTaskExceptionEntity> taskList = jyBizTaskExceptionDao.queryExceptionTaskList(req);
         List<ExpTaskDto> list = new ArrayList<>();
@@ -438,7 +442,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         }
 
         // 仅待取件列表 记录"进行中"的人数
-        if (StringUtils.isBlank(req.getGridCode())) {
+        if (!Objects.equals(req.getStatus(), JyExpStatusEnum.TO_PICK.getCode())) {
             return JdCResponse.ok(list);
         }
 
@@ -542,21 +546,42 @@ public class JyExceptionServiceImpl implements JyExceptionService {
     /**
      * 任务明细
      *
-     * @param req
      */
     @Override
     public JdCResponse<ExpTaskDetailDto> getTaskDetail(ExpTaskByIdReq req) {
+        if (StringUtils.isBlank(req.getBizId())) {
+            return JdCResponse.fail("业务ID不能为空!");
+        }
+
+        JyBizTaskExceptionEntity entity = jyBizTaskExceptionDao.findByBizId(req.getBizId());
+        if (entity == null) {
+            return JdCResponse.fail("当前任务不存在!");
+        }
+        ExpTaskDetailDto dto = new ExpTaskDetailCacheDto();
+        dto.setBizId(entity.getBizId());
 
         String redisKey = TASK_CACHE_PRE + req.getBizId();
         String s = redisClient.get(redisKey);
         if (StringUtils.isBlank(s)) {
             logger.info("三无异常岗-无相关任务redisKey={}", redisKey);
-            return JdCResponse.ok();
+            return JdCResponse.ok(dto);
         }
 
         ExpTaskDetailCacheDto cacheDto = JSON.parseObject(s, ExpTaskDetailCacheDto.class);
-        ExpTaskDetailDto dto = new ExpTaskDetailCacheDto();
         BeanUtils.copyProperties(cacheDto, dto);
+
+        // 设置 上架日期
+        if (Objects.equals(entity.getStatus(), JyExpStatusEnum.TO_PRINT.getCode())) {
+            JyExceptionEntity query = new JyExceptionEntity();
+            query.setSiteCode(entity.getSiteCode());
+            query.setBizId(entity.getBizId());
+            query.setBarCode(entity.getBarCode());
+            JyExceptionEntity jyExceptionEntity = jyExceptionDao.queryByBarCodeAndSite(query);
+            if (jyExceptionEntity != null && jyExceptionEntity.getShelfTime() != null) {
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                dto.setShelfTime(dateFormat.format(jyExceptionEntity.getShelfTime()));
+            }
+        }
 
         return JdCResponse.ok(dto);
     }
@@ -582,6 +607,9 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         JyBizTaskExceptionEntity bizEntity = jyBizTaskExceptionDao.findByBizId(req.getBizId());
         if (bizEntity == null) {
             return JdCResponse.fail("无相关任务!bizId=" + req.getBizId());
+        }
+        if (!Objects.equals(JyExpStatusEnum.TO_PROCESS.getCode(), bizEntity.getStatus())) {
+            return JdCResponse.fail("当前任务已被处理,请勿重复操作!bizId=" + req.getBizId());
         }
 
         JSONObject cacheObj = new JSONObject();
@@ -874,9 +902,13 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         }
         String[] split = tags.split(",");
         for (String s : split) {
+            JyBizTaskExceptionTagEnum tagEnum = JyBizTaskExceptionTagEnum.getByCode(s);
+            if (tagEnum == null) {
+                continue;
+            }
             TagDto dto = new TagDto();
-            dto.setName(s);
-            dto.setCode(0);
+            dto.setName(tagEnum.getName());
+            dto.setCode(tagEnum.ordinal());
             dto.setStyle("info");
             list.add(dto);
         }

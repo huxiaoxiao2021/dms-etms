@@ -419,5 +419,11 @@
         <if test="gridCode !=null and gridCode!=''">
             AND grid_code = #{gridCode}
         </if>
+        <if test="processingStatus !=null">
+            AND processing_status = #{processingStatus}
+        </if>
+        <if test="pageSize !=null">
+            LIMIT #{offSet}, #{pageSize};
+        </if>
     </select>
 </mapper>

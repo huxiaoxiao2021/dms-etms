@@ -7,6 +7,9 @@ public class ExpTaskPageReq extends ExpBaseReq {
     // 网格号
     private String gridCode;
 
+    // 处理状态0:待录入 1：待匹配 2：暂存 3: 处理完成
+    private Integer processingStatus;
+
     // 状态 JyExpStatusEnum
     private Integer status;
 
@@ -70,5 +73,13 @@ public class ExpTaskPageReq extends ExpBaseReq {
         }else {
             this.offSet = (pageNumber - 1) * pageSize;
         }
+    }
+
+    public Integer getProcessingStatus() {
+        return processingStatus;
+    }
+
+    public void setProcessingStatus(Integer processingStatus) {
+        this.processingStatus = processingStatus;
     }
 }

@@ -70,6 +70,12 @@ public class ExpTaskDetailDto implements Serializable {
     // 图片地址
     private String imageUrls;
 
+    // 上架日期
+    private String shelfTime;
+
+    // 货物名称
+    private String goodName;
+
     public String getWeight() {
         return weight;
     }
@@ -236,5 +242,21 @@ public class ExpTaskDetailDto implements Serializable {
 
     public void setVehicleNumber(String vehicleNumber) {
         this.vehicleNumber = vehicleNumber;
+    }
+
+    public String getShelfTime() {
+        return shelfTime;
+    }
+
+    public void setShelfTime(String shelfTime) {
+        this.shelfTime = shelfTime;
+    }
+
+    public String getGoodName() {
+        return goodName;
+    }
+
+    public void setGoodName(String goodName) {
+        this.goodName = goodName;
     }
 }
