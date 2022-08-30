@@ -631,12 +631,12 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         query.setSiteCode(bizEntity.getSiteCode());
         query.setBizId(bizEntity.getBizId());
 
-        JyExceptionEntity entity = jyExceptionDao.queryByBarCodeAndSite(query);
-        // 更新 图片地址
-        if (entity != null){
-            entity.setImageUrls(req.getImageUrls());
-            jyExceptionDao.update(entity);
-        }
+            //JyExceptionEntity entity = jyExceptionDao.queryByBarCodeAndSite(query);
+            //// 更新 图片地址
+            //if (entity != null){
+            //    entity.setImageUrls(req.getImageUrls());
+            //    jyExceptionDao.update(entity);
+            //}
 
 
 
