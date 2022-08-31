@@ -184,16 +184,7 @@ public class SendCodeGateWayServiceImpl implements SendCodeGateWayService {
         log.info("jy checkSendCodeAndAllianceForJy request:{}", JsonHelper.toJson(request));
         if  (ObjectHelper.isNotNull(request.getBizSource()) && ObjectHelper.isNotNull(uccConfig.getNeedValidateMainLineBizSources())){
             if (uccConfig.getNeedValidateMainLineBizSources().contains(String.valueOf(request.getBizSource()))){
-                Integer endSiteId =BusinessUtil.getReceiveSiteCodeFromSendCode(request.getSendCode());
-
-                SendVehicleTaskRequest req =new SendVehicleTaskRequest();
-                req.setUser(request.getUser());
-                req.setCurrentOperate(request.getCurrentOperate());
-                req.setEndSiteId(Long.valueOf(endSiteId));
-                req.setLineType(LineTypeEnum.TRUNK_LINE.getCode());
-                req.setPageNumber(1);
-                req.setPageSize(1);
-
+                SendVehicleTaskRequest req =generSendTaskReq(request);
                 InvokeResult<SendVehicleTaskResponse> resp =jySendVehicleService.fetchSendVehicleTask(req);
                 if (checkDataValidate(resp)){
                     return new JdVerifyResponse(NOT_SUPPORT_MAIN_LINE_TASK_CODE,NOT_SUPPORT_MAIN_LINE_TASK_MESSAGE);
@@ -220,6 +211,18 @@ public class SendCodeGateWayServiceImpl implements SendCodeGateWayService {
             jdVerifyResponse.addPromptBox(0,"派送至加盟商请复重！");
         }
         return jdVerifyResponse;
+    }
+
+    private SendVehicleTaskRequest generSendTaskReq(CheckSendCodeRequest request) {
+        Integer endSiteId =BusinessUtil.getReceiveSiteCodeFromSendCode(request.getSendCode());
+        SendVehicleTaskRequest req =new SendVehicleTaskRequest();
+        req.setUser(request.getUser());
+        req.setCurrentOperate(request.getCurrentOperate());
+        req.setEndSiteId(Long.valueOf(endSiteId));
+        req.setLineType(LineTypeEnum.TRUNK_LINE.getCode());
+        req.setPageNumber(1);
+        req.setPageSize(1);
+        return req;
     }
 
     private boolean checkDataValidate(InvokeResult<SendVehicleTaskResponse> result) {
