@@ -1718,4 +1718,7 @@ public class Constants {
      * 验货菜单编码：0101019
      */
     public static final String MENU_CODE_INSPECTION  = "0101019";
+
+    public static final String TRANSFER_TASK_PREFIX  = "transfer_task_biz_id_%s";
+    public static final String DELETE_ZIJIAN_TASK_PREFIX  = "delete_task_biz_id_%s";
 }

@@ -709,7 +709,6 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
                 return false;
             }
         }
-
         return true;
     }
 
@@ -1601,6 +1600,14 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
      * @return
      */
     private boolean sendRequestBaseCheck(JdVerifyResponse<SendScanResponse> response, SendScanRequest request) {
+        if (ObjectHelper.isNotNull(request.getSendVehicleBizId()) && request.getSendVehicleBizId().startsWith("NSST")){
+            String key = String.format(Constants.TRANSFER_TASK_PREFIX,request.getSendVehicleBizId());
+            String flag =redisClientOfJy.get(key);
+            if (ObjectHelper.isNotNull(flag) && Constants.STRING_FLG_TRUE.equals(flag)){
+                response.toFail(NO_SCAN_AFTER_BIND_TASK_MESSAGE);
+                return false;
+            }
+        }
         String barCode = request.getBarCode();
         if (!BusinessHelper.isBoxcode(barCode)
                 && !WaybillUtil.isWaybillCode(barCode)
