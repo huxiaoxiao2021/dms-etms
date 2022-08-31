@@ -620,14 +620,10 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
             endSiteId = Long.valueOf(BusinessUtil.getReceiveSiteCodeFromSendCode(queryTaskSendDto.getKeyword()));
         }
         else {
-            //车牌号后四位
-            TransWorkFuzzyQueryParam param =new TransWorkFuzzyQueryParam();
-            param.setVehicleNumber(queryTaskSendDto.getKeyword());
-
-            List<String> tranWorkCodes =jdiQueryWSManager.getCarNoByVehicleFuzzy(param);
-            if (ObjectHelper.isNotNull(tranWorkCodes)){
-                //todo
-
+            //车牌号后四位检索
+            List<String> sendVehicleBizList = querySendVehicleBizIdByVehicleFuzzy(queryTaskSendDto);
+            if (ObjectHelper.isNotNull(sendVehicleBizList) && sendVehicleBizList.size()>0){
+                return sendVehicleBizList;
             }
             result.hintMessage("未检索到相应的发货任务数据！");
             return null;
@@ -652,6 +648,36 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
         }
 
         return new ArrayList<>(sendVehicleBizSet);
+    }
+
+    private List<String> querySendVehicleBizIdByVehicleFuzzy(QueryTaskSendDto queryTaskSendDto) {
+        TransWorkFuzzyQueryParam param =new TransWorkFuzzyQueryParam();
+        BaseStaffSiteOrgDto baseStaffSiteOrgDto;
+        try {
+             baseStaffSiteOrgDto =baseMajorManager.getBaseSiteBySiteId(queryTaskSendDto.getStartSiteId().intValue());
+            if (ObjectHelper.isEmpty(baseStaffSiteOrgDto) || ObjectHelper.isEmpty(baseStaffSiteOrgDto.getDmsSiteCode())){
+                log.info("getBaseSiteBySiteId未获取到"+queryTaskSendDto.getStartSiteId()+"站点信息");
+                return null;
+            }
+        } catch (Exception e) {
+            log.error("getBaseSiteBySiteId获取站点信息异常",e);
+            return null;
+        }
+
+        param.setBeginNodeCode(baseStaffSiteOrgDto.getDmsSiteCode());
+        param.setVehicleNumber(queryTaskSendDto.getKeyword());
+        List<String> tranWorkCodes =jdiQueryWSManager.listTranWorkCodesByVehicleFuzzy(param);
+        if (ObjectHelper.isNotNull(tranWorkCodes) && tranWorkCodes.size()>0){
+            List<JyBizTaskSendVehicleEntity> entityList =taskSendVehicleService.findSendTaskByTransWorkCode(tranWorkCodes,queryTaskSendDto.getStartSiteId());
+            if (ObjectHelper.isNotNull(entityList) && entityList.size()>0){
+                List<String> bizIdList =new ArrayList<>();
+                for (JyBizTaskSendVehicleEntity entity:entityList){
+                    bizIdList.add(entity.getBizId());
+                }
+                return bizIdList;
+            }
+        }
+        return null;
     }
 
     /**

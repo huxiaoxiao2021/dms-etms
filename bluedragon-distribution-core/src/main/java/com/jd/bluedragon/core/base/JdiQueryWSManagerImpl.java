@@ -138,9 +138,14 @@ public class JdiQueryWSManagerImpl implements JdiQueryWSManager {
     }
 
     @Override
-    public List<String> getCarNoByVehicleFuzzy(TransWorkFuzzyQueryParam param) {
+    public List<String> listTranWorkCodesByVehicleFuzzy(TransWorkFuzzyQueryParam param) {
         logger.info("invoke queryTransWorkByVehicleFuzzy req：{}",JsonHelper.toJson(param));
-        CommonDto<List<TransWorkBillDto>> rs =jdiTransWorkWS.queryTransWorkByVehicleFuzzy(param);
+        CommonDto<List<TransWorkBillDto>> rs = null;
+        try {
+            rs = jdiTransWorkWS.queryTransWorkByVehicleFuzzy(param);
+        } catch (Exception e) {
+            logger.error("jy 根据车牌号后四位模糊检索派车单异常",e);
+        }
         if (ObjectHelper.isNotNull(rs) && Constants.RESULT_SUCCESS ==rs.getCode()){
             logger.info("invoke queryTransWorkByVehicleFuzzy resp：{}",JsonHelper.toJson(rs));
             List<TransWorkBillDto> transWorkBillDtoList =rs.getData();
@@ -152,7 +157,7 @@ public class JdiQueryWSManagerImpl implements JdiQueryWSManager {
                 return transWorkCodeList;
             }
         }
-        logger.error("jy 根据车牌号后四位模糊检索派车单异常，{}",rs.getMessage());
+        logger.info("jy 根据车牌号后四位模糊检索派车单失败：",rs.getMessage());
         return null;
     }
 }

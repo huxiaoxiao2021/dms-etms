@@ -49,5 +49,5 @@ public interface JdiQueryWSManager {
      * @param param
      * @return
      */
-    List<String> getCarNoByVehicleFuzzy(TransWorkFuzzyQueryParam  param);
+    List<String> listTranWorkCodesByVehicleFuzzy(TransWorkFuzzyQueryParam  param);
 }

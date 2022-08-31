@@ -144,4 +144,9 @@ public class JyBizTaskSendVehicleServiceImpl implements JyBizTaskSendVehicleServ
     public Integer countSendTaskByDest(JyBizTaskSendVehicleDetailEntity entity) {
         return jyBizTaskSendVehicleDao.countSendTaskByDest(entity);
     }
+
+    @Override
+    public List<JyBizTaskSendVehicleEntity> findSendTaskByTransWorkCode(List<String> transWorkCodeList,Long startSiteId) {
+        return jyBizTaskSendVehicleDao.findSendTaskByTransWorkCode(transWorkCodeList,startSiteId);
+    }
 }

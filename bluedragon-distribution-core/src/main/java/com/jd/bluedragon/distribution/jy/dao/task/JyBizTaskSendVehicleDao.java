@@ -128,4 +128,11 @@ public class JyBizTaskSendVehicleDao extends BaseDao<JyBizTaskSendVehicleEntity>
     public Integer countSendTaskByDest(JyBizTaskSendVehicleDetailEntity entity) {
         return this.getSqlSession().selectOne(NAMESPACE + ".countSendTaskByDest", entity);
     }
+
+    public List<JyBizTaskSendVehicleEntity> findSendTaskByTransWorkCode(List<String> transWorkCodeList,Long startSiteId) {
+        Map<String,Object> params = new HashMap<>();
+        params.put("transWorkCodeList", transWorkCodeList);
+        params.put("startSiteId", startSiteId);
+        return this.getSqlSession().selectList(NAMESPACE + ".findSendTaskByTransWorkCode", params);
+    }
 }
