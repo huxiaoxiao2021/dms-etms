@@ -370,7 +370,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
 
                 // 比较开始进行时间距当前时间是否 小于 COUNT_REDIS_SECOND
                 for (String value : receivingCountByPosition.values()) {
-                    if (StringUtils.isBlank(value)) {
+                    if (!StringUtils.isBlank(value)) {
                         if (System.currentTimeMillis() - Long.parseLong(value) < (COUNT_CACHE_SECOND * 1000)) {
                             dto.setProcessingNum(dto.getProcessingNum() + 1);
                         }
