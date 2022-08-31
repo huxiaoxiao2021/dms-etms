@@ -92,7 +92,6 @@ public class CustomerAndConsignerInfoHandler implements Handler<WaybillPrintCont
 			//获取阿迪 ucc配置
 			String addiOwnNumberConf = uccPropertyConfiguration.getAddiOwnNumberConf();
 			Waybill waybill = context.getBigWaybillDto().getWaybill();
-			log.info("获取阿迪青龙配置信息：{}, 获取逆向单waybill信息为：{}",addiOwnNumberConf,JSON.toJSON(waybill));
 			if(StringHelper.isNotEmpty(addiOwnNumberConf)){
 				List<String> asList = Arrays.asList(addiOwnNumberConf.split(Constants.SEPARATOR_COMMA));
 				//获取商家青龙业主号

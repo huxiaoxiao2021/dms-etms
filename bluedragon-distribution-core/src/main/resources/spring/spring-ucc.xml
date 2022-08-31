@@ -175,7 +175,7 @@
 		<property name="faceAbnormalReportConfig" value="${faceAbnormalReportConfig:''}"/>
 		<property name="identityRecogniseSiteSwitch" value="${identityRecogniseSiteSwitch:''}"/>
 		<property name="chuguanPurchaseAndSaleSwitch" value="${chuguanPurchaseAndSaleSwitch:false}"/>
-		<property name="addiOwnNumberConf" value="${addiOwnNumberConf:10K44616,}"/>
+		<property name="addiOwnNumberConf" value="${addiOwnNumberConf:010K1961638,}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
