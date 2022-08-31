@@ -138,16 +138,21 @@ public class JdiQueryWSManagerImpl implements JdiQueryWSManager {
     }
 
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JdiQueryWSManager.listTranWorkCodesByVehicleFuzzy", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public List<String> listTranWorkCodesByVehicleFuzzy(TransWorkFuzzyQueryParam param) {
-        logger.info("invoke queryTransWorkByVehicleFuzzy req：{}",JsonHelper.toJson(param));
+        if (logger.isInfoEnabled()){
+            logger.info("invoke queryTransWorkByVehicleFuzzy req：{}",JsonHelper.toJson(param));
+        }
         CommonDto<List<TransWorkBillDto>> rs = null;
         try {
             rs = jdiTransWorkWS.queryTransWorkByVehicleFuzzy(param);
+            if (logger.isInfoEnabled()){
+                logger.info(param.getBeginNodeCode()+"|"+param.getVehicleNumber()+" invoke queryTransWorkByVehicleFuzzy resp：{}",JsonHelper.toJson(rs));
+            }
         } catch (Exception e) {
             logger.error("jy 根据车牌号后四位模糊检索派车单异常",e);
         }
         if (ObjectHelper.isNotNull(rs) && Constants.RESULT_SUCCESS ==rs.getCode()){
-            logger.info("invoke queryTransWorkByVehicleFuzzy resp：{}",JsonHelper.toJson(rs));
             List<TransWorkBillDto> transWorkBillDtoList =rs.getData();
             if (ObjectHelper.isNotNull(rs.getData()) && rs.getData().size()>0){
                 List<String> transWorkCodeList =new ArrayList<>();
@@ -157,7 +162,6 @@ public class JdiQueryWSManagerImpl implements JdiQueryWSManager {
                 return transWorkCodeList;
             }
         }
-        logger.info("jy 根据车牌号后四位模糊检索派车单失败：",rs.getMessage());
         return null;
     }
 }
