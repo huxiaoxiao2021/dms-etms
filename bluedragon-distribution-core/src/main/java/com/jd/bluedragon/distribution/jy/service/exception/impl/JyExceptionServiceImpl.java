@@ -347,6 +347,8 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         String siteCountKey = RECEIVING_SITE_COUNT_PRE + position.getSiteCode();
         Set<String> receivingPositionSet = redisClient.sMembers(siteCountKey);
 
+        logger.info("取件进行中-场地内所有进行中的岗位,siteCountKey={},receivingPositionSet={}", siteCountKey, siteCountKey);
+
         if (receivingPositionSet == null || receivingPositionSet.isEmpty()) {
             return JdCResponse.ok(list);
         }
@@ -355,10 +357,8 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             String[] split = key.split("\\|");
             try {
                 ProcessingNumByGridDto dto = new ProcessingNumByGridDto();
-                dto.setFloor(new Integer(split[2]));
-                dto.setAreaCode(split[3]);
-                dto.setGriCode(split[4]);
-                dto.setGridNo(split[5]);
+                dto.setFloor(new Integer(split[0]));
+                dto.setGriCode(split[1]);
                 dto.setProcessingNum(0);
                 list.add(dto);
 
@@ -367,7 +367,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
                 if (receivingCountByPosition == null || receivingCountByPosition.isEmpty()) {
                     continue;
                 }
-
+                logger.info("取件进行中的-岗位内进行中的ERP,gridKey={},receivingPositionSet={}", key, receivingCountByPosition);
                 // 比较开始进行时间距当前时间是否 小于 COUNT_REDIS_SECOND
                 for (String value : receivingCountByPosition.values()) {
                     if (!StringUtils.isBlank(value)) {
@@ -448,16 +448,17 @@ public class JyExceptionServiceImpl implements JyExceptionService {
 
         // 记录取件进行中
         // 按岗位统计
-        String positionCountKey = getPositionCountKey(position);
-        redisClient.hSet(positionCountKey, req.getUserErp(), System.currentTimeMillis() + "");
-        redisClient.expire(positionCountKey, COUNT_CACHE_SECOND, TimeUnit.SECONDS);
+        String gridKey = req.getFloor() + "|" + req.getGridCode();
+        redisClient.hSet(gridKey, req.getUserErp(), System.currentTimeMillis() + "");
+        redisClient.expire(gridKey, COUNT_CACHE_SECOND, TimeUnit.SECONDS);
 
 
         // 记录场地进行中的 网格码
         String siteCountKey = RECEIVING_SITE_COUNT_PRE + position.getSiteCode();
-        redisClient.sAdd(siteCountKey, positionCountKey);
+        redisClient.sAdd(siteCountKey, gridKey);
         redisClient.expire(siteCountKey, COUNT_CACHE_SECOND, TimeUnit.SECONDS);
 
+        logger.info("取件进行中的人数,gridKey={},erp={}", gridKey, req.getUserErp());
         return JdCResponse.ok(list);
     }
 
@@ -472,16 +473,12 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             return JdCResponse.ok();
         }
 
-        PositionDetailRecord position = getPosition(req.getPositionCode());
-        if (position == null) {
-            return JdCResponse.fail("岗位码有误!");
-        }
-
         // 记录取件进行中
         // 按岗位统计
-        String positionCountKey = getPositionCountKey(position);
-        redisClient.hSet(positionCountKey, req.getUserErp(), Long.MIN_VALUE + "");
-        redisClient.expire(positionCountKey, COUNT_CACHE_SECOND, TimeUnit.SECONDS);
+        String gridKey = req.getFloor() + "|" + req.getGridCode();
+        redisClient.hSet(gridKey, req.getUserErp(), "0");
+        redisClient.expire(gridKey, COUNT_CACHE_SECOND, TimeUnit.SECONDS);
+        logger.info("释放进行中的人数,gridKey={},erp={}", gridKey, req.getUserErp());
 
         return JdCResponse.ok();
     }
