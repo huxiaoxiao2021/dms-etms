@@ -1213,7 +1213,7 @@
 		<dependency>
 			<groupId>com.jd.bd.dms.automatic</groupId>
 			<artifactId>automatic-sdk</artifactId>
-			<version>1.0.0-test-SNAPSHOT</version>
+			<version>1.6-uat-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
