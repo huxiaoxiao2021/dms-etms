@@ -125,6 +125,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
      * 运单路由字段使用的分隔符
      */
     private static final String WAYBILL_ROUTER_SPLIT = "\\|";
+    private static final int VEHICLE_NUMBER_FOUR = 4;
 
     @Autowired
     @Qualifier("redisClientOfJy")
@@ -621,11 +622,16 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
         }
         else {
             //车牌号后四位检索
-            List<String> sendVehicleBizList = querySendVehicleBizIdByVehicleFuzzy(queryTaskSendDto);
-            if (ObjectHelper.isNotNull(sendVehicleBizList) && sendVehicleBizList.size()>0){
-                return sendVehicleBizList;
+            if (queryTaskSendDto.getKeyword().length()==VEHICLE_NUMBER_FOUR){
+                List<String> sendVehicleBizList = querySendVehicleBizIdByVehicleFuzzy(queryTaskSendDto);
+                if (ObjectHelper.isNotNull(sendVehicleBizList) && sendVehicleBizList.size()>0){
+                    return sendVehicleBizList;
+                }
+                result.hintMessage("未检索到相应的发货任务数据！");
             }
-            result.hintMessage("未检索到相应的发货任务数据！");
+            else  {
+                result.hintMessage("不支持该种类型的条码！");//TODO  提示语确认一下
+            }
             return null;
         }
 
