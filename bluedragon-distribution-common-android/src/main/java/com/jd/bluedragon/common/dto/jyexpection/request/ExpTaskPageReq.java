@@ -10,6 +10,9 @@ public class ExpTaskPageReq extends ExpBaseReq {
     // 处理状态0:待录入 1：待匹配 2：暂存 3: 处理完成
     private Integer processingStatus;
 
+    // 处理人erp
+    private String handlerErp;
+
     // 状态 JyExpStatusEnum
     private Integer status;
 
@@ -81,5 +84,13 @@ public class ExpTaskPageReq extends ExpBaseReq {
 
     public void setProcessingStatus(Integer processingStatus) {
         this.processingStatus = processingStatus;
+    }
+
+    public String getHandlerErp() {
+        return handlerErp;
+    }
+
+    public void setHandlerErp(String handlerErp) {
+        this.handlerErp = handlerErp;
     }
 }

@@ -412,6 +412,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         // 待处理 只查询 处理状态=待录入
         if (Objects.equals(req.getStatus(), JyExpStatusEnum.TO_PROCESS.getCode())) {
             req.setProcessingStatus(JyBizTaskExceptionProcessStatusEnum.PENDING_ENTRY.getCode());
+            req.setHandlerErp(req.getUserErp());
         }
 
         List<JyBizTaskExceptionEntity> taskList = jyBizTaskExceptionDao.queryExceptionTaskList(req);

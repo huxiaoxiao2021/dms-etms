@@ -422,6 +422,9 @@
         <if test="processingStatus !=null">
             AND processing_status = #{processingStatus}
         </if>
+        <if test="handlerErp !=null">
+            AND handler_erp = #{handlerErp}
+        </if>
         <if test="pageSize !=null">
             LIMIT #{offSet}, #{pageSize};
         </if>
