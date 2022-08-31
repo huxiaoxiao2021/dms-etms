@@ -536,6 +536,7 @@ public class ColdChainExternalServiceImpl implements IColdChainService {
         result.setData(Boolean.TRUE);
         result.success();
         if (!checkParam(vo,result)) {
+            result.setData(Boolean.FALSE);
             return result;
         }
         try {
@@ -560,6 +561,7 @@ public class ColdChainExternalServiceImpl implements IColdChainService {
             sendM.setSendType(Constants.BUSSINESS_TYPE_POSITIVE);
             deliveryService.packageSend(SendBizSourceEnum.COLD_CHAIN_AUTO_SEND, sendM);
         } catch (Exception e) {
+            result.setData(Boolean.FALSE);
             result.error(e);
         }
         return result;
