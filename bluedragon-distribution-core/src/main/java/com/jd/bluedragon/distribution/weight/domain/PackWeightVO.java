@@ -12,7 +12,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * 包裹称重 rest接口 交互实体
+ * 包裹称重
  */
 public class PackWeightVO extends WaybillWeightVO{
 

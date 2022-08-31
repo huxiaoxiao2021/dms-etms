@@ -998,4 +998,8 @@
                   protocol="jsf" alias="${jsf.dataAmOrder.alias}" timeout="${jsf.dataAmOrder.timeout}" retries="0" check="false">
     </jsf:consumer>
 
+    <!-- dms校验接口 -->
+    <jsf:consumer id="dmsCheckJsfService" interface="com.jd.bd.dms.automatic.sdk.modules.dwsCheck.DWSCheckJsfService"
+                  protocol="jsf" alias="${jsf.dmsCheck.alias}" timeout="${jsf.dmsCheck.timeout}"  retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
 </beans>

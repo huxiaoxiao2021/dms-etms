@@ -724,6 +724,9 @@
     <bean id="positionRecordDao" class="com.jd.bluedragon.distribution.position.dao.impl.PositionRecordDaoImpl">
         <property name="sqlSession" ref="unDivSqlSessionTemplate" />
     </bean>
+    <bean id="farmarPrintRecordDao" class="com.jd.bluedragon.distribution.labelPrint.dao.farmar.FarmarPrintRecordDaoImpl">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate" />
+    </bean>
     <!--################################## bd_dms_business 相关DAO Start ############################################ -->
     <bean id="businessBaseDao" class="com.jd.ql.dms.common.web.mvc.mybatis.BaseDao" abstract="true">
         <property name="sqlSession" ref="sessionTemplateBusiness"/>
