@@ -66,7 +66,7 @@ public class CPackingConsumableConsumer extends MessageBaseConsumer {
             return;
         }
 
-        if (WaybillUtil.isWaybillCode(packingConsumableDto.getWaybillCode())) {
+        if (!WaybillUtil.isWaybillCode(packingConsumableDto.getWaybillCode())) {
             log.error("消费快递侧揽收后消息，运单号不符合单号规则，消息丢弃，{}", message.getText());
             return;
         }
