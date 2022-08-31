@@ -751,12 +751,12 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
             result.parameterError("请选择线路类型！");
             return false;
         }
-        if (StringUtils.isNotBlank(request.getKeyword())) {
+        /*if (StringUtils.isNotBlank(request.getKeyword())) {
             if (!WaybillUtil.isPackageCode(request.getKeyword())) {
                 result.parameterError("请扫描正确的包裹号！");
                 return false;
             }
-        }
+        }*/
 
         return true;
     }
