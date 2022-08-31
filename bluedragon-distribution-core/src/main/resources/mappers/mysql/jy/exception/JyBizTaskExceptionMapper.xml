@@ -312,15 +312,23 @@
                    1)
     </insert>
 
-    <select id="getStatusStatistic" resultMap="StatisticStatusResp">
+    <select id="getCommonStatusStatistic" resultMap="StatisticStatusResp">
         select status,count(*) as `count`
         FROM jy_biz_task_exception
         WHERE
-            yn = 1 and status in (0,1,2)
+            yn = 1 and status in (0,2)
             and distribution_target = #{gridRefId}
         group by status
     </select>
-
+    <select id="getSpecialStatusStatistic" resultMap="StatisticStatusResp">
+        select status,count(*) as `count`
+        FROM jy_biz_task_exception
+        WHERE
+            yn = 1 AND STATUS = 1
+          AND processing_status = 0
+          AND handler_erp = #{handleErp}
+          and distribution_target = #{gridRefId}
+    </select>
     <update id="updateByBizId">
         UPDATE jy_biz_task_exception
         <set>

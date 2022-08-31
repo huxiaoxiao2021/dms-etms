@@ -235,7 +235,9 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             return JdCResponse.fail("网格码有误!");
         }
         String gridRid = getGridRid(position);
-        List<StatisticsByStatusDto> statisticStatusResps = jyBizTaskExceptionDao.getStatusStatistic(gridRid);
+        List<StatisticsByStatusDto> statisticStatusResps = jyBizTaskExceptionDao.getCommonStatusStatistic(gridRid);
+        List<StatisticsByStatusDto> specialStatusStatistic = jyBizTaskExceptionDao.getSpecialStatusStatistic(gridRid, req.getUserErp());
+        statisticStatusResps.addAll(specialStatusStatistic);
         result.setData(statisticStatusResps);
         result.toSucceed();
         return result;
