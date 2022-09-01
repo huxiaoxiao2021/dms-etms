@@ -1016,7 +1016,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
             return result;
         }
         if (ObjectHelper.isNotNull(request.getSendVehicleBizId())
-                && request.getSendVehicleBizId().startsWith("NSST")
+                && request.getSendVehicleBizId().startsWith(Constants.SEND_TASK_MANUAL_CREATED_PREFIX)
                 && taskSend.hasBeenBinded()){
             result.toFail("该自建任务已操作绑定，请勿继续扫描！");
             return result;
