@@ -385,19 +385,13 @@ public class JyBizTaskSendVehicleEntity implements Serializable {
 	}
 
 	public boolean hasBeenBindedOrDeleted(){
-		if (this.bindFlag!=null && this.bindFlag.equals("1")){
+		if (this.bindFlag!=null && this.bindFlag==1){
 			return true;
 		}
-		if (this.yn!=null && this.yn.equals("0")){
+		if (this.yn!=null && this.yn==0){
 			return true;
 		}
 		return false;
 	}
 
-	public boolean hasBeenBinded(){
-		if (this.bindFlag!=null && this.bindFlag.equals("1")){
-			return true;
-		}
-		return false;
-	}
 }
