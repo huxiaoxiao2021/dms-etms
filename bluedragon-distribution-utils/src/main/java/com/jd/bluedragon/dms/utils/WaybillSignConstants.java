@@ -173,6 +173,9 @@ public interface WaybillSignConstants {
 	 * 逆向运单类型（外单）
      */
 	int POSITION_61 = 61;
+
+
+
     /**
      * 正向
      */
