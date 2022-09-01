@@ -1,14 +1,16 @@
 package com.jd.bluedragon.distribution.web.waybill.rma;
 
+import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.common.domain.ExportConcurrencyLimitEnum;
 import com.jd.bluedragon.common.service.ExportConcurrencyLimitService;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.security.SecurityCheckerExecutor;
+import com.jd.bluedragon.core.security.enums.SecurityDataMapFuncEnum;
 import com.jd.bluedragon.distribution.api.request.RmaHandoverQueryRequest;
 import com.jd.bluedragon.distribution.api.response.RmaHandoverResponse;
-import com.jd.bluedragon.distribution.areadest.domain.AreaDest;
-import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
 import com.jd.bluedragon.distribution.rma.PrintStatusEnum;
 import com.jd.bluedragon.distribution.rma.domain.RmaHandoverDetail;
 import com.jd.bluedragon.distribution.rma.domain.RmaHandoverWaybill;
@@ -29,6 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -60,6 +63,8 @@ public class RmaHandOverController {
     @Autowired
     private ExportConcurrencyLimitService exportConcurrencyLimitService;
 
+    @Autowired
+    private SecurityCheckerExecutor securityCheckerExecutor;
 
     /**
      * 跳转到主界面
@@ -156,6 +161,38 @@ public class RmaHandOverController {
         return queryParam;
     }
 
+    @Authorization(Constants.DMS_WEB_EXPRESS_RMAHANDOVER_R)
+    @RequestMapping("/showDetailAddress")
+    @ResponseBody
+    public RmaHandoverResponse<String> showDetailAddress(@RequestBody Integer id) {
+        RmaHandoverResponse<String> response = new RmaHandoverResponse<String>();
+        response.setCode(RmaHandoverResponse.CODE_NORMAL);
+        ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
+        if (erpUser == null) {
+            response.toFail("获取当前登录用户信息失败，请重新登录ERP后尝试");
+            return response;
+        }
+        if(id == null){
+            response.toFail("参数错误!");
+            return response;
+        }
+        List<Long> list = Lists.newArrayList(Long.valueOf(String.valueOf(id)));
+        List<RmaHandoverPrint> rmaHandoverPrintList = rmaHandOverWaybillService.getPrintInfo(list);
+        if(CollectionUtils.isEmpty(rmaHandoverPrintList) || rmaHandoverPrintList.get(0) == null){
+            response.toFail("根据id未查询到数据!");
+            return response;
+        }
+        // 安全次数限制
+        InvokeResult<Boolean> securityCheckResult
+                = securityCheckerExecutor.verifyWaybillDetailPermission(SecurityDataMapFuncEnum.WAYBILL_RMA, erpUser.getUserCode(), erpUser.getUserCode());
+        if(!securityCheckResult.codeSuccess()){
+            response.toFail(securityCheckResult.getMessage());
+            return response;
+        }
+        response.setData(rmaHandoverPrintList.get(0).getReceiverAddress());
+        return response;
+    }
+
     /**
      * 查询地址方法
      *
@@ -175,6 +212,13 @@ public class RmaHandOverController {
             ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
             if (erpUser != null) {
                 try {
+                    // 安全次数限制
+                    InvokeResult<Boolean> securityCheckResult
+                            = securityCheckerExecutor.verifyWaybillDetailPermission(SecurityDataMapFuncEnum.WAYBILL_RMA, erpUser.getUserCode(), waybillCode);
+                    if(!securityCheckResult.codeSuccess()){
+                        response.toFail(securityCheckResult.getMessage());
+                        return response;
+                    }
                     BaseStaffSiteOrgDto dto = baseMajorManager.getBaseStaffByErpNoCache(erpUser.getUserCode());
                     if (dto != null) {
                         String receiverAddress = rmaHandOverWaybillService.getReceiverAddressByWaybillCode(SerialRuleUtil.getWaybillCode(waybillCode), dto.getSiteCode());

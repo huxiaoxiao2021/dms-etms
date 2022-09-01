@@ -51,6 +51,8 @@
             <map key-type="com.jd.bluedragon.core.security.enums.SecurityDataMapFuncEnum" value-type="java.lang.String">
                 <!-- 打印获取运单信息 -->
                 <entry key="WAYBILL_PRINT"  value="${security.waybill.print.token}"/>
+                <!-- rma获取数据库运单信息 -->
+                <entry key="WAYBILL_RMA"  value="${security.waybill.rma.token}"/>
             </map>
         </constructor-arg>
     </bean>
