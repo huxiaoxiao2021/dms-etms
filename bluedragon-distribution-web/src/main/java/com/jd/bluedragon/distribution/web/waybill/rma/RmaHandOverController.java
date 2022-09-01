@@ -177,19 +177,20 @@ public class RmaHandOverController {
             return response;
         }
         List<Long> list = Lists.newArrayList(Long.valueOf(String.valueOf(id)));
-        List<RmaHandoverPrint> rmaHandoverPrintList = rmaHandOverWaybillService.getPrintInfo(list);
-        if(CollectionUtils.isEmpty(rmaHandoverPrintList) || rmaHandoverPrintList.get(0) == null){
+        List<RmaHandoverWaybill> queryResult = rmaHandOverWaybillService.getList(list, false);
+        RmaHandoverWaybill rmaHandoverWaybill = CollectionUtils.isEmpty(queryResult) ? null : queryResult.get(0);
+        if(rmaHandoverWaybill == null){
             response.toFail("根据id未查询到数据!");
             return response;
         }
         // 安全次数限制
         InvokeResult<Boolean> securityCheckResult
-                = securityCheckerExecutor.verifyWaybillDetailPermission(SecurityDataMapFuncEnum.WAYBILL_RMA, erpUser.getUserCode(), erpUser.getUserCode());
+                = securityCheckerExecutor.verifyWaybillDetailPermission(SecurityDataMapFuncEnum.WAYBILL_RMA, erpUser.getUserCode(), rmaHandoverWaybill.getWaybillCode());
         if(!securityCheckResult.codeSuccess()){
             response.toFail(securityCheckResult.getMessage());
             return response;
         }
-        response.setData(rmaHandoverPrintList.get(0).getReceiverAddress());
+        response.setData(rmaHandoverWaybill.getReceiverAddress());
         return response;
     }
 

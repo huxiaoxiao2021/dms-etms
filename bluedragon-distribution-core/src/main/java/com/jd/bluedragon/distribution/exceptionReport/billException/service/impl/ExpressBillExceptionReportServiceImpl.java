@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.exceptionReport.billException.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.exceptionReport.expressBill.Enum.ExpressBillExceptionReportTypeEnum;
@@ -22,6 +23,7 @@ import com.jd.bluedragon.distribution.exceptionReport.billException.dao.ExpressB
 import com.jd.bluedragon.distribution.exceptionReport.billException.domain.ExpressBillExceptionReport;
 import com.jd.bluedragon.distribution.exceptionReport.billException.dto.ExpressBillExceptionReportMq;
 import com.jd.bluedragon.distribution.exceptionReport.billException.enums.*;
+import com.jd.bluedragon.distribution.exceptionReport.billException.request.ExpressBillExceptionReportQuery;
 import com.jd.bluedragon.distribution.exceptionReport.billException.service.ExpressBillExceptionReportService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.dms.wb.report.api.wmspack.dto.DmsPackRecordPo;
@@ -512,6 +514,15 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
         }
         expressBillExceptionReportDao.updateByBusiCode(query);
         return true;
+    }
+
+    @Override
+    public List<String> getPicUrlsById(Integer id) {
+        String picUrl = expressBillExceptionReportDao.getPicUrlsById(id);
+        if(StringUtils.isNotEmpty(picUrl)){
+            return JsonHelper.jsonToArray(picUrl, List.class);
+        }
+        return Lists.newArrayList();
     }
 
     /**

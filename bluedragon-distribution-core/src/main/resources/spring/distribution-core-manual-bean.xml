@@ -53,6 +53,8 @@
                 <entry key="WAYBILL_PRINT"  value="${security.waybill.print.token}"/>
                 <!-- rma获取数据库运单信息 -->
                 <entry key="WAYBILL_RMA"  value="${security.waybill.rma.token}"/>
+                <!-- 包裹图片查看 -->
+                <entry key="WAYBILL_PICTURE"  value="${security.waybill.pic.token}"/>
             </map>
         </constructor-arg>
     </bean>

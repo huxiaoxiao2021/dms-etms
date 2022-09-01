@@ -337,8 +337,21 @@ $(function () {
             },
             events: {
                 'click .search': function(e, value, row, index) {
-                    window.open("/spotCheckReport/toSearchPicture/?waybillCode="+row.waybillCode
-                        +"&reviewSiteCode="+row.reviewSiteCode + "&reviewSource="+row.reviewSource);
+                    $.ajax({
+                        type : "get",
+                        url : "/spotCheckReport/securityCheck/" + row.waybillCode,
+                        data : {},
+                        async : false,
+                        success : function (res) {
+                            if(res.code === 200){
+                                window.open("/spotCheckReport/toSearchPicture/?waybillCode="+row.waybillCode
+                                    +"&reviewSiteCode="+row.reviewSiteCode + "&reviewSource="+row.reviewSource);
+                            }else {
+                                Jd.alert(res.message);
+                            }
+                        }
+                    });
+
                 },
                 'click .upLoad': function(e, value, row, index) {
                     layer.open({
