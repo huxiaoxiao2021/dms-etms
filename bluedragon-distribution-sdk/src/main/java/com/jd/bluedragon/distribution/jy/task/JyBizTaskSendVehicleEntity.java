@@ -383,4 +383,21 @@ public class JyBizTaskSendVehicleEntity implements Serializable {
 	public void setLastPlanDepartTimeEnd(Date lastPlanDepartTimeEnd) {
 		this.lastPlanDepartTimeEnd = lastPlanDepartTimeEnd;
 	}
+
+	public boolean hasBeenBindedOrDeleted(){
+		if (this.bindFlag!=null && this.bindFlag.equals("1")){
+			return true;
+		}
+		if (this.yn!=null && this.yn.equals("0")){
+			return true;
+		}
+		return false;
+	}
+
+	public boolean hasBeenBinded(){
+		if (this.bindFlag!=null && this.bindFlag.equals("1")){
+			return true;
+		}
+		return false;
+	}
 }

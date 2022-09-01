@@ -122,7 +122,7 @@ public class InvokeResult<T> implements Serializable {
     public static final String NO_RE_BIND_TASK_MESSAGE ="该自建任务已绑定过运输任务，请勿重复绑定！";
 
     public static final int NO_SCAN_AFTER_BIND_TASK_CODE= 331;
-    public static final String NO_SCAN_AFTER_BIND_TASK_MESSAGE ="该自建任务已绑定运输任务，请勿继续扫描！";
+    public static final String NO_SCAN_AFTER_BIND_TASK_MESSAGE ="该自建任务已操作绑定，请勿继续扫描！";
 
     public InvokeResult(){
         this.code=RESULT_SUCCESS_CODE;

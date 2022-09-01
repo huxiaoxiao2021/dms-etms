@@ -1015,6 +1015,12 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
             result.toFail("发货任务不存在！");
             return result;
         }
+        if (ObjectHelper.isNotNull(request.getSendVehicleBizId())
+                && request.getSendVehicleBizId().startsWith("NSST")
+                && taskSend.hasBeenBinded()){
+            result.toFail("该自建任务已操作绑定，请勿继续扫描！");
+            return result;
+        }
         // 业务场景校验
         if (!sendRequestBizCheck(result, request, taskSend)) {
             return result;
@@ -1600,14 +1606,6 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
      * @return
      */
     private boolean sendRequestBaseCheck(JdVerifyResponse<SendScanResponse> response, SendScanRequest request) {
-        if (ObjectHelper.isNotNull(request.getSendVehicleBizId()) && request.getSendVehicleBizId().startsWith("NSST")){
-            String key = String.format(Constants.TRANSFER_TASK_PREFIX,request.getSendVehicleBizId());
-            String flag =redisClientOfJy.get(key);
-            if (ObjectHelper.isNotNull(flag) && Constants.STRING_FLG_TRUE.equals(flag)){
-                response.toFail(NO_SCAN_AFTER_BIND_TASK_MESSAGE);
-                return false;
-            }
-        }
         String barCode = request.getBarCode();
         if (!BusinessHelper.isBoxcode(barCode)
                 && !WaybillUtil.isWaybillCode(barCode)
