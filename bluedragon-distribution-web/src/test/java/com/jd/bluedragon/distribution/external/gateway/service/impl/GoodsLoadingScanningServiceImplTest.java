@@ -25,7 +25,6 @@ import com.jd.bluedragon.external.gateway.service.LoadAndUnloadCarGatewayService
 import com.jd.bluedragon.external.gateway.service.LoadCarTaskGateWayService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.merchant.api.pack.dto.LoadScanDto;
-import com.jd.service.common.json.JSON;
 import org.apache.commons.collections4.ListUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -42,7 +41,6 @@ import java.util.Map;
         import com.jd.bluedragon.common.dto.spotcheck.SpotCheckCheckReq;
         import com.jd.bluedragon.common.dto.spotcheck.SpotCheckSubmitReq;
         import com.jd.bluedragon.external.gateway.service.SpotCheckGateWayService;
-        import com.jd.bluedragon.distribution.weightAndVolumeCheck.service.WeightAndVolumeCheckService;
 
 /**
  * 装车发货相关功能测试
@@ -80,8 +78,6 @@ public class GoodsLoadingScanningServiceImplTest {
 
     @Resource
     private LoadAndUnloadCarGatewayService loadAndUnloadCarGatewayService;
-    @Resource
-    private WeightAndVolumeCheckService weightAndVolumeCheckService;
 
     @Autowired
     private UnloadCarService unloadCarService;
