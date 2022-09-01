@@ -1,9 +1,8 @@
 package com.jd.bluedragon.core.jsf.boxlimit.impl;
 
 import com.jd.bluedragon.core.jsf.boxlimit.BoxLimitConfigManager;
-import com.jdl.basic.api.response.JDResponse;
-import com.jdl.basic.api.service.boxLimit.BoxlimitConfigApi;
-
+import com.jdl.basic.api.service.boxLimit.BoxlimitConfigJsfService;
+import com.jdl.basic.common.utils.Result;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,13 +17,13 @@ import org.springframework.stereotype.Service;
 public class BoxLimitConfigManagerImpl implements BoxLimitConfigManager {
 
     @Autowired
-    private BoxlimitConfigApi basicBoxlimitConfigApi;
+    private BoxlimitConfigJsfService basicBoxlimitConfigJsfService;
 
     @Override
     public Integer getLimitNums(Integer createSiteCode, String type) {
         log.info("调用拣运基础服务集箱包裹配置信息 入参 {}-{}",createSiteCode,type);
         try{
-            JDResponse<Integer> response = basicBoxlimitConfigApi.getLimitNums(createSiteCode, type);
+            Result<Integer> response = basicBoxlimitConfigJsfService.getLimitNums(createSiteCode, type);
             if(response != null && response.getData() != null){
                 return response.getData();
             }
