@@ -967,6 +967,7 @@
                   retries="${jsf.retries}"
                   serialization="hessian"
                   lazy="${jsf.consumer.lazy}">
+        <jsf:parameter key="token" value="${jsf.jy_basic.token}" hide="true"/>
     </jsf:consumer>
 
     <!--  三定网格工序管理服务  -->
@@ -977,6 +978,7 @@
                   retries="${jsf.retries}"
                   serialization="hessian"
                   lazy="${jsf.consumer.lazy}">
+        <jsf:parameter key="token" value="${jsf.jy_basic.token}" hide="true"/>
     </jsf:consumer>
 
     <!--  三定场地网格工序管理服务  -->
@@ -987,6 +989,7 @@
                   retries="${jsf.retries}"
                   serialization="hessian"
                   lazy="${jsf.consumer.lazy}">
+        <jsf:parameter key="token" value="${jsf.jy_basic.token}" hide="true"/>
     </jsf:consumer>
 
     <!--  三定场地人员出勤计划jsf服务  -->
@@ -997,6 +1000,7 @@
                   retries="${jsf.retries}"
                   serialization="hessian"
                   lazy="${jsf.consumer.lazy}">
+        <jsf:parameter key="token" value="${jsf.jy_basic.token}" hide="true"/>
     </jsf:consumer>
 
     <!-- 岗位管理接口 -->
@@ -1007,6 +1011,7 @@
                   retries="${jsf.retries}"
                   serialization="hessian"
                   lazy="${jsf.consumer.lazy}">
+        <jsf:parameter key="token" value="${jsf.jy_basic.token}" hide="true"/>
     </jsf:consumer>
 
 
