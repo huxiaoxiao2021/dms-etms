@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.station.gateway.impl;
 
 import com.jd.bluedragon.core.jsf.position.PositionManager;
 import com.jdl.basic.api.response.JDResponse;
+import com.jdl.basic.common.utils.Result;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -15,7 +16,6 @@ import com.jd.bluedragon.common.dto.station.ScanUserData;
 import com.jd.bluedragon.common.dto.station.UserSignQueryRequest;
 import com.jd.bluedragon.common.dto.station.UserSignRecordData;
 import com.jd.bluedragon.common.dto.station.UserSignRequest;
-import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.position.service.PositionRecordService;
 import com.jd.bluedragon.distribution.station.enums.JobTypeEnum;
 import com.jd.bluedragon.distribution.station.gateway.UserSignGatewayService;
@@ -75,7 +75,7 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 		response.toFail();
 		try{
 			log.info("UserSignGatewayServiceImpl.queryPositionData 入参-{}",positionCode);
-			JDResponse<com.jdl.basic.api.domain.position.PositionData> result = positionManager.queryPositionWithIsMatchAppFunc(positionCode);
+			Result<com.jdl.basic.api.domain.position.PositionData> result = positionManager.queryPositionWithIsMatchAppFunc(positionCode);
 			if(result == null){
 				response.setMessage("查询岗位码失败！");
 				return response;
@@ -104,7 +104,7 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 		response.toFail();
 		try{
 			log.info("UserSignGatewayServiceImpl.queryPositionInfo 入参-{}",positionCode);
-			JDResponse<com.jdl.basic.api.domain.position.PositionData> result = positionManager.queryPositionInfo(positionCode);
+			Result<com.jdl.basic.api.domain.position.PositionData> result = positionManager.queryPositionInfo(positionCode);
 			if(result == null){
 				response.setMessage("查询岗位码失败！");
 				return response;

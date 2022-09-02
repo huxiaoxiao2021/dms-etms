@@ -26,12 +26,12 @@ public class PositionManagerImpl implements PositionManager {
     }
 
     @Override
-    public JDResponse<PositionData> queryPositionWithIsMatchAppFunc(String positionCode) {
+    public Result<PositionData> queryPositionWithIsMatchAppFunc(String positionCode) {
         return basicPositionQueryJsfService.queryPositionWithIsMatchAppFunc(positionCode);
     }
 
     @Override
-    public JDResponse<PositionData> queryPositionInfo(String positionCode) {
+    public Result<PositionData> queryPositionInfo(String positionCode) {
         return basicPositionQueryJsfService.queryPositionInfo(positionCode);
     }
 
