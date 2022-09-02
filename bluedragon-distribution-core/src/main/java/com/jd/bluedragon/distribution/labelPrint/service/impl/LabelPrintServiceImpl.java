@@ -12,6 +12,7 @@ import com.jd.bluedragon.distribution.labelPrint.domain.farmar.FarmarPrintReques
 import com.jd.bluedragon.distribution.labelPrint.service.LabelPrintService;
 import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.etms.waybill.util.WaybillCodeRuleToolsUtil;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.tp.common.utils.Objects;
 import org.apache.commons.lang.StringUtils;
@@ -32,7 +33,7 @@ public class LabelPrintServiceImpl implements LabelPrintService {
 
     // 砝码编码构成中间部分和最后部分（W表示重量标准，V表示尺寸标准）
     private static final String FM_CONSTITUTE_MIDDLE = "-1-1-";
-    private static final String FM_CONSTITUTE_LAST_M = "W";
+    private static final String FM_CONSTITUTE_LAST_W = "W";
     private static final String FM_CONSTITUTE_LAST_V = "V";
 
     @Autowired
@@ -77,11 +78,21 @@ public class LabelPrintServiceImpl implements LabelPrintService {
         return farmarEntity;
     }
 
+    /**
+     * 生成砝码条码规则（前提：符合包裹号正则）
+     *  组成部分：前缀 + checkCode + 后缀
+     *      前缀：JDFM + 10位数字
+     *      checkCode：前缀的计算结果
+     *      后缀：'-1-1-' + 'W'（或者'V'）
+     * @param request
+     * @return
+     */
     private String generateFarmarCode(FarmarPrintRequest request) {
-        String fmPrefix = DmsConstants.CODE_PREFIX_FM.concat(StringHelper.padZero(this.genObjectId.getObjectId(FarmarEntity.class.getName()), 8));
+        String fmPrefix = DmsConstants.CODE_PREFIX_FM.concat(StringHelper.padZero(this.genObjectId.getObjectId(FarmarEntity.class.getName()), 10));
+        long checkCode = WaybillCodeRuleToolsUtil.getCheckCode(fmPrefix);
         String fmSuffix = FM_CONSTITUTE_MIDDLE + (Objects.equals(request.getFarmarCheckType(), FarmarCheckTypeEnum.FARMAR_CHECK_TYPE_WEIGHT.getCode())
-                ? FM_CONSTITUTE_LAST_M : FM_CONSTITUTE_LAST_V);
-        return fmPrefix.concat(fmSuffix);
+                ? FM_CONSTITUTE_LAST_W : FM_CONSTITUTE_LAST_V);
+        return fmPrefix.concat(String.valueOf(checkCode)).concat(fmSuffix);
     }
 
     private void reprint(InvokeResult<FarmarPrintEntity> result, FarmarPrintRequest request) {
