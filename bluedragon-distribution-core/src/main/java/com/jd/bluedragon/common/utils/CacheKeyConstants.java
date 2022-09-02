@@ -251,5 +251,10 @@ public class CacheKeyConstants {
      * bizId + createSite + receiveSite
      */
     public static final String JY_SEND_TASK_DETAIL_FIRST_SCAN_KEY = JY_CACHE_PREFIX + "sst:biz:first:%s:%s:%s";
+    
+    /**
+     * 工序操作-key
+     */
+    public static final String CACHE_KEY_WORK_STATION_EDIT = "k_work_station_edit";
 
 }

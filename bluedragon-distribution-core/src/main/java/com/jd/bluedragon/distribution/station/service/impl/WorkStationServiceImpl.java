@@ -14,12 +14,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.core.objectid.IGenerateObjectId;
 import com.jd.bluedragon.distribution.api.response.base.Result;
+import com.jd.bluedragon.distribution.base.ResultHandler;
+import com.jd.bluedragon.distribution.lock.LockService;
 import com.jd.bluedragon.distribution.station.dao.WorkStationDao;
 import com.jd.bluedragon.distribution.station.domain.DeleteRequest;
 import com.jd.bluedragon.distribution.station.domain.WorkStation;
-import com.jd.bluedragon.distribution.station.domain.WorkStationAttendPlan;
 import com.jd.bluedragon.distribution.station.domain.WorkStationCountVo;
 import com.jd.bluedragon.distribution.station.query.WorkStationQuery;
 import com.jd.bluedragon.distribution.station.service.WorkStationGridService;
@@ -27,6 +29,7 @@ import com.jd.bluedragon.distribution.station.service.WorkStationService;
 import com.jd.bluedragon.distribution.utils.CheckHelper;
 import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
 
 /**
@@ -50,6 +53,10 @@ public class WorkStationServiceImpl implements WorkStationService {
 	@Autowired
 	@Qualifier("workStationGridService")
 	private WorkStationGridService workStationGridService;
+	
+    @Autowired
+    @Qualifier("jimdbRemoteLockService")
+    private LockService lockService;
 
 	/**
 	 * 插入一条数据
@@ -66,26 +73,42 @@ public class WorkStationServiceImpl implements WorkStationService {
 		return result;
 	 }
 	@Override
-	public Result<Boolean> importDatas(List<WorkStation> dataList) {
-		Result<Boolean> result = checkImportDatas(dataList);
+	public Result<Boolean> importDatas(final List<WorkStation> dataList) {
+		final Result<Boolean> result = checkImportDatas(dataList);
 		if(!result.isSuccess()) {
 			return result;
-		}		
-		//先删除后插入新记录
-		for(WorkStation data : dataList) {
-			WorkStation oldData = workStationDao.queryByBusinessKey(data);
-			if(oldData != null) {
-				oldData.setUpdateUser(data.getCreateUser());
-				oldData.setUpdateUserName(data.getCreateUserName());
-				oldData.setUpdateTime(data.getCreateTime());
-				workStationDao.deleteById(oldData);
-				data.setBusinessKey(oldData.getBusinessKey());
-			}else {
-				generateAndSetBusinessKey(data);
-			}
-			data.setBusinessLineName(BusinessLineTypeEnum.getNameByCode(data.getBusinessLineCode()));
-			workStationDao.insert(data);
 		}
+		lockService.tryLock(CacheKeyConstants.CACHE_KEY_WORK_STATION_EDIT, new ResultHandler() {
+			@Override
+			public void success() {
+				//先删除后插入新记录
+				for(WorkStation data : dataList) {
+					WorkStation oldData = workStationDao.queryByBusinessKey(data);
+					if(oldData != null) {
+						oldData.setUpdateUser(data.getCreateUser());
+						oldData.setUpdateUserName(data.getCreateUserName());
+						oldData.setUpdateTime(data.getCreateTime());
+						workStationDao.deleteById(oldData);
+						data.setBusinessKey(oldData.getBusinessKey());
+					}else {
+						generateAndSetBusinessKey(data);
+					}
+					data.setBusinessLineName(BusinessLineTypeEnum.getNameByCode(data.getBusinessLineCode()));
+					workStationDao.insert(data);
+				}
+			}
+
+			@Override
+			public void fail() {
+				result.toFail("其他用户正在修改工序信息，请稍后导入！");
+			}
+
+			@Override
+			public void error() {
+				result.toFail("导入操作异常，请稍后重试！");
+			}
+			
+		});
 		return result;
 	}
 	/**
