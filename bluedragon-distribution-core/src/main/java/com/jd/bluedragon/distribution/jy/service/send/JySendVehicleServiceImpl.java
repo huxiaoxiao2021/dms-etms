@@ -10,11 +10,8 @@ import com.jd.bluedragon.common.dto.operation.workbench.send.request.*;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.*;
 import com.jd.bluedragon.common.dto.operation.workbench.unload.response.LabelOption;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.VehicleStatusStatis;
-import com.jd.bluedragon.common.dto.send.request.TransferVehicleTaskReq;
-import com.jd.bluedragon.common.dto.send.request.VehicleTaskReq;
-import com.jd.bluedragon.common.dto.send.response.VehicleDetailTaskDto;
-import com.jd.bluedragon.common.dto.send.response.VehicleTaskDto;
-import com.jd.bluedragon.common.dto.send.response.VehicleTaskResp;
+import com.jd.bluedragon.common.dto.send.request.*;
+import com.jd.bluedragon.common.dto.send.response.*;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
@@ -212,6 +209,8 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
 
     @Autowired
     private SendVehicleTransactionManager sendVehicleTransactionManager;
+    @Autowired
+    JyNoTaskSendService jyNoTaskSendService;
 
     @Override
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "IJySendVehicleService.fetchSendVehicleTask",
@@ -2416,6 +2415,46 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
             }
         }
         return new InvokeResult(RESULT_SUCCESS_CODE,RESULT_SUCCESS_MESSAGE);
+    }
+
+    @Override
+    public InvokeResult<List<VehicleSpecResp>> listVehicleType() {
+        return jyNoTaskSendService.listVehicleType();
+    }
+
+    @Override
+    public InvokeResult<CreateVehicleTaskResp> createVehicleTask(CreateVehicleTaskReq createVehicleTaskReq) {
+        return jyNoTaskSendService.createVehicleTask(createVehicleTaskReq);
+    }
+
+    @Override
+    public InvokeResult deleteVehicleTask(DeleteVehicleTaskReq deleteVehicleTaskReq) {
+        return jyNoTaskSendService.deleteVehicleTask(deleteVehicleTaskReq);
+    }
+
+    @Override
+    public InvokeResult<VehicleTaskResp> listVehicleTask(VehicleTaskReq vehicleTaskReq) {
+        return jyNoTaskSendService.listVehicleTask(vehicleTaskReq);
+    }
+
+    @Override
+    public InvokeResult<VehicleTaskResp> listVehicleTaskSupportTransfer(TransferVehicleTaskReq transferVehicleTaskReq) {
+        return jyNoTaskSendService.listVehicleTaskSupportTransfer(transferVehicleTaskReq);
+    }
+
+    @Override
+    public InvokeResult bindVehicleDetailTask(BindVehicleDetailTaskReq bindVehicleDetailTaskReq) {
+        return jyNoTaskSendService.bindVehicleDetailTask(bindVehicleDetailTaskReq);
+    }
+
+    @Override
+    public InvokeResult transferSendTask(TransferSendTaskReq transferSendTaskReq) {
+        return jyNoTaskSendService.transferSendTask(transferSendTaskReq);
+    }
+
+    @Override
+    public InvokeResult<CancelSendTaskResp> cancelSendTask(CancelSendTaskReq cancelSendTaskReq) {
+        return jyNoTaskSendService.cancelSendTask(cancelSendTaskReq);
     }
 
     /**
