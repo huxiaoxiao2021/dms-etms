@@ -1459,9 +1459,14 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             }
             //查询板号
             Response<Board>  boardResponse = groupBoardManager.getBoardByBoxCode(flowBoardDto.getPackageCode(), flowBoardDto.getCurrentOperate().getSiteCode());
-            if (null == boardResponse || boardResponse.getCode() != 200) {
+            if (null == boardResponse) {
                 log.warn("{}--查询包裹所在板异常--packageCode={},siteCode={}", methodDesc, flowBoardDto.getPackageCode(), flowBoardDto.getCurrentOperate().getSiteCode());
                 response.error("查询包裹所在板异常");
+                return response;
+            }
+            if (boardResponse.getCode() != 200) {
+                log.warn("{}--查询包裹所在板异常--packageCode={},siteCode={}", methodDesc, flowBoardDto.getPackageCode(), flowBoardDto.getCurrentOperate().getSiteCode());
+                response.error(boardResponse.getMesseage());
                 return response;
             }
             if(boardResponse.getData() == null) {
