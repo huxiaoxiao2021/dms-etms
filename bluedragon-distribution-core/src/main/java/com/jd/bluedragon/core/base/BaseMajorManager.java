@@ -61,6 +61,12 @@ public interface BaseMajorManager {
 	 * */
 	public BaseDataDict getBaseDataDictById(Integer id);
 
+
+	/**
+	 * 获取库房信息
+	 * code 如：spwms-709-712
+	 * */
+	public PsStoreInfo getStoreByCode(String code);
 	/**
 	 * 获取库房信息
 	 * @param storeType 库房类型 wms

@@ -101,6 +101,7 @@ public class InvokeResult<T> implements Serializable {
 
     public static final int COMMIT_SEAL_CAR_EXCEPTION_CODE=321;
     public static final String COMMIT_SEAL_CAR_EXCEPTION_MESSAGE="提交封车异常";
+    public static final String COMMIT_SEAL_CAR_NO_SEAL_CODES_MESSAGE="请扫描或输入封签号，整车类型封签号为必填项";
 
     public static final int DETAIL_TASK_NO_FOUND_BY_MAIN_TASK_CODE=322;
     public static final String DETAIL_TASK_NO_FOUND_BY_MAIN_TASK_MESSAGE="数据异常，该自建任务下未找到有效的流向任务数据！";
