@@ -1481,7 +1481,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             JyUnloadAggsEntity jyaggs = jyUnloadAggsDao.queryBoardStatistics(aggsQueryParams);
             if(jyaggs == null) {
                 log.warn("{}，查到该包裹已组板，但是jyUnloadAggs没有生成板上聚合数据，参数={}", methodDesc, JsonUtils.toJSONString(flowBoardDto));
-                response.error("查询板上包裹数据异常");
+                response.error("未查询到板上聚合数据");
                 return response;
             }
             ComBoardAggDto aggDto = new ComBoardAggDto();
