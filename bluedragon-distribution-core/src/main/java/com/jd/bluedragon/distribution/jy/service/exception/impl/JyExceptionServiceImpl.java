@@ -54,11 +54,11 @@ public class JyExceptionServiceImpl implements JyExceptionService {
 
     private final Logger logger = LoggerFactory.getLogger(JyExceptionServiceImpl.class);
     private static final String TASK_CACHE_PRE = "DMS:JYAPP:EXP:TASK_CACHE01:";
-    private static final String RECEIVING_POSITION_COUNT_PRE = "DMS:JYAPP:EXP:RECEIVING_POSITION_COUNT_PRE01:";
-    private static final String RECEIVING_SITE_COUNT_PRE = "DMS:JYAPP:EXP:RECEIVING_SITE_COUNT_PRE01:";
+    private static final String RECEIVING_POSITION_COUNT_PRE = "DMS:JYAPP:EXP:RECEIVING_POSITION_COUNT_PRE02:";
+    private static final String RECEIVING_SITE_COUNT_PRE = "DMS:JYAPP:EXP:RECEIVING_SITE_COUNT_PRE03:";
 
     // 统计数据缓存时间：半小时
-    private static final int COUNT_CACHE_SECOND = 30 * 60 * 60;
+    private static final int COUNT_CACHE_SECOND = 30 * 60;
 
     // 任务明细缓存时间
     private static final int TASK_DETAIL_CACHE_DAYS = 30;
