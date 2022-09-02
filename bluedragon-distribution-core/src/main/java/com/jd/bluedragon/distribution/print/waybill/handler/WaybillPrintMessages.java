@@ -11,8 +11,8 @@ import com.jd.bluedragon.distribution.command.JdMessage;
  *
  */
 public class WaybillPrintMessages{
-	public static final JdMessage FAIL_MESSAGE_WAYBILL_NULL = new JdMessage(41001001,"运单/包裹信息为空，请联系IT人员处理！");
-	public static final JdMessage FAIL_MESSAGE_GET_NEW_WAYBILL_NULL = new JdMessage(41001002,"此单无换单操作！");
+	public static final JdMessage FAIL_MESSAGE_WAYBILL_NULL = new JdMessage(41001001,"运单/包裹信息为空，请咚咚联系：org.wlxt2 处理");
+	public static final JdMessage FAIL_MESSAGE_GET_NEW_WAYBILL_NULL = new JdMessage(41001002,"此单无换单操作，请咚咚联系：org.wlxt2 处理");
 	/**
 	 * 三方超限提示信息
 	 */

@@ -949,6 +949,18 @@ public class BusinessUtil {
     }
 
     /**
+     * 判断是否医药零担
+     *
+     * @param waybillSign
+     * @return
+     */
+    public static Boolean isMedicine(String waybillSign){
+        return isSignChar(waybillSign,WaybillSignConstants.POSITION_80, WaybillSignConstants.CHAR_80_7)
+                && isSignChar(waybillSign,WaybillSignConstants.POSITION_54, WaybillSignConstants.CHAR_54_4)
+                && isSignInChars(waybillSign,WaybillSignConstants.POSITION_40, WaybillSignConstants.CHAR_40_2, WaybillSignConstants.CHAR_40_3);
+    }
+
+    /**
      * 判断是否是生鲜纯配城配共配
      * waybill_sign54位=2（生鲜）、waybill_sign80位=6（城配）、40位=2（纯配快运零担）、118位=1（共配）
      * @param waybillSign
