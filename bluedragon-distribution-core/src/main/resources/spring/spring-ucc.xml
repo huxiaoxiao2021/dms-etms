@@ -176,6 +176,7 @@
 		<property name="dpWaybillMatchSendCodeSwitch" value="${dpWaybillMatchSendCodeSwitch:true}"/>
 		<property name="faceAbnormalReportConfig" value="${faceAbnormalReportConfig:''}"/>
 		<property name="identityRecogniseSiteSwitch" value="${identityRecogniseSiteSwitch:''}"/>
+		<property name="jyBasicServerSwitch" value="${jyBasicServerSwitch:false}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -333,6 +334,7 @@
 				<value>uccPropertyConfiguration.dpWaybillMatchSendCodeSwitch</value>
 				<value>uccPropertyConfiguration.faceAbnormalReportConfig</value>
 				<value>uccPropertyConfiguration.identityRecogniseSiteSwitch</value>
+				<value>uccPropertyConfiguration.jyBasicServerSwitch</value>
 
                 <value>hystrixRouteUccPropertyConfiguration.executionTimeoutInMilliseconds</value>
                 <value>hystrixRouteUccPropertyConfiguration.circuitBreakerEnabled</value>

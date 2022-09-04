@@ -652,6 +652,12 @@ public class UccPropertyConfiguration {
      */
     private boolean dpWaybillMatchSendCodeSwitch;
 
+    /**
+     * 切换转运基础服务开关
+     */
+    private boolean jyBasicServerSwitch;
+
+
     public Integer getOldSendSplitPageSize() {
         return oldSendSplitPageSize;
     }
@@ -1974,5 +1980,13 @@ public class UccPropertyConfiguration {
 
     public void setIdentityRecogniseSiteSwitch(String identityRecogniseSiteSwitch) {
         this.identityRecogniseSiteSwitch = identityRecogniseSiteSwitch;
+    }
+
+    public boolean isJyBasicServerSwitch() {
+        return jyBasicServerSwitch;
+    }
+
+    public void setJyBasicServerSwitch(boolean jyBasicServerSwitch) {
+        this.jyBasicServerSwitch = jyBasicServerSwitch;
     }
 }

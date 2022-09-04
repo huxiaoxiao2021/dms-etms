@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.station.gateway.impl;
 
 
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.jsf.position.PositionManager;
 import com.jdl.basic.api.response.JDResponse;
 import com.jdl.basic.common.utils.Result;
@@ -43,7 +44,13 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 	private UserSignRecordService userSignRecordService;
 
 	@Autowired
+	private PositionRecordService positionRecordService;
+
+	@Autowired
 	private PositionManager positionManager;
+
+	@Autowired
+	private UccPropertyConfiguration uccPropertyConfiguration;
 	
 	@Override
 	public JdCResponse<UserSignRecordData> signInWithPosition(UserSignRequest signInRequest) {
@@ -71,60 +78,74 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 	}	
 	@Override
 	public JdCResponse<PositionData> queryPositionData(String positionCode) {
-		JdCResponse<PositionData> response = new JdCResponse<>();
-		response.toFail();
-		try{
-			log.info("UserSignGatewayServiceImpl.queryPositionData 入参-{}",positionCode);
-			Result<com.jdl.basic.api.domain.position.PositionData> result = positionManager.queryPositionWithIsMatchAppFunc(positionCode);
-			if(result == null){
-				response.setMessage("查询岗位码失败！");
-				return response;
+		if(uccPropertyConfiguration.isJyBasicServerSwitch()){
+			log.info("queryPositionData - 获取基础服务数据");
+			JdCResponse<PositionData> response = new JdCResponse<>();
+			response.toFail();
+			try{
+				log.info("UserSignGatewayServiceImpl.queryPositionData 入参-{}",positionCode);
+				Result<com.jdl.basic.api.domain.position.PositionData> result = positionManager.queryPositionWithIsMatchAppFunc(positionCode);
+				if(result == null){
+					response.setMessage("查询岗位码失败！");
+					return response;
+				}
+				if(result.getData() == null){
+					response.setMessage(result.getMessage());
+					return response;
+				}
+				PositionData positionData = new PositionData();
+				BeanUtils.copyProperties(result.getData(),positionData);
+				response.setData(positionData);
+				if(result.isSuccess()){
+					response.toSucceed();
+					return response;
+				}
+			}catch (Exception e){
+				log.error("queryPositionData查询岗位信息异常-{}",e.getMessage(),e);
+				response.toError("查询岗位信息异常");
 			}
-			if(result.getData() == null){
-				response.setMessage(result.getMessage());
-				return response;
-			}
-			PositionData positionData = new PositionData();
-			BeanUtils.copyProperties(result.getData(),positionData);
-			response.setData(positionData);
-			if(result.isSuccess()){
-				response.toSucceed();
-				return response;
-			}
-		}catch (Exception e){
-			log.error("queryPositionData查询岗位信息异常-{}",e.getMessage(),e);
-			response.toError("查询岗位信息异常");
+			return response ;
+		}else {
+			log.info("queryPositionData - 原有逻辑");
+			return positionRecordService.queryPositionWithIsMatchAppFunc(positionCode);
+
 		}
-		return response ;
 	}
 
 	@Override
 	public JdCResponse<PositionData> queryPositionInfo(String positionCode) {
-		JdCResponse<PositionData> response = new JdCResponse<>();
-		response.toFail();
-		try{
-			log.info("UserSignGatewayServiceImpl.queryPositionInfo 入参-{}",positionCode);
-			Result<com.jdl.basic.api.domain.position.PositionData> result = positionManager.queryPositionInfo(positionCode);
-			if(result == null){
-				response.setMessage("查询岗位码失败！");
-				return response;
+		if(uccPropertyConfiguration.isJyBasicServerSwitch()){
+			log.info("queryPositionInfo - 获取基础服务数据");
+			JdCResponse<PositionData> response = new JdCResponse<>();
+			response.toFail();
+			try{
+				log.info("UserSignGatewayServiceImpl.queryPositionInfo 入参-{}",positionCode);
+				Result<com.jdl.basic.api.domain.position.PositionData> result = positionManager.queryPositionInfo(positionCode);
+				if(result == null){
+					response.setMessage("查询岗位码失败！");
+					return response;
+				}
+				if(result.getData() == null){
+					response.setMessage(result.getMessage());
+					return response;
+				}
+				PositionData positionData = new PositionData();
+				BeanUtils.copyProperties(result.getData(),positionData);
+				response.setData(positionData);
+				if(result.isSuccess()){
+					response.toSucceed();
+					return response;
+				}
+			}catch (Exception e){
+				log.error("queryPositionData查询岗位信息异常-{}",e.getMessage(),e);
+				response.toError("查询岗位信息异常");
 			}
-			if(result.getData() == null){
-				response.setMessage(result.getMessage());
-				return response;
-			}
-			PositionData positionData = new PositionData();
-			BeanUtils.copyProperties(result.getData(),positionData);
-			response.setData(positionData);
-			if(result.isSuccess()){
-				response.toSucceed();
-				return response;
-			}
-		}catch (Exception e){
-			log.error("queryPositionData查询岗位信息异常-{}",e.getMessage(),e);
-			response.toError("查询岗位信息异常");
+			return response ;
+		}else{
+			log.info("queryPositionInfo - 原有逻辑");
+			return positionRecordService.queryPositionInfo(positionCode);
 		}
-		return response ;
+
 	}
 
 	@Override
