@@ -452,5 +452,10 @@
         <jmq:listener topic="${jmq.topic.face.report.notify}" listener="faceReportNotifyConsumer"/>
     </jmq:consumer>
 
+    <!--  车辆到达消息处理  -->
+    <jmq:consumer id="jmq.sendCarArriveStatusConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.send.car.arrive.status}" listener="sendCarArriveStatusConsumer"/>
+    </jmq:consumer>
+
 </beans>
 
