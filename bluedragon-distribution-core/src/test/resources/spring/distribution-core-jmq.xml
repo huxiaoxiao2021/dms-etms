@@ -499,11 +499,6 @@
         <property name="topic" value="${jmq.topic.tag.inOut}"/>
     </bean>
 
-    <!-- 称重抽检处理消息 -->
-    <bean id="weightAndVolumeCheckHandleProducer" parent="dmsWebDefaultJMQProducer">
-        <property name="topic" value="${jmq.topic.weightAndVolumeCheck.handle}"/>
-    </bean>
-
     <!--  分拣建箱环节发送包裹信息  -->
     <bean id="dmsSortingPackageProducer" parent="dmsWorkerDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.sorting.package}" />

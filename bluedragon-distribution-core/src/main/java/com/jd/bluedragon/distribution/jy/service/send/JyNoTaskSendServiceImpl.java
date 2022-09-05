@@ -91,6 +91,9 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
     @Qualifier("redisClientCache")
     protected Cluster redisClientCache;
     @Autowired
+    @Qualifier("redisClientOfJy")
+    private Cluster redisClientOfJy;
+    @Autowired
     @Qualifier("redisJySendBizIdSequenceGen")
     private JimdbSequenceGen redisJyBizIdSequenceGen;
     @Autowired
@@ -209,6 +212,10 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyNoTaskSendServiceImpl.deleteVehicleTask", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult deleteVehicleTask(DeleteVehicleTaskReq deleteVehicleTaskReq) {
         log.info("删除自建任务,deleteVehicleTaskReq:{}",JsonHelper.toJson(deleteVehicleTaskReq));
+        JyBizTaskSendVehicleEntity task =jyBizTaskSendVehicleService.findByBizId(deleteVehicleTaskReq.getBizId());
+        if (task.hasBeenBindedOrDeleted()){
+            return new InvokeResult(NO_RE_DETELE_TASK_CODE, NO_RE_DETELE_TASK_MESSAGE);
+        }
         //删除主任务
         JyBizTaskSendVehicleEntity entity = new JyBizTaskSendVehicleEntity();
         entity.setBizId(deleteVehicleTaskReq.getBizId());
@@ -272,6 +279,10 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyNoTaskSendServiceImpl.bindVehicleDetailTask", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult bindVehicleDetailTask(BindVehicleDetailTaskReq bindVehicleDetailTaskReq) {
         log.info("自建任务绑定运输任务,bindVehicleDetailTaskReq:{}",JsonHelper.toJson(bindVehicleDetailTaskReq));
+        JyBizTaskSendVehicleEntity task =jyBizTaskSendVehicleService.findByBizId(bindVehicleDetailTaskReq.getFromSendVehicleBizId());
+        if (task.hasBeenBindedOrDeleted()){
+            return new InvokeResult(NO_RE_BIND_TASK_CODE, NO_RE_BIND_TASK_MESSAGE);
+        }
         //更新任务与发货批次的关联关系
         List<String> sendCodeList = jyVehicleSendRelationService.querySendCodesByVehicleBizId(bindVehicleDetailTaskReq.getFromSendVehicleBizId());
         if (ObjectHelper.isNotNull(sendCodeList) && sendCodeList.size()>0){
@@ -321,7 +332,8 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
             //删除自建主任务
             JyBizTaskSendVehicleEntity fromSvTask = new JyBizTaskSendVehicleEntity();
             fromSvTask.setBizId(bindVehicleDetailTaskReq.getFromSendVehicleBizId());
-            fromSvTask.setYn(0);
+            fromSvTask.setYn(Constants.YN_NO);
+            fromSvTask.setBindFlag(Constants.YN_YES);
             Date now = new Date();
             fromSvTask.setUpdateTime(now);
             fromSvTask.setUpdateUserErp(bindVehicleDetailTaskReq.getUser().getUserErp());
@@ -330,11 +342,12 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
             //删除自建子任务
             JyBizTaskSendVehicleDetailEntity fromSvDetailTask = new JyBizTaskSendVehicleDetailEntity();
             fromSvDetailTask.setSendVehicleBizId(bindVehicleDetailTaskReq.getFromSendVehicleBizId());
-            fromSvDetailTask.setYn(0);
+            fromSvDetailTask.setYn(Constants.YN_NO);
             fromSvDetailTask.setUpdateTime(now);
             fromSvDetailTask.setUpdateUserErp(bindVehicleDetailTaskReq.getUser().getUserErp());
             fromSvDetailTask.setUpdateUserName(bindVehicleDetailTaskReq.getUser().getUserName());
             jyBizTaskSendVehicleDetailService.updateDateilTaskByVehicleBizId(fromSvDetailTask);
+
             return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE);
         }
         return new InvokeResult(NO_SEND_DATA_UNDER_TASK_CODE, NO_SEND_DATA_UNDER_TASK_MESSAGE);

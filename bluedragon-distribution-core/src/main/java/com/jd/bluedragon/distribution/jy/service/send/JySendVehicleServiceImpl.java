@@ -709,7 +709,6 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
                 return false;
             }
         }
-
         return true;
     }
 
@@ -1014,6 +1013,10 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
         JyBizTaskSendVehicleEntity taskSend = taskSendVehicleService.findByBizId(request.getSendVehicleBizId());
         if (taskSend == null) {
             result.toFail("发货任务不存在！");
+            return result;
+        }
+        if (taskSend.manualCreatedTask() && taskSend.noTaskBindVehicle()){
+            result.toFail(NO_SCAN_AFTER_BIND_TASK_MESSAGE);
             return result;
         }
         // 业务场景校验
@@ -1747,13 +1750,6 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
                     }
                 }
             }
-        }
-
-        // 已经绑定的无任务不允许再发货
-        if (taskSend.manualCreatedTask() && taskSend.noTaskBindVehicle()) {
-            response.toBizError();
-            response.addInterceptBox(0, "无任务已经绑定，不能继续操作发货！");
-            return false;
         }
 
         return true;
