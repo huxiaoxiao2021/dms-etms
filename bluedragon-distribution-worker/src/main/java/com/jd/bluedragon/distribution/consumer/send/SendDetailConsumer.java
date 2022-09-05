@@ -2,7 +2,6 @@ package com.jd.bluedragon.distribution.consumer.send;
 
 import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.SmsMessageManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
@@ -26,10 +25,8 @@ import com.jd.bluedragon.distribution.send.domain.SendDispatchDto;
 import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
 import com.jd.bluedragon.distribution.sms.domain.SMSDto;
 import com.jd.bluedragon.distribution.sms.service.SmsConfigService;
-import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckDealService;
 import com.jd.bluedragon.distribution.storage.domain.StoragePackageM;
 import com.jd.bluedragon.distribution.storage.service.StoragePackageMService;
-import com.jd.bluedragon.distribution.weightAndVolumeCheck.dto.WeightAndVolumeCheckHandleMessage;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -42,7 +39,7 @@ import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
-import com.jd.fastjson.JSONObject;
+import com.alibaba.fastjson.JSONObject;
 import com.jd.jim.cli.Cluster;
 import com.jd.jmq.common.exception.JMQException;
 import com.jd.jmq.common.message.Message;
@@ -122,13 +119,6 @@ public class SendDetailConsumer extends MessageBaseConsumer {
     @Autowired
     @Qualifier("dmsSendRelationService")
     private DmsSendRelationService dmsSendRelationService;
-
-    @Autowired
-    private SpotCheckDealService spotCheckDealService;
-
-    @Autowired
-    @Qualifier("weightAndVolumeCheckHandleProducer")
-    private DefaultJMQProducer weightAndVolumeCheckHandleProducer;
 
     @Qualifier("bdBlockerCompleteMQ")
     @Autowired
@@ -281,8 +271,6 @@ public class SendDetailConsumer extends MessageBaseConsumer {
                 this.pushColdChainOperateMQ(sendDetail, waybill.getWaybillSign());
                 // 快运暂存发货MQ
                 this.kyStorageSendMq(sendDetail);
-                // 发送称重抽检mq消息
-                this.newSpotCheckSendDeal(sendDetail);
                 // 保存发货关系
                 this.saveSendRelation(sendDetail);
                 //处理冷链拦截快退
@@ -617,36 +605,6 @@ public class SendDetailConsumer extends MessageBaseConsumer {
             log.error("快运暂存发货MQ异常，单号：【{}】",sendDetail.getPackageBarcode(),e);
         }
     }
-
-    private void newSpotCheckSendDeal(SendDetailMessage sendDetail) {
-        String packageCode = sendDetail.getPackageBarcode();
-        Integer siteCode = sendDetail.getCreateSiteCode();
-        if(!WaybillUtil.isPackageCode(packageCode)){
-            return;
-        }
-        if(spotCheckDealService.isExecuteSpotCheckReform(siteCode)){
-            // 抽检改造：已开通的场地无需处理发货数据
-            return;
-        }
-        if(!spotCheckDealService.checkPackHasSpotCheck(packageCode, siteCode)){
-            // 未操作过抽检
-            return;
-        }
-        String key = String.format(CacheKeyConstants.CACHE_KEY_WAYBILL_SEND_STATUS, siteCode, packageCode);
-        try {
-            redisClientCache.setEx(key, Constants.YN_YES.toString(), packSendCacheTime, TimeUnit.MINUTES);
-        }catch (Exception e){
-            log.error("设置包裹号:{}的发货缓存异常", packageCode);
-        }
-        // 操作过抽检下发mq处理
-        WeightAndVolumeCheckHandleMessage message = new WeightAndVolumeCheckHandleMessage();
-        message.setOpNode(WeightAndVolumeCheckHandleMessage.SEND);
-        message.setWaybillCode(WaybillUtil.getWaybillCode(packageCode));
-        message.setPackageCode(packageCode);
-        message.setSiteCode(siteCode);
-        weightAndVolumeCheckHandleProducer.sendOnFailPersistent(packageCode, JsonHelper.toJson(message));
-    }
-
     /**
      * 处理冷链拦截快退
      * @param waybill
