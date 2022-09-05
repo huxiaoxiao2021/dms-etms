@@ -149,6 +149,9 @@ public class SpotCheckIssueMQ implements Serializable {
     // 描述
     private String comment;
 
+    // 补数字段
+    private String errCode;
+
     public String getFlowSystem() {
         return flowSystem;
     }
@@ -491,5 +494,13 @@ public class SpotCheckIssueMQ implements Serializable {
 
     public void setComment(String comment) {
         this.comment = comment;
+    }
+
+    public String getErrCode() {
+        return errCode;
+    }
+
+    public void setErrCode(String errCode) {
+        this.errCode = errCode;
     }
 }
