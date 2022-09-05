@@ -188,8 +188,10 @@
         FROM jy_exception
         WHERE
         yn = 1
-        AND bar_code = #{barCode, jdbcType=VARCHAR}
         AND site_code = #{siteCode, jdbcType=BIGINT}
+        <if test="barCode != null">
+            AND bar_code = #{barCode, jdbcType=VARCHAR}
+        </if>
         <if test="bizId != null">
             AND biz_id = #{bizId, jdbcType=VARCHAR}
         </if>
