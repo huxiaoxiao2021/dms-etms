@@ -66,6 +66,7 @@ public class OrderResource {
     @JProfiler(jKey = "DMS.WEB.OrderResource.getOrderResponse", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public OrderResponse getOrderResponse(@QueryParam("packageCode") String packageCode, @QueryParam("decryptFields") List<String> decryptFields) {
 		OrderResponse orderResponse = this.waybillService.getDmsWaybillInfoAndCheck(packageCode);
+		orderResponse.setReassignAddress("测试环境客户新地址微笑隐藏测试");
 		getHideInfo(orderResponse,decryptFields);
 		return orderResponse;
 	}
