@@ -928,7 +928,8 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
         newSpotCheckDto.setContrastStaffAccount(reportInfo == null ? null : reportInfo.getDutyStaffAccount());
         newSpotCheckDto.setContrastStaffName(reportInfo == null ? null : reportInfo.getDutyStaffName());
         newSpotCheckDto.setContrastStaffType(reportInfo == null ? null : reportInfo.getDutyStaffType());
-        newSpotCheckDto.setContrastDutyType(reportInfo == null ? null : reportInfo.getDutyType());
+        Integer dutyType = reportInfo == null ? null : reportInfo.getDutyType();
+        newSpotCheckDto.setContrastDutyType(dutyType == null ? null : 99);
         // 超标数据
         int excessStatus = ExcessStatusEnum.EXCESS_ENUM_NO.getCode();
         if(reportInfo != null && reportInfo.getExceedType() != null){
