@@ -45,7 +45,7 @@ public class JimdbRemoteLockServiceImpl implements LockService{
 				handler.fail();
 			}
 		}catch (Exception e) {
-			handler.error();
+			handler.error(e);
 		}finally {
 			if(lockSuc) {
 				cacheService.del(key);

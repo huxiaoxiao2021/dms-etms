@@ -50,6 +50,10 @@ public class DateHelper {
      * 一分钟的毫秒数
      */
     public static final long ONE_MINUTES_MILLI = 60 * 1000;
+    /**
+     * 五分钟毫秒数
+     */
+    public static final long FIVE_MINUTES_MILLI = 5 * ONE_MINUTES_MILLI;     
 
     /**
      * 十分钟的毫秒数

@@ -17,5 +17,5 @@ public interface ResultHandler {
 	/**
 	 * 异常处理
 	 */
-	void error();	
+	void error(Exception e);	
 }

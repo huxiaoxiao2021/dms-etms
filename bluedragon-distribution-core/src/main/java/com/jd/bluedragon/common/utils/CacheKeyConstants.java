@@ -256,5 +256,13 @@ public class CacheKeyConstants {
      * 工序操作-key
      */
     public static final String CACHE_KEY_WORK_STATION_EDIT = "k_work_station_edit";
+    /**
+     * 网格操作-key
+     */
+    public static final String CACHE_KEY_WORK_STATION_GRID_EDIT = "k_work_station_grid_edit"; 
+    /**
+     * 网格计划操作-key
+     */
+    public static final String CACHE_KEY_WORK_STATION_ATTEND_PLAN_EDIT = "k_work_station_attend_plan_edit";    
 
 }

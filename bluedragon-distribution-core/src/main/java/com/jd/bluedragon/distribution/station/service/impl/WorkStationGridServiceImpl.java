@@ -8,8 +8,9 @@ import java.util.Objects;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.apache.commons.lang.ObjectUtils;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -17,9 +18,12 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.objectid.IGenerateObjectId;
 import com.jd.bluedragon.distribution.api.response.base.Result;
+import com.jd.bluedragon.distribution.base.ResultHandler;
+import com.jd.bluedragon.distribution.lock.LockService;
 import com.jd.bluedragon.distribution.position.domain.PositionRecord;
 import com.jd.bluedragon.distribution.position.service.PositionRecordService;
 import com.jd.bluedragon.distribution.station.dao.WorkStationGridDao;
@@ -33,6 +37,7 @@ import com.jd.bluedragon.distribution.station.service.WorkStationService;
 import com.jd.bluedragon.distribution.utils.CheckHelper;
 import com.jd.bluedragon.dms.utils.AreaEnum;
 import com.jd.bluedragon.dms.utils.DmsConstants;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
@@ -50,6 +55,7 @@ import lombok.extern.slf4j.Slf4j;
 @Service("workStationGridService")
 public class WorkStationGridServiceImpl implements WorkStationGridService {
 
+	private static final Logger logger = LoggerFactory.getLogger(WorkStationGridServiceImpl.class);
 	@Autowired
 	@Qualifier("workStationGridDao")
 	private WorkStationGridDao workStationGridDao;
@@ -65,21 +71,46 @@ public class WorkStationGridServiceImpl implements WorkStationGridService {
 
 	@Autowired
 	private PositionRecordService positionRecordService;
+	
+    @Autowired
+    @Qualifier("jimdbRemoteLockService")
+    private LockService lockService;
 	/**
 	 * 插入一条数据
 	 * @param insertData
 	 * @return
 	 */
 	@Transactional(value = "main_undiv", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public Result<Boolean> insert(WorkStationGrid insertData){
-		Result<Boolean> result = checkAndFillBeforeAdd(insertData);
-		if(!result.isSuccess()) {
-			return result;
-		}
-		insertData.setBusinessKey(generalBusinessKey());
-		result.setData(workStationGridDao.insert(insertData) == 1);
-		// 添加岗位记录
-		addPosition(insertData);
+	public Result<Boolean> insert(final WorkStationGrid insertData){
+		final Result<Boolean> result = Result.success();
+		lockService.tryLock(CacheKeyConstants.CACHE_KEY_WORK_STATION_GRID_EDIT,DateHelper.ONE_MINUTES_MILLI, new ResultHandler() {
+			@Override
+			public void success() {
+				Result<Boolean> checkResult = checkAndFillBeforeAdd(insertData);
+				if(!checkResult.isSuccess()) {
+					result.setCode(checkResult.getCode());
+					result.setMessage(checkResult.getMessage());
+					result.setData(checkResult.getData());
+					return ;
+				}
+				insertData.setBusinessKey(generalBusinessKey());
+				result.setData(workStationGridDao.insert(insertData) == 1);
+				// 添加岗位记录
+				addPosition(insertData);				
+			}
+
+			@Override
+			public void fail() {
+				result.toFail("其他用户正在修改网格信息，请稍后操作！");
+			}
+
+			@Override
+			public void error(Exception e) {
+				logger.error(e.getMessage(), e);
+				result.toFail("操作异常，请稍后重试！");
+			}
+			
+		});
 		return result;
 	 }
 
@@ -188,8 +219,8 @@ public class WorkStationGridServiceImpl implements WorkStationGridService {
 	 * @param updateData
 	 * @return
 	 */
-	public Result<Boolean> updateById(WorkStationGrid updateData){
-		Result<Boolean> result = Result.success();
+	public Result<Boolean> updateById(final WorkStationGrid updateData){
+		final Result<Boolean> result = Result.success();
 		String ownerUserErp = updateData.getOwnerUserErp();
 		Integer standardNum = updateData.getStandardNum();
 		if(!CheckHelper.checkInteger("编制人数", standardNum, 1,1000000, result).isSuccess()) {
@@ -198,13 +229,30 @@ public class WorkStationGridServiceImpl implements WorkStationGridService {
 		if(!CheckHelper.checkStr("负责人ERP", ownerUserErp, 50, result).isSuccess()) {
 			return result;
 		}
-		WorkStationGrid oldData = workStationGridDao.queryById(updateData.getId());
-		if(oldData == null) {
-			return result.toFail("该网格数据已变更，请重新查询后修改！");
-		}
-		workStationGridDao.deleteById(updateData);
-		updateData.setId(null);
-		result.setData(workStationGridDao.insert(updateData) == 1);
+		lockService.tryLock(CacheKeyConstants.CACHE_KEY_WORK_STATION_GRID_EDIT,DateHelper.ONE_MINUTES_MILLI, new ResultHandler() {
+			@Override
+			public void success() {
+				WorkStationGrid oldData = workStationGridDao.queryById(updateData.getId());
+				if(oldData == null) {
+					result.toFail("该网格数据已变更，请重新查询后修改！");
+					return ;
+				}
+				workStationGridDao.deleteById(updateData);
+				updateData.setId(null);
+				result.setData(workStationGridDao.insert(updateData) == 1);
+			}
+
+			@Override
+			public void fail() {
+				result.toFail("其他用户正在修改网格信息，请稍后操作！");
+			}
+			@Override
+			public void error(Exception e) {
+				logger.error(e.getMessage(), e);
+				result.toFail("操作异常，请稍后重试！");
+			}
+			
+		});
 		return result;
 	 }
 	/**
@@ -213,22 +261,40 @@ public class WorkStationGridServiceImpl implements WorkStationGridService {
 	 * @return
 	 */
 	@Transactional(value = "main_undiv", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-	public Result<Boolean> deleteById(WorkStationGrid deleteData){
-		Result<Boolean> result = Result.success();
-		Result<WorkStationGrid> queryResult = queryById(deleteData.getId());
-		if(queryResult.getData() == null || StringUtils.isEmpty(queryResult.getData().getBusinessKey())){
-			throw new RuntimeException("根据id:" + deleteData.getId() + "未查询到数据!");
-		}
-		result.setData(workStationGridDao.deleteById(deleteData) == 1);
-		// 同步删除岗位记录
-		String businessKey = queryResult.getData().getBusinessKey();
-		PositionRecord positionRecord = new PositionRecord();
-		positionRecord.setRefGridKey(businessKey);
-		positionRecord.setUpdateUser(deleteData.getUpdateUser());
-		Result<Boolean> deletePositionResult = positionRecordService.deleteByBusinessKey(positionRecord);
-		if(Objects.equals(deletePositionResult.getData(), false)){
-			throw new RuntimeException("根据businessKey:" + businessKey + "删除岗位数据失败!");
-		}
+	public Result<Boolean> deleteById(final WorkStationGrid deleteData){
+		final Result<Boolean> result = Result.success();
+		lockService.tryLock(CacheKeyConstants.CACHE_KEY_WORK_STATION_GRID_EDIT,DateHelper.ONE_MINUTES_MILLI, new ResultHandler() {
+
+			@Override
+			public void success() {
+				Result<WorkStationGrid> queryResult = queryById(deleteData.getId());
+				if(queryResult.getData() == null || StringUtils.isEmpty(queryResult.getData().getBusinessKey())){
+					throw new RuntimeException("根据id:" + deleteData.getId() + "未查询到数据!");
+				}
+				result.setData(workStationGridDao.deleteById(deleteData) == 1);
+				// 同步删除岗位记录
+				String businessKey = queryResult.getData().getBusinessKey();
+				PositionRecord positionRecord = new PositionRecord();
+				positionRecord.setRefGridKey(businessKey);
+				positionRecord.setUpdateUser(deleteData.getUpdateUser());
+				Result<Boolean> deletePositionResult = positionRecordService.deleteByBusinessKey(positionRecord);
+				if(Objects.equals(deletePositionResult.getData(), false)){
+					throw new RuntimeException("根据businessKey:" + businessKey + "删除岗位数据失败!");
+				}				
+			}
+
+			@Override
+			public void fail() {
+				result.toFail("其他用户正在修改网格信息，请稍后操作！");
+			}
+			@Override
+			public void error(Exception e) {
+				logger.error(e.getMessage(), e);
+				result.toFail("操作异常，请稍后重试！");
+			}
+			
+		});
+		
 		return result;
 	 }
 	/**
@@ -293,31 +359,49 @@ public class WorkStationGridServiceImpl implements WorkStationGridService {
 
 	@Transactional(value = "main_undiv", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	@Override
-	public Result<Boolean> importDatas(List<WorkStationGrid> dataList) {
-		Result<Boolean> result = checkAndFillImportDatas(dataList);
-		if(!result.isSuccess()) {
-			return result;
-		}
-		//先删除后插入新记录
-		for(WorkStationGrid data : dataList) {
-			WorkStationGrid oldData = workStationGridDao.queryByBusinessKey(data);
-			if(oldData != null) {
-				oldData.setUpdateUser(data.getCreateUser());
-				oldData.setUpdateUserName(data.getCreateUserName());
-				oldData.setUpdateTime(data.getCreateTime());
-				if(!Objects.equals(workStationGridDao.deleteById(oldData), Constants.YN_YES)){
-					throw  new RuntimeException("根据id:" + oldData.getId() + "删除数据失败!");
+	public Result<Boolean> importDatas(final List<WorkStationGrid> dataList) {
+		final Result<Boolean> result = Result.success();
+		lockService.tryLock(CacheKeyConstants.CACHE_KEY_WORK_STATION_GRID_EDIT,DateHelper.FIVE_MINUTES_MILLI, new ResultHandler() {
+			@Override
+			public void success() {
+				Result<Boolean> checkResult = checkAndFillImportDatas(dataList);
+				if(!checkResult.isSuccess()) {
+					result.setCode(checkResult.getCode());
+					result.setMessage(checkResult.getMessage());
+					result.setData(checkResult.getData());
+					return ;
+				}				
+				//先删除后插入新记录
+				for(WorkStationGrid data : dataList) {
+					WorkStationGrid oldData = workStationGridDao.queryByBusinessKey(data);
+					if(oldData != null) {
+						oldData.setUpdateUser(data.getCreateUser());
+						oldData.setUpdateUserName(data.getCreateUserName());
+						oldData.setUpdateTime(data.getCreateTime());
+						if(!Objects.equals(workStationGridDao.deleteById(oldData), Constants.YN_YES)){
+							throw  new RuntimeException("根据id:" + oldData.getId() + "删除数据失败!");
+						}
+						data.setBusinessKey(oldData.getBusinessKey());
+					}else {
+						data.setBusinessKey(generalBusinessKey());
+					}			
+					if(!Objects.equals(workStationGridDao.insert(data), Constants.YN_YES)){
+						throw  new RuntimeException("新增businessKey为:" + data.getBusinessKey() + "的数据失败");
+					}
+					// 同步处理岗位
+					syncDealPosition(oldData, data);
 				}
-				data.setBusinessKey(oldData.getBusinessKey());
-			}else {
-				data.setBusinessKey(generalBusinessKey());
-			}			
-			if(!Objects.equals(workStationGridDao.insert(data), Constants.YN_YES)){
-				throw  new RuntimeException("新增businessKey为:" + data.getBusinessKey() + "的数据失败");
 			}
-			// 同步处理岗位
-			syncDealPosition(oldData, data);
-		}
+			@Override
+			public void fail() {
+				result.toFail("其他用户正在修改网格信息，请稍后导入！");
+			}
+			@Override
+			public void error(Exception e) {
+				logger.error(e.getMessage(), e);
+				result.toFail("操作异常，请稍后重试！");
+			}
+		});
 		return result;
 	}
 
@@ -417,23 +501,52 @@ public class WorkStationGridServiceImpl implements WorkStationGridService {
 		return workStationGridDao.queryCountByRefStationKey(stationKey) > 0;
 	}
 	@Override
-	public Result<Boolean> deleteByIds(DeleteRequest<WorkStationGrid> deleteRequest) {
-		Result<Boolean> result = Result.success();
+	public Result<Boolean> deleteByIds(final DeleteRequest<WorkStationGrid> deleteRequest) {
+		final Result<Boolean> result = Result.success();
 		if(deleteRequest == null
 				|| CollectionUtils.isEmpty(deleteRequest.getDataList())) {
 			return result.toFail("参数错误，删除列表不能为空！");
 		}
-		List<WorkStationGrid> oldDataList = workStationGridDao.queryByIds(deleteRequest);
-		if(CollectionUtils.isEmpty(oldDataList)
-				|| oldDataList.size() < deleteRequest.getDataList().size()) {
-			return result.toFail("参数错误，数据已变更请刷新列表后重新选择！");
-		}
-		for(WorkStationGrid oldData : oldDataList) {
-			if(!ObjectUtils.equals(oldData.getSiteCode(), deleteRequest.getOperateSiteCode())) {
-				return result.toFail("网格【"+oldData.getGridName()+ "】非本人所在场地数据，无法删除！");
+		lockService.tryLock(CacheKeyConstants.CACHE_KEY_WORK_STATION_GRID_EDIT,DateHelper.FIVE_MINUTES_MILLI, new ResultHandler() {
+			@Override
+			public void success() {
+				List<WorkStationGrid> oldDataList = workStationGridDao.queryByIds(deleteRequest);
+				if(CollectionUtils.isEmpty(oldDataList)
+						|| oldDataList.size() < deleteRequest.getDataList().size()) {
+					result.toFail("参数错误，数据已变更请刷新列表后重新选择！");
+					return;
+				}
+				for(WorkStationGrid oldData : oldDataList) {
+					if(!ObjectUtils.equals(oldData.getSiteCode(), deleteRequest.getOperateSiteCode())) {
+						result.toFail("网格【"+oldData.getGridName()+ "】非本人所在场地数据，无法删除！");
+						return ;
+					}
+				}
+				result.setData(workStationGridDao.deleteByIds(deleteRequest) > 0);
+				for(WorkStationGrid oldData : oldDataList) {
+					// 同步删除岗位记录
+					String businessKey = oldData.getBusinessKey();
+					PositionRecord positionRecord = new PositionRecord();
+					positionRecord.setRefGridKey(businessKey);
+					positionRecord.setUpdateUser(deleteRequest.getOperateUserCode());
+					Result<Boolean> deletePositionResult = positionRecordService.deleteByBusinessKey(positionRecord);
+					if(Objects.equals(deletePositionResult.getData(), false)){
+						throw new RuntimeException("根据businessKey:" + businessKey + "删除岗位数据失败!");
+					}
+				}
 			}
-		}
-		result.setData(workStationGridDao.deleteByIds(deleteRequest) > 0);
+
+			@Override
+			public void fail() {
+				result.toFail("其他用户正在修改网格信息，请稍后操作！");
+			}
+			@Override
+			public void error(Exception e) {
+				logger.error(e.getMessage(), e);
+				result.toFail("操作异常，请稍后重试！");
+			}
+			
+		});
 		return result;
 	}
 	@Override
