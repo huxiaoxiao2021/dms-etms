@@ -57,8 +57,6 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
 
     private Logger log = LoggerFactory.getLogger(BaseMajorManagerImpl.class);
     private static final String PROTOCOL = PropertiesHelper.newInstance().getValue("DMSVER_ADDRESS") + "/services/bases/siteString/";
-    //系统标识
-    private final String DMS = "dms";
     /**
      * 监控key的前缀
      */
@@ -290,7 +288,7 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
             if(StringUtils.isNotBlank(code)){
                 String[] endNodeTmp = code.split(Constants.SEPARATOR_HYPHEN);
                 if(endNodeTmp.length == 3){
-                    return getStoreByCky2(endNodeTmp[0], Integer.valueOf(endNodeTmp[1]), Integer.valueOf(endNodeTmp[2]),  Constants.UMP_APP_NAME_DMSWEB);
+                    return getStoreByCky2(endNodeTmp[0], Integer.valueOf(endNodeTmp[1]), Integer.valueOf(endNodeTmp[2]));
                 }
             }
         }catch (Exception e){
@@ -307,7 +305,7 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
     public PsStoreInfo getStoreByCky2(String storeType, Integer cky2, Integer storeID) {
         CallerInfo info = Profiler.registerInfo("DMS.BASE.BaseMajorManagerImpl.getStoreByCky2", false, true);
         try {
-            BaseResult<PsStoreInfo> storeInfoResult = basicPrimaryWS.getStoreByCky2Id(storeType, cky2, storeID, DMS);
+            BaseResult<PsStoreInfo> storeInfoResult = basicPrimaryWS.getStoreByCky2Id(storeType, cky2, storeID, Constants.UMP_APP_NAME_DMSWEB);
             if (0 == storeInfoResult.getResultCode()) {
                 return storeInfoResult.getData();
             } else {
