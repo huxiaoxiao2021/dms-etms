@@ -804,17 +804,18 @@ public class JyExceptionServiceImpl implements JyExceptionService {
      * @param mqDto
      */
     private void matchSuccessProcess(ExpefNotify mqDto) {
+        String bizId = getBizId(JyBizTaskExceptionTypeEnum.SANWU,mqDto.getBarCode());
+        JyBizTaskExceptionEntity bizTaskException = jyBizTaskExceptionDao.findByBizId(bizId);
+        if (bizTaskException == null){
+            logger.error("获取异常业务任务数据失败！");
+            return;
+        }
         JyExceptionEntity jyExceptionEntity = new JyExceptionEntity();
         jyExceptionEntity.setBarCode(mqDto.getBarCode());
-        jyExceptionEntity.setSiteCode(Long.valueOf(mqDto.getSiteCode()));
+        jyExceptionEntity.setSiteCode(Long.valueOf(bizTaskException.getSiteCode()));
         JyExceptionEntity entity = jyExceptionDao.queryByBarCodeAndSite(jyExceptionEntity);
         if (entity == null){
             logger.error("获取异常业务数据失败！");
-            return;
-        }
-        JyBizTaskExceptionEntity bizTaskException = jyBizTaskExceptionDao.findByBizId(entity.getBizId());
-        if (bizTaskException == null){
-            logger.error("获取异常业务任务数据失败！");
             return;
         }
         BaseStaffSiteOrgDto baseStaffByErp = baseMajorManager.getBaseStaffByErpNoCache(mqDto.getNotifyErp());
