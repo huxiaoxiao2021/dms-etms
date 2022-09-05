@@ -137,14 +137,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         //查询状态统计数据(按状态分组聚合)
         JyBizTaskUnloadStatusEnum[] statusEnums = {WAIT_UN_LOAD, UN_LOADING, UN_LOAD_DONE};
         JyBizTaskUnloadVehicleEntity statusStatisticsQueryParams = assembleQueryStatusStatisticsCondition(unloadVehicleTaskReqDto);
-        List<String> sealCarCodes = null;
-        if (WaybillUtil.isPackageCode(unloadVehicleTaskReqDto.getPackageCode())) {
-            sealCarCodes = getSealCarCodeFromEs(unloadVehicleTaskReqDto);
-            if (CollectionUtils.isEmpty(sealCarCodes)) {
-                return new InvokeResult<>(TASK_NO_FOUND_BY_STATUS_CODE, "该包裹号不存在关联的卸车任务！");
-            }
-        }
-        List<JyBizTaskUnloadCountDto> unloadCountDtos = jyBizTaskUnloadVehicleService.findStatusCountByCondition4Status(statusStatisticsQueryParams, sealCarCodes, statusEnums);
+        List<JyBizTaskUnloadCountDto> unloadCountDtos = jyBizTaskUnloadVehicleService.findStatusCountByCondition4Status(statusStatisticsQueryParams, null, statusEnums);
         if (!CollectionUtils.isNotEmpty(unloadCountDtos)) {
             return new InvokeResult<>(TASK_NO_FOUND_BY_STATUS_CODE, TASK_NO_FOUND_BY_STATUS_MESSAGE);
         }
@@ -163,27 +156,27 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         return new InvokeResult<>(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, respDto);
     }
 
-    /**
-     * 根据包裹号从ES获得封车编码
-     * @param request
-     * @return
-     */
-    private List<String> getSealCarCodeFromEs(UnloadVehicleTaskReqDto request) {
-        JyVehicleTaskUnloadDetail query = new JyVehicleTaskUnloadDetail();
-        query.setPackageCode(request.getPackageCode());
-        query.setEndSiteId(request.getCurrentOperate().getSiteCode());
-        List<JyVehicleTaskUnloadDetail> unloadDetails = iJyUnloadVehicleManager.findUnloadDetail(query);
-
-        Set<String> sealCarCodes = new HashSet<>();
-        if (CollectionUtils.isNotEmpty(unloadDetails)) {
-            for (JyVehicleTaskUnloadDetail unloadDetail : unloadDetails) {
-                sealCarCodes.add(unloadDetail.getSealCarCode());
-            }
-            return new ArrayList<>(sealCarCodes);
-        }
-
-        return null;
-    }
+//    /**
+//     * 根据包裹号从ES获得封车编码
+//     * @param request
+//     * @return
+//     */
+//    private List<String> getSealCarCodeFromEs(UnloadVehicleTaskReqDto request) {
+//        JyVehicleTaskUnloadDetail query = new JyVehicleTaskUnloadDetail();
+//        query.setPackageCode(request.getPackageCode());
+//        query.setEndSiteId(request.getCurrentOperate().getSiteCode());
+//        List<JyVehicleTaskUnloadDetail> unloadDetails = iJyUnloadVehicleManager.findUnloadDetail(query);
+//
+//        Set<String> sealCarCodes = new HashSet<>();
+//        if (CollectionUtils.isNotEmpty(unloadDetails)) {
+//            for (JyVehicleTaskUnloadDetail unloadDetail : unloadDetails) {
+//                sealCarCodes.add(unloadDetail.getSealCarCode());
+//            }
+//            return new ArrayList<>(sealCarCodes);
+//        }
+//
+//        return null;
+//    }
 
     private JyBizTaskUnloadVehicleEntity assembleQueryTaskCondition(UnloadVehicleTaskReqDto unloadVehicleTaskReqDto) {
         JyBizTaskUnloadVehicleEntity condition = new JyBizTaskUnloadVehicleEntity();
