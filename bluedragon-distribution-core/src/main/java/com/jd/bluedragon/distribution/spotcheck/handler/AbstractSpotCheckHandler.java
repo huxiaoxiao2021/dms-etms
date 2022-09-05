@@ -20,8 +20,6 @@ import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
-import com.jd.ql.dms.report.domain.WeightVolumeCollectDto;
-import com.jd.ql.dms.report.domain.WeightVolumeQueryCondition;
 import com.jd.ql.dms.report.domain.spotcheck.SpotCheckQueryCondition;
 import com.jd.ql.dms.report.domain.spotcheck.WeightVolumeSpotCheckDto;
 import org.apache.commons.collections.CollectionUtils;
@@ -515,15 +513,15 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
         double totalVolume = Constants.DOUBLE_ZERO;
         if(spotCheckContext.getIsMultiPack()){
             // 获取运单下已抽检包裹明细
-            WeightVolumeQueryCondition condition = new WeightVolumeQueryCondition();
-            condition.setReviewSiteCode(spotCheckContext.getReviewSiteCode());
+            SpotCheckQueryCondition condition = new SpotCheckQueryCondition();
             condition.setWaybillCode(spotCheckContext.getWaybillCode());
+            condition.setReviewSiteCode(spotCheckContext.getReviewSiteCode());
             condition.setRecordType(SpotCheckRecordTypeEnum.DETAIL_RECORD.getCode());
-            List<WeightVolumeCollectDto> weightVolumeCollectList = reportExternalManager.queryByCondition(condition);
-            if(CollectionUtils.isNotEmpty(weightVolumeCollectList)){
-                for (WeightVolumeCollectDto weightVolumeCollectDto : weightVolumeCollectList) {
-                    totalWeight += weightVolumeCollectDto.getReviewWeight() == null ? Constants.DOUBLE_ZERO : weightVolumeCollectDto.getReviewWeight();
-                    totalVolume += weightVolumeCollectDto.getReviewVolume() == null ? Constants.DOUBLE_ZERO : weightVolumeCollectDto.getReviewVolume();
+            List<WeightVolumeSpotCheckDto> spotCheckDtoList = spotCheckQueryManager.querySpotCheckByCondition(condition);
+            if(CollectionUtils.isNotEmpty(spotCheckDtoList)){
+                for (WeightVolumeSpotCheckDto spotCheckDto : spotCheckDtoList) {
+                    totalWeight += spotCheckDto.getReviewWeight() == null ? Constants.DOUBLE_ZERO : spotCheckDto.getReviewWeight();
+                    totalVolume += spotCheckDto.getReviewVolume() == null ? Constants.DOUBLE_ZERO : spotCheckDto.getReviewVolume();
                 }
             }
         }
