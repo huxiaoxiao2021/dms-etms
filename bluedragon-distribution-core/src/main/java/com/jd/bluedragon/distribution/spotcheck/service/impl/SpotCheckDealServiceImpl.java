@@ -80,9 +80,6 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
     private UccPropertyConfiguration uccPropertyConfiguration;
 
     @Autowired
-    private ReportExternalManager reportExternalManager;
-
-    @Autowired
     @Qualifier("jimdbCacheService")
     private CacheService jimdbCacheService;
 
@@ -188,10 +185,10 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
             if(StringUtils.isNotEmpty(jimdbCacheService.get(key))){
                 isHasSpotCheck = true;
             }else {
-                WeightVolumeQueryCondition condition = new WeightVolumeQueryCondition();
+                SpotCheckQueryCondition condition = new SpotCheckQueryCondition();
                 condition.setWaybillCode(waybillCode);
                 condition.setExcessStatusList(Arrays.asList(ExcessStatusEnum.EXCESS_ENUM_NO.getCode(), ExcessStatusEnum.EXCESS_ENUM_YES.getCode()));
-                isHasSpotCheck = reportExternalManager.countByParam(condition) > Constants.NUMBER_ZERO;
+                isHasSpotCheck = spotCheckQueryManager.querySpotCheckCountByCondition(condition) > Constants.NUMBER_ZERO;
             }
         }catch (Exception e){
             logger.error("根据运单号{}查询是否操作过抽检异常!", waybillCode, e);
@@ -223,11 +220,11 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
             if(StringUtils.isNotEmpty(packSetStr)){
                 return packSetStr;
             }else {
-                WeightVolumeQueryCondition condition = new WeightVolumeQueryCondition();
+                SpotCheckQueryCondition condition = new SpotCheckQueryCondition();
                 condition.setWaybillCode(waybillCode);
                 condition.setReviewSiteCode(siteCode);
                 condition.setRecordType(SpotCheckRecordTypeEnum.DETAIL_RECORD.getCode());
-                List<String> spotCheckedPackList = reportExternalManager.getSpotCheckPackageCodesByCondition(condition);
+                List<String> spotCheckedPackList = spotCheckQueryManager.getSpotCheckPackByCondition(condition);
                 if(CollectionUtils.isEmpty(spotCheckedPackList)){
                     return null;
                 }
