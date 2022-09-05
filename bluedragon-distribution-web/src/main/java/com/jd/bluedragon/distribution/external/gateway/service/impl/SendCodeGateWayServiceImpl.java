@@ -6,6 +6,8 @@ import com.jd.bluedragon.common.domain.ServiceResultEnum;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.CheckSendCodeRequest;
+import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicleTaskRequest;
+import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleTaskResponse;
 import com.jd.bluedragon.common.dto.sendcode.response.BatchSendCarInfoDto;
 import com.jd.bluedragon.common.dto.sendcode.response.SendCodeCheckDto;
 import com.jd.bluedragon.common.dto.sendcode.response.SendCodeInfoDto;
@@ -16,6 +18,7 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.batch.domain.BatchSend;
 import com.jd.bluedragon.distribution.departure.service.DepartureService;
+import com.jd.bluedragon.distribution.jy.service.send.IJySendVehicleService;
 import com.jd.bluedragon.distribution.jy.service.send.JySendVehicleServiceImpl;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetailService;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
@@ -31,6 +34,7 @@ import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jdl.jy.realtime.enums.seal.LineTypeEnum;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -74,6 +78,8 @@ public class SendCodeGateWayServiceImpl implements SendCodeGateWayService {
     private UccPropertyConfiguration uccConfig;
     @Autowired
     private JyBizTaskSendVehicleDetailService taskSendVehicleDetailService;
+    @Autowired
+    private IJySendVehicleService jySendVehicleService;
 
     @Override
     @JProfiler(jKey = "DMSWEB.SendCodeGateWayServiceImpl.carrySendCarInfoNew",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -178,12 +184,9 @@ public class SendCodeGateWayServiceImpl implements SendCodeGateWayService {
         log.info("jy checkSendCodeAndAllianceForJy request:{}", JsonHelper.toJson(request));
         if  (ObjectHelper.isNotNull(request.getBizSource()) && ObjectHelper.isNotNull(uccConfig.getNeedValidateMainLineBizSources())){
             if (uccConfig.getNeedValidateMainLineBizSources().contains(String.valueOf(request.getBizSource()))){
-                Integer endSiteId =BusinessUtil.getReceiveSiteCodeFromSendCode(request.getSendCode());
-                Integer startSiteId =request.getCurrentOperate().getSiteCode();
-
-                JyBizTaskSendVehicleDetailEntity detailEntity = new JyBizTaskSendVehicleDetailEntity(Long.valueOf(startSiteId),Long.valueOf(endSiteId));
-                Integer count= taskSendVehicleDetailService.countByCondition(detailEntity);
-                if (ObjectHelper.isNotNull(count) && count>0){
+                SendVehicleTaskRequest req =generSendTaskReq(request);
+                InvokeResult<SendVehicleTaskResponse> resp =jySendVehicleService.fetchSendVehicleTask(req);
+                if (checkDataValidate(resp)){
                     return new JdVerifyResponse(NOT_SUPPORT_MAIN_LINE_TASK_CODE,NOT_SUPPORT_MAIN_LINE_TASK_MESSAGE);
                 }
             }
@@ -208,6 +211,30 @@ public class SendCodeGateWayServiceImpl implements SendCodeGateWayService {
             jdVerifyResponse.addPromptBox(0,"派送至加盟商请复重！");
         }
         return jdVerifyResponse;
+    }
+
+    private SendVehicleTaskRequest generSendTaskReq(CheckSendCodeRequest request) {
+        Integer endSiteId =BusinessUtil.getReceiveSiteCodeFromSendCode(request.getSendCode());
+        SendVehicleTaskRequest req =new SendVehicleTaskRequest();
+        req.setUser(request.getUser());
+        req.setCurrentOperate(request.getCurrentOperate());
+        req.setEndSiteId(Long.valueOf(endSiteId));
+        req.setLineType(LineTypeEnum.TRUNK_LINE.getCode());
+        req.setPageNumber(1);
+        req.setPageSize(1);
+        return req;
+    }
+
+    private boolean checkDataValidate(InvokeResult<SendVehicleTaskResponse> result) {
+        if (ObjectHelper.isNotNull(result) && ObjectHelper.isNotNull(result.getData())){
+            SendVehicleTaskResponse resp =result.getData();
+            if (ObjectHelper.isNotNull(resp) &&
+                    (ObjectHelper.isNotNull(resp.getToSendVehicleData()) || ObjectHelper.isNotNull(resp.getSendingVehicleData())
+                    || ObjectHelper.isNotNull(resp.getToSealVehicleData()) || ObjectHelper.isNotNull(resp.getSealedVehicleData()))){
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
