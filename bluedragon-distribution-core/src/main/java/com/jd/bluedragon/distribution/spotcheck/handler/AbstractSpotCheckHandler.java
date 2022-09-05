@@ -52,9 +52,6 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
     private SpotCheckDealService spotCheckDealService;
 
     @Autowired
-    private ReportExternalManager reportExternalManager;
-
-    @Autowired
     @Qualifier("jimdbCacheService")
     private CacheService jimdbCacheService;
 
