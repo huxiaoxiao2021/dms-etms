@@ -582,6 +582,7 @@
         WHERE
         m.yn = 1
         AND m.manual_created_flag = 0
+        AND m.line_type in (1,2)
         AND d.yn = 1
         AND d.start_site_id = #{entity.startSiteId, jdbcType=BIGINT}
         AND d.end_site_id = #{entity.endSiteId, jdbcType=BIGINT}
@@ -610,6 +611,7 @@
                           INNER JOIN jy_biz_task_send_vehicle_detail d ON m.biz_id = d.send_vehicle_biz_id
                  WHERE m.yn = 1
                    AND m.manual_created_flag = 0
+                   AND m.line_type in (1,2)
                    AND d.yn = 1
                    AND d.start_site_id = #{startSiteId, jdbcType=BIGINT}
                    AND d.end_site_id = #{endSiteId, jdbcType=BIGINT}
