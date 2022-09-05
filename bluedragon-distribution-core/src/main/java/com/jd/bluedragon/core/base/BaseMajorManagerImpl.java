@@ -57,8 +57,6 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
 
     private Logger log = LoggerFactory.getLogger(BaseMajorManagerImpl.class);
     private static final String PROTOCOL = PropertiesHelper.newInstance().getValue("DMSVER_ADDRESS") + "/services/bases/siteString/";
-    //系统标识
-    private final String DMS = "dms";
     /**
      * 监控key的前缀
      */
