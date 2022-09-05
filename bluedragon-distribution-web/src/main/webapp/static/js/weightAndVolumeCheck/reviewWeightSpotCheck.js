@@ -205,6 +205,12 @@ $(function () {
         $('#improt_modal').modal('show');
     });
 
+    //导入
+    $('#btn_improt_spot').click(function(){
+        $('#importExcelFileSpot').val(null);
+        $('#improt_modal_spot').modal('show');
+    });
+
     //导出抽查任务
     $('#btn_export_spot').click(function () {
 
@@ -388,6 +394,51 @@ function initImportExcel(){
             formData = new FormData(form);
         $.ajax({
             url:importUrl,
+            type:"post",
+            data:formData,
+            processData:false,
+            contentType:false,
+            success:function(res){
+                if(res && res.code == 200){
+                    Jd.alert("上传成功!");
+                }else{
+                    Jd.alert("上传失败!" + res.message);
+                }
+                $('#btn_upload').attr("disabled",false);
+            },
+            error:function(err){
+                Jd.alert("网络连接失败,稍后重试");
+                $('#btn_upload').attr("disabled",false);
+            }
+
+
+        });
+
+    });
+
+
+    $('#btn_upload_spot').on('click',function(e){
+        $('#btn_upload_spot').attr("disabled",true);
+
+        var inputValue = $('#importExcelFileSpot').val().trim();
+        var index1 = inputValue.lastIndexOf(".");
+        var index2 = inputValue.length;
+        var suffixName = inputValue.substring(index1+1,index2);
+        if(inputValue == ''){
+            Jd.alert('请先浏览文件在上传!');
+            $('#btn_upload').attr("disabled",false);
+            return;
+        }
+        if(suffixName != 'xlsx'){
+            Jd.alert('请上传指定Excel文件!');
+            $('#btn_upload').attr("disabled",false);
+            return;
+        }
+
+        var form = document.getElementById('upload_excel_form_spot'),
+            formData = new FormData(form);
+        $.ajax({
+            url: "/reviewWeightSpotCheck/toImportSpot",
             type:"post",
             data:formData,
             processData:false,
