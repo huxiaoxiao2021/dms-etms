@@ -8,6 +8,7 @@ import com.jd.ql.dms.report.domain.spotcheck.WeightVolumeSpotCheckDto;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 
 import java.io.InputStream;
+import java.util.List;
 
 /**
  * 抽检处理接口
@@ -146,4 +147,6 @@ public interface SpotCheckDealService {
      * @return
      */
     String getSpotCheckPackUrlFromCache(String packageCode, Integer siteCode);
+
+    void brushSpotCheck(List<WeightVolumeSpotCheckDto> list, String userErp);
 }

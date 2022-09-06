@@ -251,7 +251,7 @@ public class SpotCheckReportServiceImpl implements SpotCheckReportService {
         headerMap.put("contrastWarZoneName", "核对操作战区");
         headerMap.put("contrastAreaName", "核对操作片区");
         headerMap.put("contrastSiteName", "核对操作站点");
-        headerMap.put("contrastDutyErp", "核对操作人ERP");
+        headerMap.put("contrastStaffAccount", "核对操作人ERP");
         headerMap.put("contrastWeight", "核对重量");
         headerMap.put("contrastVolume", "核对体积");
         headerMap.put("diffWeight", "重量差异");
