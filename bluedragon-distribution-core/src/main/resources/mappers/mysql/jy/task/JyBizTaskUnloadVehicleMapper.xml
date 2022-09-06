@@ -45,6 +45,7 @@
         <result property="yn" column="yn"/>
         <result property="ts" column="ts"/>
         <result property="taskType" column="task_type"/>
+        <result property="railwayPfNo" column="railway_pf_no"/>
     </resultMap>
 
     <resultMap type="com.jd.bluedragon.distribution.jy.dto.task.JyBizTaskUnloadCountDto" id="JyBizTaskUnloadCountMap">
@@ -91,6 +92,7 @@
         ts,
         task_type,
         unload_type,
+        railway_pf_no,
         unload_start_time
     </sql>
 
