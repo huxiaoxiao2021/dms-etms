@@ -144,6 +144,8 @@ public class JyBizTaskSendVehicleEntity implements Serializable {
 	 */
 	private transient Date lastPlanDepartTimeEnd;
 
+	private transient Date createTimeBegin;
+
 	public Integer getPreVehicleStatus() {
 		return preVehicleStatus;
 	}
@@ -394,4 +396,12 @@ public class JyBizTaskSendVehicleEntity implements Serializable {
 		return false;
 	}
 
+
+	public Date getCreateTimeBegin() {
+		return createTimeBegin;
+	}
+
+	public void setCreateTimeBegin(Date createTimeBegin) {
+		this.createTimeBegin = createTimeBegin;
+	}
 }
