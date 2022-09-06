@@ -179,6 +179,7 @@
 		<property name="jySendTaskPlanTimeBeginDay" value="${jySendTaskPlanTimeBeginDay:1}"/>
 		<property name="jySendTaskPlanTimeEndDay" value="${jySendTaskPlanTimeEndDay:2}"/>
 		<property name="needValidateMainLineBizSources" value="${needValidateMainLineBizSources:'25'}"/>
+		<property name="jySendTaskCreateTimeBeginDay" value="${jySendTaskCreateTimeBeginDay:30}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -339,6 +340,7 @@
 				<value>uccPropertyConfiguration.jySendTaskPlanTimeBeginDay</value>
 				<value>uccPropertyConfiguration.jySendTaskPlanTimeEndDay</value>
 				<value>uccPropertyConfiguration.needValidateMainLineBizSources</value>
+				<value>uccPropertyConfiguration.jySendTaskCreateTimeBeginDay</value>
 
                 <value>hystrixRouteUccPropertyConfiguration.executionTimeoutInMilliseconds</value>
                 <value>hystrixRouteUccPropertyConfiguration.circuitBreakerEnabled</value>
