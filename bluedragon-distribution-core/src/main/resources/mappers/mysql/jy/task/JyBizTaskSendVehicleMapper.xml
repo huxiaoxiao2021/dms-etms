@@ -526,7 +526,7 @@
         <if test="entity.manualCreatedFlag != null">
             AND manual_created_flag = #{entity.manualCreatedFlag}
         </if>
-        <if test="entity.lastPlanDepartTimeBegin !=null and entity.lastPlanDepartTimeEnd !=null">
+        <if test="entity.lastPlanDepartTimeBegin !=null and entity.lastPlanDepartTimeEnd !=null and entity.createTimeBegin !=null">
             and ((last_plan_depart_time &gt;= #{entity.lastPlanDepartTimeBegin} and last_plan_depart_time &lt;= #{entity.lastPlanDepartTimeEnd}) or (last_plan_depart_time is null and create_time &gt;= #{entity.createTimeBegin}))
         </if>
     </sql>
@@ -587,7 +587,7 @@
         <if test="entity.sendVehicleBizId != null">
             AND d.send_vehicle_biz_id = #{entity.sendVehicleBizId}
         </if>
-        <if test="entity.lastPlanDepartTimeBegin !=null and entity.lastPlanDepartTimeEnd !=null">
+        <if test="entity.lastPlanDepartTimeBegin !=null and entity.lastPlanDepartTimeEnd !=null and entity.createTimeBegin !=null">
             AND ((m.last_plan_depart_time &gt;= #{entity.lastPlanDepartTimeBegin} and m.last_plan_depart_time &lt;= #{entity.lastPlanDepartTimeEnd}) or (m.last_plan_depart_time is null and m.create_time &gt;= #{entity.createTimeBegin}))
         </if>
         AND d.vehicle_status IN ( 0, 1, 2 )
@@ -610,7 +610,7 @@
                    AND d.start_site_id = #{startSiteId, jdbcType=BIGINT}
                    AND d.end_site_id = #{endSiteId, jdbcType=BIGINT}
                    AND d.vehicle_status IN (0, 1, 2) and d.excep_label =0
-                    <if test="lastPlanDepartTimeBegin !=null and lastPlanDepartTimeEnd !=null">
+                    <if test="lastPlanDepartTimeBegin !=null and lastPlanDepartTimeEnd !=null and createTimeBegin !=null">
                         and ((m.last_plan_depart_time &gt;= #{lastPlanDepartTimeBegin} and m.last_plan_depart_time &lt;= #{lastPlanDepartTimeEnd}) or (m.last_plan_depart_time is null and m.create_time &gt;= #{createTimeBegin}))
                     </if>
                  GROUP BY m.biz_id
