@@ -20,8 +20,11 @@ import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ioms.jsf.export.domain.Order;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import javax.ws.rs.Consumes;
@@ -35,14 +38,19 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.jd.bluedragon.dms.utils.BusinessUtil.getHideAddress;
+
 @Controller
 @Path(Constants.REST_URL)
 @Consumes({ MediaType.APPLICATION_JSON })
 @Produces({ MediaType.APPLICATION_JSON })
 public class OrderResource {
 
+	private final Logger log = LoggerFactory.getLogger(this.getClass());
 	private static final Integer CODE_WAYBILL_NOE_FOUND = 404;
 	private static final String MESSAGE_WAYBILL_NOE_FOUND = "运单不存在";
+	private static final String ADDRESS = "address";
+	private static final String REASSIGNADDRESS = "reassignAddress";
 
 	@Autowired
 	private BaseMajorManager baseMajorManager;
@@ -56,9 +64,29 @@ public class OrderResource {
 	@GET
 	@Path("/order")
     @JProfiler(jKey = "DMS.WEB.OrderResource.getOrderResponse", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
-	public OrderResponse getOrderResponse(@QueryParam("packageCode") String packageCode) {
+	public OrderResponse getOrderResponse(@QueryParam("packageCode") String packageCode, @QueryParam("decryptFields") List<String> decryptFields) {
 		OrderResponse orderResponse = this.waybillService.getDmsWaybillInfoAndCheck(packageCode);
+		getHideInfo(orderResponse,decryptFields);
 		return orderResponse;
+	}
+
+	private void getHideInfo(OrderResponse orderResponse, List<String> decryptFields) {
+		try{
+			if (CollectionUtils.isEmpty(decryptFields)){
+				orderResponse.setAddress(getHideAddress(orderResponse.getAddress()));
+				orderResponse.setReassignAddress(getHideAddress(orderResponse.getReassignAddress()));
+				return;
+			}
+			if (!decryptFields.contains(ADDRESS)){
+				orderResponse.setAddress(getHideAddress(orderResponse.getAddress()));
+			}
+			if (!decryptFields.contains((REASSIGNADDRESS))){
+				orderResponse.setReassignAddress(getHideAddress(orderResponse.getReassignAddress()));
+			}
+		}catch (Exception e){
+			log.error("包裹{}敏感信息隐藏失败",orderResponse.getWaybillCode(),e);
+		}
+
 	}
 
 	@GET
@@ -74,7 +102,7 @@ public class OrderResource {
 	public jd.oom.client.orderfile.Order getHistoryOrder(@PathParam("orderId") long orderId) {
 		return this.orderWebService.getHistoryOrder(orderId);
 	}
-	
+
 	@GET
 	@Path("/waybill/product/{waybillCode}")
     @JProfiler(jKey = "DMS.WEB.OrderResource.getWaybillProducts", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -82,12 +110,12 @@ public class OrderResource {
 		if (Strings.isNullOrEmpty(waybillCode) || Strings.isNullOrEmpty(waybillCode.trim())) {
 			return new JdResponse(JdResponse.CODE_PARAM_ERROR, JdResponse.MESSAGE_PARAM_ERROR);
 		}
-		
+
 		BigWaybillDto waybill = this.waybillService.getWaybillProduct(waybillCode);
 		if (waybill == null || waybill.getGoodsList() == null || waybill.getGoodsList().isEmpty()) {
 			return new JdResponse(10001, "此运单无商品明细！");
 		}
-		
+
 		List<Product> products = new ArrayList();
 		for (Goods good : waybill.getGoodsList()) {
 			Product product = new Product();
@@ -108,13 +136,13 @@ public class OrderResource {
 		if (Strings.isNullOrEmpty(waybillCode) || Strings.isNullOrEmpty(waybillCode.trim())) {
 			return new JdResponse(JdResponse.CODE_PARAM_ERROR, JdResponse.MESSAGE_PARAM_ERROR);
 		}
-		
+
 		BigWaybillDto waybill = this.waybillService.getWaybill(waybillCode.trim());
-		
+
 		if (waybill == null || waybill.getPackageList() == null || waybill.getPackageList().isEmpty()) {
 			return new JdResponse(10001, "此运单无包裹明细！");
 		}
-		
+
 		Function<DeliveryPackageD, String> function = new Function<DeliveryPackageD, String>() {
 			public String apply(DeliveryPackageD packageDetail) {
 				return packageDetail.getPackageBarcode();
@@ -122,9 +150,9 @@ public class OrderResource {
 		};
 		String packageCodes = Joiner.on(",").skipNulls().join(Lists.transform(waybill.getPackageList(), function));
 
-		return new JdResponse(JdResponse.CODE_OK, packageCodes); 
+		return new JdResponse(JdResponse.CODE_OK, packageCodes);
 	}
-	
+
 	@GET
 	@Path("/waybillStatus/{waybillCode}")
     @JProfiler(jKey = "DMS.WEB.OrderResource.getOrderStatusResponse", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
