@@ -292,5 +292,8 @@
     from jy_unload_vehicle_board
     where yn = 1
     and unload_vehicle_stage_biz_id = #{unloadVehicleStageBizId,jdbcType=VARCHAR}
+    <if test="boardCode != null">
+      board_code = #{boardCode,jdbcType=VARCHAR}
+    </if>
   </select>
 </mapper>
