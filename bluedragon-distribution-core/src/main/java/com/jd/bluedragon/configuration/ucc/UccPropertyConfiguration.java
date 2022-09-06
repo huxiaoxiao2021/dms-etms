@@ -714,6 +714,8 @@ public class UccPropertyConfiguration {
      */
     private Integer jySendTaskPlanTimeEndDay;
 
+    private Integer jySendTaskCreateTimeBeginDay;
+
     public Integer getOldSendSplitPageSize() {
         return oldSendSplitPageSize;
     }
@@ -2118,5 +2120,13 @@ public class UccPropertyConfiguration {
 
     public void setSensitiveInfoHideSwitch(Boolean sensitiveInfoHideSwitch) {
         this.sensitiveInfoHideSwitch = sensitiveInfoHideSwitch;
+    }
+
+    public Integer getJySendTaskCreateTimeBeginDay() {
+        return jySendTaskCreateTimeBeginDay;
+    }
+
+    public void setJySendTaskCreateTimeBeginDay(Integer jySendTaskCreateTimeBeginDay) {
+        this.jySendTaskCreateTimeBeginDay = jySendTaskCreateTimeBeginDay;
     }
 }
