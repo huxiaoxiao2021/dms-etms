@@ -620,6 +620,20 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         }
         JSONObject reqObj = (JSONObject) JSONObject.toJSON(req);
         cacheObj.putAll(reqObj);
+        //部分校验
+        ExpTaskDetailCacheDto cacheDto = cacheObj.toJavaObject(ExpTaskDetailCacheDto.class);
+        if (StringUtils.isNotEmpty(cacheDto.getTo())){
+            Integer toSiteCode = null;
+            try{
+                toSiteCode = Integer.valueOf(cacheDto.getTo());
+            }catch (Exception e){
+                return JdCResponse.fail("下级地编号不合法!siteCode=" + cacheDto.getTo());
+            }
+            BaseStaffSiteOrgDto toSite = baseMajorManager.getBaseSiteBySiteId(toSiteCode);
+            if (toSite == null){
+                return JdCResponse.fail("下级地编号不存在!siteCode=" + cacheDto.getTo());
+            }
+        }
 
         redisClient.set(key, cacheObj.toJSONString());
         // 处理任务后 更新任务明细过期时间：继续保留30天
@@ -630,7 +644,6 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             return JdCResponse.ok();
         }
 
-        ExpTaskDetailCacheDto cacheDto = cacheObj.toJavaObject(ExpTaskDetailCacheDto.class);
         cacheDto.setExpBarcode(bizEntity.getBarCode());
         cacheDto.setExpCreateTime(bizEntity.getCreateTime() == null ? System.currentTimeMillis() : bizEntity.getCreateTime().getTime());
         JyExpSourceEnum source = JyExpSourceEnum.getEnumByCode(bizEntity.getSource());
