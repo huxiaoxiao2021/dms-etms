@@ -7,18 +7,13 @@ import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.ObjectUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.objectid.IGenerateObjectId;
 import com.jd.bluedragon.distribution.api.response.base.Result;
-import com.jd.bluedragon.distribution.base.ResultHandler;
-import com.jd.bluedragon.distribution.lock.LockService;
 import com.jd.bluedragon.distribution.station.dao.WorkStationAttendPlanDao;
 import com.jd.bluedragon.distribution.station.domain.DeleteRequest;
 import com.jd.bluedragon.distribution.station.domain.WorkStation;
@@ -31,7 +26,6 @@ import com.jd.bluedragon.distribution.station.service.WorkStationGridService;
 import com.jd.bluedragon.distribution.station.service.WorkStationService;
 import com.jd.bluedragon.distribution.utils.CheckHelper;
 import com.jd.bluedragon.dms.utils.DmsConstants;
-import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
@@ -48,8 +42,7 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 @Service("workStationAttendPlanService")
 public class WorkStationAttendPlanServiceImpl implements WorkStationAttendPlanService {
-	private static final Logger logger = LoggerFactory.getLogger(WorkStationAttendPlanServiceImpl.class);
-	
+
 	@Autowired
 	@Qualifier("workStationAttendPlanDao")
 	private WorkStationAttendPlanDao workStationAttendPlanDao;
@@ -67,44 +60,19 @@ public class WorkStationAttendPlanServiceImpl implements WorkStationAttendPlanSe
 	
 	@Autowired
 	private IGenerateObjectId genObjectId;
-	
-    @Autowired
-    @Qualifier("jimdbRemoteLockService")
-    private LockService lockService;	
 
 	/**
 	 * 插入一条数据
 	 * @param insertData
 	 * @return
 	 */
-	public Result<Boolean> insert(final WorkStationAttendPlan insertData){
-		final Result<Boolean> result = Result.success();
-		lockService.tryLock(CacheKeyConstants.CACHE_KEY_WORK_STATION_ATTEND_PLAN_EDIT,DateHelper.ONE_MINUTES_MILLI, new ResultHandler() {
-			@Override
-			public void success() {
-				Result<Boolean> checkResult = checkAndFillBeforeAdd(insertData);
-				if(!checkResult.isSuccess()) {
-					result.setCode(checkResult.getCode());
-					result.setMessage(checkResult.getMessage());
-					result.setData(checkResult.getData());
-					return ;
-				}
-				insertData.setBusinessKey(DmsConstants.CODE_PREFIX_WORK_STATION_ATTEND_PLAN.concat(StringHelper.padZero(genObjectId.getObjectId(WorkStationAttendPlan.class.getName()),11)));
-				result.setData(workStationAttendPlanDao.insert(insertData) == 1);				
-			}
-
-			@Override
-			public void fail() {
-				result.toFail("其他用户正在修改网格计划信息，请稍后操作！");
-			}
-
-			@Override
-			public void error(Exception e) {
-				logger.error(e.getMessage(), e);
-				result.toFail("操作异常，请稍后重试！");
-			}
-			
-		});
+	public Result<Boolean> insert(WorkStationAttendPlan insertData){
+		Result<Boolean> result = checkAndFillBeforeAdd(insertData);
+		if(!result.isSuccess()) {
+			return result;
+		}
+		insertData.setBusinessKey(DmsConstants.CODE_PREFIX_WORK_STATION_ATTEND_PLAN.concat(StringHelper.padZero(this.genObjectId.getObjectId(WorkStationAttendPlan.class.getName()),11)));
+		result.setData(workStationAttendPlanDao.insert(insertData) == 1);
 		return result;
 	 }
 	/**
@@ -127,8 +95,8 @@ public class WorkStationAttendPlanServiceImpl implements WorkStationAttendPlanSe
 	 * @param updateData
 	 * @return
 	 */
-	public Result<Boolean> updateById(final WorkStationAttendPlan updateData){
-		final Result<Boolean> result = Result.success();
+	public Result<Boolean> updateById(WorkStationAttendPlan updateData){
+		Result<Boolean> result = Result.success();
 		String planName = updateData.getPlanName();
 		Integer planAttendNum = updateData.getPlanAttendNum();
 		if(!CheckHelper.checkStr("方案名称", planName, 50, result).isSuccess()) {
@@ -136,32 +104,14 @@ public class WorkStationAttendPlanServiceImpl implements WorkStationAttendPlanSe
 		}
 		if(!CheckHelper.checkInteger("出勤计划人数", planAttendNum, 0,1000000, result).isSuccess()) {
 			return result;
+		}
+		WorkStationAttendPlan oldData = workStationAttendPlanDao.queryById(updateData.getId());
+		if(oldData == null) {
+			return result.toFail("该计划数据已变更，请重新查询后修改！");
 		}		
-		lockService.tryLock(CacheKeyConstants.CACHE_KEY_WORK_STATION_ATTEND_PLAN_EDIT,DateHelper.ONE_MINUTES_MILLI, new ResultHandler() {
-			@Override
-			public void success() {
-				WorkStationAttendPlan oldData = workStationAttendPlanDao.queryById(updateData.getId());
-				if(oldData == null) {
-					result.toFail("该计划数据已变更，请重新查询后修改！");
-					return ;
-				}		
-				workStationAttendPlanDao.deleteById(updateData);
-				updateData.setId(null);		
-				result.setData(workStationAttendPlanDao.insert(updateData) == 1);
-			}
-
-			@Override
-			public void fail() {
-				result.toFail("其他用户正在修改网格计划信息，请稍后操作！");
-			}
-
-			@Override
-			public void error(Exception e) {
-				logger.error(e.getMessage(), e);
-				result.toFail("操作异常，请稍后重试！");
-			}
-			
-		});		
+		workStationAttendPlanDao.deleteById(updateData);
+		updateData.setId(null);		
+		result.setData(workStationAttendPlanDao.insert(updateData) == 1);
 		return result;
 	 }
 	/**
@@ -169,26 +119,9 @@ public class WorkStationAttendPlanServiceImpl implements WorkStationAttendPlanSe
 	 * @param deleteData
 	 * @return
 	 */
-	public Result<Boolean> deleteById(final WorkStationAttendPlan deleteData){
-		final Result<Boolean> result = Result.success();
-		lockService.tryLock(CacheKeyConstants.CACHE_KEY_WORK_STATION_ATTEND_PLAN_EDIT,DateHelper.ONE_MINUTES_MILLI, new ResultHandler() {
-			@Override
-			public void success() {
-				result.setData(workStationAttendPlanDao.deleteById(deleteData) == 1);
-			}
-
-			@Override
-			public void fail() {
-				result.toFail("其他用户正在修改网格计划信息，请稍后操作！");
-			}
-
-			@Override
-			public void error(Exception e) {
-				logger.error(e.getMessage(), e);
-				result.toFail("操作异常，请稍后重试！");
-			}
-			
-		});		
+	public Result<Boolean> deleteById(WorkStationAttendPlan deleteData){
+		Result<Boolean> result = Result.success();
+		result.setData(workStationAttendPlanDao.deleteById(deleteData) == 1);
 		return result;
 	 }
 	/**
@@ -273,47 +206,26 @@ public class WorkStationAttendPlanServiceImpl implements WorkStationAttendPlanSe
 	}	
 	
 	@Override
-	public Result<Boolean> importDatas(final List<WorkStationAttendPlan> dataList) {
-		final Result<Boolean> result = Result.success();
-		lockService.tryLock(CacheKeyConstants.CACHE_KEY_WORK_STATION_ATTEND_PLAN_EDIT,DateHelper.FIVE_MINUTES_MILLI, new ResultHandler() {
-			@Override
-			public void success() {
-				Result<Boolean> checkResult = checkAndFillImportDatas(dataList);
-				if(!checkResult.isSuccess()) {
-					result.setCode(checkResult.getCode());
-					result.setMessage(checkResult.getMessage());
-					result.setData(checkResult.getData());
-					return ;
-				}
-				//先删除后插入新记录
-				for(WorkStationAttendPlan data : dataList) {
-					WorkStationAttendPlan oldData = workStationAttendPlanDao.queryByBusinessKey(data);
-					if(oldData != null) {
-						oldData.setUpdateUser(data.getCreateUser());
-						oldData.setUpdateUserName(data.getCreateUserName());
-						oldData.setUpdateTime(data.getCreateTime());
-						workStationAttendPlanDao.deleteById(oldData);
-						data.setBusinessKey(oldData.getBusinessKey());
-					}else {
-						data.setBusinessKey(DmsConstants.CODE_PREFIX_WORK_STATION_ATTEND_PLAN.concat(StringHelper.padZero(genObjectId.getObjectId(WorkStationAttendPlan.class.getName()),11)));
-					}			
-					workStationAttendPlanDao.deleteByBusinessKey(data);
-					workStationAttendPlanDao.insert(data);
-				}				
-			}
-
-			@Override
-			public void fail() {
-				result.toFail("其他用户正在修改网格计划信息，请稍后操作！");
-			}
-
-			@Override
-			public void error(Exception e) {
-				logger.error(e.getMessage(), e);
-				result.toFail("操作异常，请稍后重试！");
-			}
-			
-		});		
+	public Result<Boolean> importDatas(List<WorkStationAttendPlan> dataList) {
+		Result<Boolean> result = checkAndFillImportDatas(dataList);
+		if(!result.isSuccess()) {
+			return result;
+		}
+		//先删除后插入新记录
+		for(WorkStationAttendPlan data : dataList) {
+			WorkStationAttendPlan oldData = workStationAttendPlanDao.queryByBusinessKey(data);
+			if(oldData != null) {
+				oldData.setUpdateUser(data.getCreateUser());
+				oldData.setUpdateUserName(data.getCreateUserName());
+				oldData.setUpdateTime(data.getCreateTime());
+				workStationAttendPlanDao.deleteById(oldData);
+				data.setBusinessKey(oldData.getBusinessKey());
+			}else {
+				data.setBusinessKey(DmsConstants.CODE_PREFIX_WORK_STATION_ATTEND_PLAN.concat(StringHelper.padZero(this.genObjectId.getObjectId(WorkStationAttendPlan.class.getName()),11)));
+			}			
+			workStationAttendPlanDao.deleteByBusinessKey(data);
+			workStationAttendPlanDao.insert(data);
+		}
 		return result;
 	}
 	/**
@@ -437,42 +349,23 @@ public class WorkStationAttendPlanServiceImpl implements WorkStationAttendPlanSe
 		return result;
 	}
 	@Override
-	public Result<Boolean> deleteByIds(final DeleteRequest<WorkStationAttendPlan> deleteRequest) {
-		final Result<Boolean> result = Result.success();
+	public Result<Boolean> deleteByIds(DeleteRequest<WorkStationAttendPlan> deleteRequest) {
+		Result<Boolean> result = Result.success();
 		if(deleteRequest == null
 				|| CollectionUtils.isEmpty(deleteRequest.getDataList())) {
 			return result.toFail("参数错误，删除列表不能为空！");
 		}
-		lockService.tryLock(CacheKeyConstants.CACHE_KEY_WORK_STATION_ATTEND_PLAN_EDIT,DateHelper.ONE_MINUTES_MILLI, new ResultHandler() {
-			@Override
-			public void success() {
-				List<WorkStationAttendPlan> oldDataList = workStationAttendPlanDao.queryByIds(deleteRequest);
-				if(CollectionUtils.isEmpty(oldDataList)
-						|| oldDataList.size() < deleteRequest.getDataList().size()) {
-					result.toFail("参数错误，数据已变更请刷新列表后重新选择！");
-					return ;
-				}
-				for(WorkStationAttendPlan oldData : oldDataList) {
-					if(!ObjectUtils.equals(oldData.getSiteCode(), deleteRequest.getOperateSiteCode())) {
-						result.toFail("网格计划【"+oldData.getPlanName()+ "】非本人所在场地数据，无法删除！");
-						return ;
-					}
-				}
-				result.setData(workStationAttendPlanDao.deleteByIds(deleteRequest) > 0);
+		List<WorkStationAttendPlan> oldDataList = workStationAttendPlanDao.queryByIds(deleteRequest);
+		if(CollectionUtils.isEmpty(oldDataList)
+				|| oldDataList.size() < deleteRequest.getDataList().size()) {
+			return result.toFail("参数错误，数据已变更请刷新列表后重新选择！");
+		}
+		for(WorkStationAttendPlan oldData : oldDataList) {
+			if(!ObjectUtils.equals(oldData.getSiteCode(), deleteRequest.getOperateSiteCode())) {
+				return result.toFail("网格计划【"+oldData.getPlanName()+ "】非本人所在场地数据，无法删除！");
 			}
-
-			@Override
-			public void fail() {
-				result.toFail("其他用户正在修改网格计划信息，请稍后操作！");
-			}
-
-			@Override
-			public void error(Exception e) {
-				logger.error(e.getMessage(), e);
-				result.toFail("操作异常，请稍后重试！");
-			}
-			
-		});		
+		}
+		result.setData(workStationAttendPlanDao.deleteByIds(deleteRequest) > 0);
 		return result;
 	}
 	@Override

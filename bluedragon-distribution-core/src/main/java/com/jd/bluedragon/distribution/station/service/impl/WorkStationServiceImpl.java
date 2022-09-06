@@ -14,24 +14,19 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import com.esotericsoftware.minlog.Log;
-import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.core.objectid.IGenerateObjectId;
 import com.jd.bluedragon.distribution.api.response.base.Result;
-import com.jd.bluedragon.distribution.base.ResultHandler;
-import com.jd.bluedragon.distribution.lock.LockService;
 import com.jd.bluedragon.distribution.station.dao.WorkStationDao;
 import com.jd.bluedragon.distribution.station.domain.DeleteRequest;
 import com.jd.bluedragon.distribution.station.domain.WorkStation;
+import com.jd.bluedragon.distribution.station.domain.WorkStationAttendPlan;
 import com.jd.bluedragon.distribution.station.domain.WorkStationCountVo;
 import com.jd.bluedragon.distribution.station.query.WorkStationQuery;
 import com.jd.bluedragon.distribution.station.service.WorkStationGridService;
 import com.jd.bluedragon.distribution.station.service.WorkStationService;
 import com.jd.bluedragon.distribution.utils.CheckHelper;
 import com.jd.bluedragon.dms.utils.DmsConstants;
-import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.StringHelper;
-import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
 
 /**
@@ -55,86 +50,42 @@ public class WorkStationServiceImpl implements WorkStationService {
 	@Autowired
 	@Qualifier("workStationGridService")
 	private WorkStationGridService workStationGridService;
-	
-    @Autowired
-    @Qualifier("jimdbRemoteLockService")
-    private LockService lockService;
 
 	/**
 	 * 插入一条数据
 	 * @param insertData
 	 * @return
 	 */
-	public Result<Boolean> insert(final WorkStation insertData){
-		final Result<Boolean> result = Result.success();
-		lockService.tryLock(CacheKeyConstants.CACHE_KEY_WORK_STATION_EDIT,DateHelper.ONE_MINUTES_MILLI, new ResultHandler() {
-			@Override
-			public void success() {
-				Result<Boolean> checkResult = checkAndFillBeforeAdd(insertData);
-				if(!checkResult.isSuccess()) {
-					result.setCode(checkResult.getCode());
-					result.setMessage(checkResult.getMessage());
-					result.setData(checkResult.getData());
-					return ;
-				}
-				generateAndSetBusinessKey(insertData);
-				result.setData(workStationDao.insert(insertData) == 1);
-			}
-			@Override
-			public void fail() {
-				result.toFail("其他用户正在修改工序信息，请稍后操作！");
-			}
-			@Override
-			public void error(Exception e) {
-				logger.error(e.getMessage(), e);
-				result.toFail("操作异常，请稍后重试！");
-			}
-			
-		});
-		
+	public Result<Boolean> insert(WorkStation insertData){
+		Result<Boolean> result = checkAndFillBeforeAdd(insertData);
+		if(!result.isSuccess()) {
+			return result;
+		}
+		generateAndSetBusinessKey(insertData);
+		result.setData(workStationDao.insert(insertData) == 1);
 		return result;
 	 }
 	@Override
-	public Result<Boolean> importDatas(final List<WorkStation> dataList) {
-		final Result<Boolean> result = Result.success();
-		lockService.tryLock(CacheKeyConstants.CACHE_KEY_WORK_STATION_EDIT,DateHelper.FIVE_MINUTES_MILLI, new ResultHandler() {
-			@Override
-			public void success() {
-				final Result<Boolean> checkResult = checkImportDatas(dataList);
-				if(!checkResult.isSuccess()) {
-					result.setCode(checkResult.getCode());
-					result.setMessage(checkResult.getMessage());
-					result.setData(checkResult.getData());
-					return ;
-				}
-				//先删除后插入新记录
-				for(WorkStation data : dataList) {
-					WorkStation oldData = workStationDao.queryByBusinessKey(data);
-					if(oldData != null) {
-						oldData.setUpdateUser(data.getCreateUser());
-						oldData.setUpdateUserName(data.getCreateUserName());
-						oldData.setUpdateTime(data.getCreateTime());
-						workStationDao.deleteById(oldData);
-						data.setBusinessKey(oldData.getBusinessKey());
-					}else {
-						generateAndSetBusinessKey(data);
-					}
-					data.setBusinessLineName(BusinessLineTypeEnum.getNameByCode(data.getBusinessLineCode()));
-					workStationDao.insert(data);
-				}
+	public Result<Boolean> importDatas(List<WorkStation> dataList) {
+		Result<Boolean> result = checkImportDatas(dataList);
+		if(!result.isSuccess()) {
+			return result;
+		}		
+		//先删除后插入新记录
+		for(WorkStation data : dataList) {
+			WorkStation oldData = workStationDao.queryByBusinessKey(data);
+			if(oldData != null) {
+				oldData.setUpdateUser(data.getCreateUser());
+				oldData.setUpdateUserName(data.getCreateUserName());
+				oldData.setUpdateTime(data.getCreateTime());
+				workStationDao.deleteById(oldData);
+				data.setBusinessKey(oldData.getBusinessKey());
+			}else {
+				generateAndSetBusinessKey(data);
 			}
-
-			@Override
-			public void fail() {
-				result.toFail("其他用户正在修改工序信息，请稍后导入！");
-			}
-			@Override
-			public void error(Exception e) {
-				logger.error(e.getMessage(), e);
-				result.toFail("操作异常，请稍后重试！");
-			}
-			
-		});
+			data.setBusinessLineName(BusinessLineTypeEnum.getNameByCode(data.getBusinessLineCode()));
+			workStationDao.insert(data);
+		}
 		return result;
 	}
 	/**
@@ -224,38 +175,19 @@ public class WorkStationServiceImpl implements WorkStationService {
 	 * @param updateData
 	 * @return
 	 */
-	public Result<Boolean> updateById(final WorkStation updateData){
-		final Result<Boolean> result = Result.success();
-		lockService.tryLock(CacheKeyConstants.CACHE_KEY_WORK_STATION_EDIT,DateHelper.ONE_MINUTES_MILLI, new ResultHandler() {
-			@Override
-			public void success() {
-				Result<Boolean> checkResult = checkAndFillNewData(updateData);
-				if(!checkResult.isSuccess()) {
-					result.setCode(checkResult.getCode());
-					result.setMessage(checkResult.getMessage());
-					result.setData(checkResult.getData());
-					return ;
-				}
-				WorkStation oldData = workStationDao.queryById(updateData.getId());
-				if(oldData == null) {
-					result.toFail("该工序数据已变更，请重新查询后修改！");
-					return;
-				}
-				workStationDao.deleteById(updateData);
-				updateData.setId(null);
-				updateData.setBusinessLineName(BusinessLineTypeEnum.getNameByCode(updateData.getBusinessLineCode()));
-				result.setData(workStationDao.insert(updateData) == 1);
-			}
-			@Override
-			public void fail() {
-				result.toFail("其他用户正在修改工序信息，请稍后操作！");
-			}
-			@Override
-			public void error(Exception e) {
-				logger.error(e.getMessage(), e);
-				result.toFail("操作异常，请稍后重试！");
-			}
-		});
+	public Result<Boolean> updateById(WorkStation updateData){
+		Result<Boolean> result = checkAndFillNewData(updateData);
+		if(!result.isSuccess()) {
+			return result;
+		}
+		WorkStation oldData = workStationDao.queryById(updateData.getId());
+		if(oldData == null) {
+			return result.toFail("该工序数据已变更，请重新查询后修改！");
+		}
+		workStationDao.deleteById(updateData);
+		updateData.setId(null);
+		updateData.setBusinessLineName(BusinessLineTypeEnum.getNameByCode(updateData.getBusinessLineCode()));
+		result.setData(workStationDao.insert(updateData) == 1);
 		return result;
 	 }
 	/**
@@ -263,38 +195,20 @@ public class WorkStationServiceImpl implements WorkStationService {
 	 * @param deleteData
 	 * @return
 	 */
-	public Result<Boolean> deleteById(final WorkStation deleteData){
-		final Result<Boolean> result = Result.success();
-		lockService.tryLock(CacheKeyConstants.CACHE_KEY_WORK_STATION_EDIT,DateHelper.ONE_MINUTES_MILLI, new ResultHandler() {
-			@Override
-			public void success() {
-				if(deleteData == null
-						|| deleteData.getId() == null) {
-					result.toFail("参数错误，id不能为空！");
-					return;
-				}
-				WorkStation oldData = workStationDao.queryById(deleteData.getId());
-				if(oldData == null) {
-					result.toFail("参数错误，无效的数据id！");
-					return;
-				}
-				if(workStationGridService.hasGridData(oldData.getBusinessKey())) {
-					result.toFail("该工序存在场地网格记录，无法删除！");
-					return;
-				}
-				result.setData(workStationDao.deleteById(deleteData) == 1);
-			}
-			@Override
-			public void fail() {
-				result.toFail("其他用户正在修改工序信息，请稍后操作！");
-			}
-			@Override
-			public void error(Exception e) {
-				logger.error(e.getMessage(), e);
-				result.toFail("操作异常，请稍后重试！");
-			}
-			
-		});
+	public Result<Boolean> deleteById(WorkStation deleteData){
+		Result<Boolean> result = Result.success();
+		if(deleteData == null
+				|| deleteData.getId() == null) {
+			return result.toFail("参数错误，id不能为空！");
+		}
+		WorkStation oldData = workStationDao.queryById(deleteData.getId());
+		if(oldData == null) {
+			return result.toFail("参数错误，无效的数据id！");
+		}
+		if(workStationGridService.hasGridData(oldData.getBusinessKey())) {
+			return result.toFail("该工序存在场地网格记录，无法删除！");
+		}
+		result.setData(workStationDao.deleteById(deleteData) == 1);
 		return result;
 	 }
 	/**
@@ -403,40 +317,23 @@ public class WorkStationServiceImpl implements WorkStationService {
 		}
 	}
 	@Override
-	public Result<Boolean> deleteByIds(final DeleteRequest<WorkStation> deleteRequest) {
-		final Result<Boolean> result = Result.success();
+	public Result<Boolean> deleteByIds(DeleteRequest<WorkStation> deleteRequest) {
+		Result<Boolean> result = Result.success();
 		if(deleteRequest == null
 				|| CollectionUtils.isEmpty(deleteRequest.getDataList())) {
 			return result.toFail("参数错误，删除列表不能为空！");
 		}
-		lockService.tryLock(CacheKeyConstants.CACHE_KEY_WORK_STATION_EDIT,DateHelper.FIVE_MINUTES_MILLI, new ResultHandler() {
-			@Override
-			public void success() {
-				List<WorkStation> oldDataList = workStationDao.queryByIds(deleteRequest);
-				if(CollectionUtils.isEmpty(oldDataList)
-						|| oldDataList.size() < deleteRequest.getDataList().size()) {
-					result.toFail("参数错误，数据已变更请刷新列表后重新选择！");
-					return;
-				}
-				for(WorkStation oldData : oldDataList) {
-					if(workStationGridService.hasGridData(oldData.getBusinessKey())) {
-						result.toFail("工序【"+oldData.getWorkName()+ "】存在场地网格记录，无法删除！");
-						return;
-					}
-				}
-				result.setData(workStationDao.deleteByIds(deleteRequest) > 0);				
+		List<WorkStation> oldDataList = workStationDao.queryByIds(deleteRequest);
+		if(CollectionUtils.isEmpty(oldDataList)
+				|| oldDataList.size() < deleteRequest.getDataList().size()) {
+			return result.toFail("参数错误，数据已变更请刷新列表后重新选择！");
+		}
+		for(WorkStation oldData : oldDataList) {
+			if(workStationGridService.hasGridData(oldData.getBusinessKey())) {
+				return result.toFail("工序【"+oldData.getWorkName()+ "】存在场地网格记录，无法删除！");
 			}
-			@Override
-			public void fail() {
-				result.toFail("其他用户正在修改工序信息，请稍后操作！");
-			}
-			@Override
-			public void error(Exception e) {
-				logger.error(e.getMessage(), e);
-				result.toFail("操作异常，请稍后重试！");
-			}
-			
-		});
+		}
+		result.setData(workStationDao.deleteByIds(deleteRequest) > 0);
 		return result;
 	}
 	@Override
