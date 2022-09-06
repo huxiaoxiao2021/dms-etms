@@ -1440,7 +1440,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             res.setData(resData);
             return res;
         }catch (Exception e) {
-            log.error("{}服务异常，childTaskBizId={}，errMsg={}", methodDesc, childTaskBizId, e.getMessage(), e);
+            log.error("{}服务异常，childTaskBizId={}，boardCode={}, errMsg={}", methodDesc, childTaskBizId, boardCode, e.getMessage(), e);
             res.error("根据子BizId查询任务板关系服务异常 " + e.getMessage());
             return  res;
         }
