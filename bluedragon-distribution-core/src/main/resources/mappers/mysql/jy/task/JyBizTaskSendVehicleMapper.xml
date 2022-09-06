@@ -459,11 +459,8 @@
                 #{item}
             </foreach>
         </if>
-        <if test="entity.lastPlanDepartTimeBegin !=null">
-            and (last_plan_depart_time &gt;= #{entity.lastPlanDepartTimeBegin} or (last_plan_depart_time is null and create_time &gt;= #{entity.createTimeBegin}))
-        </if>
-        <if test="entity.lastPlanDepartTimeEnd !=null">
-            and (last_plan_depart_time &lt;= #{entity.lastPlanDepartTimeEnd}  or (last_plan_depart_time is null and create_time &gt;= #{entity.createTimeBegin}))
+        <if test="entity.lastPlanDepartTimeBegin !=null and entity.lastPlanDepartTimeEnd !=null and entity.createTimeBegin !=null">
+            and ((last_plan_depart_time &gt;= #{entity.lastPlanDepartTimeBegin} and last_plan_depart_time &lt;= #{entity.lastPlanDepartTimeEnd}) or (last_plan_depart_time is null and create_time &gt;= #{entity.createTimeBegin}))
         </if>
         GROUP BY vehicle_status
     </select>
