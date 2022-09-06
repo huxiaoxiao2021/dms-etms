@@ -142,7 +142,8 @@ public class ReviewWeightSpotCheckController extends DmsBaseController {
 
 //            ErpUserClient.ErpUser erpUser = new ErpUserClient.ErpUser();
 //            erpUser.setUserCode("hujiping1");
-            if(erpUser == null || !Objects.equals(erpUser.getUserCode(), "hujiping1")){
+            if(erpUser == null || !Objects.equals(erpUser.getUserCode(), "hujiping1")
+                    || !Objects.equals(erpUser.getUserCode(), "wuzuxiang")){
                 response.toFail("非法导入!");
                 return response;
             }
@@ -154,7 +155,7 @@ public class ReviewWeightSpotCheckController extends DmsBaseController {
             }
             DataResolver dataResolver = ExcelDataResolverFactory.getDataResolver(2);
             List<WeightVolumeSpotCheckDto> dataList = dataResolver.resolver(file.getInputStream(), WeightVolumeSpotCheckDto.class, new PropertiesMetaDataFactory("/excel/weightAndSpotCheck.properties"));
-            spotCheckDealService.brushSpotCheck(dataList);
+            spotCheckDealService.brushSpotCheck(dataList, erpUser.getUserCode());
             long endTime = System.currentTimeMillis();
             log.info("{},此次抽检数据导入结束!耗时:{}s", endTime, (endTime - startTime) / 1000);
         } catch (Exception e) {
