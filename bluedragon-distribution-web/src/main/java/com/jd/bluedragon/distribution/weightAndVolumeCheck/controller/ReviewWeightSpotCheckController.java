@@ -142,8 +142,8 @@ public class ReviewWeightSpotCheckController extends DmsBaseController {
 
 //            ErpUserClient.ErpUser erpUser = new ErpUserClient.ErpUser();
 //            erpUser.setUserCode("hujiping1");
-            if(erpUser == null || !Objects.equals(erpUser.getUserCode(), "hujiping1")
-                    || !Objects.equals(erpUser.getUserCode(), "wuzuxiang")){
+            if(erpUser == null || (!Objects.equals(erpUser.getUserCode(), "hujiping1")
+                    && !Objects.equals(erpUser.getUserCode(), "wuzuxiang"))){
                 response.toFail("非法导入!");
                 return response;
             }
