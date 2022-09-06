@@ -2420,4 +2420,13 @@ public class BusinessUtil {
     public static boolean isSelfReverse(String waybillSign){
         return isSignChar(waybillSign, WaybillSignConstants.POSITION_1, 'T');
     }
+
+    /**
+     * 是否是外单仓配业务
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isWarehouseAndDistributionBusiness(String waybillSign){
+        return isSignChar(waybillSign, WaybillSignConstants.POSITION_53, WaybillSignConstants.CHAR_1);
+    }
 }
