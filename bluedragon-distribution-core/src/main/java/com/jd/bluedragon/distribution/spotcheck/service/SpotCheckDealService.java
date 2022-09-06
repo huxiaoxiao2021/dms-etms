@@ -148,5 +148,5 @@ public interface SpotCheckDealService {
      */
     String getSpotCheckPackUrlFromCache(String packageCode, Integer siteCode);
 
-    void brushSpotCheck(List<WeightVolumeSpotCheckDto> list);
+    void brushSpotCheck(List<WeightVolumeSpotCheckDto> list, String userErp);
 }
