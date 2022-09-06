@@ -75,7 +75,7 @@
     </if>
     </select>
 
-    <select id="getPicUrlsById" parameterType="com.jd.bluedragon.distribution.exceptionReport.billException.request.ExpressBillExceptionReportQuery" resultType="java.lang.Integer">
+    <select id="getPicUrlsById" parameterType="java.lang.Integer" resultType="java.lang.String">
         select
             report_img_urls
         from
