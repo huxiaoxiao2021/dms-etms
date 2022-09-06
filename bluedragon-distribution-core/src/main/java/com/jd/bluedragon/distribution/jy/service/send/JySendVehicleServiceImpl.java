@@ -283,6 +283,8 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
             }else {
                 queryTaskSendDto.setLastPlanDepartTimeEnd(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(),uccConfig.getJySendTaskPlanTimeEndDay()));
             }
+            queryTaskSendDto.setCreateTimeBegin(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(),-uccConfig.getJySendTaskCreateTimeBeginDay()));
+
         }catch (Exception e){
             log.error("查询发货任务设置默认查询条件异常，入参{}",JsonHelper.toJson(request),e.getMessage(),e);
         }
@@ -683,6 +685,9 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
         }
         condition.setLastPlanDepartTimeBegin(queryTaskSendDto.getLastPlanDepartTimeBegin());
         condition.setLastPlanDepartTimeEnd(queryTaskSendDto.getLastPlanDepartTimeEnd());
+        if (ObjectHelper.isNotNull(queryTaskSendDto.getCreateTimeBegin())){
+            condition.setCreateTimeBegin(queryTaskSendDto.getCreateTimeBegin());
+        }
         return condition;
     }
 
@@ -734,6 +739,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
         try {
             curSendDest.setLastPlanDepartTimeBegin(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(),-uccConfig.getJySendTaskPlanTimeBeginDay()));
             curSendDest.setLastPlanDepartTimeEnd(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(),uccConfig.getJySendTaskPlanTimeEndDay()));
+            curSendDest.setCreateTimeBegin(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(),-uccConfig.getJySendTaskCreateTimeBeginDay()));
             // 统计发货任务数量
             Integer taskCount = taskSendVehicleService.countSendTaskByDest(curSendDest);
             VehicleTaskResp taskResp = new VehicleTaskResp();
@@ -898,6 +904,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
 
             queryDetail.setLastPlanDepartTimeBegin(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(),-uccConfig.getJySendTaskPlanTimeBeginDay()));
             queryDetail.setLastPlanDepartTimeEnd(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(),uccConfig.getJySendTaskPlanTimeEndDay()));
+            queryDetail.setCreateTimeBegin(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(),-uccConfig.getJySendTaskCreateTimeBeginDay()));
             List<JyBizTaskSendVehicleEntity> vehiclePageList = taskSendVehicleService.findSendTaskByDestOfPage(queryDetail,
                     vehicleTaskReq.getPageNumber(), vehicleTaskReq.getPageSize());
 

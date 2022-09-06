@@ -53,6 +53,7 @@ public class QueryTaskSendDto implements Serializable {
      * 最晚计划发车时间 范围查找-结束时间
      */
     private Date lastPlanDepartTimeEnd;
+    private Date createTimeBegin;
 
     public Integer getPageNumber() {
         return pageNumber;
@@ -132,5 +133,13 @@ public class QueryTaskSendDto implements Serializable {
 
     public void setLastPlanDepartTimeEnd(Date lastPlanDepartTimeEnd) {
         this.lastPlanDepartTimeEnd = lastPlanDepartTimeEnd;
+    }
+
+    public Date getCreateTimeBegin() {
+        return createTimeBegin;
+    }
+
+    public void setCreateTimeBegin(Date createTimeBegin) {
+        this.createTimeBegin = createTimeBegin;
     }
 }
