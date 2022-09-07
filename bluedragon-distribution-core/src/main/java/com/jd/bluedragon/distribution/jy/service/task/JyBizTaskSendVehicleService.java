@@ -102,4 +102,7 @@ public interface JyBizTaskSendVehicleService {
 
 
     Integer countSendTaskByDest(JyBizTaskSendVehicleDetailEntity entity);
+
+
+    List<JyBizTaskSendVehicleEntity> findSendTaskByTransWorkCode(List<String> transWorkCodeList,Long startSiteId);
 }
