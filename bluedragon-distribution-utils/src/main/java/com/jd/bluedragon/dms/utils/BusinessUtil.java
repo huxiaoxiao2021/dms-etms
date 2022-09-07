@@ -2217,6 +2217,19 @@ public class BusinessUtil {
         return BusinessUtil.isSignInChars(waybillSign, WaybillSignConstants.POSITION_8,
                 WaybillSignConstants.CHAR_8_1);
     }
+
+    /**
+     *
+     *  寄件人信息 非逆向运单 （waybillSign61位=0）
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isJDConsigner(String waybillSign) {
+        return BusinessUtil.isSignInChars(waybillSign, WaybillSignConstants.POSITION_61,
+                WaybillSignConstants.CHAR_61_0);
+    }
+
+
     /**
      * 是否修改订单地址,waybillSign第8位1、2
      *
