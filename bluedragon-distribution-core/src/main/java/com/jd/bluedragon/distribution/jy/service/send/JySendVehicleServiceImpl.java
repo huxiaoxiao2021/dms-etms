@@ -630,7 +630,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
                 result.hintMessage("未检索到相应的发货任务数据！");
             }
             else  {
-                result.hintMessage("不支持该种类型的条码！");//TODO  提示语确认一下
+                result.hintMessage("输入位数错误，未检索到发货任务数据！");
             }
             return null;
         }
