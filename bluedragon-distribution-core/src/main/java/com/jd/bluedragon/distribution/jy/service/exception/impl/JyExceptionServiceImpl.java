@@ -22,6 +22,7 @@ import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionService;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.service.SendDetailService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.jim.cli.Cluster;
@@ -108,7 +109,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         if (StringUtils.isBlank(req.getBarCode())) {
             return JdCResponse.fail("扫描条码不能为空!");
         }
-        // 三无系统只处理大写字母
+        //三无系统只处理大写字母
         req.setBarCode(req.getBarCode().toUpperCase());
         PositionDetailRecord position = getPosition(req.getPositionCode());
         if (position == null) {
@@ -119,10 +120,15 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         if (baseStaffByErp == null) {
             return JdCResponse.fail("登录人ERP有误!" + req.getUserErp());
         }
+        //一期写死三无类型
+        //三无异常处理逻辑
+        if (!BusinessUtil.isSanWuCode(req.getBarCode())){
+            return JdCResponse.fail("扫描格式错误!");
+        }
         String bizId = getBizId(JyBizTaskExceptionTypeEnum.SANWU, req.getBarCode());
         JyBizTaskExceptionEntity byBizId = jyBizTaskExceptionDao.findByBizId(bizId);
         if (byBizId != null) {
-            return JdCResponse.fail("已存在当前条码的任务,请勿重复提交!");
+            return JdCResponse.fail("该异常已上报!");
         }
 
         req.setSiteId(position.getSiteCode());
@@ -519,7 +525,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             return JdCResponse.fail("该条码无相关任务!" + req.getBarCode());
         }
         if (!Objects.equals(JyExpStatusEnum.TO_PICK.getCode(), taskEntity.getStatus())) {
-            return JdCResponse.fail("当前任务已被领取,请勿重复操作!" + req.getBarCode());
+            return JdCResponse.fail("当前任务"+req.getBarCode()+"已被领取,请勿重复操作!");
         }
         if (!Objects.equals(gridRid, taskEntity.getDistributionTarget())) {
             return JdCResponse.fail("领取人的岗位与任务被分配的岗位不匹配!" + taskEntity.getDistributionTarget());
@@ -623,12 +629,10 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         //部分校验
         ExpTaskDetailCacheDto cacheDto = cacheObj.toJavaObject(ExpTaskDetailCacheDto.class);
         if (StringUtils.isNotEmpty(cacheDto.getTo())){
-            Integer toSiteCode = null;
-            try{
-                toSiteCode = Integer.valueOf(cacheDto.getTo());
-            }catch (Exception e){
+            if (!BusinessUtil.isSiteCode(cacheDto.getTo())){
                 return JdCResponse.fail("下级地编号不合法!siteCode=" + cacheDto.getTo());
             }
+            Integer toSiteCode = Integer.valueOf(cacheDto.getTo());
             BaseStaffSiteOrgDto toSite = baseMajorManager.getBaseSiteBySiteId(toSiteCode);
             if (toSite == null){
                 return JdCResponse.fail("下级地编号不存在!siteCode=" + cacheDto.getTo());
@@ -904,7 +908,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         long millis = System.currentTimeMillis() - createTime.getTime();
         long hours = TimeUnit.MILLISECONDS.toHours(millis);
         long minutes = TimeUnit.MILLISECONDS.toMinutes(millis - TimeUnit.HOURS.toMillis(hours));
-        return hours + ":" + minutes;
+        return hours + "时" + minutes + "分";
     }
 
     /**
