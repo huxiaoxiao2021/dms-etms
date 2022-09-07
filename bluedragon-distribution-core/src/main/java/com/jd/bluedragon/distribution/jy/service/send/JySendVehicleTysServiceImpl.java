@@ -2,15 +2,23 @@ package com.jd.bluedragon.distribution.jy.service.send;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
+import com.jd.bluedragon.common.dto.blockcar.enumeration.SealCarSourceEnum;
+import com.jd.bluedragon.common.dto.blockcar.enumeration.SealCarTypeEnum;
+import com.jd.bluedragon.common.dto.blockcar.request.SealCarPreRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.SendModeEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.SendVehiclePhotoEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.SendVehicleScanTypeEnum;
-import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendDetailRequest;
-import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendPhotoRequest;
-import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicleInfoRequest;
-import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicleTaskRequest;
+import com.jd.bluedragon.common.dto.operation.workbench.send.request.*;
+import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendAbnormalResponse;
+import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendScanResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleTaskResponse;
 import com.jd.bluedragon.common.dto.select.SelectOption;
+import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.request.NewSealVehicleRequest;
+import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
+import com.jd.bluedragon.distribution.api.response.RouteTypeResponse;
+import com.jd.bluedragon.distribution.api.response.TransWorkItemResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.domain.InvokeWithMsgBoxResult;
 import com.jd.bluedragon.distribution.jy.api.JySendVehicleTysService;
@@ -19,19 +27,27 @@ import com.jd.bluedragon.distribution.jy.dto.send.*;
 import com.jd.bluedragon.distribution.jy.enums.JyLineTypeEnum;
 import com.jd.bluedragon.distribution.jy.enums.JySendLineTypeEnum;
 import com.jd.bluedragon.distribution.jy.enums.JySendVehicleStatusEnum;
+import com.jd.bluedragon.distribution.jy.service.seal.JySealVehicleService;
+import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.utils.BeanCopyUtil;
+import com.jd.bluedragon.utils.BeanUtils;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import static com.jd.bluedragon.distribution.base.domain.InvokeResult.SERVER_ERROR_CODE;
+import static com.jd.bluedragon.distribution.base.domain.InvokeResult.SERVER_ERROR_MESSAGE;
 
 /**
  * 天官赐福 ◎ 百无禁忌
@@ -48,7 +64,11 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
     private static final Logger logger = LoggerFactory.getLogger(JySendVehicleTysServiceImpl.class);
 
     @Autowired
-    private IJySendVehicleService jySendVehicleService;
+    private IJySendVehicleService jySendVehicleServiceTys;
+    @Autowired
+    JySealVehicleService jySealVehicleService;
+    @Autowired
+    private NewSealVehicleService newsealVehicleService;
 
     /**
      * 发货模式
@@ -137,7 +157,7 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
             SendVehicleTaskRequest param = new SendVehicleTaskRequest();
             BeanCopyUtil.copy(request,param);
 
-            InvokeResult<SendVehicleTaskResponse> invokeResult = jySendVehicleService.fetchSendVehicleTask(param);
+            InvokeResult<SendVehicleTaskResponse> invokeResult = jySendVehicleServiceTys.fetchSendVehicleTask(param);
             if(invokeResult != null){
                 result.setCode(invokeResult.getCode());
                 result.setMessage(invokeResult.getMessage());
@@ -190,7 +210,7 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
             SendPhotoRequest param = new SendPhotoRequest();
             BeanCopyUtil.copy(request,param);
 
-            InvokeResult<Boolean> invokeResult = jySendVehicleService.uploadPhoto(param);
+            InvokeResult<Boolean> invokeResult = jySendVehicleServiceTys.uploadPhoto(param);
             if(invokeResult != null){
                 result.setCode(invokeResult.getCode());
                 result.setMessage(invokeResult.getMessage());
@@ -224,7 +244,7 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
             SendVehicleInfoRequest param = new SendVehicleInfoRequest();
             BeanCopyUtil.copy(request,param);
             InvokeResult<com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleInfo> invokeResult =
-                    jySendVehicleService.sendVehicleInfo(param);
+                    jySendVehicleServiceTys.sendVehicleInfo(param);
             if(invokeResult != null){
                 result.setCode(invokeResult.getCode());
                 result.setMessage(invokeResult.getMessage());
@@ -260,7 +280,7 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
             SendDetailRequest param = new SendDetailRequest();
             BeanCopyUtil.copy(request,param);
             InvokeResult<List<com.jd.bluedragon.common.dto.operation.workbench.send.response.SendDestDetail>> invokeResult =
-                    jySendVehicleService.sendDestDetail(param);
+                    jySendVehicleServiceTys.sendDestDetail(param);
             if(invokeResult != null){
                 result.setCode(invokeResult.getCode());
                 result.setMessage(invokeResult.getMessage());
@@ -297,7 +317,12 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
     @Override
     @JProfiler(jKey = "DMSWEB.JySendVehicleTysService.loadProgress", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
     public InvokeResult<SendVehicleProgress> loadProgress(SendVehicleProgressReq request) {
-        return null;
+        SendVehicleProgressRequest sendVehicleProgressRequest =BeanUtils.copy(request,SendVehicleProgressRequest.class);
+        InvokeResult<com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleProgress> result =jySendVehicleServiceTys.loadProgress(sendVehicleProgressRequest);
+        if (ObjectHelper.isNotNull(result)){
+            return convertResult(result,SendVehicleProgress.class);
+        }
+        return new InvokeResult(SERVER_ERROR_CODE,SERVER_ERROR_MESSAGE);
     }
 
     /**
@@ -313,7 +338,12 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
     @Override
     @JProfiler(jKey = "DMSWEB.JySendVehicleTysService.checkSendVehicleNormalStatus", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
     public InvokeResult<SendAbnormalResp> checkSendVehicleNormalStatus(SendAbnormalReq request) {
-        return null;
+        SendAbnormalRequest sendAbnormalRequest =BeanUtils.copy(request,SendAbnormalRequest.class);
+        InvokeResult<SendAbnormalResponse> result =jySendVehicleServiceTys.checkSendVehicleNormalStatus(sendAbnormalRequest);
+        if (ObjectHelper.isNotNull(result)){
+            return convertResult(result,SendAbnormalResp.class);
+        }
+        return new InvokeResult(SERVER_ERROR_CODE,SERVER_ERROR_MESSAGE);
     }
 
     /**
@@ -325,7 +355,12 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
     @Override
     @JProfiler(jKey = "DMSWEB.JySendVehicleTysService.interceptedBarCodeDetail", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
     public InvokeResult<SendAbnormalBarCode> interceptedBarCodeDetail(SendAbnormalPackReq request) {
-        return null;
+        SendAbnormalPackRequest sendAbnormalPackRequest =BeanUtils.copy(request,SendAbnormalPackRequest.class);
+        InvokeResult<com.jd.bluedragon.common.dto.operation.workbench.send.response.SendAbnormalBarCode> result =jySendVehicleServiceTys.interceptedBarCodeDetail(sendAbnormalPackRequest);
+        if (ObjectHelper.isNotNull(result)){
+            return convertResult(result,SendAbnormalBarCode.class);
+        }
+        return new InvokeResult(SERVER_ERROR_CODE,SERVER_ERROR_MESSAGE);
     }
 
     /**
@@ -337,7 +372,12 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
     @Override
     @JProfiler(jKey = "DMSWEB.JySendVehicleTysService.forceSendBarCodeDetail", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
     public InvokeResult<SendAbnormalBarCode> forceSendBarCodeDetail(SendAbnormalPackReq request) {
-        return null;
+        SendAbnormalPackRequest sendAbnormalPackRequest =BeanUtils.copy(request,SendAbnormalPackRequest.class);
+        InvokeResult<com.jd.bluedragon.common.dto.operation.workbench.send.response.SendAbnormalBarCode> result= jySendVehicleServiceTys.forceSendBarCodeDetail(sendAbnormalPackRequest);
+        if (ObjectHelper.isNotNull(result)){
+            return convertResult(result,SendAbnormalBarCode.class);
+        }
+        return new InvokeResult(SERVER_ERROR_CODE,SERVER_ERROR_MESSAGE);
     }
 
     /**
@@ -349,7 +389,12 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
     @Override
     @JProfiler(jKey = "DMSWEB.JySendVehicleTysService.abnormalSendBarCodeDetail", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
     public InvokeResult<SendAbnormalBarCode> abnormalSendBarCodeDetail(SendAbnormalPackReq request) {
-        return null;
+        SendAbnormalPackRequest sendAbnormalPackRequest =BeanUtils.copy(request,SendAbnormalPackRequest.class);
+        InvokeResult<com.jd.bluedragon.common.dto.operation.workbench.send.response.SendAbnormalBarCode> result= jySendVehicleServiceTys.abnormalSendBarCodeDetail(sendAbnormalPackRequest);
+        if (ObjectHelper.isNotNull(result)){
+            return convertResult(result,SendAbnormalBarCode.class);
+        }
+        return new InvokeResult(SERVER_ERROR_CODE,SERVER_ERROR_MESSAGE);
     }
 
     /**
@@ -361,7 +406,12 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
     @Override
     @JProfiler(jKey = "DMSWEB.JySendVehicleTysService.incompleteSendBarCodeDetail", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
     public InvokeResult<SendAbnormalBarCode> incompleteSendBarCodeDetail(SendAbnormalPackReq request) {
-        return null;
+        SendAbnormalPackRequest sendAbnormalPackRequest =BeanUtils.copy(request,SendAbnormalPackRequest.class);
+        InvokeResult<com.jd.bluedragon.common.dto.operation.workbench.send.response.SendAbnormalBarCode> result= null;
+        if (ObjectHelper.isNotNull(result)){
+            return convertResult(result,SendAbnormalBarCode.class);
+        }
+        return new InvokeResult(SERVER_ERROR_CODE,SERVER_ERROR_MESSAGE);
     }
 
     /**
@@ -373,7 +423,12 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
     @Override
     @JProfiler(jKey = "DMSWEB.JySendVehicleTysService.toScanSendBarCodeDetail", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
     public InvokeResult<SendAbnormalBarCode> toScanSendBarCodeDetail(SendAbnormalPackReq request) {
-        return null;
+        SendAbnormalPackRequest sendAbnormalPackRequest =BeanUtils.copy(request,SendAbnormalPackRequest.class);
+        InvokeResult<com.jd.bluedragon.common.dto.operation.workbench.send.response.SendAbnormalBarCode> result=null;
+        if (ObjectHelper.isNotNull(result)){
+            return convertResult(result,SendAbnormalBarCode.class);
+        }
+        return new InvokeResult(SERVER_ERROR_CODE,SERVER_ERROR_MESSAGE);
     }
 
     /**
@@ -385,7 +440,12 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
     @Override
     @JProfiler(jKey = "DMSWEB.JySendVehicleTysService.selectSealDest", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
     public InvokeResult<ToSealDestAgg> selectSealDest(SelectSealDestReq request) {
-        return null;
+        SelectSealDestRequest selectSealDestRequest =BeanUtils.copy(request,SelectSealDestRequest.class);
+        InvokeResult<com.jd.bluedragon.common.dto.operation.workbench.send.response.ToSealDestAgg> result =jySendVehicleServiceTys.selectSealDest(selectSealDestRequest);
+        if (ObjectHelper.isNotNull(result)){
+            return convertResult(result,ToSealDestAgg.class);
+        }
+        return new InvokeResult(SERVER_ERROR_CODE,SERVER_ERROR_MESSAGE);
     }
 
     /**
@@ -397,42 +457,74 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
     @Override
     @JProfiler(jKey = "DMSWEB.JySendVehicleTysService.sendScan", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
     public InvokeWithMsgBoxResult<SendScanResp> sendScan(SendScanReq request) {
-        return null;
+        SendScanRequest sendScanRequest =BeanUtils.copy(request,SendScanRequest.class);
+        JdVerifyResponse<SendScanResponse> response = jySendVehicleServiceTys.sendScan(sendScanRequest);
+        if (ObjectHelper.isNotNull(response)){
+            return convertResultWithMsgBox(response,SendScanResp.class);
+        }
+        return new InvokeWithMsgBoxResult(SERVER_ERROR_CODE,SERVER_ERROR_MESSAGE);
     }
 
     /**
      * 根据运输任务bizId查询车的封签号列表
      *
-     * @param SealCodeReq
      * @return
      */
     @Override
     @JProfiler(jKey = "DMSWEB.JySendVehicleTysService.listSealCodeByBizId", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
-    public InvokeResult<SealCodeResp> listSealCodeByBizId(SealCodeReq SealCodeReq) {
-        return null;
+    public InvokeResult<SealCodeResp> listSealCodeByBizId(SealCodeReq sealCodeReq) {
+        com.jd.bluedragon.common.dto.seal.request.SealCodeReq req =BeanUtils.copy(sealCodeReq, com.jd.bluedragon.common.dto.seal.request.SealCodeReq.class);
+        InvokeResult<com.jd.bluedragon.common.dto.seal.response.SealCodeResp> result= jySealVehicleService.listSealCodeByBizId(req);
+        if (ObjectHelper.isNotNull(result)){
+            return convertResult(result,SealCodeResp.class);
+        }
+        return new InvokeResult(SERVER_ERROR_CODE,SERVER_ERROR_MESSAGE);
     }
 
     /**
      * 查询流向任务封车数据详情
      *
-     * @param SealVehicleInfoReq
+     * @param sealVehicleInfoReq
      * @return
      */
     @Override
     @JProfiler(jKey = "DMSWEB.JySendVehicleTysService.getSealVehicleInfo", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
-    public InvokeResult<SealVehicleInfoResp> getSealVehicleInfo(SealVehicleInfoReq SealVehicleInfoReq) {
-        return null;
+    public InvokeResult<SealVehicleInfoResp> getSealVehicleInfo(SealVehicleInfoReq sealVehicleInfoReq) {
+        com.jd.bluedragon.common.dto.seal.request.SealVehicleInfoReq req =BeanUtils.copy(sealVehicleInfoReq, com.jd.bluedragon.common.dto.seal.request.SealVehicleInfoReq.class);
+        InvokeResult<com.jd.bluedragon.common.dto.seal.response.SealVehicleInfoResp> result= jySealVehicleService.getSealVehicleInfo(req);
+        if (ObjectHelper.isNotNull(result)){
+            return convertResult(result,SealVehicleInfoResp.class);
+        }
+        return new InvokeResult(SERVER_ERROR_CODE,SERVER_ERROR_MESSAGE);
     }
 
     /**
      * 根据运力编码查询运输信息
      *
-     * @param TransportReq
+     * @param transportReq
      * @return
      */
     @Override
     @JProfiler(jKey = "DMSWEB.JySendVehicleTysService.getTransportResourceByTransCode", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
-    public InvokeResult<TransportInfoDto> getTransportResourceByTransCode(TransportReq TransportReq) {
+    public InvokeResult<TransportInfoDto> getTransportResourceByTransCode(TransportReq transportReq) {
+       /* InvokeResult invokeResult =new InvokeResult();
+        NewSealVehicleRequest param = new NewSealVehicleRequest();
+        param.setSiteCode(transportReq.getCurrentOperate().getSiteCode());
+        param.setSiteName(transportReq.getCurrentOperate().getSiteName());
+        param.setUserCode(transportReq.getUser().getUserCode());
+        param.setUserName(transportReq.getUser().getUserName());
+        param.setTransportCode(transportReq.getTransportCode());
+        RouteTypeResponse routeTypeResponse = newSealVehicleResource.getTransportCode(param);
+        if (routeTypeResponse.getCode().equals(JdResponse.CODE_OK)) {
+            invokeResult.confirmMessage(routeTypeResponse.getMessage());
+        } else if (routeTypeResponse.getCode().equals(NewSealVehicleResponse.CODE_UNSEAL_CAR_OUT_CHECK) || routeTypeResponse.getCode().equals(NewSealVehicleResponse.CODE_TRANSPORT_RANGE_CHECK) || routeTypeResponse.getCode().equals(NewSealVehicleResponse.CODE_TRANSPORT_RANGE_ERROR)) {
+            invokeResult.confirmMessage(routeTypeResponse.getMessage());
+        } else {
+            invokeResult.error(routeTypeResponse.getMessage());
+        }
+        com.jd.bluedragon.common.dto.blockcar.response.TransportInfoDto transportInfoDto = BeanUtils.copy(routeTypeResponse, com.jd.bluedragon.common.dto.blockcar.response.TransportInfoDto.class);
+        invokeResult.setData(transportInfoDto);
+        return invokeResult;*/
         return null;
     }
 
@@ -444,6 +536,11 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
     @Override
     @JProfiler(jKey = "DMSWEB.JySendVehicleTysService.checkTransportCode", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
     public InvokeResult checkTransportCode(CheckTransportCodeReq CheckTransportCodeReq) {
+       /* NewSealVehicleRequest param = new NewSealVehicleRequest();
+        param.setTransportCode(checkTransportCodeReq.getTransportCode());
+        param.setTransWorkItemCode(checkTransportCodeReq.getTransWorkItemCode());
+        TransWorkItemResponse workItemResponse = newSealVehicleResource.checkTransportCode(param);
+        return new JdCResponse(workItemResponse.getCode(), workItemResponse.getMessage());*/
         return null;
     }
 
@@ -461,24 +558,34 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
     /**
      * 根据任务简码查询任务详情
      *
-     * @param GetVehicleNumberReq
+     * @param getVehicleNumberReq
      * @return
      */
     @Override
     @JProfiler(jKey = "DMSWEB.JySendVehicleTysService.getTransWorkItemByWorkItemCode", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
-    public InvokeResult<TransportResp> getTransWorkItemByWorkItemCode(GetVehicleNumberReq GetVehicleNumberReq) {
-        return null;
+    public InvokeResult<TransportResp> getTransWorkItemByWorkItemCode(GetVehicleNumberReq getVehicleNumberReq) {
+        com.jd.bluedragon.common.dto.seal.request.GetVehicleNumberReq req =BeanUtils.copy(getVehicleNumberReq, com.jd.bluedragon.common.dto.seal.request.GetVehicleNumberReq.class);
+        InvokeResult<com.jd.bluedragon.common.dto.seal.response.TransportResp> result=jySealVehicleService.getTransWorkItemByWorkItemCode(req);
+        if (ObjectHelper.isNotNull(result)){
+            return convertResult(result,TransportResp.class);
+        }
+        return new InvokeResult(SERVER_ERROR_CODE,SERVER_ERROR_MESSAGE);
     }
 
     /**
      * 提交封车
      *
-     * @param SealVehicleReq
+     * @param sealVehicleReq
      */
     @Override
     @JProfiler(jKey = "DMSWEB.JySendVehicleTysService.sealVehicle", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
-    public InvokeResult sealVehicle(SealVehicleReq SealVehicleReq) {
-        return null;
+    public InvokeResult sealVehicle(SealVehicleReq sealVehicleReq) {
+        com.jd.bluedragon.common.dto.seal.request.SealVehicleReq req =BeanUtils.copy(sealVehicleReq, com.jd.bluedragon.common.dto.seal.request.SealVehicleReq.class);
+        InvokeResult result =jySealVehicleService.sealVehicle(req);
+        if (ObjectHelper.isNotNull(result)){
+            return convertResult(result,SealVehicleInfoResp.class);
+        }
+        return new InvokeResult(SERVER_ERROR_CODE,SERVER_ERROR_MESSAGE);
     }
 
     /**
@@ -489,6 +596,15 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
     @Override
     @JProfiler(jKey = "DMSWEB.JySendVehicleTysService.validateTranCodeAndSendCode", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
     public InvokeResult validateTranCodeAndSendCode(ValidSendCodeReq ValidSendCodeReq) {
+       /* SealCarPreRequest sealCarPreRequest = BeanUtils.copy(validSendCodeReq,SealCarPreRequest.class);
+        if (ObjectHelper.isEmpty(sealCarPreRequest.getSealCarType())){
+            sealCarPreRequest.setSealCarType(SealCarTypeEnum.SEAL_BY_TASK.getType());
+        }
+        if (ObjectHelper.isEmpty(sealCarPreRequest.getSealCarSource())){
+            sealCarPreRequest.setSealCarSource(SealCarSourceEnum.COMMON_SEAL_CAR.getCode());
+        }
+        NewSealVehicleResponse newSealVehicleResponse = newSealVehicleResource.newCheckTranCodeAndBatchCode(sealCarPreRequest);
+        return new JdCResponse(newSealVehicleResponse.getCode(),newSealVehicleResponse.getMessage());*/
         return null;
     }
 
@@ -500,92 +616,131 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
     @Override
     @JProfiler(jKey = "DMSWEB.JySendVehicleTysService.listVehicleType", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
     public InvokeResult<List<VehicleSpecResp>> listVehicleType() {
-        return null;
+        InvokeResult<List<com.jd.bluedragon.common.dto.send.response.VehicleSpecResp>> result= jySendVehicleServiceTys.listVehicleType();
+        if (ObjectHelper.isNotNull(result)){
+            return convertListResult(result,VehicleSpecResp.class);
+        }
+        return new InvokeResult(SERVER_ERROR_CODE,SERVER_ERROR_MESSAGE);
     }
 
     /**
      * 创建自建类型的运输车辆任务（主任务）
      *
-     * @param CreateVehicleTaskReq
+     * @param createVehicleTaskReq
      * @return
      */
     @Override
     @JProfiler(jKey = "DMSWEB.JySendVehicleTysService.createVehicleTask", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
-    public InvokeResult<CreateVehicleTaskResp> createVehicleTask(CreateVehicleTaskReq CreateVehicleTaskReq) {
-        return null;
+    public InvokeResult<CreateVehicleTaskResp> createVehicleTask(CreateVehicleTaskReq createVehicleTaskReq) {
+        com.jd.bluedragon.common.dto.send.request.CreateVehicleTaskReq req =BeanUtils.copy(createVehicleTaskReq, com.jd.bluedragon.common.dto.send.request.CreateVehicleTaskReq.class);
+        InvokeResult<com.jd.bluedragon.common.dto.send.response.CreateVehicleTaskResp> result=jySendVehicleServiceTys.createVehicleTask(req);
+        if (ObjectHelper.isNotNull(result)){
+            return convertResult(result,CreateVehicleTaskResp.class);
+        }
+        return new InvokeResult(SERVER_ERROR_CODE,SERVER_ERROR_MESSAGE);
     }
 
     /**
      * 删除自建类型的运输车辆任务（主任务）
      *
-     * @param DeleteVehicleTaskReq
+     * @param deleteVehicleTaskReq
      * @return
      */
     @Override
     @JProfiler(jKey = "DMSWEB.JySendVehicleTysService.deleteVehicleTask", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
-    public InvokeResult deleteVehicleTask(DeleteVehicleTaskReq DeleteVehicleTaskReq) {
-        return null;
+    public InvokeResult deleteVehicleTask(DeleteVehicleTaskReq deleteVehicleTaskReq) {
+        com.jd.bluedragon.common.dto.send.request.DeleteVehicleTaskReq req =BeanUtils.copy(deleteVehicleTaskReq, com.jd.bluedragon.common.dto.send.request.DeleteVehicleTaskReq.class);
+        InvokeResult result= jySendVehicleServiceTys.deleteVehicleTask(req);
+        if (ObjectHelper.isNotNull(result)){
+            return convertResult(result,null);
+        }
+        return new InvokeResult(SERVER_ERROR_CODE,SERVER_ERROR_MESSAGE);
     }
 
     /**
      * 查询运输车辆任务列表
      *
-     * @param VehicleTaskReq
+     * @param vehicleTaskReq
      * @return
      */
     @Override
     @JProfiler(jKey = "DMSWEB.JySendVehicleTysService.listVehicleTask", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
-    public InvokeResult<VehicleTaskResp> listVehicleTask(VehicleTaskReq VehicleTaskReq) {
-        return null;
+    public InvokeResult<VehicleTaskResp> listVehicleTask(VehicleTaskReq vehicleTaskReq) {
+        com.jd.bluedragon.common.dto.send.request.VehicleTaskReq req =BeanUtils.copy(vehicleTaskReq, com.jd.bluedragon.common.dto.send.request.VehicleTaskReq.class);
+        InvokeResult<com.jd.bluedragon.common.dto.send.response.VehicleTaskResp> result= jySendVehicleServiceTys.listVehicleTask(req);
+        if (ObjectHelper.isNotNull(result)){
+            return convertResult(result,VehicleTaskResp.class);
+        }
+        return new InvokeResult(SERVER_ERROR_CODE,SERVER_ERROR_MESSAGE);
     }
 
     /**
      * 查询运输车辆任务列表：提供给任务迁移场景查询使用
      * 迁出时 扫包裹号定位包裹所在任务；迁入时 @1可扫包裹 @2也可录入站点id
      *
-     * @param TransferVehicleTaskReq
+     * @param transferVehicleTaskReq
      * @return
      */
     @Override
     @JProfiler(jKey = "DMSWEB.JySendVehicleTysService.listVehicleTaskSupportTransfer", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
-    public InvokeResult<VehicleTaskResp> listVehicleTaskSupportTransfer(TransferVehicleTaskReq TransferVehicleTaskReq) {
-        return null;
+    public InvokeResult<VehicleTaskResp> listVehicleTaskSupportTransfer(TransferVehicleTaskReq transferVehicleTaskReq) {
+        com.jd.bluedragon.common.dto.send.request.TransferVehicleTaskReq req =BeanUtils.copy(transferVehicleTaskReq, com.jd.bluedragon.common.dto.send.request.TransferVehicleTaskReq.class);
+        InvokeResult<com.jd.bluedragon.common.dto.send.response.VehicleTaskResp> result= jySendVehicleServiceTys.listVehicleTaskSupportTransfer(req);
+        if (ObjectHelper.isNotNull(result)){
+            return convertResult(result,VehicleTaskResp.class);
+        }
+        return new InvokeResult(SERVER_ERROR_CODE,SERVER_ERROR_MESSAGE);
     }
 
     /**
      * 自建任务绑定-运输真实任务
      *
-     * @param BindVehicleDetailTaskReq
+     * @param bindVehicleDetailTaskReq
      * @return
      */
     @Override
     @JProfiler(jKey = "DMSWEB.JySendVehicleTysService.bindVehicleDetailTask", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
-    public InvokeResult bindVehicleDetailTask(BindVehicleDetailTaskReq BindVehicleDetailTaskReq) {
-        return null;
+    public InvokeResult bindVehicleDetailTask(BindVehicleDetailTaskReq bindVehicleDetailTaskReq) {
+        com.jd.bluedragon.common.dto.send.request.BindVehicleDetailTaskReq req =BeanUtils.copy(bindVehicleDetailTaskReq, com.jd.bluedragon.common.dto.send.request.BindVehicleDetailTaskReq.class);
+        InvokeResult result=jySendVehicleServiceTys.bindVehicleDetailTask(req);
+        if (ObjectHelper.isNotNull(result)){
+            return convertResult(result,null);
+        }
+        return new InvokeResult(SERVER_ERROR_CODE,SERVER_ERROR_MESSAGE);
     }
 
     /**
      * 迁移发货批次数据
      *
-     * @param TransferSendTaskReq
+     * @param transferSendTaskReq
      * @return
      */
     @Override
     @JProfiler(jKey = "DMSWEB.JySendVehicleTysService.transferSendTask", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
-    public InvokeResult transferSendTask(TransferSendTaskReq TransferSendTaskReq) {
-        return null;
+    public InvokeResult transferSendTask(TransferSendTaskReq transferSendTaskReq) {
+        com.jd.bluedragon.common.dto.send.request.TransferSendTaskReq req =BeanUtils.copy(transferSendTaskReq, com.jd.bluedragon.common.dto.send.request.TransferSendTaskReq.class);
+        InvokeResult result=jySendVehicleServiceTys.transferSendTask(req);
+        if (ObjectHelper.isNotNull(result)){
+            return convertResult(result,null);
+        }
+        return new InvokeResult(SERVER_ERROR_CODE,SERVER_ERROR_MESSAGE);
     }
 
     /**
      * 取消发货
      *
-     * @param CancelSendTaskReq
+     * @param cancelSendTaskReq
      * @return
      */
     @Override
     @JProfiler(jKey = "DMSWEB.JySendVehicleTysService.cancelSendTask", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
-    public InvokeResult<CancelSendTaskResp> cancelSendTask(CancelSendTaskReq CancelSendTaskReq) {
-        return null;
+    public InvokeResult<CancelSendTaskResp> cancelSendTask(CancelSendTaskReq cancelSendTaskReq) {
+        com.jd.bluedragon.common.dto.send.request.CancelSendTaskReq req  =BeanUtils.copy(cancelSendTaskReq, com.jd.bluedragon.common.dto.send.request.CancelSendTaskReq.class);
+        InvokeResult<com.jd.bluedragon.common.dto.send.response.CancelSendTaskResp> result =jySendVehicleServiceTys.cancelSendTask(req);
+        if (ObjectHelper.isNotNull(result)){
+            return convertResult(result,CancelSendTaskResp.class);
+        }
+        return new InvokeResult(SERVER_ERROR_CODE,SERVER_ERROR_MESSAGE);
     }
 
     /**
@@ -611,4 +766,39 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
     public InvokeResult<IncompleteSendResp> incompleteSendSubmit(IncompleteSendReq IncompleteSendReq) {
         return null;
     }
+
+    private  <T> InvokeResult<T> convertResult(InvokeResult input,Class<T> tClass) {
+       InvokeResult<T> output =new InvokeResult<>();
+       output.setCode(input.getCode());
+       output.setMessage(input.getMessage());
+       if (ObjectHelper.isNotNull(input.getData())){
+           T t =BeanUtils.copy(input.getData(),tClass);
+           output.setData(t);
+       }
+       return output;
+    }
+
+    private  <T> InvokeResult<List<T>> convertListResult(InvokeResult input,Class<T> tClass) {
+        InvokeResult<List<T>> output =new InvokeResult();
+        output.setCode(input.getCode());
+        output.setMessage(input.getMessage());
+        if (ObjectHelper.isNotNull(input.getData())){
+            List<T> t =BeanUtils.copy((List)input.getData(),tClass);
+            output.setData(t);
+        }
+        return output;
+    }
+
+    private  <T> InvokeWithMsgBoxResult<T> convertResultWithMsgBox(JdVerifyResponse input,Class<T> tClass) {
+        InvokeWithMsgBoxResult<T> output =new InvokeWithMsgBoxResult<>();
+        output.setCode(input.getCode());
+        output.setMessage(input.getMessage());
+        output.setMsgBoxes(input.getMsgBoxes());
+        if (ObjectHelper.isNotNull(input.getData())){
+            T t =BeanUtils.copy(input.getData(),tClass);
+            output.setData(t);
+        }
+        return output;
+    }
+
 }
