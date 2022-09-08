@@ -524,7 +524,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         if (taskEntity == null) {
             return JdCResponse.fail("该条码无相关任务!" + req.getBarCode());
         }
-        if (!Objects.equals(JyExpStatusEnum.TO_PICK.getCode(), taskEntity.getStatus())) {
+        if (!Objects.equals(JyExpStatusEnum.TO_PROCESS.getCode(), taskEntity.getStatus())) {
             return JdCResponse.fail("当前任务"+req.getBarCode()+"已被领取,请勿重复操作!");
         }
         if (!Objects.equals(gridRid, taskEntity.getDistributionTarget())) {
