@@ -1904,12 +1904,6 @@
 			</exclusions>
 		</dependency>
 
-		<dependency>
-			<groupId>com.jd.security.am</groupId>
-			<artifactId>jdbc</artifactId>
-			<version>4.0.3-SNAPSHOT</version>
-		</dependency>
-
     </dependencies>
 
 	<profiles>
