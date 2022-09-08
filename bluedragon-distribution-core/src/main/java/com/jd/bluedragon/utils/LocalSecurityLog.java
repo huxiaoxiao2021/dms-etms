@@ -33,6 +33,7 @@ import java.util.*;
  * 上报安全日志
  */
 @Data
+@Deprecated
 public class LocalSecurityLog {
 
     private static final Logger log = LoggerFactory.getLogger("security.log");

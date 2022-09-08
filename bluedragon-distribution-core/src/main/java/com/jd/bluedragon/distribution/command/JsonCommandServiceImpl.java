@@ -3,6 +3,12 @@ package com.jd.bluedragon.distribution.command;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.core.security.log.SecurityLogRecord;
+import com.jd.bluedragon.core.security.log.domain.SecurityLogEntity;
+import com.jd.bluedragon.core.security.log.enums.SecurityAccountEnums;
+import com.jd.bluedragon.core.security.log.enums.SecurityLogOpEnums;
+import com.jd.bluedragon.core.security.log.enums.SecurityLogReqInfoKeyEnums;
+import com.jd.bluedragon.core.security.log.enums.SecurityLogUniqueIdentifierKeyEnums;
 import com.jd.bluedragon.distribution.api.request.WaybillPrintRequest;
 import com.jd.bluedragon.distribution.businessIntercept.constants.Constant;
 import com.jd.bluedragon.distribution.businessIntercept.dto.SaveInterceptMsgDto;
@@ -33,6 +39,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -255,14 +264,22 @@ public class JsonCommandServiceImpl implements JdCommandService{
 	 * 写入安全日志
 	 * @param jsonCommand
 	 */
-	private void writeSecurityLog(JdCommand<String> jsonCommand){
+	private void writeSecurityLog(JdCommand<String> jsonCommand, String jsonResponse){
 		CallerInfo info = Profiler.registerInfo("DMSWEB.JsonCommandServiceImpl.writeSecurityLog", Constants.UMP_APP_NAME_DMSWEB,false, true);
 		try{
-			//构建参数
-			WaybillPrintRequest waybillPrintRequest = JsonHelper.fromJson(jsonCommand.getData(), WaybillPrintRequest.class);
-			if (null == waybillPrintRequest) return;
-			//打印日志
-			SecurityLog.reportSecurityLog(JsonCommandServiceImpl.class.getName(),waybillPrintRequest.getUserERP(),waybillPrintRequest.getBarCode());
+			SecurityLogRecord.log(
+					SecurityLogEntity.builder()
+							.interfaceName("com.jd.bluedragon.distribution.command.JsonCommandServiceImpl#execute")
+							.accountName(SecurityAccountEnums.account_type_1.name())
+							.accountType(SecurityAccountEnums.account_type_1)
+							.op(SecurityLogOpEnums.op_8)
+							.reqKeyMapping(new HashMap<SecurityLogReqInfoKeyEnums, String>())
+							.businessRequest(jsonCommand)
+							.respKeyMapping(new HashMap<SecurityLogUniqueIdentifierKeyEnums, String>())
+							.businessResponseList(Collections.<Object>singletonList(jsonResponse))
+							.resultNum(1)
+							.build()
+			);
 		}catch (Exception ex){
 			log.error("上传安全日日志失败.jsonCommand:{}",jsonCommand,ex);
 		}finally {
