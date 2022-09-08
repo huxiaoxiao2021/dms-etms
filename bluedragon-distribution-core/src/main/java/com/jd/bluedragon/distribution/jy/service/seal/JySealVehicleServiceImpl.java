@@ -78,10 +78,10 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySealVehicleServiceImpl.listSealCodeByBizId", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<SealCodeResp> listSealCodeByBizId(SealCodeReq sealCodeReq) {
         //根据运输任务查询 sealcode模型
-        List<String> sendCodeList = jySendSealCodeService.selectSealCodeByBizId(sealCodeReq.getSendVehicleBizId());
-        if (sendCodeList != null && sendCodeList.size() > 0) {
+        List<String> sealCodeList = jySendSealCodeService.selectSealCodeByBizId(sealCodeReq.getSendVehicleBizId());
+        if (sealCodeList != null && sealCodeList.size() > 0) {
             SealCodeResp sealCodeResp = new SealCodeResp();
-            sealCodeResp.setSealCodeList(sendCodeList);
+            sealCodeResp.setSealCodeList(sealCodeList);
             sealCodeResp.setVehicleNumber(sealCodeReq.getVehicleNumber());
             return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, sealCodeResp);
         }
@@ -101,6 +101,11 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
         if (ObjectHelper.isNotNull(sendCodeList)){
             sealVehicleInfoResp.setSendCodeList(sendCodeList);
         }
+        //查询封签号
+        List<String> sealCodeList = jySendSealCodeService.selectSealCodeByBizId(sealVehicleInfoReq.getSendVehicleBizId());
+        if (ObjectHelper.isNotNull(sealCodeList)){
+            sealVehicleInfoResp.setSealCodeList(sealCodeList);
+        }
         //查询已扫描货物的重量和体积
         JySendAggsEntity jySendAggsEntity = jySendAggsService.getVehicleSendStatistics(sealVehicleInfoReq.getSendVehicleBizId());
         if (ObjectHelper.isNotNull(jySendAggsEntity)) {
@@ -112,11 +117,13 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
         BigTransWorkItemDto bigTransWorkItemDto = jdiTransWorkWSManager.queryTransWorkItemByOptionWithRead(detailEntity.getTransWorkItemCode(), queryOption);
         if (ObjectHelper.isNotNull(bigTransWorkItemDto) && ObjectHelper.isNotNull(bigTransWorkItemDto.getTransWorkItemDto())) {
             TransWorkItemDto transWorkItemDto = bigTransWorkItemDto.getTransWorkItemDto();
-            sealVehicleInfoResp.setTransportCode(transWorkItemDto.getTransportCode());
+            if (ObjectHelper.isNotNull(transWorkItemDto.getTransportCode()) &&
+                    !transWorkItemDto.getTransportCode().toUpperCase().startsWith("T")){
+                sealVehicleInfoResp.setTransportCode(transWorkItemDto.getTransportCode());
+            }
             sealVehicleInfoResp.setVehicleNumber(transWorkItemDto.getVehicleNumber());
-            return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, sealVehicleInfoResp);
         }
-        return new InvokeResult(RESULT_NO_FOUND_BY_TRANS_WOEK_ITEM_CODE, RESULT_NO_FOUND_BY_TRANS_WOEK_ITEM_MESSAGE);
+        return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, sealVehicleInfoResp);
     }
 
     @Override
@@ -138,7 +145,18 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
             List<String> afterFilterDuplicate = ListUtil.processDuplicateByContains(sealCarDto.getBatchCodes());
             sealCarDto.setBatchCodes(afterFilterDuplicate);
 
-            sealCarDto.getSealCodes().addAll(sealCodes);
+            if (sealCarDto.getSealCodes() != null) {
+                sealCarDto.getSealCodes().addAll(sealCodes);
+            } else {
+                sealCarDto.setSealCodes(sealCodes);
+            }
+            if (ObjectHelper.isNotNull(sealVehicleReq.getTransWay())
+                    && TransTypeEnum.ROAD_ZHENGCHE.getType()==sealVehicleReq.getTransWay()){
+                if (ObjectHelper.isEmpty(sealCarDto.getSealCodes()) || sealCarDto.getSealCodes().size()<=0){
+                    return new InvokeResult(COMMIT_SEAL_CAR_EXCEPTION_CODE, COMMIT_SEAL_CAR_NO_SEAL_CODES_MESSAGE);
+                }
+            }
+
             //封装提交封车请求的dto
             List<SealCarDto> sealCarDtoList = new ArrayList<>();
             sealCarDtoList.add(sealCarDto);
@@ -186,9 +204,10 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
         if (ObjectHelper.isNotNull(transWorkItemResp) && Constants.RESULT_SUCCESS == transWorkItemResp.getCode()) {
             TransWorkItemDto transWorkItemDto = transWorkItemResp.getData();
             TransportResp transportResp = new TransportResp();
-            transportResp.setTransType(transWorkItemDto.getTransType());
-            if (ObjectHelper.isNotNull(transportResp.getTransType()) && ObjectHelper.isNotNull(TransTypeEnum.getEnum(transportResp.getTransType()))) {
-                transportResp.setTransTypeName(TransTypeEnum.getEnum(transportResp.getTransType()).getName());
+            transportResp.setTransType(transWorkItemDto.getTransWay());
+            transportResp.setTransWay(transWorkItemDto.getTransWay());
+            if (ObjectHelper.isNotNull(transportResp.getTransWay()) && ObjectHelper.isNotNull(TransTypeEnum.getEnum(transportResp.getTransWay()))) {
+                transportResp.setTransWayName(TransTypeEnum.getEnum(transportResp.getTransWay()).getName());
             }
             transportResp.setVehicleNumber(transWorkItemDto.getVehicleNumber());
             transportResp.setRouteLineCode(transWorkItemDto.getRouteLineCode());
@@ -235,5 +254,17 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
         //转换体积单位 立方厘米转换为立方米
         sealCarDto.setVolume(NumberHelper.cm3ToM3(sealVehicleReq.getVolume()));
         return sealCarDto;
+    }
+
+    public static void main(String[] args) {
+        SealCarDto sealCarDto =new SealCarDto();
+        List<String> sealCodes =new ArrayList<>();
+        sealCodes.add("1");
+        sealCodes.add("2");
+        sealCarDto.setSealCodes(null);
+
+
+
+        //System.out.println(sealCarDto.getSealCodes());
     }
 }

@@ -53,7 +53,8 @@ public class DmsConstants {
     public static final String CODE_PREFIX_WORK_STATION_GRID = "CDGX";
     public static final String CODE_PREFIX_WORK_STATION_ATTEND_PLAN = "CDGXPL";
     public static final String CODE_PREFIX_POSITION = "GW";
-    
+    public static final String CODE_PREFIX_FM = "JDFM";
+
     public static final String CODE_PREFIX_JY_GROUP = "G";
     public static final String CODE_PREFIX_JY_GROUP_MEMBER = "GM";
 

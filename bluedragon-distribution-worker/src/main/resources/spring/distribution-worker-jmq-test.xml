@@ -270,10 +270,6 @@
     <jmq:consumer id="jmq.waybilCodeCheckExportLogConsumer" transport="jmq.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.waybill.check.exportlog}" listener="waybilCodeCheckExportLogConsumer"/>
     </jmq:consumer>
-    <!-- 称重抽检处理消息 -->
-    <jmq:consumer id="jmq.weightAndVolumeCheckHandleConsumer" transport="jmq.dmsWorker.transport">
-        <jmq:listener topic="${jmq.topic.weightAndVolumeCheck.handle}" listener="weightAndVolumeCheckHandleConsumer"/>
-    </jmq:consumer>
     <!-- 来自异常系统的可换单消息 -->
     <jmq:consumer id="jmq.waybillSiteTrackConsumer" transport="jmq.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.otherSystem.exception.waybillSiteTrack}" listener="waybillSiteTrackConsumer"/>

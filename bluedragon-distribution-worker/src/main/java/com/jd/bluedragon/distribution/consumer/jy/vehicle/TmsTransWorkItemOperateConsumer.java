@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.consumer.jy.vehicle;
 
+import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleData;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BasicQueryWSManager;
@@ -7,10 +9,7 @@ import com.jd.bluedragon.core.base.JdiQueryWSManager;
 import com.jd.bluedragon.core.base.JdiTransWorkWSManager;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.jy.dto.send.TransWorkItemDto;
-import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendDetailStatusEnum;
-import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendStatusEnum;
-import com.jd.bluedragon.distribution.jy.enums.JyLineTypeEnum;
-import com.jd.bluedragon.distribution.jy.enums.TmsLineTypeEnum;
+import com.jd.bluedragon.distribution.jy.enums.*;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.service.send.SendVehicleTransactionManager;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetailService;
@@ -18,13 +17,12 @@ import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleServic
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
-import com.jd.bluedragon.utils.DateHelper;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.NumberHelper;
-import com.jd.bluedragon.utils.StringHelper;
+import com.jd.bluedragon.enums.SendStatusEnum;
+import com.jd.bluedragon.utils.*;
 import com.jd.coo.sa.sequence.JimdbSequenceGen;
 import com.jd.jim.cli.Cluster;
 import com.jd.jmq.common.message.Message;
+import com.jd.ql.basic.domain.PsStoreInfo;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.tms.basic.dto.BasicVehicleTypeDto;
 import com.jd.tms.jdi.dto.BigQueryOption;
@@ -118,17 +116,24 @@ public class TmsTransWorkItemOperateConsumer extends MessageBaseConsumer {
         if (filterDiscardData(workItemDto)) {
             return;
         }
-
         String transWorkCode = workItemDto.getTransWorkCode();
-        TransWorkBillDto transWorkBillDto = jdiQueryWSManager.queryTransWork(transWorkCode);
+        //锁定派车单执行 防止并发问题
+        String mutexKey = getTransWorkMutexKey(transWorkCode);
+        if (!redisClientOfJy.set(mutexKey, String.valueOf(System.currentTimeMillis()), TRANS_WORK_CACHE_EXPIRE, TimeUnit.MINUTES, false)) {
+            String warnMsg = MessageFormat.format("派车单{}-{}正在处理中!", workItemDto.getTransWorkItemCode(), transWorkCode);
+            logger.warn(warnMsg, JsonHelper.toJson(workItemDto));
+            throw new JyBizException(warnMsg);
+        }
+        TransWorkBillDto transWorkBillDto = getTransWorkBillDto(transWorkCode);
         if (transWorkBillDto == null) {
             logger.warn("根据派车任务查询派车单为空. {}", JsonHelper.toJson(workItemDto));
             return;
         }
         JyLineTypeEnum lineType = TmsLineTypeEnum.getLineType(transWorkBillDto.getTransType());
         if (!JyLineTypeEnum.TRUNK_LINE.equals(lineType) && !JyLineTypeEnum.BRANCH_LINE.equals(lineType)) {
-            logger.warn("派车单类型非干、支类型. {}", JsonHelper.toJson(workItemDto));
-            return;
+            logger.warn("派车单类型非干、支类型. {},tmsTransWorkBill:{}", JsonHelper.toJson(workItemDto),JsonHelper.toJson(transWorkBillDto));
+            //调整仅记录日志不阻碍运行防止后增加派车明细将派车单线路类型回刷
+            //return;
         }
 
         BaseStaffSiteOrgDto startSiteInfo = baseMajorManager.getBaseSiteByDmsCode(workItemDto.getBeginNodeCode());
@@ -139,15 +144,16 @@ public class TmsTransWorkItemOperateConsumer extends MessageBaseConsumer {
 
         BaseStaffSiteOrgDto endSiteInfo = baseMajorManager.getBaseSiteByDmsCode(workItemDto.getEndNodeCode());
         if (endSiteInfo == null || !NumberHelper.gt0(endSiteInfo.getSiteCode())) {
-            logger.warn("派车单明细目的场地不存在. {}", JsonHelper.toJson(workItemDto));
-            return;
-        }
-
-        String mutexKey = getTransWorkMutexKey(transWorkCode);
-        if (!redisClientOfJy.set(mutexKey, String.valueOf(System.currentTimeMillis()), TRANS_WORK_CACHE_EXPIRE, TimeUnit.MINUTES, false)) {
-            String warnMsg = MessageFormat.format("派车单{}-{}正在处理中!", workItemDto.getTransWorkItemCode(), transWorkCode);
-            logger.warn(warnMsg, JsonHelper.toJson(workItemDto));
-            throw new JyBizException(warnMsg);
+            //兼容目的目的地是库房类型
+            PsStoreInfo psStoreInfo = baseMajorManager.getStoreByCode(workItemDto.getEndNodeCode());
+            if(psStoreInfo != null ){
+                endSiteInfo  = new BaseStaffSiteOrgDto();
+                endSiteInfo.setSiteCode(psStoreInfo.getDmsSiteId());
+                endSiteInfo.setSiteName(psStoreInfo.getDmsStoreName());
+            }else{
+                logger.warn("派车单明细目的场地不存在. {}", JsonHelper.toJson(workItemDto));
+                return;
+            }
         }
 
         JyBizTaskSendVehicleEntity sendTaskQ = new JyBizTaskSendVehicleEntity(transWorkBillDto.getTransWorkCode(), startSiteInfo.getSiteCode().longValue());
@@ -171,12 +177,23 @@ public class TmsTransWorkItemOperateConsumer extends MessageBaseConsumer {
             }
             // 取消发货任务流向
             else if (OPERATE_TYPE_CANCEL == workItemDto.getOperateType()) {
-
-                cancelSendTaskDetail(workItemDto);
+                JyBizTaskSendVehicleDetailEntity vehicleDetail =taskSendVehicleDetailService.findByBizId(workItemDto.getTransWorkItemCode());
+                if (ObjectHelper.isNotNull(vehicleDetail)){
+                    if (JyBizTaskSendStatusEnum.TO_SEND.getCode().equals(vehicleDetail.getVehicleStatus())){
+                        cancelSendTaskDetail(workItemDto,vehicleDetail);
+                    }
+                    else {
+                        labelSendTaskDetailCancel(vehicleDetail);
+                    }
+                }
+                else {
+                    logger.error("取消JyBizTaskSendVehicleDetail异常，不存在该流向任务或者已经被取消",JsonHelper.toJson(workItemDto));
+                }
             }
 
             // 更新lastPlanDepartTime最晚发车时间
-            updateSendVehicleLastPlanDepartTime(startSiteInfo.getSiteCode(), sendVehicleBiz);
+            // 更新线路类型，多个派车明细创建后可能会引起派车任务对应主发货任务的线路类型调整
+            updateSendVehicleLastPlanDepartTimeAndLineType(startSiteInfo.getSiteCode(), sendVehicleBiz,lineType);
         }
         catch (Exception e) {
             logger.error("消费运输派车单明细失败! {}", JsonHelper.toJson(workItemDto), e);
@@ -185,6 +202,41 @@ public class TmsTransWorkItemOperateConsumer extends MessageBaseConsumer {
         finally {
             redisClientOfJy.del(mutexKey);
         }
+    }
+
+    private void labelSendTaskDetailCancel(JyBizTaskSendVehicleDetailEntity vehicleDetail) {
+        JyBizTaskSendVehicleDetailEntity entity =new JyBizTaskSendVehicleDetailEntity();
+        entity.setBizId(vehicleDetail.getBizId());
+        entity.setExcepLabel(SendTaskExcepLabelEnum.CANCEL.getCode());
+        entity.setUpdateTime(new Date());
+        taskSendVehicleDetailService.updateByBiz(entity);
+    }
+
+    /**
+     * 根据派车单号获取派车单信息
+     * 派车单线路类型特殊处理， 已派车明细中所有的线路类型 干支传摆 从大到小处理
+     * @param transWorkCode
+     */
+    private TransWorkBillDto getTransWorkBillDto(String transWorkCode){
+        TransWorkBillDto transWorkBillDto = jdiQueryWSManager.queryTransWorkAndAllItem( transWorkCode);
+        if(transWorkBillDto != null && !CollectionUtils.isEmpty(transWorkBillDto.getTransWorkItemDtoList())){
+            Integer lineTypeCode = transWorkBillDto.getTransType();
+            JyLineTypeEnum lineType = TmsLineTypeEnum.getLineType(transWorkBillDto.getTransType());
+            logInfo("TmsTransWorkItemOperateConsumer getTransWorkBillDto  transWorkCode:{} lineType:{} jy:{} ",transWorkCode,transWorkBillDto.getTransType(),lineType.getName());
+            //派车明细中的线路类型 干支传摆 从大到小处理 （ 以 JyLineTypeEnum order 排名顺序）
+            for(com.jd.tms.jdi.dto.TransWorkItemDto item : transWorkBillDto.getTransWorkItemDtoList()){
+                JyLineTypeEnum itemLineType = TmsLineTypeEnum.getLineType(item.getTransType());
+                if(itemLineType.getOrder() < lineType.getOrder()){
+                    lineType = itemLineType;
+                    lineTypeCode = item.getTransType();
+                    logInfo("TmsTransWorkItemOperateConsumer getTransWorkBillDto  transWorkCode:{} itemLineType:{} jy:{} ",transWorkCode,item.getTransType(),itemLineType.getName());
+                }
+            }
+            //替换线路类型
+            transWorkBillDto.setTransType(lineTypeCode);
+        }
+        logInfo("TmsTransWorkItemOperateConsumer getTransWorkBillDto end transWorkCode:{} lineType:{} ",transWorkCode,transWorkBillDto.getTransType());
+        return transWorkBillDto;
     }
 
     private String getSendVehicleBiz(JyBizTaskSendVehicleEntity existSendTaskMain) {
@@ -204,7 +256,7 @@ public class TmsTransWorkItemOperateConsumer extends MessageBaseConsumer {
      * 取消发货流向
      * @param workItemDto
      */
-    private void cancelSendTaskDetail(TransWorkItemDto workItemDto) {
+    private void cancelSendTaskDetail(TransWorkItemDto workItemDto,JyBizTaskSendVehicleDetailEntity detailEntity) {
         JyBizTaskSendVehicleDetailEntity cancelQ = new JyBizTaskSendVehicleDetailEntity();
         cancelQ.setBizId(workItemDto.getTransWorkItemCode());
         cancelQ.setUpdateTime(new Date());
@@ -213,7 +265,17 @@ public class TmsTransWorkItemOperateConsumer extends MessageBaseConsumer {
         if (rows <= 0) {
             logger.warn("取消派车单明细失败! {}", JsonHelper.toJson(workItemDto));
         }
-
+        else {
+            Integer noCancelCount =taskSendVehicleDetailService.countNoCancelSendDetail(detailEntity);
+            if (noCancelCount==null || noCancelCount<=0){
+                JyBizTaskSendVehicleEntity entity =new JyBizTaskSendVehicleEntity();
+                entity.setBizId(detailEntity.getSendVehicleBizId());
+                entity.setVehicleStatus(JyBizTaskSendStatusEnum.CANCEL.getCode());
+                entity.setYn(Constants.YN_NO);
+                entity.setUpdateTime(new Date());
+                taskSendVehicleService.updateSendVehicleTask(entity);
+            }
+        }
         logInfo("取消派车单明细.{}", JsonHelper.toJson(workItemDto));
     }
 
@@ -300,7 +362,7 @@ public class TmsTransWorkItemOperateConsumer extends MessageBaseConsumer {
      * @param startSiteId
      * @param sendVehicleBiz
      */
-    private void updateSendVehicleLastPlanDepartTime(Integer startSiteId, String sendVehicleBiz) {
+    private void updateSendVehicleLastPlanDepartTimeAndLineType(Integer startSiteId, String sendVehicleBiz,JyLineTypeEnum lineType) {
         JyBizTaskSendVehicleDetailEntity detailQ = new JyBizTaskSendVehicleDetailEntity(startSiteId.longValue(), sendVehicleBiz);
         List<JyBizTaskSendVehicleDetailEntity> vehicleDetailList = taskSendVehicleDetailService.findEffectiveSendVehicleDetail(detailQ);
         if (CollectionUtils.isEmpty(vehicleDetailList)) {
@@ -322,13 +384,22 @@ public class TmsTransWorkItemOperateConsumer extends MessageBaseConsumer {
             }
         }
 
+        JyBizTaskSendVehicleEntity updateSendTaskReq = new JyBizTaskSendVehicleEntity();
+        updateSendTaskReq.setBizId(sendVehicleBiz);
+        Boolean needUpdate = Boolean.FALSE;
         if (lastPlanDepartTime != null) {
-            JyBizTaskSendVehicleEntity updateSendTaskReq = new JyBizTaskSendVehicleEntity();
-            updateSendTaskReq.setBizId(sendVehicleBiz);
             updateSendTaskReq.setLastPlanDepartTime(lastPlanDepartTime);
-            int rows = taskSendVehicleService.updateLastPlanDepartTime(updateSendTaskReq);
-
-            logInfo("更新派车单最晚发车时间. {}-{}", updateSendTaskReq.getBizId(), rows);
+            needUpdate = Boolean.TRUE;
+        }
+        if(lineType != null){
+            updateSendTaskReq.setLineType(lineType.getCode());
+            updateSendTaskReq.setLineTypeName(lineType.getName());
+            needUpdate = Boolean.TRUE;
+        }
+        if(needUpdate){
+            updateSendTaskReq.setUpdateTime(new Date());
+            int rows = taskSendVehicleService.updateLastPlanDepartTimeAndLineType(updateSendTaskReq);
+            logInfo("更新派车单最晚发车时间和线路类型.{}-{} , req:{}", updateSendTaskReq.getBizId(), rows,JsonHelper.toJson(updateSendTaskReq));
         }
     }
 
@@ -376,7 +447,7 @@ public class TmsTransWorkItemOperateConsumer extends MessageBaseConsumer {
         BaseStaffSiteOrgDto siteInfo = baseMajorManager.getBaseSiteByDmsCode(startSiteCode);
         if (siteInfo == null || !BusinessUtil.isSorting(siteInfo.getSiteType())) {
             //丢弃数据
-            logger.warn("TmsTransWorkItemOperateConsumer不需要关心的数据丢弃, 目的站点:{}, 目的站点类型:{}, 消息:{}",
+            logger.warn("TmsTransWorkItemOperateConsumer不需要关心的数据丢弃, 始发站点:{}, 始发站点类型:{}, 消息:{}",
                     startSiteCode, siteInfo == null ? null : siteInfo.getSiteType(), JsonHelper.toJson(mqDto));
             return true;
         }

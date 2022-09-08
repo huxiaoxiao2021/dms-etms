@@ -119,6 +119,16 @@ public class JyBizTaskSendVehicleDetailEntity implements Serializable {
 	 */
 	private Date ts;
 
+	private transient Date lastPlanDepartTimeBegin;
+
+	/**
+	 * 最晚计划发车时间 范围查找-结束时间
+	 */
+	private transient Date lastPlanDepartTimeEnd;
+
+	private Integer excepLabel;
+	private transient Date createTimeBegin;
+
 	public Integer getPreVehicleStatus() {
 		return preVehicleStatus;
 	}
@@ -277,5 +287,37 @@ public class JyBizTaskSendVehicleDetailEntity implements Serializable {
 
 	public void setTs(Date ts) {
 		this.ts = ts;
+	}
+
+	public Date getLastPlanDepartTimeBegin() {
+		return lastPlanDepartTimeBegin;
+	}
+
+	public void setLastPlanDepartTimeBegin(Date lastPlanDepartTimeBegin) {
+		this.lastPlanDepartTimeBegin = lastPlanDepartTimeBegin;
+	}
+
+	public Date getLastPlanDepartTimeEnd() {
+		return lastPlanDepartTimeEnd;
+	}
+
+	public void setLastPlanDepartTimeEnd(Date lastPlanDepartTimeEnd) {
+		this.lastPlanDepartTimeEnd = lastPlanDepartTimeEnd;
+	}
+
+	public Integer getExcepLabel() {
+		return excepLabel;
+	}
+
+	public void setExcepLabel(Integer excepLabel) {
+		this.excepLabel = excepLabel;
+	}
+
+	public Date getCreateTimeBegin() {
+		return createTimeBegin;
+	}
+
+	public void setCreateTimeBegin(Date createTimeBegin) {
+		this.createTimeBegin = createTimeBegin;
 	}
 }

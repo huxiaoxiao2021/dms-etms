@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 
+@Deprecated
 @Service("stockExportManager")
 public class StockExportManagerImpl implements StockExportManager {
 
