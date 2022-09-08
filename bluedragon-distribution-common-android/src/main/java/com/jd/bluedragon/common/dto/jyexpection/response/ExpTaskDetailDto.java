@@ -67,6 +67,9 @@ public class ExpTaskDetailDto implements Serializable {
     // 图片地址
     private String imageUrls;
 
+    // 上架人erp
+    private String shelfErp;
+
     public String getWeight() {
         return weight;
     }
@@ -225,5 +228,13 @@ public class ExpTaskDetailDto implements Serializable {
 
     public void setImageUrls(String imageUrls) {
         this.imageUrls = imageUrls;
+    }
+
+    public String getShelfErp() {
+        return shelfErp;
+    }
+
+    public void setShelfErp(String shelfErp) {
+        this.shelfErp = shelfErp;
     }
 }
