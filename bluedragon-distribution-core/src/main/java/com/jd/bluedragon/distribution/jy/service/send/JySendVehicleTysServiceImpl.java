@@ -141,7 +141,9 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
             if(invokeResult != null){
                 result.setCode(invokeResult.getCode());
                 result.setMessage(invokeResult.getMessage());
-                BeanCopyUtil.copy(invokeResult.getData(),sendVehicleTaskResp);
+                if (invokeResult.getData() != null) {
+                    BeanCopyUtil.copy(invokeResult.getData(), sendVehicleTaskResp);
+                }
                 result.setData(sendVehicleTaskResp);
             }else{
                 result.error();
@@ -229,7 +231,9 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
                 result.setCode(invokeResult.getCode());
                 result.setMessage(invokeResult.getMessage());
                 SendVehicleInfo sendVehicleTaskResp = new SendVehicleInfo();
-                BeanCopyUtil.copy(invokeResult.getData(),sendVehicleTaskResp);
+                if (invokeResult.getData() != null) {
+                    BeanCopyUtil.copy(invokeResult.getData(), sendVehicleTaskResp);
+                }
                 result.setData(sendVehicleTaskResp);
             }else{
                 result.error();
