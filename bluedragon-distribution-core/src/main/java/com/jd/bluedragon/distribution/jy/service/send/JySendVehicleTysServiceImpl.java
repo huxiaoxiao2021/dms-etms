@@ -148,7 +148,7 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
                 logger.error("JySendVehicleTysService.fetchSendVehicleTask error! invokeResult is null ,req:{}", JsonHelper.toJson(request));
             }
         }catch (Exception e){
-            logger.error("JySendVehicleTysService.fetchSendVehicleTask error! ,req:{}", JsonHelper.toJson(request));
+            logger.error("JySendVehicleTysService.fetchSendVehicleTask error! ,req:{}", JsonHelper.toJson(request), e);
             result.error();
         }finally {
             if(logger.isInfoEnabled()){
@@ -200,7 +200,7 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
                 logger.error("JySendVehicleTysService.uploadPhoto error! invokeResult is null ,req:{}", JsonHelper.toJson(request));
             }
         }catch (Exception e){
-            logger.error("JySendVehicleTysService.uploadPhoto error! ,req:{}", JsonHelper.toJson(request));
+            logger.error("JySendVehicleTysService.uploadPhoto error! ,req:{}", JsonHelper.toJson(request), e);
             result.error();
         }finally {
             if(logger.isInfoEnabled()){
@@ -236,7 +236,7 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
                 logger.error("JySendVehicleTysService.sendVehicleInfo error! invokeResult is null ,req:{}", JsonHelper.toJson(request));
             }
         }catch (Exception e){
-            logger.error("JySendVehicleTysService.sendVehicleInfo error! ,req:{}", JsonHelper.toJson(request));
+            logger.error("JySendVehicleTysService.sendVehicleInfo error! ,req:{}", JsonHelper.toJson(request), e);
             result.error();
         }finally {
             if(logger.isInfoEnabled()){
@@ -278,7 +278,7 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
                 logger.error("JySendVehicleTysService.sendDestDetail error! invokeResult is null ,req:{}", JsonHelper.toJson(request));
             }
         }catch (Exception e){
-            logger.error("JySendVehicleTysService.sendDestDetail error! ,req:{}", JsonHelper.toJson(request));
+            logger.error("JySendVehicleTysService.sendDestDetail error! ,req:{}", JsonHelper.toJson(request), e);
             result.error();
         }finally {
             if(logger.isInfoEnabled()){
