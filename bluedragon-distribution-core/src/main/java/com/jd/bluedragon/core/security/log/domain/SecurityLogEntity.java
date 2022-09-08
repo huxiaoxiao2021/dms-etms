@@ -40,7 +40,7 @@ public class SecurityLogEntity {
 
     private final Map<SecurityLogUniqueIdentifierKeyEnums,String> respKeyMapping;
 
-    private final List<Object> businessResponseList;
+    private final Object businessResponse;
 
     private final Integer resultNum;
 }

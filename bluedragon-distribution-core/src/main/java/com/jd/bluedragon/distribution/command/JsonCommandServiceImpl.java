@@ -288,7 +288,7 @@ public class JsonCommandServiceImpl implements JdCommandService{
 							.reqKeyMapping(reqInfoKeyEnumsStringMap)
 							.businessRequest(jsonCommand)
 							.respKeyMapping(uniqueIdentifierKeyEnumsStringHashMap)
-							.businessResponseList(Collections.<Object>singletonList(jsonResponse))
+							.businessResponse(jsonResponse)
 							.resultNum(1)
 							.build()
 			);

@@ -1856,8 +1856,9 @@ public class SendPrintServiceImpl implements SendPrintService {
                             .reqKeyMapping(reqInfoKeyEnumsStringMap)
                             .businessRequest(criteria)
                             .respKeyMapping(new HashMap<SecurityLogUniqueIdentifierKeyEnums, String>())
-                            .businessResponseList(response == null? Collections.<Object>singletonList(summaryPrintResultResponse) : Collections.<Object>singletonList(response))
-                            .resultNum(response == null? summaryPrintResultResponse.getData().size() : response.getData().size())
+                            .businessResponse(response == null? summaryPrintResultResponse :response)
+                            .resultNum(response != null && CollectionUtils.isNotEmpty(response.getData())? response.getData().size() :
+                                    summaryPrintResultResponse != null && CollectionUtils.isNotEmpty(summaryPrintResultResponse.getData())? summaryPrintResultResponse.getData().size() : 0)
                             .build()
             );
         }catch (Exception e){
