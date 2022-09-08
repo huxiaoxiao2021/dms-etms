@@ -1,11 +1,13 @@
 package com.jd.bluedragon.core.security.log;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.context.InvokerClientInfoContext;
 import com.jd.bluedragon.core.security.log.builder.SecurityLogHeaderBuilder;
 import com.jd.bluedragon.core.security.log.domain.SecurityLogEntity;
 import com.jd.bluedragon.core.security.log.enums.*;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.security.log.util.LogAcesUtil;
 import com.jd.securitylog.entity.*;
 import lombok.extern.slf4j.Slf4j;
@@ -34,11 +36,27 @@ import java.util.UUID;
 @Slf4j
 public class SecurityLogRecord {
 
+    public static void log(SecurityLogEntity securityLogEntity) {
+        try {
+            SecurityLog securityLog = new SecurityLog();
+            securityLog.setHead(createHead(securityLogEntity.getInterfaceName(), securityLogEntity.getAccountType(), securityLogEntity.getAccountName(), securityLogEntity.getOp()));
+            securityLog.setReqInfo(createReqInfo(securityLogEntity.getReqKeyMapping(), securityLogEntity.getBusinessRequest()));
+            securityLog.setRespInfo(createRespInfo(securityLogEntity.getRespKeyMapping(), securityLogEntity.getBusinessResponseList(), securityLogEntity.getOp(), securityLogEntity.getResultNum()));
+            LogAcesUtil.encryptSecEntity(securityLog);
+            log.info(JSONObject.toJSONString(securityLog));
+        } catch (RuntimeException | UnknownHostException e) {
+            log.error("记录安全日志异常：", e);
+        }
+    }
+
     private static Head createHead(String interfaceName, SecurityAccountEnums accountType, String accountName, SecurityLogOpEnums op) throws UnknownHostException {
+        String appName = StringUtils.isNotEmpty(System.getProperty("deploy.app.name"))? System.getProperty("deploy.app.name") : System.getProperty("def_app_name");
+        String sysName = StringUtils.isNotEmpty(System.getProperty("SYSTEM_NAME"))? System.getProperty("SYSTEM_NAME") : System.getProperty("JONE_SYSTEM_NAME");
+
         return new SecurityLogHeaderBuilder()
                 .version("V1.0")
-                .systemName("")
-                .appName(StringUtils.isEmpty(System.getProperty("deploy.app.name"))? Constants.UMP_APP_NAME_DMSWEB : System.getProperty("deploy.app.name"))
+                .systemName(sysName)
+                .appName(appName)
                 .interfaceName(interfaceName)
                 .uuid(UUID.randomUUID().toString())
                 .time(System.currentTimeMillis() / 1000)
@@ -59,7 +77,7 @@ public class SecurityLogRecord {
 
         JSONObject businessRequestJson = JSONObject.parseObject(JSONObject.toJSONString(businessRequest));
         for (Map.Entry<SecurityLogReqInfoKeyEnums, String> keyEnumsStringEntry : keyMapping.entrySet()) {
-            reqInfoJson.put(keyEnumsStringEntry.getKey().name(), businessRequestJson.get(keyEnumsStringEntry.getValue()));
+            reqInfoJson.put(keyEnumsStringEntry.getKey().name(), JsonHelper.getObject(businessRequestJson, keyEnumsStringEntry.getValue()));
         }
 
         return reqInfoJson.toJavaObject(ReqInfo.class);
@@ -83,7 +101,7 @@ public class SecurityLogRecord {
 
             JSONObject respInfoJson = new JSONObject();
             for (Map.Entry<SecurityLogUniqueIdentifierKeyEnums, String> keyEnumsStringEntry : keyMapping.entrySet()) {
-                respInfoJson.put(keyEnumsStringEntry.getKey().name(), businessResponseJson.get(keyEnumsStringEntry.getValue()));
+                respInfoJson.put(keyEnumsStringEntry.getKey().name(), JsonHelper.getObject(businessResponseJson, keyEnumsStringEntry.getValue()));
             }
             respInfo.getUniqueIdentifier().add(respInfoJson.toJavaObject(UniqueIdentifier.class));
         }
@@ -91,18 +109,7 @@ public class SecurityLogRecord {
         return respInfo;
     }
 
-    public static void log(SecurityLogEntity securityLogEntity) {
-        try {
-            SecurityLog securityLog = new SecurityLog();
-            securityLog.setHead(createHead(securityLogEntity.getInterfaceName(), securityLogEntity.getAccountType(), securityLogEntity.getAccountName(), securityLogEntity.getOp()));
-            securityLog.setReqInfo(createReqInfo(securityLogEntity.getReqKeyMapping(), securityLogEntity.getBusinessRequest()));
-            securityLog.setRespInfo(createRespInfo(securityLogEntity.getRespKeyMapping(), securityLogEntity.getBusinessResponseList(), securityLogEntity.getOp(), securityLogEntity.getResultNum()));
-            LogAcesUtil.encryptSecEntity(securityLog);
-            log.info(JSONObject.toJSONString(securityLog));
-        } catch (RuntimeException | UnknownHostException e) {
-            log.error("记录安全日志异常：", e);
-        }
-    }
+
 
 
 

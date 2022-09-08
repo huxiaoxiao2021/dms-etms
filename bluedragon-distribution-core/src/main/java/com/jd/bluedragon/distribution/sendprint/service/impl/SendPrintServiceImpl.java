@@ -5,13 +5,21 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.FlowConstants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.*;
+import com.jd.bluedragon.core.security.log.SecurityLogRecord;
+import com.jd.bluedragon.core.security.log.domain.SecurityLogEntity;
+import com.jd.bluedragon.core.security.log.enums.SecurityAccountEnums;
+import com.jd.bluedragon.core.security.log.enums.SecurityLogOpEnums;
+import com.jd.bluedragon.core.security.log.enums.SecurityLogReqInfoKeyEnums;
+import com.jd.bluedragon.core.security.log.enums.SecurityLogUniqueIdentifierKeyEnums;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.batch.domain.BatchSend;
 import com.jd.bluedragon.distribution.board.service.BoardCombinationService;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
+import com.jd.bluedragon.distribution.busineCode.sendCode.service.SendCodeService;
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
+import com.jd.bluedragon.distribution.print.domain.SurfaceOutputTypeEnum;
 import com.jd.bluedragon.distribution.printOnline.domain.PrintOnlineWaybillDTO;
 import com.jd.bluedragon.distribution.quickProduce.domain.JoinDetail;
 import com.jd.bluedragon.distribution.quickProduce.domain.QuickProduceWabill;
@@ -28,7 +36,6 @@ import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.domain.dto.SendDetailDto;
 import com.jd.bluedragon.distribution.send.service.SendDetailService;
 import com.jd.bluedragon.distribution.send.service.SendMService;
-import com.jd.bluedragon.distribution.busineCode.sendCode.service.SendCodeService;
 import com.jd.bluedragon.distribution.sendprint.domain.*;
 import com.jd.bluedragon.distribution.sendprint.service.SendPrintService;
 import com.jd.bluedragon.distribution.sendprint.utils.SendPrintConstants;
@@ -40,9 +47,9 @@ import com.jd.bluedragon.utils.*;
 import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.dms.logger.external.LogEngine;
+import com.jd.dms.wb.report.api.dto.base.Pager;
 import com.jd.dms.wb.report.api.dto.printhandover.PrintHandoverListDto;
 import com.jd.dms.wb.report.api.dto.printhandover.PrintHandoverLitQueryCondition;
-import com.jd.dms.wb.report.api.dto.base.Pager;
 import com.jd.dms.workbench.utils.sdk.base.PageData;
 import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
@@ -63,9 +70,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-
-import static com.jd.bluedragon.utils.LocalSecurityLog.writeBatchSummaryPrintSecurityLog;
-import static com.jd.bluedragon.utils.LocalSecurityLog.writeSummaryPrintSecurityLog;
 
 @Service("sendPrintService")
 public class SendPrintServiceImpl implements SendPrintService {
@@ -201,8 +205,7 @@ public class SendPrintServiceImpl implements SendPrintService {
             Profiler.registerInfoEnd(info);
         }
         // 记录安全日志
-        //writeSecurityLog(criteria);
-        writeBatchSummaryPrintSecurityLog(SendPrintServiceImpl.class.getName(),criteria,results);
+        writeSecurityLog(criteria, null, tSummaryPrintResultResponse);
         return tSummaryPrintResultResponse;
     }
 
@@ -1827,8 +1830,7 @@ public class SendPrintServiceImpl implements SendPrintService {
         Date endDate = new Date();
         log.debug("打印交接清单-基本信息查询结束-{}" , (startDate.getTime() - endDate.getTime()));
         // 记录安全日志
-        //writeSecurityLog(criteria);
-        writeSummaryPrintSecurityLog(SendPrintServiceImpl.class.getName(),criteria,tBasicQueryEntityResponse.getData());
+        writeSecurityLog(criteria, tBasicQueryEntityResponse, null);
         return tBasicQueryEntityResponse;
     }
 
@@ -1836,12 +1838,28 @@ public class SendPrintServiceImpl implements SendPrintService {
      * 记录安全日志
      * @param criteria
      */
-    private void writeSecurityLog(PrintQueryCriteria criteria) {
+    private void writeSecurityLog(PrintQueryCriteria criteria, BasicQueryEntityResponse response, SummaryPrintResultResponse summaryPrintResultResponse) {
         try {
-            if(criteria == null || StringUtils.isEmpty(criteria.getUserCode())){
-                return;
-            }
-            SecurityLog.reportQuerySecurityLogRecordRequest(SendPrintServiceImpl.class.getName(),criteria.getUserCode(),JsonHelper.toJson(criteria));
+            Map<SecurityLogReqInfoKeyEnums, String> reqInfoKeyEnumsStringMap = new HashMap<>();
+            reqInfoKeyEnumsStringMap.put(SecurityLogReqInfoKeyEnums.accountId, "userCode");
+            reqInfoKeyEnumsStringMap.put(SecurityLogReqInfoKeyEnums.inputParam, "");
+
+            SecurityLogRecord.log(
+                    SecurityLogEntity.builder()
+                            .interfaceName("com.jd.bluedragon.distribution.command.JsonCommandServiceImpl#execute")
+                            .accountName(String.valueOf(JsonHelper.getObject(JSONObject.parseObject(JSONObject.toJSONString(criteria)),"data.userCode")))
+                            .accountType(SecurityAccountEnums.account_type_3)
+                            .op(
+                                    SurfaceOutputTypeEnum.OUTPUT_TYPE_PRINT.getCode().equals(JsonHelper.getObject(JSONObject.parseObject(JSONObject.toJSONString(criteria)),"data.outputType"))?
+                                            SecurityLogOpEnums.op_8 : SecurityLogOpEnums.op_11
+                            )
+                            .reqKeyMapping(reqInfoKeyEnumsStringMap)
+                            .businessRequest(criteria)
+                            .respKeyMapping(new HashMap<SecurityLogUniqueIdentifierKeyEnums, String>())
+                            .businessResponseList(response == null? Collections.<Object>singletonList(summaryPrintResultResponse) : Collections.<Object>singletonList(response))
+                            .resultNum(response == null? summaryPrintResultResponse.getData().size() : response.getData().size())
+                            .build()
+            );
         }catch (Exception e){
             log.error("打印交接清单上传安全日日志失败.入参:{}",JsonHelper.toJson(criteria),e);
         }
@@ -1877,8 +1895,7 @@ public class SendPrintServiceImpl implements SendPrintService {
         }
         log.debug("打印交接清单-分页-基本信息查询结束-{}" , (startTime - System.currentTimeMillis()));
         // 记录安全日志
-        //writeSecurityLog(criteria);
-        writeSummaryPrintSecurityLog(SendPrintServiceImpl.class.getName(),criteria,tBasicQueryEntityResponse.getData());
+        writeSecurityLog(criteria, tBasicQueryEntityResponse, null);
         return tBasicQueryEntityResponse;
     }
 

@@ -39,7 +39,6 @@ public class DmsJsfFilter extends AbstractFilter {
         try {
             InvokerClientInfoContext.ClientInfo clientInfo = new  InvokerClientInfoContext.ClientInfo();
 
-//            InetSocketAddress address = RpcContext.getContext().getRemoteAddress();
             String ip = RpcContext.getContext().getRemoteHostName();
             clientInfo.setClientIp(ip);
 

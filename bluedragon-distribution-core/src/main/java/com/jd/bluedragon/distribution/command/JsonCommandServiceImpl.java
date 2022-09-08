@@ -17,17 +17,16 @@ import com.jd.bluedragon.distribution.businessIntercept.helper.BusinessIntercept
 import com.jd.bluedragon.distribution.businessIntercept.service.IBusinessInterceptReportService;
 import com.jd.bluedragon.distribution.command.handler.JsonCommandHandlerMapping;
 import com.jd.bluedragon.distribution.handler.Handler;
+import com.jd.bluedragon.distribution.print.domain.SurfaceOutputTypeEnum;
 import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
 import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.LocalSecurityLog;
-import com.jd.bluedragon.utils.SecurityLog;
 import com.jd.dms.logger.aop.BusinessLogWriter;
 import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.jsf.gd.util.RpcContext;
+import com.jd.pfinder.profiler.sdk.trace.PFTracing;
 import com.jd.ql.basic.util.DateUtil;
 import com.jd.ql.dms.common.constants.OperateDeviceTypeConstants;
 import com.jd.ql.dms.common.constants.OperateNodeConstants;
-import com.jd.pfinder.profiler.sdk.trace.PFTracing;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
@@ -37,13 +36,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 
 /**
@@ -133,8 +128,7 @@ public class JsonCommandServiceImpl implements JdCommandService{
 		//写入自定义日志
 		writeBusinessLog(jsonCommand,jsonResponse,jdCommand.getOperateType());
 		//写入安全日志
-		//this.writeSecurityLog(jdCommand);
-		LocalSecurityLog.writeJsonCommandSecurityLog(JsonCommandServiceImpl.class.getName(),jdCommand,jsonResponse,clientIp);
+		writeSecurityLog(jdCommand, jsonResponse);
 		return jsonResponse;
 	}
 
@@ -267,21 +261,39 @@ public class JsonCommandServiceImpl implements JdCommandService{
 	private void writeSecurityLog(JdCommand<String> jsonCommand, String jsonResponse){
 		CallerInfo info = Profiler.registerInfo("DMSWEB.JsonCommandServiceImpl.writeSecurityLog", Constants.UMP_APP_NAME_DMSWEB,false, true);
 		try{
+			Map<SecurityLogReqInfoKeyEnums, String> reqInfoKeyEnumsStringMap = new HashMap<>();
+			reqInfoKeyEnumsStringMap.put(SecurityLogReqInfoKeyEnums.accountId, "data.userCode");
+			reqInfoKeyEnumsStringMap.put(SecurityLogReqInfoKeyEnums.accountName, "data.userName");
+			reqInfoKeyEnumsStringMap.put(SecurityLogReqInfoKeyEnums.carryBillId, "data.barCode");
+			reqInfoKeyEnumsStringMap.put(SecurityLogReqInfoKeyEnums.inputParam, "data");
+
+			Map<SecurityLogUniqueIdentifierKeyEnums, String> uniqueIdentifierKeyEnumsStringHashMap = new HashMap<>();
+			uniqueIdentifierKeyEnumsStringHashMap.put(SecurityLogUniqueIdentifierKeyEnums.carryBillId,"data.waybillCode");
+			uniqueIdentifierKeyEnumsStringHashMap.put(SecurityLogUniqueIdentifierKeyEnums.receiveName,"data.customerName");
+			uniqueIdentifierKeyEnumsStringHashMap.put(SecurityLogUniqueIdentifierKeyEnums.receiveAddress,"data.printAddress");
+			uniqueIdentifierKeyEnumsStringHashMap.put(SecurityLogUniqueIdentifierKeyEnums.receivePhone,"data.customerContacts");
+			uniqueIdentifierKeyEnumsStringHashMap.put(SecurityLogUniqueIdentifierKeyEnums.senderPhone,"data.consignerTelText");
+			uniqueIdentifierKeyEnumsStringHashMap.put(SecurityLogUniqueIdentifierKeyEnums.senderAddress,"data.consignerAddress");
+			uniqueIdentifierKeyEnumsStringHashMap.put(SecurityLogUniqueIdentifierKeyEnums.merchantCode,"data.waybillCode");
+
 			SecurityLogRecord.log(
 					SecurityLogEntity.builder()
 							.interfaceName("com.jd.bluedragon.distribution.command.JsonCommandServiceImpl#execute")
-							.accountName(SecurityAccountEnums.account_type_1.name())
-							.accountType(SecurityAccountEnums.account_type_1)
-							.op(SecurityLogOpEnums.op_8)
-							.reqKeyMapping(new HashMap<SecurityLogReqInfoKeyEnums, String>())
+							.accountName(String.valueOf(JsonHelper.getObject(JSONObject.parseObject(JSONObject.toJSONString(jsonCommand)),"data.userCode")))
+							.accountType(SecurityAccountEnums.account_type_3)
+							.op(
+									SurfaceOutputTypeEnum.OUTPUT_TYPE_PRINT.getCode().equals(JsonHelper.getObject(JSONObject.parseObject(JSONObject.toJSONString(jsonCommand)),"data.outputType"))?
+											SecurityLogOpEnums.op_8 : SecurityLogOpEnums.op_11
+							)
+							.reqKeyMapping(reqInfoKeyEnumsStringMap)
 							.businessRequest(jsonCommand)
-							.respKeyMapping(new HashMap<SecurityLogUniqueIdentifierKeyEnums, String>())
+							.respKeyMapping(uniqueIdentifierKeyEnumsStringHashMap)
 							.businessResponseList(Collections.<Object>singletonList(jsonResponse))
 							.resultNum(1)
 							.build()
 			);
 		}catch (Exception ex){
-			log.error("上传安全日日志失败.jsonCommand:{}",jsonCommand,ex);
+			log.error("构建安全日日志失败.jsonCommand:{}",jsonCommand,ex);
 		}finally {
 			Profiler.registerInfoEnd(info);
 		}
