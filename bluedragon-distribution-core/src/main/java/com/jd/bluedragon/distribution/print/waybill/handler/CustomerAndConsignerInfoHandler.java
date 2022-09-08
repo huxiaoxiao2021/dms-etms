@@ -1,6 +1,10 @@
 package com.jd.bluedragon.distribution.print.waybill.handler;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.etms.waybill.domain.Waybill;
+import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
@@ -19,6 +23,11 @@ import com.jd.bluedragon.distribution.print.service.HideInfoService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.waybill.domain.WaybillExt;
+
+import javax.annotation.Resource;
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * 
  * @ClassName: CustomerAndConsignerInfoHandler
@@ -32,6 +41,11 @@ public class CustomerAndConsignerInfoHandler implements Handler<WaybillPrintCont
 	@Autowired
 	@Qualifier("hideInfoService")
 	private HideInfoService hideInfoService;
+	/**
+	 * 注入ucc配置
+	 */
+	@Resource
+	private UccPropertyConfiguration uccPropertyConfiguration;
 
 	/**
 	 * 收件人联系方式需要突出显示的位数
@@ -65,8 +79,40 @@ public class CustomerAndConsignerInfoHandler implements Handler<WaybillPrintCont
 		removeRepeatedTel(context);
 		//地址追加备注信息
 		appendAdressRemark(context);
+		//阿迪隐藏逻辑
+		removeAddiConsigner(context);
+
 		return context.getResult();
 	}
+
+
+    //移除阿迪寄件人信息
+	private void removeAddiConsigner(WaybillPrintContext context) {
+		try {
+			//获取阿迪 ucc配置
+			String addiOwnNumberConf = uccPropertyConfiguration.getAddiOwnNumberConf();
+			Waybill waybill = context.getBigWaybillDto().getWaybill();
+			if(StringHelper.isNotEmpty(addiOwnNumberConf)){
+				List<String> asList = Arrays.asList(addiOwnNumberConf.split(Constants.SEPARATOR_COMMA));
+				//获取商家青龙业主号
+				String customerCode = waybill.getCustomerCode();
+				String waybillSign = waybill.getWaybillSign();
+				if(asList.contains(customerCode)&&BusinessUtil.isJDConsigner(waybillSign)){
+					//置换为空
+					BasePrintWaybill basePrintWaybill = context.getBasePrintWaybill();
+					basePrintWaybill.setConsigner(StringUtils.EMPTY);
+					basePrintWaybill.setConsignerAddress(StringUtils.EMPTY);
+					basePrintWaybill.setConsignerTel(StringUtils.EMPTY);
+					basePrintWaybill.setConsignerMobile(StringUtils.EMPTY);
+					basePrintWaybill.setConsignerPrefixText(StringUtils.EMPTY);
+					basePrintWaybill.setConsignerTelText(StringUtils.EMPTY);
+				}
+			}
+		} catch (Exception e) {
+			log.error("阿迪隐藏寄件人信息异常: context:{}" , JsonHelper.toJson(context),e);
+		}
+	}
+
 	//地址追加备注信息
 	private void appendAdressRemark(WaybillPrintContext context) {
 		if (context.getBasePrintWaybill() == null){
@@ -99,7 +145,7 @@ public class CustomerAndConsignerInfoHandler implements Handler<WaybillPrintCont
 				}
 			}
 		}
-		
+
 	}
 
 	/**

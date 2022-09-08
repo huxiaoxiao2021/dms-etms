@@ -119,6 +119,8 @@ public class UccPropertyConfiguration {
     * */
     private String switchVerToWebSites;
 
+
+
     /**
      * 禁用老版本登陆
      * @return
@@ -502,6 +504,21 @@ public class UccPropertyConfiguration {
      */
     private boolean chuguanPurchaseAndSaleSwitch;
 
+
+
+    /**
+     * 阿迪青龙业主号配置
+     */
+    private  String addiOwnNumberConf;
+
+    public String getAddiOwnNumberConf() {
+        return addiOwnNumberConf;
+    }
+
+    public void setAddiOwnNumberConf(String addiOwnNumberConf) {
+        this.addiOwnNumberConf = addiOwnNumberConf;
+    }
+
     public boolean isChuguanPurchaseAndSaleSwitch() {
         return chuguanPurchaseAndSaleSwitch;
     }
@@ -667,6 +684,8 @@ public class UccPropertyConfiguration {
      * 发货岗计划发车时间查询条件后X天
      */
     private Integer jySendTaskPlanTimeEndDay;
+
+    private Integer jySendTaskCreateTimeBeginDay;
 
     public Integer getOldSendSplitPageSize() {
         return oldSendSplitPageSize;
@@ -2013,5 +2032,13 @@ public class UccPropertyConfiguration {
 
     public void setSensitiveInfoHideSwitch(Boolean sensitiveInfoHideSwitch) {
         this.sensitiveInfoHideSwitch = sensitiveInfoHideSwitch;
+    }
+
+    public Integer getJySendTaskCreateTimeBeginDay() {
+        return jySendTaskCreateTimeBeginDay;
+    }
+
+    public void setJySendTaskCreateTimeBeginDay(Integer jySendTaskCreateTimeBeginDay) {
+        this.jySendTaskCreateTimeBeginDay = jySendTaskCreateTimeBeginDay;
     }
 }

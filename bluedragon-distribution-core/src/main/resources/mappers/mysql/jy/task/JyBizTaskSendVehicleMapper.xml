@@ -459,13 +459,8 @@
                 #{item}
             </foreach>
         </if>
-        <if test="entity.lastPlanDepartTimeBegin !=null">
-            and ((last_plan_depart_time &gt;= #{entity.lastPlanDepartTimeBegin} and manual_created_flag=0) or
-            manual_created_flag=1)
-        </if>
-        <if test="entity.lastPlanDepartTimeEnd !=null">
-            and ((last_plan_depart_time &lt;= #{entity.lastPlanDepartTimeEnd} and manual_created_flag=0) or
-            manual_created_flag=1)
+        <if test="entity.lastPlanDepartTimeBegin !=null and entity.lastPlanDepartTimeEnd !=null and entity.createTimeBegin !=null">
+            and ((last_plan_depart_time &gt;= #{entity.lastPlanDepartTimeBegin} and last_plan_depart_time &lt;= #{entity.lastPlanDepartTimeEnd}) or (last_plan_depart_time is null and create_time &gt;= #{entity.createTimeBegin}))
         </if>
         GROUP BY vehicle_status
     </select>
@@ -529,13 +524,8 @@
         <if test="entity.manualCreatedFlag != null">
             AND manual_created_flag = #{entity.manualCreatedFlag}
         </if>
-        <if test="entity.lastPlanDepartTimeBegin !=null">
-            and ((last_plan_depart_time &gt;= #{entity.lastPlanDepartTimeBegin} and manual_created_flag=0) or
-            manual_created_flag=1)
-        </if>
-        <if test="entity.lastPlanDepartTimeEnd !=null">
-            and ((last_plan_depart_time &lt;= #{entity.lastPlanDepartTimeEnd} and manual_created_flag=0) or
-            manual_created_flag=1)
+        <if test="entity.lastPlanDepartTimeBegin !=null and entity.lastPlanDepartTimeEnd !=null and entity.createTimeBegin !=null">
+            and ((last_plan_depart_time &gt;= #{entity.lastPlanDepartTimeBegin} and last_plan_depart_time &lt;= #{entity.lastPlanDepartTimeEnd}) or (last_plan_depart_time is null and create_time &gt;= #{entity.createTimeBegin}))
         </if>
     </sql>
 
@@ -587,17 +577,16 @@
         WHERE
         m.yn = 1
         AND m.manual_created_flag = 0
+        AND m.line_type in (1,2)
         AND d.yn = 1
         AND d.start_site_id = #{entity.startSiteId, jdbcType=BIGINT}
         AND d.end_site_id = #{entity.endSiteId, jdbcType=BIGINT}
+        AND d.excep_label =0
         <if test="entity.sendVehicleBizId != null">
             AND d.send_vehicle_biz_id = #{entity.sendVehicleBizId}
         </if>
-        <if test="entity.lastPlanDepartTimeBegin !=null">
-            and m.last_plan_depart_time &gt;= #{entity.lastPlanDepartTimeBegin}
-        </if>
-        <if test="entity.lastPlanDepartTimeEnd !=null">
-            and m.last_plan_depart_time &lt;= #{entity.lastPlanDepartTimeEnd}
+        <if test="entity.lastPlanDepartTimeBegin !=null and entity.lastPlanDepartTimeEnd !=null and entity.createTimeBegin !=null">
+            AND ((m.last_plan_depart_time &gt;= #{entity.lastPlanDepartTimeBegin} and m.last_plan_depart_time &lt;= #{entity.lastPlanDepartTimeEnd}) or (m.last_plan_depart_time is null and m.create_time &gt;= #{entity.createTimeBegin}))
         </if>
         AND d.vehicle_status IN ( 0, 1, 2 )
         GROUP BY m.biz_id
@@ -614,15 +603,13 @@
                           INNER JOIN jy_biz_task_send_vehicle_detail d ON m.biz_id = d.send_vehicle_biz_id
                  WHERE m.yn = 1
                    AND m.manual_created_flag = 0
+                   AND m.line_type in (1,2)
                    AND d.yn = 1
                    AND d.start_site_id = #{startSiteId, jdbcType=BIGINT}
                    AND d.end_site_id = #{endSiteId, jdbcType=BIGINT}
-                   AND d.vehicle_status IN (0, 1, 2)
-                    <if test="lastPlanDepartTimeBegin !=null">
-                        and m.last_plan_depart_time &gt;= #{lastPlanDepartTimeBegin}
-                    </if>
-                    <if test="lastPlanDepartTimeEnd !=null">
-                        and m.last_plan_depart_time &lt;= #{lastPlanDepartTimeEnd}
+                   AND d.vehicle_status IN (0, 1, 2) and d.excep_label =0
+                    <if test="lastPlanDepartTimeBegin !=null and lastPlanDepartTimeEnd !=null and createTimeBegin !=null">
+                        and ((m.last_plan_depart_time &gt;= #{lastPlanDepartTimeBegin} and m.last_plan_depart_time &lt;= #{lastPlanDepartTimeEnd}) or (m.last_plan_depart_time is null and m.create_time &gt;= #{createTimeBegin}))
                     </if>
                  GROUP BY m.biz_id
              ) t

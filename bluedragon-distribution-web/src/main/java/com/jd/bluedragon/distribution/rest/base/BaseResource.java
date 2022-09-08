@@ -73,7 +73,6 @@ import java.util.*;
 public class BaseResource {
 
 	private final Logger log = LoggerFactory.getLogger(this.getClass());
-	private final String DMS = "dms";
 
 	private static final Integer parentGroup = 70550731;
 	private static final Integer nodeLevel = 2;
@@ -1359,7 +1358,7 @@ public class BaseResource {
 												,@PathParam("cky2") Integer cky2
 												, @PathParam("storeID") Integer storeID){
         WarehouseResponse response = new WarehouseResponse();
-        PsStoreInfo psStoreInfo = baseMajorManager.getStoreByCky2(storeType, cky2, storeID, DMS);
+        PsStoreInfo psStoreInfo = baseMajorManager.getStoreByCky2(storeType, cky2, storeID);
         if (null == psStoreInfo) {
             response.setCode(JdResponse.CODE_SERVICE_ERROR);
             response.setMessage(JdResponse.MESSAGE_SERVICE_ERROR);
