@@ -2,8 +2,6 @@ package com.jd.bluedragon.external.gateway.service;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
-import com.jd.bluedragon.common.dto.operation.workbench.enums.SendModeEnum;
-import com.jd.bluedragon.common.dto.operation.workbench.enums.SendVehiclePhotoEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.*;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.*;
 import com.jd.bluedragon.common.dto.select.SelectOption;
@@ -128,6 +126,13 @@ public interface JySendVehicleGatewayService {
      * @return
      */
     JdVerifyResponse<SendScanResponse> sendScan(SendScanRequest request);
+
+    /**
+     * 校验批次任务是否为干线发货任务
+     * @param request
+     * @return
+     */
+    JdCResponse checkMainLineSendTask(CheckSendCodeRequest request);
 
 
 }

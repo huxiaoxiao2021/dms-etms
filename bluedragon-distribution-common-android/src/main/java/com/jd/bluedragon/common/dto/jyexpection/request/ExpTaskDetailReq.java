@@ -43,6 +43,9 @@ public class ExpTaskDetailReq extends ExpBaseReq {
     // 封签号
     private String sealNumber;
 
+    // 车牌号
+    private String vehicleNumber;
+
     // 价值
     private String price;
 
@@ -221,5 +224,13 @@ public class ExpTaskDetailReq extends ExpBaseReq {
 
     public void setImageUrls(String imageUrls) {
         this.imageUrls = imageUrls;
+    }
+
+    public String getVehicleNumber() {
+        return vehicleNumber;
+    }
+
+    public void setVehicleNumber(String vehicleNumber) {
+        this.vehicleNumber = vehicleNumber;
     }
 }

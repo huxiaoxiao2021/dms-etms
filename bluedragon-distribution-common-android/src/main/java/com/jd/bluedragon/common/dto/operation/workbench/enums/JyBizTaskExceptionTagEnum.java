@@ -1,4 +1,5 @@
 package com.jd.bluedragon.common.dto.operation.workbench.enums;
+
 /**
  * 天官赐福 ◎ 百无禁忌
  *
@@ -44,5 +45,14 @@ public enum JyBizTaskExceptionTagEnum {
         }
         String result =  sb.toString();
         return result.substring(0,result.length()-1);
+    }
+
+    public static JyBizTaskExceptionTagEnum getByCode(String code) {
+        for (JyBizTaskExceptionTagEnum value : JyBizTaskExceptionTagEnum.values()) {
+            if (value.getCode().equals(code)) {
+                return value;
+            }
+        }
+        return null;
     }
 }

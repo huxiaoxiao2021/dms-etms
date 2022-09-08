@@ -8,7 +8,9 @@ import com.jd.bluedragon.common.dto.jyexpection.response.StatisticsByGridDto;
 import com.jd.bluedragon.common.dto.jyexpection.response.StatisticsByStatusDto;
 import com.jd.bluedragon.distribution.jy.exception.JyBizTaskExceptionEntity;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class JyBizTaskExceptionDao  extends BaseDao<JyBizTaskExceptionEntity> {
 
@@ -40,8 +42,14 @@ public class JyBizTaskExceptionDao  extends BaseDao<JyBizTaskExceptionEntity> {
     public int updateByBizId(JyBizTaskExceptionEntity entity) {
         return this.getSqlSession().update(NAMESPACE + ".updateByBizId", entity);
     }
-    public List<StatisticsByStatusDto> getStatusStatistic(String gridRefId){
-        return this.getSqlSession().selectList(NAMESPACE + ".getStatusStatistic", gridRefId);
+    public List<StatisticsByStatusDto> getCommonStatusStatistic(String gridRefId){
+        return this.getSqlSession().selectList(NAMESPACE + ".getCommonStatusStatistic", gridRefId);
+    }
+    public List<StatisticsByStatusDto> getSpecialStatusStatistic(String gridRefId,String handleErp){
+        Map<String,Object> params = new HashMap<>();
+        params.put("gridRefId",gridRefId);
+        params.put("handleErp",handleErp);
+        return this.getSqlSession().selectList(NAMESPACE + ".getSpecialStatusStatistic", params);
     }
 
     /**
@@ -60,7 +68,7 @@ public class JyBizTaskExceptionDao  extends BaseDao<JyBizTaskExceptionEntity> {
 
 
     public List<JyBizTaskExceptionEntity> queryExceptionTaskList(ExpTaskPageReq entity) {
-        return this.getSqlSession().selectOne(NAMESPACE + ".queryExceptionTaskList", entity);
+        return this.getSqlSession().selectList(NAMESPACE + ".queryExceptionTaskList", entity);
     }
 
 }

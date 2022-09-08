@@ -188,24 +188,31 @@
         FROM jy_exception
         WHERE
         yn = 1
-        AND bar_code = #{barCode, jdbcType=VARCHAR}
         AND site_code = #{siteCode, jdbcType=BIGINT}
+        <if test="barCode != null">
+            AND bar_code = #{barCode, jdbcType=VARCHAR}
+        </if>
         <if test="bizId != null">
             AND biz_id = #{bizId, jdbcType=VARCHAR}
         </if>
         limit 1
     </select>
     <update id="update" parameterType="JyExceptionEntity" >
-        UPDATE jy_exception SET
-        <if test="packageCode!=null">
-            package_code=#{packageCode,jdbcType=VARCHAR},
-        </if>
-        <if test="updateUserErp != null">
-            update_user_erp=#{updateUserErp,jdbcType=VARCHAR},
-        </if>
-        <if test="updateUserName != null">
-            update_user_name=#{updateUserName,jdbcType=INTEGER},
-        </if>
+        UPDATE jy_exception
+        <set>
+            <if test="packageCode!=null">
+                package_code=#{packageCode,jdbcType=VARCHAR},
+            </if>
+            <if test="updateUserErp != null">
+                update_user_erp=#{updateUserErp,jdbcType=VARCHAR},
+            </if>
+            <if test="updateUserName != null">
+                update_user_name=#{updateUserName,jdbcType=INTEGER},
+            </if>
+            <if test="imageUrls != null">
+                image_urls=#{imageUrls},
+            </if>
+        </set>
         WHERE id = #{id} AND site_code = #{siteCode, jdbcType=BIGINT}
     </update>
 </mapper>

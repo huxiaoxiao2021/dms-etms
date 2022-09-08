@@ -49,6 +49,9 @@ public class ExpTaskDetailDto implements Serializable {
     // 封签号
     private String sealNumber;
 
+    // 车牌号
+    private String vehicleNumber;
+
     // 价值
     private String price;
 
@@ -66,6 +69,12 @@ public class ExpTaskDetailDto implements Serializable {
 
     // 图片地址
     private String imageUrls;
+
+    // 上架日期
+    private String shelfTime;
+
+    // 货物名称
+    private String goodName;
 
     // 上架人erp
     private String shelfErp;
@@ -228,6 +237,30 @@ public class ExpTaskDetailDto implements Serializable {
 
     public void setImageUrls(String imageUrls) {
         this.imageUrls = imageUrls;
+    }
+
+    public String getVehicleNumber() {
+        return vehicleNumber;
+    }
+
+    public void setVehicleNumber(String vehicleNumber) {
+        this.vehicleNumber = vehicleNumber;
+    }
+
+    public String getShelfTime() {
+        return shelfTime;
+    }
+
+    public void setShelfTime(String shelfTime) {
+        this.shelfTime = shelfTime;
+    }
+
+    public String getGoodName() {
+        return goodName;
+    }
+
+    public void setGoodName(String goodName) {
+        this.goodName = goodName;
     }
 
     public String getShelfErp() {

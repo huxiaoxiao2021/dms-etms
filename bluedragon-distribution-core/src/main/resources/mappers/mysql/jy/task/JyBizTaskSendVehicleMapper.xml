@@ -7,8 +7,9 @@
     <resultMap type="com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity" id="jyBizTaskSendVehicleMap">
         <result property="id" column="id"/>
         <result property="bizId" column="biz_id"/>
+        <result property="bizNo" column="biz_no"/>
         <result property="transWorkCode" column="trans_work_code"/>
-        <result property="startSiteId" column="start_site_id" />
+        <result property="startSiteId" column="start_site_id"/>
         <result property="vehicleNumber" column="vehicle_number"/>
         <result property="vehicleStatus" column="vehicle_status"/>
         <result property="manualCreatedFlag" column="manual_created_flag"/>
@@ -20,8 +21,8 @@
         <result property="vehicleTypeName" column="vehicle_type_name"/>
         <result property="lineType" column="line_type"/>
         <result property="lineTypeName" column="line_type_name"/>
-        <result property="lastPlanDepartTime" column="last_plan_depart_time" />
-        <result property="lastSealCarTime" column="last_seal_car_time" />
+        <result property="lastPlanDepartTime" column="last_plan_depart_time"/>
+        <result property="lastSealCarTime" column="last_seal_car_time"/>
         <result property="createUserErp" column="create_user_erp"/>
         <result property="createUserName" column="create_user_name"/>
         <result property="updateUserErp" column="update_user_erp"/>
@@ -33,8 +34,8 @@
     </resultMap>
 
     <resultMap id="statusSumResultMap" type="com.jd.bluedragon.distribution.jy.dto.send.JyBizTaskSendCountDto">
-        <result property="vehicleStatus" column="vehicle_status" />
-        <result property="total" column="total" />
+        <result property="vehicleStatus" column="vehicle_status"/>
+        <result property="total" column="total"/>
     </resultMap>
 
     <sql id="Base_Column_List">
@@ -391,109 +392,117 @@
     <insert id="initTaskSendVehicle" parameterType="JyBizTaskSendVehicleEntity">
         INSERT INTO jy_biz_task_send_vehicle
         (biz_id,
-         trans_work_code,
-         start_site_id,
-         vehicle_number,
-         vehicle_status,
-         <if test="transWay != null">
-             trans_way,
-         </if>
-         <if test="transWayName != null">
-             trans_way_name,
-         </if>
-         <if test="vehicleType != null">
-             vehicle_type,
-         </if>
-         <if test="vehicleTypeName != null">
-             vehicle_type_name,
-         </if>
-         line_type,
-         line_type_name,
-         create_user_erp,
-         create_user_name,
-         create_time,
-         yn)
+        trans_work_code,
+        start_site_id,
+        vehicle_number,
+        vehicle_status,
+        <if test="transWay != null">
+            trans_way,
+        </if>
+        <if test="transWayName != null">
+            trans_way_name,
+        </if>
+        <if test="vehicleType != null">
+            vehicle_type,
+        </if>
+        <if test="vehicleTypeName != null">
+            vehicle_type_name,
+        </if>
+        line_type,
+        line_type_name,
+        create_user_erp,
+        create_user_name,
+        create_time,
+        yn)
         VALUES (#{bizId},
-                #{transWorkCode},
-                #{startSiteId},
-                #{vehicleNumber},
-                #{vehicleStatus},
-                <if test="transWay != null">
-                    #{transWay},
-                </if>
-                <if test="transWayName != null">
-                    #{transWayName},
-                </if>
-                <if test="vehicleType != null">
-                    #{vehicleType},
-                </if>
-                <if test="vehicleTypeName != null">
-                    #{vehicleTypeName},
-                </if>
-                #{lineType},
-                #{lineTypeName},
-                #{createUserErp},
-                #{createUserName},
-                NOW(),
-                1)
+        #{transWorkCode},
+        #{startSiteId},
+        #{vehicleNumber},
+        #{vehicleStatus},
+        <if test="transWay != null">
+            #{transWay},
+        </if>
+        <if test="transWayName != null">
+            #{transWayName},
+        </if>
+        <if test="vehicleType != null">
+            #{vehicleType},
+        </if>
+        <if test="vehicleTypeName != null">
+            #{vehicleTypeName},
+        </if>
+        #{lineType},
+        #{lineTypeName},
+        #{createUserErp},
+        #{createUserName},
+        NOW(),
+        1)
     </insert>
 
     <select id="sumTaskByVehicleStatus" resultMap="statusSumResultMap">
         SELECT
-            vehicle_status, COUNT(*) total
+        vehicle_status, COUNT(*) total
         FROM
-            jy_biz_task_send_vehicle
+        jy_biz_task_send_vehicle
         WHERE
-            yn = 1
-            AND start_site_id = #{entity.startSiteId}
-            <if test="lineTypeList != null and lineTypeList.size() > 0">
-                AND line_type IN
-                <foreach collection="lineTypeList" separator="," open="(" close=")" item="item">
-                    #{item}
-                </foreach>
-            </if>
-            <if test="sendVehicleBizList != null and sendVehicleBizList.size() > 0">
-                AND biz_id IN
-                <foreach collection="sendVehicleBizList" separator="," open="(" close=")" item="item">
-                    #{item}
-                </foreach>
-            </if>
-            GROUP BY vehicle_status
+        yn = 1
+        AND start_site_id = #{entity.startSiteId}
+        <if test="lineTypeList != null and lineTypeList.size() > 0">
+            AND line_type IN
+            <foreach collection="lineTypeList" separator="," open="(" close=")" item="item">
+                #{item}
+            </foreach>
+        </if>
+        <if test="sendVehicleBizList != null and sendVehicleBizList.size() > 0">
+            AND biz_id IN
+            <foreach collection="sendVehicleBizList" separator="," open="(" close=")" item="item">
+                #{item}
+            </foreach>
+        </if>
+        <if test="entity.lastPlanDepartTimeBegin !=null">
+            and ((last_plan_depart_time &gt;= #{entity.lastPlanDepartTimeBegin} and manual_created_flag=0) or
+            manual_created_flag=1)
+        </if>
+        <if test="entity.lastPlanDepartTimeEnd !=null">
+            and ((last_plan_depart_time &lt;= #{entity.lastPlanDepartTimeEnd} and manual_created_flag=0) or
+            manual_created_flag=1)
+        </if>
+        GROUP BY vehicle_status
     </select>
 
     <select id="querySendTaskOfPage" resultMap="jyBizTaskSendVehicleMap">
         SELECT
-            <include refid="Base_Column_List"/>
+        <include refid="Base_Column_List"/>
         FROM
-            jy_biz_task_send_vehicle
+        jy_biz_task_send_vehicle
         WHERE
 
-            <include refid="taskQueryCondition"/>
+        <include refid="taskQueryCondition"/>
 
-            <if test="sortType != null">
-                ORDER BY
-                <choose>
-                    <when test="sortType == 1">
-                        last_plan_depart_time DESC
-                    </when>
-                    <when test="sortType == 2">
-                        last_seal_car_time DESC
-                    </when>
-                    <otherwise>
-                        id
-                    </otherwise>
-                </choose>
-            </if>
+        <if test="sortType != null">
+            ORDER BY
+            <choose>
+                <when test="sortType == 1">
+                    last_plan_depart_time DESC
+                </when>
+                <when test="sortType == 2">
+                    last_seal_car_time DESC
+                </when>
+                <otherwise>
+                    id
+                </otherwise>
+            </choose>
+        </if>
 
-            LIMIT #{offset},#{limit}
+        LIMIT #{offset},#{limit}
     </select>
 
     <select id="countByCondition" resultType="java.lang.Integer">
         SELECT
-            COUNT(*)
+        COUNT(*)
         FROM jy_biz_task_send_vehicle
         WHERE
-            <include refid="taskQueryCondition"/>
+        <include refid="taskQueryCondition"/>
     </select>
 
     <sql id="taskQueryCondition">
@@ -520,6 +529,14 @@
         <if test="entity.manualCreatedFlag != null">
             AND manual_created_flag = #{entity.manualCreatedFlag}
         </if>
+        <if test="entity.lastPlanDepartTimeBegin !=null">
+            and ((last_plan_depart_time &gt;= #{entity.lastPlanDepartTimeBegin} and manual_created_flag=0) or
+            manual_created_flag=1)
+        </if>
+        <if test="entity.lastPlanDepartTimeEnd !=null">
+            and ((last_plan_depart_time &lt;= #{entity.lastPlanDepartTimeEnd} and manual_created_flag=0) or
+            manual_created_flag=1)
+        </if>
     </sql>
 
     <update id="updateStatus">
@@ -542,7 +559,7 @@
             </if>
         </trim>
         WHERE
-            yn = 1
+        yn = 1
         AND biz_id = #{entity.bizId}
         <if test="entity.startSiteId != null">
             AND start_site_id = #{entity.startSiteId}
@@ -553,25 +570,34 @@
 
     <update id="updateBizTaskSendStatus">
         update jy_biz_task_send_vehicle
-        set vehicle_status =#{vehicleStatus},update_time = NOW()
-        where biz_id =#{bizId} and vehicle_status =#{preVehicleStatus}
+        set vehicle_status =#{vehicleStatus},
+            update_time    = NOW()
+        where biz_id = #{bizId}
+          and vehicle_status = #{preVehicleStatus}
     </update>
 
     <select id="findSendTaskByDestOfPage" resultMap="jyBizTaskSendVehicleMap">
         SELECT
-            m.id, m.biz_id,m.trans_work_code,m.start_site_id,m.vehicle_number,m.vehicle_status,m.manual_created_flag,m.abnormal_flag,
-            m.bind_flag,m.trans_way,m.trans_way_name,m.vehicle_type,m.vehicle_type_name,m.line_type,m.line_type_name,m.last_plan_depart_time,m.last_seal_car_time
+        m.id,
+        m.biz_id,m.trans_work_code,m.start_site_id,m.vehicle_number,m.vehicle_status,m.manual_created_flag,m.abnormal_flag,
+        m.bind_flag,m.trans_way,m.trans_way_name,m.vehicle_type,m.vehicle_type_name,m.line_type,m.line_type_name,m.last_plan_depart_time,m.last_seal_car_time
         FROM
-            jy_biz_task_send_vehicle m
+        jy_biz_task_send_vehicle m
         INNER JOIN jy_biz_task_send_vehicle_detail d ON m.biz_id = d.send_vehicle_biz_id
         WHERE
-            m.yn = 1
+        m.yn = 1
         AND m.manual_created_flag = 0
         AND d.yn = 1
         AND d.start_site_id = #{entity.startSiteId, jdbcType=BIGINT}
         AND d.end_site_id = #{entity.endSiteId, jdbcType=BIGINT}
         <if test="entity.sendVehicleBizId != null">
             AND d.send_vehicle_biz_id = #{entity.sendVehicleBizId}
+        </if>
+        <if test="entity.lastPlanDepartTimeBegin !=null">
+            and m.last_plan_depart_time &gt;= #{entity.lastPlanDepartTimeBegin}
+        </if>
+        <if test="entity.lastPlanDepartTimeEnd !=null">
+            and m.last_plan_depart_time &lt;= #{entity.lastPlanDepartTimeEnd}
         </if>
         AND d.vehicle_status IN ( 0, 1, 2 )
         GROUP BY m.biz_id
@@ -582,18 +608,24 @@
     <select id="countSendTaskByDest" resultType="java.lang.Integer">
         SELECT COUNT(*)
         FROM (
-             SELECT m.id,
-                    m.biz_id
-             FROM jy_biz_task_send_vehicle m
-             INNER JOIN jy_biz_task_send_vehicle_detail d ON m.biz_id = d.send_vehicle_biz_id
-             WHERE m.yn = 1
-                AND m.manual_created_flag = 0
-                AND d.yn = 1
-                AND d.start_site_id = #{startSiteId, jdbcType=BIGINT}
-                AND d.end_site_id = #{endSiteId, jdbcType=BIGINT}
-                AND d.vehicle_status IN (0, 1, 2)
-             GROUP BY m.biz_id
-        ) t
+                 SELECT m.id,
+                        m.biz_id
+                 FROM jy_biz_task_send_vehicle m
+                          INNER JOIN jy_biz_task_send_vehicle_detail d ON m.biz_id = d.send_vehicle_biz_id
+                 WHERE m.yn = 1
+                   AND m.manual_created_flag = 0
+                   AND d.yn = 1
+                   AND d.start_site_id = #{startSiteId, jdbcType=BIGINT}
+                   AND d.end_site_id = #{endSiteId, jdbcType=BIGINT}
+                   AND d.vehicle_status IN (0, 1, 2)
+                    <if test="lastPlanDepartTimeBegin !=null">
+                        and m.last_plan_depart_time &gt;= #{lastPlanDepartTimeBegin}
+                    </if>
+                    <if test="lastPlanDepartTimeEnd !=null">
+                        and m.last_plan_depart_time &lt;= #{lastPlanDepartTimeEnd}
+                    </if>
+                 GROUP BY m.biz_id
+             ) t
     </select>
 
 </mapper>

@@ -98,6 +98,11 @@ public class JyExceptionEntity implements Serializable {
      */
     private Date ts;
 
+    /**
+     *照片地址 多个逗号分割
+     */
+    private String imageUrls;
+
     public Long getId() {
         return id;
     }
@@ -232,5 +237,13 @@ public class JyExceptionEntity implements Serializable {
 
     public void setTs(Date ts) {
         this.ts = ts;
+    }
+
+    public String getImageUrls() {
+        return imageUrls;
+    }
+
+    public void setImageUrls(String imageUrls) {
+        this.imageUrls = imageUrls;
     }
 }
