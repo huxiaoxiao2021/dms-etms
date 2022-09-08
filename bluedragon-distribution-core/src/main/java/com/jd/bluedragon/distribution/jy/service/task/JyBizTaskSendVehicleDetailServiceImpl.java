@@ -109,6 +109,11 @@ public class JyBizTaskSendVehicleDetailServiceImpl implements JyBizTaskSendVehic
     }
 
     @Override
+    public int updateStatusWithoutCompare(JyBizTaskSendVehicleDetailEntity detailEntity, Integer oldStatus) {
+        return jyBizTaskSendVehicleDetailDao.updateStatusWithoutCompare(detailEntity, oldStatus);
+    }
+
+    @Override
     public Integer countByCondition(JyBizTaskSendVehicleDetailEntity entity) {
         return jyBizTaskSendVehicleDetailDao.countByCondition(entity);
     }

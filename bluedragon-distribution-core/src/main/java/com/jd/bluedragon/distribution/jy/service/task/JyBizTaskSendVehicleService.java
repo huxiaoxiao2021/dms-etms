@@ -88,6 +88,14 @@ public interface JyBizTaskSendVehicleService {
      */
     int updateStatus(JyBizTaskSendVehicleEntity entity, Integer oldStatus);
 
+    /**
+     * 不按顺序更新发货状态
+     * @param entity
+     * @param oldStatus
+     * @return
+     */
+    int updateStatusWithoutCompare(JyBizTaskSendVehicleEntity entity, Integer oldStatus);
+
     int updateBizTaskSendStatus(JyBizTaskSendVehicleEntity entity);
 
     /**
