@@ -425,8 +425,8 @@
         AND site_code = #{siteId}
         AND status = #{status}
         AND distribution_target = #{gridRid}
-        <if test="flool != null">
-            AND flool = #{flool}
+        <if test="floor != null">
+            AND floor = #{floor}
         </if>
         <if test="gridCode != null">
             AND grid_code = #{gridCode}
