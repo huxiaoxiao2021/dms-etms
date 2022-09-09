@@ -8,6 +8,7 @@ import com.jd.bluedragon.core.security.log.builder.SecurityLogHeaderBuilder;
 import com.jd.bluedragon.core.security.log.domain.SecurityLogEntity;
 import com.jd.bluedragon.core.security.log.enums.*;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.eclp.bbp.so.util.SoUtil;
 import com.jd.security.log.util.LogAcesUtil;
 import com.jd.securitylog.entity.*;
 import lombok.extern.slf4j.Slf4j;
@@ -36,10 +37,17 @@ public class SecurityLogRecord {
     public static void log(SecurityLogEntity securityLogEntity) {
         try {
             SecurityLog securityLog = new SecurityLog();
+
             securityLog.setHead(createHead(securityLogEntity.getInterfaceName(), securityLogEntity.getAccountType(), securityLogEntity.getAccountName(), securityLogEntity.getOp()));
-            securityLog.setReqInfo(createReqInfo(securityLogEntity.getReqKeyMapping(), securityLogEntity.getBusinessRequest()));
-            securityLog.setRespInfo(createRespInfo(securityLogEntity.getRespKeyMapping(), securityLogEntity.getBusinessResponse(), securityLogEntity.getOp(), securityLogEntity.getResultNum()));
-            LogAcesUtil.encryptSecEntity(securityLog);
+
+            ReqInfo reqInfo = createReqInfo(securityLogEntity.getReqKeyMapping(), securityLogEntity.getBusinessRequest());
+            LogAcesUtil.encryptSecEntity(reqInfo);
+            securityLog.setReqInfo(reqInfo);
+
+            RespInfo respInfo = createRespInfo(securityLogEntity.getRespKeyMapping(), securityLogEntity.getBusinessResponse(), securityLogEntity.getOp(), securityLogEntity.getResultNum());
+            LogAcesUtil.encryptSecEntity(respInfo);
+            securityLog.setRespInfo(respInfo);
+
             SecurityLogUtil.log(securityLog);
         } catch (RuntimeException | UnknownHostException e) {
             log.error("记录安全日志异常：", e);
@@ -107,7 +115,7 @@ public class SecurityLogRecord {
     }
 
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws UnknownHostException {
         String response = "{\n" +
                 "  \"code\" : 200,\n" +
                 "  \"messageCode\" : 200,\n" +
@@ -121,7 +129,9 @@ public class SecurityLogRecord {
                 "  \"warn\" : false\n" +
                 "}";
 
-        System.out.println(createRespInfo(new HashMap<SecurityLogUniqueIdentifierKeyEnums, String>(), response, SecurityLogOpEnums.op_1, 1));
+//        System.out.println(createRespInfo(new HashMap<SecurityLogUniqueIdentifierKeyEnums, String>(), response, SecurityLogOpEnums.op_1, 1));
+
+        System.out.println(createHead("",SecurityAccountEnums.account_type_1,"", SecurityLogOpEnums.op_1));
     }
 
 
