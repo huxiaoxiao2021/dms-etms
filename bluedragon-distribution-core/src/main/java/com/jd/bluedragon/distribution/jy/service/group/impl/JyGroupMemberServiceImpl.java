@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.core.jsf.position.PositionManager;
+import com.jdl.basic.api.domain.position.PositionDetailRecord;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -28,7 +31,6 @@ import com.jd.bluedragon.distribution.jy.manager.JyScheduleTaskManager;
 import com.jd.bluedragon.distribution.jy.service.group.JyGroupMemberService;
 import com.jd.bluedragon.distribution.jy.service.group.JyGroupService;
 import com.jd.bluedragon.distribution.jy.service.group.JyTaskGroupMemberService;
-import com.jd.bluedragon.distribution.position.domain.PositionDetailRecord;
 import com.jd.bluedragon.distribution.position.service.PositionRecordService;
 import com.jd.bluedragon.distribution.station.domain.UserSignRecord;
 import com.jd.bluedragon.distribution.station.service.UserSignRecordService;
@@ -66,6 +68,9 @@ public class JyGroupMemberServiceImpl implements JyGroupMemberService {
 	private UserSignRecordService userSignRecordService;
 	
 	@Autowired
+	private PositionManager positionManager;
+
+	@Autowired
 	private PositionRecordService positionRecordService;
 	
 	@Autowired
@@ -78,6 +83,10 @@ public class JyGroupMemberServiceImpl implements JyGroupMemberService {
 	
 	@Autowired
 	private IGenerateObjectId genObjectId;
+
+	@Autowired
+	private UccPropertyConfiguration uccPropertyConfiguration;
+
 	/**
 	 * 添加小组成员
 	 */
@@ -91,13 +100,28 @@ public class JyGroupMemberServiceImpl implements JyGroupMemberService {
 		if(StringHelper.isEmpty(addMemberRequest.getPositionCode())) {
 			result.toFail("岗位码不能为空！");
 		}
-		Result<PositionDetailRecord> positionData = positionRecordService.queryOneByPositionCode(addMemberRequest.getPositionCode());
-		if(positionData == null
-				|| positionData.getData() == null) {
-			result.toFail("岗位码无效，联系【作业流程组】小哥维护岗位码");
-			return result;
+		String gridKey =null;
+		if(uccPropertyConfiguration.isJyBasicServerSwitch()){
+			log.info("addMember--获取基础服务数据");
+			com.jdl.basic.common.utils.Result<com.jdl.basic.api.domain.position.PositionDetailRecord> positionData
+					= positionManager.queryOneByPositionCode(addMemberRequest.getPositionCode());
+			if(positionData == null
+					|| positionData.getData() == null) {
+				result.toFail("岗位码无效，联系【作业流程组】小哥维护岗位码！");
+				return result;
+			}
+			gridKey = positionData.getData().getRefGridKey();
+		}else{
+			log.info("addMember--原有逻辑");
+			Result<com.jd.bluedragon.distribution.position.domain.PositionDetailRecord> positionData = positionRecordService.queryOneByPositionCode(addMemberRequest.getPositionCode());
+			if(positionData == null
+					|| positionData.getData() == null) {
+				result.toFail("岗位码无效！");
+				return result;
+			}
+			gridKey = positionData.getData().getRefGridKey();
 		}
-		String gridKey = positionData.getData().getRefGridKey();
+
 		//查询岗位码对应的小组信息
 		JyGroupQuery groupQuery = new JyGroupQuery();
 		groupQuery.setPositionCode(addMemberRequest.getPositionCode());
