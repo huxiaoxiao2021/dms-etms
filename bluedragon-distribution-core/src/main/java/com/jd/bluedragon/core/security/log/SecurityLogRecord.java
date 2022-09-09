@@ -40,7 +40,7 @@ public class SecurityLogRecord {
             securityLog.setReqInfo(createReqInfo(securityLogEntity.getReqKeyMapping(), securityLogEntity.getBusinessRequest()));
             securityLog.setRespInfo(createRespInfo(securityLogEntity.getRespKeyMapping(), securityLogEntity.getBusinessResponse(), securityLogEntity.getOp(), securityLogEntity.getResultNum()));
             LogAcesUtil.encryptSecEntity(securityLog);
-            log.info(JSONObject.toJSONString(securityLog));
+            SecurityLogUtil.log(securityLog);
         } catch (RuntimeException | UnknownHostException e) {
             log.error("记录安全日志异常：", e);
         }
