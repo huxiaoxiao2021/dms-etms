@@ -677,13 +677,15 @@ public class JyUnloadVehicleCheckTysService {
             }
         }
         entity.setUnloadVehicleStageBizId(scanPackageDto.getStageBizId());
-        if (scanPackageDto.getPrevSiteCode() != null) {
-            entity.setStartSiteId(Long.valueOf(scanPackageDto.getPrevSiteCode()));
-            entity.setStartSiteName(scanPackageDto.getPrevSiteName());
-        }
+//        if (scanPackageDto.getPrevSiteCode() != null) {
+//            entity.setStartSiteId(Long.valueOf(scanPackageDto.getPrevSiteCode()));
+//            entity.setStartSiteName(scanPackageDto.getPrevSiteName());
+//        }
         entity.setBoardCode(scanPackageDto.getBoardCode());
-        entity.setEndSiteId((long) scanPackageDto.getCurrentOperate().getSiteCode());
-        entity.setEndSiteName(scanPackageDto.getCurrentOperate().getSiteName());
+        entity.setStartSiteId((long) scanPackageDto.getCurrentOperate().getSiteCode());
+        entity.setStartSiteName(scanPackageDto.getCurrentOperate().getSiteName());
+        entity.setEndSiteId(scanPackageDto.getNextSiteCode().longValue());
+        entity.setEndSiteName(scanPackageDto.getNextSiteName());
         entity.setGoodsAreaCode(scanPackageDto.getGoodsAreaCode());
         entity.setCreateTime(now);
         entity.setUpdateTime(now);
