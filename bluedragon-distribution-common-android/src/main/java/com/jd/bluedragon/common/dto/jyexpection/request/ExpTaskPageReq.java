@@ -25,7 +25,10 @@ public class ExpTaskPageReq extends ExpBaseReq {
     private String gridRid;
 
     public String getGridRid() {
-        return this.getSiteId() + "-" + this.getFloor() + "-" + this.getGridCode();
+        if (floor != null&&gridCode!=null){
+            return this.getSiteId() + "-" + this.getFloor() + "-" + this.getGridCode();
+        }
+        return null;
     }
 
     public void setGridRid(String gridRid) {
