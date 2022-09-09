@@ -171,7 +171,8 @@
     <select id="queryGoodsCategoryStatistics" parameterType="JyUnloadAggsEntity"
             resultType="com.jd.bluedragon.distribution.jy.dto.unload.GoodsCategoryDto">
         SELECT product_type type,SUM(should_scan_count) shouldScanCount,
-        SUM(actual_scan_count) haveScanCount
+        SUM(actual_scan_count) haveScanCount,
+        SUM(more_scan_total_count) moreScanTotalCount
         from jy_unload_aggs
         WHERE biz_id = #{bizId}
         <if test="boardCode!=null and boardCode!='' ">
