@@ -12,7 +12,6 @@ import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.distribution.alliance.service.AllianceBusiDeliveryDetailService;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.BoardCommonRequest;
-import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.domain.JdCancelWaybillResponse;
@@ -516,12 +515,11 @@ public class JyUnloadVehicleCheckTysService {
     /**
      * ver组板拦截
      */
-    public String boardCombinationCheck(ScanPackageDto request, ScanPackageRespDto result) {
+    public String boardCombinationCheck(ScanPackageDto request) {
         BoardCommonRequest boardCommonRequest = createBoardCommonRequest(request);
         InvokeResult invokeResult = boardCommonManager.boardCombinationCheck(boardCommonRequest);
         if (invokeResult.getCode() != InvokeResult.RESULT_SUCCESS_CODE) {
-            if (SortingResponse.CODE_CROUTER_ERROR.equals(invokeResult.getCode())) {
-                result.getConfirmMsg().put(invokeResult.getMessage(), invokeResult.getMessage());
+            if (JdCResponse.CODE_CONFIRM.equals(invokeResult.getCode())) {
                 throw new UnloadPackageBoardException(invokeResult.getMessage());
             }
             return invokeResult.getMessage();
@@ -574,7 +572,7 @@ public class JyUnloadVehicleCheckTysService {
             Response<Integer> response = groupBoardManager.addBoxToBoardIgnoreStatus(addBoardBox);
             if (response == null) {
                 log.warn("推组板关系失败!");
-                throw new LoadIllegalException(LoadIllegalException.BOARD_TOTC_FAIL_INTERCEPT_MESSAGE);
+                throw new LoadIllegalException(LoadIllegalException.BOARD_TOTC_EXCEPTION_INTERCEPT_MESSAGE);
             }
             BoardCommonRequest boardCommonRequest = createBoardCommonRequest(request);
             if (response.getCode() == ResponseEnum.SUCCESS.getIndex()) {
@@ -612,7 +610,7 @@ public class JyUnloadVehicleCheckTysService {
                     if (invokeResult.getCode() != ResponseEnum.SUCCESS.getIndex()) {
                         log.warn("组板转移失败.原板号【{}】新板号【{}】失败原因【{}】",
                                 invokeResult.getData(), request.getBoardCode(), invokeResult.getMessage());
-                        throw new LoadIllegalException(LoadIllegalException.BOARD_TOTC_FAIL_INTERCEPT_MESSAGE);
+                        throw new LoadIllegalException(LoadIllegalException.BOARD_MOVED_FAIL_INTERCEPT_MESSAGE);
                     }
                     // 保存任务和板的关系
                     saveUnloadVehicleBoard(request);
@@ -636,13 +634,15 @@ public class JyUnloadVehicleCheckTysService {
                 log.warn("添加板箱关系失败,板号={},barCode={},resultCode={},原因={}", request.getBoardCode(), request.getScanCode(), response.getCode(), response.getMesseage());
                 throw new LoadIllegalException(response.getMesseage());
             }
+        } catch (LoadIllegalException ex) {
+            throw new LoadIllegalException(ex.getMessage());
         } catch (Exception e) {
             if (e instanceof UnloadPackageBoardException) {
                 throw new UnloadPackageBoardException(String.format(LoadIllegalException.PACKAGE_ALREADY_BIND, boardCode));
             }
-            log.warn("推TC组板关系异常,入参【{}】,message={}", JsonHelper.toJson(addBoardBox), e.getMessage());
+            log.error("推TC组板关系异常,入参:addBoardBox={},error=", JsonHelper.toJson(addBoardBox), e);
+            throw e;
         }
-        throw new LoadIllegalException(LoadIllegalException.BOARD_TOTC_FAIL_INTERCEPT_MESSAGE);
     }
 
 
