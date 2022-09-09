@@ -338,15 +338,17 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         String methodDesc = "JyUnloadVehicleTysServiceImpl.completeUnloadTask--完成任务--";
         //子任务完成
         JyBizTaskUnloadVehicleStageEntity doingChildTask = jyBizTaskUnloadVehicleStageService.selectUnloadDoingStageTask(request.getBizId());
-        JyBizTaskUnloadVehicleStageEntity stageEntity = new JyBizTaskUnloadVehicleStageEntity();
-        stageEntity.setUnloadVehicleBizId(request.getBizId());
-        stageEntity.setStatus(JyBizTaskStageStatusEnum.COMPLETE.getCode());
-        stageEntity.setEndTime(new Date());
-        stageEntity.setUpdateTime(new Date());
-        stageEntity.setUpdateUserErp(request.getUser().getUserErp());
-        stageEntity.setUpdateUserName(request.getUser().getUserName());
-        stageEntity.setBizId(doingChildTask.getBizId());
-        jyBizTaskUnloadVehicleStageService.updateStatusByUnloadVehicleBizId(stageEntity);
+        if (doingChildTask != null) {
+            JyBizTaskUnloadVehicleStageEntity stageEntity = new JyBizTaskUnloadVehicleStageEntity();
+            stageEntity.setUnloadVehicleBizId(request.getBizId());
+            stageEntity.setStatus(JyBizTaskStageStatusEnum.COMPLETE.getCode());
+            stageEntity.setEndTime(new Date());
+            stageEntity.setUpdateTime(new Date());
+            stageEntity.setUpdateUserErp(request.getUser().getUserErp());
+            stageEntity.setUpdateUserName(request.getUser().getUserName());
+            stageEntity.setBizId(doingChildTask.getBizId());
+            jyBizTaskUnloadVehicleStageService.updateStatusByUnloadVehicleBizId(stageEntity);
+        }
         //主任务完成
         UnloadCompleteRequest unloadCompleteRequest = new UnloadCompleteRequest();
         unloadCompleteRequest.setTaskId(request.getTaskId());
@@ -360,7 +362,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         unloadCompleteRequest.setMoreScanOutCount(request.getMoreScanOutCount());
         InvokeResult<Boolean> result = unloadVehicleService.submitUnloadCompletion(unloadCompleteRequest);
         if (RESULT_SUCCESS_CODE != result.getCode() || !Boolean.TRUE.equals(result.getData())) {
-            log.error("{} 完成失败");
+            log.warn("{}完成失败,req={}", methodDesc, JsonHelper.toJson(request));
             return result;
         }
         sendTaskCompleteMqHandler(doingChildTask, request);
@@ -1569,7 +1571,9 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         mqDto.setMasterTaskBizId(request.getBizId());
         mqDto.setMasterTaskTaskId(request.getTaskId());
         mqDto.setSealCarCode(request.getSealCarCode());
-        mqDto.setChildTaskBizId(doingChildTask.getBizId());
+        if (doingChildTask != null) {
+            mqDto.setChildTaskBizId(doingChildTask.getBizId());
+        }
         mqDto.setOperateNode(OPERATE_NODE_TASK_COMPLETE);
         mqDto.setOperatorTime(System.currentTimeMillis());
         mqDto.setUser(request.getUser());
