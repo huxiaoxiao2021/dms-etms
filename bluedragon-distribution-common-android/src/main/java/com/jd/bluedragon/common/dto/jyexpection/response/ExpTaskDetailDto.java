@@ -76,6 +76,9 @@ public class ExpTaskDetailDto implements Serializable {
     // 货物名称
     private String goodName;
 
+    // 上架人erp
+    private String shelfErp;
+
     public String getWeight() {
         return weight;
     }
@@ -258,5 +261,13 @@ public class ExpTaskDetailDto implements Serializable {
 
     public void setGoodName(String goodName) {
         this.goodName = goodName;
+    }
+
+    public String getShelfErp() {
+        return shelfErp;
+    }
+
+    public void setShelfErp(String shelfErp) {
+        this.shelfErp = shelfErp;
     }
 }
