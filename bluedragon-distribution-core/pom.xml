@@ -1937,6 +1937,13 @@
 			</exclusions>
 		</dependency>
 
+		<!--拣运基础服务-->
+		<dependency>
+			<groupId>com.jdl.basic</groupId>
+			<artifactId>jy-basic-api</artifactId>
+			<version>1.0-test-SNAPSHOT</version>
+		</dependency>
+
     </dependencies>
 
 	<profiles>

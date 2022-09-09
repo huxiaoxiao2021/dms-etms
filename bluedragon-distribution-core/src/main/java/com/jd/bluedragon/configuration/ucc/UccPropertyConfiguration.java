@@ -716,6 +716,12 @@ public class UccPropertyConfiguration {
 
     private Integer jySendTaskCreateTimeBeginDay;
 
+    /**
+     * 切换转运基础服务开关
+     */
+    private boolean jyBasicServerSwitch;
+
+
     public Integer getOldSendSplitPageSize() {
         return oldSendSplitPageSize;
     }
@@ -2128,5 +2134,13 @@ public class UccPropertyConfiguration {
 
     public void setJySendTaskCreateTimeBeginDay(Integer jySendTaskCreateTimeBeginDay) {
         this.jySendTaskCreateTimeBeginDay = jySendTaskCreateTimeBeginDay;
+    }
+
+    public boolean isJyBasicServerSwitch() {
+        return jyBasicServerSwitch;
+    }
+
+    public void setJyBasicServerSwitch(boolean jyBasicServerSwitch) {
+        this.jyBasicServerSwitch = jyBasicServerSwitch;
     }
 }
