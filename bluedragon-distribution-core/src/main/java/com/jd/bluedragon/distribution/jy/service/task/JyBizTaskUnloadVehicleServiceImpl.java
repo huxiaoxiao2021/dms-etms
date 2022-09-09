@@ -663,7 +663,7 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
         statisticsDto.setWaitScanCount(packageStatistics.getShouldScanCount() - packageStatistics.getActualScanCount());
         statisticsDto.setInterceptCount(packageStatistics.getInterceptActualScanCount());
         statisticsDto.setExtraScanCount(packageStatistics.getMoreScanTotalCount());
-        statisticsDto.setWaybillCount(dto.getBoardCode()!=null?waybillStatistics.getActualScanWaybillCount():waybillStatistics.getTotalScannedWaybillCount());
+        statisticsDto.setWaybillCount(dto.getBoardCode()!=null?waybillStatistics.getActualScanWaybillCount():waybillStatistics.getTotalSealWaybillCount());
         return new InvokeResult<>(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, statisticsDto);
     }
 
