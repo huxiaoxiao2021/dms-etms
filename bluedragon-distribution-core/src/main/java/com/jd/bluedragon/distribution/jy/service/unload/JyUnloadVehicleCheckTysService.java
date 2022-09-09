@@ -641,8 +641,8 @@ public class JyUnloadVehicleCheckTysService {
                 throw new UnloadPackageBoardException(String.format(LoadIllegalException.PACKAGE_ALREADY_BIND, boardCode));
             }
             log.error("推TC组板关系异常,入参:addBoardBox={},error=", JsonHelper.toJson(addBoardBox), e);
-            throw e;
         }
+        throw new LoadIllegalException(LoadIllegalException.BOARD_TOTC_FAIL_INTERCEPT_MESSAGE);
     }
 
 
@@ -677,14 +677,12 @@ public class JyUnloadVehicleCheckTysService {
             }
         }
         entity.setUnloadVehicleStageBizId(scanPackageDto.getStageBizId());
-//        if (scanPackageDto.getPrevSiteCode() != null) {
-//            entity.setStartSiteId(Long.valueOf(scanPackageDto.getPrevSiteCode()));
-//            entity.setStartSiteName(scanPackageDto.getPrevSiteName());
-//        }
         entity.setBoardCode(scanPackageDto.getBoardCode());
         entity.setStartSiteId((long) scanPackageDto.getCurrentOperate().getSiteCode());
         entity.setStartSiteName(scanPackageDto.getCurrentOperate().getSiteName());
-        entity.setEndSiteId(scanPackageDto.getNextSiteCode().longValue());
+        if (scanPackageDto.getNextSiteCode() != null) {
+            entity.setEndSiteId(scanPackageDto.getNextSiteCode().longValue());
+        }
         entity.setEndSiteName(scanPackageDto.getNextSiteName());
         entity.setGoodsAreaCode(scanPackageDto.getGoodsAreaCode());
         entity.setCreateTime(now);
