@@ -1581,7 +1581,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     void sendUnloadCarPostTaskCompleteMq(String businessId, String msg){
         String methodDesc = "JyUnloadVehicleTysServiceImpl.sendUnloadCarPostTaskCompleteMq--转运卸车岗发送任务完成MQ--";
         try{
-            log.info("{}卸车岗任务完成发送MQ-start--MQ发送异常businessId={}，msg={}", methodDesc, businessId, msg);
+            log.info("{}卸车岗任务完成发送MQ-start--MQ发送;businessId={}，msg={}", methodDesc, businessId, msg);
             jyUnloadCarPostTaskCompleteProducer.sendOnFailPersistent(businessId, msg);
         }catch (Exception e) {
             log.error("{}--MQ发送异常businessId={}，msg={},errMsg={}", methodDesc, businessId, msg, e.getMessage(), e);
