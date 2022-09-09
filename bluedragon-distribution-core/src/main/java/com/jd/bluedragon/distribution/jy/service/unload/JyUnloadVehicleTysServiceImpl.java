@@ -948,6 +948,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         ScanStatisticsInnerDto scanStatisticsInnerDto = new ScanStatisticsInnerDto();
         JyUnloadAggsEntity condition = new JyUnloadAggsEntity();
         condition.setBizId(queryUnloadDetailDto.getBizId());
+        condition.setBoardCode(queryUnloadDetailDto.getBoardCode());
 
         if (!queryUnloadDetailDto.getExpFlag()) {
             List<GoodsCategoryDto> goodsCategoryDtoList = jyUnloadAggsService.queryGoodsCategoryStatistics(condition);
@@ -976,6 +977,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         JyVehicleTaskUnloadDetail condition = new JyVehicleTaskUnloadDetail();
         condition.setEndSiteId(queryUnloadDetailDto.getCurrentOperate().getSiteCode());
         condition.setBizId(queryUnloadDetailDto.getBizId());
+        condition.setBoardCode(queryUnloadDetailDto.getBoardCode());
         if (queryUnloadDetailDto.getExpFlag()) {
             switch (queryUnloadDetailDto.getExpType()) {
                 case 1:

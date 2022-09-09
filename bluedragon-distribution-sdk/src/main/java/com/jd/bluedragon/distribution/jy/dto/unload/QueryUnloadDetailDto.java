@@ -7,6 +7,11 @@ public class QueryUnloadDetailDto extends UnloadBaseDto implements Serializable 
     private String bizId;
 
     /**
+     * 板号
+     */
+    private String boardCode;
+
+    /**
      * 异常标识：false 待扫 ,true(拦截、多扫)
      */
     private Boolean expFlag;
@@ -69,5 +74,13 @@ public class QueryUnloadDetailDto extends UnloadBaseDto implements Serializable 
 
     public void setPageSize(Integer pageSize) {
         this.pageSize = pageSize;
+    }
+
+    public String getBoardCode() {
+        return boardCode;
+    }
+
+    public void setBoardCode(String boardCode) {
+        this.boardCode = boardCode;
     }
 }
