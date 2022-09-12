@@ -137,7 +137,7 @@ public class JdiQueryWSManagerImpl implements JdiQueryWSManager {
 
     @Override
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JdiQueryWSManager.queryTransWorkAndAllItem", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
-    public TransWorkBillDto queryTransWorkAndAllItem(String transWorkCode) {
+    public BigTransWorkDto queryTransWorkAndAllItem(String transWorkCode) {
         BigQueryOption option = new BigQueryOption();
         option.setQueryTransWorkBillDto(true);
         option.setQueryTransWorkItemDtoList(true);
@@ -147,6 +147,6 @@ public class JdiQueryWSManagerImpl implements JdiQueryWSManager {
             logger.warn("根据派车单号查询派车单返回数据为空. {}", transWorkCode);
             return null;
         }
-        return transWorkDto.getTransWorkBillDto();
+        return transWorkDto;
     }
 }

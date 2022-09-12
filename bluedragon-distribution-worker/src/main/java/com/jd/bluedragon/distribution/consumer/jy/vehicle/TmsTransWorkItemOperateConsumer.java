@@ -26,6 +26,7 @@ import com.jd.ql.basic.domain.PsStoreInfo;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.tms.basic.dto.BasicVehicleTypeDto;
 import com.jd.tms.jdi.dto.BigQueryOption;
+import com.jd.tms.jdi.dto.BigTransWorkDto;
 import com.jd.tms.jdi.dto.BigTransWorkItemDto;
 import com.jd.tms.jdi.dto.TransWorkBillDto;
 import org.apache.commons.collections4.CollectionUtils;
@@ -218,25 +219,29 @@ public class TmsTransWorkItemOperateConsumer extends MessageBaseConsumer {
      * @param transWorkCode
      */
     private TransWorkBillDto getTransWorkBillDto(String transWorkCode){
-        TransWorkBillDto transWorkBillDto = jdiQueryWSManager.queryTransWorkAndAllItem( transWorkCode);
-        if(transWorkBillDto != null && !CollectionUtils.isEmpty(transWorkBillDto.getTransWorkItemDtoList())){
-            Integer lineTypeCode = transWorkBillDto.getTransType();
-            JyLineTypeEnum lineType = TmsLineTypeEnum.getLineType(transWorkBillDto.getTransType());
-            logInfo("TmsTransWorkItemOperateConsumer getTransWorkBillDto  transWorkCode:{} lineType:{} jy:{} ",transWorkCode,transWorkBillDto.getTransType(),lineType.getName());
-            //派车明细中的线路类型 干支传摆 从大到小处理 （ 以 JyLineTypeEnum order 排名顺序）
-            for(com.jd.tms.jdi.dto.TransWorkItemDto item : transWorkBillDto.getTransWorkItemDtoList()){
-                JyLineTypeEnum itemLineType = TmsLineTypeEnum.getLineType(item.getTransType());
-                if(itemLineType.getOrder() < lineType.getOrder()){
-                    lineType = itemLineType;
-                    lineTypeCode = item.getTransType();
-                    logInfo("TmsTransWorkItemOperateConsumer getTransWorkBillDto  transWorkCode:{} itemLineType:{} jy:{} ",transWorkCode,item.getTransType(),itemLineType.getName());
+        BigTransWorkDto bigTransWorkDto = jdiQueryWSManager.queryTransWorkAndAllItem( transWorkCode);
+        if(bigTransWorkDto != null && bigTransWorkDto.getTransWorkBillDto() != null ){
+            TransWorkBillDto transWorkBillDto = bigTransWorkDto.getTransWorkBillDto();
+            if(!CollectionUtils.isEmpty(bigTransWorkDto.getTransWorkItemDtoList())){
+                Integer lineTypeCode = transWorkBillDto.getTransType();
+                JyLineTypeEnum lineType = TmsLineTypeEnum.getLineType(transWorkBillDto.getTransType());
+                logInfo("TmsTransWorkItemOperateConsumer getTransWorkBillDto  transWorkCode:{} lineType:{} jy:{} ",transWorkCode,transWorkBillDto.getTransType(),lineType.getName());
+                //派车明细中的线路类型 干支传摆 从大到小处理 （ 以 JyLineTypeEnum order 排名顺序）
+                for(com.jd.tms.jdi.dto.TransWorkItemDto item : bigTransWorkDto.getTransWorkItemDtoList()){
+                    JyLineTypeEnum itemLineType = TmsLineTypeEnum.getLineType(item.getTransType());
+                    if(itemLineType.getOrder() < lineType.getOrder()){
+                        lineType = itemLineType;
+                        lineTypeCode = item.getTransType();
+                        logInfo("TmsTransWorkItemOperateConsumer getTransWorkBillDto  transWorkCode:{} itemLineType:{} jy:{} ",transWorkCode,item.getTransType(),itemLineType.getName());
+                    }
                 }
+                //替换线路类型
+                transWorkBillDto.setTransType(lineTypeCode);
             }
-            //替换线路类型
-            transWorkBillDto.setTransType(lineTypeCode);
+            logInfo("TmsTransWorkItemOperateConsumer getTransWorkBillDto end transWorkCode:{} lineType:{} ",transWorkCode,transWorkBillDto.getTransType());
+            return transWorkBillDto;
         }
-        logInfo("TmsTransWorkItemOperateConsumer getTransWorkBillDto end transWorkCode:{} lineType:{} ",transWorkCode,transWorkBillDto.getTransType());
-        return transWorkBillDto;
+        return null;
     }
 
     private String getSendVehicleBiz(JyBizTaskSendVehicleEntity existSendTaskMain) {

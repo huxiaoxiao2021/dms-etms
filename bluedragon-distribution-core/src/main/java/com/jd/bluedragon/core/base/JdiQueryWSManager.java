@@ -48,5 +48,5 @@ public interface JdiQueryWSManager {
      * @param transWorkCode
      * @return
      */
-    TransWorkBillDto queryTransWorkAndAllItem(String transWorkCode);
+    BigTransWorkDto queryTransWorkAndAllItem(String transWorkCode);
 }
