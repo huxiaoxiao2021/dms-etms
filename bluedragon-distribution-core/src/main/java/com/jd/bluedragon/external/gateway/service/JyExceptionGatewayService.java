@@ -50,7 +50,7 @@ public interface JyExceptionGatewayService {
     /**
      * 按条码查询
      */
-    JdCResponse<ExpTaskDto> queryByBarcode(String barcode);
+    JdCResponse<ExpTaskDto> queryByBarcode(ExpReceiveReq req);
 
     /**
      * 任务明细
