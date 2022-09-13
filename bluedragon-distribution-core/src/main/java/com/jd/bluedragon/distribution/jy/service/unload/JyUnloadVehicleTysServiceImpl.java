@@ -994,6 +994,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             }
         } else {
             condition.setProductType(queryUnloadDetailDto.getGoodsType());
+            condition.setScannedFlag(0);
         }
         Pager<JyVehicleTaskUnloadDetail> pager = new Pager<>();
         pager.setPageNo(queryUnloadDetailDto.getPageNo());
