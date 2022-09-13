@@ -455,5 +455,13 @@
     <jmq:consumer id="jmq.jyScheduleTaskConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.schedule.task.notify}" listener="jyScheduleTaskConsumer"/>
     </jmq:consumer>
+    <!--  三无匹配结果通知消息  -->
+    <jmq:consumer id="jmq.jyExpefNotifyConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.exception.expef.notify}" listener="jyExpefNotifyConsumer"/>
+    </jmq:consumer>
+    <!--  三无包裹补打成功消息  -->
+    <jmq:consumer id="jmq.packageCodePrintConsumer" transport="jmq.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.packageRePrintProducer}" listener="packageCodePrintConsumer"/>
+    </jmq:consumer>
 </beans>
 
