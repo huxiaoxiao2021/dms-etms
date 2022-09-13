@@ -5,12 +5,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.FlowConstants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.*;
-import com.jd.bluedragon.core.security.log.SecurityLogRecord;
-import com.jd.bluedragon.core.security.log.domain.SecurityLogEntity;
-import com.jd.bluedragon.core.security.log.enums.SecurityAccountEnums;
-import com.jd.bluedragon.core.security.log.enums.SecurityLogOpEnums;
-import com.jd.bluedragon.core.security.log.enums.SecurityLogReqInfoKeyEnums;
-import com.jd.bluedragon.core.security.log.enums.SecurityLogUniqueIdentifierKeyEnums;
+import com.jd.bluedragon.core.security.log.SecurityLogWriter;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.batch.domain.BatchSend;
@@ -19,7 +14,6 @@ import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.busineCode.sendCode.service.SendCodeService;
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
-import com.jd.bluedragon.distribution.print.domain.SurfaceOutputTypeEnum;
 import com.jd.bluedragon.distribution.printOnline.domain.PrintOnlineWaybillDTO;
 import com.jd.bluedragon.distribution.quickProduce.domain.JoinDetail;
 import com.jd.bluedragon.distribution.quickProduce.domain.QuickProduceWabill;
@@ -205,7 +199,7 @@ public class SendPrintServiceImpl implements SendPrintService {
             Profiler.registerInfoEnd(info);
         }
         // 记录安全日志
-        writeSecurityLog(criteria, null, tSummaryPrintResultResponse);
+        SecurityLogWriter.sendPrintBasicPrintQueryWrite(criteria, null, tSummaryPrintResultResponse);
         return tSummaryPrintResultResponse;
     }
 
@@ -1830,40 +1824,8 @@ public class SendPrintServiceImpl implements SendPrintService {
         Date endDate = new Date();
         log.debug("打印交接清单-基本信息查询结束-{}" , (startDate.getTime() - endDate.getTime()));
         // 记录安全日志
-        writeSecurityLog(criteria, tBasicQueryEntityResponse, null);
+        SecurityLogWriter.sendPrintBasicPrintQueryWrite(criteria, tBasicQueryEntityResponse, null);
         return tBasicQueryEntityResponse;
-    }
-
-    /**
-     * 记录安全日志
-     * @param criteria
-     */
-    private void writeSecurityLog(PrintQueryCriteria criteria, BasicQueryEntityResponse response, SummaryPrintResultResponse summaryPrintResultResponse) {
-        try {
-            Map<SecurityLogReqInfoKeyEnums, String> reqInfoKeyEnumsStringMap = new HashMap<>();
-            reqInfoKeyEnumsStringMap.put(SecurityLogReqInfoKeyEnums.accountId, "userCode");
-            reqInfoKeyEnumsStringMap.put(SecurityLogReqInfoKeyEnums.inputParam, "");
-
-            SecurityLogRecord.log(
-                    SecurityLogEntity.builder()
-                            .interfaceName("com.jd.bluedragon.distribution.command.JsonCommandServiceImpl#execute")
-                            .accountName(String.valueOf(JsonHelper.getObject(JSONObject.parseObject(JSONObject.toJSONString(criteria)),"data.userCode")))
-                            .accountType(SecurityAccountEnums.account_type_3)
-                            .op(
-                                    SurfaceOutputTypeEnum.OUTPUT_TYPE_PRINT.getCode().equals(JsonHelper.getObject(JSONObject.parseObject(JSONObject.toJSONString(criteria)),"data.outputType"))?
-                                            SecurityLogOpEnums.op_8 : SecurityLogOpEnums.op_11
-                            )
-                            .reqKeyMapping(reqInfoKeyEnumsStringMap)
-                            .businessRequest(criteria)
-                            .respKeyMapping(new HashMap<SecurityLogUniqueIdentifierKeyEnums, String>())
-                            .businessResponse(response == null? summaryPrintResultResponse :response)
-                            .resultNum(response != null && CollectionUtils.isNotEmpty(response.getData())? response.getData().size() :
-                                    summaryPrintResultResponse != null && CollectionUtils.isNotEmpty(summaryPrintResultResponse.getData())? summaryPrintResultResponse.getData().size() : 0)
-                            .build()
-            );
-        }catch (Exception e){
-            log.error("打印交接清单上传安全日日志失败.入参:{}",JsonHelper.toJson(criteria),e);
-        }
     }
 
     /**
@@ -1896,7 +1858,7 @@ public class SendPrintServiceImpl implements SendPrintService {
         }
         log.debug("打印交接清单-分页-基本信息查询结束-{}" , (startTime - System.currentTimeMillis()));
         // 记录安全日志
-        writeSecurityLog(criteria, tBasicQueryEntityResponse, null);
+        SecurityLogWriter.sendPrintBasicPrintQueryWrite(criteria, tBasicQueryEntityResponse, null);
         return tBasicQueryEntityResponse;
     }
 

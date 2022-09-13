@@ -1,4 +1,4 @@
-package com.jd.bluedragon.core.security.log;
+package com.jd.bluedragon.core.security.log.executor;
 
 import com.alibaba.fastjson.JSONObject;
 import com.jd.securitylog.entity.SecurityLog;
