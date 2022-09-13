@@ -91,6 +91,16 @@ public class JyExceptionGatewayServiceImpl implements JyExceptionGatewayService 
     }
 
     /**
+     * 按条码查询
+     *
+     * @param barcode
+     */
+    @Override
+    public JdCResponse<ExpTaskDto> queryByBarcode(String barcode) {
+        return jyExceptionService.queryByBarcode(barcode);
+    }
+
+    /**
      * 任务明细
      *
      * @param req

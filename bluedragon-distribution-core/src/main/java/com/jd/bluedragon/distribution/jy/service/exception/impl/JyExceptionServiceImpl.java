@@ -550,6 +550,21 @@ public class JyExceptionServiceImpl implements JyExceptionService {
     }
 
     /**
+     * 按条码查询
+     *
+     */
+    @Override
+    public JdCResponse<ExpTaskDto> queryByBarcode(String barcode) {
+        String bizId = getBizId(JyBizTaskExceptionTypeEnum.SANWU, barcode);
+        JyBizTaskExceptionEntity taskEntity = jyBizTaskExceptionDao.findByBizId(bizId);
+        if (taskEntity == null) {
+            return JdCResponse.fail("该条码无相关任务!" + barcode);
+        }
+        ExpTaskDto taskDto = getTaskDto(taskEntity);
+        return JdCResponse.ok(taskDto);
+    }
+
+    /**
      * 任务明细
      *
      */
@@ -1027,6 +1042,8 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         dto.setAreaName(entity.getAreaName());
         dto.setReporterName(entity.getCreateUserName());
         dto.setTags(getTags(entity.getTags()));
+
+        dto.setStatus(entity.getStatus());
 
         String s = redisClient.get(TASK_CACHE_PRE + entity.getBizId());
         boolean saved = !StringUtils.isBlank(s) && Objects.equals(JSON.parseObject(s, ExpTaskDetailCacheDto.class).getSaveType(), "0");

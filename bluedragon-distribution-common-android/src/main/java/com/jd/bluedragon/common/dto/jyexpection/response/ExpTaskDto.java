@@ -13,6 +13,9 @@ public class ExpTaskDto implements Serializable {
     // 提报入口
     private Integer source;
 
+    // 任务状态
+    private Integer status;
+
     //提交条码
     private String barCode;
 
@@ -165,5 +168,13 @@ public class ExpTaskDto implements Serializable {
 
     public void setTimeOut(Integer timeOut) {
         this.timeOut = timeOut;
+    }
+
+    public Integer getStatus() {
+        return status;
+    }
+
+    public void setStatus(Integer status) {
+        this.status = status;
     }
 }
