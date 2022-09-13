@@ -809,7 +809,7 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
             if(CollectionUtils.isEmpty(list)){
                 return;
             }
-            if(!Objects.equals(userErp, "hujiping1")){
+            if(Objects.equals(userErp, "liuduo8")){
                 for (WeightVolumeSpotCheckDto dto : list) {
                     if(!WaybillUtil.isWaybillCode(dto.getWaybillCode())){
                         continue;
@@ -822,6 +822,28 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
                     checkExcessAndUpdate(newSpotCheckDto);
                     // 刷数并重新下发
                     buildAndIssue(newSpotCheckDto, true);
+                }
+            }else if(Objects.equals(userErp, "hujiping1")) {
+                for (WeightVolumeSpotCheckDto dto : list) {
+                    if (!WaybillUtil.isWaybillCode(dto.getWaybillCode())) {
+                        continue;
+                    }
+                    if(dto.getReviewWeight() == null || dto.getReviewVolume() == null){
+                        logger.warn("自己填写重量体积不存在,单号:{}", dto.getWaybillCode());
+                        continue;
+                    }
+                    // 组装超标新es实体
+                    WeightVolumeSpotCheckDto newSpotCheckDto = getSpotCheck(dto, false);
+                    if(newSpotCheckDto == null){
+                        continue;
+                    }
+                    // 使用excel的重量体积下发
+                    newSpotCheckDto.setReviewWeight(MathUtils.keepScale(dto.getReviewWeight(),2));
+                    newSpotCheckDto.setReviewVolume(MathUtils.keepScale(dto.getReviewVolume(),2));
+                    if(logger.isInfoEnabled()){
+                        logger.info("自己填写重量体积下发fxm,单号:{}", newSpotCheckDto.getWaybillCode());
+                    }
+                    issueFxm(newSpotCheckDto);
                 }
             }else {
                 for (WeightVolumeSpotCheckDto dto : list) {
@@ -853,7 +875,9 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
                     if(newSpotCheckDto == null){
                         continue;
                     }
-
+                    if(logger.isInfoEnabled()){
+                        logger.info("系统获取重量体积下发fxm,单号:{}", newSpotCheckDto.getWaybillCode());
+                    }
                     // 下发fxm中转给计费来刷数
                     issueFxm(newSpotCheckDto);
                 }
@@ -870,6 +894,9 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
         condition.setWaybillCode(dto.getWaybillCode());
         condition.setReviewSiteCode(dto.getReviewSiteCode());
         List<WeightVolumeSpotCheckDto> spotCheckList = spotCheckQueryManager.querySpotCheckByCondition(condition);
+        if(CollectionUtils.isEmpty(spotCheckList)){
+            return null;
+        }
         Double weight = Constants.DOUBLE_ZERO;
         Double volume = Constants.DOUBLE_ZERO;
         for (WeightVolumeSpotCheckDto spotCheckDto : spotCheckList) {
