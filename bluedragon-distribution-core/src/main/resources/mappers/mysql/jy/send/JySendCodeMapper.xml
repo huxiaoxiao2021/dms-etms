@@ -153,4 +153,16 @@
         ORDER BY id
         LIMIT 1
     </select>
+    <select id="queryDataListBySendCodeList" parameterType="java.util.List" resultMap="jySendCodeMap">
+        SELECT
+            <include refid="Base_Column_List"/>            
+        FROM jy_send_code
+        WHERE
+            yn = 1
+            and send_code in
+        <foreach item="item" index="index" collection="sendCodeList"
+                 open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>    
 </mapper>

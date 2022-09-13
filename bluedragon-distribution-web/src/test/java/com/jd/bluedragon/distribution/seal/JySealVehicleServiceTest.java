@@ -30,6 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -235,5 +236,13 @@ public class JySealVehicleServiceTest {
                 "}";
         jySendVehicleService.fetchSendTaskForTransfer(JsonHelper.fromJson(json, TransferVehicleTaskReq.class));
     }
+    @Test
+    public void resetSendStatusForUnsealTest() {
+    	List<String> sendCodeList = new ArrayList<>();
+    	sendCodeList.add("1609-58176-20220621206414536");
+    	sendCodeList.add("910-3011-20220621216414663");
+        sendVehicleTransactionManager.resetSendStatusForUnseal(sendCodeList, "test2", new Date());
 
+
+    }
 }

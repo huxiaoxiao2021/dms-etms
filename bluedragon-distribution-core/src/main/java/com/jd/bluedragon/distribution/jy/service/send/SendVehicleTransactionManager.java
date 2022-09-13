@@ -18,6 +18,7 @@ import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleServic
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadDto;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -32,6 +33,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import java.util.*;
 
@@ -357,4 +359,46 @@ public class SendVehicleTransactionManager {
 
         return sendCountDtos.get(0).getVehicleStatus();
     }
+    /**
+     * 1、按批次查询相应的子任务列表
+     * 2、回退任务状态
+     * @param sendCodeList
+     * @param operateUserCode
+     * @param operateTime
+     */
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "SendVehicleTransactionManager.resetSendStatusForUnseal",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
+    @Transactional(value = "tm_jy_core", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)    
+	public boolean resetSendStatusForUnseal(List<String> sendCodeList, String operateUserCode, Date operateTime) {
+		List<JySendCodeEntity> jySendCodeList = this.jySendCodeService.queryDataListBySendCodeList(sendCodeList);
+		if(CollectionUtils.isEmpty(jySendCodeList)){
+			this.logInfo("根据取消封车批次{}查询jySendCode列表为空！", JsonHelper.toJson(sendCodeList));
+			return true;
+		}
+		for(JySendCodeEntity jySendCode:jySendCodeList) {
+			this.logInfo("取消封车-发货任务状态回退{}",JsonHelper.toJson(jySendCode));
+			
+			JyBizTaskSendVehicleEntity taskSend = new JyBizTaskSendVehicleEntity();
+			JyBizTaskSendVehicleDetailEntity sendDetail = new JyBizTaskSendVehicleDetailEntity();
+			taskSend.setBizId(jySendCode.getSendVehicleBizId());
+			taskSend.setUpdateTime(operateTime);
+			taskSend.setUpdateUserErp(operateUserCode);
+			taskSend.setUpdateUserName(operateUserCode);
+			
+			sendDetail.setBizId(jySendCode.getSendVehicleBizId());
+			sendDetail.setSendVehicleBizId(jySendCode.getSendDetailBizId());
+			sendDetail.setVehicleStatus(JyBizTaskSendDetailStatusEnum.TO_SEAL.getCode());
+			Integer[] siteCodes = BusinessUtil.getSiteCodeBySendCode(jySendCode.getSendCode());
+			if(siteCodes.length == 2 && siteCodes[0]>0 && siteCodes[1]>0  ) {
+				sendDetail.setStartSiteId(new Long(siteCodes[0]));
+				sendDetail.setEndSiteId(new Long(siteCodes[1]));
+			}
+			sendDetail.setUpdateTime(operateTime);
+			sendDetail.setUpdateUserErp(operateUserCode);
+			sendDetail.setUpdateUserName(operateUserCode);
+			
+			this.updateStatusWithoutCompare(taskSend, sendDetail, JyBizTaskSendDetailStatusEnum.TO_SEAL);
+		}
+		return true;
+	}
 }
