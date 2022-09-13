@@ -48,6 +48,11 @@ public interface JyExceptionGatewayService {
     JdCResponse<Object> receive(ExpReceiveReq req);
 
     /**
+     * 按条码查询
+     */
+    JdCResponse<ExpTaskDto> queryByBarcode(ExpReceiveReq req);
+
+    /**
      * 任务明细
      */
     JdCResponse<ExpTaskDetailDto> getTaskDetail(ExpTaskByIdReq req);
