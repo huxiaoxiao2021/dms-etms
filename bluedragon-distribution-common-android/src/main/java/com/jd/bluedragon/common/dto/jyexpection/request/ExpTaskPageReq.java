@@ -22,6 +22,16 @@ public class ExpTaskPageReq extends ExpBaseReq {
 
     private Integer offSet;
 
+    private String gridRid;
+
+    public String getGridRid() {
+        return gridRid;
+    }
+
+    public void setGridRid(String gridRid) {
+        this.gridRid = gridRid;
+    }
+
     public Integer getFloor() {
         return floor;
     }

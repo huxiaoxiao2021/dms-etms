@@ -424,7 +424,11 @@
         yn = 1
         AND site_code = #{siteId}
         AND status = #{status}
-        <if test="gridCode !=null and gridCode!=''">
+        AND distribution_target = #{gridRid}
+        <if test="floor != null">
+            AND floor = #{floor}
+        </if>
+        <if test="gridCode != null">
             AND grid_code = #{gridCode}
         </if>
         <if test="processingStatus !=null">

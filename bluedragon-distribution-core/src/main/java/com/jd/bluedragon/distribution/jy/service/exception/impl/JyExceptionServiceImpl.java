@@ -417,6 +417,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         }
 
         req.setSiteId(position.getSiteCode());
+        req.setGridRid(getGridRid(position));
         // 待处理 只查询 处理状态=待录入
         if (Objects.equals(req.getStatus(), JyExpStatusEnum.TO_PROCESS.getCode())) {
             req.setProcessingStatus(JyBizTaskExceptionProcessStatusEnum.PENDING_ENTRY.getCode());
