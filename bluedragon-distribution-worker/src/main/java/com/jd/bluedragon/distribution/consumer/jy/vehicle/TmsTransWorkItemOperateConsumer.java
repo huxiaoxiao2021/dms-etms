@@ -98,6 +98,12 @@ public class TmsTransWorkItemOperateConsumer extends MessageBaseConsumer {
     @Autowired
     private JdiTransWorkWSManager transWorkWSManager;
 
+    @Autowired
+    private SendVehicleTransactionManager sendVehicleTransactionManager;
+
+    @Autowired
+    private JyBizTaskSendVehicleService jyBizTaskSendVehicleService;
+
     @Override
     public void consume(Message message) throws Exception {
         if (StringHelper.isEmpty(message.getText())) {
@@ -120,7 +126,7 @@ public class TmsTransWorkItemOperateConsumer extends MessageBaseConsumer {
         //锁定派车单执行 防止并发问题
         String mutexKey = getTransWorkMutexKey(transWorkCode);
         if (!redisClientOfJy.set(mutexKey, String.valueOf(System.currentTimeMillis()), TRANS_WORK_CACHE_EXPIRE, TimeUnit.MINUTES, false)) {
-            String warnMsg = MessageFormat.format("派车单{}-{}正在处理中!", workItemDto.getTransWorkItemCode(), transWorkCode);
+            String warnMsg = MessageFormat.format("派车单%s-%s正在处理中!", workItemDto.getTransWorkItemCode(), transWorkCode);
             logger.warn(warnMsg, JsonHelper.toJson(workItemDto));
             throw new JyBizException(warnMsg);
         }
@@ -194,6 +200,11 @@ public class TmsTransWorkItemOperateConsumer extends MessageBaseConsumer {
             // 更新lastPlanDepartTime最晚发车时间
             // 更新线路类型，多个派车明细创建后可能会引起派车任务对应主发货任务的线路类型调整
             updateSendVehicleLastPlanDepartTimeAndLineType(startSiteInfo.getSiteCode(), sendVehicleBiz,lineType);
+
+            //刷新状态
+            if(existSendTaskMain != null){
+                reloadTaskStatus(sendVehicleBiz);
+            }
         }
         catch (Exception e) {
             logger.error("消费运输派车单明细失败! {}", JsonHelper.toJson(workItemDto), e);
@@ -202,6 +213,19 @@ public class TmsTransWorkItemOperateConsumer extends MessageBaseConsumer {
         finally {
             redisClientOfJy.del(mutexKey);
         }
+    }
+
+    /**
+     * 刷新任务状态
+     */
+    private void reloadTaskStatus(String sendVehicleBiz) {
+        JyBizTaskSendVehicleEntity taskSend = jyBizTaskSendVehicleService.findByBizId(sendVehicleBiz);
+        taskSend.setUpdateUserErp(Constants.SYS_NAME);
+        taskSend.setUpdateUserName(Constants.SYS_NAME);
+        if(!sendVehicleTransactionManager.reloadStatusWithoutCompare(taskSend)){
+            logger.error("sendVehicleBiz:{} reloadTaskStatus fail!",sendVehicleBiz);
+        }
+
     }
 
     private void labelSendTaskDetailCancel(JyBizTaskSendVehicleDetailEntity vehicleDetail) {
@@ -327,8 +351,8 @@ public class TmsTransWorkItemOperateConsumer extends MessageBaseConsumer {
         taskSendVehicleDetailEntity.setEndSiteId(endSiteInfo.getSiteCode().longValue());
         taskSendVehicleDetailEntity.setEndSiteName(endSiteInfo.getSiteName());
         taskSendVehicleDetailEntity.setPlanDepartTime(workItemDto.getPlanDepartTime());
-        taskSendVehicleDetailEntity.setCreateUserErp("sys.dms");
-        taskSendVehicleDetailEntity.setCreateUserName("sys.dms");
+        taskSendVehicleDetailEntity.setCreateUserErp(Constants.SYS_NAME);
+        taskSendVehicleDetailEntity.setCreateUserName(Constants.SYS_NAME);
         return taskSendVehicleDetailEntity;
     }
 
@@ -352,8 +376,8 @@ public class TmsTransWorkItemOperateConsumer extends MessageBaseConsumer {
         JyLineTypeEnum lineType = TmsLineTypeEnum.getLineType(transWorkBillDto.getTransType());
         sendVehicleEntity.setLineType(lineType.getCode());
         sendVehicleEntity.setLineTypeName(lineType.getName());
-        sendVehicleEntity.setCreateUserErp("sys.dms");
-        sendVehicleEntity.setCreateUserName("sys.dms");
+        sendVehicleEntity.setCreateUserErp(Constants.SYS_NAME);
+        sendVehicleEntity.setCreateUserName(Constants.SYS_NAME);
         return sendVehicleEntity;
     }
 

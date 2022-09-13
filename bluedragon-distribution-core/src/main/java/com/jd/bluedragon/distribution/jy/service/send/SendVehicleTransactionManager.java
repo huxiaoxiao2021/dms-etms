@@ -183,6 +183,73 @@ public class SendVehicleTransactionManager {
         return true;
     }
 
+
+    /**
+     * 更新发货任务状态 （不比较原状态顺序方式）
+     * @param taskSend
+     * @param sendDetail
+     * @param updateStatus
+     * @return
+     */
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "SendVehicleTransactionManager.updateStatusWithoutCompare",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
+    @Transactional(value = "tm_jy_core", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    public boolean updateStatusWithoutCompare(JyBizTaskSendVehicleEntity taskSend, JyBizTaskSendVehicleDetailEntity sendDetail, JyBizTaskSendDetailStatusEnum updateStatus) {
+        JyBizTaskSendVehicleDetailEntity detailQ = getSendVehicleDetailEntity(sendDetail, updateStatus);
+        if (taskSendVehicleDetailService.updateStatusWithoutCompare(detailQ, sendDetail.getVehicleStatus()) > 0) {
+            logInfo("发货任务流向[{}]状态更新（不比较原状态）为“{}”. {}", sendDetail.getBizId(), updateStatus.getName(), JsonHelper.toJson(sendDetail));
+
+            // 发货发货任务明细的最小状态
+            Integer taskSendMinStatus = getTaskSendMinStatus(sendDetail);
+            JyBizTaskSendVehicleEntity sendStatusQ = getSendVehicleEntity(sendDetail, updateStatus, taskSendMinStatus);
+
+            if (taskSendVehicleService.updateStatusWithoutCompare(sendStatusQ, taskSend.getVehicleStatus()) > 0) {
+                logInfo("发货任务[{}]状态更新（不比较原状态）为“{}”. {}", taskSend.getBizId(), JyBizTaskSendStatusEnum.getNameByCode(taskSendMinStatus), JsonHelper.toJson(taskSend));
+
+                // 发货流向全部封闭完成，关闭调度任务
+                if (JyBizTaskSendDetailStatusEnum.SEALED.getCode().equals(taskSendMinStatus)) {
+
+                    finishUnloadTaskGroup(detailQ);
+
+                    // 关闭调度任务
+                    closeScheduleTask(detailQ);
+                }
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * 刷新发货主任务状态 （不比较原状态顺序方式）
+     * @param taskSend
+     * @return
+     */
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "SendVehicleTransactionManager.reloadStatusWithoutCompare",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
+    @Transactional(value = "tm_jy_core", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    public boolean reloadStatusWithoutCompare(JyBizTaskSendVehicleEntity taskSend) {
+        JyBizTaskSendVehicleDetailEntity querySendDetail = new JyBizTaskSendVehicleDetailEntity();
+        querySendDetail.setSendVehicleBizId(taskSend.getBizId());
+        querySendDetail.setStartSiteId(taskSend.getStartSiteId());
+        // 发货发货任务明细的最小状态
+        Integer taskSendMinStatus = getTaskSendMinStatus(querySendDetail);
+        JyBizTaskSendVehicleEntity sendStatusQ = new JyBizTaskSendVehicleEntity();
+        if(taskSend.getUpdateTime() == null){
+            sendStatusQ.setUpdateTime(new Date());
+        }
+        sendStatusQ.setUpdateUserErp(taskSend.getUpdateUserErp());
+        sendStatusQ.setUpdateUserName(taskSend.getUpdateUserName());
+        sendStatusQ.setVehicleStatus(taskSendMinStatus);
+        sendStatusQ.setBizId(taskSend.getBizId());
+        if (taskSendVehicleService.updateStatusWithoutCompare(sendStatusQ, taskSend.getVehicleStatus()) > 0) {
+            logInfo("发货任务-刷新发货主任务状态[{}]状态更新（不比较原状态）为“{}”. {}", taskSend.getBizId(), JyBizTaskSendStatusEnum.getNameByCode(taskSendMinStatus), JsonHelper.toJson(taskSend));
+        }else{
+            return false;
+        }
+        return true;
+    }
+
     /**
      * 关闭调度任务
      * @param detailQ

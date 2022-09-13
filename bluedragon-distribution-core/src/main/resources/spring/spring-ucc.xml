@@ -185,8 +185,8 @@
 		<property name="jySendTaskPlanTimeBeginDay" value="${jySendTaskPlanTimeBeginDay:1}"/>
 		<property name="jySendTaskPlanTimeEndDay" value="${jySendTaskPlanTimeEndDay:2}"/>
 		<property name="needValidateMainLineBizSources" value="${needValidateMainLineBizSources:'25'}"/>
-		<property name="addiOwnNumberConf" value="${addiOwnNumberConf:010K1961638,}"/>
 		<property name="jySendTaskCreateTimeBeginDay" value="${jySendTaskCreateTimeBeginDay:30}"/>
+		<property name="addiOwnNumberConf" value="${addiOwnNumberConf:010K1961638,}"/>
 		<property name="jyBasicServerSwitch" value="${jyBasicServerSwitch:false}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
@@ -355,8 +355,8 @@
 				<value>uccPropertyConfiguration.jySendTaskPlanTimeBeginDay</value>
 				<value>uccPropertyConfiguration.jySendTaskPlanTimeEndDay</value>
 				<value>uccPropertyConfiguration.needValidateMainLineBizSources</value>
-				<value>uccPropertyConfiguration.addiOwnNumberConf</value>
 				<value>uccPropertyConfiguration.jySendTaskCreateTimeBeginDay</value>
+				<value>uccPropertyConfiguration.addiOwnNumberConf</value>
 				<value>uccPropertyConfiguration.jyBasicServerSwitch</value>
 
 				<value>hystrixRouteUccPropertyConfiguration.executionTimeoutInMilliseconds</value>

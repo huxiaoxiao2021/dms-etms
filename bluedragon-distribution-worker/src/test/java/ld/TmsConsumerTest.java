@@ -284,18 +284,12 @@ public class TmsConsumerTest {
 
     @Test
     public void TmsTransWorkItemOperateConsumerTest() throws Exception {
-        String body = "{\n" +
-                "    \"transWorkItemCode\": \"TW22060900790698-002\",\n" +
-                "    \"transWorkCode\": \"TW22060900790698\",\n" +
-                "    \"operateType\": 10,\n" +
-                "    \"transType\": 17,\n" +
-                "    \"transWay\": 2,\n" +
-                "    \"beginNodeCode\": \"010F002\",\n" +
-                "    \"endNodeCode\": \"731X079\",\n" +
-                "    \"planDepartTime\": \"2022-06-10 00:00:00\"\n" +
-                "}";
+        String body = "{\"transWorkItemCode\":\"TW22090800811121-003\",\"transWorkCode\":\"TW22090800811121\",\"operateType\":10,\"transType\":1,\"transWay\":1,\"beginNodeCode\":\"010F016\",\"endNodeCode\":\"592F002\",\"planDepartTime\":\"2022-09-09 06:15:00\"}";
         Message message = new Message();
         message.setText(body);
         transWorkItemOperateConsumer.consume(message);
+       /* body = "{\"transWorkItemCode\":\"TW22090800811121-002\",\"transWorkCode\":\"TW22090800811121\",\"operateType\":10,\"transType\":1,\"transWay\":1,\"beginNodeCode\":\"010F016\",\"endNodeCode\":\"010F002\",\"planDepartTime\":\"2022-09-09 07:30:00\"}";
+        message.setText(body);
+        transWorkItemOperateConsumer.consume(message);*/
     }
 }
