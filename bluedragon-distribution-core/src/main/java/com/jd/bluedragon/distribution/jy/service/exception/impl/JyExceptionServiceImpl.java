@@ -19,6 +19,8 @@ import com.jd.bluedragon.distribution.jy.exception.JyExceptionEntity;
 import com.jd.bluedragon.distribution.jy.manager.ExpInfoSummaryJsfManager;
 import com.jd.bluedragon.distribution.jy.manager.PositionQueryJsfManager;
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionService;
+import com.jd.bluedragon.distribution.print.domain.RePrintRecordMq;
+import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.service.SendDetailService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
@@ -703,6 +705,33 @@ public class JyExceptionServiceImpl implements JyExceptionService {
 
     }
 
+    @Override
+    public void printSuccess(RePrintRecordMq rePrintRecordMq) {
+        if (!Objects.equals(rePrintRecordMq.getOperateType(), WaybillPrintOperateTypeEnum.PACKAGE_AGAIN_PRINT.getType())){
+            return;
+        }
+        if (rePrintRecordMq.getSiteCode() == null){
+            return;
+        }
+        if (StringUtils.isEmpty(rePrintRecordMq.getPackageCode())){
+            return;
+        }
+        if (!WaybillUtil.isPackageCode(rePrintRecordMq.getPackageCode())){
+            return;
+        }
+        JyExceptionEntity conditon = new JyExceptionEntity();
+        conditon.setSiteCode(Long.valueOf(rePrintRecordMq.getSiteCode()));
+        conditon.setPackageCode(rePrintRecordMq.getPackageCode());
+        List<JyExceptionEntity> jyExceptionEntities = jyExceptionDao.queryByPackageCodeAndSite(conditon);
+        if (CollectionUtils.isEmpty(jyExceptionEntities)){
+            return;
+        }
+        for (JyExceptionEntity entity:jyExceptionEntities){
+            complate(entity.getBarCode(),rePrintRecordMq.getUserErp(),rePrintRecordMq.getOperateTime());
+        }
+
+    }
+
     private void createSanWuTask(ExpefNotify mqDto) {
         String bizId = getBizId(JyBizTaskExceptionTypeEnum.SANWU, mqDto.getBarCode());
         JyBizTaskExceptionEntity byBizId = jyBizTaskExceptionDao.findByBizId(bizId);
@@ -768,7 +797,11 @@ public class JyExceptionServiceImpl implements JyExceptionService {
      * @param
      */
     private void complate(ExpefNotify mqDto) {
-        String bizId = getBizId(JyBizTaskExceptionTypeEnum.SANWU, mqDto.getBarCode());
+        complate(mqDto.getBarCode(),mqDto.getNotifyErp(),mqDto.getNotifyTime());
+    }
+
+    private void complate(String barCode,String operateErp,Date dateTime) {
+        String bizId = getBizId(JyBizTaskExceptionTypeEnum.SANWU, barCode);
         JyBizTaskExceptionEntity bizTaskException = jyBizTaskExceptionDao.findByBizId(bizId);
         if (bizTaskException == null){
             logger.error("获取异常业务任务数据失败！");
@@ -782,7 +815,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             logger.error("获取异常业务数据失败！");
             return;
         }
-        BaseStaffSiteOrgDto baseStaffByErp = baseMajorManager.getBaseStaffByErpNoCache(mqDto.getNotifyErp());
+        BaseStaffSiteOrgDto baseStaffByErp = baseMajorManager.getBaseStaffByErpNoCache(operateErp);
         if (baseStaffByErp == null){
             logger.error("获取操作人信息失败！");
             return;
@@ -791,8 +824,8 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         JyBizTaskExceptionEntity conditon = new JyBizTaskExceptionEntity();
         conditon.setStatus(JyExpStatusEnum.COMPLATE.getCode());
         conditon.setProcessingStatus(JyBizTaskExceptionProcessStatusEnum.DONE.getCode());
-        conditon.setProcessEndTime(mqDto.getNotifyTime());
-        conditon.setUpdateTime(mqDto.getNotifyTime());
+        conditon.setProcessEndTime(dateTime);
+        conditon.setUpdateTime(dateTime);
         conditon.setUpdateUserErp(baseStaffByErp.getErp());
         conditon.setBizId(bizTaskException.getBizId());
         conditon.setUpdateUserName(baseStaffByErp.getStaffName());

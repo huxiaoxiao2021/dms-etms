@@ -197,6 +197,18 @@
         </if>
         limit 1
     </select>
+
+    <select id="queryByPackageCodeAndSite" parameterType="JyExceptionEntity" resultMap="jyExceptionMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM jy_exception
+        WHERE
+        yn = 1
+        AND site_code = #{siteCode, jdbcType=BIGINT}
+        <if test="packageCode != null">
+            AND package_code = #{packageCode, jdbcType=VARCHAR}
+        </if>
+    </select>
     <update id="update" parameterType="JyExceptionEntity" >
         UPDATE jy_exception
         <set>

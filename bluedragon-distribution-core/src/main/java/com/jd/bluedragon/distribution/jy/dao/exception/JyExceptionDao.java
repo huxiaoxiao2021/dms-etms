@@ -6,6 +6,8 @@ import com.jd.bluedragon.distribution.jy.unload.JyUnloadEntity;
 import com.jd.coo.sa.mybatis.plugins.id.SequenceGenAdaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.List;
+
 /**
  * 卸车任务明细表
  * 
@@ -39,6 +41,10 @@ public class JyExceptionDao extends BaseDao<JyExceptionEntity> {
 
     public JyExceptionEntity queryByBarCodeAndSite(JyExceptionEntity query) {
         return this.getSqlSession().selectOne(NAMESPACE + ".queryByBarCodeAndSite", query);
+    }
+
+    public List<JyExceptionEntity> queryByPackageCodeAndSite(JyExceptionEntity query) {
+        return this.getSqlSession().selectList(NAMESPACE + ".queryByPackageCodeAndSite", query);
     }
 
     public Integer update(JyExceptionEntity entity) {

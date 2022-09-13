@@ -457,6 +457,10 @@
     <jmq:consumer id="jmq.jyExpefNotifyConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.exception.expef.notify}" listener="jyExpefNotifyConsumer"/>
     </jmq:consumer>
+    <!--  三无包裹补打成功消息  -->
+    <jmq:consumer id="jmq.packageCodePrintConsumer" transport="jmq.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.packageRePrintProducer}" listener="packageCodePrintConsumer"/>
+    </jmq:consumer>
 
 </beans>
 
