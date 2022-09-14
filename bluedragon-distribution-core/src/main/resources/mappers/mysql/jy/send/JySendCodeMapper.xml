@@ -160,7 +160,7 @@
         WHERE
             yn = 1
             and send_code in
-        <foreach item="item" index="index" collection="sendCodeList"
+        <foreach item="item" index="index" collection="list"
                  open="(" separator="," close=")">
             #{item}
         </foreach>
