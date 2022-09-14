@@ -224,7 +224,7 @@ public class TmsTransWorkItemOperateConsumer extends MessageBaseConsumer {
         taskSend.setUpdateUserErp(Constants.SYS_NAME);
         taskSend.setUpdateUserName(Constants.SYS_NAME);
         if(!sendVehicleTransactionManager.reloadStatusWithoutCompare(taskSend)){
-            logger.error("sendVehicleBiz:{} reloadTaskStatus fail!",sendVehicleBiz);
+            logger.warn("sendVehicleBiz:{} reloadTaskStatus fail!",sendVehicleBiz);
         }
 
     }

@@ -246,6 +246,7 @@ public class SendVehicleTransactionManager {
         if (taskSendVehicleService.updateStatusWithoutCompare(sendStatusQ, taskSend.getVehicleStatus()) > 0) {
             logInfo("发货任务-刷新发货主任务状态[{}]状态更新（不比较原状态）为“{}”. {}", taskSend.getBizId(), JyBizTaskSendStatusEnum.getNameByCode(taskSendMinStatus), JsonHelper.toJson(taskSend));
         }else{
+            log.warn("发货任务-刷新发货主任务状态[{}]状态更新失败未执行（不比较原状态）为“{}”. {}", taskSend.getBizId(), JyBizTaskSendStatusEnum.getNameByCode(taskSendMinStatus), JsonHelper.toJson(taskSend));
             return false;
         }
         return true;
