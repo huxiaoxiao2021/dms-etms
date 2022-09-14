@@ -395,7 +395,7 @@
         AND site_code = #{siteId}
         AND status = #{status}
         AND distribution_target = #{gridRid}
-        GROUP BY floor,area_code,grid_code,tags
+        GROUP BY floor,area_code,grid_code
         <if test="pageSize !=null">
             LIMIT #{offSet}, #{pageSize};
         </if>
