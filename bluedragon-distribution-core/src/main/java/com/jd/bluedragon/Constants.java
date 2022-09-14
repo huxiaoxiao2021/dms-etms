@@ -1473,9 +1473,13 @@ public class Constants {
      */
     public static final String KY_PRINT_CODE_SUFFIX = "001";
     /**
-     * 操作标识-1
+     * 操作标识|开启-1
      */
     public static final Integer FLAG_OPRATE_ON = 1;
+    /**
+     * 操作标识|关闭-0
+     */
+    public static final Integer FLAG_OPRATE_OFF = 0;    
     /**
      * PDA无封车号任务前缀
      */
@@ -1723,4 +1727,13 @@ public class Constants {
     public static final String DELETE_ZIJIAN_TASK_PREFIX  = "delete_task_biz_id_%s";
 
     public static final String SEND_TASK_MANUAL_CREATED_PREFIX = "NSST";
+    /**
+     * sql中in语句数量限制 200
+     */
+    public static final int DB_SQL_IN_LIMIT_NUM = 200;
+    
+    /**
+     * 传摆发货功能编码：0203004-gz
+     */
+    public static final String MENU_CODE_SEND_GZ  = "0203004-gz";
 }

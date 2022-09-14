@@ -144,4 +144,9 @@ public class JyBizTaskSendVehicleServiceImpl implements JyBizTaskSendVehicleServ
     public Integer countSendTaskByDest(JyBizTaskSendVehicleDetailEntity entity) {
         return jyBizTaskSendVehicleDao.countSendTaskByDest(entity);
     }
+
+	@Override
+	public int countBizNumForCheckLineType(JyBizTaskSendVehicleEntity checkQuery, List<String> bizIdList,List<Integer> lineTypes) {
+        return jyBizTaskSendVehicleDao.countBizNumForCheckLineType(checkQuery,bizIdList,lineTypes);
+	}
 }

@@ -506,4 +506,14 @@
           and vehicle_status IN (0,1,2,3) AND yn =1
     </select>
 
+    <select id="findSendVehicleBizListBySendFlow" parameterType="JyBizTaskSendVehicleDetailEntity" resultType="java.lang.String">
+        SELECT
+            distinct send_vehicle_biz_id
+        FROM jy_biz_task_send_vehicle_detail
+        WHERE
+            yn = 1
+            and start_site_id = #{startSiteId}
+            and end_site_id = #{endSiteId}
+            and create_time &gt;= #{createTimeBegin}
+    </select>
 </mapper>
