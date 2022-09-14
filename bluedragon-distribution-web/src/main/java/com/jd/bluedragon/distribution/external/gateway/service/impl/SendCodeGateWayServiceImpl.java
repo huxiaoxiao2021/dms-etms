@@ -193,14 +193,12 @@ public class SendCodeGateWayServiceImpl implements SendCodeGateWayService {
     	menuUsageConfigRequestDto.setUser(request.getUser());
     	MenuUsageProcessDto menuUsageProcessDto = baseService.getClientMenuUsageConfig(menuUsageConfigRequestDto);
     	if(menuUsageProcessDto != null && Constants.FLAG_OPRATE_OFF.equals(menuUsageProcessDto.getCanUse())) {
-            if  (ObjectHelper.isNotNull(request.getBizSource()) && ObjectHelper.isNotNull(uccConfig.getNeedValidateMainLineBizSources())){
-                if (uccConfig.getNeedValidateMainLineBizSources().contains(String.valueOf(request.getBizSource()))){
-                    Long endSiteId =new Long(BusinessUtil.getReceiveSiteCodeFromSendCode(request.getSendCode()));
-                    Long startSiteId =new Long(request.getCurrentOperate().getSiteCode());
-                    boolean isTrunkOrBranch = sendVehicleTransactionManager.isTrunkOrBranchLine(startSiteId, endSiteId);
-                    if (isTrunkOrBranch){
-                        return new JdVerifyResponse(NOT_SUPPORT_MAIN_LINE_TASK_CODE,menuUsageProcessDto.getMsg());
-                    }
+            if  (ObjectHelper.isNotNull(request.getBizSource()) && uccConfig.needValidateMainLine(request.getBizSource())){
+                Long endSiteId =new Long(BusinessUtil.getReceiveSiteCodeFromSendCode(request.getSendCode()));
+                Long startSiteId =new Long(request.getCurrentOperate().getSiteCode());
+                boolean isTrunkOrBranch = sendVehicleTransactionManager.isTrunkOrBranchLine(startSiteId, endSiteId);
+                if (isTrunkOrBranch){
+                    return new JdVerifyResponse(NOT_SUPPORT_MAIN_LINE_TASK_CODE,menuUsageProcessDto.getMsg());
                 }
             }
     	}
