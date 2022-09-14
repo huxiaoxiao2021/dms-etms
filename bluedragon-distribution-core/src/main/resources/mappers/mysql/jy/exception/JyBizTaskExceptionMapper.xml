@@ -1,0 +1,450 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jd.bluedragon.distribution.jy.dao.exception.JyBizTaskExceptionDao">
+
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.jd.bluedragon.distribution.jy.exception.JyBizTaskExceptionEntity" id="jyBizTaskExceptionMap">
+        <result property="id" column="id"/>
+        <result property="type" column="type"/>
+        <result property="bizId" column="biz_id"/>
+        <result property="source" column="source"/>
+        <result property="barCode" column="bar_code"/>
+        <result property="tags" column="tags"/>
+        <result property="siteCode" column="site_code"/>
+        <result property="siteName" column="site_name"/>
+        <result property="floor" column="floor"/>
+        <result property="gridNo" column="grid_no"/>
+        <result property="gridCode" column="grid_code"/>
+        <result property="areaCode" column="area_code"/>
+        <result property="areaName" column="area_name"/>
+        <result property="handlerErp" column="handler_erp"/>
+        <result property="status" column="status"/>
+        <result property="processingStatus" column="processing_status"/>
+        <result property="distributionType" column="distribution_type"/>
+        <result property="distributionTarget" column="distribution_target"/>
+        <result property="distributionTime" column="distribution_time"/>
+        <result property="processBeginTime" column="process_begin_time"/>
+        <result property="processEndTime" column="process_end_time"/>
+        <result property="createUserErp" column="create_user_erp"/>
+        <result property="createUserName" column="create_user_name"/>
+        <result property="updateUserErp" column="update_user_erp"/>
+        <result property="updateUserName" column="update_user_name"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="timeOut" column="time_out"/>
+        <result property="yn" column="yn"/>
+        <result property="ts" column="ts"/>
+    </resultMap>
+    <resultMap type="com.jd.bluedragon.common.dto.jyexpection.response.StatisticsByStatusDto" id="StatisticStatusResp">
+        <result property="status" column="status"/>
+        <result property="count" column="count"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        id
+        ,
+        biz_id,
+        `type`,
+        `source`,
+        bar_code,
+        tags,
+        site_code,
+        site_name,
+        floor,
+        grid_no,
+        grid_code,
+        area_code,
+        area_name,
+        distribution_type,
+        distribution_target,
+        distribution_time,
+        handler_erp,
+        status,
+        processing_status,
+        process_begin_time,
+        process_end_time,
+        create_user_erp,
+        create_user_name,
+        update_user_erp,
+        update_user_name,
+        create_time,
+        update_time,
+        time_out,
+        ts,
+        yn
+    </sql>
+
+    <select id="findByBizId" resultMap="jyBizTaskExceptionMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM jy_biz_task_exception
+        WHERE
+        yn = 1
+        AND biz_id = #{bizId, jdbcType=VARCHAR}
+    </select>
+
+    <insert id="insert" parameterType="com.jd.bluedragon.distribution.jy.exception.JyBizTaskExceptionEntity">
+        INSERT INTO jy_biz_task_exception (
+            biz_id,
+            `type`,
+            `source`,
+            bar_code,
+            tags,
+            site_code,
+            site_name,
+            floor,
+            grid_no,
+            grid_code,
+            area_code,
+            area_name,
+            distribution_type,
+            distribution_target,
+            distribution_time,
+            handler_erp,
+            status,
+            processing_status,
+            process_begin_time,
+            process_end_time,
+            create_user_erp,
+            create_user_name,
+            update_user_erp,
+            update_user_name,
+            create_time,
+            update_time,
+            time_out,
+            yn)
+        VALUES (
+                   #{type},
+                   #{bizId},
+                   #{source},
+                   #{barCode},
+                   #{tags},
+                   #{siteCode},
+                   #{siteName},
+                   #{floor},
+                   #{gridNo},
+                   #{gridCode},
+                   #{areaCode},
+                   #{areaName},
+                   #{handlerErp},
+                   #{status},
+                   #{processingStatus},
+                   #{distributionType},
+                   #{distributionTarget},
+                   #{distributionTime},
+                   #{processBeginTime},
+                   #{processEndTime},
+                   #{createUserErp},
+                   #{createUserName},
+                   #{updateUserErp},
+                   #{updateUserName},
+                   #{createTime},
+                   #{updateTime},
+                   #{timeOut},
+                   1)
+    </insert>
+    <insert id="insertSelective" parameterType="com.jd.bluedragon.distribution.jy.exception.JyBizTaskExceptionEntity">
+        INSERT INTO jy_biz_task_exception (
+        <if test="bizId != null">
+            biz_id,
+        </if>
+        <if test="type != null">
+            `type`,
+        </if>
+        <if test="source != null">
+            `source`,
+        </if>
+        <if test="barCode != null">
+            bar_code,
+        </if>
+        <if test="tags != null">
+            tags,
+        </if>
+        <if test="siteCode != null">
+            site_code,
+        </if>
+        <if test="siteName != null">
+            site_name,
+        </if>
+        <if test="floor != null">
+            floor,
+        </if>
+        <if test="gridNo != null">
+            grid_no,
+        </if>
+        <if test="gridCode != null">
+            grid_code,
+        </if>
+        <if test="areaCode != null">
+            area_code,
+        </if>
+        <if test="areaName != null">
+            area_name,
+        </if>
+        <if test="handlerErp != null">
+            handler_erp,
+        </if>
+        <if test="status != null">
+            status,
+        </if>
+        <if test="processingStatus != null">
+            processing_status,
+        </if>
+        <if test="distributionType != null">
+            distribution_type,
+        </if>
+        <if test="distributionTarget != null">
+            distribution_target,
+        </if>
+        <if test="distributionTime != null">
+            distribution_time,
+        </if>
+        <if test="processBeginTime != null">
+            process_begin_time,
+        </if>
+        <if test="processEndTime != null">
+            process_end_time,
+        </if>
+        <if test="createUserErp != null">
+            create_user_erp,
+        </if>
+        <if test="createUserName != null">
+            create_user_name,
+        </if>
+        <if test="updateUserErp != null">
+            update_user_erp,
+        </if>
+        <if test="updateUserName != null">
+            update_user_name,
+        </if>
+        <if test="createTime != null">
+            create_time,
+        </if>
+        <if test="updateTime != null">
+            update_time,
+        </if>
+        <if test="timeOut != null">
+            time_out,
+        </if>
+        yn )
+        VALUES (
+        <if test="bizId != null">
+            #{bizId},
+        </if>
+        <if test="type != null">
+            #{type},
+        </if>
+        <if test="source != null">
+            #{source},
+        </if>
+        <if test="barCode != null">
+            #{barCode},
+        </if>
+        <if test="tags != null">
+            #{tags},
+        </if>
+        <if test="siteCode != null">
+            #{siteCode},
+        </if>
+        <if test="siteName != null">
+            #{siteName},
+        </if>
+        <if test="floor != null">
+            #{floor},
+        </if>
+        <if test="gridNo != null">
+            #{gridNo},
+        </if>
+        <if test="gridCode != null">
+            #{gridCode},
+        </if>
+        <if test="areaCode != null">
+            #{areaCode},
+        </if>
+        <if test="areaName != null">
+            #{areaName},
+        </if>
+        <if test="handlerErp != null">
+            #{handlerErp},
+        </if>
+        <if test="status != null">
+            #{status},
+        </if>
+        <if test="processingStatus != null">
+            #{processingStatus},
+        </if>
+        <if test="distributionType != null">
+            #{distributionType},
+        </if>
+        <if test="distributionTarget != null">
+            #{distributionTarget},
+        </if>
+        <if test="distributionTime != null">
+            #{distributionTime},
+        </if>
+        <if test="processBeginTime != null">
+            #{processBeginTime},
+        </if>
+        <if test="processEndTime != null">
+            #{processEndTime},
+        </if>
+        <if test="createUserErp != null">
+            #{createUserErp},
+        </if>
+        <if test="createUserName != null">
+            #{createUserName},
+        </if>
+        <if test="updateUserErp != null">
+            #{updateUserErp},
+        </if>
+        <if test="updateUserName != null">
+            #{updateUserName},
+        </if>
+        <if test="createTime != null">
+            #{createTime},
+        </if>
+        <if test="updateTime != null">
+            #{updateTime},
+        </if>
+        <if test="timeOut != null">
+            #{timeOut},
+        </if>
+                   1)
+    </insert>
+
+    <select id="getCommonStatusStatistic" resultMap="StatisticStatusResp">
+        select status,count(*) as `count`
+        FROM jy_biz_task_exception
+        WHERE
+            yn = 1 and status in (0,2)
+            and distribution_target = #{gridRefId}
+        group by status
+    </select>
+    <select id="getSpecialStatusStatistic" resultMap="StatisticStatusResp">
+        select status,count(*) as `count`
+        FROM jy_biz_task_exception
+        WHERE
+            yn = 1 AND STATUS = 1
+          AND processing_status = 0
+          AND handler_erp = #{handleErp}
+          and distribution_target = #{gridRefId}
+    </select>
+    <update id="updateByBizId">
+        UPDATE jy_biz_task_exception
+        <set>
+            <if test="distributionType != null">
+                distribution_type = #{distributionType},
+            </if>
+            <if test="distributionTarget != null">
+                distribution_target = #{distributionTarget},
+            </if>
+            <if test="distributionTime != null">
+                distribution_time = #{distributionTime},
+            </if>
+            <if test="status != null">
+                `status` = #{status},
+            </if>
+            <if test="processingStatus != null">
+                processing_status = #{processingStatus},
+            </if>
+            <if test="processBeginTime != null">
+                process_begin_time=#{processBeginTime},
+            </if>
+            <if test="processEndTime != null">
+                process_end_time = #{processEndTime},
+            </if>
+            <if test="handlerErp != null">
+                handler_erp = #{handlerErp},
+            </if>
+            <if test="updateUserErp != null">
+                update_user_erp = #{updateUserErp},
+            </if>
+            <if test="updateUserName != null">
+                update_user_name = #{updateUserName},
+            </if>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+            <if test="timeOut != null">
+                time_out = #{timeOut},
+            </if>
+            <if test="yn != null">
+                yn = #{yn},
+            </if>
+        </set>
+        <where>
+            biz_id = #{bizId}
+        </where>
+    </update>
+
+
+    <select id="getStatisticsByGrid" parameterType="com.jd.bluedragon.common.dto.jyexpection.request.StatisticsByGridReq" resultType="com.jd.bluedragon.common.dto.jyexpection.response.StatisticsByGridDto">
+        SELECT
+        site_code AS siteCode,
+        site_name AS siteName,
+        floor AS floor,
+        grid_code AS gridCode,
+        grid_no AS gridNo,
+        area_code AS areaCode,
+        area_name AS areaName,
+        count(*) AS pendingNum,
+        SUM(time_out) AS timeoutNum
+        FROM jy_biz_task_exception
+        WHERE
+        yn = 1
+        AND site_code = #{siteId}
+        AND status = #{status}
+        AND distribution_target = #{gridRid}
+        GROUP BY floor,area_code,grid_code
+        <if test="pageSize !=null">
+            LIMIT #{offSet}, #{pageSize};
+        </if>
+    </select>
+    <select id="getTagsByGrid" parameterType="com.jd.bluedragon.common.dto.jyexpection.request.StatisticsByGridReq" resultMap="jyBizTaskExceptionMap">
+        SELECT
+        site_code ,
+        floor ,
+        grid_code ,
+        area_code ,
+        tags
+        FROM jy_biz_task_exception
+        WHERE
+        yn = 1
+        AND site_code = #{siteId}
+        AND status = #{status}
+        AND distribution_target = #{gridRid}
+        GROUP BY floor,area_code,grid_code,tags
+    </select>
+
+    <select id="queryExceptionTaskList" parameterType="com.jd.bluedragon.common.dto.jyexpection.request.ExpTaskPageReq" resultMap="jyBizTaskExceptionMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM jy_biz_task_exception
+        WHERE
+        yn = 1
+        AND site_code = #{siteId}
+        AND status = #{status}
+        AND distribution_target = #{gridRid}
+        <if test="floor != null">
+            AND floor = #{floor}
+        </if>
+        <if test="gridCode != null">
+            AND grid_code = #{gridCode}
+        </if>
+        <if test="processingStatus !=null">
+            AND processing_status = #{processingStatus}
+        </if>
+        <if test="handlerErp !=null">
+            AND handler_erp = #{handlerErp}
+        </if>
+        <if test="processingStatus == 2">
+            order by process_end_time desc
+        </if>
+        <if test="processingStatus != 2">
+            order by id desc
+        </if>
+        <if test="pageSize !=null">
+            LIMIT #{offSet}, #{pageSize};
+        </if>
+    </select>
+</mapper>

@@ -1647,7 +1647,7 @@
         <dependency>
 			<groupId>com.jd.ps.epf</groupId>
 			<artifactId>ps-epf-api</artifactId>
-			<version>1.2-SNAPSHOT</version>
+			<version>1.3-SNAPSHOT</version>
         </dependency>
 		<!--运输系统 集包袋相关-->
 		<dependency>

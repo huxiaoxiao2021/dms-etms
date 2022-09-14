@@ -173,6 +173,28 @@ public class BusinessUtil {
         }
         return code.matches(RULE_COLLECT_PLACE_CODE_REGEX);
     }
+    /**
+     * 判断是否为站点编号编码
+     * @param code
+     * @return
+     */
+    public static final boolean isSiteCode(String code){
+        if (StringUtils.isBlank(code)) {
+            return false;
+        }
+        return code.matches(RULE_SITE_CODE);
+    }
+    /**
+     * 判断是否为三无编码
+     * @param code
+     * @return
+     */
+    public static final boolean isSanWuCode(String code){
+        if (StringUtils.isBlank(code)) {
+            return false;
+        }
+        return code.matches(RULE_SAN_WU_CODE);
+    }
 
 
     /**
@@ -2465,5 +2487,11 @@ public class BusinessUtil {
      */
     public static boolean isWarehouseAndDistributionBusiness(String waybillSign){
         return isSignChar(waybillSign, WaybillSignConstants.POSITION_53, WaybillSignConstants.CHAR_1);
+    }
+
+    public static void main(String[] args) {
+        String sw = "67890";
+        System.out.println(BusinessUtil.isSiteCode(sw));
+        System.out.println(BusinessUtil.isSanWuCode(sw));
     }
 }
