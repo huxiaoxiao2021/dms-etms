@@ -686,6 +686,9 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         if (JyBizTaskUnloadStatusEnum.UN_LOAD_DONE.getCode().equals(unloadVehicleEntity.getVehicleStatus())) {
             scanPackageDto.setTaskFinish(Boolean.TRUE);
         }
+        if (StringUtils.isBlank(scanPackageDto.getBoardCode())) {
+            scanPackageDto.setCreateNewBoard(Boolean.TRUE);
+        }
     }
 
 

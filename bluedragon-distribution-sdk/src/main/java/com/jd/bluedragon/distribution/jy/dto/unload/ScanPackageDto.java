@@ -105,6 +105,10 @@ public class ScanPackageDto extends UnloadBaseDto implements Serializable {
      * */
     private String receiveSiteName;
 
+    /**
+     * 是否开新板
+     */
+    private boolean createNewBoard;
 
     public String getBizId() {
         return bizId;
@@ -290,4 +294,11 @@ public class ScanPackageDto extends UnloadBaseDto implements Serializable {
         this.receiveSiteName = receiveSiteName;
     }
 
+    public boolean isCreateNewBoard() {
+        return createNewBoard;
+    }
+
+    public void setCreateNewBoard(boolean createNewBoard) {
+        this.createNewBoard = createNewBoard;
+    }
 }

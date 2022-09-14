@@ -549,13 +549,12 @@ public class JyUnloadVehicleCheckTysService {
         boardCommonRequest.setBarCode(request.getScanCode());
         boardCommonRequest.setOperateSiteCode(request.getCurrentOperate().getSiteCode());
         boardCommonRequest.setOperateSiteName(request.getCurrentOperate().getSiteName());
-        boardCommonRequest.setReceiveSiteCode(request.getNextSiteCode());
-        boardCommonRequest.setReceiveSiteName(request.getNextSiteName());
-        if (request.getNextSiteCode() == null) {
+        if (request.isCreateNewBoard()) {
+            boardCommonRequest.setReceiveSiteCode(request.getNextSiteCode());
+            boardCommonRequest.setReceiveSiteName(request.getNextSiteName());
+        } else {
             boardCommonRequest.setReceiveSiteCode(request.getReceiveSiteCode());
-        }
-        if (request.getNextSiteCode() == null) {
-            boardCommonRequest.setReceiveSiteCode(request.getReceiveSiteCode());
+            boardCommonRequest.setReceiveSiteName(request.getReceiveSiteName());
         }
         boardCommonRequest.setOperateUserErp(request.getUser().getUserErp());
         boardCommonRequest.setOperateUserName(request.getUser().getUserName());
