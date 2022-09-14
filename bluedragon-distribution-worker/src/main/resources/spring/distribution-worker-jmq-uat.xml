@@ -359,8 +359,8 @@
         <jmq:listener topic="${jmq.topic.send.car.arrive.status}" listener="sendCarArriveStatusConsumer"/>
     </jmq:consumer>
     <!--  任务调度通知消息  -->
-    <jmq:consumer id="jmq.jyScheduleTaskConsumer" transport="jmq4.dmsWorker.transport">
-        <jmq:listener topic="${jmq.topic.schedule.task.notify}" listener="jyScheduleTaskConsumer"/>
+    <jmq:consumer id="jmq.jyScheduleTaskNotifyConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.schedule.task.notify}" listener="jyScheduleTaskNotifyConsumer"/>
     </jmq:consumer>
     <!--  三无匹配结果通知消息  -->
     <jmq:consumer id="jmq.jyExpefNotifyConsumer" transport="jmq4.dmsWorker.transport">
