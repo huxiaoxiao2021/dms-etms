@@ -185,23 +185,24 @@ public class SendCodeGateWayServiceImpl implements SendCodeGateWayService {
     }
 
     @Override
+    @JProfiler(jKey = "DMSWEB.SendCodeGateWayServiceImpl.checkSendCodeAndAlliance",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})    
     public JdVerifyResponse<SendCodeCheckDto> checkSendCodeAndAllianceForJy(CheckSendCodeRequest request) {
         log.info("jy checkSendCodeAndAllianceForJy request:{}", JsonHelper.toJson(request));
-    	MenuUsageConfigRequestDto menuUsageConfigRequestDto = new MenuUsageConfigRequestDto();
-    	menuUsageConfigRequestDto.setMenuCode(Constants.MENU_CODE_SEND_GZ);
-    	menuUsageConfigRequestDto.setCurrentOperate(request.getCurrentOperate());
-    	menuUsageConfigRequestDto.setUser(request.getUser());
-    	MenuUsageProcessDto menuUsageProcessDto = baseService.getClientMenuUsageConfig(menuUsageConfigRequestDto);
-    	if(menuUsageProcessDto != null && Constants.FLAG_OPRATE_OFF.equals(menuUsageProcessDto.getCanUse())) {
-            if  (ObjectHelper.isNotNull(request.getBizSource()) && uccConfig.needValidateMainLine(request.getBizSource())){
+        if  (ObjectHelper.isNotNull(request.getBizSource()) && uccConfig.needValidateMainLine(request.getBizSource())){
+	        MenuUsageConfigRequestDto menuUsageConfigRequestDto = new MenuUsageConfigRequestDto();
+	    	menuUsageConfigRequestDto.setMenuCode(Constants.MENU_CODE_SEND_GZ);
+	    	menuUsageConfigRequestDto.setCurrentOperate(request.getCurrentOperate());
+	    	menuUsageConfigRequestDto.setUser(request.getUser());
+	    	MenuUsageProcessDto menuUsageProcessDto = baseService.getClientMenuUsageConfig(menuUsageConfigRequestDto);
+	    	if(menuUsageProcessDto != null && Constants.FLAG_OPRATE_OFF.equals(menuUsageProcessDto.getCanUse())) {
                 Long endSiteId =new Long(BusinessUtil.getReceiveSiteCodeFromSendCode(request.getSendCode()));
                 Long startSiteId =new Long(request.getCurrentOperate().getSiteCode());
                 boolean isTrunkOrBranch = sendVehicleTransactionManager.isTrunkOrBranchLine(startSiteId, endSiteId);
                 if (isTrunkOrBranch){
                     return new JdVerifyResponse(NOT_SUPPORT_MAIN_LINE_TASK_CODE,menuUsageProcessDto.getMsg());
                 }
-            }
-    	}
+	    	}
+        }
 
         JdCResponse<SendCodeCheckDto> jdCResponse = this.checkSendCodeStatus(request.getSendCode());
         JdVerifyResponse<SendCodeCheckDto> jdVerifyResponse = new JdVerifyResponse<>();

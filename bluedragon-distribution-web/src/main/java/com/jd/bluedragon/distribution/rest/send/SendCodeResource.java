@@ -2,6 +2,9 @@ package com.jd.bluedragon.distribution.rest.send;
 
 import com.google.common.base.Strings;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
+import com.jd.bluedragon.common.dto.operation.workbench.send.request.CheckSendCodeRequest;
+import com.jd.bluedragon.common.dto.sendcode.response.SendCodeCheckDto;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.GenerateSendCodeRequest;
 import com.jd.bluedragon.distribution.api.request.sendcode.SendCodeRequest;
@@ -21,6 +24,7 @@ import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.urban.domain.TransbillM;
 import com.jd.bluedragon.distribution.urban.service.TransbillMService;
+import com.jd.bluedragon.external.gateway.service.SendCodeGateWayService;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.Md5Helper;
 import com.jd.bluedragon.utils.StringHelper;
@@ -84,6 +88,10 @@ public class SendCodeResource {
 
     @Autowired
     private SendCodeService sendCodeService;
+    
+    @Autowired
+    private SendCodeGateWayService sendCodeGateWayService;
+    
 
     @GET
     @Path("/trans/{waybillCode}")
@@ -332,4 +340,10 @@ public class SendCodeResource {
         }
         return sendCodeService.validateSendCodeEffective(request.getSendCode());
     }
+    @POST
+    @Path("/sendCode/checkSendCodeAndAllianceForJy")
+    @JProfiler(jKey = "com.jd.bluedragon.distribution.rest.send.SendCodeResource.checkSendCodeAndAllianceForJy", jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    public JdVerifyResponse<SendCodeCheckDto> checkSendCodeAndAllianceForJy(CheckSendCodeRequest request){
+        return sendCodeGateWayService.checkSendCodeAndAllianceForJy(request);
+    }    
 }
