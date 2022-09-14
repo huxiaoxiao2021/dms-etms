@@ -2413,19 +2413,23 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
     public InvokeResult checkMainLineSendTask(CheckSendCodeRequest request) {
         log.info("jy checkMainLineSendTask request:{}",JsonHelper.toJson(request));
         if  (ObjectHelper.isNotNull(request.getBizSource()) && uccConfig.needValidateMainLine(request.getBizSource())){
-	        MenuUsageConfigRequestDto menuUsageConfigRequestDto = new MenuUsageConfigRequestDto();
-	    	menuUsageConfigRequestDto.setMenuCode(Constants.MENU_CODE_SEND_GZ);
-	    	menuUsageConfigRequestDto.setCurrentOperate(request.getCurrentOperate());
-	    	menuUsageConfigRequestDto.setUser(request.getUser());
-	    	MenuUsageProcessDto menuUsageProcessDto = baseService.getClientMenuUsageConfig(menuUsageConfigRequestDto);
-	    	if(menuUsageProcessDto != null && Constants.FLAG_OPRATE_OFF.equals(menuUsageProcessDto.getCanUse())) {
-                Long endSiteId =new Long(BusinessUtil.getReceiveSiteCodeFromSendCode(request.getSendCode()));
-                Long startSiteId =new Long(request.getCurrentOperate().getSiteCode());
-                boolean isTrunkOrBranch = sendVehicleTransactionManager.isTrunkOrBranchLine(startSiteId, endSiteId);
-                if (isTrunkOrBranch){
-                    return new InvokeResult(NOT_SUPPORT_MAIN_LINE_TASK_CODE,menuUsageProcessDto.getMsg());
-                }
-            }
+	        try {
+				MenuUsageConfigRequestDto menuUsageConfigRequestDto = new MenuUsageConfigRequestDto();
+				menuUsageConfigRequestDto.setMenuCode(Constants.MENU_CODE_SEND_GZ);
+				menuUsageConfigRequestDto.setCurrentOperate(request.getCurrentOperate());
+				menuUsageConfigRequestDto.setUser(request.getUser());
+				MenuUsageProcessDto menuUsageProcessDto = baseService.getClientMenuUsageConfig(menuUsageConfigRequestDto);
+				if(menuUsageProcessDto != null && Constants.FLAG_OPRATE_OFF.equals(menuUsageProcessDto.getCanUse())) {
+				    Long endSiteId =new Long(BusinessUtil.getReceiveSiteCodeFromSendCode(request.getSendCode()));
+				    Long startSiteId =new Long(request.getCurrentOperate().getSiteCode());
+				    boolean isTrunkOrBranch = sendVehicleTransactionManager.isTrunkOrBranchLine(startSiteId, endSiteId);
+				    if (isTrunkOrBranch){
+				        return new InvokeResult(NOT_SUPPORT_MAIN_LINE_TASK_CODE,menuUsageProcessDto.getMsg());
+				    }
+				}
+			} catch (Exception e) {
+				log.error("checkMainLineSendTask-校验异常",e);
+			}
     	}
         return new InvokeResult(RESULT_SUCCESS_CODE,RESULT_SUCCESS_MESSAGE);
     }

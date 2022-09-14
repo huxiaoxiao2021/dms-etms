@@ -836,7 +836,9 @@ public class UccPropertyConfiguration {
      * 身份证识别切量开关，全量上线之后，可以删除
      */
     private String identityRecogniseSiteSwitch;
-
+    /**
+     * 传摆发货-干支限制业务列表
+     */
     private String needValidateMainLineBizSourceList;
     private List<Integer> needValidateMainLineBizSourceCodes;
 
