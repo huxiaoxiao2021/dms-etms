@@ -34,7 +34,7 @@ public class FaceReportNotifyConsumer extends MessageBaseConsumer {
         CallerInfo info = Profiler.registerInfo("FaceReportNotifyConsumer.consume", Constants.UMP_APP_NAME_DMSWORKER,false, true);
         try {
             if (!JsonHelper.isJsonString(message.getText())) {
-                logger.warn("面单举报回传消息dws_spot_check 非JSON格式，内容为【{}】", message.getText());
+                logger.warn("面单举报回传消息spm_question_order_state_circulation 非JSON格式，内容为【{}】", message.getText());
                 return;
             }
             FaceReportNotifyMQ faceReportNotifyMQ = JsonHelper.fromJsonUseGson(message.getText(), FaceReportNotifyMQ.class);
@@ -49,7 +49,7 @@ public class FaceReportNotifyConsumer extends MessageBaseConsumer {
             // 根据商家编码和举报类型更新
             ExpressBillExceptionReport query = new ExpressBillExceptionReport();
             query.setReportType(faceReportNotifyMQ.getSecondProblem());
-            query.setTraderCode(faceReportNotifyMQ.getCompanyCode());
+            query.setTraderCode(faceReportNotifyMQ.getBusinessSystemAccount());
             query.setTraderName(faceReportNotifyMQ.getCompanyName());
             query.setTraderOrgCode(faceReportNotifyMQ.getRegionNo());
             query.setTraderOrgName(faceReportNotifyMQ.getRegionName());
@@ -67,167 +67,177 @@ public class FaceReportNotifyConsumer extends MessageBaseConsumer {
             Profiler.registerInfoEnd(info);
         }
     }
-}
 
-class FaceReportNotifyMQ {
-    // 来源系统编码：2表示分拣
-    private Integer sourceSystem;
-    // 来源单据类型：2表示分拣
-    private Integer sourceBill;
-    // 来源单据号：由商家编码和举报类型组成
-    private String sourceBillCode;
-    // 客户编号
-    private String companyCode;
-    // 客户名称
-    private String companyName;
-    // 状态编码
-    private Integer status;
-    // 状态
-    private String statusName;
-    // 一级举报类型编码
-    private Integer firstProblem;
-    // 一级举报类型名称
-    private String firstProblemName;
-    // 二级举报类型编码
-    private Integer secondProblem;
-    // 二级举报类型名称
-    private String secondProblemName;
-    // 是否紧急
-    private Boolean isUrgent;
-    // 商家所属大区编码
-    private Integer regionNo;
-    // 商家所属大区名称
-    private String regionName;
-    // 销售人ERP
-    private String ownerPin;
-    // 当前操作描述：驳回时是驳回原因
-    private String operationDesc;
+    class FaceReportNotifyMQ {
+        // 来源系统编码：2表示分拣
+        private Integer sourceSystem;
+        // 来源单据类型：2表示分拣
+        private Integer sourceBill;
+        // 来源单据号：由商家编码和举报类型组成
+        private String sourceBillCode;
+        // 业务账号
+        private String businessSystemAccount;
+        // 客户编号
+        private String companyCode;
+        // 客户名称
+        private String companyName;
+        // 状态编码
+        private Integer status;
+        // 状态
+        private String statusName;
+        // 一级举报类型编码
+        private Integer firstProblem;
+        // 一级举报类型名称
+        private String firstProblemName;
+        // 二级举报类型编码
+        private Integer secondProblem;
+        // 二级举报类型名称
+        private String secondProblemName;
+        // 是否紧急
+        private Boolean isUrgent;
+        // 商家所属大区编码
+        private Integer regionNo;
+        // 商家所属大区名称
+        private String regionName;
+        // 销售人ERP
+        private String ownerPin;
+        // 当前操作描述：驳回时是驳回原因
+        private String operationDesc;
 
-    public Integer getSourceSystem() {
-        return sourceSystem;
-    }
+        public Integer getSourceSystem() {
+            return sourceSystem;
+        }
 
-    public void setSourceSystem(Integer sourceSystem) {
-        this.sourceSystem = sourceSystem;
-    }
+        public void setSourceSystem(Integer sourceSystem) {
+            this.sourceSystem = sourceSystem;
+        }
 
-    public Integer getSourceBill() {
-        return sourceBill;
-    }
+        public Integer getSourceBill() {
+            return sourceBill;
+        }
 
-    public void setSourceBill(Integer sourceBill) {
-        this.sourceBill = sourceBill;
-    }
+        public void setSourceBill(Integer sourceBill) {
+            this.sourceBill = sourceBill;
+        }
 
-    public String getSourceBillCode() {
-        return sourceBillCode;
-    }
+        public String getSourceBillCode() {
+            return sourceBillCode;
+        }
 
-    public void setSourceBillCode(String sourceBillCode) {
-        this.sourceBillCode = sourceBillCode;
-    }
+        public void setSourceBillCode(String sourceBillCode) {
+            this.sourceBillCode = sourceBillCode;
+        }
 
-    public String getCompanyCode() {
-        return companyCode;
-    }
+        public String getBusinessSystemAccount() {
+            return businessSystemAccount;
+        }
 
-    public void setCompanyCode(String companyCode) {
-        this.companyCode = companyCode;
-    }
+        public void setBusinessSystemAccount(String businessSystemAccount) {
+            this.businessSystemAccount = businessSystemAccount;
+        }
 
-    public String getCompanyName() {
-        return companyName;
-    }
+        public String getCompanyCode() {
+            return companyCode;
+        }
 
-    public void setCompanyName(String companyName) {
-        this.companyName = companyName;
-    }
+        public void setCompanyCode(String companyCode) {
+            this.companyCode = companyCode;
+        }
 
-    public Integer getStatus() {
-        return status;
-    }
+        public String getCompanyName() {
+            return companyName;
+        }
 
-    public void setStatus(Integer status) {
-        this.status = status;
-    }
+        public void setCompanyName(String companyName) {
+            this.companyName = companyName;
+        }
 
-    public String getStatusName() {
-        return statusName;
-    }
+        public Integer getStatus() {
+            return status;
+        }
 
-    public void setStatusName(String statusName) {
-        this.statusName = statusName;
-    }
+        public void setStatus(Integer status) {
+            this.status = status;
+        }
 
-    public Integer getFirstProblem() {
-        return firstProblem;
-    }
+        public String getStatusName() {
+            return statusName;
+        }
 
-    public void setFirstProblem(Integer firstProblem) {
-        this.firstProblem = firstProblem;
-    }
+        public void setStatusName(String statusName) {
+            this.statusName = statusName;
+        }
 
-    public String getFirstProblemName() {
-        return firstProblemName;
-    }
+        public Integer getFirstProblem() {
+            return firstProblem;
+        }
 
-    public void setFirstProblemName(String firstProblemName) {
-        this.firstProblemName = firstProblemName;
-    }
+        public void setFirstProblem(Integer firstProblem) {
+            this.firstProblem = firstProblem;
+        }
 
-    public Integer getSecondProblem() {
-        return secondProblem;
-    }
+        public String getFirstProblemName() {
+            return firstProblemName;
+        }
 
-    public void setSecondProblem(Integer secondProblem) {
-        this.secondProblem = secondProblem;
-    }
+        public void setFirstProblemName(String firstProblemName) {
+            this.firstProblemName = firstProblemName;
+        }
 
-    public String getSecondProblemName() {
-        return secondProblemName;
-    }
+        public Integer getSecondProblem() {
+            return secondProblem;
+        }
 
-    public void setSecondProblemName(String secondProblemName) {
-        this.secondProblemName = secondProblemName;
-    }
+        public void setSecondProblem(Integer secondProblem) {
+            this.secondProblem = secondProblem;
+        }
 
-    public Boolean getUrgent() {
-        return isUrgent;
-    }
+        public String getSecondProblemName() {
+            return secondProblemName;
+        }
 
-    public void setUrgent(Boolean urgent) {
-        isUrgent = urgent;
-    }
+        public void setSecondProblemName(String secondProblemName) {
+            this.secondProblemName = secondProblemName;
+        }
 
-    public Integer getRegionNo() {
-        return regionNo;
-    }
+        public Boolean getUrgent() {
+            return isUrgent;
+        }
 
-    public void setRegionNo(Integer regionNo) {
-        this.regionNo = regionNo;
-    }
+        public void setUrgent(Boolean urgent) {
+            isUrgent = urgent;
+        }
 
-    public String getRegionName() {
-        return regionName;
-    }
+        public Integer getRegionNo() {
+            return regionNo;
+        }
 
-    public void setRegionName(String regionName) {
-        this.regionName = regionName;
-    }
+        public void setRegionNo(Integer regionNo) {
+            this.regionNo = regionNo;
+        }
 
-    public String getOwnerPin() {
-        return ownerPin;
-    }
+        public String getRegionName() {
+            return regionName;
+        }
 
-    public void setOwnerPin(String ownerPin) {
-        this.ownerPin = ownerPin;
-    }
+        public void setRegionName(String regionName) {
+            this.regionName = regionName;
+        }
 
-    public String getOperationDesc() {
-        return operationDesc;
-    }
+        public String getOwnerPin() {
+            return ownerPin;
+        }
 
-    public void setOperationDesc(String operationDesc) {
-        this.operationDesc = operationDesc;
+        public void setOwnerPin(String ownerPin) {
+            this.ownerPin = ownerPin;
+        }
+
+        public String getOperationDesc() {
+            return operationDesc;
+        }
+
+        public void setOperationDesc(String operationDesc) {
+            this.operationDesc = operationDesc;
+        }
     }
 }

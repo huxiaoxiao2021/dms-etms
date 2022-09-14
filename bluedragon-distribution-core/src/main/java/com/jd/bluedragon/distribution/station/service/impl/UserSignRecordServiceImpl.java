@@ -720,7 +720,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
             	needSignIn = false;
             }
 		}
-		
+
         UserSignRecord signInData = new UserSignRecord();
         //校验并组装签到数据
         if(needSignIn) {
@@ -849,6 +849,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		signInData.setRefGridKey(gridKey);
 		signInData.setRefStationKey(stationKey);
 		signInData.setUserName(signInData.getUserCode());
+		signInData.setModeType(signInRequest.getModeType());
 		// 获取最近一次签到记录
 		UserSignQueryRequest query = new UserSignQueryRequest();
 		query.setUserCode(signInRequest.getUserCode());

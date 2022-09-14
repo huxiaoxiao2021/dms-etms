@@ -23,16 +23,21 @@ import com.jd.bluedragon.distribution.exceptionReport.billException.domain.Expre
 import com.jd.bluedragon.distribution.exceptionReport.billException.dto.ExpressBillExceptionReportMq;
 import com.jd.bluedragon.distribution.exceptionReport.billException.enums.*;
 import com.jd.bluedragon.distribution.exceptionReport.billException.service.ExpressBillExceptionReportService;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.dms.wb.report.api.wmspack.dto.DmsPackRecordPo;
 import com.jd.dms.wb.report.api.wmspack.dto.DmsPackRecordVo;
 import com.jd.dms.wb.report.api.wmspack.jsf.IWmsPackRecordJsfService;
 import com.jd.dms.workbench.utils.sdk.base.PageData;
 import com.jd.dms.workbench.utils.sdk.base.Result;
+import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.PackageState;
 import com.jd.etms.waybill.domain.Waybill;
+import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.PackageStateDto;
+import com.jd.etms.waybill.dto.WChoice;
 import com.jd.jmq.common.exception.JMQException;
+import com.jd.ql.basic.domain.PsStoreInfo;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -105,7 +110,7 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
 
             //2.校验包裹是否举报
             ImmutablePair<Boolean, String> checkResult = checkIsCanReport(reportRequest.getPackageCode());
-            if(checkResult.getLeft()){
+            if(!checkResult.getLeft()){
                 result.toFail("举报失败,该包裹已被举报过");
                 result.setData(false);
                 return result;
@@ -215,16 +220,26 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
 
             Integer lineType = null;
             //1.先找出仓配的始发地
-            Waybill baseEntity = waybillQueryManager.getWaybillByWayCode(waybillCode);
-            if(baseEntity.getDistributeStoreId()!=null && StringUtils.isNotEmpty(baseEntity.getDistributeStoreName())){
-                firstSiteVo = this.packageFirstSiteVo(baseEntity.getDistributeStoreId(),baseEntity.getDistributeStoreName());
-                // 查询仓打包记录，获得被举报人
-                DmsPackRecordPo paramObj = new DmsPackRecordPo();
-                paramObj.setPackageCode(packageCode);
-                paramObj.setPageNumber(1);
-                paramObj.setPageSize(10);
-                Result<PageData<DmsPackRecordVo>> wmsPackRecordResult = wmsPackRecordJsfService.selectPageList(paramObj);
-                if(!wmsPackRecordResult.isSuccess()){
+            WChoice choice = new WChoice();
+            choice.setQueryWaybillC(Boolean.TRUE);
+            choice.setQueryWaybillExtend(Boolean.TRUE);
+            BaseEntity<BigWaybillDto> entity = waybillQueryManager.getDataByChoice(waybillCode, choice);
+            if(entity.getData() == null || entity.getData().getWaybill() == null){
+                result.toFail("查询运单为空");
+                return result;
+            }
+            Waybill waybill = entity.getData().getWaybill();
+            /**先判断仓ID是否为空，不为空则是仓配业务
+             * 若仓ID为空，再判断waybillSign的53位是否为1，1为仓配业务
+             * 其他位纯配业务
+             */
+            if((waybill.getDistributeStoreId() != null
+                && StringUtils.isNotEmpty(waybill.getDistributeStoreName()))
+                || BusinessUtil.isWarehouseAndDistributionBusiness(waybill.getWaybillSign())) {
+
+                // 查询仓打包记录，获得被举报人和被举报场地
+                Result<PageData<DmsPackRecordVo>> wmsPackRecordResult = queryPackRecord(packageCode, 1, 10);
+                if(!wmsPackRecordResult.isSuccess()) {
                     result.toFail("查询仓打包记录失败");
                     return result;
                 }
@@ -233,6 +248,33 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
                     return result;
                 }
                 DmsPackRecordVo dmsPackRecordVo = wmsPackRecordResult.getData().getRecords().get(0);
+
+                Integer siteCode;
+                String siteName;
+                //自营仓配逻辑
+                if(waybill.getDistributeStoreId() != null
+                    && StringUtils.isNotEmpty(waybill.getDistributeStoreName())) {
+                    siteCode = waybill.getDistributeStoreId();
+                    siteName = waybill.getDistributeStoreName();
+                } else{
+                    //外单仓配逻辑
+                    //获取包裹对应的仓类型
+                    if(waybill.getWaybillExt() == null || waybill.getWaybillExt().getStoreType() == null){
+                        result.toFail("查询包裹对应的仓类型为空");
+                        return result;
+                    }
+                    String storeType = waybill.getWaybillExt().getStoreType();
+
+                    //根据 库房类型、配送中心编号、库房编号、系统标识查取被举报场地ID
+                    PsStoreInfo storeInfo = baseMajorManager.getStoreByCky2(storeType, dmsPackRecordVo.getDistributeNo(), dmsPackRecordVo.getWarehouseNo());
+                    if(storeInfo == null){
+                        result.toFail("查询被举报场地ID为空");
+                        return result;
+                    }
+                    siteCode = storeInfo.getDmsSiteId();
+                    siteName = storeInfo.getDmsStoreName();
+                }
+                firstSiteVo = this.packageFirstSiteVo(siteCode, siteName);
                 firstSiteVo.setReportedUserErp(dmsPackRecordVo.getOperateErp());
                 lineType = ExpressBillLineTypeEnum.WAREHOUSE.getCode();
                 firstSiteVo.setLineType(lineType);
@@ -240,6 +282,7 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
                 return result;
             }
 
+            //纯配业务开始
             //2.找揽收完成的--满足纯配营业部、驻场、车队
             List<PackageStateDto> stateList  = waybillTraceManager.getPkStateDtoByWCodeAndState(waybillCode, Constants.WAYBILL_TRACE_STATE_COLLECT_COMPLETE);
             if(CollectionUtils.isNotEmpty(stateList)){
@@ -304,6 +347,14 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
         firstSiteVo.setReportedUserErp(packageState.getOperatorUserErp())
                 .setReportedUserName(packageState.getOperatorUser());
         return firstSiteVo;
+    }
+
+    private Result<PageData<DmsPackRecordVo>> queryPackRecord(String packageCode, Integer pageNumber, Integer pageSize){
+        DmsPackRecordPo paramObj = new DmsPackRecordPo();
+        paramObj.setPackageCode(packageCode);
+        paramObj.setPageNumber(pageNumber);
+        paramObj.setPageSize(pageSize);
+        return wmsPackRecordJsfService.selectPageList(paramObj);
     }
 
     /**
@@ -414,6 +465,7 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
 
     /**
      * 校验包裹是否可以操作上报
+     *  detail：最近一条上报时间在最近一条补打时间之后则提示：'包裹已举报'，反之最近一条上报记录之后操作了补打则可以继续操作上报
      *  hit：
      *      left表示是否可以操作上报
      *      right表示最近一次补打记录
@@ -421,17 +473,27 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
      * @return
      */
     private ImmutablePair<Boolean, String> checkIsCanReport(String packageCode) {
+        // 最近一条上报记录
         ExpressBillExceptionReport report = expressBillExceptionReportDao.selectOneRecent(packageCode);
-        if(report == null){
+        Date lastReportTime = report == null ? null : report.getReportTime() == null ? report.getCreateTime() : report.getReportTime();
+        // 最近一条补打记录
+        PackageState lastReprintRecord = getLastReprintRecord(packageCode);
+        Date rePrintTime = lastReprintRecord == null ? null : lastReprintRecord.getCreateTime();
+        if(lastReportTime == null){
+            return ImmutablePair.of(true, lastReprintRecord == null ? Constants.EMPTY_FILL : JsonHelper.toJson(lastReprintRecord));
+        }
+        if(rePrintTime == null){
             return ImmutablePair.of(false, Constants.EMPTY_FILL);
         }
-        // 最近一条上报时间在最近一条补打时间之后则提示：'包裹已举报'，反之最近一条上报记录之后操作了补打则可以继续操作上报
-        Date reportTime = report.getReportTime() == null ? report.getCreateTime() : report.getReportTime();
+        return ImmutablePair.of(lastReportTime.before(rePrintTime), JsonHelper.toJson(lastReprintRecord));
+    }
+
+    private PackageState getLastReprintRecord(String packageCode) {
         Set<Integer> stateSet = new HashSet<>();
         stateSet.add(Integer.parseInt(Constants.WAYBILL_TRACE_STATE_RE_PRINT));
         List<PackageState> packStateList = waybillTraceManager.getAllOperationsByOpeCodeAndState(packageCode, stateSet);
         if(CollectionUtils.isEmpty(packStateList)){
-            return ImmutablePair.of(true, Constants.EMPTY_FILL);
+            return null;
         }
         // 按操作时间倒叙排序
         Collections.sort(packStateList, new Comparator<PackageState>() {
@@ -443,11 +505,7 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
                 return dto2.getCreateTime().compareTo(dto1.getCreateTime());
             }
         });
-        Date rePrintTime = packStateList.get(0).getCreateTime();
-        if(rePrintTime == null){
-            return ImmutablePair.of(false, Constants.EMPTY_FILL);
-        }
-        return ImmutablePair.of(rePrintTime.before(reportTime), JsonHelper.toJson(packStateList.get(0)));
+        return packStateList.get(0);
     }
 
     @Override

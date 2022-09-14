@@ -100,6 +100,11 @@ public class JyGroupMemberServiceImpl implements JyGroupMemberService {
 		if(StringHelper.isEmpty(addMemberRequest.getPositionCode())) {
 			result.toFail("岗位码不能为空！");
 		}
+		Result<PositionDetailRecord> positionData = positionRecordService.queryOneByPositionCode(addMemberRequest.getPositionCode());
+		if(positionData == null
+				|| positionData.getData() == null) {
+			result.toFail("岗位码无效，联系【作业流程组】小哥维护岗位码");
+			return result;
 		String gridKey =null;
 		if(uccPropertyConfiguration.isJyBasicServerSwitch()){
 			log.info("addMember--获取基础服务数据");

@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.jy.dto.send;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -43,6 +44,16 @@ public class QueryTaskSendDto implements Serializable {
     private String keyword;
 
     private List<String> sendVehicleBizList;
+    /**
+     * 最晚计划发车时间 范围查找-开始时间
+     */
+    private Date lastPlanDepartTimeBegin;
+
+    /**
+     * 最晚计划发车时间 范围查找-结束时间
+     */
+    private Date lastPlanDepartTimeEnd;
+    private Date createTimeBegin;
 
     public Integer getPageNumber() {
         return pageNumber;
@@ -106,5 +117,29 @@ public class QueryTaskSendDto implements Serializable {
 
     public void setKeyword(String keyword) {
         this.keyword = keyword;
+    }
+
+    public Date getLastPlanDepartTimeBegin() {
+        return lastPlanDepartTimeBegin;
+    }
+
+    public void setLastPlanDepartTimeBegin(Date lastPlanDepartTimeBegin) {
+        this.lastPlanDepartTimeBegin = lastPlanDepartTimeBegin;
+    }
+
+    public Date getLastPlanDepartTimeEnd() {
+        return lastPlanDepartTimeEnd;
+    }
+
+    public void setLastPlanDepartTimeEnd(Date lastPlanDepartTimeEnd) {
+        this.lastPlanDepartTimeEnd = lastPlanDepartTimeEnd;
+    }
+
+    public Date getCreateTimeBegin() {
+        return createTimeBegin;
+    }
+
+    public void setCreateTimeBegin(Date createTimeBegin) {
+        this.createTimeBegin = createTimeBegin;
     }
 }

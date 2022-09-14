@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.api.request;
 
 import com.jd.bluedragon.distribution.api.JdRequest;
 import com.jd.bluedragon.distribution.api.domain.WeightOperFlow;
+import com.jd.bluedragon.distribution.print.domain.SurfaceOutputTypeEnum;
 
 import java.util.Date;
 
@@ -50,6 +51,14 @@ public class WaybillPrintRequest extends JdRequest{
 	 * 目的站点-默认值为0-以预分拣站点为准，非0则为重新调度站点
 	 */
 	private Integer targetSiteCode = 0;
+
+	/**
+	 * 面单输出方式
+	 * @see SurfaceOutputTypeEnum
+	 * 	0、打印
+	 * 	1、预览
+	 */
+	private Integer outputType = 0;
 	/**
 	 * 无纸化标识
 	 */
@@ -464,5 +473,13 @@ public class WaybillPrintRequest extends JdRequest{
 
 	public void setRequestTime(Date requestTime) {
 		this.requestTime = requestTime;
+	}
+
+	public Integer getOutputType() {
+		return outputType;
+	}
+
+	public void setOutputType(Integer outputType) {
+		this.outputType = outputType;
 	}
 }

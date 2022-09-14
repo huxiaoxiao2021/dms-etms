@@ -4,6 +4,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.tms.jdi.dto.*;
 import com.jd.tms.jdi.ws.JdiQueryWS;
 import com.jd.tms.jdi.ws.JdiTransWorkWS;
@@ -19,6 +20,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -133,5 +135,48 @@ public class JdiQueryWSManagerImpl implements JdiQueryWSManager {
             return null;
         }
         return transWorkDto.getTransWorkBillDto();
+    }
+
+    @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JdiQueryWSManager.queryTransWorkAndAllItem", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public BigTransWorkDto queryTransWorkAndAllItem(String transWorkCode) {
+        BigQueryOption option = new BigQueryOption();
+        option.setQueryTransWorkBillDto(true);
+        option.setQueryTransWorkItemDtoList(true);
+        BigTransWorkDto transWorkDto = queryTransWorkByChoice(transWorkCode, option);
+        if (transWorkDto == null || transWorkDto.getTransWorkBillDto() == null) {
+            Profiler.businessAlarm("dms.web.JdiQueryWSManager.queryTransWork", "查询运输派车单数据为空:" + transWorkCode);
+            logger.warn("根据派车单号查询派车单返回数据为空. {}", transWorkCode);
+            return null;
+        }
+        return transWorkDto;
+    }
+
+    @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JdiQueryWSManager.listTranWorkCodesByVehicleFuzzy", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public List<String> listTranWorkCodesByVehicleFuzzy(TransWorkFuzzyQueryParam param) {
+        if (logger.isInfoEnabled()){
+            logger.info("invoke queryTransWorkByVehicleFuzzy req：{}",JsonHelper.toJson(param));
+        }
+        CommonDto<List<TransWorkBillDto>> rs = null;
+        try {
+            rs = jdiTransWorkWS.queryTransWorkByVehicleFuzzy(param);
+            if (logger.isInfoEnabled()){
+                logger.info(param.getBeginNodeCode()+"|"+param.getVehicleNumber()+" invoke queryTransWorkByVehicleFuzzy resp：{}",JsonHelper.toJson(rs));
+            }
+        } catch (Exception e) {
+            logger.error("jy 根据车牌号后四位模糊检索派车单异常",e);
+        }
+        if (ObjectHelper.isNotNull(rs) && Constants.RESULT_SUCCESS ==rs.getCode()){
+            List<TransWorkBillDto> transWorkBillDtoList =rs.getData();
+            if (ObjectHelper.isNotNull(rs.getData()) && rs.getData().size()>0){
+                List<String> transWorkCodeList =new ArrayList<>();
+                for (TransWorkBillDto transWorkBillDto:transWorkBillDtoList){
+                    transWorkCodeList.add(transWorkBillDto.getTransWorkCode());
+                }
+                return transWorkCodeList;
+            }
+        }
+        return null;
     }
 }

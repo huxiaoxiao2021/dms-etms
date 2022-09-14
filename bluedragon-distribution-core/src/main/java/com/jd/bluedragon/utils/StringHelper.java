@@ -195,6 +195,8 @@ public class StringHelper {
         switch (length) {
             case 11:
                 return String.format("%011d", number);
+            case 10:
+                return String.format("%010d", number);
             case 2:
                 return String.format("%02d", number);
             default:

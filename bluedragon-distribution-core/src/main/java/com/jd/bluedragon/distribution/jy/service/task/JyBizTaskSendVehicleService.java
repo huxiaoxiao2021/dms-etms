@@ -67,11 +67,11 @@ public interface JyBizTaskSendVehicleService {
     Integer countByCondition(JyBizTaskSendVehicleEntity entity, List<String> sendVehicleBizList, List<Integer> statuses);
 
     /**
-     * 更细最晚发车时间
+     * 更新最晚发车时间 和 线路信息
      * @param entity
      * @return
      */
-    int updateLastPlanDepartTime(JyBizTaskSendVehicleEntity entity);
+    int updateLastPlanDepartTimeAndLineType(JyBizTaskSendVehicleEntity entity);
 
     /**
      * 更新最晚封车时间
@@ -88,6 +88,14 @@ public interface JyBizTaskSendVehicleService {
      */
     int updateStatus(JyBizTaskSendVehicleEntity entity, Integer oldStatus);
 
+    /**
+     * 不按顺序更新发货状态
+     * @param entity
+     * @param oldStatus
+     * @return
+     */
+    int updateStatusWithoutCompare(JyBizTaskSendVehicleEntity entity, Integer oldStatus);
+
     int updateBizTaskSendStatus(JyBizTaskSendVehicleEntity entity);
 
     /**
@@ -102,4 +110,7 @@ public interface JyBizTaskSendVehicleService {
 
 
     Integer countSendTaskByDest(JyBizTaskSendVehicleDetailEntity entity);
+
+
+    List<JyBizTaskSendVehicleEntity> findSendTaskByTransWorkCode(List<String> transWorkCodeList,Long startSiteId);
 }

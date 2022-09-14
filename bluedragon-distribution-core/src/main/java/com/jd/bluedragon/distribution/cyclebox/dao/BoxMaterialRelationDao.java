@@ -58,9 +58,20 @@ public class BoxMaterialRelationDao  extends BaseDao<BoxMaterialRelation> {
     public BoxMaterialRelation getDataByMaterialCode(String materialCode) {
         return this.getSqlSession().selectOne(NAMESPACE + ".getDataByMaterialCode", materialCode);
     }
-
+    /**
+     * 除了当前箱号，其他和此集包袋的绑定关系都解绑
+     */
     public int updateUnBindByMaterialCode(BoxMaterialRelation boxMaterialRelation){
         return this.getSqlSession().update(NAMESPACE + ".updateUnBindByMaterialCode", boxMaterialRelation);
 
     }
+    /**
+     * 解绑此箱号和集包袋绑定关系
+     * **/
+    public int updateUnBindByMaterialCodeAndBoxCode(BoxMaterialRelation boxMaterialRelation){
+        return this.getSqlSession().update(NAMESPACE + ".updateUnBindByMaterialCodeAndBoxCode", boxMaterialRelation);
+
+    }
+
+
 }

@@ -98,9 +98,9 @@ public class JyBizTaskSendVehicleServiceImpl implements JyBizTaskSendVehicleServ
     }
 
     @Override
-    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyBizTaskSendVehicleService.updateLastPlanDepartTime",
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyBizTaskSendVehicleService.updateLastPlanDepartTimeAndLineType",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
-    public int updateLastPlanDepartTime(JyBizTaskSendVehicleEntity entity) {
+    public int updateLastPlanDepartTimeAndLineType(JyBizTaskSendVehicleEntity entity) {
         return jyBizTaskSendVehicleDao.updateByBizId(entity);
     }
 
@@ -116,6 +116,13 @@ public class JyBizTaskSendVehicleServiceImpl implements JyBizTaskSendVehicleServ
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public int updateStatus(JyBizTaskSendVehicleEntity entity, Integer oldStatus) {
         return jyBizTaskSendVehicleDao.updateStatus(entity, oldStatus);
+    }
+
+    @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyBizTaskSendVehicleService.updateStatusWithoutCompare",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
+    public int updateStatusWithoutCompare(JyBizTaskSendVehicleEntity entity, Integer oldStatus) {
+        return jyBizTaskSendVehicleDao.updateStatusWithoutCompare(entity, oldStatus);
     }
 
     @Override
@@ -143,5 +150,10 @@ public class JyBizTaskSendVehicleServiceImpl implements JyBizTaskSendVehicleServ
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public Integer countSendTaskByDest(JyBizTaskSendVehicleDetailEntity entity) {
         return jyBizTaskSendVehicleDao.countSendTaskByDest(entity);
+    }
+
+    @Override
+    public List<JyBizTaskSendVehicleEntity> findSendTaskByTransWorkCode(List<String> transWorkCodeList,Long startSiteId) {
+        return jyBizTaskSendVehicleDao.findSendTaskByTransWorkCode(transWorkCodeList,startSiteId);
     }
 }

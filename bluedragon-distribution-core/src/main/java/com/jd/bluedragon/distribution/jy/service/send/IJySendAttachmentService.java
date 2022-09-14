@@ -18,6 +18,15 @@ public interface IJySendAttachmentService {
     Boolean sendVehicleTakePhoto(JySendAttachmentEntity entity);
 
     /**
+     * 发货任务是否选择车辆状态
+     * @param entity 请求参数
+     * @return true：已选择车辆状态
+     * @author fanggang7
+     * @time 2022-08-02 19:42:44 周二
+     */
+    Boolean sendVehicleHasSelectStatus(JySendAttachmentEntity entity);
+
+    /**
      * 记录拍照
      * @param entity
      * @return

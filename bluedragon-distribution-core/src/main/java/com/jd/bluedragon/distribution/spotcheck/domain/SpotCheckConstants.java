@@ -81,7 +81,7 @@ public class SpotCheckConstants {
 
     public static final String SPOT_CHECK_ONLY_SUPPORT_PURE_MATCH = "非纯配外单不计入抽检!";
 
-    public static final String SPOT_CHECK_BC = "非B非C订单，禁止操作!";
+    public static final String SPOT_CHECK_FORBID = "未知业务类型不支持，禁止操作!";
 
     public static final String SPOT_CHECK_ONLY_SUPPORT_B = "此功能只支持B网运单抽检!";
 
