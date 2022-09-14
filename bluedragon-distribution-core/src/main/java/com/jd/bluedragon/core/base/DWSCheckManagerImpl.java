@@ -1,8 +1,10 @@
 package com.jd.bluedragon.core.base;
 
 import com.jd.bd.dms.automatic.sdk.common.dto.BaseDmsAutoJsfResponse;
+import com.jd.bd.dms.automatic.sdk.common.utils.DateHelper;
 import com.jd.bd.dms.automatic.sdk.modules.dwsCheck.DWSCheckJsfService;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.slf4j.Logger;
@@ -24,6 +26,8 @@ import java.util.Objects;
 public class DWSCheckManagerImpl implements DWSCheckManager {
 
     private static final Logger logger = LoggerFactory.getLogger(DWSCheckManagerImpl.class);
+    //dws设备状态正常
+    private static final int DWS_STATUS_NORMAL = 0;
 
     @Qualifier("dmsCheckJsfService")
     @Autowired
@@ -41,8 +45,12 @@ public class DWSCheckManagerImpl implements DWSCheckManager {
                 Constants.UMP_APP_NAME_DMSWEB,false,true);
         boolean isAccurate = true;
         try {
+            // data = 0 正常 1-尺寸异常、2-重量异常、3-尺寸与重量异常
             BaseDmsAutoJsfResponse<Integer> response = dmsCheckJsfService.getLatestMachineStatus(machineCode, weightTime);
-            if(response != null && Objects.equals(response.getStatusCode(), Constants.NUMBER_ZERO)){
+            logger.info("根据设备编码:{},称重时间:{}判断是否设备称重状态返回:{}", machineCode, DateHelper.formatDateTime(weightTime),
+                    JsonHelper.toJson(response));
+            if(response != null && Objects.equals(response.getStatusCode(), BaseDmsAutoJsfResponse.SUCCESS_CODE)
+                    && !Objects.equals(response.getData(), DWS_STATUS_NORMAL)){
                 isAccurate = false;
             }
         }catch (Exception e){
