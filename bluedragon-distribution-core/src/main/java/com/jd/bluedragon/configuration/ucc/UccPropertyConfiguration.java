@@ -807,6 +807,11 @@ public class UccPropertyConfiguration {
      */
     private String packageWeightLimit;
 
+    /**
+     * 运单重量上限值，单位kg
+     */
+    private String waybillWeightLimit;
+
     public String getScheduleSiteCheckSameCity() {
         return scheduleSiteCheckSameCity;
     }
@@ -1987,5 +1992,13 @@ public class UccPropertyConfiguration {
 
     public void setPackageWeightLimit(String packageWeightLimit) {
         this.packageWeightLimit = packageWeightLimit;
+    }
+
+    public String getWaybillWeightLimit() {
+        return waybillWeightLimit;
+    }
+
+    public void setWaybillWeightLimit(String waybillWeightLimit) {
+        this.waybillWeightLimit = waybillWeightLimit;
     }
 }

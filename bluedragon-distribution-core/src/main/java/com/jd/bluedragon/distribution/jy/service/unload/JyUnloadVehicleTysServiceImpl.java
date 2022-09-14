@@ -529,6 +529,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         jyUnloadVehicleCheckTysService.checkPackageOverWeight(packageD, waybill, scanPackageRespDto);
         // 包裹是否组板成功
         jyUnloadVehicleCheckTysService.packageIsComBoard(barCode, boardCode);
+        // 是否强制组板
         if (!scanPackageDto.getIsForceCombination()) {
             // 包裹是否扫描成功
             jyUnloadVehicleCheckTysService.packageIsScan(bizId, barCode);
@@ -541,6 +542,12 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             jyUnloadVehicleCheckTysService.assembleReturnData(scanPackageDto, scanPackageRespDto, unloadVehicleEntity, unloadScanDto);
             // 无任务设置上游站点
             jyUnloadVehicleCheckTysService.setStartSiteForJyUnloadVehicle(scanPackageDto, scanPackageRespDto, unloadVehicleEntity);
+            // 货区校验
+            String checkResult = jyUnloadVehicleCheckTysService.checkGoodsArea(scanPackageDto);
+            if (StringUtils.isNotBlank(checkResult)) {
+                invokeResult.customMessage(InvokeResult.CODE_HINT, checkResult);
+                return invokeResult;
+            }
             // B网快运发货规则校验
             String interceptResult = jyUnloadVehicleCheckTysService.interceptValidateUnloadCar(waybill, packageD, scanPackageRespDto, barCode);
             if (StringUtils.isNotBlank(interceptResult)) {
@@ -560,6 +567,8 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             }
             // 人工卸车模式组板校验
             if (UnloadCarTypeEnum.MANUAL_TYPE.getCode().equals(scanPackageDto.getWorkType())) {
+                // 运单超重校验
+                jyUnloadVehicleCheckTysService.checkWaybillOverWeight(waybill);
                 // 路由校验、生成板号
                 boolean routerCheckResult = jyUnloadVehicleCheckTysService.routerCheck(scanPackageRespDto, scanPackageDto);
                 if (!routerCheckResult) {
@@ -658,7 +667,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
 
     private void checkScan(ScanPackageDto scanPackageDto, JyBizTaskUnloadVehicleEntity unloadVehicleEntity) {
         if (BusinessUtil.isBoxcode(scanPackageDto.getScanCode())) {
-            return;
+            throw new JyBizException("暂不支持箱号！");
         }
         String scanCode = scanPackageDto.getScanCode();
         if (WaybillUtil.isPackageCode(scanCode)) {
@@ -674,13 +683,6 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             scanPackageDto.setPrevSiteCode(unloadVehicleEntity.getStartSiteId().intValue());
             scanPackageDto.setPrevSiteName(unloadVehicleEntity.getStartSiteName());
         }
-        String goodsAreaCode = getGoodsAreaCode(scanPackageDto.getCurrentOperate().getSiteCode(), nextSiteCode);
-        if (ObjectHelper.isNotNull(scanPackageDto.getGoodsAreaCode()) && ObjectHelper.isNotNull(goodsAreaCode)) {
-            if (!goodsAreaCode.equals(scanPackageDto.getGoodsAreaCode())) {
-                throw new JyBizException("扫描包裹非本货区，请移除本区！");
-            }
-        }
-        scanPackageDto.setGoodsAreaCode(goodsAreaCode);
         if (JyBizTaskUnloadStatusEnum.UN_LOAD_DONE.getCode().equals(unloadVehicleEntity.getVehicleStatus())) {
             scanPackageDto.setTaskFinish(Boolean.TRUE);
         }

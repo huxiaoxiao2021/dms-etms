@@ -25,6 +25,7 @@ import com.jd.bluedragon.distribution.jy.dto.unload.UnloadScanDto;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskStageStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskStageTypeEnum;
 import com.jd.bluedragon.distribution.jy.enums.ScanTypeEnum;
+import com.jd.bluedragon.distribution.jy.manager.IJyUnloadVehicleManager;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskUnloadVehicleService;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
 import com.jd.bluedragon.distribution.jy.unload.JyBizTaskUnloadVehicleStageEntity;
@@ -126,6 +127,9 @@ public class JyUnloadVehicleCheckTysService {
     protected BaseMajorManager baseMajorManager;
 
     @Autowired
+    private IJyUnloadVehicleManager jyUnloadVehicleManager;
+
+    @Autowired
     @Qualifier("jyUnloadScanProducer")
     private DefaultJMQProducer unloadScanProducer;
 
@@ -190,6 +194,19 @@ public class JyUnloadVehicleCheckTysService {
             log.info("包裹超重:packageCode={},weight={},limit={}", packageD.getPackageBarcode(), packageWeight.toPlainString(), packageWeightLimit);
             Map<String, String> warnMsg = response.getWarnMsg();
             warnMsg.put(UnloadCarWarnEnum.PACKAGE_OVER_WEIGHT_MESSAGE.getLevel(), String.format(UnloadCarWarnEnum.PACKAGE_OVER_WEIGHT_MESSAGE.getDesc(), packageWeight.toPlainString()));
+        }
+    }
+
+    public void checkWaybillOverWeight(Waybill waybill) {
+        String waybillWeightLimit = uccPropertyConfiguration.getWaybillWeightLimit();
+        if (waybill.getAgainWeight() != null && waybill.getAgainWeight() > 0) {
+            if (waybill.getAgainWeight() > Double.parseDouble(waybillWeightLimit)) {
+                throw new UnloadPackageBoardException("运单重量大于" + waybillWeightLimit + "KG，请重新称重量方，谢谢。是否强制继续组板？");
+            }
+        } else if (waybill.getGoodWeight() != null && waybill.getGoodWeight() > 0) {
+            if (waybill.getGoodWeight() > Double.parseDouble(waybillWeightLimit)) {
+                throw new UnloadPackageBoardException("运单重量大于" + waybillWeightLimit + "KG，请重新称重量方，谢谢。是否强制继续组板？");
+            }
         }
     }
 
@@ -534,6 +551,12 @@ public class JyUnloadVehicleCheckTysService {
         boardCommonRequest.setOperateSiteName(request.getCurrentOperate().getSiteName());
         boardCommonRequest.setReceiveSiteCode(request.getNextSiteCode());
         boardCommonRequest.setReceiveSiteName(request.getNextSiteName());
+        if (request.getNextSiteCode() == null) {
+            boardCommonRequest.setReceiveSiteCode(request.getReceiveSiteCode());
+        }
+        if (request.getNextSiteCode() == null) {
+            boardCommonRequest.setReceiveSiteCode(request.getReceiveSiteCode());
+        }
         boardCommonRequest.setOperateUserErp(request.getUser().getUserErp());
         boardCommonRequest.setOperateUserName(request.getUser().getUserName());
         boardCommonRequest.setOperateUserCode(request.getUser().getUserCode());
@@ -844,6 +867,22 @@ public class JyUnloadVehicleCheckTysService {
                 }
             }
         }
+    }
+
+    public String checkGoodsArea(ScanPackageDto request) {
+        int currentSiteCode = request.getCurrentOperate().getSiteCode();
+        Integer nextSiteCode = request.getNextSiteCode();
+        String goodsAreaCode = jyUnloadVehicleManager.getGoodsAreaCode(currentSiteCode, nextSiteCode);
+        if (StringUtils.isBlank(goodsAreaCode)) {
+            return null;
+        }
+        request.setGoodsAreaCode(goodsAreaCode);
+        if (StringUtils.isNotBlank(request.getGoodsAreaCode())) {
+            if (!goodsAreaCode.equals(request.getGoodsAreaCode())) {
+                return "扫描包裹非本货区，请移除本区！";
+            }
+        }
+        return null;
     }
 
     public void updateJyUnloadVehicleStartSite(ScanPackageDto request, ScanPackageRespDto response,

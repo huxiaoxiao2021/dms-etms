@@ -95,6 +95,17 @@ public class ScanPackageDto extends UnloadBaseDto implements Serializable {
 
     private boolean taskFinish;
 
+    /**
+     * 调用方传过来的下游场地编码
+     * */
+    private Integer receiveSiteCode;
+
+    /**
+     * 调用方传过来的下游场地名称
+     * */
+    private String receiveSiteName;
+
+
     public String getBizId() {
         return bizId;
     }
@@ -262,4 +273,21 @@ public class ScanPackageDto extends UnloadBaseDto implements Serializable {
     public void setTaskFinish(boolean taskFinish) {
         this.taskFinish = taskFinish;
     }
+
+    public Integer getReceiveSiteCode() {
+        return receiveSiteCode;
+    }
+
+    public void setReceiveSiteCode(Integer receiveSiteCode) {
+        this.receiveSiteCode = receiveSiteCode;
+    }
+
+    public String getReceiveSiteName() {
+        return receiveSiteName;
+    }
+
+    public void setReceiveSiteName(String receiveSiteName) {
+        this.receiveSiteName = receiveSiteName;
+    }
+
 }
