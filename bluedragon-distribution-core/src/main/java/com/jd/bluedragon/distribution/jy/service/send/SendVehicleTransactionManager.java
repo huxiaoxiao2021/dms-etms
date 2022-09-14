@@ -32,6 +32,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import java.util.*;
 
@@ -348,13 +349,17 @@ public class SendVehicleTransactionManager {
      */
     private Integer getTaskSendMinStatus(JyBizTaskSendVehicleDetailEntity sendDetail) {
         List<JyBizTaskSendCountDto> sendCountDtos = taskSendVehicleDetailService.sumByVehicleStatus(new JyBizTaskSendVehicleDetailEntity(sendDetail.getStartSiteId(), sendDetail.getSendVehicleBizId()));
-        Collections.sort(sendCountDtos, new Comparator<JyBizTaskSendCountDto>() {
-            @Override
-            public int compare(JyBizTaskSendCountDto o1, JyBizTaskSendCountDto o2) {
-                return o1.getVehicleStatus().compareTo(o2.getVehicleStatus());
-            }
-        });
+        if(!CollectionUtils.isEmpty(sendCountDtos)){
+            Collections.sort(sendCountDtos, new Comparator<JyBizTaskSendCountDto>() {
+                @Override
+                public int compare(JyBizTaskSendCountDto o1, JyBizTaskSendCountDto o2) {
+                    return o1.getVehicleStatus().compareTo(o2.getVehicleStatus());
+                }
+            });
 
-        return sendCountDtos.get(0).getVehicleStatus();
+            return sendCountDtos.get(0).getVehicleStatus();
+        }
+        return JyBizTaskSendStatusEnum.CANCEL.getCode();
+
     }
 }

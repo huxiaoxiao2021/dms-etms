@@ -62,17 +62,17 @@ public class CPackingConsumableConsumer extends MessageBaseConsumer {
         }
 
         if (StringUtils.isBlank(packingConsumableDto.getWaybillCode())) {
-            log.error("消费快递侧揽收后消息，运单号为空，{}", message.getText());
+            log.warn("消费快递侧揽收后消息，运单号为空，{}", message.getText());
             return;
         }
 
         if (!WaybillUtil.isWaybillCode(packingConsumableDto.getWaybillCode())) {
-            log.error("消费快递侧揽收后消息，运单号不符合单号规则，消息丢弃，{}", message.getText());
+            log.warn("消费快递侧揽收后消息，运单号不符合单号规则，消息丢弃，{}", message.getText());
             return;
         }
 
         if (packingConsumableDto.getDmsCode() == null) {
-            log.error("消费快递侧揽收后消息，分拣中心编号为空，{}", message.getText());
+            log.warn("消费快递侧揽收后消息，分拣中心编号为空，{}", message.getText());
             return;
         }
 
