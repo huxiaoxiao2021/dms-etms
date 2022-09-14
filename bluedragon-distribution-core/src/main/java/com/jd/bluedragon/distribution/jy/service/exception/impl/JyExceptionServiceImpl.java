@@ -35,6 +35,9 @@ import com.jd.ps.data.epf.dto.ExpefNotify;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jdl.basic.api.domain.position.PositionDetailRecord;
 import com.jdl.basic.common.utils.Result;
+import com.jdl.jy.realtime.api.unload.IUnloadVehicleJsfService;
+import com.jdl.jy.realtime.base.ServiceResult;
+import com.jdl.jy.realtime.model.es.unload.JyVehicleTaskUnloadDetail;
 import com.jdl.jy.schedule.dto.task.JyScheduleTaskChangeStatusReq;
 import com.jdl.jy.schedule.dto.task.JyScheduleTaskReq;
 import com.jdl.jy.schedule.enums.task.JyScheduleTaskStatusEnum;
@@ -78,8 +81,6 @@ public class JyExceptionServiceImpl implements JyExceptionService {
     @Autowired
     private BaseMajorManager baseMajorManager;
     @Autowired
-    private WaybillCacheService waybillCacheService;
-    @Autowired
     private SendDetailService sendDetailService;
     @Autowired
     @Qualifier("redisClientCache")
@@ -97,6 +98,9 @@ public class JyExceptionServiceImpl implements JyExceptionService {
     @Autowired
     @Qualifier("scheduleTaskAddProducer")
     private DefaultJMQProducer scheduleTaskAddProducer;
+    @Autowired
+    @Qualifier("jyUnloadVehicleJsfService")
+    private IUnloadVehicleJsfService unloadVehicleJsfService;
 
     /**
      * 通用异常上报入口-扫描
@@ -941,10 +945,17 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             if (!WaybillUtil.isPackageCode(packageCode)) {
                 continue;
             }
-            // 查询上游场地
-
+            // 查询上游 发货批次
+            JyVehicleTaskUnloadDetail query = new JyVehicleTaskUnloadDetail();
+            query.setPackageCode(packageCode);
+            ServiceResult<List<JyVehicleTaskUnloadDetail>> unloadDetail = unloadVehicleJsfService.findSealCarCode(query);
+            if (unloadDetail != null && CollectionUtils.isNotEmpty(unloadDetail.getData())) {
+                // 测试环境无数据，uat环境新增 sendCode 字段
+                String sendCode = unloadDetail.getData().get(0).getBizId();
+                sendCodeList.add(sendCode);
+            }
         }
-        return null;
+        return sendCodeList;
     }
 
     /**
