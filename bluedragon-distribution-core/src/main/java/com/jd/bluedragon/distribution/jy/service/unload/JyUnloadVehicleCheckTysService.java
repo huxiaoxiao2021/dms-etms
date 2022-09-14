@@ -241,7 +241,13 @@ public class JyUnloadVehicleCheckTysService {
     /**
      * 判断包裹是否扫描成功
      */
-    public void packageIsScan(String bizId, String barCode) throws LoadIllegalException {
+    public void packageIsScan(ScanPackageDto request) throws LoadIllegalException {
+        if (request.getIsForceCombination()) {
+            return;
+        }
+        String bizId = request.getBizId();
+        String barCode = request.getScanCode();
+        String boardCode = request.getBoardCode();
         // 拦截的包裹不能重复扫描
         String isExistIntercept = null;
         try {
@@ -254,6 +260,7 @@ public class JyUnloadVehicleCheckTysService {
         if (StringUtils.isNotBlank(isExistIntercept)) {
             throw new LoadIllegalException(LoadIllegalException.BORCODE_SEALCAR_INTERCEPT_EXIST_MESSAGE);
         }
+        packageIsComBoard(barCode, boardCode);
     }
 
     /**

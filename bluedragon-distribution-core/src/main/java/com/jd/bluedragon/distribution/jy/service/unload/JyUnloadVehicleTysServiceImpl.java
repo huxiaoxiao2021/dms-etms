@@ -506,7 +506,6 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         String barCode = scanPackageDto.getScanCode();
         String bizId = scanPackageDto.getBizId();
         Integer operateSiteCode = scanPackageDto.getCurrentOperate().getSiteCode();
-        String boardCode = scanPackageDto.getBoardCode();
         ScanPackageRespDto scanPackageRespDto = invokeResult.getData();
         DeliveryPackageD packageD = waybillPackageManager.getPackageInfoByPackageCode(barCode);
         if (packageD == null) {
@@ -527,12 +526,10 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         }
         // 包裹超重校验
         jyUnloadVehicleCheckTysService.checkPackageOverWeight(packageD, waybill, scanPackageRespDto);
-        // 包裹是否组板成功
-        jyUnloadVehicleCheckTysService.packageIsComBoard(barCode, boardCode);
+        // 包裹是否扫描成功以及是否组板成功
+        jyUnloadVehicleCheckTysService.packageIsScan(scanPackageDto);
         // 是否强制组板
         if (!scanPackageDto.getIsForceCombination()) {
-            // 包裹是否扫描成功
-            jyUnloadVehicleCheckTysService.packageIsScan(bizId, barCode);
             UnloadScanDto unloadScanDto = createUnloadDto(scanPackageDto, unloadVehicleEntity);
             // 验货校验
             jyUnloadVehicleCheckTysService.inspectionIntercept(barCode, waybill, unloadScanDto);
