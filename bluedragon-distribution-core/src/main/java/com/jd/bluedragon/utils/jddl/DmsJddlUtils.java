@@ -43,7 +43,10 @@ public class DmsJddlUtils {
     }
 
     public static void main(String[] args) {
-        System.out.println(DmsJddlUtils.getDbPartitionIndex(1022));
+        Integer a =1087;
+
+        System.out.println(DmsJddlUtils.getDbInstanceIndex(a.longValue()));
+        System.out.println(DmsJddlUtils.getDbPartitionIndex(a.longValue()));
 
     }
 }

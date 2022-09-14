@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.jy.dto.send;
 
 import com.jd.bluedragon.distribution.jy.dto.JyReqBaseDto;
+import com.jd.bluedragon.distribution.jy.enums.ExcepScanTypeEnum;
 
 import java.io.Serializable;
 
@@ -24,6 +25,7 @@ public class SendAbnormalPackReq extends JyReqBaseDto implements Serializable {
      */
     private String sendVehicleBizId;
 
+    private ExcepScanTypeEnum excepScanTypeEnum;
 
     /**
      * 运单号
@@ -74,5 +76,13 @@ public class SendAbnormalPackReq extends JyReqBaseDto implements Serializable {
 
     public void setWaybillCode(String waybillCode) {
         this.waybillCode = waybillCode;
+    }
+
+    public ExcepScanTypeEnum getExcepScanTypeEnum() {
+        return excepScanTypeEnum;
+    }
+
+    public void setExcepScanTypeEnum(ExcepScanTypeEnum excepScanTypeEnum) {
+        this.excepScanTypeEnum = excepScanTypeEnum;
     }
 }

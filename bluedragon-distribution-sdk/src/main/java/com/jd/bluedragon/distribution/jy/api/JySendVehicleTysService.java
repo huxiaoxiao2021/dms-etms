@@ -96,39 +96,12 @@ public interface JySendVehicleTysService {
     InvokeResult<SendAbnormalResp> checkSendVehicleNormalStatus(SendAbnormalReq request);
 
     /**
-     * 发货拦截包裹明细 （以运单维度展示）
+     * 异常扫描展示 （运单、包裹）
      * @param request
      * @return
      */
-    InvokeResult<SendAbnormalBarCode> interceptedBarCodeDetail(SendAbnormalPackReq request);
+    InvokeResult<SendAbnormalBarCode> excepScanBarCodeDetail(SendAbnormalPackReq request);
 
-    /**
-     * 强制发货包裹明细  （以运单维度展示）
-     * @param request
-     * @return
-     */
-    InvokeResult<SendAbnormalBarCode> forceSendBarCodeDetail(SendAbnormalPackReq request);
-
-    /**
-     * 发货异常包裹明细  （以运单维度展示）
-     * @param request
-     * @return
-     */
-    InvokeResult<SendAbnormalBarCode> abnormalSendBarCodeDetail(SendAbnormalPackReq request);
-
-    /**
-     * 不齐运单发货包裹明细  （以运单维度展示）
-     * @param request
-     * @return
-     */
-    InvokeResult<SendAbnormalBarCode> incompleteSendBarCodeDetail(SendAbnormalPackReq request);
-
-    /**
-     * 已到未扫发货包裹明细  （以运单维度展示）
-     * @param request
-     * @return
-     */
-    InvokeResult<SendAbnormalBarCode> toScanSendBarCodeDetail(SendAbnormalPackReq request);
 
     /**
      * 选择封车流向

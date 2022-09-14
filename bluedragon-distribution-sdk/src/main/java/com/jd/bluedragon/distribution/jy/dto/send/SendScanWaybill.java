@@ -24,7 +24,7 @@ public class SendScanWaybill implements Serializable {
     private Long allPackCount;
 
     /**
-     * 已扫发货包裹数量
+     * 异常类型对应扫描包裹数量
      */
     private Long scanPackCount;
 

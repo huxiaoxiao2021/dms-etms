@@ -107,7 +107,7 @@ import static com.jd.bluedragon.distribution.base.domain.InvokeResult.*;
  * @Author wyh
  * @Date 2022/5/29 14:31
  **/
-@Service
+@Service("jySendVehicleService")
 public class JySendVehicleServiceImpl implements IJySendVehicleService{
 
     private static final Logger log = LoggerFactory.getLogger(JySendVehicleServiceImpl.class);
@@ -1199,7 +1199,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
                 sendResult = deliveryService.packageSend(SendBizSourceEnum.JY_APP_SEND, sendM, oldForceSend, cancelLastSend);
                 break;
             case BY_BOARD:
-                // TODO 支持扫描板号
+                sendResult = deliveryService.boardSend(sendM, oldForceSend);
                 break;
         }
 
