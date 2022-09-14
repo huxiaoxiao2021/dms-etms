@@ -875,7 +875,7 @@ public class JyUnloadVehicleCheckTysService {
         }
     }
 
-    public String checkGoodsArea(ScanPackageDto request) {
+    public String checkGoodsArea(ScanPackageDto request, ScanPackageRespDto response) {
         int currentSiteCode = request.getCurrentOperate().getSiteCode();
         Integer nextSiteCode = request.getNextSiteCode();
         String goodsAreaCode = jyUnloadVehicleManager.getGoodsAreaCode(currentSiteCode, nextSiteCode);
@@ -888,6 +888,7 @@ public class JyUnloadVehicleCheckTysService {
                 return "扫描包裹非本货区，请移除本区！";
             }
         }
+        response.setGoodsAreaCode(goodsAreaCode);
         return null;
     }
 

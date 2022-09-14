@@ -540,7 +540,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             // 无任务设置上游站点
             jyUnloadVehicleCheckTysService.setStartSiteForJyUnloadVehicle(scanPackageDto, scanPackageRespDto, unloadVehicleEntity);
             // 货区校验
-            String checkResult = jyUnloadVehicleCheckTysService.checkGoodsArea(scanPackageDto);
+            String checkResult = jyUnloadVehicleCheckTysService.checkGoodsArea(scanPackageDto, scanPackageRespDto);
             if (StringUtils.isNotBlank(checkResult)) {
                 invokeResult.customMessage(InvokeResult.CODE_HINT, checkResult);
                 return invokeResult;
@@ -644,6 +644,12 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         jyUnloadVehicleCheckTysService.waybillInspectSuccessAfter(bizId, waybillCode);
         // 无任务设置上游站点
         jyUnloadVehicleCheckTysService.setStartSiteForJyUnloadVehicle(scanPackageDto, scanPackageRespDto, unloadVehicleEntity);
+        // 货区校验
+        String checkResult = jyUnloadVehicleCheckTysService.checkGoodsArea(scanPackageDto, scanPackageRespDto);
+        if (StringUtils.isNotBlank(checkResult)) {
+            invokeResult.customMessage(InvokeResult.CODE_HINT, checkResult);
+            return invokeResult;
+        }
         // 专网校验
         boolean privateNetworkFlag = jyUnloadVehicleCheckTysService.privateNetworkCheck(waybill, scanPackageRespDto);
         if (privateNetworkFlag) {
