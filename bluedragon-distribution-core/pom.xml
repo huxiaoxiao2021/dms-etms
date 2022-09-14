@@ -1873,7 +1873,7 @@
 		<dependency>
 			<groupId>com.jdl.jy.schedule</groupId>
 			<artifactId>jy-schedule-service-sdk</artifactId>
-			<version>1.0.0-SNAPSHOT</version>
+			<version>1.0.0-uat-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
