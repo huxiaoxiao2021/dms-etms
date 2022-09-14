@@ -387,7 +387,7 @@ public class SendVehicleTransactionManager {
 			
 			sendDetail.setBizId(jySendCode.getSendVehicleBizId());
 			sendDetail.setSendVehicleBizId(jySendCode.getSendDetailBizId());
-			sendDetail.setVehicleStatus(JyBizTaskSendDetailStatusEnum.TO_SEAL.getCode());
+			sendDetail.setVehicleStatus(JyBizTaskSendDetailStatusEnum.SEALED.getCode());
 			Integer[] siteCodes = BusinessUtil.getSiteCodeBySendCode(jySendCode.getSendCode());
 			if(siteCodes.length == 2 && siteCodes[0]>0 && siteCodes[1]>0  ) {
 				sendDetail.setStartSiteId(new Long(siteCodes[0]));
@@ -397,7 +397,7 @@ public class SendVehicleTransactionManager {
 			sendDetail.setUpdateUserErp(operateUserCode);
 			sendDetail.setUpdateUserName(operateUserCode);
 			
-			this.updateStatusWithoutCompare(taskSend, sendDetail, JyBizTaskSendDetailStatusEnum.SEALED);
+			this.updateStatusWithoutCompare(taskSend, sendDetail, JyBizTaskSendDetailStatusEnum.TO_SEAL);
 		}
 		return true;
 	}
