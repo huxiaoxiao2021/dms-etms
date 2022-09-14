@@ -156,4 +156,9 @@ public class JyBizTaskSendVehicleServiceImpl implements JyBizTaskSendVehicleServ
     public List<JyBizTaskSendVehicleEntity> findSendTaskByTransWorkCode(List<String> transWorkCodeList,Long startSiteId) {
         return jyBizTaskSendVehicleDao.findSendTaskByTransWorkCode(transWorkCodeList,startSiteId);
     }
+
+	@Override
+	public int countBizNumForCheckLineType(JyBizTaskSendVehicleEntity checkQuery, List<String> bizIdList,List<Integer> lineTypes) {
+        return jyBizTaskSendVehicleDao.countBizNumForCheckLineType(checkQuery,bizIdList,lineTypes);
+	}
 }
