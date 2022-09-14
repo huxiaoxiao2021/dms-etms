@@ -113,4 +113,12 @@ public interface JyBizTaskSendVehicleService {
 
 
     List<JyBizTaskSendVehicleEntity> findSendTaskByTransWorkCode(List<String> transWorkCodeList,Long startSiteId);
+    /**
+     * 按任务id列表、线路类型列表查询数量
+     * @param checkQuery
+     * @param bizIdList
+     * @param lineTypes
+     * @return
+     */
+	int countBizNumForCheckLineType(JyBizTaskSendVehicleEntity checkQuery, List<String> bizIdList,List<Integer> lineTypes);
 }
