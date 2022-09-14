@@ -397,7 +397,7 @@ public class SendVehicleTransactionManager {
 			sendDetail.setUpdateUserErp(operateUserCode);
 			sendDetail.setUpdateUserName(operateUserCode);
 			
-			this.updateStatusWithoutCompare(taskSend, sendDetail, JyBizTaskSendDetailStatusEnum.TO_SEAL);
+			this.updateStatusWithoutCompare(taskSend, sendDetail, JyBizTaskSendDetailStatusEnum.SEALED);
 		}
 		return true;
 	}
