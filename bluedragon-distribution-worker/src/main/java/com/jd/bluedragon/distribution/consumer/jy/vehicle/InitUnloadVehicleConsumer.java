@@ -197,7 +197,7 @@ public class InitUnloadVehicleConsumer extends MessageBaseConsumer {
         }
         Object moreScanCount =extendInfo.get(UnloadVehicleMqDto.EXTEND_KEY_MORESCAN_COUNT);
         if (ObjectHelper.isNotNull(moreScanCount)){
-            unloadVehicleEntity.setMoreCount((Long)moreScanCount);
+            unloadVehicleEntity.setMoreCount(((Integer)moreScanCount).longValue());
         }
         Object boardCount =extendInfo.get(UnloadVehicleMqDto.EXTEND_KEY_BOARD_COUNT);
         if (ObjectHelper.isNotNull(boardCount)){
