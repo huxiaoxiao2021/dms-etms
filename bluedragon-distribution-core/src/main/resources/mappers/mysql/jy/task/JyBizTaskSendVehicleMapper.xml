@@ -623,20 +623,14 @@
         WHERE
         yn = 1
         AND start_site_id = #{entity.startSiteId}
-        <if test="lineTypeList != null and lineTypeList.size() > 0">
-            AND line_type IN
-            <foreach collection="lineTypeList" separator="," open="(" close=")" item="item">
-                #{item}
-            </foreach>
-        </if>
-        <if test="sendVehicleBizList != null and sendVehicleBizList.size() > 0">
-            AND biz_id IN
-            <foreach collection="sendVehicleBizList" separator="," open="(" close=")" item="item">
-                #{item}
-            </foreach>
-        </if>
-        <if test="entity.createTimeBegin !=null">
-            and create_time &gt;= #{entity.createTimeBegin}
-        </if>
+        AND line_type IN
+        <foreach collection="lineTypeList" separator="," open="(" close=")" item="item">
+            #{item}
+        </foreach>
+       AND biz_id IN
+       <foreach collection="sendVehicleBizList" separator="," open="(" close=")" item="item">
+           #{item}
+       </foreach>
+       and create_time &gt;= #{entity.createTimeBegin}
     </select>
 </mapper>
