@@ -60,6 +60,14 @@ public interface JyBizTaskSendVehicleDetailService {
     int updateStatus(JyBizTaskSendVehicleDetailEntity detailEntity, Integer oldStatus);
 
     /**
+     * 不按顺序更新发货明细状态
+     * @param detailEntity
+     * @param oldStatus
+     * @return
+     */
+    int updateStatusWithoutCompare(JyBizTaskSendVehicleDetailEntity detailEntity, Integer oldStatus);
+
+    /**
      * 按状态统计流向数量
      * @param entity
      * @return
