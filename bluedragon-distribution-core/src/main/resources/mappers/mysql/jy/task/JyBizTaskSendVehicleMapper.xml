@@ -614,5 +614,17 @@
                  GROUP BY m.biz_id
              ) t
     </select>
-
+    <select id="findSendTaskByTransWorkCode" resultMap="jyBizTaskSendVehicleMap">
+        select
+        <include refid="Base_Column_List"/>
+        from jy_biz_task_send_vehicle
+        where yn = 1
+        AND start_site_id = #{startSiteId}
+        <if test="transWorkCodeList != null and transWorkCodeList.size() > 0">
+            AND trans_work_code IN
+            <foreach collection="transWorkCodeList" separator="," open="(" close=")" item="item">
+                #{item}
+            </foreach>
+        </if>
+    </select>
 </mapper>
