@@ -3,6 +3,7 @@ package com.jd.bluedragon.external.gateway.service;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.carTask.request.CarTaskQueryRequest;
 import com.jd.bluedragon.common.dto.carTask.request.CarTaskUpdateDto;
+import com.jd.bluedragon.common.dto.carTask.request.FindEndNodeRequest;
 import com.jd.bluedragon.common.dto.carTask.response.CarTaskEndNodeResponse;
 import com.jd.bluedragon.common.dto.carTask.response.CarTaskResponse;
 
@@ -30,4 +31,11 @@ public interface TMSCarTaskGateWayService {
      * @return
      */
     JdCResponse updateCarTaskInfo(CarTaskUpdateDto carTaskUpdateDto);
+
+    /**
+     * 获取目的地7位编码
+     * @param request
+     * @return
+     */
+    JdCResponse<String> findEndNodeCode(FindEndNodeRequest request);
 }
