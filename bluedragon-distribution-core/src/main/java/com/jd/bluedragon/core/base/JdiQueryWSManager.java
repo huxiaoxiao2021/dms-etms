@@ -49,6 +49,7 @@ public interface JdiQueryWSManager {
      * @return
      */
     BigTransWorkDto queryTransWorkAndAllItem(String transWorkCode);
+
     /**
      * 根据车牌号后四位 检索派车单号
      * @param param
