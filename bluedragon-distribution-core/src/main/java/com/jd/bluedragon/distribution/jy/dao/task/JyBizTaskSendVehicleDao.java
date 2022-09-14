@@ -142,4 +142,13 @@ public class JyBizTaskSendVehicleDao extends BaseDao<JyBizTaskSendVehicleEntity>
         params.put("startSiteId", startSiteId);
         return this.getSqlSession().selectList(NAMESPACE + ".findSendTaskByTransWorkCode", params);
     }
+
+	public int countBizNumForCheckLineType(JyBizTaskSendVehicleEntity checkQuery, List<String> bizIdList,
+			List<Integer> lineTypes) {
+        Map<String,Object> params = new HashMap<>();
+        params.put("entity", checkQuery);
+        params.put("sendVehicleBizList", bizIdList);
+        params.put("lineTypeList", lineTypes);
+        return this.getSqlSession().selectOne(NAMESPACE + ".countBizNumForCheckLineType", params);
+	}
 }

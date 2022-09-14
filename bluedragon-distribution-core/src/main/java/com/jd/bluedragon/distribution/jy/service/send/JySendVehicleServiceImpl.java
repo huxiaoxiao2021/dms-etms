@@ -15,6 +15,8 @@ import com.jd.bluedragon.common.dto.send.request.VehicleTaskReq;
 import com.jd.bluedragon.common.dto.send.response.VehicleDetailTaskDto;
 import com.jd.bluedragon.common.dto.send.response.VehicleTaskDto;
 import com.jd.bluedragon.common.dto.send.response.VehicleTaskResp;
+import com.jd.bluedragon.common.dto.sysConfig.request.MenuUsageConfigRequestDto;
+import com.jd.bluedragon.common.dto.sysConfig.response.MenuUsageProcessDto;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
@@ -28,6 +30,7 @@ import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.BoxMaterialRelationRequest;
 import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.busineCode.sendCode.service.SendCodeService;
@@ -214,6 +217,9 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
 
     @Autowired
     private SendVehicleTransactionManager sendVehicleTransactionManager;
+    
+    @Autowired
+    private BaseService baseService;
 
     @Override
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "IJySendVehicleService.fetchSendVehicleTask",
@@ -2456,18 +2462,25 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
     @Override
     public InvokeResult checkMainLineSendTask(CheckSendCodeRequest request) {
         log.info("jy checkMainLineSendTask request:{}",JsonHelper.toJson(request));
-        if  (ObjectHelper.isNotNull(request.getBizSource()) && ObjectHelper.isNotNull(uccConfig.getNeedValidateMainLineBizSources())){
-            if (uccConfig.getNeedValidateMainLineBizSources().contains(String.valueOf(request.getBizSource()))){
-                Integer endSiteId =BusinessUtil.getReceiveSiteCodeFromSendCode(request.getSendCode());
-                Integer startSiteId =request.getCurrentOperate().getSiteCode();
-
-                JyBizTaskSendVehicleDetailEntity detailEntity = new JyBizTaskSendVehicleDetailEntity(Long.valueOf(startSiteId),Long.valueOf(endSiteId));
-                Integer count= taskSendVehicleDetailService.countByCondition(detailEntity);
-                if (ObjectHelper.isNotNull(count) && count>0){
-                    return new InvokeResult(NOT_SUPPORT_MAIN_LINE_TASK_CODE,NOT_SUPPORT_MAIN_LINE_TASK_MESSAGE);
-                }
-            }
-        }
+        if  (ObjectHelper.isNotNull(request.getBizSource()) && uccConfig.needValidateMainLine(request.getBizSource())){
+	        try {
+				MenuUsageConfigRequestDto menuUsageConfigRequestDto = new MenuUsageConfigRequestDto();
+				menuUsageConfigRequestDto.setMenuCode(Constants.MENU_CODE_SEND_GZ);
+				menuUsageConfigRequestDto.setCurrentOperate(request.getCurrentOperate());
+				menuUsageConfigRequestDto.setUser(request.getUser());
+				MenuUsageProcessDto menuUsageProcessDto = baseService.getClientMenuUsageConfig(menuUsageConfigRequestDto);
+				if(menuUsageProcessDto != null && Constants.FLAG_OPRATE_OFF.equals(menuUsageProcessDto.getCanUse())) {
+				    Long endSiteId =new Long(BusinessUtil.getReceiveSiteCodeFromSendCode(request.getSendCode()));
+				    Long startSiteId =new Long(request.getCurrentOperate().getSiteCode());
+				    boolean isTrunkOrBranch = sendVehicleTransactionManager.isTrunkOrBranchLine(startSiteId, endSiteId);
+				    if (isTrunkOrBranch){
+				        return new InvokeResult(NOT_SUPPORT_MAIN_LINE_TASK_CODE,menuUsageProcessDto.getMsg());
+				    }
+				}
+			} catch (Exception e) {
+				log.error("checkMainLineSendTask-校验异常",e);
+			}
+    	}
         return new InvokeResult(RESULT_SUCCESS_CODE,RESULT_SUCCESS_MESSAGE);
     }
 
