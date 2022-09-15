@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.cycleBox.service;
 
 import com.jd.bluedragon.distribution.cycleBox.domain.BoxMaterialRelationDto;
+import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
 
 public interface CycleBoxJsfService {
 
@@ -10,5 +11,9 @@ public interface CycleBoxJsfService {
      * @return
      */
   BoxMaterialRelationDto getBoxMaterialRelationByMaterialCode(String materialCode);
+
+
+  InvokeResult<Boolean> unBindBoxMaterialRelation(String boxCode, String materialCode, Integer createSiteCode);
+
 
 }

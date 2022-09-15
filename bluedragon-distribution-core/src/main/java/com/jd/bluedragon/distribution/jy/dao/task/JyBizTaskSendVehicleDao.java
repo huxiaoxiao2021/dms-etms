@@ -112,6 +112,13 @@ public class JyBizTaskSendVehicleDao extends BaseDao<JyBizTaskSendVehicleEntity>
         return this.getSqlSession().update(NAMESPACE + ".updateStatus", params);
     }
 
+    public int updateStatusWithoutCompare(JyBizTaskSendVehicleEntity entity, Integer oldStatus) {
+        Map<String,Object> params = new HashMap<>();
+        params.put("entity", entity);
+        params.put("oldStatus", oldStatus);
+        return this.getSqlSession().update(NAMESPACE + ".updateStatusWithoutCompare", params);
+    }
+
     public int updateBizTaskSendStatus(JyBizTaskSendVehicleEntity toSvTask) {
         return this.getSqlSession().update(NAMESPACE + ".updateBizTaskSendStatus", toSvTask);
     }
@@ -127,5 +134,12 @@ public class JyBizTaskSendVehicleDao extends BaseDao<JyBizTaskSendVehicleEntity>
 
     public Integer countSendTaskByDest(JyBizTaskSendVehicleDetailEntity entity) {
         return this.getSqlSession().selectOne(NAMESPACE + ".countSendTaskByDest", entity);
+    }
+
+    public List<JyBizTaskSendVehicleEntity> findSendTaskByTransWorkCode(List<String> transWorkCodeList,Long startSiteId) {
+        Map<String,Object> params = new HashMap<>();
+        params.put("transWorkCodeList", transWorkCodeList);
+        params.put("startSiteId", startSiteId);
+        return this.getSqlSession().selectList(NAMESPACE + ".findSendTaskByTransWorkCode", params);
     }
 }

@@ -40,4 +40,8 @@ public interface BoxMaterialRelationService {
     BoxMaterialRelation getDataByMaterialCode(String materialCode);
 
     int updateUnBindByMaterialCode(BoxMaterialRelation boxMaterialRelation);
+
+    int updateUnBindByMaterialCodeAndBoxCode(BoxMaterialRelation boxMaterialRelation);
+
+    BoxMaterialRelation getBoxMaterialRelationByMaterialCodeAndBoxcode(String boxCode, String materialCode);
 }

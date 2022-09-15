@@ -30,6 +30,8 @@ public class Constants {
 
     public static final String REST_URL = "/services";
 
+    public static final String SYS_NAME = "sys.dms";
+
     public static final String SEPARATOR_COMMA = ",";
     public static final String SEPARATOR_APOSTROPHE = "'";
     public static final String SEPARATOR_SEMICOLON = ";";
