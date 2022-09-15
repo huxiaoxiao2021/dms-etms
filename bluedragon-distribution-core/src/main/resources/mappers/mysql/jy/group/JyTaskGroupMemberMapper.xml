@@ -25,6 +25,10 @@
         <result property="updateTime" column="update_time"/>
         <result property="yn" column="yn"/>
         <result property="ts" column="ts"/>
+        <result property="memberType" column="member_type"/>
+        <result property="deviceTypeCode" column="device_type_code"/>
+        <result property="deviceTypeName" column="device_type_name"/>
+        <result property="machineCode" column="machine_code"/>       
     </resultMap>
 
     <sql id="Base_Column_List">
@@ -47,7 +51,11 @@
         create_time,
         update_time,
         yn,
-        ts
+        ts,
+        member_type,
+        device_type_code,
+        device_type_name,
+        machine_code
     </sql>
 
     <insert id="insert" parameterType="JyTaskGroupMemberEntity">
@@ -69,7 +77,11 @@
                             update_user,
                             update_user_name,
                             create_time,
-                            update_time
+                            update_time,
+                            member_type,
+                            device_type_code,
+                            device_type_name,
+                            machine_code
                     ) VALUES (
                             #{id},
                             #{refTaskId},
@@ -88,7 +100,11 @@
                             #{updateUser},
                             #{updateUserName},
                             #{createTime},
-                            #{updateTime}
+                            #{updateTime},
+                            #{memberType},
+                            #{deviceTypeCode},
+                            #{deviceTypeName},
+                            #{machineCode}
                     )
     </insert>
     <insert id="batchInsert" parameterType="java.util.List">
@@ -110,7 +126,11 @@
                             update_user,
                             update_user_name,
                             create_time,
-                            update_time
+                            update_time,
+                            member_type,
+                            device_type_code,
+                            device_type_name,
+                            machine_code
                     ) VALUES 
                     <foreach collection="list" item="item" separator=",">
                     (
@@ -131,7 +151,11 @@
                       #{item.updateUser},
                       #{item.updateUserName},
                       #{item.createTime},
-                      #{item.updateTime}
+                      #{item.updateTime},
+                      #{item.memberType},
+                      #{item.deviceTypeCode},
+                      #{item.deviceTypeName},
+                      #{item.machineCode}
                     )
                     </foreach>
     </insert>    
@@ -157,7 +181,7 @@
         WHERE
             yn = 1
         AND ref_task_id = #{refTaskId}
-        AND end_time is null
+        AND (end_time is null or end_time &lt; #{endTime,jdbcType=TIMESTAMP})
     </update>
     <select id="queryMemberCodeListByTaskId" parameterType="com.jd.bluedragon.distribution.jy.group.JyTaskGroupMemberQuery" resultType="String">
         select
@@ -167,4 +191,39 @@
         where yn = 1
           and ref_task_id = #{taskId}
     </select>
+    <select id="queryMemberListByTaskId" parameterType="com.jd.bluedragon.distribution.jy.group.JyTaskGroupMemberQuery" resultMap="jyTaskGroupMemberMap">
+        select
+            <include refid="Base_Column_List"/>
+        from
+            jy_task_group_member
+        where yn = 1
+          and ref_task_id = #{taskId}
+    </select>    
+    
+    <update id="endWorkByMemberCodeList" parameterType="JyTaskGroupMemberEntity">
+        UPDATE jy_task_group_member
+        SET
+            update_time = #{endData.updateTime, jdbcType=TIMESTAMP},
+            update_user = #{endData.updateUser, jdbcType=VARCHAR},
+            update_user_name = #{endData.updateUserName, jdbcType=VARCHAR},
+            end_time = #{endData.endTime,jdbcType=TIMESTAMP}
+        WHERE
+            yn = 1
+        AND ref_task_id in
+        <foreach collection="memberCodes" item="item" separator=",">
+        
+        </foreach>
+        AND end_time is null
+    </update> 
+    <update id="deleteByMemberCode" parameterType="JyTaskGroupMemberEntity">
+        UPDATE jy_task_group_member
+        SET
+            update_time = #{updateTime, jdbcType=TIMESTAMP},
+            update_user = #{updateUser, jdbcType=VARCHAR},
+            update_user_name = #{updateUserName, jdbcType=VARCHAR},
+            yn = 0
+        WHERE
+            yn = 1
+        AND ref_group_member_code = #{refGroupMemberCode}
+    </update>       
 </mapper>

@@ -49,5 +49,10 @@ public interface JyScheduleTaskManager {
      * @return
      */
     List<JyScheduleTaskResp> findStartedScheduleTasksByDistribute(JyScheduleTaskReq req);
-
+    /**
+     * 根据分配目标获取当前已开始的任务信息（添加组员）
+     * @param req
+     * @return
+     */
+    List<JyScheduleTaskResp> findStartedScheduleTasksForAddMember(JyScheduleTaskReq req);    
 }

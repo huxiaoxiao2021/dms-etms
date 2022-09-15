@@ -4,6 +4,8 @@ import java.util.List;
 
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.common.dto.group.GroupMemberQueryRequest;
+import com.jd.bluedragon.common.dto.group.JyGroupMemberCountData;
+import com.jd.bluedragon.common.dto.group.JyGroupMemberData;
 import com.jd.bluedragon.distribution.jy.group.JyGroupMemberEntity;
 import com.jd.bluedragon.distribution.jy.group.JyGroupMemberQuery;
 
@@ -82,5 +84,54 @@ public class JyGroupMemberDao extends BaseDao<JyGroupMemberEntity> {
 	 */
 	public Integer queryGroupMemberNum(String groupCode) {
 		return this.getSqlSession().selectOne(NAMESPACE + ".queryGroupMemberNum", groupCode);
+	}
+	public List<JyGroupMemberCountData> queryMemberDataCountByGroup(GroupMemberQueryRequest query) {
+		return this.getSqlSession().selectList(NAMESPACE + ".queryMemberDataCountByGroup", query);
+	}
+	public List<JyGroupMemberData> queryMemberDataListByGroup(GroupMemberQueryRequest query) {
+		return this.getSqlSession().selectList(NAMESPACE + ".queryMemberDataListByGroup", query);
+	}
+	public JyGroupMemberEntity queryByMemberCode(String memberCode) {
+		return this.getSqlSession().selectOne(NAMESPACE + ".queryByMemberCode", memberCode);
+	}
+	/**
+	 * 根据签到列表查询小组成员MemberCodes
+	 * @param signRecordIdList
+	 * @return
+	 */
+	public List<String> queryMemberCodesBySignRecordIds(List<Long> signRecordIdList) {
+		return this.getSqlSession().selectList(NAMESPACE + ".queryMemberCodesBySignRecordIds", signRecordIdList);
+	}
+	/**
+	 * 根据signRecordIdList移除小组成员
+	 * @param signRecordIdList
+	 * @return
+	 */
+	public int removeMembers(JyGroupMemberEntity removeMemberData, List<Long> signRecordIdList) {
+		return this.getSqlSession().update(NAMESPACE + ".removeMembers", removeMemberData);
+	}
+	/**
+	 * 删除小组成员
+	 * @param deleteMemberData
+	 * @return
+	 */
+	public int deleteMember(JyGroupMemberEntity deleteMemberData) {
+		return this.getSqlSession().update(NAMESPACE + ".deleteMember", deleteMemberData);
+	}
+	/**
+	 * 根据签到记录查询在岗人员
+	 * @param memberData
+	 * @return
+	 */
+	public JyGroupMemberEntity queryInDataBySignRecordId(JyGroupMemberEntity memberData) {
+		return this.getSqlSession().selectOne(NAMESPACE + ".queryInDataBySignRecordId", memberData);
+	}
+	/**
+	 * 根据设备编码查询在岗设备
+	 * @param memberData
+	 * @return
+	 */	
+	public JyGroupMemberEntity queryInDataByMachineCode(JyGroupMemberEntity memberData) {
+		return this.getSqlSession().selectOne(NAMESPACE + ".queryInDataByMachineCode", memberData);
 	}
 }

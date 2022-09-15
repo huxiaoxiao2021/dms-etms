@@ -439,7 +439,14 @@
                   ref="boxLimitJsfService"
                   server="dmsjsf">
     </jsf:provider>
-
+    
+    <!--  任务组员JSF服务   -->
+    <jsf:provider id="jyTaskGroupMemberJsfServiceId"
+                  interface="com.jd.bluedragon.distribution.jy.api.group.JyTaskGroupMemberJsfService"
+                  alias="${dms.jsf.alias}"
+                  ref="jyTaskGroupMemberJsfService"
+                  server="dmsjsf">
+    </jsf:provider>
     <!--  标签对外JSF服务   -->
     <jsf:provider id="dmsLabelPrintJsfService"
                   interface="com.jd.bluedragon.distribution.label.api.LabelPrintJsfService"
