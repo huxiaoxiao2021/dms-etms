@@ -375,7 +375,7 @@ public class SendVehicleTransactionManager {
     	query.setTransWorkItemCode(sealCarData.getTransWorkItemCode());
     	JyBizTaskSendVehicleDetailEntity taskDetail = this.taskSendVehicleDetailService.findByTransWorkItemCode(query);
 		if(taskDetail == null){
-			this.logInfo("根据取消封车批次{}查询jySendCode列表为空！", JsonHelper.toJson(query));
+			this.logInfo("根据取消封车数据{}查询taskDetail为空！", JsonHelper.toJson(query));
 			return true;
 		}
 		this.logInfo("取消封车-发货任务状态回退taskDetail：{}",JsonHelper.toJson(taskDetail));
