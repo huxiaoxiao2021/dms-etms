@@ -5,7 +5,9 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.domain.LoginUser;
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
+import com.jd.bluedragon.distribution.external.enums.AppVersionEnums;
 import com.jd.bluedragon.distribution.inventory.controller.inventoryTaskController;
+import com.jd.bluedragon.distribution.loadAndUnload.UnloadCar;
 import com.jd.bluedragon.distribution.loadAndUnload.UnloadCarTask;
 import com.jd.bluedragon.distribution.loadAndUnload.domain.DistributeTaskRequest;
 import com.jd.bluedragon.distribution.loadAndUnload.exception.LoadIllegalException;
@@ -17,6 +19,7 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
 import com.jd.uim.annotation.Authorization;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +31,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.ws.rs.QueryParam;
+import java.util.List;
 
 /**
  * @author lijie
@@ -89,6 +93,17 @@ public class UnloadCarTaskController extends DmsBaseController {
                     if (StringUtils.isNotBlank(staffName)) {
                         request.setUnloadUserName(staffName);
                     }
+                }
+
+                List<String> sealCarCodes = unloadCarService.newAppOperateIntercept(request.getSealCarCodes());
+                if(CollectionUtils.isNotEmpty(sealCarCodes)) {
+                    String interceptSealCarCodes = "";
+                    for(String sealCarCode : sealCarCodes) {
+                        interceptSealCarCodes =  StringUtils.isEmpty(interceptSealCarCodes) ? sealCarCode : (interceptSealCarCodes + "," + sealCarCode);
+                    }
+                    log.warn("distributeTask|分配卸车任务的负责人封车编码已被新版APP操作:request={}，新版操作封车编码为={}", JSON.toJSONString(request), interceptSealCarCodes);
+                    result.toFail(sealCarCodes.size()+"个任务正被新版app操作，无法领取，封车编码为："+interceptSealCarCodes);
+                    return result;
                 }
                 if (unloadCarService.distributeTask(request)) {
                     result.setCode(JdResponse.CODE_SUCCESS);

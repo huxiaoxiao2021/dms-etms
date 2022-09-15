@@ -1,12 +1,21 @@
 package com.jd.bluedragon.distribution.jy.manager;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.ObjectHelper;
+import com.jd.jsf.gd.util.JsonUtils;
+import com.jd.ql.basic.dto.BaseGoodsAreaNextSiteDto;
+import com.jd.ql.basic.dto.ResultDTO;
+import com.jd.ql.basic.ws.BasicGoodsAreaWS;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import com.jdl.jy.realtime.api.unload.IUnloadVehicleJsfService;
 import com.jdl.jy.realtime.base.Pager;
 import com.jdl.jy.realtime.base.ServiceResult;
+import com.jdl.jy.realtime.model.es.unload.JyUnloadTaskWaybillAgg;
 import com.jdl.jy.realtime.model.es.unload.JyVehicleTaskUnloadDetail;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +24,9 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import static com.jd.bluedragon.common.dto.base.response.JdCResponse.MESSAGE_SUCCESS;
 
 /**
  * @ClassName JyUnloadVehicleManagerImpl
@@ -30,6 +42,8 @@ public class JyUnloadVehicleManagerImpl implements IJyUnloadVehicleManager {
     @Autowired
     @Qualifier("jyUnloadVehicleJsfService")
     private IUnloadVehicleJsfService unloadVehicleJsfService;
+    @Autowired
+    private BasicGoodsAreaWS basicGoodsAreaWS;
 
     @Override
     public Pager<JyVehicleTaskUnloadDetail> queryToScanBarCodeDetail(Pager<JyVehicleTaskUnloadDetail> query) {
@@ -40,12 +54,10 @@ public class JyUnloadVehicleManagerImpl implements IJyUnloadVehicleManager {
             ServiceResult<Pager<JyVehicleTaskUnloadDetail>> serviceResult = unloadVehicleJsfService.queryToScanBarCodeDetail(query);
             if (serviceResult.retSuccess()) {
                 return serviceResult.getData();
-            }
-            else {
+            } else {
                 log.warn("分页查询卸车待扫描包裹失败. {}. {}", JsonHelper.toJson(query), JsonHelper.toJson(serviceResult));
             }
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             Profiler.functionError(ump);
             log.error("查询卸车待扫包裹明细异常. {}", JsonHelper.toJson(query), ex);
         }
@@ -63,12 +75,10 @@ public class JyUnloadVehicleManagerImpl implements IJyUnloadVehicleManager {
             ServiceResult<Pager<JyVehicleTaskUnloadDetail>> serviceResult = unloadVehicleJsfService.queryInterceptBarCodeDetail(query);
             if (serviceResult.retSuccess()) {
                 return serviceResult.getData();
-            }
-            else {
+            } else {
                 log.warn("分页查询卸车拦截包裹失败. {}. {}", JsonHelper.toJson(query), JsonHelper.toJson(serviceResult));
             }
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             Profiler.functionError(ump);
             log.error("查询卸车拦截包裹异常. {}", JsonHelper.toJson(query), ex);
         }
@@ -86,12 +96,10 @@ public class JyUnloadVehicleManagerImpl implements IJyUnloadVehicleManager {
             ServiceResult<Pager<JyVehicleTaskUnloadDetail>> serviceResult = unloadVehicleJsfService.queryMoreScanBarCodeDetail(query);
             if (serviceResult.retSuccess()) {
                 return serviceResult.getData();
-            }
-            else {
+            } else {
                 log.warn("分页查询卸车多扫包裹失败. {}. {}", JsonHelper.toJson(query), JsonHelper.toJson(serviceResult));
             }
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             Profiler.functionError(ump);
             log.error("查询卸车多扫包裹异常. {}", JsonHelper.toJson(query), ex);
         }
@@ -109,12 +117,10 @@ public class JyUnloadVehicleManagerImpl implements IJyUnloadVehicleManager {
             ServiceResult<Pager<JyVehicleTaskUnloadDetail>> serviceResult = unloadVehicleJsfService.queryMoreScanAndToScanBarCodeDetail(query);
             if (serviceResult.retSuccess()) {
                 return serviceResult.getData();
-            }
-            else {
+            } else {
                 log.warn("分页查询卸车多扫待扫包裹失败. {}. {}", JsonHelper.toJson(query), JsonHelper.toJson(serviceResult));
             }
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             Profiler.functionError(ump);
             log.error("查询卸车多扫待扫包裹异常. {}", JsonHelper.toJson(query), ex);
         }
@@ -131,13 +137,51 @@ public class JyUnloadVehicleManagerImpl implements IJyUnloadVehicleManager {
             if (serviceResult.retSuccess()) {
                 return serviceResult.getData();
             }
-        }
-        catch (Exception ex) {
+        } catch (Exception ex) {
             Profiler.functionError(ump);
             log.error("查询一条卸车明细异常. {}", JsonHelper.toJson(query), ex);
         }
         Profiler.registerInfoEnd(ump);
 
         return null;
+    }
+
+    @Override
+    public String getGoodsAreaCode(Integer currentSiteCode, Integer nextSiteCode) {
+        BaseGoodsAreaNextSiteDto goodsAreaNextSiteDto = new BaseGoodsAreaNextSiteDto();
+        goodsAreaNextSiteDto.setSiteCode(currentSiteCode);
+        goodsAreaNextSiteDto.setNextSiteCode(nextSiteCode);
+        ResultDTO<BaseGoodsAreaNextSiteDto> resultDTO = basicGoodsAreaWS.getGoodsAreaNextSite(goodsAreaNextSiteDto);
+        if (resultDTO != null && MESSAGE_SUCCESS.equals(resultDTO.getCode())) {
+            if (resultDTO.getData() == null) {
+                log.warn("调用基础资料查询获取编码失败,返回：{}" + JsonUtils.toJSONString(resultDTO));
+            } else {
+                log.info("调用基础资料查询获取编码成功,返回：{}", JsonUtils.toJSONString(resultDTO));
+                String goodsAreaCode = resultDTO.getData().getAreaNo();
+                if (ObjectHelper.isNotNull(goodsAreaCode)) {
+                    return goodsAreaCode;
+                }
+            }
+        }
+        log.warn("调用基础资料查询获取编码失败，当前场地：{}，下一场地：{}", currentSiteCode, nextSiteCode);
+        return null;
+    }
+
+    @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "dms.web.IJyUnloadVehicleManager.queryUnloadTaskWaybill", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public Pager<JyUnloadTaskWaybillAgg> queryUnloadTaskWaybill(Pager<JyVehicleTaskUnloadDetail> query) {
+        Pager<JyUnloadTaskWaybillAgg> waybillAggPager = new Pager<>();
+
+        try {
+            ServiceResult<Pager<JyUnloadTaskWaybillAgg>> serviceResult = unloadVehicleJsfService.queryUnloadTaskWaybill(query);
+            if (serviceResult.retSuccess()) {
+                return serviceResult.getData();
+            } else {
+                log.warn("查询卸车岗统计下钻运单明细. {}. {}", JsonHelper.toJson(query), JsonHelper.toJson(serviceResult));
+            }
+        } catch (Exception ex) {
+            log.error("查询卸车岗统计下钻运单明细. {}", JsonHelper.toJson(query), ex);
+        }
+        return waybillAggPager;
     }
 }

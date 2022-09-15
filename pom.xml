@@ -290,6 +290,7 @@
 				<artifactId>jy-basic-api</artifactId>
 				<version>1.0-test-SNAPSHOT</version>
 			</dependency>
+
             <dependency>
                 <groupId>com.jdl.jy.realtime</groupId>
                 <artifactId>realtime-service-sdk</artifactId>

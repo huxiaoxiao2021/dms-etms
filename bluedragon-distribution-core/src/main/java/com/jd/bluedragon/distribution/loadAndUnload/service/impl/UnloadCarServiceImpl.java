@@ -3,16 +3,6 @@ package com.jd.bluedragon.distribution.loadAndUnload.service.impl;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
-import com.jd.bluedragon.common.dto.unloadCar.HelperDto;
-import com.jd.bluedragon.common.dto.unloadCar.OperateTypeEnum;
-import com.jd.bluedragon.common.dto.unloadCar.TaskHelpersReq;
-import com.jd.bluedragon.common.dto.unloadCar.UnloadCarDetailScanResult;
-import com.jd.bluedragon.common.dto.unloadCar.UnloadCarScanRequest;
-import com.jd.bluedragon.common.dto.unloadCar.UnloadCarScanResult;
-import com.jd.bluedragon.common.dto.unloadCar.UnloadCarStatusEnum;
-import com.jd.bluedragon.common.dto.unloadCar.UnloadCarTaskDto;
-import com.jd.bluedragon.common.dto.unloadCar.UnloadCarTaskReq;
-import com.jd.bluedragon.common.dto.unloadCar.UnloadUserTypeEnum;
 import com.jd.bluedragon.common.dto.unloadCar.*;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
@@ -31,6 +21,8 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.domain.JdCancelWaybillResponse;
 import com.jd.bluedragon.distribution.board.service.BoardCombinationService;
 import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRecordService;
+import com.jd.bluedragon.distribution.external.constants.TransportServiceConstants;
+import com.jd.bluedragon.distribution.external.enums.AppVersionEnums;
 import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigEnum;
 import com.jd.bluedragon.distribution.funcSwitchConfig.service.FuncSwitchConfigService;
 import com.jd.bluedragon.distribution.goodsLoadScan.GoodsLoadScanConstants;
@@ -40,10 +32,8 @@ import com.jd.bluedragon.distribution.loadAndUnload.dao.*;
 import com.jd.bluedragon.distribution.inspection.InspectionBizSourceEnum;
 import com.jd.bluedragon.distribution.loadAndUnload.*;
 import com.jd.bluedragon.distribution.loadAndUnload.constants.UnloadCarConstant;
-import com.jd.bluedragon.distribution.loadAndUnload.dao.UnloadCarDao;
-import com.jd.bluedragon.distribution.loadAndUnload.dao.UnloadCarDistributionDao;
-import com.jd.bluedragon.distribution.loadAndUnload.dao.UnloadCarTransBoardDao;
-import com.jd.bluedragon.distribution.loadAndUnload.dao.*;
+import com.jd.bluedragon.distribution.loadAndUnload.dao.UnloadScanDao;
+import com.jd.bluedragon.distribution.loadAndUnload.dao.UnloadScanRecordDao;
 import com.jd.bluedragon.distribution.loadAndUnload.domain.DistributeTaskRequest;
 import com.jd.bluedragon.distribution.loadAndUnload.exception.LoadIllegalException;
 import com.jd.bluedragon.distribution.loadAndUnload.exception.UnloadPackageBoardException;
@@ -57,17 +47,18 @@ import com.jd.bluedragon.distribution.send.domain.dto.SendDetailDto;
 import com.jd.bluedragon.distribution.storage.service.StoragePackageMService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
+import com.jd.bluedragon.distribution.transfer.service.TransferService;
 import com.jd.bluedragon.distribution.unloadCar.domain.UnloadCarCondition;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.distribution.whitelist.DimensionEnum;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
-import com.jd.bluedragon.dms.utils.ParamsMapUtil;
-import com.jd.bluedragon.dms.utils.WaybillSignConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.*;
+import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.coo.ucc.common.utils.JsonUtils;
-import com.jd.etms.cache.util.EnumBusiCode;
 import com.jd.etms.vos.dto.CommonDto;
 import com.jd.etms.vos.dto.SealCarDto;
 import com.jd.etms.waybill.api.WaybillPackageApi;
@@ -109,7 +100,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.*;
-import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 
@@ -239,6 +229,12 @@ public class UnloadCarServiceImpl implements UnloadCarService {
 
     @Autowired
     private BasicQueryWSManager basicQueryWSManager;
+
+    @Autowired
+    @Qualifier("redisClientOfJy")
+    private Cluster redisClientOfJy;
+    @Autowired
+    private TransferService transferService;
 
     @Override
     public InvokeResult<UnloadCarScanResult> getUnloadCarBySealCarCode(String sealCarCode) {
@@ -2435,14 +2431,15 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         params.put("operateUserErp",request.getUpdateUserErp());
         params.put("operateUserName",request.getUpdateUserName());
         params.put("distributeTime",new Date());
+        params.put("version", AppVersionEnums.PDA_OLD.getVersion());
         int result = unloadCarDao.distributeTaskByParams(params);
         if (result < 1) {
             logger.warn("分配任务失败，请求体：{}",JsonHelper.toJson(request));
             return false;
         }
-
         //同步卸车负责人与卸车任务之间关系
         for (int i=0;i<request.getSealCarCodes().size();i++) {
+            transferService.saveOperatePdaVersion(request.getSealCarCodes().get(i), AppVersionEnums.PDA_OLD.getVersion());
             UnloadCarDistribution unloadCarDistribution = new UnloadCarDistribution();
             unloadCarDistribution.setSealCarCode(request.getSealCarCodes().get(i));
             unloadCarDistribution.setUnloadUserErp(request.getUnloadUserErp());
@@ -3845,6 +3842,26 @@ public class UnloadCarServiceImpl implements UnloadCarService {
         Integer duration = dbRes.getDuration();
         Long planEndTime = startTime == null ? null : startTime + duration * 60 * 1000l;
         res.setPlanEndTime(planEndTime);
+        return res;
+    }
+    @Override
+    public List<UnloadCar> getTaskInfoBySealCarCodes(List<String> sealCarCodes) {
+        return unloadCarDao.getTaskInfoBySealCarCodes(sealCarCodes);
+    }
+
+    @Override
+    public List<String> newAppOperateIntercept(List<String> sealCarCodeList) {
+        if(CollectionUtils.isEmpty(sealCarCodeList)) {
+            return null;
+        }
+        List<String> res = new ArrayList<>();
+        for(String sealCarCode : sealCarCodeList) {
+            String key = TransportServiceConstants.CACHE_PREFIX_PDA_ACTUAL_OPERATE_VERSION + sealCarCode;
+            String pdaVersion = redisClientOfJy.get(key);
+            if(pdaVersion != null && !AppVersionEnums.PDA_OLD.getVersion().equals(pdaVersion)) {
+                res.add(sealCarCode);
+            }
+        }
         return res;
     }
 

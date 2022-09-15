@@ -859,6 +859,26 @@ public class UccPropertyConfiguration {
      */
     private String jySendTaskLoadRateLimit;
 
+    /**
+     * 缓存时长
+     */
+    private Integer unloadCacheDurationHours;
+
+    /**
+     * 板上最多包裹数
+     */
+    private Integer unloadBoardBindingsMaxCount;
+
+    /**
+     * 包裹重量上限值，单位kg
+     */
+    private String packageWeightLimit;
+
+    /**
+     * 运单重量上限值，单位kg
+     */
+    private String waybillWeightLimit;
+
 
     /**
      * 身份证识别切量开关，全量上线之后，可以删除
@@ -2146,6 +2166,38 @@ public class UccPropertyConfiguration {
 
     public void setJySendTaskCreateTimeBeginDay(Integer jySendTaskCreateTimeBeginDay) {
         this.jySendTaskCreateTimeBeginDay = jySendTaskCreateTimeBeginDay;
+    }
+
+    public Integer getUnloadCacheDurationHours() {
+        return unloadCacheDurationHours;
+    }
+
+    public void setUnloadCacheDurationHours(Integer unloadCacheDurationHours) {
+        this.unloadCacheDurationHours = unloadCacheDurationHours;
+    }
+
+    public Integer getUnloadBoardBindingsMaxCount() {
+        return unloadBoardBindingsMaxCount;
+    }
+
+    public void setUnloadBoardBindingsMaxCount(Integer unloadBoardBindingsMaxCount) {
+        this.unloadBoardBindingsMaxCount = unloadBoardBindingsMaxCount;
+    }
+
+    public String getPackageWeightLimit() {
+        return packageWeightLimit;
+    }
+
+    public void setPackageWeightLimit(String packageWeightLimit) {
+        this.packageWeightLimit = packageWeightLimit;
+    }
+
+    public String getWaybillWeightLimit() {
+        return waybillWeightLimit;
+    }
+
+    public void setWaybillWeightLimit(String waybillWeightLimit) {
+        this.waybillWeightLimit = waybillWeightLimit;
     }
 
     public boolean isJyBasicServerSwitch() {

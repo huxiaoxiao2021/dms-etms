@@ -204,4 +204,7 @@ public class JyBizTaskUnloadVehicleDao extends BaseDao<JyBizTaskUnloadVehicleEnt
         return this.getSqlSession().selectList(NAMESPACE + ".needCleanSite",condition);
     }
 
+    public List<JyBizTaskUnloadVehicleEntity> listUnloadVehicleTask(JyBizTaskUnloadVehicleEntity entity) {
+        return this.getSqlSession().selectList(NAMESPACE + ".listUnloadVehicleTask",entity);
+    }
 }

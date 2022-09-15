@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.jy.dao.unload;
 
 import com.jd.bluedragon.common.dao.BaseDao;
+import com.jd.bluedragon.distribution.jy.dto.unload.*;
 import com.jd.bluedragon.distribution.jy.unload.JyUnloadAggsEntity;
 import com.jd.coo.sa.mybatis.plugins.id.SequenceGenAdaptor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,5 +37,32 @@ public class JyUnloadAggsDao extends BaseDao<JyUnloadAggsEntity> {
 
     public List<JyUnloadAggsEntity> queryByBizId(JyUnloadAggsEntity entity) {
         return this.getSqlSession().selectList(NAMESPACE + ".queryByBizId", entity);
+    }
+
+    public JyUnloadAggsEntity queryPackageStatistics(DimensionQueryDto dto) {
+        return this.getSqlSession().selectOne(NAMESPACE + ".queryPackageStatistics", dto);
+    }
+
+    public JyUnloadAggsEntity queryToScanAndMoreScanStatistics(String bizId) {
+        return this.getSqlSession().selectOne(NAMESPACE + ".queryToScanAndMoreScanStatistics", bizId);
+    }
+
+    public JyUnloadAggsEntity queryWaybillStatisticsUnderTask(DimensionQueryDto dto) {
+        return this.getSqlSession().selectOne(NAMESPACE + ".queryWaybillStatisticsUnderTask", dto);
+    }
+    public JyUnloadAggsEntity queryWaybillStatisticsUnderBoard(DimensionQueryDto dto) {
+        return this.getSqlSession().selectOne(NAMESPACE + ".queryWaybillStatisticsUnderBoard", dto);
+    }
+
+    public List<GoodsCategoryDto> queryGoodsCategoryStatistics(JyUnloadAggsEntity entity) {
+        return this.getSqlSession().selectList(NAMESPACE + ".queryGoodsCategoryStatistics", entity);
+    }
+
+    public ScanStatisticsDto queryExcepScanStatistics(JyUnloadAggsEntity entity) {
+        return this.getSqlSession().selectOne(NAMESPACE + ".queryExcepScanStatistics", entity);
+    }
+
+    public JyUnloadAggsEntity queryBoardStatistics(DimensionQueryDto dto) {
+        return this.getSqlSession().selectOne(NAMESPACE + ".queryBoardStatistics", dto);
     }
 }

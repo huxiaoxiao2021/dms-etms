@@ -1,0 +1,299 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadVehicleBoardDao">
+  <resultMap id="BaseResultMap" type="com.jd.bluedragon.distribution.jy.unload.JyUnloadVehicleBoardEntity">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="unload_vehicle_biz_id" jdbcType="VARCHAR" property="unloadVehicleBizId" />
+    <result column="board_code" jdbcType="VARCHAR" property="boardCode" />
+    <result column="start_site_id" jdbcType="BIGINT" property="startSiteId" />
+    <result column="start_site_name" jdbcType="VARCHAR" property="startSiteName" />
+    <result column="end_site_id" jdbcType="BIGINT" property="endSiteId" />
+    <result column="end_site_name" jdbcType="VARCHAR" property="endSiteName" />
+    <result column="goods_area_code" jdbcType="VARCHAR" property="goodsAreaCode" />
+    <result column="create_user_erp" jdbcType="VARCHAR" property="createUserErp" />
+    <result column="create_user_name" jdbcType="VARCHAR" property="createUserName" />
+    <result column="update_user_erp" jdbcType="VARCHAR" property="updateUserErp" />
+    <result column="update_user_name" jdbcType="VARCHAR" property="updateUserName" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="yn" jdbcType="BIT" property="yn" />
+    <result column="ts" jdbcType="TIMESTAMP" property="ts" />
+    <result column="unload_vehicle_stage_biz_id" jdbcType="VARCHAR" property="unloadVehicleStageBizId" />
+    <result column="board_code_num" jdbcType="INTEGER" property="boardCodeNum" />
+
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, unload_vehicle_biz_id, board_code, start_site_id, start_site_name, end_site_id,
+    end_site_name, goods_area_code, create_user_erp, create_user_name, update_user_erp, 
+    update_user_name, create_time, update_time, yn, ts, unload_vehicle_stage_biz_id
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from jy_unload_vehicle_board
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from jy_unload_vehicle_board
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.jd.bluedragon.distribution.jy.unload.JyUnloadVehicleBoardEntity">
+    insert into jy_unload_vehicle_board (unload_vehicle_biz_id, board_code,
+      start_site_id, start_site_name, end_site_id, 
+      end_site_name, goods_area_code, create_user_erp, 
+      create_user_name, update_user_erp, update_user_name, 
+      create_time, update_time, yn, 
+      ts, unload_vehicle_stage_biz_id)
+    values (#{unload_vehicle_biz_id,jdbcType=VARCHAR}, #{boardCode,jdbcType=VARCHAR},
+      #{startSiteId,jdbcType=BIGINT}, #{startSiteName,jdbcType=VARCHAR}, #{endSiteId,jdbcType=BIGINT}, 
+      #{endSiteName,jdbcType=VARCHAR}, #{goodsAreaCode,jdbcType=VARCHAR}, #{createUserErp,jdbcType=VARCHAR}, 
+      #{createUserName,jdbcType=VARCHAR}, #{updateUserErp,jdbcType=VARCHAR}, #{updateUserName,jdbcType=VARCHAR}, 
+      #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, #{yn,jdbcType=BIT}, 
+      #{ts,jdbcType=TIMESTAMP}, #{unloadVehicleStageBizId,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.jd.bluedragon.distribution.jy.unload.JyUnloadVehicleBoardEntity">
+    insert into jy_unload_vehicle_board
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="unloadVehicleBizId != null">
+        unload_vehicle_biz_id,
+      </if>
+      <if test="boardCode != null">
+        board_code,
+      </if>
+      <if test="startSiteId != null">
+        start_site_id,
+      </if>
+      <if test="startSiteName != null">
+        start_site_name,
+      </if>
+      <if test="endSiteId != null">
+        end_site_id,
+      </if>
+      <if test="endSiteName != null">
+        end_site_name,
+      </if>
+      <if test="goodsAreaCode != null">
+        goods_area_code,
+      </if>
+      <if test="createUserErp != null">
+        create_user_erp,
+      </if>
+      <if test="createUserName != null">
+        create_user_name,
+      </if>
+      <if test="updateUserErp != null">
+        update_user_erp,
+      </if>
+      <if test="updateUserName != null">
+        update_user_name,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="updateTime != null">
+        update_time,
+      </if>
+      <if test="yn != null">
+        yn,
+      </if>
+      <if test="ts != null">
+        ts,
+      </if>
+      <if test="unloadVehicleStageBizId != null">
+        unload_vehicle_stage_biz_id,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="unloadVehicleBizId != null">
+        #{unloadVehicleBizId,jdbcType=VARCHAR},
+      </if>
+      <if test="boardCode != null">
+        #{boardCode,jdbcType=VARCHAR},
+      </if>
+      <if test="startSiteId != null">
+        #{startSiteId,jdbcType=BIGINT},
+      </if>
+      <if test="startSiteName != null">
+        #{startSiteName,jdbcType=VARCHAR},
+      </if>
+      <if test="endSiteId != null">
+        #{endSiteId,jdbcType=BIGINT},
+      </if>
+      <if test="endSiteName != null">
+        #{endSiteName,jdbcType=VARCHAR},
+      </if>
+      <if test="goodsAreaCode != null">
+        #{goodsAreaCode,jdbcType=VARCHAR},
+      </if>
+      <if test="createUserErp != null">
+        #{createUserErp,jdbcType=VARCHAR},
+      </if>
+      <if test="createUserName != null">
+        #{createUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="updateUserErp != null">
+        #{updateUserErp,jdbcType=VARCHAR},
+      </if>
+      <if test="updateUserName != null">
+        #{updateUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null">
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="yn != null">
+        #{yn,jdbcType=BIT},
+      </if>
+      <if test="ts != null">
+        #{ts,jdbcType=TIMESTAMP},
+      </if>
+      <if test="unloadVehicleStageBizId != null">
+        #{unloadVehicleStageBizId,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.jd.bluedragon.distribution.jy.unload.JyUnloadVehicleBoardEntity">
+    update jy_unload_vehicle_board
+    <set>
+      <if test="unloadVehicleBizId != null">
+        unload_vehicle_biz_id = #{unloadVehicleBizId,jdbcType=VARCHAR},
+      </if>
+      <if test="boardCode != null">
+        board_code = #{boardCode,jdbcType=VARCHAR},
+      </if>
+      <if test="startSiteId != null">
+        start_site_id = #{startSiteId,jdbcType=BIGINT},
+      </if>
+      <if test="startSiteName != null">
+        start_site_name = #{startSiteName,jdbcType=VARCHAR},
+      </if>
+      <if test="endSiteId != null">
+        end_site_id = #{endSiteId,jdbcType=BIGINT},
+      </if>
+      <if test="endSiteName != null">
+        end_site_name = #{endSiteName,jdbcType=VARCHAR},
+      </if>
+      <if test="goodsAreaCode != null">
+        goods_area_code = #{goodsAreaCode,jdbcType=VARCHAR},
+      </if>
+      <if test="createUserErp != null">
+        create_user_erp = #{createUserErp,jdbcType=VARCHAR},
+      </if>
+      <if test="createUserName != null">
+        create_user_name = #{createUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="updateUserErp != null">
+        update_user_erp = #{updateUserErp,jdbcType=VARCHAR},
+      </if>
+      <if test="updateUserName != null">
+        update_user_name = #{updateUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null">
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="yn != null">
+        yn = #{yn,jdbcType=BIT},
+      </if>
+      <if test="ts != null">
+        ts = #{ts,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.jd.bluedragon.distribution.jy.unload.JyUnloadVehicleBoardEntity">
+    update jy_unload_vehicle_board
+    set unload_vehicle_biz_id = #{unloadVehicleBizId,jdbcType=VARCHAR},
+      board_code = #{boardCode,jdbcType=VARCHAR},
+      start_site_id = #{startSiteId,jdbcType=BIGINT},
+      start_site_name = #{startSiteName,jdbcType=VARCHAR},
+      end_site_id = #{endSiteId,jdbcType=BIGINT},
+      end_site_name = #{endSiteName,jdbcType=VARCHAR},
+      goods_area_code = #{goodsAreaCode,jdbcType=VARCHAR},
+      create_user_erp = #{createUserErp,jdbcType=VARCHAR},
+      create_user_name = #{createUserName,jdbcType=VARCHAR},
+      update_user_erp = #{updateUserErp,jdbcType=VARCHAR},
+      update_user_name = #{updateUserName,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      yn = #{yn,jdbcType=BIT},
+      ts = #{ts,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+
+  <select id="selectByBoardCode" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from jy_unload_vehicle_board
+    where board_code = #{boardCode,jdbcType=VARCHAR}
+    and yn = 1
+    order by create_time desc
+    limit 1
+  </select>
+
+  <select id="selectByBizIdAndBoardCode" parameterType="com.jd.bluedragon.distribution.jy.unload.JyUnloadVehicleBoardEntity" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from jy_unload_vehicle_board
+    where unload_vehicle_biz_id = #{unloadVehicleBizId,jdbcType=VARCHAR} and board_code = #{boardCode,jdbcType=VARCHAR}
+    and yn = 1 limit 1
+  </select>
+
+  <select id="getFlowStatisticsByBizId" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select unload_vehicle_biz_id,start_site_id,start_site_name,end_site_id,end_site_name,goods_area_code, count(board_code) board_code_num
+    from jy_unload_vehicle_board
+    where yn = 1 and unload_vehicle_biz_id = #{bizId,jdbcType=VARCHAR}
+    GROUP BY end_site_id
+  </select>
+
+
+  <select id="getBoardCodeList" parameterType="com.jd.bluedragon.distribution.jy.unload.JyUnloadVehicleBoardEntity" resultType="java.lang.String">
+    select distinct board_code
+    from jy_unload_vehicle_board
+    where yn = 1
+    and unload_vehicle_biz_id = #{unloadVehicleBizId,jdbcType=VARCHAR}
+    <if test="endSiteId != null">
+      and end_site_id = #{endSiteId,jdbcType=BIGINT}
+    </if>
+    <if test="goodsAreaCode != null">
+      goods_area_code = #{goodsAreaCode,jdbcType=VARCHAR}
+    </if>
+  </select>
+
+  <select id="getTaskBoardInfoList" parameterType="com.jd.bluedragon.distribution.jy.unload.JyUnloadVehicleBoardEntity" resultMap="BaseResultMap">
+    select  <include refid="Base_Column_List" />
+    from jy_unload_vehicle_board
+    where yn = 1
+    and unload_vehicle_biz_id = #{unloadVehicleBizId,jdbcType=VARCHAR}
+  </select>
+
+
+  <select id="getFlowStatisticsByFlow" parameterType="com.jd.bluedragon.distribution.jy.unload.JyUnloadVehicleBoardEntity" resultMap="BaseResultMap">
+    select unload_vehicle_biz_id,start_site_id,start_site_name,end_site_id,end_site_name,goods_area_code, count(board_code) board_code_num
+    from jy_unload_vehicle_board
+    where yn = 1 and unload_vehicle_biz_id = #{unloadVehicleBizId,jdbcType=VARCHAR}
+          and start_site_id = #{startSiteId,jdbcType=BIGINT}
+          and end_site_id = #{endSiteId,jdbcType=BIGINT}
+    GROUP BY end_site_id
+  </select>
+
+  <select id="getTaskBoardInfoByChildTaskBizId" parameterType="com.jd.bluedragon.distribution.jy.unload.JyUnloadVehicleBoardEntity" resultMap="BaseResultMap">
+    select  <include refid="Base_Column_List" />
+    from jy_unload_vehicle_board
+    where yn = 1
+    and unload_vehicle_stage_biz_id = #{unloadVehicleStageBizId,jdbcType=VARCHAR}
+    <if test="boardCode != null">
+      and board_code = #{boardCode,jdbcType=VARCHAR}
+    </if>
+  </select>
+</mapper>

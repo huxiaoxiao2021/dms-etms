@@ -1486,7 +1486,7 @@ public class Constants {
     /**
      * 操作标识|关闭-0
      */
-    public static final Integer FLAG_OPRATE_OFF = 0;    
+    public static final Integer FLAG_OPRATE_OFF = 0;
     /**
      * PDA无封车号任务前缀
      */
@@ -1738,9 +1738,16 @@ public class Constants {
      * sql中in语句数量限制 200
      */
     public static final int DB_SQL_IN_LIMIT_NUM = 200;
-    
+
     /**
      * 传摆发货功能编码：0203004-gz
      */
     public static final String MENU_CODE_SEND_GZ  = "0203004-gz";
+
+
+    /**
+     * 无任务卸车上游站点初始值
+     */
+    public static final Long START_SITE_INITIAL_VALUE = 0L;
+
 }
