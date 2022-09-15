@@ -63,6 +63,11 @@ public class SortingCheck {
      */
     Integer onlineStatus;
 
+    /**
+     * 忽略验证的条件
+     */
+    private ValidateIgnore validateIgnore;
+
     public Integer getOperateType() {
         return operateType;
     }
@@ -173,5 +178,13 @@ public class SortingCheck {
 
     public void setOnlineStatus(Integer onlineStatus) {
         this.onlineStatus = onlineStatus;
+    }
+
+    public ValidateIgnore getValidateIgnore() {
+        return validateIgnore;
+    }
+
+    public void setValidateIgnore(ValidateIgnore validateIgnore) {
+        this.validateIgnore = validateIgnore;
     }
 }

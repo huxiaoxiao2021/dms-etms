@@ -280,6 +280,7 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
                 //初始化拦截链上下文
                 filterContext = this.initContext(pdaOperateRequest);
                 filterContext.setFuncModule(HintModuleConstants.FORWARD_DELIVERY);
+                filterContext.setValidateIgnore(sortingCheck.getValidateIgnore());
                 filterChain.doFilter(filterContext, filterChain);
             } catch (IllegalWayBillCodeException e) {
                 logger.error("新发货验证服务异常，非法运单号：IllegalWayBillCodeException", e);

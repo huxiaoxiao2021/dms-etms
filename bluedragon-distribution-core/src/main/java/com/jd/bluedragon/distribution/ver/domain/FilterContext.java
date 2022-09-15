@@ -4,6 +4,7 @@ import com.jd.bluedragon.common.domain.WaybillCache;
 import com.jd.bluedragon.core.hint.constants.HintModuleConstants;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
+import com.jd.bluedragon.distribution.jsf.domain.ValidateIgnore;
 import com.jd.bluedragon.distribution.rule.domain.Rule;
 import com.jd.etms.waybill.dto.WaybillAbilityAttrDto;
 import com.jd.etms.waybill.dto.WaybillAbilityDto;
@@ -88,6 +89,12 @@ public class FilterContext {
      * 运单增值服务
      */
     private List<WaybillProductDto> waybillProductDtos;
+
+    /**
+     * 忽略验证的条件
+     */
+    private ValidateIgnore validateIgnore;
+
     /**
      * 判断是否有预分拣站点
      * @return
@@ -330,5 +337,13 @@ public class FilterContext {
 
     public void setWaybillProductDtos(List<WaybillProductDto> waybillProductDtos) {
         this.waybillProductDtos = waybillProductDtos;
+    }
+
+    public ValidateIgnore getValidateIgnore() {
+        return validateIgnore;
+    }
+
+    public void setValidateIgnore(ValidateIgnore validateIgnore) {
+        this.validateIgnore = validateIgnore;
     }
 }
