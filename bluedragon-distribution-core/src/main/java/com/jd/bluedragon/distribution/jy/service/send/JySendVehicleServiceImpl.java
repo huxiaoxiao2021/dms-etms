@@ -1104,11 +1104,6 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
         if (sendFindDestInfoDto.getMatchSendDestId() == null && !NumberHelper.gt0(request.getConfirmSendDestId())) {
             if(singleDestFlag){
                 sendFindDestInfoDto.setMatchSendDestId(new ArrayList<>(allDestId).get(0));
-                /*currentDestSendCode = jySendCodeService.findEarliestSendCode(taskSendDetails.get(0).getBizId());
-                final Integer sendCodeDestId = BusinessUtil.getReceiveSiteCodeFromSendCode(currentDestSendCode);
-                if (sendCodeDestId != null) {
-                    sendFindDestInfoDto.setMatchSendDestId((long)sendCodeDestId);
-                }*/
             } else {
                 result.setCode(SendScanResponse.CODE_CONFIRM_DEST);
                 result.addWarningBox(0, "未匹配到发货下一站，请手动选择！");
