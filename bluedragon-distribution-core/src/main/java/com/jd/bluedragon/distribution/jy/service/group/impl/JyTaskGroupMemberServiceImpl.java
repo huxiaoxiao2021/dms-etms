@@ -79,6 +79,10 @@ public class JyTaskGroupMemberServiceImpl implements JyTaskGroupMemberService {
 				continue;
 			}
 			JyTaskGroupMemberEntity taskMember = new JyTaskGroupMemberEntity();
+			taskMember.setMemberType(member.getMemberType());
+			taskMember.setMachineCode(member.getMachineCode());
+			taskMember.setDeviceTypeCode(member.getDeviceTypeCode());
+			taskMember.setDeviceTypeName(member.getDeviceTypeName());
 			taskMember.setRefGroupMemberCode(member.getMemberCode());
 			taskMember.setRefGroupCode(member.getRefGroupCode());
 			taskMember.setRefTaskId(startData.getRefTaskId());
