@@ -19,7 +19,9 @@ import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
 import com.jd.bluedragon.utils.CollectionHelper;
 import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.etms.vos.dto.SealCarDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jdl.jy.schedule.dto.task.JyScheduleTaskReq;
@@ -408,4 +410,45 @@ public class SendVehicleTransactionManager {
         return JyBizTaskSendStatusEnum.CANCEL.getCode();
 
     }
+    /**
+     * 1、按transWorkItemCode查询相应的子任务
+     * 2、回退任务状态
+     * @param sealCarData
+     */
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "SendVehicleTransactionManager.resetSendStatusToseal",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
+    @Transactional(value = "tm_jy_core", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)    
+	public boolean resetSendStatusToseal(SealCarDto sealCarData, String operateUserCode, String operateUserName,
+			Long operateTime) {
+    	this.logInfo("取消封车-发货任务状态回退sealCarData：{}",JsonHelper.toJson(sealCarData));
+    	JyBizTaskSendVehicleDetailEntity query = new JyBizTaskSendVehicleDetailEntity();
+    	query.setVehicleStatus(JyBizTaskSendDetailStatusEnum.SEALED.getCode());
+    	query.setTransWorkItemCode(sealCarData.getTransWorkItemCode());
+    	JyBizTaskSendVehicleDetailEntity taskDetail = this.taskSendVehicleDetailService.findByTransWorkItemCode(query);
+		if(taskDetail == null){
+			this.logInfo("根据取消封车数据{}查询taskDetail为空！", JsonHelper.toJson(query));
+			return true;
+		}
+		this.logInfo("取消封车-发货任务状态回退taskDetail：{}",JsonHelper.toJson(taskDetail));
+		Date currentDate = new Date();
+		JyBizTaskSendVehicleEntity taskSend = new JyBizTaskSendVehicleEntity();
+		JyBizTaskSendVehicleDetailEntity sendDetail = new JyBizTaskSendVehicleDetailEntity();
+		taskSend.setBizId(taskDetail.getSendVehicleBizId());
+		taskSend.setVehicleStatus(JyBizTaskSendDetailStatusEnum.SEALED.getCode());
+		taskSend.setStartSiteId(taskDetail.getStartSiteId());
+		taskSend.setUpdateTime(currentDate);
+		taskSend.setUpdateUserErp(operateUserCode);
+		taskSend.setUpdateUserName(operateUserName);
+		
+		sendDetail.setBizId(taskDetail.getBizId());
+		sendDetail.setSendVehicleBizId(taskDetail.getSendVehicleBizId());
+		sendDetail.setVehicleStatus(JyBizTaskSendDetailStatusEnum.SEALED.getCode());
+		sendDetail.setStartSiteId(taskDetail.getStartSiteId());
+		sendDetail.setEndSiteId(taskDetail.getEndSiteId());
+		sendDetail.setUpdateTime(currentDate);
+		sendDetail.setUpdateUserErp(operateUserCode);
+		sendDetail.setUpdateUserName(operateUserName);
+		
+		return this.updateStatusWithoutCompare(taskSend, sendDetail, JyBizTaskSendDetailStatusEnum.TO_SEAL);
+	}
 }
