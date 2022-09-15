@@ -391,6 +391,7 @@ public class SendVehicleTransactionManager {
 		sendDetail.setSendVehicleBizId(taskDetail.getSendVehicleBizId());
 		sendDetail.setVehicleStatus(JyBizTaskSendDetailStatusEnum.SEALED.getCode());
 		sendDetail.setStartSiteId(taskDetail.getStartSiteId());
+		sendDetail.setEndSiteId(taskDetail.getEndSiteId());
 		sendDetail.setUpdateTime(currentDate);
 		sendDetail.setUpdateUserErp(sealCarData.getDesealUserCode());
 		sendDetail.setUpdateUserName(sealCarData.getDesealUserName());
