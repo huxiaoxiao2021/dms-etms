@@ -147,4 +147,9 @@ public class JyBizTaskSendVehicleDetailServiceImpl implements JyBizTaskSendVehic
 	public List<String> findSendVehicleBizListBySendFlow(JyBizTaskSendVehicleDetailEntity entity) {
 		return jyBizTaskSendVehicleDetailDao.findSendVehicleBizListBySendFlow(entity);
 	}
+
+	@Override
+	public JyBizTaskSendVehicleDetailEntity findByTransWorkItemCode(JyBizTaskSendVehicleDetailEntity query) {
+		return jyBizTaskSendVehicleDetailDao.findByTransWorkItemCode(query);
+	}
 }
