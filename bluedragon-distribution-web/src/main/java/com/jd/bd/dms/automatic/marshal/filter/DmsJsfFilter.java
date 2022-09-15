@@ -33,7 +33,6 @@ public class DmsJsfFilter extends AbstractFilter {
         if (log.isDebugEnabled()) {
             log.debug("process DmsJsfFilter,class:{} method:{}", requestMessage.getClassName(), requestMessage.getMethodName());
         }
-        Invocation invocation = requestMessage.getInvocationBody();
         ResponseMessage rm;
 
         try {

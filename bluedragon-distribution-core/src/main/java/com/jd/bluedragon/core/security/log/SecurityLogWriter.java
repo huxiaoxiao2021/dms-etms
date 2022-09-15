@@ -67,10 +67,7 @@ public class SecurityLogWriter {
                             .interfaceName("com.jd.bluedragon.distribution.command.JsonCommandServiceImpl#execute")
                             .accountName(String.valueOf(JsonHelper.getObject(JSONObject.parseObject(JSONObject.toJSONString(jsonCommand)),"data.userErp")))
                             .accountType(SecurityAccountEnums.account_type_3)
-                            .op(
-                                    SurfaceOutputTypeEnum.OUTPUT_TYPE_PRINT.getCode().equals(JsonHelper.getObject(JSONObject.parseObject(JSONObject.toJSONString(jsonCommand)),"data.outputType"))?
-                                            SecurityLogOpEnums.op_8 : SecurityLogOpEnums.op_11
-                            )
+                            .op(SecurityLogOpEnums.op_8)
                             .reqKeyMapping(reqInfoKeyEnumsStringMap)
                             .businessRequest(jsonCommand)
                             .respKeyMapping(uniqueIdentifierKeyEnumsStringHashMap)
