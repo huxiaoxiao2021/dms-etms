@@ -1718,4 +1718,9 @@ public class Constants {
      * 验货菜单编码：0101019
      */
     public static final String MENU_CODE_INSPECTION  = "0101019";
+    public static final Integer DEFAULT_PAGE_NO  = 1;
+    public static final Integer DEFAULT_PAGE_SIZE  = 10;
+    public static final Integer DEFAULT_PAGE_SIZE_LIMIT  = 1024;
+
+
 }
