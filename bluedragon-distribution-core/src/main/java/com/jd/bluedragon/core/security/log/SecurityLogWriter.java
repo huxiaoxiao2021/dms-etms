@@ -9,6 +9,7 @@ import com.jd.bluedragon.core.security.log.enums.SecurityLogOpEnums;
 import com.jd.bluedragon.core.security.log.enums.SecurityLogReqInfoKeyEnums;
 import com.jd.bluedragon.core.security.log.enums.SecurityLogUniqueIdentifierKeyEnums;
 import com.jd.bluedragon.core.security.log.executor.SecurityLogRecord;
+import com.jd.bluedragon.distribution.api.response.OrderResponse;
 import com.jd.bluedragon.distribution.command.JdCommand;
 import com.jd.bluedragon.distribution.print.domain.SurfaceOutputTypeEnum;
 import com.jd.bluedragon.distribution.reverse.domain.DmsWaybillReverseResponseDTO;
@@ -175,7 +176,7 @@ public class SecurityLogWriter {
 
             SecurityLogRecord.log(
                     SecurityLogEntity.builder()
-                            .interfaceName("com.jd.bluedragon.distribution.rest.waybill.WaybillResource#getWaybillPack")
+                            .interfaceName("com.jd.bluedragon.distribution.rest.waybill.WaybillResource.getOldOrderMessageNew")
                             .accountName("")
                             .accountType(SecurityAccountEnums.account_type_1)
                             .op(SecurityLogOpEnums.op_5)
@@ -188,6 +189,46 @@ public class SecurityLogWriter {
             );
         } catch (RuntimeException ex){
             log.error("构建安全日日志失败waybillResource#getOldOrderMessageNew:",ex);
+        }
+
+    }
+
+    /**
+     * 现场预分拣查询
+     * 切入接口：
+     * com.jd.bluedragon.distribution.rest.order.OrderResource#getOrderResponse
+     *
+     * @param packageCode
+     * @param response
+     */
+    public static void orderResourceGetOrderResponseWrite(String packageCode, OrderResponse response) {
+        try{
+            Map<String,String> param = new HashMap<>();
+            param.put("packageCode", packageCode);
+
+            Map<SecurityLogReqInfoKeyEnums, String> reqInfoKeyEnumsStringMap = new HashMap<>();
+            reqInfoKeyEnumsStringMap.put(SecurityLogReqInfoKeyEnums.carryBillId, "packageCode");
+
+            Map<SecurityLogUniqueIdentifierKeyEnums, String> uniqueIdentifierKeyEnumsStringHashMap = new HashMap<>();
+            uniqueIdentifierKeyEnumsStringHashMap.put(SecurityLogUniqueIdentifierKeyEnums.carryBillId,"waybillCode");
+            uniqueIdentifierKeyEnumsStringHashMap.put(SecurityLogUniqueIdentifierKeyEnums.receiveAddress,"address");
+            uniqueIdentifierKeyEnumsStringHashMap.put(SecurityLogUniqueIdentifierKeyEnums.receivePhone,"mobile");
+
+            SecurityLogRecord.log(
+                    SecurityLogEntity.builder()
+                            .interfaceName("com.jd.bluedragon.distribution.waybill.service.WaybillService#getDmsWaybillInfoAndCheck")
+                            .accountName("")
+                            .accountType(SecurityAccountEnums.account_type_1)
+                            .op(SecurityLogOpEnums.op_5)
+                            .reqKeyMapping(reqInfoKeyEnumsStringMap)
+                            .businessRequest(param)
+                            .respKeyMapping(uniqueIdentifierKeyEnumsStringHashMap)
+                            .businessResponse(response)
+                            .resultNum(1)
+                            .build()
+            );
+        } catch (RuntimeException ex){
+            log.error("构建安全日日志失败OrderResource#getOrderResponse:",ex);
         }
     }
 }
