@@ -6,9 +6,9 @@ import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.busineCode.sendCode.service.SendCodeService;
 import com.jd.bluedragon.distribution.businessCode.BusinessCodeAttributeKey;
 import com.jd.bluedragon.distribution.jy.dto.send.JyBizTaskSendCountDto;
-import com.jd.bluedragon.distribution.jy.dto.unload.UnloadTaskCompleteDto;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendDetailStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendStatusEnum;
+import com.jd.bluedragon.distribution.jy.enums.JyLineTypeEnum;
 import com.jd.bluedragon.distribution.jy.group.JyTaskGroupMemberEntity;
 import com.jd.bluedragon.distribution.jy.manager.JyScheduleTaskManager;
 import com.jd.bluedragon.distribution.jy.send.JySendCodeEntity;
@@ -17,7 +17,8 @@ import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetail
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleService;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
-import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadDto;
+import com.jd.bluedragon.utils.CollectionHelper;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -29,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -67,6 +69,9 @@ public class SendVehicleTransactionManager {
     @Autowired
     @Qualifier("jyTaskGroupMemberService")
     private JyTaskGroupMemberService taskGroupMemberService;
+    
+    @Value("${beans.sendVehicleTransactionManager.checkLineTypeDays:7}")
+    private int checkLineTypeDays;
 
     /**
      * 保存发货任务和发货流向
@@ -342,7 +347,47 @@ public class SendVehicleTransactionManager {
 
         return lastSealCarTime;
     }
-
+    /**
+     * 根据站点流向判断是否干支类型:
+     * 1、查询7天内的主任务id列表
+     * 2、查询是否包含非干支任务（非干支）
+     * @param startSiteId
+     * @param endSiteId
+     * @return
+     */
+    public boolean isTrunkOrBranchLine(Long startSiteId,Long endSiteId) {
+    	Date beginTime = DateHelper.addDate(new Date(), -checkLineTypeDays);
+    	JyBizTaskSendVehicleDetailEntity query = new JyBizTaskSendVehicleDetailEntity();
+    	query.setStartSiteId(startSiteId);
+    	query.setEndSiteId(endSiteId);
+    	query.setCreateTimeBegin(beginTime);
+    	List<String> sendVehicleBizList = taskSendVehicleDetailService.findSendVehicleBizListBySendFlow(query);
+    	if(CollectionUtils.isEmpty(sendVehicleBizList)) {
+    		return false;
+    	}
+    	//数据分组
+    	List<List<String>> groupBizList = CollectionHelper.splitList(sendVehicleBizList, Integer.MAX_VALUE,Constants.DB_SQL_IN_LIMIT_NUM);
+    	
+    	JyBizTaskSendVehicleEntity checkQuery = new JyBizTaskSendVehicleEntity();
+    	checkQuery.setStartSiteId(startSiteId);
+    	checkQuery.setCreateTimeBegin(beginTime);
+    	List<Integer> lineTypes = new ArrayList<>();
+    	for(JyLineTypeEnum lineType : JyLineTypeEnum.values()) {
+    		if(JyLineTypeEnum.TRUNK_LINE.equals(lineType)
+    				||JyLineTypeEnum.BRANCH_LINE.equals(lineType)) {
+    			continue;
+    		}
+    		lineTypes.add(lineType.getCode());
+    	}
+    	//查询是否包含非干支任务
+    	for(List<String> bizList: groupBizList) {
+    		int bizNum = taskSendVehicleService.countBizNumForCheckLineType(checkQuery, bizList,lineTypes);
+    		if(bizNum > 0) {
+    			return false;
+    		}
+    	}
+    	return true;
+    }
     /**
      * 获得发货明细最下的状态
      * @param sendDetail
