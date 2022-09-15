@@ -7,6 +7,7 @@ import com.jd.bluedragon.core.security.log.domain.SecurityLogEntity;
 import com.jd.bluedragon.core.security.log.enums.*;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.PropertiesHelper;
+import com.jd.bluedragon.utils.StringHelper;
 import com.jd.security.log.util.LogAcesUtil;
 import com.jd.securitylog.entity.*;
 import lombok.extern.slf4j.Slf4j;
@@ -66,7 +67,7 @@ public class SecurityLogRecord {
                 .serverIp(InetAddress.getLocalHost().getHostAddress())
                 .clientIp(InvokerClientInfoContext.get().getClientIp())
                 .accountType(accountType.getType())
-                .accountName(accountName)
+                .accountName(StringHelper.isNotEmpty(InvokerClientInfoContext.get().getUser())? InvokerClientInfoContext.get().getUser() : accountName)
                 .op(op.getOpCode())
                 .build();
     }
