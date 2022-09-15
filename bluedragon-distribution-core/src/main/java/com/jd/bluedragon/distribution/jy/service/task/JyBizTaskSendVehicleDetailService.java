@@ -98,4 +98,10 @@ public interface JyBizTaskSendVehicleDetailService {
     int updateBizTaskSendDetailStatus(JyBizTaskSendVehicleDetailEntity entity);
 
     Integer countNoCancelSendDetail(JyBizTaskSendVehicleDetailEntity entity);
+    /**
+     * 根据transWorkItemCode查询一条数据
+     * @param query
+     * @return
+     */
+	JyBizTaskSendVehicleDetailEntity findByTransWorkItemCode(JyBizTaskSendVehicleDetailEntity query);
 }

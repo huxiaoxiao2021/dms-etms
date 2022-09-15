@@ -29,7 +29,6 @@ import com.jd.bluedragon.distribution.base.domain.DmsBaseDict;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.busineCode.sendCode.service.SendCodeService;
 import com.jd.bluedragon.distribution.command.JdResult;
-import com.jd.bluedragon.distribution.jy.service.send.SendVehicleTransactionManager;
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
 import com.jd.bluedragon.distribution.material.service.SortingMaterialSendService;
 import com.jd.bluedragon.distribution.newseal.domain.SealCarResultDto;
@@ -151,9 +150,6 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 
     @Autowired
     private BasicQueryWSManager basicQueryWSManager;
-    @Autowired
-    @Qualifier(value = "sendVehicleTransactionManager")
-    private SendVehicleTransactionManager sendVehicleTransactionManager;
 
     private static final Integer UNSEAL_CAR_IN_RECIVE_AREA = 2;    //带解封的车辆在围栏里(1-是否在始发网点 2-是否在目的网点)
 
@@ -672,8 +668,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
       removeRedisCache(batchList);
       sendBatchSendCodeStatusMsg(null,batchList,BatchSendStatusEnum.UNUSED);
       cancelSealData(batchList, TMS_param.getOperateUserCode());
-      //重置发货任务状态
-      sendVehicleTransactionManager.resetSendStatusForUnseal(batchList,TMS_param.getOperateUserCode(),TMS_param.getOperateTime());      
+
       sealVehicleResponse.setCode(JdResponse.CODE_OK);
       sealVehicleResponse.setMessage(NewSealVehicleResponse.MESSAGE_CANCEL_SEAL_SUCCESS);
     } else {
@@ -684,7 +679,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
     return sealVehicleResponse;
     }
 
-	/**
+    /**
      * 查询带解任务
      * @param request
      * @param pageDto

@@ -96,4 +96,8 @@ public class JyBizTaskSendVehicleDetailDao extends BaseDao<JyBizTaskSendVehicleD
     public Integer countNoCancelSendDetail(JyBizTaskSendVehicleDetailEntity entity) {
         return this.getSqlSession().selectOne(NAMESPACE + ".countNoCancelSendDetail", entity);
     }
+
+	public JyBizTaskSendVehicleDetailEntity findByTransWorkItemCode(JyBizTaskSendVehicleDetailEntity query) {
+		return this.getSqlSession().selectOne(NAMESPACE + ".findByTransWorkItemCode", query);
+	}
 }

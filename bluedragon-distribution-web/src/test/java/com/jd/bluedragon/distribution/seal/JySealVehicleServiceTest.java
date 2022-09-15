@@ -23,6 +23,7 @@ import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.etms.vos.dto.SealCarDto;
 import com.jdl.jy.realtime.model.query.seal.SealVehicleTaskQuery;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -238,10 +239,10 @@ public class JySealVehicleServiceTest {
     }
     @Test
     public void resetSendStatusForUnsealTest() {
-    	List<String> sendCodeList = new ArrayList<>();
-    	sendCodeList.add("1609-58176-20220621206414536");
-    	sendCodeList.add("910-3011-20220621216414663");
-        sendVehicleTransactionManager.resetSendStatusForUnseal(sendCodeList, "test2", new Date());
+    	SealCarDto sealCarData = new SealCarDto();
+    	sealCarData.setStartSiteId(910);
+    	sealCarData.setTransWorkItemCode("TW22091400813808-001");
+        sendVehicleTransactionManager.resetSendStatusForUnseal(sealCarData);
 
 
     }

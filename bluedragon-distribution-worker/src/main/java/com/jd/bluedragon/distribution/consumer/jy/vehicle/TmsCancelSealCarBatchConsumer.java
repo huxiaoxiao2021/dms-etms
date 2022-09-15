@@ -4,6 +4,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.VosManager;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
+import com.jd.bluedragon.distribution.jy.service.send.SendVehicleTransactionManager;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskUnloadVehicleService;
 import com.jd.bluedragon.distribution.jy.service.unseal.IJyUnSealVehicleService;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnSealDto;
@@ -49,6 +50,9 @@ public class TmsCancelSealCarBatchConsumer extends MessageBaseConsumer {
 
     @Autowired
     private IJyUnSealVehicleService jyUnSealVehicleService;
+    
+    @Autowired
+    private SendVehicleTransactionManager sendVehicleTransactionManager;    
 
     @Override
     @JProfiler(jKey = "DMSWORKER.jy.TmsCancelSealCarBatchConsumer.consume",jAppName = Constants.UMP_APP_NAME_DMSWORKER, mState = {JProEnum.TP,JProEnum.FunctionError})
@@ -75,11 +79,19 @@ public class TmsCancelSealCarBatchConsumer extends MessageBaseConsumer {
         SealCarDto sealCarCodeOfTms = findSealCarInfoBySealCarCodeOfTms(mqBody.getSealCarCode());
         if(TMS_CANCEL_SEAL_CAR.equals(sealCarCodeOfTms.getStatus())){
             //证明整个封车编码被取消了 , 取消对应任务
-            if(!jyUnSealVehicleService.cancelUnSealTask(convert2Dto(mqBody))){
-                //失败重试
-                logger.error("TmsCancelSealCarBatchConsumer consume -->关键数据为空，内容为【{}】", message.getText());
-                throw new JyBizException("cancelUnSealTask fail!");
-            }
+            try {
+				if(!jyUnSealVehicleService.cancelUnSealTask(convert2Dto(mqBody))){
+				    //失败重试
+				    logger.error("TmsCancelSealCarBatchConsumer consume -->关键数据为空，内容为【{}】", message.getText());
+				}
+			} catch (Exception e) {
+				logger.error("jyUnSealVehicleService.cancelUnSealTask error!",e);
+			}
+            try {
+				sendVehicleTransactionManager.resetSendStatusForUnseal(sealCarCodeOfTms);
+			} catch (Exception e) {
+				logger.error("sendVehicleTransactionManager.resetSendStatusForUnseal error!",e);
+			}
         }
     }
 
