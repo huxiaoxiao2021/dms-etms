@@ -1105,6 +1105,10 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
             if(singleDestFlag){
                 if(sendFindDestInfoDto.getRouterNextSiteId() != null){
                     sendFindDestInfoDto.setMatchSendDestId(new ArrayList<>(allDestId).get(0));
+                } else {
+                    result.setCode(SendScanResponse.CODE_CONFIRM_DEST);
+                    result.addWarningBox(0, "未匹配到发货下一站，请手动选择！");
+                    return result;
                 }
             } else {
                 result.setCode(SendScanResponse.CODE_CONFIRM_DEST);
