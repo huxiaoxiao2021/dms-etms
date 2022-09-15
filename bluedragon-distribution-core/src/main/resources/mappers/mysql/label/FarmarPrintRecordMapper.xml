@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.labelPrint.dao.farmar.FarmarPrintRecordDao" >
+
+	<resultMap id="BaseResultMap" type="com.jd.bluedragon.distribution.label.domain.farmar.FarmarEntity" >
+		<id column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result column="farmar_code" property="farmarCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="org_id" property="orgId" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="org_name" property="orgName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="create_site_code" property="createSiteCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="create_site_name" property="createSiteName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="create_user_erp" property="createUserErp" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="create_user_name" property="createUserName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="weight" property="weight" javaType="java.math.BigDecimal" jdbcType="DECIMAL" />
+		<result column="length" property="length" javaType="java.math.BigDecimal" jdbcType="DECIMAL" />
+		<result column="width" property="width" javaType="java.math.BigDecimal" jdbcType="DECIMAL" />
+		<result column="high" property="high" javaType="java.math.BigDecimal" jdbcType="DECIMAL" />
+		<result column="farmar_check_type" property="farmarCheckType" javaType="java.lang.Integer" jdbcType="TINYINT" />
+		<result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="yn" property="yn" javaType="java.lang.Integer" jdbcType="TINYINT" />
+		<result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+	</resultMap>
+
+	<sql id="Base_Column_List" >
+		id,farmar_code,org_id,org_name,create_site_code,create_site_name,create_user_erp,create_user_name,
+		weight,length,width,high,farmar_check_type,create_time,update_time,yn,ts
+	</sql>
+
+	<insert id="insert" parameterType="com.jd.bluedragon.distribution.label.domain.farmar.FarmarEntity" useGeneratedKeys="true" keyProperty="id">
+		insert into farmar_print_record
+		(
+		<trim suffixOverrides=",">
+			<if test="id != null" >
+				id,
+			</if>
+			<if test="farmarCode != null" >
+				farmar_code,
+			</if>
+			<if test="orgId != null" >
+				org_id,
+			</if>
+			<if test="orgName != null" >
+				org_name,
+			</if>
+			<if test="createSiteCode != null" >
+				create_site_code,
+			</if>
+			<if test="createSiteName != null" >
+				create_site_name,
+			</if>
+			<if test="createUserErp != null" >
+				create_user_erp,
+			</if>
+			<if test="createUserName != null" >
+				create_user_name,
+			</if>
+			<if test="weight != null" >
+				weight,
+			</if>
+			<if test="length != null" >
+				length,
+			</if>
+			<if test="width != null" >
+				width,
+			</if>
+			<if test="high != null" >
+				high,
+			</if>
+			<if test="farmarCheckType != null" >
+				farmar_check_type,
+			</if>
+				create_time,
+				update_time,
+				yn,
+				ts
+		</trim>
+		)
+		values
+		(
+		<trim suffixOverrides=",">
+			<if test="id != null" >
+				#{id,jdbcType=BIGINT},
+			</if>
+			<if test="farmarCode != null" >
+				#{farmarCode, jdbcType=VARCHAR},
+			</if>
+			<if test="orgId != null" >
+				#{orgId, jdbcType=INTEGER},
+			</if>
+			<if test="orgName != null" >
+				#{orgName, jdbcType=VARCHAR},
+			</if>
+			<if test="createSiteCode != null" >
+				#{createSiteCode, jdbcType=INTEGER},
+			</if>
+			<if test="createSiteName != null" >
+				#{createSiteName, jdbcType=VARCHAR},
+			</if>
+			<if test="createUserErp != null" >
+				#{createUserErp, jdbcType=VARCHAR},
+			</if>
+			<if test="createUserName != null" >
+				#{createUserName, jdbcType=VARCHAR},
+			</if>
+			<if test="weight != null" >
+				#{weight, jdbcType=DECIMAL},
+			</if>
+			<if test="length != null" >
+				#{length, jdbcType=DECIMAL},
+			</if>
+			<if test="width != null" >
+				#{width, jdbcType=DECIMAL},
+			</if>
+			<if test="high != null" >
+				#{high, jdbcType=DECIMAL},
+			</if>
+			<if test="farmarCheckType != null" >
+				#{farmar_check_type, jdbcType=TINYINT},
+			</if>
+			now(),
+			now(),
+			1,
+			now()
+		</trim>
+		)
+	</insert>
+
+	<insert id="batchInsert" parameterType="List">
+		insert into farmar_print_record
+		(
+		farmar_code,org_id,org_name,create_site_code,create_site_name,create_user_erp,create_user_name,
+		weight,length,width,high,farmar_check_type,create_time,update_time,yn,ts
+		)
+		values
+		<foreach collection="list" item="item" index="index" separator=",">
+			(
+			#{item.farmarCode,jdbcType=VARCHAR},
+			#{item.orgId,jdbcType=INTEGER},
+			#{item.orgName,jdbcType=VARCHAR},
+			#{item.createSiteCode,jdbcType=INTEGER},
+			#{item.createSiteName,jdbcType=VARCHAR},
+			#{item.createUserErp,jdbcType=VARCHAR},
+			#{item.createUserName,jdbcType=VARCHAR},
+			#{item.weight,jdbcType=DECIMAL},
+			#{item.length,jdbcType=DECIMAL},
+			#{item.width,jdbcType=DECIMAL},
+			#{item.high,jdbcType=DECIMAL},
+			#{item.farmarCheckType,jdbcType=TINYINT},
+			now(),
+			now(),
+			 1,
+			now()
+			)
+		</foreach>
+	</insert>
+
+	<select id="queryByFarmarCode" parameterType="java.lang.String" resultMap="BaseResultMap">
+		select
+		<include refid="Base_Column_List"/>
+		from
+		farmar_print_record
+		where yn = 1
+		and farmar_code = #{farmarCode,jdbcType=VARCHAR}
+		limit 1
+	</select>
+
+</mapper>

@@ -55,8 +55,7 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        id
-        ,
+        id,
         biz_id,
         seal_car_code,
         vehicle_number,
@@ -320,6 +319,13 @@
         order by ts desc limit 1;
     </select>
 
+    <select id="findIdByBizIdWithoutYn" resultType="java.lang.Long">
+        select id
+        from jy_biz_task_unload_vehicle
+        where biz_id = #{bizId}
+        order by ts desc limit 1;
+    </select>
+
     <select id="findIdAndStatusByBizId" resultMap="jyBizTaskUnloadVehicleMap">
         select id,
                vehicle_status
@@ -548,7 +554,7 @@
             <if test="updateTime != null">
                 update_time = #{updateTime},
             </if>
-            </set>
+        </set>
         <where>
             id = #{id} and yn = 1
         </where>
@@ -629,9 +635,9 @@
             <if test="taskType != null">
                 task_type = #{taskType},
             </if>
-            </set>
+        </set>
         <where>
-            id = #{id} and yn = 1
+            id = #{id}
         </where>
     </update>
     <select id="countByVehicleNumberAndStatus" resultType="java.lang.Long">
@@ -646,7 +652,36 @@
                     #{item}
                 </foreach>
             </if>
-            and yn = 1
+            and yn = 1           
         </where>
+     </select>
+
+    <select id="needCleanSite" parameterType="JyBizTaskUnloadVehicleEntity" resultType="Integer">
+        select end_site_id
+        from jy_biz_task_unload_vehicle
+        group by end_site_id
+
     </select>
+
+    <update id="cleanByParam" parameterType="JyBizTaskUnloadVehicleEntity">
+        update jy_biz_task_unload_vehicle
+        set yn = 0
+        where yn = 1
+        and end_site_id = #{endSiteId}
+        and vehicle_status = #{vehicleStatus}
+        <if test="createTime != null">
+            and create_time <![CDATA[ < ]]> #{createTime}
+        </if>
+        <if test="updateTime != null">
+            and update_time <![CDATA[ < ]]> #{updateTime}
+        </if>
+        <if test="unloadFinishTime != null">
+            and unload_finish_time <![CDATA[ < ]]> #{unloadFinishTime}
+        </if>
+        <if test="ts != null">
+            and ts <![CDATA[ < ]]> #{ts}
+        </if>
+
+
+    </update>
 </mapper>

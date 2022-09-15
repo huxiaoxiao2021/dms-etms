@@ -15,6 +15,7 @@ import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSourceTypeEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskStageStatusEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.group.JyTaskGroupMemberEntity;
+import com.jd.bluedragon.distribution.jy.manager.JyScheduleTaskManager;
 import com.jd.bluedragon.distribution.jy.service.group.JyTaskGroupMemberService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskUnloadVehicleService;
 import com.jd.bluedragon.distribution.jy.service.unload.JyBizTaskUnloadVehicleStageService;
@@ -31,6 +32,9 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.proxy.Profiler;
+import com.jdl.jy.schedule.dto.task.JyScheduleTaskReq;
+import com.jdl.jy.schedule.dto.task.JyScheduleTaskResp;
+import com.jdl.jy.schedule.enums.task.JyScheduleTaskTypeEnum;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +45,6 @@ import org.springframework.stereotype.Service;
 import java.util.Collections;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
-
 
 /**
  * @ClassName JyUnloadScanConsumer
@@ -55,7 +58,6 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
     private static final Logger logger = LoggerFactory.getLogger(JyUnloadScanConsumer.class);
 
     private static final int UNLOAD_SCAN_BIZ_EXPIRE = 6;
-
 
     @Autowired
     @Qualifier("redisClientOfJy")
@@ -82,9 +84,12 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
     @Autowired
     JyBizTaskUnloadVehicleStageService jyBizTaskUnloadVehicleStageService;
 
+    @Autowired
+    private JyScheduleTaskManager jyScheduleTaskManager;
+
     @Override
     @JProfiler(jKey = "DMS.WORKER.jyUnloadScanConsumer.consume",
-            jAppName = Constants.UMP_APP_NAME_DMSWORKER, mState = {JProEnum.TP, JProEnum.FunctionError})
+            jAppName = Constants.UMP_APP_NAME_DMSWORKER, mState = {JProEnum.TP,JProEnum.FunctionError})
     public void consume(Message message) throws Exception {
         if (StringHelper.isEmpty(message.getText())) {
             logger.warn("jyUnloadScanConsumer consume --> 消息为空");
@@ -107,7 +112,6 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
 
     /**
      * 保存扫描记录，发运单全程跟踪
-     *
      * @param unloadScanDto
      */
     private void doUnloadScan(UnloadScanDto unloadScanDto) {
@@ -116,6 +120,7 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
         startAndDistributeUnloadTask(unloadScanDto);
 
         JyUnloadEntity unloadEntity = copyFromDto(unloadScanDto);
+
         if (jyUnloadDao.insert(unloadEntity) <= 0) {
             logger.error("保存卸车扫描记录异常. {}", JsonHelper.toJson(unloadEntity));
             throw new RuntimeException("保存卸车扫描记录异常");
@@ -169,7 +174,8 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
             try {
                 Thread.sleep(100);
                 addInspectionTask(unloadScanDto);
-            } catch (InterruptedException e) {
+            }
+            catch (InterruptedException e) {
                 logger.error("再次插入卸车验货任务异常. {}", JsonHelper.toJson(unloadScanDto), e);
             }
         }
@@ -177,10 +183,13 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
 
     /**
      * 扫描第一单时开始卸车任务
-     *
      * @param unloadScanDto
      */
     private void startAndDistributeUnloadTask(UnloadScanDto unloadScanDto) {
+        if (!judgeStartScheduleTask(unloadScanDto)) {
+            logger.warn("不满足开始卸车任务的条件, 扫描时间晚于任务结束的时间或任务已结束. {}", JsonHelper.toJson(unloadScanDto));
+            return;
+        }
 
         // 卸车任务首次扫描
         if (judgeBarCodeIsFirstScanFromTask(unloadScanDto)) {
@@ -191,6 +200,27 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
         }
     }
 
+    /**
+     * 判断是否触发开始调度任务
+     * @param unloadScanDto
+     * @return
+     */
+    private boolean judgeStartScheduleTask(UnloadScanDto unloadScanDto) {
+        JyScheduleTaskReq req = new JyScheduleTaskReq();
+        req.setBizId(unloadScanDto.getBizId());
+        req.setTaskType(JyScheduleTaskTypeEnum.UNLOAD.getCode());
+        JyScheduleTaskResp scheduleTask = jyScheduleTaskManager.findScheduleTaskByBizId(req);
+        if (scheduleTask != null) {
+            if (scheduleTask.getTaskEndTime() == null) {
+                return true;
+            }
+            else {
+                return unloadScanDto.getOperateTime().before(scheduleTask.getTaskEndTime());
+            }
+        }
+
+        return false;
+    }
 
     private void recordTaskMembers(UnloadScanDto unloadScanDto) {
         JyTaskGroupMemberEntity startData = new JyTaskGroupMemberEntity();
@@ -211,7 +241,8 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
                     unloadScanDto.getBizId(), unloadScanDto.getVehicleNumber(), JsonHelper.toJson(unloadScanDto));
 
             logInfo("卸车任务首次扫描记录组员. {}, {}, {}", unloadScanDto.getBizId(), JsonHelper.toJson(unloadScanDto), JsonHelper.toJson(startTask));
-        } catch (Exception e) {
+        }
+        catch (Exception e) {
             // 异常不重试
             logger.error("卸车任务记录组员异常. {}", JsonHelper.toJson(unloadScanDto), e);
         }
@@ -224,14 +255,16 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
 
             JyBizTaskUnloadDto taskUnloadDto = getJyBizTaskUnloadDto(unloadScanDto);
             transactionManager.drawUnloadTask(taskUnloadDto);
-        } catch (JyBizException bizException) {
+        }
+        catch (JyBizException bizException) {
             logger.warn("卸车任务领取和分配发生业务异常，将重试！ {}", JsonHelper.toJson(unloadScanDto), bizException);
 
             // 任务分配失败，删除缓存
             redisClientOfJy.del(getUnloadBizCacheKey(unloadScanDto));
 
             throw bizException;
-        } catch (Exception ex) {
+        }
+        catch (Exception ex) {
             Profiler.businessAlarm("dms.web.jyUnloadScanConsumer.drawUnloadTask", "拣运卸车任务领取和分配失败");
             logger.error("卸车任务领取和分配失败. {}", JsonHelper.toJson(unloadScanDto), ex);
 
@@ -254,7 +287,6 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
 
     /**
      * 判断该单号是否是本次卸车任务扫描的第一单
-     *
      * @param unloadScanDto
      * @return
      */
@@ -280,7 +312,6 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
 
     /**
      * 插入验货或收货任务
-     *
      * @param unloadScanDto
      * @return
      */

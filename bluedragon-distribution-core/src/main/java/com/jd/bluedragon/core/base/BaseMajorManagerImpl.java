@@ -36,6 +36,7 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.apache.commons.lang3.StringUtils;
 import org.jboss.resteasy.client.ClientRequest;
 import org.jboss.resteasy.client.ClientResponse;
 import org.slf4j.Logger;
@@ -56,6 +57,8 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
 
     private Logger log = LoggerFactory.getLogger(BaseMajorManagerImpl.class);
     private static final String PROTOCOL = PropertiesHelper.newInstance().getValue("DMSVER_ADDRESS") + "/services/bases/siteString/";
+    //系统标识
+    private final String DMS = "dms";
     /**
      * 监控key的前缀
      */
@@ -273,14 +276,38 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
         return basicPrimaryWS.getBaseDataDictById(id);
     }
 
+    /**
+     * 获取库房信息
+     * code 如：spwms-709-712
+     *
+     * @param code
+     */
+    @Override
+    @Cache(key = "baseMajorManagerImpl.getStoreByCode@args0", memoryEnable = true, memoryExpiredTime = 30 * 60 * 1000,
+            redisEnable = true, redisExpiredTime = 30 * 60 * 1000)
+    public PsStoreInfo getStoreByCode(String code) {
+        try{
+            if(StringUtils.isNotBlank(code)){
+                String[] endNodeTmp = code.split(Constants.SEPARATOR_HYPHEN);
+                if(endNodeTmp.length == 3){
+                    return getStoreByCky2(endNodeTmp[0], Integer.valueOf(endNodeTmp[1]), Integer.valueOf(endNodeTmp[2]));
+                }
+            }
+        }catch (Exception e){
+            log.error("根据code获取仓库信息失败：code={}",code, e.getMessage(),e);
+        }
+
+        return null;
+    }
+
 
     @Override
     @Cache(key = "baseMajorManagerImpl.getStoreByCky2@args0@args1@args2@args3", memoryEnable = true, memoryExpiredTime = 30 * 60 * 1000,
             redisEnable = true, redisExpiredTime = 30 * 60 * 1000)
-    public PsStoreInfo getStoreByCky2(String storeType, Integer cky2, Integer storeID, String sys) {
+    public PsStoreInfo getStoreByCky2(String storeType, Integer cky2, Integer storeID) {
         CallerInfo info = Profiler.registerInfo("DMS.BASE.BaseMajorManagerImpl.getStoreByCky2", false, true);
         try {
-            BaseResult<PsStoreInfo> storeInfoResult = basicPrimaryWS.getStoreByCky2Id(storeType, cky2, storeID, sys);
+            BaseResult<PsStoreInfo> storeInfoResult = basicPrimaryWS.getStoreByCky2Id(storeType, cky2, storeID, Constants.UMP_APP_NAME_DMSWEB);
             if (0 == storeInfoResult.getResultCode()) {
                 return storeInfoResult.getData();
             } else {

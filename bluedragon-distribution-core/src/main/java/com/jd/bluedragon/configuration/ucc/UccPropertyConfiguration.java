@@ -1,14 +1,14 @@
 package com.jd.bluedragon.configuration.ucc;
 
 import com.jd.bluedragon.Constants;
+import com.jd.ql.dms.print.utils.JsonHelper;
+
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.math.NumberUtils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * Created by xumei3 on 2017/12/15.
@@ -64,11 +64,6 @@ public class UccPropertyConfiguration {
     /** 分拣动作选取的service DMS、MIDDLEEND、FAILOVER**/
     private String sortingServiceMode;
 
-    /** 出管新接口-写入方法开关 true 调用新接口，false 调用老接口**/
-    private boolean chuguanNewInterfaceInsertSwitch;
-
-    /** 出管新接口-查询方法开关 true 调用新接口，false 调用老接口**/
-    private boolean chuguanNewInterfaceQuerySwitch;
 
     /**
      * 大运单告警数量
@@ -125,6 +120,8 @@ public class UccPropertyConfiguration {
     * 分拣验证切换到web试用站点
     * */
     private String switchVerToWebSites;
+
+
 
     /**
      * 禁用老版本登陆
@@ -504,6 +501,34 @@ public class UccPropertyConfiguration {
      */
     private String businessLogQueryPageSwitch;
 
+    /**
+     * 出管供应链二期改造 开关。true 开启，false 不开启
+     */
+    private boolean chuguanPurchaseAndSaleSwitch;
+
+
+
+    /**
+     * 阿迪青龙业主号配置
+     */
+    private  String addiOwnNumberConf;
+
+    public String getAddiOwnNumberConf() {
+        return addiOwnNumberConf;
+    }
+
+    public void setAddiOwnNumberConf(String addiOwnNumberConf) {
+        this.addiOwnNumberConf = addiOwnNumberConf;
+    }
+
+    public boolean isChuguanPurchaseAndSaleSwitch() {
+        return chuguanPurchaseAndSaleSwitch;
+    }
+
+    public void setChuguanPurchaseAndSaleSwitch(boolean chuguanPurchaseAndSaleSwitch) {
+        this.chuguanPurchaseAndSaleSwitch = chuguanPurchaseAndSaleSwitch;
+    }
+
     public String getBusinessLogQueryPageSwitch() {
         return businessLogQueryPageSwitch;
     }
@@ -653,6 +678,16 @@ public class UccPropertyConfiguration {
      * 批量一车一单 德邦单匹配德邦批次号开关
      */
     private boolean dpWaybillMatchSendCodeSwitch;
+    /**
+     * 发货岗计划发车时间查询条件前X天
+     */
+    private Integer jySendTaskPlanTimeBeginDay;
+    /**
+     * 发货岗计划发车时间查询条件后X天
+     */
+    private Integer jySendTaskPlanTimeEndDay;
+
+    private Integer jySendTaskCreateTimeBeginDay;
 
     public Integer getOldSendSplitPageSize() {
         return oldSendSplitPageSize;
@@ -812,6 +847,26 @@ public class UccPropertyConfiguration {
      */
     private String waybillWeightLimit;
 
+    /**
+     * 面单举报异常配置
+     */
+    private String faceAbnormalReportConfig;
+
+    /**
+     * 身份证识别切量开关，全量上线之后，可以删除
+     */
+    private String identityRecogniseSiteSwitch;
+    /**
+     * 传摆发货-干支限制业务列表
+     */
+    private String needValidateMainLineBizSourceList;
+    private List<Integer> needValidateMainLineBizSourceCodes;
+
+    /**
+     * 敏感信息隐藏开关
+     */
+    private Boolean sensitiveInfoHideSwitch;
+
     public String getScheduleSiteCheckSameCity() {
         return scheduleSiteCheckSameCity;
     }
@@ -970,22 +1025,6 @@ public class UccPropertyConfiguration {
 
     public void setSortingServiceMode(String sortingServiceMode) {
         this.sortingServiceMode = sortingServiceMode;
-    }
-
-    public boolean isChuguanNewInterfaceInsertSwitch() {
-        return chuguanNewInterfaceInsertSwitch;
-    }
-
-    public void setChuguanNewInterfaceInsertSwitch(boolean chuguanNewInterfaceInsertSwitch) {
-        this.chuguanNewInterfaceInsertSwitch = chuguanNewInterfaceInsertSwitch;
-    }
-
-    public boolean isChuguanNewInterfaceQuerySwitch() {
-        return chuguanNewInterfaceQuerySwitch;
-    }
-
-    public void setChuguanNewInterfaceQuerySwitch(boolean chuguanNewInterfaceQuerySwitch) {
-        this.chuguanNewInterfaceQuerySwitch = chuguanNewInterfaceQuerySwitch;
     }
 
     public String getSortingQueryMode() {
@@ -1968,6 +2007,71 @@ public class UccPropertyConfiguration {
 
     public void setDpWaybillMatchSendCodeSwitch(boolean dpWaybillMatchSendCodeSwitch) {
         this.dpWaybillMatchSendCodeSwitch = dpWaybillMatchSendCodeSwitch;
+    }
+
+    public String getFaceAbnormalReportConfig() {
+        return faceAbnormalReportConfig;
+    }
+
+    public void setFaceAbnormalReportConfig(String faceAbnormalReportConfig) {
+        this.faceAbnormalReportConfig = faceAbnormalReportConfig;
+    }
+
+    public List<String> getIdentityRecogniseSiteSwitch() {
+        return StringUtils.isNotEmpty(identityRecogniseSiteSwitch)?
+                Arrays.asList(identityRecogniseSiteSwitch.split(Constants.SEPARATOR_COMMA).clone())
+                : Collections.singletonList("0");
+    }
+
+    public void setIdentityRecogniseSiteSwitch(String identityRecogniseSiteSwitch) {
+        this.identityRecogniseSiteSwitch = identityRecogniseSiteSwitch;
+    }
+
+    public Integer getJySendTaskPlanTimeBeginDay() {
+        return jySendTaskPlanTimeBeginDay;
+    }
+
+    public void setJySendTaskPlanTimeBeginDay(Integer jySendTaskPlanTimeBeginDay) {
+        this.jySendTaskPlanTimeBeginDay = jySendTaskPlanTimeBeginDay;
+    }
+
+    public Integer getJySendTaskPlanTimeEndDay() {
+        return jySendTaskPlanTimeEndDay;
+    }
+
+    public void setJySendTaskPlanTimeEndDay(Integer jySendTaskPlanTimeEndDay) {
+        this.jySendTaskPlanTimeEndDay = jySendTaskPlanTimeEndDay;
+    }
+
+    public String getNeedValidateMainLineBizSourceList() {
+        return needValidateMainLineBizSourceList;
+    }
+
+    public void setNeedValidateMainLineBizSourceList(String needValidateMainLineBizSourceList) {
+        this.needValidateMainLineBizSourceList = needValidateMainLineBizSourceList;
+        needValidateMainLineBizSourceCodes = JsonHelper.jsonToList(needValidateMainLineBizSourceList, Integer.class);
+    }
+
+    public boolean needValidateMainLine(Integer bizCode) {
+    	if(!CollectionUtils.isEmpty(needValidateMainLineBizSourceCodes)) {
+    		return needValidateMainLineBizSourceCodes.contains(bizCode);
+    	}
+    	return false;
+    }
+    public Boolean getSensitiveInfoHideSwitch() {
+        return sensitiveInfoHideSwitch;
+    }
+
+    public void setSensitiveInfoHideSwitch(Boolean sensitiveInfoHideSwitch) {
+        this.sensitiveInfoHideSwitch = sensitiveInfoHideSwitch;
+    }
+
+    public Integer getJySendTaskCreateTimeBeginDay() {
+        return jySendTaskCreateTimeBeginDay;
+    }
+
+    public void setJySendTaskCreateTimeBeginDay(Integer jySendTaskCreateTimeBeginDay) {
+        this.jySendTaskCreateTimeBeginDay = jySendTaskCreateTimeBeginDay;
     }
 
     public Integer getUnloadCacheDurationHours() {

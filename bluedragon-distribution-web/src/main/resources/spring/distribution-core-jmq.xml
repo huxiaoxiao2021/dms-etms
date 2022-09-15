@@ -358,6 +358,18 @@
         <property name="topic" value="${jmq.topic.waybillConsumable.report}"/>
     </bean>
 
+    <!-- 包装耗材确认消息同步财务-->
+    <bean id="waybillConsumableFinanceProducer" parent="jmq4DmsWebDefaultJMQProducer">
+        <property name="timeout" value="10000"/>
+        <property name="topic" value="${jmq.topic.waybillConsumable.finance}"/>
+    </bean>
+
+    <!-- 包装耗材确认消息（总）-->
+    <bean id="waybillConsumableConfirmProducer" parent="jmq4DmsWebDefaultJMQProducer">
+        <property name="timeout" value="10000"/>
+        <property name="topic" value="${jmq.topic.waybillConsumable.confirm}"/>
+    </bean>
+
     <!-- 签单返回合单mq，提供运单新单号和旧单号列表 -->
     <bean id="mergeWaybillReturnMQ" class="com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer">
         <property name="topic" value="${jmq.topic.mergeWaybillReturn.track}"/>
@@ -463,11 +475,6 @@
     <!-- 青流箱出入库消息 -->
     <bean id="tagInOutProducer" parent="dmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.tag.inOut}"/>
-    </bean>
-
-    <!-- 称重抽检处理消息 -->
-    <bean id="weightAndVolumeCheckHandleProducer" parent="dmsWebDefaultJMQProducer">
-        <property name="topic" value="${jmq.topic.weightAndVolumeCheck.handle}"/>
     </bean>
 
     <!--  分拣建箱环节发送包裹信息  -->
@@ -634,6 +641,12 @@
     <!--  首次打印  -->
     <bean id="popPrintFirstProducer" parent="jmq4DmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.pop.print.first}" />
+        <property name="timeout" value="1000" />
+    </bean>
+
+    <!--  拣运发货任务车辆拍照  -->
+    <bean id="sendCarArriveStatusProducer" parent="jmq4DmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.send.car.arrive.status}" />
         <property name="timeout" value="1000" />
     </bean>
 

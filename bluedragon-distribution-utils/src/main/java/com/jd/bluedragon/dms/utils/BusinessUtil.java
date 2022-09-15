@@ -9,6 +9,7 @@ import org.apache.commons.lang.StringUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -948,6 +949,18 @@ public class BusinessUtil {
     }
 
     /**
+     * 判断是否医药零担
+     *
+     * @param waybillSign
+     * @return
+     */
+    public static Boolean isMedicine(String waybillSign){
+        return isSignChar(waybillSign,WaybillSignConstants.POSITION_80, WaybillSignConstants.CHAR_80_7)
+                && isSignChar(waybillSign,WaybillSignConstants.POSITION_54, WaybillSignConstants.CHAR_54_4)
+                && isSignInChars(waybillSign,WaybillSignConstants.POSITION_40, WaybillSignConstants.CHAR_40_2, WaybillSignConstants.CHAR_40_3);
+    }
+
+    /**
      * 判断是否是生鲜纯配城配共配
      * waybill_sign54位=2（生鲜）、waybill_sign80位=6（城配）、40位=2（纯配快运零担）、118位=1（共配）
      * @param waybillSign
@@ -1721,6 +1734,26 @@ public class BusinessUtil {
 	}
 
     /**
+     * 是否集配站点
+     *
+     * @param subType
+     * @return
+     */
+    public static boolean isJPSite(Integer subType) {
+        return Objects.equals(subType, 9605);
+    }
+
+    /**
+     * 是否城配站点
+     *
+     * @param subType
+     * @return
+     */
+    public static boolean isCPSite(Integer subType) {
+        return Objects.equals(subType, 9607);
+    }
+
+    /**
      * 是否外单自提点
      *  C网 waybillsign第40位=0
      *  订单类型 SOP Waybillsign第1位=2
@@ -2184,6 +2217,19 @@ public class BusinessUtil {
         return BusinessUtil.isSignInChars(waybillSign, WaybillSignConstants.POSITION_8,
                 WaybillSignConstants.CHAR_8_1);
     }
+
+    /**
+     *
+     *  寄件人信息 非逆向运单 （waybillSign61位=0）
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isJDConsigner(String waybillSign) {
+        return BusinessUtil.isSignInChars(waybillSign, WaybillSignConstants.POSITION_61,
+                WaybillSignConstants.CHAR_61_0);
+    }
+
+
     /**
      * 是否修改订单地址,waybillSign第8位1、2
      *
@@ -2378,6 +2424,24 @@ public class BusinessUtil {
         return isSignChar(waybillSign,WaybillSignConstants.POSITION_31,WaybillSignConstants.CHAR_31_D);
     }
 
+    /**
+     * 是否自营逆向单
+     *
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isSelfReverse(String waybillSign){
+        return isSignChar(waybillSign, WaybillSignConstants.POSITION_1, 'T');
+    }
+
+    /**
+     * 是否是外单仓配业务
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isWarehouseAndDistributionBusiness(String waybillSign){
+        return isSignChar(waybillSign, WaybillSignConstants.POSITION_53, WaybillSignConstants.CHAR_1);
+    }
     /**
      * 通过运单标识 判断是否需求称重
      * <p>

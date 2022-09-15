@@ -72,6 +72,9 @@ public class PackageWeightVolumeHandler extends AbstractWeightVolumeHandler {
 
     @Override
     protected void weightVolumeRuleCheckHandler(WeightVolumeContext weightVolumeContext, InvokeResult<Boolean> result) {
+        if(commonCheckIntercept(weightVolumeContext, result)){
+            return;
+        }
         if(BusinessUtil.isCInternet(weightVolumeContext.getWaybill().getWaybillSign())){
             checkCInternetRule(weightVolumeContext, result);
             return;
@@ -251,6 +254,9 @@ public class PackageWeightVolumeHandler extends AbstractWeightVolumeHandler {
         packWeightVO.setOperatorSiteName(entity.getOperateSiteName());
         packWeightVO.setOperatorSiteCode(entity.getOperateSiteCode());
         packWeightVO.setMachineCode(entity.getMachineCode());
+        if(entity.getOperateTime() != null){
+            packWeightVO.setOperateTimeMillis(entity.getOperateTime().getTime());
+        }
         return packWeightVO;
     }
 

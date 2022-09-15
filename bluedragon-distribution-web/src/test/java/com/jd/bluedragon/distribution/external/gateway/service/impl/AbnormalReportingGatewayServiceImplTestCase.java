@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import com.jd.bluedragon.common.dto.abnormal.response.SiteDto;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -24,6 +25,9 @@ import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.dms.utils.AreaData;
 
 import junit.framework.Assert;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 /**
  * 
@@ -33,11 +37,15 @@ import junit.framework.Assert;
  * @date: 2021年9月25日 下午1:47:58
  *
  */
-@RunWith(MockitoJUnitRunner.class)
+//@RunWith(MockitoJUnitRunner.class)
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = "classpath:distribution-web-context.xml")
 public class AbnormalReportingGatewayServiceImplTestCase {
-	@InjectMocks
+//	@InjectMocks
+	@Autowired
     private AbnormalReportingGatewayServiceImpl abnormalReportingGatewayServiceImpl;
-	@Mock
+//	@Mock
+	@Autowired
     private DeptServiceQcManager deptServiceQcManager;
 	
     @Test
@@ -108,5 +116,34 @@ public class AbnormalReportingGatewayServiceImplTestCase {
     	JdCResponse<List<TraceDept>> getTraceDept = abnormalReportingGatewayServiceImpl.getTraceDept(queryRequest);
     	
     	Assert.assertEquals(getTraceDept.isSucceed()&&getTraceDept.getData().size()==2,true);
+	}
+
+	@Test
+	public void testQuerySite(){
+		QuerySiteRequest case1 = new QuerySiteRequest("", "", "405147");
+		JdCResponse<List<SiteDto>> response = abnormalReportingGatewayServiceImpl.querySite(case1.orgId, case1.siteName,case1.siteCode);
+		System.out.println(response.getData());
+
+	}
+
+	class QuerySiteRequest{
+		//操作机构ID
+		String orgId;
+		//站点名称
+		String siteName;
+		//站点码
+		String siteCode;
+		/**
+		 *  @description    构造函数
+		 *  @param
+		 *  @return
+		 *  @author         laoqingchang1
+		 *  @date           2022/7/28
+		 */
+		public QuerySiteRequest(String orgId, String siteName, String siteCode){
+			this.orgId = orgId;
+			this.siteName = siteName;
+			this.siteCode = siteCode;
+		}
 	}
 }

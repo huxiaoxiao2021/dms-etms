@@ -6,6 +6,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.BarCodeLabelOptionEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.UnloadBarCodeScanTypeEnum;
+import com.jd.bluedragon.common.dto.operation.workbench.enums.UnloadScanTypeEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.unload.request.*;
 import com.jd.bluedragon.common.dto.operation.workbench.unload.response.*;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.LineTypeStatis;
@@ -598,6 +599,9 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
      */
     private Integer calculateScanPackageCount(UnloadScanRequest request) {
         String barCode = request.getBarCode();
+        if(Objects.equals(UnloadScanTypeEnum.SCAN_WAYBILL.getCode(), request.getScanType())){
+            barCode = WaybillUtil.getWaybillCode(request.getBarCode());
+        }
         Integer scanCount = 0;
         if (WaybillUtil.isPackageCode(barCode)) {
             scanCount = 1;
@@ -632,6 +636,9 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         unloadScanDto.setManualCreatedFlag(taskUnloadVehicle.getManualCreatedFlag());
         unloadScanDto.setOperateSiteId((long) request.getCurrentOperate().getSiteCode());
         unloadScanDto.setBarCode(request.getBarCode());
+        if(Objects.equals(UnloadScanTypeEnum.SCAN_WAYBILL.getCode(), request.getScanType())){
+            unloadScanDto.setBarCode(WaybillUtil.getWaybillCode(request.getBarCode()));
+        }
         unloadScanDto.setOperateTime(operateTime);
         unloadScanDto.setCreateUserErp(request.getUser().getUserErp());
         unloadScanDto.setCreateUserName(request.getUser().getUserName());
@@ -648,14 +655,15 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
 
     /**
      * 校验卸车是否已经扫描过该单号，同一个任务只能扫描一次
-     * @param barCode 包裹、运单、箱号
-     * @param siteCode 操作场地
      * @return true：扫描过
      */
     private boolean checkBarScannedAlready(UnloadScanRequest request) {
         String barCode = request.getBarCode();
         int siteCode = request.getCurrentOperate().getSiteCode();
         boolean alreadyScanned = false;
+        if(Objects.equals(UnloadScanTypeEnum.SCAN_WAYBILL.getCode(), request.getScanType())){
+            barCode = WaybillUtil.getWaybillCode(request.getBarCode());
+        }
         String mutexKey = getBizBarCodeCacheKey(barCode, siteCode, request.getBizId());
         if (redisClientOfJy.set(mutexKey, String.valueOf(System.currentTimeMillis()), UNLOAD_SCAN_BAR_EXPIRE, TimeUnit.HOURS, false)) {
             JyUnloadEntity queryDb = new JyUnloadEntity(barCode, (long) siteCode, request.getBizId());

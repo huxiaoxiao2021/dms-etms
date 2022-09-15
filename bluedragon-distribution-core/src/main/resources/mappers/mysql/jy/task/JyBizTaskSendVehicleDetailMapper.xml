@@ -25,6 +25,7 @@
         <result property="updateTime" column="update_time"/>
         <result property="yn" column="yn"/>
         <result property="ts" column="ts"/>
+        <result property="excepLabel" column="excep_label"/>
     </resultMap>
 
     <resultMap id="statusSumResultMap" type="com.jd.bluedragon.distribution.jy.dto.send.JyBizTaskSendCountDto">
@@ -35,7 +36,7 @@
     <sql id="Base_Column_List">
         id, send_vehicle_biz_id, biz_id, trans_work_item_code, vehicle_status, start_site_id, start_site_name,
         end_site_id, end_site_name, plan_depart_time, seal_car_time,
-        create_user_erp, create_user_name, update_user_erp, update_user_name, create_time, update_time, yn, ts
+        create_user_erp, create_user_name, update_user_erp, update_user_name, create_time, update_time, yn, ts,excep_label
     </sql>
 
     <insert id="insert" parameterType="JyBizTaskSendVehicleDetailEntity">
@@ -349,7 +350,7 @@
     </insert>
 
     <select id="findByMainVehicleBiz" resultMap="jyBizTaskSendVehicleDetailMap">
-        SELECT 
+        SELECT
             <include refid="Base_Column_List"/>
         FROM jy_biz_task_send_vehicle_detail
         WHERE
@@ -390,6 +391,9 @@
             <if test="updateTime != null">
                 update_time = #{updateTime},
             </if>
+            <if test="excepLabel != null">
+                excep_label = #{excepLabel},
+            </if>
             <if test="yn != null">
                 yn = #{yn}
             </if>
@@ -397,6 +401,33 @@
         WHERE
             yn = 1
         AND biz_id = #{bizId}
+    </update>
+
+    <update id="updateStatusWithoutCompare">
+        UPDATE jy_biz_task_send_vehicle_detail
+        <trim prefix="set" suffixOverrides=",">
+            <if test="entity.updateTime != null">
+                update_time = #{entity.updateTime},
+            </if>
+            <if test="entity.updateUserErp != null">
+                update_user_erp = #{entity.updateUserErp},
+            </if>
+            <if test="entity.updateUserName != null">
+                update_user_name = #{entity.updateUserName},
+            </if>
+            <if test="entity.vehicleStatus != null">
+                vehicle_status = #{entity.vehicleStatus},
+            </if>
+            <if test="entity.sealCarTime != null">
+                seal_car_time = #{entity.sealCarTime, jdbcType=TIMESTAMP}
+            </if>
+        </trim>
+        WHERE
+        yn = 1
+        AND send_vehicle_biz_id = #{entity.sendVehicleBizId}
+        AND start_site_id = #{entity.startSiteId}
+        AND end_site_id = #{entity.endSiteId}
+        AND vehicle_status = #{oldStatus}
     </update>
 
     <update id="updateStatus">
@@ -496,4 +527,29 @@
         where biz_id =#{bizId} and vehicle_status =#{preVehicleStatus}
     </update>
 
+    <select id="countNoCancelSendDetail" parameterType="JyBizTaskSendVehicleDetailEntity" resultType="java.lang.Integer">
+        select count(id) from jy_biz_task_send_vehicle_detail
+        WHERE send_vehicle_biz_id =#{sendVehicleBizId}
+          and vehicle_status IN (0,1,2,3) AND yn =1
+    </select>
+    <select id="findByTransWorkItemCode" parameterType="JyBizTaskSendVehicleDetailEntity" resultMap="jyBizTaskSendVehicleDetailMap">
+        SELECT
+            <include refid="Base_Column_List"/>
+        FROM jy_biz_task_send_vehicle_detail
+        WHERE
+            yn = 1
+        AND trans_work_item_code = #{transWorkItemCode}
+        AND vehicle_status = #{vehicleStatus}
+        LIMIT 1
+    </select>    
+    <select id="findSendVehicleBizListBySendFlow" parameterType="JyBizTaskSendVehicleDetailEntity" resultType="java.lang.String">
+        SELECT
+            distinct send_vehicle_biz_id
+        FROM jy_biz_task_send_vehicle_detail
+        WHERE
+            yn = 1
+            and start_site_id = #{startSiteId}
+            and end_site_id = #{endSiteId}
+            and create_time &gt;= #{createTimeBegin}
+    </select>
 </mapper>

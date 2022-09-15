@@ -436,6 +436,14 @@
                   server="dmsjsf">
     </jsf:provider>
 
+    <!--  标签对外JSF服务   -->
+    <jsf:provider id="dmsLabelPrintJsfService"
+                  interface="com.jd.bluedragon.distribution.label.api.LabelPrintJsfService"
+                  alias="${dms.jsf.alias}"
+                  ref="labelPrintJsfService"
+                  server="dmsjsf">
+    </jsf:provider>
+
     <!--  转运卸车岗服务   -->
     <jsf:provider id="jsfJyUnloadVehicleTysService"
                   interface="com.jd.bluedragon.distribution.jy.api.JyUnloadVehicleTysService"

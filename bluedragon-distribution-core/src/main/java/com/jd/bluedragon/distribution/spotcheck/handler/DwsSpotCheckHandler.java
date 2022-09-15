@@ -1,7 +1,6 @@
 package com.jd.bluedragon.distribution.spotcheck.handler;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.SpotCheckQueryManager;
 import com.jd.bluedragon.core.base.SpotCheckServiceProxy;
 import com.jd.bluedragon.core.base.WaybillTraceManager;
@@ -16,7 +15,6 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.ql.dms.report.domain.WeightVolumeCollectDto;
 import com.jd.ql.dms.report.domain.spotcheck.SpotCheckQueryCondition;
 import com.jd.ql.dms.report.domain.spotcheck.WeightVolumeSpotCheckDto;
 import org.apache.commons.collections.CollectionUtils;
@@ -42,9 +40,6 @@ public class DwsSpotCheckHandler extends AbstractSpotCheckHandler {
     private SpotCheckDealService spotCheckDealService;
 
     @Autowired
-    private AbstractExcessStandardHandler abstractExcessStandardHandler;
-
-    @Autowired
     private WaybillTraceManager waybillTraceManager;
 
     @Autowired
@@ -55,9 +50,6 @@ public class DwsSpotCheckHandler extends AbstractSpotCheckHandler {
 
     @Autowired
     private SpotCheckServiceProxy spotCheckServiceProxy;
-
-    @Autowired
-    private UccPropertyConfiguration uccPropertyConfiguration;
 
     @Autowired
     @Qualifier("dwsIssueDealProducer")
@@ -77,15 +69,6 @@ public class DwsSpotCheckHandler extends AbstractSpotCheckHandler {
             return spotCheckDealService.checkIsExcessReform(spotCheckContext);
         }
         return result;
-    }
-
-    @Override
-    protected void spotCheck(SpotCheckContext spotCheckContext, InvokeResult<Boolean> result) {
-        if(!WaybillUtil.isPackageCode(spotCheckContext.getPackageCode())){
-            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_ONLY_SUPPORT_MORE_PACK);
-            return;
-        }
-        super.spotCheck(spotCheckContext, result);
     }
 
     @Override
@@ -123,8 +106,6 @@ public class DwsSpotCheckHandler extends AbstractSpotCheckHandler {
         }
         if(StringUtils.isEmpty(spotCheckDealService.spotCheckPackSetStr(spotCheckContext.getWaybillCode(), spotCheckContext.getReviewSiteCode()))){
             spotCheckServiceProxy.insertOrUpdateProxyReform(initSummaryDto(spotCheckContext));
-            // 初始化老的抽检数据
-            initOldDto(spotCheckContext);
         }
         // 集齐后
         if(spotCheckDealService.gatherTogether(spotCheckContext)){
@@ -148,25 +129,12 @@ public class DwsSpotCheckHandler extends AbstractSpotCheckHandler {
                 }
             }
         }
-        // 双写老的抽检数据
-        assembledSummaryAndDetailOldDto(spotCheckContext);
         // 包裹明细数据落库
         spotCheckServiceProxy.insertOrUpdateProxyReform(assembleDetailReform(spotCheckContext));
         // 设置包裹维度缓存
         setSpotCheckPackCache(spotCheckContext.getPackageCode(), spotCheckContext.getReviewSiteCode());
         // 抽检全程跟踪
         spotCheckDealService.sendWaybillTrace(spotCheckContext);
-        // 记录抽检操作日志
-        spotCheckDealService.recordSpotCheckLog(spotCheckContext);
-    }
-
-    private void assembledSummaryAndDetailOldDto(SpotCheckContext spotCheckContext) {
-        // 包裹维度明细数据
-        assembledDetailOldDto(spotCheckContext);
-        if(spotCheckContext.getIsGatherTogether()){
-            // 汇总的总记录数据
-            assembledSummaryOldDto(spotCheckContext);
-        }
     }
 
     private WeightVolumeSpotCheckDto initSummaryDto(SpotCheckContext spotCheckContext) {
@@ -245,42 +213,6 @@ public class DwsSpotCheckHandler extends AbstractSpotCheckHandler {
         return detailDto;
     }
 
-    protected void initOldDto(SpotCheckContext spotCheckContext) {
-        WeightVolumeCollectDto initOldDto = new WeightVolumeCollectDto();
-        initOldDto.setRecordType(SpotCheckRecordTypeEnum.SUMMARY_RECORD.getCode());
-        initOldDto.setIsWaybillSpotCheck(spotCheckContext.getSpotCheckDimensionType());
-        initOldDto.setFromSource(spotCheckContext.getSpotCheckSourceFrom());
-        initOldDto.setSpotCheckType(spotCheckContext.getSpotCheckBusinessType());
-        initOldDto.setMultiplePackage(spotCheckContext.getIsMultiPack() ? Constants.CONSTANT_NUMBER_ONE : Constants.NUMBER_ZERO);
-        initOldDto.setReviewDate(spotCheckContext.getOperateTime());
-        initOldDto.setWaybillCode(spotCheckContext.getWaybillCode());
-        initOldDto.setPackageCode(spotCheckContext.getWaybillCode());
-        initOldDto.setIsTrustBusi(spotCheckContext.getIsTrustMerchant() ? Constants.CONSTANT_NUMBER_ONE : Constants.NUMBER_ZERO);
-        initOldDto.setMerchantCode(spotCheckContext.getMerchantCode());
-        initOldDto.setBusiCode(spotCheckContext.getMerchantId());
-        initOldDto.setBusiName(spotCheckContext.getMerchantName());
-        initOldDto.setProductTypeCode(spotCheckContext.getProductTypeCode());
-        initOldDto.setProductTypeName(spotCheckContext.getProductTypeName());
-        BaseStaffSiteOrgDto reviewSite = spotCheckContext.getReviewSite();
-        initOldDto.setReviewSubType(reviewSite == null
-                ? null : Objects.equals(reviewSite.getSiteType(), Constants.DMS_SITE_TYPE) ? Constants.CONSTANT_NUMBER_ONE : Constants.NUMBER_ZERO);
-        initOldDto.setVolumeRate(spotCheckContext.getVolumeRate());
-        SpotCheckReviewDetail spotCheckReviewDetail = spotCheckContext.getSpotCheckReviewDetail();
-        initOldDto.setReviewOrgCode(spotCheckReviewDetail.getReviewOrgId());
-        initOldDto.setReviewOrgName(spotCheckReviewDetail.getReviewOrgName());
-        initOldDto.setReviewSiteCode(spotCheckReviewDetail.getReviewSiteCode());
-        initOldDto.setReviewSiteName(spotCheckReviewDetail.getReviewSiteName());
-        initOldDto.setReviewErp(spotCheckReviewDetail.getReviewUserErp());
-        initOldDto.setReviewWeight(spotCheckReviewDetail.getReviewWeight());
-        initOldDto.setReviewVolume(spotCheckReviewDetail.getReviewVolume());
-        initOldDto.setReviewVolumeWeight(spotCheckReviewDetail.getReviewVolumeWeight());
-        initOldDto.setMoreBigWeight(spotCheckReviewDetail.getReviewLarge());
-        initOldDto.setVolumeRate(spotCheckContext.getVolumeRate());
-        initOldDto.setFullCollect(Constants.NUMBER_ZERO);
-        initOldDto.setIsExcess(ExcessStatusEnum.EXCESS_ENUM_COMPUTE.getCode());
-        spotCheckServiceProxy.insertOrUpdateProxyPrevious(initOldDto);
-    }
-
     private void reformSendSpotCheck(SpotCheckContext spotCheckContext, InvokeResult<Boolean> result) {
         if(spotCheckDealService.checkIsHasSpotCheck(spotCheckContext.getWaybillCode())){
             result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_HAS_SPOT_CHECK);
@@ -309,68 +241,4 @@ public class DwsSpotCheckHandler extends AbstractSpotCheckHandler {
         }
     }
 
-    /**
-     * 超标校验
-     *  1、获取复核数据、核对数据
-     *       a、未集齐返回'待集齐计算'
-     *       b、集齐则汇总复核数据
-     *       c、核对数据运单获取
-     *  2、超标判断
-     * @param spotCheckContext
-     * @return
-     */
-    @Override
-    protected InvokeResult<CheckExcessResult> checkIsExcessB(SpotCheckContext spotCheckContext) {
-        return checkIsExcessC(spotCheckContext);
-    }
-
-    /**
-     * 超标校验
-     *  1、获取复核数据、核对数据
-     *      1）、一单多件
-     *          a、未集齐返回'待集齐计算'
-     *          b、集齐则汇总复核数据
-     *          c、核对数据从计费获取
-     *      2）、一单一件
-     *          a、核对数据从计费获取
-     *          b、核对数据先计费获取，计费重量为0或空则从运单称重流水获取
-     *  2、超标判断
-     * @param spotCheckContext
-     * @return
-     */
-    @Override
-    protected InvokeResult<CheckExcessResult> checkIsExcessC(SpotCheckContext spotCheckContext) {
-        InvokeResult<CheckExcessResult> result = new InvokeResult<CheckExcessResult>();
-        if(spotCheckContext.getIsMultiPack()){
-            // 一单多件
-            if(!spotCheckDealService.gatherTogether(spotCheckContext)){
-                CheckExcessResult excessData = new CheckExcessResult();
-                excessData.setExcessCode(ExcessStatusEnum.EXCESS_ENUM_COMPUTE.getCode());
-                result.setData(excessData);
-                return result;
-            }
-            summaryReviewWeightVolume(spotCheckContext);
-            obtainContrast(spotCheckContext);
-        }else {
-            // 一单一件
-            obtainContrast(spotCheckContext);
-        }
-        return abstractExcessStandardHandler.checkIsExcess(spotCheckContext);
-    }
-
-    /**
-     * 超标后续逻辑
-     *  1、抽检数据落es
-     *  2、抽检全程跟踪
-     *  4、记录抽检日志
-     * @param spotCheckContext
-     */
-    @Override
-    protected void dealAfterCheckSuc(SpotCheckContext spotCheckContext) {
-        if(spotCheckContext.getIsMultiPack()){
-            multiDataDeal(spotCheckContext);
-        }else {
-            onceDataDeal(spotCheckContext);
-        }
-    }
 }

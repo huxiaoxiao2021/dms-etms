@@ -14,6 +14,7 @@ import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.PackageState;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -131,12 +132,9 @@ public class ResidentResource {
         String packageCode = null;
         try{
             //获取箱号中其中的一个包裹号（终端）
-            com.jd.etms.erp.service.domain.BaseEntity<List<SendInfoDto>> baseEntity = terminalManager.getSendDetails(boxCode);
-            if(baseEntity != null && baseEntity.getResultCode() > 0) {
-                List<SendInfoDto> data = baseEntity.getData();
-                if(data != null && data.size() > 0){
-                    packageCode = data.get(0).getPackageBarcode();
-                }
+            List<SendInfoDto> sendDetailsFromZD = terminalManager.getSendDetailsFromZD(boxCode);
+            if(CollectionUtils.isNotEmpty(sendDetailsFromZD)) {
+                packageCode = sendDetailsFromZD.get(0).getPackageBarcode();
             }
             //根据包裹号判断是否操作发货
             if(packageCode != null){

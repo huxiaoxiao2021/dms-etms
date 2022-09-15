@@ -64,6 +64,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.*;
 
+import static com.jd.bluedragon.utils.LocalSecurityLog.writeBatchSummaryPrintSecurityLog;
+import static com.jd.bluedragon.utils.LocalSecurityLog.writeSummaryPrintSecurityLog;
+
 @Service("sendPrintService")
 public class SendPrintServiceImpl implements SendPrintService {
 
@@ -198,7 +201,8 @@ public class SendPrintServiceImpl implements SendPrintService {
             Profiler.registerInfoEnd(info);
         }
         // 记录安全日志
-        writeSecurityLog(criteria);
+        //writeSecurityLog(criteria);
+        writeBatchSummaryPrintSecurityLog(SendPrintServiceImpl.class.getName(),criteria,results);
         return tSummaryPrintResultResponse;
     }
 
@@ -1823,7 +1827,8 @@ public class SendPrintServiceImpl implements SendPrintService {
         Date endDate = new Date();
         log.debug("打印交接清单-基本信息查询结束-{}" , (startDate.getTime() - endDate.getTime()));
         // 记录安全日志
-        writeSecurityLog(criteria);
+        //writeSecurityLog(criteria);
+        writeSummaryPrintSecurityLog(SendPrintServiceImpl.class.getName(),criteria,tBasicQueryEntityResponse.getData());
         return tBasicQueryEntityResponse;
     }
 
@@ -1872,7 +1877,8 @@ public class SendPrintServiceImpl implements SendPrintService {
         }
         log.debug("打印交接清单-分页-基本信息查询结束-{}" , (startTime - System.currentTimeMillis()));
         // 记录安全日志
-        writeSecurityLog(criteria);
+        //writeSecurityLog(criteria);
+        writeSummaryPrintSecurityLog(SendPrintServiceImpl.class.getName(),criteria,tBasicQueryEntityResponse.getData());
         return tBasicQueryEntityResponse;
     }
 

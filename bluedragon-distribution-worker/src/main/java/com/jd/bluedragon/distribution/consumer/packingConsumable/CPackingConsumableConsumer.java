@@ -7,6 +7,7 @@ import com.jd.bluedragon.core.redis.service.impl.RedisCommonUtil;
 import com.jd.bluedragon.distribution.consumable.domain.*;
 import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRecordService;
 import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRelationService;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -61,12 +62,17 @@ public class CPackingConsumableConsumer extends MessageBaseConsumer {
         }
 
         if (StringUtils.isBlank(packingConsumableDto.getWaybillCode())) {
-            log.error("消费快递侧揽收后消息，运单号为空，{}", message.getText());
+            log.warn("消费快递侧揽收后消息，运单号为空，{}", message.getText());
+            return;
+        }
+
+        if (!WaybillUtil.isWaybillCode(packingConsumableDto.getWaybillCode())) {
+            log.warn("消费快递侧揽收后消息，运单号不符合单号规则，消息丢弃，{}", message.getText());
             return;
         }
 
         if (packingConsumableDto.getDmsCode() == null) {
-            log.error("消费快递侧揽收后消息，分拣中心编号为空，{}", message.getText());
+            log.warn("消费快递侧揽收后消息，分拣中心编号为空，{}", message.getText());
             return;
         }
 
@@ -122,10 +128,9 @@ public class CPackingConsumableConsumer extends MessageBaseConsumer {
     private boolean isNeedConfirmConsumable(ReceivePackingConsumableDto packingConsumableDto) {
         if (CollectionUtils.isNotEmpty(packingConsumableDto.getBoxChargeDetails())) {
             for(BoxChargeDetail waybillConsumableDetailDto : packingConsumableDto.getBoxChargeDetails()) {
-                if(PackingTypeEnum.TY003.getTypeCode().equals(waybillConsumableDetailDto.getMaterialTypeCode())
-                        || PackingTypeEnum.TY004.getTypeCode().equals(waybillConsumableDetailDto.getMaterialTypeCode())
-                        || PackingTypeEnum.TY008.getTypeCode().equals(waybillConsumableDetailDto.getMaterialTypeCode())
+                if(PackingTypeEnum.isWoodenConsumable(waybillConsumableDetailDto.getMaterialTypeCode())
                         || ConsumableCodeEnums.isWoodenConsumable(waybillConsumableDetailDto.getBarCode())
+
                 ) {
                     return false;
                 }

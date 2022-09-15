@@ -145,5 +145,14 @@
             yn = 1
         AND send_vehicle_biz_id = #{sendVehicleBizId}
         AND img_url !=''
-</select>
+    </select>
+
+    <select id="selectBySendVehicleBizId" parameterType="JySendAttachmentEntity" resultMap="jySendAttachmentMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM jy_send_attachment
+        WHERE
+        yn = 1
+        AND send_vehicle_biz_id = #{sendVehicleBizId}
+    </select>
 </mapper>

@@ -126,7 +126,6 @@ import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.dms.logger.external.LogEngine;
 import com.jd.etms.erp.service.dto.SendInfoDto;
-import com.jd.etms.erp.ws.SupportServiceInterface;
 import com.jd.etms.vos.dto.CommonDto;
 import com.jd.etms.vos.dto.SealCarDto;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
@@ -243,7 +242,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
     ReverseDeliveryService reverseDeliveryService;
 
     @Autowired
-    private SupportServiceInterface supportProxy;
+    private TerminalManager terminalManager;
 
     @Autowired
     private ThirdBoxDetailService thirdBoxDetailService;
@@ -3261,6 +3260,12 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                         log.info("该发货明细不属于按运单按包裹按箱号发货范畴：{}" , JsonHelper.toJson(sendMItem));
                         continue;
                     }
+                    if (!ObjectHelper.isNotNull(sendMItem.getUpdaterUser())){
+                        sendMItem.setUpdaterUser(tSendM.getUpdaterUser());
+                    }
+                    if (!ObjectHelper.isNotNull(sendMItem.getUpdateUserCode())){
+                        sendMItem.setUpdateUserCode(tSendM.getUpdateUserCode());
+                    }
                     sendMessage(tlist, sendMItem, needSendMQ);
                     delDeliveryFromRedis(sendMItem);//取消发货成功，删除redis缓存的发货数据 根据boxCode和createSiteCode
                 }
@@ -6050,14 +6055,11 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
             if(sendDetailList == null){
                 sendDetailList = new ArrayList<SendDetail>();
             }
-            SendInfoDto sendInfoDto = new SendInfoDto();
-            sendInfoDto.setBoxCode(boxCode);
-            com.jd.etms.erp.service.domain.BaseEntity<List<SendInfoDto>> baseEntity = supportProxy.getSendDetails(sendInfoDto);
-            if (baseEntity != null && baseEntity.getResultCode() > 0 && CollectionUtils.isNotEmpty(baseEntity.getData())) {
-                List<SendInfoDto> datas = baseEntity.getData();
+            List<SendInfoDto> sendDetailsFromZD = terminalManager.getSendDetailsFromZD(boxCode);
+            if (CollectionUtils.isNotEmpty(sendDetailsFromZD)) {
                 //根据箱号判断终端箱子的正逆向
                 Integer businessType = BusinessUtil.isReverseBoxCode(boxCode) ? Constants.BUSSINESS_TYPE_REVERSE : Constants.BUSSINESS_TYPE_POSITIVE;
-                for (SendInfoDto dto : datas) {
+                for (SendInfoDto dto : sendDetailsFromZD) {
                     SendDetail dsendDatail = new SendDetail();
                     dsendDatail.setBoxCode(dto.getBoxCode());
 

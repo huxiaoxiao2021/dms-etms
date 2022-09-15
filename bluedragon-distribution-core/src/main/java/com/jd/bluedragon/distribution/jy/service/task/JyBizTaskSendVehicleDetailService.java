@@ -11,6 +11,8 @@ public interface JyBizTaskSendVehicleDetailService {
 
     int updateDateilTaskByVehicleBizId(JyBizTaskSendVehicleDetailEntity detailEntity);
 
+    int updateByBiz(JyBizTaskSendVehicleDetailEntity entity);
+
     /**
      * 保存发货流向
      * @param detailEntity
@@ -24,6 +26,13 @@ public interface JyBizTaskSendVehicleDetailService {
      * @return
      */
     List<JyBizTaskSendVehicleDetailEntity> findEffectiveSendVehicleDetail(JyBizTaskSendVehicleDetailEntity entity);
+
+    /**
+     * 按条件查询未封车的流向任务
+     * @param entity
+     * @return
+     */
+    List<JyBizTaskSendVehicleDetailEntity> findNoSealCarSendVehicleDetail(JyBizTaskSendVehicleDetailEntity entity);
 
     /**
      * 按状态查发货任务流向
@@ -40,6 +49,8 @@ public interface JyBizTaskSendVehicleDetailService {
      */
     int cancelDetail(JyBizTaskSendVehicleDetailEntity detailEntity);
 
+    int cancelDetailTaskAndMainTask(JyBizTaskSendVehicleDetailEntity detailEntity);
+
     /**
      * 按顺序更新发货明细状态
      * @param detailEntity
@@ -47,6 +58,14 @@ public interface JyBizTaskSendVehicleDetailService {
      * @return
      */
     int updateStatus(JyBizTaskSendVehicleDetailEntity detailEntity, Integer oldStatus);
+
+    /**
+     * 不按顺序更新发货明细状态
+     * @param detailEntity
+     * @param oldStatus
+     * @return
+     */
+    int updateStatusWithoutCompare(JyBizTaskSendVehicleDetailEntity detailEntity, Integer oldStatus);
 
     /**
      * 按状态统计流向数量
@@ -77,4 +96,18 @@ public interface JyBizTaskSendVehicleDetailService {
     List<JyBizTaskSendCountDto> sumByVehicleStatus(JyBizTaskSendVehicleDetailEntity entity);
 
     int updateBizTaskSendDetailStatus(JyBizTaskSendVehicleDetailEntity entity);
+
+    Integer countNoCancelSendDetail(JyBizTaskSendVehicleDetailEntity entity);
+    /**
+     * 根据发货流向查询主任务id列表
+     * @param entity
+     * @return
+     */
+    List<String> findSendVehicleBizListBySendFlow(JyBizTaskSendVehicleDetailEntity entity);
+    /**
+     * 根据transWorkItemCode查询一条数据
+     * @param query
+     * @return
+     */
+	JyBizTaskSendVehicleDetailEntity findByTransWorkItemCode(JyBizTaskSendVehicleDetailEntity query);
 }

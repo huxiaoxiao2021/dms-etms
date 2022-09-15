@@ -85,6 +85,9 @@ public class WaybillConsumableRelation extends DbEntity {
 	/** 打包人erp */
 	private String packUserErp;
 
+	/** 确认体积：打包装后体积（m³） **/
+	private Double confirmVolume;
+
 	/**
 	 * The set method for waybillCode.
 	 * @param waybillCode
@@ -275,5 +278,13 @@ public class WaybillConsumableRelation extends DbEntity {
 
 	public void setPackUserErp(String packUserErp) {
 		this.packUserErp = packUserErp;
+	}
+
+	public Double getConfirmVolume() {
+		return confirmVolume;
+	}
+
+	public void setConfirmVolume(Double confirmVolume) {
+		this.confirmVolume = confirmVolume;
 	}
 }

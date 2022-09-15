@@ -4,6 +4,7 @@ import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.request.User;
 
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  * @ClassName SendVehicleTaskRequest
@@ -42,6 +43,16 @@ public class SendVehicleTaskRequest implements Serializable {
      * 目的地场地
      */
     private Long endSiteId;
+
+    /**
+     * 最晚计划发车时间 范围查找-开始时间
+     */
+    private Date lastPlanDepartTimeBegin;
+
+    /**
+     * 最晚计划发车时间 范围查找-结束时间
+     */
+    private Date lastPlanDepartTimeEnd;
 
     public Integer getPageNumber() {
         return pageNumber;
@@ -105,5 +116,21 @@ public class SendVehicleTaskRequest implements Serializable {
 
     public void setEndSiteId(Long endSiteId) {
         this.endSiteId = endSiteId;
+    }
+
+    public Date getLastPlanDepartTimeBegin() {
+        return lastPlanDepartTimeBegin;
+    }
+
+    public void setLastPlanDepartTimeBegin(Date lastPlanDepartTimeBegin) {
+        this.lastPlanDepartTimeBegin = lastPlanDepartTimeBegin;
+    }
+
+    public Date getLastPlanDepartTimeEnd() {
+        return lastPlanDepartTimeEnd;
+    }
+
+    public void setLastPlanDepartTimeEnd(Date lastPlanDepartTimeEnd) {
+        this.lastPlanDepartTimeEnd = lastPlanDepartTimeEnd;
     }
 }
