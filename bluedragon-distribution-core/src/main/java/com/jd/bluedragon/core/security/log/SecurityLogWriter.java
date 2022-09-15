@@ -64,7 +64,7 @@ public class SecurityLogWriter {
                     SecurityLogEntity.builder()
                             .interfaceName("com.jd.bluedragon.distribution.command.JsonCommandServiceImpl#execute")
                             .accountName(String.valueOf(JsonHelper.getObject(JSONObject.parseObject(JSONObject.toJSONString(jsonCommand)),"data.userCode")))
-                            .accountType(SecurityAccountEnums.account_type_3)
+                            .accountType(SecurityAccountEnums.account_type_1)
                             .op(SecurityLogOpEnums.op_8)
                             .reqKeyMapping(reqInfoKeyEnumsStringMap)
                             .businessRequest(jsonCommand)
@@ -96,11 +96,8 @@ public class SecurityLogWriter {
                     SecurityLogEntity.builder()
                             .interfaceName("com.jd.bluedragon.distribution.sendprint.service.impl.SendPrintServiceImpl#basicPrintQuery")
                             .accountName(String.valueOf(JsonHelper.getObject(JSONObject.parseObject(JSONObject.toJSONString(criteria)),"data.userCode")))
-                            .accountType(SecurityAccountEnums.account_type_3)
-                            .op(
-                                    SurfaceOutputTypeEnum.OUTPUT_TYPE_PRINT.getCode().equals(JsonHelper.getObject(JSONObject.parseObject(JSONObject.toJSONString(criteria)),"data.outputType"))?
-                                            SecurityLogOpEnums.op_8 : SecurityLogOpEnums.op_11
-                            )
+                            .accountType(SecurityAccountEnums.account_type_1)
+                            .op(SecurityLogOpEnums.op_3)
                             .reqKeyMapping(reqInfoKeyEnumsStringMap)
                             .businessRequest(criteria)
                             .respKeyMapping(new HashMap<SecurityLogUniqueIdentifierKeyEnums, String>())
@@ -143,8 +140,8 @@ public class SecurityLogWriter {
                     SecurityLogEntity.builder()
                             .interfaceName("com.jd.bluedragon.distribution.rest.waybill.WaybillResource.getWaybillPack")
                             .accountName("")
-                            .accountType(SecurityAccountEnums.account_type_3)
-                            .op(SecurityLogOpEnums.op_8)
+                            .accountType(SecurityAccountEnums.account_type_1)
+                            .op(SecurityLogOpEnums.op_3)
                             .reqKeyMapping(reqInfoKeyEnumsStringMap)
                             .businessRequest(params)
                             .respKeyMapping(uniqueIdentifierKeyEnumsStringHashMap)
@@ -169,10 +166,6 @@ public class SecurityLogWriter {
 
             Map<SecurityLogReqInfoKeyEnums, String> reqInfoKeyEnumsStringMap = new HashMap<>();
             reqInfoKeyEnumsStringMap.put(SecurityLogReqInfoKeyEnums.carryBillId, "waybillCode");
-            reqInfoKeyEnumsStringMap.put(SecurityLogReqInfoKeyEnums.carryBillId, "waybillCodeOrPackage");
-            reqInfoKeyEnumsStringMap.put(SecurityLogReqInfoKeyEnums.carryBillId, "waybillCodeOrPackage");
-            reqInfoKeyEnumsStringMap.put(SecurityLogReqInfoKeyEnums.carryBillId, "waybillCodeOrPackage");
-            reqInfoKeyEnumsStringMap.put(SecurityLogReqInfoKeyEnums.carryBillId, "waybillCodeOrPackage");
 
             Map<SecurityLogUniqueIdentifierKeyEnums, String> uniqueIdentifierKeyEnumsStringHashMap = new HashMap<>();
             uniqueIdentifierKeyEnumsStringHashMap.put(SecurityLogUniqueIdentifierKeyEnums.carryBillId,"waybillCode");
@@ -182,10 +175,10 @@ public class SecurityLogWriter {
 
             SecurityLogRecord.log(
                     SecurityLogEntity.builder()
-                            .interfaceName("com.jd.bluedragon.distribution.rest.waybill.WaybillResource.getWaybillPack")
+                            .interfaceName("com.jd.bluedragon.distribution.rest.waybill.WaybillResource#getWaybillPack")
                             .accountName("")
-                            .accountType(SecurityAccountEnums.account_type_3)
-                            .op(SecurityLogOpEnums.op_8)
+                            .accountType(SecurityAccountEnums.account_type_1)
+                            .op(SecurityLogOpEnums.op_5)
                             .reqKeyMapping(reqInfoKeyEnumsStringMap)
                             .businessRequest(request)
                             .respKeyMapping(uniqueIdentifierKeyEnumsStringHashMap)
