@@ -3,12 +3,15 @@ package com.jd.bluedragon.distribution.external.gateway.service.impl;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.ServiceMessage;
 import com.jd.bluedragon.common.domain.ServiceResultEnum;
+import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.CheckSendCodeRequest;
 import com.jd.bluedragon.common.dto.sendcode.response.BatchSendCarInfoDto;
 import com.jd.bluedragon.common.dto.sendcode.response.SendCodeCheckDto;
 import com.jd.bluedragon.common.dto.sendcode.response.SendCodeInfoDto;
+import com.jd.bluedragon.common.dto.sysConfig.request.MenuUsageConfigRequestDto;
+import com.jd.bluedragon.common.dto.sysConfig.response.MenuUsageProcessDto;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.base.domain.CreateAndReceiveSiteInfo;
@@ -16,7 +19,9 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.batch.domain.BatchSend;
 import com.jd.bluedragon.distribution.departure.service.DepartureService;
+import com.jd.bluedragon.distribution.jy.enums.JySendLineTypeEnum;
 import com.jd.bluedragon.distribution.jy.service.send.JySendVehicleServiceImpl;
+import com.jd.bluedragon.distribution.jy.service.send.SendVehicleTransactionManager;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetailService;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.rest.base.SiteResource;
@@ -41,6 +46,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import javax.annotation.Resource;
 import java.util.AbstractMap;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -74,6 +80,11 @@ public class SendCodeGateWayServiceImpl implements SendCodeGateWayService {
     private UccPropertyConfiguration uccConfig;
     @Autowired
     private JyBizTaskSendVehicleDetailService taskSendVehicleDetailService;
+    
+    @Autowired
+    @Qualifier("sendVehicleTransactionManager")
+    private SendVehicleTransactionManager sendVehicleTransactionManager;    
+    
 
     @Override
     @JProfiler(jKey = "DMSWEB.SendCodeGateWayServiceImpl.carrySendCarInfoNew",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -174,20 +185,9 @@ public class SendCodeGateWayServiceImpl implements SendCodeGateWayService {
     }
 
     @Override
+    @JProfiler(jKey = "DMSWEB.SendCodeGateWayServiceImpl.checkSendCodeAndAlliance",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})    
     public JdVerifyResponse<SendCodeCheckDto> checkSendCodeAndAllianceForJy(CheckSendCodeRequest request) {
         log.info("jy checkSendCodeAndAllianceForJy request:{}", JsonHelper.toJson(request));
-        if  (ObjectHelper.isNotNull(request.getBizSource()) && ObjectHelper.isNotNull(uccConfig.getNeedValidateMainLineBizSources())){
-            if (uccConfig.getNeedValidateMainLineBizSources().contains(String.valueOf(request.getBizSource()))){
-                Integer endSiteId =BusinessUtil.getReceiveSiteCodeFromSendCode(request.getSendCode());
-                Integer startSiteId =request.getCurrentOperate().getSiteCode();
-
-                JyBizTaskSendVehicleDetailEntity detailEntity = new JyBizTaskSendVehicleDetailEntity(Long.valueOf(startSiteId),Long.valueOf(endSiteId));
-                Integer count= taskSendVehicleDetailService.countByCondition(detailEntity);
-                if (ObjectHelper.isNotNull(count) && count>0){
-                    return new JdVerifyResponse(NOT_SUPPORT_MAIN_LINE_TASK_CODE,NOT_SUPPORT_MAIN_LINE_TASK_MESSAGE);
-                }
-            }
-        }
 
         JdCResponse<SendCodeCheckDto> jdCResponse = this.checkSendCodeStatus(request.getSendCode());
         JdVerifyResponse<SendCodeCheckDto> jdVerifyResponse = new JdVerifyResponse<>();
@@ -195,7 +195,25 @@ public class SendCodeGateWayServiceImpl implements SendCodeGateWayService {
             jdVerifyResponse.toError(jdCResponse.getMessage());
             return jdVerifyResponse;
         }
-
+        if(ObjectHelper.isNotNull(request.getBizSource()) && uccConfig.needValidateMainLine(request.getBizSource())){
+	        try {
+				MenuUsageConfigRequestDto menuUsageConfigRequestDto = new MenuUsageConfigRequestDto();
+				menuUsageConfigRequestDto.setMenuCode(Constants.MENU_CODE_SEND_GZ);
+				menuUsageConfigRequestDto.setCurrentOperate(request.getCurrentOperate());
+				menuUsageConfigRequestDto.setUser(request.getUser());
+				MenuUsageProcessDto menuUsageProcessDto = baseService.getClientMenuUsageConfig(menuUsageConfigRequestDto);
+				if(menuUsageProcessDto != null && Constants.FLAG_OPRATE_OFF.equals(menuUsageProcessDto.getCanUse())) {
+				    Long endSiteId =new Long(BusinessUtil.getReceiveSiteCodeFromSendCode(request.getSendCode()));
+				    Long startSiteId =new Long(request.getCurrentOperate().getSiteCode());
+				    boolean isTrunkOrBranch = sendVehicleTransactionManager.isTrunkOrBranchLine(startSiteId, endSiteId);
+				    if (isTrunkOrBranch){
+				        return new JdVerifyResponse(NOT_SUPPORT_MAIN_LINE_TASK_CODE,menuUsageProcessDto.getMsg());
+				    }
+				}
+			} catch (Exception e) {
+				log.error("checkSendCodeAndAllianceForJy：干支校验异常！", e);
+			}
+        }
         jdVerifyResponse.toSuccess(jdCResponse.getMessage());
         jdVerifyResponse.setData(jdCResponse.getData());
         //判断加盟 给页面返回提示类型信息
