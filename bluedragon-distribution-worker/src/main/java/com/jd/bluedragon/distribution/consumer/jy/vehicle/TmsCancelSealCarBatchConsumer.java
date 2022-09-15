@@ -74,7 +74,6 @@ public class TmsCancelSealCarBatchConsumer extends MessageBaseConsumer {
             logger.error("TmsCancelSealCarBatchConsumer consume -->关键数据为空，内容为【{}】", message.getText());
             return;
         }
-
         //接收取消批次信息 查询运输获取取消状态
         SealCarDto sealCarCodeOfTms = findSealCarInfoBySealCarCodeOfTms(mqBody.getSealCarCode());
         if(TMS_CANCEL_SEAL_CAR.equals(sealCarCodeOfTms.getStatus())){
@@ -85,12 +84,12 @@ public class TmsCancelSealCarBatchConsumer extends MessageBaseConsumer {
 				    logger.error("TmsCancelSealCarBatchConsumer consume -->关键数据为空，内容为【{}】", message.getText());
 				}
 			} catch (Exception e) {
-				logger.error("jyUnSealVehicleService.cancelUnSealTask error!",e);
+				logger.error("jyUnSealVehicleService.cancelUnSealTask error!内容为【{}】",message.getText(),e);
 			}
             try {
-				sendVehicleTransactionManager.resetSendStatusForUnseal(sealCarCodeOfTms);
+				sendVehicleTransactionManager.resetSendStatusToseal(sealCarCodeOfTms,mqBody.getOperateUserCode(),mqBody.getOperateUserName(),mqBody.getOperateTime());
 			} catch (Exception e) {
-				logger.error("sendVehicleTransactionManager.resetSendStatusForUnseal error!",e);
+				logger.error("sendVehicleTransactionManager.resetSendStatusToseal error!内容为【{}】",message.getText(),e);
 			}
         }
     }

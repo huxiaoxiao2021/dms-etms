@@ -365,10 +365,11 @@ public class SendVehicleTransactionManager {
      * 2、回退任务状态
      * @param sealCarData
      */
-    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "SendVehicleTransactionManager.resetSendStatusForUnseal",
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "SendVehicleTransactionManager.resetSendStatusToseal",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     @Transactional(value = "tm_jy_core", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)    
-	public boolean resetSendStatusForUnseal(SealCarDto sealCarData) {
+	public boolean resetSendStatusToseal(SealCarDto sealCarData, String operateUserCode, String operateUserName,
+			Long operateTime) {
     	this.logInfo("取消封车-发货任务状态回退sealCarData：{}",JsonHelper.toJson(sealCarData));
     	JyBizTaskSendVehicleDetailEntity query = new JyBizTaskSendVehicleDetailEntity();
     	query.setVehicleStatus(JyBizTaskSendDetailStatusEnum.SEALED.getCode());
@@ -386,8 +387,8 @@ public class SendVehicleTransactionManager {
 		taskSend.setVehicleStatus(JyBizTaskSendDetailStatusEnum.SEALED.getCode());
 		taskSend.setStartSiteId(taskDetail.getStartSiteId());
 		taskSend.setUpdateTime(currentDate);
-		taskSend.setUpdateUserErp(sealCarData.getDesealUserCode());
-		taskSend.setUpdateUserName(sealCarData.getDesealUserName());
+		taskSend.setUpdateUserErp(operateUserCode);
+		taskSend.setUpdateUserName(operateUserName);
 		
 		sendDetail.setBizId(taskDetail.getBizId());
 		sendDetail.setSendVehicleBizId(taskDetail.getSendVehicleBizId());
@@ -395,8 +396,8 @@ public class SendVehicleTransactionManager {
 		sendDetail.setStartSiteId(taskDetail.getStartSiteId());
 		sendDetail.setEndSiteId(taskDetail.getEndSiteId());
 		sendDetail.setUpdateTime(currentDate);
-		sendDetail.setUpdateUserErp(sealCarData.getDesealUserCode());
-		sendDetail.setUpdateUserName(sealCarData.getDesealUserName());
+		sendDetail.setUpdateUserErp(operateUserCode);
+		sendDetail.setUpdateUserName(operateUserName);
 		
 		return this.updateStatusWithoutCompare(taskSend, sendDetail, JyBizTaskSendDetailStatusEnum.TO_SEAL);
 	}

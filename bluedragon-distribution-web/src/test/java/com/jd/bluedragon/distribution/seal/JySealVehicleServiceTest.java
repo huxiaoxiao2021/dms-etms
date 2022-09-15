@@ -242,7 +242,7 @@ public class JySealVehicleServiceTest {
     	SealCarDto sealCarData = new SealCarDto();
     	sealCarData.setStartSiteId(910);
     	sealCarData.setTransWorkItemCode("TW22091400813808-001");
-        sendVehicleTransactionManager.resetSendStatusForUnseal(sealCarData);
+        sendVehicleTransactionManager.resetSendStatusToseal(sealCarData,"test1","name1",new Date().getTime());
 
 
     }
