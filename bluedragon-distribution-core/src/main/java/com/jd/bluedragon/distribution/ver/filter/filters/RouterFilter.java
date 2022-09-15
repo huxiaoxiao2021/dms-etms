@@ -90,7 +90,7 @@ public class RouterFilter implements Filter {
                 if(validateIgnore != null && validateIgnore.getValidateIgnoreRouterCondition() != null){
                     final ValidateIgnoreRouterCondition validateIgnoreCondition = validateIgnore.getValidateIgnoreRouterCondition();
                     final List<Long> receiveSiteIdList = validateIgnoreCondition.getReceiveSiteIdList();
-                    if(CollectionUtils.isNotEmpty(validateIgnoreCondition.getReceiveSiteIdList()) && Objects.equals(validateIgnoreCondition.getMatchType(), ValidateIgnoreRouterCondition.MATCH_TYPE_IN)){
+                    if(CollectionUtils.isNotEmpty(validateIgnoreCondition.getReceiveSiteIdList()) && Objects.equals(validateIgnoreCondition.getMatchType(), ValidateIgnore.MATCH_TYPE_IN)){
                         if(routeNextDto.getFirstNextSiteId() != null && receiveSiteIdList.contains(Long.valueOf(routeNextDto.getFirstNextSiteId()))){
                             logger.info("RouterFilter validateIgnore: waybillCode: {} firstNextSiteId: {} receiveSiteIdList: {}", waybillCode, routeNextDto.getFirstNextSiteId(), receiveSiteIdList);
                             chain.doFilter(request, chain);
