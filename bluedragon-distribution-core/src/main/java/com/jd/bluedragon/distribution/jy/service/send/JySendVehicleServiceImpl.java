@@ -1805,7 +1805,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
                     Long routeNextSite = getWaybillNextRouter(WaybillUtil.getWaybillCode(barCode), taskSend.getStartSiteId());
                     if (routeNextSite == null) {
                         response.toBizError();
-                        response.addInterceptBox(0, "运单的路由没有当前场地！");
+                        response.addInterceptBox(0, "运单的路由没有当前场地！无任务首次扫描请扫描路由正确的单号");
                         return false;
                     }
 
