@@ -13,11 +13,6 @@ import java.util.List;
 public class ValidateIgnoreRouterCondition implements Serializable {
     private static final long serialVersionUID = 768445654929989093L;
 
-    public static final String MATCH_TYPE_IN = "in";
-    public static final String MATCH_TYPE_NOT_IN = "not in";
-    public static final String MATCH_TYPE_EQ = "eq";
-    public static final String MATCH_TYPE_NEQ = "neq";
-
     private List<Long> receiveSiteIdList;
 
     private String matchType;
