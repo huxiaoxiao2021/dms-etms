@@ -557,7 +557,8 @@ public class ColdChainExternalServiceImpl implements IColdChainService {
             // 发货且分拣
             SendM sendM = new SendM();
             BeanUtils.copyProperties(vo,sendM);
-            sendM.setOperateTime(new Date(vo.getOperateTime().getTime() + Constants.DELIVERY_DELAY_TIME));
+            sendM.setCreateTime(new Date(vo.getOperateTime().getTime() + 2 * Constants.DELIVERY_DELAY_TIME));
+            sendM.setOperateTime(new Date(vo.getOperateTime().getTime() + 2 * Constants.DELIVERY_DELAY_TIME));
             sendM.setSendType(Constants.BUSSINESS_TYPE_POSITIVE);
             deliveryService.packageSend(SendBizSourceEnum.COLD_CHAIN_AUTO_SEND, sendM);
         } catch (Exception e) {
