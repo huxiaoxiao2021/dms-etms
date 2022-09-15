@@ -383,6 +383,8 @@ public class SendVehicleTransactionManager {
 		JyBizTaskSendVehicleEntity taskSend = new JyBizTaskSendVehicleEntity();
 		JyBizTaskSendVehicleDetailEntity sendDetail = new JyBizTaskSendVehicleDetailEntity();
 		taskSend.setBizId(taskDetail.getSendVehicleBizId());
+		taskSend.setVehicleStatus(JyBizTaskSendDetailStatusEnum.SEALED.getCode());
+		taskSend.setStartSiteId(taskDetail.getStartSiteId());
 		taskSend.setUpdateTime(currentDate);
 		taskSend.setUpdateUserErp(sealCarData.getDesealUserCode());
 		taskSend.setUpdateUserName(sealCarData.getDesealUserName());
