@@ -49,8 +49,6 @@ public class SecurityLogWriter {
         CallerInfo info = Profiler.registerInfo("DMSWEB.SecurityLogWriter.jsonCommandExecuteWrite", Constants.UMP_APP_NAME_DMSWEB,false, true);
         try{
             Map<SecurityLogReqInfoKeyEnums, String> reqInfoKeyEnumsStringMap = new HashMap<>();
-            reqInfoKeyEnumsStringMap.put(SecurityLogReqInfoKeyEnums.accountId, "data.userCode");
-            reqInfoKeyEnumsStringMap.put(SecurityLogReqInfoKeyEnums.accountName, "data.userErp");
             reqInfoKeyEnumsStringMap.put(SecurityLogReqInfoKeyEnums.carryBillId, "data.barCode");
             reqInfoKeyEnumsStringMap.put(SecurityLogReqInfoKeyEnums.inputParam, "data");
 
@@ -65,7 +63,7 @@ public class SecurityLogWriter {
             SecurityLogRecord.log(
                     SecurityLogEntity.builder()
                             .interfaceName("com.jd.bluedragon.distribution.command.JsonCommandServiceImpl#execute")
-                            .accountName(String.valueOf(JsonHelper.getObject(JSONObject.parseObject(JSONObject.toJSONString(jsonCommand)),"data.userErp")))
+                            .accountName(String.valueOf(JsonHelper.getObject(JSONObject.parseObject(JSONObject.toJSONString(jsonCommand)),"data.userCode")))
                             .accountType(SecurityAccountEnums.account_type_3)
                             .op(SecurityLogOpEnums.op_8)
                             .reqKeyMapping(reqInfoKeyEnumsStringMap)
