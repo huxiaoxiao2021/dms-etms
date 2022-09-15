@@ -1103,7 +1103,9 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
         logInfo("拣运发货匹配的目的地为: {}-{}-{}", request.getBarCode(), taskSend.getStartSiteId(), sendFindDestInfoDto.getMatchSendDestId());
         if (sendFindDestInfoDto.getMatchSendDestId() == null && !NumberHelper.gt0(request.getConfirmSendDestId())) {
             if(singleDestFlag){
-                sendFindDestInfoDto.setMatchSendDestId(new ArrayList<>(allDestId).get(0));
+                if(sendFindDestInfoDto.getRouterNextSiteId() != null){
+                    sendFindDestInfoDto.setMatchSendDestId(new ArrayList<>(allDestId).get(0));
+                }
             } else {
                 result.setCode(SendScanResponse.CODE_CONFIRM_DEST);
                 result.addWarningBox(0, "未匹配到发货下一站，请手动选择！");
@@ -1234,7 +1236,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
                             msgBox.setData(routerValidateData);
                             result.addBox(msgBox);
                         } else {
-                            result.addConfirmBox(sendResult.getKey(), sendResult.getValue());
+                            result.addConfirmBox(chainResp.getCode(), chainResp.getMessage());
                         }
                         return false;
                     }
