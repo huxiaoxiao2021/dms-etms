@@ -105,8 +105,13 @@ public class JyTaskGroupMemberServiceImpl implements JyTaskGroupMemberService {
 		Date currentDate = new Date();
 		JyTaskGroupMemberEntity taskGroupMember = new JyTaskGroupMemberEntity();
 		taskGroupMember.setRefTaskId(endData.getRefTaskId());
-		taskGroupMember.setEndTime(currentDate);
-		taskGroupMember.setUpdateTime(currentDate);
+		if(endData.getUpdateTime() != null) {
+			taskGroupMember.setEndTime(endData.getUpdateTime());
+			taskGroupMember.setUpdateTime(endData.getUpdateTime());
+		}else {
+			taskGroupMember.setEndTime(currentDate);
+			taskGroupMember.setUpdateTime(currentDate);
+		}
 		taskGroupMember.setUpdateUser(endData.getUpdateUser());
 		taskGroupMember.setUpdateUserName(endData.getUpdateUserName());
 		jyTaskGroupMemberDao.endWorkByTaskId(taskGroupMember);

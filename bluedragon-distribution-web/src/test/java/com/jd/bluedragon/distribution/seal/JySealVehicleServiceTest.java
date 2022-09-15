@@ -23,6 +23,7 @@ import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.etms.vos.dto.SealCarDto;
 import com.jdl.jy.realtime.model.query.seal.SealVehicleTaskQuery;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -30,6 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -235,5 +237,13 @@ public class JySealVehicleServiceTest {
                 "}";
         jySendVehicleService.fetchSendTaskForTransfer(JsonHelper.fromJson(json, TransferVehicleTaskReq.class));
     }
+    @Test
+    public void resetSendStatusForUnsealTest() {
+    	SealCarDto sealCarData = new SealCarDto();
+    	sealCarData.setStartSiteId(910);
+    	sealCarData.setTransWorkItemCode("TW22091400813808-001");
+        sendVehicleTransactionManager.resetSendStatusToseal(sealCarData,"test1","name1",new Date().getTime());
 
+
+    }
 }

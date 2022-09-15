@@ -104,4 +104,10 @@ public interface JyBizTaskSendVehicleDetailService {
      * @return
      */
     List<String> findSendVehicleBizListBySendFlow(JyBizTaskSendVehicleDetailEntity entity);
+    /**
+     * 根据transWorkItemCode查询一条数据
+     * @param query
+     * @return
+     */
+	JyBizTaskSendVehicleDetailEntity findByTransWorkItemCode(JyBizTaskSendVehicleDetailEntity query);
 }
