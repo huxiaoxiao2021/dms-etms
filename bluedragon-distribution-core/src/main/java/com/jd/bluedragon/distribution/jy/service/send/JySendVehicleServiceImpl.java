@@ -22,6 +22,7 @@ import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BasicQueryWSManager;
+import com.jd.bluedragon.core.base.BasicSelectWsManager;
 import com.jd.bluedragon.core.base.JdiQueryWSManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
@@ -83,6 +84,7 @@ import com.jd.etms.waybill.domain.Waybill;
 import com.jd.jim.cli.Cluster;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.tms.basic.dto.BasicVehicleTypeDto;
+import com.jd.tms.basic.dto.TransportResourceDto;
 import com.jd.tms.jdi.dto.TransWorkBillDto;
 import com.jd.tms.jdi.dto.TransWorkFuzzyQueryParam;
 import com.jd.ump.annotation.JProEnum;
@@ -225,6 +227,9 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
     
     @Autowired
     private BaseService baseService;
+    
+    @Autowired
+    private BasicSelectWsManager basicSelectWsManager;
 
     @Override
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "IJySendVehicleService.fetchSendVehicleTask",
@@ -2507,6 +2512,11 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
         log.info("jy checkMainLineSendTask request:{}",JsonHelper.toJson(request));
         if  (ObjectHelper.isNotNull(request.getBizSource()) && uccConfig.needValidateMainLine(request.getBizSource())){
 	        try {
+	        	Integer[] sites = BusinessUtil.getSiteCodeBySendCode(request.getSendCode());
+	            Integer createSite = sites[0];
+	        	Integer receiveSite = sites[1];
+	            BaseStaffSiteOrgDto receiveSiteDto = baseService.queryDmsBaseSiteByCode(String.valueOf(receiveSite));
+	            BaseStaffSiteOrgDto createSiteDto = baseService.queryDmsBaseSiteByCode(String.valueOf(createSite));
 				MenuUsageConfigRequestDto menuUsageConfigRequestDto = new MenuUsageConfigRequestDto();
 				menuUsageConfigRequestDto.setMenuCode(Constants.MENU_CODE_SEND_GZ);
 				menuUsageConfigRequestDto.setCurrentOperate(request.getCurrentOperate());
@@ -2517,9 +2527,34 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
 				    Long startSiteId =new Long(request.getCurrentOperate().getSiteCode());
 				    boolean isTrunkOrBranch = sendVehicleTransactionManager.isTrunkOrBranchLine(startSiteId, endSiteId);
 				    if (isTrunkOrBranch){
-				        return new InvokeResult(NOT_SUPPORT_MAIN_LINE_TASK_CODE,menuUsageProcessDto.getMsg());
-				    }
+				        boolean needIntercept = Boolean.TRUE;
+				        //补充判断运力的运输方式是否包含铁路或者航空
+                        if(receiveSiteDto != null && createSiteDto != null){
+                            TransportResourceDto transportResourceDto = new TransportResourceDto();
+                            // 始发区域
+                            transportResourceDto.setStartOrgCode(String.valueOf(createSiteDto.getOrgId()));
+                            // 始发站
+                            transportResourceDto.setStartNodeId(createSite);
+                            // 目的区域
+                            transportResourceDto.setEndOrgCode(String.valueOf(receiveSiteDto.getOrgId()));
+                            // 目的站
+                            transportResourceDto.setEndNodeId(receiveSite);
+                            List<TransportResourceDto> transportResourceDtos = basicSelectWsManager.queryPageTransportResourceWithNodeId(transportResourceDto);
+                            if(transportResourceDtos!=null){
+                                for(TransportResourceDto trd: transportResourceDtos){
+                                    if(uccConfig.notValidateTransType(trd.getTransWay())){
+                                        needIntercept = Boolean.FALSE;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        if(needIntercept){
+                            return new InvokeResult(NOT_SUPPORT_MAIN_LINE_TASK_CODE,menuUsageProcessDto.getMsg());
+
+                        }
 				}
+			  }
 			} catch (Exception e) {
 				log.error("checkMainLineSendTask-校验异常",e);
 			}

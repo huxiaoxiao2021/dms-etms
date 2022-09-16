@@ -847,6 +847,12 @@ public class UccPropertyConfiguration {
      */
     private Boolean sensitiveInfoHideSwitch;
 
+    /**
+     * 发货运力线路运输方式限制业务列表
+     */
+    private String notValidateTransTypeCodesList;
+    private List<Integer> notValidateTransTypeCodes;
+    
     public String getScheduleSiteCheckSameCity() {
         return scheduleSiteCheckSameCity;
     }
@@ -2052,5 +2058,22 @@ public class UccPropertyConfiguration {
 
     public void setJySendTaskCreateTimeBeginDay(Integer jySendTaskCreateTimeBeginDay) {
         this.jySendTaskCreateTimeBeginDay = jySendTaskCreateTimeBeginDay;
+    }
+
+    public String getNotValidateTransTypeCodesList() {
+        return notValidateTransTypeCodesList;
+    }
+
+    public void setNotValidateTransTypeCodesList(String notValidateTransTypeCodesList) {
+        this.notValidateTransTypeCodesList = notValidateTransTypeCodesList;
+        notValidateTransTypeCodes = JsonHelper.jsonToList(notValidateTransTypeCodesList, Integer.class);
+
+    }
+
+    public boolean notValidateTransType(Integer type) {
+        if(!CollectionUtils.isEmpty(notValidateTransTypeCodes)) {
+            return notValidateTransTypeCodes.contains(type);
+        }
+        return false;
     }
 }
