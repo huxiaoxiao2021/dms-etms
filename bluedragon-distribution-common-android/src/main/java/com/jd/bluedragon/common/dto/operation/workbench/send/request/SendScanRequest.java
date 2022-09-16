@@ -25,6 +25,11 @@ public class SendScanRequest implements Serializable {
     private String sendVehicleBizId;
 
     /**
+     * send_vehicle_detail业务主键
+     */
+    private String sendVehicleDetailBizId;
+
+    /**
      * 车牌号
      */
     private String vehicleNumber;
@@ -196,5 +201,13 @@ public class SendScanRequest implements Serializable {
 
     public void setValidateIgnore(ValidateIgnore validateIgnore) {
         this.validateIgnore = validateIgnore;
+    }
+
+    public String getSendVehicleDetailBizId() {
+        return sendVehicleDetailBizId;
+    }
+
+    public void setSendVehicleDetailBizId(String sendVehicleDetailBizId) {
+        this.sendVehicleDetailBizId = sendVehicleDetailBizId;
     }
 }

@@ -1130,8 +1130,9 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
 
         try {
             JyBizTaskSendVehicleDetailEntity curSendDetail = null;
-            for (JyBizTaskSendVehicleDetailEntity sendDetail : taskSendDetails) {
-                if (sendDetail.getEndSiteId().equals(sendDestId)) {
+            for (JyBizTaskSendVehicleDetailEntity sendDetail : taskSendDetails) {//匹配上流向就算
+                //if (sendDetail.getEndSiteId().equals(sendDestId)) {
+                if (sendDetail.getBizId().equals(request.getSendVehicleDetailBizId())){
                     curSendDetail = sendDetail;
                     break;
                 }
