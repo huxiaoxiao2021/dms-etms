@@ -41,8 +41,9 @@ public class JyScheduleTaskNotifyConsumer extends MessageBaseConsumer {
             logger.warn("JyScheduleTaskConsumer consume -->消息体非JSON格式，内容为【{}】", message.getText());
             return;
         }
-
+        logger.info("JyScheduleTaskConsumer consume -->消息体JSON格式，内容为【{}】", message.getText());
         JyBizTaskMessage mqDto = JsonHelper.fromJson(message.getText(), JyBizTaskMessage.class);
+        logger.info("JyScheduleTaskConsumer consume -->消息体JSON格式，内容为【{}】", JsonHelper.toJson(mqDto));
         BizTaskService bizTaskService = bizTypeProcessor.processor(mqDto.getTaskType());
         bizTaskService.bizTaskNotify(mqDto);
     }
