@@ -2,11 +2,9 @@ package com.jd.bd.dms.automatic.marshal.filter;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.core.context.InvokerClientInfoContext;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.PropertiesHelper;
-import com.jd.bluedragon.utils.ServletRequestHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.slf4j.Logger;
@@ -65,11 +63,6 @@ public class DmsRestFilter extends OncePerRequestFilter {
         //获得rest请求中的登陆人erpCode
         String erpCode = request.getHeader("erpCode");
         try {
-            String ipAddress = ServletRequestHelper.getRealIpAddress(request);
-            InvokerClientInfoContext.ClientInfo clientInfo = new InvokerClientInfoContext.ClientInfo();
-            clientInfo.setClientIp(ipAddress);
-            clientInfo.setUser(erpCode);
-            InvokerClientInfoContext.add(clientInfo);
 
             if(StringHelper.isNotEmpty(erpCode)){
                 BaseStaffSiteOrgDto basestaffDto = baseMajorManager.getBaseStaffIgnoreIsResignByErp(erpCode);
@@ -89,12 +82,6 @@ public class DmsRestFilter extends OncePerRequestFilter {
             this.log.error("通过{}调用基础资料接口失败！",erpCode,e);
             JdResponse jdResponse = new JdResponse(JdResponse.CODE_SERVICE_ERROR,JdResponse.MESSAGE_SERVICE_ERROR);
             showMessage(response,jdResponse);
-        } finally {
-            try {
-                InvokerClientInfoContext.clear();
-            } catch (RuntimeException e) {
-                this.log.error("清理客户端信息失败",e);
-            }
         }
     }
 
