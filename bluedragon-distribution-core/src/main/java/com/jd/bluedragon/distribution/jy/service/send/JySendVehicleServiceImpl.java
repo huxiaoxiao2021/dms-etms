@@ -1250,6 +1250,8 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
                         sendEntity.setForceSendFlag(0);
                         sendEntity.setInterceptFlag(1);
                         jySendService.save(sendEntity);
+                        result.toBizError();
+                        result.addInterceptBox(chainResp.getCode(), chainResp.getMessage());
                         return false;
                     }
                 }
