@@ -198,8 +198,9 @@ public class SendCodeGateWayServiceImpl implements SendCodeGateWayService {
             return jdVerifyResponse;
         }
 
-        Integer receiveSite = BusinessUtil.getReceiveSiteCodeFromSendCode(request.getSendCode());
-        Integer createSite = BusinessUtil.getCreateSiteCodeFromSendCode(request.getSendCode());
+    	Integer[] sites = BusinessUtil.getSiteCodeBySendCode(request.getSendCode());
+        Integer createSite = sites[0];
+    	Integer receiveSite = sites[1];
         BaseStaffSiteOrgDto receiveSiteDto = baseService.queryDmsBaseSiteByCode(String.valueOf(receiveSite));
         BaseStaffSiteOrgDto createSiteDto = baseService.queryDmsBaseSiteByCode(String.valueOf(createSite));
         if(ObjectHelper.isNotNull(request.getBizSource()) && uccConfig.needValidateMainLine(request.getBizSource())){
