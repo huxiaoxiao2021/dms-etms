@@ -13,6 +13,7 @@ import com.jd.bluedragon.common.dto.sendcode.response.SendCodeInfoDto;
 import com.jd.bluedragon.common.dto.sysConfig.request.MenuUsageConfigRequestDto;
 import com.jd.bluedragon.common.dto.sysConfig.response.MenuUsageProcessDto;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.core.base.BasicSelectWsManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.base.domain.CreateAndReceiveSiteInfo;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -34,6 +35,7 @@ import com.jd.bluedragon.external.gateway.service.SendCodeGateWayService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.tms.basic.dto.TransportResourceDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections.CollectionUtils;
@@ -42,13 +44,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 
 import javax.annotation.Resource;
-import java.util.AbstractMap;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.NOT_SUPPORT_MAIN_LINE_TASK_CODE;
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.NOT_SUPPORT_MAIN_LINE_TASK_MESSAGE;
@@ -83,8 +82,11 @@ public class SendCodeGateWayServiceImpl implements SendCodeGateWayService {
     
     @Autowired
     @Qualifier("sendVehicleTransactionManager")
-    private SendVehicleTransactionManager sendVehicleTransactionManager;    
-    
+    private SendVehicleTransactionManager sendVehicleTransactionManager;
+
+    @Autowired
+    private BasicSelectWsManager basicSelectWsManager;
+
 
     @Override
     @JProfiler(jKey = "DMSWEB.SendCodeGateWayServiceImpl.carrySendCarInfoNew",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -195,6 +197,11 @@ public class SendCodeGateWayServiceImpl implements SendCodeGateWayService {
             jdVerifyResponse.toError(jdCResponse.getMessage());
             return jdVerifyResponse;
         }
+
+        Integer receiveSite = BusinessUtil.getReceiveSiteCodeFromSendCode(request.getSendCode());
+        Integer createSite = BusinessUtil.getCreateSiteCodeFromSendCode(request.getSendCode());
+        BaseStaffSiteOrgDto receiveSiteDto = baseService.queryDmsBaseSiteByCode(String.valueOf(receiveSite));
+        BaseStaffSiteOrgDto createSiteDto = baseService.queryDmsBaseSiteByCode(String.valueOf(createSite));
         if(ObjectHelper.isNotNull(request.getBizSource()) && uccConfig.needValidateMainLine(request.getBizSource())){
 	        try {
 				MenuUsageConfigRequestDto menuUsageConfigRequestDto = new MenuUsageConfigRequestDto();
@@ -207,7 +214,32 @@ public class SendCodeGateWayServiceImpl implements SendCodeGateWayService {
 				    Long startSiteId =new Long(request.getCurrentOperate().getSiteCode());
 				    boolean isTrunkOrBranch = sendVehicleTransactionManager.isTrunkOrBranchLine(startSiteId, endSiteId);
 				    if (isTrunkOrBranch){
-				        return new JdVerifyResponse(NOT_SUPPORT_MAIN_LINE_TASK_CODE,menuUsageProcessDto.getMsg());
+				        boolean needIntercept = Boolean.TRUE;
+				        //补充判断运力的运输方式是否包含铁路或者航空
+                        if(receiveSiteDto != null && createSiteDto != null){
+                            TransportResourceDto transportResourceDto = new TransportResourceDto();
+                            // 始发区域
+                            transportResourceDto.setStartOrgCode(String.valueOf(createSiteDto.getOrgId()));
+                            // 始发站
+                            transportResourceDto.setStartNodeId(createSite);
+                            // 目的区域
+                            transportResourceDto.setEndOrgCode(String.valueOf(receiveSiteDto.getOrgId()));
+                            // 目的站
+                            transportResourceDto.setEndNodeId(receiveSite);
+                            List<TransportResourceDto> transportResourceDtos = basicSelectWsManager.queryPageTransportResourceWithNodeId(transportResourceDto);
+                            if(transportResourceDtos!=null){
+                                for(TransportResourceDto trd: transportResourceDtos){
+                                    if(uccConfig.notValidateTransType(trd.getTransWay())){
+                                        needIntercept = Boolean.FALSE;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        if(needIntercept){
+                            return new JdVerifyResponse(NOT_SUPPORT_MAIN_LINE_TASK_CODE,menuUsageProcessDto.getMsg());
+
+                        }
 				    }
 				}
 			} catch (Exception e) {
@@ -217,12 +249,10 @@ public class SendCodeGateWayServiceImpl implements SendCodeGateWayService {
         jdVerifyResponse.toSuccess(jdCResponse.getMessage());
         jdVerifyResponse.setData(jdCResponse.getData());
         //判断加盟 给页面返回提示类型信息
-        Integer receiveSite = BusinessUtil.getReceiveSiteCodeFromSendCode(request.getSendCode());
         if(receiveSite == null){
             return jdVerifyResponse;
         }
-        BaseStaffSiteOrgDto dto = baseService.queryDmsBaseSiteByCode(String.valueOf(receiveSite));
-        if(dto != null && BusinessUtil.isAllianceBusiSite(dto.getSiteType(),dto.getSubType())){
+        if(receiveSiteDto != null && BusinessUtil.isAllianceBusiSite(receiveSiteDto.getSiteType(),receiveSiteDto.getSubType())){
             jdVerifyResponse.addPromptBox(0,"派送至加盟商请复重！");
         }
         return jdVerifyResponse;
