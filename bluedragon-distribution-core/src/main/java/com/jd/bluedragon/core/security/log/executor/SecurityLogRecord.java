@@ -6,15 +6,18 @@ import com.jd.bluedragon.core.security.log.builder.SecurityLogHeaderBuilder;
 import com.jd.bluedragon.core.security.log.domain.SecurityLogEntity;
 import com.jd.bluedragon.core.security.log.enums.*;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.PropertiesHelper;
+import com.jd.bluedragon.utils.StringHelper;
 import com.jd.security.log.util.LogAcesUtil;
 import com.jd.securitylog.entity.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.MapUtils;
-import org.apache.commons.lang3.StringUtils;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.UUID;
 
 /**
  * @ProjectName：bluedragon-distribution
@@ -51,8 +54,8 @@ public class SecurityLogRecord {
     }
 
     private static Head createHead(String interfaceName, SecurityAccountEnums accountType, String accountName, SecurityLogOpEnums op) throws UnknownHostException {
-        String appName = StringUtils.isNotEmpty(System.getProperty("deploy.app.name"))? System.getProperty("deploy.app.name") : System.getProperty("def_app_name");
-        String sysName = StringUtils.isNotEmpty(System.getProperty("SYSTEM_NAME"))? System.getProperty("SYSTEM_NAME") : System.getProperty("JONE_SYSTEM_NAME");
+        String appName = PropertiesHelper.newInstance().getValue("app_name");
+        String sysName = PropertiesHelper.newInstance().getValue("sys_name");
 
         return new SecurityLogHeaderBuilder()
                 .version("V1.0")
@@ -64,7 +67,7 @@ public class SecurityLogRecord {
                 .serverIp(InetAddress.getLocalHost().getHostAddress())
                 .clientIp(InvokerClientInfoContext.get().getClientIp())
                 .accountType(accountType.getType())
-                .accountName(accountName)
+                .accountName(StringHelper.isNotEmpty(InvokerClientInfoContext.get().getUser())? InvokerClientInfoContext.get().getUser() : accountName)
                 .op(op.getOpCode())
                 .build();
     }

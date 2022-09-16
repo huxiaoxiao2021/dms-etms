@@ -187,7 +187,13 @@
 		<property name="needValidateMainLineBizSourceList" value="${needValidateMainLineBizSourceList:[25]}"/>
 		<property name="jySendTaskCreateTimeBeginDay" value="${jySendTaskCreateTimeBeginDay:30}"/>
 		<property name="addiOwnNumberConf" value="${addiOwnNumberConf:010K1961638,}"/>
+		<property name="unloadCacheDurationHours" value="${unloadCacheDurationHours:24}"/>
+		<property name="unloadBoardBindingsMaxCount" value="${unloadBoardBindingsMaxCount:100}"/>
+		<property name="packageWeightLimit" value="${packageWeightLimit:'2000'}"/>
+		<property name="waybillWeightLimit" value="${waybillWeightLimit:'10000'}"/>
 		<property name="jyBasicServerSwitch" value="${jyBasicServerSwitch:false}"/>
+		<property name="notValidateTransTypeCodesList" value="${notValidateTransTypeCodesList:[3,4,10,11]}"/>
+
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -357,7 +363,12 @@
 				<value>uccPropertyConfiguration.needValidateMainLineBizSourceList</value>
 				<value>uccPropertyConfiguration.jySendTaskCreateTimeBeginDay</value>
 				<value>uccPropertyConfiguration.addiOwnNumberConf</value>
+				<value>uccPropertyConfiguration.unloadCacheDurationHours</value>
+				<value>uccPropertyConfiguration.unloadBoardBindingsMaxCount</value>
+				<value>uccPropertyConfiguration.packageWeightLimit</value>
+				<value>uccPropertyConfiguration.waybillWeightLimit</value>
 				<value>uccPropertyConfiguration.jyBasicServerSwitch</value>
+				<value>uccPropertyConfiguration.notValidateTransTypeCodesList</value>
 
 				<value>hystrixRouteUccPropertyConfiguration.executionTimeoutInMilliseconds</value>
                 <value>hystrixRouteUccPropertyConfiguration.circuitBreakerEnabled</value>

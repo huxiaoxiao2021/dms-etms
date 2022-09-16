@@ -26,7 +26,11 @@ public class LoadIllegalException extends RuntimeException {
 
     public static final String BOARD_MOVED_INTERCEPT_MESSAGE = "组板转移服务异常!";
 
+    public static final String BOARD_TOTC_EXCEPTION_INTERCEPT_MESSAGE = "组板服务异常!";
+
     public static final String BOARD_TOTC_FAIL_INTERCEPT_MESSAGE = "组板失败!";
+
+    public static final String BOARD_MOVED_FAIL_INTERCEPT_MESSAGE = "组板转移失败!";
 
     public static final String BOARD_NOTE_EXIST_INTERCEPT_MESSAGE = "板号不存在!";
 

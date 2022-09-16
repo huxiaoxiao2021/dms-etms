@@ -50,6 +50,7 @@
         INSERT INTO jy_unload (
                             id,
                             biz_id,
+                            stage_biz_id,
                             seal_car_code,
                             vehicle_number,
                             start_site_id,
@@ -68,6 +69,7 @@
                     ) VALUES (
                             #{id},
                             #{bizId},
+                            #{stageBizId},
                             #{sealCarCode},
                             #{vehicleNumber},
                             #{startSiteId},

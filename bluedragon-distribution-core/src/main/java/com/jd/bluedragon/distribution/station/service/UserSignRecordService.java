@@ -172,5 +172,11 @@ public interface UserSignRecordService {
 	 * @param query
 	 * @return
 	 */
-	JdCResponse<PageDto<UserSignRecordData>> querySignListByOperateUser(UserSignQueryRequest query);	
+	JdCResponse<PageDto<UserSignRecordData>> querySignListByOperateUser(UserSignQueryRequest query);
+	/**
+	 * 作废签到记录
+	 * @param query
+	 * @return
+	 */
+	JdCResponse<UserSignRecordData> deleteUserSignRecord(UserSignRequest userSignRequest);	
 }

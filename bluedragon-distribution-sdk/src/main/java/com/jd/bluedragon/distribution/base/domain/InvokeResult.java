@@ -127,6 +127,18 @@ public class InvokeResult<T> implements Serializable {
     public static final int NO_SCAN_AFTER_BIND_TASK_CODE= 331;
     public static final String NO_SCAN_AFTER_BIND_TASK_MESSAGE ="该自建任务已绑定任务，无法继续扫描，请选择绑定的任务进入操作！";
 
+    public static final int TASK_NO_FOUND_BY_STATUS_CODE=325;
+    public static final String TASK_NO_FOUND_BY_STATUS_MESSAGE="未找到相应状态下的任务数据！";
+
+    public static final int TASK_NO_FOUND_BY_PARAMS_CODE=326;
+    public static final String TASK_NO_FOUND_BY_PARAMS_MESSAGE="未找到相应的卸车任务数据！";
+
+    public static final int NOT_SUPPORT_TYPE_QUERY_CODE=327;
+    public static final String NOT_SUPPORT_TYPE_QUERY_MESSAGE="暂不支持该类型的统计数据查询！";
+
+    public static final int UNLOAD_SCAN_EXCEPTION_CODE=328;
+    public static final String UNLOAD_SCAN_EXCEPTION_MESSAGE="卸车扫描异常！";
+
     public InvokeResult(){
         this.code=RESULT_SUCCESS_CODE;
     }

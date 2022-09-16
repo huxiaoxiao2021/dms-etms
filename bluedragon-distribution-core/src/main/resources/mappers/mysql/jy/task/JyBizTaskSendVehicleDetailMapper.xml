@@ -532,7 +532,16 @@
         WHERE send_vehicle_biz_id =#{sendVehicleBizId}
           and vehicle_status IN (0,1,2,3) AND yn =1
     </select>
-
+    <select id="findByTransWorkItemCode" parameterType="JyBizTaskSendVehicleDetailEntity" resultMap="jyBizTaskSendVehicleDetailMap">
+        SELECT
+            <include refid="Base_Column_List"/>
+        FROM jy_biz_task_send_vehicle_detail
+        WHERE
+            yn = 1
+        AND trans_work_item_code = #{transWorkItemCode}
+        AND vehicle_status = #{vehicleStatus}
+        LIMIT 1
+    </select>    
     <select id="findSendVehicleBizListBySendFlow" parameterType="JyBizTaskSendVehicleDetailEntity" resultType="java.lang.String">
         SELECT
             distinct send_vehicle_biz_id

@@ -63,6 +63,11 @@ public class InvokerClientInfoContext {
 
         private String clientIp;
 
+        /**
+         * 登录人账号
+         */
+        private String user;
+
     }
 
 }

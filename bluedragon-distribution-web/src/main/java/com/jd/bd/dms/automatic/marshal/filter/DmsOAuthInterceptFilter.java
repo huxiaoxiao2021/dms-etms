@@ -54,24 +54,15 @@ public class DmsOAuthInterceptFilter extends DmsAuthorizationFilter {
         String ipAddress =ServletRequestHelper.getRealIpAddress(httpServletRequest);
         String uri =httpServletRequest.getRequestURI();
 
-        try {
-            InvokerClientInfoContext.add(ipAddress);
-            if (secretBool) {
-                LOGGER.info("内部调用，未拦截，客户端IP:{}", ServletRequestHelper.getRealIpAddress(httpServletRequest));
-                filterChain.doFilter(httpServletRequest,httpServletResponse);
-            } else if (pathMatch(uri)) {
-                super.doFilterInternal(httpServletRequest, httpServletResponse, filterChain);
-            } else {
-                LOGGER.warn("该客户端本次调用未进行rest加密鉴权,客户端IP:{}，请求路径：{}", ipAddress,uri);
-                writeLogToHive(ipAddress,uri);
-                filterChain.doFilter(httpServletRequest,httpServletResponse);
-            }
-        } finally {
-            try {
-                InvokerClientInfoContext.clear();
-            } catch (RuntimeException e) {
-                LOGGER.error("清理客户端信息失败",e);
-            }
+        if (secretBool) {
+            LOGGER.info("内部调用，未拦截，客户端IP:{}", ServletRequestHelper.getRealIpAddress(httpServletRequest));
+            filterChain.doFilter(httpServletRequest,httpServletResponse);
+        } else if (pathMatch(uri)) {
+            super.doFilterInternal(httpServletRequest, httpServletResponse, filterChain);
+        } else {
+            LOGGER.warn("该客户端本次调用未进行rest加密鉴权,客户端IP:{}，请求路径：{}", ipAddress,uri);
+            writeLogToHive(ipAddress,uri);
+            filterChain.doFilter(httpServletRequest,httpServletResponse);
         }
     }
 

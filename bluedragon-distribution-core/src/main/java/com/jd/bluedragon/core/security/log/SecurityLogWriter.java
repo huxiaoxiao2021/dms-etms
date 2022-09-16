@@ -9,6 +9,7 @@ import com.jd.bluedragon.core.security.log.enums.SecurityLogOpEnums;
 import com.jd.bluedragon.core.security.log.enums.SecurityLogReqInfoKeyEnums;
 import com.jd.bluedragon.core.security.log.enums.SecurityLogUniqueIdentifierKeyEnums;
 import com.jd.bluedragon.core.security.log.executor.SecurityLogRecord;
+import com.jd.bluedragon.distribution.api.response.OrderResponse;
 import com.jd.bluedragon.distribution.command.JdCommand;
 import com.jd.bluedragon.distribution.print.domain.SurfaceOutputTypeEnum;
 import com.jd.bluedragon.distribution.reverse.domain.DmsWaybillReverseResponseDTO;
@@ -49,8 +50,6 @@ public class SecurityLogWriter {
         CallerInfo info = Profiler.registerInfo("DMSWEB.SecurityLogWriter.jsonCommandExecuteWrite", Constants.UMP_APP_NAME_DMSWEB,false, true);
         try{
             Map<SecurityLogReqInfoKeyEnums, String> reqInfoKeyEnumsStringMap = new HashMap<>();
-            reqInfoKeyEnumsStringMap.put(SecurityLogReqInfoKeyEnums.accountId, "data.userCode");
-            reqInfoKeyEnumsStringMap.put(SecurityLogReqInfoKeyEnums.accountName, "data.userErp");
             reqInfoKeyEnumsStringMap.put(SecurityLogReqInfoKeyEnums.carryBillId, "data.barCode");
             reqInfoKeyEnumsStringMap.put(SecurityLogReqInfoKeyEnums.inputParam, "data");
 
@@ -65,12 +64,9 @@ public class SecurityLogWriter {
             SecurityLogRecord.log(
                     SecurityLogEntity.builder()
                             .interfaceName("com.jd.bluedragon.distribution.command.JsonCommandServiceImpl#execute")
-                            .accountName(String.valueOf(JsonHelper.getObject(JSONObject.parseObject(JSONObject.toJSONString(jsonCommand)),"data.userErp")))
-                            .accountType(SecurityAccountEnums.account_type_3)
-                            .op(
-                                    SurfaceOutputTypeEnum.OUTPUT_TYPE_PRINT.getCode().equals(JsonHelper.getObject(JSONObject.parseObject(JSONObject.toJSONString(jsonCommand)),"data.outputType"))?
-                                            SecurityLogOpEnums.op_8 : SecurityLogOpEnums.op_11
-                            )
+                            .accountName(String.valueOf(JsonHelper.getObject(JSONObject.parseObject(JSONObject.toJSONString(jsonCommand)),"data.userCode")))
+                            .accountType(SecurityAccountEnums.account_type_1)
+                            .op(SecurityLogOpEnums.op_8)
                             .reqKeyMapping(reqInfoKeyEnumsStringMap)
                             .businessRequest(jsonCommand)
                             .respKeyMapping(uniqueIdentifierKeyEnumsStringHashMap)
@@ -101,11 +97,8 @@ public class SecurityLogWriter {
                     SecurityLogEntity.builder()
                             .interfaceName("com.jd.bluedragon.distribution.sendprint.service.impl.SendPrintServiceImpl#basicPrintQuery")
                             .accountName(String.valueOf(JsonHelper.getObject(JSONObject.parseObject(JSONObject.toJSONString(criteria)),"data.userCode")))
-                            .accountType(SecurityAccountEnums.account_type_3)
-                            .op(
-                                    SurfaceOutputTypeEnum.OUTPUT_TYPE_PRINT.getCode().equals(JsonHelper.getObject(JSONObject.parseObject(JSONObject.toJSONString(criteria)),"data.outputType"))?
-                                            SecurityLogOpEnums.op_8 : SecurityLogOpEnums.op_11
-                            )
+                            .accountType(SecurityAccountEnums.account_type_1)
+                            .op(SecurityLogOpEnums.op_3)
                             .reqKeyMapping(reqInfoKeyEnumsStringMap)
                             .businessRequest(criteria)
                             .respKeyMapping(new HashMap<SecurityLogUniqueIdentifierKeyEnums, String>())
@@ -148,8 +141,8 @@ public class SecurityLogWriter {
                     SecurityLogEntity.builder()
                             .interfaceName("com.jd.bluedragon.distribution.rest.waybill.WaybillResource.getWaybillPack")
                             .accountName("")
-                            .accountType(SecurityAccountEnums.account_type_3)
-                            .op(SecurityLogOpEnums.op_8)
+                            .accountType(SecurityAccountEnums.account_type_1)
+                            .op(SecurityLogOpEnums.op_3)
                             .reqKeyMapping(reqInfoKeyEnumsStringMap)
                             .businessRequest(params)
                             .respKeyMapping(uniqueIdentifierKeyEnumsStringHashMap)
@@ -174,10 +167,6 @@ public class SecurityLogWriter {
 
             Map<SecurityLogReqInfoKeyEnums, String> reqInfoKeyEnumsStringMap = new HashMap<>();
             reqInfoKeyEnumsStringMap.put(SecurityLogReqInfoKeyEnums.carryBillId, "waybillCode");
-            reqInfoKeyEnumsStringMap.put(SecurityLogReqInfoKeyEnums.carryBillId, "waybillCodeOrPackage");
-            reqInfoKeyEnumsStringMap.put(SecurityLogReqInfoKeyEnums.carryBillId, "waybillCodeOrPackage");
-            reqInfoKeyEnumsStringMap.put(SecurityLogReqInfoKeyEnums.carryBillId, "waybillCodeOrPackage");
-            reqInfoKeyEnumsStringMap.put(SecurityLogReqInfoKeyEnums.carryBillId, "waybillCodeOrPackage");
 
             Map<SecurityLogUniqueIdentifierKeyEnums, String> uniqueIdentifierKeyEnumsStringHashMap = new HashMap<>();
             uniqueIdentifierKeyEnumsStringHashMap.put(SecurityLogUniqueIdentifierKeyEnums.carryBillId,"waybillCode");
@@ -187,10 +176,10 @@ public class SecurityLogWriter {
 
             SecurityLogRecord.log(
                     SecurityLogEntity.builder()
-                            .interfaceName("com.jd.bluedragon.distribution.rest.waybill.WaybillResource.getWaybillPack")
+                            .interfaceName("com.jd.bluedragon.distribution.rest.waybill.WaybillResource.getOldOrderMessageNew")
                             .accountName("")
-                            .accountType(SecurityAccountEnums.account_type_3)
-                            .op(SecurityLogOpEnums.op_8)
+                            .accountType(SecurityAccountEnums.account_type_1)
+                            .op(SecurityLogOpEnums.op_5)
                             .reqKeyMapping(reqInfoKeyEnumsStringMap)
                             .businessRequest(request)
                             .respKeyMapping(uniqueIdentifierKeyEnumsStringHashMap)
@@ -200,6 +189,46 @@ public class SecurityLogWriter {
             );
         } catch (RuntimeException ex){
             log.error("构建安全日日志失败waybillResource#getOldOrderMessageNew:",ex);
+        }
+
+    }
+
+    /**
+     * 现场预分拣查询
+     * 切入接口：
+     * com.jd.bluedragon.distribution.rest.order.OrderResource#getOrderResponse
+     *
+     * @param packageCode
+     * @param response
+     */
+    public static void orderResourceGetOrderResponseWrite(String packageCode, OrderResponse response) {
+        try{
+            Map<String,String> param = new HashMap<>();
+            param.put("packageCode", packageCode);
+
+            Map<SecurityLogReqInfoKeyEnums, String> reqInfoKeyEnumsStringMap = new HashMap<>();
+            reqInfoKeyEnumsStringMap.put(SecurityLogReqInfoKeyEnums.carryBillId, "packageCode");
+
+            Map<SecurityLogUniqueIdentifierKeyEnums, String> uniqueIdentifierKeyEnumsStringHashMap = new HashMap<>();
+            uniqueIdentifierKeyEnumsStringHashMap.put(SecurityLogUniqueIdentifierKeyEnums.carryBillId,"waybillCode");
+            uniqueIdentifierKeyEnumsStringHashMap.put(SecurityLogUniqueIdentifierKeyEnums.receiveAddress,"address");
+            uniqueIdentifierKeyEnumsStringHashMap.put(SecurityLogUniqueIdentifierKeyEnums.receivePhone,"mobile");
+
+            SecurityLogRecord.log(
+                    SecurityLogEntity.builder()
+                            .interfaceName("com.jd.bluedragon.distribution.waybill.service.WaybillService#getDmsWaybillInfoAndCheck")
+                            .accountName("")
+                            .accountType(SecurityAccountEnums.account_type_1)
+                            .op(SecurityLogOpEnums.op_5)
+                            .reqKeyMapping(reqInfoKeyEnumsStringMap)
+                            .businessRequest(param)
+                            .respKeyMapping(uniqueIdentifierKeyEnumsStringHashMap)
+                            .businessResponse(response)
+                            .resultNum(1)
+                            .build()
+            );
+        } catch (RuntimeException ex){
+            log.error("构建安全日日志失败OrderResource#getOrderResponse:",ex);
         }
     }
 }

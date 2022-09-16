@@ -300,22 +300,29 @@ public class BoardCommonManagerImpl implements BoardCommonManager {
                 return result;
             }
             String waybillCode = WaybillUtil.getWaybillCode(request.getBarCode());
-            Integer nextSiteCode = getNextSiteCodeByRouter(waybillCode, request.getOperateSiteCode());
+            Integer nextSiteCode = request.getReceiveSiteCode();
+            if (nextSiteCode == null || nextSiteCode <= 0) {
+                nextSiteCode = getNextSiteCodeByRouter(waybillCode, request.getOperateSiteCode());
+            }
             if(nextSiteCode == null){
                 logger.warn("根据运单号【{}】操作站点【{}】获取路由下一节点为空!",waybillCode,request.getOperateSiteCode());
                 result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,
                         "此单路由信息获取失败,无法判断流向生成板号,请扫描其他包裹号尝试开板");
                 return result;
             }
-            BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteBySiteId(nextSiteCode);
-            if(baseSite == null || StringUtils.isEmpty(baseSite.getSiteName())){
-                logger.warn("根据站点【{}】获取站点名称为空!",nextSiteCode);
-                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,"站点【" + nextSiteCode + "】不存在!");
-                return result;
+            String nextSiteName = request.getReceiveSiteName();
+            if (StringUtils.isBlank(nextSiteName)) {
+                BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteBySiteId(nextSiteCode);
+                if (baseSite == null || StringUtils.isEmpty(baseSite.getSiteName())) {
+                    logger.warn("根据站点【{}】获取站点名称为空!", nextSiteCode);
+                    result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, "站点【" + nextSiteCode + "】不存在!");
+                    return result;
+                }
+                nextSiteName = baseSite.getSiteName();
             }
             addBoardRequest.setBoardCount(SINGLE_BOARD_CODE);
             addBoardRequest.setDestinationId(nextSiteCode);
-            addBoardRequest.setDestination(baseSite.getSiteName());
+            addBoardRequest.setDestination(nextSiteName);
             addBoardRequest.setOperatorErp(request.getOperateUserErp());
             addBoardRequest.setOperatorName(request.getOperateUserName());
             addBoardRequest.setSiteCode(request.getOperateSiteCode());
@@ -371,6 +378,48 @@ public class BoardCommonManagerImpl implements BoardCommonManager {
 
             result.setData(tcResponse.getData());
         }else {
+            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,"组板失败!");
+        }
+        return result;
+    }
+
+    /**
+     * 组板转移(不校验板状态)
+     * <p>
+     *  1、将包裹号/箱号从原来的板上取消，绑定到新板
+     *  2、发送取消旧板的全称跟踪和组到新板的全称跟踪
+     * <p/>
+     * @param request
+     * @return
+     */
+    @JProfiler(jKey = "DMSWEB.BoardCombinationServiceImpl.boardMoveIgnoreStatus", jAppName = Constants.UMP_APP_NAME_DMSWEB,
+            mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
+    @Override
+    public InvokeResult<String> boardMoveIgnoreStatus(BoardCommonRequest request) {
+        InvokeResult<String> result = new InvokeResult<>();
+        MoveBoxRequest moveBoxRequest = new MoveBoxRequest();
+        // 新板标
+        moveBoxRequest.setBoardCode(request.getBoardCode());
+        moveBoxRequest.setBoxCode(request.getBarCode());
+        moveBoxRequest.setSiteCode(request.getOperateSiteCode());
+        moveBoxRequest.setOperatorErp(request.getOperateUserErp());
+        moveBoxRequest.setOperatorName(request.getOperateUserName());
+        moveBoxRequest.setBizSource(request.getBizSource());
+        Response<String> tcResponse = groupBoardManager.moveBoxToNewBoardIgnoreStatus(moveBoxRequest);
+        // 组新板成功
+        if (tcResponse != null && tcResponse.getCode() == ResponseEnum.SUCCESS.getIndex()) {
+            String boardOld = tcResponse.getData();
+            String boardNew = request.getBoardCode();
+            // 取消组板的全称跟踪 -- 旧板号
+            request.setBoardCode(boardOld);
+            sendWaybillTrace(request, WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION_CANCEL);
+
+            // 组板的全称跟踪 -- 新板号
+            request.setBoardCode(boardNew);
+            sendWaybillTrace(request, WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION);
+
+            result.setData(tcResponse.getData());
+        } else {
             result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,"组板失败!");
         }
         return result;

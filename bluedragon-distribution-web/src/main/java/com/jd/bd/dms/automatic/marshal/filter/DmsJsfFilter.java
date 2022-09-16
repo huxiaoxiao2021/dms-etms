@@ -23,8 +23,6 @@ import java.net.InetSocketAddress;
  * @Since: JDK 1.8
  * @Version： V1.0
  */
-@Extensible(value = "clientInfo", order = 0)
-@AutoActive(providerSide = true)
 @Slf4j
 public class DmsJsfFilter extends AbstractFilter {
 
@@ -33,7 +31,6 @@ public class DmsJsfFilter extends AbstractFilter {
         if (log.isDebugEnabled()) {
             log.debug("process DmsJsfFilter,class:{} method:{}", requestMessage.getClassName(), requestMessage.getMethodName());
         }
-        Invocation invocation = requestMessage.getInvocationBody();
         ResponseMessage rm;
 
         try {
