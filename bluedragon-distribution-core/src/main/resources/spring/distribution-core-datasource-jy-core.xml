@@ -41,6 +41,18 @@
     <bean id="jyCoreSqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
         <property name="dataSource" ref="jy_core"/>
         <property name="configLocation" value="classpath:config/mysql/mybatis-config-jy-core.xml"/>
+        <property name="plugins">
+            <array>
+                <bean class="com.github.pagehelper.PageInterceptor">
+                    <property name="properties">
+                        <props>
+                            <prop key="helperDialect">mysql</prop>
+                            <prop key="reasonable">true</prop>
+                        </props>
+                    </property>
+                </bean>
+            </array>
+        </property>
     </bean>
 
     <bean id="jyCoreSqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">

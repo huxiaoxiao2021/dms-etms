@@ -3,7 +3,7 @@
 
 <mapper namespace="com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadAggsDao">
 
-	<!-- 可根据自己的需求，是否要使用 -->
+    <!-- 可根据自己的需求，是否要使用 -->
     <resultMap type="com.jd.bluedragon.distribution.jy.unload.JyUnloadAggsEntity" id="jyUnloadAggsMap">
         <result property="id" column="id"/>
         <result property="bizId" column="biz_id"/>
@@ -23,10 +23,23 @@
         <result property="createTime" column="create_time"/>
         <result property="yn" column="yn"/>
         <result property="ts" column="ts"/>
+        <result property="boardCode" column="board_code"/>
+        <result property="actualScanWaybillCount" column="actual_scan_waybill_count"/>
+        <result property="interceptShouldScanWaybillCount" column="intercept_should_scan_waybill_count"/>
+        <result property="interceptActualScanWaybillCount" column="intercept_actual_scan_waybill_count"/>
+        <result property="totalScannedBoardCount" column="total_scanned_board_count"/>
+        <result property="totalSealWaybillCount" column="total_seal_waybill_count"/>
+        <result property="totalScannedWaybillCount" column="total_scanned_waybill_count"/>
+        <result property="totalScannedInterceptWaybillCount" column="total_scanned_intercept_waybill_count"/>
+        <result property="totalShouldInterceptWaybillCount" column="total_should_intercept_waybill_count"/>
+        <result property="totalMoreScanLocalWaybillCount" column="total_more_scan_local_waybill_count"/>
+        <result property="totalMoreScanOutWaybillCount" column="total_more_scan_out_waybill_count"/>
+
     </resultMap>
 
     <sql id="Base_Column_List">
-        id,
+        id
+        ,
         biz_id,
         seal_car_code,
         operate_site_id,
@@ -43,56 +56,152 @@
         total_scanned_package_count,
         create_time,
         yn,
-        ts
+        ts,
+        board_code,
+        actual_scan_waybill_count,
+        total_scanned_board_count
     </sql>
 
     <insert id="insert" parameterType="JyUnloadAggsEntity">
-        INSERT INTO jy_unload_aggs (
-                            id,
-                            biz_id,
-                            seal_car_code,
-                            operate_site_id,
-                            product_type,
-                            should_scan_count,
-                            actual_scan_count,
-                            intercept_should_scan_count,
-                            intercept_actual_scan_count,
-                            intercept_not_scan_count,
-                            more_scan_local_count,
-                            more_scan_out_count,
-                            more_scan_total_count,
-                            total_seal_package_count,
-                            total_scanned_package_count,
-                            create_time,
-                            yn
-                    ) VALUES (
-                            #{id},
-                            #{bizId},
-                            #{sealCarCode},
-                            #{operateSiteId},
-                            #{productType},
-                            #{shouldScanCount},
-                            #{actualScanCount},
-                            #{interceptShouldScanCount},
-                            #{interceptActualScanCount},
-                            #{interceptNotScanCount},
-                            #{moreScanLocalCount},
-                            #{moreScanOutCount},
-                            #{moreScanTotalCount},
-                            #{totalSealPackageCount},
-                            #{totalScannedPackageCount},
-                            NOW(),
-                            1
-                    )
+        INSERT INTO jy_unload_aggs (id,
+                                    biz_id,
+                                    seal_car_code,
+                                    operate_site_id,
+                                    product_type,
+                                    should_scan_count,
+                                    actual_scan_count,
+                                    intercept_should_scan_count,
+                                    intercept_actual_scan_count,
+                                    intercept_not_scan_count,
+                                    more_scan_local_count,
+                                    more_scan_out_count,
+                                    more_scan_total_count,
+                                    total_seal_package_count,
+                                    total_scanned_package_count,
+                                    create_time,
+                                    yn)
+        VALUES (#{id},
+                #{bizId},
+                #{sealCarCode},
+                #{operateSiteId},
+                #{productType},
+                #{shouldScanCount},
+                #{actualScanCount},
+                #{interceptShouldScanCount},
+                #{interceptActualScanCount},
+                #{interceptNotScanCount},
+                #{moreScanLocalCount},
+                #{moreScanOutCount},
+                #{moreScanTotalCount},
+                #{totalSealPackageCount},
+                #{totalScannedPackageCount},
+                NOW(),
+                1)
     </insert>
-    
+
     <select id="queryByBizId" parameterType="JyUnloadAggsEntity" resultMap="jyUnloadAggsMap">
         SELECT
-            <include refid="Base_Column_List"/>
+        <include refid="Base_Column_List"/>
         FROM
-             jy_unload_aggs
+        jy_unload_aggs
         WHERE
-            yn = 1
+        yn = 1
         AND biz_id = #{bizId, jdbcType=VARCHAR}
+    </select>
+
+    <select id="queryPackageStatistics" parameterType="com.jd.bluedragon.distribution.jy.dto.unload.DimensionQueryDto"
+            resultMap="jyUnloadAggsMap">
+        SELECT
+        SUM(should_scan_count) should_scan_count,
+        SUM(actual_scan_count) actual_scan_count,
+        SUM(intercept_should_scan_count) intercept_should_scan_count,
+        SUM(intercept_actual_scan_count) intercept_actual_scan_count,
+        SUM(more_scan_local_count) more_scan_local_count,
+        SUM(more_scan_out_count) more_scan_out_count,
+        sum(more_scan_total_count) more_scan_total_count,
+        total_seal_package_count,
+        total_scanned_package_count
+        FROM
+        jy_unload_aggs
+        WHERE yn = 1 and
+        biz_id = #{bizId}
+        <if test="boardCode!=null">
+            and board_code =#{boardCode}
+        </if>
+
+    </select>
+
+    <select id="queryToScanAndMoreScanStatistics" parameterType="java.lang.String" resultMap="jyUnloadAggsMap">
+        SELECT
+        SUM(should_scan_count) should_scan_count,
+        SUM(actual_scan_count) actual_scan_count,
+        SUM(more_scan_local_count) more_scan_local_count,
+        SUM(more_scan_out_count) more_scan_out_count
+        FROM
+        jy_unload_aggs
+        WHERE yn = 1 and biz_id = #{bizId}
+    </select>
+
+    <select id="queryWaybillStatisticsUnderBoard"
+            parameterType="com.jd.bluedragon.distribution.jy.dto.unload.DimensionQueryDto"
+            resultMap="jyUnloadAggsMap">
+               select SUM(actual_scan_waybill_count)   actual_scan_waybill_count
+        FROM jy_unload_aggs
+        WHERE biz_id = #{bizId}
+          and board_code = #{boardCode}
+          and yn = 1
+    </select>
+
+    <select id="queryWaybillStatisticsUnderTask"
+            parameterType="com.jd.bluedragon.distribution.jy.dto.unload.DimensionQueryDto"
+            resultMap="jyUnloadAggsMap">
+        SELECT total_seal_waybill_count,
+               total_scanned_waybill_count,
+               total_should_intercept_waybill_count,
+               total_scanned_intercept_waybill_count,
+               total_more_scan_local_waybill_count,
+               total_more_scan_out_waybill_count,
+               total_seal_package_count,
+               total_scanned_package_count
+        FROM jy_unload_aggs
+        WHERE biz_id = #{bizId}
+          and yn = 1 limit 1
+    </select>
+
+    <select id="queryGoodsCategoryStatistics" parameterType="JyUnloadAggsEntity"
+            resultType="com.jd.bluedragon.distribution.jy.dto.unload.GoodsCategoryDto">
+        SELECT product_type type,SUM(should_scan_count) shouldScanCount,
+        SUM(actual_scan_count) haveScanCount,
+        SUM(more_scan_total_count) moreScanTotalCount
+        from jy_unload_aggs
+        WHERE biz_id = #{bizId}
+        <if test="boardCode!=null and boardCode!='' ">
+            AND board_code =#{boardCode}
+        </if>
+        GROUP BY product_type
+    </select>
+    <select id="queryExcepScanStatistics" parameterType="JyUnloadAggsEntity"
+            resultType="com.jd.bluedragon.distribution.jy.dto.unload.ScanStatisticsDto">
+        SELECT
+        SUM(should_scan_count) shouldScanCount,
+        SUM(actual_scan_count) haveScanCount,
+        SUM(should_scan_count)-SUM(actual_scan_count) waitScanCount,
+        SUM(more_scan_total_count) extraScanCount,
+        SUM(intercept_actual_scan_count) interceptCount
+        FROM
+        jy_unload_aggs
+        WHERE
+        biz_id = #{bizId}
+        <if test="boardCode!=null and boardCode!='' ">
+            AND board_code =#{boardCode}
+        </if>
+    </select>
+
+
+    <select id="queryBoardStatistics" parameterType="com.jd.bluedragon.distribution.jy.dto.unload.DimensionQueryDto"
+            resultMap="jyUnloadAggsMap">
+        SELECT biz_id, board_code, sum(actual_scan_count) actual_scan_count, sum(more_scan_total_count) more_scan_total_count
+        FROM  jy_unload_aggs
+        WHERE yn = 1 and biz_id = #{bizId} and board_code =#{boardCode}
     </select>
 </mapper>
