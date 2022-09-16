@@ -1839,6 +1839,11 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
         // 校验箱号是否绑定集包袋
         if (BusinessHelper.isBoxcode(barCode)) {
             Box box = boxService.findBoxByCode(barCode);
+            if(box == null){
+                response.toBizError();
+                response.addPromptBox(0, "请扫描或输入正确的箱号！");
+                return false;
+            }
             if (BusinessHelper.isBCBoxType(box.getType())) {
                 boolean needBindMaterialBag = funcSwitchConfigService.getBcBoxFilterStatus(FuncSwitchConfigEnum.FUNCTION_BC_BOX_FILTER.getCode(), siteCode);
                 if (needBindMaterialBag) {
