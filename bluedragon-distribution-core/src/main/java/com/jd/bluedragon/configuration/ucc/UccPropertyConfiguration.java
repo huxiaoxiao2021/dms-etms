@@ -1,6 +1,8 @@
 package com.jd.bluedragon.configuration.ucc;
 
 import com.jd.bluedragon.Constants;
+import com.jd.ql.dms.print.utils.JsonHelper;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.ArrayUtils;
@@ -840,8 +842,11 @@ public class UccPropertyConfiguration {
      * 身份证识别切量开关，全量上线之后，可以删除
      */
     private String identityRecogniseSiteSwitch;
-
-    private String needValidateMainLineBizSources;
+    /**
+     * 传摆发货-干支限制业务列表
+     */
+    private String needValidateMainLineBizSourceList;
+    private List<Integer> needValidateMainLineBizSourceCodes;
 
     /**
      * 敏感信息隐藏开关
@@ -2024,14 +2029,21 @@ public class UccPropertyConfiguration {
         this.jySendTaskPlanTimeEndDay = jySendTaskPlanTimeEndDay;
     }
 
-    public String getNeedValidateMainLineBizSources() {
-        return needValidateMainLineBizSources;
+    public String getNeedValidateMainLineBizSourceList() {
+        return needValidateMainLineBizSourceList;
     }
 
-    public void setNeedValidateMainLineBizSources(String needValidateMainLineBizSources) {
-        this.needValidateMainLineBizSources = needValidateMainLineBizSources;
+    public void setNeedValidateMainLineBizSourceList(String needValidateMainLineBizSourceList) {
+        this.needValidateMainLineBizSourceList = needValidateMainLineBizSourceList;
+        needValidateMainLineBizSourceCodes = JsonHelper.jsonToList(needValidateMainLineBizSourceList, Integer.class);
     }
 
+    public boolean needValidateMainLine(Integer bizCode) {
+    	if(!CollectionUtils.isEmpty(needValidateMainLineBizSourceCodes)) {
+    		return needValidateMainLineBizSourceCodes.contains(bizCode);
+    	}
+    	return false;
+    }
     public Boolean getSensitiveInfoHideSwitch() {
         return sensitiveInfoHideSwitch;
     }
