@@ -1841,7 +1841,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
             Box box = boxService.findBoxByCode(barCode);
             if(box == null){
                 response.toBizError();
-                response.addPromptBox(0, "请扫描或输入正确的箱号！");
+                response.addPromptBox(0, "未查找到对应的箱号数据，请扫描或输入正确的箱号！");
                 return false;
             }
             if (BusinessHelper.isBCBoxType(box.getType())) {
