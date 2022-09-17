@@ -100,9 +100,8 @@
         order by id  desc
         limit 1
     </select>
-
-    <select id="updateUnBindByMaterialCode" parameterType="com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelation"
-            resultType="Integer">
+    <!--除了当前箱号，其他和此集包袋的绑定关系都解绑-->
+    <update id="updateUnBindByMaterialCode" parameterType="com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelation">
         UPDATE
             box_material_relation
         SET  bind_flag = 2
@@ -110,5 +109,15 @@
          is_delete = 0 AND bind_flag = 1
           AND  material_code =  #{materialCode,jdbcType=VARCHAR}
           AND  box_code != #{boxCode,jdbcType=VARCHAR}
-    </select>
+    </update>
+    <!-- 解绑此箱号和集包袋绑定关系-->
+    <update id="updateUnBindByMaterialCodeAndBoxCode" parameterType="com.jd.bluedragon.distribution.cyclebox.domain.BoxMaterialRelation">
+        UPDATE
+            box_material_relation
+        SET  bind_flag = 2
+        WHERE
+            is_delete = 0 AND bind_flag = 1
+          AND  material_code =  #{materialCode,jdbcType=VARCHAR}
+          AND  box_code = #{boxCode,jdbcType=VARCHAR}
+    </update>
 </mapper>
