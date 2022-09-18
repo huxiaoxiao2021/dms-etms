@@ -122,10 +122,14 @@ public class AbnormalReportingGatewayServiceImpl implements AbnormalReportingGat
             return jdCResponse;
         }
         List<BaseDataDict> qcDateDictList = baseService.getBaseDictionaryTree(this.qcAbnormalReasonType);
+        log.info("getAllAbnormalReason qcDateDictList {}", JsonHelper.toJson(qcDateDictList));
         List<BaseDataDict> nonQcDateDictList = baseService.getBaseDictionaryTree(this.nonQcAbnormalReasonType);
+        log.info("getAllAbnormalReason nonQcDateDictList {}", JsonHelper.toJson(nonQcDateDictList));
 
         List<DmsAbnormalReasonDto> multiAbnormalReasonList = genDmsAbnormalReasonList(qcDateDictList, AbnormalReasonSourceEnum.QUALITY_CONTROL_SYSTEM);
+        log.info("getAllAbnormalReason multiAbnormalReasonList {}", JsonHelper.toJson(multiAbnormalReasonList));
         List<DmsAbnormalReasonDto> nonQcAbnormalReasonList = genDmsAbnormalReasonList(nonQcDateDictList, AbnormalReasonSourceEnum.BASIC_SYSTEM);
+        log.info("getAllAbnormalReason nonQcAbnormalReasonList {}", JsonHelper.toJson(nonQcAbnormalReasonList));
         multiAbnormalReasonList.addAll(nonQcAbnormalReasonList);
 
         jdCResponse.setData(multiAbnormalReasonList);
