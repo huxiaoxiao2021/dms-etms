@@ -63,6 +63,7 @@ import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetail
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleService;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
+import com.jd.bluedragon.distribution.newseal.service.SealVehiclesService;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.distribution.send.domain.ConfirmMsgBox;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
@@ -222,9 +223,11 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
 
     @Autowired
     private SendVehicleTransactionManager sendVehicleTransactionManager;
-    
+
     @Autowired
     private BaseService baseService;
+    @Autowired
+    private SealVehiclesService sealVehiclesService;
 
     @Override
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "IJySendVehicleService.fetchSendVehicleTask",
@@ -1127,17 +1130,18 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
         if (NumberHelper.gt0(request.getConfirmSendDestId())) {
             sendDestId = request.getConfirmSendDestId();
         }
+        String detailBizId= request.getSendVehicleDetailBizId();
 
         try {
             JyBizTaskSendVehicleDetailEntity curSendDetail = null;
-            for (JyBizTaskSendVehicleDetailEntity sendDetail : taskSendDetails) {//匹配上流向就算
-                //if (sendDetail.getEndSiteId().equals(sendDestId)) {
-                if (sendDetail.getBizId().equals(request.getSendVehicleDetailBizId())){
-                    curSendDetail = sendDetail;
-                    break;
-                }
+            if (ObjectHelper.isNotNull(detailBizId)){
+                curSendDetail=pickUpOneDetailByBizId(taskSendDetails,detailBizId);
             }
-            if (curSendDetail != null && JyBizTaskSendDetailStatusEnum.SEALED.getCode().equals(curSendDetail.getVehicleStatus())) {
+            else {
+                curSendDetail =pickUpOneDetailByFilterStatusAndTime(taskSendDetails,sendDestId);
+            }
+
+            if (curSendDetail == null){
                 result.toBizError();
                 result.addInterceptBox(0, "该发货流向已封车！");
                 return result;
@@ -1204,6 +1208,55 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
         }
 
         return result;
+    }
+
+    private JyBizTaskSendVehicleDetailEntity pickUpOneDetailByFilterStatusAndTime(List<JyBizTaskSendVehicleDetailEntity> taskSendDetails, Long sendDestId) {
+        List<JyBizTaskSendVehicleDetailEntity> sameDirections = new ArrayList<>();
+        for (JyBizTaskSendVehicleDetailEntity sendDetail : taskSendDetails) {
+            if (sendDetail.getEndSiteId().equals(sendDestId)) {
+                sameDirections.add(sendDetail);
+            }
+        }
+        if (sameDirections.size()>0){
+            //过滤封车状态
+            Iterator it = sameDirections.iterator();
+            while(it.hasNext()) {
+                JyBizTaskSendVehicleDetailEntity detail = (JyBizTaskSendVehicleDetailEntity) it.next();//当前遍历对象
+                if (checkIfSealed(detail)){
+                    it.remove();
+                }
+            }
+            //按时间倒排
+            if (sameDirections.size()>1){
+                Collections.sort(sameDirections, new JyBizTaskSendVehicleDetailEntity.DetailComparatorByTime());
+            }
+            return sameDirections.get(0);
+        }
+        return null;
+    }
+
+
+    private boolean checkIfSealed(JyBizTaskSendVehicleDetailEntity detail) {
+        //List<String> allSendCode =jySendCodeService.querySendCodesByVehicleDetailBizId(detail.getBizId());
+        String originSendCode =jySendCodeService.findEarliestSendCode(detail.getBizId());
+        if (ObjectHelper.isNotNull(originSendCode)){
+            Set<String> set =new HashSet<>();set.add(originSendCode);
+            List<String> sealData =sealVehiclesService.findBySealDataCodes(set);
+            if (ObjectHelper.isNotNull(sealData) && sealData.size()>0){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private JyBizTaskSendVehicleDetailEntity pickUpOneDetailByBizId(
+        List<JyBizTaskSendVehicleDetailEntity> taskSendDetails, String detailBizId) {
+        for (JyBizTaskSendVehicleDetailEntity sendDetail : taskSendDetails) {
+            if (sendDetail.getBizId().equals(detailBizId)){
+                return sendDetail;
+            }
+        }
+        return null;
     }
 
     private ValidateIgnore convertValidateIgnore(com.jd.bluedragon.common.dto.operation.workbench.send.request.ValidateIgnore validateIgnoreSource) {
