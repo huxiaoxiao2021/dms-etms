@@ -596,6 +596,12 @@ public class JyExceptionServiceImpl implements JyExceptionService {
 
         ExpTaskDetailCacheDto cacheDto = JSON.parseObject(s, ExpTaskDetailCacheDto.class);
         BeanUtils.copyProperties(cacheDto, dto);
+        if (StringUtils.isBlank(dto.getBatchNo()) && CollectionUtils.isNotEmpty(cacheDto.getRecentSendCodeList())) {
+            dto.setBatchNo(cacheDto.getRecentSendCodeList().iterator().next());
+        }
+        if (StringUtils.isBlank(dto.getTo()) && CollectionUtils.isNotEmpty(cacheDto.getRecentReceiveSiteList())) {
+            dto.setTo(String.valueOf(cacheDto.getRecentReceiveSiteList().iterator().next()));
+        }
 
         // 设置 上架日期
         if (Objects.equals(entity.getStatus(), JyExpStatusEnum.TO_PRINT.getCode())) {
