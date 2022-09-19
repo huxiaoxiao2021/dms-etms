@@ -7,6 +7,7 @@ import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.security.log.SecurityLogWriter;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.response.OrderResponse;
 import com.jd.bluedragon.distribution.order.ws.OrderWebService;
@@ -58,6 +59,7 @@ public class OrderResource {
     @JProfiler(jKey = "DMS.WEB.OrderResource.getOrderResponse", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public OrderResponse getOrderResponse(@QueryParam("packageCode") String packageCode) {
 		OrderResponse orderResponse = this.waybillService.getDmsWaybillInfoAndCheck(packageCode);
+		SecurityLogWriter.orderResourceGetOrderResponseWrite(packageCode, orderResponse);
 		return orderResponse;
 	}
 

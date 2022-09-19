@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.command;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.core.security.log.SecurityLogWriter;
 import com.jd.bluedragon.distribution.api.request.WaybillPrintRequest;
 import com.jd.bluedragon.distribution.businessIntercept.constants.Constant;
 import com.jd.bluedragon.distribution.businessIntercept.dto.SaveInterceptMsgDto;
@@ -13,15 +14,13 @@ import com.jd.bluedragon.distribution.command.handler.JsonCommandHandlerMapping;
 import com.jd.bluedragon.distribution.handler.Handler;
 import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
 import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.LocalSecurityLog;
-import com.jd.bluedragon.utils.SecurityLog;
 import com.jd.dms.logger.aop.BusinessLogWriter;
 import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.jsf.gd.util.RpcContext;
+import com.jd.pfinder.profiler.sdk.trace.PFTracing;
 import com.jd.ql.basic.util.DateUtil;
 import com.jd.ql.dms.common.constants.OperateDeviceTypeConstants;
 import com.jd.ql.dms.common.constants.OperateNodeConstants;
-import com.jd.pfinder.profiler.sdk.trace.PFTracing;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
@@ -31,8 +30,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -124,8 +123,7 @@ public class JsonCommandServiceImpl implements JdCommandService{
 		//写入自定义日志
 		writeBusinessLog(jsonCommand,jsonResponse,jdCommand.getOperateType());
 		//写入安全日志
-		//this.writeSecurityLog(jdCommand);
-		LocalSecurityLog.writeJsonCommandSecurityLog(JsonCommandServiceImpl.class.getName(),jdCommand,jsonResponse,clientIp);
+		SecurityLogWriter.jsonCommandExecuteWrite(jdCommand, jsonResponse);
 		return jsonResponse;
 	}
 
@@ -251,22 +249,5 @@ public class JsonCommandServiceImpl implements JdCommandService{
 		return jsonObject.toJSONString();
 	}
 
-	/**
-	 * 写入安全日志
-	 * @param jsonCommand
-	 */
-	private void writeSecurityLog(JdCommand<String> jsonCommand){
-		CallerInfo info = Profiler.registerInfo("DMSWEB.JsonCommandServiceImpl.writeSecurityLog", Constants.UMP_APP_NAME_DMSWEB,false, true);
-		try{
-			//构建参数
-			WaybillPrintRequest waybillPrintRequest = JsonHelper.fromJson(jsonCommand.getData(), WaybillPrintRequest.class);
-			if (null == waybillPrintRequest) return;
-			//打印日志
-			SecurityLog.reportSecurityLog(JsonCommandServiceImpl.class.getName(),waybillPrintRequest.getUserERP(),waybillPrintRequest.getBarCode());
-		}catch (Exception ex){
-			log.error("上传安全日日志失败.jsonCommand:{}",jsonCommand,ex);
-		}finally {
-			Profiler.registerInfoEnd(info);
-		}
-	}
+
 }

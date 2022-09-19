@@ -3,6 +3,7 @@ package com.jd.bluedragon.utils;
 import static org.codehaus.jackson.map.DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -336,5 +337,44 @@ public class JsonHelper {
 
     public static ObjectMapper getMapper() {
         return mapper;
+    }
+
+    /**
+     * 从json对象中获取路径为jsonPath的值
+     * @param jsonObject json对象
+     * @param jsonPathStr json路径 data.waybillDto[0].waybillCode
+     * @return
+     */
+    public static Object getObject(JSONObject jsonObject, String jsonPathStr) {
+        String[] valueJsonPaths = jsonPathStr.split("\\.");
+        Object valueObject = jsonObject;
+        if (StringUtils.isEmpty(jsonPathStr)) {
+            return valueObject;
+        }
+
+        for (String jsonPath : valueJsonPaths) {
+            String path = jsonPath;
+            int index = -1;
+            if (jsonPath.contains("[") && jsonPath.contains("]")) {
+                path = jsonPath.substring(0, jsonPath.indexOf("["));
+                index = Integer.parseInt(jsonPath.substring(jsonPath.indexOf("[") + 1, jsonPath.indexOf("]")));
+            }
+
+            if (valueObject instanceof JSONObject) {
+                valueObject = ((JSONObject) valueObject).get(path);
+            } else if (valueObject instanceof String) {
+                valueObject = JSONObject.parseObject((String) valueObject).get(path);
+            }
+
+            if (index >= 0) {
+                if (valueObject instanceof JSONArray) {
+                    valueObject = ((JSONArray) valueObject).get(index);
+                } else if (valueObject instanceof String) {
+                    valueObject = JSONObject.parseArray((String) valueObject).get(index);
+                }
+            }
+        }
+        return valueObject;
+
     }
 }

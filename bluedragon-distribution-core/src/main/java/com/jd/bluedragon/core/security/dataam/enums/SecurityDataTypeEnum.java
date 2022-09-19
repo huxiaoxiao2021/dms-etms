@@ -1,4 +1,4 @@
-package com.jd.bluedragon.core.security.enums;
+package com.jd.bluedragon.core.security.dataam.enums;
 
 /**
  * @ProjectName：bluedragon-distribution

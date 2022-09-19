@@ -21,6 +21,7 @@ import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.core.hint.constants.HintArgsConstants;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
+import com.jd.bluedragon.core.security.log.SecurityLogWriter;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.router.RouterService;
 import com.jd.bluedragon.distribution.router.domain.dto.RouteNextDto;
@@ -783,6 +784,9 @@ public class WaybillResource {
 
 			//调用分拣接口获得基础资料信息
 			this.setBasicMessageByDistribution(waybill, startDmsCode, localSchedule, paperless, startSiteType);
+
+			//记录安全日志
+			SecurityLogWriter.waybillResourceGetWaybillPackWrite(startDmsCode, waybillCodeOrPackage, packOpeFlowFlg, waybill);
 
 			return new WaybillResponse<Waybill>(JdResponse.CODE_OK,
 					JdResponse.MESSAGE_OK, waybill);
@@ -1857,6 +1861,9 @@ public class WaybillResource {
 				invokeResult.setCode(InvokeResult.RESULT_SUCCESS_CODE);
 				invokeResult.setData(waybillReverseResponseDTO);
 			}
+
+			//记录安全日志
+			SecurityLogWriter.waybillResourceGetOldOrderMessageNewWrite(request, waybillReverseResponseDTO);
 
 		}catch (Exception e){
 			log.error("换单前获取信息接口入参：{}",JsonHelper.toJson(request),e);

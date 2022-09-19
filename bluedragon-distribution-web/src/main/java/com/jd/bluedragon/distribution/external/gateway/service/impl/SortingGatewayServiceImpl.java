@@ -102,13 +102,13 @@ public class SortingGatewayServiceImpl implements SortingGatewayService {
             SortingJsfResponse sortingResponse = sortingResource.check(pdaOperateRequest);
             JdVerifyResponse.MsgBox msgBox = null;
             //校验通过
-            if(org.jboss.util.Objects.equals(sortingResponse.getCode(),SortingResponse.CODE_OK)){
+            if(Objects.equals(sortingResponse.getCode(),SortingResponse.CODE_OK)){
                 jdVerifyResponse.toSuccess(sortingResponse.getMessage());
                 return jdVerifyResponse;
             }
             //已知可以认为是接口异常的 code
-            if(org.jboss.util.Objects.equals(sortingResponse.getCode(),SortingResponse.CODE_SERVICE_ERROR)
-                    || org.jboss.util.Objects.equals(sortingResponse.getCode(),SortingResponse.CODE_PARAM_ERROR)){
+            if(Objects.equals(sortingResponse.getCode(),SortingResponse.CODE_SERVICE_ERROR)
+                    || Objects.equals(sortingResponse.getCode(),SortingResponse.CODE_PARAM_ERROR)){
                 jdVerifyResponse.toError(sortingResponse.getMessage());
                 return jdVerifyResponse;
             }
