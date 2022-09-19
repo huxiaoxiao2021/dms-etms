@@ -181,6 +181,7 @@
 		<property name="needValidateMainLineBizSourceList" value="${needValidateMainLineBizSourceList:[25]}"/>
 		<property name="jySendTaskCreateTimeBeginDay" value="${jySendTaskCreateTimeBeginDay:30}"/>
 		<property name="addiOwnNumberConf" value="${addiOwnNumberConf:010K1961638,}"/>
+		<property name="notValidateTransTypeCodesList" value="${notValidateTransTypeCodesList:[3,4,10,11]}"/>
 		<property name="jyBasicServerSwitch" value="${jyBasicServerSwitch:false}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
@@ -344,6 +345,7 @@
 				<value>uccPropertyConfiguration.needValidateMainLineBizSourceList</value>
 				<value>uccPropertyConfiguration.jySendTaskCreateTimeBeginDay</value>
 				<value>uccPropertyConfiguration.addiOwnNumberConf</value>
+				<value>uccPropertyConfiguration.notValidateTransTypeCodesList</value>
 				<value>uccPropertyConfiguration.jyBasicServerSwitch</value>
 
 				<value>hystrixRouteUccPropertyConfiguration.executionTimeoutInMilliseconds</value>
