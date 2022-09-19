@@ -975,4 +975,64 @@
                   protocol="jsf" alias="${jsf.dataAmOrder.alias}" timeout="${jsf.dataAmOrder.timeout}" retries="0" check="false">
     </jsf:consumer>
 
+    <!-- dms校验接口 -->
+    <jsf:consumer id="dmsCheckJsfService" interface="com.jd.bd.dms.automatic.sdk.modules.dwsCheck.DWSCheckJsfService"
+                  protocol="jsf" alias="${jsf.dmsCheck.alias}" timeout="${jsf.dmsCheck.timeout}"  retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
+    <!--  集箱包裹数量限制服务  -->
+    <jsf:consumer id="basicBoxlimitConfigJsfService"
+                  interface="com.jdl.basic.api.service.boxLimit.BoxlimitConfigJsfService"
+                  alias="${jsf.alias.jy_basic}"
+                  timeout="${jsf.jy_basic.timeout}"
+                  retries="${jsf.retries}"
+                  serialization="hessian"
+                  lazy="${jsf.consumer.lazy}">
+        <jsf:parameter key="token" value="${jsf.jy_basic.token}" hide="true"/>
+    </jsf:consumer>
+
+    <!--  三定网格工序管理服务  -->
+    <jsf:consumer id="basicWorkStationJsfService"
+                  interface="com.jdl.basic.api.service.workStation.WorkStationJsfService"
+                  alias="${jsf.alias.jy_basic}"
+                  timeout="${jsf.jy_basic.timeout}"
+                  retries="${jsf.retries}"
+                  serialization="hessian"
+                  lazy="${jsf.consumer.lazy}">
+        <jsf:parameter key="token" value="${jsf.jy_basic.token}" hide="true"/>
+    </jsf:consumer>
+
+    <!--  三定场地网格工序管理服务  -->
+    <jsf:consumer id="basicWorkStationGridJsfService"
+                  interface="com.jdl.basic.api.service.workStation.WorkStationGridJsfService"
+                  alias="${jsf.alias.jy_basic}"
+                  timeout="${jsf.jy_basic.timeout}"
+                  retries="${jsf.retries}"
+                  serialization="hessian"
+                  lazy="${jsf.consumer.lazy}">
+        <jsf:parameter key="token" value="${jsf.jy_basic.token}" hide="true"/>
+    </jsf:consumer>
+
+    <!--  三定场地人员出勤计划jsf服务  -->
+    <jsf:consumer id="basicWorkStationAttendPlanJsfService"
+                  interface="com.jdl.basic.api.service.workStation.WorkStationAttendPlanJsfService"
+                  alias="${jsf.alias.jy_basic}"
+                  timeout="${jsf.jy_basic.timeout}"
+                  retries="${jsf.retries}"
+                  serialization="hessian"
+                  lazy="${jsf.consumer.lazy}">
+        <jsf:parameter key="token" value="${jsf.jy_basic.token}" hide="true"/>
+    </jsf:consumer>
+
+    <!-- 岗位管理接口 -->
+    <jsf:consumer id="basicPositionQueryJsfService"
+                  interface="com.jdl.basic.api.service.position.PositionQueryJsfService"
+                  alias="${jsf.alias.jy_basic}"
+                  timeout="${jsf.jy_basic.timeout}"
+                  retries="${jsf.retries}"
+                  serialization="hessian"
+                  lazy="${jsf.consumer.lazy}">
+        <jsf:parameter key="token" value="${jsf.jy_basic.token}" hide="true"/>
+    </jsf:consumer>
+
+
 </beans>

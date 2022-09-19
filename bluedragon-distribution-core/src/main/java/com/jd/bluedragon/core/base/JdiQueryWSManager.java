@@ -48,5 +48,12 @@ public interface JdiQueryWSManager {
      * @param transWorkCode
      * @return
      */
-    TransWorkBillDto queryTransWorkAndAllItem(String transWorkCode);
+    BigTransWorkDto queryTransWorkAndAllItem(String transWorkCode);
+
+    /**
+     * 根据车牌号后四位 检索派车单号
+     * @param param
+     * @return
+     */
+    List<String> listTranWorkCodesByVehicleFuzzy(TransWorkFuzzyQueryParam  param);
 }

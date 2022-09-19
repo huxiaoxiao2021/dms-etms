@@ -1,6 +1,11 @@
 package com.jd.bluedragon.distribution.station.gateway.impl;
 
 
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.core.jsf.position.PositionManager;
+import com.jdl.basic.api.response.JDResponse;
+import com.jdl.basic.common.utils.Result;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -12,7 +17,6 @@ import com.jd.bluedragon.common.dto.station.ScanUserData;
 import com.jd.bluedragon.common.dto.station.UserSignQueryRequest;
 import com.jd.bluedragon.common.dto.station.UserSignRecordData;
 import com.jd.bluedragon.common.dto.station.UserSignRequest;
-import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.position.service.PositionRecordService;
 import com.jd.bluedragon.distribution.station.enums.JobTypeEnum;
 import com.jd.bluedragon.distribution.station.gateway.UserSignGatewayService;
@@ -38,9 +42,15 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 	@Autowired
 	@Qualifier("userSignRecordService")
 	private UserSignRecordService userSignRecordService;
-	
+
 	@Autowired
 	private PositionRecordService positionRecordService;
+
+	@Autowired
+	private PositionManager positionManager;
+
+	@Autowired
+	private UccPropertyConfiguration uccPropertyConfiguration;
 	
 	@Override
 	public JdCResponse<UserSignRecordData> signInWithPosition(UserSignRequest signInRequest) {
@@ -68,12 +78,67 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 	}	
 	@Override
 	public JdCResponse<PositionData> queryPositionData(String positionCode) {
-		return positionRecordService.queryPositionWithIsMatchAppFunc(positionCode);
+		if(uccPropertyConfiguration.isJyBasicServerSwitch()){
+			log.info("queryPositionData - 获取基础服务数据");
+			JdCResponse<PositionData> response = new JdCResponse<>();
+			try{
+				log.info("UserSignGatewayServiceImpl.queryPositionData 入参-{}",positionCode);
+				Result<com.jdl.basic.api.domain.position.PositionData> result = positionManager.queryPositionWithIsMatchAppFunc(positionCode);
+				if(result == null){
+					response.setMessage("查询岗位码失败！");
+					return response;
+				}
+				if(result.isSuccess()){
+					PositionData positionData = new PositionData();
+					BeanUtils.copyProperties(result.getData(),positionData);
+					response.setData(positionData);
+					response.toSucceed(result.getMessage());
+					return response;
+				}
+				response.toFail(result.getMessage());
+			}catch (Exception e){
+				log.error("queryPositionData查询岗位信息异常-{}",e.getMessage(),e);
+				response.toError("查询岗位信息异常");
+			}
+			return response ;
+		}else {
+			log.info("queryPositionData - 原有逻辑");
+			return positionRecordService.queryPositionWithIsMatchAppFunc(positionCode);
+
+		}
 	}
 
 	@Override
 	public JdCResponse<PositionData> queryPositionInfo(String positionCode) {
-		return positionRecordService.queryPositionInfo(positionCode);
+		if(uccPropertyConfiguration.isJyBasicServerSwitch()){
+			log.info("queryPositionInfo - 获取基础服务数据");
+			JdCResponse<PositionData> response = new JdCResponse<>();
+
+			try{
+				log.info("UserSignGatewayServiceImpl.queryPositionInfo 入参-{}",positionCode);
+				Result<com.jdl.basic.api.domain.position.PositionData> result = positionManager.queryPositionInfo(positionCode);
+				if(result == null){
+					response.setMessage("查询岗位码失败！");
+					return response;
+				}
+				if(result.isSuccess()){
+					PositionData positionData = new PositionData();
+					BeanUtils.copyProperties(result.getData(),positionData);
+					response.setData(positionData);
+					response.toSucceed(result.getMessage());
+					return response;
+				}
+				response.toFail(result.getMessage());
+			}catch (Exception e){
+				log.error("queryPositionData查询岗位信息异常-{}",e.getMessage(),e);
+				response.toError("查询岗位信息异常");
+			}
+			return response ;
+		}else{
+			log.info("queryPositionInfo - 原有逻辑");
+			return positionRecordService.queryPositionInfo(positionCode);
+		}
+
 	}
 
 	@Override

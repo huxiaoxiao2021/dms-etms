@@ -73,6 +73,11 @@ public class SendScanRequest implements Serializable {
      */
     private Long confirmSendDestId;
 
+    /**
+     * 忽略验证的条件
+     */
+    private ValidateIgnore validateIgnore;
+
     public User getUser() {
         return user;
     }
@@ -183,5 +188,13 @@ public class SendScanRequest implements Serializable {
 
     public void setTaskId(String taskId) {
         this.taskId = taskId;
+    }
+
+    public ValidateIgnore getValidateIgnore() {
+        return validateIgnore;
+    }
+
+    public void setValidateIgnore(ValidateIgnore validateIgnore) {
+        this.validateIgnore = validateIgnore;
     }
 }
