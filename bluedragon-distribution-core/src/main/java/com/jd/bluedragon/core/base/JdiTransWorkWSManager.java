@@ -1,9 +1,6 @@
 package com.jd.bluedragon.core.base;
 
-import com.jd.tms.jdi.dto.BigQueryOption;
-import com.jd.tms.jdi.dto.BigTransWorkItemDto;
-import com.jd.tms.jdi.dto.CommonDto;
-import com.jd.tms.jdi.ws.JdiTransWorkWS;
+import com.jd.tms.jdi.dto.*;
 
 /**
  * 天官赐福 ◎ 百无禁忌
@@ -19,5 +16,13 @@ public interface JdiTransWorkWSManager {
      * @return
      */
     BigTransWorkItemDto queryTransWorkItemByOptionWithRead(String itemCode, BigQueryOption option);
+
+    /**
+     * 消费拣运发货任务车辆拍照消息并发送车辆停靠时间到运输平台的运输执行系统(JDI)
+     * @param accountDto
+     * @param transWorkPlatformEnterDto
+     * @return
+     */
+    CommonDto recordBeginPlatformEnterTime(AccountDto accountDto, TransWorkPlatformEnterDto transWorkPlatformEnterDto);
 
 }
