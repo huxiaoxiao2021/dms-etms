@@ -17,13 +17,13 @@ import com.jd.bluedragon.distribution.jy.dto.exception.JyExpTaskMessage;
 import com.jd.bluedragon.distribution.jy.exception.JyBizTaskExceptionEntity;
 import com.jd.bluedragon.distribution.jy.exception.JyExceptionEntity;
 import com.jd.bluedragon.distribution.jy.manager.ExpInfoSummaryJsfManager;
+import com.jd.bluedragon.distribution.jy.manager.IJyUnloadVehicleManager;
 import com.jd.bluedragon.distribution.jy.manager.PositionQueryJsfManager;
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionService;
 import com.jd.bluedragon.distribution.print.domain.RePrintRecordMq;
 import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.service.SendDetailService;
-import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -36,8 +36,9 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jdl.basic.api.domain.position.PositionDetailRecord;
 import com.jdl.basic.common.utils.Result;
 import com.jdl.jy.realtime.api.unload.IUnloadVehicleJsfService;
+import com.jdl.jy.realtime.base.Pager;
 import com.jdl.jy.realtime.base.ServiceResult;
-import com.jdl.jy.realtime.model.es.unload.JyVehicleTaskUnloadDetail;
+import com.jdl.jy.realtime.model.es.unload.JySealCarDetail;
 import com.jdl.jy.schedule.dto.task.JyScheduleTaskChangeStatusReq;
 import com.jdl.jy.schedule.dto.task.JyScheduleTaskReq;
 import com.jdl.jy.schedule.enums.task.JyScheduleTaskStatusEnum;
@@ -99,8 +100,8 @@ public class JyExceptionServiceImpl implements JyExceptionService {
     @Qualifier("scheduleTaskAddProducer")
     private DefaultJMQProducer scheduleTaskAddProducer;
     @Autowired
-    @Qualifier("jyUnloadVehicleJsfService")
-    private IUnloadVehicleJsfService unloadVehicleJsfService;
+    @Qualifier("jyUnloadVehicleManager")
+    private IJyUnloadVehicleManager jyUnloadVehicleManager;
 
     /**
      * 通用异常上报入口-扫描
@@ -147,20 +148,18 @@ public class JyExceptionServiceImpl implements JyExceptionService {
 //        9.	卸车入口：根据操作异常上报人员此前扫描验货的3个包裹号获取到对应上游发货批次号，后续作为批次号信息辅助录入
 //        10.	通用扫描入口（右上角点点点）：上报时不记录任何信息
 //        11.	发货入口：操作异常上报人员此前扫描发货的3个包裹对应的发货目的地id，后续作为下级地信息辅助录入
-        if (CollectionUtils.isNotEmpty(req.getRecentPackageCodeList())) {
-            // 发货
-            if (Objects.equals(source, JyExpSourceEnum.SEND)) {
-                Collection<Integer> receiveSiteList = queryRecentSendInfo(req);
-                if (CollectionUtils.isNotEmpty(receiveSiteList)) {
-                    taskCache.setRecentReceiveSiteList(receiveSiteList);
-                }
+        // 发货
+        if (Objects.equals(source, JyExpSourceEnum.SEND)) {
+            Collection<Integer> receiveSiteList = queryRecentSendInfo(req);
+            if (CollectionUtils.isNotEmpty(receiveSiteList)) {
+                taskCache.setRecentReceiveSiteList(receiveSiteList);
             }
-            // 卸车
-            if (Objects.equals(source, JyExpSourceEnum.UNLOAD)) {
-                Collection<String> sendCodeList = queryRecentInspectInfo(req);
-                if (CollectionUtils.isNotEmpty(sendCodeList)) {
-                    taskCache.setRecentSendCodeList(sendCodeList);
-                }
+        }
+        // 卸车
+        if (Objects.equals(source, JyExpSourceEnum.UNLOAD)) {
+            Collection<String> sendCodeList = queryRecentInspectInfo(req);
+            if (CollectionUtils.isNotEmpty(sendCodeList)) {
+                taskCache.setRecentSendCodeList(sendCodeList);
             }
         }
 
@@ -917,6 +916,10 @@ public class JyExceptionServiceImpl implements JyExceptionService {
      */
     private Collection<Integer> queryRecentSendInfo(ExpUploadScanReq req) {
         Set<Integer> siteIdList = new HashSet<>();
+        if (CollectionUtils.isEmpty(req.getRecentPackageCodeList())) {
+            return siteIdList;
+        }
+
         for (String barcode : req.getRecentPackageCodeList()) {
             if (!WaybillUtil.isPackageCode(barcode)) {
                 continue;
@@ -941,21 +944,55 @@ public class JyExceptionServiceImpl implements JyExceptionService {
      */
     private Collection<String> queryRecentInspectInfo(ExpUploadScanReq req) {
         Set<String> sendCodeList = new HashSet<>();
-        for (String packageCode : req.getRecentPackageCodeList()) {
-            if (!WaybillUtil.isPackageCode(packageCode)) {
-                continue;
+        if (CollectionUtils.isEmpty(req.getRecentPackageCodeList()) && StringUtils.isBlank(req.getBizId())) {
+            return sendCodeList;
+        }
+
+        if (CollectionUtils.isNotEmpty(req.getRecentPackageCodeList())) {
+            for (String packageCode : req.getRecentPackageCodeList()) {
+                if (!WaybillUtil.isPackageCode(packageCode)) {
+                    continue;
+                }
+                // 查询上游 发货批次
+                String sendCode = querySendCode(packageCode, null);
+                if (sendCode != null) {
+                    sendCodeList.add(sendCode);
+                }
             }
+        }
+
+        if (StringUtils.isNotBlank(req.getBizId())) {
             // 查询上游 发货批次
-            JyVehicleTaskUnloadDetail query = new JyVehicleTaskUnloadDetail();
-            query.setPackageCode(packageCode);
-            ServiceResult<List<JyVehicleTaskUnloadDetail>> unloadDetail = unloadVehicleJsfService.findSealCarCode(query);
-            if (unloadDetail != null && CollectionUtils.isNotEmpty(unloadDetail.getData())) {
-                // 测试环境无数据，uat环境新增 sendCode 字段
-                String sendCode = unloadDetail.getData().get(0).getBizId();
+            String sendCode = querySendCode(null, req.getBizId());
+            if (sendCode != null) {
                 sendCodeList.add(sendCode);
             }
         }
+
         return sendCodeList;
+    }
+
+    // 查询上游 发货批次
+    private String querySendCode( String packageCode,String bizId) {
+        Pager<JySealCarDetail> query = new Pager<>();
+        query.setPageSize(1);
+        query.setPageNo(1);
+        JySealCarDetail search = new JySealCarDetail();
+        if (packageCode != null) {
+            search.setPackageBarcode(packageCode);
+        }else  if (bizId != null) {
+            search.setSealCarCode(bizId);
+        }
+        query.setSearchVo(search);
+        Pager<JySealCarDetail> unloadDetail = jyUnloadVehicleManager.querySearCarDetail(query);
+        if (logger.isInfoEnabled()) {
+            logger.info("三无异常岗:查询封车批次参数={},响应={}", JSON.toJSONString(query), JSON.toJSONString(unloadDetail));
+        }
+        if (unloadDetail != null && unloadDetail.getData() != null && CollectionUtils.isNotEmpty(unloadDetail.getData())) {
+            // 测试环境无数据，uat环境新增 sendCode 字段
+            return unloadDetail.getData().get(0).getSendCode();
+        }
+        return null;
     }
 
     /**
