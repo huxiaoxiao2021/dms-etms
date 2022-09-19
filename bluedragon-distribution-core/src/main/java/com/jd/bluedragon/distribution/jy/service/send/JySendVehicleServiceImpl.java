@@ -1221,7 +1221,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
             //过滤封车状态
             Iterator it = sameDirections.iterator();
             while(it.hasNext()) {
-                JyBizTaskSendVehicleDetailEntity detail = (JyBizTaskSendVehicleDetailEntity) it.next();//当前遍历对象
+                JyBizTaskSendVehicleDetailEntity detail = (JyBizTaskSendVehicleDetailEntity) it.next();
                 if (checkIfSealed(detail)){
                     it.remove();
                 }
@@ -1230,9 +1230,8 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
             if (sameDirections.size()>1){
                 Collections.sort(sameDirections, new JyBizTaskSendVehicleDetailEntity.DetailComparatorByTime());
             }
-            return sameDirections.get(0);
         }
-        return null;
+        return sameDirections.size()>0 ? sameDirections.get(0) : null;
     }
 
 
