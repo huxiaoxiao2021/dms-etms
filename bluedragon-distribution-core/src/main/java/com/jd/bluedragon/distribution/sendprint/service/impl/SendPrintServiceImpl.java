@@ -1354,7 +1354,7 @@ public class SendPrintServiceImpl implements SendPrintService {
     public InvokeResult<Boolean> batchPrintExportToTripartite(TripartiteEntity tripartiteEntity, String content, List<String> tos, List<String> ccs) {
 
         com.jd.dms.wb.report.api.dto.base.BaseEntity<Boolean>
-                baseEntity = printHandoverListManager.doBatchExportAsync(createESQueryCondition(tripartiteEntity));
+                baseEntity = printHandoverListManager.doBatchExportAsyncToTripartite(createESQueryCondition(tripartiteEntity), content, tos, ccs);
         if(baseEntity != null && Objects.equals(baseEntity.getData(),true)){
             log.info("操作人【{}】始发地【{}】的交接清单导出成功!", tripartiteEntity.getErpCode(), tripartiteEntity.getSiteCode());
             return new InvokeResult<>(InvokeResult.RESULT_SUCCESS_CODE, InvokeResult.RESULT_SUCCESS_MESSAGE, Boolean.TRUE);
@@ -1392,7 +1392,7 @@ public class SendPrintServiceImpl implements SendPrintService {
             businessMap.put(FlowConstants.FLOW_BUSINESS_NO_KEY,FlowConstants.FLOW_CODE_PRINT_HANDOVER + Constants.SEPARATOR_VERTICAL_LINE
                     + FlowConstants.FLOW_VERSION + Constants.SEPARATOR_VERTICAL_LINE + System.currentTimeMillis());
             // 设置业务的查询条件
-            businessMap.put(FlowConstants.FLOW_BUSINESS_QUERY_CONDITION,JsonHelper.toJson(createESQueryCondition(printExportCriteria, true)));
+            businessMap.put(FlowConstants.FLOW_BUSINESS_QUERY_CONDITION,JsonHelper.toJson(createESQueryCondition(printExportCriteria, false)));
 
             // 提交申请单
             String flowWorkNo = flowServiceManager.startFlow(oaMap, businessMap, null,
@@ -1979,7 +1979,7 @@ public class SendPrintServiceImpl implements SendPrintService {
         for (PrintQueryCriteria item : tripartiteEntity.getList()) {
             receiveSiteSet.add(item.getReceiveSiteCode());
         }
-        PrintHandoverLitQueryCondition condition = convertToPrintHandoverListQueryCondition(tripartiteEntity.getList().get(0), false);
+        PrintHandoverLitQueryCondition condition = convertToPrintHandoverListQueryCondition(tripartiteEntity.getList().get(0), true);
         condition.setReceiveSiteCodeList(new ArrayList<Integer>(receiveSiteSet));
         pager.setSearchVo(condition);
         return pager;
