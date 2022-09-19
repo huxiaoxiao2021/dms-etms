@@ -589,8 +589,8 @@ public class JyExceptionServiceImpl implements JyExceptionService {
 
         String redisKey = TASK_CACHE_PRE + req.getBizId();
         String s = redisClient.get(redisKey);
+        logger.info("三无异常岗-查询到的缓存数据为:{},redisKey={}", s, redisKey);
         if (StringUtils.isBlank(s)) {
-            logger.info("三无异常岗-无相关任务redisKey={}", redisKey);
             return JdCResponse.ok(dto);
         }
 
