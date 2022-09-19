@@ -13,6 +13,7 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyBizTaskExceptionDao;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyExceptionDao;
+import com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskSendVehicleDetailDao;
 import com.jd.bluedragon.distribution.jy.dto.exception.JyExpTaskMessage;
 import com.jd.bluedragon.distribution.jy.exception.JyBizTaskExceptionEntity;
 import com.jd.bluedragon.distribution.jy.exception.JyExceptionEntity;
@@ -20,6 +21,7 @@ import com.jd.bluedragon.distribution.jy.manager.ExpInfoSummaryJsfManager;
 import com.jd.bluedragon.distribution.jy.manager.IJyUnloadVehicleManager;
 import com.jd.bluedragon.distribution.jy.manager.PositionQueryJsfManager;
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionService;
+import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.print.domain.RePrintRecordMq;
 import com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
@@ -69,6 +71,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
 
     // 任务明细缓存时间
     private static final int TASK_DETAIL_CACHE_DAYS = 30;
+    private static final String SPLIT = ",，";
 
     @Autowired
     private JyBizTaskExceptionDao jyBizTaskExceptionDao;
@@ -102,6 +105,8 @@ public class JyExceptionServiceImpl implements JyExceptionService {
     @Autowired
     @Qualifier("jyUnloadVehicleManager")
     private IJyUnloadVehicleManager jyUnloadVehicleManager;
+    @Autowired
+    JyBizTaskSendVehicleDetailDao jyBizTaskSendVehicleDetailDao;
 
     /**
      * 通用异常上报入口-扫描
@@ -589,18 +594,32 @@ public class JyExceptionServiceImpl implements JyExceptionService {
 
         String redisKey = TASK_CACHE_PRE + req.getBizId();
         String s = redisClient.get(redisKey);
+        logger.info("三无异常岗-查询到的缓存数据为:{},redisKey={}", s, redisKey);
         if (StringUtils.isBlank(s)) {
-            logger.info("三无异常岗-无相关任务redisKey={}", redisKey);
             return JdCResponse.ok(dto);
         }
 
         ExpTaskDetailCacheDto cacheDto = JSON.parseObject(s, ExpTaskDetailCacheDto.class);
         BeanUtils.copyProperties(cacheDto, dto);
         if (StringUtils.isBlank(dto.getBatchNo()) && CollectionUtils.isNotEmpty(cacheDto.getRecentSendCodeList())) {
-            dto.setBatchNo(cacheDto.getRecentSendCodeList().iterator().next());
+            StringBuilder batchNo = new StringBuilder();
+            for (String value : cacheDto.getRecentSendCodeList()) {
+                if (batchNo.length() > 0) {
+                    batchNo.append(",");
+                }
+                batchNo.append(value);
+            }
+            dto.setBatchNo(batchNo.toString());
         }
         if (StringUtils.isBlank(dto.getTo()) && CollectionUtils.isNotEmpty(cacheDto.getRecentReceiveSiteList())) {
-            dto.setTo(String.valueOf(cacheDto.getRecentReceiveSiteList().iterator().next()));
+            StringBuilder to = new StringBuilder();
+            for (Integer value : cacheDto.getRecentReceiveSiteList()) {
+                if (to.length() > 0) {
+                    to.append(",");
+                }
+                to.append(value);
+            }
+            dto.setTo(to.toString());
         }
 
         // 设置 上架日期
@@ -648,32 +667,49 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         JSONObject cacheObj = new JSONObject();
         String key = TASK_CACHE_PRE + req.getBizId();
         String s = redisClient.get(key);
+        logger.info("三无异常岗:处理任务-查询到的缓存{}", s);
         if (StringUtils.isNotBlank(s)) {
             cacheObj = JSON.parseObject(s);
         }
         JSONObject reqObj = (JSONObject) JSONObject.toJSON(req);
         cacheObj.putAll(reqObj);
-        //部分校验
-        ExpTaskDetailCacheDto cacheDto = cacheObj.toJavaObject(ExpTaskDetailCacheDto.class);
-        if (StringUtils.isNotEmpty(cacheDto.getTo())){
-            if (!BusinessUtil.isSiteCode(cacheDto.getTo())){
-                return JdCResponse.fail("下级地编号不合法!siteCode=" + cacheDto.getTo());
-            }
-            Integer toSiteCode = Integer.valueOf(cacheDto.getTo());
-            BaseStaffSiteOrgDto toSite = baseMajorManager.getBaseSiteBySiteId(toSiteCode);
-            if (toSite == null){
-                return JdCResponse.fail("下级地编号不存在!siteCode=" + cacheDto.getTo());
-            }
-        }
 
         redisClient.set(key, cacheObj.toJSONString());
         // 处理任务后 更新任务明细过期时间：继续保留30天
         redisClient.expire(key, TASK_DETAIL_CACHE_DAYS, TimeUnit.DAYS);
 
+        if (logger.isInfoEnabled()) {
+            logger.info("三无异常岗:处理任务-缓存数据与提交数据拼装后{}", cacheObj.toJSONString());
+        }
         // 存储类型 0暂存 1提交
         if ("0".equals(req.getSaveType())) {
             return JdCResponse.ok();
         }
+
+        //提交任务时：部分校验
+        // 校验场地ID
+        ExpTaskDetailCacheDto cacheDto = cacheObj.toJavaObject(ExpTaskDetailCacheDto.class);
+        if (StringUtils.isNotBlank(cacheDto.getTo())){
+            for (String toId : cacheDto.getTo().split(SPLIT)) {
+                if (!BusinessUtil.isSiteCode(toId)){
+                    return JdCResponse.fail("siteCode:下级地编号不合法!siteCode=" + cacheDto.getTo());
+                }
+                Integer toSiteCode = Integer.valueOf(toId);
+                BaseStaffSiteOrgDto toSite = baseMajorManager.getBaseSiteBySiteId(toSiteCode);
+                if (toSite == null){
+                    return JdCResponse.fail("siteCode:下级地编号不存在!siteCode=" + cacheDto.getTo());
+                }
+            }
+        }
+        // 校验批次号
+        if (StringUtils.isNotBlank(cacheDto.getBatchNo())) {
+            for (String bno : cacheDto.getBatchNo().split(SPLIT)) {
+                if (!BusinessUtil.isSendCode(bno)){
+                    return JdCResponse.fail("batchNo:批次号不合法!siteCode=" + cacheDto.getBatchNo());
+                }
+            }
+        }
+
 
         cacheDto.setExpBarcode(bizEntity.getBarCode());
         cacheDto.setExpCreateTime(bizEntity.getCreateTime() == null ? System.currentTimeMillis() : bizEntity.getCreateTime().getTime());
@@ -683,6 +719,10 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         ExpInfoSumaryInputDto dto = getExpInfoDto(cacheDto);
         try {
             CommonDto commonDto = expInfoSummaryJsfManager.addExpInfoDetail(dto);
+
+            if (logger.isInfoEnabled()) {
+                logger.info("三无异常岗:处理任务-提报三无参数:{},响应:{}", JSON.toJSONString(dto), JSON.toJSONString(commonDto));
+            }
             if (!Objects.equals(commonDto.getCode(), CommonDto.CODE_SUCCESS)) {
                 return JdCResponse.fail("提报三无系统失败:" + commonDto.getMessage());
             }
@@ -922,26 +962,39 @@ public class JyExceptionServiceImpl implements JyExceptionService {
      */
     private Collection<Integer> queryRecentSendInfo(ExpUploadScanReq req) {
         Set<Integer> siteIdList = new HashSet<>();
-        if (CollectionUtils.isEmpty(req.getRecentPackageCodeList())) {
+
+        if (CollectionUtils.isNotEmpty(req.getRecentPackageCodeList())) {
+            for (String barcode : req.getRecentPackageCodeList()) {
+                if (!WaybillUtil.isPackageCode(barcode)) {
+                    continue;
+                }
+                SendDetail param = new SendDetail();
+                param.setPackageBarcode(barcode);
+                param.setCreateSiteCode(req.getSiteId());
+                //未取消 & 已发货
+                param.setIsCancel(0);
+                param.setStatus(1);
+                SendDetail sendDetail = sendDetailService.queryOneSendDatailBySendM(param);
+                if (sendDetail != null && sendDetail.getReceiveSiteCode() != null) {
+                    siteIdList.add(sendDetail.getReceiveSiteCode());
+                    return siteIdList;
+                }
+            }
+        }
+        if (StringUtils.isNotBlank(req.getBizId())) {
+            JyBizTaskSendVehicleDetailEntity entity = new JyBizTaskSendVehicleDetailEntity();
+            entity.setStartSiteId((long) req.getSiteId());
+            entity.setSendVehicleBizId(req.getBizId());
+            List<JyBizTaskSendVehicleDetailEntity> detailEntityList = jyBizTaskSendVehicleDetailDao.findByMainVehicleBiz(entity, null);
+            if (CollectionUtils.isNotEmpty(detailEntityList)) {
+                for (JyBizTaskSendVehicleDetailEntity e : detailEntityList) {
+                    siteIdList.add(e.getStartSiteId().intValue());
+                }
+            }
             return siteIdList;
         }
 
-        for (String barcode : req.getRecentPackageCodeList()) {
-            if (!WaybillUtil.isPackageCode(barcode)) {
-                continue;
-            }
-            SendDetail param = new SendDetail();
-            param.setPackageBarcode(barcode);
-            param.setCreateSiteCode(req.getSiteId());
-            //未取消 & 已发货
-            param.setIsCancel(0);
-            param.setStatus(1);
-            SendDetail sendDetail = sendDetailService.queryOneSendDatailBySendM(param);
-            if (sendDetail == null) {
-                continue;
-            }
-            siteIdList.add(sendDetail.getReceiveSiteCode());
-        }
+
         return siteIdList;
     }
 
@@ -950,26 +1003,27 @@ public class JyExceptionServiceImpl implements JyExceptionService {
      */
     private Collection<String> queryRecentInspectInfo(ExpUploadScanReq req) {
         Set<String> sendCodeList = new HashSet<>();
-        if (CollectionUtils.isEmpty(req.getRecentPackageCodeList()) && StringUtils.isBlank(req.getBizId())) {
-            return sendCodeList;
-        }
 
+        // 按包裹号 查询上游
         if (CollectionUtils.isNotEmpty(req.getRecentPackageCodeList())) {
             for (String packageCode : req.getRecentPackageCodeList()) {
                 if (!WaybillUtil.isPackageCode(packageCode)) {
                     continue;
                 }
                 // 查询上游 发货批次
-                String sendCode = querySendCode(packageCode, null);
+                String sendCode = querySendCode(req.getSiteId(), packageCode, null);
                 if (sendCode != null) {
                     sendCodeList.add(sendCode);
+                    break;
                 }
             }
+            return sendCodeList;
         }
 
+        // 按封车编码查询上游批次
         if (StringUtils.isNotBlank(req.getBizId())) {
             // 查询上游 发货批次
-            String sendCode = querySendCode(null, req.getBizId());
+            String sendCode = querySendCode(req.getSiteId(), null, req.getBizId());
             if (sendCode != null) {
                 sendCodeList.add(sendCode);
             }
@@ -979,14 +1033,15 @@ public class JyExceptionServiceImpl implements JyExceptionService {
     }
 
     // 查询上游 发货批次
-    private String querySendCode( String packageCode,String bizId) {
+    private String querySendCode(Integer siteId, String packageCode, String bizId) {
         Pager<JySealCarDetail> query = new Pager<>();
         query.setPageSize(1);
         query.setPageNo(1);
         JySealCarDetail search = new JySealCarDetail();
+        search.setEndSiteId(String.valueOf(siteId));
         if (packageCode != null) {
             search.setPackageBarcode(packageCode);
-        }else  if (bizId != null) {
+        } else if (bizId != null) {
             search.setSealCarCode(bizId);
         }
         query.setSearchVo(search);
