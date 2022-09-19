@@ -1009,6 +1009,9 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
         currentOperate.setSiteCode(currentOperateParam.getSiteCode());
         currentOperate.setDmsCode(currentOperateParam.getDmsCode());
         currentOperate.setSiteName(currentOperateParam.getSiteName());
+        currentOperate.setOperateTime(currentOperateParam.getOperateTime());
+        currentOperate.setOrgId(currentOperateParam.getOrgId());
+        currentOperate.setOrgName(currentOperateParam.getOrgName());
         return currentOperate;
     }
 
