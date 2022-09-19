@@ -150,7 +150,7 @@
         WHERE
             yn = 1
         AND send_detail_biz_id = #{vehicleDetailBizId}
-        ORDER BY id
+        ORDER BY update_time
         LIMIT 1
     </select>
 </mapper>
