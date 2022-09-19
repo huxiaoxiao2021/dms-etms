@@ -44,7 +44,6 @@ public class SecurityLogRecord {
             securityLog.setReqInfo(reqInfo);
 
             RespInfo respInfo = createRespInfo(securityLogEntity.getRespKeyMapping(), securityLogEntity.getBusinessResponse(), securityLogEntity.getOp(), securityLogEntity.getResultNum());
-            LogAcesUtil.encryptSecEntity(respInfo);
             securityLog.setRespInfo(respInfo);
 
             SecurityLogUtil.log(securityLog);
@@ -108,7 +107,9 @@ public class SecurityLogRecord {
         for (Map.Entry<SecurityLogUniqueIdentifierKeyEnums, String> keyEnumsStringEntry : keyMapping.entrySet()) {
             respInfoJson.put(keyEnumsStringEntry.getKey().name(), JsonHelper.getObject(businessResponseJson, keyEnumsStringEntry.getValue()));
         }
-        respInfo.getUniqueIdentifier().add(respInfoJson.toJavaObject(UniqueIdentifier.class));
+        UniqueIdentifier uniqueIdentifier = respInfoJson.toJavaObject(UniqueIdentifier.class);
+        LogAcesUtil.encryptSecEntity(uniqueIdentifier);
+        respInfo.getUniqueIdentifier().add(uniqueIdentifier);
 
         return respInfo;
     }
