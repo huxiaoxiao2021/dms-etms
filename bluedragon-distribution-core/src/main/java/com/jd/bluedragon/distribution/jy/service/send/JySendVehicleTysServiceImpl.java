@@ -1007,6 +1007,7 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
     private com.jd.bluedragon.common.dto.base.request.CurrentOperate copyCurrentOperate(com.jd.bluedragon.distribution.jy.dto.CurrentOperate currentOperateParam) {
         com.jd.bluedragon.common.dto.base.request.CurrentOperate currentOperate = new com.jd.bluedragon.common.dto.base.request.CurrentOperate();
         currentOperate.setSiteCode(currentOperateParam.getSiteCode());
+        currentOperate.setDmsCode(currentOperateParam.getDmsCode());
         currentOperate.setSiteName(currentOperateParam.getSiteName());
         return currentOperate;
     }

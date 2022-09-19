@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.jy.service.send;
 
+import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.jy.dao.send.JySendAttachmentDao;
 import com.jd.bluedragon.distribution.jy.send.JySendAttachmentEntity;
@@ -32,6 +33,7 @@ public class JySendAttachmentServiceImpl implements IJySendAttachmentService{
     public Integer saveAttachment(JySendAttachmentEntity entity) {
         int rows = sendAttachmentDao.updateByBiz(entity);
         if (rows == Constants.NO_MATCH_DATA) {
+            System.out.println("测试上传发货照片==" + JSON.toJSONString(entity));
             return sendAttachmentDao.insert(entity);
         }
         return rows;
