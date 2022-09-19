@@ -922,6 +922,10 @@ public class JyExceptionServiceImpl implements JyExceptionService {
      */
     private Collection<Integer> queryRecentSendInfo(ExpUploadScanReq req) {
         Set<Integer> siteIdList = new HashSet<>();
+        if (req.getReceiveSiteId() != null) {
+            siteIdList.add(req.getReceiveSiteId());
+            return siteIdList;
+        }
         if (CollectionUtils.isEmpty(req.getRecentPackageCodeList())) {
             return siteIdList;
         }
@@ -937,10 +941,10 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             param.setIsCancel(0);
             param.setStatus(1);
             SendDetail sendDetail = sendDetailService.queryOneSendDatailBySendM(param);
-            if (sendDetail == null) {
-                continue;
+            if (sendDetail != null && sendDetail.getReceiveSiteCode() != null) {
+                siteIdList.add(sendDetail.getReceiveSiteCode());
+                break;
             }
-            siteIdList.add(sendDetail.getReceiveSiteCode());
         }
         return siteIdList;
     }
@@ -950,26 +954,27 @@ public class JyExceptionServiceImpl implements JyExceptionService {
      */
     private Collection<String> queryRecentInspectInfo(ExpUploadScanReq req) {
         Set<String> sendCodeList = new HashSet<>();
-        if (CollectionUtils.isEmpty(req.getRecentPackageCodeList()) && StringUtils.isBlank(req.getBizId())) {
-            return sendCodeList;
-        }
 
+        // 按包裹号 查询上游
         if (CollectionUtils.isNotEmpty(req.getRecentPackageCodeList())) {
             for (String packageCode : req.getRecentPackageCodeList()) {
                 if (!WaybillUtil.isPackageCode(packageCode)) {
                     continue;
                 }
                 // 查询上游 发货批次
-                String sendCode = querySendCode(packageCode, null);
+                String sendCode = querySendCode(req.getSiteId(), packageCode, null);
                 if (sendCode != null) {
                     sendCodeList.add(sendCode);
+                    break;
                 }
             }
+            return sendCodeList;
         }
 
+        // 按封车编码查询上游批次
         if (StringUtils.isNotBlank(req.getBizId())) {
             // 查询上游 发货批次
-            String sendCode = querySendCode(null, req.getBizId());
+            String sendCode = querySendCode(req.getSiteId(), null, req.getBizId());
             if (sendCode != null) {
                 sendCodeList.add(sendCode);
             }
@@ -979,14 +984,15 @@ public class JyExceptionServiceImpl implements JyExceptionService {
     }
 
     // 查询上游 发货批次
-    private String querySendCode( String packageCode,String bizId) {
+    private String querySendCode(Integer siteId, String packageCode, String bizId) {
         Pager<JySealCarDetail> query = new Pager<>();
         query.setPageSize(1);
         query.setPageNo(1);
         JySealCarDetail search = new JySealCarDetail();
+        search.setEndSiteId(String.valueOf(siteId));
         if (packageCode != null) {
             search.setPackageBarcode(packageCode);
-        }else  if (bizId != null) {
+        } else if (bizId != null) {
             search.setSealCarCode(bizId);
         }
         query.setSearchVo(search);
