@@ -10,7 +10,6 @@ public class ExpUploadScanReq extends ExpBaseReq {
 
     private String bizId;
 
-    private Integer receiveSiteId;
 
     // 近期扫描的 包裹号
     private List<String> recentPackageCodeList;
@@ -47,11 +46,4 @@ public class ExpUploadScanReq extends ExpBaseReq {
         this.bizId = bizId;
     }
 
-    public Integer getReceiveSiteId() {
-        return receiveSiteId;
-    }
-
-    public void setReceiveSiteId(Integer receiveSiteId) {
-        this.receiveSiteId = receiveSiteId;
-    }
 }
