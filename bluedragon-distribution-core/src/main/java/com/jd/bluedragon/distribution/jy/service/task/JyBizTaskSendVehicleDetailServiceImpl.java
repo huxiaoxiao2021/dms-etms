@@ -142,4 +142,14 @@ public class JyBizTaskSendVehicleDetailServiceImpl implements JyBizTaskSendVehic
     public Integer countNoCancelSendDetail(JyBizTaskSendVehicleDetailEntity entity) {
         return jyBizTaskSendVehicleDetailDao.countNoCancelSendDetail(entity);
     }
+
+	@Override
+	public List<String> findSendVehicleBizListBySendFlow(JyBizTaskSendVehicleDetailEntity entity) {
+		return jyBizTaskSendVehicleDetailDao.findSendVehicleBizListBySendFlow(entity);
+	}
+
+	@Override
+	public JyBizTaskSendVehicleDetailEntity findByTransWorkItemCode(JyBizTaskSendVehicleDetailEntity query) {
+		return jyBizTaskSendVehicleDetailDao.findByTransWorkItemCode(query);
+	}
 }

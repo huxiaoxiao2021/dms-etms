@@ -1,4 +1,4 @@
-package com.jd.bluedragon.core.security.manage;
+package com.jd.bluedragon.core.security.dataam.manage;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;

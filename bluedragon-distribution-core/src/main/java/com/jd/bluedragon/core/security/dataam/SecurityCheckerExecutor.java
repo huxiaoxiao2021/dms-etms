@@ -1,7 +1,7 @@
-package com.jd.bluedragon.core.security;
+package com.jd.bluedragon.core.security.dataam;
 
-import com.jd.bluedragon.core.security.enums.SecurityDataMapFuncEnum;
-import com.jd.bluedragon.core.security.manage.SecurityCheckManager;
+import com.jd.bluedragon.core.security.dataam.enums.SecurityDataMapFuncEnum;
+import com.jd.bluedragon.core.security.dataam.manage.SecurityCheckManager;
 import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
 import org.springframework.beans.factory.annotation.Autowired;
 

@@ -157,7 +157,7 @@
         WHERE
             yn = 1
         AND ref_task_id = #{refTaskId}
-        AND end_time is null
+        AND (end_time is null or end_time &lt; #{endTime,jdbcType=TIMESTAMP})
     </update>
     <select id="queryMemberCodeListByTaskId" parameterType="com.jd.bluedragon.distribution.jy.group.JyTaskGroupMemberQuery" resultType="String">
         select
