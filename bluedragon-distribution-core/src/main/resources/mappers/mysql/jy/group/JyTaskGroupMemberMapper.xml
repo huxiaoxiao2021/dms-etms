@@ -209,11 +209,11 @@
             end_time = #{endData.endTime,jdbcType=TIMESTAMP}
         WHERE
             yn = 1
-        AND ref_task_id in
-        <foreach collection="memberCodes" item="item" separator=",">
-        
-        </foreach>
-        AND end_time is null
+        AND ref_group_member_code in
+        <foreach collection="memberCodes" item="item" open="(" close=")" separator=",">
+            #{item, jdbcType=BIGINT}
+        </foreach>        
+        AND (end_time is null or end_time &lt; #{endData.endTime,jdbcType=TIMESTAMP})
     </update> 
     <update id="deleteByMemberCode" parameterType="JyTaskGroupMemberEntity">
         UPDATE jy_task_group_member

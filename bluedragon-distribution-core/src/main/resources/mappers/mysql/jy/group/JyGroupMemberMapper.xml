@@ -211,7 +211,22 @@
         AND id = #{id}
         AND status != #{status,jdbcType=INTEGER}
     </update>      
-     
+    <update id="removeMembers">
+        UPDATE jy_group_member
+        SET
+            update_time = #{data.updateTime, jdbcType=TIMESTAMP},
+            update_user = #{data.updateUser, jdbcType=VARCHAR},
+            update_user_name = #{data.updateUserName, jdbcType=VARCHAR},
+            status = #{data.status,jdbcType=INTEGER},
+            sign_out_time = #{data.signOutTime, jdbcType=TIMESTAMP}
+        WHERE
+            yn = 1
+        AND ref_sign_record_id in
+        <foreach collection="signRecordIdList" item="item" open="(" close=")" separator=",">
+            #{item, jdbcType=BIGINT}
+        </foreach>
+        AND status != #{data.status,jdbcType=INTEGER}
+    </update>      
     <select id="querySignIdListByGroup" parameterType="com.jd.bluedragon.common.dto.group.GroupMemberQueryRequest" resultType="long">
         select
             t.ref_sign_record_id

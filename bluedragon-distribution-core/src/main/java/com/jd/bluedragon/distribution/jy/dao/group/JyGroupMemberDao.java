@@ -1,6 +1,8 @@
 package com.jd.bluedragon.distribution.jy.dao.group;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.common.dto.group.GroupMemberQueryRequest;
@@ -108,7 +110,10 @@ public class JyGroupMemberDao extends BaseDao<JyGroupMemberEntity> {
 	 * @return
 	 */
 	public int removeMembers(JyGroupMemberEntity removeMemberData, List<Long> signRecordIdList) {
-		return this.getSqlSession().update(NAMESPACE + ".removeMembers", removeMemberData);
+		Map<String,Object> params = new HashMap<String,Object>();
+		params.put("data", removeMemberData);
+		params.put("signRecordIdList", signRecordIdList);
+		return this.getSqlSession().update(NAMESPACE + ".removeMembers", params);
 	}
 	/**
 	 * 删除小组成员
