@@ -1157,7 +1157,7 @@ public class NewSealVehicleResource {
         if(CollectionUtils.isEmpty(queryConditions)){
             return;
         }
-        JdResult<SpotCheckResponse> checkResult = reportExternalManager.checkNeedSpotCheck(queryConditions);
+        JdResult<SpotCheckResponse> checkResult = reportExternalManager.checkIsNeedSpotCheck(queryConditions);
         if(checkResult.isSucceed()
         		&& checkResult.getData() != null
         		&& Boolean.TRUE.equals(checkResult.getData().getNeedCheck())){
