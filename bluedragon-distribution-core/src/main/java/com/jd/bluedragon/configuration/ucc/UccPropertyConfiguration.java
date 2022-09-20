@@ -900,7 +900,7 @@ public class UccPropertyConfiguration {
      */
     private String notValidateTransTypeCodesList;
     private List<Integer> notValidateTransTypeCodes;
-    
+
     public String getScheduleSiteCheckSameCity() {
         return scheduleSiteCheckSameCity;
     }
@@ -2205,15 +2205,7 @@ public class UccPropertyConfiguration {
     public void setWaybillWeightLimit(String waybillWeightLimit) {
         this.waybillWeightLimit = waybillWeightLimit;
     }
-
-    public boolean isJyBasicServerSwitch() {
-        return jyBasicServerSwitch;
-    }
-
-    public void setJyBasicServerSwitch(boolean jyBasicServerSwitch) {
-        this.jyBasicServerSwitch = jyBasicServerSwitch;
-    }
-
+    
     public String getNotValidateTransTypeCodesList() {
         return notValidateTransTypeCodesList;
     }
@@ -2229,5 +2221,13 @@ public class UccPropertyConfiguration {
             return notValidateTransTypeCodes.contains(type);
         }
         return false;
+    }
+
+    public boolean isJyBasicServerSwitch() {
+        return jyBasicServerSwitch;
+    }
+
+    public void setJyBasicServerSwitch(boolean jyBasicServerSwitch) {
+        this.jyBasicServerSwitch = jyBasicServerSwitch;
     }
 }
