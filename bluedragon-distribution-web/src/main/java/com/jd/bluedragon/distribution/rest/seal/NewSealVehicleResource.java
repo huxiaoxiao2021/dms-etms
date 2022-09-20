@@ -1197,8 +1197,8 @@ public class NewSealVehicleResource {
 
         if (Constants.RESULT_SUCCESS == isSealed.getCode()) {//服务正常
             if (Boolean.TRUE.equals(isSealed.getData())) {//已被封车
-                sealVehicleResponse.setCode(NewSealVehicleResponse.CODE_EXCUTE_ERROR);
-                sealVehicleResponse.setMessage(NewSealVehicleResponse.TIPS_BATCHCODE_SEALED_ERROR);
+                sealVehicleResponse.setCode(NewSealVehicleResponse.CODE_BATCH_CODE_SEALED);
+                sealVehicleResponse.setMessage(NewSealVehicleResponse.MESSAGE_BATCH_CODE_SEALED);
             } else {//未被封车
                 sealVehicleResponse.setCode(JdResponse.CODE_OK);
                 sealVehicleResponse.setMessage(JdResponse.MESSAGE_OK);
