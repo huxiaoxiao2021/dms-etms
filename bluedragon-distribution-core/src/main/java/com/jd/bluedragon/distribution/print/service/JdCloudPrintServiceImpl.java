@@ -8,10 +8,12 @@ import java.net.URI;
 import java.nio.charset.Charset;
 import java.util.*;
 
+import com.jd.bluedragon.distribution.exception.jss.JssStorageException;
 import com.jd.jss.http.Scheme;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -204,7 +206,11 @@ public class JdCloudPrintServiceImpl implements JdCloudPrintService {
 			pdfFile = new File(localPdfTempPath+"/"+pdfFileName);
 			outputStream = new FileOutputStream(pdfFile);
 			this.printPdfHelper.generatePdf(outputStream, jdCloudPrintRequest.getTemplate(), 0, 0, 0, (List<Map<String,String>>)jdCloudPrintRequest.getModel());
-			pdfOutJssStorage.bucket(pdfPrintOssConfig.getBucket()).object(jssPdfPath).entity(pdfFile).put();
+			String md5 = pdfOutJssStorage.bucket(pdfPrintOssConfig.getBucket()).object(jssPdfPath).entity(pdfFile).put();
+			if(StringUtils.isBlank(md5)){
+				//暂时不做MD5一致性校验 如果返回空则认为上传失败
+				throw new JssStorageException(String.format("MD5 is blank,KeyName:%s",jssPdfPath));
+			}
 			List<JdCloudPrintResponse> printResponses = new ArrayList<JdCloudPrintResponse>();
 			JdCloudPrintResponse printResponse = new JdCloudPrintResponse();
 			List<String> outputMsg = new ArrayList<String>();
