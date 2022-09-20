@@ -692,7 +692,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         if (StringUtils.isNotBlank(cacheDto.getTo())){
             for (String toId : cacheDto.getTo().split(SPLIT)) {
                 if (!BusinessUtil.isSiteCode(toId)){
-                    JdCResponse<Object> fail = JdCResponse.fail("级地编号不合法!" + cacheDto.getTo());
+                    JdCResponse<Object> fail = JdCResponse.fail("下级地编号不合法!" + cacheDto.getTo());
                     fail.setData("to");
                     fail.setCode(JdCResponse.CODE_PARTIAL_SUCCESS);
                     return fail;
