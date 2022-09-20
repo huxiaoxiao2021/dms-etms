@@ -2205,15 +2205,7 @@ public class UccPropertyConfiguration {
     public void setWaybillWeightLimit(String waybillWeightLimit) {
         this.waybillWeightLimit = waybillWeightLimit;
     }
-
-    public boolean isJyBasicServerSwitch() {
-        return jyBasicServerSwitch;
-    }
-
-    public void setJyBasicServerSwitch(boolean jyBasicServerSwitch) {
-        this.jyBasicServerSwitch = jyBasicServerSwitch;
-    }
-
+    
     public String getNotValidateTransTypeCodesList() {
         return notValidateTransTypeCodesList;
     }
