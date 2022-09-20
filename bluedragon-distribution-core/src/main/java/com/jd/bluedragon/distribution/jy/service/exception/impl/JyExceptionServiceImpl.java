@@ -71,7 +71,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
 
     // 任务明细缓存时间
     private static final int TASK_DETAIL_CACHE_DAYS = 30;
-    private static final String SPLIT = ",，";
+    private static final String SPLIT = ",";
 
     @Autowired
     private JyBizTaskExceptionDao jyBizTaskExceptionDao;
@@ -314,7 +314,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         Multimap<String, String> gridTags = HashMultimap.create();
         for (JyBizTaskExceptionEntity entity : tagsByGrid) {
             if (StringUtils.isNotBlank(entity.getTags())) {
-                String[] split = entity.getTags().split(",");
+                String[] split = entity.getTags().split(SPLIT);
                 String key  = entity.getFloor() + ":" + entity.getAreaCode() + ":" + entity.getGridCode();
                 for (String s : split) {
                     gridTags.put(key, s);
@@ -605,7 +605,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             StringBuilder batchNo = new StringBuilder();
             for (String value : cacheDto.getRecentSendCodeList()) {
                 if (batchNo.length() > 0) {
-                    batchNo.append(",");
+                    batchNo.append(SPLIT);
                 }
                 batchNo.append(value);
             }
@@ -615,7 +615,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             StringBuilder to = new StringBuilder();
             for (Integer value : cacheDto.getRecentReceiveSiteList()) {
                 if (to.length() > 0) {
-                    to.append(",");
+                    to.append(SPLIT);
                 }
                 to.append(value);
             }
@@ -1086,7 +1086,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         if (StringUtils.isBlank(tags)) {
             return list;
         }
-        String[] split = tags.split(",");
+        String[] split = tags.split(SPLIT);
         for (String s : split) {
             JyBizTaskExceptionTagEnum tagEnum = JyBizTaskExceptionTagEnum.getByCode(s);
             if (tagEnum == null) {
