@@ -692,12 +692,18 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         if (StringUtils.isNotBlank(cacheDto.getTo())){
             for (String toId : cacheDto.getTo().split(SPLIT)) {
                 if (!BusinessUtil.isSiteCode(toId)){
-                    return JdCResponse.fail("siteCode:下级地编号不合法!siteCode=" + cacheDto.getTo());
+                    JdCResponse<Object> fail = JdCResponse.fail("级地编号不合法!" + cacheDto.getTo());
+                    fail.setData("to");
+                    fail.setCode(JdCResponse.CODE_PARTIAL_SUCCESS);
+                    return fail;
                 }
                 Integer toSiteCode = Integer.valueOf(toId);
                 BaseStaffSiteOrgDto toSite = baseMajorManager.getBaseSiteBySiteId(toSiteCode);
                 if (toSite == null){
-                    return JdCResponse.fail("siteCode:下级地编号不存在!siteCode=" + cacheDto.getTo());
+                    JdCResponse<Object> fail = JdCResponse.fail("下级地编号不存在!" + cacheDto.getTo());
+                    fail.setData("to");
+                    fail.setCode(JdCResponse.CODE_PARTIAL_SUCCESS);
+                    return fail;
                 }
             }
         }
@@ -705,7 +711,10 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         if (StringUtils.isNotBlank(cacheDto.getBatchNo())) {
             for (String bno : cacheDto.getBatchNo().split(SPLIT)) {
                 if (!BusinessUtil.isSendCode(bno)){
-                    return JdCResponse.fail("batchNo:批次号不合法!siteCode=" + cacheDto.getBatchNo());
+                    JdCResponse<Object> fail = JdCResponse.fail("批次号不合法!" + cacheDto.getBatchNo());
+                    fail.setData("batchNo");
+                    fail.setCode(JdCResponse.CODE_PARTIAL_SUCCESS);
+                    return fail;
                 }
             }
         }
