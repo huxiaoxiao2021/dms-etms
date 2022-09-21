@@ -52,6 +52,16 @@ public interface SendPrintService {
 	InvokeResult<Boolean> batchPrintExport(PrintExportCriteria printExportCriteria);
 
 	/**
+	 * 打印交接清单导出到三方邮件
+	 * @param tripartiteEntity 包含导出的条件
+	 * @param content 邮件主题
+	 * @param tos 邮件发送方
+	 * @param ccs 邮件结果抄送方
+	 * @return
+	 */
+	InvokeResult<Boolean> batchPrintExportToTripartite(TripartiteEntity tripartiteEntity, String content, List<String> tos, List<String> ccs);
+
+	/**
 	 * 构建打印交接清单实体
 	 * @return
 	 */
