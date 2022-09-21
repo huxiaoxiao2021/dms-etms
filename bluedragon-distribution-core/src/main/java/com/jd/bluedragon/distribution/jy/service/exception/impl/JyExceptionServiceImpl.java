@@ -267,6 +267,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             if (countMap.containsKey(dto.getStatus())) {
                 dto.setCount(countMap.get(value.getCode()));
             }
+            countList.add(dto);
         }
         result.setData(countList);
         result.toSucceed();
