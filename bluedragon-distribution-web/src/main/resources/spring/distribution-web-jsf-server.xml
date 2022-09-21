@@ -4,6 +4,10 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
     http://jsf.jd.com/schema/jsf http://jsf.jd.com/schema/jsf/jsf.xsd">
 
+
+    <!-- 全部provider和consumer走此逻辑 -->
+    <jsf:filter id="globalfilter" class="com.jd.bd.dms.automatic.marshal.filter.DmsJsfFilter" providers="*" consumers=""/>
+
     <!-- 发布给外部系统读接口 -->
     <jsf:provider id="jsfDmsExternalReadService"
                   interface="com.jd.bluedragon.distribution.external.service.DmsExternalReadService"

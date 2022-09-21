@@ -204,6 +204,7 @@ public class SendVehicleTransactionManager {
     @Transactional(value = "tm_jy_core", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public boolean updateStatusWithoutCompare(JyBizTaskSendVehicleEntity taskSend, JyBizTaskSendVehicleDetailEntity sendDetail, JyBizTaskSendDetailStatusEnum updateStatus) {
         JyBizTaskSendVehicleDetailEntity detailQ = getSendVehicleDetailEntity(sendDetail, updateStatus);
+        detailQ.setBizId(sendDetail.getBizId());
         if (taskSendVehicleDetailService.updateStatusWithoutCompare(detailQ, sendDetail.getVehicleStatus()) > 0) {
             logInfo("发货任务流向[{}]状态更新（不比较原状态）为“{}”. {}", sendDetail.getBizId(), updateStatus.getName(), JsonHelper.toJson(sendDetail));
 
