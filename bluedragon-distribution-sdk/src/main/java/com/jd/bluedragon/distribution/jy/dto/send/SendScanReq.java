@@ -22,6 +22,11 @@ public class SendScanReq extends JyReqBaseDto  implements Serializable {
     private String sendVehicleBizId;
 
     /**
+     * send_vehicle_detail业务主键
+     */
+    private String sendVehicleDetailBizId;
+
+    /**
      * 车牌号
      */
     private String vehicleNumber;
@@ -81,6 +86,14 @@ public class SendScanReq extends JyReqBaseDto  implements Serializable {
 
     public void setSendVehicleBizId(String sendVehicleBizId) {
         this.sendVehicleBizId = sendVehicleBizId;
+    }
+
+    public String getSendVehicleDetailBizId() {
+        return sendVehicleDetailBizId;
+    }
+
+    public void setSendVehicleDetailBizId(String sendVehicleDetailBizId) {
+        this.sendVehicleDetailBizId = sendVehicleDetailBizId;
     }
 
     public String getVehicleNumber() {
