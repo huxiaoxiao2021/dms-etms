@@ -6,6 +6,7 @@ import com.jd.bluedragon.distribution.jss.utils.JssStorageClient;
 import com.jd.jss.JingdongStorageService;
 import com.jd.jss.http.Scheme;
 import com.jd.jss.service.ObjectService;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +42,11 @@ public class JssServiceImpl implements JssService {
     public void uploadFile(String bucket, String keyName, long length, InputStream inputStream) throws JssStorageException {
         try {
             JingdongStorageService jss = jssStorageClient.getStorageService();
-            jss.bucket(bucket).object(keyName).entity(length, inputStream).put();
+            String md5 = jss.bucket(bucket).object(keyName).entity(length, inputStream).put();
+            if(StringUtils.isBlank(md5)){
+                //暂时不做MD5一致性校验 如果返回空则认为上传失败
+                throw new JssStorageException(String.format("MD5 is blank,KeyName:%s",keyName));
+            }
             log.info("[JSS存储服务]上传文件成功keyName:{},length:{}", keyName, length);
         } catch (Exception e) {
             log.error("[JSS存储服务]上传文件异常：", e);
@@ -142,8 +147,11 @@ public class JssServiceImpl implements JssService {
             String key = UUID.randomUUID().toString() + "." + extName;
             JingdongStorageService jss = jssStorageClient.getStorageService();
 
-            jss.bucket(bucket).object(key).entity(bytes.length, inStream).put();
-            inStream.close();
+            String md5 = jss.bucket(bucket).object(key).entity(bytes.length, inStream).put();
+            if(StringUtils.isBlank(md5)){
+                //暂时不做MD5一致性校验 如果返回空则认为上传失败
+                throw new JssStorageException(String.format("MD5 is blank,KeyName:%s",key));
+            }
             URI uri;
             if (httpsSet.contains(jssStorageClient.getEndpoint())){
                 uri = jss.bucket(bucket).object(key).presignedUrlProtocol(Scheme.HTTPS)
@@ -157,6 +165,14 @@ public class JssServiceImpl implements JssService {
             return url;
         } catch (Exception e) {
             log.error("异常上行处理异常:", e);
+        }finally {
+            if(inStream != null){
+                try {
+                    inStream.close();
+                } catch (IOException e) {
+                    log.error("inStream close error! {},{}",inStream,e.getMessage(),e);
+                }
+            }
         }
         return null;
     }
