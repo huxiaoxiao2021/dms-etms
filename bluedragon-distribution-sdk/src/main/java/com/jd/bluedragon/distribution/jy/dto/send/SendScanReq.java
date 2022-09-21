@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.jy.dto.send;
 
+import com.jd.bluedragon.distribution.jsf.domain.ValidateIgnore;
 import com.jd.bluedragon.distribution.jy.dto.JyReqBaseDto;
 
 import java.io.Serializable;
@@ -69,6 +70,10 @@ public class SendScanReq extends JyReqBaseDto  implements Serializable {
      */
     private Long confirmSendDestId;
 
+    /**
+     * 忽略验证的条件
+     */
+    private ValidateIgnore validateIgnore;
 
     public String getSendVehicleBizId() {
         return sendVehicleBizId;
@@ -164,5 +169,13 @@ public class SendScanReq extends JyReqBaseDto  implements Serializable {
 
     public void setTaskId(String taskId) {
         this.taskId = taskId;
+    }
+
+    public ValidateIgnore getValidateIgnore() {
+        return validateIgnore;
+    }
+
+    public void setValidateIgnore(ValidateIgnore validateIgnore) {
+        this.validateIgnore = validateIgnore;
     }
 }

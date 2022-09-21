@@ -47,6 +47,16 @@ public class SendScanResp implements Serializable {
      */
     private String curScanDestName;
 
+    /**
+     * 批次号
+     */
+    private String sendCode;
+
+    /**
+     * 首次扫描标识
+     */
+    private boolean firstScan;
+
     public Integer getScanPackCount() {
         return scanPackCount;
     }
@@ -69,5 +79,21 @@ public class SendScanResp implements Serializable {
 
     public void setCurScanDestName(String curScanDestName) {
         this.curScanDestName = curScanDestName;
+    }
+
+    public String getSendCode() {
+        return sendCode;
+    }
+
+    public void setSendCode(String sendCode) {
+        this.sendCode = sendCode;
+    }
+
+    public boolean isFirstScan() {
+        return firstScan;
+    }
+
+    public void setFirstScan(boolean firstScan) {
+        this.firstScan = firstScan;
     }
 }
