@@ -1918,6 +1918,12 @@
 		</dependency>
 
 		<dependency>
+			<groupId>com.jdl.basic</groupId>
+			<artifactId>jy-basic-api</artifactId>
+			<version>1.0-test-SNAPSHOT</version>
+		</dependency>
+
+		<dependency>
 			<groupId>com.jd</groupId>
 			<artifactId>ningde-enterprise-api</artifactId>
 			<version>1.0.0-SNAPSHOT</version>
