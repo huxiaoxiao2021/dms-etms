@@ -424,6 +424,7 @@
         </trim>
         WHERE
         yn = 1
+        AND biz_id = #{entity.bizId}      
         AND send_vehicle_biz_id = #{entity.sendVehicleBizId}
         AND start_site_id = #{entity.startSiteId}
         AND end_site_id = #{entity.endSiteId}
