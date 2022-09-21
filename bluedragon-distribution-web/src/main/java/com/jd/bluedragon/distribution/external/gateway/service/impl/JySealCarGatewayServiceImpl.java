@@ -28,7 +28,7 @@ import com.jd.ump.annotation.JProfiler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
-@UnifiedExceptionProcess
+//@UnifiedExceptionProcess
 public class JySealCarGatewayServiceImpl implements JySealCarGatewayService {
     @Autowired
     @Qualifier("newSealVehicleResource")

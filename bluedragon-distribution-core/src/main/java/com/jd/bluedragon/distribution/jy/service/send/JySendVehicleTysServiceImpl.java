@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.jy.service.send;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.BoxMsgResult;
 import com.jd.bluedragon.common.UnifiedExceptionProcess;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
@@ -376,14 +377,24 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
         return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, sendAbnormalBarCode);
     }
 
+    @Override
+    public InvokeResult<SendWaybillStatisticsResp> listSendWaybillDetail(QuerySendWaybillReq querySendWaybillReq) {
+        return null;
+    }
+
+    @Override
+    public InvokeResult<SendPackageStatisticsResp> listSendPackageDetail(QuerySendPackageReq querySendPackageReq) {
+        return null;
+    }
+
     private void assembleRespPackageData(SendAbnormalBarCode sendAbnormalBarCode, ExcepPackageDto packageDto) {
         if (ObjectHelper.isNotNull(packageDto) && ObjectHelper.isNotNull(packageDto.getSendPackageDtoList())) {
             List<SendScanWaybill> waybillList = new ArrayList();
             SendScanWaybill sendScanWaybill = new SendScanWaybill();
-            List<SendScanPack> packList = new ArrayList();
+            List<SendPackage> packList = new ArrayList();
             for (SendPackageDto sendPackageDto : packageDto.getSendPackageDtoList()) {
-                SendScanPack sendScanPack = new SendScanPack();
-                sendScanPack.setBarCode(sendPackageDto.getPackageCode());
+                SendPackage sendScanPack = new SendPackage();
+                sendScanPack.setPackageCode(sendPackageDto.getPackageCode());
                 sendScanPack.setTags(resolveBarCodeTag(sendPackageDto.getExcepScanLabelEnum()));
                 packList.add(sendScanPack);
             }
@@ -473,6 +484,7 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
      * @return
      */
     @Override
+    @BoxMsgResult
     @JProfiler(jKey = "DMSWEB.JySendVehicleTysService.sendScan", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeWithMsgBoxResult<SendScanResp> sendScan(SendScanReq request) {
         SendScanRequest sendScanRequest = BeanUtils.copy(request, SendScanRequest.class);

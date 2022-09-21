@@ -6,32 +6,28 @@ import com.jd.bluedragon.distribution.jy.dto.JyLabelOption;
 import java.io.Serializable;
 import java.util.List;
 
-/**
- * @ClassName SendScanBarCode
- * @Description
- * @Author wyh
- * @Date 2022/5/19 17:57
- **/
-public class SendScanPack implements Serializable {
 
-    private static final long serialVersionUID = -9041548101278236982L;
+public class SendPackage implements Serializable {
 
+
+    private static final long serialVersionUID = -7907707159294103521L;
     /**
      * 单号
      */
-    private String barCode;
+    private String packageCode;
 
     /**
      * 单号标签集合
      */
     private List<JyLabelOption> tags;
 
-    public String getBarCode() {
-        return barCode;
+
+    public String getPackageCode() {
+        return packageCode;
     }
 
-    public void setBarCode(String barCode) {
-        this.barCode = barCode;
+    public void setPackageCode(String packageCode) {
+        this.packageCode = packageCode;
     }
 
     public List<JyLabelOption> getTags() {

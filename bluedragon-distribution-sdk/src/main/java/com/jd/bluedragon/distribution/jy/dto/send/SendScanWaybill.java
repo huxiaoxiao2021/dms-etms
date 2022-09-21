@@ -31,7 +31,7 @@ public class SendScanWaybill implements Serializable {
     /**
      * 包裹集合
      */
-    private List<SendScanPack> packList;
+    private List<SendPackage> packList;
 
     public String getBarCode() {
         return barCode;
@@ -41,11 +41,11 @@ public class SendScanWaybill implements Serializable {
         this.barCode = barCode;
     }
 
-    public List<SendScanPack> getPackList() {
+    public List<SendPackage> getPackList() {
         return packList;
     }
 
-    public void setPackList(List<SendScanPack> packList) {
+    public void setPackList(List<SendPackage> packList) {
         this.packList = packList;
     }
 

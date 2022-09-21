@@ -102,6 +102,22 @@ public interface JySendVehicleTysService {
      */
     InvokeResult<SendAbnormalBarCode> excepScanBarCodeDetail(SendAbnormalPackReq request);
 
+    /**
+     * 查询扫描下钻运单明细
+     *
+     * @param querySendWaybillReq
+     * @return
+     */
+    InvokeResult<SendWaybillStatisticsResp> listSendWaybillDetail(QuerySendWaybillReq querySendWaybillReq);
+
+    /**
+     * 查询扫描下钻包裹明细
+     * @param querySendPackageReq
+     * @return
+     */
+
+    InvokeResult<SendPackageStatisticsResp>  listSendPackageDetail(QuerySendPackageReq querySendPackageReq);
+
 
     /**
      * 选择封车流向

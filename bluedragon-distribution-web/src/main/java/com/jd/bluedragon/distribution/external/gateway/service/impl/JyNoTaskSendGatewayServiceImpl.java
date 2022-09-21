@@ -15,7 +15,7 @@ import java.util.*;
 
 
 @Slf4j
-@UnifiedExceptionProcess
+//@UnifiedExceptionProcess
 public class JyNoTaskSendGatewayServiceImpl implements JyNoTaskSendGatewayService {
 
     @Autowired

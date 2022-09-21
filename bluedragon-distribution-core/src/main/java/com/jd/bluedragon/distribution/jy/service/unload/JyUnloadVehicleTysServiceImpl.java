@@ -65,7 +65,7 @@ import static com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadStatusEnum.
  */
 
 @Service("jyUnloadVehicleTysService")
-@UnifiedExceptionProcess
+//@UnifiedExceptionProcess
 public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService {
 
     private static final Logger log = LoggerFactory.getLogger(JyUnloadVehicleTysServiceImpl.class);
