@@ -5,19 +5,26 @@ import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.operation.workbench.unload.request.UnloadScanRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.unload.request.UnloadVehicleTaskRequest;
 import com.jd.bluedragon.distribution.coldChain.domain.*;
+import com.jd.bluedragon.distribution.coldChain.service.IColdChainService;
 import com.jd.bluedragon.distribution.coldchain.service.ColdChainExternalServiceImpl;
 import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.service.unload.IJyUnloadVehicleService;
+import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.gateway.service.JyUnloadVehicleGatewayService;
+import com.jd.fastjson.JSON;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import com.jd.bluedragon.distribution.task.domain.Task;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = "classpath:distribution-web-context.xml")
@@ -26,6 +33,9 @@ public class ColdChainExternalServiceImplTest {
 
     @Autowired
     private ColdChainExternalServiceImpl coldChainExternalService;
+
+    @Autowired
+    private DeliveryService deliveryService;
 
     @Test
     public void inspectionCheck() {
@@ -166,5 +176,56 @@ public class ColdChainExternalServiceImplTest {
 
         unloadVehicleGatewayService.unloadScan(request);
 
+    }
+
+    @Test
+    public void sendAndInspection() {
+        List<String> waybillList = new ArrayList<>();
+        waybillList.add("JDVC00008264211-1-3-");
+        waybillList.add("JDVC00008264211-2-3-");
+        waybillList.add("JDVC00008264211-3-3-");
+
+        for (int i = 0; i < 10; i++) {
+            for (String waybillCode : waybillList) {
+                SendInspectionVO sendInspectionReq = new SendInspectionVO();
+                sendInspectionReq.setSendCode("14514-910-20220915219354635");
+                sendInspectionReq.setBoxCode(waybillCode);
+                sendInspectionReq.setCreateSiteCode(14514);
+                sendInspectionReq.setReceiveSiteCode(910);
+                sendInspectionReq.setOperateTime(new Date(System.currentTimeMillis()));
+                sendInspectionReq.setCreateUserCode(17331);
+                sendInspectionReq.setCreateUser("吴有德");
+                InvokeResult<Boolean> result = coldChainExternalService.sendAndInspectionOfPack(sendInspectionReq);
+                // Assert.assertTrue(result.codeSuccess());
+            }
+            System.out.println("断点等待");
+        }
+    }
+
+    @Test
+    public void updatewaybillCodeMessage() {
+        for (int i = 0; i < 10; i++) {
+            Task task = JSON.parseObject("{\n" +
+                    "  \"createSiteCode\" : 2860,\n" +
+                    "  \"executeTime\" : 1663232510573,\n" +
+                    "  \"type\" : 1300,\n" +
+                    "  \"keyword1\" : \"1\",\n" +
+                    "  \"keyword2\" : \"10\",\n" +
+                    "  \"body\" : \"{\\n  \\\"sendMId\\\" : 1570337082428809216,\\n  \\\"sendCode\\\" : \\\"2860-910-20220915179354242\\\",\\n  \\\"boxCode\\\" : \\\"JDVC00008281608-2-3-\\\",\\n  \\\"createSiteCode\\\" : 2860,\\n  \\\"receiveSiteCode\\\" : 910,\\n  \\\"sendType\\\" : 10,\\n  \\\"createUser\\\" : \\\"youhua1\\\",\\n  \\\"createUserCode\\\" : -1,\\n  \\\"operateTime\\\" : 1663232514830,\\n  \\\"bizSource\\\" : 26,\\n  \\\"handleCategory\\\" : 4\\n}\",\n" +
+                    "  \"tableName\" : \"task_send\",\n" +
+                    "  \"sequenceName\" : \"SEQ_TASK_SORTING\",\n" +
+                    "  \"boxCode\" : \"JDVC00008281608-2-3-\",\n" +
+                    "  \"receiveSiteCode\" : 910,\n" +
+                    "  \"fingerprint\" : \"F84389E6875C5E8CDF09F6D383F02D63\",\n" +
+                    "  \"ownSign\" : \"DMS\",\n" +
+                    "  \"subType\" : 130004\n" +
+                    "}",Task.class);
+
+            try {
+                deliveryService.updatewaybillCodeMessage(task);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 }
