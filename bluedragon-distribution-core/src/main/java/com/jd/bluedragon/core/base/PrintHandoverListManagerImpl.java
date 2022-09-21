@@ -13,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 /**
  * 打印交接清单包装服务
  *
@@ -94,5 +96,12 @@ public class PrintHandoverListManagerImpl implements PrintHandoverListManager {
     @Override
     public BaseEntity<Boolean> doBatchExportAsync(Pager<PrintHandoverLitQueryCondition> query) {
         return printHandoverListJsfService.doBatchExportAsync(query);
+    }
+
+    @JProfiler(jKey = "DMS.BASE.PrintHandoverListManagerImpl.doBatchExportAsyncToTripartite", jAppName = Constants.UMP_APP_NAME_DMSWEB,
+            mState = {JProEnum.TP, JProEnum.FunctionError})
+    @Override
+    public BaseEntity<Boolean> doBatchExportAsyncToTripartite(Pager<PrintHandoverLitQueryCondition> query,String content, List<String> tos, List<String> ccs) {
+        return printHandoverListJsfService.doBatchExportAsyncToTripartite(query,content, tos, ccs);
     }
 }

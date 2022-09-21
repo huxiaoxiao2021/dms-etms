@@ -67,4 +67,14 @@ public interface PrintHandoverListManager {
      */
     BaseEntity<Boolean> doBatchExportAsync(Pager<PrintHandoverLitQueryCondition> query);
 
+    /**
+     * 打印交接清单-批量导出到外部人员
+     * @param query
+     * @param content
+     * @param tos
+     * @param ccs
+     * @return
+     */
+    BaseEntity<Boolean> doBatchExportAsyncToTripartite(Pager<PrintHandoverLitQueryCondition> query,String content, List<String> tos, List<String> ccs);
+
 }
