@@ -254,7 +254,22 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         List<StatisticsByStatusDto> statisticStatusResps = jyBizTaskExceptionDao.getCommonStatusStatistic(gridRid);
         List<StatisticsByStatusDto> specialStatusStatistic = jyBizTaskExceptionDao.getSpecialStatusStatistic(gridRid, req.getUserErp());
         statisticStatusResps.addAll(specialStatusStatistic);
-        result.setData(statisticStatusResps);
+
+        HashMap<Integer, Integer> countMap = new HashMap<>();
+        for (StatisticsByStatusDto s : statisticStatusResps) {
+            countMap.put(s.getStatus(), s.getCount());
+        }
+        List<StatisticsByStatusDto> countList = new ArrayList<>();
+        for (JyExpStatusEnum value : JyExpStatusEnum.values()) {
+            StatisticsByStatusDto dto = new StatisticsByStatusDto();
+            dto.setStatus(value.getCode());
+            dto.setCount(0);
+            if (countMap.containsKey(dto.getStatus())) {
+                dto.setCount(countMap.get(value.getCode()));
+            }
+            countList.add(dto);
+        }
+        result.setData(countList);
         result.toSucceed();
         return result;
     }
