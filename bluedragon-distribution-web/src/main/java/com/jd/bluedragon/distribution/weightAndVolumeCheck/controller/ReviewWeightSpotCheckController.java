@@ -9,6 +9,7 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.basic.DataResolver;
 import com.jd.bluedragon.distribution.basic.ExcelDataResolverFactory;
 import com.jd.bluedragon.distribution.basic.PropertiesMetaDataFactory;
+import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckDealService;
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.distribution.web.view.DefaultExcelView;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.ReviewWeightSpotCheck;
@@ -20,6 +21,7 @@ import com.jd.bluedragon.utils.CsvExporterUtils;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
+import com.jd.ql.dms.report.domain.spotcheck.WeightVolumeSpotCheckDto;
 import com.jd.uim.annotation.Authorization;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -39,6 +41,7 @@ import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @ClassName: ReviewWeightSpotCheckController
@@ -57,6 +60,9 @@ public class ReviewWeightSpotCheckController extends DmsBaseController {
 
     @Autowired
     private ExportConcurrencyLimitService exportConcurrencyLimitService;
+
+    @Autowired
+    private SpotCheckDealService spotCheckDealService;
 
     /**
      * 返回主页面
@@ -117,6 +123,46 @@ public class ReviewWeightSpotCheckController extends DmsBaseController {
             }
         } catch (Exception e) {
             this.log.error("导入异常!",e);
+            return new JdResponse(JdResponse.CODE_FAIL, e.getMessage());
+        }
+        return response;
+    }
+
+    /**
+     * 导入
+     * @return
+     */
+    @Authorization(Constants.DMS_WEB_SORTING_REVIEWWEIGHTSPOTCHECK_SPECIAL_R)
+    @RequestMapping(value = "/toImportSpot", method = RequestMethod.POST)
+    @ResponseBody
+    public JdResponse toImportSpot(@RequestParam("importExcelFileSpot") MultipartFile file) {
+        JdResponse response = new JdResponse();
+        try {
+            ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
+
+//            ErpUserClient.ErpUser erpUser = new ErpUserClient.ErpUser();
+//            erpUser.setUserCode("liuduo8");
+//            erpUser.setUserCode("wuzuxiang");
+//            erpUser.setUserCode("hujiping1");
+            if(erpUser == null || (!Objects.equals(erpUser.getUserCode(), "hujiping1")
+                    && !Objects.equals(erpUser.getUserCode(), "wuzuxiang")
+                    && !Objects.equals(erpUser.getUserCode(), "liuduo8"))){
+                response.toFail("非法导入!");
+                return response;
+            }
+            long startTime = System.currentTimeMillis();
+            log.info("{},此次抽检数据导入开始!", startTime);
+            String fileName = file.getOriginalFilename();
+            if (!fileName.endsWith("xlsx")) {
+                return new JdResponse(JdResponse.CODE_FAIL,"文件格式不对!");
+            }
+            DataResolver dataResolver = ExcelDataResolverFactory.getDataResolver(2);
+            List<WeightVolumeSpotCheckDto> dataList = dataResolver.resolver(file.getInputStream(), WeightVolumeSpotCheckDto.class, new PropertiesMetaDataFactory("/excel/weightAndSpotCheck.properties"));
+            spotCheckDealService.brushSpotCheck(dataList, erpUser.getUserCode());
+            long endTime = System.currentTimeMillis();
+            log.info("{},此次抽检数据导入结束!耗时:{}s", endTime, (endTime - startTime) / 1000);
+        } catch (Exception e) {
+            log.error("导入异常!",e);
             return new JdResponse(JdResponse.CODE_FAIL, e.getMessage());
         }
         return response;

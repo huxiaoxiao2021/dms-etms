@@ -119,6 +119,13 @@ public class JyBizTaskSendVehicleServiceImpl implements JyBizTaskSendVehicleServ
     }
 
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyBizTaskSendVehicleService.updateStatusWithoutCompare",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
+    public int updateStatusWithoutCompare(JyBizTaskSendVehicleEntity entity, Integer oldStatus) {
+        return jyBizTaskSendVehicleDao.updateStatusWithoutCompare(entity, oldStatus);
+    }
+
+    @Override
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JyBizTaskSendVehicleService.updateBizTaskSendStatus",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public int updateBizTaskSendStatus(JyBizTaskSendVehicleEntity entity) {
@@ -144,4 +151,14 @@ public class JyBizTaskSendVehicleServiceImpl implements JyBizTaskSendVehicleServ
     public Integer countSendTaskByDest(JyBizTaskSendVehicleDetailEntity entity) {
         return jyBizTaskSendVehicleDao.countSendTaskByDest(entity);
     }
+
+    @Override
+    public List<JyBizTaskSendVehicleEntity> findSendTaskByTransWorkCode(List<String> transWorkCodeList,Long startSiteId) {
+        return jyBizTaskSendVehicleDao.findSendTaskByTransWorkCode(transWorkCodeList,startSiteId);
+    }
+
+	@Override
+	public int countBizNumForCheckLineType(JyBizTaskSendVehicleEntity checkQuery, List<String> bizIdList,List<Integer> lineTypes) {
+        return jyBizTaskSendVehicleDao.countBizNumForCheckLineType(checkQuery,bizIdList,lineTypes);
+	}
 }

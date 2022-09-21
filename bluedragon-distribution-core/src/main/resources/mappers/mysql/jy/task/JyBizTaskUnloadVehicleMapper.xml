@@ -45,6 +45,7 @@
         <result property="yn" column="yn"/>
         <result property="ts" column="ts"/>
         <result property="taskType" column="task_type"/>
+        <result property="railwayPfNo" column="railway_pf_no"/>
     </resultMap>
 
     <resultMap type="com.jd.bluedragon.distribution.jy.dto.task.JyBizTaskUnloadCountDto" id="JyBizTaskUnloadCountMap">
@@ -54,8 +55,7 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        id
-        ,
+        id,
         biz_id,
         seal_car_code,
         vehicle_number,
@@ -91,6 +91,7 @@
         ts,
         task_type,
         unload_type,
+        railway_pf_no,
         unload_start_time
     </sql>
 
@@ -553,7 +554,7 @@
             <if test="updateTime != null">
                 update_time = #{updateTime},
             </if>
-            </set>
+        </set>
         <where>
             id = #{id} and yn = 1
         </where>
@@ -628,13 +629,13 @@
             <if test="railwayPfNo">
                 railway_pf_no =#{railwayPfNo},
             </if>
-            <if test="unloadType">
+            <if test="unloadType != null">
                 unload_type =#{unloadType},
             </if>
             <if test="taskType != null">
                 task_type = #{taskType},
             </if>
-            </set>
+        </set>
         <where>
             id = #{id}
         </where>
@@ -653,7 +654,7 @@
             </if>
             and yn = 1
         </where>
-    </select>
+     </select>
 
     <select id="needCleanSite" parameterType="JyBizTaskUnloadVehicleEntity" resultType="Integer">
         select end_site_id

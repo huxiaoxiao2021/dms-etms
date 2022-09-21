@@ -113,6 +113,32 @@ public class UnloadVehicleTaskDto extends UnloadBaseDto implements Serializable 
      */
     private String railwayPfNo;
 
+    /**
+     * 是否无任务卸车；1：是：0：否
+     */
+    private Integer manualCreatedFlag;
+
+    /**
+     * 是否异常；0-否 1-是
+     */
+    private Byte abnormalFlag;
+
+    /**
+     * 待扫描数量
+     * 异常情况下必传
+     */
+    private Long toScanCount;
+
+    /**
+     * 本场地多扫数量
+     */
+    private Long moreScanLocalCount;
+
+    /**
+     * 非本场地多扫数量
+     */
+    private Long moreScanOutCount;
+
     public String getBizId() {
         return bizId;
     }
@@ -337,5 +363,45 @@ public class UnloadVehicleTaskDto extends UnloadBaseDto implements Serializable 
 
     public void setTaskId(String taskId) {
         this.taskId = taskId;
+    }
+
+    public Integer getManualCreatedFlag() {
+        return manualCreatedFlag;
+    }
+
+    public void setManualCreatedFlag(Integer manualCreatedFlag) {
+        this.manualCreatedFlag = manualCreatedFlag;
+    }
+
+    public Byte getAbnormalFlag() {
+        return abnormalFlag;
+    }
+
+    public void setAbnormalFlag(Byte abnormalFlag) {
+        this.abnormalFlag = abnormalFlag;
+    }
+
+    public Long getToScanCount() {
+        return toScanCount;
+    }
+
+    public void setToScanCount(Long toScanCount) {
+        this.toScanCount = toScanCount;
+    }
+
+    public Long getMoreScanLocalCount() {
+        return moreScanLocalCount;
+    }
+
+    public void setMoreScanLocalCount(Long moreScanLocalCount) {
+        this.moreScanLocalCount = moreScanLocalCount;
+    }
+
+    public Long getMoreScanOutCount() {
+        return moreScanOutCount;
+    }
+
+    public void setMoreScanOutCount(Long moreScanOutCount) {
+        this.moreScanOutCount = moreScanOutCount;
     }
 }

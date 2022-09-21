@@ -127,6 +127,7 @@ public class JyBizTaskSendVehicleDetailEntity implements Serializable {
 	private transient Date lastPlanDepartTimeEnd;
 
 	private Integer excepLabel;
+	private transient Date createTimeBegin;
 
 	public Integer getPreVehicleStatus() {
 		return preVehicleStatus;
@@ -310,5 +311,13 @@ public class JyBizTaskSendVehicleDetailEntity implements Serializable {
 
 	public void setExcepLabel(Integer excepLabel) {
 		this.excepLabel = excepLabel;
+	}
+
+	public Date getCreateTimeBegin() {
+		return createTimeBegin;
+	}
+
+	public void setCreateTimeBegin(Date createTimeBegin) {
+		this.createTimeBegin = createTimeBegin;
 	}
 }

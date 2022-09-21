@@ -19,4 +19,6 @@ public interface JyBizTaskUnloadVehicleStageService {
     int updateStatusByBizId(JyBizTaskUnloadVehicleStageEntity condition);
 
     List<Long> countByUnloadVehicleBizId(String unloadVehicleBizId);
+
+    JyBizTaskUnloadVehicleStageEntity selectUnloadDoingStageTask(String bizId);
 }

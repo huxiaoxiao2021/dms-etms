@@ -32,7 +32,7 @@ public class DmsSpotCheckDealConsumerTest {
     public void consumer() {
         try {
             PackWeightVO packWeightVO = new PackWeightVO();
-            packWeightVO.setCodeStr("JDV000706630401-1-3-");
+            packWeightVO.setCodeStr("JDX000221717365-1-3-");
             packWeightVO.setOrganizationCode(6);
             packWeightVO.setOrganizationName("总公司");
             packWeightVO.setLength(10.0D);

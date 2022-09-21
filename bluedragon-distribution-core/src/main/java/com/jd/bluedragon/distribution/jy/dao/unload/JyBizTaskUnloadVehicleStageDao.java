@@ -41,10 +41,19 @@ public class JyBizTaskUnloadVehicleStageDao extends BaseDao<JyBizTaskUnloadVehic
     }
 
     public List<JyBizTaskUnloadVehicleStageEntity> queryByParentBizId(String parentBizId) {
-        return this.getSqlSession().selectOne(NAMESPACE + ".queryByParentBizId", parentBizId);
+        return this.getSqlSession().selectList(NAMESPACE + ".queryByParentBizId", parentBizId);
     }
 
     public List<Long> countByUnloadVehicleBizId(String unloadVehicleBizId) {
         return this.getSqlSession().selectList(NAMESPACE + ".countByUnloadVehicleBizId", unloadVehicleBizId);
     }
+
+    public JyBizTaskUnloadVehicleStageEntity queryByBizId(String bizId) {
+        return this.getSqlSession().selectOne(NAMESPACE + ".queryByBizId", bizId);
+    }
+
+    public JyBizTaskUnloadVehicleStageEntity selectUnloadDoingStageTask(String parentBizId) {
+        return this.getSqlSession().selectOne(NAMESPACE + ".selectUnloadDoingStageTask", parentBizId);
+    }
+
 }

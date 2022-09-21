@@ -88,6 +88,14 @@ public interface JyBizTaskSendVehicleService {
      */
     int updateStatus(JyBizTaskSendVehicleEntity entity, Integer oldStatus);
 
+    /**
+     * 不按顺序更新发货状态
+     * @param entity
+     * @param oldStatus
+     * @return
+     */
+    int updateStatusWithoutCompare(JyBizTaskSendVehicleEntity entity, Integer oldStatus);
+
     int updateBizTaskSendStatus(JyBizTaskSendVehicleEntity entity);
 
     /**
@@ -102,4 +110,15 @@ public interface JyBizTaskSendVehicleService {
 
 
     Integer countSendTaskByDest(JyBizTaskSendVehicleDetailEntity entity);
+
+
+    List<JyBizTaskSendVehicleEntity> findSendTaskByTransWorkCode(List<String> transWorkCodeList,Long startSiteId);
+    /**
+     * 按任务id列表、线路类型列表查询数量
+     * @param checkQuery
+     * @param bizIdList
+     * @param lineTypes
+     * @return
+     */
+	int countBizNumForCheckLineType(JyBizTaskSendVehicleEntity checkQuery, List<String> bizIdList,List<Integer> lineTypes);
 }

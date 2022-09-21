@@ -1,6 +1,8 @@
 package com.jd.bluedragon.configuration.ucc;
 
 import com.jd.bluedragon.Constants;
+import com.jd.ql.dms.print.utils.JsonHelper;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.ArrayUtils;
@@ -118,6 +120,8 @@ public class UccPropertyConfiguration {
     * 分拣验证切换到web试用站点
     * */
     private String switchVerToWebSites;
+
+
 
     /**
      * 禁用老版本登陆
@@ -502,6 +506,21 @@ public class UccPropertyConfiguration {
      */
     private boolean chuguanPurchaseAndSaleSwitch;
 
+
+
+    /**
+     * 阿迪青龙业主号配置
+     */
+    private  String addiOwnNumberConf;
+
+    public String getAddiOwnNumberConf() {
+        return addiOwnNumberConf;
+    }
+
+    public void setAddiOwnNumberConf(String addiOwnNumberConf) {
+        this.addiOwnNumberConf = addiOwnNumberConf;
+    }
+
     public boolean isChuguanPurchaseAndSaleSwitch() {
         return chuguanPurchaseAndSaleSwitch;
     }
@@ -668,6 +687,8 @@ public class UccPropertyConfiguration {
      */
     private Integer jySendTaskPlanTimeEndDay;
 
+    private Integer jySendTaskCreateTimeBeginDay;
+
     public Integer getOldSendSplitPageSize() {
         return oldSendSplitPageSize;
     }
@@ -807,23 +828,6 @@ public class UccPropertyConfiguration {
     private String jySendTaskLoadRateLimit;
 
     /**
-     * 面单举报异常配置
-     */
-    private String faceAbnormalReportConfig;
-
-    /**
-     * 身份证识别切量开关，全量上线之后，可以删除
-     */
-    private String identityRecogniseSiteSwitch;
-
-    private String needValidateMainLineBizSources;
-
-    /**
-     * 敏感信息隐藏开关
-     */
-    private Boolean sensitiveInfoHideSwitch;
-
-    /**
      * 缓存时长
      */
     private Integer unloadCacheDurationHours;
@@ -837,6 +841,31 @@ public class UccPropertyConfiguration {
      * 包裹重量上限值，单位kg
      */
     private String packageWeightLimit;
+
+    /**
+     * 运单重量上限值，单位kg
+     */
+    private String waybillWeightLimit;
+
+    /**
+     * 面单举报异常配置
+     */
+    private String faceAbnormalReportConfig;
+
+    /**
+     * 身份证识别切量开关，全量上线之后，可以删除
+     */
+    private String identityRecogniseSiteSwitch;
+    /**
+     * 传摆发货-干支限制业务列表
+     */
+    private String needValidateMainLineBizSourceList;
+    private List<Integer> needValidateMainLineBizSourceCodes;
+
+    /**
+     * 敏感信息隐藏开关
+     */
+    private Boolean sensitiveInfoHideSwitch;
 
     public String getScheduleSiteCheckSameCity() {
         return scheduleSiteCheckSameCity;
@@ -2014,20 +2043,35 @@ public class UccPropertyConfiguration {
         this.jySendTaskPlanTimeEndDay = jySendTaskPlanTimeEndDay;
     }
 
-    public String getNeedValidateMainLineBizSources() {
-        return needValidateMainLineBizSources;
+    public String getNeedValidateMainLineBizSourceList() {
+        return needValidateMainLineBizSourceList;
     }
 
-    public void setNeedValidateMainLineBizSources(String needValidateMainLineBizSources) {
-        this.needValidateMainLineBizSources = needValidateMainLineBizSources;
+    public void setNeedValidateMainLineBizSourceList(String needValidateMainLineBizSourceList) {
+        this.needValidateMainLineBizSourceList = needValidateMainLineBizSourceList;
+        needValidateMainLineBizSourceCodes = JsonHelper.jsonToList(needValidateMainLineBizSourceList, Integer.class);
     }
 
+    public boolean needValidateMainLine(Integer bizCode) {
+    	if(!CollectionUtils.isEmpty(needValidateMainLineBizSourceCodes)) {
+    		return needValidateMainLineBizSourceCodes.contains(bizCode);
+    	}
+    	return false;
+    }
     public Boolean getSensitiveInfoHideSwitch() {
         return sensitiveInfoHideSwitch;
     }
 
     public void setSensitiveInfoHideSwitch(Boolean sensitiveInfoHideSwitch) {
         this.sensitiveInfoHideSwitch = sensitiveInfoHideSwitch;
+    }
+
+    public Integer getJySendTaskCreateTimeBeginDay() {
+        return jySendTaskCreateTimeBeginDay;
+    }
+
+    public void setJySendTaskCreateTimeBeginDay(Integer jySendTaskCreateTimeBeginDay) {
+        this.jySendTaskCreateTimeBeginDay = jySendTaskCreateTimeBeginDay;
     }
 
     public Integer getUnloadCacheDurationHours() {
@@ -2052,5 +2096,13 @@ public class UccPropertyConfiguration {
 
     public void setPackageWeightLimit(String packageWeightLimit) {
         this.packageWeightLimit = packageWeightLimit;
+    }
+
+    public String getWaybillWeightLimit() {
+        return waybillWeightLimit;
+    }
+
+    public void setWaybillWeightLimit(String waybillWeightLimit) {
+        this.waybillWeightLimit = waybillWeightLimit;
     }
 }

@@ -109,6 +109,21 @@ public class InvokeResult<T> implements Serializable {
     public static final int DETAIL_TASK_NO_FOUND_BY_SITE_ID_CODE=323;
     public static final String DETAIL_TASK_NO_FOUND_BY_SITE_ID_MESSAGE="未找到匹配的流向任务数据！";
 
+    public static final int BATCH_SIGLE_SEND_EXCEP_CODE= 325;
+    public static final String BATCH_SIGLE_SEND_EXCEP_MESSAGE ="批量一车一单发货异常";
+
+    public static final int NOT_SUPPORT_MAIN_LINE_TASK_CODE= 328;
+    public static final String NOT_SUPPORT_MAIN_LINE_TASK_MESSAGE ="干支批次禁止使用传摆发货！";
+
+    public static final int NO_RE_DETELE_TASK_CODE= 329;
+    public static final String NO_RE_DETELE_TASK_MESSAGE ="请勿重复删除同一个任务！";
+
+    public static final int NO_RE_BIND_TASK_CODE= 330;
+    public static final String NO_RE_BIND_TASK_MESSAGE ="该自建任务已绑定过运输任务，请勿重复绑定！";
+
+    public static final int NO_SCAN_AFTER_BIND_TASK_CODE= 331;
+    public static final String NO_SCAN_AFTER_BIND_TASK_MESSAGE ="该自建任务已绑定任务，无法继续扫描，请选择绑定的任务进入操作！";
+
     public static final int TASK_NO_FOUND_BY_STATUS_CODE=325;
     public static final String TASK_NO_FOUND_BY_STATUS_MESSAGE="未找到相应状态下的任务数据！";
 
@@ -120,12 +135,6 @@ public class InvokeResult<T> implements Serializable {
 
     public static final int UNLOAD_SCAN_EXCEPTION_CODE=328;
     public static final String UNLOAD_SCAN_EXCEPTION_MESSAGE="卸车扫描异常！";
-
-    public static final int BATCH_SIGLE_SEND_EXCEP_CODE= 325;
-    public static final String BATCH_SIGLE_SEND_EXCEP_MESSAGE ="批量一车一单发货异常";
-
-    public static final int NOT_SUPPORT_MAIN_LINE_TASK_CODE= 328;
-    public static final String NOT_SUPPORT_MAIN_LINE_TASK_MESSAGE ="干支批次禁止使用传摆发货！";
 
     public static final int GET_TRANSPORT_RESOURCE_CODE= 329;
     public static final String GET_TRANSPORT_RESOURCE_MESSAGE ="查询运力信息结果为空！";
