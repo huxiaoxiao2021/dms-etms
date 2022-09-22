@@ -250,6 +250,6 @@ public class CacheKeyConstants {
      * 拣运发车任务明细主键
      * bizId + createSite + receiveSite
      */
-    public static final String JY_SEND_TASK_DETAIL_FIRST_SCAN_KEY = JY_CACHE_PREFIX + "sst:biz:first:%s:%s:%s";
+    public static final String JY_SEND_TASK_DETAIL_FIRST_SCAN_KEY = JY_CACHE_PREFIX + "sst:biz:first:%s:%s";
 
 }

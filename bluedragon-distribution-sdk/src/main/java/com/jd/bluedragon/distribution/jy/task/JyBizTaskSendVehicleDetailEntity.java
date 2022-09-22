@@ -325,7 +325,7 @@ public class JyBizTaskSendVehicleDetailEntity implements Serializable {
 	public static class DetailComparatorByTime implements Comparator<JyBizTaskSendVehicleDetailEntity> {
 		@Override
 		public int compare(JyBizTaskSendVehicleDetailEntity o1, JyBizTaskSendVehicleDetailEntity o2) {
-			return o2.getCreateTime().compareTo(o1.getCreateTime());
+			return o2.getPlanDepartTime().compareTo(o1.getPlanDepartTime());
 		}
 	}
 }

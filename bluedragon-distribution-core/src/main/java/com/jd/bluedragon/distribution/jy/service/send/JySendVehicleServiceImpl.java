@@ -1365,7 +1365,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
 
     private void dealTaskFirstScan(SendScanRequest request, JyBizTaskSendVehicleEntity taskSend, Long sendDestId, JyBizTaskSendVehicleDetailEntity curSendDetail) {
         // 发货流向首次扫描
-        if (taskSendDestFirstScan(request, sendDestId)) {
+        if (taskSendDestFirstScan(request, curSendDetail.getBizId())) {
             logInfo("发货任务流向[{}-{}]首次扫描, 任务状态变为“发货中”. {}", request.getSendVehicleBizId(), sendDestId,
                     JsonHelper.toJson(request));
             updateSendVehicleStatus(request, taskSend, curSendDetail);
@@ -1628,12 +1628,12 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
     /**
      * 判断是否是发车任务流向的第一次扫描
      * @param request
-     * @param sendDestId
+     * @param sendDetailBizId
      * @return
      */
-    private boolean taskSendDestFirstScan(SendScanRequest request, Long sendDestId) {
+    private boolean taskSendDestFirstScan(SendScanRequest request, String sendDetailBizId) {
         boolean firstScanned = false;
-        String mutexKey = getSendDetailBizCacheKey(request.getSendVehicleBizId(), (long) request.getCurrentOperate().getSiteCode(), sendDestId);
+        String mutexKey = getSendDetailBizCacheKey(request.getSendVehicleBizId(), sendDetailBizId);
         if (redisClientOfJy.set(mutexKey, request.getBarCode(), SEND_SCAN_BAR_EXPIRE, TimeUnit.HOURS, false)) {
 
             firstScanned = true;
@@ -1955,8 +1955,8 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
         return noTaskDetail;
     }
 
-    private String getSendDetailBizCacheKey(String sendVehicleBiz, Long startSiteId, Long sendDestId) {
-        return String.format(CacheKeyConstants.JY_SEND_TASK_DETAIL_FIRST_SCAN_KEY, sendVehicleBiz, startSiteId, sendDestId);
+    private String getSendDetailBizCacheKey(String sendVehicleBiz, String sendDetailBizId) {
+        return String.format(CacheKeyConstants.JY_SEND_TASK_DETAIL_FIRST_SCAN_KEY, sendVehicleBiz,sendDetailBizId);
     }
 
     public String getSendTaskBizCacheKey(String sendVehicleBiz) {
