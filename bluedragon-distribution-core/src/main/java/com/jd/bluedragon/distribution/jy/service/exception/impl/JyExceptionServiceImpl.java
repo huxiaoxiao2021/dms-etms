@@ -12,10 +12,12 @@ import com.jd.bluedragon.common.dto.operation.workbench.enums.*;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyBizTaskExceptionDao;
+import com.jd.bluedragon.distribution.jy.dao.exception.JyBizTaskExceptionLogDao;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyExceptionDao;
 import com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskSendVehicleDetailDao;
 import com.jd.bluedragon.distribution.jy.dto.exception.JyExpTaskMessage;
 import com.jd.bluedragon.distribution.jy.exception.JyBizTaskExceptionEntity;
+import com.jd.bluedragon.distribution.jy.exception.JyBizTaskExceptionLogEntity;
 import com.jd.bluedragon.distribution.jy.exception.JyExceptionEntity;
 import com.jd.bluedragon.distribution.jy.manager.ExpInfoSummaryJsfManager;
 import com.jd.bluedragon.distribution.jy.manager.IJyUnloadVehicleManager;
@@ -37,9 +39,7 @@ import com.jd.ps.data.epf.dto.ExpefNotify;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jdl.basic.api.domain.position.PositionDetailRecord;
 import com.jdl.basic.common.utils.Result;
-import com.jdl.jy.realtime.api.unload.IUnloadVehicleJsfService;
 import com.jdl.jy.realtime.base.Pager;
-import com.jdl.jy.realtime.base.ServiceResult;
 import com.jdl.jy.realtime.model.es.unload.JySealCarDetail;
 import com.jdl.jy.schedule.dto.task.JyScheduleTaskChangeStatusReq;
 import com.jdl.jy.schedule.dto.task.JyScheduleTaskReq;
@@ -75,6 +75,8 @@ public class JyExceptionServiceImpl implements JyExceptionService {
 
     @Autowired
     private JyBizTaskExceptionDao jyBizTaskExceptionDao;
+    @Autowired
+    private JyBizTaskExceptionLogDao jyBizTaskExceptionLogDao;
     @Autowired
     private JyExceptionDao jyExceptionDao;
     @Autowired
@@ -216,6 +218,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         try {
             jyBizTaskExceptionDao.insertSelective(taskEntity);
             jyExceptionDao.insertSelective(expEntity);
+            recordLog(JyBizTaskExceptionCycleTypeEnum.UPLOAD,taskEntity);
         } catch (Exception e) {
             logger.error("写入异常提报数据出错了,request=" + JSON.toJSONString(req), e);
             return JdCResponse.fail("异常提报数据保存出错了,请稍后重试！");
@@ -235,6 +238,23 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         logger.info("异常岗-写入任务发送mq完成:body={}", body);
 
         return JdCResponse.ok();
+    }
+
+    /**
+     * 操作日志记录
+     * @param cycle
+     * @param entity
+     */
+    private void recordLog(JyBizTaskExceptionCycleTypeEnum cycle,JyBizTaskExceptionEntity entity){
+        JyBizTaskExceptionEntity task = jyBizTaskExceptionDao.findByBizId(entity.getBizId());
+        JyBizTaskExceptionLogEntity bizLog = new JyBizTaskExceptionLogEntity();
+        bizLog.setBizId(task.getBizId());
+        bizLog.setCycleType(cycle.getCode());
+        bizLog.setType(task.getType());
+        bizLog.setOperateTime(task.getUpdateTime());
+        bizLog.setOperateUser(task.getUpdateUserErp());
+        bizLog.setOperateUserName(task.getUpdateUserName());
+        jyBizTaskExceptionLogDao.insertSelective(bizLog);
     }
 
     /**
@@ -563,9 +583,11 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         update.setHandlerErp(req.getUserErp());
         update.setUpdateUserErp(req.getUserErp());
         update.setUpdateUserName(baseStaffByErp.getStaffName());
+        update.setUpdateTime(new Date());
         update.setProcessBeginTime(new Date());
 
         jyBizTaskExceptionDao.updateByBizId(update);
+        recordLog(JyBizTaskExceptionCycleTypeEnum.RECEIVE,update);
         //发送修改状态消息
         sendScheduleTaskStatusMsg(bizId, baseStaffByErp,JyScheduleTaskStatusEnum.STARTED,scheduleTaskChangeStatusProducer);
 
@@ -758,10 +780,11 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         JyBizTaskExceptionEntity update = new JyBizTaskExceptionEntity();
         update.setBizId(req.getBizId());
         update.setProcessingStatus(JyBizTaskExceptionProcessStatusEnum.WAITING_MATCH.getCode());
-        update.setHandlerErp(req.getUserErp());
         update.setUpdateUserErp(req.getUserErp());
         update.setUpdateUserName(baseStaffByErp.getStaffName());
+        update.setUpdateTime(new Date());
         jyBizTaskExceptionDao.updateByBizId(update);
+        recordLog(JyBizTaskExceptionCycleTypeEnum.PROCESS,update);
         return JdCResponse.ok();
     }
 
@@ -781,7 +804,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
                     matchSuccessProcess(mqDto);
                     break;
                 case PROCESSED:
-                    complate(mqDto);
+                    sanwuComplate(mqDto);
                     break;
                 default:
                     break;
@@ -815,7 +838,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             return;
         }
         for (JyExceptionEntity entity:jyExceptionEntities){
-            complate(entity.getBarCode(),rePrintRecordMq.getUserErp(),rePrintRecordMq.getOperateTime());
+            printComplate(entity.getBarCode(),rePrintRecordMq.getUserErp(),rePrintRecordMq.getOperateTime(),false);
         }
 
     }
@@ -847,6 +870,9 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         }
         taskEntity.setCreateUserName(baseStaffByErp.getStaffName());
         taskEntity.setCreateTime(new Date());
+        taskEntity.setUpdateUserErp(mqDto.getNotifyErp());
+        taskEntity.setUpdateUserName(baseStaffByErp.getStaffName());
+        taskEntity.setUpdateTime(new Date());
         taskEntity.setTimeOut(JyBizTaskExceptionTimeOutEnum.UN_TIMEOUT.getCode());
         taskEntity.setYn(1);
 
@@ -862,6 +888,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         try {
             jyBizTaskExceptionDao.insertSelective(taskEntity);
             jyExceptionDao.insertSelective(expEntity);
+            recordLog(JyBizTaskExceptionCycleTypeEnum.PROCESS,taskEntity);
             //发送 mq 通知调度系统
             sendToSchedule(mqDto, bizId, baseStaffByErp);
         } catch (Exception e) {
@@ -884,11 +911,11 @@ public class JyExceptionServiceImpl implements JyExceptionService {
      * 异常任务完成处理
      * @param
      */
-    private void complate(ExpefNotify mqDto) {
-        complate(mqDto.getBarCode(),mqDto.getNotifyErp(),mqDto.getNotifyTime());
+    private void sanwuComplate(ExpefNotify mqDto) {
+        printComplate(mqDto.getBarCode(),mqDto.getNotifyErp(),mqDto.getNotifyTime(),true);
     }
 
-    private void complate(String barCode,String operateErp,Date dateTime) {
+    private void printComplate(String barCode,String operateErp,Date dateTime,boolean isPc) {
         String bizId = getBizId(JyBizTaskExceptionTypeEnum.SANWU, barCode);
         JyBizTaskExceptionEntity bizTaskException = jyBizTaskExceptionDao.findByBizId(bizId);
         if (bizTaskException == null){
@@ -911,13 +938,17 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         // biz表修改状态
         JyBizTaskExceptionEntity conditon = new JyBizTaskExceptionEntity();
         conditon.setStatus(JyExpStatusEnum.COMPLATE.getCode());
-        conditon.setProcessingStatus(JyBizTaskExceptionProcessStatusEnum.DONE.getCode());
-        conditon.setProcessEndTime(dateTime);
         conditon.setUpdateTime(dateTime);
         conditon.setUpdateUserErp(baseStaffByErp.getErp());
         conditon.setBizId(bizTaskException.getBizId());
         conditon.setUpdateUserName(baseStaffByErp.getStaffName());
+        if (isPc){
+            conditon.setProcessingStatus(JyBizTaskExceptionProcessStatusEnum.DONE.getCode());
+            conditon.setProcessEndTime(dateTime);
+            recordLog(JyBizTaskExceptionCycleTypeEnum.PROCESSED,conditon);
+        }
         jyBizTaskExceptionDao.updateByBizId(conditon);
+        recordLog(JyBizTaskExceptionCycleTypeEnum.CLOSE,conditon);
         //发送修改状态消息
         sendScheduleTaskStatusMsg(bizTaskException.getBizId(), baseStaffByErp,JyScheduleTaskStatusEnum.CLOSED,scheduleTaskChangeStatusWorkerProducer);
     }
@@ -977,7 +1008,9 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         conditon.setUpdateTime(mqDto.getNotifyTime());
         conditon.setUpdateUserErp(mqDto.getNotifyErp());
         conditon.setBizId(bizTaskException.getBizId());
+        conditon.setUpdateUserName(baseStaffByErp.getStaffName());
         jyBizTaskExceptionDao.updateByBizId(conditon);
+        recordLog(JyBizTaskExceptionCycleTypeEnum.PROCESSED,conditon);
     }
 
 

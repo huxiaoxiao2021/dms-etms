@@ -1,13 +1,16 @@
 package com.jd.bluedragon.distribution.jy.api.biz.exception;
 
+import com.jd.bluedragon.common.dto.operation.workbench.enums.JyBizTaskExceptionCycleTypeEnum;
 import com.jd.bluedragon.distribution.jy.api.BizTaskService;
 import com.jd.bluedragon.distribution.jy.api.BizType;
 import com.jd.bluedragon.distribution.jy.dao.exception.JyBizTaskExceptionDao;
+import com.jd.bluedragon.distribution.jy.dao.exception.JyBizTaskExceptionLogDao;
 import com.jd.bluedragon.distribution.jy.dto.BizTaskConstraint;
 import com.jd.bluedragon.distribution.jy.dto.JyBizTaskMessage;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.JyBizTaskExceptionTimeOutEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.JyBizTaskNotifyTypeEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizTaskExceptionEntity;
+import com.jd.bluedragon.distribution.jy.exception.JyBizTaskExceptionLogEntity;
 import com.jdl.basic.common.utils.StringUtils;
 import com.jdl.jy.schedule.enums.task.JyScheduleTaskTypeEnum;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +25,8 @@ public class BizTaskExceptionService implements BizTaskService {
 
     @Autowired
     private JyBizTaskExceptionDao bizTaskExceptionDao;
+    @Autowired
+    private JyBizTaskExceptionLogDao jyBizTaskExceptionLogDao;
 
     @Override
     public BizTaskConstraint bizConstraintAssemble(String bizId) {
@@ -46,6 +51,15 @@ public class BizTaskExceptionService implements BizTaskService {
                     jyBizTaskExceptionEntity.setDistributionTarget(message.getDistributionTarget());
                     jyBizTaskExceptionEntity.setDistributionTime(message.getDistributionTime());
                     bizTaskExceptionDao.updateByBizId(jyBizTaskExceptionEntity);
+
+                    JyBizTaskExceptionLogEntity bizLog = new JyBizTaskExceptionLogEntity();
+                    bizLog.setBizId(jyBizTaskExceptionEntity.getBizId());
+                    bizLog.setCycleType(JyBizTaskExceptionCycleTypeEnum.DISTRIBUTION.getCode());
+                    bizLog.setType(jyBizTaskExceptionEntity.getType());
+                    bizLog.setOperateTime(message.getDistributionTime());
+                    bizLog.setOperateUser("sys");
+                    bizLog.setOperateUserName("sys");
+                    jyBizTaskExceptionLogDao.insertSelective(bizLog);
                 }
                 break;
             case TIMEOUT:
@@ -59,4 +73,5 @@ public class BizTaskExceptionService implements BizTaskService {
         }
 
     }
+
 }

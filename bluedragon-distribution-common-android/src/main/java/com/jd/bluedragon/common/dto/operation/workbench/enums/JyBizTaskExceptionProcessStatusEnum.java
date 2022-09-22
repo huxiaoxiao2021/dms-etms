@@ -1,4 +1,5 @@
 package com.jd.bluedragon.common.dto.operation.workbench.enums;
+
 /**
  * 天官赐福 ◎ 百无禁忌
  *
@@ -12,6 +13,7 @@ public enum JyBizTaskExceptionProcessStatusEnum {
     WAITING_MATCH(1, "待匹配"),
     ON_SHELF(2, "上架"),
     DONE(3, "处理完成"),
+    OFF_SHELF(4, "下架"),
     ;
 
     private Integer code;
@@ -37,6 +39,15 @@ public enum JyBizTaskExceptionProcessStatusEnum {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public static JyBizTaskExceptionProcessStatusEnum valueOf(int code){
+        for (JyBizTaskExceptionProcessStatusEnum e:JyBizTaskExceptionProcessStatusEnum.values()){
+            if (e.getCode().intValue() == code){
+                return e;
+            }
+        }
+        return null;
     }
 
 }
