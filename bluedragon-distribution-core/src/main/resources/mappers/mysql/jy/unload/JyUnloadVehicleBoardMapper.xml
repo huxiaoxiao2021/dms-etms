@@ -286,4 +286,14 @@
           and end_site_id = #{endSiteId,jdbcType=BIGINT}
     GROUP BY end_site_id
   </select>
+
+  <select id="getTaskBoardInfoByChildTaskBizId" parameterType="com.jd.bluedragon.distribution.jy.unload.JyUnloadVehicleBoardEntity" resultMap="BaseResultMap">
+    select  <include refid="Base_Column_List" />
+    from jy_unload_vehicle_board
+    where yn = 1
+    and unload_vehicle_stage_biz_id = #{unloadVehicleStageBizId,jdbcType=VARCHAR}
+    <if test="boardCode != null">
+      and board_code = #{boardCode,jdbcType=VARCHAR}
+    </if>
+  </select>
 </mapper>

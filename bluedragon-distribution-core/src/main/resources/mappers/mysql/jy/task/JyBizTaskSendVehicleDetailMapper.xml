@@ -403,6 +403,34 @@
         AND biz_id = #{bizId}
     </update>
 
+    <update id="updateStatusWithoutCompare">
+        UPDATE jy_biz_task_send_vehicle_detail
+        <trim prefix="set" suffixOverrides=",">
+            <if test="entity.updateTime != null">
+                update_time = #{entity.updateTime},
+            </if>
+            <if test="entity.updateUserErp != null">
+                update_user_erp = #{entity.updateUserErp},
+            </if>
+            <if test="entity.updateUserName != null">
+                update_user_name = #{entity.updateUserName},
+            </if>
+            <if test="entity.vehicleStatus != null">
+                vehicle_status = #{entity.vehicleStatus},
+            </if>
+            <if test="entity.sealCarTime != null">
+                seal_car_time = #{entity.sealCarTime, jdbcType=TIMESTAMP}
+            </if>
+        </trim>
+        WHERE
+        yn = 1
+        AND biz_id = #{entity.bizId}      
+        AND send_vehicle_biz_id = #{entity.sendVehicleBizId}
+        AND start_site_id = #{entity.startSiteId}
+        AND end_site_id = #{entity.endSiteId}
+        AND vehicle_status = #{oldStatus}
+    </update>
+
     <update id="updateStatus">
         UPDATE jy_biz_task_send_vehicle_detail
         <trim prefix="set" suffixOverrides=",">
@@ -505,5 +533,24 @@
         WHERE send_vehicle_biz_id =#{sendVehicleBizId}
           and vehicle_status IN (0,1,2,3) AND yn =1
     </select>
-
+    <select id="findByTransWorkItemCode" parameterType="JyBizTaskSendVehicleDetailEntity" resultMap="jyBizTaskSendVehicleDetailMap">
+        SELECT
+            <include refid="Base_Column_List"/>
+        FROM jy_biz_task_send_vehicle_detail
+        WHERE
+            yn = 1
+        AND trans_work_item_code = #{transWorkItemCode}
+        AND vehicle_status = #{vehicleStatus}
+        LIMIT 1
+    </select>    
+    <select id="findSendVehicleBizListBySendFlow" parameterType="JyBizTaskSendVehicleDetailEntity" resultType="java.lang.String">
+        SELECT
+            distinct send_vehicle_biz_id
+        FROM jy_biz_task_send_vehicle_detail
+        WHERE
+            yn = 1
+            and start_site_id = #{startSiteId}
+            and end_site_id = #{endSiteId}
+            and create_time &gt;= #{createTimeBegin}
+    </select>
 </mapper>

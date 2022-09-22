@@ -2,14 +2,19 @@ package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
 import IceInternal.Ex;
 import com.alibaba.fastjson.JSON;
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.board.response.VirtualBoardResultDto;
 import com.jd.bluedragon.common.dto.carTask.request.CarTaskQueryRequest;
 import com.jd.bluedragon.common.dto.carTask.request.CarTaskUpdateDto;
+import com.jd.bluedragon.common.dto.carTask.request.FindEndNodeRequest;
 import com.jd.bluedragon.common.dto.carTask.response.CarTaskEndNodeResponse;
 import com.jd.bluedragon.common.dto.carTask.response.CarTaskResponse;
 import com.jd.bluedragon.distribution.tms.TmsCarTaskService;
 import com.jd.bluedragon.external.gateway.service.TMSCarTaskGateWayService;
+import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -79,6 +84,33 @@ public class TMSCarTaskGateWayServiceImpl implements TMSCarTaskGateWayService {
             jdCResponse.toError("更新车辆任务信息异常!");
             return jdCResponse;
         }
+    }
+
+    /**
+     * 获取目的地7位编码
+     *
+     * @param request
+     * @return
+     */
+    @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.TMSCarTaskGateWayServiceImpl.findEndNodeCode", mState = {JProEnum.TP,JProEnum.FunctionError})
+    public JdCResponse<String> findEndNodeCode(FindEndNodeRequest request) {
+        //校验输入条码必须为包裹号、运单号或者目的地ID中的一种
+        JdCResponse<String> jdCResponse = new JdCResponse<>();
+        jdCResponse.toSucceed();
+
+        try {
+            if(request != null && request.getCurrentOperate()!=null){
+                String result = tmsCarTaskService.findEndNodeCode(request.getCurrentOperate().getSiteCode(),request.getBarCode());
+                jdCResponse.setData(result);
+            }
+        } catch (Exception e) {
+            log.error("TMSCarTaskGateWayServiceImpl.findEndNodeCode error! -{},{}", JsonHelper.toJson(request), e.getMessage(), e);
+            jdCResponse.toError("获取目的地7位编码异常!");
+            return jdCResponse;
+        }
+
+        return jdCResponse;
     }
 
     /**

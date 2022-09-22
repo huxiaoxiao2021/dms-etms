@@ -68,4 +68,9 @@ public class JyBizTaskUnloadVehicleStageServiceImpl implements JyBizTaskUnloadVe
     public List<Long> countByUnloadVehicleBizId(String unloadVehicleBizId) {
         return jyBizTaskUnloadVehicleStageDao.countByUnloadVehicleBizId(unloadVehicleBizId);
     }
+
+    @Override
+    public JyBizTaskUnloadVehicleStageEntity selectUnloadDoingStageTask(String bizId) {
+        return jyBizTaskUnloadVehicleStageDao.selectUnloadDoingStageTask(bizId);
+    }
 }

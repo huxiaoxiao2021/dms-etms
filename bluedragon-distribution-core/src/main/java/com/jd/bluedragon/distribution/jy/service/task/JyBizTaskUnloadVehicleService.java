@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.jy.service.task;
 
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.dto.task.JyBizTaskUnloadCountDto;
 import com.jd.bluedragon.distribution.jy.dto.unload.DimensionQueryDto;
 import com.jd.bluedragon.distribution.jy.dto.unload.ScanStatisticsDto;
@@ -171,5 +172,5 @@ public interface JyBizTaskUnloadVehicleService {
 
     UnloadVehicleTaskDto queryTaskDataByBizId(String bizId);
 
-    StatisticsDto queryStatistics(DimensionQueryDto dto);
+    InvokeResult<StatisticsDto> queryStatistics(DimensionQueryDto dto);
 }

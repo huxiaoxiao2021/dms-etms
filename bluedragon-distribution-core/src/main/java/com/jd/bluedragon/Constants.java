@@ -30,6 +30,8 @@ public class Constants {
 
     public static final String REST_URL = "/services";
 
+    public static final String SYS_NAME = "sys.dms";
+
     public static final String SEPARATOR_COMMA = ",";
     public static final String SEPARATOR_APOSTROPHE = "'";
     public static final String SEPARATOR_SEMICOLON = ";";
@@ -1473,9 +1475,13 @@ public class Constants {
      */
     public static final String KY_PRINT_CODE_SUFFIX = "001";
     /**
-     * 操作标识-1
+     * 操作标识|开启-1
      */
     public static final Integer FLAG_OPRATE_ON = 1;
+    /**
+     * 操作标识|关闭-0
+     */
+    public static final Integer FLAG_OPRATE_OFF = 0;
     /**
      * PDA无封车号任务前缀
      */
@@ -1718,6 +1724,27 @@ public class Constants {
      * 验货菜单编码：0101019
      */
     public static final String MENU_CODE_INSPECTION  = "0101019";
+
+    public static final String TRANSFER_TASK_PREFIX  = "transfer_task_biz_id_%s";
+    public static final String DELETE_ZIJIAN_TASK_PREFIX  = "delete_task_biz_id_%s";
+
+    public static final String SEND_TASK_MANUAL_CREATED_PREFIX = "NSST";
+    /**
+     * sql中in语句数量限制 200
+     */
+    public static final int DB_SQL_IN_LIMIT_NUM = 200;
+
+    /**
+     * 传摆发货功能编码：0203004-gz
+     */
+    public static final String MENU_CODE_SEND_GZ  = "0203004-gz";
+
+
+    /**
+     * 无任务卸车上游站点初始值
+     */
+    public static final Long START_SITE_INITIAL_VALUE = 0L;
+
     public static final Integer DEFAULT_PAGE_NO  = 1;
     public static final Integer DEFAULT_PAGE_SIZE  = 10;
     public static final Integer DEFAULT_PAGE_SIZE_LIMIT  = 1024;

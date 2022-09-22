@@ -21,6 +21,7 @@ import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.core.hint.constants.HintArgsConstants;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
+import com.jd.bluedragon.core.security.log.SecurityLogWriter;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.router.RouterService;
 import com.jd.bluedragon.distribution.router.domain.dto.RouteNextDto;
@@ -29,7 +30,6 @@ import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckBusinessTypeEnum;
 import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckDimensionEnum;
 import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckSourceFromEnum;
 import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckCurrencyService;
-import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckDealService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
 import com.jd.coldchain.fulfillment.ot.api.dto.waybill.ColdChainReverseRequest;
 import org.apache.commons.lang.StringUtils;
@@ -107,16 +107,17 @@ import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.PackOpeFlowDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
-import com.jd.ldop.center.api.reverse.dto.WaybillReverseDTO;
 import com.jd.ldop.center.api.reverse.dto.WaybillReverseResponseDTO;
-import com.jd.ldop.center.api.reverse.dto.WaybillReverseResult;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import org.springframework.util.CollectionUtils;
 
 import java.util.*;
+
+import static com.jd.bluedragon.dms.utils.BusinessUtil.*;
 
 @Component
 @Path(Constants.REST_URL)
@@ -173,11 +174,11 @@ public class WaybillResource {
 	@Autowired
 	@Qualifier("ldopManager")
 	private LDOPManager ldopManager;
-	
+
 	@Autowired
 	@Qualifier("waybillReverseManager")
 	private WaybillReverseManager waybillReverseManager;
-	
+
 	@Autowired
 	private EclpPackageApiService eclpPackageApiService;
 
@@ -196,6 +197,8 @@ public class WaybillResource {
 	 * 运单路由字段使用的分隔符
 	 */
 	private static final  String WAYBILL_ROUTER_SPLITER = "\\|";
+
+	private static final String[] HIDE_PROPERTY = {"senderName","senderAddress","senderTel","senderMobile", "receiveName","receiveAddress","receiveTel","receiveMobile"};
 
 	/* 运单查询 */
 	@Autowired
@@ -217,7 +220,7 @@ public class WaybillResource {
     private LdopWaybillUpdateManager ldopWaybillUpdateManager;
     @Autowired
     private ReversePrintService reversePrintService;
-    
+
     @Autowired
     private EclpLwbB2bPackageItemService eclpLwbB2bPackageItemService;
 
@@ -783,6 +786,9 @@ public class WaybillResource {
 
 			//调用分拣接口获得基础资料信息
 			this.setBasicMessageByDistribution(waybill, startDmsCode, localSchedule, paperless, startSiteType);
+
+			//记录安全日志
+			SecurityLogWriter.waybillResourceGetWaybillPackWrite(startDmsCode, waybillCodeOrPackage, packOpeFlowFlg, waybill);
 
 			return new WaybillResponse<Waybill>(JdResponse.CODE_OK,
 					JdResponse.MESSAGE_OK, waybill);
@@ -1838,7 +1844,7 @@ public class WaybillResource {
 	@Path("/dy/getOldOrderMessage")
 	@BusinessLog(sourceSys = 1,bizType = 1900,operateType = 1900001)
 	@JProfiler(jKey = "DMS.WEB.WaybillResource.getOldOrderMessageNew", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
-	public InvokeResult<DmsWaybillReverseResponseDTO> getOldOrderMessageNew(ExchangeWaybillDto request) {
+	public InvokeResult<DmsWaybillReverseResponseDTO> getOldOrderMessageNew(ExchangeWaybillQuery request) {
 		InvokeResult invokeResult =new InvokeResult();
 
         if(log.isDebugEnabled()){
@@ -1854,9 +1860,13 @@ public class WaybillResource {
 				invokeResult.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
 				invokeResult.setMessage(errorMessage.toString());
 			}else{
+				getInfoHide(waybillReverseResponseDTO,request);
 				invokeResult.setCode(InvokeResult.RESULT_SUCCESS_CODE);
 				invokeResult.setData(waybillReverseResponseDTO);
 			}
+
+			//记录安全日志
+			SecurityLogWriter.waybillResourceGetOldOrderMessageNewWrite(request, waybillReverseResponseDTO);
 
 		}catch (Exception e){
 			log.error("换单前获取信息接口入参：{}",JsonHelper.toJson(request),e);
@@ -1865,6 +1875,40 @@ public class WaybillResource {
 		}
         return invokeResult;
 	}
+
+	private void getInfoHide(DmsWaybillReverseResponseDTO data, ExchangeWaybillQuery request) {
+		try {
+			List<String> hideInfo = request.getHideInfo();
+			if (!hideInfo.contains(HIDE_PROPERTY[0])){
+				data.setSenderName(getHideName(data.getSenderName()));
+			}
+			if (!hideInfo.contains(HIDE_PROPERTY[1])){
+				data.setSenderAddress(getHideAddress(data.getSenderAddress()));
+			}
+			if (!hideInfo.contains(HIDE_PROPERTY[2])){
+				data.setSenderTel(getHidePhone(data.getSenderTel()));
+			}
+			if (!hideInfo.contains(HIDE_PROPERTY[3])){
+				data.setSenderMobile(getHidePhone(data.getSenderMobile()));
+			}
+			if (!hideInfo.contains(HIDE_PROPERTY[4])){
+				data.setReceiveName(getHideName(data.getReceiveName()));
+			}
+			if (!hideInfo.contains(HIDE_PROPERTY[5])){
+				data.setReceiveAddress(getHideAddress(data.getReceiveAddress()));
+			}
+			if (!hideInfo.contains(HIDE_PROPERTY[6])){
+				data.setReceiveTel(getHidePhone(data.getReceiveTel()));
+			}
+			if (!hideInfo.contains(HIDE_PROPERTY[7])){
+				data.setReceiveMobile(getHidePhone(data.getReceiveMobile()));
+			}
+		}catch (Exception e){
+			log.error("包裹{}敏感信息隐藏失败",data.getWaybillCode(),e);
+		}
+
+	}
+
 	/**
 	 * 获取二次换单信息
 	 * @param waybillCode

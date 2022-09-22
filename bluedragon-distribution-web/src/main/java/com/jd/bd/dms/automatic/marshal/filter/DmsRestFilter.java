@@ -63,6 +63,7 @@ public class DmsRestFilter extends OncePerRequestFilter {
         //获得rest请求中的登陆人erpCode
         String erpCode = request.getHeader("erpCode");
         try {
+
             if(StringHelper.isNotEmpty(erpCode)){
                 BaseStaffSiteOrgDto basestaffDto = baseMajorManager.getBaseStaffIgnoreIsResignByErp(erpCode);
                 if(basestaffDto != null && basestaffDto.getIsResign() != null && basestaffDto.getIsResign() == 1){

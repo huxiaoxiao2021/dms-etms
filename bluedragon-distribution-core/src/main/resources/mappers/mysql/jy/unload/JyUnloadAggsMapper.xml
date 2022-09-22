@@ -123,12 +123,23 @@
         total_scanned_package_count
         FROM
         jy_unload_aggs
-        WHERE
+        WHERE yn = 1 and
         biz_id = #{bizId}
         <if test="boardCode!=null">
             and board_code =#{boardCode}
         </if>
 
+    </select>
+
+    <select id="queryToScanAndMoreScanStatistics" parameterType="java.lang.String" resultMap="jyUnloadAggsMap">
+        SELECT
+        SUM(should_scan_count) should_scan_count,
+        SUM(actual_scan_count) actual_scan_count,
+        SUM(more_scan_local_count) more_scan_local_count,
+        SUM(more_scan_out_count) more_scan_out_count
+        FROM
+        jy_unload_aggs
+        WHERE yn = 1 and biz_id = #{bizId}
     </select>
 
     <select id="queryWaybillStatisticsUnderBoard"
@@ -160,7 +171,8 @@
     <select id="queryGoodsCategoryStatistics" parameterType="JyUnloadAggsEntity"
             resultType="com.jd.bluedragon.distribution.jy.dto.unload.GoodsCategoryDto">
         SELECT product_type type,SUM(should_scan_count) shouldScanCount,
-        SUM(actual_scan_count) haveScanCount
+        SUM(actual_scan_count) haveScanCount,
+        SUM(more_scan_total_count) moreScanTotalCount
         from jy_unload_aggs
         WHERE biz_id = #{bizId}
         <if test="boardCode!=null and boardCode!='' ">

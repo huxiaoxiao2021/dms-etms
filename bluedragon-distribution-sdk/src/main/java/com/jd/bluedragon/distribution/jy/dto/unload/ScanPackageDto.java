@@ -93,6 +93,23 @@ public class ScanPackageDto extends UnloadBaseDto implements Serializable {
 
     private Integer goodsNumber;
 
+    private boolean taskFinish;
+
+    /**
+     * 调用方传过来的下游场地编码
+     * */
+    private Integer receiveSiteCode;
+
+    /**
+     * 调用方传过来的下游场地名称
+     * */
+    private String receiveSiteName;
+
+    /**
+     * 是否开新板
+     */
+    private boolean createNewBoard;
+
     public String getBizId() {
         return bizId;
     }
@@ -251,5 +268,37 @@ public class ScanPackageDto extends UnloadBaseDto implements Serializable {
 
     public void setGoodsNumber(Integer goodsNumber) {
         this.goodsNumber = goodsNumber;
+    }
+
+    public boolean isTaskFinish() {
+        return taskFinish;
+    }
+
+    public void setTaskFinish(boolean taskFinish) {
+        this.taskFinish = taskFinish;
+    }
+
+    public Integer getReceiveSiteCode() {
+        return receiveSiteCode;
+    }
+
+    public void setReceiveSiteCode(Integer receiveSiteCode) {
+        this.receiveSiteCode = receiveSiteCode;
+    }
+
+    public String getReceiveSiteName() {
+        return receiveSiteName;
+    }
+
+    public void setReceiveSiteName(String receiveSiteName) {
+        this.receiveSiteName = receiveSiteName;
+    }
+
+    public boolean isCreateNewBoard() {
+        return createNewBoard;
+    }
+
+    public void setCreateNewBoard(boolean createNewBoard) {
+        this.createNewBoard = createNewBoard;
     }
 }

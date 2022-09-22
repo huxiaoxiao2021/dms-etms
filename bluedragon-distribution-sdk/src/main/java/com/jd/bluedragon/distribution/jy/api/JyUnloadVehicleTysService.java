@@ -28,6 +28,17 @@ public interface JyUnloadVehicleTysService {
      */
     InvokeResult updateUnloadVehicleTaskProperty(UnloadVehicleTaskDto unloadVehicleTask);
 
+    /**
+     * 卸车完成
+     */
+    InvokeResult<Boolean> completeUnloadTask(UnloadCompleteDto request);
+
+    /**
+     * 卸车完成前预览是否有异常数据
+     * @param request
+     * @return
+     */
+    InvokeResult<UnloadPreviewRespDto> previewBeforeUnloadComplete(UnloadPreviewDto request);
 
     /**
      * 统计数据维度查询(按任务、板查询统计数据（已扫 应扫 待扫 多扫 拦截）)
@@ -57,6 +68,13 @@ public interface JyUnloadVehicleTysService {
      * @return
      */
     InvokeResult<ComBoardDto> queryComBoardDataByBoardCode(String boardCode);
+
+    /**
+     * 创建卸车任务
+     * @param unloadNoTaskDto
+     * @return
+     */
+    InvokeResult<UnloadNoTaskRespDto> createUnloadTask(UnloadNoTaskDto unloadNoTaskDto);
 
     /**
      * 交班
@@ -174,9 +192,21 @@ public interface JyUnloadVehicleTysService {
 
 
     /**
+     * 查询子任务信息
+     * @param childBizId
+     * @return
+     */
+    InvokeResult<UnloadChildTaskDto> queryChildTaskInfoByBizId(String childBizId);
+
+    /**
      * 根据主任务bizId查询卸车任务板关系信息
      */
     InvokeResult<List<UnloadBoardRespDto>> queryTaskBoardInfoByBizId(String masterBizId);
+
+    /**
+     * 根据子任务bizId查询卸车任务板关系信息
+     */
+    InvokeResult<UnloadBoardRespDto> queryTaskBoardInfoByChildTaskBizId(String childTaskBizId, String boardCode);
 
     /**
      * 根据包裹号查询任务下流向及板信息

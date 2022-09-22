@@ -9,6 +9,7 @@ public class GoodsCategoryDto implements Serializable {
     private Integer shouldScanCount;
     private Integer haveScanCount;
     private Integer waitScanCount;
+    private Integer moreScanTotalCount;
 
     public String getType() {
         return type;
@@ -48,5 +49,13 @@ public class GoodsCategoryDto implements Serializable {
 
     public void setWaitScanCount(Integer waitScanCount) {
         this.waitScanCount = waitScanCount;
+    }
+
+    public Integer getMoreScanTotalCount() {
+        return moreScanTotalCount;
+    }
+
+    public void setMoreScanTotalCount(Integer moreScanTotalCount) {
+        this.moreScanTotalCount = moreScanTotalCount;
     }
 }
