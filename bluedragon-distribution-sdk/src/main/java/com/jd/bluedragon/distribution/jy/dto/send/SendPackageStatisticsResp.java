@@ -12,8 +12,13 @@ public class SendPackageStatisticsResp implements Serializable {
      */
     private List<SendPackage> packageList;
 
+    public List<SendPackage> getPackageList() {
+        return packageList;
+    }
 
-
+    public void setPackageList(List<SendPackage> packageList) {
+        this.packageList = packageList;
+    }
 }
 
 

@@ -95,12 +95,7 @@ public interface JySendVehicleTysService {
      */
     InvokeResult<SendAbnormalResp> checkSendVehicleNormalStatus(SendAbnormalReq request);
 
-    /**
-     * 异常扫描展示 （运单、包裹）
-     * @param request
-     * @return
-     */
-    InvokeResult<SendAbnormalBarCode> excepScanBarCodeDetail(SendAbnormalPackReq request);
+
 
     /**
      * 查询扫描下钻运单明细

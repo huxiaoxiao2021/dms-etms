@@ -368,43 +368,36 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
         return new InvokeResult(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
     }
 
-    /**
-     * 异常扫描展示 （运单、包裹）
-     *
-     * @param request
-     * @return
-     */
-    @Override
-    @JProfiler(jKey = "DMSWEB.JySendVehicleTysService.excepScanBarCodeDetail", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
-    public InvokeResult<SendAbnormalBarCode> excepScanBarCodeDetail(SendAbnormalPackReq request) {
-        checkSendAbnormalPackReq(request);
-        SendAbnormalBarCode sendAbnormalBarCode = new SendAbnormalBarCode();
-        if (ObjectHelper.isNotNull(request.getWaybillCode())) {
-            QueryExcepPackageDto queryExcepPackageDto = assembleQueryExcepPackageDto(request);
-            ExcepPackageDto packageDto = jySendVehicleServiceTys.queryExcepPackageUnderWaybill(queryExcepPackageDto);
-            assembleRespPackageData(sendAbnormalBarCode, packageDto);
-        } else {
-            QueryExcepWaybillDto queryExcepWaybillDto = assembleQueryExcepWaybillDto(request);
-            ExcepWaybillDto waybillDto = jySendVehicleServiceTys.queryExcepScanWaybill(queryExcepWaybillDto);
-            assembleRespWaybillData(sendAbnormalBarCode, waybillDto);
-        }
-        return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, sendAbnormalBarCode);
-    }
 
     @Override
+    @JProfiler(jKey = "DMSWEB.JySendVehicleTysService.listSendWaybillDetail", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<SendWaybillStatisticsResp> listSendWaybillDetail(QuerySendWaybillReq querySendWaybillReq) {
-        return null;
+        SendWaybillStatisticsResp sendWaybillStatisticsResp =new SendWaybillStatisticsResp();
+        if (ObjectHelper.isNotNull(querySendWaybillReq.getExpFlag()) && querySendWaybillReq.getExpFlag()){
+            List<SendExcepScanDto> sendExcepScanDtoList=jySendVehicleServiceTys.listExcepScanType(new ExcepScanQueryDto(querySendWaybillReq.getSendVehicleBizId()));
+            sendWaybillStatisticsResp.setExcepScanDtoList(sendExcepScanDtoList);
+        }
+        else  {
+            return new InvokeResult(NOT_SUPPORT_TYPE_QUERY_CODE,NOT_SUPPORT_TYPE_QUERY_MESSAGE);
+        }
+        QueryExcepWaybillDto queryExcepWaybillDto = assembleQueryExcepWaybillDto(querySendWaybillReq);
+        ExcepWaybillDto waybillDto = jySendVehicleServiceTys.queryExcepScanWaybill(queryExcepWaybillDto);
+        assembleRespWaybillData(sendWaybillStatisticsResp, waybillDto);
+        return new InvokeResult<>(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, sendWaybillStatisticsResp);
     }
 
     @Override
+    @JProfiler(jKey = "DMSWEB.JySendVehicleTysService.listSendPackageDetail", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<SendPackageStatisticsResp> listSendPackageDetail(QuerySendPackageReq querySendPackageReq) {
-        return null;
+        SendPackageStatisticsResp sendPackageStatisticsResp =new SendPackageStatisticsResp();
+        QueryExcepPackageDto queryExcepPackageDto = assembleQueryExcepPackageDto(querySendPackageReq);
+        ExcepPackageDto packageDto = jySendVehicleServiceTys.queryExcepPackageUnderWaybill(queryExcepPackageDto);
+        assembleRespPackageData(sendPackageStatisticsResp, packageDto);
+        return new InvokeResult<>(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, sendPackageStatisticsResp);
     }
 
-    private void assembleRespPackageData(SendAbnormalBarCode sendAbnormalBarCode, ExcepPackageDto packageDto) {
+    private void assembleRespPackageData(SendPackageStatisticsResp sendPackageStatisticsResp, ExcepPackageDto packageDto) {
         if (ObjectHelper.isNotNull(packageDto) && ObjectHelper.isNotNull(packageDto.getSendPackageDtoList())) {
-            List<SendScanWaybill> waybillList = new ArrayList();
-            SendScanWaybill sendScanWaybill = new SendScanWaybill();
             List<SendPackage> packList = new ArrayList();
             for (SendPackageDto sendPackageDto : packageDto.getSendPackageDtoList()) {
                 SendPackage sendScanPack = new SendPackage();
@@ -412,24 +405,13 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
                 sendScanPack.setTags(resolveBarCodeTag(sendPackageDto.getExcepScanLabelEnum()));
                 packList.add(sendScanPack);
             }
-            sendScanWaybill.setPackList(packList);
-            waybillList.add(sendScanWaybill);
-            sendAbnormalBarCode.setWaybillList(waybillList);
-            sendAbnormalBarCode.setTotal(packageDto.getTotal());
+            sendPackageStatisticsResp.setPackageList(packList);
         }
     }
 
-    private void assembleRespWaybillData(SendAbnormalBarCode sendAbnormalBarCode, ExcepWaybillDto waybillDto) {
+    private void assembleRespWaybillData(SendWaybillStatisticsResp sendWaybillStatisticsResp, ExcepWaybillDto waybillDto) {
         if (ObjectHelper.isNotNull(waybillDto) && ObjectHelper.isNotNull(waybillDto.getSendWaybillDtoList())) {
-            List<SendScanWaybill> waybillList = new ArrayList();
-            for (SendWaybillDto sendWaybillDto : waybillDto.getSendWaybillDtoList()) {
-                SendScanWaybill sendScanWaybill = new SendScanWaybill();
-                sendScanWaybill.setBarCode(sendWaybillDto.getWaybillCode());
-                sendScanWaybill.setAllPackCount(Long.valueOf(sendWaybillDto.getTotalCount()));
-                sendScanWaybill.setScanPackCount(Long.valueOf(sendWaybillDto.getPackageCount()));
-            }
-            sendAbnormalBarCode.setWaybillList(waybillList);
-            sendAbnormalBarCode.setTotal(waybillDto.getTotal());
+            sendWaybillStatisticsResp.setWaybillDtoList(waybillDto.getSendWaybillDtoList());
         }
     }
 
@@ -449,20 +431,20 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
     }
 
 
-    private QueryExcepWaybillDto assembleQueryExcepWaybillDto(SendAbnormalPackReq request) {
+    private QueryExcepWaybillDto assembleQueryExcepWaybillDto(QuerySendWaybillReq request) {
         QueryExcepWaybillDto queryExcepWaybillDto = new QueryExcepWaybillDto();
         queryExcepWaybillDto.setSendVehicleBizId(request.getSendVehicleBizId());
-        queryExcepWaybillDto.setExcepScanTypeEnum(request.getExcepScanTypeEnum());
-        queryExcepWaybillDto.setPageNo(request.getPageNumber());
+        queryExcepWaybillDto.setExcepScanTypeEnum(ExcepScanTypeEnum.getExcepScanTypeEnum(request.getExpType()));
+        queryExcepWaybillDto.setPageNo(request.getPageNo());
         queryExcepWaybillDto.setPageSize(request.getPageSize());
         return queryExcepWaybillDto;
     }
 
-    private QueryExcepPackageDto assembleQueryExcepPackageDto(SendAbnormalPackReq request) {
+    private QueryExcepPackageDto assembleQueryExcepPackageDto(QuerySendPackageReq request) {
         QueryExcepPackageDto queryExcepPackageDto = new QueryExcepPackageDto();
         queryExcepPackageDto.setSendVehicleBizId(request.getSendVehicleBizId());
-        queryExcepPackageDto.setExcepScanTypeEnum(request.getExcepScanTypeEnum());
-        queryExcepPackageDto.setPageNo(request.getPageNumber());
+        queryExcepPackageDto.setExcepScanTypeEnum(ExcepScanTypeEnum.getExcepScanTypeEnum(request.getExpType()));
+        queryExcepPackageDto.setPageNo(request.getPageNo());
         queryExcepPackageDto.setPageSize(request.getPageSize());
         queryExcepPackageDto.setWaybillCode(request.getWaybillCode());
         return queryExcepPackageDto;

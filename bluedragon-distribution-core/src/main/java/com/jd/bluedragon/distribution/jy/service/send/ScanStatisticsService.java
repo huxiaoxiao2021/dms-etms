@@ -2,6 +2,8 @@ package com.jd.bluedragon.distribution.jy.service.send;
 
 import com.jd.bluedragon.distribution.jy.dto.send.*;
 
+import java.util.List;
+
 
 /**
  * 异常扫描统计服务
@@ -25,5 +27,11 @@ public interface ScanStatisticsService {
      * @return
      */
     ExcepPackageDto queryExcepPackageUnderWaybill(QueryExcepPackageDto queryExcepPackageDto);
+
+
+    List<SendGoodsCategoryDto> listGoodsCategory(SendGoodsQueryDto sendGoodsQueryDto);
+
+
+    List<SendExcepScanDto> listExcepScanType(ExcepScanQueryDto query);
 
 }
