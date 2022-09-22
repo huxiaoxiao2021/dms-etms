@@ -1203,6 +1203,8 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
             result.setData(sendScanResponse);
             sendScanResponse.setSendCode(sendCode);
             sendScanResponse.setFirstScan(firstScanFlag);
+            sendScanResponse.setSendDetailBizId(curSendDetail.getBizId());
+            sendScanResponse.setCreateTime(curSendDetail.getCreateTime());
             sendScanResponse.setScanPackCount(this.calculateScanPackageCount(request, sendType));
             BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteBySiteId(sendDestId.intValue());
             sendScanResponse.setCurScanDestId(sendDestId);
@@ -1326,17 +1328,17 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
     }
 
     private boolean dealTaskFirstScan(SendScanRequest request, JyBizTaskSendVehicleEntity taskSend, Long sendDestId, JyBizTaskSendVehicleDetailEntity curSendDetail) {
+        boolean firstScanFlag = false;
         // 发货流向首次扫描
         if (taskSendDestFirstScan(request, sendDestId)) {
             logInfo("发货任务流向[{}-{}]首次扫描, 任务状态变为“发货中”. {}", request.getSendVehicleBizId(), sendDestId,
                     JsonHelper.toJson(request));
+            firstScanFlag = true;
             updateSendVehicleStatus(request, taskSend, curSendDetail);
         }
-        boolean firstScanFlag = false;
         // 发货任务首次扫描记录组员信息
         if (taskSendFirstScan(request)) {
             logInfo("发货任务[{}]首次扫描, 任务状态变为“发货中”. {}", request.getSendVehicleBizId(), JsonHelper.toJson(request));
-            firstScanFlag = true;
             distributeAndStartScheduleTask(request);
 
             recordTaskMembers(request);
