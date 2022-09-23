@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.jy.service.send;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.TypeReference;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.BoxMsgResult;
 import com.jd.bluedragon.common.UnifiedExceptionProcess;
@@ -162,7 +164,6 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
     @JProfiler(jKey = "DMSWEB.JySendVehicleTysService.fetchSendVehicleTask", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<SendVehicleTaskResp> fetchSendVehicleTask(SendVehicleTaskReq request) {
         InvokeResult<SendVehicleTaskResp> result = new InvokeResult<SendVehicleTaskResp>();
-        SendVehicleTaskResp sendVehicleTaskResp = new SendVehicleTaskResp();
         try {
             SendVehicleTaskRequest param = new SendVehicleTaskRequest();
             BeanCopyUtil.copy(request, param);
@@ -172,8 +173,11 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
             if (invokeResult != null) {
                 result.setCode(invokeResult.getCode());
                 result.setMessage(invokeResult.getMessage());
-                BeanCopyUtil.copy(invokeResult.getData(), sendVehicleTaskResp);
-                result.setData(sendVehicleTaskResp);
+                if (invokeResult.getData() != null) {
+                    String jsonStr = JSON.toJSONString(invokeResult.getData());
+                    SendVehicleTaskResp sendVehicleTaskResp = JSON.parseObject(jsonStr, SendVehicleTaskResp.class);
+                    result.setData(sendVehicleTaskResp);
+                }
             } else {
                 result.error();
                 logger.error("JySendVehicleTysService.fetchSendVehicleTask error! invokeResult is null ,req:{}", JsonHelper.toJson(request));
@@ -261,9 +265,11 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
             if (invokeResult != null) {
                 result.setCode(invokeResult.getCode());
                 result.setMessage(invokeResult.getMessage());
-                SendVehicleInfo sendVehicleTaskResp = new SendVehicleInfo();
-                BeanCopyUtil.copy(invokeResult.getData(), sendVehicleTaskResp);
-                result.setData(sendVehicleTaskResp);
+                if (invokeResult.getData() != null) {
+                    SendVehicleInfo sendVehicleTaskResp = new SendVehicleInfo();
+                    BeanCopyUtil.copy(invokeResult.getData(), sendVehicleTaskResp);
+                    result.setData(sendVehicleTaskResp);
+                }
             } else {
                 result.error();
                 logger.error("JySendVehicleTysService.sendVehicleInfo error! invokeResult is null ,req:{}", JsonHelper.toJson(request));
@@ -363,7 +369,18 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
         }
         InvokeResult<SendAbnormalResponse> result = jySendVehicleServiceTys.checkSendVehicleNormalStatus(sendAbnormalRequest);
         if (ObjectHelper.isNotNull(result)) {
-            return convertResult(result, SendAbnormalResp.class);
+            InvokeResult<SendAbnormalResp> response = new InvokeResult<>();
+            response.setCode(result.getCode());
+            response.setMessage(result.getMessage());
+            if (result.getData() != null) {
+                SendAbnormalResp sendAbnormalResp = new SendAbnormalResp();
+                if (result.getData().getAbnormalType() != null) {
+                    sendAbnormalResp.setAbnormalType(JySendAbnormalEnum.valueOf(result.getData().getAbnormalType().name()));
+                }
+                sendAbnormalResp.setNormalFlag(result.getData().getNormalFlag());
+                response.setData(sendAbnormalResp);
+            }
+            return response;
         }
         return new InvokeResult(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
     }
@@ -472,7 +489,15 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
         }
         InvokeResult<com.jd.bluedragon.common.dto.operation.workbench.send.response.ToSealDestAgg> result = jySendVehicleServiceTys.selectSealDest(selectSealDestRequest);
         if (ObjectHelper.isNotNull(result)) {
-            return convertResult(result, ToSealDestAgg.class);
+            InvokeResult<ToSealDestAgg> response = new InvokeResult<>();
+            response.setCode(result.getCode());
+            response.setMessage(result.getMessage());
+            if (result.getData() != null) {
+                String jsonStr = JSON.toJSONString(result.getData());
+                ToSealDestAgg toSealDestAgg = JSON.parseObject(jsonStr, ToSealDestAgg.class);
+                response.setData(toSealDestAgg);
+            }
+            return response;
         }
         return new InvokeResult(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
     }
@@ -727,7 +752,15 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
     public InvokeResult<List<VehicleSpecResp>> listVehicleType() {
         InvokeResult<List<com.jd.bluedragon.common.dto.send.response.VehicleSpecResp>> result = jySendVehicleServiceTys.listVehicleType();
         if (ObjectHelper.isNotNull(result)) {
-            return convertListResult(result, VehicleSpecResp.class);
+            InvokeResult<List<VehicleSpecResp>> response = new InvokeResult<>();
+            response.setCode(result.getCode());
+            response.setMessage(result.getMessage());
+            if (result.getData() != null) {
+                String jsonStr = JSON.toJSONString(result.getData());
+                List<VehicleSpecResp> list = JSON.parseObject(jsonStr, new TypeReference<List<VehicleSpecResp>>(){});
+                response.setData(list);
+            }
+            return response;
         }
         return new InvokeResult(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
     }
@@ -790,7 +823,15 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
         }
         InvokeResult<com.jd.bluedragon.common.dto.send.response.VehicleTaskResp> result = jySendVehicleServiceTys.listVehicleTask(req);
         if (ObjectHelper.isNotNull(result)) {
-            return convertResult(result, VehicleTaskResp.class);
+            InvokeResult<VehicleTaskResp> response = new InvokeResult<>();
+            response.setCode(result.getCode());
+            response.setMessage(result.getMessage());
+            if (result.getData() != null) {
+                String jsonStr = JSON.toJSONString(result.getData());
+                VehicleTaskResp vehicleTaskResp = JSON.parseObject(jsonStr, VehicleTaskResp.class);
+                response.setData(vehicleTaskResp);
+            }
+            return response;
         }
         return new InvokeResult(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
     }
@@ -812,7 +853,15 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
         }
         InvokeResult<com.jd.bluedragon.common.dto.send.response.VehicleTaskResp> result = jySendVehicleServiceTys.listVehicleTaskSupportTransfer(req);
         if (ObjectHelper.isNotNull(result)) {
-            return convertResult(result, VehicleTaskResp.class);
+            InvokeResult<VehicleTaskResp> response = new InvokeResult<>();
+            response.setCode(result.getCode());
+            response.setMessage(result.getMessage());
+            if (result.getData() != null) {
+                String jsonStr = JSON.toJSONString(result.getData());
+                VehicleTaskResp vehicleTaskResp = JSON.parseObject(jsonStr, VehicleTaskResp.class);
+                response.setData(vehicleTaskResp);
+            }
+            return response;
         }
         return new InvokeResult(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
     }

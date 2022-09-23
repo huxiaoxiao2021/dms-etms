@@ -90,6 +90,9 @@ public class JySendVehicleServiceTysImpl extends JySendVehicleServiceImpl implem
     @Override
     public List<SendExcepScanDto> listExcepScanType(ExcepScanQueryDto query) {
         JySendAggsEntity agg =jySendAggsService.getVehicleSendStatistics(query.getSendVehicleBizId());
+        if (agg == null) {
+            return null;
+        }
         List<SendExcepScanDto> sendExcepScanDtoList =new ArrayList<>();
         SendExcepScanDto haveScan = new SendExcepScanDto();
         haveScan.setType(ExcepScanTypeEnum.HAVE_SCAN.getCode());
