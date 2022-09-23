@@ -760,7 +760,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
         return condition;
     }
 
-    private boolean checkBeforeFetchTask(SendVehicleTaskRequest request, InvokeResult<SendVehicleTaskResponse> result) {
+    public boolean checkBeforeFetchTask(SendVehicleTaskRequest request, InvokeResult<SendVehicleTaskResponse> result) {
         if (request.getVehicleStatus() == null) {
             result.parameterError("请选择车辆状态！");
             return false;
@@ -777,13 +777,6 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
             result.parameterError("请选择线路类型！");
             return false;
         }
-        /*if (StringUtils.isNotBlank(request.getKeyword())) {
-            if (!WaybillUtil.isPackageCode(request.getKeyword())) {
-                result.parameterError("请扫描正确的包裹号！");
-                return false;
-            }
-        }*/
-
         return true;
     }
 

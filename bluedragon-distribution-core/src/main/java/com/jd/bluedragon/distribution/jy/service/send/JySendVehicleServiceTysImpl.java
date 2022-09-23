@@ -1,7 +1,9 @@
 package com.jd.bluedragon.distribution.jy.service.send;
 
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendAbnormalPackRequest;
+import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicleTaskRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendAbnormalBarCode;
+import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleTaskResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.dto.send.*;
 import com.jd.bluedragon.distribution.jy.dto.unload.ExcepScanDto;
@@ -9,6 +11,7 @@ import com.jd.bluedragon.distribution.jy.enums.ExcepScanTypeEnum;
 import com.jd.bluedragon.distribution.jy.enums.UnloadBarCodeQueryEntranceEnum;
 import com.jd.bluedragon.distribution.jy.manager.IJySendVehicleJsfManager;
 import com.jd.bluedragon.distribution.jy.send.JySendAggsEntity;
+import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.ObjectHelper;
 import com.jdl.jy.realtime.base.Pager;
 import com.jdl.jy.realtime.model.query.send.SendVehicleTaskQuery;
@@ -24,6 +27,24 @@ public class JySendVehicleServiceTysImpl extends JySendVehicleServiceImpl implem
     private IJySendVehicleJsfManager sendVehicleJsfManager;
     @Autowired
     JySendAggsService jySendAggsService;
+
+
+    @Override
+    public boolean checkBeforeFetchTask(SendVehicleTaskRequest request, InvokeResult<SendVehicleTaskResponse> result) {
+        if (request.getVehicleStatus() == null) {
+            result.parameterError("请选择车辆状态！");
+            return false;
+        }
+        if (!NumberHelper.gt0(request.getPageSize()) || !NumberHelper.gt0(request.getPageNumber())) {
+            result.parameterError("缺少分页参数！");
+            return false;
+        }
+        if (request.getCurrentOperate() == null || !NumberHelper.gt0(request.getCurrentOperate().getSiteCode())) {
+            result.parameterError("缺少当前场地信息！");
+            return false;
+        }
+        return true;
+    }
 
     @Override
     public ExcepWaybillDto queryExcepScanWaybill(QueryExcepWaybillDto queryExcepWaybillDto) {

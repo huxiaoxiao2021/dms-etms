@@ -60,10 +60,12 @@ public class JyBizTaskSendVehicleDao extends BaseDao<JyBizTaskSendVehicleEntity>
     public List<JyBizTaskSendCountDto> sumTaskByVehicleStatus(JyBizTaskSendVehicleEntity entity, List<String> sendVehicleBizList) {
         Map<String,Object> params = new HashMap<>();
         params.put("entity", entity);
-        List<Integer> lineType = new ArrayList<>();
-        lineType.add(JyLineTypeEnum.OTHER.getCode());
-        lineType.add(entity.getLineType());
-        params.put("lineTypeList", lineType);
+        if (entity.getLineType() != null) {
+            List<Integer> lineType = new ArrayList<>();
+            lineType.add(JyLineTypeEnum.OTHER.getCode());
+            lineType.add(entity.getLineType());
+            params.put("lineTypeList", lineType);
+        }
         if (CollectionUtils.isNotEmpty(sendVehicleBizList)) {
             params.put("sendVehicleBizList", sendVehicleBizList);
         }
