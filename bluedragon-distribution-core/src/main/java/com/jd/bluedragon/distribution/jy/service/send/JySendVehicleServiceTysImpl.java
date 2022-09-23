@@ -78,6 +78,7 @@ public class JySendVehicleServiceTysImpl extends JySendVehicleServiceImpl implem
             ExcepPackageDto excepPackageDto =new ExcepPackageDto();
             excepPackageDto.setSendPackageDtoList(sendPackageDtoPager.getData());
             excepPackageDto.setTotal(sendPackageDtoPager.getTotal());
+            return excepPackageDto;
         }
         return null;
     }
