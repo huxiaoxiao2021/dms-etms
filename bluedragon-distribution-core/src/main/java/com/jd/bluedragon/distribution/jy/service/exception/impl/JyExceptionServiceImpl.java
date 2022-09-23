@@ -251,9 +251,9 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         bizLog.setBizId(task.getBizId());
         bizLog.setCycleType(cycle.getCode());
         bizLog.setType(task.getType());
-        bizLog.setOperateTime(task.getUpdateTime());
-        bizLog.setOperateUser(task.getUpdateUserErp());
-        bizLog.setOperateUserName(task.getUpdateUserName());
+        bizLog.setOperateTime(task.getUpdateTime()==null?task.getCreateTime():task.getUpdateTime());
+        bizLog.setOperateUser(StringUtils.isEmpty(task.getUpdateUserErp())?task.getCreateUserErp():task.getUpdateUserErp());
+        bizLog.setOperateUserName(StringUtils.isEmpty(task.getUpdateUserName())?task.getCreateUserName():task.getUpdateUserErp());
         jyBizTaskExceptionLogDao.insertSelective(bizLog);
     }
 
