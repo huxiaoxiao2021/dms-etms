@@ -9,7 +9,9 @@
 		<result column="war_zone_name" property="warZoneName" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="site_code" property="siteCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
 		<result column="user_code" property="userCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="user_code_encrypt" property="userCode" typeHandler="com.jd.security.aces.mybatis.handle.AcesCipherTextHandle"/>
 		<result column="user_name" property="userName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="user_name_encrypt" property="userName" typeHandler="com.jd.security.aces.mybatis.handle.AcesCipherTextHandle"/>
 		<result column="wave_code" property="waveCode" javaType="java.lang.Integer" jdbcType="TINYINT" />
 		<result column="job_code" property="jobCode" javaType="java.lang.Integer" jdbcType="TINYINT" />
 		<result column="sign_date" property="signDate" javaType="java.util.Date" jdbcType="DATE" />
@@ -46,7 +48,9 @@
 		<result column="war_zone_code" property="warZoneCode" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="war_zone_name" property="warZoneName" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="site_code" property="siteCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="user_code_encrypt" property="userCode" typeHandler="com.jd.security.aces.mybatis.handle.AcesCipherTextHandle"/>
 		<result column="site_name" property="siteName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="user_name_encrypt" property="userName" typeHandler="com.jd.security.aces.mybatis.handle.AcesCipherTextHandle"/>
 		<result column="floor" property="floor" javaType="java.lang.Integer" jdbcType="INTEGER" />
 		<result column="grid_no" property="gridNo" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="grid_code" property="gridCode" javaType="java.lang.String" jdbcType="VARCHAR" />
@@ -95,7 +99,9 @@
 		<result column="war_zone_name" property="warZoneName" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="site_code" property="siteCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
 		<result column="user_code" property="userCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="user_code_encrypt" property="userCode" typeHandler="com.jd.security.aces.mybatis.handle.AcesCipherTextHandle"/>
 		<result column="user_name" property="userName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="user_name_encrypt" property="userName" typeHandler="com.jd.security.aces.mybatis.handle.AcesCipherTextHandle"/>
 		<result column="wave_code" property="waveCode" javaType="java.lang.Integer" jdbcType="TINYINT" />
 		<result column="job_code" property="jobCode" javaType="java.lang.Integer" jdbcType="TINYINT" />
 		<result column="sign_date" property="signDate" javaType="java.util.Date" jdbcType="DATE" />
@@ -126,7 +132,7 @@
 	</resultMap>
 		
 	<sql id="Base_Column_List" >
-		r.id,r.org_code,r.site_code,r.war_zone_code,r.war_zone_name,r.user_code,r.user_name,r.wave_code,r.job_code,
+		r.id,r.org_code,r.site_code,r.war_zone_code,r.war_zone_name,r.user_code,r.user_code_encrypt,r.user_name,r.user_name_encrypt,r.wave_code,r.job_code,
 		r.sign_date,r.sign_in_time,r.sign_out_time,r.ref_plan_key,r.ref_grid_key,
 		r.ref_station_key,r.create_user,r.create_user_name,r.update_user,r.update_user_name,
 		r.create_time,r.update_time,r.yn,r.ts,
@@ -135,7 +141,7 @@
 		p.plan_name
 	</sql>
     <sql id="Main_Column_List" >
-        r.id,r.org_code,r.site_code,r.user_code,r.user_name,r.wave_code,r.job_code,
+        r.id,r.org_code,r.site_code,r.user_code,r.user_code_encrypt,r.user_name,r.user_name_encrypt,r.wave_code,r.job_code,
         r.sign_date,r.sign_in_time,r.sign_out_time,r.ref_plan_key,r.ref_grid_key,
         r.ref_station_key,r.create_user,r.create_user_name,r.update_user,r.update_user_name,
         r.create_time,r.update_time,r.yn,r.ts
@@ -162,10 +168,14 @@
 				</if>
 				<if test="userCode != null" >
 					user_code,
+					user_code_encrypt,
+					user_code_index,
 				</if>
 				<if test="userName != null" >
 					user_name,
-				</if>				
+					user_name_encrypt,
+					user_name_index,
+				</if>
 				<if test="waveCode != null" >
 					wave_code,
 				</if>
@@ -238,10 +248,14 @@
 					#{siteCode,jdbcType=INTEGER},
 				</if>
 				<if test="userCode != null" >
-					#{userCode,jdbcType=VARCHAR},
+					#{userCode, typeHandler=com.jd.security.aces.mybatis.handle.AcesPlainTextHandle},
+					#{userCode, typeHandler=com.jd.security.aces.mybatis.handle.AcesCipherTextHandle},
+					#{userCode, typeHandler=com.jd.security.aces.mybatis.handle.AcesIndexHandle},
 				</if>
 				<if test="userName != null" >
-					#{userName,jdbcType=VARCHAR},
+					#{userName, typeHandler=com.jd.security.aces.mybatis.handle.AcesPlainTextHandle},
+					#{userName, typeHandler=com.jd.security.aces.mybatis.handle.AcesCipherTextHandle},
+					#{userName, typeHandler=com.jd.security.aces.mybatis.handle.AcesIndexHandle},
 				</if>				
 				<if test="waveCode != null" >
 					#{waveCode,jdbcType=TINYINT},
@@ -314,10 +328,14 @@
 					war_zone_name = #{warZoneName,jdbcType=VARCHAR},
 				</if>
 				<if test="userCode != null" >
-					user_code = #{userCode,jdbcType=VARCHAR},
+					user_code = #{userCode, typeHandler=com.jd.security.aces.mybatis.handle.AcesPlainTextHandle},
+					user_code_encrypt = #{userCode, typeHandler=com.jd.security.aces.mybatis.handle.AcesCipherTextHandle},
+					user_code_index = #{userCode, typeHandler=com.jd.security.aces.mybatis.handle.AcesIndexHandle},
 				</if>
 				<if test="userName != null" >
-					user_name = #{userName,jdbcType=VARCHAR},
+					user_name = #{userName, typeHandler=com.jd.security.aces.mybatis.handle.AcesPlainTextHandle},
+					user_name_encrypt = #{userName, typeHandler=com.jd.security.aces.mybatis.handle.AcesCipherTextHandle},
+					user_name_index = #{userName, typeHandler=com.jd.security.aces.mybatis.handle.AcesIndexHandle},
 				</if>				
 				<if test="waveCode != null" >
 					wave_code = #{waveCode,jdbcType=TINYINT},
@@ -498,8 +516,15 @@
 			case when r2.now_attend_num is not null then r2.now_attend_num else 0 end now_attend_num
 		from
 			(select t.sign_date,t.ref_grid_key,t.wave_code,max(t.ref_plan_key) ref_plan_key,max(t.ref_station_key) ref_station_key,
-				count(distinct t.user_code) attend_num 
-			from  user_sign_record t force index(`idx_sign_date`) 
+			<choose>
+				<when test="@com.jd.security.aces.mybatis.vo.AcesProps@isWritePlaintext()">
+					count(distinct t.user_code) attend_num
+				</when>
+				<otherwise>
+					count(distinct t.user_code_index) attend_num
+				</otherwise>
+			</choose>
+			from  user_sign_record t force index(`idx_sign_date`)
 			<include refid="queryReportConditionMain"/>
    			group by t.sign_date,t.ref_grid_key,t.wave_code) r
  			<include refid="joinSql"/>
@@ -527,7 +552,14 @@
 			select
 			t.ref_grid_key,
 			t.wave_code,
-			count(distinct t.user_code) now_attend_num
+			<choose>
+				<when test="@com.jd.security.aces.mybatis.vo.AcesProps@isWritePlaintext()">
+					count(distinct t.user_code) now_attend_num
+				</when>
+				<otherwise>
+					count(distinct t.user_code_index) now_attend_num
+				</otherwise>
+			</choose>
 		from
 			user_sign_record t force index(`idx_sign_in_time`) 
 		<include refid="queryReportConditionMainNow"/>
@@ -548,8 +580,15 @@
 				sum(case when r2.now_attend_num is not null then r2.now_attend_num else 0 end) now_attend_num_sum
 			from(
 			(select t.sign_date,t.ref_grid_key,t.wave_code,max(t.ref_plan_key) ref_plan_key,max(t.ref_station_key) ref_station_key,
-				count(distinct t.user_code) attend_num
-			from  user_sign_record t force index(`idx_sign_date`) 
+				<choose>
+					<when test="@com.jd.security.aces.mybatis.vo.AcesProps@isWritePlaintext()">
+						count(distinct t.user_code) attend_num
+					</when>
+					<otherwise>
+						count(distinct t.user_code_index) attend_num
+					</otherwise>
+				</choose>
+			from  user_sign_record t force index(`idx_sign_date`)
 				  <include refid="queryReportConditionMain"/>
 		   			group by t.sign_date,t.ref_grid_key,wave_code) r
 					left outer join work_station s on r.ref_station_key = s.business_key and s.yn = 1
@@ -692,10 +731,25 @@
 		select
 			<include refid="Base_Column_List"/>
 		from
-			(select t.* from user_sign_record t force index(`idx_user_code`)
+			(select t.* from user_sign_record t
+			<choose>
+				<when test="@com.jd.security.aces.mybatis.vo.AcesProps@isWritePlaintext()">
+					force index(`idx_user_code`)
+				</when>
+				<otherwise>
+					force index(`idx_user_code_index`)
+				</otherwise>
+			</choose>
 			     where t.yn = 1
 		            and t.site_code = #{siteCode,jdbcType=INTEGER}
-		            and t.user_code = #{userCode,jdbcType=VARCHAR}
+					<choose>
+						<when test="@com.jd.security.aces.mybatis.vo.AcesProps@isWritePlaintext()">
+							and t.user_code = #{userCode,jdbcType=VARCHAR}
+						</when>
+						<otherwise>
+							and t.user_code_index = #{userCode,typeHandler=com.jd.security.aces.mybatis.handle.AcesIndexHandle}
+						</otherwise>
+					</choose>
 		        <if test="signDate != null" >
 		            and t.sign_date = #{signDate,jdbcType=DATE}
 		        </if>
@@ -737,7 +791,14 @@
 		from
 			(select t.* from user_sign_record t
 			where t.yn = 1
-				and t.user_code = #{userCode,jdbcType=VARCHAR}
+			<choose>
+				<when test="@com.jd.security.aces.mybatis.vo.AcesProps@isWritePlaintext()">
+					and t.user_code = #{userCode,jdbcType=VARCHAR}
+				</when>
+				<otherwise>
+					and t.user_code_index = #{userCode,typeHandler=com.jd.security.aces.mybatis.handle.AcesIndexHandle}
+				</otherwise>
+			</choose>
 				and t.sign_out_time is null
 			<if test="siteCode != null" >
 				and	t.site_code = #{siteCode,jdbcType=INTEGER}	
@@ -788,7 +849,14 @@
 		from
 			(select t.* from user_sign_record t
 				where t.yn = 1
-					and t.user_code = #{userCode,jdbcType=VARCHAR}
+				<choose>
+					<when test="@com.jd.security.aces.mybatis.vo.AcesProps@isWritePlaintext()">
+						and t.user_code = #{userCode,jdbcType=VARCHAR}
+					</when>
+					<otherwise>
+						and t.user_code_index = #{userCode,typeHandler=com.jd.security.aces.mybatis.handle.AcesIndexHandle}
+					</otherwise>
+				</choose>
 				<if test="siteCode != null" >
 					and	t.site_code = #{siteCode,jdbcType=INTEGER}	
 				</if>		
@@ -837,7 +905,15 @@
         select
             <include refid="Main_Column_List"/>
         from
-            user_sign_record r force index(`idx_site_and_create_user_code`)
+            user_sign_record r
+			<choose>
+				<when test="@com.jd.security.aces.mybatis.vo.AcesProps@isWritePlaintext()">
+					force index(`idx_site_and_create_user_code`)
+				</when>
+				<otherwise>
+					force index(`idx_site_and_create_user_code_index`)
+				</otherwise>
+			</choose>
         <include refid="queryByOperateUser"/>
         order by id desc
         limit #{offset}, #{limit}
@@ -847,7 +923,15 @@
         select
             count(1)
         from
-            user_sign_record r force index(`idx_site_and_create_user_code`)
+            user_sign_record r
+			<choose>
+				<when test="@com.jd.security.aces.mybatis.vo.AcesProps@isWritePlaintext()">
+					force index(`idx_site_and_create_user_code`)
+				</when>
+				<otherwise>
+					force index(`idx_site_and_create_user_code_index`)
+				</otherwise>
+			</choose>
         <include refid="queryByOperateUser"/>
     </select>
     <sql id="queryByOperateUser">
