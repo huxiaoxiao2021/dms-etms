@@ -83,66 +83,6 @@
         AND biz_id = #{bizId, jdbcType=VARCHAR}
     </select>
 
-    <insert id="insert" parameterType="com.jd.bluedragon.distribution.jy.exception.JyBizTaskExceptionEntity">
-        INSERT INTO jy_biz_task_exception (
-            biz_id,
-            `type`,
-            `source`,
-            bar_code,
-            tags,
-            site_code,
-            site_name,
-            floor,
-            grid_no,
-            grid_code,
-            area_code,
-            area_name,
-            distribution_type,
-            distribution_target,
-            distribution_time,
-            handler_erp,
-            status,
-            processing_status,
-            process_begin_time,
-            process_end_time,
-            create_user_erp,
-            create_user_name,
-            update_user_erp,
-            update_user_name,
-            create_time,
-            update_time,
-            time_out,
-            yn)
-        VALUES (
-                   #{type},
-                   #{bizId},
-                   #{source},
-                   #{barCode},
-                   #{tags},
-                   #{siteCode},
-                   #{siteName},
-                   #{floor},
-                   #{gridNo},
-                   #{gridCode},
-                   #{areaCode},
-                   #{areaName},
-                   #{handlerErp},
-                   #{status},
-                   #{processingStatus},
-                   #{distributionType},
-                   #{distributionTarget},
-                   #{distributionTime},
-                   #{processBeginTime},
-                   #{processEndTime},
-                   #{createUserErp},
-                   #{createUserName},
-                   #{updateUserErp},
-                   #{updateUserName},
-                   #{createTime},
-                   #{updateTime},
-                   #{timeOut},
-                   1)
-    </insert>
     <insert id="insertSelective" parameterType="com.jd.bluedragon.distribution.jy.exception.JyBizTaskExceptionEntity">
         INSERT INTO jy_biz_task_exception (
         <if test="bizId != null">
@@ -437,10 +377,10 @@
         <if test="handlerErp !=null">
             AND handler_erp = #{handlerErp}
         </if>
-        <if test="processingStatus == 2">
+        <if test="status == 2">
             order by process_end_time desc
         </if>
-        <if test="processingStatus != 2">
+        <if test="status != 2">
             order by id desc
         </if>
         <if test="pageSize !=null">

@@ -16,15 +16,6 @@ public class JyBizTaskExceptionDao  extends BaseDao<JyBizTaskExceptionEntity> {
 
 
     final static String NAMESPACE = JyBizTaskExceptionDao.class.getName();
-    /**
-     * 新增
-     *
-     * @param
-     * @return
-     */
-    public int insert(JyBizTaskExceptionEntity entity) {
-        return this.getSqlSession().insert(NAMESPACE + ".insert", entity);
-    }
 
     public int insertSelective(JyBizTaskExceptionEntity entity) {
         return this.getSqlSession().insert(NAMESPACE + ".insertSelective", entity);
