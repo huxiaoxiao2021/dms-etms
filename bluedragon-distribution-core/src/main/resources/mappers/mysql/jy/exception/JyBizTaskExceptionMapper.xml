@@ -377,10 +377,10 @@
         <if test="handlerErp !=null">
             AND handler_erp = #{handlerErp}
         </if>
-        <if test="processingStatus == 2">
+        <if test="status == 2">
             order by process_end_time desc
         </if>
-        <if test="processingStatus != 2">
+        <if test="status != 2">
             order by id desc
         </if>
         <if test="pageSize !=null">
