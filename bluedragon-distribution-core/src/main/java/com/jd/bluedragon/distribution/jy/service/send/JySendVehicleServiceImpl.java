@@ -773,10 +773,10 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
             result.parameterError("缺少当前场地信息！");
             return false;
         }
-        if (request.getLineType() == null) {
-            result.parameterError("请选择线路类型！");
-            return false;
-        }
+//        if (request.getLineType() == null) {
+//            result.parameterError("请选择线路类型！");
+//            return false;
+//        }
         /*if (StringUtils.isNotBlank(request.getKeyword())) {
             if (!WaybillUtil.isPackageCode(request.getKeyword())) {
                 result.parameterError("请扫描正确的包裹号！");
