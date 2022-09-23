@@ -1246,8 +1246,7 @@ public class WaybillServiceImpl implements WaybillService {
             }
 
             //自营逆向单（waybill_sign第一位=T），且为全球购订单（sendpay第8位 = 6），禁止反调度到普通库房「类型为wms」
-            if(BusinessUtil.isSignChar(waybill.getWaybillSign(), WaybillSignConstants.POSITION_1, WaybillSignConstants.CHAR_1_T)
-                && BusinessUtil.isSignChar(waybill.getSendPay(), SendPayConstants.POSITION_8, SendPayConstants.CHAR_6)){
+            if(BusinessUtil.isReverseGlobalWaybill(waybill.getWaybillSign(), waybill.getSendPay())){
                 if(BusinessUtil.isWmsSite(siteOfSchedulingOnSite.getSiteType())){
                     result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, JdResponse.MESSAGE_SELF_REVERSE_SCHEDULE_ERROR);
                     return result;
@@ -1255,7 +1254,7 @@ public class WaybillServiceImpl implements WaybillService {
             }
 
             //针对运费到付「waybillsign第25位=2」的运单，禁止反调度到三方网点「同cod限制逻辑，sitetype = 16」
-            if(BusinessUtil.isSignChar(waybill.getWaybillSign(), WaybillSignConstants.POSITION_25, WaybillSignConstants.CHAR_25_2)){
+            if(BusinessUtil.isDF(waybill.getWaybillSign())){
                 if(BusinessUtil.isThreePartner(siteOfSchedulingOnSite.getSiteType(), siteOfSchedulingOnSite.getSubType())){
                     result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, "到付、COD类型订单，禁止转三方邮政网点，请拦截后换单原路返回。");
                     return result;
