@@ -459,11 +459,18 @@ public class TaskServiceImpl implements TaskService {
 	@Override
     public Integer add(Task task, boolean ifCheckTaskMode) {
         Assert.notNull(task, "task must not be null");
-        if (isDynamicProducerOn(task)) {
-            dynamicProducer.send(task);
-            return 1;
-        }
-        return doAddTask(task, ifCheckTaskMode);
+		if (isDynamicProducerOn(task)) {
+			String topic = taskJmqTopicRouter.getTopic(task);
+			String umpKey = new StringBuilder("DMSCORE.TaskService.add.").append(topic==null?StringUtils.EMPTY:topic).toString();
+			CallerInfo info = Profiler.registerInfo(umpKey, Constants.UMP_APP_NAME_DMSWEB, false, true);
+			try {
+				dynamicProducer.send(task);
+				return 1;
+			} finally {
+				Profiler.registerInfoEnd(info);
+			}
+		}
+		return doAddTask(task, ifCheckTaskMode);
     }
 
 

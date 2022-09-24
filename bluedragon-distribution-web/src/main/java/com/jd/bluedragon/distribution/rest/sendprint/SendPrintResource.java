@@ -7,8 +7,10 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.batch.domain.BatchSend;
 import com.jd.bluedragon.distribution.sendprint.domain.*;
 import com.jd.bluedragon.distribution.sendprint.service.SendPrintService;
+import com.jd.bluedragon.distribution.tripartite.service.TripartiteService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.QueryGapTimeUtil;
+import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.WChoice;
@@ -16,6 +18,7 @@ import com.jd.jsf.gd.msg.ResponseFuture;
 import com.jd.jsf.gd.util.RpcContext;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jdl.basic.api.domain.sendHandover.SendTripartiteHandoverDetail;
 import org.apache.commons.collections.CollectionUtils;
 import org.jboss.resteasy.annotations.GZIP;
 import org.slf4j.Logger;
@@ -25,10 +28,7 @@ import org.springframework.stereotype.Controller;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Controller
 @Path(Constants.REST_URL)
@@ -45,6 +45,9 @@ public class SendPrintResource {
 
     @Autowired
     private QueryGapTimeUtil queryGapTimeUtil;
+
+    @Autowired
+    private TripartiteService tripartiteService;
 
 	@POST
 	@GZIP
@@ -426,4 +429,60 @@ public class SendPrintResource {
         }
         return result;
     }
+
+    /**
+     * 查询三方下拉列表
+     * @param tripartiteEntity
+     * @return
+     */
+    @POST
+    @Path("/sendprint/getTripartiteListBySiteCode")
+    public InvokeResult<List<SendTripartiteHandoverDetail>> getListBySiteCode(TripartiteEntity tripartiteEntity) {
+
+        if (null == tripartiteEntity || null == tripartiteEntity.getSiteCode()) {
+            return new InvokeResult<>(InvokeResult.RESULT_SUCCESS_CODE, InvokeResult.RESULT_SUCCESS_MESSAGE, Collections.<SendTripartiteHandoverDetail>emptyList());
+        }
+
+        List<SendTripartiteHandoverDetail> list = tripartiteService.getTripartiteListBySiteCode(tripartiteEntity.getSiteCode());
+        return new InvokeResult<>(InvokeResult.RESULT_SUCCESS_CODE, InvokeResult.RESULT_SUCCESS_MESSAGE, list);
+    }
+
+    /**
+     * 此方法发送到三方交接人员（包含收件人信息
+     * @see #batchPrintExport 导出普通文档（不包含敏感信息）
+     * @param tripartiteEntity
+     * @return
+     */
+    @POST
+    @Path("/sendprint/sendTripartite")
+    @JProfiler(jKey = "DMS.WEB.SendPrintResource.sendTripartite", jAppName = Constants.UMP_APP_NAME_DMSWEB)
+    public InvokeResult<Boolean> sendTripartite(TripartiteEntity tripartiteEntity) {
+
+        if (null == tripartiteEntity) {
+            return new InvokeResult<>(InvokeResult.RESULT_SUCCESS_CODE, InvokeResult.RESULT_SUCCESS_MESSAGE, Boolean.FALSE);
+        }
+
+        if (tripartiteEntity.getTripartiteId() == null
+                || StringHelper.isEmpty(tripartiteEntity.getErpCode())
+                || tripartiteEntity.getSiteCode() == null
+                || CollectionUtils.isEmpty(tripartiteEntity.getList())) {
+            return new InvokeResult<>(InvokeResult.RESULT_PARAMETER_ERROR_CODE, InvokeResult.PARAM_ERROR, Boolean.FALSE);
+        }
+
+        if(!queryGapTimeUtil.checkPass(JsonHelper.toJson(tripartiteEntity),QueryGapTimeUtil.SEND_PRINT_RESOURCE_EXPORT)){
+            return new InvokeResult<>(InvokeResult.RESULT_PARAMETER_ERROR_CODE, "您操作的太快了！稍作休息后再操作！", Boolean.FALSE);
+        }
+
+        SendTripartiteHandoverDetail detail = tripartiteService.getTripartiteDetail(tripartiteEntity.getTripartiteId());
+        if (detail == null || !Objects.equals(detail.getSiteCode(), tripartiteEntity.getSiteCode())) {
+            return new InvokeResult<>(InvokeResult.RESULT_PARAMETER_ERROR_CODE, "请关闭页面重新打开，该三方邮件发送对象已经失效", Boolean.FALSE);
+        }
+
+        tripartiteService.updateTripartiteDetail(tripartiteEntity.getTripartiteId());
+
+        List<String> tos = StringHelper.isEmpty(detail.getToEmail())? Collections.<String>emptyList() : Arrays.asList(detail.getToEmail().split(Constants.SEPARATOR_SEMICOLON));
+        List<String> ccs = StringHelper.isEmpty(detail.getCcEmail())? Collections.<String>emptyList() : Arrays.asList(detail.getCcEmail().split(Constants.SEPARATOR_SEMICOLON));
+        return sendPrintService.batchPrintExportToTripartite(tripartiteEntity, detail.getMailTopic(), tos, ccs);
+    }
+
 }
