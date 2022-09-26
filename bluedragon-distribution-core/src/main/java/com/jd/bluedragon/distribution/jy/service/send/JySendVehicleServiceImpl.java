@@ -546,6 +546,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
         baseSendVehicle.setTransWorkCode(entity.getTransWorkCode());
         baseSendVehicle.setLineType(entity.getLineType());
         baseSendVehicle.setLineTypeName(entity.getLineTypeName());
+        baseSendVehicle.setCreateUserErp(entity.getCreateUserErp());
 
         // 任务标签
         baseSendVehicle.setTags(resolveTaskTag(entity, transWorkBillDto));

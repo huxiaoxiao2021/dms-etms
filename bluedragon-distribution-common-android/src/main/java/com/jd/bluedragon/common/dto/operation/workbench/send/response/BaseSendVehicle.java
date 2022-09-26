@@ -66,6 +66,8 @@ public class BaseSendVehicle implements Serializable {
 
     private Boolean _active;
 
+    private String createUserErp;
+
     public String getVehicleNumber() {
         return vehicleNumber;
     }
@@ -160,5 +162,13 @@ public class BaseSendVehicle implements Serializable {
 
     public void setTaskName(String taskName) {
         this.taskName = taskName;
+    }
+
+    public String getCreateUserErp() {
+        return createUserErp;
+    }
+
+    public void setCreateUserErp(String createUserErp) {
+        this.createUserErp = createUserErp;
     }
 }
