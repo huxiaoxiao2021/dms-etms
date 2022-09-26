@@ -170,9 +170,11 @@ public class SecurityLogWriter {
 
             Map<SecurityLogUniqueIdentifierKeyEnums, String> uniqueIdentifierKeyEnumsStringHashMap = new HashMap<>();
             uniqueIdentifierKeyEnumsStringHashMap.put(SecurityLogUniqueIdentifierKeyEnums.carryBillId,"waybillCode");
-            uniqueIdentifierKeyEnumsStringHashMap.put(SecurityLogUniqueIdentifierKeyEnums.receiveAddress,"address");
-            uniqueIdentifierKeyEnumsStringHashMap.put(SecurityLogUniqueIdentifierKeyEnums.receiveName,"receiverName");
-            uniqueIdentifierKeyEnumsStringHashMap.put(SecurityLogUniqueIdentifierKeyEnums.receivePhone,"receiverMobile");
+            uniqueIdentifierKeyEnumsStringHashMap.put(SecurityLogUniqueIdentifierKeyEnums.receiveAddress,"receiveAddress");
+            uniqueIdentifierKeyEnumsStringHashMap.put(SecurityLogUniqueIdentifierKeyEnums.receiveName,"receiveName");
+            uniqueIdentifierKeyEnumsStringHashMap.put(SecurityLogUniqueIdentifierKeyEnums.receivePhone,"receiveMobile");
+            uniqueIdentifierKeyEnumsStringHashMap.put(SecurityLogUniqueIdentifierKeyEnums.senderPhone,"senderMobile");
+            uniqueIdentifierKeyEnumsStringHashMap.put(SecurityLogUniqueIdentifierKeyEnums.senderAddress,"senderAddress");
 
             SecurityLogRecord.log(
                     SecurityLogEntity.builder()
