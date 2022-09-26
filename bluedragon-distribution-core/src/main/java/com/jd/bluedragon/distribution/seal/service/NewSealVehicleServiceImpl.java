@@ -25,10 +25,17 @@ import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
 import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
 import com.jd.bluedragon.distribution.api.response.SealCodesResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
-import com.jd.bluedragon.distribution.base.domain.DmsBaseDict;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.busineCode.sendCode.service.SendCodeService;
 import com.jd.bluedragon.distribution.command.JdResult;
+import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendDetailStatusEnum;
+import com.jd.bluedragon.distribution.jy.send.JySendCodeEntity;
+import com.jd.bluedragon.distribution.jy.service.send.JyVehicleSendRelationService;
+import com.jd.bluedragon.distribution.jy.service.send.SendVehicleTransactionManager;
+import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetailService;
+import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleService;
+import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
+import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
 import com.jd.bluedragon.distribution.material.service.SortingMaterialSendService;
 import com.jd.bluedragon.distribution.newseal.domain.SealCarResultDto;
@@ -50,6 +57,7 @@ import com.jd.bluedragon.external.crossbow.itms.domain.ItmsResponse;
 import com.jd.bluedragon.external.crossbow.itms.domain.ItmsSendCheckSendCodeDto;
 import com.jd.bluedragon.external.crossbow.itms.service.TibetBizService;
 import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.bluedragon.utils.log.BusinessLogConstans;
@@ -150,6 +158,15 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 
     @Autowired
     private BasicQueryWSManager basicQueryWSManager;
+    @Autowired
+    JyVehicleSendRelationService jyVehicleSendRelationService;
+
+    @Autowired
+    JyBizTaskSendVehicleDetailService jyBizTaskSendVehicleDetailService;
+    @Autowired
+    JyBizTaskSendVehicleService jyBizTaskSendVehicleService;
+    @Autowired
+    private SendVehicleTransactionManager sendVehicleTransactionManager;
 
     private static final Integer UNSEAL_CAR_IN_RECIVE_AREA = 2;    //带解封的车辆在围栏里(1-是否在始发网点 2-是否在目的网点)
 
@@ -213,6 +230,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
                 sendBatchSendCodeStatusMsg(doSealCarDtos,null,BatchSendStatusEnum.USED);
                 log.info("封车成功，发送封车mq消息成功");
                 saveSealDataList.addAll(convert2SealVehicles(doSealCarDtos,SealVehicleExecute.SUCCESS,SealVehicleExecute.SUCCESS.getName()));
+                syncJySealStatus(new ArrayList<>(sendCodeList));
             }else{
                 log.info("提交运输封车失败，返回：{}",JsonHelper.toJson(sealCarInfo));
                 msg = "["+sealCarInfo.getCode()+":"+sealCarInfo.getMessage()+"]";
@@ -259,7 +277,30 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
         return sealCarInfo;
 	}
 
-  /**
+    private void syncJySealStatus(List<String> sendCodes) {
+        /*if (ObjectHelper.isNotNull(sendCodes)){
+            List<JySendCodeEntity> sendCodeEntityList =jyVehicleSendRelationService.querySendDetailBizIdBySendCode(sendCodes);
+            for (JySendCodeEntity jySendCodeEntity:sendCodeEntityList){
+                checkAndUpdateTaskStatus(jySendCodeEntity);
+            }
+        }*/
+    }
+
+    private void checkAndUpdateTaskStatus(JySendCodeEntity jySendCodeEntity) {
+        JyBizTaskSendVehicleDetailEntity taskSendDetail = jyBizTaskSendVehicleDetailService.findByBizId(jySendCodeEntity.getSendDetailBizId());
+        JyBizTaskSendVehicleEntity taskSend = jyBizTaskSendVehicleService.findByBizId(jySendCodeEntity.getSendVehicleBizId());
+        taskSend.setUpdateTime(new Date());
+        //taskSend.setUpdateUserErp(sealVehicleReq.getUser().getUserErp());
+        //taskSend.setUpdateUserName(sealVehicleReq.getUser().getUserName());
+
+        //taskSendDetail.setSealCarTime(DateHelper.parseDate(sealCarDto.getSealCarTime(), Constants.DATE_TIME_FORMAT));
+        taskSendDetail.setUpdateTime(taskSend.getUpdateTime());
+        taskSendDetail.setUpdateUserErp(taskSend.getUpdateUserErp());
+        taskSendDetail.setUpdateUserName(taskSend.getUpdateUserName());
+        sendVehicleTransactionManager.updateTaskStatus(taskSend, taskSendDetail, JyBizTaskSendDetailStatusEnum.SEALED);
+    }
+
+    /**
    * 拆解封车入参对象列表，把列表分为空批次封车信息、要操作封车的信息
    *
    * @param sourceSealDtos
@@ -450,6 +491,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
             } else if (Constants.RESULT_SUCCESS == sealCarInfo.getCode()) {
                 successSealCarList.add(param);
                 saveSealCarList.addAll(convert2SealVehicles(Arrays.asList(param),SealVehicleExecute.SUCCESS,SealVehicleExecute.SUCCESS.getName()));
+                syncJySealStatus(param.getBatchCodes());
             } else {
                 singleErrorMsg = "运力编码封车失败：" + transportCode + "." + sealCarInfo.getCode() + "-" + sealCarInfo.getMessage() + ".";
                 log.warn("VOS封车业务同时生成车次任务失败.参数:{},返回值:{}" , JSON.toJSONString(param) , singleErrorMsg);
@@ -465,6 +507,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
             log.debug("doSealCarWithVehicleJob传摆封车成功！，批次数量：{}" , successSealCarList.size());
             addRedisCache(successSealCarList);
             sendBatchSendCodeStatusMsg(successSealCarList,null,BatchSendStatusEnum.USED);
+
         }
 
         //记录封车操作数据
@@ -555,6 +598,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
                 saveNXSealData(doSealCarDtos);
                 sendBatchSendCodeStatusMsg(doSealCarDtos,null,BatchSendStatusEnum.USED);
                 saveSealDataList.addAll(convert2SealVehicles(doSealCarDtos,SealVehicleExecute.SUCCESS,SealVehicleExecute.SUCCESS.getName()));
+                //syncJySealStatus();
             }else{
                 msg += "["+sealCarInfo.getCode()+":"+sealCarInfo.getMessage()+"]";
                 log.error("调用运输接口失败sealCarInfo[{}]msg[{}]",JsonHelper.toJson(paramList),msg);

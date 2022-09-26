@@ -78,4 +78,9 @@ public class JyVehicleSendRelationServiceImpl implements JyVehicleSendRelationSe
         return null;
     }
 
+    @Override
+    public List<JySendCodeEntity> querySendDetailBizIdBySendCode(List<String> sendCodes) {
+        return null;
+    }
+
 }

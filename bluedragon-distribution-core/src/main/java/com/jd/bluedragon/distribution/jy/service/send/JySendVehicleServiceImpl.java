@@ -537,6 +537,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
     private void setBaseSendVehicle(JyBizTaskSendVehicleEntity entity, BaseSendVehicle baseSendVehicle) {
         TransWorkBillDto transWorkBillDto = jdiQueryWSManager.queryTransWork(entity.getTransWorkCode());
         baseSendVehicle.setBizNo(entity.getBizNo());
+        baseSendVehicle.setTaskName(entity.getTaskName());
         baseSendVehicle.setVehicleNumber(transWorkBillDto == null ? StringUtils.EMPTY : transWorkBillDto.getVehicleNumber());
         baseSendVehicle.setManualCreatedFlag(entity.manualCreatedTask());
         baseSendVehicle.setNoTaskBindVehicle(entity.noTaskBindVehicle());
@@ -1239,8 +1240,8 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
         return sameDirections.size()>0 ? sameDirections.get(0) : null;
     }
 
-
-    private boolean checkIfSealed(JyBizTaskSendVehicleDetailEntity detail) {
+    @Override
+    public boolean checkIfSealed(JyBizTaskSendVehicleDetailEntity detail) {
         if (JyBizTaskSendDetailStatusEnum.SEALED.getCode().equals(detail.getVehicleStatus())){
             return true;
         }
@@ -1376,6 +1377,16 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
             logInfo("发货任务流向[{}-{}]首次扫描, 任务状态变为“发货中”. {}", request.getSendVehicleBizId(), sendDestId,
                     JsonHelper.toJson(request));
             updateSendVehicleStatus(request, taskSend, curSendDetail);
+            if (ObjectHelper.isNotNull(request.getTaskName())){
+                JyBizTaskSendVehicleEntity sendVehicleTask =new JyBizTaskSendVehicleEntity();
+                //sendVehicleTask.setId(taskSend.getId());
+                sendVehicleTask.setBizId(taskSend.getBizId());
+                sendVehicleTask.setTaskName(request.getTaskName());
+                sendVehicleTask.setUpdateTime(new Date());
+                sendVehicleTask.setUpdateUserErp(request.getUser().getUserErp());
+                sendVehicleTask.setUpdateUserName(request.getUser().getUserName());
+                taskSendVehicleService.updateSendVehicleTask(sendVehicleTask);
+            }
         }
 
         // 发货任务首次扫描记录组员信息
@@ -1881,7 +1892,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
                     this.enableNoTask(taskSend);
 
                     // 保存无任务发货备注
-                    saveNoTaskRemark(request);
+                    //saveNoTaskRemark(request);
                 }
             }
             else {

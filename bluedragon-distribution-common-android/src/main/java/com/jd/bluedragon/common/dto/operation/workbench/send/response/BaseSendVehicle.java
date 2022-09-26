@@ -62,6 +62,8 @@ public class BaseSendVehicle implements Serializable {
 
     private String bizNo;
 
+    private String taskName;
+
     private Boolean _active;
 
     public String getVehicleNumber() {
@@ -150,5 +152,13 @@ public class BaseSendVehicle implements Serializable {
 
     public void setLineTypeName(String lineTypeName) {
         this.lineTypeName = lineTypeName;
+    }
+
+    public String getTaskName() {
+        return taskName;
+    }
+
+    public void setTaskName(String taskName) {
+        this.taskName = taskName;
     }
 }

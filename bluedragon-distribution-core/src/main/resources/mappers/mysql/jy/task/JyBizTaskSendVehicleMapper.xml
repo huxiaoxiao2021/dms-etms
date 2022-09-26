@@ -31,6 +31,7 @@
         <result property="updateTime" column="update_time"/>
         <result property="yn" column="yn"/>
         <result property="ts" column="ts"/>
+        <result property="taskName" column="task_name"/>
     </resultMap>
 
     <resultMap id="statusSumResultMap" type="com.jd.bluedragon.distribution.jy.dto.send.JyBizTaskSendCountDto">
@@ -42,7 +43,7 @@
         id
         , biz_id,biz_no, trans_work_code, start_site_id, vehicle_number, vehicle_status, manual_created_flag, abnormal_flag,
         bind_flag, trans_way, trans_way_name, vehicle_type, vehicle_type_name, line_type, line_type_name, last_plan_depart_time, last_seal_car_time,
-        create_user_erp, create_user_name, update_user_erp, update_user_name, create_time, update_time, yn, ts
+        create_user_erp, create_user_name, update_user_erp, update_user_name, create_time, update_time, yn, ts,task_name
     </sql>
 
     <insert id="insert" parameterType="JyBizTaskSendVehicleEntity">
@@ -126,7 +127,10 @@
             <if test="ts != null">
                 ts,
             </if>
-        </trim>
+            <if test="taskName != null">
+                task_name,
+            </if>
+            </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="id != null">
                 #{id,jdbcType=BIGINT},
@@ -205,6 +209,9 @@
             </if>
             <if test="ts != null">
                 #{ts,jdbcType=TIMESTAMP},
+            </if>
+            <if test="taskName != null">
+                #{taskName,jdbcType=VARCHAR},
             </if>
         </trim>
     </insert>
@@ -296,6 +303,9 @@
         <set>
             <if test="bizNo != null">
                 biz_no = #{bizNo,jdbcType=VARCHAR},
+            </if>
+            <if test="taskName != null">
+                task_name = #{taskName,jdbcType=VARCHAR},
             </if>
             <if test="transWorkCode != null">
                 trans_work_code = #{transWorkCode,jdbcType=VARCHAR},
