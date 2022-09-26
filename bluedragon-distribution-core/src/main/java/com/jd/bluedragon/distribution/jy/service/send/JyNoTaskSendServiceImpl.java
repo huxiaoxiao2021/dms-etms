@@ -169,6 +169,7 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
         createVehicleTaskResp.setBizId(jyBizTaskSendVehicleEntity.getBizId());
         createVehicleTaskResp.setBizNo(jyBizTaskSendVehicleEntity.getBizNo());
         createVehicleTaskResp.setTaskName("自建"+jyBizTaskSendVehicleEntity.getBizNo());
+        createVehicleTaskResp.setCreateUserErp(createVehicleTaskReq.getUser().getUserErp());
         return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, createVehicleTaskResp);
     }
 

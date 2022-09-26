@@ -80,7 +80,7 @@ public class JyVehicleSendRelationServiceImpl implements JyVehicleSendRelationSe
 
     @Override
     public List<JySendCodeEntity> querySendDetailBizIdBySendCode(List<String> sendCodes) {
-        return null;
+        return jySendCodeDao.querySendDetailBizIdBySendCode(sendCodes);
     }
 
 }

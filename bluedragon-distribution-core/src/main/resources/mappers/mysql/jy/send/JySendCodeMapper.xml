@@ -153,4 +153,16 @@
         ORDER BY update_time
         LIMIT 1
     </select>
+
+    <select id="querySendDetailBizIdBySendCode" resultMap="jySendCodeMap">
+        select
+        <include refid="Base_Column_List"/>
+        from jy_send_code
+        WHERE yn = 1
+        and send_code in
+        <foreach item="item" index="index" collection="sendCodeList"
+                 open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
 </mapper>

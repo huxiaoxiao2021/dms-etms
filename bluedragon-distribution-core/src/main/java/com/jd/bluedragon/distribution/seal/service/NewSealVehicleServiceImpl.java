@@ -30,6 +30,7 @@ import com.jd.bluedragon.distribution.busineCode.sendCode.service.SendCodeServic
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendDetailStatusEnum;
 import com.jd.bluedragon.distribution.jy.send.JySendCodeEntity;
+import com.jd.bluedragon.distribution.jy.service.send.IJySendVehicleService;
 import com.jd.bluedragon.distribution.jy.service.send.JyVehicleSendRelationService;
 import com.jd.bluedragon.distribution.jy.service.send.SendVehicleTransactionManager;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetailService;
@@ -167,6 +168,8 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
     JyBizTaskSendVehicleService jyBizTaskSendVehicleService;
     @Autowired
     private SendVehicleTransactionManager sendVehicleTransactionManager;
+    @Autowired
+    private IJySendVehicleService jySendVehicleService;
 
     private static final Integer UNSEAL_CAR_IN_RECIVE_AREA = 2;    //带解封的车辆在围栏里(1-是否在始发网点 2-是否在目的网点)
 
@@ -230,7 +233,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
                 sendBatchSendCodeStatusMsg(doSealCarDtos,null,BatchSendStatusEnum.USED);
                 log.info("封车成功，发送封车mq消息成功");
                 saveSealDataList.addAll(convert2SealVehicles(doSealCarDtos,SealVehicleExecute.SUCCESS,SealVehicleExecute.SUCCESS.getName()));
-                syncJySealStatus(new ArrayList<>(sendCodeList));
+                syncJySealStatus(doSealCarDtos);
             }else{
                 log.info("提交运输封车失败，返回：{}",JsonHelper.toJson(sealCarInfo));
                 msg = "["+sealCarInfo.getCode()+":"+sealCarInfo.getMessage()+"]";
@@ -277,27 +280,35 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
         return sealCarInfo;
 	}
 
-    private void syncJySealStatus(List<String> sendCodes) {
-        /*if (ObjectHelper.isNotNull(sendCodes)){
+    private void syncJySealStatus(List<SealCarDto> sealCarDtos) {
+        if (ObjectHelper.isNotNull(sealCarDtos) && sealCarDtos.size()>0){
+            List<String> sendCodes =new ArrayList();
+            for (SealCarDto sealCarDto:sealCarDtos){
+                sendCodes.addAll(sealCarDto.getBatchCodes());
+            }
             List<JySendCodeEntity> sendCodeEntityList =jyVehicleSendRelationService.querySendDetailBizIdBySendCode(sendCodes);
             for (JySendCodeEntity jySendCodeEntity:sendCodeEntityList){
-                checkAndUpdateTaskStatus(jySendCodeEntity);
+                checkAndUpdateTaskStatus(jySendCodeEntity,sealCarDtos.get(0));
             }
-        }*/
+        }
     }
 
-    private void checkAndUpdateTaskStatus(JySendCodeEntity jySendCodeEntity) {
+    private void checkAndUpdateTaskStatus(JySendCodeEntity jySendCodeEntity,SealCarDto sealCarDto) {
         JyBizTaskSendVehicleDetailEntity taskSendDetail = jyBizTaskSendVehicleDetailService.findByBizId(jySendCodeEntity.getSendDetailBizId());
         JyBizTaskSendVehicleEntity taskSend = jyBizTaskSendVehicleService.findByBizId(jySendCodeEntity.getSendVehicleBizId());
-        taskSend.setUpdateTime(new Date());
-        //taskSend.setUpdateUserErp(sealVehicleReq.getUser().getUserErp());
-        //taskSend.setUpdateUserName(sealVehicleReq.getUser().getUserName());
-
-        //taskSendDetail.setSealCarTime(DateHelper.parseDate(sealCarDto.getSealCarTime(), Constants.DATE_TIME_FORMAT));
-        taskSendDetail.setUpdateTime(taskSend.getUpdateTime());
-        taskSendDetail.setUpdateUserErp(taskSend.getUpdateUserErp());
-        taskSendDetail.setUpdateUserName(taskSend.getUpdateUserName());
-        sendVehicleTransactionManager.updateTaskStatus(taskSend, taskSendDetail, JyBizTaskSendDetailStatusEnum.SEALED);
+        if (JyBizTaskSendDetailStatusEnum.SEALED.getCode().equals(taskSendDetail.getVehicleStatus())){
+            return;
+        }
+        if (jySendVehicleService.checkIfSealed(taskSendDetail)){
+            taskSend.setUpdateTime(new Date());
+            taskSend.setUpdateUserErp(sealCarDto.getSealUserCode());
+            taskSend.setUpdateUserName(sealCarDto.getSealUserName());
+            taskSendDetail.setSealCarTime(sealCarDto.getSealCarTime());
+            taskSendDetail.setUpdateTime(taskSend.getUpdateTime());
+            taskSendDetail.setUpdateUserErp(taskSend.getUpdateUserErp());
+            taskSendDetail.setUpdateUserName(taskSend.getUpdateUserName());
+            sendVehicleTransactionManager.updateTaskStatus(taskSend, taskSendDetail, JyBizTaskSendDetailStatusEnum.SEALED);
+        }
     }
 
     /**
@@ -491,7 +502,6 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
             } else if (Constants.RESULT_SUCCESS == sealCarInfo.getCode()) {
                 successSealCarList.add(param);
                 saveSealCarList.addAll(convert2SealVehicles(Arrays.asList(param),SealVehicleExecute.SUCCESS,SealVehicleExecute.SUCCESS.getName()));
-                syncJySealStatus(param.getBatchCodes());
             } else {
                 singleErrorMsg = "运力编码封车失败：" + transportCode + "." + sealCarInfo.getCode() + "-" + sealCarInfo.getMessage() + ".";
                 log.warn("VOS封车业务同时生成车次任务失败.参数:{},返回值:{}" , JSON.toJSONString(param) , singleErrorMsg);
@@ -507,7 +517,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
             log.debug("doSealCarWithVehicleJob传摆封车成功！，批次数量：{}" , successSealCarList.size());
             addRedisCache(successSealCarList);
             sendBatchSendCodeStatusMsg(successSealCarList,null,BatchSendStatusEnum.USED);
-
+            syncJySealStatus(successSealCarList);
         }
 
         //记录封车操作数据
@@ -598,7 +608,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
                 saveNXSealData(doSealCarDtos);
                 sendBatchSendCodeStatusMsg(doSealCarDtos,null,BatchSendStatusEnum.USED);
                 saveSealDataList.addAll(convert2SealVehicles(doSealCarDtos,SealVehicleExecute.SUCCESS,SealVehicleExecute.SUCCESS.getName()));
-                //syncJySealStatus();
+                syncJySealStatus(doSealCarDtos);
             }else{
                 msg += "["+sealCarInfo.getCode()+":"+sealCarInfo.getMessage()+"]";
                 log.error("调用运输接口失败sealCarInfo[{}]msg[{}]",JsonHelper.toJson(paramList),msg);
