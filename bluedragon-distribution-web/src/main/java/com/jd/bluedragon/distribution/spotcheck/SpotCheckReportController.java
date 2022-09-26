@@ -111,9 +111,7 @@ public class SpotCheckReportController extends DmsBaseController {
     @ResponseBody
     public InvokeResult<Boolean> securityCheck(@PathVariable("waybillCode") String waybillCode) {
         InvokeResult<Boolean> result = new InvokeResult<>();
-//        ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
-        ErpUserClient.ErpUser erpUser = new ErpUserClient.ErpUser();
-        erpUser.setUserCode("bjxings");
+        ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
         if (erpUser == null || StringUtils.isEmpty(erpUser.getUserCode())) {
             result.error("获取当前登录用户信息失败，请重新登录ERP后尝试");
             return result;
