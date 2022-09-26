@@ -1414,7 +1414,7 @@ public class SendPrintServiceImpl implements SendPrintService {
         // 记录businessLog
         addBusinessLog(startTime, printExportCriteria, false, null);
         com.jd.dms.wb.report.api.dto.base.BaseEntity<Boolean>
-                baseEntity = printHandoverListManager.doBatchExportAsync(createESQueryCondition(printExportCriteria, false));
+                baseEntity = printHandoverListManager.doBatchExportAsync(createESQueryCondition(printExportCriteria, isShowAddress(printExportCriteria.getList())));
         if(baseEntity != null && Objects.equals(baseEntity.getData(),true)){
             log.info("操作人【{}】始发地【{}】的交接清单导出成功!", printExportCriteria.getUserCode(), printExportCriteria.getCreateSiteCode());
         }else {
