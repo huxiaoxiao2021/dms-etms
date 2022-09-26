@@ -427,10 +427,7 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
     }
 
     private void assembleRespWaybillData(SendWaybillStatisticsResp sendWaybillStatisticsResp, ExcepWaybillDto waybillDto) {
-        if (waybillDto != null && !CollectionUtils.isEmpty(waybillDto.getSendWaybillDtoList())) {
-            List<com.jd.bluedragon.distribution.jy.dto.send.SendWaybillDto> waybillDtoList = new ArrayList<>();
-            for (SendWaybillDto sendWaybillDto : waybillDto.getSendWaybillDtoList())
-
+        if (ObjectHelper.isNotNull(waybillDto) && ObjectHelper.isNotNull(waybillDto.getSendWaybillDtoList())) {
             sendWaybillStatisticsResp.setWaybillDtoList(waybillDto.getSendWaybillDtoList());
         }
     }
@@ -472,7 +469,9 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
 
     private List<JyLabelOption> resolveBarCodeTag(ExcepScanLabelEnum excepScanLabelEnum) {
         List<JyLabelOption> tags = new ArrayList<>();
-        tags.add(new JyLabelOption(excepScanLabelEnum.getCode(), excepScanLabelEnum.getName()));
+        if (excepScanLabelEnum != null) {
+            tags.add(new JyLabelOption(excepScanLabelEnum.getCode(), excepScanLabelEnum.getName()));
+        }
         return tags;
     }
 
