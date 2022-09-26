@@ -78,4 +78,16 @@ public class JyVehicleSendRelationServiceImpl implements JyVehicleSendRelationSe
         return null;
     }
 
+    /**
+     * 根据任务ID查询批次数据
+     *
+     * @param vehicleBizId 任务业务ID
+     * @return 批次数据列表
+     * @author fanggang7
+     * @time 2022-09-26 17:36:53 周一
+     */
+    @Override
+    public List<JySendCodeEntity> queryByVehicleBizId(String vehicleBizId) {
+        return jySendCodeDao.queryByVehicleBizId(vehicleBizId);
+    }
 }

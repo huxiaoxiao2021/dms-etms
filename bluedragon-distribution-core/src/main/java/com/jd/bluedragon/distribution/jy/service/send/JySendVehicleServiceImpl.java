@@ -2605,4 +2605,114 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
 
         return sendDestDetails;
     }
+
+    @Override
+    public InvokeResult<SendTaskInfo> sendTaskDetail(SendVehicleInfoRequest request) {
+        InvokeResult<SendTaskInfo> invokeResult = new InvokeResult<>();
+        if (request.getCurrentOperate() == null
+                || request.getCurrentOperate().getSiteCode() <= 0
+                || StringUtils.isBlank(request.getSendVehicleBizId())) {
+            invokeResult.parameterError();
+            return invokeResult;
+        }
+
+        try {
+            final SendTaskInfo sendTaskInfo = new SendTaskInfo();
+            // 查询主任务数据
+            JyBizTaskSendVehicleEntity sendVehicleEntity = taskSendVehicleService.findByBizId(request.getSendVehicleBizId());
+            if (sendVehicleEntity == null) {
+                invokeResult.hintMessage("发货任务不存在！");
+                return invokeResult;
+            }
+            this.fillSendTaskInfo(sendTaskInfo, sendVehicleEntity);
+
+            // 查询明细列表
+            List<JyBizTaskSendVehicleDetailEntity> vehicleDetailList = taskSendVehicleDetailService.findEffectiveSendVehicleDetail(new JyBizTaskSendVehicleDetailEntity((long) request.getCurrentOperate().getSiteCode(), request.getSendVehicleBizId()));
+            if (CollectionUtils.isEmpty(vehicleDetailList)) {
+                invokeResult.hintMessage("发货流向为空");
+                return invokeResult;
+            }
+            List<SendTaskItemDetail> sendTaskItemDetails = new ArrayList<>();
+            for (JyBizTaskSendVehicleDetailEntity jyBizTaskSendVehicleDetailEntity : vehicleDetailList) {
+                sendTaskItemDetails.add(convertSendVehicleDetail2SendDestDetail(jyBizTaskSendVehicleDetailEntity));
+            }
+            sendTaskInfo.setDetailList(sendTaskItemDetails);
+
+            // 查询发货进度
+            SendVehicleProgress progress = new SendVehicleProgress();
+            setSendProgressData(sendVehicleEntity, progress);
+            sendTaskInfo.setSendVehicleProgress(progress);
+
+            // 查询批次
+            final List<JySendCodeEntity> sendCodeEntityList = jySendCodeService.queryByVehicleBizId(request.getSendVehicleBizId());
+            if(CollectionUtils.isNotEmpty(sendCodeEntityList)){
+                Map<String, List<String>> sendCodeEntityMapGbDetailIdMap = new HashMap<>();
+                for (JySendCodeEntity jySendCodeEntity : sendCodeEntityList) {
+                    List<String> sendCodeEntityListExist = sendCodeEntityMapGbDetailIdMap.get(jySendCodeEntity.getSendDetailBizId());
+                    if(sendCodeEntityListExist == null){
+                        sendCodeEntityListExist = new ArrayList<>();
+                        sendCodeEntityListExist.add(jySendCodeEntity.getSendCode());
+                        sendCodeEntityMapGbDetailIdMap.put(jySendCodeEntity.getSendDetailBizId(), sendCodeEntityListExist);
+                    } else {
+                        sendCodeEntityListExist.add(jySendCodeEntity.getSendCode());
+                    }
+                }
+
+                for (SendTaskItemDetail sendTaskItemDetail : sendTaskItemDetails) {
+                    final List<String> sendCodeEntityListExist = sendCodeEntityMapGbDetailIdMap.get(sendTaskItemDetail.getBizId());
+                    if(CollectionUtils.isNotEmpty(sendCodeEntityListExist)){
+                        sendTaskItemDetail.setBatchCodeList(sendCodeEntityListExist);
+                    }
+                }
+            }
+            invokeResult.setData(sendTaskInfo);
+        }
+        catch (Exception ex) {
+            log.error("查询发车任务详情失败. {}", JsonHelper.toJson(request), ex);
+            invokeResult.error("服务器异常，查询发车任务详情异常，请咚咚联系分拣小秘！");
+        }
+
+        return invokeResult;
+    }
+
+    private void fillSendTaskInfo(SendTaskInfo sendTaskInfo, JyBizTaskSendVehicleEntity sendVehicleEntity) {
+        sendTaskInfo.setVehicleNumber(sendVehicleEntity.getVehicleNumber());
+        sendTaskInfo.setBizId(sendVehicleEntity.getBizId());
+        sendTaskInfo.setBizNo(sendVehicleEntity.getBizNo());
+        sendTaskInfo.setTransWorkCode(sendVehicleEntity.getTransWorkCode());
+        sendTaskInfo.setStartSiteId(sendVehicleEntity.getStartSiteId());
+        BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteBySiteId(sendVehicleEntity.getStartSiteId().intValue());
+        if (baseSite != null) {
+            sendTaskInfo.setStartSiteName(baseSite.getSiteName());
+        }
+        sendTaskInfo.setLastPlanDepartTime(sendVehicleEntity.getLastPlanDepartTime());
+        sendTaskInfo.setLastSealCarTime(sendVehicleEntity.getLastSealCarTime());
+        sendTaskInfo.setVehicleStatus(sendVehicleEntity.getVehicleStatus());
+        sendTaskInfo.setVehicleStatusName(JySendVehicleStatusEnum.getNameByCode(sendVehicleEntity.getVehicleStatus()));
+        sendTaskInfo.setManualCreatedFlag(sendVehicleEntity.getManualCreatedFlag());
+        sendTaskInfo.setAbnormalFlag(sendVehicleEntity.getAbnormalFlag());
+        sendTaskInfo.setTransWay(sendVehicleEntity.getTransWay());
+        sendTaskInfo.setTransWayName(sendVehicleEntity.getTransWayName());
+        sendTaskInfo.setVehicleType(sendVehicleEntity.getVehicleType());
+        sendTaskInfo.setVehicleTypeName(sendVehicleEntity.getVehicleTypeName());
+        sendTaskInfo.setLineType(sendVehicleEntity.getLineType());
+        sendTaskInfo.setLineTypeName(sendVehicleEntity.getLineTypeName());
+    }
+
+    private SendTaskItemDetail convertSendVehicleDetail2SendDestDetail(JyBizTaskSendVehicleDetailEntity sendVehicleDetailEntity) {
+        final SendTaskItemDetail sendTaskItemDetail = new SendTaskItemDetail();
+        sendTaskItemDetail.setBizId(sendVehicleDetailEntity.getBizId());
+        sendTaskItemDetail.setSendVehicleBizId(sendVehicleDetailEntity.getSendVehicleBizId());
+        sendTaskItemDetail.setVehicleStatus(sendVehicleDetailEntity.getVehicleStatus());
+        sendTaskItemDetail.setVehicleStatusName(JySendVehicleStatusEnum.getNameByCode(sendVehicleDetailEntity.getVehicleStatus()));
+        sendTaskItemDetail.setTransWorkItemCode(sendVehicleDetailEntity.getTransWorkItemCode());
+        sendTaskItemDetail.setStartSiteId(sendVehicleDetailEntity.getStartSiteId());
+        sendTaskItemDetail.setStartSiteName(sendVehicleDetailEntity.getStartSiteName());
+        sendTaskItemDetail.setEndSiteId(sendVehicleDetailEntity.getEndSiteId());
+        sendTaskItemDetail.setEndSiteName(sendVehicleDetailEntity.getEndSiteName());
+        sendTaskItemDetail.setPlanDepartTime(sendVehicleDetailEntity.getPlanDepartTime());
+        sendTaskItemDetail.setSealCarTime(sendVehicleDetailEntity.getSealCarTime());
+        sendTaskItemDetail.setExcepLabel(sendVehicleDetailEntity.getExcepLabel());
+        return sendTaskItemDetail;
+    }
 }
