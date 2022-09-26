@@ -1,5 +1,7 @@
 package com.jd.bluedragon.utils;
 
+import com.jd.common.util.StringUtils;
+
 import javax.servlet.http.HttpServletRequest;
 
 /**
@@ -21,6 +23,7 @@ public class ServletRequestHelper {
      * 192.168.1.100
      *
      * 用户真实IP为： 192.168.1.110
+     * 10.253.20.113, 172.20.17.80
      *
      * @param request
      * @return
@@ -42,6 +45,11 @@ public class ServletRequestHelper {
         if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
             ip = request.getRemoteAddr();
         }
+
+        if (StringUtils.isNotEmpty(ip) && ip.indexOf(",") > 0) {
+            return ip.split(",")[0];
+        }
+
         return ip;
     }
 
