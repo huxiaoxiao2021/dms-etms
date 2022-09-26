@@ -11,6 +11,7 @@ import com.jd.bluedragon.distribution.exceptionReport.billException.vo.ExpressBi
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.etms.sdk.util.DateUtil;
 import com.alibaba.fastjson.JSON;
+import com.jd.jddl.executor.function.scalar.filter.In;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -22,6 +23,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @Author: liming522
@@ -131,6 +133,18 @@ public class ExpressBillExceptionReportCenterServiceImpl implements ExpressBillE
         }else {
             response.toError();
         }
+        return response;
+    }
+
+    @Override
+    public Response<List<String>> getPicUrlsById(Integer id) {
+        Response<List<String>> response = new Response<>();
+        if(id == null){
+            response.toError("参数错误!");
+            return response;
+        }
+        response.toSucceed();
+        response.setData(expressBillExceptionReportService.getPicUrlsById(id));
         return response;
     }
 }
