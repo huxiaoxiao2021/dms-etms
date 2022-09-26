@@ -67,6 +67,38 @@ function printBtn() {
     }
 }
 
+// 查看详细地址
+function showDetailAddressBtn() {
+    const checkedKeys = $("#paperTable tbody input[type=checkbox][name='record']:checked");
+    if (checkedKeys) {
+        if (checkedKeys.length === 1) {
+            const url = $("#contextPath").val() + "/waybill/rma/showDetailAddress";
+            jQuery.ajax({
+                type: 'post',
+                url: url,
+                dataType: "json",//必须json
+                contentType: "application/json", // 指定这个协议很重要
+                data: $(checkedKeys[0]).val(),
+                async: false,
+                success: function (res) {
+                    if (res == null) {
+                        jQuery.messager.alert('提示:', '查看详细地址异常!', 'info');
+                        return;
+                    }
+                    if (res.code === 1) {
+                        jQuery.messager.alert('提示:', res.data, 'info');
+                    } else {
+                        jQuery.messager.alert('警告:', res.message, 'warn');
+                    }
+                }
+            });
+        } else {
+            jQuery.messager.alert('提示:', '请选择一条记录！', 'info');
+        }
+    } else {
+        jQuery.messager.alert('提示:', '请选择查看的记录！', 'info');
+    }
+}
 /**
  * 导出
  */
