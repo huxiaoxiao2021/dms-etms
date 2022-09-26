@@ -29,6 +29,7 @@ public class GateWayServiceExcepHandler {
         try {
             jdCResponse = (JdCResponse) proceedingJoinPoint.proceed();
         } catch (Throwable throwable) {
+            log.error("serviceExceptionHandler catch exception:",throwable);
 
             if (throwable instanceof MiniStoreBizException) {
                 MiniStoreBizException exception = (MiniStoreBizException) throwable;

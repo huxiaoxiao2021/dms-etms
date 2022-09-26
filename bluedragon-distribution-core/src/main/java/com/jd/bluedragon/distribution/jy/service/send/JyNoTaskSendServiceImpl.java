@@ -52,6 +52,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
@@ -208,8 +209,8 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
     }
 
     @Override
-    @Transactional
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyNoTaskSendServiceImpl.deleteVehicleTask", mState = {JProEnum.TP, JProEnum.FunctionError})
+    @Transactional(value = "tm_jy_core", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public InvokeResult deleteVehicleTask(DeleteVehicleTaskReq deleteVehicleTaskReq) {
         log.info("删除自建任务,deleteVehicleTaskReq:{}",JsonHelper.toJson(deleteVehicleTaskReq));
         JyBizTaskSendVehicleEntity task =jyBizTaskSendVehicleService.findByBizId(deleteVehicleTaskReq.getBizId());
@@ -277,6 +278,7 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyNoTaskSendServiceImpl.bindVehicleDetailTask", mState = {JProEnum.TP, JProEnum.FunctionError})
+    @Transactional(value = "tm_jy_core", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public InvokeResult bindVehicleDetailTask(BindVehicleDetailTaskReq bindVehicleDetailTaskReq) {
         log.info("自建任务绑定运输任务,bindVehicleDetailTaskReq:{}",JsonHelper.toJson(bindVehicleDetailTaskReq));
         JyBizTaskSendVehicleEntity task =jyBizTaskSendVehicleService.findByBizId(bindVehicleDetailTaskReq.getFromSendVehicleBizId());
@@ -355,6 +357,7 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyNoTaskSendServiceImpl.transferSendTask", mState = {JProEnum.TP, JProEnum.FunctionError})
+    @Transactional(value = "tm_jy_core", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public InvokeResult transferSendTask(TransferSendTaskReq transferSendTaskReq) {
         log.info("任务迁移,transferSendTaskReq:{}",JsonHelper.toJson(transferSendTaskReq));
         //查询要迁移的批次信息-sendCodes
@@ -387,7 +390,9 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
                 //生成迁移任务，异步执行迁移逻辑
                 for (String sendCode : sendCodeList) {
                     List<SendM> sendMList = sendMService.selectBySiteAndSendCode(transferSendTaskReq.getCurrentOperate().getSiteCode(), sendCode);
-                    deliveryOperationService.asyncHandleTransfer(sendMList, dto);
+                    if (ObjectHelper.isNotNull(sendMList)){
+                        deliveryOperationService.asyncHandleTransfer(sendMList, dto);
+                    }
                 }
             }
             JyBizTaskSendVehicleEntity toSvTask = new JyBizTaskSendVehicleEntity();
