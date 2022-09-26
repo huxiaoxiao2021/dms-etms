@@ -75,5 +75,9 @@ public class ExpressBillExceptionReportDao extends BaseDao<ExpressBillExceptionR
     public int updateByBusiCode(ExpressBillExceptionReport query) {
         return this.getSqlSession().update(ExpressBillExceptionReportDao.namespace + ".updateByBusiCode", query);
     }
+
+    public String getPicUrlsById(Integer id) {
+        return this.getSqlSession().selectOne(ExpressBillExceptionReportDao.namespace + ".getPicUrlsById", id);
+    }
 }
     

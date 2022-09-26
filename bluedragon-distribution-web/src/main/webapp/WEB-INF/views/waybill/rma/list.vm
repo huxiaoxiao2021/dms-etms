@@ -94,6 +94,7 @@
                             <input type="button" id="add" name="add" value="打印" class="btn_c" onclick="printBtn()"/>
 
                             <input type="button" id="export" name="export" value="导出" class="btn_c" onclick="exportBtn()"/>
+                            <input type="button" id="showDetailAddress" name="showDetailAddress" value="查看地址详情" class="btn_c" onclick="showDetailAddressBtn()"/>
                         </td>
                     </tr>
                     </tbody>

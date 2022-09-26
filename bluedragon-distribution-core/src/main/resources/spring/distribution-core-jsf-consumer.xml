@@ -1075,4 +1075,5 @@
                   protocol="jsf" alias="${jsf.sendhandover.alias}" timeout="${jsf.sendhandover.timeout}"  retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
         <jsf:parameter key="token" value="${jsf.sendhandover.token}" hide="true"/>
     </jsf:consumer>
+
 </beans>

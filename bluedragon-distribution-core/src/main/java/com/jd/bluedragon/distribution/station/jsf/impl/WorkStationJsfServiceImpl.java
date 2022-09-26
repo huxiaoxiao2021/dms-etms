@@ -8,13 +8,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.distribution.api.response.base.Result;
+import com.jd.bluedragon.distribution.base.ResultHandler;
+import com.jd.bluedragon.distribution.lock.LockService;
 import com.jd.bluedragon.distribution.station.api.WorkStationJsfService;
 import com.jd.bluedragon.distribution.station.domain.DeleteRequest;
 import com.jd.bluedragon.distribution.station.domain.WorkStation;
 import com.jd.bluedragon.distribution.station.domain.WorkStationCountVo;
 import com.jd.bluedragon.distribution.station.query.WorkStationQuery;
 import com.jd.bluedragon.distribution.station.service.WorkStationService;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
 
 /**
@@ -32,34 +36,126 @@ public class WorkStationJsfServiceImpl implements WorkStationJsfService {
 	@Autowired
 	@Qualifier("workStationService")
 	private WorkStationService workStationService;
+	
+    @Autowired
+    @Qualifier("jimdbRemoteLockService")
+    private LockService lockService;
 
 	/**
 	 * 插入一条数据
 	 * @param insertData
 	 * @return
 	 */
-	public Result<Boolean> insert(WorkStation insertData){
-		return workStationService.insert(insertData);
+	public Result<Boolean> insert(final WorkStation insertData){
+		final Result<Boolean> result = Result.success();
+		lockService.tryLock(CacheKeyConstants.CACHE_KEY_WORK_STATION_EDIT,DateHelper.ONE_MINUTES_MILLI, new ResultHandler() {
+			@Override
+			public void success() {
+				Result<Boolean> apiResult = workStationService.insert(insertData);
+				if(!apiResult.isSuccess()) {
+					result.setCode(apiResult.getCode());
+					result.setMessage(apiResult.getMessage());
+					result.setData(apiResult.getData());
+					return ;
+				}
+			}
+			@Override
+			public void fail() {
+				result.toFail("其他用户正在修改工序信息，请稍后操作！");
+			}
+			@Override
+			public void error(Exception e) {
+				logger.error(e.getMessage(), e);
+				result.toFail("操作异常，请稍后重试！");
+			}
+		});
+		return result;
 	 }
 	@Override
-	public Result<Boolean> importDatas(List<WorkStation> dataList) {
-		return workStationService.importDatas(dataList);
+	public Result<Boolean> importDatas(final List<WorkStation> dataList) {
+		final Result<Boolean> result = Result.success();
+		lockService.tryLock(CacheKeyConstants.CACHE_KEY_WORK_STATION_EDIT,DateHelper.FIVE_MINUTES_MILLI, new ResultHandler() {
+			@Override
+			public void success() {
+				Result<Boolean> apiResult = workStationService.importDatas(dataList);
+				if(!apiResult.isSuccess()) {
+					result.setCode(apiResult.getCode());
+					result.setMessage(apiResult.getMessage());
+					result.setData(apiResult.getData());
+					return ;
+				}
+			}
+			@Override
+			public void fail() {
+				result.toFail("其他用户正在修改工序信息，请稍后操作！");
+			}
+			@Override
+			public void error(Exception e) {
+				logger.error(e.getMessage(), e);
+				result.toFail("操作异常，请稍后重试！");
+			}
+		});
+		return result;		
 	}	
 	/**
 	 * 根据id更新数据
 	 * @param updateData
 	 * @return
 	 */
-	public Result<Boolean> updateById(WorkStation updateData){
-		return workStationService.updateById(updateData);
+	public Result<Boolean> updateById(final WorkStation updateData){
+		final Result<Boolean> result = Result.success();
+		lockService.tryLock(CacheKeyConstants.CACHE_KEY_WORK_STATION_EDIT,DateHelper.ONE_MINUTES_MILLI, new ResultHandler() {
+			@Override
+			public void success() {
+				Result<Boolean> apiResult = workStationService.updateById(updateData);
+				if(!apiResult.isSuccess()) {
+					result.setCode(apiResult.getCode());
+					result.setMessage(apiResult.getMessage());
+					result.setData(apiResult.getData());
+					return ;
+				}
+			}
+			@Override
+			public void fail() {
+				result.toFail("其他用户正在修改工序信息，请稍后操作！");
+			}
+			@Override
+			public void error(Exception e) {
+				logger.error(e.getMessage(), e);
+				result.toFail("操作异常，请稍后重试！");
+			}
+		});
+		return result;		
 	 }
 	/**
 	 * 根据id删除数据
 	 * @param deleteData
 	 * @return
 	 */
-	public Result<Boolean> deleteById(WorkStation deleteData){
-		return workStationService.deleteById(deleteData);
+	public Result<Boolean> deleteById(final WorkStation deleteData){
+		final Result<Boolean> result = Result.success();
+		lockService.tryLock(CacheKeyConstants.CACHE_KEY_WORK_STATION_EDIT,DateHelper.ONE_MINUTES_MILLI, new ResultHandler() {
+			@Override
+			public void success() {
+				Result<Boolean> apiResult = workStationService.deleteById(deleteData);
+				if(!apiResult.isSuccess()) {
+					result.setCode(apiResult.getCode());
+					result.setMessage(apiResult.getMessage());
+					result.setData(apiResult.getData());
+					return ;
+				}
+			}
+			@Override
+			public void fail() {
+				result.toFail("其他用户正在修改工序信息，请稍后操作！");
+			}
+			@Override
+			public void error(Exception e) {
+				logger.error(e.getMessage(), e);
+				result.toFail("操作异常，请稍后重试！");
+			}
+		});
+		return result;		
 	 }
 	/**
 	 * 根据id查询
@@ -95,8 +191,30 @@ public class WorkStationJsfServiceImpl implements WorkStationJsfService {
 		return workStationService.queryWorkDictList(query);
 	}
 	@Override
-	public Result<Boolean> deleteByIds(DeleteRequest<WorkStation> deleteRequest) {
-		return workStationService.deleteByIds(deleteRequest);
+	public Result<Boolean> deleteByIds(final DeleteRequest<WorkStation> deleteRequest) {
+		final Result<Boolean> result = Result.success();
+		lockService.tryLock(CacheKeyConstants.CACHE_KEY_WORK_STATION_EDIT,DateHelper.ONE_MINUTES_MILLI, new ResultHandler() {
+			@Override
+			public void success() {
+				Result<Boolean> apiResult = workStationService.deleteByIds(deleteRequest);
+				if(!apiResult.isSuccess()) {
+					result.setCode(apiResult.getCode());
+					result.setMessage(apiResult.getMessage());
+					result.setData(apiResult.getData());
+					return ;
+				}
+			}
+			@Override
+			public void fail() {
+				result.toFail("其他用户正在修改工序信息，请稍后操作！");
+			}
+			@Override
+			public void error(Exception e) {
+				logger.error(e.getMessage(), e);
+				result.toFail("操作异常，请稍后重试！");
+			}
+		});
+		return result;		
 	}
 	@Override
 	public Result<Long> queryCount(WorkStationQuery query) {

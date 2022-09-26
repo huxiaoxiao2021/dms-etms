@@ -6,6 +6,7 @@ import com.jd.bluedragon.common.service.ExportConcurrencyLimitService;
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckReportService;
+import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.dto.WeightVolumePictureDto;
 import com.jd.bluedragon.utils.CsvExporterUtils;
 import com.jd.bluedragon.utils.DateHelper;
@@ -24,6 +25,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.security.auth.login.LoginContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.QueryParam;
@@ -101,6 +103,20 @@ public class SpotCheckReportController extends DmsBaseController {
                 logger.error("export-error", e);
             }
         }
+    }
+
+
+    @Authorization(Constants.DMS_WEB_SORTING_SPOT_CHECK_REPORT_R)
+    @RequestMapping(value = "/securityCheck/{waybillCode}", method = RequestMethod.GET)
+    @ResponseBody
+    public InvokeResult<Boolean> securityCheck(@PathVariable("waybillCode") String waybillCode) {
+        InvokeResult<Boolean> result = new InvokeResult<>();
+        ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
+        if (erpUser == null || StringUtils.isEmpty(erpUser.getUserCode())) {
+            result.error("获取当前登录用户信息失败，请重新登录ERP后尝试");
+            return result;
+        }
+        return spotCheckReportService.securityCheck(waybillCode, erpUser.getUserCode());
     }
 
     /**
