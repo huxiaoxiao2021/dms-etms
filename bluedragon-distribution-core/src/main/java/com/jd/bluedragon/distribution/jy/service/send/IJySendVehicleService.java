@@ -9,6 +9,7 @@ import com.jd.bluedragon.common.dto.send.response.CreateVehicleTaskResp;
 import com.jd.bluedragon.common.dto.send.response.VehicleSpecResp;
 import com.jd.bluedragon.common.dto.send.response.VehicleTaskResp;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.jy.dto.JyLineTypeDto;
 
 import java.util.List;
 
@@ -26,6 +27,13 @@ public interface IJySendVehicleService {
      * @return
      */
     InvokeResult<SendVehicleTaskResponse> fetchSendVehicleTask(SendVehicleTaskRequest request);
+
+    /**
+     * 查找各线路类型的任务数量
+     * @param request
+     * @return
+     */
+    List<JyLineTypeDto> findSendVehicleLineTypeAgg(SendVehicleTaskRequest request, InvokeResult<SendVehicleTaskResponse> invokeResult);
 
     /**
      * 无任务绑定发货任务列表

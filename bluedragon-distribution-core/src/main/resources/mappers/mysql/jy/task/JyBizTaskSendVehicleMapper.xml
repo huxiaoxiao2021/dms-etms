@@ -38,6 +38,11 @@
         <result property="total" column="total"/>
     </resultMap>
 
+    <resultMap id="lineTypeSumResultMap" type="com.jd.bluedragon.distribution.jy.dto.send.JyBizTaskSendLineTypeCountDto">
+        <result property="lineType" column="line_type"/>
+        <result property="total" column="total"/>
+    </resultMap>
+
     <sql id="Base_Column_List">
         id
         , biz_id,biz_no, trans_work_code, start_site_id, vehicle_number, vehicle_status, manual_created_flag, abnormal_flag,
@@ -463,6 +468,29 @@
             and ((last_plan_depart_time &gt;= #{entity.lastPlanDepartTimeBegin} and last_plan_depart_time &lt;= #{entity.lastPlanDepartTimeEnd}) or (last_plan_depart_time is null and create_time &gt;= #{entity.createTimeBegin}))
         </if>
         GROUP BY vehicle_status
+    </select>
+
+    <select id="sumTaskByLineType" resultMap="lineTypeSumResultMap">
+        SELECT
+        line_type, COUNT(*) total
+        FROM
+        jy_biz_task_send_vehicle
+        WHERE
+        yn = 1
+        AND start_site_id = #{entity.startSiteId}
+        <if test="vehicleStatus != null">
+            AND vehicle_status = #{entity.vehicleStatus}
+        </if>
+        <if test="sendVehicleBizList != null and sendVehicleBizList.size() > 0">
+            AND biz_id IN
+            <foreach collection="sendVehicleBizList" separator="," open="(" close=")" item="item">
+                #{item}
+            </foreach>
+        </if>
+        <if test="entity.lastPlanDepartTimeBegin !=null and entity.lastPlanDepartTimeEnd !=null and entity.createTimeBegin !=null">
+            and ((last_plan_depart_time &gt;= #{entity.lastPlanDepartTimeBegin} and last_plan_depart_time &lt;= #{entity.lastPlanDepartTimeEnd}) or (last_plan_depart_time is null and create_time &gt;= #{entity.createTimeBegin}))
+        </if>
+        GROUP BY line_type
     </select>
 
     <select id="querySendTaskOfPage" resultMap="jyBizTaskSendVehicleMap">

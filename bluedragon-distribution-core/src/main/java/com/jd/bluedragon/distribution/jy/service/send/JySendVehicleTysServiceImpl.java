@@ -23,6 +23,7 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.domain.InvokeWithMsgBoxResult;
 import com.jd.bluedragon.distribution.jy.api.JySendVehicleTysService;
 import com.jd.bluedragon.distribution.jy.dto.JyLabelOption;
+import com.jd.bluedragon.distribution.jy.dto.JyLineTypeDto;
 import com.jd.bluedragon.distribution.jy.dto.JySelectOption;
 import com.jd.bluedragon.distribution.jy.dto.send.*;
 import com.jd.bluedragon.distribution.jy.enums.*;
@@ -81,6 +82,8 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
     DeliveryService deliveryService;
     @Autowired
     BaseMajorManager baseMajorManager;
+    @Autowired
+    private IJySendVehicleService jySendVehicleService;
 
     /**
      * 发货模式
@@ -176,6 +179,7 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
                 if (invokeResult.getData() != null) {
                     String jsonStr = JSON.toJSONString(invokeResult.getData());
                     SendVehicleTaskResp sendVehicleTaskResp = JSON.parseObject(jsonStr, SendVehicleTaskResp.class);
+                    setLineTypeAgg(sendVehicleTaskResp, invokeResult, param);
                     result.setData(sendVehicleTaskResp);
                 }
             } else {
@@ -192,6 +196,33 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
         }
         return result;
     }
+
+    private void setLineTypeAgg(SendVehicleTaskResp sendVehicleTaskResp, InvokeResult<SendVehicleTaskResponse> invokeResult, SendVehicleTaskRequest request) {
+        if (invokeResult.codeSuccess()) {
+            List<JyLineTypeDto> lineTypeList = jySendVehicleService.findSendVehicleLineTypeAgg(request, invokeResult);
+            if (CollectionUtils.isEmpty(lineTypeList)) {
+                return;
+            }
+            if (JyBizTaskSendStatusEnum.TO_SEND.getCode().equals(request.getVehicleStatus())) {
+                if (sendVehicleTaskResp.getToSendVehicleData() != null) {
+                    sendVehicleTaskResp.getToSendVehicleData().setJyLineTypeDtos(lineTypeList);
+                }
+            } else if (JyBizTaskSendStatusEnum.SENDING.getCode().equals(request.getVehicleStatus())) {
+                if (sendVehicleTaskResp.getSendingVehicleData() != null) {
+                    sendVehicleTaskResp.getSendingVehicleData().setJyLineTypeDtos(lineTypeList);
+                }
+            } else if (JyBizTaskSendStatusEnum.TO_SEAL.getCode().equals(request.getVehicleStatus())) {
+                if (sendVehicleTaskResp.getToSealVehicleData() != null) {
+                    sendVehicleTaskResp.getToSealVehicleData().setJyLineTypeDtos(lineTypeList);
+                }
+            } else if (JyBizTaskSendStatusEnum.SEALED.getCode().equals(request.getVehicleStatus())) {
+                if (sendVehicleTaskResp.getSealedVehicleData() != null) {
+                    sendVehicleTaskResp.getSealedVehicleData().setJyLineTypeDtos(lineTypeList);
+                }
+            }
+        }
+    }
+
 
     /**
      * 车辆未到、已到候选

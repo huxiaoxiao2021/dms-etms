@@ -9,11 +9,32 @@ import com.jd.bluedragon.common.dto.base.response.MsgBoxTypeEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.*;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.*;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.*;
+import com.jd.bluedragon.common.dto.operation.workbench.send.response.BaseSendVehicle;
+import com.jd.bluedragon.common.dto.operation.workbench.send.response.SealedVehicle;
+import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendAbnormalBarCode;
+import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendDestDetail;
+import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleData;
+import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleDetail;
+import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleInfo;
+import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleProgress;
+import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendingVehicle;
+import com.jd.bluedragon.common.dto.operation.workbench.send.response.ToSealDestAgg;
+import com.jd.bluedragon.common.dto.operation.workbench.send.response.ToSealDestDetail;
+import com.jd.bluedragon.common.dto.operation.workbench.send.response.ToSealVehicle;
+import com.jd.bluedragon.common.dto.operation.workbench.send.response.ToSendVehicle;
 import com.jd.bluedragon.common.dto.operation.workbench.unload.response.LabelOption;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.VehicleStatusStatis;
+import com.jd.bluedragon.common.dto.send.request.BindVehicleDetailTaskReq;
+import com.jd.bluedragon.common.dto.send.request.CancelSendTaskReq;
+import com.jd.bluedragon.common.dto.send.request.CreateVehicleTaskReq;
+import com.jd.bluedragon.common.dto.send.request.DeleteVehicleTaskReq;
+import com.jd.bluedragon.common.dto.send.request.TransferSendTaskReq;
 import com.jd.bluedragon.common.dto.send.request.TransferVehicleTaskReq;
 import com.jd.bluedragon.common.dto.send.request.VehicleTaskReq;
+import com.jd.bluedragon.common.dto.send.response.CancelSendTaskResp;
+import com.jd.bluedragon.common.dto.send.response.CreateVehicleTaskResp;
 import com.jd.bluedragon.common.dto.send.response.VehicleDetailTaskDto;
+import com.jd.bluedragon.common.dto.send.response.VehicleSpecResp;
 import com.jd.bluedragon.common.dto.send.response.VehicleTaskDto;
 import com.jd.bluedragon.common.dto.send.response.VehicleTaskResp;
 import com.jd.bluedragon.common.dto.sysConfig.request.MenuUsageConfigRequestDto;
@@ -48,10 +69,8 @@ import com.jd.bluedragon.distribution.funcSwitchConfig.service.FuncSwitchConfigS
 import com.jd.bluedragon.distribution.jsf.domain.SortingCheck;
 import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
 import com.jd.bluedragon.distribution.jsf.domain.ValidateIgnore;
-import com.jd.bluedragon.distribution.jy.dto.send.JyBizTaskSendCountDto;
-import com.jd.bluedragon.distribution.jy.dto.send.JySendArriveStatusDto;
-import com.jd.bluedragon.distribution.jy.dto.send.QueryTaskSendDto;
-import com.jd.bluedragon.distribution.jy.dto.send.SendFindDestInfoDto;
+import com.jd.bluedragon.distribution.jy.dto.JyLineTypeDto;
+import com.jd.bluedragon.distribution.jy.dto.send.*;
 import com.jd.bluedragon.distribution.jy.enums.*;
 import com.jd.bluedragon.distribution.jy.group.JyTaskGroupMemberEntity;
 import com.jd.bluedragon.distribution.jy.manager.IJySendVehicleJsfManager;
@@ -282,6 +301,36 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
         }
 
         return result;
+    }
+
+
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "IJySendVehicleService.findSendVehicleLineTypeAgg",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
+    public List<JyLineTypeDto> findSendVehicleLineTypeAgg(SendVehicleTaskRequest request, InvokeResult<SendVehicleTaskResponse> invokeResult) {
+            QueryTaskSendDto queryTaskSendDto = setQueryTaskSendDto(request);
+            JyBizTaskSendVehicleEntity condition = makeFetchCondition(queryTaskSendDto);
+            condition.setVehicleStatus(request.getVehicleStatus());
+            // 根据包裹号未查到发货流向的任务
+            List<String> sendVehicleBizList = resolveSearchKeyword(invokeResult, queryTaskSendDto);
+            List<JyBizTaskSendLineTypeCountDto> lineTypeAggList =
+                    taskSendVehicleService.sumTaskByLineType(condition, sendVehicleBizList);
+            return transformLineTypeAgg(lineTypeAggList);
+    }
+
+    /**
+     * 按线路类型统计发货任务数
+     * @param lineTypeAggList
+     */
+    private List<JyLineTypeDto> transformLineTypeAgg(List<JyBizTaskSendLineTypeCountDto> lineTypeAggList) {
+        List<JyLineTypeDto> lineTypeAgg = Lists.newArrayListWithCapacity(lineTypeAggList.size());
+        for (JyBizTaskSendLineTypeCountDto countDto : lineTypeAggList) {
+            JyLineTypeDto item = new JyLineTypeDto();
+            item.setLineType(countDto.getLineType());
+            item.setLineTypeName(JyLineTypeEnum.getNameByCode(item.getLineType()));
+            item.setTotal(countDto.getTotal() == null ? 0 : countDto.getTotal().intValue());
+            lineTypeAgg.add(item);
+        }
+        return lineTypeAgg;
     }
 
     private QueryTaskSendDto setQueryTaskSendDto(SendVehicleTaskRequest request) {
