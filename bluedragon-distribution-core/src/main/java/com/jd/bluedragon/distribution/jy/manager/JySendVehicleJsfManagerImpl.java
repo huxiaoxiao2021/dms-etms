@@ -2,14 +2,10 @@ package com.jd.bluedragon.distribution.jy.manager;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
-import com.jd.bluedragon.common.dto.operation.workbench.enums.BarCodeLabelOptionEnum;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
-import com.jd.bluedragon.distribution.jy.dto.JyLabelOption;
 import com.jd.bluedragon.distribution.jy.dto.send.SendPackageDto;
 import com.jd.bluedragon.distribution.jy.dto.send.SendWaybillDto;
 import com.jd.bluedragon.distribution.jy.enums.ExcepScanLabelEnum;
-import com.jd.bluedragon.distribution.jy.enums.ExcepScanTypeEnum;
-import com.jd.bluedragon.utils.BeanUtils;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.ump.annotation.JProEnum;
@@ -78,7 +74,7 @@ public class JySendVehicleJsfManagerImpl implements IJySendVehicleJsfManager {
                 Pager<JySendTaskWaybillAgg> pagerData = serviceResult.getData();
                 if (ObjectHelper.isNotNull(pagerData) && ObjectHelper.isNotNull(pagerData.getData()) && pagerData.getData().size()>0){
                     List<JySendTaskWaybillAgg> list =pagerData.getData();
-                    List<SendWaybillDto> sendWaybillDtoList = BeanUtils.copy(list,SendWaybillDto.class);
+                    List<SendWaybillDto> sendWaybillDtoList = transformData(list);
 
                     Pager<SendWaybillDto> pager =new Pager();
                     pager.setData(sendWaybillDtoList);
@@ -92,6 +88,18 @@ public class JySendVehicleJsfManagerImpl implements IJySendVehicleJsfManager {
             log.error("查询发货运单数据异常. {}", JsonHelper.toJson(queryPager), e);
         }
         return null;
+    }
+
+    private List<SendWaybillDto> transformData(List<JySendTaskWaybillAgg> jySendTaskWaybillAggList) {
+        List<SendWaybillDto> waybillDtoList = new ArrayList<>();
+        for (JySendTaskWaybillAgg waybillAgg : jySendTaskWaybillAggList) {
+            SendWaybillDto sendWaybillDto = new SendWaybillDto();
+            sendWaybillDto.setWaybillCode(waybillAgg.getWaybillCode());
+            sendWaybillDto.setAllPackCount(waybillAgg.getTotalCount() == null ? 0L : Long.valueOf(waybillAgg.getTotalCount()));
+            sendWaybillDto.setScanPackCount(waybillAgg.getPackageCount() == null ? 0L : Long.valueOf(waybillAgg.getPackageCount()));
+            waybillDtoList.add(sendWaybillDto);
+        }
+        return waybillDtoList;
     }
 
     @Override

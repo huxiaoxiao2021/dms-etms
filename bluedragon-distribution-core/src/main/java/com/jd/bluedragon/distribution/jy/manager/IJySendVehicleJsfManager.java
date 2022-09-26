@@ -3,8 +3,6 @@ package com.jd.bluedragon.distribution.jy.manager;
 import com.jd.bluedragon.distribution.jy.dto.send.SendPackageDto;
 import com.jd.bluedragon.distribution.jy.dto.send.SendWaybillDto;
 import com.jdl.jy.realtime.base.Pager;
-import com.jdl.jy.realtime.base.ServiceResult;
-import com.jdl.jy.realtime.model.es.job.SendPackageEsDto;
 import com.jdl.jy.realtime.model.query.send.SendVehicleTaskQuery;
 import com.jdl.jy.realtime.model.vo.send.SendBarCodeDetailVo;
 

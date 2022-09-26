@@ -427,7 +427,10 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
     }
 
     private void assembleRespWaybillData(SendWaybillStatisticsResp sendWaybillStatisticsResp, ExcepWaybillDto waybillDto) {
-        if (ObjectHelper.isNotNull(waybillDto) && ObjectHelper.isNotNull(waybillDto.getSendWaybillDtoList())) {
+        if (waybillDto != null && !CollectionUtils.isEmpty(waybillDto.getSendWaybillDtoList())) {
+            List<com.jd.bluedragon.distribution.jy.dto.send.SendWaybillDto> waybillDtoList = new ArrayList<>();
+            for (SendWaybillDto sendWaybillDto : waybillDto.getSendWaybillDtoList())
+
             sendWaybillStatisticsResp.setWaybillDtoList(waybillDto.getSendWaybillDtoList());
         }
     }
