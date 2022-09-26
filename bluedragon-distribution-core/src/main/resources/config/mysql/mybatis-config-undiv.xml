@@ -397,6 +397,7 @@
         <mapper resource="mappers/mysql/record/WaybillHasnoPresiteRecordMapper.xml" />
 		<mapper resource="mappers/mysql/config/ConfigStrandReasonMapper.xml" />
         <mapper resource="mappers/mysql/position/PositionRecordMapper.xml" />
+        <mapper resource="mappers/mysql/label/FarmarPrintRecordMapper.xml" />
 
         <!--移动微仓 -->
         <mapper resource="mappers/mysql/ministore/MiniStoreBindRelationMapper.xml" />
