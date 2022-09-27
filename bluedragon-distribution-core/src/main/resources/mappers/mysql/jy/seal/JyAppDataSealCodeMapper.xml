@@ -18,7 +18,7 @@
     <insert id="batchInsert" parameterType="java.util.List">
         INSERT INTO jy_app_data_seal_code (
                             send_detail_biz_id,
-                            sealCode,
+                            seal_code,
                             create_time
                     ) VALUES 
                     <foreach collection="list" item="item" separator=",">
