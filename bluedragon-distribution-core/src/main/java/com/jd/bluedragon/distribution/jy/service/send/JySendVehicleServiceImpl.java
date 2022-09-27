@@ -64,6 +64,7 @@ import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetail
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleService;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
+import com.jd.bluedragon.distribution.newseal.service.SealVehiclesService;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.distribution.send.domain.ConfirmMsgBox;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
@@ -224,12 +225,14 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
 
     @Autowired
     private SendVehicleTransactionManager sendVehicleTransactionManager;
-    
+
     @Autowired
     private BaseService baseService;
-    
+
     @Autowired
     private BasicSelectWsManager basicSelectWsManager;
+    @Autowired
+    private SealVehiclesService sealVehiclesService;
 
     @Override
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "IJySendVehicleService.fetchSendVehicleTask",
@@ -1132,16 +1135,18 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
         if (NumberHelper.gt0(request.getConfirmSendDestId())) {
             sendDestId = request.getConfirmSendDestId();
         }
+        String detailBizId= request.getSendVehicleDetailBizId();
 
         try {
             JyBizTaskSendVehicleDetailEntity curSendDetail = null;
-            for (JyBizTaskSendVehicleDetailEntity sendDetail : taskSendDetails) {
-                if (sendDetail.getEndSiteId().equals(sendDestId)) {
-                    curSendDetail = sendDetail;
-                    break;
-                }
+            if (ObjectHelper.isNotNull(detailBizId)){
+                curSendDetail=pickUpOneDetailByBizId(taskSendDetails,detailBizId);
             }
-            if (curSendDetail != null && JyBizTaskSendDetailStatusEnum.SEALED.getCode().equals(curSendDetail.getVehicleStatus())) {
+            else {
+                curSendDetail =pickUpOneUnSealedDetail(taskSendDetails,sendDestId);
+            }
+
+            if (curSendDetail == null){
                 result.toBizError();
                 result.addInterceptBox(0, "该发货流向已封车！");
                 return result;
@@ -1151,7 +1156,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
                 return result;
             }
             SendResult sendResult = new SendResult(SendResult.CODE_OK, SendResult.MESSAGE_OK);
-            String sendCode = this.getOrCreateSendCode(request, sendDestId, taskSendDetails);
+            String sendCode = this.getOrCreateSendCode(request, sendDestId, curSendDetail);
             SendM sendM = toSendMDomain(request, sendDestId, sendCode);
             sendM.setBoxCode(barCode);
 
@@ -1208,6 +1213,52 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
         }
 
         return result;
+    }
+
+    private JyBizTaskSendVehicleDetailEntity pickUpOneUnSealedDetail(List<JyBizTaskSendVehicleDetailEntity> taskSendDetails, Long sendDestId) {
+        List<JyBizTaskSendVehicleDetailEntity> sameDirections = new ArrayList<>();
+        for (JyBizTaskSendVehicleDetailEntity sendDetail : taskSendDetails) {
+            if (sendDetail.getEndSiteId().equals(sendDestId)) {
+                sameDirections.add(sendDetail);
+            }
+        }
+        if (sameDirections.size()>0){
+            //1.过滤已封车的流向
+            Iterator it = sameDirections.iterator();
+            while(it.hasNext()) {
+                JyBizTaskSendVehicleDetailEntity detail = (JyBizTaskSendVehicleDetailEntity) it.next();
+                if (checkIfSealed(detail)){
+                    it.remove();
+                }
+            }
+            //2.按时间倒排（过滤完封车状态后仍然有多个同流向的话 就选择最晚那个）
+            if (sameDirections.size()>1){
+                Collections.sort(sameDirections, new JyBizTaskSendVehicleDetailEntity.DetailComparatorByTime());
+            }
+        }
+        return sameDirections.size()>0 ? sameDirections.get(0) : null;
+    }
+
+
+    private boolean checkIfSealed(JyBizTaskSendVehicleDetailEntity detail) {
+        if (JyBizTaskSendDetailStatusEnum.SEALED.getCode().equals(detail.getVehicleStatus())){
+            return true;
+        }
+        String originSendCode =jySendCodeService.findEarliestSendCode(detail.getBizId());
+        if (ObjectHelper.isNotNull(originSendCode) && newSealVehicleService.newCheckSendCodeSealed(originSendCode, null)){
+            return true;
+        }
+        return false;
+    }
+
+    private JyBizTaskSendVehicleDetailEntity pickUpOneDetailByBizId(
+        List<JyBizTaskSendVehicleDetailEntity> taskSendDetails, String detailBizId) {
+        for (JyBizTaskSendVehicleDetailEntity sendDetail : taskSendDetails) {
+            if (sendDetail.getBizId().equals(detailBizId) && !checkIfSealed(sendDetail)){
+                return sendDetail;
+            }
+        }
+        return null;
     }
 
     private ValidateIgnore convertValidateIgnore(com.jd.bluedragon.common.dto.operation.workbench.send.request.ValidateIgnore validateIgnoreSource) {
@@ -1321,7 +1372,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
 
     private void dealTaskFirstScan(SendScanRequest request, JyBizTaskSendVehicleEntity taskSend, Long sendDestId, JyBizTaskSendVehicleDetailEntity curSendDetail) {
         // 发货流向首次扫描
-        if (taskSendDestFirstScan(request, sendDestId)) {
+        if (taskSendDestFirstScan(request, curSendDetail.getBizId())) {
             logInfo("发货任务流向[{}-{}]首次扫描, 任务状态变为“发货中”. {}", request.getSendVehicleBizId(), sendDestId,
                     JsonHelper.toJson(request));
             updateSendVehicleStatus(request, taskSend, curSendDetail);
@@ -1420,28 +1471,21 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
      * 根据发货流向查询批次
      * @param request
      * @param destSiteId
-     * @param taskSendDetails
+     * @param detail
      * @return
      */
-    private String getOrCreateSendCode(SendScanRequest request, Long destSiteId, List<JyBizTaskSendVehicleDetailEntity> taskSendDetails) {
-        String detailBiz = null;
-        for (JyBizTaskSendVehicleDetailEntity sendDetail : taskSendDetails) {
-            if (sendDetail.getEndSiteId().equals(destSiteId)) {
-                detailBiz = sendDetail.getBizId();
-                break;
-            }
-        }
+    private String getOrCreateSendCode(SendScanRequest request, Long destSiteId, JyBizTaskSendVehicleDetailEntity detail) {
         // 非同流向迁移会生成新批次，一个流向不止一个批次
-        String curDestSendCode = jySendCodeService.findEarliestSendCode(detailBiz);
+        String curDestSendCode = jySendCodeService.findEarliestSendCode(detail.getBizId());
 
         String sendCode;
         if (StringUtils.isBlank(curDestSendCode)) {
             Profiler.businessAlarm("dms.web.JySendVehicleService.getOrCreateSendCode", "[拣运APP]发货匹配发货批次失败，将新建批次！");
-            logWarn("发货流向获取批次号为空! {}", detailBiz);
+            logWarn("发货流向获取批次号为空! {}", detail.getBizId());
             // 首次扫描生成批次
             sendCode = generateSendCode((long) request.getCurrentOperate().getSiteCode(), destSiteId, request.getUser().getUserErp());
 
-            this.saveSendCode(request, sendCode, detailBiz);
+            this.saveSendCode(request, sendCode, detail.getBizId());
         }
         else {
             sendCode = curDestSendCode;
@@ -1591,12 +1635,12 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
     /**
      * 判断是否是发车任务流向的第一次扫描
      * @param request
-     * @param sendDestId
+     * @param sendDetailBizId
      * @return
      */
-    private boolean taskSendDestFirstScan(SendScanRequest request, Long sendDestId) {
+    private boolean taskSendDestFirstScan(SendScanRequest request, String sendDetailBizId) {
         boolean firstScanned = false;
-        String mutexKey = getSendDetailBizCacheKey(request.getSendVehicleBizId(), (long) request.getCurrentOperate().getSiteCode(), sendDestId);
+        String mutexKey = getSendDetailBizCacheKey(request.getSendVehicleBizId(), sendDetailBizId);
         if (redisClientOfJy.set(mutexKey, request.getBarCode(), SEND_SCAN_BAR_EXPIRE, TimeUnit.HOURS, false)) {
 
             firstScanned = true;
@@ -1923,8 +1967,8 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
         return noTaskDetail;
     }
 
-    private String getSendDetailBizCacheKey(String sendVehicleBiz, Long startSiteId, Long sendDestId) {
-        return String.format(CacheKeyConstants.JY_SEND_TASK_DETAIL_FIRST_SCAN_KEY, sendVehicleBiz, startSiteId, sendDestId);
+    private String getSendDetailBizCacheKey(String sendVehicleBiz, String sendDetailBizId) {
+        return String.format(CacheKeyConstants.JY_SEND_TASK_DETAIL_FIRST_SCAN_KEY, sendVehicleBiz,sendDetailBizId);
     }
 
     public String getSendTaskBizCacheKey(String sendVehicleBiz) {
