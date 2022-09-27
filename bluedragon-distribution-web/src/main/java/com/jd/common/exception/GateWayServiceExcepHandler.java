@@ -11,12 +11,14 @@ import org.aspectj.lang.annotation.Aspect;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 
 import static com.jd.bluedragon.common.dto.base.response.JdCResponse.CODE_ERROR;
 
 @Component
 @Aspect
+@Order(-1)
 public class GateWayServiceExcepHandler {
     private static final Logger log = LoggerFactory.getLogger(GateWayServiceExcepHandler.class);
 

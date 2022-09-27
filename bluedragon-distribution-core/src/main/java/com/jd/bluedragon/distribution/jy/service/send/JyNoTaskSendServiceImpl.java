@@ -363,7 +363,10 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
         //查询要迁移的批次信息-sendCodes
         List<String> sendCodeList = jyVehicleSendRelationService.querySendCodesByVehicleDetailBizId(transferSendTaskReq.getFromSendVehicleDetailBizId());
         if (ObjectHelper.isNotNull(sendCodeList) && sendCodeList.size()>0){
-            filterEmptySendCode(transferSendTaskReq.getCurrentOperate().getSiteCode(),sendCodeList);
+            sendCodeList =filterEmptySendCode(transferSendTaskReq.getCurrentOperate().getSiteCode(),sendCodeList);
+            if (sendCodeList.size()<=0){
+                return new InvokeResult(FORBID_TRANS_FOR_EMPTY_BATCH_CODE, FORBID_TRANS_FOR_EMPTY_BATCH_MESSAGE);
+            }
             VehicleSendRelationDto dto = BeanUtils.copy(transferSendTaskReq, VehicleSendRelationDto.class);
             dto.setSendCodes(sendCodeList);
             dto.setUpdateUserErp(transferSendTaskReq.getUser().getUserErp());
@@ -391,9 +394,7 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
                 //生成迁移任务，异步执行迁移逻辑
                 for (String sendCode : sendCodeList) {
                     List<SendM> sendMList = sendMService.selectBySiteAndSendCode(transferSendTaskReq.getCurrentOperate().getSiteCode(), sendCode);
-                    if (ObjectHelper.isNotNull(sendMList)){
-                        deliveryOperationService.asyncHandleTransfer(sendMList, dto);
-                    }
+                    deliveryOperationService.asyncHandleTransfer(sendMList, dto);
                 }
             }
             JyBizTaskSendVehicleEntity toSvTask = new JyBizTaskSendVehicleEntity();
@@ -416,18 +417,15 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
         return new InvokeResult(NO_SEND_DATA_UNDER_TASK_CODE, NO_SEND_DATA_UNDER_TASK_MESSAGE);
     }
 
-    private void filterEmptySendCode(int siteCode,List<String> sendCodeList) {
+    private List<String> filterEmptySendCode(int siteCode,List<String> sendCodeList) {
         List<String> notEmptyList = new ArrayList<>();
         for (String sendCode:sendCodeList){
             List<SendM> sendMList = sendMService.selectBySiteAndSendCode(siteCode, sendCode);
-            if (ObjectHelper.isNotNull(sendMList)){
+            if (ObjectHelper.isNotNull(sendMList) && sendMList.size()>0){
                 notEmptyList.add(sendCode);
             }
         }
-        if (notEmptyList.size()<=0){
-            throw new JyBizException("空批次禁止迁移！");
-        }
-        sendCodeList =notEmptyList;
+        return notEmptyList;
     }
 
     private void doCancelForLabelCanceldTask(String fromSendVehicleDetailBizId) {
