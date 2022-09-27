@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.jy.dao.seal.JyAppDataSealDao" >
+
+	<resultMap id="JyAppDataSeal" type="com.jd.bluedragon.distribution.jy.dto.seal.JyAppDataSeal" >
+		<id column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result column="send_vehicle_biz_id" property="sendVehicleBizId" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="send_detail_biz_id" property="sendDetailBizId" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="item_simple_code" property="itemSimpleCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="transport_code" property="transportCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="pallet_count" property="palletCount" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="weight" property="weight" javaType="java.lang.Double" jdbcType="DOUBLE" />
+		<result column="volume" property="volume" javaType="java.lang.Double" jdbcType="DOUBLE" />
+		<result column="create_user_erp" property="createUserErp" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="create_user_name" property="createUserName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="update_user_erp" property="updateUserErp" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="update_user_name" property="updateUserName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="yn" property="yn" javaType="java.lang.Integer" jdbcType="TINYINT" />
+		<result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+	</resultMap>
+
+	<sql id="Base_Column_List" >
+		id,send_vehicle_biz_id,send_detail_biz_id,item_simple_code,transport_code,pallet_count,
+		weight,volume,create_user_erp,create_user_name,update_user_erp,
+		update_user_name,create_time,update_time,yn,ts
+	</sql>
+
+	<insert id="insert" parameterType="com.jd.bluedragon.distribution.jy.dto.seal.JyAppDataSeal" useGeneratedKeys="true" keyProperty="id">
+		insert into jy_app_data_seal
+			(
+			<trim suffixOverrides=",">
+				<if test="sendVehicleBizId != null" >
+					send_vehicle_biz_id,
+				</if>
+				<if test="sendDetailBizId != null" >
+					send_detail_biz_id,
+				</if>
+				<if test="itemSimpleCode != null" >
+					item_simple_code,
+				</if>
+				<if test="transportCode != null" >
+					transport_code,
+				</if>
+				<if test="palletCount != null" >
+					pallet_count,
+				</if>
+				<if test="weight != null" >
+					weight,
+				</if>
+				<if test="volume != null" >
+					volume,
+				</if>
+				<if test="createUserErp != null" >
+					create_user_erp,
+				</if>
+				<if test="createUserName != null" >
+					create_user_name,
+				</if>
+				<if test="createTime != null" >
+					create_time,
+				</if>
+			</trim>
+			)
+			values
+			(
+			<trim suffixOverrides=",">
+				<if test="sendVehicleBizId != null" >
+					#{sendVehicleBizId,jdbcType=VARCHAR},
+				</if>
+				<if test="sendDetailBizId != null" >
+					#{sendDetailBizId,jdbcType=VARCHAR},
+				</if>
+				<if test="itemSimpleCode != null" >
+					#{itemSimpleCode,jdbcType=VARCHAR},
+				</if>
+				<if test="transportCode != null" >
+					#{transportCode,jdbcType=VARCHAR},
+				</if>
+				<if test="palletCount != null" >
+					#{palletCount,jdbcType=VARCHAR},
+				</if>
+				<if test="weight != null" >
+					#{weight,jdbcType=DOUBLE},
+				</if>
+				<if test="volume != null" >
+					#{volume,jdbcType=DOUBLE},
+				</if>
+				<if test="createUserErp != null" >
+					#{createUserErp,jdbcType=VARCHAR},
+				</if>
+				<if test="createUserName != null" >
+					#{createUserName,jdbcType=VARCHAR},
+				</if>
+				<if test="createTime != null" >
+					#{createTime,jdbcType=TIMESTAMP},
+				</if>
+			</trim>
+			)
+	</insert>
+
+	<update id="updateById" parameterType="com.jd.bluedragon.distribution.jy.dto.seal.JyAppDataSeal">
+		update jy_app_data_seal
+			<set>
+				<if test="sendVehicleBizId != null" >
+					send_vehicle_biz_id = #{sendVehicleBizId,jdbcType=VARCHAR},
+				</if>
+				<if test="sendDetailBizId != null" >
+					send_detail_biz_id = #{sendDetailBizId,jdbcType=VARCHAR},
+				</if>
+				<if test="itemSimpleCode != null" >
+					item_simple_code = #{itemSimpleCode,jdbcType=VARCHAR},
+				</if>
+				<if test="transportCode != null" >
+					transport_code = #{transportCode,jdbcType=VARCHAR},
+				</if>
+				<if test="palletCount != null" >
+					pallet_count = #{palletCount,jdbcType=VARCHAR},
+				</if>
+				<if test="weight != null" >
+					weight = #{weight,jdbcType=DOUBLE},
+				</if>
+				<if test="volume != null" >
+					volume = #{volume,jdbcType=DOUBLE},
+				</if>
+				<if test="updateUserErp != null" >
+					update_user_erp = #{updateUserErp,jdbcType=VARCHAR},
+				</if>
+				<if test="updateUserName != null" >
+					update_user_name = #{updateUserName,jdbcType=VARCHAR},
+				</if>
+				<if test="updateTime != null" >
+					update_time = #{updateTime,jdbcType=TIMESTAMP},
+				</if>
+			</set>
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+
+
+	<select id="queryByDetailBizId" parameterType="java.lang.String" resultMap="JyAppDataSeal">
+		select
+			<include refid="Base_Column_List"/>
+		from
+			jy_app_data_seal t
+		where yn = 1 and send_detail_biz_id = #{sendDetailBizId,jdbcType=VARCHAR}
+	</select>
+
+</mapper>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.bluedragon.distribution.jy.dao.seal.JyAppDataSealCodeDao" >
+
+	<resultMap id="JyAppDataSealCode" type="com.jd.bluedragon.distribution.jy.dto.seal.JyAppDataSealCode" >
+		<id column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result column="send_detail_biz_id" property="sendDetailBizId" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="seal_code" property="sealCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="yn" property="yn" javaType="java.lang.Integer" jdbcType="TINYINT" />
+		<result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+	</resultMap>
+
+	<sql id="Base_Column_List" >
+		id,send_detail_biz_id,seal_code,create_time,yn,ts
+	</sql>
+
+    <insert id="batchInsert" parameterType="java.util.List">
+        INSERT INTO jy_app_data_seal_code (
+                            send_detail_biz_id,
+                            sealCode,
+                            createTime
+                    ) VALUES 
+                    <foreach collection="list" item="item" separator=",">
+                    (
+                      #{item.sendDetailBizId},
+                      #{item.sealCode},
+                      #{item.createTime}
+                    )
+                    </foreach>
+    </insert>
+	<update id="deleteByDetailBizId" parameterType="java.lang.String">
+		update jy_app_data_seal_code
+			set yn = 0
+		where yn = 1 and send_detail_biz_id = #{sendDetailBizId,jdbcType=VARCHAR}
+	</update>
+
+	<select id="querySealCodeList" parameterType="java.lang.String" resultType="java.lang.String">
+		select
+			seal_code
+		from
+			jy_app_data_seal_code 
+		where yn = 1 and send_detail_biz_id = #{sendDetailBizId,jdbcType=VARCHAR}
+	</select>
+
+</mapper>
