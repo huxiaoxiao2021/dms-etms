@@ -78,67 +78,55 @@ public class UserSignGatewayServiceImpl implements UserSignGatewayService {
 	}	
 	@Override
 	public JdCResponse<PositionData> queryPositionData(String positionCode) {
-		if(uccPropertyConfiguration.isJyBasicServerSwitch()){
-			log.info("queryPositionData - 获取基础服务数据");
-			JdCResponse<PositionData> response = new JdCResponse<>();
-			try{
-				log.info("UserSignGatewayServiceImpl.queryPositionData 入参-{}",positionCode);
-				Result<com.jdl.basic.api.domain.position.PositionData> result = positionManager.queryPositionWithIsMatchAppFunc(positionCode);
-				if(result == null){
-					response.setMessage("查询岗位码失败！");
-					return response;
-				}
-				if(result.isSuccess()){
-					PositionData positionData = new PositionData();
-					BeanUtils.copyProperties(result.getData(),positionData);
-					response.setData(positionData);
-					response.toSucceed(result.getMessage());
-					return response;
-				}
-				response.toFail(result.getMessage());
-			}catch (Exception e){
-				log.error("queryPositionData查询岗位信息异常-{}",e.getMessage(),e);
-				response.toError("查询岗位信息异常");
+		log.info("queryPositionData - 获取基础服务数据");
+		JdCResponse<PositionData> response = new JdCResponse<>();
+		try{
+			log.info("UserSignGatewayServiceImpl.queryPositionData 入参-{}",positionCode);
+			Result<com.jdl.basic.api.domain.position.PositionData> result = positionManager.queryPositionWithIsMatchAppFunc(positionCode);
+			if(result == null){
+				response.setMessage("查询岗位码失败！");
+				return response;
 			}
-			return response ;
-		}else {
-			log.info("queryPositionData - 原有逻辑");
-			return positionRecordService.queryPositionWithIsMatchAppFunc(positionCode);
-
+			if(result.isSuccess()){
+				PositionData positionData = new PositionData();
+				BeanUtils.copyProperties(result.getData(),positionData);
+				response.setData(positionData);
+				response.toSucceed(result.getMessage());
+				return response;
+			}
+			response.toFail(result.getMessage());
+		}catch (Exception e){
+			log.error("queryPositionData查询岗位信息异常-{}",e.getMessage(),e);
+			response.toError("查询岗位信息异常");
 		}
+		return response ;
+
 	}
 
 	@Override
 	public JdCResponse<PositionData> queryPositionInfo(String positionCode) {
-		if(uccPropertyConfiguration.isJyBasicServerSwitch()){
-			log.info("queryPositionInfo - 获取基础服务数据");
-			JdCResponse<PositionData> response = new JdCResponse<>();
-
-			try{
-				log.info("UserSignGatewayServiceImpl.queryPositionInfo 入参-{}",positionCode);
-				Result<com.jdl.basic.api.domain.position.PositionData> result = positionManager.queryPositionInfo(positionCode);
-				if(result == null){
-					response.setMessage("查询岗位码失败！");
-					return response;
-				}
-				if(result.isSuccess()){
-					PositionData positionData = new PositionData();
-					BeanUtils.copyProperties(result.getData(),positionData);
-					response.setData(positionData);
-					response.toSucceed(result.getMessage());
-					return response;
-				}
-				response.toFail(result.getMessage());
-			}catch (Exception e){
-				log.error("queryPositionData查询岗位信息异常-{}",e.getMessage(),e);
-				response.toError("查询岗位信息异常");
+		log.info("queryPositionInfo - 获取基础服务数据");
+		JdCResponse<PositionData> response = new JdCResponse<>();
+		try{
+			log.info("UserSignGatewayServiceImpl.queryPositionInfo 入参-{}",positionCode);
+			Result<com.jdl.basic.api.domain.position.PositionData> result = positionManager.queryPositionInfo(positionCode);
+			if(result == null){
+				response.setMessage("查询岗位码失败！");
+				return response;
 			}
-			return response ;
-		}else{
-			log.info("queryPositionInfo - 原有逻辑");
-			return positionRecordService.queryPositionInfo(positionCode);
+			if(result.isSuccess()){
+				PositionData positionData = new PositionData();
+				BeanUtils.copyProperties(result.getData(),positionData);
+				response.setData(positionData);
+				response.toSucceed(result.getMessage());
+				return response;
+			}
+			response.toFail(result.getMessage());
+		}catch (Exception e){
+			log.error("queryPositionData查询岗位信息异常-{}",e.getMessage(),e);
+			response.toError("查询岗位信息异常");
 		}
-
+		return response ;
 	}
 
 	@Override

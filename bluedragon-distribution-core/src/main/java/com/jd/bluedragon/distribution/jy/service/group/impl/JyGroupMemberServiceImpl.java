@@ -96,10 +96,10 @@ public class JyGroupMemberServiceImpl implements JyGroupMemberService {
 	@Autowired
 	private UccPropertyConfiguration uccPropertyConfiguration;
 
-	
+
 	@Autowired
 	private DeviceInfoService deviceInfoService;
-	
+
 	/**
 	 * 添加小组成员
 	 */
@@ -113,27 +113,14 @@ public class JyGroupMemberServiceImpl implements JyGroupMemberService {
 		if(StringHelper.isEmpty(addMemberRequest.getPositionCode())) {
 			result.toFail("岗位码不能为空！");
 		}
-		String gridKey =null;
-		if(uccPropertyConfiguration.isJyBasicServerSwitch()){
-			log.info("addMember--获取基础服务数据");
-			com.jdl.basic.common.utils.Result<com.jdl.basic.api.domain.position.PositionDetailRecord> positionData
-					= positionManager.queryOneByPositionCode(addMemberRequest.getPositionCode());
-			if(positionData == null
-					|| positionData.getData() == null) {
-				result.toFail("岗位码无效，联系【作业流程组】小哥维护岗位码");
-				return result;
-			}
-			gridKey = positionData.getData().getRefGridKey();
-		}else{
-			log.info("addMember--原有逻辑");
-			Result<com.jd.bluedragon.distribution.position.domain.PositionDetailRecord> positionData = positionRecordService.queryOneByPositionCode(addMemberRequest.getPositionCode());
-			if(positionData == null
-					|| positionData.getData() == null) {
-				result.toFail("岗位码无效，联系【作业流程组】小哥维护岗位码");
-				return result;
-			}
-			gridKey = positionData.getData().getRefGridKey();
+		com.jdl.basic.common.utils.Result<com.jdl.basic.api.domain.position.PositionDetailRecord> positionData
+				= positionManager.queryOneByPositionCode(addMemberRequest.getPositionCode());
+		if(positionData == null
+				|| positionData.getData() == null) {
+			result.toFail("岗位码无效，联系【作业流程组】小哥维护岗位码");
+			return result;
 		}
+		String gridKey = positionData.getData().getRefGridKey();
 
 		if(addMemberRequest.getSignInTime() == null) {
 			addMemberRequest.setSignInTime(new Date());
@@ -180,7 +167,7 @@ public class JyGroupMemberServiceImpl implements JyGroupMemberService {
 		memberData.setSignInTime(addMemberRequest.getSignInTime());
 		//校验组员是否存在
 		Result<Boolean> checkResult = checkBeforeAddMember(memberData);
-		if(checkResult != null 
+		if(checkResult != null
 				&& !checkResult.isSuccess()) {
 			result.toFail(checkResult.getMessage());
 			return result;
@@ -231,7 +218,7 @@ public class JyGroupMemberServiceImpl implements JyGroupMemberService {
 					taskMember.setMemberType(memberData.getMemberType());
 					taskMember.setDeviceTypeCode(memberData.getDeviceTypeCode());
 					taskMember.setDeviceTypeName(memberData.getDeviceTypeName());
-					taskMember.setMachineCode(memberData.getMachineCode());					
+					taskMember.setMachineCode(memberData.getMachineCode());
 					taskMember.setRefGroupMemberCode(memberData.getMemberCode());
 					taskMember.setRefGroupCode(groupCode);
 					taskMember.setRefTaskId(taskId);
