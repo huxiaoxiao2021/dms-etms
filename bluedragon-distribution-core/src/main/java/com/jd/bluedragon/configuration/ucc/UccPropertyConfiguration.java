@@ -901,6 +901,21 @@ public class UccPropertyConfiguration {
     private String notValidateTransTypeCodesList;
     private List<Integer> notValidateTransTypeCodes;
 
+    /**
+     * 客户端下线菜单配置,分为普通和特殊
+     *  example：
+     *  {
+     *     "ordinary": {
+     *         "0601026,0601027":"此功能已下线!"
+     *     },
+     *     "special": {
+     *         "0601028":"此功能已下线，请用**功能代替!",
+     *         "0601029":"此功能已迁移，如需使用请前往如下网址操作|www.baidu.com"
+     *     }
+     *  }
+     */
+    private String clientOfflineMenuConfig;
+
     public String getScheduleSiteCheckSameCity() {
         return scheduleSiteCheckSameCity;
     }
@@ -2229,5 +2244,13 @@ public class UccPropertyConfiguration {
 
     public void setJyBasicServerSwitch(boolean jyBasicServerSwitch) {
         this.jyBasicServerSwitch = jyBasicServerSwitch;
+    }
+
+    public String getClientOfflineMenuConfig() {
+        return clientOfflineMenuConfig;
+    }
+
+    public void setClientOfflineMenuConfig(String clientOfflineMenuConfig) {
+        this.clientOfflineMenuConfig = clientOfflineMenuConfig;
     }
 }

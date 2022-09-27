@@ -1868,7 +1868,9 @@ public class WaybillResource {
 			}
 
 			//记录安全日志
-			SecurityLogWriter.waybillResourceGetOldOrderMessageNewWrite(request, waybillReverseResponseDTO);
+			if (!CollectionUtils.isEmpty(request.getHideInfo())) {
+				SecurityLogWriter.waybillResourceGetOldOrderMessageNewWrite(request, waybillReverseResponseDTO);
+			}
 
 		}catch (Exception e){
 			log.error("换单前获取信息接口入参：{}",JsonHelper.toJson(request),e);
