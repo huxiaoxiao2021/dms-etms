@@ -363,6 +363,7 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
         //查询要迁移的批次信息-sendCodes
         List<String> sendCodeList = jyVehicleSendRelationService.querySendCodesByVehicleDetailBizId(transferSendTaskReq.getFromSendVehicleDetailBizId());
         if (ObjectHelper.isNotNull(sendCodeList) && sendCodeList.size()>0){
+            filterEmptySendCode(transferSendTaskReq.getCurrentOperate().getSiteCode(),sendCodeList);
             VehicleSendRelationDto dto = BeanUtils.copy(transferSendTaskReq, VehicleSendRelationDto.class);
             dto.setSendCodes(sendCodeList);
             dto.setUpdateUserErp(transferSendTaskReq.getUser().getUserErp());
@@ -413,6 +414,20 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
             return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE);
         }
         return new InvokeResult(NO_SEND_DATA_UNDER_TASK_CODE, NO_SEND_DATA_UNDER_TASK_MESSAGE);
+    }
+
+    private void filterEmptySendCode(int siteCode,List<String> sendCodeList) {
+        List<String> notEmptyList = new ArrayList<>();
+        for (String sendCode:sendCodeList){
+            List<SendM> sendMList = sendMService.selectBySiteAndSendCode(siteCode, sendCode);
+            if (ObjectHelper.isNotNull(sendMList)){
+                notEmptyList.add(sendCode);
+            }
+        }
+        if (notEmptyList.size()<=0){
+            throw new JyBizException("空批次禁止迁移！");
+        }
+        sendCodeList =notEmptyList;
     }
 
     private void doCancelForLabelCanceldTask(String fromSendVehicleDetailBizId) {
