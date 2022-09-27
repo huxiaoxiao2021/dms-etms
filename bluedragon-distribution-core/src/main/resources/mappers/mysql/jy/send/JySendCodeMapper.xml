@@ -164,5 +164,6 @@
                  open="(" separator="," close=")">
             #{item}
         </foreach>
+        group by send_detail_biz_id
     </select>
 </mapper>

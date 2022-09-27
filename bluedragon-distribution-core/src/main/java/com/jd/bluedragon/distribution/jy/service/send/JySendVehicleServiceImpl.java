@@ -1253,6 +1253,20 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
         return false;
     }
 
+    @Override
+    public boolean checkIfSealedByAllSendCode(JyBizTaskSendVehicleDetailEntity detail) {
+        if (JyBizTaskSendDetailStatusEnum.SEALED.getCode().equals(detail.getVehicleStatus())){
+            return true;
+        }
+        List<String> sendCodes =jySendCodeService.querySendCodesByVehicleDetailBizId(detail.getBizId());
+        for (String sendCode:sendCodes){
+            if (!newSealVehicleService.newCheckSendCodeSealed(sendCode, null)){
+                return false;
+            }
+        }
+        return true;
+    }
+
     private JyBizTaskSendVehicleDetailEntity pickUpOneDetailByBizId(
         List<JyBizTaskSendVehicleDetailEntity> taskSendDetails, String detailBizId) {
         for (JyBizTaskSendVehicleDetailEntity sendDetail : taskSendDetails) {

@@ -122,4 +122,11 @@ public interface IJySendVehicleService {
      * @return
      */
     boolean checkIfSealed(JyBizTaskSendVehicleDetailEntity detail);
+
+    /**
+     * 校验任务明细是否已经封车：按照明细的原始批次进行判断
+     * @param detail
+     * @return
+     */
+    boolean checkIfSealedByAllSendCode(JyBizTaskSendVehicleDetailEntity detail);
 }

@@ -299,7 +299,11 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
         if (JyBizTaskSendDetailStatusEnum.SEALED.getCode().equals(taskSendDetail.getVehicleStatus())){
             return;
         }
-        if (jySendVehicleService.checkIfSealed(taskSendDetail)){
+        if (jySendVehicleService.checkIfSealedByAllSendCode(taskSendDetail)){
+            if (taskSend.manualCreatedTask()){
+                deleteManualCreatedTask(taskSend,taskSendDetail,sealCarDto);
+                return;
+            }
             taskSend.setUpdateTime(new Date());
             taskSend.setUpdateUserErp(sealCarDto.getSealUserCode());
             taskSend.setUpdateUserName(sealCarDto.getSealUserName());
@@ -309,6 +313,26 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
             taskSendDetail.setUpdateUserName(taskSend.getUpdateUserName());
             sendVehicleTransactionManager.updateTaskStatus(taskSend, taskSendDetail, JyBizTaskSendDetailStatusEnum.SEALED);
         }
+    }
+
+    private void deleteManualCreatedTask(JyBizTaskSendVehicleEntity taskSend, JyBizTaskSendVehicleDetailEntity taskSendDetail,SealCarDto sealCarDto) {
+        //删除主任务
+        JyBizTaskSendVehicleEntity entity = new JyBizTaskSendVehicleEntity();
+        entity.setBizId(taskSend.getBizId());
+        entity.setYn(0);
+        Date now = new Date();
+        entity.setUpdateTime(now);
+        entity.setUpdateUserErp(sealCarDto.getSealUserCode());
+        entity.setUpdateUserName(sealCarDto.getSealUserName());
+        jyBizTaskSendVehicleService.updateSendVehicleTask(entity);
+        //删除子任务
+        JyBizTaskSendVehicleDetailEntity detailEntity = new JyBizTaskSendVehicleDetailEntity();
+        detailEntity.setSendVehicleBizId(taskSendDetail.getBizId());
+        detailEntity.setYn(0);
+        detailEntity.setUpdateTime(now);
+        detailEntity.setUpdateUserErp(sealCarDto.getSealUserCode());
+        detailEntity.setUpdateUserName(sealCarDto.getSealUserName());
+        jyBizTaskSendVehicleDetailService.updateDateilTaskByVehicleBizId(detailEntity);
     }
 
     /**
