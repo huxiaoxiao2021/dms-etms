@@ -99,4 +99,10 @@ public interface SendPayConstants {
 	 */
 	String POSITION_596 = "596";
 	String STR_596_1 = "1";
+
+	/**
+	 * 第8位为6是全球购订单
+	 */
+	int POSITION_8 = 8;
+	char CHAR_6 = '6';
 }
