@@ -1,5 +1,7 @@
 package com.jd.bluedragon.core.base;
 
+import com.jd.bluedragon.distribution.api.response.spot.SpotCheckResponse;
+import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.ql.dms.report.domain.WaitSpotCheckQueryCondition;
 import com.jd.ql.dms.report.domain.WeightVolumeCollectDto;
 import com.jd.ql.dms.report.domain.WeightVolumeQueryCondition;
@@ -51,5 +53,5 @@ public interface ReportExternalManager {
      * @param condition
      * @return
      */
-    boolean checkIsNeedSpotCheck(List<WaitSpotCheckQueryCondition> condition);
+    JdResult<SpotCheckResponse> checkIsNeedSpotCheck(List<WaitSpotCheckQueryCondition> condition);
 }

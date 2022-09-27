@@ -18,6 +18,7 @@ import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.domain.TransAbnormalTypeDto;
 import com.jd.bluedragon.distribution.api.request.*;
 import com.jd.bluedragon.distribution.api.response.*;
+import com.jd.bluedragon.distribution.api.response.spot.SpotCheckResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.base.domain.DmsBaseDict;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -25,6 +26,8 @@ import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.busineCode.sendCode.service.SendCodeService;
 import com.jd.bluedragon.distribution.coldchain.domain.ColdChainSend;
 import com.jd.bluedragon.distribution.coldchain.service.ColdChainSendService;
+import com.jd.bluedragon.distribution.command.JdResult;
+import com.jd.bluedragon.distribution.jy.enums.SpotCheckTypeEnum;
 import com.jd.bluedragon.distribution.seal.service.CarLicenseChangeUtil;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.distribution.transport.service.TransportRelatedService;
@@ -1154,9 +1157,14 @@ public class NewSealVehicleResource {
         if(CollectionUtils.isEmpty(queryConditions)){
             return;
         }
-        if(reportExternalManager.checkIsNeedSpotCheck(queryConditions)){
+        JdResult<SpotCheckResponse> checkResult = reportExternalManager.checkIsNeedSpotCheck(queryConditions);
+        if(checkResult.isSucceed()
+        		&& checkResult.getData() != null
+        		&& Boolean.TRUE.equals(checkResult.getData().getNeedCheck())){
             unSealVehicleResponse.setBusinessCode(NewUnsealVehicleResponse.SPOT_CHECK_UNSEAL_HINT_CODE);
-            unSealVehicleResponse.setBusinessMessage(NewUnsealVehicleResponse.SPOT_CHECK_UNSEAL_HINT_MESSAGE);
+            unSealVehicleResponse.setBusinessMessage(
+            		String.format(NewUnsealVehicleResponse.SPOT_CHECK_UNSEAL_HINT_MESSAGE, 
+            		SpotCheckTypeEnum.getNameByCode(checkResult.getData().getSpotCheckType())));
         }
     }
 
