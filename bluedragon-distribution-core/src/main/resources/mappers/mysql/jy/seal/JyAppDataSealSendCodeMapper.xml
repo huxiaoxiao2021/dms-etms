@@ -38,7 +38,7 @@
 
     <select id="querySendCodeList" parameterType="java.lang.String" resultType="java.lang.String">
         select
-            seal_code
+            send_code
         from
             jy_app_data_seal_send_code 
         where yn = 1 and send_detail_biz_id = #{sendDetailBizId,jdbcType=VARCHAR}
