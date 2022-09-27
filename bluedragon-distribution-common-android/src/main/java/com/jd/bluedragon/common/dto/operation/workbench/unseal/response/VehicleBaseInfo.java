@@ -51,6 +51,11 @@ public class VehicleBaseInfo implements Serializable {
      * 始发站点名称
      */
     private String startSiteName;
+    
+    /**
+     * 抽检类型
+     */
+    private Integer spotCheckType;    
 
     public String getSealCarCode() {
         return sealCarCode;
@@ -115,4 +120,12 @@ public class VehicleBaseInfo implements Serializable {
     public void setStartSiteName(String startSiteName) {
         this.startSiteName = startSiteName;
     }
+
+	public Integer getSpotCheckType() {
+		return spotCheckType;
+	}
+
+	public void setSpotCheckType(Integer spotCheckType) {
+		this.spotCheckType = spotCheckType;
+	}
 }
