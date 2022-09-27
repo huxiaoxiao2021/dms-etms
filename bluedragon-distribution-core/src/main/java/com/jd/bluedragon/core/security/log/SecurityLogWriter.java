@@ -139,7 +139,7 @@ public class SecurityLogWriter {
 
             SecurityLogRecord.log(
                     SecurityLogEntity.builder()
-                            .interfaceName("com.jd.bluedragon.distribution.rest.waybill.WaybillResource.getWaybillPack")
+                            .interfaceName("com.jd.bluedragon.distribution.rest.waybill.WaybillResource#getWaybillPack")
                             .accountName("")
                             .accountType(SecurityAccountEnums.account_type_1)
                             .op(SecurityLogOpEnums.op_3)
@@ -170,13 +170,15 @@ public class SecurityLogWriter {
 
             Map<SecurityLogUniqueIdentifierKeyEnums, String> uniqueIdentifierKeyEnumsStringHashMap = new HashMap<>();
             uniqueIdentifierKeyEnumsStringHashMap.put(SecurityLogUniqueIdentifierKeyEnums.carryBillId,"waybillCode");
-            uniqueIdentifierKeyEnumsStringHashMap.put(SecurityLogUniqueIdentifierKeyEnums.receiveAddress,"address");
-            uniqueIdentifierKeyEnumsStringHashMap.put(SecurityLogUniqueIdentifierKeyEnums.receiveName,"receiverName");
-            uniqueIdentifierKeyEnumsStringHashMap.put(SecurityLogUniqueIdentifierKeyEnums.receivePhone,"receiverMobile");
+            uniqueIdentifierKeyEnumsStringHashMap.put(SecurityLogUniqueIdentifierKeyEnums.receiveAddress,"receiveAddress");
+            uniqueIdentifierKeyEnumsStringHashMap.put(SecurityLogUniqueIdentifierKeyEnums.receiveName,"receiveName");
+            uniqueIdentifierKeyEnumsStringHashMap.put(SecurityLogUniqueIdentifierKeyEnums.receivePhone,"receiveMobile");
+            uniqueIdentifierKeyEnumsStringHashMap.put(SecurityLogUniqueIdentifierKeyEnums.senderPhone,"senderMobile");
+            uniqueIdentifierKeyEnumsStringHashMap.put(SecurityLogUniqueIdentifierKeyEnums.senderAddress,"senderAddress");
 
             SecurityLogRecord.log(
                     SecurityLogEntity.builder()
-                            .interfaceName("com.jd.bluedragon.distribution.rest.waybill.WaybillResource.getOldOrderMessageNew")
+                            .interfaceName("com.jd.bluedragon.distribution.rest.waybill.WaybillResource#getOldOrderMessageNew")
                             .accountName("")
                             .accountType(SecurityAccountEnums.account_type_1)
                             .op(SecurityLogOpEnums.op_5)
@@ -216,7 +218,7 @@ public class SecurityLogWriter {
 
             SecurityLogRecord.log(
                     SecurityLogEntity.builder()
-                            .interfaceName("com.jd.bluedragon.distribution.waybill.service.WaybillService#getDmsWaybillInfoAndCheck")
+                            .interfaceName("com.jd.bluedragon.distribution.rest.order.OrderResource#getOrderResponse")
                             .accountName("")
                             .accountType(SecurityAccountEnums.account_type_1)
                             .op(SecurityLogOpEnums.op_5)

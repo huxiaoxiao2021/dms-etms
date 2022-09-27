@@ -124,6 +124,9 @@ public class InvokeResult<T> implements Serializable {
     public static final int NO_SCAN_AFTER_BIND_TASK_CODE= 331;
     public static final String NO_SCAN_AFTER_BIND_TASK_MESSAGE ="该自建任务已绑定任务，无法继续扫描，请选择绑定的任务进入操作！";
 
+    public static final int FORBID_TRANS_FOR_EMPTY_BATCH_CODE= 336;
+    public static final String FORBID_TRANS_FOR_EMPTY_BATCH_MESSAGE ="空批次禁止迁出！";
+
     public InvokeResult(){
         this.code=RESULT_SUCCESS_CODE;
     }
