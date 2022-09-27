@@ -19,7 +19,7 @@
         INSERT INTO jy_app_data_seal_send_code (
                             send_detail_biz_id,
                             send_code,
-                            createTime
+                            create_time
                     ) VALUES 
                     <foreach collection="list" item="item" separator=",">
                     (
