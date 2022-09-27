@@ -5,6 +5,7 @@ import com.jd.bluedragon.distribution.jy.dto.send.JySendCodeDto;
 import com.jd.bluedragon.distribution.jy.dto.send.TransferDto;
 import com.jd.bluedragon.distribution.jy.dto.send.VehicleSendRelationDto;
 import com.jd.bluedragon.distribution.jy.send.JySendCodeEntity;
+import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.utils.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,6 +16,8 @@ import java.util.List;
 public class JyVehicleSendRelationServiceImpl implements JyVehicleSendRelationService{
     @Autowired
     JySendCodeDao jySendCodeDao;
+    @Autowired
+    NewSealVehicleService newSealVehicleService;
 
     @Override
     public List<String> querySendCodesByVehicleDetailBizId(String vehicleDetailBizId) {
@@ -63,4 +66,16 @@ public class JyVehicleSendRelationServiceImpl implements JyVehicleSendRelationSe
     public String findEarliestSendCode(String vehicleDetailBizId) {
         return jySendCodeDao.findEarliestSendCode(vehicleDetailBizId);
     }
+
+    @Override
+    public String findEarliestNoSealCarSendCode(String detailBiz) {
+        List<String> sendCodes =querySendCodesByVehicleDetailBizId(detailBiz);
+        for (String sendCode:sendCodes){
+            if (!newSealVehicleService.checkSendCodeIsSealed(sendCode)){
+                return sendCode;
+            }
+        }
+        return null;
+    }
+
 }

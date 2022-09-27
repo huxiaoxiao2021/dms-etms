@@ -254,6 +254,9 @@ public class PackageWeightVolumeHandler extends AbstractWeightVolumeHandler {
         packWeightVO.setOperatorSiteName(entity.getOperateSiteName());
         packWeightVO.setOperatorSiteCode(entity.getOperateSiteCode());
         packWeightVO.setMachineCode(entity.getMachineCode());
+        if(entity.getOperateTime() != null){
+            packWeightVO.setOperateTimeMillis(entity.getOperateTime().getTime());
+        }
         return packWeightVO;
     }
 

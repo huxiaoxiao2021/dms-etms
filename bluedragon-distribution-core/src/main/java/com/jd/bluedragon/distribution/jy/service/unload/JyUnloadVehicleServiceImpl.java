@@ -332,7 +332,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         List<LabelOption> tagList = new ArrayList<>();
 
         // 是否抽检
-        if (BusinessUtil.isSignY(tagSign, JyUnloadTaskSignConstants.POSITION_1)) {
+        if (BusinessUtil.needSpotCheck(tagSign)) {
             UnloadTaskLabelEnum spotCheck = UnloadTaskLabelEnum.SPOT_CHECK;
             tagList.add(new LabelOption(spotCheck.getCode(), spotCheck.getName(), spotCheck.getDisplayOrder()));
         }

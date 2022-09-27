@@ -58,7 +58,7 @@ public class PrintQueryCriteria implements Serializable{
     /**
      * 请求时间
      */
-    private Date requestTime = new Date();
+    private Date requestTime;
 
     public Integer getSiteCode() {
         return siteCode;

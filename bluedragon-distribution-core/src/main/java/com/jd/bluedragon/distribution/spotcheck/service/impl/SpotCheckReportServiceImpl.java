@@ -5,7 +5,10 @@ import com.jd.bluedragon.common.domain.ExportConcurrencyLimitEnum;
 import com.jd.bluedragon.common.service.ExportConcurrencyLimitService;
 import com.jd.bluedragon.core.base.SpotCheckQueryManager;
 import com.jd.bluedragon.core.base.SpotCheckServiceProxy;
+import com.jd.bluedragon.core.security.dataam.SecurityCheckerExecutor;
+import com.jd.bluedragon.core.security.dataam.enums.SecurityDataMapFuncEnum;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.handler.InterceptResult;
 import com.jd.bluedragon.distribution.spotcheck.SpotCheckReportQueryCondition;
 import com.jd.bluedragon.distribution.spotcheck.domain.ExportSpotCheckDto;
 import com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckConstants;
@@ -68,6 +71,9 @@ public class SpotCheckReportServiceImpl implements SpotCheckReportService {
 
     @Autowired
     private SpotCheckServiceProxy spotCheckServiceProxy;
+
+    @Autowired
+    private SecurityCheckerExecutor securityCheckerExecutor;
 
     @Override
     public PagerResult<WeightVolumeSpotCheckDto> listData(SpotCheckReportQueryCondition condition) {
@@ -251,7 +257,7 @@ public class SpotCheckReportServiceImpl implements SpotCheckReportService {
         headerMap.put("contrastWarZoneName", "核对操作战区");
         headerMap.put("contrastAreaName", "核对操作片区");
         headerMap.put("contrastSiteName", "核对操作站点");
-        headerMap.put("contrastDutyErp", "核对操作人ERP");
+        headerMap.put("contrastStaffAccount", "核对操作人ERP");
         headerMap.put("contrastWeight", "核对重量");
         headerMap.put("contrastVolume", "核对体积");
         headerMap.put("diffWeight", "重量差异");
@@ -343,6 +349,19 @@ public class SpotCheckReportServiceImpl implements SpotCheckReportService {
         }
         // 上传图片后更新抽检数据
         afterUploadDeal(pictureUrl, packageCode, reviewSiteCode);
+        return result;
+    }
+
+    @Override
+    public InvokeResult<Boolean> securityCheck(String waybillCode, String userErp) {
+        InvokeResult<Boolean> result = new InvokeResult<Boolean>();
+        // 信息安全校验
+        com.jd.bluedragon.distribution.jsf.domain.InvokeResult<Boolean> securityCheckResult
+                = securityCheckerExecutor.verifyWaybillDetailPermission(SecurityDataMapFuncEnum.WAYBILL_PICTURE, userErp, waybillCode);
+        if(!securityCheckResult.codeSuccess()){
+            result.parameterError(securityCheckResult.getMessage());
+            return result;
+        }
         return result;
     }
 

@@ -101,6 +101,7 @@ public class InvokeResult<T> implements Serializable {
 
     public static final int COMMIT_SEAL_CAR_EXCEPTION_CODE=321;
     public static final String COMMIT_SEAL_CAR_EXCEPTION_MESSAGE="提交封车异常";
+    public static final String COMMIT_SEAL_CAR_NO_SEAL_CODES_MESSAGE="请扫描或输入封签号，整车类型封签号为必填项";
 
     public static final int DETAIL_TASK_NO_FOUND_BY_MAIN_TASK_CODE=322;
     public static final String DETAIL_TASK_NO_FOUND_BY_MAIN_TASK_MESSAGE="数据异常，该自建任务下未找到有效的流向任务数据！";
@@ -113,6 +114,15 @@ public class InvokeResult<T> implements Serializable {
 
     public static final int NOT_SUPPORT_MAIN_LINE_TASK_CODE= 328;
     public static final String NOT_SUPPORT_MAIN_LINE_TASK_MESSAGE ="干支批次禁止使用传摆发货！";
+
+    public static final int NO_RE_DETELE_TASK_CODE= 329;
+    public static final String NO_RE_DETELE_TASK_MESSAGE ="请勿重复删除同一个任务！";
+
+    public static final int NO_RE_BIND_TASK_CODE= 330;
+    public static final String NO_RE_BIND_TASK_MESSAGE ="该自建任务已绑定过运输任务，请勿重复绑定！";
+
+    public static final int NO_SCAN_AFTER_BIND_TASK_CODE= 331;
+    public static final String NO_SCAN_AFTER_BIND_TASK_MESSAGE ="该自建任务已绑定任务，无法继续扫描，请选择绑定的任务进入操作！";
 
     public InvokeResult(){
         this.code=RESULT_SUCCESS_CODE;
