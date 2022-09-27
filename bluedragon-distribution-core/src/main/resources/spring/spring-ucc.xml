@@ -193,7 +193,7 @@
 		<property name="waybillWeightLimit" value="${waybillWeightLimit:'10000'}"/>
 		<property name="jyBasicServerSwitch" value="${jyBasicServerSwitch:false}"/>
 		<property name="notValidateTransTypeCodesList" value="${notValidateTransTypeCodesList:[3,4,10,11]}"/>
-
+		<property name="clientOfflineMenuConfig" value="${clientOfflineMenuConfig:''}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -369,6 +369,7 @@
 				<value>uccPropertyConfiguration.waybillWeightLimit</value>
 				<value>uccPropertyConfiguration.jyBasicServerSwitch</value>
 				<value>uccPropertyConfiguration.notValidateTransTypeCodesList</value>
+				<value>uccPropertyConfiguration.clientOfflineMenuConfig</value>
 
 				<value>hystrixRouteUccPropertyConfiguration.executionTimeoutInMilliseconds</value>
                 <value>hystrixRouteUccPropertyConfiguration.circuitBreakerEnabled</value>

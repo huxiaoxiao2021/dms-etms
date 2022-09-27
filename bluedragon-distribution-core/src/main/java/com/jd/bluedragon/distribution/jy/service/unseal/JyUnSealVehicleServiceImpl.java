@@ -17,6 +17,7 @@ import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadOrderTypeEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyLineTypeEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyUnSealStatusEnum;
+import com.jd.bluedragon.distribution.jy.enums.SpotCheckTypeEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.manager.IJyUnSealVehicleManager;
 import com.jd.bluedragon.distribution.jy.manager.JyScheduleTaskManager;
@@ -441,9 +442,13 @@ public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
         vehicleBaseInfo.setVehicleNumber(entity.getVehicleNumber());
         vehicleBaseInfo.setLineType(entity.getLineType());
         vehicleBaseInfo.setLineTypeName(entity.getLineTypeName());
-
-        if (BusinessUtil.isSignY(entity.getTagsSign(), JyUnloadTaskSignConstants.POSITION_1)) {
+        
+        if (BusinessUtil.isSignChar(entity.getTagsSign(),JyUnloadTaskSignConstants.POSITION_1,JyUnloadTaskSignConstants.CHAR_1_1)) {
             vehicleBaseInfo.setSpotCheck(true);
+            vehicleBaseInfo.setSpotCheckType(SpotCheckTypeEnum.DIRECT.getCode());
+        }else if (BusinessUtil.isSignChar(entity.getTagsSign(),JyUnloadTaskSignConstants.POSITION_1,JyUnloadTaskSignConstants.CHAR_1_2)) {
+            vehicleBaseInfo.setSpotCheck(true);
+            vehicleBaseInfo.setSpotCheckType(SpotCheckTypeEnum.RANDOM.getCode());
         }
 
         vehicleBaseInfo.setStarSiteId(entity.getStartSiteId().intValue());

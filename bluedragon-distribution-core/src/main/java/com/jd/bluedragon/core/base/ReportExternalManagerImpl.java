@@ -2,6 +2,9 @@ package com.jd.bluedragon.core.base;
 
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.distribution.api.response.spot.SpotCheckResponse;
+import com.jd.bluedragon.distribution.command.JdResult;
+import com.jd.bluedragon.distribution.jy.enums.SpotCheckTypeEnum;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ql.dms.report.ReportExternalService;
 import com.jd.ql.dms.report.domain.*;
@@ -106,20 +109,27 @@ public class ReportExternalManagerImpl implements ReportExternalManager {
     }
 
     @Override
-    public boolean checkIsNeedSpotCheck(List<WaitSpotCheckQueryCondition> condition) {
+    public JdResult<SpotCheckResponse> checkIsNeedSpotCheck(List<WaitSpotCheckQueryCondition> condition) {
         CallerInfo callerInfo = Profiler.registerInfo("dmsWeb.jsf.ReportExternalManager.checkIsNeedSpotCheck",
                 Constants.UMP_APP_NAME_DMSWEB,false,true);
+        JdResult<SpotCheckResponse> result = new JdResult<SpotCheckResponse>();
+        result.toSuccess();
+        result.setData(new SpotCheckResponse());
         try {
-            BaseEntity<Boolean> baseEntity = reportExternalService.checkIsNeedSpotCheck(condition);
-            if(baseEntity != null && baseEntity.getData() != null){
-                return baseEntity.getData();
+            BaseEntity<Integer> baseEntity = reportExternalService.checkAndGetSpotCheckType(condition);
+            if(baseEntity != null 
+            		&& baseEntity.getData() != null
+            		&& SpotCheckTypeEnum.containsCode(baseEntity.getData())){
+            	result.getData().setNeedCheck(Boolean.TRUE);
+            	result.getData().setSpotCheckType(baseEntity.getData());
             }
         }catch (Exception e){
             logger.error("根据条件:{}校验是否需要抽检异常!", JsonHelper.toJson(condition), e);
+            result.toError("校验是否需要抽检异常!");
             Profiler.functionError(callerInfo);
         }finally {
             Profiler.registerInfoEnd(callerInfo);
         }
-        return false;
+        return result;
     }
 }
