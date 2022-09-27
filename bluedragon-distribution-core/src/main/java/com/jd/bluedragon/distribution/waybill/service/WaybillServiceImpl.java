@@ -505,7 +505,7 @@ public class WaybillServiceImpl implements WaybillService {
         List<DeliveryPackageD> packageList = waybillDto.getPackageList();
         if(CollectionUtils.isEmpty(packageList)){
             response.setCode(CODE_WAYBILL_NOE_FOUND);
-            response.setMobile(JdResponse.MESSAGE_RE_PRINT_NO_PACK_LIST);
+            response.setMessage(JdResponse.MESSAGE_RE_PRINT_NO_PACK_LIST);
             return;
         }
 		for (DeliveryPackageD waybillPackage : packageList) {
