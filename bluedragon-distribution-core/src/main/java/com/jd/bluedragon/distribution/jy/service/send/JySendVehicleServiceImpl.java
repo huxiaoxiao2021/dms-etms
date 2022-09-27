@@ -65,6 +65,7 @@ import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleServic
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
+import com.jd.bluedragon.distribution.sealVehicle.domain.TransTypeEnum;
 import com.jd.bluedragon.distribution.send.domain.ConfirmMsgBox;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.domain.SendM;
@@ -2693,6 +2694,12 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
         sendTaskInfo.setAbnormalFlag(sendVehicleEntity.getAbnormalFlag());
         sendTaskInfo.setTransWay(sendVehicleEntity.getTransWay());
         sendTaskInfo.setTransWayName(sendVehicleEntity.getTransWayName());
+        if (sendVehicleEntity.getTransWay() != null && StringUtils.isBlank(sendVehicleEntity.getTransWayName())) {
+            final TransTypeEnum transTypeEnum = TransTypeEnum.getEnum(sendVehicleEntity.getTransWay());
+            if(transTypeEnum != null){
+                sendTaskInfo.setTransWayName(transTypeEnum.getName());
+            }
+        }
         sendTaskInfo.setVehicleType(sendVehicleEntity.getVehicleType());
         sendTaskInfo.setVehicleTypeName(sendVehicleEntity.getVehicleTypeName());
         sendTaskInfo.setLineType(sendVehicleEntity.getLineType());
