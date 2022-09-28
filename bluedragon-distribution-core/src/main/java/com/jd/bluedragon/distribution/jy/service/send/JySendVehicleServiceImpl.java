@@ -1151,8 +1151,8 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
                 return result;
             }
             SendResult sendResult = new SendResult(SendResult.CODE_OK, SendResult.MESSAGE_OK);
-            String sendCode = this.getOrCreateSendCode(request, sendDestId, curSendDetail);
-            SendM sendM = toSendMDomain(request, sendDestId, sendCode);
+            String sendCode = this.getOrCreateSendCode(request, curSendDetail);
+            SendM sendM = toSendMDomain(request, curSendDetail.getEndSiteId(), sendCode);
             sendM.setBoxCode(barCode);
 
             // 发货状态校验
@@ -1166,12 +1166,12 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
             }
 
             if (Boolean.TRUE.equals(request.getForceSubmit())) {
-                JySendEntity sendEntity = this.createJySendRecord(request, sendDestId, sendCode, barCode);
+                JySendEntity sendEntity = this.createJySendRecord(request, curSendDetail.getEndSiteId(), sendCode, barCode);
                 sendEntity.setForceSendFlag(1);
                 jySendService.save(sendEntity);
             }
             else {
-                JySendEntity sendEntity = this.createJySendRecord(request, sendDestId, sendCode, barCode);
+                JySendEntity sendEntity = this.createJySendRecord(request, curSendDetail.getEndSiteId(), sendCode, barCode);
                 sendEntity.setForceSendFlag(0);
                 jySendService.save(sendEntity);
             }
@@ -1193,13 +1193,13 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
             }
 
             // 包裹首次扫描逻辑
-            this.dealTaskFirstScan(request, taskSend, sendDestId, curSendDetail);
+            this.dealTaskFirstScan(request, taskSend, curSendDetail);
 
             SendScanResponse sendScanResponse = new SendScanResponse();
             result.setData(sendScanResponse);
             sendScanResponse.setScanPackCount(this.calculateScanPackageCount(request, sendType));
-            BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteBySiteId(sendDestId.intValue());
-            sendScanResponse.setCurScanDestId(sendDestId);
+            BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteBySiteId(curSendDetail.getEndSiteId().intValue());
+            sendScanResponse.setCurScanDestId(curSendDetail.getEndSiteId());
             sendScanResponse.setCurScanDestName(baseSite.getSiteName());
         }
         catch (Exception ex) {
@@ -1363,10 +1363,10 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
         return sendResult;
     }
 
-    private void dealTaskFirstScan(SendScanRequest request, JyBizTaskSendVehicleEntity taskSend, Long sendDestId, JyBizTaskSendVehicleDetailEntity curSendDetail) {
+    private void dealTaskFirstScan(SendScanRequest request, JyBizTaskSendVehicleEntity taskSend, JyBizTaskSendVehicleDetailEntity curSendDetail) {
         // 发货流向首次扫描
         if (taskSendDestFirstScan(request, curSendDetail.getBizId())) {
-            logInfo("发货任务流向[{}-{}]首次扫描, 任务状态变为“发货中”. {}", request.getSendVehicleBizId(), sendDestId,
+            logInfo("发货任务流向[{}-{}]首次扫描, 任务状态变为“发货中”. {}", request.getSendVehicleBizId(), curSendDetail.getEndSiteId(),
                     JsonHelper.toJson(request));
             updateSendVehicleStatus(request, taskSend, curSendDetail);
         }
@@ -1463,11 +1463,10 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
     /**
      * 根据发货流向查询批次
      * @param request
-     * @param destSiteId
      * @param detail
      * @return
      */
-    private String getOrCreateSendCode(SendScanRequest request, Long destSiteId, JyBizTaskSendVehicleDetailEntity detail) {
+    private String getOrCreateSendCode(SendScanRequest request, JyBizTaskSendVehicleDetailEntity detail) {
         // 非同流向迁移会生成新批次，一个流向不止一个批次
         String curDestSendCode = jySendCodeService.findEarliestSendCode(detail.getBizId());
 
@@ -1476,7 +1475,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
             Profiler.businessAlarm("dms.web.JySendVehicleService.getOrCreateSendCode", "[拣运APP]发货匹配发货批次失败，将新建批次！");
             logWarn("发货流向获取批次号为空! {}", detail.getBizId());
             // 首次扫描生成批次
-            sendCode = generateSendCode((long) request.getCurrentOperate().getSiteCode(), destSiteId, request.getUser().getUserErp());
+            sendCode = generateSendCode((long) request.getCurrentOperate().getSiteCode(), detail.getEndSiteId(), request.getUser().getUserErp());
 
             this.saveSendCode(request, sendCode, detail.getBizId());
         }
