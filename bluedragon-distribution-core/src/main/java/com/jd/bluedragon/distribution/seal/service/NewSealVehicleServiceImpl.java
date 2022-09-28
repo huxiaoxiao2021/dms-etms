@@ -78,6 +78,9 @@ import org.springframework.stereotype.Service;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
+import static com.jd.bluedragon.distribution.base.domain.InvokeResult.SERVER_ERROR_CODE;
+import static com.jd.bluedragon.distribution.base.domain.InvokeResult.SERVER_ERROR_MESSAGE;
+
 @Service("newSealVehicleService")
 public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 
@@ -790,7 +793,64 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 		return isSealed;
 	}
 
-	@Override
+    @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.NewSealVehicleServiceImpl.checkBatchCode", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public InvokeResult<Void> checkBatchCode(String batchCode) {
+        InvokeResult<Void> result = new InvokeResult<>(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
+        Integer receiveSiteCode = SerialRuleUtil.getReceiveSiteCodeFromSendCode(batchCode);//获取批次号目的地
+        //1.批次号是否符合编码规范，不合规范直接返回参数错误
+        if (receiveSiteCode == null) {
+            result.setCode(JdResponse.CODE_PARAM_ERROR);
+            result.setMessage(NewSealVehicleResponse.TIPS_BATCHCODE_PARAM_ERROR);
+            return result;
+        }
+
+        // 1.1 校验批次号是否可用
+        InvokeResult<Boolean> sendChkResult = sendCodeService.validateSendCodeEffective(batchCode);
+        if (!sendChkResult.codeSuccess()) {
+            result.setCode(sendChkResult.getCode());
+            result.setMessage(sendChkResult.getMessage());
+            return result;
+        }
+
+        //2.是否已经封车
+        CommonDto<Boolean> isSealed = isBatchCodeHasSealed(batchCode);
+        if (isSealed == null) {
+            result.setCode(JdResponse.CODE_SERVICE_ERROR);
+            result.setMessage("服务异常，运输系统查询批次号状态结果为空！");
+            log.warn("服务异常，运输系统查询批次号状态结果为空, 批次号:{}", batchCode);
+            return result;
+        }
+
+        if (Constants.RESULT_SUCCESS == isSealed.getCode()) {//服务正常
+            if (Boolean.TRUE.equals(isSealed.getData())) {//已被封车
+                result.setCode(NewSealVehicleResponse.CODE_EXCUTE_ERROR);
+                result.setMessage(NewSealVehicleResponse.TIPS_BATCHCODE_SEALED_ERROR);
+            } else {//未被封车
+                result.setCode(JdResponse.CODE_OK);
+                result.setMessage(JdResponse.MESSAGE_OK);
+            }
+        } else if (Constants.RESULT_WARN == isSealed.getCode()) { //接口返回警告信息，给前台提示
+            result.setCode(JdResponse.CODE_SERVICE_ERROR);
+            result.setMessage(isSealed.getMessage());
+        } else {//服务出错或者出异常，打日志
+            result.setCode(JdResponse.CODE_SERVICE_ERROR);
+            result.setMessage("服务异常，运输系统查询批次号状态失败！");
+            log.warn("服务异常，运输系统查询批次号状态失败, 批次号:{}", batchCode);
+            log.warn("服务异常，运输系统查询批次号状态失败，失败原因:{}", isSealed.getMessage());
+        }
+
+        //3.批次号是否存在（最后查询批次号是否存在，不存在时给前台提示）
+        // 批次号没有运单发货记录，也没有物资发货记录，判定为不存在
+        if (JdResponse.CODE_OK.equals(result.getCode()) && !checkBatchCodeIsNewSealVehicle(batchCode)) {
+            log.info("批次号不包含运单发货记录，也不包含物资发货记录!, batchCode:[{}]", batchCode);
+            result.setCode(NewSealVehicleResponse.CODE_EXCUTE_ERROR);
+            result.setMessage(NewSealVehicleResponse.TIPS_BATCHCODE_PARAM_NOTEXSITE_ERROR);
+        }
+        return result;
+    }
+
+    @Override
 	@JProfiler(jKey = "Bluedragon_dms_center.web.method.carrierQuery.getTransportResourceByTransCode",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public com.jd.tms.basic.dto.CommonDto<TransportResourceDto> getTransportResourceByTransCode(String batchCode) {
 		com.jd.tms.basic.dto.CommonDto<TransportResourceDto> dto = carrierQueryWSManager.getTransportResourceByTransCode(batchCode);

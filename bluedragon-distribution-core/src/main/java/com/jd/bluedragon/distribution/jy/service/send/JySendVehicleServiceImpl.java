@@ -2608,6 +2608,8 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
     }
 
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "IJySendVehicleService.sendTaskDetail",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public InvokeResult<SendTaskInfo> sendTaskDetail(SendVehicleInfoRequest request) {
         InvokeResult<SendTaskInfo> invokeResult = new InvokeResult<>();
         if (request.getCurrentOperate() == null
