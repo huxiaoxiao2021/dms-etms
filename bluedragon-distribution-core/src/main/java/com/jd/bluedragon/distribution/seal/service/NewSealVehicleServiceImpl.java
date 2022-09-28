@@ -287,11 +287,14 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
                 sendCodes.addAll(sealCarDto.getBatchCodes());
             }
             List<JySendCodeEntity> sendCodeEntityList =jyVehicleSendRelationService.querySendDetailBizIdBySendCode(sendCodes);
-            for (JySendCodeEntity jySendCodeEntity:sendCodeEntityList){
-                checkAndUpdateTaskStatus(jySendCodeEntity,sealCarDtos.get(0));
+            if (ObjectHelper.isNotNull(sendCodeEntityList)){
+                for (JySendCodeEntity jySendCodeEntity:sendCodeEntityList){
+                    checkAndUpdateTaskStatus(jySendCodeEntity,sealCarDtos.get(0));
+                }
             }
         }
     }
+
 
     private void checkAndUpdateTaskStatus(JySendCodeEntity jySendCodeEntity,SealCarDto sealCarDto) {
         JyBizTaskSendVehicleDetailEntity taskSendDetail = jyBizTaskSendVehicleDetailService.findByBizId(jySendCodeEntity.getSendDetailBizId());
