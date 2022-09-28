@@ -694,6 +694,18 @@ public class UccPropertyConfiguration {
      */
     private boolean jyBasicServerSwitch;
 
+    /**
+     * 拦截批次号开关
+     */
+    private boolean filterSendCodeSwitch;
+
+    public boolean getFilterSendCodeSwitch() {
+        return filterSendCodeSwitch;
+    }
+
+    public void setFilterSendCodeSwitch(boolean filterSendCodeSwitch) {
+        this.filterSendCodeSwitch = filterSendCodeSwitch;
+    }
 
     public Integer getOldSendSplitPageSize() {
         return oldSendSplitPageSize;

@@ -12,6 +12,7 @@ import com.jd.bluedragon.common.dto.seal.request.*;
 import com.jd.bluedragon.common.dto.seal.response.SealCodeResp;
 import com.jd.bluedragon.common.dto.seal.response.SealVehicleInfoResp;
 import com.jd.bluedragon.common.dto.seal.response.TransportResp;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.NewSealVehicleRequest;
 import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
@@ -45,6 +46,8 @@ public class JySealCarGatewayServiceImpl implements JySealCarGatewayService {
     JySealVehicleService jySealVehicleService;
     @Autowired
     JyVehicleSendRelationService jyVehicleSendRelationService;
+    @Autowired
+    private UccPropertyConfiguration uccConfiguration;
 
     @Override
     public JdCResponse<SealCodeResp> listSealCodeByBizId(SealCodeReq sealCodeReq) {
@@ -131,7 +134,7 @@ public class JySealCarGatewayServiceImpl implements JySealCarGatewayService {
         if (ObjectHelper.isEmpty(sealCarPreRequest.getSealCarSource())){
             sealCarPreRequest.setSealCarSource(SealCarSourceEnum.COMMON_SEAL_CAR.getCode());
         }
-        if (checkIfBelongOthers(validSendCodeReq)){
+        if (uccConfiguration.getFilterSendCodeSwitch() && checkIfBelongOthers(validSendCodeReq)){
             return new JdCResponse(FORBID_SENDCODE_OF_OTHER_DETAIL_CODE,FORBID_SENDCODE_OF_OTHER_DETAIL_MESSAGE);
         }
         NewSealVehicleResponse newSealVehicleResponse = newSealVehicleResource.newCheckTranCodeAndBatchCode(sealCarPreRequest);

@@ -8,12 +8,10 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
+import com.jd.bluedragon.common.dto.blockcar.enumeration.SealCarTypeEnum;
 import com.jd.bluedragon.common.dto.blockcar.request.SealCarPreRequest;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
-import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.core.base.BasicQueryWSManager;
-import com.jd.bluedragon.core.base.CarrierQueryWSManager;
-import com.jd.bluedragon.core.base.VosManager;
+import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.tms.TmsServiceManager;
 import com.jd.bluedragon.core.jsf.tms.TransportResource;
@@ -72,6 +70,7 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.tms.basic.dto.BasicDictDto;
 import com.jd.tms.basic.dto.TransportResourceDto;
 import com.jd.tms.dtp.dto.TransAbnormalBillCreateDto;
+import com.jd.tms.jdi.dto.TransWorkItemDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections.CollectionUtils;
@@ -170,6 +169,8 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
     private SendVehicleTransactionManager sendVehicleTransactionManager;
     @Autowired
     private IJySendVehicleService jySendVehicleService;
+    @Autowired
+    JdiQueryWSManager jdiQueryWSManager;
 
     private static final Integer UNSEAL_CAR_IN_RECIVE_AREA = 2;    //带解封的车辆在围栏里(1-是否在始发网点 2-是否在目的网点)
 
@@ -274,11 +275,31 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
                 logEngine.addLog(businessLogProfiler);
                 addSystemLog(paramList, msg);
             }
-
-
         }
         return sealCarInfo;
 	}
+
+    private void syncJySealStatusByTaskSimpleCode(List<SealCarDto> sealCarDtos) {
+        if (ObjectHelper.isNotNull(sealCarDtos) && sealCarDtos.size()>0){
+            for (SealCarDto sealCarDto:sealCarDtos){
+                //按任务
+                if (SealCarTypeEnum.SEAL_BY_TASK.getType()==sealCarDto.getSealCarType() && ObjectHelper.isNotNull(sealCarDto.getItemSimpleCode())){
+                    com.jd.tms.jdi.dto.CommonDto<TransWorkItemDto> transWorkItemResp = jdiQueryWSManager.queryTransWorkItemBySimpleCode(sealCarDto.getItemSimpleCode());
+                    if (ObjectHelper.isNotNull(transWorkItemResp) && Constants.RESULT_SUCCESS == transWorkItemResp.getCode()) {
+                        TransWorkItemDto transWorkItemDto = transWorkItemResp.getData();
+                        if (ObjectHelper.isNotNull(transWorkItemDto) && ObjectHelper.isNotNull(transWorkItemDto.getTransWorkItemCode())){
+                            JyBizTaskSendVehicleDetailEntity condition =new JyBizTaskSendVehicleDetailEntity();
+                            condition.setTransWorkItemCode(transWorkItemDto.getTransWorkItemCode());
+                            JyBizTaskSendVehicleDetailEntity detailEntity =jyBizTaskSendVehicleDetailService.findByTransWorkItemCode(condition);
+                            if (ObjectHelper.isNotNull(detailEntity)){
+                                checkAndUpdateTaskStatus(detailEntity.getSendVehicleBizId(),detailEntity.getBizId(),sealCarDto);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 
     private void syncJySealStatus(List<SealCarDto> sealCarDtos) {
         if (ObjectHelper.isNotNull(sealCarDtos) && sealCarDtos.size()>0){
@@ -289,16 +310,16 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
             List<JySendCodeEntity> sendCodeEntityList =jyVehicleSendRelationService.querySendDetailBizIdBySendCode(sendCodes);
             if (ObjectHelper.isNotNull(sendCodeEntityList)){
                 for (JySendCodeEntity jySendCodeEntity:sendCodeEntityList){
-                    checkAndUpdateTaskStatus(jySendCodeEntity,sealCarDtos.get(0));
+                    checkAndUpdateTaskStatus(jySendCodeEntity.getSendVehicleBizId(),jySendCodeEntity.getSendDetailBizId(),sealCarDtos.get(0));
                 }
             }
         }
     }
 
 
-    private void checkAndUpdateTaskStatus(JySendCodeEntity jySendCodeEntity,SealCarDto sealCarDto) {
-        JyBizTaskSendVehicleDetailEntity taskSendDetail = jyBizTaskSendVehicleDetailService.findByBizId(jySendCodeEntity.getSendDetailBizId());
-        JyBizTaskSendVehicleEntity taskSend = jyBizTaskSendVehicleService.findByBizId(jySendCodeEntity.getSendVehicleBizId());
+    private void checkAndUpdateTaskStatus(String sendVehicleBizId,String sendDetailBizId,SealCarDto sealCarDto) {
+        JyBizTaskSendVehicleEntity taskSend = jyBizTaskSendVehicleService.findByBizId(sendVehicleBizId);
+        JyBizTaskSendVehicleDetailEntity taskSendDetail = jyBizTaskSendVehicleDetailService.findByBizId(sendDetailBizId);
         if (JyBizTaskSendDetailStatusEnum.SEALED.getCode().equals(taskSendDetail.getVehicleStatus())){
             return;
         }

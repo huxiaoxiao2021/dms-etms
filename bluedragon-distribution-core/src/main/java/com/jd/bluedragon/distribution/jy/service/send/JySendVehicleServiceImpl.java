@@ -71,6 +71,7 @@ import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.domain.SendResult;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
+import com.jd.bluedragon.distribution.send.service.SendDetailService;
 import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
 import com.jd.bluedragon.distribution.ver.filter.FilterChain;
 import com.jd.bluedragon.distribution.ver.service.SortingCheckService;
@@ -233,6 +234,8 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
 
     @Autowired
     private BasicSelectWsManager basicSelectWsManager;
+    @Autowired
+    SendDetailService sendDetailService;
 
     @Override
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "IJySendVehicleService.fetchSendVehicleTask",
@@ -1260,7 +1263,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
         }
         List<String> sendCodes =jySendCodeService.querySendCodesByVehicleDetailBizId(detail.getBizId());
         for (String sendCode:sendCodes){
-            if (!newSealVehicleService.newCheckSendCodeSealed(sendCode, null)){
+            if (newSealVehicleService.check!newSealVehicleService.newCheckSendCodeSealed(sendCode, null)){
                 return false;
             }
         }
