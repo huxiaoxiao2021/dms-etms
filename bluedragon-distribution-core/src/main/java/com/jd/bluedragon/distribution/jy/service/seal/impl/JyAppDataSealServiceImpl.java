@@ -64,7 +64,7 @@ public class JyAppDataSealServiceImpl implements JyAppDataSealService {
 		pageData.setWeight(sealData.getWeight());
 		pageData.setVolume(sealData.getVolume());
 		pageData.setSealCodeList(jyAppDataSealCodeDao.querySealCodeList(sendVehicleDetailBizId));
-		pageData.setSealCodeList(jyAppDataSealSendCodeDao.querySendCodeList(sendVehicleDetailBizId));
+		pageData.setSendCodeList(jyAppDataSealSendCodeDao.querySendCodeList(sendVehicleDetailBizId));
 		return pageData;
 	}
 
@@ -95,8 +95,8 @@ public class JyAppDataSealServiceImpl implements JyAppDataSealService {
         }
         List<JyAppDataSealCode> sealCodes = new ArrayList<JyAppDataSealCode>();
         List<JyAppDataSealSendCode> sendCodes = new ArrayList<JyAppDataSealSendCode>();
-        if(CollectionUtils.isNotEmpty(sealVehicleReq.getSealCodes())) {
-        	for(String sealCode : sealVehicleReq.getSealCodes()) {
+        if(CollectionUtils.isNotEmpty(sealVehicleReq.getScannedSealCodes())) {
+        	for(String sealCode : sealVehicleReq.getScannedSealCodes()) {
         		JyAppDataSealCode sealCodeData = new JyAppDataSealCode();
         		sealCodeData.setSendDetailBizId(detailBizId);
         		sealCodeData.setSealCode(sealCode);
@@ -104,8 +104,8 @@ public class JyAppDataSealServiceImpl implements JyAppDataSealService {
         		sealCodes.add(sealCodeData);
         	}
         }
-        if(CollectionUtils.isNotEmpty(sealVehicleReq.getBatchCodes())) {
-        	for(String sendCode : sealVehicleReq.getBatchCodes()) {
+        if(CollectionUtils.isNotEmpty(sealVehicleReq.getScannedBatchCodes())) {
+        	for(String sendCode : sealVehicleReq.getScannedBatchCodes()) {
         		JyAppDataSealSendCode sealCodeData = new JyAppDataSealSendCode();
         		sealCodeData.setSendDetailBizId(detailBizId);
         		sealCodeData.setSendCode(sendCode);
