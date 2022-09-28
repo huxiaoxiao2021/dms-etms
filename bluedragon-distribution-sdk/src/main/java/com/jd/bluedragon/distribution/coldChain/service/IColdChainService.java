@@ -34,6 +34,7 @@ public interface IColdChainService {
      * @param vo
      * @return
      */
+    @Deprecated
     InvokeResult<ColdCheckCommonResult> sendCheck(SendCheckVO vo);
 
     /**
@@ -41,6 +42,7 @@ public interface IColdChainService {
      * @param vo
      * @return
      */
+    @Deprecated
     InvokeResult<Boolean> send(SendVO vo);
 
     /**
@@ -48,6 +50,7 @@ public interface IColdChainService {
      * @param vo
      * @return
      */
+    @Deprecated
     InvokeResult<ColdCheckCommonResult> sendOfKYCheck(SendOfKYCheckVO vo);
 
     /**
@@ -55,6 +58,7 @@ public interface IColdChainService {
      * @param vo
      * @return
      */
+    @Deprecated
     InvokeResult<Boolean> sendOfKY(SendOfKYVO vo);
 
     /**
@@ -63,5 +67,6 @@ public interface IColdChainService {
      * @return
      */
     InvokeResult<Boolean> checkSendCodeOfSeal(SendVO vo);
+
 
 }

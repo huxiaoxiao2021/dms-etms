@@ -182,14 +182,15 @@ public class ColdChainExternalServiceImpl implements IColdChainService {
                 }
             }
 
+            //冷链包装耗材与大网的不一致，这里无须校验
             //包装耗材
-            com.jd.ql.dms.common.domain.JdResponse<Boolean> packingConsumableResp = dmsPackingConsumableService.getConfirmStatusByWaybillCode(waybillCode);
+/*            com.jd.ql.dms.common.domain.JdResponse<Boolean> packingConsumableResp = dmsPackingConsumableService.getConfirmStatusByWaybillCode(waybillCode);
             //超级恶心的返回值 如果是400 和 500 就不需要处理了，200和 201提示
             if(!JdResponse.CODE_FAIL.equals(packingConsumableResp.getCode()) && !JdResponse.CODE_ERROR.equals(packingConsumableResp.getCode())){
                 result.customMessage(JdResponse.CODE_FAIL,packingConsumableResp.getMessage());
                 result.getData().setWeak(true);
                 return result;
-            }
+            }*/
         }
 
 
