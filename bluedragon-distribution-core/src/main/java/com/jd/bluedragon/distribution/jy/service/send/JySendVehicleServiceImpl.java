@@ -1263,7 +1263,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
         }
         List<String> sendCodes =jySendCodeService.querySendCodesByVehicleDetailBizId(detail.getBizId());
         for (String sendCode:sendCodes){
-            if (newSealVehicleService.check!newSealVehicleService.newCheckSendCodeSealed(sendCode, null)){
+            if (sendDetailService.checkSendIsExist(sendCode) && !newSealVehicleService.newCheckSendCodeSealed(sendCode, null)){
                 return false;
             }
         }
