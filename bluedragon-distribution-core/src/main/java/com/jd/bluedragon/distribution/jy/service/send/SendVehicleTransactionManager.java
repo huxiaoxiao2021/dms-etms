@@ -306,6 +306,7 @@ public class SendVehicleTransactionManager {
 
     private JyBizTaskSendVehicleDetailEntity getSendVehicleDetailEntity(JyBizTaskSendVehicleDetailEntity sendDetail, JyBizTaskSendDetailStatusEnum updateStatus) {
         JyBizTaskSendVehicleDetailEntity statusQ = new JyBizTaskSendVehicleDetailEntity(sendDetail.getStartSiteId(), sendDetail.getEndSiteId(), sendDetail.getSendVehicleBizId());
+        statusQ.setBizId(sendDetail.getBizId());
         statusQ.setVehicleStatus(updateStatus.getCode());
         statusQ.setUpdateTime(sendDetail.getUpdateTime());
         statusQ.setUpdateUserName(sendDetail.getUpdateUserName());
