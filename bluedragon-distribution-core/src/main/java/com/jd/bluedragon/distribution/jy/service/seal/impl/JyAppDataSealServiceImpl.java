@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.jy.service.seal.impl;
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.RESULT_SUCCESS_CODE;
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.RESULT_SUCCESS_MESSAGE;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -83,8 +84,12 @@ public class JyAppDataSealServiceImpl implements JyAppDataSealService {
         sealData.setItemSimpleCode(sealVehicleReq.getItemSimpleCode());
         sealData.setTransportCode(sealVehicleReq.getTransportCode());
         sealData.setPalletCount(sealVehicleReq.getPalletCount());
-        sealData.setVolume(sealVehicleReq.getVolume());
-        sealData.setWeight(sealVehicleReq.getWeight());
+        if(sealVehicleReq.getVolume() != null) {
+        	sealData.setVolume(new BigDecimal(sealVehicleReq.getVolume()));
+        }
+        if(sealVehicleReq.getWeight() != null) {
+        	sealData.setWeight(new BigDecimal(sealVehicleReq.getWeight()));
+        }
         User operUser = sealVehicleReq.getUser();
         String operUserErp = "";
         String operUserName = "";

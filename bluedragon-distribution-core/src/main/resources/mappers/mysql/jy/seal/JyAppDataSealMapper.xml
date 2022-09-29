@@ -9,8 +9,8 @@
 		<result column="item_simple_code" property="itemSimpleCode" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="transport_code" property="transportCode" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="pallet_count" property="palletCount" javaType="java.lang.String" jdbcType="VARCHAR" />
-		<result column="weight" property="weight" javaType="java.lang.Double" jdbcType="DOUBLE" />
-		<result column="volume" property="volume" javaType="java.lang.Double" jdbcType="DOUBLE" />
+		<result column="weight" property="weight" javaType="java.math.BigDecimal" jdbcType="DECIMAL" />
+		<result column="volume" property="volume" javaType="java.math.BigDecimal" jdbcType="DECIMAL" />
 		<result column="create_user_erp" property="createUserErp" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="create_user_name" property="createUserName" javaType="java.lang.String" jdbcType="VARCHAR" />
 		<result column="update_user_erp" property="updateUserErp" javaType="java.lang.String" jdbcType="VARCHAR" />
@@ -82,10 +82,10 @@
 					#{palletCount,jdbcType=VARCHAR},
 				</if>
 				<if test="weight != null" >
-					#{weight,jdbcType=DOUBLE},
+					#{weight,jdbcType=DECIMAL},
 				</if>
 				<if test="volume != null" >
-					#{volume,jdbcType=DOUBLE},
+					#{volume,jdbcType=DECIMAL},
 				</if>
 				<if test="createUserErp != null" >
 					#{createUserErp,jdbcType=VARCHAR},
@@ -119,10 +119,10 @@
 					pallet_count = #{palletCount,jdbcType=VARCHAR},
 				</if>
 				<if test="weight != null" >
-					weight = #{weight,jdbcType=DOUBLE},
+					weight = #{weight,jdbcType=DECIMAL},
 				</if>
 				<if test="volume != null" >
-					volume = #{volume,jdbcType=DOUBLE},
+					volume = #{volume,jdbcType=DECIMAL},
 				</if>
 				<if test="updateUserErp != null" >
 					update_user_erp = #{updateUserErp,jdbcType=VARCHAR},

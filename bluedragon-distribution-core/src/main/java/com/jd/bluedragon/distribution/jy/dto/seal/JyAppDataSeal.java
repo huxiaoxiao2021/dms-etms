@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.jy.dto.seal;
 
 import java.util.Date;
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 /**
  * @ClassName: JyAppDataSeal
@@ -47,12 +48,12 @@ public class JyAppDataSeal implements Serializable {
 	/**
 	 * 重量
 	 */
-	private Double weight;
+	private BigDecimal weight;
 
 	/**
 	 * 体积
 	 */
-	private Double volume;
+	private BigDecimal volume;
 
 	/**
 	 * 创建人ERP
@@ -194,7 +195,7 @@ public class JyAppDataSeal implements Serializable {
 	 *
 	 * @param weight
 	 */
-	public void setWeight(Double weight) {
+	public void setWeight(BigDecimal weight) {
 		this.weight = weight;
 	}
 
@@ -202,7 +203,7 @@ public class JyAppDataSeal implements Serializable {
 	 *
 	 * @return weight
 	 */
-	public Double getWeight() {
+	public BigDecimal getWeight() {
 		return this.weight;
 	}
 
@@ -210,7 +211,7 @@ public class JyAppDataSeal implements Serializable {
 	 *
 	 * @param volume
 	 */
-	public void setVolume(Double volume) {
+	public void setVolume(BigDecimal volume) {
 		this.volume = volume;
 	}
 
@@ -218,7 +219,7 @@ public class JyAppDataSeal implements Serializable {
 	 *
 	 * @return volume
 	 */
-	public Double getVolume() {
+	public BigDecimal getVolume() {
 		return this.volume;
 	}
 

@@ -1,6 +1,7 @@
 package com.jd.bluedragon.common.dto.seal.response;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.util.List;
 /**
  * 封车页面保存数据
@@ -43,12 +44,12 @@ public class JyAppDataSealVo implements Serializable{
 	/**
 	 * 重量
 	 */
-	private Double weight;
+	private BigDecimal weight;
 
 	/**
 	 * 体积
 	 */
-	private Double volume;
+	private BigDecimal volume;
     /**
      * 批次号列表
      */
@@ -107,19 +108,19 @@ public class JyAppDataSealVo implements Serializable{
 		this.palletCount = palletCount;
 	}
 
-	public Double getWeight() {
+	public BigDecimal getWeight() {
 		return weight;
 	}
 
-	public void setWeight(Double weight) {
+	public void setWeight(BigDecimal weight) {
 		this.weight = weight;
 	}
 
-	public Double getVolume() {
+	public BigDecimal getVolume() {
 		return volume;
 	}
 
-	public void setVolume(Double volume) {
+	public void setVolume(BigDecimal volume) {
 		this.volume = volume;
 	}
 
