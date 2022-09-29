@@ -824,8 +824,8 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 
         if (Constants.RESULT_SUCCESS == isSealed.getCode()) {//服务正常
             if (Boolean.TRUE.equals(isSealed.getData())) {//已被封车
-                result.setCode(NewSealVehicleResponse.CODE_EXCUTE_ERROR);
-                result.setMessage(NewSealVehicleResponse.TIPS_BATCHCODE_SEALED_ERROR);
+                result.setCode(NewSealVehicleResponse.CODE_BATCH_CODE_SEALED);
+                result.setMessage(NewSealVehicleResponse.MESSAGE_BATCH_CODE_SEALED);
             } else {//未被封车
                 result.setCode(JdResponse.CODE_OK);
                 result.setMessage(JdResponse.MESSAGE_OK);
