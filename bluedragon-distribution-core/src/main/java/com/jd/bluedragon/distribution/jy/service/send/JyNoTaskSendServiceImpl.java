@@ -169,13 +169,17 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
         CreateVehicleTaskResp createVehicleTaskResp = new CreateVehicleTaskResp();
         createVehicleTaskResp.setBizId(jyBizTaskSendVehicleEntity.getBizId());
         createVehicleTaskResp.setBizNo(jyBizTaskSendVehicleEntity.getBizNo());
+        createVehicleTaskResp.setTaskName("自建"+jyBizTaskSendVehicleEntity.getBizNo());
+        createVehicleTaskResp.setCreateUserErp(createVehicleTaskReq.getUser().getUserErp());
         return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, createVehicleTaskResp);
     }
 
     private JyBizTaskSendVehicleEntity initJyBizTaskSendVehicle(CreateVehicleTaskReq createVehicleTaskReq) {
         JyBizTaskSendVehicleEntity entity = new JyBizTaskSendVehicleEntity();
         entity.setBizId(genMainTaskBizId());
-        entity.setBizNo(genSendVehicleTaskBizNo(createVehicleTaskReq));
+        String bizNo =genSendVehicleTaskBizNo(createVehicleTaskReq);
+        entity.setBizNo(bizNo);
+        entity.setTaskName("自建"+bizNo);
         entity.setStartSiteId(Long.valueOf(createVehicleTaskReq.getCurrentOperate().getSiteCode()));
         entity.setManualCreatedFlag(1);
         entity.setVehicleType(createVehicleTaskReq.getVehicleType());
@@ -295,6 +299,9 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
             if (!ObjectHelper.isNotNull(fromSvdTask)){
                 return new InvokeResult(DETAIL_TASK_NO_FOUND_BY_MAIN_TASK_CODE, DETAIL_TASK_NO_FOUND_BY_MAIN_TASK_MESSAGE);
             }
+            if (jySendVehicleService.checkIfSealed(fromSvdTask)){
+                return new InvokeResult(FORBID_BIND_FOR_SEALED_DETAIL_CODE, FORBID_BIND_FOR_SEALED_DETAIL_MESSAGE);
+            }
 
             JyBizTaskSendVehicleDetailEntity queryToDetailTaskParams =new JyBizTaskSendVehicleDetailEntity();
             queryToDetailTaskParams.setSendVehicleBizId(bindVehicleDetailTaskReq.getToSendVehicleBizId());
@@ -303,6 +310,9 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
             JyBizTaskSendVehicleDetailEntity toSvdTask =jyBizTaskSendVehicleDetailService.findSendDetail(queryToDetailTaskParams);
             if (!ObjectHelper.isNotNull(toSvdTask)){
                 return new InvokeResult(DETAIL_TASK_NO_FOUND_BY_SITE_ID_CODE, DETAIL_TASK_NO_FOUND_BY_SITE_ID_MESSAGE);
+            }
+            if (jySendVehicleService.checkIfSealed(toSvdTask)){
+                return new InvokeResult(FORBID_BIND_TO_SEALED_DETAIL_CODE, FORBID_BIND_TO_SEALED_DETAIL_MESSAGE);
             }
 
             VehicleSendRelationDto dto = BeanUtils.copy(bindVehicleDetailTaskReq, VehicleSendRelationDto.class);
@@ -361,6 +371,14 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
     public InvokeResult transferSendTask(TransferSendTaskReq transferSendTaskReq) {
         log.info("任务迁移,transferSendTaskReq:{}",JsonHelper.toJson(transferSendTaskReq));
         //查询要迁移的批次信息-sendCodes
+        JyBizTaskSendVehicleDetailEntity fromSvd = jyBizTaskSendVehicleDetailService.findByBizId(transferSendTaskReq.getFromSendVehicleDetailBizId());
+        if (jySendVehicleService.checkIfSealed(fromSvd)){
+            return new InvokeResult(FORBID_TRANS_FRROM_SEALED_DETAIL_CODE, FORBID_TRANS_FRROM_SEALED_DETAIL_MESSAGE);
+        }
+        JyBizTaskSendVehicleDetailEntity toSvd = jyBizTaskSendVehicleDetailService.findByBizId(transferSendTaskReq.getToSendVehicleDetailBizId());
+        if (jySendVehicleService.checkIfSealed(toSvd)){
+            return new InvokeResult(FORBID_TRANS_TO_SEALED_DETAIL_CODE, FORBID_TRANS_TO_SEALED_DETAIL_MESSAGE);
+        }
         List<String> sendCodeList = jyVehicleSendRelationService.querySendCodesByVehicleDetailBizId(transferSendTaskReq.getFromSendVehicleDetailBizId());
         if (ObjectHelper.isNotNull(sendCodeList) && sendCodeList.size()>0){
             sendCodeList =filterEmptySendCode(transferSendTaskReq.getCurrentOperate().getSiteCode(),sendCodeList);
@@ -384,8 +402,7 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
                 //删除原绑定关系
                 jyVehicleSendRelationService.deleteVehicleSendRelation(dto);
                 //增加新流向绑定关系
-                JyBizTaskSendVehicleDetailEntity sendVehicleDetail = jyBizTaskSendVehicleDetailService.findByBizId(transferSendTaskReq.getToSendVehicleDetailBizId());
-                String newSendCode = generateSendCode(sendVehicleDetail, transferSendTaskReq.getUser().getUserErp());
+                String newSendCode = generateSendCode(toSvd, transferSendTaskReq.getUser().getUserErp());
                 JySendCodeEntity jySendCodeEntity = initJySendCodeEntity(transferSendTaskReq, newSendCode);
                 jyVehicleSendRelationService.add(jySendCodeEntity);
                 dto.setNewSendCode(newSendCode);
