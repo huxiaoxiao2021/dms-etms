@@ -170,7 +170,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
                         List<JySendSealCodeEntity> entityList = generateSendSealCodeList(sealVehicleReq);
                         jySendSealCodeService.addBatch(entityList);
                     }
-                    //updateTaskStatus(sealVehicleReq, sealCarDto);
+                    updateTaskStatus(sealVehicleReq, sealCarDto);
                     return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE);
                 }
                 return new InvokeResult(sealResp.getCode(), sealResp.getMessage());
