@@ -53,7 +53,7 @@ public class JyAppDataSealVo implements Serializable{
     /**
      * 批次号列表
      */
-    private List<String> sendCodeList;
+    private List<JyAppDataSealSendCodeVo> sendCodeList;
 
     /**
      * 封签号列表
@@ -124,11 +124,11 @@ public class JyAppDataSealVo implements Serializable{
 		this.volume = volume;
 	}
 
-	public List<String> getSendCodeList() {
+	public List<JyAppDataSealSendCodeVo> getSendCodeList() {
 		return sendCodeList;
 	}
 
-	public void setSendCodeList(List<String> sendCodeList) {
+	public void setSendCodeList(List<JyAppDataSealSendCodeVo> sendCodeList) {
 		this.sendCodeList = sendCodeList;
 	}
 
