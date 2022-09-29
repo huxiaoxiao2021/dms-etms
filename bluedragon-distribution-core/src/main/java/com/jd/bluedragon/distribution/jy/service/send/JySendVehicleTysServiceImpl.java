@@ -5,6 +5,7 @@ import com.alibaba.fastjson.TypeReference;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.BoxMsgResult;
 import com.jd.bluedragon.common.UnifiedExceptionProcess;
+import com.jd.bluedragon.common.domain.WaybillCache;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.SendModeEnum;
@@ -32,7 +33,12 @@ import com.jd.bluedragon.distribution.jy.service.seal.JySealVehicleService;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.domain.ThreeDeliveryResponse;
+import com.jd.bluedragon.distribution.send.domain.dto.SendDetailDto;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
+import com.jd.bluedragon.distribution.send.service.SendDetailService;
+import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.util.SiteSignTool;
@@ -47,10 +53,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 import static com.jd.bluedragon.Constants.BUSSINESS_TYPE_POSITIVE;
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.*;
@@ -84,6 +87,10 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
     BaseMajorManager baseMajorManager;
     @Autowired
     private IJySendVehicleService jySendVehicleService;
+    @Autowired
+    private WaybillCacheService waybillCacheService;
+    @Autowired
+    private SendDetailService sendDetailService;
 
     /**
      * 发货模式
@@ -957,9 +964,104 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
         }
         InvokeResult<com.jd.bluedragon.common.dto.send.response.CancelSendTaskResp> result = jySendVehicleServiceTys.cancelSendTask(req);
         if (ObjectHelper.isNotNull(result)) {
-            return convertResult(result, CancelSendTaskResp.class);
+            InvokeResult<CancelSendTaskResp> response = new InvokeResult<>();
+            response.setCode(result.getCode());
+            response.setMessage(result.getMessage());
+            if (RESULT_SUCCESS_CODE == result.getCode()) {
+                response.setData(transformCancelResp(result.getData(), cancelSendTaskReq));
+            }
+            return response;
         }
         return new InvokeResult(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
+    }
+
+    private CancelSendTaskResp transformCancelResp(com.jd.bluedragon.common.dto.send.response.CancelSendTaskResp cancelSendTaskResp, CancelSendTaskReq cancelSendTaskReq) {
+        if (cancelSendTaskResp == null) {
+            return null;
+        }
+        CancelSendTaskResp resp = new CancelSendTaskResp();
+        List<CancelSendWaybillDto> list = new ArrayList<>();
+        resp.setCancelWaybillList(list);
+        resp.setCancelCode(cancelSendTaskResp.getCancelCode());
+        // 按包裹取消扫描
+        if (WaybillUtil.isPackageCode(cancelSendTaskResp.getCancelCode())) {
+            String waybillCode = WaybillUtil.getWaybillCode(cancelSendTaskResp.getCancelCode());
+            CancelSendWaybillDto cancelSendWaybillDto = new CancelSendWaybillDto();
+            cancelSendWaybillDto.setWaybillCode(waybillCode);
+            cancelSendWaybillDto.setTotalPackageCount(getPackageAmount(cancelSendTaskResp.getCancelCode()));
+            cancelSendWaybillDto.setCancelPackageCount(cancelSendTaskResp.getCanclePackageCount());
+            List<String> packageCodes = new ArrayList<>();
+            packageCodes.add(cancelSendTaskResp.getCancelCode());
+            cancelSendWaybillDto.setPackageCodes(packageCodes);
+            list.add(cancelSendWaybillDto);
+            // 按运单取消扫描
+        } else if (WaybillUtil.isWaybillCode(cancelSendTaskResp.getCancelCode())) {
+            CancelSendWaybillDto cancelSendWaybillDto = new CancelSendWaybillDto();
+            cancelSendWaybillDto.setWaybillCode(cancelSendTaskResp.getCancelCode());
+            int packageAmount = getPackageAmountByWaybillCode(cancelSendTaskResp.getCancelCode());
+            cancelSendWaybillDto.setTotalPackageCount(packageAmount);
+            cancelSendWaybillDto.setCancelPackageCount(packageAmount);
+            list.add(cancelSendWaybillDto);
+            // 按板号取消扫描
+        } else if (BusinessUtil.isBoardCode(cancelSendTaskResp.getCancelCode())) {
+            List<String> packageList = cancelSendTaskResp.getPackageCodes();
+            List<CancelSendWaybillDto> cancelSendWaybillList = transformCancelSendWaybill(packageList);
+            resp.setCancelWaybillList(cancelSendWaybillList);
+        } else if (BusinessUtil.isBoxcode(cancelSendTaskResp.getCancelCode())) {
+            SendDetailDto sendDetail = initSendDetail(cancelSendTaskResp.getCancelCode(), cancelSendTaskReq.getCurrentOperate().getSiteCode());
+            List<String> packageList = sendDetailService.queryPackageCodeByboxCode(sendDetail);
+            List<CancelSendWaybillDto> cancelSendWaybillList = transformCancelSendWaybill(packageList);
+            resp.setCancelWaybillList(cancelSendWaybillList);
+        }
+        return resp;
+    }
+
+    private SendDetailDto initSendDetail(String barcode, int createSiteCode) {
+        SendDetailDto sendDetail = new SendDetailDto();
+        sendDetail.setIsCancel(0);
+        sendDetail.setCreateSiteCode(createSiteCode);
+        sendDetail.setBoxCode(barcode);
+        return sendDetail;
+    }
+
+    private int getPackageAmount(String packageCode) {
+        int packageAmount = WaybillUtil.getPackNumByPackCode(packageCode);
+        String waybillCode = WaybillUtil.getWaybillCode(packageCode);
+        if (packageAmount == 0) {
+            return getPackageAmountByWaybillCode(waybillCode);
+        }
+        return packageAmount;
+    }
+
+    private int getPackageAmountByWaybillCode(String waybillCode) {
+        WaybillCache waybillCache = waybillCacheService.getFromCache(waybillCode);
+        return (waybillCache != null ? waybillCache.getPackageNum() : 0);
+    }
+
+    private List<CancelSendWaybillDto> transformCancelSendWaybill(List<String> packageList) {
+        if (!CollectionUtils.isEmpty(packageList)) {
+            return new ArrayList<>();
+        }
+        Map<String, CancelSendWaybillDto> map = new HashMap<>();
+        for (String packageCode : packageList) {
+            String waybillCode = WaybillUtil.getWaybillCode(packageCode);
+            CancelSendWaybillDto cancelSendWaybillDto = map.get(waybillCode);
+            if (cancelSendWaybillDto == null) {
+                cancelSendWaybillDto = new CancelSendWaybillDto();
+                cancelSendWaybillDto.setWaybillCode(waybillCode);
+                cancelSendWaybillDto.setTotalPackageCount(getPackageAmount(packageCode));
+                cancelSendWaybillDto.setCancelPackageCount(1);
+                List<String> packageCodes = new ArrayList<>();
+                packageCodes.add(packageCode);
+                cancelSendWaybillDto.setPackageCodes(packageCodes);
+            } else {
+                cancelSendWaybillDto.setCancelPackageCount(cancelSendWaybillDto.getCancelPackageCount() + 1);
+                List<String> packageCodes = cancelSendWaybillDto.getPackageCodes();
+                packageCodes.add(packageCode);
+                cancelSendWaybillDto.setPackageCodes(packageCodes);
+            }
+        }
+        return new ArrayList<>(map.values());
     }
 
     /**

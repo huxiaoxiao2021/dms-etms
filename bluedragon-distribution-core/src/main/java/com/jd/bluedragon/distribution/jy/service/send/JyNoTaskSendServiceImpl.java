@@ -499,6 +499,7 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
             List<String> packOrBoxCodes = response.getData();
             List<String> packageCodes = getPackageCodesFromPackOrBoxCodes(packOrBoxCodes, request.getCurrentOperate().getSiteCode());
             cancelSendTaskResp.setCanclePackageCount(packageCodes.size());
+            cancelSendTaskResp.setPackageCodes(packageCodes);
 
             //查询一下sendCode信息
             SendM sendMDto =sendMService.selectSendByBoardCode(request.getCurrentOperate().getSiteCode(),sendM.getBoxCode(),1);
