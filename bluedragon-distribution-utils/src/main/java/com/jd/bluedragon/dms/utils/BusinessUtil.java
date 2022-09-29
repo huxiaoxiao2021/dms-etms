@@ -1647,6 +1647,8 @@ public class BusinessUtil {
             return BarCodeType.WAYBILL_CODE;
         } else if (BusinessUtil.isSendCode(barCode)) {
             return BarCodeType.SEND_CODE;
+        } else if (BusinessUtil.isBoardCode(barCode)) {
+            return BarCodeType.BOARD_CODE;
         } else {
             return null;
         }
