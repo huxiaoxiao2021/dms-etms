@@ -139,6 +139,9 @@ public class InvokeResult<T> implements Serializable {
     public static final int FORBID_SENDCODE_OF_OTHER_DETAIL_CODE= 337;
     public static final String FORBID_SENDCODE_OF_OTHER_DETAIL_MESSAGE ="此批次号不属于当前任务流向，禁止录入！";
 
+    public static final int FORBID_TRANS_FOR_EMPTY_BATCH_CODE= 336;
+    public static final String FORBID_TRANS_FOR_EMPTY_BATCH_MESSAGE ="空批次禁止迁出！";
+
     public InvokeResult(){
         this.code=RESULT_SUCCESS_CODE;
     }

@@ -2442,4 +2442,12 @@ public class BusinessUtil {
     public static boolean isWarehouseAndDistributionBusiness(String waybillSign){
         return isSignChar(waybillSign, WaybillSignConstants.POSITION_53, WaybillSignConstants.CHAR_1);
     }
+    /**
+     * 判断是否需要抽检
+     * @param tagSign
+     * @return
+     */
+    public static boolean needSpotCheck(String tagSign){
+    	return BusinessUtil.isSignInChars(tagSign, JyUnloadTaskSignConstants.POSITION_1,JyUnloadTaskSignConstants.CHAR_1_1,JyUnloadTaskSignConstants.CHAR_1_2);
+    }
 }

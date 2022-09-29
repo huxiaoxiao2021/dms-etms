@@ -14,6 +14,8 @@ package com.jd.bluedragon.core.security.dataam.enums;
 public enum SecurityDataMapFuncEnum {
 
     WAYBILL_PRINT(SecurityDataTypeEnum.WAYBILL, SecurityFuncEnum.FUNC_PRINT, "打印获取运单信息"),
+    WAYBILL_RMA(SecurityDataTypeEnum.WAYBILL, SecurityFuncEnum.FUNC_RMA, "RMA获取运单信息"),
+    WAYBILL_PICTURE(SecurityDataTypeEnum.WAYBILL, SecurityFuncEnum.FUNC_PICTURE, "图片查看包裹信息"),
 
     // 其他待补充
     ;

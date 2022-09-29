@@ -4,6 +4,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.ErpLoginServiceManager;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
@@ -52,10 +53,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -70,7 +68,12 @@ import java.util.concurrent.TimeUnit;
 public class UserServiceImpl extends AbstractBaseUserService implements UserService{
 
 	private static final Logger log = LoggerFactory.getLogger(UserServiceImpl.class);
+
 	private static final String DEFAULTTIME = "BasicSystemResource.defaultTime";
+	// 下线菜单配置key，分为普通和特殊
+	private final String OFFLINE_MENU_CONFIG_KEY_ORDINARY = "ordinary";
+	private final String OFFLINE_MENU_CONFIG_KEY_SPECIAL = "special";
+
 	@Autowired
 	private BaseMajorManager baseMajorManager;
 
@@ -84,6 +87,9 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
 
     @Autowired
     private ErpLoginServiceManager erpLoginServiceManager;
+
+	@Autowired
+	private UccPropertyConfiguration uccPropertyConfiguration;
 
 	/**
 	 * 分拣客户端登录服务
@@ -465,6 +471,10 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
 			checkResult.toFail("请求参数无效！缺少menuCode和siteType");
 			return checkResult;
 		}
+		// 菜单下线提示
+		if(checkMenuIsOffline(checkMenuAuthRequest.getMenuCode(), checkResult)){
+			return checkResult;
+		}
 		if(BusinessHelper.isSmsZzgztSite(checkMenuAuthRequest.getSiteType(),checkMenuAuthRequest.getSiteSubType())) {
 	        //1、查询站点黑名单菜单编码
 	        List<String> smsSiteMenuBlacklist = sysConfigService.getStringListConfig(Constants.SYS_CONFIG_CLIENT_SMSSITEMENUBLACKLIST);
@@ -475,7 +485,27 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
 		return checkResult;
 	}
 
-    @Override
+	private boolean checkMenuIsOffline(String menuCode, JdResult<CheckMenuAuthResponse> result) {
+		Map<String, Map<String, Object>> stringMapMap = com.jd.bluedragon.utils.JsonHelper.json2Map(uccPropertyConfiguration.getClientOfflineMenuConfig());
+		if(stringMapMap == null){
+			return false;
+		}
+		Map<String, Object> commonMap = stringMapMap.get(OFFLINE_MENU_CONFIG_KEY_ORDINARY);
+		for (Map.Entry<String, Object> entry : commonMap.entrySet()) {
+			if(Arrays.asList(entry.getKey().split(Constants.SEPARATOR_COMMA)).contains(menuCode)){
+				result.toFail(String.valueOf(entry.getValue()));
+				return true;
+			}
+		}
+		Map<String, Object> specialMap = stringMapMap.get(OFFLINE_MENU_CONFIG_KEY_SPECIAL);
+		if(specialMap.containsKey(menuCode)){
+			result.toFail(String.valueOf(specialMap.get(menuCode)));
+			return true;
+		}
+		return false;
+	}
+
+	@Override
     @JProfiler(jKey = "DMS.BASE.UserServiceImpl.checkAppVersion",
             mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     public JdResult<AppUpgradeResponse> checkAppVersion(AppUpgradeRequest request) {

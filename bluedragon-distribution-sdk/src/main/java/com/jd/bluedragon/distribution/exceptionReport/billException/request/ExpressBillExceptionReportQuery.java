@@ -61,6 +61,8 @@ public class ExpressBillExceptionReportQuery  implements Serializable {
      */
     private Integer isAsyncExport;
 
+    private Integer id;
+
     public Integer getYn() {
         return yn;
     }
@@ -155,6 +157,14 @@ public class ExpressBillExceptionReportQuery  implements Serializable {
 
     public void setIsAsyncExport(Integer isAsyncExport) {
         this.isAsyncExport = isAsyncExport;
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
     }
 }
     
