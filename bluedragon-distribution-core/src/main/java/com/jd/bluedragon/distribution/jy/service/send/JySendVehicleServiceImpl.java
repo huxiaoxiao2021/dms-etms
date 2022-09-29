@@ -279,6 +279,8 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
                 return result;
             }
 
+            response.setSendVehicleBizList(sendVehicleBizList);
+
             List<JyBizTaskSendCountDto> vehicleStatusAggList =
                     taskSendVehicleService.sumTaskByVehicleStatus(condition, sendVehicleBizList);
             if (CollectionUtils.isEmpty(vehicleStatusAggList)) {
@@ -311,7 +313,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
             JyBizTaskSendVehicleEntity condition = makeFetchCondition(queryTaskSendDto);
             condition.setVehicleStatus(request.getVehicleStatus());
             // 根据包裹号未查到发货流向的任务
-            List<String> sendVehicleBizList = resolveSearchKeyword(invokeResult, queryTaskSendDto);
+            List<String> sendVehicleBizList = invokeResult.getData().getSendVehicleBizList();
             List<JyBizTaskSendLineTypeCountDto> lineTypeAggList =
                     taskSendVehicleService.sumTaskByLineType(condition, sendVehicleBizList);
             return transformLineTypeAgg(lineTypeAggList);
