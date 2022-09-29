@@ -59,6 +59,12 @@ public interface JySealCarGatewayService {
      *
      */
     JdCResponse sealVehicle(SealVehicleReq sealVehicleReq);
+    
+    /**
+     * 保存封车数据
+     *
+     */
+    JdCResponse saveSealVehicle(SealVehicleReq sealVehicleReq);
 
     /**
      * 校验运力编码和发货批次的目的地是否一致
