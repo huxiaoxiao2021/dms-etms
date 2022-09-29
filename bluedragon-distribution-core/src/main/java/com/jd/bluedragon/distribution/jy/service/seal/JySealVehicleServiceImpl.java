@@ -32,6 +32,7 @@ import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.distribution.wss.dto.SealCarDto;
 import com.jd.bluedragon.utils.*;
 import com.jd.dbs.util.CollectionUtils;
+import com.jd.dms.workbench.utils.sdk.base.Result;
 import com.jd.etms.vos.dto.CommonDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.util.SiteSignTool;
@@ -296,9 +297,14 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySealVehicleServiceImpl.validateTranCodeAndSendCode", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<SealCarSendCodeResp> validateTranCodeAndSendCode(ValidSendCodeReq validSendCodeReq) {
-        InvokeResult<SealCarSendCodeResp> invokeResult = null;
+        InvokeResult<SealCarSendCodeResp> invokeResult = new InvokeResult<>(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
         try {
-            checkValidSendCodeReq(validSendCodeReq);
+            final Result<Void> checkResult = checkValidSendCodeReq(validSendCodeReq);
+            if (checkResult.isFail()) {
+                invokeResult.setCode(checkResult.getCode());
+                invokeResult.setMessage(checkResult.getMessage());
+                return invokeResult;
+            }
             invokeResult = new InvokeResult<>(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
             final InvokeResult<Void> checkBatchCodeResult = newSealVehicleService.checkBatchCode(validSendCodeReq.getSendCode());
             if (RESULT_SUCCESS_CODE == checkBatchCodeResult.getCode()) {
@@ -361,15 +367,17 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
         return invokeResult;
     }
 
-    private void checkValidSendCodeReq(ValidSendCodeReq validSendCodeReq) {
+    private Result<Void> checkValidSendCodeReq(ValidSendCodeReq validSendCodeReq) {
+        Result<Void> result = Result.success();
         if (!(Constants.SEAL_TYPE_TRANSPORT.equals(validSendCodeReq.getSealCarType()) || Constants.SEAL_TYPE_TASK.equals(validSendCodeReq.getSealCarType()))) {
-            throw new JyBizException("不支持该封车类型！");
+            return result.toFail("不支持该封车类型！", RESULT_THIRD_ERROR_CODE);
         }
         if (!ObjectHelper.isNotNull(validSendCodeReq.getSendCode())) {
-            throw new JyBizException("参数错误：批次号为空！");
+            return result.toFail("参数错误：批次号为空！", RESULT_THIRD_ERROR_CODE);
         }
         if (!ObjectHelper.isNotNull(validSendCodeReq.getTransportCode())) {
-            throw new JyBizException("参数错误：运力编码为空！");
+            return result.toFail("参数错误：运力编码为空！", RESULT_THIRD_ERROR_CODE);
         }
+        return result;
     }
 }
