@@ -14,6 +14,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.jd.bluedragon.common.dto.seal.request.SealVehicleReq;
 import com.jd.bluedragon.common.dto.seal.response.JyAppDataSealVo;
@@ -70,6 +72,7 @@ public class JyAppDataSealServiceImpl implements JyAppDataSealService {
 	}
 
 	@Override
+	@Transactional(value = "tm_jy_core", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public InvokeResult<Boolean> savePageData(SealVehicleReq sealVehicleReq) {
 		logger.info("jy保存封车数据,saveSealVehicle:{}",JsonHelper.toJson(sealVehicleReq));
 		String detailBizId = sealVehicleReq.getSendVehicleDetailBizId();
