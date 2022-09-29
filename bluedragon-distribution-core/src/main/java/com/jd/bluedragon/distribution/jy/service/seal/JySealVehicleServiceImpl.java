@@ -326,25 +326,28 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
                         if (endNodeSite != null && SiteSignTool.supportTemporaryTransfer(endNodeSite.getSiteSign())) {
                             invokeResult.setCode(RESULT_SUCCESS_CODE);
                             invokeResult.setMessage(RESULT_SUCCESS_MESSAGE);
+                        } else {
+                            invokeResult.setCode(NewSealVehicleResponse.CODE_EXCUTE_ERROR);
+                            invokeResult.setMessage(NewSealVehicleResponse.TIPS_RECEIVESITE_DIFF_ERROR);
                             return invokeResult;
                         }
-                        invokeResult.setCode(NewSealVehicleResponse.CODE_EXCUTE_ERROR);
-                        invokeResult.setMessage(NewSealVehicleResponse.TIPS_RECEIVESITE_DIFF_ERROR);
                     }
                 } else if (Constants.RESULT_WARN == commonDto.getCode()) {
                     invokeResult.setCode(SERVER_ERROR_CODE);
                     invokeResult.setMessage(commonDto.getMessage());
+                    return invokeResult;
                 } else {
                     invokeResult.setCode(SERVER_ERROR_CODE);
                     invokeResult.setMessage("查询运力信息出错！");
                     log.warn("根据运力编码：【{}】查询运力信息出错,出错原因:{}", validSendCodeReq.getTransportCode(), commonDto.getMessage());
+                    return invokeResult;
                 }
                 // 查询批次对应的包裹重量体积数据
                 try {
                     final SealCarSendCodeResp sealCarSendCodeResp = new SealCarSendCodeResp();
                     sealCarSendCodeResp.setBatchCode(validSendCodeReq.getSendCode());
-                    // sealCarSendCodeResp.setPackageVolumeTotal(new BigDecimal("1000000"));
-                    // sealCarSendCodeResp.setPackageWeightTotal(new BigDecimal("200"));
+                    sealCarSendCodeResp.setPackageVolumeTotal(new BigDecimal(BigDecimal.ZERO.toString()));
+                    sealCarSendCodeResp.setPackageWeightTotal(new BigDecimal(BigDecimal.ZERO.toString()));
                     invokeResult.setData(sealCarSendCodeResp);
                     final BaseEntity<WeightVolSendCodeSumVo> weightVolSendCodeSumVoBaseEntity = weightVolSendCodeJSFService.sumWeightAndVolumeBySendCode(validSendCodeReq.getSendCode());
                     if (weightVolSendCodeSumVoBaseEntity != null && weightVolSendCodeSumVoBaseEntity.isSuccess()
