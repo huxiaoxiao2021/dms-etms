@@ -25,6 +25,7 @@ import com.jd.bluedragon.distribution.exceptionReport.billException.dto.ExpressB
 import com.jd.bluedragon.distribution.exceptionReport.billException.enums.*;
 import com.jd.bluedragon.distribution.exceptionReport.billException.request.ExpressBillExceptionReportQuery;
 import com.jd.bluedragon.distribution.exceptionReport.billException.service.ExpressBillExceptionReportService;
+import com.jd.bluedragon.distribution.print.domain.WayBillFinishedEnum;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.dms.wb.report.api.wmspack.dto.DmsPackRecordPo;
@@ -35,6 +36,7 @@ import com.jd.dms.workbench.utils.sdk.base.Result;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.PackageState;
 import com.jd.etms.waybill.domain.Waybill;
+import com.jd.etms.waybill.domain.WaybillManageDomain;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.PackageStateDto;
 import com.jd.etms.waybill.dto.WChoice;
@@ -226,10 +228,19 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
             choice.setQueryWaybillC(Boolean.TRUE);
             choice.setQueryWaybillExtend(Boolean.TRUE);
             BaseEntity<BigWaybillDto> entity = waybillQueryManager.getDataByChoice(waybillCode, choice);
-            if(entity.getData() == null || entity.getData().getWaybill() == null){
-                result.toFail("查询运单为空");
+            if(entity.getData() == null || entity.getData().getWaybill() == null || entity.getData().getWaybillState() == null){
+                result.toFail("查询运单或运单状态为空");
                 return result;
             }
+
+            //是否是完结单，状态满足以下其一
+            //妥投（150）拒收（160）下单取消（-790）终止揽收（-650）上门接货退货完成（530）
+            WaybillManageDomain waybillState = entity.getData().getWaybillState();
+            if(WayBillFinishedEnum.waybillStatusFinishedSet.contains(waybillState.getWaybillState())){
+                result.toFail("此单为完结单，无法操作面单举报");
+                return result;
+            }
+
             Waybill waybill = entity.getData().getWaybill();
             /**先判断仓ID是否为空，不为空则是仓配业务
              * 若仓ID为空，再判断waybillSign的53位是否为1，1为仓配业务
