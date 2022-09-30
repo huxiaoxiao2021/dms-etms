@@ -80,14 +80,18 @@ public class DMSSendCodeJSFServiceImpl implements DMSSendCodeJSFService {
         }
         List<WeightVolSendCodeSumVo> weightVolumeList = null;
         /* 1. 查询批次号重量体积信息 */
-        BaseEntity<List<WeightVolSendCodeSumVo>> weightVolSendCodeSumVoBaseEntity = weightVolSendCodeJSFService.sumWeightAndVolumeBySendCodes(sendCodes);
-        if (weightVolSendCodeSumVoBaseEntity != null 
-        		&& weightVolSendCodeSumVoBaseEntity.isSuccess()
-                && weightVolSendCodeSumVoBaseEntity.getData() != null) {
-            weightVolumeList = weightVolSendCodeSumVoBaseEntity.getData();
-        } else {
-            logger.error("根据批次号列表查询批次下重量体积失败：{},查询结果{}", sendCodes,JsonHelper.toJson(weightVolSendCodeSumVoBaseEntity));
-        }
+        try {
+			BaseEntity<List<WeightVolSendCodeSumVo>> weightVolSendCodeSumVoBaseEntity = weightVolSendCodeJSFService.sumWeightAndVolumeBySendCodes(sendCodes);
+			if (weightVolSendCodeSumVoBaseEntity != null 
+					&& weightVolSendCodeSumVoBaseEntity.isSuccess()
+			        && weightVolSendCodeSumVoBaseEntity.getData() != null) {
+			    weightVolumeList = weightVolSendCodeSumVoBaseEntity.getData();
+			} else {
+			    logger.warn("根据批次号列表查询批次下重量体积失败：{},查询结果{}", sendCodes,JsonHelper.toJson(weightVolSendCodeSumVoBaseEntity));
+			}
+		} catch (Exception e) {
+			logger.error("根据批次号列表查询批次下重量体积失败：{}", JsonHelper.toJson(sendCodes),e);
+		}
         Map<String,WeightVolSendCodeSumVo> weightMap = new HashMap<String,WeightVolSendCodeSumVo>();
         if(!CollectionUtils.isEmpty(weightVolumeList)) {
         	for(WeightVolSendCodeSumVo weightVo: weightVolumeList) {

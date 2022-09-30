@@ -7,6 +7,7 @@ import com.jd.bluedragon.distribution.api.request.*;
 import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
 import com.jd.bluedragon.distribution.api.response.SealCodesResponse;
 import com.jd.bluedragon.distribution.base.domain.DmsBaseDict;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.dms.wb.report.api.sealCar.dto.client.SealCarNotCollectedDto;
 import com.jd.dms.wb.report.api.sealCar.dto.client.SealCarNotCollectedPo;
@@ -79,6 +80,8 @@ public interface NewSealVehicleService {
      * @return
      */
     public CommonDto<Boolean> isBatchCodeHasSealed(String batchCode);
+
+    InvokeResult<Void> checkBatchCode(String batchCode);
 
     /**
      * 根据运力编码查询运力编码相关信息
