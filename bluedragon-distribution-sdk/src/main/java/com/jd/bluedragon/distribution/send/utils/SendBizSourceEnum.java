@@ -134,6 +134,18 @@ public enum SendBizSourceEnum {
      * 拣运APP传摆发货
      */
     JY_APP_TRANSFER_AND_FERRY_SEND(25, "拣运APP传摆发货"),
+
+    /**
+     * B冷链装车发货-新
+     * 一单单发货
+     */
+    COLD_LOAD_CAR_SEND_NEW(27, "B冷链装车发货"),
+
+    /**
+     * 快运装车发货-新
+     * 一单单发货
+     */
+    COLD_LOAD_CAR_KY_SEND_NEW(28, "冷链快运装车发货"),
     ;
 
     /**

@@ -68,5 +68,18 @@ public interface IColdChainService {
      */
     InvokeResult<Boolean> checkSendCodeOfSeal(SendVO vo);
 
-
+    /**
+     * 冷链新发货
+     * 一单单
+     * @param request
+     * @return
+     */
+    InvokeResult<ColdSendResult> sendOfColdBusinessNew(ColdSendVo request);
+    /**
+     * 冷链新发货
+     * 一单单
+     * @param request
+     * @return
+     */
+    InvokeResult<ColdSendResult> sendOfColdKYNew(ColdSendVo request);
 }
