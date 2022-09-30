@@ -159,4 +159,9 @@ public class JySealCarGatewayServiceImpl implements JySealCarGatewayService {
     private <T> JdCResponse<T> retJdCResponse(InvokeResult<T> invokeResult) {
         return new JdCResponse<>(invokeResult.getCode(), invokeResult.getMessage(), invokeResult.getData());
     }
+
+	@Override
+	public JdCResponse saveSealVehicle(SealVehicleReq sealVehicleReq) {
+		return retJdCResponse(jySealVehicleService.saveSealVehicle(sealVehicleReq));
+	}
 }
