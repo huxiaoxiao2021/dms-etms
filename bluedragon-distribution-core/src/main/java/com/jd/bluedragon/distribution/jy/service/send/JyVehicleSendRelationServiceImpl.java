@@ -78,6 +78,11 @@ public class JyVehicleSendRelationServiceImpl implements JyVehicleSendRelationSe
         return null;
     }
 
+    @Override
+    public List<JySendCodeEntity> querySendDetailBizIdBySendCode(List<String> sendCodes) {
+        return jySendCodeDao.querySendDetailBizIdBySendCode(sendCodes);
+    }
+
     /**
      * 根据任务ID查询批次数据
      *

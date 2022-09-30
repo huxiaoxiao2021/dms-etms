@@ -37,6 +37,11 @@ public interface JySealVehicleService {
      * @return
      */
     InvokeResult<TransportResp> getTransWorkItemByWorkItemCode(GetVehicleNumberReq getVehicleNumberReq);
+    /**
+     * 保存封车数据
+     *
+     */
+	InvokeResult<Boolean> saveSealVehicle(SealVehicleReq sealVehicleReq);
 
     /**
      * 校验运力编码和发货批次的目的地是否一致

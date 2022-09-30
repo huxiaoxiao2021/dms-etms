@@ -42,6 +42,8 @@ public interface JyVehicleSendRelationService {
 
     String findEarliestNoSealCarSendCode(String detailBiz);
 
+    List<JySendCodeEntity> querySendDetailBizIdBySendCode(List<String> sendCodes);
+
     /**
      * 根据任务ID查询批次数据
      * @param vehicleBizId 任务业务ID

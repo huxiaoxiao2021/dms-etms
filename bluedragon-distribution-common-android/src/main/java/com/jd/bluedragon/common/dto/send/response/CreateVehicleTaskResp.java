@@ -13,6 +13,10 @@ public class CreateVehicleTaskResp implements Serializable {
      */
     private String bizNo;
 
+    private String taskName;
+
+    private String createUserErp;
+
     public String getBizId() {
         return bizId;
     }
@@ -27,5 +31,21 @@ public class CreateVehicleTaskResp implements Serializable {
 
     public void setBizNo(String bizNo) {
         this.bizNo = bizNo;
+    }
+
+    public String getTaskName() {
+        return taskName;
+    }
+
+    public void setTaskName(String taskName) {
+        this.taskName = taskName;
+    }
+
+    public String getCreateUserErp() {
+        return createUserErp;
+    }
+
+    public void setCreateUserErp(String createUserErp) {
+        this.createUserErp = createUserErp;
     }
 }

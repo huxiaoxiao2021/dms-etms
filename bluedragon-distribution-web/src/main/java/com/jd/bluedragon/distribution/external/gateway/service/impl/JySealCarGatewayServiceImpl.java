@@ -13,13 +13,16 @@ import com.jd.bluedragon.common.dto.seal.request.*;
 import com.jd.bluedragon.common.dto.seal.response.SealCodeResp;
 import com.jd.bluedragon.common.dto.seal.response.SealVehicleInfoResp;
 import com.jd.bluedragon.common.dto.seal.response.TransportResp;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.NewSealVehicleRequest;
 import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
 import com.jd.bluedragon.distribution.api.response.RouteTypeResponse;
 import com.jd.bluedragon.distribution.api.response.TransWorkItemResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.jy.send.JySendCodeEntity;
 import com.jd.bluedragon.distribution.jy.service.seal.JySealVehicleService;
+import com.jd.bluedragon.distribution.jy.service.send.JyVehicleSendRelationService;
 import com.jd.bluedragon.distribution.rest.seal.NewSealVehicleResource;
 import com.jd.bluedragon.external.gateway.service.JySealCarGatewayService;
 import com.jd.bluedragon.utils.BeanUtils;
@@ -29,6 +32,12 @@ import com.jd.ump.annotation.JProfiler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import static com.jd.bluedragon.distribution.base.domain.InvokeResult.FORBID_SENDCODE_OF_OTHER_DETAIL_CODE;
+import static com.jd.bluedragon.distribution.base.domain.InvokeResult.FORBID_SENDCODE_OF_OTHER_DETAIL_MESSAGE;
+
 @UnifiedExceptionProcess
 public class JySealCarGatewayServiceImpl implements JySealCarGatewayService {
     @Autowired
@@ -36,6 +45,10 @@ public class JySealCarGatewayServiceImpl implements JySealCarGatewayService {
     private NewSealVehicleResource newSealVehicleResource;
     @Autowired
     JySealVehicleService jySealVehicleService;
+    @Autowired
+    JyVehicleSendRelationService jyVehicleSendRelationService;
+    @Autowired
+    private UccPropertyConfiguration uccConfiguration;
 
     @Override
     public JdCResponse<SealCodeResp> listSealCodeByBizId(SealCodeReq sealCodeReq) {
@@ -124,11 +137,34 @@ public class JySealCarGatewayServiceImpl implements JySealCarGatewayService {
             sealCarPreRequest.setSealCarSource(SealCarSourceEnum.COMMON_SEAL_CAR.getCode());
             validSendCodeReq.setSealCarSource(SealCarSourceEnum.COMMON_SEAL_CAR.getCode());
         }
+        if (uccConfiguration.getFilterSendCodeSwitch() && checkIfBelongOthers(validSendCodeReq)){
+            return new JdCResponse(FORBID_SENDCODE_OF_OTHER_DETAIL_CODE,FORBID_SENDCODE_OF_OTHER_DETAIL_MESSAGE);
+        }
         InvokeResult<SealCarSendCodeResp> invokeResult = jySealVehicleService.validateTranCodeAndSendCode(validSendCodeReq);
         return retJdCResponse(invokeResult);
+    }
+
+    private boolean checkIfBelongOthers(ValidSendCodeReq validSendCodeReq) {
+        if (ObjectHelper.isNotNull(validSendCodeReq.getSendVehicleDetailBizId())){
+            List<String> sendCodes =new ArrayList<>();
+            sendCodes.add(validSendCodeReq.getSendCode());
+            List<JySendCodeEntity> jySendCodeEntityList =jyVehicleSendRelationService.querySendDetailBizIdBySendCode(sendCodes);
+            if (ObjectHelper.isNotNull(jySendCodeEntityList) && jySendCodeEntityList.size()==1){
+                JySendCodeEntity jySendCodeEntity =jySendCodeEntityList.get(0);
+                if (!jySendCodeEntity.getSendDetailBizId().equals(validSendCodeReq.getSendVehicleDetailBizId())){
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     private <T> JdCResponse<T> retJdCResponse(InvokeResult<T> invokeResult) {
         return new JdCResponse<>(invokeResult.getCode(), invokeResult.getMessage(), invokeResult.getData());
     }
+
+	@Override
+	public JdCResponse saveSealVehicle(SealVehicleReq sealVehicleReq) {
+		return retJdCResponse(jySealVehicleService.saveSealVehicle(sealVehicleReq));
+	}
 }

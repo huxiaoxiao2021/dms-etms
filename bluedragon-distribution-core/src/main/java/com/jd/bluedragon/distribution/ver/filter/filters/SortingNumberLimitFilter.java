@@ -78,13 +78,8 @@ public class SortingNumberLimitFilter implements Filter {
                     NumberLimitConfig siteCheckConfig = this.getSwitchStatus(CONFIG_SITE_PACKAGE_NUM_CHECK);
                     if (siteCheckConfig != null && Boolean.TRUE.equals(siteCheckConfig.getIsOpen())) {
                         Integer configNum ;
-                        if(uccPropertyConfiguration.isJyBasicServerSwitch()){
-                            logger.info("基础服务");
-                            configNum = boxLimitConfigManager.getLimitNums(request.getCreateSiteCode(), request.getBox().getType());
-                        }else{
-                            configNum = boxLimitService.getLimitNums(request.getCreateSiteCode(), request.getBox().getType());
-
-                        }
+                        logger.info("基础服务");
+                        configNum = boxLimitConfigManager.getLimitNums(request.getCreateSiteCode(), request.getBox().getType());
                         logger.info("分拣数量限制拦截 createSiteCode:{},queryLimitNumBySiteId:{},sysConfigNum:{}", request.getCreateSiteCode(), configNum, siteCheckConfig.getMaxNum());
                         if (configNum != null && configNum > 0) {
                             limitNums.add(configNum);

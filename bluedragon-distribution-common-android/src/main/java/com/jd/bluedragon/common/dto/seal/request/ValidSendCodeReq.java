@@ -39,6 +39,8 @@ public class ValidSendCodeReq extends BaseReq implements Serializable {
      */
     private String sendCode;
 
+    private String sendVehicleDetailBizId;
+
     public String getSendCode() {
         return sendCode;
     }
@@ -81,9 +83,11 @@ public class ValidSendCodeReq extends BaseReq implements Serializable {
         this.vehicleNumber = vehicleNumber;
     }
 
+    public String getSendVehicleDetailBizId() {
+        return sendVehicleDetailBizId;
+    }
 
-
-
-
-
+    public void setSendVehicleDetailBizId(String sendVehicleDetailBizId) {
+        this.sendVehicleDetailBizId = sendVehicleDetailBizId;
+    }
 }

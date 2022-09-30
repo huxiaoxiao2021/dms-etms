@@ -4,6 +4,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.blockcar.enumeration.TransTypeEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.seal.SealCarSendCodeResp;
 import com.jd.bluedragon.common.dto.seal.request.*;
+import com.jd.bluedragon.common.dto.seal.response.JyAppDataSealVo;
 import com.jd.bluedragon.common.dto.seal.response.SealCodeResp;
 import com.jd.bluedragon.common.dto.seal.response.SealVehicleInfoResp;
 import com.jd.bluedragon.common.dto.seal.response.TransportResp;
@@ -15,6 +16,9 @@ import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.coldchain.domain.ColdChainSend;
 import com.jd.bluedragon.distribution.coldchain.service.ColdChainSendService;
+import com.jd.bluedragon.distribution.jy.dto.seal.JyAppDataSeal;
+import com.jd.bluedragon.distribution.jy.dto.seal.JyAppDataSealCode;
+import com.jd.bluedragon.distribution.jy.dto.seal.JyAppDataSealSendCode;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendDetailStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendStatusEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
@@ -86,6 +90,9 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
 
     @Autowired
     private SendVehicleTransactionManager sendVehicleTransactionManager;
+    
+    @Autowired
+    private JyAppDataSealService jyAppDataSealService;
 
     @Autowired
     private BaseMajorManager baseMajorManager;
@@ -143,6 +150,7 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
             }
             sealVehicleInfoResp.setVehicleNumber(transWorkItemDto.getVehicleNumber());
         }
+        sealVehicleInfoResp.setSavedPageData(jyAppDataSealService.loadSavedPageData(sealVehicleInfoReq.getSendVehicleDetailBizId()));
         return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, sealVehicleInfoResp);
     }
 
@@ -201,7 +209,11 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
         }
         return new InvokeResult(NO_SEND_CODE_DATA_UNDER_BIZTASK_CODE, NO_SEND_CODE_DATA_UNDER_BIZTASK_MESSAGE);
     }
-
+    @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySealVehicleServiceImpl.saveSealVehicle", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public InvokeResult<Boolean> saveSealVehicle(SealVehicleReq sealVehicleReq) {
+    	return jyAppDataSealService.savePageData(sealVehicleReq);
+    }
     private void updateTaskStatus(SealVehicleReq sealVehicleReq, SealCarDto sealCarDto) {
         JyBizTaskSendVehicleDetailEntity taskSendDetail = jyBizTaskSendVehicleDetailService.findByBizId(sealVehicleReq.getSendVehicleDetailBizId());
         JyBizTaskSendVehicleEntity taskSend = jyBizTaskSendVehicleService.findByBizId(sealVehicleReq.getSendVehicleBizId());
