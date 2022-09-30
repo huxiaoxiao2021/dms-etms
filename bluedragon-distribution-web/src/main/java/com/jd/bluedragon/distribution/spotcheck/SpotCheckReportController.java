@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.spotcheck;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.ExportConcurrencyLimitEnum;
 import com.jd.bluedragon.common.service.ExportConcurrencyLimitService;
+import com.jd.bluedragon.core.security.log.SecurityLogWriter;
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckReportService;
@@ -145,7 +146,12 @@ public class SpotCheckReportController extends DmsBaseController {
     @RequestMapping(value = "/searchPicture", method = RequestMethod.POST)
     @ResponseBody
     public InvokeResult<Pager<WeightVolumePictureDto>> searchPicture(@RequestBody SpotCheckReportQueryCondition condition) {
-        return spotCheckReportService.searchPicture(condition);
+        InvokeResult<Pager<WeightVolumePictureDto>> result = spotCheckReportService.searchPicture(condition);
+
+        //记录安全日志
+        SecurityLogWriter.searchPictureWrite(condition, result.getData().getData(), ErpUserClient.getCurrUser().getUserCode());
+
+        return result;
     }
 
     /**
