@@ -1373,6 +1373,9 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
                 sendResult = deliveryService.packageSend(SendBizSourceEnum.JY_APP_SEND, sendM, oldForceSend, cancelLastSend);
                 break;
             case BY_BOARD:
+                if (sendM.getBoardCode() == null) {
+                    sendM.setBoardCode(sendM.getBoxCode());
+                }
                 sendResult = deliveryService.boardSend(sendM, oldForceSend);
                 break;
         }
