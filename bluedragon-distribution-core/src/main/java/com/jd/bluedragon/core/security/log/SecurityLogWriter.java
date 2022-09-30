@@ -14,6 +14,8 @@ import com.jd.bluedragon.distribution.command.JdCommand;
 import com.jd.bluedragon.distribution.print.domain.SurfaceOutputTypeEnum;
 import com.jd.bluedragon.distribution.reverse.domain.DmsWaybillReverseResponseDTO;
 import com.jd.bluedragon.distribution.reverse.domain.ExchangeWaybillDto;
+import com.jd.bluedragon.distribution.rma.domain.RmaHandoverWaybill;
+import com.jd.bluedragon.distribution.rma.response.RmaHandoverPrint;
 import com.jd.bluedragon.distribution.sendprint.domain.BasicQueryEntityResponse;
 import com.jd.bluedragon.distribution.sendprint.domain.PrintQueryCriteria;
 import com.jd.bluedragon.distribution.sendprint.domain.SummaryPrintResultResponse;
@@ -24,6 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -233,4 +236,153 @@ public class SecurityLogWriter {
             log.error("构建安全日日志失败OrderResource#getOrderResponse:",ex);
         }
     }
+
+    /**
+     * RMA查询订单详细地址信息
+     * @param id
+     * @param rmaHandoverWaybill
+     */
+    public static void showDetailAddressWrite(Integer id, RmaHandoverWaybill rmaHandoverWaybill, String userCode) {
+        try{
+            Map<String,String> param = new HashMap<>();
+            param.put("id", String.valueOf(id));
+
+            Map<SecurityLogReqInfoKeyEnums, String> reqInfoKeyEnumsStringMap = new HashMap<>();
+            reqInfoKeyEnumsStringMap.put(SecurityLogReqInfoKeyEnums.inputParam, "");
+
+            Map<SecurityLogUniqueIdentifierKeyEnums, String> uniqueIdentifierKeyEnumsStringHashMap = new HashMap<>();
+            uniqueIdentifierKeyEnumsStringHashMap.put(SecurityLogUniqueIdentifierKeyEnums.carryBillId,"waybillCode");
+            uniqueIdentifierKeyEnumsStringHashMap.put(SecurityLogUniqueIdentifierKeyEnums.receiveAddress,"receiverAddress");
+
+            SecurityLogRecord.log(
+                    SecurityLogEntity.builder()
+                            .interfaceName("com.jd.bluedragon.distribution.web.waybill.rma.RmaHandOverController#showDetailAddress")
+                            .accountName(userCode)
+                            .accountType(SecurityAccountEnums.account_type_1)
+                            .op(SecurityLogOpEnums.op_5)
+                            .reqKeyMapping(reqInfoKeyEnumsStringMap)
+                            .businessRequest(param)
+                            .respKeyMapping(uniqueIdentifierKeyEnumsStringHashMap)
+                            .businessResponse(rmaHandoverWaybill)
+                            .resultNum(1)
+                            .build()
+            );
+        } catch (RuntimeException ex){
+            log.error("构建安全日日志失败RmaHandOverController#showDetailAddress:",ex);
+        }
+    }
+
+    /**
+     * RMA查询订单详细地址信息
+     * @param waybillCode
+     * @param address
+     * @param userCode
+     */
+    public static void getReceiverAddressQueryWrite(String waybillCode, String address, String userCode) {
+        try{
+            Map<String,String> param = new HashMap<>();
+            param.put("waybillCode", waybillCode);
+
+            Map<SecurityLogReqInfoKeyEnums, String> reqInfoKeyEnumsStringMap = new HashMap<>();
+            reqInfoKeyEnumsStringMap.put(SecurityLogReqInfoKeyEnums.carryBillId, "waybillCode");
+            reqInfoKeyEnumsStringMap.put(SecurityLogReqInfoKeyEnums.inputParam, "");
+
+            Map<String,String> paramRes = new HashMap<>();
+            paramRes.put("address", address);
+
+            Map<SecurityLogUniqueIdentifierKeyEnums, String> uniqueIdentifierKeyEnumsStringHashMap = new HashMap<>();
+            uniqueIdentifierKeyEnumsStringHashMap.put(SecurityLogUniqueIdentifierKeyEnums.receiveAddress,"address");
+
+            SecurityLogRecord.log(
+                    SecurityLogEntity.builder()
+                            .interfaceName("com.jd.bluedragon.distribution.web.waybill.rma.RmaHandOverController#getReceiverAddressQuery")
+                            .accountName(userCode)
+                            .accountType(SecurityAccountEnums.account_type_1)
+                            .op(SecurityLogOpEnums.op_5)
+                            .reqKeyMapping(reqInfoKeyEnumsStringMap)
+                            .businessRequest(param)
+                            .respKeyMapping(uniqueIdentifierKeyEnumsStringHashMap)
+                            .businessResponse(paramRes)
+                            .resultNum(1)
+                            .build()
+            );
+        } catch (RuntimeException ex){
+            log.error("构建安全日日志失败RmaHandOverController#getReceiverAddressQuery:",ex);
+        }
+    }
+
+    /**
+     * RMA打印订单详细地址信息
+     * @param idList
+     * @param rmaHandoverPrintList
+     * @param userCode
+     */
+    public static void printWaybillRmaWrite(String idList, List<RmaHandoverPrint> rmaHandoverPrintList, String userCode) {
+        try{
+            Map<String,String> param = new HashMap<>();
+            param.put("ids", idList);
+
+            Map<SecurityLogReqInfoKeyEnums, String> reqInfoKeyEnumsStringMap = new HashMap<>();
+            reqInfoKeyEnumsStringMap.put(SecurityLogReqInfoKeyEnums.inputParam, "");
+
+            Map<SecurityLogUniqueIdentifierKeyEnums, String> uniqueIdentifierKeyEnumsStringHashMap = new HashMap<>();
+            uniqueIdentifierKeyEnumsStringHashMap.put(SecurityLogUniqueIdentifierKeyEnums.receiveAddress,"receiverAddress");
+            uniqueIdentifierKeyEnumsStringHashMap.put(SecurityLogUniqueIdentifierKeyEnums.receiveName,"receiver");
+            uniqueIdentifierKeyEnumsStringHashMap.put(SecurityLogUniqueIdentifierKeyEnums.receivePhone,"receiverMobile");
+
+            SecurityLogRecord.log(
+                    SecurityLogEntity.builder()
+                            .interfaceName("com.jd.bluedragon.distribution.web.waybill.rma.RmaHandOverController#printWaybillRma")
+                            .accountName(userCode)
+                            .accountType(SecurityAccountEnums.account_type_1)
+                            .op(SecurityLogOpEnums.op_5)
+                            .reqKeyMapping(reqInfoKeyEnumsStringMap)
+                            .businessRequest(param)
+                            .respKeyMapping(uniqueIdentifierKeyEnumsStringHashMap)
+                            .businessResponses(rmaHandoverPrintList)
+                            .resultNum(rmaHandoverPrintList.size())
+                            .build()
+            );
+        } catch (RuntimeException ex){
+            log.error("构建安全日日志失败RmaHandOverController#printWaybillRma:",ex);
+        }
+    }
+
+    /**
+     * RMA打印订单详细地址信息
+     * @param idList
+     * @param rmaHandoverPrintList
+     * @param userCode
+     */
+    public static void doExportWrite(String idList, List<RmaHandoverPrint> rmaHandoverPrintList, String userCode) {
+        try{
+            Map<String,String> param = new HashMap<>();
+            param.put("ids", idList);
+
+            Map<SecurityLogReqInfoKeyEnums, String> reqInfoKeyEnumsStringMap = new HashMap<>();
+            reqInfoKeyEnumsStringMap.put(SecurityLogReqInfoKeyEnums.inputParam, "");
+
+            Map<SecurityLogUniqueIdentifierKeyEnums, String> uniqueIdentifierKeyEnumsStringHashMap = new HashMap<>();
+            uniqueIdentifierKeyEnumsStringHashMap.put(SecurityLogUniqueIdentifierKeyEnums.receiveAddress,"receiverAddress");
+            uniqueIdentifierKeyEnumsStringHashMap.put(SecurityLogUniqueIdentifierKeyEnums.receiveName,"receiver");
+            uniqueIdentifierKeyEnumsStringHashMap.put(SecurityLogUniqueIdentifierKeyEnums.receivePhone,"receiverMobile");
+
+            SecurityLogRecord.log(
+                    SecurityLogEntity.builder()
+                            .interfaceName("com.jd.bluedragon.distribution.web.waybill.rma.RmaHandOverController#printWaybillRma")
+                            .accountName(userCode)
+                            .accountType(SecurityAccountEnums.account_type_1)
+                            .op(SecurityLogOpEnums.op_5)
+                            .reqKeyMapping(reqInfoKeyEnumsStringMap)
+                            .businessRequest(param)
+                            .respKeyMapping(uniqueIdentifierKeyEnumsStringHashMap)
+                            .businessResponses(rmaHandoverPrintList)
+                            .resultNum(rmaHandoverPrintList.size())
+                            .build()
+            );
+        } catch (RuntimeException ex){
+            log.error("构建安全日日志失败RmaHandOverController#printWaybillRma:",ex);
+        }
+    }
+
 }
