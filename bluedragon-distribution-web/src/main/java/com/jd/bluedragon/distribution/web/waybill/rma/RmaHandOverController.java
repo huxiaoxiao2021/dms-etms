@@ -8,6 +8,7 @@ import com.jd.bluedragon.common.service.ExportConcurrencyLimitService;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.security.dataam.SecurityCheckerExecutor;
 import com.jd.bluedragon.core.security.dataam.enums.SecurityDataMapFuncEnum;
+import com.jd.bluedragon.core.security.log.SecurityLogWriter;
 import com.jd.bluedragon.distribution.api.request.RmaHandoverQueryRequest;
 import com.jd.bluedragon.distribution.api.response.RmaHandoverResponse;
 import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
@@ -191,6 +192,8 @@ public class RmaHandOverController {
             return response;
         }
         response.setData(rmaHandoverWaybill.getReceiverAddress());
+        //记录安全日志
+        SecurityLogWriter.showDetailAddressWrite(id, rmaHandoverWaybill, erpUser.getUserCode());
         return response;
     }
 
@@ -226,8 +229,12 @@ public class RmaHandOverController {
                         if (StringUtils.isEmpty(receiverAddress)) {
                             response.toFail("根据运单号查询收货地址为空");
                         } else {
-                            response.setData(rmaHandOverWaybillService.getReceiverAddressByWaybillCode(waybillCode, dto.getSiteCode()));
+                            response.setData(receiverAddress);
                             response.setCode(RmaHandoverResponse.CODE_NORMAL);
+
+                            //记录安全日志
+                            SecurityLogWriter.getReceiverAddressQueryWrite(waybillCode, receiverAddress, erpUser.getUserCode());
+
                         }
                     } else {
                         response.toFail("根据ERP账号:" + erpUser.getUserCode() + "获取所属站点信息为空，请检查是否配置基础资料信息");
@@ -278,7 +285,10 @@ public class RmaHandOverController {
                     rmaHandoverWaybill.setPrintUserName(erpUser.getUserName());
                     rmaHandOverWaybillService.update(rmaHandoverWaybill);
                 }
+                //记录安全日志
+                SecurityLogWriter.printWaybillRmaWrite(idList, rmaHandoverPrintList, erpUser.getUserCode());
             }
+
         } catch (Exception e) {
             log.error("[RMA交接清单打印]生成打印页面时发生异常", e);
             rmaResponse.toException("生成打印页面时发生异常，请联系管理员");
@@ -318,6 +328,9 @@ public class RmaHandOverController {
             idLs.add(idL);
         }
         Map<String, RmaHandoverPrint> rmaHandoverPrintMap = rmaHandOverWaybillService.getPrintInfoMap(idLs);
+
+        //记录导出安全日志
+        SecurityLogWriter.doExportWrite(idList, (List<RmaHandoverPrint>) rmaHandoverPrintMap.values(), ErpUserClient.getCurrUser().getUserCode());
 
         HSSFWorkbook workbook = new HSSFWorkbook();
         OutputStream out = response.getOutputStream();
