@@ -90,7 +90,7 @@ public class DMSSendCodeJSFServiceImpl implements DMSSendCodeJSFService {
 			    logger.warn("根据批次号列表查询批次下重量体积失败：{},查询结果{}", sendCodes,JsonHelper.toJson(weightVolSendCodeSumVoBaseEntity));
 			}
 		} catch (Exception e) {
-			logger.warn("根据批次号列表查询批次下重量体积失败：{}", JsonHelper.toJson(sendCodes),e);
+			logger.error("根据批次号列表查询批次下重量体积失败：{}", JsonHelper.toJson(sendCodes),e);
 		}
         Map<String,WeightVolSendCodeSumVo> weightMap = new HashMap<String,WeightVolSendCodeSumVo>();
         if(!CollectionUtils.isEmpty(weightVolumeList)) {
