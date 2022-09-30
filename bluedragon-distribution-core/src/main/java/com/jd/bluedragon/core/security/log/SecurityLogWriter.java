@@ -19,6 +19,8 @@ import com.jd.bluedragon.distribution.rma.response.RmaHandoverPrint;
 import com.jd.bluedragon.distribution.sendprint.domain.BasicQueryEntityResponse;
 import com.jd.bluedragon.distribution.sendprint.domain.PrintQueryCriteria;
 import com.jd.bluedragon.distribution.sendprint.domain.SummaryPrintResultResponse;
+import com.jd.bluedragon.distribution.spotcheck.SpotCheckReportQueryCondition;
+import com.jd.bluedragon.distribution.weightAndVolumeCheck.dto.WeightVolumePictureDto;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
@@ -369,7 +371,7 @@ public class SecurityLogWriter {
 
             SecurityLogRecord.log(
                     SecurityLogEntity.builder()
-                            .interfaceName("com.jd.bluedragon.distribution.web.waybill.rma.RmaHandOverController#printWaybillRma")
+                            .interfaceName("com.jd.bluedragon.distribution.web.waybill.rma.RmaHandOverController#doExport")
                             .accountName(userCode)
                             .accountType(SecurityAccountEnums.account_type_1)
                             .op(SecurityLogOpEnums.op_5)
@@ -381,7 +383,42 @@ public class SecurityLogWriter {
                             .build()
             );
         } catch (RuntimeException ex){
-            log.error("构建安全日日志失败RmaHandOverController#printWaybillRma:",ex);
+            log.error("构建安全日日志失败RmaHandOverController#doExport:",ex);
+        }
+    }
+
+    /**
+     * 抽检查看包裹图片记录安全日志
+     * @param condition
+     * @param weightVolumePictureDtos
+     * @param userCode
+     */
+    public static void searchPictureWrite(SpotCheckReportQueryCondition condition, List<WeightVolumePictureDto> weightVolumePictureDtos, String userCode) {
+        try{
+
+            Map<SecurityLogReqInfoKeyEnums, String> reqInfoKeyEnumsStringMap = new HashMap<>();
+            reqInfoKeyEnumsStringMap.put(SecurityLogReqInfoKeyEnums.carryBillId, "waybillCode");
+            reqInfoKeyEnumsStringMap.put(SecurityLogReqInfoKeyEnums.inputParam, "");
+
+            Map<SecurityLogUniqueIdentifierKeyEnums, String> uniqueIdentifierKeyEnumsStringHashMap = new HashMap<>();
+            uniqueIdentifierKeyEnumsStringHashMap.put(SecurityLogUniqueIdentifierKeyEnums.carryBillId,"packageCode");
+            uniqueIdentifierKeyEnumsStringHashMap.put(SecurityLogUniqueIdentifierKeyEnums.fileUrl,"url");
+
+            SecurityLogRecord.log(
+                    SecurityLogEntity.builder()
+                            .interfaceName("com.jd.bluedragon.distribution.spotcheck.SpotCheckReportController#searchPicture")
+                            .accountName(userCode)
+                            .accountType(SecurityAccountEnums.account_type_1)
+                            .op(SecurityLogOpEnums.op_5)
+                            .reqKeyMapping(reqInfoKeyEnumsStringMap)
+                            .businessRequest(condition)
+                            .respKeyMapping(uniqueIdentifierKeyEnumsStringHashMap)
+                            .businessResponses(weightVolumePictureDtos)
+                            .resultNum(weightVolumePictureDtos.size())
+                            .build()
+            );
+        } catch (RuntimeException ex){
+            log.error("构建安全日日志失败SpotCheckReportController#searchPicture:",ex);
         }
     }
 
