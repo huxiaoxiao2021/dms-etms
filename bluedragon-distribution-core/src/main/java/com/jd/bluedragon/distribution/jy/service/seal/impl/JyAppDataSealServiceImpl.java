@@ -7,6 +7,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
@@ -18,6 +19,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.jd.bluedragon.common.dto.seal.request.SealVehicleReq;
+import com.jd.bluedragon.common.dto.seal.response.JyAppDataSealSendCodeVo;
 import com.jd.bluedragon.common.dto.seal.response.JyAppDataSealVo;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.dao.seal.JyAppDataSealCodeDao;
@@ -27,6 +29,8 @@ import com.jd.bluedragon.distribution.jy.dto.seal.JyAppDataSeal;
 import com.jd.bluedragon.distribution.jy.dto.seal.JyAppDataSealCode;
 import com.jd.bluedragon.distribution.jy.dto.seal.JyAppDataSealSendCode;
 import com.jd.bluedragon.distribution.jy.service.seal.JyAppDataSealService;
+import com.jd.bluedragon.distribution.sendCode.DMSSendCodeJSFService;
+import com.jd.bluedragon.distribution.sendCode.domain.HugeSendCodeEntity;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.common.dto.base.request.User;
 
@@ -53,6 +57,10 @@ public class JyAppDataSealServiceImpl implements JyAppDataSealService {
 	@Autowired
 	@Qualifier("jyAppDataSealCodeDao")
 	private JyAppDataSealCodeDao jyAppDataSealCodeDao;
+	
+	@Autowired
+	@Qualifier("dmsSendCodeJSFService")
+	DMSSendCodeJSFService dmsSendCodeJSFService;
 
 	@Override
 	public JyAppDataSealVo loadSavedPageData(String sendVehicleDetailBizId) {
@@ -67,10 +75,49 @@ public class JyAppDataSealServiceImpl implements JyAppDataSealService {
 		pageData.setWeight(sealData.getWeight());
 		pageData.setVolume(sealData.getVolume());
 		pageData.setSealCodeList(jyAppDataSealCodeDao.querySealCodeList(sendVehicleDetailBizId));
-		pageData.setSendCodeList(jyAppDataSealSendCodeDao.querySendCodeList(sendVehicleDetailBizId));
+		pageData.setSendCodeList(loadSendCodeList(sendVehicleDetailBizId));
 		return pageData;
 	}
-
+	/**
+	 * 加载批次信息
+	 * @param sendVehicleDetailBizId
+	 * @return
+	 */
+	private List<JyAppDataSealSendCodeVo> loadSendCodeList(String sendVehicleDetailBizId){
+		List<String> sendCodeList = jyAppDataSealSendCodeDao.querySendCodeList(sendVehicleDetailBizId);
+		List<JyAppDataSealSendCodeVo> sendCodeVoList = new ArrayList<JyAppDataSealSendCodeVo>();
+		//加载重量、体积信息
+		if(CollectionUtils.isNotEmpty(sendCodeList)) {
+			com.jd.bluedragon.distribution.jsf.domain.InvokeResult<Map<String,HugeSendCodeEntity>> weightAndVolumeInfo = dmsSendCodeJSFService.queryWeightAndVolumeInfoBySendCodes(sendCodeList);
+			boolean needSetWeightAndVolume = false;
+			if(weightAndVolumeInfo != null
+					&& weightAndVolumeInfo.getData()!= null
+					&& !weightAndVolumeInfo.getData().isEmpty()) {
+				needSetWeightAndVolume = true;
+			}
+			for(String sendCode:sendCodeList) {
+				JyAppDataSealSendCodeVo vo = new JyAppDataSealSendCodeVo();
+				vo.setSendCode(sendCode);
+				if(needSetWeightAndVolume) {
+					HugeSendCodeEntity weightVo = weightAndVolumeInfo.getData().get(sendCode);
+					if(weightVo != null) {
+						if(weightVo.getVolume() != null) {
+							vo.setVolume(new BigDecimal(weightVo.getVolume()));
+						}else {
+							vo.setVolume(new BigDecimal(0));
+						}
+						if(weightVo.getWeight() != null) {
+							vo.setWeight(new BigDecimal(weightVo.getWeight()));
+						}else {
+							vo.setWeight(new BigDecimal(0));
+						}
+					}
+				}
+				sendCodeVoList.add(vo);
+			}
+		}
+		return sendCodeVoList;
+	}
 	@Override
 	@Transactional(value = "tm_jy_core", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
 	public InvokeResult<Boolean> savePageData(SealVehicleReq sealVehicleReq) {
