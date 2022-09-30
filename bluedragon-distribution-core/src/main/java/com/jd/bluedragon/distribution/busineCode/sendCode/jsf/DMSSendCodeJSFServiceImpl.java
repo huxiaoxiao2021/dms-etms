@@ -79,24 +79,27 @@ public class DMSSendCodeJSFServiceImpl implements DMSSendCodeJSFService {
         	return result;
         }
         List<WeightVolSendCodeSumVo> weightVolumeList = null;
-        boolean hasWeight = false;
         /* 1. 查询批次号重量体积信息 */
         BaseEntity<List<WeightVolSendCodeSumVo>> weightVolSendCodeSumVoBaseEntity = weightVolSendCodeJSFService.sumWeightAndVolumeBySendCodes(sendCodes);
         if (weightVolSendCodeSumVoBaseEntity != null 
         		&& weightVolSendCodeSumVoBaseEntity.isSuccess()
-                && weightVolSendCodeSumVoBaseEntity.getData() != null
-                && weightVolSendCodeSumVoBaseEntity.getData().size() == sendCodes.size()) {
+                && weightVolSendCodeSumVoBaseEntity.getData() != null) {
             weightVolumeList = weightVolSendCodeSumVoBaseEntity.getData();
-            hasWeight = true;
         } else {
             logger.error("根据批次号列表查询批次下重量体积失败：{},查询结果{}", sendCodes,JsonHelper.toJson(weightVolSendCodeSumVoBaseEntity));
         }
+        Map<String,WeightVolSendCodeSumVo> weightMap = new HashMap<String,WeightVolSendCodeSumVo>();
+        if(!CollectionUtils.isEmpty(weightVolumeList)) {
+        	for(WeightVolSendCodeSumVo weightVo: weightVolumeList) {
+        		weightMap.put(weightVo.getSendCode(), weightVo);
+        	}
+    	}
         for(int  i=0; i<sendCodes.size();i++) {
         	String sendCode = sendCodes.get(i);
         	HugeSendCodeEntity data = new HugeSendCodeEntity();
         	data.setSendCode(sendCode);
-        	if(hasWeight) {
-            	WeightVolSendCodeSumVo weightVo = weightVolumeList.get(i);
+        	if(weightMap.containsKey(sendCode)) {
+            	WeightVolSendCodeSumVo weightVo = weightMap.get(sendCode);
             	data.setVolume(weightVo.getPackageVolumeSum());
             	data.setWeight(weightVo.getPackageWeightSum());
         	}
