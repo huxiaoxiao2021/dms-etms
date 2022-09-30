@@ -51,6 +51,7 @@ import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
+import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.BoxMaterialRelationRequest;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
@@ -90,7 +91,9 @@ import com.jd.bluedragon.distribution.send.domain.ConfirmMsgBox;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.domain.SendResult;
+import com.jd.bluedragon.distribution.send.domain.dto.SendDetailDto;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
+import com.jd.bluedragon.distribution.send.service.SendDetailService;
 import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
 import com.jd.bluedragon.distribution.ver.filter.FilterChain;
 import com.jd.bluedragon.distribution.ver.service.SortingCheckService;
@@ -108,6 +111,8 @@ import com.jd.tms.basic.dto.BasicVehicleTypeDto;
 import com.jd.tms.basic.dto.TransportResourceDto;
 import com.jd.tms.jdi.dto.TransWorkBillDto;
 import com.jd.tms.jdi.dto.TransWorkFuzzyQueryParam;
+import com.jd.transboard.api.dto.Response;
+import com.jd.transboard.api.enums.ResponseEnum;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.proxy.Profiler;
@@ -253,6 +258,10 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
     private BasicSelectWsManager basicSelectWsManager;
     @Autowired
     JyNoTaskSendService jyNoTaskSendService;
+    @Autowired
+    private GroupBoardManager groupBoardManager;
+    @Autowired
+    private SendDetailService sendDetailService;
 
     @Override
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "IJySendVehicleService.fetchSendVehicleTask",
@@ -1635,10 +1644,52 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
                 }
                 break;
             case BY_BOARD:
+                Response<List<String>> tcResponse = groupBoardManager.getBoxesByBoardCode(barCode);
+                if (ResponseEnum.SUCCESS.getIndex() == tcResponse.getCode() && CollectionUtils.isNotEmpty(tcResponse.getData())) {
+                    scanCount = getPackageNumFromPackOrBoxCodes(tcResponse.getData(), request.getCurrentOperate().getSiteCode());
+                }
                 break;
         }
 
         return scanCount;
+    }
+
+    private int getPackageNumFromPackOrBoxCodes(List<String> packOrBoxCodes, Integer siteCode) {
+        int count = 0;
+        for (String code : packOrBoxCodes) {
+            if (BusinessUtil.isBoxcode(code)) {
+                log.info("=====getPackageNumFromPackOrBoxCodes=======根据箱号获取集包包裹 {}", code);
+                List<String> pCodes = getPackageCodesByBoxCodeOrSendCode(code, siteCode);
+                if (pCodes != null && pCodes.size() > 0) {
+                    count = count + pCodes.size();
+                }
+            } else {
+                count = count + 1;
+            }
+        }
+        return count;
+    }
+
+    private List<String> getPackageCodesByBoxCodeOrSendCode(String boxOrSendCode, Integer siteCode) {
+        //构建查询sendDetail的查询参数
+        SendDetailDto sendDetail = initSendDetail(boxOrSendCode, siteCode);
+        if (BusinessUtil.isBoxcode(boxOrSendCode)) {
+            return sendDetailService.queryPackageCodeByboxCode(sendDetail);
+        }
+        return sendDetailService.queryPackageCodeBySendCode(sendDetail);
+    }
+
+    private SendDetailDto initSendDetail(String barcode, int createSiteCode) {
+        SendDetailDto sendDetail = new SendDetailDto();
+        sendDetail.setIsCancel(0);
+        sendDetail.setCreateSiteCode(createSiteCode);
+        if (BusinessUtil.isBoxcode(barcode)) {
+            sendDetail.setBoxCode(barcode);
+        }
+        if (BusinessUtil.isSendCode(barcode)) {
+            sendDetail.setSendCode(barcode);
+        }
+        return sendDetail;
     }
 
     /**

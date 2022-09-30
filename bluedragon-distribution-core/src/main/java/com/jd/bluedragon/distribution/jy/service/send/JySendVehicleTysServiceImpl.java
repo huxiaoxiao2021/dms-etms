@@ -1035,7 +1035,7 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
 
     private int getPackageAmountByWaybillCode(String waybillCode) {
         WaybillCache waybillCache = waybillCacheService.getFromCache(waybillCode);
-        return (waybillCache != null ? waybillCache.getPackageNum() : 0);
+        return (waybillCache != null ? waybillCache.getQuantity() : 0);
     }
 
     private List<CancelSendWaybillDto> transformCancelSendWaybill(List<String> packageList) {
