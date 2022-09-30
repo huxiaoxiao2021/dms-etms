@@ -41,4 +41,6 @@ public interface JyVehicleSendRelationService {
     String findEarliestSendCode(String vehicleDetailBizId);
 
     String findEarliestNoSealCarSendCode(String detailBiz);
+
+    List<JySendCodeEntity> querySendDetailBizIdBySendCode(List<String> sendCodes);
 }

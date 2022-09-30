@@ -150,7 +150,20 @@
         WHERE
             yn = 1
         AND send_detail_biz_id = #{vehicleDetailBizId}
-        ORDER BY id
+        ORDER BY update_time
         LIMIT 1
+    </select>
+
+    <select id="querySendDetailBizIdBySendCode" resultMap="jySendCodeMap" parameterType="List">
+        select
+        <include refid="Base_Column_List"/>
+        from jy_send_code
+        WHERE yn = 1
+        and send_code in
+        <foreach item="item" index="index" collection="list"
+                 open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        group by send_detail_biz_id
     </select>
 </mapper>

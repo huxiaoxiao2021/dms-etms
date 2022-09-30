@@ -194,6 +194,8 @@
 		<property name="jyBasicServerSwitch" value="${jyBasicServerSwitch:false}"/>
 		<property name="notValidateTransTypeCodesList" value="${notValidateTransTypeCodesList:[3,4,10,11]}"/>
 		<property name="clientOfflineMenuConfig" value="${clientOfflineMenuConfig:''}"/>
+		<property name="filterSendCodeSwitch" value="${filterSendCodeSwitch:false}"/>
+
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -370,6 +372,8 @@
 				<value>uccPropertyConfiguration.jyBasicServerSwitch</value>
 				<value>uccPropertyConfiguration.notValidateTransTypeCodesList</value>
 				<value>uccPropertyConfiguration.clientOfflineMenuConfig</value>
+				<value>uccPropertyConfiguration.filterSendCodeSwitch</value>
+
 
 				<value>hystrixRouteUccPropertyConfiguration.executionTimeoutInMilliseconds</value>
                 <value>hystrixRouteUccPropertyConfiguration.circuitBreakerEnabled</value>
