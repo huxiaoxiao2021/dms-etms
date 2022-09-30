@@ -229,7 +229,6 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
 
     @Autowired
     private BaseService baseService;
-
     @Autowired
     private SealVehiclesService sealVehiclesService;
 
@@ -1246,8 +1245,8 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
         return sameDirections.size()>0 ? sameDirections.get(0) : null;
     }
 
-
-    private boolean checkIfSealed(JyBizTaskSendVehicleDetailEntity detail) {
+    @Override
+    public boolean checkIfSealed(JyBizTaskSendVehicleDetailEntity detail) {
         if (JyBizTaskSendDetailStatusEnum.SEALED.getCode().equals(detail.getVehicleStatus())){
             return true;
         }
