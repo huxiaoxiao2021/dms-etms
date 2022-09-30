@@ -774,7 +774,7 @@ public class ColdChainExternalServiceImpl implements IColdChainService {
         PackageSendRequest request = new PackageSendRequest();
         request.setBizSource(SendBizSourceEnum.COLD_LOAD_CAR_SEND_NEW.getCode());
         request.setIsForceSend(cRequest.isForceSend());
-        request.setIsCancelLastSend(false);
+        //request.setIsCancelLastSend(false);
         request.setReceiveSiteCode(cRequest.getReceiveSiteCode());
         request.setBoxCode(boxCode);
         request.setSendCode(cRequest.getSendCode());

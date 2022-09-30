@@ -167,4 +167,41 @@ public class ColdChainExternalServiceImplTest {
         unloadVehicleGatewayService.unloadScan(request);
 
     }
+
+
+    @Test
+    public void sendOfColdBusinessNewTest() {
+        ColdSendVo request = new ColdSendVo();
+        request.setBoxCode("JDVC00005517150");
+        request.setForceSend( true);
+        request.setOperateTime("2021-05-10 06:06:06");
+        request.setReceiveSiteCode(40240);
+        request.setSendCode("509-40240-20220930149503940");
+        request.setSiteCode(509);
+        request.setSiteName("转运");
+        request.setTransPlanCode("TP19041300104683");
+        request.setUserCode(17907);
+        request.setUserName("冷链测试人");
+
+        coldChainExternalService.sendOfColdBusinessNew(request);
+
+    }
+
+    @Test
+    public void sendOfColdKYNewTest() {
+        ColdSendVo request = new ColdSendVo();
+        request.setBoxCode("JDV000690915751");
+        request.setForceSend( false);
+        request.setOperateTime("2021-05-10 06:06:06");
+        request.setReceiveSiteCode(40240);
+        request.setSendCode("509-40240-20220930149503940");
+        request.setSiteCode(509);
+        request.setSiteName("转运");
+        request.setTransPlanCode("11111111111111");
+        request.setUserCode(17907);
+        request.setUserName("冷链测试人");
+
+        coldChainExternalService.sendOfColdKYNew(request);
+
+    }
 }
