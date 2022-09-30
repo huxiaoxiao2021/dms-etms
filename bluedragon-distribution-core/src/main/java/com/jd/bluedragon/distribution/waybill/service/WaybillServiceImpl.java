@@ -31,6 +31,7 @@ import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
 import com.jd.bluedragon.distribution.mixedPackageConfig.enums.SiteTypeEnum;
 import com.jd.bluedragon.distribution.print.service.ScheduleSiteSupportInterceptService;
+import com.jd.bluedragon.distribution.print.service.WaybillPrintService;
 import com.jd.bluedragon.distribution.reverse.domain.ReverseReceive;
 import com.jd.bluedragon.distribution.reverse.service.ReverseReceiveService;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
@@ -128,6 +129,9 @@ public class WaybillServiceImpl implements WaybillService {
 
     @Autowired
     private SecurityCheckerExecutor securityCheckerExecutor;
+
+    @Autowired
+    private WaybillPrintService waybillPrintService;
 
     /**
      * 普通运单类型（非移动仓内配）
@@ -1255,7 +1259,8 @@ public class WaybillServiceImpl implements WaybillService {
 
             //针对运费到付「waybillsign第25位=2」的运单，禁止反调度到三方网点「同cod限制逻辑，sitetype = 16」
             if(BusinessUtil.isDF(waybill.getWaybillSign())){
-                if(BusinessUtil.isThreePartner(siteOfSchedulingOnSite.getSiteType(), siteOfSchedulingOnSite.getSubType())){
+                if(waybillPrintService.isCodMoneyGtZeroAndSiteThird(siteOfSchedulingOnSite.getSiteType(),
+                    siteOfSchedulingOnSite.getSubType(), Double.valueOf(waybill.getCodMoney()))){
                     result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, "到付、COD类型订单，禁止转三方邮政网点，请拦截后换单原路返回。");
                     return result;
                 }
