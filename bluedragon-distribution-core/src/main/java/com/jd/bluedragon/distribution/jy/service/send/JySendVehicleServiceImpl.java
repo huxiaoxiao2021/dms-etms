@@ -1222,7 +1222,8 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
         return result;
     }
 
-    private JyBizTaskSendVehicleDetailEntity pickUpOneUnSealedDetail(List<JyBizTaskSendVehicleDetailEntity> taskSendDetails, Long sendDestId) {
+     @Override
+     public JyBizTaskSendVehicleDetailEntity pickUpOneUnSealedDetail(List<JyBizTaskSendVehicleDetailEntity> taskSendDetails, Long sendDestId) {
         List<JyBizTaskSendVehicleDetailEntity> sameDirections = new ArrayList<>();
         for (JyBizTaskSendVehicleDetailEntity sendDetail : taskSendDetails) {
             if (sendDetail.getEndSiteId().equals(sendDestId)) {

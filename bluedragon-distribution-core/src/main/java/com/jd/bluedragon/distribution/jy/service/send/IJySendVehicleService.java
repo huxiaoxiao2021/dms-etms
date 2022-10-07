@@ -138,4 +138,6 @@ public interface IJySendVehicleService {
      * @time 2022-09-22 16:47:38 周四
      */
     InvokeResult<SendTaskInfo> sendTaskDetail(SendVehicleInfoRequest request);
-}
+
+    JyBizTaskSendVehicleDetailEntity pickUpOneUnSealedDetail(List<JyBizTaskSendVehicleDetailEntity> taskSendDetails, Long sendDestId);
+    }
