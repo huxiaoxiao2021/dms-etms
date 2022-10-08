@@ -75,6 +75,16 @@
     </if>
     </select>
 
+    <select id="getPicUrlsById" parameterType="java.lang.Integer" resultType="java.lang.String">
+        select
+            report_img_urls
+        from
+            express_bill_exception_report
+        where
+            yn = 1
+        and id = #{id}
+    </select>
+
     <!--分页查询（解决深度分页问题）-->
     <select id="newQueryList" parameterType="com.jd.bluedragon.distribution.exceptionReport.billException.request.ExpressBillExceptionReportQuery" resultMap="RM_ExpressBillExceptionReport">
         select

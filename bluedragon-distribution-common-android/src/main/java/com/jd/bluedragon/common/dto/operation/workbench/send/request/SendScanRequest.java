@@ -25,6 +25,11 @@ public class SendScanRequest implements Serializable {
     private String sendVehicleBizId;
 
     /**
+     * send_vehicle_detail业务主键
+     */
+    private String sendVehicleDetailBizId;
+
+    /**
      * 车牌号
      */
     private String vehicleNumber;
@@ -67,6 +72,11 @@ public class SendScanRequest implements Serializable {
      * 无任务首次发货备注
      */
     private String noTaskRemark;
+
+    /**
+     * 自定义任务名称
+     */
+    private String taskName;
 
     /**
      * 用户确认的发货目的地
@@ -196,5 +206,21 @@ public class SendScanRequest implements Serializable {
 
     public void setValidateIgnore(ValidateIgnore validateIgnore) {
         this.validateIgnore = validateIgnore;
+    }
+
+    public String getSendVehicleDetailBizId() {
+        return sendVehicleDetailBizId;
+    }
+
+    public void setSendVehicleDetailBizId(String sendVehicleDetailBizId) {
+        this.sendVehicleDetailBizId = sendVehicleDetailBizId;
+    }
+
+    public String getTaskName() {
+        return taskName;
+    }
+
+    public void setTaskName(String taskName) {
+        this.taskName = taskName;
     }
 }

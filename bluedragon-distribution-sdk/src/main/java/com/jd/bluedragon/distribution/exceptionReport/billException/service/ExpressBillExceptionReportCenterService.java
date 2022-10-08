@@ -5,6 +5,7 @@ import com.jd.bluedragon.distribution.exceptionReport.billException.request.Expr
 import com.jd.bluedragon.distribution.exceptionReport.billException.vo.ExpressBillExceptionReportVo;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -25,5 +26,12 @@ public interface ExpressBillExceptionReportCenterService {
      * @return
      */
     Response<Map<Integer,String>> getAllExceptionReportType();
+
+    /**
+     * 根据条件查询包裹图片
+     *
+     * @return
+     */
+    Response<List<String>> getPicUrlsById(Integer id);
 }
     

@@ -4,6 +4,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
@@ -57,6 +58,7 @@ import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.PackOpeFlowDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.etms.waybill.dto.WaybillVasDto;
+import com.jd.ldop.basic.dto.BasicTraderInfoDTO;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
@@ -129,6 +131,9 @@ public class WaybillServiceImpl implements WaybillService {
 
     @Autowired
     private SecurityCheckerExecutor securityCheckerExecutor;
+
+    @Autowired
+    private BaseMinorManager baseMinorManager;
 
     /**
      * 普通运单类型（非移动仓内配）
@@ -1255,9 +1260,12 @@ public class WaybillServiceImpl implements WaybillService {
             }
 
             //针对运费到付「waybillSign第25位=2」的运单，禁止反调度到三方网点「siteType = 16」
-            if(BusinessUtil.isDF(waybill.getWaybillSign())){
-                if(Objects.equals(Constants.THIRD_SITE_TYPE, siteOfSchedulingOnSite.getSiteType())){
-                    result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, JdResponse.MESSAGE_FORBIDDEN_SCHEDULE_TO_PARTNER_SITE);
+            if(BusinessUtil.isDF(waybill.getWaybillSign())
+                && Objects.equals(Constants.THIRD_SITE_TYPE, siteOfSchedulingOnSite.getSiteType())){
+
+                BasicTraderInfoDTO traderDto = baseMinorManager.getBaseTraderById(waybill.getBusiId());
+                if (traderDto != null && !BusinessHelper.canThreePLSchedule(traderDto.getTraderSign())) {
+                    result.customMessage(JdResponse.CODE_THREEPL_SCHEDULE_ERROR, JdResponse.MESSAGE_FORBIDDEN_SCHEDULE_TO_PARTNER_SITE);
                     return result;
                 }
             }
