@@ -8,6 +8,7 @@ import com.jd.bluedragon.common.dto.blockcar.enumeration.SealCarTypeEnum;
 import com.jd.bluedragon.common.dto.blockcar.enumeration.TransTypeEnum;
 import com.jd.bluedragon.common.dto.blockcar.request.SealCarPreRequest;
 import com.jd.bluedragon.common.dto.blockcar.response.TransportInfoDto;
+import com.jd.bluedragon.common.dto.operation.workbench.seal.SealCarSendCodeResp;
 import com.jd.bluedragon.common.dto.seal.request.*;
 import com.jd.bluedragon.common.dto.seal.response.SealCodeResp;
 import com.jd.bluedragon.common.dto.seal.response.SealVehicleInfoResp;
@@ -126,19 +127,21 @@ public class JySealCarGatewayServiceImpl implements JySealCarGatewayService {
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JySealCarGatewayServiceImpl.validateTranCodeAndSendCode", mState = {JProEnum.TP, JProEnum.FunctionError})
-    public JdCResponse validateTranCodeAndSendCode(ValidSendCodeReq validSendCodeReq) {
+    public JdCResponse<SealCarSendCodeResp> validateTranCodeAndSendCode(ValidSendCodeReq validSendCodeReq) {
         SealCarPreRequest sealCarPreRequest = BeanUtils.copy(validSendCodeReq,SealCarPreRequest.class);
         if (ObjectHelper.isEmpty(sealCarPreRequest.getSealCarType())){
             sealCarPreRequest.setSealCarType(SealCarTypeEnum.SEAL_BY_TASK.getType());
+            validSendCodeReq.setSealCarType(SealCarTypeEnum.SEAL_BY_TASK.getType());
         }
         if (ObjectHelper.isEmpty(sealCarPreRequest.getSealCarSource())){
             sealCarPreRequest.setSealCarSource(SealCarSourceEnum.COMMON_SEAL_CAR.getCode());
+            validSendCodeReq.setSealCarSource(SealCarSourceEnum.COMMON_SEAL_CAR.getCode());
         }
         if (uccConfiguration.getFilterSendCodeSwitch() && checkIfBelongOthers(validSendCodeReq)){
             return new JdCResponse(FORBID_SENDCODE_OF_OTHER_DETAIL_CODE,FORBID_SENDCODE_OF_OTHER_DETAIL_MESSAGE);
         }
-        NewSealVehicleResponse newSealVehicleResponse = newSealVehicleResource.newCheckTranCodeAndBatchCode(sealCarPreRequest);
-        return new JdCResponse(newSealVehicleResponse.getCode(),newSealVehicleResponse.getMessage());
+        InvokeResult<SealCarSendCodeResp> invokeResult = jySealVehicleService.validateTranCodeAndSendCode(validSendCodeReq);
+        return retJdCResponse(invokeResult);
     }
 
     private boolean checkIfBelongOthers(ValidSendCodeReq validSendCodeReq) {
@@ -159,4 +162,9 @@ public class JySealCarGatewayServiceImpl implements JySealCarGatewayService {
     private <T> JdCResponse<T> retJdCResponse(InvokeResult<T> invokeResult) {
         return new JdCResponse<>(invokeResult.getCode(), invokeResult.getMessage(), invokeResult.getData());
     }
+
+	@Override
+	public JdCResponse saveSealVehicle(SealVehicleReq sealVehicleReq) {
+		return retJdCResponse(jySealVehicleService.saveSealVehicle(sealVehicleReq));
+	}
 }

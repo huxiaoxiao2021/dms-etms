@@ -134,5 +134,13 @@ public interface JySendVehicleGatewayService {
      */
     JdCResponse checkMainLineSendTask(CheckSendCodeRequest request);
 
+    /**
+     * 查询发货任务详情
+     * @param request 请求参数
+     * @return 返回结果
+     * @author fanggang7
+     * @time 2022-09-22 16:47:38 周四
+     */
+    JdCResponse<SendTaskInfo> sendTaskDetail(SendVehicleInfoRequest request);
 
 }
