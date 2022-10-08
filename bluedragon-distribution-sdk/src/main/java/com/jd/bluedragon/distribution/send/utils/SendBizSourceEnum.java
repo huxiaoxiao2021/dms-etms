@@ -139,13 +139,13 @@ public enum SendBizSourceEnum {
      * B冷链装车发货-新
      * 一单单发货
      */
-    COLD_LOAD_CAR_SEND_NEW(27, "B冷链装车发货"),
+    COLD_LOAD_CAR_SEND_NEW(27, "B冷链装车发货-新"),
 
     /**
      * 快运装车发货-新
      * 一单单发货
      */
-    COLD_LOAD_CAR_KY_SEND_NEW(28, "冷链快运装车发货"),
+    COLD_LOAD_CAR_KY_SEND_NEW(28, "冷链快运装车发货-新"),
     ;
 
     /**
