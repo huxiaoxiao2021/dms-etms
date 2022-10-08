@@ -3,6 +3,7 @@ package com.jd.bluedragon.common.dto.send.request;
 import com.jd.bluedragon.common.dto.base.request.BaseReq;
 
 import java.io.Serializable;
+import java.util.List;
 
 public class TransferSendTaskReq extends BaseReq implements Serializable {
     private static final long serialVersionUID = 360399368478325772L;
@@ -28,6 +29,8 @@ public class TransferSendTaskReq extends BaseReq implements Serializable {
      * 迁移前后是否同流向
      */
     private Boolean sameWayFlag;
+
+    List<String> sendCodeList;
 
     public String getFromSendVehicleBizId() {
         return fromSendVehicleBizId;
@@ -67,5 +70,13 @@ public class TransferSendTaskReq extends BaseReq implements Serializable {
 
     public void setSameWayFlag(Boolean sameWayFlag) {
         this.sameWayFlag = sameWayFlag;
+    }
+
+    public List<String> getSendCodeList() {
+        return sendCodeList;
+    }
+
+    public void setSendCodeList(List<String> sendCodeList) {
+        this.sendCodeList = sendCodeList;
     }
 }
