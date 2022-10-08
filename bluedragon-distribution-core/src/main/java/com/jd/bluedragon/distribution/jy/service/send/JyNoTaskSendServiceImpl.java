@@ -310,9 +310,8 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
             List<JyBizTaskSendVehicleDetailEntity> taskSendDetails = jyBizTaskSendVehicleDetailService.findEffectiveSendVehicleDetail(queryToDetailTaskParams);
             JyBizTaskSendVehicleDetailEntity toSvdTask =jySendVehicleService.pickUpOneUnSealedDetail(taskSendDetails,fromSvdTask.getEndSiteId());
             if (!ObjectHelper.isNotNull(toSvdTask)){
-                return new InvokeResult(DETAIL_TASK_NO_FOUND_BY_SITE_ID_CODE, DETAIL_TASK_NO_FOUND_BY_SITE_ID_MESSAGE);
+                return new InvokeResult(FORBID_BIND_TO_SEALED_DETAIL_CODE, FORBID_BIND_TO_SEALED_DETAIL_MESSAGE);
             }
-
             VehicleSendRelationDto dto = BeanUtils.copy(bindVehicleDetailTaskReq, VehicleSendRelationDto.class);
             dto.setFromSendVehicleDetailBizId(fromSvdTask.getBizId());
             dto.setToSendVehicleDetailBizId(toSvdTask.getBizId());
