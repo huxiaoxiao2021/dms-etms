@@ -32,7 +32,6 @@ import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
 import com.jd.bluedragon.distribution.mixedPackageConfig.enums.SiteTypeEnum;
 import com.jd.bluedragon.distribution.print.service.ScheduleSiteSupportInterceptService;
-import com.jd.bluedragon.distribution.print.service.WaybillPrintService;
 import com.jd.bluedragon.distribution.reverse.domain.ReverseReceive;
 import com.jd.bluedragon.distribution.reverse.service.ReverseReceiveService;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
@@ -43,15 +42,12 @@ import com.jd.bluedragon.distribution.ver.domain.Site;
 import com.jd.bluedragon.distribution.waybill.dao.CancelWaybillDao;
 import com.jd.bluedragon.distribution.waybill.domain.*;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
-import com.jd.bluedragon.dms.utils.SendPayConstants;
-import com.jd.bluedragon.dms.utils.WaybillSignConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.service.LossServiceManager;
 import com.jd.bluedragon.utils.*;
 import com.jd.dms.ver.domain.JsfResponse;
 import com.jd.dms.ver.domain.WaybillCancelJsfResponse;
 import com.jd.etms.cache.util.EnumBusiCode;
-import com.jd.etms.cache.util.WaybillConstants;
 import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.domain.*;
 import com.jd.etms.waybill.dto.BigWaybillDto;
@@ -1259,13 +1255,10 @@ public class WaybillServiceImpl implements WaybillService {
                 }
             }
 
-            //针对运费到付「waybillSign第25位=2」的运单，禁止反调度到三方网点「siteType = 16」
-            if(BusinessUtil.isDF(waybill.getWaybillSign())
-                && Objects.equals(Constants.THIRD_SITE_TYPE, siteOfSchedulingOnSite.getSiteType())){
-
-                BasicTraderInfoDTO traderDto = baseMinorManager.getBaseTraderById(waybill.getBusiId());
-                if (traderDto != null && !BusinessHelper.canThreePLSchedule(traderDto.getTraderSign())) {
-                    result.customMessage(JdResponse.CODE_THREEPL_SCHEDULE_ERROR, JdResponse.MESSAGE_FORBIDDEN_SCHEDULE_TO_PARTNER_SITE);
+            //针对运费到付「waybillsign第25位=2」的运单，禁止反调度到三方网点「同cod限制逻辑，sitetype = 16」
+            if(BusinessUtil.isDF(waybill.getWaybillSign())){
+                if(Objects.equals(Constants.THIRD_SITE_TYPE, siteOfSchedulingOnSite.getSiteType())){
+                    result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, JdResponse.MESSAGE_FORBIDDEN_SCHEDULE_TO_PARTNER_SITE);
                     return result;
                 }
             }

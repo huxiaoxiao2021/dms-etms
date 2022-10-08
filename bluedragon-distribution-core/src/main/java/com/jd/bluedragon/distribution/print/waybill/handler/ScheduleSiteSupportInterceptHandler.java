@@ -169,7 +169,7 @@ public class ScheduleSiteSupportInterceptHandler implements InterceptHandler<Way
                 }
             }
 
-            //针对运费到付「waybillSign第25位=2」的运单，禁止反调度到三方网点「siteType = 16」
+            //针对运费到付「waybillSign第25位=2」的运单，禁止反调度到三方网点「同cod限制逻辑，siteType = 16」
             if(BusinessUtil.isDF(waybill.getWaybillSign())){
                 if(Objects.equals(Constants.THIRD_SITE_TYPE, scheduleSiteOrgDto.getSiteType())){
                     result.toError(InvokeResult.RESULT_INTERCEPT_CODE, JdResponse.MESSAGE_FORBIDDEN_SCHEDULE_TO_PARTNER_SITE);
