@@ -156,51 +156,7 @@ public class ColdChainExternalServiceImpl implements IColdChainService {
                 result.customMessage(cancelWaybillResponse.getCode(),cancelWaybillResponse.getMessage());
                 return result;
             }
-
-            //加盟商余额校验
-            if(!allianceBusiDeliveryDetailService.checkExist(waybillCode)) {
-                if(!allianceBusiDeliveryDetailService.checkMoney(waybillCode)){
-                    //校验失败
-                    result.customMessage(JdResponse.CODE_FAIL,InspectionCheckResult.ALLIANCE_INTERCEPT_MESSAGE);
-                    result.getData().setForced(true);
-                    return result;
-                }
-            }
-            //库位号等校验
-            JdResponse storageResp = inspectionService.getStorageCode(vo.getBarCode(),vo.getOperateSiteCode());
-            if(storageResp.isSucceed()){
-                if(storageResp.getData()!= null){
-                    BeanUtils.copyProperties(storageResp.getData(),inspectionCheckResult);
-                }
-            }else{
-                result.customMessage(storageResp.getCode(),storageResp.getMessage());
-                result.getData().setForced(true);
-                return result;
-            }
-
-            //暂存校验
-            com.jd.bluedragon.distribution.base.domain.InvokeResult<Boolean> storagePResp =  storagePackageMService.checkIsNeedStorage(vo.getBarCode(), vo.getOperateSiteCode());
-            if(!storagePResp.codeSuccess()){
-                result.customMessage(storagePResp.getCode(),storagePResp.getMessage());
-                if(storagePResp.getData()){
-                    result.getData().setWeak(true);
-                }else{
-                    result.getData().setForced(true);
-                    return result;
-                }
-            }
-
-            //冷链包装耗材与大网的不一致，这里无须校验
-            //包装耗材
-/*            com.jd.ql.dms.common.domain.JdResponse<Boolean> packingConsumableResp = dmsPackingConsumableService.getConfirmStatusByWaybillCode(waybillCode);
-            //超级恶心的返回值 如果是400 和 500 就不需要处理了，200和 201提示
-            if(!JdResponse.CODE_FAIL.equals(packingConsumableResp.getCode()) && !JdResponse.CODE_ERROR.equals(packingConsumableResp.getCode())){
-                result.customMessage(JdResponse.CODE_FAIL,packingConsumableResp.getMessage());
-                result.getData().setWeak(true);
-                return result;
-            }*/
         }
-
 
         return result;
     }
@@ -757,6 +713,83 @@ public class ColdChainExternalServiceImpl implements IColdChainService {
         return true;
     }
 
+    /**
+     * 卸车验货
+     * 一单单验货
+     * @param request
+     * @return
+     */
+    @Override
+    public InvokeResult<String> inspectionOfColdNew(ColdInspectionVo request) {
+        InvokeResult<String> result = new InvokeResult<>();
+        result.success();
+
+        String barCode = request.getBarCode();
+        //检查barCode规则
+        boolean isWaybill = !BusinessUtil.isBoxcode(barCode) && WaybillUtil.isWaybillCode(barCode);
+        boolean isPack = WaybillUtil.isPackageCode(barCode);
+        //本次仅支持运单、包裹号
+        if( !(isWaybill || isPack) ){
+            result.customMessage(InvokeResult.PARAMETER_ERROR_CODE,"请扫描正确的运单号|包裹号");
+            return result;
+        }
+
+        InspectionCheckVO vo = new InspectionCheckVO();
+        vo.setOperateSiteCode(request.getSiteCode());
+        vo.setBarCode(barCode);
+        //验货校验
+        InvokeResult<InspectionCheckResult> inspectionCheckResult = this.inspectionCheck(vo);
+
+        if (inspectionCheckResult == null) {
+            result.customMessage(InvokeResult.SERVICE_ERROR_CODE,"校验服务无响应");
+            return result;
+        }
+        String showText = StringUtils.EMPTY;
+        if(inspectionCheckResult.getCode() != InvokeResult.RESULT_SUCCESS_CODE && inspectionCheckResult.getData() != null ){
+            if(inspectionCheckResult.getData().isForced()) {
+                log.warn("inspectionOfColdNew 强拦截 {}", JsonHelper.toJson(request));
+                result.customMessage(inspectionCheckResult.getCode(),inspectionCheckResult.getMessage());
+                return result;
+            }else{
+                showText = result.getMessage();
+            }
+        }
+
+        //验货
+        InspectionVO inspectionVo = new InspectionVO();
+        List<String> barCodes = new ArrayList<>(1);
+        barCodes.add(barCode);
+        inspectionVo.setBarCodes(barCodes);
+        inspectionVo.setSiteCode(request.getSiteCode());
+        inspectionVo.setSiteName(request.getSiteName());
+        inspectionVo.setUserCode(request.getUserCode());
+        inspectionVo.setUserName(request.getUserName());
+        inspectionVo.setOperateTime(request.getOperateTime());
+        InvokeResult<Boolean> inspectionResult = this.inspection(inspectionVo);
+        if (inspectionResult == null) {
+            result.customMessage(InvokeResult.SERVICE_ERROR_CODE,"验货失败,请重试");
+            return result;
+        }
+        if(inspectionResult.getCode() != InvokeResult.RESULT_SUCCESS_CODE){
+            log.warn("inspectionOfColdNew 验货失败{}",JsonHelper.toJson(request));
+            result.customMessage(inspectionResult.getCode(),inspectionResult.getMessage());
+            return result;
+        }
+        String successHint = "验货成功";
+        if(StringUtils.isNotBlank(showText)){
+            result.setData(showText + "; " + successHint);
+        }else{
+            result.setData(successHint);
+        }
+        return result;
+    }
+
+
+    /**
+     * B冷链装车发货
+     * @param cRequest
+     * @return
+     */
     @Override
     public InvokeResult<ColdSendResult> sendOfColdBusinessNew(ColdSendVo cRequest) {
         InvokeResult<ColdSendResult> result = new InvokeResult<>();
@@ -765,7 +798,7 @@ public class ColdChainExternalServiceImpl implements IColdChainService {
         String boxCode = cRequest.getBoxCode();
         //检查barCode规则
         boolean isWaybill = !BusinessUtil.isBoxcode(boxCode) && WaybillUtil.isWaybillCode(boxCode);
-        //本次仅支持运单、包裹号
+        //本次仅支持运单
         if( !isWaybill ){
             result.customMessage(InvokeResult.PARAMETER_ERROR_CODE,"请扫描正确的运单号");
             return result;
@@ -774,7 +807,6 @@ public class ColdChainExternalServiceImpl implements IColdChainService {
         PackageSendRequest request = new PackageSendRequest();
         request.setBizSource(SendBizSourceEnum.COLD_LOAD_CAR_SEND_NEW.getCode());
         request.setIsForceSend(cRequest.isForceSend());
-        //request.setIsCancelLastSend(false);
         request.setReceiveSiteCode(cRequest.getReceiveSiteCode());
         request.setBoxCode(boxCode);
         request.setSendCode(cRequest.getSendCode());
@@ -784,7 +816,7 @@ public class ColdChainExternalServiceImpl implements IColdChainService {
         request.setSiteName(cRequest.getSiteName());
         request.setBusinessType(Constants.BUSSINESS_TYPE_POSITIVE);
         request.setOperateTime(cRequest.getOperateTime());
-        com.jd.bluedragon.distribution.base.domain.InvokeResult<SendResult> invokeResult = this.newPackageSend(request);
+        com.jd.bluedragon.distribution.base.domain.InvokeResult<SendResult> invokeResult = this.newPackageSend(request,Constants.CONSTANT_NUMBER_ONE);
 
         if(invokeResult.getCode() != com.jd.bluedragon.distribution.base.domain.InvokeResult.RESULT_SUCCESS_CODE ){
             result.parameterError(invokeResult.getMessage());
@@ -818,11 +850,17 @@ public class ColdChainExternalServiceImpl implements IColdChainService {
         return result;
     }
 
-    public com.jd.bluedragon.distribution.base.domain.InvokeResult<SendResult> newPackageSend(PackageSendRequest request) {
+    /**
+     * 冷链新发货
+     * @param request
+     * @param barCodeType 1：按运单发货；2：按包裹发货
+     * @return
+     */
+    public com.jd.bluedragon.distribution.base.domain.InvokeResult<SendResult> newPackageSend(PackageSendRequest request,int barCodeType) {
         if (log.isInfoEnabled()) {
             log.info(com.jd.bluedragon.distribution.api.utils.JsonHelper.toJson(request));
         }
-        CallerInfo info = Profiler.registerInfo("DMSWEB.DeliveryServiceImpl.newPackageSend", Constants.UMP_APP_NAME_DMSWEB,false, true);
+        CallerInfo info = Profiler.registerInfo("DMSWEB.ColdChainExternalServiceImpl.newPackageSend", Constants.UMP_APP_NAME_DMSWEB,false, true);
         SendM domain = this.toSendMDomain(request);
         com.jd.bluedragon.distribution.base.domain.InvokeResult<SendResult> result = new com.jd.bluedragon.distribution.base.domain.InvokeResult<SendResult>();
         try {
@@ -834,11 +872,12 @@ public class ColdChainExternalServiceImpl implements IColdChainService {
                 return result;
             }
 
-            if (SendBizSourceEnum.WAYBILL_SEND.getCode().equals(request.getBizSource())) {
+            if (Constants.CONSTANT_NUMBER_ONE == barCodeType) {
                 // 按运单发货
                 domain.setBoxCode(request.getBoxCode());
                 result.setData(deliveryService.packageSendByWaybill(domain, request.getIsForceSend(), request.getIsCancelLastSend()));
             } else {
+                //按包裹发货
                 SendBizSourceEnum bizSource = SendBizSourceEnum.getEnum(request.getBizSource());
                 // 一车一单发货
                 domain.setBoxCode(request.getBoxCode());
@@ -852,7 +891,7 @@ public class ColdChainExternalServiceImpl implements IColdChainService {
         } catch (Exception ex) {
             Profiler.functionError(info);
             result.error(ex);
-            log.error("一车一单发货{}", com.jd.bluedragon.distribution.api.utils.JsonHelper.toJson(request), ex);
+            log.error("ColdChainExternalServiceImpl.newPackageSend一车一单发货{}", com.jd.bluedragon.distribution.api.utils.JsonHelper.toJson(request), ex);
         }finally {
             Profiler.registerInfoEnd(info);
         }
@@ -891,7 +930,11 @@ public class ColdChainExternalServiceImpl implements IColdChainService {
         domain.setOperateTime(new Date(System.currentTimeMillis() + Constants.DELIVERY_DELAY_TIME));
         return domain;
     }
-
+    /**
+     * 快运装车发货
+     * @param cRequest
+     * @return
+     */
     @Override
     public InvokeResult<ColdSendResult> sendOfColdKYNew(ColdSendVo cRequest) {
         InvokeResult<ColdSendResult> result = new InvokeResult<>();
@@ -901,8 +944,14 @@ public class ColdChainExternalServiceImpl implements IColdChainService {
         //检查barCode规则
         boolean isWaybill = !BusinessUtil.isBoxcode(boxCode) && WaybillUtil.isWaybillCode(boxCode);
         boolean isPack = WaybillUtil.isPackageCode(boxCode);
+
+        int barCodeType = Constants.CONSTANT_NUMBER_ONE;
         //本次仅支持运单、包裹号
-        if( !(isWaybill || isPack) ){
+        if(isWaybill){
+            barCodeType = Constants.CONSTANT_NUMBER_ONE;
+        } else if(isPack){
+            barCodeType = Constants.CONSTANT_NUMBER_TWO;
+        }else{
             result.customMessage(InvokeResult.PARAMETER_ERROR_CODE,"请扫描正确的运单号|包裹号");
             return result;
         }
@@ -920,7 +969,7 @@ public class ColdChainExternalServiceImpl implements IColdChainService {
         request.setSiteName(cRequest.getSiteName());
         request.setBusinessType(Constants.BUSSINESS_TYPE_POSITIVE);
         request.setOperateTime(cRequest.getOperateTime());
-        com.jd.bluedragon.distribution.base.domain.InvokeResult<SendResult> invokeResult = this.newPackageSend(request);
+        com.jd.bluedragon.distribution.base.domain.InvokeResult<SendResult> invokeResult = this.newPackageSend(request,barCodeType);
 
         if(invokeResult.getCode() != com.jd.bluedragon.distribution.base.domain.InvokeResult.RESULT_SUCCESS_CODE ){
             result.parameterError(invokeResult.getMessage());

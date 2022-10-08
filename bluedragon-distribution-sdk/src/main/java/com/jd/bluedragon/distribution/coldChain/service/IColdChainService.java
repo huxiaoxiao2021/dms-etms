@@ -66,7 +66,15 @@ public interface IColdChainService {
      * @param vo
      * @return
      */
+    @Deprecated
     InvokeResult<Boolean> checkSendCodeOfSeal(SendVO vo);
+
+    /**
+     * 冷链验货
+     * @param vo
+     * @return
+     */
+    InvokeResult<String> inspectionOfColdNew(ColdInspectionVo vo);
 
     /**
      * 冷链新发货

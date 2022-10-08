@@ -168,6 +168,18 @@ public class ColdChainExternalServiceImplTest {
 
     }
 
+    @Test
+    public void inspectionOfColdNewTest() {
+        ColdInspectionVo request = new ColdInspectionVo();
+        request.setBarCode("JDVC00005517150");
+        request.setOperateTime("2021-05-10 06:06:06");
+        request.setSiteCode(509);
+        request.setSiteName("转运");
+        request.setUserCode(17907);
+        request.setUserName("冷链测试人");
+        coldChainExternalService.inspectionOfColdNew(request);
+
+    }
 
     @Test
     public void sendOfColdBusinessNewTest() {
