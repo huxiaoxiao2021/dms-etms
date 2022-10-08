@@ -42,5 +42,7 @@ public class SecurityLogEntity {
 
     private final Object businessResponse;
 
+    private final List<?> businessResponses;
+
     private final Integer resultNum;
 }

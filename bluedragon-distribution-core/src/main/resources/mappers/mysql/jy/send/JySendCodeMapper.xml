@@ -143,6 +143,13 @@
           and yn = 1
     </select>
 
+    <select id="queryByVehicleBizId" parameterType="java.lang.String" resultMap="jySendCodeMap">
+        select <include refid="Base_Column_List"/>
+        from jy_send_code
+        where send_vehicle_biz_id = #{vehicleBizId}
+          and yn = 1
+    </select>
+
     <select id="findEarliestSendCode" parameterType="java.lang.String" resultType="java.lang.String">
         SELECT
             send_code
@@ -152,5 +159,18 @@
         AND send_detail_biz_id = #{vehicleDetailBizId}
         ORDER BY update_time
         LIMIT 1
+    </select>
+
+    <select id="querySendDetailBizIdBySendCode" resultMap="jySendCodeMap" parameterType="List">
+        select
+        <include refid="Base_Column_List"/>
+        from jy_send_code
+        WHERE yn = 1
+        and send_code in
+        <foreach item="item" index="index" collection="list"
+                 open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        group by send_detail_biz_id
     </select>
 </mapper>

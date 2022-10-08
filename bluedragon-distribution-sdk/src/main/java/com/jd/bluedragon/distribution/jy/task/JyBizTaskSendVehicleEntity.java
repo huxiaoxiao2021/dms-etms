@@ -45,6 +45,7 @@ public class JyBizTaskSendVehicleEntity implements Serializable {
 	 * 自建任务的流水号
 	 */
 	private String bizNo;
+	private String taskName;
 	/**
 	 * 运输派车单编码
 	 */
@@ -403,5 +404,13 @@ public class JyBizTaskSendVehicleEntity implements Serializable {
 
 	public void setCreateTimeBegin(Date createTimeBegin) {
 		this.createTimeBegin = createTimeBegin;
+	}
+
+	public String getTaskName() {
+		return taskName;
+	}
+
+	public void setTaskName(String taskName) {
+		this.taskName = taskName;
 	}
 }

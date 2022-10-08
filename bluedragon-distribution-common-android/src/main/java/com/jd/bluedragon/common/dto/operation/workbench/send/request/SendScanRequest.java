@@ -74,6 +74,11 @@ public class SendScanRequest implements Serializable {
     private String noTaskRemark;
 
     /**
+     * 自定义任务名称
+     */
+    private String taskName;
+
+    /**
      * 用户确认的发货目的地
      */
     private Long confirmSendDestId;
@@ -209,5 +214,13 @@ public class SendScanRequest implements Serializable {
 
     public void setSendVehicleDetailBizId(String sendVehicleDetailBizId) {
         this.sendVehicleDetailBizId = sendVehicleDetailBizId;
+    }
+
+    public String getTaskName() {
+        return taskName;
+    }
+
+    public void setTaskName(String taskName) {
+        this.taskName = taskName;
     }
 }
