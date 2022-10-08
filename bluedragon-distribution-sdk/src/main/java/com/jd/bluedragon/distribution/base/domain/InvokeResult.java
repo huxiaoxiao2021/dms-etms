@@ -124,6 +124,21 @@ public class InvokeResult<T> implements Serializable {
     public static final int NO_SCAN_AFTER_BIND_TASK_CODE= 331;
     public static final String NO_SCAN_AFTER_BIND_TASK_MESSAGE ="该自建任务已绑定任务，无法继续扫描，请选择绑定的任务进入操作！";
 
+    public static final int FORBID_BIND_FOR_SEALED_DETAIL_CODE= 332;
+    public static final String FORBID_BIND_FOR_SEALED_DETAIL_MESSAGE ="该自建任务发货批次已封车，不允许绑定！";
+
+    public static final int FORBID_BIND_TO_SEALED_DETAIL_CODE= 333;
+    public static final String FORBID_BIND_TO_SEALED_DETAIL_MESSAGE ="该运输任务发货批次已封车，不允许绑定！";
+
+    public static final int FORBID_TRANS_FRROM_SEALED_DETAIL_CODE= 334;
+    public static final String FORBID_TRANS_FRROM_SEALED_DETAIL_MESSAGE ="迁出任务已封车，不允许迁移！";
+
+    public static final int FORBID_TRANS_TO_SEALED_DETAIL_CODE= 335;
+    public static final String FORBID_TRANS_TO_SEALED_DETAIL_MESSAGE ="迁入任务已封车，不允许迁移！";
+
+    public static final int FORBID_SENDCODE_OF_OTHER_DETAIL_CODE= 337;
+    public static final String FORBID_SENDCODE_OF_OTHER_DETAIL_MESSAGE ="此批次号不属于当前任务流向，禁止录入！";
+
     public static final int FORBID_TRANS_FOR_EMPTY_BATCH_CODE= 336;
     public static final String FORBID_TRANS_FOR_EMPTY_BATCH_MESSAGE ="空批次禁止迁出！";
 

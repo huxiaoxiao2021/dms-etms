@@ -7,6 +7,7 @@ import com.jd.bluedragon.common.dto.send.request.TransferVehicleTaskReq;
 import com.jd.bluedragon.common.dto.send.request.VehicleTaskReq;
 import com.jd.bluedragon.common.dto.send.response.VehicleTaskResp;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 
 import java.util.List;
 
@@ -114,4 +115,27 @@ public interface IJySendVehicleService {
     InvokeResult<ToSealDestAgg> selectSealDest(SelectSealDestRequest request);
 
     InvokeResult checkMainLineSendTask(CheckSendCodeRequest request);
+
+    /**
+     * 校验任务明细是否已经封车：按照明细的原始批次进行判断
+     * @param detail
+     * @return
+     */
+    boolean checkIfSealed(JyBizTaskSendVehicleDetailEntity detail);
+
+    /**
+     * 校验任务明细是否已经封车：按照明细的原始批次进行判断
+     * @param detail
+     * @return
+     */
+    boolean checkIfSealedByAllSendCode(JyBizTaskSendVehicleDetailEntity detail);
+
+    /**
+     * 查询发货任务详情
+     * @param request 请求参数
+     * @return 返回结果
+     * @author fanggang7
+     * @time 2022-09-22 16:47:38 周四
+     */
+    InvokeResult<SendTaskInfo> sendTaskDetail(SendVehicleInfoRequest request);
 }

@@ -2,11 +2,12 @@ package com.jd.bluedragon.distribution.jy.task;
 
 
 import java.io.Serializable;
+import java.util.Comparator;
 import java.util.Date;
 
 /**
  * 发车任务明细表
- * 
+ *
  * @author liuduo8
  * @email liuduo3@jd.com
  * @date 2022-05-16 17:50:07
@@ -319,5 +320,12 @@ public class JyBizTaskSendVehicleDetailEntity implements Serializable {
 
 	public void setCreateTimeBegin(Date createTimeBegin) {
 		this.createTimeBegin = createTimeBegin;
+	}
+
+	public static class DetailComparatorByTime implements Comparator<JyBizTaskSendVehicleDetailEntity> {
+		@Override
+		public int compare(JyBizTaskSendVehicleDetailEntity o1, JyBizTaskSendVehicleDetailEntity o2) {
+			return o2.getPlanDepartTime().compareTo(o1.getPlanDepartTime());
+		}
 	}
 }

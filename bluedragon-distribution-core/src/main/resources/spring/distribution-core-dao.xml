@@ -787,6 +787,15 @@
     <bean id="jyTaskGroupMemberDao" class="com.jd.bluedragon.distribution.jy.dao.group.JyTaskGroupMemberDao">
         <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
     </bean>
+    <bean id="jyAppDataSealDao" class="com.jd.bluedragon.distribution.jy.dao.seal.JyAppDataSealDao">
+        <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
+    </bean> 
+    <bean id="jyAppDataSealCodeDao" class="com.jd.bluedragon.distribution.jy.dao.seal.JyAppDataSealCodeDao">
+        <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
+    </bean> 
+    <bean id="jyAppDataSealSendCodeDao" class="com.jd.bluedragon.distribution.jy.dao.seal.JyAppDataSealSendCodeDao">
+        <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
+    </bean>            
     <bean id="jyBizTaskUnloadVehicleDao" class="com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskUnloadVehicleDao">
         <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
     </bean>
