@@ -26,6 +26,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
+
 /**
  * <P>
  *     返调度预分拣站点为3PL时 判断商家是否支持
@@ -157,6 +159,22 @@ public class ScheduleSiteSupportInterceptHandler implements InterceptHandler<Way
             if(!jdCResponse.getCode().equals(JdCResponse.CODE_SUCCESS)){
                 result.toError(InvokeResult.RESULT_INTERCEPT_CODE,jdCResponse.getMessage());
                 return result;
+            }
+
+            //自营逆向单（waybill_sign第一位=T），且为全球购订单（sendPay第8位 = 6），禁止反调度到普通库房「类型为wms」
+            if(BusinessUtil.isReverseGlobalWaybill(waybill.getWaybillSign(), waybill.getSendPay())){
+                if(BusinessUtil.isWmsSite(scheduleSiteOrgDto.getSiteType())){
+                    result.toError(InvokeResult.RESULT_INTERCEPT_CODE, JdResponse.MESSAGE_SELF_REVERSE_SCHEDULE_ERROR);
+                    return result;
+                }
+            }
+
+            //针对运费到付「waybillSign第25位=2」的运单，禁止反调度到三方网点「siteType = 16」
+            if(BusinessUtil.isDF(waybill.getWaybillSign())){
+                if(Objects.equals(Constants.THIRD_SITE_TYPE, scheduleSiteOrgDto.getSiteType())){
+                    result.toError(InvokeResult.RESULT_INTERCEPT_CODE, JdResponse.MESSAGE_FORBIDDEN_SCHEDULE_TO_PARTNER_SITE);
+                    return result;
+                }
             }
 
         } catch (Exception e) {
