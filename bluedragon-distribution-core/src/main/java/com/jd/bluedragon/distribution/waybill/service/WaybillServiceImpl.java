@@ -41,15 +41,12 @@ import com.jd.bluedragon.distribution.ver.domain.Site;
 import com.jd.bluedragon.distribution.waybill.dao.CancelWaybillDao;
 import com.jd.bluedragon.distribution.waybill.domain.*;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
-import com.jd.bluedragon.dms.utils.SendPayConstants;
-import com.jd.bluedragon.dms.utils.WaybillSignConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.service.LossServiceManager;
 import com.jd.bluedragon.utils.*;
 import com.jd.dms.ver.domain.JsfResponse;
 import com.jd.dms.ver.domain.WaybillCancelJsfResponse;
 import com.jd.etms.cache.util.EnumBusiCode;
-import com.jd.etms.cache.util.WaybillConstants;
 import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.domain.*;
 import com.jd.etms.waybill.dto.BigWaybillDto;
@@ -1255,7 +1252,7 @@ public class WaybillServiceImpl implements WaybillService {
                 return result;
             }
 
-            //自营逆向单（waybill_sign第一位=T），且为全球购订单（sendpay第8位 = 6），禁止反调度到普通库房「类型为wms」
+            //自营逆向单（waybill_sign第一位=T），且为全球购订单（sendPay第8位 = 6），禁止反调度到普通库房「类型为wms」
             if(BusinessUtil.isReverseGlobalWaybill(waybill.getWaybillSign(), waybill.getSendPay())){
                 if(BusinessUtil.isWmsSite(siteOfSchedulingOnSite.getSiteType())){
                     result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, JdResponse.MESSAGE_SELF_REVERSE_SCHEDULE_ERROR);
@@ -1265,8 +1262,8 @@ public class WaybillServiceImpl implements WaybillService {
 
             //针对运费到付「waybillsign第25位=2」的运单，禁止反调度到三方网点「同cod限制逻辑，sitetype = 16」
             if(BusinessUtil.isDF(waybill.getWaybillSign())){
-                if(BusinessUtil.isThreePartner(siteOfSchedulingOnSite.getSiteType(), siteOfSchedulingOnSite.getSubType())){
-                    result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, "到付、COD类型订单，禁止转三方邮政网点，请拦截后换单原路返回。");
+                if(Objects.equals(Constants.THIRD_SITE_TYPE, siteOfSchedulingOnSite.getSiteType())){
+                    result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, JdResponse.MESSAGE_FORBIDDEN_SCHEDULE_TO_PARTNER_SITE);
                     return result;
                 }
             }
