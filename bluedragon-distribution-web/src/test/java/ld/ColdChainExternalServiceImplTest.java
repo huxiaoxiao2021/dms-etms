@@ -172,8 +172,8 @@ public class ColdChainExternalServiceImplTest {
     public void inspectionOfColdNewTest() {
         ColdInspectionVo request = new ColdInspectionVo();
         request.setBarCode("JDVC00005517150");
-        request.setOperateTime("2021-05-10 06:06:06");
-        request.setSiteCode(509);
+        request.setOperateTime("2022-10-08 06:06:06");
+        request.setSiteCode(14514);
         request.setSiteName("转运");
         request.setUserCode(17907);
         request.setUserName("冷链测试人");
@@ -184,12 +184,12 @@ public class ColdChainExternalServiceImplTest {
     @Test
     public void sendOfColdBusinessNewTest() {
         ColdSendVo request = new ColdSendVo();
-        request.setBoxCode("JDVC00005517150");
-        request.setForceSend( true);
-        request.setOperateTime("2021-05-10 06:06:06");
-        request.setReceiveSiteCode(40240);
-        request.setSendCode("509-40240-20220930149503940");
-        request.setSiteCode(509);
+        request.setBoxCode("JDVC00000340396");
+        request.setForceSend( false);
+        request.setOperateTime("2022-10-09 12:06:06");
+        request.setReceiveSiteCode(39);
+        request.setSendCode("14514-39-20220829148493930");
+        request.setSiteCode(14514);
         request.setSiteName("转运");
         request.setTransPlanCode("TP19041300104683");
         request.setUserCode(17907);
@@ -202,14 +202,14 @@ public class ColdChainExternalServiceImplTest {
     @Test
     public void sendOfColdKYNewTest() {
         ColdSendVo request = new ColdSendVo();
-        request.setBoxCode("JDV000690915751");
+        request.setBoxCode("JDVC00004937970-1-22-");
         request.setForceSend( false);
-        request.setOperateTime("2021-05-10 06:06:06");
-        request.setReceiveSiteCode(40240);
-        request.setSendCode("509-40240-20220930149503940");
-        request.setSiteCode(509);
+        request.setOperateTime("2022-10-09 12:06:06");
+        request.setReceiveSiteCode(39);
+        request.setSendCode("14514-39-20220829148493930");
+        request.setSiteCode(14514);
         request.setSiteName("转运");
-        request.setTransPlanCode("11111111111111");
+        request.setTransPlanCode("TP19041300104683");
         request.setUserCode(17907);
         request.setUserName("冷链测试人");
 

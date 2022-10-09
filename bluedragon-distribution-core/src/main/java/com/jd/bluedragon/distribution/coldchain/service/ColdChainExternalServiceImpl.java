@@ -875,18 +875,15 @@ public class ColdChainExternalServiceImpl implements IColdChainService {
             if (Constants.CONSTANT_NUMBER_ONE == barCodeType) {
                 // 按运单发货
                 domain.setBoxCode(request.getBoxCode());
-                result.setData(deliveryService.packageSendByWaybill(domain, request.getIsForceSend(), request.getIsCancelLastSend()));
+                result.setData(deliveryService.packageSendByWaybill(domain, request.getIsForceSend(), false));
             } else {
                 //按包裹发货
                 SendBizSourceEnum bizSource = SendBizSourceEnum.getEnum(request.getBizSource());
                 // 一车一单发货
                 domain.setBoxCode(request.getBoxCode());
+                //不需要取消上次发货
+                result.setData(deliveryService.packageSend(bizSource, domain, request.getIsForceSend()));
 
-                if (request.getIsCancelLastSend() == null) {
-                    result.setData(deliveryService.packageSend(bizSource, domain, request.getIsForceSend()));
-                } else {
-                    result.setData(deliveryService.packageSend(bizSource, domain, request.getIsForceSend(), request.getIsCancelLastSend()));
-                }
             }
         } catch (Exception ex) {
             Profiler.functionError(info);
