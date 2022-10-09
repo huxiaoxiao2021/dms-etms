@@ -3,8 +3,10 @@ package com.jd.bluedragon.distribution.jy.service.send;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.*;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.*;
+import com.jd.bluedragon.common.dto.send.request.SendBatchReq;
 import com.jd.bluedragon.common.dto.send.request.TransferVehicleTaskReq;
 import com.jd.bluedragon.common.dto.send.request.VehicleTaskReq;
+import com.jd.bluedragon.common.dto.send.response.SendBatchResp;
 import com.jd.bluedragon.common.dto.send.response.VehicleTaskResp;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
@@ -138,4 +140,11 @@ public interface IJySendVehicleService {
      * @time 2022-09-22 16:47:38 周四
      */
     InvokeResult<SendTaskInfo> sendTaskDetail(SendVehicleInfoRequest request);
+
+    /**
+     * 查询子任务下的批次信息
+     * @param request
+     * @return
+     */
+    InvokeResult<SendBatchResp> listSendBatchByTaskDetail(SendBatchReq request);
 }

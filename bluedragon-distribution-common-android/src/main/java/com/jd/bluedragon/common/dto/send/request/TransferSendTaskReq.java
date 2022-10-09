@@ -30,7 +30,14 @@ public class TransferSendTaskReq extends BaseReq implements Serializable {
      */
     private Boolean sameWayFlag;
 
-    List<String> sendCodeList;
+    /**
+     * 是否全部批次迁移 true 是 false 否
+     */
+    private boolean totalTransFlag;
+    /**
+     * 部分迁移批次列表
+     */
+    private List<String> sendCodeList;
 
     public String getFromSendVehicleBizId() {
         return fromSendVehicleBizId;
@@ -70,6 +77,14 @@ public class TransferSendTaskReq extends BaseReq implements Serializable {
 
     public void setSameWayFlag(Boolean sameWayFlag) {
         this.sameWayFlag = sameWayFlag;
+    }
+
+    public boolean isTotalTransFlag() {
+        return totalTransFlag;
+    }
+
+    public void setTotalTransFlag(boolean totalTransFlag) {
+        this.totalTransFlag = totalTransFlag;
     }
 
     public List<String> getSendCodeList() {

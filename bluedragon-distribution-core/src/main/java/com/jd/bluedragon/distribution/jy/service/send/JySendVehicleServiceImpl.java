@@ -11,8 +11,10 @@ import com.jd.bluedragon.common.dto.operation.workbench.send.request.*;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.*;
 import com.jd.bluedragon.common.dto.operation.workbench.unload.response.LabelOption;
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.VehicleStatusStatis;
+import com.jd.bluedragon.common.dto.send.request.SendBatchReq;
 import com.jd.bluedragon.common.dto.send.request.TransferVehicleTaskReq;
 import com.jd.bluedragon.common.dto.send.request.VehicleTaskReq;
+import com.jd.bluedragon.common.dto.send.response.SendBatchResp;
 import com.jd.bluedragon.common.dto.send.response.VehicleDetailTaskDto;
 import com.jd.bluedragon.common.dto.send.response.VehicleTaskDto;
 import com.jd.bluedragon.common.dto.send.response.VehicleTaskResp;
@@ -2749,6 +2751,11 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
         }
 
         return invokeResult;
+    }
+
+    @Override
+    public InvokeResult<SendBatchResp> listSendBatchByTaskDetail(SendBatchReq request) {
+        return null;
     }
 
     private void fillSendTaskInfo(SendTaskInfo sendTaskInfo, JyBizTaskSendVehicleEntity sendVehicleEntity) {
