@@ -17,11 +17,12 @@
         <result property="updateTime" column="update_time"/>
         <result property="yn" column="yn"/>
         <result property="ts" column="ts"/>
+        <result property="source" column="source"/>
     </resultMap>
 
     <sql id="Base_Column_List">
         id
-        ,        send_vehicle_biz_id,        send_detail_biz_id,        send_code,        create_user_erp,        create_user_name,        update_user_erp,        update_user_name,        create_time,        update_time,        yn,        ts    </sql>
+        ,        send_vehicle_biz_id,        send_detail_biz_id,        send_code,        create_user_erp,        create_user_name,        update_user_erp,        update_user_name,        create_time,        update_time,        yn,        ts,source    </sql>
 
     <insert id="insert" parameterType="JySendCodeEntity">
         INSERT INTO jy_send_code (
@@ -50,7 +51,10 @@
             create_time,
         </if>
         <if test="updateTime != null">
-            update_time
+            update_time,
+        </if>
+        <if test="source != null">
+            source
         </if>
         ) VALUES (
         <if test="sendVehicleBizId != null">
@@ -78,7 +82,10 @@
             #{createTime},
         </if>
         <if test="updateTime != null">
-            #{updateTime}
+            #{updateTime},
+        </if>
+        <if test="source != null">
+            #{source}
         </if>
         )
     </insert>
@@ -93,6 +100,9 @@
         where send_code = #{sendCode}
           and send_vehicle_biz_id = #{fromSendVehicleBizId}
           and send_detail_biz_id = #{fromSendVehicleDetailBizId}
+        <if test="source!=null">
+            and source =#{source}
+        </if>
     </update>
 
     <update id="deleteVehicleSendRelation" parameterType="com.jd.bluedragon.distribution.jy.dto.send.TransferDto">
@@ -148,6 +158,12 @@
         from jy_send_code
         where send_vehicle_biz_id = #{vehicleBizId}
           and yn = 1
+    </select>
+    <select id="queryByVehicleDetailBizId" parameterType="java.lang.String" resultMap="jySendCodeMap">
+        select <include refid="Base_Column_List"/>
+        from jy_send_code
+        where send_detail_biz_id = #{vehicleDetailBizId}
+        and yn = 1
     </select>
 
     <select id="findEarliestSendCode" parameterType="java.lang.String" resultType="java.lang.String">

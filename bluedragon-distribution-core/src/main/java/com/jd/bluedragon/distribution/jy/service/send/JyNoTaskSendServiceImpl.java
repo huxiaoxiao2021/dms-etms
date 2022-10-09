@@ -16,6 +16,7 @@ import com.jd.bluedragon.distribution.jy.dto.send.VehicleSendRelationDto;
 import com.jd.bluedragon.distribution.jy.enums.CancelSendTypeEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.SendTaskExcepLabelEnum;
+import com.jd.bluedragon.distribution.jy.enums.TransferLogTypeEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.manager.JyTransportManager;
 import com.jd.bluedragon.distribution.jy.send.JySendCodeEntity;
@@ -39,7 +40,6 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.enums.SendStatusEnum;
 import com.jd.bluedragon.utils.*;
 import com.jd.coo.sa.sequence.JimdbSequenceGen;
-import com.jd.eclp.exception.api.constant.ExceptionHandlerEnum;
 import com.jd.jim.cli.Cluster;
 import com.jd.ql.basic.dto.BaseSiteInfoDto;
 import com.jd.tms.basic.dto.BasicVehicleTypeDto;
@@ -324,6 +324,7 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
             dto.setCreateSiteId(Long.valueOf(bindVehicleDetailTaskReq.getCurrentOperate().getSiteCode()));
             dto.setSameWayFlag(true);
             dto.setBindFlag(true);
+            dto.setSource(TransferLogTypeEnum.SAME_WAY_BIND.getCode());
             jyVehicleSendRelationService.updateVehicleSendRelation(dto);
             jySendTransferLogService.saveTransferLog(dto);
             jySendService.updateTransferProperBySendCode(dto);
@@ -379,7 +380,7 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
         if (jySendVehicleService.checkIfSealed(toSvd)) {
             return new InvokeResult(FORBID_TRANS_TO_SEALED_DETAIL_CODE, FORBID_TRANS_TO_SEALED_DETAIL_MESSAGE);
         }
-        List<String> sendCodeList = transferSendTaskReq.getSendCodeList() != null ?
+        List<String> sendCodeList = (!transferSendTaskReq.getTotalTransFlag() && transferSendTaskReq.getSendCodeList() != null) ?
                 transferSendTaskReq.getSendCodeList() : jyVehicleSendRelationService.querySendCodesByVehicleDetailBizId(transferSendTaskReq.getFromSendVehicleDetailBizId());
         if (ObjectHelper.isNotNull(sendCodeList) && sendCodeList.size() > 0) {
             sendCodeList = filterEmptySendCode(transferSendTaskReq.getCurrentOperate().getSiteCode(), sendCodeList);
@@ -398,6 +399,7 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
 
             if (transferSendTaskReq.getSameWayFlag()) {
                 //同流向--直接变更绑定关系
+                dto.setSource(TransferLogTypeEnum.SAME_WAY_TRANSFER.getCode());
                 jyVehicleSendRelationService.updateVehicleSendRelation(dto);
                 jySendTransferLogService.saveTransferLog(dto);
                 jySendService.updateTransferProperBySendCode(dto);
@@ -467,6 +469,7 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
         jySendCodeEntity.setSendCode(sendCode);
         jySendCodeEntity.setSendVehicleBizId(transferSendTaskReq.getToSendVehicleBizId());
         jySendCodeEntity.setSendDetailBizId(transferSendTaskReq.getToSendVehicleDetailBizId());
+        jySendCodeEntity.setSource(TransferLogTypeEnum.NOT_SAME_WAY_TRANSFER_NEW_BATCH.getCode());
         Date now = new Date();
         jySendCodeEntity.setCreateTime(now);
         jySendCodeEntity.setUpdateTime(now);

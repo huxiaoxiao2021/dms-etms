@@ -28,7 +28,7 @@ public class TransferSendTaskReq extends BaseReq implements Serializable {
     /**
      * 迁移前后是否同流向
      */
-    private Boolean sameWayFlag;
+    private boolean sameWayFlag;
 
     /**
      * 是否全部批次迁移 true 是 false 否
@@ -79,7 +79,7 @@ public class TransferSendTaskReq extends BaseReq implements Serializable {
         this.sameWayFlag = sameWayFlag;
     }
 
-    public boolean isTotalTransFlag() {
+    public boolean getTotalTransFlag() {
         return totalTransFlag;
     }
 

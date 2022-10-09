@@ -14,10 +14,7 @@ import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.VehicleS
 import com.jd.bluedragon.common.dto.send.request.SendBatchReq;
 import com.jd.bluedragon.common.dto.send.request.TransferVehicleTaskReq;
 import com.jd.bluedragon.common.dto.send.request.VehicleTaskReq;
-import com.jd.bluedragon.common.dto.send.response.SendBatchResp;
-import com.jd.bluedragon.common.dto.send.response.VehicleDetailTaskDto;
-import com.jd.bluedragon.common.dto.send.response.VehicleTaskDto;
-import com.jd.bluedragon.common.dto.send.response.VehicleTaskResp;
+import com.jd.bluedragon.common.dto.send.response.*;
 import com.jd.bluedragon.common.dto.sysConfig.request.MenuUsageConfigRequestDto;
 import com.jd.bluedragon.common.dto.sysConfig.response.MenuUsageProcessDto;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
@@ -2755,7 +2752,27 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
 
     @Override
     public InvokeResult<SendBatchResp> listSendBatchByTaskDetail(SendBatchReq request) {
-        return null;
+        List<JySendCodeEntity> sendCodeEntityList =jySendCodeService.queryByVehicleDetailBizId(request.getSendVehicleDetailBizId());
+        SendBatchResp sendBatchResp =new SendBatchResp();
+        if (ObjectHelper.isNotNull(sendCodeEntityList)){
+            List<SendCodeDto> sendCodeDtos = assembleSendCodeDto(sendCodeEntityList);
+            sendBatchResp.setSendCodeList(sendCodeDtos);
+        }
+        return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, sendBatchResp);
+    }
+
+    private List<SendCodeDto> assembleSendCodeDto(List<JySendCodeEntity> sendCodeEntityList) {
+        List<SendCodeDto> sendCodeDtos =new ArrayList<>();
+        for (JySendCodeEntity jySendCodeEntity:sendCodeEntityList){
+            SendCodeDto sendCodeDto =new SendCodeDto();
+            sendCodeDto.setSendCode(jySendCodeEntity.getSendCode());
+            sendCodeDto.setSource(jySendCodeEntity.getSource());
+            sendCodeDto.setCreateTime(jySendCodeEntity.getUpdateTime());
+            sendCodeDto.setCreateUserErp(jySendCodeEntity.getUpdateUserErp());
+            sendCodeDto.setCreateUserName(jySendCodeEntity.getUpdateUserName());
+            sendCodeDtos.add(sendCodeDto);
+        }
+        return sendCodeDtos;
     }
 
     private void fillSendTaskInfo(SendTaskInfo sendTaskInfo, JyBizTaskSendVehicleEntity sendVehicleEntity) {
