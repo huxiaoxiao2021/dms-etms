@@ -1768,6 +1768,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
         sendCodeEntity.setCreateUserName(request.getUser().getUserName());
         sendCodeEntity.setUpdateUserErp(sendCodeEntity.getCreateUserErp());
         sendCodeEntity.setUpdateUserName(sendCodeEntity.getCreateUserName());
+        sendCodeEntity.setSource(0);
         Date now = new Date();
         sendCodeEntity.setCreateTime(now);
         sendCodeEntity.setUpdateTime(now);

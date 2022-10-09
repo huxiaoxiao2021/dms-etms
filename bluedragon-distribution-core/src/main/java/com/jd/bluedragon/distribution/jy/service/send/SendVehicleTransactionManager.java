@@ -135,6 +135,7 @@ public class SendVehicleTransactionManager {
         sendCodeEntity.setCreateUserName(sendDetailDomain.getCreateUserName());
         sendCodeEntity.setUpdateUserErp(sendCodeEntity.getCreateUserErp());
         sendCodeEntity.setUpdateUserName(sendCodeEntity.getCreateUserName());
+        sendCodeEntity.setSource(0);
         Date now = new Date();
         sendCodeEntity.setCreateTime(now);
         sendCodeEntity.setUpdateTime(now);
