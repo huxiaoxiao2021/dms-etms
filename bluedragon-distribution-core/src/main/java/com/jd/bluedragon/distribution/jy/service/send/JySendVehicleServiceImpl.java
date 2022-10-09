@@ -2315,6 +2315,8 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
             progress.setScannedBoxCount(sendAgg.getTotalScannedBoxCodeCount().longValue());
             progress.setInterceptedPackCount(sendAgg.getTotalInterceptCount().longValue());
             progress.setForceSendPackCount(sendAgg.getTotalForceSendCount().longValue());
+            progress.setScannedWaybillCount(sendAgg.getTotalScannedWaybillCount().longValue());
+            progress.setIncompleteWaybillCount(sendAgg.getTotalIncompleteWaybillCount().longValue());
         }
 
         progress.setDestTotal(this.getDestTotal(taskSend.getBizId()));
