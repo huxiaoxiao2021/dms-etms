@@ -11,13 +11,12 @@ import com.jd.bluedragon.utils.StringHelper;
 import com.jd.security.log.util.LogAcesUtil;
 import com.jd.securitylog.entity.*;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.MapUtils;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * @ProjectName：bluedragon-distribution
@@ -43,8 +42,13 @@ public class SecurityLogRecord {
             LogAcesUtil.encryptSecEntity(reqInfo);
             securityLog.setReqInfo(reqInfo);
 
-            RespInfo respInfo = createRespInfo(securityLogEntity.getRespKeyMapping(), securityLogEntity.getBusinessResponse(), securityLogEntity.getOp(), securityLogEntity.getResultNum());
-            securityLog.setRespInfo(respInfo);
+            if (CollectionUtils.isNotEmpty(securityLogEntity.getBusinessResponses())) {
+                RespInfo respInfo = createRespInfo(securityLogEntity.getRespKeyMapping(), securityLogEntity.getBusinessResponses(), securityLogEntity.getOp(), securityLogEntity.getResultNum());
+                securityLog.setRespInfo(respInfo);
+            } else {
+                RespInfo respInfo = createRespInfo(securityLogEntity.getRespKeyMapping(), Collections.singletonList(securityLogEntity.getBusinessResponse()), securityLogEntity.getOp(), securityLogEntity.getResultNum());
+                securityLog.setRespInfo(respInfo);
+            }
 
             SecurityLogUtil.log(securityLog);
         } catch (RuntimeException | UnknownHostException e) {
@@ -88,29 +92,30 @@ public class SecurityLogRecord {
 
     }
 
-    private static RespInfo createRespInfo(Map<SecurityLogUniqueIdentifierKeyEnums,String> keyMapping, Object businessResponse, SecurityLogOpEnums op, Integer resultNum) {
+    private static RespInfo createRespInfo(Map<SecurityLogUniqueIdentifierKeyEnums,String> keyMapping, List<?> businessResponses, SecurityLogOpEnums op, Integer resultNum) {
 
         RespInfo respInfo = new RespInfo();
         respInfo.setStatus(SecurityLogRespInfoStatusEnums.SUCCESS.getCode());
         respInfo.setRecordCnt(resultNum);
         respInfo.setUniqueIdentifier(new ArrayList<UniqueIdentifier>());
 
-        if (MapUtils.isEmpty(keyMapping) || businessResponse == null) {
+        if (MapUtils.isEmpty(keyMapping) || CollectionUtils.isEmpty(businessResponses)) {
             respInfo.setStatus(SecurityLogRespInfoStatusEnums.SUCCESS_NO_DATE.getCode());
             respInfo.setStatus(resultNum);
             return new RespInfo();
         }
 
-        JSONObject businessResponseJson = JSONObject.parseObject(businessResponse instanceof String? (String) businessResponse : JSONObject.toJSONString(businessResponse));
+        for (Object businessResponse : businessResponses) {
+            JSONObject businessResponseJson = JSONObject.parseObject(businessResponse instanceof String? (String) businessResponse : JSONObject.toJSONString(businessResponse));
 
-        JSONObject respInfoJson = new JSONObject();
-        for (Map.Entry<SecurityLogUniqueIdentifierKeyEnums, String> keyEnumsStringEntry : keyMapping.entrySet()) {
-            respInfoJson.put(keyEnumsStringEntry.getKey().name(), JsonHelper.getObject(businessResponseJson, keyEnumsStringEntry.getValue()));
+            JSONObject respInfoJson = new JSONObject();
+            for (Map.Entry<SecurityLogUniqueIdentifierKeyEnums, String> keyEnumsStringEntry : keyMapping.entrySet()) {
+                respInfoJson.put(keyEnumsStringEntry.getKey().name(), JsonHelper.getObject(businessResponseJson, keyEnumsStringEntry.getValue()));
+            }
+            UniqueIdentifier uniqueIdentifier = respInfoJson.toJavaObject(UniqueIdentifier.class);
+            LogAcesUtil.encryptSecEntity(uniqueIdentifier);
+            respInfo.getUniqueIdentifier().add(uniqueIdentifier);
         }
-        UniqueIdentifier uniqueIdentifier = respInfoJson.toJavaObject(UniqueIdentifier.class);
-        LogAcesUtil.encryptSecEntity(uniqueIdentifier);
-        respInfo.getUniqueIdentifier().add(uniqueIdentifier);
-
         return respInfo;
     }
 
