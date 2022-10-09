@@ -37,7 +37,7 @@ public interface JyWarehouseInspectionGatewayService {
     JdCResponse<InspectionTaskDetail> inspectionTaskDetail(InspectionCommonRequest request);
 
     /**
-     * 卸车扫描
+     * 验货扫描
      * @param request 请求参数
      * @return 返回结果
      * @author fanggang7
@@ -55,7 +55,7 @@ public interface JyWarehouseInspectionGatewayService {
     JdCResponse<InterceptScanBarCode> interceptBarCodeDetail(InspectionCommonRequest request);
 
     /**
-     * 卸车完成前预览是否有异常数据
+     * 验货完成前预览是否有异常数据
      * @param request 请求参数
      * @return 返回结果
      * @author fanggang7
@@ -64,7 +64,7 @@ public interface JyWarehouseInspectionGatewayService {
     JdCResponse<InspectionFinishPreviewData> inspectionFinishPreview(InspectionCommonRequest request);
 
     /**
-     * 卸车完成
+     * 验货完成
      * @param request 请求参数
      * @return 返回结果
      * @author fanggang7
