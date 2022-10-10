@@ -1,0 +1,286 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.dms.wb.mapper.single.oa.IOaOpeDetailMapper">
+    <!-- table映射实体对象 -->
+    <resultMap id="RM_OaOpeDetail" type="com.jd.dms.wb.sdk.model.oa.OaOpeDetail">
+        <result property="id" column="id"/>
+        <result property="oaType" column="oa_type"/>
+        <result property="reqId" column="req_id"/>
+        <result property="oaTaskId" column="oa_task_id"/>
+        <result property="submitUserErp" column="submit_user_erp"/>
+        <result property="submitTime" column="submit_time"/>
+        <result property="submitResult" column="submit_result"/>
+        <result property="comments" column="comments"/>
+        <result property="ts" column="ts"/>
+    </resultMap>
+
+    <!-- 用于select查询公用抽取的列 -->
+    <sql id="Base_Column_List">
+        `id`, `oa_type`, `req_id`, `oa_task_id`, `submit_user_erp`, `submit_time`, `submit_result`, `comments`, `ts`
+    </sql>
+
+    <!-- 增加 -->
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="com.jd.dms.wb.sdk.model.oa.OaOpeDetail">
+        insert into `oa_ope_detail`
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+
+            <if test="oaType != null">
+                oa_type,
+            </if>
+            <if test="reqId != null and reqId != ''">
+                req_id,
+            </if>
+            <if test="oaTaskId != null and oaTaskId != ''">
+                oa_task_id,
+            </if>
+            <if test="submitUserErp != null and submitUserErp != ''">
+                submit_user_erp,
+            </if>
+            <if test="submitTime != null">
+                submit_time,
+            </if>
+            <if test="submitResult != null">
+                submit_result,
+            </if>
+            <if test="comments != null and comments != ''">
+                comments,
+            </if>
+            <if test="ts != null">
+                ts,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+
+            <if test="oaType != null">
+                #{oaType},
+            </if>
+            <if test="reqId != null and reqId != ''">
+                #{reqId},
+            </if>
+            <if test="oaTaskId != null and oaTaskId != ''">
+                #{oaTaskId},
+            </if>
+            <if test="submitUserErp != null and submitUserErp != ''">
+                #{submitUserErp},
+            </if>
+            <if test="submitTime != null">
+                #{submitTime},
+            </if>
+            <if test="submitResult != null">
+                #{submitResult},
+            </if>
+            <if test="comments != null and comments != ''">
+                #{comments},
+            </if>
+            <if test="ts != null">
+                #{ts},
+            </if>
+        </trim>
+    </insert>
+    <!-- 批量增加 -->
+    <insert id="batchInsert" useGeneratedKeys="true" keyProperty="id" parameterType="java.util.List">
+        insert into `oa_ope_detail`
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+
+            oa_type,
+            req_id,
+            oa_task_id,
+            submit_user_erp,
+            submit_time,
+            submit_result,
+            comments,
+            ts,
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix=" (" suffix=")" suffixOverrides=",">
+
+                    #{item.oaType},
+                    #{item.reqId},
+                    #{item.oaTaskId},
+                    #{item.submitUserErp},
+                    #{item.submitTime},
+                    #{item.submitResult},
+                    #{item.comments},
+                    #{item.ts},
+            </trim>
+        </foreach>
+    </insert>
+    <!-- 更新 -->
+    <update id="updateByPrimaryKey" parameterType="com.jd.dms.wb.sdk.model.oa.OaOpeDetail">
+        UPDATE `oa_ope_detail`
+        <set>
+            <if test="oaType != null ">
+            oa_type = #{oaType},
+            </if>
+            <if test="reqId != null and reqId != ''">
+            req_id = #{reqId},
+            </if>
+            <if test="oaTaskId != null and oaTaskId != ''">
+            oa_task_id = #{oaTaskId},
+            </if>
+            <if test="submitUserErp != null and submitUserErp != ''">
+            submit_user_erp = #{submitUserErp},
+            </if>
+            <if test="submitTime != null ">
+            submit_time = #{submitTime},
+            </if>
+            <if test="submitResult != null ">
+            submit_result = #{submitResult},
+            </if>
+            <if test="comments != null and comments != ''">
+            comments = #{comments},
+            </if>
+            <if test="ts != null ">
+            ts = #{ts}
+            </if>
+        </set>
+        WHERE
+            id = #{id}
+    </update>
+    <!-- 批量更新 -->
+    <update id="batchUpdate" parameterType="java.util.List">
+        <foreach collection="list" item="item" index="index"  separator=";">
+            UPDATE `oa_ope_detail`
+            <set>
+                <if test="item.oaType != null">
+                oa_type = #{item.oaType},
+                </if>
+                <if test="item.reqId != null and item.reqId != ''">
+                req_id = #{item.reqId},
+                </if>
+                <if test="item.oaTaskId != null and item.oaTaskId != ''">
+                oa_task_id = #{item.oaTaskId},
+                </if>
+                <if test="item.submitUserErp != null and item.submitUserErp != ''">
+                submit_user_erp = #{item.submitUserErp},
+                </if>
+                <if test="item.submitTime != null">
+                submit_time = #{item.submitTime},
+                </if>
+                <if test="item.submitResult != null">
+                submit_result = #{item.submitResult},
+                </if>
+                <if test="item.comments != null and item.comments != ''">
+                comments = #{item.comments},
+                </if>
+                <if test="item.ts != null">
+                ts = #{item.ts}
+                </if>
+            </set>
+            WHERE
+                id = #{item.id}
+        </foreach>
+    </update>
+    <!-- 按主键查询 -->
+    <select id="selectByPrimaryKey" resultMap="RM_OaOpeDetail" parameterType="com.jd.dms.wb.sdk.model.oa.OaOpeDetail">
+        SELECT
+        <include refid="Base_Column_List"/>
+        <![CDATA[
+            FROM `oa_ope_detail`
+            WHERE
+                id = #{id} 
+        ]]>
+    </select>
+    <!-- 按表中的XXX列查询集合 -->
+    <select id="selectByColumn" resultMap="RM_OaOpeDetail" parameterType="com.jd.dms.wb.sdk.model.oa.OaOpeDetail">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM `oa_ope_detail`
+        <where>
+            <include refid="whereByColumnValueMap"/>
+        </where>
+    </select>
+    <!-- 按条件查询单条记录 -->
+    <select id="selectOne" resultMap="RM_OaOpeDetail" parameterType="com.jd.dms.wb.sdk.model.oa.OaOpeDetail">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM `oa_ope_detail`
+        <include refid="where"/>
+    </select>
+    <!-- where条件 -->
+    <sql id="where">
+        <where>
+            <include refid="sql_if_not_null"/>
+            <include refid="whereByColumnValueMap"/>
+        </where>
+    </sql>
+    <!-- 判断空值 -->
+    <sql id="sql_if_not_null">
+        <if test="id != null">
+        AND id = #{id}
+        </if>
+        <if test="oaType != null">
+        AND oa_type = #{oaType}
+        </if>
+        <if test="reqId != null and reqId != ''">
+        AND req_id = #{reqId}
+        </if>
+        <if test="oaTaskId != null and oaTaskId != ''">
+        AND oa_task_id = #{oaTaskId}
+        </if>
+        <if test="submitUserErp != null and submitUserErp != ''">
+        AND submit_user_erp = #{submitUserErp}
+        </if>
+        <if test="submitTime != null">
+        AND submit_time = #{submitTime}
+        </if>
+        <if test="submitResult != null">
+        AND submit_result = #{submitResult}
+        </if>
+        <if test="comments != null and comments != ''">
+        AND comments = #{comments}
+        </if>
+        <if test="ts != null">
+        AND ts = #{ts}
+        </if>
+    </sql>
+    <!-- 按字段值参数查询条件 -->
+    <sql id="whereByColumnValueMap">
+        <if test="columnValueMap != null">
+            <foreach collection="columnValueMap.entrySet()" item="itemList" index="field">
+                AND #{field}
+                <if test="itemList.size() == 1 ">
+                    = <foreach collection="itemList" item="item" index="index" separator=",">#{item}</foreach>
+                </if>
+                <if test="itemList.size() > 1 ">
+                    in (
+                    <foreach collection="itemList" item="item" index="index" separator=",">
+                        #{item}
+                    </foreach>
+                    )
+                </if>
+            </foreach>
+        </if>
+    </sql>
+    <!-- 查询行数 -->
+    <select id="queryCount" resultType="long" parameterType="com.jd.dms.wb.sdk.model.oa.OaOpeDetail">
+        SELECT count(1) FROM `oa_ope_detail`
+        <include refid="where"/>
+    </select>
+    <!-- 查询集合 如果pageNumber小于或等于0,则不进行分页操作 -->
+    <select id="queryList" resultMap="RM_OaOpeDetail" parameterType="com.jd.dms.wb.sdk.model.oa.OaOpeDetail">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM `oa_ope_detail`
+        <include refid="where"/>
+        <if test="pageNumber > 0">
+            limit #{startRecord}, #{pageSize}
+        </if>
+    </select>
+    <!-- 伪删除（更新删除行的识别码） -->
+    <update id="deleteByPrimaryKey" parameterType="com.jd.dms.wb.sdk.model.oa.OaOpeDetail">
+        UPDATE `oa_ope_detail` SET yn = 1
+        WHERE
+        id = #{id} 
+    </update>
+    <!-- 批量伪删除 -->
+    <update id="batchDelete" parameterType="com.jd.dms.wb.sdk.model.oa.OaOpeDetail">
+        UPDATE `oa_ope_detail` SET yn = 1
+        WHERE id IN
+        <foreach collection="columnValueList" item="item" index="index" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </update>
+</mapper>
+

@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.dms.wb.mapper.single.base.IBaseTaskDiffMapper">
+    <resultMap id="BaseResultMap"
+               type="com.jd.dms.wb.sdk.model.config.entity.ConfigTaskDiff">
+        <id column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+        <result column="site_code" property="siteCode" jdbcType="VARCHAR"/>
+        <result column="task_type" property="taskType" jdbcType="VARCHAR"/>
+        <result column="query_site_code" property="querySiteCode" jdbcType="VARCHAR"/>
+        <result column="query_time" property="queryTime" jdbcType="VARCHAR"/>
+        <result column="create_user" property="createUser" jdbcType="VARCHAR"/>
+        <result column="create_user_name" property="createUserName" jdbcType="VARCHAR"/>
+        <result column="update_user" property="updateUser" jdbcType="VARCHAR"/>
+        <result column="update_user_name" property="updateUserName" jdbcType="VARCHAR"/>
+        <result column="yn" property="yn" jdbcType="TINYINT"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,site_code,task_type,query_site_code,query_time,
+        create_user,create_user_name,update_user,update_user_name,yn,ts
+    </sql>
+
+    <sql id="Base_Condition_Sql" >
+			and yn = 1
+	</sql>
+
+    <sql id="Query_Params_Condition_Sql">
+        <if test="siteCode != null and siteCode != ''">
+            and site_code = #{siteCode,jdbcType=VARCHAR}
+        </if>
+        <if test="taskType != null and parentCode != ''">
+            and task_type = #{taskType,jdbcType=VARCHAR}
+        </if>
+        <if test="querySiteCode != null and querySiteCode != ''">
+            and query_site_code = #{querySiteCode,jdbcType=VARCHAR}
+        </if>
+    </sql>
+
+    <insert id="insert" parameterType="com.jd.dms.wb.sdk.model.config.entity.ConfigTaskDiff">
+        insert into config_task_diff (
+        <trim suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="siteCode != null">
+                site_code,
+            </if>
+            <if test="taskType != null">
+                task_type,
+            </if>
+            <if test="querySiteCode != null">
+                query_site_code,
+            </if>
+            <if test="queryTime != null">
+                query_time,
+            </if>
+            <if test="createUser != null">
+                create_user,
+            </if>
+            <if test="createUserName != null">
+                create_user_name,
+            </if>
+            <if test="updateUser != null">
+                update_user,
+            </if>
+            <if test="updateUserName != null">
+                update_user_name,
+            </if>
+            yn,
+            ts
+        </trim>
+        )
+        values (
+        <trim suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="siteCode != null">
+                #{siteCode,jdbcType=VARCHAR},
+            </if>
+            <if test="taskType != null">
+                #{taskType,jdbcType=VARCHAR},
+            </if>
+            <if test="querySiteCode != null">
+                #{querySiteCode,jdbcType=VARCHAR},
+            </if>
+            <if test="queryTime != null">
+                #{queryTime,jdbcType=VARCHAR},
+            </if>
+            <if test="createUser != null">
+                #{createUser,jdbcType=VARCHAR},
+            </if>
+            <if test="createUserName != null">
+                #{createUserName,jdbcType=VARCHAR},
+            </if>
+            <if test="updateUser != null">
+                #{updateUser,jdbcType=VARCHAR},
+            </if>
+            <if test="updateUserName != null">
+                #{updateUserName,jdbcType=VARCHAR},
+            </if>
+            1,
+            NOW(),
+        </trim>
+        )
+    </insert>
+
+    <insert id="batchInsert" parameterType="List">
+        insert into config_task_diff
+        (
+            id,site_code,task_type,query_site_code,query_time,
+            create_user,create_user_name,update_user,update_user_name,yn,ts
+        )
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (
+            #{item.id,jdbcType=BIGINT},
+            #{item.siteCode,jdbcType=VARCHAR},
+            #{item.taskType,jdbcType=VARCHAR},
+            #{item.querySiteCode,jdbcType=VARCHAR},
+            #{item.queryTime,jdbcType=BIGINT},
+            #{item.createUser,jdbcType=BIGINT},
+            #{item.createUserName,jdbcType=VARCHAR},
+            #{item.updateUser,jdbcType=VARCHAR},
+            #{item.updateUserName,jdbcType=VARCHAR},
+            1,
+            now()
+            )
+        </foreach>
+    </insert>
+
+    <update id="update" parameterType="com.jd.dms.wb.sdk.model.config.entity.ConfigTaskDiff">
+        update config_task_diff
+        <set>
+            task_type = #{taskType,jdbcType=VARCHAR},
+            query_site_code = #{querySiteCode,jdbcType=VARCHAR},
+            update_user = #{updateUser,jdbcType=VARCHAR},
+            update_user_name = #{updateUserName,jdbcType=VARCHAR}
+        </set>
+        where site_code = #{siteCode,jdbcType=VARCHAR}
+        and yn = 1
+    </update>
+
+    <select id="selectBySiteCode" parameterType="string" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from config_task_diff
+        where site_code = #{siteCode,jdbcType=VARCHAR}
+        and yn = 1
+    </select>
+
+    <select id="selectByCondition" parameterType="com.jd.dms.wb.sdk.model.config.vo.ConfigTaskDiffVo"
+            resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from config_task_diff
+        where 1=1
+        <include refid="Query_Params_Condition_Sql"/>
+    </select>
+
+    <delete id="deleteBySiteCode" parameterType="string">
+        delete from config_task_diff
+        where site_code = #{siteCode,jdbcType=VARCHAR}
+        and task_type = #{taskType,jdbcType=VARCHAR}
+        and yn = 1
+    </delete>
+
+</mapper>

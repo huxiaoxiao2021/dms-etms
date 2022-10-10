@@ -1,0 +1,325 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.dms.wb.mapper.single.station.IWorkStationAttendPlanMapper" >
+
+	<resultMap id="WorkStationAttendPlan" type="com.jd.dms.wb.sdk.model.station.WorkStationAttendPlan" >
+		<id column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result column="work_code" property="workCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="station_code" property="stationCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="org_code" property="orgCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="site_code" property="siteCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="grid_no" property="gridNo" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="wave_code" property="waveCode" javaType="java.lang.Integer" jdbcType="TINYINT" />
+		<result column="plan_name" property="planName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="plan_attend_num" property="planAttendNum" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="create_user" property="createUser" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="create_user_name" property="createUserName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="update_user" property="updateUser" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="update_user_name" property="updateUserName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="yn" property="yn" javaType="java.lang.Integer" jdbcType="TINYINT" />
+		<result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+	</resultMap>
+	
+	<resultMap id="WorkStationAttendPlanVo" type="com.jd.dms.wb.sdk.vo.station.WorkStationAttendPlanVo" >
+		<result column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result column="work_code" property="workCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="work_name" property="workName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="station_code" property="stationCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="station_name" property="stationName" javaType="java.lang.String" jdbcType="VARCHAR" />		
+		<result column="org_code" property="orgCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="site_code" property="siteCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="grid_no" property="gridNo" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="grid_name" property="gridName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="wave_code" property="waveCode" javaType="java.lang.Integer" jdbcType="TINYINT" />
+		<result column="plan_name" property="planName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="plan_attend_num" property="planAttendNum" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="create_user" property="createUser" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="create_user_name" property="createUserName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="update_user" property="updateUser" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="update_user_name" property="updateUserName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="yn" property="yn" javaType="java.lang.Integer" jdbcType="TINYINT" />
+		<result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+	</resultMap>	
+
+	<sql id="Base_Column_List" >
+		p.id,p.station_code,p.org_code,p.site_code,p.grid_no,p.wave_code,
+		p.plan_name,p.plan_attend_num,p.create_user,p.create_user_name,p.update_user,
+		p.update_user_name,p.create_time,p.update_time,p.yn,p.ts,
+		s.work_code,s.work_name,s.station_name,g.grid_name
+	</sql>
+
+	<insert id="insert" parameterType="com.jd.dms.wb.sdk.model.station.WorkStationAttendPlan" useGeneratedKeys="true" keyProperty="id">
+		insert into work_station_attend_plan
+			(
+			<trim suffixOverrides=",">
+				<if test="id != null" >
+					id,
+				</if>
+				<if test="workCode != null" >
+					work_code,
+				</if>				
+				<if test="stationCode != null" >
+					station_code,
+				</if>
+				<if test="orgCode != null" >
+					org_code,
+				</if>
+				<if test="siteCode != null" >
+					site_code,
+				</if>
+				<if test="gridNo != null" >
+					grid_no,
+				</if>
+				<if test="waveCode != null" >
+					wave_code,
+				</if>
+				<if test="planName != null" >
+					plan_name,
+				</if>
+				<if test="planAttendNum != null" >
+					plan_attend_num,
+				</if>
+				<if test="createUser != null" >
+					create_user,
+				</if>
+				<if test="createUserName != null" >
+					create_user_name,
+				</if>
+				<if test="updateUser != null" >
+					update_user,
+				</if>
+				<if test="updateUserName != null" >
+					update_user_name,
+				</if>
+				<if test="createTime != null" >
+					create_time,
+				</if>
+				<if test="updateTime != null" >
+					update_time,
+				</if>
+				<if test="yn != null" >
+					yn,
+				</if>
+				<if test="ts != null" >
+					ts,
+				</if>
+			</trim>
+			)
+			values
+			(
+			<trim suffixOverrides=",">
+				<if test="id != null" >
+					#{id,jdbcType=BIGINT},
+				</if>
+				<if test="workCode != null" >
+					#{workCode,jdbcType=VARCHAR},
+				</if>				
+				<if test="stationCode != null" >
+					#{stationCode,jdbcType=VARCHAR},
+				</if>
+				<if test="orgCode != null" >
+					#{orgCode,jdbcType=INTEGER},
+				</if>
+				<if test="siteCode != null" >
+					#{siteCode,jdbcType=INTEGER},
+				</if>
+				<if test="gridNo != null" >
+					#{gridNo,jdbcType=VARCHAR},
+				</if>
+				<if test="waveCode != null" >
+					#{waveCode,jdbcType=TINYINT},
+				</if>
+				<if test="planName != null" >
+					#{planName,jdbcType=VARCHAR},
+				</if>
+				<if test="planAttendNum != null" >
+					#{planAttendNum,jdbcType=INTEGER},
+				</if>
+				<if test="createUser != null" >
+					#{createUser,jdbcType=VARCHAR},
+				</if>
+				<if test="createUserName != null" >
+					#{createUserName,jdbcType=VARCHAR},
+				</if>
+				<if test="updateUser != null" >
+					#{updateUser,jdbcType=VARCHAR},
+				</if>
+				<if test="updateUserName != null" >
+					#{updateUserName,jdbcType=VARCHAR},
+				</if>
+				<if test="createTime != null" >
+					#{createTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="updateTime != null" >
+					#{updateTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="yn != null" >
+					#{yn,jdbcType=TINYINT},
+				</if>
+				<if test="ts != null" >
+					#{ts,jdbcType=TIMESTAMP},
+				</if>
+			</trim>
+			)
+	</insert>
+
+	<update id="updateById" parameterType="com.jd.dms.wb.sdk.model.station.WorkStationAttendPlan">
+		update work_station_attend_plan
+			<set>
+				<if test="workCode != null" >
+					work_code = #{workCode,jdbcType=VARCHAR},
+				</if>			
+				<if test="stationCode != null" >
+					station_code = #{stationCode,jdbcType=VARCHAR},
+				</if>
+				<if test="orgCode != null" >
+					org_code = #{orgCode,jdbcType=INTEGER},
+				</if>
+				<if test="siteCode != null" >
+					site_code = #{siteCode,jdbcType=INTEGER},
+				</if>
+				<if test="gridNo != null" >
+					grid_no = #{gridNo,jdbcType=VARCHAR},
+				</if>
+				<if test="waveCode != null" >
+					wave_code = #{waveCode,jdbcType=TINYINT},
+				</if>
+				<if test="planName != null" >
+					plan_name = #{planName,jdbcType=VARCHAR},
+				</if>
+				<if test="planAttendNum != null" >
+					plan_attend_num = #{planAttendNum,jdbcType=INTEGER},
+				</if>
+				<if test="createUser != null" >
+					create_user = #{createUser,jdbcType=VARCHAR},
+				</if>
+				<if test="createUserName != null" >
+					create_user_name = #{createUserName,jdbcType=VARCHAR},
+				</if>
+				<if test="updateUser != null" >
+					update_user = #{updateUser,jdbcType=VARCHAR},
+				</if>
+				<if test="updateUserName != null" >
+					update_user_name = #{updateUserName,jdbcType=VARCHAR},
+				</if>
+				<if test="createTime != null" >
+					create_time = #{createTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="updateTime != null" >
+					update_time = #{updateTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="yn != null" >
+					yn = #{yn,jdbcType=TINYINT},
+				</if>
+				<if test="ts != null" >
+					ts = #{ts,jdbcType=TIMESTAMP},
+				</if>
+			</set>
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+
+	<update id="deleteById" parameterType="com.jd.dms.wb.sdk.model.station.WorkStationAttendPlan">
+		update work_station_attend_plan
+			set 
+			<if test="updateUser != null" >
+				update_user = #{updateUser,jdbcType=VARCHAR},
+			</if>
+			<if test="updateTime != null" >
+				update_time = #{updateTime,jdbcType=TIMESTAMP},
+			</if>
+			   yn = 0
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+	
+	<update id="deleteByBusinessKey" parameterType="com.jd.dms.wb.sdk.model.station.WorkStationAttendPlan">
+		update work_station_attend_plan
+			set 
+			<if test="updateUser != null" >
+				update_user = #{updateUser,jdbcType=VARCHAR},
+			</if>
+			<if test="updateTime != null" >
+				update_time = #{updateTime,jdbcType=TIMESTAMP},
+			</if>
+			   yn = 0
+		where yn = 1
+			and	site_code = #{siteCode,jdbcType=INTEGER}
+			and	grid_no = #{gridNo,jdbcType=VARCHAR}
+			and station_code = #{stationCode,jdbcType=VARCHAR}			
+			and wave_code = #{waveCode,jdbcType=VARCHAR}
+	</update>
+	
+	<select id="queryByBusinessKey" parameterType="com.jd.dms.wb.sdk.model.station.WorkStationAttendPlan" resultMap="WorkStationAttendPlanVo">
+		select
+			<include refid="Base_Column_List"/>
+		from
+			work_station_attend_plan p
+		<include refid="joinSql"/>			
+		where p.yn = 1 
+			and	p.site_code = #{siteCode,jdbcType=INTEGER}
+			and	p.grid_no = #{gridNo,jdbcType=VARCHAR}
+			and p.station_code = #{stationCode,jdbcType=VARCHAR}
+			and p.wave_code = #{waveCode,jdbcType=VARCHAR}
+	</select>
+	
+	<select id="queryById" parameterType="java.lang.Long" resultMap="WorkStationAttendPlanVo">
+		select
+			<include refid="Base_Column_List"/>
+		from
+			work_station_attend_plan p
+		<include refid="joinSql"/>
+		where p.yn = 1 and p.id = #{id,jdbcType=BIGINT}
+	</select>
+	
+	<select id="queryList" parameterType="com.jd.dms.wb.sdk.query.station.WorkStationAttendPlanQuery" resultMap="WorkStationAttendPlanVo">
+		select
+			<include refid="Base_Column_List"/>
+		from
+			work_station_attend_plan p
+		<include refid="joinSql"/>
+		<include refid="queryCondition"/>
+		<if test="pageNumber > 0">
+            limit #{startRecord}, #{pageSize}
+        </if>		
+	</select>
+
+	<select id="queryCount" parameterType="com.jd.dms.wb.sdk.query.station.WorkStationAttendPlanQuery" resultType="long">
+		select
+			count(1)
+		from
+			work_station_attend_plan p
+		<include refid="queryCondition"/>
+	</select>
+	
+	<sql id="joinSql">
+	 left outer join work_station s on p.station_code = s.station_code and s.yn = 1
+	 left outer join work_station_grid g on p.station_code = g.station_code and p.site_code = g.site_code and p.grid_no = g.grid_no and g.yn = 1
+	</sql>
+		
+	<sql id="queryCondition">
+		<where>
+			p.yn = 1
+		<if test="orgCode != null" >
+			and p.org_code = #{orgCode,jdbcType=INTEGER}
+		</if>
+		<if test="siteCode != null" >
+			and p.site_code = #{siteCode,jdbcType=INTEGER}
+		</if>
+		<if test="gridNo != null and gridNo != ''" >
+			and p.grid_no = #{gridNo,jdbcType=VARCHAR}
+		</if>
+		<if test="workCode != null and workCode != ''" >
+			and p.work_code = #{workCode,jdbcType=VARCHAR}
+		</if>		
+		<if test="stationCode != null and stationCode != ''" >
+			and p.station_code = #{stationCode,jdbcType=VARCHAR}
+		</if>						
+		<if test="waveCode != null" >
+			and p.wave_code = #{waveCode,jdbcType=TINYINT}
+		</if>			
+		</where>
+	</sql>
+</mapper>

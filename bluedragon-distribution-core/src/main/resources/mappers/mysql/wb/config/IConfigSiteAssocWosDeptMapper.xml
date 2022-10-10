@@ -1,0 +1,427 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.dms.wb.mapper.single.base.IConfigSiteAssocWosDeptMapper">
+    <!-- table映射实体对象 -->
+    <resultMap id="RM_ConfigSiteAssocWosDept" type="com.jd.dms.wb.sdk.model.config.entity.ConfigSiteAssocWosDept">
+        <result property="id" column="id"/>
+        <result property="siteCode" column="site_code"/>
+        <result property="wosDeptId" column="wos_dept_id"/>
+        <result property="wosDeptName" column="wos_dept_name"/>
+        <result property="remark" column="remark"/>
+        <result property="configStatus" column="config_status"/>
+        <result property="createUser" column="create_user"/>
+        <result property="updateUser" column="update_user"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="ts" column="ts"/>
+        <result property="yn" column="yn"/>
+    </resultMap>
+
+    <!-- 用于select查询公用抽取的列 -->
+    <sql id="Base_Column_List">
+        `id`, `site_code`, `wos_dept_id`, `wos_dept_name`, `remark`, `config_status`, `create_user`, `update_user`, `create_time`, `update_time`, `ts`, `yn`
+    </sql>
+
+    <!-- 增加 -->
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="com.jd.dms.wb.sdk.model.config.entity.ConfigSiteAssocWosDept">
+        insert into `config_site_assoc_wos_dept`
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="siteCode != null and siteCode != ''">
+                site_code,
+            </if>
+            <if test="wosDeptId != null and wosDeptId != ''">
+                wos_dept_id,
+            </if>
+            <if test="wosDeptName != null and wosDeptName != ''">
+                wos_dept_name,
+            </if>
+            <if test="remark != null and remark != ''">
+                remark,
+            </if>
+            <if test="configStatus != null">
+                config_status,
+            </if>
+            <if test="createUser != null and createUser != ''">
+                create_user,
+            </if>
+            <if test="updateUser != null and updateUser != ''">
+                update_user,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="updateTime != null">
+                update_time,
+            </if>
+            <if test="ts != null">
+                ts,
+            </if>
+            <if test="yn != null">
+                yn,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id},
+            </if>
+            <if test="siteCode != null and siteCode != ''">
+                #{siteCode},
+            </if>
+            <if test="wosDeptId != null and wosDeptId != ''">
+                #{wosDeptId},
+            </if>
+            <if test="wosDeptName != null and wosDeptName != ''">
+                #{wosDeptName},
+            </if>
+            <if test="remark != null and remark != ''">
+                #{remark},
+            </if>
+            <if test="configStatus != null">
+                #{configStatus},
+            </if>
+            <if test="createUser != null and createUser != ''">
+                #{createUser},
+            </if>
+            <if test="updateUser != null and updateUser != ''">
+                #{updateUser},
+            </if>
+            <if test="createTime != null">
+                #{createTime},
+            </if>
+            <if test="updateTime != null">
+                #{updateTime},
+            </if>
+            <if test="ts != null">
+                #{ts},
+            </if>
+            <if test="yn != null">
+                #{yn},
+            </if>
+        </trim>
+    </insert>
+    <!-- 批量增加 -->
+    <insert id="batchInsert" useGeneratedKeys="true" keyProperty="id" parameterType="java.util.List">
+        insert into `config_site_assoc_wos_dept`
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            site_code,
+            wos_dept_id,
+            wos_dept_name,
+            remark,
+            config_status,
+            create_user,
+            update_user,
+            create_time,
+            update_time,
+            ts,
+            yn,
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix=" (" suffix=")" suffixOverrides=",">
+                #{item.id},
+                #{item.siteCode},
+                #{item.wosDeptId},
+                #{item.wosDeptName},
+                #{item.remark},
+                #{item.configStatus},
+                #{item.createUser},
+                #{item.updateUser},
+                #{item.createTime},
+                #{item.updateTime},
+                #{item.ts},
+                #{item.yn},
+            </trim>
+        </foreach>
+    </insert>
+
+    <insert id="saveOrUpdate" parameterType="com.jd.dms.wb.sdk.model.config.entity.ConfigSiteAssocWosDept">
+        <selectKey keyProperty="id" resultType="com.jd.dms.wb.sdk.model.config.entity.ConfigSiteAssocWosDept" order="BEFORE">
+            SELECT COUNT(id) as id FROM config_site_assoc_wos_dept
+            WHERE site_code = #{siteCode} AND wos_dept_id = #{wosDeptId}
+        </selectKey>
+        <if test="id == 1">
+            update config_site_assoc_wos_dept
+            <set>
+                <if test="wosDeptName != null and wosDeptName != ''" >
+                    wos_dept_name = #{wosDeptName},
+                </if>
+                <if test="remark != null and remark != ''" >
+                    remark = #{remark},
+                </if>
+                <if test="configStatus != null" >
+                    config_status = #{configStatus},
+                </if>
+                <if test="createUser != null and createUser != ''" >
+                    create_user = #{createUser},
+                </if>
+                <if test="updateUser != null and updateUser != ''" >
+                    update_user = #{updateUser,jdbcType=VARCHAR},
+                </if>
+                <if test="createTime != null" >
+                    create_time = #{createTime,jdbcType=VARCHAR},
+                </if>
+                update_time = now(),
+                yn = 1
+            </set>
+            where site_code = #{siteCode} AND wos_dept_id = #{wosDeptId}
+        </if>
+        <if test="id == 0">
+            insert into `config_site_assoc_wos_dept`
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+                <if test="id != null">
+                    id,
+                </if>
+                <if test="siteCode != null and siteCode != ''">
+                    site_code,
+                </if>
+                <if test="wosDeptId != null and wosDeptId != ''">
+                    wos_dept_id,
+                </if>
+                <if test="wosDeptName != null and wosDeptName != ''">
+                    wos_dept_name,
+                </if>
+                <if test="remark != null and remark != ''">
+                    remark,
+                </if>
+                <if test="configStatus != null">
+                    config_status,
+                </if>
+                <if test="createUser != null and createUser != ''">
+                    create_user,
+                </if>
+                <if test="updateUser != null and updateUser != ''">
+                    update_user,
+                </if>
+                <if test="createTime != null">
+                    create_time,
+                </if>
+                <if test="updateTime != null">
+                    update_time,
+                </if>
+                <if test="ts != null">
+                    ts,
+                </if>
+                <if test="yn != null">
+                    yn,
+                </if>
+            </trim>
+            <trim prefix="values (" suffix=")" suffixOverrides=",">
+                <if test="id != null">
+                    #{id},
+                </if>
+                <if test="siteCode != null and siteCode != ''">
+                    #{siteCode},
+                </if>
+                <if test="wosDeptId != null and wosDeptId != ''">
+                    #{wosDeptId},
+                </if>
+                <if test="wosDeptName != null and wosDeptName != ''">
+                    #{wosDeptName},
+                </if>
+                <if test="remark != null and remark != ''">
+                    #{remark},
+                </if>
+                <if test="configStatus != null">
+                    #{configStatus},
+                </if>
+                <if test="createUser != null and createUser != ''">
+                    #{createUser},
+                </if>
+                <if test="updateUser != null and updateUser != ''">
+                    #{updateUser},
+                </if>
+                <if test="createTime != null">
+                    #{createTime},
+                </if>
+                <if test="updateTime != null">
+                    #{updateTime},
+                </if>
+                <if test="ts != null">
+                    #{ts},
+                </if>
+                <if test="yn != null">
+                    #{yn},
+                </if>
+            </trim>
+        </if>
+    </insert>
+    <!-- 更新 -->
+    <update id="updateByPrimaryKey" parameterType="com.jd.dms.wb.sdk.model.config.entity.ConfigSiteAssocWosDept">
+        UPDATE `config_site_assoc_wos_dept`
+        <set>
+            <if test="siteCode != null and siteCode != ''">
+                site_code = #{siteCode},
+            </if>
+            <if test="wosDeptId != null and wosDeptId != ''">
+                wos_dept_id = #{wosDeptId},
+            </if>
+            <if test="wosDeptName != null and wosDeptName != ''">
+                wos_dept_name = #{wosDeptName},
+            </if>
+            <if test="remark != null and remark != ''">
+                remark = #{remark},
+            </if>
+            <if test="configStatus != null ">
+                config_status = #{configStatus},
+            </if>
+            <if test="createUser != null and createUser != ''">
+                create_user = #{createUser},
+            </if>
+            <if test="updateUser != null and updateUser != ''">
+                update_user = #{updateUser},
+            </if>
+            <if test="createTime != null ">
+                create_time = #{createTime},
+            </if>
+            <if test="updateTime != null ">
+                update_time = #{updateTime},
+            </if>
+            <if test="ts != null ">
+                ts = #{ts},
+            </if>
+            <if test="yn != null ">
+                yn = #{yn}
+            </if>
+        </set>
+        WHERE
+        id = #{id}
+    </update>
+
+    <update id="deleteByPrimaryKey" parameterType="com.jd.dms.wb.sdk.model.config.entity.ConfigSiteAssocWosDept">
+        UPDATE `config_site_assoc_wos_dept`
+        set yn = 0
+        WHERE
+        id = #{id}
+    </update>
+    <!-- 批量更新 -->
+    <update id="batchUpdate" parameterType="java.util.List">
+        <foreach collection="list" item="item" index="index"  separator=";">
+            UPDATE `config_site_assoc_wos_dept`
+            <set>
+                <if test="item.siteCode != null and item.siteCode != ''">
+                    site_code = #{item.siteCode},
+                </if>
+                <if test="item.wosDeptId != null and item.wosDeptId != ''">
+                    wos_dept_id = #{item.wosDeptId},
+                </if>
+                <if test="item.wosDeptName != null and item.wosDeptName != ''">
+                    wos_dept_name = #{item.wosDeptName},
+                </if>
+                <if test="item.remark != null and item.remark != ''">
+                    remark = #{item.remark},
+                </if>
+                <if test="item.configStatus != null">
+                    config_status = #{item.configStatus},
+                </if>
+                <if test="item.createUser != null and item.createUser != ''">
+                    create_user = #{item.createUser},
+                </if>
+                <if test="item.updateUser != null and item.updateUser != ''">
+                    update_user = #{item.updateUser},
+                </if>
+                <if test="item.createTime != null">
+                    create_time = #{item.createTime},
+                </if>
+                <if test="item.updateTime != null">
+                    update_time = #{item.updateTime},
+                </if>
+                <if test="item.ts != null">
+                    ts = #{item.ts},
+                </if>
+                <if test="item.yn != null">
+                    yn = #{item.yn}
+                </if>
+            </set>
+            WHERE
+            id = #{item.id}
+        </foreach>
+    </update>
+    <!-- 按主键查询 -->
+    <select id="selectByPrimaryKey" resultMap="RM_ConfigSiteAssocWosDept" parameterType="com.jd.dms.wb.sdk.model.config.entity.ConfigSiteAssocWosDept">
+        SELECT
+        <include refid="Base_Column_List"/>
+        <![CDATA[
+            FROM `config_site_assoc_wos_dept`
+            WHERE
+                id = #{id} 
+        ]]>
+    </select>
+    <!-- 按条件查询单条记录 -->
+    <select id="selectOne" resultMap="RM_ConfigSiteAssocWosDept" parameterType="com.jd.dms.wb.sdk.query.config.ConfigSiteAssocWosDeptQuery">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM `config_site_assoc_wos_dept`
+        <include refid="where"/>
+    </select>
+    <!-- where条件 -->
+    <sql id="where">
+        <where>
+            <include refid="sql_if_not_null"/>
+        </where>
+    </sql>
+    <!-- 判断空值 -->
+    <sql id="sql_if_not_null">
+        <if test="siteCode != null and siteCode != ''">
+            AND site_code = #{siteCode}
+        </if>
+        <if test="wosDeptId != null and wosDeptId != ''">
+            AND wos_dept_id = #{wosDeptId}
+        </if>
+        <if test="wosDeptName != null and wosDeptName != ''">
+            AND wos_dept_name = #{wosDeptName}
+        </if>
+        <if test="configStatus != null">
+            AND config_status = #{configStatus}
+        </if>
+        <if test="yn != null">
+            AND yn = #{yn}
+        </if>
+    </sql>
+    <!-- 查询行数 -->
+    <select id="count" resultType="long" parameterType="com.jd.dms.wb.sdk.query.config.ConfigSiteAssocWosDeptQuery">
+        SELECT count(1) FROM `config_site_assoc_wos_dept`
+        <include refid="where"/>
+    </select>
+    <!-- 查询集合 如果pageNumber小于或等于0,则不进行分页操作 -->
+    <select id="queryList" resultMap="RM_ConfigSiteAssocWosDept" parameterType="com.jd.dms.wb.sdk.query.config.ConfigSiteAssocWosDeptQuery">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM `config_site_assoc_wos_dept`
+        <include refid="where"/>
+    </select>
+    <!-- 伪删除（更新删除行的识别码） -->
+    <update id="delete" parameterType="com.jd.dms.wb.sdk.model.config.entity.ConfigSiteAssocWosDept">
+        UPDATE `config_site_assoc_wos_dept` SET yn = 0
+        WHERE
+        id = #{id} 
+    </update>
+    <!-- 批量伪删除 -->
+    <update id="batchDelete" parameterType="com.jd.dms.wb.sdk.query.config.ConfigSiteAssocWosDeptQuery">
+        UPDATE `config_site_assoc_wos_dept` SET yn = 0
+        WHERE id IN
+        <foreach collection="columnValueList" item="item" index="index" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </update>
+
+    <select id="selectUsableByDeptId" parameterType="java.lang.Long" resultMap="RM_ConfigSiteAssocWosDept">
+        select
+        <include refid="Base_Column_List"/>
+        FROM `config_site_assoc_wos_dept`
+        where
+            wos_dept_id = #{deptId}
+        <if test="statusList != null">
+            and config_status in (
+            <foreach collection="statusList" item="item" index="index" separator=",">
+                #{item}
+            </foreach>
+            )
+        </if>
+            and yn = 1
+    </select>
+</mapper>
+

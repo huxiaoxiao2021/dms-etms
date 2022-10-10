@@ -1,0 +1,380 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.dms.wb.mapper.single.working.ConfigWorkingGridMapper" >
+  <resultMap id="BaseResultMap" type="com.jd.dms.wb.sdk.model.working.ConfigWorkingGrid" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="org_code" property="orgCode" jdbcType="INTEGER" />
+    <result column="org_name" property="orgName" jdbcType="VARCHAR" />
+    <result column="site_code" property="siteCode" jdbcType="INTEGER" />
+    <result column="site_name" property="siteName" jdbcType="VARCHAR" />
+    <result column="rule_dimension" property="ruleDimension" jdbcType="TINYINT" />
+    <result column="rule_status" property="ruleStatus" jdbcType="TINYINT" />
+    <result column="floor" property="floor" jdbcType="INTEGER" />
+    <result column="area_code" property="areaCode" jdbcType="VARCHAR" />
+    <result column="area_name" property="areaName" jdbcType="VARCHAR" />
+    <result column="grid_no" property="gridNo" jdbcType="VARCHAR" />
+    <result column="grid_code" property="gridCode" jdbcType="VARCHAR" />
+    <result column="grid_name" property="gridName" jdbcType="VARCHAR" />
+    <result column="create_user" property="createUser" jdbcType="VARCHAR" />
+    <result column="create_user_name" property="createUserName" jdbcType="VARCHAR" />
+    <result column="update_user" property="updateUser" jdbcType="VARCHAR" />
+    <result column="update_user_name" property="updateUserName" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+    <result column="yn" property="yn" jdbcType="TINYINT" />
+    <result column="ts" property="ts" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, org_code, org_name, site_code, site_name, rule_dimension, rule_status, floor, 
+    area_code, area_name, grid_no, grid_code, grid_name, create_user, create_user_name, 
+    update_user, update_user_name, create_time, update_time, yn, ts
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from config_working_grid
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from config_working_grid
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.jd.dms.wb.sdk.model.working.ConfigWorkingGrid" >
+    insert into config_working_grid (org_code, org_name,
+      site_code, site_name, rule_dimension, 
+      rule_status, floor, area_code, 
+      area_name, grid_no, grid_code, 
+      grid_name, create_user, create_user_name, 
+      update_user, update_user_name, create_time, update_time
+      )
+    values (#{orgCode,jdbcType=INTEGER}, #{orgName,jdbcType=VARCHAR},
+      #{siteCode,jdbcType=INTEGER}, #{siteName,jdbcType=VARCHAR}, #{ruleDimension,jdbcType=TINYINT}, 
+      #{ruleStatus,jdbcType=TINYINT}, #{floor,jdbcType=INTEGER}, #{areaCode,jdbcType=VARCHAR}, 
+      #{areaName,jdbcType=VARCHAR}, #{gridNo,jdbcType=VARCHAR}, #{gridCode,jdbcType=VARCHAR}, 
+      #{gridName,jdbcType=VARCHAR}, #{createUser,jdbcType=VARCHAR}, #{createUserName,jdbcType=VARCHAR}, 
+      #{updateUser,jdbcType=VARCHAR}, #{updateUserName,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, 
+      #{updateTime,jdbcType=TIMESTAMP}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.jd.dms.wb.sdk.model.working.ConfigWorkingGrid" >
+    insert into config_working_grid
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="orgCode != null" >
+        org_code,
+      </if>
+      <if test="orgName != null" >
+        org_name,
+      </if>
+      <if test="siteCode != null" >
+        site_code,
+      </if>
+      <if test="siteName != null" >
+        site_name,
+      </if>
+      <if test="ruleDimension != null" >
+        rule_dimension,
+      </if>
+      <if test="ruleStatus != null" >
+        rule_status,
+      </if>
+      <if test="floor != null" >
+        floor,
+      </if>
+      <if test="areaCode != null" >
+        area_code,
+      </if>
+      <if test="areaName != null" >
+        area_name,
+      </if>
+      <if test="gridNo != null" >
+        grid_no,
+      </if>
+      <if test="gridCode != null" >
+        grid_code,
+      </if>
+      <if test="gridName != null" >
+        grid_name,
+      </if>
+      <if test="createUser != null" >
+        create_user,
+      </if>
+      <if test="createUserName != null" >
+        create_user_name,
+      </if>
+      <if test="updateUser != null" >
+        update_user,
+      </if>
+      <if test="updateUserName != null" >
+        update_user_name,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="updateTime != null" >
+        update_time,
+      </if>
+      <if test="yn != null" >
+        yn,
+      </if>
+      <if test="ts != null" >
+        ts,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="orgCode != null" >
+        #{orgCode,jdbcType=INTEGER},
+      </if>
+      <if test="orgName != null" >
+        #{orgName,jdbcType=VARCHAR},
+      </if>
+      <if test="siteCode != null" >
+        #{siteCode,jdbcType=INTEGER},
+      </if>
+      <if test="siteName != null" >
+        #{siteName,jdbcType=VARCHAR},
+      </if>
+      <if test="ruleDimension != null" >
+        #{ruleDimension,jdbcType=TINYINT},
+      </if>
+      <if test="ruleStatus != null" >
+        #{ruleStatus,jdbcType=TINYINT},
+      </if>
+      <if test="floor != null" >
+        #{floor,jdbcType=INTEGER},
+      </if>
+      <if test="areaCode != null" >
+        #{areaCode,jdbcType=VARCHAR},
+      </if>
+      <if test="areaName != null" >
+        #{areaName,jdbcType=VARCHAR},
+      </if>
+      <if test="gridNo != null" >
+        #{gridNo,jdbcType=VARCHAR},
+      </if>
+      <if test="gridCode != null" >
+        #{gridCode,jdbcType=VARCHAR},
+      </if>
+      <if test="gridName != null" >
+        #{gridName,jdbcType=VARCHAR},
+      </if>
+      <if test="createUser != null" >
+        #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="createUserName != null" >
+        #{createUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="updateUser != null" >
+        #{updateUser,jdbcType=VARCHAR},
+      </if>
+      <if test="updateUserName != null" >
+        #{updateUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="yn != null" >
+        #{yn,jdbcType=TINYINT},
+      </if>
+      <if test="ts != null" >
+        #{ts,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.jd.dms.wb.sdk.model.working.ConfigWorkingGrid" >
+    update config_working_grid
+    <set >
+      <if test="orgCode != null" >
+        org_code = #{orgCode,jdbcType=INTEGER},
+      </if>
+      <if test="orgName != null" >
+        org_name = #{orgName,jdbcType=VARCHAR},
+      </if>
+      <if test="siteCode != null" >
+        site_code = #{siteCode,jdbcType=INTEGER},
+      </if>
+      <if test="siteName != null" >
+        site_name = #{siteName,jdbcType=VARCHAR},
+      </if>
+      <if test="ruleDimension != null" >
+        rule_dimension = #{ruleDimension,jdbcType=TINYINT},
+      </if>
+      <if test="ruleStatus != null" >
+        rule_status = #{ruleStatus,jdbcType=TINYINT},
+      </if>
+      <if test="floor != null" >
+        floor = #{floor,jdbcType=INTEGER},
+      </if>
+      <if test="areaCode != null" >
+        area_code = #{areaCode,jdbcType=VARCHAR},
+      </if>
+      <if test="areaName != null" >
+        area_name = #{areaName,jdbcType=VARCHAR},
+      </if>
+      <if test="gridNo != null" >
+        grid_no = #{gridNo,jdbcType=VARCHAR},
+      </if>
+      <if test="gridCode != null" >
+        grid_code = #{gridCode,jdbcType=VARCHAR},
+      </if>
+      <if test="gridName != null" >
+        grid_name = #{gridName,jdbcType=VARCHAR},
+      </if>
+      <if test="createUser != null" >
+        create_user = #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="createUserName != null" >
+        create_user_name = #{createUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="updateUser != null" >
+        update_user = #{updateUser,jdbcType=VARCHAR},
+      </if>
+      <if test="updateUserName != null" >
+        update_user_name = #{updateUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="yn != null" >
+        yn = #{yn,jdbcType=TINYINT},
+      </if>
+      <if test="ts != null" >
+        ts = #{ts,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.jd.dms.wb.sdk.model.working.ConfigWorkingGrid" >
+    update config_working_grid
+    set org_code = #{orgCode,jdbcType=INTEGER},
+      org_name = #{orgName,jdbcType=VARCHAR},
+      site_code = #{siteCode,jdbcType=INTEGER},
+      site_name = #{siteName,jdbcType=VARCHAR},
+      rule_dimension = #{ruleDimension,jdbcType=TINYINT},
+      rule_status = #{ruleStatus,jdbcType=TINYINT},
+      floor = #{floor,jdbcType=INTEGER},
+      area_code = #{areaCode,jdbcType=VARCHAR},
+      area_name = #{areaName,jdbcType=VARCHAR},
+      grid_no = #{gridNo,jdbcType=VARCHAR},
+      grid_code = #{gridCode,jdbcType=VARCHAR},
+      grid_name = #{gridName,jdbcType=VARCHAR},
+      create_user = #{createUser,jdbcType=VARCHAR},
+      create_user_name = #{createUserName,jdbcType=VARCHAR},
+      update_user = #{updateUser,jdbcType=VARCHAR},
+      update_user_name = #{updateUserName,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      yn = #{yn,jdbcType=TINYINT},
+      ts = #{ts,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+
+    <select id="queryByPage" parameterType="com.jd.dms.wb.sdk.model.working.ConfigWorkingGrid" resultMap="BaseResultMap">
+        SELECT
+            <include refid="Base_Column_List" />
+        FROM config_working_grid
+        WHERE
+        yn = 1
+        <if test="orgCode != null" >
+            AND org_code = #{orgCode,jdbcType=INTEGER}
+        </if>
+        <if test="siteCode != null" >
+            AND site_code = #{siteCode,jdbcType=INTEGER}
+        </if>
+        <if test="ruleStatus != null" >
+            AND rule_status = #{ruleStatus,jdbcType=TINYINT}
+        </if>
+        <if test="areaCode != null and areaCode !='' " >
+            AND area_code = #{areaCode,jdbcType=VARCHAR}
+        </if>
+        <if test="gridCode != null and gridCode !='' " >
+            AND grid_code = #{gridCode,jdbcType=VARCHAR}
+        </if>
+        <if test="gridNo != null and gridNo !='' " >
+            AND grid_no = #{gridNo}
+        </if>
+        <if test="floor != null">
+            AND floor = #{floor,jdbcType=INTEGER}
+        </if>
+        ORDER BY ts DESC
+    </select>
+
+    <select id="findByBizKey" parameterType="com.jd.dms.wb.sdk.model.working.ConfigWorkingGrid" resultMap="BaseResultMap">
+        SELECT
+            <include refid="Base_Column_List" />
+        FROM config_working_grid
+        WHERE yn = 1
+        AND site_code = #{siteCode, jdbcType=INTEGER}
+        AND floor = #{floor, jdbcType=INTEGER}
+        AND grid_no = #{gridNo,jdbcType=VARCHAR}
+        <if test="areaCode != null and areaCode !='' " >
+            AND area_code = #{areaCode,jdbcType=VARCHAR}
+        </if>
+        LIMIT 1
+    </select>
+
+    <update id="logicDeleteByBizKey" parameterType="com.jd.dms.wb.sdk.model.working.ConfigWorkingGrid">
+        UPDATE config_working_grid
+        <set>
+            <if test="yn != null" >
+                yn = #{yn,jdbcType=TINYINT},
+            </if>
+            <if test="updateUser != null" >
+                update_user = #{updateUser,jdbcType=VARCHAR},
+            </if>
+            <if test="updateUserName != null" >
+                update_user_name = #{updateUserName,jdbcType=VARCHAR},
+            </if>
+            <if test="updateTime != null" >
+                update_time = #{updateTime,jdbcType=TIMESTAMP}
+            </if>
+        </set>
+        WHERE yn = 1
+        AND site_code = #{siteCode, jdbcType=INTEGER}
+        AND floor = #{floor, jdbcType=INTEGER}
+        AND grid_no = #{gridNo,jdbcType=VARCHAR}
+        <if test="areaCode != null and areaCode !='' " >
+            AND area_code = #{areaCode,jdbcType=VARCHAR}
+        </if>
+    </update>
+
+    <select id="countBySiteCode" parameterType="com.jd.dms.wb.sdk.model.working.ConfigWorkingGrid" resultType="Integer">
+        SELECT COUNT(*)
+        FROM config_working_grid
+        WHERE
+            yn = 1
+        AND site_code = #{siteCode, jdbcType=INTEGER}
+        AND rule_status IN(0, 2)
+    </select>
+
+    <select id="queryGridTotal" parameterType="com.jd.dms.wb.sdk.model.working.ConfigWorkingGrid" resultType="Integer">
+        SELECT
+            COUNT(*)
+        FROM config_working_grid
+        WHERE
+        yn = 1
+        <if test="orgCode != null" >
+            AND org_code = #{orgCode,jdbcType=INTEGER}
+        </if>
+        <if test="siteCode != null" >
+            AND site_code = #{siteCode,jdbcType=INTEGER}
+        </if>
+        <if test="ruleStatus != null" >
+            AND rule_status = #{ruleStatus,jdbcType=TINYINT}
+        </if>
+        <if test="areaCode != null and areaCode !='' " >
+            AND area_code = #{areaCode,jdbcType=VARCHAR}
+        </if>
+        <if test="gridCode != null and gridCode !='' " >
+            AND grid_code = #{gridCode,jdbcType=VARCHAR}
+        </if>
+        <if test="gridNo != null and gridNo !='' " >
+            AND grid_no = #{gridNo}
+        </if>
+    </select>
+</mapper>

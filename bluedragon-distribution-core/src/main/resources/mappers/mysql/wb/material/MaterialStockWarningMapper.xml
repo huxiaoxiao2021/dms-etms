@@ -1,0 +1,346 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.dms.wb.mapper.single.material.MaterialStockWarningMapper" >
+  <resultMap id="BaseResultMap" type="com.jd.dms.wb.sdk.model.material.MaterialStockWarning" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="material_type" property="materialType" jdbcType="TINYINT" />
+    <result column="day_num" property="dayNum" jdbcType="INTEGER" />
+    <result column="turnover_days_factor" property="turnoverDaysFactor" jdbcType="DECIMAL" />
+    <result column="safety_stock_factor" property="safetyStockFactor" jdbcType="DECIMAL" />
+    <result column="stock" property="stock" jdbcType="BIGINT" />
+    <result column="site_code" property="siteCode" jdbcType="BIGINT" />
+    <result column="org_id" property="orgId" jdbcType="BIGINT" />
+    <result column="remark" property="remark" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="create_user_erp" property="createUserErp" jdbcType="VARCHAR" />
+    <result column="create_user_name" property="createUserName" jdbcType="VARCHAR" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+    <result column="update_user_erp" property="updateUserErp" jdbcType="VARCHAR" />
+    <result column="update_user_name" property="updateUserName" jdbcType="VARCHAR" />
+    <result column="yn" property="yn" jdbcType="TINYINT" />
+    <result column="ts" property="ts" jdbcType="TIMESTAMP" />
+    <result column="lte_two_day_stay_num" property="lteTwoDayStayNum" jdbcType="BIGINT" />
+    <result column="two_to_three_day_stay_num" property="twoToThreeDayStayNum" jdbcType="BIGINT" />
+    <result column="gte_three_day_stay_num" property="gteThreeDayStayNum" jdbcType="BIGINT" />
+
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, material_type, day_num, turnover_days_factor, safety_stock_factor, stock, site_code, 
+    org_id, remark, create_time, create_user_erp, create_user_name, update_time,
+    update_user_erp, update_user_name, yn, ts, lte_two_day_stay_num, two_to_three_day_stay_num, gte_three_day_stay_num
+  </sql>
+
+  <select id="selectByUniqKey" resultMap="BaseResultMap" parameterType="com.jd.dms.wb.sdk.model.material.MaterialStockWarning" >
+    SELECT
+        <include refid="Base_Column_List" />
+    FROM material_stock_warning
+    WHERE
+      material_type = #{materialType,jdbcType=TINYINT}
+      AND site_code = #{siteCode,jdbcType=BIGINT}
+      AND yn = 1
+      LIMIT 1
+  </select>
+
+  <update id="logicDeleteByPrimaryKey" parameterType="com.jd.dms.wb.sdk.model.material.MaterialStockWarning" >
+    UPDATE material_stock_warning
+    SET
+        yn = 0,
+        update_time = now(),
+        update_user_erp = #{updateUserErp,jdbcType=VARCHAR},
+        update_user_name = #{updateUserName,jdbcType=VARCHAR}
+    WHERE id = #{id,jdbcType=BIGINT} AND yn = 1
+  </update>
+
+  <insert id="insertSelective" parameterType="com.jd.dms.wb.sdk.model.material.MaterialStockWarning" >
+    insert into material_stock_warning
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="materialType != null" >
+        material_type,
+      </if>
+      <if test="dayNum != null" >
+        day_num,
+      </if>
+      <if test="turnoverDaysFactor != null" >
+        turnover_days_factor,
+      </if>
+      <if test="safetyStockFactor != null" >
+        safety_stock_factor,
+      </if>
+      <if test="stock != null" >
+        stock,
+      </if>
+      <if test="siteCode != null" >
+        site_code,
+      </if>
+      <if test="orgId != null" >
+        org_id,
+      </if>
+      <if test="remark != null" >
+        remark,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="createUserErp != null" >
+        create_user_erp,
+      </if>
+      <if test="createUserName != null" >
+        create_user_name,
+      </if>
+      <if test="updateTime != null" >
+        update_time,
+      </if>
+      <if test="updateUserErp != null" >
+        update_user_erp,
+      </if>
+      <if test="updateUserName != null" >
+        update_user_name,
+      </if>
+      <if test="yn != null" >
+        yn,
+      </if>
+      <if test="ts != null" >
+        ts,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="materialType != null" >
+        #{materialType,jdbcType=TINYINT},
+      </if>
+      <if test="dayNum != null" >
+        #{dayNum,jdbcType=INTEGER},
+      </if>
+      <if test="turnoverDaysFactor != null" >
+        #{turnoverDaysFactor,jdbcType=DECIMAL},
+      </if>
+      <if test="safetyStockFactor != null" >
+        #{safetyStockFactor,jdbcType=DECIMAL},
+      </if>
+      <if test="stock != null" >
+        #{stock,jdbcType=BIGINT},
+      </if>
+      <if test="siteCode != null" >
+        #{siteCode,jdbcType=BIGINT},
+      </if>
+      <if test="orgId != null" >
+        #{orgId,jdbcType=BIGINT},
+      </if>
+      <if test="remark != null" >
+        #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createUserErp != null" >
+        #{createUserErp,jdbcType=VARCHAR},
+      </if>
+      <if test="createUserName != null" >
+        #{createUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="updateTime != null" >
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateUserErp != null" >
+        #{updateUserErp,jdbcType=VARCHAR},
+      </if>
+      <if test="updateUserName != null" >
+        #{updateUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="yn != null" >
+        #{yn,jdbcType=BIT},
+      </if>
+      <if test="ts != null" >
+        #{ts,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.jd.dms.wb.sdk.model.material.MaterialStockWarning" >
+    update material_stock_warning
+    <set >
+      <if test="materialType != null" >
+        material_type = #{materialType,jdbcType=TINYINT},
+      </if>
+      <if test="dayNum != null" >
+        day_num = #{dayNum,jdbcType=INTEGER},
+      </if>
+      <if test="turnoverDaysFactor != null" >
+        turnover_days_factor = #{turnoverDaysFactor,jdbcType=DECIMAL},
+      </if>
+      <if test="safetyStockFactor != null" >
+        safety_stock_factor = #{safetyStockFactor,jdbcType=DECIMAL},
+      </if>
+      <if test="stock != null" >
+        stock = #{stock,jdbcType=BIGINT},
+      </if>
+      <if test="siteCode != null" >
+        site_code = #{siteCode,jdbcType=BIGINT},
+      </if>
+      <if test="orgId != null" >
+        org_id = #{orgId,jdbcType=BIGINT},
+      </if>
+      <if test="remark != null" >
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createUserErp != null" >
+        create_user_erp = #{createUserErp,jdbcType=VARCHAR},
+      </if>
+      <if test="createUserName != null" >
+        create_user_name = #{createUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="updateTime != null" >
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateUserErp != null" >
+        update_user_erp = #{updateUserErp,jdbcType=VARCHAR},
+      </if>
+      <if test="updateUserName != null" >
+        update_user_name = #{updateUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="yn != null" >
+        yn = #{yn,jdbcType=BIT},
+      </if>
+      <if test="ts != null" >
+        ts = #{ts,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+
+    <insert id="saveWarningConfig" parameterType="com.jd.dms.wb.sdk.model.material.MaterialStockWarning" >
+        INSERT INTO material_stock_warning
+        (
+            material_type, day_num,
+            turnover_days_factor, safety_stock_factor,
+            site_code, org_id, remark, create_time,
+            create_user_erp, create_user_name, update_time,
+            update_user_erp, update_user_name, yn
+        )
+        VALUES (
+           #{materialType,jdbcType=TINYINT}, #{dayNum,jdbcType=INTEGER},
+           #{turnoverDaysFactor,jdbcType=DECIMAL}, #{safetyStockFactor,jdbcType=DECIMAL},
+           #{siteCode,jdbcType=BIGINT}, #{orgId,jdbcType=BIGINT}, #{remark,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP},
+           #{createUserErp,jdbcType=VARCHAR}, #{createUserName,jdbcType=VARCHAR}, #{updateTime,jdbcType=TIMESTAMP},
+           #{updateUserErp,jdbcType=VARCHAR}, #{updateUserName,jdbcType=VARCHAR}, 1
+       )
+    </insert>
+
+  <update id="updateConfig" parameterType="com.jd.dms.wb.sdk.model.material.MaterialStockWarning" >
+    UPDATE material_stock_warning
+    SET
+      day_num = #{dayNum,jdbcType=INTEGER},
+      turnover_days_factor = #{turnoverDaysFactor,jdbcType=DECIMAL},
+      safety_stock_factor = #{safetyStockFactor,jdbcType=DECIMAL},
+      remark = #{remark,jdbcType=VARCHAR},
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      update_user_erp = #{updateUserErp,jdbcType=VARCHAR},
+      update_user_name = #{updateUserName,jdbcType=VARCHAR}
+    WHERE
+        material_type = #{materialType,jdbcType=TINYINT}
+        AND site_code = #{siteCode,jdbcType=BIGINT}
+        AND yn = 1
+  </update>
+
+    <update id="updateStock" parameterType="com.jd.dms.wb.sdk.model.material.MaterialStockWarning" >
+        UPDATE material_stock_warning
+        SET
+            stock = #{stock,jdbcType=BIGINT},
+            update_time = now()
+        WHERE
+            material_type = #{materialType,jdbcType=TINYINT}
+            AND site_code = #{siteCode,jdbcType=BIGINT}
+            AND yn = 1
+    </update>
+
+    <insert id="initConfig" parameterType="com.jd.dms.wb.sdk.model.material.MaterialStockWarning" >
+        INSERT INTO material_stock_warning
+        (
+            material_type,
+            site_code,
+            org_id,
+            stock,
+            create_time, create_user_erp, create_user_name,
+            update_time, update_user_erp, update_user_name, yn
+        )
+        VALUES (
+            #{materialType,jdbcType=TINYINT},
+            #{siteCode,jdbcType=BIGINT},
+            #{orgId,jdbcType=BIGINT},
+            #{stock,jdbcType=BIGINT},
+            #{createTime,jdbcType=TIMESTAMP}, #{createUserErp,jdbcType=VARCHAR}, #{createUserName,jdbcType=VARCHAR},
+            #{updateTime,jdbcType=TIMESTAMP}, #{updateUserErp,jdbcType=VARCHAR}, #{updateUserName,jdbcType=VARCHAR},
+            1
+        )
+    </insert>
+
+    <select id="queryByPage" parameterType="com.jd.dms.wb.sdk.model.material.MaterialStockWarning" resultMap="BaseResultMap">
+        SELECT
+            <include refid="Base_Column_List" />
+        FROM material_stock_warning
+        <include refid="queryCondition" />
+        ORDER BY site_code, ts DESC
+    </select>
+
+    <sql id="queryCondition">
+        <where>
+            yn = 1
+            <if test="siteCode != null and siteCode != '' ">
+                AND site_code = #{siteCode,jdbcType=BIGINT}
+            </if>
+            <if test="orgId != null and orgId != '' " >
+                AND org_id = #{orgId,jdbcType=BIGINT}
+            </if>
+            <if test="materialType != null and materialType != '' " >
+                AND material_type = #{materialType,jdbcType=TINYINT}
+            </if>
+        </where>
+    </sql>
+
+    <insert id="initStayQuota" parameterType="com.jd.dms.wb.sdk.model.material.MaterialStockWarning">
+        INSERT INTO material_stock_warning
+        (
+            material_type,
+            site_code,
+            org_id,
+            lte_two_day_stay_num,
+            two_to_three_day_stay_num,
+            gte_three_day_stay_num,
+            create_time, create_user_erp, create_user_name,
+            update_time, update_user_erp, update_user_name, yn
+        )
+        VALUES (
+           #{materialType,jdbcType=TINYINT}, #{siteCode,jdbcType=BIGINT}, #{orgId,jdbcType=BIGINT},
+           #{lteTwoDayStayNum,jdbcType=BIGINT}, #{twoToThreeDayStayNum,jdbcType=BIGINT}, #{gteThreeDayStayNum,jdbcType=BIGINT},
+           #{createTime,jdbcType=TIMESTAMP}, #{createUserErp,jdbcType=VARCHAR}, #{createUserName,jdbcType=VARCHAR},
+           #{updateTime,jdbcType=TIMESTAMP}, #{updateUserErp,jdbcType=VARCHAR}, #{updateUserName,jdbcType=VARCHAR}, 1
+        )
+    </insert>
+
+    <update id="updateStayQuota" parameterType="com.jd.dms.wb.sdk.model.material.MaterialStockWarning" >
+        UPDATE material_stock_warning
+        SET
+            <if test="lteTwoDayStayNum != null">
+                lte_two_day_stay_num = #{lteTwoDayStayNum,jdbcType=BIGINT},
+            </if>
+            <if test="twoToThreeDayStayNum != null">
+                two_to_three_day_stay_num = #{twoToThreeDayStayNum,jdbcType=BIGINT},
+            </if>
+            <if test="gteThreeDayStayNum != null">
+                gte_three_day_stay_num = #{gteThreeDayStayNum,jdbcType=BIGINT},
+            </if>
+            update_time = now()
+        WHERE
+            material_type = #{materialType,jdbcType=TINYINT}
+            AND site_code = #{siteCode,jdbcType=BIGINT}
+            AND yn = 1
+    </update>
+
+</mapper>

@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.dms.wb.mapper.single.base.IBaseCrossGroupMapper" >
+  <resultMap id="BaseResultMap" type="com.jd.dms.wb.sdk.model.config.entity.CrossCodeGroupConfig" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="group_code" property="groupCode" jdbcType="VARCHAR" />
+    <result column="group_name" property="groupName" jdbcType="VARCHAR" />
+    <result column="site_code" property="siteCode" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="create_user_erp" property="createUserErp" jdbcType="VARCHAR" />
+    <result column="create_user_name" property="createUserName" jdbcType="VARCHAR" />
+    <result column="update_user_erp" property="updateUserErp" jdbcType="VARCHAR" />
+    <result column="update_user_name" property="updateUserName" jdbcType="VARCHAR" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+    <result column="yn" property="yn" jdbcType="BIT" />
+    <result column="ts" property="ts" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, group_code, group_name, site_code, create_time, create_user_erp, create_user_name, 
+    update_user_erp, update_user_name, update_time, yn, ts
+  </sql>
+    <select id="existOtherGroupName" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM config_base_cross_group
+        WHERE yn = 1
+        AND group_name = #{groupName,jdbcType=VARCHAR}
+        AND site_code = #{siteCode,jdbcType=VARCHAR}
+        <if test="id != null">
+            AND id != #{id,jdbcType=BIGINT}
+        </if>
+        LIMIT 1
+    </select>
+
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from config_base_cross_group
+    where yn = 1
+      AND id = #{id,jdbcType=BIGINT}
+  </select>
+
+    <select id="findById" parameterType="com.jd.dms.wb.sdk.model.config.entity.CrossCodeGroupConfig" resultMap="BaseResultMap">
+        SELECT
+            <include refid="Base_Column_List" />
+        FROM config_base_cross_group
+        WHERE yn = 1
+        AND id = #{id,jdbcType=BIGINT}
+        LIMIT 1
+    </select>
+
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from config_base_cross_group
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+
+    <update id="logicDeleteById" parameterType="com.jd.dms.wb.sdk.model.config.entity.CrossCodeGroupConfig">
+        UPDATE config_base_cross_group
+        SET
+            yn = 0,
+            update_user_erp = #{updateUserErp,jdbcType=VARCHAR},
+            update_user_name = #{updateUserName,jdbcType=VARCHAR},
+            update_time = now()
+        WHERE
+            yn = 1
+          AND id = #{id,jdbcType=BIGINT}
+
+    </update>
+  <insert id="insert" parameterType="com.jd.dms.wb.sdk.model.config.entity.CrossCodeGroupConfig" useGeneratedKeys="true" keyProperty="id">
+    insert into config_base_cross_group (group_code, group_name,
+      site_code, create_time, create_user_erp, 
+      create_user_name, update_user_erp, update_user_name,
+      update_time, yn)
+    values
+    (#{groupCode,jdbcType=VARCHAR}, #{groupName,jdbcType=VARCHAR},
+      #{siteCode,jdbcType=VARCHAR}, now(), #{createUserErp,jdbcType=VARCHAR},
+      #{createUserName,jdbcType=VARCHAR}, #{updateUserErp,jdbcType=VARCHAR}, #{updateUserName,jdbcType=VARCHAR},
+      now(), 1
+    )
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="com.jd.dms.wb.sdk.model.config.entity.CrossCodeGroupConfig" >
+    update config_base_cross_group
+    set
+        <if test="groupCode != null and groupCode !='' ">
+            group_code = #{groupCode,jdbcType=VARCHAR},
+        </if>
+        group_name = #{groupName,jdbcType=VARCHAR},
+        update_user_erp = #{updateUserErp,jdbcType=VARCHAR},
+        update_user_name = #{updateUserName,jdbcType=VARCHAR},
+        update_time = now(),
+        yn = 1
+    where
+      id = #{id,jdbcType=BIGINT}
+  </update>
+
+    <update id="logicDelete">
+        UPDATE config_base_cross_group
+        SET
+            yn = 0,
+            update_user_erp = #{updateUserErp,jdbcType=VARCHAR},
+            update_user_name = #{updateUserName,jdbcType=VARCHAR},
+            update_time = now()
+        WHERE
+            yn = 1
+        AND group_name = #{groupName,jdbcType=VARCHAR}
+        AND site_code = #{siteCode,jdbcType=VARCHAR}
+    </update>
+
+    <update id="updateByPrimaryKeySelective" parameterType="com.jd.dms.wb.sdk.model.config.entity.CrossCodeGroupConfig" >
+        update config_base_cross_group
+        <set>
+            <if test="groupCode != null and groupCode != '' " >
+                group_code = #{groupCode,jdbcType=VARCHAR},
+            </if>
+            <if test="groupName != null and groupName != '' " >
+                group_name = #{groupName,jdbcType=VARCHAR},
+            </if>
+            <if test="siteCode != null and siteCode != '' " >
+                site_code = #{siteCode,jdbcType=VARCHAR},
+            </if>
+            <if test="updateUserErp != null and updateUserErp != '' " >
+                update_user_erp = #{updateUserErp,jdbcType=VARCHAR},
+            </if>
+            <if test="updateUserName != null and updateUserName != '' " >
+                update_user_name = #{updateUserName,jdbcType=VARCHAR},
+            </if>
+            update_time = now(),
+            yn = 1
+        </set>
+        where id = #{id,jdbcType=BIGINT}
+    </update>
+
+    <sql id="queryCondition">
+        <where>
+            yn = 1
+            <if test="groupCode != null and groupCode != '' ">
+                AND group_code = #{groupCode,jdbcType=VARCHAR}
+            </if>
+            <if test="groupName != null and groupName != '' " >
+                AND group_name = #{groupName,jdbcType=VARCHAR}
+            </if>
+            <if test="siteCode != null and siteCode != '' " >
+                AND site_code = #{siteCode,jdbcType=VARCHAR}
+            </if>
+        </where>
+    </sql>
+
+    <select id="queryByPage" parameterType="com.jd.dms.wb.sdk.model.config.entity.CrossCodeGroupConfig" resultMap="BaseResultMap">
+        SELECT
+            <include refid="Base_Column_List" />
+        FROM config_base_cross_group
+        <include refid="queryCondition" />
+        ORDER BY ts DESC
+    </select>
+
+    <insert id="saveOrUpdate" parameterType="com.jd.dms.wb.sdk.model.config.entity.CrossCodeGroupConfig">
+        <selectKey keyProperty="id" resultType="com.jd.dms.wb.sdk.model.config.entity.CrossCodeGroupConfig" order="BEFORE">
+            SELECT COUNT(id) as id FROM config_base_cross_group
+            WHERE site_code = #{siteCode,jdbcType=VARCHAR} AND group_name = #{groupName,jdbcType=VARCHAR}
+        </selectKey>
+        <if test="id == 1">
+            update config_base_cross_group
+            <set>
+                <if test="groupCode != null and groupCode != '' " >
+                    group_code = #{groupCode,jdbcType=VARCHAR},
+                </if>
+                <if test="updateUserErp != null and updateUserErp != '' " >
+                    update_user_erp = #{updateUserErp,jdbcType=VARCHAR},
+                </if>
+                <if test="updateUserName != null and updateUserName != '' " >
+                    update_user_name = #{updateUserName,jdbcType=VARCHAR},
+                </if>
+                update_time = now(),
+                yn = 1
+            </set>
+            where site_code = #{siteCode,jdbcType=VARCHAR} AND group_name = #{groupName,jdbcType=VARCHAR}
+        </if>
+        <if test="id == 0">
+            insert into config_base_cross_group
+            (group_code, group_name,
+            site_code, create_time, create_user_erp, create_user_name, yn)
+            values
+            (#{groupCode,jdbcType=VARCHAR}, #{groupName,jdbcType=VARCHAR},
+            #{siteCode,jdbcType=VARCHAR}, now(), #{createUserErp,jdbcType=VARCHAR},
+            #{createUserName,jdbcType=VARCHAR}, 1)
+        </if>
+    </insert>
+
+    <select id="findBySite" parameterType="com.jd.dms.wb.sdk.model.config.entity.CrossCodeGroupConfig" resultMap="BaseResultMap">
+        SELECT
+            <include refid="Base_Column_List"/>
+        FROM config_base_cross_group
+        WHERE yn = 1
+        AND site_code = #{siteCode,jdbcType=VARCHAR}
+        ORDER BY ts DESC
+    </select>
+</mapper>

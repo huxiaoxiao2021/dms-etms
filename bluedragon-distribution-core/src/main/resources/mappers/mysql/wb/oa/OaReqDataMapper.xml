@@ -1,0 +1,430 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.dms.wb.mapper.single.oa.IOaReqDataMapper">
+    <!-- table映射实体对象 -->
+    <resultMap id="RM_OaReqData" type="com.jd.dms.wb.sdk.model.oa.OaReqData">
+        <result property="id" column="id"/>
+        <result property="oaType" column="oa_type"/>
+        <result property="reqId" column="req_id"/>
+        <result property="reqName" column="req_name"/>
+        <result property="reqUserErp" column="req_user_erp"/>
+        <result property="reqTime" column="req_time"/>
+        <result property="reqSiteCode" column="req_site_code"/>
+        <result property="comments" column="comments"/>
+        <result property="dataJson" column="data_json"/>
+        <result property="oaBusinessDataJson" column="oa_business_data_json"/>
+        <result property="oaTasksJson" column="oa_tasks_json"/>
+        <result property="taskhubId" column="taskhub_id"/>
+        <result property="taskhubBizId" column="taskhub_biz_id"/>
+        <result property="oaStatus" column="oa_status"/>
+        <result property="ts" column="ts"/>
+    </resultMap>
+
+    <!-- 用于select查询公用抽取的列 -->
+    <sql id="Base_Column_List">
+        `id`, `oa_type`, `req_id`, `req_name`, `req_user_erp`, `req_time`, `req_site_code`, `comments`, `data_json`, `oa_business_data_json`, `oa_tasks_json`, `taskhub_id`, `taskhub_biz_id`, `oa_status`, `ts`
+    </sql>
+
+    <!-- 增加 -->
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id" parameterType="com.jd.dms.wb.sdk.model.oa.OaReqData">
+        insert into `oa_req_data`
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+
+            <if test="oaType != null">
+                oa_type,
+            </if>
+            <if test="reqId != null and reqId != ''">
+                req_id,
+            </if>
+            <if test="reqName != null and reqName != ''">
+                req_name,
+            </if>
+            <if test="reqUserErp != null and reqUserErp != ''">
+                req_user_erp,
+            </if>
+            <if test="reqTime != null">
+                req_time,
+            </if>
+            <if test="reqSiteCode != null and reqSiteCode != ''">
+                req_site_code,
+            </if>
+            <if test="comments != null and comments != ''">
+                comments,
+            </if>
+            <if test="dataJson != null and dataJson != ''">
+                data_json,
+            </if>
+            <if test="oaBusinessDataJson != null and oaBusinessDataJson != ''">
+                oa_business_data_json,
+            </if>
+            <if test="oaTasksJson != null and oaTasksJson != ''">
+                oa_tasks_json,
+            </if>
+            <if test="taskhubId != null and taskhubId != ''">
+                taskhub_id,
+            </if>
+            <if test="taskhubBizId != null and taskhubBizId != ''">
+                taskhub_biz_id,
+            </if>
+            <if test="oaStatus != null">
+                oa_status,
+            </if>
+            <if test="ts != null">
+                ts,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+
+            <if test="oaType != null">
+                #{oaType},
+            </if>
+            <if test="reqId != null and reqId != ''">
+                #{reqId},
+            </if>
+            <if test="reqName != null and reqName != ''">
+                #{reqName},
+            </if>
+            <if test="reqUserErp != null and reqUserErp != ''">
+                #{reqUserErp},
+            </if>
+            <if test="reqTime != null">
+                #{reqTime},
+            </if>
+            <if test="reqSiteCode != null and reqSiteCode != ''">
+                #{reqSiteCode},
+            </if>
+            <if test="comments != null and comments != ''">
+                #{comments},
+            </if>
+            <if test="dataJson != null and dataJson != ''">
+                #{dataJson},
+            </if>
+            <if test="oaBusinessDataJson != null and oaBusinessDataJson != ''">
+                #{oaBusinessDataJson},
+            </if>
+            <if test="oaTasksJson != null and oaTasksJson != ''">
+                #{oaTasksJson},
+            </if>
+            <if test="taskhubId != null and taskhubId != ''">
+                #{taskhubId},
+            </if>
+            <if test="taskhubBizId != null and taskhubBizId != ''">
+                #{taskhubBizId},
+            </if>
+            <if test="oaStatus != null">
+                #{oaStatus},
+            </if>
+            <if test="ts != null">
+                #{ts},
+            </if>
+        </trim>
+    </insert>
+    <!-- 批量增加 -->
+    <insert id="batchInsert" useGeneratedKeys="true" keyProperty="id" parameterType="java.util.List">
+        insert into `oa_req_data`
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+
+            oa_type,
+            req_id,
+            req_name,
+            req_user_erp,
+            req_time,
+            req_site_code,
+            comments,
+            data_json,
+            oa_business_data_json,
+            oa_tasks_json,
+            taskhub_id,
+            taskhub_biz_id,
+            oa_status,
+            ts,
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix=" (" suffix=")" suffixOverrides=",">
+
+                    #{item.oaType},
+                    #{item.reqId},
+                    #{item.reqName},
+                    #{item.reqUserErp},
+                    #{item.reqTime},
+                    #{item.reqSiteCode},
+                    #{item.comments},
+                    #{item.dataJson},
+                    #{item.oaBusinessDataJson},
+                    #{item.oaTasksJson},
+                    #{item.taskhubId},
+                    #{item.taskhubBizId},
+                    #{item.oaStatus},
+                    #{item.ts},
+            </trim>
+        </foreach>
+    </insert>
+    <!-- 更新 -->
+    <update id="updateByPrimaryKey" parameterType="com.jd.dms.wb.sdk.model.oa.OaReqData">
+        UPDATE `oa_req_data`
+        <set>
+            <if test="oaType != null ">
+            oa_type = #{oaType},
+            </if>
+            <if test="reqId != null and reqId != ''">
+            req_id = #{reqId},
+            </if>
+            <if test="reqName != null and reqName != ''">
+            req_name = #{reqName},
+            </if>
+            <if test="reqUserErp != null and reqUserErp != ''">
+            req_user_erp = #{reqUserErp},
+            </if>
+            <if test="reqTime != null ">
+            req_time = #{reqTime},
+            </if>
+            <if test="reqSiteCode != null and reqSiteCode != ''">
+            req_site_code = #{reqSiteCode},
+            </if>
+            <if test="comments != null and comments != ''">
+            comments = #{comments},
+            </if>
+            <if test="dataJson != null and dataJson != ''">
+            data_json = #{dataJson},
+            </if>
+            <if test="oaBusinessDataJson != null and oaBusinessDataJson != ''">
+            oa_business_data_json = #{oaBusinessDataJson},
+            </if>
+            <if test="oaTasksJson != null and oaTasksJson != ''">
+            oa_tasks_json = #{oaTasksJson},
+            </if>
+            <if test="taskhubId != null and taskhubId != ''">
+            taskhub_id = #{taskhubId},
+            </if>
+            <if test="taskhubBizId != null and taskhubBizId != ''">
+            taskhub_biz_id = #{taskhubBizId},
+            </if>
+            <if test="oaStatus != null ">
+            oa_status = #{oaStatus},
+            </if>
+            <if test="ts != null ">
+            ts = #{ts}
+            </if>
+        </set>
+        WHERE
+            id = #{id}
+    </update>
+    <!-- 批量更新 -->
+    <update id="batchUpdate" parameterType="java.util.List">
+        <foreach collection="list" item="item" index="index"  separator=";">
+            UPDATE `oa_req_data`
+            <set>
+                <if test="item.oaType != null">
+                oa_type = #{item.oaType},
+                </if>
+                <if test="item.reqId != null and item.reqId != ''">
+                req_id = #{item.reqId},
+                </if>
+                <if test="item.reqName != null and item.reqName != ''">
+                req_name = #{item.reqName},
+                </if>
+                <if test="item.reqUserErp != null and item.reqUserErp != ''">
+                req_user_erp = #{item.reqUserErp},
+                </if>
+                <if test="item.reqTime != null">
+                req_time = #{item.reqTime},
+                </if>
+                <if test="item.reqSiteCode != null and item.reqSiteCode != ''">
+                req_site_code = #{item.reqSiteCode},
+                </if>
+                <if test="item.comments != null and item.comments != ''">
+                comments = #{item.comments},
+                </if>
+                <if test="item.dataJson != null and item.dataJson != ''">
+                data_json = #{item.dataJson},
+                </if>
+                <if test="item.oaBusinessDataJson != null and item.oaBusinessDataJson != ''">
+                oa_business_data_json = #{item.oaBusinessDataJson},
+                </if>
+                <if test="item.oaTasksJson != null and item.oaTasksJson != ''">
+                oa_tasks_json = #{item.oaTasksJson},
+                </if>
+                <if test="item.taskhubId != null and item.taskhubId != ''">
+                taskhub_id = #{item.taskhubId},
+                </if>
+                <if test="item.taskhubBizId != null and item.taskhubBizId != ''">
+                taskhub_biz_id = #{item.taskhubBizId},
+                </if>
+                <if test="item.oaStatus != null">
+                oa_status = #{item.oaStatus},
+                </if>
+                <if test="item.ts != null">
+                ts = #{item.ts}
+                </if>
+            </set>
+            WHERE
+                id = #{item.id}
+        </foreach>
+    </update>
+    <!-- 按主键查询 -->
+    <select id="selectByPrimaryKey" resultMap="RM_OaReqData" parameterType="com.jd.dms.wb.sdk.model.oa.OaReqData">
+        SELECT
+        <include refid="Base_Column_List"/>
+        <![CDATA[
+            FROM `oa_req_data`
+            WHERE
+                id = #{id} 
+        ]]>
+    </select>
+    <!-- 按表中的XXX列查询集合 -->
+    <select id="selectByColumn" resultMap="RM_OaReqData" parameterType="com.jd.dms.wb.sdk.model.oa.OaReqData">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM `oa_req_data`
+        <where>
+            <include refid="whereByColumnValueMap"/>
+        </where>
+    </select>
+    <!-- 按条件查询单条记录 -->
+    <select id="selectOne" resultMap="RM_OaReqData" parameterType="com.jd.dms.wb.sdk.model.oa.OaReqData">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM `oa_req_data`
+        <include refid="where"/>
+    </select>
+    <!-- where条件 -->
+    <sql id="where">
+        <where>
+            <include refid="sql_if_not_null"/>
+            <include refid="whereByColumnValueMap"/>
+        </where>
+    </sql>
+    <!-- 判断空值 -->
+    <sql id="sql_if_not_null">
+        <if test="id != null">
+        AND id = #{id}
+        </if>
+        <if test="oaType != null">
+        AND oa_type = #{oaType}
+        </if>
+        <if test="reqId != null and reqId != ''">
+        AND req_id = #{reqId}
+        </if>
+        <if test="reqName != null and reqName != ''">
+        AND req_name = #{reqName}
+        </if>
+        <if test="reqUserErp != null and reqUserErp != ''">
+        AND req_user_erp = #{reqUserErp}
+        </if>
+        <if test="reqTime != null">
+        AND req_time = #{reqTime}
+        </if>
+        <if test="reqSiteCode != null and reqSiteCode != ''">
+        AND req_site_code = #{reqSiteCode}
+        </if>
+        <if test="comments != null and comments != ''">
+        AND comments = #{comments}
+        </if>
+        <if test="dataJson != null and dataJson != ''">
+        AND data_json = #{dataJson}
+        </if>
+        <if test="oaBusinessDataJson != null and oaBusinessDataJson != ''">
+        AND oa_business_data_json = #{oaBusinessDataJson}
+        </if>
+        <if test="oaTasksJson != null and oaTasksJson != ''">
+        AND oa_tasks_json = #{oaTasksJson}
+        </if>
+        <if test="taskhubId != null and taskhubId != ''">
+        AND taskhub_id = #{taskhubId}
+        </if>
+        <if test="taskhubBizId != null and taskhubBizId != ''">
+        AND taskhub_biz_id = #{taskhubBizId}
+        </if>
+        <if test="oaStatus != null">
+        AND oa_status = #{oaStatus}
+        </if>
+        <if test="ts != null">
+        AND ts = #{ts}
+        </if>
+    </sql>
+    <!-- 按字段值参数查询条件 -->
+    <sql id="whereByColumnValueMap">
+        <if test="columnValueMap != null">
+            <foreach collection="columnValueMap.entrySet()" item="itemList" index="field">
+                AND #{field}
+                <if test="itemList.size() == 1 ">
+                    = <foreach collection="itemList" item="item" index="index" separator=",">#{item}</foreach>
+                </if>
+                <if test="itemList.size() > 1 ">
+                    in (
+                    <foreach collection="itemList" item="item" index="index" separator=",">
+                        #{item}
+                    </foreach>
+                    )
+                </if>
+            </foreach>
+        </if>
+    </sql>
+    <!-- 查询行数 -->
+    <select id="queryCount" resultType="long" parameterType="com.jd.dms.wb.sdk.model.oa.OaReqData">
+        SELECT count(1) FROM `oa_req_data`
+        <include refid="where"/>
+    </select>
+    <!-- 查询集合 如果pageNumber小于或等于0,则不进行分页操作 -->
+    <select id="queryList" resultMap="RM_OaReqData" parameterType="com.jd.dms.wb.sdk.model.oa.OaReqData">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM `oa_req_data`
+        <include refid="where"/>
+        <if test="pageNumber > 0">
+            limit #{startRecord}, #{pageSize}
+        </if>
+    </select>
+
+    <select id="findByTypeAndReqId" resultMap="RM_OaReqData">
+
+        select
+        <include refid="Base_Column_List" />
+        FROM `oa_req_data`
+        where oa_type = #{oaType} and req_id = #{reqId}
+        limit 1
+
+    </select>
+
+    <select id="findByTypeAndTaskHubId" resultMap="RM_OaReqData">
+
+        select
+        <include refid="Base_Column_List" />
+        FROM `oa_req_data`
+        where oa_type = #{oaType} and taskhub_id = #{taskHubId}
+        limit 1
+
+    </select>
+
+    <select id="findByTypeAndSite" resultMap="RM_OaReqData">
+
+        select
+        <include refid="Base_Column_List" />
+        FROM `oa_req_data`
+        where oa_type = #{oaType}
+        and oa_status = #{oaStatus} and req_site_code = #{siteCode}
+
+    </select>
+    <!-- 伪删除（更新删除行的识别码） -->
+    <update id="deleteByPrimaryKey" parameterType="com.jd.dms.wb.sdk.model.oa.OaReqData">
+        UPDATE `oa_req_data` SET yn = 1
+        WHERE
+        id = #{id} 
+    </update>
+    <!-- 批量伪删除 -->
+    <update id="batchDelete" parameterType="com.jd.dms.wb.sdk.model.oa.OaReqData">
+        UPDATE `oa_req_data` SET yn = 1
+        WHERE id IN
+        <foreach collection="columnValueList" item="item" index="index" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </update>
+
+    <update id="updateStatus">
+        update oa_req_data
+        set oa_status = #{oaStatus}
+        where oa_type = #{oaType} and req_id = #{reqId}
+    </update>
+</mapper>
+

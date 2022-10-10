@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="GBK"?>
+<!DOCTYPE configuration
+		PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>
+	<properties>
+		<property name="dialect" value="MYSQL"/>
+	</properties>
+	<settings>
+		<setting name="lazyLoadingEnabled" value="false"/>
+		<setting name="autoMappingBehavior" value="FULL"/>
+		<setting name="defaultStatementTimeout" value="30"/>
+	</settings>
+
+	<typeAliases>
+	</typeAliases>
+
+
+	<mappers>
+		<mapper resource="mappers/mysql/wb/working/ConfigWorkingActionMapper.xml" />
+		<mapper resource="mappers/mysql/wb/working/ConfigWorkingAutoDeviceMapper.xml" />
+		<mapper resource="mappers/mysql/wb/working/ConfigWorkingCategoryMapper.xml" />
+		<mapper resource="mappers/mysql/wb/working/ConfigWorkingDeviceChuteMapper.xml" />
+		<mapper resource="mappers/mysql/wb/working/ConfigWorkingDeviceSupplyMapper.xml" />
+		<mapper resource="mappers/mysql/wb/working/ConfigWorkingGridMapper.xml" />
+		<mapper resource="mappers/mysql/wb/working/ConfigWorkingGridWorkMapper.xml" />
+		<mapper resource="mappers/mysql/wb/working/ConfigWorkingTargetSiteMapper.xml" />
+		<mapper resource="mappers/mysql/wb/working/ConfigWorkingWarehouseMapper.xml" />
+	</mappers>
+</configuration>
