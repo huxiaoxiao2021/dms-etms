@@ -19,7 +19,7 @@ public class InspectionTaskDetail implements Serializable {
     private String taskId;
 
     /**
-     * 卸车任务业务主键
+     * 验货任务业务主键
      */
     private String bizId;
 

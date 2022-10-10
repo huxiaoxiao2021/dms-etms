@@ -1,14 +1,15 @@
 package com.jd.bluedragon.common.dto.operation.workbench.unload.response;
 
+import com.jd.bluedragon.common.dto.operation.workbench.warehouse.inpection.response.InspectionScanBarCode;
+
 import java.io.Serializable;
 import java.util.List;
 
 /**
- * @ClassName InterceptScanBarCode
- * @Description 卸车拦截扫描明细
- * @Author wyh
- * @Date 2022/4/1 15:22
- **/
+ * 拦截包裹明细
+ * @author fanggang7
+ * @time 2022-10-09 14:43:56 周日
+ */
 public class InterceptScanBarCode implements Serializable {
 
     private static final long serialVersionUID = 5898441268950619129L;
@@ -19,14 +20,9 @@ public class InterceptScanBarCode implements Serializable {
     private Long actualScanCount;
 
     /**
-     * 应扫数量
-     */
-    private Long shouldScanCount;
-
-    /**
      * 包裹列表
      */
-    private List<UnloadScanBarCode> barCodeList;
+    private List<InspectionScanBarCode> barcodeList;
 
     public Long getActualScanCount() {
         return actualScanCount;
@@ -36,19 +32,11 @@ public class InterceptScanBarCode implements Serializable {
         this.actualScanCount = actualScanCount;
     }
 
-    public Long getShouldScanCount() {
-        return shouldScanCount;
+    public List<InspectionScanBarCode> getBarcodeList() {
+        return barcodeList;
     }
 
-    public void setShouldScanCount(Long shouldScanCount) {
-        this.shouldScanCount = shouldScanCount;
-    }
-
-    public List<UnloadScanBarCode> getBarCodeList() {
-        return barCodeList;
-    }
-
-    public void setBarCodeList(List<UnloadScanBarCode> barCodeList) {
-        this.barCodeList = barCodeList;
+    public void setBarcodeList(List<InspectionScanBarCode> barcodeList) {
+        this.barcodeList = barcodeList;
     }
 }

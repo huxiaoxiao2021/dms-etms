@@ -19,7 +19,7 @@ public class InspectionScanBarCode implements Serializable {
     /**
      * 单号
      */
-    private String barCode;
+    private String barcode;
 
     /**
      * 产品类型
@@ -38,12 +38,12 @@ public class InspectionScanBarCode implements Serializable {
 
     private String scanTypeDesc;
 
-    public String getBarCode() {
-        return barCode;
+    public String getBarcode() {
+        return barcode;
     }
 
-    public void setBarCode(String barCode) {
-        this.barCode = barCode;
+    public void setBarcode(String barcode) {
+        this.barcode = barcode;
     }
 
     public String getProductType() {

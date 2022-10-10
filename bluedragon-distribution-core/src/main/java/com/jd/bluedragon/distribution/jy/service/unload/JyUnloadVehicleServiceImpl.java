@@ -1131,7 +1131,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         interceptScanBarCode.setActualScanCount(calculateInterceptShouldScanCount(retPager.getData()));
         interceptScanBarCode.setShouldScanCount(retPager.getTotal());
 
-        interceptScanBarCode.setBarCodeList(getUnloadScanBarCodeList(UnloadBarCodeQueryEntranceEnum.INTERCEPT, retPager.getData()));
+        interceptScanBarCode.setBarcodeList(getUnloadScanBarCodeList(UnloadBarCodeQueryEntranceEnum.INTERCEPT, retPager.getData()));
 
         return interceptScanBarCode;
     }

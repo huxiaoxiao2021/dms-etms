@@ -1,7 +1,5 @@
 package com.jd.bluedragon.common.dto.operation.workbench.warehouse.inpection.response;
 
-import com.jd.bluedragon.common.dto.operation.workbench.unload.response.UnloadScanBarCode;
-
 import java.io.Serializable;
 import java.util.List;
 
@@ -32,12 +30,12 @@ public class InspectionFinishPreviewData implements Serializable {
     /**
      * 拦截已扫数量
      */
-    private Long interceptActualScanCount;
+    private Long interceptScanCount;
 
     /**
      * 明细列表
      */
-    private List<UnloadScanBarCode> barCodeList;
+    private List<InspectionScanBarCode> barCodeList;
 
     public Boolean getAbnormalFlag() {
         return abnormalFlag;
@@ -63,19 +61,19 @@ public class InspectionFinishPreviewData implements Serializable {
         this.abnormalCount = abnormalCount;
     }
 
-    public Long getInterceptActualScanCount() {
-        return interceptActualScanCount;
+    public Long getInterceptScanCount() {
+        return interceptScanCount;
     }
 
-    public void setInterceptActualScanCount(Long interceptActualScanCount) {
-        this.interceptActualScanCount = interceptActualScanCount;
+    public void setInterceptScanCount(Long interceptScanCount) {
+        this.interceptScanCount = interceptScanCount;
     }
 
-    public List<UnloadScanBarCode> getBarCodeList() {
+    public List<InspectionScanBarCode> getBarCodeList() {
         return barCodeList;
     }
 
-    public void setBarCodeList(List<UnloadScanBarCode> barCodeList) {
+    public void setBarCodeList(List<InspectionScanBarCode> barCodeList) {
         this.barCodeList = barCodeList;
     }
 }
