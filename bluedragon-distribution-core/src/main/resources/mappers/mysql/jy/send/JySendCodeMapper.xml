@@ -96,13 +96,13 @@
             send_detail_biz_id  = #{toSendVehicleDetailBizId},
             update_user_erp     = #{updateUserErp},
             update_user_name    = #{updateUserName},
+            <if test="source!=null">
+                source =#{source},
+            </if>
             update_time         = now()
         where send_code = #{sendCode}
           and send_vehicle_biz_id = #{fromSendVehicleBizId}
           and send_detail_biz_id = #{fromSendVehicleDetailBizId}
-        <if test="source!=null">
-            and source =#{source}
-        </if>
     </update>
 
     <update id="deleteVehicleSendRelation" parameterType="com.jd.bluedragon.distribution.jy.dto.send.TransferDto">
