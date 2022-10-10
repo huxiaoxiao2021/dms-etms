@@ -121,6 +121,15 @@ public class SealVehicleReq extends BaseReq implements Serializable {
      * 预封车选择的批次号列表
      */
     private List<String> selectedSendCodes;
+    
+    /**
+     * 扫描的封签号
+     */
+    private List<String> scannedSealCodes;
+    /**
+     * 扫描的批次
+     */
+    private List<String> scannedBatchCodes;    
 
     private String billCode;
 
@@ -292,4 +301,20 @@ public class SealVehicleReq extends BaseReq implements Serializable {
     public void setBillCode(String billCode) {
         this.billCode = billCode;
     }
+
+	public List<String> getScannedSealCodes() {
+		return scannedSealCodes;
+	}
+
+	public void setScannedSealCodes(List<String> scannedSealCodes) {
+		this.scannedSealCodes = scannedSealCodes;
+	}
+
+	public List<String> getScannedBatchCodes() {
+		return scannedBatchCodes;
+	}
+
+	public void setScannedBatchCodes(List<String> scannedBatchCodes) {
+		this.scannedBatchCodes = scannedBatchCodes;
+	}
 }

@@ -2443,6 +2443,14 @@ public class BusinessUtil {
         return isSignChar(waybillSign, WaybillSignConstants.POSITION_53, WaybillSignConstants.CHAR_1);
     }
     /**
+     * 判断是否需要抽检
+     * @param tagSign
+     * @return
+     */
+    public static boolean needSpotCheck(String tagSign){
+    	return BusinessUtil.isSignInChars(tagSign, JyUnloadTaskSignConstants.POSITION_1,JyUnloadTaskSignConstants.CHAR_1_1,JyUnloadTaskSignConstants.CHAR_1_2);
+    }
+    /**
      * 通过运单标识 判断是否需求称重
      * <p>
      * 66 位 是0  标识可以称重

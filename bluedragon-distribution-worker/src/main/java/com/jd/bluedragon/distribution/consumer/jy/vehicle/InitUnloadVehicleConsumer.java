@@ -6,6 +6,7 @@ import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.jy.dto.task.UnloadVehicleMqDto;
+import com.jd.bluedragon.distribution.jy.enums.SpotCheckTypeEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskUnloadVehicleService;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
@@ -224,8 +225,10 @@ public class InitUnloadVehicleConsumer extends MessageBaseConsumer {
 
         // 标记抽检标识
         if (mqDto.getCheckType() != null) {
-            if (mqDto.getCheckType() == Constants.CONSTANT_NUMBER_ONE) {
+            if (SpotCheckTypeEnum.DIRECT.getCode().equals(mqDto.getCheckType())) {
                 unloadVehicleEntity.setTagsSign(TagSignHelper.setPositionSign(unloadVehicleEntity.getTagsSign(), JyUnloadTaskSignConstants.POSITION_1, JyUnloadTaskSignConstants.CHAR_1_1));
+            }else if (SpotCheckTypeEnum.RANDOM.getCode().equals(mqDto.getCheckType())) {
+                unloadVehicleEntity.setTagsSign(TagSignHelper.setPositionSign(unloadVehicleEntity.getTagsSign(), JyUnloadTaskSignConstants.POSITION_1, JyUnloadTaskSignConstants.CHAR_1_2));
             }
         }
 

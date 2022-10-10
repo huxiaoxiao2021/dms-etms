@@ -59,4 +59,13 @@ public interface SpotCheckReportService {
      * @return
      */
     InvokeResult<Boolean> uploadExcessPicture(MultipartFile image, HttpServletRequest request);
+
+    /**
+     * 安全校验
+     *
+     * @param waybillCode
+     * @param userErp
+     * @return
+     */
+    InvokeResult<Boolean> securityCheck(String waybillCode, String userErp);
 }

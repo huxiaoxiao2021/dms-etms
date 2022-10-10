@@ -16,7 +16,7 @@ public class NewUnsealVehicleResponse<T> implements Serializable {
      * 解封车提示抽检术语
      */
     public static final Integer SPOT_CHECK_UNSEAL_HINT_CODE = 20001;
-    public static final String SPOT_CHECK_UNSEAL_HINT_MESSAGE = "您解封车辆需要进行整车抽检，烦请称重量方抽检，谢谢!";
+    public static final String SPOT_CHECK_UNSEAL_HINT_MESSAGE = "该任务为%s任务，解封车时需要进行整车抽检，烦请称重量方抽检，谢谢！";
 
     private Integer code;
 

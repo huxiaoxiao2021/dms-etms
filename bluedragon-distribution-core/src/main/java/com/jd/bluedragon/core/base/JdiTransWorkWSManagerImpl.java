@@ -1,9 +1,7 @@
 package com.jd.bluedragon.core.base;
 
 import com.jd.bluedragon.Constants;
-import com.jd.tms.jdi.dto.BigQueryOption;
-import com.jd.tms.jdi.dto.BigTransWorkItemDto;
-import com.jd.tms.jdi.dto.CommonDto;
+import com.jd.tms.jdi.dto.*;
 import com.jd.tms.jdi.ws.JdiTransWorkWS;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -39,5 +37,11 @@ public class JdiTransWorkWSManagerImpl implements JdiTransWorkWSManager{
             return commonDto.getData();
         }
         return null;
+    }
+
+    @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMS.BASE.JdiTransWorkWSManager.sendCarArriveStatus",mState = {JProEnum.TP, JProEnum.FunctionError})
+    public CommonDto recordBeginPlatformEnterTime(AccountDto accountDto, TransWorkPlatformEnterDto transWorkPlatformEnterDto) {
+        return jdiTransWorkWS.recordBeginPlatformEnterTime(accountDto, transWorkPlatformEnterDto);
     }
 }

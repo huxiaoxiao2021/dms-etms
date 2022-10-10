@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.jd.bd.dms.automatic.marshal.GodHeader;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.core.context.InvokerClientInfoContext;
 import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.bluedragon.utils.ServletRequestHelper;
 import com.jd.bluedragon.utils.SpringHelper;
@@ -53,15 +54,31 @@ public class DmsOAuthInterceptFilter extends DmsAuthorizationFilter {
         String ipAddress =ServletRequestHelper.getRealIpAddress(httpServletRequest);
         String uri =httpServletRequest.getRequestURI();
 
-        if (secretBool) {
-            LOGGER.info("内部调用，未拦截，客户端IP:{}", ServletRequestHelper.getRealIpAddress(httpServletRequest));
-            filterChain.doFilter(httpServletRequest,httpServletResponse);
-        } else if (pathMatch(uri)) {
-            super.doFilterInternal(httpServletRequest, httpServletResponse, filterChain);
-        } else {
-            LOGGER.warn("该客户端本次调用未进行rest加密鉴权,客户端IP:{}，请求路径：{}", ipAddress,uri);
-            writeLogToHive(ipAddress,uri);
-            filterChain.doFilter(httpServletRequest,httpServletResponse);
+        try {
+            //获得rest请求中的登陆人erpCode
+            String erpCode = httpServletRequest.getHeader("erpCode");
+
+            InvokerClientInfoContext.ClientInfo clientInfo = new InvokerClientInfoContext.ClientInfo();
+            clientInfo.setClientIp(ipAddress);
+            clientInfo.setUser(erpCode);
+            InvokerClientInfoContext.add(clientInfo);
+
+            if (secretBool) {
+                LOGGER.info("内部调用，未拦截，客户端IP:{}", ServletRequestHelper.getRealIpAddress(httpServletRequest));
+                filterChain.doFilter(httpServletRequest,httpServletResponse);
+            } else if (pathMatch(uri)) {
+                super.doFilterInternal(httpServletRequest, httpServletResponse, filterChain);
+            } else {
+                LOGGER.warn("该客户端本次调用未进行rest加密鉴权,客户端IP:{}，请求路径：{}", ipAddress,uri);
+                writeLogToHive(ipAddress,uri);
+                filterChain.doFilter(httpServletRequest,httpServletResponse);
+            }
+        } finally {
+            try {
+                InvokerClientInfoContext.clear();
+            } catch (RuntimeException e) {
+                LOGGER.error("清理客户端信息失败",e);
+            }
         }
     }
 

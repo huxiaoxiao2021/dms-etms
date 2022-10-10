@@ -195,4 +195,8 @@ public class JySendVehicleGatewayServiceImpl implements JySendVehicleGatewayServ
         return retJdCResponse(jySendVehicleService.checkMainLineSendTask(request));
     }
 
+    @Override
+    public JdCResponse<SendTaskInfo> sendTaskDetail(SendVehicleInfoRequest request) {
+        return retJdCResponse(jySendVehicleService.sendTaskDetail(request));
+    }
 }

@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.reverse.domain;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * 外单逆向换单
@@ -45,7 +46,6 @@ public class ExchangeWaybillDto implements Serializable{
      * 二次换单标识
      */
     private Boolean twiceExchangeFlag = Boolean.FALSE;
-
     public String getWaybillCode() {
         return waybillCode;
     }
@@ -149,4 +149,5 @@ public class ExchangeWaybillDto implements Serializable{
 	public void setTwiceExchangeFlag(Boolean twiceExchangeFlag) {
 		this.twiceExchangeFlag = twiceExchangeFlag;
 	}
+
 }

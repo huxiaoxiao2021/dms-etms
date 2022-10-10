@@ -5,6 +5,7 @@ import com.jd.bluedragon.distribution.businessCode.BusinessCodeFromSourceEnum;
 import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
 import com.jd.bluedragon.distribution.sendCode.domain.HugeSendCodeEntity;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -22,6 +23,12 @@ public interface DMSSendCodeJSFService {
      * @return
      */
     InvokeResult<HugeSendCodeEntity> queryBigInfoBySendCode(String sendCode);
+    /**
+     * 查询批次号得相关信息，非明细信息
+     * @param sendCodes 批次号列表
+     * @return
+     */
+    InvokeResult<Map<String,HugeSendCodeEntity>> queryWeightAndVolumeInfoBySendCodes(List<String> sendCodes);
 
     /**
      * 创建批次号
