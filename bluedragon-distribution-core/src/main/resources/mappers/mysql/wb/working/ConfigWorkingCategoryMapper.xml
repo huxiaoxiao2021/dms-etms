@@ -1,0 +1,377 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.dms.wb.mapper.single.working.ConfigWorkingCategoryMapper" >
+  <resultMap id="BaseResultMap" type="com.jd.dms.wb.sdk.model.working.ConfigWorkingCategory" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="site_id" property="siteId" jdbcType="INTEGER" />
+    <result column="group_id" property="groupId" jdbcType="VARCHAR" />
+    <result column="action_id" property="actionId" jdbcType="BIGINT" />
+    <result column="order_index" property="orderIndex" jdbcType="TINYINT" />
+    <result column="category_index" property="categoryIndex" jdbcType="TINYINT" />
+    <result column="operation_symbol" property="operationSymbol" jdbcType="TINYINT" />
+    <result column="statistics_type" property="statisticsType" jdbcType="TINYINT" />
+    <result column="direction" property="direction" jdbcType="TINYINT" />
+    <result column="flow_type" property="flowType" jdbcType="TINYINT" />
+    <result column="start_time" property="startTime" jdbcType="TIMESTAMP" />
+    <result column="end_time" property="endTime" jdbcType="TIMESTAMP" />
+    <result column="cross_days" property="crossDays" jdbcType="TINYINT" />
+    <result column="tab_index" property="tabIndex" jdbcType="TINYINT" />
+    <result column="yn" property="yn" jdbcType="BIT" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+    <result column="version" property="version" jdbcType="INTEGER" />
+    <result column="ts" property="ts" jdbcType="TIMESTAMP" />
+    <result column="statistics_dimension" property="statisticsDimension" jdbcType="TINYINT" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, site_id, group_id, action_id, order_index, category_index, operation_symbol,
+    statistics_type, direction, flow_type, start_time, end_time, cross_days, tab_index,
+    yn, create_time, update_time, version, ts, statistics_dimension
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select
+    <include refid="Base_Column_List" />
+    from config_working_category
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from config_working_category
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.jd.dms.wb.sdk.model.working.ConfigWorkingCategory" >
+    insert into config_working_category (id, site_id, group_id,
+      action_id, order_index, category_index,
+      operation_symbol, statistics_type, direction,
+      flow_type, start_time, end_time,
+      cross_days, tab_index, yn,
+      create_time, update_time, version,
+      ts, statistics_dimension)
+    values (#{id,jdbcType=BIGINT}, #{siteId,jdbcType=INTEGER}, #{groupId,jdbcType=VARCHAR},
+      #{actionId,jdbcType=BIGINT}, #{orderIndex,jdbcType=TINYINT}, #{categoryIndex,jdbcType=TINYINT},
+      #{operationSymbol,jdbcType=TINYINT}, #{statisticsType,jdbcType=TINYINT}, #{direction,jdbcType=TINYINT},
+      #{flowType,jdbcType=TINYINT}, #{startTime,jdbcType=TIMESTAMP}, #{endTime,jdbcType=TIMESTAMP},
+      #{crossDays,jdbcType=TINYINT}, #{tabIndex,jdbcType=TINYINT}, #{yn,jdbcType=BIT},
+      #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, #{version,jdbcType=INTEGER},
+      #{ts,jdbcType=TIMESTAMP}, #{statisticsDimension,jdbcType=TINYINT})
+  </insert>
+  <insert id="insertSelective" parameterType="com.jd.dms.wb.sdk.model.working.ConfigWorkingCategory" >
+    insert into config_working_category
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="siteId != null" >
+        site_id,
+      </if>
+      <if test="groupId != null" >
+        group_id,
+      </if>
+      <if test="actionId != null" >
+        action_id,
+      </if>
+      <if test="orderIndex != null" >
+        order_index,
+      </if>
+      <if test="categoryIndex != null" >
+        category_index,
+      </if>
+      <if test="operationSymbol != null" >
+        operation_symbol,
+      </if>
+      <if test="statisticsType != null" >
+        statistics_type,
+      </if>
+      <if test="direction != null" >
+        direction,
+      </if>
+      <if test="flowType != null" >
+        flow_type,
+      </if>
+      <if test="startTime != null" >
+        start_time,
+      </if>
+      <if test="endTime != null" >
+        end_time,
+      </if>
+      <if test="crossDays != null" >
+        cross_days,
+      </if>
+      <if test="tabIndex != null" >
+        tab_index,
+      </if>
+      <if test="yn != null" >
+        yn,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="updateTime != null" >
+        update_time,
+      </if>
+      <if test="version != null" >
+        version,
+      </if>
+      <if test="ts != null" >
+        ts,
+      </if>
+      <if test="statisticsDimension != null" >
+        statistics_dimension,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="siteId != null" >
+        #{siteId,jdbcType=INTEGER},
+      </if>
+      <if test="groupId != null" >
+        #{groupId,jdbcType=VARCHAR},
+      </if>
+      <if test="actionId != null" >
+        #{actionId,jdbcType=BIGINT},
+      </if>
+      <if test="orderIndex != null" >
+        #{orderIndex,jdbcType=TINYINT},
+      </if>
+      <if test="categoryIndex != null" >
+        #{categoryIndex,jdbcType=TINYINT},
+      </if>
+      <if test="operationSymbol != null" >
+        #{operationSymbol,jdbcType=TINYINT},
+      </if>
+      <if test="statisticsType != null" >
+        #{statisticsType,jdbcType=TINYINT},
+      </if>
+      <if test="direction != null" >
+        #{direction,jdbcType=TINYINT},
+      </if>
+      <if test="flowType != null" >
+        #{flowType,jdbcType=TINYINT},
+      </if>
+      <if test="startTime != null" >
+        #{startTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="endTime != null" >
+        #{endTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="crossDays != null" >
+        #{crossDays,jdbcType=TINYINT},
+      </if>
+      <if test="tabIndex != null" >
+        #{tabIndex,jdbcType=TINYINT},
+      </if>
+      <if test="yn != null" >
+        #{yn,jdbcType=BIT},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="version != null" >
+        #{version,jdbcType=INTEGER},
+      </if>
+      <if test="ts != null" >
+        #{ts,jdbcType=TIMESTAMP},
+      </if>
+      <if test="statisticsDimension != null" >
+        #{statisticsDimension,jdbcType=TINYINT},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.jd.dms.wb.sdk.model.working.ConfigWorkingCategory" >
+    update config_working_category
+    <set >
+      <if test="siteId != null" >
+        site_id = #{siteId,jdbcType=INTEGER},
+      </if>
+      <if test="groupId != null" >
+        group_id = #{groupId,jdbcType=VARCHAR},
+      </if>
+      <if test="actionId != null" >
+        action_id = #{actionId,jdbcType=BIGINT},
+      </if>
+      <if test="orderIndex != null" >
+        order_index = #{orderIndex,jdbcType=TINYINT},
+      </if>
+      <if test="categoryIndex != null" >
+        category_index = #{categoryIndex,jdbcType=TINYINT},
+      </if>
+      <if test="operationSymbol != null" >
+        operation_symbol = #{operationSymbol,jdbcType=TINYINT},
+      </if>
+      <if test="statisticsType != null" >
+        statistics_type = #{statisticsType,jdbcType=TINYINT},
+      </if>
+      <if test="direction != null" >
+        direction = #{direction,jdbcType=TINYINT},
+      </if>
+      <if test="flowType != null" >
+        flow_type = #{flowType,jdbcType=TINYINT},
+      </if>
+      <if test="startTime != null" >
+        start_time = #{startTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="endTime != null" >
+        end_time = #{endTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="crossDays != null" >
+        cross_days = #{crossDays,jdbcType=TINYINT},
+      </if>
+      <if test="tabIndex != null" >
+        tab_index = #{tabIndex,jdbcType=TINYINT},
+      </if>
+      <if test="yn != null" >
+        yn = #{yn,jdbcType=BIT},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="version != null" >
+        version = #{version,jdbcType=INTEGER},
+      </if>
+      <if test="ts != null" >
+        ts = #{ts,jdbcType=TIMESTAMP},
+      </if>
+      <if test="statisticsDimension != null" >
+        statistics_dimension = #{statisticsDimension,jdbcType=TINYINT},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.jd.dms.wb.sdk.model.working.ConfigWorkingCategory" >
+    update config_working_category
+    set site_id = #{siteId,jdbcType=INTEGER},
+      group_id = #{groupId,jdbcType=VARCHAR},
+      action_id = #{actionId,jdbcType=BIGINT},
+      order_index = #{orderIndex,jdbcType=TINYINT},
+      category_index = #{categoryIndex,jdbcType=TINYINT},
+      operation_symbol = #{operationSymbol,jdbcType=TINYINT},
+      statistics_type = #{statisticsType,jdbcType=TINYINT},
+      direction = #{direction,jdbcType=TINYINT},
+      flow_type = #{flowType,jdbcType=TINYINT},
+      start_time = #{startTime,jdbcType=TIMESTAMP},
+      end_time = #{endTime,jdbcType=TIMESTAMP},
+      cross_days = #{crossDays,jdbcType=TINYINT},
+      tab_index = #{tabIndex,jdbcType=TINYINT},
+      yn = #{yn,jdbcType=BIT},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      version = #{version,jdbcType=INTEGER},
+      ts = #{ts,jdbcType=TIMESTAMP},
+      statistics_dimension = #{statisticsDimension,jdbcType=TINYINT}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+
+    <insert id="batchInsert" useGeneratedKeys="true" keyProperty="id">
+        insert into config_working_category (
+        site_id,
+        group_id,
+        action_id,
+        order_index,
+        category_index,
+        operation_symbol,
+        statistics_dimension,
+        statistics_type,
+        direction,
+        flow_type,
+        start_time,
+        end_time,
+        cross_days,
+        tab_index,
+        yn,
+        create_time,
+        update_time,
+        version)
+        values
+        <foreach collection="list" separator="," item="item">
+            (#{item.siteId,jdbcType=INTEGER},
+            #{item.groupId,jdbcType=BIGINT},
+            #{item.actionId,jdbcType=BIGINT},
+            #{item.orderIndex,jdbcType=TINYINT},
+            #{item.categoryIndex,jdbcType=TINYINT},
+            #{item.operationSymbol,jdbcType=TINYINT},
+            #{item.statisticsDimension,jdbcType=TINYINT},
+            #{item.statisticsType,jdbcType=TINYINT},
+            #{item.direction,jdbcType=TINYINT},
+            #{item.flowType,jdbcType=TINYINT},
+            #{item.startTime,jdbcType=TIMESTAMP},
+            #{item.endTime,jdbcType=TIMESTAMP},
+            #{item.crossDays,jdbcType=BIT},
+            #{item.tabIndex,jdbcType=TINYINT},
+            #{item.yn,jdbcType=BIT},
+            #{item.createTime,jdbcType=TIMESTAMP},
+            #{item.updateTime,jdbcType=TIMESTAMP},
+            #{item.version,jdbcType=INTEGER})
+        </foreach>
+    </insert>
+
+    <select id="selectByActionId" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from config_working_category
+        where action_id = #{actionId,jdbcType=BIGINT}
+    </select>
+
+  <select id="queryCategoryActionInfoByPage" parameterType="com.jd.dms.wb.sdk.dto.working.WorkingGridCategoryRequest"
+          resultType="com.jd.dms.wb.sdk.dto.working.WorkingGridCategoryDto">
+    select
+      waction.org_id orgCode,
+      waction.org_name orgName,
+      waction.site_id siteCode,
+      waction.site_name siteName,
+      waction.id actionId,
+      waction.action_name actionName,
+      waction.action_no actionNo,
+      category.id categoryId,
+      category.category_index categoryIndex,
+      category.operation_symbol operationSymbol,
+      category.statistics_type statisticsType,
+      category.flow_type flowType,
+      category.direction direction,
+      waction.count_type countType,
+      category.start_time enableTime,
+      category.end_time disableTime,
+      waction.effect_time enableDate,
+      waction.expired_time disableDate
+    from config_working_category category
+    left join config_working_action waction
+    on category.action_id = waction.id
+    where category.yn = 1
+      and waction.yn = 1
+      and (
+        (waction.effect_time &lt;= #{startTime,jdbcType=TIMESTAMP} and
+         waction.expired_time &gt;= #{startTime,jdbcType=TIMESTAMP})
+        or
+        (waction.effect_time &lt;= #{endTime,jdbcType=TIMESTAMP} and
+         waction.expired_time &gt;= #{endTime,jdbcType=TIMESTAMP})
+      )
+      and waction.action_status = #{actionStatus,jdbcType=TINYINT}
+    <if test="actionId != null" >
+      and waction.id = #{actionId}
+    </if>
+    <if test="siteCodes != null" >
+      and waction.site_id in
+      <foreach collection="siteCodes" item="item" separator="," close=")" open="(" >
+        #{item}
+      </foreach>
+    </if>
+    order by category.id asc
+  </select>
+
+  <select id="selectCategoryByActionIds" resultType="com.jd.dms.wb.sdk.model.working.ConfigWorkingCategory" parameterType="java.util.List">
+    SELECT
+    <include refid="Base_Column_List" />
+    FROM config_working_category
+    WHERE action_id IN
+    <foreach collection="list" item="item" open="(" close=")" separator=",">
+      #{item, jdbcType=BIGINT}
+    </foreach>
+    AND yn = 1
+  </select>
+</mapper>

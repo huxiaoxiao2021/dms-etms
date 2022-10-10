@@ -1,0 +1,463 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.dms.wb.mapper.single.working.ConfigWorkingGridWorkMapper" >
+  <resultMap id="BaseResultMap" type="com.jd.dms.wb.sdk.model.working.ConfigWorkingGridWork" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="config_grid_id" property="configGridId" jdbcType="BIGINT" />
+    <result column="ref_grid_key" property="refGridKey" jdbcType="VARCHAR" />
+    <result column="grid_code" property="gridCode" jdbcType="VARCHAR" />
+    <result column="work_code" property="workCode" jdbcType="VARCHAR" />
+    <result column="work_name" property="workName" jdbcType="VARCHAR" />
+    <result column="action_id" property="actionId" jdbcType="BIGINT" />
+    <result column="org_code" property="orgCode" jdbcType="INTEGER" />
+    <result column="site_code" property="siteCode" jdbcType="INTEGER" />
+    <result column="create_user" property="createUser" jdbcType="VARCHAR" />
+    <result column="create_user_name" property="createUserName" jdbcType="VARCHAR" />
+    <result column="update_user" property="updateUser" jdbcType="VARCHAR" />
+    <result column="update_user_name" property="updateUserName" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+    <result column="yn" property="yn" jdbcType="TINYINT" />
+    <result column="ts" property="ts" jdbcType="TIMESTAMP" />
+  </resultMap>
+
+    <resultMap id="workCategoryResultMap" type="com.jd.dms.wb.sdk.dto.working.WorkingGridWorkDto">
+        <result column="config_grid_id" property="configGridId" jdbcType="BIGINT" />
+        <result column="ref_grid_key" property="refGridKey"  jdbcType="VARCHAR" />
+        <result column="grid_code" property="gridCode" jdbcType="VARCHAR" />
+        <result column="action_id" property="actionId" jdbcType="BIGINT" />
+        <result column="site_code" property="siteCode" jdbcType="INTEGER" />
+        <result column="work_code" property="workCode" jdbcType="VARCHAR" />
+        <result column="work_name" property="workName" jdbcType="VARCHAR" />
+        <result column="effect_time" property="effectTime" jdbcType="TIMESTAMP" />
+        <result column="expired_time" property="expiredTime" jdbcType="TIMESTAMP" />
+        <result column="action_status" property="actionStatus" jdbcType="TINYINT" />
+        <result column="operator_erp" property="operatorErp" jdbcType="VARCHAR" />
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+    </resultMap>
+
+  <sql id="Base_Column_List" >
+    id, config_grid_id, ref_grid_key, grid_code, work_code, work_name, action_id, org_code, site_code,
+    create_user, create_user_name, update_user,
+    update_user_name, create_time, update_time, yn, ts
+  </sql>
+
+    <sql id="workCategory_Column">
+        t.config_grid_id, t.ref_grid_key, t.grid_code, t.action_id, t.site_code, t.work_code, t.work_name,
+               t2.effect_time, t2.expired_time, t2.operator_erp, t2.update_time, t2.action_status
+    </sql>
+
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from config_working_grid_work
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from config_working_grid_work
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.jd.dms.wb.sdk.model.working.ConfigWorkingGridWork" >
+    insert into config_working_grid_work (config_grid_id, ref_grid_key, grid_code,
+      work_code, work_name, action_id, 
+      org_code, site_code, create_user,
+      create_user_name, update_user, update_user_name, 
+      create_time, update_time, yn, 
+      ts)
+    values (#{configGridId,jdbcType=BIGINT}, #{refGridKey,jdbcType=VARCHAR},#{gridCode,jdbcType=VARCHAR},
+      #{workCode,jdbcType=VARCHAR}, #{workName,jdbcType=VARCHAR}, #{actionId,jdbcType=BIGINT}, 
+      #{orgCode,jdbcType=INTEGER}, #{siteCode,jdbcType=INTEGER}, #{createUser,jdbcType=VARCHAR},
+      #{createUserName,jdbcType=VARCHAR}, #{updateUser,jdbcType=VARCHAR}, #{updateUserName,jdbcType=VARCHAR}, 
+      #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, #{yn,jdbcType=TINYINT}, 
+      #{ts,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.jd.dms.wb.sdk.model.working.ConfigWorkingGridWork" >
+    insert into config_working_grid_work
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="configGridId != null" >
+        config_grid_id,
+      </if>
+      <if test="refGridKey != null">
+        ref_grid_key,
+      </if>
+      <if test="gridCode != null" >
+        grid_code,
+      </if>
+      <if test="workCode != null" >
+        work_code,
+      </if>
+      <if test="workName != null" >
+        work_name,
+      </if>
+      <if test="actionId != null" >
+        action_id,
+      </if>
+      <if test="orgCode != null" >
+        org_code,
+      </if>
+      <if test="siteCode != null" >
+        site_code,
+      </if>
+      <if test="createUser != null" >
+        create_user,
+      </if>
+      <if test="createUserName != null" >
+        create_user_name,
+      </if>
+      <if test="updateUser != null" >
+        update_user,
+      </if>
+      <if test="updateUserName != null" >
+        update_user_name,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="updateTime != null" >
+        update_time,
+      </if>
+      <if test="yn != null" >
+        yn,
+      </if>
+      <if test="ts != null" >
+        ts,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="configGridId != null" >
+        #{configGridId,jdbcType=BIGINT},
+      </if>
+      <if test="refGridKey != null">
+        #{refGridKey,jdbcType=VARCHAR},
+      </if>
+      <if test="gridCode != null" >
+        #{gridCode,jdbcType=VARCHAR},
+      </if>
+      <if test="workCode != null" >
+        #{workCode,jdbcType=VARCHAR},
+      </if>
+      <if test="workName != null" >
+        #{workName,jdbcType=VARCHAR},
+      </if>
+      <if test="actionId != null" >
+        #{actionId,jdbcType=BIGINT},
+      </if>
+      <if test="orgCode != null" >
+        #{orgCode,jdbcType=INTEGER},
+      </if>
+      <if test="siteCode != null" >
+        #{siteCode,jdbcType=INTEGER},
+      </if>
+      <if test="createUser != null" >
+        #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="createUserName != null" >
+        #{createUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="updateUser != null" >
+        #{updateUser,jdbcType=VARCHAR},
+      </if>
+      <if test="updateUserName != null" >
+        #{updateUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="yn != null" >
+        #{yn,jdbcType=TINYINT},
+      </if>
+      <if test="ts != null" >
+        #{ts,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.jd.dms.wb.sdk.model.working.ConfigWorkingGridWork" >
+    update config_working_grid_work
+    <set >
+      <if test="configGridId != null" >
+        config_grid_id = #{configGridId,jdbcType=BIGINT},
+      </if>
+      <if test="refGridKey != null">
+        ref_grid_key = #{refGridKey,jdbcType=VARCHAR},
+      </if>
+      <if test="gridCode != null" >
+        grid_code = #{gridCode,jdbcType=VARCHAR},
+      </if>
+      <if test="workCode != null" >
+        work_code = #{workCode,jdbcType=VARCHAR},
+      </if>
+      <if test="workName != null" >
+        work_name = #{workName,jdbcType=VARCHAR},
+      </if>
+      <if test="actionId != null" >
+        action_id = #{actionId,jdbcType=BIGINT},
+      </if>
+      <if test="orgCode != null" >
+        org_code = #{orgCode,jdbcType=INTEGER},
+      </if>
+      <if test="siteCode != null" >
+        site_code = #{siteCode,jdbcType=INTEGER},
+      </if>
+      <if test="createUser != null" >
+        create_user = #{createUser,jdbcType=VARCHAR},
+      </if>
+      <if test="createUserName != null" >
+        create_user_name = #{createUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="updateUser != null" >
+        update_user = #{updateUser,jdbcType=VARCHAR},
+      </if>
+      <if test="updateUserName != null" >
+        update_user_name = #{updateUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="yn != null" >
+        yn = #{yn,jdbcType=TINYINT},
+      </if>
+      <if test="ts != null" >
+        ts = #{ts,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.jd.dms.wb.sdk.model.working.ConfigWorkingGridWork" >
+    update config_working_grid_work
+    set config_grid_id = #{configGridId,jdbcType=BIGINT},
+      grid_code = #{gridCode,jdbcType=VARCHAR},
+      ref_grid_key = #{refGridKey,jdbcType=VARCHAR},
+      work_code = #{workCode,jdbcType=VARCHAR},
+      work_name = #{workName,jdbcType=VARCHAR},
+      action_id = #{actionId,jdbcType=BIGINT},
+      org_code = #{orgCode,jdbcType=INTEGER},
+      site_code = #{siteCode,jdbcType=INTEGER},
+      create_user = #{createUser,jdbcType=VARCHAR},
+      create_user_name = #{createUserName,jdbcType=VARCHAR},
+      update_user = #{updateUser,jdbcType=VARCHAR},
+      update_user_name = #{updateUserName,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      yn = #{yn,jdbcType=TINYINT},
+      ts = #{ts,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+
+    <select id="countByGridAndStatus" resultType="java.lang.Integer">
+        SELECT
+            COUNT(*)
+        FROM
+        (
+            SELECT
+                t.ref_grid_key
+            FROM config_working_grid_work t
+                LEFT JOIN config_working_action t2 ON t.action_id = t2.id
+            WHERE
+                t.yn = 1
+            AND t2.yn = 1
+            AND t.config_grid_id = #{entity.configGridId, jdbcType=BIGINT}
+            <if test="list != null and list.size() > 0">
+                AND t2.action_status IN
+                <foreach collection="list" item="item" open="(" close=")" separator=",">
+                    #{item}
+                </foreach>
+            </if>
+            GROUP BY t.ref_grid_key
+        ) tmp
+    </select>
+
+    <select id="findByConfigGrid" resultMap="workCategoryResultMap">
+        SELECT
+            <include refid="workCategory_Column" />
+        FROM config_working_grid_work t
+        LEFT JOIN config_working_action t2 ON t.action_id = t2.id
+        WHERE
+            t.yn = 1
+        AND t2.yn = 1
+        AND t.config_grid_id = #{configGridId, jdbcType=BIGINT}
+    </select>
+
+    <insert id="batchInsert" useGeneratedKeys="true" keyProperty="id">
+        insert into config_working_grid_work (
+            config_grid_id,
+            ref_grid_key,
+            grid_code,
+            work_code,
+            work_name,
+            action_id,
+            org_code,
+            site_code,
+            create_user,
+            create_user_name,
+            update_user,
+            update_user_name,
+            create_time,
+            update_time
+        )
+      values
+        <foreach collection="list" separator="," item="item">
+            (
+                #{item.configGridId,jdbcType=BIGINT},
+                #{item.refGridKey,jdbcType=VARCHAR},
+                #{item.gridCode,jdbcType=VARCHAR},
+                #{item.workCode,jdbcType=VARCHAR},
+                #{item.workName,jdbcType=VARCHAR},
+                #{item.actionId,jdbcType=BIGINT},
+                #{item.orgCode,jdbcType=INTEGER},
+                #{item.siteCode,jdbcType=INTEGER},
+                #{item.createUser,jdbcType=VARCHAR},
+                #{item.createUserName,jdbcType=VARCHAR},
+                #{item.updateUser,jdbcType=VARCHAR},
+                #{item.updateUserName,jdbcType=VARCHAR},
+                #{item.createTime,jdbcType=TIMESTAMP},
+                #{item.updateTime,jdbcType=TIMESTAMP}
+            )
+        </foreach>
+    </insert>
+
+    <select id="countByRefGridKeyAndActionId" parameterType="com.jd.dms.wb.sdk.model.working.ConfigWorkingGridWork"  resultType="java.lang.Integer">
+        SELECT
+           COUNT(*)
+        FROM config_working_grid_work
+        WHERE
+          yn = 1
+        AND ref_grid_key = #{refGridKey,jdbcType=VARCHAR}
+        <if test="actionId != null">
+            AND action_id = #{actionId,jdbcType=BIGINT}
+        </if>
+    </select>
+
+    <update id="updateByRefGridKey" parameterType="com.jd.dms.wb.sdk.model.working.ConfigWorkingGridWork" >
+        UPDATE config_working_grid_work
+        <set >
+            <if test="updateUser != null" >
+                update_user = #{updateUser,jdbcType=VARCHAR},
+            </if>
+            <if test="updateUserName != null" >
+                update_user_name = #{updateUserName,jdbcType=VARCHAR},
+            </if>
+            <if test="updateTime != null" >
+                update_time = #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="yn != null" >
+                yn = #{yn,jdbcType=TINYINT}
+            </if>
+        </set>
+        WHERE
+        config_grid_id = #{configGridId, jdbcType=BIGINT}
+        AND ref_grid_key = #{refGridKey,jdbcType=VARCHAR}
+        <if test="actionId != null">
+            AND action_id = #{actionId, jdbcType=BIGINT}
+        </if>
+    </update>
+
+    <select id="findWorkingGridAndGridWorkPartInfoByActionIds" resultType="com.jd.dms.wb.sdk.dto.working.WorkingGridAndGridWorkPartDto"
+            parameterType="java.util.List">
+      SELECT
+        grid.floor floor,
+        grid.area_code areaCode,
+        grid.area_name areaName,
+        grid.grid_code gridCode,
+        grid.grid_name gridName,
+        grid.rule_dimension ruleDimension,
+        gwork.work_code workCode,
+        gwork.work_name workName,
+        gwork.action_id actionId
+      from config_working_grid_work gwork
+      LEFT JOIN config_working_grid grid
+      ON gwork.config_grid_id = grid.id
+      where gwork.action_id in
+      <foreach collection="list" item="item" open="(" close=")" separator=",">
+        #{item, jdbcType=BIGINT}
+      </foreach>
+    </select>
+
+    <select id="findByGridWork" parameterType="com.jd.dms.wb.sdk.model.working.ConfigWorkingGridWork" resultMap="BaseResultMap">
+        SELECT
+            <include refid="Base_Column_List" />
+        FROM config_working_grid_work
+        WHERE
+            yn = 1
+        AND ref_grid_key = #{refGridKey,jdbcType=VARCHAR}
+        <if test="configGridId != null">
+            AND config_grid_id = #{configGridId, jdbcType=BIGINT}
+        </if>
+        <if test="actionId != null">
+            AND action_id = #{actionId, jdbcType=BIGINT}
+        </if>
+    </select>
+
+    <select id="findGridWorkConfigByPage" parameterType="com.jd.dms.wb.sdk.dto.working.WorkingGridWorkConfigDto" resultType="com.jd.dms.wb.sdk.dto.working.WorkingGridWorkConfigDto">
+        SELECT
+            cwg1.id AS id,
+            cwg1.org_code orgCode,
+            cwg1.org_name orgName,
+            cwg1.site_code siteCode,
+            cwg1.site_name siteName,
+            cwg1.rule_dimension ruleDimension,
+            cwg1.rule_status ruleStatus,
+            cwg1.floor AS floor,
+            cwg1.area_code areaCode,
+            cwg1.area_name areaName,
+            cwg1.grid_no gridNo,
+            cwg1.grid_code gridCode,
+            cwg1.grid_name gridName,
+            helper.action_id actionId,
+            helper.workCode AS workCode,
+            helper.workName AS workName
+            FROM config_working_grid AS cwg1
+            LEFT JOIN
+            (SELECT
+            IF(cwg.rule_dimension=1,'所有',cwgw.work_name) workName,
+            IF(cwg.rule_dimension=1,'',cwgw.work_code) workCode,
+            cwgw.config_grid_id configGridId,
+            cwgw.action_id
+            FROM
+            (SELECT id, rule_dimension
+            FROM config_working_grid
+            WHERE yn = 1) AS cwg
+            INNER JOIN
+            (SELECT config_grid_id, action_id, work_name, work_code
+            FROM config_working_grid_work
+            WHERE yn = 1) AS cwgw
+            ON cwg.id = cwgw.config_grid_id
+            GROUP BY cwgw.action_id,cwg.rule_dimension,cwgw.work_name,cwgw.work_code,cwgw.config_grid_id) AS helper
+            ON helper.configGridId = cwg1.id
+            LEFT JOIN (SELECT id, action_no ,effect_time,expired_time FROM config_working_action WHERE yn = 1 AND action_status = 4) AS cwa
+            ON helper.action_id = cwa.id
+        WHERE
+                cwg1.yn = 1
+            <if test="orgCode != null and orgCode != 0" >
+                AND cwg1.org_code = #{orgCode,jdbcType=INTEGER}
+            </if>
+            <if test="siteCode != null and siteCode != 0" >
+                AND cwg1.site_code = #{siteCode,jdbcType=INTEGER}
+            </if>
+            <if test="ruleDimension != null and ruleDimension != 0" >
+                AND cwg1.rule_dimension = #{ruleDimension,jdbcType=TINYINT}
+            </if>
+            <if test="ruleStatus != null" >
+                AND cwg1.rule_status = #{ruleStatus,jdbcType=TINYINT}
+            </if>
+            <if test="areaCode != null and areaCode !='' " >
+                AND cwg1.area_code = #{areaCode,jdbcType=VARCHAR}
+            </if>
+            <if test="gridCode != null and gridCode !='' " >
+                AND cwg1.grid_code = #{gridCode,jdbcType=VARCHAR}
+            </if>
+            <if test="workCode != null and workCode !='' " >
+                AND helper.workCode = #{workCode,jdbcType=VARCHAR}
+            </if>
+                AND cwa.effect_time <![CDATA[ <= ]]> #{endTime,jdbcType=TIMESTAMP}
+                AND (cwa.expired_time IS NULL OR cwa.expired_time >= #{beginTime,jdbcType=TIMESTAMP})
+        GROUP BY cwg1.id, cwg1.org_code, cwg1.org_name, cwg1.site_code, cwg1.site_name, cwg1.rule_dimension,
+                 cwg1.rule_status, cwg1.floor, cwg1.area_code, cwg1.area_name, cwg1.grid_no, cwg1.grid_code,
+                 cwg1.grid_name,helper.action_id,helper.workCode,helper.workName
+    </select>
+</mapper>

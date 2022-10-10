@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.dms.wb.mapper.single.base.IBaseCrossUserMapper" >
+  <resultMap id="BaseResultMap" type="com.jd.dms.wb.sdk.model.config.entity.CrossCodeGroupUser" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="group_code" property="groupCode" jdbcType="VARCHAR" />
+    <result column="site_code" property="siteCode" jdbcType="VARCHAR" />
+    <result column="site_name" property="siteName" jdbcType="VARCHAR" />
+    <result column="user_erp" property="userErp" jdbcType="VARCHAR" />
+    <result column="user_id" property="userId" jdbcType="INTEGER" />
+    <result column="user_name" property="userName" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="create_user_erp" property="createUserErp" jdbcType="VARCHAR" />
+    <result column="create_user_name" property="createUserName" jdbcType="VARCHAR" />
+    <result column="update_user_erp" property="updateUserErp" jdbcType="VARCHAR" />
+    <result column="update_user_name" property="updateUserName" jdbcType="VARCHAR" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+    <result column="yn" property="yn" jdbcType="BIT" />
+    <result column="ts" property="ts" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, group_code, site_code, site_name, user_erp, user_id, user_name, create_time, create_user_erp, create_user_name,
+    update_user_erp, update_user_name, update_time, yn, ts
+  </sql>
+
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    DELETE FROM config_base_cross_user WHERE id = #{id,jdbcType=BIGINT}
+  </delete>
+
+    <delete id="deleteByGroupCode">
+        DELETE FROM config_base_cross_user
+        WHERE
+            group_code = #{groupCode, jdbcType=VARCHAR}
+        <if test="siteCode != null and siteCode != '' ">
+            AND site_code = #{siteCode, jdbcType=VARCHAR}
+        </if>
+    </delete>
+
+  <insert id="batchInsert">
+    INSERT INTO config_base_cross_user
+    (
+        group_code,
+        site_code,
+        site_name,
+        user_erp,
+        user_id,
+        user_name,
+        create_time,
+        create_user_erp,
+        create_user_name,
+        update_user_erp,
+        update_user_name,
+        update_time,
+        yn
+    )
+    VALUES
+    <foreach collection="list" item="item" separator=",">
+        (
+            #{item.groupCode, jdbcType=VARCHAR},
+            #{item.siteCode, jdbcType=VARCHAR},
+            #{item.siteName, jdbcType=VARCHAR},
+            #{item.userErp, jdbcType=VARCHAR},
+            #{item.userId, jdbcType=INTEGER},
+            #{item.userName, jdbcType=VARCHAR},
+            now(),
+            #{item.createUserErp, jdbcType=VARCHAR},
+            #{item.createUserName, jdbcType=VARCHAR},
+            #{item.updateUserErp, jdbcType=VARCHAR},
+            #{item.updateUserName, jdbcType=VARCHAR},
+            now(),
+            1
+        )
+    </foreach>
+  </insert>
+
+    <select id="findByGroupCode" parameterType="com.jd.dms.wb.sdk.model.config.entity.CrossCodeGroupUser" resultMap="BaseResultMap">
+        SELECT
+            <include refid="Base_Column_List"/>
+        FROM config_base_cross_user
+        WHERE
+            yn = 1
+        AND group_code = #{groupCode,jdbcType=VARCHAR}
+        <if test="siteCode != null and siteCode != '' ">
+            AND site_code = #{siteCode,jdbcType=VARCHAR}
+        </if>
+        ORDER BY ts DESC
+    </select>
+</mapper>
