@@ -307,14 +307,11 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
             queryToDetailTaskParams.setSendVehicleBizId(bindVehicleDetailTaskReq.getToSendVehicleBizId());
             queryToDetailTaskParams.setStartSiteId(Long.valueOf(bindVehicleDetailTaskReq.getCurrentOperate().getSiteCode()));
             queryToDetailTaskParams.setEndSiteId(fromSvdTask.getEndSiteId());
-            JyBizTaskSendVehicleDetailEntity toSvdTask = jyBizTaskSendVehicleDetailService.findSendDetail(queryToDetailTaskParams);
+            List<JyBizTaskSendVehicleDetailEntity> taskSendDetails = jyBizTaskSendVehicleDetailService.findEffectiveSendVehicleDetail(queryToDetailTaskParams);
+            JyBizTaskSendVehicleDetailEntity toSvdTask =jySendVehicleService.pickUpOneUnSealedDetail(taskSendDetails,fromSvdTask.getEndSiteId());
             if (!ObjectHelper.isNotNull(toSvdTask)) {
-                return new InvokeResult(DETAIL_TASK_NO_FOUND_BY_SITE_ID_CODE, DETAIL_TASK_NO_FOUND_BY_SITE_ID_MESSAGE);
-            }
-            if (jySendVehicleService.checkIfSealed(toSvdTask)) {
                 return new InvokeResult(FORBID_BIND_TO_SEALED_DETAIL_CODE, FORBID_BIND_TO_SEALED_DETAIL_MESSAGE);
             }
-
             VehicleSendRelationDto dto = BeanUtils.copy(bindVehicleDetailTaskReq, VehicleSendRelationDto.class);
             dto.setFromSendVehicleDetailBizId(fromSvdTask.getBizId());
             dto.setToSendVehicleDetailBizId(toSvdTask.getBizId());

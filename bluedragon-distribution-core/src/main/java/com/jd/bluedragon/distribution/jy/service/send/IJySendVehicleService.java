@@ -141,6 +141,8 @@ public interface IJySendVehicleService {
      */
     InvokeResult<SendTaskInfo> sendTaskDetail(SendVehicleInfoRequest request);
 
+    JyBizTaskSendVehicleDetailEntity pickUpOneUnSealedDetail(List<JyBizTaskSendVehicleDetailEntity> taskSendDetails, Long sendDestId);
+
     /**
      * 查询子任务下的批次信息
      * @param request
