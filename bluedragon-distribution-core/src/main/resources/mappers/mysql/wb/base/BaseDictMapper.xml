@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.dms.wb.mapper.single.base.IBaseDictMapper">
+    <resultMap id="BaseResultMap"
+               type="com.jd.dms.wb.sdk.model.config.entity.ConfigBaseDict">
+        <id column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+        <result column="type_code" property="typeCode" jdbcType="VARCHAR"/>
+        <result column="type_name" property="typeName" jdbcType="VARCHAR"/>
+        <result column="parent_code" property="parentCode" jdbcType="VARCHAR"/>
+        <result column="node_level" property="nodeLevel" jdbcType="BIGINT"/>
+        <result column="order_num" property="orderNum" jdbcType="BIGINT"/>
+        <result column="remark" property="remark" jdbcType="VARCHAR"/>
+        <result column="create_erp" property="createErp" jdbcType="VARCHAR"/>
+        <result column="create_name" property="createName" jdbcType="VARCHAR"/>
+        <result column="update_erp" property="updateErp" jdbcType="VARCHAR"/>
+        <result column="update_name" property="updateName" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+        <result column="yn" property="yn" jdbcType="TINYINT"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,type_code,type_name,parent_code,node_level,order_num,remark,create_erp,
+        create_name,update_erp,update_name,create_time,update_time,yn,ts
+    </sql>
+
+    <sql id="Base_Condition_Sql" >
+			and yn = 1
+	</sql>
+
+    <sql id="Query_Params_Condition_Sql">
+        <if test="nodeLevel != null">
+            and node_level = #{nodeLevel,jdbcType=BIGINT}
+        </if>
+        <if test="parentCode != null and parentCode != ''">
+            and parent_code = #{parentCode,jdbcType=VARCHAR}
+        </if>
+        <if test="typeCode != null and typeCode != ''">
+            and type_code = #{typeCode,jdbcType=VARCHAR}
+        </if>
+        <if test="typeName != null and typeName != ''">
+            and type_name like concat('%',#{typeName,jdbcType=VARCHAR},'%')
+        </if>
+    </sql>
+
+    <insert id="insert" parameterType="com.jd.dms.wb.sdk.model.config.entity.ConfigBaseDict">
+        insert into config_base_dict (
+        <trim suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="typeCode != null">
+                type_code,
+            </if>
+            <if test="typeName != null">
+                type_name,
+            </if>
+            <if test="parentCode != null">
+                parent_code,
+            </if>
+            <if test="nodeLevel != null">
+                node_level,
+            </if>
+            <if test="orderNum != null">
+                order_num,
+            </if>
+            <if test="remark != null">
+                remark,
+            </if>
+            <if test="createErp != null">
+                create_erp,
+            </if>
+            <if test="createName != null">
+                create_name,
+            </if>
+            <if test="updateErp != null">
+                update_erp,
+            </if>
+            <if test="updateName != null">
+                update_name,
+            </if>
+            create_time,
+            update_time,
+            yn,
+            ts
+        </trim>
+        )
+        values (
+        <trim suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="typeCode != null">
+                #{typeCode,jdbcType=VARCHAR},
+            </if>
+            <if test="typeName != null">
+                #{typeName,jdbcType=VARCHAR},
+            </if>
+            <if test="parentCode != null">
+                #{parentCode,jdbcType=VARCHAR},
+            </if>
+            <if test="nodeLevel != null">
+                #{nodeLevel,jdbcType=BIGINT},
+            </if>
+            <if test="orderNum != null">
+                #{orderNum,jdbcType=BIGINT},
+            </if>
+            <if test="remark != null">
+                #{remark,jdbcType=VARCHAR},
+            </if>
+            <if test="createErp != null">
+                #{createErp,jdbcType=VARCHAR},
+            </if>
+            <if test="createName != null">
+                #{createName,jdbcType=VARCHAR},
+            </if>
+            <if test="updateErp != null">
+                #{updateErp,jdbcType=VARCHAR},
+            </if>
+            <if test="updateName != null">
+                #{updateName,jdbcType=VARCHAR},
+            </if>
+            NOW(),
+            NOW(),
+            1,
+            NOW(),
+        </trim>
+        )
+    </insert>
+
+    <insert id="batchInsert" parameterType="List">
+        insert into config_base_dict
+        (
+            id,type_code,type_name,parent_code,node_level,order_num,remark,create_erp,
+            create_name,update_erp,update_name,create_time,update_time,yn,ts
+        )
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (
+            #{item.id,jdbcType=BIGINT},
+            #{item.typeCode,jdbcType=VARCHAR},
+            #{item.typeName,jdbcType=VARCHAR},
+            #{item.parentCode,jdbcType=VARCHAR},
+            #{item.nodeLevel,jdbcType=BIGINT},
+            #{item.orderNum,jdbcType=BIGINT},
+            #{item.remark,jdbcType=VARCHAR},
+            #{item.createErp,jdbcType=VARCHAR},
+            #{item.createName,jdbcType=VARCHAR},
+            #{item.updateErp,jdbcType=VARCHAR},
+            #{item.updateName,jdbcType=VARCHAR},
+            now(),
+            now(),
+            1,
+            now()
+            )
+        </foreach>
+    </insert>
+
+    <update id="update" parameterType="com.jd.dms.wb.sdk.model.config.entity.ConfigBaseDict">
+        update config_base_dict
+        <set>
+            type_code = #{typeCode,jdbcType=VARCHAR},
+            type_name = #{typeName,jdbcType=VARCHAR},
+            parent_code = #{parentCode,jdbcType=VARCHAR},
+            node_level = #{nodeLevel,jdbcType=BIGINT},
+            order_num = #{orderNum,jdbcType=BIGINT},
+            remark = #{remark,jdbcType=VARCHAR},
+            create_erp = #{createErp,jdbcType=VARCHAR},
+            create_name = #{createName,jdbcType=VARCHAR},
+            update_erp = #{updateErp,jdbcType=VARCHAR},
+            update_name = #{updateName,jdbcType=VARCHAR},
+            update_time = now(),
+        </set>
+        where type_code = #{typeCode,jdbcType=VARCHAR}
+        and yn = 1
+    </update>
+
+    <update id="updateStatusByParentCode" parameterType="string">
+        update config_base_dict
+        <set>
+            yn = 0,
+            update_time = now(),
+        </set>
+        where parent_code = #{parentCode,jdbcType=VARCHAR}
+        and yn = 1
+    </update>
+
+    <update id="updateStatusByTypeCode" parameterType="string">
+        update config_base_dict
+        <set>
+            yn = 0,
+            update_time = now(),
+        </set>
+        where type_code = #{typeCode,jdbcType=VARCHAR}
+        and yn = 1
+    </update>
+
+    <delete id="deleteByTypeCode" parameterType="string">
+        delete from config_base_dict
+        where type_code = #{typeCode,jdbcType=VARCHAR}
+        and yn = 1
+    </delete>
+
+    <select id="selectByTypeCode" parameterType="string" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from config_base_dict
+        where type_code = #{typeCode,jdbcType=VARCHAR}
+        and yn = 1
+    </select>
+
+    <select id="selectByParentCode" parameterType="string" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from config_base_dict
+        where parent_code = #{parentCode,jdbcType=VARCHAR}
+        and yn = 1
+    </select>
+
+    <select id="selectByCondition" parameterType="com.jd.dms.wb.sdk.model.config.entity.ConfigBaseDict"
+            resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from config_base_dict
+        where 1=1
+        <include refid="Query_Params_Condition_Sql"/>
+    </select>
+
+
+</mapper>

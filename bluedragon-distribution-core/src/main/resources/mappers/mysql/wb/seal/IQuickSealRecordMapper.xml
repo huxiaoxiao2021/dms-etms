@@ -1,0 +1,302 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.dms.wb.mapper.single.seal.IQuickSealRecordMapper" >
+  <resultMap id="BaseResultMap" type="com.jd.dms.wb.sdk.model.seal.entity.QuickSealRecord" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="task_code" property="taskCode" jdbcType="VARCHAR" />
+    <result column="transport_code" property="transportCode" jdbcType="VARCHAR" />
+    <result column="site_code" property="siteCode" jdbcType="INTEGER" />
+    <result column="task_status" property="taskStatus" jdbcType="INTEGER" />
+    <result column="task_body" property="taskBody" jdbcType="VARCHAR" />
+    <result column="remark" property="remark" jdbcType="VARCHAR" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+    <result column="create_user_erp" property="createUserErp" jdbcType="VARCHAR" />
+    <result column="update_user_erp" property="updateUserErp" jdbcType="VARCHAR" />
+    <result column="create_user_name" property="createUserName" jdbcType="VARCHAR" />
+    <result column="update_user_name" property="updateUserName" jdbcType="VARCHAR" />
+    <result column="yn" property="yn" jdbcType="BIT" />
+    <result column="ts" property="ts" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, task_code, transport_code, site_code, task_status, task_body, remark, create_time, 
+    update_time, create_user_erp, update_user_erp, create_user_name, update_user_name, 
+    yn, ts
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from quick_seal_record
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from quick_seal_record
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.jd.dms.wb.sdk.model.seal.entity.QuickSealRecord" >
+    insert into quick_seal_record
+    (
+        task_code, transport_code,
+        site_code, task_status, task_body,
+        <if test="remark != ''">
+            remark,
+        </if>
+        create_time, update_time, create_user_erp, update_user_erp, create_user_name, update_user_name, yn
+      )
+    values (#{taskCode,jdbcType=VARCHAR}, #{transportCode,jdbcType=VARCHAR},
+      #{siteCode,jdbcType=INTEGER}, #{taskStatus,jdbcType=INTEGER}, #{taskBody,jdbcType=VARCHAR},
+      <if test="remark != ''">
+          #{remark,jdbcType=VARCHAR},
+      </if>
+      now(), now(),
+      #{createUserErp,jdbcType=VARCHAR}, #{updateUserErp,jdbcType=VARCHAR}, #{createUserName,jdbcType=VARCHAR}, 
+      #{updateUserName,jdbcType=VARCHAR}, 1
+      )
+      ON DUPLICATE KEY UPDATE
+      update_time = now(),
+      update_user_erp = #{updateUserErp,jdbcType=VARCHAR},
+      update_user_name = #{updateUserName,jdbcType=VARCHAR},
+      task_status = #{taskStatus,jdbcType=INTEGER},
+      remark = #{remark,jdbcType=VARCHAR}
+  </insert>
+  <insert id="insertSelective" parameterType="com.jd.dms.wb.sdk.model.seal.entity.QuickSealRecord" >
+    insert into quick_seal_record
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="taskCode != null" >
+        task_code,
+      </if>
+      <if test="transportCode != null" >
+        transport_code,
+      </if>
+      <if test="siteCode != null" >
+        site_code,
+      </if>
+      <if test="taskStatus != null" >
+        task_status,
+      </if>
+      <if test="taskBody != null" >
+        task_body,
+      </if>
+      <if test="remark != null" >
+        remark,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="updateTime != null" >
+        update_time,
+      </if>
+      <if test="createUserErp != null" >
+        create_user_erp,
+      </if>
+      <if test="updateUserErp != null" >
+        update_user_erp,
+      </if>
+      <if test="createUserName != null" >
+        create_user_name,
+      </if>
+      <if test="updateUserName != null" >
+        update_user_name,
+      </if>
+      <if test="yn != null" >
+        yn,
+      </if>
+      <if test="ts != null" >
+        ts,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="taskCode != null" >
+        #{taskCode,jdbcType=VARCHAR},
+      </if>
+      <if test="transportCode != null" >
+        #{transportCode,jdbcType=VARCHAR},
+      </if>
+      <if test="siteCode != null" >
+        #{siteCode,jdbcType=INTEGER},
+      </if>
+      <if test="taskStatus != null" >
+        #{taskStatus,jdbcType=INTEGER},
+      </if>
+      <if test="taskBody != null" >
+        #{taskBody,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null" >
+        #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createUserErp != null" >
+        #{createUserErp,jdbcType=VARCHAR},
+      </if>
+      <if test="updateUserErp != null" >
+        #{updateUserErp,jdbcType=VARCHAR},
+      </if>
+      <if test="createUserName != null" >
+        #{createUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="updateUserName != null" >
+        #{updateUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="yn != null" >
+        #{yn,jdbcType=BIT},
+      </if>
+      <if test="ts != null" >
+        #{ts,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.jd.dms.wb.sdk.model.seal.entity.QuickSealRecord" >
+    update quick_seal_record
+    <set >
+      <if test="taskCode != null" >
+        task_code = #{taskCode,jdbcType=VARCHAR},
+      </if>
+      <if test="transportCode != null" >
+        transport_code = #{transportCode,jdbcType=VARCHAR},
+      </if>
+      <if test="siteCode != null" >
+        site_code = #{siteCode,jdbcType=INTEGER},
+      </if>
+      <if test="taskStatus != null" >
+        task_status = #{taskStatus,jdbcType=INTEGER},
+      </if>
+      <if test="taskBody != null" >
+        task_body = #{taskBody,jdbcType=VARCHAR},
+      </if>
+      <if test="remark != null" >
+        remark = #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="createUserErp != null" >
+        create_user_erp = #{createUserErp,jdbcType=VARCHAR},
+      </if>
+      <if test="updateUserErp != null" >
+        update_user_erp = #{updateUserErp,jdbcType=VARCHAR},
+      </if>
+      <if test="createUserName != null" >
+        create_user_name = #{createUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="updateUserName != null" >
+        update_user_name = #{updateUserName,jdbcType=VARCHAR},
+      </if>
+      <if test="yn != null" >
+        yn = #{yn,jdbcType=BIT},
+      </if>
+      <if test="ts != null" >
+        ts = #{ts,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.jd.dms.wb.sdk.model.seal.entity.QuickSealRecord" >
+    update quick_seal_record
+    set task_code = #{taskCode,jdbcType=VARCHAR},
+      transport_code = #{transportCode,jdbcType=VARCHAR},
+      site_code = #{siteCode,jdbcType=INTEGER},
+      task_status = #{taskStatus,jdbcType=INTEGER},
+      task_body = #{taskBody,jdbcType=VARCHAR},
+      remark = #{remark,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      create_user_erp = #{createUserErp,jdbcType=VARCHAR},
+      update_user_erp = #{updateUserErp,jdbcType=VARCHAR},
+      create_user_name = #{createUserName,jdbcType=VARCHAR},
+      update_user_name = #{updateUserName,jdbcType=VARCHAR},
+      yn = #{yn,jdbcType=BIT},
+      ts = #{ts,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+
+    <update id="updateByTaskCode" parameterType="com.jd.dms.wb.sdk.model.seal.entity.QuickSealRecord">
+        update quick_seal_record
+        <set >
+            <if test="taskStatus != null" >
+                task_status = #{taskStatus,jdbcType=INTEGER},
+            </if>
+            <if test="taskBody != null" >
+                task_body = #{taskBody,jdbcType=VARCHAR},
+            </if>
+            <if test="remark != null" >
+                remark = #{remark,jdbcType=VARCHAR},
+            </if>
+                update_time = #{updateTime,jdbcType=TIMESTAMP},
+            <if test="updateUserErp != null" >
+                update_user_erp = #{updateUserErp,jdbcType=VARCHAR},
+            </if>
+            <if test="updateUserName != null" >
+                update_user_name = #{updateUserName,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where task_code = #{taskCode,jdbcType=VARCHAR} AND update_time <![CDATA[ < ]]> #{updateTime,jdbcType=TIMESTAMP}
+    </update>
+
+    <select id="listByTaskCode" parameterType="java.util.List" resultMap="BaseResultMap">
+        SELECT
+            <include refid="Base_Column_List" />
+        FROM quick_seal_record
+        WHERE
+            task_code IN
+        <foreach collection="list" item="item" open="(" close=")" separator=",">
+            #{item, jdbcType=VARCHAR}
+        </foreach>
+    </select>
+
+    <select id="findByTransportCode" parameterType="java.util.List" resultMap="BaseResultMap">
+        SELECT
+            <include refid="Base_Column_List" />
+        FROM
+            quick_seal_record
+        WHERE
+            transport_code IN
+        <foreach collection="list" item="item" open="(" close=")" separator=",">
+            #{item, jdbcType=VARCHAR}
+        </foreach>
+            AND task_status = #{taskStatus, jdbcType=INTEGER}
+        GROUP BY
+            transport_code
+        ORDER BY
+            create_time DESC
+    </select>
+
+    <select id="queryByPage" parameterType="com.jd.dms.wb.sdk.model.seal.entity.QuickSealRecord" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM quick_seal_record
+        <include refid="queryCondition" />
+        ORDER BY ts DESC
+    </select>
+
+    <sql id="queryCondition">
+        <where>
+            yn = 1
+            <if test="siteCode != null and siteCode != '' ">
+                AND site_code = #{siteCode,jdbcType=INTEGER}
+            </if>
+            <if test="transportCode != null and transportCode != '' " >
+                AND transport_code = #{transportCode,jdbcType=VARCHAR}
+            </if>
+            <if test="taskCode != null and taskCode != '' " >
+                AND task_code = #{taskCode,jdbcType=VARCHAR}
+            </if>
+            <if test="taskStatus != null and taskStatus != '' " >
+                AND task_status = #{taskStatus,jdbcType=INTEGER}
+            </if>
+        </where>
+    </sql>
+</mapper>

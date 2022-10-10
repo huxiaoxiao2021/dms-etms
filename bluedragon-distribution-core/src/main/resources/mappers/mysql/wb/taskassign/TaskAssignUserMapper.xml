@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.dms.wb.mapper.single.taskassign.ITaskAssignUserMapper">
+    <resultMap id="BaseResultMap"
+               type="com.jd.dms.wb.sdk.model.task.assign.UserTaskInfoModel">
+        <id column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+        <result column="user_erp" property="userErp" jdbcType="VARCHAR"/>
+        <result column="user_name" property="userName" jdbcType="VARCHAR"/>
+        <result column="status" property="status" jdbcType="TINYINT"/>
+        <result column="site_code" property="siteCode" jdbcType="VARCHAR"/>
+        <result column="site_Name" property="siteName" jdbcType="VARCHAR"/>
+        <result column="task_type" property="taskType" jdbcType="VARCHAR"/>
+        <result column="weight_coefficient" property="weightCoefficient" jdbcType="BIGINT"/>
+        <result column="agent_erp" property="agentErp" jdbcType="VARCHAR"/>
+        <result column="agent_name" property="agentName" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+        <result column="yn" property="yn" jdbcType="TINYINT"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,
+        user_erp,
+        user_name,
+        status,
+        site_code,
+        site_name,
+        task_type,
+        weight_coefficient,
+        agent_erp,
+        agent_name,
+        create_time,
+        update_time,
+        yn,
+        ts
+    </sql>
+
+    <sql id="Base_Condition_Sql" >
+			and yn = 1
+	</sql>
+
+    <sql id="Query_Params_Condition_Sql">
+        <if test="siteCode != null and siteCode != ''">
+            and site_code = #{siteCode,jdbcType=VARCHAR}
+        </if>
+        <if test="taskType != null and taskType != ''">
+            and task_type = #{taskType,jdbcType=VARCHAR}
+        </if>
+    </sql>
+
+    <insert id="insert" parameterType="com.jd.dms.wb.sdk.model.task.assign.UserTaskInfoModel">
+        insert into config_task_user (
+        <trim suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="userErp != null">
+                user_erp,
+            </if>
+            <if test="userName != null">
+                user_name,
+            </if>
+            <if test="status != null">
+                status,
+            </if>
+            <if test="siteCode != null">
+                site_code,
+            </if>
+            <if test="siteName != null">
+                site_name,
+            </if>
+            <if test="taskType != null">
+                task_type,
+            </if>
+            <if test="weightCoefficient != null">
+                weight_coefficient,
+            </if>
+            <if test="agentErp != null">
+                agent_erp,
+            </if>
+            <if test="agentName != null">
+                agent_name,
+            </if>
+            create_time,
+            update_time,
+            yn,
+            ts
+        </trim>
+        )
+        values (
+        <trim suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="userErp != null">
+                #{userErp,jdbcType=VARCHAR},
+            </if>
+            <if test="userName != null">
+                #{userName,jdbcType=VARCHAR},
+            </if>
+            <if test="status != null">
+                #{status,jdbcType=TINYINT},
+            </if>
+            <if test="siteCode != null">
+                #{siteCode,jdbcType=VARCHAR},
+            </if>
+            <if test="siteName != null">
+                #{siteName,jdbcType=VARCHAR},
+            </if>
+            <if test="taskType != null">
+                #{taskType,jdbcType=VARCHAR},
+            </if>
+            <if test="weightCoefficient != null">
+                #{weightCoefficient,jdbcType=BIGINT},
+            </if>
+            <if test="agentErp != null">
+                #{agentErp,jdbcType=VARCHAR},
+            </if>
+            <if test="agentName != null">
+                #{agentName,jdbcType=VARCHAR},
+            </if>
+            NOW(),
+            NOW(),
+            1,
+            NOW(),
+        </trim>
+        )
+    </insert>
+
+    <insert id="batchInsert" parameterType="List">
+        insert into config_task_user
+        (
+            id,user_erp,user_name,status,site_code,site_name,task_type,
+            weight_coefficient,agent_erp,agent_name,create_time,update_time,yn,ts
+        )
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (
+            #{item.id,jdbcType=BIGINT},
+            #{item.userErp,jdbcType=VARCHAR},
+            #{item.userName,jdbcType=VARCHAR},
+            #{item.status,jdbcType=TINYINT},
+            #{item.siteCode,jdbcType=VARCHAR},
+            #{item.siteName,jdbcType=VARCHAR},
+            #{item.taskType,jdbcType=VARCHAR},
+            #{item.weightCoefficient,jdbcType=BIGINT},
+            #{item.agentErp,jdbcType=VARCHAR},
+            #{item.agentName,jdbcType=VARCHAR},
+            now(),
+            now(),
+            1,
+            now()
+            )
+        </foreach>
+    </insert>
+
+    <update id="updateUserModel">
+        update config_task_user
+        <set>
+            user_erp = #{userErp,jdbcType=VARCHAR},
+            user_name = #{userName,jdbcType=VARCHAR},
+            status = #{status,jdbcType=TINYINT},
+            site_code = #{siteCode,jdbcType=VARCHAR},
+            site_name = #{siteName,jdbcType=VARCHAR},
+            task_type = #{taskType,jdbcType=VARCHAR},
+            weight_coefficient = #{weightCoefficient,jdbcType=BIGINT},
+            agent_erp = #{agentErp,jdbcType=VARCHAR},
+            agent_name = #{agentName,jdbcType=VARCHAR},
+            update_time = now(),
+        </set>
+        where site_code = #{siteCode,jdbcType=VARCHAR}
+        and task_type = #{taskType,jdbcType=VARCHAR}
+        and user_erp = #{userErp,jdbcType=VARCHAR}
+    </update>
+
+    <select id="queryCountByCondition" parameterType="com.jd.dms.wb.sdk.model.task.assign.SiteTaskInfoModel"
+            resultType="Integer">
+        select count(1)
+        from config_task_user
+        where 1=1
+        <include refid="Query_Params_Condition_Sql"/>
+        <include refid="Base_Condition_Sql"/>
+    </select>
+
+    <select id="queryByCondition" parameterType="com.jd.dms.wb.sdk.model.task.assign.SiteTaskInfoModel"
+            resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from config_task_user
+        where 1=1
+        <include refid="Query_Params_Condition_Sql"/>
+        <include refid="Base_Condition_Sql"/>
+    </select>
+
+    <select id="selectBySiteCode" parameterType="String" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from config_task_user
+        where 1=1
+        and site_code = #{siteCode,jdbcType=VARCHAR}
+    </select>
+
+    <select id="queryUserByTaskType" parameterType="String" resultType="String">
+        select user_erp from config_task_user where task_type = #{taskType} and yn = 1;
+    </select>
+
+    <select id="queryUserBySite" parameterType="String" resultType="String">
+        SELECT
+            DISTINCT user_erp
+        FROM config_task_user
+        WHERE
+            yn = 1
+        AND site_code = #{siteCode, jdbcType=VARCHAR}
+    </select>
+
+    <select id="querySiteByUser" parameterType="String" resultType="String">
+        SELECT
+            DISTINCT site_code
+        FROM config_task_user
+        WHERE
+            yn = 1
+        AND user_erp = #{userErp, jdbcType=VARCHAR}
+        LIMIT 1
+    </select>
+
+</mapper>

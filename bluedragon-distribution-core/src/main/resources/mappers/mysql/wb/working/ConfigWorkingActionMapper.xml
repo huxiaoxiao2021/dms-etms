@@ -1,0 +1,357 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.dms.wb.mapper.single.working.ConfigWorkingActionMapper" >
+  <resultMap id="BaseResultMap" type="com.jd.dms.wb.sdk.model.working.ConfigWorkingAction" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="org_id" property="orgId" jdbcType="INTEGER" />
+    <result column="org_name" property="orgName" jdbcType="VARCHAR" />
+    <result column="site_id" property="siteId" jdbcType="INTEGER" />
+    <result column="site_name" property="siteName" jdbcType="VARCHAR" />
+    <result column="group_id" property="groupId" jdbcType="VARCHAR" />
+    <result column="group_name" property="groupName" jdbcType="VARCHAR" />
+    <result column="action_no" property="actionNo" jdbcType="VARCHAR" />
+    <result column="action_name" property="actionName" jdbcType="VARCHAR" />
+    <result column="action_status" property="actionStatus" jdbcType="TINYINT" />
+    <result column="effect_time" property="effectTime" jdbcType="TIMESTAMP" />
+    <result column="expired_time" property="expiredTime" jdbcType="TIMESTAMP" />
+    <result column="operator_erp" property="operatorErp" jdbcType="VARCHAR" />
+    <result column="yn" property="yn" jdbcType="BIT" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+    <result column="version" property="version" jdbcType="INTEGER" />
+    <result column="origin_action_id" property="originActionId" jdbcType="BIGINT" />
+    <result column="ts" property="ts" jdbcType="TIMESTAMP" />
+    <result column="position_attr_code" property="positionAttrCode" jdbcType="TINYINT" />
+    <result column="position_attr_name" property="positionAttrName" jdbcType="VARCHAR" />
+    <result column="provision_type" property="provisionType" jdbcType="TINYINT" />
+    <result column="settlement_dept_id" property="settlementDeptId" jdbcType="INTEGER" />
+    <result column="settlement_dept_name" property="settlementDeptName" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, org_id, org_name, site_id, site_name, group_id, group_name, action_no, action_name,
+    action_status, effect_time, expired_time, operator_erp, yn, create_time, update_time,
+    version, origin_action_id, ts, position_attr_code, position_attr_name, provision_type,
+    settlement_dept_id, settlement_dept_name
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select
+    <include refid="Base_Column_List" />
+    from config_working_action
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from config_working_action
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.jd.dms.wb.sdk.model.working.ConfigWorkingAction" >
+      <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
+          SELECT LAST_INSERT_ID()
+      </selectKey>
+    insert into config_working_action (id, org_id, org_name,
+      site_id, site_name, group_id,
+      group_name, action_no, action_name,
+      action_status, effect_time, expired_time,
+      operator_erp, yn, create_time,
+      update_time, version, origin_action_id,
+      ts, position_attr_code, position_attr_name,
+      provision_type, settlement_dept_id, settlement_dept_name)
+    values (#{id,jdbcType=BIGINT}, #{orgId,jdbcType=INTEGER}, #{orgName,jdbcType=VARCHAR},
+      #{siteId,jdbcType=INTEGER}, #{siteName,jdbcType=VARCHAR}, #{groupId,jdbcType=VARCHAR},
+      #{groupName,jdbcType=VARCHAR}, #{actionNo,jdbcType=VARCHAR}, #{actionName,jdbcType=VARCHAR},
+      #{actionStatus,jdbcType=TINYINT}, #{effectTime,jdbcType=TIMESTAMP}, #{expiredTime,jdbcType=TIMESTAMP},
+      #{operatorErp,jdbcType=VARCHAR}, #{yn,jdbcType=BIT}, #{createTime,jdbcType=TIMESTAMP},
+      #{updateTime,jdbcType=TIMESTAMP}, #{version,jdbcType=INTEGER}, #{originActionId,jdbcType=BIGINT},
+      #{ts,jdbcType=TIMESTAMP}, #{positionAttrCode,jdbcType=TINYINT}, #{positionAttrName,jdbcType=VARCHAR},
+      #{provisionType,jdbcType=TINYINT}, #{settlementDeptId,jdbcType=INTEGER}, #{settlementDeptName,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.jd.dms.wb.sdk.model.working.ConfigWorkingAction" >
+      <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
+          SELECT LAST_INSERT_ID()
+      </selectKey>
+    insert into config_working_action
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="orgId != null" >
+        org_id,
+      </if>
+      <if test="orgName != null" >
+        org_name,
+      </if>
+      <if test="siteId != null" >
+        site_id,
+      </if>
+      <if test="siteName != null" >
+        site_name,
+      </if>
+      <if test="groupId != null" >
+        group_id,
+      </if>
+      <if test="groupName != null" >
+        group_name,
+      </if>
+      <if test="actionNo != null" >
+        action_no,
+      </if>
+      <if test="actionName != null" >
+        action_name,
+      </if>
+      <if test="actionStatus != null" >
+        action_status,
+      </if>
+      <if test="effectTime != null" >
+        effect_time,
+      </if>
+      <if test="expiredTime != null" >
+        expired_time,
+      </if>
+      <if test="operatorErp != null" >
+        operator_erp,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="updateTime != null" >
+        update_time,
+      </if>
+      <if test="version != null" >
+        version,
+      </if>
+      <if test="originActionId != null" >
+        origin_action_id,
+      </if>
+      <if test="positionAttrCode != null" >
+        position_attr_code,
+      </if>
+      <if test="positionAttrName != null" >
+        position_attr_name,
+      </if>
+      <if test="provisionType != null" >
+        provision_type,
+      </if>
+      <if test="settlementDeptId != null" >
+        settlement_dept_id,
+      </if>
+      <if test="settlementDeptName != null" >
+        settlement_dept_name,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="orgId != null" >
+        #{orgId,jdbcType=INTEGER},
+      </if>
+      <if test="orgName != null" >
+        #{orgName,jdbcType=VARCHAR},
+      </if>
+      <if test="siteId != null" >
+        #{siteId,jdbcType=INTEGER},
+      </if>
+      <if test="siteName != null" >
+        #{siteName,jdbcType=VARCHAR},
+      </if>
+      <if test="groupId != null" >
+        #{groupId,jdbcType=VARCHAR},
+      </if>
+      <if test="groupName != null" >
+        #{groupName,jdbcType=VARCHAR},
+      </if>
+      <if test="actionNo != null" >
+        #{actionNo,jdbcType=VARCHAR},
+      </if>
+      <if test="actionName != null" >
+        #{actionName,jdbcType=VARCHAR},
+      </if>
+      <if test="actionStatus != null" >
+        #{actionStatus,jdbcType=TINYINT},
+      </if>
+      <if test="effectTime != null" >
+        #{effectTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="expiredTime != null" >
+        #{expiredTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="operatorErp != null" >
+        #{operatorErp,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="version != null" >
+        #{version,jdbcType=INTEGER},
+      </if>
+      <if test="originActionId != null" >
+        #{originActionId,jdbcType=BIGINT},
+      </if>
+      <if test="positionAttrCode != null" >
+        #{positionAttrCode,jdbcType=TINYINT},
+      </if>
+      <if test="positionAttrName != null" >
+        #{positionAttrName,jdbcType=VARCHAR},
+      </if>
+      <if test="provisionType != null" >
+        #{provisionType,jdbcType=TINYINT},
+      </if>
+      <if test="settlementDeptId != null" >
+        #{settlementDeptId,jdbcType=INTEGER},
+      </if>
+      <if test="settlementDeptName != null" >
+        #{settlementDeptName,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.jd.dms.wb.sdk.model.working.ConfigWorkingAction" >
+    update config_working_action
+    <set >
+      <if test="orgId != null" >
+        org_id = #{orgId,jdbcType=INTEGER},
+      </if>
+      <if test="orgName != null" >
+        org_name = #{orgName,jdbcType=VARCHAR},
+      </if>
+      <if test="siteId != null" >
+        site_id = #{siteId,jdbcType=INTEGER},
+      </if>
+      <if test="siteName != null" >
+        site_name = #{siteName,jdbcType=VARCHAR},
+      </if>
+      <if test="groupId != null" >
+        group_id = #{groupId,jdbcType=VARCHAR},
+      </if>
+      <if test="groupName != null" >
+        group_name = #{groupName,jdbcType=VARCHAR},
+      </if>
+      <if test="actionNo != null" >
+        action_no = #{actionNo,jdbcType=VARCHAR},
+      </if>
+      <if test="actionName != null" >
+        action_name = #{actionName,jdbcType=VARCHAR},
+      </if>
+      <if test="actionStatus != null" >
+        action_status = #{actionStatus,jdbcType=TINYINT},
+      </if>
+      <if test="effectTime != null" >
+        effect_time = #{effectTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="expiredTime != null" >
+        expired_time = #{expiredTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="operatorErp != null" >
+        operator_erp = #{operatorErp,jdbcType=VARCHAR},
+      </if>
+      <if test="yn != null" >
+        yn = #{yn,jdbcType=BIT},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="version != null" >
+        version = #{version,jdbcType=INTEGER},
+      </if>
+      <if test="originActionId != null" >
+        origin_action_id = #{originActionId,jdbcType=BIGINT},
+      </if>
+      <if test="ts != null" >
+        ts = #{ts,jdbcType=TIMESTAMP},
+      </if>
+      <if test="positionAttrCode != null" >
+        position_attr_code = #{positionAttrCode,jdbcType=TINYINT},
+      </if>
+      <if test="positionAttrName != null" >
+        position_attr_name = #{positionAttrName,jdbcType=VARCHAR},
+      </if>
+      <if test="provisionType != null" >
+        provision_type = #{provisionType,jdbcType=TINYINT},
+      </if>
+      <if test="settlementDeptId != null" >
+        settlement_dept_id = #{settlementDeptId,jdbcType=INTEGER},
+      </if>
+      <if test="settlementDeptName != null" >
+        settlement_dept_name = #{settlementDeptName,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.jd.dms.wb.sdk.model.working.ConfigWorkingAction" >
+    update config_working_action
+    set org_id = #{orgId,jdbcType=INTEGER},
+      org_name = #{orgName,jdbcType=VARCHAR},
+      site_id = #{siteId,jdbcType=INTEGER},
+      site_name = #{siteName,jdbcType=VARCHAR},
+      group_id = #{groupId,jdbcType=VARCHAR},
+      group_name = #{groupName,jdbcType=VARCHAR},
+      action_no = #{actionNo,jdbcType=VARCHAR},
+      action_name = #{actionName,jdbcType=VARCHAR},
+      action_status = #{actionStatus,jdbcType=TINYINT},
+      effect_time = #{effectTime,jdbcType=TIMESTAMP},
+      expired_time = #{expiredTime,jdbcType=TIMESTAMP},
+      operator_erp = #{operatorErp,jdbcType=VARCHAR},
+      yn = #{yn,jdbcType=BIT},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      version = #{version,jdbcType=INTEGER},
+      origin_action_id = #{originActionId,jdbcType=BIGINT},
+      ts = #{ts,jdbcType=TIMESTAMP},
+      position_attr_code = #{positionAttrCode,jdbcType=TINYINT},
+      position_attr_name = #{positionAttrName,jdbcType=VARCHAR},
+      provision_type = #{provisionType,jdbcType=TINYINT},
+      settlement_dept_id = #{settlementDeptId,jdbcType=INTEGER},
+      settlement_dept_name = #{settlementDeptName,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+
+
+    <select id="findByRefGridKey" parameterType="String" resultMap="BaseResultMap">
+        SELECT
+            t2.*
+        FROM
+            config_working_grid_work t
+                LEFT JOIN config_working_action t2 ON t.action_id = t2.id
+        WHERE
+            t.ref_grid_key = #{refGridKey,jdbcType=VARCHAR}
+          AND t.yn = 1
+          AND t2.yn =1
+    </select>
+
+    <select id="queryByCondition" parameterType="com.jd.dms.wb.sdk.model.working.ConfigWorkingAction" resultMap="BaseResultMap">
+        SELECT
+            <include refid="Base_Column_List" />
+        FROM config_working_action
+        WHERE
+            yn = 1
+        <if test="siteId != null">
+            AND site_id = #{siteId,jdbcType=INTEGER}
+        </if>
+        <if test="actionStatus != null">
+            AND action_status = #{actionStatus,jdbcType=TINYINT}
+        </if>
+    </select>
+
+    <select id="findByRefGridKeyAndGrid" resultMap="BaseResultMap">
+        SELECT
+            t2.*
+        FROM
+            config_working_grid_work t
+                LEFT JOIN config_working_action t2 ON t.action_id = t2.id
+        WHERE
+            t.ref_grid_key = #{refGridKey,jdbcType=VARCHAR}
+          AND t.config_grid_id = #{configGridId,jdbcType=BIGINT}
+          AND t.yn = 1
+          AND t2.yn =1
+    </select>
+
+  <select id="findByTime" parameterType="com.jd.dms.wb.sdk.model.working.ConfigWorkingAction" resultType="com.jd.dms.wb.sdk.model.working.ConfigWorkingAction">
+    SELECT
+        t.id as id
+    FROM
+        config_working_action t
+    WHERE
+        t.yn = 1
+        AND t.effect_time <![CDATA[ <= ]]> #{expiredTime,jdbcType=TIMESTAMP}
+        AND (t.expired_time IS NULL OR t.expired_time >= #{effectTime,jdbcType=TIMESTAMP})
+  </select>
+
+</mapper>

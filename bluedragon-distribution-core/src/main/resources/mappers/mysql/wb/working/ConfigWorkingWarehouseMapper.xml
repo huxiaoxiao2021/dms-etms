@@ -1,0 +1,279 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.dms.wb.mapper.single.working.ConfigWorkingWarehouseMapper" >
+  <resultMap id="BaseResultMap" type="com.jd.dms.wb.sdk.model.working.ConfigWorkingWarehouse" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="site_id" property="siteId" jdbcType="INTEGER" />
+    <result column="group_id" property="groupId" jdbcType="VARCHAR" />
+    <result column="action_id" property="actionId" jdbcType="BIGINT" />
+    <result column="category_id" property="categoryId" jdbcType="BIGINT" />
+    <result column="warehouse_id" property="warehouseId" jdbcType="BIGINT" />
+    <result column="warehouse_name" property="warehouseName" jdbcType="VARCHAR" />
+    <result column="warehouse_type" property="warehouseType" jdbcType="VARCHAR" />
+    <result column="warehouse_cky2" property="warehouseCky2" jdbcType="VARCHAR" />
+    <result column="yn" property="yn" jdbcType="BIT" />
+    <result column="create_time" property="createTime" jdbcType="TIMESTAMP" />
+    <result column="update_time" property="updateTime" jdbcType="TIMESTAMP" />
+    <result column="version" property="version" jdbcType="INTEGER" />
+    <result column="ts" property="ts" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, site_id, group_id, action_id, category_id, warehouse_id, warehouse_name, warehouse_type,
+    warehouse_cky2, yn, create_time, update_time, version, ts
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select
+    <include refid="Base_Column_List" />
+    from config_working_warehouse
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from config_working_warehouse
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.jd.dms.wb.sdk.model.working.ConfigWorkingWarehouse" >
+      <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
+          SELECT LAST_INSERT_ID()
+      </selectKey>
+    insert into config_working_warehouse (id, site_id, group_id,
+      action_id, category_id, warehouse_id,
+      warehouse_name, warehouse_type, warehouse_cky2,
+      yn, create_time, update_time,
+      version, ts)
+    values (#{id,jdbcType=BIGINT}, #{siteId,jdbcType=INTEGER}, #{groupId,jdbcType=VARCHAR},
+      #{actionId,jdbcType=BIGINT}, #{categoryId,jdbcType=BIGINT}, #{warehouseId,jdbcType=BIGINT},
+      #{warehouseName,jdbcType=VARCHAR}, #{warehouseType,jdbcType=VARCHAR}, #{warehouseCky2,jdbcType=VARCHAR},
+      #{yn,jdbcType=BIT}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP},
+      #{version,jdbcType=INTEGER}, #{ts,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.jd.dms.wb.sdk.model.working.ConfigWorkingWarehouse" >
+      <selectKey keyProperty="id" order="AFTER" resultType="java.lang.Long">
+          SELECT LAST_INSERT_ID()
+      </selectKey>
+    insert into config_working_warehouse
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="siteId != null" >
+        site_id,
+      </if>
+      <if test="groupId != null" >
+        group_id,
+      </if>
+      <if test="actionId != null" >
+        action_id,
+      </if>
+      <if test="categoryId != null" >
+        category_id,
+      </if>
+      <if test="warehouseId != null" >
+        warehouse_id,
+      </if>
+      <if test="warehouseName != null" >
+        warehouse_name,
+      </if>
+      <if test="warehouseType != null" >
+        warehouse_type,
+      </if>
+      <if test="warehouseCky2 != null" >
+        warehouse_cky2,
+      </if>
+      <if test="yn != null" >
+        yn,
+      </if>
+      <if test="createTime != null" >
+        create_time,
+      </if>
+      <if test="updateTime != null" >
+        update_time,
+      </if>
+      <if test="version != null" >
+        version,
+      </if>
+      <if test="ts != null" >
+        ts,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="siteId != null" >
+        #{siteId,jdbcType=INTEGER},
+      </if>
+      <if test="groupId != null" >
+        #{groupId,jdbcType=VARCHAR},
+      </if>
+      <if test="actionId != null" >
+        #{actionId,jdbcType=BIGINT},
+      </if>
+      <if test="categoryId != null" >
+        #{categoryId,jdbcType=BIGINT},
+      </if>
+      <if test="warehouseId != null" >
+        #{warehouseId,jdbcType=BIGINT},
+      </if>
+      <if test="warehouseName != null" >
+        #{warehouseName,jdbcType=VARCHAR},
+      </if>
+      <if test="warehouseType != null" >
+        #{warehouseType,jdbcType=VARCHAR},
+      </if>
+      <if test="warehouseCky2 != null" >
+        #{warehouseCky2,jdbcType=VARCHAR},
+      </if>
+      <if test="yn != null" >
+        #{yn,jdbcType=BIT},
+      </if>
+      <if test="createTime != null" >
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="version != null" >
+        #{version,jdbcType=INTEGER},
+      </if>
+      <if test="ts != null" >
+        #{ts,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.jd.dms.wb.sdk.model.working.ConfigWorkingWarehouse" >
+    update config_working_warehouse
+    <set >
+      <if test="siteId != null" >
+        site_id = #{siteId,jdbcType=INTEGER},
+      </if>
+      <if test="groupId != null" >
+        group_id = #{groupId,jdbcType=VARCHAR},
+      </if>
+      <if test="actionId != null" >
+        action_id = #{actionId,jdbcType=BIGINT},
+      </if>
+      <if test="categoryId != null" >
+        category_id = #{categoryId,jdbcType=BIGINT},
+      </if>
+      <if test="warehouseId != null" >
+        warehouse_id = #{warehouseId,jdbcType=BIGINT},
+      </if>
+      <if test="warehouseName != null" >
+        warehouse_name = #{warehouseName,jdbcType=VARCHAR},
+      </if>
+      <if test="warehouseType != null" >
+        warehouse_type = #{warehouseType,jdbcType=VARCHAR},
+      </if>
+      <if test="warehouseCky2 != null" >
+        warehouse_cky2 = #{warehouseCky2,jdbcType=VARCHAR},
+      </if>
+      <if test="yn != null" >
+        yn = #{yn,jdbcType=BIT},
+      </if>
+      <if test="createTime != null" >
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null" >
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="version != null" >
+        version = #{version,jdbcType=INTEGER},
+      </if>
+      <if test="ts != null" >
+        ts = #{ts,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.jd.dms.wb.sdk.model.working.ConfigWorkingWarehouse" >
+    update config_working_warehouse
+    set site_id = #{siteId,jdbcType=INTEGER},
+      group_id = #{groupId,jdbcType=VARCHAR},
+      action_id = #{actionId,jdbcType=BIGINT},
+      category_id = #{categoryId,jdbcType=BIGINT},
+      warehouse_id = #{warehouseId,jdbcType=BIGINT},
+      warehouse_name = #{warehouseName,jdbcType=VARCHAR},
+      warehouse_type = #{warehouseType,jdbcType=VARCHAR},
+      warehouse_cky2 = #{warehouseCky2,jdbcType=VARCHAR},
+      yn = #{yn,jdbcType=BIT},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      version = #{version,jdbcType=INTEGER},
+      ts = #{ts,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+
+    <insert id="batchInsert" useGeneratedKeys="true" keyProperty="id">
+        insert into config_working_warehouse (
+        site_id,
+        group_id,
+        action_id,
+        category_id,
+        warehouse_id,
+        warehouse_name,
+        warehouse_type,
+        warehouse_cky2,
+        yn,
+        create_time,
+        update_time,
+        version
+        )
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.siteId,jdbcType=INTEGER},
+            #{item.groupId,jdbcType=BIGINT},
+            #{item.actionId,jdbcType=BIGINT},
+            #{item.categoryId,jdbcType=BIGINT},
+            #{item.warehouseId,jdbcType=BIGINT},
+            #{item.warehouseName,jdbcType=VARCHAR},
+            #{item.warehouseType,jdbcType=VARCHAR},
+            #{item.warehouseCky2,jdbcType=VARCHAR},
+            #{item.yn,jdbcType=BIT},
+            #{item.createTime,jdbcType=TIMESTAMP},
+            #{item.updateTime,jdbcType=TIMESTAMP},
+            #{item.version,jdbcType=INTEGER})
+        </foreach>
+    </insert>
+
+    <select id="selectByCategoryId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from config_working_warehouse
+        where action_id = #{actionId,jdbcType=BIGINT}
+        AND category_id = #{categoryId,jdbcType=BIGINT}
+        <if test="size != null">
+            LIMIT #{offset},#{size}
+        </if>
+    </select>
+    <select id="countByCategoryId" resultType="java.lang.Integer">
+        select
+            COUNT(1)
+        from config_working_warehouse
+        where action_id = #{actionId,jdbcType=BIGINT}
+          AND category_id = #{categoryId,jdbcType=BIGINT}
+    </select>
+  <select id="queryByCategoryId" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from config_working_warehouse
+    where category_id = #{categoryId,jdbcType=BIGINT}
+    and yn = 1
+  </select>
+  <select id="queryByCategoryIds" parameterType="java.util.List" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from config_working_warehouse
+    where category_id in
+    <foreach collection="categoryIds" item="item" separator="," close=")" open="(" >
+      #{item}
+    </foreach>
+    and yn = 1
+  </select>
+
+    <select id="selectByActionId" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from config_working_warehouse
+        where action_id = #{actionId,jdbcType=BIGINT}
+    </select>
+</mapper>

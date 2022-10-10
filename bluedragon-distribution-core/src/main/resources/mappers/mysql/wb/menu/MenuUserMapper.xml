@@ -1,0 +1,435 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.dms.wb.mapper.single.menu.IMenuUserMapper">
+    <!-- table映射实体对象 -->
+    <resultMap id="RM_MenuUser" type="com.jd.dms.wb.sdk.model.menu.MenuUser">
+        <result property="id" column="id"/>
+        <result property="url" column="url"/>
+        <result property="name" column="name"/>
+        <result property="code" column="code"/>
+        <result property="parentId" column="parent_id"/>
+        <result property="menuType" column="menu_type"/>
+        <result property="orderNumber" column="order_number"/>
+        <result property="orgId" column="org_id"/>
+        <result property="orgName" column="org_name"/>
+        <result property="siteCode" column="site_code"/>
+        <result property="siteName" column="site_name"/>
+        <result property="createUser" column="create_user"/>
+        <result property="updateUser" column="update_user"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="yn" column="yn"/>
+        <result property="ts" column="ts"/>
+    </resultMap>
+
+    <!-- 用于select查询公用抽取的列 -->
+    <sql id="Base_Column_List">
+        `id`, `url`, `name`, `code`, `parent_id`, `menu_type`, `order_number`, `org_id`, `org_name`, `site_code`, `site_name`, `create_user`, `update_user`, `create_time`, `update_time`, `yn`, `ts`
+    </sql>
+
+    <!-- 增加 -->
+    <insert id="insertSelective" useGeneratedKeys="true" keyProperty="id" parameterType="com.jd.dms.wb.sdk.model.menu.MenuUser">
+        insert into `menu_user`
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="url != null and url != ''">
+                url,
+            </if>
+            <if test="name != null and name != ''">
+                name,
+            </if>
+            <if test="code != null and code != ''">
+                code,
+            </if>
+            <if test="parentId != null">
+                parent_id,
+            </if>
+            <if test="menuType != null">
+                menu_type,
+            </if>
+            <if test="orderNumber != null">
+                order_number,
+            </if>
+            <if test="orgId != null">
+                org_id,
+            </if>
+            <if test="orgName != null and orgName != ''">
+                org_name,
+            </if>
+            <if test="siteCode != null">
+                site_code,
+            </if>
+            <if test="siteName != null and siteName != ''">
+                site_name,
+            </if>
+            <if test="createUser != null and createUser != ''">
+                create_user,
+            </if>
+            <if test="updateUser != null and updateUser != ''">
+                update_user,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="updateTime != null">
+                update_time,
+            </if>
+            <if test="yn != null">
+                yn,
+            </if>
+            <if test="ts != null">
+                ts,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id},
+            </if>
+            <if test="url != null and url != ''">
+                #{url},
+            </if>
+            <if test="name != null and name != ''">
+                #{name},
+            </if>
+            <if test="code != null and code != ''">
+                #{code},
+            </if>
+            <if test="parentId != null">
+                #{parentId},
+            </if>
+            <if test="menuType != null">
+                #{menuType},
+            </if>
+            <if test="orderNumber != null">
+                #{orderNumber},
+            </if>
+            <if test="orgId != null">
+                #{orgId},
+            </if>
+            <if test="orgName != null and orgName != ''">
+                #{orgName},
+            </if>
+            <if test="siteCode != null">
+                #{siteCode},
+            </if>
+            <if test="siteName != null and siteName != ''">
+                #{siteName},
+            </if>
+            <if test="createUser != null and createUser != ''">
+                #{createUser},
+            </if>
+            <if test="updateUser != null and updateUser != ''">
+                #{updateUser},
+            </if>
+            <if test="createTime != null">
+                #{createTime},
+            </if>
+            <if test="updateTime != null">
+                #{updateTime},
+            </if>
+            <if test="yn != null">
+                #{yn},
+            </if>
+            <if test="ts != null">
+                #{ts},
+            </if>
+        </trim>
+    </insert>
+    <!-- 批量增加 -->
+    <insert id="batchInsert" useGeneratedKeys="true" keyProperty="id" parameterType="java.util.List">
+        insert into `menu_user`
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            url,
+            name,
+            code,
+            parent_id,
+            menu_type,
+            order_number,
+            org_id,
+            org_name,
+            site_code,
+            site_name,
+            create_user,
+            update_user,
+            create_time,
+            update_time,
+            yn,
+            ts,
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix=" (" suffix=")" suffixOverrides=",">
+                    #{item.id},
+                    #{item.url},
+                    #{item.name},
+                    #{item.code},
+                    #{item.parentId},
+                    #{item.menuType},
+                    #{item.orderNumber},
+                    #{item.orgId},
+                    #{item.orgName},
+                    #{item.siteCode},
+                    #{item.siteName},
+                    #{item.createUser},
+                    #{item.updateUser},
+                    #{item.createTime},
+                    #{item.updateTime},
+                    #{item.yn},
+                    #{item.ts},
+            </trim>
+        </foreach>
+    </insert>
+    <!-- 更新 -->
+    <update id="updateByPrimaryKey" parameterType="com.jd.dms.wb.sdk.model.menu.MenuUser">
+        UPDATE `menu_user`
+        <set>
+            <if test="url != null and url != ''">
+            url = #{url},
+            </if>
+            <if test="name != null and name != ''">
+            name = #{name},
+            </if>
+            <if test="code != null and code != ''">
+            code = #{code},
+            </if>
+            <if test="parentId != null ">
+            parent_id = #{parentId},
+            </if>
+            <if test="menuType != null ">
+            menu_type = #{menuType},
+            </if>
+            <if test="orderNumber != null ">
+            order_number = #{orderNumber},
+            </if>
+            <if test="orgId != null ">
+            org_id = #{orgId},
+            </if>
+            <if test="orgName != null and orgName != ''">
+            org_name = #{orgName},
+            </if>
+            <if test="siteCode != null ">
+            site_code = #{siteCode},
+            </if>
+            <if test="siteName != null and siteName != ''">
+            site_name = #{siteName},
+            </if>
+            <if test="createUser != null and createUser != ''">
+            create_user = #{createUser},
+            </if>
+            <if test="updateUser != null and updateUser != ''">
+            update_user = #{updateUser},
+            </if>
+            <if test="createTime != null ">
+            create_time = #{createTime},
+            </if>
+            <if test="updateTime != null ">
+            update_time = #{updateTime},
+            </if>
+            <if test="yn != null ">
+            yn = #{yn},
+            </if>
+            <if test="ts != null ">
+            ts = #{ts}
+            </if>
+        </set>
+        WHERE
+            id = #{id}
+    </update>
+    <!-- 批量更新 -->
+    <update id="batchUpdate" parameterType="java.util.List">
+        <foreach collection="list" item="item" index="index"  separator=";">
+            UPDATE `menu_user`
+            <set>
+                <if test="item.url != null and item.url != ''">
+                url = #{item.url},
+                </if>
+                <if test="item.name != null and item.name != ''">
+                name = #{item.name},
+                </if>
+                <if test="item.code != null and item.code != ''">
+                code = #{item.code},
+                </if>
+                <if test="item.parentId != null">
+                parent_id = #{item.parentId},
+                </if>
+                <if test="item.menuType != null">
+                menu_type = #{item.menuType},
+                </if>
+                <if test="item.orderNumber != null">
+                order_number = #{item.orderNumber},
+                </if>
+                <if test="item.orgId != null">
+                org_id = #{item.orgId},
+                </if>
+                <if test="item.orgName != null and item.orgName != ''">
+                org_name = #{item.orgName},
+                </if>
+                <if test="item.siteCode != null">
+                site_code = #{item.siteCode},
+                </if>
+                <if test="item.siteName != null and item.siteName != ''">
+                site_name = #{item.siteName},
+                </if>
+                <if test="item.createUser != null and item.createUser != ''">
+                create_user = #{item.createUser},
+                </if>
+                <if test="item.updateUser != null and item.updateUser != ''">
+                update_user = #{item.updateUser},
+                </if>
+                <if test="item.createTime != null">
+                create_time = #{item.createTime},
+                </if>
+                <if test="item.updateTime != null">
+                update_time = #{item.updateTime},
+                </if>
+                <if test="item.yn != null">
+                yn = #{item.yn},
+                </if>
+                <if test="item.ts != null">
+                ts = #{item.ts}
+                </if>
+            </set>
+            WHERE
+                id = #{item.id}
+        </foreach>
+    </update>
+    <!-- 按主键查询 -->
+    <select id="selectByPrimaryKey" resultMap="RM_MenuUser" parameterType="com.jd.dms.wb.sdk.model.menu.MenuUser">
+        SELECT
+        <include refid="Base_Column_List"/>
+        <![CDATA[
+            FROM `menu_user`
+            WHERE
+                id = #{id} 
+        ]]>
+    </select>
+    <!-- 按表中的XXX列查询集合 -->
+    <select id="selectByColumn" resultMap="RM_MenuUser" parameterType="com.jd.dms.wb.sdk.query.menu.MenuUserQuery">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM `menu_user`
+        <where>
+            <include refid="whereByColumnValueMap"/>
+        </where>
+    </select>
+    <!-- 按条件查询单条记录 -->
+    <select id="selectOne" resultMap="RM_MenuUser" parameterType="com.jd.dms.wb.sdk.query.menu.MenuUserQuery">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM `menu_user`
+        <include refid="where"/>
+    </select>
+    <!-- where条件 -->
+    <sql id="where">
+        <where>
+            <include refid="sql_if_not_null"/>
+            <include refid="whereByColumnValueMap"/>
+        </where>
+    </sql>
+    <!-- 判断空值 -->
+    <sql id="sql_if_not_null">
+        <if test="id != null">
+        AND id = #{id}
+        </if>
+        <if test="url != null and url != ''">
+        AND url = #{url}
+        </if>
+        <if test="name != null and name != ''">
+        AND name = #{name}
+        </if>
+        <if test="code != null and code != ''">
+        AND code = #{code}
+        </if>
+        <if test="parentId != null">
+        AND parent_id = #{parentId}
+        </if>
+        <if test="menuType != null">
+        AND menu_type = #{menuType}
+        </if>
+        <if test="orderNumber != null">
+        AND order_number = #{orderNumber}
+        </if>
+        <if test="orgId != null">
+        AND org_id = #{orgId}
+        </if>
+        <if test="orgName != null and orgName != ''">
+        AND org_name = #{orgName}
+        </if>
+        <if test="siteCode != null">
+        AND site_code = #{siteCode}
+        </if>
+        <if test="siteName != null and siteName != ''">
+        AND site_name = #{siteName}
+        </if>
+        <if test="createUser != null and createUser != ''">
+        AND create_user = #{createUser}
+        </if>
+        <if test="updateUser != null and updateUser != ''">
+        AND update_user = #{updateUser}
+        </if>
+        <if test="createTime != null">
+        AND create_time = #{createTime}
+        </if>
+        <if test="updateTime != null">
+        AND update_time = #{updateTime}
+        </if>
+        <if test="yn != null">
+        AND yn = #{yn}
+        </if>
+        <if test="ts != null">
+        AND ts = #{ts}
+        </if>
+    </sql>
+    <!-- 按字段值参数查询条件 -->
+    <sql id="whereByColumnValueMap">
+        <if test="columnValueMap != null">
+            <foreach collection="columnValueMap.entrySet()" item="itemList" index="field">
+                AND #{field}
+                <if test="itemList.size() == 1 ">
+                    = <foreach collection="itemList" item="item" index="index" separator=",">#{item}</foreach>
+                </if>
+                <if test="itemList.size() > 1 ">
+                    in (
+                    <foreach collection="itemList" item="item" index="index" separator=",">
+                        #{item}
+                    </foreach>
+                    )
+                </if>
+            </foreach>
+        </if>
+    </sql>
+    <!-- 查询行数 -->
+    <select id="queryCount" resultType="long" parameterType="com.jd.dms.wb.sdk.query.menu.MenuUserQuery">
+        SELECT count(1) FROM `menu_user`
+        <include refid="where"/>
+    </select>
+    <!-- 查询集合 如果pageNumber小于或等于0,则不进行分页操作 -->
+    <select id="queryList" resultMap="RM_MenuUser" parameterType="com.jd.dms.wb.sdk.query.menu.MenuUserQuery">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM `menu_user`
+        <include refid="where"/>
+        order by order_number, create_time desc
+        <if test="pageNumber > 0">
+            limit #{startRecord}, #{pageSize}
+        </if>
+    </select>
+    <!-- 伪删除（更新删除行的识别码） -->
+    <update id="deleteByPrimaryKey" parameterType="com.jd.dms.wb.sdk.model.menu.MenuUser">
+        UPDATE `menu_user` SET yn = 0
+        WHERE
+        id = #{id} 
+    </update>
+    <!-- 批量伪删除 -->
+    <update id="batchDelete" parameterType="com.jd.dms.wb.sdk.query.menu.MenuUserQuery">
+        UPDATE `menu_user` SET yn = 0
+        WHERE id IN
+        <foreach collection="columnValueList" item="item" index="index" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </update>
+</mapper>
+

@@ -1,0 +1,613 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.dms.wb.mapper.single.notice.INoticeMapper">
+    <!-- table映射实体对象 -->
+    <resultMap id="RM_Notice" type="com.jd.dms.wb.sdk.model.notice.Notice">
+        <result property="id" column="id"/>
+        <result property="title" column="title"/>
+        <result property="type" column="type"/>
+        <result property="importantLevel" column="important_level"/>
+        <result property="receiveScopeType" column="receive_scope_type"/>
+        <result property="isDisplay" column="is_display"/>
+        <result property="isTopDisplay" column="is_top_display"/>
+        <result property="bizCode" column="biz_code"/>
+        <result property="bizContent" column="biz_content"/>
+        <result property="content" column="content"/>
+        <result property="publishStatus" column="publish_status"/>
+        <result property="approveStatus" column="approve_status"/>
+        <result property="publishTimeBegin" column="publish_time_begin"/>
+        <result property="publishTimeEnd" column="publish_time_end"/>
+        <result property="publishSystem" column="publish_system"/>
+        <result property="publishFromSystem" column="publish_from_system"/>
+        <result property="sendChannel" column="send_channel"/>
+        <result property="sendStatus" column="send_status"/>
+        <result property="handleLink" column="handle_link"/>
+        <result property="createUser" column="create_user"/>
+        <result property="createUserName" column="create_user_name"/>
+        <result property="updateUser" column="update_user"/>
+        <result property="updateUserName" column="update_user_name"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="yn" column="yn"/>
+        <result property="ts" column="ts"/>
+    </resultMap>
+
+    <!-- 用于select查询公用抽取的列 -->
+    <sql id="Base_Column_List">
+        `id`, `title`, `type`, `important_level`, `receive_scope_type`, `is_display`, `is_top_display`, `biz_code`, `biz_content`, `content`, `publish_status`, `approve_status`, `publish_time_begin`, `publish_time_end`, `publish_system`, `publish_from_system`, `send_channel`, `handle_link`, `create_user`, `create_user_name`, `update_user`, `update_user_name`, `create_time`, `update_time`, `yn`, `ts`
+    </sql>
+
+    <!-- 增加 -->
+    <insert id="insertSelective" useGeneratedKeys="true" keyProperty="id" parameterType="com.jd.dms.wb.sdk.model.notice.Notice">
+        insert into `notice`
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="title != null and title != ''">
+                title,
+            </if>
+            <if test="type != null">
+                type,
+            </if>
+            <if test="importantLevel != null">
+                important_level,
+            </if>
+            <if test="receiveScopeType != null">
+                receive_scope_type,
+            </if>
+            <if test="isDisplay != null">
+                is_display,
+            </if>
+            <if test="isTopDisplay != null">
+                is_top_display,
+            </if>
+            <if test="bizCode != null and bizCode != ''">
+                biz_code,
+            </if>
+            <if test="bizContent != null and bizContent != ''">
+                biz_content,
+            </if>
+            <if test="content != null and content != ''">
+                content,
+            </if>
+            <if test="publishStatus != null">
+                publish_status,
+            </if>
+            <if test="approveStatus != null">
+                approve_status,
+            </if>
+            <if test="publishTimeBegin != null">
+                publish_time_begin,
+            </if>
+            <if test="publishTimeEnd != null">
+                publish_time_end,
+            </if>
+            <if test="publishSystem != null">
+                publish_system,
+            </if>
+            <if test="publishFromSystem != null">
+                publish_from_system,
+            </if>
+            <if test="sendChannel != null">
+                send_channel,
+            </if>
+            <if test="sendStatus != null">
+                send_status,
+            </if>
+            <if test="handleLink != null and handleLink != ''">
+                handle_link,
+            </if>
+            <if test="createUser != null and createUser != ''">
+                create_user,
+            </if>
+            <if test="createUserName != null and createUserName != ''">
+                create_user_name,
+            </if>
+            <if test="updateUser != null and updateUser != ''">
+                update_user,
+            </if>
+            <if test="updateUserName != null and updateUserName != ''">
+                update_user_name,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="updateTime != null">
+                update_time,
+            </if>
+            <if test="yn != null">
+                yn,
+            </if>
+            <if test="ts != null">
+                ts,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id},
+            </if>
+            <if test="title != null and title != ''">
+                #{title},
+            </if>
+            <if test="type != null">
+                #{type},
+            </if>
+            <if test="importantLevel != null">
+                #{importantLevel},
+            </if>
+            <if test="receiveScopeType != null">
+                #{receiveScopeType},
+            </if>
+            <if test="isDisplay != null">
+                #{isDisplay},
+            </if>
+            <if test="isTopDisplay != null">
+                #{isTopDisplay},
+            </if>
+            <if test="bizCode != null and bizCode != ''">
+                #{bizCode},
+            </if>
+            <if test="bizContent != null and bizContent != ''">
+                #{bizContent},
+            </if>
+            <if test="content != null and content != ''">
+                #{content},
+            </if>
+            <if test="publishStatus != null">
+                #{publishStatus},
+            </if>
+            <if test="approveStatus != null">
+                #{approveStatus},
+            </if>
+            <if test="publishTimeBegin != null">
+                #{publishTimeBegin},
+            </if>
+            <if test="publishTimeEnd != null">
+                #{publishTimeEnd},
+            </if>
+            <if test="publishSystem != null">
+                #{publishSystem},
+            </if>
+            <if test="publishFromSystem != null">
+                #{publishFromSystem},
+            </if>
+            <if test="sendChannel != null">
+                #{sendChannel},
+            </if>
+            <if test="sendStatus != null">
+                #{sendStatus},
+            </if>
+            <if test="handleLink != null and handleLink != ''">
+                #{handleLink},
+            </if>
+            <if test="createUser != null and createUser != ''">
+                #{createUser},
+            </if>
+            <if test="createUserName != null and createUserName != ''">
+                #{createUserName},
+            </if>
+            <if test="updateUser != null and updateUser != ''">
+                #{updateUser},
+            </if>
+            <if test="updateUserName != null and updateUserName != ''">
+                #{updateUserName},
+            </if>
+            <if test="createTime != null">
+                #{createTime},
+            </if>
+            <if test="updateTime != null">
+                #{updateTime},
+            </if>
+            <if test="yn != null">
+                #{yn},
+            </if>
+            <if test="ts != null">
+                #{ts},
+            </if>
+        </trim>
+    </insert>
+    <!-- 批量增加 -->
+    <insert id="batchInsert" useGeneratedKeys="true" keyProperty="id" parameterType="java.util.List">
+        insert into `notice`
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            title,
+            type,
+            important_level,
+            receive_scope_type,
+            is_display,
+            is_top_display,
+            biz_code,
+            biz_content,
+            content,
+            publish_status,
+            approve_status,
+            publish_time_begin,
+            publish_time_end,
+            publish_system,
+            publish_from_system,
+            send_channel,
+            handle_link,
+            create_user,
+            create_user_name,
+            update_user,
+            update_user_name,
+            create_time,
+            update_time,
+            yn,
+            ts,
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix=" (" suffix=")" suffixOverrides=",">
+                    #{item.id},
+                    #{item.title},
+                    #{item.type},
+                    #{item.importantLevel},
+                    #{item.receiveScopeType},
+                    #{item.isDisplay},
+                    #{item.isTopDisplay},
+                    #{item.bizCode},
+                    #{item.bizContent},
+                    #{item.content},
+                    #{item.publishStatus},
+                    #{item.approveStatus},
+                    #{item.publishTimeBegin},
+                    #{item.publishTimeEnd},
+                    #{item.publishSystem},
+                    #{item.publishFromSystem},
+                    #{item.sendChannel},
+                    #{item.sendStatus},
+                    #{item.handleLink},
+                    #{item.createUser},
+                    #{item.createUserName},
+                    #{item.updateUser},
+                    #{item.updateUserName},
+                    #{item.createTime},
+                    #{item.updateTime},
+                    #{item.yn},
+                    #{item.ts},
+            </trim>
+        </foreach>
+    </insert>
+    <!-- 更新 -->
+    <update id="updateByPrimaryKey" parameterType="com.jd.dms.wb.sdk.model.notice.Notice">
+        UPDATE `notice`
+        <set>
+            <if test="title != null and title != ''">
+            title = #{title},
+            </if>
+            <if test="type != null ">
+            type = #{type},
+            </if>
+            <if test="importantLevel != null ">
+            important_level = #{importantLevel},
+            </if>
+            <if test="receiveScopeType != null ">
+            receive_scope_type = #{receiveScopeType},
+            </if>
+            <if test="isDisplay != null ">
+            is_display = #{isDisplay},
+            </if>
+            <if test="isTopDisplay != null ">
+            is_top_display = #{isTopDisplay},
+            </if>
+            <if test="bizCode != null and bizCode != ''">
+            biz_code = #{bizCode},
+            </if>
+            <if test="bizContent != null and bizContent != ''">
+            biz_content = #{bizContent},
+            </if>
+            <if test="content != null and content != ''">
+            content = #{content},
+            </if>
+            <if test="publishStatus != null ">
+            publish_status = #{publishStatus},
+            </if>
+            <if test="approveStatus != null ">
+            approve_status = #{approveStatus},
+            </if>
+            <if test="publishTimeBegin != null ">
+            publish_time_begin = #{publishTimeBegin},
+            </if>
+            <if test="publishTimeEnd != null ">
+            publish_time_end = #{publishTimeEnd},
+            </if>
+            <if test="publishSystem != null ">
+            publish_system = #{publishSystem},
+            </if>
+            <if test="publishFromSystem != null ">
+            publish_from_system = #{publishFromSystem},
+            </if>
+            <if test="sendChannel != null ">
+            send_channel = #{sendChannel},
+            </if>
+            <if test="sendStatus != null ">
+            send_status = #{sendStatus},
+            </if>
+            <if test="handleLink != null and handleLink != ''">
+            handle_link = #{handleLink},
+            </if>
+            <if test="createUser != null and createUser != ''">
+            create_user = #{createUser},
+            </if>
+            <if test="createUserName != null and createUserName != ''">
+            create_user_name = #{createUserName},
+            </if>
+            <if test="updateUser != null and updateUser != ''">
+            update_user = #{updateUser},
+            </if>
+            <if test="updateUserName != null and updateUserName != ''">
+            update_user_name = #{updateUserName},
+            </if>
+            <if test="createTime != null ">
+            create_time = #{createTime},
+            </if>
+            <if test="updateTime != null ">
+            update_time = #{updateTime},
+            </if>
+            <if test="yn != null ">
+            yn = #{yn},
+            </if>
+            <if test="ts != null ">
+            ts = #{ts}
+            </if>
+        </set>
+        WHERE
+            id = #{id}
+    </update>
+    <!-- 批量更新 -->
+    <update id="batchUpdate" parameterType="java.util.List">
+        <foreach collection="list" item="item" index="index"  separator=";">
+            UPDATE `notice`
+            <set>
+                <if test="item.title != null and item.title != ''">
+                title = #{item.title},
+                </if>
+                <if test="item.type != null">
+                type = #{item.type},
+                </if>
+                <if test="item.importantLevel != null">
+                important_level = #{item.importantLevel},
+                </if>
+                <if test="item.receiveScopeType != null">
+                receive_scope_type = #{item.receiveScopeType},
+                </if>
+                <if test="item.isDisplay != null">
+                is_display = #{item.isDisplay},
+                </if>
+                <if test="item.isTopDisplay != null">
+                is_top_display = #{item.isTopDisplay},
+                </if>
+                <if test="item.bizCode != null and item.bizCode != ''">
+                biz_code = #{item.bizCode},
+                </if>
+                <if test="item.bizContent != null and item.bizContent != ''">
+                biz_content = #{item.bizContent},
+                </if>
+                <if test="item.content != null and item.content != ''">
+                content = #{item.content},
+                </if>
+                <if test="item.publishStatus != null">
+                publish_status = #{item.publishStatus},
+                </if>
+                <if test="item.approveStatus != null">
+                approve_status = #{item.approveStatus},
+                </if>
+                <if test="item.publishTimeBegin != null">
+                publish_time_begin = #{item.publishTimeBegin},
+                </if>
+                <if test="item.publishTimeEnd != null">
+                publish_time_end = #{item.publishTimeEnd},
+                </if>
+                <if test="item.publishSystem != null">
+                publish_system = #{item.publishSystem},
+                </if>
+                <if test="item.publishFromSystem != null">
+                publish_from_system = #{item.publishFromSystem},
+                </if>
+                <if test="item.sendChannel != null">
+                send_channel = #{item.sendChannel},
+                </if>
+                <if test="item.sendStatus != null">
+                send_status = #{item.sendStatus},
+                </if>
+                <if test="item.handleLink != null and item.handleLink != ''">
+                handle_link = #{item.handleLink},
+                </if>
+                <if test="item.createUser != null and item.createUser != ''">
+                create_user = #{item.createUser},
+                </if>
+                <if test="item.createUserName != null and item.createUserName != ''">
+                create_user_name = #{item.createUserName},
+                </if>
+                <if test="item.updateUser != null and item.updateUser != ''">
+                update_user = #{item.updateUser},
+                </if>
+                <if test="item.updateUserName != null and item.updateUserName != ''">
+                update_user_name = #{item.updateUserName},
+                </if>
+                <if test="item.createTime != null">
+                create_time = #{item.createTime},
+                </if>
+                <if test="item.updateTime != null">
+                update_time = #{item.updateTime},
+                </if>
+                <if test="item.yn != null">
+                yn = #{item.yn},
+                </if>
+                <if test="item.ts != null">
+                ts = #{item.ts}
+                </if>
+            </set>
+            WHERE
+                id = #{item.id}
+        </foreach>
+    </update>
+    <!-- 按主键查询 -->
+    <select id="selectByPrimaryKey" resultMap="RM_Notice" parameterType="com.jd.dms.wb.sdk.model.notice.Notice">
+        SELECT
+        <include refid="Base_Column_List"/>
+        <![CDATA[
+            FROM `notice`
+            WHERE
+                id = #{id} 
+        ]]>
+    </select>
+    <!-- 按表中的XXX列查询集合 -->
+    <select id="selectByColumn" resultMap="RM_Notice" parameterType="com.jd.dms.wb.sdk.query.notice.NoticeQuery">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM `notice`
+        <where>
+            <include refid="whereByColumnValueMap"/>
+        </where>
+    </select>
+    <!-- 按条件查询单条记录 -->
+    <select id="selectOne" resultMap="RM_Notice" parameterType="com.jd.dms.wb.sdk.query.notice.NoticeQuery">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM `notice`
+        <include refid="where"/>
+    </select>
+    <!-- where条件 -->
+    <sql id="where">
+        <where>
+            <include refid="sql_if_not_null"/>
+            <include refid="whereByColumnValueMap"/>
+        </where>
+    </sql>
+    <!-- 判断空值 -->
+    <sql id="sql_if_not_null">
+        <if test="id != null">
+        AND id = #{id}
+        </if>
+        <if test="title != null and title != ''">
+        AND title like concat('%', #{title}, '%')
+        </if>
+        <if test="type != null">
+        AND type = #{type}
+        </if>
+        <if test="importantLevel != null">
+        AND important_level = #{importantLevel}
+        </if>
+        <if test="receiveScopeType != null">
+        AND receive_scope_type = #{receiveScopeType}
+        </if>
+        <if test="isDisplay != null">
+        AND is_display = #{isDisplay}
+        </if>
+        <if test="isTopDisplay != null">
+        AND is_top_display = #{isTopDisplay}
+        </if>
+        <if test="bizCode != null and bizCode != ''">
+        AND biz_code = #{bizCode}
+        </if>
+        <if test="bizContent != null and bizContent != ''">
+        AND biz_content = #{bizContent}
+        </if>
+        <if test="content != null and content != ''">
+        AND content = #{content}
+        </if>
+        <if test="publishStatus != null">
+        AND publish_status = #{publishStatus}
+        </if>
+        <if test="approveStatus != null">
+        AND approve_status = #{approveStatus}
+        </if>
+        <if test="publishTimeBegin != null">
+        AND publish_time_begin = #{publishTimeBegin}
+        </if>
+        <if test="publishTimeEnd != null">
+        AND publish_time_end = #{publishTimeEnd}
+        </if>
+        <if test="publishSystem != null and publishSystem != ''">
+        AND publish_system = #{publishSystem}
+        </if>
+        <if test="publishFromSystem != null and publishFromSystem != ''">
+        AND publish_from_system = #{publishFromSystem}
+        </if>
+        <if test="sendChannel != null">
+        AND send_channel = #{sendChannel}
+        </if>
+        <if test="sendStatus != null">
+        AND send_status = #{sendStatus}
+        </if>
+        <if test="handleLink != null and handleLink != ''">
+        AND handle_link = #{handleLink}
+        </if>
+        <if test="createUser != null and createUser != ''">
+        AND create_user = #{createUser}
+        </if>
+        <if test="updateUser != null and updateUser != ''">
+        AND update_user = #{updateUser}
+        </if>
+        <if test="updateUserName != null and updateUserName != ''">
+        AND update_user_name = #{updateUserName}
+        </if>
+        <if test="createTime != null">
+        AND create_time = #{createTime}
+        </if>
+        <if test="createTimeFrom != null">
+            AND create_time >= #{createTimeFrom}
+        </if>
+        <if test="createTimeTo != null">
+            AND create_time &lt; #{createTimeTo}
+        </if>
+        <if test="updateTime != null">
+        AND update_time = #{updateTime}
+        </if>
+        <if test="yn != null">
+        AND yn = #{yn}
+        </if>
+    </sql>
+    <!-- 按字段值参数查询条件 -->
+    <sql id="whereByColumnValueMap">
+        <if test="columnValueMap != null">
+            <foreach collection="columnValueMap.entrySet()" item="itemList" index="field">
+                AND #{field}
+                <if test="itemList.size() == 1 ">
+                    = <foreach collection="itemList" item="item" index="index" separator=",">#{item}</foreach>
+                </if>
+                <if test="itemList.size() > 1 ">
+                    in (
+                    <foreach collection="itemList" item="item" index="index" separator=",">
+                        #{item}
+                    </foreach>
+                    )
+                </if>
+            </foreach>
+        </if>
+    </sql>
+    <!-- 查询行数 -->
+    <select id="queryCount" resultType="long" parameterType="com.jd.dms.wb.sdk.query.notice.NoticeQuery">
+        SELECT count(1) FROM `notice`
+        <include refid="where"/>
+    </select>
+    <!-- 查询集合 如果pageNumber小于或等于0,则不进行分页操作 -->
+    <select id="queryList" resultMap="RM_Notice" parameterType="com.jd.dms.wb.sdk.query.notice.NoticeQuery">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM `notice`
+        <include refid="where"/>
+        <if test="pageNumber > 0">
+            limit #{startRecord}, #{pageSize}
+        </if>
+    </select>
+    <!-- 伪删除（更新删除行的识别码） -->
+    <update id="delete" parameterType="com.jd.dms.wb.sdk.model.notice.Notice">
+        UPDATE `notice` SET yn = 1
+        WHERE
+        id = #{id} 
+    </update>
+    <!-- 批量伪删除 -->
+    <update id="batchDelete" parameterType="com.jd.dms.wb.sdk.query.notice.NoticeQuery">
+        UPDATE `notice` SET yn = 1
+        WHERE id IN
+        <foreach collection="columnValueList" item="item" index="index" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </update>
+</mapper>
+

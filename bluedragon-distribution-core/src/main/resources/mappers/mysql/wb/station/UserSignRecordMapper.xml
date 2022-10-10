@@ -1,0 +1,485 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.dms.wb.mapper.single.station.IUserSignRecordMapper" >
+
+	<resultMap id="UserSignRecord" type="com.jd.dms.wb.sdk.model.station.UserSignRecord" >
+		<id column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result column="work_code" property="workCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="station_code" property="stationCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="org_code" property="orgCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="site_code" property="siteCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="grid_no" property="gridNo" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="wave_code" property="waveCode" javaType="java.lang.Integer" jdbcType="TINYINT" />
+		<result column="user_code" property="userCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="job_code" property="jobCode" javaType="java.lang.Integer" jdbcType="TINYINT" />
+		<result column="sign_date" property="signDate" javaType="java.util.Date" jdbcType="DATE" />
+		<result column="sign_in_time" property="signInTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="sign_out_time" property="signOutTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="create_user" property="createUser" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="create_user_name" property="createUserName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="update_user" property="updateUser" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="update_user_name" property="updateUserName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="yn" property="yn" javaType="java.lang.Integer" jdbcType="TINYINT" />
+		<result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+	</resultMap>
+
+	<resultMap id="UserSignRecordVo" type="com.jd.dms.wb.sdk.vo.station.UserSignRecordVo" >
+		<result column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result column="work_code" property="workCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="station_code" property="stationCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="org_code" property="orgCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="site_code" property="siteCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="grid_no" property="gridNo" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="wave_code" property="waveCode" javaType="java.lang.Integer" jdbcType="TINYINT" />
+		<result column="user_code" property="userCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="job_code" property="jobCode" javaType="java.lang.Integer" jdbcType="TINYINT" />
+		<result column="sign_date" property="signDate" javaType="java.util.Date" jdbcType="DATE" />
+		<result column="sign_in_time" property="signInTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="sign_out_time" property="signOutTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="create_user" property="createUser" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="create_user_name" property="createUserName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="update_user" property="updateUser" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="update_user_name" property="updateUserName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="yn" property="yn" javaType="java.lang.Integer" jdbcType="TINYINT" />
+		<result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="work_name" property="workName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="station_name" property="stationName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="grid_name" property="gridName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="org_name" property="orgName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="site_name" property="siteName" javaType="java.lang.String" jdbcType="VARCHAR" />				
+	</resultMap>
+	
+	<resultMap id="UserSignRecordReportVo" type="com.jd.dms.wb.sdk.vo.station.UserSignRecordReportVo" >
+		<result column="sign_date" property="signDate" javaType="java.util.Date" jdbcType="DATE" />	
+		<result column="org_code" property="orgCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="org_name" property="orgName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="site_code" property="siteCode" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="site_name" property="siteName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="grid_no" property="gridNo" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="grid_name" property="gridName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="work_code" property="workCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="work_name" property="workName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="station_code" property="stationCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="station_name" property="stationName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="wave_code" property="waveCode" javaType="java.lang.Integer" jdbcType="TINYINT" />		
+		<result column="standard_num" property="standardNum" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="plan_attend_num" property="planAttendNum" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="attend_num" property="attendNum" javaType="java.lang.Integer" jdbcType="INTEGER" />				
+	</resultMap>
+	
+	<resultMap id="UserSignRecordReportSumVo" type="com.jd.dms.wb.sdk.vo.station.UserSignRecordReportSumVo" >
+		<result column="standard_num_sum" property="standardNumSum" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="plan_attend_num_sum" property="planAttendNumSum" javaType="java.lang.Integer" jdbcType="INTEGER" />
+		<result column="attend_num_sum" property="attendNumSum" javaType="java.lang.Integer" jdbcType="INTEGER" />				
+	</resultMap>	
+	
+	<sql id="Base_Column_List" >
+		r.id,r.work_code,r.station_code,r.org_code,r.site_code,r.grid_no,r.wave_code,
+		r.user_code,r.job_code,r.sign_date,r.sign_in_time,r.sign_out_time,
+		r.create_user,r.create_user_name,r.update_user,r.update_user_name,r.create_time,
+		r.update_time,r.yn,r.ts
+	</sql>
+	
+	<sql id="Vo_Base_Column_List" >
+		r.id,r.work_code,r.station_code,r.org_code,r.site_code,r.grid_no,r.wave_code,
+		r.user_code,r.job_code,r.sign_date,r.sign_in_time,r.sign_out_time,
+		r.create_user,r.create_user_name,r.update_user,r.update_user_name,r.create_time,
+		r.update_time,r.yn,r.ts,
+		s.work_name,s.station_name,g.org_name,g.site_name,g.grid_name
+	</sql>	
+
+	<insert id="insert" parameterType="com.jd.dms.wb.sdk.model.station.UserSignRecord" useGeneratedKeys="true" keyProperty="id">
+		insert into user_sign_record
+			(
+			<trim suffixOverrides=",">
+				<if test="id != null" >
+					id,
+				</if>
+				<if test="workCode != null" >
+					work_code,
+				</if>				
+				<if test="stationCode != null" >
+					station_code,
+				</if>
+				<if test="orgCode != null" >
+					org_code,
+				</if>
+				<if test="siteCode != null" >
+					site_code,
+				</if>
+				<if test="gridNo != null" >
+					grid_no,
+				</if>
+				<if test="waveCode != null" >
+					wave_code,
+				</if>
+				<if test="userCode != null" >
+					user_code,
+				</if>
+				<if test="jobCode != null" >
+					job_code,
+				</if>
+				<if test="signDate != null" >
+					sign_date,
+				</if>
+				<if test="signInTime != null" >
+					sign_in_time,
+				</if>
+				<if test="signOutTime != null" >
+					sign_out_time,
+				</if>
+				<if test="createUser != null" >
+					create_user,
+				</if>
+				<if test="createUserName != null" >
+					create_user_name,
+				</if>
+				<if test="updateUser != null" >
+					update_user,
+				</if>
+				<if test="updateUserName != null" >
+					update_user_name,
+				</if>
+				<if test="createTime != null" >
+					create_time,
+				</if>
+				<if test="updateTime != null" >
+					update_time,
+				</if>
+				<if test="yn != null" >
+					yn,
+				</if>
+				<if test="ts != null" >
+					ts,
+				</if>
+			</trim>
+			)
+			values
+			(
+			<trim suffixOverrides=",">
+				<if test="id != null" >
+					#{id,jdbcType=BIGINT},
+				</if>
+				<if test="workCode != null" >
+					#{workCode,jdbcType=VARCHAR},
+				</if>				
+				<if test="stationCode != null" >
+					#{stationCode,jdbcType=VARCHAR},
+				</if>
+				<if test="orgCode != null" >
+					#{orgCode,jdbcType=INTEGER},
+				</if>
+				<if test="siteCode != null" >
+					#{siteCode,jdbcType=INTEGER},
+				</if>
+				<if test="gridNo != null" >
+					#{gridNo,jdbcType=VARCHAR},
+				</if>
+				<if test="waveCode != null" >
+					#{waveCode,jdbcType=TINYINT},
+				</if>
+				<if test="userCode != null" >
+					#{userCode,jdbcType=VARCHAR},
+				</if>
+				<if test="jobCode != null" >
+					#{jobCode,jdbcType=TINYINT},
+				</if>
+				<if test="signDate != null" >
+					#{signDate,jdbcType=DATE},
+				</if>
+				<if test="signInTime != null" >
+					#{signInTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="signOutTime != null" >
+					#{signOutTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="createUser != null" >
+					#{createUser,jdbcType=VARCHAR},
+				</if>
+				<if test="createUserName != null" >
+					#{createUserName,jdbcType=VARCHAR},
+				</if>
+				<if test="updateUser != null" >
+					#{updateUser,jdbcType=VARCHAR},
+				</if>
+				<if test="updateUserName != null" >
+					#{updateUserName,jdbcType=VARCHAR},
+				</if>
+				<if test="createTime != null" >
+					#{createTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="updateTime != null" >
+					#{updateTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="yn != null" >
+					#{yn,jdbcType=TINYINT},
+				</if>
+				<if test="ts != null" >
+					#{ts,jdbcType=TIMESTAMP},
+				</if>
+			</trim>
+			)
+	</insert>
+
+	<update id="updateById" parameterType="com.jd.dms.wb.sdk.model.station.UserSignRecord">
+		update user_sign_record
+			<set>
+				<if test="workCode != null" >
+					work_code = #{workCode,jdbcType=VARCHAR},
+				</if>			
+				<if test="stationCode != null" >
+					station_code = #{stationCode,jdbcType=VARCHAR},
+				</if>
+				<if test="orgCode != null" >
+					org_code = #{orgCode,jdbcType=INTEGER},
+				</if>
+				<if test="siteCode != null" >
+					site_code = #{siteCode,jdbcType=INTEGER},
+				</if>
+				<if test="gridNo != null" >
+					grid_no = #{gridNo,jdbcType=VARCHAR},
+				</if>
+				<if test="waveCode != null" >
+					wave_code = #{waveCode,jdbcType=TINYINT},
+				</if>
+				<if test="userCode != null" >
+					user_code = #{userCode,jdbcType=VARCHAR},
+				</if>
+				<if test="jobCode != null" >
+					job_code = #{jobCode,jdbcType=TINYINT},
+				</if>
+				<if test="signDate != null" >
+					sign_date = #{signDate,jdbcType=DATE},
+				</if>
+				<if test="signInTime != null" >
+					sign_in_time = #{signInTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="signOutTime != null" >
+					sign_out_time = #{signOutTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="createUser != null" >
+					create_user = #{createUser,jdbcType=VARCHAR},
+				</if>
+				<if test="createUserName != null" >
+					create_user_name = #{createUserName,jdbcType=VARCHAR},
+				</if>
+				<if test="updateUser != null" >
+					update_user = #{updateUser,jdbcType=VARCHAR},
+				</if>
+				<if test="updateUserName != null" >
+					update_user_name = #{updateUserName,jdbcType=VARCHAR},
+				</if>
+				<if test="createTime != null" >
+					create_time = #{createTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="updateTime != null" >
+					update_time = #{updateTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="yn != null" >
+					yn = #{yn,jdbcType=TINYINT},
+				</if>
+				<if test="ts != null" >
+					ts = #{ts,jdbcType=TIMESTAMP},
+				</if>
+			</set>
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+
+	<update id="deleteById" parameterType="com.jd.dms.wb.sdk.model.station.UserSignRecord">
+		update user_sign_record
+			set 
+			<if test="updateUser != null" >
+				update_user = #{updateUser,jdbcType=VARCHAR},
+			</if>
+			<if test="updateTime != null" >
+				update_time = #{updateTime,jdbcType=TIMESTAMP},
+			</if>
+			   yn = 0
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+
+	<select id="queryById" parameterType="java.lang.Long" resultMap="UserSignRecord">
+		select
+			<include refid="Base_Column_List"/>
+		from
+			user_sign_record t
+		where yn = 1 and id = #{id,jdbcType=BIGINT}
+	</select>
+
+	<select id="queryList" parameterType="com.jd.dms.wb.sdk.query.station.UserSignRecordQuery" resultMap="UserSignRecordVo">
+		select
+			<include refid="Vo_Base_Column_List"/>
+		from
+			user_sign_record r
+		<include refid="joinSql"/>
+		<include refid="queryCondition"/>
+		order by user_code,sign_in_time desc
+		<if test="pageNumber > 0">
+            limit #{startRecord}, #{pageSize}
+        </if>		
+	</select>
+
+	<select id="queryCount" parameterType="com.jd.dms.wb.sdk.query.station.UserSignRecordQuery" resultType="long">
+		select
+			count(1)
+		from
+			user_sign_record r
+		<include refid="queryCondition"/>
+	</select>
+
+	<sql id="queryCondition">
+		<where>
+			r.yn = 1 
+		<if test="signDate != null" >
+			and r.sign_date = #{signDate,jdbcType=DATE}
+		</if>		
+		<if test="orgCode != null" >
+			and r.org_code = #{orgCode,jdbcType=INTEGER}
+		</if>
+		<if test="siteCode != null" >
+			and r.site_code = #{siteCode,jdbcType=INTEGER}
+		</if>
+		<if test="gridNo != null and gridNo != ''" >
+			and r.grid_no = #{gridNo,jdbcType=VARCHAR}
+		</if>
+		<if test="waveCode != null" >
+			and r.wave_code = #{waveCode,jdbcType=TINYINT}
+		</if>
+		<if test="createUser != null and createUser != ''" >
+			and r.create_user = #{createUser,jdbcType=VARCHAR}
+		</if>
+		<if test="signDateStart != null" >
+			and r.sign_date >= #{signDateStart,jdbcType=DATE}
+		</if>
+		<if test="signDateEnd != null" >
+			and r.sign_date &lt;= #{signDateEnd,jdbcType=DATE}
+		</if>		
+		</where>
+	</sql>
+	
+	<sql id="joinSql">
+   		left outer join work_station s on r.station_code = s.station_code and s.yn = 1
+		left outer join work_station_grid g on r.station_code = g.station_code and r.site_code = g.site_code and r.grid_no = g.grid_no and g.yn = 1
+	</sql>
+	
+	<select id="queryReportList" parameterType="com.jd.dms.wb.sdk.query.station.UserSignRecordQuery" resultMap="UserSignRecordReportVo">
+		select 
+			rc.sign_date,g.org_code,g.org_name,rc.site_code,g.site_name,rc.grid_no,g.grid_name,
+			s.work_code,s.work_name,rc.station_code,s.station_name,rc.wave_code,
+			g.standard_num,p.plan_attend_num,rc.attend_num
+		from
+			(select r.sign_date,r.site_code,r.grid_no,r.station_code,r.wave_code,
+				sum(case when r.sign_in_time is not null and r.sign_out_time is null then 1 else 0 end) attend_num 
+			from  user_sign_record r 
+			<include refid="queryReportCondition"/>
+   			group by r.sign_date,r.site_code,r.grid_no,r.station_code,r.wave_code) rc
+   		left outer join work_station s on rc.station_code = s.station_code and s.yn = 1
+		left outer join work_station_grid g on rc.station_code = g.station_code and rc.site_code = g.site_code and rc.grid_no = g.grid_no and g.yn = 1
+ 		left outer join work_station_attend_plan p on rc.station_code = p.station_code and rc.site_code = p.site_code and rc.grid_no = p.grid_no and rc.wave_code = p.wave_code and p.yn = 1   		
+		<if test="pageNumber > 0">
+            limit #{startRecord}, #{pageSize}
+        </if>
+	</select>
+	
+	<select id="queryReportCount" parameterType="com.jd.dms.wb.sdk.query.station.UserSignRecordQuery" resultType="long">
+		select 
+			count(1)
+		from
+			(select r.site_code,r.grid_no,r.station_code,r.wave_code from  user_sign_record r 
+			<include refid="queryReportCondition"/>
+   			group by r.sign_date,r.site_code,r.grid_no,r.station_code,r.wave_code) rc
+	</select>
+	
+	<select id="queryReportSum" parameterType="com.jd.dms.wb.sdk.query.station.UserSignRecordQuery" resultMap="UserSignRecordReportSumVo">
+		select sum(u.standard_num_sum) standard_num_sum, 
+			   sum(u.plan_attend_num_sum) plan_attend_num_sum, 
+			   sum(u.attend_num_sum) attend_num_sum
+		from(
+			select 
+				0 standard_num_sum,
+				sum(case when p.plan_attend_num is null then 0 else p.plan_attend_num end) plan_attend_num_sum,
+				sum(rc.attend_num) attend_num_sum
+			from(
+				select r.site_code,r.grid_no,r.station_code,r.wave_code,
+					sum(case when r.sign_in_time is not null and r.sign_out_time is null then 1 else 0 end) attend_num 
+				  from  user_sign_record r 
+				  <include refid="queryReportCondition"/>
+		   			group by r.site_code,r.grid_no,r.station_code,r.wave_code) rc
+		 			left outer join work_station_attend_plan p on rc.station_code = p.station_code and rc.site_code = p.site_code and rc.grid_no = p.grid_no and rc.wave_code = p.wave_code and p.yn = 1
+			union all
+			select 
+				sum(case when g.standard_num is null then 0 else g.standard_num end) standard_num_sum,
+				0 plan_attend_num_sum,
+				0 attend_num_sum
+			from
+				(select r.site_code,r.grid_no,r.station_code
+				from  user_sign_record r 
+				<include refid="queryReportCondition"/>
+	   			group by r.site_code,r.grid_no,r.station_code) rc
+				left outer join work_station_grid g on rc.station_code = g.station_code and rc.site_code = g.site_code and rc.grid_no = g.grid_no and g.yn = 1
+		) u
+	</select>
+	
+	<sql id="queryReportCondition">
+		<where>
+			r.yn = 1
+		<if test="signDate != null" >
+			and r.sign_date = #{signDate,jdbcType=DATE}
+		</if>		
+		<if test="orgCode != null" >
+			and r.org_code = #{orgCode,jdbcType=INTEGER}
+		</if>
+		<if test="siteCode != null" >
+			and r.site_code = #{siteCode,jdbcType=INTEGER}
+		</if>
+		<if test="gridNo != null and gridNo != ''" >
+			and r.grid_no = #{gridNo,jdbcType=VARCHAR}
+		</if>
+		<if test="waveCode != null" >
+			and r.wave_code = #{waveCode,jdbcType=TINYINT}
+		</if>
+		<if test="createUser != null and createUser != ''" >
+			and r.create_user = #{createUser,jdbcType=VARCHAR}
+		</if>
+		<if test="signDateStart != null" >
+			and r.sign_date >= #{signDateStart,jdbcType=DATE}
+		</if>
+		<if test="signDateEnd != null" >
+			and r.sign_date &lt;= #{signDateEnd,jdbcType=DATE}
+		</if>
+		</where>
+	</sql>
+	
+	<select id="queryByBusinessKey" parameterType="com.jd.dms.wb.sdk.model.station.UserSignRecord" resultMap="UserSignRecord">
+		select
+			<include refid="Base_Column_List"/>
+		from
+			user_sign_record t
+		where yn = 1
+			and sign_date = #{signDate,jdbcType=DATE}
+			and	site_code = #{siteCode,jdbcType=INTEGER}
+			and	grid_no = #{gridNo,jdbcType=VARCHAR}
+			and station_code = #{stationCode,jdbcType=VARCHAR}			
+			and wave_code = #{waveCode,jdbcType=VARCHAR}
+			and user_code = #{userCode,jdbcType=VARCHAR}
+	</select>
+	
+	<select id="queryLastSignRecord" parameterType="com.jd.dms.wb.sdk.query.station.UserSignRecordQuery" resultMap="UserSignRecord">
+		select
+			<include refid="Base_Column_List"/>
+		from
+			user_sign_record t
+		where yn = 1
+			and	site_code = #{siteCode,jdbcType=INTEGER}
+			and user_code = #{userCode,jdbcType=VARCHAR}
+		<if test="signDate != null" >
+			and sign_date = #{signDate,jdbcType=DATE}
+		</if>			
+		order by sign_in_time desc
+		limit 1
+	</select>		
+</mapper>

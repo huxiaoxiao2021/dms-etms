@@ -1,0 +1,413 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.dms.wb.mapper.single.notice.INoticeToUserMapper">
+    <!-- table映射实体对象 -->
+    <resultMap id="RM_NoticeToUser" type="com.jd.dms.wb.sdk.model.notice.NoticeToUser">
+        <result property="id" column="id"/>
+        <result property="noticeId" column="notice_id"/>
+        <result property="receiveUserErp" column="receive_user_erp"/>
+        <result property="receiveUserName" column="receive_user_name"/>
+        <result property="sendChannel" column="send_channel"/>
+        <result property="sendStatus" column="send_status"/>
+        <result property="isRead" column="is_read"/>
+        <result property="createUser" column="create_user"/>
+        <result property="updateUser" column="update_user"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="yn" column="yn"/>
+        <result property="ts" column="ts"/>
+    </resultMap>
+
+    <!-- 用于select查询公用抽取的列 -->
+    <sql id="Base_Column_List">
+        `id`, `notice_id`, `receive_user_erp`, `receive_user_name`, `send_channel`, `send_status`, `is_read`, `create_user`, `update_user`, `create_time`, `update_time`, `yn`, `ts`
+    </sql>
+
+    <!-- 增加 -->
+    <insert id="insertSelective" useGeneratedKeys="true" keyProperty="id" parameterType="com.jd.dms.wb.sdk.model.notice.NoticeToUser">
+        insert into `notice_to_user`
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="noticeId != null">
+                notice_id,
+            </if>
+            <if test="receiveUserErp != null and receiveUserErp != ''">
+                receive_user_erp,
+            </if>
+            <if test="receiveUserName != null and receiveUserName != ''">
+                receive_user_name,
+            </if>
+            <if test="sendChannel != null">
+                send_channel,
+            </if>
+            <if test="sendStatus != null">
+                send_status,
+            </if>
+            <if test="isRead != null">
+                is_read,
+            </if>
+            <if test="createUser != null and createUser != ''">
+                create_user,
+            </if>
+            <if test="updateUser != null and updateUser != ''">
+                update_user,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="updateTime != null">
+                update_time,
+            </if>
+            <if test="yn != null">
+                yn,
+            </if>
+            <if test="ts != null">
+                ts,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id},
+            </if>
+            <if test="noticeId != null">
+                #{noticeId},
+            </if>
+            <if test="receiveUserErp != null and receiveUserErp != ''">
+                #{receiveUserErp},
+            </if>
+            <if test="receiveUserName != null and receiveUserName != ''">
+                #{receiveUserName},
+            </if>
+            <if test="sendChannel != null">
+                #{sendChannel},
+            </if>
+            <if test="sendStatus != null">
+                #{sendStatus},
+            </if>
+            <if test="isRead != null">
+                #{isRead},
+            </if>
+            <if test="createUser != null and createUser != ''">
+                #{createUser},
+            </if>
+            <if test="updateUser != null and updateUser != ''">
+                #{updateUser},
+            </if>
+            <if test="createTime != null">
+                #{createTime},
+            </if>
+            <if test="updateTime != null">
+                #{updateTime},
+            </if>
+            <if test="yn != null">
+                #{yn},
+            </if>
+            <if test="ts != null">
+                #{ts},
+            </if>
+        </trim>
+    </insert>
+    <!-- 批量增加 -->
+    <insert id="batchInsert" useGeneratedKeys="true" keyProperty="id" parameterType="java.util.List">
+        insert into `notice_to_user`
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            id,
+            notice_id,
+            receive_user_erp,
+            receive_user_name,
+            send_channel,
+            send_status,
+            is_read,
+            create_user,
+            update_user,
+            create_time,
+            update_time,
+            yn,
+            ts,
+        </trim>
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            <trim prefix=" (" suffix=")" suffixOverrides=",">
+                #{item.id},
+                #{item.noticeId},
+                #{item.receiveUserErp},
+                #{item.receiveUserName},
+                #{item.sendChannel},
+                #{item.sendStatus},
+                #{item.isRead},
+                #{item.createUser},
+                #{item.updateUser},
+                #{item.createTime},
+                #{item.updateTime},
+                #{item.yn},
+                #{item.ts},
+            </trim>
+        </foreach>
+    </insert>
+    <!-- 更新 -->
+    <update id="updateByPrimaryKey" parameterType="com.jd.dms.wb.sdk.model.notice.NoticeToUser">
+        UPDATE `notice_to_user`
+        <set>
+            <if test="noticeId != null ">
+                notice_id = #{noticeId},
+            </if>
+            <if test="receiveUserErp != null and receiveUserErp != ''">
+                receive_user_erp = #{receiveUserErp},
+            </if>
+            <if test="receiveUserName != null and receiveUserName != ''">
+                receive_user_name = #{receiveUserName},
+            </if>
+            <if test="sendChannel != null ">
+                send_channel = #{sendChannel},
+            </if>
+            <if test="sendStatus != null ">
+                send_status = #{sendStatus},
+            </if>
+            <if test="isRead != null ">
+                is_read = #{isRead},
+            </if>
+            <if test="createUser != null and createUser != ''">
+                create_user = #{createUser},
+            </if>
+            <if test="updateUser != null and updateUser != ''">
+                update_user = #{updateUser},
+            </if>
+            <if test="createTime != null ">
+                create_time = #{createTime},
+            </if>
+            <if test="updateTime != null ">
+                update_time = #{updateTime},
+            </if>
+            <if test="yn != null ">
+                yn = #{yn},
+            </if>
+            <if test="ts != null ">
+                ts = #{ts}
+            </if>
+        </set>
+        WHERE
+        id = #{id}
+    </update>
+    <!-- 批量更新 -->
+    <update id="batchUpdate" parameterType="java.util.List">
+        <foreach collection="list" item="item" index="index"  separator=";">
+            UPDATE `notice_to_user`
+            <set>
+                <if test="item.noticeId != null">
+                    notice_id = #{item.noticeId},
+                </if>
+                <if test="item.receiveUserErp != null and item.receiveUserErp != ''">
+                    receive_user_erp = #{item.receiveUserErp},
+                </if>
+                <if test="item.receiveUserName != null and item.receiveUserName != ''">
+                    receive_user_name = #{item.receiveUserName},
+                </if>
+                <if test="item.sendChannel != null ">
+                    send_channel = #{item.sendChannel},
+                </if>
+                <if test="item.sendStatus != null ">
+                    send_status = #{item.sendStatus},
+                </if>
+                <if test="item.isRead != null">
+                    is_read = #{item.isRead},
+                </if>
+                <if test="item.createUser != null and item.createUser != ''">
+                    create_user = #{item.createUser},
+                </if>
+                <if test="item.updateUser != null and item.updateUser != ''">
+                    update_user = #{item.updateUser},
+                </if>
+                <if test="item.createTime != null">
+                    create_time = #{item.createTime},
+                </if>
+                <if test="item.updateTime != null">
+                    update_time = #{item.updateTime},
+                </if>
+                <if test="item.yn != null">
+                    yn = #{item.yn},
+                </if>
+                <if test="item.ts != null">
+                    ts = #{item.ts}
+                </if>
+            </set>
+            WHERE
+            id = #{item.id}
+        </foreach>
+    </update>
+    <!-- 按主键查询 -->
+    <select id="selectByPrimaryKey" resultMap="RM_NoticeToUser" parameterType="com.jd.dms.wb.sdk.model.notice.NoticeToUser">
+        SELECT
+        <include refid="Base_Column_List"/>
+        <![CDATA[
+            FROM `notice_to_user`
+            WHERE
+                id = #{id}
+        ]]>
+    </select>
+    <!-- 按表中的XXX列查询集合 -->
+    <select id="selectByColumn" resultMap="RM_NoticeToUser" parameterType="com.jd.dms.wb.sdk.query.notice.NoticeToUserQuery">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM `notice_to_user`
+        <where>
+            <include refid="whereByColumnValueMap"/>
+        </where>
+    </select>
+    <!-- 按条件查询单条记录 -->
+    <select id="selectOne" resultMap="RM_NoticeToUser" parameterType="com.jd.dms.wb.sdk.query.notice.NoticeToUserQuery">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM `notice_to_user`
+        <include refid="where"/>
+    </select>
+    <!-- where条件 -->
+    <sql id="where">
+        <where>
+            <include refid="sql_if_not_null"/>
+            <include refid="whereByColumnValueMap"/>
+        </where>
+    </sql>
+    <!-- 判断空值 -->
+    <sql id="sql_if_not_null">
+        <if test="id != null">
+            AND id = #{id}
+        </if>
+        <if test="noticeId != null">
+            AND notice_id = #{noticeId}
+        </if>
+        <if test="receiveUserErp != null and receiveUserErp != ''">
+            AND receive_user_erp = #{receiveUserErp}
+        </if>
+        <if test="receiveUserName != null and receiveUserName != ''">
+            AND receive_user_name = #{receiveUserName}
+        </if>
+        <if test="sendChannel != null">
+            AND send_channel = #{sendChannel}
+        </if>
+        <if test="sendStatus != null">
+            AND send_status = #{sendStatus}
+        </if>
+        <if test="isRead != null">
+            AND is_read = #{isRead}
+        </if>
+        <if test="createUser != null and createUser != ''">
+            AND create_user = #{createUser}
+        </if>
+        <if test="updateUser != null and updateUser != ''">
+            AND update_user = #{updateUser}
+        </if>
+        <if test="createTime != null">
+            AND create_time = #{createTime}
+        </if>
+        <if test="updateTime != null">
+            AND update_time = #{updateTime}
+        </if>
+        <if test="yn != null">
+            AND yn = #{yn}
+        </if>
+        <if test="ts != null">
+            AND ts = #{ts}
+        </if>
+    </sql>
+    <!-- 按字段值参数查询条件 -->
+    <sql id="whereByColumnValueMap">
+        <if test="columnValueMap != null">
+            <foreach collection="columnValueMap.entrySet()" item="itemList" index="field">
+                AND #{field}
+                <if test="itemList.size() == 1 ">
+                    = <foreach collection="itemList" item="item" index="index" separator=",">#{item}</foreach>
+                </if>
+                <if test="itemList.size() > 1 ">
+                    in (
+                    <foreach collection="itemList" item="item" index="index" separator=",">
+                        #{item}
+                    </foreach>
+                    )
+                </if>
+            </foreach>
+        </if>
+    </sql>
+    <!-- 查询行数 -->
+    <select id="queryCount" resultType="long" parameterType="com.jd.dms.wb.sdk.query.notice.NoticeToUserQuery">
+        SELECT count(1) FROM `notice_to_user`
+        <include refid="where"/>
+    </select>
+    <!-- 查询集合 如果pageNumber小于或等于0,则不进行分页操作 -->
+    <select id="queryList" resultMap="RM_NoticeToUser" parameterType="com.jd.dms.wb.sdk.query.notice.NoticeToUserQuery">
+        SELECT
+        <include refid="Base_Column_List" />
+        FROM `notice_to_user`
+        <include refid="where"/>
+        <if test="pageNumber > 0">
+            limit #{startRecord}, #{pageSize}
+        </if>
+    </select>
+    <!-- 伪删除（更新删除行的识别码） -->
+    <update id="deleteByPrimaryKey" parameterType="com.jd.dms.wb.sdk.model.notice.NoticeToUser">
+        UPDATE `notice_to_user` SET yn = 1
+        WHERE
+            id = #{id}
+    </update>
+    <!-- 批量伪删除 -->
+    <update id="batchDelete" parameterType="com.jd.dms.wb.sdk.query.notice.NoticeToUserQuery">
+        UPDATE `notice_to_user` SET yn = 1
+        WHERE id IN
+        <foreach collection="columnValueList" item="item" index="index" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </update>
+
+    <!-- 待推送结果列表 -->
+    <resultMap id="RM_PushNoticeToUserResponse" type="com.jd.dms.wb.sdk.dto.noticeCenter.PushNoticeToUserResponseDto">
+        <result property="id" column="id"/>
+        <result property="noticeId" column="notice_id"/>
+        <result property="title" column="title"/>
+        <result property="type" column="type"/>
+        <result property="importantLevel" column="important_level"/>
+        <result property="receiveScopeType" column="receive_scope_type"/>
+        <result property="isDisplay" column="is_display"/>
+        <result property="isTopDisplay" column="is_top_display"/>
+        <result property="bizCode" column="biz_code"/>
+        <result property="bizContent" column="biz_content"/>
+        <result property="content" column="content"/>
+        <result property="publishTimeBegin" column="publish_time_begin"/>
+        <result property="publishTimeEnd" column="publish_time_end"/>
+        <result property="publishSystem" column="publish_system"/>
+        <result property="publishFromSystem" column="publish_from_system"/>
+        <result property="handleLink" column="handle_link"/>
+        <result property="createUser" column="create_user"/>
+        <result property="createUserName" column="create_user_name"/>
+        <result property="updateUser" column="update_user"/>
+        <result property="updateUserName" column="update_user_name"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="receiveUserErp" column="receive_user_erp"/>
+        <result property="receiveUserName" column="receive_user_name"/>
+        <result property="sendChannel" column="send_channel"/>
+        <result property="sendStatus" column="send_status"/>
+        <result property="isRead" column="is_read"/>
+        <result property="yn" column="yn"/>
+        <result property="ts" column="ts"/>
+    </resultMap>
+    <!-- 获取待推送数据 -->
+    <select id="getNeedPushNoticeList" resultMap="RM_PushNoticeToUserResponse" parameterType="com.jd.dms.wb.sdk.vo.notice.NeedPushNoticeParam">
+        select N.id as notice_id, N.`title`, N.`type`, N.`important_level`, N.`receive_scope_type`, N.`is_display`, N.`is_top_display`, N.`biz_code`, N.`biz_content`, N.`content`, N.`publish_status`, N.`approve_status`,
+               N.`publish_time_begin`, N.`publish_time_end`, N.`publish_system`, N.`publish_from_system`, N.`handle_link`, N.`create_user`, N.`create_user_name`, N.`update_user`, N.`update_user_name`, N.`create_time`, N.`update_time`, N.`yn`,
+               NCU.id,NCU.receive_user_erp, NCU.receive_user_name, NCU.send_channel, NCU.send_status, NCU.is_read from notice N
+        left join notice_to_user NCU on N.id = NCU.notice_id
+        where
+        N.is_display = 1
+        and N.publish_status = 1
+        and N.yn = 1
+        and N.publish_system = #{publishSystem}
+        and NCU.send_channel = #{sendChannel}
+        and NCU.send_status = #{sendStatus}
+        <if test="queryLimit > 0">
+            limit #{queryLimit}
+        </if>
+    </select>
+
+</mapper>
+

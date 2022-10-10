@@ -1,0 +1,284 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.jd.dms.wb.mapper.single.station.IWorkStationMapper" >
+
+	<resultMap id="WorkStation" type="com.jd.dms.wb.sdk.model.station.WorkStation" >
+		<id column="id" property="id" javaType="java.lang.Long" jdbcType="BIGINT" />
+		<result column="work_type" property="workType" javaType="java.lang.Integer" jdbcType="TINYINT" />
+		<result column="work_code" property="workCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="work_name" property="workName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="station_code" property="stationCode" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="station_name" property="stationName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="station_desc" property="stationDesc" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="create_user" property="createUser" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="create_user_name" property="createUserName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="update_user" property="updateUser" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="update_user_name" property="updateUserName" javaType="java.lang.String" jdbcType="VARCHAR" />
+		<result column="create_time" property="createTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+		<result column="yn" property="yn" javaType="java.lang.Integer" jdbcType="TINYINT" />
+		<result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+	</resultMap>
+
+	<sql id="Base_Column_List" >
+		id,work_type,work_code,work_name,station_code,station_name,
+		station_desc,create_user,create_user_name,update_user,update_user_name,
+		create_time,update_time,yn,ts
+	</sql>
+
+	<insert id="insert" parameterType="com.jd.dms.wb.sdk.model.station.WorkStation" useGeneratedKeys="true" keyProperty="id">
+		insert into work_station
+			(
+			<trim suffixOverrides=",">
+				<if test="id != null" >
+					id,
+				</if>
+				<if test="workType != null" >
+					work_type,
+				</if>
+				<if test="workCode != null" >
+					work_code,
+				</if>
+				<if test="workName != null" >
+					work_name,
+				</if>
+				<if test="stationCode != null" >
+					station_code,
+				</if>
+				<if test="stationName != null" >
+					station_name,
+				</if>
+				<if test="stationDesc != null" >
+					station_desc,
+				</if>
+				<if test="createUser != null" >
+					create_user,
+				</if>
+				<if test="createUserName != null" >
+					create_user_name,
+				</if>
+				<if test="updateUser != null" >
+					update_user,
+				</if>
+				<if test="updateUserName != null" >
+					update_user_name,
+				</if>
+				<if test="createTime != null" >
+					create_time,
+				</if>
+				<if test="updateTime != null" >
+					update_time,
+				</if>
+				<if test="yn != null" >
+					yn,
+				</if>
+				<if test="ts != null" >
+					ts,
+				</if>
+			</trim>
+			)
+			values
+			(
+			<trim suffixOverrides=",">
+				<if test="id != null" >
+					#{id,jdbcType=BIGINT},
+				</if>
+				<if test="workType != null" >
+					#{workType,jdbcType=TINYINT},
+				</if>
+				<if test="workCode != null" >
+					#{workCode,jdbcType=VARCHAR},
+				</if>
+				<if test="workName != null" >
+					#{workName,jdbcType=VARCHAR},
+				</if>
+				<if test="stationCode != null" >
+					#{stationCode,jdbcType=VARCHAR},
+				</if>
+				<if test="stationName != null" >
+					#{stationName,jdbcType=VARCHAR},
+				</if>
+				<if test="stationDesc != null" >
+					#{stationDesc,jdbcType=VARCHAR},
+				</if>
+				<if test="createUser != null" >
+					#{createUser,jdbcType=VARCHAR},
+				</if>
+				<if test="createUserName != null" >
+					#{createUserName,jdbcType=VARCHAR},
+				</if>
+				<if test="updateUser != null" >
+					#{updateUser,jdbcType=VARCHAR},
+				</if>
+				<if test="updateUserName != null" >
+					#{updateUserName,jdbcType=VARCHAR},
+				</if>
+				<if test="createTime != null" >
+					#{createTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="updateTime != null" >
+					#{updateTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="yn != null" >
+					#{yn,jdbcType=TINYINT},
+				</if>
+				<if test="ts != null" >
+					#{ts,jdbcType=TIMESTAMP},
+				</if>
+			</trim>
+			)
+	</insert>
+
+	<update id="updateById" parameterType="com.jd.dms.wb.sdk.model.station.WorkStation">
+		update work_station
+			<set>
+				<if test="workType != null" >
+					work_type = #{workType,jdbcType=TINYINT},
+				</if>
+				<if test="workCode != null" >
+					work_code = #{workCode,jdbcType=VARCHAR},
+				</if>
+				<if test="workName != null" >
+					work_name = #{workName,jdbcType=VARCHAR},
+				</if>
+				<if test="stationCode != null" >
+					station_code = #{stationCode,jdbcType=VARCHAR},
+				</if>
+				<if test="stationName != null" >
+					station_name = #{stationName,jdbcType=VARCHAR},
+				</if>
+				<if test="stationDesc != null" >
+					station_desc = #{stationDesc,jdbcType=VARCHAR},
+				</if>
+				<if test="createUser != null" >
+					create_user = #{createUser,jdbcType=VARCHAR},
+				</if>
+				<if test="createUserName != null" >
+					create_user_name = #{createUserName,jdbcType=VARCHAR},
+				</if>
+				<if test="updateUser != null" >
+					update_user = #{updateUser,jdbcType=VARCHAR},
+				</if>
+				<if test="updateUserName != null" >
+					update_user_name = #{updateUserName,jdbcType=VARCHAR},
+				</if>
+				<if test="createTime != null" >
+					create_time = #{createTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="updateTime != null" >
+					update_time = #{updateTime,jdbcType=TIMESTAMP},
+				</if>
+				<if test="yn != null" >
+					yn = #{yn,jdbcType=TINYINT},
+				</if>
+				<if test="ts != null" >
+					ts = #{ts,jdbcType=TIMESTAMP},
+				</if>
+			</set>
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+
+	<update id="deleteById" parameterType="com.jd.dms.wb.sdk.model.station.WorkStation">
+		update work_station
+			set 
+			<if test="updateUser != null" >
+				update_user = #{updateUser,jdbcType=VARCHAR},
+			</if>
+			<if test="updateTime != null" >
+				update_time = #{updateTime,jdbcType=TIMESTAMP},
+			</if>
+			   yn = 0
+		where id = #{id,jdbcType=BIGINT}
+	</update>
+	
+	<update id="deleteByBusinessKey"  parameterType="com.jd.dms.wb.sdk.model.station.WorkStation">
+		update work_station
+			set 
+			<if test="updateUser != null" >
+				update_user = #{updateUser,jdbcType=VARCHAR},
+			</if>
+			<if test="updateTime != null" >
+				update_time = #{updateTime,jdbcType=TIMESTAMP},
+			</if>
+			   yn = 0
+		where yn = 1
+			and station_code = #{stationCode,jdbcType=VARCHAR}
+	</update>	
+
+	<select id="queryById" parameterType="java.lang.Long" resultMap="WorkStation">
+		select
+			<include refid="Base_Column_List"/>
+		from
+			work_station t
+		where yn = 1 and id = #{id,jdbcType=BIGINT}
+	</select>
+	
+	<select id="queryByBusinessKey" parameterType="com.jd.dms.wb.sdk.model.station.WorkStation" resultMap="WorkStation">
+		select
+			<include refid="Base_Column_List"/>
+		from
+			work_station t
+		where yn = 1
+			and station_code = #{stationCode,jdbcType=VARCHAR}
+		order by id desc limit 1
+	</select>
+
+	<select id="queryList" parameterType="com.jd.dms.wb.sdk.query.station.WorkStationQuery" resultMap="WorkStation">
+		select
+			<include refid="Base_Column_List"/>
+		from
+			work_station t
+		<include refid="queryCondition"/>
+        <if test="pageNumber > 0">
+            limit #{startRecord}, #{pageSize}
+        </if>		
+	</select>
+	
+	<select id="queryCount" parameterType="com.jd.dms.wb.sdk.query.station.WorkStationQuery" resultType="long">
+		select
+			count(1)
+		from
+			work_station t
+		<include refid="queryCondition"/>
+	</select>
+
+	<sql id="queryCondition">
+		<where>
+			yn = 1
+		<if test="workType != null" >
+			and work_type = #{workType,jdbcType=TINYINT}
+		</if>
+		<if test="workCode != null and workCode != ''" >
+			and work_code = #{workCode,jdbcType=VARCHAR}
+		</if>
+		<if test="workName != null and workName != ''" >
+			and work_name like concat('%', #{workName}, '%')
+		</if>
+		<if test="stationCode != null and stationCode != ''" >
+			and station_code = #{stationCode,jdbcType=VARCHAR}
+		</if>
+		<if test="stationName != null and stationName != ''" >
+			and station_name like concat('%', #{stationName}, '%')
+		</if>	    			
+		</where>
+	</sql>
+	<select id="queryWorkDictList" parameterType="com.jd.dms.wb.sdk.query.station.WorkStationQuery" resultMap="WorkStation">
+ 		select
+			work_code,max(work_Name) work_Name
+		from
+			work_station t
+		where yn = 1 
+		group by work_code
+	</select>
+	<select id="queryStationDictList" parameterType="com.jd.dms.wb.sdk.query.station.WorkStationQuery" resultMap="WorkStation">
+ 		select
+			station_code,max(station_name) station_name
+		from
+			work_station t
+		where yn = 1 
+		<if test="workCode != null and workCode != ''" >
+			and work_code = #{workCode,jdbcType=VARCHAR}
+		</if>
+		group by station_code
+	</select>	
+</mapper>
