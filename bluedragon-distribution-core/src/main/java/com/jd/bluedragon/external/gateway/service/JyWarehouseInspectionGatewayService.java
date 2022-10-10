@@ -7,6 +7,8 @@ import com.jd.bluedragon.common.dto.operation.workbench.warehouse.inpection.requ
 import com.jd.bluedragon.common.dto.operation.workbench.warehouse.inpection.request.InspectionNoTaskRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.warehouse.inpection.request.InspectionScanRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.warehouse.inpection.response.InspectionFinishPreviewData;
+import com.jd.bluedragon.common.dto.operation.workbench.warehouse.inpection.response.InspectionInterceptDto;
+import com.jd.bluedragon.common.dto.operation.workbench.warehouse.inpection.response.InspectionScanBarCode;
 import com.jd.bluedragon.common.dto.operation.workbench.warehouse.inpection.response.InspectionTaskDetail;
 
 /**
@@ -52,7 +54,7 @@ public interface JyWarehouseInspectionGatewayService {
      * @author fanggang7
      * @time 2022-10-09 14:28:59 周日
      */
-    JdCResponse<InterceptScanBarCode> interceptBarCodeDetail(InspectionCommonRequest request);
+    JdCResponse<InspectionInterceptDto> interceptBarCodeDetail(InspectionCommonRequest request);
 
     /**
      * 验货完成前预览是否有异常数据
