@@ -237,6 +237,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
                 sendBatchSendCodeStatusMsg(doSealCarDtos,null,BatchSendStatusEnum.USED);
                 log.info("封车成功，发送封车mq消息成功");
                 saveSealDataList.addAll(convert2SealVehicles(doSealCarDtos,SealVehicleExecute.SUCCESS,SealVehicleExecute.SUCCESS.getName()));
+                syncJySealStatus(doSealCarDtos);
             }else{
                 log.info("提交运输封车失败，返回：{}",JsonHelper.toJson(sealCarInfo));
                 msg = "["+sealCarInfo.getCode()+":"+sealCarInfo.getMessage()+"]";
@@ -311,7 +312,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 
     private void syncJySealStatus(List<SealCarDto> sealCarDtos) {
         try {
-            if (ObjectHelper.isNotNull(sealCarDtos) && sealCarDtos.size()>0){
+            if (uccPropertyConfiguration.getSyncJySealStatusSwitch() && ObjectHelper.isNotNull(sealCarDtos) && sealCarDtos.size()>0){
                 List<String> sendCodes =new ArrayList();
                 for (SealCarDto sealCarDto:sealCarDtos){
                     sendCodes.addAll(sealCarDto.getBatchCodes());
@@ -566,6 +567,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
             log.debug("doSealCarWithVehicleJob传摆封车成功！，批次数量：{}" , successSealCarList.size());
             addRedisCache(successSealCarList);
             sendBatchSendCodeStatusMsg(successSealCarList,null,BatchSendStatusEnum.USED);
+            syncJySealStatus(successSealCarList);
         }
 
         //记录封车操作数据
@@ -656,6 +658,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
                 saveNXSealData(doSealCarDtos);
                 sendBatchSendCodeStatusMsg(doSealCarDtos,null,BatchSendStatusEnum.USED);
                 saveSealDataList.addAll(convert2SealVehicles(doSealCarDtos,SealVehicleExecute.SUCCESS,SealVehicleExecute.SUCCESS.getName()));
+                syncJySealStatus(doSealCarDtos);
             }else{
                 msg += "["+sealCarInfo.getCode()+":"+sealCarInfo.getMessage()+"]";
                 log.error("调用运输接口失败sealCarInfo[{}]msg[{}]",JsonHelper.toJson(paramList),msg);
@@ -783,7 +786,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 
     private void recoverTaskStatusIfNeed(List<String> sendCodeList) {
         try {
-            if (ObjectHelper.isNotNull(sendCodeList) && sendCodeList.size()>0){
+            if (uccPropertyConfiguration.getSyncJySealStatusSwitch() && ObjectHelper.isNotNull(sendCodeList) && sendCodeList.size()>0){
                 List<JySendCodeEntity> sendCodeEntityList =jyVehicleSendRelationService.querySendDetailBizIdBySendCode(sendCodeList);
                 if (ObjectHelper.isNotNull(sendCodeEntityList)){
                     for (JySendCodeEntity jySendCodeEntity:sendCodeEntityList){

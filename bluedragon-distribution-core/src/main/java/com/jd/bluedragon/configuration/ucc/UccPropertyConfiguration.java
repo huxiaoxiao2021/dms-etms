@@ -699,12 +699,22 @@ public class UccPropertyConfiguration {
      */
     private boolean filterSendCodeSwitch;
 
+    private boolean syncJySealStatusSwitch;
+
     public boolean getFilterSendCodeSwitch() {
         return filterSendCodeSwitch;
     }
 
     public void setFilterSendCodeSwitch(boolean filterSendCodeSwitch) {
         this.filterSendCodeSwitch = filterSendCodeSwitch;
+    }
+
+    public boolean getSyncJySealStatusSwitch() {
+        return syncJySealStatusSwitch;
+    }
+
+    public void setSyncJySealStatusSwitch(boolean syncJySealStatusSwitch) {
+        this.syncJySealStatusSwitch = syncJySealStatusSwitch;
     }
 
     public Integer getOldSendSplitPageSize() {
