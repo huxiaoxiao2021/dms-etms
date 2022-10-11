@@ -2431,7 +2431,7 @@ public class BusinessUtil {
      * @return
      */
     public static boolean isSelfReverse(String waybillSign){
-        return isSignChar(waybillSign, WaybillSignConstants.POSITION_1, 'T');
+        return isSignChar(waybillSign, WaybillSignConstants.POSITION_1, WaybillSignConstants.CHAR_1_T);
     }
 
     /**
@@ -2449,5 +2449,19 @@ public class BusinessUtil {
      */
     public static boolean needSpotCheck(String tagSign){
     	return BusinessUtil.isSignInChars(tagSign, JyUnloadTaskSignConstants.POSITION_1,JyUnloadTaskSignConstants.CHAR_1_1,JyUnloadTaskSignConstants.CHAR_1_2);
+    }
+
+    /**
+     * 自营逆向单（waybill_sign第一位=T），且为全球购订单（sendpay第8位 = 6）
+     */
+    public static boolean isReverseGlobalWaybill(String waybillSign, String sendPay){
+        return isSelfReverse(waybillSign) && isGlobalPurchaseWaybill(sendPay);
+    }
+
+    /**
+     * 是否全球购订单（sendpay第8位 = 6）
+     */
+    public static boolean isGlobalPurchaseWaybill(String sendPay){
+        return isSignChar(sendPay, SendPayConstants.POSITION_8, SendPayConstants.CHAR_6);
     }
 }
