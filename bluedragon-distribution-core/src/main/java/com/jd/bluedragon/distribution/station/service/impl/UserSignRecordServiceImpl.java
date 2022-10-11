@@ -745,6 +745,10 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 			result.toFail("用户编码不能为空！");
 			return result;
 		}
+		if (signRequest.getUserCode().contains("$")) {
+			result.toFail("用户编码不能包含特殊字符");
+			return result;
+		}
 		return result;
 	}
 	private JdCResponse<WorkStationGrid> checkAndGetWorkStationGrid(UserSignRequest signInRequest){
