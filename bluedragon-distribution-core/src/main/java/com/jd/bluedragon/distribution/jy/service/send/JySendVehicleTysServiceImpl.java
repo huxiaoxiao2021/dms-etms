@@ -1120,6 +1120,75 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
         return new InvokeResult(NO_FOUND_INCOMPELETE_DATA_CODE, NO_FOUND_INCOMPELETE_DATA_MESSAGE);
     }
 
+    @Override
+    @JProfiler(jKey = "DMSWEB.JySendVehicleTysService.interceptedBarCodeDetail", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public InvokeResult<SendAbnormalBarCode> interceptedBarCodeDetail(SendAbnormalPackReq request) {
+        SendAbnormalPackRequest req = BeanUtils.copy(request, SendAbnormalPackRequest.class);
+        if (req != null) {
+            req.setUser(copyUser(request.getUser()));
+            req.setCurrentOperate(copyCurrentOperate(request.getCurrentOperate()));
+        }
+        InvokeResult<com.jd.bluedragon.common.dto.operation.workbench.send.response.SendAbnormalBarCode> result = jySendVehicleServiceTys.interceptedBarCodeDetail(req);
+        if (ObjectHelper.isNotNull(result)) {
+            InvokeResult<SendAbnormalBarCode> response = new InvokeResult<>();
+            response.setCode(result.getCode());
+            response.setMessage(result.getMessage());
+            if (result.getData() != null) {
+                String jsonStr = JSON.toJSONString(result.getData());
+                SendAbnormalBarCode sendAbnormalBarCode = JSON.parseObject(jsonStr, SendAbnormalBarCode.class);
+                response.setData(sendAbnormalBarCode);
+            }
+            return response;
+        }
+        return new InvokeResult<>(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
+    }
+
+    @Override
+    @JProfiler(jKey = "DMSWEB.JySendVehicleTysService.forceSendBarCodeDetail", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public InvokeResult<SendAbnormalBarCode> forceSendBarCodeDetail(SendAbnormalPackReq request) {
+        SendAbnormalPackRequest req = BeanUtils.copy(request, SendAbnormalPackRequest.class);
+        if (req != null) {
+            req.setUser(copyUser(request.getUser()));
+            req.setCurrentOperate(copyCurrentOperate(request.getCurrentOperate()));
+        }
+        InvokeResult<com.jd.bluedragon.common.dto.operation.workbench.send.response.SendAbnormalBarCode> result = jySendVehicleServiceTys.forceSendBarCodeDetail(req);
+        if (ObjectHelper.isNotNull(result)) {
+            InvokeResult<SendAbnormalBarCode> response = new InvokeResult<>();
+            response.setCode(result.getCode());
+            response.setMessage(result.getMessage());
+            if (result.getData() != null) {
+                String jsonStr = JSON.toJSONString(result.getData());
+                SendAbnormalBarCode sendAbnormalBarCode = JSON.parseObject(jsonStr, SendAbnormalBarCode.class);
+                response.setData(sendAbnormalBarCode);
+            }
+            return response;
+        }
+        return new InvokeResult<>(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
+    }
+
+    @Override
+    @JProfiler(jKey = "DMSWEB.JySendVehicleTysService.abnormalSendBarCodeDetail", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public InvokeResult<SendAbnormalBarCode> abnormalSendBarCodeDetail(SendAbnormalPackReq request) {
+        SendAbnormalPackRequest req = BeanUtils.copy(request, SendAbnormalPackRequest.class);
+        if (req != null) {
+            req.setUser(copyUser(request.getUser()));
+            req.setCurrentOperate(copyCurrentOperate(request.getCurrentOperate()));
+        }
+        InvokeResult<com.jd.bluedragon.common.dto.operation.workbench.send.response.SendAbnormalBarCode> result = jySendVehicleServiceTys.abnormalSendBarCodeDetail(req);
+        if (ObjectHelper.isNotNull(result)) {
+            InvokeResult<SendAbnormalBarCode> response = new InvokeResult<>();
+            response.setCode(result.getCode());
+            response.setMessage(result.getMessage());
+            if (result.getData() != null) {
+                String jsonStr = JSON.toJSONString(result.getData());
+                SendAbnormalBarCode sendAbnormalBarCode = JSON.parseObject(jsonStr, SendAbnormalBarCode.class);
+                response.setData(sendAbnormalBarCode);
+            }
+            return response;
+        }
+        return new InvokeResult<>(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
+    }
+
     private SendM generateSendM(String boxCode, IncompleteSendReq incompleteSendReq) {
         SendM sendM = new SendM();
         sendM.setBoxCode(boxCode);

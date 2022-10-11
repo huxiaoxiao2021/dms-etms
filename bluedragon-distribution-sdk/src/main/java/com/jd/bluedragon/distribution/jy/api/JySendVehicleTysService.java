@@ -255,5 +255,26 @@ public interface JySendVehicleTysService {
      */
     InvokeResult<IncompleteSendResp> incompleteSendSubmit(IncompleteSendReq IncompleteSendReq);
 
+    /**
+     * 发货拦截包裹明细
+     * @param request
+     * @return
+     */
+    InvokeResult<SendAbnormalBarCode> interceptedBarCodeDetail(SendAbnormalPackReq request);
+
+    /**
+     * 强制发货包裹明细
+     * @param request
+     * @return
+     */
+    InvokeResult<SendAbnormalBarCode> forceSendBarCodeDetail(SendAbnormalPackReq request);
+
+    /**
+     * 发货异常包裹明细
+     * @param request
+     * @return
+     */
+    InvokeResult<SendAbnormalBarCode> abnormalSendBarCodeDetail(SendAbnormalPackReq request);
+
 
 }
