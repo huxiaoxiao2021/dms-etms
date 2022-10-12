@@ -7,7 +7,10 @@
 		package_barcode, address, receive_site_name, receive_site_code,
 		change_site_name,change_site_code,operate_time,
 		create_site_code,create_site_name,create_user_code, create_user,
-	    create_time, update_time, yn,waybill_code)
+	    create_time, update_time, yn,waybill_code,
+        <if test="interfaceType != null">
+            interface_type
+        </if>)
 		VALUES (
 		#{packageBarcode,jdbcType=VARCHAR},
 		#{address,jdbcType=VARCHAR},#{receiveSiteName,jdbcType=VARCHAR},
@@ -15,7 +18,10 @@
 		#{changeSiteCode,jdbcType=INTEGER},#{operateTime,jdbcType=TIMESTAMP},
 	    #{siteCode,jdbcType=INTEGER}, #{siteName,jdbcType=VARCHAR},
 		#{userCode,jdbcType=INTEGER}, #{userName,jdbcType=VARCHAR},
-		NOW(),NOW(),1,#{waybillCode,jdbcType=VARCHAR})
+		NOW(),NOW(),1,#{waybillCode,jdbcType=VARCHAR},        
+        <if test="interfaceType != null">
+        #{interfaceType,jdbcType=INTEGER},
+        </if>)
 	</insert>
 
     <resultMap id="ReassignWayBill"
@@ -32,6 +38,7 @@
         <result column="create_site_code" property="siteCode" jdbcType="NUMERIC" />
         <result column="create_site_name" property="siteName" jdbcType="VARCHAR" />
         <result column="waybill_code" property="waybillCode" jdbcType="VARCHAR" />
+        <result column="interface_type" property="interfaceType" jdbcType="INTEGER"  />
     </resultMap>
 
     <sql id="Reassign_Waybill_Column">
