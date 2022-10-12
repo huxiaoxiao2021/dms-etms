@@ -5,6 +5,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.FlowConstants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.*;
+import com.jd.bluedragon.core.context.InvokerClientInfoContext;
 import com.jd.bluedragon.core.security.log.SecurityLogWriter;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -1408,7 +1409,7 @@ public class SendPrintServiceImpl implements SendPrintService {
         // 记录businessLog
         addBusinessLog(startTime, printExportCriteria, false, null);
         com.jd.dms.wb.report.api.dto.base.BaseEntity<Boolean>
-                baseEntity = printHandoverListManager.doBatchExportAsync(createESQueryCondition(printExportCriteria, isShowAddress(printExportCriteria.getList())));
+                baseEntity = printHandoverListManager.doBatchExportAsync(createESQueryCondition(printExportCriteria, false));
         if(baseEntity != null && Objects.equals(baseEntity.getData(),true)){
             log.info("操作人【{}】始发地【{}】的交接清单导出成功!", printExportCriteria.getUserCode(), printExportCriteria.getCreateSiteCode());
         }else {
@@ -2001,6 +2002,7 @@ public class SendPrintServiceImpl implements SendPrintService {
 //                : Byte.parseByte(String.valueOf(Constants.NUMBER_ZERO)));
         condition.setUserCode(criteria.getUserCode());
         condition.setSensitiveQuery(sensitiveQuery);
+        condition.setClientIp(InvokerClientInfoContext.get().getClientIp());
         return condition;
     }
 
