@@ -2,11 +2,9 @@ package com.jd.bluedragon.configuration.ucc;
 
 import com.jd.bluedragon.Constants;
 import com.jd.ql.dms.print.utils.JsonHelper;
-
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.math.NumberUtils;
 
 import java.util.*;
 
@@ -698,6 +696,16 @@ public class UccPropertyConfiguration {
      * 拦截批次号开关
      */
     private boolean filterSendCodeSwitch;
+
+    /**
+     * 安全开关
+     */
+    private boolean securitySwitch;
+
+    /**
+     * 拣运app降级配置
+     */
+    private String jyDemotionConfig;
 
     public boolean getFilterSendCodeSwitch() {
         return filterSendCodeSwitch;
@@ -2124,5 +2132,21 @@ public class UccPropertyConfiguration {
 
     public void setClientOfflineMenuConfig(String clientOfflineMenuConfig) {
         this.clientOfflineMenuConfig = clientOfflineMenuConfig;
+    }
+
+    public boolean getSecuritySwitch() {
+        return securitySwitch;
+    }
+
+    public void setSecuritySwitch(boolean securitySwitch) {
+        this.securitySwitch = securitySwitch;
+    }
+
+    public String getJyDemotionConfig() {
+        return jyDemotionConfig;
+    }
+
+    public void setJyDemotionConfig(String jyDemotionConfig) {
+        this.jyDemotionConfig = jyDemotionConfig;
     }
 }

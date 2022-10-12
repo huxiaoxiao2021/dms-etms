@@ -185,6 +185,8 @@
 		<property name="jyBasicServerSwitch" value="${jyBasicServerSwitch:false}"/>
 		<property name="clientOfflineMenuConfig" value="${clientOfflineMenuConfig:''}"/>
 		<property name="filterSendCodeSwitch" value="${filterSendCodeSwitch:false}"/>
+		<property name="securitySwitch" value="${securitySwitch:true}"/>
+		<property name="jyDemotionConfig" value="${jyDemotionConfig:''}"/>
 
 	</bean>
 	<!-- hystrix 动态配置 -->
@@ -352,7 +354,8 @@
 				<value>uccPropertyConfiguration.jyBasicServerSwitch</value>
 				<value>uccPropertyConfiguration.clientOfflineMenuConfig</value>
 				<value>uccPropertyConfiguration.filterSendCodeSwitch</value>
-
+				<value>uccPropertyConfiguration.securitySwitch</value>
+				<value>uccPropertyConfiguration.jyDemotionConfig</value>
 
 				<value>hystrixRouteUccPropertyConfiguration.executionTimeoutInMilliseconds</value>
                 <value>hystrixRouteUccPropertyConfiguration.circuitBreakerEnabled</value>

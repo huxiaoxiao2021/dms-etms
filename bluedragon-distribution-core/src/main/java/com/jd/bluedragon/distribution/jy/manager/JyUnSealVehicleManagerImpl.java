@@ -5,6 +5,8 @@ import com.jd.bluedragon.common.dto.operation.workbench.unseal.request.SealTaskI
 import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.exception.SealVehicleTaskBusinessException;
+import com.jd.bluedragon.distribution.jy.exception.JyDemotionException;
+import com.jd.bluedragon.distribution.jy.service.config.JyDemotionService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
@@ -41,6 +43,9 @@ public class JyUnSealVehicleManagerImpl implements IJyUnSealVehicleManager {
     @Autowired
     private UccPropertyConfiguration uccConfig;
 
+    @Autowired
+    private JyDemotionService jyDemotionService;
+
     @Override
     public SealVehicleTaskResponse querySealTask(Pager<SealVehicleTaskQuery> pager) {
         CallerInfo ump = ProfilerHelper.registerInfo("dms.web.jySealVehicleManager.querySealCarByStatus");
@@ -76,6 +81,11 @@ public class JyUnSealVehicleManagerImpl implements IJyUnSealVehicleManager {
 
     @Override
     public SealCarMonitor querySealTaskInfo(SealTaskInfoRequest request) {
+
+        if(jyDemotionService.checkIsDemotion(JyDemotionService.JY_SEAL_CAR_MONITOR_IS_DEMOTION)){
+            throw new JyDemotionException("封车：查询封车任务详情已降级!");
+        }
+
         SealCarMonitor search = new SealCarMonitor();
         search.setEndSiteId(request.getCurrentOperate().getSiteCode());
         search.setSealCarCode(request.getSealCarCode());

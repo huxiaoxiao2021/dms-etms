@@ -15,10 +15,11 @@ import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.VehicleS
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.constants.RedisHashKeyConstants;
-import com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadAggsDao;
 import com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadDao;
 import com.jd.bluedragon.distribution.jy.dto.task.JyBizTaskUnloadCountDto;
 import com.jd.bluedragon.distribution.jy.dto.unload.UnloadDetailCache;
@@ -26,8 +27,10 @@ import com.jd.bluedragon.distribution.jy.dto.unload.UnloadScanDto;
 import com.jd.bluedragon.distribution.jy.dto.unload.UnloadTaskCompleteDto;
 import com.jd.bluedragon.distribution.jy.enums.*;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
+import com.jd.bluedragon.distribution.jy.exception.JyDemotionException;
 import com.jd.bluedragon.distribution.jy.manager.IJyUnloadVehicleManager;
 import com.jd.bluedragon.distribution.jy.manager.JyScheduleTaskManager;
+import com.jd.bluedragon.distribution.jy.service.config.JyDemotionService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskUnloadVehicleService;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadDto;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
@@ -41,6 +44,7 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.jim.cli.Cluster;
+import com.jd.ql.dms.common.constants.CodeConstants;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
@@ -99,7 +103,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
     private JyBizTaskUnloadVehicleService unloadVehicleService;
 
     @Autowired
-    private JyUnloadAggsDao unloadAggDao;
+    private JyUnloadAggsService jyUnloadAggsService;
 
     @Autowired
     private WaybillQueryManager waybillQueryManager;
@@ -119,6 +123,9 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
     @Autowired
     private UnloadVehicleTransactionManager transactionManager;
 
+    @Autowired
+    private JyDemotionService jyDemotionService;
+
     @Override
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "IJyUnloadVehicleService.fetchUnloadTask",
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
@@ -132,16 +139,17 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         logInfo("拉取卸车任务. {}", JsonHelper.toJson(request));
 
         JyBizTaskUnloadVehicleEntity condition = makeFetchCondition(request);
-        List<String> sealCarCodes = new ArrayList<>();
-        if (WaybillUtil.isPackageCode(request.getBarCode())) {
-            sealCarCodes = getSealCarCodeFromEs(request);
-            if (CollectionUtils.isEmpty(sealCarCodes)) {
-                result.parameterError("该包裹号不存在关联的卸车任务！");
-                return result;
-            }
-        }
 
         try {
+            List<String> sealCarCodes = new ArrayList<>();
+            if (WaybillUtil.isPackageCode(request.getBarCode())) {
+                sealCarCodes = getSealCarCodeFromEs(request);
+                if (CollectionUtils.isEmpty(sealCarCodes)) {
+                    result.parameterError("该包裹号不存在关联的卸车任务！");
+                    return result;
+                }
+            }
+
             List<JyBizTaskUnloadCountDto> vehicleStatusAggList =
                     unloadVehicleService.findStatusCountByCondition4Status(condition, sealCarCodes, JyBizTaskUnloadStatusEnum.UNLOAD_STATUS_OPTIONS.toArray(new JyBizTaskUnloadStatusEnum[JyBizTaskUnloadStatusEnum.UNLOAD_STATUS_OPTIONS.size()]));
             if (CollectionUtils.isEmpty(vehicleStatusAggList)) {
@@ -157,6 +165,9 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
             assembleUnloadVehicleData(request, response, condition, sealCarCodes);
 
             result.setData(response);
+        }
+        catch (JyDemotionException e){
+            result.customMessage(CodeConstants.JY_DEMOTION_CODE, HintService.getHint(HintCodeConstants.JY_DEMOTION_MSG_NO_SEAL_CAR_CODE, false));
         }
         catch (Exception e) {
             log.error("查询卸车任务异常. {}", JsonHelper.toJson(request), e);
@@ -526,7 +537,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
      * @return
      */
     private JyUnloadAggsEntity sumUnloadAgg(String bizId) {
-        List<JyUnloadAggsEntity> aggList = unloadAggDao.queryByBizId(new JyUnloadAggsEntity(bizId));
+        List<JyUnloadAggsEntity> aggList = jyUnloadAggsService.queryByBizId(new JyUnloadAggsEntity(bizId));
         if (CollectionUtils.isEmpty(aggList)) {
             log.warn("卸车任务[{}]不存在进度数据.", bizId);
             return null;
@@ -708,6 +719,12 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
 
             UnloadScanDetail scanProgress = JsonHelper.fromJson(JsonHelper.toJson(redisCache), UnloadScanDetail.class);
             result.setData(scanProgress);
+            if(jyDemotionService.checkIsDemotion(JyDemotionService.JY_FLINK_UNLOAD_IS_DEMOTION)){
+                throw new JyDemotionException("卸车进度不准，flink降级!");
+            }
+        }
+        catch (JyDemotionException e){
+            result.customMessage(CodeConstants.JY_DEMOTION_CODE, HintService.getHint(HintCodeConstants.JY_DEMOTION_MSG_UNLOAD_PROCESS_NOT_ACCURATE, false));
         }
         catch (Exception ex) {
             log.error("加载卸车进度异常. {}", JsonHelper.toJson(request), ex);
@@ -822,7 +839,6 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
      * @return
      */
     public Boolean refreshUnloadAggCache(String bizId) {
-
         JyUnloadAggsEntity unloadAggEntity = sumUnloadAgg(bizId);
 
         boolean unloadAggSumExist = true;
@@ -857,7 +873,6 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         if (unloadAggSumExist || pdaUnloadProgressExist) {
             return initScanDetailCacheUsingUnloadAgg(unloadAggEntity);
         }
-
         return false;
 
     }
@@ -936,7 +951,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         try {
             List<UnloadScanAggByProductType> productTypeList = Lists.newArrayList();
             result.setData(productTypeList);
-            List<JyUnloadAggsEntity> unloadAggList = unloadAggDao.queryByBizId(new JyUnloadAggsEntity(request.getBizId()));
+            List<JyUnloadAggsEntity> unloadAggList = jyUnloadAggsService.queryByBizId(new JyUnloadAggsEntity(request.getBizId()));
             if (CollectionUtils.isEmpty(unloadAggList)) {
                 return result;
             }
@@ -975,7 +990,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         try {
             List<ProductTypeAgg> productTypeList = Lists.newArrayList();
             result.setData(productTypeList);
-            List<JyUnloadAggsEntity> unloadAggList = unloadAggDao.queryByBizId(new JyUnloadAggsEntity(request.getBizId()));
+            List<JyUnloadAggsEntity> unloadAggList = jyUnloadAggsService.queryByBizId(new JyUnloadAggsEntity(request.getBizId()));
             if (CollectionUtils.isEmpty(unloadAggList)) {
                 return result;
             }
@@ -1027,6 +1042,9 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
 
             ToScanDetailByProductType toScanDetailByProductType = setToScanBarCodeList(request, retPager);
             result.setData(toScanDetailByProductType);
+        }
+        catch (JyDemotionException e){
+            result.customMessage(CodeConstants.JY_DEMOTION_CODE, HintService.getHint(HintCodeConstants.JY_DEMOTION_MSG_UNLOAD_TOSCAN, false));
         }
         catch (Exception ex) {
             log.error("按产品类型查询待扫包裹数据异常. {}", JsonHelper.toJson(request), ex);
@@ -1118,6 +1136,9 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
             InterceptScanBarCode interceptScanBarCode = setInterceptBarCodeList(retPager);
             result.setData(interceptScanBarCode);
         }
+        catch (JyDemotionException e){
+            result.customMessage(CodeConstants.JY_DEMOTION_CODE, HintService.getHint(HintCodeConstants.JY_DEMOTION_MSG_UNLOAD_INTERCEPT, false));
+        }
         catch (Exception ex) {
             log.error("查询卸车拦截包裹数据异常. {}", JsonHelper.toJson(request), ex);
             result.error("查询卸车拦截包裹数据异常，请咚咚联系分拣小秘！");
@@ -1197,6 +1218,9 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
 
             MoreScanBarCode moreScanBarCode = setMoreScanBarCodeList(retPager);
             result.setData(moreScanBarCode);
+        }
+        catch (JyDemotionException e){
+            result.customMessage(CodeConstants.JY_DEMOTION_CODE, HintService.getHint(HintCodeConstants.JY_DEMOTION_MSG_UNLOAD_MORE_SCAN, false));
         }
         catch (Exception ex) {
             log.error("查询卸车多扫包裹数据异常. {}", JsonHelper.toJson(request), ex);
@@ -1279,7 +1303,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
             // 默认正常
             previewData.setAbnormalFlag(Constants.NUMBER_ZERO.byteValue());
 
-            List<JyUnloadAggsEntity> unloadAggList = unloadAggDao.queryByBizId(new JyUnloadAggsEntity(request.getBizId()));
+            List<JyUnloadAggsEntity> unloadAggList = jyUnloadAggsService.queryByBizId(new JyUnloadAggsEntity(request.getBizId()));
             if (CollectionUtils.isEmpty(unloadAggList)) {
                 log.warn("判断卸车任务是否完成查询AGG为空.{}", JsonHelper.toJson(request));
                 return result;
@@ -1301,6 +1325,9 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
             }
 
             previewData.setBarCodeList(getUnloadScanBarCodeList(UnloadBarCodeQueryEntranceEnum.COMPLETE_PREVIEW, retPager.getData()));
+        }
+        catch (JyDemotionException e){
+            result.customMessage(CodeConstants.JY_DEMOTION_CODE, HintService.getHint(HintCodeConstants.JY_DEMOTION_MSG_UNLOAD_MORE_AND_TOSCAN, false));
         }
         catch (Exception ex) {
             log.error("卸车完成预览数据发生异常. {}", JsonHelper.toJson(request), ex);
