@@ -226,12 +226,12 @@ public class ExpressBillExceptionReportVo implements Serializable {
         return reportTypeName;
     }
 
-    public String getFirstAbnormalTypeName() {
+    public String getFirstReportTypeName() {
         return firstReportTypeName;
     }
 
-    public void setFirstAbnormalTypeName(String firstAbnormalTypeName) {
-        this.firstReportTypeName = firstAbnormalTypeName;
+    public void setFirstReportTypeName(String firstReportTypeName) {
+        this.firstReportTypeName = firstReportTypeName;
     }
 
     public void setReportTypeName(String reportTypeName) {
