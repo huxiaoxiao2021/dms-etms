@@ -111,6 +111,7 @@ import com.jd.tms.basic.dto.BasicVehicleTypeDto;
 import com.jd.tms.basic.dto.TransportResourceDto;
 import com.jd.tms.jdi.dto.TransWorkBillDto;
 import com.jd.tms.jdi.dto.TransWorkFuzzyQueryParam;
+import com.jd.transboard.api.dto.Board;
 import com.jd.transboard.api.dto.Response;
 import com.jd.transboard.api.enums.ResponseEnum;
 import com.jd.ump.annotation.JProEnum;
@@ -1290,7 +1291,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
      */
     private boolean execSendInterceptChain(SendScanRequest request, JdVerifyResponse<SendScanResponse> result, SendKeyTypeEnum sendType, SendResult sendResult, SendM sendM, SendFindDestInfoDto sendFindDestInfoDto) {
         if (Boolean.FALSE.equals(request.getForceSubmit())) {
-            if (!BusinessHelper.isBoxcode(request.getBarCode())) {
+            if (!BusinessHelper.isBoxcode(request.getBarCode()) && !BusinessUtil.isBoardCode(request.getBarCode())) {
                 SortingCheck sortingCheck = deliveryService.getSortingCheck(sendM);
                 if(request.getValidateIgnore() != null){
                     sortingCheck.setValidateIgnore(this.convertValidateIgnore(request.getValidateIgnore()));
@@ -1595,7 +1596,18 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
                 }
                 break;
             case BY_BOARD:
-                // TODO 支持扫描板号
+                Long matchDestIdByBoard = null;
+                Response<Board> boardResponse = groupBoardManager.getBoard(barCode);
+                if (boardResponse.getCode() == ResponseEnum.SUCCESS.getIndex() && boardResponse.getData() != null) {
+                    Board board = boardResponse.getData();
+                    if (board.getDestinationId() != null) {
+                        matchDestIdByBoard = board.getDestinationId().longValue();
+                    }
+                }
+                if (allDestId.contains(matchDestIdByBoard)) {
+                    destSiteId = matchDestIdByBoard;
+                }
+                sendFindDestInfoDto.setRouterNextSiteId(matchDestIdByBoard);
                 break;
         }
 
