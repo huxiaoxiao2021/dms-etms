@@ -438,6 +438,10 @@ public class JyGroupMemberServiceImpl implements JyGroupMemberService {
 			removeMemberData.setUpdateTime(currentDate);
 			removeMemberData.setUpdateUser(removeMemberRequest.getOperateUserCode());
 			removeMemberData.setUpdateUserName(removeMemberRequest.getOperateUserName());
+			removeMemberData.setSignOutTime(removeMemberRequest.getSignOutTime());
+			if(removeMemberData.getSignOutTime() == null) {
+				removeMemberData.setSignOutTime(new Date());
+			}
 			jyGroupMemberDao.removeMembers(removeMemberData,removeMemberRequest.getSignRecordIdList());
 			JyTaskGroupMemberEntity taskGroupMember = new JyTaskGroupMemberEntity();
 			taskGroupMember.setEndTime(currentDate);
