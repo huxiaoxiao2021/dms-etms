@@ -19,9 +19,9 @@ public class SendAbnormalBarCode implements Serializable {
     private Long total;
 
     /**
-     * 运单列表
+     * 包裹列表
      */
-    private List<SendScanWaybill> waybillList;
+    private List<SendScanBarCode> barCodeList;
 
 
     public Long getTotal() {
@@ -32,11 +32,11 @@ public class SendAbnormalBarCode implements Serializable {
         this.total = total;
     }
 
-    public List<SendScanWaybill> getWaybillList() {
-        return waybillList;
+    public List<SendScanBarCode> getBarCodeList() {
+        return barCodeList;
     }
 
-    public void setWaybillList(List<SendScanWaybill> waybillList) {
-        this.waybillList = waybillList;
+    public void setBarCodeList(List<SendScanBarCode> barCodeList) {
+        this.barCodeList = barCodeList;
     }
 }

@@ -2256,6 +2256,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
                 sendDestDetail.setEndSiteId(detailEntity.getEndSiteId().intValue());
                 sendDestDetail.setEndSiteName(detailEntity.getEndSiteName());
                 sendDestDetail.setPlanDepartTime(detailEntity.getPlanDepartTime());
+                sendDestDetail.setVehicleStatus(detailEntity.getVehicleStatus());
 
                 if (sendAggMap.containsKey(detailEntity.getTransWorkItemCode())) {
                     JySendAggsEntity itemAgg = sendAggMap.get(detailEntity.getTransWorkItemCode());
