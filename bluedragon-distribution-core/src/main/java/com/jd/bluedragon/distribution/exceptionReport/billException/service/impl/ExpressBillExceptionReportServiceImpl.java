@@ -592,6 +592,8 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
         report.setFirstSiteName(reportRequest.getFirstSiteName());
         report.setReportImgUrls(reportRequest.getReportPictureUrls());
         report.setReportTime(reportRequest.getReportTime());
+        report.setFirstReportType(reportRequest.getFirstReportType());
+        report.setFirstReportTypeName(reportRequest.getFirstReportTypeName());
         report.setReportType(reportRequest.getReportType());
         report.setReportTypeName(reportRequest.getReportTypeName());
         report.setReportUserErp(reportRequest.getUser().getUserErp());
