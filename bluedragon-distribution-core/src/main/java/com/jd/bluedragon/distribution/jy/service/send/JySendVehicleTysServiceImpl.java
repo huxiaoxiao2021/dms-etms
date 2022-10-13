@@ -1039,7 +1039,7 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
     }
 
     private List<CancelSendWaybillDto> transformCancelSendWaybill(List<String> packageList) {
-        if (!CollectionUtils.isEmpty(packageList)) {
+        if (CollectionUtils.isEmpty(packageList)) {
             return new ArrayList<>();
         }
         Map<String, CancelSendWaybillDto> map = new HashMap<>();
@@ -1054,6 +1054,7 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
                 List<String> packageCodes = new ArrayList<>();
                 packageCodes.add(packageCode);
                 cancelSendWaybillDto.setPackageCodes(packageCodes);
+                map.put(waybillCode, cancelSendWaybillDto);
             } else {
                 cancelSendWaybillDto.setCancelPackageCount(cancelSendWaybillDto.getCancelPackageCount() + 1);
                 List<String> packageCodes = cancelSendWaybillDto.getPackageCodes();
