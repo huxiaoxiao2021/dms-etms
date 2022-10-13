@@ -20,7 +20,7 @@
 		#{userCode,jdbcType=INTEGER}, #{userName,jdbcType=VARCHAR},
 		NOW(),NOW(),1,#{waybillCode,jdbcType=VARCHAR},        
         <if test="interfaceType != null">
-        #{interfaceType,jdbcType=INTEGER}
+        #{interfaceType,jdbcType=VARCHAR}
         </if>)
 	</insert>
 
@@ -38,7 +38,7 @@
         <result column="create_site_code" property="siteCode" jdbcType="NUMERIC" />
         <result column="create_site_name" property="siteName" jdbcType="VARCHAR" />
         <result column="waybill_code" property="waybillCode" jdbcType="VARCHAR" />
-        <result column="interface_type" property="interfaceType" jdbcType="INTEGER"  />
+        <result column="interface_type" property="interfaceType" jdbcType="VARCHAR"  />
     </resultMap>
 
     <sql id="Reassign_Waybill_Column">
