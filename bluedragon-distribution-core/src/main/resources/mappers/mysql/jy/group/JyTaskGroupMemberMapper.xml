@@ -183,13 +183,13 @@
         AND ref_task_id = #{refTaskId}
         AND end_time is null
     </update>
-    <select id="queryMemberCodeListByTaskId" parameterType="com.jd.bluedragon.distribution.jy.group.JyTaskGroupMemberQuery" resultType="String">
+    <select id="queryMemberCodeListByTaskId" parameterType="com.jd.bluedragon.common.dto.group.GroupMemberQueryRequest" resultType="String">
         select
             ref_group_member_code
         from
             jy_task_group_member
         where yn = 1
-          and ref_task_id = #{refTaskId}
+          and ref_task_id = #{taskId}
     </select>
     <select id="queryMemberListByTaskId" parameterType="com.jd.bluedragon.distribution.jy.group.JyTaskGroupMemberQuery" resultMap="jyTaskGroupMemberMap">
         select
