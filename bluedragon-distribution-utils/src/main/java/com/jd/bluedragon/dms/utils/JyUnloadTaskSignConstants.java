@@ -12,7 +12,14 @@ public interface JyUnloadTaskSignConstants {
      * 是否抽检
      */
     int POSITION_1 = 1;
+    /**
+     * 1：定向抽检
+     */
     char CHAR_1_1 = '1';
+    /**
+     * 2：随机抽检
+     */
+    char CHAR_1_2 = '2';
 
     /**
      * 逐单卸

@@ -36,6 +36,10 @@ public class SealVehicleInfoResp implements Serializable {
      * 封签号列表
      */
     private List<String> sealCodeList;
+    /**
+     * 页面保存数据
+     */
+    private JyAppDataSealVo savedPageData;
 
     public List<String> getSendCodeList() {
         return sendCodeList;
@@ -92,4 +96,12 @@ public class SealVehicleInfoResp implements Serializable {
     public void setSealCodeList(List<String> sealCodeList) {
         this.sealCodeList = sealCodeList;
     }
+
+	public JyAppDataSealVo getSavedPageData() {
+		return savedPageData;
+	}
+
+	public void setSavedPageData(JyAppDataSealVo savedPageData) {
+		this.savedPageData = savedPageData;
+	}
 }

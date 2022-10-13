@@ -92,7 +92,6 @@
         <dd><a href="#springUrl('/boxlimit/toIndex')" target="mainFrame">PDA建箱包裹数配置</a></dd>
         <dd><a href="#springUrl('/reviewWeightSpotCheck/toIndex')" target="mainFrame">复重抽检任务导入</a></dd>
         <dd><a href="#springUrl('/weightAndVolumeCheckOfB2b/toIndex')" target="mainFrame">人工抽检</a></dd>
-        <dd><a href="#springUrl('/weightAndVolumeCheck/toIndex')" target="mainFrame">重量体积抽检统计</a></dd>
         <dd><a href="#springUrl('/spotCheckReport/toIndex')" target="mainFrame">抽检统计报表</a></dd>
         <dd><a href="http://dms-w.jd.com/#/page/report/spotCheck" target="mainFrame">定向抽检统计报表</a></dd>
         <dd><a href="#springUrl('/newseal/preSealVehicle/toIndex')" target="mainFrame">一键封车</a></dd>

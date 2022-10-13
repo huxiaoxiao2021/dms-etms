@@ -971,6 +971,18 @@ public class BusinessUtil {
     }
 
     /**
+     * 判断是否医药零担
+     *
+     * @param waybillSign
+     * @return
+     */
+    public static Boolean isMedicine(String waybillSign){
+        return isSignChar(waybillSign,WaybillSignConstants.POSITION_80, WaybillSignConstants.CHAR_80_7)
+                && isSignChar(waybillSign,WaybillSignConstants.POSITION_54, WaybillSignConstants.CHAR_54_4)
+                && isSignInChars(waybillSign,WaybillSignConstants.POSITION_40, WaybillSignConstants.CHAR_40_2, WaybillSignConstants.CHAR_40_3);
+    }
+
+    /**
      * 判断是否是生鲜纯配城配共配
      * waybill_sign54位=2（生鲜）、waybill_sign80位=6（城配）、40位=2（纯配快运零担）、118位=1（共配）
      * @param waybillSign
@@ -2227,6 +2239,19 @@ public class BusinessUtil {
         return BusinessUtil.isSignInChars(waybillSign, WaybillSignConstants.POSITION_8,
                 WaybillSignConstants.CHAR_8_1);
     }
+
+    /**
+     *
+     *  寄件人信息 非逆向运单 （waybillSign61位=0）
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isJDConsigner(String waybillSign) {
+        return BusinessUtil.isSignInChars(waybillSign, WaybillSignConstants.POSITION_61,
+                WaybillSignConstants.CHAR_61_0);
+    }
+
+
     /**
      * 是否修改订单地址,waybillSign第8位1、2
      *
@@ -2428,7 +2453,38 @@ public class BusinessUtil {
      * @return
      */
     public static boolean isSelfReverse(String waybillSign){
-        return isSignChar(waybillSign, WaybillSignConstants.POSITION_1, 'T');
+        return isSignChar(waybillSign, WaybillSignConstants.POSITION_1, WaybillSignConstants.CHAR_1_T);
+    }
+
+    /**
+     * 是否是外单仓配业务
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isWarehouseAndDistributionBusiness(String waybillSign){
+        return isSignChar(waybillSign, WaybillSignConstants.POSITION_53, WaybillSignConstants.CHAR_1);
+    }
+    /**
+     * 判断是否需要抽检
+     * @param tagSign
+     * @return
+     */
+    public static boolean needSpotCheck(String tagSign){
+    	return BusinessUtil.isSignInChars(tagSign, JyUnloadTaskSignConstants.POSITION_1,JyUnloadTaskSignConstants.CHAR_1_1,JyUnloadTaskSignConstants.CHAR_1_2);
+    }
+
+    /**
+     * 自营逆向单（waybill_sign第一位=T），且为全球购订单（sendpay第8位 = 6）
+     */
+    public static boolean isReverseGlobalWaybill(String waybillSign, String sendPay){
+        return isSelfReverse(waybillSign) && isGlobalPurchaseWaybill(sendPay);
+    }
+
+    /**
+     * 是否全球购订单（sendpay第8位 = 6）
+     */
+    public static boolean isGlobalPurchaseWaybill(String sendPay){
+        return isSignChar(sendPay, SendPayConstants.POSITION_8, SendPayConstants.CHAR_6);
     }
 
     public static void main(String[] args) {

@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.jd.bd.dms.automatic.marshal.GodHeader;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.core.context.InvokerClientInfoContext;
 import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.bluedragon.utils.ServletRequestHelper;
 import com.jd.bluedragon.utils.SpringHelper;
@@ -48,26 +49,36 @@ public class DmsOAuthInterceptFilter extends DmsAuthorizationFilter {
     protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse, FilterChain filterChain) throws ServletException, IOException {
 
         String opCode = httpServletRequest.getHeader(GodHeader.OP_CODE);
-        String authorization = httpServletRequest.getHeader(GodHeader.AUTHORIZATION);
         boolean secretBool = StringHelper.isNotEmpty(opCode) && opCode.equals(PropertiesHelper.newInstance().getValue(secretKey));/* 内部后门 */
-        boolean temporaryBool = StringHelper.isEmpty(authorization);/* 过渡期的临时保护 */
         /* 过渡期间对传空的的进行保护处理，和内部后门JD-opCode的特殊值进行保护处理 */
         String ipAddress =ServletRequestHelper.getRealIpAddress(httpServletRequest);
         String uri =httpServletRequest.getRequestURI();
-        if (temporaryBool) {
-            writeLogToHive(ipAddress,uri);
-            //部分拦截
-            if (pathMatch(uri)) {
+
+        try {
+            //获得rest请求中的登陆人erpCode
+            String erpCode = httpServletRequest.getHeader("erpCode");
+
+            InvokerClientInfoContext.ClientInfo clientInfo = new InvokerClientInfoContext.ClientInfo();
+            clientInfo.setClientIp(ipAddress);
+            clientInfo.setUser(erpCode);
+            InvokerClientInfoContext.add(clientInfo);
+
+            if (secretBool) {
+                LOGGER.info("内部调用，未拦截，客户端IP:{}", ServletRequestHelper.getRealIpAddress(httpServletRequest));
+                filterChain.doFilter(httpServletRequest,httpServletResponse);
+            } else if (pathMatch(uri)) {
                 super.doFilterInternal(httpServletRequest, httpServletResponse, filterChain);
             } else {
                 LOGGER.warn("该客户端本次调用未进行rest加密鉴权,客户端IP:{}，请求路径：{}", ipAddress,uri);
+                writeLogToHive(ipAddress,uri);
                 filterChain.doFilter(httpServletRequest,httpServletResponse);
             }
-        } else if (secretBool) {
-            LOGGER.info("内部调用，未拦截，客户端IP:{}", ServletRequestHelper.getRealIpAddress(httpServletRequest));
-            filterChain.doFilter(httpServletRequest,httpServletResponse);
-        } else {
-            super.doFilterInternal(httpServletRequest, httpServletResponse, filterChain);
+        } finally {
+            try {
+                InvokerClientInfoContext.clear();
+            } catch (RuntimeException e) {
+                LOGGER.error("清理客户端信息失败",e);
+            }
         }
     }
 

@@ -39,4 +39,17 @@ public interface JyVehicleSendRelationService {
     int add(JySendCodeEntity jySendCodeEntity);
 
     String findEarliestSendCode(String vehicleDetailBizId);
+
+    String findEarliestNoSealCarSendCode(String detailBiz);
+
+    List<JySendCodeEntity> querySendDetailBizIdBySendCode(List<String> sendCodes);
+
+    /**
+     * 根据任务ID查询批次数据
+     * @param vehicleBizId 任务业务ID
+     * @return 批次数据列表
+     * @author fanggang7
+     * @time 2022-09-26 17:36:53 周一
+     */
+    List<JySendCodeEntity> queryByVehicleBizId(String vehicleBizId);
 }

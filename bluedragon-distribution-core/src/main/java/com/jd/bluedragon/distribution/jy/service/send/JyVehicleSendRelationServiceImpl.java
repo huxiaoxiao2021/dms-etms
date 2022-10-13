@@ -5,6 +5,7 @@ import com.jd.bluedragon.distribution.jy.dto.send.JySendCodeDto;
 import com.jd.bluedragon.distribution.jy.dto.send.TransferDto;
 import com.jd.bluedragon.distribution.jy.dto.send.VehicleSendRelationDto;
 import com.jd.bluedragon.distribution.jy.send.JySendCodeEntity;
+import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.utils.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,6 +16,8 @@ import java.util.List;
 public class JyVehicleSendRelationServiceImpl implements JyVehicleSendRelationService{
     @Autowired
     JySendCodeDao jySendCodeDao;
+    @Autowired
+    NewSealVehicleService newSealVehicleService;
 
     @Override
     public List<String> querySendCodesByVehicleDetailBizId(String vehicleDetailBizId) {
@@ -62,5 +65,34 @@ public class JyVehicleSendRelationServiceImpl implements JyVehicleSendRelationSe
     @Override
     public String findEarliestSendCode(String vehicleDetailBizId) {
         return jySendCodeDao.findEarliestSendCode(vehicleDetailBizId);
+    }
+
+    @Override
+    public String findEarliestNoSealCarSendCode(String detailBiz) {
+        List<String> sendCodes =querySendCodesByVehicleDetailBizId(detailBiz);
+        for (String sendCode:sendCodes){
+            if (!newSealVehicleService.checkSendCodeIsSealed(sendCode)){
+                return sendCode;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public List<JySendCodeEntity> querySendDetailBizIdBySendCode(List<String> sendCodes) {
+        return jySendCodeDao.querySendDetailBizIdBySendCode(sendCodes);
+    }
+
+    /**
+     * 根据任务ID查询批次数据
+     *
+     * @param vehicleBizId 任务业务ID
+     * @return 批次数据列表
+     * @author fanggang7
+     * @time 2022-09-26 17:36:53 周一
+     */
+    @Override
+    public List<JySendCodeEntity> queryByVehicleBizId(String vehicleBizId) {
+        return jySendCodeDao.queryByVehicleBizId(vehicleBizId);
     }
 }

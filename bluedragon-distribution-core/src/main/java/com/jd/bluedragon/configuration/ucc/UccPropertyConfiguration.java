@@ -1,6 +1,8 @@
 package com.jd.bluedragon.configuration.ucc;
 
 import com.jd.bluedragon.Constants;
+import com.jd.ql.dms.print.utils.JsonHelper;
+
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.ArrayUtils;
@@ -118,6 +120,8 @@ public class UccPropertyConfiguration {
     * 分拣验证切换到web试用站点
     * */
     private String switchVerToWebSites;
+
+
 
     /**
      * 禁用老版本登陆
@@ -502,6 +506,21 @@ public class UccPropertyConfiguration {
      */
     private boolean chuguanPurchaseAndSaleSwitch;
 
+
+
+    /**
+     * 阿迪青龙业主号配置
+     */
+    private  String addiOwnNumberConf;
+
+    public String getAddiOwnNumberConf() {
+        return addiOwnNumberConf;
+    }
+
+    public void setAddiOwnNumberConf(String addiOwnNumberConf) {
+        this.addiOwnNumberConf = addiOwnNumberConf;
+    }
+
     public boolean isChuguanPurchaseAndSaleSwitch() {
         return chuguanPurchaseAndSaleSwitch;
     }
@@ -668,6 +687,33 @@ public class UccPropertyConfiguration {
      */
     private Integer jySendTaskPlanTimeEndDay;
 
+    private Integer jySendTaskCreateTimeBeginDay;
+
+    /**
+     * 切换转运基础服务开关
+     */
+    private boolean jyBasicServerSwitch;
+
+    /**
+     * 拦截批次号开关
+     */
+    private boolean filterSendCodeSwitch;
+
+    /**
+     * 原发货交接清单导出功能是否导出敏感数据开关
+     * false：不导出敏感数据
+     * true：导出敏感数据
+     */
+    private boolean querySensitiveFlag;
+
+    public boolean getFilterSendCodeSwitch() {
+        return filterSendCodeSwitch;
+    }
+
+    public void setFilterSendCodeSwitch(boolean filterSendCodeSwitch) {
+        this.filterSendCodeSwitch = filterSendCodeSwitch;
+    }
+
     public Integer getOldSendSplitPageSize() {
         return oldSendSplitPageSize;
     }
@@ -815,13 +861,37 @@ public class UccPropertyConfiguration {
      * 身份证识别切量开关，全量上线之后，可以删除
      */
     private String identityRecogniseSiteSwitch;
-
-    private String needValidateMainLineBizSources;
+    /**
+     * 传摆发货-干支限制业务列表
+     */
+    private String needValidateMainLineBizSourceList;
+    private List<Integer> needValidateMainLineBizSourceCodes;
 
     /**
      * 敏感信息隐藏开关
      */
     private Boolean sensitiveInfoHideSwitch;
+
+    /**
+     * 发货运力线路运输方式限制业务列表
+     */
+    private String notValidateTransTypeCodesList;
+    private List<Integer> notValidateTransTypeCodes;
+
+    /**
+     * 客户端下线菜单配置,分为普通和特殊
+     *  example：
+     *  {
+     *     "ordinary": {
+     *         "0601026,0601027":"此功能已下线!"
+     *     },
+     *     "special": {
+     *         "0601028":"此功能已下线，请用**功能代替!",
+     *         "0601029":"此功能已迁移，如需使用请前往如下网址操作|www.baidu.com"
+     *     }
+     *  }
+     */
+    private String clientOfflineMenuConfig;
 
     public String getScheduleSiteCheckSameCity() {
         return scheduleSiteCheckSameCity;
@@ -1999,19 +2069,75 @@ public class UccPropertyConfiguration {
         this.jySendTaskPlanTimeEndDay = jySendTaskPlanTimeEndDay;
     }
 
-    public String getNeedValidateMainLineBizSources() {
-        return needValidateMainLineBizSources;
+    public String getNeedValidateMainLineBizSourceList() {
+        return needValidateMainLineBizSourceList;
     }
 
-    public void setNeedValidateMainLineBizSources(String needValidateMainLineBizSources) {
-        this.needValidateMainLineBizSources = needValidateMainLineBizSources;
+    public void setNeedValidateMainLineBizSourceList(String needValidateMainLineBizSourceList) {
+        this.needValidateMainLineBizSourceList = needValidateMainLineBizSourceList;
+        needValidateMainLineBizSourceCodes = JsonHelper.jsonToList(needValidateMainLineBizSourceList, Integer.class);
     }
 
+    public boolean needValidateMainLine(Integer bizCode) {
+    	if(!CollectionUtils.isEmpty(needValidateMainLineBizSourceCodes)) {
+    		return needValidateMainLineBizSourceCodes.contains(bizCode);
+    	}
+    	return false;
+    }
     public Boolean getSensitiveInfoHideSwitch() {
         return sensitiveInfoHideSwitch;
     }
 
     public void setSensitiveInfoHideSwitch(Boolean sensitiveInfoHideSwitch) {
         this.sensitiveInfoHideSwitch = sensitiveInfoHideSwitch;
+    }
+
+    public Integer getJySendTaskCreateTimeBeginDay() {
+        return jySendTaskCreateTimeBeginDay;
+    }
+
+    public void setJySendTaskCreateTimeBeginDay(Integer jySendTaskCreateTimeBeginDay) {
+        this.jySendTaskCreateTimeBeginDay = jySendTaskCreateTimeBeginDay;
+    }
+
+    public String getNotValidateTransTypeCodesList() {
+        return notValidateTransTypeCodesList;
+    }
+
+    public void setNotValidateTransTypeCodesList(String notValidateTransTypeCodesList) {
+        this.notValidateTransTypeCodesList = notValidateTransTypeCodesList;
+        notValidateTransTypeCodes = JsonHelper.jsonToList(notValidateTransTypeCodesList, Integer.class);
+
+    }
+
+    public boolean notValidateTransType(Integer type) {
+        if(!CollectionUtils.isEmpty(notValidateTransTypeCodes)) {
+            return notValidateTransTypeCodes.contains(type);
+        }
+        return false;
+    }
+
+    public boolean isJyBasicServerSwitch() {
+        return jyBasicServerSwitch;
+    }
+
+    public void setJyBasicServerSwitch(boolean jyBasicServerSwitch) {
+        this.jyBasicServerSwitch = jyBasicServerSwitch;
+    }
+
+    public String getClientOfflineMenuConfig() {
+        return clientOfflineMenuConfig;
+    }
+
+    public void setClientOfflineMenuConfig(String clientOfflineMenuConfig) {
+        this.clientOfflineMenuConfig = clientOfflineMenuConfig;
+    }
+
+    public boolean isQuerySensitiveFlag() {
+        return querySensitiveFlag;
+    }
+
+    public void setQuerySensitiveFlag(boolean querySensitiveFlag) {
+        this.querySensitiveFlag = querySensitiveFlag;
     }
 }

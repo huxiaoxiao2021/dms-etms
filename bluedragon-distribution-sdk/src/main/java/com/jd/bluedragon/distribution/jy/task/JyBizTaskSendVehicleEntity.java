@@ -45,6 +45,7 @@ public class JyBizTaskSendVehicleEntity implements Serializable {
 	 * 自建任务的流水号
 	 */
 	private String bizNo;
+	private String taskName;
 	/**
 	 * 运输派车单编码
 	 */
@@ -143,6 +144,8 @@ public class JyBizTaskSendVehicleEntity implements Serializable {
 	 * 最晚计划发车时间 范围查找-结束时间
 	 */
 	private transient Date lastPlanDepartTimeEnd;
+
+	private transient Date createTimeBegin;
 
 	public Integer getPreVehicleStatus() {
 		return preVehicleStatus;
@@ -382,5 +385,32 @@ public class JyBizTaskSendVehicleEntity implements Serializable {
 
 	public void setLastPlanDepartTimeEnd(Date lastPlanDepartTimeEnd) {
 		this.lastPlanDepartTimeEnd = lastPlanDepartTimeEnd;
+	}
+
+	public boolean hasBeenBindedOrDeleted(){
+		if (this.bindFlag!=null && this.bindFlag==1){
+			return true;
+		}
+		if (this.yn!=null && this.yn==0){
+			return true;
+		}
+		return false;
+	}
+
+
+	public Date getCreateTimeBegin() {
+		return createTimeBegin;
+	}
+
+	public void setCreateTimeBegin(Date createTimeBegin) {
+		this.createTimeBegin = createTimeBegin;
+	}
+
+	public String getTaskName() {
+		return taskName;
+	}
+
+	public void setTaskName(String taskName) {
+		this.taskName = taskName;
 	}
 }

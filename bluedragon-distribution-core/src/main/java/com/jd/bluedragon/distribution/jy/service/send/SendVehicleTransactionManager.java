@@ -6,9 +6,9 @@ import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.busineCode.sendCode.service.SendCodeService;
 import com.jd.bluedragon.distribution.businessCode.BusinessCodeAttributeKey;
 import com.jd.bluedragon.distribution.jy.dto.send.JyBizTaskSendCountDto;
-import com.jd.bluedragon.distribution.jy.dto.unload.UnloadTaskCompleteDto;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendDetailStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendStatusEnum;
+import com.jd.bluedragon.distribution.jy.enums.JyLineTypeEnum;
 import com.jd.bluedragon.distribution.jy.group.JyTaskGroupMemberEntity;
 import com.jd.bluedragon.distribution.jy.manager.JyScheduleTaskManager;
 import com.jd.bluedragon.distribution.jy.send.JySendCodeEntity;
@@ -17,8 +17,11 @@ import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetail
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleService;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
-import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadDto;
+import com.jd.bluedragon.utils.CollectionHelper;
+import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.etms.vos.dto.SealCarDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jdl.jy.schedule.dto.task.JyScheduleTaskReq;
@@ -29,9 +32,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import java.util.*;
 
@@ -66,6 +71,9 @@ public class SendVehicleTransactionManager {
     @Autowired
     @Qualifier("jyTaskGroupMemberService")
     private JyTaskGroupMemberService taskGroupMemberService;
+    
+    @Value("${beans.sendVehicleTransactionManager.checkLineTypeDays:7}")
+    private int checkLineTypeDays;
 
     /**
      * 保存发货任务和发货流向
@@ -183,6 +191,75 @@ public class SendVehicleTransactionManager {
         return true;
     }
 
+
+    /**
+     * 更新发货任务状态 （不比较原状态顺序方式）
+     * @param taskSend
+     * @param sendDetail
+     * @param updateStatus
+     * @return
+     */
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "SendVehicleTransactionManager.updateStatusWithoutCompare",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
+    @Transactional(value = "tm_jy_core", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    public boolean updateStatusWithoutCompare(JyBizTaskSendVehicleEntity taskSend, JyBizTaskSendVehicleDetailEntity sendDetail, JyBizTaskSendDetailStatusEnum updateStatus) {
+        JyBizTaskSendVehicleDetailEntity detailQ = getSendVehicleDetailEntity(sendDetail, updateStatus);
+        detailQ.setBizId(sendDetail.getBizId());
+        if (taskSendVehicleDetailService.updateStatusWithoutCompare(detailQ, sendDetail.getVehicleStatus()) > 0) {
+            logInfo("发货任务流向[{}]状态更新（不比较原状态）为“{}”. {}", sendDetail.getBizId(), updateStatus.getName(), JsonHelper.toJson(sendDetail));
+
+            // 发货发货任务明细的最小状态
+            Integer taskSendMinStatus = getTaskSendMinStatus(sendDetail);
+            JyBizTaskSendVehicleEntity sendStatusQ = getSendVehicleEntity(sendDetail, updateStatus, taskSendMinStatus);
+
+            if (taskSendVehicleService.updateStatusWithoutCompare(sendStatusQ, taskSend.getVehicleStatus()) > 0) {
+                logInfo("发货任务[{}]状态更新（不比较原状态）为“{}”. {}", taskSend.getBizId(), JyBizTaskSendStatusEnum.getNameByCode(taskSendMinStatus), JsonHelper.toJson(taskSend));
+
+                // 发货流向全部封闭完成，关闭调度任务
+                if (JyBizTaskSendDetailStatusEnum.SEALED.getCode().equals(taskSendMinStatus)) {
+
+                    finishUnloadTaskGroup(detailQ);
+
+                    // 关闭调度任务
+                    closeScheduleTask(detailQ);
+                }
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * 刷新发货主任务状态 （不比较原状态顺序方式）
+     * @param taskSend
+     * @return
+     */
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "SendVehicleTransactionManager.reloadStatusWithoutCompare",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
+    @Transactional(value = "tm_jy_core", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    public boolean reloadStatusWithoutCompare(JyBizTaskSendVehicleEntity taskSend) {
+        JyBizTaskSendVehicleDetailEntity querySendDetail = new JyBizTaskSendVehicleDetailEntity();
+        querySendDetail.setSendVehicleBizId(taskSend.getBizId());
+        querySendDetail.setStartSiteId(taskSend.getStartSiteId());
+        // 发货发货任务明细的最小状态
+        Integer taskSendMinStatus = getTaskSendMinStatus(querySendDetail);
+        JyBizTaskSendVehicleEntity sendStatusQ = new JyBizTaskSendVehicleEntity();
+        if(taskSend.getUpdateTime() == null){
+            sendStatusQ.setUpdateTime(new Date());
+        }
+        sendStatusQ.setUpdateUserErp(taskSend.getUpdateUserErp());
+        sendStatusQ.setUpdateUserName(taskSend.getUpdateUserName());
+        sendStatusQ.setVehicleStatus(taskSendMinStatus);
+        sendStatusQ.setBizId(taskSend.getBizId());
+        if (taskSendVehicleService.updateStatusWithoutCompare(sendStatusQ, taskSend.getVehicleStatus()) > 0) {
+            logInfo("发货任务-刷新发货主任务状态[{}]状态更新（不比较原状态）为“{}”. {}", taskSend.getBizId(), JyBizTaskSendStatusEnum.getNameByCode(taskSendMinStatus), JsonHelper.toJson(taskSend));
+        }else{
+            log.warn("发货任务-刷新发货主任务状态[{}]状态更新失败未执行（不比较原状态）为“{}”. {}", taskSend.getBizId(), JyBizTaskSendStatusEnum.getNameByCode(taskSendMinStatus), JsonHelper.toJson(taskSend));
+            return false;
+        }
+        return true;
+    }
+
     /**
      * 关闭调度任务
      * @param detailQ
@@ -229,6 +306,7 @@ public class SendVehicleTransactionManager {
 
     private JyBizTaskSendVehicleDetailEntity getSendVehicleDetailEntity(JyBizTaskSendVehicleDetailEntity sendDetail, JyBizTaskSendDetailStatusEnum updateStatus) {
         JyBizTaskSendVehicleDetailEntity statusQ = new JyBizTaskSendVehicleDetailEntity(sendDetail.getStartSiteId(), sendDetail.getEndSiteId(), sendDetail.getSendVehicleBizId());
+        statusQ.setBizId(sendDetail.getBizId());
         statusQ.setVehicleStatus(updateStatus.getCode());
         statusQ.setUpdateTime(sendDetail.getUpdateTime());
         statusQ.setUpdateUserName(sendDetail.getUpdateUserName());
@@ -273,7 +351,47 @@ public class SendVehicleTransactionManager {
 
         return lastSealCarTime;
     }
-
+    /**
+     * 根据站点流向判断是否干支类型:
+     * 1、查询7天内的主任务id列表
+     * 2、查询是否包含非干支任务（非干支）
+     * @param startSiteId
+     * @param endSiteId
+     * @return
+     */
+    public boolean isTrunkOrBranchLine(Long startSiteId,Long endSiteId) {
+    	Date beginTime = DateHelper.addDate(new Date(), -checkLineTypeDays);
+    	JyBizTaskSendVehicleDetailEntity query = new JyBizTaskSendVehicleDetailEntity();
+    	query.setStartSiteId(startSiteId);
+    	query.setEndSiteId(endSiteId);
+    	query.setCreateTimeBegin(beginTime);
+    	List<String> sendVehicleBizList = taskSendVehicleDetailService.findSendVehicleBizListBySendFlow(query);
+    	if(CollectionUtils.isEmpty(sendVehicleBizList)) {
+    		return false;
+    	}
+    	//数据分组
+    	List<List<String>> groupBizList = CollectionHelper.splitList(sendVehicleBizList, Integer.MAX_VALUE,Constants.DB_SQL_IN_LIMIT_NUM);
+    	
+    	JyBizTaskSendVehicleEntity checkQuery = new JyBizTaskSendVehicleEntity();
+    	checkQuery.setStartSiteId(startSiteId);
+    	checkQuery.setCreateTimeBegin(beginTime);
+    	List<Integer> lineTypes = new ArrayList<>();
+    	for(JyLineTypeEnum lineType : JyLineTypeEnum.values()) {
+    		if(JyLineTypeEnum.TRUNK_LINE.equals(lineType)
+    				||JyLineTypeEnum.BRANCH_LINE.equals(lineType)) {
+    			continue;
+    		}
+    		lineTypes.add(lineType.getCode());
+    	}
+    	//查询是否包含非干支任务
+    	for(List<String> bizList: groupBizList) {
+    		int bizNum = taskSendVehicleService.countBizNumForCheckLineType(checkQuery, bizList,lineTypes);
+    		if(bizNum > 0) {
+    			return false;
+    		}
+    	}
+    	return true;
+    }
     /**
      * 获得发货明细最下的状态
      * @param sendDetail
@@ -281,13 +399,58 @@ public class SendVehicleTransactionManager {
      */
     private Integer getTaskSendMinStatus(JyBizTaskSendVehicleDetailEntity sendDetail) {
         List<JyBizTaskSendCountDto> sendCountDtos = taskSendVehicleDetailService.sumByVehicleStatus(new JyBizTaskSendVehicleDetailEntity(sendDetail.getStartSiteId(), sendDetail.getSendVehicleBizId()));
-        Collections.sort(sendCountDtos, new Comparator<JyBizTaskSendCountDto>() {
-            @Override
-            public int compare(JyBizTaskSendCountDto o1, JyBizTaskSendCountDto o2) {
-                return o1.getVehicleStatus().compareTo(o2.getVehicleStatus());
-            }
-        });
+        if(!CollectionUtils.isEmpty(sendCountDtos)){
+            Collections.sort(sendCountDtos, new Comparator<JyBizTaskSendCountDto>() {
+                @Override
+                public int compare(JyBizTaskSendCountDto o1, JyBizTaskSendCountDto o2) {
+                    return o1.getVehicleStatus().compareTo(o2.getVehicleStatus());
+                }
+            });
 
-        return sendCountDtos.get(0).getVehicleStatus();
+            return sendCountDtos.get(0).getVehicleStatus();
+        }
+        return JyBizTaskSendStatusEnum.CANCEL.getCode();
+
     }
+    /**
+     * 1、按transWorkItemCode查询相应的子任务
+     * 2、回退任务状态
+     * @param sealCarData
+     */
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "SendVehicleTransactionManager.resetSendStatusToseal",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
+    @Transactional(value = "tm_jy_core", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)    
+	public boolean resetSendStatusToseal(SealCarDto sealCarData, String operateUserCode, String operateUserName,
+			Long operateTime) {
+    	this.logInfo("取消封车-发货任务状态回退sealCarData：{}",JsonHelper.toJson(sealCarData));
+    	JyBizTaskSendVehicleDetailEntity query = new JyBizTaskSendVehicleDetailEntity();
+    	query.setVehicleStatus(JyBizTaskSendDetailStatusEnum.SEALED.getCode());
+    	query.setTransWorkItemCode(sealCarData.getTransWorkItemCode());
+    	JyBizTaskSendVehicleDetailEntity taskDetail = this.taskSendVehicleDetailService.findByTransWorkItemCode(query);
+		if(taskDetail == null){
+			this.logInfo("根据取消封车数据{}查询taskDetail为空！", JsonHelper.toJson(query));
+			return true;
+		}
+		this.logInfo("取消封车-发货任务状态回退taskDetail：{}",JsonHelper.toJson(taskDetail));
+		Date currentDate = new Date();
+		JyBizTaskSendVehicleEntity taskSend = new JyBizTaskSendVehicleEntity();
+		JyBizTaskSendVehicleDetailEntity sendDetail = new JyBizTaskSendVehicleDetailEntity();
+		taskSend.setBizId(taskDetail.getSendVehicleBizId());
+		taskSend.setVehicleStatus(JyBizTaskSendDetailStatusEnum.SEALED.getCode());
+		taskSend.setStartSiteId(taskDetail.getStartSiteId());
+		taskSend.setUpdateTime(currentDate);
+		taskSend.setUpdateUserErp(operateUserCode);
+		taskSend.setUpdateUserName(operateUserName);
+		
+		sendDetail.setBizId(taskDetail.getBizId());
+		sendDetail.setSendVehicleBizId(taskDetail.getSendVehicleBizId());
+		sendDetail.setVehicleStatus(JyBizTaskSendDetailStatusEnum.SEALED.getCode());
+		sendDetail.setStartSiteId(taskDetail.getStartSiteId());
+		sendDetail.setEndSiteId(taskDetail.getEndSiteId());
+		sendDetail.setUpdateTime(currentDate);
+		sendDetail.setUpdateUserErp(operateUserCode);
+		sendDetail.setUpdateUserName(operateUserName);
+		
+		return this.updateStatusWithoutCompare(taskSend, sendDetail, JyBizTaskSendDetailStatusEnum.TO_SEAL);
+	}
 }

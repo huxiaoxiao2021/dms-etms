@@ -724,6 +724,9 @@
     <bean id="positionRecordDao" class="com.jd.bluedragon.distribution.position.dao.impl.PositionRecordDaoImpl">
         <property name="sqlSession" ref="unDivSqlSessionTemplate" />
     </bean>
+    <bean id="farmarPrintRecordDao" class="com.jd.bluedragon.distribution.labelPrint.dao.farmar.FarmarPrintRecordDaoImpl">
+        <property name="sqlSession" ref="unDivSqlSessionTemplate" />
+    </bean>
     <!--################################## bd_dms_business 相关DAO Start ############################################ -->
     <bean id="businessBaseDao" class="com.jd.ql.dms.common.web.mvc.mybatis.BaseDao" abstract="true">
         <property name="sqlSession" ref="sessionTemplateBusiness"/>
@@ -782,6 +785,15 @@
         <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
     </bean>
     <bean id="jyTaskGroupMemberDao" class="com.jd.bluedragon.distribution.jy.dao.group.JyTaskGroupMemberDao">
+        <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
+    </bean>
+    <bean id="jyAppDataSealDao" class="com.jd.bluedragon.distribution.jy.dao.seal.JyAppDataSealDao">
+        <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
+    </bean>
+    <bean id="jyAppDataSealCodeDao" class="com.jd.bluedragon.distribution.jy.dao.seal.JyAppDataSealCodeDao">
+        <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
+    </bean>
+    <bean id="jyAppDataSealSendCodeDao" class="com.jd.bluedragon.distribution.jy.dao.seal.JyAppDataSealSendCodeDao">
         <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
     </bean>
     <bean id="jyBizTaskExceptionDao" class="com.jd.bluedragon.distribution.jy.dao.exception.JyBizTaskExceptionDao">

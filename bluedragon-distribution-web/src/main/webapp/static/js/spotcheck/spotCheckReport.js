@@ -76,7 +76,13 @@ $(function () {
             title: '业务类型',
             align: 'center',
             formatter: function (value, row, index) {
-                return (value != null && value === 1) ? "B网" : "C网";
+                if(value != null && value === 1){
+                    return "B网";
+                }
+                if(value != null && value === 2){
+                    return "医药";
+                }
+                return "C网";
             }
         },{
             field: 'productTypeName',
@@ -331,8 +337,21 @@ $(function () {
             },
             events: {
                 'click .search': function(e, value, row, index) {
-                    window.open("/spotCheckReport/toSearchPicture/?waybillCode="+row.waybillCode
-                        +"&reviewSiteCode="+row.reviewSiteCode + "&reviewSource="+row.reviewSource);
+                    $.ajax({
+                        type : "get",
+                        url : "/spotCheckReport/securityCheck/" + row.waybillCode,
+                        data : {},
+                        async : false,
+                        success : function (res) {
+                            if(res.code === 200){
+                                window.open("/spotCheckReport/toSearchPicture/?waybillCode="+row.waybillCode
+                                    +"&reviewSiteCode="+row.reviewSiteCode + "&reviewSource="+row.reviewSource);
+                            }else {
+                                Jd.alert(res.message);
+                            }
+                        }
+                    });
+
                 },
                 'click .upLoad': function(e, value, row, index) {
                     layer.open({
@@ -491,7 +510,13 @@ $(function () {
                 title: '业务类型',
                 align: 'center',
                 formatter: function (value, row, index) {
-                    return (value != null && value === 1) ? "B网" : "C网";
+                    if(value != null && value === 1){
+                        return "B网";
+                    }
+                    if(value != null && value === 2){
+                        return "医药";
+                    }
+                    return "C网";
                 }
             },{
                 field: 'productTypeName',
@@ -686,7 +711,7 @@ function initSelect() {
     $("#query-form #businessType").val(defualt);
     $("#query-form #businessTypeSelect").on('change', function (e) {
         var v = $("#query-form #businessTypeSelect").val();
-        if (v === '0' || v === '1') {
+        if (v === '0' || v === '1' || v === '2') {
             $("#query-form #businessType").val(v);
         } else {
             $("#query-form #businessType").val(null);

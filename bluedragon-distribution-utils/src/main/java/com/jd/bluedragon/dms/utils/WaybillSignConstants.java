@@ -31,6 +31,10 @@ public interface WaybillSignConstants {
 	char CHAR_1_8 = '8';
 	char CHAR_1_A = 'A';
 	/**
+	 * 第一位等于T，判断为【自营逆向单】
+	 */
+	char CHAR_1_T = 'T';
+	/**
 	 * 运单标识第4位
 	 */
 	int POSITION_4 = 4;
@@ -173,6 +177,9 @@ public interface WaybillSignConstants {
 	 * 逆向运单类型（外单）
      */
 	int POSITION_61 = 61;
+
+
+
     /**
      * 正向
      */

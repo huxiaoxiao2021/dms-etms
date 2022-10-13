@@ -66,6 +66,13 @@ public class JyBizTaskSendVehicleDetailDao extends BaseDao<JyBizTaskSendVehicleD
         return this.getSqlSession().update(NAMESPACE + ".updateStatus", params);
     }
 
+    public int updateStatusWithoutCompare(JyBizTaskSendVehicleDetailEntity entity, Integer oldStatus) {
+        Map<String,Object> params = new HashMap<>();
+        params.put("entity", entity);
+        params.put("oldStatus", oldStatus);
+        return this.getSqlSession().update(NAMESPACE + ".updateStatusWithoutCompare", params);
+    }
+
     public Integer countByCondition(JyBizTaskSendVehicleDetailEntity entity) {
         return this.getSqlSession().selectOne(NAMESPACE + ".countByCondition", entity);
     }
@@ -88,5 +95,17 @@ public class JyBizTaskSendVehicleDetailDao extends BaseDao<JyBizTaskSendVehicleD
 
     public Integer countNoCancelSendDetail(JyBizTaskSendVehicleDetailEntity entity) {
         return this.getSqlSession().selectOne(NAMESPACE + ".countNoCancelSendDetail", entity);
+    }
+
+	public List<String> findSendVehicleBizListBySendFlow(JyBizTaskSendVehicleDetailEntity entity) {
+		return this.getSqlSession().selectList(NAMESPACE + ".findSendVehicleBizListBySendFlow", entity);
+	}
+
+	public JyBizTaskSendVehicleDetailEntity findByTransWorkItemCode(JyBizTaskSendVehicleDetailEntity query) {
+		return this.getSqlSession().selectOne(NAMESPACE + ".findByTransWorkItemCode", query);
+	}
+
+    public JyBizTaskSendVehicleDetailEntity queryByTransWorkItemCode(JyBizTaskSendVehicleDetailEntity query) {
+        return this.getSqlSession().selectOne(NAMESPACE + ".queryByTransWorkItemCode", query);
     }
 }

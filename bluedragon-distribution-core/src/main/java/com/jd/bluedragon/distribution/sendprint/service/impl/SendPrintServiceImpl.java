@@ -5,12 +5,15 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.FlowConstants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.*;
+import com.jd.bluedragon.core.context.InvokerClientInfoContext;
+import com.jd.bluedragon.core.security.log.SecurityLogWriter;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.batch.domain.BatchSend;
 import com.jd.bluedragon.distribution.board.service.BoardCombinationService;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
+import com.jd.bluedragon.distribution.busineCode.sendCode.service.SendCodeService;
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
 import com.jd.bluedragon.distribution.printOnline.domain.PrintOnlineWaybillDTO;
 import com.jd.bluedragon.distribution.quickProduce.domain.JoinDetail;
@@ -28,7 +31,6 @@ import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.domain.dto.SendDetailDto;
 import com.jd.bluedragon.distribution.send.service.SendDetailService;
 import com.jd.bluedragon.distribution.send.service.SendMService;
-import com.jd.bluedragon.distribution.busineCode.sendCode.service.SendCodeService;
 import com.jd.bluedragon.distribution.sendprint.domain.*;
 import com.jd.bluedragon.distribution.sendprint.service.SendPrintService;
 import com.jd.bluedragon.distribution.sendprint.utils.SendPrintConstants;
@@ -40,9 +42,9 @@ import com.jd.bluedragon.utils.*;
 import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.dms.logger.external.BusinessLogProfiler;
 import com.jd.dms.logger.external.LogEngine;
+import com.jd.dms.wb.report.api.dto.base.Pager;
 import com.jd.dms.wb.report.api.dto.printhandover.PrintHandoverListDto;
 import com.jd.dms.wb.report.api.dto.printhandover.PrintHandoverLitQueryCondition;
-import com.jd.dms.wb.report.api.dto.base.Pager;
 import com.jd.dms.workbench.utils.sdk.base.PageData;
 import com.jd.etms.waybill.api.WaybillPackageApi;
 import com.jd.etms.waybill.api.WaybillPickupTaskApi;
@@ -63,9 +65,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-
-import static com.jd.bluedragon.utils.LocalSecurityLog.writeBatchSummaryPrintSecurityLog;
-import static com.jd.bluedragon.utils.LocalSecurityLog.writeSummaryPrintSecurityLog;
 
 @Service("sendPrintService")
 public class SendPrintServiceImpl implements SendPrintService {
@@ -201,8 +200,7 @@ public class SendPrintServiceImpl implements SendPrintService {
             Profiler.registerInfoEnd(info);
         }
         // 记录安全日志
-        //writeSecurityLog(criteria);
-        writeBatchSummaryPrintSecurityLog(SendPrintServiceImpl.class.getName(),criteria,results);
+        SecurityLogWriter.sendPrintBasicPrintQueryWrite(criteria, null, tSummaryPrintResultResponse);
         return tSummaryPrintResultResponse;
     }
 
@@ -1353,6 +1351,21 @@ public class SendPrintServiceImpl implements SendPrintService {
         return result;
     }
 
+    @Override
+    public InvokeResult<Boolean> batchPrintExportToTripartite(TripartiteEntity tripartiteEntity, String content, List<String> tos, List<String> ccs) {
+
+        com.jd.dms.wb.report.api.dto.base.BaseEntity<Boolean>
+                baseEntity = printHandoverListManager.doBatchExportAsyncToTripartite(createESQueryCondition(tripartiteEntity), content, tos, ccs);
+        if(baseEntity != null && Objects.equals(baseEntity.getData(),true)){
+            log.info("操作人【{}】始发地【{}】的交接清单导出成功!", tripartiteEntity.getErpCode(), tripartiteEntity.getSiteCode());
+            return new InvokeResult<>(InvokeResult.RESULT_SUCCESS_CODE, InvokeResult.RESULT_SUCCESS_MESSAGE, Boolean.TRUE);
+        }else {
+            log.error("操作人【{}】始发地【{}】的交接清单导出失败!失败原因:{}", tripartiteEntity.getErpCode(),
+                    tripartiteEntity.getSiteCode(), baseEntity == null ? Constants.EMPTY_FILL : baseEntity.getMessage());
+            return new InvokeResult<>(InvokeResult.RESULT_PARAMETER_ERROR_CODE, baseEntity == null ? Constants.EMPTY_FILL : baseEntity.getMessage(), Boolean.FALSE);
+        }
+    }
+
     /**
      * 发货交接清单批量导出
      * @param printExportCriteria
@@ -1380,7 +1393,7 @@ public class SendPrintServiceImpl implements SendPrintService {
             businessMap.put(FlowConstants.FLOW_BUSINESS_NO_KEY,FlowConstants.FLOW_CODE_PRINT_HANDOVER + Constants.SEPARATOR_VERTICAL_LINE
                     + FlowConstants.FLOW_VERSION + Constants.SEPARATOR_VERTICAL_LINE + System.currentTimeMillis());
             // 设置业务的查询条件
-            businessMap.put(FlowConstants.FLOW_BUSINESS_QUERY_CONDITION,JsonHelper.toJson(createESQueryCondition(printExportCriteria, true)));
+            businessMap.put(FlowConstants.FLOW_BUSINESS_QUERY_CONDITION,JsonHelper.toJson(createESQueryCondition(printExportCriteria, false)));
 
             // 提交申请单
             String flowWorkNo = flowServiceManager.startFlow(oaMap, businessMap, null,
@@ -1396,7 +1409,7 @@ public class SendPrintServiceImpl implements SendPrintService {
         // 记录businessLog
         addBusinessLog(startTime, printExportCriteria, false, null);
         com.jd.dms.wb.report.api.dto.base.BaseEntity<Boolean>
-                baseEntity = printHandoverListManager.doBatchExportAsync(createESQueryCondition(printExportCriteria, isShowAddress(printExportCriteria.getList())));
+                baseEntity = printHandoverListManager.doBatchExportAsync(createESQueryCondition(printExportCriteria, uccPropertyConfiguration.isQuerySensitiveFlag()));
         if(baseEntity != null && Objects.equals(baseEntity.getData(),true)){
             log.info("操作人【{}】始发地【{}】的交接清单导出成功!", printExportCriteria.getUserCode(), printExportCriteria.getCreateSiteCode());
         }else {
@@ -1827,24 +1840,8 @@ public class SendPrintServiceImpl implements SendPrintService {
         Date endDate = new Date();
         log.debug("打印交接清单-基本信息查询结束-{}" , (startDate.getTime() - endDate.getTime()));
         // 记录安全日志
-        //writeSecurityLog(criteria);
-        writeSummaryPrintSecurityLog(SendPrintServiceImpl.class.getName(),criteria,tBasicQueryEntityResponse.getData());
+        SecurityLogWriter.sendPrintBasicPrintQueryWrite(criteria, tBasicQueryEntityResponse, null);
         return tBasicQueryEntityResponse;
-    }
-
-    /**
-     * 记录安全日志
-     * @param criteria
-     */
-    private void writeSecurityLog(PrintQueryCriteria criteria) {
-        try {
-            if(criteria == null || StringUtils.isEmpty(criteria.getUserCode())){
-                return;
-            }
-            SecurityLog.reportQuerySecurityLogRecordRequest(SendPrintServiceImpl.class.getName(),criteria.getUserCode(),JsonHelper.toJson(criteria));
-        }catch (Exception e){
-            log.error("打印交接清单上传安全日日志失败.入参:{}",JsonHelper.toJson(criteria),e);
-        }
     }
 
     /**
@@ -1877,8 +1874,7 @@ public class SendPrintServiceImpl implements SendPrintService {
         }
         log.debug("打印交接清单-分页-基本信息查询结束-{}" , (startTime - System.currentTimeMillis()));
         // 记录安全日志
-        //writeSecurityLog(criteria);
-        writeSummaryPrintSecurityLog(SendPrintServiceImpl.class.getName(),criteria,tBasicQueryEntityResponse.getData());
+        SecurityLogWriter.sendPrintBasicPrintQueryWrite(criteria, tBasicQueryEntityResponse, null);
         return tBasicQueryEntityResponse;
     }
 
@@ -1971,6 +1967,25 @@ public class SendPrintServiceImpl implements SendPrintService {
         return pager;
     }
 
+    /**
+     * 构建导出到三方人员的查询条件
+     * @param tripartiteEntity
+     * @return
+     */
+    private Pager<PrintHandoverLitQueryCondition> createESQueryCondition(TripartiteEntity tripartiteEntity) {
+        Pager<PrintHandoverLitQueryCondition> pager = new Pager<PrintHandoverLitQueryCondition>();
+        pager.setPageNo(Constants.CONSTANT_NUMBER_ONE);
+        pager.setPageSize(uccPropertyConfiguration.getScrollQuerySize());
+        Set<Integer> receiveSiteSet = new HashSet<>();
+        for (PrintQueryCriteria item : tripartiteEntity.getList()) {
+            receiveSiteSet.add(item.getReceiveSiteCode());
+        }
+        PrintHandoverLitQueryCondition condition = convertToPrintHandoverListQueryCondition(tripartiteEntity.getList().get(0), true);
+        condition.setReceiveSiteCodeList(new ArrayList<Integer>(receiveSiteSet));
+        pager.setSearchVo(condition);
+        return pager;
+    }
+
     private PrintHandoverLitQueryCondition convertToPrintHandoverListQueryCondition(PrintQueryCriteria criteria,boolean sensitiveQuery) {
         PrintHandoverLitQueryCondition condition = new PrintHandoverLitQueryCondition();
         condition.setCreateSiteCode(criteria.getSiteCode());
@@ -1987,6 +2002,7 @@ public class SendPrintServiceImpl implements SendPrintService {
 //                : Byte.parseByte(String.valueOf(Constants.NUMBER_ZERO)));
         condition.setUserCode(criteria.getUserCode());
         condition.setSensitiveQuery(sensitiveQuery);
+        condition.setClientIp(InvokerClientInfoContext.get().getClientIp());
         return condition;
     }
 

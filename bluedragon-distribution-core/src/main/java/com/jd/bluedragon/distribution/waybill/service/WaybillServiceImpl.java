@@ -9,8 +9,8 @@ import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jsf.dms.BlockerQueryWSJsfManager;
 import com.jd.bluedragon.core.jsf.dms.CancelWaybillJsfManager;
-import com.jd.bluedragon.core.security.SecurityCheckerExecutor;
-import com.jd.bluedragon.core.security.enums.SecurityDataMapFuncEnum;
+import com.jd.bluedragon.core.security.dataam.SecurityCheckerExecutor;
+import com.jd.bluedragon.core.security.dataam.enums.SecurityDataMapFuncEnum;
 import com.jd.bluedragon.distribution.abnormalwaybill.domain.AbnormalWayBill;
 import com.jd.bluedragon.distribution.abnormalwaybill.service.AbnormalWayBillService;
 import com.jd.bluedragon.distribution.api.JdResponse;
@@ -502,7 +502,7 @@ public class WaybillServiceImpl implements WaybillService {
         List<DeliveryPackageD> packageList = waybillDto.getPackageList();
         if(CollectionUtils.isEmpty(packageList)){
             response.setCode(CODE_WAYBILL_NOE_FOUND);
-            response.setMobile(JdResponse.MESSAGE_RE_PRINT_NO_PACK_LIST);
+            response.setMessage(JdResponse.MESSAGE_RE_PRINT_NO_PACK_LIST);
             return;
         }
 		for (DeliveryPackageD waybillPackage : packageList) {
@@ -1240,6 +1240,22 @@ public class WaybillServiceImpl implements WaybillService {
             if (!invokeResult.codeSuccess()) {
                 result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, invokeResult.getMessage());
                 return result;
+            }
+
+            //自营逆向单（waybill_sign第一位=T），且为全球购订单（sendPay第8位 = 6），禁止反调度到普通库房「类型为wms」
+            if(BusinessUtil.isReverseGlobalWaybill(waybill.getWaybillSign(), waybill.getSendPay())){
+                if(BusinessUtil.isWmsSite(siteOfSchedulingOnSite.getSiteType())){
+                    result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, JdResponse.MESSAGE_SELF_REVERSE_SCHEDULE_ERROR);
+                    return result;
+                }
+            }
+
+            //针对运费到付「waybillsign第25位=2」的运单，禁止反调度到三方网点「同cod限制逻辑，sitetype = 16」
+            if(BusinessUtil.isDF(waybill.getWaybillSign())){
+                if(Objects.equals(Constants.THIRD_SITE_TYPE, siteOfSchedulingOnSite.getSiteType())){
+                    result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, JdResponse.MESSAGE_FORBIDDEN_SCHEDULE_TO_PARTNER_SITE);
+                    return result;
+                }
             }
 
             // 当前校验必须放在最后
