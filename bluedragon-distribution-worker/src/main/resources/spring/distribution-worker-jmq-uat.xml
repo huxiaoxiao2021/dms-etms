@@ -355,7 +355,7 @@
     </jmq:consumer>
     <!--  任务调度通知消息  -->
     <jmq:consumer id="jmq.jyScheduleTaskConsumer" transport="jmq4.dmsWorker.transport">
-        <jmq:listener topic="${jmq.topic.schedule.task.notify}" listener="jyScheduleTaskConsumer"/>
+        <jmq:listener topic="${jmq.topic.schedule.task.notify}" listener="jyScheduleTaskNotifyConsumer"/>
     </jmq:consumer>
     <!--  三无匹配结果通知消息  -->
     <jmq:consumer id="jmq.jyExpefNotifyConsumer" transport="jmq4.dmsWorker.transport">
