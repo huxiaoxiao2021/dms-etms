@@ -185,6 +185,7 @@
 		<property name="jyBasicServerSwitch" value="${jyBasicServerSwitch:false}"/>
 		<property name="clientOfflineMenuConfig" value="${clientOfflineMenuConfig:''}"/>
 		<property name="filterSendCodeSwitch" value="${filterSendCodeSwitch:false}"/>
+		<property name="querySensitiveFlag" value="${querySensitiveFlag:false}"/>
 
 	</bean>
 	<!-- hystrix 动态配置 -->
@@ -352,6 +353,7 @@
 				<value>uccPropertyConfiguration.jyBasicServerSwitch</value>
 				<value>uccPropertyConfiguration.clientOfflineMenuConfig</value>
 				<value>uccPropertyConfiguration.filterSendCodeSwitch</value>
+				<value>uccPropertyConfiguration.querySensitiveFlag</value>
 
 
 				<value>hystrixRouteUccPropertyConfiguration.executionTimeoutInMilliseconds</value>
