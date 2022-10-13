@@ -11,6 +11,8 @@
         <result property="siteName" column="site_name"/>
         <result property="firstSiteCode" column="first_site_code"/>
         <result property="firstSiteName" column="first_site_name"/>
+        <result property="firstReportType" column="first_report_type"/>
+        <result property="firstReportTypeName" column="first_report_type_name"/>
         <result property="reportTypeName" column="report_type_name"/>
         <result property="reportType" column="report_type"/>
         <result property="reportUserErp" column="report_user_erp"/>
