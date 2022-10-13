@@ -172,4 +172,19 @@ public class JdCResponse<E> implements Serializable {
 	public void setData(E data) {
 		this.data = data;
 	}
+
+	public static <E> JdCResponse<E> ok() {
+		return new JdCResponse<E>(CODE_SUCCESS, MESSAGE_SUCCESS);
+	}
+
+	public static <E> JdCResponse<E> ok(E data) {
+		JdCResponse<E> jdCResponse = new JdCResponse<E>(CODE_SUCCESS, MESSAGE_SUCCESS);
+		jdCResponse.setData(data);
+		return jdCResponse;
+	}
+
+	public static <E> JdCResponse<E> fail(String msg) {
+		return new JdCResponse<E>(CODE_FAIL, msg);
+	}
+
 }
