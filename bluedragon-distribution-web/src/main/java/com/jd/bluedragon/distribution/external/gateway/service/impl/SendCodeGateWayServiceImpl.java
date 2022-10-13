@@ -7,14 +7,20 @@ import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.CheckSendCodeRequest;
+import com.jd.bluedragon.common.dto.sendcode.SendCodeStatusEnum;
+import com.jd.bluedragon.common.dto.sendcode.request.SendCodeSealInfoQuery;
 import com.jd.bluedragon.common.dto.sendcode.response.BatchSendCarInfoDto;
 import com.jd.bluedragon.common.dto.sendcode.response.SendCodeCheckDto;
 import com.jd.bluedragon.common.dto.sendcode.response.SendCodeInfoDto;
+import com.jd.bluedragon.common.dto.sendcode.response.SendCodeSealInfoDto;
 import com.jd.bluedragon.common.dto.sysConfig.request.MenuUsageConfigRequestDto;
 import com.jd.bluedragon.common.dto.sysConfig.response.MenuUsageProcessDto;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BasicSelectWsManager;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.request.common.KeyValueDto;
 import com.jd.bluedragon.distribution.base.domain.CreateAndReceiveSiteInfo;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
@@ -28,10 +34,16 @@ import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.rest.base.SiteResource;
 import com.jd.bluedragon.distribution.rest.send.DeliveryResource;
 import com.jd.bluedragon.distribution.rest.sendprint.SendPrintResource;
+import com.jd.bluedragon.distribution.send.domain.SendDetail;
+import com.jd.bluedragon.distribution.send.domain.SendM;
+import com.jd.bluedragon.distribution.send.service.SendDetailService;
+import com.jd.bluedragon.distribution.send.service.SendMService;
 import com.jd.bluedragon.distribution.sendprint.domain.BatchSendInfoResponse;
 import com.jd.bluedragon.distribution.sendprint.domain.BatchSendResult;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.external.gateway.service.SendCodeGateWayService;
+import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -86,6 +98,12 @@ public class SendCodeGateWayServiceImpl implements SendCodeGateWayService {
 
     @Autowired
     private BasicSelectWsManager basicSelectWsManager;
+    
+    @Autowired
+    SendMService sendMService;
+    
+    @Autowired
+    private SendDetailService sendDetailService;
 
 
     @Override
@@ -290,4 +308,98 @@ public class SendCodeGateWayServiceImpl implements SendCodeGateWayService {
         jdCResponse.setData(sendCodeInfoDto);
         return jdCResponse;
     }
+
+	@Override
+	public JdCResponse<SendCodeSealInfoDto> querySendCodeSealInfo(SendCodeSealInfoQuery query) {
+		JdCResponse<SendCodeSealInfoDto> result = new JdCResponse<SendCodeSealInfoDto>();
+		result.toSucceed();
+		SendCodeSealInfoDto data = new SendCodeSealInfoDto();
+		result.setData(data);
+		
+		if(query == null) {
+			result.toFail("传入参数不能为空！");
+			return result;
+		}
+		if(StringUtils.isBlank(query.getScanCode())) {
+			result.toFail("请录入正确的包裹号|批次号！");
+			return result;
+		}
+		String sendCode = null;
+        Integer createSite = 0;
+    	Integer receiveSite = 0;
+		if(BusinessUtil.isSendCode(query.getScanCode())) {
+			sendCode = query.getScanCode();
+	    	Integer[] sites = BusinessUtil.getSiteCodeBySendCode(sendCode);
+	        createSite = sites[0];
+	    	receiveSite = sites[1];
+			if(createSite <= 0 || receiveSite <=0) {
+				result.toFail("批次号对应的始发|目的无效！");
+				return result;
+			}
+		}else if(WaybillUtil.isPackageCode(query.getScanCode())) {
+			//根据包裹和场地查询批次
+			if(query.getCurrentOperate() == null || query.getCurrentOperate().getSiteCode() <=0) {
+				result.toFail("按包裹查询，操作网点不能为空！！");
+				return result;
+			}
+			createSite = query.getCurrentOperate().getSiteCode();
+            List<SendDetail> sendDetailList=sendDetailService.findByWaybillCodeOrPackageCode(createSite,null,query.getScanCode());
+            if (CollectionUtils.isNotEmpty(sendDetailList)){
+            	sendCode = sendDetailList.get(0).getSendCode();
+            	receiveSite = sendDetailList.get(0).getReceiveSiteCode();
+            	if(StringUtils.isBlank(sendCode)) {
+        			result.toFail("该包裹在当前场地未发货！");
+        			return result;
+            	}
+            }else {
+    			result.toFail("该包裹在当前场地未发货！");
+    			return result;
+            }
+		}else {
+			result.toFail("请录入正确的包裹号|批次号！");
+			return result;
+		}
+    	
+        BaseStaffSiteOrgDto createSiteDto = baseService.queryDmsBaseSiteByCode(String.valueOf(createSite));
+        BaseStaffSiteOrgDto receiveSiteDto = baseService.queryDmsBaseSiteByCode(String.valueOf(receiveSite));
+        if(createSiteDto != null) {
+        	data.setCreateSiteCode(createSiteDto.getSiteCode());
+        	data.setCreateSiteName(createSiteDto.getSiteName());
+        }
+        if(receiveSiteDto != null) {
+        	data.setReceiveSiteCode(receiveSiteDto.getSiteCode());
+        	data.setReceiveSiteName(receiveSiteDto.getSiteName());
+        }
+        List<SendM> scanDataList = this.sendMService.selectBySiteAndSendCode(createSite, sendCode);
+        Set<String> pacakgeCodes = new HashSet<String>();
+        Set<String> boxCodes = new HashSet<String>();
+        Set<String> boardCodes = new HashSet<String>();
+        if (scanDataList != null && scanDataList.size() > 0) {
+            for (SendM scanData : scanDataList) {
+                if(StringUtils.isNotBlank(scanData.getBoardCode())) {
+                	boardCodes.add(scanData.getBoardCode());
+                } else if (BusinessHelper.isBoxcode(scanData.getBoxCode())) {
+                	boxCodes.add(scanData.getBoxCode());
+                }else {
+                	pacakgeCodes.add(scanData.getBoxCode());
+                }
+            }
+            data.setScanPackageNum(pacakgeCodes.size());
+            data.setScanBoxNum(boxCodes.size());
+            data.setScanBoardNum(boardCodes.size());
+        }
+        //查询封车信息
+        ServiceMessage<Boolean> departureResult = departureService.checkSendStatusFromVOS(sendCode);
+        if (ServiceResultEnum.WRONG_STATUS.equals(departureResult.getResult())) {//已被封车
+            data.setSealStatusCode(SendCodeStatusEnum.SEALED.getCode());
+            data.setSealStatusCode(SendCodeStatusEnum.SEALED.getCode());
+        } else if (ServiceResultEnum.SUCCESS.equals(departureResult.getResult())) {//未被封车
+            data.setSealStatusCode(SendCodeStatusEnum.UNSEAL.getCode());
+            data.setSealStatusCode(SendCodeStatusEnum.UNSEAL.getCode());
+        } else {
+            result.toFail(departureResult.getErrorMsg());
+        }
+        //获取封车时间、封车操作人
+		return result;
+	}
 }
