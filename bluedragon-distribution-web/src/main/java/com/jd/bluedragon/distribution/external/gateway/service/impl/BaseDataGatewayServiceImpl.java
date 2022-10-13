@@ -1,7 +1,10 @@
 package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.dto.base.request.Pager;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.basedata.request.StreamlinedBasicSiteQuery;
 import com.jd.bluedragon.common.dto.basedata.response.BaseDataDictDto;
 import com.jd.bluedragon.common.dto.sysConfig.request.MenuUsageConfigRequestDto;
 import com.jd.bluedragon.common.dto.sysConfig.response.MenuUsageProcessDto;
@@ -10,7 +13,9 @@ import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.rest.base.BaseResource;
 import com.jd.bluedragon.external.gateway.service.BaseDataGatewayService;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.dms.workbench.utils.sdk.base.Result;
 import com.jd.ql.basic.domain.BaseDataDict;
+import com.jd.ql.dms.report.domain.StreamlinedBasicSite;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections.CollectionUtils;
@@ -120,6 +125,43 @@ public class BaseDataGatewayServiceImpl implements BaseDataGatewayService {
         try {
             final MenuUsageProcessDto menuUsageProcessDto = baseService.getClientMenuUsageConfig(menuUsageConfigRequestDto);
             response.setData(menuUsageProcessDto);
+        } catch (Exception e) {
+            log.error("BaseDataGatewayServiceImpl.getMenuUsageProcessByMenuCode exception ", e);
+            response.toError("接口处理异常");
+        }
+        return response;
+    }
+
+    /**
+     * 场地列表
+     *
+     * @param request 请求参数
+     * @return 返回结果
+     * @author fanggang7
+     * @time 2022-10-11 14:59:04 周二
+     */
+    @Override
+    public JdCResponse<Pager<StreamlinedBasicSite>> selectSiteList(Pager<StreamlinedBasicSiteQuery> request) {
+        JdCResponse<Pager<StreamlinedBasicSite>> response = new JdCResponse<>();
+        response.toSucceed();
+        Pager<StreamlinedBasicSite> pageData = new Pager<>();
+        pageData.setPageNo(request.getPageNo());
+        pageData.setPageSize(request.getPageSize());
+        pageData.setTotal(0L);
+        response.setData(pageData);
+        try {
+            request.setSearchVo(JSON.parseObject(JSON.toJSONString(request.getSearchVo()), StreamlinedBasicSiteQuery.class));
+            final Result<Pager<StreamlinedBasicSite>> pagerResult = baseService.selectSiteList(request);
+            if(!pagerResult.isSuccess()){
+                log.warn("BaseService.selectSiteList error " + JsonHelper.toJson(pagerResult));
+                response.toFail("查询站点信息异常");
+                return response;
+            }
+            if (pagerResult.getData() != null) {
+                final Pager<StreamlinedBasicSite> queryPageData = pagerResult.getData();
+                pageData.setData(queryPageData.getData());
+                pageData.setTotal(queryPageData.getTotal());
+            }
         } catch (Exception e) {
             log.error("BaseDataGatewayServiceImpl.getMenuUsageProcessByMenuCode exception ", e);
             response.toError("接口处理异常");

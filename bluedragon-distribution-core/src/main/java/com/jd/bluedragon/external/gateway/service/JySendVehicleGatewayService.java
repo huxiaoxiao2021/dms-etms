@@ -5,6 +5,7 @@ import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.*;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.*;
 import com.jd.bluedragon.common.dto.select.SelectOption;
+import com.jd.bluedragon.distribution.api.request.BasicSiteDto;
 
 import java.util.List;
 
