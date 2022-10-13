@@ -8,6 +8,7 @@ import com.jd.bluedragon.distribution.jy.unload.JyUnloadCarAggsEntity;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.jmq.common.message.Message;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +40,10 @@ public class JySendGoodsAggsConsumer extends MessageBaseConsumer {
             return;
         }
         JySendGoodsAggsEntity entity = JsonHelper.fromJson(message.getText(), JySendGoodsAggsEntity.class);
+        if(entity == null){
+            logger.warn("发货明细实体对象为空!");
+            return;
+        }
         jySendGoodsAggsService.insertOrUpdateJySendGoodsAggs(entity);
     }
 }

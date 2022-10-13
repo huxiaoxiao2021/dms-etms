@@ -32,9 +32,9 @@ public class JyUnloadCarAggsConsumerTest {
             //language=JSON
             String body = "{\n" +
                     "  \"actualScanCount\": 100,\n" +
-                    "  \"bizId\": \"TEST001\",\n" +
+                    "  \"bizId\": \"TEST002\",\n" +
                     "  \"createTime\": 1665282671046,\n" +
-                    "  \"interceptActualScanCount\": 100,\n" +
+                    "  \"interceptActualScanCount\": 1000,\n" +
                     "  \"interceptNotScanCount\": 100,\n" +
                     "  \"interceptShouldScanCount\": 100,\n" +
                     "  \"moreScanLocalCount\": 100,\n" +
@@ -42,7 +42,7 @@ public class JyUnloadCarAggsConsumerTest {
                     "  \"moreScanTotalCount\": 100,\n" +
                     "  \"operateSiteId\": 100,\n" +
                     "  \"productType\": \"TEST001\",\n" +
-                    "  \"sealCarCode\": \"TEST001\",\n" +
+                    "  \"sealCarCode\": \"TEST00100\",\n" +
                     "  \"shouldScanCount\": 100,\n" +
                     "  \"totalLocalWithMoreScanCount\": 100,\n" +
                     "  \"totalScannedPackageCount\": 100,\n" +

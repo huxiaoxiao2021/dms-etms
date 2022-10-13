@@ -7,6 +7,7 @@ import com.jd.bluedragon.distribution.jy.unload.JyUnloadCarAggsEntity;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.jmq.common.message.Message;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +40,27 @@ public class JyUnloadCarAggsConsumer extends MessageBaseConsumer {
             return;
         }
         JyUnloadCarAggsEntity entity = JsonHelper.fromJson(message.getText(), JyUnloadCarAggsEntity.class);
+        boolean result = checkParam(entity);
+        if(!result){
+            return;
+        }
         jyUnloadCarAggsService.insertOrUpdateJyUnloadCarAggs(entity);
+    }
+
+    /**
+     * 入参校验
+     * @param entity
+     * @return
+     */
+    private boolean checkParam(JyUnloadCarAggsEntity entity){
+        if(entity == null){
+            logger.warn("卸车进度汇总实体为空!");
+            return false;
+        }
+        if(StringUtils.isBlank(entity.getBizId())){
+            logger.warn("卸车进度 bizID 为空!");
+            return false;
+        }
+        return true;
     }
 }

@@ -13,7 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  */
 public class JyUnloadCarAggsDao extends BaseDao<JyUnloadCarAggsEntity> {
 
-    final static String NAMESPACE = JyUnloadAggsDao.class.getName();
+    final static String NAMESPACE = JyUnloadCarAggsDao.class.getName();
 
     /**
      * 新增
