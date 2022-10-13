@@ -448,4 +448,12 @@
                   server="dmsjsf">
     </jsf:provider>
 
+    <!--  biz任务服务  -->
+    <jsf:provider id="jsfJyBizTaskConstraintJsfService"
+                  interface="com.jd.bluedragon.distribution.jy.api.JyBizTaskConstraintJsfService"
+                  alias="${dms.jsf.alias}"
+                  ref="jyBizTaskConstraintJsfService"
+                  server="dmsjsf">
+    </jsf:provider>
+
 </beans>
