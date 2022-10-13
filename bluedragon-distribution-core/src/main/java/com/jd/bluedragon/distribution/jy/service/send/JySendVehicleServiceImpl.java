@@ -13,6 +13,7 @@ import com.jd.bluedragon.common.dto.operation.workbench.send.response.BaseSendVe
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SealedVehicle;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendAbnormalBarCode;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendDestDetail;
+import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendScanBarCode;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleData;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleDetail;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleInfo;
