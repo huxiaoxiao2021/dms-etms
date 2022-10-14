@@ -948,7 +948,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         JyBizTaskExceptionEntity conditon = new JyBizTaskExceptionEntity();
         conditon.setStatus(JyExpStatusEnum.COMPLATE.getCode());
         conditon.setUpdateTime(dateTime);
-        conditon.setUpdateUserErp(baseStaffByErp.getErp());
+        conditon.setUpdateUserErp(baseStaffByErp.getAccountNumber());
         conditon.setBizId(bizTaskException.getBizId());
         conditon.setUpdateUserName(baseStaffByErp.getStaffName());
         if (isPc){
@@ -968,7 +968,7 @@ public class JyExceptionServiceImpl implements JyExceptionService {
         try{
             req.setBizId(bizId);
             req.setChangeTime(new Date());
-            req.setOpeUser(baseStaffByErp.getErp());
+            req.setOpeUser(baseStaffByErp.getAccountNumber());
             req.setOpeUserName(baseStaffByErp.getStaffName());
             req.setTaskStatus(status);
             req.setTaskType(JyScheduleTaskTypeEnum.EXCEPTION);
