@@ -13,7 +13,7 @@
     <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
     <result column="is_delete" jdbcType="TINYINT" property="isDelete" />
     <result column="ts" jdbcType="TIMESTAMP" property="ts" />
-    <result column="interface_type" jdbcType="INTEGER" property="interfaceType" />
+    <result column="interface_type" jdbcType="VARCHAR" property="interfaceType" />
   </resultMap>
 
   <sql id="Base_Column_List">
