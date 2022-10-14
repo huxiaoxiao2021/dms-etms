@@ -1,7 +1,6 @@
 package com.jd.bluedragon.distribution.consumer.jy;
 
 import com.jd.bluedragon.distribution.consumer.jy.vehicle.JySendGoodsAggsConsumer;
-import com.jd.bluedragon.distribution.consumer.jy.vehicle.JyUnloadCarAggsConsumer;
 import com.jd.jmq.common.message.Message;
 import org.junit.Assert;
 import org.junit.Test;
@@ -59,10 +58,11 @@ public class JySendGoodsAggsConsumerTest {
                     "  \"totalShouldScanCount\": 100,\n" +
                     "  \"transWorkItemCode\": \"TEST001\",\n" +
                     "  \"ts\": 1665283255773,\n" +
-                    "  \"vehicleNumber\": \"TEST001000\",\n" +
+                    "  \"vehicleNumber\": \"TEST001111\",\n" +
                     "  \"vehicleStatus\": 100,\n" +
                     "  \"vehicleVolume\": 0.0,\n" +
                     "  \"vehicleWeight\": 0.0,\n" +
+                    "  \"version\": 2,\n" +
                     "  \"yn\": 1\n" +
                     "}\n";
             Message message = new Message();

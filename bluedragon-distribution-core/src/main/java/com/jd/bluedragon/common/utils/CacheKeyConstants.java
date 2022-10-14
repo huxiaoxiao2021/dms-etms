@@ -265,4 +265,16 @@ public class CacheKeyConstants {
      */
     public static final String CACHE_KEY_WORK_STATION_ATTEND_PLAN_EDIT = "k_work_station_attend_plan_edit";
 
+    /**
+     * 拣运卸车统计
+     * sealCarCode
+     */
+    public static final String JY_UNLOAD_AGG_KEY = JY_CACHE_PREFIX + "jyUnloadAgg:%s";
+
+    /**
+     * 拣运发货统计
+     * sealCarCode
+     */
+    public static final String JY_SEND_AGG_KEY = JY_CACHE_PREFIX + "jySendAgg:%s";
+
 }

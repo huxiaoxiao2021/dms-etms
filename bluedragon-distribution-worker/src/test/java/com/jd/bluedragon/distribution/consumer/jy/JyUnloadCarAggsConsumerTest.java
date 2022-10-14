@@ -32,7 +32,7 @@ public class JyUnloadCarAggsConsumerTest {
             //language=JSON
             String body = "{\n" +
                     "  \"actualScanCount\": 100,\n" +
-                    "  \"bizId\": \"TEST002\",\n" +
+                    "  \"bizId\": \"TEST003\",\n" +
                     "  \"createTime\": 1665282671046,\n" +
                     "  \"interceptActualScanCount\": 1000,\n" +
                     "  \"interceptNotScanCount\": 100,\n" +
@@ -42,13 +42,14 @@ public class JyUnloadCarAggsConsumerTest {
                     "  \"moreScanTotalCount\": 100,\n" +
                     "  \"operateSiteId\": 100,\n" +
                     "  \"productType\": \"TEST001\",\n" +
-                    "  \"sealCarCode\": \"TEST00100\",\n" +
+                    "  \"sealCarCode\": \"TEST1111\",\n" +
                     "  \"shouldScanCount\": 100,\n" +
                     "  \"totalLocalWithMoreScanCount\": 100,\n" +
                     "  \"totalScannedPackageCount\": 100,\n" +
                     "  \"totalSealPackageCount\": 100,\n" +
                     "  \"totalWithMoreScanCount\": 100,\n" +
                     "  \"ts\": 1665282671046,\n" +
+                    "  \"version\": 1,\n" +
                     "  \"yn\": 1\n" +
                     "}";
             Message message = new Message();

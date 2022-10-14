@@ -838,14 +838,6 @@
         <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
     </bean>
 
-    <bean id="jyUnloadCarAggsDao" class="com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadCarAggsDao">
-        <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
-    </bean>
-
-    <bean id="jySendGoodsAggsDao" class="com.jd.bluedragon.distribution.jy.dao.send.JySendGoodsAggsDao">
-        <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
-    </bean>
-
     <!--################################## jy_core 相关DAO END ############################################ -->
 
 

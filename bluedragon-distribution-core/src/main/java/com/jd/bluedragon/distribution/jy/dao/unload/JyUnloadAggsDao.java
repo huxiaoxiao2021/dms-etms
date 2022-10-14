@@ -37,4 +37,14 @@ public class JyUnloadAggsDao extends BaseDao<JyUnloadAggsEntity> {
     public List<JyUnloadAggsEntity> queryByBizId(JyUnloadAggsEntity entity) {
         return this.getSqlSession().selectList(NAMESPACE + ".queryByBizId", entity);
     }
+
+    /**
+     * 新增或修改
+     *
+     * @param
+     * @return
+     */
+    public int insertOrUpdate(JyUnloadAggsEntity entity) {
+        return this.getSqlSession().insert(NAMESPACE + ".insertOrUpdate", entity);
+    }
 }
