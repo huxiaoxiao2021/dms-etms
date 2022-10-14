@@ -185,6 +185,7 @@
 		<property name="jyBasicServerSwitch" value="${jyBasicServerSwitch:false}"/>
 		<property name="clientOfflineMenuConfig" value="${clientOfflineMenuConfig:''}"/>
 		<property name="filterSendCodeSwitch" value="${filterSendCodeSwitch:false}"/>
+		<property name="querySensitiveFlag" value="${querySensitiveFlag:false}"/>
 
 		<property name="unloadCacheDurationHours" value="${unloadCacheDurationHours:24}"/>
 		<property name="unloadBoardBindingsMaxCount" value="${unloadBoardBindingsMaxCount:100}"/>
@@ -356,6 +357,7 @@
 				<value>uccPropertyConfiguration.jyBasicServerSwitch</value>
 				<value>uccPropertyConfiguration.clientOfflineMenuConfig</value>
 				<value>uccPropertyConfiguration.filterSendCodeSwitch</value>
+				<value>uccPropertyConfiguration.querySensitiveFlag</value>
 
 				<value>uccPropertyConfiguration.unloadCacheDurationHours</value>
 				<value>uccPropertyConfiguration.unloadBoardBindingsMaxCount</value>

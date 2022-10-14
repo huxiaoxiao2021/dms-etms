@@ -144,7 +144,7 @@ public class DmsConstants {
     /**
      * 板号正则表达式
      */
-    public static final Pattern RULE_BOARD_CODE_REGEX = Pattern.compile("^B[0-9]{14}$");
+    public static final Pattern RULE_BOARD_CODE_REGEX = Pattern.compile("^[B|C][0-9]{14}$");
 
     /**
      * 逆向箱号正则表达式:
@@ -316,6 +316,10 @@ public class DmsConstants {
     public static final int PAGE_SIZE_DEFAULT = 10;
 
     public static final String KEYS_SPLIT = ":";
+
+    public static final String RULE_SAN_WU_CODE = "^(SW|sw)[0-9]{10}$";
+
+    public static final String RULE_SITE_CODE = "[1-9][0-9]{0,8}";
     //站点操作的节点
     public static final Set<Integer> SITE_OPERAT_STATES = new HashSet<Integer>(){{
     	add(60);

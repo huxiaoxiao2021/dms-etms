@@ -15,6 +15,7 @@ import com.jd.ump.profiler.proxy.Profiler;
 import com.jdl.jy.realtime.api.unload.IUnloadVehicleJsfService;
 import com.jdl.jy.realtime.base.Pager;
 import com.jdl.jy.realtime.base.ServiceResult;
+import com.jdl.jy.realtime.model.es.unload.JySealCarDetail;
 import com.jdl.jy.realtime.model.es.unload.JyUnloadTaskWaybillAgg;
 import com.jdl.jy.realtime.model.es.unload.JyVehicleTaskUnloadDetail;
 import org.slf4j.Logger;
@@ -140,6 +141,25 @@ public class JyUnloadVehicleManagerImpl implements IJyUnloadVehicleManager {
         } catch (Exception ex) {
             Profiler.functionError(ump);
             log.error("查询一条卸车明细异常. {}", JsonHelper.toJson(query), ex);
+        }
+        Profiler.registerInfoEnd(ump);
+
+        return null;
+    }
+
+    @Override
+    public Pager<JySealCarDetail> querySearCarDetail(Pager<JySealCarDetail> query) {
+
+        CallerInfo ump = ProfilerHelper.registerInfo("dms.web.IJyUnloadVehicleManager.querySearCarDetail");
+        try {
+            ServiceResult<Pager<JySealCarDetail>> serviceResult = unloadVehicleJsfService.querySearCarDetail(query);
+            if (serviceResult.retSuccess()) {
+                return serviceResult.getData();
+            }
+        }
+        catch (Exception ex) {
+            Profiler.functionError(ump);
+            log.error("查询封车明细异常. {}", JsonHelper.toJson(query), ex);
         }
         Profiler.registerInfoEnd(ump);
 

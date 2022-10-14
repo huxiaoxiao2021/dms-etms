@@ -794,13 +794,22 @@
     </bean>
     <bean id="jyAppDataSealDao" class="com.jd.bluedragon.distribution.jy.dao.seal.JyAppDataSealDao">
         <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
-    </bean> 
+    </bean>
     <bean id="jyAppDataSealCodeDao" class="com.jd.bluedragon.distribution.jy.dao.seal.JyAppDataSealCodeDao">
         <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
-    </bean> 
+    </bean>
     <bean id="jyAppDataSealSendCodeDao" class="com.jd.bluedragon.distribution.jy.dao.seal.JyAppDataSealSendCodeDao">
         <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
-    </bean>            
+    </bean>
+    <bean id="jyBizTaskExceptionDao" class="com.jd.bluedragon.distribution.jy.dao.exception.JyBizTaskExceptionDao">
+        <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
+    </bean>
+    <bean id="jyBizTaskExceptionLogDao" class="com.jd.bluedragon.distribution.jy.dao.exception.JyBizTaskExceptionLogDao">
+        <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
+    </bean>
+    <bean id="jyExceptionDao" class="com.jd.bluedragon.distribution.jy.dao.exception.JyExceptionDao">
+        <property name="sqlSession" ref="sessionTemplate"/>
+    </bean>
     <bean id="jyBizTaskUnloadVehicleDao" class="com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskUnloadVehicleDao">
         <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
     </bean>

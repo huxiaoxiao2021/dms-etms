@@ -699,6 +699,13 @@ public class UccPropertyConfiguration {
      */
     private boolean filterSendCodeSwitch;
 
+    /**
+     * 原发货交接清单导出功能是否导出敏感数据开关
+     * false：不导出敏感数据
+     * true：导出敏感数据
+     */
+    private boolean querySensitiveFlag;
+
     public boolean getFilterSendCodeSwitch() {
         return filterSendCodeSwitch;
     }
@@ -2144,6 +2151,14 @@ public class UccPropertyConfiguration {
 
     public void setClientOfflineMenuConfig(String clientOfflineMenuConfig) {
         this.clientOfflineMenuConfig = clientOfflineMenuConfig;
+    }
+
+    public boolean isQuerySensitiveFlag() {
+        return querySensitiveFlag;
+    }
+
+    public void setQuerySensitiveFlag(boolean querySensitiveFlag) {
+        this.querySensitiveFlag = querySensitiveFlag;
     }
 
     public Integer getUnloadCacheDurationHours() {

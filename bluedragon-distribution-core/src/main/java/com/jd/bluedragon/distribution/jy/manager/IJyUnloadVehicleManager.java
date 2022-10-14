@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.jy.manager;
 
 import com.jdl.jy.realtime.base.Pager;
+import com.jdl.jy.realtime.model.es.unload.JySealCarDetail;
 import com.jdl.jy.realtime.base.ServiceResult;
 import com.jdl.jy.realtime.model.es.unload.JyUnloadTaskWaybillAgg;
 import com.jdl.jy.realtime.model.es.unload.JyVehicleTaskUnloadDetail;
@@ -49,6 +50,8 @@ public interface IJyUnloadVehicleManager {
      * @return
      */
     List<JyVehicleTaskUnloadDetail> findUnloadDetail(JyVehicleTaskUnloadDetail query);
+
+    Pager<JySealCarDetail> querySearCarDetail(Pager<JySealCarDetail> query);
 
     /**
      * 查询获取编码
