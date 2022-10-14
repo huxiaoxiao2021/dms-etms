@@ -373,6 +373,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     @Override
     @JProfiler(jKey = "JyUnloadVehicleTysServiceImpl.previewBeforeUnloadComplete",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<UnloadPreviewRespDto> previewBeforeUnloadComplete(UnloadPreviewDto request) {
+        log.info("uat验证日志：JyUnloadVehicleTysServiceImpl.previewBeforeUnloadComplete 调用入参request={}", JsonUtils.toJSONString(request));
         InvokeResult<UnloadPreviewRespDto> result = new InvokeResult<>();
         try {
             UnloadPreviewRespDto previewData = new UnloadPreviewRespDto();
@@ -394,6 +395,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
                 result.customMessage(invokeResult.getCode(), invokeResult.getMessage());
                 return result;
             }
+            log.info("uat验证日志：JyUnloadVehicleTysServiceImpl.previewBeforeUnloadComplete 查询扫描下钻明细方法queryUnloadDetailByDiffDimension返回={}", JsonUtils.toJSONString(invokeResult));
             ScanStatisticsInnerDto statisticsData = invokeResult.getData();
             if (statisticsData == null) {
                 log.warn("previewBeforeUnloadComplete|卸车完成前预览获取异常统计数据返回空:request={},statisticsData={}", JsonHelper.toJson(request), JsonHelper.toJson(invokeResult));
@@ -408,6 +410,8 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
                 previewData.setMoreScanLocalCount(aggsEntity.getMoreScanLocalCount());
                 previewData.setMoreScanOutCount(aggsEntity.getMoreScanOutCount());
             }
+            log.info("uat验证日志：JyUnloadVehicleTysServiceImpl.previewBeforeUnloadComplete 查询aggs聚合返回={}", JsonUtils.toJSONString(aggsEntity));
+
             result.setData(previewData);
         } catch (Exception ex) {
             log.error("previewBeforeUnloadComplete|卸车完成预览数据发生异常. {}", JsonHelper.toJson(request), ex);
@@ -952,12 +956,13 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     @Override
     @JProfiler(jKey = "JyUnloadVehicleTysServiceImpl.queryUnloadDetailByDiffDimension",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<ScanStatisticsInnerDto> queryUnloadDetailByDiffDimension(QueryUnloadDetailDto queryUnloadDetailDto) {
+        String methodDesc = "JyUnloadVehicleTysServiceImpl.queryUnloadDetailByDiffDimension--";
         //统计数据查询
         ScanStatisticsInnerDto scanStatisticsInnerDto = new ScanStatisticsInnerDto();
         JyUnloadAggsEntity condition = new JyUnloadAggsEntity();
         condition.setBizId(queryUnloadDetailDto.getBizId());
         condition.setBoardCode(queryUnloadDetailDto.getBoardCode());
-
+        log.info("uat验证--{}, 查询aggs开始，req={}", methodDesc, JsonUtils.toJSONString(queryUnloadDetailDto));
         if (!queryUnloadDetailDto.getExpFlag()) {
             List<GoodsCategoryDto> goodsCategoryDtoList = jyUnloadAggsService.queryGoodsCategoryStatistics(condition);
             scanStatisticsInnerDto.setGoodsCategoryDtoList(goodsCategoryDtoList);
@@ -965,9 +970,13 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             List<ExcepScanDto> excepScanDtoList = jyUnloadAggsService.queryExcepScanStatistics(condition);
             scanStatisticsInnerDto.setExcepScanDtoList(excepScanDtoList);
         }
+        log.info("uat验证--{}, 查询agg结束，req={}，scanStatisticsInnerDto={}", methodDesc, JsonUtils.toJSONString(queryUnloadDetailDto), JsonUtils.toJSONString(scanStatisticsInnerDto));
+
         //运单列表查询
         Pager<JyVehicleTaskUnloadDetail> query = assembleQueryUnloadTaskWaybillCondition(queryUnloadDetailDto);
+        log.info("uat验证--{}, 查询ES统计下钻明细开始，req={}", methodDesc, JsonUtils.toJSONString(query));
         Pager<JyUnloadTaskWaybillAgg> waybillAggPager = jyUnloadVehicleManager.queryUnloadTaskWaybill(query);
+        log.info("uat验证--{}, 查询ES统计下钻明细结束，req={}，res={}", methodDesc, JsonUtils.toJSONString(query), JsonUtils.toJSONString(waybillAggPager));
         if (ObjectHelper.isNotNull(waybillAggPager) && CollectionUtils.isNotEmpty(waybillAggPager.getData())) {
             List<UnloadWaybillDto> unloadWaybillDtoList = new ArrayList<>();
             for (JyUnloadTaskWaybillAgg data : waybillAggPager.getData()) {

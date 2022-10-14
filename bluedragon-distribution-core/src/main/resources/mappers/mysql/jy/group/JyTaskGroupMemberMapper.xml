@@ -183,7 +183,7 @@
         AND ref_task_id = #{refTaskId}
         AND (end_time is null or end_time &lt; #{endTime,jdbcType=TIMESTAMP})
     </update>
-    <select id="queryMemberCodeListByTaskId" parameterType="com.jd.bluedragon.distribution.jy.group.JyTaskGroupMemberQuery" resultType="String">
+    <select id="queryMemberCodeListByTaskId" parameterType="com.jd.bluedragon.common.dto.group.GroupMemberQueryRequest" resultType="String">
         select
             ref_group_member_code
         from
@@ -197,7 +197,7 @@
         from
             jy_task_group_member
         where yn = 1
-          and ref_task_id = #{taskId}
+          and ref_task_id = #{refTaskId}
     </select>    
     
     <update id="endWorkByMemberCodeList" parameterType="JyTaskGroupMemberEntity">
@@ -209,11 +209,11 @@
             end_time = #{endData.endTime,jdbcType=TIMESTAMP}
         WHERE
             yn = 1
-        AND ref_task_id in
-        <foreach collection="memberCodes" item="item" separator=",">
-        
-        </foreach>
-        AND end_time is null
+        AND ref_group_member_code in
+        <foreach collection="memberCodes" item="item" open="(" close=")" separator=",">
+            #{item, jdbcType=BIGINT}
+        </foreach>        
+        AND (end_time is null or end_time &lt; #{endData.endTime,jdbcType=TIMESTAMP})
     </update> 
     <update id="deleteByMemberCode" parameterType="JyTaskGroupMemberEntity">
         UPDATE jy_task_group_member

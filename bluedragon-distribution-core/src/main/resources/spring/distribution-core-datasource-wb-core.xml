@@ -30,34 +30,34 @@
         <property name="poolPreparedStatements" value="false" />
     </bean>
 
-    <bean id="transactionManager_wbCore"
-          class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-        <property name="dataSource" ref="dms_wb_core"/>
-        <qualifier value="tm_wb_core"/>
-    </bean>
+<!--    <bean id="transactionManager_wbCore"-->
+<!--          class="org.springframework.jdbc.datasource.DataSourceTransactionManager">-->
+<!--        <property name="dataSource" ref="dms_wb_core"/>-->
+<!--        <qualifier value="tm_wb_core"/>-->
+<!--    </bean>-->
 
-    <tx:annotation-driven transaction-manager="transactionManager_wbCore" proxy-target-class="true"/>
+<!--    <tx:annotation-driven transaction-manager="transactionManager_wbCore" proxy-target-class="true"/>-->
 
-    <bean id="wbCoreSqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
-        <property name="dataSource" ref="dms_wb_core"/>
-        <property name="configLocation" value="classpath:config/mysql/mybatis-config-wb-core.xml"/>
-        <property name="plugins">
-            <array>
-                <bean class="com.github.pagehelper.PageInterceptor">
-                    <property name="properties">
-                        <props>
-                            <prop key="helperDialect">mysql</prop>
-                            <prop key="reasonable">true</prop>
-                        </props>
-                    </property>
-                </bean>
-            </array>
-        </property>
-    </bean>
+<!--    <bean id="wbCoreSqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">-->
+<!--        <property name="dataSource" ref="dms_wb_core"/>-->
+<!--        <property name="configLocation" value="classpath:config/mysql/mybatis-config-wb-core.xml"/>-->
+<!--        <property name="plugins">-->
+<!--            <array>-->
+<!--                <bean class="com.github.pagehelper.PageInterceptor">-->
+<!--                    <property name="properties">-->
+<!--                        <props>-->
+<!--                            <prop key="helperDialect">mysql</prop>-->
+<!--                            <prop key="reasonable">true</prop>-->
+<!--                        </props>-->
+<!--                    </property>-->
+<!--                </bean>-->
+<!--            </array>-->
+<!--        </property>-->
+<!--    </bean>-->
 
-    <bean id="wbCoreSqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
-        <constructor-arg index="0" ref="wbCoreSqlSessionFactory"/>
-    </bean>
+<!--    <bean id="wbCoreSqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">-->
+<!--        <constructor-arg index="0" ref="wbCoreSqlSessionFactory"/>-->
+<!--    </bean>-->
     <!-- dms单库写库 数据源 end -->
 
 
