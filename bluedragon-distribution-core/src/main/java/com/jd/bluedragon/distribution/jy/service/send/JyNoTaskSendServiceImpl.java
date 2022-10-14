@@ -276,6 +276,9 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyNoTaskSendServiceImpl.listVehicleTaskSupportTransfer", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<VehicleTaskResp> listVehicleTaskSupportTransfer(TransferVehicleTaskReq transferVehicleTaskReq) {
+        if (ObjectHelper.isNotNull(transferVehicleTaskReq.getBarCode())){
+            return jySendVehicleService.fetchSendTaskForTransferV2(transferVehicleTaskReq);
+        }
         return jySendVehicleService.fetchSendTaskForTransfer(transferVehicleTaskReq);
     }
 

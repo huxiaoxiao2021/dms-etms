@@ -42,6 +42,8 @@ public interface IJySendVehicleService {
      */
     InvokeResult<VehicleTaskResp> fetchSendTaskForTransfer(TransferVehicleTaskReq vehicleTaskReq);
 
+    InvokeResult<VehicleTaskResp> fetchSendTaskForTransferV2(TransferVehicleTaskReq vehicleTaskReq);
+
     /**
      * 发货扫描
      * @param request

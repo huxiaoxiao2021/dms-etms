@@ -1044,6 +1044,109 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         return result;
     }
 
+    @Override
+    public InvokeResult<VehicleTaskResp> fetchSendTaskForTransferV2(TransferVehicleTaskReq vehicleTaskReq) {
+        InvokeResult<VehicleTaskResp> result = new InvokeResult<>();
+        if (vehicleTaskReq.getCurrentOperate() == null || vehicleTaskReq.getCurrentOperate().getSiteCode() < 0) {
+            result.parameterError("缺少场地信息");
+            return result;
+        }
+
+        try {
+            String barCode =vehicleTaskReq.getBarCode();
+            Long startSiteId = (long) vehicleTaskReq.getCurrentOperate().getSiteCode();
+            JyBizTaskSendVehicleDetailEntity queryDetail = new JyBizTaskSendVehicleDetailEntity();
+            queryDetail.setStartSiteId(startSiteId);
+            //包裹号
+            if (WaybillUtil.isPackageCode(barCode)){
+
+            }
+            //批次号
+            else if (BusinessUtil.isSendCode(barCode)){
+
+            }
+            //任务简码
+            else if (BusinessUtil.isTaskSimpleCode(barCode)){
+
+            }
+            //四位并且有字符串--按照车牌走
+            else if (!NumberHelper.gt0(vehicleTaskReq.getBarCode()) && VEHICLE_NUMBER_FOUR ==barCode.length()){
+
+            }
+            //纯数字
+            else if (NumberHelper.gt0(vehicleTaskReq.getBarCode())){
+                //四位
+                if (VEHICLE_NUMBER_FOUR ==barCode.length()){
+                    //没查到再按目的站点匹配
+                }
+                //按站点匹配
+                else {
+                    
+                }
+            }
+            else {
+                //不支持该类型
+                result.parameterError("暂不支持该类型条码！");
+                return result;
+
+            }
+            // 选择转出任务，转出按包裹扫描记录匹配发货任务
+            if (Objects.equals(Constants.CONSTANT_NUMBER_ONE, vehicleTaskReq.getTransferFlag())) {
+                if (!getSendTaskByPackage(vehicleTaskReq, result, queryDetail)) {
+                    return result;
+                }
+            }
+            // 选择转入任务，包裹按路由目的地匹配发货任务
+            else {
+                if (WaybillUtil.isPackageCode(vehicleTaskReq.getPackageCode())) {
+                    Long nextRouter = getWaybillNextRouter(WaybillUtil.getWaybillCode(vehicleTaskReq.getPackageCode()), startSiteId);
+                    if (nextRouter == null) {
+                        result.hintMessage("运单路由里没有当前场地！");
+                        return result;
+                    }
+                    queryDetail.setEndSiteId(nextRouter);
+                }
+            }
+            if (NumberHelper.gt0(vehicleTaskReq.getEndSiteId())) {
+                queryDetail.setEndSiteId(vehicleTaskReq.getEndSiteId());
+            }
+
+            VehicleTaskResp taskResp = new VehicleTaskResp();
+            result.setData(taskResp);
+            List<VehicleTaskDto> vehicleTaskList = new ArrayList<>();
+            taskResp.setVehicleTaskDtoList(vehicleTaskList);
+
+            queryDetail.setLastPlanDepartTimeBegin(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(),-uccConfig.getJySendTaskPlanTimeBeginDay()));
+            queryDetail.setLastPlanDepartTimeEnd(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(),uccConfig.getJySendTaskPlanTimeEndDay()));
+            queryDetail.setCreateTimeBegin(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(),-uccConfig.getJySendTaskCreateTimeBeginDay()));
+            List<JyBizTaskSendVehicleEntity> vehiclePageList = taskSendVehicleService.findSendTaskByDestOfPage(queryDetail,
+                    vehicleTaskReq.getPageNumber(), vehicleTaskReq.getPageSize());
+
+            if (CollectionUtils.isEmpty(vehiclePageList)) {
+                result.setMessage(HintService.getHint(HintCodeConstants.NOT_FOUND_TRANSFER_TASK_DATA_MSG));
+                return result;
+            }
+
+            for (JyBizTaskSendVehicleEntity sendVehicleEntity : vehiclePageList) {
+                // 组装发车任务
+                VehicleTaskDto vehicleTaskDto = this.initVehicleTaskDto(sendVehicleEntity);
+
+                List<VehicleDetailTaskDto> vdList = new ArrayList<>();
+                vehicleTaskDto.setVehicleDetailTaskDtoList(vdList);
+                vehicleTaskList.add(vehicleTaskDto);
+
+                // 组装发车任务流向明细
+                this.initVehicleTaskDetails(sendVehicleEntity, vdList);
+            }
+        }
+        catch (Exception e) {
+            log.error("查询发车任务异常. {}", JsonHelper.toJson(vehicleTaskReq), e);
+            result.error("查询发车任务异常，请咚咚联系分拣小秘！");
+        }
+
+        return result;
+    }
+
     /**
      * 根据发货目的地查发货任务
      *
