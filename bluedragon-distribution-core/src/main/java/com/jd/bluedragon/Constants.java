@@ -1553,6 +1553,11 @@ public class Constants {
     public static final Integer NUMBER_ZERO = 0;
 
     /**
+     * 数字：1
+     */
+    public static final Integer NUMBER_ONE = 1;
+
+    /**
      * SendD取消状态
      */
     public static final int OPERATE_TYPE_CANCEL_L = 0;
