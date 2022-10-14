@@ -8,8 +8,10 @@ import java.util.Date;
  * @date : 2022/10/12
  */
 public class SendCodeSealInfoDto implements Serializable {
+	
     private static final long serialVersionUID = 1L;
 
+    private String sendCode;
     /**
      * 始发站点code
      */
@@ -47,6 +49,14 @@ public class SendCodeSealInfoDto implements Serializable {
     private Integer scanBoxNum = 0;
     
     private Integer scanBoardNum = 0;
+
+	public String getSendCode() {
+		return sendCode;
+	}
+
+	public void setSendCode(String sendCode) {
+		this.sendCode = sendCode;
+	}
 
 	public Integer getCreateSiteCode() {
 		return createSiteCode;

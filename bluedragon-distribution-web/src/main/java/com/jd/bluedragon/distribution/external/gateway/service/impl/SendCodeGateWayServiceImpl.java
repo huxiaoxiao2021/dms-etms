@@ -370,6 +370,7 @@ public class SendCodeGateWayServiceImpl implements SendCodeGateWayService {
         	data.setReceiveSiteCode(receiveSiteDto.getSiteCode());
         	data.setReceiveSiteName(receiveSiteDto.getSiteName());
         }
+        data.setSendCode(sendCode);
         List<SendM> scanDataList = this.sendMService.selectBySiteAndSendCode(createSite, sendCode);
         Set<String> pacakgeCodes = new HashSet<String>();
         Set<String> boxCodes = new HashSet<String>();
