@@ -35,7 +35,7 @@
         <result column="busi_id" property="busiId" jdbcType="INTEGER"/>
         <result column="busi_name" property="busiName" jdbcType="VARCHAR"/>
         <result column="category_name" property="categoryName" jdbcType="VARCHAR"/>
-        <result column="interface_type" property="interfaceType" jdbcType="INTEGER"/>
+        <result column="interface_type" property="interfaceType" jdbcType="VARCHAR"/>
         <result column="sorting_first_print" property="sortingFirstPrint" jdbcType="INTEGER"/>
     </resultMap>
 
