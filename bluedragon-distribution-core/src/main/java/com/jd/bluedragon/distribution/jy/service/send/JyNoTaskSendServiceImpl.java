@@ -394,7 +394,7 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
             dto.setUpdateUserCode(transferSendTaskReq.getUser().getUserCode());
             dto.setCreateSiteId(Long.valueOf(transferSendTaskReq.getCurrentOperate().getSiteCode()));
 
-            if (transferSendTaskReq.getSameWayFlag()) {
+            if (ObjectHelper.isTrue(transferSendTaskReq.getSameWayFlag())) {
                 //同流向--直接变更绑定关系
                 dto.setSource(TransferLogTypeEnum.SAME_WAY_TRANSFER.getCode());
                 jyVehicleSendRelationService.updateVehicleSendRelation(dto);
