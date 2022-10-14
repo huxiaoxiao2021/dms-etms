@@ -41,9 +41,6 @@ public class JyUnloadCarAggsConsumer extends MessageBaseConsumer {
     @Override
     @JProfiler(jKey = "DMS.WORKER.JyUnloadCarAggsConsumer.consume", jAppName = Constants.UMP_APP_NAME_DMSWORKER, mState = {JProEnum.TP,JProEnum.FunctionError})
     public void consume(Message message) throws Exception {
-        if(logger.isInfoEnabled()){
-            logger.info("JyUnloadCarAggsConsumer consume 消息体-{}",message.getText());
-        }
         if (StringHelper.isEmpty(message.getText())) {
             logger.warn("JyUnloadCarAggsConsumer consume --> 消息为空");
             return;
@@ -58,7 +55,7 @@ public class JyUnloadCarAggsConsumer extends MessageBaseConsumer {
             return;
         }
         //过滤旧版本数据
-        String versionMutex = String.format(CacheKeyConstants.JY_UNLOAD_AGG_KEY, entity.getBizId());
+        String versionMutex = String.format(CacheKeyConstants.JY_UNLOAD_AGG_KEY, entity.getBizId()+entity.getProductType());
         if (redisClientOfJy.exists(versionMutex)) {
             Integer version = Integer.valueOf(redisClientOfJy.get(versionMutex));
             if (!NumberHelper.gt(entity.getVersion(), version)) {

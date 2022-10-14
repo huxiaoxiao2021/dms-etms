@@ -41,9 +41,6 @@ public class JySendGoodsAggsConsumer extends MessageBaseConsumer {
     @Override
     @JProfiler(jKey = "DMS.WORKER.JySendGoodsAggsConsumer.consume", jAppName = Constants.UMP_APP_NAME_DMSWORKER, mState = {JProEnum.TP,JProEnum.FunctionError})
     public void consume(Message message) throws Exception {
-        if(logger.isInfoEnabled()){
-            logger.info("JySendGoodsAggsConsumer consume 消息体-{}",message.getText());
-        }
         if (StringHelper.isEmpty(message.getText())) {
             logger.warn("JySendGoodsAggsConsumer consume --> 消息为空");
             return;
