@@ -141,6 +141,12 @@
             <if test="firstSiteName !=null and firstSiteName !=''" >
             first_site_name,
             </if>
+            <if test="firstReportType != null">
+                first_report_type,
+            </if>
+            <if test="firstReportTypeName != null and firstReportTypeName != ''">
+                first_report_type_name,
+            </if>
             <if test="reportTypeName != null and reportTypeName != ''">
             report_type_name,
             </if>

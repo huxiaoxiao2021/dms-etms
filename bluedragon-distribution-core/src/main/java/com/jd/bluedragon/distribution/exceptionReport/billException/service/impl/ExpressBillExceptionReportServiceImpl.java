@@ -368,6 +368,8 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
         JdCResponse<Void> result = new JdCResponse<>();
         result.toSucceed();
         try {
+            //外网支持查看图片
+            request.getReportPictureUrls().replaceAll("local", "com");
             // 发送mq消息
             ExpressBillExceptionReportMq expressBillExceptionReportMq = new ExpressBillExceptionReportMq();
             BeanUtils.copyProperties(record, expressBillExceptionReportMq);
