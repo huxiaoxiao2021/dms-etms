@@ -1196,7 +1196,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
             result.init(SendResult.CODE_SENDED, "包裹号不能为空!");
             return;
         }
-        if(!WaybillUtil.isPackageCode(domain.getBoxCode())) {
+        if(SendBizSourceEnum.WAYBILL_SEND.getCode().equals(domain.getBizSource()) && !WaybillUtil.isPackageCode(domain.getBoxCode())) {
             result.init(SendResult.CODE_SENDED, "请扫描正确的包裹号!");
             return;
         }
