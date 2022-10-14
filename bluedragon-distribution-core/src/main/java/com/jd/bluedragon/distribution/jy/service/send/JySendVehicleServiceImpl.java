@@ -2110,7 +2110,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
         }
         if (request.getType() == null || Constants.NUMBER_ZERO.equals(request.getType())) {
             attachment.setImgUrl(url);
-        } else if (Constants.NUMBER_ONE.getCode().equals(request.getType())) {
+        } else if (Constants.NUMBER_ONE.equals(request.getType())) {
             attachment.setSealImgUrl(url);
         }
         attachment.setOperateTime(request.getCurrentOperate().getOperateTime());
