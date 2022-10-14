@@ -2450,4 +2450,11 @@ public class BusinessUtil {
     public static boolean needSpotCheck(String tagSign){
     	return BusinessUtil.isSignInChars(tagSign, JyUnloadTaskSignConstants.POSITION_1,JyUnloadTaskSignConstants.CHAR_1_1,JyUnloadTaskSignConstants.CHAR_1_2);
     }
+
+    public static boolean isTaskSimpleCode(String simpleCode) {
+        if (StringUtils.isBlank(simpleCode)) {
+            return false;
+        }
+        return WORKITEM_SIMPLECODE_REGEX.matcher(simpleCode).matches() ;
+    }
 }
