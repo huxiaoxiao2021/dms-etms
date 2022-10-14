@@ -22,6 +22,7 @@ import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
 import com.jd.bluedragon.distribution.api.response.RouteTypeResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.domain.InvokeWithMsgBoxResult;
+import com.jd.bluedragon.distribution.jsf.domain.ValidateIgnore;
 import com.jd.bluedragon.distribution.jy.api.JySendVehicleTysService;
 import com.jd.bluedragon.distribution.jy.dto.JyLabelOption;
 import com.jd.bluedragon.distribution.jy.dto.JyLineTypeDto;
@@ -556,6 +557,7 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
         if (sendScanRequest != null) {
             sendScanRequest.setUser(copyUser(request.getUser()));
             sendScanRequest.setCurrentOperate(copyCurrentOperate(request.getCurrentOperate()));
+            sendScanRequest.setValidateIgnore(copyValidateIgnore(request.getValidateIgnore()));
         }
         JdVerifyResponse<SendScanResponse> response = jySendVehicleServiceTys.sendScan(sendScanRequest);
         if (ObjectHelper.isNotNull(response)) {
@@ -1261,6 +1263,23 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
         currentOperate.setOrgId(currentOperateParam.getOrgId());
         currentOperate.setOrgName(currentOperateParam.getOrgName());
         return currentOperate;
+    }
+
+    private com.jd.bluedragon.common.dto.operation.workbench.send.request.ValidateIgnore copyValidateIgnore(com.jd.bluedragon.distribution.jsf.domain.ValidateIgnore validateIgnore) {
+        if (validateIgnore != null) {
+            com.jd.bluedragon.distribution.jsf.domain.ValidateIgnoreRouterCondition validateIgnoreRouterCondition = validateIgnore.getValidateIgnoreRouterCondition();
+            if (validateIgnoreRouterCondition != null) {
+                com.jd.bluedragon.common.dto.operation.workbench.send.request.ValidateIgnoreRouterCondition newValidateIgnoreRouterCondition = new com.jd.bluedragon.common.dto.operation.workbench.send.request.ValidateIgnoreRouterCondition();
+                newValidateIgnoreRouterCondition.setReceiveSiteIdList(validateIgnoreRouterCondition.getReceiveSiteIdList());
+                newValidateIgnoreRouterCondition.setMatchType(validateIgnoreRouterCondition.getMatchType());
+
+                com.jd.bluedragon.common.dto.operation.workbench.send.request.ValidateIgnore newValidateIgnore = new com.jd.bluedragon.common.dto.operation.workbench.send.request.ValidateIgnore();
+                newValidateIgnore.setValidateIgnoreRouterCondition(newValidateIgnoreRouterCondition);
+
+                return newValidateIgnore;
+            }
+        }
+        return null;
     }
 
 }
