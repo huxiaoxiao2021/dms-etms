@@ -13,6 +13,7 @@
     <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
     <result column="is_delete" jdbcType="TINYINT" property="isDelete" />
     <result column="ts" jdbcType="TIMESTAMP" property="ts" />
+    <result column="interface_type" jdbcType="VARCHAR" property="interfaceType" />
   </resultMap>
 
   <sql id="Base_Column_List">
@@ -49,6 +50,9 @@
       <if test="updateTime != null">
         update_time,
       </if>
+        <if test="interfaceType != null">
+            interface_type,
+        </if>
         is_delete
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -79,6 +83,9 @@
       <if test="updateTime != null">
         #{updateTime,jdbcType=TIMESTAMP},
       </if>
+        <if test="interfaceType != null">
+            #{interfaceType,jdbcType=INTEGER},
+        </if>
       0
     </trim>
   </insert>
