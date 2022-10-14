@@ -90,7 +90,9 @@
     <!--分页查询（解决深度分页问题）-->
     <select id="newQueryList" parameterType="com.jd.bluedragon.distribution.exceptionReport.billException.request.ExpressBillExceptionReportQuery" resultMap="RM_ExpressBillExceptionReport">
         select
-            e1.id, e1.package_code, e1.org_code, e1.org_name, e1.site_code, e1.site_name, e1.first_site_code, e1.first_site_name, e1.report_type_name, e1.report_type, e1.report_user_erp, e1.report_time, e1.report_img_urls,
+            e1.id, e1.package_code, e1.org_code, e1.org_name, e1.site_code, e1.site_name, e1.first_site_code,
+            e1.first_site_name, e1.first_report_type, e1.first_report_type_name, e1.report_type_name, e1.report_type,
+            e1.report_user_erp, e1.report_time, e1.report_img_urls,
             e1.trader_code, e1.reported_user_id, e1.reported_user_erp, e1.reported_user_name, e1.line_type, e1.create_time, e1.update_time, e1.yn, e1.ts, e1.remark, e1.order_id,
             e1.trader_name, e1.trader_org_code, e1.trader_org_name, e1.sale_staff_erp, e1.order_status, e1.rejected_reason
         from
