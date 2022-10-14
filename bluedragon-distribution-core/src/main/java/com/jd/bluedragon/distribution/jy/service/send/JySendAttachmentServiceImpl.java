@@ -35,6 +35,11 @@ public class JySendAttachmentServiceImpl implements IJySendAttachmentService{
     }
 
     @Override
+    public JySendAttachmentEntity selectBySendVehicleBizId(JySendAttachmentEntity entity) {
+        return sendAttachmentDao.selectBySendVehicleBizId(entity);
+    }
+
+    @Override
     public Integer saveAttachment(JySendAttachmentEntity entity) {
         log.info("测试上传发货照片=entity={}", JSON.toJSONString(entity));
         int rows = sendAttachmentDao.updateByBiz(entity);

@@ -66,9 +66,14 @@ public class SendVehicleInfo implements Serializable {
     private Boolean manualCreated;
 
     /**
-     * 是否已拍照
+     * 发货前是否已拍照
      */
     private Boolean photo;
+
+    /**
+     * 封车前是否已拍照
+     */
+    private Boolean sealPhoto;
 
     /**
      * 无任务是否绑定了任务 true：绑定
@@ -169,6 +174,14 @@ public class SendVehicleInfo implements Serializable {
 
     public void setPhoto(Boolean photo) {
         this.photo = photo;
+    }
+
+    public Boolean getSealPhoto() {
+        return sealPhoto;
+    }
+
+    public void setSealPhoto(Boolean sealPhoto) {
+        this.sealPhoto = sealPhoto;
     }
 
     public Boolean getNoTaskBindVehicle() {

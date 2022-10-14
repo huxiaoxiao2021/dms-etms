@@ -2104,10 +2104,14 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
         attachment.setSendVehicleBizId(request.getSendVehicleBizId());
         attachment.setOperateSiteId((long) request.getCurrentOperate().getSiteCode());
         attachment.setVehicleArrived(request.getVehicleArrived());
+        String url = Constants.EMPTY_FILL;
         if(CollectionUtils.isNotEmpty(request.getImgList())){
-            attachment.setImgUrl(Joiner.on(Constants.SEPARATOR_COMMA).join(request.getImgList()));
-        } else {
-            attachment.setImgUrl(Constants.EMPTY_FILL);
+            url = Joiner.on(Constants.SEPARATOR_COMMA).join(request.getImgList());
+        }
+        if (request.getType() == null || SendImageTypeEnum.SEND_IMAGE.getCode().equals(request.getType())) {
+            attachment.setImgUrl(url);
+        } else if (SendImageTypeEnum.SEAL_IMAGE.getCode().equals(request.getType())) {
+            attachment.setSealImgUrl(url);
         }
         attachment.setOperateTime(request.getCurrentOperate().getOperateTime());
         attachment.setCreateTime(request.getCurrentOperate().getOperateTime());
@@ -2178,7 +2182,17 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
     private Boolean setSendVehicleBaseInfo(SendVehicleInfoRequest request,
                                            JyBizTaskSendVehicleEntity sendVehicleEntity, SendVehicleInfo sendVehicleInfo) {
         sendVehicleInfo.setManualCreated(sendVehicleEntity.manualCreatedTask());
-        sendVehicleInfo.setPhoto(sendAttachmentService.sendVehicleHasSelectStatus(new JySendAttachmentEntity(request.getSendVehicleBizId())));
+        JySendAttachmentEntity attachmentEntity = sendAttachmentService.selectBySendVehicleBizId(new JySendAttachmentEntity(request.getSendVehicleBizId()));
+        // 发货前拍照标识
+        boolean sendPhotoFlag = false;
+        // 封车前拍照标识
+        boolean sealPhotoFlag = false;
+        if (attachmentEntity != null) {
+            sendPhotoFlag = StringUtils.isNotBlank(attachmentEntity.getImgUrl());
+            sealPhotoFlag = StringUtils.isNotBlank(attachmentEntity.getSealImgUrl());
+        }
+        sendVehicleInfo.setPhoto(sendPhotoFlag);
+        sendVehicleInfo.setSealPhoto(sealPhotoFlag);
         // 无任务不需拍照
         if (sendVehicleInfo.getManualCreated()) {
             sendVehicleInfo.setPhoto(Boolean.TRUE);
