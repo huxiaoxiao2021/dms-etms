@@ -517,4 +517,13 @@
                   alias="${dms.gateway.jsf.alias}"
                   ref="tMSCarTaskGateWayServiceImpl"
                   server="dmsjsf" />
+
+    <!-- 作业app异常岗 -->
+    <bean id="jyExceptionGatewayServiceImpl" class="com.jd.bluedragon.distribution.external.gateway.service.impl.JyExceptionGatewayServiceImpl" />
+    <jsf:provider id="jsfJyExceptionGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.JyExceptionGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="jyExceptionGatewayServiceImpl"
+                  server="dmsjsf">
+    </jsf:provider>
 </beans>
