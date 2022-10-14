@@ -22,6 +22,7 @@
         <typeAlias type="com.jd.bluedragon.distribution.businessCode.domain.BusinessCodePo" alias="BusinessCodePo" />
         <typeAlias type="com.jd.bluedragon.distribution.businessCode.domain.BusinessCodeAttributePo" alias="BusinessCodeAttributePo" />
         <typeAlias type="com.jd.bluedragon.distribution.jy.unload.JyUnloadEntity" alias="JyUnloadEntity"/>
+        <typeAlias type="com.jd.bluedragon.distribution.jy.exception.JyExceptionEntity" alias="JyExceptionEntity"/>
         <typeAlias type="com.jd.bluedragon.distribution.jy.send.JySendEntity" alias="JySendEntity"/>
     </typeAliases>
 
@@ -54,6 +55,7 @@
         <mapper resource="mappers/mysql/BusinessCode/BusinessCodeMapper.xml"/>
         <mapper resource="mappers/mysql/jy/unload/JyUnloadMapper.xml" />
         <mapper resource="mappers/mysql/jy/send/JySendMapper.xml" />
+        <mapper resource="mappers/mysql/jy/exception/JyExceptionMapper.xml"/>
     </mappers>
 
 </configuration>
