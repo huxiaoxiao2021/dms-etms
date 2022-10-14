@@ -228,4 +228,53 @@ public class ColdChainExternalServiceImplTest {
             }
         }
     }
+
+    @Test
+    public void inspectionOfColdNewTest() {
+        ColdInspectionVo request = new ColdInspectionVo();
+        request.setBarCode("JDVC00005517150");
+        request.setOperateTime("2022-10-08 06:06:06");
+        request.setSiteCode(14514);
+        request.setSiteName("转运");
+        request.setUserCode(17907);
+        request.setUserName("冷链测试人");
+        coldChainExternalService.inspectionOfColdNew(request);
+
+    }
+
+    @Test
+    public void sendOfColdBusinessNewTest() {
+        ColdSendVo request = new ColdSendVo();
+        request.setBoxCode("JDVC00000340396");
+        request.setForceSend( false);
+        request.setOperateTime("2022-10-09 12:06:06");
+        request.setReceiveSiteCode(39);
+        request.setSendCode("14514-39-20220829148493930");
+        request.setSiteCode(14514);
+        request.setSiteName("转运");
+        request.setTransPlanCode("TP19041300104683");
+        request.setUserCode(17907);
+        request.setUserName("冷链测试人");
+
+        coldChainExternalService.sendOfColdBusinessNew(request);
+
+    }
+
+    @Test
+    public void sendOfColdKYNewTest() {
+        ColdSendVo request = new ColdSendVo();
+        request.setBoxCode("JDVC00004937970-1-22-");
+        request.setForceSend( false);
+        request.setOperateTime("2022-10-09 12:06:06");
+        request.setReceiveSiteCode(39);
+        request.setSendCode("14514-39-20220829148493930");
+        request.setSiteCode(14514);
+        request.setSiteName("转运");
+        request.setTransPlanCode("TP19041300104683");
+        request.setUserCode(17907);
+        request.setUserName("冷链测试人");
+
+        coldChainExternalService.sendOfColdKYNew(request);
+
+    }
 }
