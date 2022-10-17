@@ -96,7 +96,7 @@ public class JyUnloadAggsEntity implements Serializable {
     /**
      * 版本号
      */
-    private Integer version;
+    private Long version;
 
     public Long setId(Long id) {
         return this.id = id;
@@ -242,11 +242,11 @@ public class JyUnloadAggsEntity implements Serializable {
         return this.ts;
     }
 
-    public Integer getVersion() {
+    public Long getVersion() {
         return version;
     }
 
-    public void setVersion(Integer version) {
+    public void setVersion(Long version) {
         this.version = version;
     }
 }

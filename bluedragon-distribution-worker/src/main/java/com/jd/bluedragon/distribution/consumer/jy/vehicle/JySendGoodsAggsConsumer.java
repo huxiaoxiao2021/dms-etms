@@ -57,7 +57,7 @@ public class JySendGoodsAggsConsumer extends MessageBaseConsumer {
         //过滤旧版本数据
         String versionMutex = String.format(CacheKeyConstants.JY_SEND_AGG_KEY, entity.getBizId());
         if (redisClientOfJy.exists(versionMutex)) {
-            Integer version = Integer.valueOf(redisClientOfJy.get(versionMutex));
+            Long version = Long.valueOf(redisClientOfJy.get(versionMutex));
             if (!NumberHelper.gt(entity.getVersion(), version)) {
                 logger.warn("JySendGoodsAggsConsumer receive old version data. curVersion: {}, 内容为【{}】", version, message.getText());
                 return;
