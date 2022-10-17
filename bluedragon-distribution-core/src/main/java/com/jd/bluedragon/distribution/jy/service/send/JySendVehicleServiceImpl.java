@@ -663,6 +663,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                 return sendVehicleBizList;
             }
             result.hintMessage("未检索到相应的发货任务数据！");
+            return null;
         } else {
             //车牌号后四位检索
             if (queryTaskSendDto.getKeyword().length() == VEHICLE_NUMBER_FOUR) {
@@ -702,11 +703,17 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         com.jd.tms.jdi.dto.CommonDto<TransWorkItemDto> transWorkItemResp = jdiQueryWSManager.queryTransWorkItemBySimpleCode(queryTaskSendDto.getKeyword());
         if (ObjectHelper.isNotNull(transWorkItemResp) && Constants.RESULT_SUCCESS == transWorkItemResp.getCode()) {
             TransWorkItemDto transWorkItemDto = transWorkItemResp.getData();
+            if (log.isInfoEnabled()){
+                log.info("根据任务简码查询TransWorkItemDto信息：{}",JsonHelper.toJson(transWorkItemDto));
+            }
             if (ObjectHelper.isNotNull(transWorkItemDto) && ObjectHelper.isNotNull(transWorkItemDto.getTransWorkCode())) {
                 List<String> tranWorkCodes = new ArrayList<>();
                 tranWorkCodes.add(transWorkItemDto.getTransWorkCode());
                 List<JyBizTaskSendVehicleEntity> entityList = taskSendVehicleService.findSendTaskByTransWorkCode(tranWorkCodes, queryTaskSendDto.getStartSiteId());
                 if (ObjectHelper.isNotNull(entityList) && entityList.size() > 0) {
+                    if (log.isInfoEnabled()){
+                        log.info("根据派车单号查询任务bizId：{}",JsonHelper.toJson(transWorkItemDto));
+                    }
                     List<String> bizIdList = new ArrayList<>();
                     for (JyBizTaskSendVehicleEntity entity : entityList) {
                         bizIdList.add(entity.getBizId());
