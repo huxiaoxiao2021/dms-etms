@@ -21,11 +21,10 @@ import com.jd.bluedragon.distribution.base.domain.DmsBaseDictCondition;
 import com.jd.bluedragon.distribution.base.service.DmsBaseDictService;
 import com.jd.bluedragon.distribution.exceptionReport.billException.dao.ExpressBillExceptionReportDao;
 import com.jd.bluedragon.distribution.exceptionReport.billException.domain.ExpressBillExceptionReport;
+import com.jd.bluedragon.distribution.exceptionReport.billException.domain.WaybillFinishedEnum;
 import com.jd.bluedragon.distribution.exceptionReport.billException.dto.ExpressBillExceptionReportMq;
 import com.jd.bluedragon.distribution.exceptionReport.billException.enums.*;
-import com.jd.bluedragon.distribution.exceptionReport.billException.request.ExpressBillExceptionReportQuery;
 import com.jd.bluedragon.distribution.exceptionReport.billException.service.ExpressBillExceptionReportService;
-import com.jd.bluedragon.distribution.print.domain.WayBillFinishedEnum;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.dms.wb.report.api.wmspack.dto.DmsPackRecordPo;
@@ -237,7 +236,7 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
             //是否是完结单，状态满足以下其一
             //妥投（150）拒收（160）下单取消（-790）终止揽收（-650）上门接货退货完成（530）
             WaybillManageDomain waybillState = entity.getData().getWaybillState();
-            if(WayBillFinishedEnum.waybillStatusFinishedSet.contains(waybillState.getWaybillState())){
+            if(WaybillFinishedEnum.waybillStatusFinishedSet.contains(waybillState.getWaybillState())){
                 result.toFail("此单为完结单，无法操作面单举报");
                 return result;
             }
