@@ -4,6 +4,7 @@ package com.jd.bluedragon.distribution.jy.task;
 import java.io.Serializable;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 发车任务明细表
@@ -129,6 +130,15 @@ public class JyBizTaskSendVehicleDetailEntity implements Serializable {
 
 	private Integer excepLabel;
 	private transient Date createTimeBegin;
+	private transient List<String> transWorkCodeList;
+
+	public List<String> getTransWorkCodeList() {
+		return transWorkCodeList;
+	}
+
+	public void setTransWorkCodeList(List<String> transWorkCodeList) {
+		this.transWorkCodeList = transWorkCodeList;
+	}
 
 	public Integer getPreVehicleStatus() {
 		return preVehicleStatus;

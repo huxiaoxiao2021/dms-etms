@@ -1059,46 +1059,12 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             queryDetail.setStartSiteId(startSiteId);
             //包裹号
             if (WaybillUtil.isPackageCode(barCode)){
-
-            }
-            //批次号
-            else if (BusinessUtil.isSendCode(barCode)){
-
-            }
-            //任务简码
-            else if (BusinessUtil.isTaskSimpleCode(barCode)){
-
-            }
-            //四位并且有字符串--按照车牌走
-            else if (!NumberHelper.gt0(vehicleTaskReq.getBarCode()) && VEHICLE_NUMBER_FOUR ==barCode.length()){
-
-            }
-            //纯数字
-            else if (NumberHelper.gt0(vehicleTaskReq.getBarCode())){
-                //四位
-                if (VEHICLE_NUMBER_FOUR ==barCode.length()){
-                    //没查到再按目的站点匹配
+                if (Objects.equals(Constants.CONSTANT_NUMBER_ONE, vehicleTaskReq.getTransferFlag())) {
+                    if (!getSendTaskByPackage(vehicleTaskReq, result, queryDetail)) {
+                        return result;
+                    }
                 }
-                //按站点匹配
                 else {
-                    
-                }
-            }
-            else {
-                //不支持该类型
-                result.parameterError("暂不支持该类型条码！");
-                return result;
-
-            }
-            // 选择转出任务，转出按包裹扫描记录匹配发货任务
-            if (Objects.equals(Constants.CONSTANT_NUMBER_ONE, vehicleTaskReq.getTransferFlag())) {
-                if (!getSendTaskByPackage(vehicleTaskReq, result, queryDetail)) {
-                    return result;
-                }
-            }
-            // 选择转入任务，包裹按路由目的地匹配发货任务
-            else {
-                if (WaybillUtil.isPackageCode(vehicleTaskReq.getPackageCode())) {
                     Long nextRouter = getWaybillNextRouter(WaybillUtil.getWaybillCode(vehicleTaskReq.getPackageCode()), startSiteId);
                     if (nextRouter == null) {
                         result.hintMessage("运单路由里没有当前场地！");
@@ -1106,9 +1072,52 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                     }
                     queryDetail.setEndSiteId(nextRouter);
                 }
+
             }
-            if (NumberHelper.gt0(vehicleTaskReq.getEndSiteId())) {
-                queryDetail.setEndSiteId(vehicleTaskReq.getEndSiteId());
+            //批次号
+            else if (BusinessUtil.isSendCode(barCode)){
+                queryDetail.setEndSiteId(Long.valueOf(BusinessUtil.getReceiveSiteCodeFromSendCode(barCode)));
+            }
+            //任务简码
+            else if (BusinessUtil.isTaskSimpleCode(barCode)){
+                String transWorkItemCode =getTransWorkItemCodeBySimpleCode(barCode);
+                if (null==transWorkItemCode){
+                    result.setMessage(HintService.getHint(HintCodeConstants.NOT_FOUND_TRANSFER_TASK_DATA_MSG));
+                    return result;
+                }
+                queryDetail.setTransWorkItemCode(transWorkItemCode);
+            }
+            //不是纯数字--并且是4位-按车牌号
+            else if (!NumberHelper.gt0(barCode) && VEHICLE_NUMBER_FOUR ==barCode.length()){
+                List<String> transWorkCodeList =getTransWorkCodeByVehicleNum(vehicleTaskReq);
+                if (null==transWorkCodeList){
+                    result.setMessage(HintService.getHint(HintCodeConstants.NOT_FOUND_TRANSFER_TASK_DATA_MSG));
+                    return result;
+                }
+                queryDetail.setTransWorkCodeList(transWorkCodeList);
+            }
+            //纯数字
+            else if (NumberHelper.gt0(barCode)){
+                //四位 优先按车牌号
+                if (VEHICLE_NUMBER_FOUR ==barCode.length()){
+                    //没查到再按目的站点匹配
+                    List<String> transWorkCodeList =getTransWorkCodeByVehicleNum(vehicleTaskReq);
+                    if (ObjectHelper.isNotNull(transWorkCodeList) && findExitTaskRecordByTransWorkCode(transWorkCodeList)){
+                        queryDetail.setTransWorkCodeList(transWorkCodeList);
+                    }
+                    else {
+                        queryDetail.setEndSiteId(Long.valueOf(barCode));
+                    }
+                }
+                //按站点匹配
+                else {
+                    queryDetail.setEndSiteId(Long.valueOf(barCode));
+                }
+            }
+            else {
+                //不支持该类型
+                result.parameterError("暂不支持该类型条码！");
+                return result;
             }
 
             VehicleTaskResp taskResp = new VehicleTaskResp();
@@ -1145,6 +1154,44 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         }
 
         return result;
+    }
+
+    private boolean findExitTaskRecordByTransWorkCode(List<String> transWorkCodeList) {
+        return false;
+    }
+
+    private String getTransWorkItemCodeBySimpleCode(String barCode) {
+        com.jd.tms.jdi.dto.CommonDto<TransWorkItemDto> transWorkItemResp = jdiQueryWSManager.queryTransWorkItemBySimpleCode(barCode);
+        if (ObjectHelper.isNotNull(transWorkItemResp) && Constants.RESULT_SUCCESS == transWorkItemResp.getCode()) {
+            TransWorkItemDto transWorkItemDto = transWorkItemResp.getData();
+            if (ObjectHelper.isNotNull(transWorkItemDto) && ObjectHelper.isNotNull(transWorkItemDto.getTransWorkItemCode())) {
+                return transWorkItemDto.getTransWorkItemCode();
+            }
+        }
+        return null;
+    }
+
+    private List<String> getTransWorkCodeByVehicleNum(TransferVehicleTaskReq vehicleTaskReq) {
+        TransWorkFuzzyQueryParam param = new TransWorkFuzzyQueryParam();
+        BaseStaffSiteOrgDto baseStaffSiteOrgDto;
+        try {
+            baseStaffSiteOrgDto = baseMajorManager.getBaseSiteBySiteId(vehicleTaskReq.getCurrentOperate().getSiteCode());
+            if (ObjectHelper.isEmpty(baseStaffSiteOrgDto) || ObjectHelper.isEmpty(baseStaffSiteOrgDto.getDmsSiteCode())) {
+                log.info("getBaseSiteBySiteId未获取到" + vehicleTaskReq.getCurrentOperate().getSiteCode() + "站点信息");
+                return null;
+            }
+        } catch (Exception e) {
+            log.error("getBaseSiteBySiteId获取站点信息异常", e);
+            return null;
+        }
+
+        param.setBeginNodeCode(baseStaffSiteOrgDto.getDmsSiteCode());
+        param.setVehicleNumber(vehicleTaskReq.getBarCode());
+        List<String> tranWorkCodes = jdiQueryWSManager.listTranWorkCodesByVehicleFuzzy(param);
+        if (ObjectHelper.isNotNull(tranWorkCodes) && tranWorkCodes.size() > 0) {
+            return tranWorkCodes;
+        }
+        return null;
     }
 
     /**

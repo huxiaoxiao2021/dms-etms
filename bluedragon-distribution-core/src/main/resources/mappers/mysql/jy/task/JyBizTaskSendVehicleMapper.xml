@@ -621,6 +621,12 @@
         AND d.start_site_id = #{entity.startSiteId, jdbcType=BIGINT}
         AND d.end_site_id = #{entity.endSiteId, jdbcType=BIGINT}
         AND d.excep_label =0
+        <if test="entity.transWorkItemCode != null">
+            AND d.trans_work_item_code = #{entity.transWorkItemCode}
+        </if>
+        <if test="entity.transWorkCode != null">
+            AND m.trans_work_code = #{entity.transWorkCode}
+        </if>
         <if test="entity.sendVehicleBizId != null">
             AND d.send_vehicle_biz_id = #{entity.sendVehicleBizId}
         </if>
