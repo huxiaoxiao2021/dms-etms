@@ -219,10 +219,10 @@
                 #{firstSiteName,jdbcType=VARCHAR},
             </if>
             <if test="firstReportType != null">
-                first_report_type,
+                #{firstReportType,jdbcType=INTEGER},
             </if>
             <if test="firstReportTypeName != null and firstReportTypeName != ''">
-                first_report_type_name,
+                #{firstReportTypeName,jdbcType=VARCHAR},
             </if>
             <if test="reportTypeName != null and reportTypeName != ''">
                 #{reportTypeName,jdbcType=VARCHAR},
