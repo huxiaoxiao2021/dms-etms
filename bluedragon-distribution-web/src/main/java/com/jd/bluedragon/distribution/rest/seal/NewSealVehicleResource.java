@@ -477,8 +477,9 @@ public class NewSealVehicleResource {
                             BaseStaffSiteOrgDto endNodeSite = basicPrimaryWS.getBaseSiteBySiteId(endNodeId);
                             if(endNodeSite != null
                                     && SiteSignTool.supportTemporaryTransfer(endNodeSite.getSiteSign())){
-                                sealVehicleResponse.setCode(JdResponse.CODE_OK);
-                                sealVehicleResponse.setMessage(JdResponse.MESSAGE_OK);
+                                String siteName = endNodeSite.getSiteName();
+                                sealVehicleResponse.setCode(NewSealVehicleResponse.CODE_DESTINATION_DIFF_ERROR);
+                                sealVehicleResponse.setMessage(MessageFormat.format(NewSealVehicleResponse.TIPS_TRANSPORT_BATCHCODE_DESTINATION_DIFF_ERROR,siteName));
                                 return sealVehicleResponse;
                             }
                         //}
