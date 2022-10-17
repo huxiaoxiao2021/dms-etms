@@ -23,7 +23,6 @@ public enum WaybillFinishedEnum {
         this.name = name;
     }
     public static Set<Integer> waybillStatusFinishedSet = new HashSet<Integer>();
-    public static String WAYBILLSTATES="";
 
     /**
      * 初始化终结状态集合
