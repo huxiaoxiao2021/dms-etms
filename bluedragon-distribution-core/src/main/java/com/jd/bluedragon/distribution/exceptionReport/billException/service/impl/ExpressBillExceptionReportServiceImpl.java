@@ -227,6 +227,7 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
             WChoice choice = new WChoice();
             choice.setQueryWaybillC(Boolean.TRUE);
             choice.setQueryWaybillExtend(Boolean.TRUE);
+            choice.setQueryWaybillM(Boolean.TRUE);
             BaseEntity<BigWaybillDto> entity = waybillQueryManager.getDataByChoice(waybillCode, choice);
             if(entity.getData() == null || entity.getData().getWaybill() == null || entity.getData().getWaybillState() == null){
                 result.toFail("查询运单或运单状态为空");
