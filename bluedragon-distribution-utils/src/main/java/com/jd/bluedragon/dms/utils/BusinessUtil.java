@@ -173,6 +173,28 @@ public class BusinessUtil {
         }
         return code.matches(RULE_COLLECT_PLACE_CODE_REGEX);
     }
+    /**
+     * 判断是否为站点编号编码
+     * @param code
+     * @return
+     */
+    public static final boolean isSiteCode(String code){
+        if (StringUtils.isBlank(code)) {
+            return false;
+        }
+        return code.matches(RULE_SITE_CODE);
+    }
+    /**
+     * 判断是否为三无编码
+     * @param code
+     * @return
+     */
+    public static final boolean isSanWuCode(String code){
+        if (StringUtils.isBlank(code)) {
+            return false;
+        }
+        return code.matches(RULE_SAN_WU_CODE);
+    }
 
 
     /**
@@ -2431,7 +2453,7 @@ public class BusinessUtil {
      * @return
      */
     public static boolean isSelfReverse(String waybillSign){
-        return isSignChar(waybillSign, WaybillSignConstants.POSITION_1, 'T');
+        return isSignChar(waybillSign, WaybillSignConstants.POSITION_1, WaybillSignConstants.CHAR_1_T);
     }
 
     /**
@@ -2441,5 +2463,33 @@ public class BusinessUtil {
      */
     public static boolean isWarehouseAndDistributionBusiness(String waybillSign){
         return isSignChar(waybillSign, WaybillSignConstants.POSITION_53, WaybillSignConstants.CHAR_1);
+    }
+    /**
+     * 判断是否需要抽检
+     * @param tagSign
+     * @return
+     */
+    public static boolean needSpotCheck(String tagSign){
+    	return BusinessUtil.isSignInChars(tagSign, JyUnloadTaskSignConstants.POSITION_1,JyUnloadTaskSignConstants.CHAR_1_1,JyUnloadTaskSignConstants.CHAR_1_2);
+    }
+
+    /**
+     * 自营逆向单（waybill_sign第一位=T），且为全球购订单（sendpay第8位 = 6）
+     */
+    public static boolean isReverseGlobalWaybill(String waybillSign, String sendPay){
+        return isSelfReverse(waybillSign) && isGlobalPurchaseWaybill(sendPay);
+    }
+
+    /**
+     * 是否全球购订单（sendpay第8位 = 6）
+     */
+    public static boolean isGlobalPurchaseWaybill(String sendPay){
+        return isSignChar(sendPay, SendPayConstants.POSITION_8, SendPayConstants.CHAR_6);
+    }
+
+    public static void main(String[] args) {
+        String sw = "67890";
+        System.out.println(BusinessUtil.isSiteCode(sw));
+        System.out.println(BusinessUtil.isSanWuCode(sw));
     }
 }

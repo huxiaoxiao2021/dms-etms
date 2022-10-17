@@ -24,7 +24,8 @@ public class NewSealVehicleResponse<T> extends JdExtraMessageResponse {
 	public static final String TIPS_PRESEAL_NOEXIST_ERROR = "该目的地没有预封车数据，无法更新预封车信息!";
 	public static final String TIPS_TRANSPORT_BATCHCODE_DESTINATION_DIFF_ERROR = "当前运力和批次目的地不符将产生错发，运力编码目的地为:{0}";
 
-
+	public static final Integer CODE_BATCH_CODE_SEALED = 20012;
+	public static final String MESSAGE_BATCH_CODE_SEALED = "该批次已封车！";
     public static final Integer CODE_UNSEAL_CAR_OUT_CHECK = 30001;
     public static final String MESSAGE_UNSEAL_CAR_OUT_CHECK = "车辆不在围栏，是否强制解封：";
 

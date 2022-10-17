@@ -1743,7 +1743,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
             domain.setBizSource(sourceEnum.getCode());
         }
         // 锁定当前包裹，防止按运单发货时 重复发货
-        lockWaybillByPack(domain.getCreateSiteCode(), domain.getBoxCode());
+//        lockWaybillByPack(domain.getCreateSiteCode(), domain.getBoxCode());
         // 插入SEND_M
         this.sendMManager.insertSendM(domain);
         //发送发货业务通知MQ

@@ -743,7 +743,8 @@
     <jsf:consumer id="printHandoverListJsfService"
                   interface="com.jd.dms.wb.report.api.IPrintHandoverListJsfService"
                   alias="${jsf.printHandoverList.alias}"
-                  timeout="${jsf.printHandoverList.timeout}" lazy="${jsf.consumer.lazy}">
+                  serialization="hessian"
+                  timeout="${jsf.printHandoverList.timeout}" lazy="${jsf.consumer.lazy}" >
     </jsf:consumer>
     <jsf:consumer id="wmsPackRecordJsfService"
                   interface="com.jd.dms.wb.report.api.wmspack.jsf.IWmsPackRecordJsfService"
@@ -1035,4 +1036,10 @@
     </jsf:consumer>
 
 
+
+    <!-- dms校验接口 -->
+    <jsf:consumer id="sendHandoverJsfService" interface="com.jdl.basic.api.service.sendHandover.SendHandoverJsfService"
+                  protocol="jsf" alias="${jsf.sendhandover.alias}" timeout="${jsf.sendhandover.timeout}"  retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
+        <jsf:parameter key="token" value="${jsf.sendhandover.token}" hide="true"/>
+    </jsf:consumer>
 </beans>

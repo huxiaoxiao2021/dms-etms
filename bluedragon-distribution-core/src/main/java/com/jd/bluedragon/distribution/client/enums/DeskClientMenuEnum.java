@@ -1,5 +1,8 @@
 package com.jd.bluedragon.distribution.client.enums;
 
+import com.google.common.collect.Lists;
+
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -31,6 +34,7 @@ public enum DeskClientMenuEnum {
     BOARD_PRINT("0601024", "板标打印"),
     RECEIVE_STORAGE_PRINT("0601025", "收纳暂存打印"),
     RECYCLE_BASKET_PRINT("0601026", "周转筐标签打印"),
+    FARMAR_LABEL_PRINT("0601027", "砝码标签打印"),
 
     // 清单打印
     SEND_HANDOVER_LIST_ALL("0602001", "发货交接清单（全部）"),
@@ -88,6 +92,13 @@ public enum DeskClientMenuEnum {
             }
         }
         return null;
+    }
+
+    public static final List<String> allMenuCodes = Lists.newArrayList();
+    static {
+        for (DeskClientMenuEnum clientMenuEnum : DeskClientMenuEnum.values()) {
+            allMenuCodes.add(clientMenuEnum.getCode());
+        }
     }
 
     private String code;

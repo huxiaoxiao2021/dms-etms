@@ -229,14 +229,16 @@ public class BoxWeightVolumeHandler extends AbstractWeightVolumeHandler {
             weightVolumeDto.setScanSiteCode(String.valueOf(entity.getOperateSiteCode()));
             weightVolumeDto.setScanType("包裹称重扫描");
 
-            long startTime = System.currentTimeMillis();
-            try {
-                EconomicNetResult<EconomicNetErrorRes> result = economicNetBusinessManager.doRestInterface(weightVolumeDto);
-                logger.info("推送箱号信息，经济网返回{}", JsonHelper.toJson(result));
-                retryOnFailDoRestInterface(result, weightVolumeDto, entity, startTime, null);
-            } catch (Exception e) {
-                retryOnFailDoRestInterface(null, weightVolumeDto, entity, startTime, e);
-            }
+//            long startTime = System.currentTimeMillis();
+
+//            经济网：众邮按箱称重业务由原来的调用外部接口变更为发送MQ：economic_net_box_weight， 联系人：kongchunfei，huangchang9，变更时间：2022-10-13 20:45:14，拣运侧产品：zhangshuo37知晓
+//            try {
+//                EconomicNetResult<EconomicNetErrorRes> result = economicNetBusinessManager.doRestInterface(weightVolumeDto);
+//                logger.info("推送箱号信息，经济网返回{}", JsonHelper.toJson(result));
+//                retryOnFailDoRestInterface(result, weightVolumeDto, entity, startTime, null);
+//            } catch (Exception e) {
+//                retryOnFailDoRestInterface(null, weightVolumeDto, entity, startTime, e);
+//            }
 
             EconomicNetBoxWeightVolumeMq economicNetBoxWeightVolumeMq = new EconomicNetBoxWeightVolumeMq();
             BeanUtils.copyProperties(weightVolumeDto,economicNetBoxWeightVolumeMq);
