@@ -1102,7 +1102,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                 if (VEHICLE_NUMBER_FOUR ==barCode.length()){
                     //没查到再按目的站点匹配
                     List<String> transWorkCodeList =getTransWorkCodeByVehicleNum(vehicleTaskReq);
-                    if (ObjectHelper.isNotNull(transWorkCodeList) && findExitTaskRecordByTransWorkCode(transWorkCodeList)){
+                    if (ObjectHelper.isNotNull(transWorkCodeList) && findExitTaskRecordByTransWorkCode(transWorkCodeList,startSiteId)){
                         queryDetail.setTransWorkCodeList(transWorkCodeList);
                     }
                     else {
@@ -1149,14 +1149,18 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             }
         }
         catch (Exception e) {
-            log.error("查询发车任务异常. {}", JsonHelper.toJson(vehicleTaskReq), e);
+            log.error("查询迁移任务列表异常. {}", JsonHelper.toJson(vehicleTaskReq), e);
             result.error("查询发车任务异常，请咚咚联系分拣小秘！");
         }
 
         return result;
     }
 
-    private boolean findExitTaskRecordByTransWorkCode(List<String> transWorkCodeList) {
+    private boolean findExitTaskRecordByTransWorkCode(List<String> transWorkCodeList,Long startSiteId) {
+        List<JyBizTaskSendVehicleEntity> taskSendVehicleEntities =taskSendVehicleService.findSendTaskByTransWorkCode(transWorkCodeList,startSiteId);
+        if (ObjectHelper.isNotNull(taskSendVehicleEntities) && taskSendVehicleEntities.size()>0){
+            return true;
+        }
         return false;
     }
 
