@@ -393,10 +393,10 @@ public class SendCodeGateWayServiceImpl implements SendCodeGateWayService {
         ServiceMessage<Boolean> departureResult = departureService.checkSendStatusFromVOS(sendCode);
         if (ServiceResultEnum.WRONG_STATUS.equals(departureResult.getResult())) {//已被封车
             data.setSealStatusCode(SendCodeStatusEnum.SEALED.getCode());
-            data.setSealStatusCode(SendCodeStatusEnum.SEALED.getCode());
+            data.setSealStatusName(SendCodeStatusEnum.SEALED.getName());
         } else if (ServiceResultEnum.SUCCESS.equals(departureResult.getResult())) {//未被封车
             data.setSealStatusCode(SendCodeStatusEnum.UNSEAL.getCode());
-            data.setSealStatusCode(SendCodeStatusEnum.UNSEAL.getCode());
+            data.setSealStatusName(SendCodeStatusEnum.UNSEAL.getName());
         } else {
             result.toFail(departureResult.getErrorMsg());
         }
