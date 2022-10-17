@@ -343,6 +343,9 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 
     private void deleteManualCreatedTask(JyBizTaskSendVehicleEntity taskSend, JyBizTaskSendVehicleDetailEntity taskSendDetail,SealCarDto sealCarDto) {
         //删除主任务
+        if (log.isInfoEnabled()){
+            log.info("使用老封车功能封车成功，删除自建任务{}",taskSendDetail.getBizId());
+        }
         JyBizTaskSendVehicleEntity entity = new JyBizTaskSendVehicleEntity();
         entity.setBizId(taskSend.getBizId());
         entity.setYn(Constants.YN_NO);
