@@ -218,6 +218,12 @@
             <if test="firstSiteName != null and firstSiteName !=''">
                 #{firstSiteName,jdbcType=VARCHAR},
             </if>
+            <if test="firstReportType != null">
+                first_report_type,
+            </if>
+            <if test="firstReportTypeName != null and firstReportTypeName != ''">
+                first_report_type_name,
+            </if>
             <if test="reportTypeName != null and reportTypeName != ''">
                 #{reportTypeName,jdbcType=VARCHAR},
             </if>
