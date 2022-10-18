@@ -128,6 +128,11 @@ public class JySendAggsEntity implements Serializable {
      */
     private String sendVehicleBizId;
 
+    /**
+     * 版本号
+     */
+    private Long version;
+
     public Long setId(Long id) {
         return this.id = id;
     }
@@ -352,4 +357,11 @@ public class JySendAggsEntity implements Serializable {
         return this.sendVehicleBizId;
     }
 
+    public Long getVersion() {
+        return version;
+    }
+
+    public void setVersion(Long version) {
+        this.version = version;
+    }
 }

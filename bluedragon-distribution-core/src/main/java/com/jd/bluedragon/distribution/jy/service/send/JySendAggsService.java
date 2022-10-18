@@ -21,5 +21,8 @@ public interface JySendAggsService {
      * @return
      */
     List<JySendAggsEntity> findBySendVehicleBiz(String sendVehicleBizId);
+
+    //插入或修改
+    int insertOrUpdateJySendGoodsAggs(JySendAggsEntity entity);
 }
 
