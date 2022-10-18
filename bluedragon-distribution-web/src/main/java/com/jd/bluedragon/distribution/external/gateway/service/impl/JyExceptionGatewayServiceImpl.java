@@ -5,11 +5,11 @@ import com.google.common.collect.Sets;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.jyexpection.request.*;
 import com.jd.bluedragon.common.dto.jyexpection.response.*;
-import com.jd.bluedragon.distribution.barcode.domain.DmsBarCode;
 import com.jd.bluedragon.distribution.barcode.service.BarcodeService;
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionService;
 import com.jd.bluedragon.external.gateway.service.JyExceptionGatewayService;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 
@@ -136,18 +136,20 @@ public class JyExceptionGatewayServiceImpl implements JyExceptionGatewayService 
             return JdCResponse.fail("缺少查询参数");
         }
         String[] barCodes = barCode.split(",");
-        List<DmsBarCode> queryResults = barcodeService.query(barCodes);
+        List<com.jd.bluedragon.distribution.barcode.domain.DmsBarCode> queryResults = barcodeService.query(barCodes);
         if (CollectionUtils.isEmpty(queryResults)){
             return JdCResponse.fail("查询失败,查询不到商品信息");
         }
         //取第一条
         List<DmsBarCode> queryResult = Lists.newArrayList();
         Set<String> codeSet = Sets.newHashSet();
-        for (DmsBarCode dmsBarCode:queryResults){
+        for (com.jd.bluedragon.distribution.barcode.domain.DmsBarCode dmsBarCode:queryResults){
             if (codeSet.contains(dmsBarCode.getBarcode())){
                 continue;
             }
-            queryResult.add(dmsBarCode);
+            DmsBarCode result = new DmsBarCode();
+            BeanUtils.copyProperties(dmsBarCode,result);
+            queryResult.add(result);
             codeSet.add(dmsBarCode.getBarcode());
         }
         JdCResponse<List<DmsBarCode>> result = JdCResponse.ok();

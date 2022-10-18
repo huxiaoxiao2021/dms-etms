@@ -3,7 +3,6 @@ package com.jd.bluedragon.external.gateway.service;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.jyexpection.request.*;
 import com.jd.bluedragon.common.dto.jyexpection.response.*;
-import com.jd.bluedragon.distribution.barcode.domain.DmsBarCode;
 
 import java.util.List;
 
