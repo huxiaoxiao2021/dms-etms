@@ -7,6 +7,7 @@ import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.blockcar.request.*;
 import com.jd.bluedragon.common.dto.blockcar.response.PreSealVehicleMeasureDto;
 import com.jd.bluedragon.common.dto.blockcar.response.SealCarTaskInfoDto;
+import com.jd.bluedragon.common.dto.blockcar.response.SealVehicleResponseData;
 import com.jd.bluedragon.common.dto.blockcar.response.TransportInfoDto;
 import com.jd.bluedragon.common.dto.seal.request.CancelSealRequest;
 import com.jd.bluedragon.distribution.api.JdResponse;
@@ -18,7 +19,6 @@ import com.jd.bluedragon.distribution.newseal.domain.CancelPreSealVehicleRequest
 import com.jd.bluedragon.distribution.newseal.domain.PreSealVehicleMeasureInfo;
 import com.jd.bluedragon.distribution.rest.seal.NewSealVehicleResource;
 import com.jd.bluedragon.distribution.rest.seal.PreSealVehicleResource;
-import com.jd.bluedragon.distribution.rest.seal.SealVehicleResponseData;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.external.gateway.service.NewSealVehicleGatewayService;
 import com.jd.bluedragon.utils.NumberHelper;
@@ -221,8 +221,8 @@ public class NewSealVehicleGatewayServiceImpl implements NewSealVehicleGatewaySe
      */
     @Override
     @JProfiler(jKey = "DMSWEB.NewSealVehicleGatewayServiceImpl.newCheckTranCodeAndBatchCode",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
-    public JdCResponse newCheckTranCodeAndBatchCode(SealCarPreRequest sealCarPreRequest) {
-        JdCResponse jdCResponse = new JdCResponse<>();
+    public JdCResponse<SealVehicleResponseData> newCheckTranCodeAndBatchCode(SealCarPreRequest sealCarPreRequest) {
+        JdCResponse<SealVehicleResponseData> jdCResponse = new JdCResponse<>();
 
         NewSealVehicleResponse newSealVehicleResponse = newSealVehicleResource.newCheckTranCodeAndBatchCode(sealCarPreRequest);
 

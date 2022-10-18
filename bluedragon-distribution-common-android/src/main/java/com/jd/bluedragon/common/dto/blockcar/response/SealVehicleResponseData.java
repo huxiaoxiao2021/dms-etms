@@ -1,4 +1,4 @@
-package com.jd.bluedragon.distribution.rest.seal;
+package com.jd.bluedragon.common.dto.blockcar.response;
 
 import java.io.Serializable;
 
