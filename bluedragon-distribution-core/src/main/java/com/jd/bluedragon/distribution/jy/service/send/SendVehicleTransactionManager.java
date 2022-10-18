@@ -2,7 +2,15 @@ package com.jd.bluedragon.distribution.jy.service.send;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
+import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
+import com.jd.bluedragon.common.dto.base.request.User;
+import com.jd.bluedragon.common.dto.sysConfig.request.MenuUsageConfigRequestDto;
+import com.jd.bluedragon.common.dto.sysConfig.response.MenuUsageProcessDto;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.core.base.BasicSelectWsManager;
 import com.jd.bluedragon.distribution.api.response.base.Result;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.busineCode.sendCode.service.SendCodeService;
 import com.jd.bluedragon.distribution.businessCode.BusinessCodeAttributeKey;
 import com.jd.bluedragon.distribution.jy.dto.send.JyBizTaskSendCountDto;
@@ -22,6 +30,8 @@ import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.vos.dto.SealCarDto;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.tms.basic.dto.TransportResourceDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jdl.jy.schedule.dto.task.JyScheduleTaskReq;
@@ -71,6 +81,15 @@ public class SendVehicleTransactionManager {
     @Autowired
     @Qualifier("jyTaskGroupMemberService")
     private JyTaskGroupMemberService taskGroupMemberService;
+
+    @Autowired
+    private BaseService baseService;
+
+    @Autowired
+    private BasicSelectWsManager basicSelectWsManager;
+
+    @Autowired
+    private UccPropertyConfiguration uccConfig;
     
     @Value("${beans.sendVehicleTransactionManager.checkLineTypeDays:7}")
     private int checkLineTypeDays;
@@ -453,4 +472,67 @@ public class SendVehicleTransactionManager {
 		
 		return this.updateStatusWithoutCompare(taskSend, sendDetail, JyBizTaskSendDetailStatusEnum.TO_SEAL);
 	}
+
+    /**
+     * 干支 拦截功能方法
+     *
+     * @return
+     */
+    public InvokeResult<Boolean> needInterceptOfGZ(String sendCode, String menuCode, CurrentOperate currentOperate, User user) {
+        InvokeResult<Boolean> result = new InvokeResult<>();
+        result.setData(Boolean.FALSE);
+        result.success();
+        try{
+
+            Integer[] sites = BusinessUtil.getSiteCodeBySendCode(sendCode);
+            if(sites == null || sites.length != 2){
+                return result;
+            }
+            Integer createSite = sites[0];
+            Integer receiveSite = sites[1];
+            BaseStaffSiteOrgDto receiveSiteDto = baseService.queryDmsBaseSiteByCode(String.valueOf(receiveSite));
+            BaseStaffSiteOrgDto createSiteDto = baseService.queryDmsBaseSiteByCode(String.valueOf(createSite));
+
+            MenuUsageConfigRequestDto menuUsageConfigRequestDto = new MenuUsageConfigRequestDto();
+            menuUsageConfigRequestDto.setMenuCode(menuCode);
+            menuUsageConfigRequestDto.setCurrentOperate(currentOperate);
+            menuUsageConfigRequestDto.setUser(user);
+            MenuUsageProcessDto menuUsageProcessDto = baseService.getClientMenuUsageConfig(menuUsageConfigRequestDto);
+            if(menuUsageProcessDto != null && Constants.FLAG_OPRATE_OFF.equals(menuUsageProcessDto.getCanUse())) {
+                boolean isTrunkOrBranch = isTrunkOrBranchLine(Long.valueOf(createSite), Long.valueOf(receiveSite));
+                if (isTrunkOrBranch){
+                    boolean needIntercept = Boolean.TRUE;
+                    //补充判断运力的运输方式是否包含铁路或者航空
+                    if(receiveSiteDto != null && createSiteDto != null){
+                        TransportResourceDto transportResourceDto = new TransportResourceDto();
+                        // 始发区域
+                        transportResourceDto.setStartOrgCode(String.valueOf(createSiteDto.getOrgId()));
+                        // 始发站
+                        transportResourceDto.setStartNodeId(createSite);
+                        // 目的区域
+                        transportResourceDto.setEndOrgCode(String.valueOf(receiveSiteDto.getOrgId()));
+                        // 目的站
+                        transportResourceDto.setEndNodeId(receiveSite);
+                        List<TransportResourceDto> transportResourceDtos = basicSelectWsManager.queryPageTransportResourceWithNodeId(transportResourceDto);
+                        if(transportResourceDtos!=null){
+                            for(TransportResourceDto trd: transportResourceDtos){
+                                if(uccConfig.notValidateTransType(trd.getTransWay())){
+                                    needIntercept = Boolean.FALSE;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    if(needIntercept){
+                        result.setData(Boolean.TRUE);
+                        result.setMessage(menuUsageProcessDto.getMsg());
+                        return result;
+                    }
+                }
+            }
+        }catch (Exception e) {
+            log.error("needInterceptOfGZ:干支校验异常！{},{}",sendCode,menuCode, e);
+        }
+        return result;
+    }
 }

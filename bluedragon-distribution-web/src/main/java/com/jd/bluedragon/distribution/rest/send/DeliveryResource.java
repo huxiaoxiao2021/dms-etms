@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.ServiceMessage;
 import com.jd.bluedragon.common.domain.ServiceResultEnum;
+import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
@@ -31,6 +32,7 @@ import com.jd.bluedragon.distribution.globaltrade.service.LoadBillService;
 import com.jd.bluedragon.distribution.inspection.service.WaybillPackageBarcodeService;
 import com.jd.bluedragon.distribution.jsf.domain.WhemsWaybillResponse;
 import com.jd.bluedragon.distribution.jsf.service.JsfSortingResourceService;
+import com.jd.bluedragon.distribution.jy.service.send.SendVehicleTransactionManager;
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
 import com.jd.bluedragon.distribution.send.dao.SendDatailDao;
 import com.jd.bluedragon.distribution.send.dao.SendMDao;
@@ -134,6 +136,9 @@ public class DeliveryResource {
     @Autowired
     private JsfSortingResourceService jsfSortingResourceService;
 
+    @Autowired
+    @Qualifier("sendVehicleTransactionManager")
+    private SendVehicleTransactionManager sendVehicleTransactionManager;
 
     @Autowired
     @Qualifier("jimdbCacheService")
@@ -363,6 +368,13 @@ public class DeliveryResource {
         }
         if(deliveryService.checkSendCodeIsSealed(sendCode)){
             result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,"批次号已封车，请更换批次!");
+        }
+        //干支批次拦截禁止使用
+        CurrentOperate currentOperate = new CurrentOperate();
+        currentOperate.setSiteCode(BusinessUtil.getCreateSiteCodeFromSendCode(sendCode));
+        InvokeResult<Boolean> interceptResult = sendVehicleTransactionManager.needInterceptOfGZ(sendCode,Constants.MENU_CODE_BATCH_SEND_CODE,currentOperate,null);
+        if(interceptResult.codeSuccess() && interceptResult.getData()){
+            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,interceptResult.getMessage());
         }
         return result;
     }
