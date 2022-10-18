@@ -186,6 +186,7 @@
 		<property name="clientOfflineMenuConfig" value="${clientOfflineMenuConfig:''}"/>
 		<property name="filterSendCodeSwitch" value="${filterSendCodeSwitch:false}"/>
 		<property name="syncJySealStatusSwitch" value="${syncJySealStatusSwitch:false}"/>
+		<property name="sealStatusBatchSizeLimit" value="${sealStatusBatchSizeLimit:30}"/>
 
 	</bean>
 	<!-- hystrix 动态配置 -->
@@ -354,6 +355,7 @@
 				<value>uccPropertyConfiguration.clientOfflineMenuConfig</value>
 				<value>uccPropertyConfiguration.filterSendCodeSwitch</value>
 				<value>uccPropertyConfiguration.syncJySealStatusSwitch</value>
+				<value>uccPropertyConfiguration.sealStatusBatchSizeLimit</value>
 
 
 				<value>hystrixRouteUccPropertyConfiguration.executionTimeoutInMilliseconds</value>

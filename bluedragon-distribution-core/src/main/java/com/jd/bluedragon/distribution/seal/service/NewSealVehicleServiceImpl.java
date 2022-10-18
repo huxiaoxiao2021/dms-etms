@@ -317,6 +317,9 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
                 for (SealCarDto sealCarDto:sealCarDtos){
                     sendCodes.addAll(sealCarDto.getBatchCodes());
                 }
+                if (sendCodes.size()>uccPropertyConfiguration.getSealStatusBatchSizeLimit()){
+                    return;
+                }
                 List<JySendCodeEntity> sendCodeEntityList =jyVehicleSendRelationService.querySendDetailBizIdBySendCode(sendCodes);
                 if (ObjectHelper.isNotNull(sendCodeEntityList)){
                     for (JySendCodeEntity jySendCodeEntity:sendCodeEntityList){
@@ -789,7 +792,8 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 
     private void recoverTaskStatusIfNeed(List<String> sendCodeList) {
         try {
-            if (uccPropertyConfiguration.getSyncJySealStatusSwitch() && ObjectHelper.isNotNull(sendCodeList) && sendCodeList.size()>0){
+            if (uccPropertyConfiguration.getSyncJySealStatusSwitch() && ObjectHelper.isNotNull(sendCodeList) && sendCodeList.size()>0
+            && sendCodeList.size()<=uccPropertyConfiguration.getSealStatusBatchSizeLimit()){
                 List<JySendCodeEntity> sendCodeEntityList =jyVehicleSendRelationService.querySendDetailBizIdBySendCode(sendCodeList);
                 if (ObjectHelper.isNotNull(sendCodeEntityList)){
                     for (JySendCodeEntity jySendCodeEntity:sendCodeEntityList){

@@ -701,6 +701,16 @@ public class UccPropertyConfiguration {
 
     private boolean syncJySealStatusSwitch;
 
+    private int sealStatusBatchSizeLimit;
+
+    public int getSealStatusBatchSizeLimit() {
+        return sealStatusBatchSizeLimit;
+    }
+
+    public void setSealStatusBatchSizeLimit(int sealStatusBatchSizeLimit) {
+        this.sealStatusBatchSizeLimit = sealStatusBatchSizeLimit;
+    }
+
     public boolean getFilterSendCodeSwitch() {
         return filterSendCodeSwitch;
     }
