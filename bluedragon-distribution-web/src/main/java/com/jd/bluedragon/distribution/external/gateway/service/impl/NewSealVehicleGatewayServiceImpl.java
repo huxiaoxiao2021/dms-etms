@@ -18,6 +18,7 @@ import com.jd.bluedragon.distribution.newseal.domain.CancelPreSealVehicleRequest
 import com.jd.bluedragon.distribution.newseal.domain.PreSealVehicleMeasureInfo;
 import com.jd.bluedragon.distribution.rest.seal.NewSealVehicleResource;
 import com.jd.bluedragon.distribution.rest.seal.PreSealVehicleResource;
+import com.jd.bluedragon.distribution.rest.seal.SealVehicleResponseData;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.external.gateway.service.NewSealVehicleGatewayService;
 import com.jd.bluedragon.utils.NumberHelper;
@@ -229,6 +230,12 @@ public class NewSealVehicleGatewayServiceImpl implements NewSealVehicleGatewaySe
             jdCResponse.setCode(JdCResponse.CODE_CONFIRM);
             jdCResponse.setMessage(newSealVehicleResponse.getMessage());
             return jdCResponse;
+        }
+        if(newSealVehicleResponse.getCode().equals(NewSealVehicleResponse.CODE_DESTINATION_DIFF_ERROR)){
+            SealVehicleResponseData data = new SealVehicleResponseData();
+            data.setCode(newSealVehicleResponse.getCode());
+            data.setMessage(newSealVehicleResponse.getMessage());
+            jdCResponse.setData(data);
         }
 
         jdCResponse.setCode(newSealVehicleResponse.getCode());
