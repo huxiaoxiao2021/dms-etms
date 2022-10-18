@@ -23,6 +23,7 @@
         <result property="updateTime" column="update_time"/>
         <result property="yn" column="yn"/>
         <result property="ts" column="ts"/>
+        <result property="stageBizId" column="stage_biz_id"/>
     </resultMap>
 
     <sql id="Base_Column_List">
@@ -43,7 +44,8 @@
         create_time,
         update_time,
         yn,
-        ts
+        ts,
+        stage_biz_id
     </sql>
 
     <insert id="insert" parameterType="JyUnloadEntity">

@@ -58,7 +58,15 @@
         ts,
         board_code,
         actual_scan_waybill_count,
-        total_scanned_board_count
+        intercept_should_scan_waybill_count,
+        intercept_actual_scan_waybill_count,
+        total_scanned_board_count,
+        total_seal_waybill_count,
+        total_scanned_waybill_count,
+        total_scanned_intercept_waybill_count,
+        total_should_intercept_waybill_count,
+        total_more_scan_local_waybill_count,
+        total_more_scan_out_waybill_count
     </sql>
 
     <insert id="insert" parameterType="JyUnloadAggsEntity">
