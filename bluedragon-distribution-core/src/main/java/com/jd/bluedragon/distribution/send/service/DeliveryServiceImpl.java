@@ -7000,9 +7000,6 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
             return false;
         }
 
-        // 处理发货任务之前 确认明细数据补分拣任务已经完成,否者 自旋 或者MQ异常重试
-        beforeWaybillSendSplitTask(domain);
-
         // 循环调用按包裹发货逻辑
         for (DeliveryPackageD pack : waybillCodeOfPage.getData()) {
             SendM packSendM = new SendM();
