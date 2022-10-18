@@ -42,7 +42,6 @@ import com.jd.ql.basic.ws.BasicPrimaryWS;
 import com.jd.ql.basic.ws.BasicSecondaryWS;
 import com.jd.ql.dms.report.SiteQueryService;
 import com.jd.ql.dms.report.domain.StreamlinedBasicSite;
-import com.jd.ql.dms.report.domain.StreamlinedSiteQueryCondition;
 import com.jd.ssa.domain.UserInfo;
 import com.jd.tms.basic.dto.BasicDictDto;
 import com.jd.tms.basic.dto.CarrierDto;
@@ -119,9 +118,6 @@ public class BaseServiceImpl extends AbstractClient implements BaseService, ErpV
 	@Autowired
 	@Qualifier("thirdValidateService")
 	private ErpValidateService thirdValidateService;
-
-    @Resource
-    private SiteQueryService siteQueryService;
 
 	/**
 	 * @description: erp登录校验处理逻辑
@@ -1044,6 +1040,7 @@ public class BaseServiceImpl extends AbstractClient implements BaseService, ErpV
             pagerData.setPageSize(queryPagerData.getPageSize());
             pagerData.setTotal(queryPagerData.getTotal());
         } catch (Exception e) {
+            log.error("BaseServiceImpl.selectSiteList error ", e);
             return result.toFail("接口异常");
         }
         return result;

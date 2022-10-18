@@ -883,6 +883,10 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
                 Constants.UMP_APP_NAME_DMSWEB,false,true);
         BaseEntity<com.jd.bluedragon.common.dto.base.request.Pager<StreamlinedBasicSite>> result = new BaseEntity<>();
         try{
+            com.jd.bluedragon.common.dto.base.request.Pager<StreamlinedBasicSite> pagerData = new com.jd.bluedragon.common.dto.base.request.Pager<>(request.getPageNo(), request.getPageSize(), 0L);
+            pagerData.setData(new ArrayList<StreamlinedBasicSite>());
+            result.setData(pagerData);
+
             com.jd.ql.dms.report.domain.Pager<StreamlinedSiteQueryCondition> pagerRequest = new com.jd.ql.dms.report.domain.Pager<>();
             final StreamlinedSiteQueryCondition siteQueryCondition = new StreamlinedSiteQueryCondition();
             BeanCopyUtil.copy(request.getSearchVo(), siteQueryCondition);
@@ -896,12 +900,10 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
                 return result;
             }
             final com.jd.ql.dms.report.domain.Pager<StreamlinedBasicSite> queryResultData = queryResultEntity.getData();
-            com.jd.bluedragon.common.dto.base.request.Pager<StreamlinedBasicSite> pagerData = new com.jd.bluedragon.common.dto.base.request.Pager<>();
-            pagerData.setData(queryResultData.getData());
-            pagerData.setTotal(queryResultData.getTotal());
-            pagerData.setPageNo(request.getPageNo());
-            pagerData.setPageSize(request.getPageSize());
-            result.setData(pagerData);
+            if(queryResultData != null){
+                pagerData.setTotal(queryResultData.getTotal());
+                pagerData.setData(queryResultData.getData());
+            }
             return result;
         }catch (Exception e){
             log.error("根据条件查询站点异常！",e);

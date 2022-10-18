@@ -4,12 +4,8 @@ import com.jd.bluedragon.common.dto.base.request.Pager;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.basedata.request.StreamlinedBasicSiteQuery;
 import com.jd.bluedragon.common.dto.basedata.response.BaseDataDictDto;
-import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicleInfoRequest;
 import com.jd.bluedragon.common.dto.sysConfig.request.MenuUsageConfigRequestDto;
 import com.jd.bluedragon.common.dto.sysConfig.response.MenuUsageProcessDto;
-import com.jd.bluedragon.distribution.api.request.BasicSiteDto;
-import com.jd.dms.workbench.utils.sdk.base.Page;
-import com.jd.dms.workbench.utils.sdk.base.PageData;
 import com.jd.ql.dms.report.domain.StreamlinedBasicSite;
 
 import java.util.List;

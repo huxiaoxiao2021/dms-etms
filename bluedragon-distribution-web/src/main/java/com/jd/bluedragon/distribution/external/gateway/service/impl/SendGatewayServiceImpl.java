@@ -94,7 +94,7 @@ public class SendGatewayServiceImpl implements SendGatewayService {
     @JProfiler(jKey = "DMSWEB.SendGatewayServiceImpl.newPackageSendGoods",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     @BusinessLog(sourceSys = 1, bizType = 100, operateType = 1005)
     public JdVerifyResponse newPackageSendGoods(SinglePackageSendRequest cRequest) {
-        // 安卓PDA发货 todo
+        // 安卓PDA发货
         PackageSendRequest request = new PackageSendRequest();
         request.setBizSource(SendBizSourceEnum.ANDROID_PDA_SEND.getCode());
         // 按运单发货设置bizSource

@@ -144,10 +144,7 @@ public class BaseDataGatewayServiceImpl implements BaseDataGatewayService {
     public JdCResponse<Pager<StreamlinedBasicSite>> selectSiteList(Pager<StreamlinedBasicSiteQuery> request) {
         JdCResponse<Pager<StreamlinedBasicSite>> response = new JdCResponse<>();
         response.toSucceed();
-        Pager<StreamlinedBasicSite> pageData = new Pager<>();
-        pageData.setPageNo(request.getPageNo());
-        pageData.setPageSize(request.getPageSize());
-        pageData.setTotal(0L);
+        Pager<StreamlinedBasicSite> pageData = new Pager<>(request.getPageNo(), request.getPageSize(), 0L);
         response.setData(pageData);
         try {
             request.setSearchVo(JSON.parseObject(JSON.toJSONString(request.getSearchVo()), StreamlinedBasicSiteQuery.class));
