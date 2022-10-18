@@ -310,12 +310,16 @@
         <if test="siteCode != null">
             AND site_code = #{siteCode,jdbcType=INTEGER}
         </if>
-        <if test="firstReportType != null">
-            AND first_report_type = #{firstReportType,jdbcType=INTEGER}
-        </if>
-        <if test="reportType != null">
-            AND report_type = #{reportType,jdbcType=INTEGER}
-        </if>
+        <choose>
+            <when test="reportType != null">
+                AND report_type = #{reportType,jdbcType=INTEGER}
+            </when>
+            <otherwise>
+                <if test="firstReportType != null">
+                    AND first_report_type = #{firstReportType,jdbcType=INTEGER}
+                </if>
+            </otherwise>
+        </choose>
         <if test="queryStartTime != null">
             AND report_time >= #{queryStartTime,jdbcType=TIMESTAMP}
         </if>
