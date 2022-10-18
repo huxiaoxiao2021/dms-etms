@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.consumer.jy.vehicle;
 
+import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
@@ -41,6 +42,9 @@ public class JySendGoodsAggsConsumer extends MessageBaseConsumer {
     @Override
     @JProfiler(jKey = "DMS.WORKER.JySendGoodsAggsConsumer.consume", jAppName = Constants.UMP_APP_NAME_DMSWORKER, mState = {JProEnum.TP,JProEnum.FunctionError})
     public void consume(Message message) throws Exception {
+
+        logger.info("JySendGoodsAggsConsumer consume 消息体-{}",message.getText());
+
         if (StringHelper.isEmpty(message.getText())) {
             logger.warn("JySendGoodsAggsConsumer consume --> 消息为空");
             return;
@@ -50,6 +54,7 @@ public class JySendGoodsAggsConsumer extends MessageBaseConsumer {
             return;
         }
         JySendAggsEntity entity = JsonHelper.fromJson(message.getText(), JySendAggsEntity.class);
+        logger.info("JySendGoodsAggsConsumer entity 消息体-{}", JSON.toJSONString(entity));
         boolean checkResult = checkParam(entity);
         if(!checkResult){
             return;
