@@ -507,8 +507,7 @@
             vehicle_status = #{vehicleStatus},
             update_user_erp = #{updateUserErp},
             update_user_name = #{updateUserName},
-            update_time = #{updateTime},
-            unload_start_time = #{unloadStartTime}
+            update_time = #{updateTime}
         </set>
 
         <where>
