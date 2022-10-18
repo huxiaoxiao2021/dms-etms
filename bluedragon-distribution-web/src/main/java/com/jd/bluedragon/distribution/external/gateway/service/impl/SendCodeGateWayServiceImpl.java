@@ -346,11 +346,11 @@ public class SendCodeGateWayServiceImpl implements SendCodeGateWayService {
             List<SendDetail> sendDetailList=sendDetailService.findByWaybillCodeOrPackageCode(createSite,null,query.getScanCode());
             if (CollectionUtils.isNotEmpty(sendDetailList)){
             	sendCode = sendDetailList.get(0).getSendCode();
-            	receiveSite = sendDetailList.get(0).getReceiveSiteCode();
             	if(StringUtils.isBlank(sendCode)) {
         			result.toFail("该包裹在当前场地未发货！");
         			return result;
             	}
+            	receiveSite = BusinessUtil.getReceiveSiteCodeFromSendCode(sendCode);
             }else {
     			result.toFail("该包裹在当前场地未发货！");
     			return result;
