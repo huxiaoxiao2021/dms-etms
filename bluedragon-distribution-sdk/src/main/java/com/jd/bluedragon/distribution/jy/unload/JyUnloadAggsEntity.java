@@ -182,6 +182,11 @@ public class JyUnloadAggsEntity implements Serializable {
         this.totalScannedInterceptCount = totalScannedInterceptCount;
     }
 
+    /**
+     * 版本号
+     */
+    private Long version;
+
     public Long setId(Long id) {
         return this.id = id;
     }
@@ -372,5 +377,12 @@ public class JyUnloadAggsEntity implements Serializable {
 
     public void setTotalMoreScanOutWaybillCount(Integer totalMoreScanOutWaybillCount) {
         this.totalMoreScanOutWaybillCount = totalMoreScanOutWaybillCount;
+    }
+    public Long getVersion() {
+        return version;
+    }
+
+    public void setVersion(Long version) {
+        this.version = version;
     }
 }
