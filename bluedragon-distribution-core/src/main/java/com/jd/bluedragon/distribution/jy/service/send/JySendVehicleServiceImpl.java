@@ -45,6 +45,7 @@ import com.jd.bluedragon.distribution.funcSwitchConfig.service.FuncSwitchConfigS
 import com.jd.bluedragon.distribution.jsf.domain.SortingCheck;
 import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
 import com.jd.bluedragon.distribution.jsf.domain.ValidateIgnore;
+import com.jd.ql.dms.common.constants.JyConstants;
 import com.jd.bluedragon.distribution.jy.dto.send.JyBizTaskSendCountDto;
 import com.jd.bluedragon.distribution.jy.dto.send.JySendArriveStatusDto;
 import com.jd.bluedragon.distribution.jy.dto.send.QueryTaskSendDto;
@@ -2255,7 +2256,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
 
             setSendProgressData(taskSend, progress);
             // flink积压导致进度不准，提示前台友好提示
-            if(jyDemotionService.checkIsDemotion(JyDemotionService.JY_FLINK_SEND_IS_DEMOTION)){
+            if(jyDemotionService.checkIsDemotion(JyConstants.JY_FLINK_SEND_IS_DEMOTION)){
                 throw new JyDemotionException("进度数据不准，flink降级!");
             }
         }

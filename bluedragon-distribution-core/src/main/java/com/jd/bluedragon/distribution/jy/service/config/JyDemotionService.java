@@ -12,17 +12,6 @@ import java.util.List;
  */
 public interface JyDemotionService {
 
-    // jy flink发货降级开关
-    String JY_FLINK_SEND_IS_DEMOTION = "jyFlinkSendIsDemotion";
-    // jy flink卸车降级开关
-    String JY_FLINK_UNLOAD_IS_DEMOTION = "jyFlinkUnloadIsDemotion";
-    // jy封车降级开关
-    String JY_SEAL_CAR_MONITOR_IS_DEMOTION = "jySealCarMonitorIsDemotion";
-    // jy卸车降级开关
-    String JY_VEHICLE_TASK_UNLOAD_DETAIL_IS_DEMOTION = "jyVehicleTaskUnloadDetailIsDemotion";
-    // jy发货降级开关
-    String JY_VEHICLE_SEND_DETAIL_IS_DEMOTION = "jyVehicleSendDetailIsDemotion";
-
     /**
      * 校验某功能是否降级
      *

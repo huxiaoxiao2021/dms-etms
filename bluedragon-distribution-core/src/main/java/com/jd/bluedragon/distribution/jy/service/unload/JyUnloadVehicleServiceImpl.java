@@ -19,6 +19,7 @@ import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.ql.dms.common.constants.JyConstants;
 import com.jd.bluedragon.distribution.jy.constants.RedisHashKeyConstants;
 import com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadDao;
 import com.jd.bluedragon.distribution.jy.dto.task.JyBizTaskUnloadCountDto;
@@ -719,7 +720,7 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
 
             UnloadScanDetail scanProgress = JsonHelper.fromJson(JsonHelper.toJson(redisCache), UnloadScanDetail.class);
             result.setData(scanProgress);
-            if(jyDemotionService.checkIsDemotion(JyDemotionService.JY_FLINK_UNLOAD_IS_DEMOTION)){
+            if(jyDemotionService.checkIsDemotion(JyConstants.JY_FLINK_UNLOAD_IS_DEMOTION)){
                 throw new JyDemotionException("卸车进度不准，flink降级!");
             }
         }

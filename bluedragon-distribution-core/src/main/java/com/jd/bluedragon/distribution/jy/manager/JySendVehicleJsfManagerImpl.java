@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.jy.manager;
 
 import com.jd.bluedragon.common.utils.ProfilerHelper;
+import com.jd.ql.dms.common.constants.JyConstants;
 import com.jd.bluedragon.distribution.jy.exception.JyDemotionException;
 import com.jd.bluedragon.distribution.jy.service.config.JyDemotionService;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -37,7 +38,7 @@ public class JySendVehicleJsfManagerImpl implements IJySendVehicleJsfManager {
 
     @Override
     public Pager<SendBarCodeDetailVo> queryByCondition(Pager<SendVehicleTaskQuery> queryPager) {
-        if(jyDemotionService.checkIsDemotion(JyDemotionService.JY_VEHICLE_SEND_DETAIL_IS_DEMOTION)){
+        if(jyDemotionService.checkIsDemotion(JyConstants.JY_VEHICLE_SEND_DETAIL_IS_DEMOTION)){
             throw new JyDemotionException("发车：查询发车任务包裹明细已降级!");
         }
         CallerInfo ump = ProfilerHelper.registerInfo("dms.web.IJySendVehicleManager.queryByCondition");
