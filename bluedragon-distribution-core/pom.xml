@@ -1733,7 +1733,7 @@
 		<dependency>
 			<groupId>com.jd.dms.wb</groupId>
 			<artifactId>workbench-report-api</artifactId>
-			<version>1.0.6-uat-SNAPSHOT</version>
+			<version>1.0.0-UAT-SNAPSHOT</version>
 			<exclusions>
 				<exclusion>
 					<groupId>com.jd.dms.wb</groupId>
