@@ -9,6 +9,7 @@ import com.jd.bluedragon.distribution.coldChain.domain.InspectionVO;
 import com.jd.bluedragon.distribution.inspection.InspectionBizSourceEnum;
 import com.jd.bluedragon.distribution.inspection.service.InspectionService;
 import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
+import com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskUnloadVehicleDao;
 import com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadDao;
 import com.jd.bluedragon.distribution.jy.dto.unload.UnloadScanDto;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSourceTypeEnum;
@@ -21,6 +22,7 @@ import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskUnloadVehicleServ
 import com.jd.bluedragon.distribution.jy.service.unload.JyBizTaskUnloadVehicleStageService;
 import com.jd.bluedragon.distribution.jy.service.unload.UnloadVehicleTransactionManager;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadDto;
+import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
 import com.jd.bluedragon.distribution.jy.unload.JyBizTaskUnloadVehicleStageEntity;
 import com.jd.bluedragon.distribution.jy.unload.JyUnloadEntity;
 import com.jd.bluedragon.utils.DateHelper;
@@ -87,6 +89,9 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
     @Autowired
     private JyScheduleTaskManager jyScheduleTaskManager;
 
+    @Autowired
+    private JyBizTaskUnloadVehicleDao jyBizTaskUnloadVehicleDao;
+
     @Override
     @JProfiler(jKey = "DMS.WORKER.jyUnloadScanConsumer.consume",
             jAppName = Constants.UMP_APP_NAME_DMSWORKER, mState = {JProEnum.TP,JProEnum.FunctionError})
@@ -119,12 +124,22 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
         // 首次扫描分配卸车任务，变更任务状态
         startAndDistributeUnloadTask(unloadScanDto);
 
+        Long id = jyBizTaskUnloadVehicleDao.findIdByBizId(unloadScanDto.getBizId());
+        if(id != null) {
+            JyBizTaskUnloadVehicleEntity entity = new JyBizTaskUnloadVehicleEntity();
+            entity.setId(id);
+            entity.setUnloadStartTime(unloadScanDto.getOperateTime());
+            entity.setUpdateTime(new Date());
+            jyBizTaskUnloadVehicleDao.updateOfBusinessInfoById(entity);
+        }
+
         JyUnloadEntity unloadEntity = copyFromDto(unloadScanDto);
 
         if (jyUnloadDao.insert(unloadEntity) <= 0) {
             logger.error("保存卸车扫描记录异常. {}", JsonHelper.toJson(unloadEntity));
             throw new RuntimeException("保存卸车扫描记录异常");
         }
+
         // 转运补扫子任务完结
         if (JyBizTaskSourceTypeEnum.TRANSPORT.getCode().equals(unloadScanDto.getTaskType())) {
             if (unloadScanDto.getSupplementary()) {
