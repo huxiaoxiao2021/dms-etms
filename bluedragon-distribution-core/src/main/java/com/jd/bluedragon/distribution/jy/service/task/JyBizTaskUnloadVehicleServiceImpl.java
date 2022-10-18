@@ -317,6 +317,8 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
             }
             entity.setFuzzyVehicleNumber(fvn);
         }
+        entity.setTaskType(getTaskType(entity.getEndSiteId()));
+
         // 初始默认数据
         if(entity.getManualCreatedFlag() == null){
             entity.setManualCreatedFlag(0);
@@ -383,7 +385,6 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
                     entity.setId(null);
                 }else {
                     //不存在则新增
-                    entity.setTaskType(getTaskType(entity.getEndSiteId()));
                     result = jyBizTaskUnloadVehicleDao.insert(entity) > 0;
                 }
             }else{
@@ -743,7 +744,14 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
      * @return
      */
     private Integer getTaskType(Long endSiteId) {
+        if(endSiteId == null) {
+            logger.warn("JyBizTaskUnloadVehicleServiceImpl.getTaskType--卸车任务区分来源分拣还是转运，流向为空");
+            return null;
+        }
         BaseStaffSiteOrgDto baseStaffSiteOrgDto = baseMajorManager.getBaseSiteBySiteId(endSiteId.intValue());
+        if(baseStaffSiteOrgDto == null) {
+            return null;
+        }
         return Constants.B2B_SITE_TYPE == baseStaffSiteOrgDto.getSubType() ? UNLOAD_TASK_CATEGORY_TYS : UNLOAD_TASK_CATEGORY_DMS;
     }
 }
