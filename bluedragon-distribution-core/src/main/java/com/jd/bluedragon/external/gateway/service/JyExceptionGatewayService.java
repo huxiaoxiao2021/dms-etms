@@ -3,6 +3,7 @@ package com.jd.bluedragon.external.gateway.service;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.jyexpection.request.*;
 import com.jd.bluedragon.common.dto.jyexpection.response.*;
+import com.jd.bluedragon.distribution.barcode.domain.DmsBarCode;
 
 import java.util.List;
 
@@ -61,4 +62,10 @@ public interface JyExceptionGatewayService {
      * 处理任务接口
      */
     JdCResponse<Object> processTask(ExpTaskDetailReq req);
+
+    /**
+     * 查下商品名称
+     * @return
+     */
+    JdCResponse<List<DmsBarCode>> queryProductName(String barCode);
 }
