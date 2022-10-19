@@ -23,23 +23,18 @@ import com.jd.bluedragon.distribution.base.service.*;
 import com.jd.bluedragon.distribution.client.domain.CheckMenuAuthRequest;
 import com.jd.bluedragon.distribution.client.domain.CheckMenuAuthResponse;
 import com.jd.bluedragon.distribution.command.JdResult;
+import com.jd.bluedragon.distribution.jy.service.config.JyDemotionService;
 import com.jd.bluedragon.distribution.sysloginlog.domain.ClientInfo;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.sdk.modules.client.DmsClientMessages;
 import com.jd.bluedragon.sdk.modules.client.LoginStatusEnum;
 import com.jd.bluedragon.sdk.modules.client.LogoutTypeEnum;
 import com.jd.bluedragon.sdk.modules.client.ProgramTypeEnum;
-import com.jd.bluedragon.sdk.modules.client.dto.DmsClientHeartbeatRequest;
-import com.jd.bluedragon.sdk.modules.client.dto.DmsClientHeartbeatResponse;
+import com.jd.bluedragon.sdk.modules.client.dto.*;
 import com.jd.bluedragon.utils.*;
 import com.jd.mrd.srv.dto.RpcResultDto;
 import com.jd.mrd.srv.service.erp.dto.LoginContextDto;
 import com.jd.mrd.srv.service.erp.dto.LoginDto;
-import com.jd.bluedragon.sdk.modules.client.dto.*;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.NumberHelper;
-import com.jd.bluedragon.utils.PropertiesHelper;
-import com.jd.bluedragon.utils.StringHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ump.annotation.JProEnum;
@@ -90,6 +85,9 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
 
 	@Autowired
 	private UccPropertyConfiguration uccPropertyConfiguration;
+
+	@Autowired
+	private JyDemotionService jyDemotionService;
 
 	/**
 	 * 分拣客户端登录服务
@@ -347,6 +345,12 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
 	                result.toWarn(JdResponse.CODE_RESIGNATION,JdResponse.MESSAGE_RESIGNATION);
 	                return result;
 	            }
+				// 获取转运app全局降级配置
+				if(Objects.equals(ProgramTypeEnum.PDA_ANDROID.getCode(), programType)){
+					BusinessConfigInfo businessConfigInfo = new BusinessConfigInfo();
+					businessConfigInfo.setJyDemotionConfigList(jyDemotionService.obtainJyDemotionConfig());
+					result.getData().setBusinessConfigInfo(businessConfigInfo);
+				}
             }
 		}
 		return result;
