@@ -1750,4 +1750,9 @@ public class Constants {
      */
     public static final Long START_SITE_INITIAL_VALUE = 0L;
 
+
+    /**
+     * oss域名，该域名只支持内网访问
+     */
+    public static final String OSS_INTRANET_DOMAIN = "storage.jd.local";
 }

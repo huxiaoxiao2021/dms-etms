@@ -1,6 +1,8 @@
 package com.jd.bluedragon.distribution.exceptionReport.billException.service.impl;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.exceptionReport.expressBill.reponse.FaceFirstAbnormalType;
+import com.jd.bluedragon.common.dto.exceptionReport.expressBill.reponse.FaceSecondAbnormalType;
 import com.jd.bluedragon.distribution.api.Response;
 import com.jd.bluedragon.distribution.exceptionReport.billException.dao.ExpressBillExceptionReportDao;
 import com.jd.bluedragon.distribution.exceptionReport.billException.domain.ExpressBillExceptionReport;
@@ -13,6 +15,7 @@ import com.jd.etms.sdk.util.DateUtil;
 import com.jd.fastjson.JSON;
 import com.jd.jddl.executor.function.scalar.filter.In;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,10 +23,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * @Author: liming522
@@ -145,6 +145,50 @@ public class ExpressBillExceptionReportCenterServiceImpl implements ExpressBillE
         }
         response.toSucceed();
         response.setData(expressBillExceptionReportService.getPicUrlsById(id));
+        return response;
+    }
+
+    /**
+     * 获取一级举报类型--分拣工作台使用
+     */
+    @Override
+    public Response<Map<Integer, String>> getFirstReportType() {
+        Response<Map<Integer,String>> response = new Response<>();
+        response.toSucceed();
+        List<FaceFirstAbnormalType> firstAbnormalTypeList = expressBillExceptionReportService.getFirstAbnormalType();
+        if(CollectionUtils.isEmpty(firstAbnormalTypeList)){
+            response.toError("未获取到面单举报一级原因,请联系分拣小秘!");
+            return response;
+        }
+        Map<Integer, String> map = new HashMap<>();
+        for(FaceFirstAbnormalType abnormalType : firstAbnormalTypeList){
+            map.put(abnormalType.getAbnormalCode(), abnormalType.getAbnormalName());
+        }
+        response.setData(map);
+        return response;
+    }
+
+    /**
+     * 获取二级举报类型--分拣工作台使用
+     * @param firstAbnormalType 一级举报类型
+     */
+    @Override
+    public Response<Map<Integer, String>> getSecondReportType(Integer firstAbnormalType) {
+        Response<Map<Integer,String>> response = new Response<>();
+        response.toSucceed();
+        if(firstAbnormalType == null){
+            response.toError("一级举报类型不存在，请联系分拣小秘!");
+            return response;
+        }
+        List<FaceSecondAbnormalType> secondAbnormalTypeList = expressBillExceptionReportService.getSecondAbnormalType(firstAbnormalType);
+        if(CollectionUtils.isEmpty(secondAbnormalTypeList)){
+            response.toError("未获取到面单举报一级原因,请联系分拣小秘!");
+        }
+        Map<Integer, String> map = new HashMap<>();
+        for(FaceSecondAbnormalType abnormalType : secondAbnormalTypeList){
+            map.put(abnormalType.getAbnormalCode(), abnormalType.getAbnormalName());
+        }
+        response.setData(map);
         return response;
     }
 }

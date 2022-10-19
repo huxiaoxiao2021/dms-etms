@@ -33,5 +33,16 @@ public interface ExpressBillExceptionReportCenterService {
      * @return
      */
     Response<List<String>> getPicUrlsById(Integer id);
+
+    /**
+     * 获取一级举报类型--分拣工作台使用
+     */
+    Response<Map<Integer, String>> getFirstReportType();
+
+    /**
+     * 获取二级举报类型--分拣工作台使用
+     * @param firstAbnormalType 一级举报类型
+     */
+    Response<Map<Integer, String>> getSecondReportType(Integer firstAbnormalType);
 }
     

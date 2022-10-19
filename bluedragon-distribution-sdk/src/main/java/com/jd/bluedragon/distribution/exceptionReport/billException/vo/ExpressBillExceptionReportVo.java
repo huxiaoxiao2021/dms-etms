@@ -54,12 +54,17 @@ public class ExpressBillExceptionReportVo implements Serializable {
     private String firstSiteName;
 
     /**
-     * 举报类型名称
+     * 一级举报类型名称
+     */
+    private String firstReportTypeName;
+
+    /**
+     * 二级举报类型名称
      */
     private String reportTypeName;
 
     /**
-     * 举报类型编码
+     * 二级举报类型编码
      */
     private Integer reportType;
 
@@ -219,6 +224,14 @@ public class ExpressBillExceptionReportVo implements Serializable {
 
     public String getReportTypeName() {
         return reportTypeName;
+    }
+
+    public String getFirstReportTypeName() {
+        return firstReportTypeName;
+    }
+
+    public void setFirstReportTypeName(String firstReportTypeName) {
+        this.firstReportTypeName = firstReportTypeName;
     }
 
     public void setReportTypeName(String reportTypeName) {
