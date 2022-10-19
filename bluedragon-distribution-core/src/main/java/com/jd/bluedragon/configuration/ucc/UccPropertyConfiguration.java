@@ -2,11 +2,9 @@ package com.jd.bluedragon.configuration.ucc;
 
 import com.jd.bluedragon.Constants;
 import com.jd.ql.dms.print.utils.JsonHelper;
-
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.math.NumberUtils;
 
 import java.util.*;
 
@@ -734,6 +732,16 @@ public class UccPropertyConfiguration {
      * true：导出敏感数据
      */
     private boolean querySensitiveFlag;
+
+    /**
+     * 安全开关
+     */
+    private boolean securitySwitch;
+
+    /**
+     * 拣运app降级配置
+     */
+    private String jyDemotionConfig;
 
     public boolean getFilterSendCodeSwitch() {
         return filterSendCodeSwitch;
@@ -2239,7 +2247,7 @@ public class UccPropertyConfiguration {
     public void setWaybillWeightLimit(String waybillWeightLimit) {
         this.waybillWeightLimit = waybillWeightLimit;
     }
-    
+
     public String getNotValidateTransTypeCodesList() {
         return notValidateTransTypeCodesList;
     }
@@ -2279,5 +2287,21 @@ public class UccPropertyConfiguration {
 
     public void setQuerySensitiveFlag(boolean querySensitiveFlag) {
         this.querySensitiveFlag = querySensitiveFlag;
+    }
+
+    public boolean getSecuritySwitch() {
+        return securitySwitch;
+    }
+
+    public void setSecuritySwitch(boolean securitySwitch) {
+        this.securitySwitch = securitySwitch;
+    }
+
+    public String getJyDemotionConfig() {
+        return jyDemotionConfig;
+    }
+
+    public void setJyDemotionConfig(String jyDemotionConfig) {
+        this.jyDemotionConfig = jyDemotionConfig;
     }
 }

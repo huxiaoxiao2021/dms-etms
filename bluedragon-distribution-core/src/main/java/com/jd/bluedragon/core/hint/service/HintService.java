@@ -68,6 +68,19 @@ public class HintService {
     }
 
     /**
+     * 获取提示语
+     *
+     * @param hintCode 提示语编码
+     * @param isShowHintCode 是否展示编码
+     * @return
+     */
+    public static String getHint(String hintCode, Boolean isShowHintCode){
+        HintResp hintResp = hintApiUnwrapManager.getHint(hintCode, null);
+        return (hintResp != null && hintResp.getHintMsg() != null)
+                ? ( isShowHintCode ? String.format("%s-%s", hintCode, hintResp.getHintMsg()) : hintResp.getHintMsg()) : hintCode;
+    }
+
+    /**
      * 获取打印系统提示语信息
      * @param reversedStr 预留缺省字符
      * @param hintCode 提示语编码
