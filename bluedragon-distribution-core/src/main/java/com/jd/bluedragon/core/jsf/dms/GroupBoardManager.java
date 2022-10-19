@@ -81,6 +81,12 @@ public interface GroupBoardManager {
     Response<Board> getBoardByBoxCode(String boxCode, Integer siteCode);
 
 
+    /**
+     * 获取板上该运单的包裹信息
+     * @param boardCode
+     * @param waybillCode
+     * @return
+     */
     List<PackageDto> getPackageCodeUnderComBoard(String boardCode,String waybillCode);
 
     /**
