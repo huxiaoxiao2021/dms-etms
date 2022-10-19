@@ -333,7 +333,10 @@ public class SendDetailConsumer extends MessageBaseConsumer {
     private void sendColdChainSendMQ(SendDetailMessage sendDetail, String waybillCode) throws JMQException {
         if (SendBizSourceEnum.getEnum(sendDetail.getBizSource()) == SendBizSourceEnum.COLD_CHAIN_SEND
                 || SendBizSourceEnum.getEnum(sendDetail.getBizSource()) == SendBizSourceEnum.COLD_LOAD_CAR_KY_SEND
-                || SendBizSourceEnum.getEnum(sendDetail.getBizSource()) == SendBizSourceEnum.COLD_LOAD_CAR_SEND) {
+                || SendBizSourceEnum.getEnum(sendDetail.getBizSource()) == SendBizSourceEnum.COLD_LOAD_CAR_SEND
+                || SendBizSourceEnum.getEnum(sendDetail.getBizSource()) == SendBizSourceEnum.COLD_LOAD_CAR_SEND_NEW
+                || SendBizSourceEnum.getEnum(sendDetail.getBizSource()) == SendBizSourceEnum.COLD_LOAD_CAR_KY_SEND_NEW
+        ) {
             BaseStaffSiteOrgDto createSiteDto = baseMajorManager.getBaseSiteBySiteId(sendDetail.getCreateSiteCode());
             BaseStaffSiteOrgDto receiveSiteDto = baseMajorManager.getBaseSiteBySiteId(sendDetail.getReceiveSiteCode());
             if (createSiteDto != null && receiveSiteDto != null) {
