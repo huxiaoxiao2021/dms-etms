@@ -623,7 +623,7 @@
         <if test="entity.endSiteId != null">
             AND d.end_site_id = #{entity.endSiteId, jdbcType=BIGINT}
         </if>
-        <if test="entity.transWorkItemCode != null">
+        <if test="entity.transWorkItemCode != null and entity.transWorkItemCode !='' ">
             AND d.trans_work_item_code = #{entity.transWorkItemCode}
         </if>
         <if test="entity.transWorkCodeList != null">
