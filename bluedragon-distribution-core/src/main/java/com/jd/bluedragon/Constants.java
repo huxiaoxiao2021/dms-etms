@@ -1752,7 +1752,7 @@ public class Constants {
 
 
     /**
-     * 面单举报图片只能内网查看的域名
+     * oss域名，该域名只支持内网访问
      */
-    public static final String DOMAIN = "storage.jd.local";
+    public static final String OSS_INTRANET_DOMAIN = "storage.jd.local";
 }
