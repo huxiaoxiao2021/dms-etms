@@ -51,6 +51,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -88,6 +89,9 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
 
     @Autowired
     private UccPropertyConfiguration uccPropertyConfiguration;
+
+    @Value("jss.endpoint")
+    private String endpoint;
 
     /**
      * 面单异常提交
@@ -369,7 +373,7 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
         result.toSucceed();
         try {
             //外网支持查看图片
-            request.getReportPictureUrls().replaceAll("local", "com");
+            record.setReportImgUrls(record.getReportImgUrls().replaceAll("storage.jd.local", endpoint));
             // 发送mq消息
             ExpressBillExceptionReportMq expressBillExceptionReportMq = new ExpressBillExceptionReportMq();
             BeanUtils.copyProperties(record, expressBillExceptionReportMq);
