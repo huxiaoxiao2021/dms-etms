@@ -121,7 +121,7 @@ public interface TransportCommonService {
     InvokeResult<List<String>> getPagePackageNoByBoxCode(SortingPageRequest request);
 
     /**
-     * 保存操作版本， 不成功给返回提示
+     * 保存操作版本， 不成功给返回提示（互斥功能）
      * @param sealCarCode
      * @param sealCarCode AppVersionEnums
      * @return
@@ -129,7 +129,7 @@ public interface TransportCommonService {
     InvokeResult<Boolean> saveOperatePdaVersion(String sealCarCode, String pdaVersion);
 
     /**
-     *
+     * 清除转运新老app互斥redis数据（互斥功能）
      * @param sealCarCode
      * @param sealCarCode AppVersionEnums
      * @return
@@ -138,7 +138,7 @@ public interface TransportCommonService {
 
 
     /**
-     *
+     * 获取封车编码领取的app版本（互斥功能）
      * @param sealCarCode
      * @param sealCarCode AppVersionEnums
      * @return

@@ -164,13 +164,33 @@ public interface JyBizTaskUnloadVehicleService {
      */
     Long countByVehicleNumberAndStatus(JyBizTaskUnloadVehicleEntity condition);
 
+    /**
+     * 根据条件查询场内卸车任务信息
+     * @param entity
+     * @return
+     */
     List<UnloadVehicleTaskDto> listUnloadVehicleTask(JyBizTaskUnloadVehicleEntity entity);
 
     UnloadVehicleTaskDto entityConvertDto(JyBizTaskUnloadVehicleEntity entity);
 
+    /**
+     * 按类型（运单、包裹）查询卸车任务统计信息
+     * @param dto
+     * @return
+     */
     ScanStatisticsDto queryStatisticsByDiffDimension(DimensionQueryDto dto);
 
+    /**
+     * 根据bizId查卸车任务信息
+     * @param bizId
+     * @return
+     */
     UnloadVehicleTaskDto queryTaskDataByBizId(String bizId);
 
+    /**
+     * 查任务（板）维度统计数据：应扫、已扫、待扫、拦截、多货..
+     * @param dto
+     * @return
+     */
     InvokeResult<StatisticsDto> queryStatistics(DimensionQueryDto dto);
 }
