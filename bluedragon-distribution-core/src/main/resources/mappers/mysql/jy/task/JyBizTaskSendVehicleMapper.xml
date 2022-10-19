@@ -678,7 +678,7 @@
             #{item}
         </foreach>
         AND start_site_id = #{entity.startSiteId}
-        AND m.manual_created_flag = #{entity.manualCreatedFlag}
+        AND manual_created_flag = #{entity.manualCreatedFlag}
         AND line_type IN
         <foreach collection="lineTypeList" separator="," open="(" close=")" item="item">
             #{item}
