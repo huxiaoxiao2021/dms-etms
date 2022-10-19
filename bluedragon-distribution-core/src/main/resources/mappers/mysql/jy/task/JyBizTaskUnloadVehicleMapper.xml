@@ -636,6 +636,10 @@
             <if test="railwayPfNo">
                 railway_pf_no =#{railwayPfNo},
             </if>
+            <if test="unloadType != null">
+                unload_type =#{unloadType},
+            </if>
+
         </set>
         <where>
             id = #{id}
