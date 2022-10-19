@@ -524,11 +524,18 @@ public class SendVehicleTransactionManager {
                         }
                     }
                     if(needIntercept){
+                        log.info("needInterceptOfGZ:干支校验拦截！{},{}",sendCode,menuCode);
                         result.setData(Boolean.TRUE);
                         result.setMessage(menuUsageProcessDto.getMsg());
                         return result;
+                    }else{
+                        log.info("needInterceptOfGZ:干支校验未拦截！匹配到存在空铁场景下的运力，{},{}",sendCode,menuCode);
                     }
+                }else{
+                    log.info("needInterceptOfGZ:干支校验未拦截！未匹配到近7天的干支发货任务，{},{}",sendCode,menuCode);
                 }
+            }else{
+                log.info("needInterceptOfGZ:干支校验未拦截！未匹配到拦截场地配置，{},{}",sendCode,menuCode);
             }
         }catch (Exception e) {
             log.error("needInterceptOfGZ:干支校验异常！{},{}",sendCode,menuCode, e);
