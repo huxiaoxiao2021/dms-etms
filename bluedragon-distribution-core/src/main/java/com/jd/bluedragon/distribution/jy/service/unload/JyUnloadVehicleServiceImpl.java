@@ -1554,6 +1554,6 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
 
     @Override
     public int insertOrUpdateJyUnloadCarAggs(JyUnloadAggsEntity entity) {
-        return unloadAggDao.insertOrUpdate(entity);
+        return jyUnloadAggsService.insertOrUpdate(entity);
     }
 }

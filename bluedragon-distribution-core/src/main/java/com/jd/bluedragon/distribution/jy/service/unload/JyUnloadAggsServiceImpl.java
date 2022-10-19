@@ -25,6 +25,11 @@ public class JyUnloadAggsServiceImpl implements JyUnloadAggsService {
     }
 
     @Override
+    public int insertOrUpdate(JyUnloadAggsEntity entity) {
+        return jyUnloadAggsDao.insertOrUpdate(entity);
+    }
+
+    @Override
     public List<JyUnloadAggsEntity> queryByBizId(JyUnloadAggsEntity entity) {
         return jyUnloadAggsDao.queryByBizId(entity);
     }
