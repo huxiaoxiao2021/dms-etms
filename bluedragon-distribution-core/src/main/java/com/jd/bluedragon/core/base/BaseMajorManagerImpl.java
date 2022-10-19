@@ -12,6 +12,7 @@ import com.jd.bluedragon.sdk.modules.menu.CommonUseMenuApi;
 import com.jd.bluedragon.sdk.modules.menu.dto.MenuPdaRequest;
 import com.jd.bluedragon.utils.BaseContants;
 import com.jd.bluedragon.utils.BeanCopyUtil;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.coldchain.distribution.api.WaybillPackageContainerApi;
 import com.jd.coldchain.distribution.dto.BaseResponse;
@@ -895,6 +896,7 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
             pagerRequest.setPageSize(request.getPageSize());
             BaseEntity<com.jd.ql.dms.report.domain.Pager<StreamlinedBasicSite>> queryResultEntity = siteQueryService.querySitePageByConditionFromStreamlinedSite(pagerRequest);
             if(queryResultEntity == null || !queryResultEntity.isSuccess()){
+                log.warn("siteQueryService.querySitePageByConditionFromStreamlinedSite error {}", JsonHelper.toJson(queryResultEntity));
                 result.setCode(BaseEntity.CODE_SERVICE_ERROR);
                 result.setMessage("根据条件查询站点异常");
                 return result;
