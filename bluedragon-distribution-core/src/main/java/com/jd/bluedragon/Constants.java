@@ -1750,4 +1750,9 @@ public class Constants {
      */
     public static final Long START_SITE_INITIAL_VALUE = 0L;
 
+
+    /**
+     * 面单举报图片只能内网查看的域名
+     */
+    public static final String DOMAIN = "storage.jd.local";
 }
