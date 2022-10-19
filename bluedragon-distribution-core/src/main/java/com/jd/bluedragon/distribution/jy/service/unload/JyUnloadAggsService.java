@@ -7,6 +7,13 @@ import com.jd.bluedragon.distribution.jy.unload.JyUnloadAggsEntity;
 import java.util.List;
 
 public interface JyUnloadAggsService {
+
+    int insert(JyUnloadAggsEntity entity);
+
+    int insertOrUpdate(JyUnloadAggsEntity entity);
+
+    List<JyUnloadAggsEntity> queryByBizId(JyUnloadAggsEntity entity);
+
     List<GoodsCategoryDto> queryGoodsCategoryStatistics(JyUnloadAggsEntity entity);
 
     List<ExcepScanDto>  queryExcepScanStatistics(JyUnloadAggsEntity entity);

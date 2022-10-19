@@ -20,6 +20,21 @@ public class JyUnloadAggsServiceImpl implements JyUnloadAggsService {
     JyUnloadAggsDao jyUnloadAggsDao;
 
     @Override
+    public int insert(JyUnloadAggsEntity entity) {
+        return jyUnloadAggsDao.insert(entity);
+    }
+
+    @Override
+    public int insertOrUpdate(JyUnloadAggsEntity entity) {
+        return jyUnloadAggsDao.insertOrUpdate(entity);
+    }
+
+    @Override
+    public List<JyUnloadAggsEntity> queryByBizId(JyUnloadAggsEntity entity) {
+        return jyUnloadAggsDao.queryByBizId(entity);
+    }
+
+    @Override
     public List<GoodsCategoryDto> queryGoodsCategoryStatistics(JyUnloadAggsEntity entity) {
         List<GoodsCategoryDto> categoryDtoList = jyUnloadAggsDao.queryGoodsCategoryStatistics(entity);
         if (ObjectHelper.isNotNull(categoryDtoList)) {
