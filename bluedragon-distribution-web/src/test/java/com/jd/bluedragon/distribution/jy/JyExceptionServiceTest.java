@@ -3,7 +3,9 @@ package com.jd.bluedragon.distribution.jy;
 import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.jyexpection.request.*;
+import com.jd.bluedragon.distribution.barcode.domain.DmsBarCode;
 import com.jd.bluedragon.distribution.jy.service.exception.JyExceptionService;
+import com.jd.bluedragon.external.gateway.service.JyExceptionGatewayService;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,11 +15,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.util.List;
+
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {"classpath:bak/distribution-web-context-test.xml"})
 public class JyExceptionServiceTest {
     @Autowired
     JyExceptionService jyExceptionService;
+
+    @Autowired
+    JyExceptionGatewayService jyExceptionGatewayService;
 
 
     @Test
@@ -87,4 +94,12 @@ public class JyExceptionServiceTest {
         JdCResponse<Object> objectJdCResponse = jyExceptionService.processTask(req);
         System.out.println(JSONObject.toJSON(objectJdCResponse));
     }
+
+
+    @Test
+    public void queryProductNameTest() {
+        JdCResponse<List<DmsBarCode>> listJdCResponse = jyExceptionGatewayService.queryProductName("a,aa,4");
+        System.out.println(JSONObject.toJSON(listJdCResponse));
+    }
+
 }
