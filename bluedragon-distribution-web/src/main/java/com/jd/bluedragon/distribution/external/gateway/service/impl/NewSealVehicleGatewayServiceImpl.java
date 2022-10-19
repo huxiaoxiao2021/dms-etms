@@ -231,10 +231,10 @@ public class NewSealVehicleGatewayServiceImpl implements NewSealVehicleGatewaySe
             jdCResponse.setMessage(newSealVehicleResponse.getMessage());
             return jdCResponse;
         }
-        if(newSealVehicleResponse.getCode().equals(NewSealVehicleResponse.CODE_DESTINATION_DIFF_ERROR)){
+        if(newSealVehicleResponse.getExtraBusinessCode().equals(NewSealVehicleResponse.CODE_DESTINATION_DIFF_ERROR)){
             SealVehicleResponseData data = new SealVehicleResponseData();
-            data.setCode(newSealVehicleResponse.getCode());
-            data.setMessage(newSealVehicleResponse.getMessage());
+            data.setCode(newSealVehicleResponse.getExtraBusinessCode());
+            data.setMessage(newSealVehicleResponse.getExtraBusinessMessage());
             jdCResponse.setData(data);
         }
 
