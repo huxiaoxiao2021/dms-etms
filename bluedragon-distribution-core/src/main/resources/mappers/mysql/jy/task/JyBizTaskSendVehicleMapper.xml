@@ -673,15 +673,16 @@
         jy_biz_task_send_vehicle
         WHERE
         yn = 1
+        AND biz_id IN
+        <foreach collection="sendVehicleBizList" separator="," open="(" close=")" item="item">
+            #{item}
+        </foreach>
         AND start_site_id = #{entity.startSiteId}
+        AND m.manual_created_flag = #{entity.manualCreatedFlag}
         AND line_type IN
         <foreach collection="lineTypeList" separator="," open="(" close=")" item="item">
             #{item}
         </foreach>
-       AND biz_id IN
-       <foreach collection="sendVehicleBizList" separator="," open="(" close=")" item="item">
-           #{item}
-       </foreach>
        and create_time &gt;= #{entity.createTimeBegin}
     </select>
 </mapper>

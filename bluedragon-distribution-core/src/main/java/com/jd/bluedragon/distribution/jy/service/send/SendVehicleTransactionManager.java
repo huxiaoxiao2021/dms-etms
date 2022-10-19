@@ -394,6 +394,7 @@ public class SendVehicleTransactionManager {
     	JyBizTaskSendVehicleEntity checkQuery = new JyBizTaskSendVehicleEntity();
     	checkQuery.setStartSiteId(startSiteId);
     	checkQuery.setCreateTimeBegin(beginTime);
+        checkQuery.setManualCreatedFlag(Constants.NUMBER_ZERO);
     	List<Integer> lineTypes = new ArrayList<>();
     	for(JyLineTypeEnum lineType : JyLineTypeEnum.values()) {
     		if(JyLineTypeEnum.TRUNK_LINE.equals(lineType)
