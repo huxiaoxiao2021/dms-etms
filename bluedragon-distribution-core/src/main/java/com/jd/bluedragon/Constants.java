@@ -1740,7 +1740,7 @@ public class Constants {
     public static final String MENU_CODE_SEND_GZ  = "0203004-gz";
 
     /**
-     * 面单举报图片只能内网查看的域名
+     * oss域名，该域名只支持内网访问
      */
-    public static final String DOMAIN = "storage.jd.local";
+    public static final String OSS_INTRANET_DOMAIN = "storage.jd.local";
 }

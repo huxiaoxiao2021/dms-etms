@@ -373,7 +373,7 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
         result.toSucceed();
         try {
             //外网支持查看图片
-            record.setReportImgUrls(record.getReportImgUrls().replaceAll(Constants.DOMAIN, endpoint));
+            record.setReportImgUrls(record.getReportImgUrls().replaceAll(Constants.OSS_INTRANET_DOMAIN, endpoint));
             // 发送mq消息
             ExpressBillExceptionReportMq expressBillExceptionReportMq = new ExpressBillExceptionReportMq();
             BeanUtils.copyProperties(record, expressBillExceptionReportMq);
