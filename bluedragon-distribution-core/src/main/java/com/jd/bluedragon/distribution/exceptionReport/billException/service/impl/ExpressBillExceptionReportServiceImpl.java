@@ -90,7 +90,7 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
     @Autowired
     private UccPropertyConfiguration uccPropertyConfiguration;
 
-    @Value("jss.endpoint")
+    @Value("${jss.endpoint}")
     private String endpoint;
 
     /**
@@ -373,7 +373,7 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
         result.toSucceed();
         try {
             //外网支持查看图片
-            record.setReportImgUrls(record.getReportImgUrls().replaceAll("storage.jd.local", endpoint));
+            record.setReportImgUrls(record.getReportImgUrls().replaceAll(Constants.DOMAIN, endpoint));
             // 发送mq消息
             ExpressBillExceptionReportMq expressBillExceptionReportMq = new ExpressBillExceptionReportMq();
             BeanUtils.copyProperties(record, expressBillExceptionReportMq);

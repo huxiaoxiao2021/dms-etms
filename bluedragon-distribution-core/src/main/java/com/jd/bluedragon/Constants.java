@@ -1738,4 +1738,9 @@ public class Constants {
      * 传摆发货功能编码：0203004-gz
      */
     public static final String MENU_CODE_SEND_GZ  = "0203004-gz";
+
+    /**
+     * 面单举报图片只能内网查看的域名
+     */
+    public static final String DOMAIN = "storage.jd.local";
 }
