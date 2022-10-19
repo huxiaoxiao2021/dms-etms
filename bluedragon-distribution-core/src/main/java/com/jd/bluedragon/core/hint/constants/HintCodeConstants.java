@@ -927,4 +927,31 @@ public class HintCodeConstants {
     public static String NOT_DP_WAYBILL_WRONG_SEND_MSG="50006";
     public static String NOT_FOUND_TRANSFER_TASK_DATA_MSG="50008";
     public static String NOT_FOUND_BINDING_TASK_DATA_MSG="50009";
+
+    /*** 拣运降级提示语 start **/
+    // 拣运降级全局提示语：大促降级，部分数据展示不全，请稍后重新查看!
+    public static String JY_DEMOTION_MSG_SEAL_GLOBAL = "70000";
+    // 封车任务详情：大促降级导致未查询到封车任务明细，请稍后查看!
+    public static String JY_DEMOTION_MSG_SEAL_DETAIL = "70001";
+    // 多扫和待扫包裹明细：大促降级导致未查询到多扫和待扫包裹明细，请稍后查看!
+    public static String JY_DEMOTION_MSG_UNLOAD_MORE_AND_TOSCAN = "70002";
+    // 多扫单号明细：大促降级导致未查询到多扫包裹明细，请稍后查看!
+    public static String JY_DEMOTION_MSG_UNLOAD_MORE_SCAN = "70003";
+    // 拦截单号明细：大促降级导致未查询到拦截包裹明细，请稍后查看!
+    public static String JY_DEMOTION_MSG_UNLOAD_INTERCEPT = "70004";
+    // 卸车待扫包裹：大促降级导致未查询到待扫包裹明细，请稍后查看!
+    public static String JY_DEMOTION_MSG_UNLOAD_TOSCAN = "70005";
+    // 发货进度不准：大促降级导致发货进度不准，请稍后查看!
+    public static String JY_DEMOTION_MSG_SEND_PROCESS_NOT_ACCURATE = "70006";
+    // 卸车进度不准：大促降级导致卸车进度不准，请稍后查看!
+    public static String JY_DEMOTION_MSG_UNLOAD_PROCESS_NOT_ACCURATE = "70007";
+    // 根据包裹号从ES未获得封车编码：因大促降级导致根据包裹未查询到封车编码，请录入车牌号查询!
+    public static String JY_DEMOTION_MSG_NO_SEAL_CAR_CODE = "70008";
+    // 发货异常：大促降级导致未查询到发货异常明细，请稍后查看!
+    public static String JY_DEMOTION_MSG_SEND_ABNORMAL = "70009";
+    // 强制发货包裹明细：大促降级导致未查询到强制发货包裹明细，请稍后查看!
+    public static String JY_DEMOTION_MSG_SEND_FORCE = "70010";
+    // 发货拦截：大促降级导致未查询到发货拦截包裹明细，请稍后查看!
+    public static String JY_DEMOTION_MSG_SEND_INTERCEPT = "70011";
+    /*** 拣运降级提示语 start **/
 }

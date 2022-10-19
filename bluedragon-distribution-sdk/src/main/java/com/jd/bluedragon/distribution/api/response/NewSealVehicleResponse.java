@@ -7,6 +7,7 @@ public class NewSealVehicleResponse<T> extends JdExtraMessageResponse {
 	private static final long serialVersionUID = -9096768337471427500L;
 
 	public static final Integer CODE_EXCUTE_ERROR = 10000;
+	public static final Integer CODE_DESTINATION_DIFF_ERROR = 10001;
 	public static final Integer CODE_SEAL_SUCCEED_BUT_WARN = 20001;
 	public static final String MESSAGE_EXCUTE_ERROR = "推送运输数据失败！";
 	public static final String MESSAGE_QUERY_ERROR = "获取待解封车数据失败！";
@@ -21,6 +22,7 @@ public class NewSealVehicleResponse<T> extends JdExtraMessageResponse {
 	public static final String TIPS_RECEIVESITE_DIFF_ERROR = "批次号与运力编码目的地不一致，请核准后重新操作!";
 	public static final String TIPS_PRESEAL_PARAM_ERROR = "运力编码和车牌不能为空!";
 	public static final String TIPS_PRESEAL_NOEXIST_ERROR = "该目的地没有预封车数据，无法更新预封车信息!";
+	public static final String TIPS_TRANSPORT_BATCHCODE_DESTINATION_DIFF_ERROR = "当前运力和批次目的地不符将产生错发，运力编码目的地为:{0}";
 
 	public static final Integer CODE_BATCH_CODE_SEALED = 20012;
 	public static final String MESSAGE_BATCH_CODE_SEALED = "该批次已封车！";
