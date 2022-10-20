@@ -1752,9 +1752,9 @@ public class Constants {
 
 
     /**
-     * oss域名，该域名只支持内网访问
+     * OSS外网域名
      */
-    public static final String OSS_INTRANET_DOMAIN = "storage.jd.local";
+    public static final String OSS_DOMAIN = "storage.jd.com";
 
     /**
      * 按任务封车：0101013-rw
