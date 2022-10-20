@@ -3,14 +3,14 @@ package com.jd.bluedragon.distribution.base.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
-import com.jd.bluedragon.common.dto.base.request.User;
+import com.jd.bluedragon.common.dto.base.request.Pager;
+import com.jd.bluedragon.common.dto.basedata.request.StreamlinedBasicSiteQuery;
 import com.jd.bluedragon.common.dto.sysConfig.request.MenuUsageConfigRequestDto;
 import com.jd.bluedragon.common.dto.sysConfig.response.MenuUsageConditionConfigDto;
 import com.jd.bluedragon.common.dto.sysConfig.response.MenuUsageConfigDto;
 import com.jd.bluedragon.common.dto.sysConfig.response.MenuUsageProcessDto;
 import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.core.redis.TaskMode;
-import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.base.dao.SysConfigDao;
 import com.jd.bluedragon.distribution.base.domain.BasePdaUserDto;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -22,6 +22,7 @@ import com.jd.bluedragon.distribution.reverse.domain.Product;
 import com.jd.bluedragon.distribution.reverse.domain.ReverseSendWms;
 import com.jd.bluedragon.distribution.sysloginlog.domain.ClientInfo;
 import com.jd.bluedragon.utils.*;
+import com.jd.dms.workbench.utils.sdk.base.Result;
 import com.jd.etms.framework.utils.cache.annotation.Cache;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
@@ -39,6 +40,8 @@ import com.jd.ql.basic.proxy.BasicSecondaryWSProxy;
 import com.jd.ql.basic.ws.BasicMixedWS;
 import com.jd.ql.basic.ws.BasicPrimaryWS;
 import com.jd.ql.basic.ws.BasicSecondaryWS;
+import com.jd.ql.dms.report.SiteQueryService;
+import com.jd.ql.dms.report.domain.StreamlinedBasicSite;
 import com.jd.ssa.domain.UserInfo;
 import com.jd.tms.basic.dto.BasicDictDto;
 import com.jd.tms.basic.dto.CarrierDto;
@@ -55,6 +58,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.util.*;
 
@@ -1008,5 +1012,38 @@ public class BaseServiceImpl extends AbstractClient implements BaseService, ErpV
         }
 
         return null;
+    }
+
+    /**
+     * 场地列表
+     *
+     * @param request 请求参数
+     * @return 返回结果
+     * @author fanggang7
+     * @time 2022-10-11 14:59:04 周二
+     */
+    @Override
+    public Result<Pager<StreamlinedBasicSite>> selectSiteList(Pager<StreamlinedBasicSiteQuery> request) {
+        log.info("BaseServiceImpl.selectSiteList param {}", JsonHelper.toJson(request));
+        Result<Pager<StreamlinedBasicSite>> result = Result.success();
+        Pager<StreamlinedBasicSite> pagerData = new Pager<>(request.getPageNo(), request.getPageSize(), 0L);
+        result.setData(pagerData);
+
+        try {
+            final com.jd.ql.dms.report.domain.BaseEntity<Pager<StreamlinedBasicSite>> queryPageResult = baseMajorManager.querySiteByConditionFromStreamlinedSite(request);
+            if(!queryPageResult.isSuccess()){
+                log.warn("BaseMajorManager.querySiteByConditionFromStreamlinedSite error {}", JsonHelper.toJson(queryPageResult));
+                return result.toFail("查询站点异常");
+            }
+            final Pager<StreamlinedBasicSite> queryPagerData = queryPageResult.getData();
+            pagerData.setData(queryPagerData.getData());
+            pagerData.setPageNo(queryPagerData.getPageNo());
+            pagerData.setPageSize(queryPagerData.getPageSize());
+            pagerData.setTotal(queryPagerData.getTotal());
+        } catch (Exception e) {
+            log.error("BaseServiceImpl.selectSiteList error ", e);
+            return result.toFail("接口异常");
+        }
+        return result;
     }
 }
