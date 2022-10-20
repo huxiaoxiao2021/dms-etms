@@ -1249,6 +1249,9 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
      * @return
      */
     private boolean getSendTaskByPackage(TransferVehicleTaskReq vehicleTaskReq, InvokeResult<VehicleTaskResp> result, JyBizTaskSendVehicleDetailEntity queryDetail) {
+        if (vehicleTaskReq.getBarCode()==null && vehicleTaskReq.getPackageCode()!=null){
+            vehicleTaskReq.setBarCode(vehicleTaskReq.getPackageCode());
+        }
         if (WaybillUtil.isPackageCode(vehicleTaskReq.getBarCode())) {
             Long startSiteId = (long) vehicleTaskReq.getCurrentOperate().getSiteCode();
             JySendEntity sendEntity = jySendService.queryByCodeAndSite(new JySendEntity(vehicleTaskReq.getBarCode(), startSiteId));
