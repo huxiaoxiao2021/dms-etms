@@ -23,7 +23,6 @@ import com.jd.bluedragon.distribution.exceptionReport.billException.dao.ExpressB
 import com.jd.bluedragon.distribution.exceptionReport.billException.domain.ExpressBillExceptionReport;
 import com.jd.bluedragon.distribution.exceptionReport.billException.dto.ExpressBillExceptionReportMq;
 import com.jd.bluedragon.distribution.exceptionReport.billException.enums.*;
-import com.jd.bluedragon.distribution.exceptionReport.billException.request.ExpressBillExceptionReportQuery;
 import com.jd.bluedragon.distribution.exceptionReport.billException.service.ExpressBillExceptionReportService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -51,7 +50,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -90,8 +88,10 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
     @Autowired
     private UccPropertyConfiguration uccPropertyConfiguration;
 
-    @Value("${jss.endpoint}")
-    private String endpoint;
+    /**
+     * oss内网域名正则表达式
+     */
+    public static final String OSS_INTRANET_DOMAIN_REGEX = "storage\\.jd\\.local";
 
     /**
      * 面单异常提交
@@ -382,7 +382,7 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
                 log.debug("ExpressBillExceptionReportServiceImpl.sendDmsExpressBillExceptionReport content: [{}]", JsonHelper.toJson(expressBillExceptionReportMq));
             }
             //外网支持查看图片
-            expressBillExceptionReportMq.setReportImgUrls(expressBillExceptionReportMq.getReportImgUrls().replaceAll(Constants.OSS_INTRANET_DOMAIN_REGEX, Constants.OSS_DOMAIN));
+            expressBillExceptionReportMq.setReportImgUrls(expressBillExceptionReportMq.getReportImgUrls().replaceAll(OSS_INTRANET_DOMAIN_REGEX, Constants.OSS_DOMAIN));
             dmsExpressBillExceptionReportProducer.send(record.getPackageCode(), JsonHelper.toJson(expressBillExceptionReportMq));
         } catch (JMQException e) {
             log.error("ExpressBillExceptionReportServiceImpl.sendDmsExpressBillExceptionReport failed ", e);
