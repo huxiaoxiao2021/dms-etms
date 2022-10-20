@@ -1755,4 +1755,15 @@ public class Constants {
      * oss域名，该域名只支持内网访问
      */
     public static final String OSS_INTRANET_DOMAIN = "storage.jd.local";
+
+    /**
+     * 按任务封车：0101013-rw
+     */
+    public static final String MENU_CODE_SEAL_GZ  = "0101013-gz";
+
+
+    /**
+     * 批量一车一单发货批次扫描批次
+     */
+    public static final String MENU_CODE_BATCH_SEND_CODE  = "0101004-gz";
 }
