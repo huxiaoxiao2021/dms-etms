@@ -1,6 +1,7 @@
 package com.jd.bluedragon.core.base;
 
 import com.jd.bluedragon.Pager;
+import com.jd.bluedragon.common.dto.basedata.request.StreamlinedBasicSiteQuery;
 import com.jd.bluedragon.distribution.base.domain.SiteWareHouseMerchant;
 import com.jd.bluedragon.distribution.middleend.sorting.domain.DmsCustomSite;
 import com.jd.ldop.basic.dto.BasicTraderNeccesaryInfoDTO;
@@ -210,6 +211,15 @@ public interface BaseMajorManager {
 	 * @return
 	 */
 	List<StreamlinedBasicSite> querySiteByConditionFromStreamlinedSite(StreamlinedSiteQueryCondition siteQueryCondition, Integer limit);
+
+	/**
+	 * 场地列表
+	 * @param request 请求参数
+	 * @return 返回结果
+	 * @author fanggang7
+	 * @time 2022-10-11 14:59:04 周二
+	 */
+	BaseEntity<com.jd.bluedragon.common.dto.base.request.Pager<StreamlinedBasicSite>> querySiteByConditionFromStreamlinedSite(com.jd.bluedragon.common.dto.base.request.Pager<StreamlinedBasicSiteQuery> request);
 
 	/**
 	 * 校验冷链配置路由
