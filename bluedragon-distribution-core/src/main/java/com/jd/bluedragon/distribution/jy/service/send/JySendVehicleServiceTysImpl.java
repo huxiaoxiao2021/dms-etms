@@ -73,10 +73,10 @@ public class JySendVehicleServiceTysImpl extends JySendVehicleServiceImpl implem
 
     @Override
     public ExcepPackageDto queryExcepPackageUnderWaybill(QueryExcepPackageDto queryExcepPackageDto) {
-        Pager<SendVehicleTaskQuery> queryPager =assembleQueryPackageDto(queryExcepPackageDto);
-        Pager<SendPackageDto> sendPackageDtoPager =sendVehicleJsfManager.querySendPackageDetail(queryPager);
+        Pager<SendVehicleTaskQuery> queryPager = assembleQueryPackageDto(queryExcepPackageDto);
+        Pager<SendPackageDto> sendPackageDtoPager = sendVehicleJsfManager.querySendPackageDetail(queryPager);
         if (ObjectHelper.isNotNull(sendPackageDtoPager)){
-            ExcepPackageDto excepPackageDto =new ExcepPackageDto();
+            ExcepPackageDto excepPackageDto = new ExcepPackageDto();
             excepPackageDto.setSendPackageDtoList(sendPackageDtoPager.getData());
             excepPackageDto.setTotal(sendPackageDtoPager.getTotal());
             return excepPackageDto;
@@ -124,11 +124,12 @@ public class JySendVehicleServiceTysImpl extends JySendVehicleServiceImpl implem
     }
 
     private Pager<SendVehicleTaskQuery> assembleQueryPackageDto(QueryExcepPackageDto queryExcepPackageDto) {
-        SendVehicleTaskQuery sendVehicleTaskQuery =new SendVehicleTaskQuery();
+        SendVehicleTaskQuery sendVehicleTaskQuery = new SendVehicleTaskQuery();
         sendVehicleTaskQuery.setSendVehicleBizId(queryExcepPackageDto.getSendVehicleBizId());
+        sendVehicleTaskQuery.setOperateSiteId(queryExcepPackageDto.getOperateSiteId());
         sendVehicleTaskQuery.setWaybillCode(queryExcepPackageDto.getWaybillCode());
         sendVehicleTaskQuery.setQueryBarCodeFlag(queryExcepPackageDto.getExcepScanTypeEnum().getCode());
-        Pager<SendVehicleTaskQuery> queryPager =new Pager();
+        Pager<SendVehicleTaskQuery> queryPager = new Pager<>();
         queryPager.setSearchVo(sendVehicleTaskQuery);
         queryPager.setPageNo(queryExcepPackageDto.getPageNo());
         queryPager.setPageSize(queryExcepPackageDto.getPageSize());

@@ -14,4 +14,5 @@ public class QueryExcepPackageDto {
      */
     private String sendVehicleBizId;
     private String waybillCode;
+    private Integer operateSiteId;
 }

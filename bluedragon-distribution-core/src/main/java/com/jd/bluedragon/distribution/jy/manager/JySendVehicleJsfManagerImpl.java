@@ -69,14 +69,14 @@ public class JySendVehicleJsfManagerImpl implements IJySendVehicleJsfManager {
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public Pager<SendWaybillDto> querySendTaskWaybill(Pager<SendVehicleTaskQuery> queryPager) {
         try {
-            ServiceResult<Pager<JySendTaskWaybillAgg>> serviceResult =sendVehicleJsfService.querySendTaskWaybill(queryPager);
+            ServiceResult<Pager<JySendTaskWaybillAgg>> serviceResult = sendVehicleJsfService.querySendTaskWaybill(queryPager);
             if (serviceResult.retSuccess()) {
                 Pager<JySendTaskWaybillAgg> pagerData = serviceResult.getData();
                 if (ObjectHelper.isNotNull(pagerData) && ObjectHelper.isNotNull(pagerData.getData()) && pagerData.getData().size()>0){
                     List<JySendTaskWaybillAgg> list =pagerData.getData();
                     List<SendWaybillDto> sendWaybillDtoList = transformData(list);
 
-                    Pager<SendWaybillDto> pager =new Pager();
+                    Pager<SendWaybillDto> pager = new Pager<>();
                     pager.setData(sendWaybillDtoList);
                     pager.setPageNo(pagerData.getPageNo());
                     pager.setPageSize(pager.getPageSize());
@@ -107,11 +107,11 @@ public class JySendVehicleJsfManagerImpl implements IJySendVehicleJsfManager {
             jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public Pager<SendPackageDto> querySendPackageDetail(Pager<SendVehicleTaskQuery> queryPager) {
         try {
-            ServiceResult<Pager<SendPackageEsDto>> serviceResult =sendVehicleJsfService.querySendPackageDetail(queryPager);
+            ServiceResult<Pager<SendPackageEsDto>> serviceResult = sendVehicleJsfService.querySendPackageDetail(queryPager);
             if (serviceResult.retSuccess()) {
                 Pager<SendPackageEsDto> pagerData = serviceResult.getData();
                 if (ObjectHelper.isNotNull(pagerData) && ObjectHelper.isNotNull(pagerData.getData()) && pagerData.getData().size()>0){
-                    List<SendPackageDto> sendPackageDtoList = new ArrayList();
+                    List<SendPackageDto> sendPackageDtoList = new ArrayList<>();
                     SendVehicleTaskQuery sendVehicleTaskQuery =queryPager.getSearchVo();
                     for (SendPackageEsDto sendPackageEsDto:pagerData.getData()){
                         SendPackageDto sendPackageDto =new SendPackageDto();
@@ -120,7 +120,7 @@ public class JySendVehicleJsfManagerImpl implements IJySendVehicleJsfManager {
                         sendPackageDtoList.add(sendPackageDto);
                     }
 
-                    Pager<SendPackageDto> pager =new Pager();
+                    Pager<SendPackageDto> pager = new Pager<>();
                     pager.setData(sendPackageDtoList);
                     pager.setPageNo(pagerData.getPageNo());
                     pager.setPageSize(pager.getPageSize());

@@ -434,7 +434,7 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
             sendWaybillStatisticsResp.setExcepScanDtoList(sendExcepScanDtoList);
         }
         else  {
-            return new InvokeResult(NOT_SUPPORT_TYPE_QUERY_CODE,NOT_SUPPORT_TYPE_QUERY_MESSAGE);
+            return new InvokeResult<>(NOT_SUPPORT_TYPE_QUERY_CODE,NOT_SUPPORT_TYPE_QUERY_MESSAGE);
         }
         QueryExcepWaybillDto queryExcepWaybillDto = assembleQueryExcepWaybillDto(querySendWaybillReq);
         ExcepWaybillDto waybillDto = jySendVehicleServiceTys.queryExcepScanWaybill(queryExcepWaybillDto);
@@ -445,7 +445,7 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
     @Override
     @JProfiler(jKey = "DMSWEB.JySendVehicleTysService.listSendPackageDetail", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<SendPackageStatisticsResp> listSendPackageDetail(QuerySendPackageReq querySendPackageReq) {
-        SendPackageStatisticsResp sendPackageStatisticsResp =new SendPackageStatisticsResp();
+        SendPackageStatisticsResp sendPackageStatisticsResp = new SendPackageStatisticsResp();
         QueryExcepPackageDto queryExcepPackageDto = assembleQueryExcepPackageDto(querySendPackageReq);
         ExcepPackageDto packageDto = jySendVehicleServiceTys.queryExcepPackageUnderWaybill(queryExcepPackageDto);
         assembleRespPackageData(sendPackageStatisticsResp, packageDto);
@@ -454,7 +454,7 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
 
     private void assembleRespPackageData(SendPackageStatisticsResp sendPackageStatisticsResp, ExcepPackageDto packageDto) {
         if (ObjectHelper.isNotNull(packageDto) && ObjectHelper.isNotNull(packageDto.getSendPackageDtoList())) {
-            List<SendPackage> packList = new ArrayList();
+            List<SendPackage> packList = new ArrayList<>();
             for (SendPackageDto sendPackageDto : packageDto.getSendPackageDtoList()) {
                 SendPackage sendScanPack = new SendPackage();
                 sendScanPack.setPackageCode(sendPackageDto.getPackageCode());
@@ -500,6 +500,7 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
     private QueryExcepPackageDto assembleQueryExcepPackageDto(QuerySendPackageReq request) {
         QueryExcepPackageDto queryExcepPackageDto = new QueryExcepPackageDto();
         queryExcepPackageDto.setSendVehicleBizId(request.getSendVehicleBizId());
+        queryExcepPackageDto.setOperateSiteId(request.getCurrentOperate().getSiteCode());
         queryExcepPackageDto.setExcepScanTypeEnum(ExcepScanTypeEnum.getExcepScanTypeEnum(request.getExpType()));
         queryExcepPackageDto.setPageNo(request.getPageNo());
         queryExcepPackageDto.setPageSize(request.getPageSize());
