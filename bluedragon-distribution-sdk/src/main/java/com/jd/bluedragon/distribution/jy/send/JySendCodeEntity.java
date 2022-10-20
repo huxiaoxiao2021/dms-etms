@@ -63,6 +63,7 @@ public class JySendCodeEntity implements Serializable {
 	 * 数据库时间
 	 */
 	private Date ts;
+	private Integer source;
 
 	public Long getId() {
 		return id;
@@ -158,5 +159,13 @@ public class JySendCodeEntity implements Serializable {
 
 	public void setTs(Date ts) {
 		this.ts = ts;
+	}
+
+	public Integer getSource() {
+		return source;
+	}
+
+	public void setSource(Integer source) {
+		this.source = source;
 	}
 }
