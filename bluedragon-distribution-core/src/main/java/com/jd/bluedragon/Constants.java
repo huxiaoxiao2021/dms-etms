@@ -1738,4 +1738,15 @@ public class Constants {
      * 传摆发货功能编码：0203004-gz
      */
     public static final String MENU_CODE_SEND_GZ  = "0203004-gz";
+
+    /**
+     * 按任务封车：0101013-rw
+     */
+    public static final String MENU_CODE_SEAL_GZ  = "0101013-gz";
+
+
+    /**
+     * 批量一车一单发货批次扫描批次
+     */
+    public static final String MENU_CODE_BATCH_SEND_CODE  = "0101004-gz";
 }

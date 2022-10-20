@@ -28,9 +28,11 @@ import com.jd.bluedragon.distribution.coldchain.domain.ColdChainSend;
 import com.jd.bluedragon.distribution.coldchain.service.ColdChainSendService;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.jy.enums.SpotCheckTypeEnum;
+import com.jd.bluedragon.distribution.jy.service.send.SendVehicleTransactionManager;
 import com.jd.bluedragon.distribution.seal.service.CarLicenseChangeUtil;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.distribution.transport.service.TransportRelatedService;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
@@ -144,6 +146,10 @@ public class NewSealVehicleResource {
 
     @Autowired
     private TransportRelatedService transportRelatedService;
+
+    @Autowired
+    @Qualifier("sendVehicleTransactionManager")
+    private SendVehicleTransactionManager sendVehicleTransactionManager;
 
     /**
      * 校验并获取运力编码信息
@@ -453,6 +459,17 @@ public class NewSealVehicleResource {
             checkBatchCode(sealVehicleResponse, sendCode);
             if ((Constants.SEAL_TYPE_TRANSPORT.equals(sealCarType) || Constants.SEAL_TYPE_TASK.equals(sealCarType))
                     && JdResponse.CODE_OK.equals(sealVehicleResponse.getCode())) {
+                //按任务封车 干支封车拦截校验
+                if(Constants.SEAL_TYPE_TASK.equals(sealCarType)){
+                    CurrentOperate currentOperate = new CurrentOperate();
+                    currentOperate.setSiteCode(BusinessUtil.getCreateSiteCodeFromSendCode(sendCode));
+                    InvokeResult<Boolean> interceptResult = sendVehicleTransactionManager.needInterceptOfGZ(sendCode,Constants.MENU_CODE_SEAL_GZ,currentOperate,null);
+                    if(interceptResult.codeSuccess() && interceptResult.getData()){
+                        sealVehicleResponse.setCode(JdResponse.CODE_SERVICE_ERROR);
+                        sealVehicleResponse.setMessage(interceptResult.getMessage());
+                        return sealVehicleResponse;
+                    }
+                }
                com.jd.tms.basic.dto.CommonDto<TransportResourceDto> vtsDto
                         = newsealVehicleService.getTransportResourceByTransCode(transportCode);
                 if (vtsDto == null) {

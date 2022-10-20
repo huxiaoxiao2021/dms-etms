@@ -6,7 +6,10 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.base.response.MsgBoxTypeEnum;
-import com.jd.bluedragon.common.dto.operation.workbench.enums.*;
+import com.jd.bluedragon.common.dto.operation.workbench.enums.BarCodeLabelOptionEnum;
+import com.jd.bluedragon.common.dto.operation.workbench.enums.SendAbnormalEnum;
+import com.jd.bluedragon.common.dto.operation.workbench.enums.SendVehicleLabelOptionEnum;
+import com.jd.bluedragon.common.dto.operation.workbench.enums.SendVehicleScanTypeEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.*;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.*;
 import com.jd.bluedragon.common.dto.operation.workbench.unload.response.LabelOption;
@@ -20,11 +23,7 @@ import com.jd.bluedragon.common.dto.sysConfig.request.MenuUsageConfigRequestDto;
 import com.jd.bluedragon.common.dto.sysConfig.response.MenuUsageProcessDto;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
-import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.core.base.BasicQueryWSManager;
-import com.jd.bluedragon.core.base.BasicSelectWsManager;
-import com.jd.bluedragon.core.base.JdiQueryWSManager;
-import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
@@ -46,11 +45,13 @@ import com.jd.bluedragon.distribution.funcSwitchConfig.service.FuncSwitchConfigS
 import com.jd.bluedragon.distribution.jsf.domain.SortingCheck;
 import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
 import com.jd.bluedragon.distribution.jsf.domain.ValidateIgnore;
+import com.jd.ql.dms.common.constants.JyConstants;
 import com.jd.bluedragon.distribution.jy.dto.send.JyBizTaskSendCountDto;
 import com.jd.bluedragon.distribution.jy.dto.send.JySendArriveStatusDto;
 import com.jd.bluedragon.distribution.jy.dto.send.QueryTaskSendDto;
 import com.jd.bluedragon.distribution.jy.dto.send.SendFindDestInfoDto;
 import com.jd.bluedragon.distribution.jy.enums.*;
+import com.jd.bluedragon.distribution.jy.exception.JyDemotionException;
 import com.jd.bluedragon.distribution.jy.group.JyTaskGroupMemberEntity;
 import com.jd.bluedragon.distribution.jy.manager.IJySendVehicleJsfManager;
 import com.jd.bluedragon.distribution.jy.manager.JyScheduleTaskManager;
@@ -58,6 +59,7 @@ import com.jd.bluedragon.distribution.jy.send.JySendAggsEntity;
 import com.jd.bluedragon.distribution.jy.send.JySendAttachmentEntity;
 import com.jd.bluedragon.distribution.jy.send.JySendCodeEntity;
 import com.jd.bluedragon.distribution.jy.send.JySendEntity;
+import com.jd.bluedragon.distribution.jy.service.config.JyDemotionService;
 import com.jd.bluedragon.distribution.jy.service.group.JyTaskGroupMemberService;
 import com.jd.bluedragon.distribution.jy.service.seal.JySendSealCodeService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetailService;
@@ -86,6 +88,7 @@ import com.jd.coo.sa.sequence.JimdbSequenceGen;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.jim.cli.Cluster;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.dms.common.constants.CodeConstants;
 import com.jd.tms.basic.dto.BasicVehicleTypeDto;
 import com.jd.tms.basic.dto.TransportResourceDto;
 import com.jd.tms.jdi.dto.TransWorkBillDto;
@@ -104,7 +107,6 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -238,6 +240,9 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
     private BasicSelectWsManager basicSelectWsManager;
     @Autowired
     SendDetailService sendDetailService;
+
+    @Autowired
+    private JyDemotionService jyDemotionService;
 
     @Override
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "IJySendVehicleService.fetchSendVehicleTask",
@@ -1885,8 +1890,10 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
                     // 无任务首次扫描返回目的地
                     Long routeNextSite = getWaybillNextRouter(WaybillUtil.getWaybillCode(barCode), taskSend.getStartSiteId());
                     if (routeNextSite == null) {
-                        response.toBizError();
-                        response.addInterceptBox(0, "运单的路由没有当前场地！无任务首次扫描请扫描路由正确的单号");
+                        // response.toBizError();
+                        // response.addInterceptBox(0, "运单的路由没有当前场地！无任务首次扫描请扫描路由正确的单号");
+                        response.setCode(SendScanResponse.CODE_NO_TASK_CONFIRM_DEST);
+                        response.addConfirmBox(0, "无任务发货请确认发货流向");
                         return false;
                     }
 
@@ -2250,6 +2257,13 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
             invokeResult.setData(progress);
 
             setSendProgressData(taskSend, progress);
+            // flink积压导致进度不准，提示前台友好提示
+            if(jyDemotionService.checkIsDemotion(JyConstants.JY_FLINK_SEND_IS_DEMOTION)){
+                throw new JyDemotionException("进度数据不准，flink降级!");
+            }
+        }
+        catch (JyDemotionException e){
+            invokeResult.customMessage(CodeConstants.JY_DEMOTION_CODE, HintService.getHint(HintCodeConstants.JY_DEMOTION_MSG_SEND_PROCESS_NOT_ACCURATE, false));
         }
         catch (Exception ex) {
             log.error("查询发货进度失败. {}", JsonHelper.toJson(request), ex);
@@ -2430,6 +2444,9 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
         try {
             querySendBarCodeList(invokeResult, request, SendBarCodeQueryEntranceEnum.INTERCEPT, SendVehicleTaskQuery.QUERY_INTERCEPT);
         }
+        catch (JyDemotionException e){
+            invokeResult.customMessage(CodeConstants.JY_DEMOTION_CODE, HintService.getHint(HintCodeConstants.JY_DEMOTION_MSG_SEND_INTERCEPT, false));
+        }
         catch (Exception ex) {
             log.error("查询发车拦截包裹记录异常. {}", JsonHelper.toJson(request), ex);
             invokeResult.error("服务器异常，查询拦截包裹记录失败，请咚咚联系分拣小秘！");
@@ -2511,6 +2528,9 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
         try {
             querySendBarCodeList(invokeResult, request, SendBarCodeQueryEntranceEnum.FORCE_SEND, SendVehicleTaskQuery.QUERY_FORCE_SEND);
         }
+        catch (JyDemotionException e){
+            invokeResult.customMessage(CodeConstants.JY_DEMOTION_CODE, HintService.getHint(HintCodeConstants.JY_DEMOTION_MSG_SEND_FORCE, false));
+        }
         catch (Exception ex) {
             log.error("查询发车强制发货包裹记录异常. {}", JsonHelper.toJson(request), ex);
             invokeResult.error("服务器异常，查询强制发货包裹记录失败，请咚咚联系分拣小秘！");
@@ -2533,6 +2553,9 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService{
 
         try {
             querySendBarCodeList(invokeResult, request, SendBarCodeQueryEntranceEnum.GO_TO_SEAL_PREVIEW, SendVehicleTaskQuery.QUERY_BOTH_INTERCEPT_AND_FORCE_SEND);
+        }
+        catch (JyDemotionException e){
+            invokeResult.customMessage(CodeConstants.JY_DEMOTION_CODE, HintService.getHint(HintCodeConstants.JY_DEMOTION_MSG_SEND_ABNORMAL, false));
         }
         catch (Exception ex) {
             log.error("查询发车异常包裹记录异常. {}", JsonHelper.toJson(request), ex);
