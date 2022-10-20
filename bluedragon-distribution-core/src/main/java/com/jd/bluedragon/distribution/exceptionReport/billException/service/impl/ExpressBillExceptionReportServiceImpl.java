@@ -23,7 +23,6 @@ import com.jd.bluedragon.distribution.exceptionReport.billException.dao.ExpressB
 import com.jd.bluedragon.distribution.exceptionReport.billException.domain.ExpressBillExceptionReport;
 import com.jd.bluedragon.distribution.exceptionReport.billException.dto.ExpressBillExceptionReportMq;
 import com.jd.bluedragon.distribution.exceptionReport.billException.enums.*;
-import com.jd.bluedragon.distribution.exceptionReport.billException.request.ExpressBillExceptionReportQuery;
 import com.jd.bluedragon.distribution.exceptionReport.billException.service.ExpressBillExceptionReportService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -88,6 +87,11 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
 
     @Autowired
     private UccPropertyConfiguration uccPropertyConfiguration;
+
+    /**
+     * oss内网域名正则表达式
+     */
+    private static final String OSS_INTRANET_DOMAIN_REGEX = "storage\\.jd\\.local";
 
     /**
      * 面单异常提交
@@ -377,6 +381,8 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
             if(log.isDebugEnabled()){
                 log.debug("ExpressBillExceptionReportServiceImpl.sendDmsExpressBillExceptionReport content: [{}]", JsonHelper.toJson(expressBillExceptionReportMq));
             }
+            //外网支持查看图片
+            expressBillExceptionReportMq.setReportImgUrls(expressBillExceptionReportMq.getReportImgUrls().replaceAll(OSS_INTRANET_DOMAIN_REGEX, Constants.OSS_DOMAIN));
             dmsExpressBillExceptionReportProducer.send(record.getPackageCode(), JsonHelper.toJson(expressBillExceptionReportMq));
         } catch (JMQException e) {
             log.error("ExpressBillExceptionReportServiceImpl.sendDmsExpressBillExceptionReport failed ", e);
@@ -592,6 +598,8 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
         report.setFirstSiteName(reportRequest.getFirstSiteName());
         report.setReportImgUrls(reportRequest.getReportPictureUrls());
         report.setReportTime(reportRequest.getReportTime());
+        report.setFirstReportType(reportRequest.getFirstReportType());
+        report.setFirstReportTypeName(reportRequest.getFirstReportTypeName());
         report.setReportType(reportRequest.getReportType());
         report.setReportTypeName(reportRequest.getReportTypeName());
         report.setReportUserErp(reportRequest.getUser().getUserErp());
