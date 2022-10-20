@@ -809,7 +809,7 @@
     </bean> 
     <bean id="jyAppDataSealSendCodeDao" class="com.jd.bluedragon.distribution.jy.dao.seal.JyAppDataSealSendCodeDao">
         <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
-    </bean>
+    </bean>            
     <bean id="jyBizTaskUnloadVehicleDao" class="com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskUnloadVehicleDao">
         <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
     </bean>

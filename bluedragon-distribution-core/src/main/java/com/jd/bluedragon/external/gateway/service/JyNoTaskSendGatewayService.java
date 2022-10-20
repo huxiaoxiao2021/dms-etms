@@ -28,6 +28,12 @@ public interface JyNoTaskSendGatewayService {
      * @return
      */
     JdCResponse deleteVehicleTask(DeleteVehicleTaskReq deleteVehicleTaskReq);
+    /**
+     * 删除前校验-接口
+     * @param deleteVehicleTaskReq
+     * @return
+     */
+    JdCResponse<DeleteVehicleTaskCheckResponse> checkBeforeDeleteVehicleTask(DeleteVehicleTaskReq deleteVehicleTaskReq);
 
     /**
      * 查询运输车辆任务列表

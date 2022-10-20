@@ -266,6 +266,38 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
         }
         return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE);
     }
+    @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyNoTaskSendServiceImpl.checkBeforeDeleteVehicleTask", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public InvokeResult<DeleteVehicleTaskCheckResponse> checkBeforeDeleteVehicleTask(DeleteVehicleTaskReq deleteVehicleTaskReq) {
+        log.info("删除自建任务前校验,deleteVehicleTaskReq:{}",JsonHelper.toJson(deleteVehicleTaskReq));
+        JyBizTaskSendVehicleEntity task =jyBizTaskSendVehicleService.findByBizId(deleteVehicleTaskReq.getBizId());
+        if (task.hasBeenBindedOrDeleted()){
+            return new InvokeResult<DeleteVehicleTaskCheckResponse>(NO_RE_DETELE_TASK_CODE, NO_RE_DETELE_TASK_MESSAGE);
+        }
+        InvokeResult<DeleteVehicleTaskCheckResponse> result = new InvokeResult<DeleteVehicleTaskCheckResponse>(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE);
+        DeleteVehicleTaskCheckResponse resultData = new DeleteVehicleTaskCheckResponse();
+        resultData.setNeedCheckPassword(Boolean.FALSE);
+        result.setData(resultData);
+        //查询任务下的批次
+        List<String> sendCodeList = jyVehicleSendRelationService.querySendCodesByVehicleBizId(deleteVehicleTaskReq.getBizId());
+        if (ObjectHelper.isNotNull(sendCodeList) && sendCodeList.size() > 0) {
+            for (String sendCode : sendCodeList) {
+                SendM sendM = new SendM();
+                sendM.setSendCode(sendCode);
+                sendM.setCreateSiteCode(deleteVehicleTaskReq.getCurrentOperate().getSiteCode());
+                sendM.setUpdateTime(new Date());
+                sendM.setUpdaterUser(deleteVehicleTaskReq.getUser().getUserName());
+                sendM.setUpdateUserCode(deleteVehicleTaskReq.getUser().getUserCode());
+                //如果存在批次未封车，需要输入密码才能删除
+                if (!newsealVehicleService.newCheckSendCodeSealed(sendCode, new StringBuffer())) {
+                	resultData.setNeedCheckPassword(Boolean.TRUE);
+                	return result;
+                }
+
+            }
+        }
+        return result;
+    }    
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyNoTaskSendServiceImpl.listVehicleTask", mState = {JProEnum.TP, JProEnum.FunctionError})
