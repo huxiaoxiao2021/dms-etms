@@ -35,7 +35,11 @@ public class JyNoTaskSendGatewayServiceImpl implements JyNoTaskSendGatewayServic
     public JdCResponse deleteVehicleTask(DeleteVehicleTaskReq deleteVehicleTaskReq) {
         return retJdCResponse(jyNoTaskSendService.deleteVehicleTask(deleteVehicleTaskReq));
     }
-
+    
+    @Override
+    public JdCResponse<DeleteVehicleTaskCheckResponse> checkBeforeDeleteVehicleTask(DeleteVehicleTaskReq deleteVehicleTaskReq) {
+        return retJdCResponse(jyNoTaskSendService.checkBeforeDeleteVehicleTask(deleteVehicleTaskReq));
+    }
     @Override
     public JdCResponse<VehicleTaskResp> listVehicleTask(VehicleTaskReq vehicleTaskReq) {
         return retJdCResponse(jyNoTaskSendService.listVehicleTask(vehicleTaskReq));
