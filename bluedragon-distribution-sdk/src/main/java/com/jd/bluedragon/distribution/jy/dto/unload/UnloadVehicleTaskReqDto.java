@@ -1,16 +1,12 @@
 package com.jd.bluedragon.distribution.jy.dto.unload;
 
 
-
-import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
 public class UnloadVehicleTaskReqDto extends UnloadBaseDto implements Serializable {
     private static final long serialVersionUID = 8483802798838866603L;
 
-    @NotNull(message = "页码（pageNo）不能为空")
     private Integer pageNo;
-    @NotNull(message = "页大小（PageSize）不能为空")
     private Integer PageSize;
     private Integer vehicleStatus;
     /**
