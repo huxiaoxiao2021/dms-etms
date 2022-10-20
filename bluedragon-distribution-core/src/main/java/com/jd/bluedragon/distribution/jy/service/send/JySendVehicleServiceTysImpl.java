@@ -62,8 +62,9 @@ public class JySendVehicleServiceTysImpl extends JySendVehicleServiceImpl implem
     private Pager<SendVehicleTaskQuery> assembleQueryWaybillDto(QueryExcepWaybillDto queryExcepWaybillDto) {
         SendVehicleTaskQuery sendVehicleTaskQuery =new SendVehicleTaskQuery();
         sendVehicleTaskQuery.setSendVehicleBizId(queryExcepWaybillDto.getSendVehicleBizId());
+        sendVehicleTaskQuery.setOperateSiteId(queryExcepWaybillDto.getOperateSiteId());
         sendVehicleTaskQuery.setQueryBarCodeFlag(queryExcepWaybillDto.getExcepScanTypeEnum().getCode());
-        Pager<SendVehicleTaskQuery> queryPager =new Pager();
+        Pager<SendVehicleTaskQuery> queryPager = new Pager<>();
         queryPager.setSearchVo(sendVehicleTaskQuery);
         queryPager.setPageNo(queryExcepWaybillDto.getPageNo());
         queryPager.setPageSize(queryExcepWaybillDto.getPageSize());

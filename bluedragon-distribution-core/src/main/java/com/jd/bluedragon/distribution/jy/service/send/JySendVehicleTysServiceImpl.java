@@ -490,6 +490,7 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
     private QueryExcepWaybillDto assembleQueryExcepWaybillDto(QuerySendWaybillReq request) {
         QueryExcepWaybillDto queryExcepWaybillDto = new QueryExcepWaybillDto();
         queryExcepWaybillDto.setSendVehicleBizId(request.getSendVehicleBizId());
+        queryExcepWaybillDto.setOperateSiteId(request.getCurrentOperate().getSiteCode());
         queryExcepWaybillDto.setExcepScanTypeEnum(ExcepScanTypeEnum.getExcepScanTypeEnum(request.getExpType()));
         queryExcepWaybillDto.setPageNo(request.getPageNo());
         queryExcepWaybillDto.setPageSize(request.getPageSize());

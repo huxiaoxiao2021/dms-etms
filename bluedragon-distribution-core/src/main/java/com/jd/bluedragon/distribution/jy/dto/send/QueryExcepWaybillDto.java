@@ -13,5 +13,9 @@ public class QueryExcepWaybillDto {
      * send_vehicle业务主键
      */
     private String sendVehicleBizId;
+    /**
+     * 当前操作场地
+     */
+    private Integer operateSiteId;
 
 }
