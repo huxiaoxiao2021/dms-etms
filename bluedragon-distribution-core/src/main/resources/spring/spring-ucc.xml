@@ -195,6 +195,7 @@
 		<property name="notValidateTransTypeCodesList" value="${notValidateTransTypeCodesList:[3,4,10,11]}"/>
 		<property name="clientOfflineMenuConfig" value="${clientOfflineMenuConfig:''}"/>
 		<property name="filterSendCodeSwitch" value="${filterSendCodeSwitch:false}"/>
+		<property name="querySensitiveFlag" value="${querySensitiveFlag:false}"/>
 
 	</bean>
 	<!-- hystrix 动态配置 -->
@@ -373,6 +374,7 @@
 				<value>uccPropertyConfiguration.notValidateTransTypeCodesList</value>
 				<value>uccPropertyConfiguration.clientOfflineMenuConfig</value>
 				<value>uccPropertyConfiguration.filterSendCodeSwitch</value>
+				<value>uccPropertyConfiguration.querySensitiveFlag</value>
 
 
 				<value>hystrixRouteUccPropertyConfiguration.executionTimeoutInMilliseconds</value>

@@ -2528,4 +2528,10 @@ public class BusinessUtil {
     public static boolean isGlobalPurchaseWaybill(String sendPay){
         return isSignChar(sendPay, SendPayConstants.POSITION_8, SendPayConstants.CHAR_6);
     }
+
+    public static void main(String[] args) {
+        String sw = "67890";
+        System.out.println(BusinessUtil.isSiteCode(sw));
+        System.out.println(BusinessUtil.isSanWuCode(sw));
+    }
 }

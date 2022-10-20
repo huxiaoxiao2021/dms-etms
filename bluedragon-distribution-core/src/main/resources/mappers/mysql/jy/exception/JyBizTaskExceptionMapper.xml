@@ -335,7 +335,7 @@
         AND site_code = #{siteId}
         AND status = #{status}
         AND distribution_target = #{gridRid}
-        GROUP BY floor,area_code,grid_code
+        GROUP BY  distribution_target,area_code
         <if test="pageSize !=null">
             LIMIT #{offSet}, #{pageSize};
         </if>
@@ -353,7 +353,7 @@
         AND site_code = #{siteId}
         AND status = #{status}
         AND distribution_target = #{gridRid}
-        GROUP BY floor,area_code,grid_code,tags
+        GROUP BY distribution_target,area_code,tags
     </select>
 
     <select id="queryExceptionTaskList" parameterType="com.jd.bluedragon.common.dto.jyexpection.request.ExpTaskPageReq" resultMap="jyBizTaskExceptionMap">
