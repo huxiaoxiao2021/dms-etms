@@ -31,4 +31,5 @@ public class VehicleSendRelationDto {
     private String newSendCode;
     private Long createSiteId;
     private Boolean bindFlag;//绑定标识
+    private Integer source;
 }
