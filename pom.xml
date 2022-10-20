@@ -285,7 +285,6 @@
 				<artifactId>jdl-express-weight-report-api</artifactId>
 				<version>1.1.0-UAT-SNAPSHOT</version>
 			</dependency>
-
             <dependency>
                 <groupId>com.jdl.jy.realtime</groupId>
                 <artifactId>realtime-service-sdk</artifactId>

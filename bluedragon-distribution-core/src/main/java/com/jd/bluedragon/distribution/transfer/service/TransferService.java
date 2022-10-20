@@ -13,7 +13,7 @@ public interface TransferService {
     InvokeResult<Boolean> saveOperatePdaVersion(String sealCarCode, String pdaVersion);
 
     /**
-     *
+     * 删除转运新老版本app操作互斥数据（互斥功能）
      * @param sealCarCode
      * @param sealCarCode AppVersionEnums
      * @return
@@ -22,7 +22,7 @@ public interface TransferService {
 
 
     /**
-     *
+     * 查询转运新老版本app操作互斥数据（互斥功能）
      * @param sealCarCode
      * @param sealCarCode AppVersionEnums
      * @return
