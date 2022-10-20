@@ -2324,7 +2324,7 @@ public class BusinessUtil {
         message.append("</OrderTaskInfo>");
 
         return message.toString();
-    }
+    }	
     /**
      * 校验该运单是否为航空单（WaybillSign31位=1【特快送】或WaybillSign84位=3【干线运输模式为航空】或Sendpay137位=1【京航达】）
      * @param waybillSign
@@ -2527,5 +2527,12 @@ public class BusinessUtil {
      */
     public static boolean isGlobalPurchaseWaybill(String sendPay){
         return isSignChar(sendPay, SendPayConstants.POSITION_8, SendPayConstants.CHAR_6);
+    }
+
+    public static boolean isTaskSimpleCode(String simpleCode) {
+        if (StringUtils.isBlank(simpleCode)) {
+            return false;
+        }
+        return WORKITEM_SIMPLECODE_REGEX.matcher(simpleCode).matches() ;
     }
 }

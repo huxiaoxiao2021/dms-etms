@@ -17,7 +17,7 @@ import java.util.List;
  */
 public class JyUnloadAggsDao extends BaseDao<JyUnloadAggsEntity> {
 
-    private static final String DB_TABLE_NAME = "jy_unload_aggs";
+    private static final String DB_TABLE_NAME = "uat_jy_unload_aggs";
 
     final static String NAMESPACE = JyUnloadAggsDao.class.getName();
 
