@@ -14,5 +14,7 @@ public interface BarcodeService {
 
     List<DmsBarCode> query(DmsBarCode barCode);
 
+    List<DmsBarCode> query(String[] barCodes);
+
     void export(DmsBarCode barCode, BufferedWriter bfw);
 }
