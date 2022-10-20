@@ -34,6 +34,7 @@ import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.rest.base.SiteResource;
 import com.jd.bluedragon.distribution.rest.send.DeliveryResource;
 import com.jd.bluedragon.distribution.rest.sendprint.SendPrintResource;
+import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.service.SendDetailService;
@@ -105,7 +106,9 @@ public class SendCodeGateWayServiceImpl implements SendCodeGateWayService {
     @Autowired
     private SendDetailService sendDetailService;
 
-
+    @Autowired
+    private NewSealVehicleService newsealVehicleService;
+    
     @Override
     @JProfiler(jKey = "DMSWEB.SendCodeGateWayServiceImpl.carrySendCarInfoNew",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public JdCResponse<List<BatchSendCarInfoDto>> carrySendCarInfoNew(List<String> sendCodes) {
@@ -371,34 +374,20 @@ public class SendCodeGateWayServiceImpl implements SendCodeGateWayService {
         	data.setReceiveSiteName(receiveSiteDto.getSiteName());
         }
         data.setSendCode(sendCode);
-        List<SendM> scanDataList = this.sendMService.selectBySiteAndSendCode(createSite, sendCode);
         Set<String> pacakgeCodes = new HashSet<String>();
         Set<String> boxCodes = new HashSet<String>();
         Set<String> boardCodes = new HashSet<String>();
-        if (scanDataList != null && scanDataList.size() > 0) {
-            for (SendM scanData : scanDataList) {
-                if(StringUtils.isNotBlank(scanData.getBoardCode())) {
-                	boardCodes.add(scanData.getBoardCode());
-                } else if (BusinessHelper.isBoxcode(scanData.getBoxCode())) {
-                	boxCodes.add(scanData.getBoxCode());
-                }else {
-                	pacakgeCodes.add(scanData.getBoxCode());
-                }
-            }
-            data.setScanPackageNum(pacakgeCodes.size());
-            data.setScanBoxNum(boxCodes.size());
-            data.setScanBoardNum(boardCodes.size());
-        }
-        //查询封车信息
-        ServiceMessage<Boolean> departureResult = departureService.checkSendStatusFromVOS(sendCode);
-        if (ServiceResultEnum.WRONG_STATUS.equals(departureResult.getResult())) {//已被封车
+
+        data.setScanPackageNum(pacakgeCodes.size());
+        data.setScanBoxNum(boxCodes.size());
+        data.setScanBoardNum(boardCodes.size());
+        //查询封车状态信息
+        if (newsealVehicleService.newCheckSendCodeSealed(sendCode, new StringBuffer())) {
             data.setSealStatusCode(SendCodeStatusEnum.SEALED.getCode());
             data.setSealStatusName(SendCodeStatusEnum.SEALED.getName());
-        } else if (ServiceResultEnum.SUCCESS.equals(departureResult.getResult())) {//未被封车
+        }else {
             data.setSealStatusCode(SendCodeStatusEnum.UNSEAL.getCode());
             data.setSealStatusName(SendCodeStatusEnum.UNSEAL.getName());
-        } else {
-            result.toFail(departureResult.getErrorMsg());
         }
         //获取封车时间、封车操作人
 		return result;
