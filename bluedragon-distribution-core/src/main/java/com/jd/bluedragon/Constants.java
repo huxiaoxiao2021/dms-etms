@@ -1740,6 +1740,11 @@ public class Constants {
     public static final String MENU_CODE_SEND_GZ  = "0203004-gz";
 
     /**
+     * OSS外网域名
+     */
+    public static final String OSS_DOMAIN = "storage.jd.com";
+
+    /**
      * 按任务封车：0101013-rw
      */
     public static final String MENU_CODE_SEAL_GZ  = "0101013-gz";
