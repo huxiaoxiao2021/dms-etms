@@ -372,8 +372,6 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
         JdCResponse<Void> result = new JdCResponse<>();
         result.toSucceed();
         try {
-            //外网支持查看图片
-            record.setReportImgUrls(record.getReportImgUrls().replaceAll(Constants.OSS_INTRANET_DOMAIN, endpoint));
             // 发送mq消息
             ExpressBillExceptionReportMq expressBillExceptionReportMq = new ExpressBillExceptionReportMq();
             BeanUtils.copyProperties(record, expressBillExceptionReportMq);
@@ -383,6 +381,8 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
             if(log.isDebugEnabled()){
                 log.debug("ExpressBillExceptionReportServiceImpl.sendDmsExpressBillExceptionReport content: [{}]", JsonHelper.toJson(expressBillExceptionReportMq));
             }
+            //外网支持查看图片
+            expressBillExceptionReportMq.setReportImgUrls(expressBillExceptionReportMq.getReportImgUrls().replaceAll(Constants.OSS_INTRANET_DOMAIN_REGEX, Constants.OSS_DOMAIN));
             dmsExpressBillExceptionReportProducer.send(record.getPackageCode(), JsonHelper.toJson(expressBillExceptionReportMq));
         } catch (JMQException e) {
             log.error("ExpressBillExceptionReportServiceImpl.sendDmsExpressBillExceptionReport failed ", e);

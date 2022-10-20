@@ -1740,7 +1740,12 @@ public class Constants {
     public static final String MENU_CODE_SEND_GZ  = "0203004-gz";
 
     /**
-     * oss域名，该域名只支持内网访问
+     * oss内网域名正则表达式
      */
-    public static final String OSS_INTRANET_DOMAIN = "storage.jd.local";
+    public static final String OSS_INTRANET_DOMAIN_REGEX = "storage\\.jd\\.local";
+
+    /**
+     * OSS外网域名
+     */
+    public static final String OSS_DOMAIN = "storage.jd.com";
 }
