@@ -52,4 +52,6 @@ public interface JyVehicleSendRelationService {
      * @time 2022-09-26 17:36:53 周一
      */
     List<JySendCodeEntity> queryByVehicleBizId(String vehicleBizId);
+
+    List<JySendCodeEntity> queryByVehicleDetailBizId(String vehicleDetailBizId);
 }

@@ -2492,4 +2492,11 @@ public class BusinessUtil {
         System.out.println(BusinessUtil.isSiteCode(sw));
         System.out.println(BusinessUtil.isSanWuCode(sw));
     }
+
+    public static boolean isTaskSimpleCode(String simpleCode) {
+        if (StringUtils.isBlank(simpleCode)) {
+            return false;
+        }
+        return WORKITEM_SIMPLECODE_REGEX.matcher(simpleCode).matches() ;
+    }
 }
