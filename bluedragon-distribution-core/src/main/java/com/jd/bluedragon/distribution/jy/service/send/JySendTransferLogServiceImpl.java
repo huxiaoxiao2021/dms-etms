@@ -43,7 +43,7 @@ public class JySendTransferLogServiceImpl implements JySendTransferLogService {
             oldEntity.setToSendVehicleBizId(dto.getToSendVehicleBizId());
             oldEntity.setToSendVehicleDetailBizId(dto.getToSendVehicleDetailBizId());
             oldEntity.setSendCode(sendCode);
-            oldEntity.setType(TransferLogTypeEnum.SAME_WAY_TRANSFER_OLD_BATCH.getCode());
+            oldEntity.setType(TransferLogTypeEnum.NOT_SAME_WAY_TRANSFER_OLD_BATCH.getCode());
             oldEntity.setCreateTime(now);
             oldEntity.setUpdateTime(now);
             oldEntity.setCreateUserErp(dto.getUpdateUserErp());
@@ -56,7 +56,7 @@ public class JySendTransferLogServiceImpl implements JySendTransferLogService {
         newEntity.setToSendVehicleBizId(dto.getToSendVehicleBizId());
         newEntity.setToSendVehicleDetailBizId(dto.getToSendVehicleDetailBizId());
         newEntity.setSendCode(dto.getNewSendCode());
-        newEntity.setType(TransferLogTypeEnum.SAME_WAY_TRANSFER_NEW_BATCH.getCode());
+        newEntity.setType(TransferLogTypeEnum.NOT_SAME_WAY_TRANSFER_NEW_BATCH.getCode());
         newEntity.setCreateTime(now);
         newEntity.setUpdateTime(now);
         newEntity.setCreateUserErp(dto.getUpdateUserErp());

@@ -1196,7 +1196,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
             result.init(SendResult.CODE_SENDED, "包裹号不能为空!");
             return;
         }
-        if(!WaybillUtil.isPackageCode(domain.getBoxCode())) {
+        if(SendBizSourceEnum.WAYBILL_SEND.getCode().equals(domain.getBizSource()) && !WaybillUtil.isPackageCode(domain.getBoxCode())) {
             result.init(SendResult.CODE_SENDED, "请扫描正确的包裹号!");
             return;
         }
@@ -3598,6 +3598,8 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
             if (SendBizSourceEnum.getEnum(bizSource) == SendBizSourceEnum.COLD_CHAIN_SEND
                     || SendBizSourceEnum.getEnum(bizSource) == SendBizSourceEnum.COLD_LOAD_CAR_KY_SEND
                     || SendBizSourceEnum.getEnum(bizSource) == SendBizSourceEnum.COLD_LOAD_CAR_SEND
+                    || SendBizSourceEnum.getEnum(bizSource) == SendBizSourceEnum.COLD_LOAD_CAR_SEND_NEW
+                    || SendBizSourceEnum.getEnum(bizSource) == SendBizSourceEnum.COLD_LOAD_CAR_KY_SEND_NEW
             ) {
                 if (coldChainWaybillSet.add(sendD.getWaybillCode())) {
                     return true;
@@ -6999,9 +7001,6 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
             log.warn("按运单发货拆分任务处理,获取包裹数量为空:waybillCode={}", waybillCode);
             return false;
         }
-
-        // 处理发货任务之前 确认明细数据补分拣任务已经完成,否者 自旋 或者MQ异常重试
-        beforeWaybillSendSplitTask(domain);
 
         // 循环调用按包裹发货逻辑
         for (DeliveryPackageD pack : waybillCodeOfPage.getData()) {

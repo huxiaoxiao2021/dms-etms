@@ -1,15 +1,19 @@
 package com.jd.bluedragon.distribution.base.service;
 
+import com.jd.bluedragon.common.dto.base.request.Pager;
+import com.jd.bluedragon.common.dto.basedata.request.StreamlinedBasicSiteQuery;
 import com.jd.bluedragon.common.dto.sysConfig.request.MenuUsageConfigRequestDto;
 import com.jd.bluedragon.common.dto.sysConfig.response.MenuUsageProcessDto;
 import com.jd.bluedragon.core.redis.TaskMode;
 import com.jd.bluedragon.distribution.base.domain.SysConfig;
 import com.jd.bluedragon.distribution.electron.domain.ElectronSite;
 import com.jd.bluedragon.distribution.reverse.domain.ReverseSendWms;
+import com.jd.dms.workbench.utils.sdk.base.Result;
 import com.jd.ql.basic.domain.Assort;
 import com.jd.ql.basic.domain.BaseDataDict;
 import com.jd.ql.basic.domain.BaseOrg;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ql.dms.report.domain.StreamlinedBasicSite;
 import com.jd.tms.basic.dto.BasicDictDto;
 import com.jd.tms.basic.dto.CarrierDto;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -61,14 +65,14 @@ public interface BaseService{
 	 * @return BaseDataDict[]
 	 */
 	BaseDataDict[] getBaseDataDictListByDate(List<Integer> typeGroups);
-	
+
 	/**
 	 * 通过已有的数据字典查询接口中获取对应线路类型、运输方式、承运商类型3个数据字典项的值
 	 * 替换之前的通过接口查询青龙基础资料中的数据字典获取线路类型、运输方式、运力类型
 	 * @return
 	 */
 	List<BasicDictDto> getDictListByGroupType(List<Integer> typeGroups);
-	
+
 	/**
 	 * 承运商列表
 	 * @param carrierDto
@@ -273,4 +277,13 @@ public interface BaseService{
 	 * @return
 	 */
 	ImmutablePair<Boolean, String> checkMenuIsAvailable(String menuCode, Integer siteCode);
+
+    /**
+     * 场地列表
+     * @param request 请求参数
+     * @return 返回结果
+     * @author fanggang7
+     * @time 2022-10-11 14:59:04 周二
+     */
+    Result<Pager<StreamlinedBasicSite>> selectSiteList(Pager<StreamlinedBasicSiteQuery> request);
 }

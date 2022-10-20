@@ -17,7 +17,7 @@ import java.util.List;
  */
 public class JyUnloadAggsDao extends BaseDao<JyUnloadAggsEntity> {
 
-    private static final String DB_TABLE_NAME = "jy_unload_aggs";
+    private static final String DB_TABLE_NAME = "uat_jy_unload_aggs";
 
     final static String NAMESPACE = JyUnloadAggsDao.class.getName();
 
@@ -64,5 +64,15 @@ public class JyUnloadAggsDao extends BaseDao<JyUnloadAggsEntity> {
 
     public JyUnloadAggsEntity queryBoardStatistics(DimensionQueryDto dto) {
         return this.getSqlSession().selectOne(NAMESPACE + ".queryBoardStatistics", dto);
+    }
+
+    /**
+     * 新增或修改
+     *
+     * @param
+     * @return
+     */
+    public int insertOrUpdate(JyUnloadAggsEntity entity) {
+        return this.getSqlSession().insert(NAMESPACE + ".insertOrUpdate", entity);
     }
 }
