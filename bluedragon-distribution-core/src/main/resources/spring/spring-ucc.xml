@@ -165,7 +165,7 @@
 		<property name="sealTaskForceFallback" value="${sealTaskForceFallback: 0}"/>
 		<property name="jyTaskPageMax" value="${jyTaskPageMax: 200}"/>
 		<property name="jyUnloadSingleWaybillThreshold" value="${jyUnloadSingleWaybillThreshold:20}"/>
-        <property name="jyUnSealTaskOrderByIntegral" value="${jyUnSealTaskOrderByIntegral:8}"/>
+        <property name="jyUnSealTaskOrderByIntegral" value="${jyUnSealTaskOrderByIntegral:0}"/>
         <property name="jyUnSealTaskSwitchToEs" value="${jyUnSealTaskSwitchToEs:0}"/>
         <property name="jySendTaskLoadRateLimit" value="${jySendTaskLoadRateLimit:'80,150'}" />
 		<property name="createSendTaskExecuteCount" value="${createSendTaskExecuteCount:30}"/>
