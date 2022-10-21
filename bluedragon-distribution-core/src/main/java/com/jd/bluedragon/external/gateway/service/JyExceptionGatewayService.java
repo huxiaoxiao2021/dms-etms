@@ -61,4 +61,10 @@ public interface JyExceptionGatewayService {
      * 处理任务接口
      */
     JdCResponse<Object> processTask(ExpTaskDetailReq req);
+
+    /**
+     * 查下商品名称
+     * @return
+     */
+    JdCResponse<List<DmsBarCode>> queryProductName(String barCode);
 }

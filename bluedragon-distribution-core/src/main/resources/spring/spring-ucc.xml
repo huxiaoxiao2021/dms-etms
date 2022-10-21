@@ -188,6 +188,8 @@
 		<property name="querySensitiveFlag" value="${querySensitiveFlag:false}"/>
 		<property name="securitySwitch" value="${securitySwitch:true}"/>
 		<property name="jyDemotionConfig" value="${jyDemotionConfig:''}"/>
+		<property name="syncJySealStatusSwitch" value="${syncJySealStatusSwitch:false}"/>
+		<property name="sealStatusBatchSizeLimit" value="${sealStatusBatchSizeLimit:30}"/>
 
 	</bean>
 	<!-- hystrix 动态配置 -->
@@ -358,6 +360,9 @@
 				<value>uccPropertyConfiguration.querySensitiveFlag</value>
 				<value>uccPropertyConfiguration.securitySwitch</value>
 				<value>uccPropertyConfiguration.jyDemotionConfig</value>
+				<value>uccPropertyConfiguration.syncJySealStatusSwitch</value>
+				<value>uccPropertyConfiguration.sealStatusBatchSizeLimit</value>
+
 
 				<value>hystrixRouteUccPropertyConfiguration.executionTimeoutInMilliseconds</value>
                 <value>hystrixRouteUccPropertyConfiguration.circuitBreakerEnabled</value>

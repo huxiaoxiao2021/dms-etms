@@ -619,8 +619,19 @@
         AND m.line_type in (1,2)
         AND d.yn = 1
         AND d.start_site_id = #{entity.startSiteId, jdbcType=BIGINT}
-        AND d.end_site_id = #{entity.endSiteId, jdbcType=BIGINT}
         AND d.excep_label =0
+        <if test="entity.endSiteId != null">
+            AND d.end_site_id = #{entity.endSiteId, jdbcType=BIGINT}
+        </if>
+        <if test="entity.transWorkItemCode != null and entity.transWorkItemCode !='' ">
+            AND d.trans_work_item_code = #{entity.transWorkItemCode}
+        </if>
+        <if test="entity.transWorkCodeList != null">
+            AND m.trans_work_code IN
+            <foreach collection="entity.transWorkCodeList" separator="," open="(" close=")" item="item">
+                #{item}
+            </foreach>
+        </if>
         <if test="entity.sendVehicleBizId != null">
             AND d.send_vehicle_biz_id = #{entity.sendVehicleBizId}
         </if>
@@ -673,15 +684,16 @@
         jy_biz_task_send_vehicle
         WHERE
         yn = 1
+        AND biz_id IN
+        <foreach collection="sendVehicleBizList" separator="," open="(" close=")" item="item">
+            #{item}
+        </foreach>
         AND start_site_id = #{entity.startSiteId}
+        AND manual_created_flag = #{entity.manualCreatedFlag}
         AND line_type IN
         <foreach collection="lineTypeList" separator="," open="(" close=")" item="item">
             #{item}
         </foreach>
-       AND biz_id IN
-       <foreach collection="sendVehicleBizList" separator="," open="(" close=")" item="item">
-           #{item}
-       </foreach>
        and create_time &gt;= #{entity.createTimeBegin}
     </select>
 </mapper>

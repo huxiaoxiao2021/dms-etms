@@ -95,4 +95,9 @@ public class JyVehicleSendRelationServiceImpl implements JyVehicleSendRelationSe
     public List<JySendCodeEntity> queryByVehicleBizId(String vehicleBizId) {
         return jySendCodeDao.queryByVehicleBizId(vehicleBizId);
     }
+
+    @Override
+    public List<JySendCodeEntity> queryByVehicleDetailBizId(String vehicleDetailBizId) {
+        return jySendCodeDao.queryByVehicleDetailBizId(vehicleDetailBizId);
+    }
 }

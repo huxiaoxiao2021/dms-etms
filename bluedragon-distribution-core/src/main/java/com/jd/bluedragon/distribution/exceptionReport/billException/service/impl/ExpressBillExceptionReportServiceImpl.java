@@ -21,9 +21,9 @@ import com.jd.bluedragon.distribution.base.domain.DmsBaseDictCondition;
 import com.jd.bluedragon.distribution.base.service.DmsBaseDictService;
 import com.jd.bluedragon.distribution.exceptionReport.billException.dao.ExpressBillExceptionReportDao;
 import com.jd.bluedragon.distribution.exceptionReport.billException.domain.ExpressBillExceptionReport;
+import com.jd.bluedragon.distribution.exceptionReport.billException.domain.WaybillFinishedEnum;
 import com.jd.bluedragon.distribution.exceptionReport.billException.dto.ExpressBillExceptionReportMq;
 import com.jd.bluedragon.distribution.exceptionReport.billException.enums.*;
-import com.jd.bluedragon.distribution.exceptionReport.billException.request.ExpressBillExceptionReportQuery;
 import com.jd.bluedragon.distribution.exceptionReport.billException.service.ExpressBillExceptionReportService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -35,6 +35,7 @@ import com.jd.dms.workbench.utils.sdk.base.Result;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.PackageState;
 import com.jd.etms.waybill.domain.Waybill;
+import com.jd.etms.waybill.domain.WaybillManageDomain;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.etms.waybill.dto.PackageStateDto;
 import com.jd.etms.waybill.dto.WChoice;
@@ -88,6 +89,11 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
 
     @Autowired
     private UccPropertyConfiguration uccPropertyConfiguration;
+
+    /**
+     * oss内网域名正则表达式
+     */
+    private static final String OSS_INTRANET_DOMAIN_REGEX = "storage\\.jd\\.local";
 
     /**
      * 面单异常提交
@@ -225,11 +231,21 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
             WChoice choice = new WChoice();
             choice.setQueryWaybillC(Boolean.TRUE);
             choice.setQueryWaybillExtend(Boolean.TRUE);
+            choice.setQueryWaybillM(Boolean.TRUE);
             BaseEntity<BigWaybillDto> entity = waybillQueryManager.getDataByChoice(waybillCode, choice);
-            if(entity.getData() == null || entity.getData().getWaybill() == null){
-                result.toFail("查询运单为空");
+            if(entity.getData() == null || entity.getData().getWaybill() == null || entity.getData().getWaybillState() == null){
+                result.toFail("查询运单或运单状态为空");
                 return result;
             }
+
+            //是否是完结单，状态满足以下其一
+            //妥投（150）拒收（160）下单取消（-790）终止揽收（-650）上门接货退货完成（530）
+            WaybillManageDomain waybillState = entity.getData().getWaybillState();
+            if(WaybillFinishedEnum.waybillStatusFinishedSet.contains(waybillState.getWaybillState())){
+                result.toFail("此单为完结单，无法操作面单举报");
+                return result;
+            }
+
             Waybill waybill = entity.getData().getWaybill();
             /**先判断仓ID是否为空，不为空则是仓配业务
              * 若仓ID为空，再判断waybillSign的53位是否为1，1为仓配业务
@@ -377,6 +393,8 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
             if(log.isDebugEnabled()){
                 log.debug("ExpressBillExceptionReportServiceImpl.sendDmsExpressBillExceptionReport content: [{}]", JsonHelper.toJson(expressBillExceptionReportMq));
             }
+            //外网支持查看图片
+            expressBillExceptionReportMq.setReportImgUrls(expressBillExceptionReportMq.getReportImgUrls().replaceAll(OSS_INTRANET_DOMAIN_REGEX, Constants.OSS_DOMAIN));
             dmsExpressBillExceptionReportProducer.send(record.getPackageCode(), JsonHelper.toJson(expressBillExceptionReportMq));
         } catch (JMQException e) {
             log.error("ExpressBillExceptionReportServiceImpl.sendDmsExpressBillExceptionReport failed ", e);
@@ -592,6 +610,8 @@ public class ExpressBillExceptionReportServiceImpl implements ExpressBillExcepti
         report.setFirstSiteName(reportRequest.getFirstSiteName());
         report.setReportImgUrls(reportRequest.getReportPictureUrls());
         report.setReportTime(reportRequest.getReportTime());
+        report.setFirstReportType(reportRequest.getFirstReportType());
+        report.setFirstReportTypeName(reportRequest.getFirstReportTypeName());
         report.setReportType(reportRequest.getReportType());
         report.setReportTypeName(reportRequest.getReportTypeName());
         report.setReportUserErp(reportRequest.getUser().getUserErp());
