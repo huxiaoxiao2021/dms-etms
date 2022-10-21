@@ -1813,6 +1813,15 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         return sendFindDestInfoDto;
     }
 
+    /**
+     * 获取箱号路由
+     * @param barCode 箱号
+     * @param startSiteId 起始目的地
+     * @param allDestId 指定范围的匹配目的地，如果此值传空对象，则会返回获取到的路由目的地
+     * @return 匹配的箱号目的地
+     * @author fanggang7
+     * @time 2022-10-21 16:40:19 周五
+     */
     private Long getBoxMatchDestId(String barCode, Long startSiteId, Set<Long> allDestId) {
         // 先根据箱号目的地取，再从箱号里取三个运单，根据路由匹配发货流向，需要弹窗提示
         Long destSiteId = null;
@@ -1846,7 +1855,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                     logWarn("拣运发货根据箱号匹配路由【失败】, 箱号{}, 取到的运单为{}," +
                                     " 进行检验的运单为{}, 运单的路由为{}, 操作站点为{}.", barCode, waybillCodes, waybillForVerify, routerStr, startSiteId);
                 }
-                if (allDestId.contains(boxRouteDest)) {
+                if (CollectionUtils.isEmpty(allDestId) || allDestId.contains(boxRouteDest)) {
                     destSiteId = boxRouteDest;
                 }
             }
