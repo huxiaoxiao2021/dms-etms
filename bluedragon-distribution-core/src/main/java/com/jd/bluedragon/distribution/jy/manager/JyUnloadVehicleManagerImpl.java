@@ -1,6 +1,9 @@
 package com.jd.bluedragon.distribution.jy.manager;
 
 import com.jd.bluedragon.common.utils.ProfilerHelper;
+import com.jd.ql.dms.common.constants.JyConstants;
+import com.jd.bluedragon.distribution.jy.exception.JyDemotionException;
+import com.jd.bluedragon.distribution.jy.service.config.JyDemotionService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
@@ -32,10 +35,15 @@ public class JyUnloadVehicleManagerImpl implements IJyUnloadVehicleManager {
     @Qualifier("jyUnloadVehicleJsfService")
     private IUnloadVehicleJsfService unloadVehicleJsfService;
 
+    @Autowired
+    private JyDemotionService jyDemotionService;
+
     @Override
     public Pager<JyVehicleTaskUnloadDetail> queryToScanBarCodeDetail(Pager<JyVehicleTaskUnloadDetail> query) {
+        if(jyDemotionService.checkIsDemotion(JyConstants.JY_VEHICLE_TASK_UNLOAD_DETAIL_IS_DEMOTION)){
+            throw new JyDemotionException("卸车：查询待扫包裹明细已降级!");
+        }
         Pager<JyVehicleTaskUnloadDetail> unloadDetails = new Pager<>();
-
         CallerInfo ump = ProfilerHelper.registerInfo("dms.web.IJyUnloadVehicleManager.queryToScanBarCodeDetail");
         try {
             ServiceResult<Pager<JyVehicleTaskUnloadDetail>> serviceResult = unloadVehicleJsfService.queryToScanBarCodeDetail(query);
@@ -57,8 +65,10 @@ public class JyUnloadVehicleManagerImpl implements IJyUnloadVehicleManager {
 
     @Override
     public Pager<JyVehicleTaskUnloadDetail> queryInterceptBarCodeDetail(Pager<JyVehicleTaskUnloadDetail> query) {
+        if(jyDemotionService.checkIsDemotion(JyConstants.JY_VEHICLE_TASK_UNLOAD_DETAIL_IS_DEMOTION)){
+            throw new JyDemotionException("卸车：查询拦截包裹明细已降级!");
+        }
         Pager<JyVehicleTaskUnloadDetail> unloadDetails = new Pager<>();
-
         CallerInfo ump = ProfilerHelper.registerInfo("dms.web.IJyUnloadVehicleManager.queryInterceptBarCodeDetail");
         try {
             ServiceResult<Pager<JyVehicleTaskUnloadDetail>> serviceResult = unloadVehicleJsfService.queryInterceptBarCodeDetail(query);
@@ -80,6 +90,9 @@ public class JyUnloadVehicleManagerImpl implements IJyUnloadVehicleManager {
 
     @Override
     public Pager<JyVehicleTaskUnloadDetail> queryMoreScanBarCodeDetail(Pager<JyVehicleTaskUnloadDetail> query) {
+        if(jyDemotionService.checkIsDemotion(JyConstants.JY_VEHICLE_TASK_UNLOAD_DETAIL_IS_DEMOTION)){
+            throw new JyDemotionException("卸车：查询多扫包裹明细已降级!");
+        }
         Pager<JyVehicleTaskUnloadDetail> unloadDetails = new Pager<>();
 
         CallerInfo ump = ProfilerHelper.registerInfo("dms.web.IJyUnloadVehicleManager.queryMoreScanBarCodeDetail");
@@ -103,6 +116,9 @@ public class JyUnloadVehicleManagerImpl implements IJyUnloadVehicleManager {
 
     @Override
     public Pager<JyVehicleTaskUnloadDetail> queryMoreScanAndToScanBarCodeDetail(Pager<JyVehicleTaskUnloadDetail> query) {
+        if(jyDemotionService.checkIsDemotion(JyConstants.JY_VEHICLE_TASK_UNLOAD_DETAIL_IS_DEMOTION)){
+            throw new JyDemotionException("卸车：查询多扫和待扫包裹明细已降级!");
+        }
         Pager<JyVehicleTaskUnloadDetail> unloadDetails = new Pager<>();
 
         CallerInfo ump = ProfilerHelper.registerInfo("dms.web.IJyUnloadVehicleManager.queryMoreScanAndToScanBarCodeDetail");
@@ -126,6 +142,9 @@ public class JyUnloadVehicleManagerImpl implements IJyUnloadVehicleManager {
 
     @Override
     public List<JyVehicleTaskUnloadDetail> findUnloadDetail(JyVehicleTaskUnloadDetail query) {
+        if(jyDemotionService.checkIsDemotion(JyConstants.JY_VEHICLE_TASK_UNLOAD_DETAIL_IS_DEMOTION)){
+            throw new JyDemotionException("卸车：查询卸车包裹数据已降级!");
+        }
         CallerInfo ump = ProfilerHelper.registerInfo("dms.web.IJyUnloadVehicleManager.findUnloadDetail");
         try {
             ServiceResult<List<JyVehicleTaskUnloadDetail>> serviceResult = unloadVehicleJsfService.findSealCarCode(query);

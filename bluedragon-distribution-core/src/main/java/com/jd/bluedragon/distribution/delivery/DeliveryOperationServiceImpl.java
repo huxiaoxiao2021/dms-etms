@@ -162,6 +162,8 @@ public class DeliveryOperationServiceImpl implements IDeliveryOperationService {
         SendM sendM = makeTransferDomain(sendMList.get(0));
         sendM.setUpdateUserCode(dto.getUpdateUserCode());
         sendM.setUpdaterUser(dto.getUpdateUserName());
+        sendM.setCreateUserCode(dto.getUpdateUserCode());
+        sendM.setCreateUser(dto.getUpdateUserName());
         log.info("===========asyncHandleTransfer==========发货批次迁移,原批次号：{}，新批次号:{}",sendM.getSendCode(),dto.getNewSendCode());
 
         SendMWrapper packageSendWrapper = new SendMWrapper(SendKeyTypeEnum.BY_PACKAGE);

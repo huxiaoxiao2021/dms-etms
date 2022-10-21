@@ -70,7 +70,9 @@ public enum InspectionBizSourceEnum {
          */
         DWS_INSPECTION(44,"DWS验货"),
 
-        JY_UNLOAD_INSPECTION(45, "拣运卸车验货")
+        JY_UNLOAD_INSPECTION(45, "拣运卸车验货"),
+
+        COLD_CHAIN_SEND_INSPECTION(46, "无任务揽收自动验货")
     ;
 
         /**

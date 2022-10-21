@@ -542,6 +542,8 @@ public abstract class DeliveryBaseHandler implements IDeliveryBaseHandler {
             if (SendBizSourceEnum.getEnum(bizSource) == SendBizSourceEnum.COLD_CHAIN_SEND
                     || SendBizSourceEnum.getEnum(bizSource) == SendBizSourceEnum.COLD_LOAD_CAR_KY_SEND
                     || SendBizSourceEnum.getEnum(bizSource) == SendBizSourceEnum.COLD_LOAD_CAR_SEND
+                    || SendBizSourceEnum.getEnum(bizSource) == SendBizSourceEnum.COLD_LOAD_CAR_SEND_NEW
+                    || SendBizSourceEnum.getEnum(bizSource) == SendBizSourceEnum.COLD_LOAD_CAR_KY_SEND_NEW
             ) {
                 if (coldChainWaybillSet.add(sendD.getWaybillCode())) {
                     return true;
