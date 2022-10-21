@@ -92,9 +92,29 @@ public class MiniStoreServiceImpl implements MiniStoreService {
 
     @Override
     public Boolean bindMiniStoreDevice(DeviceDto deviceDto) {
-        Integer hasBeenBind = miniStoreBindRelationDao.selectDeviceBindStatus(deviceDto);
-        if (hasBeenBind!=null){
-            throw new MiniStoreBizException(MSCodeMapping.DEVICE_HASBEEN_BIND);
+        if (ObjectHelper.isNotNull(deviceDto.getStoreCode())) {
+            Integer hasBeenBind = miniStoreBindRelationDao.selectStoreBindStatus(deviceDto.getStoreCode());
+            if (hasBeenBind != null) {
+                throw new MiniStoreBizException(MSCodeMapping.MINI_STORE_HASBEEN_BIND);
+            }
+        }
+        if (ObjectHelper.isNotNull(deviceDto.getIceBoardCode1())) {
+            Integer hasBeenBind = miniStoreBindRelationDao.selectIceBoardStatus(deviceDto.getIceBoardCode1());
+            if (hasBeenBind != null) {
+                throw new MiniStoreBizException(MSCodeMapping.INCE_BOARD_HASBEEN_BIND);
+            }
+        }
+        if (ObjectHelper.isNotNull(deviceDto.getIceBoardCode2())) {
+            Integer hasBeenBind = miniStoreBindRelationDao.selectIceBoardStatus(deviceDto.getIceBoardCode2());
+            if (hasBeenBind != null) {
+                throw new MiniStoreBizException(MSCodeMapping.INCE_BOARD_HASBEEN_BIND);
+            }
+        }
+        if (ObjectHelper.isNotNull(deviceDto.getBoxCode())) {
+            Integer hasBeenBind = miniStoreBindRelationDao.selectBoxBindStatus(deviceDto.getBoxCode());
+            if (hasBeenBind != null) {
+                throw new MiniStoreBizException(MSCodeMapping.BOX_HASBEEN_BIND);
+            }
         }
         MiniStoreBindRelation miniStoreBindRelation = BeanUtils.copy(deviceDto, MiniStoreBindRelation.class);
         Date date = new Date();
