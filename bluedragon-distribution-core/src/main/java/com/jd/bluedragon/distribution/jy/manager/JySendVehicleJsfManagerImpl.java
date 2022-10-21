@@ -138,18 +138,19 @@ public class JySendVehicleJsfManagerImpl implements IJySendVehicleJsfManager {
         if (ObjectHelper.isNotNull(queryBarCodeFlag)){
             switch (queryBarCodeFlag) {
                 case 3:
-                    if (sendPackageEsDto.getInterceptFlag().equals(Constants.STAGING_CHECK_SUCCESS_CODE)) {
+                    if (Constants.NUMBER_ONE.equals(sendPackageEsDto.getInterceptFlag())) {
                         return ExcepScanLabelEnum.INTERCEPTED;
                     }
-                    if (sendPackageEsDto.getForceSendFlag().equals(Constants.STAGING_CHECK_SUCCESS_CODE)) {
+                    if (Constants.NUMBER_ONE.equals(sendPackageEsDto.getForceSendFlag())) {
                         return ExcepScanLabelEnum.FORCE_SEND;
                     }
                     break;
                 case 5:
-                    if (!ObjectHelper.isNotNull(sendPackageEsDto.getShouldScanFlag())) {
+                    if (sendPackageEsDto.getShouldScanFlag() == null) {
                         return ExcepScanLabelEnum.INCOMPELETE_NOT_ARRIVE;
 
-                    }else if (sendPackageEsDto.getShouldScanFlag() ==1 && !ObjectHelper.isNotNull(sendPackageEsDto.getScannedFlag())){
+                    } else if (Constants.NUMBER_ONE.equals(sendPackageEsDto.getShouldScanFlag())
+                            && (sendPackageEsDto.getScannedFlag() == null || Constants.NUMBER_ZERO.equals(sendPackageEsDto.getScannedFlag()))){
                         return ExcepScanLabelEnum.INCOMPELETE_HAVE_INSPECTION_BUT_NOT_SEND;
                     }
                     break;
