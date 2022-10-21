@@ -44,7 +44,6 @@ import com.jd.bluedragon.distribution.funcSwitchConfig.service.FuncSwitchConfigS
 import com.jd.bluedragon.distribution.jsf.domain.SortingCheck;
 import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
 import com.jd.bluedragon.distribution.jsf.domain.ValidateIgnore;
-import com.jd.ql.dms.common.constants.JyConstants;
 import com.jd.bluedragon.distribution.jy.dto.send.JyBizTaskSendCountDto;
 import com.jd.bluedragon.distribution.jy.dto.send.JySendArriveStatusDto;
 import com.jd.bluedragon.distribution.jy.dto.send.QueryTaskSendDto;
@@ -88,6 +87,7 @@ import com.jd.etms.waybill.domain.Waybill;
 import com.jd.jim.cli.Cluster;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.constants.CodeConstants;
+import com.jd.ql.dms.common.constants.JyConstants;
 import com.jd.tms.basic.dto.BasicVehicleTypeDto;
 import com.jd.tms.basic.dto.TransportResourceDto;
 import com.jd.tms.jdi.dto.TransWorkBillDto;
@@ -1764,7 +1764,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                 sendFindDestInfoDto.setRouterNextSiteId(matchDestIdByPack);
                 break;
             case BY_BOX:
-                // 先根据箱号目的地取，再从箱号里取三个运单，根据路由匹配发货流向，需要弹窗提示
+                // 先根据箱号目的地取，再从箱号里取三个运单，根据路由匹配发货流向，需要弹窗提示 fixme 解封版后使用抽出的子方法 getBoxMatchDestId
                 Box box = boxService.findBoxByCode(barCode);
                 if (box != null) {
                     if (allDestId.contains(box.getReceiveSiteCode().longValue())) {
@@ -1811,6 +1811,47 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
         sendFindDestInfoDto.setMatchSendDestId(destSiteId);
         return sendFindDestInfoDto;
+    }
+
+    private Long getBoxMatchDestId(String barCode, Long startSiteId, Set<Long> allDestId) {
+        // 先根据箱号目的地取，再从箱号里取三个运单，根据路由匹配发货流向，需要弹窗提示
+        Long destSiteId = null;
+        Box box = boxService.findBoxByCode(barCode);
+        if (box != null) {
+            if (CollectionUtils.isNotEmpty(allDestId) && allDestId.contains(box.getReceiveSiteCode().longValue())) {
+                destSiteId = box.getReceiveSiteCode().longValue();
+            } else {
+                List<String> waybillCodes = deliveryService.getWaybillCodesByBoxCodeAndFetchNum(barCode, 3);
+                // 获取运单对应的路由
+                String routerStr = null;
+                String waybillForVerify = null;
+                Long boxRouteDest = null;
+                if (CollectionUtils.isNotEmpty(waybillCodes)) {
+                    for (String waybillCode : waybillCodes) {
+                        routerStr = waybillCacheService.getRouterByWaybillCode(waybillCode);
+                        if (StringHelper.isNotEmpty(routerStr)) {
+                            waybillForVerify = waybillCode;
+                            boxRouteDest = getRouteNextSite(startSiteId, routerStr);
+                            break;
+                        }
+                    }
+                    if (StringUtils.isBlank(routerStr)) {
+                        logWarn("拣运发货根据箱号未获取到路由. 箱号{}, 取到的运单为{}, 操作站点为{}.", barCode, waybillCodes, startSiteId);
+                    }
+                }
+                if (boxRouteDest != null) {
+                    logInfo("拣运发货根据箱号匹配路由【成功】, 箱号{}, 取到的运单为{}," +
+                                    " 进行检验的运单为{}, 运单的路由为{}, 操作站点为{}.", barCode, waybillCodes, waybillForVerify, routerStr, startSiteId);
+                } else {
+                    logWarn("拣运发货根据箱号匹配路由【失败】, 箱号{}, 取到的运单为{}," +
+                                    " 进行检验的运单为{}, 运单的路由为{}, 操作站点为{}.", barCode, waybillCodes, waybillForVerify, routerStr, startSiteId);
+                }
+                if (allDestId.contains(boxRouteDest)) {
+                    destSiteId = boxRouteDest;
+                }
+            }
+        }
+        return destSiteId;
     }
 
     private JySendEntity createJySendRecord(SendScanRequest request, long destSiteId, String sendCode, String barCode) {
@@ -2057,9 +2098,9 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
      * 发货扫描业务场景校验
      * <h2>客户端弹窗提示类型</h2>
      * <ul>
-     *     <li>绑定集包袋：{@link com.jd.bluedragon.common.dto.base.response.MsgBoxTypeEnum.INTERCEPT}</li>
-     *     <li>无任务首次扫描确认目的地：{@link com.jd.bluedragon.common.dto.base.response.MsgBoxTypeEnum.CONFIRM}</li>
-     *     <li>拦截链：{@link com.jd.bluedragon.common.dto.base.response.MsgBoxTypeEnum.INTERCEPT}</li>
+     *     <li>绑定集包袋：{@link MsgBoxTypeEnum.INTERCEPT}</li>
+     *     <li>无任务首次扫描确认目的地：{@link MsgBoxTypeEnum.CONFIRM}</li>
+     *     <li>拦截链：{@link MsgBoxTypeEnum.INTERCEPT}</li>
      * </ul>
      *
      * @param response
@@ -2082,34 +2123,33 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             // 无任务发货未确认目的地信息
             if (taskSend.manualCreatedTask()) {
                 if (Boolean.FALSE.equals(request.getNoTaskConfirmDest()) || !NumberHelper.gt0(request.getConfirmSendDestId())) {
-                    if (!WaybillUtil.isPackageCode(barCode) && !WaybillUtil.isWaybillCode(barCode)) {
+                    if (!BusinessUtil.isBoxcode(barCode) && !WaybillUtil.isPackageCode(barCode) && !WaybillUtil.isWaybillCode(barCode)) {
                         response.toBizError();
-                        response.addInterceptBox(0, "无任务首次扫描只能是运单或包裹！");
+                        response.addInterceptBox(0, "无任务首次扫描只能是运单或包裹或箱号！");
                         return false;
                     }
-
                     // 无任务首次扫描返回目的地
-                    Long routeNextSite = getWaybillNextRouter(WaybillUtil.getWaybillCode(barCode), taskSend.getStartSiteId());
-                    if (routeNextSite == null) {
-                        // response.toBizError();
-                        // response.addInterceptBox(0, "运单的路由没有当前场地！无任务首次扫描请扫描路由正确的单号");
-                        response.setCode(SendScanResponse.CODE_NO_TASK_CONFIRM_DEST);
-                        response.addConfirmBox(0, "无任务发货请确认发货流向");
+                    Long matchDest = null;
+                    response.setCode(SendScanResponse.CODE_NO_TASK_CONFIRM_DEST);
+                    response.addConfirmBox(0, "无任务发货请确认发货流向");
+                    if (BusinessUtil.isBoxcode(barCode)) {
+                        matchDest = getBoxMatchDestId(barCode, taskSend.getStartSiteId(), new HashSet<Long>());
+                    } else {
+                        matchDest = getWaybillNextRouter(WaybillUtil.getWaybillCode(barCode), taskSend.getStartSiteId());
+                    }
+                    if (matchDest == null) {
                         return false;
                     }
-
-                    response.setCode(SendScanResponse.CODE_NO_TASK_CONFIRM_DEST);
-                    response.addConfirmBox(0, "无任务发货请确认发货流向！");
 
                     SendScanResponse sendScanResponse = new SendScanResponse();
                     response.setData(sendScanResponse);
-                    BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteBySiteId(routeNextSite.intValue());
-                    sendScanResponse.setCurScanDestId(routeNextSite);
+                    BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteBySiteId(matchDest.intValue());
+                    sendScanResponse.setCurScanDestId(matchDest);
                     sendScanResponse.setCurScanDestName(baseSite.getSiteName());
 
                     return false;
                 } else {
-                    // 客户端确认流向后保存无任务的发货流向
+                    // 客户端确认流向后保存无任务的发货流向 fixme 等发货成功后才可记录已确认流向？
                     JyBizTaskSendVehicleDetailEntity noTaskDetail = makeNoTaskSendDetail(request, taskSend);
                     logInfo("初始化无任务发货明细. {}", JsonHelper.toJson(noTaskDetail));
                     transactionManager.saveTaskSendAndDetail(null, noTaskDetail);
