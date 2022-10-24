@@ -22,4 +22,9 @@ public class JyConstants implements Serializable {
     // jy发货降级开关
     public static String JY_VEHICLE_SEND_DETAIL_IS_DEMOTION = "jyVehicleSendDetailIsDemotion";
 
+    /**
+     * 接货仓验货拦截件提示码
+     */
+    public static final int WAREHOUSE_INSPECTION_INTERCEPT_CODE = 5001;
+
 }
