@@ -583,7 +583,8 @@ public class JyExceptionServiceImpl implements JyExceptionService {
             return JdCResponse.fail("当前任务"+req.getBarCode()+"已被领取,请勿重复操作!");
         }
         if (!Objects.equals(gridRid, taskEntity.getDistributionTarget())) {
-            return JdCResponse.fail("领取人的岗位与任务被分配的岗位不匹配!" + taskEntity.getDistributionTarget());
+//            return JdCResponse.fail("领取人的岗位与任务被分配的岗位不匹配!" + taskEntity.getDistributionTarget());
+            return JdCResponse.fail("该条码无相关任务!" + req.getBarCode());
         }
 
         JyBizTaskExceptionEntity update = new JyBizTaskExceptionEntity();

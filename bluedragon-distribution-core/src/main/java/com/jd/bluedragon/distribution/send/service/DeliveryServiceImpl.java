@@ -1193,7 +1193,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
             result.init(SendResult.CODE_SENDED, "包裹号不能为空!");
             return;
         }
-        if(!WaybillUtil.isPackageCode(domain.getBoxCode())) {
+        if(SendBizSourceEnum.WAYBILL_SEND.getCode().equals(domain.getBizSource()) && !WaybillUtil.isPackageCode(domain.getBoxCode())) {
             result.init(SendResult.CODE_SENDED, "请扫描正确的包裹号!");
             return;
         }
@@ -3595,6 +3595,8 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
             if (SendBizSourceEnum.getEnum(bizSource) == SendBizSourceEnum.COLD_CHAIN_SEND
                     || SendBizSourceEnum.getEnum(bizSource) == SendBizSourceEnum.COLD_LOAD_CAR_KY_SEND
                     || SendBizSourceEnum.getEnum(bizSource) == SendBizSourceEnum.COLD_LOAD_CAR_SEND
+                    || SendBizSourceEnum.getEnum(bizSource) == SendBizSourceEnum.COLD_LOAD_CAR_SEND_NEW
+                    || SendBizSourceEnum.getEnum(bizSource) == SendBizSourceEnum.COLD_LOAD_CAR_KY_SEND_NEW
             ) {
                 if (coldChainWaybillSet.add(sendD.getWaybillCode())) {
                     return true;
