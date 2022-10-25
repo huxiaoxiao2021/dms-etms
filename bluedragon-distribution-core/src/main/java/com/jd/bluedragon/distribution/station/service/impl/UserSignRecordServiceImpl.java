@@ -740,7 +740,6 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 			}
 			signRequest.setJobCode(BusinessUtil.getJobCodeFromScanUserCode(scanUserCode));
 			signRequest.setUserCode(BusinessUtil.getUserCodeFromScanUserCode(scanUserCode));
-			return result;
 		}else if(StringHelper.isEmpty(signRequest.getUserCode())) {
 			result.toFail("用户编码不能为空！");
 			return result;
