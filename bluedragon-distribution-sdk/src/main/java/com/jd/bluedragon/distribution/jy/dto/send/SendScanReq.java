@@ -71,6 +71,11 @@ public class SendScanReq extends JyReqBaseDto  implements Serializable {
     private String noTaskRemark;
 
     /**
+     * 自定义任务名称
+     */
+    private String taskName;
+
+    /**
      * 用户确认的发货目的地
      */
     private Long confirmSendDestId;
@@ -190,5 +195,13 @@ public class SendScanReq extends JyReqBaseDto  implements Serializable {
 
     public void setValidateIgnore(ValidateIgnore validateIgnore) {
         this.validateIgnore = validateIgnore;
+    }
+
+    public String getTaskName() {
+        return taskName;
+    }
+
+    public void setTaskName(String taskName) {
+        this.taskName = taskName;
     }
 }
