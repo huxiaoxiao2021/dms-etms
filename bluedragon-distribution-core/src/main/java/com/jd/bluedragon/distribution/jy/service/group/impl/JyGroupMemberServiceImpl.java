@@ -100,28 +100,14 @@ public class JyGroupMemberServiceImpl implements JyGroupMemberService {
 		if(StringHelper.isEmpty(addMemberRequest.getPositionCode())) {
 			result.toFail("岗位码不能为空！");
 		}
-		String gridKey =null;
-		if(uccPropertyConfiguration.isJyBasicServerSwitch()){
-			log.info("addMember--获取基础服务数据");
-			com.jdl.basic.common.utils.Result<com.jdl.basic.api.domain.position.PositionDetailRecord> positionData
-					= positionManager.queryOneByPositionCode(addMemberRequest.getPositionCode());
-			if(positionData == null
-					|| positionData.getData() == null) {
-				result.toFail("岗位码无效，联系【作业流程组】小哥维护岗位码");
-				return result;
-			}
-			gridKey = positionData.getData().getRefGridKey();
-		}else{
-			log.info("addMember--原有逻辑");
-			Result<com.jd.bluedragon.distribution.position.domain.PositionDetailRecord> positionData = positionRecordService.queryOneByPositionCode(addMemberRequest.getPositionCode());
-			if(positionData == null
-					|| positionData.getData() == null) {
-				result.toFail("岗位码无效，联系【作业流程组】小哥维护岗位码");
-				return result;
-			}
-			gridKey = positionData.getData().getRefGridKey();
+		com.jdl.basic.common.utils.Result<com.jdl.basic.api.domain.position.PositionDetailRecord> positionData
+				= positionManager.queryOneByPositionCode(addMemberRequest.getPositionCode());
+		if(positionData == null
+				|| positionData.getData() == null) {
+			result.toFail("岗位码无效，联系【作业流程组】小哥维护岗位码");
+			return result;
 		}
-
+		String gridKey = positionData.getData().getRefGridKey();
 		//查询岗位码对应的小组信息
 		JyGroupQuery groupQuery = new JyGroupQuery();
 		groupQuery.setPositionCode(addMemberRequest.getPositionCode());

@@ -452,9 +452,8 @@
         </trim>
         WHERE
             yn = 1
-        AND send_vehicle_biz_id = #{entity.sendVehicleBizId}
+        AND biz_id = #{entity.bizId}
         AND start_site_id = #{entity.startSiteId}
-        AND end_site_id = #{entity.endSiteId}
         AND vehicle_status = #{oldStatus}
         AND vehicle_status <![CDATA[ < ]]> #{entity.vehicleStatus}
     </update>
@@ -540,9 +539,21 @@
         WHERE
             yn = 1
         AND trans_work_item_code = #{transWorkItemCode}
-        AND vehicle_status = #{vehicleStatus}
+        <if test="vehicleStatus!=null">
+            AND vehicle_status = #{vehicleStatus}
+        </if>
         LIMIT 1
-    </select>    
+    </select>
+
+    <select id="queryByTransWorkItemCode" parameterType="JyBizTaskSendVehicleDetailEntity" resultMap="jyBizTaskSendVehicleDetailMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM jy_biz_task_send_vehicle_detail
+        WHERE
+        yn = 1
+        AND trans_work_item_code = #{transWorkItemCode}
+        LIMIT 1
+    </select>
     <select id="findSendVehicleBizListBySendFlow" parameterType="JyBizTaskSendVehicleDetailEntity" resultType="java.lang.String">
         SELECT
             distinct send_vehicle_biz_id

@@ -18,6 +18,7 @@ import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.domain.TransAbnormalTypeDto;
 import com.jd.bluedragon.distribution.api.request.*;
 import com.jd.bluedragon.distribution.api.response.*;
+import com.jd.bluedragon.distribution.api.response.spot.SpotCheckResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
 import com.jd.bluedragon.distribution.base.domain.DmsBaseDict;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -25,9 +26,13 @@ import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.busineCode.sendCode.service.SendCodeService;
 import com.jd.bluedragon.distribution.coldchain.domain.ColdChainSend;
 import com.jd.bluedragon.distribution.coldchain.service.ColdChainSendService;
+import com.jd.bluedragon.distribution.command.JdResult;
+import com.jd.bluedragon.distribution.jy.enums.SpotCheckTypeEnum;
+import com.jd.bluedragon.distribution.jy.service.send.SendVehicleTransactionManager;
 import com.jd.bluedragon.distribution.seal.service.CarLicenseChangeUtil;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.distribution.transport.service.TransportRelatedService;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
@@ -141,6 +146,10 @@ public class NewSealVehicleResource {
 
     @Autowired
     private TransportRelatedService transportRelatedService;
+
+    @Autowired
+    @Qualifier("sendVehicleTransactionManager")
+    private SendVehicleTransactionManager sendVehicleTransactionManager;
 
     /**
      * 校验并获取运力编码信息
@@ -450,6 +459,17 @@ public class NewSealVehicleResource {
             checkBatchCode(sealVehicleResponse, sendCode);
             if ((Constants.SEAL_TYPE_TRANSPORT.equals(sealCarType) || Constants.SEAL_TYPE_TASK.equals(sealCarType))
                     && JdResponse.CODE_OK.equals(sealVehicleResponse.getCode())) {
+                //按任务封车 干支封车拦截校验
+                if(Constants.SEAL_TYPE_TASK.equals(sealCarType)){
+                    CurrentOperate currentOperate = new CurrentOperate();
+                    currentOperate.setSiteCode(BusinessUtil.getCreateSiteCodeFromSendCode(sendCode));
+                    InvokeResult<Boolean> interceptResult = sendVehicleTransactionManager.needInterceptOfGZ(sendCode,Constants.MENU_CODE_SEAL_GZ,currentOperate,null);
+                    if(interceptResult.codeSuccess() && interceptResult.getData()){
+                        sealVehicleResponse.setCode(JdResponse.CODE_SERVICE_ERROR);
+                        sealVehicleResponse.setMessage(interceptResult.getMessage());
+                        return sealVehicleResponse;
+                    }
+                }
                com.jd.tms.basic.dto.CommonDto<TransportResourceDto> vtsDto
                         = newsealVehicleService.getTransportResourceByTransCode(transportCode);
                 if (vtsDto == null) {
@@ -476,6 +496,9 @@ public class NewSealVehicleResource {
                                     && SiteSignTool.supportTemporaryTransfer(endNodeSite.getSiteSign())){
                                 sealVehicleResponse.setCode(JdResponse.CODE_OK);
                                 sealVehicleResponse.setMessage(JdResponse.MESSAGE_OK);
+                                String siteName = endNodeSite.getSiteName();
+                                sealVehicleResponse.setExtraBusinessCode(NewSealVehicleResponse.CODE_DESTINATION_DIFF_ERROR);
+                                sealVehicleResponse.setExtraBusinessMessage(MessageFormat.format(NewSealVehicleResponse.TIPS_TRANSPORT_BATCHCODE_DESTINATION_DIFF_ERROR,siteName));
                                 return sealVehicleResponse;
                             }
                         //}
@@ -1154,9 +1177,14 @@ public class NewSealVehicleResource {
         if(CollectionUtils.isEmpty(queryConditions)){
             return;
         }
-        if(reportExternalManager.checkIsNeedSpotCheck(queryConditions)){
+        JdResult<SpotCheckResponse> checkResult = reportExternalManager.checkIsNeedSpotCheck(queryConditions);
+        if(checkResult.isSucceed()
+        		&& checkResult.getData() != null
+        		&& Boolean.TRUE.equals(checkResult.getData().getNeedCheck())){
             unSealVehicleResponse.setBusinessCode(NewUnsealVehicleResponse.SPOT_CHECK_UNSEAL_HINT_CODE);
-            unSealVehicleResponse.setBusinessMessage(NewUnsealVehicleResponse.SPOT_CHECK_UNSEAL_HINT_MESSAGE);
+            unSealVehicleResponse.setBusinessMessage(
+            		String.format(NewUnsealVehicleResponse.SPOT_CHECK_UNSEAL_HINT_MESSAGE, 
+            		SpotCheckTypeEnum.getNameByCode(checkResult.getData().getSpotCheckType())));
         }
     }
 
@@ -1197,8 +1225,8 @@ public class NewSealVehicleResource {
 
         if (Constants.RESULT_SUCCESS == isSealed.getCode()) {//服务正常
             if (Boolean.TRUE.equals(isSealed.getData())) {//已被封车
-                sealVehicleResponse.setCode(NewSealVehicleResponse.CODE_EXCUTE_ERROR);
-                sealVehicleResponse.setMessage(NewSealVehicleResponse.TIPS_BATCHCODE_SEALED_ERROR);
+                sealVehicleResponse.setCode(NewSealVehicleResponse.CODE_BATCH_CODE_SEALED);
+                sealVehicleResponse.setMessage(NewSealVehicleResponse.MESSAGE_BATCH_CODE_SEALED);
             } else {//未被封车
                 sealVehicleResponse.setCode(JdResponse.CODE_OK);
                 sealVehicleResponse.setMessage(JdResponse.MESSAGE_OK);

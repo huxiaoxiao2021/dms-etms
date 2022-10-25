@@ -28,4 +28,5 @@ public class TransferDto implements Serializable {
 
     private String updateUserErp;
     private String updateUserName;
+    private Integer source;
 }

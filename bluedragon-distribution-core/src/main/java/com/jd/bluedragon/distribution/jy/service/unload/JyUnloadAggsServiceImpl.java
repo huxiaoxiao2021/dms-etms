@@ -14,10 +14,27 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 
-@Service
+/**
+ * 类的描述
+ *
+ * @author hujiping
+ * @date 2022/10/9 6:35 PM
+ */
+@Service("jyUnloadAggsService")
 public class JyUnloadAggsServiceImpl implements JyUnloadAggsService {
+
     @Autowired
-    JyUnloadAggsDao jyUnloadAggsDao;
+    private JyUnloadAggsDao jyUnloadAggsDao;
+
+    @Override
+    public int insert(JyUnloadAggsEntity entity) {
+        return jyUnloadAggsDao.insert(entity);
+    }
+
+    @Override
+    public List<JyUnloadAggsEntity> queryByBizId(JyUnloadAggsEntity entity) {
+        return jyUnloadAggsDao.queryByBizId(entity);
+    }
 
     @Override
     public List<GoodsCategoryDto> queryGoodsCategoryStatistics(JyUnloadAggsEntity entity) {
@@ -62,4 +79,5 @@ public class JyUnloadAggsServiceImpl implements JyUnloadAggsService {
         }
         return null;
     }
+
 }

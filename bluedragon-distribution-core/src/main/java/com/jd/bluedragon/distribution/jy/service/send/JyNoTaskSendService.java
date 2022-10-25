@@ -4,6 +4,7 @@ import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicl
 import com.jd.bluedragon.common.dto.send.request.*;
 import com.jd.bluedragon.common.dto.send.response.CancelSendTaskResp;
 import com.jd.bluedragon.common.dto.send.response.CreateVehicleTaskResp;
+import com.jd.bluedragon.common.dto.send.response.DeleteVehicleTaskCheckResponse;
 import com.jd.bluedragon.common.dto.send.response.VehicleSpecResp;
 import com.jd.bluedragon.common.dto.send.response.VehicleTaskResp;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -30,6 +31,12 @@ public interface JyNoTaskSendService {
      * @return
      */
     InvokeResult deleteVehicleTask(DeleteVehicleTaskReq deleteVehicleTaskReq);
+    /**
+     * 删除任务前-校验
+     * @param deleteVehicleTaskReq
+     * @return
+     */
+    InvokeResult<DeleteVehicleTaskCheckResponse> checkBeforeDeleteVehicleTask(DeleteVehicleTaskReq deleteVehicleTaskReq);    
 
     /**
      * 查询运输车辆任务列表：根据流向或者报告号筛选任务列表

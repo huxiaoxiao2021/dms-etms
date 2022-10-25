@@ -79,6 +79,7 @@ public class ColdChainReverseManagerImpl implements ColdChainReverseManager {
                 || productTypes.contains(Constants.PRODUCT_TYPE_MEDICINE_DP)
                 || productTypes.contains(Constants.PRODUCT_TYPE_COLD_CHAIN_XP)
                 || productTypes.contains(Constants.PRODUCT_TYPE_MEDICINE_COLD);
+                //|| productTypes.contains(Constants.PRODUCT_TYPE_MEDICAL_PART_BILL);
     }
 
     /**

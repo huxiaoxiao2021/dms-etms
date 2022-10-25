@@ -9,6 +9,8 @@ import com.jd.bluedragon.common.dto.operation.workbench.unseal.request.SealVehic
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.*;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
+import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -17,7 +19,9 @@ import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadOrderTypeEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyLineTypeEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyUnSealStatusEnum;
+import com.jd.bluedragon.distribution.jy.enums.SpotCheckTypeEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
+import com.jd.bluedragon.distribution.jy.exception.JyDemotionException;
 import com.jd.bluedragon.distribution.jy.manager.IJyUnSealVehicleManager;
 import com.jd.bluedragon.distribution.jy.manager.JyScheduleTaskManager;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskUnloadVehicleService;
@@ -30,6 +34,7 @@ import com.jd.bluedragon.utils.*;
 import com.jd.etms.vos.dto.CommonDto;
 import com.jd.etms.vos.dto.PageDto;
 import com.jd.etms.vos.dto.SealCarDto;
+import com.jd.ql.dms.common.constants.CodeConstants;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
@@ -433,9 +438,13 @@ public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
         vehicleBaseInfo.setVehicleNumber(entity.getVehicleNumber());
         vehicleBaseInfo.setLineType(entity.getLineType());
         vehicleBaseInfo.setLineTypeName(entity.getLineTypeName());
-
-        if (BusinessUtil.isSignY(entity.getTagsSign(), JyUnloadTaskSignConstants.POSITION_1)) {
+        
+        if (BusinessUtil.isSignChar(entity.getTagsSign(),JyUnloadTaskSignConstants.POSITION_1,JyUnloadTaskSignConstants.CHAR_1_1)) {
             vehicleBaseInfo.setSpotCheck(true);
+            vehicleBaseInfo.setSpotCheckType(SpotCheckTypeEnum.DIRECT.getCode());
+        }else if (BusinessUtil.isSignChar(entity.getTagsSign(),JyUnloadTaskSignConstants.POSITION_1,JyUnloadTaskSignConstants.CHAR_1_2)) {
+            vehicleBaseInfo.setSpotCheck(true);
+            vehicleBaseInfo.setSpotCheckType(SpotCheckTypeEnum.RANDOM.getCode());
         }
 
         vehicleBaseInfo.setStarSiteId(entity.getStartSiteId().intValue());
@@ -493,13 +502,17 @@ public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
 
         InvokeResult<SealTaskInfo> response = new InvokeResult<>();
 
-        SealCarMonitor sealCarMonitor = jySealVehicleManager.querySealTaskInfo(request);
-        if (null == sealCarMonitor) {
-            response.error("查询任务明细异常，请联系分拣小秘！");
-            return response;
+        try {
+            SealCarMonitor sealCarMonitor = jySealVehicleManager.querySealTaskInfo(request);
+            if (null == sealCarMonitor) {
+                response.error("查询任务明细异常，请联系分拣小秘！");
+                return response;
+            }
+            response.setData(makeTaskInfo(sealCarMonitor));
+        }catch (JyDemotionException e){
+            response.customMessage(CodeConstants.JY_DEMOTION_CODE, HintService.getHint(HintCodeConstants.JY_DEMOTION_MSG_SEAL_DETAIL, false));
         }
 
-        response.setData(makeTaskInfo(sealCarMonitor));
         return response;
     }
 

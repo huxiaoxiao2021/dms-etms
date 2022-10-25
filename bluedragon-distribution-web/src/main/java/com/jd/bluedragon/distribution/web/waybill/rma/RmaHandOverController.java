@@ -1,14 +1,17 @@
 package com.jd.bluedragon.distribution.web.waybill.rma;
 
+import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.common.domain.ExportConcurrencyLimitEnum;
 import com.jd.bluedragon.common.service.ExportConcurrencyLimitService;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.security.dataam.SecurityCheckerExecutor;
+import com.jd.bluedragon.core.security.dataam.enums.SecurityDataMapFuncEnum;
+import com.jd.bluedragon.core.security.log.SecurityLogWriter;
 import com.jd.bluedragon.distribution.api.request.RmaHandoverQueryRequest;
 import com.jd.bluedragon.distribution.api.response.RmaHandoverResponse;
-import com.jd.bluedragon.distribution.areadest.domain.AreaDest;
-import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
 import com.jd.bluedragon.distribution.rma.PrintStatusEnum;
 import com.jd.bluedragon.distribution.rma.domain.RmaHandoverDetail;
 import com.jd.bluedragon.distribution.rma.domain.RmaHandoverWaybill;
@@ -29,6 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -60,6 +64,8 @@ public class RmaHandOverController {
     @Autowired
     private ExportConcurrencyLimitService exportConcurrencyLimitService;
 
+    @Autowired
+    private SecurityCheckerExecutor securityCheckerExecutor;
 
     /**
      * 跳转到主界面
@@ -156,6 +162,41 @@ public class RmaHandOverController {
         return queryParam;
     }
 
+    @Authorization(Constants.DMS_WEB_EXPRESS_RMAHANDOVER_R)
+    @RequestMapping("/showDetailAddress")
+    @ResponseBody
+    public RmaHandoverResponse<String> showDetailAddress(@RequestBody Integer id) {
+        RmaHandoverResponse<String> response = new RmaHandoverResponse<String>();
+        response.setCode(RmaHandoverResponse.CODE_NORMAL);
+        ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
+        if (erpUser == null) {
+            response.toFail("获取当前登录用户信息失败，请重新登录ERP后尝试");
+            return response;
+        }
+        if(id == null){
+            response.toFail("参数错误!");
+            return response;
+        }
+        List<Long> list = Lists.newArrayList(Long.valueOf(String.valueOf(id)));
+        List<RmaHandoverWaybill> queryResult = rmaHandOverWaybillService.getList(list, false);
+        RmaHandoverWaybill rmaHandoverWaybill = CollectionUtils.isEmpty(queryResult) ? null : queryResult.get(0);
+        if(rmaHandoverWaybill == null){
+            response.toFail("根据id未查询到数据!");
+            return response;
+        }
+        // 安全次数限制
+        InvokeResult<Boolean> securityCheckResult
+                = securityCheckerExecutor.verifyWaybillDetailPermission(SecurityDataMapFuncEnum.WAYBILL_RMA, erpUser.getUserCode(), rmaHandoverWaybill.getWaybillCode());
+        if(!securityCheckResult.codeSuccess()){
+            response.toFail(securityCheckResult.getMessage());
+            return response;
+        }
+        response.setData(rmaHandoverWaybill.getReceiverAddress());
+        //记录安全日志
+        SecurityLogWriter.showDetailAddressWrite(id, rmaHandoverWaybill, erpUser.getUserCode());
+        return response;
+    }
+
     /**
      * 查询地址方法
      *
@@ -175,14 +216,25 @@ public class RmaHandOverController {
             ErpUserClient.ErpUser erpUser = ErpUserClient.getCurrUser();
             if (erpUser != null) {
                 try {
+                    // 安全次数限制
+                    InvokeResult<Boolean> securityCheckResult
+                            = securityCheckerExecutor.verifyWaybillDetailPermission(SecurityDataMapFuncEnum.WAYBILL_RMA, erpUser.getUserCode(), waybillCode);
+                    if(!securityCheckResult.codeSuccess()){
+                        response.toFail(securityCheckResult.getMessage());
+                        return response;
+                    }
                     BaseStaffSiteOrgDto dto = baseMajorManager.getBaseStaffByErpNoCache(erpUser.getUserCode());
                     if (dto != null) {
                         String receiverAddress = rmaHandOverWaybillService.getReceiverAddressByWaybillCode(SerialRuleUtil.getWaybillCode(waybillCode), dto.getSiteCode());
                         if (StringUtils.isEmpty(receiverAddress)) {
                             response.toFail("根据运单号查询收货地址为空");
                         } else {
-                            response.setData(rmaHandOverWaybillService.getReceiverAddressByWaybillCode(waybillCode, dto.getSiteCode()));
+                            response.setData(receiverAddress);
                             response.setCode(RmaHandoverResponse.CODE_NORMAL);
+
+                            //记录安全日志
+                            SecurityLogWriter.getReceiverAddressQueryWrite(waybillCode, receiverAddress, erpUser.getUserCode());
+
                         }
                     } else {
                         response.toFail("根据ERP账号:" + erpUser.getUserCode() + "获取所属站点信息为空，请检查是否配置基础资料信息");
@@ -233,7 +285,10 @@ public class RmaHandOverController {
                     rmaHandoverWaybill.setPrintUserName(erpUser.getUserName());
                     rmaHandOverWaybillService.update(rmaHandoverWaybill);
                 }
+                //记录安全日志
+                SecurityLogWriter.printWaybillRmaWrite(idList, rmaHandoverPrintList, erpUser.getUserCode());
             }
+
         } catch (Exception e) {
             log.error("[RMA交接清单打印]生成打印页面时发生异常", e);
             rmaResponse.toException("生成打印页面时发生异常，请联系管理员");
@@ -273,6 +328,9 @@ public class RmaHandOverController {
             idLs.add(idL);
         }
         Map<String, RmaHandoverPrint> rmaHandoverPrintMap = rmaHandOverWaybillService.getPrintInfoMap(idLs);
+
+        //记录导出安全日志
+        SecurityLogWriter.doExportWrite(idList, (List<RmaHandoverPrint>) rmaHandoverPrintMap.values(), ErpUserClient.getCurrUser().getUserCode());
 
         HSSFWorkbook workbook = new HSSFWorkbook();
         OutputStream out = response.getOutputStream();

@@ -79,6 +79,8 @@ public interface NewSealVehicleService {
     public CommonDto<Boolean> isBatchCodeHasSealed(String batchCode);
     void checkBatchCode(InvokeResult result, String batchCode);
 
+    InvokeResult<Void> checkBatchCode(String batchCode);
+
     /**
      * 根据运力编码查询运力编码相关信息
      *

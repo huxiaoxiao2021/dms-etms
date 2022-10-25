@@ -6,7 +6,6 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.waybill.request.WaybillTrackReq;
 import com.jd.bluedragon.common.dto.waybill.request.WaybillTrackResponse;
 import com.jd.bluedragon.core.base.WaybillTraceManager;
-import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.rest.base.BaseResource;
 import com.jd.bluedragon.external.gateway.service.WaybillGateWayService;
@@ -14,14 +13,12 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.dms.logger.annotation.BusinessLog;
 import com.jd.etms.cache.util.EnumBusiCode;
 import com.jd.etms.waybill.api.WaybillPackageApi;
-import com.jd.etms.waybill.api.WaybillQueryApi;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.PackageState;
 import com.jd.jim.cli.Cluster;
 import com.jd.ql.erp.util.BeanUtils;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
-import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,8 +28,6 @@ import javax.annotation.Resource;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-
-import static org.elasticsearch.common.util.CollectionUtils.CollectionUtils;
 
 /**
  * 运单相关
