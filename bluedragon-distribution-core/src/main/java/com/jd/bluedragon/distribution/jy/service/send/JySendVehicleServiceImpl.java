@@ -1456,7 +1456,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             }
 
             // 包裹首次扫描逻辑
-            boolean firstScanFlag = this.dealTaskFirstScan(request, taskSend, sendDestId, curSendDetail);
+            boolean firstScanFlag = this.dealTaskFirstScan(request, taskSend, curSendDetail);
 
             SendScanResponse sendScanResponse = new SendScanResponse();
             result.setData(sendScanResponse);

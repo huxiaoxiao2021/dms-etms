@@ -179,7 +179,7 @@ public interface JySendVehicleTysService {
     /**
      * 校验运力编码和发货批次的目的地是否一致
      */
-    InvokeResult validateTranCodeAndSendCode(ValidSendCodeReq ValidSendCodeReq);
+    InvokeResult<SealCarSendCodeResp> validateTranCodeAndSendCode(ValidSendCodeReq ValidSendCodeReq);
 
 
     /**

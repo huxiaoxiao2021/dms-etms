@@ -734,44 +734,17 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
      */
     @Override
     @JProfiler(jKey = "DMSWEB.JySendVehicleTysService.validateTranCodeAndSendCode", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
-    public InvokeResult validateTranCodeAndSendCode(ValidSendCodeReq validSendCodeReq) {
-        checkValidSendCodeReq(validSendCodeReq);
-        InvokeResult invokeResult = new InvokeResult(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
-        newsealVehicleService.checkBatchCode(invokeResult, validSendCodeReq.getSendCode());
-        if (RESULT_SUCCESS_CODE == invokeResult.getCode()) {
-            com.jd.tms.basic.dto.CommonDto<TransportResourceDto> commonDto = newsealVehicleService.getTransportResourceByTransCode(validSendCodeReq.getTransportCode());
-            if (commonDto == null) {
-                invokeResult.setCode(SERVER_ERROR_CODE);
-                invokeResult.setMessage("查询运力信息结果为空:" + validSendCodeReq.getSendCode());
-                return invokeResult;
-            }
-            if (commonDto.getData() != null && Constants.RESULT_SUCCESS == commonDto.getCode()) {
-                Integer receiveSiteCode = SerialRuleUtil.getReceiveSiteCodeFromSendCode(validSendCodeReq.getSendCode());
-                Integer endNodeId = commonDto.getData().getEndNodeId();
-                if (receiveSiteCode.equals(endNodeId)) {
-                    invokeResult.setCode(JdResponse.CODE_OK);
-                    invokeResult.setMessage(JdResponse.MESSAGE_OK);
-                } else {
-                    //不分传摆和运力都去校验目的地类型是中转场的时候 跳过目的地不一致逻辑
-                    BaseStaffSiteOrgDto endNodeSite = baseMajorManager.getBaseSiteBySiteId(endNodeId);
-                    if (endNodeSite != null && SiteSignTool.supportTemporaryTransfer(endNodeSite.getSiteSign())) {
-                        invokeResult.setCode(RESULT_SUCCESS_CODE);
-                        invokeResult.setMessage(RESULT_SUCCESS_MESSAGE);
-                        return invokeResult;
-                    }
-                    invokeResult.setCode(SENDCODE_TRANSPOST_NOT_UNIFIED_CODE);
-                    invokeResult.setMessage(SENDCODE_TRANSPOST_NOT_UNIFIED_MESSAGE);
-                }
-            } else if (Constants.RESULT_WARN == commonDto.getCode()) {
-                invokeResult.setCode(SERVER_ERROR_CODE);
-                invokeResult.setMessage(commonDto.getMessage());
-            } else {
-                invokeResult.setCode(SERVER_ERROR_CODE);
-                invokeResult.setMessage("查询运力信息出错！");
-                logger.warn("根据运力编码：【{}】查询运力信息出错,出错原因:{}", validSendCodeReq.getTransportCode(), commonDto.getMessage());
-            }
+    public InvokeResult<SealCarSendCodeResp> validateTranCodeAndSendCode(ValidSendCodeReq validSendCodeReq) {
+        com.jd.bluedragon.common.dto.seal.request.ValidSendCodeReq req = BeanUtils.copy(validSendCodeReq, com.jd.bluedragon.common.dto.seal.request.ValidSendCodeReq.class);
+        if (req != null) {
+            req.setUser(copyUser(validSendCodeReq.getUser()));
+            req.setCurrentOperate(copyCurrentOperate(validSendCodeReq.getCurrentOperate()));
         }
-        return invokeResult;
+        InvokeResult<com.jd.bluedragon.common.dto.operation.workbench.seal.SealCarSendCodeResp> result = jySealVehicleService.validateTranCodeAndSendCode(req);
+        if (ObjectHelper.isNotNull(result)) {
+            return convertResult(result, SealCarSendCodeResp.class);
+        }
+        return new InvokeResult<>(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
     }
 
     private void checkValidSendCodeReq(ValidSendCodeReq validSendCodeReq) {

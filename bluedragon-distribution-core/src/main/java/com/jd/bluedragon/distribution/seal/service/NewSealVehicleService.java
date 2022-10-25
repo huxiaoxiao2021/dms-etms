@@ -77,7 +77,7 @@ public interface NewSealVehicleService {
      * @return
      */
     public CommonDto<Boolean> isBatchCodeHasSealed(String batchCode);
-    void checkBatchCode(InvokeResult result, String batchCode);
+
 
     InvokeResult<Void> checkBatchCode(String batchCode);
 
