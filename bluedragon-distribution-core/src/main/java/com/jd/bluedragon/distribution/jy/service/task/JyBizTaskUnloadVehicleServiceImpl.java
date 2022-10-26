@@ -750,6 +750,7 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
         }
         BaseStaffSiteOrgDto baseStaffSiteOrgDto = baseMajorManager.getBaseSiteBySiteId(endSiteId.intValue());
         if(baseStaffSiteOrgDto == null) {
+            logger.warn("JyBizTaskUnloadVehicleServiceImpl.getTaskType--卸车任务区分来源分拣还是转运，基础资料未查到场地，endSiteId={}", endSiteId);
             return null;
         }
         return Constants.B2B_SITE_TYPE == baseStaffSiteOrgDto.getSubType() ? UNLOAD_TASK_CATEGORY_TYS : UNLOAD_TASK_CATEGORY_DMS;
