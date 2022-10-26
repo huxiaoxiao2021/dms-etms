@@ -152,7 +152,7 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
             return true;
         }
 
-        double ratio = volume / weight * SpotCheckConstants.CM3_M3_MAGNIFICATION;
+        double ratio = volume / weight / SpotCheckConstants.CM3_M3_MAGNIFICATION;
         if(ratio > SpotCheckConstants.ARTIFICIAL_SPOT_CHECK_VOLUME_WEIGHT_RATIO_MAX
             || ratio < SpotCheckConstants.ARTIFICIAL_SPOT_CHECK_VOLUME_WEIGHT_RATIO_MIN){
             result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.ARTIFICIAL_SPOT_CHECK_NOT_MEET_THEORETICAL_VALUE);
