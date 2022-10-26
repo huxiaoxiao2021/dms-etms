@@ -30,6 +30,15 @@ public class SealVehicleInfoResp implements Serializable {
 
     private List<String> sendCodeList;
 
+    /**
+     * 封签号列表
+     */
+    private List<String> sealCodeList;
+    /**
+     * 页面保存数据
+     */
+    private SealDto savedPageData;
+
     public List<String> getSendCodeList() {
         return sendCodeList;
     }
@@ -78,4 +87,19 @@ public class SealVehicleInfoResp implements Serializable {
         this.vehicleNumber = vehicleNumber;
     }
 
+    public List<String> getSealCodeList() {
+        return sealCodeList;
+    }
+
+    public void setSealCodeList(List<String> sealCodeList) {
+        this.sealCodeList = sealCodeList;
+    }
+
+    public SealDto getSavedPageData() {
+        return savedPageData;
+    }
+
+    public void setSavedPageData(SealDto savedPageData) {
+        this.savedPageData = savedPageData;
+    }
 }

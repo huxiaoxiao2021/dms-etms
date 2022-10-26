@@ -131,55 +131,61 @@ public interface JySendVehicleTysService {
 
     /**
      * 根据运输任务bizId查询车的封签号列表
-     * @param SealCodeReq
+     * @param sealCodeReq
      * @return
      */
-    InvokeResult<SealCodeResp> listSealCodeByBizId(SealCodeReq SealCodeReq);
+    InvokeResult<SealCodeResp> listSealCodeByBizId(SealCodeReq sealCodeReq);
 
     /**
      * 查询流向任务封车数据详情
-     * @param SealVehicleInfoReq
+     * @param sealVehicleInfoReq
      * @return
      */
-    InvokeResult<SealVehicleInfoResp> getSealVehicleInfo(SealVehicleInfoReq SealVehicleInfoReq);
+    InvokeResult<SealVehicleInfoResp> getSealVehicleInfo(SealVehicleInfoReq sealVehicleInfoReq);
 
     /**
      * 根据运力编码查询运输信息
-     * @param TransportReq
+     * @param transportReq
      * @return
      *
      */
-    InvokeResult<TransportInfoDto>  getTransportResourceByTransCode(TransportReq TransportReq);
+    InvokeResult<TransportInfoDto>  getTransportResourceByTransCode(TransportReq transportReq);
 
     /**
      * 校验运力编码和任务简码是否匹配
      *
      */
-    InvokeResult checkTransportCode(CheckTransportCodeReq CheckTransportCodeReq);
+    InvokeResult checkTransportCode(CheckTransportCodeReq checkTransportCodeReq);
 
     /**
      * 根据任务简码查询运输任务相关信息--原pda调用接口逻辑
      *
      */
-    InvokeResult<TransportResp> getVehicleNumberByWorkItemCode(GetVehicleNumberReq GetVehicleNumberReq);
+    InvokeResult<TransportResp> getVehicleNumberByWorkItemCode(GetVehicleNumberReq getVehicleNumberReq);
 
     /**
      * 根据任务简码查询任务详情
-     * @param GetVehicleNumberReq
+     * @param getVehicleNumberReq
      * @return
      */
-    InvokeResult<TransportResp> getTransWorkItemByWorkItemCode(GetVehicleNumberReq GetVehicleNumberReq);
+    InvokeResult<TransportResp> getTransWorkItemByWorkItemCode(GetVehicleNumberReq getVehicleNumberReq);
 
     /**
      * 提交封车
      *
      */
-    InvokeResult sealVehicle(SealVehicleReq SealVehicleReq);
+    InvokeResult sealVehicle(SealVehicleReq sealVehicleReq);
+
+    /**
+     * 保存封车数据
+     *
+     */
+    InvokeResult<Boolean> saveSealVehicle(SealVehicleReq sealVehicleReq);
 
     /**
      * 校验运力编码和发货批次的目的地是否一致
      */
-    InvokeResult<SealCarSendCodeResp> validateTranCodeAndSendCode(ValidSendCodeReq ValidSendCodeReq);
+    InvokeResult<SealCarSendCodeResp> validateTranCodeAndSendCode(ValidSendCodeReq validSendCodeReq);
 
 
     /**
@@ -190,70 +196,70 @@ public interface JySendVehicleTysService {
 
     /**
      * 创建自建类型的运输车辆任务（主任务）
-     * @param CreateVehicleTaskReq
+     * @param createVehicleTaskReq
      * @return
      */
-    InvokeResult<CreateVehicleTaskResp> createVehicleTask(CreateVehicleTaskReq CreateVehicleTaskReq);
+    InvokeResult<CreateVehicleTaskResp> createVehicleTask(CreateVehicleTaskReq createVehicleTaskReq);
 
     /**
      * 删除自建类型的运输车辆任务（主任务）
-     * @param DeleteVehicleTaskReq
+     * @param deleteVehicleTaskReq
      * @return
      */
-    InvokeResult deleteVehicleTask(DeleteVehicleTaskReq DeleteVehicleTaskReq);
+    InvokeResult deleteVehicleTask(DeleteVehicleTaskReq deleteVehicleTaskReq);
 
     /**
      * 查询运输车辆任务列表
-     * @param VehicleTaskReq
+     * @param vehicleTaskReq
      * @return
      */
-    InvokeResult<VehicleTaskResp> listVehicleTask(VehicleTaskReq VehicleTaskReq);
+    InvokeResult<VehicleTaskResp> listVehicleTask(VehicleTaskReq vehicleTaskReq);
 
     /**
      * 查询运输车辆任务列表：提供给任务迁移场景查询使用
      * 迁出时 扫包裹号定位包裹所在任务；迁入时 @1可扫包裹 @2也可录入站点id
-     * @param TransferVehicleTaskReq
+     * @param transferVehicleTaskReq
      * @return
      */
-    InvokeResult<VehicleTaskResp> listVehicleTaskSupportTransfer(TransferVehicleTaskReq TransferVehicleTaskReq);
+    InvokeResult<VehicleTaskResp> listVehicleTaskSupportTransfer(TransferVehicleTaskReq transferVehicleTaskReq);
 
 
     /**
      * 自建任务绑定-运输真实任务
-     * @param BindVehicleDetailTaskReq
+     * @param bindVehicleDetailTaskReq
      * @return
      */
-    InvokeResult bindVehicleDetailTask(BindVehicleDetailTaskReq BindVehicleDetailTaskReq);
+    InvokeResult bindVehicleDetailTask(BindVehicleDetailTaskReq bindVehicleDetailTaskReq);
 
     /**
      * 迁移发货批次数据
-     * @param TransferSendTaskReq
+     * @param transferSendTaskReq
      * @return
      */
-    InvokeResult transferSendTask(TransferSendTaskReq TransferSendTaskReq);
+    InvokeResult transferSendTask(TransferSendTaskReq transferSendTaskReq);
 
     /**
      * 取消发货
-     * @param CancelSendTaskReq
+     * @param cancelSendTaskReq
      * @return
      */
-    InvokeResult<CancelSendTaskResp> cancelSendTask(CancelSendTaskReq CancelSendTaskReq);
+    InvokeResult<CancelSendTaskResp> cancelSendTask(CancelSendTaskReq cancelSendTaskReq);
 
 
     /**
      * 扫描包裹号、箱号 获取流向信息
-     * @param GetSendRouterInfoReq
+     * @param getSendRouterInfoReq
      * @return
      */
-    InvokeResult<GetSendRouterInfoResp> getSendRouterInfoByScanCode(GetSendRouterInfoReq GetSendRouterInfoReq);
+    InvokeResult<GetSendRouterInfoResp> getSendRouterInfoByScanCode(GetSendRouterInfoReq getSendRouterInfoReq);
 
     /**
      * 不齐处理提交
      * （转运新增逻辑）
-     * @param IncompleteSendReq
+     * @param incompleteSendReq
      * @return
      */
-    InvokeResult<IncompleteSendResp> incompleteSendSubmit(IncompleteSendReq IncompleteSendReq);
+    InvokeResult<IncompleteSendResp> incompleteSendSubmit(IncompleteSendReq incompleteSendReq);
 
     /**
      * 发货拦截包裹明细

@@ -385,7 +385,7 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
         if (ObjectHelper.isNotNull(result)) {
             return convertResult(result, SendVehicleProgress.class);
         }
-        return new InvokeResult(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
+        return new InvokeResult<>(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
     }
 
     /**
@@ -421,7 +421,7 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
             }
             return response;
         }
-        return new InvokeResult(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
+        return new InvokeResult<>(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
     }
 
 
@@ -542,7 +542,7 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
             }
             return response;
         }
-        return new InvokeResult(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
+        return new InvokeResult<>(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
     }
 
     /**
@@ -585,7 +585,7 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
         if (ObjectHelper.isNotNull(result)) {
             return convertResult(result, SealCodeResp.class);
         }
-        return new InvokeResult(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
+        return new InvokeResult<>(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
     }
 
     /**
@@ -604,9 +604,17 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
         }
         InvokeResult<com.jd.bluedragon.common.dto.seal.response.SealVehicleInfoResp> result = jySealVehicleService.getSealVehicleInfo(req);
         if (ObjectHelper.isNotNull(result)) {
-            return convertResult(result, SealVehicleInfoResp.class);
+            InvokeResult<SealVehicleInfoResp> response = new InvokeResult<>();
+            response.setCode(result.getCode());
+            response.setMessage(result.getMessage());
+            if (result.getData() != null) {
+                String jsonStr = JSON.toJSONString(result.getData());
+                SealVehicleInfoResp sealVehicleInfoResp = JSON.parseObject(jsonStr, SealVehicleInfoResp.class);
+                response.setData(sealVehicleInfoResp);
+            }
+            return response;
         }
-        return new InvokeResult(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
+        return new InvokeResult<>(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
     }
 
     /**
@@ -619,12 +627,12 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
     @JProfiler(jKey = "DMSWEB.JySendVehicleTysService.getTransportResourceByTransCode", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<TransportInfoDto> getTransportResourceByTransCode(TransportReq transportReq) {
         if (StringUtils.isEmpty(transportReq.getTransportCode()) || !NumberHelper.isPositiveNumber(transportReq.getCurrentOperate().getSiteCode())) {
-            return new InvokeResult(RESULT_THIRD_ERROR_CODE, PARAM_ERROR);
+            return new InvokeResult<>(RESULT_THIRD_ERROR_CODE, PARAM_ERROR);
         }
         try {
             com.jd.tms.basic.dto.CommonDto<TransportResourceDto> vtsDto = newsealVehicleService.getTransportResourceByTransCode(transportReq.getTransportCode());
             if (vtsDto == null) {
-                return new InvokeResult(GET_TRANSPORT_RESOURCE_CODE, GET_TRANSPORT_RESOURCE_MESSAGE);
+                return new InvokeResult<>(GET_TRANSPORT_RESOURCE_CODE, GET_TRANSPORT_RESOURCE_MESSAGE);
             }
             if (Constants.RESULT_SUCCESS == vtsDto.getCode()) {
                 TransportResourceDto vtrd = vtsDto.getData();
@@ -632,16 +640,16 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
                     RouteTypeResponse routeTypeResponse = newsealVehicleService.checkTransportCode(vtrd, transportReq.getCurrentOperate().getSiteCode());
                     if (routeTypeResponse.getCode().equals(JdResponse.CODE_OK)) {
                         TransportInfoDto transportInfoDto = BeanUtils.copy(routeTypeResponse, TransportInfoDto.class);
-                        return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, transportInfoDto);
+                        return new InvokeResult<>(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, transportInfoDto);
                     } else {
-                        return new InvokeResult(routeTypeResponse.getCode(), routeTypeResponse.getMessage());
+                        return new InvokeResult<>(routeTypeResponse.getCode(), routeTypeResponse.getMessage());
                     }
                 } else {
-                    return new InvokeResult(GET_TRANSPORT_RESOURCE_CODE, GET_TRANSPORT_RESOURCE_MESSAGE);
+                    return new InvokeResult<>(GET_TRANSPORT_RESOURCE_CODE, GET_TRANSPORT_RESOURCE_MESSAGE);
                 }
             } else if (Constants.RESULT_WARN == vtsDto.getCode()) {
                 //查询运力信息接口返回警告，给出前台提示
-                return new InvokeResult(SERVER_ERROR_CODE, vtsDto.getMessage());
+                return new InvokeResult<>(SERVER_ERROR_CODE, vtsDto.getMessage());
             } else {
                 //服务出错或者出异常，打日志
                 logger.warn("查询运力信息出错,出错原因:{}", vtsDto.getMessage());
@@ -649,7 +657,7 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
         } catch (Exception e) {
             logger.error("通过运力编码获取基础资料信息异常：{}", JsonHelper.toJson(transportReq), e);
         }
-        return new InvokeResult(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
+        return new InvokeResult<>(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
     }
 
     /**
@@ -704,7 +712,7 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
         if (ObjectHelper.isNotNull(result)) {
             return convertResult(result, TransportResp.class);
         }
-        return new InvokeResult(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
+        return new InvokeResult<>(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
     }
 
     /**
@@ -725,6 +733,21 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
             return convertResult(result, SealVehicleInfoResp.class);
         }
         return new InvokeResult(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
+    }
+
+    @Override
+    @JProfiler(jKey = "DMSWEB.JySendVehicleTysService.saveSealVehicle", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public InvokeResult<Boolean> saveSealVehicle(SealVehicleReq sealVehicleReq) {
+        com.jd.bluedragon.common.dto.seal.request.SealVehicleReq req = BeanUtils.copy(sealVehicleReq, com.jd.bluedragon.common.dto.seal.request.SealVehicleReq.class);
+        if (req != null) {
+            req.setUser(copyUser(sealVehicleReq.getUser()));
+            req.setCurrentOperate(copyCurrentOperate(sealVehicleReq.getCurrentOperate()));
+        }
+        InvokeResult<Boolean> result = jySealVehicleService.saveSealVehicle(req);
+        if (ObjectHelper.isNotNull(result)) {
+            return convertResult(result, Boolean.class);
+        }
+        return new InvokeResult<>(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
     }
 
     /**
@@ -779,7 +802,7 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
             }
             return response;
         }
-        return new InvokeResult(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
+        return new InvokeResult<>(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
     }
 
     /**
@@ -800,7 +823,7 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
         if (ObjectHelper.isNotNull(result)) {
             return convertResult(result, CreateVehicleTaskResp.class);
         }
-        return new InvokeResult(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
+        return new InvokeResult<>(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
     }
 
     /**
@@ -850,7 +873,7 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
             }
             return response;
         }
-        return new InvokeResult(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
+        return new InvokeResult<>(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
     }
 
     /**
@@ -880,7 +903,7 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
             }
             return response;
         }
-        return new InvokeResult(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
+        return new InvokeResult<>(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
     }
 
     /**
@@ -949,7 +972,7 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
             }
             return response;
         }
-        return new InvokeResult(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
+        return new InvokeResult<>(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
     }
 
     private CancelSendTaskResp transformCancelResp(com.jd.bluedragon.common.dto.send.response.CancelSendTaskResp cancelSendTaskResp, CancelSendTaskReq cancelSendTaskReq) {
@@ -1090,12 +1113,12 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
             for (SendM sendM : sendMList) {
                 ThreeDeliveryResponse tDResponse = deliveryService.dellCancelDeliveryMessageWithServerTime(sendM, true);
                 if (!(ObjectHelper.isNotNull(tDResponse) && JdCResponse.CODE_SUCCESS.equals(tDResponse.getCode()))) {
-                    return new InvokeResult(tDResponse.getCode(), tDResponse.getMessage());
+                    return new InvokeResult<>(tDResponse.getCode(), tDResponse.getMessage());
                 }
             }
-            return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE);
+            return new InvokeResult<>(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE);
         }
-        return new InvokeResult(NO_FOUND_INCOMPELETE_DATA_CODE, NO_FOUND_INCOMPELETE_DATA_MESSAGE);
+        return new InvokeResult<>(NO_FOUND_INCOMPELETE_DATA_CODE, NO_FOUND_INCOMPELETE_DATA_MESSAGE);
     }
 
     @Override
@@ -1199,7 +1222,7 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
     }
 
     private <T> InvokeResult<List<T>> convertListResult(InvokeResult input, Class<T> tClass) {
-        InvokeResult<List<T>> output = new InvokeResult();
+        InvokeResult<List<T>> output = new InvokeResult<>();
         output.setCode(input.getCode());
         output.setMessage(input.getMessage());
         if (ObjectHelper.isNotNull(input.getData())) {

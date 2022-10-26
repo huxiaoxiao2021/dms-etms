@@ -124,6 +124,15 @@ public class SealVehicleReq extends JyReqBaseDto implements Serializable {
      */
     private List<String> selectedSendCodes;
 
+    /**
+     * 扫描的封签号
+     */
+    private List<String> scannedSealCodes;
+    /**
+     * 扫描的批次
+     */
+    private List<String> scannedBatchCodes;
+
     private String billCode;
 
 
@@ -295,4 +304,19 @@ public class SealVehicleReq extends JyReqBaseDto implements Serializable {
         this.billCode = billCode;
     }
 
+    public List<String> getScannedSealCodes() {
+        return scannedSealCodes;
+    }
+
+    public void setScannedSealCodes(List<String> scannedSealCodes) {
+        this.scannedSealCodes = scannedSealCodes;
+    }
+
+    public List<String> getScannedBatchCodes() {
+        return scannedBatchCodes;
+    }
+
+    public void setScannedBatchCodes(List<String> scannedBatchCodes) {
+        this.scannedBatchCodes = scannedBatchCodes;
+    }
 }
