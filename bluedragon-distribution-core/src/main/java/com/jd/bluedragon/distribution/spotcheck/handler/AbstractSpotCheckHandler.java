@@ -111,10 +111,16 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
                 && weightVolumeRatioCheck(spotCheckContext, result)){
             return;
         }
-        //有打木架服务的不支持人工抽检
-        isSupportArtificialSportCheck(spotCheckContext, result);
+        //有打木架服务不支持人工抽检
+        if(!isSupportArtificialSpotCheck(spotCheckContext, result)){
+            logger.info("人工抽检打木架服务校验不通过");
+            return;
+        }
         //重量体积误输入校验(超出理论值)
-        checkWeightAndVolumeParam(spotCheckContext, result);
+        if(checkWeightAndVolumeParam(spotCheckContext, result)){
+            logger.info("防呆校验不通过");
+            return;
+        }
         // 是否妥投
         if(waybillTraceManager.isWaybillFinished(waybillCode)){
             result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_FORBID_FINISHED_PACK);
@@ -135,7 +141,7 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
      * @param context
      * @param result
      */
-    protected void checkWeightAndVolumeParam(SpotCheckContext context, InvokeResult<Boolean> result){
+    protected boolean checkWeightAndVolumeParam(SpotCheckContext context, InvokeResult<Boolean> result){
         double weight = context.getSpotCheckReviewDetail().getReviewTotalWeight();
         //单位cm³
         double volume = context.getSpotCheckReviewDetail().getReviewTotalVolume();
@@ -143,18 +149,20 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
         if(volume > SpotCheckConstants.ARTIFICIAL_SPOT_CHECK_VOLUME_MAX * SpotCheckConstants.CM3_M3_MAGNIFICATION
             || weight > SpotCheckConstants.ARTIFICIAL_SPOT_CHECK_WEIGHT_MAX){
             result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.ARTIFICIAL_SPOT_CHECK_EXCESS_LIMITATION);
-            return;
+            return true;
         }
 
         double ratio = volume / weight * SpotCheckConstants.CM3_M3_MAGNIFICATION;
         if(ratio > SpotCheckConstants.ARTIFICIAL_SPOT_CHECK_VOLUME_WEIGHT_RATIO_MAX
             || ratio < SpotCheckConstants.ARTIFICIAL_SPOT_CHECK_VOLUME_WEIGHT_RATIO_MIN){
             result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.ARTIFICIAL_SPOT_CHECK_NOT_MEET_THEORETICAL_VALUE);
-            return;
+            return true;
         }
+
+        return false;
     }
 
-    protected void isSupportArtificialSportCheck(SpotCheckContext context, InvokeResult<Boolean> result){}
+    protected boolean isSupportArtificialSpotCheck(SpotCheckContext context, InvokeResult<Boolean> result){return true;}
 
     private boolean reformSendCheck(SpotCheckContext spotCheckContext, InvokeResult<Boolean> result) {
         SendDetail sendDetail = sendDetailService.findOneByWaybillCode(spotCheckContext.getReviewSiteCode(), spotCheckContext.getWaybillCode());
