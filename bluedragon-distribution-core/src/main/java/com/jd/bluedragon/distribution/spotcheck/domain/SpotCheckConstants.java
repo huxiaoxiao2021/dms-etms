@@ -65,6 +65,26 @@ public class SpotCheckConstants {
     public static final long CM3_M3_MAGNIFICATION = 1000000;
 
     /**
+     * 人工抽检防呆限重62500kg（运单总重量）
+     */
+    public static final int ARTIFICIAL_SPOT_CHECK_WEIGHT_MAX = 62500;
+
+    /**
+     * 人工抽检防呆体积限制最大300m³（运单总体积）
+     */
+    public static final int ARTIFICIAL_SPOT_CHECK_VOLUME_MAX = 300;
+
+    /**
+     * 人工抽检防呆体积（m³）与重量（kg）之比最大值(运单总量之比)
+     */
+    public static final double ARTIFICIAL_SPOT_CHECK_VOLUME_WEIGHT_RATIO_MAX = 0.2;
+
+    /**
+     * 人工抽检防呆体积（m³）与重量（kg）之比最大值（运单总量之比）
+     */
+    public static final double ARTIFICIAL_SPOT_CHECK_VOLUME_WEIGHT_RATIO_MIN = 0.0005;
+
+    /**
      * 抽检全程跟踪术语
      */
     public static final String SPOT_CHECK_TRACE_REMARK = "重量体积抽检：重量%s公斤，体积%s立方厘米";
@@ -114,6 +134,10 @@ public class SpotCheckConstants {
     public static final String SPOT_CHECK_PACK_SPOT_CHECK_REFORM = "运单下包裹%s已抽检,不支持人工抽检!";
     public static final String SPOT_CHECK_PACK_SPOT_SEND_NOT_CHECK = "运单下有包裹已发货未抽检,禁止操作!!";
 
+    public static final String ARTIFICIAL_SPOT_CHECK_EXCESS_LIMITATION = "货物超大超重，请注意重量体积是否有误！";
+    public static final String ARTIFICIAL_SPOT_CHECK_NOT_MEET_THEORETICAL_VALUE = "您录入的重量或者体积可能错误，不符合货物理论大小，请仔细核对!";
+    public static final String WOODEN_FRAME_NOT_SUPPORT_ARTIFICIAL_SPOT_CHECK = "该运单存在打木架服务，暂不支持称重举报!";
+
     /**
      * AI识别图片类型
      *  1：重量 2：面单
@@ -132,5 +156,10 @@ public class SpotCheckConstants {
      * 图片识别异常编码
      */
     public static final Integer SPOT_CHECK_AI_EXC_CODE = 40001;
+
+    /**
+     * 打木架服务耗材编码
+     */
+    public static final String WOODEN_FRAME_TYPE_CODE = "TY003";
 
 }

@@ -350,4 +350,11 @@ public interface WaybillQueryManager{
 	 */
 	String getConsignmentNameByWaybillDto(BigWaybillDto bigWaybillDto);
 
+	/**
+	 * 根据运单号查询包装耗材信息
+	 * @param waybillCode
+	 * @return
+	 */
+	BaseEntity<List<BoxChargeDto>> getBoxChargeByWaybillCode(String waybillCode);
+
 }

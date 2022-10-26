@@ -111,6 +111,10 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
                 && weightVolumeRatioCheck(spotCheckContext, result)){
             return;
         }
+        //有打木架服务的不支持人工抽检
+        isSupportArtificialSportCheck(spotCheckContext, result);
+        //重量体积误输入校验(超出理论值)
+        checkWeightAndVolumeParam(spotCheckContext, result);
         // 是否妥投
         if(waybillTraceManager.isWaybillFinished(waybillCode)){
             result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_FORBID_FINISHED_PACK);
@@ -123,6 +127,34 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
         // 是否已抽检
         reformSpotCheck(spotCheckContext, result);
     }
+
+    /**
+     * 防呆逻辑校验(运单维度)
+     * 体积（m³）除以重量（kg）不能大于0.2或者小于0.0005
+     * 体积不能超过300m³或者重量不能超过62500kg
+     * @param context
+     * @param result
+     */
+    protected void checkWeightAndVolumeParam(SpotCheckContext context, InvokeResult<Boolean> result){
+        double weight = context.getSpotCheckReviewDetail().getReviewTotalWeight();
+        //单位cm³
+        double volume = context.getSpotCheckReviewDetail().getReviewTotalVolume();
+
+        if(volume > SpotCheckConstants.ARTIFICIAL_SPOT_CHECK_VOLUME_MAX * SpotCheckConstants.CM3_M3_MAGNIFICATION
+            || weight > SpotCheckConstants.ARTIFICIAL_SPOT_CHECK_WEIGHT_MAX){
+            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.ARTIFICIAL_SPOT_CHECK_EXCESS_LIMITATION);
+            return;
+        }
+
+        double ratio = volume / weight * SpotCheckConstants.CM3_M3_MAGNIFICATION;
+        if(ratio > SpotCheckConstants.ARTIFICIAL_SPOT_CHECK_VOLUME_WEIGHT_RATIO_MAX
+            || ratio < SpotCheckConstants.ARTIFICIAL_SPOT_CHECK_VOLUME_WEIGHT_RATIO_MIN){
+            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.ARTIFICIAL_SPOT_CHECK_NOT_MEET_THEORETICAL_VALUE);
+            return;
+        }
+    }
+
+    protected void isSupportArtificialSportCheck(SpotCheckContext context, InvokeResult<Boolean> result){}
 
     private boolean reformSendCheck(SpotCheckContext spotCheckContext, InvokeResult<Boolean> result) {
         SendDetail sendDetail = sendDetailService.findOneByWaybillCode(spotCheckContext.getReviewSiteCode(), spotCheckContext.getWaybillCode());
