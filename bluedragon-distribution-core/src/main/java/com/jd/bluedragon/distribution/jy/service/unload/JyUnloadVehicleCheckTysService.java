@@ -605,6 +605,7 @@ public class JyUnloadVehicleCheckTysService {
             }
             BoardCommonRequest boardCommonRequest = createBoardCommonRequest(request);
             if (response.getCode() == ResponseEnum.SUCCESS.getIndex()) {
+                result.setAddBoardSuccessFlag(true);
                 // 保存任务和板的关系
                 saveUnloadVehicleBoard(request);
                 // 设置板上已组包裹数
@@ -641,6 +642,8 @@ public class JyUnloadVehicleCheckTysService {
                                 invokeResult.getData(), request.getBoardCode(), invokeResult.getMessage());
                         throw new LoadIllegalException(LoadIllegalException.BOARD_MOVED_FAIL_INTERCEPT_MESSAGE);
                     }
+                    result.setAddBoardSuccessFlag(true);
+
                     // 保存任务和板的关系
                     saveUnloadVehicleBoard(request);
                     // 设置板上已组包裹数，组板转移需要重新查询新板上已组包裹数
