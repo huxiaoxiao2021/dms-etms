@@ -22,12 +22,12 @@ import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
 import com.jd.bluedragon.distribution.api.response.RouteTypeResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.domain.InvokeWithMsgBoxResult;
-import com.jd.bluedragon.distribution.jsf.domain.ValidateIgnore;
 import com.jd.bluedragon.distribution.jy.api.JySendVehicleTysService;
 import com.jd.bluedragon.distribution.jy.dto.JyLabelOption;
 import com.jd.bluedragon.distribution.jy.dto.JyLineTypeDto;
 import com.jd.bluedragon.distribution.jy.dto.JySelectOption;
 import com.jd.bluedragon.distribution.jy.dto.send.*;
+import com.jd.bluedragon.distribution.jy.dto.send.CheckSendCodeRequest;
 import com.jd.bluedragon.distribution.jy.enums.*;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.service.seal.JySealVehicleService;
@@ -41,8 +41,6 @@ import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
-import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.ql.basic.util.SiteSignTool;
 import com.jd.tms.basic.dto.TransportResourceDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -296,7 +294,7 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
     public InvokeResult<SendVehicleInfo> sendVehicleInfo(SendVehicleInfoReq request) {
         InvokeResult<SendVehicleInfo> result = new InvokeResult<SendVehicleInfo>();
         try {
-            SendVehicleInfoRequest param = new SendVehicleInfoRequest();
+            com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicleInfoRequest param = new com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicleInfoRequest();
             BeanCopyUtil.copy(request, param);
             param.setUser(copyUser(request.getUser()));
             param.setCurrentOperate(copyCurrentOperate(request.getCurrentOperate()));
@@ -565,7 +563,71 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
         if (ObjectHelper.isNotNull(response)) {
             return convertResultWithMsgBox(response, SendScanResp.class);
         }
-        return new InvokeWithMsgBoxResult(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
+        return new InvokeWithMsgBoxResult<>(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
+    }
+
+    @Override
+    @JProfiler(jKey = "DMSWEB.JySendVehicleTysService.checkMainLineSendTask", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public InvokeResult<Void> checkMainLineSendTask(CheckSendCodeRequest request) {
+        com.jd.bluedragon.common.dto.operation.workbench.send.request.CheckSendCodeRequest checkSendCodeRequest = BeanUtils.copy(request, com.jd.bluedragon.common.dto.operation.workbench.send.request.CheckSendCodeRequest.class);
+        if (checkSendCodeRequest != null) {
+            checkSendCodeRequest.setUser(copyUser(request.getUser()));
+            checkSendCodeRequest.setCurrentOperate(copyCurrentOperate(request.getCurrentOperate()));
+        }
+        InvokeResult result = jySendVehicleServiceTys.checkMainLineSendTask(checkSendCodeRequest);
+        if (ObjectHelper.isNotNull(result)) {
+            InvokeResult<Void> response = new InvokeResult<>();
+            response.setCode(result.getCode());
+            response.setMessage(result.getMessage());
+            return response;
+        }
+        return new InvokeResult<>(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
+    }
+
+    @Override
+    @JProfiler(jKey = "DMSWEB.JySendVehicleTysService.checkMainLineSendTask", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public InvokeResult<SendTaskInfo> sendTaskDetail(SendVehicleInfoReq request) {
+        com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicleInfoRequest sendVehicleInfoRequest = BeanUtils.copy(request, com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicleInfoRequest.class);
+        if (sendVehicleInfoRequest != null) {
+            sendVehicleInfoRequest.setUser(copyUser(request.getUser()));
+            sendVehicleInfoRequest.setCurrentOperate(copyCurrentOperate(request.getCurrentOperate()));
+        }
+        InvokeResult<com.jd.bluedragon.common.dto.operation.workbench.send.response.SendTaskInfo> result = jySendVehicleServiceTys.sendTaskDetail(sendVehicleInfoRequest);
+        if (ObjectHelper.isNotNull(result)) {
+            InvokeResult<SendTaskInfo> response = new InvokeResult<>();
+            response.setCode(result.getCode());
+            response.setMessage(result.getMessage());
+            if (result.getData() != null) {
+                String jsonStr = JSON.toJSONString(result.getData());
+                SendTaskInfo sendTaskInfo = JSON.parseObject(jsonStr, SendTaskInfo.class);
+                response.setData(sendTaskInfo);
+            }
+            return response;
+        }
+        return new InvokeResult<>(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
+    }
+
+    @Override
+    @JProfiler(jKey = "DMSWEB.JySendVehicleTysService.querySendBatch", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public InvokeResult<SendBatchResp> querySendBatch(SendBatchReq request) {
+        com.jd.bluedragon.common.dto.send.request.SendBatchReq sendBatchReq = BeanUtils.copy(request, com.jd.bluedragon.common.dto.send.request.SendBatchReq.class);
+        if (sendBatchReq != null) {
+            sendBatchReq.setUser(copyUser(request.getUser()));
+            sendBatchReq.setCurrentOperate(copyCurrentOperate(request.getCurrentOperate()));
+        }
+        InvokeResult<com.jd.bluedragon.common.dto.send.response.SendBatchResp> result = jySendVehicleServiceTys.listSendBatchByTaskDetail(sendBatchReq);
+        if (ObjectHelper.isNotNull(result)) {
+            InvokeResult<SendBatchResp> response = new InvokeResult<>();
+            response.setCode(result.getCode());
+            response.setMessage(result.getMessage());
+            if (result.getData() != null) {
+                String jsonStr = JSON.toJSONString(result.getData());
+                SendBatchResp sendBatchResp = JSON.parseObject(jsonStr, SendBatchResp.class);
+                response.setData(sendBatchResp);
+            }
+            return response;
+        }
+        return new InvokeResult<>(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
     }
 
     /**

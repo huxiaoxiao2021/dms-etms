@@ -128,6 +128,26 @@ public interface JySendVehicleTysService {
      */
     InvokeWithMsgBoxResult<SendScanResp> sendScan(SendScanReq request);
 
+    /**
+     * 校验批次任务是否为干线发货任务
+     * @param request
+     * @return
+     */
+    InvokeResult<Void> checkMainLineSendTask(CheckSendCodeRequest request);
+
+    /**
+     * 查询发货任务详情
+     * @param request
+     * @return
+     */
+    InvokeResult<SendTaskInfo> sendTaskDetail(SendVehicleInfoReq request);
+
+    /**
+     * 查询发货批次信息
+     * @param request
+     * @return
+     */
+    InvokeResult<SendBatchResp> querySendBatch(SendBatchReq request);
 
     /**
      * 根据运输任务bizId查询车的封签号列表

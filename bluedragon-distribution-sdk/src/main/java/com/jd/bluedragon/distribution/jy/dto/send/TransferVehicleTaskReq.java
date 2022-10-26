@@ -29,6 +29,8 @@ public class TransferVehicleTaskReq extends JyReqBaseDto implements Serializable
 
     private Integer pageSize;
 
+    private String barCode;
+
     public Integer getPageNumber() {
         return pageNumber;
     }
@@ -71,4 +73,12 @@ public class TransferVehicleTaskReq extends JyReqBaseDto implements Serializable
     public Integer getTransferFlag() { return transferFlag; }
 
     public void setTransferFlag(Integer transferFlag) { this.transferFlag = transferFlag; }
+
+    public String getBarCode() {
+        return barCode;
+    }
+
+    public void setBarCode(String barCode) {
+        this.barCode = barCode;
+    }
 }
