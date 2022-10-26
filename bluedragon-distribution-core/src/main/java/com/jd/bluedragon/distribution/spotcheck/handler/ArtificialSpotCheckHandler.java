@@ -34,14 +34,16 @@ public class ArtificialSpotCheckHandler extends AbstractSpotCheckHandler {
     }
 
     @Override
-    protected void isSupportArtificialSportCheck(SpotCheckContext context, InvokeResult<Boolean> result) {
+    protected boolean isSupportArtificialSpotCheck(SpotCheckContext context, InvokeResult<Boolean> result) {
         BaseEntity<List<BoxChargeDto>> baseEntity = waybillQueryManager.getBoxChargeByWaybillCode(context.getWaybillCode());
         if (baseEntity != null){
             for(BoxChargeDto boxChargeDto : baseEntity.getData()){
                 if(boxChargeDto.getPackingType().equals(SpotCheckConstants.WOODEN_FRAME_TYPE_CODE)){
                     result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.WOODEN_FRAME_NOT_SUPPORT_ARTIFICIAL_SPOT_CHECK);
+                    return false;
                 }
             }
         }
+        return true;
     }
 }
