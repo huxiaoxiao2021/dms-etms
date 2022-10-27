@@ -20,6 +20,7 @@ import com.jd.bluedragon.core.base.JdiSelectWSManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
 import com.jd.bluedragon.distribution.api.response.RouteTypeResponse;
+import com.jd.bluedragon.distribution.api.response.TransWorkItemResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.domain.InvokeWithMsgBoxResult;
 import com.jd.bluedragon.distribution.jy.api.JySendVehicleTysService;
@@ -37,6 +38,7 @@ import com.jd.bluedragon.distribution.send.domain.ThreeDeliveryResponse;
 import com.jd.bluedragon.distribution.send.domain.dto.SendDetailDto;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.send.service.SendDetailService;
+import com.jd.bluedragon.distribution.transport.service.TransportRelatedService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -45,6 +47,7 @@ import com.jd.tms.basic.dto.TransportResourceDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -90,6 +93,8 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
     private WaybillCacheService waybillCacheService;
     @Autowired
     private SendDetailService sendDetailService;
+    @Autowired
+    private TransportRelatedService transportRelatedService;
 
     /**
      * 发货模式
@@ -1250,6 +1255,20 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
             return response;
         }
         return new InvokeResult<>(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
+    }
+
+    @Override
+    @JProfiler(jKey = "DMSWEB.JySendVehicleTysService.transportTaskHint", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public InvokeWithMsgBoxResult<Void> transportTaskHint(TransportTaskReq request) {
+        InvokeWithMsgBoxResult<Void> result = new InvokeWithMsgBoxResult<>();
+        result.toSuccess();
+        // 校验运输任务（返回结果只做提示展示）
+        ImmutablePair<Integer, String> checkResult = transportRelatedService.checkTransportTask(request.getSiteCode(),
+                request.getTransWorkCode(), request.getSealCarCode(), request.getSimpleCode(), request.getVehicleNumber());
+        if (Objects.equals(checkResult.left, TransWorkItemResponse.CODE_HINT)) {
+            result.addPromptBox(checkResult.left, checkResult.right);
+        }
+        return result;
     }
 
     private SendM generateSendM(String boxCode, IncompleteSendReq incompleteSendReq) {

@@ -302,5 +302,12 @@ public interface JySendVehicleTysService {
      */
     InvokeResult<SendAbnormalBarCode> abnormalSendBarCodeDetail(SendAbnormalPackReq request);
 
+    /**
+     * 串点运输任务提示
+     * @param request
+     * @return
+     */
+    InvokeWithMsgBoxResult<Void> transportTaskHint(TransportTaskReq request);
+
 
 }
