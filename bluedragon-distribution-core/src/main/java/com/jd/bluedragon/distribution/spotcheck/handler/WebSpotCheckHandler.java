@@ -20,9 +20,6 @@ import java.util.Objects;
 @Service("webSpotCheckHandler")
 public class WebSpotCheckHandler extends AbstractSpotCheckHandler {
 
-    @Autowired
-    WaybillQueryManager waybillQueryManager;
-
     @Override
     protected void uniformityCheck(SpotCheckDto spotCheckDto, SpotCheckContext spotCheckContext, InvokeResult<Boolean> result) {
         if(!Objects.equals(spotCheckDto.getExcessStatus(), spotCheckContext.getExcessStatus())

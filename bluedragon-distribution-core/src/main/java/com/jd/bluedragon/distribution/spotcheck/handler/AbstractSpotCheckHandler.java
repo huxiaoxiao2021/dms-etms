@@ -108,8 +108,7 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
             return;
         }
         // 泡重比校验
-        if(Objects.equals(spotCheckContext.getSpotCheckBusinessType(), SpotCheckBusinessTypeEnum.SPOT_CHECK_TYPE_B.getCode())
-                && weightVolumeRatioCheck(spotCheckContext, result)){
+        if(weightVolumeRatioCheck(spotCheckContext, result)){
             return;
         }
         //有打木架服务不支持人工抽检

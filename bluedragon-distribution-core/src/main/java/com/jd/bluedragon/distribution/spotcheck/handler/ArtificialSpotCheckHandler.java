@@ -1,11 +1,7 @@
 package com.jd.bluedragon.distribution.spotcheck.handler;
 
-import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckConstants;
-import com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckContext;
-import com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckDto;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.jd.bluedragon.distribution.spotcheck.domain.*;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
@@ -18,9 +14,6 @@ import java.util.Objects;
  */
 @Service("artificialSpotCheckHandler")
 public class ArtificialSpotCheckHandler extends AbstractSpotCheckHandler {
-
-    @Autowired
-    WaybillQueryManager waybillQueryManager;
 
     @Override
     protected void uniformityCheck(SpotCheckDto spotCheckDto, SpotCheckContext spotCheckContext, InvokeResult<Boolean> result) {
