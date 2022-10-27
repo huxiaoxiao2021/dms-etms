@@ -611,9 +611,8 @@ public class JyWarehouseInspectionServiceImpl implements JyWarehouseInspectionSe
         result.setData(interceptScanBarCode);
 
         try {
-            final Result<Void> checkParamCommonResult = this.checkParamCommon(request);
-            if (!checkParamCommonResult.isSuccess()) {
-                return result.toFail(checkParamCommonResult.getMessage(), checkParamCommonResult.getCode());
+            if (!checkParamCommon(request, result) || !this.checkParam4SubmitInspectionCompletion(request, result)) {
+                return result;
             }
 
             Pager<JyVehicleTaskUnloadDetail> pager = getInterceptBarCodeCondition(request);
@@ -632,6 +631,18 @@ public class JyWarehouseInspectionServiceImpl implements JyWarehouseInspectionSe
             result.toFail("接口异常");
         }
         return result;
+    }
+
+    private boolean checkParam4InterceptBarCodeDetail(InspectionCommonRequest request, Result<?> result) {
+        if (StringUtils.isBlank(request.getBizId())) {
+            result.toFail("参数错误，bizId不能为空", ResultCodeConstant.ILLEGAL_ARGUMENT);
+            return false;
+        }
+        if (StringUtils.isBlank(request.getTaskId())) {
+            result.toFail("参数错误，taskId不能为空", ResultCodeConstant.ILLEGAL_ARGUMENT);
+            return false;
+        }
+        return true;
     }
 
     private Pager<JyVehicleTaskUnloadDetail> getInterceptBarCodeCondition(InspectionCommonRequest request) {
@@ -692,6 +703,11 @@ public class JyWarehouseInspectionServiceImpl implements JyWarehouseInspectionSe
         result.setData(inspectionFinishPreviewData);
 
         try {
+
+            if (!checkParamCommon(request, result) || !this.checkParam4SubmitInspectionCompletion(request, result)) {
+                return result;
+            }
+
             List<JyUnloadAggsEntity> unloadAggList = jyUnloadAggsService.queryByBizId(new JyUnloadAggsEntity(request.getBizId()));
             if (CollectionUtils.isEmpty(unloadAggList)) {
                 log.warn("判断卸车任务是否完成查询AGG为空.{}", JsonHelper.toJson(request));
