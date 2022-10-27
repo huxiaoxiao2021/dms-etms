@@ -347,7 +347,7 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
         }
         //运单估计重量和估计体积不超过最大值
         if(weight > SpotCheckConstants.WEIGHT_MAX_RATIO || volume > SpotCheckConstants.VOLUME_MAX_RATIO * SpotCheckConstants.CM3_M3_MAGNIFICATION){
-            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_NOT_MEET_THEORETICAL_VALUE);
+            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_EXCESS_LIMITATION);
             return true;
         }
         return false;
