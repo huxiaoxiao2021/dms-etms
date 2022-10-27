@@ -145,7 +145,7 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
      */
     protected boolean checkWoodenFrameService(SpotCheckContext context, InvokeResult<Boolean> result){
         BaseEntity<List<BoxChargeDto>> baseEntity = waybillQueryManager.getBoxChargeByWaybillCode(context.getWaybillCode());
-        if (baseEntity != null || CollectionUtils.isNotEmpty(baseEntity.getData())){
+        if (baseEntity != null && CollectionUtils.isNotEmpty(baseEntity.getData())){
             for(BoxChargeDto boxChargeDto : baseEntity.getData()){
                 if(boxChargeDto.getPackingType().equals(SpotCheckConstants.WOODEN_FRAME_TYPE_CODE)){
                     result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.WOODEN_FRAME_NOT_SUPPORT_ARTIFICIAL_SPOT_CHECK);
@@ -153,6 +153,7 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
                 }
             }
         }
+        logger.info("查询运单包装耗材失败！，运单号:【{}】", context.getWaybillCode());
         return true;
     }
 
