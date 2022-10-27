@@ -276,7 +276,7 @@ public class JyWarehouseInspectionServiceImpl implements JyWarehouseInspectionSe
                 result.setData(inspectionTaskDetail);
             } else {
                 final JyBizTaskUnloadVehicleEntity taskUnloadVehicleExist = jyBizTaskUnloadVehicleService.findByBizId(request.getBizId());
-                if (taskUnloadVehicleExist != null) {
+                if (taskUnloadVehicleExist == null) {
                     return result.toFail(String.format("未查询到bizId为%s的任务数据", request.getBizId()));
                 }
                 final InspectionTaskDetail inspectionTaskDetail = getInspectionTaskDetailByExistUnloadTask(taskUnloadVehicleExist);
@@ -328,14 +328,17 @@ public class JyWarehouseInspectionServiceImpl implements JyWarehouseInspectionSe
         jyUnloadVehicleService.refreshUnloadAggCache(taskUnloadVehicleExist.getBizId());
         String progressCacheKey = genUnloadProcessCacheKey(taskUnloadVehicleExist.getBizId());
         Map<String, String> hashRedisMap = redisClientOfJy.hGetAll(progressCacheKey);
+        if (hashRedisMap == null || hashRedisMap.size() == 0) {
+            return inspectionTaskDetail;
+        }
 
         try {
             UnloadDetailCache redisCache = RedisHashUtils.mapConvertBean(hashRedisMap, UnloadDetailCache.class);
             UnloadScanDetail scanProgress = JsonHelper.fromJson(JsonHelper.toJson(redisCache), UnloadScanDetail.class);
 
             if (scanProgress != null) {
-                inspectionTaskDetail.setScanCount(scanProgress.getUnloadCount());
-                inspectionTaskDetail.setInterceptScanCount(scanProgress.getInterceptActualScanCount());
+                inspectionTaskDetail.setScanCount(scanProgress.getUnloadCount() != null ? scanProgress.getUnloadCount() : 0L);
+                inspectionTaskDetail.setInterceptScanCount(scanProgress.getInterceptActualScanCount() != null ? scanProgress.getInterceptActualScanCount() : 0L);
             }
         } catch (Exception e) {
             log.error("getInspectionTaskDetailByExistUnloadTask exception ", e);

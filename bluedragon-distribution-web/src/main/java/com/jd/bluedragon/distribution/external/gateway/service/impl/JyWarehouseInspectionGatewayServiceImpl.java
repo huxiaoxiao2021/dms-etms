@@ -27,7 +27,8 @@ public class JyWarehouseInspectionGatewayServiceImpl implements JyWarehouseInspe
     private JyWarehouseInspectionService jyWarehouseInspectionService;
 
     private <T> JdCResponse<T> retJdCResponse(Result<T> result) {
-        return new JdCResponse<>(result.getCode(), result.getMessage(), result.getData());
+        int code = result.isSuccess() ? JdCResponse.CODE_SUCCESS : result.getCode();
+        return new JdCResponse<>(code, result.getMessage(), result.getData());
     }
 
     /**
