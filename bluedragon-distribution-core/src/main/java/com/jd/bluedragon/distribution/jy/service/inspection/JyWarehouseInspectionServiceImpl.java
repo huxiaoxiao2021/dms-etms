@@ -767,7 +767,7 @@ public class JyWarehouseInspectionServiceImpl implements JyWarehouseInspectionSe
 
         try {
             // 0. base condition check
-            if (!checkParamCommon(request, result) || this.checkParam4SubmitInspectionCompletion(request, result)) {
+            if (!checkParamCommon(request, result) || !this.checkParam4SubmitInspectionCompletion(request, result)) {
                 return result;
             }
             // 1. check business condition
