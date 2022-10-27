@@ -423,7 +423,7 @@
             </if>
 
             <if test="entity.refGroupCode != null and entity.refGroupCode != ''">
-                and ref_group_code = #{refGroupCode}
+                and ref_group_code = #{entity.refGroupCode}
             </if>
 
         </where>
