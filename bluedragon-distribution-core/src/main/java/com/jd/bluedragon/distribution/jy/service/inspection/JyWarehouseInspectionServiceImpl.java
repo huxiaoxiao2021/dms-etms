@@ -777,12 +777,13 @@ public class JyWarehouseInspectionServiceImpl implements JyWarehouseInspectionSe
             }
             // 2. redo check abnormal status and intercept count
             List<JyUnloadAggsEntity> unloadAggList = jyUnloadAggsService.queryByBizId(new JyUnloadAggsEntity(request.getBizId()));
+            boolean taskNormal = true;
             if (CollectionUtils.isEmpty(unloadAggList)) {
                 log.warn("submitInspectionCompletion queryByBizId empty {}", JsonHelper.toJson(request));
-                return result;
+            } else {
+                final InspectionFinishPreviewData inspectionFinishPreviewData = new InspectionFinishPreviewData();
+                taskNormal = this.judgeUnloadTaskNormal(inspectionFinishPreviewData, unloadAggList);
             }
-            final InspectionFinishPreviewData inspectionFinishPreviewData = new InspectionFinishPreviewData();
-            final Boolean taskNormal = this.judgeUnloadTaskNormal(inspectionFinishPreviewData, unloadAggList);
 
             final InspectionFinishSubmitRequest inspectionFinishSubmitRequest = new InspectionFinishSubmitRequest();
             inspectionFinishSubmitRequest.setTaskId(request.getTaskId());
