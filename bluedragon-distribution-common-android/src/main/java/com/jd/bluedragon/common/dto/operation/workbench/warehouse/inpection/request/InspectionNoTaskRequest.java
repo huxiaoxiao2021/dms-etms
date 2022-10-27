@@ -14,4 +14,13 @@ public class InspectionNoTaskRequest extends BaseReq implements Serializable {
 
     private static final long serialVersionUID = -880642955427860129L;
 
+    private String groupCode;
+
+    public String getGroupCode() {
+        return groupCode;
+    }
+
+    public void setGroupCode(String groupCode) {
+        this.groupCode = groupCode;
+    }
 }

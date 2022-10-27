@@ -526,4 +526,12 @@
                   ref="jyExceptionGatewayServiceImpl"
                   server="dmsjsf">
     </jsf:provider>
+
+    <!-- 拣运接货仓验货服务 -->
+    <bean id="jyWarehouseInspectionGatewayServiceImpl" class="com.jd.bluedragon.distribution.external.gateway.service.impl.JyWarehouseInspectionGatewayServiceImpl" />
+    <jsf:provider id="jsfJyWarehouseInspectionGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.JyWarehouseInspectionGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="jyWarehouseInspectionGatewayServiceImpl"
+                  server="dmsjsf" />
 </beans>

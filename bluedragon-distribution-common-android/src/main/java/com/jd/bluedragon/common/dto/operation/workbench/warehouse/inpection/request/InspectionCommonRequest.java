@@ -16,6 +16,11 @@ public class InspectionCommonRequest extends BaseReq implements Serializable {
     private static final long serialVersionUID = -8613387947485016760L;
 
     /**
+     * 组编码
+     */
+    private String groupCode;
+
+    /**
      * 任务主键
      */
     private String taskId;
@@ -28,6 +33,14 @@ public class InspectionCommonRequest extends BaseReq implements Serializable {
     private Integer pageNumber;
 
     private Integer pageSize;
+
+    public String getGroupCode() {
+        return groupCode;
+    }
+
+    public void setGroupCode(String groupCode) {
+        this.groupCode = groupCode;
+    }
 
     public String getTaskId() {
         return taskId;

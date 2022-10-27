@@ -12,7 +12,7 @@ import java.io.Serializable;
  * @author fanggang7
  * @time 2022-10-09 14:31:03 周日
  */
-public class InspectionScanRequest extends BaseReq implements Serializable {
+public class InspectionScanRequest extends InspectionCommonRequest implements Serializable {
 
     private static final long serialVersionUID = 4648667337916471503L;
 
@@ -25,16 +25,6 @@ public class InspectionScanRequest extends BaseReq implements Serializable {
      * 扫描方式
      */
     private Integer scanType;
-
-    /**
-     * 任务主键
-     */
-    private String taskId;
-
-    /**
-     * 业务主键
-     */
-    private String bizId;
 
     /**
      * 跳过拦截强制提交
@@ -60,22 +50,6 @@ public class InspectionScanRequest extends BaseReq implements Serializable {
 
     public void setScanType(Integer scanType) {
         this.scanType = scanType;
-    }
-
-    public String getTaskId() {
-        return taskId;
-    }
-
-    public void setTaskId(String taskId) {
-        this.taskId = taskId;
-    }
-
-    public String getBizId() {
-        return bizId;
-    }
-
-    public void setBizId(String bizId) {
-        this.bizId = bizId;
     }
 
     public Boolean getForceSubmit() {

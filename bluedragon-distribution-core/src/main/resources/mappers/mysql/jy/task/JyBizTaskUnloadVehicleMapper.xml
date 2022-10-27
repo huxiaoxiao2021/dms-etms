@@ -32,6 +32,7 @@
         <result property="lineType" column="line_type"/>
         <result property="lineTypeName" column="line_type_name"/>
         <result property="tagsSign" column="tags_sign"/>
+        <result property="refGroupCode" column="ref_group_code"/>
         <result property="createUserErp" column="create_user_erp"/>
         <result property="createUserName" column="create_user_name"/>
         <result property="updateUserErp" column="update_user_erp"/>
@@ -75,6 +76,7 @@
         line_type,
         line_type_name,
         tags_sign,
+        ref_group_code,
         create_user_erp,
         create_user_name,
         update_user_erp,
@@ -163,6 +165,9 @@
         <if test="tagsSign != null">
             tags_sign,
         </if>
+        <if test="refGroupCode != null">
+            ref_group_code,
+        </if>
         <if test="createUserErp != null">
             create_user_erp,
         </if>
@@ -249,6 +254,9 @@
         </if>
         <if test="tagsSign != null">
             #{tagsSign},
+        </if>
+        <if test="refGroupCode != null">
+            #{refGroupCode},
         </if>
         <if test="createUserErp != null">
             #{createUserErp},
@@ -412,6 +420,10 @@
                 <foreach collection="sealCarCodes" item="item" open="(" close=")" separator=",">
                     #{item}
                 </foreach>
+            </if>
+
+            <if test="entity.refGroupCode != null and entity.refGroupCode != ''">
+                and ref_group_code = #{refGroupCode}
             </if>
 
         </where>
