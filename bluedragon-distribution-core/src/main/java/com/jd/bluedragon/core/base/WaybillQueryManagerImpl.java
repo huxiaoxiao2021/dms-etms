@@ -1249,16 +1249,7 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
         mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     @Override
     public BaseEntity<List<BoxChargeDto>> getBoxChargeByWaybillCode(String waybillCode){
-        if(StringUtils.isNotEmpty(waybillCode) && WaybillUtil.isWaybillCode(waybillCode)){
-            BaseEntity<List<BoxChargeDto>> baseEntity = waybillQueryApi.getBoxChargeByWaybillCode(waybillCode);
-            if(baseEntity == null || baseEntity.getData() == null || baseEntity.getData().size() == 0){
-                log.error("运单【{}】查询包装耗材为空！", waybillCode);
-                return null;
-            }
-            return baseEntity;
-        }
-        log.error("运单【{}】格式不符", waybillCode);
-        return null;
+        return WaybillUtil.isWaybillCode(waybillCode) ? waybillQueryApi.getBoxChargeByWaybillCode(waybillCode) : null;
     }
 
 }
