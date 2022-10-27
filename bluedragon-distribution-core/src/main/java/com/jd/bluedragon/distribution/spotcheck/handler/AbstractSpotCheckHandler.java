@@ -153,7 +153,6 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
                 }
             }
         }
-        logger.info("查询运单包装耗材失败！，运单号:【{}】", context.getWaybillCode());
         return true;
     }
 
