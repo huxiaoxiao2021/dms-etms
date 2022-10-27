@@ -31,11 +31,6 @@ public class InspectionScanRequest extends InspectionCommonRequest implements Se
      */
     private Boolean forceSubmit;
 
-    /**
-     * 任务组号
-     */
-    private String groupCode;
-
     public String getBarCode() {
         return barCode;
     }
@@ -58,13 +53,5 @@ public class InspectionScanRequest extends InspectionCommonRequest implements Se
 
     public void setForceSubmit(Boolean forceSubmit) {
         this.forceSubmit = forceSubmit;
-    }
-
-    public String getGroupCode() {
-        return groupCode;
-    }
-
-    public void setGroupCode(String groupCode) {
-        this.groupCode = groupCode;
     }
 }

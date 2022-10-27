@@ -2,6 +2,7 @@ package com.jd.bluedragon.common.dto.operation.workbench.warehouse.inpection.req
 
 import com.jd.bluedragon.common.dto.base.request.BaseReq;
 import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
+import com.jd.bluedragon.common.dto.base.request.JyBaseReq;
 import com.jd.bluedragon.common.dto.base.request.User;
 
 import java.io.Serializable;
@@ -11,14 +12,9 @@ import java.io.Serializable;
  * @author fanggang7
  * @time 2022-10-09 14:43:56 周日
  */
-public class InspectionCommonRequest extends BaseReq implements Serializable {
+public class InspectionCommonRequest extends JyBaseReq implements Serializable {
 
     private static final long serialVersionUID = -8613387947485016760L;
-
-    /**
-     * 组编码
-     */
-    private String groupCode;
 
     /**
      * 任务主键
@@ -33,14 +29,6 @@ public class InspectionCommonRequest extends BaseReq implements Serializable {
     private Integer pageNumber;
 
     private Integer pageSize;
-
-    public String getGroupCode() {
-        return groupCode;
-    }
-
-    public void setGroupCode(String groupCode) {
-        this.groupCode = groupCode;
-    }
 
     public String getTaskId() {
         return taskId;

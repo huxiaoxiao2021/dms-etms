@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.request.BaseReq;
 import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
+import com.jd.bluedragon.common.dto.base.request.JyBaseReq;
 import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.UnloadBarCodeScanTypeEnum;
@@ -189,7 +190,7 @@ public class JyWarehouseInspectionServiceImpl implements JyWarehouseInspectionSe
         return null != scheduleTask ? scheduleTask.getTaskId() : StringUtils.EMPTY;
     }
 
-    private Result<Void> checkParamCommon(BaseReq baseReq) {
+    private Result<Void> checkParamCommon(JyBaseReq baseReq) {
         Result<Void> result = Result.success();
         if(baseReq == null){
             return result.toFail("参数错误，参数不能为空", ResultCodeConstant.NULL_ARGUMENT);
@@ -214,10 +215,13 @@ public class JyWarehouseInspectionServiceImpl implements JyWarehouseInspectionSe
         if(StringUtils.isBlank(user.getUserName())){
             return result.toFail("参数错误，userName不合法", ResultCodeConstant.ILLEGAL_ARGUMENT);
         }
+        if(StringUtils.isBlank(baseReq.getGroupCode())){
+            return result.toFail("参数错误，groupCode不能为空", ResultCodeConstant.ILLEGAL_ARGUMENT);
+        }
         return result;
     }
 
-    private boolean checkParamCommon(BaseReq baseReq, Result<?> result) {
+    private boolean checkParamCommon(JyBaseReq baseReq, Result<?> result) {
         if(baseReq == null){
             result.toFail("参数错误，参数不能为空", ResultCodeConstant.NULL_ARGUMENT);
             return false;
@@ -246,6 +250,10 @@ public class JyWarehouseInspectionServiceImpl implements JyWarehouseInspectionSe
         }
         if(StringUtils.isBlank(user.getUserName())){
             result.toFail("参数错误，userName不合法", ResultCodeConstant.ILLEGAL_ARGUMENT);
+            return false;
+        }
+        if(StringUtils.isBlank(baseReq.getGroupCode())){
+            result.toFail("参数错误，groupCode不能为空", ResultCodeConstant.ILLEGAL_ARGUMENT);
             return false;
         }
         return true;
