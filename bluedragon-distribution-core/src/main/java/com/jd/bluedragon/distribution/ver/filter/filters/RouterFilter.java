@@ -6,6 +6,7 @@ import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.base.service.SiteService;
+import com.jd.bluedragon.distribution.board.domain.Board;
 import com.jd.bluedragon.distribution.jsf.domain.ValidateIgnore;
 import com.jd.bluedragon.distribution.jsf.domain.ValidateIgnoreRouterCondition;
 import com.jd.bluedragon.distribution.router.RouterService;
@@ -16,6 +17,7 @@ import com.jd.bluedragon.distribution.ver.exception.SortingCheckException;
 import com.jd.bluedragon.distribution.ver.filter.Filter;
 import com.jd.bluedragon.distribution.ver.filter.FilterChain;
 import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.bluedragon.utils.WaybillCacheHelper;
 import org.apache.commons.collections.CollectionUtils;
@@ -23,10 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * Created by xumei3 on 2018/3/21.
@@ -79,10 +78,8 @@ public class RouterFilter implements Filter {
             if(StringHelper.isEmpty(waybillCode) && request.getWaybillCache()!=null){
                 waybillCode = request.getWaybillCache().getWaybillCode();
             }
-            RouteNextDto routeNextDto = routerService.matchRouterNextNode(createSiteCode,waybillCode);
+            RouteNextDto routeNextDto = getRouteNext(request, waybillCode);
 
-            logger.info("RouterFilter根据运单号获取运单路由，运单号[{}]routExistCurrentSite[{}]firstNextSiteId[{}]",
-                    waybillCode,routeNextDto.isRoutExistCurrentSite(),routeNextDto.getFirstNextSiteId());
             if(routeNextDto.isRoutExistCurrentSite() &&
                     !isRightReceiveSite(receiveSiteCode, routeNextDto)) {
                 // 如果存在忽略校验，则继续走下一步
@@ -92,7 +89,7 @@ public class RouterFilter implements Filter {
                     final List<Long> receiveSiteIdList = validateIgnoreCondition.getReceiveSiteIdList();
                     if(CollectionUtils.isNotEmpty(validateIgnoreCondition.getReceiveSiteIdList()) && Objects.equals(validateIgnoreCondition.getMatchType(), ValidateIgnore.MATCH_TYPE_IN)){
                         if(routeNextDto.getFirstNextSiteId() != null && receiveSiteIdList.contains(Long.valueOf(routeNextDto.getFirstNextSiteId()))){
-                            logger.info("RouterFilter validateIgnore: waybillCode: {} firstNextSiteId: {} receiveSiteIdList: {}", waybillCode, routeNextDto.getFirstNextSiteId(), receiveSiteIdList);
+                            logger.info("RouterFilter validateIgnore: waybillCode: {} board: {} firstNextSiteId: {} receiveSiteIdList: {}", waybillCode, JsonHelper.toJson(request.getBoard()), routeNextDto.getFirstNextSiteId(), receiveSiteIdList);
                             chain.doFilter(request, chain);
                             return;
                         }
@@ -114,4 +111,20 @@ public class RouterFilter implements Filter {
         return CollectionUtils.isNotEmpty(routeNextDto.getNextSiteIdList())
                 && Objects.equals(routeNextDto.getFirstNextSiteId(),receiveSiteCode);
     }
+
+    private RouteNextDto getRouteNext(FilterContext request, String waybillCode) {
+        Board board = request.getBoard();
+        if (board != null) {
+            logger.info("RouterFilter根据板号获取板路由，板号[{}]firstNextSiteId[{}]", board.getCode(), board.getDestinationId());
+            List<Integer> nextSiteIdList = new ArrayList<>();
+            nextSiteIdList.add(board.getDestinationId());
+            return new RouteNextDto(board.getDestinationId(), Boolean.TRUE, nextSiteIdList);
+        } else {
+            RouteNextDto routeNextDto = routerService.matchRouterNextNode(request.getCreateSiteCode(), waybillCode);
+            logger.info("RouterFilter根据运单号获取运单路由，运单号[{}]routExistCurrentSite[{}]firstNextSiteId[{}]",
+                    waybillCode,routeNextDto.isRoutExistCurrentSite(),routeNextDto.getFirstNextSiteId());
+            return routeNextDto;
+        }
+    }
+
 }

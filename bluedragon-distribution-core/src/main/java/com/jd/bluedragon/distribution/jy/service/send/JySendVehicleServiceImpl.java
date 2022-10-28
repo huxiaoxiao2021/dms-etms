@@ -143,6 +143,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -1562,8 +1563,9 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
      */
     private boolean execSendInterceptChain(SendScanRequest request, JdVerifyResponse<SendScanResponse> result, SendKeyTypeEnum sendType, SendResult sendResult, SendM sendM, SendFindDestInfoDto sendFindDestInfoDto) {
         if (Boolean.FALSE.equals(request.getForceSubmit())) {
-            if (!BusinessHelper.isBoxcode(request.getBarCode()) && !BusinessUtil.isBoardCode(request.getBarCode())) {
+            if (!BusinessHelper.isBoxcode(request.getBarCode())) {
                 SortingCheck sortingCheck = deliveryService.getSortingCheck(sendM);
+                sortingCheck.setBoard(sendFindDestInfoDto.getBoard());
                 if (request.getValidateIgnore() != null) {
                     sortingCheck.setValidateIgnore(this.convertValidateIgnore(request.getValidateIgnore()));
                 }
@@ -1867,6 +1869,9 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                 Response<Board> boardResponse = groupBoardManager.getBoard(barCode);
                 if (boardResponse.getCode() == ResponseEnum.SUCCESS.getIndex() && boardResponse.getData() != null) {
                     Board board = boardResponse.getData();
+                    com.jd.bluedragon.distribution.board.domain.Board sortingBoard = new com.jd.bluedragon.distribution.board.domain.Board();
+                    BeanUtils.copyProperties(board, sortingBoard);
+                    sendFindDestInfoDto.setBoard(sortingBoard);
                     if (board.getDestinationId() != null) {
                         matchDestIdByBoard = board.getDestinationId().longValue();
                     }
