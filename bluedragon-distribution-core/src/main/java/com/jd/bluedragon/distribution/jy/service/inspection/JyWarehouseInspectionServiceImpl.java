@@ -612,7 +612,7 @@ public class JyWarehouseInspectionServiceImpl implements JyWarehouseInspectionSe
         result.setData(interceptScanBarCode);
 
         try {
-            if (!checkParamCommon(request, result) || !this.checkParam4SubmitInspectionCompletion(request, result)) {
+            if (!checkParamCommon(request, result) || !this.checkParam4InterceptBarCodeDetail(request, result)) {
                 return result;
             }
 
