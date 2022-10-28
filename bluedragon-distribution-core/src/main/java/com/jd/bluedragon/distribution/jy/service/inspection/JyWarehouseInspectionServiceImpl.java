@@ -162,6 +162,7 @@ public class JyWarehouseInspectionServiceImpl implements JyWarehouseInspectionSe
             final CurrentOperate currentOperate = request.getCurrentOperate();
             JyBizTaskUnloadDto dto = new JyBizTaskUnloadDto();
             dto.setManualCreatedFlag(Constants.CONSTANT_NUMBER_ONE);
+            dto.setGroupCode(request.getGroupCode());
             dto.setVehicleNumber("");
             dto.setOperateSiteId(currentOperate.getSiteCode());
             dto.setOperateSiteName(currentOperate.getSiteName());
