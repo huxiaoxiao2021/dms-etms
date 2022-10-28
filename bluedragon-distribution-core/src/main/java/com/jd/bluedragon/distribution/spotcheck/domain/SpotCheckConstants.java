@@ -57,11 +57,11 @@ public class SpotCheckConstants {
      */
     public static final double VOLUME_WEIGHT_RATIO_MIN = 0.0005;
     /**
-     * 重量限额，62500KG
+     * 重量限额，62500KG(运单维度)
      * */
     public static final int WEIGHT_MAX_RATIO = 62500;
     /**
-     * 体积限额,300m³
+     * 体积限额,300m³（运单维度）
      * */
     public static final int VOLUME_MAX_RATIO = 300;
     /**

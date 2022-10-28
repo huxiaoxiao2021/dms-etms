@@ -112,7 +112,7 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
             return;
         }
         //有打木架服务不支持人工抽检
-        if(!artificialSpotCheck(spotCheckContext, result)){
+        if(!isSupportSpotCheck(spotCheckContext, result)){
             return;
         }
         // 是否妥投
@@ -129,12 +129,12 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
     }
 
     /**
-     * 是否支持人工抽检，由子类实现，默认是true（不拦截）
+     * 是否支持抽检，由子类实现，默认是true（支持抽检）
      * @param context
      * @param result
      * @return
      */
-    protected boolean artificialSpotCheck(SpotCheckContext context, InvokeResult<Boolean> result){return true;}
+    protected boolean isSupportSpotCheck(SpotCheckContext context, InvokeResult<Boolean> result){return true;}
 
     /**
      * 检查是否存在打木架服务
@@ -146,7 +146,7 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
         BaseEntity<List<BoxChargeDto>> baseEntity = waybillQueryManager.getBoxChargeByWaybillCode(context.getWaybillCode());
         if (baseEntity != null && CollectionUtils.isNotEmpty(baseEntity.getData())){
             for(BoxChargeDto boxChargeDto : baseEntity.getData()){
-                if(boxChargeDto.getPackingType().equals(SpotCheckConstants.WOODEN_FRAME_TYPE_CODE)){
+                if(Objects.equals(boxChargeDto.getPackingType(), SpotCheckConstants.WOODEN_FRAME_TYPE_CODE)){
                     result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.WOODEN_FRAME_NOT_SUPPORT_ARTIFICIAL_SPOT_CHECK);
                     return false;
                 }
@@ -323,15 +323,15 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
         double weight = spotCheckReviewDetail.getReviewWeight();
         double volume = spotCheckReviewDetail.getReviewVolume();
 
-        // 包裹维度泡重比校验
         double standVolumeMax = weight * SpotCheckConstants.CM3_M3_MAGNIFICATION * SpotCheckConstants.VOLUME_WEIGHT_RATIO_MAX;
         double standVolumeMin = weight * SpotCheckConstants.CM3_M3_MAGNIFICATION * SpotCheckConstants.VOLUME_WEIGHT_RATIO_MIN;
+        //体积（m³）与重量（kg）之比不能大于0.2，不能小于0.0005
+        if(volume > standVolumeMax || volume < standVolumeMin){
+            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_NOT_MEET_THEORETICAL_VALUE);
+            return true;
+        }
+        // 包裹维度泡重比校验
         if(Objects.equals(spotCheckContext.getSpotCheckDimensionType(), SpotCheckDimensionEnum.SPOT_CHECK_PACK.getCode())){
-            //体积与重量之比不大于0.2，不小于0.0005
-            if(volume > standVolumeMax || volume < standVolumeMin){
-                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_NOT_MEET_THEORETICAL_VALUE);
-                return true;
-            }
             //运单估计重量和估计体积不超过最大值
             if(weight * packNum > SpotCheckConstants.WEIGHT_MAX_RATIO || volume * packNum > SpotCheckConstants.VOLUME_MAX_RATIO * SpotCheckConstants.CM3_M3_MAGNIFICATION){
                 result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_EXCESS_LIMITATION);
@@ -340,12 +340,7 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
             return false;
         }
         // 运单维度泡重比校验
-        //体积与重量之比不大于0.2，不小于0.0005
-        if(volume > standVolumeMax || volume < standVolumeMin){
-            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_NOT_MEET_THEORETICAL_VALUE);
-            return true;
-        }
-        //运单估计重量和估计体积不超过最大值
+        //运单重量和体积不超过最大值
         if(weight > SpotCheckConstants.WEIGHT_MAX_RATIO || volume > SpotCheckConstants.VOLUME_MAX_RATIO * SpotCheckConstants.CM3_M3_MAGNIFICATION){
             result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_EXCESS_LIMITATION);
             return true;

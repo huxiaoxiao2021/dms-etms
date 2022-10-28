@@ -24,7 +24,7 @@ public class ArtificialSpotCheckHandler extends AbstractSpotCheckHandler {
     }
 
     @Override
-    protected boolean artificialSpotCheck(SpotCheckContext context, InvokeResult<Boolean> result) {
+    protected boolean isSupportSpotCheck(SpotCheckContext context, InvokeResult<Boolean> result) {
         return super.checkWoodenFrameService(context, result);
     }
 }
