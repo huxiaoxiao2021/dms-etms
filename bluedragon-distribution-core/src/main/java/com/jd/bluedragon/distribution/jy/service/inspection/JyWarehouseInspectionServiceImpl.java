@@ -2,11 +2,12 @@ package com.jd.bluedragon.distribution.jy.service.inspection;
 
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.common.dto.base.request.BaseReq;
 import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.request.JyBaseReq;
 import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
+import com.jd.bluedragon.common.dto.inspection.request.InspectionRequest;
+import com.jd.bluedragon.common.dto.inspection.response.InspectionCheckResultDto;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.UnloadBarCodeScanTypeEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.UnloadScanTypeEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.unload.response.UnloadScanDetail;
@@ -24,6 +25,7 @@ import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
+import com.jd.bluedragon.distribution.inspection.service.InspectionService;
 import com.jd.bluedragon.distribution.jy.constants.RedisHashKeyConstants;
 import com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadDao;
 import com.jd.bluedragon.distribution.jy.dto.unload.UnloadDetailCache;
@@ -48,11 +50,10 @@ import com.jd.bluedragon.distribution.jy.unload.JyUnloadAggsEntity;
 import com.jd.bluedragon.distribution.jy.unload.JyUnloadEntity;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
+import com.jd.bluedragon.dms.utils.BarCodeType;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.JsonHelper;
-import com.jd.bluedragon.utils.NumberHelper;
-import com.jd.bluedragon.utils.RedisHashUtils;
+import com.jd.bluedragon.utils.*;
 import com.jd.dms.workbench.utils.sdk.base.Result;
 import com.jd.dms.workbench.utils.sdk.constants.ResultCodeConstant;
 import com.jd.etms.waybill.domain.Waybill;
@@ -130,6 +131,9 @@ public class JyWarehouseInspectionServiceImpl implements JyWarehouseInspectionSe
     @Resource
     @Qualifier("jyUnloadTaskCompleteProducer")
     private DefaultJMQProducer unloadTaskCompleteProducer;
+
+    @Resource
+    private InspectionService inspectionService;
 
     /**
      * 创建无任务验货
@@ -381,7 +385,7 @@ public class JyWarehouseInspectionServiceImpl implements JyWarehouseInspectionSe
 
             JyBizTaskUnloadVehicleEntity taskUnloadVehicle = jyBizTaskUnloadVehicleService.findByBizId(request.getBizId());
             if (taskUnloadVehicle == null) {
-                result.toFail("卸车任务不存在，请刷新卸车任务列表后再扫描！");
+                result.toFail("验货任务不存在，请重新进入验货页面！");
                 return result;
             }
 
@@ -414,12 +418,47 @@ public class JyWarehouseInspectionServiceImpl implements JyWarehouseInspectionSe
     }
 
     private boolean checkParam4InspectionScan(InspectionScanRequest request, JdVerifyResponse<?> result) {
+        if (request.getForceSubmit() == null) {
+            request.setForceSubmit(false);
+        }
         if (StringUtils.isBlank(request.getBizId())) {
             result.toFail("参数错误，bizId不能为空");
             return false;
         }
         if (StringUtils.isBlank(request.getTaskId())) {
             result.toFail("参数错误，taskId不能为空");
+            return false;
+        }
+
+        String barCode = request.getBarCode();
+        if (StringUtils.isBlank(barCode)) {
+            result.toFail("请扫描单号！");
+            return false;
+        }
+        if (!BusinessHelper.isBoxcode(barCode)
+                && !WaybillUtil.isWaybillCode(barCode)
+                && !WaybillUtil.isPackageCode(barCode)) {
+            result.toFail("扫描单号非法！");
+            return false;
+        }
+
+        // 设置默认扫描方式
+        if(request.getScanType() == null){
+            request.setScanType(UnloadScanTypeEnum.SCAN_ONE.getCode());
+        }
+        final BarCodeType barCodeType = BusinessUtil.getBarCodeType(request.getBarCode());
+        if(barCodeType == null) {
+            result.toFail("请扫描正确的条码！");
+            return false;
+        }
+        if(Objects.equals(UnloadScanTypeEnum.SCAN_ONE.getCode(), request.getScanType()) &&
+                (!Objects.equals(BarCodeType.PACKAGE_CODE.getCode(), barCodeType.getCode()) && !Objects.equals(BarCodeType.BOX_CODE.getCode(), barCodeType.getCode()))){
+            result.toFail("请扫描包裹号或箱号！");
+            return false;
+        }
+        if(Objects.equals(UnloadScanTypeEnum.SCAN_WAYBILL.getCode(), request.getScanType()) &&
+                (!Objects.equals(BarCodeType.PACKAGE_CODE.getCode(), barCodeType.getCode()) && !Objects.equals(BarCodeType.WAYBILL_CODE.getCode(), barCodeType.getCode()))){
+            result.toFail("请扫描包裹号或运单号！");
             return false;
         }
         return true;
@@ -432,6 +471,10 @@ public class JyWarehouseInspectionServiceImpl implements JyWarehouseInspectionSe
      * @return
      */
     private boolean checkBeforeScan(JdVerifyResponse<Integer> result, InspectionScanRequest request) {
+        if(!checkBarInterceptResult(result, request)){
+            return false;
+        }
+
         // 一个单号只能扫描一次
         if (checkBarScannedAlready(request)) {
             result.toFail("单号已扫描！");
@@ -464,6 +507,45 @@ public class JyWarehouseInspectionServiceImpl implements JyWarehouseInspectionSe
         }
 
         return alreadyScanned;
+    }
+
+    /**
+     * 调用验货拦截链
+     * @param response
+     * @param request
+     * @return
+     */
+    private boolean checkBarInterceptResult(JdVerifyResponse<Integer> response, InspectionScanRequest request) {
+        // 非强制提交，校验拦截
+        if (!request.getForceSubmit()) {
+            InspectionRequest inspectionRequest = new InspectionRequest();
+            inspectionRequest.setBarCode(request.getBarCode());
+            if(Objects.equals(UnloadScanTypeEnum.SCAN_WAYBILL.getCode(), request.getScanType())){
+                inspectionRequest.setBarCode(WaybillUtil.getWaybillCode(request.getBarCode()));
+            }
+            inspectionRequest.setBusinessType(10);
+            inspectionRequest.setCreateSiteCode(request.getCurrentOperate().getSiteCode());
+            inspectionRequest.setCreateSiteName(request.getCurrentOperate().getSiteName());
+            inspectionRequest.setOperateTime(DateHelper.formatDateTime(new Date()));
+            inspectionRequest.setOperateType(2);
+            inspectionRequest.setOperateUserCode(request.getUser().getUserCode());
+            inspectionRequest.setOperateUserName(request.getUser().getUserName());
+            JdVerifyResponse<InspectionCheckResultDto> verifyResponse = inspectionService.checkBeforeInspection(inspectionRequest);
+            if (verifyResponse.getCode() != JdVerifyResponse.CODE_SUCCESS) {
+                response.setCode(verifyResponse.getCode());
+                response.setMessage(verifyResponse.getMessage());
+                return false;
+            } else {
+                if (CollectionUtils.isNotEmpty(verifyResponse.getMsgBoxes())) {
+                    response.setCode(verifyResponse.getCode());
+                    response.setMessage(verifyResponse.getMessage());
+                    response.setMsgBoxes(verifyResponse.getMsgBoxes());
+                    return true;
+                }
+            }
+        }
+
+        return true;
     }
 
     /**
@@ -609,6 +691,8 @@ public class JyWarehouseInspectionServiceImpl implements JyWarehouseInspectionSe
         logInfo("JyWarehouseInspectionServiceImpl.interceptBarCodeDetail param {}", JsonHelper.toJson(request));
         Result<InspectionInterceptDto> result = Result.success();
         InspectionInterceptDto interceptScanBarCode = new InspectionInterceptDto();
+        interceptScanBarCode.setActualScanCount(0L);
+        interceptScanBarCode.setBarcodeList(new ArrayList<InspectionScanBarCode>());
         result.setData(interceptScanBarCode);
 
         try {

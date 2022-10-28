@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.inspection.service;
 
+import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
+import com.jd.bluedragon.common.dto.inspection.response.InspectionCheckResultDto;
 import com.jd.bluedragon.distribution.api.request.InspectionRequest;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
 import com.jd.bluedragon.distribution.coldChain.domain.InspectionVO;
@@ -212,4 +214,5 @@ public interface InspectionService {
 
 	InvokeResult<Boolean> addInspection(InspectionVO vo, InspectionBizSourceEnum inspectionBizSourceEnum);
 
+	JdVerifyResponse<InspectionCheckResultDto> checkBeforeInspection(com.jd.bluedragon.common.dto.inspection.request.InspectionRequest request);
 }
