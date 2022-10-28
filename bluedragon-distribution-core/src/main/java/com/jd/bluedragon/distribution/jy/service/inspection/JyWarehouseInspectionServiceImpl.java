@@ -163,7 +163,7 @@ public class JyWarehouseInspectionServiceImpl implements JyWarehouseInspectionSe
             JyBizTaskUnloadDto dto = new JyBizTaskUnloadDto();
             dto.setManualCreatedFlag(Constants.CONSTANT_NUMBER_ONE);
             dto.setGroupCode(request.getGroupCode());
-            dto.setVehicleNumber("");
+            dto.setVehicleNumber(request.getGroupCode());
             dto.setOperateSiteId(currentOperate.getSiteCode());
             dto.setOperateSiteName(currentOperate.getSiteName());
             JyBizTaskUnloadDto noTaskUnloadDto = jyUnloadVehicleService.createUnloadTask(dto);

@@ -505,6 +505,7 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
         initParams.setEndSiteName(dto.getOperateSiteName());
         initParams.setVehicleStatus(JyBizTaskUnloadStatusEnum.WAIT_UN_LOAD.getCode());
         initParams.setManualCreatedFlag(1);
+        initParams.setRefGroupCode(dto.getGroupCode());
         //本身已带锁
         if(saveOrUpdateOfBaseInfo(initParams)){
             return initParams;
