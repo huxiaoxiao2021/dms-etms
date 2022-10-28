@@ -25,8 +25,6 @@
         <result property="ts" column="ts"/>
         <result property="boardCode" column="board_code"/>
         <result property="actualScanWaybillCount" column="actual_scan_waybill_count"/>
-        <result property="interceptShouldScanWaybillCount" column="intercept_should_scan_waybill_count"/>
-        <result property="interceptActualScanWaybillCount" column="intercept_actual_scan_waybill_count"/>
         <result property="totalScannedBoardCount" column="total_scanned_board_count"/>
         <result property="totalSealWaybillCount" column="total_seal_waybill_count"/>
         <result property="totalScannedWaybillCount" column="total_scanned_waybill_count"/>
@@ -59,8 +57,6 @@
         ts,
         board_code,
         actual_scan_waybill_count,
-        intercept_should_scan_waybill_count,
-        intercept_actual_scan_waybill_count,
         total_scanned_board_count,
         total_seal_waybill_count,
         total_scanned_waybill_count,
