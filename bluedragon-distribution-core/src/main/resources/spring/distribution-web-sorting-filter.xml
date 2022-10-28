@@ -150,7 +150,7 @@
     </util:list>
 
     <util:list id="deliveryByBoardFilterList">
-        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.RouterFilter"/>
+        <bean class="com.jd.bluedragon.distribution.ver.filter.filters.BoardSendRouterFilter"/>
     </util:list>
 
     <bean id="deliveryFilterChain" class="com.jd.bluedragon.distribution.ver.filter.chains.DeliveryFilterChain" scope="prototype" destroy-method="destory">
