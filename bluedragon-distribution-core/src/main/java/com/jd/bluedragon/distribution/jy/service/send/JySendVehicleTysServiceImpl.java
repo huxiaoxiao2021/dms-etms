@@ -981,7 +981,7 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
      */
     @Override
     @JProfiler(jKey = "DMSWEB.JySendVehicleTysService.bindVehicleDetailTask", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
-    public InvokeResult bindVehicleDetailTask(BindVehicleDetailTaskReq bindVehicleDetailTaskReq) {
+    public InvokeResult<BindVehicleResp> bindVehicleDetailTask(BindVehicleDetailTaskReq bindVehicleDetailTaskReq) {
         com.jd.bluedragon.common.dto.send.request.BindVehicleDetailTaskReq req = BeanUtils.copy(bindVehicleDetailTaskReq, com.jd.bluedragon.common.dto.send.request.BindVehicleDetailTaskReq.class);
         if (req != null) {
             req.setUser(copyUser(bindVehicleDetailTaskReq.getUser()));
@@ -989,9 +989,9 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
         }
         InvokeResult result = jySendVehicleServiceTys.bindVehicleDetailTask(req);
         if (ObjectHelper.isNotNull(result)) {
-            return convertResult(result, null);
+            return convertResult(result, BindVehicleResp.class);
         }
-        return new InvokeResult(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
+        return new InvokeResult<>(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
     }
 
     /**
@@ -1002,7 +1002,7 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
      */
     @Override
     @JProfiler(jKey = "DMSWEB.JySendVehicleTysService.transferSendTask", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
-    public InvokeResult transferSendTask(TransferSendTaskReq transferSendTaskReq) {
+    public InvokeResult<TransferVehicleResp> transferSendTask(TransferSendTaskReq transferSendTaskReq) {
         com.jd.bluedragon.common.dto.send.request.TransferSendTaskReq req = BeanUtils.copy(transferSendTaskReq, com.jd.bluedragon.common.dto.send.request.TransferSendTaskReq.class);
         if (req != null) {
             req.setUser(copyUser(transferSendTaskReq.getUser()));
@@ -1010,9 +1010,9 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
         }
         InvokeResult result = jySendVehicleServiceTys.transferSendTask(req);
         if (ObjectHelper.isNotNull(result)) {
-            return convertResult(result, null);
+            return convertResult(result, TransferVehicleResp.class);
         }
-        return new InvokeResult(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
+        return new InvokeResult<>(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
     }
 
     /**

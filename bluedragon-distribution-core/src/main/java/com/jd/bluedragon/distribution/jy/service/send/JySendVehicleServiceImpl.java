@@ -4,7 +4,9 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
+import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
+import com.jd.bluedragon.common.dto.base.response.MSCodeMapping;
 import com.jd.bluedragon.common.dto.base.response.MsgBoxTypeEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.BarCodeLabelOptionEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.SendAbnormalEnum;
@@ -1130,7 +1132,15 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             if (WaybillUtil.isPackageCode(barCode)){
                 if (Objects.equals(Constants.CONSTANT_NUMBER_ONE, vehicleTaskReq.getTransferFlag())) {
                     if (!getSendTaskByPackage(vehicleTaskReq, result, queryDetail)) {
-                        return result;
+                        String boardCode = getBoardCodeByPackageCode(barCode, startSiteId.intValue());
+                        if (boardCode == null) {
+                            return result;
+                        }
+                        // 当包裹号存在对应的板号时，再次根据板号查询
+                        vehicleTaskReq.setBarCode(boardCode);
+                        if (!getSendTaskByPackage(vehicleTaskReq, result, queryDetail)) {
+                            return result;
+                        }
                     }
                 }
                 else {
@@ -1225,6 +1235,19 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         return result;
     }
 
+    private String getBoardCodeByPackageCode(String packageCode, int createSiteCode) {
+        Response<Board> boardResponse = groupBoardManager.getBoardByBoxCode(packageCode, createSiteCode);
+        if (!JdCResponse.CODE_SUCCESS.equals(boardResponse.getCode())) {
+            log.warn("fetchSendTaskForTransferV2|未根据包裹号找到匹配的板号,barCode={},response={}", packageCode, JsonHelper.toJson(boardResponse));
+            return null;
+        }
+        Board board = boardResponse.getData();
+        if (board != null) {
+            return board.getCode();
+        }
+        return null;
+    }
+
     private boolean findExitTaskRecordByTransWorkCode(List<String> transWorkCodeList,Long startSiteId) {
         List<JyBizTaskSendVehicleEntity> taskSendVehicleEntities =taskSendVehicleService.findSendTaskByTransWorkCode(transWorkCodeList,startSiteId);
         if (ObjectHelper.isNotNull(taskSendVehicleEntities) && taskSendVehicleEntities.size()>0){
@@ -1305,7 +1328,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         if (vehicleTaskReq.getBarCode()==null && vehicleTaskReq.getPackageCode()!=null){
             vehicleTaskReq.setBarCode(vehicleTaskReq.getPackageCode());
         }
-        if (WaybillUtil.isPackageCode(vehicleTaskReq.getBarCode())) {
+        if (WaybillUtil.isPackageCode(vehicleTaskReq.getBarCode()) || BusinessUtil.isBoardCode(vehicleTaskReq.getBarCode())) {
             Long startSiteId = (long) vehicleTaskReq.getCurrentOperate().getSiteCode();
             JySendEntity sendEntity = jySendService.queryByCodeAndSite(new JySendEntity(vehicleTaskReq.getBarCode(), startSiteId));
             if (sendEntity == null) {

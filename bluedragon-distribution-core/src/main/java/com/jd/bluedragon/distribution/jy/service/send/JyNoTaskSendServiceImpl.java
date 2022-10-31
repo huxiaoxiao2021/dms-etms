@@ -11,7 +11,9 @@ import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.busineCode.sendCode.service.SendCodeService;
 import com.jd.bluedragon.distribution.businessCode.BusinessCodeAttributeKey;
 import com.jd.bluedragon.distribution.delivery.IDeliveryOperationService;
+import com.jd.bluedragon.distribution.jy.dto.send.BindVehicleResp;
 import com.jd.bluedragon.distribution.jy.dto.send.JySendCodeDto;
+import com.jd.bluedragon.distribution.jy.dto.send.TransferVehicleResp;
 import com.jd.bluedragon.distribution.jy.dto.send.VehicleSendRelationDto;
 import com.jd.bluedragon.distribution.jy.enums.CancelSendTypeEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendStatusEnum;
@@ -392,7 +394,10 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
             fromSvDetailTask.setUpdateUserName(bindVehicleDetailTaskReq.getUser().getUserName());
             jyBizTaskSendVehicleDetailService.updateDateilTaskByVehicleBizId(fromSvDetailTask);
 
-            return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE);
+            BindVehicleResp bindVehicleResp = new BindVehicleResp();
+            bindVehicleResp.setFromSendVehicleDetailBizId(fromSvdTask.getBizId());
+            bindVehicleResp.setToSendVehicleDetailBizId(toSvdTask.getBizId());
+            return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, bindVehicleResp);
         }
         return new InvokeResult(NO_SEND_DATA_UNDER_TASK_CODE, NO_SEND_DATA_UNDER_TASK_MESSAGE);
     }
@@ -428,13 +433,15 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
             dto.setUpdateUserCode(transferSendTaskReq.getUser().getUserCode());
             dto.setCreateSiteId(Long.valueOf(transferSendTaskReq.getCurrentOperate().getSiteCode()));
 
+            List<String> sendCodes = new ArrayList<>();
+
             if (ObjectHelper.isTrue(transferSendTaskReq.getSameWayFlag())) {
                 //同流向--直接变更绑定关系
                 dto.setSource(TransferLogTypeEnum.SAME_WAY_TRANSFER.getCode());
                 jyVehicleSendRelationService.updateVehicleSendRelation(dto);
                 jySendTransferLogService.saveTransferLog(dto);
                 jySendService.updateTransferProperBySendCode(dto);
-
+                sendCodes.addAll(sendCodeList);
             } else {
                 //删除原绑定关系
                 jyVehicleSendRelationService.deleteVehicleSendRelation(dto);
@@ -450,6 +457,7 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
                     List<SendM> sendMList = sendMService.selectBySiteAndSendCode(transferSendTaskReq.getCurrentOperate().getSiteCode(), sendCode);
                     deliveryOperationService.asyncHandleTransfer(sendMList, dto);
                 }
+                sendCodes.add(newSendCode);
             }
             JyBizTaskSendVehicleEntity toSvTask = new JyBizTaskSendVehicleEntity();
             toSvTask.setBizId(dto.getToSendVehicleBizId());
@@ -465,8 +473,9 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
 
             //迁移完毕，判断迁出的流向任务是否有被打cancel的label，有执行作废
             doCancelForLabelCanceldTask(transferSendTaskReq.getFromSendVehicleDetailBizId());
-
-            return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE);
+            TransferVehicleResp transferVehicleResp = new TransferVehicleResp();
+            transferVehicleResp.setSendCodes(sendCodes);
+            return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, transferVehicleResp);
         }
         return new InvokeResult(NO_SEND_DATA_UNDER_TASK_CODE, NO_SEND_DATA_UNDER_TASK_MESSAGE);
     }

@@ -10,6 +10,7 @@ import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
+import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.box.BoxReq;
@@ -42,6 +43,7 @@ import com.jd.jim.cli.Cluster;
 import com.jd.jmq.common.exception.JMQException;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.transboard.api.dto.OperatorInfo;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.collections.CollectionUtils;
@@ -67,6 +69,16 @@ public abstract class DeliveryBaseHandler implements IDeliveryBaseHandler {
     static int SEND_SPLIT_NUM = 30;
 
     static int EXPIRE_TIME_SECOND = 2 * 60 * 60;
+
+    /**
+     * 组板发货任务的Redis缓存key的前缀
+     */
+    private final String REDIS_PREFIX_BOARD_DELIVERY= "BoardDelivery-";
+
+    /**
+     * 组板发货任务的Redis过期时间
+     */
+    private final int EXPIRE_REDIS_BOARD_TASK = 60;
 
     @Autowired
     @Qualifier("redisClientCache")
@@ -104,6 +116,8 @@ public abstract class DeliveryBaseHandler implements IDeliveryBaseHandler {
     private SortingService tSortingService;
     @Autowired
     private BaseMajorManager baseMajorManager;
+    @Autowired
+    private GroupBoardManager groupBoardManager;
     @Autowired
     @Qualifier("deliveryCancelSendMQ")
     private DefaultJMQProducer deliveryCancelSendMQ;
@@ -331,17 +345,22 @@ public abstract class DeliveryBaseHandler implements IDeliveryBaseHandler {
 
             if (WaybillUtil.isWaybillCode(barCode)) {
                 sendDRequest.setWaybillCode(barCode);
-            } else if (WaybillUtil.isPackageCode(barCode)){
+            } else if (WaybillUtil.isPackageCode(barCode)) {
                 sendDRequest.setPackageBarcode(barCode);
+            } else if (BusinessUtil.isBoardCode(barCode)) {
+                sendDRequest.setBoardCode(barCode);
             } else {
                 sendDRequest.setBoxCode(barCode);
             }
-            List<SendDetail> tlist = sendDatailDao.querySendDatailsBySelective(sendDRequest);//查询sendD明细
-            //log.info("取消发货查询sendd明细,{}",tlist.toString());
+
 
             if (WaybillUtil.isWaybillCode(sendMItem.getBoxCode())
                     || WaybillUtil.isPackageCode(sendMItem.getBoxCode())) {
                 log.info("dealSendTransfer按运单/包裹维度进行取消：{}",sendMItem.getBoxCode());
+
+                List<SendDetail> tlist = sendDatailDao.querySendDatailsBySelective(sendDRequest);//查询sendD明细
+                //log.info("取消发货查询sendd明细,{}",tlist.toString());
+
                 /* 按包裹号和运单号的逻辑走 */
                 ThreeDeliveryResponse responsePack = cancelUpdateDataByPack(sendMItem, tlist);
                 if (responsePack.getCode().equals(200)) {
@@ -350,12 +369,14 @@ public abstract class DeliveryBaseHandler implements IDeliveryBaseHandler {
                     sendMessage(tlist, sendMItem, true);
                     //同步取消半退明细
                     reversePartDetailService.cancelPartSend(sendMItem);
-                    // 更新包裹装车记录表的扫描状态为取消扫描状态
-                    updateScanActionByPackageCodes(tlist, sendMItem);
                 } else {
                     continue;
                 }
             } else if (BusinessHelper.isBoxcode(sendMItem.getBoxCode())) {
+
+                List<SendDetail> tlist = sendDatailDao.querySendDatailsBySelective(sendDRequest);//查询sendD明细
+                //log.info("取消发货查询sendd明细,{}",tlist.toString());
+
                 /* 按箱号的逻辑走 */
                 List<SendM> sendMs = new ArrayList<>();
                 sendMs.add(sendMItem);
@@ -369,19 +390,90 @@ public abstract class DeliveryBaseHandler implements IDeliveryBaseHandler {
                 } else {
                     continue;
                 }
+            } else if (BusinessUtil.isBoardCode(sendMItem.getBoxCode())) {
+
+                sendMItem.setBoardCode(barCode);
+                sendMItem.setBoxCode(barCode);
+
+                // 按板号的逻辑走
+                List<String> sendMList = sendMDao.selectBoxCodeByBoardCodeAndSendCode(sendMItem);
+                if (sendMList == null || sendMList.size() < 1) {
+                    log.warn("dealSendTransfer|按板取消发货==========没有找到板号的发货明细");
+                    continue;
+                }
+                //校验是否有同一板号的发货任务没有跑完
+                String redisKey = REDIS_PREFIX_BOARD_DELIVERY + sendMItem.getBoxCode();
+                if(StringHelper.isNotEmpty(redisManager.get(redisKey))){
+                    log.warn("dealSendTransfer|按板取消发货==========存在有同一板号的发货任务没有跑完");
+                    continue;
+                }
+                //生产一个按板号取消发货的任务
+                pushBoardSendTask(sendMItem,Task.TASK_TYPE_BOARD_SEND_CANCEL);
+                log.info("按板取消发货==========pushBoardSendTask");
+                //将板由“关闭”状态变为“组板中”的状态
+                List<String> boardList = new ArrayList<>();
+                boardList.add(sendMItem.getBoardCode());
+                changeBoardStatus(sendMItem,boardList);
+                log.info("按板取消发货==========将板由“关闭”状态变为“组板中”的状态");
             } else {
                 log.info("暂时不支持按该范畴进行取消：{}" , JsonHelper.toJson(sendMItem));
                 continue;
             }
 
-            //生成新的发货
-            SendBizSourceEnum bizSource = SendBizSourceEnum.getEnum(sendMItem.getBizSource());
-            sendMItem.setSendCode(wrapper.getNewSendCode());
-            sendMItem.setReceiveSiteCode(BusinessUtil.getReceiveSiteCodeFromSendCode(wrapper.getNewSendCode()));
-            sendMItem.setCreateTime(now);
-            sendMItem.setOperateTime(now);
-            sendMItem.setUpdateTime(now);
-            deliveryService.packageSend(bizSource,sendMItem);
+            if (BusinessUtil.isBoardCode(barCode)) {
+                deliveryService.boardSend(sendMItem, Boolean.TRUE);
+            } else {
+                //生成新的发货
+                SendBizSourceEnum bizSource = SendBizSourceEnum.getEnum(sendMItem.getBizSource());
+                sendMItem.setSendCode(wrapper.getNewSendCode());
+                sendMItem.setReceiveSiteCode(BusinessUtil.getReceiveSiteCodeFromSendCode(wrapper.getNewSendCode()));
+                sendMItem.setCreateTime(now);
+                sendMItem.setOperateTime(now);
+                sendMItem.setUpdateTime(now);
+                deliveryService.packageSend(bizSource, sendMItem);
+            }
+        }
+        return true;
+    }
+
+    //将板号由“关闭”状态变更未“组板中”状态
+    public void changeBoardStatus(SendM tSendM,List<String> boardList){
+        OperatorInfo operatorInfo = new OperatorInfo();
+        operatorInfo.setOperatorErp(Integer.toString(tSendM.getUpdateUserCode()));
+        operatorInfo.setOperatorName(tSendM.getUpdaterUser());
+        operatorInfo.setSiteCode(tSendM.getCreateSiteCode());
+        BaseStaffSiteOrgDto baseStaffSiteOrgDto = baseMajorManager.getBaseSiteBySiteId(tSendM.getCreateSiteCode());
+        if(baseStaffSiteOrgDto != null){
+            operatorInfo.setSiteName(baseMajorManager.getBaseSiteBySiteId(tSendM.getCreateSiteCode()).getSiteName());
+        }
+        //取消板号的关闭状态
+        groupBoardManager.resuseBoards(boardList,operatorInfo);
+    }
+
+    /**
+     * 推组板发货任务
+     * @param domain
+     * @return
+     */
+    private boolean pushBoardSendTask(SendM domain,Integer taskType) {
+        Task tTask = new Task();
+        tTask.setBoxCode(domain.getBoardCode());
+        tTask.setBody(JsonHelper.toJson(domain));
+        tTask.setCreateSiteCode(domain.getCreateSiteCode());
+        tTask.setKeyword2(String.valueOf(domain.getSendType()));
+        tTask.setReceiveSiteCode(domain.getReceiveSiteCode());
+        tTask.setType(taskType);
+        tTask.setTableName(Task.getTableName(taskType));
+        String ownSign = BusinessHelper.getOwnSign();
+        tTask.setOwnSign(ownSign);
+        tTask.setKeyword1(domain.getBoardCode());
+        tTask.setFingerprint(Md5Helper.encode(domain.getSendCode() + "_" + tTask.getKeyword1() + domain.getBoardCode() + tTask.getKeyword2()));
+        log.info("组板发货任务推送成功：板号={}，箱号={}" ,domain.getBoardCode(), domain.getBoxCode());
+        taskService.add(tTask, true);
+        //写redis记录任务状态
+        if(Task.TASK_TYPE_BOARD_SEND.equals(taskType)) {
+            String redisKey = REDIS_PREFIX_BOARD_DELIVERY + domain.getBoardCode();
+            redisManager.setex(redisKey, EXPIRE_REDIS_BOARD_TASK, domain.getBoardCode());
         }
         return true;
     }

@@ -23,4 +23,12 @@ public class BindVehicleResp implements Serializable {
     public void setFromSendVehicleDetailBizId(String fromSendVehicleDetailBizId) {
         this.fromSendVehicleDetailBizId = fromSendVehicleDetailBizId;
     }
+
+    public String getToSendVehicleDetailBizId() {
+        return toSendVehicleDetailBizId;
+    }
+
+    public void setToSendVehicleDetailBizId(String toSendVehicleDetailBizId) {
+        this.toSendVehicleDetailBizId = toSendVehicleDetailBizId;
+    }
 }

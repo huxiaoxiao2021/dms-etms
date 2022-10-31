@@ -249,14 +249,14 @@ public interface JySendVehicleTysService {
      * @param bindVehicleDetailTaskReq
      * @return
      */
-    InvokeResult bindVehicleDetailTask(BindVehicleDetailTaskReq bindVehicleDetailTaskReq);
+    InvokeResult<BindVehicleResp> bindVehicleDetailTask(BindVehicleDetailTaskReq bindVehicleDetailTaskReq);
 
     /**
      * 迁移发货批次数据
      * @param transferSendTaskReq
      * @return
      */
-    InvokeResult transferSendTask(TransferSendTaskReq transferSendTaskReq);
+    InvokeResult<TransferVehicleResp> transferSendTask(TransferSendTaskReq transferSendTaskReq);
 
     /**
      * 取消发货
