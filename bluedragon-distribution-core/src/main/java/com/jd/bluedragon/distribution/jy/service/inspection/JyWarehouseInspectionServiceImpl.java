@@ -692,7 +692,7 @@ public class JyWarehouseInspectionServiceImpl implements JyWarehouseInspectionSe
         logInfo("JyWarehouseInspectionServiceImpl.interceptBarCodeDetail param {}", JsonHelper.toJson(request));
         Result<InspectionInterceptDto> result = Result.success();
         InspectionInterceptDto interceptScanBarCode = new InspectionInterceptDto();
-        interceptScanBarCode.setActualScanCount(0L);
+        interceptScanBarCode.setInterceptScanCount(0L);
         interceptScanBarCode.setBarcodeList(new ArrayList<InspectionScanBarCode>());
         result.setData(interceptScanBarCode);
 
@@ -706,8 +706,10 @@ public class JyWarehouseInspectionServiceImpl implements JyWarehouseInspectionSe
             if (retPager == null || CollectionUtils.isEmpty(retPager.getData())) {
                 return result;
             }
-            interceptScanBarCode.setActualScanCount(calculateInterceptShouldScanCount(retPager.getData()));
             interceptScanBarCode.setBarcodeList(this.getUnloadScanBarCodeList(UnloadBarCodeQueryEntranceEnum.INTERCEPT, retPager.getData()));
+            if (CollectionUtils.isNotEmpty(interceptScanBarCode.getBarcodeList())) {
+                interceptScanBarCode.setInterceptScanCount((long)interceptScanBarCode.getBarcodeList().size());
+            }
 
             result.setData(interceptScanBarCode);
         } catch (JyDemotionException e) {

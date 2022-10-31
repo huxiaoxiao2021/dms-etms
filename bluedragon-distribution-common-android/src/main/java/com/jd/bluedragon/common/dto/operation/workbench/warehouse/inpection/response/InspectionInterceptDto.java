@@ -13,21 +13,21 @@ public class InspectionInterceptDto implements Serializable {
     private static final long serialVersionUID = 5898441268950619129L;
 
     /**
-     * 已扫数量
+     * 拦截已扫数量
      */
-    private Long actualScanCount;
+    private Long interceptScanCount;
 
     /**
      * 包裹列表
      */
     private List<InspectionScanBarCode> barcodeList;
 
-    public Long getActualScanCount() {
-        return actualScanCount;
+    public Long getInterceptScanCount() {
+        return interceptScanCount;
     }
 
-    public void setActualScanCount(Long actualScanCount) {
-        this.actualScanCount = actualScanCount;
+    public void setInterceptScanCount(Long interceptScanCount) {
+        this.interceptScanCount = interceptScanCount;
     }
 
     public List<InspectionScanBarCode> getBarcodeList() {
