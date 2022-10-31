@@ -143,9 +143,4 @@ public class SpotCheckConstants {
      */
     public static final Integer SPOT_CHECK_AI_EXC_CODE = 40001;
 
-    /**
-     * 打木架服务耗材编码
-     */
-    public static final String WOODEN_FRAME_TYPE_CODE = "TY003";
-
 }

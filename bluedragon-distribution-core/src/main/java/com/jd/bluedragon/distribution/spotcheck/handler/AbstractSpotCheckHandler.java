@@ -5,6 +5,7 @@ import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.distribution.base.domain.DmsBaseDict;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.consumable.domain.ConsumableCodeEnums;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.service.SendDetailService;
 import com.jd.bluedragon.distribution.spotcheck.domain.*;
@@ -146,7 +147,7 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
         BaseEntity<List<BoxChargeDto>> baseEntity = waybillQueryManager.getBoxChargeByWaybillCode(context.getWaybillCode());
         if (baseEntity != null && CollectionUtils.isNotEmpty(baseEntity.getData())){
             for(BoxChargeDto boxChargeDto : baseEntity.getData()){
-                if(Objects.equals(boxChargeDto.getPackingType(), SpotCheckConstants.WOODEN_FRAME_TYPE_CODE)){
+                if(Objects.equals(boxChargeDto.getBarCode(), ConsumableCodeEnums.MJ.getCode())){
                     result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.WOODEN_FRAME_NOT_SUPPORT_ARTIFICIAL_SPOT_CHECK);
                     return false;
                 }
