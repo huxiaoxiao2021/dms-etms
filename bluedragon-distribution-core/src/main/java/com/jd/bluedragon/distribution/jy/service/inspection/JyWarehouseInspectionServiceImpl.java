@@ -817,10 +817,6 @@ public class JyWarehouseInspectionServiceImpl implements JyWarehouseInspectionSe
             }
 
             inspectionFinishPreviewData.setBarCodeList(this.getUnloadScanBarCodeList(UnloadBarCodeQueryEntranceEnum.INTERCEPT, retPager.getData()));
-            if (CollectionUtils.isNotEmpty(inspectionFinishPreviewData.getBarCodeList())) {
-                inspectionFinishPreviewData.setInterceptScanCount((long)inspectionFinishPreviewData.getBarCodeList().size());
-                inspectionFinishPreviewData.setAbnormalCount(inspectionFinishPreviewData.getInterceptScanCount());
-            }
         } catch (Exception e) {
             log.error("JyWarehouseInspectionServiceImpl.inspectionFinishPreview error ",  e);
             result.toFail("接口异常");
@@ -855,9 +851,21 @@ public class JyWarehouseInspectionServiceImpl implements JyWarehouseInspectionSe
         if (!unloadDone) {
             previewData.setTotalScan(oneUnloadAgg.getTotalScannedPackageCount().longValue());
             previewData.setInterceptScanCount(interceptActualScanCount);
+            final long toScanCount = dealMinus(oneUnloadAgg.getTotalSealPackageCount(), oneUnloadAgg.getTotalScannedPackageCount());
+            previewData.setAbnormalCount(interceptActualScanCount + toScanCount);
         }
 
         return unloadDone;
+    }
+
+    private long dealMinus(Number a, Number b) {
+        if(a == null){
+            a = 0L;
+        }
+        if(b == null){
+            b = 0L;
+        }
+        return NumberHelper.gt(a, b) ? a.longValue() - b.longValue() : 0L;
     }
 
     /**
