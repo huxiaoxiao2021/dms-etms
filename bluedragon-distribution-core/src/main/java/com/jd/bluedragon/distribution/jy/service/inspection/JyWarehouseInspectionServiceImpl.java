@@ -372,6 +372,7 @@ public class JyWarehouseInspectionServiceImpl implements JyWarehouseInspectionSe
     public JdVerifyResponse<Integer> inspectionScan(InspectionScanRequest request) {
         logInfo("JyWarehouseInspectionServiceImpl.inspectionScan param {}", JsonHelper.toJson(request));
         JdVerifyResponse<Integer> result = new JdVerifyResponse<>();
+        result.toSuccess();
 
         try {
             final Result<Void> checkParamCommonResult = this.checkParamCommon(request);
