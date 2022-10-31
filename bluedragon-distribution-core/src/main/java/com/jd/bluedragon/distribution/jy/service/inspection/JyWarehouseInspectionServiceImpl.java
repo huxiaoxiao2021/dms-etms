@@ -817,6 +817,10 @@ public class JyWarehouseInspectionServiceImpl implements JyWarehouseInspectionSe
             }
 
             inspectionFinishPreviewData.setBarCodeList(this.getUnloadScanBarCodeList(UnloadBarCodeQueryEntranceEnum.INTERCEPT, retPager.getData()));
+            if (CollectionUtils.isNotEmpty(inspectionFinishPreviewData.getBarCodeList())) {
+                inspectionFinishPreviewData.setInterceptScanCount((long)inspectionFinishPreviewData.getBarCodeList().size());
+                inspectionFinishPreviewData.setAbnormalCount(inspectionFinishPreviewData.getInterceptScanCount());
+            }
         } catch (Exception e) {
             log.error("JyWarehouseInspectionServiceImpl.inspectionFinishPreview error ",  e);
             result.toFail("接口异常");
