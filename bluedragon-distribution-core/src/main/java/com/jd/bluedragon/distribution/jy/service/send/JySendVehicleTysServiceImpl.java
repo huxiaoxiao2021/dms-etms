@@ -15,6 +15,7 @@ import com.jd.bluedragon.common.dto.operation.workbench.send.request.*;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendAbnormalResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendScanResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleTaskResponse;
+import com.jd.bluedragon.common.dto.send.response.DeleteVehicleTaskCheckResponse;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.JdiSelectWSManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
@@ -912,6 +913,21 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
             return convertResult(result, null);
         }
         return new InvokeResult(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
+    }
+
+    @Override
+    @JProfiler(jKey = "DMSWEB.JySendVehicleTysService.checkBeforeDeleteVehicleTask", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public InvokeResult<DeleteVehicleTaskCheckResp> checkBeforeDeleteVehicleTask(DeleteVehicleTaskReq deleteVehicleTaskReq) {
+        com.jd.bluedragon.common.dto.send.request.DeleteVehicleTaskReq req = BeanUtils.copy(deleteVehicleTaskReq, com.jd.bluedragon.common.dto.send.request.DeleteVehicleTaskReq.class);
+        if (req != null) {
+            req.setUser(copyUser(deleteVehicleTaskReq.getUser()));
+            req.setCurrentOperate(copyCurrentOperate(deleteVehicleTaskReq.getCurrentOperate()));
+        }
+        InvokeResult<DeleteVehicleTaskCheckResponse> result = jySendVehicleServiceTys.checkBeforeDeleteVehicleTask(req);
+        if (ObjectHelper.isNotNull(result)) {
+            return convertResult(result, DeleteVehicleTaskCheckResp.class);
+        }
+        return new InvokeResult<>(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
     }
 
     /**

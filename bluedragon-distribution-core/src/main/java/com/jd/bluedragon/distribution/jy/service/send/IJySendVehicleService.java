@@ -6,13 +6,10 @@ import com.jd.bluedragon.common.dto.operation.workbench.send.response.*;
 import com.jd.bluedragon.common.dto.send.request.SendBatchReq;
 import com.jd.bluedragon.common.dto.send.request.TransferVehicleTaskReq;
 import com.jd.bluedragon.common.dto.send.request.VehicleTaskReq;
-import com.jd.bluedragon.common.dto.send.response.SendBatchResp;
+import com.jd.bluedragon.common.dto.send.response.*;
 import com.jd.bluedragon.common.dto.send.request.*;
-import com.jd.bluedragon.common.dto.send.response.CancelSendTaskResp;
-import com.jd.bluedragon.common.dto.send.response.CreateVehicleTaskResp;
-import com.jd.bluedragon.common.dto.send.response.VehicleSpecResp;
-import com.jd.bluedragon.common.dto.send.response.VehicleTaskResp;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.jy.dto.send.DeleteVehicleTaskCheckResp;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.jy.dto.JyLineTypeDto;
 
@@ -183,6 +180,13 @@ public interface IJySendVehicleService {
      * @return
      */
     InvokeResult deleteVehicleTask(DeleteVehicleTaskReq deleteVehicleTaskReq);
+
+    /**
+     * 删除前校验-接口
+     * @param deleteVehicleTaskReq
+     * @return
+     */
+    InvokeResult<DeleteVehicleTaskCheckResponse> checkBeforeDeleteVehicleTask(DeleteVehicleTaskReq deleteVehicleTaskReq);
 
     /**
      * 查询运输车辆任务列表：根据流向或者报告号筛选任务列表

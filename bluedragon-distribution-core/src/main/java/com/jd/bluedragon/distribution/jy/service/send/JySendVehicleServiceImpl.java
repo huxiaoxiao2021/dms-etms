@@ -3074,6 +3074,11 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
     }
 
     @Override
+    public InvokeResult<DeleteVehicleTaskCheckResponse> checkBeforeDeleteVehicleTask(DeleteVehicleTaskReq deleteVehicleTaskReq) {
+        return jyNoTaskSendService.checkBeforeDeleteVehicleTask(deleteVehicleTaskReq);
+    }
+
+    @Override
     public InvokeResult<VehicleTaskResp> listVehicleTask(VehicleTaskReq vehicleTaskReq) {
         return jyNoTaskSendService.listVehicleTask(vehicleTaskReq);
     }

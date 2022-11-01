@@ -229,6 +229,13 @@ public interface JySendVehicleTysService {
     InvokeResult deleteVehicleTask(DeleteVehicleTaskReq deleteVehicleTaskReq);
 
     /**
+     * 删除前校验-接口
+     * @param deleteVehicleTaskReq
+     * @return
+     */
+    InvokeResult<DeleteVehicleTaskCheckResp> checkBeforeDeleteVehicleTask(DeleteVehicleTaskReq deleteVehicleTaskReq);
+
+    /**
      * 查询运输车辆任务列表
      * @param vehicleTaskReq
      * @return
