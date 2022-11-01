@@ -33,6 +33,8 @@ import com.jd.bluedragon.distribution.jy.dto.send.CheckSendCodeRequest;
 import com.jd.bluedragon.distribution.jy.enums.*;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.service.seal.JySealVehicleService;
+import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetailService;
+import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.domain.ThreeDeliveryResponse;
@@ -96,6 +98,8 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
     private SendDetailService sendDetailService;
     @Autowired
     private TransportRelatedService transportRelatedService;
+    @Autowired
+    JyBizTaskSendVehicleDetailService taskSendVehicleDetailService;
 
     /**
      * 发货模式
@@ -498,6 +502,17 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
         queryExcepWaybillDto.setExcepScanTypeEnum(ExcepScanTypeEnum.getExcepScanTypeEnum(request.getExpType()));
         queryExcepWaybillDto.setPageNo(request.getPageNo());
         queryExcepWaybillDto.setPageSize(request.getPageSize());
+        JyBizTaskSendVehicleDetailEntity condition =new JyBizTaskSendVehicleDetailEntity();
+        condition.setSendVehicleBizId(request.getSendVehicleBizId());
+        condition.setStartSiteId(Long.valueOf(request.getCurrentOperate().getSiteCode()));
+        List<JyBizTaskSendVehicleDetailEntity> detailList =taskSendVehicleDetailService.findEffectiveSendVehicleDetail(condition);
+        if (detailList!=null && detailList.size()>0){
+            List<Integer> endSiteIdList =new ArrayList();
+            for (JyBizTaskSendVehicleDetailEntity entity:detailList){
+                endSiteIdList.add(entity.getEndSiteId().intValue());
+            }
+            queryExcepWaybillDto.setReceiveSiteIdList(endSiteIdList);
+        }
         return queryExcepWaybillDto;
     }
 

@@ -18,4 +18,7 @@ public class QueryExcepWaybillDto {
      */
     private Integer operateSiteId;
 
+    //发货下游场地
+    private List<Integer> receiveSiteIdList;
+
 }
