@@ -400,7 +400,7 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
      * @return
      */
     private SpotCheckContext initSpotCheckContext(SpotCheckDto spotCheckDto) {
-        String waybillCode = WaybillUtil.getWaybillCode(spotCheckDto.getBarCode());
+        String waybillCode = WaybillUtil.getWaybillCode(spotCheckDto.getBarCode().trim());
         SpotCheckContext spotCheckContext = new SpotCheckContext();
         spotCheckContext.setSpotCheckSourceFrom(spotCheckDto.getSpotCheckSourceFrom());
         spotCheckContext.setSpotCheckDimensionType(spotCheckDto.getDimensionType());
