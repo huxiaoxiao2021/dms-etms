@@ -475,6 +475,8 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
             doCancelForLabelCanceldTask(transferSendTaskReq.getFromSendVehicleDetailBizId());
             TransferVehicleResp transferVehicleResp = new TransferVehicleResp();
             transferVehicleResp.setSendCodes(sendCodes);
+            transferVehicleResp.setEndSiteId(toSvd.getEndSiteId());
+            transferVehicleResp.setEndSiteName(toSvd.getEndSiteName());
             return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, transferVehicleResp);
         }
         return new InvokeResult(NO_SEND_DATA_UNDER_TASK_CODE, NO_SEND_DATA_UNDER_TASK_MESSAGE);
