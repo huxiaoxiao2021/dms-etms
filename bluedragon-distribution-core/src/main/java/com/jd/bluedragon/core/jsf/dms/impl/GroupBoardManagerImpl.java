@@ -93,8 +93,12 @@ public class GroupBoardManagerImpl implements GroupBoardManager {
     @JProfiler(jKey = "dmsWeb.jsf.tc.groupBoardService.getBoard",jAppName= Constants.UMP_APP_NAME_DMSWEB,
             mState = {JProEnum.TP, JProEnum.FunctionError})
     public Response<Board> getBoard(String boardCode) {
-
-        return groupBoardService.getBoardByCode(boardCode);
+        try{
+            return groupBoardService.getBoardByCode(boardCode);
+        }catch (Exception e) {
+            log.error("groupBoardService.getBoard-根据板号{}查板异常，errMsg={},e=", boardCode, e.getMessage(), e);
+            return null;
+        }
     }
 
     @JProfiler(jKey = "dmsWeb.jsf.tc.groupBoardService.closeBoard",jAppName= Constants.UMP_APP_NAME_DMSWEB,

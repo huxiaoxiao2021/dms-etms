@@ -467,13 +467,14 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             return startScanningProcess(scanPackageDto, invokeResult);
         } catch (JyBizException | LoadIllegalException e) {
             invokeResult.customMessage(RESULT_INTERCEPT_CODE, e.getMessage());
+            log.error("人工卸车扫描接口服务异常：req={}，errMsg={}", JsonUtils.toJSONString(scanPackageDto), e.getMessage());
             return invokeResult;
         } catch (Exception e) {
             if (e instanceof UnloadPackageBoardException) {
                 invokeResult.customMessage(JdCResponse.CODE_CONFIRM, e.getMessage());
                 return invokeResult;
             }
-            log.error("人工卸车扫描接口发生异常：e=", e);
+            log.error("人工卸车扫描接口发生异常：req={}，errMsg={}，e=", JsonUtils.toJSONString(scanPackageDto), e.getMessage(), e);
             invokeResult.customMessage(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
         }
         return invokeResult;
@@ -531,7 +532,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         // 是否强制组板
         if (!scanPackageDto.getIsForceCombination()) {
             UnloadScanDto unloadScanDto = createUnloadDto(scanPackageDto, unloadVehicleEntity);
-            // 验货校验
+            // 加盟商余额校验 + 推验货任务
             jyUnloadVehicleCheckTysService.inspectionIntercept(barCode, waybill, unloadScanDto);
             // 设置拦截缓存
             jyUnloadVehicleCheckTysService.setCacheOfSealCarAndPackageIntercept(bizId, barCode);
@@ -736,12 +737,12 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         }
         // 通用校验
         checkScan(scanPackageDto, unloadVehicleEntity);
-        // 校验跨场地支援权限
-        if (!unloadVehicleEntity.getEndSiteId().equals((long) scanPackageDto.getCurrentOperate().getSiteCode())) {
-            log.warn("支援人员无需操作:bizId={},erp={}", scanPackageDto.getBizId(), scanPackageDto.getUser().getUserErp());
-            invokeResult.customMessage(RESULT_INTERCEPT_CODE, "支援人员无需操作该任务，待任务完成后该任务会自动清除");
-            return invokeResult;
-        }
+//        // 校验跨场地支援权限
+//        if (!unloadVehicleEntity.getEndSiteId().equals((long) scanPackageDto.getCurrentOperate().getSiteCode())) {
+//            log.warn("支援人员无需操作:bizId={},erp={}", scanPackageDto.getBizId(), scanPackageDto.getUser().getUserErp());
+//            invokeResult.customMessage(RESULT_INTERCEPT_CODE, "支援人员无需操作该任务，待任务完成后该任务会自动清除");
+//            return invokeResult;
+//        }
         ScanPackageRespDto scanPackageRespDto = convertToScanResult(scanPackageDto);
         invokeResult.setData(scanPackageRespDto);
         // 按件扫描
