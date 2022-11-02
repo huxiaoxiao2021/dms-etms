@@ -420,16 +420,16 @@ public abstract class DeliveryBaseHandler implements IDeliveryBaseHandler {
                 continue;
             }
 
+            //生成新的发货
+            SendBizSourceEnum bizSource = SendBizSourceEnum.getEnum(sendMItem.getBizSource());
+            sendMItem.setSendCode(wrapper.getNewSendCode());
+            sendMItem.setReceiveSiteCode(BusinessUtil.getReceiveSiteCodeFromSendCode(wrapper.getNewSendCode()));
+            sendMItem.setCreateTime(now);
+            sendMItem.setOperateTime(now);
+            sendMItem.setUpdateTime(now);
             if (BusinessUtil.isBoardCode(barCode)) {
                 deliveryService.boardSend(sendMItem, Boolean.TRUE);
             } else {
-                //生成新的发货
-                SendBizSourceEnum bizSource = SendBizSourceEnum.getEnum(sendMItem.getBizSource());
-                sendMItem.setSendCode(wrapper.getNewSendCode());
-                sendMItem.setReceiveSiteCode(BusinessUtil.getReceiveSiteCodeFromSendCode(wrapper.getNewSendCode()));
-                sendMItem.setCreateTime(now);
-                sendMItem.setOperateTime(now);
-                sendMItem.setUpdateTime(now);
                 deliveryService.packageSend(bizSource, sendMItem);
             }
         }
