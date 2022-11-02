@@ -372,7 +372,7 @@ public class JyWarehouseInspectionServiceImpl implements JyWarehouseInspectionSe
     public JdVerifyResponse<Integer> inspectionScan(InspectionScanRequest request) {
         logInfo("JyWarehouseInspectionServiceImpl.inspectionScan param {}", JsonHelper.toJson(request));
         JdVerifyResponse<Integer> result = new JdVerifyResponse<>();
-        result.toSuccess();
+        result.toSuccess("验货成功");
 
         try {
             final Result<Void> checkParamCommonResult = this.checkParamCommon(request);
@@ -879,7 +879,7 @@ public class JyWarehouseInspectionServiceImpl implements JyWarehouseInspectionSe
     @Override
     public Result<Boolean> submitInspectionCompletion(InspectionCommonRequest request) {
         logInfo("JyWarehouseInspectionServiceImpl.submitInspectionCompletion param {}", JsonHelper.toJson(request));
-        Result<Boolean> result = Result.success();
+        Result<Boolean> result = Result.success("操作成功");
 
         try {
             // 0. base condition check
