@@ -1141,6 +1141,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                         if (!getSendTaskByPackage(vehicleTaskReq, result, queryDetail)) {
                             return result;
                         }
+                        result.success();
                     }
                 }
                 else {
