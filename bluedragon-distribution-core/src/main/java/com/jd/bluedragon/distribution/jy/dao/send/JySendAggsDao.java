@@ -33,4 +33,8 @@ public class JySendAggsDao extends BaseDao<JySendAggsEntity> {
     public List<JySendAggsEntity> findBySendVehicleBiz(String sendVehicleBizId) {
         return this.getSqlSession().selectList(NAMESPACE + ".findBySendVehicleBiz", sendVehicleBizId);
     }
+
+    public JySendAggsEntity findSendAggExistAbnormal(String sendVehicleBizId){
+        return this.getSqlSession().selectOne(NAMESPACE + ".findSendAggExistAbnormal", sendVehicleBizId);
+    }
 }

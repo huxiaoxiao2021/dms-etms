@@ -23,4 +23,9 @@ public class JySendAggsServiceImpl implements JySendAggsService {
     public List<JySendAggsEntity> findBySendVehicleBiz(String sendVehicleBizId) {
         return jySendAggsDao.findBySendVehicleBiz(sendVehicleBizId);
     }
+
+    @Override
+    public JySendAggsEntity findSendAggExistAbnormal(String sendVehicleBizId) {
+        return jySendAggsDao.findSendAggExistAbnormal(sendVehicleBizId);
+    }
 }

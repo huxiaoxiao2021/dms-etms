@@ -414,4 +414,12 @@
             yn = 1
         AND send_vehicle_biz_id = #{sendVehicleBizId}
     </select>
+
+    <select id="findSendAggExistAbnormal" parameterType="java.lang.String" resultMap="jySendAggsMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        from jy_send_aggs
+        WHERE send_vehicle_biz_id = #{sendVehicleBizId} and total_incomplete_waybill_count > 0
+        and yn = 1 limit 1
+    </select>
 </mapper>

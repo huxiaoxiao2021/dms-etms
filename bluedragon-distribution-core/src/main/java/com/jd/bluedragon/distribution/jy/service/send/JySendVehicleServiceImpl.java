@@ -2812,6 +2812,18 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                 response.setAbnormalType(SendAbnormalEnum.EXIST_ABNORMAL_PACK);
                 return true;
             } else {
+                // 如果强发或拦截，并且是转运任务，再次判断是否有不齐
+                BaseStaffSiteOrgDto baseStaffSiteOrgDto = baseMajorManager.getBaseSiteBySiteId(taskSend.getStartSiteId().intValue());
+                if (baseStaffSiteOrgDto != null) {
+                    if (baseStaffSiteOrgDto.getSubType() != null && baseStaffSiteOrgDto.getSubType().equals(Constants.B2B_SITE_TYPE)) {
+                        JySendAggsEntity sendAggs = sendAggService.findSendAggExistAbnormal(sendVehicleBizId);
+                        if (sendAggs != null) {
+                            response.setNormalFlag(Boolean.FALSE);
+                            response.setAbnormalType(SendAbnormalEnum.EXIST_ABNORMAL_PACK);
+                            return true;
+                        }
+                    }
+                }
                 BigDecimal loadRate = this.dealLoadRate(taskSend);
                 if (BigDecimal.valueOf(uccConfig.getJySendTaskLoadRateLowerLimit()).compareTo(loadRate) > 0) {
                     response.setNormalFlag(Boolean.FALSE);

@@ -21,5 +21,10 @@ public interface JySendAggsService {
      * @return
      */
     List<JySendAggsEntity> findBySendVehicleBiz(String sendVehicleBizId);
+
+    /**
+     * 查询一条发货任务的异常记录（不齐）
+     */
+    JySendAggsEntity findSendAggExistAbnormal(String sendVehicleBizId);
 }
 
