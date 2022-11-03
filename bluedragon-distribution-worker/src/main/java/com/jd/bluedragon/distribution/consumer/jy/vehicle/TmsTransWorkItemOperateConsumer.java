@@ -7,10 +7,13 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BasicQueryWSManager;
 import com.jd.bluedragon.core.base.JdiQueryWSManager;
 import com.jd.bluedragon.core.base.JdiTransWorkWSManager;
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
+import com.jd.bluedragon.distribution.jy.dto.send.SendVehicleDetailTaskDto;
 import com.jd.bluedragon.distribution.jy.dto.send.TransWorkItemDto;
 import com.jd.bluedragon.distribution.jy.enums.*;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
+import com.jd.bluedragon.distribution.jy.service.send.JyVehicleSendRelationService;
 import com.jd.bluedragon.distribution.jy.service.send.SendVehicleTransactionManager;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetailService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleService;
@@ -105,6 +108,13 @@ public class TmsTransWorkItemOperateConsumer extends MessageBaseConsumer {
     @Autowired
     private JyBizTaskSendVehicleService jyBizTaskSendVehicleService;
 
+    @Autowired
+    private JyVehicleSendRelationService jyVehicleSendRelationService;
+
+    @Autowired
+    @Qualifier(value = "sendVehicleDetailTaskProducer")
+    private DefaultJMQProducer sendVehicleDetailTaskProducer;
+
     @Override
     public void consume(Message message) throws Exception {
         if (StringHelper.isEmpty(message.getText())) {
@@ -180,6 +190,8 @@ public class TmsTransWorkItemOperateConsumer extends MessageBaseConsumer {
 
                 if (taskSendVehicleDetailEntity != null) {
                     transactionManager.saveTaskSendAndDetail(sendVehicleEntity, taskSendVehicleDetailEntity);
+                    // 发送任务明细mq
+                    sendVehicleDetailTaskMQ(taskSendVehicleDetailEntity, workItemDto.getOperateType());
                 }
             }
             // 取消发货任务流向
@@ -188,6 +200,8 @@ public class TmsTransWorkItemOperateConsumer extends MessageBaseConsumer {
                 if (ObjectHelper.isNotNull(vehicleDetail)){
                     if (JyBizTaskSendStatusEnum.TO_SEND.getCode().equals(vehicleDetail.getVehicleStatus())){
                         cancelSendTaskDetail(workItemDto,vehicleDetail);
+                        // 发送任务明细mq
+                        sendVehicleDetailTaskMQ(vehicleDetail, workItemDto.getOperateType());
                     }
                     else {
                         labelSendTaskDetailCancel(vehicleDetail);
@@ -215,6 +229,21 @@ public class TmsTransWorkItemOperateConsumer extends MessageBaseConsumer {
             redisClientOfJy.del(mutexKey);
         }
     }
+
+    private void sendVehicleDetailTaskMQ(JyBizTaskSendVehicleDetailEntity entity, Integer operateType) {
+        SendVehicleDetailTaskDto detailTaskDto = new SendVehicleDetailTaskDto();
+        detailTaskDto.setBizId(entity.getBizId());
+        detailTaskDto.setStartSiteId(entity.getStartSiteId());
+        detailTaskDto.setStartSiteName(entity.getStartSiteName());
+        detailTaskDto.setEndSiteId(entity.getEndSiteId());
+        detailTaskDto.setEndSiteName(entity.getEndSiteName());
+        List<String> sendCodes = jyVehicleSendRelationService.querySendCodesByVehicleDetailBizId(entity.getBizId());
+        detailTaskDto.setSendCodes(sendCodes);
+        detailTaskDto.setOperateType(operateType);
+        String businessId = entity.getBizId() + Constants.UNDERLINE_FILL + operateType;
+        sendVehicleDetailTaskProducer.sendOnFailPersistent(businessId, JsonHelper.toJson(detailTaskDto));
+    }
+
 
     /**
      * 刷新任务状态
