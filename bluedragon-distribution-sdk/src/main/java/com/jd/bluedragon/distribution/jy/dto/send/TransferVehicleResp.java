@@ -8,9 +8,14 @@ public class TransferVehicleResp implements Serializable {
     private static final long serialVersionUID = -3631878177602459614L;
 
     /**
-     * 迁移后的批次号
+     * 需要迁移的批次号
      */
-    private List<String> sendCodes;
+    private List<String> fromSendCodes;
+
+    /**
+     * 新生成的批次号
+     */
+    private List<String> toSendCodes;
 
     /**
      * 目的场地ID
@@ -21,12 +26,20 @@ public class TransferVehicleResp implements Serializable {
      */
     private String endSiteName;
 
-    public List<String> getSendCodes() {
-        return sendCodes;
+    public List<String> getFromSendCodes() {
+        return fromSendCodes;
     }
 
-    public void setSendCodes(List<String> sendCodes) {
-        this.sendCodes = sendCodes;
+    public void setFromSendCodes(List<String> fromSendCodes) {
+        this.fromSendCodes = fromSendCodes;
+    }
+
+    public List<String> getToSendCodes() {
+        return toSendCodes;
+    }
+
+    public void setToSendCodes(List<String> toSendCodes) {
+        this.toSendCodes = toSendCodes;
     }
 
     public Long getEndSiteId() {

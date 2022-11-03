@@ -433,15 +433,14 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
             dto.setUpdateUserCode(transferSendTaskReq.getUser().getUserCode());
             dto.setCreateSiteId(Long.valueOf(transferSendTaskReq.getCurrentOperate().getSiteCode()));
 
-            List<String> sendCodes = new ArrayList<>();
-
+            TransferVehicleResp transferVehicleResp = new TransferVehicleResp();
+            transferVehicleResp.setFromSendCodes(sendCodeList);
             if (ObjectHelper.isTrue(transferSendTaskReq.getSameWayFlag())) {
                 //同流向--直接变更绑定关系
                 dto.setSource(TransferLogTypeEnum.SAME_WAY_TRANSFER.getCode());
                 jyVehicleSendRelationService.updateVehicleSendRelation(dto);
                 jySendTransferLogService.saveTransferLog(dto);
                 jySendService.updateTransferProperBySendCode(dto);
-                sendCodes.addAll(sendCodeList);
             } else {
                 //删除原绑定关系
                 jyVehicleSendRelationService.deleteVehicleSendRelation(dto);
@@ -457,8 +456,13 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
                     List<SendM> sendMList = sendMService.selectBySiteAndSendCode(transferSendTaskReq.getCurrentOperate().getSiteCode(), sendCode);
                     deliveryOperationService.asyncHandleTransfer(sendMList, dto);
                 }
-                sendCodes.add(newSendCode);
+                List<String> toSendCodes = new ArrayList<>();
+                toSendCodes.add(newSendCode);
+                transferVehicleResp.setToSendCodes(toSendCodes);
             }
+            transferVehicleResp.setEndSiteId(toSvd.getEndSiteId());
+            transferVehicleResp.setEndSiteName(toSvd.getEndSiteName());
+
             JyBizTaskSendVehicleEntity toSvTask = new JyBizTaskSendVehicleEntity();
             toSvTask.setBizId(dto.getToSendVehicleBizId());
             toSvTask.setVehicleStatus(JyBizTaskSendStatusEnum.SENDING.getCode());
@@ -473,10 +477,7 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
 
             //迁移完毕，判断迁出的流向任务是否有被打cancel的label，有执行作废
             doCancelForLabelCanceldTask(transferSendTaskReq.getFromSendVehicleDetailBizId());
-            TransferVehicleResp transferVehicleResp = new TransferVehicleResp();
-            transferVehicleResp.setSendCodes(sendCodes);
-            transferVehicleResp.setEndSiteId(toSvd.getEndSiteId());
-            transferVehicleResp.setEndSiteName(toSvd.getEndSiteName());
+
             return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, transferVehicleResp);
         }
         return new InvokeResult(NO_SEND_DATA_UNDER_TASK_CODE, NO_SEND_DATA_UNDER_TASK_MESSAGE);
