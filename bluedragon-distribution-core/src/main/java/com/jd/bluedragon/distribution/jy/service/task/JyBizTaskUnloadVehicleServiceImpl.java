@@ -668,7 +668,7 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
 
         StatisticsDto statisticsDto = new StatisticsDto();
         Integer processPercent = (packageStatistics.getTotalSealPackageCount() == null || packageStatistics.getTotalSealPackageCount() == 0 ) ? 0
-                : (packageStatistics.getTotalScannedPackageCount() / packageStatistics.getTotalSealPackageCount());
+                : (int)(packageStatistics.getTotalScannedPackageCount() * 100.0 / packageStatistics.getTotalSealPackageCount());
         statisticsDto.setProcessPercent(processPercent);
 //        statisticsDto.setProcessPercent((packageStatistics.getTotalScannedPackageCount() / packageStatistics.getTotalSealPackageCount()));
         statisticsDto.setShouldScanCount(packageStatistics.getShouldScanCount());
