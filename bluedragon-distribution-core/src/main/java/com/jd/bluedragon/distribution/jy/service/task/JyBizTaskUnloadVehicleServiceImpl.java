@@ -682,7 +682,7 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
 
     private ScanStatisticsDto dtoConvert(JyUnloadAggsEntity entity, DimensionQueryDto dto) {
         ScanStatisticsDto scanStatisticsDto = new ScanStatisticsDto();
-        Integer processPercent = (entity.getTotalSealPackageCount() == null || entity.getTotalSealPackageCount() == 0) ? 0 : (entity.getTotalScannedPackageCount() / entity.getTotalSealPackageCount());
+        Integer processPercent = (entity.getTotalSealPackageCount() == null || entity.getTotalSealPackageCount() == 0) ? 0 : (int)(entity.getTotalScannedPackageCount() * 100.0 / entity.getTotalSealPackageCount());
         scanStatisticsDto.setProcessPercent(processPercent);
         if (UnloadStatisticsQueryTypeEnum.PACKAGE.getCode().equals(dto.getType())) {
             scanStatisticsDto.setShouldScanCount(entity.getShouldScanCount());
