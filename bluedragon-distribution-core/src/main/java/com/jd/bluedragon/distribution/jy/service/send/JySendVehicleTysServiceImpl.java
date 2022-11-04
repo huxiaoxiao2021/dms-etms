@@ -502,15 +502,8 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
         queryExcepWaybillDto.setExcepScanTypeEnum(ExcepScanTypeEnum.getExcepScanTypeEnum(request.getExpType()));
         queryExcepWaybillDto.setPageNo(request.getPageNo());
         queryExcepWaybillDto.setPageSize(request.getPageSize());
-        JyBizTaskSendVehicleDetailEntity condition =new JyBizTaskSendVehicleDetailEntity();
-        condition.setSendVehicleBizId(request.getSendVehicleBizId());
-        condition.setStartSiteId(Long.valueOf(request.getCurrentOperate().getSiteCode()));
-        List<JyBizTaskSendVehicleDetailEntity> detailList =taskSendVehicleDetailService.findEffectiveSendVehicleDetail(condition);
-        if (detailList!=null && detailList.size()>0){
-            List<Integer> endSiteIdList =new ArrayList();
-            for (JyBizTaskSendVehicleDetailEntity entity:detailList){
-                endSiteIdList.add(entity.getEndSiteId().intValue());
-            }
+        List<Integer> endSiteIdList = getReceiveSiteIdList(request.getSendVehicleBizId(), request.getCurrentOperate().getSiteCode());
+        if (!CollectionUtils.isEmpty(endSiteIdList)) {
             queryExcepWaybillDto.setReceiveSiteIdList(endSiteIdList);
         }
         return queryExcepWaybillDto;
@@ -524,7 +517,25 @@ public class JySendVehicleTysServiceImpl implements JySendVehicleTysService {
         queryExcepPackageDto.setPageNo(request.getPageNo());
         queryExcepPackageDto.setPageSize(request.getPageSize());
         queryExcepPackageDto.setWaybillCode(request.getWaybillCode());
+        List<Integer> endSiteIdList = getReceiveSiteIdList(request.getSendVehicleBizId(), request.getCurrentOperate().getSiteCode());
+        if (!CollectionUtils.isEmpty(endSiteIdList)) {
+            queryExcepPackageDto.setReceiveSiteIdList(endSiteIdList);
+        }
         return queryExcepPackageDto;
+    }
+
+    private List<Integer> getReceiveSiteIdList(String sendVehicleBizId, int startSiteId) {
+        JyBizTaskSendVehicleDetailEntity condition = new JyBizTaskSendVehicleDetailEntity();
+        condition.setSendVehicleBizId(sendVehicleBizId);
+        condition.setStartSiteId((long) startSiteId);
+        List<JyBizTaskSendVehicleDetailEntity> detailList = taskSendVehicleDetailService.findEffectiveSendVehicleDetail(condition);
+        List<Integer> endSiteIdList = new ArrayList<>();
+        if (detailList != null && detailList.size() > 0) {
+            for (JyBizTaskSendVehicleDetailEntity entity : detailList) {
+                endSiteIdList.add(entity.getEndSiteId().intValue());
+            }
+        }
+        return endSiteIdList;
     }
 
     private List<JyLabelOption> resolveBarCodeTag(ExcepScanLabelEnum excepScanLabelEnum) {
