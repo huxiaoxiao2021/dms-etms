@@ -691,7 +691,7 @@
         <property name="timeout" value="1000" />
     </bean>
     <!--  分拣转运派车任务明细  -->
-    <bean id="sendVehicleDetailTaskProducer" parent="jmq4DmsWebDefaultJMQProducer">
+    <bean id="sendVehicleDetailTaskProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.send.vehicle.detail.task}" />
         <property name="timeout" value="1000" />
     </bean>
