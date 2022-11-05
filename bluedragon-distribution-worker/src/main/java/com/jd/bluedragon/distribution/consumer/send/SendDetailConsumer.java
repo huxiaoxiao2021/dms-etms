@@ -333,7 +333,10 @@ public class SendDetailConsumer extends MessageBaseConsumer {
     private void sendColdChainSendMQ(SendDetailMessage sendDetail, String waybillCode) throws JMQException {
         if (SendBizSourceEnum.getEnum(sendDetail.getBizSource()) == SendBizSourceEnum.COLD_CHAIN_SEND
                 || SendBizSourceEnum.getEnum(sendDetail.getBizSource()) == SendBizSourceEnum.COLD_LOAD_CAR_KY_SEND
-                || SendBizSourceEnum.getEnum(sendDetail.getBizSource()) == SendBizSourceEnum.COLD_LOAD_CAR_SEND) {
+                || SendBizSourceEnum.getEnum(sendDetail.getBizSource()) == SendBizSourceEnum.COLD_LOAD_CAR_SEND
+                || SendBizSourceEnum.getEnum(sendDetail.getBizSource()) == SendBizSourceEnum.COLD_LOAD_CAR_SEND_NEW
+                || SendBizSourceEnum.getEnum(sendDetail.getBizSource()) == SendBizSourceEnum.COLD_LOAD_CAR_KY_SEND_NEW
+        ) {
             BaseStaffSiteOrgDto createSiteDto = baseMajorManager.getBaseSiteBySiteId(sendDetail.getCreateSiteCode());
             BaseStaffSiteOrgDto receiveSiteDto = baseMajorManager.getBaseSiteBySiteId(sendDetail.getReceiveSiteCode());
             if (createSiteDto != null && receiveSiteDto != null) {
@@ -624,6 +627,7 @@ public class SendDetailConsumer extends MessageBaseConsumer {
                                         || productTypes.contains(Constants.PRODUCT_TYPE_MEDICINE_DP)
                                         || productTypes.contains(Constants.PRODUCT_TYPE_COLD_CHAIN_XP)
                                         || productTypes.contains(Constants.PRODUCT_TYPE_MEDICINE_COLD);
+                                        //|| productTypes.contains(Constants.PRODUCT_TYPE_MEDICAL_PART_BILL);
             if(!isColdProductType){
                 log.warn("处理冷链拦截快退逻辑，非冷链产品类型，无须处理，运单号：{}",waybillCode);
                 return;

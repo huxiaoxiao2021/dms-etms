@@ -3,44 +3,56 @@ package com.jd.bluedragon.distribution.coldchain.service;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.request.User;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.alliance.service.AllianceBusiDeliveryDetailService;
 import com.jd.bluedragon.distribution.api.request.ColdChainDeliveryRequest;
 import com.jd.bluedragon.distribution.api.request.DeliveryRequest;
+import com.jd.bluedragon.distribution.api.request.PackageCodeRequest;
+import com.jd.bluedragon.distribution.api.request.PackageSendRequest;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.api.response.CheckBeforeSendResponse;
 import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
 import com.jd.bluedragon.distribution.api.response.TaskResponse;
 import com.jd.bluedragon.distribution.base.domain.JdCancelWaybillResponse;
 import com.jd.bluedragon.distribution.base.service.SiteService;
+import com.jd.bluedragon.distribution.busineCode.sendCode.service.SendCodeService;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
+import com.jd.bluedragon.distribution.busineCode.sendCode.service.SendCodeService;
 import com.jd.bluedragon.distribution.coldChain.domain.*;
+import com.jd.bluedragon.distribution.coldChain.enums.ColdSendResultCodeNum;
 import com.jd.bluedragon.distribution.coldChain.service.IColdChainService;
 import com.jd.bluedragon.distribution.coldchain.domain.ColdChainSend;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.external.service.DmsPackingConsumableService;
+import com.jd.bluedragon.distribution.inspection.InspectionBizSourceEnum;
 import com.jd.bluedragon.distribution.inspection.service.InspectionService;
 import com.jd.bluedragon.distribution.inspection.service.WaybillPackageBarcodeService;
 import com.jd.bluedragon.distribution.jsf.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jsf.domain.SortingJsfResponse;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.distribution.send.domain.SendM;
+import com.jd.bluedragon.distribution.send.domain.SendResult;
 import com.jd.bluedragon.distribution.send.domain.ThreeDeliveryResponse;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
 import com.jd.bluedragon.distribution.storage.service.StoragePackageMService;
-import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.ver.service.SortingCheckService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jd.ump.profiler.CallerInfo;
+import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -106,6 +118,11 @@ public class ColdChainExternalServiceImpl implements IColdChainService {
     @Autowired
     private WaybillService waybillService;
 
+    @Autowired
+    private SendCodeService sendCodeService;
+
+    @Autowired
+    private BaseMajorManager baseMajorManager;
     /**
      * 冷链验货校验
      *
@@ -148,50 +165,7 @@ public class ColdChainExternalServiceImpl implements IColdChainService {
                 result.customMessage(cancelWaybillResponse.getCode(),cancelWaybillResponse.getMessage());
                 return result;
             }
-
-            //加盟商余额校验
-            if(!allianceBusiDeliveryDetailService.checkExist(waybillCode)) {
-                if(!allianceBusiDeliveryDetailService.checkMoney(waybillCode)){
-                    //校验失败
-                    result.customMessage(JdResponse.CODE_FAIL,InspectionCheckResult.ALLIANCE_INTERCEPT_MESSAGE);
-                    result.getData().setForced(true);
-                    return result;
-                }
-            }
-            //库位号等校验
-            JdResponse storageResp = inspectionService.getStorageCode(vo.getBarCode(),vo.getOperateSiteCode());
-            if(storageResp.isSucceed()){
-                if(storageResp.getData()!= null){
-                    BeanUtils.copyProperties(storageResp.getData(),inspectionCheckResult);
-                }
-            }else{
-                result.customMessage(storageResp.getCode(),storageResp.getMessage());
-                result.getData().setForced(true);
-                return result;
-            }
-
-            //暂存校验
-            com.jd.bluedragon.distribution.base.domain.InvokeResult<Boolean> storagePResp =  storagePackageMService.checkIsNeedStorage(vo.getBarCode(), vo.getOperateSiteCode());
-            if(!storagePResp.codeSuccess()){
-                result.customMessage(storagePResp.getCode(),storagePResp.getMessage());
-                if(storagePResp.getData()){
-                    result.getData().setWeak(true);
-                }else{
-                    result.getData().setForced(true);
-                    return result;
-                }
-            }
-
-            //包装耗材
-            com.jd.ql.dms.common.domain.JdResponse<Boolean> packingConsumableResp = dmsPackingConsumableService.getConfirmStatusByWaybillCode(waybillCode);
-            //超级恶心的返回值 如果是400 和 500 就不需要处理了，200和 201提示
-            if(!JdResponse.CODE_FAIL.equals(packingConsumableResp.getCode()) && !JdResponse.CODE_ERROR.equals(packingConsumableResp.getCode())){
-                result.customMessage(JdResponse.CODE_FAIL,packingConsumableResp.getMessage());
-                result.getData().setWeak(true);
-                return result;
-            }
         }
-
 
         return result;
     }
@@ -523,6 +497,110 @@ public class ColdChainExternalServiceImpl implements IColdChainService {
         return result;
     }
 
+    /**
+     * 发货并验货接口
+     *
+     * @param vo
+     * @return
+     */
+    @Override
+    @JProfiler(jKey = "DMSWEB.ColdChainExternalService.sendAndInspectionOfPack", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
+    public InvokeResult<Boolean> sendAndInspectionOfPack(SendInspectionVO vo) {
+        if (log.isInfoEnabled()) {
+            log.info("自动发货接口入参，{}", JsonHelper.toJson(vo));
+        }
+        InvokeResult<Boolean> result = new InvokeResult<>();
+        result.setData(Boolean.TRUE);
+        result.success();
+        if (!checkParam(vo,result)) {
+            result.setData(Boolean.FALSE);
+            return result;
+        }
+        try {
+            // 验货
+            InspectionVO inspectionVO = new InspectionVO();
+            List<String> barCodes = new ArrayList<>();
+            barCodes.add(vo.getBoxCode());
+            inspectionVO.setBarCodes(barCodes);
+            inspectionVO.setSiteCode(vo.getCreateSiteCode());
+            inspectionVO.setUserCode(vo.getCreateUserCode());
+            inspectionVO.setUserName(vo.getCreateUser());
+            inspectionVO.setOperateTime(DateHelper.formatDateTime(vo.getOperateTime()));
+            InvokeResult<Boolean> inspectionResult = inspectionService.addInspection(inspectionVO, InspectionBizSourceEnum.COLD_CHAIN_SEND_INSPECTION);
+            if (!inspectionResult.codeSuccess()) {
+                log.info("自动发货时验货任务失败，{}，{}", JsonHelper.toJson(inspectionVO), JsonHelper.toJson(inspectionResult));
+                return inspectionResult;
+            }
+            // 发货且分拣
+            SendM sendM = new SendM();
+            BeanUtils.copyProperties(vo,sendM);
+            Date time = new Date(vo.getOperateTime().getTime() + 2 * Constants.DELIVERY_DELAY_TIME);
+            sendM.setCreateTime(time);
+            sendM.setOperateTime(time);
+            sendM.setUpdateTime(time);
+            sendM.setYn(1);
+            sendM.setSendType(Constants.BUSSINESS_TYPE_POSITIVE);
+            deliveryService.packageSend(SendBizSourceEnum.COLD_CHAIN_AUTO_SEND, sendM);
+        } catch (Exception e) {
+            result.setData(Boolean.FALSE);
+            result.error(e);
+        }
+        return result;
+    }
+
+    /**
+     * 自动发货参数校验
+     * @param vo
+     * @param result
+     * @return
+     */
+    private boolean checkParam(SendInspectionVO vo, InvokeResult result){
+        if (vo.getCreateUserCode() == null) {
+            result.parameterError("操作人不能为空！");
+            return false;
+        }
+        if (StringUtils.isBlank(vo.getSendCode())) {
+            result.parameterError("批次号不能为空！");
+            return false;
+        }
+        if (vo.getReceiveSiteCode() == null) {
+            result.parameterError("发货目的站点不能为空！");
+            return false;
+        }
+        if (vo.getCreateSiteCode() == null) {
+            result.parameterError("起始站点不能为空！");
+            return false;
+        }
+        if (StringUtils.isBlank(vo.getBoxCode())) {
+            result.parameterError("包裹号不能为空！");
+            return false;
+        }
+        if (vo.getOperateTime() == null) {
+            result.parameterError("操作时间不能为空！");
+            return false;
+        }
+        // 验证发货起始和目的站点是否存在
+        try {
+            BaseStaffSiteOrgDto cbDto = baseMajorManager.getBaseSiteBySiteId(vo.getCreateSiteCode());
+            BaseStaffSiteOrgDto rbDto = baseMajorManager.getBaseSiteBySiteId(vo.getReceiveSiteCode());
+            if (cbDto == null) {
+                result.parameterError(MessageFormat.format("起始站点编号[{0}]不合法，在基础资料未查到！", vo.getCreateSiteCode()));
+                return false;
+            }
+            if (rbDto == null) {
+                result.parameterError(MessageFormat.format("发货目的站点编号[{0}]不合法，在基础资料未查到！", vo.getReceiveSiteCode()));
+                return false;
+            }
+        } catch (Exception e) {
+            log.error("调分拣自动发货接口校验参数，检查站点信息，调用站点信息异常:{}", JsonHelper.toJson(vo), e);
+        }
+        // 校验包裹号是否符合规则
+        if (!WaybillUtil.isPackageCode(vo.getBoxCode())) {
+            result.parameterError(MessageFormat.format("包裹号[{0}]不合法,正则校验未通过！",vo.getBoxCode()));
+            return false;
+        }
+        return true;
+    }
 
     private InvokeResult<ColdCheckCommonResult> initCommonResult(){
         InvokeResult<ColdCheckCommonResult> result = new InvokeResult<>();
@@ -748,4 +826,302 @@ public class ColdChainExternalServiceImpl implements IColdChainService {
         return true;
     }
 
+    /**
+     * 卸车验货
+     * 一单单验货
+     * @param request
+     * @return
+     */
+    @Override
+    public InvokeResult<String> inspectionOfColdNew(ColdInspectionVo request) {
+        InvokeResult<String> result = new InvokeResult<>();
+        result.success();
+
+        String barCode = request.getBarCode();
+        //检查barCode规则
+        boolean isWaybill = !BusinessUtil.isBoxcode(barCode) && WaybillUtil.isWaybillCode(barCode);
+        boolean isPack = WaybillUtil.isPackageCode(barCode);
+        //本次仅支持运单、包裹号
+        if( !(isWaybill || isPack) ){
+            result.customMessage(InvokeResult.PARAMETER_ERROR_CODE,"请扫描正确的运单号|包裹号");
+            return result;
+        }
+
+        InspectionCheckVO vo = new InspectionCheckVO();
+        vo.setOperateSiteCode(request.getSiteCode());
+        vo.setBarCode(barCode);
+        //验货校验
+        InvokeResult<InspectionCheckResult> inspectionCheckResult = this.inspectionCheck(vo);
+
+        if (inspectionCheckResult == null) {
+            result.customMessage(InvokeResult.SERVICE_ERROR_CODE,"校验服务无响应");
+            return result;
+        }
+        String showText = StringUtils.EMPTY;
+        if(inspectionCheckResult.getCode() != InvokeResult.RESULT_SUCCESS_CODE && inspectionCheckResult.getData() != null ){
+            if(inspectionCheckResult.getData().isForced()) {
+                log.warn("inspectionOfColdNew 强拦截 {}", JsonHelper.toJson(request));
+                result.customMessage(inspectionCheckResult.getCode(),inspectionCheckResult.getMessage());
+                return result;
+            }else{
+                showText = result.getMessage();
+            }
+        }
+
+        //验货
+        InspectionVO inspectionVo = new InspectionVO();
+        List<String> barCodes = new ArrayList<>(1);
+        barCodes.add(barCode);
+        inspectionVo.setBarCodes(barCodes);
+        inspectionVo.setSiteCode(request.getSiteCode());
+        inspectionVo.setSiteName(request.getSiteName());
+        inspectionVo.setUserCode(request.getUserCode());
+        inspectionVo.setUserName(request.getUserName());
+        inspectionVo.setOperateTime(request.getOperateTime());
+        InvokeResult<Boolean> inspectionResult = this.inspection(inspectionVo);
+        if (inspectionResult == null) {
+            result.customMessage(InvokeResult.SERVICE_ERROR_CODE,"验货失败,请重试");
+            return result;
+        }
+        if(inspectionResult.getCode() != InvokeResult.RESULT_SUCCESS_CODE){
+            log.warn("inspectionOfColdNew 验货失败{}",JsonHelper.toJson(request));
+            result.customMessage(inspectionResult.getCode(),inspectionResult.getMessage());
+            return result;
+        }
+        String successHint = "验货成功";
+        if(StringUtils.isNotBlank(showText)){
+            result.setData(showText + "; " + successHint);
+        }else{
+            result.setData(successHint);
+        }
+        return result;
+    }
+
+
+    /**
+     * B冷链装车发货
+     * @param cRequest
+     * @return
+     */
+    @Override
+    public InvokeResult<ColdSendResult> sendOfColdBusinessNew(ColdSendVo cRequest) {
+        InvokeResult<ColdSendResult> result = new InvokeResult<>();
+        result.success();
+
+        String boxCode = cRequest.getBoxCode();
+        //检查barCode规则
+        boolean isWaybill = !BusinessUtil.isBoxcode(boxCode) && WaybillUtil.isWaybillCode(boxCode);
+        //本次仅支持运单
+        if( !isWaybill ){
+            result.customMessage(InvokeResult.PARAMETER_ERROR_CODE,"请扫描正确的运单号");
+            return result;
+        }
+
+        PackageSendRequest request = new PackageSendRequest();
+        request.setBizSource(SendBizSourceEnum.COLD_LOAD_CAR_SEND_NEW.getCode());
+        request.setIsForceSend(cRequest.isForceSend());
+        request.setReceiveSiteCode(cRequest.getReceiveSiteCode());
+        request.setBoxCode(boxCode);
+        request.setSendCode(cRequest.getSendCode());
+        request.setUserCode(cRequest.getUserCode());
+        request.setUserName(cRequest.getUserName());
+        request.setSiteCode(cRequest.getSiteCode());
+        request.setSiteName(cRequest.getSiteName());
+        request.setBusinessType(Constants.BUSSINESS_TYPE_POSITIVE);
+        request.setOperateTime(cRequest.getOperateTime());
+        com.jd.bluedragon.distribution.base.domain.InvokeResult<SendResult> invokeResult = this.newPackageSend(request,Constants.CONSTANT_NUMBER_ONE);
+
+        if(invokeResult.getCode() != com.jd.bluedragon.distribution.base.domain.InvokeResult.RESULT_SUCCESS_CODE ){
+            result.parameterError(invokeResult.getMessage());
+            return result;
+        }
+        SendResult sendResult = invokeResult.getData();
+        if(Objects.equals(sendResult.getKey(),SendResult.CODE_OK)){
+            //存储运输计划号
+            coldChainSendService.batchAdd(tranfer(cRequest), cRequest.getTransPlanCode());
+            result.setData(new ColdSendResult(ColdSendResultCodeNum.SUCCESS.getCode(),sendResult.getValue()) );
+            return result;
+        }
+
+        if(Objects.equals(sendResult.getKey(),SendResult.CODE_WARN)){
+            //存储运输计划号
+            coldChainSendService.batchAdd(tranfer(cRequest), cRequest.getTransPlanCode());
+            result.setData(new ColdSendResult(ColdSendResultCodeNum.PROMPT.getCode(),sendResult.getValue()) );
+            return result;
+        }
+
+        if(Objects.equals(sendResult.getKey(),SendResult.CODE_SENDED)){
+            result.setData(new ColdSendResult(ColdSendResultCodeNum.INTERCEPT.getCode(),sendResult.getValue()) );
+            return result;
+        }
+
+        if(Objects.equals(sendResult.getKey(),SendResult.CODE_CONFIRM)){
+            result.setData(new ColdSendResult(ColdSendResultCodeNum.CONFIRM.getCode(),sendResult.getValue()) );
+            return result;
+        }
+        result.setData(new ColdSendResult(ColdSendResultCodeNum.INTERCEPT.getCode(),sendResult.getValue()));
+        return result;
+    }
+
+    /**
+     * 冷链新发货
+     * @param request
+     * @param barCodeType 1：按运单发货；2：按包裹发货
+     * @return
+     */
+    public com.jd.bluedragon.distribution.base.domain.InvokeResult<SendResult> newPackageSend(PackageSendRequest request,int barCodeType) {
+        if (log.isInfoEnabled()) {
+            log.info(com.jd.bluedragon.distribution.api.utils.JsonHelper.toJson(request));
+        }
+        CallerInfo info = Profiler.registerInfo("DMSWEB.ColdChainExternalServiceImpl.newPackageSend", Constants.UMP_APP_NAME_DMSWEB,false, true);
+        SendM domain = this.toSendMDomain(request);
+        com.jd.bluedragon.distribution.base.domain.InvokeResult<SendResult> result = new com.jd.bluedragon.distribution.base.domain.InvokeResult<SendResult>();
+        try {
+
+            // 校验批次号
+            com.jd.bluedragon.distribution.base.domain.InvokeResult<Boolean> chkResult = sendCodeService.validateSendCodeEffective(request.getSendCode());
+            if (!chkResult.codeSuccess()) {
+                result.customMessage(chkResult.getCode(), chkResult.getMessage());
+                return result;
+            }
+
+            if (Constants.CONSTANT_NUMBER_ONE == barCodeType) {
+                // 按运单发货
+                domain.setBoxCode(request.getBoxCode());
+                result.setData(deliveryService.packageSendByWaybill(domain, request.getIsForceSend(), false));
+            } else {
+                //按包裹发货
+                SendBizSourceEnum bizSource = SendBizSourceEnum.getEnum(request.getBizSource());
+                // 一车一单发货
+                domain.setBoxCode(request.getBoxCode());
+                //不需要取消上次发货
+                result.setData(deliveryService.packageSend(bizSource, domain, request.getIsForceSend()));
+
+            }
+        } catch (Exception ex) {
+            Profiler.functionError(info);
+            result.error(ex);
+            log.error("ColdChainExternalServiceImpl.newPackageSend一车一单发货{}", com.jd.bluedragon.distribution.api.utils.JsonHelper.toJson(request), ex);
+        }finally {
+            Profiler.registerInfoEnd(info);
+        }
+        if (log.isInfoEnabled()) {
+            log.info(com.jd.bluedragon.distribution.api.utils.JsonHelper.toJson(result));
+        }
+        return result;
+    }
+    /**
+     * 请求拼装SendM发货对象
+     *
+     * @param request
+     * @return
+     */
+    private SendM toSendMDomain(PackageSendRequest request) {
+        SendM domain = new SendM();
+        domain.setReceiveSiteCode(request.getReceiveSiteCode());
+        domain.setSendCode(request.getSendCode());
+        domain.setCreateSiteCode(request.getSiteCode());
+
+        String turnoverBoxCode = request.getTurnoverBoxCode();
+        if (org.apache.commons.lang.StringUtils.isNotBlank(turnoverBoxCode) && turnoverBoxCode.length() > 30) {
+            domain.setTurnoverBoxCode(turnoverBoxCode.substring(0, 30));
+        } else {
+            domain.setTurnoverBoxCode(turnoverBoxCode);
+        }
+        domain.setCreateUser(request.getUserName());
+        domain.setCreateUserCode(request.getUserCode());
+        domain.setSendType(request.getBusinessType());
+        domain.setTransporttype(request.getTransporttype());
+
+        domain.setBizSource(request.getBizSource());
+
+        domain.setYn(1);
+        domain.setCreateTime(new Date(System.currentTimeMillis() + Constants.DELIVERY_DELAY_TIME));
+        domain.setOperateTime(new Date(System.currentTimeMillis() + Constants.DELIVERY_DELAY_TIME));
+        return domain;
+    }
+    /**
+     * 快运装车发货
+     * @param cRequest
+     * @return
+     */
+    @Override
+    public InvokeResult<ColdSendResult> sendOfColdKYNew(ColdSendVo cRequest) {
+        InvokeResult<ColdSendResult> result = new InvokeResult<>();
+        result.success();
+
+        String boxCode = cRequest.getBoxCode();
+        //检查barCode规则
+        boolean isWaybill = !BusinessUtil.isBoxcode(boxCode) && WaybillUtil.isWaybillCode(boxCode);
+        boolean isPack = WaybillUtil.isPackageCode(boxCode);
+
+        int barCodeType = Constants.CONSTANT_NUMBER_ONE;
+        //本次仅支持运单、包裹号
+        if(isWaybill){
+            barCodeType = Constants.CONSTANT_NUMBER_ONE;
+        } else if(isPack){
+            barCodeType = Constants.CONSTANT_NUMBER_TWO;
+        }else{
+            result.customMessage(InvokeResult.PARAMETER_ERROR_CODE,"请扫描正确的运单号|包裹号");
+            return result;
+        }
+
+        PackageSendRequest request = new PackageSendRequest();
+        request.setBizSource(SendBizSourceEnum.COLD_LOAD_CAR_KY_SEND_NEW.getCode());
+        request.setIsForceSend(cRequest.isForceSend());
+        request.setIsCancelLastSend(false);
+        request.setReceiveSiteCode(cRequest.getReceiveSiteCode());
+        request.setBoxCode(cRequest.getBoxCode());
+        request.setSendCode(cRequest.getSendCode());
+        request.setUserCode(cRequest.getUserCode());
+        request.setUserName(cRequest.getUserName());
+        request.setSiteCode(cRequest.getSiteCode());
+        request.setSiteName(cRequest.getSiteName());
+        request.setBusinessType(Constants.BUSSINESS_TYPE_POSITIVE);
+        request.setOperateTime(cRequest.getOperateTime());
+        com.jd.bluedragon.distribution.base.domain.InvokeResult<SendResult> invokeResult = this.newPackageSend(request,barCodeType);
+
+        if(invokeResult.getCode() != com.jd.bluedragon.distribution.base.domain.InvokeResult.RESULT_SUCCESS_CODE ){
+            result.parameterError(invokeResult.getMessage());
+            return result;
+        }
+        SendResult sendResult = invokeResult.getData();
+        if(Objects.equals(sendResult.getKey(),SendResult.CODE_OK)){
+            result.setData(new ColdSendResult(ColdSendResultCodeNum.SUCCESS.getCode(),sendResult.getValue()) );
+            return result;
+        }
+
+        if(Objects.equals(sendResult.getKey(),SendResult.CODE_WARN)){
+            result.setData(new ColdSendResult(ColdSendResultCodeNum.PROMPT.getCode(),sendResult.getValue()) );
+            return result;
+        }
+
+        if(Objects.equals(sendResult.getKey(),SendResult.CODE_SENDED)){
+            result.setData(new ColdSendResult(ColdSendResultCodeNum.INTERCEPT.getCode(),sendResult.getValue()) );
+            return result;
+        }
+
+        if(Objects.equals(sendResult.getKey(),SendResult.CODE_CONFIRM)){
+            result.setData(new ColdSendResult(ColdSendResultCodeNum.CONFIRM.getCode(),sendResult.getValue()) );
+            return result;
+        }
+        result.setData(new ColdSendResult(ColdSendResultCodeNum.INTERCEPT.getCode(),sendResult.getValue()));
+        return result;
+    }
+    private List<SendM> tranfer(ColdSendVo coldSendVo) {
+        SendM sendM = new SendM();
+        sendM.setBoxCode(coldSendVo.getBoxCode());
+        sendM.setCreateSiteCode(coldSendVo.getSiteCode());
+        sendM.setReceiveSiteCode(coldSendVo.getReceiveSiteCode());
+        sendM.setCreateUserCode(coldSendVo.getUserCode());
+        sendM.setSendType(coldSendVo.getBusinessType());
+        sendM.setCreateUser(coldSendVo.getUserName());
+        sendM.setSendCode(coldSendVo.getSendCode());
+        sendM.setCreateTime(new Date());
+        sendM.setOperateTime(new Date());
+        sendM.setYn(1);
+        List<SendM> list = new ArrayList<>(1);
+        list.add(sendM);
+        return list;
+    }
 }

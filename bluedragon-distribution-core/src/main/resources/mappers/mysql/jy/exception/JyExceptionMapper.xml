@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jd.bluedragon.distribution.jy.dao.exception.JyExceptionDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.jd.bluedragon.distribution.jy.exception.JyExceptionEntity" id="jyExceptionMap">
+        <result property="id" column="id"/>
+        <result property="bizId" column="biz_id"/>
+        <result property="barCode" column="bar_code"/>
+        <result property="packageCode" column="package_code"/>
+        <result property="siteCode" column="site_code"/>
+        <result property="siteName" column="site_name"/>
+        <result property="shelfErp" column="shelf_erp"/>
+        <result property="shelfNo" column="shelf_no"/>
+        <result property="shelfTime" column="shelf_time" />
+        <result property="createUserErp" column="create_user_erp"/>
+        <result property="createUserName" column="create_user_name"/>
+        <result property="updateUserErp" column="update_user_erp"/>
+        <result property="updateUserName" column="update_user_name"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="yn" column="yn"/>
+        <result property="ts" column="ts"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,
+        biz_id,
+        bar_code,
+        package_code,
+        site_code,
+        site_name,
+        shelf_erp,
+        shelf_no,
+        shelf_time,
+        create_user_erp,
+        create_user_name,
+        update_user_erp,
+        update_user_name,
+        create_time,
+        update_time,
+        yn,
+        ts
+    </sql>
+
+    <insert id="insert" parameterType="com.jd.bluedragon.distribution.jy.exception.JyExceptionEntity">
+        INSERT INTO jy_exception (
+                        id,
+                        biz_id,
+                        bar_code,
+                        package_code,
+                        site_code,
+                        site_name,
+                        shelf_erp,
+                        shelf_no,
+                        shelf_time,
+                        create_user_erp,
+                        create_user_name,
+                        update_user_erp,
+                        update_user_name,
+                        create_time,
+                        update_time,
+                        yn,
+                        ts
+                    ) VALUES (
+                            #{id},
+                            #{bizId},
+                            #{barCode},
+                            #{packageCode},
+                            #{siteCode},
+                            #{siteName},
+                            #{shelfErp},
+                            #{shelfNo},
+                            #{shelfTime},
+                            #{createUserErp},
+                            #{createUserName},
+                            #{updateUserErp},
+                            #{updateUserName},
+                            #{createTime},
+                            #{updateTime},
+                            1
+                    )
+    </insert>
+
+    <insert id="insertSelective" parameterType="com.jd.bluedragon.distribution.jy.exception.JyExceptionEntity">
+        INSERT INTO jy_exception (
+        <if test="id!=null">
+            id,
+        </if>
+        <if test="bizId!=null">
+            biz_id,
+        </if>
+        <if test="barCode!=null">
+            bar_code,
+        </if>
+        <if test="packageCode!=null">
+            package_code,
+        </if>
+        <if test="siteCode!=null">
+            site_code,
+        </if>
+        <if test="siteName!=null">
+            site_name,
+        </if>
+        <if test="shelfErp!=null">
+            shelf_erp,
+        </if>
+        <if test="shelfNo!=null">
+            shelf_no,
+        </if>
+        <if test="shelfTime!=null">
+            shelf_time,
+        </if>
+        <if test="createUserErp!=null">
+            create_user_erp,
+        </if>
+        <if test="createUserName!=null">
+            create_user_name,
+        </if>
+        <if test="updateUserErp!=null">
+            update_user_erp,
+        </if>
+        <if test="updateUserName!=null">
+            update_user_name,
+        </if>
+        <if test="createTime!=null">
+            create_time,
+        </if>
+        <if test="updateTime!=null">
+            update_time,
+        </if>
+        <if test="ts!=null">
+            ts,
+        </if>
+            yn)
+        VALUES (
+        <if test="id">
+            #{id},
+        </if>
+        <if test="bizId">
+            #{bizId},
+        </if>
+        <if test="barCode">
+            #{barCode},
+        </if>
+        <if test="packageCode">
+            #{packageCode},
+        </if>
+        <if test="siteCode">
+            #{siteCode},
+        </if>
+        <if test="siteName">
+            #{siteName},
+        </if>
+        <if test="shelfErp">
+            #{shelfErp},
+        </if>
+        <if test="shelfNo">
+            #{shelfNo},
+        </if>
+        <if test="shelfTime">
+            #{shelfTime},
+        </if>
+        <if test="createUserErp">
+            #{createUserErp},
+        </if>
+        <if test="createUserName">
+            #{createUserName},
+        </if>
+        <if test="updateUserErp">
+            #{updateUserErp},
+        </if>
+        <if test="updateUserName">
+            #{updateUserName},
+        </if>
+        <if test="createTime">
+            #{createTime},
+        </if>
+        <if test="updateTime">
+            #{updateTime},
+        </if>
+            1)
+    </insert>
+    <select id="queryByBarCodeAndSite" parameterType="JyExceptionEntity" resultMap="jyExceptionMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM jy_exception
+        WHERE
+        yn = 1
+        AND site_code = #{siteCode, jdbcType=BIGINT}
+        <if test="barCode != null">
+            AND bar_code = #{barCode, jdbcType=VARCHAR}
+        </if>
+        <if test="bizId != null">
+            AND biz_id = #{bizId, jdbcType=VARCHAR}
+        </if>
+        limit 1
+    </select>
+
+    <select id="queryByPackageCodeAndSite" parameterType="JyExceptionEntity" resultMap="jyExceptionMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM jy_exception
+        WHERE
+        yn = 1
+        AND site_code = #{siteCode, jdbcType=BIGINT}
+        <if test="packageCode != null">
+            AND package_code = #{packageCode, jdbcType=VARCHAR}
+        </if>
+    </select>
+    <update id="update" parameterType="JyExceptionEntity" >
+        UPDATE jy_exception
+        <set>
+            <if test="packageCode!=null">
+                package_code=#{packageCode,jdbcType=VARCHAR},
+            </if>
+            <if test="updateUserErp != null">
+                update_user_erp=#{updateUserErp,jdbcType=VARCHAR},
+            </if>
+            <if test="updateUserName != null">
+                update_user_name=#{updateUserName,jdbcType=INTEGER},
+            </if>
+            <if test="imageUrls != null">
+                image_urls=#{imageUrls},
+            </if>
+        </set>
+        WHERE id = #{id} AND site_code = #{siteCode, jdbcType=BIGINT}
+    </update>
+</mapper>

@@ -31,6 +31,7 @@
         <result property="updateTime" column="update_time"/>
         <result property="yn" column="yn"/>
         <result property="ts" column="ts"/>
+        <result property="taskName" column="task_name"/>
     </resultMap>
 
     <resultMap id="statusSumResultMap" type="com.jd.bluedragon.distribution.jy.dto.send.JyBizTaskSendCountDto">
@@ -42,7 +43,7 @@
         id
         , biz_id,biz_no, trans_work_code, start_site_id, vehicle_number, vehicle_status, manual_created_flag, abnormal_flag,
         bind_flag, trans_way, trans_way_name, vehicle_type, vehicle_type_name, line_type, line_type_name, last_plan_depart_time, last_seal_car_time,
-        create_user_erp, create_user_name, update_user_erp, update_user_name, create_time, update_time, yn, ts
+        create_user_erp, create_user_name, update_user_erp, update_user_name, create_time, update_time, yn, ts,task_name
     </sql>
 
     <insert id="insert" parameterType="JyBizTaskSendVehicleEntity">
@@ -126,7 +127,10 @@
             <if test="ts != null">
                 ts,
             </if>
-        </trim>
+            <if test="taskName != null">
+                task_name,
+            </if>
+            </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="id != null">
                 #{id,jdbcType=BIGINT},
@@ -205,6 +209,9 @@
             </if>
             <if test="ts != null">
                 #{ts,jdbcType=TIMESTAMP},
+            </if>
+            <if test="taskName != null">
+                #{taskName,jdbcType=VARCHAR},
             </if>
         </trim>
     </insert>
@@ -296,6 +303,9 @@
         <set>
             <if test="bizNo != null">
                 biz_no = #{bizNo,jdbcType=VARCHAR},
+            </if>
+            <if test="taskName != null">
+                task_name = #{taskName,jdbcType=VARCHAR},
             </if>
             <if test="transWorkCode != null">
                 trans_work_code = #{transWorkCode,jdbcType=VARCHAR},
@@ -609,8 +619,19 @@
         AND m.line_type in (1,2)
         AND d.yn = 1
         AND d.start_site_id = #{entity.startSiteId, jdbcType=BIGINT}
-        AND d.end_site_id = #{entity.endSiteId, jdbcType=BIGINT}
         AND d.excep_label =0
+        <if test="entity.endSiteId != null">
+            AND d.end_site_id = #{entity.endSiteId, jdbcType=BIGINT}
+        </if>
+        <if test="entity.transWorkItemCode != null and entity.transWorkItemCode !='' ">
+            AND d.trans_work_item_code = #{entity.transWorkItemCode}
+        </if>
+        <if test="entity.transWorkCodeList != null">
+            AND m.trans_work_code IN
+            <foreach collection="entity.transWorkCodeList" separator="," open="(" close=")" item="item">
+                #{item}
+            </foreach>
+        </if>
         <if test="entity.sendVehicleBizId != null">
             AND d.send_vehicle_biz_id = #{entity.sendVehicleBizId}
         </if>
@@ -663,15 +684,16 @@
         jy_biz_task_send_vehicle
         WHERE
         yn = 1
+        AND biz_id IN
+        <foreach collection="sendVehicleBizList" separator="," open="(" close=")" item="item">
+            #{item}
+        </foreach>
         AND start_site_id = #{entity.startSiteId}
+        AND manual_created_flag = #{entity.manualCreatedFlag}
         AND line_type IN
         <foreach collection="lineTypeList" separator="," open="(" close=")" item="item">
             #{item}
         </foreach>
-       AND biz_id IN
-       <foreach collection="sendVehicleBizList" separator="," open="(" close=")" item="item">
-           #{item}
-       </foreach>
        and create_time &gt;= #{entity.createTimeBegin}
     </select>
 </mapper>

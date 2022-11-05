@@ -38,7 +38,12 @@ public class ExpressBillExceptionReportQuery  implements Serializable {
     private Integer siteCode;
 
     /**
-     * 举报类型编码
+     * 一级举报类型编码
+     */
+    private Integer firstReportType;
+
+    /**
+     * 二级举报类型编码
      */
     private Integer  reportType;
 
@@ -60,6 +65,8 @@ public class ExpressBillExceptionReportQuery  implements Serializable {
      * 是否异步导出标识
      */
     private Integer isAsyncExport;
+
+    private Integer id;
 
     public Integer getYn() {
         return yn;
@@ -117,6 +124,14 @@ public class ExpressBillExceptionReportQuery  implements Serializable {
         this.siteCode = siteCode;
     }
 
+    public Integer getFirstReportType() {
+        return firstReportType;
+    }
+
+    public void setFirstReportType(Integer firstReportType) {
+        this.firstReportType = firstReportType;
+    }
+
     public Integer getReportType() {
         return reportType;
     }
@@ -155,6 +170,14 @@ public class ExpressBillExceptionReportQuery  implements Serializable {
 
     public void setIsAsyncExport(Integer isAsyncExport) {
         this.isAsyncExport = isAsyncExport;
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
     }
 }
     

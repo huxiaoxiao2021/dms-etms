@@ -14,6 +14,7 @@ import com.jd.bluedragon.distribution.rma.response.RmaHandoverPrint;
 import com.jd.bluedragon.distribution.rma.service.RmaHandOverDetailService;
 import com.jd.bluedragon.distribution.rma.service.RmaHandOverWaybillService;
 import com.jd.bluedragon.distribution.send.domain.SendDetailMessage;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.etms.waybill.domain.BaseEntity;
@@ -30,6 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
@@ -120,11 +122,32 @@ public class RmaHandOverWaybillServiceImpl implements RmaHandOverWaybillService 
             parameter.put("pageSize", pager.getPageSize());
             //查询符合条件的记录
             List<RmaHandoverWaybill> list = rmaHandOverWaybillDao.getListByParams(parameter);
+            // 微笑处理敏感数据
+            smileRecords(list);
             pager.setData(list);
         } else {
             pager.setData(Collections.EMPTY_LIST);
         }
         return pager;
+    }
+
+    /**
+     * 微笑处理敏感数据
+     *
+     * @param list
+     * @return
+     */
+    private void smileRecords(List<RmaHandoverWaybill> list) {
+        if(CollectionUtils.isEmpty(list)){
+           return;
+        }
+        for (RmaHandoverWaybill record : list) {
+            record.setSendUserName(BusinessUtil.getHideName(record.getSendUserName()));
+            record.setReceiver(BusinessUtil.getHideName(record.getReceiver()));
+            record.setSendUserMobile(BusinessUtil.getHidePhone(record.getSendUserMobile()));
+            record.setReceiverMobile(BusinessUtil.getHidePhone(record.getReceiverMobile()));
+            record.setReceiverAddress(BusinessUtil.getHideAddress(record.getReceiverAddress()));
+        }
     }
 
     @Override

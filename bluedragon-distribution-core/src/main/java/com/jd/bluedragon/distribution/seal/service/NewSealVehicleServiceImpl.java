@@ -8,12 +8,10 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
+import com.jd.bluedragon.common.dto.blockcar.enumeration.SealCarTypeEnum;
 import com.jd.bluedragon.common.dto.blockcar.request.SealCarPreRequest;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
-import com.jd.bluedragon.core.base.BaseMajorManager;
-import com.jd.bluedragon.core.base.BasicQueryWSManager;
-import com.jd.bluedragon.core.base.CarrierQueryWSManager;
-import com.jd.bluedragon.core.base.VosManager;
+import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.tms.TmsServiceManager;
 import com.jd.bluedragon.core.jsf.tms.TransportResource;
@@ -25,10 +23,18 @@ import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
 import com.jd.bluedragon.distribution.api.response.NewSealVehicleResponse;
 import com.jd.bluedragon.distribution.api.response.SealCodesResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
-import com.jd.bluedragon.distribution.base.domain.DmsBaseDict;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.busineCode.sendCode.service.SendCodeService;
 import com.jd.bluedragon.distribution.command.JdResult;
+import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendDetailStatusEnum;
+import com.jd.bluedragon.distribution.jy.send.JySendCodeEntity;
+import com.jd.bluedragon.distribution.jy.service.send.IJySendVehicleService;
+import com.jd.bluedragon.distribution.jy.service.send.JyVehicleSendRelationService;
+import com.jd.bluedragon.distribution.jy.service.send.SendVehicleTransactionManager;
+import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetailService;
+import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleService;
+import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
+import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
 import com.jd.bluedragon.distribution.material.service.SortingMaterialSendService;
 import com.jd.bluedragon.distribution.newseal.domain.SealCarResultDto;
@@ -50,6 +56,7 @@ import com.jd.bluedragon.external.crossbow.itms.domain.ItmsResponse;
 import com.jd.bluedragon.external.crossbow.itms.domain.ItmsSendCheckSendCodeDto;
 import com.jd.bluedragon.external.crossbow.itms.service.TibetBizService;
 import com.jd.bluedragon.utils.DateHelper;
+import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.bluedragon.utils.SerialRuleUtil;
 import com.jd.bluedragon.utils.StringHelper;
 import com.jd.bluedragon.utils.log.BusinessLogConstans;
@@ -63,6 +70,7 @@ import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.tms.basic.dto.BasicDictDto;
 import com.jd.tms.basic.dto.TransportResourceDto;
 import com.jd.tms.dtp.dto.TransAbnormalBillCreateDto;
+import com.jd.tms.jdi.dto.TransWorkItemDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections.CollectionUtils;
@@ -77,6 +85,9 @@ import org.springframework.stereotype.Service;
 
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+
+import static com.jd.bluedragon.distribution.base.domain.InvokeResult.SERVER_ERROR_CODE;
+import static com.jd.bluedragon.distribution.base.domain.InvokeResult.SERVER_ERROR_MESSAGE;
 
 @Service("newSealVehicleService")
 public class NewSealVehicleServiceImpl implements NewSealVehicleService {
@@ -150,6 +161,19 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 
     @Autowired
     private BasicQueryWSManager basicQueryWSManager;
+    @Autowired
+    JyVehicleSendRelationService jyVehicleSendRelationService;
+
+    @Autowired
+    JyBizTaskSendVehicleDetailService jyBizTaskSendVehicleDetailService;
+    @Autowired
+    JyBizTaskSendVehicleService jyBizTaskSendVehicleService;
+    @Autowired
+    private SendVehicleTransactionManager sendVehicleTransactionManager;
+    @Autowired
+    private IJySendVehicleService jySendVehicleService;
+    @Autowired
+    JdiQueryWSManager jdiQueryWSManager;
 
     private static final Integer UNSEAL_CAR_IN_RECIVE_AREA = 2;    //带解封的车辆在围栏里(1-是否在始发网点 2-是否在目的网点)
 
@@ -213,6 +237,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
                 sendBatchSendCodeStatusMsg(doSealCarDtos,null,BatchSendStatusEnum.USED);
                 log.info("封车成功，发送封车mq消息成功");
                 saveSealDataList.addAll(convert2SealVehicles(doSealCarDtos,SealVehicleExecute.SUCCESS,SealVehicleExecute.SUCCESS.getName()));
+                syncJySealStatus(doSealCarDtos);
             }else{
                 log.info("提交运输封车失败，返回：{}",JsonHelper.toJson(sealCarInfo));
                 msg = "["+sealCarInfo.getCode()+":"+sealCarInfo.getMessage()+"]";
@@ -259,7 +284,90 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
         return sealCarInfo;
 	}
 
-  /**
+    private void syncJySealStatusByTaskSimpleCode(List<SealCarDto> sealCarDtos) {
+        try {
+            if (ObjectHelper.isNotNull(sealCarDtos) && sealCarDtos.size()>0){
+                for (SealCarDto sealCarDto:sealCarDtos){
+                    //按任务
+                    if (SealCarTypeEnum.SEAL_BY_TASK.getType()==sealCarDto.getSealCarType() && ObjectHelper.isNotNull(sealCarDto.getItemSimpleCode())){
+                        com.jd.tms.jdi.dto.CommonDto<TransWorkItemDto> transWorkItemResp = jdiQueryWSManager.queryTransWorkItemBySimpleCode(sealCarDto.getItemSimpleCode());
+                        if (ObjectHelper.isNotNull(transWorkItemResp) && Constants.RESULT_SUCCESS == transWorkItemResp.getCode()) {
+                            TransWorkItemDto transWorkItemDto = transWorkItemResp.getData();
+                            if (ObjectHelper.isNotNull(transWorkItemDto) && ObjectHelper.isNotNull(transWorkItemDto.getTransWorkItemCode())){
+                                JyBizTaskSendVehicleDetailEntity condition =new JyBizTaskSendVehicleDetailEntity();
+                                condition.setTransWorkItemCode(transWorkItemDto.getTransWorkItemCode());
+                                JyBizTaskSendVehicleDetailEntity detailEntity =jyBizTaskSendVehicleDetailService.findByTransWorkItemCode(condition);
+                                if (ObjectHelper.isNotNull(detailEntity)){
+                                    checkAndUpdateTaskStatus(detailEntity.getSendVehicleBizId(),detailEntity.getBizId(),sealCarDto);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.error("syncJySealStatusByTaskSimpleCode error",e);
+        }
+    }
+
+    private void syncJySealStatus(List<SealCarDto> sealCarDtos) {
+        try {
+            if (uccPropertyConfiguration.getSyncJySealStatusSwitch() && ObjectHelper.isNotNull(sealCarDtos) && sealCarDtos.size()>0){
+                List<String> sendCodes =new ArrayList();
+                for (SealCarDto sealCarDto:sealCarDtos){
+                    sendCodes.addAll(sealCarDto.getBatchCodes());
+                }
+                if (sendCodes.size()>uccPropertyConfiguration.getSealStatusBatchSizeLimit()){
+                    return;
+                }
+                List<JySendCodeEntity> sendCodeEntityList =jyVehicleSendRelationService.querySendDetailBizIdBySendCode(sendCodes);
+                if (ObjectHelper.isNotNull(sendCodeEntityList)){
+                    for (JySendCodeEntity jySendCodeEntity:sendCodeEntityList){
+                        checkAndUpdateTaskStatus(jySendCodeEntity.getSendVehicleBizId(),jySendCodeEntity.getSendDetailBizId(),sealCarDtos.get(0));
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.error("syncJySealStatus error",e);
+        }
+    }
+
+
+    private void checkAndUpdateTaskStatus(String sendVehicleBizId,String sendDetailBizId,SealCarDto sealCarDto) {
+        JyBizTaskSendVehicleEntity taskSend = jyBizTaskSendVehicleService.findByBizId(sendVehicleBizId);
+        JyBizTaskSendVehicleDetailEntity taskSendDetail = jyBizTaskSendVehicleDetailService.findByBizId(sendDetailBizId);
+        if (ObjectHelper.isNotNull(taskSendDetail) && JyBizTaskSendDetailStatusEnum.SEALED.getCode().equals(taskSendDetail.getVehicleStatus())){
+            return;
+        }
+        if (ObjectHelper.isNotNull(taskSend) && taskSend.manualCreatedTask()){
+            deleteManualCreatedTask(taskSend,taskSendDetail,sealCarDto);
+        }
+    }
+
+    private void deleteManualCreatedTask(JyBizTaskSendVehicleEntity taskSend, JyBizTaskSendVehicleDetailEntity taskSendDetail,SealCarDto sealCarDto) {
+        //删除主任务
+        if (log.isInfoEnabled()){
+            log.info("使用老封车功能封车成功，删除自建任务{}",taskSendDetail.getBizId());
+        }
+        JyBizTaskSendVehicleEntity entity = new JyBizTaskSendVehicleEntity();
+        entity.setBizId(taskSend.getBizId());
+        entity.setYn(Constants.YN_NO);
+        Date now = new Date();
+        entity.setUpdateTime(now);
+        entity.setUpdateUserErp(sealCarDto.getSealUserCode());
+        entity.setUpdateUserName(sealCarDto.getSealUserName());
+        jyBizTaskSendVehicleService.updateSendVehicleTask(entity);
+        //删除子任务
+        JyBizTaskSendVehicleDetailEntity detailEntity = new JyBizTaskSendVehicleDetailEntity();
+        detailEntity.setSendVehicleBizId(taskSendDetail.getBizId());
+        detailEntity.setYn(Constants.YN_NO);
+        detailEntity.setUpdateTime(now);
+        detailEntity.setUpdateUserErp(sealCarDto.getSealUserCode());
+        detailEntity.setUpdateUserName(sealCarDto.getSealUserName());
+        jyBizTaskSendVehicleDetailService.updateDateilTaskByVehicleBizId(detailEntity);
+    }
+
+    /**
    * 拆解封车入参对象列表，把列表分为空批次封车信息、要操作封车的信息
    *
    * @param sourceSealDtos
@@ -465,6 +573,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
             log.debug("doSealCarWithVehicleJob传摆封车成功！，批次数量：{}" , successSealCarList.size());
             addRedisCache(successSealCarList);
             sendBatchSendCodeStatusMsg(successSealCarList,null,BatchSendStatusEnum.USED);
+            syncJySealStatus(successSealCarList);
         }
 
         //记录封车操作数据
@@ -555,6 +664,7 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
                 saveNXSealData(doSealCarDtos);
                 sendBatchSendCodeStatusMsg(doSealCarDtos,null,BatchSendStatusEnum.USED);
                 saveSealDataList.addAll(convert2SealVehicles(doSealCarDtos,SealVehicleExecute.SUCCESS,SealVehicleExecute.SUCCESS.getName()));
+                syncJySealStatus(doSealCarDtos);
             }else{
                 msg += "["+sealCarInfo.getCode()+":"+sealCarInfo.getMessage()+"]";
                 log.error("调用运输接口失败sealCarInfo[{}]msg[{}]",JsonHelper.toJson(paramList),msg);
@@ -671,12 +781,47 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 
       sealVehicleResponse.setCode(JdResponse.CODE_OK);
       sealVehicleResponse.setMessage(NewSealVehicleResponse.MESSAGE_CANCEL_SEAL_SUCCESS);
+      recoverTaskStatusIfNeed(batchList);
     } else {
       log.warn("取消封车JSF接口返回为空.参数：{}" , JsonHelper.toJson(TMS_param));
       sealVehicleResponse.setCode(NewSealVehicleResponse.CODE_EXCUTE_ERROR);
       sealVehicleResponse.setMessage(cancelSealInfo != null ? cancelSealInfo.getMessage():"运输取消封车返回空");
     }
     return sealVehicleResponse;
+    }
+
+    private void recoverTaskStatusIfNeed(List<String> sendCodeList) {
+        try {
+            if (uccPropertyConfiguration.getSyncJySealStatusSwitch() && ObjectHelper.isNotNull(sendCodeList) && sendCodeList.size()>0
+            && sendCodeList.size()<=uccPropertyConfiguration.getSealStatusBatchSizeLimit()){
+                List<JySendCodeEntity> sendCodeEntityList =jyVehicleSendRelationService.querySendDetailBizIdBySendCode(sendCodeList);
+                if (ObjectHelper.isNotNull(sendCodeEntityList)){
+                    for (JySendCodeEntity jySendCodeEntity:sendCodeEntityList){
+                        recoverTaskStatusIfManualCreated(jySendCodeEntity.getSendVehicleBizId(),jySendCodeEntity.getSendDetailBizId());
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log.error("recoverTaskStatusIfNeed error",e);
+        }
+    }
+
+    private void recoverTaskStatusIfManualCreated(String sendVehicleBizId, String sendDetailBizId) {
+        JyBizTaskSendVehicleEntity taskSend = jyBizTaskSendVehicleService.findByBizId(sendVehicleBizId);
+        JyBizTaskSendVehicleDetailEntity taskSendDetail = jyBizTaskSendVehicleDetailService.findByBizId(sendDetailBizId);
+        //删除主任务
+        JyBizTaskSendVehicleEntity entity = new JyBizTaskSendVehicleEntity();
+        entity.setBizId(taskSend.getBizId());
+        entity.setYn(Constants.YN_YES);
+        Date now = new Date();
+        entity.setUpdateTime(now);
+        jyBizTaskSendVehicleService.updateSendVehicleTask(entity);
+        //删除子任务
+        JyBizTaskSendVehicleDetailEntity detailEntity = new JyBizTaskSendVehicleDetailEntity();
+        detailEntity.setSendVehicleBizId(taskSendDetail.getBizId());
+        detailEntity.setYn(Constants.YN_YES);
+        detailEntity.setUpdateTime(now);
+        jyBizTaskSendVehicleDetailService.updateDateilTaskByVehicleBizId(detailEntity);
     }
 
     /**
@@ -790,7 +935,64 @@ public class NewSealVehicleServiceImpl implements NewSealVehicleService {
 		return isSealed;
 	}
 
-	@Override
+    @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.NewSealVehicleServiceImpl.checkBatchCode", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public InvokeResult<Void> checkBatchCode(String batchCode) {
+        InvokeResult<Void> result = new InvokeResult<>(SERVER_ERROR_CODE, SERVER_ERROR_MESSAGE);
+        Integer receiveSiteCode = SerialRuleUtil.getReceiveSiteCodeFromSendCode(batchCode);//获取批次号目的地
+        //1.批次号是否符合编码规范，不合规范直接返回参数错误
+        if (receiveSiteCode == null) {
+            result.setCode(JdResponse.CODE_PARAM_ERROR);
+            result.setMessage(NewSealVehicleResponse.TIPS_BATCHCODE_PARAM_ERROR);
+            return result;
+        }
+
+        // 1.1 校验批次号是否可用
+        InvokeResult<Boolean> sendChkResult = sendCodeService.validateSendCodeEffective(batchCode);
+        if (!sendChkResult.codeSuccess()) {
+            result.setCode(sendChkResult.getCode());
+            result.setMessage(sendChkResult.getMessage());
+            return result;
+        }
+
+        //2.是否已经封车
+        CommonDto<Boolean> isSealed = isBatchCodeHasSealed(batchCode);
+        if (isSealed == null) {
+            result.setCode(JdResponse.CODE_SERVICE_ERROR);
+            result.setMessage("服务异常，运输系统查询批次号状态结果为空！");
+            log.warn("服务异常，运输系统查询批次号状态结果为空, 批次号:{}", batchCode);
+            return result;
+        }
+
+        if (Constants.RESULT_SUCCESS == isSealed.getCode()) {//服务正常
+            if (Boolean.TRUE.equals(isSealed.getData())) {//已被封车
+                result.setCode(NewSealVehicleResponse.CODE_BATCH_CODE_SEALED);
+                result.setMessage(NewSealVehicleResponse.MESSAGE_BATCH_CODE_SEALED);
+            } else {//未被封车
+                result.setCode(JdResponse.CODE_OK);
+                result.setMessage(JdResponse.MESSAGE_OK);
+            }
+        } else if (Constants.RESULT_WARN == isSealed.getCode()) { //接口返回警告信息，给前台提示
+            result.setCode(JdResponse.CODE_SERVICE_ERROR);
+            result.setMessage(isSealed.getMessage());
+        } else {//服务出错或者出异常，打日志
+            result.setCode(JdResponse.CODE_SERVICE_ERROR);
+            result.setMessage("服务异常，运输系统查询批次号状态失败！");
+            log.warn("服务异常，运输系统查询批次号状态失败, 批次号:{}", batchCode);
+            log.warn("服务异常，运输系统查询批次号状态失败，失败原因:{}", isSealed.getMessage());
+        }
+
+        //3.批次号是否存在（最后查询批次号是否存在，不存在时给前台提示）
+        // 批次号没有运单发货记录，也没有物资发货记录，判定为不存在
+        if (JdResponse.CODE_OK.equals(result.getCode()) && !checkBatchCodeIsNewSealVehicle(batchCode)) {
+            log.info("批次号不包含运单发货记录，也不包含物资发货记录!, batchCode:[{}]", batchCode);
+            result.setCode(NewSealVehicleResponse.CODE_EXCUTE_ERROR);
+            result.setMessage(NewSealVehicleResponse.TIPS_BATCHCODE_PARAM_NOTEXSITE_ERROR);
+        }
+        return result;
+    }
+
+    @Override
 	@JProfiler(jKey = "Bluedragon_dms_center.web.method.carrierQuery.getTransportResourceByTransCode",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	public com.jd.tms.basic.dto.CommonDto<TransportResourceDto> getTransportResourceByTransCode(String batchCode) {
 		com.jd.tms.basic.dto.CommonDto<TransportResourceDto> dto = carrierQueryWSManager.getTransportResourceByTransCode(batchCode);

@@ -8,6 +8,7 @@ import com.jd.bluedragon.common.dto.exceptionReport.expressBill.reponse.FirstSit
 import com.jd.bluedragon.common.dto.exceptionReport.expressBill.reponse.ReportTypeVo;
 import com.jd.bluedragon.common.dto.exceptionReport.expressBill.request.ExpressBillExceptionReportRequest;
 import com.jd.bluedragon.distribution.exceptionReport.billException.domain.ExpressBillExceptionReport;
+import com.jd.bluedragon.distribution.exceptionReport.billException.request.ExpressBillExceptionReportQuery;
 
 import java.util.List;
 import java.util.Map;
@@ -71,5 +72,13 @@ public interface ExpressBillExceptionReportService {
      * @return
      */
     boolean updateByBusiCode(ExpressBillExceptionReport query);
+
+    /**
+     * 根据ID查询包裹图片
+     *
+     * @param id
+     * @return
+     */
+    List<String> getPicUrlsById(Integer id);
 }
     

@@ -16,6 +16,7 @@ import com.jd.bluedragon.distribution.jy.dto.send.VehicleSendRelationDto;
 import com.jd.bluedragon.distribution.jy.enums.CancelSendTypeEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.SendTaskExcepLabelEnum;
+import com.jd.bluedragon.distribution.jy.enums.TransferLogTypeEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.manager.JyTransportManager;
 import com.jd.bluedragon.distribution.jy.send.JySendCodeEntity;
@@ -39,7 +40,6 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.enums.SendStatusEnum;
 import com.jd.bluedragon.utils.*;
 import com.jd.coo.sa.sequence.JimdbSequenceGen;
-import com.jd.eclp.exception.api.constant.ExceptionHandlerEnum;
 import com.jd.jim.cli.Cluster;
 import com.jd.ql.basic.dto.BaseSiteInfoDto;
 import com.jd.tms.basic.dto.BasicVehicleTypeDto;
@@ -52,6 +52,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
@@ -168,13 +169,17 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
         CreateVehicleTaskResp createVehicleTaskResp = new CreateVehicleTaskResp();
         createVehicleTaskResp.setBizId(jyBizTaskSendVehicleEntity.getBizId());
         createVehicleTaskResp.setBizNo(jyBizTaskSendVehicleEntity.getBizNo());
+        createVehicleTaskResp.setTaskName("自建" + jyBizTaskSendVehicleEntity.getBizNo());
+        createVehicleTaskResp.setCreateUserErp(createVehicleTaskReq.getUser().getUserErp());
         return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, createVehicleTaskResp);
     }
 
     private JyBizTaskSendVehicleEntity initJyBizTaskSendVehicle(CreateVehicleTaskReq createVehicleTaskReq) {
         JyBizTaskSendVehicleEntity entity = new JyBizTaskSendVehicleEntity();
         entity.setBizId(genMainTaskBizId());
-        entity.setBizNo(genSendVehicleTaskBizNo(createVehicleTaskReq));
+        String bizNo = genSendVehicleTaskBizNo(createVehicleTaskReq);
+        entity.setBizNo(bizNo);
+        entity.setTaskName("自建" + bizNo);
         entity.setStartSiteId(Long.valueOf(createVehicleTaskReq.getCurrentOperate().getSiteCode()));
         entity.setManualCreatedFlag(1);
         entity.setVehicleType(createVehicleTaskReq.getVehicleType());
@@ -208,12 +213,12 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
     }
 
     @Override
-    @Transactional
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyNoTaskSendServiceImpl.deleteVehicleTask", mState = {JProEnum.TP, JProEnum.FunctionError})
+    @Transactional(value = "tm_jy_core", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public InvokeResult deleteVehicleTask(DeleteVehicleTaskReq deleteVehicleTaskReq) {
-        log.info("删除自建任务,deleteVehicleTaskReq:{}",JsonHelper.toJson(deleteVehicleTaskReq));
-        JyBizTaskSendVehicleEntity task =jyBizTaskSendVehicleService.findByBizId(deleteVehicleTaskReq.getBizId());
-        if (task.hasBeenBindedOrDeleted()){
+        log.info("删除自建任务,deleteVehicleTaskReq:{}", JsonHelper.toJson(deleteVehicleTaskReq));
+        JyBizTaskSendVehicleEntity task = jyBizTaskSendVehicleService.findByBizId(deleteVehicleTaskReq.getBizId());
+        if (task.hasBeenBindedOrDeleted()) {
             return new InvokeResult(NO_RE_DETELE_TASK_CODE, NO_RE_DETELE_TASK_MESSAGE);
         }
         //删除主任务
@@ -261,6 +266,38 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
         }
         return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE);
     }
+    @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyNoTaskSendServiceImpl.checkBeforeDeleteVehicleTask", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public InvokeResult<DeleteVehicleTaskCheckResponse> checkBeforeDeleteVehicleTask(DeleteVehicleTaskReq deleteVehicleTaskReq) {
+        log.info("删除自建任务前校验,deleteVehicleTaskReq:{}",JsonHelper.toJson(deleteVehicleTaskReq));
+        JyBizTaskSendVehicleEntity task =jyBizTaskSendVehicleService.findByBizId(deleteVehicleTaskReq.getBizId());
+        if (task.hasBeenBindedOrDeleted()){
+            return new InvokeResult<DeleteVehicleTaskCheckResponse>(NO_RE_DETELE_TASK_CODE, NO_RE_DETELE_TASK_MESSAGE);
+        }
+        InvokeResult<DeleteVehicleTaskCheckResponse> result = new InvokeResult<DeleteVehicleTaskCheckResponse>(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE);
+        DeleteVehicleTaskCheckResponse resultData = new DeleteVehicleTaskCheckResponse();
+        resultData.setNeedCheckPassword(Boolean.FALSE);
+        result.setData(resultData);
+        //查询任务下的批次
+        List<String> sendCodeList = jyVehicleSendRelationService.querySendCodesByVehicleBizId(deleteVehicleTaskReq.getBizId());
+        if (ObjectHelper.isNotNull(sendCodeList) && sendCodeList.size() > 0) {
+            for (String sendCode : sendCodeList) {
+                SendM sendM = new SendM();
+                sendM.setSendCode(sendCode);
+                sendM.setCreateSiteCode(deleteVehicleTaskReq.getCurrentOperate().getSiteCode());
+                sendM.setUpdateTime(new Date());
+                sendM.setUpdaterUser(deleteVehicleTaskReq.getUser().getUserName());
+                sendM.setUpdateUserCode(deleteVehicleTaskReq.getUser().getUserCode());
+                //如果存在批次未封车，需要输入密码才能删除
+                if (!newsealVehicleService.newCheckSendCodeSealed(sendCode, new StringBuffer())) {
+                	resultData.setNeedCheckPassword(Boolean.TRUE);
+                	return result;
+                }
+
+            }
+        }
+        return result;
+    }    
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyNoTaskSendServiceImpl.listVehicleTask", mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -271,38 +308,45 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyNoTaskSendServiceImpl.listVehicleTaskSupportTransfer", mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<VehicleTaskResp> listVehicleTaskSupportTransfer(TransferVehicleTaskReq transferVehicleTaskReq) {
+        if (ObjectHelper.isNotNull(transferVehicleTaskReq.getBarCode())){
+            return jySendVehicleService.fetchSendTaskForTransferV2(transferVehicleTaskReq);
+        }
         return jySendVehicleService.fetchSendTaskForTransfer(transferVehicleTaskReq);
     }
 
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyNoTaskSendServiceImpl.bindVehicleDetailTask", mState = {JProEnum.TP, JProEnum.FunctionError})
+    @Transactional(value = "tm_jy_core", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public InvokeResult bindVehicleDetailTask(BindVehicleDetailTaskReq bindVehicleDetailTaskReq) {
-        log.info("自建任务绑定运输任务,bindVehicleDetailTaskReq:{}",JsonHelper.toJson(bindVehicleDetailTaskReq));
-        JyBizTaskSendVehicleEntity task =jyBizTaskSendVehicleService.findByBizId(bindVehicleDetailTaskReq.getFromSendVehicleBizId());
-        if (task.hasBeenBindedOrDeleted()){
+        log.info("自建任务绑定运输任务,bindVehicleDetailTaskReq:{}", JsonHelper.toJson(bindVehicleDetailTaskReq));
+        JyBizTaskSendVehicleEntity task = jyBizTaskSendVehicleService.findByBizId(bindVehicleDetailTaskReq.getFromSendVehicleBizId());
+        if (task.hasBeenBindedOrDeleted()) {
             return new InvokeResult(NO_RE_BIND_TASK_CODE, NO_RE_BIND_TASK_MESSAGE);
         }
         //更新任务与发货批次的关联关系
         List<String> sendCodeList = jyVehicleSendRelationService.querySendCodesByVehicleBizId(bindVehicleDetailTaskReq.getFromSendVehicleBizId());
-        if (ObjectHelper.isNotNull(sendCodeList) && sendCodeList.size()>0){
-            JyBizTaskSendVehicleDetailEntity queryFromDetailTaskParams =new JyBizTaskSendVehicleDetailEntity();
+        if (ObjectHelper.isNotNull(sendCodeList) && sendCodeList.size() > 0) {
+            JyBizTaskSendVehicleDetailEntity queryFromDetailTaskParams = new JyBizTaskSendVehicleDetailEntity();
             queryFromDetailTaskParams.setSendVehicleBizId(bindVehicleDetailTaskReq.getFromSendVehicleBizId());
             queryFromDetailTaskParams.setStartSiteId(Long.valueOf(bindVehicleDetailTaskReq.getCurrentOperate().getSiteCode()));
-            JyBizTaskSendVehicleDetailEntity fromSvdTask =jyBizTaskSendVehicleDetailService.findSendDetail(queryFromDetailTaskParams);
-            if (!ObjectHelper.isNotNull(fromSvdTask)){
+            JyBizTaskSendVehicleDetailEntity fromSvdTask = jyBizTaskSendVehicleDetailService.findSendDetail(queryFromDetailTaskParams);
+            if (!ObjectHelper.isNotNull(fromSvdTask)) {
                 return new InvokeResult(DETAIL_TASK_NO_FOUND_BY_MAIN_TASK_CODE, DETAIL_TASK_NO_FOUND_BY_MAIN_TASK_MESSAGE);
             }
+            if (jySendVehicleService.checkIfSealed(fromSvdTask)) {
+                return new InvokeResult(FORBID_BIND_FOR_SEALED_DETAIL_CODE, FORBID_BIND_FOR_SEALED_DETAIL_MESSAGE);
+            }
 
-            JyBizTaskSendVehicleDetailEntity queryToDetailTaskParams =new JyBizTaskSendVehicleDetailEntity();
+            JyBizTaskSendVehicleDetailEntity queryToDetailTaskParams = new JyBizTaskSendVehicleDetailEntity();
             queryToDetailTaskParams.setSendVehicleBizId(bindVehicleDetailTaskReq.getToSendVehicleBizId());
             queryToDetailTaskParams.setStartSiteId(Long.valueOf(bindVehicleDetailTaskReq.getCurrentOperate().getSiteCode()));
             queryToDetailTaskParams.setEndSiteId(fromSvdTask.getEndSiteId());
-            JyBizTaskSendVehicleDetailEntity toSvdTask =jyBizTaskSendVehicleDetailService.findSendDetail(queryToDetailTaskParams);
-            if (!ObjectHelper.isNotNull(toSvdTask)){
-                return new InvokeResult(DETAIL_TASK_NO_FOUND_BY_SITE_ID_CODE, DETAIL_TASK_NO_FOUND_BY_SITE_ID_MESSAGE);
+            List<JyBizTaskSendVehicleDetailEntity> taskSendDetails = jyBizTaskSendVehicleDetailService.findEffectiveSendVehicleDetail(queryToDetailTaskParams);
+            JyBizTaskSendVehicleDetailEntity toSvdTask =jySendVehicleService.pickUpOneUnSealedDetail(taskSendDetails,fromSvdTask.getEndSiteId());
+            if (!ObjectHelper.isNotNull(toSvdTask)) {
+                return new InvokeResult(FORBID_BIND_TO_SEALED_DETAIL_CODE, FORBID_BIND_TO_SEALED_DETAIL_MESSAGE);
             }
-
             VehicleSendRelationDto dto = BeanUtils.copy(bindVehicleDetailTaskReq, VehicleSendRelationDto.class);
             dto.setFromSendVehicleDetailBizId(fromSvdTask.getBizId());
             dto.setToSendVehicleDetailBizId(toSvdTask.getBizId());
@@ -312,6 +356,7 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
             dto.setCreateSiteId(Long.valueOf(bindVehicleDetailTaskReq.getCurrentOperate().getSiteCode()));
             dto.setSameWayFlag(true);
             dto.setBindFlag(true);
+            dto.setSource(TransferLogTypeEnum.SAME_WAY_BIND.getCode());
             jyVehicleSendRelationService.updateVehicleSendRelation(dto);
             jySendTransferLogService.saveTransferLog(dto);
             jySendService.updateTransferProperBySendCode(dto);
@@ -355,11 +400,28 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyNoTaskSendServiceImpl.transferSendTask", mState = {JProEnum.TP, JProEnum.FunctionError})
+    @Transactional(value = "tm_jy_core", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public InvokeResult transferSendTask(TransferSendTaskReq transferSendTaskReq) {
-        log.info("任务迁移,transferSendTaskReq:{}",JsonHelper.toJson(transferSendTaskReq));
+        log.info("任务迁移,transferSendTaskReq:{}", JsonHelper.toJson(transferSendTaskReq));
         //查询要迁移的批次信息-sendCodes
-        List<String> sendCodeList = jyVehicleSendRelationService.querySendCodesByVehicleDetailBizId(transferSendTaskReq.getFromSendVehicleDetailBizId());
-        if (ObjectHelper.isNotNull(sendCodeList) && sendCodeList.size()>0){
+        JyBizTaskSendVehicleDetailEntity fromSvd = jyBizTaskSendVehicleDetailService.findByBizId(transferSendTaskReq.getFromSendVehicleDetailBizId());
+        if (jySendVehicleService.checkIfSealed(fromSvd)) {
+            return new InvokeResult(FORBID_TRANS_FRROM_SEALED_DETAIL_CODE, FORBID_TRANS_FRROM_SEALED_DETAIL_MESSAGE);
+        }
+        JyBizTaskSendVehicleDetailEntity toSvd = jyBizTaskSendVehicleDetailService.findByBizId(transferSendTaskReq.getToSendVehicleDetailBizId());
+        if (jySendVehicleService.checkIfSealed(toSvd)) {
+            return new InvokeResult(FORBID_TRANS_TO_SEALED_DETAIL_CODE, FORBID_TRANS_TO_SEALED_DETAIL_MESSAGE);
+        }
+        List<String> sendCodeList = (!transferSendTaskReq.getTotalTransFlag() && transferSendTaskReq.getSendCodeList() != null) ?
+                transferSendTaskReq.getSendCodeList() : jyVehicleSendRelationService.querySendCodesByVehicleDetailBizId(transferSendTaskReq.getFromSendVehicleDetailBizId());
+        if (ObjectHelper.isNotNull(sendCodeList) && sendCodeList.size() > 0) {
+            sendCodeList = filterEmptySendCode(transferSendTaskReq.getCurrentOperate().getSiteCode(), sendCodeList);
+            if (sendCodeList.size() <= 0) {
+                return new InvokeResult(FORBID_TRANS_FOR_EMPTY_BATCH_CODE, FORBID_TRANS_FOR_EMPTY_BATCH_MESSAGE);
+            }
+            if (log.isInfoEnabled()){
+                log.info("迁出任务{}待迁移批次：{}",transferSendTaskReq.getFromSendVehicleDetailBizId(),sendCodeList);
+            }
             VehicleSendRelationDto dto = BeanUtils.copy(transferSendTaskReq, VehicleSendRelationDto.class);
             dto.setSendCodes(sendCodeList);
             dto.setUpdateUserErp(transferSendTaskReq.getUser().getUserErp());
@@ -367,8 +429,9 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
             dto.setUpdateUserCode(transferSendTaskReq.getUser().getUserCode());
             dto.setCreateSiteId(Long.valueOf(transferSendTaskReq.getCurrentOperate().getSiteCode()));
 
-            if (transferSendTaskReq.getSameWayFlag()) {
+            if (ObjectHelper.isTrue(transferSendTaskReq.getSameWayFlag())) {
                 //同流向--直接变更绑定关系
+                dto.setSource(TransferLogTypeEnum.SAME_WAY_TRANSFER.getCode());
                 jyVehicleSendRelationService.updateVehicleSendRelation(dto);
                 jySendTransferLogService.saveTransferLog(dto);
                 jySendService.updateTransferProperBySendCode(dto);
@@ -377,8 +440,7 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
                 //删除原绑定关系
                 jyVehicleSendRelationService.deleteVehicleSendRelation(dto);
                 //增加新流向绑定关系
-                JyBizTaskSendVehicleDetailEntity sendVehicleDetail = jyBizTaskSendVehicleDetailService.findByBizId(transferSendTaskReq.getToSendVehicleDetailBizId());
-                String newSendCode = generateSendCode(sendVehicleDetail, transferSendTaskReq.getUser().getUserErp());
+                String newSendCode = generateSendCode(toSvd, transferSendTaskReq.getUser().getUserErp());
                 JySendCodeEntity jySendCodeEntity = initJySendCodeEntity(transferSendTaskReq, newSendCode);
                 jyVehicleSendRelationService.add(jySendCodeEntity);
                 dto.setNewSendCode(newSendCode);
@@ -410,15 +472,26 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
         return new InvokeResult(NO_SEND_DATA_UNDER_TASK_CODE, NO_SEND_DATA_UNDER_TASK_MESSAGE);
     }
 
+    private List<String> filterEmptySendCode(int siteCode, List<String> sendCodeList) {
+        List<String> notEmptyList = new ArrayList<>();
+        for (String sendCode : sendCodeList) {
+            List<SendM> sendMList = sendMService.selectBySiteAndSendCode(siteCode, sendCode);
+            if (ObjectHelper.isNotNull(sendMList) && sendMList.size() > 0) {
+                notEmptyList.add(sendCode);
+            }
+        }
+        return notEmptyList;
+    }
+
     private void doCancelForLabelCanceldTask(String fromSendVehicleDetailBizId) {
-        JyBizTaskSendVehicleDetailEntity detailEntity =jyBizTaskSendVehicleDetailService.findByBizId(fromSendVehicleDetailBizId);
+        JyBizTaskSendVehicleDetailEntity detailEntity = jyBizTaskSendVehicleDetailService.findByBizId(fromSendVehicleDetailBizId);
         if (ObjectHelper.isNotNull(detailEntity)
                 && ObjectHelper.isNotNull(detailEntity.getExcepLabel())
-                && SendTaskExcepLabelEnum.CANCEL.getCode().equals(detailEntity.getExcepLabel())){
+                && SendTaskExcepLabelEnum.CANCEL.getCode().equals(detailEntity.getExcepLabel())) {
             try {
                 jyBizTaskSendVehicleDetailService.cancelDetailTaskAndMainTask(detailEntity);
-            } catch (Exception e){
-                log.error("对打标cancel的流向任务执行取消异常",e);
+            } catch (Exception e) {
+                log.error("对打标cancel的流向任务执行取消异常", e);
             }
         }
     }
@@ -428,6 +501,7 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
         jySendCodeEntity.setSendCode(sendCode);
         jySendCodeEntity.setSendVehicleBizId(transferSendTaskReq.getToSendVehicleBizId());
         jySendCodeEntity.setSendDetailBizId(transferSendTaskReq.getToSendVehicleDetailBizId());
+        jySendCodeEntity.setSource(TransferLogTypeEnum.NOT_SAME_WAY_TRANSFER_NEW_BATCH.getCode());
         Date now = new Date();
         jySendCodeEntity.setCreateTime(now);
         jySendCodeEntity.setUpdateTime(now);
@@ -440,7 +514,7 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
         Map<BusinessCodeAttributeKey.SendCodeAttributeKeyEnum, String> attributeKeyEnumObjectMap = new HashMap<>();
         attributeKeyEnumObjectMap.put(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.from_site_code, String.valueOf(sendVehicleDetail.getStartSiteId()));
         attributeKeyEnumObjectMap.put(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.to_site_code, String.valueOf(sendVehicleDetail.getEndSiteId()));
-        attributeKeyEnumObjectMap.put(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.is_fresh, "0");//TODO 这个从哪获取
+        //attributeKeyEnumObjectMap.put(BusinessCodeAttributeKey.SendCodeAttributeKeyEnum.is_fresh, "false");
         return sendCodeService.createSendCode(attributeKeyEnumObjectMap, JY_APP, createUser);
     }
 
@@ -502,8 +576,8 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
             cancelSendTaskResp.setCanclePackageCount(packageCodes.size());
 
             //查询一下sendCode信息
-            SendM sendMDto =sendMService.selectSendByBoardCode(request.getCurrentOperate().getSiteCode(),sendM.getBoxCode(),1);
-            if (sendMDto==null){
+            SendM sendMDto = sendMService.selectSendByBoardCode(request.getCurrentOperate().getSiteCode(), sendM.getBoxCode(), 1);
+            if (sendMDto == null) {
                 log.info("按板取消发货==========没有找到按板的sendM(发货)记录");
                 return new InvokeResult(NO_SEND_DATA_UNDER_BOARD_CODE, NO_SEND_DATA_UNDER_BOARD_MESSAGE);
             }
@@ -515,14 +589,13 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
             if (cancelSendTaskResp.getCanclePackageCount() == null) {
                 cancelSendTaskResp.setCanclePackageCount(sendM.getCancelPackageCount());
             }
-            String sendCode = getSendCodeByScanCode(request.getCode(),request.getCurrentOperate().getSiteCode());
+            String sendCode = getSendCodeByScanCode(request.getCode(), request.getCurrentOperate().getSiteCode());
             if (BusinessUtil.isSendCode(sendCode)) {
                 BaseSiteInfoDto baseSiteInfoDto = baseMajorManager.getBaseSiteInfoBySiteId(BusinessUtil.getReceiveSiteCodeFromSendCode(sendCode));
                 if (ObjectHelper.isNotNull(baseSiteInfoDto) && ObjectHelper.isNotNull(baseSiteInfoDto.getSiteName())) {
                     cancelSendTaskResp.setEndSiteName(baseSiteInfoDto.getSiteName());
                 }
-            }
-            else {
+            } else {
                 log.info("jy取消发货-根据扫描code获取sendCode异常！");
             }
             return new InvokeResult(tDResponse.getCode(), tDResponse.getMessage(), cancelSendTaskResp);
@@ -530,31 +603,28 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
         return new InvokeResult(tDResponse.getCode(), tDResponse.getMessage());
     }
 
-    private String getSendCodeByScanCode(String code,int createSiteCode) {
+    private String getSendCodeByScanCode(String code, int createSiteCode) {
         /**
          * 包裹 运单 查sendD  箱号或者板号 查sendM
          */
-        if (WaybillUtil.isPackageCode(code)){
-            List<SendDetail> sendDetailList=sendDetailService.findByWaybillCodeOrPackageCode(createSiteCode,null,code);
-            if (ObjectHelper.isNotNull(sendDetailList) && sendDetailList.size()>0){
+        if (WaybillUtil.isPackageCode(code)) {
+            List<SendDetail> sendDetailList = sendDetailService.findByWaybillCodeOrPackageCode(createSiteCode, null, code);
+            if (ObjectHelper.isNotNull(sendDetailList) && sendDetailList.size() > 0) {
                 return sendDetailList.get(0).getSendCode();
             }
-        }
-        else if (WaybillUtil.isWaybillCode(code)){
-            List<SendDetail> sendDetailList =sendDetailService.findByWaybillCodeOrPackageCode(createSiteCode,code,null);
-            if (ObjectHelper.isNotNull(sendDetailList) && sendDetailList.size()>0){
+        } else if (WaybillUtil.isWaybillCode(code)) {
+            List<SendDetail> sendDetailList = sendDetailService.findByWaybillCodeOrPackageCode(createSiteCode, code, null);
+            if (ObjectHelper.isNotNull(sendDetailList) && sendDetailList.size() > 0) {
                 return sendDetailList.get(0).getSendCode();
             }
-        }
-        else if (BusinessUtil.isBoxcode(code)){
-            List<SendM> sendMList =sendMService.findDeliveryRecord(createSiteCode,code);
-            if (ObjectHelper.isNotNull(sendMList) && sendMList.size()>0){
+        } else if (BusinessUtil.isBoxcode(code)) {
+            List<SendM> sendMList = sendMService.findDeliveryRecord(createSiteCode, code);
+            if (ObjectHelper.isNotNull(sendMList) && sendMList.size() > 0) {
                 return sendMList.get(0).getSendCode();
             }
-        }
-        else if (BusinessUtil.isBoardCode(code)){
-            SendM sendM =sendMService.selectSendByBoardCode(createSiteCode,code, SendStatusEnum.HAS_BEEN_SENDED.getCode());
-            if (ObjectHelper.isNotNull(sendM)){
+        } else if (BusinessUtil.isBoardCode(code)) {
+            SendM sendM = sendMService.selectSendByBoardCode(createSiteCode, code, SendStatusEnum.HAS_BEEN_SENDED.getCode());
+            if (ObjectHelper.isNotNull(sendM)) {
                 return sendM.getSendCode();
             }
         }

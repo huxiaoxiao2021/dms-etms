@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.tms;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.carTask.request.CarTaskQueryRequest;
 import com.jd.bluedragon.common.dto.carTask.request.CarTaskUpdateDto;
+import com.jd.bluedragon.common.dto.carTask.request.FindEndNodeRequest;
 import com.jd.bluedragon.common.dto.carTask.response.CarTaskEndNodeResponse;
 import com.jd.bluedragon.common.dto.carTask.response.CarTaskResponse;
 
@@ -31,6 +32,15 @@ public interface TmsCarTaskService {
      * @return
      */
     JdCResponse updateCarTaskInfo(CarTaskUpdateDto updateDto);
+
+
+    /**
+     * 获取目的地编码
+     * @param opeSiteCode 当前操作场地ID
+     * @param barCode  内容 必须为包裹号、运单号或者目的地ID中的一种
+     * @return
+     */
+    String findEndNodeCode(Integer opeSiteCode,String barCode);
 
 
 }

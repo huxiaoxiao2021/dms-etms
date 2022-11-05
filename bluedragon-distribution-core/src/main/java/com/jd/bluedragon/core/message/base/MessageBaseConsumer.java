@@ -1,5 +1,6 @@
 package com.jd.bluedragon.core.message.base;
 
+
 import com.jd.jmq.common.message.Message;
 import com.jd.jspliter.jmq.consumer.EnvMessageListener;
 import org.slf4j.Logger;

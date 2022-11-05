@@ -5,6 +5,7 @@ import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.blockcar.request.*;
 import com.jd.bluedragon.common.dto.blockcar.response.PreSealVehicleMeasureDto;
 import com.jd.bluedragon.common.dto.blockcar.response.SealCarTaskInfoDto;
+import com.jd.bluedragon.common.dto.blockcar.response.SealVehicleResponseData;
 import com.jd.bluedragon.common.dto.blockcar.response.TransportInfoDto;
 import com.jd.bluedragon.common.dto.seal.request.CancelSealRequest;
 import com.jd.bluedragon.distribution.api.domain.TransAbnormalTypeDto;
@@ -34,7 +35,7 @@ public interface NewSealVehicleGatewayService {
 
     JdCResponse checkTranCodeAndBatchCode(String transportCode, String batchCode, Integer sealCarType);
 
-    JdCResponse newCheckTranCodeAndBatchCode(SealCarPreRequest sealCarPreRequest);
+    JdCResponse<SealVehicleResponseData>  newCheckTranCodeAndBatchCode(SealCarPreRequest sealCarPreRequest);
 
     JdCResponse sealCar(SealCarRequest sealCarRequest);
 

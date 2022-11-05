@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.api.response;
 
+import com.jd.bluedragon.distribution.api.domain.BusinessConfigInfo;
 import com.jd.bluedragon.distribution.api.domain.DmsClientConfigInfo;
 
 import java.io.Serializable;
@@ -46,6 +47,11 @@ public class DmsClientHeartbeatResponse implements Serializable {
 	
 	 /** 客户端配置信息 */
 	private DmsClientConfigInfo dmsClientConfigInfo;
+
+	/**
+	 * 业务配置信息
+	 */
+	private BusinessConfigInfo businessConfigInfo;
 
 	/**
 	 * @return the loginStatus
@@ -172,5 +178,12 @@ public class DmsClientHeartbeatResponse implements Serializable {
 	public void setDmsClientConfigInfo(DmsClientConfigInfo dmsClientConfigInfo) {
 		this.dmsClientConfigInfo = dmsClientConfigInfo;
 	}
-	
+
+	public BusinessConfigInfo getBusinessConfigInfo() {
+		return businessConfigInfo;
+	}
+
+	public void setBusinessConfigInfo(BusinessConfigInfo businessConfigInfo) {
+		this.businessConfigInfo = businessConfigInfo;
+	}
 }

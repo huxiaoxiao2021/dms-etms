@@ -11,6 +11,8 @@
         <result property="siteName" column="site_name"/>
         <result property="firstSiteCode" column="first_site_code"/>
         <result property="firstSiteName" column="first_site_name"/>
+        <result property="firstReportType" column="first_report_type"/>
+        <result property="firstReportTypeName" column="first_report_type_name"/>
         <result property="reportTypeName" column="report_type_name"/>
         <result property="reportType" column="report_type"/>
         <result property="reportUserErp" column="report_user_erp"/>
@@ -75,10 +77,22 @@
     </if>
     </select>
 
+    <select id="getPicUrlsById" parameterType="java.lang.Integer" resultType="java.lang.String">
+        select
+            report_img_urls
+        from
+            express_bill_exception_report
+        where
+            yn = 1
+        and id = #{id}
+    </select>
+
     <!--分页查询（解决深度分页问题）-->
     <select id="newQueryList" parameterType="com.jd.bluedragon.distribution.exceptionReport.billException.request.ExpressBillExceptionReportQuery" resultMap="RM_ExpressBillExceptionReport">
         select
-            e1.id, e1.package_code, e1.org_code, e1.org_name, e1.site_code, e1.site_name, e1.first_site_code, e1.first_site_name, e1.report_type_name, e1.report_type, e1.report_user_erp, e1.report_time, e1.report_img_urls,
+            e1.id, e1.package_code, e1.org_code, e1.org_name, e1.site_code, e1.site_name, e1.first_site_code,
+            e1.first_site_name, e1.first_report_type, e1.first_report_type_name, e1.report_type_name, e1.report_type,
+            e1.report_user_erp, e1.report_time, e1.report_img_urls,
             e1.trader_code, e1.reported_user_id, e1.reported_user_erp, e1.reported_user_name, e1.line_type, e1.create_time, e1.update_time, e1.yn, e1.ts, e1.remark, e1.order_id,
             e1.trader_name, e1.trader_org_code, e1.trader_org_name, e1.sale_staff_erp, e1.order_status, e1.rejected_reason
         from
@@ -126,6 +140,12 @@
             </if>
             <if test="firstSiteName !=null and firstSiteName !=''" >
             first_site_name,
+            </if>
+            <if test="firstReportType != null">
+                first_report_type,
+            </if>
+            <if test="firstReportTypeName != null and firstReportTypeName != ''">
+                first_report_type_name,
             </if>
             <if test="reportTypeName != null and reportTypeName != ''">
             report_type_name,
@@ -197,6 +217,12 @@
             </if>
             <if test="firstSiteName != null and firstSiteName !=''">
                 #{firstSiteName,jdbcType=VARCHAR},
+            </if>
+            <if test="firstReportType != null">
+                #{firstReportType,jdbcType=INTEGER},
+            </if>
+            <if test="firstReportTypeName != null and firstReportTypeName != ''">
+                #{firstReportTypeName,jdbcType=VARCHAR},
             </if>
             <if test="reportTypeName != null and reportTypeName != ''">
                 #{reportTypeName,jdbcType=VARCHAR},
@@ -284,9 +310,16 @@
         <if test="siteCode != null">
             AND site_code = #{siteCode,jdbcType=INTEGER}
         </if>
-        <if test="reportType != null">
-            AND report_type = #{reportType,jdbcType=INTEGER}
-        </if>
+        <choose>
+            <when test="reportType != null">
+                AND report_type = #{reportType,jdbcType=INTEGER}
+            </when>
+            <otherwise>
+                <if test="firstReportType != null">
+                    AND first_report_type = #{firstReportType,jdbcType=INTEGER}
+                </if>
+            </otherwise>
+        </choose>
         <if test="queryStartTime != null">
             AND report_time >= #{queryStartTime,jdbcType=TIMESTAMP}
         </if>

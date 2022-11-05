@@ -38,8 +38,6 @@ public class BarcodeServiceImpl implements BarcodeService {
 
     @Override
     public List<DmsBarCode> query(DmsBarCode barCode) {
-
-        List<DmsBarCode> result = Lists.newArrayList();
         /**
          *  前台输入例如
          *  6905321911667
@@ -49,8 +47,15 @@ public class BarcodeServiceImpl implements BarcodeService {
          */
         String[] barcodes = barCode.getBarcode().replace(BARCODE_SPLITER_EXPORT,BARCODE_SPLITER_QUERY).split(BARCODE_SPLITER_QUERY);
 
-        if (barcodes.length > 0) {
-            for (String barcode : barcodes) {
+        return query(barcodes);
+    }
+
+    @Override
+    public List<DmsBarCode> query(String[] barCodes) {
+        List<DmsBarCode> result = Lists.newArrayList();
+
+        if (barCodes.length > 0) {
+            for (String barcode : barCodes) {
                 if (StringHelper.isEmpty(barcode)){
                     continue;
                 }

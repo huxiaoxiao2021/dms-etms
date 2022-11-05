@@ -3,10 +3,13 @@ package com.jd.bluedragon.distribution.jy.service.send;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.*;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.*;
+import com.jd.bluedragon.common.dto.send.request.SendBatchReq;
 import com.jd.bluedragon.common.dto.send.request.TransferVehicleTaskReq;
 import com.jd.bluedragon.common.dto.send.request.VehicleTaskReq;
+import com.jd.bluedragon.common.dto.send.response.SendBatchResp;
 import com.jd.bluedragon.common.dto.send.response.VehicleTaskResp;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 
 import java.util.List;
 
@@ -38,6 +41,8 @@ public interface IJySendVehicleService {
      * @return
      */
     InvokeResult<VehicleTaskResp> fetchSendTaskForTransfer(TransferVehicleTaskReq vehicleTaskReq);
+
+    InvokeResult<VehicleTaskResp> fetchSendTaskForTransferV2(TransferVehicleTaskReq vehicleTaskReq);
 
     /**
      * 发货扫描
@@ -114,4 +119,36 @@ public interface IJySendVehicleService {
     InvokeResult<ToSealDestAgg> selectSealDest(SelectSealDestRequest request);
 
     InvokeResult checkMainLineSendTask(CheckSendCodeRequest request);
+
+    /**
+     * 校验任务明细是否已经封车：按照明细的原始批次进行判断
+     * @param detail
+     * @return
+     */
+    boolean checkIfSealed(JyBizTaskSendVehicleDetailEntity detail);
+
+    /**
+     * 校验任务明细是否已经封车：按照明细的原始批次进行判断
+     * @param detail
+     * @return
+     */
+    boolean checkIfSealedByAllSendCode(JyBizTaskSendVehicleDetailEntity detail);
+
+    /**
+     * 查询发货任务详情
+     * @param request 请求参数
+     * @return 返回结果
+     * @author fanggang7
+     * @time 2022-09-22 16:47:38 周四
+     */
+    InvokeResult<SendTaskInfo> sendTaskDetail(SendVehicleInfoRequest request);
+
+    JyBizTaskSendVehicleDetailEntity pickUpOneUnSealedDetail(List<JyBizTaskSendVehicleDetailEntity> taskSendDetails, Long sendDestId);
+
+    /**
+     * 查询子任务下的批次信息
+     * @param request
+     * @return
+     */
+    InvokeResult<SendBatchResp> listSendBatchByTaskDetail(SendBatchReq request);
 }
