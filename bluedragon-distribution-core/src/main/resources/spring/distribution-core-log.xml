@@ -8,17 +8,17 @@
 
     <bean id="systemLogEngine"
           class="com.jd.bluedragon.distribution.log.impl.LogEngineImpl">
-        <property name="logWriter" ref="jdqLogWriter"/>
+       <!-- <property name="logWriter" ref="jdqLogWriter"/>-->
     </bean>
 
 
-    <bean id="jdqLogWriter" destroy-method="close"
+   <!-- <bean id="jdqLogWriter" destroy-method="close"
           class="com.jd.bluedragon.distribution.log.impl.JDQLogWriter">
         <constructor-arg index="0" value="${businesslog.kafka.clientid}"/>
         <constructor-arg index="1" value="${businesslog.kafka.brokerlist}"/>
         <constructor-arg index="2" value="${businesslog.kafka.groupid}"/>
         <property name="topic" value="${businesslog.kafka.topic}"/>
-    </bean>
+    </bean>-->
 
 
 

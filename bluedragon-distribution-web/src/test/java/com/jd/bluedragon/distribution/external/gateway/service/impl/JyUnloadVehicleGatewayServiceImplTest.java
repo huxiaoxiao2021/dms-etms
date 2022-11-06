@@ -6,6 +6,7 @@ import com.jd.bluedragon.common.dto.operation.workbench.unload.request.UnloadSca
 import com.jd.bluedragon.common.dto.operation.workbench.unload.request.UnloadVehicleTaskRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.unload.response.UnloadVehicleTaskResponse;
 import com.jd.bluedragon.external.gateway.service.JyUnloadVehicleGatewayService;
+import com.jd.bluedragon.external.gateway.service.MiniStoreGatewayService;
 import com.jd.bluedragon.utils.JsonHelper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,8 +23,14 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = "classpath:distribution-web-context.xml")
 public class JyUnloadVehicleGatewayServiceImplTest {
-
     @Autowired
+    MiniStoreGatewayService miniStoreGatewayService;
+    @Test
+    public void fetchUnloadTaskTest() {
+        System.out.println(1111111);
+    }
+
+    /*@Autowired
     private JyUnloadVehicleGatewayService unloadVehicleGatewayService;
 
     @Test
@@ -133,5 +140,5 @@ public class JyUnloadVehicleGatewayServiceImplTest {
 
         unloadVehicleGatewayService.unloadPreviewDashboard(JsonHelper.fromJson(json, UnloadCommonRequest.class));
 
-    }
+    }*/
 }

@@ -8,9 +8,9 @@
     http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd">
 
  	<aop:aspectj-autoproxy/>
- 
+
 	<bean class="org.springframework.context.annotation.CommonAnnotationBeanPostProcessor"/>
-	
+
 	<import resource="classpath:spring/distribution-core-datasource-jddl-${profiles.env}.xml" />
 	<import resource="classpath:spring/distribution-core-datasource-task-config.xml" />
 	<import resource="classpath:spring/distribution-core-datasource-undiv.xml" />
@@ -33,7 +33,7 @@
     <!--<import resource="classpath:spring/distribution-core-asynBuffer-producer.xml"/>-->
 
 	<import resource="classpath:spring/distribution-core-jss.xml"/>
-	<import resource="classpath:spring/spring-ucc.xml" />
+	<import resource="classpath:spring/spring-ucc-light.xml" />
 	<import resource="classpath:spring/distribution-core-sms.xml" />
 	<import resource="classpath:spring/distribution-core-handler.xml" />
 	<import resource="classpath:spring/distribution-core-sequence-gen.xml" />
