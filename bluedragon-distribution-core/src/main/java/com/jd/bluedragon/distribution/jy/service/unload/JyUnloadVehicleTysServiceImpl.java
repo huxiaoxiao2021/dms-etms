@@ -147,6 +147,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         UnloadVehicleTaskRespDto respDto = new UnloadVehicleTaskRespDto();
         initCountToResp(respDto, unloadCountDtos);
         //查询卸车任务列表
+        PageHelper.startPage(unloadVehicleTaskReqDto.getPageNo(), unloadVehicleTaskReqDto.getPageSize());
         JyBizTaskUnloadVehicleEntity unloadTaskQueryParams = assembleQueryTaskCondition(unloadVehicleTaskReqDto);
         List<UnloadVehicleTaskDto> unloadVehicleTaskDtoList = jyBizTaskUnloadVehicleService.listUnloadVehicleTask(unloadTaskQueryParams);
         respDto.setUnloadVehicleTaskDtoList(unloadVehicleTaskDtoList);
@@ -743,11 +744,11 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         // 通用校验
         checkScan(scanPackageDto, unloadVehicleEntity);
 //        // 校验跨场地支援权限
-//        if (!unloadVehicleEntity.getEndSiteId().equals((long) scanPackageDto.getCurrentOperate().getSiteCode())) {
-//            log.warn("支援人员无需操作:bizId={},erp={}", scanPackageDto.getBizId(), scanPackageDto.getUser().getUserErp());
-//            invokeResult.customMessage(RESULT_INTERCEPT_CODE, "支援人员无需操作该任务，待任务完成后该任务会自动清除");
-//            return invokeResult;
-//        }
+        if (!unloadVehicleEntity.getEndSiteId().equals((long) scanPackageDto.getCurrentOperate().getSiteCode())) {
+            log.warn("任务流向与request流向不一致:bizId={},erp={}", scanPackageDto.getBizId(), scanPackageDto.getUser().getUserErp());
+            invokeResult.customMessage(RESULT_INTERCEPT_CODE, "任务流向与request流向不一致");
+            return invokeResult;
+        }
         ScanPackageRespDto scanPackageRespDto = convertToScanResult(scanPackageDto);
         invokeResult.setData(scanPackageRespDto);
         // 按件扫描
