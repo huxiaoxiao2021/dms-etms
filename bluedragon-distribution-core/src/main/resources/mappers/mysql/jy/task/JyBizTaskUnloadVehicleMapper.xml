@@ -418,10 +418,6 @@
             order by unload_finish_time desc
         </if>
 
-        <if test="offset !=null and pageSize != null">
-            limit #{offset,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
-        </if>
-
     </select>
 
 

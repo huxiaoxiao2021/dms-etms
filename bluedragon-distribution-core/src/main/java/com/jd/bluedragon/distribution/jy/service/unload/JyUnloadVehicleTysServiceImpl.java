@@ -186,10 +186,6 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         condition.setEndSiteId(Long.valueOf(unloadVehicleTaskReqDto.getCurrentOperate().getSiteCode()));
         condition.setLineType(unloadVehicleTaskReqDto.getLineType());
         condition.setFuzzyVehicleNumber(unloadVehicleTaskReqDto.getVehicleNumber());
-
-        int offset = (unloadVehicleTaskReqDto.getPageNo() - 1) * unloadVehicleTaskReqDto.getPageNo();
-        condition.setOffset(offset);
-        condition.setPageSize(unloadVehicleTaskReqDto.getPageSize());
         return condition;
     }
 
