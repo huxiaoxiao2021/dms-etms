@@ -187,6 +187,10 @@ public class JyBizTaskUnloadVehicleEntity implements Serializable {
      */
     private Integer taskType;
 
+    private Integer pageSize;
+
+    private Integer offset;
+
     public Long setId(Long id) {
         return this.id = id;
     }
@@ -522,5 +526,21 @@ public class JyBizTaskUnloadVehicleEntity implements Serializable {
 
     public void setRailwayPfNo(String railwayPfNo) {
         this.railwayPfNo = railwayPfNo;
+    }
+
+    public Integer getPageSize() {
+        return pageSize;
+    }
+
+    public void setPageSize(Integer pageSize) {
+        this.pageSize = pageSize;
+    }
+
+    public Integer getOffset() {
+        return offset;
+    }
+
+    public void setOffset(Integer offset) {
+        this.offset = offset;
     }
 }
