@@ -668,7 +668,7 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
 
         StatisticsDto statisticsDto = new StatisticsDto();
         Integer processPercent = (packageStatistics.getTotalSealPackageCount() == null || packageStatistics.getTotalSealPackageCount() == 0 ) ? 0
-                : (packageStatistics.getTotalScannedPackageCount() / packageStatistics.getTotalSealPackageCount());
+                : (int)(packageStatistics.getTotalScannedPackageCount() * 100.0 / packageStatistics.getTotalSealPackageCount());
         statisticsDto.setProcessPercent(processPercent);
 //        statisticsDto.setProcessPercent((packageStatistics.getTotalScannedPackageCount() / packageStatistics.getTotalSealPackageCount()));
         statisticsDto.setShouldScanCount(packageStatistics.getShouldScanCount());
@@ -681,8 +681,11 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
     }
 
     private ScanStatisticsDto dtoConvert(JyUnloadAggsEntity entity, DimensionQueryDto dto) {
+        if(logger.isInfoEnabled()) {
+            logger.info("JyBizTaskUnloadVehicleServiceImpl.dtoConvert 统计数据--req:entity={}", JsonUtils.toJSONString(entity));
+        }
         ScanStatisticsDto scanStatisticsDto = new ScanStatisticsDto();
-        Integer processPercent = (entity.getTotalSealPackageCount() == null || entity.getTotalSealPackageCount() == 0) ? 0 : (entity.getTotalScannedPackageCount() / entity.getTotalSealPackageCount());
+        Integer processPercent = (entity.getTotalSealPackageCount() == null || entity.getTotalSealPackageCount() == 0) ? 0 : (int)(entity.getTotalScannedPackageCount() * 100.0 / entity.getTotalSealPackageCount());
         scanStatisticsDto.setProcessPercent(processPercent);
         if (UnloadStatisticsQueryTypeEnum.PACKAGE.getCode().equals(dto.getType())) {
             scanStatisticsDto.setShouldScanCount(entity.getShouldScanCount());
@@ -708,6 +711,9 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
             scanStatisticsDto.setInterceptActualScanCount(entity.getTotalScannedInterceptWaybillCount());
             scanStatisticsDto.setExtraScanCountCurrSite(entity.getTotalMoreScanLocalWaybillCount());
             scanStatisticsDto.setExtraScanCountOutCurrSite(entity.getTotalMoreScanOutWaybillCount());
+        }
+        if(logger.isInfoEnabled()) {
+            logger.info("JyBizTaskUnloadVehicleServiceImpl.dtoConvert 统计数据--res:scanStatisticsDto={}", JsonUtils.toJSONString(scanStatisticsDto));
         }
         return scanStatisticsDto;
     }

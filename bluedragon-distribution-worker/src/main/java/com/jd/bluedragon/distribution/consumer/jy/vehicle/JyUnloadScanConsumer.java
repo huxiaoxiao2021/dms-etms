@@ -31,6 +31,7 @@ import com.jd.bluedragon.utils.StringHelper;
 import com.jd.jim.cli.Cluster;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.tp.common.utils.Objects;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.proxy.Profiler;
@@ -124,10 +125,10 @@ public class JyUnloadScanConsumer extends MessageBaseConsumer {
         // 首次扫描分配卸车任务，变更任务状态
         startAndDistributeUnloadTask(unloadScanDto);
 
-        Long id = jyBizTaskUnloadVehicleDao.findIdByBizId(unloadScanDto.getBizId());
-        if(id != null) {
+        JyBizTaskUnloadVehicleEntity taskEntity = jyBizTaskUnloadVehicleDao.findByBizId(unloadScanDto.getBizId());
+        if(taskEntity.getId() != null  && Objects.isNull(taskEntity.getUnloadStartTime())) {
             JyBizTaskUnloadVehicleEntity entity = new JyBizTaskUnloadVehicleEntity();
-            entity.setId(id);
+            entity.setId(taskEntity.getId());
             entity.setUnloadStartTime(unloadScanDto.getOperateTime());
             entity.setUpdateTime(new Date());
             jyBizTaskUnloadVehicleDao.updateOfBusinessInfoById(entity);
