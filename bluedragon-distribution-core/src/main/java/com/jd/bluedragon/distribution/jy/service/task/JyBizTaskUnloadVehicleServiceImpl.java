@@ -317,7 +317,7 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
             }
             entity.setFuzzyVehicleNumber(fvn);
         }
-        if (entity.getTaskType() != null) {
+        if (entity.getTaskType() == null) {
             entity.setTaskType(getTaskType(entity.getEndSiteId()));
         }
 
