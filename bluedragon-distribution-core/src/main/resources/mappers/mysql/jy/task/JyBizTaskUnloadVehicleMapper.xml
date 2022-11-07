@@ -386,6 +386,9 @@
         <if test="entity.lineType!=null">
            and line_type =#{entity.lineType}
         </if>
+        <if test="entity.taskType!=null">
+            and task_type =#{entity.taskType}
+        </if>
         <choose>
             <when test="entity.startSiteId != null and entity.fuzzyVehicleNumber != null">
                 AND (start_site_id = #{entity.startSiteId} OR fuzzy_vehicle_number = #{entity.fuzzyVehicleNumber})

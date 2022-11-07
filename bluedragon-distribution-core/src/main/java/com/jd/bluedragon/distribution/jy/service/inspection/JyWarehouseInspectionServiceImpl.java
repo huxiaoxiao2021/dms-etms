@@ -31,10 +31,7 @@ import com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadDao;
 import com.jd.bluedragon.distribution.jy.dto.unload.UnloadDetailCache;
 import com.jd.bluedragon.distribution.jy.dto.unload.UnloadScanDto;
 import com.jd.bluedragon.distribution.jy.dto.unload.UnloadTaskCompleteDto;
-import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadOrderTypeEnum;
-import com.jd.bluedragon.distribution.jy.enums.JyBizTaskUnloadStatusEnum;
-import com.jd.bluedragon.distribution.jy.enums.UnloadBarCodeQueryEntranceEnum;
-import com.jd.bluedragon.distribution.jy.enums.UnloadProductTypeEnum;
+import com.jd.bluedragon.distribution.jy.enums.*;
 import com.jd.bluedragon.distribution.jy.exception.JyDemotionException;
 import com.jd.bluedragon.distribution.jy.manager.IJyUnloadVehicleManager;
 import com.jd.bluedragon.distribution.jy.manager.JyScheduleTaskManager;
@@ -170,6 +167,7 @@ public class JyWarehouseInspectionServiceImpl implements JyWarehouseInspectionSe
             dto.setVehicleNumber(request.getGroupCode());
             dto.setOperateSiteId(currentOperate.getSiteCode());
             dto.setOperateSiteName(currentOperate.getSiteName());
+            dto.setTaskType(JyBizTaskUnloadTaskTypeEnum.UNLOAD_TASK_CATEGORY_WAREHOUSE_RECEIVE.getCode());
             JyBizTaskUnloadDto noTaskUnloadDto = jyUnloadVehicleService.createUnloadTask(dto);
 
             inspectionTaskDetail = new InspectionTaskDetail();

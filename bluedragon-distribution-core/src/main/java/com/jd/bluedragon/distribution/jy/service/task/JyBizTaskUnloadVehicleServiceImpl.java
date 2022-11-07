@@ -317,7 +317,9 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
             }
             entity.setFuzzyVehicleNumber(fvn);
         }
-        entity.setTaskType(getTaskType(entity.getEndSiteId()));
+        if (entity.getTaskType() != null) {
+            entity.setTaskType(getTaskType(entity.getEndSiteId()));
+        }
 
         // 初始默认数据
         if(entity.getManualCreatedFlag() == null){
@@ -548,6 +550,7 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
         initParams.setUpdateUserName(dto.getOperateUserErp());
         initParams.setCreateTime(new Date());
         initParams.setUpdateTime(new Date());
+        initParams.setTaskType(dto.getTaskType());
         //本身已带锁
         if(saveOrUpdateOfBaseInfo(initParams)){
             return initParams;
