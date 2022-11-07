@@ -681,6 +681,9 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
     }
 
     private ScanStatisticsDto dtoConvert(JyUnloadAggsEntity entity, DimensionQueryDto dto) {
+        if(logger.isInfoEnabled()) {
+            logger.info("JyBizTaskUnloadVehicleServiceImpl.dtoConvert 统计数据--req:entity={}", JsonUtils.toJSONString(entity));
+        }
         ScanStatisticsDto scanStatisticsDto = new ScanStatisticsDto();
         Integer processPercent = (entity.getTotalSealPackageCount() == null || entity.getTotalSealPackageCount() == 0) ? 0 : (int)(entity.getTotalScannedPackageCount() * 100.0 / entity.getTotalSealPackageCount());
         scanStatisticsDto.setProcessPercent(processPercent);
@@ -708,6 +711,9 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
             scanStatisticsDto.setInterceptActualScanCount(entity.getTotalScannedInterceptWaybillCount());
             scanStatisticsDto.setExtraScanCountCurrSite(entity.getTotalMoreScanLocalWaybillCount());
             scanStatisticsDto.setExtraScanCountOutCurrSite(entity.getTotalMoreScanOutWaybillCount());
+        }
+        if(logger.isInfoEnabled()) {
+            logger.info("JyBizTaskUnloadVehicleServiceImpl.dtoConvert 统计数据--res:scanStatisticsDto={}", JsonUtils.toJSONString(scanStatisticsDto));
         }
         return scanStatisticsDto;
     }
