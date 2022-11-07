@@ -2795,6 +2795,9 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                     return true;
                 }
             }
+            if (JyBizTaskSendDetailStatusEnum.SEALED.getCode().equals(detailEntity.getVehicleStatus())) {
+                sealedDestCount = sealedDestCount + 1;
+            }
         }
 
         // 无任务发货校验是否绑定了发车任务
@@ -2812,7 +2815,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
                 response.setAbnormalType(SendAbnormalEnum.EXIST_ABNORMAL_PACK);
                 return true;
             } else {
-                // 如果强发或拦截，并且是转运任务，再次判断是否有不齐
+                // 如果不存在强发或拦截，并且是转运任务，再次判断是否有不齐
                 BaseStaffSiteOrgDto baseStaffSiteOrgDto = baseMajorManager.getBaseSiteBySiteId(taskSend.getStartSiteId().intValue());
                 if (baseStaffSiteOrgDto != null) {
                     if (baseStaffSiteOrgDto.getSubType() != null && baseStaffSiteOrgDto.getSubType().equals(Constants.B2B_SITE_TYPE)) {
