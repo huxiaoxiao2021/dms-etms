@@ -417,7 +417,11 @@
         <if test="vehicleStatus !=null and vehicleStatus==5">
             order by unload_finish_time desc
         </if>
-        limit #{offset,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+
+        <if test="offset !=null and pageSize != null">
+            limit #{offset,jdbcType=INTEGER},#{pageSize,jdbcType=INTEGER}
+        </if>
+
     </select>
 
 
