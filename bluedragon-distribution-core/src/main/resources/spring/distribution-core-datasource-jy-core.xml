@@ -47,7 +47,7 @@
                     <property name="properties">
                         <props>
                             <prop key="helperDialect">mysql</prop>
-                            <prop key="reasonable">true</prop>
+                            <prop key="reasonable">false</prop>
                         </props>
                     </property>
                 </bean>
