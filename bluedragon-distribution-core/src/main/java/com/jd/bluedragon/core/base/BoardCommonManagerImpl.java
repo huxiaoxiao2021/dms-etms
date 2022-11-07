@@ -336,7 +336,7 @@ public class BoardCommonManagerImpl implements BoardCommonManager {
                 result.setData(response.getData().get(0));
             }
         }catch (Exception e){
-            logger.error("根据参数【{}】生成板号异常", JsonHelper.toJson(addBoardRequest),e);
+            logger.error("根据参数【{}】生成板号异常,errMsg={}", JsonHelper.toJson(addBoardRequest), e.getMessage(), e);
         }
         return result;
     }
