@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.jy.enums;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +26,7 @@ public enum JyBizTaskUnloadTaskTypeEnum {
     static {
         //将所有枚举装载到map中
         ENUM_MAP = new HashMap<Integer, String>();
+        ENUM_LIST = new ArrayList<Integer>();
         for (JyBizTaskUnloadTaskTypeEnum _enum : JyBizTaskUnloadTaskTypeEnum.values()) {
             ENUM_MAP.put(_enum.getCode(), _enum.getName());
             ENUM_LIST.add(_enum.getCode());
