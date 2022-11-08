@@ -1,35 +1,72 @@
 package com.jd.bluedragon.distribution.jy.service.send;
 
+
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.configure.domain.GroupInfo;
+
 /**
  * 组板发货岗基础服务
  */
 public interface JyComBoardSendService {
     /**
-     * 查询滑道列表
+     * 查询场地滑道列表数据
      */
+    InvokeResult<CrossDataResp>  listCrossData(CrossDataReq request);
 
     /**
-     * 查询滑道下笼车流向列表
+     * 查询场地某个滑道下笼车列表数据
      */
+    InvokeResult<TableTrolleyResp> listTableTrolleyUnderCross(TableTrolleyReq request);
 
     /**
-     * 创建本岗位常用滑道笼车集合
+     * 创建本岗位(小组)的常用滑道笼车(CTT:CrossTableTrolley)集合（“混扫01”）
+     * “常用流向任务SendFlowTask”
      */
+    InvokeResult<CreateGroupCTTResp> createGroupCTTData(CreateGroupCTTReq request);
     /**
      * 变更（添加或者移除滑道笼车流向）
      */
+    InvokeResult addCTTFromGroup(AddCTTReq request);
+    InvokeResult removeCTTFromGroup(RemoveCTTReq request);
 
     /**
-     * 查询本岗位下常用滑道笼车流向集合
+     * 查询(本岗位/本场地)下常用滑道笼车流向集合(“混扫01”，“混扫02”，“混扫03”)
      */
+    InvokeResult<CTTGroupDataResp> listCTTGroupData(CTTGroupDataReq request);
+
+    /**
+     * 查询某个混扫任务下的流向列表数据
+     * @param request  "listSendFlowTaskUnderCTTGroup"
+     * @return
+     */
+    InvokeResult<TableTrolleyResp> listTableTrolleyUnderCTTGroup(TableTrolleyReq request);
+
+    /**
+     *查询流向作业详情
+     */
+    InvokeResult<SendFlowResp> querySendFlowDetail(SendFlowReq request);
+    /**
+     *查询板作业详情
+     */
+    InvokeResult<BoardResp> queryBoardDetail(BoardReq request);
+    /**
+     * 完结板
+     */
+    InvokeResult finishBoard(BoardReq request);
+
+    /**
+     * 结束混扫任务的所有流向的板
+     */
+    InvokeResult finishBoardsUnderCTTGroup(CTTGroupReq request);
+
+
     /**
      * 扫描(组板+发货)
      */
+    InvokeResult comboardScan(ComboardScanReq request);
     /**
-     * 查询板下货物分类相关统计数据
+     * 查询岗位下人数和实际作业人数
      */
-    /**
-     * 查询当前模板下的流向数和正在扫描人数
-     */
+    InvokeResult<GroupUsersResp> queryGroupUsers(GroupInfoReq request);
 
 }
