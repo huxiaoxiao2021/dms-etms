@@ -834,6 +834,18 @@
     <bean id="jySendDao" class="com.jd.bluedragon.distribution.jy.dao.send.JySendDao">
         <property name="sqlSession" ref="sessionTemplate"/>
     </bean>
+    <bean id="jyComboardDao" class="com.jd.bluedragon.distribution.jy.dao.comboard.JyComboardDao">
+        <property name="sqlSession" ref="sessionTemplate"/>
+    </bean>
+    <bean id="jyBizTaskComboardDao" class="com.jd.bluedragon.distribution.jy.dao.comboard.JyBizTaskComboardDao">
+        <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
+    </bean>
+    <bean id="jyComboardAggsDao" class="com.jd.bluedragon.distribution.jy.dao.comboard.JyComboardAggsDao">
+        <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
+    </bean>
+    <bean id="jyGroupSortCrossDetailDao" class="com.jd.bluedragon.distribution.jy.dao.comboard.JyGroupSortCrossDetailDao">
+        <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
+    </bean>
     <bean id="jySendSealCodeDao" class="com.jd.bluedragon.distribution.jy.dao.send.JySendSealCodeDao">
         <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
     </bean>
