@@ -4,6 +4,7 @@ import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.JdExtraMessageResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.seal.manager.SealCarManager;
+import com.jd.bluedragon.distribution.transport.service.TransportRelatedJSFService;
 import com.jd.bluedragon.distribution.transport.service.TransportRelatedService;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.etms.vos.dto.StopoverInfoDto;
@@ -23,7 +24,7 @@ import java.util.Objects;
  * @date 2022/7/12 11:16 AM
  */
 @Service("transportRelatedService")
-public class TransportRelatedServiceImpl implements TransportRelatedService {
+public class TransportRelatedServiceImpl implements TransportRelatedService, TransportRelatedJSFService {
 
     @Autowired
     private SealCarManager sealCarManager;
@@ -74,5 +75,42 @@ public class TransportRelatedServiceImpl implements TransportRelatedService {
             return ImmutablePair.of(JdExtraMessageResponse.CODE_HINT, "途径本场地只卸不装，卸车完成后请操作无货上封签!");
         }
         return ImmutablePair.of(InvokeResult.RESULT_SUCCESS_CODE, InvokeResult.RESULT_SUCCESS_MESSAGE);
+    }
+
+    @Override
+    public InvokeResult<String> isMergeCar(Integer siteCode, String transWorkCode, String sealCarCode,
+                                                             String simpleCode, String vehicleNumber) {
+        InvokeResult<String> invokeResult = new InvokeResult<>();
+        if(siteCode == null || StringUtils.isEmpty(transWorkCode) && StringUtils.isEmpty(sealCarCode)
+                && StringUtils.isEmpty(simpleCode) && StringUtils.isEmpty(vehicleNumber)){
+            invokeResult.setData(null);
+            invokeResult.parameterError("参数错误");
+            return invokeResult;
+        }
+        BaseStaffSiteOrgDto operateSite = baseMajorManager.getBaseSiteBySiteId(siteCode);
+        StopoverQueryDto stopoverQueryDto = new StopoverQueryDto();
+        stopoverQueryDto.setSiteCode(operateSite == null ? null : operateSite.getDmsSiteCode());
+        stopoverQueryDto.setTransWorkCode(transWorkCode);
+        stopoverQueryDto.setSealCarCode(sealCarCode);
+        stopoverQueryDto.setSimpleCode(simpleCode);
+        stopoverQueryDto.setVehicleNumber(vehicleNumber);
+        StopoverInfoDto stopoverInfoDto = sealCarManager.queryStopoverInfo(stopoverQueryDto);
+        if(stopoverInfoDto == null){
+            invokeResult.setData(null);
+            invokeResult.success();
+            return invokeResult;
+        }
+        // 站点类型=经停  且 装车计数=0  且 卸车计数＞0
+        if(Objects.equals(stopoverInfoDto.getSiteType(), 2)
+                && Objects.equals(stopoverInfoDto.getLoadCount(), 0)
+                && NumberHelper.isPositiveNumber(stopoverInfoDto.getUnloadCount())){
+            invokeResult.setData("是");
+            invokeResult.success();
+            return invokeResult;
+        } else {
+            invokeResult.setData("否");
+            invokeResult.success();
+            return invokeResult;
+        }
     }
 }
