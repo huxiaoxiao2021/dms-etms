@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jd.bluedragon.distribution.jy.dao.comboard.JyGroupSortCrossDetailDao">
+  <resultMap id="BaseResultMap" type="com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="group_code" jdbcType="VARCHAR" property="group_code" />
+    <result column="template_code" jdbcType="VARCHAR" property="template_code" />
+    <result column="template_name" jdbcType="VARCHAR" property="template_name" />
+    <result column="cross_code" jdbcType="VARCHAR" property="cross_code" />
+    <result column="tabletrolley_code" jdbcType="VARCHAR" property="tabletrolley_code" />
+    <result column="start_site_id" jdbcType="BIGINT" property="start_site_id" />
+    <result column="start_site_name" jdbcType="VARCHAR" property="start_site_name" />
+    <result column="end_site_id" jdbcType="BIGINT" property="end_site_id" />
+    <result column="end_site_name" jdbcType="VARCHAR" property="end_site_name" />
+    <result column="create_user_erp" jdbcType="VARCHAR" property="create_user_erp" />
+    <result column="create_user_name" jdbcType="VARCHAR" property="create_user_name" />
+    <result column="update_user_erp" jdbcType="VARCHAR" property="update_user_erp" />
+    <result column="update_user_name" jdbcType="VARCHAR" property="update_user_name" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="create_time" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="update_time" />
+    <result column="yn" jdbcType="BIT" property="yn" />
+    <result column="ts" jdbcType="TIMESTAMP" property="ts" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, group_code, template_code, template_name, cross_code, tabletrolley_code, start_site_id, 
+    start_site_name, end_site_id, end_site_name, create_user_erp, create_user_name, update_user_erp, 
+    update_user_name, create_time, update_time, yn, ts
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from jy_group_sort_cross_detail
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from jy_group_sort_cross_detail
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity">
+    insert into jy_group_sort_cross_detail (id, group_code, template_code, 
+      template_name, cross_code, tabletrolley_code, 
+      start_site_id, start_site_name, end_site_id, 
+      end_site_name, create_user_erp, create_user_name, 
+      update_user_erp, update_user_name, create_time, 
+      update_time, yn, ts
+      )
+    values (#{id,jdbcType=BIGINT}, #{group_code,jdbcType=VARCHAR}, #{template_code,jdbcType=VARCHAR}, 
+      #{template_name,jdbcType=VARCHAR}, #{cross_code,jdbcType=VARCHAR}, #{tabletrolley_code,jdbcType=VARCHAR}, 
+      #{start_site_id,jdbcType=BIGINT}, #{start_site_name,jdbcType=VARCHAR}, #{end_site_id,jdbcType=BIGINT}, 
+      #{end_site_name,jdbcType=VARCHAR}, #{create_user_erp,jdbcType=VARCHAR}, #{create_user_name,jdbcType=VARCHAR}, 
+      #{update_user_erp,jdbcType=VARCHAR}, #{update_user_name,jdbcType=VARCHAR}, #{create_time,jdbcType=TIMESTAMP}, 
+      #{update_time,jdbcType=TIMESTAMP}, #{yn,jdbcType=BIT}, #{ts,jdbcType=TIMESTAMP}
+      )
+  </insert>
+  <insert id="insertSelective" parameterType="com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity">
+    insert into jy_group_sort_cross_detail
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="group_code != null">
+        group_code,
+      </if>
+      <if test="template_code != null">
+        template_code,
+      </if>
+      <if test="template_name != null">
+        template_name,
+      </if>
+      <if test="cross_code != null">
+        cross_code,
+      </if>
+      <if test="tabletrolley_code != null">
+        tabletrolley_code,
+      </if>
+      <if test="start_site_id != null">
+        start_site_id,
+      </if>
+      <if test="start_site_name != null">
+        start_site_name,
+      </if>
+      <if test="end_site_id != null">
+        end_site_id,
+      </if>
+      <if test="end_site_name != null">
+        end_site_name,
+      </if>
+      <if test="create_user_erp != null">
+        create_user_erp,
+      </if>
+      <if test="create_user_name != null">
+        create_user_name,
+      </if>
+      <if test="update_user_erp != null">
+        update_user_erp,
+      </if>
+      <if test="update_user_name != null">
+        update_user_name,
+      </if>
+      <if test="create_time != null">
+        create_time,
+      </if>
+      <if test="update_time != null">
+        update_time,
+      </if>
+      <if test="yn != null">
+        yn,
+      </if>
+      <if test="ts != null">
+        ts,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="group_code != null">
+        #{group_code,jdbcType=VARCHAR},
+      </if>
+      <if test="template_code != null">
+        #{template_code,jdbcType=VARCHAR},
+      </if>
+      <if test="template_name != null">
+        #{template_name,jdbcType=VARCHAR},
+      </if>
+      <if test="cross_code != null">
+        #{cross_code,jdbcType=VARCHAR},
+      </if>
+      <if test="tabletrolley_code != null">
+        #{tabletrolley_code,jdbcType=VARCHAR},
+      </if>
+      <if test="start_site_id != null">
+        #{start_site_id,jdbcType=BIGINT},
+      </if>
+      <if test="start_site_name != null">
+        #{start_site_name,jdbcType=VARCHAR},
+      </if>
+      <if test="end_site_id != null">
+        #{end_site_id,jdbcType=BIGINT},
+      </if>
+      <if test="end_site_name != null">
+        #{end_site_name,jdbcType=VARCHAR},
+      </if>
+      <if test="create_user_erp != null">
+        #{create_user_erp,jdbcType=VARCHAR},
+      </if>
+      <if test="create_user_name != null">
+        #{create_user_name,jdbcType=VARCHAR},
+      </if>
+      <if test="update_user_erp != null">
+        #{update_user_erp,jdbcType=VARCHAR},
+      </if>
+      <if test="update_user_name != null">
+        #{update_user_name,jdbcType=VARCHAR},
+      </if>
+      <if test="create_time != null">
+        #{create_time,jdbcType=TIMESTAMP},
+      </if>
+      <if test="update_time != null">
+        #{update_time,jdbcType=TIMESTAMP},
+      </if>
+      <if test="yn != null">
+        #{yn,jdbcType=BIT},
+      </if>
+      <if test="ts != null">
+        #{ts,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity">
+    update jy_group_sort_cross_detail
+    <set>
+      <if test="group_code != null">
+        group_code = #{group_code,jdbcType=VARCHAR},
+      </if>
+      <if test="template_code != null">
+        template_code = #{template_code,jdbcType=VARCHAR},
+      </if>
+      <if test="template_name != null">
+        template_name = #{template_name,jdbcType=VARCHAR},
+      </if>
+      <if test="cross_code != null">
+        cross_code = #{cross_code,jdbcType=VARCHAR},
+      </if>
+      <if test="tabletrolley_code != null">
+        tabletrolley_code = #{tabletrolley_code,jdbcType=VARCHAR},
+      </if>
+      <if test="start_site_id != null">
+        start_site_id = #{start_site_id,jdbcType=BIGINT},
+      </if>
+      <if test="start_site_name != null">
+        start_site_name = #{start_site_name,jdbcType=VARCHAR},
+      </if>
+      <if test="end_site_id != null">
+        end_site_id = #{end_site_id,jdbcType=BIGINT},
+      </if>
+      <if test="end_site_name != null">
+        end_site_name = #{end_site_name,jdbcType=VARCHAR},
+      </if>
+      <if test="create_user_erp != null">
+        create_user_erp = #{create_user_erp,jdbcType=VARCHAR},
+      </if>
+      <if test="create_user_name != null">
+        create_user_name = #{create_user_name,jdbcType=VARCHAR},
+      </if>
+      <if test="update_user_erp != null">
+        update_user_erp = #{update_user_erp,jdbcType=VARCHAR},
+      </if>
+      <if test="update_user_name != null">
+        update_user_name = #{update_user_name,jdbcType=VARCHAR},
+      </if>
+      <if test="create_time != null">
+        create_time = #{create_time,jdbcType=TIMESTAMP},
+      </if>
+      <if test="update_time != null">
+        update_time = #{update_time,jdbcType=TIMESTAMP},
+      </if>
+      <if test="yn != null">
+        yn = #{yn,jdbcType=BIT},
+      </if>
+      <if test="ts != null">
+        ts = #{ts,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity">
+    update jy_group_sort_cross_detail
+    set group_code = #{group_code,jdbcType=VARCHAR},
+      template_code = #{template_code,jdbcType=VARCHAR},
+      template_name = #{template_name,jdbcType=VARCHAR},
+      cross_code = #{cross_code,jdbcType=VARCHAR},
+      tabletrolley_code = #{tabletrolley_code,jdbcType=VARCHAR},
+      start_site_id = #{start_site_id,jdbcType=BIGINT},
+      start_site_name = #{start_site_name,jdbcType=VARCHAR},
+      end_site_id = #{end_site_id,jdbcType=BIGINT},
+      end_site_name = #{end_site_name,jdbcType=VARCHAR},
+      create_user_erp = #{create_user_erp,jdbcType=VARCHAR},
+      create_user_name = #{create_user_name,jdbcType=VARCHAR},
+      update_user_erp = #{update_user_erp,jdbcType=VARCHAR},
+      update_user_name = #{update_user_name,jdbcType=VARCHAR},
+      create_time = #{create_time,jdbcType=TIMESTAMP},
+      update_time = #{update_time,jdbcType=TIMESTAMP},
+      yn = #{yn,jdbcType=BIT},
+      ts = #{ts,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>
