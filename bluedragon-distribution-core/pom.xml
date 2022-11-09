@@ -1911,6 +1911,18 @@
 			<version>1.0-SNAPSHOT</version>
 		</dependency>
 
+		<dependency>
+			<groupId>com.jd.jim.cli</groupId>
+			<artifactId>jim-cli-spring</artifactId>
+			<version>2.0.9</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.jd.jimdb.lock</groupId>
+			<artifactId>jimdb-distributed-lock</artifactId>
+			<version>1.0.3-releases</version>
+		</dependency>
+
     </dependencies>
 
 	<profiles>
@@ -1963,6 +1975,15 @@
                         <additionalClasspathElement>${project.basedir/src/main/resources</additionalClasspathElement>
                     </additionalClasspathElements>
                     -->
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.mybatis.generator</groupId>
+				<artifactId>mybatis-generator-maven-plugin</artifactId>
+				<version>1.3.5</version>
+				<configuration>
+					<verbose>true</verbose>
+					<overwrite>true</overwrite>
 				</configuration>
 			</plugin>
 		</plugins>

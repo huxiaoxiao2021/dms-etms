@@ -73,7 +73,7 @@ public interface JyComBoardSendService {
 
 
     /**
-     * 查询板下的已扫统计信息（已扫包裹、已扫箱子）
+     * 查询板下的已扫统计信息（已扫包裹、已扫箱子）-支撑下钻4
      * @param boardCode
      * @return
      */
