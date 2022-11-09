@@ -959,6 +959,9 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     @Override
     @JProfiler(jKey = "JyUnloadVehicleTysServiceImpl.queryUnloadDetailByDiffDimension",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<ScanStatisticsInnerDto> queryUnloadDetailByDiffDimension(QueryUnloadDetailDto queryUnloadDetailDto) {
+        if(log.isInfoEnabled()) {
+            log.info("JyUnloadVehicleTysServiceImpl.queryUnloadDetailByDiffDimension-下载明细查询-param={}",JsonUtils.toJSONString(queryUnloadDetailDto));
+        }
         //统计数据查询
         ScanStatisticsInnerDto scanStatisticsInnerDto = new ScanStatisticsInnerDto();
         JyUnloadAggsEntity condition = new JyUnloadAggsEntity();

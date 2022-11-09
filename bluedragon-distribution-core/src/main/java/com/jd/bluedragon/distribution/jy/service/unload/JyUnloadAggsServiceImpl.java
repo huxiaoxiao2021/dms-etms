@@ -32,7 +32,7 @@ public class JyUnloadAggsServiceImpl implements JyUnloadAggsService {
                 categoryDto.setName(GoodsTypeEnum.getGoodsDesc(categoryDto.getType()));
 
                 if (!ObjectHelper.isNotNull(entity.getBoardCode())) {//板没有待扫的语义数据
-                    categoryDto.setWaitScanCount(categoryDto.getShouldScanCount() - categoryDto.getHaveScanCount());
+                    categoryDto.setWaitScanCount(getWaitScan(entity.getBizId(), categoryDto.getShouldScanCount(), categoryDto.getHaveScanCount()));
                 }
             }
             return categoryDtoList;
@@ -73,10 +73,11 @@ public class JyUnloadAggsServiceImpl implements JyUnloadAggsService {
         if(shouldScan == null || shouldScan == 0 || actualScan == null) {
             return 0;
         }
-        //可能出shouldScan < actualScan 的问题，暴露异常数据排查,不做兜底
+        //可能出shouldScan < actualScan
         int res = shouldScan - actualScan;
         if(res < 0) {
-            log.info("JyUnloadAggsServiceImpl.getWaitScan 查任务{}待扫数据异常，待扫为{}", bizId, res);
+            log.warn("JyUnloadAggsServiceImpl.getWaitScan 查任务{}待扫数据异常，待扫为{}", bizId, res);
+            return 0;
         }
         return res;
     }
