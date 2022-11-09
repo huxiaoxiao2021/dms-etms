@@ -488,7 +488,7 @@
         WHERE
         yn = 1
         AND start_site_id = #{entity.startSiteId}
-        <if test="vehicleStatus != null">
+        <if test="entity.vehicleStatus != null">
             AND vehicle_status = #{entity.vehicleStatus}
         </if>
         <if test="sendVehicleBizList != null and sendVehicleBizList.size() > 0">
