@@ -8,6 +8,15 @@ public class BaseReq implements Serializable {
     private static final long serialVersionUID = 301807412701085234L;
     private CurrentOperate currentOperate;
     private User user;
+    private String groupCode;
+
+    public String getGroupCode() {
+        return groupCode;
+    }
+
+    public void setGroupCode(String groupCode) {
+        this.groupCode = groupCode;
+    }
 
     public CurrentOperate getCurrentOperate() {
         return currentOperate;
