@@ -33,6 +33,7 @@ import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.StringHelper;
+import com.jd.common.util.StringUtils;
 import com.jd.ql.basic.domain.BaseSite;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
@@ -795,7 +796,8 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		signInData.setOrgCode(gridInfo.getOrgCode());
 		signInData.setRefGridKey(gridKey);
 		signInData.setRefStationKey(stationKey);
-		signInData.setUserName(signInData.getUserCode());
+		//身份证拍照签到的直接设置姓名，erp签到的需要查基础资料
+		signInData.setUserName(signInRequest.getUserName());
 		signInData.setModeType(signInRequest.getModeType());
 		// 获取最近一次签到记录
 		UserSignQueryRequest query = new UserSignQueryRequest();
