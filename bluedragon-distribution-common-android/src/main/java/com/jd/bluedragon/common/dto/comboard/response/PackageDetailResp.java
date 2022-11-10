@@ -5,14 +5,14 @@ import java.util.List;
 
 public class PackageDetailResp implements Serializable {
     private static final long serialVersionUID = -9151315421097125474L;
-    private List<String> packageCodeList;
+    private List<PackageScanDto> packageCodeList;
     private Integer totalPage;
 
-    public List<String> getPackageCodeList() {
+    public List<PackageScanDto> getPackageCodeList() {
         return packageCodeList;
     }
 
-    public void setPackageCodeList(List<String> packageCodeList) {
+    public void setPackageCodeList(List<PackageScanDto> packageCodeList) {
         this.packageCodeList = packageCodeList;
     }
 

@@ -83,7 +83,7 @@ public interface JyComBoardSendService {
      */
     InvokeResult<PackageDetailResp> listPackageDetailRespUnderBox(BoxQueryReq request);
     /**
-     * 查询流向待扫统计数据
+     * 查询流向待扫统计数据-支撑下钻5
      */
     InvokeResult<WaitScanStatisticsResp> queryWaitScanStatisticsUnderSendFlow(WaitScanStatisticsReq request);
 
@@ -95,16 +95,16 @@ public interface JyComBoardSendService {
     InvokeResult<PackageDetailResp> listPackageDetailRespUnderSendFlow(SendFlowQueryReq request);
 
     /**
-     * 查询板下的异常扫描统计数据
+     * 查询某个板下的异常扫描统计数据--支撑板异常下钻3和下钻6
      */
-    InvokeResult<ExcepScanStatisticsResp> queryExcepScanStatisticsUnderBoard(ExcepScanStatisticsReq request);
+    InvokeResult<BoardExcepStatisticsResp> queryExcepScanStatisticsUnderBoard(BoardExcepStatisticsReq request);
 
     /**
-     * 查询“混扫01”（常用模板）下多流向的异常数据列表
+     * 查询“混扫01”多个流向下的异常扫描统计数据-支撑下钻7
      * @param request
      * @return
      */
-    InvokeResult<ExcepScanStatisticsResp> queryExcepScanStatisticsUnderCTTGroup(SendFlowReq request);
+    InvokeResult<SendFlowExcepStatisticsResp> queryExcepScanStatisticsUnderCTTGroup(SendFlowExcepStatisticsReq request);
 
     /**
      * 取消组板

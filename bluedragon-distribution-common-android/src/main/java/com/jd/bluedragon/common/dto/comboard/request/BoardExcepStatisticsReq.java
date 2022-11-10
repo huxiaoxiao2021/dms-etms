@@ -4,7 +4,7 @@ import com.jd.bluedragon.common.dto.base.request.BaseReq;
 
 import java.io.Serializable;
 
-public class ExcepScanStatisticsReq extends BaseReq implements Serializable {
+public class BoardExcepStatisticsReq extends BaseReq implements Serializable {
     private static final long serialVersionUID = 597519678244355595L;
     private String boardCode;
     private Integer pageNo;
