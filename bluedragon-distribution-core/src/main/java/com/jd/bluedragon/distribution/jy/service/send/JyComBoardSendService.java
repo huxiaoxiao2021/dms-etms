@@ -74,18 +74,30 @@ public interface JyComBoardSendService {
 
     /**
      * 查询板下的已扫统计信息（已扫包裹、已扫箱子）-支撑下钻4
-     * @param boardCode
+     * @param request
      * @return
      */
-    InvokeResult<HaveScanStatisticsResp> queryHaveScanStatisticsUnderBoard(String boardCode);
+    InvokeResult<HaveScanStatisticsResp> queryHaveScanStatisticsUnderBoard(HaveScanStatisticsReq request);
+    /**
+     * 查询箱子内部的包裹详情
+     */
+    InvokeResult<PackageDetailResp> listPackageDetailRespUnderBox(BoxQueryReq request);
     /**
      * 查询流向待扫统计数据
      */
-    InvokeResult<WaitScanStatisticsResp> queryWaitScanStatisticsUnderSendFlow(SendFlowReq request);
+    InvokeResult<WaitScanStatisticsResp> queryWaitScanStatisticsUnderSendFlow(WaitScanStatisticsReq request);
+
+    /**
+     * 查询流向下待扫包裹明细
+     * @param request
+     * @return
+     */
+    InvokeResult<PackageDetailResp> listPackageDetailRespUnderSendFlow(SendFlowQueryReq request);
+
     /**
      * 查询板下的异常扫描统计数据
      */
-    InvokeResult<ExcepScanStatisticsResp> queryExcepScanStatisticsUnderBoard(SendFlowReq request);
+    InvokeResult<ExcepScanStatisticsResp> queryExcepScanStatisticsUnderBoard(ExcepScanStatisticsReq request);
 
     /**
      * 查询“混扫01”（常用模板）下多流向的异常数据列表
@@ -93,4 +105,8 @@ public interface JyComBoardSendService {
      * @return
      */
     InvokeResult<ExcepScanStatisticsResp> queryExcepScanStatisticsUnderCTTGroup(SendFlowReq request);
+
+    /**
+     * 取消组板
+     */
 }
