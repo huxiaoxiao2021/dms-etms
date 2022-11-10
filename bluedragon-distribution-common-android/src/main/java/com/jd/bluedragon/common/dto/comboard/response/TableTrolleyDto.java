@@ -15,6 +15,19 @@ public class TableTrolleyDto implements Serializable {
      */
     private String tableTrolleyCode;
 
+    /**
+     * 选中状态
+     */
+    private boolean selectedFlag;
+
+    public boolean isSelectedFlag() {
+        return selectedFlag;
+    }
+
+    public void setSelectedFlag(boolean selectedFlag) {
+        this.selectedFlag = selectedFlag;
+    }
+
     public Integer getEndSiteId() {
         return endSiteId;
     }
