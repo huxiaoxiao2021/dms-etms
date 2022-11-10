@@ -53,7 +53,16 @@
 		<lombok.version>1.18.20</lombok.version>
 		<eclp-so-api.version>0.0.1-SNAPSHOT</eclp-so-api.version>
 	</properties>
-	
+
+	<dependencies>
+		<dependency>
+			<groupId>org.projectlombok</groupId>
+			<artifactId>lombok</artifactId>
+			<version>1.18.16</version>
+			<scope>provided</scope>
+		</dependency>
+	</dependencies>
+
 	<dependencyManagement>
 		<dependencies>
 		<dependency>
