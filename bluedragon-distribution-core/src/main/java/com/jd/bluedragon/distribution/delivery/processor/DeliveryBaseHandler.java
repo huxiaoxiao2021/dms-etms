@@ -407,14 +407,14 @@ public abstract class DeliveryBaseHandler implements IDeliveryBaseHandler {
                     log.warn("dealSendTransfer|按板取消发货==========存在有同一板号的发货任务没有跑完");
                     continue;
                 }
-                //生产一个按板号取消发货的任务
-                pushBoardSendTask(sendMItem,Task.TASK_TYPE_BOARD_SEND_CANCEL);
-                log.info("按板取消发货==========pushBoardSendTask");
+                //按板号取消发货
+                deliveryService.doBoardDeliveryCancel(sendMItem, sendMList);
+                log.info("dealSendTransfer|按板取消发货==========doBoardDeliveryCancel");
                 //将板由“关闭”状态变为“组板中”的状态
                 List<String> boardList = new ArrayList<>();
                 boardList.add(sendMItem.getBoardCode());
                 changeBoardStatus(sendMItem,boardList);
-                log.info("按板取消发货==========将板由“关闭”状态变为“组板中”的状态");
+                log.info("dealSendTransfer|按板取消发货==========将板由“关闭”状态变为“组板中”的状态");
             } else {
                 log.info("暂时不支持按该范畴进行取消：{}" , JsonHelper.toJson(sendMItem));
                 continue;
@@ -450,33 +450,7 @@ public abstract class DeliveryBaseHandler implements IDeliveryBaseHandler {
         groupBoardManager.resuseBoards(boardList,operatorInfo);
     }
 
-    /**
-     * 推组板发货任务
-     * @param domain
-     * @return
-     */
-    private boolean pushBoardSendTask(SendM domain,Integer taskType) {
-        Task tTask = new Task();
-        tTask.setBoxCode(domain.getBoardCode());
-        tTask.setBody(JsonHelper.toJson(domain));
-        tTask.setCreateSiteCode(domain.getCreateSiteCode());
-        tTask.setKeyword2(String.valueOf(domain.getSendType()));
-        tTask.setReceiveSiteCode(domain.getReceiveSiteCode());
-        tTask.setType(taskType);
-        tTask.setTableName(Task.getTableName(taskType));
-        String ownSign = BusinessHelper.getOwnSign();
-        tTask.setOwnSign(ownSign);
-        tTask.setKeyword1(domain.getBoardCode());
-        tTask.setFingerprint(Md5Helper.encode(domain.getSendCode() + "_" + tTask.getKeyword1() + domain.getBoardCode() + tTask.getKeyword2()));
-        log.info("组板发货任务推送成功：板号={}，箱号={}" ,domain.getBoardCode(), domain.getBoxCode());
-        taskService.add(tTask, true);
-        //写redis记录任务状态
-        if(Task.TASK_TYPE_BOARD_SEND.equals(taskType)) {
-            String redisKey = REDIS_PREFIX_BOARD_DELIVERY + domain.getBoardCode();
-            redisManager.setex(redisKey, EXPIRE_REDIS_BOARD_TASK, domain.getBoardCode());
-        }
-        return true;
-    }
+
 
     private void openBox(SendM tSendM){
         //参数构建
