@@ -301,6 +301,11 @@ public class JyUnloadVehicleCheckTysService {
         unloadScanProducer.sendOnFailPersistent(barCode, JsonHelper.toJson(unloadScanDto));
     }
 
+    public void inspection(String barCode, UnloadScanDto unloadScanDto) throws LoadIllegalException {
+        unloadScanProducer.sendOnFailPersistent(barCode, JsonHelper.toJson(unloadScanDto));
+    }
+
+
     public String interceptValidateUnloadCar(Waybill waybill, DeliveryPackageD deliveryPackageD, ScanPackageRespDto response, String barCode) {
         log.info("JyUnloadCarCheckServiceImpl-interceptValidateUnloadCar-barCode:{}", barCode);
         InvokeResult<String> result = new InvokeResult<>();
@@ -467,7 +472,15 @@ public class JyUnloadVehicleCheckTysService {
             boardCommonRequest.setReceiveSiteName(request.getNextSiteName());
             boardCommonRequest.setBizSource(BizSourceEnum.PDA.getValue());
             boardCommonRequest.setBarCode(request.getScanCode());
-            InvokeResult<Board> invokeResult = boardCommonManager.createBoardCode(boardCommonRequest);
+            InvokeResult<Board> invokeResult = null;
+            if(BusinessUtil.isBoxcode(request.getScanCode())) {
+                if(log.isInfoEnabled()) {
+                    log.info("JyUnloadVehicleCheckTysService.routerCheck-按箱号卸车扫描开板-param={}", JsonUtils.toJSONString(boardCommonRequest));
+                }
+                invokeResult = boardCommonManager.createBoardCodeByBox(boardCommonRequest);
+            }else {
+                invokeResult = boardCommonManager.createBoardCode(boardCommonRequest);
+            }
             if (invokeResult.getCode() != InvokeResult.RESULT_SUCCESS_CODE) {
                 throw new LoadIllegalException(invokeResult.getMessage());
             }
@@ -515,7 +528,12 @@ public class JyUnloadVehicleCheckTysService {
      */
     public void isSendCheck(ScanPackageDto scanPackageDto) {
         BoardCommonRequest boardCommonRequest = new BoardCommonRequest();
-        boardCommonRequest.setBarCode(scanPackageDto.getScanCode());
+        //转运不拆包，箱内随机包裹发货认为箱已发货
+        if(BusinessUtil.isBoxcode(scanPackageDto.getScanCode())) {
+            boardCommonRequest.setBarCode(scanPackageDto.getRandomPackageCode());
+        }else {
+            boardCommonRequest.setBarCode(scanPackageDto.getScanCode());
+        }
         boardCommonRequest.setOperateSiteCode(scanPackageDto.getCurrentOperate().getSiteCode());
         boardCommonRequest.setReceiveSiteCode(scanPackageDto.getNextSiteCode());
         boardCommonManager.isSendCheck(boardCommonRequest);
@@ -610,7 +628,11 @@ public class JyUnloadVehicleCheckTysService {
                 // 组板实操时间多加1秒，防止和验货实操时间相同导致全流程跟踪显示顺序错乱
                 boardCommonRequest.setOperateTime(System.currentTimeMillis() + 1000L);
                 // 组板全程跟踪
-                boardCommonManager.sendWaybillTrace(boardCommonRequest, WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION);
+                if(BusinessUtil.isBoxcode(boardCommonRequest.getBarCode())) {
+                    boardCommonManager.sendWaybillTrace(boardCommonRequest, WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION);
+                }else {
+                    boardCommonManager.sendWaybillTrace(boardCommonRequest, WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION);
+                }
                 return;
             }
             /*
@@ -884,7 +906,6 @@ public class JyUnloadVehicleCheckTysService {
                 return "扫描包裹非本货区，请移除本区！";
             }
         }
-        request.setGoodsAreaCode(goodsAreaCode);
         response.setGoodsAreaCode(goodsAreaCode);
         return null;
     }

@@ -12,6 +12,7 @@ import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
+import com.jd.bluedragon.distribution.api.request.SortingPageRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.board.service.BoardCombinationService;
 import com.jd.bluedragon.distribution.external.enums.AppVersionEnums;
@@ -33,6 +34,7 @@ import com.jd.bluedragon.distribution.jy.unload.JyUnloadAggsEntity;
 import com.jd.bluedragon.distribution.jy.unload.JyUnloadVehicleBoardEntity;
 import com.jd.bluedragon.distribution.loadAndUnload.exception.LoadIllegalException;
 import com.jd.bluedragon.distribution.loadAndUnload.exception.UnloadPackageBoardException;
+import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.transfer.service.TransferService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
@@ -58,6 +60,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.util.*;
 
 import static com.jd.bluedragon.Constants.WAYBILL_ROUTER_SPLIT;
@@ -125,7 +128,8 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     @Qualifier("jyUnloadCarPostTaskCompleteProducer")
     private DefaultJMQProducer jyUnloadCarPostTaskCompleteProducer;
 
-
+    @Resource
+    private SortingService sortingService;
 
 
     @Override
@@ -677,7 +681,8 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
 
     private void checkScan(ScanPackageDto scanPackageDto, JyBizTaskUnloadVehicleEntity unloadVehicleEntity) {
         if (BusinessUtil.isBoxcode(scanPackageDto.getScanCode())) {
-            throw new JyBizException("暂不支持箱号！");
+            checkBoxScan(scanPackageDto, unloadVehicleEntity);
+            return;
         }
         String scanCode = scanPackageDto.getScanCode();
         if (WaybillUtil.isPackageCode(scanCode)) {
@@ -700,6 +705,66 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             scanPackageDto.setCreateNewBoard(Boolean.TRUE);
         }
     }
+
+
+    private void checkBoxScan(ScanPackageDto scanPackageDto, JyBizTaskUnloadVehicleEntity unloadVehicleEntity) {
+
+        SortingPageRequest sortingPageRequest = new SortingPageRequest();
+        sortingPageRequest.setBoxCode(scanPackageDto.getScanCode());
+        sortingPageRequest.setPageNumber(1);
+        sortingPageRequest.setLimit(100);
+        List<String> boxPackageCodes = sortingService.getPagePackageNoByBoxCode(sortingPageRequest);
+        if(CollectionUtils.isEmpty(boxPackageCodes)) {
+            throw new RuntimeException("该箱内未查询到包裹信息");
+        }
+
+        String randomPackageCode = null;
+        String randomPackageCodeRoute = null;
+        // K-运单号  V-随意值
+        Map<String, Object> waybillMap = new HashMap<>();
+        //按箱操作时箱号仅有目的地，没有下一流向，开板动作需要流向，取箱内随机三个运单查流向做箱流向，转运场内不做拆箱动作，认为箱内所有包裹为同一流向
+        for(int i = 0; i < boxPackageCodes.size(); i++) {
+            randomPackageCode = boxPackageCodes.get(i);
+            String waybillCode = WaybillUtil.getWaybillCode(boxPackageCodes.get(i));
+            if(waybillMap.get(waybillCode) != null) {
+                break;
+            }
+            waybillMap.put(waybillCode, 1);
+
+            String router = waybillCacheService.getRouterByWaybillCode(waybillCode);
+            if(StringUtils.isNotBlank(router)) {
+                randomPackageCodeRoute = router;
+                randomPackageCode = boxPackageCodes.get(i);
+                break;
+            }
+            //随机取三个运单即可
+            if(waybillMap.size() >= 3) {
+                break;
+            }
+        }
+        scanPackageDto.setRandomPackageCode(randomPackageCode);
+
+        if(log.isInfoEnabled()) {
+            log.info("JyUnloadVehicleTysServiceImpl.checkScan-转运场地按箱号{}扫描，抽其中一包裹号{}取其流向信息,route={}", scanPackageDto.getScanCode(), randomPackageCode, randomPackageCodeRoute);
+        }
+
+        Integer nextSiteCode = getRouteNextSite(scanPackageDto.getCurrentOperate().getSiteCode(), randomPackageCodeRoute);
+        scanPackageDto.setNextSiteCode(nextSiteCode);
+        if (Constants.START_SITE_INITIAL_VALUE.equals(unloadVehicleEntity.getStartSiteId())) {
+            Integer prevSiteCode = getPrevSiteCodeByRouter(randomPackageCodeRoute, scanPackageDto.getCurrentOperate().getSiteCode());
+            scanPackageDto.setPrevSiteCode(prevSiteCode);
+        } else {
+            scanPackageDto.setPrevSiteCode(unloadVehicleEntity.getStartSiteId().intValue());
+            scanPackageDto.setPrevSiteName(unloadVehicleEntity.getStartSiteName());
+        }
+        if (JyBizTaskUnloadStatusEnum.UN_LOAD_DONE.getCode().equals(unloadVehicleEntity.getVehicleStatus())) {
+            scanPackageDto.setTaskFinish(Boolean.TRUE);
+        }
+        if (StringUtils.isBlank(scanPackageDto.getBoardCode())) {
+            scanPackageDto.setCreateNewBoard(Boolean.TRUE);
+        }
+    }
+
 
 
     private UnloadScanDto createUnloadDto(ScanPackageDto request, JyBizTaskUnloadVehicleEntity taskUnloadVehicle) {
@@ -758,8 +823,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
                 return packageScan(scanPackageDto, unloadVehicleEntity, invokeResult);
                 // 箱号
             } else if (BusinessUtil.isBoxcode(scanPackageDto.getScanCode())) {
-                invokeResult.customMessage(RESULT_INTERCEPT_CODE, "暂不支持箱号");
-                return invokeResult;
+                return boxScan(scanPackageDto, unloadVehicleEntity, invokeResult);
             }
             // 按单扫描
         } else if (ScanTypeEnum.SCAN_WAYBILL.getCode().equals(scanPackageDto.getType())) {
@@ -1611,6 +1675,58 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         }catch (Exception e) {
             log.error("{}--MQ发送异常businessId={}，msg={},errMsg={}", methodDesc, businessId, msg, e.getMessage(), e);
         }
+    }
+
+
+    private InvokeResult<ScanPackageRespDto> boxScan(ScanPackageDto scanPackageDto, JyBizTaskUnloadVehicleEntity unloadVehicleEntity,
+                                                         InvokeResult<ScanPackageRespDto> invokeResult) {
+        String boxCode = scanPackageDto.getScanCode();
+        String bizId = scanPackageDto.getBizId();
+        ScanPackageRespDto scanPackageRespDto = invokeResult.getData();
+
+        // 包裹是否扫描成功以及是否组板成功
+        jyUnloadVehicleCheckTysService.packageIsScan(scanPackageDto);
+        // 是否强制组板
+        if (!scanPackageDto.getIsForceCombination()) {
+            UnloadScanDto unloadScanDto = createUnloadDto(scanPackageDto, unloadVehicleEntity);
+            //推验货任务
+            jyUnloadVehicleCheckTysService.inspection(boxCode, unloadScanDto);
+            // 设置重复拦截缓存
+            jyUnloadVehicleCheckTysService.setCacheOfSealCarAndPackageIntercept(bizId, boxCode);
+            // 组装返回数据
+            jyUnloadVehicleCheckTysService.assembleReturnData(scanPackageDto, scanPackageRespDto, unloadVehicleEntity, unloadScanDto);
+            // 货区校验
+            String checkResult = jyUnloadVehicleCheckTysService.checkGoodsArea(scanPackageDto, scanPackageRespDto);
+            if (StringUtils.isNotBlank(checkResult)) {
+                invokeResult.customMessage(InvokeResult.CODE_HINT, checkResult);
+                return invokeResult;
+            }
+            // 人工卸车模式组板校验
+            if (UnloadCarTypeEnum.MANUAL_TYPE.getCode().equals(scanPackageDto.getWorkType())) {
+                // 路由校验、生成板号
+                boolean routerCheckResult = jyUnloadVehicleCheckTysService.routerCheck(scanPackageRespDto, scanPackageDto);
+                if (!routerCheckResult) {
+                    log.info("packageCodeScanNew--路由校验失败：该箱内包裹流向与当前板号流向不一致, req=【{}】,res=【{}】", JsonUtils.toJSONString(scanPackageDto), JsonUtils.toJSONString(invokeResult));
+                    return invokeResult;
+                }
+                // 是否发货校验
+                jyUnloadVehicleCheckTysService.isSendCheck(scanPackageDto);
+                // 板上包裹数限制
+                jyUnloadVehicleCheckTysService.packageCountCheck(scanPackageDto);
+                // ver组板拦截校验
+                String boardCheckStr = jyUnloadVehicleCheckTysService.boardCombinationCheck(scanPackageDto);
+                if (StringUtils.isNotBlank(boardCheckStr)) {
+                    invokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, boardCheckStr);
+                    return invokeResult;
+                }
+            }
+        }
+        // 人工卸车模式组板
+        if (UnloadCarTypeEnum.MANUAL_TYPE.getCode().equals(scanPackageDto.getWorkType())) {
+            // 卸车处理并回传TC组板关系
+            jyUnloadVehicleCheckTysService.dealUnloadAndBoxToBoard(scanPackageDto, scanPackageRespDto);
+        }
+        return invokeResult;
     }
 
 }

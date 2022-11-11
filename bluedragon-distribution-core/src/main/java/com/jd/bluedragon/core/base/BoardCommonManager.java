@@ -43,13 +43,30 @@ public interface BoardCommonManager {
      * @param operateType 操作类型
      */
     void sendWaybillTrace(BoardCommonRequest request, Integer operateType);
+    /**
+     * 发送箱号组板全程跟踪
+     * @param request
+     * @param operateType 操作类型
+     */
+    public void sendBoxWaybillTrace(BoardCommonRequest request, Integer operateType);
 
     /**
      * 创建单个组板
+     * 按运单或包裹  板流向取包裹路由
+     *
      * @param request
      * @return
      */
     InvokeResult<Board> createBoardCode(BoardCommonRequest request);
+
+    /**
+     * 创建单个组板
+     * 按箱号  板流向由调用方给出
+     * @param request
+     * @return
+     */
+    InvokeResult<Board> createBoardCodeByBox(BoardCommonRequest request);
+
 
     /**
      * 组板转移
