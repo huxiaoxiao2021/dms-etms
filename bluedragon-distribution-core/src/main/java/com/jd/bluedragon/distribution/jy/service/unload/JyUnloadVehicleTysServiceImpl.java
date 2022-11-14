@@ -549,7 +549,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             // 货区校验
             String checkResult = jyUnloadVehicleCheckTysService.checkGoodsArea(scanPackageDto, scanPackageRespDto);
             if (StringUtils.isNotBlank(checkResult)) {
-                invokeResult.customMessage(InvokeResult.CODE_HINT, checkResult);
+                invokeResult.customMessage(InvokeResult.CODE_SPECIAL_INTERCEPT, checkResult);
                 return invokeResult;
             }
             // B网快运发货规则校验
@@ -654,7 +654,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         // 货区校验
         String checkResult = jyUnloadVehicleCheckTysService.checkGoodsArea(scanPackageDto, scanPackageRespDto);
         if (StringUtils.isNotBlank(checkResult)) {
-            invokeResult.customMessage(InvokeResult.CODE_HINT, checkResult);
+            invokeResult.customMessage(InvokeResult.CODE_SPECIAL_INTERCEPT, checkResult);
             return invokeResult;
         }
         // 专网校验
