@@ -3,8 +3,9 @@ package com.jd.bluedragon.distribution.jy.service.send;
 import com.jd.bluedragon.common.dto.comboard.request.*;
 import com.jd.bluedragon.common.dto.comboard.response.*;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.utils.ObjectHelper;
 
-public class JyComBoardSendServiceImpl implements JyComBoardSendService{
+public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     @Override
     public InvokeResult<CrossDataResp> listCrossData(CrossDataReq request) {
         return null;
@@ -62,8 +63,26 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService{
 
     @Override
     public InvokeResult<ComboardScanResp> comboardScan(ComboardScanReq request) {
-        
+        checkComboardScanReq(request);
+        if (ObjectHelper.isNotNull(request.getBoardCode())) {
+
+        } else {
+
+        }
+
         return null;
+    }
+
+    private void checkComboardScanReq(ComboardScanReq request) {
+        if (ObjectHelper.isNotNull(request.getBoardCode())) {
+            //validateStatus(request.getBoardCode());//是不是进行中状态
+            //count是不是在限制一下
+
+
+
+        }
+        //扫货方式和扫描单号校验 包裹流向跟当前流向是否一致
+
     }
 
     @Override

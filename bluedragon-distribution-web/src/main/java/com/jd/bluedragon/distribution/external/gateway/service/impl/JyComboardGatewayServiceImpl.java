@@ -4,12 +4,18 @@ import com.jd.bluedragon.common.UnifiedExceptionProcess;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.comboard.request.*;
 import com.jd.bluedragon.common.dto.comboard.response.*;
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.jy.service.send.JyComBoardSendService;
 import com.jd.bluedragon.external.gateway.service.JyComboardGatewayService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @Slf4j
 @UnifiedExceptionProcess
 public class JyComboardGatewayServiceImpl implements JyComboardGatewayService {
+    @Autowired
+    JyComBoardSendService jyComBoardSendService;
+
     @Override
     public JdCResponse<CrossDataResp> listCrossData(CrossDataReq request) {
         return null;
@@ -67,7 +73,7 @@ public class JyComboardGatewayServiceImpl implements JyComboardGatewayService {
 
     @Override
     public JdCResponse<ComboardScanResp> comboardScan(ComboardScanReq request) {
-        return null;
+        return retJdCResponse(jyComBoardSendService.comboardScan(request));
     }
 
     @Override
@@ -103,5 +109,8 @@ public class JyComboardGatewayServiceImpl implements JyComboardGatewayService {
     @Override
     public JdCResponse<SendFlowExcepStatisticsResp> queryExcepScanStatisticsUnderCTTGroup(SendFlowExcepStatisticsReq request) {
         return null;
+    }
+    private <T> JdCResponse<T> retJdCResponse(InvokeResult<T> invokeResult) {
+        return new JdCResponse<>(invokeResult.getCode(), invokeResult.getMessage(), invokeResult.getData());
     }
 }

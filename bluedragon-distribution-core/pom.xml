@@ -1911,18 +1911,6 @@
 			<version>1.0-SNAPSHOT</version>
 		</dependency>
 
-		<dependency>
-			<groupId>com.jd.jim.cli</groupId>
-			<artifactId>jim-cli-spring</artifactId>
-			<version>2.0.9</version>
-		</dependency>
-
-		<dependency>
-			<groupId>com.jd.jimdb.lock</groupId>
-			<artifactId>jimdb-distributed-lock</artifactId>
-			<version>1.0.3-releases</version>
-		</dependency>
-
     </dependencies>
 
 	<profiles>
