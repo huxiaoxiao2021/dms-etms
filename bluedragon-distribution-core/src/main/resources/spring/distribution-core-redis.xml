@@ -30,24 +30,6 @@
 		<property name="jimUrl" value="${redis.jy.config.url}"/>
 	</bean>
 
-	<!--JimDB数据源（默认提供JimDbClusterProxy实现了ClusterProxy，如需要其他方式动态注入数据源，新建一个类实现ClusterProxy重写一个即可）-->
-	<bean id="cacheClient4LockProxy" class="com.jd.gms.lock.config.JimDbClusterProxy">
-		<property name="cluster" ref="redisClientOfJy"/>
-	</bean>
-
-	<!--timer时间轮定时器-->
-	<bean id="timer" class="io.netty.util.HashedWheelTimer"/>
-	<!--JimDB分布式锁校验-->
-	<bean id="jimDbLockUtils" class="com.jd.gms.lock.utils.JimDbLockUtils">
-		<property name="cacheClient4LockProxy" ref="cacheClient4LockProxy"/>
-		<property name="timer" ref="timer"/>
-		<!--UMP监控KEY-->
-		<property name="jimDbLockUtilsUmpKey" value="${jimdbLock.jimDbLockUtilsUmpKey}"/>
-		<!--释放锁script-sha-->
-		<property name="releaseKeyScriptSha" value="${jimdbLock.releaseKeyScriptSha}"/>
-		<!--续期script-sha-->
-		<property name="renewExpirationScriptSha" value="${jimdbLock.renewExpirationScriptSha}"/>
-	</bean>
 
 	<!-- 静态配置 -->
 	<!-- bean id="redisClient" class="com.jd.cachecloud.client.StaticRedisClientFactoryBean">
