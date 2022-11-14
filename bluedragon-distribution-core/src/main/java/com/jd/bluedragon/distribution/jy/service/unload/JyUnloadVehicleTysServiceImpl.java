@@ -6,6 +6,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.UnifiedExceptionProcess;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.unload.request.UnloadCompleteRequest;
+import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BoardCommonManager;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
@@ -818,11 +819,22 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         invokeResult.setData(scanPackageRespDto);
         // 按件扫描
         if (ScanTypeEnum.SCAN_ONE.getCode().equals(scanPackageDto.getType())) {
+            BoardScanTypeDto boardScanTypeDto = jyUnloadVehicleCheckTysService.getBoardTypeCache(scanPackageDto.getCurrentOperate().getSiteCode(), scanPackageDto.getBoardCode());
+            //理论上开板之后都需要校验，开板不需要
+            boolean boardTypeNeedCheck = (StringUtils.isBlank(scanPackageDto.getBoardCode()) || StringUtils.isBlank(boardScanTypeDto.getBoardType())) ? false : true;
             // 包裹号
             if (WaybillUtil.isPackageCode(scanPackageDto.getScanCode())) {
+                if(boardTypeNeedCheck && !CacheKeyConstants.BOARD_SCAN_TYPE_PACKAGE.equals(boardScanTypeDto.getBoardType())) {
+                    invokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, "箱号和包裹号不允许组同板，请扫描包裹号或开板扫箱号");
+                    return invokeResult;
+                }
                 return packageScan(scanPackageDto, unloadVehicleEntity, invokeResult);
                 // 箱号
             } else if (BusinessUtil.isBoxcode(scanPackageDto.getScanCode())) {
+                if(boardTypeNeedCheck && !CacheKeyConstants.BOARD_SCAN_TYPE_BOX.equals(boardScanTypeDto.getBoardType())) {
+                    invokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, "箱号和包裹号不允许组同板，请扫描箱号或开板扫包裹号");
+                    return invokeResult;
+                }
                 return boxScan(scanPackageDto, unloadVehicleEntity, invokeResult);
             }
             // 按单扫描

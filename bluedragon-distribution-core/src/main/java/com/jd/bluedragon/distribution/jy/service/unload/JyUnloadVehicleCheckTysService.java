@@ -1,7 +1,9 @@
 package com.jd.bluedragon.distribution.jy.service.unload;
 
+import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BoardCommonManager;
@@ -19,6 +21,7 @@ import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRecord
 import com.jd.bluedragon.distribution.jy.config.WaybillConfig;
 import com.jd.bluedragon.distribution.jy.dao.config.WaybillConfigDao;
 import com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadVehicleBoardDao;
+import com.jd.bluedragon.distribution.jy.dto.unload.BoardScanTypeDto;
 import com.jd.bluedragon.distribution.jy.dto.unload.ScanPackageDto;
 import com.jd.bluedragon.distribution.jy.dto.unload.ScanPackageRespDto;
 import com.jd.bluedragon.distribution.jy.dto.unload.UnloadScanDto;
@@ -135,6 +138,10 @@ public class JyUnloadVehicleCheckTysService {
 
     @Resource
     private Cluster redisClientCache;
+
+    @Autowired
+    @Qualifier("redisClientOfJy")
+    private Cluster redisClientOfJy;
 
 
 
@@ -617,6 +624,7 @@ public class JyUnloadVehicleCheckTysService {
             BoardCommonRequest boardCommonRequest = createBoardCommonRequest(request);
             if (response.getCode() == ResponseEnum.SUCCESS.getIndex()) {
                 result.setAddBoardSuccessFlag(true);
+                setBoardTypeCache(request);
                 // 保存任务和板的关系
                 saveUnloadVehicleBoard(request);
                 // 设置板上已组包裹数
@@ -658,6 +666,7 @@ public class JyUnloadVehicleCheckTysService {
                         throw new LoadIllegalException(LoadIllegalException.BOARD_MOVED_FAIL_INTERCEPT_MESSAGE);
                     }
                     result.setAddBoardSuccessFlag(true);
+                    setBoardTypeCache(request);
 
                     // 保存任务和板的关系
                     saveUnloadVehicleBoard(request);
@@ -1044,4 +1053,37 @@ public class JyUnloadVehicleCheckTysService {
     }
 
 
+    public void setBoardTypeCache(ScanPackageDto scanPackageDto) {
+        String cacheKey= CacheKeyConstants.REDIS_PREFIX_BOARD_SCAN_TYPE + scanPackageDto.getCurrentOperate().getSiteCode() +":" + scanPackageDto.getBoardCode();
+        //记录板号扫的包裹还是箱号（冷链医药围板箱组板单独码放，不能和包裹混组）
+        if(StringUtils.isNotBlank(redisClientOfJy.get(cacheKey))) {
+            return;
+        }
+        BoardScanTypeDto boardScanTypeDto = new BoardScanTypeDto();
+        boardScanTypeDto.setBoard(scanPackageDto.getBoardCode());
+        boardScanTypeDto.setFirstScanCode(scanPackageDto.getScanCode());
+        boardScanTypeDto.setFirstScanTime(System.currentTimeMillis());
+        boardScanTypeDto.setSiteCode(scanPackageDto.getCurrentOperate().getSiteCode());
+        boardScanTypeDto.setBizId(scanPackageDto.getBizId());
+        if(BusinessUtil.isBoxcode(scanPackageDto.getScanCode())) {
+            boardScanTypeDto.setBoardType(CacheKeyConstants.BOARD_SCAN_TYPE_PACKAGE);
+        }else if(WaybillUtil.isPackageCode(scanPackageDto.getScanCode())) {
+            boardScanTypeDto.setBoardType(CacheKeyConstants.BOARD_SCAN_TYPE_BOX);
+        }else {
+            boardScanTypeDto.setBoardType(CacheKeyConstants.BOARD_SCAN_TYPE_ELSE);
+        }
+        //卸车岗任务完成之后可扫包裹，无时间控制，该过期时间不宜过短
+        redisClientOfJy.setEx(cacheKey, JsonUtils.toJSONString(boardScanTypeDto), 35, TimeUnit.DAYS);
+    }
+
+    public BoardScanTypeDto getBoardTypeCache(Integer siteCode, String boardCode) {
+        if(siteCode == null || StringUtils.isEmpty(boardCode)) {
+            return new BoardScanTypeDto();
+        }
+        String cacheKey= CacheKeyConstants.REDIS_PREFIX_BOARD_SCAN_TYPE + siteCode +":" + boardCode;
+        String cacheValue = redisClientOfJy.get(cacheKey);
+        BoardScanTypeDto res = JSONObject.parseObject(cacheValue, BoardScanTypeDto.class);
+
+        return res == null ? new BoardScanTypeDto() : res;
+    }
 }
