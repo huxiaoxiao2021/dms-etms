@@ -114,4 +114,9 @@ public class UserSignRecordJsfServiceImpl implements UserSignRecordJsfService {
 		return userSignRecordService.queryUserSignRecordToNoticeVo(query);
 	}
 
+	@Override
+	public Result<List<UserSignRecord>> queryUnsignedOutRecordByRefGridKey(String refGridKey) {
+		return userSignRecordService.queryUnsignedOutRecordByRefGridKey(refGridKey);
+	}
+
 }

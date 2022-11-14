@@ -171,4 +171,9 @@ public class UserSignRecordDaoImpl extends BaseDao<UserSignRecord> implements Us
 	public List<UserSignRecordData> queryListByOperateUser(UserSignQueryRequest query) {
 		return this.getSqlSession().selectList(NAMESPACE+".queryListByOperateUser",query);
 	}
+
+	@Override
+	public List<UserSignRecord> queryUnsignedOutRecordByRefGridKey(String refGridKey) {
+		return this.getSqlSession().selectList(NAMESPACE + ".queryUnsignedOutRecordByRefGridKey", refGridKey);
+	}
 }

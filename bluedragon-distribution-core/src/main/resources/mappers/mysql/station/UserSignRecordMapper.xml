@@ -942,4 +942,15 @@
             and r.sign_date = #{signDate,jdbcType=DATE}
         </where>
     </sql>
+
+	<select id="queryUnsignedOutRecordByRefGridKey" parameterType="java.lang.String" resultMap="UserSignRecord">
+		select
+			<include refid="Main_Column_List"/>
+		from
+			user_sign_record r
+		where
+		    r.yn = 1
+			and r.ref_grid_key = #{refGridKey,jdbcType=VARCHAR}
+			and sign_out_time is null
+	</select>
 </mapper>

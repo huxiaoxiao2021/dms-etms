@@ -1111,6 +1111,13 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 			}
 		}
 	}
+
+	public Result<List<UserSignRecord>> queryUnsignedOutRecordByRefGridKey(String refGridKey){
+		Result result = new Result<>();
+		result.toSuccess();
+		result.setData(userSignRecordDao.queryUnsignedOutRecordByRefGridKey(refGridKey));
+		return result;
+	}
 	/**
 	 * 签到处理上下文
 	 * @author wuyoude
