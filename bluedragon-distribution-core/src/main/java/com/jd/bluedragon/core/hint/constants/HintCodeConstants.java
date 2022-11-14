@@ -520,6 +520,18 @@ public class HintCodeConstants {
      * 不允许按直发医药箱号进行发货，请拆箱后再进行发货
      */
     public static String CODE_COLD_CHAIN_SEND_BOX_ERROR = "20086";
+    /**
+     * 此单为改址拦截单，请到'分拣打印-包裹补打'中补打包裹面单后再发货
+     */
+    public static String PACK_KY_ADDRESS_MODIFY_INTERCEPT = "20087";
+    /**
+     * 此单为改址拦截单，请补打包裹：{0}后在操作按运单发货
+     */
+    public static String WAYBILL_KY_ADDRESS_MODIFY_INTERCEPT_HINT = "20088";
+    /**
+     * 此单为改址拦截单，请按包裹维度发货，禁止运单维度发货
+     */
+    public static String WAYBILL_KY_ADDRESS_MODIFY_INTERCEPT = "20089";
 
     /*##############################################拦截相关END#########################################################*/
 

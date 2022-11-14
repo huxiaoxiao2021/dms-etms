@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.waybill.service;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.TerminalManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
@@ -198,7 +199,7 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 		bdTraceDto.setPackageBarCode(tWaybillStatus.getPackageCode());
 		bdTraceDto.setWaybillCode(tWaybillStatus.getWaybillCode());
         bdTraceDto.setOperatorUserId(null!=tWaybillStatus.getOperatorId()?tWaybillStatus.getOperatorId():0);
-
+		bdTraceDto.setExtendParameter(tWaybillStatus.getExtendParamMap());
 	}
 	
 	// 没有注入运单号和包裹号 (封车)
@@ -209,6 +210,7 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 		bdTraceDto.setOperatorTime(tWaybillStatus.getOperateTime());
 		bdTraceDto.setOperatorUserName(tWaybillStatus.getOperator());
         bdTraceDto.setOperatorUserId(null!=tWaybillStatus.getOperatorId()?tWaybillStatus.getOperatorId():0);
+		bdTraceDto.setExtendParameter(tWaybillStatus.getExtendParamMap());
 	}
 	
 	// 没有注入运单号和包裹号 (解封车)
@@ -219,6 +221,7 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 		bdTraceDto.setOperatorTime(tWaybillStatus.getOperateTime());
 		bdTraceDto.setOperatorUserName(tWaybillStatus.getOperator());
         bdTraceDto.setOperatorUserId(null!=tWaybillStatus.getOperatorId()?tWaybillStatus.getOperatorId():0);
+		bdTraceDto.setExtendParameter(tWaybillStatus.getExtendParamMap());
 	}
 
 	private Task findTask(List<Task> tasks, Long taskId, Integer taskType) {
@@ -523,7 +526,7 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
                 }
                 toWaybillStatus(tWaybillStatus, bdTraceDto);
                 bdTraceDto.setOperatorDesp(tWaybillStatus.getRemark());
-                Map<String,Object> map=new HashMap<String, Object>();
+                Map<String,Object> map = bdTraceDto.getExtendParameter() == null ? Maps.<String, Object>newHashMap() : bdTraceDto.getExtendParameter();
                 /**
                  * create by: yangwenshu
                  * description:把新运单号加入ExtendParameter  Map里，用于换单打印场景

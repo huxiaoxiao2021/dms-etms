@@ -1,6 +1,9 @@
 package com.jd.bluedragon.distribution.waybill.domain;
 
+import com.google.common.collect.Maps;
+
 import java.util.Date;
+import java.util.Map;
 
 public class WaybillStatus {
 
@@ -299,6 +302,9 @@ public class WaybillStatus {
      */
     private String returnWaybillCode;
 
+    // 额外属性，同步运单全程跟踪对象属性
+    private Map<String, Object> extendParamMap;
+
     public Long getId() {
         return this.id;
     }
@@ -465,5 +471,13 @@ public class WaybillStatus {
 
     public void setReturnWaybillCode(String returnWaybillCode) {
         this.returnWaybillCode = returnWaybillCode;
+    }
+
+    public Map<String, Object> getExtendParamMap() {
+        return extendParamMap;
+    }
+
+    public void setExtendParamMap(Map<String, Object> extendParamMap) {
+        this.extendParamMap = extendParamMap;
     }
 }

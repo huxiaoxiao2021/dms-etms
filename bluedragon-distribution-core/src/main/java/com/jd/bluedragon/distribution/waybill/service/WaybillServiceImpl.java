@@ -748,6 +748,72 @@ public class WaybillServiceImpl implements WaybillService {
     }
 
     @Override
+    public BlockResponse checkPackageBlockByFeatureTypes(String packageCode, List<Integer> featureTypes) {
+        BlockResponse cancelResponse = new BlockResponse();
+        if (!WaybillUtil.isPackageCode(packageCode) || CollectionUtils.isEmpty(featureTypes)) {
+            cancelResponse.setMessage("请求参数不合法!");
+            cancelResponse.setCode(BlockResponse.ERROR_PARAM);
+            return cancelResponse;
+        }
+        // 根据包裹号查询拦截记录
+        List<CancelWaybill> lockPackRecordList
+                = cancelWaybillDao.findPackageBlockedByCodeAndFeatureTypes(packageCode, CancelWaybill.BUSINESS_TYPE_LOCK, featureTypes);
+        if (CollectionUtils.isEmpty(lockPackRecordList)) {
+            cancelResponse.setMessage("没有拦截记录无需拦截");
+            cancelResponse.setCode(BlockResponse.NO_NEED_BLOCK);
+            log.info(MessageFormat.format("根据包裹号：{0}未查到拦截记录", packageCode));
+            return cancelResponse;
+        }
+        // 获取最近的一条拦截记录
+        CancelWaybill recentBlockPackRecord = lockPackRecordList.get(0);
+        cancelResponse.setMessage("该包裹拦截待处理");
+        cancelResponse.setCode(BlockResponse.BLOCK);
+        cancelResponse.setFeatureType(recentBlockPackRecord.getFeatureType());
+        cancelResponse.setBlockPackageCount(1L);
+        cancelResponse.setBlockPackages(Collections.singletonList(packageCode));
+        log.info("包裹号：{}当前是：{}的拦截状态!", packageCode, recentBlockPackRecord.getFeatureType());
+        return cancelResponse;
+    }
+
+    @Override
+    public BlockResponse checkWaybillBlockByFeatureTypes(String waybillCode, List<Integer> featureTypes) {
+        BlockResponse cancelResponse = new BlockResponse();
+        if (!WaybillUtil.isWaybillCode(waybillCode) || CollectionUtils.isEmpty(featureTypes)) {
+            cancelResponse.setMessage("请求参数不合法!");
+            cancelResponse.setCode(BlockResponse.ERROR_PARAM);
+            return cancelResponse;
+        }
+        List<CancelWaybill> lockWaybillRecordList
+                = cancelWaybillDao.findWaybillCancelByCodeAndFeatureTypes(waybillCode, CancelWaybill.BUSINESS_TYPE_LOCK, featureTypes);
+        // 无需拦截
+        if (CollectionUtils.isEmpty(lockWaybillRecordList)) {
+            cancelResponse.setMessage("没有拦截记录无需拦截");
+            cancelResponse.setCode(BlockResponse.NO_NEED_BLOCK);
+            log.info(MessageFormat.format("根据运单号：{0}未查到拦截记录", waybillCode));
+            return cancelResponse;
+        }
+        // 获取最近的一条拦截记录
+        CancelWaybill recentBlockWaybillRecord = lockWaybillRecordList.get(0);
+        Integer currentInterceptFeatureType = recentBlockWaybillRecord.getFeatureType();
+        // 如果是包裹维度也需要拦截的业务类型
+        if (CancelWaybill.FEATURE_TYPES_NEED_PACKAGE_DEAL.contains(currentInterceptFeatureType)) {
+            log.info("运单：{}的拦截未完成，有包裹未处理。", waybillCode);
+            List<CancelWaybill> cancelWaybills = cancelWaybillDao.findPackageCodesByFeatureTypeAndWaybillCode(
+                    waybillCode, currentInterceptFeatureType, CancelWaybill.BUSINESS_TYPE_LOCK, CancelWaybill.BLOCK_PACKAGE_QUERY_NUMBER);
+            List<String> packageCodes = getPackageCodes(cancelWaybills);
+            Long PackageCount = cancelWaybillDao.findPackageCodeCountByFeatureTypeAndWaybillCode(waybillCode,
+                    currentInterceptFeatureType, CancelWaybill.BUSINESS_TYPE_LOCK);
+            cancelResponse.setBlockPackageCount(PackageCount);
+            cancelResponse.setBlockPackages(packageCodes);
+        }
+        cancelResponse.setFeatureType(currentInterceptFeatureType);
+        cancelResponse.setMessage("该运单拦截待处理");
+        cancelResponse.setCode(BlockResponse.BLOCK);
+        log.info(MessageFormat.format("根据运单号：{0}查询到该包裹未拦截状态", waybillCode));
+        return cancelResponse;
+    }
+
+    @Override
     public Integer getRouterFromMasterDb(String waybillCode, Integer createSiteCode) {
         // 根据waybillCode查库获取路由信息
         String router = waybillCacheService.getRouterByWaybillCode(waybillCode);
