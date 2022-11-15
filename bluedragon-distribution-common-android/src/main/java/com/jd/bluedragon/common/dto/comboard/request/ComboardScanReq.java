@@ -9,6 +9,12 @@ public class ComboardScanReq extends BaseReq implements Serializable {
     private String barCode;
     private String boardCode;
     private int scanType;
+    /**
+     * 混扫任务编号
+     */
+    private String templateCode;
+
+
 
     public String getBarCode() {
         return barCode;
@@ -32,5 +38,13 @@ public class ComboardScanReq extends BaseReq implements Serializable {
 
     public void setScanType(int scanType) {
         this.scanType = scanType;
+    }
+
+    public String getTemplateCode() {
+        return templateCode;
+    }
+
+    public void setTemplateCode(String templateCode) {
+        this.templateCode = templateCode;
     }
 }
