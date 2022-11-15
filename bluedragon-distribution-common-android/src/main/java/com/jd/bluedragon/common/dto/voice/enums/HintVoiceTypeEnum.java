@@ -14,7 +14,8 @@ public enum HintVoiceTypeEnum {
     HINT_VOICE_TYPE_HINT(0, "提示"),
     HINT_VOICE_TYPE_WARN(1, "警告"),
     HINT_VOICE_TYPE_ERROR(2, "错误"),
-    HINT_VOICE_TYPE_EX(3, "异常")
+    HINT_VOICE_TYPE_EX(3, "异常"),
+    HINT_VOICE_TYPE_SUC(4, "成功"),
     ;
 
     public static final Map<Integer, String> enumMap;
