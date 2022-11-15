@@ -265,7 +265,10 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
         try {
             // 图片缓存处理
             if(!spotCheckPicUrlCacheDealIsSuc(packageCode, siteCode, pictureUrl)){
+                CallerInfo multiUploadCallerInfo = Profiler.registerInfo("dmsWeb.spotCheck.SpotCheckDealService.dealPictureUrl.multiUpload",
+                        Constants.UMP_APP_NAME_DMSWEB,false,true);
                 logger.warn("站点：{}包裹号：{}的图片已存在!", siteCode, packageCode);
+                Profiler.registerInfoEnd(multiUploadCallerInfo);
                 return;
             }
             // 执行抽检改造
