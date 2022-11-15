@@ -962,6 +962,9 @@
         <if test="createSiteCode != null">
             and create_site_code = #{createSiteCode}
         </if>
+		<if test="receiveSiteCode != null">
+			and receive_site_code = #{receiveSiteCode}
+		</if>
     </select>
 
 	<select id="findOneByWaybillCode" resultMap="SendDetail" parameterType="SendDetail">

@@ -48,21 +48,27 @@ public class SpotCheckConstants {
     public static final int B_VOLUME_RATIO_NOT_TKZH = 4800;
 
     /**
-     * 重泡比标准值
+     * 泡重比最大值
      * */
-    public static final int WEIGHT_VOLUME_RATIO = 7800;
+    public static final double VOLUME_WEIGHT_RATIO_MAX = 0.2;
+
     /**
-     * 重量限额，5000KG
-     * */
-    public static final int WEIGHT_MAX_RATIO = 5000;
+     * 泡重比最小值
+     */
+    public static final double VOLUME_WEIGHT_RATIO_MIN = 0.0005;
     /**
-     * 体积限额,5cm³
+     * 重量限额，62500KG(运单维度)
      * */
-    public static final int VOLUME_MAX_RATIO = 5;
+    public static final int WEIGHT_MAX_RATIO = 62500;
+    /**
+     * 体积限额,300m³（运单维度）
+     * */
+    public static final int VOLUME_MAX_RATIO = 300;
     /**
      * cm3和m3的转换值
      */
     public static final long CM3_M3_MAGNIFICATION = 1000000;
+
 
     /**
      * 抽检全程跟踪术语
@@ -113,6 +119,10 @@ public class SpotCheckConstants {
     public static final String SPOT_CHECK_PACK_SEND_REFORM = "运单下包裹%s已发货,不支持人工抽检!";
     public static final String SPOT_CHECK_PACK_SPOT_CHECK_REFORM = "运单下包裹%s已抽检,不支持人工抽检!";
     public static final String SPOT_CHECK_PACK_SPOT_SEND_NOT_CHECK = "运单下有包裹已发货未抽检,禁止操作!!";
+
+    public static final String SPOT_CHECK_EXCESS_LIMITATION = "货物超大超重，请注意重量体积是否有误！";
+    public static final String SPOT_CHECK_NOT_MEET_THEORETICAL_VALUE = "您录入的重量或者体积可能错误，不符合货物理论大小，请仔细核对!";
+    public static final String WOODEN_FRAME_NOT_SUPPORT_ARTIFICIAL_SPOT_CHECK = "该运单存在打木架服务，暂不支持称重举报!";
 
     /**
      * AI识别图片类型
