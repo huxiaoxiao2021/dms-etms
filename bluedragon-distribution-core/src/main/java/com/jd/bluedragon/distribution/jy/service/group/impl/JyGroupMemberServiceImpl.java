@@ -183,6 +183,11 @@ public class JyGroupMemberServiceImpl implements JyGroupMemberService {
 			List<UserSignRecord> signList = userSignRecordService.queryUnSignOutListWithPosition(query);
 			if(!CollectionUtils.isEmpty(signList)) {
 				for(UserSignRecord signData: signList) {
+					//排除当前签到人员
+					if(JyGroupMemberTypeEnum.PERSON.getCode().equals(addMemberRequest.getMemberType())&&
+							signData.getId().equals(addMemberRequest.getSignRecordId())) {
+						continue;
+					}
 					JyGroupMemberEntity member = new JyGroupMemberEntity();
 					member.setMemberType(JyGroupMemberTypeEnum.PERSON.getCode());
 					generateAndSetMemberCode(member);
