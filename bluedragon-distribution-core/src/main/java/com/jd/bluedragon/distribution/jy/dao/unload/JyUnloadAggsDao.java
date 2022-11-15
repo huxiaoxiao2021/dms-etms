@@ -39,6 +39,7 @@ public class JyUnloadAggsDao extends BaseDao<JyUnloadAggsEntity> {
         return this.getSqlSession().selectList(NAMESPACE + ".queryByBizId", entity);
     }
 
+    //查包裹维度任务统计信息
     public JyUnloadAggsEntity queryPackageStatistics(DimensionQueryDto dto) {
         return this.getSqlSession().selectOne(NAMESPACE + ".queryPackageStatistics", dto);
     }
@@ -47,6 +48,7 @@ public class JyUnloadAggsDao extends BaseDao<JyUnloadAggsEntity> {
         return this.getSqlSession().selectOne(NAMESPACE + ".queryToScanAndMoreScanStatistics", bizId);
     }
 
+    //查运单维度任务统计信息
     public JyUnloadAggsEntity queryWaybillStatisticsUnderTask(DimensionQueryDto dto) {
         return this.getSqlSession().selectOne(NAMESPACE + ".queryWaybillStatisticsUnderTask", dto);
     }

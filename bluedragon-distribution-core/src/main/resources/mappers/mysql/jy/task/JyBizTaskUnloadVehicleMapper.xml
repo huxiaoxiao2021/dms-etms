@@ -92,7 +92,9 @@
         task_type,
         unload_type,
         railway_pf_no,
-        unload_start_time
+        unload_start_time,
+        comboard_count,
+        intercept_count
     </sql>
 
 
@@ -415,6 +417,7 @@
         <if test="vehicleStatus !=null and vehicleStatus==5">
             order by unload_finish_time desc
         </if>
+
     </select>
 
 
@@ -505,8 +508,7 @@
             vehicle_status = #{vehicleStatus},
             update_user_erp = #{updateUserErp},
             update_user_name = #{updateUserName},
-            update_time = #{updateTime},
-            unload_start_time = #{unloadStartTime}
+            update_time = #{updateTime}
         </set>
 
         <where>
@@ -553,6 +555,12 @@
             </if>
             <if test="updateTime != null">
                 update_time = #{updateTime},
+            </if>
+            <if test="taskType != null">
+                task_type = #{taskType},
+            </if>
+            <if test="unloadType != null">
+                unload_type =#{unloadType},
             </if>
         </set>
         <where>
@@ -632,9 +640,7 @@
             <if test="unloadType != null">
                 unload_type =#{unloadType},
             </if>
-            <if test="taskType != null">
-                task_type = #{taskType},
-            </if>
+
         </set>
         <where>
             id = #{id}

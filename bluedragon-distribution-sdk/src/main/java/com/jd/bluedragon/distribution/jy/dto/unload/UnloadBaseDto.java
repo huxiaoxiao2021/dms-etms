@@ -3,15 +3,12 @@ package com.jd.bluedragon.distribution.jy.dto.unload;
 import com.jd.bluedragon.distribution.jy.dto.CurrentOperate;
 import com.jd.bluedragon.distribution.jy.dto.User;
 
-import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
 public class UnloadBaseDto implements Serializable {
 
     private static final long serialVersionUID = 2419641078080000602L;
-    @NotNull(message = "操作人单位信息不能为空")
     private CurrentOperate currentOperate;
-    @NotNull(message = "操作人信息不能为空")
     private User user;
     private String vehicleNumber;
 

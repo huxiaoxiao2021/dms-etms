@@ -489,27 +489,20 @@ public class JyUnloadVehicleCheckTysService {
         }
         // 非第一次则校验目的地是否一致
         String waybillCode = WaybillUtil.getWaybillCode(request.getScanCode());
-        Integer nextSiteCode;
+        if (request.getNextSiteCode() == null) {
+            // 此处直接返回，因为ver组板校验链会判断
+            return true;
+        }
         Integer destinationId = null;
-        try {
-            nextSiteCode = request.getNextSiteCode();
-            if (nextSiteCode == null) {
-                // 此处直接返回，因为ver组板校验链会判断
-                return true;
-            }
-            Response<Board> result = groupBoardManager.getBoard(request.getBoardCode());
-            if (result != null && result.getCode() == ResponseEnum.SUCCESS.getIndex() && result.getData() != null) {
-                destinationId = result.getData().getDestinationId();
-            }
-        } catch (Exception e) {
-            log.error("运单号【{}】的路由下一跳和板号【{}】目的地校验异常", waybillCode, request.getBoardCode(), e);
-            throw new LoadIllegalException(InvokeResult.SERVER_ERROR_MESSAGE);
+        Response<Board> result = groupBoardManager.getBoard(request.getBoardCode());
+        if (result != null && result.getCode() == ResponseEnum.SUCCESS.getIndex() && result.getData() != null) {
+            destinationId = result.getData().getDestinationId();
         }
         if (destinationId == null) {
             throw new LoadIllegalException(LoadIllegalException.BOARD_RECIEVE_EMPEY_INTERCEPT_MESSAGE);
         }
         request.setBoardDestinationId(destinationId);
-        if (!nextSiteCode.equals(destinationId)) {
+        if (!request.getNextSiteCode().equals(destinationId)) {
             Map<String, String> warnMsg = response.getWarnMsg();
             warnMsg.put(UnloadCarWarnEnum.FLOW_DISACCORD.getLevel(), UnloadCarWarnEnum.FLOW_DISACCORD.getDesc());
             return false;
@@ -605,6 +598,7 @@ public class JyUnloadVehicleCheckTysService {
             }
             BoardCommonRequest boardCommonRequest = createBoardCommonRequest(request);
             if (response.getCode() == ResponseEnum.SUCCESS.getIndex()) {
+                result.setAddBoardSuccessFlag(true);
                 // 保存任务和板的关系
                 saveUnloadVehicleBoard(request);
                 // 设置板上已组包裹数
@@ -641,6 +635,8 @@ public class JyUnloadVehicleCheckTysService {
                                 invokeResult.getData(), request.getBoardCode(), invokeResult.getMessage());
                         throw new LoadIllegalException(LoadIllegalException.BOARD_MOVED_FAIL_INTERCEPT_MESSAGE);
                     }
+                    result.setAddBoardSuccessFlag(true);
+
                     // 保存任务和板的关系
                     saveUnloadVehicleBoard(request);
                     // 设置板上已组包裹数，组板转移需要重新查询新板上已组包裹数
@@ -671,6 +667,7 @@ public class JyUnloadVehicleCheckTysService {
             }
             log.error("推TC组板关系异常,入参:addBoardBox={},error=", JsonHelper.toJson(addBoardBox), e);
         }
+        log.warn("组板失败：req={}", JsonUtils.toJSONString(request));
         throw new LoadIllegalException(LoadIllegalException.BOARD_TOTC_FAIL_INTERCEPT_MESSAGE);
     }
 
@@ -882,12 +879,12 @@ public class JyUnloadVehicleCheckTysService {
         if (StringUtils.isBlank(goodsAreaCode)) {
             return null;
         }
-        request.setGoodsAreaCode(goodsAreaCode);
         if (StringUtils.isNotBlank(request.getGoodsAreaCode())) {
             if (!goodsAreaCode.equals(request.getGoodsAreaCode())) {
                 return "扫描包裹非本货区，请移除本区！";
             }
         }
+        request.setGoodsAreaCode(goodsAreaCode);
         response.setGoodsAreaCode(goodsAreaCode);
         return null;
     }

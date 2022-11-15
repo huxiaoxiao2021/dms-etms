@@ -2,7 +2,6 @@ package com.jd.bluedragon.distribution.jy.manager;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
-import com.jd.ql.dms.common.constants.JyConstants;
 import com.jd.bluedragon.distribution.jy.exception.JyDemotionException;
 import com.jd.bluedragon.distribution.jy.service.config.JyDemotionService;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -11,6 +10,7 @@ import com.jd.jsf.gd.util.JsonUtils;
 import com.jd.ql.basic.dto.BaseGoodsAreaNextSiteDto;
 import com.jd.ql.basic.dto.ResultDTO;
 import com.jd.ql.basic.ws.BasicGoodsAreaWS;
+import com.jd.ql.dms.common.constants.JyConstants;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
@@ -18,8 +18,8 @@ import com.jd.ump.profiler.proxy.Profiler;
 import com.jdl.jy.realtime.api.unload.IUnloadVehicleJsfService;
 import com.jdl.jy.realtime.base.Pager;
 import com.jdl.jy.realtime.base.ServiceResult;
-import com.jdl.jy.realtime.model.es.unload.JyUnloadTaskWaybillAgg;
 import com.jdl.jy.realtime.model.es.unload.JySealCarDetail;
+import com.jdl.jy.realtime.model.es.unload.JyUnloadTaskWaybillAgg;
 import com.jdl.jy.realtime.model.es.unload.JyVehicleTaskUnloadDetail;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +28,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 import static com.jd.bluedragon.common.dto.base.response.JdCResponse.MESSAGE_SUCCESS;
 
