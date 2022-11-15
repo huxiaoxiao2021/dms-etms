@@ -204,6 +204,12 @@ public class PackageStatusServiceImpl implements PackageStatusService {
             basicPackageStatus.setOperatorName(bdTraceDto.getOperatorUserName());
             basicPackageStatus.setOperateTime(bdTraceDto.getOperatorTime());
             basicPackageStatus.setOperateTypeNode(bdTraceDto.getOperateType());
+            if (StringUtils.isNotBlank(bdTraceDto.getOperatorDesp())) {
+                String sendCode = bdTraceDto.getOperatorDesp().replace("取消发货，批次号为：", "");
+                if (BusinessUtil.isSendCode(sendCode)) {
+                    basicPackageStatus.setReceiveSiteCode(BusinessUtil.getReceiveSiteCodeFromSendCode(sendCode));
+                }
+            }
 
             //完善包裹包裹状态对象的始发、目的站点信息；物流状态信息
             fullPackageStatus(basicPackageStatus);
