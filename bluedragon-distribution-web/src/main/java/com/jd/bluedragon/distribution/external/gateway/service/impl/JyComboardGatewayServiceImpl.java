@@ -38,6 +38,11 @@ public class JyComboardGatewayServiceImpl implements JyComboardGatewayService {
   }
 
   @Override
+  public JdCResponse<CreateGroupCTTResp> getDefaultGroupCTTName() {
+    return null;
+  }
+
+  @Override
   public JdCResponse addCTT2Group(AddCTTReq request) {
     return null;
   }

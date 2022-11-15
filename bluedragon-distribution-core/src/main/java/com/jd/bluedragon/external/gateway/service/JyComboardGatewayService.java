@@ -27,6 +27,11 @@ public interface JyComboardGatewayService {
   JdCResponse<CreateGroupCTTResp> createGroupCTTData(CreateGroupCTTReq request);
 
   /**
+   * 获取默认混扫任务名称
+   */
+  JdCResponse<CreateGroupCTTResp> getDefaultGroupCTTName();
+
+  /**
    * 变更（添加或者移除滑道笼车流向）
    */
   JdCResponse addCTT2Group(AddCTTReq request);

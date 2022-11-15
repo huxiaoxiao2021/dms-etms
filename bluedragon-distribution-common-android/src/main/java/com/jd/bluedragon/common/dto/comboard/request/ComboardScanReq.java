@@ -7,14 +7,11 @@ import java.io.Serializable;
 public class ComboardScanReq extends BaseReq implements Serializable {
     private static final long serialVersionUID = -3505275696826500188L;
     private String barCode;
-    private String boardCode;
-    private int scanType;
+    private Integer scanType;
     /**
      * 混扫任务编号
      */
     private String templateCode;
-
-
 
     public String getBarCode() {
         return barCode;
@@ -24,19 +21,11 @@ public class ComboardScanReq extends BaseReq implements Serializable {
         this.barCode = barCode;
     }
 
-    public String getBoardCode() {
-        return boardCode;
-    }
-
-    public void setBoardCode(String boardCode) {
-        this.boardCode = boardCode;
-    }
-
-    public int getScanType() {
+    public Integer getScanType() {
         return scanType;
     }
 
-    public void setScanType(int scanType) {
+    public void setScanType(Integer scanType) {
         this.scanType = scanType;
     }
 
