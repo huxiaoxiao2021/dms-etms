@@ -1,13 +1,11 @@
 package com.jd.bluedragon.core.jsf.dms.impl;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
-import com.jd.transboard.api.dto.AddBoardBox;
-import com.jd.transboard.api.dto.AddBoardRequest;
-import com.jd.transboard.api.dto.Board;
-import com.jd.transboard.api.dto.MoveBoxRequest;
-import com.jd.transboard.api.dto.OperatorInfo;
-import com.jd.transboard.api.dto.Response;
+import com.jd.bluedragon.distribution.send.ws.client.dmc.Result;
+import com.jd.bluedragon.utils.ObjectHelper;
+import com.jd.transboard.api.dto.*;
 import com.jd.transboard.api.service.GroupBoardService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -18,6 +16,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+
+import static com.jd.bluedragon.distribution.base.domain.InvokeResult.RESULT_SUCCESS_CODE;
 
 /**
  * @author lijie
@@ -53,11 +53,27 @@ public class GroupBoardManagerImpl implements GroupBoardManager {
     }
 
     @Override
+    @JProfiler(jKey = "dmsWeb.jsf.tc.groupBoardService.addBoxToBoardIgnoreStatus",jAppName= Constants.UMP_APP_NAME_DMSWEB,
+            mState = {JProEnum.TP, JProEnum.FunctionError})
+    public Response<Integer> addBoxToBoardIgnoreStatus(AddBoardBox addBoardBox) {
+
+        return groupBoardService.addBoxToBoardIgnoreStatus(addBoardBox);
+    }
+
+    @Override
     @JProfiler(jKey = "dmsWeb.jsf.tc.groupBoardService.moveBoxToNewBoard",jAppName= Constants.UMP_APP_NAME_DMSWEB,
             mState = {JProEnum.TP, JProEnum.FunctionError})
     public Response<String> moveBoxToNewBoard(MoveBoxRequest moveBoxRequest) {
 
         return groupBoardService.moveBoxToNewBoard(moveBoxRequest);
+    }
+
+    @Override
+    @JProfiler(jKey = "dmsWeb.jsf.tc.groupBoardService.moveBoxToNewBoardIgnoreStatus",jAppName= Constants.UMP_APP_NAME_DMSWEB,
+            mState = {JProEnum.TP, JProEnum.FunctionError})
+    public Response<String> moveBoxToNewBoardIgnoreStatus(MoveBoxRequest moveBoxRequest) {
+
+        return groupBoardService.moveBoxToNewBoardIgnoreStatus(moveBoxRequest);
     }
 
     @Override
@@ -77,8 +93,12 @@ public class GroupBoardManagerImpl implements GroupBoardManager {
     @JProfiler(jKey = "dmsWeb.jsf.tc.groupBoardService.getBoard",jAppName= Constants.UMP_APP_NAME_DMSWEB,
             mState = {JProEnum.TP, JProEnum.FunctionError})
     public Response<Board> getBoard(String boardCode) {
-
-        return groupBoardService.getBoardByCode(boardCode);
+        try{
+            return groupBoardService.getBoardByCode(boardCode);
+        }catch (Exception e) {
+            log.error("groupBoardService.getBoard-根据板号{}查板异常，errMsg={},e=", boardCode, e.getMessage(), e);
+            throw new RuntimeException("根据板号查询板信息服务异常");
+        }
     }
 
     @JProfiler(jKey = "dmsWeb.jsf.tc.groupBoardService.closeBoard",jAppName= Constants.UMP_APP_NAME_DMSWEB,
@@ -93,6 +113,36 @@ public class GroupBoardManagerImpl implements GroupBoardManager {
     @Override
     public Response<Board> getBoardByBoxCode(String boxCode, Integer siteCode) {
         return groupBoardService.getBoardByBoxCode(boxCode,siteCode);
+    }
+
+    @Override
+    @JProfiler(jKey = "dmsWeb.jsf.tc.groupBoardService.getPackageCodeUnderComBoard",jAppName= Constants.UMP_APP_NAME_DMSWEB,
+            mState = {JProEnum.TP, JProEnum.FunctionError})
+    public List<PackageDto> getPackageCodeUnderComBoard(String boardCode, String waybillCode) {
+        ComBoardRequest comBoardRequest =new ComBoardRequest();
+        comBoardRequest.setBoardCode(boardCode);
+        comBoardRequest.setWaybillCode(waybillCode);
+        Response<List<PackageDto>> packageDtoResponse =groupBoardService.getPackageCodeUnderComBoard(comBoardRequest);
+        if (ObjectHelper.isNotNull(packageDtoResponse) && JdCResponse.CODE_SUCCESS.equals(packageDtoResponse.getCode())){
+            return packageDtoResponse.getData();
+        }
+        return null;
+    }
+
+    @Override
+    @JProfiler(jKey = "dmsWeb.jsf.tc.groupBoardService.getBoardStatisticsByBoardCode",jAppName= Constants.UMP_APP_NAME_DMSWEB,
+            mState = {JProEnum.TP, JProEnum.FunctionError})
+    public Response<BoardBoxStatisticsResDto> getBoardStatisticsByBoardCode(String boardCode) {
+        return groupBoardService.getBoardStatisticsByBoardCode(boardCode);
+
+    }
+
+    @Override
+    @JProfiler(jKey = "dmsWeb.jsf.tc.groupBoardService.batchRemoveBardBoxByBoxCodes",jAppName= Constants.UMP_APP_NAME_DMSWEB,
+            mState = {JProEnum.TP, JProEnum.FunctionError})
+    public Response batchRemoveBardBoxByBoxCodes(RemoveBoardBoxDto removeBoardBoxDto) {
+        return groupBoardService.batchRemoveBardBoxByBoxCodes(removeBoardBoxDto);
+
     }
 
 }

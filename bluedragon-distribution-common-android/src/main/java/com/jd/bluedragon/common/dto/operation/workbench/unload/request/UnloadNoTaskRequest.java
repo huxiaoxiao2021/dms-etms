@@ -1,5 +1,7 @@
 package com.jd.bluedragon.common.dto.operation.workbench.unload.request;
 
+import com.jd.bluedragon.common.dto.base.request.User;
+
 import java.io.Serializable;
 
 /**
@@ -18,6 +20,8 @@ public class UnloadNoTaskRequest implements Serializable {
     private String operateSiteName;
     // 车牌号
     private String vehicleNumber;
+
+    private User user;
 
     public Integer getOperateSiteId() {
         return operateSiteId;
@@ -41,5 +45,13 @@ public class UnloadNoTaskRequest implements Serializable {
 
     public void setVehicleNumber(String vehicleNumber) {
         this.vehicleNumber = vehicleNumber;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 }

@@ -1,6 +1,8 @@
 package com.jd.bluedragon.common.dto.group;
 
 import java.io.Serializable;
+import java.util.Date;
+import java.util.List;
 
 /**
  * @ClassName: GroupMemberRequest
@@ -12,6 +14,10 @@ import java.io.Serializable;
 public class GroupMemberRequest implements Serializable {
 
 	private static final long serialVersionUID = 1L;
+	/**
+	 * id
+	 */
+	private Long id;
 	/**
 	 * 小组编码
 	 */
@@ -57,6 +63,40 @@ public class GroupMemberRequest implements Serializable {
 	 * 操作人name
 	 */
 	private String operateUserName;
+    /**
+     * 业务主键
+     */
+    private String memberCode;
+    /**
+     * 组员类型
+     */
+    private Integer memberType;
+    /**
+     * 设备类型编码
+     */
+    private String deviceTypeCode;
+    /**
+     * 设备类型名称
+     */
+    private String deviceTypeName;
+    /**
+     * 设备编码
+     */
+    private String machineCode;
+	/**
+	 * 加入时间
+	 */
+	private Date signInTime;
+
+	/**
+	 * 退出时间
+	 */
+	private Date signOutTime;	
+	/**
+	 * 签到记录Id列表
+	 */
+	private List<Long> signRecordIdList;
+	
 	public String getGroupCode() {
 		return groupCode;
 	}
@@ -122,5 +162,59 @@ public class GroupMemberRequest implements Serializable {
 	}
 	public void setOperateUserName(String operateUserName) {
 		this.operateUserName = operateUserName;
+	}
+	public String getMemberCode() {
+		return memberCode;
+	}
+	public void setMemberCode(String memberCode) {
+		this.memberCode = memberCode;
+	}
+	public Long getId() {
+		return id;
+	}
+	public void setId(Long id) {
+		this.id = id;
+	}	
+	public Integer getMemberType() {
+		return memberType;
+	}
+	public void setMemberType(Integer memberType) {
+		this.memberType = memberType;
+	}
+	public String getDeviceTypeCode() {
+		return deviceTypeCode;
+	}
+	public void setDeviceTypeCode(String deviceTypeCode) {
+		this.deviceTypeCode = deviceTypeCode;
+	}
+	public String getDeviceTypeName() {
+		return deviceTypeName;
+	}
+	public void setDeviceTypeName(String deviceTypeName) {
+		this.deviceTypeName = deviceTypeName;
+	}
+	public String getMachineCode() {
+		return machineCode;
+	}
+	public void setMachineCode(String machineCode) {
+		this.machineCode = machineCode;
+	}
+	public Date getSignInTime() {
+		return signInTime;
+	}
+	public void setSignInTime(Date signInTime) {
+		this.signInTime = signInTime;
+	}
+	public Date getSignOutTime() {
+		return signOutTime;
+	}
+	public void setSignOutTime(Date signOutTime) {
+		this.signOutTime = signOutTime;
+	}
+	public List<Long> getSignRecordIdList() {
+		return signRecordIdList;
+	}
+	public void setSignRecordIdList(List<Long> signRecordIdList) {
+		this.signRecordIdList = signRecordIdList;
 	}
 }
