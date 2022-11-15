@@ -101,6 +101,18 @@ public class JyUnloadEntity implements Serializable {
      * 数据库时间
      */
     private Date ts;
+    /**
+     * 阶段(子)任务bizId
+     */
+    private String stageBizId;
+
+    public String getStageBizId() {
+        return stageBizId;
+    }
+
+    public void setStageBizId(String stageBizId) {
+        this.stageBizId = stageBizId;
+    }
 
     public Long setId(Long id) {
         return this.id = id;

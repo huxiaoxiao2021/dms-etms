@@ -9,12 +9,15 @@ import com.jd.bluedragon.distribution.loadAndUnload.dao.tys.UnloadCarForTysDao;
 import com.jd.bluedragon.distribution.loadAndUnload.exception.LoadIllegalException;
 import com.jd.bluedragon.distribution.loadAndUnload.service.UnloadCarCommonService;
 import com.jd.bluedragon.distribution.unloadCar.domain.UnloadCarCondition;
+import com.jd.jsf.gd.util.JsonUtils;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @Service("unloadCarCommonService")
 public class UnloadCarCommonServiceImpl implements UnloadCarCommonService {
 
@@ -75,10 +78,12 @@ public class UnloadCarCommonServiceImpl implements UnloadCarCommonService {
     public Integer distributeTaskByParams(Map<String, Object> params) {
         if (uccPropertyConfiguration.isStopWriteUnloadFromDms()) {
             if (uccPropertyConfiguration.isWriteUnloadFromTys()) {
+                log.info("转运DB卸车任务分配负责人{}", JsonUtils.toJSONString(params));
                 return unloadCarForTysDao.distributeTaskByParams(params);
             }
             throw new LoadIllegalException(Constants.UNLOAD_TRANSFER_WARN_MESSAGE);
         }
+        log.info("卸车任务分配负责人{}", JsonUtils.toJSONString(params));
         return unloadCarDao.distributeTaskByParams(params);
     }
 
@@ -142,6 +147,15 @@ public class UnloadCarCommonServiceImpl implements UnloadCarCommonService {
             return unloadCarForTysDao.selectByCondition(unloadCar);
         }
         return unloadCarDao.selectByCondition(unloadCar);
+    }
+
+    //
+    @Override
+    public List<UnloadCar> getTaskInfoBySealCarCodes(List<String> sealCarCodes) {
+        if (uccPropertyConfiguration.isReadUnloadFromTys()) {
+            return unloadCarForTysDao.getTaskInfoBySealCarCodes(sealCarCodes);
+        }
+        return null;
     }
 
 
