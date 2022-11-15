@@ -16,6 +16,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
         return null;
     }
 
+
     @Override
     public InvokeResult<CreateGroupCTTResp> createGroupCTTData(CreateGroupCTTReq request) {
         return null;

@@ -14,6 +14,10 @@ public interface JyComboardGatewayService {
      * 查询场地某个滑道下笼车列表数据
      */
     JdCResponse<TableTrolleyResp> listTableTrolleyUnderCross(TableTrolleyReq request);
+    /**
+     * 根据包裹号或者滑道-笼车编号 定位流向信息
+     */
+    JdCResponse<SendFlowDetailResp> querySendFlowByBarCode(QuerySendFlowReq request);
 
     /**
      * 创建本岗位(小组)的常用滑道笼车(CTT:CrossTableTrolley)集合（“混扫01”）
