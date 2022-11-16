@@ -15,6 +15,7 @@ import com.jd.bluedragon.distribution.external.service.DmsBaseService;
 import com.jd.bluedragon.distribution.rest.base.BaseResource;
 import com.jd.bluedragon.service.remote.client.DmsClientManager;
 import com.jd.bluedragon.utils.BeanUtils;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -93,7 +94,7 @@ public class DmsBaseServiceImpl implements DmsBaseService {
         JdResult<DmsClientHeartbeatResponse> jdResult = new JdResult<>();
         jdResult.setCode(result.getCode());
         jdResult.setMessage(result.getMessage());
-        jdResult.setData(BeanUtils.copy(result.getData(),DmsClientHeartbeatResponse.class));
+        jdResult.setData(JsonHelper.fromJson(JsonHelper.toJson(result.getData()), DmsClientHeartbeatResponse.class));
         return jdResult;
     }
 

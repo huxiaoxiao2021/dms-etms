@@ -4,12 +4,15 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.Pager;
 import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.domain.SiteEntity;
+import com.jd.bluedragon.common.dto.basedata.request.StreamlinedBasicSiteQuery;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.base.domain.SiteWareHouseMerchant;
 import com.jd.bluedragon.distribution.middleend.sorting.domain.DmsCustomSite;
 import com.jd.bluedragon.sdk.modules.menu.CommonUseMenuApi;
 import com.jd.bluedragon.sdk.modules.menu.dto.MenuPdaRequest;
 import com.jd.bluedragon.utils.BaseContants;
+import com.jd.bluedragon.utils.BeanCopyUtil;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.PropertiesHelper;
 import com.jd.coldchain.distribution.api.WaybillPackageContainerApi;
 import com.jd.coldchain.distribution.dto.BaseResponse;
@@ -867,6 +870,52 @@ public class BaseMajorManagerImpl implements BaseMajorManager {
             Profiler.registerInfoEnd(callerInfo);
         }
         return null;
+    }
+
+    /**
+     * 根据条件查询站点
+     * @return 分页数据
+     * @author fangang7
+     * @time 2022-10-12 16:22:24 周三
+     */
+    @Override
+    public BaseEntity<com.jd.bluedragon.common.dto.base.request.Pager<StreamlinedBasicSite>> querySiteByConditionFromStreamlinedSite(com.jd.bluedragon.common.dto.base.request.Pager<StreamlinedBasicSiteQuery> request) {
+        CallerInfo callerInfo = Profiler.registerInfo("DMS.BASE.BaseMajorManagerImpl.querySiteByConditionFromStreamlinedSite",
+                Constants.UMP_APP_NAME_DMSWEB,false,true);
+        BaseEntity<com.jd.bluedragon.common.dto.base.request.Pager<StreamlinedBasicSite>> result = new BaseEntity<>();
+        try{
+            com.jd.bluedragon.common.dto.base.request.Pager<StreamlinedBasicSite> pagerData = new com.jd.bluedragon.common.dto.base.request.Pager<>(request.getPageNo(), request.getPageSize(), 0L);
+            pagerData.setData(new ArrayList<StreamlinedBasicSite>());
+            result.setData(pagerData);
+
+            com.jd.ql.dms.report.domain.Pager<StreamlinedSiteQueryCondition> pagerRequest = new com.jd.ql.dms.report.domain.Pager<>();
+            final StreamlinedSiteQueryCondition siteQueryCondition = new StreamlinedSiteQueryCondition();
+            BeanCopyUtil.copy(request.getSearchVo(), siteQueryCondition);
+            pagerRequest.setSearchVo(siteQueryCondition);
+            pagerRequest.setPageNo(request.getPageNo());
+            pagerRequest.setPageSize(request.getPageSize());
+            BaseEntity<com.jd.ql.dms.report.domain.Pager<StreamlinedBasicSite>> queryResultEntity = siteQueryService.querySitePageByConditionFromStreamlinedSite(pagerRequest);
+            if(queryResultEntity == null || !queryResultEntity.isSuccess()){
+                log.warn("siteQueryService.querySitePageByConditionFromStreamlinedSite error {}", JsonHelper.toJson(queryResultEntity));
+                result.setCode(BaseEntity.CODE_SERVICE_ERROR);
+                result.setMessage("根据条件查询站点异常");
+                return result;
+            }
+            final com.jd.ql.dms.report.domain.Pager<StreamlinedBasicSite> queryResultData = queryResultEntity.getData();
+            if(queryResultData != null){
+                pagerData.setTotal(queryResultData.getTotal());
+                pagerData.setData(queryResultData.getData());
+            }
+            return result;
+        }catch (Exception e){
+            log.error("根据条件查询站点异常！",e);
+            Profiler.functionError(callerInfo);
+            result.setCode(BaseEntity.CODE_SERVICE_ERROR);
+            result.setMessage("根据条件查询站点异常");
+        }finally {
+            Profiler.registerInfoEnd(callerInfo);
+        }
+        return result;
     }
 
     /**

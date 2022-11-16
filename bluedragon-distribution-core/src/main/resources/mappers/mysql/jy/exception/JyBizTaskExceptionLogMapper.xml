@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jd.bluedragon.distribution.jy.dao.exception.JyBizTaskExceptionLogDao">
+
+    <!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.jd.bluedragon.distribution.jy.exception.JyBizTaskExceptionLogEntity" id="jyBizTaskExceptionLogMap">
+        <result property="id" column="id"/>
+        <result property="type" column="type"/>
+        <result property="bizId" column="biz_id"/>
+        <result property="cycleType" column="cycle_type"/>
+        <result property="operateUser" column="operate_user"/>
+        <result property="operateTime" column="operate_time"/>
+        <result property="operateUserName" column="operate_user_name"/>
+        <result property="yn" column="yn"/>
+        <result property="ts" column="ts"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        id,
+        biz_id,
+        `type`,
+        `cycle_type`,
+        operate_user,
+        operate_user_name,
+        operate_time,
+        ts,
+        yn
+    </sql>
+    <insert id="insertSelective" parameterType="com.jd.bluedragon.distribution.jy.exception.JyBizTaskExceptionLogEntity">
+        INSERT INTO jy_biz_task_exception_log (
+        <if test="bizId != null">
+            biz_id,
+        </if>
+        <if test="type != null">
+            `type`,
+        </if>
+        <if test="cycleType != null">
+            `cycle_type`,
+        </if>
+        <if test="operateUser != null">
+            operate_user,
+        </if>
+        <if test="operateTime != null">
+            operate_time,
+        </if>
+        <if test="operateUserName != null">
+            operate_user_name,
+        </if>
+        yn )
+        VALUES (
+        <if test="bizId != null">
+            #{bizId},
+        </if>
+        <if test="type != null">
+            #{type},
+        </if>
+        <if test="cycleType != null">
+            #{cycleType},
+        </if>
+        <if test="operateUser != null">
+            #{operateUser},
+        </if>
+        <if test="operateTime != null">
+            #{operateTime},
+        </if>
+        <if test="operateUserName != null">
+            #{operateUserName},
+        </if>
+                   1)
+    </insert>
+
+</mapper>

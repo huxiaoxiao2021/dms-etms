@@ -34,6 +34,7 @@ public interface IColdChainService {
      * @param vo
      * @return
      */
+    @Deprecated
     InvokeResult<ColdCheckCommonResult> sendCheck(SendCheckVO vo);
 
     /**
@@ -41,6 +42,7 @@ public interface IColdChainService {
      * @param vo
      * @return
      */
+    @Deprecated
     InvokeResult<Boolean> send(SendVO vo);
 
     /**
@@ -48,6 +50,7 @@ public interface IColdChainService {
      * @param vo
      * @return
      */
+    @Deprecated
     InvokeResult<ColdCheckCommonResult> sendOfKYCheck(SendOfKYCheckVO vo);
 
     /**
@@ -55,6 +58,7 @@ public interface IColdChainService {
      * @param vo
      * @return
      */
+    @Deprecated
     InvokeResult<Boolean> sendOfKY(SendOfKYVO vo);
 
     /**
@@ -62,6 +66,34 @@ public interface IColdChainService {
      * @param vo
      * @return
      */
+    @Deprecated
     InvokeResult<Boolean> checkSendCodeOfSeal(SendVO vo);
 
+    /**
+     * 冷链-发货并验货接口
+     * @param vo
+     * @return
+     */
+    InvokeResult<Boolean> sendAndInspectionOfPack(SendInspectionVO vo);
+    /**
+     * 冷链验货
+     * @param vo
+     * @return
+     */
+    InvokeResult<String> inspectionOfColdNew(ColdInspectionVo vo);
+
+    /**
+     * 冷链新发货
+     * 一单单
+     * @param request
+     * @return
+     */
+    InvokeResult<ColdSendResult> sendOfColdBusinessNew(ColdSendVo request);
+    /**
+     * 冷链新发货
+     * 一单单
+     * @param request
+     * @return
+     */
+    InvokeResult<ColdSendResult> sendOfColdKYNew(ColdSendVo request);
 }
