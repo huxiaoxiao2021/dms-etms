@@ -4,7 +4,13 @@ import java.io.Serializable;
 
 public class TableTrolleyDto implements Serializable {
     private static final long serialVersionUID = 8123446470608364924L;
+    /**
+     * 目的地站点id
+     */
     private Integer endSiteId;
+    /**
+     * 目的地站点名称
+     */
     private String endSiteName;
     /**
      * 滑道编号

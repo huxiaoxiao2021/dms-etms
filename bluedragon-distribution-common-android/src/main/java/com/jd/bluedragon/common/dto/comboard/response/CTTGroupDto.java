@@ -12,7 +12,13 @@ public class CTTGroupDto implements Serializable {
      * 混扫任务名称
      */
     private String templateName;
+    /**
+     * 创建任务erp
+     */
     private String createUserErp;
+    /**
+     * 创建人名称
+     */
     private String createUserName;
     /**
      * 流向数量

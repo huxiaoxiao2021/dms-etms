@@ -1,20 +1,41 @@
 package com.jd.bluedragon.distribution.jy.service.send;
 
+import static com.jd.bluedragon.distribution.base.domain.InvokeResult.RESULT_SUCCESS_CODE;
+import static com.jd.bluedragon.distribution.base.domain.InvokeResult.RESULT_SUCCESS_MESSAGE;
+
 import com.jd.bluedragon.common.dto.comboard.request.*;
 import com.jd.bluedragon.common.dto.comboard.response.*;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.SendVehicleScanTypeEnum;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.box.domain.Box;
+import com.jd.bluedragon.distribution.box.service.BoxService;
+import com.jd.bluedragon.distribution.businessIntercept.enums.BusinessInterceptOnlineStatusEnum;
+import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
+import com.jd.bluedragon.distribution.jsf.domain.BoardCombinationJsfResponse;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
+import com.jd.bluedragon.distribution.ver.service.SortingCheckService;
 import com.jd.bluedragon.dms.utils.BarCodeType;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.ObjectHelper;
+import com.jd.dms.workbench.utils.sdk.base.Result;
+import com.jd.etms.waybill.domain.Waybill;
 import java.util.Objects;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 
 public class JyComBoardSendServiceImpl implements JyComBoardSendService {
+
+  @Autowired
+  private WaybillQueryManager waybillQueryManager;
+  @Autowired
+  private SortingCheckService sortingCheckService;
+  @Autowired
+  private BoxService boxService;
+
 
   @Override
   public InvokeResult<CrossDataResp> listCrossData(CrossDataReq request) {
@@ -76,8 +97,22 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   public InvokeResult<ComboardScanResp> comboardScan(ComboardScanReq request) {
     baseCheck(request);
     bizCheck(request);
+    getOrCreateBoardCode(request);
+    comboard(request);
+    send(request);
 
+    ComboardScanResp resp = new ComboardScanResp();
+    resp.setEndSiteId(request.getEndSiteId());
+    return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, resp);
+  }
 
+  private void send(ComboardScanReq request) {
+  }
+
+  private void comboard(ComboardScanReq request) {
+  }
+
+  private String getOrCreateBoardCode(ComboardScanReq request) {
     return null;
   }
 
@@ -93,8 +128,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     }
 
     String barCode = request.getBarCode();
-    if (!BusinessHelper.isBoxcode(barCode)
-        && !WaybillUtil.isWaybillCode(barCode)
+    if (!BusinessHelper.isBoxcode(barCode) && !WaybillUtil.isWaybillCode(barCode)
         && !WaybillUtil.isPackageCode(barCode)) {
       throw new JyBizException("请扫描正确的条形码：只支持扫描包裹、运单、箱号！");
     }
@@ -129,6 +163,55 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   }
 
   private void bizCheck(ComboardScanReq request) {
+    String barCode = request.getBarCode();
+    if (WaybillUtil.isPackageCode(barCode)) {
+      final Waybill waybill = waybillQueryManager
+          .getOnlyWaybillByWaybillCode(WaybillUtil.getWaybillCodeByPackCode(barCode));
+      if (waybill == null) {
+        throw new JyBizException("未查找到运单数据");
+      }
+      if (waybill.getOldSiteId() == null) {
+        throw new JyBizException("运单对应的预分拣站点为空");
+      }
+      request.setEndSiteId(waybill.getOldSiteId());
+      //匹配流向
+      checkAndMatchDestination(request);
+      combinationCheck(request);
+
+    } else if (BusinessHelper.isBoxcode(barCode)) {
+      final Box boxExist = boxService.findBoxByCode(barCode);
+      if (boxExist == null) {
+        throw new JyBizException("未找到对应箱号，请检查");
+      }
+      request.setEndSiteId(boxExist.getReceiveSiteCode());
+      //匹配流向
+      checkAndMatchDestination(request);
+
+    } else {
+
+    }
+
+  }
+
+  private void combinationCheck(ComboardScanReq request) {
+    final PdaOperateRequest pdaOperateRequest = new PdaOperateRequest();
+    pdaOperateRequest.setPackageCode(request.getBarCode());
+    pdaOperateRequest.setBoxCode(request.getBarCode());
+    pdaOperateRequest.setReceiveSiteCode(request.getEndSiteId());
+    pdaOperateRequest.setCreateSiteCode(request.getCurrentOperate().getSiteCode());
+    pdaOperateRequest.setCreateSiteName(request.getCurrentOperate().getSiteName());
+    pdaOperateRequest.setOperateUserCode(request.getUser().getUserCode());
+    pdaOperateRequest.setOperateUserName(request.getUser().getUserName());
+    pdaOperateRequest.setOnlineStatus(BusinessInterceptOnlineStatusEnum.ONLINE.getCode());
+    BoardCombinationJsfResponse interceptResult = sortingCheckService
+        .virtualBoardCombinationCheck(pdaOperateRequest);
+    if (!interceptResult.getCode().equals(200)) {
+      throw new JyBizException(interceptResult.getMessage());
+    }
+
+  }
+
+  private void checkAndMatchDestination(ComboardScanReq request) {
   }
 
 
