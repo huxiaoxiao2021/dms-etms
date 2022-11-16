@@ -44,6 +44,11 @@ public interface JyComboardGatewayService {
   JdCResponse<CTTGroupDataResp> listCTTGroupData(CTTGroupDataReq request);
 
   /**
+   * 根据包裹号或者滑道-笼车编号 定位混扫任务信息
+   */
+  JdCResponse<CTTGroupDataResp> queryCTTGroupByBarCode(QueryCTTGroupReq request);
+
+  /**
    * 查询某个混扫任务下的流向列表数据（包含流向的基础数据和统计相关数据）-支撑下钻1(流向下钻)和混扫切换页面
    */
   JdCResponse<SendFlowDataResp> listSendFlowUnderCTTGroup(SendFlowDataReq request);

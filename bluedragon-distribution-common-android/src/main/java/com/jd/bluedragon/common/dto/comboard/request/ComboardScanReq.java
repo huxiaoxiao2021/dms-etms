@@ -12,7 +12,9 @@ public class ComboardScanReq extends BaseReq implements Serializable {
      * 混扫任务编号
      */
     private String templateCode;
+    private String boardCode;
 
+    private Integer endSiteId;
     public String getBarCode() {
         return barCode;
     }
@@ -35,5 +37,21 @@ public class ComboardScanReq extends BaseReq implements Serializable {
 
     public void setTemplateCode(String templateCode) {
         this.templateCode = templateCode;
+    }
+
+    public String getBoardCode() {
+        return boardCode;
+    }
+
+    public void setBoardCode(String boardCode) {
+        this.boardCode = boardCode;
+    }
+
+    public Integer getEndSiteId() {
+        return endSiteId;
+    }
+
+    public void setEndSiteId(Integer endSiteId) {
+        this.endSiteId = endSiteId;
     }
 }

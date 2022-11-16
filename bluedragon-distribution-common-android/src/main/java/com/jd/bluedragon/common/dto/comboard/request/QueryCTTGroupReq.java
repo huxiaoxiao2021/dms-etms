@@ -1,12 +1,11 @@
 package com.jd.bluedragon.common.dto.comboard.request;
 
 import com.jd.bluedragon.common.dto.base.request.BaseReq;
-
 import java.io.Serializable;
 
-public class QuerySendFlowReq extends BaseReq implements Serializable {
+public class QueryCTTGroupReq extends BaseReq implements Serializable {
 
-  private static final long serialVersionUID = -4392872429407658909L;
+  private static final long serialVersionUID = 9139065302653051731L;
   private String barCode;
 
   public String getBarCode() {

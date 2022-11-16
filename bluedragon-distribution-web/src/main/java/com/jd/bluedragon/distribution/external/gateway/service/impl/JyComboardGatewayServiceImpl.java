@@ -58,6 +58,11 @@ public class JyComboardGatewayServiceImpl implements JyComboardGatewayService {
   }
 
   @Override
+  public JdCResponse<CTTGroupDataResp> queryCTTGroupByBarCode(QueryCTTGroupReq request) {
+    return null;
+  }
+
+  @Override
   public JdCResponse<SendFlowDataResp> listSendFlowUnderCTTGroup(SendFlowDataReq request) {
     return null;
   }
