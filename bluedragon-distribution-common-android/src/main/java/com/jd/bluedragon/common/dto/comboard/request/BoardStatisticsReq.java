@@ -7,6 +7,24 @@ import java.io.Serializable;
 public class BoardStatisticsReq extends BaseReq implements Serializable {
     private static final long serialVersionUID = -5115283107014171084L;
     private Integer endSiteId;
+    private Integer pageNo;
+    private Integer pageSize;
+
+    public Integer getPageNo() {
+        return pageNo;
+    }
+
+    public void setPageNo(Integer pageNo) {
+        this.pageNo = pageNo;
+    }
+
+    public Integer getPageSize() {
+        return pageSize;
+    }
+
+    public void setPageSize(Integer pageSize) {
+        this.pageSize = pageSize;
+    }
 
     public Integer getEndSiteId() {
         return endSiteId;

@@ -30,11 +30,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import com.jd.dms.workbench.utils.sdk.base.Result;
 import com.jd.etms.waybill.domain.Waybill;
 import java.util.Objects;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.NO_OPERATE_SITE_CODE;
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.NO_OPERATE_SITE_MESSAGE;
@@ -45,7 +43,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
 
   @Autowired
   private SortCrossJsfManager sortCrossJsfManager;
-  
+
   @Autowired
   private WaybillQueryManager waybillQueryManager;
   @Autowired
@@ -100,7 +98,8 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       tableTrolleyResp.setTableTrolleyDtoList(getTableTrolleyDto(tableTrolleyJsfResp.getTableTrolleyDtoJsfList()));
       tableTrolleyResp.setTotalPage(tableTrolleyJsfResp.getTotalPage());
     }
-    return result;  }
+    return result;
+  }
 
   private List<TableTrolleyDto> getTableTrolleyDto(List<TableTrolleyJsfDto> tableTrolleyDtoJsfList) {
     List<TableTrolleyDto> tableTrolleyDtoList = new ArrayList<>();

@@ -85,6 +85,11 @@ public interface JyComboardGatewayService {
    */
   JdCResponse<BoardStatisticsResp> queryBoardStatisticsUnderSendFlow(BoardStatisticsReq request);
 
+  /**
+   * 根据包裹号或者箱号 定位所在的板
+   */
+  JdCResponse<QueryBelongBoardResp> queryBelongBoardByBarCode(QueryBelongBoardReq request);
+
 
   /**
    * 查询板下的已扫统计信息（已扫包裹、已扫箱子）-支撑下钻4

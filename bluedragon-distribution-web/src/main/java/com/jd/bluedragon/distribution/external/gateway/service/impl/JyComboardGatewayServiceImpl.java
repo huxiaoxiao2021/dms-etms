@@ -99,6 +99,11 @@ public class JyComboardGatewayServiceImpl implements JyComboardGatewayService {
   }
 
   @Override
+  public JdCResponse<QueryBelongBoardResp> queryBelongBoardByBarCode(QueryBelongBoardReq request) {
+    return null;
+  }
+
+  @Override
   public JdCResponse<HaveScanStatisticsResp> queryHaveScanStatisticsUnderBoard(
       HaveScanStatisticsReq request) {
     return null;
