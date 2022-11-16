@@ -67,6 +67,6 @@
 	<import resource="classpath:spring/distribution-web-rest-filter.xml"/>
 	<import resource="classpath:spring/distribution-web-special-jsf.xml"/>
 
-	<import resource="classpath:spring/distribution-web-gateway-jsf-server-light.xml"/>
+	<import resource="classpath:spring/distribution-web-gateway-jsf-server.xml"/>
 
 </beans>
