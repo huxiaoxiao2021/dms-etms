@@ -19,12 +19,12 @@ public class JyComboardGatewayServiceImpl implements JyComboardGatewayService {
 
   @Override
   public JdCResponse<CrossDataResp> listCrossData(CrossDataReq request) {
-    return null;
+    return retJdCResponse(jyComBoardSendService.listCrossData(request));
   }
 
   @Override
   public JdCResponse<TableTrolleyResp> listTableTrolleyUnderCross(TableTrolleyReq request) {
-    return null;
+    return retJdCResponse(jyComBoardSendService.listTableTrolleyUnderCross(request));
   }
 
   @Override
