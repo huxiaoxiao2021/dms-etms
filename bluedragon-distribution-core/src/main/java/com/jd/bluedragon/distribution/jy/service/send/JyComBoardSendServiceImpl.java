@@ -5,9 +5,11 @@ import static com.jd.bluedragon.distribution.base.domain.InvokeResult.RESULT_SUC
 
 import com.jd.bluedragon.common.dto.comboard.request.*;
 import com.jd.bluedragon.common.dto.comboard.response.*;
+import com.jd.bluedragon.core.jsf.cross.SortCrossJsfManager;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.SendVehicleScanTypeEnum;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.businessIntercept.enums.BusinessInterceptOnlineStatusEnum;
@@ -21,14 +23,29 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.ObjectHelper;
+import com.jdl.basic.api.domain.cross.*;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 import com.jd.dms.workbench.utils.sdk.base.Result;
 import com.jd.etms.waybill.domain.Waybill;
 import java.util.Objects;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import static com.jd.bluedragon.distribution.base.domain.InvokeResult.NO_OPERATE_SITE_CODE;
+import static com.jd.bluedragon.distribution.base.domain.InvokeResult.NO_OPERATE_SITE_MESSAGE;
+
+@Service
+@Slf4j
 public class JyComBoardSendServiceImpl implements JyComBoardSendService {
 
+  @Autowired
+  private SortCrossJsfManager sortCrossJsfManager;
+  
   @Autowired
   private WaybillQueryManager waybillQueryManager;
   @Autowired
@@ -39,12 +56,63 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
 
   @Override
   public InvokeResult<CrossDataResp> listCrossData(CrossDataReq request) {
-    return null;
+    log.info("开始获取场地滑道信息：{}", JsonHelper.toJson(request));
+    CrossPageQuery query = new CrossPageQuery();
+    if (request == null || request.getCurrentOperate() == null ){
+      return new InvokeResult<>(NO_OPERATE_SITE_CODE,NO_OPERATE_SITE_MESSAGE);
+    }
+    InvokeResult<CrossDataResp> result = new InvokeResult<>();
+    CrossDataResp crossDataResp = new CrossDataResp();
+    result.setData(crossDataResp);
+    query.setDmsId(request.getCurrentOperate().getSiteCode());
+    query.setPageNumber(request.getPageNo());
+    query.setLimit(request.getPageSize());
+    CrossDataJsfResp crossDataJsfResp = sortCrossJsfManager.queryCrossDataByDmsCode(query);
+    if (crossDataJsfResp != null ) {
+      crossDataResp.setCrossCodeList(crossDataJsfResp.getCrossCodeList());
+      crossDataResp.setTotalPage(crossDataJsfResp.getTotalPage());
+    }
+    return result;
   }
 
   @Override
   public InvokeResult<TableTrolleyResp> listTableTrolleyUnderCross(TableTrolleyReq request) {
-    return null;
+    log.info("开始获取笼车营业部信息：{}", JsonHelper.toJson(request));
+    TableTrolleyQuery query = new TableTrolleyQuery();
+    if (request == null || request.getCurrentOperate() == null ){
+      return new InvokeResult<>(NO_OPERATE_SITE_CODE,NO_OPERATE_SITE_MESSAGE);
+    }
+    InvokeResult<TableTrolleyResp> result = new InvokeResult<>();
+    TableTrolleyResp tableTrolleyResp = new TableTrolleyResp();
+    result.setData(tableTrolleyResp);
+    query.setDmsId(request.getCurrentOperate().getSiteCode());
+    query.setPageNumber(request.getPageNo());
+    query.setLimit(request.getPageSize());
+    TableTrolleyJsfResp tableTrolleyJsfResp;
+    if (!StringUtils.isEmpty(request.getCrossCode())) {
+      // 根据滑道查询笼车信息
+      tableTrolleyJsfResp = sortCrossJsfManager.queryTableTrolleyListByCrossCode(query);
+    }else {
+      // 根据场地查询笼车信息
+      tableTrolleyJsfResp = sortCrossJsfManager.queryTableTrolleyListByDmsId(query);
+    }
+    if (tableTrolleyJsfResp != null ) {
+      tableTrolleyResp.setTableTrolleyDtoList(getTableTrolleyDto(tableTrolleyJsfResp.getTableTrolleyDtoJsfList()));
+      tableTrolleyResp.setTotalPage(tableTrolleyJsfResp.getTotalPage());
+    }
+    return result;  }
+
+  private List<TableTrolleyDto> getTableTrolleyDto(List<TableTrolleyJsfDto> tableTrolleyDtoJsfList) {
+    List<TableTrolleyDto> tableTrolleyDtoList = new ArrayList<>();
+    for (TableTrolleyJsfDto tableTrolleyJsfDto : tableTrolleyDtoJsfList) {
+      TableTrolleyDto tableTrolleyDto = new TableTrolleyDto();
+      tableTrolleyDto.setTableTrolleyCode(tableTrolleyJsfDto.getTableTrolleyCode());
+      tableTrolleyDto.setCrossCode(tableTrolleyJsfDto.getCrossCode());
+      tableTrolleyDto.setEndSiteId(tableTrolleyJsfDto.getEndSiteId());
+      tableTrolleyDto.setEndSiteName(tableTrolleyJsfDto.getEndSiteName());
+      tableTrolleyDtoList.add(tableTrolleyDto);
+    }
+    return tableTrolleyDtoList;
   }
 
 

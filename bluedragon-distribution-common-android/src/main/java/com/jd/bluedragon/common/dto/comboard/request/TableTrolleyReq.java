@@ -13,7 +13,7 @@ public class TableTrolleyReq extends BaseReq implements Serializable {
     private boolean needStatistics;
     private Integer pageNo;
     private Integer pageSize;
-
+    
     public String getCrossCode() {
         return crossCode;
     }

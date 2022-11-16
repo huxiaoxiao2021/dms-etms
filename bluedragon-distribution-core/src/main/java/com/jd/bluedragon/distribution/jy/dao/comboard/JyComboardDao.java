@@ -1,17 +1,28 @@
 package com.jd.bluedragon.distribution.jy.dao.comboard;
 
+import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.jy.comboard.JyComboardEntity;
+public class JyComboardDao extends BaseDao<JyComboardEntity> {
+    
+    private final static String NAMESPACE = JyComboardDao.class.getName();
+    
+    public int deleteByPrimaryKey(Long id) {
+        return this.getSqlSession().delete(NAMESPACE + ".deleteByPrimaryKey", id);
+    }
 
-public interface JyComboardDao {
-    int deleteByPrimaryKey(Long id);
-
-    int insert(JyComboardEntity record);
-
-    int insertSelective(JyComboardEntity record);
-
-    JyComboardEntity selectByPrimaryKey(Long id);
-
-    int updateByPrimaryKeySelective(JyComboardEntity record);
-
-    int updateByPrimaryKey(JyComboardEntity record);
+    public int insert(JyComboardEntity entity) {
+        return this.getSqlSession().insert(NAMESPACE + ".insert", entity);
+    }
+    public int insertSelective(JyComboardEntity record) {
+        return this.getSqlSession().insert(NAMESPACE + ".deleteByPrimaryKey", record);
+    }
+    public JyComboardEntity selectByPrimaryKey(Long id) {
+        return this.getSqlSession().selectOne(NAMESPACE + ".deleteByPrimaryKey", id);
+    }
+    public int updateByPrimaryKeySelective(JyComboardEntity record) {
+        return this.getSqlSession().update(NAMESPACE + ".deleteByPrimaryKey", record);
+    }
+    public int updateByPrimaryKey(JyComboardEntity record) {
+        return this.getSqlSession().update(NAMESPACE + ".deleteByPrimaryKey", record);
+    }
 }

@@ -1042,4 +1042,15 @@
                   protocol="jsf" alias="${jsf.sendhandover.alias}" timeout="${jsf.sendhandover.timeout}"  retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
         <jsf:parameter key="token" value="${jsf.sendhandover.token}" hide="true"/>
     </jsf:consumer>
+
+    <!-- 滑道笼车配置 -->
+    <jsf:consumer id="sortCrossJsfService"
+                  interface="com.jdl.basic.api.service.cross.SortCrossJsfService"
+                  alias="${jsf.alias.jy_basic}"
+                  timeout="${jsf.jy_basic.timeout}"
+                  retries="${jsf.retries}"
+                  serialization="hessian"
+                  lazy="${jsf.consumer.lazy}">
+        <jsf:parameter key="token" value="${jsf.jy_basic.token}" hide="true"/>
+    </jsf:consumer>
 </beans>
