@@ -740,7 +740,6 @@ public abstract class DeliveryBaseHandler implements IDeliveryBaseHandler {
         status.setOperatorId(tSendM.getUpdateUserCode());
         status.setRemark("取消发货，批次号为：" +sendDetail.getSendCode());
         status.setCreateSiteCode(tSendM.getCreateSiteCode());
-        status.setSendCode(sendDetail.getSendCode());
 
         BaseStaffSiteOrgDto dto = baseMajorManager.getBaseSiteBySiteId(tSendM.getCreateSiteCode());
 
