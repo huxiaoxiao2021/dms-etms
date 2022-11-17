@@ -484,6 +484,7 @@ public class JyUnloadVehicleCheckTysService {
             response.setBoardCode(board.getCode());
             response.setEndSiteId(Long.valueOf(board.getDestinationId()));
             response.setEndSiteName(board.getDestination());
+            response.setCreateBoardSuccessFlag(true);
             return true;
 
         }

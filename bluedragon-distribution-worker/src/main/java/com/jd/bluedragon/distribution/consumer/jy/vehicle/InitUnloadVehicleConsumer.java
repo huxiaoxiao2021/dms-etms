@@ -1,6 +1,5 @@
 package com.jd.bluedragon.distribution.consumer.jy.vehicle;
 
-import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
@@ -15,9 +14,8 @@ import com.jd.bluedragon.dms.utils.JyUnloadTaskSignConstants;
 import com.jd.bluedragon.utils.*;
 import com.jd.jim.cli.Cluster;
 import com.jd.jmq.common.message.Message;
+import com.jd.jsf.gd.util.JsonUtils;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.ump.annotation.JProEnum;
-import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -130,7 +128,9 @@ public class InitUnloadVehicleConsumer extends MessageBaseConsumer {
      */
     private boolean saveUnloadTaskData(Message message, UnloadVehicleMqDto mqDto) {
         boolean saveData;
-
+        if(logger.isInfoEnabled()) {
+            logger.info("InitUnloadVehicleConsumer.saveUnloadTaskData-param={}", JsonUtils.toJSONString(mqDto));
+        }
         JyBizTaskUnloadVehicleEntity unloadVehicleEntity = convertEntityFromDto(mqDto);
         try {
             saveData = jyBizTaskUnloadVehicleService.saveOrUpdateOfBusinessInfo(unloadVehicleEntity);
@@ -181,6 +181,9 @@ public class InitUnloadVehicleConsumer extends MessageBaseConsumer {
         // 处理卸车进度
         dealUnloadProgress(mqDto, unloadVehicleEntity);
 
+        if(logger.isInfoEnabled()) {
+            logger.info("InitUnloadVehicleConsumer--convertEntityFromDto卸车任务初始化业务字段--unloadVehicleEntity={}", JsonHelper.toJson(unloadVehicleEntity));
+        }
         return unloadVehicleEntity;
     }
 

@@ -188,7 +188,7 @@
         SELECT
         SUM(should_scan_count) shouldScanCount,
         SUM(actual_scan_count) haveScanCount,
-        SUM(should_scan_count)-SUM(actual_scan_count) waitScanCount,
+<!--        SUM(should_scan_count)-SUM(actual_scan_count) waitScanCount,-->
         SUM(more_scan_total_count) extraScanCount,
         SUM(intercept_actual_scan_count) interceptCount
         FROM
