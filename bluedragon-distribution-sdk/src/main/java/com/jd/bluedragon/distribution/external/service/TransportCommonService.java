@@ -5,6 +5,7 @@ import com.jd.bluedragon.distribution.api.request.SortingPageRequest;
 import com.jd.bluedragon.distribution.api.request.TransportServiceRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.dock.entity.DockInfoEntity;
+import com.jd.bluedragon.distribution.jy.group.JyGroupMemberEntity;
 
 import java.util.List;
 import java.util.Map;
@@ -118,4 +119,38 @@ public interface TransportCommonService {
      * @return
      */
     InvokeResult<List<String>> getPagePackageNoByBoxCode(SortingPageRequest request);
+
+    /**
+     * 保存操作版本， 不成功给返回提示（互斥功能）
+     * @param sealCarCode
+     * @param sealCarCode AppVersionEnums
+     * @return
+     */
+    InvokeResult<Boolean> saveOperatePdaVersion(String sealCarCode, String pdaVersion);
+
+    /**
+     * 清除转运新老app互斥redis数据（互斥功能）
+     * @param sealCarCode
+     * @param sealCarCode AppVersionEnums
+     * @return
+     */
+    InvokeResult<Boolean> delOperatePdaVersion(String sealCarCode, String pdaVersion);
+
+
+    /**
+     * 获取封车编码领取的app版本（互斥功能）
+     * @param sealCarCode
+     * @param sealCarCode AppVersionEnums
+     * @return
+     */
+    InvokeResult<String> getOperatePdaVersion(String sealCarCode);
+
+
+    /**
+     * 根据组编码查询组成员
+     * @param groupCode
+     * @return
+     */
+    InvokeResult<List<JyGroupMemberEntity>> queryMemberListByGroup(String groupCode);
+
 }

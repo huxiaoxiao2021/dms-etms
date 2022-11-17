@@ -3,12 +3,18 @@ package com.jd.bluedragon.distribution.device.service;
 import com.jd.bd.dms.automatic.sdk.common.dto.BaseDmsAutoJsfResponse;
 import com.jd.bd.dms.automatic.sdk.modules.device.DeviceConfigInfoJsfService;
 import com.jd.bd.dms.automatic.sdk.modules.device.dto.DeviceConfigDto;
+import com.jd.bd.dms.automatic.sdk.modules.device.dto.DeviceConfigQuery;
+import com.jd.bd.dms.automatic.sdk.modules.device.dto.DeviceConfigSimpleDto;
+import com.jd.bd.dms.automatic.sdk.modules.device.dto.DeviceTypeDto;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.UmpConstants;
+import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.device.response.DeviceInfoDto;
+import com.jd.bluedragon.common.dto.device.response.DeviceTypeWithInfoDto;
 import com.jd.bluedragon.distribution.api.request.DeviceInfoRequest;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.ql.dms.print.utils.StringHelper;
 import com.jd.security.tde.util.Base64;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -21,6 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
@@ -216,4 +223,65 @@ public class DeviceInfoServiceImpl implements DeviceInfoService {
          String CPUID = "CPUID";
 
     }
+
+	@Override
+	public JdCResponse<List<DeviceTypeWithInfoDto>> queryDeviceTypeWithInfoList(DeviceInfoDto deviceInfoRequest){
+		JdCResponse<List<DeviceTypeWithInfoDto>> result = new JdCResponse<List<DeviceTypeWithInfoDto>>();
+		result.toSucceed();
+		List<DeviceTypeWithInfoDto> listData = new ArrayList<>();
+		result.setData(listData);
+		DeviceConfigQuery query = new DeviceConfigQuery();
+		query.setSiteCode(deviceInfoRequest.getSiteCode());
+		query.setMachineCode(deviceInfoRequest.getMachineCode());
+		query.setDeviceTypeCode(deviceInfoRequest.getDeviceTypeCode());
+        BaseDmsAutoJsfResponse<List<DeviceConfigSimpleDto>> response = deviceConfigInfoJsfService.queryDeviceConfigListForPdaSelect(query);
+        if (null == response || BaseDmsAutoJsfResponse.SUCCESS_CODE != response.getStatusCode()) {
+            logger.warn("查询设备信息失败，请求参数：{}，返回值：{}",JsonHelper.toJson(deviceInfoRequest), JsonHelper.toJson(response));
+        }
+		List<DeviceConfigSimpleDto> responseList = response.getData();
+        if(CollectionUtils.isEmpty(responseList)) {
+        	return result;
+        }
+        Map<String,DeviceTypeWithInfoDto> typeMap = new HashMap<>();
+        
+        for (DeviceConfigSimpleDto deviceConfigDto : responseList) {
+            DeviceInfoDto deviceInfoDto = new DeviceInfoDto();
+            DeviceTypeWithInfoDto typeDto = typeMap.get(deviceConfigDto.getTypeCode());
+            if(typeDto == null){
+            	typeDto = new DeviceTypeWithInfoDto();
+            	typeDto.setDeviceTypeCode(deviceConfigDto.getTypeCode());
+            	typeDto.setDeviceTypeName(deviceConfigDto.getTypeName());
+            	typeDto.setDeviceList(new ArrayList<DeviceInfoDto>());
+            	typeMap.put(deviceConfigDto.getTypeCode(), typeDto);
+            	listData.add(typeDto);
+            }
+            deviceInfoDto.setMachineCode(deviceConfigDto.getMachineCode());
+            deviceInfoDto.setDeviceTypeCode(deviceConfigDto.getTypeCode());
+            deviceInfoDto.setDeviceTypeName(deviceConfigDto.getTypeName());
+            typeDto.getDeviceList().add(deviceInfoDto);
+        }
+		return result;
+	}
+
+	@Override
+	public JdResult<DeviceInfoDto> queryDeviceConfigByMachineCode(String machineCode,Integer siteCode) {
+        JdResult<DeviceInfoDto> result = new JdResult<>();
+        result.toSuccess();
+        String siteCodeStr = "";
+        if(siteCode != null) {
+        	siteCodeStr = siteCode.toString();
+        }
+        DeviceConfigDto deviceConfig = deviceConfigInfoJsfService.findDeviceConfigByMachineCode(machineCode, siteCodeStr);
+        if(deviceConfig == null
+        		|| StringHelper.isEmpty(deviceConfig.getMachineCode())) {
+        	result.toFail("场地中不存在设备编码！");
+        	return result;
+        }
+    	DeviceInfoDto data = new DeviceInfoDto();
+    	data.setDeviceTypeCode(deviceConfig.getTypeCode());
+    	data.setDeviceTypeName(deviceConfig.getTypeName());
+    	data.setMachineCode(machineCode);
+    	result.setData(data);
+        return result;
+	}
 }

@@ -439,7 +439,14 @@
                   ref="boxLimitJsfService"
                   server="dmsjsf">
     </jsf:provider>
-
+    
+    <!--  任务组员JSF服务   -->
+    <jsf:provider id="jyTaskGroupMemberJsfServiceId"
+                  interface="com.jd.bluedragon.distribution.jy.api.group.JyTaskGroupMemberJsfService"
+                  alias="${dms.jsf.alias}"
+                  ref="jyTaskGroupMemberJsfService"
+                  server="dmsjsf">
+    </jsf:provider>
     <!--  标签对外JSF服务   -->
     <jsf:provider id="dmsLabelPrintJsfService"
                   interface="com.jd.bluedragon.distribution.label.api.LabelPrintJsfService"
@@ -453,6 +460,14 @@
                   interface="com.jd.bluedragon.distribution.jy.api.JyBizTaskConstraintJsfService"
                   alias="${dms.jsf.alias}"
                   ref="jyBizTaskConstraintJsfService"
+                  server="dmsjsf">
+    </jsf:provider>
+
+    <!--  转运卸车岗服务   -->
+    <jsf:provider id="jsfJyUnloadVehicleTysService"
+                  interface="com.jd.bluedragon.distribution.jy.api.JyUnloadVehicleTysService"
+                  alias="${dms.jsf.alias}"
+                  ref="jyUnloadVehicleTysService"
                   server="dmsjsf">
     </jsf:provider>
 
