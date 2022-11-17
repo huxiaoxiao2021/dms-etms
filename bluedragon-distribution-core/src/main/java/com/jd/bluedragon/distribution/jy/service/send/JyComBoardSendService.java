@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.jy.service.send;
 
 
+import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.comboard.request.*;
 import com.jd.bluedragon.common.dto.comboard.response.*;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -25,6 +26,10 @@ public interface JyComBoardSendService {
    */
   InvokeResult<CreateGroupCTTResp> createGroupCTTData(CreateGroupCTTReq request);
 
+  /**
+   * 获取默认混扫任务名称
+   */
+  InvokeResult<CreateGroupCTTResp> getDefaultGroupCTTName();
   /**
    * 变更（添加或者移除滑道笼车流向）
    */

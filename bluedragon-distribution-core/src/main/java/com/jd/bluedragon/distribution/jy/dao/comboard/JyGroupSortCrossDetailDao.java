@@ -3,6 +3,8 @@ package com.jd.bluedragon.distribution.jy.dao.comboard;
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity;
 
+import java.util.List;
+
 public class JyGroupSortCrossDetailDao extends BaseDao<JyGroupSortCrossDetailEntity> {
     private final static String NAMESPACE = JyGroupSortCrossDetailDao.class.getName();
 
@@ -24,5 +26,9 @@ public class JyGroupSortCrossDetailDao extends BaseDao<JyGroupSortCrossDetailEnt
     }
     public int updateByPrimaryKey(JyGroupSortCrossDetailEntity record) {
         return this.getSqlSession().update(NAMESPACE + ".deleteByPrimaryKey", record);
+    }
+
+    public int batchInsert(List<JyGroupSortCrossDetailEntity> list) {
+        return this.getSqlSession().insert(NAMESPACE + ".batchInsert", list);
     }
 }

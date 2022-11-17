@@ -16,8 +16,9 @@ import com.jd.bluedragon.distribution.board.service.VirtualBoardService;
 import com.jd.bluedragon.distribution.cyclebox.CycleBoxService;
 import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigEnum;
 import com.jd.bluedragon.distribution.funcSwitchConfig.service.FuncSwitchConfigService;
+import com.jd.bluedragon.distribution.jy.service.comboard.JyGroupSortCrossDetailService;
 import com.jd.bluedragon.distribution.send.domain.SendM;
-import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.*;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.businessIntercept.enums.BusinessInterceptOnlineStatusEnum;
@@ -28,26 +29,29 @@ import com.jd.bluedragon.distribution.ver.service.SortingCheckService;
 import com.jd.bluedragon.dms.utils.BarCodeType;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.NumberHelper;
-import com.jd.bluedragon.utils.ObjectHelper;
+import com.jd.coo.sa.sequence.JimdbSequenceGen;
+import com.jd.jim.cli.Cluster;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jdl.basic.api.domain.cross.*;
 import java.util.Date;
 import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 import com.jd.etms.waybill.domain.Waybill;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
+
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.CollectionUtils;
 
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.NO_OPERATE_SITE_CODE;
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.NO_OPERATE_SITE_MESSAGE;
+import static com.jd.bluedragon.utils.TimeUtils.yyyyMMdd;
 
 @Service
 @Slf4j
@@ -70,7 +74,15 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   private CycleBoxService cycleBoxService;
   @Resource
   private FuncSwitchConfigService funcSwitchConfigService;
+  
+  @Autowired
+  private JyGroupSortCrossDetailService jyGroupSortCrossDetailService;
 
+
+  @Autowired
+  @Qualifier("redisClientCache")
+  protected Cluster redisClientCache;
+  
   @Override
   public InvokeResult<CrossDataResp> listCrossData(CrossDataReq request) {
     log.info("开始获取场地滑道信息：{}", JsonHelper.toJson(request));
@@ -134,12 +146,39 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     return tableTrolleyDtoList;
   }
 
-
   @Override
   public InvokeResult<CreateGroupCTTResp> createGroupCTTData(CreateGroupCTTReq request) {
-    return null;
+    if (request == null || request.getCurrentOperate() == null || request.getUser() == null){
+      return new InvokeResult<>(NO_OPERATE_SITE_CODE,NO_OPERATE_SITE_MESSAGE);
+    }
+    log.info("开始保存本场地常用的笼车集合：{}", JsonHelper.toJson(request));
+    CreateGroupCTTResp resp = jyGroupSortCrossDetailService.batchInsert(request);
+    return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, resp);
   }
 
+  private String getGroupCTTName() {
+    String groupNoKey = "groupNo:"  + TimeUtils.date2string(new Date(), yyyyMMdd + ":");
+    long groupNo = 0;
+    if (!ObjectHelper.isNotNull(redisClientCache.get(groupNoKey))) {
+      redisClientCache.set(groupNoKey, "0", 24 * 60, TimeUnit.MINUTES, false);
+    }
+    try {
+      groupNo = redisClientCache.incr(groupNoKey);
+    } catch (Exception e) {
+      return "";
+    }
+    return String.valueOf(groupNo);
+  }
+
+  @Override
+  public InvokeResult<CreateGroupCTTResp> getDefaultGroupCTTName() {
+    InvokeResult<CreateGroupCTTResp> result = new InvokeResult<>();
+    CreateGroupCTTResp createGroupCTTResp = new CreateGroupCTTResp();
+    result.setData(createGroupCTTResp);
+    String groupName = "混扫" + getGroupCTTName();
+    createGroupCTTResp.setTemplateName(groupName);
+    return result;
+  }
   @Override
   public InvokeResult addCTT2Group(AddCTTReq request) {
     return null;
@@ -152,7 +191,8 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
 
   @Override
   public InvokeResult<CTTGroupDataResp> listCTTGroupData(CTTGroupDataReq request) {
-    return null;
+    CTTGroupDataResp resp = jyGroupSortCrossDetailService.queryCTTGroupDataByGroupOrSiteCode(request);
+    return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, resp);
   }
 
   @Override
