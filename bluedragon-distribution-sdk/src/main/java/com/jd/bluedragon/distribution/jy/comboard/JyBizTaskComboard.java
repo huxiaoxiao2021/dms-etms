@@ -2,18 +2,16 @@ package com.jd.bluedragon.distribution.jy.comboard;
 
 import java.util.Date;
 
-public class JyComboardEntity {
+public class JyBizTaskComboard {
     private Long id;
 
     private String bizId;
 
-    private String barCode;
-
-    private Integer barCodeType;
-
     private String boardCode;
 
     private String sendCode;
+
+    private Integer status;
 
     private Long startSiteId;
 
@@ -39,6 +37,10 @@ public class JyComboardEntity {
 
     private Date ts;
 
+    private Boolean bulkFlag;
+
+    private Integer count;
+
     public Long getId() {
         return id;
     }
@@ -55,22 +57,6 @@ public class JyComboardEntity {
         this.bizId = bizId;
     }
 
-    public String getBarCode() {
-        return barCode;
-    }
-
-    public void setBarCode(String barCode) {
-        this.barCode = barCode;
-    }
-
-    public Integer getBarCodeType() {
-        return barCodeType;
-    }
-
-    public void setBarCodeType(Integer barCodeType) {
-        this.barCodeType = barCodeType;
-    }
-
     public String getBoardCode() {
         return boardCode;
     }
@@ -85,6 +71,14 @@ public class JyComboardEntity {
 
     public void setSendCode(String sendCode) {
         this.sendCode = sendCode;
+    }
+
+    public Integer getStatus() {
+        return status;
+    }
+
+    public void setStatus(Integer status) {
+        this.status = status;
     }
 
     public Long getStartSiteId() {
@@ -181,5 +175,21 @@ public class JyComboardEntity {
 
     public void setTs(Date ts) {
         this.ts = ts;
+    }
+
+    public Boolean getBulkFlag() {
+        return bulkFlag;
+    }
+
+    public void setBulkFlag(Boolean bulkFlag) {
+        this.bulkFlag = bulkFlag;
+    }
+
+    public Integer getCount() {
+        return count;
+    }
+
+    public void setCount(Integer count) {
+        this.count = count;
     }
 }

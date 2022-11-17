@@ -44,6 +44,7 @@ import java.util.List;
 import com.jd.etms.waybill.domain.Waybill;
 import java.util.Objects;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.util.CollectionUtils;
 
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.NO_OPERATE_SITE_CODE;
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.NO_OPERATE_SITE_MESSAGE;
@@ -107,21 +108,20 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     TableTrolleyJsfResp tableTrolleyJsfResp;
     if (!StringUtils.isEmpty(request.getCrossCode())) {
       // 根据滑道查询笼车信息
+      query.setCrossCode(request.getCrossCode());
       tableTrolleyJsfResp = sortCrossJsfManager.queryTableTrolleyListByCrossCode(query);
     } else {
       // 根据场地查询笼车信息
       tableTrolleyJsfResp = sortCrossJsfManager.queryTableTrolleyListByDmsId(query);
     }
-    if (tableTrolleyJsfResp != null) {
-      tableTrolleyResp.setTableTrolleyDtoList(
-          getTableTrolleyDto(tableTrolleyJsfResp.getTableTrolleyDtoJsfList()));
+    if (tableTrolleyJsfResp != null && !CollectionUtils.isEmpty(tableTrolleyJsfResp.getTableTrolleyDtoJsfList())) {
+      tableTrolleyResp.setTableTrolleyDtoList(getTableTrolleyDto(tableTrolleyJsfResp.getTableTrolleyDtoJsfList()));
       tableTrolleyResp.setTotalPage(tableTrolleyJsfResp.getTotalPage());
     }
     return result;
   }
 
-  private List<TableTrolleyDto> getTableTrolleyDto(
-      List<TableTrolleyJsfDto> tableTrolleyDtoJsfList) {
+  private List<TableTrolleyDto> getTableTrolleyDto(List<TableTrolleyJsfDto> tableTrolleyDtoJsfList) {
     List<TableTrolleyDto> tableTrolleyDtoList = new ArrayList<>();
     for (TableTrolleyJsfDto tableTrolleyJsfDto : tableTrolleyDtoJsfList) {
       TableTrolleyDto tableTrolleyDto = new TableTrolleyDto();

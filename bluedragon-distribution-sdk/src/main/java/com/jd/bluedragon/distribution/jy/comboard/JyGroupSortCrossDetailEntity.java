@@ -5,35 +5,35 @@ import java.util.Date;
 public class JyGroupSortCrossDetailEntity {
     private Long id;
 
-    private String group_code;
+    private String groupCode;
 
-    private String template_code;
+    private String templateCode;
 
-    private String template_name;
+    private String templateName;
 
-    private String cross_code;
+    private String crossCode;
 
-    private String tabletrolley_code;
+    private String tabletrolleyCode;
 
-    private Long start_site_id;
+    private Long startSiteId;
 
-    private String start_site_name;
+    private String startSiteName;
 
-    private Long end_site_id;
+    private Long endSiteId;
 
-    private String end_site_name;
+    private String endSiteName;
 
-    private String create_user_erp;
+    private String createUserErp;
 
-    private String create_user_name;
+    private String createUserName;
 
-    private String update_user_erp;
+    private String updateUserErp;
 
-    private String update_user_name;
+    private String updateUserName;
 
-    private Date create_time;
+    private Date createTime;
 
-    private Date update_time;
+    private Date updateTime;
 
     private Boolean yn;
 
@@ -47,124 +47,124 @@ public class JyGroupSortCrossDetailEntity {
         this.id = id;
     }
 
-    public String getGroup_code() {
-        return group_code;
+    public String getGroupCode() {
+        return groupCode;
     }
 
-    public void setGroup_code(String group_code) {
-        this.group_code = group_code;
+    public void setGroupCode(String groupCode) {
+        this.groupCode = groupCode;
     }
 
-    public String getTemplate_code() {
-        return template_code;
+    public String getTemplateCode() {
+        return templateCode;
     }
 
-    public void setTemplate_code(String template_code) {
-        this.template_code = template_code;
+    public void setTemplateCode(String templateCode) {
+        this.templateCode = templateCode;
     }
 
-    public String getTemplate_name() {
-        return template_name;
+    public String getTemplateName() {
+        return templateName;
     }
 
-    public void setTemplate_name(String template_name) {
-        this.template_name = template_name;
+    public void setTemplateName(String templateName) {
+        this.templateName = templateName;
     }
 
-    public String getCross_code() {
-        return cross_code;
+    public String getCrossCode() {
+        return crossCode;
     }
 
-    public void setCross_code(String cross_code) {
-        this.cross_code = cross_code;
+    public void setCrossCode(String crossCode) {
+        this.crossCode = crossCode;
     }
 
-    public String getTabletrolley_code() {
-        return tabletrolley_code;
+    public String getTabletrolleyCode() {
+        return tabletrolleyCode;
     }
 
-    public void setTabletrolley_code(String tabletrolley_code) {
-        this.tabletrolley_code = tabletrolley_code;
+    public void setTabletrolleyCode(String tabletrolleyCode) {
+        this.tabletrolleyCode = tabletrolleyCode;
     }
 
-    public Long getStart_site_id() {
-        return start_site_id;
+    public Long getStartSiteId() {
+        return startSiteId;
     }
 
-    public void setStart_site_id(Long start_site_id) {
-        this.start_site_id = start_site_id;
+    public void setStartSiteId(Long startSiteId) {
+        this.startSiteId = startSiteId;
     }
 
-    public String getStart_site_name() {
-        return start_site_name;
+    public String getStartSiteName() {
+        return startSiteName;
     }
 
-    public void setStart_site_name(String start_site_name) {
-        this.start_site_name = start_site_name;
+    public void setStartSiteName(String startSiteName) {
+        this.startSiteName = startSiteName;
     }
 
-    public Long getEnd_site_id() {
-        return end_site_id;
+    public Long getEndSiteId() {
+        return endSiteId;
     }
 
-    public void setEnd_site_id(Long end_site_id) {
-        this.end_site_id = end_site_id;
+    public void setEndSiteId(Long endSiteId) {
+        this.endSiteId = endSiteId;
     }
 
-    public String getEnd_site_name() {
-        return end_site_name;
+    public String getEndSiteName() {
+        return endSiteName;
     }
 
-    public void setEnd_site_name(String end_site_name) {
-        this.end_site_name = end_site_name;
+    public void setEndSiteName(String endSiteName) {
+        this.endSiteName = endSiteName;
     }
 
-    public String getCreate_user_erp() {
-        return create_user_erp;
+    public String getCreateUserErp() {
+        return createUserErp;
     }
 
-    public void setCreate_user_erp(String create_user_erp) {
-        this.create_user_erp = create_user_erp;
+    public void setCreateUserErp(String createUserErp) {
+        this.createUserErp = createUserErp;
     }
 
-    public String getCreate_user_name() {
-        return create_user_name;
+    public String getCreateUserName() {
+        return createUserName;
     }
 
-    public void setCreate_user_name(String create_user_name) {
-        this.create_user_name = create_user_name;
+    public void setCreateUserName(String createUserName) {
+        this.createUserName = createUserName;
     }
 
-    public String getUpdate_user_erp() {
-        return update_user_erp;
+    public String getUpdateUserErp() {
+        return updateUserErp;
     }
 
-    public void setUpdate_user_erp(String update_user_erp) {
-        this.update_user_erp = update_user_erp;
+    public void setUpdateUserErp(String updateUserErp) {
+        this.updateUserErp = updateUserErp;
     }
 
-    public String getUpdate_user_name() {
-        return update_user_name;
+    public String getUpdateUserName() {
+        return updateUserName;
     }
 
-    public void setUpdate_user_name(String update_user_name) {
-        this.update_user_name = update_user_name;
+    public void setUpdateUserName(String updateUserName) {
+        this.updateUserName = updateUserName;
     }
 
-    public Date getCreate_time() {
-        return create_time;
+    public Date getCreateTime() {
+        return createTime;
     }
 
-    public void setCreate_time(Date create_time) {
-        this.create_time = create_time;
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
     }
 
-    public Date getUpdate_time() {
-        return update_time;
+    public Date getUpdateTime() {
+        return updateTime;
     }
 
-    public void setUpdate_time(Date update_time) {
-        this.update_time = update_time;
+    public void setUpdateTime(Date updateTime) {
+        this.updateTime = updateTime;
     }
 
     public Boolean getYn() {
