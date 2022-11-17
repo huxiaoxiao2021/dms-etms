@@ -2425,7 +2425,7 @@ public class UnloadCarServiceImpl implements UnloadCarService {
     public boolean distributeTask(DistributeTaskRequest request) {
 
         Map<String, Object> params = new HashMap<String, Object>();
-        params.put("unloadUserErp",request.getUnloadUserErp());
+        params.put("unloadUserErp",request.getUnloadUserErp().trim());
         params.put("unloadUserName",request.getUnloadUserName());
         params.put("railWayPlatForm",request.getRailWayPlatForm());
         params.put("unloadCarIds",request.getUnloadCarIds());
