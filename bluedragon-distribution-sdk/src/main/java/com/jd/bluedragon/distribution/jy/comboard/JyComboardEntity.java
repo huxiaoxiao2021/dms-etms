@@ -9,7 +9,7 @@ public class JyComboardEntity {
 
     private String barCode;
 
-    private Byte barCodeType;
+    private Integer barCodeType;
 
     private String boardCode;
 
@@ -63,11 +63,11 @@ public class JyComboardEntity {
         this.barCode = barCode;
     }
 
-    public Byte getBarCodeType() {
+    public Integer getBarCodeType() {
         return barCodeType;
     }
 
-    public void setBarCodeType(Byte barCodeType) {
+    public void setBarCodeType(Integer barCodeType) {
         this.barCodeType = barCodeType;
     }
 
