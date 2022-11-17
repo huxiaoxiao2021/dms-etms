@@ -40,6 +40,10 @@ public class ReprintRecord {
     private Byte isDelete;
 
     private Date ts;
+    /**
+     * 打印入口
+     */
+    private Integer interfaceType;
 
     public Long getId() {
         return id;
@@ -127,5 +131,13 @@ public class ReprintRecord {
 
     public void setTs(Date ts) {
         this.ts = ts;
+    }
+
+    public Integer getInterfaceType() {
+        return interfaceType;
+    }
+
+    public void setInterfaceType(Integer interfaceType) {
+        this.interfaceType = interfaceType;
     }
 }
