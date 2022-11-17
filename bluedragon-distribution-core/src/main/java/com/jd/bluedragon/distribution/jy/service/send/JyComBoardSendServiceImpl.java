@@ -3,12 +3,20 @@ package com.jd.bluedragon.distribution.jy.service.send;
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.RESULT_SUCCESS_CODE;
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.RESULT_SUCCESS_MESSAGE;
 
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.comboard.request.*;
 import com.jd.bluedragon.common.dto.comboard.response.*;
 import com.jd.bluedragon.core.jsf.cross.SortCrossJsfManager;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.SendVehicleScanTypeEnum;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.distribution.api.response.BoxResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.base.service.BaseService;
+import com.jd.bluedragon.distribution.board.service.VirtualBoardService;
+import com.jd.bluedragon.distribution.cyclebox.CycleBoxService;
+import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigEnum;
+import com.jd.bluedragon.distribution.funcSwitchConfig.service.FuncSwitchConfigService;
+import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
@@ -23,7 +31,10 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.ObjectHelper;
+import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jdl.basic.api.domain.cross.*;
+import java.util.Date;
+import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -44,21 +55,28 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
 
   @Autowired
   private SortCrossJsfManager sortCrossJsfManager;
-  
+
   @Autowired
   private WaybillQueryManager waybillQueryManager;
   @Autowired
   private SortingCheckService sortingCheckService;
   @Autowired
   private BoxService boxService;
-
+  @Autowired
+  private VirtualBoardService virtualBoardService;
+  @Autowired
+  private BaseService baseService;
+  @Resource
+  private CycleBoxService cycleBoxService;
+  @Resource
+  private FuncSwitchConfigService funcSwitchConfigService;
 
   @Override
   public InvokeResult<CrossDataResp> listCrossData(CrossDataReq request) {
     log.info("开始获取场地滑道信息：{}", JsonHelper.toJson(request));
     CrossPageQuery query = new CrossPageQuery();
-    if (request == null || request.getCurrentOperate() == null ){
-      return new InvokeResult<>(NO_OPERATE_SITE_CODE,NO_OPERATE_SITE_MESSAGE);
+    if (request == null || request.getCurrentOperate() == null) {
+      return new InvokeResult<>(NO_OPERATE_SITE_CODE, NO_OPERATE_SITE_MESSAGE);
     }
     InvokeResult<CrossDataResp> result = new InvokeResult<>();
     CrossDataResp crossDataResp = new CrossDataResp();
@@ -67,7 +85,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     query.setPageNumber(request.getPageNo());
     query.setLimit(request.getPageSize());
     CrossDataJsfResp crossDataJsfResp = sortCrossJsfManager.queryCrossDataByDmsCode(query);
-    if (crossDataJsfResp != null ) {
+    if (crossDataJsfResp != null) {
       crossDataResp.setCrossCodeList(crossDataJsfResp.getCrossCodeList());
       crossDataResp.setTotalPage(crossDataJsfResp.getTotalPage());
     }
@@ -78,8 +96,8 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   public InvokeResult<TableTrolleyResp> listTableTrolleyUnderCross(TableTrolleyReq request) {
     log.info("开始获取笼车营业部信息：{}", JsonHelper.toJson(request));
     TableTrolleyQuery query = new TableTrolleyQuery();
-    if (request == null || request.getCurrentOperate() == null ){
-      return new InvokeResult<>(NO_OPERATE_SITE_CODE,NO_OPERATE_SITE_MESSAGE);
+    if (request == null || request.getCurrentOperate() == null) {
+      return new InvokeResult<>(NO_OPERATE_SITE_CODE, NO_OPERATE_SITE_MESSAGE);
     }
     InvokeResult<TableTrolleyResp> result = new InvokeResult<>();
     TableTrolleyResp tableTrolleyResp = new TableTrolleyResp();
@@ -92,7 +110,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       // 根据滑道查询笼车信息
       query.setCrossCode(request.getCrossCode());
       tableTrolleyJsfResp = sortCrossJsfManager.queryTableTrolleyListByCrossCode(query);
-    }else {
+    } else {
       // 根据场地查询笼车信息
       tableTrolleyJsfResp = sortCrossJsfManager.queryTableTrolleyListByDmsId(query);
     }
@@ -100,7 +118,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       tableTrolleyResp.setTableTrolleyDtoList(getTableTrolleyDto(tableTrolleyJsfResp.getTableTrolleyDtoJsfList()));
       tableTrolleyResp.setTotalPage(tableTrolleyJsfResp.getTotalPage());
     }
-    return result;  
+    return result;
   }
 
   private List<TableTrolleyDto> getTableTrolleyDto(List<TableTrolleyJsfDto> tableTrolleyDtoJsfList) {
@@ -231,6 +249,8 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     }
   }
 
+  private void comboardCheck(ComboardScanReq request) {}
+  private void sendCheck(ComboardScanReq request) {}
   private void bizCheck(ComboardScanReq request) {
     String barCode = request.getBarCode();
     if (WaybillUtil.isPackageCode(barCode)) {
@@ -248,18 +268,65 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       combinationCheck(request);
 
     } else if (BusinessHelper.isBoxcode(barCode)) {
-      final Box boxExist = boxService.findBoxByCode(barCode);
-      if (boxExist == null) {
+      final Box box = boxService.findBoxByCode(barCode);
+      if (box == null) {
         throw new JyBizException("未找到对应箱号，请检查");
       }
-      request.setEndSiteId(boxExist.getReceiveSiteCode());
+      request.setEndSiteId(box.getReceiveSiteCode());
       //匹配流向
       checkAndMatchDestination(request);
+      if (!cycleBagBindCheck(barCode,
+          null, request.getCurrentOperate().getSiteCode(), box)) {
+        throw new JyBizException(BoxResponse.MESSAGE_BC_NO_BINDING);
+      }
 
     } else {
-
+      //TODO 运单
     }
 
+    // 已在同场地发货，不可再组板
+    final SendM recentSendMByParam = virtualBoardService
+        .getRecentSendMByParam(barCode, request.getCurrentOperate().getSiteCode(), null, null);
+    if (recentSendMByParam != null) {
+      //三小时内禁止再次发货，返调度再次发货问题处理
+      Date sendTime = recentSendMByParam.getOperateTime();
+      if (sendTime != null
+          && System.currentTimeMillis() - sendTime.getTime() <= 3l * 3600l * 1000l) {
+        throw new JyBizException("该包裹已发货");
+      }
+    }
+
+  }
+
+  public boolean cycleBagBindCheck(String boxCode, Integer operateType, Integer siteCode, Box box) {
+    if (Constants.OPERATE_TYPE_SORTING.equals(operateType) || Constants.OPERATE_TYPE_INSPECTION
+        .equals(operateType)) {
+      BaseStaffSiteOrgDto dto = baseService
+          .queryDmsBaseSiteByCode(box.getReceiveSiteCode().toString());
+      if (dto == null) {
+        log.info("boxes/validation :{} baseService.queryDmsBaseSiteByCode 获取目的地信息 NULL",
+            box.getReceiveSiteCode().toString());
+        return false;
+      }
+      // 获取循环集包袋绑定信息
+      String materialCode = cycleBoxService.getBoxMaterialRelation(boxCode);
+      // 决定是否绑定循环集包袋
+      // 不是BC类型的不拦截
+      if (!BusinessHelper.isBCBoxType(box.getType())) {
+        return true;
+      }
+      // 开关关闭不拦截
+      if (!funcSwitchConfigService
+          .getBcBoxFilterStatus(FuncSwitchConfigEnum.FUNCTION_BC_BOX_FILTER.getCode(), siteCode)) {
+        return true;
+      }
+      //有集包袋不拦截
+      if (!StringUtils.isEmpty(materialCode)) {
+        return true;
+      }
+      return false;
+    }
+    return true;
   }
 
   private void combinationCheck(ComboardScanReq request) {
