@@ -553,7 +553,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             // 货区校验
             String checkResult = jyUnloadVehicleCheckTysService.checkGoodsArea(scanPackageDto, scanPackageRespDto);
             if (StringUtils.isNotBlank(checkResult)) {
-                invokeResult.customMessage(InvokeResult.CODE_HINT, checkResult);
+                invokeResult.customMessage(InvokeResult.CODE_SPECIAL_INTERCEPT, checkResult);
                 return invokeResult;
             }
             // B网快运发货规则校验
@@ -658,7 +658,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         // 货区校验
         String checkResult = jyUnloadVehicleCheckTysService.checkGoodsArea(scanPackageDto, scanPackageRespDto);
         if (StringUtils.isNotBlank(checkResult)) {
-            invokeResult.customMessage(InvokeResult.CODE_HINT, checkResult);
+            invokeResult.customMessage(InvokeResult.CODE_SPECIAL_INTERCEPT, checkResult);
             return invokeResult;
         }
         // 专网校验
@@ -964,6 +964,9 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     @JProfiler(jKey = "JyUnloadVehicleTysServiceImpl.queryUnloadDetailByDiffDimension",jAppName= Constants.UMP_APP_NAME_DMSWEB,mState = {JProEnum.TP, JProEnum.FunctionError})
     public InvokeResult<ScanStatisticsInnerDto> queryUnloadDetailByDiffDimension(QueryUnloadDetailDto queryUnloadDetailDto) {
         String methodDesc = "JyUnloadVehicleTysServiceImpl.queryUnloadDetailByDiffDimension--";
+        if(log.isInfoEnabled()) {
+            log.info("JyUnloadVehicleTysServiceImpl.queryUnloadDetailByDiffDimension-下载明细查询-param={}",JsonUtils.toJSONString(queryUnloadDetailDto));
+        }
         //统计数据查询
         ScanStatisticsInnerDto scanStatisticsInnerDto = new ScanStatisticsInnerDto();
         JyUnloadAggsEntity condition = new JyUnloadAggsEntity();
