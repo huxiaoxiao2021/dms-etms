@@ -30,6 +30,14 @@ public class SendFlowDto implements Serializable {
      * 该流向已扫箱子数量
      */
     private Integer boxHaveScanCount;
+    /**
+     * 该流向待扫数量
+     */
+    private Integer waitScanCount;
+    /**
+     *该流向进行中的板详情
+     */
+    private BoardDto currentBoardDto;
 
     public Integer getEndSiteId() {
         return endSiteId;
