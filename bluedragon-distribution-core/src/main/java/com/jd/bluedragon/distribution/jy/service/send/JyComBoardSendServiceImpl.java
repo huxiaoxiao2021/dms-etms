@@ -249,6 +249,8 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     }
   }
 
+  private void comboardCheck(ComboardScanReq request) {}
+  private void sendCheck(ComboardScanReq request) {}
   private void bizCheck(ComboardScanReq request) {
     String barCode = request.getBarCode();
     if (WaybillUtil.isPackageCode(barCode)) {
