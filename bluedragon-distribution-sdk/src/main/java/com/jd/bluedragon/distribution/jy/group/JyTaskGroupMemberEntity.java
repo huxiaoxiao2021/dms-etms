@@ -94,6 +94,22 @@ public class JyTaskGroupMemberEntity implements Serializable {
      * 数据库时间
      */
     private Date ts;
+    /**
+     * 组员类型
+     */
+    private Integer memberType;
+    /**
+     * 设备类型编码
+     */
+    private String deviceTypeCode;
+    /**
+     * 设备类型名称
+     */
+    private String deviceTypeName;
+    /**
+     * 设备编码
+     */
+    private String machineCode;
 
     public void setId(Long id) {
         this.id = id;
@@ -254,5 +270,37 @@ public class JyTaskGroupMemberEntity implements Serializable {
     public Date getTs() {
         return this.ts;
     }
+
+	public Integer getMemberType() {
+		return memberType;
+	}
+
+	public void setMemberType(Integer memberType) {
+		this.memberType = memberType;
+	}
+
+	public String getDeviceTypeCode() {
+		return deviceTypeCode;
+	}
+
+	public void setDeviceTypeCode(String deviceTypeCode) {
+		this.deviceTypeCode = deviceTypeCode;
+	}
+
+	public String getDeviceTypeName() {
+		return deviceTypeName;
+	}
+
+	public void setDeviceTypeName(String deviceTypeName) {
+		this.deviceTypeName = deviceTypeName;
+	}
+
+	public String getMachineCode() {
+		return machineCode;
+	}
+
+	public void setMachineCode(String machineCode) {
+		this.machineCode = machineCode;
+	}
 
 }

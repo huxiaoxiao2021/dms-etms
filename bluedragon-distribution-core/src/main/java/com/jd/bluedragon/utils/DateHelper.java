@@ -566,6 +566,13 @@ public class DateHelper {
 		}
 		return 0;
 	}
+
+    public static double betweenMinutes(Date startTime, Date endTime) {
+        if(startTime != null && endTime!= null && endTime.after(startTime)) {
+            return 1.0*(endTime.getTime() - startTime.getTime())/60/1000;
+        }
+        return 0;
+    }
     /**
      * 获取年月日 yyMMdd
      * @return

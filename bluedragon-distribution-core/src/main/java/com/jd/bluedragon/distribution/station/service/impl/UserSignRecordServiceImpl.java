@@ -15,6 +15,7 @@ import com.jd.bluedragon.core.jsf.workStation.WorkStationGridManager;
 import com.jd.bluedragon.core.jsf.workStation.WorkStationManager;
 import com.jd.bluedragon.distribution.api.response.base.Result;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
+import com.jd.bluedragon.distribution.jy.group.JyGroupMemberTypeEnum;
 import com.jd.bluedragon.distribution.jy.service.group.JyGroupMemberService;
 import com.jd.bluedragon.distribution.position.service.PositionRecordService;
 import com.jd.bluedragon.distribution.station.dao.UserSignRecordDao;
@@ -31,7 +32,6 @@ import com.jd.bluedragon.dms.utils.DmsConstants;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.bluedragon.utils.StringHelper;
-import com.jd.common.util.StringUtils;
 import com.jd.ql.basic.domain.BaseSite;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
@@ -461,6 +461,11 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
                     updateData.setUpdateUserName(updateData.getUpdateUser());
 
                     updateRows += userSignRecordDao.signOutById(updateData, toSignOutPks);
+        			GroupMemberRequest removeMemberRequest = new GroupMemberRequest();
+        			removeMemberRequest.setSignRecordIdList(toSignOutPks);
+        			removeMemberRequest.setOperateUserCode(updateData.getUpdateUser());
+        			removeMemberRequest.setOperateUserName(updateData.getUpdateUserName());
+                    this.jyGroupMemberService.removeMembers(removeMemberRequest);
                 }
 
                 Thread.sleep(200);
@@ -595,6 +600,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
     		this.doSignOut(signOutRequest);
     		needSignOut = true;
     		context.signOutData = this.toUserSignRecordData(lastSignRecord);
+    		context.signOutData.setSignOutTime(signOutRequest.getSignOutTime());
 		}
         if(this.doSignIn(signInData)) {
         	result.setData(this.toUserSignRecordData(signInData));
@@ -626,6 +632,11 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		UserSignRecord signOutData = new UserSignRecord();
 		if(signOutRequest.getRecordId() != null) {
 			signOutData.setId(signOutRequest.getRecordId());
+			UserSignRecordData lastSignRecord = queryUserSignRecordDataById(signOutRequest.getRecordId());
+			if(lastSignRecord == null || lastSignRecord.getSignOutTime() != null) {
+				result.toFail("签到数据无效|已签退！");
+				return result;
+			}
 		}else {
 			UserSignRecordQuery lastSignRecordQuery = new UserSignRecordQuery();
 			lastSignRecordQuery.setUserCode(signOutRequest.getUserCode());
@@ -643,6 +654,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
         	result.setData(this.queryUserSignRecordDataById(signOutData.getId()));
         	result.toSucceed("签退成功！"); 
         	context.signOutData = result.getData();
+    		context.signOutData.setSignOutTime(signOutData.getSignOutTime());
         }else {
         	result.toFail("签退失败！");
         }
@@ -706,6 +718,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
         		return result;
             }else {
             	context.signOutData = this.toUserSignRecordData(lastSignRecord);
+            	context.signOutData.setSignOutTime(signOutData.getSignOutTime());
             }
         }
 
@@ -1082,11 +1095,28 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	 * @return
 	 */
 	private void addOrRemoveMember(UserSignContext context){
+
+		if(context.deleteData != null) {
+			GroupMemberRequest removeMemberRequest = new GroupMemberRequest();
+			removeMemberRequest.setMemberType(JyGroupMemberTypeEnum.PERSON.getCode());
+			removeMemberRequest.setSignRecordId(context.deleteData.getId());
+			removeMemberRequest.setOperateUserCode(context.userSignRequest.getOperateUserCode());
+			removeMemberRequest.setOperateUserName(context.userSignRequest.getOperateUserName());
+			removeMemberRequest.setSignOutTime(context.deleteData.getSignOutTime());
+			JdCResponse<GroupMemberData> removeMemberResult = jyGroupMemberService.deleteMember(removeMemberRequest);
+			//签退设置-组
+			if(removeMemberResult.isSucceed()) {
+				context.groupData = removeMemberResult.getData();
+			}
+			return;
+		}
 		if(context.signOutData != null) {
 			GroupMemberRequest removeMemberRequest = new GroupMemberRequest();
+			removeMemberRequest.setMemberType(JyGroupMemberTypeEnum.PERSON.getCode());
 			removeMemberRequest.setSignRecordId(context.signOutData.getId());
 			removeMemberRequest.setOperateUserCode(context.userSignRequest.getOperateUserCode());
 			removeMemberRequest.setOperateUserName(context.userSignRequest.getOperateUserName());
+			removeMemberRequest.setSignOutTime(context.signOutData.getSignOutTime());
 			JdCResponse<GroupMemberData> removeMemberResult = jyGroupMemberService.removeMember(removeMemberRequest);
 			//签退设置-组
 			if(removeMemberResult.isSucceed() && !context.signInFlag) {
@@ -1095,6 +1125,8 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		}
 		if(context.signInData != null) {
 			GroupMemberRequest addMemberRequest = new GroupMemberRequest();
+			addMemberRequest.setMemberType(JyGroupMemberTypeEnum.PERSON.getCode());
+			addMemberRequest.setSignInTime(context.signInData.getSignInTime());
 			addMemberRequest.setSignRecordId(context.signInData.getId());
 			addMemberRequest.setPositionCode(context.userSignRequest.getPositionCode());
 			addMemberRequest.setJobCode(context.signInData.getJobCode());
@@ -1118,6 +1150,47 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		result.setData(userSignRecordDao.queryUnsignedOutRecordByRefGridKey(refGridKey));
 		return result;
 	}
+	@Override
+	public JdCResponse<UserSignRecordData> deleteUserSignRecord(UserSignRequest userSignRequest) {
+		UserSignContext context = new UserSignContext();
+		context.userSignRequest = userSignRequest;
+		JdCResponse<UserSignRecordData> result = this.doDelete(context);
+		if(!result.isSucceed()) {
+			return result;
+		}
+		this.addOrRemoveMember(context);
+		result.getData().setGroupData(context.groupData);
+		return result;
+	}
+	/**
+	 * 作废操作
+	 * @param context
+	 * @return
+	 */
+	private JdCResponse<UserSignRecordData> doDelete(UserSignContext context) {
+		JdCResponse<UserSignRecordData> result = new JdCResponse<>();
+		result.toSucceed("作废成功");
+		UserSignRequest userSignRequest = context.getUserSignRequest();
+		if(userSignRequest == null || userSignRequest.getRecordId() == null) {
+			result.toFail("签到记录Id不能为空！");
+			return result;
+		}
+		UserSignRecordData data = queryUserSignRecordDataById(userSignRequest.getRecordId());
+		if(data == null) {
+			result.toFail("签到数据无效|已作废！");
+			return result;
+		}
+		UserSignRecord deleteData = new UserSignRecord();
+		deleteData.setId(data.getId());
+		deleteData.setUpdateTime(new Date());
+		deleteData.setUpdateUser(userSignRequest.getOperateUserCode());
+		deleteData.setUpdateUserName(userSignRequest.getOperateUserName());
+		this.deleteById(deleteData);
+		context.deleteData = data;
+		data.setYn(Constants.YN_NO);
+		result.setData(data);
+		return result;
+	}
 	/**
 	 * 签到处理上下文
 	 * @author wuyoude
@@ -1138,6 +1211,10 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		 */
 		UserSignRecordData signOutData;
 		/**
+		 * 作废数据
+		 */
+		UserSignRecordData deleteData;
+		/**
 		 * 签到标识
 		 */
 		boolean signInFlag;
@@ -1145,7 +1222,20 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		 * 组信息
 		 */
 		GroupMemberData groupData;
-		
+		/**
+		 * 操作人code
+		 */
+		private String operateUserCode;
+		/**
+		 * 操作人name
+		 */
+		private String operateUserName;
+		/**
+		 * 操作时间
+		 */
+		private String operateTime;
+
+
 		public UserSignRequest getUserSignRequest() {
 			return userSignRequest;
 		}
@@ -1164,6 +1254,12 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		public void setSignOutData(UserSignRecordData signOutData) {
 			this.signOutData = signOutData;
 		}
+		public UserSignRecordData getDeleteData() {
+			return deleteData;
+		}
+		public void setDeleteData(UserSignRecordData deleteData) {
+			this.deleteData = deleteData;
+		}
 		public boolean isSignInFlag() {
 			return signInFlag;
 		}
@@ -1175,6 +1271,24 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		}
 		public void setGroupData(GroupMemberData groupData) {
 			this.groupData = groupData;
+		}
+		public String getOperateUserCode() {
+			return operateUserCode;
+		}
+		public void setOperateUserCode(String operateUserCode) {
+			this.operateUserCode = operateUserCode;
+		}
+		public String getOperateUserName() {
+			return operateUserName;
+		}
+		public void setOperateUserName(String operateUserName) {
+			this.operateUserName = operateUserName;
+		}
+		public String getOperateTime() {
+			return operateTime;
+		}
+		public void setOperateTime(String operateTime) {
+			this.operateTime = operateTime;
 		}
 	}
 	@Override

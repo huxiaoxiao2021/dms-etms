@@ -180,4 +180,10 @@ public interface UserSignRecordService {
 	 * @return
 	 */
 	Result<List<UserSignRecord>> queryUnsignedOutRecordByRefGridKey(String refGridKey);
+	/**
+	 * 作废签到记录
+	 * @param query
+	 * @return
+	 */
+	JdCResponse<UserSignRecordData> deleteUserSignRecord(UserSignRequest userSignRequest);
 }

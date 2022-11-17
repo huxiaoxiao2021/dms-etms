@@ -714,4 +714,9 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
         sendM.setYn(0);
         return sendM;
     }
+
+    public static void main(String[] args) {
+        Integer a =0;
+        System.out.println(a.longValue());
+    }
 }
