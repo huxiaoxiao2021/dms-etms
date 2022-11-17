@@ -33,4 +33,10 @@ public interface JyGroupService {
 	 * @return
 	 */
 	JdCResponse<GroupMemberData> queryGroupData(String groupCode);
+	/**
+	 * 根据组编码查询小组信息
+	 * @param groupCode
+	 * @return
+	 */
+	JyGroupEntity queryGroupByGroupCode(String groupCode);
 }

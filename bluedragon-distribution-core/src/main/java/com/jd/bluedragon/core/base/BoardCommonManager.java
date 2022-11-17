@@ -63,6 +63,17 @@ public interface BoardCommonManager {
     InvokeResult<String> boardMove(BoardCommonRequest request);
 
     /**
+     * 组板转移(不校验板状态)
+     * <p>
+     *  1、将包裹号/箱号从原来的板上取消，绑定到新板
+     *  2、发送取消旧板的全称跟踪和组到新板的全称跟踪
+     * <p/>
+     * @param request
+     * @return
+     */
+    InvokeResult<String> boardMoveIgnoreStatus(BoardCommonRequest request);
+
+    /**
      * 获取路由下一跳
      * @param waybillCode 运单号
      * @param siteCode 当前站点

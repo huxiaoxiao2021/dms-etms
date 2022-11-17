@@ -2,6 +2,8 @@ package com.jd.bluedragon.distribution.jy.manager;
 
 import com.jdl.jy.realtime.base.Pager;
 import com.jdl.jy.realtime.model.es.unload.JySealCarDetail;
+import com.jdl.jy.realtime.base.ServiceResult;
+import com.jdl.jy.realtime.model.es.unload.JyUnloadTaskWaybillAgg;
 import com.jdl.jy.realtime.model.es.unload.JyVehicleTaskUnloadDetail;
 
 import java.util.List;
@@ -50,4 +52,21 @@ public interface IJyUnloadVehicleManager {
     List<JyVehicleTaskUnloadDetail> findUnloadDetail(JyVehicleTaskUnloadDetail query);
 
     Pager<JySealCarDetail> querySearCarDetail(Pager<JySealCarDetail> query);
+
+    /**
+     * 查询获取编码
+     * @param currentSiteCode
+     * @param nextSiteCode
+     * @return
+     */
+    String getGoodsAreaCode(Integer currentSiteCode, Integer nextSiteCode) ;
+
+    /**
+     * 卸车岗查询统计下钻运单明细
+     * @param query
+     * @return
+     */
+    Pager<JyUnloadTaskWaybillAgg> queryUnloadTaskWaybill(Pager<JyVehicleTaskUnloadDetail> query);
+
+    //Pager<JyUnloadTaskWaybillAgg> queryUnloadTaskWaybill(Pager<JyVehicleTaskUnloadDetail> query);
 }
