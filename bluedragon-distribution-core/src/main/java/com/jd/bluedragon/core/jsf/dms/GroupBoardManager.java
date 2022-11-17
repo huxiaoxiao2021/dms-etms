@@ -1,11 +1,6 @@
 package com.jd.bluedragon.core.jsf.dms;
 
-import com.jd.transboard.api.dto.AddBoardBox;
-import com.jd.transboard.api.dto.AddBoardRequest;
-import com.jd.transboard.api.dto.Board;
-import com.jd.transboard.api.dto.MoveBoxRequest;
-import com.jd.transboard.api.dto.OperatorInfo;
-import com.jd.transboard.api.dto.Response;
+import com.jd.transboard.api.dto.*;
 
 import java.util.List;
 
@@ -43,11 +38,25 @@ public interface GroupBoardManager {
     Response<Integer> addBoxToBoard(AddBoardBox addBoardBox);
 
     /**
+     * 将板、箱/包裹关系推给TC(不校验板状态)
+     * @param addBoardBox
+     * @return
+     */
+    Response<Integer> addBoxToBoardIgnoreStatus(AddBoardBox addBoardBox);
+
+    /**
      * 组板转移
      * @param moveBoxRequest
      * @return
      */
     Response<String> moveBoxToNewBoard(MoveBoxRequest moveBoxRequest);
+
+    /**
+     * 组板转移(不校验板状态)
+     * @param moveBoxRequest
+     * @return
+     */
+    Response<String> moveBoxToNewBoardIgnoreStatus(MoveBoxRequest moveBoxRequest);
 
     /**
      * 根据板号获取已绑定箱号/包裹号
@@ -70,4 +79,27 @@ public interface GroupBoardManager {
      * @return 板对象
      */
     Response<Board> getBoardByBoxCode(String boxCode, Integer siteCode);
+
+
+    /**
+     * 获取板上该运单的包裹信息
+     * @param boardCode
+     * @param waybillCode
+     * @return
+     */
+    List<PackageDto> getPackageCodeUnderComBoard(String boardCode,String waybillCode);
+
+    /**
+     * 查询板上统计数据： 箱号 运单号 及运单中包裹号
+     * @param boardCode
+     * @return
+     */
+    Response<BoardBoxStatisticsResDto> getBoardStatisticsByBoardCode(String boardCode);
+
+    /**
+     * 批量取消组板
+     * @param removeBoardBoxDto
+     * @return
+     */
+    public Response batchRemoveBardBoxByBoxCodes(RemoveBoardBoxDto removeBoardBoxDto);
 }

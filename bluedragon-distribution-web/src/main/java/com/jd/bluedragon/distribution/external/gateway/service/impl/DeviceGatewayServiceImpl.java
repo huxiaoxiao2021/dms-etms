@@ -2,7 +2,9 @@ package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.device.response.DeviceInfoDto;
+import com.jd.bluedragon.common.dto.device.response.DeviceTypeWithInfoDto;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.device.service.DeviceInfoService;
 import com.jd.bluedragon.distribution.rest.device.DeviceResource;
 import com.jd.bluedragon.external.gateway.service.DeviceGatewayService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +22,9 @@ public class DeviceGatewayServiceImpl implements DeviceGatewayService {
 
     @Autowired
     private DeviceResource deviceResource;
+    
+    @Autowired
+    private DeviceInfoService deviceInfoService;
 
     @Override
     public JdCResponse<List<DeviceInfoDto>> getDeviceInfoList(DeviceInfoDto deviceInfoDto) {
@@ -31,4 +36,9 @@ public class DeviceGatewayServiceImpl implements DeviceGatewayService {
         response.setData(result.getData());
         return response;
     }
+
+	@Override
+	public JdCResponse<List<DeviceTypeWithInfoDto>> queryDeviceTypeWithInfoList(DeviceInfoDto deviceInfoDto) {
+		return deviceInfoService.queryDeviceTypeWithInfoList(deviceInfoDto);
+	}
 }

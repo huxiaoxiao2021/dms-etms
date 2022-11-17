@@ -191,6 +191,10 @@
 		<property name="syncJySealStatusSwitch" value="${syncJySealStatusSwitch:false}"/>
 		<property name="sealStatusBatchSizeLimit" value="${sealStatusBatchSizeLimit:30}"/>
 
+		<property name="unloadCacheDurationHours" value="${unloadCacheDurationHours:24}"/>
+		<property name="unloadBoardBindingsMaxCount" value="${unloadBoardBindingsMaxCount:100}"/>
+		<property name="packageWeightLimit" value="${packageWeightLimit:'2000'}"/>
+		<property name="waybillWeightLimit" value="${waybillWeightLimit:'10000'}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -363,6 +367,10 @@
 				<value>uccPropertyConfiguration.syncJySealStatusSwitch</value>
 				<value>uccPropertyConfiguration.sealStatusBatchSizeLimit</value>
 
+				<value>uccPropertyConfiguration.unloadCacheDurationHours</value>
+				<value>uccPropertyConfiguration.unloadBoardBindingsMaxCount</value>
+				<value>uccPropertyConfiguration.packageWeightLimit</value>
+				<value>uccPropertyConfiguration.waybillWeightLimit</value>
 
 				<value>hystrixRouteUccPropertyConfiguration.executionTimeoutInMilliseconds</value>
                 <value>hystrixRouteUccPropertyConfiguration.circuitBreakerEnabled</value>

@@ -2499,4 +2499,16 @@ public class BusinessUtil {
         }
         return WORKITEM_SIMPLECODE_REGEX.matcher(simpleCode).matches() ;
     }
+    /**
+     * 通过运单标识 判断是否需求称重
+     * <p>
+     * 66 位 是0  标识可以称重
+     *
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isAllowWeight(String waybillSign) {
+        return isSignChar(waybillSign, WaybillSignConstants.POSITION_66, WaybillSignConstants.CHAR_66_0);
+    }
+
 }

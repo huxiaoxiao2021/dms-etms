@@ -73,4 +73,10 @@ public class UnloadCarForTysDao extends BaseDao<UnloadCar> {
     public List<UnloadCar> selectByCondition(UnloadCar unloadCar) {
         return this.getSqlSession().selectList(namespace + ".selectByCondition", unloadCar);
     }
+    //
+    public List<UnloadCar> getTaskInfoBySealCarCodes(List<String> sealCarCodes) {
+        return this.getSqlSession().selectList(namespace + ".getTaskInfoBySealCarCodes", sealCarCodes);
+    }
+
+
 }
