@@ -526,4 +526,12 @@
                   ref="jyExceptionGatewayServiceImpl"
                   server="dmsjsf">
     </jsf:provider>
+
+    <!--  拣运卸车服务  -->
+    <bean id="jyComboardGatewayServiceImpl" class="com.jd.bluedragon.distribution.external.gateway.service.impl.JyComboardGatewayServiceImpl" />
+    <jsf:provider id="jyComboardGatewayService"
+                  interface="com.jd.bluedragon.external.gateway.service.JyComboardGatewayService"
+                  alias="${dms.gateway.jsf.alias}"
+                  ref="jyComboardGatewayServiceImpl"
+                  server="dmsjsf" />
 </beans>

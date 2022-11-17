@@ -2,7 +2,7 @@
 <Configuration status="INFO">
     <properties>
         <!-- 日志路径 -->
-        <property name="LOG_HOME">d:/logs/dms.web</property>
+        <property name="LOG_HOME">c:/logs/dms.web</property>
         <Property name="LOG.PATTERN">%d{yyyy-MM-dd HH:mm:ss.SSS} [%-5p] [%t] %c %M:%L - %m%n</Property>
     </properties>
     <Appenders>

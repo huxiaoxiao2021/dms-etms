@@ -239,7 +239,7 @@
 		<dependency>
             <groupId>com.jd.bluedragon</groupId>
             <artifactId>bluedragon-distribution-common-android</artifactId>
-            <version>1.6.0-SNAPSHOT</version>
+            <version>1.6.0-test-SNAPSHOT</version>
         </dependency>
 		<dependency>
 			<groupId>com.jd.etms.waybill</groupId>
@@ -1908,7 +1908,7 @@
 		<dependency>
 			<groupId>com.jdl.basic</groupId>
 			<artifactId>jy-basic-api</artifactId>
-			<version>1.0-SNAPSHOT</version>
+			<version>1.2-SNAPSHOT</version>
 		</dependency>
 
     </dependencies>

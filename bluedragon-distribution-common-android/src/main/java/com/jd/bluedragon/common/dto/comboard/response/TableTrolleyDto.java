@@ -4,7 +4,13 @@ import java.io.Serializable;
 
 public class TableTrolleyDto implements Serializable {
     private static final long serialVersionUID = 8123446470608364924L;
+    /**
+     * 目的地站点id
+     */
     private Integer endSiteId;
+    /**
+     * 目的地站点名称
+     */
     private String endSiteName;
     /**
      * 滑道编号
@@ -19,6 +25,14 @@ public class TableTrolleyDto implements Serializable {
      * 选中状态
      */
     private boolean selectedFlag;
+    /**
+     * 该流向拦截数量
+     */
+    private Integer interceptCount;
+    /**
+     * 该流向组板数量
+     */
+    private Integer boardCount;
 
     public boolean isSelectedFlag() {
         return selectedFlag;
@@ -58,5 +72,21 @@ public class TableTrolleyDto implements Serializable {
 
     public void setCrossCode(String crossCode) {
         this.crossCode = crossCode;
+    }
+
+    public Integer getInterceptCount() {
+        return interceptCount;
+    }
+
+    public void setInterceptCount(Integer interceptCount) {
+        this.interceptCount = interceptCount;
+    }
+
+    public Integer getBoardCount() {
+        return boardCount;
+    }
+
+    public void setBoardCount(Integer boardCount) {
+        this.boardCount = boardCount;
     }
 }

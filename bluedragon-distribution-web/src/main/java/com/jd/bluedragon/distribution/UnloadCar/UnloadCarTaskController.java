@@ -114,6 +114,9 @@ public class UnloadCarTaskController extends DmsBaseController {
     @Authorization(Constants.DMS_WEB_UNLOAD_CAR_TASK_R)
     public JdResponse<String> distributeTask(@QueryParam("unloadUser") String unloadUser) {
         JdResponse<String> result = new JdResponse<>();
+        if (unloadUser.contains(" ")) {
+            result.toFail("卸车负责人ERP不能包含空格，请确认erp是否输入正确");
+        }
         BaseStaffSiteOrgDto baseStaffSiteOrgDto = baseMajorManager.getBaseStaffByErpNoCache(unloadUser);
         if(baseStaffSiteOrgDto != null){
             result.setData(baseStaffSiteOrgDto.getStaffName());

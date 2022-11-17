@@ -141,6 +141,10 @@ public class InvokeResult<T> implements Serializable {
 
     public static final int FORBID_TRANS_FOR_EMPTY_BATCH_CODE= 336;
     public static final String FORBID_TRANS_FOR_EMPTY_BATCH_MESSAGE ="空批次禁止迁出！";
+    
+    public static final int NO_OPERATE_SITE_CODE = 338;
+    public static final String NO_OPERATE_SITE_MESSAGE= "获取当前操作场地失败";
+
 
     public InvokeResult(){
         this.code=RESULT_SUCCESS_CODE;

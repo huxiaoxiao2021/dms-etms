@@ -7,21 +7,36 @@ import java.io.Serializable;
 public class ComboardScanReq extends BaseReq implements Serializable {
     private static final long serialVersionUID = -3505275696826500188L;
     private String barCode;
-    private String boardCode;
-    private int scanType;
+    private Integer scanType;
     /**
      * 混扫任务编号
      */
     private String templateCode;
+    private String boardCode;
 
-
-
+    private Integer endSiteId;
     public String getBarCode() {
         return barCode;
     }
 
     public void setBarCode(String barCode) {
         this.barCode = barCode;
+    }
+
+    public Integer getScanType() {
+        return scanType;
+    }
+
+    public void setScanType(Integer scanType) {
+        this.scanType = scanType;
+    }
+
+    public String getTemplateCode() {
+        return templateCode;
+    }
+
+    public void setTemplateCode(String templateCode) {
+        this.templateCode = templateCode;
     }
 
     public String getBoardCode() {
@@ -32,19 +47,11 @@ public class ComboardScanReq extends BaseReq implements Serializable {
         this.boardCode = boardCode;
     }
 
-    public int getScanType() {
-        return scanType;
+    public Integer getEndSiteId() {
+        return endSiteId;
     }
 
-    public void setScanType(int scanType) {
-        this.scanType = scanType;
-    }
-
-    public String getTemplateCode() {
-        return templateCode;
-    }
-
-    public void setTemplateCode(String templateCode) {
-        this.templateCode = templateCode;
+    public void setEndSiteId(Integer endSiteId) {
+        this.endSiteId = endSiteId;
     }
 }
