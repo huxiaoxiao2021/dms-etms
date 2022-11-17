@@ -22,12 +22,12 @@
     <result column="ts" jdbcType="TIMESTAMP" property="ts" />
   </resultMap>
   <sql id="Base_Column_List">
-    id, group_code, template_code, template_name, cross_code, tabletrolley_code, start_site_id, 
-    start_site_name, end_site_id, end_site_name, create_user_erp, create_user_name, update_user_erp, 
+    id, group_code, template_code, template_name, cross_code, tabletrolley_code, start_site_id,
+    start_site_name, end_site_id, end_site_name, create_user_erp, create_user_name, update_user_erp,
     update_user_name, create_time, update_time, yn, ts
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
-    select 
+    select
     <include refid="Base_Column_List" />
     from jy_group_sort_cross_detail
     where id = #{id,jdbcType=BIGINT}
@@ -37,17 +37,17 @@
     where id = #{id,jdbcType=BIGINT}
   </delete>
   <insert id="insert" parameterType="com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity">
-    insert into jy_group_sort_cross_detail (id, group_code, template_code, 
-      template_name, cross_code, tabletrolley_code, 
-      start_site_id, start_site_name, end_site_id, 
-      end_site_name, create_user_erp, create_user_name, 
-      update_user_erp, update_user_name, create_time, 
+    insert into jy_group_sort_cross_detail (id, group_code, template_code,
+      template_name, cross_code, tabletrolley_code,
+      start_site_id, start_site_name, end_site_id,
+      end_site_name, create_user_erp, create_user_name,
+      update_user_erp, update_user_name, create_time,
       update_time, yn, ts)
-    values (#{id,jdbcType=BIGINT}, #{groupCode,jdbcType=VARCHAR}, #{templateCode,jdbcType=VARCHAR}, 
-      #{templateName,jdbcType=VARCHAR}, #{crossCode,jdbcType=VARCHAR}, #{tabletrolleyCode,jdbcType=VARCHAR}, 
-      #{startSiteId,jdbcType=BIGINT}, #{startSiteName,jdbcType=VARCHAR}, #{endSiteId,jdbcType=BIGINT}, 
-      #{endSiteName,jdbcType=VARCHAR}, #{createUserErp,jdbcType=VARCHAR}, #{createUserName,jdbcType=VARCHAR}, 
-      #{updateUserErp,jdbcType=VARCHAR}, #{updateUserName,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, 
+    values (#{id,jdbcType=BIGINT}, #{groupCode,jdbcType=VARCHAR}, #{templateCode,jdbcType=VARCHAR},
+      #{templateName,jdbcType=VARCHAR}, #{crossCode,jdbcType=VARCHAR}, #{tabletrolleyCode,jdbcType=VARCHAR},
+      #{startSiteId,jdbcType=BIGINT}, #{startSiteName,jdbcType=VARCHAR}, #{endSiteId,jdbcType=BIGINT},
+      #{endSiteName,jdbcType=VARCHAR}, #{createUserErp,jdbcType=VARCHAR}, #{createUserName,jdbcType=VARCHAR},
+      #{updateUserErp,jdbcType=VARCHAR}, #{updateUserName,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP},
       #{updateTime,jdbcType=TIMESTAMP}, #{yn,jdbcType=BIT}, #{ts,jdbcType=TIMESTAMP})
   </insert>
   <insert id="insertSelective" parameterType="com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity">
@@ -243,4 +243,15 @@
       ts = #{ts,jdbcType=TIMESTAMP}
     where id = #{id,jdbcType=BIGINT}
   </update>
+  <select id="listSendFlowByTemplateCode" parameterType="com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity" resultMap="BaseResultMap">
+    SELECT
+    <include refid="Base_Column_List" />
+    FROM
+      jy_group_sort_cross_detail
+    WHERE
+      group_code = #{groupCode}
+      AND template_code = #{templateCode}
+      AND start_site_id = #{startSiteId}
+      AND yn = 1
+  </select>
 </mapper>

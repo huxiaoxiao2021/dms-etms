@@ -16,7 +16,11 @@ import com.jd.bluedragon.distribution.board.service.VirtualBoardService;
 import com.jd.bluedragon.distribution.cyclebox.CycleBoxService;
 import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigEnum;
 import com.jd.bluedragon.distribution.funcSwitchConfig.service.FuncSwitchConfigService;
+import com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity;
+import com.jd.bluedragon.distribution.jy.dao.comboard.JyGroupSortCrossDetailDao;
+import com.jd.bluedragon.distribution.middleend.sorting.dao.DynamicSortingQueryDao;
 import com.jd.bluedragon.distribution.send.domain.SendM;
+import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
@@ -70,6 +74,10 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   private CycleBoxService cycleBoxService;
   @Resource
   private FuncSwitchConfigService funcSwitchConfigService;
+  @Autowired
+  private DynamicSortingQueryDao dynamicSortingQueryDao;
+  @Autowired
+  JyGroupSortCrossDetailDao jyGroupSortCrossDetailDao;
 
   @Override
   public InvokeResult<CrossDataResp> listCrossData(CrossDataReq request) {
@@ -114,14 +122,17 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       // 根据场地查询笼车信息
       tableTrolleyJsfResp = sortCrossJsfManager.queryTableTrolleyListByDmsId(query);
     }
-    if (tableTrolleyJsfResp != null && !CollectionUtils.isEmpty(tableTrolleyJsfResp.getTableTrolleyDtoJsfList())) {
-      tableTrolleyResp.setTableTrolleyDtoList(getTableTrolleyDto(tableTrolleyJsfResp.getTableTrolleyDtoJsfList()));
+    if (tableTrolleyJsfResp != null && !CollectionUtils
+        .isEmpty(tableTrolleyJsfResp.getTableTrolleyDtoJsfList())) {
+      tableTrolleyResp.setTableTrolleyDtoList(
+          getTableTrolleyDto(tableTrolleyJsfResp.getTableTrolleyDtoJsfList()));
       tableTrolleyResp.setTotalPage(tableTrolleyJsfResp.getTotalPage());
     }
     return result;
   }
 
-  private List<TableTrolleyDto> getTableTrolleyDto(List<TableTrolleyJsfDto> tableTrolleyDtoJsfList) {
+  private List<TableTrolleyDto> getTableTrolleyDto(
+      List<TableTrolleyJsfDto> tableTrolleyDtoJsfList) {
     List<TableTrolleyDto> tableTrolleyDtoList = new ArrayList<>();
     for (TableTrolleyJsfDto tableTrolleyJsfDto : tableTrolleyDtoJsfList) {
       TableTrolleyDto tableTrolleyDto = new TableTrolleyDto();
@@ -249,9 +260,20 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     }
   }
 
-  private void comboardCheck(ComboardScanReq request) {}
-  private void sendCheck(ComboardScanReq request) {}
   private void bizCheck(ComboardScanReq request) {
+    /**
+     * 组板相关校验
+     */
+    comboardCheck(request);
+    /**
+     * 发货相关校验
+     */
+    sendCheck(request);
+  }
+  /**
+   * 租板相关校验
+   */
+  private void comboardCheck(ComboardScanReq request) {
     String barCode = request.getBarCode();
     if (WaybillUtil.isPackageCode(barCode)) {
       final Waybill waybill = waybillQueryManager
@@ -263,9 +285,16 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
         throw new JyBizException("运单对应的预分拣站点为空");
       }
       request.setEndSiteId(waybill.getOldSiteId());
-      //匹配流向
-      checkAndMatchDestination(request);
-      combinationCheck(request);
+      //匹流向
+      matchDestinationCheck(request);
+      /**
+       * 通用拦截链
+       */
+      comboardCheckChain(request);
+      /**
+       * 已集包校验
+       */
+      sortingCheck(request);
 
     } else if (BusinessHelper.isBoxcode(barCode)) {
       final Box box = boxService.findBoxByCode(barCode);
@@ -274,7 +303,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       }
       request.setEndSiteId(box.getReceiveSiteCode());
       //匹配流向
-      checkAndMatchDestination(request);
+      matchDestinationCheck(request);
       if (!cycleBagBindCheck(barCode,
           null, request.getCurrentOperate().getSiteCode(), box)) {
         throw new JyBizException(BoxResponse.MESSAGE_BC_NO_BINDING);
@@ -291,11 +320,36 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       //三小时内禁止再次发货，返调度再次发货问题处理
       Date sendTime = recentSendMByParam.getOperateTime();
       if (sendTime != null
-          && System.currentTimeMillis() - sendTime.getTime() <= 3l * 3600l * 1000l) {
+          && System.currentTimeMillis() - sendTime.getTime() <= 3L * 3600L * 1000L) {
         throw new JyBizException("该包裹已发货");
       }
     }
+  }
 
+  /**
+   * 发货相关校验
+   */
+  private void sendCheck(ComboardScanReq request) {
+  }
+
+  /**
+   * 已经集包的包裹不允许租板
+   */
+  private void sortingCheck(ComboardScanReq request) {
+    Sorting sorting = new Sorting();
+    sorting.setCreateSiteCode(request.getCurrentOperate().getSiteCode());
+    sorting.setPackageCode(request.getBarCode());
+    List<Sorting> sortingList = dynamicSortingQueryDao.findByWaybillCodeOrPackageCode(sorting);
+    if (!CollectionUtils.isEmpty(sortingList)) {
+      for (Sorting sortingTemp : sortingList) {
+        final BarCodeType barCodeType = BusinessUtil.getBarCodeType(sortingTemp.getBoxCode());
+        if (barCodeType != null && Objects.equals(barCodeType, BarCodeType.BOX_CODE)) {
+          log.info("分拣传站租板校验--包裹【{}】 已经集包【{}】", request.getBarCode(),
+              JsonHelper.toJson(sortingTemp));
+          throw new JyBizException(BoxResponse.MESSAGE_CODE_PACKAGE_BOX);
+        }
+      }
+    }
   }
 
   public boolean cycleBagBindCheck(String boxCode, Integer operateType, Integer siteCode, Box box) {
@@ -329,7 +383,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     return true;
   }
 
-  private void combinationCheck(ComboardScanReq request) {
+  private void comboardCheckChain(ComboardScanReq request) {
     final PdaOperateRequest pdaOperateRequest = new PdaOperateRequest();
     pdaOperateRequest.setPackageCode(request.getBarCode());
     pdaOperateRequest.setBoxCode(request.getBarCode());
@@ -344,12 +398,51 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     if (!interceptResult.getCode().equals(200)) {
       throw new JyBizException(interceptResult.getMessage());
     }
-
   }
 
-  private void checkAndMatchDestination(ComboardScanReq request) {
+  /**
+   * 校验当前barCode的流向 是否在当前混扫任务的流向范围内
+   * @param request
+   */
+  private void matchDestinationCheck(ComboardScanReq request) {
+    JyGroupSortCrossDetailEntity condition =new JyGroupSortCrossDetailEntity();
+    condition.setStartSiteId(Long.valueOf(request.getCurrentOperate().getSiteCode()));
+    condition.setGroupCode(request.getGroupCode());
+    condition.setTemplateCode(request.getTemplateCode());
+
+    List<JyGroupSortCrossDetailEntity> groupSortCrossDetailEntityList =jyGroupSortCrossDetailDao.listSendFlowByTemplateCode(condition);
+
+    boolean hasMatchDestinationIdFlag = false;
+    for (JyGroupSortCrossDetailEntity entity: groupSortCrossDetailEntityList) {
+      if(Objects.equals(entity.getEndSiteId(), request.getEndSiteId())){
+        hasMatchDestinationIdFlag = true;
+        break;
+      }
+    }
+    // 如果获取不到匹配流向，则获取大小站
+    if(!hasMatchDestinationIdFlag){
+      final Integer parentSiteId = baseService.getMappingSite(request.getEndSiteId());
+      if(parentSiteId != null){
+        if(Objects.equals(parentSiteId, request.getEndSiteId())){
+          hasMatchDestinationIdFlag = true;
+        }
+      }
+    }
+    if (!hasMatchDestinationIdFlag){
+      throw new JyBizException("扫描包裹/箱号所属流向不在当前混扫任务范畴内！");
+    }
   }
 
+  private Boolean hasMatchDestinationIdFromBoardList(List<com.jd.transboard.api.dto.VirtualBoardResultDto> virtualBoardDtoList, Integer destinationId){
+    boolean hasMatchDestinationIdFlag = false;
+    for (com.jd.transboard.api.dto.VirtualBoardResultDto virtualBoardResultDtoQueryDatum : virtualBoardDtoList) {
+      if(Objects.equals(virtualBoardResultDtoQueryDatum.getDestinationId(), destinationId)){
+        hasMatchDestinationIdFlag = true;
+        break;
+      }
+    }
+    return hasMatchDestinationIdFlag;
+  }
 
   @Override
   public InvokeResult<BoardStatisticsResp> queryBoardStatisticsUnderSendFlow(
