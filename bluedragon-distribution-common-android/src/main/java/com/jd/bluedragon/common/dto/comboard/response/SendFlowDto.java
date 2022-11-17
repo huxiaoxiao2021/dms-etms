@@ -102,4 +102,20 @@ public class SendFlowDto implements Serializable {
     public void setBoxHaveScanCount(Integer boxHaveScanCount) {
         this.boxHaveScanCount = boxHaveScanCount;
     }
+
+    public Integer getWaitScanCount() {
+        return waitScanCount;
+    }
+
+    public void setWaitScanCount(Integer waitScanCount) {
+        this.waitScanCount = waitScanCount;
+    }
+
+    public BoardDto getCurrentBoardDto() {
+        return currentBoardDto;
+    }
+
+    public void setCurrentBoardDto(BoardDto currentBoardDto) {
+        this.currentBoardDto = currentBoardDto;
+    }
 }
