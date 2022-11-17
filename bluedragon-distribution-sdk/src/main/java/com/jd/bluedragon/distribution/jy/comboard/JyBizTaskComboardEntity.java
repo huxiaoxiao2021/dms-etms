@@ -2,7 +2,7 @@ package com.jd.bluedragon.distribution.jy.comboard;
 
 import java.util.Date;
 
-public class JyBizTaskComboard {
+public class JyBizTaskComboardEntity {
     private Long id;
 
     private String bizId;

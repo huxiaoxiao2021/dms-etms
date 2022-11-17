@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.jd.bluedragon.distribution.jy.dao.comboard.JyComboardAggsDao">
-  <resultMap id="BaseResultMap" type="com.jd.bluedragon.distribution.jy.comboard.JyComboardAggs">
+  <resultMap id="BaseResultMap" type="com.jd.bluedragon.distribution.jy.comboard.JyComboardAggsEntity">
     <id column="id" jdbcType="BIGINT" property="id" />
     <result column="send_flow" jdbcType="VARCHAR" property="sendFlow" />
     <result column="biz_id" jdbcType="VARCHAR" property="bizId" />
@@ -33,7 +33,7 @@
     delete from jy_comboard_aggs
     where id = #{id,jdbcType=BIGINT}
   </delete>
-  <insert id="insert" parameterType="com.jd.bluedragon.distribution.jy.comboard.JyComboardAggs">
+  <insert id="insert" parameterType="com.jd.bluedragon.distribution.jy.comboard.JyComboardAggsEntity">
     insert into jy_comboard_aggs (id, send_flow, biz_id, 
       board_code, product_type, scan_type, 
       scanned_count, board_count, more_scanned_count, 
@@ -45,7 +45,7 @@
       #{interceptCount,jdbcType=INTEGER}, #{waitScanCount,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP}, 
       #{updateTime,jdbcType=TIMESTAMP}, #{yn,jdbcType=BIT}, #{ts,jdbcType=TIMESTAMP})
   </insert>
-  <insert id="insertSelective" parameterType="com.jd.bluedragon.distribution.jy.comboard.JyComboardAggs">
+  <insert id="insertSelective" parameterType="com.jd.bluedragon.distribution.jy.comboard.JyComboardAggsEntity">
     insert into jy_comboard_aggs
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -142,7 +142,7 @@
       </if>
     </trim>
   </insert>
-  <update id="updateByPrimaryKeySelective" parameterType="com.jd.bluedragon.distribution.jy.comboard.JyComboardAggs">
+  <update id="updateByPrimaryKeySelective" parameterType="com.jd.bluedragon.distribution.jy.comboard.JyComboardAggsEntity">
     update jy_comboard_aggs
     <set>
       <if test="sendFlow != null">
@@ -190,7 +190,7 @@
     </set>
     where id = #{id,jdbcType=BIGINT}
   </update>
-  <update id="updateByPrimaryKey" parameterType="com.jd.bluedragon.distribution.jy.comboard.JyComboardAggs">
+  <update id="updateByPrimaryKey" parameterType="com.jd.bluedragon.distribution.jy.comboard.JyComboardAggsEntity">
     update jy_comboard_aggs
     set send_flow = #{sendFlow,jdbcType=VARCHAR},
       biz_id = #{bizId,jdbcType=VARCHAR},

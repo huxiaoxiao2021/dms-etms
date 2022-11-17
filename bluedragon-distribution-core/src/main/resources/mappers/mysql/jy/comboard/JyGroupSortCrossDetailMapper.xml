@@ -243,4 +243,18 @@
       ts = #{ts,jdbcType=TIMESTAMP}
     where id = #{id,jdbcType=BIGINT}
   </update>
+  <insert id="batchInsert" parameterType="java.util.List">
+    insert into jy_group_sort_cross_detail (group_code, template_code,
+    template_name, cross_code, tabletrolley_code,
+    start_site_id, start_site_name, end_site_id,
+    end_site_name, create_user_erp, create_user_name, create_time)
+    values
+    <foreach collection="list" item="item" index="index" separator=",">
+      (#{item.group_code,jdbcType=VARCHAR}, #{item.template_code,jdbcType=VARCHAR},
+      #{item.template_name,jdbcType=VARCHAR}, #{item.cross_code,jdbcType=VARCHAR}, #{item.tabletrolley_code,jdbcType=VARCHAR},
+      #{item.start_site_id,jdbcType=BIGINT}, #{item.start_site_name,jdbcType=VARCHAR}, #{item.end_site_id,jdbcType=BIGINT},
+      #{item.end_site_name,jdbcType=VARCHAR}, #{item.create_user_erp,jdbcType=VARCHAR},
+      #{item.create_user_name,jdbcType=VARCHAR}, #{item.create_time,jdbcType=TIMESTAMP})
+    </foreach>
+  </insert>
 </mapper>
