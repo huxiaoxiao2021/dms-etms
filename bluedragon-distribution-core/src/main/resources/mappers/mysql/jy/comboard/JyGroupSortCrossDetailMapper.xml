@@ -21,6 +21,14 @@
     <result column="yn" jdbcType="BIT" property="yn" />
     <result column="ts" jdbcType="TIMESTAMP" property="ts" />
   </resultMap>
+  <resultMap id="cttGroupDtoMap" type="com.jd.bluedragon.common.dto.comboard.response.CTTGroupDto">
+    <result column="template_code" jdbcType="VARCHAR" property="templateCode" />
+    <result column="template_name" jdbcType="VARCHAR" property="templateName" />
+    <result column="create_user_erp" jdbcType="VARCHAR" property="createUserErp" />
+    <result column="create_user_name" jdbcType="VARCHAR" property="createUserName" />
+    <result column="create_user_erp" jdbcType="VARCHAR" property="createUserErp" />
+    <result column="send_flow_count" jdbcType="BIGINT" property="sendFlowCount" />
+  </resultMap>
   <sql id="Base_Column_List">
     id, group_code, template_code, template_name, cross_code, tabletrolley_code, start_site_id,
     start_site_name, end_site_id, end_site_name, create_user_erp, create_user_name, update_user_erp,
@@ -242,6 +250,59 @@
       yn = #{yn,jdbcType=BIT},
       ts = #{ts,jdbcType=TIMESTAMP}
     where id = #{id,jdbcType=BIGINT}
+  </update>
+  <insert id="batchInsert" parameterType="java.util.List">
+    insert into jy_group_sort_cross_detail (group_code, template_code,
+    template_name, cross_code, tabletrolley_code,
+    start_site_id, start_site_name, end_site_id,
+    end_site_name, create_user_erp, create_user_name, create_time)
+    values
+    <foreach collection="list" item="item" index="index" separator=",">
+      (#{item.groupCode,jdbcType=VARCHAR}, #{item.templateCode,jdbcType=VARCHAR},
+      #{item.templateName,jdbcType=VARCHAR}, #{item.crossCode,jdbcType=VARCHAR}, #{item.tabletrolleyCode,jdbcType=VARCHAR},
+      #{item.startSiteId,jdbcType=BIGINT}, #{item.startSiteName,jdbcType=VARCHAR}, #{item.endSiteId,jdbcType=BIGINT},
+      #{item.endSiteName,jdbcType=VARCHAR}, #{item.createUserErp,jdbcType=VARCHAR},
+      #{item.createUserName,jdbcType=VARCHAR}, #{item.createTime,jdbcType=TIMESTAMP})
+    </foreach>
+  </insert>
+  <select id="queryCTTGroupDataBySiteCode" parameterType="com.jd.bluedragon.common.dto.comboard.request.CTTGroupDataReq"
+          resultMap="cttGroupDtoMap">
+    select template_code, template_name, create_user_name, create_user_erp, count(1) as send_flow_count
+    from jy_group_sort_cross_detail
+    where yn = 1
+      and start_site_id = #{siteCode,jdbcType=BIGINT}
+    group by template_code
+  </select>
+  <select id="queryCTTGroupDataByGroup" parameterType="com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity"
+          resultMap="cttGroupDtoMap">
+    select template_code, template_name, create_user_name, create_user_erp, count(1) as send_flow_count
+    from jy_group_sort_cross_detail
+    where yn = 1
+      and start_site_id = #{startSiteId,jdbcType=BIGINT} and group_code = #{groupCode,jdbcType=VARCHAR}
+    group by template_code
+  </select>
+  <select id="selectOneByGroupCrossTableTrolley"
+          parameterType="com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity"
+          resultType="com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity">
+    select
+    <include refid="Base_Column_List"/>
+    from jy_group_sort_cross_detail where yn = 1
+    and start_site_id = #{startSiteId,jdbcType=BIGINT} and group_code = #{groupCode,jdbcType=VARCHAR}
+    and template_code = #{templateCode,jdbcType=VARCHAR}
+    and end_site_id = #{endSiteId,jdbcType=BIGINT}
+  </select>
+  <select id="queryTemplateName" parameterType="java.lang.String" resultType="java.lang.String">
+    select template_name
+    from jy_group_sort_cross_detail
+    where yn = 1
+      and template_code = #{templateCode} limit 1
+  </select>
+  <update id="deleteByIds" parameterType="com.jd.bluedragon.distribution.jy.dto.comboard.JyCTTGroupUpdateReq">
+    update jy_group_sort_cross_detail set yn = 0 , update_user_erp = #{updateUserErp,jdbcType=VARCHAR} ,
+    update_user_name = #{updateUserName,jdbcType=VARCHAR} , update_time = #{updateTime,jdbcType=TIMESTAMP} where id in
+    <foreach collection="ids" item="item" open="(" close=")" separator=",">
+      #{item}
+    </foreach>
   </update>
   <select id="listSendFlowByTemplateCode" parameterType="com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity" resultMap="BaseResultMap">
     SELECT

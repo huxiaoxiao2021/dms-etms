@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.jd.bluedragon.distribution.jy.dao.comboard.JyBizTaskComboardDao">
-  <resultMap id="BaseResultMap" type="com.jd.bluedragon.distribution.jy.comboard.JyBizTaskComboard">
+  <resultMap id="BaseResultMap" type="com.jd.bluedragon.distribution.jy.comboard.JyBizTaskComboardEntity">
     <id column="id" jdbcType="BIGINT" property="id" />
     <result column="biz_id" jdbcType="VARCHAR" property="bizId" />
     <result column="board_code" jdbcType="VARCHAR" property="boardCode" />
@@ -37,7 +37,7 @@
     delete from jy_biz_task_comboard
     where id = #{id,jdbcType=BIGINT}
   </delete>
-  <insert id="insert" parameterType="com.jd.bluedragon.distribution.jy.comboard.JyBizTaskComboard">
+  <insert id="insert" parameterType="com.jd.bluedragon.distribution.jy.comboard.JyBizTaskComboardEntity">
     insert into jy_biz_task_comboard (id, biz_id, board_code, 
       send_code, status, start_site_id, 
       start_site_name, end_site_id, end_site_name, 
@@ -53,7 +53,7 @@
       #{yn,jdbcType=BIT}, #{ts,jdbcType=TIMESTAMP}, #{bulkFlag,jdbcType=BIT}, #{count,jdbcType=INTEGER}
       )
   </insert>
-  <insert id="insertSelective" parameterType="com.jd.bluedragon.distribution.jy.comboard.JyBizTaskComboard">
+  <insert id="insertSelective" parameterType="com.jd.bluedragon.distribution.jy.comboard.JyBizTaskComboardEntity">
     insert into jy_biz_task_comboard
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -174,7 +174,7 @@
       </if>
     </trim>
   </insert>
-  <update id="updateByPrimaryKeySelective" parameterType="com.jd.bluedragon.distribution.jy.comboard.JyBizTaskComboard">
+  <update id="updateByPrimaryKeySelective" parameterType="com.jd.bluedragon.distribution.jy.comboard.JyBizTaskComboardEntity">
     update jy_biz_task_comboard
     <set>
       <if test="bizId != null">
@@ -234,7 +234,7 @@
     </set>
     where id = #{id,jdbcType=BIGINT}
   </update>
-  <update id="updateByPrimaryKey" parameterType="com.jd.bluedragon.distribution.jy.comboard.JyBizTaskComboard">
+  <update id="updateByPrimaryKey" parameterType="com.jd.bluedragon.distribution.jy.comboard.JyBizTaskComboardEntity">
     update jy_biz_task_comboard
     set biz_id = #{bizId,jdbcType=VARCHAR},
       board_code = #{boardCode,jdbcType=VARCHAR},

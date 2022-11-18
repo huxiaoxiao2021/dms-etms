@@ -34,27 +34,27 @@ public class JyComboardGatewayServiceImpl implements JyComboardGatewayService {
 
   @Override
   public JdCResponse<CreateGroupCTTResp> createGroupCTTData(CreateGroupCTTReq request) {
-    return null;
+    return retJdCResponse(jyComBoardSendService.createGroupCTTData(request));
   }
 
   @Override
   public JdCResponse<CreateGroupCTTResp> getDefaultGroupCTTName() {
-    return null;
+    return retJdCResponse(jyComBoardSendService.getDefaultGroupCTTName());
   }
 
   @Override
   public JdCResponse addCTT2Group(AddCTTReq request) {
-    return null;
+    return retJdCResponse(jyComBoardSendService.addCTT2Group(request));
   }
 
   @Override
   public JdCResponse removeCTTFromGroup(RemoveCTTReq request) {
-    return null;
+    return retJdCResponse(jyComBoardSendService.removeCTTFromGroup(request));
   }
 
   @Override
   public JdCResponse<CTTGroupDataResp> listCTTGroupData(CTTGroupDataReq request) {
-    return null;
+    return retJdCResponse(jyComBoardSendService.listCTTGroupData(request));
   }
 
   @Override

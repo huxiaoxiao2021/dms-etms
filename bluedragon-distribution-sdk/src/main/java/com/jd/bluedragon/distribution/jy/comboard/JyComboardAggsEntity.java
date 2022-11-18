@@ -2,7 +2,7 @@ package com.jd.bluedragon.distribution.jy.comboard;
 
 import java.util.Date;
 
-public class JyComboardAggs {
+public class JyComboardAggsEntity {
     private Long id;
 
     private String sendFlow;

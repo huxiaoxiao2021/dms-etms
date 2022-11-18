@@ -1,9 +1,7 @@
 package com.jd.bluedragon.distribution.jy.service.send;
 
-import static com.jd.bluedragon.distribution.base.domain.InvokeResult.RESULT_SUCCESS_CODE;
-import static com.jd.bluedragon.distribution.base.domain.InvokeResult.RESULT_SUCCESS_MESSAGE;
-
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.dto.base.request.BaseReq;
 import com.jd.bluedragon.common.dto.comboard.request.*;
 import com.jd.bluedragon.common.dto.comboard.response.*;
 import com.jd.bluedragon.core.jsf.cross.SortCrossJsfManager;
@@ -19,9 +17,11 @@ import com.jd.bluedragon.distribution.funcSwitchConfig.service.FuncSwitchConfigS
 import com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity;
 import com.jd.bluedragon.distribution.jy.dao.comboard.JyGroupSortCrossDetailDao;
 import com.jd.bluedragon.distribution.middleend.sorting.dao.DynamicSortingQueryDao;
+import com.jd.bluedragon.distribution.jy.service.comboard.JyGroupSortCrossDetailService;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.*;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.businessIntercept.enums.BusinessInterceptOnlineStatusEnum;
@@ -32,26 +32,28 @@ import com.jd.bluedragon.distribution.ver.service.SortingCheckService;
 import com.jd.bluedragon.dms.utils.BarCodeType;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.BusinessHelper;
-import com.jd.bluedragon.utils.NumberHelper;
-import com.jd.bluedragon.utils.ObjectHelper;
+import com.jd.coo.sa.sequence.JimdbSequenceGen;
+import com.jd.jim.cli.Cluster;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jdl.basic.api.domain.cross.*;
 import java.util.Date;
 import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 import com.jd.etms.waybill.domain.Waybill;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
+
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.CollectionUtils;
 
-import static com.jd.bluedragon.distribution.base.domain.InvokeResult.NO_OPERATE_SITE_CODE;
-import static com.jd.bluedragon.distribution.base.domain.InvokeResult.NO_OPERATE_SITE_MESSAGE;
+import static com.jd.bluedragon.distribution.base.domain.InvokeResult.*;
+import static com.jd.bluedragon.utils.TimeUtils.yyyyMMdd;
 
 @Service
 @Slf4j
@@ -79,12 +81,20 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   @Autowired
   JyGroupSortCrossDetailDao jyGroupSortCrossDetailDao;
 
+  @Autowired
+  private JyGroupSortCrossDetailService jyGroupSortCrossDetailService;
+
+
+  @Autowired
+  @Qualifier("redisClientCache")
+  protected Cluster redisClientCache;
+
   @Override
   public InvokeResult<CrossDataResp> listCrossData(CrossDataReq request) {
     log.info("开始获取场地滑道信息：{}", JsonHelper.toJson(request));
     CrossPageQuery query = new CrossPageQuery();
-    if (request == null || request.getCurrentOperate() == null) {
-      return new InvokeResult<>(NO_OPERATE_SITE_CODE, NO_OPERATE_SITE_MESSAGE);
+    if (!checkBaseRequest(request)) {
+      return new InvokeResult<>(RESULT_THIRD_ERROR_CODE,PARAM_ERROR);
     }
     InvokeResult<CrossDataResp> result = new InvokeResult<>();
     CrossDataResp crossDataResp = new CrossDataResp();
@@ -104,8 +114,8 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   public InvokeResult<TableTrolleyResp> listTableTrolleyUnderCross(TableTrolleyReq request) {
     log.info("开始获取笼车营业部信息：{}", JsonHelper.toJson(request));
     TableTrolleyQuery query = new TableTrolleyQuery();
-    if (request == null || request.getCurrentOperate() == null) {
-      return new InvokeResult<>(NO_OPERATE_SITE_CODE, NO_OPERATE_SITE_MESSAGE);
+    if (!checkBaseRequest(request)) {
+      return new InvokeResult<>(RESULT_THIRD_ERROR_CODE,PARAM_ERROR);
     }
     InvokeResult<TableTrolleyResp> result = new InvokeResult<>();
     TableTrolleyResp tableTrolleyResp = new TableTrolleyResp();
@@ -145,25 +155,77 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     return tableTrolleyDtoList;
   }
 
-
   @Override
   public InvokeResult<CreateGroupCTTResp> createGroupCTTData(CreateGroupCTTReq request) {
-    return null;
+    if (!checkBaseRequest(request)){
+      return new InvokeResult<>(RESULT_THIRD_ERROR_CODE,PARAM_ERROR);
+    }
+    log.info("开始保存本场地常用的笼车集合：{}", JsonHelper.toJson(request));
+    CreateGroupCTTResp resp = jyGroupSortCrossDetailService.batchInsert(request);
+    return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, resp);
   }
 
+  private String getGroupCTTName() {
+    String groupNoKey = "groupNo:"  + TimeUtils.date2string(new Date(), yyyyMMdd + ":");
+    long groupNo = 0;
+    if (!ObjectHelper.isNotNull(redisClientCache.get(groupNoKey))) {
+      redisClientCache.set(groupNoKey, "0", 24 * 60, TimeUnit.MINUTES, false);
+    }
+    try {
+      groupNo = redisClientCache.incr(groupNoKey);
+    } catch (Exception e) {
+      return "";
+    }
+    return String.valueOf(groupNo);
+  }
+
+  @Override
+  public InvokeResult<CreateGroupCTTResp> getDefaultGroupCTTName() {
+    CreateGroupCTTResp createGroupCTTResp = new CreateGroupCTTResp();
+    String groupName = "混扫" + getGroupCTTName();
+    createGroupCTTResp.setTemplateName(groupName);
+    return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, createGroupCTTResp);
+  }
   @Override
   public InvokeResult addCTT2Group(AddCTTReq request) {
-    return null;
+    if (!checkBaseRequest(request)){
+      return new InvokeResult<>(RESULT_THIRD_ERROR_CODE,PARAM_ERROR);
+    }
+    log.info("开始更新常用滑道笼车流向集合：{}", JsonHelper.toJson(request));
+    if (jyGroupSortCrossDetailService.addCTTGroup(request)){
+      return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE);
+    }else {
+      return new InvokeResult(UPDATE_CTT_GROUP_LIST_CODE, UPDATE_CTT_GROUP_LIST_MESSAGE);
+    }
   }
 
+  private Boolean checkBaseRequest(BaseReq request) {
+    if (request == null || request.getCurrentOperate() == null || request.getCurrentOperate().getSiteCode() < 0 ||
+            request.getUser() == null || StringUtils.isEmpty(request.getUser().getUserErp()) || StringUtils.isEmpty(request.getUser().getUserName())){
+      return Boolean.FALSE;
+    }
+    return Boolean.TRUE;
+  }
   @Override
   public InvokeResult removeCTTFromGroup(RemoveCTTReq request) {
-    return null;
-  }
+    if (!checkBaseRequest(request)){
+      return new InvokeResult<>(RESULT_THIRD_ERROR_CODE,PARAM_ERROR);
+    }
+    log.info("开始更新常用滑道笼车流向集合：{}", JsonHelper.toJson(request));
+    if (jyGroupSortCrossDetailService.removeCTTFromGroup(request)){
+      return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE);
+    }else {
+      return new InvokeResult(UPDATE_CTT_GROUP_LIST_CODE, UPDATE_CTT_GROUP_LIST_MESSAGE);
+    }  }
 
   @Override
   public InvokeResult<CTTGroupDataResp> listCTTGroupData(CTTGroupDataReq request) {
-    return null;
+    if (!checkBaseRequest(request)){
+      return new InvokeResult<>(RESULT_THIRD_ERROR_CODE,PARAM_ERROR);
+    }
+    log.info("开始查询常用滑道笼车流向集合：{}", JsonHelper.toJson(request));
+    CTTGroupDataResp resp = jyGroupSortCrossDetailService.queryCTTGroupDataByGroupOrSiteCode(request);
+    return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, resp);
   }
 
   @Override
@@ -328,7 +390,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       //三小时内禁止再次发货，返调度再次发货问题处理
       Date sendTime = recentSendMByParam.getOperateTime();
       if (sendTime != null
-          && System.currentTimeMillis() - sendTime.getTime() <= 3L * 3600L * 1000L) {
+          && System.currentTimeMillis() - sendTime.getTime() <= 3l * 3600l * 1000l) {
         throw new JyBizException("该包裹已发货");
       }
     }
