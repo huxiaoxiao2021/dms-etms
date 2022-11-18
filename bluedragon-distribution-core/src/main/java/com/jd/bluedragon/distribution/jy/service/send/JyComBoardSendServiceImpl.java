@@ -1,8 +1,5 @@
 package com.jd.bluedragon.distribution.jy.service.send;
 
-import static com.jd.bluedragon.distribution.base.domain.InvokeResult.RESULT_SUCCESS_CODE;
-import static com.jd.bluedragon.distribution.base.domain.InvokeResult.RESULT_SUCCESS_MESSAGE;
-
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.comboard.request.*;
 import com.jd.bluedragon.common.dto.comboard.response.*;
@@ -49,8 +46,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.CollectionUtils;
 
-import static com.jd.bluedragon.distribution.base.domain.InvokeResult.NO_OPERATE_SITE_CODE;
-import static com.jd.bluedragon.distribution.base.domain.InvokeResult.NO_OPERATE_SITE_MESSAGE;
+import static com.jd.bluedragon.distribution.base.domain.InvokeResult.*;
 import static com.jd.bluedragon.utils.TimeUtils.yyyyMMdd;
 
 @Service
@@ -88,7 +84,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     log.info("开始获取场地滑道信息：{}", JsonHelper.toJson(request));
     CrossPageQuery query = new CrossPageQuery();
     if (request == null || request.getCurrentOperate() == null) {
-      return new InvokeResult<>(NO_OPERATE_SITE_CODE, NO_OPERATE_SITE_MESSAGE);
+      return new InvokeResult<>(RESULT_THIRD_ERROR_CODE,PARAM_ERROR);
     }
     InvokeResult<CrossDataResp> result = new InvokeResult<>();
     CrossDataResp crossDataResp = new CrossDataResp();
@@ -109,7 +105,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     log.info("开始获取笼车营业部信息：{}", JsonHelper.toJson(request));
     TableTrolleyQuery query = new TableTrolleyQuery();
     if (request == null || request.getCurrentOperate() == null) {
-      return new InvokeResult<>(NO_OPERATE_SITE_CODE, NO_OPERATE_SITE_MESSAGE);
+      return new InvokeResult<>(RESULT_THIRD_ERROR_CODE,PARAM_ERROR);
     }
     InvokeResult<TableTrolleyResp> result = new InvokeResult<>();
     TableTrolleyResp tableTrolleyResp = new TableTrolleyResp();
@@ -149,7 +145,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   @Override
   public InvokeResult<CreateGroupCTTResp> createGroupCTTData(CreateGroupCTTReq request) {
     if (request == null || request.getCurrentOperate() == null || request.getUser() == null){
-      return new InvokeResult<>(NO_OPERATE_SITE_CODE,NO_OPERATE_SITE_MESSAGE);
+      return new InvokeResult<>(RESULT_THIRD_ERROR_CODE,PARAM_ERROR);
     }
     log.info("开始保存本场地常用的笼车集合：{}", JsonHelper.toJson(request));
     CreateGroupCTTResp resp = jyGroupSortCrossDetailService.batchInsert(request);
@@ -172,25 +168,42 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
 
   @Override
   public InvokeResult<CreateGroupCTTResp> getDefaultGroupCTTName() {
-    InvokeResult<CreateGroupCTTResp> result = new InvokeResult<>();
     CreateGroupCTTResp createGroupCTTResp = new CreateGroupCTTResp();
-    result.setData(createGroupCTTResp);
     String groupName = "混扫" + getGroupCTTName();
     createGroupCTTResp.setTemplateName(groupName);
-    return result;
+    return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, createGroupCTTResp);
   }
   @Override
   public InvokeResult addCTT2Group(AddCTTReq request) {
-    return null;
+    if (request == null || request.getCurrentOperate() == null || request.getUser() == null){
+      return new InvokeResult<>(RESULT_THIRD_ERROR_CODE,PARAM_ERROR);
+    }
+    log.info("开始更新常用滑道笼车流向集合：{}", JsonHelper.toJson(request));
+    if (jyGroupSortCrossDetailService.addCTTGroup(request)){
+      return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE);
+    }else {
+      return new InvokeResult(UPDATE_CTT_GROUP_LIST_CODE, UPDATE_CTT_GROUP_LIST_MESSAGE);
+    }
   }
 
   @Override
   public InvokeResult removeCTTFromGroup(RemoveCTTReq request) {
-    return null;
-  }
+    if (request == null || request.getCurrentOperate() == null || request.getUser() == null){
+      return new InvokeResult<>(RESULT_THIRD_ERROR_CODE,PARAM_ERROR);
+    }
+    log.info("开始更新常用滑道笼车流向集合：{}", JsonHelper.toJson(request));
+    if (jyGroupSortCrossDetailService.removeCTTFromGroup(request)){
+      return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE);
+    }else {
+      return new InvokeResult(UPDATE_CTT_GROUP_LIST_CODE, UPDATE_CTT_GROUP_LIST_MESSAGE);
+    }  }
 
   @Override
   public InvokeResult<CTTGroupDataResp> listCTTGroupData(CTTGroupDataReq request) {
+    if (request == null || request.getCurrentOperate() == null || request.getUser() == null){
+      return new InvokeResult<>(RESULT_THIRD_ERROR_CODE,PARAM_ERROR);
+    }
+    log.info("开始查询常用滑道笼车流向集合：{}", JsonHelper.toJson(request));
     CTTGroupDataResp resp = jyGroupSortCrossDetailService.queryCTTGroupDataByGroupOrSiteCode(request);
     return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, resp);
   }

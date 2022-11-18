@@ -49,7 +49,7 @@ public class JyComboardGatewayServiceImpl implements JyComboardGatewayService {
 
   @Override
   public JdCResponse removeCTTFromGroup(RemoveCTTReq request) {
-    return null;
+    return retJdCResponse(jyComBoardSendService.removeCTTFromGroup(request));
   }
 
   @Override
