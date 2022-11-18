@@ -266,9 +266,9 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
      */
     comboardCheck(request);
     /**
-     * 发货相关校验
+     * 发货封车相关校验
      */
-    sendCheck(request);
+    sendSealCheck(request);
   }
   /**
    * 租板相关校验
@@ -324,12 +324,13 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
         throw new JyBizException("该包裹已发货");
       }
     }
+    //封车校验
   }
 
   /**
    * 发货相关校验
    */
-  private void sendCheck(ComboardScanReq request) {
+  private void sendSealCheck(ComboardScanReq request) {
   }
 
   /**
