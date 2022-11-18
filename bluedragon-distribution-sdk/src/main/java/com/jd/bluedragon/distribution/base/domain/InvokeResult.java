@@ -142,7 +142,7 @@ public class InvokeResult<T> implements Serializable {
     public static final int FORBID_TRANS_FOR_EMPTY_BATCH_CODE= 336;
     public static final String FORBID_TRANS_FOR_EMPTY_BATCH_MESSAGE ="空批次禁止迁出！";
 
-    public static final int UPDATE_CTT_GROUP_LIST_CODE = 339;
+    public static final int UPDATE_CTT_GROUP_LIST_CODE = 3039;
     public static final String UPDATE_CTT_GROUP_LIST_MESSAGE= "更新流向异常";
 
     public InvokeResult(){
