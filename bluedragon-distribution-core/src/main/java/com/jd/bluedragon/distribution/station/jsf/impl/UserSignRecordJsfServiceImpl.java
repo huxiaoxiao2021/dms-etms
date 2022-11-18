@@ -114,6 +114,8 @@ public class UserSignRecordJsfServiceImpl implements UserSignRecordJsfService {
 		return userSignRecordService.queryUserSignRecordToNoticeVo(query);
 	}
 
+	@JProfiler(jKey = "dmsWeb.server.userSignRecordJsfService.queryUnsignedOutRecordByRefGridKey",
+			jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
 	@Override
 	public Result<List<UserSignRecord>> queryUnsignedOutRecordByRefGridKey(String refGridKey) {
 		return userSignRecordService.queryUnsignedOutRecordByRefGridKey(refGridKey);
