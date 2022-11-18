@@ -1,5 +1,8 @@
 package com.jd.bluedragon.common.dto.predict.request;
 
+import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
+import com.jd.bluedragon.common.dto.base.request.User;
+
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
@@ -45,6 +48,26 @@ public class WorkWaveInspectedNotSendDetailsReq implements Serializable {
 
     private Integer pageSize;
     private Integer pageNum;
+    private User user;
+
+    private CurrentOperate currentOperate;
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public CurrentOperate getCurrentOperate() {
+        return currentOperate;
+    }
+
+    public void setCurrentOperate(CurrentOperate currentOperate) {
+        this.currentOperate = currentOperate;
+    }
+
 
 
     public Date getQueryTime() {
