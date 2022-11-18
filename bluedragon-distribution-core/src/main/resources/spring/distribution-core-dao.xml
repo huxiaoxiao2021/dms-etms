@@ -858,6 +858,10 @@
         <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
     </bean>
 
+    <bean id="jySendProductAggsDao" class="com.jd.bluedragon.distribution.jy.dao.send.JySendProductAggsDao">
+        <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
+    </bean>
+
     <!--################################## jy_core 相关DAO END ############################################ -->
 
 

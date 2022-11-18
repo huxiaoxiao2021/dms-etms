@@ -1266,6 +1266,11 @@ public class Constants {
      * */
     public static final String TE_AN_SONG_SERVICE = "fr-a-0010";
 
+    /**
+     * 易冻品增值服务
+     */
+    public static final String EASY_FROZEN_SERVICE = "deductibleService";
+
 
     public static final String INSPECTION_TOKEN1="D945A448A7D952F1F88CCE5EBE551FE9AA6FF322A21210B0";
     public static final String INSPECTION_TOKEN2="E945A448A7D952F1F88CCE5EBE551FE9AA6FF322A21210B0";
@@ -1760,5 +1765,11 @@ public class Constants {
      * 无任务卸车上游站点初始值
      */
     public static final Long START_SITE_INITIAL_VALUE = 0L;
+
+
+    /**
+     * 路由对应分拣发货操作类型值
+     */
+    public static final Integer SORT_SEND_VEHICLE = 41;
 
 }

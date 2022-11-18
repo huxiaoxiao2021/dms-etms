@@ -1059,6 +1059,33 @@ public class WaybillServiceImpl implements WaybillService {
         return null;
     }
 
+
+    /**
+     *
+     * 增值服务中某个对象的vosNo=deductibleService
+     * */
+    @Override
+    public boolean isEasyFrozenVosWaybill(String waybillCode) {
+        try {
+            //获取增值服务信息
+            BaseEntity<List<WaybillVasDto>> baseEntity = waybillQueryManager.getWaybillVasInfosByWaybillCode(waybillCode);
+            log.info("运单getWaybillVasInfosByWaybillCode返回的结果为：{}", JsonHelper.toJson(baseEntity));
+            if (baseEntity != null && baseEntity.getResultCode() == EnumBusiCode.BUSI_SUCCESS.getCode() && baseEntity.getData() != null) {
+                List<WaybillVasDto> vasDtoList = baseEntity.getData();
+                for (WaybillVasDto waybillVasDto : vasDtoList) {
+                    if (waybillVasDto != null && Constants.EASY_FROZEN_SERVICE.equals(waybillVasDto.getVasNo())) {
+                        return true;
+                    }
+                }
+            } else {
+                log.warn("运单{}获取增值服务信息失败！返回baseEntity: ", waybillCode, JsonHelper.toJson(baseEntity));
+            }
+        } catch (Exception e) {
+            log.error("运单{}获取增值服务信息异常！", waybillCode, e);
+        }
+        return false;
+    }
+
     /**
      * 获取病单，有病单则优先返回病单 30病单 31 取消病单
      *

@@ -194,4 +194,11 @@ public interface WaybillService {
      */
     CancelWaybill checkClaimDamagedCancelWaybill(String waybillCode);
 
+    /**
+     * 判断是否运单是否包含易冻品增值服务
+     * @param waybillCode
+     * @return
+     */
+    boolean isEasyFrozenVosWaybill(String waybillCode);
+
 }

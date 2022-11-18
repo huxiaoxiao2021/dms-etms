@@ -157,6 +157,18 @@ public class InvokeResult<T> implements Serializable {
     public static final int UNLOAD_SCAN_EXCEPTION_CODE=328;
     public static final String UNLOAD_SCAN_EXCEPTION_MESSAGE="卸车扫描异常！";
 
+    public static final int NO_VAD_CODE= 338;
+    public static final String NO_VAD_MESSAGE ="该运单无增值服务!";
+
+    public static final int NO_EASY_FROZEN_VAD_CODE= 339;
+    public static final String NO_EASY_FROZEN_VAD_MESSAGE ="该运单无增值服务!";
+
+    public static final int EASY_FROZEN_TIPS_CODE= 340;
+    public static final String EASY_FROZEN_TIPS_MESSAGE ="此运单为易冻品!";
+
+    public static final int EASY_FROZEN_TIPS_STORAGE_CODE= 341;
+    public static final String EASY_FROZEN_TIPS_STORAGE_MESSAGE ="此运单为易冻品，请放至保温储存区等待发货!";
+
     public InvokeResult(){
         this.code=RESULT_SUCCESS_CODE;
     }

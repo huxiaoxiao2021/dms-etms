@@ -14,6 +14,7 @@ import com.jd.etms.api.common.dto.BaseDto;
 import com.jd.etms.api.common.dto.CommonDto;
 import com.jd.etms.api.common.dto.PageDto;
 import com.jd.etms.api.common.enums.RouteProductEnum;
+import com.jd.etms.api.common.enums.WaybillRouteEnum;
 import com.jd.etms.api.recommendroute.resp.RecommendRouteResp;
 import com.jd.etms.api.transferwavemonitor.TransferWaveMonitorAPI;
 import com.jd.etms.api.transferwavemonitor.req.TransferWaveMonitorReq;
@@ -445,7 +446,15 @@ public class VrsRouteTransferRelationManagerImpl implements VrsRouteTransferRela
         condition.setWaybillCode(WaybillUtil.getWaybillCode(packageCode));
         condition.setPackageCode(packageCode);
         condition.setPlanNodeCode(siteCode);
-        condition.setOperateType(operateType);
+        //condition.setOperateType(operateType);
+        WaybillRouteEnum.RealTimeOperateType value = null;
+        WaybillRouteEnum.RealTimeOperateType[] values = WaybillRouteEnum.RealTimeOperateType.values();
+        for (int i = 0; i < values.length; i++) {
+            if(values[i].getValue().equals(operateType)) {
+                value = values[i];
+            }
+        }
+        condition.setRealTimeOperateType(value);
         CommonDto<List<WaybillRouteLinkCustDetailResp>> commonDto
                 = waybillRouteLinkCustAPI.waybillRouteLinkQueryCondition(condition);
         if(commonDto != null && commonDto.getCode() == CommonDto.CODE_SUCCESS){

@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.jy.service.unload;
 
+import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.jd.bluedragon.Constants;
@@ -14,11 +15,19 @@ import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.VehicleB
 import com.jd.bluedragon.common.dto.operation.workbench.unseal.response.VehicleStatusStatis;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.core.base.WaybillRouteLinkQueryManager;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
+import com.jd.bluedragon.core.jsf.easyFreezeSite.EasyFreezeSiteManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.waybill.service.WaybillService;
+import com.jd.etms.api.waybillroutelink.resp.WaybillRouteLinkResp;
+import com.jd.etms.cache.util.EnumBusiCode;
+import com.jd.etms.waybill.domain.BaseEntity;
+import com.jd.etms.waybill.dto.BigWaybillDto;
 import com.jd.ql.dms.common.constants.JyConstants;
 import com.jd.bluedragon.distribution.jy.constants.RedisHashKeyConstants;
 import com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadDao;
@@ -50,6 +59,7 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
+import com.jdl.basic.api.domain.easyFreeze.EasyFreezeSiteDto;
 import com.jdl.jy.realtime.base.Pager;
 import com.jdl.jy.realtime.model.es.unload.JyVehicleTaskUnloadDetail;
 import com.jdl.jy.schedule.dto.task.JyScheduleTaskReq;
@@ -126,6 +136,19 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
 
     @Autowired
     private JyDemotionService jyDemotionService;
+
+
+    @Autowired
+    private WaybillService waybillService;
+
+    @Autowired
+    private WaybillRouteLinkQueryManager waybillRouteManager;
+
+    @Autowired
+    private EasyFreezeSiteManager easyFreezeSiteManager;
+
+    @Autowired
+    private UccPropertyConfiguration uccPropertyConfiguration;
 
     @Override
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "IJyUnloadVehicleService.fetchUnloadTask",
@@ -479,7 +502,6 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
         if (!checkBeforeScan(result, request)) {
             return result;
         }
-
         try {
             // 保存扫描记录，发运单全程跟踪。首次扫描分配卸车任务
             UnloadScanDto unloadScanDto = createUnloadDto(request, taskUnloadVehicle);

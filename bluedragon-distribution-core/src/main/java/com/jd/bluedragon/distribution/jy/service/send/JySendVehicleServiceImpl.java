@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.jy.service.send;
 
+import com.alibaba.fastjson.JSON;
 import com.google.common.base.Joiner;
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
@@ -53,10 +54,7 @@ import com.jd.bluedragon.distribution.jy.exception.JyDemotionException;
 import com.jd.bluedragon.distribution.jy.group.JyTaskGroupMemberEntity;
 import com.jd.bluedragon.distribution.jy.manager.IJySendVehicleJsfManager;
 import com.jd.bluedragon.distribution.jy.manager.JyScheduleTaskManager;
-import com.jd.bluedragon.distribution.jy.send.JySendAggsEntity;
-import com.jd.bluedragon.distribution.jy.send.JySendAttachmentEntity;
-import com.jd.bluedragon.distribution.jy.send.JySendCodeEntity;
-import com.jd.bluedragon.distribution.jy.send.JySendEntity;
+import com.jd.bluedragon.distribution.jy.send.*;
 import com.jd.bluedragon.distribution.jy.service.config.JyDemotionService;
 import com.jd.bluedragon.distribution.jy.service.group.JyTaskGroupMemberService;
 import com.jd.bluedragon.distribution.jy.service.seal.JySendSealCodeService;
@@ -97,8 +95,10 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.proxy.Profiler;
 import com.jdl.jy.realtime.base.Pager;
+import com.jdl.jy.realtime.model.query.send.SendVehiclePackageDetailQuery;
 import com.jdl.jy.realtime.model.query.send.SendVehicleTaskQuery;
 import com.jdl.jy.realtime.model.vo.send.SendBarCodeDetailVo;
+import com.jdl.jy.realtime.model.vo.send.SendVehiclePackageDetailVo;
 import com.jdl.jy.schedule.dto.task.JyScheduleTaskReq;
 import com.jdl.jy.schedule.dto.task.JyScheduleTaskResp;
 import com.jdl.jy.schedule.enums.task.JyScheduleTaskDistributionTypeEnum;
@@ -243,6 +243,9 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
     @Autowired
     private JyDemotionService jyDemotionService;
+
+    @Autowired
+    private JySendProductAggsService jySendProductAggsService;
 
     @Override
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "IJySendVehicleService.fetchSendVehicleTask",
@@ -3029,6 +3032,88 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             sendBatchResp.setSendCodeList(sendCodeDtos);
         }
         return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, sendBatchResp);
+    }
+
+
+    @Override
+    public InvokeResult<List<SendVehicleProductTypeAgg>> sendVehicleToScanAggByProduct(SendVehicleCommonRequest request) {
+        InvokeResult<List<SendVehicleProductTypeAgg>> result = new InvokeResult<>();
+        if (StringUtils.isBlank(request.getSendVehicleBizId())) {
+            result.parameterError("请选择发车任务！");
+            return result;
+        }
+        try {
+            List<SendVehicleProductTypeAgg> productTypeList = Lists.newArrayList();
+            result.setData(productTypeList);
+            log.info("统计待扫产品类型和包裹总数入参-{}", JSON.toJSONString(request));
+            List<JySendVehicleProductType> sendVehicleProductTypeList = jySendProductAggsService.getSendVehicleProductTypeList(request.getSendVehicleBizId());
+            log.info("统计待扫产品类型和包裹总数结果-{}",JSON.toJSONString(request));
+            if (CollectionUtils.isEmpty(sendVehicleProductTypeList)) {
+                return result;
+            }
+            makeToScanCountAggByProduct(productTypeList, sendVehicleProductTypeList);
+        }
+        catch (Exception ex) {
+            log.error("按产品类型统计待扫包裹总数异常. {}-{}", JsonHelper.toJson(request), ex.getMessage(),ex);
+            result.error("查询待扫包裹数据服务器异常，请咚咚联系分拣小秘！");
+        }
+        return result;
+    }
+
+    @Override
+    public InvokeResult<SendVehicleToScanPackageDetailResponse> sendVehicleToScanPackageDetail(SendVehicleToScanPackageDetailRequest  request) {
+        log.info("JySendVehicleServiceImpl.SendVehicleToScanPackageDetail-发车岗按产品类型查询待扫包裹信息入参-{}", JSON.toJSONString(request));
+        InvokeResult<SendVehicleToScanPackageDetailResponse> invokeResult = new InvokeResult<>();
+        if(request == null || StringUtils.isBlank(request.getSendVehicleBizId()) || StringUtils.isBlank(request.getProductType())){
+            invokeResult.parameterError("查询参数不能为空！");
+            return invokeResult;
+        }
+        if (!NumberHelper.gt0(request.getPageSize()) || !NumberHelper.gt0(request.getPageNumber())) {
+            invokeResult.parameterError("查询分页信息不能为空！");
+        }
+        try {
+            Pager<SendVehiclePackageDetailQuery> queryPager = new Pager<>();
+            SendVehiclePackageDetailQuery query = new SendVehiclePackageDetailQuery();
+            query.setSendVehicleBizId(request.getSendVehicleBizId());
+            query.setProductType(request.getProductType());
+
+            queryPager.setPageNo(request.getPageNumber());
+            queryPager.setPageSize(request.getPageSize());
+            queryPager.setSearchVo(query);
+
+            Pager<SendVehiclePackageDetailVo> pagerResult = sendVehicleJsfManager.querySendVehicleToScanPackageDetail(queryPager);
+            if (pagerResult != null && CollectionUtils.isNotEmpty(pagerResult.getData())){
+                SendVehicleToScanPackageDetailResponse response =new SendVehicleToScanPackageDetailResponse();
+                response.setPackageCount(pagerResult.getTotal());
+                response.setProductType(request.getProductType());
+                response.setProductTypeName(JySendVehicleProductTypeEnum.getNameByCode(request.getProductType()));
+                List<SendVehicleToScanPackage> toScanPackages = new ArrayList<>();
+                for(SendVehiclePackageDetailVo vo : pagerResult.getData()){
+                    SendVehicleToScanPackage toScanPackage =  new SendVehicleToScanPackage();
+                    toScanPackage.setPackageCode(vo.getPackageCode());
+                    toScanPackage.setProductType(vo.getProductType());
+                    toScanPackages.add(toScanPackage);
+                }
+                response.setPackageCodeList(toScanPackages);
+                invokeResult.setData(response);
+            }
+        }catch (JyDemotionException e){
+            invokeResult.customMessage(CodeConstants.JY_DEMOTION_CODE, HintService.getHint(HintCodeConstants.JY_DEMOTION_MSG_SEND_INTERCEPT, false));
+        }catch (Exception e){
+            log.error("SendVehicleToScanPackageDetail-发车岗按产品类型查询待扫包裹信息异常! 入参-{},{}",JSON.toJSONString(request),e.getMessage(),e);
+            invokeResult.error("发车岗按产品类型查询待扫包裹信息异常!");
+        }
+        return invokeResult;
+    }
+
+    private void makeToScanCountAggByProduct(List<SendVehicleProductTypeAgg> productTypeList, List<JySendVehicleProductType> unloadAggList) {
+        for (JySendVehicleProductType aggEntity : unloadAggList) {
+            SendVehicleProductTypeAgg item = new SendVehicleProductTypeAgg();
+            item.setProductType(aggEntity.getProductType());
+            item.setProductTypeName(UnloadProductTypeEnum.getNameByCode(item.getProductType()));
+            item.setCount(new Long(aggEntity.getCount()));
+            productTypeList.add(item);
+        }
     }
 
     private List<SendCodeDto> assembleSendCodeDto(List<JySendCodeEntity> sendCodeEntityList) {

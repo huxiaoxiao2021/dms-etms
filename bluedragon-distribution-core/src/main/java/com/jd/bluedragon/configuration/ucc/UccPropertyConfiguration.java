@@ -511,6 +511,11 @@ public class UccPropertyConfiguration {
      */
     private  String addiOwnNumberConf;
 
+    /**
+     * 货物滞留时间
+     */
+    private int goodsResidenceTime;
+
     public String getAddiOwnNumberConf() {
         return addiOwnNumberConf;
     }
@@ -2235,5 +2240,13 @@ public class UccPropertyConfiguration {
 
     public void setWaybillWeightLimit(String waybillWeightLimit) {
         this.waybillWeightLimit = waybillWeightLimit;
+    }
+
+    public int getGoodsResidenceTime() {
+        return goodsResidenceTime;
+    }
+
+    public void setGoodsResidenceTime(int goodsResidenceTime) {
+        this.goodsResidenceTime = goodsResidenceTime;
     }
 }
