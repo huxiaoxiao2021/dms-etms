@@ -194,20 +194,28 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   @Override
   public InvokeResult<ComboardScanResp> comboardScan(ComboardScanReq request) {
     baseCheck(request);
-    bizCheck(request);
     getOrCreateBoardCode(request);
-    comboard(request);
-    send(request);
+    bizCheck(request);
+    execComboard(request);
+    execSend(request);
 
     ComboardScanResp resp = new ComboardScanResp();
     resp.setEndSiteId(request.getEndSiteId());
     return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, resp);
   }
 
-  private void send(ComboardScanReq request) {
+  /**
+   * 执行租板
+   * @param request
+   */
+  private void execComboard(ComboardScanReq request) {
   }
 
-  private void comboard(ComboardScanReq request) {
+  /**
+   * 执行发货
+   * @param request
+   */
+  private void execSend(ComboardScanReq request) {
   }
 
   private String getOrCreateBoardCode(ComboardScanReq request) {

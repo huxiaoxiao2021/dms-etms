@@ -13,7 +13,16 @@ public class TableTrolleyReq extends BaseReq implements Serializable {
     private boolean needStatistics;
     private Integer pageNo;
     private Integer pageSize;
-    
+
+    /**
+     * 是否需要展示某个混扫任务的流向
+     */
+    private boolean needMatchGroupCTT;
+    /**
+     * 混扫任务编号
+     */
+    private String templateCode;
+
     public String getCrossCode() {
         return crossCode;
     }
@@ -44,5 +53,21 @@ public class TableTrolleyReq extends BaseReq implements Serializable {
 
     public void setPageSize(Integer pageSize) {
         this.pageSize = pageSize;
+    }
+
+    public boolean getNeedMatchGroupCTT() {
+        return needMatchGroupCTT;
+    }
+
+    public void setNeedMatchGroupCTT(boolean needMatchGroupCTT) {
+        this.needMatchGroupCTT = needMatchGroupCTT;
+    }
+
+    public String getTemplateCode() {
+        return templateCode;
+    }
+
+    public void setTemplateCode(String templateCode) {
+        this.templateCode = templateCode;
     }
 }
