@@ -165,6 +165,12 @@ public class JyGroupSortCrossDetailServiceImpl implements JyGroupSortCrossDetail
         } catch (Exception e) {
             log.error("删除本场地常用的笼车集合失败: {}{}", JsonHelper.toJson(ids), e);
             return Boolean.FALSE;
-        }    
+        }
+    }
+
+    @Override
+    public List<JyGroupSortCrossDetailEntity> listSendFlowByTemplateCode(
+        JyGroupSortCrossDetailEntity record) {
+        return jyGroupSortCrossDetailDao.listSendFlowByTemplateCode(record);
     }
 }

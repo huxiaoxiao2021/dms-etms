@@ -7,8 +7,17 @@ import java.util.List;
 
 public class BoardExcepStatisticsResp implements Serializable {
     private static final long serialVersionUID = -5234283242615422754L;
+    private String boardCode;
     private List<ExcepScanDto> excepScanDtoList;
     private List<PackageScanDto> packageCodeList;
+
+    public String getBoardCode() {
+        return boardCode;
+    }
+
+    public void setBoardCode(String boardCode) {
+        this.boardCode = boardCode;
+    }
 
     public List<ExcepScanDto> getExcepScanDtoList() {
         return excepScanDtoList;

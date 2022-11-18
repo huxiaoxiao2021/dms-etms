@@ -6,6 +6,8 @@ import com.jd.bluedragon.common.dto.comboard.request.CreateGroupCTTReq;
 import com.jd.bluedragon.common.dto.comboard.request.RemoveCTTReq;
 import com.jd.bluedragon.common.dto.comboard.response.CTTGroupDataResp;
 import com.jd.bluedragon.common.dto.comboard.response.CreateGroupCTTResp;
+import com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity;
+import java.util.List;
 
 /**
  * @author liwenji
@@ -40,4 +42,11 @@ public interface JyGroupSortCrossDetailService {
      * @return
      */
     boolean removeCTTFromGroup(RemoveCTTReq request);
+
+    /**
+     *
+     * @param record
+     * @return
+     */
+    List<JyGroupSortCrossDetailEntity> listSendFlowByTemplateCode(JyGroupSortCrossDetailEntity record);
 }

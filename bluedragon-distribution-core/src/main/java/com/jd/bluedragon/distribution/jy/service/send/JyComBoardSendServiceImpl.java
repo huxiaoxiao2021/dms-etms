@@ -113,13 +113,14 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   @Override
   public InvokeResult<TableTrolleyResp> listTableTrolleyUnderCross(TableTrolleyReq request) {
     log.info("开始获取笼车营业部信息：{}", JsonHelper.toJson(request));
-    TableTrolleyQuery query = new TableTrolleyQuery();
     if (!checkBaseRequest(request)) {
       return new InvokeResult<>(RESULT_THIRD_ERROR_CODE,PARAM_ERROR);
     }
     InvokeResult<TableTrolleyResp> result = new InvokeResult<>();
     TableTrolleyResp tableTrolleyResp = new TableTrolleyResp();
     result.setData(tableTrolleyResp);
+
+    TableTrolleyQuery query = new TableTrolleyQuery();
     query.setDmsId(request.getCurrentOperate().getSiteCode());
     query.setPageNumber(request.getPageNo());
     query.setLimit(request.getPageSize());
@@ -137,6 +138,9 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       tableTrolleyResp.setTableTrolleyDtoList(
           getTableTrolleyDto(tableTrolleyJsfResp.getTableTrolleyDtoJsfList()));
       tableTrolleyResp.setTotalPage(tableTrolleyJsfResp.getTotalPage());
+    }
+    if (request.getNeedMatchGroupCTT() && ObjectHelper.isNotNull(request.getTemplateCode())){
+
     }
     return result;
   }
