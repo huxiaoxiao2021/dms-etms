@@ -24,6 +24,14 @@ public class ComboardScanResp implements Serializable {
      * 扫描单号
      */
     private String barCode;
+    /**
+     * 混扫任务编号
+     */
+    private String templateCode;
+    /**
+     * 板号
+     */
+    private String boardCode;
 
 
     public Integer getEndSiteId() {
@@ -64,5 +72,21 @@ public class ComboardScanResp implements Serializable {
 
     public void setBarCode(String barCode) {
         this.barCode = barCode;
+    }
+
+    public String getTemplateCode() {
+        return templateCode;
+    }
+
+    public void setTemplateCode(String templateCode) {
+        this.templateCode = templateCode;
+    }
+
+    public String getBoardCode() {
+        return boardCode;
+    }
+
+    public void setBoardCode(String boardCode) {
+        this.boardCode = boardCode;
     }
 }
