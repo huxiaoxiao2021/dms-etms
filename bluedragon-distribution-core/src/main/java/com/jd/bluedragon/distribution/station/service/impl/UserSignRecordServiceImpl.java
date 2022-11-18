@@ -1147,7 +1147,15 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	public Result<List<UserSignRecord>> queryUnsignedOutRecordByRefGridKey(String refGridKey){
 		Result result = new Result<>();
 		result.toSuccess();
-		result.setData(userSignRecordDao.queryUnsignedOutRecordByRefGridKey(refGridKey));
+		ArrayList<UserSignRecord> listData = new ArrayList<>();
+		UserSignQueryRequest query = new UserSignQueryRequest();
+		query.setRefGridKey(refGridKey);
+		long total = userSignRecordDao.queryTotalUnsignedOutRecordByRefGridKey(refGridKey);
+		for(int offset = 0; offset < total; offset += query.getLimit()){
+			query.setOffset(offset);
+			listData.addAll(userSignRecordDao.queryUnsignedOutRecordByRefGridKey(query));
+		}
+		result.setData(listData);
 		return result;
 	}
 	@Override
