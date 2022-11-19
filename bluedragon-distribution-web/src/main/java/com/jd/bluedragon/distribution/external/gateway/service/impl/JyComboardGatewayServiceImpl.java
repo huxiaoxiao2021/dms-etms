@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
 import com.jd.bluedragon.common.UnifiedExceptionProcess;
+import com.jd.bluedragon.common.dto.base.request.BaseReq;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.comboard.request.*;
 import com.jd.bluedragon.common.dto.comboard.response.*;
@@ -38,8 +39,8 @@ public class JyComboardGatewayServiceImpl implements JyComboardGatewayService {
   }
 
   @Override
-  public JdCResponse<CreateGroupCTTResp> getDefaultGroupCTTName() {
-    return retJdCResponse(jyComBoardSendService.getDefaultGroupCTTName());
+  public JdCResponse<CreateGroupCTTResp> getDefaultGroupCTTName(BaseReq request) {
+    return retJdCResponse(jyComBoardSendService.getDefaultGroupCTTName(request));
   }
 
   @Override

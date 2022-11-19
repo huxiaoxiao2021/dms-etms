@@ -1,5 +1,6 @@
 package com.jd.bluedragon.external.gateway.service;
 
+import com.jd.bluedragon.common.dto.base.request.BaseReq;
 import com.jd.bluedragon.common.dto.comboard.request.*;
 import com.jd.bluedragon.common.dto.comboard.response.*;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
@@ -29,7 +30,7 @@ public interface JyComboardGatewayService {
   /**
    * 获取默认混扫任务名称
    */
-  JdCResponse<CreateGroupCTTResp> getDefaultGroupCTTName();
+  JdCResponse<CreateGroupCTTResp> getDefaultGroupCTTName(BaseReq request);
 
   /**
    * 变更（添加或者移除滑道笼车流向）

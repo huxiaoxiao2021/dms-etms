@@ -146,7 +146,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
         if (ObjectHelper.isNotNull(groupSortCrossDetailList)){
           for (JyGroupSortCrossDetailEntity entity:groupSortCrossDetailList){
             for (TableTrolleyDto dto:tableTrolleyResp.getTableTrolleyDtoList()){
-              if (entity.getEndSiteId().equals(dto.getEndSiteId())){
+              if (entity.getEndSiteId().intValue()==dto.getEndSiteId()){
                 dto.setSelectedFlag(true);
               }
             }
@@ -155,6 +155,12 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       }
     }
     return result;
+  }
+
+  public static void main(String[] args) {
+    Long a =1L;
+    Integer b =1;
+    System.out.println(a.intValue()==b);
   }
 
   private List<TableTrolleyDto> getTableTrolleyDto(
@@ -181,24 +187,24 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, resp);
   }
 
-  private String getGroupCTTName() {
-    String groupNoKey = "groupNo:" + TimeUtils.date2string(new Date(), yyyyMMdd + ":");
-    long groupNo = 0;
-    if (!ObjectHelper.isNotNull(redisClientCache.get(groupNoKey))) {
-      redisClientCache.set(groupNoKey, "0", 24 * 60, TimeUnit.MINUTES, false);
+  private String getGroupCTTName(BaseReq req) {
+    String templateNoKey = "CTT:" + req.getCurrentOperate().getSiteCode()+":"+req.getGroupCode();
+    long templateNo = 0;
+    if (!ObjectHelper.isNotNull(redisClientCache.get(templateNoKey))) {
+      redisClientCache.set(templateNoKey, "0",  false);
     }
     try {
-      groupNo = redisClientCache.incr(groupNoKey);
+      templateNo = redisClientCache.incr(templateNoKey);
     } catch (Exception e) {
       return "";
     }
-    return String.valueOf(groupNo);
+    return String.valueOf(templateNo);
   }
 
   @Override
-  public InvokeResult<CreateGroupCTTResp> getDefaultGroupCTTName() {
+  public InvokeResult<CreateGroupCTTResp> getDefaultGroupCTTName(BaseReq request) {
     CreateGroupCTTResp createGroupCTTResp = new CreateGroupCTTResp();
-    String groupName = "混扫" + getGroupCTTName();
+    String groupName = "混扫" + getGroupCTTName(request);
     createGroupCTTResp.setTemplateName(groupName);
     return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, createGroupCTTResp);
   }
