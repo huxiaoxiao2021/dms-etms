@@ -112,7 +112,7 @@ public interface JyComboardGatewayService {
   /**
    * 查询流向下待扫包裹明细
    */
-  JdCResponse<PackageDetailResp> listPackageDetailRespUnderSendFlow(SendFlowQueryReq request);
+  JdCResponse<PackageDetailResp> listPackageDetailUnderSendFlow(SendFlowQueryReq request);
 
   /**
    * 查询某个板下的异常扫描统计数据--支撑板异常下钻3和下钻6
