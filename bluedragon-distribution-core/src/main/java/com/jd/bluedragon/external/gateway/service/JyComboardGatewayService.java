@@ -110,7 +110,7 @@ public interface JyComboardGatewayService {
       WaitScanStatisticsReq request);
 
   /**
-   * 查询流向下待扫包裹明细
+   * 查询流向下待扫、拦截等包裹明细
    */
   JdCResponse<PackageDetailResp> listPackageDetailUnderSendFlow(SendFlowQueryReq request);
 
