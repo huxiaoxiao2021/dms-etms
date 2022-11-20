@@ -101,7 +101,7 @@ public interface JyComboardGatewayService {
   /**
    * 查询箱子内部的包裹详情
    */
-  JdCResponse<PackageDetailResp> listPackageDetailRespUnderBox(BoxQueryReq request);
+  JdCResponse<PackageDetailResp> listPackageDetailUnderBox(BoxQueryReq request);
 
   /**
    * 查询流向待扫统计数据-支撑下钻5

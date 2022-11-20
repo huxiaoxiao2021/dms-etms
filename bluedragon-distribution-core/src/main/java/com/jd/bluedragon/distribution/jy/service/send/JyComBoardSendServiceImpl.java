@@ -284,8 +284,9 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   @Override
   public InvokeResult<ComboardScanResp> comboardScan(ComboardScanReq request) {
     baseCheck(request);
+    comboardCheck(request);
     getOrCreateBoardCode(request);
-    bizCheck(request);
+    sendSealCheck(request);
     execComboard(request);
     execSend(request);
 
