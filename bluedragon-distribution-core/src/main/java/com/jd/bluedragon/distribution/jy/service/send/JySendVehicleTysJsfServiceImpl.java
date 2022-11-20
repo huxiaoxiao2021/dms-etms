@@ -28,7 +28,7 @@ import java.util.List;
  * @Date: 2022/11/7 15:59
  * @Description:
  */
-@Service
+@Service("jySendVehicleTysJsfService")
 public class JySendVehicleTysJsfServiceImpl implements JySendVehicleTysJsfService {
 
 
