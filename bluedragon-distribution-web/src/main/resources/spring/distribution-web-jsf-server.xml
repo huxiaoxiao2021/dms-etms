@@ -471,4 +471,11 @@
                   server="dmsjsf">
     </jsf:provider>
 
+    <jsf:provider id="jyJsfSendVehicleTysService"
+                  interface="com.jd.bluedragon.distribution.jy.api.JySendVehicleTysJsfService"
+                  alias="${dms.jsf.alias}"
+                  ref="jySendVehicleTysJsfService"
+                  server="dmsjsf">
+    </jsf:provider>
+
 </beans>
