@@ -19,6 +19,7 @@ import com.jd.bluedragon.distribution.jy.service.comboard.JyComboardAggsService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.dbs.util.CollectionUtils;
 import com.jd.jim.cli.Cluster;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -31,7 +32,9 @@ import java.util.concurrent.TimeUnit;
 
 @Service
 @JyAggsType(JyAggsTypeEnum.JY_COMBOARD_AGGS)
+@Slf4j
 public class JyComboardAggsServiceImpl implements JyComboardAggsService {
+
     @Autowired
     private JyComboardAggsDao jyComboardAggsDao;
 
@@ -75,36 +78,41 @@ public class JyComboardAggsServiceImpl implements JyComboardAggsService {
     @Override
     public boolean saveAggs(JyAggsDto jyAggsDto) {
         JyComboardAggsDto dto = (JyComboardAggsDto) jyAggsDto;
-        JyComboardAggsCondition conditon = new JyComboardAggsConditionBuilder().operateSiteId(dto.getOperateSiteId())
-                .receiveSiteId(dto.getReceiveSiteId())
-                .bizId(dto.getBizId()).boardCode(dto.getBoardCode()).productType(dto.getProductType()).scanType(dto.getScanType())
-                .build();
-        List<JyComboardAggsEntity> jyComboardAggsEntities = jyComboardAggsDao.queryComboardAggs(conditon);
-        if (CollectionUtils.isNotEmpty(jyComboardAggsEntities)){
-            JyComboardAggsEntity jyComboardAggsEntity = jyComboardAggsEntities.get(0);
-            jyComboardAggsEntity.setWaitScanCount(dto.getWaitScanCount());
-            jyComboardAggsEntity.setScannedCount(dto.getScannedCount());
-            jyComboardAggsEntity.setBoardCount(dto.getBoardCount());
-            jyComboardAggsEntity.setInterceptCount(dto.getInterceptCount());
-            jyComboardAggsEntity.setMoreScannedCount(dto.getMoreScannedCount());
-            jyComboardAggsDao.updateByPrimaryKeySelective(jyComboardAggsEntity);
-        }else{
-            JyComboardAggsEntity jyComboardAggsEntity = new JyComboardAggsEntity();
-            jyComboardAggsEntity.setWaitScanCount(dto.getWaitScanCount());
-            jyComboardAggsEntity.setScannedCount(dto.getScannedCount());
-            jyComboardAggsEntity.setBoardCount(dto.getBoardCount());
-            jyComboardAggsEntity.setInterceptCount(dto.getInterceptCount());
-            jyComboardAggsEntity.setMoreScannedCount(dto.getMoreScannedCount());
-            jyComboardAggsEntity.setOperateSiteId(Integer.valueOf(dto.getOperateSiteId()));
-            jyComboardAggsEntity.setReceiveSiteId(Integer.valueOf(dto.getReceiveSiteId()));
-            jyComboardAggsEntity.setCreateTime(dto.getCreateTime());
-            jyComboardAggsEntity.setBizId(dto.getBizId());
-            jyComboardAggsEntity.setBoardCode(dto.getBoardCode());
-            jyComboardAggsEntity.setProductType(dto.getProductType());
-            jyComboardAggsEntity.setScanType(Integer.valueOf(dto.getScanType()));
-            jyComboardAggsDao.insertSelective(jyComboardAggsEntity);
+        try {
+            JyComboardAggsCondition conditon = new JyComboardAggsConditionBuilder().operateSiteId(dto.getOperateSiteId())
+                    .receiveSiteId(dto.getReceiveSiteId())
+                    .bizId(dto.getBizId()).boardCode(dto.getBoardCode()).productType(dto.getProductType()).scanType(dto.getScanType())
+                    .build();
+            List<JyComboardAggsEntity> jyComboardAggsEntities = jyComboardAggsDao.queryComboardAggs(conditon);
+            if (CollectionUtils.isNotEmpty(jyComboardAggsEntities)){
+                JyComboardAggsEntity jyComboardAggsEntity = jyComboardAggsEntities.get(0);
+                jyComboardAggsEntity.setWaitScanCount(dto.getWaitScanCount());
+                jyComboardAggsEntity.setScannedCount(dto.getScannedCount());
+                jyComboardAggsEntity.setBoardCount(dto.getBoardCount());
+                jyComboardAggsEntity.setInterceptCount(dto.getInterceptCount());
+                jyComboardAggsEntity.setMoreScannedCount(dto.getMoreScannedCount());
+                jyComboardAggsDao.updateByPrimaryKeySelective(jyComboardAggsEntity);
+            }else{
+                JyComboardAggsEntity jyComboardAggsEntity = new JyComboardAggsEntity();
+                jyComboardAggsEntity.setWaitScanCount(dto.getWaitScanCount());
+                jyComboardAggsEntity.setScannedCount(dto.getScannedCount());
+                jyComboardAggsEntity.setBoardCount(dto.getBoardCount());
+                jyComboardAggsEntity.setInterceptCount(dto.getInterceptCount());
+                jyComboardAggsEntity.setMoreScannedCount(dto.getMoreScannedCount());
+                jyComboardAggsEntity.setOperateSiteId(Integer.valueOf(dto.getOperateSiteId()));
+                jyComboardAggsEntity.setReceiveSiteId(Integer.valueOf(dto.getReceiveSiteId()));
+                jyComboardAggsEntity.setCreateTime(dto.getCreateTime());
+                jyComboardAggsEntity.setBizId(dto.getBizId());
+                jyComboardAggsEntity.setBoardCode(dto.getBoardCode());
+                jyComboardAggsEntity.setProductType(dto.getProductType());
+                jyComboardAggsEntity.setScanType(Integer.valueOf(dto.getScanType()));
+                jyComboardAggsDao.insertSelective(jyComboardAggsEntity);
+            }
+            return true;
+        }catch (Exception e){
+            log.error("saveAggs error :param json 【{}】",JsonHelper.toJson(dto),e);
+            return false;
         }
-        return true;
     }
 
     private JyComboardAggsEntity queryComboardAggsCache(JyComboardAggsCondition comboardAggsCondition) throws Exception {

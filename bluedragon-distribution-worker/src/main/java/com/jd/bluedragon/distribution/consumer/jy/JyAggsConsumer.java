@@ -46,8 +46,7 @@ public class JyAggsConsumer extends MessageBaseConsumer {
             //执行逻辑
         }
         JyAggsService jyAggsService = this.getJyAggsService(jyAggsDto.getJyAggsTypeEnum());
-
-
+        jyAggsService.saveAggs(jyAggsDto);
     }
 
     private JyAggsService getJyAggsService(JyAggsTypeEnum jyAggsTypeEnum){
