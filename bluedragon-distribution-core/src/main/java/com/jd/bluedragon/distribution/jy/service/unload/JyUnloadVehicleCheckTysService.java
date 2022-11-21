@@ -637,7 +637,7 @@ public class JyUnloadVehicleCheckTysService {
                 boardCommonRequest.setOperateTime(System.currentTimeMillis() + 1000L);
                 // 组板全程跟踪
                 if(BusinessUtil.isBoxcode(boardCommonRequest.getBarCode())) {
-                    boardCommonManager.sendWaybillTrace(boardCommonRequest, WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION);
+                    boardCommonManager.sendBoxWaybillTrace(boardCommonRequest, WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION);
                 }else {
                     boardCommonManager.sendWaybillTrace(boardCommonRequest, WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION);
                 }

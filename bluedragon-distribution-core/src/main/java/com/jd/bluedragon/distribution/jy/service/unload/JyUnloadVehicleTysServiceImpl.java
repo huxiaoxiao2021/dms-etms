@@ -1726,11 +1726,11 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
                 // 板上包裹数限制
                 jyUnloadVehicleCheckTysService.packageCountCheck(scanPackageDto);
                 // ver组板拦截校验
-                String boardCheckStr = jyUnloadVehicleCheckTysService.boardCombinationCheck(scanPackageDto);
-                if (StringUtils.isNotBlank(boardCheckStr)) {
-                    invokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, boardCheckStr);
-                    return invokeResult;
-                }
+//                String boardCheckStr = jyUnloadVehicleCheckTysService.boardCombinationCheck(scanPackageDto);
+//                if (StringUtils.isNotBlank(boardCheckStr)) {
+//                    invokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, boardCheckStr);
+//                    return invokeResult;
+//                }
             }
         }
         // 人工卸车模式组板
