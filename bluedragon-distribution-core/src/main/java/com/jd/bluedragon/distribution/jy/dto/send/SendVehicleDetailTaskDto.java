@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.jy.dto.send;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -38,6 +39,10 @@ public class SendVehicleDetailTaskDto implements Serializable {
      * 操作类型
      */
     private Integer operateType;
+    /**
+     * 操作时间
+     */
+    private Date operateTime;
 
     public Long getStartSiteId() {
         return startSiteId;
@@ -93,5 +98,13 @@ public class SendVehicleDetailTaskDto implements Serializable {
 
     public void setOperateType(Integer operateType) {
         this.operateType = operateType;
+    }
+
+    public Date getOperateTime() {
+        return operateTime;
+    }
+
+    public void setOperateTime(Date operateTime) {
+        this.operateTime = operateTime;
     }
 }

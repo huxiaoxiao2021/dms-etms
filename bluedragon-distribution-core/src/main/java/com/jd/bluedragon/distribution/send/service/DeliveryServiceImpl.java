@@ -7079,8 +7079,7 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
      * @param boxCodeList
      * @return
      */
-    @Override
-    public boolean doBoardDeliveryCancel(SendM domain, List<String> boxCodeList){
+    private boolean doBoardDeliveryCancel(SendM domain, List<String> boxCodeList){
         boolean isSuccess = true;
         if(boxCodeList!=null && !boxCodeList.isEmpty()){
             for(String boxCode : boxCodeList){

@@ -8,10 +8,7 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.base.response.MSCodeMapping;
 import com.jd.bluedragon.common.dto.base.response.MsgBoxTypeEnum;
-import com.jd.bluedragon.common.dto.operation.workbench.enums.BarCodeLabelOptionEnum;
-import com.jd.bluedragon.common.dto.operation.workbench.enums.SendAbnormalEnum;
-import com.jd.bluedragon.common.dto.operation.workbench.enums.SendVehicleLabelOptionEnum;
-import com.jd.bluedragon.common.dto.operation.workbench.enums.SendVehicleScanTypeEnum;
+import com.jd.bluedragon.common.dto.operation.workbench.enums.*;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.*;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.CheckSendCodeRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicleInfoRequest;
@@ -2452,9 +2449,9 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
         if(CollectionUtils.isNotEmpty(request.getImgList())){
             url = Joiner.on(Constants.SEPARATOR_COMMA).join(request.getImgList());
         }
-        if (request.getType() == null || Constants.NUMBER_ZERO.equals(request.getType())) {
+        if (request.getType() == null || SendImageTypeEnum.SEND_IMAGE.getCode().equals(request.getType())) {
             attachment.setImgUrl(url);
-        } else if (Constants.NUMBER_ONE.equals(request.getType())) {
+        } else if (SendImageTypeEnum.SEAL_IMAGE.getCode().equals(request.getType())) {
             attachment.setSealImgUrl(url);
         }
         attachment.setOperateTime(request.getCurrentOperate().getOperateTime());
@@ -2809,24 +2806,12 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
         // 当前封车流向是最后一个
         if (sealedDestCount == destList.size() - 1) {
-            JySendEntity existAbnormal = jySendService.findSendRecordExistAbnormal(new JySendEntity(taskSend.getStartSiteId(), sendVehicleBizId));
-            if (existAbnormal != null) {
+            boolean existAbnormal = jySendService.findSendRecordExistAbnormal(taskSend.getStartSiteId(), sendVehicleBizId);
+            if (existAbnormal) {
                 response.setNormalFlag(Boolean.FALSE);
                 response.setAbnormalType(SendAbnormalEnum.EXIST_ABNORMAL_PACK);
                 return true;
             } else {
-                // 如果不存在强发或拦截，并且是转运任务，再次判断是否有不齐
-                BaseStaffSiteOrgDto baseStaffSiteOrgDto = baseMajorManager.getBaseSiteBySiteId(taskSend.getStartSiteId().intValue());
-                if (baseStaffSiteOrgDto != null) {
-                    if (baseStaffSiteOrgDto.getSubType() != null && baseStaffSiteOrgDto.getSubType().equals(Constants.B2B_SITE_TYPE)) {
-                        JySendAggsEntity sendAggs = sendAggService.findSendAggExistAbnormal(sendVehicleBizId);
-                        if (sendAggs != null) {
-                            response.setNormalFlag(Boolean.FALSE);
-                            response.setAbnormalType(SendAbnormalEnum.EXIST_ABNORMAL_PACK);
-                            return true;
-                        }
-                    }
-                }
                 BigDecimal loadRate = this.dealLoadRate(taskSend);
                 if (BigDecimal.valueOf(uccConfig.getJySendTaskLoadRateLowerLimit()).compareTo(loadRate) > 0) {
                     response.setNormalFlag(Boolean.FALSE);

@@ -455,8 +455,6 @@ public interface DeliveryService {
      */
     boolean doBoardDeliveryCancel(Task task);
 
-    boolean doBoardDeliveryCancel(SendM domain, List<String> boxCodeList);
-
     /**
      * 查询发货记录
      *

@@ -240,6 +240,7 @@ public class TmsTransWorkItemOperateConsumer extends MessageBaseConsumer {
         List<String> sendCodes = jyVehicleSendRelationService.querySendCodesByVehicleDetailBizId(entity.getBizId());
         detailTaskDto.setSendCodes(sendCodes);
         detailTaskDto.setOperateType(operateType);
+        detailTaskDto.setOperateTime(new Date());
         String businessId = entity.getBizId() + Constants.UNDERLINE_FILL + operateType;
         sendVehicleDetailTaskProducer.sendOnFailPersistent(businessId, JsonHelper.toJson(detailTaskDto));
     }
