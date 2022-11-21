@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
+import com.jd.bluedragon.common.dto.base.request.BaseReq;
 import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
@@ -24,10 +25,10 @@ import java.util.List;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = "classpath:distribution-web-context.xml")
 public class JyComboardGatewayServiceImplTest {
-    
+
     @Autowired
     private JyComboardGatewayService jyComboardGatewayService;
-    
+
     @Test
     public void listCrossDataTest() {
         CrossDataReq crossDataReq = new CrossDataReq();
@@ -39,7 +40,7 @@ public class JyComboardGatewayServiceImplTest {
         JdCResponse<CrossDataResp> crossDataRespJdCResponse = jyComboardGatewayService.listCrossData(crossDataReq);
         System.out.println(JsonHelper.toJson(crossDataRespJdCResponse));
     }
-    
+
     @Test
     public void listTableTrolleyUnderCrossTest() {
         TableTrolleyReq query = new TableTrolleyReq();
@@ -60,13 +61,22 @@ public class JyComboardGatewayServiceImplTest {
         JdCResponse<TableTrolleyResp> response = jyComboardGatewayService.listTableTrolleyUnderCross(tableTrolleyReq);
         System.out.println("根据场地获取结果：" + JsonHelper.toJson(response));
     }
-    
+
     @Test
     public void getDefaultGroupCTTNameTest() {
-        JdCResponse<CreateGroupCTTResp> response = jyComboardGatewayService.getDefaultGroupCTTName();
+        BaseReq request =new BaseReq();
+        request.setGroupCode("group111");
+        User user = new User();
+        user.setUserName("李文吉");
+        user.setUserErp("liwenji3");
+        request.setUser(user);
+        CurrentOperate operate = new CurrentOperate();
+        operate.setSiteCode(910);
+        request.setCurrentOperate(operate);
+        JdCResponse<CreateGroupCTTResp> response = jyComboardGatewayService.getDefaultGroupCTTName(request);
         System.out.println(JsonHelper.toJson(response));
     }
-    
+
     @Test
     public void listCTTGroupDataTest() {
         CTTGroupDataReq request = new CTTGroupDataReq();
@@ -93,7 +103,7 @@ public class JyComboardGatewayServiceImplTest {
         JdCResponse<CTTGroupDataResp> response2 = jyComboardGatewayService.listCTTGroupData(request2);
         System.out.println(JsonHelper.toJson(response2));
     }
-    
+
     @Test
     public void createGroupCTTDataTest() {
         CreateGroupCTTReq resp = new CreateGroupCTTReq();
@@ -130,7 +140,7 @@ public class JyComboardGatewayServiceImplTest {
         JdCResponse<CreateGroupCTTResp> groupCTTData = jyComboardGatewayService.createGroupCTTData(resp);
         System.out.println(JsonHelper.toJson(groupCTTData));
     }
-    
+
     @Test
     public void addOrDeleteGroupCTT(){
         AddCTTReq resp = new AddCTTReq();

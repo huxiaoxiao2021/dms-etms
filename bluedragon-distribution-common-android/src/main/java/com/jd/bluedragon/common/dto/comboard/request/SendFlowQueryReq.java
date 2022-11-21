@@ -7,6 +7,10 @@ import java.io.Serializable;
 public class SendFlowQueryReq extends BaseReq implements Serializable {
     private static final long serialVersionUID = -4565884672218440331L;
     private Integer endSiteId;
+    /**
+     * 类型 1待扫 2拦截
+     */
+    private Integer type;
     private Integer pageNo;
     private Integer pageSize;
 
@@ -32,5 +36,13 @@ public class SendFlowQueryReq extends BaseReq implements Serializable {
 
     public void setPageSize(Integer pageSize) {
         this.pageSize = pageSize;
+    }
+
+    public Integer getType() {
+        return type;
+    }
+
+    public void setType(Integer type) {
+        this.type = type;
     }
 }

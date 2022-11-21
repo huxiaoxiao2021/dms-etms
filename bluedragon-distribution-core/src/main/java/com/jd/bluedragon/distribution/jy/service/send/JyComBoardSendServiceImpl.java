@@ -94,7 +94,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     log.info("开始获取场地滑道信息：{}", JsonHelper.toJson(request));
     CrossPageQuery query = new CrossPageQuery();
     if (!checkBaseRequest(request)) {
-      return new InvokeResult<>(RESULT_THIRD_ERROR_CODE,PARAM_ERROR);
+      return new InvokeResult<>(RESULT_THIRD_ERROR_CODE, PARAM_ERROR);
     }
     InvokeResult<CrossDataResp> result = new InvokeResult<>();
     CrossDataResp crossDataResp = new CrossDataResp();
@@ -114,7 +114,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   public InvokeResult<TableTrolleyResp> listTableTrolleyUnderCross(TableTrolleyReq request) {
     log.info("开始获取笼车营业部信息：{}", JsonHelper.toJson(request));
     if (!checkBaseRequest(request)) {
-      return new InvokeResult<>(RESULT_THIRD_ERROR_CODE,PARAM_ERROR);
+      return new InvokeResult<>(RESULT_THIRD_ERROR_CODE, PARAM_ERROR);
     }
     InvokeResult<TableTrolleyResp> result = new InvokeResult<>();
     TableTrolleyResp tableTrolleyResp = new TableTrolleyResp();
@@ -133,16 +133,34 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       // 根据场地查询笼车信息
       tableTrolleyJsfResp = sortCrossJsfManager.queryTableTrolleyListByDmsId(query);
     }
-    if (tableTrolleyJsfResp != null && !CollectionUtils
-        .isEmpty(tableTrolleyJsfResp.getTableTrolleyDtoJsfList())) {
-      tableTrolleyResp.setTableTrolleyDtoList(
-          getTableTrolleyDto(tableTrolleyJsfResp.getTableTrolleyDtoJsfList()));
+    if (tableTrolleyJsfResp != null && !CollectionUtils.isEmpty(tableTrolleyJsfResp.getTableTrolleyDtoJsfList())) {
+      tableTrolleyResp.setTableTrolleyDtoList(getTableTrolleyDto(tableTrolleyJsfResp.getTableTrolleyDtoJsfList()));
       tableTrolleyResp.setTotalPage(tableTrolleyJsfResp.getTotalPage());
-    }
-    if (request.getNeedMatchGroupCTT() && ObjectHelper.isNotNull(request.getTemplateCode())){
 
+      if (request.getNeedMatchGroupCTT() && ObjectHelper.isNotNull(request.getTemplateCode())) {
+        JyGroupSortCrossDetailEntity condition = new JyGroupSortCrossDetailEntity();
+        condition.setStartSiteId(Long.valueOf(request.getCurrentOperate().getSiteCode()));
+        condition.setTemplateCode(request.getTemplateCode());
+        List<JyGroupSortCrossDetailEntity> groupSortCrossDetailList = jyGroupSortCrossDetailService.listSendFlowByTemplateCode(condition);
+
+        if (ObjectHelper.isNotNull(groupSortCrossDetailList)){
+          for (JyGroupSortCrossDetailEntity entity:groupSortCrossDetailList){
+            for (TableTrolleyDto dto:tableTrolleyResp.getTableTrolleyDtoList()){
+              if (entity.getEndSiteId().intValue()==dto.getEndSiteId()){
+                dto.setSelectedFlag(true);
+              }
+            }
+          }
+        }
+      }
     }
     return result;
+  }
+
+  public static void main(String[] args) {
+    Long a =1L;
+    Integer b =1;
+    System.out.println(a.intValue()==b);
   }
 
   private List<TableTrolleyDto> getTableTrolleyDto(
@@ -161,74 +179,80 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
 
   @Override
   public InvokeResult<CreateGroupCTTResp> createGroupCTTData(CreateGroupCTTReq request) {
-    if (!checkBaseRequest(request)){
-      return new InvokeResult<>(RESULT_THIRD_ERROR_CODE,PARAM_ERROR);
+    if (!checkBaseRequest(request)) {
+      return new InvokeResult<>(RESULT_THIRD_ERROR_CODE, PARAM_ERROR);
     }
     log.info("开始保存本场地常用的笼车集合：{}", JsonHelper.toJson(request));
     CreateGroupCTTResp resp = jyGroupSortCrossDetailService.batchInsert(request);
     return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, resp);
   }
 
-  private String getGroupCTTName() {
-    String groupNoKey = "groupNo:"  + TimeUtils.date2string(new Date(), yyyyMMdd + ":");
-    long groupNo = 0;
-    if (!ObjectHelper.isNotNull(redisClientCache.get(groupNoKey))) {
-      redisClientCache.set(groupNoKey, "0", 24 * 60, TimeUnit.MINUTES, false);
+  private String getGroupCTTName(BaseReq req) {
+    String templateNoKey = "CTT:" + req.getCurrentOperate().getSiteCode()+":"+req.getGroupCode();
+    long templateNo = 0;
+    if (!ObjectHelper.isNotNull(redisClientCache.get(templateNoKey))) {
+      redisClientCache.set(templateNoKey, "0",  false);
     }
     try {
-      groupNo = redisClientCache.incr(groupNoKey);
+      templateNo = redisClientCache.incr(templateNoKey);
     } catch (Exception e) {
       return "";
     }
-    return String.valueOf(groupNo);
+    return String.valueOf(templateNo);
   }
 
   @Override
-  public InvokeResult<CreateGroupCTTResp> getDefaultGroupCTTName() {
+  public InvokeResult<CreateGroupCTTResp> getDefaultGroupCTTName(BaseReq request) {
     CreateGroupCTTResp createGroupCTTResp = new CreateGroupCTTResp();
-    String groupName = "混扫" + getGroupCTTName();
+    String groupName = "混扫" + getGroupCTTName(request);
     createGroupCTTResp.setTemplateName(groupName);
     return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, createGroupCTTResp);
   }
+
   @Override
   public InvokeResult addCTT2Group(AddCTTReq request) {
-    if (!checkBaseRequest(request)){
-      return new InvokeResult<>(RESULT_THIRD_ERROR_CODE,PARAM_ERROR);
+    if (!checkBaseRequest(request)) {
+      return new InvokeResult<>(RESULT_THIRD_ERROR_CODE, PARAM_ERROR);
     }
     log.info("开始更新常用滑道笼车流向集合：{}", JsonHelper.toJson(request));
-    if (jyGroupSortCrossDetailService.addCTTGroup(request)){
+    if (jyGroupSortCrossDetailService.addCTTGroup(request)) {
       return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE);
-    }else {
+    } else {
       return new InvokeResult(UPDATE_CTT_GROUP_LIST_CODE, UPDATE_CTT_GROUP_LIST_MESSAGE);
     }
   }
 
   private Boolean checkBaseRequest(BaseReq request) {
-    if (request == null || request.getCurrentOperate() == null || request.getCurrentOperate().getSiteCode() < 0 ||
-            request.getUser() == null || StringUtils.isEmpty(request.getUser().getUserErp()) || StringUtils.isEmpty(request.getUser().getUserName())){
+    if (request == null || request.getCurrentOperate() == null
+        || request.getCurrentOperate().getSiteCode() < 0 ||
+        request.getUser() == null || StringUtils.isEmpty(request.getUser().getUserErp())
+        || StringUtils.isEmpty(request.getUser().getUserName())) {
       return Boolean.FALSE;
     }
     return Boolean.TRUE;
   }
+
   @Override
   public InvokeResult removeCTTFromGroup(RemoveCTTReq request) {
-    if (!checkBaseRequest(request)){
-      return new InvokeResult<>(RESULT_THIRD_ERROR_CODE,PARAM_ERROR);
+    if (!checkBaseRequest(request)) {
+      return new InvokeResult<>(RESULT_THIRD_ERROR_CODE, PARAM_ERROR);
     }
     log.info("开始更新常用滑道笼车流向集合：{}", JsonHelper.toJson(request));
-    if (jyGroupSortCrossDetailService.removeCTTFromGroup(request)){
+    if (jyGroupSortCrossDetailService.removeCTTFromGroup(request)) {
       return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE);
-    }else {
+    } else {
       return new InvokeResult(UPDATE_CTT_GROUP_LIST_CODE, UPDATE_CTT_GROUP_LIST_MESSAGE);
-    }  }
+    }
+  }
 
   @Override
   public InvokeResult<CTTGroupDataResp> listCTTGroupData(CTTGroupDataReq request) {
-    if (!checkBaseRequest(request)){
-      return new InvokeResult<>(RESULT_THIRD_ERROR_CODE,PARAM_ERROR);
+    if (!checkBaseRequest(request)) {
+      return new InvokeResult<>(RESULT_THIRD_ERROR_CODE, PARAM_ERROR);
     }
     log.info("开始查询常用滑道笼车流向集合：{}", JsonHelper.toJson(request));
-    CTTGroupDataResp resp = jyGroupSortCrossDetailService.queryCTTGroupDataByGroupOrSiteCode(request);
+    CTTGroupDataResp resp = jyGroupSortCrossDetailService
+        .queryCTTGroupDataByGroupOrSiteCode(request);
     return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, resp);
   }
 
@@ -260,8 +284,9 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   @Override
   public InvokeResult<ComboardScanResp> comboardScan(ComboardScanReq request) {
     baseCheck(request);
+    comboardCheck(request);
     getOrCreateBoardCode(request);
-    bizCheck(request);
+    sendSealCheck(request);
     execComboard(request);
     execSend(request);
 
@@ -272,14 +297,12 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
 
   /**
    * 执行租板
-   * @param request
    */
   private void execComboard(ComboardScanReq request) {
   }
 
   /**
    * 执行发货
-   * @param request
    */
   private void execSend(ComboardScanReq request) {
   }
@@ -344,6 +367,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
      */
     sendSealCheck(request);
   }
+
   /**
    * 租板相关校验
    */
@@ -477,41 +501,43 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
 
   /**
    * 校验当前barCode的流向 是否在当前混扫任务的流向范围内
-   * @param request
    */
   private void matchDestinationCheck(ComboardScanReq request) {
-    JyGroupSortCrossDetailEntity condition =new JyGroupSortCrossDetailEntity();
+    JyGroupSortCrossDetailEntity condition = new JyGroupSortCrossDetailEntity();
     condition.setStartSiteId(Long.valueOf(request.getCurrentOperate().getSiteCode()));
     condition.setGroupCode(request.getGroupCode());
     condition.setTemplateCode(request.getTemplateCode());
 
-    List<JyGroupSortCrossDetailEntity> groupSortCrossDetailEntityList =jyGroupSortCrossDetailDao.listSendFlowByTemplateCode(condition);
+    List<JyGroupSortCrossDetailEntity> groupSortCrossDetailEntityList = jyGroupSortCrossDetailDao
+        .listSendFlowByTemplateCode(condition);
 
     boolean hasMatchDestinationIdFlag = false;
-    for (JyGroupSortCrossDetailEntity entity: groupSortCrossDetailEntityList) {
-      if(Objects.equals(entity.getEndSiteId(), request.getEndSiteId())){
+    for (JyGroupSortCrossDetailEntity entity : groupSortCrossDetailEntityList) {
+      if (Objects.equals(entity.getEndSiteId(), request.getEndSiteId())) {
         hasMatchDestinationIdFlag = true;
         break;
       }
     }
     // 如果获取不到匹配流向，则获取大小站
-    if(!hasMatchDestinationIdFlag){
+    if (!hasMatchDestinationIdFlag) {
       final Integer parentSiteId = baseService.getMappingSite(request.getEndSiteId());
-      if(parentSiteId != null){
-        if(Objects.equals(parentSiteId, request.getEndSiteId())){
+      if (parentSiteId != null) {
+        if (Objects.equals(parentSiteId, request.getEndSiteId())) {
           hasMatchDestinationIdFlag = true;
         }
       }
     }
-    if (!hasMatchDestinationIdFlag){
+    if (!hasMatchDestinationIdFlag) {
       throw new JyBizException("扫描包裹/箱号所属流向不在当前混扫任务范畴内！");
     }
   }
 
-  private Boolean hasMatchDestinationIdFromBoardList(List<com.jd.transboard.api.dto.VirtualBoardResultDto> virtualBoardDtoList, Integer destinationId){
+  private Boolean hasMatchDestinationIdFromBoardList(
+      List<com.jd.transboard.api.dto.VirtualBoardResultDto> virtualBoardDtoList,
+      Integer destinationId) {
     boolean hasMatchDestinationIdFlag = false;
     for (com.jd.transboard.api.dto.VirtualBoardResultDto virtualBoardResultDtoQueryDatum : virtualBoardDtoList) {
-      if(Objects.equals(virtualBoardResultDtoQueryDatum.getDestinationId(), destinationId)){
+      if (Objects.equals(virtualBoardResultDtoQueryDatum.getDestinationId(), destinationId)) {
         hasMatchDestinationIdFlag = true;
         break;
       }

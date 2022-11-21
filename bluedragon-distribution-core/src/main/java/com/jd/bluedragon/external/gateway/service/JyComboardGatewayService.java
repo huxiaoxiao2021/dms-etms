@@ -1,5 +1,6 @@
 package com.jd.bluedragon.external.gateway.service;
 
+import com.jd.bluedragon.common.dto.base.request.BaseReq;
 import com.jd.bluedragon.common.dto.comboard.request.*;
 import com.jd.bluedragon.common.dto.comboard.response.*;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
@@ -29,7 +30,7 @@ public interface JyComboardGatewayService {
   /**
    * 获取默认混扫任务名称
    */
-  JdCResponse<CreateGroupCTTResp> getDefaultGroupCTTName();
+  JdCResponse<CreateGroupCTTResp> getDefaultGroupCTTName(BaseReq request);
 
   /**
    * 变更（添加或者移除滑道笼车流向）
@@ -100,7 +101,7 @@ public interface JyComboardGatewayService {
   /**
    * 查询箱子内部的包裹详情
    */
-  JdCResponse<PackageDetailResp> listPackageDetailRespUnderBox(BoxQueryReq request);
+  JdCResponse<PackageDetailResp> listPackageDetailUnderBox(BoxQueryReq request);
 
   /**
    * 查询流向待扫统计数据-支撑下钻5
@@ -109,9 +110,9 @@ public interface JyComboardGatewayService {
       WaitScanStatisticsReq request);
 
   /**
-   * 查询流向下待扫包裹明细
+   * 查询流向下待扫、拦截等包裹明细
    */
-  JdCResponse<PackageDetailResp> listPackageDetailRespUnderSendFlow(SendFlowQueryReq request);
+  JdCResponse<PackageDetailResp> listPackageDetailUnderSendFlow(SendFlowQueryReq request);
 
   /**
    * 查询某个板下的异常扫描统计数据--支撑板异常下钻3和下钻6
