@@ -863,6 +863,12 @@
 				<if test="signDate != null" >
 					and t.sign_date = #{signDate,jdbcType=DATE}
 				</if>
+				<if test="signInTimeStart != null" >
+					and  <![CDATA[   t.sign_in_time >= #{signInTimeStart,jdbcType=TIMESTAMP}  ]]>
+				</if>
+				<if test="signInTimeEnd != null" >
+					and  <![CDATA[   t.sign_in_time <= #{signInTimeEnd,jdbcType=TIMESTAMP}  ]]>
+				</if>
 				order by t.sign_in_time desc
 				limit 1) r
 		<include refid="joinSql"/>
