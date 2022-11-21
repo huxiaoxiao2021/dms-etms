@@ -444,7 +444,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
         if (notSignedOutRecordMoreThanHours < 0) {
             return result;
         }
-
+        Date signInTimeStart = new Date(System.currentTimeMillis() - (long) (notSignedOutRecordMoreThanHours + 12) * 3600 * 1000);
         Date signInTime = new Date(System.currentTimeMillis() - (long) notSignedOutRecordMoreThanHours * 3600 * 1000);
         List<Long> toSignOutPks;
         Date now = new Date();
@@ -453,7 +453,7 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 
         try {
             do {
-                toSignOutPks = userSignRecordDao.querySignInMoreThanSpecifiedTime(signInTime, 100);
+                toSignOutPks = userSignRecordDao.querySignInMoreThanSpecifiedTime(signInTimeStart,signInTime, 100);
 
                 if (CollectionUtils.isNotEmpty(toSignOutPks)) {
                     UserSignRecord updateData = new UserSignRecord();

@@ -118,8 +118,9 @@ public class UserSignRecordDaoImpl extends BaseDao<UserSignRecord> implements Us
 		return this.getSqlSession().selectList(NAMESPACE+".queryUserSignNoticeJobItems",query);
 	}
     @Override
-    public List<Long> querySignInMoreThanSpecifiedTime(Date signInTime, Integer limit) {
+    public List<Long> querySignInMoreThanSpecifiedTime(Date signInTimeStart,Date signInTime, Integer limit) {
         Map<String, Object> param = new HashMap<>();
+        param.put("signInTimeStart", signInTimeStart);
         param.put("signInTime", signInTime);
         param.put("limit", limit);
         return this.getSqlSession().selectList(NAMESPACE + ".querySignInMoreThanSpecifiedTime", param);
