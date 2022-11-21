@@ -964,5 +964,6 @@
 			r.yn = 1
 			and r.ref_grid_key = #{refGridKey,jdbcType=VARCHAR}
 			and sign_out_time is null
+		limit #{offset}, #{limit}
 	</select>
 </mapper>

@@ -179,6 +179,6 @@ public class UserSignRecordDaoImpl extends BaseDao<UserSignRecord> implements Us
 
 	@Override
 	public Long queryTotalUnsignedOutRecordByRefGridKey(String refGridKey) {
-		return this.getSqlSession().selectOne(NAMESPACE + "",refGridKey);
+		return this.getSqlSession().selectOne(NAMESPACE + ".queryTotalUnsignedOutRecordByRefGridKey",refGridKey);
 	}
 }
