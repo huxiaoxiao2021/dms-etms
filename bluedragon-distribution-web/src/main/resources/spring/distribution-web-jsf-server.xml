@@ -460,7 +460,7 @@
     <jsf:provider id="transportRelatedJSFService"
                   interface="com.jd.bluedragon.distribution.transport.service.impl.TransportRelatedJSFService"
                   alias="${dms.jsf.alias}"
-                  ref="transportRelatedJSFService"
+                  ref="transportRelatedJSFServiceImpl"
                   server="dmsjsf">
     </jsf:provider>
 

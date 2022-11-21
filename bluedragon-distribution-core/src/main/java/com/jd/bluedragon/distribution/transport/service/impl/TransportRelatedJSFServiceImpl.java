@@ -6,11 +6,13 @@ import com.jd.bluedragon.distribution.transport.service.TransportRelatedJSFServi
 import com.jd.bluedragon.distribution.transport.service.TransportRelatedService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-@Service("transportRelatedJSFService")
+@Service("transportRelatedJSFServiceImpl")
 public class TransportRelatedJSFServiceImpl implements TransportRelatedJSFService {
 
+    @Autowired
     private TransportRelatedService transportRelatedService;
 
     @Override
