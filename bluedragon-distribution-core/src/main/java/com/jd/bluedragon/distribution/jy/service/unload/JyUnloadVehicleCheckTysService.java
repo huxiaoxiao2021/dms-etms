@@ -1066,14 +1066,18 @@ public class JyUnloadVehicleCheckTysService {
         boardScanTypeDto.setSiteCode(scanPackageDto.getCurrentOperate().getSiteCode());
         boardScanTypeDto.setBizId(scanPackageDto.getBizId());
         if(BusinessUtil.isBoxcode(scanPackageDto.getScanCode())) {
-            boardScanTypeDto.setBoardType(CacheKeyConstants.BOARD_SCAN_TYPE_PACKAGE);
-        }else if(WaybillUtil.isPackageCode(scanPackageDto.getScanCode())) {
             boardScanTypeDto.setBoardType(CacheKeyConstants.BOARD_SCAN_TYPE_BOX);
+        }else if(WaybillUtil.isPackageCode(scanPackageDto.getScanCode())) {
+            boardScanTypeDto.setBoardType(CacheKeyConstants.BOARD_SCAN_TYPE_PACKAGE);
         }else {
             boardScanTypeDto.setBoardType(CacheKeyConstants.BOARD_SCAN_TYPE_ELSE);
         }
+        String msg = JsonUtils.toJSONString(boardScanTypeDto);
+        if(log.isInfoEnabled()) {
+            log.info("JyUnloadVehicleCheckTysService.setBoardTypeCache-转运卸车岗组板第一单信息redis缓存={}过期时间35天", msg);
+        }
         //卸车岗任务完成之后可扫包裹，无时间控制，该过期时间不宜过短
-        redisClientOfJy.setEx(cacheKey, JsonUtils.toJSONString(boardScanTypeDto), 35, TimeUnit.DAYS);
+        redisClientOfJy.setEx(cacheKey, msg, 35, TimeUnit.DAYS);
     }
 
     public BoardScanTypeDto getBoardTypeCache(Integer siteCode, String boardCode) {

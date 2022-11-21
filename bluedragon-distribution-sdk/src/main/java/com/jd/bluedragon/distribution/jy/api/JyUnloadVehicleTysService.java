@@ -216,4 +216,12 @@ public interface JyUnloadVehicleTysService {
     InvokeResult<FlowBoardDto> getTaskFlowBoardInfoByPackageCode(FlowBoardDto flowBoardDto);
 
 
+    /**
+     * 查转运卸车组板第一单信息
+     * @param siteCode
+     * @param boardCode
+     * @return
+     */
+    BoardScanTypeDto getBoardTypeCache(Integer siteCode, String boardCode);
+
 }

@@ -125,6 +125,9 @@ public class BoardCombinationRouterFilter implements Filter {
                     siteCode = siteService.getLastScheduleSite(request.getWaybillCache().getWaybillCode());
                 }
                 if(!siteCode.equals(receiveSiteCode)){
+                    if(logger.isInfoEnabled()) {
+                        logger.info("组板目的地与此订单预分拣站点不一致，是否继续:waybillCode={},预分拣站点={},下一流向={}", waybillCode, siteCode, receiveSiteCode);
+                    }
                     throw new SortingCheckException(SortingResponse.CODE_CROUTER_ERROR,SortingResponse.MESSAGE_BOARD_ERROR);
                 }
             }

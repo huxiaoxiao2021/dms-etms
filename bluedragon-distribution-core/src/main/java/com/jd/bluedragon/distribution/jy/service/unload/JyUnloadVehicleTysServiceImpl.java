@@ -1741,4 +1741,11 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         return invokeResult;
     }
 
+
+
+    @Override
+    public BoardScanTypeDto getBoardTypeCache(Integer siteCode, String boardCode) {
+        return jyUnloadVehicleCheckTysService.getBoardTypeCache(siteCode, boardCode);
+    }
+
 }
