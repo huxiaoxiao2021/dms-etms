@@ -3,6 +3,8 @@
 <mapper namespace="com.jd.bluedragon.distribution.jy.dao.comboard.JyComboardAggsDao">
   <resultMap id="BaseResultMap" type="com.jd.bluedragon.distribution.jy.comboard.JyComboardAggsEntity">
     <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="operate_site_id" jdbcType="INTEGER" property="operateSiteId" />
+    <result column="receive_site_id" jdbcType="INTEGER" property="receiveSiteId" />
     <result column="send_flow" jdbcType="VARCHAR" property="sendFlow" />
     <result column="biz_id" jdbcType="VARCHAR" property="bizId" />
     <result column="board_code" jdbcType="VARCHAR" property="boardCode" />
@@ -19,7 +21,7 @@
     <result column="ts" jdbcType="TIMESTAMP" property="ts" />
   </resultMap>
   <sql id="Base_Column_List">
-    id, send_flow, biz_id, board_code, product_type, scan_type, scanned_count, board_count, 
+    id,operate_site_id,receive_site_id, send_flow, biz_id, board_code, product_type, scan_type, scanned_count, board_count,
     more_scanned_count, intercept_count, wait_scan_count, create_time, update_time, yn, 
     ts
   </sql>
@@ -34,13 +36,13 @@
     where id = #{id,jdbcType=BIGINT}
   </delete>
   <insert id="insert" parameterType="com.jd.bluedragon.distribution.jy.comboard.JyComboardAggsEntity">
-    insert into jy_comboard_aggs (id, send_flow, biz_id, 
+    insert into jy_comboard_aggs (id,operate_site_id,receive_site_id, send_flow, biz_id,
       board_code, product_type, scan_type, 
       scanned_count, board_count, more_scanned_count, 
       intercept_count, wait_scan_count, create_time, 
       update_time, yn, ts)
-    values (#{id,jdbcType=BIGINT}, #{sendFlow,jdbcType=VARCHAR}, #{bizId,jdbcType=VARCHAR}, 
-      #{boardCode,jdbcType=VARCHAR}, #{productType,jdbcType=VARCHAR}, #{scanType,jdbcType=TINYINT}, 
+    values (#{id,jdbcType=BIGINT},#{operateSiteId,jdbcType=INTEGER}, #{receiveSiteId,jdbcType=INTEGER},  #{sendFlow,jdbcType=VARCHAR},
+            #{bizId,jdbcType=VARCHAR},#{boardCode,jdbcType=VARCHAR}, #{productType,jdbcType=VARCHAR}, #{scanType,jdbcType=TINYINT},
       #{scannedCount,jdbcType=INTEGER}, #{boardCount,jdbcType=INTEGER}, #{moreScannedCount,jdbcType=INTEGER}, 
       #{interceptCount,jdbcType=INTEGER}, #{waitScanCount,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP}, 
       #{updateTime,jdbcType=TIMESTAMP}, #{yn,jdbcType=BIT}, #{ts,jdbcType=TIMESTAMP})
@@ -50,6 +52,12 @@
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
         id,
+      </if>
+      <if test="operateSiteId != null">
+        operate_site_id,
+      </if>
+      <if test="receiveSiteId != null">
+        receive_site_id,
       </if>
       <if test="sendFlow != null">
         send_flow,
@@ -98,6 +106,12 @@
       <if test="id != null">
         #{id,jdbcType=BIGINT},
       </if>
+      <if test="operateSiteId != null">
+        #{operateSiteId,jdbcType=INTEGER},
+      </if>
+      <if test="receiveSiteId != null">
+        #{receiveSiteId,jdbcType=INTEGER},
+      </if>
       <if test="sendFlow != null">
         #{sendFlow,jdbcType=VARCHAR},
       </if>
@@ -145,6 +159,12 @@
   <update id="updateByPrimaryKeySelective" parameterType="com.jd.bluedragon.distribution.jy.comboard.JyComboardAggsEntity">
     update jy_comboard_aggs
     <set>
+      <if test="operateSiteId != null">
+        operate_site_id = #{operateSiteId,jdbcType=INTEGER},
+      </if>
+      <if test="receiveSiteId != null">
+        receive_site_id = #{receiveSiteId,jdbcType=INTEGER},
+      </if>
       <if test="sendFlow != null">
         send_flow = #{sendFlow,jdbcType=VARCHAR},
       </if>
@@ -192,7 +212,9 @@
   </update>
   <update id="updateByPrimaryKey" parameterType="com.jd.bluedragon.distribution.jy.comboard.JyComboardAggsEntity">
     update jy_comboard_aggs
-    set send_flow = #{sendFlow,jdbcType=VARCHAR},
+    set operate_site_id = #{operateSiteId,jdbcType=INTEGER},
+        receive_site_id = #{receiveSiteId,jdbcType=INTEGER},
+        send_flow = #{sendFlow,jdbcType=VARCHAR},
       biz_id = #{bizId,jdbcType=VARCHAR},
       board_code = #{boardCode,jdbcType=VARCHAR},
       product_type = #{productType,jdbcType=VARCHAR},
@@ -208,4 +230,35 @@
       ts = #{ts,jdbcType=TIMESTAMP}
     where id = #{id,jdbcType=BIGINT}
   </update>
+  <select id="queryComboardAggs" >
+    select
+    <include refid="Base_Column_List" />
+    from jy_comboard_aggs
+    <where>
+        <if test="operateSiteId != null">
+            and operate_site_id = #{operateSiteId,jdbcType=INTEGER}
+        </if>
+        <if test="receiveSiteId != null">
+            and receive_site_id = #{receiveSiteId,jdbcType=INTEGER}
+        </if>
+        <if test="bizId != null">
+            and biz_id = #{bizId,jdbcType=VARCHAR}
+        </if>
+        <if test="boardCode != null">
+            and board_code = #{boardCode,jdbcType=VARCHAR}
+        </if>
+        <if test="productType != null">
+            and product_type = #{productType,jdbcType=VARCHAR}
+        </if>
+        <if test="scanType != null">
+            and scan_type = #{scanType,jdbcType=TINYINT}
+        </if>
+        <if test="productTypes != null">
+          and product_type in (#{productTypes,jdbcType=VARCHAR})
+        </if>
+        <if test="scanTypes != null">
+          and scan_type = #{scanTypes,jdbcType=TINYINT}
+        </if>
+    </where>
+  </select>
 </mapper>

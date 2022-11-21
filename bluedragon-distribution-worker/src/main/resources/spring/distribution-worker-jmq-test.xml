@@ -458,6 +458,10 @@
         <jmq:listener topic="${jmq.topic.packageRePrintProducer}" listener="packageCodePrintConsumer"/>
     </jmq:consumer>
 
+    <!--  组板发货岗统计消息  -->
+    <jmq:consumer id="jmq.packageCodePrintConsumer" transport="jmq.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.jy.aggs}" listener="jyAggsConsumer"/>
+    </jmq:consumer>
 
     <!--  车辆到达消息处理  -->
     <jmq:consumer id="jmq.sendCarArriveStatusConsumer" transport="jmq4.dmsWorker.transport">
