@@ -444,23 +444,6 @@ function existSubmit(insertParam,removeFailData,removeIndex){
                     return;
                 }
 
-                /*校验密度*/
-                if( (weight/cbm < CBM_DIV_KG_MIN_LIMIT) || (weight/cbm > CBM_DIV_KG_MAX_LIMIT) ) {
-                    var messageBodyStr = '重泡比超过正常范围168:1到330:1，请确认是否强制录入';
-
-                    $.messager.confirm('请您仔细确认',messageBodyStr
-                        ,function(confirmFlag){
-                            if(confirmFlag == true){
-                                /*提交业务流程*/
-                                doAddProgressFunc();
-                                return;
-                            }else {
-                                return;
-                            }
-                        }
-                    );
-                    return;
-                }
                 /*提交业务流程*/
                 doAddProgressFunc();
             }

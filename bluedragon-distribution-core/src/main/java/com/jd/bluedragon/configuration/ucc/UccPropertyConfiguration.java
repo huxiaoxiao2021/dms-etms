@@ -941,6 +941,11 @@ public class UccPropertyConfiguration {
      */
     private String clientOfflineMenuConfig;
 
+    /**
+     * 称重量方的规则一直在变化，为了有一个版本的切换过程，这里加一个开关，
+     */
+    private Integer weightVolumeSwitchVersion;
+
     public String getScheduleSiteCheckSameCity() {
         return scheduleSiteCheckSameCity;
     }
@@ -2235,5 +2240,14 @@ public class UccPropertyConfiguration {
 
     public void setWaybillWeightLimit(String waybillWeightLimit) {
         this.waybillWeightLimit = waybillWeightLimit;
+    }
+
+
+    public Integer getWeightVolumeSwitchVersion() {
+        return weightVolumeSwitchVersion;
+    }
+
+    public void setWeightVolumeSwitchVersion(Integer weightVolumeSwitchVersion) {
+        this.weightVolumeSwitchVersion = weightVolumeSwitchVersion;
     }
 }

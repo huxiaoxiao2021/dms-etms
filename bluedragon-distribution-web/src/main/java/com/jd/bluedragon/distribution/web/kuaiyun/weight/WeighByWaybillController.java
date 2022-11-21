@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.web.kuaiyun.weight;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.api.Response;
@@ -86,6 +87,9 @@ public class WeighByWaybillController extends DmsBaseController {
 
     @Autowired
     WaybillQueryManager waybillQueryManager;
+
+    @Autowired
+    private UccPropertyConfiguration uccPropertyConfiguration;
 
     /**
      * 拦截报表服务
@@ -559,7 +563,7 @@ public class WeighByWaybillController extends DmsBaseController {
             }
 
             //校验重泡比
-            if(!BusinessHelper.checkWaybillWeightAndVolume(waybillWeightVO.getWeight(),waybillWeightVO.getVolume())){
+            if(uccPropertyConfiguration.getWeightVolumeSwitchVersion() == 0 && !BusinessHelper.checkWaybillWeightAndVolume(waybillWeightVO.getWeight(),waybillWeightVO.getVolume())){
                 //没通过
                 waybillWeightVO.setErrorMessage(Constants.CBM_DIV_KG_MESSAGE);
                 waybillWeightVO.setErrorCode(Constants.CBM_DIV_KG_CODE);
@@ -638,39 +642,16 @@ public class WeighByWaybillController extends DmsBaseController {
     @RequestMapping("/checkIsExcess")
     public InvokeResult checkIsExcess(@QueryParam("codeStr") String codeStr,
                                                @QueryParam("weight") String weight,@QueryParam("volume") String volume){
-        InvokeResult result = new InvokeResult();
-
-        if(StringUtils.isEmpty(codeStr) || StringUtils.isEmpty(weight)
-                || StringUtils.isEmpty(volume)){
-            result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
-            result.setMessage(InvokeResult.PARAM_ERROR);
+        if (uccPropertyConfiguration.getWeightVolumeSwitchVersion() == 0) {
+            return service.checkIsExcess(codeStr, weight, volume);
+        } else if (uccPropertyConfiguration.getWeightVolumeSwitchVersion() == 1) {
+            InvokeResult result = service.checkIsExcessNew(codeStr, weight, volume);
+            if (InvokeResult.CODE_CONFIRM.equals(result.getCode())) {
+                result.setCode(EXCESS_CODE);
+            }
             return result;
         }
-        try{
-            if(WaybillUtil.isWaybillCode(codeStr)){
-                int packNum = 0;
-                BaseEntity<BigWaybillDto> entity = waybillQueryManager.getDataByChoice(codeStr, true, true, true, false);
-                if(entity!= null && entity.getData() != null && entity.getData().getWaybill() != null){
-                    packNum = entity.getData().getWaybill().getGoodNumber() == null?0:entity.getData().getWaybill().getGoodNumber();
-                    if(Double.parseDouble(weight) > 200*packNum || Double.parseDouble(volume) > packNum){
-                        result.setCode(EXCESS_CODE);
-                        result.setMessage(WAYBILL_WEIGHT_VOLUME_EXCESS_HIT);
-                    }
-                }else{
-                    result.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
-                    result.setMessage("运单信息为空!");
-                }
-            }else{
-                if(Double.parseDouble(weight) > 200 || Double.parseDouble(volume) > 1){
-                    result.setCode(EXCESS_CODE);
-                    result.setMessage(PACKAGE_WEIGHT_VOLUME_EXCESS_HIT);
-                }
-            }
-        }catch (Exception e){
-            this.log.error("通过运单号:{}获取运单信息失败!",codeStr, e);
-        }
-
-        return result;
+        return new InvokeResult();
     }
 
 

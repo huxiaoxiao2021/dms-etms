@@ -18,6 +18,7 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BeanHelper;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.report.weightVolumeFlow.WeightVolumeFlowJSFService;
@@ -84,7 +85,6 @@ public abstract class AbstractWeightVolumeHandler implements IWeightVolumeHandle
         WeightVolumeFlowEntity weightVolumeEntity = new WeightVolumeFlowEntity();
         BeanHelper.copyProperties(weightVolumeEntity, entity);
         weightVolumeFlowJSFService.recordWeightVolumeFlow(weightVolumeEntity);
-
     }
 
     @Override
@@ -107,7 +107,11 @@ public abstract class AbstractWeightVolumeHandler implements IWeightVolumeHandle
                 return result;
             }
             // 校验处理
-            weightVolumeRuleCheckHandler(weightVolumeContext, result);
+            if (uccPropertyConfiguration.getWeightVolumeSwitchVersion() == 0) {
+                weightVolumeRuleCheckHandler(weightVolumeContext, result);
+            } else if (uccPropertyConfiguration.getWeightVolumeSwitchVersion() == 1 && !WeightVolumeBusinessTypeEnum.BY_BOX.name().equals(condition.getBusinessType())) {
+                weightVolumeRuleCheckHandlerNew(weightVolumeContext, result);
+            }
         }catch (Exception e){
             // 为了不影响前台正常操作，异常只记录错误日志，但是返回成功
             logger.error("根据条件：{}校验称重量方规则异常!", JsonHelper.toJson(condition));
@@ -213,6 +217,24 @@ public abstract class AbstractWeightVolumeHandler implements IWeightVolumeHandle
 
     protected abstract void weightVolumeRuleCheckHandler(WeightVolumeContext weightVolumeContext,InvokeResult<Boolean> result);
 
+    /**
+     * 新的称重量方的判断标准，区别于<code>#weightVolumeRuleCheckHandler</code>
+     * 需要新老版本的切换开关
+     * @param weightVolumeContext
+     * @param result
+     */
+    protected void weightVolumeRuleCheckHandlerNew(WeightVolumeContext weightVolumeContext,InvokeResult<Boolean> result) {
+        if(!WeightVolumeBusinessTypeEnum.BY_BOX.name().equals(weightVolumeContext.getBusinessType())
+                && commonCheckIntercept(weightVolumeContext, result)){
+            return;
+        }
+        if(weightVolumeContext.getWaybill() != null && BusinessUtil.isCInternet(weightVolumeContext.getWaybill().getWaybillSign())){
+            checkCInternetRuleNew(weightVolumeContext, result);
+        }
+        if (weightVolumeContext.getWaybill() != null && BusinessUtil.isWeightVolumeB(weightVolumeContext.getWaybill().getWaybillSign())) {
+            checkBInternetRuleNew(weightVolumeContext, result);
+        }
+    }
 
     protected abstract void basicVerification(WeightVolumeContext weightVolumeContext, InvokeResult<Boolean> result);
 
@@ -353,6 +375,123 @@ public abstract class AbstractWeightVolumeHandler implements IWeightVolumeHandle
             confirmMessage.append(String.format(WeightVolumeRuleConstant.RESULT_SPECIAL_MESSAGE_CONFIRM_B_3,
                     foamWeightRatioConfirmFloorB,foamWeightRatioConfirmCeilingB));
         }
+        // 设置提示结尾提示语
+        setEndConfirmMessage(confirmMessage,result);
+    }
+
+    /**
+     * C网特殊规则校验
+     *  hit：长宽高和体积可能不存在
+     * @param weightVolumeContext
+     * @param result
+     */
+    protected void checkCInternetRuleNew(WeightVolumeContext weightVolumeContext, InvokeResult<Boolean> result){
+        double length = weightVolumeContext.getLength();
+        double width = weightVolumeContext.getWidth();
+        double height = weightVolumeContext.getHeight();
+        Double volume = weightVolumeContext.getVolume();
+        if (!NumberHelper.gt0(volume)) {
+            volume = !NumberHelper.gt0(height) || !NumberHelper.gt0(width) || !NumberHelper.gt0(length)?
+                    0 : length * width * height;
+        }
+        double weight = NumberHelper.gt0(weightVolumeContext.getWeight())? weightVolumeContext.getWeight() : 0;
+
+        // 确认提示信息
+        StringBuilder confirmMessage = new StringBuilder();
+        // C网包裹维度的校验
+        if (WeightVolumeBusinessTypeEnum.BY_PACKAGE.name().equals(weightVolumeContext.getBusinessType())) {
+            // 强卡控：包裹维度校验-单边大于1.5m，单包裹大于200KG
+            if (length > WeightVolumeRuleConstant.SIDE_MAX_LENGTH_C_1 || height > WeightVolumeRuleConstant.SIDE_MAX_LENGTH_C_1 || width > WeightVolumeRuleConstant.SIDE_MAX_LENGTH_C_1
+                    || weight > WeightVolumeRuleConstant.WEIGHT_MAX_LIMIT_C_1) {
+                result.parameterError(WeightVolumeRuleConstant.RESULT_SPECIAL_MESSAGE_FORCE_C);
+                result.setData(Boolean.FALSE);
+                return;
+            }
+
+            // 弱卡控：单包裹超30KG
+            if (weight > WeightVolumeRuleConstant.PACKAGE_WEIGHT_MAX_LIMIT_C) {
+                setNextRowChar(confirmMessage);
+                confirmMessage.append(WeightVolumeRuleConstant.RESULT_SPECIAL_MESSAGE_CONFIRM_C_5);
+            }
+            // 弱卡控：体积（cm³）除以重量（kg）大于25000小于300
+            if (volume > WeightVolumeRuleConstant.FOAM_WEIGHT_RATIO_C_1 * weight
+                    || volume < WeightVolumeRuleConstant.FOAM_WEIGHT_RATIO_C_2 * weight) {
+                result.confirmMessage(WeightVolumeRuleConstant.RESULT_SPECIAL_MESSAGE_CONFIRM_C_5);
+                result.setData(Boolean.FALSE);
+            }
+        }
+
+        // C网运单维度的校验
+        if (WeightVolumeBusinessTypeEnum.BY_WAYBILL.name().equals(weightVolumeContext.getBusinessType())) {
+            // 强卡控：运单维度校验-运单体积超过2m³，整个运单大于5000KG；禁止揽收
+            if (weight > WeightVolumeRuleConstant.WAYBILL_WEIGHT_MAX_LIMIT_C
+                    || volume > WeightVolumeRuleConstant.WAYBILL_VOLUME_MAX_LIMIT_C * WeightVolumeRuleConstant.CM3_M3_MAGNIFICATION) {
+                result.parameterError(WeightVolumeRuleConstant.RESULT_SPECIAL_MESSAGE_FORCE_C);
+                result.setData(Boolean.FALSE);
+                return;
+            }
+        }
+
+        // 设置提示结尾提示语
+        setEndConfirmMessage(confirmMessage,result);
+    }
+
+    /**
+     * B网特殊规则校验
+     *  hit：长宽高和体积可能不存在
+     * @param weightVolumeContext
+     * @param result
+     */
+    protected void checkBInternetRuleNew(WeightVolumeContext weightVolumeContext,InvokeResult<Boolean> result){
+        double length = weightVolumeContext.getLength();
+        double width = weightVolumeContext.getWidth();
+        double height = weightVolumeContext.getHeight();
+        Double volume = weightVolumeContext.getVolume();
+        if (!NumberHelper.gt0(volume)) {
+            volume = !NumberHelper.gt0(height) || !NumberHelper.gt0(width) || !NumberHelper.gt0(length)?
+                    0 : length * width * height;
+        }
+        double weight = NumberHelper.gt0(weightVolumeContext.getWeight())? weightVolumeContext.getWeight() : 0;
+
+
+        // 确认提示信息
+        StringBuilder confirmMessage = new StringBuilder();
+
+        //弱卡控：1. 重泡比校验： 重体录入不合规提醒：录入的体积（m³）除以重量（kg）大于0.2或者小于0.0005时，此处有体积单位换算
+        if (volume > WeightVolumeRuleConstant.FOAM_WEIGHT_RATIO_B_1 * weight || volume < WeightVolumeRuleConstant.FOAM_WEIGHT_RATIO_B_2 * weight) {
+            setNextRowChar(confirmMessage);
+            confirmMessage.append(WeightVolumeRuleConstant.RESULT_SPECIAL_MESSAGE_CONFIRM_B_4);
+        }
+
+        // B网包裹维度的称重校验逻辑
+        if (WeightVolumeBusinessTypeEnum.BY_PACKAGE.name().equals(weightVolumeContext.getBusinessType())) {
+            // 包裹维度-单体积超过27m³禁止揽收；超500KG禁止称重
+            if (volume > WeightVolumeRuleConstant.PACKAGE_MAX_VOLUME_B * WeightVolumeRuleConstant.CM3_M3_MAGNIFICATION) {
+                result.parameterError(WeightVolumeRuleConstant.RESULT_SPECIAL_MESSAGE_FORCE_B_4);
+                result.setData(Boolean.FALSE);
+                return;
+            }
+            if (weight > WeightVolumeRuleConstant.PACKAGE_MAX_WEIGHT_B) {
+                result.parameterError(WeightVolumeRuleConstant.RESULT_SPECIAL_MESSAGE_FORCE_B_4);
+                result.setData(Boolean.FALSE);
+                return;
+            }
+        }
+
+        if (WeightVolumeBusinessTypeEnum.BY_WAYBILL.name().equals(weightVolumeContext.getBusinessType())) {
+            // 强卡控：运单维度-体积超过100m³或者重量超过10000kg
+            if (volume > WeightVolumeRuleConstant.WAYBILL_MAX_VOLUME_B * WeightVolumeRuleConstant.CM3_M3_MAGNIFICATION) {
+                result.parameterError(WeightVolumeRuleConstant.RESULT_SPECIAL_MESSAGE_FORCE_B_4);
+                result.setData(Boolean.FALSE);
+                return;
+            }
+            if (weight > WeightVolumeRuleConstant.WAYBILL_MAX_WEIGHT_B) {
+                result.parameterError(WeightVolumeRuleConstant.RESULT_SPECIAL_MESSAGE_FORCE_B_4);
+                result.setData(Boolean.FALSE);
+                return;
+            }
+        }
+
         // 设置提示结尾提示语
         setEndConfirmMessage(confirmMessage,result);
     }
