@@ -23,6 +23,7 @@ import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.abnormal.domain.DmsOperateHintTrack;
 import com.jd.bluedragon.distribution.abnormal.service.DmsOperateHintService;
 import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.enums.OperatorTypeEnum;
 import com.jd.bluedragon.distribution.api.request.*;
 import com.jd.bluedragon.distribution.api.request.box.BoxReq;
 import com.jd.bluedragon.distribution.api.response.BoardResponse;
@@ -1912,6 +1913,8 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         sortDomain.setWaybillCode(SerialRuleUtil.getWaybillCode(domain.getBoxCode()));
         sortDomain.setReceiveSiteCode(domain.getReceiveSiteCode());
         sortDomain.setReceiveSiteName(receiveSiteName);
+        sortDomain.setOperatorTypeCode(domain.getOperatorTypeCode());
+        sortDomain.setOperatorId(domain.getOperatorId());        
         task.setBody(JsonHelper.toJson(new SortingRequest[]{sortDomain}));
         taskService.add(task, true);
         log.info("一车一单插入task_sorting单号:{}" , domain.getBoxCode());
@@ -5930,7 +5933,8 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         tTask.setOwnSign(ownSign);
         tTask.setKeyword1("5");//5 中转发货补全数据
         tTask.setFingerprint(Md5Helper.encode(domain.getBoxCode() + "_" + domain.getCreateSiteCode() + "_" + domain.getReceiveSiteCode() + "-" + tTask.getKeyword1()));
-
+        tTask.setOperatorTypeCode(domain.getOperatorTypeCode());
+        tTask.setOperatorId(domain.getOperatorId());        
         log.info("插入中转发车任务，箱号：{}，批次号：{}" ,domain.getBoxCode(), domain.getSendCode());
         return tTask;
     }
@@ -5990,7 +5994,12 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
                 tSendDetail.setExcuteTime(new Date());
                 tSendDetail.setExcuteCount(0);
                 tSendDetail.setOperateTime(task.getCreateTime());
-
+                tSendDetail.setOperatorTypeCode(task.getOperatorTypeCode());
+                tSendDetail.setOperatorId(task.getOperatorId());
+                if(sendM != null) {
+                    tSendDetail.setOperatorTypeCode(sendM.getOperatorTypeCode());
+                    tSendDetail.setOperatorId(sendM.getOperatorId());
+                }
                 if ((!tSendDetail.getBoxCode().equals(task.getBody())) && (!StringHelper.isEmpty(task.getBody())) && task.getBody().contains("-")) {
                     tSendDetail.setSendCode(task.getBody());
                     tSendDetail.setYn(1);
@@ -6844,7 +6853,9 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         }else{
             inspection.setPackageBarOrWaybillCode(domain.getBoxCode());
         }
-
+        inspection.setOperatorTypeCode(domain.getOperatorTypeCode());
+        inspection.setOperatorId(domain.getOperatorId());
+        
         TaskRequest request=new TaskRequest();
         request.setBusinessType(Constants.BUSSINESS_TYPE_POSITIVE);
         request.setKeyword1(String.valueOf(domain.getCreateUserCode()));

@@ -35,6 +35,14 @@ public class CurrentOperate implements Serializable {
      *分拣中心编码
      */
     private String dmsCode;
+    /**
+     * 登录记录Id
+     */
+    private Long loginId;
+    /**
+     * 岗位码编码
+     */
+    private String positionCode;
 
     public CurrentOperate() {
     }
@@ -92,4 +100,20 @@ public class CurrentOperate implements Serializable {
     public void setOrgName(String orgName) {
         this.orgName = orgName;
     }
+
+	public Long getLoginId() {
+		return loginId;
+	}
+
+	public void setLoginId(Long loginId) {
+		this.loginId = loginId;
+	}
+
+	public String getPositionCode() {
+		return positionCode;
+	}
+
+	public void setPositionCode(String positionCode) {
+		this.positionCode = positionCode;
+	}
 }
