@@ -16,7 +16,7 @@ public class JySendVehicleProductType implements Serializable {
     //产品类型名称
     private String productTypeName;
     //待扫数量
-    private Long count;
+    private Long productwaitScanCount;
 
     public String getProductType() {
         return productType;
@@ -34,11 +34,11 @@ public class JySendVehicleProductType implements Serializable {
         this.productTypeName = productTypeName;
     }
 
-    public Long getCount() {
-        return count;
+    public Long getProductwaitScanCount() {
+        return productwaitScanCount;
     }
 
-    public void setCount(Long count) {
-        this.count = count;
+    public void setProductwaitScanCount(Long productwaitScanCount) {
+        this.productwaitScanCount = productwaitScanCount;
     }
 }

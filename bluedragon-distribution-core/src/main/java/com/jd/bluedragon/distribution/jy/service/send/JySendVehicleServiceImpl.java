@@ -3047,7 +3047,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             result.setData(productTypeList);
             log.info("统计待扫产品类型和包裹总数入参-{}", JSON.toJSONString(request));
             List<JySendVehicleProductType> sendVehicleProductTypeList = jySendProductAggsService.getSendVehicleProductTypeList(request.getSendVehicleBizId());
-            log.info("统计待扫产品类型和包裹总数结果-{}",JSON.toJSONString(request));
+            log.info("统计待扫产品类型和包裹总数结果-{}",JSON.toJSONString(sendVehicleProductTypeList));
             if (CollectionUtils.isEmpty(sendVehicleProductTypeList)) {
                 return result;
             }
@@ -3111,7 +3111,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             SendVehicleProductTypeAgg item = new SendVehicleProductTypeAgg();
             item.setProductType(aggEntity.getProductType());
             item.setProductTypeName(UnloadProductTypeEnum.getNameByCode(item.getProductType()));
-            item.setCount(new Long(aggEntity.getCount()));
+            item.setCount(new Long(aggEntity.getProductwaitScanCount()));
             productTypeList.add(item);
         }
     }
