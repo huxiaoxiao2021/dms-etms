@@ -2,6 +2,10 @@ package com.jd.bluedragon.distribution.jy.dao.comboard;
 
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.jy.comboard.JyComboardAggsEntity;
+import com.jd.bluedragon.distribution.jy.dto.comboard.JyComboardAggsDto;
+import com.jd.bluedragon.distribution.jy.service.comboard.JyComboardAggsCondition;
+
+import java.util.List;
 
 public class JyComboardAggsDao extends BaseDao<JyComboardAggsEntity> {
     private final static String NAMESPACE = JyComboardAggsDao.class.getName();
@@ -24,5 +28,9 @@ public class JyComboardAggsDao extends BaseDao<JyComboardAggsEntity> {
     }
     public int updateByPrimaryKey(JyComboardAggsEntity record) {
         return this.getSqlSession().update(NAMESPACE + ".deleteByPrimaryKey", record);
+    }
+
+    public List<JyComboardAggsEntity> queryComboardAggs(JyComboardAggsCondition comboardAggsCondition) {
+        return this.getSqlSession().selectList(NAMESPACE + ".queryComboardAggs", comboardAggsCondition);
     }
 }

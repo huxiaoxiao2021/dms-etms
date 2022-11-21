@@ -5,6 +5,10 @@ import java.util.Date;
 public class JyComboardAggsEntity {
     private Long id;
 
+    private Integer operateSiteId;
+
+    private Integer receiveSiteId;
+
     private String sendFlow;
 
     private String bizId;
@@ -32,6 +36,22 @@ public class JyComboardAggsEntity {
     private Boolean yn;
 
     private Date ts;
+
+    public Integer getOperateSiteId() {
+        return operateSiteId;
+    }
+
+    public void setOperateSiteId(Integer operateSiteId) {
+        this.operateSiteId = operateSiteId;
+    }
+
+    public Integer getReceiveSiteId() {
+        return receiveSiteId;
+    }
+
+    public void setReceiveSiteId(Integer receiveSiteId) {
+        this.receiveSiteId = receiveSiteId;
+    }
 
     public Long getId() {
         return id;
