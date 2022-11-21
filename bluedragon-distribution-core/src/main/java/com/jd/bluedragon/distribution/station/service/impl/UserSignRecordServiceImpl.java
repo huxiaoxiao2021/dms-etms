@@ -810,10 +810,8 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		signInData.setRefStationKey(stationKey);
 		signInData.setUserName(signInData.getUserCode());
 		signInData.setModeType(signInRequest.getModeType());
-		// 获取最近一次签到记录
-		UserSignQueryRequest query = new UserSignQueryRequest();
-		query.setUserCode(signInRequest.getUserCode());
-		Integer waveCode = calculateWave(userSignRecordDao.queryLastUserSignRecordData(query));
+		// 计算班次
+		Integer waveCode = calculateWave(signInRequest);
 		signInData.setWaveCode(waveCode);
 		signInData.setWaveName(WaveTypeEnum.getNameByCode(waveCode));
 		signInData.setRefPlanKey(queryPlanKey(signInData));
@@ -880,11 +878,10 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 	 * 		2、6<h<=12: 如果当天0-6未签到过则为白班，签到过则为晚班
 	 * 		3、12<h<=18: 如果当天6-12未签到过则为中班，签到过则为白班
 	 * 		4、18<h<=24: 如果当天12-18未签到过则为晚班，签到过则为中班
-	 * @param lastSignRecord
+	 * @param signInRequest
 	 * @return
 	 */
-	private Integer calculateWave(UserSignRecordData lastSignRecord) {
-		Date lastSignInTime = lastSignRecord == null ? null : lastSignRecord.getSignInTime() == null ? null : lastSignRecord.getSignInTime();
+	private Integer calculateWave(UserSignRequest signInRequest) {
 		// 当前时间
 		Date currentDate = new Date();
 		long currentTime = currentDate.getTime();
@@ -897,27 +894,35 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		// 昨天零点、18、24
 		long yesterdayZero = DateHelper.getZero(DateHelper.addDate(currentDate, -1));
 		long yesterdayZeroAdd18 = DateHelper.add(new Date(yesterdayZero), Calendar.HOUR_OF_DAY, 18).getTime();
+		// 按规则判断
+		UserSignQueryRequest query = new UserSignQueryRequest();
+		query.setSiteCode(signInRequest.getSiteCode());
+		query.setUserCode(signInRequest.getUserCode());
 		if(currentZero < currentTime && currentTime <= currentZeroAdd6){
-			if(lastSignInTime == null ||
-					!(lastSignInTime.getTime() > yesterdayZeroAdd18 && lastSignInTime.getTime() <= currentZero)){
+			query.setSignInTimeStart(new Date(yesterdayZeroAdd18));
+			query.setSignInTimeEnd(new Date(currentZero));
+			if(userSignRecordDao.queryLastUserSignRecordData(query) == null){
 				return WaveTypeEnum.DAY.getCode();
 			}
 			return WaveTypeEnum.NIGHT.getCode();
 		}else if (currentZeroAdd6 < currentTime && currentTime <= currentZeroAdd12){
-			if(lastSignInTime == null ||
-					!(lastSignInTime.getTime() > currentZero && lastSignInTime.getTime() <= currentZeroAdd6)){
+			query.setSignInTimeStart(new Date(currentZero));
+			query.setSignInTimeEnd(new Date(currentZeroAdd6));
+			if(userSignRecordDao.queryLastUserSignRecordData(query) == null){
 				return WaveTypeEnum.DAY.getCode();
 			}
 			return WaveTypeEnum.NIGHT.getCode();
 		}else if(currentZeroAdd12 < currentTime && currentTime <= currentZeroAdd18){
-			if(lastSignInTime == null ||
-					!(lastSignInTime.getTime() > currentZeroAdd6 && lastSignInTime.getTime() <= currentZeroAdd12)){
+			query.setSignInTimeStart(new Date(currentZeroAdd6));
+			query.setSignInTimeEnd(new Date(currentZeroAdd12));
+			if(userSignRecordDao.queryLastUserSignRecordData(query) == null){
 				return WaveTypeEnum.MIDDLE.getCode();
 			}
 			return WaveTypeEnum.DAY.getCode();
 		}else if(currentZeroAdd18 < currentTime && currentTime <= currentZeroAdd24){
-			if(lastSignInTime == null ||
-					!(lastSignInTime.getTime() > currentZeroAdd12 && lastSignInTime.getTime() <= currentZeroAdd18)){
+			query.setSignInTimeStart(new Date(currentZeroAdd12));
+			query.setSignInTimeEnd(new Date(currentZeroAdd18));
+			if(userSignRecordDao.queryLastUserSignRecordData(query) == null){
 				return WaveTypeEnum.NIGHT.getCode();
 			}
 			return WaveTypeEnum.MIDDLE.getCode();
