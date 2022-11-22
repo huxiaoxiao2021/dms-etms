@@ -162,6 +162,7 @@
 		<property name="restApiOuthSwitch" value="${restApiOuthSwitch:true}"/>
 		<property name="needInterceptUrls" value="${needInterceptUrls:*}"/>
 		<property name="notSignedOutRecordMoreThanHours" value="${notSignedOutRecordMoreThanHours:-1}"/>
+		<property name="notSignedOutRecordRangeHours" value="${notSignedOutRecordRangeHours:12}"/>
 		<property name="spotCheckReformSiteCodes" value="${spotCheckReformSiteCodes:true}"/>
 		<property name="aiDistinguishSwitch" value="${aiDistinguishSwitch:true}"/>
 		<property name="deviceAIDistinguishSwitch" value="${deviceAIDistinguishSwitch:910}"/>
@@ -344,6 +345,7 @@
 				<value>uccPropertyConfiguration.restApiOuthSwitch</value>
 				<value>uccPropertyConfiguration.needInterceptUrls</value>
 				<value>uccPropertyConfiguration.notSignedOutRecordMoreThanHours</value>
+				<value>uccPropertyConfiguration.notSignedOutRecordRangeHours</value>
 				<value>uccPropertyConfiguration.spotCheckReformSiteCodes</value>
 				<value>uccPropertyConfiguration.aiDistinguishSwitch</value>
 				<value>uccPropertyConfiguration.deviceAIDistinguishSwitch</value>
