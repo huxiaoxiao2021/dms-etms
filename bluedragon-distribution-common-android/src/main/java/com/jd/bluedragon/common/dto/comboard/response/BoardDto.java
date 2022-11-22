@@ -28,6 +28,12 @@ public class BoardDto implements Serializable {
      * 状态
      */
     private Integer status;
+    /**
+     * 板内件数
+     */
+    private Integer count;
+
+    private boolean bulkFlag;
 
     public String getBoardCode() {
         return boardCode;
@@ -75,5 +81,21 @@ public class BoardDto implements Serializable {
 
     public void setStatus(Integer status) {
         this.status = status;
+    }
+
+    public Integer getCount() {
+        return count;
+    }
+
+    public void setCount(Integer count) {
+        this.count = count;
+    }
+
+    public boolean getBulkFlag() {
+        return bulkFlag;
+    }
+
+    public void setBulkFlag(boolean bulkFlag) {
+        this.bulkFlag = bulkFlag;
     }
 }

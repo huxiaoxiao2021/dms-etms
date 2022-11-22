@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.jy.service.send;
 
 import com.jd.bluedragon.common.dto.comboard.response.BoardDto;
 import com.jd.bluedragon.common.dto.comboard.response.SendFlowDto;
+import com.jd.bluedragon.distribution.jy.comboard.JyBizTaskComboardEntity;
 
 /**
  * 分拣租板任务服务
@@ -14,4 +15,6 @@ public interface JyBizTaskComboardService {
    * @return
    */
   BoardDto queryInProcessBoard(SendFlowDto sendFlowDto);
+
+  boolean save(JyBizTaskComboardEntity entity);
 }

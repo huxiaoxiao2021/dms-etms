@@ -921,6 +921,19 @@ public class UccPropertyConfiguration {
      */
     private String clientOfflineMenuConfig;
 
+    /**
+     * 租板-板可组件数上限
+     */
+    private Integer jyComboardCountLimit;
+
+    public Integer getJyComboardCountLimit() {
+        return jyComboardCountLimit;
+    }
+
+    public void setJyComboardCountLimit(Integer jyComboardCountLimit) {
+        this.jyComboardCountLimit = jyComboardCountLimit;
+    }
+
     public String getScheduleSiteCheckSameCity() {
         return scheduleSiteCheckSameCity;
     }
