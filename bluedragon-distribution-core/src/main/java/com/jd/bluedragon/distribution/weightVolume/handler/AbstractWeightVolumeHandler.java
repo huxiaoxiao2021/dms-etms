@@ -401,9 +401,15 @@ public abstract class AbstractWeightVolumeHandler implements IWeightVolumeHandle
         // C网包裹维度的校验
         if (WeightVolumeBusinessTypeEnum.BY_PACKAGE.name().equals(weightVolumeContext.getBusinessType())) {
             // 强卡控：包裹维度校验-单边大于1.5m，单包裹大于200KG
-            if (length > WeightVolumeRuleConstant.SIDE_MAX_LENGTH_C_1 || height > WeightVolumeRuleConstant.SIDE_MAX_LENGTH_C_1 || width > WeightVolumeRuleConstant.SIDE_MAX_LENGTH_C_1
-                    || weight > WeightVolumeRuleConstant.WEIGHT_MAX_LIMIT_C_1) {
-                result.parameterError(WeightVolumeRuleConstant.RESULT_SPECIAL_MESSAGE_FORCE_C);
+            if (length > WeightVolumeRuleConstant.SIDE_MAX_LENGTH_C_1 || height > WeightVolumeRuleConstant.SIDE_MAX_LENGTH_C_1
+                    || width > WeightVolumeRuleConstant.SIDE_MAX_LENGTH_C_1) {
+                result.parameterError(String.format(WeightVolumeRuleConstant.RESULT_SPECIAL_MESSAGE_FORCE_PACKAGE_MAX_SIDE_C,
+                        keepDigitCompute(WeightVolumeRuleConstant.SIDE_MAX_LENGTH_C_1, WeightVolumeRuleConstant.CM_M_MAGNIFICATION, Constants.CONSTANT_NUMBER_TWO)));
+                result.setData(Boolean.FALSE);
+                return;
+            }
+            if (weight > WeightVolumeRuleConstant.WEIGHT_MAX_LIMIT_C_1) {
+                result.parameterError(String.format(WeightVolumeRuleConstant.RESULT_SPECIAL_MESSAGE_FORCE_PACKAGE_MAX_WEIGHT_C,WeightVolumeRuleConstant.WEIGHT_MAX_LIMIT_C_1));
                 result.setData(Boolean.FALSE);
                 return;
             }
@@ -411,12 +417,12 @@ public abstract class AbstractWeightVolumeHandler implements IWeightVolumeHandle
             // 弱卡控：单包裹超30KG
             if (weight > WeightVolumeRuleConstant.PACKAGE_WEIGHT_MAX_LIMIT_C) {
                 setNextRowChar(confirmMessage);
-                confirmMessage.append(WeightVolumeRuleConstant.RESULT_SPECIAL_MESSAGE_CONFIRM_C_5);
+                confirmMessage.append(WeightVolumeRuleConstant.RESULT_SPECIAL_MESSAGE_CONFIRM_C_6);
             }
             // 弱卡控：体积（cm³）除以重量（kg）大于25000小于300
             if (volume > WeightVolumeRuleConstant.FOAM_WEIGHT_RATIO_C_1 * weight
                     || volume < WeightVolumeRuleConstant.FOAM_WEIGHT_RATIO_C_2 * weight) {
-                result.confirmMessage(WeightVolumeRuleConstant.RESULT_SPECIAL_MESSAGE_CONFIRM_C_5);
+                result.confirmMessage(WeightVolumeRuleConstant.RESULT_SPECIAL_MESSAGE_CONFIRM_C_6);
                 result.setData(Boolean.FALSE);
             }
         }
@@ -424,9 +430,13 @@ public abstract class AbstractWeightVolumeHandler implements IWeightVolumeHandle
         // C网运单维度的校验
         if (WeightVolumeBusinessTypeEnum.BY_WAYBILL.name().equals(weightVolumeContext.getBusinessType())) {
             // 强卡控：运单维度校验-运单体积超过2m³，整个运单大于5000KG；禁止揽收
-            if (weight > WeightVolumeRuleConstant.WAYBILL_WEIGHT_MAX_LIMIT_C
-                    || volume > WeightVolumeRuleConstant.WAYBILL_VOLUME_MAX_LIMIT_C * WeightVolumeRuleConstant.CM3_M3_MAGNIFICATION) {
-                result.parameterError(WeightVolumeRuleConstant.RESULT_SPECIAL_MESSAGE_FORCE_C);
+            if (weight > WeightVolumeRuleConstant.WAYBILL_WEIGHT_MAX_LIMIT_C) {
+                result.parameterError(String.format(WeightVolumeRuleConstant.RESULT_SPECIAL_MESSAGE_FORCE_WAYBILL_MAX_WEIGHT_C,WeightVolumeRuleConstant.WAYBILL_WEIGHT_MAX_LIMIT_C));
+                result.setData(Boolean.FALSE);
+                return;
+            }
+            if (volume > WeightVolumeRuleConstant.WAYBILL_VOLUME_MAX_LIMIT_C * WeightVolumeRuleConstant.CM3_M3_MAGNIFICATION) {
+                result.parameterError(String.format(WeightVolumeRuleConstant.RESULT_SPECIAL_MESSAGE_FORCE_WAYBILL_MAX_VOLUME_C, WeightVolumeRuleConstant.WAYBILL_VOLUME_MAX_LIMIT_C));
                 result.setData(Boolean.FALSE);
                 return;
             }
@@ -460,19 +470,19 @@ public abstract class AbstractWeightVolumeHandler implements IWeightVolumeHandle
         //弱卡控：1. 重泡比校验： 重体录入不合规提醒：录入的体积（m³）除以重量（kg）大于0.2或者小于0.0005时，此处有体积单位换算
         if (volume > WeightVolumeRuleConstant.FOAM_WEIGHT_RATIO_B_1 * weight || volume < WeightVolumeRuleConstant.FOAM_WEIGHT_RATIO_B_2 * weight) {
             setNextRowChar(confirmMessage);
-            confirmMessage.append(WeightVolumeRuleConstant.RESULT_SPECIAL_MESSAGE_CONFIRM_B_4);
+            confirmMessage.append(WeightVolumeRuleConstant.RESULT_SPECIAL_MESSAGE_CONFIRM_B_5);
         }
 
         // B网包裹维度的称重校验逻辑
         if (WeightVolumeBusinessTypeEnum.BY_PACKAGE.name().equals(weightVolumeContext.getBusinessType())) {
             // 包裹维度-单体积超过27m³禁止揽收；超500KG禁止称重
             if (volume > WeightVolumeRuleConstant.PACKAGE_MAX_VOLUME_B * WeightVolumeRuleConstant.CM3_M3_MAGNIFICATION) {
-                result.parameterError(WeightVolumeRuleConstant.RESULT_SPECIAL_MESSAGE_FORCE_B_4);
+                result.parameterError(String.format(WeightVolumeRuleConstant.RESULT_SPECIAL_MESSAGE_FORCE_PACKAGE_MAX_WEIGHT_B, WeightVolumeRuleConstant.PACKAGE_MAX_VOLUME_B));
                 result.setData(Boolean.FALSE);
                 return;
             }
             if (weight > WeightVolumeRuleConstant.PACKAGE_MAX_WEIGHT_B) {
-                result.parameterError(WeightVolumeRuleConstant.RESULT_SPECIAL_MESSAGE_FORCE_B_4);
+                result.parameterError(String.format(WeightVolumeRuleConstant.RESULT_SPECIAL_MESSAGE_FORCE_PACKAGE_MAX_VOLUME_B, WeightVolumeRuleConstant.PACKAGE_MAX_WEIGHT_B));
                 result.setData(Boolean.FALSE);
                 return;
             }
@@ -481,12 +491,12 @@ public abstract class AbstractWeightVolumeHandler implements IWeightVolumeHandle
         if (WeightVolumeBusinessTypeEnum.BY_WAYBILL.name().equals(weightVolumeContext.getBusinessType())) {
             // 强卡控：运单维度-体积超过100m³或者重量超过10000kg
             if (volume > WeightVolumeRuleConstant.WAYBILL_MAX_VOLUME_B * WeightVolumeRuleConstant.CM3_M3_MAGNIFICATION) {
-                result.parameterError(WeightVolumeRuleConstant.RESULT_SPECIAL_MESSAGE_FORCE_B_4);
+                result.parameterError(String.format(WeightVolumeRuleConstant.RESULT_SPECIAL_MESSAGE_FORCE_WAYBILL_MAX_VOLUME_B, WeightVolumeRuleConstant.WAYBILL_MAX_VOLUME_B));
                 result.setData(Boolean.FALSE);
                 return;
             }
             if (weight > WeightVolumeRuleConstant.WAYBILL_MAX_WEIGHT_B) {
-                result.parameterError(WeightVolumeRuleConstant.RESULT_SPECIAL_MESSAGE_FORCE_B_4);
+                result.parameterError(String.format(WeightVolumeRuleConstant.RESULT_SPECIAL_MESSAGE_FORCE_WAYBILL_MAX_WEIGHT_B, WeightVolumeRuleConstant.WAYBILL_MAX_WEIGHT_B));
                 result.setData(Boolean.FALSE);
                 return;
             }
