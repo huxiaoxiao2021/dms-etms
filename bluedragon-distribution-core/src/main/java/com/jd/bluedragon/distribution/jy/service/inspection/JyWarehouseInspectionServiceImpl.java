@@ -26,6 +26,7 @@ import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.inspection.service.InspectionService;
+import com.jd.bluedragon.distribution.jy.constants.JyCacheKeyConstants;
 import com.jd.bluedragon.distribution.jy.constants.RedisHashKeyConstants;
 import com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadDao;
 import com.jd.bluedragon.distribution.jy.dto.unload.UnloadDetailCache;
@@ -145,11 +146,16 @@ public class JyWarehouseInspectionServiceImpl implements JyWarehouseInspectionSe
         logInfo("JyWarehouseInspectionServiceImpl.createNoTaskInspectionTask param {}", JsonHelper.toJson(request));
         Result<InspectionTaskDetail> result = Result.success();
 
+        // 0. base condition check
+        if (!checkParamCommon(request, result)) {
+            return result;
+        }
+        String cacheKey = this.genNewUnloadTaskKey(request.getGroupCode());
         try {
-            // 0. base condition check
-            if (!checkParamCommon(request, result)) {
-                return result;
+            if (redisClientOfJy.exists(cacheKey)) {
+                return result.toFail("任务创建中，请不要重复提交");
             }
+            redisClientOfJy.setEx(cacheKey, Constants.STRING_FLG_TRUE, JyCacheKeyConstants.JY_WAREHOUSE_INSPECTION_CREATE_LOCK_EXPIRED, JyCacheKeyConstants.JY_WAREHOUSE_INSPECTION_CREATE_LOCK_EXPIRED_UNIT);
             // 查询是否已有未完成任务，如果有，直接返回
             final InspectionCommonRequest inspectionCommonRequest = new InspectionCommonRequest();
             inspectionCommonRequest.setGroupCode(request.getGroupCode());
@@ -177,12 +183,17 @@ public class JyWarehouseInspectionServiceImpl implements JyWarehouseInspectionSe
             inspectionTaskDetail.setInterceptScanCount(0L);
             result.setData(inspectionTaskDetail);
 
-            // todo 更新任务缓存，当前岗位码已有未完成的验货任务
         } catch (Exception e) {
             log.error("JyWarehouseInspectionServiceImpl.createNoTaskInspectionTask error ",  e);
             result.toFail("接口异常");
+        }finally {
+            redisClientOfJy.del(cacheKey);
         }
         return result;
+    }
+
+    private String genNewUnloadTaskKey(String groupCode){
+        return String.format(JyCacheKeyConstants.JY_WAREHOUSE_INSPECTION_CREATE_LOCK);
     }
 
     private String getJyScheduleTaskId(String bizId) {
