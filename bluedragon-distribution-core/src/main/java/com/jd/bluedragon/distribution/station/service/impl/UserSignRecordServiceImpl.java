@@ -444,16 +444,19 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
         if (notSignedOutRecordMoreThanHours < 0) {
             return result;
         }
-        Date signInTimeStart = new Date(System.currentTimeMillis() - (long) (notSignedOutRecordMoreThanHours + 12) * 3600 * 1000);
-        Date signInTime = new Date(System.currentTimeMillis() - (long) notSignedOutRecordMoreThanHours * 3600 * 1000);
+        int notSignedOutRecordRangeHours = uccConfiguration.getNotSignedOutRecordRangeHours();
+        if(notSignedOutRecordRangeHours < 1) {
+        	
+        }
+        Date signInTimeEnd = DateHelper.addDate(new Date(), -notSignedOutRecordMoreThanHours);
+        Date signInTimeStart = DateHelper.addDate(signInTimeEnd,-notSignedOutRecordRangeHours);
         List<Long> toSignOutPks;
         Date now = new Date();
         int updateRows = 0;
-
-
+        log.info("自动签退数据扫描：{} - {}", DateHelper.formatDateTimeMs(signInTimeStart),DateHelper.formatDateTimeMs(signInTimeEnd));
         try {
             do {
-                toSignOutPks = userSignRecordDao.querySignInMoreThanSpecifiedTime(signInTimeStart,signInTime, 100);
+                toSignOutPks = userSignRecordDao.querySignInMoreThanSpecifiedTime(signInTimeStart,signInTimeEnd, 100);
 
                 if (CollectionUtils.isNotEmpty(toSignOutPks)) {
                     UserSignRecord updateData = new UserSignRecord();
