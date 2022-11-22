@@ -20,5 +20,7 @@ public interface JyComboardAggsService extends JyAggsService {
 
     public List<JyComboardAggsEntity> queryComboardAggs(Integer operateSiteId, Integer receiveSiteId, UnloadProductTypeEnum... productTypeEnums) throws Exception;
 
+    public List<JyComboardAggsEntity> queryComboardAggs(Integer operateSiteId, Integer receiveSiteId, String boardCode,UnloadProductTypeEnum... productTypeEnums) throws Exception;
+
 
 }

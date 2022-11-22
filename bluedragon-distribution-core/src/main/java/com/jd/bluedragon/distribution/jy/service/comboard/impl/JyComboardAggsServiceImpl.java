@@ -179,4 +179,11 @@ public class JyComboardAggsServiceImpl implements JyComboardAggsService {
         return jyComboardAggsEntities;
     }
 
+    @Override
+    public List<JyComboardAggsEntity> queryComboardAggs(Integer operateSiteId,
+        Integer receiveSiteId,
+        String boardCode, UnloadProductTypeEnum... productTypeEnums) throws Exception {
+        return null;
+    }
+
 }

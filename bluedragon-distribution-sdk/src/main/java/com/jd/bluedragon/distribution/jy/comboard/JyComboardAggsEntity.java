@@ -37,6 +37,10 @@ public class JyComboardAggsEntity {
 
     private Date ts;
 
+    private Integer packageScannedCount;
+
+    private Integer boxScannedCount;
+
     public Integer getOperateSiteId() {
         return operateSiteId;
     }
@@ -171,5 +175,21 @@ public class JyComboardAggsEntity {
 
     public void setTs(Date ts) {
         this.ts = ts;
+    }
+
+    public Integer getPackageScannedCount() {
+        return packageScannedCount;
+    }
+
+    public void setPackageScannedCount(Integer packageScannedCount) {
+        this.packageScannedCount = packageScannedCount;
+    }
+
+    public Integer getBoxScannedCount() {
+        return boxScannedCount;
+    }
+
+    public void setBoxScannedCount(Integer boxScannedCount) {
+        this.boxScannedCount = boxScannedCount;
     }
 }

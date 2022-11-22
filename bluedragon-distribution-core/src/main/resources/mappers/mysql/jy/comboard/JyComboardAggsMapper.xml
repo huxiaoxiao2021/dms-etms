@@ -19,14 +19,16 @@
     <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
     <result column="yn" jdbcType="BIT" property="yn" />
     <result column="ts" jdbcType="TIMESTAMP" property="ts" />
+    <result column="package_scanned_count" jdbcType="INTEGER" property="packageScannedCount" />
+    <result column="box_scanned_count" jdbcType="INTEGER" property="boxScannedCount" />
   </resultMap>
   <sql id="Base_Column_List">
     id,operate_site_id,receive_site_id, send_flow, biz_id, board_code, product_type, scan_type, scanned_count, board_count,
-    more_scanned_count, intercept_count, wait_scan_count, create_time, update_time, yn, 
-    ts
+    more_scanned_count, intercept_count, wait_scan_count, create_time, update_time, yn,
+    ts,package_scanned_count,box_scanned_count
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
-    select 
+    select
     <include refid="Base_Column_List" />
     from jy_comboard_aggs
     where id = #{id,jdbcType=BIGINT}
@@ -37,14 +39,14 @@
   </delete>
   <insert id="insert" parameterType="com.jd.bluedragon.distribution.jy.comboard.JyComboardAggsEntity">
     insert into jy_comboard_aggs (id,operate_site_id,receive_site_id, send_flow, biz_id,
-      board_code, product_type, scan_type, 
-      scanned_count, board_count, more_scanned_count, 
-      intercept_count, wait_scan_count, create_time, 
+      board_code, product_type, scan_type,
+      scanned_count, board_count, more_scanned_count,
+      intercept_count, wait_scan_count, create_time,
       update_time, yn, ts)
     values (#{id,jdbcType=BIGINT},#{operateSiteId,jdbcType=INTEGER}, #{receiveSiteId,jdbcType=INTEGER},  #{sendFlow,jdbcType=VARCHAR},
             #{bizId,jdbcType=VARCHAR},#{boardCode,jdbcType=VARCHAR}, #{productType,jdbcType=VARCHAR}, #{scanType,jdbcType=TINYINT},
-      #{scannedCount,jdbcType=INTEGER}, #{boardCount,jdbcType=INTEGER}, #{moreScannedCount,jdbcType=INTEGER}, 
-      #{interceptCount,jdbcType=INTEGER}, #{waitScanCount,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP}, 
+      #{scannedCount,jdbcType=INTEGER}, #{boardCount,jdbcType=INTEGER}, #{moreScannedCount,jdbcType=INTEGER},
+      #{interceptCount,jdbcType=INTEGER}, #{waitScanCount,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP},
       #{updateTime,jdbcType=TIMESTAMP}, #{yn,jdbcType=BIT}, #{ts,jdbcType=TIMESTAMP})
   </insert>
   <insert id="insertSelective" parameterType="com.jd.bluedragon.distribution.jy.comboard.JyComboardAggsEntity">
