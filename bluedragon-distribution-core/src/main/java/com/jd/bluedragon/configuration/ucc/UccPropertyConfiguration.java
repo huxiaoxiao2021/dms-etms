@@ -849,6 +849,11 @@ public class UccPropertyConfiguration {
      * 自动签退超过多少小时未签退的数据
      */
     private int notSignedOutRecordMoreThanHours;
+    
+    /**
+     * 自动签退查询数据-扫描小时数
+     */
+    private int notSignedOutRecordRangeHours = 12;
 
     /**
      * AI识别图片开关
@@ -2027,6 +2032,13 @@ public class UccPropertyConfiguration {
     public void setSendCodeEffectiveValidation(String sendCodeEffectiveValidation) {
         this.sendCodeEffectiveValidation = sendCodeEffectiveValidation;
     }
+	public int getNotSignedOutRecordRangeHours() {
+		return notSignedOutRecordRangeHours;
+	}
+
+	public void setNotSignedOutRecordRangeHours(int notSignedOutRecordRangeHours) {
+		this.notSignedOutRecordRangeHours = notSignedOutRecordRangeHours;
+	}
     public boolean getAiDistinguishSwitch() {
         return aiDistinguishSwitch;
     }

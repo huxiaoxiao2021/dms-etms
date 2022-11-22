@@ -766,6 +766,7 @@
             user_sign_record
         WHERE
             yn = 1
+        AND sign_in_time <![CDATA[ >= ]]> #{signInTimeStart,jdbcType=TIMESTAMP}
         AND sign_in_time <![CDATA[ < ]]> #{signInTime,jdbcType=TIMESTAMP}
         AND sign_out_time IS NULL
         LIMIT #{limit,jdbcType=INTEGER}
