@@ -445,8 +445,9 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
             return result;
         }
         int notSignedOutRecordRangeHours = uccConfiguration.getNotSignedOutRecordRangeHours();
+        //扫描范围不能小于1小时
         if(notSignedOutRecordRangeHours < 1) {
-        	
+        	notSignedOutRecordRangeHours = 1;
         }
         Date signInTimeEnd = DateHelper.addDate(new Date(), -notSignedOutRecordMoreThanHours);
         Date signInTimeStart = DateHelper.addDate(signInTimeEnd,-notSignedOutRecordRangeHours);
