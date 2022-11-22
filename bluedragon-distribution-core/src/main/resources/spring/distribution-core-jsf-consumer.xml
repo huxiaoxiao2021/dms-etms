@@ -1061,7 +1061,7 @@
     <jsf:consumer id="positionQueryBasicJsfService"
                   interface="com.jdl.basic.api.service.position.PositionQueryJsfService"
                   alias="${jsf.alias.jy_basic}"
-                  protocol="jsf"  timeout="${jsf.timeout.jy_basic}">
+                  protocol="jsf"  timeout="${jsf.jy_basic.timeout}">
         <jsf:parameter key="token" value="${jsf.jy_basic.token}" hide="true"/>
     </jsf:consumer>
     <!--  基础资料获取货区编码  -->

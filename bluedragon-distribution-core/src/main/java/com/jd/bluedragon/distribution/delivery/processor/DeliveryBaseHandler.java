@@ -10,6 +10,7 @@ import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
+import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.core.redis.service.RedisManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.box.BoxReq;
@@ -42,6 +43,7 @@ import com.jd.jim.cli.Cluster;
 import com.jd.jmq.common.exception.JMQException;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.transboard.api.dto.OperatorInfo;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import org.apache.commons.collections.CollectionUtils;
@@ -67,6 +69,16 @@ public abstract class DeliveryBaseHandler implements IDeliveryBaseHandler {
     static int SEND_SPLIT_NUM = 30;
 
     static int EXPIRE_TIME_SECOND = 2 * 60 * 60;
+
+    /**
+     * 组板发货任务的Redis缓存key的前缀
+     */
+    private final String REDIS_PREFIX_BOARD_DELIVERY= "BoardDelivery-";
+
+    /**
+     * 组板发货任务的Redis过期时间
+     */
+    private final int EXPIRE_REDIS_BOARD_TASK = 60;
 
     @Autowired
     @Qualifier("redisClientCache")
@@ -104,6 +116,8 @@ public abstract class DeliveryBaseHandler implements IDeliveryBaseHandler {
     private SortingService tSortingService;
     @Autowired
     private BaseMajorManager baseMajorManager;
+    @Autowired
+    private GroupBoardManager groupBoardManager;
     @Autowired
     @Qualifier("deliveryCancelSendMQ")
     private DefaultJMQProducer deliveryCancelSendMQ;
@@ -331,44 +345,47 @@ public abstract class DeliveryBaseHandler implements IDeliveryBaseHandler {
 
             if (WaybillUtil.isWaybillCode(barCode)) {
                 sendDRequest.setWaybillCode(barCode);
-            } else if (WaybillUtil.isPackageCode(barCode)){
+            } else if (WaybillUtil.isPackageCode(barCode)) {
                 sendDRequest.setPackageBarcode(barCode);
+            } else if (BusinessUtil.isBoardCode(barCode)) {
+                sendDRequest.setBoardCode(barCode);
             } else {
                 sendDRequest.setBoxCode(barCode);
             }
-            List<SendDetail> tlist = sendDatailDao.querySendDatailsBySelective(sendDRequest);//查询sendD明细
-            //log.info("取消发货查询sendd明细,{}",tlist.toString());
+
 
             if (WaybillUtil.isWaybillCode(sendMItem.getBoxCode())
                     || WaybillUtil.isPackageCode(sendMItem.getBoxCode())) {
-                log.info("dealSendTransfer按运单/包裹维度进行取消：{}",sendMItem.getBoxCode());
-                /* 按包裹号和运单号的逻辑走 */
-                ThreeDeliveryResponse responsePack = cancelUpdateDataByPack(sendMItem, tlist);
-                if (responsePack.getCode().equals(200)) {
-                    log.info("dealSendTransfer按运单/包裹维度进行取消成功");
-                    delDeliveryFromRedis(sendMItem);
-                    sendMessage(tlist, sendMItem, true);
-                    //同步取消半退明细
-                    reversePartDetailService.cancelPartSend(sendMItem);
-                    // 更新包裹装车记录表的扫描状态为取消扫描状态
-                    updateScanActionByPackageCodes(tlist, sendMItem);
-                } else {
-                    continue;
-                }
+
+                cancelPackage(sendDRequest, sendMItem);
             } else if (BusinessHelper.isBoxcode(sendMItem.getBoxCode())) {
-                /* 按箱号的逻辑走 */
-                List<SendM> sendMs = new ArrayList<>();
-                sendMs.add(sendMItem);
-                ThreeDeliveryResponse threeDeliveryResponse = cancelUpdateDataByBox(sendMItem, sendDRequest, sendMs);
-                if (threeDeliveryResponse.getCode().equals(200)) {
-                    log.info("dealSendTransfer按箱维度进行取消成功");
-                    delDeliveryFromRedis(sendMItem);     //取消发货成功，删除redis缓存的发货数据
-                    //更新箱号状态
-                    openBox(sendMItem);
-                    sendMessage(tlist, sendMItem, true);
-                } else {
+
+                cancelBox(sendDRequest, sendMItem);
+            } else if (BusinessUtil.isBoardCode(sendMItem.getBoxCode())) {
+
+                sendMItem.setBoardCode(barCode);
+                sendMItem.setBoxCode(barCode);
+
+                // 按板号的逻辑走
+                List<String> sendMList = sendMDao.selectBoxCodeByBoardCodeAndSendCode(sendMItem);
+                if (sendMList == null || sendMList.size() < 1) {
+                    log.warn("dealSendTransfer|按板取消发货==========没有找到板号的发货明细");
                     continue;
                 }
+                //校验是否有同一板号的发货任务没有跑完
+                String redisKey = REDIS_PREFIX_BOARD_DELIVERY + sendMItem.getBoxCode();
+                if(StringHelper.isNotEmpty(redisManager.get(redisKey))){
+                    log.warn("dealSendTransfer|按板取消发货==========存在有同一板号的发货任务没有跑完");
+                    continue;
+                }
+                //按板号取消发货
+                cancelBoard(sendDRequest, sendMItem, sendMList);
+                log.info("dealSendTransfer|按板取消发货==========cancelBoard");
+                //将板由“关闭”状态变为“组板中”的状态
+                List<String> boardList = new ArrayList<>();
+                boardList.add(sendMItem.getBoardCode());
+                changeBoardStatus(sendMItem,boardList);
+                log.info("dealSendTransfer|按板取消发货==========将板由“关闭”状态变为“组板中”的状态");
             } else {
                 log.info("暂时不支持按该范畴进行取消：{}" , JsonHelper.toJson(sendMItem));
                 continue;
@@ -381,10 +398,83 @@ public abstract class DeliveryBaseHandler implements IDeliveryBaseHandler {
             sendMItem.setCreateTime(now);
             sendMItem.setOperateTime(now);
             sendMItem.setUpdateTime(now);
-            deliveryService.packageSend(bizSource,sendMItem);
+            if (BusinessUtil.isBoardCode(barCode)) {
+                deliveryService.boardSend(sendMItem, Boolean.TRUE);
+            } else {
+                deliveryService.packageSend(bizSource, sendMItem);
+            }
         }
         return true;
     }
+
+    private void cancelBoard(SendDetail sendDRequest, SendM sendMItem, List<String> boxCodeList) {
+        for (String boxCode : boxCodeList) {
+            try {
+                sendMItem.setSendMId(null);
+                sendMItem.setBoxCode(boxCode);
+                if (BusinessHelper.isBoxcode(boxCode)) {
+                    sendMItem.setReceiveSiteCode(null);
+                    sendDRequest.setBoxCode(boxCode);
+                    cancelBox(sendDRequest, sendMItem);
+                } else {
+                    sendMItem.setReceiveSiteCode(SerialRuleUtil.getReceiveSiteCodeFromSendCode(sendMItem.getSendCode()));
+                    sendDRequest.setPackageBarcode(boxCode);
+                    cancelPackage(sendDRequest, sendMItem);
+                }
+            } catch (Exception e) {
+                log.error("按板取消发货，取消包裹/箱号{}失败,失败原因{}", boxCode, e.getMessage(), e);
+            }
+        }
+    }
+
+    private void cancelPackage(SendDetail sendDRequest, SendM sendMItem) {
+        log.info("dealSendTransfer按运单/包裹维度进行取消：{}",sendMItem.getBoxCode());
+
+        List<SendDetail> tlist = sendDatailDao.querySendDatailsBySelective(sendDRequest);//查询sendD明细
+        //log.info("取消发货查询sendd明细,{}",tlist.toString());
+
+        /* 按包裹号和运单号的逻辑走 */
+        ThreeDeliveryResponse responsePack = cancelUpdateDataByPack(sendMItem, tlist);
+        if (responsePack.getCode().equals(200)) {
+            log.info("dealSendTransfer按运单/包裹维度进行取消成功");
+            delDeliveryFromRedis(sendMItem);
+            sendMessage(tlist, sendMItem, true);
+            //同步取消半退明细
+            reversePartDetailService.cancelPartSend(sendMItem);
+        }
+    }
+
+    private void cancelBox(SendDetail sendDRequest, SendM sendMItem) {
+        List<SendDetail> tlist = sendDatailDao.querySendDatailsBySelective(sendDRequest);//查询sendD明细
+        //log.info("取消发货查询sendd明细,{}",tlist.toString());
+        /* 按箱号的逻辑走 */
+        List<SendM> sendMs = new ArrayList<>();
+        sendMs.add(sendMItem);
+        ThreeDeliveryResponse threeDeliveryResponse = cancelUpdateDataByBox(sendMItem, sendDRequest, sendMs);
+        if (threeDeliveryResponse.getCode().equals(200)) {
+            log.info("dealSendTransfer按箱维度进行取消成功");
+            delDeliveryFromRedis(sendMItem);     //取消发货成功，删除redis缓存的发货数据
+            //更新箱号状态
+            openBox(sendMItem);
+            sendMessage(tlist, sendMItem, true);
+        }
+    }
+
+    //将板号由“关闭”状态变更未“组板中”状态
+    public void changeBoardStatus(SendM tSendM,List<String> boardList){
+        OperatorInfo operatorInfo = new OperatorInfo();
+        operatorInfo.setOperatorErp(Integer.toString(tSendM.getUpdateUserCode()));
+        operatorInfo.setOperatorName(tSendM.getUpdaterUser());
+        operatorInfo.setSiteCode(tSendM.getCreateSiteCode());
+        BaseStaffSiteOrgDto baseStaffSiteOrgDto = baseMajorManager.getBaseSiteBySiteId(tSendM.getCreateSiteCode());
+        if(baseStaffSiteOrgDto != null){
+            operatorInfo.setSiteName(baseMajorManager.getBaseSiteBySiteId(tSendM.getCreateSiteCode()).getSiteName());
+        }
+        //取消板号的关闭状态
+        groupBoardManager.resuseBoards(boardList,operatorInfo);
+    }
+
+
 
     private void openBox(SendM tSendM){
         //参数构建

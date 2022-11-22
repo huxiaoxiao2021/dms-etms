@@ -1,5 +1,8 @@
 package com.jd.bluedragon.distribution.jy.dto.send;
 
+
+import com.jd.bluedragon.distribution.board.domain.Board;
+
 import java.io.Serializable;
 
 /**
@@ -16,6 +19,8 @@ public class SendFindDestInfoDto implements Serializable {
 
     private Long matchSendDestId;
 
+    private Board board;
+
     public Long getRouterNextSiteId() {
         return routerNextSiteId;
     }
@@ -30,5 +35,13 @@ public class SendFindDestInfoDto implements Serializable {
 
     public void setMatchSendDestId(Long matchSendDestId) {
         this.matchSendDestId = matchSendDestId;
+    }
+
+    public Board getBoard() {
+        return board;
+    }
+
+    public void setBoard(Board board) {
+        this.board = board;
     }
 }

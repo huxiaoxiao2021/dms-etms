@@ -43,4 +43,8 @@ public class JySendAggsDao extends BaseDao<JySendAggsEntity> {
     public int insertOrUpdate(JySendAggsEntity entity) {
         return this.getSqlSession().insert(NAMESPACE + ".insertOrUpdate", entity);
     }
+
+    public JySendAggsEntity findSendAggExistAbnormal(String sendVehicleBizId){
+        return this.getSqlSession().selectOne(NAMESPACE + ".findSendAggExistAbnormal", sendVehicleBizId);
+    }
 }

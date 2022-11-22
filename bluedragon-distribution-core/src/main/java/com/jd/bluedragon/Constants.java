@@ -1558,6 +1558,11 @@ public class Constants {
     public static final Integer NUMBER_ZERO = 0;
 
     /**
+     * 数字：1
+     */
+    public static final Integer NUMBER_ONE = 1;
+
+    /**
      * SendD取消状态
      */
     public static final int OPERATE_TYPE_CANCEL_L = 0;
@@ -1765,5 +1770,10 @@ public class Constants {
      * 无任务卸车上游站点初始值
      */
     public static final Long START_SITE_INITIAL_VALUE = 0L;
+
+    public static final Integer DEFAULT_PAGE_NO  = 1;
+    public static final Integer DEFAULT_PAGE_SIZE  = 10;
+    public static final Integer DEFAULT_PAGE_SIZE_LIMIT  = 1024;
+
 
 }
