@@ -37,7 +37,7 @@ public class JimDbLock {
     }
   }
 
-  public boolean lock(String key, String value, int expire, TimeUnit timeUnit) {
+  public boolean lock(String key, String value, long expire, TimeUnit timeUnit) {
     Long startMillis = System.currentTimeMillis();
     boolean isLock;
     int tryCount = 0;

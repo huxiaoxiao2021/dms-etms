@@ -4,6 +4,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.request.BaseReq;
 import com.jd.bluedragon.common.dto.comboard.request.*;
 import com.jd.bluedragon.common.dto.comboard.response.*;
+import com.jd.bluedragon.common.lock.redis.JimDbLock;
 import com.jd.bluedragon.core.jsf.cross.SortCrossJsfManager;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.SendVehicleScanTypeEnum;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
@@ -16,6 +17,7 @@ import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigEnum;
 import com.jd.bluedragon.distribution.funcSwitchConfig.service.FuncSwitchConfigService;
 import com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity;
 import com.jd.bluedragon.distribution.jy.dao.comboard.JyGroupSortCrossDetailDao;
+import com.jd.bluedragon.distribution.jy.service.comboard.JyComboardAggsService;
 import com.jd.bluedragon.distribution.middleend.sorting.dao.DynamicSortingQueryDao;
 import com.jd.bluedragon.distribution.jy.service.comboard.JyGroupSortCrossDetailService;
 import com.jd.bluedragon.distribution.send.domain.SendM;
@@ -37,6 +39,7 @@ import com.jd.jim.cli.Cluster;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jdl.basic.api.domain.cross.*;
 import java.util.Date;
+import java.util.UUID;
 import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -83,10 +86,15 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
 
   @Autowired
   private JyGroupSortCrossDetailService jyGroupSortCrossDetailService;
-
+  @Autowired
+  JyComboardAggsService jyComboardAggsService;
+  @Autowired
+  JyBizTaskComboardService jyBizTaskComboardService;
+  @Autowired
+  JimDbLock jimDbLock;
 
   @Autowired
-  @Qualifier("redisClientCache")
+  @Qualifier("redisClientOfJy")
   protected Cluster redisClientCache;
 
   @Override
@@ -287,6 +295,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     comboardCheck(request);
     getOrCreateBoardCode(request);
     sendSealCheck(request);
+
     execComboard(request);
     execSend(request);
 
@@ -299,6 +308,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
    * 执行租板
    */
   private void execComboard(ComboardScanReq request) {
+    //板加锁
   }
 
   /**
@@ -308,6 +318,17 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   }
 
   private String getOrCreateBoardCode(ComboardScanReq request) {
+    /**
+     * 流向加锁
+     */
+    String sendFlowLockKey =String.format(Constants.JY_COMBOARD_SENDFLOW_LOCK_PREFIX,request.getEndSiteId());
+    if (jimDbLock.lock(sendFlowLockKey,request.getRequestId(),3,TimeUnit.SECONDS)){
+      //查询当前流向是否存在进行中的板
+
+    }
+    else {
+      throw new JyBizException("当前系统繁忙,请稍后再试！");
+    }
     return null;
   }
 

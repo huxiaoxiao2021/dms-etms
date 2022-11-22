@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 public class SendFlowDto implements Serializable {
     private static final long serialVersionUID = 1663772914468225864L;
+    private Integer startSiteId;
     private Integer endSiteId;
     private String endSiteName;
     /**
@@ -117,5 +118,13 @@ public class SendFlowDto implements Serializable {
 
     public void setCurrentBoardDto(BoardDto currentBoardDto) {
         this.currentBoardDto = currentBoardDto;
+    }
+
+    public Integer getStartSiteId() {
+        return startSiteId;
+    }
+
+    public void setStartSiteId(Integer startSiteId) {
+        this.startSiteId = startSiteId;
     }
 }
