@@ -254,10 +254,28 @@
             and scan_type = #{scanType,jdbcType=TINYINT}
         </if>
         <if test="productTypes != null">
-          and product_type in (#{productTypes,jdbcType=VARCHAR})
+          and product_type in
+          <foreach collection="productTypes" item="item" index="index" open="(" separator="," close=")">
+            #{item}
+          </foreach>
         </if>
         <if test="scanTypes != null">
-          and scan_type = #{scanTypes,jdbcType=TINYINT}
+          and scan_type in
+          <foreach collection="scanTypes" item="item" index="index" open="(" separator="," close=")">
+            #{item}
+          </foreach>
+        </if>
+        <if test="boardCodes != null">
+          and board_code in
+          <foreach collection="boardCodes" item="item" index="index" open="(" separator="," close=")">
+            #{item}
+          </foreach>
+        </if>
+        <if test="receiveSiteIds != null">
+          and receive_site_id in
+          <foreach collection="receiveSiteIds" item="item" index="index" open="(" separator="," close=")">
+            #{item}
+          </foreach>
         </if>
     </where>
   </select>

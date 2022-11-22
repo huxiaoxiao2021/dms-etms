@@ -5,15 +5,16 @@ import java.util.List;
 public class JyComboardAggsConditionBuilder {
 
     private static final String DEFAULT_CONDITON_VALUE = "-1";
+    private static final Integer DEFAULT_CONDITON_INTEGER_VALUE = -1;
 
     /**
      * 始发
      */
-    private String operateSiteId;
+    private Integer operateSiteId;
     /**
      * 目的
      */
-    private String receiveSiteId;
+    private Integer receiveSiteId;
     /**
      * 业务id
      */
@@ -35,12 +36,16 @@ public class JyComboardAggsConditionBuilder {
 
     private List<String> scanTypes;
 
-    public JyComboardAggsConditionBuilder operateSiteId(String operateSiteId) {
+    private List<Integer> receiveSiteIds;
+
+    private List<String> boardCodes;
+
+    public JyComboardAggsConditionBuilder operateSiteId(Integer operateSiteId) {
         this.operateSiteId = operateSiteId;
         return this;
     }
 
-    public JyComboardAggsConditionBuilder receiveSiteId(String receiveSiteId) {
+    public JyComboardAggsConditionBuilder receiveSiteId(Integer receiveSiteId) {
         this.receiveSiteId = receiveSiteId;
         return this;
     }
@@ -75,15 +80,24 @@ public class JyComboardAggsConditionBuilder {
         return this;
     }
 
+    public JyComboardAggsConditionBuilder receiveSiteIds(List<Integer> receiveSiteIds) {
+        this.receiveSiteIds = receiveSiteIds;
+        return this;
+    }
+
+    public JyComboardAggsConditionBuilder boardCodes(List<String> boardCodes) {
+        this.boardCodes = boardCodes;
+        return this;
+    }
+
     public JyComboardAggsCondition build() {
-        return new JyComboardAggsCondition(operateSiteId == null? DEFAULT_CONDITON_VALUE : operateSiteId,
-                receiveSiteId == null? DEFAULT_CONDITON_VALUE : receiveSiteId,
-                bizId == null? DEFAULT_CONDITON_VALUE : bizId,
-                boardCode == null? DEFAULT_CONDITON_VALUE : boardCode,
-                productType == null? DEFAULT_CONDITON_VALUE : productType,
-                scanType == null? DEFAULT_CONDITON_VALUE : scanType,
-                productTypes == null? null : productTypes,
-                scanTypes == null? null : scanTypes);
+        return new JyComboardAggsCondition(operateSiteId==null?DEFAULT_CONDITON_INTEGER_VALUE:operateSiteId,
+                receiveSiteId==null?DEFAULT_CONDITON_INTEGER_VALUE:receiveSiteId,
+                bizId==null?DEFAULT_CONDITON_VALUE:bizId,
+                boardCode==null?DEFAULT_CONDITON_VALUE:boardCode,
+                productType==null?DEFAULT_CONDITON_VALUE:productType,
+                scanType==null?DEFAULT_CONDITON_VALUE:scanType,
+                productTypes, scanTypes, receiveSiteIds, boardCodes);
     }
 
 }
