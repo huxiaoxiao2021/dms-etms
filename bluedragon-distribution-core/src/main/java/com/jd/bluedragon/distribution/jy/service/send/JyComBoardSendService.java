@@ -31,6 +31,14 @@ public interface JyComBoardSendService {
    * 获取默认混扫任务名称
    */
   InvokeResult<CreateGroupCTTResp> getDefaultGroupCTTName(BaseReq request);
+
+  /**
+   * 根据包裹号或者滑道-笼车编号 定位流向信息
+   * @param request
+   * @return
+   */
+  InvokeResult<TableTrolleyResp> querySendFlowByBarCode(QuerySendFlowReq request);
+  
   /**
    * 变更（添加或者移除滑道笼车流向）
    */
@@ -42,6 +50,11 @@ public interface JyComBoardSendService {
    * 查询(本岗位或本场地)常用滑道笼车流向集合(【“混扫01”，“混扫02”，“混扫03”】)
    */
   InvokeResult<CTTGroupDataResp> listCTTGroupData(CTTGroupDataReq request);
+
+  /**
+   * 根据包裹号或者滑道-笼车编号 定位混扫任务信息
+   */
+  InvokeResult<CTTGroupDataResp> queryCTTGroupByBarCode(QueryCTTGroupReq request);
 
   /**
    * 查询某个混扫任务下的流向列表数据（包含流向的基础数据和统计相关数据）-支撑下钻1(流向下钻)和混扫切换页面

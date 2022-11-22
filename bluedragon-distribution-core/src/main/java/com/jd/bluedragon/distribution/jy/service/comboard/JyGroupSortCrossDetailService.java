@@ -49,4 +49,11 @@ public interface JyGroupSortCrossDetailService {
      * @return
      */
     List<JyGroupSortCrossDetailEntity> listSendFlowByTemplateCode(JyGroupSortCrossDetailEntity record);
+
+    /**
+     * 根据目的地或CTTcode获取混扫任务信息
+     * @param entity
+     * @return
+     */
+    CTTGroupDataResp listGroupByEndSiteCodeOrCTTCode(JyGroupSortCrossDetailEntity entity);
 }

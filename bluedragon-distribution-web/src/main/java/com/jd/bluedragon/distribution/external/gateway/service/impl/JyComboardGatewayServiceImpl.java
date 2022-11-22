@@ -30,7 +30,7 @@ public class JyComboardGatewayServiceImpl implements JyComboardGatewayService {
 
   @Override
   public JdCResponse<TableTrolleyResp> querySendFlowByBarCode(QuerySendFlowReq request) {
-    return null;
+    return retJdCResponse(jyComBoardSendService.querySendFlowByBarCode(request));
   }
 
   @Override
@@ -60,7 +60,7 @@ public class JyComboardGatewayServiceImpl implements JyComboardGatewayService {
 
   @Override
   public JdCResponse<CTTGroupDataResp> queryCTTGroupByBarCode(QueryCTTGroupReq request) {
-    return null;
+    return retJdCResponse(jyComBoardSendService.queryCTTGroupByBarCode(request));
   }
 
   @Override

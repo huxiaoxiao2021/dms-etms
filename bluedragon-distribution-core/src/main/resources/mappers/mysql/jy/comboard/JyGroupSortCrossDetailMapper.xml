@@ -265,20 +265,15 @@
       #{item.createUserName,jdbcType=VARCHAR}, #{item.createTime,jdbcType=TIMESTAMP})
     </foreach>
   </insert>
-  <select id="queryCTTGroupDataBySiteCode" parameterType="com.jd.bluedragon.common.dto.comboard.request.CTTGroupDataReq"
+  <select id="queryCTTGroupData" parameterType="com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity"
           resultMap="cttGroupDtoMap">
     select template_code, template_name, create_user_name, create_user_erp, count(1) as send_flow_count
     from jy_group_sort_cross_detail
     where yn = 1
-      and start_site_id = #{siteCode,jdbcType=BIGINT}
-    group by template_code
-  </select>
-  <select id="queryCTTGroupDataByGroup" parameterType="com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity"
-          resultMap="cttGroupDtoMap">
-    select template_code, template_name, create_user_name, create_user_erp, count(1) as send_flow_count
-    from jy_group_sort_cross_detail
-    where yn = 1
-      and start_site_id = #{startSiteId,jdbcType=BIGINT} and group_code = #{groupCode,jdbcType=VARCHAR}
+    and start_site_id = #{startSiteId,jdbcType=BIGINT}
+    <if test="groupCode != null and groupCode != ''">
+      and group_code = #{groupCode,jdbcType=VARCHAR}
+    </if>
     group by template_code
   </select>
   <select id="selectOneByGroupCrossTableTrolley"
@@ -314,5 +309,24 @@
       AND template_code = #{templateCode}
       AND start_site_id = #{startSiteId}
       AND yn = 1
+  </select>
+  <select id="listCTTGroupData"
+          parameterType="com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity"
+          resultMap="cttGroupDtoMap">
+    select template_code, template_name, create_user_name, create_user_erp, count(1) as send_flow_count
+    from jy_group_sort_cross_detail
+    where template_code in (select template_code from jy_group_sort_cross_detail where yn = 1
+      and start_site_id = #{startSiteId}
+    <if test="endSiteId !=null and endSiteId!=''">
+      and end_site_id = #{endSiteId}
+    </if>
+    <if test="crossCode != null and crossCode!=''">
+      and cross_code = #{crossCode,jdbcType=VARCHAR}
+    </if>
+    <if test="tabletrolleyCode != null and tabletrolleyCode!=''">
+      and tabletrolley_code = #{tabletrolleyCode,jdbcType=VARCHAR}
+    </if>
+      and group_code = #{groupCode})
+    group by template_code
   </select>
 </mapper>

@@ -2,6 +2,7 @@ package com.jd.bluedragon.core.jsf.cross.impl;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.jsf.cross.SortCrossJsfManager;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jdl.basic.api.domain.cross.CrossDataJsfResp;
@@ -48,7 +49,7 @@ public class SortCrossJsfManagerImpl implements SortCrossJsfManager {
                 return result.getData();
             }
         }catch (Exception e) {
-            log.error("分页获取场地：{}滑道信息错误 {}",query.getDmsId(),e);
+            log.error("分页获取滑道下的笼车信息错误 {}",JsonHelper.toJson(query),e);
         }
         return null;    
     }
@@ -62,8 +63,36 @@ public class SortCrossJsfManagerImpl implements SortCrossJsfManager {
                 return result.getData();
             }
         }catch (Exception e) {
-            log.error("分页获取场地：{}滑道信息错误 {}",query.getDmsId(),e);
+            log.error("分页获取场地：{}笼车信息错误 {}",query.getDmsId(),e);
         }
         return null;    
+    }
+
+    @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "SortCrossJsfManagerImpl.queryCTTByStartEndSiteCode",mState={JProEnum.TP,JProEnum.FunctionError})
+    public TableTrolleyJsfResp queryCTTByStartEndSiteCode(TableTrolleyQuery query) {
+        try {
+            Result<TableTrolleyJsfResp> result = sortCrossJsfService.queryCTTByStartEndSiteCode(query);
+            if (result != null && result.isSuccess()){
+                return result.getData();
+            }
+        }catch (Exception e) {
+            log.error("根据始发和目的地站点查询滑道笼车信息失败：{}", JsonHelper.toJson(query),e);
+        }
+        return null;     
+    }
+
+    @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "SortCrossJsfManagerImpl.queryCTTByCTTCode",mState={JProEnum.TP,JProEnum.FunctionError})
+    public TableTrolleyJsfResp queryCTTByCTTCode(TableTrolleyQuery query) {
+        try {
+            Result<TableTrolleyJsfResp> result = sortCrossJsfService.queryCTTByCTTCode(query);
+            if (result != null && result.isSuccess()){
+                return result.getData();
+            }
+        }catch (Exception e) {
+            log.error("根据滑道笼车信息获取流向信息失败：{}",JsonHelper.toJson(query),e);
+        }
+        return null;     
     }
 }

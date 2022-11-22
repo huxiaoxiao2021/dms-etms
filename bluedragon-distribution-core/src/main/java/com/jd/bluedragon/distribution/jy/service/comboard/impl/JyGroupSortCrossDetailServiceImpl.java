@@ -92,10 +92,13 @@ public class JyGroupSortCrossDetailServiceImpl implements JyGroupSortCrossDetail
     public CTTGroupDataResp queryCTTGroupDataByGroupOrSiteCode(CTTGroupDataReq request) {
         CTTGroupDataResp resp = new CTTGroupDataResp();
         List<CTTGroupDto> cttGroupDtos;
+        JyGroupSortCrossDetailEntity entity = new JyGroupSortCrossDetailEntity();
+        entity.setStartSiteId((long) request.getCurrentOperate().getSiteCode());
         if (request.isGroupQueryFlag()) {
-            cttGroupDtos = jyGroupSortCrossDetailDao.queryCTTGroupDataByGroup(request.getGroupCode(), request.getCurrentOperate().getSiteCode());
+            entity.setGroupCode(request.getGroupCode());
+            cttGroupDtos = jyGroupSortCrossDetailDao.queryCTTGroupData(entity);
         } else {
-            cttGroupDtos = jyGroupSortCrossDetailDao.queryCTTGroupDataBySiteCode((long) request.getCurrentOperate().getSiteCode());
+            cttGroupDtos = jyGroupSortCrossDetailDao.queryCTTGroupData(entity);
         }
         resp.setCttGroupDtolist(cttGroupDtos);
         return resp;
@@ -112,6 +115,7 @@ public class JyGroupSortCrossDetailServiceImpl implements JyGroupSortCrossDetail
             query.setEndSiteId(tableTrolleyDto.getEndSiteId().longValue());
             JyGroupSortCrossDetailEntity entity = jyGroupSortCrossDetailDao.selectOneByGroupCrossTableTrolley(query);
             if (entity != null) {
+                log.error("已经存在流向，无法新增：{}", JsonHelper.toJson(entity));
                 return Boolean.FALSE;
             }
         }
@@ -147,6 +151,7 @@ public class JyGroupSortCrossDetailServiceImpl implements JyGroupSortCrossDetail
             query.setEndSiteId(tableTrolleyDto.getEndSiteId().longValue());
             JyGroupSortCrossDetailEntity entity = jyGroupSortCrossDetailDao.selectOneByGroupCrossTableTrolley(query);
             if (entity == null) {
+                log.error("未查询到该流向：{}", JsonHelper.toJson(query));
                 return Boolean.FALSE;
             }
             ids.add(entity.getId());
@@ -172,5 +177,14 @@ public class JyGroupSortCrossDetailServiceImpl implements JyGroupSortCrossDetail
     public List<JyGroupSortCrossDetailEntity> listSendFlowByTemplateCode(
         JyGroupSortCrossDetailEntity record) {
         return jyGroupSortCrossDetailDao.listSendFlowByTemplateCode(record);
+    }
+
+    @Override
+    public CTTGroupDataResp listGroupByEndSiteCodeOrCTTCode(JyGroupSortCrossDetailEntity entity) {
+        CTTGroupDataResp resp = new CTTGroupDataResp();
+        List<CTTGroupDto> cttGroupDtos = jyGroupSortCrossDetailDao.listCTTGroupData(entity);
+        log.info("混扫任务信息：{}", JsonHelper.toJson(cttGroupDtos));
+        resp.setCttGroupDtolist(cttGroupDtos);
+        return resp;
     }
 }

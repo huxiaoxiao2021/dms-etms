@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.jy.dao.comboard;
 
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.common.dto.comboard.request.CTTGroupDataReq;
+import com.jd.bluedragon.common.dto.comboard.response.CTTGroupDataResp;
 import com.jd.bluedragon.common.dto.comboard.response.CTTGroupDto;
 import com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity;
 import com.jd.bluedragon.distribution.jy.dto.comboard.JyCTTGroupUpdateReq;
@@ -46,25 +47,12 @@ public class JyGroupSortCrossDetailDao extends BaseDao<JyGroupSortCrossDetailEnt
     }
 
     /**
-     * 查询当前场地的常用流向
-     * @param siteCode
+     * 查询常用流向
+     * @param entity
      * @return
      */
-    public List<CTTGroupDto> queryCTTGroupDataBySiteCode(Long siteCode) {
-        return this.getSqlSession().selectList(NAMESPACE + ".queryCTTGroupDataBySiteCode", siteCode);
-    }
-
-    /**
-     * 查询当前组的常用流向
-     * @param groupCode
-     * @param siteCode
-     * @return
-     */
-    public List<CTTGroupDto> queryCTTGroupDataByGroup(String groupCode,int siteCode) {
-        JyGroupSortCrossDetailEntity query = new JyGroupSortCrossDetailEntity();
-        query.setGroupCode(groupCode);
-        query.setStartSiteId((long) siteCode);
-        return this.getSqlSession().selectList(NAMESPACE + ".queryCTTGroupDataByGroup",query);
+    public List<CTTGroupDto> queryCTTGroupData(JyGroupSortCrossDetailEntity entity) {
+        return this.getSqlSession().selectList(NAMESPACE + ".queryCTTGroupData", entity);
     }
 
     /**
@@ -92,5 +80,14 @@ public class JyGroupSortCrossDetailDao extends BaseDao<JyGroupSortCrossDetailEnt
      */
     public int deleteByIds(JyCTTGroupUpdateReq updateReq) {
         return this.getSqlSession().update(NAMESPACE + ".deleteByIds", updateReq);
+    }
+
+    /**
+     * 根据目的地站点或滑道笼车查询流向
+     * @param entity
+     * @return
+     */
+    public List<CTTGroupDto> listCTTGroupData(JyGroupSortCrossDetailEntity entity) {
+        return this.getSqlSession().selectList(NAMESPACE + ".listCTTGroupData",entity);
     }
 }

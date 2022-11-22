@@ -105,6 +105,55 @@ public class JyComboardGatewayServiceImplTest {
     }
 
     @Test
+    public void queryCTTGroupByBarCodeTest() {
+        QueryCTTGroupReq resp = new QueryCTTGroupReq();
+        CurrentOperate operate = new CurrentOperate();
+        resp.setGroupCode("group111");
+        operate.setSiteCode(910);
+        operate.setSiteName("北京马驹桥分拣中心");
+        resp.setCurrentOperate(operate);
+        User user = new User();
+        user.setUserName("李文吉");
+        user.setUserErp("liwenji3");
+        resp.setUser(user);
+        resp.setBarCode("2002-106");
+        JdCResponse<CTTGroupDataResp> response = jyComboardGatewayService.queryCTTGroupByBarCode(resp);
+        System.out.println(JsonHelper.toJson(response));
+    }
+    @Test
+    public void queryCTTGroupByBarCodeWayBillTest() {
+        QueryCTTGroupReq resp = new QueryCTTGroupReq();
+        CurrentOperate operate = new CurrentOperate();
+        resp.setGroupCode("group2");
+        operate.setSiteCode(910);
+        operate.setSiteName("北京马驹桥分拣中心");
+        resp.setCurrentOperate(operate);
+        User user = new User();
+        user.setUserName("李文吉");
+        user.setUserErp("liwenji3");
+        resp.setUser(user);
+        resp.setBarCode("JD0003403783896-1-1-");
+        JdCResponse<CTTGroupDataResp> response = jyComboardGatewayService.queryCTTGroupByBarCode(resp);
+        System.out.println(JsonHelper.toJson(response));
+    }
+
+    @Test
+    public void queryCTTGroupByBarCodeByBoxTest() {
+        QueryCTTGroupReq resp = new QueryCTTGroupReq();
+        CurrentOperate operate = new CurrentOperate();
+        resp.setGroupCode("group2");
+        operate.setSiteCode(910);
+        operate.setSiteName("北京马驹桥分拣中心");
+        resp.setCurrentOperate(operate);
+        User user = new User();
+        user.setUserName("李文吉");
+        user.setUserErp("liwenji3");
+        resp.setUser(user);
+        resp.setBarCode("BC1001221122210000107925");
+        JdCResponse<CTTGroupDataResp> response = jyComboardGatewayService.queryCTTGroupByBarCode(resp);
+        System.out.println(JsonHelper.toJson(response));
+    }
+    @Test
     public void createGroupCTTDataTest() {
         CreateGroupCTTReq resp = new CreateGroupCTTReq();
         CurrentOperate operate = new CurrentOperate();
@@ -142,7 +191,58 @@ public class JyComboardGatewayServiceImplTest {
     }
 
     @Test
-    public void addOrDeleteGroupCTT(){
+    public void querySendFlowByBarCodeTest() {
+        QuerySendFlowReq resp = new QuerySendFlowReq();
+        CurrentOperate operate = new CurrentOperate();
+        resp.setGroupCode("group111");
+        operate.setSiteCode(696);
+        operate.setSiteName("北京马驹桥分拣中心");
+        resp.setCurrentOperate(operate);
+        User user = new User();
+        user.setUserName("李文吉");
+        user.setUserErp("liwenji3");
+        resp.setUser(user);
+        resp.setBarCode("102-102");
+        JdCResponse<TableTrolleyResp> response = jyComboardGatewayService.querySendFlowByBarCode(resp);
+        System.out.println(JsonHelper.toJson(response));
+    }
+
+    @Test
+    public void querySendFlowByBarCodeByWayBillTest() {
+        QuerySendFlowReq resp = new QuerySendFlowReq();
+        CurrentOperate operate = new CurrentOperate();
+        resp.setGroupCode("group111");
+        operate.setSiteCode(910);
+        operate.setSiteName("北京马驹桥分拣中心");
+        resp.setCurrentOperate(operate);
+        User user = new User();
+        user.setUserName("李文吉");
+        user.setUserErp("liwenji3");
+        resp.setUser(user);
+        resp.setBarCode("JD0003365196531-1-1-");
+        JdCResponse<TableTrolleyResp> response = jyComboardGatewayService.querySendFlowByBarCode(resp);
+        System.out.println(JsonHelper.toJson(response));
+    }
+
+    @Test
+    public void querySendFlowByBarCodeByBoxTest() {
+        QuerySendFlowReq resp = new QuerySendFlowReq();
+        CurrentOperate operate = new CurrentOperate();
+        resp.setGroupCode("group111");
+        operate.setSiteCode(910);
+        operate.setSiteName("北京马驹桥分拣中心");
+        resp.setCurrentOperate(operate);
+        User user = new User();
+        user.setUserName("李文吉");
+        user.setUserErp("liwenji3");
+        resp.setUser(user);
+        resp.setBarCode("BC1001221122220000108026");
+        JdCResponse<TableTrolleyResp> response = jyComboardGatewayService.querySendFlowByBarCode(resp);
+        System.out.println(JsonHelper.toJson(response));
+    }
+    
+    @Test
+    public void addOrDeleteGroupCTTTest(){
         AddCTTReq resp = new AddCTTReq();
         CurrentOperate operate = new CurrentOperate();
         resp.setGroupCode("group111");

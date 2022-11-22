@@ -210,6 +210,72 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   }
 
   @Override
+  public InvokeResult<TableTrolleyResp> querySendFlowByBarCode(QuerySendFlowReq request) {
+    if (!checkBaseRequest(request)||StringUtils.isEmpty(request.getBarCode())||!checkBarCode(request.getBarCode())) {
+      return new InvokeResult<>(RESULT_THIRD_ERROR_CODE, PARAM_ERROR);
+    }
+    log.info("开始根据包裹号,箱号或滑道-笼车号获取流向信息：{}", JsonHelper.toJson(request));
+    TableTrolleyResp tableTrolleyResp= new TableTrolleyResp();
+    TableTrolleyJsfResp tableTrolleyJsfResp = null;
+    String barCode = request.getBarCode();
+    TableTrolleyQuery query = new TableTrolleyQuery();
+    query.setDmsId(request.getCurrentOperate().getSiteCode());
+    if (WaybillUtil.isPackageCode(barCode)) {
+      final Waybill waybill = waybillQueryManager
+              .getOnlyWaybillByWaybillCode(WaybillUtil.getWaybillCodeByPackCode(barCode));
+      if (waybill == null) {
+        throw new JyBizException("未查找到运单数据");
+      }
+      if (waybill.getOldSiteId() == null) {
+        throw new JyBizException("运单对应的预分拣站点为空");
+      }
+      query.setDmsId(request.getCurrentOperate().getSiteCode());
+      query.setSiteCode(waybill.getOldSiteId());
+      tableTrolleyJsfResp = sortCrossJsfManager.queryCTTByStartEndSiteCode(query);
+    } else if (BusinessHelper.isBoxcode(barCode)) {
+      final Box box = boxService.findBoxByCode(barCode);
+      if (box == null) {
+        throw new JyBizException("未找到对应箱号，请检查");
+      }
+      query.setSiteCode(box.getReceiveSiteCode());
+      tableTrolleyJsfResp = sortCrossJsfManager.queryCTTByStartEndSiteCode(query);
+    }else if (checkCTTCode(barCode)) {
+      int index = barCode.indexOf("-");
+      query.setCrossCode(barCode.substring(0,index));
+      query.setTabletrolleyCode(barCode.substring(index+1));
+      tableTrolleyJsfResp = sortCrossJsfManager.queryCTTByCTTCode(query);
+    }
+    if (tableTrolleyJsfResp != null && !CollectionUtils.isEmpty(tableTrolleyJsfResp.getTableTrolleyDtoJsfList())) {
+      tableTrolleyResp.setTableTrolleyDtoList(getTableTrolleyDto(tableTrolleyJsfResp.getTableTrolleyDtoJsfList()));
+    }
+    return new InvokeResult<>(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, tableTrolleyResp);
+  }
+
+  /**
+   * 校验barCode格式
+   * @param barCode
+   * @return
+   */
+  private boolean checkBarCode(String barCode) {
+    if (WaybillUtil.isPackageCode(barCode)|| BusinessHelper.isBoxcode(barCode)|| checkCTTCode(barCode)) {
+      return Boolean.TRUE;
+    }
+    return Boolean.FALSE;
+  }
+
+  /**
+   * 校验是否为滑道-笼车号
+   * @param barCode
+   * @return
+   */
+  private boolean checkCTTCode(String barCode) {
+    if (barCode.contains("-")){
+      return Boolean.TRUE;
+    }
+    return Boolean.FALSE;
+  }
+
+  @Override
   public InvokeResult addCTT2Group(AddCTTReq request) {
     if (!checkBaseRequest(request)) {
       return new InvokeResult<>(RESULT_THIRD_ERROR_CODE, PARAM_ERROR);
@@ -254,6 +320,44 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     CTTGroupDataResp resp = jyGroupSortCrossDetailService
         .queryCTTGroupDataByGroupOrSiteCode(request);
     return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, resp);
+  }
+
+  @Override
+  public InvokeResult<CTTGroupDataResp> queryCTTGroupByBarCode(QueryCTTGroupReq request) {
+    if (!checkBaseRequest(request)||StringUtils.isEmpty(request.getBarCode())||!checkBarCode(request.getBarCode())) {
+      return new InvokeResult<>(RESULT_THIRD_ERROR_CODE, PARAM_ERROR);
+    }
+    log.info("开始根据包裹号,箱号或滑道-笼车号获取混扫任务信息：{}", JsonHelper.toJson(request));
+    CTTGroupDataResp cttGroupDataResp= new CTTGroupDataResp();
+    String barCode = request.getBarCode();
+    JyGroupSortCrossDetailEntity entity = new JyGroupSortCrossDetailEntity();
+    entity.setGroupCode(request.getGroupCode());
+    entity.setStartSiteId((long) request.getCurrentOperate().getSiteCode());
+    if (WaybillUtil.isPackageCode(barCode)) {
+      final Waybill waybill = waybillQueryManager
+              .getOnlyWaybillByWaybillCode(WaybillUtil.getWaybillCodeByPackCode(barCode));
+      if (waybill == null) {
+        throw new JyBizException("未查找到运单数据");
+      }
+      if (waybill.getOldSiteId() == null) {
+        throw new JyBizException("运单对应的预分拣站点为空");
+      }
+      entity.setEndSiteId(waybill.getOldSiteId().longValue());
+      cttGroupDataResp = jyGroupSortCrossDetailService.listGroupByEndSiteCodeOrCTTCode(entity);
+    } else if (BusinessHelper.isBoxcode(barCode)) {
+      final Box box = boxService.findBoxByCode(barCode);
+      if (box == null) {
+        throw new JyBizException("未找到对应箱号，请检查");
+      }
+      entity.setEndSiteId(box.getReceiveSiteCode().longValue());
+      cttGroupDataResp = jyGroupSortCrossDetailService.listGroupByEndSiteCodeOrCTTCode(entity);
+    }else if (checkCTTCode(barCode)) {
+      int index = barCode.indexOf("-");
+      entity.setCrossCode(barCode.substring(0,index));
+      entity.setTabletrolleyCode(barCode.substring(index+1));
+      cttGroupDataResp = jyGroupSortCrossDetailService.listGroupByEndSiteCodeOrCTTCode(entity);
+    }
+    return new InvokeResult<>(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, cttGroupDataResp);  
   }
 
   @Override
