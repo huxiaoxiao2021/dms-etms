@@ -18,7 +18,18 @@ public interface JyUnloadAggsService {
 
     List<JyUnloadAggsEntity> queryByBizId(JyUnloadAggsEntity entity);
 
+    /**
+     * aggs查询货物分类
+     * @param entity
+     * @return
+     */
     List<GoodsCategoryDto> queryGoodsCategoryStatistics(JyUnloadAggsEntity entity);
 
+    /**
+     * 查询异常扫描统计信息
+     * @param entity
+     * @return
+     */
     List<ExcepScanDto>  queryExcepScanStatistics(JyUnloadAggsEntity entity);
+
 }

@@ -1,15 +1,17 @@
 package com.jd.bluedragon.distribution.jy.service.unload;
 
 import com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadAggsDao;
+import com.jd.bluedragon.distribution.jy.enums.UnloadBarCodeQueryEntranceEnum;
+import com.jd.bluedragon.distribution.jy.unload.JyUnloadAggsEntity;
+import com.jd.bluedragon.utils.ObjectHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 import com.jd.bluedragon.distribution.jy.dto.unload.ExcepScanDto;
 import com.jd.bluedragon.distribution.jy.dto.unload.GoodsCategoryDto;
 import com.jd.bluedragon.distribution.jy.dto.unload.ScanStatisticsDto;
 import com.jd.bluedragon.distribution.jy.enums.GoodsTypeEnum;
-import com.jd.bluedragon.distribution.jy.enums.UnloadBarCodeQueryEntranceEnum;
-import com.jd.bluedragon.distribution.jy.unload.JyUnloadAggsEntity;
-import com.jd.bluedragon.utils.ObjectHelper;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +24,8 @@ import java.util.List;
  */
 @Service("jyUnloadAggsService")
 public class JyUnloadAggsServiceImpl implements JyUnloadAggsService {
+
+    private static final Logger log = LoggerFactory.getLogger(JyUnloadAggsServiceImpl.class);
 
     @Autowired
     private JyUnloadAggsDao jyUnloadAggsDao;
@@ -44,7 +48,7 @@ public class JyUnloadAggsServiceImpl implements JyUnloadAggsService {
                 categoryDto.setName(GoodsTypeEnum.getGoodsDesc(categoryDto.getType()));
 
                 if (!ObjectHelper.isNotNull(entity.getBoardCode())) {//板没有待扫的语义数据
-                    categoryDto.setWaitScanCount(categoryDto.getShouldScanCount() - categoryDto.getHaveScanCount());
+                    categoryDto.setWaitScanCount(getWaitScan(entity.getBizId(), categoryDto.getShouldScanCount(), categoryDto.getHaveScanCount()));
                 }
             }
             return categoryDtoList;
@@ -60,7 +64,7 @@ public class JyUnloadAggsServiceImpl implements JyUnloadAggsService {
             ExcepScanDto waitScan = new ExcepScanDto();
             waitScan.setType(UnloadBarCodeQueryEntranceEnum.TO_SCAN.getCode());
             waitScan.setName(UnloadBarCodeQueryEntranceEnum.TO_SCAN.getName());
-            waitScan.setCount(scanStatisticsDto.getWaitScanCount());
+            waitScan.setCount(getWaitScan(entity.getBizId(), scanStatisticsDto.getShouldScanCount(), scanStatisticsDto.getHaveScanCount()));
 
             ExcepScanDto interceptScan = new ExcepScanDto();
             interceptScan.setType(UnloadBarCodeQueryEntranceEnum.INTERCEPT.getCode());
@@ -80,4 +84,17 @@ public class JyUnloadAggsServiceImpl implements JyUnloadAggsService {
         return null;
     }
 
+
+    private int getWaitScan(String bizId, Integer shouldScan, Integer actualScan) {
+        if(shouldScan == null || shouldScan == 0 || actualScan == null) {
+            return 0;
+        }
+        //可能出shouldScan < actualScan
+        int res = shouldScan - actualScan;
+        if(res < 0) {
+            log.warn("JyUnloadAggsServiceImpl.getWaitScan 查任务{}待扫数据异常，待扫为{}", bizId, res);
+            return 0;
+        }
+        return res;
+    }
 }

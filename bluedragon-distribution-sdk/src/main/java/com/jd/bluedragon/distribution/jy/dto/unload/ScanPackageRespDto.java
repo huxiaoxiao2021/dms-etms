@@ -62,6 +62,14 @@ public class ScanPackageRespDto implements Serializable {
     Map<String, String> warnMsg;
 
     Map<String, String> confirmMsg;
+    /**
+     * 是否组板成功标识  true 是
+     */
+    private Boolean addBoardSuccessFlag;
+    /**
+     * 开板成功
+     */
+    private Boolean createBoardSuccessFlag;
 
     public String getBizId() {
         return bizId;
@@ -197,5 +205,21 @@ public class ScanPackageRespDto implements Serializable {
 
     public void setWaybillAmount(Integer waybillAmount) {
         this.waybillAmount = waybillAmount;
+    }
+
+    public Boolean getAddBoardSuccessFlag() {
+        return addBoardSuccessFlag;
+    }
+
+    public void setAddBoardSuccessFlag(Boolean addBoardSuccessFlag) {
+        this.addBoardSuccessFlag = addBoardSuccessFlag;
+    }
+
+    public Boolean getCreateBoardSuccessFlag() {
+        return createBoardSuccessFlag;
+    }
+
+    public void setCreateBoardSuccessFlag(Boolean createBoardSuccessFlag) {
+        this.createBoardSuccessFlag = createBoardSuccessFlag;
     }
 }

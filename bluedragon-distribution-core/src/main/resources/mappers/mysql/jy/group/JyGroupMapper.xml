@@ -82,5 +82,15 @@
           and group_code = #{groupCode}
           order by id desc
         limit 1
-    </select>    
+    </select>
+    <select id="queryGroupByGroupCode" parameterType="com.jd.bluedragon.distribution.jy.group.JyGroupQuery" resultMap="jyGroupMap">
+        select
+            <include refid="Base_Column_List"/>
+        from
+            jy_group
+        where yn = 1
+          and group_code = #{groupCode}
+          order by id desc
+        limit 1
+    </select>        
 </mapper>

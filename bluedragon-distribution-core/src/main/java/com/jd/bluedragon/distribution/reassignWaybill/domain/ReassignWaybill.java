@@ -41,7 +41,11 @@ public class ReassignWaybill {
 	private String siteName;
 
     private String waybillCode;
-	
+
+	/* 打印入口  */
+	private Integer interfaceType;
+
+
 	public String getWaybillCode() {
 		return waybillCode;
 	}
@@ -140,6 +144,7 @@ public class ReassignWaybill {
 	
 	public static ReassignWaybill toReassignWaybill(ReassignWaybillRequest request){
 		ReassignWaybill packTagPrint=new ReassignWaybill();
+		packTagPrint.setInterfaceType(request.getInterfaceType());
 		packTagPrint.setPackageBarcode(request.getPackageBarcode());
 		packTagPrint.setAddress(request.getAddress());
 		packTagPrint.setSiteCode(request.getSiteCode());
@@ -153,5 +158,13 @@ public class ReassignWaybill {
 		packTagPrint.setOperateTime(DateHelper.parseDateTime(request.getOperateTime()));
 		packTagPrint.setWaybillCode(WaybillUtil.getWaybillCode(request.getPackageBarcode()));
 		return packTagPrint;
+	}
+
+	public Integer getInterfaceType() {
+		return interfaceType;
+	}
+
+	public void setInterfaceType(Integer interfaceType) {
+		this.interfaceType = interfaceType;
 	}
 }
