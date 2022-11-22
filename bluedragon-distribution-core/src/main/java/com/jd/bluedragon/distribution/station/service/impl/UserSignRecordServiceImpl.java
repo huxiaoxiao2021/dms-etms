@@ -449,8 +449,8 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
         if(notSignedOutRecordRangeHours < 1) {
         	notSignedOutRecordRangeHours = 1;
         }
-        Date signInTimeEnd = DateHelper.addDate(new Date(), -notSignedOutRecordMoreThanHours);
-        Date signInTimeStart = DateHelper.addDate(signInTimeEnd,-notSignedOutRecordRangeHours);
+        Date signInTimeEnd = DateHelper.add(new Date(),Calendar.HOUR_OF_DAY, -notSignedOutRecordMoreThanHours);
+        Date signInTimeStart = DateHelper.add(signInTimeEnd,Calendar.HOUR_OF_DAY,-notSignedOutRecordRangeHours);
         List<Long> toSignOutPks;
         Date now = new Date();
         int updateRows = 0;
