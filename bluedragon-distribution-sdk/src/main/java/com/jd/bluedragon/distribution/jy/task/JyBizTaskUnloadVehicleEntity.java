@@ -138,6 +138,10 @@ public class JyBizTaskUnloadVehicleEntity implements Serializable {
      */
     private String tagsSign;
     /**
+     * 组号
+     */
+    private String refGroupCode;
+    /**
      * 创建人ERP
      */
     private String createUserErp;
@@ -393,6 +397,14 @@ public class JyBizTaskUnloadVehicleEntity implements Serializable {
 
     public String getTagsSign() {
         return this.tagsSign;
+    }
+
+    public String getRefGroupCode() {
+        return refGroupCode;
+    }
+
+    public void setRefGroupCode(String refGroupCode) {
+        this.refGroupCode = refGroupCode;
     }
 
     public String setCreateUserErp(String createUserErp) {
