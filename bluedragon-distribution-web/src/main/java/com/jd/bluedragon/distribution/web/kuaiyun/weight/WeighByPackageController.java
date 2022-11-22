@@ -19,6 +19,7 @@ import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.distribution.web.view.DefaultExcelView;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeRuleCheckDto;
 import com.jd.bluedragon.distribution.weightVolume.handler.WeightVolumeHandlerStrategy;
+import com.jd.bluedragon.distribution.weightvolume.WeightVolumeBusinessTypeEnum;
 import com.jd.bluedragon.dms.utils.MathUtils;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
@@ -319,12 +320,13 @@ public class WeighByPackageController extends DmsBaseController {
                 }
             } else if (uccPropertyConfiguration.getWeightVolumeSwitchVersion() == 1) {
                 WeightVolumeRuleCheckDto condition = new WeightVolumeRuleCheckDto();
-                condition.setBarCode(WaybillUtil.getWaybillCode(codeStr));
+                condition.setBarCode(codeStr);
                 condition.setVolume(volume);
                 condition.setCheckVolume(Boolean.TRUE);
                 condition.setWeight(weight);
                 condition.setCheckWeight(Boolean.TRUE);
                 condition.setCheckLWH(Boolean.FALSE);
+                condition.setBusinessType(WeightVolumeBusinessTypeEnum.BY_PACKAGE.name());
                 InvokeResult result = weightVolumeHandlerStrategy.weightVolumeRuleCheck(condition);
                 if (InvokeResult.CODE_CONFIRM.equals(result.getCode())) {
                     //没通过

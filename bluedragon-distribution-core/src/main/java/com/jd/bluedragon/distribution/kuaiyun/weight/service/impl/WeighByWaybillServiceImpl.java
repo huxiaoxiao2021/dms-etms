@@ -27,6 +27,7 @@ import com.jd.bluedragon.distribution.weight.service.DmsWeightFlowService;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeRuleCheckDto;
 import com.jd.bluedragon.distribution.weightVolume.handler.WeightVolumeHandlerStrategy;
 import com.jd.bluedragon.distribution.weightVolume.service.DMSWeightVolumeCheckService;
+import com.jd.bluedragon.distribution.weightvolume.WeightVolumeBusinessTypeEnum;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
@@ -564,6 +565,7 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
         condition.setWeight(Double.parseDouble(weight));
         condition.setCheckWeight(Boolean.TRUE);
         condition.setCheckLWH(Boolean.FALSE);
+        condition.setBusinessType(WeightVolumeBusinessTypeEnum.BY_WAYBILL.name());
         return weightVolumeHandlerStrategy.weightVolumeRuleCheck(condition);
     }
 
