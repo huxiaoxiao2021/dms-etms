@@ -111,6 +111,7 @@ import com.jd.bluedragon.distribution.urban.service.TransbillMService;
 import com.jd.bluedragon.distribution.ver.domain.Site;
 import com.jd.bluedragon.distribution.ver.exception.SortingCheckException;
 import com.jd.bluedragon.distribution.ver.service.SortingCheckService;
+import com.jd.bluedragon.distribution.waybill.domain.OperatorData;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
@@ -3988,6 +3989,10 @@ public class DeliveryServiceImpl implements DeliveryService,DeliveryJsfService {
         tWaybillStatus.setWaybillCode(tSendDetail.getWaybillCode());
         tWaybillStatus.setSendCode(tSendDetail.getSendCode());
         tWaybillStatus.setBoxCode(tSendDetail.getBoxCode());
+        OperatorData operatorData = new OperatorData();
+        operatorData.setOperatorTypeCode(tSendDetail.getOperatorTypeCode());
+        operatorData.setOperatorId(tSendDetail.getOperatorId());
+        tWaybillStatus.setOperatorData(operatorData);
         return tWaybillStatus;
     }
 
