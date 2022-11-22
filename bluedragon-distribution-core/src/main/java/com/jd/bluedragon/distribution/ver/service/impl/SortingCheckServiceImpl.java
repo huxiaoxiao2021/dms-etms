@@ -10,6 +10,7 @@ import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.constants.HintModuleConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
+import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.BoardCombinationRequest;
 import com.jd.bluedragon.distribution.api.response.SortingResponse;
@@ -37,6 +38,7 @@ import com.jd.bluedragon.distribution.ver.service.SortingCheckService;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
 import com.jd.bluedragon.distribution.businessIntercept.dto.SaveInterceptMsgDto;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
+import com.jd.bluedragon.dms.utils.BarCodeType;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -109,6 +111,9 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
 
     @Autowired
     private WaybillQueryManager waybillQueryManager;
+
+    @Autowired
+    private GroupBoardManager groupBoardManager;
 
     @Override
     @JProfiler(jKey = "DMSWEB.SortingCheckServiceImpl.sortingCheck", mState = JProEnum.TP, jAppName = Constants.UMP_APP_NAME_DMSWEB)
@@ -278,7 +283,12 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
             FilterContext filterContext = null;
             try {
                 //初始化拦截链上下文
-                filterContext = this.initContext(pdaOperateRequest);
+                if (sortingCheck.getBoard() != null) {
+                    filterContext = this.initContextForBoard(pdaOperateRequest);
+                    filterContext.setBoard(sortingCheck.getBoard());
+                } else {
+                    filterContext = this.initContext(pdaOperateRequest);
+                }
                 filterContext.setFuncModule(HintModuleConstants.FORWARD_DELIVERY);
                 filterContext.setValidateIgnore(sortingCheck.getValidateIgnore());
                 filterChain.doFilter(filterContext, filterChain);
@@ -523,6 +533,19 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
         return filterContext;
     }
 
+    /*
+     * 初始化板号拦截链上下文
+     * */
+    private FilterContext initContextForBoard(PdaOperateRequest pdaOperateRequest) throws Exception {
+
+        FilterContext filterContext = initFilterParamV2(pdaOperateRequest);
+
+        //分拣规则
+        filterContext.setRuleMap(this.getRuleList(filterContext.getCreateSiteCode()));
+
+        return filterContext;
+    }
+
     /**
      * 上下文参数判断
      */
@@ -549,6 +572,30 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
         filterContext.setReceiveSiteCode(pdaOperateRequest.getReceiveSiteCode());
         filterContext.setBusinessType(pdaOperateRequest.getBusinessType());
         filterContext.setPackageCode(pdaOperateRequest.getPackageCode());
+        filterContext.setPdaOperateRequest(pdaOperateRequest);
+        filterContext.setOnlineStatus(pdaOperateRequest.getOnlineStatus());
+        return filterContext;
+    }
+
+    /**
+     * 上下文参数判断
+     */
+    private FilterContext initFilterParamV2(PdaOperateRequest pdaOperateRequest) throws SortingCheckException {
+
+        if (StringHelper.isEmpty(pdaOperateRequest.getBoxCode())) {
+            throw new SortingCheckException(SortingResponse.CODE_29000, SortingResponse.MESSAGE_29000);
+        }
+        if (! NumberHelper.isPositiveNumber(pdaOperateRequest.getCreateSiteCode())) {
+            throw new SortingCheckException(SortingResponse.CODE_29200, SortingResponse.MESSAGE_29200);
+        }
+        if (! NumberHelper.isPositiveNumber(pdaOperateRequest.getReceiveSiteCode())) {
+            throw new SortingCheckException(SortingResponse.CODE_29201, SortingResponse.MESSAGE_29201);
+        }
+        FilterContext filterContext = new FilterContext();
+        filterContext.setCreateSiteCode(pdaOperateRequest.getCreateSiteCode());
+        filterContext.setBoxCode(pdaOperateRequest.getBoxCode());
+        filterContext.setReceiveSiteCode(pdaOperateRequest.getReceiveSiteCode());
+        filterContext.setBusinessType(pdaOperateRequest.getBusinessType());
         filterContext.setPdaOperateRequest(pdaOperateRequest);
         filterContext.setOnlineStatus(pdaOperateRequest.getOnlineStatus());
         return filterContext;
@@ -687,6 +734,14 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
     }
 
     /**
+     * 获取按板号发货校验链
+     */
+    private DeliveryFilterChain getDeliveryByBoardFilterChain(){
+        return (DeliveryFilterChain) beanFactory.getBean("deliveryByBoardFilterChain");
+    }
+
+
+    /**
      * 获取发货校验链
      * @return
      */
@@ -721,6 +776,8 @@ public class SortingCheckServiceImpl implements SortingCheckService , BeanFactor
                 return getJyDeliveryFilterChain();
             case BY_WAYBILL:
                 return getDeliveryByWaybillFilterChain();
+            case BY_BOARD:
+                return getDeliveryByBoardFilterChain();
             default:
                 return null;
         }

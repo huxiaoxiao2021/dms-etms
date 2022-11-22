@@ -24,5 +24,10 @@ public interface JySendAggsService {
 
     //插入或修改
     int insertOrUpdateJySendGoodsAggs(JySendAggsEntity entity);
+
+    /**
+     * 查询一条发货任务的异常记录（不齐）
+     */
+    JySendAggsEntity findSendAggExistAbnormal(String sendVehicleBizId);
 }
 

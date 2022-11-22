@@ -35,6 +35,11 @@ public class SendPhotoRequest implements Serializable {
      */
     private List<String> imgList;
 
+    /**
+     * 拍照类型：0-发货前拍照 1-封车前拍照
+     */
+    private Integer type;
+
     public User getUser() {
         return user;
     }
@@ -73,5 +78,13 @@ public class SendPhotoRequest implements Serializable {
 
     public void setImgList(List<String> imgList) {
         this.imgList = imgList;
+    }
+
+    public Integer getType() {
+        return type;
+    }
+
+    public void setType(Integer type) {
+        this.type = type;
     }
 }

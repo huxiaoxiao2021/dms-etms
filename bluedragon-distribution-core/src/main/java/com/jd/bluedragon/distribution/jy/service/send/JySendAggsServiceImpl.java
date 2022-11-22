@@ -28,4 +28,9 @@ public class JySendAggsServiceImpl implements JySendAggsService {
     public int insertOrUpdateJySendGoodsAggs(JySendAggsEntity entity) {
         return jySendAggsDao.insertOrUpdate(entity);
     }
+
+    @Override
+    public JySendAggsEntity findSendAggExistAbnormal(String sendVehicleBizId) {
+        return jySendAggsDao.findSendAggExistAbnormal(sendVehicleBizId);
+    }
 }

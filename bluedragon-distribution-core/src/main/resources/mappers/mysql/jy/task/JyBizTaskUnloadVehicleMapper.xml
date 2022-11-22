@@ -658,7 +658,7 @@
                     #{item}
                 </foreach>
             </if>
-            and yn = 1           
+            and yn = 1
         </where>
      </select>
 

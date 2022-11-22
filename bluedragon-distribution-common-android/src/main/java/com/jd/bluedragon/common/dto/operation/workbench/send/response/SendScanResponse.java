@@ -1,6 +1,7 @@
 package com.jd.bluedragon.common.dto.operation.workbench.send.response;
 
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  * @ClassName SendScanResponse
@@ -62,6 +63,26 @@ public class SendScanResponse implements Serializable {
      */
     private String curScanDestName;
 
+    /**
+     * 批次号
+     */
+    private String sendCode;
+
+    /**
+     * 明细任务首次扫描标识
+     */
+    private boolean firstScan;
+
+    /**
+     * 明细任务业务主键
+     */
+    private String sendDetailBizId;
+
+    /**
+     * 明细任务创建时间
+     */
+    private Date createTime;
+
     public Integer getScanPackCount() {
         return scanPackCount;
     }
@@ -108,5 +129,37 @@ public class SendScanResponse implements Serializable {
 
     public void setForceSendPackCount(Integer forceSendPackCount) {
         this.forceSendPackCount = forceSendPackCount;
+    }
+
+    public String getSendCode() {
+        return sendCode;
+    }
+
+    public void setSendCode(String sendCode) {
+        this.sendCode = sendCode;
+    }
+
+    public boolean isFirstScan() {
+        return firstScan;
+    }
+
+    public void setFirstScan(boolean firstScan) {
+        this.firstScan = firstScan;
+    }
+
+    public String getSendDetailBizId() {
+        return sendDetailBizId;
+    }
+
+    public void setSendDetailBizId(String sendDetailBizId) {
+        this.sendDetailBizId = sendDetailBizId;
+    }
+
+    public Date getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
     }
 }
