@@ -10,11 +10,11 @@ public class JyComboardAggsCondition {
     /**
      * 始发
      */
-    private String operateSiteId;
+    private Integer operateSiteId;
     /**
      * 目的
      */
-    private String receiveSiteId;
+    private Integer receiveSiteId;
     /**
      * 业务id
      */
@@ -36,7 +36,12 @@ public class JyComboardAggsCondition {
 
     private List<String> scanTypes;
 
-    public JyComboardAggsCondition(String operateSiteId, String receiveSiteId, String bizId, String boardCode, String productType, String scanType, List<String> productTypes, List<String> scanTypes) {
+    private List<Integer> receiveSiteIds;
+
+    private List<String> boardCodes;
+
+
+    public JyComboardAggsCondition(Integer operateSiteId, Integer receiveSiteId, String bizId, String boardCode, String productType, String scanType, List<String> productTypes, List<String> scanTypes, List<Integer> receiveSiteIds, List<String> boardCodes) {
         this.operateSiteId = operateSiteId;
         this.receiveSiteId = receiveSiteId;
         this.bizId = bizId;
@@ -45,6 +50,8 @@ public class JyComboardAggsCondition {
         this.scanType = scanType;
         this.productTypes = productTypes;
         this.scanTypes = scanTypes;
+        this.receiveSiteIds = receiveSiteIds;
+        this.boardCodes = boardCodes;
     }
 
     public String redisKey(){

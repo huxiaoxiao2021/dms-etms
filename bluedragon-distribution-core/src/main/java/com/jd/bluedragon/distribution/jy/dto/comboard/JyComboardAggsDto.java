@@ -9,11 +9,11 @@ public class JyComboardAggsDto extends JyAggsDto{
     /**
      * 始发
      */
-    private String operateSiteId;
+    private Integer operateSiteId;
     /**
      * 目的
      */
-    private String receiveSiteId;
+    private Integer receiveSiteId;
     /**
      *  流向
      */
@@ -84,6 +84,13 @@ public class JyComboardAggsDto extends JyAggsDto{
             return "-1";
         }
         return value;
+    }
+
+    private String defaultStr(Integer value){
+        if (value == null) {
+            return "-1";
+        }
+        return value+"";
     }
 
 }

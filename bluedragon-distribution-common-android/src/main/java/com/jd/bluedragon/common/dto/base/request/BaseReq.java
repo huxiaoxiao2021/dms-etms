@@ -2,6 +2,7 @@ package com.jd.bluedragon.common.dto.base.request;
 
 
 import java.io.Serializable;
+import java.util.UUID;
 
 public class BaseReq implements Serializable {
 
@@ -9,6 +10,7 @@ public class BaseReq implements Serializable {
     private CurrentOperate currentOperate;
     private User user;
     private String groupCode;
+    private String requestId = UUID.randomUUID().toString().replace("-","");
 
     public String getGroupCode() {
         return groupCode;
@@ -32,5 +34,13 @@ public class BaseReq implements Serializable {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public String getRequestId() {
+        return requestId;
+    }
+
+    public void setRequestId(String requestId) {
+        this.requestId = requestId;
     }
 }
