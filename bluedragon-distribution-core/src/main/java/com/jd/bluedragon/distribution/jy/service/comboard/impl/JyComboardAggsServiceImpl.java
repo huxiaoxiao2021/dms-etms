@@ -120,17 +120,39 @@ public class JyComboardAggsServiceImpl implements JyComboardAggsService {
     }
 
     @Override
-    public JyComboardAggsEntity queryComboardAggs(String operateSiteId, String receiveSiteId) throws Exception {
+    public JyComboardAggsEntity queryComboardAggs(Integer operateSiteId, Integer receiveSiteId) throws Exception {
         return queryComboardAggsCache(new JyComboardAggsConditionBuilder().operateSiteId(operateSiteId).receiveSiteId(receiveSiteId).build());
     }
 
-    public JyComboardAggsEntity queryComboardAggs(String operateSiteId,String receiveSiteId,String boardCode) throws Exception{
+    @Override
+    public List<JyComboardAggsEntity> queryComboardAggs(Integer operateSiteId, List<Integer> receiveSiteIds) throws Exception {
+        if (CollectionUtils.isNotEmpty(receiveSiteIds)) {
+            return null;
+        }
+
+        JyComboardAggsCondition condition = new JyComboardAggsConditionBuilder().operateSiteId(operateSiteId).receiveSiteIds(receiveSiteIds).build();
+        List<JyComboardAggsEntity> jyComboardAggsEntities = jyComboardAggsDao.queryComboardAggs(condition);
+        return jyComboardAggsEntities;
+    }
+
+    public JyComboardAggsEntity queryComboardAggs(Integer operateSiteId,Integer receiveSiteId,String boardCode) throws Exception{
         JyComboardAggsCondition condition = new JyComboardAggsConditionBuilder().operateSiteId(operateSiteId).receiveSiteId(receiveSiteId).boardCode(boardCode).build();
         return queryComboardAggsCache(condition);
     }
 
     @Override
-    public List<JyComboardAggsEntity> queryComboardAggs(String operateSiteId, String receiveSiteId, ReportTypeEnum ... reportTypeEnums) throws Exception {
+    public List<JyComboardAggsEntity> queryComboardAggs(Integer operateSiteId, Integer receiveSiteId, List<String> boardCodes) throws Exception {
+        if (CollectionUtils.isNotEmpty(boardCodes)) {
+            return null;
+        }
+
+        JyComboardAggsCondition condition = new JyComboardAggsConditionBuilder().operateSiteId(operateSiteId).receiveSiteId(receiveSiteId).boardCodes(boardCodes).build();
+        List<JyComboardAggsEntity> jyComboardAggsEntities = jyComboardAggsDao.queryComboardAggs(condition);
+        return jyComboardAggsEntities;
+    }
+
+    @Override
+    public List<JyComboardAggsEntity> queryComboardAggs(Integer operateSiteId, Integer receiveSiteId, ReportTypeEnum ... reportTypeEnums) throws Exception {
         if (reportTypeEnums == null || reportTypeEnums.length == 0) {
             return null;
         }
@@ -144,7 +166,7 @@ public class JyComboardAggsServiceImpl implements JyComboardAggsService {
     }
 
     @Override
-    public List<JyComboardAggsEntity> queryComboardAggs(String operateSiteId, String receiveSiteId, UnloadProductTypeEnum... productTypeEnums) throws Exception {
+    public List<JyComboardAggsEntity> queryComboardAggs(Integer operateSiteId, Integer receiveSiteId, UnloadProductTypeEnum... productTypeEnums) throws Exception {
         if (productTypeEnums == null || productTypeEnums.length == 0) {
             return null;
         }
