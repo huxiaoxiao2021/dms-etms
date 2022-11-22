@@ -766,6 +766,7 @@
             user_sign_record
         WHERE
             yn = 1
+        AND sign_in_time <![CDATA[ >= ]]> #{signInTimeStart,jdbcType=TIMESTAMP}
         AND sign_in_time <![CDATA[ < ]]> #{signInTime,jdbcType=TIMESTAMP}
         AND sign_out_time IS NULL
         LIMIT #{limit,jdbcType=INTEGER}
@@ -862,6 +863,12 @@
 				</if>		
 				<if test="signDate != null" >
 					and t.sign_date = #{signDate,jdbcType=DATE}
+				</if>
+				<if test="signInTimeStart != null" >
+					and  <![CDATA[   t.sign_in_time >= #{signInTimeStart,jdbcType=TIMESTAMP}  ]]>
+				</if>
+				<if test="signInTimeEnd != null" >
+					and  <![CDATA[   t.sign_in_time <= #{signInTimeEnd,jdbcType=TIMESTAMP}  ]]>
 				</if>
 				order by t.sign_in_time desc
 				limit 1) r

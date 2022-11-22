@@ -31,4 +31,5 @@ public interface JyUnloadAggsService {
      * @return
      */
     List<ExcepScanDto>  queryExcepScanStatistics(JyUnloadAggsEntity entity);
+
 }

@@ -484,6 +484,7 @@ public class JyUnloadVehicleCheckTysService {
             response.setBoardCode(board.getCode());
             response.setEndSiteId(Long.valueOf(board.getDestinationId()));
             response.setEndSiteName(board.getDestination());
+            response.setCreateBoardSuccessFlag(true);
             return true;
 
         }
@@ -667,7 +668,7 @@ public class JyUnloadVehicleCheckTysService {
             }
             log.error("推TC组板关系异常,入参:addBoardBox={},error=", JsonHelper.toJson(addBoardBox), e);
         }
-        log.error("组板失败：req={}", JsonUtils.toJSONString(request));
+        log.warn("组板失败：req={}", JsonUtils.toJSONString(request));
         throw new LoadIllegalException(LoadIllegalException.BOARD_TOTC_FAIL_INTERCEPT_MESSAGE);
     }
 

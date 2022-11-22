@@ -21,6 +21,14 @@ public class JyTaskGroupMemberQuery extends BasePagerCondition {
 	 * 分页-pageSize
 	 */
 	private Integer pageSize;
+    /**
+     * 关联任务表-id
+     */
+    private String refTaskId;
+    /**
+     * 组员类型
+     */
+    private Integer memberType;
 	
 	public String getGroupCode() {
 		return groupCode;
@@ -33,5 +41,17 @@ public class JyTaskGroupMemberQuery extends BasePagerCondition {
 	}
 	public void setPageSize(Integer pageSize) {
 		this.pageSize = pageSize;
+	}
+	public String getRefTaskId() {
+		return refTaskId;
+	}
+	public void setRefTaskId(String refTaskId) {
+		this.refTaskId = refTaskId;
+	}
+	public Integer getMemberType() {
+		return memberType;
+	}
+	public void setMemberType(Integer memberType) {
+		this.memberType = memberType;
 	}	
 }

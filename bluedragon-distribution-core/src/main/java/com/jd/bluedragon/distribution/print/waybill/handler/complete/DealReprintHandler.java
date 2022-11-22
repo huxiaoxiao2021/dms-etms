@@ -49,7 +49,7 @@ public class DealReprintHandler implements Handler<WaybillPrintCompleteContext, 
         }
 
         // 非首次打印的包裹，写补打记录
-        this.saveReprintRecord(request, barCode);
+        this.saveReprintRecord(context, barCode);
 
         // 发送补打类型的全程跟踪
         this.pushReprintWaybillTrack(request, barCode);
@@ -91,9 +91,11 @@ public class DealReprintHandler implements Handler<WaybillPrintCompleteContext, 
         taskService.add(task);
     }
 
-    private void saveReprintRecord(PrintCompleteRequest request, String barCode) {
+    private void saveReprintRecord(WaybillPrintCompleteContext context, String barCode) {
         ReprintRecord rePrintRecord = new ReprintRecord();
+        PrintCompleteRequest request = context.getRequest();
         rePrintRecord.setBarCode(barCode);
+        rePrintRecord.setInterfaceType(context.getOperateType());
         rePrintRecord.setSiteCode(request.getOperateSiteCode());
         rePrintRecord.setSiteName(request.getOperateSiteName());
         rePrintRecord.setOperatorCode(request.getOperatorCode());
