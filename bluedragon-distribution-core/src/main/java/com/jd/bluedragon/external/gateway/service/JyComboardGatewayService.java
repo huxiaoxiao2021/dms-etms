@@ -127,6 +127,13 @@ public interface JyComboardGatewayService {
       SendFlowExcepStatisticsReq request);
 
   /**
-   * 取消组板
+   * 查询板内件明细
    */
+  JdCResponse<ComboardDetailResp> listPackageOrBoxUnderBoard(BoardReq request);
+
+  /**
+   * 取消组板
+   * @param request
+   */
+  JdCResponse cancelComboard(CancelBoardReq request);
 }

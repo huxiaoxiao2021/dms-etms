@@ -139,6 +139,16 @@ public class JyComboardGatewayServiceImpl implements JyComboardGatewayService {
     return null;
   }
 
+  @Override
+  public JdCResponse<ComboardDetailResp> listPackageOrBoxUnderBoard(BoardReq request) {
+    return null;
+  }
+
+  @Override
+  public JdCResponse cancelComboard(CancelBoardReq request) {
+    return null;
+  }
+
   private <T> JdCResponse<T> retJdCResponse(InvokeResult<T> invokeResult) {
     return new JdCResponse<>(invokeResult.getCode(), invokeResult.getMessage(),
         invokeResult.getData());
