@@ -84,8 +84,8 @@ public class WeightVolumeRuleConstant {
      * 泡重比
      */
     public static final int FOAM_WEIGHT_RATIO_C = 8000;
-    public static final int FOAM_WEIGHT_RATIO_C_1 = 25000;//体积（cm³）除以重量（kg）大于25000小于300
-    public static final int FOAM_WEIGHT_RATIO_C_2 = 300;//体积（cm³）除以重量（kg）大于25000小于300
+    public static final int FOAM_WEIGHT_RATIO_C_1 = 20000;//体积（cm³）除以重量（kg）大于20000小于500
+    public static final int FOAM_WEIGHT_RATIO_C_2 = 500;//体积（cm³）除以重量（kg）大于20000小于500
     public static final int FOAM_WEIGHT_RATIO_B = 7800;
     public static final int FOAM_WEIGHT_RATIO_MULTIPLE = 5;
     public static final int FOAM_WEIGHT_RATIO_B_1 = 200000; //体积（立方米）除以重量（kg）0.2

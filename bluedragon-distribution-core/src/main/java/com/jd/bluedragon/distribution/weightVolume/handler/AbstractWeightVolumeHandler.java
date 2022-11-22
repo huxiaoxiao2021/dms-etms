@@ -419,7 +419,7 @@ public abstract class AbstractWeightVolumeHandler implements IWeightVolumeHandle
                 setNextRowChar(confirmMessage);
                 confirmMessage.append(WeightVolumeRuleConstant.RESULT_SPECIAL_MESSAGE_CONFIRM_C_6);
             }
-            // 弱卡控：体积（cm³）除以重量（kg）大于25000小于300
+            // 弱卡控：体积（cm³）除以重量（kg）大于20000小于500
             if (volume > WeightVolumeRuleConstant.FOAM_WEIGHT_RATIO_C_1 * weight
                     || volume < WeightVolumeRuleConstant.FOAM_WEIGHT_RATIO_C_2 * weight) {
                 result.confirmMessage(WeightVolumeRuleConstant.RESULT_SPECIAL_MESSAGE_CONFIRM_C_6);
