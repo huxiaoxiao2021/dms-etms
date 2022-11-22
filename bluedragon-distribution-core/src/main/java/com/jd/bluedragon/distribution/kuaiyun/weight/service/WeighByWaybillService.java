@@ -31,5 +31,5 @@ public interface WeighByWaybillService
 
     InvokeResult checkIsExcess(String codeStr, String weight, String volume);
 
-    InvokeResult checkIsExcessNew(String codeStr, String weight, String volume);
+    InvokeResult checkIsExcessNew(String codeStr, String weight, String volume, Integer siteCode);
 }

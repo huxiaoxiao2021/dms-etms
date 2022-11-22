@@ -50,6 +50,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * 运单称重
@@ -645,7 +646,9 @@ public class WeighByWaybillController extends DmsBaseController {
         if (uccPropertyConfiguration.getWeightVolumeSwitchVersion() == 0) {
             return service.checkIsExcess(codeStr, weight, volume);
         } else if (uccPropertyConfiguration.getWeightVolumeSwitchVersion() == 1) {
-            InvokeResult result = service.checkIsExcessNew(codeStr, weight, volume);
+            String erp = Objects.requireNonNull(ErpUserClient.getCurrUser()).getUserCode();
+            BaseStaffSiteOrgDto staffSiteOrgDto = baseMajorManager.getBaseStaffByErpNoCache(erp);
+            InvokeResult result = service.checkIsExcessNew(codeStr, weight, volume, staffSiteOrgDto.getSiteCode());
             if (InvokeResult.CODE_CONFIRM.equals(result.getCode())) {
                 result.setCode(EXCESS_CODE);
             }

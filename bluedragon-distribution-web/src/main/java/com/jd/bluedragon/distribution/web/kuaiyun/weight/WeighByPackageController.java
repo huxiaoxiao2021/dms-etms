@@ -18,10 +18,10 @@ import com.jd.bluedragon.distribution.kuaiyun.weight.service.WeighByPackageServi
 import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.distribution.web.view.DefaultExcelView;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeRuleCheckDto;
-import com.jd.bluedragon.distribution.weightVolume.handler.WeightVolumeHandlerStrategy;
+import com.jd.bluedragon.distribution.weightVolume.service.DMSWeightVolumeService;
+import com.jd.bluedragon.distribution.weightvolume.FromSourceEnum;
 import com.jd.bluedragon.distribution.weightvolume.WeightVolumeBusinessTypeEnum;
 import com.jd.bluedragon.dms.utils.MathUtils;
-import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.common.util.StringUtils;
@@ -79,7 +79,7 @@ public class WeighByPackageController extends DmsBaseController {
     private UccPropertyConfiguration uccPropertyConfiguration;
 
     @Autowired
-    private WeightVolumeHandlerStrategy weightVolumeHandlerStrategy;
+    private DMSWeightVolumeService dmsWeightVolumeService;
 
     @Autowired
     @Qualifier("redisClientCache")
@@ -321,13 +321,18 @@ public class WeighByPackageController extends DmsBaseController {
             } else if (uccPropertyConfiguration.getWeightVolumeSwitchVersion() == 1) {
                 WeightVolumeRuleCheckDto condition = new WeightVolumeRuleCheckDto();
                 condition.setBarCode(codeStr);
+                condition.setBusinessType(WeightVolumeBusinessTypeEnum.BY_PACKAGE.name());
+                condition.setSourceCode(FromSourceEnum.DMS_WEB_PACKAGE_FAST_TRANSPORT.name());
                 condition.setVolume(volume);
                 condition.setCheckVolume(Boolean.TRUE);
                 condition.setWeight(weight);
                 condition.setCheckWeight(Boolean.TRUE);
-                condition.setCheckLWH(Boolean.FALSE);
-                condition.setBusinessType(WeightVolumeBusinessTypeEnum.BY_PACKAGE.name());
-                InvokeResult result = weightVolumeHandlerStrategy.weightVolumeRuleCheck(condition);
+                condition.setLength(length);
+                condition.setWidth(width);
+                condition.setHeight(high);
+                condition.setCheckLWH(Boolean.TRUE);
+                condition.setOperateSiteCode(getLoginUser().getSiteCode());
+                InvokeResult result = dmsWeightVolumeService.weightVolumeRuleCheck(condition);
                 if (InvokeResult.CODE_CONFIRM.equals(result.getCode())) {
                     //没通过
                     vo.setErrorMessage(result.getMessage());

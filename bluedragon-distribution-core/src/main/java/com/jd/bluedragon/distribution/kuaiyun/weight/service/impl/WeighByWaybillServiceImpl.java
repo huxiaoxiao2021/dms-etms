@@ -25,8 +25,10 @@ import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.weight.domain.DmsWeightFlow;
 import com.jd.bluedragon.distribution.weight.service.DmsWeightFlowService;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeRuleCheckDto;
-import com.jd.bluedragon.distribution.weightVolume.handler.WeightVolumeHandlerStrategy;
+import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeRuleConstant;
 import com.jd.bluedragon.distribution.weightVolume.service.DMSWeightVolumeCheckService;
+import com.jd.bluedragon.distribution.weightVolume.service.DMSWeightVolumeService;
+import com.jd.bluedragon.distribution.weightvolume.FromSourceEnum;
 import com.jd.bluedragon.distribution.weightvolume.WeightVolumeBusinessTypeEnum;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -130,7 +132,7 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
     private DMSWeightVolumeCheckService dmsWeightVolumeCheckService;
 
     @Autowired
-    private WeightVolumeHandlerStrategy weightVolumeHandlerStrategy;
+    private DMSWeightVolumeService dmsWeightVolumeService;
 
 
     /**
@@ -557,16 +559,18 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
     }
 
     @Override
-    public InvokeResult checkIsExcessNew(String codeStr, String weight, String volume) {
+    public InvokeResult checkIsExcessNew(String codeStr, String weight, String volume, Integer siteCode) {
         WeightVolumeRuleCheckDto condition = new WeightVolumeRuleCheckDto();
         condition.setBarCode(WaybillUtil.getWaybillCode(codeStr));
-        condition.setVolume(Double.parseDouble(volume));
+        condition.setBusinessType(WeightVolumeBusinessTypeEnum.BY_WAYBILL.name());
+        condition.setSourceCode(FromSourceEnum.DMS_WEB_FAST_TRANSPORT.name());
+        condition.setVolume(Double.parseDouble(volume) * WeightVolumeRuleConstant.CM3_M3_MAGNIFICATION);
         condition.setCheckVolume(Boolean.TRUE);
         condition.setWeight(Double.parseDouble(weight));
         condition.setCheckWeight(Boolean.TRUE);
         condition.setCheckLWH(Boolean.FALSE);
-        condition.setBusinessType(WeightVolumeBusinessTypeEnum.BY_WAYBILL.name());
-        return weightVolumeHandlerStrategy.weightVolumeRuleCheck(condition);
+        condition.setOperateSiteCode(siteCode);
+        return dmsWeightVolumeService.weightVolumeRuleCheck(condition);
     }
 
     /**
