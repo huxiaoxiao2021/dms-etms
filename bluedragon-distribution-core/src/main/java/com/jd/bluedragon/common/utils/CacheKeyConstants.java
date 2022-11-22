@@ -277,4 +277,9 @@ public class CacheKeyConstants {
      */
     public static final String JY_SEND_AGG_KEY = JY_CACHE_PREFIX + "jySendAgg:%s";
 
+    /**
+     * 接货仓验货 任务缓存，按group_code唯一存在
+     */
+    public static final String JY_WAREHOUSE_INSPECTION_TASK_EXIST_KEY = JY_CACHE_PREFIX + "ware_inspec:group_code:%s";
+
 }

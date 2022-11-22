@@ -1,6 +1,10 @@
 package com.jd.bluedragon.distribution.jy.service.unload;
 
 import com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadAggsDao;
+import com.jd.bluedragon.distribution.jy.dto.unload.ExcepScanDto;
+import com.jd.bluedragon.distribution.jy.dto.unload.GoodsCategoryDto;
+import com.jd.bluedragon.distribution.jy.dto.unload.ScanStatisticsDto;
+import com.jd.bluedragon.distribution.jy.enums.GoodsTypeEnum;
 import com.jd.bluedragon.distribution.jy.enums.UnloadBarCodeQueryEntranceEnum;
 import com.jd.bluedragon.distribution.jy.unload.JyUnloadAggsEntity;
 import com.jd.bluedragon.utils.ObjectHelper;
@@ -8,10 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import com.jd.bluedragon.distribution.jy.dto.unload.ExcepScanDto;
-import com.jd.bluedragon.distribution.jy.dto.unload.GoodsCategoryDto;
-import com.jd.bluedragon.distribution.jy.dto.unload.ScanStatisticsDto;
-import com.jd.bluedragon.distribution.jy.enums.GoodsTypeEnum;
 
 import java.util.ArrayList;
 import java.util.List;
