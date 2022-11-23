@@ -2,12 +2,11 @@ package com.jd.bluedragon.distribution.api.enums;
 
 /**
  * @ClassName 操作者类型
- * @Description 操作类型 0-未知类型 1-分拣客户端 2-自动化设备
+ * @Description 操作类型 1-分拣客户端 2-自动化设备
  * @Author wyd
  * @Date 2022/11/15 16:49
  **/
 public enum OperatorTypeEnum {
-	UNKNOWN(0,"未知类型"),
 	DMS_CLIENT(1,"分拣客户端"),
 	AUTO_MACHINE(2,"自动化设备")
     ;

@@ -36,13 +36,14 @@ public class CurrentOperate implements Serializable {
      */
     private String dmsCode;
     /**
-     * 登录记录Id
+     *@see com.jd.bluedragon.distribution.api.enums.OperatorTypeEnum
+     * 操作者类型编码
      */
-    private Long loginId;
+	private Integer operatorTypeCode;
     /**
-     * 岗位码编码
+     * 操作者id
      */
-    private String positionCode;
+	private String operatorId;
 
     public CurrentOperate() {
     }
@@ -101,19 +102,20 @@ public class CurrentOperate implements Serializable {
         this.orgName = orgName;
     }
 
-	public Long getLoginId() {
-		return loginId;
+	public Integer getOperatorTypeCode() {
+		return operatorTypeCode;
 	}
 
-	public void setLoginId(Long loginId) {
-		this.loginId = loginId;
+	public void setOperatorTypeCode(Integer operatorTypeCode) {
+		this.operatorTypeCode = operatorTypeCode;
 	}
 
-	public String getPositionCode() {
-		return positionCode;
+	public String getOperatorId() {
+		return operatorId;
 	}
 
-	public void setPositionCode(String positionCode) {
-		this.positionCode = positionCode;
+	public void setOperatorId(String operatorId) {
+		this.operatorId = operatorId;
 	}
+
 }
