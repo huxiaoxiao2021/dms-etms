@@ -1114,11 +1114,10 @@ public class InspectionServiceImpl implements InspectionService , InspectionJsfS
 
 	@Override
 	public InvokeResult<Boolean> checkEasyFreeze(String barCode, Date operateTime, Integer siteCode) {
-		log.info("易冻品 checkEasyFreeze 单号-{} 操作时间-{}，当前站点-{}",barCode,operateTime,siteCode);
+		log.info("易冻品 checkEasyFreeze 单号-{} ; 操作时间-{} ;当前站点-{}",barCode,operateTime,siteCode);
 		InvokeResult<Boolean> result = new InvokeResult();
 		result.success();
 		result.setData(Boolean.FALSE);
-		log.info("卸车岗易冻品提醒校验入参-{}-{}-{}", barCode,operateTime,siteCode);
 		if(operateTime == null){
 			log.warn("入参不能为空！");
 			return result;
@@ -1126,7 +1125,7 @@ public class InspectionServiceImpl implements InspectionService , InspectionJsfS
 		//箱号暂时不做处理
 		Boolean isBoxCode = BusinessUtil.isBoxcode(barCode);
 		if(isBoxCode){
-			log.warn("箱号暂时不做处理！");
+			log.warn("易冻损箱号暂时不做处理！");
 			return result;
 		}
 		//如果是包裹号解析成运单号
@@ -1140,43 +1139,37 @@ public class InspectionServiceImpl implements InspectionService , InspectionJsfS
 					|| dataByChoice.getData() == null
 					|| dataByChoice.getData().getWaybill() == null
 					|| org.apache.commons.lang3.StringUtils.isBlank(dataByChoice.getData().getWaybill().getWaybillSign())) {
-				log.warn("查询运单waybillSign失败!");
+				log.warn("易冻损查询运单waybillSign失败!");
 				return result;
 			}
 			String waybillSign = dataByChoice.getData().getWaybill().getWaybillSign();
-			// 根据waybillSign判断自营单 OR 外单
-			if(!BusinessUtil.isSelf(waybillSign)){
-				log.info("外单号--");
-				//通过waybillsign判断此运单是否包含增值服务
-				if(!BusinessUtil.isVasWaybill(waybillSign)){
-					log.warn("此运单不包含增值服务!");
-					return result;
-				}
-				//判断增值服务是否包含易冻品增值服务
-				boolean isEasyFrozen = waybillService.isEasyFrozenVosWaybill(waybillCode);
-				if(!isEasyFrozen){
-					log.warn("此运单不包含易冻品增值服务");
-					return result;
-				}
-				//根据当前操作场地和操作时间 去匹配易冻品指定场地配置
-				boolean checkEasyFreezeConf = checkEasyFreezeSiteConf(siteCode,operateTime);
-				log.info("此单是否满足易冻品提示-{}",checkEasyFreezeConf);
-				if(checkEasyFreezeConf){
-					if(goodsResidencetimeOverThreeHours(waybillCode,operateTime)){
-						log.info("此单在该场地超过三个小时");
-						result.customMessage(InvokeResult.EASY_FROZEN_TIPS_STORAGE_CODE,InvokeResult.EASY_FROZEN_TIPS_STORAGE_MESSAGE);
-						result.setData(Boolean.TRUE);
-						return result;
-					}
-					log.info("此单在该场地不超过三个小时");
-					result.customMessage(InvokeResult.EASY_FROZEN_TIPS_CODE,InvokeResult.EASY_FROZEN_TIPS_MESSAGE);
+			//通过waybillsign判断此运单是否包含增值服务
+			if(!BusinessUtil.isVasWaybill(waybillSign)){
+				log.warn("易冻损此运单不包含增值服务!");
+				return result;
+			}
+			//判断增值服务是否包含易冻品增值服务
+			boolean isEasyFrozen = waybillService.isEasyFrozenVosWaybill(waybillCode);
+			if(!isEasyFrozen){
+				log.warn("易冻损此运单不包含易冻品增值服务");
+				return result;
+			}
+			//根据当前操作场地和操作时间 去匹配易冻品指定场地配置
+			boolean checkEasyFreezeConf = checkEasyFreezeSiteConf(siteCode,operateTime);
+			log.info("此单是否满足易冻品提示-{}",checkEasyFreezeConf);
+			if(checkEasyFreezeConf){
+				if(goodsResidencetimeOverThreeHours(waybillCode,operateTime)){
+					log.info("易冻损此单在该场地超过三个小时");
+					result.customMessage(InvokeResult.EASY_FROZEN_TIPS_STORAGE_CODE,InvokeResult.EASY_FROZEN_TIPS_STORAGE_MESSAGE);
 					result.setData(Boolean.TRUE);
 					return result;
 				}
-			}else {
-				log.info("自营单号--");
+				log.info("易冻损此单在该场地不超过三个小时");
+				result.customMessage(InvokeResult.EASY_FROZEN_TIPS_CODE,InvokeResult.EASY_FROZEN_TIPS_MESSAGE);
+				result.setData(Boolean.TRUE);
 				return result;
 			}
+
 		}catch (Exception e){
 			log.error("卸车岗易冻品提醒校验异常-{}",e.getMessage(),e);
 		}
@@ -1203,12 +1196,12 @@ public class InspectionServiceImpl implements InspectionService , InspectionJsfS
 				//根据运单获取waybillSign
 				com.jd.etms.waybill.domain.BaseEntity<BigWaybillDto> dataByChoice
 						= waybillQueryManager.getDataByChoice(waybillCode, true, true, true, false);
-				log.info("InspectionServiceImpl.checkEasyFreeze-根据运单号获取运单标识接口请求成功!返回waybillsign数据:{}",dataByChoice.getData());
+				log.info("InspectionServiceImpl.checkLuxurySecurity-根据运单号获取运单标识接口请求成功!返回waybillsign数据:{}",dataByChoice.getData());
 				if(dataByChoice == null
 						|| dataByChoice.getData() == null
 						|| dataByChoice.getData().getWaybill() == null
 						|| org.apache.commons.lang3.StringUtils.isBlank(dataByChoice.getData().getWaybill().getWaybillSign())) {
-					log.warn("查询运单waybillSign失败!");
+					log.warn("特保单查询运单waybillSign失败!");
 					return result;
 				}
 				waybillSign = dataByChoice.getData().getWaybill().getWaybillSign();
@@ -1216,7 +1209,7 @@ public class InspectionServiceImpl implements InspectionService , InspectionJsfS
 
 			//通过waybillsign判断此运单是否包含增值服务
 			if(!BusinessUtil.isVasWaybill(waybillSign)){
-				log.warn("此运单不包含增值服务!");
+				log.warn("此运单不包含特保单增值服务!");
 				return result;
 			}
 			//判断增值服务是否包含特保单增值服务

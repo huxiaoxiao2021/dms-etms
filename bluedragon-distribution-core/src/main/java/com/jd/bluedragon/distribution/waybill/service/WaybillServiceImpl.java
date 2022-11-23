@@ -1074,7 +1074,8 @@ public class WaybillServiceImpl implements WaybillService {
             if (baseEntity != null && baseEntity.getResultCode() == EnumBusiCode.BUSI_SUCCESS.getCode() && baseEntity.getData() != null) {
                 List<WaybillVasDto> vasDtoList = baseEntity.getData();
                 for (WaybillVasDto waybillVasDto : vasDtoList) {
-                    if (waybillVasDto != null && Constants.EASY_FROZEN_SERVICE.equals(waybillVasDto.getVasNo())) {
+                    //外单和自营单的增值服务编码不同 命中其一即可
+                    if (waybillVasDto != null && (Constants.EASY_FROZEN_SERVICE.equals(waybillVasDto.getVasNo()) || Constants.SELF_EASY_FROZEN_SERVICE.equals(waybillVasDto.getVasNo()))) {
                         return true;
                     }
                 }
