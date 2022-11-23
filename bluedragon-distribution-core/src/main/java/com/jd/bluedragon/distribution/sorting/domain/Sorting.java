@@ -441,7 +441,8 @@ public class Sorting implements Cloneable,java.io.Serializable,Comparable<Sortin
             sorting.setWaybillCode(WaybillUtil.getWaybillCode(aPackageCode));
         }
         sorting.setBizSource(request.getBizSource());
-        
+        sorting.setOperatorTypeCode(request.getOperatorTypeCode());
+        sorting.setOperatorId(request.getOperatorId());
         return sorting;
     }
     
@@ -466,6 +467,8 @@ public class Sorting implements Cloneable,java.io.Serializable,Comparable<Sortin
         sorting.setType(request.getBusinessType());
 
         sorting.setBizSource(request.getBizSource());
+        sorting.setOperatorTypeCode(request.getOperatorTypeCode());
+        sorting.setOperatorId(request.getOperatorId());
         return sorting;
     }
     

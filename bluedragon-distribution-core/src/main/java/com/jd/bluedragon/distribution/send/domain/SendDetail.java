@@ -467,7 +467,8 @@ public class SendDetail implements java.io.Serializable, Comparable<SendDetail> 
 
     public static SendDetail toSendDatail(Sorting sorting) {
         SendDetail sendDetail = new SendDetail();
-
+        sendDetail.setOperatorTypeCode(sorting.getOperatorTypeCode());
+        sendDetail.setOperatorId(sorting.getOperatorId());
         String aBoxCode = sorting.getBoxCode();
         String aPackageCode = sorting.getPackageCode();
 
