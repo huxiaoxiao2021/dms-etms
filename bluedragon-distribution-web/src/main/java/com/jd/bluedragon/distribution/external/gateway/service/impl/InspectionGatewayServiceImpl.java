@@ -287,7 +287,17 @@ public class InspectionGatewayServiceImpl implements InspectionGatewayService {
         tempStorageCheck(request, response);
 
         //易冻品校验
-        //easyFrozenremindByWaybillCode(request,response);
+        Date operateTime = DateHelper.parseDateTime(request.getOperateTime());
+        com.jd.bluedragon.distribution.jsf.domain.InvokeResult<Boolean> easyFreezeResult
+                = inspectionService.checkEasyFreeze(barCode, operateTime, request.getCreateSiteCode());
+        if(easyFreezeResult != null && easyFreezeResult.getData()){
+            response.addWarningBox(0, easyFreezeResult.getMessage());
+        }
+        //特保单校验
+        com.jd.bluedragon.distribution.jsf.domain.InvokeResult<Boolean> luxurySecurityResult = inspectionService.checkLuxurySecurity(barCode, "");
+        if(luxurySecurityResult != null && luxurySecurityResult.getData()){
+            response.addWarningBox(0, luxurySecurityResult.getMessage());
+        }
 
         // 提示语校验
         HintCheckRequest hintCheckRequest = new HintCheckRequest();
@@ -375,115 +385,5 @@ public class InspectionGatewayServiceImpl implements InspectionGatewayService {
                 }
             }
         }
-    }
-
-
-    private void easyFrozenremindByWaybillCode(InspectionRequest request, JdVerifyResponse<InspectionCheckResultDto> response) {
-        log.info("卸车岗易冻品提醒校验入参-{}", JSON.toJSONString(request));
-        Date operateTime = DateHelper.parseDateTime(request.getOperateTime());
-        if(operateTime == null){
-            log.warn("入参不能为空！");
-            return;
-        }
-        String waybillCode =request.getBarCode();
-        try{
-            //根据运单获取waybillSign
-            com.jd.etms.waybill.domain.BaseEntity<BigWaybillDto> dataByChoice = waybillQueryManager.getDataByChoice(waybillCode, true, true, true, false);
-            log.info("JyUnloadVehicleServiceImpl-easyFrozenremindByWaybillCode-根据运单号获取运单标识接口请求成功!返回waybillsign数据:{}",dataByChoice.getData());
-            if(dataByChoice == null
-                    || dataByChoice.getData() == null
-                    || dataByChoice.getData().getWaybill() == null
-                    || org.apache.commons.lang3.StringUtils.isBlank(dataByChoice.getData().getWaybill().getWaybillSign())) {
-                log.warn("查询运单waybillSign失败!");
-                return ;
-            }
-            String waybillSign = dataByChoice.getData().getWaybill().getWaybillSign();
-            // 根据waybillSign判断自营单 OR 外单
-            if(!BusinessUtil.isSelf(waybillSign)){
-                log.info("外单号--");
-                //通过waybillsign判断此运单是否包含增值服务
-                if(!BusinessUtil.isVasWaybill(waybillCode)){
-                    log.warn("此运单不包含增值服务!");
-                    return ;
-                }
-                //判断增值服务是否包含易冻品增值服务
-                boolean isEasyFrozen = waybillService.isEasyFrozenVosWaybill(waybillSign);
-                if(!isEasyFrozen){
-                    log.warn("此运单不包含易冻品增值服务");
-                    return ;
-                }
-                //根据当前操作场地和操作时间 去匹配易冻品指定场地配置
-                boolean checkEasyFreezeConf = checkEasyFreezeSiteConf(request.getCreateSiteCode(),operateTime);
-                if(checkEasyFreezeConf){
-                    if(goodsResidencetimeOverThreeHours(waybillCode,operateTime)){
-                        response.addWarningBox(0,InvokeResult.EASY_FROZEN_TIPS_STORAGE_MESSAGE);
-                        return ;
-                    }
-                    response.addWarningBox(0,InvokeResult.EASY_FROZEN_TIPS_MESSAGE);
-                    return ;
-                }
-            }else {
-                log.info("自营单号--");
-                return ;
-            }
-        }catch (Exception e){
-            log.error("卸车岗易冻品提醒校验异常-{}",e.getMessage(),e);
-        }
-        return ;
-    }
-
-    /**
-     * 判断货物滞留时间是否超过三小时 true：超过三小时
-     */
-    private boolean goodsResidencetimeOverThreeHours(String waybillCode,Date scanTime){
-        Date planSendvehicleTime = getWaybillRoutePlanSendvehicleTime(waybillCode);
-        if(planSendvehicleTime == null){
-            return false;
-        }
-        int miniDiff = DateHelper.getMiniDiff(scanTime, planSendvehicleTime);
-        int goodsResidenceTime = uccPropertyConfiguration.getGoodsResidenceTime();
-        //使用分钟更精确些
-        if(miniDiff > (goodsResidenceTime * 60)){
-            return true;
-        }
-        return false;
-    }
-    /**
-     * 根据运单获取运单在分拣中心计划发车时间
-     * @return
-     */
-    private Date getWaybillRoutePlanSendvehicleTime(String waybillCode){
-
-        List<WaybillRouteLinkResp> waybillRoutes = waybillRouteManager.queryCustomWaybillRouteLink(waybillCode);
-        if(CollectionUtils.isNotEmpty(waybillRoutes)){
-            for (WaybillRouteLinkResp route:waybillRoutes) {
-                //判断是否是分拣发货操作类型
-                if(Constants.SORT_SEND_VEHICLE.equals(route.getOperateType())){
-                    return route.getPlanOperateTime();
-                }
-            }
-        }
-        return null;
-    }
-
-    /**
-     * 判断当前站点是否满足易冻品配置 true：满足 false:不满足
-     * @param siteCode
-     * @return
-     */
-    private boolean checkEasyFreezeSiteConf(Integer siteCode,Date scanTime){
-        EasyFreezeSiteDto dto = easyFreezeSiteManager.selectOneBysiteCode(siteCode);
-        if(dto == null){
-            return false;
-        }
-        //配置的提示开始时间
-        Date remindStartTime = dto.getRemindStartTime();
-        //配置的提示结束时间
-        Date remindEndTime = dto.getRemindEndTime();
-        if(DateHelper.compare(scanTime,remindStartTime)>=0 && DateHelper.compare(remindEndTime,scanTime) >=0){
-            return true;
-        }
-        return false;
-
     }
 }

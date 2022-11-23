@@ -3111,9 +3111,11 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             SendVehicleProductTypeAgg item = new SendVehicleProductTypeAgg();
             item.setProductType(aggEntity.getProductType());
             item.setProductTypeName(UnloadProductTypeEnum.getNameByCode(item.getProductType()));
+            item.setOrder(UnloadProductTypeEnum.getOrderByCode(item.getProductType()));
             item.setCount(new Long(aggEntity.getProductwaitScanCount()));
             productTypeList.add(item);
         }
+        Collections.sort(productTypeList, new SendVehicleProductTypeAgg.OrderComparator());
     }
 
     private List<SendCodeDto> assembleSendCodeDto(List<JySendCodeEntity> sendCodeEntityList) {

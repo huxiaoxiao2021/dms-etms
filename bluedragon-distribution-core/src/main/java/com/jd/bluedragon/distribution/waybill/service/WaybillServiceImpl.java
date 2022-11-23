@@ -1068,6 +1068,7 @@ public class WaybillServiceImpl implements WaybillService {
     public boolean isEasyFrozenVosWaybill(String waybillCode) {
         try {
             //获取增值服务信息
+            log.info("获取易冻品增值服务入参-{}",waybillCode);
             BaseEntity<List<WaybillVasDto>> baseEntity = waybillQueryManager.getWaybillVasInfosByWaybillCode(waybillCode);
             log.info("运单getWaybillVasInfosByWaybillCode返回的结果为：{}", JsonHelper.toJson(baseEntity));
             if (baseEntity != null && baseEntity.getResultCode() == EnumBusiCode.BUSI_SUCCESS.getCode() && baseEntity.getData() != null) {
@@ -1078,7 +1079,30 @@ public class WaybillServiceImpl implements WaybillService {
                     }
                 }
             } else {
-                log.warn("运单{}获取增值服务信息失败！返回baseEntity: ", waybillCode, JsonHelper.toJson(baseEntity));
+                log.warn("运单{}获取易冻品增值服务信息失败！返回baseEntity: ", waybillCode, JsonHelper.toJson(baseEntity));
+            }
+        } catch (Exception e) {
+            log.error("运单{}获取增值服务信息异常！", waybillCode, e);
+        }
+        return false;
+    }
+
+    @Override
+    public boolean isLuxurySecurityVosWaybill(String waybillCode) {
+        try {
+            //获取增值服务信息
+            log.info("获取特保单增值服务入参-{}",waybillCode);
+            BaseEntity<List<WaybillVasDto>> baseEntity = waybillQueryManager.getWaybillVasInfosByWaybillCode(waybillCode);
+            log.info("运单getWaybillVasInfosByWaybillCode返回的结果为：{}", JsonHelper.toJson(baseEntity));
+            if (baseEntity != null && baseEntity.getResultCode() == EnumBusiCode.BUSI_SUCCESS.getCode() && baseEntity.getData() != null) {
+                List<WaybillVasDto> vasDtoList = baseEntity.getData();
+                for (WaybillVasDto waybillVasDto : vasDtoList) {
+                    if (waybillVasDto != null && Constants.LUXURY_SECURITY_SERVICE.equals(waybillVasDto.getVasNo())) {
+                        return true;
+                    }
+                }
+            } else {
+                log.warn("运单{}获取特保单增值服务信息失败！返回baseEntity: ", waybillCode, JsonHelper.toJson(baseEntity));
             }
         } catch (Exception e) {
             log.error("运单{}获取增值服务信息异常！", waybillCode, e);

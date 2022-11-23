@@ -4,15 +4,14 @@ import com.alibaba.fastjson.JSON;
 import com.google.common.base.Strings;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.DmsRouter;
+import com.jd.bluedragon.common.dto.easyFreeze.EasyFreezeSiteDto;
 import com.jd.bluedragon.common.service.WaybillCommonService;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
-import com.jd.bluedragon.core.base.AssertQueryManager;
-import com.jd.bluedragon.core.base.WaybillPackageManager;
-import com.jd.bluedragon.core.base.WaybillQueryManager;
-import com.jd.bluedragon.core.base.WaybillTraceManager;
+import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
+import com.jd.bluedragon.core.jsf.easyFreezeSite.EasyFreezeSiteManager;
 import com.jd.bluedragon.distribution.abnormal.domain.DmsOperateHintTrack;
 import com.jd.bluedragon.distribution.abnormal.service.DmsOperateHintService;
 import com.jd.bluedragon.distribution.api.request.InspectionRequest;
@@ -53,6 +52,7 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.*;
 import com.jd.dms.workbench.utils.sdk.base.Result;
+import com.jd.etms.api.waybillroutelink.resp.WaybillRouteLinkResp;
 import com.jd.etms.asset.material.base.ResultData;
 import com.jd.etms.asset.material.base.ResultStateEnum;
 import com.jd.etms.asset.material.dto.MatterPackageRelationDto;
@@ -169,6 +169,12 @@ public class InspectionServiceImpl implements InspectionService , InspectionJsfS
 
 	@Autowired
 	private WaybillTraceManager waybillTraceManager;
+
+	@Autowired
+	private WaybillRouteLinkQueryManager waybillRouteManager;
+
+	@Autowired
+	private EasyFreezeSiteManager easyFreezeSiteManager;
 
     public boolean isExists(Integer Storeid)
     {
@@ -1104,6 +1110,178 @@ public class InspectionServiceImpl implements InspectionService , InspectionJsfS
 	@Override
 	public InvokeResult<Boolean> addInspection(InspectionVO vo, InspectionBizSourceEnum inspectionBizSourceEnum) {
 		return inspection(vo, inspectionBizSourceEnum);
+	}
+
+	@Override
+	public InvokeResult<Boolean> checkEasyFreeze(String barCode, Date operateTime, Integer siteCode) {
+		InvokeResult<Boolean> result = new InvokeResult();
+		result.success();
+		result.setData(Boolean.FALSE);
+		log.info("卸车岗易冻品提醒校验入参-{}-{}-{}", barCode,operateTime,siteCode);
+		if(operateTime == null){
+			log.warn("入参不能为空！");
+			return result;
+		}
+		//箱号暂时不做处理
+		Boolean isBoxCode = BusinessUtil.isBoxcode(barCode);
+		if(isBoxCode){
+			log.warn("箱号暂时不做处理！");
+			return result;
+		}
+		//如果是包裹号解析成运单号
+		String waybillCode = WaybillUtil.getWaybillCode(barCode);
+
+		try{
+			//根据运单获取waybillSign
+			com.jd.etms.waybill.domain.BaseEntity<BigWaybillDto> dataByChoice
+					= waybillQueryManager.getDataByChoice(waybillCode, true, true, true, false);
+			log.info("InspectionServiceImpl.checkEasyFreeze-根据运单号获取运单标识接口请求成功!返回waybillsign数据:{}",dataByChoice.getData());
+			if(dataByChoice == null
+					|| dataByChoice.getData() == null
+					|| dataByChoice.getData().getWaybill() == null
+					|| org.apache.commons.lang3.StringUtils.isBlank(dataByChoice.getData().getWaybill().getWaybillSign())) {
+				log.warn("查询运单waybillSign失败!");
+				return result;
+			}
+			String waybillSign = dataByChoice.getData().getWaybill().getWaybillSign();
+			// 根据waybillSign判断自营单 OR 外单
+			if(!BusinessUtil.isSelf(waybillSign)){
+				log.info("外单号--");
+				//通过waybillsign判断此运单是否包含增值服务
+				if(!BusinessUtil.isVasWaybill(waybillSign)){
+					log.warn("此运单不包含增值服务!");
+					return result;
+				}
+				//判断增值服务是否包含易冻品增值服务
+				boolean isEasyFrozen = waybillService.isEasyFrozenVosWaybill(waybillCode);
+				if(!isEasyFrozen){
+					log.warn("此运单不包含易冻品增值服务");
+					return result;
+				}
+				//根据当前操作场地和操作时间 去匹配易冻品指定场地配置
+				boolean checkEasyFreezeConf = checkEasyFreezeSiteConf(siteCode,operateTime);
+				if(checkEasyFreezeConf){
+					if(goodsResidencetimeOverThreeHours(waybillCode,operateTime)){
+						result.customMessage(InvokeResult.EASY_FROZEN_TIPS_STORAGE_CODE,InvokeResult.EASY_FROZEN_TIPS_STORAGE_MESSAGE);
+						result.setData(Boolean.TRUE);
+						return result;
+					}
+					result.customMessage(InvokeResult.EASY_FROZEN_TIPS_CODE,InvokeResult.EASY_FROZEN_TIPS_MESSAGE);
+					result.setData(Boolean.TRUE);
+					return result;
+				}
+			}else {
+				log.info("自营单号--");
+				return result;
+			}
+		}catch (Exception e){
+			log.error("卸车岗易冻品提醒校验异常-{}",e.getMessage(),e);
+		}
+		return result;
+	}
+
+	@Override
+	public InvokeResult<Boolean> checkLuxurySecurity(String barCode,String waybillSign) {
+		InvokeResult<Boolean> result = new InvokeResult();
+		result.success();
+		result.setData(Boolean.FALSE);
+		log.info("特保单校验 入参-{}",barCode);
+		//箱号暂时不做处理
+		Boolean isBoxCode = BusinessUtil.isBoxcode(barCode);
+		if(isBoxCode){
+			log.warn("箱号暂时不做处理！");
+			return result;
+		}
+		//如果是包裹号解析成运单号
+		String waybillCode = WaybillUtil.getWaybillCode(barCode);
+		try{
+			if(StringUtils.isBlank(waybillSign)){
+				//根据运单获取waybillSign
+				com.jd.etms.waybill.domain.BaseEntity<BigWaybillDto> dataByChoice
+						= waybillQueryManager.getDataByChoice(waybillCode, true, true, true, false);
+				log.info("InspectionServiceImpl.checkEasyFreeze-根据运单号获取运单标识接口请求成功!返回waybillsign数据:{}",dataByChoice.getData());
+				if(dataByChoice == null
+						|| dataByChoice.getData() == null
+						|| dataByChoice.getData().getWaybill() == null
+						|| org.apache.commons.lang3.StringUtils.isBlank(dataByChoice.getData().getWaybill().getWaybillSign())) {
+					log.warn("查询运单waybillSign失败!");
+					return result;
+				}
+				waybillSign = dataByChoice.getData().getWaybill().getWaybillSign();
+			}
+
+			//通过waybillsign判断此运单是否包含增值服务
+			if(!BusinessUtil.isVasWaybill(waybillSign)){
+				log.warn("此运单不包含增值服务!");
+				return result;
+			}
+			//判断增值服务是否包含特保单增值服务
+			boolean isLuxurySecurity = waybillService.isLuxurySecurityVosWaybill(waybillCode);
+			if(isLuxurySecurity){
+				result.customMessage(InvokeResult.LUXURY_SECURITY_TIPS_CODE,InvokeResult.LUXURY_SECURITY_TIPS_MESSAGE);
+				result.setData(Boolean.TRUE);
+				return result;
+			}
+		}catch (Exception e){
+			log.error("特保单校验异常-{}",e.getMessage(),e);
+		}
+		return result;
+	}
+
+
+	/**
+	 * 判断货物滞留时间是否超过三小时 true：超过三小时
+	 */
+	private boolean goodsResidencetimeOverThreeHours(String waybillCode,Date scanTime){
+		Date planSendvehicleTime = getWaybillRoutePlanSendvehicleTime(waybillCode);
+		if(planSendvehicleTime == null){
+			return false;
+		}
+		int miniDiff = DateHelper.getMiniDiff(scanTime, planSendvehicleTime);
+		int goodsResidenceTime = uccPropertyConfiguration.getGoodsResidenceTime();
+		//使用分钟更精确些
+		if(miniDiff > (goodsResidenceTime * 60)){
+			return true;
+		}
+		return false;
+	}
+	/**
+	 * 根据运单获取运单在分拣中心计划发车时间
+	 * @return
+	 */
+	private Date getWaybillRoutePlanSendvehicleTime(String waybillCode){
+
+		List<WaybillRouteLinkResp> waybillRoutes = waybillRouteManager.queryCustomWaybillRouteLink(waybillCode);
+		if(org.apache.commons.collections4.CollectionUtils.isNotEmpty(waybillRoutes)){
+			for (WaybillRouteLinkResp route:waybillRoutes) {
+				//判断是否是分拣发货操作类型
+				if(Constants.SORT_SEND_VEHICLE.equals(route.getOperateType())){
+					return route.getPlanOperateTime();
+				}
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * 判断当前站点是否满足易冻品配置 true：满足 false:不满足
+	 * @param siteCode
+	 * @return
+	 */
+	private boolean checkEasyFreezeSiteConf(Integer siteCode,Date scanTime){
+		EasyFreezeSiteDto dto = easyFreezeSiteManager.selectOneBysiteCode(siteCode);
+		if(dto == null){
+			return false;
+		}
+		//配置的提示开始时间
+		Date remindStartTime = dto.getRemindStartTime();
+		//配置的提示结束时间
+		Date remindEndTime = dto.getRemindEndTime();
+		if(DateHelper.compare(scanTime,remindStartTime)>=0 && DateHelper.compare(remindEndTime,scanTime) >=0){
+			return true;
+		}
+		return false;
+
 	}
 
 	@Override

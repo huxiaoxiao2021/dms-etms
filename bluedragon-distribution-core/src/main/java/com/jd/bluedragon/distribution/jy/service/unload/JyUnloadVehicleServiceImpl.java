@@ -990,6 +990,8 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
     }
 
     private void convertAggEntityToPage(List<UnloadScanAggByProductType> productTypeList, List<JyUnloadAggsEntity> unloadAggList) {
+
+
         for (JyUnloadAggsEntity aggEntity : unloadAggList) {
             UnloadScanAggByProductType item = new UnloadScanAggByProductType();
             item.setProductType(aggEntity.getProductType());
@@ -1033,9 +1035,11 @@ public class JyUnloadVehicleServiceImpl implements IJyUnloadVehicleService {
             ProductTypeAgg item = new ProductTypeAgg();
             item.setProductType(aggEntity.getProductType());
             item.setProductTypeName(UnloadProductTypeEnum.getNameByCode(item.getProductType()));
+            item.setOrder(UnloadProductTypeEnum.getOrderByCode(item.getProductType()));
             item.setCount(dealMinus(aggEntity.getShouldScanCount(), aggEntity.getActualScanCount()));
             productTypeList.add(item);
         }
+        Collections.sort(productTypeList,new ProductTypeAgg.OrderComparator());
     }
 
     private Long dealMinus(Number a, Number b) {

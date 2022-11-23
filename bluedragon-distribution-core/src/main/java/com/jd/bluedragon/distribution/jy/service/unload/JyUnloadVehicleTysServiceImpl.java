@@ -15,6 +15,7 @@ import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.board.service.BoardCombinationService;
 import com.jd.bluedragon.distribution.external.enums.AppVersionEnums;
+import com.jd.bluedragon.distribution.inspection.service.InspectionService;
 import com.jd.bluedragon.distribution.jy.api.JyUnloadVehicleTysService;
 import com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskUnloadVehicleDao;
 import com.jd.bluedragon.distribution.jy.dao.unload.JyBizTaskUnloadVehicleStageDao;
@@ -124,6 +125,8 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     @Autowired
     @Qualifier("jyUnloadCarPostTaskCompleteProducer")
     private DefaultJMQProducer jyUnloadCarPostTaskCompleteProducer;
+    @Autowired
+    private InspectionService inspectionService;
 
 
 
@@ -596,6 +599,19 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             // 卸车处理并回传TC组板关系
             jyUnloadVehicleCheckTysService.dealUnloadAndBoxToBoard(scanPackageDto, scanPackageRespDto);
         }
+        //易冻品校验
+        com.jd.bluedragon.distribution.jsf.domain.InvokeResult<Boolean> checkResult
+                = inspectionService.checkEasyFreeze(waybillCode, scanPackageDto.getCurrentOperate().getOperateTime(), operateSiteCode);
+        Map<String,String> confirmMap = new HashMap<>(2);
+        if(checkResult != null && checkResult.getData()){
+            confirmMap.put(checkResult.getCode()+"",checkResult.getMessage());
+        }
+        //特保单校验
+        com.jd.bluedragon.distribution.jsf.domain.InvokeResult<Boolean> luxurySecurityResult = inspectionService.checkLuxurySecurity(barCode, waybill.getWaybillSign());
+        if(luxurySecurityResult != null && luxurySecurityResult.getData()){
+            confirmMap.put(luxurySecurityResult.getCode()+"",luxurySecurityResult.getMessage());
+        }
+        scanPackageRespDto.setConfirmMsg(confirmMap);
         return invokeResult;
     }
 
@@ -668,6 +684,20 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             invokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, interceptResult);
             return invokeResult;
         }
+        // todo  添加易冻品逻辑判断
+        //易冻品校验
+        com.jd.bluedragon.distribution.jsf.domain.InvokeResult<Boolean> easyFreezeCheckResult
+                = inspectionService.checkEasyFreeze(waybillCode, scanPackageDto.getCurrentOperate().getOperateTime(), scanPackageDto.getCurrentOperate().getSiteCode());
+        Map<String,String> confirmMap = new HashMap<>(2);
+        if(easyFreezeCheckResult != null && easyFreezeCheckResult.getData()){
+            confirmMap.put(easyFreezeCheckResult.getCode()+"",easyFreezeCheckResult.getMessage());
+        }
+        com.jd.bluedragon.distribution.jsf.domain.InvokeResult<Boolean> luxurySecurityResult = inspectionService.checkLuxurySecurity(barCode, waybill.getWaybillSign());
+        if(luxurySecurityResult != null && luxurySecurityResult.getData()){
+            confirmMap.put(luxurySecurityResult.getCode()+"",luxurySecurityResult.getMessage());
+
+        }
+        scanPackageRespDto.setConfirmMsg(confirmMap);
         return invokeResult;
     }
 

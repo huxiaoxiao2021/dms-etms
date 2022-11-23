@@ -14,6 +14,8 @@ import com.jd.bluedragon.distribution.jy.dto.unload.ScanStatisticsDto;
 import com.jd.bluedragon.distribution.jy.enums.GoodsTypeEnum;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -46,11 +48,12 @@ public class JyUnloadAggsServiceImpl implements JyUnloadAggsService {
         if (ObjectHelper.isNotNull(categoryDtoList)) {
             for (GoodsCategoryDto categoryDto : categoryDtoList) {
                 categoryDto.setName(GoodsTypeEnum.getGoodsDesc(categoryDto.getType()));
-
+                categoryDto.setOrder(GoodsTypeEnum.getGoodsOrder(categoryDto.getType()));
                 if (!ObjectHelper.isNotNull(entity.getBoardCode())) {//板没有待扫的语义数据
                     categoryDto.setWaitScanCount(getWaitScan(entity.getBizId(), categoryDto.getShouldScanCount(), categoryDto.getHaveScanCount()));
                 }
             }
+            Collections.sort(categoryDtoList, new GoodsCategoryDto.OrderComparator());
             return categoryDtoList;
         }
         return null;

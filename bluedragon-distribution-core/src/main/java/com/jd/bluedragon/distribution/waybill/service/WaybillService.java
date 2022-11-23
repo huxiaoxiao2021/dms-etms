@@ -201,4 +201,11 @@ public interface WaybillService {
      */
     boolean isEasyFrozenVosWaybill(String waybillCode);
 
+    /**
+     * 判断运单是否包含特保单增值服务
+     * @param waybillCode
+     * @return
+     */
+    boolean isLuxurySecurityVosWaybill(String waybillCode);
+
 }
