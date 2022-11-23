@@ -1114,6 +1114,7 @@ public class InspectionServiceImpl implements InspectionService , InspectionJsfS
 
 	@Override
 	public InvokeResult<Boolean> checkEasyFreeze(String barCode, Date operateTime, Integer siteCode) {
+		log.info("易冻品 checkEasyFreeze 单号-{} 操作时间-{}，当前站点-{}",barCode,operateTime,siteCode);
 		InvokeResult<Boolean> result = new InvokeResult();
 		result.success();
 		result.setData(Boolean.FALSE);
@@ -1130,7 +1131,6 @@ public class InspectionServiceImpl implements InspectionService , InspectionJsfS
 		}
 		//如果是包裹号解析成运单号
 		String waybillCode = WaybillUtil.getWaybillCode(barCode);
-
 		try{
 			//根据运单获取waybillSign
 			com.jd.etms.waybill.domain.BaseEntity<BigWaybillDto> dataByChoice
@@ -1160,12 +1160,15 @@ public class InspectionServiceImpl implements InspectionService , InspectionJsfS
 				}
 				//根据当前操作场地和操作时间 去匹配易冻品指定场地配置
 				boolean checkEasyFreezeConf = checkEasyFreezeSiteConf(siteCode,operateTime);
+				log.info("此单是否满足易冻品提示-{}",checkEasyFreezeConf);
 				if(checkEasyFreezeConf){
 					if(goodsResidencetimeOverThreeHours(waybillCode,operateTime)){
+						log.info("此单在该场地超过三个小时");
 						result.customMessage(InvokeResult.EASY_FROZEN_TIPS_STORAGE_CODE,InvokeResult.EASY_FROZEN_TIPS_STORAGE_MESSAGE);
 						result.setData(Boolean.TRUE);
 						return result;
 					}
+					log.info("此单在该场地不超过三个小时");
 					result.customMessage(InvokeResult.EASY_FROZEN_TIPS_CODE,InvokeResult.EASY_FROZEN_TIPS_MESSAGE);
 					result.setData(Boolean.TRUE);
 					return result;
@@ -1182,6 +1185,7 @@ public class InspectionServiceImpl implements InspectionService , InspectionJsfS
 
 	@Override
 	public InvokeResult<Boolean> checkLuxurySecurity(String barCode,String waybillSign) {
+		log.info("特保单 checkLuxurySecurity 单号-{}",barCode);
 		InvokeResult<Boolean> result = new InvokeResult();
 		result.success();
 		result.setData(Boolean.FALSE);
@@ -1217,6 +1221,7 @@ public class InspectionServiceImpl implements InspectionService , InspectionJsfS
 			}
 			//判断增值服务是否包含特保单增值服务
 			boolean isLuxurySecurity = waybillService.isLuxurySecurityVosWaybill(waybillCode);
+			log.info("增值服务是否包含特保单增值服务-{}",isLuxurySecurity);
 			if(isLuxurySecurity){
 				result.customMessage(InvokeResult.LUXURY_SECURITY_TIPS_CODE,InvokeResult.LUXURY_SECURITY_TIPS_MESSAGE);
 				result.setData(Boolean.TRUE);
@@ -1234,6 +1239,7 @@ public class InspectionServiceImpl implements InspectionService , InspectionJsfS
 	 */
 	private boolean goodsResidencetimeOverThreeHours(String waybillCode,Date scanTime){
 		Date planSendvehicleTime = getWaybillRoutePlanSendvehicleTime(waybillCode);
+		log.info("获取路由计划发车时间-{}",JSON.toJSONString(planSendvehicleTime));
 		if(planSendvehicleTime == null){
 			return false;
 		}
@@ -1250,7 +1256,7 @@ public class InspectionServiceImpl implements InspectionService , InspectionJsfS
 	 * @return
 	 */
 	private Date getWaybillRoutePlanSendvehicleTime(String waybillCode){
-
+		log.info("根据运单获取运单在分拣中心计划发车时间-{}",waybillCode);
 		List<WaybillRouteLinkResp> waybillRoutes = waybillRouteManager.queryCustomWaybillRouteLink(waybillCode);
 		if(org.apache.commons.collections4.CollectionUtils.isNotEmpty(waybillRoutes)){
 			for (WaybillRouteLinkResp route:waybillRoutes) {

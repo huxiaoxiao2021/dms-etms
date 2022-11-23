@@ -1,5 +1,6 @@
 package com.jd.bluedragon.core.jsf.easyFreezeSite.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.easyFreeze.EasyFreezeSiteDto;
 import com.jd.bluedragon.core.jsf.easyFreezeSite.EasyFreezeSiteManager;
@@ -30,6 +31,7 @@ public class EasyFreezeSiteManagerImpl implements EasyFreezeSiteManager {
         log.info("获取单个易冻品站点配置入参-{}",siteCode);
         try{
             Result<com.jdl.basic.api.domain.easyFreeze.EasyFreezeSiteDto> result = easyFreezeSiteJsfService.selectOneBysiteCode(siteCode);
+            log.info("获取单个易冻品站点配置出参-{}", JSON.toJSONString(result));
             if(ResultCodeConstant.SUCCESS == result.getCode() && null != result.getData()){
                 EasyFreezeSiteDto dto = new EasyFreezeSiteDto();
                 dto.setRemindStartTime(result.getData().getRemindStartTime());
