@@ -581,6 +581,8 @@ public class Inspection implements java.io.Serializable,Comparable<Inspection>{
 		inspection.setCreateTime(createTime);
 		inspection.setUpdateTime(operateTime);
 		inspection.setBizSource(requestBean.getBizSource());
+		inspection.setOperatorTypeCode(requestBean.getOperatorTypeCode());
+		inspection.setOperatorId(requestBean.getOperatorId());
 		return inspection;
 	}
 

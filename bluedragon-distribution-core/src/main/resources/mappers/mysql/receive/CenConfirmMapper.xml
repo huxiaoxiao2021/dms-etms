@@ -36,6 +36,8 @@
 		<result column="operate_user" property="operateUser" jdbcType="VARCHAR" />
 		<result column="operate_user_code" property="operateUserCode"
 			jdbcType="INTEGER" />
+        <result column="operator_type_code" property="operatorTypeCode" jdbcType="INTEGER"/>
+        <result column="operator_id" property="operatorId" jdbcType="VARCHAR"/>			
 	</resultMap>
 	<sql id="Base_Column_List">
 		confirm_id, send_code, receive_user,
@@ -46,7 +48,8 @@
 		receive_site_code,
 		inspection_user, inspection_user_code,
 		inspection_time,
-		operate_type, pickup_code, operate_time,receive_time,operate_user,operate_user_code
+		operate_type, pickup_code, operate_time,receive_time,operate_user,operate_user_code,
+        operator_type_code, operator_id
 	</sql>
 	<insert id="add"
 		parameterType="com.jd.bluedragon.distribution.receive.domain.CenConfirm">
@@ -67,7 +70,8 @@
 		inspection_time,
 		operate_type,
 		pickup_code,excute_count, excute_time,
-		operate_time,receive_time,operate_user,operate_user_code
+		operate_time,receive_time,operate_user,operate_user_code,
+        operator_type_code, operator_id
 		)
 		values
 		(#{confirmId,jdbcType=BIGINT},
@@ -94,7 +98,9 @@
 		#{operateTime,jdbcType=TIMESTAMP},
 		#{receiveTime,jdbcType=TIMESTAMP},
 		#{operateUser,jdbcType=VARCHAR},
-		#{operateUserCode,jdbcType=INTEGER}
+		#{operateUserCode,jdbcType=INTEGER},
+        #{operatorTypeCode,jdbcType=INTEGER},
+        #{operatorId,jdbcType=VARCHAR}
 		)
 	</insert>
 	<update id="updateFillField"
