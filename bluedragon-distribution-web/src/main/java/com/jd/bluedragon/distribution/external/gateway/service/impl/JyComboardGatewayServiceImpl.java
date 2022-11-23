@@ -65,7 +65,7 @@ public class JyComboardGatewayServiceImpl implements JyComboardGatewayService {
 
   @Override
   public JdCResponse<SendFlowDataResp> listSendFlowUnderCTTGroup(SendFlowDataReq request) {
-    return null;
+    return retJdCResponse(jyComBoardSendService.listSendFlowUnderCTTGroup(request));
   }
 
   @Override

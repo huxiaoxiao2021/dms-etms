@@ -18,6 +18,7 @@ import com.jd.bluedragon.distribution.cyclebox.CycleBoxService;
 import com.jd.bluedragon.distribution.funcSwitchConfig.FuncSwitchConfigEnum;
 import com.jd.bluedragon.distribution.funcSwitchConfig.service.FuncSwitchConfigService;
 import com.jd.bluedragon.distribution.jy.comboard.JyBizTaskComboardEntity;
+import com.jd.bluedragon.distribution.jy.comboard.JyComboardAggsEntity;
 import com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity;
 import com.jd.bluedragon.distribution.jy.dao.comboard.JyGroupSortCrossDetailDao;
 import com.jd.bluedragon.distribution.jy.service.comboard.JyComboardAggsService;
@@ -37,22 +38,19 @@ import com.jd.bluedragon.distribution.ver.service.SortingCheckService;
 import com.jd.bluedragon.dms.utils.BarCodeType;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.coo.sa.sequence.JimdbSequenceGen;
 import com.jd.jim.cli.Cluster;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jdl.basic.api.domain.cross.*;
-import java.util.Date;
-import java.util.UUID;
+
+import java.util.*;
 import javax.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
 import com.jd.etms.waybill.domain.Waybill;
-import java.util.Objects;
+
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.StringUtils;
@@ -60,7 +58,6 @@ import org.springframework.util.CollectionUtils;
 
 import static com.jd.bluedragon.Constants.LOCK_EXPIRE;
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.*;
-import static com.jd.bluedragon.utils.TimeUtils.yyyyMMdd;
 
 @Service
 @Slf4j
@@ -381,7 +378,95 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
 
   @Override
   public InvokeResult<SendFlowDataResp> listSendFlowUnderCTTGroup(SendFlowDataReq request) {
-    return null;
+    if (!checkBaseRequest(request) || StringUtils.isEmpty(request.getTemplateCode())) {
+      return new InvokeResult<>(RESULT_THIRD_ERROR_CODE, PARAM_ERROR);
+    }
+    SendFlowDataResp resp = new SendFlowDataResp();
+    List<SendFlowDto> sendFlowDtoList = new ArrayList<>();
+    resp.setSendFlowDtoList(sendFlowDtoList);
+    Integer startSiteCode = request.getCurrentOperate().getSiteCode();
+    HashMap<Long, JyComboardAggsEntity> boardFlowMap = new HashMap<>();
+    try {
+      log.info("开始获取混扫任务下流向的详细信息：{}", JsonHelper.toJson(request));
+      JyGroupSortCrossDetailEntity entity = new JyGroupSortCrossDetailEntity();
+      entity.setGroupCode(request.getGroupCode());
+      entity.setStartSiteId(Long.valueOf(startSiteCode));
+      entity.setTemplateCode(request.getTemplateCode());
+      // 获取混扫任务下的流向信息
+      List<JyGroupSortCrossDetailEntity> sendFlowList = jyGroupSortCrossDetailService.
+              listSendFlowByTemplateCode(entity);
+      // 获取目的地
+      List<Integer> endSiteCodeList = getEndSiteCodeListBySendFlowList(sendFlowList);
+      // 获取当前流向组板数和待扫信息
+      List<JyComboardAggsEntity> jyComboardAggsEntities = jyComboardAggsService.
+              queryComboardAggs(startSiteCode, endSiteCodeList);
+      HashMap<Long, JyComboardAggsEntity> sendFlowMap = getSendFlowMap(jyComboardAggsEntities);
+      // 获取当前流向执行中的板号
+      List<JyBizTaskComboardEntity> boardList = jyBizTaskComboardService.
+              queryInProcessBoardListBySendFlowList(startSiteCode, endSiteCodeList);
+      // 获取当前板号的扫描信息
+      for (JyBizTaskComboardEntity board : boardList) {
+        JyComboardAggsEntity jyComboardAggsEntity = jyComboardAggsService.
+                queryComboardAggs(startSiteCode, board.getEndSiteId().intValue(), board.getBoardCode());
+        // 当前板的扫描信息
+        boardFlowMap.put(board.getEndSiteId(),jyComboardAggsEntity);
+      }
+      getSendFlowDtoList(sendFlowList,boardFlowMap,sendFlowMap,sendFlowDtoList);
+    } catch (Exception e) {
+      log.info("获取混扫任务下的流向详情信息失败：{}", JsonHelper.toJson(request), e);
+      return new InvokeResult<>(SEND_FLOW_UNDER_CTTGROUP_CODE, SEND_FLOW_UNDER_CTTGROUP_MESSAGE);
+    }
+    return new InvokeResult<>(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, resp);
+  }
+
+  private void getSendFlowDtoList(List<JyGroupSortCrossDetailEntity> sendFlowList,
+                                  HashMap<Long, JyComboardAggsEntity> boardFlowMap,
+                                  HashMap<Long, JyComboardAggsEntity> sendFlowMap,
+                                  List<SendFlowDto> sendFlowDtoList) {
+    for (JyGroupSortCrossDetailEntity entity : sendFlowList) {
+      Long endSiteCode = entity.getEndSiteId();
+      SendFlowDto sendFlowDto = new SendFlowDto();
+      sendFlowDto.setCrossCode(entity.getCrossCode());
+      sendFlowDto.setTableTrolleyCode(entity.getTabletrolleyCode());
+      sendFlowDto.setEndSiteId(entity.getEndSiteId().intValue());
+      sendFlowDto.setEndSiteName(entity.getEndSiteName());
+      JyComboardAggsEntity sendFlow = sendFlowMap.get(endSiteCode);
+      if (sendFlow != null) {
+        sendFlowDto.setBoardCount(sendFlow.getBoardCount());
+        sendFlowDto.setWaitScanCount(sendFlow.getWaitScanCount());
+      }
+
+      // 获取当前板号的扫描信息
+      JyComboardAggsEntity boardFlow = boardFlowMap.get(endSiteCode);
+      if (boardFlow != null) {
+        BoardDto boardDto = new BoardDto();
+        sendFlowDto.setCurrentBoardDto(boardDto);
+        boardDto.setBoardCode(boardFlow.getBoardCode());
+        boardDto.setBoxHaveScanCount(boardFlow.getBoxScannedCount());
+        boardDto.setPackageHaveScanCount(boardFlow.getPackageScannedCount());
+        boardDto.setInterceptCount(boardFlow.getInterceptCount());
+        // 已扫比例
+        
+      }
+
+      sendFlowDtoList.add(sendFlowDto);
+    }
+  }
+
+  private HashMap<Long, JyComboardAggsEntity> getSendFlowMap(List<JyComboardAggsEntity> jyComboardAggsEntities) {
+    HashMap<Long, JyComboardAggsEntity> sendFlowMap = new HashMap<>();
+    for (JyComboardAggsEntity entity : jyComboardAggsEntities) {
+      sendFlowMap.put(entity.getReceiveSiteId().longValue(),entity);
+    }
+    return sendFlowMap;
+  }
+
+  private List<Integer> getEndSiteCodeListBySendFlowList(List<JyGroupSortCrossDetailEntity> sendFlowList) {
+    List<Integer> endSitecodeList = new ArrayList<>();
+    for (JyGroupSortCrossDetailEntity entity : sendFlowList) {
+      endSitecodeList.add(entity.getEndSiteId().intValue());
+    }
+    return endSitecodeList;
   }
 
   @Override

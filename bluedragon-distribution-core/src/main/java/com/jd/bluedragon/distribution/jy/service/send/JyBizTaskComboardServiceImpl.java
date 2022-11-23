@@ -4,23 +4,36 @@ import com.jd.bluedragon.common.dto.comboard.response.BoardDto;
 import com.jd.bluedragon.common.dto.comboard.response.SendFlowDto;
 import com.jd.bluedragon.distribution.jy.comboard.JyBizTaskComboardEntity;
 import com.jd.bluedragon.distribution.jy.dao.comboard.JyBizTaskComboardDao;
-import javax.xml.ws.Action;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
+/**
+ * @author liwenji
+ * @date 2022-11-22 19:45
+ */
+
 @Service
-public class JyBizTaskComboardServiceImpl implements JyBizTaskComboardService {
+@Slf4j
+public class JyBizTaskComboardServiceImpl implements JyBizTaskComboardService{
+    
+    @Autowired
+    private JyBizTaskComboardDao jyBizTaskComboardDao;
+    
+    @Override
+    public BoardDto queryInProcessBoard(SendFlowDto sendFlowDto) {
+        return null;
+    }
 
-  @Autowired
-  JyBizTaskComboardDao jyBizTaskComboardDao;
+    @Override
+    public List<JyBizTaskComboardEntity> queryInProcessBoardListBySendFlowList(Integer startSiteCode, List<Integer> endSiteCodeList) {
+        return jyBizTaskComboardDao.queryInProcessBoardListBySendFlowList(startSiteCode,endSiteCodeList);
+    }
 
-  @Override
-  public BoardDto queryInProcessBoard(SendFlowDto sendFlowDto) {
-    return null;
-  }
-
-  @Override
-  public boolean save(JyBizTaskComboardEntity entity) {
-    return jyBizTaskComboardDao.insertSelective(entity) > 0;
-  }
+    @Override
+    public boolean save(JyBizTaskComboardEntity entity) {
+        return false;
+    }
 }

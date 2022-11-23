@@ -2,6 +2,9 @@ package com.jd.bluedragon.distribution.jy.dao.comboard;
 
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.jy.comboard.JyBizTaskComboardEntity;
+import com.jd.bluedragon.distribution.jy.dto.comboard.JyBizTaskComboardReq;
+
+import java.util.List;
 
 public class JyBizTaskComboardDao extends BaseDao<JyBizTaskComboardEntity> {
     private final static String NAMESPACE = JyBizTaskComboardDao.class.getName();
@@ -24,5 +27,18 @@ public class JyBizTaskComboardDao extends BaseDao<JyBizTaskComboardEntity> {
     }
     public int updateByPrimaryKey(JyBizTaskComboardEntity record) {
         return this.getSqlSession().update(NAMESPACE + ".deleteByPrimaryKey", record);
+    }
+
+    /**
+     * 根据始发和目的地批量获取当前正在进行中的板号信息
+     * @param startSiteCode
+     * @param endSiteCodeList
+     * @return
+     */
+    public List<JyBizTaskComboardEntity> queryInProcessBoardListBySendFlowList(Integer startSiteCode, List<Integer> endSiteCodeList) {
+        JyBizTaskComboardReq req = new JyBizTaskComboardReq();
+        req.setStartSiteCode(startSiteCode);
+        req.setEndSiteCodeList(endSiteCodeList);
+        return this.getSqlSession().selectList(NAMESPACE + ".queryInProcessBoardListBySendFlowList", req);
     }
 }

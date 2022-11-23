@@ -256,4 +256,17 @@
       count = #{count,jdbcType=INTEGER}
     where id = #{id,jdbcType=BIGINT}
   </update>
+  <select id="queryInProcessBoardListBySendFlowList"
+          parameterType="com.jd.bluedragon.distribution.jy.dto.comboard.JyBizTaskComboardReq"
+          resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List"/>
+    from jy_biz_task_comboard where start_site_id = #{startSiteId,jdbcType=BIGINT}
+    and end_site_id in
+    <foreach item="item" index="index" collection="endSiteCodeList"
+             open="(" separator="," close=")">
+      #{item}
+    </foreach>
+    and status = 1
+  </select>
 </mapper>
