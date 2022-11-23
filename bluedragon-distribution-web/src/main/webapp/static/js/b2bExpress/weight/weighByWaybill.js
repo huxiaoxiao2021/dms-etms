@@ -461,6 +461,7 @@ function existSubmit(insertParam,removeFailData,removeIndex){
                         ,function(confirmFlag){
                             if(confirmFlag != true){
                                 flag = true;
+                            } else {
                                 /*提交业务流程*/
                                 doAddProgressFunc();
                             }
