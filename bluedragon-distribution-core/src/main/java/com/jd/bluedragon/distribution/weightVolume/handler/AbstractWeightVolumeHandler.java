@@ -230,10 +230,13 @@ public abstract class AbstractWeightVolumeHandler implements IWeightVolumeHandle
         }
         if(weightVolumeContext.getWaybill() != null && BusinessUtil.isCInternet(weightVolumeContext.getWaybill().getWaybillSign())){
             checkCInternetRuleNew(weightVolumeContext, result);
+            return;
         }
         if (weightVolumeContext.getWaybill() != null && BusinessUtil.isWeightVolumeB(weightVolumeContext.getWaybill().getWaybillSign())) {
             checkBInternetRuleNew(weightVolumeContext, result);
+            return;
         }
+        checkBInternetRule(weightVolumeContext, result);
     }
 
     protected abstract void basicVerification(WeightVolumeContext weightVolumeContext, InvokeResult<Boolean> result);
