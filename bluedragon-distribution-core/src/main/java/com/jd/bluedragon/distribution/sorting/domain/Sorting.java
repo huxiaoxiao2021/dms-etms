@@ -112,6 +112,15 @@ public class Sorting implements Cloneable,java.io.Serializable,Comparable<Sortin
 
     /** 分拣来源 @See SortingBizSourceEnum **/
     private Integer bizSource;
+    /**
+     *@see com.jd.bluedragon.distribution.api.enums.OperatorTypeEnum
+     * 操作者类型编码
+     */
+	private Integer operatorTypeCode;
+    /**
+     * 操作者id
+     */
+	private String operatorId;
     
     public Sorting() {
         super();
@@ -699,6 +708,22 @@ public class Sorting implements Cloneable,java.io.Serializable,Comparable<Sortin
     	}else {
     		return this.getPackageCode().compareTo(sorting.getPackageCode());
     	}
+	}
+
+	public Integer getOperatorTypeCode() {
+		return operatorTypeCode;
+	}
+
+	public void setOperatorTypeCode(Integer operatorTypeCode) {
+		this.operatorTypeCode = operatorTypeCode;
+	}
+
+	public String getOperatorId() {
+		return operatorId;
+	}
+
+	public void setOperatorId(String operatorId) {
+		this.operatorId = operatorId;
 	}
 
 }

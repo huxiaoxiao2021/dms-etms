@@ -150,6 +150,15 @@ public class Inspection implements java.io.Serializable,Comparable<Inspection>{
 	 * @see com.jd.bluedragon.distribution.inspection.InspectionBizSourceEnum
 	 */
 	private Integer bizSource;
+    /**
+     *@see com.jd.bluedragon.distribution.api.enums.OperatorTypeEnum
+     * 操作者类型编码
+     */
+	private Integer operatorTypeCode;
+    /**
+     * 操作者id
+     */
+	private String operatorId;
 
     public Date getOperateTime() {
         return operateTime;
@@ -681,5 +690,21 @@ public class Inspection implements java.io.Serializable,Comparable<Inspection>{
     	}else {
     		return this.getPackageBarcode().compareTo(inspection.getPackageBarcode());
     	}
+	}
+
+	public Integer getOperatorTypeCode() {
+		return operatorTypeCode;
+	}
+
+	public void setOperatorTypeCode(Integer operatorTypeCode) {
+		this.operatorTypeCode = operatorTypeCode;
+	}
+
+	public String getOperatorId() {
+		return operatorId;
+	}
+
+	public void setOperatorId(String operatorId) {
+		this.operatorId = operatorId;
 	}
 }
