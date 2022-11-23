@@ -276,9 +276,9 @@
 			NOW(),
 			#{sendM.transporttype,jdbcType=INTEGER},
 			#{sendM.boardCode,jdbcType=VARCHAR},
-			#{sendM.bizSource,jdbcType=TINYINT}),
+			#{sendM.bizSource,jdbcType=TINYINT},
 	        #{sendM.operatorTypeCode,jdbcType=INTEGER},
-	        #{sendM.operatorId,jdbcType=VARCHAR}
+	        #{sendM.operatorId,jdbcType=VARCHAR})
 		</foreach>
 	</insert>
 
