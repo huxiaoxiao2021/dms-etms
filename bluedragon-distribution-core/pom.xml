@@ -65,7 +65,7 @@
 		<dependency>
 			<groupId>ql-dms-report</groupId>
 			<artifactId>report-sdk</artifactId>
-			<version>1.1.36-spotCheckPic-SNAPSHOT</version>
+			<version>1.1.37-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
