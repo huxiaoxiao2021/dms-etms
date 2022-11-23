@@ -292,4 +292,21 @@ public class JyComboardGatewayServiceImplTest {
         JdCResponse jdCResponse1 = jyComboardGatewayService.removeCTTFromGroup(req);
         System.out.println(jdCResponse1);
     }
+    
+    @Test
+    public void listSendFlowUnderCTTGroupTest() {
+        SendFlowDataReq resp = new SendFlowDataReq();
+        CurrentOperate operate = new CurrentOperate();
+        resp.setGroupCode("group111");
+        operate.setSiteCode(910);
+        resp.setTemplateCode("CTT22111700000002");
+        operate.setSiteName("北京马驹桥分拣中心");
+        resp.setCurrentOperate(operate);
+        User user = new User();
+        user.setUserName("李文吉");
+        user.setUserErp("liwenji3");
+        resp.setUser(user);
+        JdCResponse<SendFlowDataResp> response = jyComboardGatewayService.listSendFlowUnderCTTGroup(resp);
+        System.out.println(JsonHelper.toJson(response));
+    }
 }

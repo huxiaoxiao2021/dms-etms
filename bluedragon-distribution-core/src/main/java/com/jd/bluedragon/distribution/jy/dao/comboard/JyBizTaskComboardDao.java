@@ -4,6 +4,8 @@ import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.common.dto.comboard.response.BoardDto;
 import com.jd.bluedragon.common.dto.comboard.response.SendFlowDto;
 import com.jd.bluedragon.distribution.jy.comboard.JyBizTaskComboardEntity;
+import com.jd.bluedragon.distribution.jy.dto.comboard.JyBizTaskComboardReq;
+
 import java.util.List;
 
 public class JyBizTaskComboardDao extends BaseDao<JyBizTaskComboardEntity> {
@@ -32,4 +34,17 @@ public class JyBizTaskComboardDao extends BaseDao<JyBizTaskComboardEntity> {
   public List<JyBizTaskComboardEntity> queryBoardTask(JyBizTaskComboardEntity record) {
       return this.getSqlSession().selectList(NAMESPACE + ".queryBoardTask", record);
   }
+
+    /**
+     * 根据始发和目的地批量获取当前正在进行中的板号信息
+     * @param startSiteCode
+     * @param endSiteCodeList
+     * @return
+     */
+    public List<JyBizTaskComboardEntity> queryInProcessBoardListBySendFlowList(Integer startSiteCode, List<Integer> endSiteCodeList) {
+        JyBizTaskComboardReq req = new JyBizTaskComboardReq();
+        req.setStartSiteCode(startSiteCode);
+        req.setEndSiteCodeList(endSiteCodeList);
+        return this.getSqlSession().selectList(NAMESPACE + ".queryInProcessBoardListBySendFlowList", req);
+    }
 }
