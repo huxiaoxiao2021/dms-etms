@@ -440,12 +440,7 @@ function existSubmit(insertParam,removeFailData,removeIndex){
                 var codeStr = $('#waybill-weight-code-input').numberbox('getValue');
                 /*重量体积最大限额校验*/
                 isExcessResult(codeStr,weight,cbm);
-                if(flag){
-                    return;
-                }
 
-                /*提交业务流程*/
-                doAddProgressFunc();
             }
 
         }
@@ -466,9 +461,14 @@ function existSubmit(insertParam,removeFailData,removeIndex){
                         ,function(confirmFlag){
                             if(confirmFlag != true){
                                 flag = true;
+                                /*提交业务流程*/
+                                doAddProgressFunc();
                             }
                         }
                     );
+                }
+                if(result.code == 400) {
+                    $.messager.alert('数据错误',result.message);
                 }
             }
         });
