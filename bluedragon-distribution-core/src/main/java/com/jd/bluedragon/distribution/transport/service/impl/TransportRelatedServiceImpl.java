@@ -3,14 +3,18 @@ package com.jd.bluedragon.distribution.transport.service.impl;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.distribution.api.JdExtraMessageResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.delivery.DeliveryOperationServiceImpl;
 import com.jd.bluedragon.distribution.seal.manager.SealCarManager;
 import com.jd.bluedragon.distribution.transport.service.TransportRelatedService;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.etms.vos.dto.StopoverInfoDto;
 import com.jd.etms.vos.dto.StopoverQueryDto;
+import com.jd.fastjson.JSON;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +28,8 @@ import java.util.Objects;
  */
 @Service("transportRelatedService")
 public class TransportRelatedServiceImpl implements TransportRelatedService {
+
+    private static final Logger log = LoggerFactory.getLogger(TransportRelatedServiceImpl.class);
 
     @Autowired
     private SealCarManager sealCarManager;
@@ -91,7 +97,9 @@ public class TransportRelatedServiceImpl implements TransportRelatedService {
         stopoverQueryDto.setSimpleCode(simpleCode);
         stopoverQueryDto.setVehicleNumber(vehicleNumber);
         StopoverInfoDto stopoverInfoDto = sealCarManager.queryStopoverInfo(stopoverQueryDto);
-        //日志+UMP 实现类包装
+        log.info("siteCode:{},transWorkCode:{},sealCarCode:{},simpleCode:{},vehicleNumber:{}",
+                siteCode,transWorkCode,sealCarCode,simpleCode,vehicleNumber);
+        log.info("stopoverInfoDto:{}", JSON.toJSONString(stopoverInfoDto));
         if(stopoverInfoDto == null){
             return null;
         }
