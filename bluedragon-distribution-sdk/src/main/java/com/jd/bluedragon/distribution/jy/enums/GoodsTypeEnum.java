@@ -6,22 +6,21 @@ public enum GoodsTypeEnum {
     // 生鲜
     FRESH("生鲜",2),
 
-    KA("KA",6),
+    KA("KA",5),
 
     // 医药
-    MEDICINE("医药",7),
+    MEDICINE("医药",6),
 
     // 特快送
     FAST("特快送",1),
 
     // 特快重货
-    FAST_HEAVY("特快重货",8),
+    FAST_HEAVY("特快重货",7),
 
-    LUXURY( "特保单",4),
+    LUXURY( "特保单",3),
 
-    EASYFROZEN("易冻损",5),
+    EASYFROZEN("易冻损",4),
 
-    TIKTOK("抖音",3),
     // 其他
     NONE("其他",9);
 
