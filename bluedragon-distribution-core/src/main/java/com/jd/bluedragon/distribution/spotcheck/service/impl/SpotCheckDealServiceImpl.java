@@ -11,25 +11,21 @@ import com.jd.bluedragon.distribution.base.service.DmsBaseDictService;
 import com.jd.bluedragon.distribution.jss.JssService;
 import com.jd.bluedragon.distribution.spotcheck.domain.*;
 import com.jd.bluedragon.distribution.spotcheck.enums.*;
-import com.jd.bluedragon.distribution.spotcheck.exceptions.SpotCheckBusinessException;
 import com.jd.bluedragon.distribution.spotcheck.service.SpotCheckDealService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.AbnormalResultMq;
 import com.jd.bluedragon.distribution.weightAndVolumeCheck.DutyTypeEnum;
-import com.jd.bluedragon.distribution.weightAndVolumeCheck.SpotCheckOfPackageDetail;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.MathUtils;
 import com.jd.bluedragon.dms.utils.WaybillSignConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
-import com.jd.bluedragon.utils.*;
-import com.jd.etms.waybill.domain.BaseEntity;
+import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.etms.waybill.domain.Waybill;
-import com.jd.etms.waybill.dto.BigWaybillDto;
-import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
-import com.jd.ql.dms.report.domain.WeightVolumeCollectDto;
 import com.jd.ql.dms.report.domain.spotcheck.SpotCheckQueryCondition;
 import com.jd.ql.dms.report.domain.spotcheck.WeightVolumeSpotCheckDto;
 import com.jd.ump.profiler.CallerInfo;
@@ -40,7 +36,6 @@ import com.jd.wlai.center.service.outter.domian.AutoReportingResponse;
 import com.jdl.express.weight.report.api.CommonDTO;
 import com.jdl.express.weight.report.api.rule.queries.sorting.ReportInfoDTO;
 import com.jdl.express.weight.report.api.rule.queries.sorting.ReportInfoQuery;
-import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
@@ -51,7 +46,9 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.io.*;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.*;
@@ -266,15 +263,16 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
         CallerInfo callerInfo = Profiler.registerInfo("dmsWeb.spotCheck.SpotCheckDealService.dealPictureUrl",
                 Constants.UMP_APP_NAME_DMSWEB,false,true);
         try {
-            // 设置图片缓存
-            addPicUrlCache(packageCode, siteCode, pictureUrl);
-
-            String waybillCode = WaybillUtil.getWaybillCode(packageCode);
-            Waybill waybill = waybillQueryManager.getOnlyWaybillByWaybillCode(waybillCode);
-            boolean isMultiPack = isMultiPack(waybill, packageCode);
-
+            // 图片缓存处理
+            if(!spotCheckPicUrlCacheDealIsSuc(packageCode, siteCode, pictureUrl)){
+                CallerInfo multiUploadCallerInfo = Profiler.registerInfo("dmsWeb.spotCheck.SpotCheckDealService.dealPictureUrl.multiUpload",
+                        Constants.UMP_APP_NAME_DMSWEB,false,true);
+                logger.warn("站点：{}包裹号：{}的图片已存在!", siteCode, packageCode);
+                Profiler.registerInfoEnd(multiUploadCallerInfo);
+                return;
+            }
             // 执行抽检改造
-            executeReformPicDeal(packageCode, isMultiPack, siteCode, pictureUrl);
+            executeReformPicDeal(packageCode, siteCode, pictureUrl);
 
         }catch (Exception e){
             logger.error("包裹:{}的图片处理异常!", packageCode, e);
@@ -285,9 +283,29 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
         }
     }
 
-    private void executeReformPicDeal(String packageCode, Boolean isMultiPack, Integer siteCode, String pictureUrl) {
+    private boolean spotCheckPicUrlCacheDealIsSuc(String packageCode, Integer siteCode, String pictureUrl) {
+        String key = String.format(CacheKeyConstants.CACHE_SPOT_CHECK_PICTURE, packageCode, siteCode);
+        if(jimdbCacheService.exists(key)){
+            return false;
+        }
+        SpotCheckQueryCondition condition = new SpotCheckQueryCondition();
+        condition.setPackageCode(packageCode); // 包裹号和站点确定唯一
+        condition.setReviewSiteCode(siteCode);
+        condition.setIsHasPicture(Constants.CONSTANT_NUMBER_ONE);
+        List<WeightVolumeSpotCheckDto> spotCheckDtos = spotCheckQueryManager.queryAllSpotCheckByCondition(condition);
+        if(CollectionUtils.isNotEmpty(spotCheckDtos)
+                && spotCheckDtos.get(0) != null
+                && StringUtils.isNotEmpty(spotCheckDtos.get(0).getPictureAddress())){
+            return false;
+        }
+        jimdbCacheService.setEx(key, pictureUrl, 30, TimeUnit.MINUTES);
+        return true;
+    }
+
+    private void executeReformPicDeal(String packageCode, Integer siteCode, String pictureUrl) {
         String waybillCode = WaybillUtil.getWaybillCode(packageCode);
-        if(isMultiPack){
+        Waybill waybill = waybillQueryManager.getOnlyWaybillByWaybillCode(waybillCode);
+        if(isMultiPack(waybill, packageCode)){
             // 一单多件
             // 1、更新包裹明细维度数据
             // 2、更新总记录维度数据
@@ -1028,15 +1046,6 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
                 ? null : Integer.valueOf(reportInfo.getConvertCoefficient()));
 
         newSpotCheckDto.setSpotCheckStatus(SpotCheckStatusEnum.SPOT_CHECK_STATUS_VERIFY.getCode());
-    }
-
-    private void addPicUrlCache(String packageCode, Integer siteCode, String pictureUrl) {
-        try {
-            String key = String.format(CacheKeyConstants.CACHE_SPOT_CHECK_PICTURE, packageCode, siteCode);
-            jimdbCacheService.setEx(key, pictureUrl, 30, TimeUnit.MINUTES);
-        }catch (Exception e){
-            logger.error("设置站点{}上传的包裹{}图片链接缓存异常!", siteCode, packageCode);
-        }
     }
 
     private boolean isMultiPack(Waybill waybill, String packageCode) {
