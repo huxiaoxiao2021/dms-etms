@@ -56,11 +56,18 @@ public interface SpotCheckQueryManager {
     List<String> getSpotCheckPackByCondition(SpotCheckQueryCondition condition);
 
     /**
-     * 根据条件查询抽检数据
+     * 根据条件查询抽检数据（查询有效数据）
      *
      * @param condition
      * @return
      */
     List<WeightVolumeSpotCheckDto> querySpotCheckByCondition(SpotCheckQueryCondition condition);
 
+    /**
+     * 根据条件查询所有抽检数据
+     *
+     * @param condition
+     * @return
+     */
+    List<WeightVolumeSpotCheckDto> queryAllSpotCheckByCondition(SpotCheckQueryCondition condition);
 }
