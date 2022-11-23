@@ -27,4 +27,6 @@ public interface JyBizTaskComboardService {
   List<JyBizTaskComboardEntity> queryInProcessBoardListBySendFlowList(Integer startSiteCode, List<Integer> endSiteCode);
 
   boolean save(JyBizTaskComboardEntity entity);
+
+  JyBizTaskComboardEntity queryBizTaskByBoardCode(JyBizTaskComboardEntity record);
 }

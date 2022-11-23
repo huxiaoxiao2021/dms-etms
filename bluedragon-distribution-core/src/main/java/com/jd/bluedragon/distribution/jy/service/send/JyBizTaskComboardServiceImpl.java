@@ -44,13 +44,24 @@ public class JyBizTaskComboardServiceImpl implements JyBizTaskComboardService {
     return null;
   }
 
-    @Override
-    public List<JyBizTaskComboardEntity> queryInProcessBoardListBySendFlowList(Integer startSiteCode, List<Integer> endSiteCodeList) {
-        return jyBizTaskComboardDao.queryInProcessBoardListBySendFlowList(startSiteCode,endSiteCodeList);
-    }
+  @Override
+  public List<JyBizTaskComboardEntity> queryInProcessBoardListBySendFlowList(Integer startSiteCode,
+      List<Integer> endSiteCodeList) {
+    return jyBizTaskComboardDao
+        .queryInProcessBoardListBySendFlowList(startSiteCode, endSiteCodeList);
+  }
 
   @Override
   public boolean save(JyBizTaskComboardEntity entity) {
     return jyBizTaskComboardDao.insertSelective(entity) > 0;
+  }
+
+  @Override
+  public JyBizTaskComboardEntity queryBizTaskByBoardCode(JyBizTaskComboardEntity record) {
+    List<JyBizTaskComboardEntity> bizTaskList = jyBizTaskComboardDao.queryBoardTask(record);
+    if (ObjectHelper.isNotNull(bizTaskList) && bizTaskList.size() == 1) {
+      return bizTaskList.get(0);
+    }
+    return null;
   }
 }

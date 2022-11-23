@@ -262,12 +262,15 @@
     FROM
       jy_biz_task_comboard
     WHERE
-      start_site_id =#{}
+      start_site_id =#{startSiteId}
       <if test="endSiteId!=null">
-        AND end_site_id =#{}
+        AND end_site_id =#{endSiteId}
       </if>
     <if test="status!=null">
-      AND status = #{}
+      AND status = #{status}
+    </if>
+    <if test="boardCode!=null">
+      AND board_code = #{boardCode}
     </if>
       AND yn = 1
   </select>

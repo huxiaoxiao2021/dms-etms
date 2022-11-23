@@ -42,7 +42,7 @@ public class JyComboardAggsServiceImpl implements JyComboardAggsService {
     @Qualifier("redisClientCache")
     protected Cluster redisClientCache;
 
-    @Value("${local.cache.expire.minutes}")
+    @Value("${local.cache.expire.minutes:30}")
     private Integer LOCAL_CACHE_EXPIRE_MINUTES = null;
 
     /**
