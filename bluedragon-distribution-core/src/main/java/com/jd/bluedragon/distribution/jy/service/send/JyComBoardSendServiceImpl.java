@@ -9,6 +9,7 @@ import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.jsf.cross.SortCrossJsfManager;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.SendVehicleScanTypeEnum;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.distribution.api.response.BoxResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
@@ -423,6 +424,17 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
    */
   private void execComboard(ComboardScanReq request) {
     //板加锁
+
+    String boardLockKey = String.format(Constants.JY_COMBOARD_BOARD_LOCK_PREFIX, request.getBoardCode());
+    if (!jimDbLock.lock(boardLockKey, request.getRequestId(), LOCK_EXPIRE, TimeUnit.SECONDS)) {
+      throw new JyBizException("当前系统繁忙,请稍后再试！");
+    }
+    try {
+
+
+    }finally {
+      jimDbLock.releaseLock(boardLockKey, request.getRequestId());
+    }
   }
 
   /**
