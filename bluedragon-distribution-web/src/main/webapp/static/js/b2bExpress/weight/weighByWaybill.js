@@ -470,6 +470,10 @@ function existSubmit(insertParam,removeFailData,removeIndex){
                 if(result.code == 400) {
                     $.messager.alert('数据错误',result.message);
                 }
+                if(result.code == 200) {
+                    /*提交业务流程*/
+                    doAddProgressFunc();
+                }
             }
         });
     }
