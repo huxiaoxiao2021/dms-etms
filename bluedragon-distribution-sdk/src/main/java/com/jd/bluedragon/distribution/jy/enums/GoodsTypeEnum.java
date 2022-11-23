@@ -22,7 +22,7 @@ public enum GoodsTypeEnum {
     EASYFROZEN("易冻损",4),
 
     // 其他
-    NONE("其他",9);
+    NONE("其他",99);
 
 
     private String name;
