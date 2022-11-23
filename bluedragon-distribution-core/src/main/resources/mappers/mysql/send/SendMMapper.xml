@@ -214,9 +214,9 @@
 		NOW(),
 		#{transporttype,jdbcType=INTEGER},
 		#{boardCode,jdbcType=VARCHAR},
-		#{bizSource,jdbcType=TINYINT}),
+		#{bizSource,jdbcType=TINYINT},
         #{operatorTypeCode,jdbcType=INTEGER},
-        #{operatorId,jdbcType=VARCHAR}
+        #{operatorId,jdbcType=VARCHAR})
 	</insert>
 
 	<insert id = "addBatch">
