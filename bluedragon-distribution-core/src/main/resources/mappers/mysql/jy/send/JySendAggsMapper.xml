@@ -51,7 +51,7 @@
         total_not_scanned_waybill_count,total_force_waybill_count</sql>
 
     <insert id="insert" parameterType="JySendAggsEntity">
-        INSERT INTO jy_send_aggs (
+        INSERT INTO uat_jy_send_aggs (
         <if test="id != null">
             id
         </if>
@@ -279,7 +279,7 @@
     </insert>
 
     <update id="update" parameterType="JySendAggsEntity">
-        UPDATE jy_send_aggs
+        UPDATE uat_jy_send_aggs
         <set>
             <if test="id != null">
                 id = #{id}
@@ -401,7 +401,7 @@
     <select id="getVehicleSendStatistics" parameterType="java.lang.String" resultMap="jySendAggsMap">
         SELECT
         <include refid="Base_Column_List"/>
-        from jy_send_aggs
+        from uat_jy_send_aggs
         WHERE send_vehicle_biz_id = #{sendVehicleBizId}
         and yn = 1 limit 1
     </select>
@@ -409,7 +409,7 @@
     <select id="findBySendVehicleBiz" parameterType="java.lang.String" resultMap="jySendAggsMap">
         SELECT
             <include refid="Base_Column_List"/>
-        FROM jy_send_aggs
+        FROM uat_jy_send_aggs
         WHERE
             yn = 1
         AND send_vehicle_biz_id = #{sendVehicleBizId}
@@ -417,7 +417,7 @@
 
 
     <update id="insertOrUpdate" parameterType="com.jd.bluedragon.distribution.jy.send.JySendAggsEntity">
-        INSERT INTO jy_send_aggs
+        INSERT INTO uat_jy_send_aggs
         (
         <if test="bizId != null">
             biz_id,
@@ -665,7 +665,7 @@
     <select id="findSendAggExistAbnormal" parameterType="java.lang.String" resultMap="jySendAggsMap">
         SELECT
         <include refid="Base_Column_List"/>
-        from jy_send_aggs
+        from uat_jy_send_aggs
         WHERE send_vehicle_biz_id = #{sendVehicleBizId} and total_incomplete_waybill_count > 0
         and yn = 1 limit 1
     </select>
