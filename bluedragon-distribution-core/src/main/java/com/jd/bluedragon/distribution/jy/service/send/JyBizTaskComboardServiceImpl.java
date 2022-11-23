@@ -4,6 +4,9 @@ import com.jd.bluedragon.common.dto.comboard.response.BoardDto;
 import com.jd.bluedragon.common.dto.comboard.response.SendFlowDto;
 import com.jd.bluedragon.distribution.jy.comboard.JyBizTaskComboardEntity;
 import com.jd.bluedragon.distribution.jy.dao.comboard.JyBizTaskComboardDao;
+import com.jd.bluedragon.distribution.jy.enums.ComboardStatusEnum;
+import com.jd.bluedragon.utils.ObjectHelper;
+import java.util.List;
 import javax.xml.ws.Action;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,6 +19,19 @@ public class JyBizTaskComboardServiceImpl implements JyBizTaskComboardService {
 
   @Override
   public BoardDto queryInProcessBoard(SendFlowDto sendFlowDto) {
+    JyBizTaskComboardEntity condition = new JyBizTaskComboardEntity();
+    condition.setStartSiteId(Long.valueOf(sendFlowDto.getStartSiteId()));
+    condition.setEndSiteId(Long.valueOf(sendFlowDto.getEndSiteId()));
+    condition.setStatus(ComboardStatusEnum.PROCESSING.getCode());
+    List<JyBizTaskComboardEntity> bizTaskList = jyBizTaskComboardDao.queryBoardTask(condition);
+    if (ObjectHelper.isNotNull(bizTaskList) && bizTaskList.size() == 1) {
+      BoardDto dto = new BoardDto();
+      dto.setBoardCode(bizTaskList.get(0).getBoardCode());
+      dto.setCount(bizTaskList.get(0).getCount());
+      dto.setStatus(bizTaskList.get(0).getStatus());
+      dto.setBulkFlag(bizTaskList.get(0).getBulkFlag());
+      return dto;
+    }
     return null;
   }
 

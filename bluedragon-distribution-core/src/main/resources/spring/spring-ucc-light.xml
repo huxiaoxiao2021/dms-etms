@@ -162,7 +162,7 @@
 		<property name="jyDemotionConfig" value="${jyDemotionConfig:''}"/>
 		<property name="syncJySealStatusSwitch" value="${syncJySealStatusSwitch:false}"/>
 		<property name="sealStatusBatchSizeLimit" value="${sealStatusBatchSizeLimit:30}"/>
-
+		<property name="jyComboardCountLimit" value="${jyComboardCountLimit:100}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">

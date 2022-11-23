@@ -23,12 +23,12 @@
     <result column="count" jdbcType="INTEGER" property="count" />
   </resultMap>
   <sql id="Base_Column_List">
-    id, biz_id, board_code, send_code, status, start_site_id, start_site_name, end_site_id, 
-    end_site_name, create_user_erp, create_user_name, update_user_erp, update_user_name, 
+    id, biz_id, board_code, send_code, status, start_site_id, start_site_name, end_site_id,
+    end_site_name, create_user_erp, create_user_name, update_user_erp, update_user_name,
     create_time, update_time, yn, ts, bulk_flag, count
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
-    select 
+    select
     <include refid="Base_Column_List" />
     from jy_biz_task_comboard
     where id = #{id,jdbcType=BIGINT}
@@ -38,18 +38,18 @@
     where id = #{id,jdbcType=BIGINT}
   </delete>
   <insert id="insert" parameterType="com.jd.bluedragon.distribution.jy.comboard.JyBizTaskComboardEntity">
-    insert into jy_biz_task_comboard (id, biz_id, board_code, 
-      send_code, status, start_site_id, 
-      start_site_name, end_site_id, end_site_name, 
-      create_user_erp, create_user_name, update_user_erp, 
-      update_user_name, create_time, update_time, 
+    insert into jy_biz_task_comboard (id, biz_id, board_code,
+      send_code, status, start_site_id,
+      start_site_name, end_site_id, end_site_name,
+      create_user_erp, create_user_name, update_user_erp,
+      update_user_name, create_time, update_time,
       yn, ts, bulk_flag, count
       )
-    values (#{id,jdbcType=BIGINT}, #{bizId,jdbcType=VARCHAR}, #{boardCode,jdbcType=VARCHAR}, 
-      #{sendCode,jdbcType=VARCHAR}, #{status,jdbcType=TINYINT}, #{startSiteId,jdbcType=BIGINT}, 
-      #{startSiteName,jdbcType=VARCHAR}, #{endSiteId,jdbcType=BIGINT}, #{endSiteName,jdbcType=VARCHAR}, 
-      #{createUserErp,jdbcType=VARCHAR}, #{createUserName,jdbcType=VARCHAR}, #{updateUserErp,jdbcType=VARCHAR}, 
-      #{updateUserName,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP}, 
+    values (#{id,jdbcType=BIGINT}, #{bizId,jdbcType=VARCHAR}, #{boardCode,jdbcType=VARCHAR},
+      #{sendCode,jdbcType=VARCHAR}, #{status,jdbcType=TINYINT}, #{startSiteId,jdbcType=BIGINT},
+      #{startSiteName,jdbcType=VARCHAR}, #{endSiteId,jdbcType=BIGINT}, #{endSiteName,jdbcType=VARCHAR},
+      #{createUserErp,jdbcType=VARCHAR}, #{createUserName,jdbcType=VARCHAR}, #{updateUserErp,jdbcType=VARCHAR},
+      #{updateUserName,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP},
       #{yn,jdbcType=BIT}, #{ts,jdbcType=TIMESTAMP}, #{bulkFlag,jdbcType=BIT}, #{count,jdbcType=INTEGER}
       )
   </insert>
@@ -256,4 +256,19 @@
       count = #{count,jdbcType=INTEGER}
     where id = #{id,jdbcType=BIGINT}
   </update>
+  <select id="queryBoardTask" resultMap="BaseResultMap">
+    SELECT
+    <include refid="Base_Column_List" />
+    FROM
+      jy_biz_task_comboard
+    WHERE
+      start_site_id =#{}
+      <if test="endSiteId!=null">
+        AND end_site_id =#{}
+      </if>
+    <if test="status!=null">
+      AND status = #{}
+    </if>
+      AND yn = 1
+  </select>
 </mapper>

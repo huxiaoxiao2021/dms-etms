@@ -1,7 +1,10 @@
 package com.jd.bluedragon.distribution.jy.dao.comboard;
 
 import com.jd.bluedragon.common.dao.BaseDao;
+import com.jd.bluedragon.common.dto.comboard.response.BoardDto;
+import com.jd.bluedragon.common.dto.comboard.response.SendFlowDto;
 import com.jd.bluedragon.distribution.jy.comboard.JyBizTaskComboardEntity;
+import java.util.List;
 
 public class JyBizTaskComboardDao extends BaseDao<JyBizTaskComboardEntity> {
     private final static String NAMESPACE = JyBizTaskComboardDao.class.getName();
@@ -25,4 +28,8 @@ public class JyBizTaskComboardDao extends BaseDao<JyBizTaskComboardEntity> {
     public int updateByPrimaryKey(JyBizTaskComboardEntity record) {
         return this.getSqlSession().update(NAMESPACE + ".deleteByPrimaryKey", record);
     }
+
+  public List<JyBizTaskComboardEntity> queryBoardTask(JyBizTaskComboardEntity record) {
+      return this.getSqlSession().selectList(NAMESPACE + ".queryBoardTask", record);
+  }
 }

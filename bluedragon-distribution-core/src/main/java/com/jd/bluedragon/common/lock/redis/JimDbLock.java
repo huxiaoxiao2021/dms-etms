@@ -41,9 +41,8 @@ public class JimDbLock {
     Long startMillis = System.currentTimeMillis();
     boolean isLock;
     int tryCount = 0;
-    //在规定时间内 获取分布式锁
+
     do {
-      //防止自旋cpu消耗过高
       if (tryCount++ > 0) {
         try {
           Thread.sleep(100);

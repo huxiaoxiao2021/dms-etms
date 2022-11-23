@@ -15,6 +15,7 @@ public class ComboardScanReq extends BaseReq implements Serializable {
     private String boardCode;
 
     private Integer endSiteId;
+    private String endSiteName;
     public String getBarCode() {
         return barCode;
     }
@@ -53,5 +54,13 @@ public class ComboardScanReq extends BaseReq implements Serializable {
 
     public void setEndSiteId(Integer endSiteId) {
         this.endSiteId = endSiteId;
+    }
+
+    public String getEndSiteName() {
+        return endSiteName;
+    }
+
+    public void setEndSiteName(String endSiteName) {
+        this.endSiteName = endSiteName;
     }
 }
