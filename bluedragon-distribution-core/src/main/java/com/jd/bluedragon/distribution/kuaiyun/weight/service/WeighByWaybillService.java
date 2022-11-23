@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.kuaiyun.weight.service;
 
+import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.kuaiyun.weight.domain.WaybillWeightDTO;
 import com.jd.bluedragon.distribution.kuaiyun.weight.domain.WaybillWeightVO;
 import com.jd.bluedragon.distribution.kuaiyun.weight.exception.WeighByWaybillExcpetion;
@@ -27,4 +28,8 @@ public interface WeighByWaybillService
     boolean isOpenIntercept();
 
     boolean waybillTransferB2C(WaybillWeightVO vo);
+
+    InvokeResult checkIsExcess(String codeStr, String weight, String volume);
+
+    InvokeResult checkIsExcessNew(String codeStr, String weight, String volume, Integer siteCode);
 }

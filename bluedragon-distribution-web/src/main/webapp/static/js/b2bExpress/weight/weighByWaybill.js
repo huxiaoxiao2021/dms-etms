@@ -440,29 +440,7 @@ function existSubmit(insertParam,removeFailData,removeIndex){
                 var codeStr = $('#waybill-weight-code-input').numberbox('getValue');
                 /*重量体积最大限额校验*/
                 isExcessResult(codeStr,weight,cbm);
-                if(flag){
-                    return;
-                }
 
-                /*校验密度*/
-                if( (weight/cbm < CBM_DIV_KG_MIN_LIMIT) || (weight/cbm > CBM_DIV_KG_MAX_LIMIT) ) {
-                    var messageBodyStr = '重泡比超过正常范围168:1到330:1，请确认是否强制录入';
-
-                    $.messager.confirm('请您仔细确认',messageBodyStr
-                        ,function(confirmFlag){
-                            if(confirmFlag == true){
-                                /*提交业务流程*/
-                                doAddProgressFunc();
-                                return;
-                            }else {
-                                return;
-                            }
-                        }
-                    );
-                    return;
-                }
-                /*提交业务流程*/
-                doAddProgressFunc();
             }
 
         }
@@ -483,9 +461,18 @@ function existSubmit(insertParam,removeFailData,removeIndex){
                         ,function(confirmFlag){
                             if(confirmFlag != true){
                                 flag = true;
+                                /*提交业务流程*/
+                                doAddProgressFunc();
                             }
                         }
                     );
+                }
+                if(result.code == 400) {
+                    $.messager.alert('数据错误',result.message);
+                }
+                if(result.code == 200) {
+                    /*提交业务流程*/
+                    doAddProgressFunc();
                 }
             }
         });
