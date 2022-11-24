@@ -363,6 +363,10 @@ public class UccPropertyConfiguration {
      * @return
      */
     private Integer dazongPackageOperateMax;
+    /**
+     * 分拣租板大宗可扫描件数最少数量
+     */
+    private Integer bulkScanPackageMinCount;
 
     /**
      * 是否校验签单返还
@@ -2196,5 +2200,13 @@ public class UccPropertyConfiguration {
 
     public void setJyDemotionConfig(String jyDemotionConfig) {
         this.jyDemotionConfig = jyDemotionConfig;
+    }
+
+    public Integer getBulkScanPackageMinCount() {
+        return bulkScanPackageMinCount;
+    }
+
+    public void setBulkScanPackageMinCount(Integer bulkScanPackageMinCount) {
+        this.bulkScanPackageMinCount = bulkScanPackageMinCount;
     }
 }

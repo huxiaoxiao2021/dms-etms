@@ -7,6 +7,7 @@ import com.jd.bluedragon.common.dto.comboard.request.*;
 import com.jd.bluedragon.common.dto.comboard.response.*;
 import com.jd.bluedragon.common.lock.redis.JimDbLock;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.core.base.BoardCommonManagerImpl;
 import com.jd.bluedragon.core.jsf.cross.SortCrossJsfManager;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.SendVehicleScanTypeEnum;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
@@ -544,6 +545,13 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       condition.setBoardCode(request.getBoardCode());
       JyBizTaskComboardEntity entity = jyBizTaskComboardService.queryBizTaskByBoardCode(condition);
       if (!entity.getBulkFlag() && entity.getCount() < ucc.getJyComboardCountLimit()) {
+        if (WaybillUtil.isWaybillCode(request.getBarCode())){
+          //更新bulk的标识
+
+          //jyBizTaskComboardService.updateBizTaskById();
+          log.info("扫描大宗运单，走异步租板逻辑");
+          return;
+        }
         AddBoardBox addBoardBox = assembleComboardParam(request);
         Response<Integer> comboardResp = groupBoardManager.addBoxToBoard(addBoardBox);
         if (comboardResp.getCode() != ResponseEnum.SUCCESS.getIndex()) {
@@ -561,6 +569,14 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
 
   private AddBoardBox assembleComboardParam(ComboardScanReq request) {
     AddBoardBox addBoardBox = new AddBoardBox();
+    addBoardBox.setBoardCode(request.getBoardCode());
+    addBoardBox.setBoxCode(request.getBarCode());
+    addBoardBox.setOperatorErp(request.getUser().getUserErp());
+    addBoardBox.setOperatorName(request.getUser().getUserName());
+    addBoardBox.setSiteCode(request.getCurrentOperate().getSiteCode());
+    addBoardBox.setSiteName(request.getCurrentOperate().getSiteName());
+    addBoardBox.setSiteType(BoardCommonManagerImpl.BOARD_COMBINATION_SITE_TYPE);
+    addBoardBox.setBizSource(BizSourceEnum.PDA.getValue());
     return addBoardBox;
   }
 
@@ -568,6 +584,9 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
    * 执行发货
    */
   private void execSend(ComboardScanReq request) {
+    if (WaybillUtil.isWaybillCode(request.getBarCode())){
+      return;
+    }
   }
 
   private void getOrCreateBoardCode(ComboardScanReq request) {
@@ -758,6 +777,9 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       }
       if (waybill.getOldSiteId() == null) {
         throw new JyBizException("运单对应的预分拣站点为空");
+      }
+      if (waybill.getGoodNumber()<ucc.getBulkScanPackageMinCount()){
+        throw  new JyBizException("大宗扫描：运单包裹数量不得低于100！");
       }
       request.setEndSiteId(waybill.getOldSiteId());
       //匹流向
