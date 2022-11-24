@@ -504,6 +504,9 @@ public class JyUnloadVehicleCheckTysService {
             response.setBoardCode(board.getCode());
             response.setEndSiteId(Long.valueOf(board.getDestinationId()));
             response.setEndSiteName(board.getDestination());
+
+            //存储开板箱包缓存
+            this.setBoardTypeCache(request);
             return true;
 
         }
@@ -624,7 +627,6 @@ public class JyUnloadVehicleCheckTysService {
             BoardCommonRequest boardCommonRequest = createBoardCommonRequest(request);
             if (response.getCode() == ResponseEnum.SUCCESS.getIndex()) {
                 result.setAddBoardSuccessFlag(true);
-                setBoardTypeCache(request);
                 // 保存任务和板的关系
                 saveUnloadVehicleBoard(request);
                 // 设置板上已组包裹数
@@ -653,6 +655,18 @@ public class JyUnloadVehicleCheckTysService {
             if (response.getCode() == JdCResponse.CODE_ERROR) {
                 log.warn("添加板箱关系失败,板号={},barCode={},原因={}", request.getBoardCode(), request.getScanCode(), response.getMesseage());
                 if (request.getIsCombinationTransfer()) {
+
+                    BoardScanTypeDto boardScanTypeDto = this.getBoardTypeCache(request.getCurrentOperate().getSiteCode(), request.getBoardCode());
+                    if(!checkScanBoardType(boardScanTypeDto, request.getScanCode())) {
+                        String warnMsg = "该板不支持组箱号包裹号，请重新开板尝试";
+                        if(CacheKeyConstants.BOARD_SCAN_TYPE_PACKAGE.equals(boardScanTypeDto.getBoardType())) {
+                            warnMsg = "该板为扫包裹类型，禁止扫箱号,请重新开板";
+                        }
+                        if(CacheKeyConstants.BOARD_SCAN_TYPE_PACKAGE.equals(boardScanTypeDto.getBoardType())) {
+                            warnMsg = "该板为扫箱类型，禁止扫包裹，请重新开板";
+                        }
+                        throw new RuntimeException(warnMsg);
+                    };
                     // 调用TC的板号转移接口
                     InvokeResult<String> invokeResult = boardCommonManager.boardMoveIgnoreStatus(boardCommonRequest);
                     log.info("组板转移结果【{}】", JsonHelper.toJson(invokeResult));
@@ -666,7 +680,6 @@ public class JyUnloadVehicleCheckTysService {
                         throw new LoadIllegalException(LoadIllegalException.BOARD_MOVED_FAIL_INTERCEPT_MESSAGE);
                     }
                     result.setAddBoardSuccessFlag(true);
-                    setBoardTypeCache(request);
 
                     // 保存任务和板的关系
                     saveUnloadVehicleBoard(request);
@@ -1053,6 +1066,16 @@ public class JyUnloadVehicleCheckTysService {
     }
 
 
+    /**
+     * 方法作用： 记录组板扫描的箱类型还是包裹类型：转运场地按包裹按箱不可混装
+     * （1）组板时机存储cache：  存在问题：
+     *      场景一：开板成功被拦截，没有组板，cache为空
+     *      场景二：历史板，没有数据
+     *    无法区分以上两个场景，可能出现混装
+     * （2）按开板计算
+     *     代价： 组板前被拦截的场景，DB可能存在空板
+     * @param scanPackageDto
+     */
     public void setBoardTypeCache(ScanPackageDto scanPackageDto) {
         String cacheKey= CacheKeyConstants.REDIS_PREFIX_BOARD_SCAN_TYPE + scanPackageDto.getCurrentOperate().getSiteCode() +":" + scanPackageDto.getBoardCode();
         //记录板号扫的包裹还是箱号（冷链医药围板箱组板单独码放，不能和包裹混组）
@@ -1074,7 +1097,7 @@ public class JyUnloadVehicleCheckTysService {
         }
         String msg = JsonUtils.toJSONString(boardScanTypeDto);
         if(log.isInfoEnabled()) {
-            log.info("JyUnloadVehicleCheckTysService.setBoardTypeCache-转运卸车岗组板第一单信息redis缓存={}过期时间35天", msg);
+            log.info("JyUnloadVehicleCheckTysService.setBoardTypeCache-转运卸车岗开板确定板类型redis缓存={}过期时间35天", msg);
         }
         //卸车岗任务完成之后可扫包裹，无时间控制，该过期时间不宜过短
         redisClientOfJy.setEx(cacheKey, msg, 35, TimeUnit.DAYS);
@@ -1088,6 +1111,28 @@ public class JyUnloadVehicleCheckTysService {
         String cacheValue = redisClientOfJy.get(cacheKey);
         BoardScanTypeDto res = JSONObject.parseObject(cacheValue, BoardScanTypeDto.class);
 
-        return res == null ? new BoardScanTypeDto() : res;
+        //历史板或没有类型的场景都认为是扫包裹的板,强拦截扫描箱号
+        if(res == null) {
+            res = new BoardScanTypeDto();
+        }
+        if(StringUtils.isBlank(res.getBoardType())) {
+            res.setBoardType(CacheKeyConstants.BOARD_SCAN_TYPE_PACKAGE);
+        }
+        return res;
+    }
+
+
+    private boolean checkScanBoardType(BoardScanTypeDto boardScanTypeDto, String scanCode) {
+        boolean res = false;
+        String boardType = boardScanTypeDto.getBoardType();
+        if(WaybillUtil.isPackageCode(scanCode)) {
+            res = CacheKeyConstants.BOARD_SCAN_TYPE_PACKAGE.equals(boardType);
+        }else if(BusinessUtil.isBoxcode(scanCode)) {
+            res = CacheKeyConstants.BOARD_SCAN_TYPE_BOX.equals(boardType);
+        }
+        if(log.isInfoEnabled()) {
+            log.info("checkScanBoardType校验扫描板类型不符：当前扫描code={},板类型为{}，开板数据为：{}", scanCode, boardScanTypeDto.getBoardType(), JsonUtils.toJSONString(boardScanTypeDto));
+        }
+        return res;
     }
 }

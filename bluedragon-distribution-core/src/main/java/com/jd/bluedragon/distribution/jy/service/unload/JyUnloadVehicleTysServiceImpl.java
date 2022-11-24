@@ -821,7 +821,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         if (ScanTypeEnum.SCAN_ONE.getCode().equals(scanPackageDto.getType())) {
             BoardScanTypeDto boardScanTypeDto = jyUnloadVehicleCheckTysService.getBoardTypeCache(scanPackageDto.getCurrentOperate().getSiteCode(), scanPackageDto.getBoardCode());
             //理论上开板之后都需要校验，开板不需要
-            boolean boardTypeNeedCheck = (StringUtils.isBlank(scanPackageDto.getBoardCode()) || StringUtils.isBlank(boardScanTypeDto.getBoardType())) ? false : true;
+            boolean boardTypeNeedCheck = (StringUtils.isBlank(scanPackageDto.getBoardCode())) ? false : true;
             // 包裹号
             if (WaybillUtil.isPackageCode(scanPackageDto.getScanCode())) {
                 if(boardTypeNeedCheck && !CacheKeyConstants.BOARD_SCAN_TYPE_PACKAGE.equals(boardScanTypeDto.getBoardType())) {
