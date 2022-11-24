@@ -286,5 +286,6 @@
       #{item}
     </foreach>
     and status = 1
+    and yn = 1
   </select>
 </mapper>

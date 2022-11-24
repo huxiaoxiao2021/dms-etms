@@ -75,7 +75,7 @@ public class JyComboardGatewayServiceImpl implements JyComboardGatewayService {
 
   @Override
   public JdCResponse<BoardResp> queryBoardDetail(BoardReq request) {
-    return null;
+    return retJdCResponse(jyComBoardSendService.queryBoardDetail(request));
   }
 
   @Override
