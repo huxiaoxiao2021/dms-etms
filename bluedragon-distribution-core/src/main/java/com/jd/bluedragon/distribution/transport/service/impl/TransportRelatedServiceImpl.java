@@ -93,7 +93,7 @@ public class TransportRelatedServiceImpl implements TransportRelatedService {
         StopoverInfoDto stopoverInfoDto = sealCarManager.queryStopoverInfo(stopoverQueryDto);
         //日志+UMP 实现类包装
         if(stopoverInfoDto == null){
-            return null;
+            return "否";
         }
         // 站点类型=经停  且 装车计数=0  且 卸车计数＞0
         if(Objects.equals(stopoverInfoDto.getSiteType(), 2)
