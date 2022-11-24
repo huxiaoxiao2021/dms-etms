@@ -849,7 +849,7 @@ public class UccPropertyConfiguration {
      * 自动签退超过多少小时未签退的数据
      */
     private int notSignedOutRecordMoreThanHours;
-    
+
     /**
      * 自动签退查询数据-扫描小时数
      */
@@ -967,6 +967,11 @@ public class UccPropertyConfiguration {
      *  }
      */
     private String clientOfflineMenuConfig;
+
+    /**
+     * 称重量方的规则一直在变化，为了有一个版本的切换过程，这里加一个开关，
+     */
+    private Integer weightVolumeSwitchVersion;
 
     public String getScheduleSiteCheckSameCity() {
         return scheduleSiteCheckSameCity;
@@ -2335,5 +2340,13 @@ public class UccPropertyConfiguration {
 
     public void setJyDemotionConfig(String jyDemotionConfig) {
         this.jyDemotionConfig = jyDemotionConfig;
+    }
+
+    public Integer getWeightVolumeSwitchVersion() {
+        return weightVolumeSwitchVersion;
+    }
+
+    public void setWeightVolumeSwitchVersion(Integer weightVolumeSwitchVersion) {
+        this.weightVolumeSwitchVersion = weightVolumeSwitchVersion;
     }
 }

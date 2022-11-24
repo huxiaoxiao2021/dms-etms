@@ -2,6 +2,8 @@ package com.jd.bluedragon.core.hint.manager;
 
 import com.jd.dms.comp.api.hint.vo.HintReq;
 import com.jd.dms.comp.api.hint.vo.HintResp;
+import com.jd.dms.comp.api.hint.vo.HintVoiceReq;
+import com.jd.dms.comp.api.hint.vo.HintVoiceResp;
 import com.jd.dms.comp.base.ApiResult;
 
 import java.util.Map;
@@ -42,5 +44,13 @@ public interface IHintApiUnwrapManager {
      * @time 2021-07-14 18:23:32 周三
      */
     HintResp getHint(String hintCode, Map<String, String> paramsMap);
+
+    /**
+     * 获取通用提示音
+     *
+     * @param req
+     * @return
+     */
+    HintVoiceResp getCommonHintVoiceConfig(HintVoiceReq req);
 
 }
