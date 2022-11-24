@@ -20,14 +20,17 @@
     <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
     <result column="yn" jdbcType="BIT" property="yn" />
     <result column="ts" jdbcType="TIMESTAMP" property="ts" />
+    <result column="intercept_flag" jdbcType="BIT" property="interceptFlag" />
+    <result column="force_send_flag" jdbcType="BIT" property="forceSendFlag" />
+    <result column="cancel_flag" jdbcType="BIT" property="cancelFlag" />
   </resultMap>
   <sql id="Base_Column_List">
-    id, biz_id, bar_code, bar_code_type, board_code, send_code, start_site_id, start_site_name, 
-    end_site_id, end_site_name, create_user_erp, create_user_name, update_user_erp, update_user_name, 
-    create_time, update_time, yn, ts
+    id, biz_id, bar_code, bar_code_type, board_code, send_code, start_site_id, start_site_name,
+    end_site_id, end_site_name, create_user_erp, create_user_name, update_user_erp, update_user_name,
+    create_time, update_time, yn, ts,intercept_flag,force_send_flag,cancel_flag
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
-    select 
+    select
     <include refid="Base_Column_List" />
     from jy_comboard
     where id = #{id,jdbcType=BIGINT}
@@ -37,17 +40,17 @@
     where id = #{id,jdbcType=BIGINT}
   </delete>
   <insert id="insert" parameterType="com.jd.bluedragon.distribution.jy.comboard.JyComboardEntity">
-    insert into jy_comboard (id, biz_id, bar_code, 
-      bar_code_type, board_code, send_code, 
-      start_site_id, start_site_name, end_site_id, 
-      end_site_name, create_user_erp, create_user_name, 
-      update_user_erp, update_user_name, create_time, 
+    insert into jy_comboard (id, biz_id, bar_code,
+      bar_code_type, board_code, send_code,
+      start_site_id, start_site_name, end_site_id,
+      end_site_name, create_user_erp, create_user_name,
+      update_user_erp, update_user_name, create_time,
       update_time, yn, ts)
-    values (#{id,jdbcType=BIGINT}, #{bizId,jdbcType=VARCHAR}, #{barCode,jdbcType=VARCHAR}, 
-      #{barCodeType,jdbcType=TINYINT}, #{boardCode,jdbcType=VARCHAR}, #{sendCode,jdbcType=VARCHAR}, 
-      #{startSiteId,jdbcType=BIGINT}, #{startSiteName,jdbcType=VARCHAR}, #{endSiteId,jdbcType=BIGINT}, 
-      #{endSiteName,jdbcType=VARCHAR}, #{createUserErp,jdbcType=VARCHAR}, #{createUserName,jdbcType=VARCHAR}, 
-      #{updateUserErp,jdbcType=VARCHAR}, #{updateUserName,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, 
+    values (#{id,jdbcType=BIGINT}, #{bizId,jdbcType=VARCHAR}, #{barCode,jdbcType=VARCHAR},
+      #{barCodeType,jdbcType=TINYINT}, #{boardCode,jdbcType=VARCHAR}, #{sendCode,jdbcType=VARCHAR},
+      #{startSiteId,jdbcType=BIGINT}, #{startSiteName,jdbcType=VARCHAR}, #{endSiteId,jdbcType=BIGINT},
+      #{endSiteName,jdbcType=VARCHAR}, #{createUserErp,jdbcType=VARCHAR}, #{createUserName,jdbcType=VARCHAR},
+      #{updateUserErp,jdbcType=VARCHAR}, #{updateUserName,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP},
       #{updateTime,jdbcType=TIMESTAMP}, #{yn,jdbcType=BIT}, #{ts,jdbcType=TIMESTAMP})
   </insert>
   <insert id="insertSelective" parameterType="com.jd.bluedragon.distribution.jy.comboard.JyComboardEntity">
@@ -107,6 +110,15 @@
       <if test="ts != null">
         ts,
       </if>
+      <if test="interceptFlag != null">
+        intercept_flag,
+      </if>
+      <if test="forceSendFlag != null">
+        force_send_flag,
+      </if>
+      <if test="cancelFlag != null">
+        cancel_flag,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -162,6 +174,15 @@
       </if>
       <if test="ts != null">
         #{ts,jdbcType=TIMESTAMP},
+      </if>
+      <if test="interceptFlag != null">
+        #{interceptFlag,jdbcType=BIT},
+      </if>
+      <if test="forceSendFlag != null">
+        #{forceSendFlag,jdbcType=BIT},
+      </if>
+      <if test="cancelFlag != null">
+        #{cancelFlag,jdbcType=BIT},
       </if>
     </trim>
   </insert>

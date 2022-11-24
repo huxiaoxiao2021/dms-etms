@@ -61,4 +61,9 @@ public class JyBizTaskComboardServiceImpl implements JyBizTaskComboardService {
     }
     return null;
   }
+
+  @Override
+  public int updateBizTaskById(JyBizTaskComboardEntity record) {
+    return jyBizTaskComboardDao.updateByPrimaryKeySelective(record);
+  }
 }

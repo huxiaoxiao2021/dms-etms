@@ -39,6 +39,26 @@ public class JyComboardEntity {
 
     private Date ts;
 
+    private boolean interceptFlag;
+
+    private boolean ForceSendFlag;
+
+    public boolean getInterceptFlag() {
+        return interceptFlag;
+    }
+
+    public void setInterceptFlag(boolean interceptFlag) {
+        this.interceptFlag = interceptFlag;
+    }
+
+    public boolean getForceSendFlag() {
+        return ForceSendFlag;
+    }
+
+    public void setForceSendFlag(boolean forceSendFlag) {
+        ForceSendFlag = forceSendFlag;
+    }
+
     public Long getId() {
         return id;
     }

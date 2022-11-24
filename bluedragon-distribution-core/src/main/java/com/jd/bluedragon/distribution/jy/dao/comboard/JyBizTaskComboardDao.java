@@ -19,16 +19,16 @@ public class JyBizTaskComboardDao extends BaseDao<JyBizTaskComboardEntity> {
         return this.getSqlSession().insert(NAMESPACE + ".insert", entity);
     }
     public int insertSelective(JyBizTaskComboardEntity record) {
-        return this.getSqlSession().insert(NAMESPACE + ".deleteByPrimaryKey", record);
+        return this.getSqlSession().insert(NAMESPACE + ".insertSelective", record);
     }
     public JyBizTaskComboardEntity selectByPrimaryKey(Long id) {
-        return this.getSqlSession().selectOne(NAMESPACE + ".deleteByPrimaryKey", id);
+        return this.getSqlSession().selectOne(NAMESPACE + ".selectByPrimaryKey", id);
     }
     public int updateByPrimaryKeySelective(JyBizTaskComboardEntity record) {
-        return this.getSqlSession().update(NAMESPACE + ".deleteByPrimaryKey", record);
+        return this.getSqlSession().update(NAMESPACE + ".updateByPrimaryKeySelective", record);
     }
     public int updateByPrimaryKey(JyBizTaskComboardEntity record) {
-        return this.getSqlSession().update(NAMESPACE + ".deleteByPrimaryKey", record);
+        return this.getSqlSession().update(NAMESPACE + ".updateByPrimaryKey", record);
     }
 
   public List<JyBizTaskComboardEntity> queryBoardTask(JyBizTaskComboardEntity record) {

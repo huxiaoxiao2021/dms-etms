@@ -29,4 +29,6 @@ public interface JyBizTaskComboardService {
   boolean save(JyBizTaskComboardEntity entity);
 
   JyBizTaskComboardEntity queryBizTaskByBoardCode(JyBizTaskComboardEntity record);
+
+  int updateBizTaskById(JyBizTaskComboardEntity record);
 }

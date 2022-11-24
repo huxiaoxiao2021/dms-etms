@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.jy.service.comboard;
 
+import com.jd.bluedragon.distribution.jy.comboard.JyComboardEntity;
+
 /**
  * @author liwenji
  * @date 2022-11-23 21:17
@@ -12,4 +14,5 @@ public interface JyComboardService {
      * @return
      */
     int queryUserCountByStartSiteCode(Long startSiteId);
+    int save(JyComboardEntity entity);
 }
