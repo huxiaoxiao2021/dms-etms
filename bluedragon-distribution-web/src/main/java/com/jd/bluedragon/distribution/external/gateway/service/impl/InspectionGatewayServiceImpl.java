@@ -300,8 +300,6 @@ public class InspectionGatewayServiceImpl implements InspectionGatewayService {
         if(luxurySecurityResult != null && luxurySecurityResult.getData()){
             response.addWarningBox(luxurySecurityResult.getCode(), luxurySecurityResult.getMessage());
         }
-        response.addWarningBox(0, "此单为易冻品!");
-        response.addWarningBox(666, "此单为特保单，请对包裹进行拍照!");
         log.info("checkBeforeInspection -结果-response {}",JSON.toJSONString(response));
         // 提示语校验
         HintCheckRequest hintCheckRequest = new HintCheckRequest();
