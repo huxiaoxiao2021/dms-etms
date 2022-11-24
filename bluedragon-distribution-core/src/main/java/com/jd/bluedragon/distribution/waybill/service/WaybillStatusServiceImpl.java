@@ -226,6 +226,24 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
         	bdTraceDto.setExtendParameter(map);
         }
 	}
+	/**
+	 * tWaybillStatus转换成运单的对象WaybillSyncParameter
+	 * @param tWaybillStatus
+	 * @return
+	 */
+	private WaybillSyncParameter toWaybillSyncParameter(WaybillStatus tWaybillStatus) {
+		if(tWaybillStatus == null) {
+			return null;
+		}
+		WaybillSyncParameter parameter = new WaybillSyncParameter();
+		if(tWaybillStatus.getOperatorData() != null 
+        		&& OperatorTypeEnum.AUTO_MACHINE.getCode().equals(tWaybillStatus.getOperatorData().getOperatorTypeCode())) {
+        	Map<String,Object> map = new HashMap<String,Object>();
+        	map.put(WaybillStatus.EXTEND_PARAMETER_EQUIPMENT_CODE, tWaybillStatus.getOperatorData().getOperatorId());
+        	parameter.setExtendSyncParam(map);
+        }
+		return parameter;
+	}	
 	// 没有注入运单号和包裹号 (解封车)
 	private void toWaybillStatus3(WaybillStatus tWaybillStatus, BdTraceDto bdTraceDto) {
 		bdTraceDto.setOperateType(tWaybillStatus.getOperateType());
@@ -234,6 +252,7 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
 		bdTraceDto.setOperatorTime(tWaybillStatus.getOperateTime());
 		bdTraceDto.setOperatorUserName(tWaybillStatus.getOperator());
         bdTraceDto.setOperatorUserId(null!=tWaybillStatus.getOperatorId()?tWaybillStatus.getOperatorId():0);
+        setExtendParameter(tWaybillStatus,bdTraceDto);
 	}
 
 	private Task findTask(List<Task> tasks, Long taskId, Integer taskType) {
@@ -298,7 +317,7 @@ public class WaybillStatusServiceImpl implements WaybillStatusService {
                 continue;
             }
 			WaybillStatus waybillStatus = JsonHelper.fromJson(task.getBody(), WaybillStatus.class);
-			WaybillSyncParameter param = new WaybillSyncParameter();
+			WaybillSyncParameter param = toWaybillSyncParameter(waybillStatus);
 
 			Integer operateType = waybillStatus.getOperateType();
 			if (WaybillStatus.WAYBILL_STATUS_CODE_REVERSE_SORTING.equals(operateType)
