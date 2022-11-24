@@ -148,6 +148,15 @@ public class InvokeResult<T> implements Serializable {
     public static final int SEND_FLOW_UNDER_CTTGROUP_CODE = 3040;
     public static final String SEND_FLOW_UNDER_CTTGROUP_MESSAGE= "获取混扫任务下流向信息异常";
 
+    public static final int BOARD_INFO_CODE = 3041;
+    public static final String BOARD_INFO_MESSAGE= "获取板的详细信息异常";
+
+    public static final int SEND_FLOE_CTT_CODE = 3042;
+    public static final String SEND_FLOE_CTT_MESSAGE= "获取滑道笼车信息异常";
+
+    public static final int SEND_FLOE_CTT_GROUP_CODE = 3043;
+    public static final String SEND_FLOE_CTT_GROUP_MESSAGE= "获取混扫任务信息异常";
+    
     public InvokeResult(){
         this.code=RESULT_SUCCESS_CODE;
     }

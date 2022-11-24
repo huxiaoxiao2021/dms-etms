@@ -25,4 +25,7 @@ public class JyComboardDao extends BaseDao<JyComboardEntity> {
     public int updateByPrimaryKey(JyComboardEntity record) {
         return this.getSqlSession().update(NAMESPACE + ".deleteByPrimaryKey", record);
     }
+    public int queryUserCountByStartSiteCode(Long startSiteId) {
+        return this.getSqlSession().selectOne(NAMESPACE + ".queryUserCountByStartSiteCode", startSiteId);
+    }
 }

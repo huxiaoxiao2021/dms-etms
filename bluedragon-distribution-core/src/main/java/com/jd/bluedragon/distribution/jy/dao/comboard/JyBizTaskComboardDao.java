@@ -43,7 +43,7 @@ public class JyBizTaskComboardDao extends BaseDao<JyBizTaskComboardEntity> {
      */
     public List<JyBizTaskComboardEntity> queryInProcessBoardListBySendFlowList(Integer startSiteCode, List<Integer> endSiteCodeList) {
         JyBizTaskComboardReq req = new JyBizTaskComboardReq();
-        req.setStartSiteCode(startSiteCode);
+        req.setStartSiteId(startSiteCode);
         req.setEndSiteCodeList(endSiteCodeList);
         return this.getSqlSession().selectList(NAMESPACE + ".queryInProcessBoardListBySendFlowList", req);
     }

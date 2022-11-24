@@ -13,7 +13,7 @@ public class JyBizTaskComboardReq {
     /**
      * 始发站点
      */
-    private Integer startSiteCode;
+    private Integer startSiteId;
 
     /**
      * 目的地站点

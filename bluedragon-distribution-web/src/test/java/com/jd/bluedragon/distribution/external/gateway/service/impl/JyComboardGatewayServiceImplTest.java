@@ -309,4 +309,21 @@ public class JyComboardGatewayServiceImplTest {
         JdCResponse<SendFlowDataResp> response = jyComboardGatewayService.listSendFlowUnderCTTGroup(resp);
         System.out.println(JsonHelper.toJson(response));
     }
+    
+    @Test 
+    public void queryBoardDetailTest() {
+        BoardReq resp = new BoardReq();
+        CurrentOperate operate = new CurrentOperate();
+        resp.setGroupCode("group111");
+        resp.setBoardCode("Y76364756");
+        operate.setSiteCode(910);
+        operate.setSiteName("北京马驹桥分拣中心");
+        resp.setCurrentOperate(operate);
+        User user = new User();
+        user.setUserName("李文吉");
+        user.setUserErp("liwenji3");
+        resp.setUser(user);
+        JdCResponse<BoardResp> boardRespJdCResponse = jyComboardGatewayService.queryBoardDetail(resp);
+        System.out.println(JsonHelper.toJson(boardRespJdCResponse));
+    }
 }
