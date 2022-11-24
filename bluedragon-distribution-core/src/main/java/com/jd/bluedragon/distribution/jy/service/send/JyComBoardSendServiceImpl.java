@@ -225,8 +225,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   }
 
   private String getGroupCTTName(BaseReq req) {
-    String templateNoKey =
-        "CTT:" + req.getCurrentOperate().getSiteCode() + ":" + req.getGroupCode();
+    String templateNoKey = "CTT:" + req.getCurrentOperate().getSiteCode() + ":" + req.getGroupCode();
     long templateNo = 0;
     if (!ObjectHelper.isNotNull(redisClientCache.get(templateNoKey))) {
       redisClientCache.set(templateNoKey, "0", false);
@@ -430,7 +429,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       // 获取当前板号的扫描信息
       for (JyBizTaskComboardEntity board : boardList) {
         JyComboardAggsEntity jyComboardAggsEntity = jyComboardAggsService.
-            queryComboardAggs(startSiteCode, board.getEndSiteId().intValue(), board.getBoardCode());
+            queryComboardAggs(board.getBoardCode());
         // 当前板的扫描信息
         boardFlowMap.put(board.getEndSiteId(), jyComboardAggsEntity);
       }
@@ -535,8 +534,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   private void execComboard(ComboardScanReq request) {
     //板加锁
 
-    String boardLockKey = String
-        .format(Constants.JY_COMBOARD_BOARD_LOCK_PREFIX, request.getBoardCode());
+    String boardLockKey = String.format(Constants.JY_COMBOARD_BOARD_LOCK_PREFIX, request.getBoardCode());
     if (!jimDbLock.lock(boardLockKey, request.getRequestId(), LOCK_EXPIRE, TimeUnit.SECONDS)) {
       throw new JyBizException("当前系统繁忙,请稍后再试！");
     }

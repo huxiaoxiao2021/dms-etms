@@ -7,12 +7,10 @@ import com.jd.bluedragon.distribution.jy.dao.comboard.JyBizTaskComboardDao;
 import com.jd.bluedragon.distribution.jy.enums.ComboardStatusEnum;
 import com.jd.bluedragon.utils.ObjectHelper;
 import java.util.List;
-import javax.xml.ws.Action;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 
 /**
  * @author liwenji
@@ -47,8 +45,7 @@ public class JyBizTaskComboardServiceImpl implements JyBizTaskComboardService {
   @Override
   public List<JyBizTaskComboardEntity> queryInProcessBoardListBySendFlowList(Integer startSiteCode,
       List<Integer> endSiteCodeList) {
-    return jyBizTaskComboardDao
-        .queryInProcessBoardListBySendFlowList(startSiteCode, endSiteCodeList);
+    return jyBizTaskComboardDao.queryInProcessBoardListBySendFlowList(startSiteCode, endSiteCodeList);
   }
 
   @Override
