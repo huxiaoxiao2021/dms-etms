@@ -11,6 +11,11 @@ public class ComboardDetailDto implements Serializable {
    */
   private Integer type;
 
+  /**
+   * 包含包裹数量
+   */
+  private Integer packageCount;
+
   public String getBarCode() {
     return barCode;
   }
@@ -25,5 +30,13 @@ public class ComboardDetailDto implements Serializable {
 
   public void setType(Integer type) {
     this.type = type;
+  }
+
+  public Integer getPackageCount() {
+    return packageCount;
+  }
+
+  public void setPackageCount(Integer packageCount) {
+    this.packageCount = packageCount;
   }
 }
