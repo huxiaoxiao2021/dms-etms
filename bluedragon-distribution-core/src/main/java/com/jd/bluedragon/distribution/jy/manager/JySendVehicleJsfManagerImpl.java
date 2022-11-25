@@ -1,11 +1,14 @@
 package com.jd.bluedragon.distribution.jy.manager;
 
 import com.alibaba.fastjson.JSON;
+import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.ProfilerHelper;
 import com.jd.ql.dms.common.constants.JyConstants;
 import com.jd.bluedragon.distribution.jy.exception.JyDemotionException;
 import com.jd.bluedragon.distribution.jy.service.config.JyDemotionService;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import com.jdl.jy.realtime.api.send.ISendVehicleJsfService;
@@ -65,6 +68,7 @@ public class JySendVehicleJsfManagerImpl implements IJySendVehicleJsfManager {
 
 
     @Override
+    @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB,jKey = "DMSWEB.JySendVehicleJsfManagerImpl.querySendVehicleToScanPackageDetail", mState = {JProEnum.TP, JProEnum.FunctionError})
     public Pager<SendVehiclePackageDetailVo> querySendVehicleToScanPackageDetail(Pager<SendVehiclePackageDetailQuery> queryPager) {
         if(jyDemotionService.checkIsDemotion(JyConstants.JY_VEHICLE_SEND_DETAIL_IS_DEMOTION)){
             throw new JyDemotionException("发车：查询发车任务待扫包裹列表已降级!");

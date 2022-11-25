@@ -1113,6 +1113,7 @@ public class InspectionServiceImpl implements InspectionService , InspectionJsfS
 	}
 
 	@Override
+	@JProfiler(jKey= "DMSWEB.InspectionService.checkEasyFreeze", mState = {JProEnum.TP, JProEnum.FunctionError})
 	public InvokeResult<Boolean> checkEasyFreeze(String barCode, Date operateTime, Integer siteCode) {
 		log.info("易冻品 checkEasyFreeze 单号-{} ; 操作时间-{} ;当前站点-{}",barCode,operateTime,siteCode);
 		InvokeResult<Boolean> result = new InvokeResult();
@@ -1177,6 +1178,7 @@ public class InspectionServiceImpl implements InspectionService , InspectionJsfS
 	}
 
 	@Override
+	@JProfiler(jKey= "DMSWEB.InspectionService.checkLuxurySecurity", mState = {JProEnum.TP, JProEnum.FunctionError})
 	public InvokeResult<Boolean> checkLuxurySecurity(String barCode,String waybillSign) {
 		log.info("特保单 checkLuxurySecurity 单号-{}",barCode);
 		InvokeResult<Boolean> result = new InvokeResult();

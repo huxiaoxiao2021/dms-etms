@@ -1,6 +1,8 @@
 package com.jd.bluedragon.distribution.jy.service.send;
 
 import com.alibaba.fastjson.JSON;
+import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.UmpConstants;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicleCommonRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicleToScanPackageDetailRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleProductTypeAgg;
@@ -13,6 +15,8 @@ import com.jd.bluedragon.distribution.jy.send.JySendVehicleToScanPackage;
 import com.jd.bluedragon.distribution.jy.send.SendVehicleCommonReq;
 import com.jd.bluedragon.distribution.jy.send.SendVehicleToScanPackageDetailDto;
 import com.jd.tp.common.utils.Objects;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections4.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,6 +69,8 @@ public class JySendVehicleTysJsfServiceImpl implements JySendVehicleTysJsfServic
     }
 
     @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "JySendVehicleTysJsfServiceImpl.getSendVehicleToScanPackages",
+            jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public InvokeResult<SendVehicleToScanPackageDetailDto> getSendVehicleToScanPackages(SendVehicleCommonReq request) {
         InvokeResult<SendVehicleToScanPackageDetailDto> invokeResult = new InvokeResult<>();
         SendVehicleToScanPackageDetailRequest req = new SendVehicleToScanPackageDetailRequest();
