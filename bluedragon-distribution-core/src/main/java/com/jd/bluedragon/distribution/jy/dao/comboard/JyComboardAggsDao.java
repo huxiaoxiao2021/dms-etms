@@ -18,16 +18,19 @@ public class JyComboardAggsDao extends BaseDao<JyComboardAggsEntity> {
         return this.getSqlSession().insert(NAMESPACE + ".insert", entity);
     }
     public int insertSelective(JyComboardAggsEntity record) {
-        return this.getSqlSession().insert(NAMESPACE + ".deleteByPrimaryKey", record);
+        return this.getSqlSession().insert(NAMESPACE + ".insertSelective", record);
     }
     public JyComboardAggsEntity selectByPrimaryKey(Long id) {
-        return this.getSqlSession().selectOne(NAMESPACE + ".deleteByPrimaryKey", id);
+        return this.getSqlSession().selectOne(NAMESPACE + ".selectByPrimaryKey", id);
     }
-    public int updateByPrimaryKeySelective(JyComboardAggsEntity record) {
-        return this.getSqlSession().update(NAMESPACE + ".deleteByPrimaryKey", record);
+    public int updateByPrimaryKeyAndTs(JyComboardAggsEntity record) {
+        if (record == null || record.getTs() == null) {
+            return 0;
+        }
+        return this.getSqlSession().update(NAMESPACE + ".updateByPrimaryKeyAndTs", record);
     }
     public int updateByPrimaryKey(JyComboardAggsEntity record) {
-        return this.getSqlSession().update(NAMESPACE + ".deleteByPrimaryKey", record);
+        return this.getSqlSession().update(NAMESPACE + ".updateByPrimaryKey", record);
     }
 
     public List<JyComboardAggsEntity> queryComboardAggs(JyComboardAggsCondition comboardAggsCondition) {

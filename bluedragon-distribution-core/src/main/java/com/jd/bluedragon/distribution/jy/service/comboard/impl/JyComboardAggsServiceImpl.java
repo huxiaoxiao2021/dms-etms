@@ -28,6 +28,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -79,39 +80,82 @@ public class JyComboardAggsServiceImpl implements JyComboardAggsService {
     public boolean saveAggs(JyAggsDto jyAggsDto) {
         JyComboardAggsDto dto = (JyComboardAggsDto) jyAggsDto;
         try {
-            JyComboardAggsCondition conditon = new JyComboardAggsConditionBuilder().operateSiteId(dto.getOperateSiteId())
-                    .receiveSiteId(dto.getReceiveSiteId())
-                    .bizId(dto.getBizId()).boardCode(dto.getBoardCode()).productType(dto.getProductType()).scanType(dto.getScanType())
-                    .build();
-            List<JyComboardAggsEntity> jyComboardAggsEntities = jyComboardAggsDao.queryComboardAggs(conditon);
-            if (CollectionUtils.isNotEmpty(jyComboardAggsEntities)){
-                JyComboardAggsEntity jyComboardAggsEntity = jyComboardAggsEntities.get(0);
-                jyComboardAggsEntity.setWaitScanCount(dto.getWaitScanCount());
-                jyComboardAggsEntity.setScannedCount(dto.getScannedCount());
-                jyComboardAggsEntity.setBoardCount(dto.getBoardCount());
-                jyComboardAggsEntity.setInterceptCount(dto.getInterceptCount());
-                jyComboardAggsEntity.setMoreScannedCount(dto.getMoreScannedCount());
-                jyComboardAggsDao.updateByPrimaryKeySelective(jyComboardAggsEntity);
-            }else{
-                JyComboardAggsEntity jyComboardAggsEntity = new JyComboardAggsEntity();
-                jyComboardAggsEntity.setWaitScanCount(dto.getWaitScanCount());
-                jyComboardAggsEntity.setScannedCount(dto.getScannedCount());
-                jyComboardAggsEntity.setBoardCount(dto.getBoardCount());
-                jyComboardAggsEntity.setInterceptCount(dto.getInterceptCount());
-                jyComboardAggsEntity.setMoreScannedCount(dto.getMoreScannedCount());
-                jyComboardAggsEntity.setOperateSiteId(Integer.valueOf(dto.getOperateSiteId()));
-                jyComboardAggsEntity.setReceiveSiteId(Integer.valueOf(dto.getReceiveSiteId()));
-                jyComboardAggsEntity.setCreateTime(dto.getCreateTime());
-                jyComboardAggsEntity.setBizId(dto.getBizId());
-                jyComboardAggsEntity.setBoardCode(dto.getBoardCode());
-                jyComboardAggsEntity.setProductType(dto.getProductType());
-                jyComboardAggsEntity.setScanType(Integer.valueOf(dto.getScanType()));
-                jyComboardAggsDao.insertSelective(jyComboardAggsEntity);
-            }
+            saveOrUpdate(dto);
+            //冗余包裹、箱号数量
+            redundancyPackageAndBox(dto);
             return true;
         }catch (Exception e){
             log.error("saveAggs error :param json 【{}】",JsonHelper.toJson(dto),e);
             return false;
+        }
+    }
+    //冗余包裹、箱号数量
+    private void redundancyPackageAndBox(JyComboardAggsDto dto) {
+        if (Objects.equals(dto.getScanType(),JyComboardAggsConditionBuilder.DEFAULT_CONDITON_INTEGER_VALUE)){
+            return;
+        }
+        JyComboardAggsCondition conditon = new JyComboardAggsConditionBuilder().operateSiteId(dto.getOperateSiteId())
+                .receiveSiteId(dto.getReceiveSiteId())
+                .bizId(dto.getBizId()).boardCode(dto.getBoardCode()).productType(dto.getProductType()).build();
+        List<JyComboardAggsEntity> jyComboardAggsEntities = jyComboardAggsDao.queryComboardAggs(conditon);
+
+        if (CollectionUtils.isNotEmpty(jyComboardAggsEntities)){
+            JyComboardAggsEntity jyComboardAggsEntity = jyComboardAggsEntities.get(0);
+            if (Objects.equals(dto.getScanType(),ReportTypeEnum.PACKAGE_CODE.getCode())){
+                jyComboardAggsEntity.setPackageScannedCount(dto.getScannedCount());
+            }else if (Objects.equals(dto.getScanType(),ReportTypeEnum.BOX_CODE.getCode())){
+                jyComboardAggsEntity.setBoxScannedCount(dto.getScannedCount());
+            }
+            jyComboardAggsDao.updateByPrimaryKeyAndTs(jyComboardAggsEntity);
+        }else{
+            // 初始化
+            JyComboardAggsEntity jyComboardAggsEntity = new JyComboardAggsEntity();
+            jyComboardAggsEntity.setOperateSiteId(dto.getOperateSiteId());
+            jyComboardAggsEntity.setReceiveSiteId(dto.getReceiveSiteId());
+            jyComboardAggsEntity.setCreateTime(dto.getCreateTime());
+            jyComboardAggsEntity.setBizId(dto.getBizId());
+            jyComboardAggsEntity.setBoardCode(dto.getBoardCode());
+            jyComboardAggsEntity.setProductType(dto.getProductType());
+            jyComboardAggsEntity.setScanType(JyComboardAggsConditionBuilder.DEFAULT_CONDITON_INTEGER_VALUE);
+            if (Objects.equals(dto.getScanType(),ReportTypeEnum.PACKAGE_CODE.getCode())){
+                jyComboardAggsEntity.setPackageScannedCount(dto.getScannedCount());
+            }else if (Objects.equals(dto.getScanType(),ReportTypeEnum.BOX_CODE.getCode())){
+                jyComboardAggsEntity.setBoxScannedCount(dto.getScannedCount());
+            }
+            jyComboardAggsDao.insertSelective(jyComboardAggsEntity);
+        }
+    }
+
+    private void saveOrUpdate(JyComboardAggsDto dto) {
+        JyComboardAggsCondition conditon = new JyComboardAggsConditionBuilder().operateSiteId(dto.getOperateSiteId())
+                .receiveSiteId(dto.getReceiveSiteId())
+                .bizId(dto.getBizId()).boardCode(dto.getBoardCode()).productType(dto.getProductType()).scanType(dto.getScanType())
+                .build();
+        List<JyComboardAggsEntity> jyComboardAggsEntities = jyComboardAggsDao.queryComboardAggs(conditon);
+        if (CollectionUtils.isNotEmpty(jyComboardAggsEntities)){
+            JyComboardAggsEntity jyComboardAggsEntity = jyComboardAggsEntities.get(0);
+            jyComboardAggsEntity.setWaitScanCount(dto.getWaitScanCount());
+            jyComboardAggsEntity.setScannedCount(dto.getScannedCount());
+            jyComboardAggsEntity.setBoardCount(dto.getBoardCount());
+            jyComboardAggsEntity.setInterceptCount(dto.getInterceptCount());
+            jyComboardAggsEntity.setMoreScannedCount(dto.getMoreScannedCount());
+            jyComboardAggsEntity.setTs(dto.getCreateTime());
+            jyComboardAggsDao.updateByPrimaryKeyAndTs(jyComboardAggsEntity);
+        }else{
+            JyComboardAggsEntity jyComboardAggsEntity = new JyComboardAggsEntity();
+            jyComboardAggsEntity.setWaitScanCount(dto.getWaitScanCount());
+            jyComboardAggsEntity.setScannedCount(dto.getScannedCount());
+            jyComboardAggsEntity.setBoardCount(dto.getBoardCount());
+            jyComboardAggsEntity.setInterceptCount(dto.getInterceptCount());
+            jyComboardAggsEntity.setMoreScannedCount(dto.getMoreScannedCount());
+            jyComboardAggsEntity.setOperateSiteId(Integer.valueOf(dto.getOperateSiteId()));
+            jyComboardAggsEntity.setReceiveSiteId(Integer.valueOf(dto.getReceiveSiteId()));
+            jyComboardAggsEntity.setCreateTime(dto.getCreateTime());
+            jyComboardAggsEntity.setBizId(dto.getBizId());
+            jyComboardAggsEntity.setBoardCode(dto.getBoardCode());
+            jyComboardAggsEntity.setProductType(dto.getProductType());
+            jyComboardAggsEntity.setScanType(Integer.valueOf(dto.getScanType()));
+            jyComboardAggsDao.insertSelective(jyComboardAggsEntity);
         }
     }
 
@@ -156,9 +200,9 @@ public class JyComboardAggsServiceImpl implements JyComboardAggsService {
         if (reportTypeEnums == null || reportTypeEnums.length == 0) {
             return null;
         }
-        List<String> reprotTypes = Lists.newArrayList();
+        List<Integer> reprotTypes = Lists.newArrayList();
         for (ReportTypeEnum reportTypeEnum : reportTypeEnums) {
-            reprotTypes.add(reportTypeEnum.getCode()+"");
+            reprotTypes.add(reportTypeEnum.getCode());
         }
         JyComboardAggsCondition condition = new JyComboardAggsConditionBuilder().operateSiteId(operateSiteId).receiveSiteId(receiveSiteId).scanTypes(reprotTypes).build();
         List<JyComboardAggsEntity> jyComboardAggsEntities = jyComboardAggsDao.queryComboardAggs(condition);

@@ -4,8 +4,8 @@ import java.util.List;
 
 public class JyComboardAggsConditionBuilder {
 
-    private static final String DEFAULT_CONDITON_VALUE = "-1";
-    private static final Integer DEFAULT_CONDITON_INTEGER_VALUE = -1;
+    public static final String DEFAULT_CONDITON_VALUE = "-1";
+    public static final Integer DEFAULT_CONDITON_INTEGER_VALUE = -1;
 
     /**
      * 始发
@@ -30,11 +30,11 @@ public class JyComboardAggsConditionBuilder {
     /**
      * 扫描类型
      */
-    private String scanType;
+    private Integer scanType;
 
     private List<String> productTypes;
 
-    private List<String> scanTypes;
+    private List<Integer> scanTypes;
 
     private List<Integer> receiveSiteIds;
 
@@ -65,7 +65,7 @@ public class JyComboardAggsConditionBuilder {
         return this;
     }
 
-    public JyComboardAggsConditionBuilder scanType(String scanType) {
+    public JyComboardAggsConditionBuilder scanType(Integer scanType) {
         this.scanType = scanType;
         return this;
     }
@@ -75,7 +75,7 @@ public class JyComboardAggsConditionBuilder {
         return this;
     }
 
-    public JyComboardAggsConditionBuilder scanTypes(List<String> scanTypes) {
+    public JyComboardAggsConditionBuilder scanTypes(List<Integer> scanTypes) {
         this.scanTypes = scanTypes;
         return this;
     }
@@ -96,7 +96,7 @@ public class JyComboardAggsConditionBuilder {
                 bizId==null?DEFAULT_CONDITON_VALUE:bizId,
                 boardCode==null?DEFAULT_CONDITON_VALUE:boardCode,
                 productType==null?DEFAULT_CONDITON_VALUE:productType,
-                scanType==null?DEFAULT_CONDITON_VALUE:scanType,
+                scanType==null?DEFAULT_CONDITON_INTEGER_VALUE:scanType,
                 productTypes, scanTypes, receiveSiteIds, boardCodes);
     }
 
