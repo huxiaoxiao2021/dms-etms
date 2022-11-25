@@ -2,12 +2,7 @@ package com.jd.bluedragon.core.jsf.dms.impl;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
-import com.jd.transboard.api.dto.AddBoardBox;
-import com.jd.transboard.api.dto.AddBoardRequest;
-import com.jd.transboard.api.dto.Board;
-import com.jd.transboard.api.dto.MoveBoxRequest;
-import com.jd.transboard.api.dto.OperatorInfo;
-import com.jd.transboard.api.dto.Response;
+import com.jd.transboard.api.dto.*;
 import com.jd.transboard.api.service.GroupBoardService;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -93,6 +88,36 @@ public class GroupBoardManagerImpl implements GroupBoardManager {
     @Override
     public Response<Board> getBoardByBoxCode(String boxCode, Integer siteCode) {
         return groupBoardService.getBoardByBoxCode(boxCode,siteCode);
+    }
+    
+    @JProfiler(jKey = "dmsWeb.jsf.tc.groupBoardService.getBoardStatisticsByBoardCode",jAppName= Constants.UMP_APP_NAME_DMSWEB,
+            mState = {JProEnum.TP, JProEnum.FunctionError})
+    @Override
+    public Response<BoardBoxCountDto> getBoxCountInfoByBoardCode(String boardCode) {
+        return groupBoardService.getBoxCountInfoByBoardCode(boardCode);
+    }
+
+    @JProfiler(jKey = "dmsWeb.jsf.tc.groupBoardService.batchRemoveBardBoxByBoxCodes",jAppName= Constants.UMP_APP_NAME_DMSWEB,
+            mState = {JProEnum.TP, JProEnum.FunctionError})
+    @Override
+    public Response batchRemoveBardBoxByBoxCodes(RemoveBoardBoxDto removeBoardBoxDto) {
+        return groupBoardService.batchRemoveBardBoxByBoxCodes(removeBoardBoxDto);
+    }
+
+    @JProfiler(jKey = "dmsWeb.jsf.tc.groupBoardService.removeBardBoxByWaybillCode",jAppName= Constants.UMP_APP_NAME_DMSWEB,
+            mState = {JProEnum.TP, JProEnum.FunctionError})
+    @Override
+    public Response removeBardBoxByWaybillCode(RemoveBoardBoxDto removeBoardWaybillDto) {
+        return groupBoardService.removeBardBoxByWaybillCode(removeBoardWaybillDto);
+    }
+
+    @Override
+    public BoardBoxInfoDto getBoardBoxInfo(String barCode, int siteCode) {
+        Response<BoardBoxInfoDto> boardBoxInfo = groupBoardService.getBoardBoxInfo(barCode, siteCode);
+        if (boardBoxInfo != null && boardBoxInfo.getData()!= null ) {
+            return boardBoxInfo.getData();
+        }
+        return null;
     }
 
 }

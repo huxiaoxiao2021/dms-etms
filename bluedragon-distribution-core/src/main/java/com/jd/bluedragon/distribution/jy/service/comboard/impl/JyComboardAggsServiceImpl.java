@@ -43,7 +43,7 @@ public class JyComboardAggsServiceImpl implements JyComboardAggsService {
     @Qualifier("redisClientCache")
     protected Cluster redisClientCache;
 
-    @Value("${local.cache.expire.minutes}")
+    @Value("${local.cache.expire.minutes:30}")
     private Integer LOCAL_CACHE_EXPIRE_MINUTES = null;
 
     /**
@@ -179,18 +179,18 @@ public class JyComboardAggsServiceImpl implements JyComboardAggsService {
         return jyComboardAggsEntities;
     }
 
-    public JyComboardAggsEntity queryComboardAggs(Integer operateSiteId,Integer receiveSiteId,String boardCode) throws Exception{
-        JyComboardAggsCondition condition = new JyComboardAggsConditionBuilder().operateSiteId(operateSiteId).receiveSiteId(receiveSiteId).boardCode(boardCode).build();
+    public JyComboardAggsEntity queryComboardAggs(String boardCode) throws Exception{
+        JyComboardAggsCondition condition = new JyComboardAggsConditionBuilder().operateSiteId(null).receiveSiteId(null).boardCode(boardCode).build();
         return queryComboardAggsCache(condition);
     }
 
     @Override
-    public List<JyComboardAggsEntity> queryComboardAggs(Integer operateSiteId, Integer receiveSiteId, List<String> boardCodes) throws Exception {
+    public List<JyComboardAggsEntity> queryComboardAggs(List<String> boardCodes) throws Exception {
         if (CollectionUtils.isNotEmpty(boardCodes)) {
             return null;
         }
 
-        JyComboardAggsCondition condition = new JyComboardAggsConditionBuilder().operateSiteId(operateSiteId).receiveSiteId(receiveSiteId).boardCodes(boardCodes).build();
+        JyComboardAggsCondition condition = new JyComboardAggsConditionBuilder().operateSiteId(null).receiveSiteId(null).boardCodes(boardCodes).build();
         List<JyComboardAggsEntity> jyComboardAggsEntities = jyComboardAggsDao.queryComboardAggs(condition);
         return jyComboardAggsEntities;
     }
@@ -224,9 +224,7 @@ public class JyComboardAggsServiceImpl implements JyComboardAggsService {
     }
 
     @Override
-    public List<JyComboardAggsEntity> queryComboardAggs(Integer operateSiteId,
-        Integer receiveSiteId,
-        String boardCode, UnloadProductTypeEnum... productTypeEnums) throws Exception {
+    public List<JyComboardAggsEntity> queryComboardAggs(String boardCode, UnloadProductTypeEnum... productTypeEnums) throws Exception {
         return null;
     }
 

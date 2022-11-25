@@ -6,7 +6,7 @@ import java.util.List;
 public class WaitScanStatisticsResp implements Serializable {
     private static final long serialVersionUID = -8347077835477023307L;
     private List<GoodsCategoryDto> goodsCategoryDtoList;
-    private List<SendFlowWaitScanDto> sendFlowWaitScanDtoList;
+    private List<WaitScanDto> waitScanDtoList;
 
     public List<GoodsCategoryDto> getGoodsCategoryDtoList() {
         return goodsCategoryDtoList;
@@ -16,11 +16,12 @@ public class WaitScanStatisticsResp implements Serializable {
         this.goodsCategoryDtoList = goodsCategoryDtoList;
     }
 
-    public List<SendFlowWaitScanDto> getSendFlowWaitScanDtoList() {
-        return sendFlowWaitScanDtoList;
+    public List<WaitScanDto> getWaitScanDtoList() {
+        return waitScanDtoList;
     }
 
-    public void setSendFlowWaitScanDtoList(List<SendFlowWaitScanDto> sendFlowWaitScanDtoList) {
-        this.sendFlowWaitScanDtoList = sendFlowWaitScanDtoList;
+    public void setWaitScanDtoList(
+        List<WaitScanDto> waitScanDtoList) {
+        this.waitScanDtoList = waitScanDtoList;
     }
 }

@@ -7,10 +7,9 @@ public class ComboardDetailDto implements Serializable {
   private static final long serialVersionUID = 4793580953863263253L;
   private String barCode;
   /**
-   * 类型 1箱号 2包裹号
+   * 类型 1箱号 2包裹号 3运单号
    */
   private Integer type;
-
   public String getBarCode() {
     return barCode;
   }
@@ -26,4 +25,5 @@ public class ComboardDetailDto implements Serializable {
   public void setType(Integer type) {
     this.type = type;
   }
+  
 }

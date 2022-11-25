@@ -12,15 +12,15 @@ public interface JyComboardAggsService extends JyAggsService {
 
     public List<JyComboardAggsEntity> queryComboardAggs(Integer operateSiteId,List<Integer> receiveSiteId) throws Exception;
 
-    public JyComboardAggsEntity queryComboardAggs(Integer operateSiteId,Integer receiveSiteId,String boardCode) throws Exception;
+    public JyComboardAggsEntity queryComboardAggs(String boardCode) throws Exception;
 
-    public List<JyComboardAggsEntity> queryComboardAggs(Integer operateSiteId,Integer receiveSiteId,List<String> boardCode) throws Exception;
+    public List<JyComboardAggsEntity> queryComboardAggs(List<String> boardCode) throws Exception;
 
     public List<JyComboardAggsEntity> queryComboardAggs(Integer operateSiteId, Integer receiveSiteId, ReportTypeEnum ... reportTypeEnums) throws Exception;
 
     public List<JyComboardAggsEntity> queryComboardAggs(Integer operateSiteId, Integer receiveSiteId, UnloadProductTypeEnum... productTypeEnums) throws Exception;
 
-    public List<JyComboardAggsEntity> queryComboardAggs(Integer operateSiteId, Integer receiveSiteId, String boardCode,UnloadProductTypeEnum... productTypeEnums) throws Exception;
+    public List<JyComboardAggsEntity> queryComboardAggs(String boardCode,UnloadProductTypeEnum... productTypeEnums) throws Exception;
 
 
 }

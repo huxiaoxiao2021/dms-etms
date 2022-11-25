@@ -3,6 +3,8 @@ package com.jd.bluedragon.distribution.jy.comboard;
 import java.util.Date;
 
 public class JyBizTaskComboardEntity {
+
+    public static final String BIZ_PREFIX = "CB%s";
     private Long id;
 
     private String bizId;

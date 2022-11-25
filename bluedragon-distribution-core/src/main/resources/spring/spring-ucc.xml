@@ -190,6 +190,10 @@
 		<property name="jyDemotionConfig" value="${jyDemotionConfig:''}"/>
 		<property name="syncJySealStatusSwitch" value="${syncJySealStatusSwitch:false}"/>
 		<property name="sealStatusBatchSizeLimit" value="${sealStatusBatchSizeLimit:30}"/>
+		<property name="jyComboardCountLimit" value="${jyComboardCountLimit:100}"/>
+		<property name="bulkScanPackageMinCount" value="${bulkScanPackageMinCount:100}"/>
+
+
 
 	</bean>
 	<!-- hystrix 动态配置 -->
@@ -362,6 +366,8 @@
 				<value>uccPropertyConfiguration.jyDemotionConfig</value>
 				<value>uccPropertyConfiguration.syncJySealStatusSwitch</value>
 				<value>uccPropertyConfiguration.sealStatusBatchSizeLimit</value>
+				<value>uccPropertyConfiguration.jyComboardCountLimit</value>
+				<value>uccPropertyConfiguration.bulkScanPackageMinCount</value>
 
 
 				<value>hystrixRouteUccPropertyConfiguration.executionTimeoutInMilliseconds</value>

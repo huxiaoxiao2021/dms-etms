@@ -65,7 +65,7 @@ public class JyComboardGatewayServiceImpl implements JyComboardGatewayService {
 
   @Override
   public JdCResponse<SendFlowDataResp> listSendFlowUnderCTTGroup(SendFlowDataReq request) {
-    return null;
+    return retJdCResponse(jyComBoardSendService.listSendFlowUnderCTTGroup(request));
   }
 
   @Override
@@ -75,17 +75,17 @@ public class JyComboardGatewayServiceImpl implements JyComboardGatewayService {
 
   @Override
   public JdCResponse<BoardResp> queryBoardDetail(BoardReq request) {
-    return null;
+    return retJdCResponse(jyComBoardSendService.queryBoardDetail(request));
   }
 
   @Override
   public JdCResponse finishBoard(BoardReq request) {
-    return null;
+    return retJdCResponse(jyComBoardSendService.finishBoard(request));
   }
 
   @Override
   public JdCResponse finishBoardsUnderCTTGroup(CTTGroupReq request) {
-    return null;
+    return retJdCResponse(jyComBoardSendService.finishBoardsUnderCTTGroup(request));
   }
 
   @Override
@@ -101,7 +101,7 @@ public class JyComboardGatewayServiceImpl implements JyComboardGatewayService {
 
   @Override
   public JdCResponse<QueryBelongBoardResp> queryBelongBoardByBarCode(QueryBelongBoardReq request) {
-    return null;
+    return retJdCResponse(jyComBoardSendService.queryBelongBoardByBarCode(request));
   }
 
   @Override
@@ -141,12 +141,12 @@ public class JyComboardGatewayServiceImpl implements JyComboardGatewayService {
 
   @Override
   public JdCResponse<ComboardDetailResp> listPackageOrBoxUnderBoard(BoardReq request) {
-    return null;
+    return retJdCResponse(jyComBoardSendService.listPackageOrBoxUnderBoard(request));
   }
 
   @Override
   public JdCResponse cancelComboard(CancelBoardReq request) {
-    return null;
+    return retJdCResponse(jyComBoardSendService.cancelComboard(request));
   }
 
   private <T> JdCResponse<T> retJdCResponse(InvokeResult<T> invokeResult) {

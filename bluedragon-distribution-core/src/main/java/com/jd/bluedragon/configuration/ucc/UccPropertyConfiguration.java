@@ -363,6 +363,10 @@ public class UccPropertyConfiguration {
      * @return
      */
     private Integer dazongPackageOperateMax;
+    /**
+     * 分拣租板大宗可扫描件数最少数量
+     */
+    private Integer bulkScanPackageMinCount;
 
     /**
      * 是否校验签单返还
@@ -920,6 +924,19 @@ public class UccPropertyConfiguration {
      *  }
      */
     private String clientOfflineMenuConfig;
+
+    /**
+     * 租板-板可组件数上限
+     */
+    private Integer jyComboardCountLimit;
+
+    public Integer getJyComboardCountLimit() {
+        return jyComboardCountLimit;
+    }
+
+    public void setJyComboardCountLimit(Integer jyComboardCountLimit) {
+        this.jyComboardCountLimit = jyComboardCountLimit;
+    }
 
     public String getScheduleSiteCheckSameCity() {
         return scheduleSiteCheckSameCity;
@@ -2183,5 +2200,13 @@ public class UccPropertyConfiguration {
 
     public void setJyDemotionConfig(String jyDemotionConfig) {
         this.jyDemotionConfig = jyDemotionConfig;
+    }
+
+    public Integer getBulkScanPackageMinCount() {
+        return bulkScanPackageMinCount;
+    }
+
+    public void setBulkScanPackageMinCount(Integer bulkScanPackageMinCount) {
+        this.bulkScanPackageMinCount = bulkScanPackageMinCount;
     }
 }

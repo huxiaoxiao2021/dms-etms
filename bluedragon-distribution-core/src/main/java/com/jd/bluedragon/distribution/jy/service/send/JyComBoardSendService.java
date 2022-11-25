@@ -129,6 +129,21 @@ public interface JyComBoardSendService {
       SendFlowExcepStatisticsReq request);
 
   /**
+   * 查询板内件明细
+   * @param request
+   * @return
+   */
+  InvokeResult<ComboardDetailResp> listPackageOrBoxUnderBoard(BoardReq request);
+  
+  /**
    * 取消组板
    */
+  InvokeResult cancelComboard(CancelBoardReq request);
+
+  /**
+   * 根据包裹号或者箱号 定位所在的板
+   * @param request
+   * @return
+   */
+  InvokeResult<QueryBelongBoardResp> queryBelongBoardByBarCode(QueryBelongBoardReq request);
 }
