@@ -825,14 +825,14 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             // 包裹号
             if (WaybillUtil.isPackageCode(scanPackageDto.getScanCode())) {
                 if(boardTypeNeedCheck && !CacheKeyConstants.BOARD_SCAN_TYPE_PACKAGE.equals(boardScanTypeDto.getBoardType())) {
-                    invokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, "箱号和包裹号不允许组同板，请扫描包裹号或开板扫箱号");
+                    invokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, "箱号和包裹号不允许组同板，请扫描箱号号或重新开板包裹号");
                     return invokeResult;
                 }
                 return packageScan(scanPackageDto, unloadVehicleEntity, invokeResult);
                 // 箱号
             } else if (BusinessUtil.isBoxcode(scanPackageDto.getScanCode())) {
                 if(boardTypeNeedCheck && !CacheKeyConstants.BOARD_SCAN_TYPE_BOX.equals(boardScanTypeDto.getBoardType())) {
-                    invokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, "箱号和包裹号不允许组同板，请扫描箱号或开板扫包裹号");
+                    invokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, "箱号和包裹号不允许组同板，请扫描包裹号或重新开板扫箱号");
                     return invokeResult;
                 }
                 return boxScan(scanPackageDto, unloadVehicleEntity, invokeResult);
