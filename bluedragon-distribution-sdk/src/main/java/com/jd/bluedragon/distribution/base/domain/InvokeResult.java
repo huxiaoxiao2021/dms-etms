@@ -146,16 +146,22 @@ public class InvokeResult<T> implements Serializable {
     public static final String UPDATE_CTT_GROUP_LIST_MESSAGE= "更新流向异常！";
     
     public static final int SEND_FLOW_UNDER_CTTGROUP_CODE = 3040;
-    public static final String SEND_FLOW_UNDER_CTTGROUP_MESSAGE= "获取混扫任务下流向信息异常";
+    public static final String SEND_FLOW_UNDER_CTTGROUP_MESSAGE= "获取混扫任务下流向信息异常!";
 
     public static final int BOARD_INFO_CODE = 3041;
-    public static final String BOARD_INFO_MESSAGE= "获取板的详细信息异常";
+    public static final String BOARD_INFO_MESSAGE= "获取板的详细信息异常！";
 
     public static final int SEND_FLOE_CTT_CODE = 3042;
-    public static final String SEND_FLOE_CTT_MESSAGE= "获取滑道笼车信息异常";
+    public static final String SEND_FLOE_CTT_MESSAGE= "获取滑道笼车信息异常！";
 
     public static final int SEND_FLOE_CTT_GROUP_CODE = 3043;
-    public static final String SEND_FLOE_CTT_GROUP_MESSAGE= "获取混扫任务信息异常";
+    public static final String SEND_FLOE_CTT_GROUP_MESSAGE= "获取混扫任务信息异常！";
+
+    public static final int PACKAGE_OR_BOX_UNDER_BOARD_CODE = 3044;
+    public static final String PACKAGE_OR_BOX_UNDER_BOARD_MESSAGE = "获取组板下的包裹号|运单号|箱号异常！";
+
+    public static final int CANCEL_COM_BOARD_CODE = 3045;
+    public static final String CANCEL_COM_BOARD_MESSAGE = "取消组板异常！";
     
     public InvokeResult(){
         this.code=RESULT_SUCCESS_CODE;

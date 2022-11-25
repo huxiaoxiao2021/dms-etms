@@ -1,11 +1,6 @@
 package com.jd.bluedragon.core.jsf.dms;
 
-import com.jd.transboard.api.dto.AddBoardBox;
-import com.jd.transboard.api.dto.AddBoardRequest;
-import com.jd.transboard.api.dto.Board;
-import com.jd.transboard.api.dto.MoveBoxRequest;
-import com.jd.transboard.api.dto.OperatorInfo;
-import com.jd.transboard.api.dto.Response;
+import com.jd.transboard.api.dto.*;
 
 import java.util.List;
 
@@ -70,4 +65,25 @@ public interface GroupBoardManager {
      * @return 板对象
      */
     Response<Board> getBoardByBoxCode(String boxCode, Integer siteCode);
+
+    /**
+     * 查询板上统计信息
+     * @param boardCode
+     * @return
+     */
+    Response<BoardBoxCountDto> getBoxCountInfoByBoardCode(String boardCode);
+
+    /**
+     * 批量取消组板
+     * @param removeBoardBoxDto
+     * @return
+     */
+    Response batchRemoveBardBoxByBoxCodes (RemoveBoardBoxDto removeBoardBoxDto);
+
+    /**
+     * 根据运单取消组板
+     * @param removeBoardBoxDto
+     * @return
+     */
+    Response removeBardBoxByWaybillCode (RemoveBoardBoxDto removeBoardBoxDto);  
 }

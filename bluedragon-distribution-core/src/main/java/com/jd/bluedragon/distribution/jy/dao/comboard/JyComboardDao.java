@@ -28,4 +28,8 @@ public class JyComboardDao extends BaseDao<JyComboardEntity> {
     public int queryUserCountByStartSiteCode(Long startSiteId) {
         return this.getSqlSession().selectOne(NAMESPACE + ".queryUserCountByStartSiteCode", startSiteId);
     }
+
+    public String queryWayBillCodeByBoardCode(String boardCode) {
+        return this.getSqlSession().selectOne(NAMESPACE + ".queryWayBillCodeByBoardCode", boardCode);
+    }
 }

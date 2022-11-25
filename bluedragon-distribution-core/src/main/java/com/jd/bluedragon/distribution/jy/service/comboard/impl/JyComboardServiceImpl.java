@@ -25,4 +25,9 @@ public class JyComboardServiceImpl implements JyComboardService {
     public int save(JyComboardEntity entity) {
         return jyComboardDao.insertSelective(entity);
     }
+
+    @Override
+    public String queryWayBillCodeByBoardCode(String boardCode) {
+        return jyComboardDao.queryWayBillCodeByBoardCode(boardCode);
+    }
 }
