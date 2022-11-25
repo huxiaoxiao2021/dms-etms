@@ -3,17 +3,11 @@ package com.jd.bluedragon.distribution.jy.service.send;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.request.BaseReq;
 import com.jd.bluedragon.common.dto.base.request.OperatorInfo;
-import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
-import com.jd.bluedragon.common.dto.base.response.MsgBoxTypeEnum;
 import com.jd.bluedragon.common.dto.board.BizSourceEnum;
 import com.jd.bluedragon.common.dto.comboard.request.*;
 import com.jd.bluedragon.common.dto.comboard.response.*;
-import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendScanRequest;
-import com.jd.bluedragon.common.dto.operation.workbench.send.response.RouterValidateData;
-import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendScanResponse;
 import com.jd.bluedragon.common.lock.redis.JimDbLock;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
-import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BoardCommonManagerImpl;
 import com.jd.bluedragon.core.jsf.cross.SortCrossJsfManager;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.SendVehicleScanTypeEnum;
@@ -21,7 +15,6 @@ import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.response.BoxResponse;
-import com.jd.bluedragon.distribution.api.response.SortingResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.board.service.VirtualBoardService;
@@ -39,11 +32,9 @@ import com.jd.bluedragon.distribution.jy.comboard.JyComboardAggsEntity;
 import com.jd.bluedragon.distribution.jy.comboard.JyComboardEntity;
 import com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity;
 import com.jd.bluedragon.distribution.jy.dao.comboard.JyGroupSortCrossDetailDao;
-import com.jd.bluedragon.distribution.jy.dto.send.SendFindDestInfoDto;
 import com.jd.bluedragon.distribution.jy.enums.ComboardBarCodeTypeEnum;
 import com.jd.bluedragon.distribution.jy.enums.UnloadProductTypeEnum;
 import com.jd.bluedragon.distribution.jy.enums.ComboardStatusEnum;
-import com.jd.bluedragon.distribution.jy.send.JySendEntity;
 import com.jd.bluedragon.distribution.jy.service.comboard.JyComboardAggsService;
 import com.jd.bluedragon.distribution.jy.service.comboard.JyComboardService;
 import com.jd.bluedragon.distribution.middleend.sorting.dao.DynamicSortingQueryDao;
@@ -464,12 +455,12 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
           .queryComboardAggs(startSiteCode, endSiteCodeList);
       HashMap<Long, JyComboardAggsEntity> sendFlowMap = getSendFlowMap(jyComboardAggsEntities);
       // 获取当前流向执行中的板号
-      List<JyBizTaskComboardEntity> boardList = jyBizTaskComboardService.
-          queryInProcessBoardListBySendFlowList(startSiteCode, endSiteCodeList);
+      List<JyBizTaskComboardEntity> boardList = jyBizTaskComboardService
+          .queryInProcessBoardListBySendFlowList(startSiteCode, endSiteCodeList);
       List<String> boardCodeList = getBoardCodeList(boardList);
       // 获取当前板号的扫描信息
-      List<JyComboardAggsEntity> boardScanInfoList = jyComboardAggsService.
-          queryComboardAggs(boardCodeList);
+      List<JyComboardAggsEntity> boardScanInfoList = jyComboardAggsService
+          .queryComboardAggs(boardCodeList);
       // 当前板的扫描信息
       HashMap<Long, JyComboardAggsEntity> boardFlowMap = getBoardFlowMap(boardScanInfoList);
       getSendFlowDtoList(sendFlowList, boardFlowMap, sendFlowMap, sendFlowDtoList);
@@ -726,12 +717,12 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
 
   private void getOrCreateBoardCode(ComboardScanReq request) {
     //从板详情进入补扫
-    if (ObjectHelper.isNotNull(request.getBoardCode())){
+    if (ObjectHelper.isNotNull(request.getBoardCode())) {
       JyBizTaskComboardEntity condition = new JyBizTaskComboardEntity();
       condition.setStartSiteId(Long.valueOf(request.getCurrentOperate().getSiteCode()));
       condition.setBoardCode(request.getBoardCode());
       JyBizTaskComboardEntity entity = jyBizTaskComboardService.queryBizTaskByBoardCode(condition);
-      if (ComboardStatusEnum.SEALED.getCode()==entity.getStatus()) {
+      if (ComboardStatusEnum.SEALED.getCode() == entity.getStatus()) {
         throw new JyBizException("已封车禁止继续扫描！");
       }
       return;
@@ -739,7 +730,8 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     /**
      * 流向加锁
      */
-    String sendFlowLockKey = String.format(Constants.JY_COMBOARD_SENDFLOW_LOCK_PREFIX, request.getEndSiteId());
+    String sendFlowLockKey = String
+        .format(Constants.JY_COMBOARD_SENDFLOW_LOCK_PREFIX, request.getEndSiteId());
     if (!jimDbLock.lock(sendFlowLockKey, request.getRequestId(), LOCK_EXPIRE, TimeUnit.SECONDS)) {
       throw new JyBizException("当前系统繁忙,请稍后再试！");
     }
@@ -950,7 +942,6 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   }
 
 
-
   private void sendInterceptChain(ComboardScanReq request) {
     SendM sendM = toSendMDomain(request);
     SendKeyTypeEnum sendType = getSendType(request.getBarCode());
@@ -960,9 +951,11 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
           sortingCheck.setValidateIgnore(this.convertValidateIgnore(request.getValidateIgnore()));
         }*/
       FilterChain filterChain = sortingCheckService.matchJyDeliveryFilterChain(sendType);
-      SortingJsfResponse chainResp = sortingCheckService.doSingleSendCheckWithChain(sortingCheck, true, filterChain);
+      SortingJsfResponse chainResp = sortingCheckService
+          .doSingleSendCheckWithChain(sortingCheck, true, filterChain);
       if (!chainResp.getCode().equals(JdResponse.CODE_OK)) {
-        if (!(JdResponse.CODE_SERVICE_ERROR.equals(chainResp.getCode()) || chainResp.getCode() >= SendResult.RESPONSE_CODE_MAPPING_CONFIRM)) {
+        if (!(JdResponse.CODE_SERVICE_ERROR.equals(chainResp.getCode())
+            || chainResp.getCode() >= SendResult.RESPONSE_CODE_MAPPING_CONFIRM)) {
           // 拦截时保存拦截记录
           JyComboardEntity comboardEntity = createJyComboardRecord(request);
           comboardEntity.setInterceptFlag(true);
@@ -972,6 +965,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       }
     }
   }
+
   private SendKeyTypeEnum getSendType(String barCode) {
     SendKeyTypeEnum sendType = null;
     if (WaybillUtil.isWaybillCode(barCode)) {
@@ -988,7 +982,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
 
   private JyComboardEntity createJyComboardRecord(ComboardScanReq request) {
     JyComboardEntity comboardEntity = new JyComboardEntity();
-    Date now =new Date();
+    Date now = new Date();
     comboardEntity.setBizId(request.getBizId());
     comboardEntity.setStartSiteId(Long.valueOf(request.getCurrentOperate().getSiteCode()));
     comboardEntity.setStartSiteName(request.getCurrentOperate().getSiteName());
@@ -1008,13 +1002,11 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   }
 
   private Integer getBarCodeType(String barCode) {
-    if (WaybillUtil.isWaybillCode(barCode)){
+    if (WaybillUtil.isWaybillCode(barCode)) {
       return ComboardBarCodeTypeEnum.WAYBILL.getCode();
-    }
-    else if (WaybillUtil.isPackageCode(barCode)){
+    } else if (WaybillUtil.isPackageCode(barCode)) {
       return ComboardBarCodeTypeEnum.PACKAGE.getCode();
-    }
-    else {
+    } else {
       return ComboardBarCodeTypeEnum.BOX.getCode();
     }
   }

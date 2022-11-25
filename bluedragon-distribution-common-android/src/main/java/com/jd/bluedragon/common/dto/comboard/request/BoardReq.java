@@ -10,6 +10,8 @@ public class BoardReq extends BaseReq implements Serializable {
      * 板号
      */
     private String boardCode;
+
+    private Integer endSiteId;
     /**
      * 大宗标识
      */
@@ -29,5 +31,13 @@ public class BoardReq extends BaseReq implements Serializable {
 
     public void setBulkFlag(boolean bulkFlag) {
         this.bulkFlag = bulkFlag;
+    }
+
+    public Integer getEndSiteId() {
+        return endSiteId;
+    }
+
+    public void setEndSiteId(Integer endSiteId) {
+        this.endSiteId = endSiteId;
     }
 }
