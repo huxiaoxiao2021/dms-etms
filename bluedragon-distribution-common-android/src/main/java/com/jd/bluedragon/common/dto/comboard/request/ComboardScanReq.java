@@ -28,6 +28,7 @@ public class ComboardScanReq extends BaseReq implements Serializable {
     private String bizId;
     private Integer endSiteId;
     private String endSiteName;
+    private boolean cancelLastSend;
     public String getBarCode() {
         return barCode;
     }
@@ -90,5 +91,13 @@ public class ComboardScanReq extends BaseReq implements Serializable {
 
     public void setBizId(String bizId) {
         this.bizId = bizId;
+    }
+
+    public boolean getCancelLastSend() {
+        return cancelLastSend;
+    }
+
+    public void setCancelLastSend(boolean cancelLastSend) {
+        this.cancelLastSend = cancelLastSend;
     }
 }
