@@ -147,8 +147,8 @@ public class JyComboardGatewayServiceImplTest {
         operate.setSiteName("北京马驹桥分拣中心");
         resp.setCurrentOperate(operate);
         User user = new User();
-        user.setUserName("李文吉");
-        user.setUserErp("liwenji3");
+        user.setUserName("魏晓峰");
+        user.setUserErp("weixiaofeng12");
         resp.setUser(user);
         resp.setBarCode("BC1001221122210000107925");
         JdCResponse<CTTGroupDataResp> response = jyComboardGatewayService.queryCTTGroupByBarCode(resp);
@@ -158,35 +158,38 @@ public class JyComboardGatewayServiceImplTest {
     public void createGroupCTTDataTest() {
         CreateGroupCTTReq resp = new CreateGroupCTTReq();
         CurrentOperate operate = new CurrentOperate();
-        resp.setGroupCode("group111");
+        resp.setGroupCode("G00000047004");
         operate.setSiteCode(910);
         operate.setSiteName("北京马驹桥分拣中心");
         resp.setCurrentOperate(operate);
         User user = new User();
-        user.setUserName("李文吉");
-        user.setUserErp("liwenji3");
+        user.setUserName("魏晓峰");
+        user.setUserErp("weixiaofeng12");
         resp.setUser(user);
         resp.setTemplateName("混扫01");
         List<TableTrolleyDto> dtos = new ArrayList<>();
         resp.setTableTrolleyDtoList(dtos);
+
         TableTrolleyDto tableTrolleyDto = new TableTrolleyDto();
-        tableTrolleyDto.setEndSiteId(630109);
+        tableTrolleyDto.setEndSiteId(39);
         tableTrolleyDto.setCrossCode("2002");
-        tableTrolleyDto.setEndSiteName("北京海淀区言语站点001");
+        tableTrolleyDto.setEndSiteName("石景山营业部");
         tableTrolleyDto.setTableTrolleyCode("106");
         dtos.add(tableTrolleyDto);
-        TableTrolleyDto tableTrolleyDto1 = new TableTrolleyDto();
+
+        /*TableTrolleyDto tableTrolleyDto1 = new TableTrolleyDto();
         tableTrolleyDto1.setEndSiteId(630171);
         tableTrolleyDto1.setCrossCode("2002");
         tableTrolleyDto1.setEndSiteName("京东便民站-测试wyy");
         tableTrolleyDto1.setTableTrolleyCode("11-笼车");
         dtos.add(tableTrolleyDto1);
+
         TableTrolleyDto tableTrolleyDto2 = new TableTrolleyDto();
         tableTrolleyDto2.setEndSiteId(11398);
         tableTrolleyDto2.setCrossCode("89");
         tableTrolleyDto2.setEndSiteName("1栋15秦希深专用");
         tableTrolleyDto2.setTableTrolleyCode("106");
-        dtos.add(tableTrolleyDto2);
+        dtos.add(tableTrolleyDto2);*/
         JdCResponse<CreateGroupCTTResp> groupCTTData = jyComboardGatewayService.createGroupCTTData(resp);
         System.out.println(JsonHelper.toJson(groupCTTData));
     }
@@ -241,7 +244,7 @@ public class JyComboardGatewayServiceImplTest {
         JdCResponse<TableTrolleyResp> response = jyComboardGatewayService.querySendFlowByBarCode(resp);
         System.out.println(JsonHelper.toJson(response));
     }
-    
+
     @Test
     public void addOrDeleteGroupCTTTest(){
         AddCTTReq resp = new AddCTTReq();
@@ -293,7 +296,7 @@ public class JyComboardGatewayServiceImplTest {
         JdCResponse jdCResponse1 = jyComboardGatewayService.removeCTTFromGroup(req);
         System.out.println(jdCResponse1);
     }
-    
+
     @Test
     public void listSendFlowUnderCTTGroupTest() {
         SendFlowDataReq resp = new SendFlowDataReq();
@@ -310,8 +313,8 @@ public class JyComboardGatewayServiceImplTest {
         JdCResponse<SendFlowDataResp> response = jyComboardGatewayService.listSendFlowUnderCTTGroup(resp);
         System.out.println(JsonHelper.toJson(response));
     }
-    
-    @Test 
+
+    @Test
     public void queryBoardDetailTest() {
         BoardReq resp = new BoardReq();
         CurrentOperate operate = new CurrentOperate();
@@ -327,7 +330,7 @@ public class JyComboardGatewayServiceImplTest {
         JdCResponse<BoardResp> boardRespJdCResponse = jyComboardGatewayService.queryBoardDetail(resp);
         System.out.println(JsonHelper.toJson(boardRespJdCResponse));
     }
-    
+
     @Test
     public void listPackageOrBoxUnderBoardUnBulkFlagTest() {
         BoardReq resp = new BoardReq();
@@ -346,6 +349,11 @@ public class JyComboardGatewayServiceImplTest {
         System.out.println(JsonHelper.toJson(re));
     }
 
+    @Test
+    public void comboardScanTest(){
+        ComboardScanReq scanReq =new ComboardScanReq();
+
+    }
 
     @Test
     public void listPackageOrBoxUnderBoardIsBulkFlagTest() {
@@ -364,7 +372,7 @@ public class JyComboardGatewayServiceImplTest {
         JdCResponse<ComboardDetailResp> re = jyComboardGatewayService.listPackageOrBoxUnderBoard(resp);
         System.out.println(JsonHelper.toJson(re));
     }
-    
+
     @Test
     public void cancelComboardIsBulkFlagTest() {
         CancelBoardReq resp = new CancelBoardReq();

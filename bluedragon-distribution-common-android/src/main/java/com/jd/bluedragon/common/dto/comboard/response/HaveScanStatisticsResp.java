@@ -7,14 +7,14 @@ import java.util.List;
 
 public class HaveScanStatisticsResp implements Serializable {
     private static final long serialVersionUID = 6211348983763778535L;
-    List<ComboardDetailDto> comboardDetailDtoList;
+    List<HaveScanDto> haveScanDtoList;
 
-    public List<ComboardDetailDto> getComboardDetailDtoList() {
-        return comboardDetailDtoList;
+    public List<HaveScanDto> getHaveScanDtoList() {
+        return haveScanDtoList;
     }
 
-    public void setComboardDetailDtoList(
-        List<ComboardDetailDto> comboardDetailDtoList) {
-        this.comboardDetailDtoList = comboardDetailDtoList;
+    public void setHaveScanDtoList(
+        List<HaveScanDto> haveScanDtoList) {
+        this.haveScanDtoList = haveScanDtoList;
     }
 }
