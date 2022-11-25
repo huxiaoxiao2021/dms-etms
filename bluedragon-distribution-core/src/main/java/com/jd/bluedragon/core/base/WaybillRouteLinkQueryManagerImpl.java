@@ -5,6 +5,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.etms.api.common.dto.CommonDto;
 import com.jd.etms.api.waybillroutelink.WaybillRouteLinkQueryAPI;
 import com.jd.etms.api.waybillroutelink.resp.WaybillRouteLinkResp;
+import com.jd.fastjson.JSON;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections4.CollectionUtils;
@@ -35,6 +36,7 @@ public class WaybillRouteLinkQueryManagerImpl implements WaybillRouteLinkQueryMa
         log.info("WaybillRouteLinkQueryManagerImpl-queryCustomWaybillRouteLink-获取路由信息入参-{}",waybillCode);
         try{
             CommonDto<List<WaybillRouteLinkResp>> response = waybillRouteLinkQueryAPI.queryCustomWaybillRouteLink(waybillCode);
+            log.info("WaybillRouteLinkQueryManagerImpl-queryCustomWaybillRouteLink-获取路由信息结果-{}", JSON.toJSONString(response));
             if(CommonDto.CODE_SUCCESS == response.getCode() && CollectionUtils.isNotEmpty(response.getData())){
                 return response.getData();
             }
