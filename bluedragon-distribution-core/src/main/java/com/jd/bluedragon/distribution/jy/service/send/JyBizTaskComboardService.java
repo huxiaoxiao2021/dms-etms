@@ -31,4 +31,19 @@ public interface JyBizTaskComboardService {
   JyBizTaskComboardEntity queryBizTaskByBoardCode(JyBizTaskComboardEntity record);
 
   int updateBizTaskById(JyBizTaskComboardEntity record);
+
+  /**
+   * 批量完结组板
+   * @param boardCode
+   * @return
+   */
+  Boolean finishBoard(String boardCode);
+
+  /**
+   * 根据流向完结板号
+   * @param startSiteId
+   * @param endSiteCodeList
+   * @return
+   */
+  Boolean batchFinishBoardBySendFLowList(Integer startSiteId, List<Integer> endSiteCodeList);
 }

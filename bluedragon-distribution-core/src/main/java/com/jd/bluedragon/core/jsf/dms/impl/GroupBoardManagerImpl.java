@@ -111,4 +111,13 @@ public class GroupBoardManagerImpl implements GroupBoardManager {
         return groupBoardService.removeBardBoxByWaybillCode(removeBoardWaybillDto);
     }
 
+    @Override
+    public BoardBoxInfoDto getBoardBoxInfo(String barCode, int siteCode) {
+        Response<BoardBoxInfoDto> boardBoxInfo = groupBoardService.getBoardBoxInfo(barCode, siteCode);
+        if (boardBoxInfo != null && boardBoxInfo.getData()!= null ) {
+            return boardBoxInfo.getData();
+        }
+        return null;
+    }
+
 }

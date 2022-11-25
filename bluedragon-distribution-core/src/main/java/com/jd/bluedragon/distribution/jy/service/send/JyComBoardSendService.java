@@ -139,4 +139,11 @@ public interface JyComBoardSendService {
    * 取消组板
    */
   InvokeResult cancelComboard(CancelBoardReq request);
+
+  /**
+   * 根据包裹号或者箱号 定位所在的板
+   * @param request
+   * @return
+   */
+  InvokeResult<QueryBelongBoardResp> queryBelongBoardByBarCode(QueryBelongBoardReq request);
 }

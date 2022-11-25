@@ -288,4 +288,21 @@
     and status = 1
     and yn = 1
   </select>
+  <update id="finishBoard" parameterType="java.lang.String">
+    update jy_biz_task_comboard
+    set status = 2
+    where board_code = #{boardCode,jdbcType=VARCHAR}
+  </update>
+  <update id="batchFinishBoardBySendFLowList"
+          parameterType="com.jd.bluedragon.distribution.jy.dto.comboard.JyBizTaskComboardReq">
+    update jy_biz_task_comboard
+    set status = 2
+    where start_site_id = #{startSiteId,jdbcType=BIGINT}
+    and end_site_id in
+    <foreach item="item" index="index" collection="endSiteCodeList"
+             open="(" separator="," close=")">
+      #{item}
+    </foreach>
+    and yn = 1
+  </update>
 </mapper>
