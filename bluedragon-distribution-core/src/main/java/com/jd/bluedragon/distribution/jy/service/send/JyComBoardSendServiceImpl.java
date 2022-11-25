@@ -71,10 +71,7 @@ import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.coo.sa.sequence.JimdbSequenceGen;
 import com.jd.jim.cli.Cluster;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
-import com.jd.transboard.api.dto.AddBoardBox;
-import com.jd.transboard.api.dto.AddBoardRequest;
-import com.jd.transboard.api.dto.Board;
-import com.jd.transboard.api.dto.Response;
+import com.jd.transboard.api.dto.*;
 import com.jd.transboard.api.enums.ResponseEnum;
 import com.jdl.basic.api.domain.cross.*;
 
@@ -151,7 +148,13 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   @Autowired
   @Qualifier("redisClientOfJy")
   protected Cluster redisClientCache;
+  
+  private static final Integer BOX_TYPE = 1;
 
+  private static final Integer PACKAGE_TYPE = 2;
+  
+  private static final Integer WAYBILL_TYPE = 3;
+  
   @Override
   public InvokeResult<CrossDataResp> listCrossData(CrossDataReq request) {
     log.info("开始获取场地滑道信息：{}", JsonHelper.toJson(request));
@@ -1167,5 +1170,93 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   public InvokeResult<SendFlowExcepStatisticsResp> queryExcepScanStatisticsUnderCTTGroup(
       SendFlowExcepStatisticsReq request) {
     return null;
+  }
+
+  @Override
+  public InvokeResult<ComboardDetailResp> listPackageOrBoxUnderBoard(BoardReq request) {
+    if (!checkBaseRequest(request) || StringUtils.isEmpty(request.getBoardCode())) {
+      return new InvokeResult<>(RESULT_THIRD_ERROR_CODE, PARAM_ERROR);
+    }
+    ComboardDetailResp resp = new ComboardDetailResp();
+    String boardCode = request.getBoardCode();
+    List<ComboardDetailDto> comboardDetailDtoList = new ArrayList<>();
+    resp.setComboardDetailDtoList(comboardDetailDtoList);
+    // 判断是否为运单
+    if (request.isBulkFlag()) {
+      // 获取运单号
+      String wayBillCode = jyComboardService.queryWayBillCodeByBoardCode(boardCode);
+      if (!StringUtils.isEmpty(wayBillCode)){
+        resp.setBulkFlag(Boolean.TRUE);
+        ComboardDetailDto comboardDetailDto = new ComboardDetailDto();
+        comboardDetailDto.setType(WAYBILL_TYPE);
+        comboardDetailDto.setBarCode(wayBillCode);
+        comboardDetailDtoList.add(comboardDetailDto);
+      }else {
+        log.info("根据板号获取运单号异常：{}",boardCode);
+        return new InvokeResult<>(PACKAGE_OR_BOX_UNDER_BOARD_CODE,PACKAGE_OR_BOX_UNDER_BOARD_MESSAGE);
+      }
+    }else {
+      Response<BoardBoxCountDto> boardScanInfo = groupBoardManager.getBoxCountInfoByBoardCode(boardCode);
+      if (boardScanInfo == null || boardScanInfo.getData() == null ) {
+        log.info("根据板号获取包裹号箱号异常：{}",boardCode);
+        return new InvokeResult<>(PACKAGE_OR_BOX_UNDER_BOARD_CODE,PACKAGE_OR_BOX_UNDER_BOARD_MESSAGE);
+      }
+      resp.setBulkFlag(Boolean.FALSE);
+      BoardBoxCountDto boardInfoDto = boardScanInfo.getData();
+      resp.setBoxCount(boardInfoDto.getBoxCount());
+      resp.setPackageCount(boardInfoDto.getPackageCodeCount());
+      getComboardDetailDtoList(boardInfoDto.getBarCodeList(),boardInfoDto.getBoxCount(),comboardDetailDtoList);
+    }
+    return new InvokeResult<>(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, resp);
+  }
+
+  @Override
+  public InvokeResult cancelComboard(CancelBoardReq request) {
+    if (!checkBaseRequest(request) || StringUtils.isEmpty(request.getBoardCode()) ||CollectionUtils.isEmpty(request.getCancelList())) {
+      return new InvokeResult<>(RESULT_THIRD_ERROR_CODE, PARAM_ERROR);
+    }
+    List<ComboardDetailDto> cancelList = request.getCancelList();
+    RemoveBoardBoxDto removeBoardBoxDto = new RemoveBoardBoxDto();
+    removeBoardBoxDto.setSiteCode(request.getCurrentOperate().getSiteCode());
+    removeBoardBoxDto.setOperatorErp(request.getUser().getUserErp());
+    removeBoardBoxDto.setOperatorName(request.getUser().getUserName());
+    removeBoardBoxDto.setBoardCode(request.getBoardCode());
+    try {
+      if (request.isBulkFlag()) {
+        // 运单号
+        if (request.getCancelList().get(0) != null && request.getCancelList().get(0).getBarCode() != null) {
+          removeBoardBoxDto.setWaybillCode(request.getCancelList().get(0).getBarCode());
+          groupBoardManager.removeBardBoxByWaybillCode(removeBoardBoxDto);
+          // todo 异步发送全程跟踪
+        }
+      } else {
+        // 包裹号
+        List<String> boxCodeList = new ArrayList<>();
+        removeBoardBoxDto.setBoxCodeList(boxCodeList);
+        for (ComboardDetailDto comboardDetailDto : cancelList) {
+          boxCodeList.add(comboardDetailDto.getBarCode());
+        }
+        groupBoardManager.batchRemoveBardBoxByBoxCodes(removeBoardBoxDto);
+      }
+    } catch (Exception e) {
+      log.error("取消组板失败：{}", JsonHelper.toJson(removeBoardBoxDto));
+      return new InvokeResult<>(CANCEL_COM_BOARD_CODE, CANCEL_COM_BOARD_MESSAGE);
+    }
+    return new InvokeResult<>(RESULT_SUCCESS_CODE,RESULT_SUCCESS_MESSAGE);
+  }
+
+  private List<ComboardDetailDto> getComboardDetailDtoList(List<String> barCodeList, Integer boxCount, List<ComboardDetailDto> comboardDetailDtoList) {
+    int index = 0;
+    for (String barCode : barCodeList) {
+      ComboardDetailDto dto = new ComboardDetailDto();
+      dto.setBarCode(barCode);
+      if (index <= boxCount) {
+        dto.setType(BOX_TYPE);
+      }else {
+        dto.setType(PACKAGE_TYPE);
+      }
+      comboardDetailDtoList.add(dto);
+    }
+    return comboardDetailDtoList;
   }
 }

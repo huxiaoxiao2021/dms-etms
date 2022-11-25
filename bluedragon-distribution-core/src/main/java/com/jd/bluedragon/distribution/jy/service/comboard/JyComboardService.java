@@ -14,5 +14,12 @@ public interface JyComboardService {
      * @return
      */
     int queryUserCountByStartSiteCode(Long startSiteId);
+
+    /**
+     * 根据板号获取运单号
+     * @param boardCode
+     * @return
+     */
+    String queryWayBillCodeByBoardCode(String boardCode);
     int save(JyComboardEntity entity);
 }

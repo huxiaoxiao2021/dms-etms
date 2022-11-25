@@ -9,6 +9,7 @@ import com.jd.bluedragon.common.dto.comboard.response.*;
 import com.jd.bluedragon.external.gateway.service.JyComboardGatewayService;
 import com.jd.bluedragon.utils.BeanUtils;
 import com.jd.bluedragon.utils.JsonHelper;
+import org.apache.avro.data.Json;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -325,5 +326,86 @@ public class JyComboardGatewayServiceImplTest {
         resp.setUser(user);
         JdCResponse<BoardResp> boardRespJdCResponse = jyComboardGatewayService.queryBoardDetail(resp);
         System.out.println(JsonHelper.toJson(boardRespJdCResponse));
+    }
+    
+    @Test
+    public void listPackageOrBoxUnderBoardUnBulkFlagTest() {
+        BoardReq resp = new BoardReq();
+        CurrentOperate operate = new CurrentOperate();
+        resp.setGroupCode("group111");
+        resp.setBoardCode("B21112200000035");
+        operate.setSiteCode(910);
+        operate.setSiteName("北京马驹桥分拣中心");
+        resp.setCurrentOperate(operate);
+        User user = new User();
+        user.setUserName("李文吉");
+        user.setUserErp("liwenji3");
+        resp.setUser(user);
+        resp.setBulkFlag(false);
+        JdCResponse<ComboardDetailResp> re = jyComboardGatewayService.listPackageOrBoxUnderBoard(resp);
+        System.out.println(JsonHelper.toJson(re));
+    }
+
+
+    @Test
+    public void listPackageOrBoxUnderBoardIsBulkFlagTest() {
+        BoardReq resp = new BoardReq();
+        CurrentOperate operate = new CurrentOperate();
+        resp.setGroupCode("group111");
+        resp.setBoardCode("B21112200000025");
+        operate.setSiteCode(910);
+        operate.setSiteName("北京马驹桥分拣中心");
+        resp.setCurrentOperate(operate);
+        User user = new User();
+        user.setUserName("李文吉");
+        user.setUserErp("liwenji3");
+        resp.setUser(user);
+        resp.setBulkFlag(true);
+        JdCResponse<ComboardDetailResp> re = jyComboardGatewayService.listPackageOrBoxUnderBoard(resp);
+        System.out.println(JsonHelper.toJson(re));
+    }
+    
+    @Test
+    public void cancelComboardIsBulkFlagTest() {
+        CancelBoardReq resp = new CancelBoardReq();
+        CurrentOperate operate = new CurrentOperate();
+        resp.setGroupCode("group111");
+        resp.setBoardCode("B21112200000035");
+        operate.setSiteCode(910);
+        operate.setSiteName("北京马驹桥分拣中心");
+        resp.setCurrentOperate(operate);
+        User user = new User();
+        user.setUserName("李文吉");
+        user.setUserErp("liwenji3");
+        resp.setUser(user);
+        resp.setBulkFlag(true);
+        List<ComboardDetailDto>  cancelList = new ArrayList<>();
+        ComboardDetailDto comboardDetailDto = new ComboardDetailDto();
+        comboardDetailDto.setBarCode("JDV000707553583");
+        cancelList.add(comboardDetailDto);
+        resp.setCancelList(cancelList);
+        jyComboardGatewayService.cancelComboard(resp);
+    }
+
+    @Test
+    public void cancelComboardUnBulkFlagTest() {
+        CancelBoardReq resp = new CancelBoardReq();
+        CurrentOperate operate = new CurrentOperate();
+        resp.setGroupCode("group111");
+        resp.setBoardCode("B21112200000035");
+        operate.setSiteCode(910);
+        operate.setSiteName("北京马驹桥分拣中心");
+        resp.setCurrentOperate(operate);
+        User user = new User();
+        user.setUserName("李文吉");
+        user.setUserErp("liwenji3");
+        resp.setUser(user);
+        resp.setBulkFlag(false);
+        List<ComboardDetailDto>  cancelList = new ArrayList<>();
+        ComboardDetailDto comboardDetailDto = new ComboardDetailDto();
+        comboardDetailDto.setBarCode("JDV000707553583-3-5-");
+        cancelList.add(comboardDetailDto);
+        resp.setCancelList(cancelList);
+        jyComboardGatewayService.cancelComboard(resp);
     }
 }
