@@ -60,6 +60,7 @@ public interface WaybillSignConstants {
 	 */
 	int POSITION_40 = 40;
 	char CHAR_40_0='0';
+	char CHAR_40_1='1';
 	char CHAR_40_2='2';
 	char CHAR_40_3='3';
 	char CHAR_40_6='6';
@@ -110,6 +111,7 @@ public interface WaybillSignConstants {
 	 */
 	int POSITION_80 = 80;
 	char CHAR_80_7 = '7';
+	char CHAR_80_8 = '8';
 	/**
 	 * 城配
 	 */
@@ -421,4 +423,5 @@ public interface WaybillSignConstants {
 	 * 99
 	 */
 	int POSITION_99 = 99;
+	char CHAR_99_1 = '1';
 }

@@ -22,4 +22,9 @@ public class ArtificialSpotCheckHandler extends AbstractSpotCheckHandler {
             result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_RESULT_CHANGE);
         }
     }
+
+    @Override
+    protected boolean isSupportSpotCheck(SpotCheckContext context, InvokeResult<Boolean> result) {
+        return super.checkWoodenFrameService(context, result);
+    }
 }

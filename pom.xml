@@ -39,7 +39,7 @@
 		<mq.sender.version>0.3.1-SNAPSHOT</mq.sender.version>
 		<waybill.cache.version>1.0.3</waybill.cache.version>
 		<business-sdk.version>1.1.2-SNAPSHOT</business-sdk.version>
-		<dms-component-sdk.version>1.0.1-SNAPSHOT</dms-component-sdk.version>
+		<dms-component-sdk.version>1.0.2-SNAPSHOT</dms-component-sdk.version>
 		<workbench.services.sdk.version>1.0.8-SNAPSHOT</workbench.services.sdk.version>
         <jy.realtime.sdk.version>1.0.8-dev-SNAPSHOT</jy.realtime.sdk.version>
 		<!-- 用于源码tag -->

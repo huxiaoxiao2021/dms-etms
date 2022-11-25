@@ -16,6 +16,7 @@ public enum WaybillPrintOperateTypeEnum {
     BATCH_SORT_WEIGH_PRINT(100107, "批量分拣称重"),
     FAST_TRANSPORT_PRINT(100108, "快运称重打印"),
     BATCH_PACKAGE_AGAIN_PRINT(100109, "批量包裹补打"),
+    RESCHEDULE_PRINT(100111,"现场预分拣"),
 
     SITE_MASTER_PACKAGE_REPRINT(100501, "站长工作台：包裹补打"),
     SITE_MASTER_REVERSE_CHANGE_PRINT(100502, "站长工作台：换单打印"),

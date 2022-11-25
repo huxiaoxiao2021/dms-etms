@@ -827,6 +827,11 @@ public class UccPropertyConfiguration {
     private int notSignedOutRecordMoreThanHours;
 
     /**
+     * 自动签退查询数据-扫描小时数
+     */
+    private int notSignedOutRecordRangeHours = 12;
+
+    /**
      * 抽检改造开通场地
      *  多个场地以,分隔
      *  true表示全国
@@ -945,6 +950,11 @@ public class UccPropertyConfiguration {
      *  }
      */
     private String clientOfflineMenuConfig;
+
+    /**
+     * 称重量方的规则一直在变化，为了有一个版本的切换过程，这里加一个开关，
+     */
+    private Integer weightVolumeSwitchVersion;
 
     public String getScheduleSiteCheckSameCity() {
         return scheduleSiteCheckSameCity;
@@ -1952,6 +1962,13 @@ public class UccPropertyConfiguration {
     public void setNotSignedOutRecordMoreThanHours(int notSignedOutRecordMoreThanHours) {
         this.notSignedOutRecordMoreThanHours = notSignedOutRecordMoreThanHours;
     }
+	public int getNotSignedOutRecordRangeHours() {
+		return notSignedOutRecordRangeHours;
+	}
+
+	public void setNotSignedOutRecordRangeHours(int notSignedOutRecordRangeHours) {
+		this.notSignedOutRecordRangeHours = notSignedOutRecordRangeHours;
+	}
     public boolean getAiDistinguishSwitch() {
         return aiDistinguishSwitch;
     }
@@ -2240,6 +2257,15 @@ public class UccPropertyConfiguration {
 
     public void setWaybillWeightLimit(String waybillWeightLimit) {
         this.waybillWeightLimit = waybillWeightLimit;
+    }
+
+
+    public Integer getWeightVolumeSwitchVersion() {
+        return weightVolumeSwitchVersion;
+    }
+
+    public void setWeightVolumeSwitchVersion(Integer weightVolumeSwitchVersion) {
+        this.weightVolumeSwitchVersion = weightVolumeSwitchVersion;
     }
 
     public int getGoodsResidenceTime() {
