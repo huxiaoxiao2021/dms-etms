@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.kuaiyun.weight.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.PreseparateWaybillManager;
@@ -14,11 +15,7 @@ import com.jd.bluedragon.distribution.kuaiyun.weight.domain.WaybillWeightVO;
 import com.jd.bluedragon.distribution.kuaiyun.weight.enums.WeightByWaybillExceptionTypeEnum;
 import com.jd.bluedragon.distribution.kuaiyun.weight.exception.WeighByWaybillExcpetion;
 import com.jd.bluedragon.distribution.kuaiyun.weight.service.WeighByWaybillService;
-
 import com.jd.bluedragon.distribution.log.BusinessLogProfilerBuilder;
-import com.jd.bluedragon.distribution.weightVolume.service.DMSWeightVolumeCheckService;
-import com.jd.bluedragon.utils.log.BusinessLogConstans;
-import com.jd.dms.logger.external.LogEngine;
 import com.jd.bluedragon.distribution.systemLog.domain.Goddess;
 import com.jd.bluedragon.distribution.systemLog.service.GoddessService;
 import com.jd.bluedragon.distribution.task.dao.TaskDao;
@@ -27,18 +24,25 @@ import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.weight.domain.DmsWeightFlow;
 import com.jd.bluedragon.distribution.weight.service.DmsWeightFlowService;
+import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeRuleCheckDto;
+import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeRuleConstant;
+import com.jd.bluedragon.distribution.weightVolume.service.DMSWeightVolumeCheckService;
+import com.jd.bluedragon.distribution.weightVolume.service.DMSWeightVolumeService;
+import com.jd.bluedragon.distribution.weightvolume.FromSourceEnum;
+import com.jd.bluedragon.distribution.weightvolume.WeightVolumeBusinessTypeEnum;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
+import com.jd.bluedragon.utils.log.BusinessLogConstans;
 import com.jd.common.web.LoginContext;
 import com.jd.dms.logger.external.BusinessLogProfiler;
+import com.jd.dms.logger.external.LogEngine;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
-import com.alibaba.fastjson.JSONObject;
 import com.jd.preseparate.util.*;
 import com.jd.preseparate.vo.*;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
@@ -54,7 +58,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 
 /**
@@ -71,6 +77,9 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
     private final Integer VALID_NOT_EXISTS_STATUS_CODE = 20;
 
     private final String CASSANDRA_SIGN = "WaybillWeight_";
+
+    private static final String PACKAGE_WEIGHT_VOLUME_EXCESS_HIT = "您的包裹超规，请确认。超过'200kg/包裹'或'1方/包裹'为超规件";
+    private static final String WAYBILL_WEIGHT_VOLUME_EXCESS_HIT = "您的运单包裹超规，请确认。超过'包裹数*200kg/包裹'或'包裹数*1方/包裹'";
 
     @Autowired
     SysConfigService sysConfigService;
@@ -121,6 +130,9 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
     @Qualifier("dmsWeightVolumeCheckService")
     @Autowired
     private DMSWeightVolumeCheckService dmsWeightVolumeCheckService;
+
+    @Autowired
+    private DMSWeightVolumeService dmsWeightVolumeService;
 
 
     /**
@@ -507,6 +519,58 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
         }
 
         return flag;
+    }
+
+    @Override
+    public InvokeResult checkIsExcess(String codeStr, String weight, String volume){
+        InvokeResult result = new InvokeResult();
+
+        if(com.jd.common.util.StringUtils.isEmpty(codeStr) || com.jd.common.util.StringUtils.isEmpty(weight)
+                || com.jd.common.util.StringUtils.isEmpty(volume)){
+            result.setCode(InvokeResult.RESULT_PARAMETER_ERROR_CODE);
+            result.setMessage(InvokeResult.PARAM_ERROR);
+            return result;
+        }
+        try{
+            if(WaybillUtil.isWaybillCode(codeStr)){
+                int packNum = 0;
+                BaseEntity<BigWaybillDto> entity = waybillQueryManager.getDataByChoice(codeStr, true, true, true, false);
+                if(entity!= null && entity.getData() != null && entity.getData().getWaybill() != null){
+                    packNum = entity.getData().getWaybill().getGoodNumber() == null?0:entity.getData().getWaybill().getGoodNumber();
+                    if(Double.parseDouble(weight) > 200*packNum || Double.parseDouble(volume) > packNum){
+                        result.setCode(600);
+                        result.setMessage(WAYBILL_WEIGHT_VOLUME_EXCESS_HIT);
+                    }
+                }else{
+                    result.setCode(InvokeResult.RESULT_THIRD_ERROR_CODE);
+                    result.setMessage("运单信息为空!");
+                }
+            }else{
+                if(Double.parseDouble(weight) > 200 || Double.parseDouble(volume) > 1){
+                    result.setCode(600);
+                    result.setMessage(PACKAGE_WEIGHT_VOLUME_EXCESS_HIT);
+                }
+            }
+        }catch (Exception e){
+            log.error("通过运单号:{}获取运单信息失败!",codeStr, e);
+        }
+
+        return result;
+    }
+
+    @Override
+    public InvokeResult checkIsExcessNew(String codeStr, String weight, String volume, Integer siteCode) {
+        WeightVolumeRuleCheckDto condition = new WeightVolumeRuleCheckDto();
+        condition.setBarCode(WaybillUtil.getWaybillCode(codeStr));
+        condition.setBusinessType(WeightVolumeBusinessTypeEnum.BY_WAYBILL.name());
+        condition.setSourceCode(FromSourceEnum.DMS_WEB_FAST_TRANSPORT.name());
+        condition.setVolume(Double.parseDouble(volume) * WeightVolumeRuleConstant.CM3_M3_MAGNIFICATION);
+        condition.setCheckVolume(Boolean.TRUE);
+        condition.setWeight(Double.parseDouble(weight));
+        condition.setCheckWeight(Boolean.TRUE);
+        condition.setCheckLWH(Boolean.FALSE);
+        condition.setOperateSiteCode(siteCode);
+        return dmsWeightVolumeService.weightVolumeRuleCheck(condition);
     }
 
     /**
