@@ -30,7 +30,7 @@ public class JyComboardGatewayServiceImplTest {
 
     @Autowired
     private JyComboardGatewayService jyComboardGatewayService;
-
+    
     @Test
     public void listCrossDataTest() {
         CrossDataReq crossDataReq = new CrossDataReq();
@@ -395,7 +395,7 @@ public class JyComboardGatewayServiceImplTest {
         CancelBoardReq resp = new CancelBoardReq();
         CurrentOperate operate = new CurrentOperate();
         resp.setGroupCode("group111");
-        resp.setBoardCode("B21112200000035");
+        resp.setBoardCode("B21112200000025");
         operate.setSiteCode(910);
         operate.setSiteName("北京马驹桥分拣中心");
         resp.setCurrentOperate(operate);
@@ -432,5 +432,88 @@ public class JyComboardGatewayServiceImplTest {
         cancelList.add(comboardDetailDto);
         resp.setCancelList(cancelList);
         jyComboardGatewayService.cancelComboard(resp);
+    }
+    
+    @Test
+    public void finishBoardTest() {
+        BoardReq resp = new BoardReq();
+        CurrentOperate operate = new CurrentOperate();
+        resp.setGroupCode("group111");
+        resp.setBoardCode("B22112600000025");
+        operate.setSiteCode(910);
+        operate.setSiteName("北京马驹桥分拣中心");
+        resp.setCurrentOperate(operate);
+        User user = new User();
+        user.setUserName("李文吉");
+        user.setUserErp("liwenji3");
+        resp.setUser(user);
+        JdCResponse jdCResponse = jyComboardGatewayService.finishBoard(resp);
+        System.out.println(JsonHelper.toJson(jdCResponse));
+        BoardReq resp2 = new BoardReq();
+        CurrentOperate operate2 = new CurrentOperate();
+        resp2.setGroupCode("group111");
+        resp2.setBoardCode("B22112600000025");
+        operate2.setSiteCode(910);
+        operate2.setSiteName("北京马驹桥分拣中心");
+        resp2.setCurrentOperate(operate2);
+        User user2 = new User();
+        user2.setUserName("李文吉");
+        user2.setUserErp("liwenji3");
+        resp2.setUser(user2);
+        JdCResponse jdCResponse1 = jyComboardGatewayService.finishBoard(resp2);
+        System.out.println(JsonHelper.toJson(jdCResponse1));
+    }
+    
+    @Test
+    public void finishBoardsUnderCTTGroupTest() {
+        CTTGroupReq resp = new CTTGroupReq();
+        CurrentOperate operate = new CurrentOperate();
+        resp.setGroupCode("G00000047004");
+        operate.setSiteCode(910);
+        operate.setSiteName("北京马驹桥分拣中心");
+        resp.setCurrentOperate(operate);
+        User user = new User();
+        user.setUserName("李文吉");
+        user.setUserErp("liwenji3");
+        resp.setUser(user);
+        resp.setTemplateCode("CTT22112500000001");
+        JdCResponse jdCResponse = jyComboardGatewayService.finishBoardsUnderCTTGroup(resp);
+        System.out.println(JsonHelper.toJson(jdCResponse));
+    }
+    
+    @Test
+    public void queryBelongBoardByBarCodeTest() {
+        QueryBelongBoardReq resp = new QueryBelongBoardReq();
+        CurrentOperate operate = new CurrentOperate();
+        resp.setGroupCode("G00000047004");
+        operate.setSiteCode(910);
+        operate.setSiteName("北京马驹桥分拣中心");
+        resp.setCurrentOperate(operate);
+        User user = new User();
+        user.setUserName("李文吉");
+        user.setUserErp("liwenji3");
+        resp.setUser(user);
+        resp.setBarCode("JDV000707553583-2-5-");
+        JdCResponse<QueryBelongBoardResp> re = jyComboardGatewayService.queryBelongBoardByBarCode(resp);
+        System.out.println(JsonHelper.toJson(re));
+    }
+    
+    @Test
+    public void listPackageDetailUnderBoxTest() {
+        BoxQueryReq resp = new BoxQueryReq();
+        CurrentOperate operate = new CurrentOperate();
+        resp.setGroupCode("G00000047004");
+        operate.setSiteCode(910);
+        operate.setSiteName("北京马驹桥分拣中心");
+        resp.setCurrentOperate(operate);
+        User user = new User();
+        user.setUserName("李文吉");
+        user.setUserErp("liwenji3");
+        resp.setUser(user);
+        resp.setBoxCode("BC1001190626170000000101");
+        resp.setPageNo(1);
+        resp.setPageSize(1000);
+        JdCResponse<PackageDetailResp> respJdCResponse = jyComboardGatewayService.listPackageDetailUnderBox(resp);
+        System.out.println(JsonHelper.toJson(respJdCResponse));
     }
 }

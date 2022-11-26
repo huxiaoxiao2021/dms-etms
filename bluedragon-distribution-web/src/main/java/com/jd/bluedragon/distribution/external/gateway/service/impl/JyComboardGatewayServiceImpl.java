@@ -112,7 +112,7 @@ public class JyComboardGatewayServiceImpl implements JyComboardGatewayService {
 
   @Override
   public JdCResponse<PackageDetailResp> listPackageDetailUnderBox(BoxQueryReq request) {
-    return null;
+    return retJdCResponse(jyComBoardSendService.listPackageDetailRespUnderBox(request));
   }
 
   @Override
