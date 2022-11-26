@@ -43,6 +43,16 @@ public class JyComboardEntity {
 
     private boolean ForceSendFlag;
 
+    private boolean cancelFlag;
+
+    public boolean getCancelFlag() {
+        return cancelFlag;
+    }
+
+    public void setCancelFlag(boolean cancelFlag) {
+        this.cancelFlag = cancelFlag;
+    }
+
     public boolean getInterceptFlag() {
         return interceptFlag;
     }
@@ -202,4 +212,5 @@ public class JyComboardEntity {
     public void setTs(Date ts) {
         this.ts = ts;
     }
+
 }
