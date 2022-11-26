@@ -288,15 +288,29 @@
     and status = 1
     and yn = 1
   </select>
-  <update id="finishBoard" parameterType="java.lang.String">
+  <update id="finishBoard" parameterType="com.jd.bluedragon.distribution.jy.dto.comboard.JyBizTaskComboardReq">
     update jy_biz_task_comboard
-    set status = 2
+    set status = 2,
+    <if test="updateUserErp != null and updateUserErp != ''">
+      update_user_erp = #{updateUserErp,jdbcType=VARCHAR},
+    </if>
+    <if test="updateUserName != null and updateUserName != ''">
+      update_user_name = #{updateUserName,jdbcType=VARCHAR},
+    </if>
+    update_time = now()
     where board_code = #{boardCode,jdbcType=VARCHAR}
   </update>
   <update id="batchFinishBoardBySendFLowList"
           parameterType="com.jd.bluedragon.distribution.jy.dto.comboard.JyBizTaskComboardReq">
     update jy_biz_task_comboard
-    set status = 2
+    set status = 2,
+    <if test="updateUserErp != null and updateUserErp != ''">
+      update_user_erp = #{updateUserErp,jdbcType=VARCHAR},
+    </if>
+    <if test="updateUserName != null and updateUserName != ''">
+      update_user_name = #{updateUserName,jdbcType=VARCHAR},
+    </if>
+    update_time = now()
     where start_site_id = #{startSiteId,jdbcType=BIGINT}
     and end_site_id in
     <foreach item="item" index="index" collection="endSiteCodeList"
@@ -304,5 +318,6 @@
       #{item}
     </foreach>
     and yn = 1
+    and status = 1
   </update>
 </mapper>

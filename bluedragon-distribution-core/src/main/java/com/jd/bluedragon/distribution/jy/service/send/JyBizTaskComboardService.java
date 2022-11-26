@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.jy.service.send;
 import com.jd.bluedragon.common.dto.comboard.response.BoardDto;
 import com.jd.bluedragon.common.dto.comboard.response.SendFlowDto;
 import com.jd.bluedragon.distribution.jy.comboard.JyBizTaskComboardEntity;
+import com.jd.bluedragon.distribution.jy.dto.comboard.JyBizTaskComboardReq;
 
 import java.util.List;
 
@@ -34,16 +35,15 @@ public interface JyBizTaskComboardService {
 
   /**
    * 批量完结组板
-   * @param boardCode
+   * @param jyBizTaskComboardReq
    * @return
    */
-  Boolean finishBoard(String boardCode);
+  Boolean finishBoard(JyBizTaskComboardReq jyBizTaskComboardReq);
 
   /**
    * 根据流向完结板号
-   * @param startSiteId
-   * @param endSiteCodeList
+   * @param jyBizTaskComboardReq
    * @return
    */
-  Boolean batchFinishBoardBySendFLowList(Integer startSiteId, List<Integer> endSiteCodeList);
+  Boolean batchFinishBoardBySendFLowList(JyBizTaskComboardReq jyBizTaskComboardReq);
 }

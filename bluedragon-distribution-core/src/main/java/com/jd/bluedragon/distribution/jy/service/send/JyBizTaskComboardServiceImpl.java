@@ -72,15 +72,12 @@ public class JyBizTaskComboardServiceImpl implements JyBizTaskComboardService {
   }
 
   @Override
-  public Boolean finishBoard(String boardCode) {
-    return jyBizTaskComboardDao.finishBoard(boardCode) > 0;
+  public Boolean finishBoard(JyBizTaskComboardReq jyBizTaskComboardReq) {
+    return jyBizTaskComboardDao.finishBoard(jyBizTaskComboardReq) > 0;
   }
 
   @Override
-  public Boolean batchFinishBoardBySendFLowList(Integer startSiteId, List<Integer> endSiteCodeList) {
-    JyBizTaskComboardReq req = new JyBizTaskComboardReq();
-    req.setStartSiteId(startSiteId);
-    req.setEndSiteCodeList(endSiteCodeList);
-    return jyBizTaskComboardDao.batchFinishBoardBySendFLowList(req) > 0;
+  public Boolean batchFinishBoardBySendFLowList(JyBizTaskComboardReq jyBizTaskComboardReq) {
+    return jyBizTaskComboardDao.batchFinishBoardBySendFLowList(jyBizTaskComboardReq) > 0;
   }
 }

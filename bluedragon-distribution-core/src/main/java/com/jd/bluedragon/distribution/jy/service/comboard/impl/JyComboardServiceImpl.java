@@ -2,9 +2,12 @@ package com.jd.bluedragon.distribution.jy.service.comboard.impl;
 
 import com.jd.bluedragon.distribution.jy.comboard.JyComboardEntity;
 import com.jd.bluedragon.distribution.jy.dao.comboard.JyComboardDao;
+import com.jd.bluedragon.distribution.jy.dto.comboard.BatchUpdateCancelReq;
 import com.jd.bluedragon.distribution.jy.service.comboard.JyComboardService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * @author liwenji
@@ -24,6 +27,11 @@ public class JyComboardServiceImpl implements JyComboardService {
     @Override
     public int save(JyComboardEntity entity) {
         return jyComboardDao.insertSelective(entity);
+    }
+
+    @Override
+    public int batchUpdateCancelFlag(BatchUpdateCancelReq req) {
+        return jyComboardDao.batchUpdateCancelFlag(req);
     }
 
     @Override

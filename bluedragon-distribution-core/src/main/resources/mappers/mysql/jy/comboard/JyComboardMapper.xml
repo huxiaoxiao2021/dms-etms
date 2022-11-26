@@ -274,4 +274,23 @@
     select bar_code
     from jy_comboard where board_code = #{boardCode} limit 1
   </select>
+  <update id="batchUpdateCancelFlag"
+          parameterType="com.jd.bluedragon.distribution.jy.dto.comboard.BatchUpdateCancelReq">
+    update jy_comboard
+    set cancel_flag = 1,
+    <if test="updateUserErp != null and updateUserErp != ''">
+      update_user_erp = #{updateUserErp,jdbcType=VARCHAR},
+    </if>
+    <if test="updateUserName != null and updateUserName != ''">
+      update_user_name = #{updateUserName,jdbcType=VARCHAR},
+    </if>
+    update_time = now()
+    where board_code = #{boardCode,jdbcType=VARCHAR}
+    and bar_code in
+    <foreach item="item" index="index" collection="barCodeList"
+             open="(" separator="," close=")">
+      #{item}
+    </foreach>
+    and yn = 1
+    </update>
 </mapper>

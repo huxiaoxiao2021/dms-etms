@@ -46,11 +46,11 @@ public class JyBizTaskComboardDao extends BaseDao<JyBizTaskComboardEntity> {
 
     /**
      * 完结组板
-     * @param boardCode
+     * @param jyBizTaskComboardReq
      * @return
      */
-    public int finishBoard(String boardCode) {
-        return this.getSqlSession().update(NAMESPACE + ".finishBoard", boardCode);
+    public int finishBoard(JyBizTaskComboardReq jyBizTaskComboardReq) {
+        return this.getSqlSession().update(NAMESPACE + ".finishBoard", jyBizTaskComboardReq);
     }
 
     /**
