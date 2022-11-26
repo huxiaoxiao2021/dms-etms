@@ -9,6 +9,7 @@ import com.jd.bluedragon.common.dto.comboard.response.*;
 import com.jd.bluedragon.external.gateway.service.JyComboardGatewayService;
 import com.jd.bluedragon.utils.BeanUtils;
 import com.jd.bluedragon.utils.JsonHelper;
+import java.util.Date;
 import org.apache.avro.data.Json;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -352,7 +353,22 @@ public class JyComboardGatewayServiceImplTest {
     @Test
     public void comboardScanTest(){
         ComboardScanReq scanReq =new ComboardScanReq();
-
+        scanReq.setTemplateCode("CTT22112500000001");
+        scanReq.setGroupCode("G00000047004");
+        scanReq.setBarCode("JD0003403815964-1-1-");
+        scanReq.setScanType(1);
+        CurrentOperate operate = new CurrentOperate();
+        operate.setSiteCode(910);
+        operate.setSiteName("北京马驹桥分拣中心");
+        operate.setOperateTime(new Date());
+        scanReq.setCurrentOperate(operate);
+        User user = new User();
+        user.setUserName("李文吉");
+        user.setUserErp("liwenji3");
+        user.setUserCode(123456);
+        scanReq.setUser(user);
+        JdCResponse re = jyComboardGatewayService.comboardScan(scanReq);
+        System.out.println(JsonHelper.toJson(re));
     }
 
     @Test
@@ -367,6 +383,7 @@ public class JyComboardGatewayServiceImplTest {
         User user = new User();
         user.setUserName("李文吉");
         user.setUserErp("liwenji3");
+        user.setUserCode(123456);
         resp.setUser(user);
         resp.setBulkFlag(true);
         JdCResponse<ComboardDetailResp> re = jyComboardGatewayService.listPackageOrBoxUnderBoard(resp);
