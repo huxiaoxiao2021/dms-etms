@@ -36,6 +36,7 @@ import com.jd.bluedragon.distribution.loadAndUnload.exception.LoadIllegalExcepti
 import com.jd.bluedragon.distribution.loadAndUnload.exception.UnloadPackageBoardException;
 import com.jd.bluedragon.distribution.transfer.service.TransferService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
+import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BeanUtils;
@@ -126,7 +127,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     @Qualifier("jyUnloadCarPostTaskCompleteProducer")
     private DefaultJMQProducer jyUnloadCarPostTaskCompleteProducer;
     @Autowired
-    private InspectionService inspectionService;
+    private WaybillService waybillService;
 
 
 
@@ -600,15 +601,15 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             jyUnloadVehicleCheckTysService.dealUnloadAndBoxToBoard(scanPackageDto, scanPackageRespDto);
         }
         //易冻品校验
-        com.jd.bluedragon.distribution.jsf.domain.InvokeResult<Boolean> checkResult
-                = inspectionService.checkEasyFreeze(waybillCode, scanPackageDto.getCurrentOperate().getOperateTime(), operateSiteCode);
+        InvokeResult<Boolean> checkResult
+                = waybillService.checkEasyFreeze(waybillCode, scanPackageDto.getCurrentOperate().getOperateTime(), operateSiteCode);
         log.info("packageScan-易冻品校验结果-{}",JSON.toJSONString(checkResult));
         Map<String,String> confirmMap = new HashMap<>(2);
         if(checkResult != null && checkResult.getData()){
             confirmMap.put(checkResult.getCode()+"",checkResult.getMessage());
         }
         //特保单校验
-        com.jd.bluedragon.distribution.jsf.domain.InvokeResult<Boolean> luxurySecurityResult = inspectionService.checkLuxurySecurity(barCode, waybill.getWaybillSign());
+        InvokeResult<Boolean> luxurySecurityResult = waybillService.checkLuxurySecurity(barCode, waybill.getWaybillSign());
         log.info("packageScan-特保单校验结果-{}",JSON.toJSONString(luxurySecurityResult));
         if(luxurySecurityResult != null && luxurySecurityResult.getData()){
             confirmMap.put(luxurySecurityResult.getCode()+"",luxurySecurityResult.getMessage());
@@ -689,14 +690,14 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         }
         // todo  添加易冻品逻辑判断
         //易冻品校验
-        com.jd.bluedragon.distribution.jsf.domain.InvokeResult<Boolean> easyFreezeCheckResult
-                = inspectionService.checkEasyFreeze(waybillCode, scanPackageDto.getCurrentOperate().getOperateTime(), scanPackageDto.getCurrentOperate().getSiteCode());
+        InvokeResult<Boolean> easyFreezeCheckResult
+                = waybillService.checkEasyFreeze(waybillCode, scanPackageDto.getCurrentOperate().getOperateTime(), scanPackageDto.getCurrentOperate().getSiteCode());
         log.info("waybillScan -易冻品校验结果-{}",JSON.toJSONString(easyFreezeCheckResult));
         Map<String,String> confirmMap = new HashMap<>(2);
         if(easyFreezeCheckResult != null && easyFreezeCheckResult.getData()){
             confirmMap.put(easyFreezeCheckResult.getCode()+"",easyFreezeCheckResult.getMessage());
         }
-        com.jd.bluedragon.distribution.jsf.domain.InvokeResult<Boolean> luxurySecurityResult = inspectionService.checkLuxurySecurity(barCode, waybill.getWaybillSign());
+        InvokeResult<Boolean> luxurySecurityResult = waybillService.checkLuxurySecurity(barCode, waybill.getWaybillSign());
         log.info("waybillScan -特保单校验结果-{}",JSON.toJSONString(luxurySecurityResult));
         if(luxurySecurityResult != null && luxurySecurityResult.getData()){
             confirmMap.put(luxurySecurityResult.getCode()+"",luxurySecurityResult.getMessage());

@@ -18,16 +18,6 @@ public class InvokeResult<T> implements Serializable {
     public static final int SERVICE_FAIL_CODE = 5001;
     public static final String SERVICE_FAIL_MESSAGE = "服务处理失败";
 
-    public static final int EASY_FROZEN_TIPS_CODE= 340;
-    public static final String EASY_FROZEN_TIPS_MESSAGE ="此运单为易冻品!";
-
-    public static final int EASY_FROZEN_TIPS_STORAGE_CODE= 341;
-    public static final String EASY_FROZEN_TIPS_STORAGE_MESSAGE ="此运单为易冻品，请放至保温储存区等待发货!";
-
-    public static final int LUXURY_SECURITY_TIPS_CODE= 342;
-
-    public static final String LUXURY_SECURITY_TIPS_MESSAGE ="此运单为特保单，请对包裹进行拍照!";
-
     public InvokeResult(){
         this.code=200;
     }

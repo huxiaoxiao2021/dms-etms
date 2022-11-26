@@ -286,21 +286,12 @@ public class InspectionGatewayServiceImpl implements InspectionGatewayService {
         // 暂存校验
         tempStorageCheck(request, response);
 
-        //易冻品校验
-        Date operateTime = DateHelper.parseDateTime(request.getOperateTime());
-        com.jd.bluedragon.distribution.jsf.domain.InvokeResult<Boolean> easyFreezeResult
-                = inspectionService.checkEasyFreeze(barCode, operateTime, request.getCreateSiteCode());
-        log.info("checkBeforeInspection -易冻品校验结果-{}",JSON.toJSONString(easyFreezeResult));
-        if(easyFreezeResult != null && easyFreezeResult.getData()){
-            response.addWarningBox(0, easyFreezeResult.getMessage());
-        }
+        //异动品校验
+        easyFreezeCheck(request,response);
+
         //特保单校验
-        com.jd.bluedragon.distribution.jsf.domain.InvokeResult<Boolean> luxurySecurityResult = inspectionService.checkLuxurySecurity(barCode, "");
-        log.info("checkBeforeInspection -特保单校验结果-{}",JSON.toJSONString(luxurySecurityResult));
-        if(luxurySecurityResult != null && luxurySecurityResult.getData()){
-            response.addWarningBox(luxurySecurityResult.getCode(), luxurySecurityResult.getMessage());
-        }
-        log.info("checkBeforeInspection -结果-response {}",JSON.toJSONString(response));
+        luxurySecurityCheck(request,response);
+
         // 提示语校验
         HintCheckRequest hintCheckRequest = new HintCheckRequest();
         hintCheckRequest.setPackageCode(barCode);
@@ -327,6 +318,26 @@ public class InspectionGatewayServiceImpl implements InspectionGatewayService {
         }
 
         return response;
+    }
+
+    private void easyFreezeCheck(InspectionRequest request, JdVerifyResponse<InspectionCheckResultDto> response){
+        //易冻品校验
+        Date operateTime = DateHelper.parseDateTime(request.getOperateTime());
+        InvokeResult<Boolean> easyFreezeResult
+                = waybillService.checkEasyFreeze(request.getBarCode(), operateTime, request.getCreateSiteCode());
+        log.info("checkBeforeInspection -易冻品校验结果-{}",JSON.toJSONString(easyFreezeResult));
+        if(easyFreezeResult != null && easyFreezeResult.getData()){
+            response.addWarningBox(0, easyFreezeResult.getMessage());
+        }
+    }
+
+    private void luxurySecurityCheck(InspectionRequest request, JdVerifyResponse<InspectionCheckResultDto> response){
+        InvokeResult<Boolean> luxurySecurityResult = waybillService.checkLuxurySecurity(request.getBarCode(), "");
+        log.info("checkBeforeInspection -特保单校验结果-{}",JSON.toJSONString(luxurySecurityResult));
+        if(luxurySecurityResult != null && luxurySecurityResult.getData()){
+            response.addWarningBox(luxurySecurityResult.getCode(), luxurySecurityResult.getMessage());
+        }
+        log.info("checkBeforeInspection -结果-response {}",JSON.toJSONString(response));
     }
 
     private void checkWaybillCancel(InspectionRequest request, JdVerifyResponse<InspectionCheckResultDto> response) {
