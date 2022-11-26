@@ -133,8 +133,6 @@ public class WaybillServiceImpl implements WaybillService {
     @Autowired
     private SecurityCheckerExecutor securityCheckerExecutor;
 
-    @Autowired
-    private WaybillService waybillService;
 
     @Autowired
     private WaybillRouteLinkQueryManager waybillRouteManager;
@@ -1164,7 +1162,7 @@ public class WaybillServiceImpl implements WaybillService {
                 return result;
             }
             //判断增值服务是否包含易冻品增值服务
-            boolean isEasyFrozen = waybillService.isEasyFrozenVosWaybill(waybillCode);
+            boolean isEasyFrozen =isEasyFrozenVosWaybill(waybillCode);
             if(!isEasyFrozen){
                 log.warn("易冻损此运单不包含易冻品增值服务");
                 return result;
@@ -1229,7 +1227,7 @@ public class WaybillServiceImpl implements WaybillService {
                 return result;
             }
             //判断增值服务是否包含特保单增值服务
-            boolean isLuxurySecurity = waybillService.isLuxurySecurityVosWaybill(waybillCode);
+            boolean isLuxurySecurity = isLuxurySecurityVosWaybill(waybillCode);
             log.info("增值服务是否包含特保单增值服务-{}",isLuxurySecurity);
             if(isLuxurySecurity){
                 result.customMessage(InvokeResult.LUXURY_SECURITY_TIPS_CODE, InvokeResult.LUXURY_SECURITY_TIPS_MESSAGE);
