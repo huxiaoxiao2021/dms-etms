@@ -72,8 +72,6 @@ import com.jd.jim.cli.Cluster;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.transboard.api.dto.*;
 import com.jd.transboard.api.enums.ResponseEnum;
-import com.jd.ump.annotation.JProEnum;
-import com.jd.ump.annotation.JProfiler;
 import com.jdl.basic.api.domain.cross.*;
 
 import java.util.*;
@@ -91,8 +89,6 @@ import com.jd.etms.waybill.domain.Waybill;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import static com.jd.bluedragon.Constants.LOCK_EXPIRE;
@@ -694,8 +690,6 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   }
 
   @Override
-  @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyComBoardSendServiceImpl.comboardScan", mState = {JProEnum.TP, JProEnum.FunctionError})
-  @Transactional(value = "tm_jy_core", propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
   public InvokeResult<ComboardScanResp> comboardScan(ComboardScanReq request) {
     baseCheck(request);
     comboardCheck(request);
@@ -741,7 +735,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
         AddBoardBox addBoardBox = assembleComboardParam(request);
         Response<Integer> comboardResp = groupBoardManager.addBoxToBoard(addBoardBox);
         if (comboardResp.getCode() != ResponseEnum.SUCCESS.getIndex()) {
-          throw new JyBizException(comboardResp.getMesseage()!=null?comboardResp.getMesseage():BOARD_TOTC_FAIL_INTERCEPT_MESSAGE);
+          throw new JyBizException(BOARD_TOTC_FAIL_INTERCEPT_MESSAGE);
         }
         JyBizTaskComboardEntity bizTaskComboardEntity = new JyBizTaskComboardEntity();
         bizTaskComboardEntity.setId(entity.getId());
@@ -778,21 +772,10 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     return operatorInfo;
   }
 
-  public  int getComboardBarCodeType(String barCode) {
-    if (BusinessUtil.isBoxcode(barCode)) {
-      return ComboardBarCodeTypeEnum.BOX.getCode();
-    } else if (WaybillUtil.isPackageCode(barCode)) {
-      return ComboardBarCodeTypeEnum.PACKAGE.getCode();
-    } else if (WaybillUtil.isWaybillCode(barCode)) {
-      return ComboardBarCodeTypeEnum.WAYBILL.getCode();
-    }  return 0;
-  }
-
   private AddBoardBox assembleComboardParam(ComboardScanReq request) {
     AddBoardBox addBoardBox = new AddBoardBox();
     addBoardBox.setBoardCode(request.getBoardCode());
     addBoardBox.setBoxCode(request.getBarCode());
-    addBoardBox.setBarcodeType(getComboardBarCodeType(request.getBarCode()));
     addBoardBox.setOperatorErp(request.getUser().getUserErp());
     addBoardBox.setOperatorName(request.getUser().getUserName());
     addBoardBox.setSiteCode(request.getCurrentOperate().getSiteCode());
@@ -1256,7 +1239,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
 
     boolean hasMatchDestinationIdFlag = false;
     for (JyGroupSortCrossDetailEntity entity : groupSortCrossDetailEntityList) {
-      if (entity.getEndSiteId().intValue()== request.getEndSiteId()) {
+      if (Objects.equals(entity.getEndSiteId(), request.getEndSiteId())) {
         hasMatchDestinationIdFlag = true;
         break;
       }
@@ -1278,16 +1261,12 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   @Override
   public InvokeResult<BoardStatisticsResp> queryBoardStatisticsUnderSendFlow(
       BoardStatisticsReq request) {
-    //按照流向查询 已扫 待扫 拦截指标
-    //查询流向下 7人内未封车的板 list
-    //查询板list的统计数据：已扫和拦截指标
     return null;
   }
 
   @Override
   public InvokeResult<HaveScanStatisticsResp> queryHaveScanStatisticsUnderBoard(
       HaveScanStatisticsReq request) {
-    //
     return null;
   }
 
@@ -1400,10 +1379,10 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
         // 运单号
         if (request.getCancelList().get(0) != null
             && request.getCancelList().get(0).getBarCode() != null) {
-//          String waybillCode = request.getCancelList().get(0).getBarCode();
-//          removeBoardBoxDto.setWaybillCode(waybillCode);
-//          // todo 事务
-//          groupBoardManager.removeBardBoxByWaybillCode(removeBoardBoxDto);
+          String waybillCode = request.getCancelList().get(0).getBarCode();
+          removeBoardBoxDto.setWaybillCode(waybillCode);
+          // todo 事务
+          groupBoardManager.removeBardBoxByWaybillCode(removeBoardBoxDto);
           barCodeList.add("JDV000707553583");
           jyComboardService.batchUpdateCancelFlag(batchUpdateCancelReq);
           // todo 异步发送全程跟踪
