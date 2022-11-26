@@ -85,5 +85,13 @@ public interface GroupBoardManager {
      * @param removeBoardBoxDto
      * @return
      */
-    Response removeBardBoxByWaybillCode (RemoveBoardBoxDto removeBoardBoxDto);  
+    Response removeBardBoxByWaybillCode (RemoveBoardBoxDto removeBoardBoxDto);
+
+    /**
+     * 根据包裹、场地获取板信息、板箱信息
+     * @param barCode
+     * @param siteCode
+     * @return
+     */
+    BoardBoxInfoDto getBoardBoxInfo(String barCode, int siteCode);
 }

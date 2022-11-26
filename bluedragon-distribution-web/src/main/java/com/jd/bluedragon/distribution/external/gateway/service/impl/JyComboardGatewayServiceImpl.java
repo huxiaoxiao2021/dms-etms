@@ -80,12 +80,12 @@ public class JyComboardGatewayServiceImpl implements JyComboardGatewayService {
 
   @Override
   public JdCResponse finishBoard(BoardReq request) {
-    return null;
+    return retJdCResponse(jyComBoardSendService.finishBoard(request));
   }
 
   @Override
   public JdCResponse finishBoardsUnderCTTGroup(CTTGroupReq request) {
-    return null;
+    return retJdCResponse(jyComBoardSendService.finishBoardsUnderCTTGroup(request));
   }
 
   @Override
@@ -101,7 +101,7 @@ public class JyComboardGatewayServiceImpl implements JyComboardGatewayService {
 
   @Override
   public JdCResponse<QueryBelongBoardResp> queryBelongBoardByBarCode(QueryBelongBoardReq request) {
-    return null;
+    return retJdCResponse(jyComBoardSendService.queryBelongBoardByBarCode(request));
   }
 
   @Override

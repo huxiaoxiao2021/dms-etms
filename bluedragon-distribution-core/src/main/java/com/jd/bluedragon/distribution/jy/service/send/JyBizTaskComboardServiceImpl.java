@@ -4,6 +4,7 @@ import com.jd.bluedragon.common.dto.comboard.response.BoardDto;
 import com.jd.bluedragon.common.dto.comboard.response.SendFlowDto;
 import com.jd.bluedragon.distribution.jy.comboard.JyBizTaskComboardEntity;
 import com.jd.bluedragon.distribution.jy.dao.comboard.JyBizTaskComboardDao;
+import com.jd.bluedragon.distribution.jy.dto.comboard.JyBizTaskComboardReq;
 import com.jd.bluedragon.distribution.jy.enums.ComboardStatusEnum;
 import com.jd.bluedragon.utils.ObjectHelper;
 import java.util.List;
@@ -45,7 +46,10 @@ public class JyBizTaskComboardServiceImpl implements JyBizTaskComboardService {
   @Override
   public List<JyBizTaskComboardEntity> queryInProcessBoardListBySendFlowList(Integer startSiteCode,
       List<Integer> endSiteCodeList) {
-    return jyBizTaskComboardDao.queryInProcessBoardListBySendFlowList(startSiteCode, endSiteCodeList);
+    JyBizTaskComboardReq req = new JyBizTaskComboardReq();
+    req.setStartSiteId(startSiteCode);
+    req.setEndSiteCodeList(endSiteCodeList);
+    return jyBizTaskComboardDao.queryInProcessBoardListBySendFlowList(req);
   }
 
   @Override
@@ -65,5 +69,18 @@ public class JyBizTaskComboardServiceImpl implements JyBizTaskComboardService {
   @Override
   public int updateBizTaskById(JyBizTaskComboardEntity record) {
     return jyBizTaskComboardDao.updateByPrimaryKeySelective(record);
+  }
+
+  @Override
+  public Boolean finishBoard(String boardCode) {
+    return jyBizTaskComboardDao.finishBoard(boardCode) > 0;
+  }
+
+  @Override
+  public Boolean batchFinishBoardBySendFLowList(Integer startSiteId, List<Integer> endSiteCodeList) {
+    JyBizTaskComboardReq req = new JyBizTaskComboardReq();
+    req.setStartSiteId(startSiteId);
+    req.setEndSiteCodeList(endSiteCodeList);
+    return jyBizTaskComboardDao.batchFinishBoardBySendFLowList(req) > 0;
   }
 }

@@ -37,14 +37,28 @@ public class JyBizTaskComboardDao extends BaseDao<JyBizTaskComboardEntity> {
 
     /**
      * 根据始发和目的地批量获取当前正在进行中的板号信息
-     * @param startSiteCode
-     * @param endSiteCodeList
+     * @param req
      * @return
      */
-    public List<JyBizTaskComboardEntity> queryInProcessBoardListBySendFlowList(Integer startSiteCode, List<Integer> endSiteCodeList) {
-        JyBizTaskComboardReq req = new JyBizTaskComboardReq();
-        req.setStartSiteId(startSiteCode);
-        req.setEndSiteCodeList(endSiteCodeList);
+    public List<JyBizTaskComboardEntity> queryInProcessBoardListBySendFlowList(JyBizTaskComboardReq req) {
         return this.getSqlSession().selectList(NAMESPACE + ".queryInProcessBoardListBySendFlowList", req);
+    }
+
+    /**
+     * 完结组板
+     * @param boardCode
+     * @return
+     */
+    public int finishBoard(String boardCode) {
+        return this.getSqlSession().update(NAMESPACE + ".finishBoard", boardCode);
+    }
+
+    /**
+     * 根据流向批量完结板
+     * @param req
+     * @return
+     */
+    public int batchFinishBoardBySendFLowList(JyBizTaskComboardReq req) {
+        return this.getSqlSession().update(NAMESPACE + ".batchFinishBoardBySendFLowList", req);
     }
 }
