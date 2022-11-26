@@ -27,6 +27,14 @@ public class JyComboardServiceImpl implements JyComboardService {
     }
 
     @Override
+    public JyComboardEntity queryIfScaned(JyComboardEntity condition) {
+        condition.setForceSendFlag(false);
+        condition.setInterceptFlag(false);
+        condition.setCancelFlag(false);
+        return jyComboardDao.queryByBarCode(condition);
+    }
+
+    @Override
     public String queryWayBillCodeByBoardCode(String boardCode) {
         return jyComboardDao.queryWayBillCodeByBoardCode(boardCode);
     }

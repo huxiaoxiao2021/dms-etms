@@ -22,4 +22,6 @@ public interface JyComboardService {
      */
     String queryWayBillCodeByBoardCode(String boardCode);
     int save(JyComboardEntity entity);
+
+    JyComboardEntity queryIfScaned(JyComboardEntity condition);
 }

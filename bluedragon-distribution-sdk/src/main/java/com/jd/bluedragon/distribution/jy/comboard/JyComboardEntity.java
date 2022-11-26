@@ -39,34 +39,34 @@ public class JyComboardEntity {
 
     private Date ts;
 
-    private boolean interceptFlag;
+    private Boolean interceptFlag;
 
-    private boolean ForceSendFlag;
+    private Boolean forceSendFlag;
 
-    private boolean cancelFlag;
+    private Boolean cancelFlag;
 
-    public boolean getCancelFlag() {
+    public Boolean getCancelFlag() {
         return cancelFlag;
     }
 
-    public void setCancelFlag(boolean cancelFlag) {
+    public void setCancelFlag(Boolean cancelFlag) {
         this.cancelFlag = cancelFlag;
     }
 
-    public boolean getInterceptFlag() {
+    public Boolean getInterceptFlag() {
         return interceptFlag;
     }
 
-    public void setInterceptFlag(boolean interceptFlag) {
+    public void setInterceptFlag(Boolean interceptFlag) {
         this.interceptFlag = interceptFlag;
     }
 
-    public boolean getForceSendFlag() {
-        return ForceSendFlag;
+    public Boolean getForceSendFlag() {
+        return forceSendFlag;
     }
 
-    public void setForceSendFlag(boolean forceSendFlag) {
-        ForceSendFlag = forceSendFlag;
+    public void setForceSendFlag(Boolean forceSendFlag) {
+        forceSendFlag = forceSendFlag;
     }
 
     public Long getId() {

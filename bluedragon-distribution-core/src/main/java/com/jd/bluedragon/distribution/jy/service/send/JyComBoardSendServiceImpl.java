@@ -659,7 +659,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     entity.setTemplateCode(request.getTemplateCode());
     entity.setGroupCode(request.getGroupCode());
     try{
-      
+
       // 获取当前混扫任务下的流向信息
       List<JyGroupSortCrossDetailEntity> sendFlowList = jyGroupSortCrossDetailService
               .listSendFlowByTemplateCode(entity);
@@ -1029,12 +1029,18 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
         throw new JyBizException(BoxResponse.MESSAGE_BC_NO_BINDING);
       }
     }
+    JyComboardEntity condition =new JyComboardEntity();
+    condition.setStartSiteId(Long.valueOf(request.getCurrentOperate().getSiteCode()));
+    condition.setBarCode(barCode);
+    JyComboardEntity entity =jyComboardService.queryIfScaned(condition);
+    if (ObjectHelper.isNotNull(entity)){
+      log.error("组板失败：该单号以及组过板，{}",JsonHelper.toJson(entity));
+      throw new JyBizException("该单号已组过板");
+    }
     BaseStaffSiteOrgDto baseStaffSiteOrgDto = baseService.getSiteBySiteID(request.getEndSiteId());
     if (ObjectHelper.isNotNull(baseStaffSiteOrgDto) && ObjectHelper.isNotNull(baseStaffSiteOrgDto.getSiteName())) {
       request.setEndSiteName(baseStaffSiteOrgDto.getSiteName());
     }
-
-    //TODO 利用缓存判断是否已经租过板了
     // 已在同场地发货，不可再组板
     final SendM recentSendMByParam = virtualBoardService
         .getRecentSendMByParam(barCode, request.getCurrentOperate().getSiteCode(), null, null);
@@ -1344,8 +1350,8 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
 
   @Override
   public InvokeResult cancelComboard(CancelBoardReq request) {
-    if (!checkBaseRequest(request) 
-            || StringUtils.isEmpty(request.getBoardCode()) 
+    if (!checkBaseRequest(request)
+            || StringUtils.isEmpty(request.getBoardCode())
             ||CollectionUtils.isEmpty(request.getCancelList())) {
       return new InvokeResult<>(RESULT_THIRD_ERROR_CODE, PARAM_ERROR);
     }
@@ -1403,7 +1409,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     return new InvokeResult<>(RESULT_SUCCESS_CODE,RESULT_SUCCESS_MESSAGE,resp);
   }
 
-  private void getComboardDetailDtoList(List<String> barCodeList, Integer boxCount, 
+  private void getComboardDetailDtoList(List<String> barCodeList, Integer boxCount,
                                         List<ComboardDetailDto> comboardDetailDtoList) {
     int index = 0;
     for (String barCode : barCodeList) {

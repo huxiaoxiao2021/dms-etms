@@ -274,4 +274,21 @@
     select bar_code
     from jy_comboard where board_code = #{boardCode} limit 1
   </select>
+  <select id="queryByBarCode" resultMap="BaseResultMap">
+    select <include refid="Base_Column_List" />
+    from jy_comboard
+    where start_site_id =#{startSiteId} and yn=1
+    <if test="barCode!=null">
+      and bar_code =#{barCode}
+    </if>
+    <if test="interceptFlag!=null">
+      and intercept_flag =#{interceptFlag}
+    </if>
+    <if test="forceSendFlag!=null">
+      and force_send_flag=#{forceSendFlag}
+    </if>
+    <if test="cancelFlag!=null">
+      and cancel_flag =#{cancelFlag}
+    </if>
+  </select>
 </mapper>

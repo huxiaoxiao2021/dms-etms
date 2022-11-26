@@ -32,4 +32,8 @@ public class JyComboardDao extends BaseDao<JyComboardEntity> {
     public String queryWayBillCodeByBoardCode(String boardCode) {
         return this.getSqlSession().selectOne(NAMESPACE + ".queryWayBillCodeByBoardCode", boardCode);
     }
+
+    public JyComboardEntity queryByBarCode(JyComboardEntity record) {
+        return this.getSqlSession().selectOne(NAMESPACE + ".queryByBarCode", record);
+    }
 }
