@@ -61,4 +61,8 @@ public class JyBizTaskComboardDao extends BaseDao<JyBizTaskComboardEntity> {
     public int batchFinishBoardBySendFLowList(JyBizTaskComboardReq req) {
         return this.getSqlSession().update(NAMESPACE + ".batchFinishBoardBySendFLowList", req);
     }
+
+  public List<JyBizTaskComboardEntity> listBoardTaskBySendFlow(JyBizTaskComboardEntity condition) {
+    return this.getSqlSession().selectList(NAMESPACE + ".listBoardTaskBySendFlow", condition);
+  }
 }

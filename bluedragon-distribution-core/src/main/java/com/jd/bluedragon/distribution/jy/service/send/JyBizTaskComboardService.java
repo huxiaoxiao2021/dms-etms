@@ -46,4 +46,10 @@ public interface JyBizTaskComboardService {
    * @return
    */
   Boolean batchFinishBoardBySendFLowList(JyBizTaskComboardReq jyBizTaskComboardReq);
+
+  /**
+   * 查询流向下板列表(某个流向-7日内所有未封车的板任务列表)
+   * @return
+   */
+  List<JyBizTaskComboardEntity> listBoardTaskBySendFlow(SendFlowDto sendFlowDto);
 }

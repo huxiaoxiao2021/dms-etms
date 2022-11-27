@@ -1292,7 +1292,60 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   @Override
   public InvokeResult<BoardStatisticsResp> queryBoardStatisticsUnderSendFlow(
       BoardStatisticsReq request) {
+    BoardStatisticsResp resp =BeanUtils.copy(request,BoardStatisticsResp.class);
+    try {
+      //填充流向统计数据
+      JyComboardAggsEntity aggsEntity =jyComboardAggsService.queryComboardAggs(request.getCurrentOperate().getSiteCode(),request.getEndSiteId());
+      if (ObjectHelper.isNotNull(aggsEntity)){
+        resp.setInterceptCount(aggsEntity.getInterceptCount());
+        resp.setWaitScanCount(aggsEntity.getWaitScanCount());
+        resp.setPackageHaveScanCount(aggsEntity.getPackageScannedCount());
+        resp.setBoxHaveScanCount(aggsEntity.getBoxScannedCount());
+      }
+    } catch (Exception e) {
+      log.error("queryBoardStatisticsUnderSendFlow 查询流向统计数据异常",e);
+    }
+    //查询流向下7天内未封车的板
+    SendFlowDto sendFlowDto = assemblySendFlowParams(request);
+    List<JyBizTaskComboardEntity> entityList = jyBizTaskComboardService.listBoardTaskBySendFlow(sendFlowDto);
+    if (ObjectHelper.isNotNull(entityList) && entityList.size() > 0) {
+      List<String> boardCodeList = new ArrayList<>();
+      List<BoardDto> boardDtoList = new ArrayList<>();
+      for (JyBizTaskComboardEntity entity : entityList) {
+        boardCodeList.add(entity.getBoardCode());
+        BoardDto boardDto =new BoardDto();
+        boardDto.setBoardCode(entity.getBoardCode());
+        boardDto.setStatus(convertStatus(entity.getStatus()));
+        boardDtoList.add(boardDto);
+      }
+      try {
+        //填充板的统计数据
+        List<JyComboardAggsEntity> aggsEntityList = jyComboardAggsService.queryComboardAggs(boardCodeList);
+        if (ObjectHelper.isNotNull(aggsEntityList) && aggsEntityList.size() > 0) {
+          for (BoardDto boardDto:boardDtoList){
+            for (JyComboardAggsEntity aggsEntity:aggsEntityList){
+              if (boardDto.getBoardCode().equals(aggsEntity.getBoardCode())){
+                boardDto.setInterceptCount(aggsEntity.getInterceptCount());
+                boardDto.setBoxHaveScanCount(aggsEntity.getBoxScannedCount());
+                boardDto.setPackageHaveScanCount(aggsEntity.getPackageScannedCount());
+              }
+            }
+          }
+        }
+      } catch (Exception e) {
+        log.error("queryBoardStatisticsUnderSendFlow 查询板列表统计数据异常", e);
+      }
+    }
+    return new InvokeResult<>(RESULT_SUCCESS_CODE,RESULT_SUCCESS_MESSAGE,resp);
+  }
+
+  private Integer convertStatus(Integer status) {
     return null;
+  }
+
+  private SendFlowDto assemblySendFlowParams(BoardStatisticsReq request) {
+    SendFlowDto sendFlowDto =new SendFlowDto();
+    return sendFlowDto;
   }
 
   @Override

@@ -1,6 +1,7 @@
 package com.jd.bluedragon.common.dto.comboard.response;
 
 import java.io.Serializable;
+import java.util.Date;
 
 public class SendFlowDto implements Serializable {
     private static final long serialVersionUID = 1663772914468225864L;
@@ -39,6 +40,8 @@ public class SendFlowDto implements Serializable {
      *该流向进行中的板详情
      */
     private BoardDto currentBoardDto;
+
+    private Date queryTimeBegin;
 
     public Integer getEndSiteId() {
         return endSiteId;
@@ -126,5 +129,13 @@ public class SendFlowDto implements Serializable {
 
     public void setStartSiteId(Integer startSiteId) {
         this.startSiteId = startSiteId;
+    }
+
+    public Date getQueryTimeBegin() {
+        return queryTimeBegin;
+    }
+
+    public void setQueryTimeBegin(Date queryTimeBegin) {
+        this.queryTimeBegin = queryTimeBegin;
     }
 }

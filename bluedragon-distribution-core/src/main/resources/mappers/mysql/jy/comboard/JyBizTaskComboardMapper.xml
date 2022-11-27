@@ -320,4 +320,19 @@
     and yn = 1
     and status = 1
   </update>
+  <select id="">
+    SELECT
+    <include refid="Base_Column_List" />
+    FROM
+      jy_biz_task_comboard
+    WHERE
+      start_site_id =#{startSiteId}
+      AND end_site_id =#{endSiteId}
+      AND status IN
+          <foreach item="item" index="index" collection="statusList" open="(" separator="," close=")">
+            #{item}
+          </foreach>
+      AND create_time > #{createTime}
+      AND yn = 1
+  </select>
 </mapper>
