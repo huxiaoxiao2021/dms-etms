@@ -24,6 +24,18 @@ public class CTTGroupDto implements Serializable {
      * 流向数量
      */
     private Integer sendFlowCount;
+    /**
+     * 滑道号
+     */
+    private String crossCode;
+
+    public String getCrossCode() {
+        return crossCode;
+    }
+
+    public void setCrossCode(String crossCode) {
+        this.crossCode = crossCode;
+    }
 
     public String getTemplateCode() {
         return templateCode;
@@ -64,4 +76,6 @@ public class CTTGroupDto implements Serializable {
     public void setSendFlowCount(Integer sendFlowCount) {
         this.sendFlowCount = sendFlowCount;
     }
+
+
 }

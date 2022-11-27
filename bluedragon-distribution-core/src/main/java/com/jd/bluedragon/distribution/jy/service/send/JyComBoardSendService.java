@@ -2,7 +2,6 @@ package com.jd.bluedragon.distribution.jy.service.send;
 
 
 import com.jd.bluedragon.common.dto.base.request.BaseReq;
-import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.comboard.request.*;
 import com.jd.bluedragon.common.dto.comboard.response.*;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
@@ -38,7 +37,7 @@ public interface JyComBoardSendService {
    * @return
    */
   InvokeResult<TableTrolleyResp> querySendFlowByBarCode(QuerySendFlowReq request);
-  
+
   /**
    * 变更（添加或者移除滑道笼车流向）
    */
@@ -134,7 +133,7 @@ public interface JyComBoardSendService {
    * @return
    */
   InvokeResult<ComboardDetailResp> listPackageOrBoxUnderBoard(BoardReq request);
-  
+
   /**
    * 取消组板
    */

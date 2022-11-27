@@ -1345,6 +1345,8 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
 
   private SendFlowDto assemblySendFlowParams(BoardStatisticsReq request) {
     SendFlowDto sendFlowDto =new SendFlowDto();
+    sendFlowDto.setStartSiteId(request.getCurrentOperate().getSiteCode());
+    sendFlowDto.setEndSiteId(request.getEndSiteId());
     return sendFlowDto;
   }
 
