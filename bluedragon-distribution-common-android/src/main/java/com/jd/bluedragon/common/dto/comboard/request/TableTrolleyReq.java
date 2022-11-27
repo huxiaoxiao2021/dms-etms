@@ -23,6 +23,12 @@ public class TableTrolleyReq extends BaseReq implements Serializable {
      */
     private String templateCode;
 
+
+    /**
+     * 是否需要加载流向的统计数据(拦截、组板数量等)
+     */
+    private boolean needSendFlowStatistics;
+
     public String getCrossCode() {
         return crossCode;
     }
@@ -69,5 +75,13 @@ public class TableTrolleyReq extends BaseReq implements Serializable {
 
     public void setTemplateCode(String templateCode) {
         this.templateCode = templateCode;
+    }
+
+    public boolean getNeedSendFlowStatistics() {
+        return needSendFlowStatistics;
+    }
+
+    public void setNeedSendFlowStatistics(boolean needSendFlowStatistics) {
+        this.needSendFlowStatistics = needSendFlowStatistics;
     }
 }
