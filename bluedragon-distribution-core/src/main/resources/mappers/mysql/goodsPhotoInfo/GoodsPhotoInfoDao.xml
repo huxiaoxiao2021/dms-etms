@@ -78,7 +78,6 @@
       #{siteCode,jdbcType=INTEGER},
       #{siteName,jdbcType=VARCHAR},
       #{barCode,jdbcType=VARCHAR},
-      #{operatingTime,jdbcType=TIMESTAMP},
       #{operateNode,jdbcType=INTEGER},
       #{url1,jdbcType=VARCHAR},
       #{url2,jdbcType=VARCHAR},
