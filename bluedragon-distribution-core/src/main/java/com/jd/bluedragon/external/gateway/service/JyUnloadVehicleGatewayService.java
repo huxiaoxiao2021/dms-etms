@@ -5,6 +5,7 @@ import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.transport.request.TransportTaskRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.unload.request.*;
 import com.jd.bluedragon.common.dto.operation.workbench.unload.response.*;
+import com.jd.bluedragon.common.dto.photo.GoodsPhotoInfoDto;
 import com.jd.bluedragon.common.dto.select.SelectOption;
 import com.jd.bluedragon.common.dto.select.StringSelectOption;
 
@@ -129,4 +130,6 @@ public interface JyUnloadVehicleGatewayService {
      * @return
      */
     JdVerifyResponse<Void> transportTaskHint(TransportTaskRequest request);
+
+    JdCResponse<Boolean> uploadUnloadScanPhotoAboutEasyFreeze(GoodsPhotoInfoDto dto);
 }

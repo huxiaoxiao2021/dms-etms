@@ -11,10 +11,12 @@ import com.jd.bluedragon.common.dto.operation.workbench.transport.request.Transp
 import com.jd.bluedragon.common.dto.operation.workbench.enums.UnloadScanTypeEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.unload.request.*;
 import com.jd.bluedragon.common.dto.operation.workbench.unload.response.*;
+import com.jd.bluedragon.common.dto.photo.GoodsPhotoInfoDto;
 import com.jd.bluedragon.common.dto.select.SelectOption;
 import com.jd.bluedragon.common.dto.select.StringSelectOption;
 import com.jd.bluedragon.distribution.api.response.TransWorkItemResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.goodsPhoto.service.GoodsPhoteService;
 import com.jd.bluedragon.distribution.jy.enums.JyUnloadVehicleStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.UnloadProductTypeEnum;
 import com.jd.bluedragon.distribution.jy.service.unload.IJyUnloadVehicleService;
@@ -60,6 +62,9 @@ public class JyUnloadVehicleGatewayServiceImpl implements JyUnloadVehicleGateway
 
     @Autowired
     private TransportRelatedService transportRelatedService;
+
+    @Autowired
+    private GoodsPhoteService goodsPhoteService;
 
     @Override
     public JdCResponse<UnloadNoTaskResponse> createNoTaskUnloadTask(UnloadNoTaskRequest request) {
@@ -370,5 +375,18 @@ public class JyUnloadVehicleGatewayServiceImpl implements JyUnloadVehicleGateway
             jdVerifyResponse.addPromptBox(checkResult.left, checkResult.right);
         }
         return jdVerifyResponse;
+    }
+
+    @Override
+    public JdCResponse<Boolean> uploadUnloadScanPhotoAboutEasyFreeze(GoodsPhotoInfoDto dto) {
+        JdCResponse<Boolean> response = new JdCResponse<>();
+        response.toSucceed("成功");
+        try{
+            response.setData(goodsPhoteService.insert(dto));
+        }catch (Exception e){
+            logger.error("添加货物照片异常!-{}",e.getMessage(),e);
+            response.toError("添加货物照片异常!");
+        }
+        return response;
     }
 }

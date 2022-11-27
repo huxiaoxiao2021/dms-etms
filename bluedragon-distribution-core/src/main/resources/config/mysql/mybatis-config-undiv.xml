@@ -401,6 +401,8 @@
 
         <!--移动微仓 -->
         <mapper resource="mappers/mysql/ministore/MiniStoreBindRelationMapper.xml" />
+        <!--货物照片-->
+        <mapper resource="mappers/mysql/goodsPhotoInfo/GoodsPhotoInfoDao.xml" />
 
     </mappers>
 </configuration>
