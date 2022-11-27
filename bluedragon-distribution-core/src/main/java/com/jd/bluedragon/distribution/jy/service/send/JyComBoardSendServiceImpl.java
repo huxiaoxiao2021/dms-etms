@@ -149,7 +149,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   @Autowired
   @Qualifier("redisClientOfJy")
   protected Cluster redisClientCache;
-  
+
   @Autowired
   private SortingService sortingService;
 
@@ -1245,7 +1245,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
 
     boolean hasMatchDestinationIdFlag = false;
     for (JyGroupSortCrossDetailEntity entity : groupSortCrossDetailEntityList) {
-      if (Objects.equals(entity.getEndSiteId(), request.getEndSiteId())) {
+      if (entity.getEndSiteId().intValue()== request.getEndSiteId()) {
         hasMatchDestinationIdFlag = true;
         break;
       }
