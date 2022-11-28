@@ -19,6 +19,7 @@ import com.jd.bluedragon.distribution.jy.service.comboard.JyComboardAggsService;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.dbs.util.CollectionUtils;
 import com.jd.jim.cli.Cluster;
+import com.jd.jmq.common.message.Message;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -77,8 +78,8 @@ public class JyComboardAggsServiceImpl implements JyComboardAggsService {
                 });
     }
     @Override
-    public boolean saveAggs(JyAggsDto jyAggsDto) {
-        JyComboardAggsDto dto = (JyComboardAggsDto) jyAggsDto;
+    public boolean saveAggs(Message message) {
+        JyComboardAggsDto dto = JsonHelper.fromJson(message.getText(), JyComboardAggsDto.class);
         try {
             saveOrUpdate(dto);
             //冗余包裹、箱号数量
@@ -134,6 +135,13 @@ public class JyComboardAggsServiceImpl implements JyComboardAggsService {
         List<JyComboardAggsEntity> jyComboardAggsEntities = jyComboardAggsDao.queryComboardAggs(conditon);
         if (CollectionUtils.isNotEmpty(jyComboardAggsEntities)){
             JyComboardAggsEntity jyComboardAggsEntity = jyComboardAggsEntities.get(0);
+            if (Objects.equals(jyComboardAggsEntity.getWaitScanCount(),dto.getWaitScanCount())&&
+                    Objects.equals(jyComboardAggsEntity.getScannedCount(),dto.getScannedCount())&&
+                    Objects.equals(jyComboardAggsEntity.getBoardCount(),dto.getBoardCount())&&
+                    Objects.equals(jyComboardAggsEntity.getInterceptCount(),dto.getInterceptCount())&&
+                    Objects.equals(jyComboardAggsEntity.getMoreScannedCount(),dto.getMoreScannedCount())){
+                return;
+            }
             jyComboardAggsEntity.setWaitScanCount(dto.getWaitScanCount());
             jyComboardAggsEntity.setScannedCount(dto.getScannedCount());
             jyComboardAggsEntity.setBoardCount(dto.getBoardCount());
@@ -180,7 +188,7 @@ public class JyComboardAggsServiceImpl implements JyComboardAggsService {
     }
 
     public JyComboardAggsEntity queryComboardAggs(String boardCode) throws Exception{
-        JyComboardAggsCondition condition = new JyComboardAggsConditionBuilder().operateSiteId(null).receiveSiteId(null).boardCode(boardCode).build();
+        JyComboardAggsCondition condition = new JyComboardAggsConditionBuilder().boardCode(boardCode).build();
         return queryComboardAggsCache(condition);
     }
 
@@ -190,7 +198,7 @@ public class JyComboardAggsServiceImpl implements JyComboardAggsService {
             return null;
         }
 
-        JyComboardAggsCondition condition = new JyComboardAggsConditionBuilder().operateSiteId(null).receiveSiteId(null).boardCodes(boardCodes).build();
+        JyComboardAggsCondition condition = new JyComboardAggsConditionBuilder().boardCodes(boardCodes).build();
         List<JyComboardAggsEntity> jyComboardAggsEntities = jyComboardAggsDao.queryComboardAggs(condition);
         return jyComboardAggsEntities;
     }
@@ -225,7 +233,16 @@ public class JyComboardAggsServiceImpl implements JyComboardAggsService {
 
     @Override
     public List<JyComboardAggsEntity> queryComboardAggs(String boardCode, UnloadProductTypeEnum... productTypeEnums) throws Exception {
-        return null;
+        if (productTypeEnums == null || productTypeEnums.length == 0) {
+            return null;
+        }
+        List<String> productTypes = Lists.newArrayList();
+        for (UnloadProductTypeEnum productTypeEnum : productTypeEnums) {
+            productTypes.add(productTypeEnum.getCode());
+        }
+        JyComboardAggsCondition condition = new JyComboardAggsConditionBuilder().boardCode(boardCode).productTypes(productTypes).build();
+        List<JyComboardAggsEntity> jyComboardAggsEntities = jyComboardAggsDao.queryComboardAggs(condition);
+        return jyComboardAggsEntities;
     }
 
 }
