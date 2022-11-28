@@ -7,8 +7,8 @@ import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.popReveice.domain.PopReceive;
 import com.jd.bluedragon.distribution.popReveice.domain.PopReceiveDto;
 import com.jd.bluedragon.distribution.popReveice.service.PopReceiveService;
+import com.jd.bluedragon.distribution.web.ErpUserClient;
 import com.jd.bluedragon.utils.DateHelper;
-import com.jd.common.web.LoginContext;
 import com.jd.ql.basic.domain.BaseOrg;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.uim.annotation.Authorization;
@@ -107,13 +107,12 @@ public class PopReceiveController {
 	}
 	
 	private void select(Model model, PopReceiveDto query) {
-		LoginContext loginContext = LoginContext.getLoginContext();
-		Long userId = loginContext.getUserId();
+		Integer userId = ErpUserClient.getCurrUser().getUserId();
 		List<BaseOrg> orgList = new ArrayList<BaseOrg>();
 		Integer defaultSiteCode = null;
 		Integer defaultOrgId = null;
 		Integer defaultSiteType = null;
-		BaseStaffSiteOrgDto baseStaffSiteOrgDto = this.baseMajorManager.getBaseStaffByStaffId(userId.intValue());
+		BaseStaffSiteOrgDto baseStaffSiteOrgDto = this.baseMajorManager.getBaseStaffByStaffId(userId);
 		if (baseStaffSiteOrgDto != null) {
 			defaultSiteCode = baseStaffSiteOrgDto.getSiteCode();
 			defaultOrgId = baseStaffSiteOrgDto.getOrgId();
