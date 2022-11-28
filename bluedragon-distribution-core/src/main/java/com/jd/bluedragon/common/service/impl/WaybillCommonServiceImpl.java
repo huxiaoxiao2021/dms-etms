@@ -907,7 +907,11 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
         }
         //添加抖音标识
         if(Constants.SOURCE_CODE_DOUYIN.equals(waybill.getSourceCode())) {
-        	
+            if(StringHelper.isNotEmpty(transportMode)){
+            	target.setTransportMode(StringHelper.append(TextConstants.PRODUCT_FLAG_DOUYIN_PRE, transportMode));
+            }else {
+            	target.setTransportMode(TextConstants.PRODUCT_FLAG_DOUYIN);
+            }
         }
 
         /**
