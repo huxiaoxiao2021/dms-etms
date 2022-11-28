@@ -20,10 +20,10 @@ public interface JyComboardService {
 
     /**
      * 根据板号获取运单号
-     * @param boardCode
+     * @param entity
      * @return
      */
-    String queryWayBillCodeByBoardCode(String boardCode);
+    String queryWayBillCodeByBoardCode(JyComboardEntity entity);
     int save(JyComboardEntity entity);
 
     JyComboardEntity queryIfScaned(JyComboardEntity condition);

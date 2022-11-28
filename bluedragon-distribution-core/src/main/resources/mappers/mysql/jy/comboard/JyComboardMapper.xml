@@ -270,14 +270,19 @@
     where start_site_id = #{startSiteId,jdbcType=BIGINT}
       and yn = 1
   </select>
-  <select id="queryWayBillCodeByBoardCode" parameterType="java.lang.String" resultType="java.lang.String">
+  <select id="queryWayBillCodeByBoardCode" 
+          parameterType="com.jd.bluedragon.distribution.jy.comboard.JyComboardEntity"
+          resultType="java.lang.String">
     select bar_code
-    from jy_comboard where board_code = #{boardCode} limit 1
+    from jy_comboard
+    where board_code = #{boardCode,jdbcType=VARCHAR}
+      and start_site_id = #{startSiteId,jdbcType=BIGINT} 
+      limit 1
   </select>
   <update id="batchUpdateCancelFlag"
           parameterType="com.jd.bluedragon.distribution.jy.dto.comboard.BatchUpdateCancelReq">
     update jy_comboard
-    set cancel_flag = 1,
+    set cancel_flag = #{cancelFlag,jdbcType=BIT},
     <if test="updateUserErp != null and updateUserErp != ''">
       update_user_erp = #{updateUserErp,jdbcType=VARCHAR},
     </if>
@@ -286,13 +291,14 @@
     </if>
     update_time = now()
     where board_code = #{boardCode,jdbcType=VARCHAR}
+    and start_site_id = #{startSiteId,jdbcType=BIGINT}
     and bar_code in
     <foreach item="item" index="index" collection="barCodeList"
              open="(" separator="," close=")">
       #{item}
     </foreach>
     and yn = 1
-    </update>
+  </update>
   <select id="queryByBarCode" resultMap="BaseResultMap">
     select <include refid="Base_Column_List" />
     from jy_comboard

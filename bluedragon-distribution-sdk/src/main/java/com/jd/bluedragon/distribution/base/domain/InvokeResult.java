@@ -161,13 +161,20 @@ public class InvokeResult<T> implements Serializable {
     public static final String PACKAGE_OR_BOX_UNDER_BOARD_MESSAGE = "获取组板下的包裹号|运单号|箱号异常！";
 
     public static final int CANCEL_COM_BOARD_CODE = 3045;
-    public static final String CANCEL_COM_BOARD_MESSAGE = "取消组板失败！";
+    public static final String CANCEL_COM_BOARD_MESSAGE = "取消组板异常！";
 
     public static final int FINISH_BOARD_AGAIN_CODE = 3046;
     public static final String FINISH_BOARD_AGAIN_MESSAGE = "该板已完结，请刷新页面！";
 
     public static final int FINISH_BOARD_CODE = 3047;
     public static final String FINISH_BOARD_MESSAGE = "完结组板失败！";
+    
+    public static final int HAVE_CREATE_SEND_FLOW_CODE = 3048;
+    public static final String HAVE_CREATE_SEND_FLOW_MESSAGE = "该用户以创建包含该流向的混扫任务";
+
+    public static final int HAVE_IN_HAND_BOARD_CODE = 3049;
+    public static final String HAVE_IN_HAND_BOARD_MESSAGE = "当前存在扫描中的板，请勿移除！";
+
     public InvokeResult(){
         this.code=RESULT_SUCCESS_CODE;
     }
