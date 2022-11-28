@@ -15,19 +15,39 @@ public class ComboardScanReq extends BaseReq implements Serializable {
      */
     private Integer scanType;
     /**
-     * 混扫任务编号
+     * 混扫任务编号（单独从板进去的时候没有这个参数）
      */
     private String templateCode;
+
+    /**
+     * 当前页面所处流向
+     */
+    private Integer endSiteId;
+    private String endSiteName;
+
+    /**
+     * 是否支持混扫
+     */
+    private boolean supportMutilSendFlow;
+
+    /**
+     * 用户点击切换流向后
+     */
+    private boolean needSkipSendFlowCheck;
+
+    /**
+     * 单独选板进入扫描的时候要传入（这个时候可能会没有混扫任务的限定（流向从混扫任务给移除了））
+     */
+    private String boardCode;
+
+
 
 
     /**
      * 以下不是请求入参，作为参数上下文使用
      */
-    private String boardCode;
     private String sendCode;
     private String bizId;
-    private Integer endSiteId;
-    private String endSiteName;
     private boolean cancelLastSend;
     public String getBarCode() {
         return barCode;
@@ -100,4 +120,21 @@ public class ComboardScanReq extends BaseReq implements Serializable {
     public void setCancelLastSend(boolean cancelLastSend) {
         this.cancelLastSend = cancelLastSend;
     }
+
+    public boolean getSupportMutilSendFlow() {
+        return supportMutilSendFlow;
+    }
+
+    public void setSupportMutilSendFlow(boolean supportMutilSendFlow) {
+        this.supportMutilSendFlow = supportMutilSendFlow;
+    }
+
+    public boolean getNeedSkipSendFlowCheck() {
+        return needSkipSendFlowCheck;
+    }
+
+    public void setNeedSkipSendFlowCheck(boolean needSkipSendFlowCheck) {
+        this.needSkipSendFlowCheck = needSkipSendFlowCheck;
+    }
+
 }

@@ -691,6 +691,8 @@ public class UccPropertyConfiguration {
 
     private Integer jySendTaskCreateTimeBeginDay;
 
+    private Integer jyComboardTaskCreateTimeBeginDay;
+
     /**
      * 切换转运基础服务开关
      */
@@ -2208,5 +2210,13 @@ public class UccPropertyConfiguration {
 
     public void setBulkScanPackageMinCount(Integer bulkScanPackageMinCount) {
         this.bulkScanPackageMinCount = bulkScanPackageMinCount;
+    }
+
+    public Integer getJyComboardTaskCreateTimeBeginDay() {
+        return jyComboardTaskCreateTimeBeginDay;
+    }
+
+    public void setJyComboardTaskCreateTimeBeginDay(Integer jyComboardTaskCreateTimeBeginDay) {
+        this.jyComboardTaskCreateTimeBeginDay = jyComboardTaskCreateTimeBeginDay;
     }
 }

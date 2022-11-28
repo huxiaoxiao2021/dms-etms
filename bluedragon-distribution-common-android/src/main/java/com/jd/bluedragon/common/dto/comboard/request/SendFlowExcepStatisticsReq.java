@@ -10,9 +10,21 @@ public class SendFlowExcepStatisticsReq extends BaseReq implements Serializable 
      * 混扫任务编号
      */
     private String templateCode;
+    /**
+     *
+     */
+    private Integer type;
 
     public String getTemplateCode() {
         return templateCode;
+    }
+
+    public Integer getType() {
+        return type;
+    }
+
+    public void setType(Integer type) {
+        this.type = type;
     }
 
     public void setTemplateCode(String templateCode) {

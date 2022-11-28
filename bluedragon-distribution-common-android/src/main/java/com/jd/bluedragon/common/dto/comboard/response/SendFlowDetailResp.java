@@ -5,83 +5,26 @@ import java.io.Serializable;
 
 public class SendFlowDetailResp implements Serializable {
     private static final long serialVersionUID = -3031759375359452317L;
-    private Integer endSiteId;
-    private String endSiteName;
     /**
-     * 滑道编号
+     * 岗位码下扫描实操的人数
      */
-    private String crossCode;
-    /**
-     * 笼车编号
-     */
-    private String tableTrolleyCode;
+    private Integer scanUserCount;
+    private SendFlowDto sendFlowDto;
 
-    /**
-     * 该流向组板数量
-     */
-    private Integer boardCount;
-    /**
-     * 该流向待扫数量
-     */
-    private Integer waitScanCount;
-    /**
-     *该流向进行中的板详情
-     */
-    private BoardDto currentBoardDto;
-
-    public Integer getEndSiteId() {
-        return endSiteId;
+    public Integer getScanUserCount() {
+        return scanUserCount;
     }
 
-    public void setEndSiteId(Integer endSiteId) {
-        this.endSiteId = endSiteId;
+    public void setScanUserCount(Integer scanUserCount) {
+        this.scanUserCount = scanUserCount;
     }
 
-    public String getEndSiteName() {
-        return endSiteName;
+    public SendFlowDto getSendFlowDto() {
+        return sendFlowDto;
     }
 
-    public void setEndSiteName(String endSiteName) {
-        this.endSiteName = endSiteName;
+    public void setSendFlowDto(SendFlowDto sendFlowDto) {
+        this.sendFlowDto = sendFlowDto;
     }
 
-    public String getCrossCode() {
-        return crossCode;
-    }
-
-    public void setCrossCode(String crossCode) {
-        this.crossCode = crossCode;
-    }
-
-    public String getTableTrolleyCode() {
-        return tableTrolleyCode;
-    }
-
-    public void setTableTrolleyCode(String tableTrolleyCode) {
-        this.tableTrolleyCode = tableTrolleyCode;
-    }
-
-    public Integer getBoardCount() {
-        return boardCount;
-    }
-
-    public void setBoardCount(Integer boardCount) {
-        this.boardCount = boardCount;
-    }
-
-    public Integer getWaitScanCount() {
-        return waitScanCount;
-    }
-
-    public void setWaitScanCount(Integer waitScanCount) {
-        this.waitScanCount = waitScanCount;
-    }
-
-    public BoardDto getCurrentBoardDto() {
-        return currentBoardDto;
-    }
-
-    public void setCurrentBoardDto(BoardDto currentBoardDto) {
-        this.currentBoardDto = currentBoardDto;
-    }
 }
