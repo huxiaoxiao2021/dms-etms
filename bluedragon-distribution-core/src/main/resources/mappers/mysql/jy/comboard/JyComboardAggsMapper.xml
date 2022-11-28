@@ -158,7 +158,7 @@
       </if>
     </trim>
   </insert>
-  <update id="updateByPrimaryKeySelective" parameterType="com.jd.bluedragon.distribution.jy.comboard.JyComboardAggsEntity">
+  <update id="updateByPrimaryKeyAndTs" parameterType="com.jd.bluedragon.distribution.jy.comboard.JyComboardAggsEntity">
     update jy_comboard_aggs
     <set>
       <if test="operateSiteId != null">
@@ -206,11 +206,8 @@
       <if test="yn != null">
         yn = #{yn,jdbcType=BIT},
       </if>
-      <if test="ts != null">
-        ts = #{ts,jdbcType=TIMESTAMP},
-      </if>
     </set>
-    where id = #{id,jdbcType=BIGINT}
+    where id = #{id,jdbcType=BIGINT}  and ts <![CDATA[ <= ]]>  #{ts,jdbcType=TIMESTAMP}
   </update>
   <update id="updateByPrimaryKey" parameterType="com.jd.bluedragon.distribution.jy.comboard.JyComboardAggsEntity">
     update jy_comboard_aggs
@@ -232,7 +229,7 @@
       ts = #{ts,jdbcType=TIMESTAMP}
     where id = #{id,jdbcType=BIGINT}
   </update>
-  <select id="queryComboardAggs" >
+  <select id="queryComboardAggs" resultMap="BaseResultMap">
     select
     <include refid="Base_Column_List" />
     from jy_comboard_aggs

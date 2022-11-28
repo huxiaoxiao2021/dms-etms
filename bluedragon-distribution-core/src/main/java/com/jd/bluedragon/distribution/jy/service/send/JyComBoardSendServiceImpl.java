@@ -7,6 +7,7 @@ import com.jd.bluedragon.common.dto.base.request.OperatorInfo;
 import com.jd.bluedragon.common.dto.board.BizSourceEnum;
 import com.jd.bluedragon.common.dto.comboard.request.*;
 import com.jd.bluedragon.common.dto.comboard.response.*;
+import com.jd.bluedragon.common.dto.send.request.CancelSendTaskReq;
 import com.jd.bluedragon.common.lock.redis.JimDbLock;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BoardCommonManagerImpl;
@@ -35,6 +36,7 @@ import com.jd.bluedragon.distribution.jy.comboard.JyBizTaskComboardEntity;
 import com.jd.bluedragon.distribution.jy.comboard.JyComboardAggsEntity;
 import com.jd.bluedragon.distribution.jy.comboard.JyComboardEntity;
 import com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity;
+import com.jd.bluedragon.distribution.jy.dao.comboard.JyComboardDao;
 import com.jd.bluedragon.distribution.jy.dao.comboard.JyGroupSortCrossDetailDao;
 import com.jd.bluedragon.distribution.jy.dto.comboard.BatchUpdateCancelReq;
 import com.jd.bluedragon.distribution.jy.dto.comboard.JyBizTaskComboardReq;
@@ -50,6 +52,7 @@ import com.jd.bluedragon.distribution.send.domain.ConfirmMsgBox;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.domain.SendResult;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
+import com.jd.bluedragon.distribution.send.service.SendMService;
 import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
@@ -153,6 +156,9 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
 
   @Autowired
   private SortingService sortingService;
+
+  @Autowired
+  SendMService sendMService;
 
   private static final Integer BOX_TYPE = 1;
 
@@ -279,6 +285,8 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       return new InvokeResult<>(RESULT_THIRD_ERROR_CODE, PARAM_ERROR);
     }
     log.info("开始保存本场地常用的笼车集合：{}", JsonHelper.toJson(request));
+    // 校验该用户是否创建过已经包含该流向的混扫任务
+    
     CreateGroupCTTResp resp = jyGroupSortCrossDetailService.batchInsert(request);
     return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, resp);
   }
@@ -400,10 +408,20 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
 
   @Override
   public InvokeResult removeCTTFromGroup(RemoveCTTReq request) {
-    if (!checkBaseRequest(request)) {
+    if (!checkBaseRequest(request)|| CollectionUtils.isEmpty(request.getTableTrolleyDtoList())) {
       return new InvokeResult<>(RESULT_THIRD_ERROR_CODE, PARAM_ERROR);
     }
     log.info("开始更新常用滑道笼车流向集合：{}", JsonHelper.toJson(request));
+    //查询当前流向是否存在进行中的板
+    List<Integer> endSiteCodeList = new ArrayList<>();
+    for (TableTrolleyDto tableTrolleyDto : request.getTableTrolleyDtoList()) {
+      endSiteCodeList.add(tableTrolleyDto.getEndSiteId());
+    }
+    List<JyBizTaskComboardEntity> boardListBySendFlowList = jyBizTaskComboardService
+            .queryInProcessBoardListBySendFlowList(request.getCurrentOperate().getSiteCode(), endSiteCodeList);
+    if (boardListBySendFlowList == null || boardListBySendFlowList.size() < endSiteCodeList.size()) {
+      return new InvokeResult(HAVE_IN_HAND_BOARD_CODE, HAVE_IN_HAND_BOARD_MESSAGE);
+    }
     if (jyGroupSortCrossDetailService.removeCTTFromGroup(request)) {
       return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE);
     } else {
@@ -523,6 +541,9 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       List<JyComboardAggsEntity> boardScanInfoList, List<JyBizTaskComboardEntity> boardList) {
     HashMap<Long, JyComboardAggsEntity> boardFlowMap = new HashMap<>();
     HashMap<String, Long> boardMap = new HashMap<>();
+    if (CollectionUtils.isEmpty(boardList) || CollectionUtils.isEmpty(boardScanInfoList)) {
+      return boardFlowMap;
+    }
     for (JyBizTaskComboardEntity boardScanInfo : boardList) {
       boardMap.put(boardScanInfo.getBoardCode(), boardScanInfo.getEndSiteId());
     }
@@ -572,6 +593,9 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   private HashMap<Long, JyComboardAggsEntity> getSendFlowMap(
       List<JyComboardAggsEntity> jyComboardAggsEntities) {
     HashMap<Long, JyComboardAggsEntity> sendFlowMap = new HashMap<>();
+    if (CollectionUtils.isEmpty(jyComboardAggsEntities)){
+      return sendFlowMap;
+    }
     for (JyComboardAggsEntity entity : jyComboardAggsEntities) {
       sendFlowMap.put(entity.getReceiveSiteId().longValue(), entity);
     }
@@ -637,6 +661,9 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
 
   private void getGoodsCategoryList(List<GoodsCategoryDto> goodsCategoryList,
       List<JyComboardAggsEntity> productTypeList) {
+    if (CollectionUtils.isEmpty(productTypeList)){
+      return;
+    }
     for (JyComboardAggsEntity entity : productTypeList) {
       GoodsCategoryDto goodsCategoryDto = new GoodsCategoryDto();
       goodsCategoryDto.setCount(entity.getScannedCount());
@@ -1419,7 +1446,10 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     // 判断是否为运单
     if (request.isBulkFlag()) {
       // 获取运单号
-      String wayBillCode = jyComboardService.queryWayBillCodeByBoardCode(boardCode);
+      JyComboardEntity entity = new JyComboardEntity();
+      entity.setBoardCode(boardCode);
+      entity.setStartSiteId((long) request.getCurrentOperate().getSiteCode());
+      String wayBillCode = jyComboardService.queryWayBillCodeByBoardCode(entity);
       if (!StringUtils.isEmpty(wayBillCode)) {
         resp.setBulkFlag(Boolean.TRUE);
         ComboardDetailDto comboardDetailDto = new ComboardDetailDto();
@@ -1468,38 +1498,89 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     batchUpdateCancelReq.setUpdateUserName(request.getUser().getUserName());
     List<String> barCodeList = new ArrayList<>();
     batchUpdateCancelReq.setBarCodeList(barCodeList);
-    try {
-      if (request.isBulkFlag()) {
-        // 运单号
-        if (request.getCancelList().get(0) != null
-            && request.getCancelList().get(0).getBarCode() != null) {
-          String waybillCode = request.getCancelList().get(0).getBarCode();
-          removeBoardBoxDto.setWaybillCode(waybillCode);
-          // todo 事务
-          groupBoardManager.removeBardBoxByWaybillCode(removeBoardBoxDto);
-          barCodeList.add("JDV000707553583");
+    batchUpdateCancelReq.setStartSiteId((long)request.getCurrentOperate().getSiteCode());
+    if (request.isBulkFlag()) {
+      // 运单号
+      if (request.getCancelList().get(0) != null
+              && request.getCancelList().get(0).getBarCode() != null) {
+        String waybillCode = request.getCancelList().get(0).getBarCode();
+        removeBoardBoxDto.setWaybillCode(waybillCode);
+        try {
+          barCodeList.add(waybillCode);
+          batchUpdateCancelReq.setCancelFlag(Boolean.TRUE);
           jyComboardService.batchUpdateCancelFlag(batchUpdateCancelReq);
-          // todo 异步发送全程跟踪
+        } catch (Exception e) {
+          log.error("取消组板失败：{}", JsonHelper.toJson(removeBoardBoxDto), e);
+          return new InvokeResult<>(CANCEL_COM_BOARD_CODE, CANCEL_COM_BOARD_MESSAGE);
         }
-      } else {
-        // 包裹号
-        List<String> boxCodeList = new ArrayList<>();
-        removeBoardBoxDto.setBoxCodeList(boxCodeList);
-        for (ComboardDetailDto comboardDetailDto : cancelList) {
-          boxCodeList.add(comboardDetailDto.getBarCode());
-          barCodeList.add(comboardDetailDto.getBarCode());
+        try {
+          groupBoardManager.removeBardBoxByWaybillCode(removeBoardBoxDto);
+        } catch (Exception e) {
+          batchUpdateCancelReq.setCancelFlag(Boolean.FALSE);
+          jyComboardService.batchUpdateCancelFlag(batchUpdateCancelReq);
+          log.error("取消组板失败：{}", JsonHelper.toJson(removeBoardBoxDto), e);
+          return new InvokeResult<>(CANCEL_COM_BOARD_CODE, CANCEL_COM_BOARD_MESSAGE);
         }
-        groupBoardManager.batchRemoveBardBoxByBoxCodes(removeBoardBoxDto);
-        jyComboardService.batchUpdateCancelFlag(batchUpdateCancelReq);
-        // todo 发送全程跟踪
+        // todo 异步发送全程跟踪
       }
-    } catch (Exception e) {
-      log.error("取消组板失败：{}", JsonHelper.toJson(removeBoardBoxDto), e);
+    } else {
+      // 包裹号
+      List<String> boxCodeList = new ArrayList<>();
+      removeBoardBoxDto.setBoxCodeList(boxCodeList);
+      for (ComboardDetailDto comboardDetailDto : cancelList) {
+        boxCodeList.add(comboardDetailDto.getBarCode());
+        barCodeList.add(comboardDetailDto.getBarCode());
+      }
+      try {
+        batchUpdateCancelReq.setCancelFlag(Boolean.TRUE);
+        jyComboardService.batchUpdateCancelFlag(batchUpdateCancelReq);
+      } catch (Exception e) {
+        log.error("取消组板失败：{}", JsonHelper.toJson(removeBoardBoxDto), e);
+        return new InvokeResult<>(CANCEL_COM_BOARD_CODE, CANCEL_COM_BOARD_MESSAGE);
+      }
+      try {
+        groupBoardManager.batchRemoveBardBoxByBoxCodes(removeBoardBoxDto);
+      } catch (Exception e) {
+        batchUpdateCancelReq.setCancelFlag(Boolean.FALSE);
+        jyComboardService.batchUpdateCancelFlag(batchUpdateCancelReq);
+        log.error("取消组板失败：{}", JsonHelper.toJson(removeBoardBoxDto), e);
+        return new InvokeResult<>(CANCEL_COM_BOARD_CODE, CANCEL_COM_BOARD_MESSAGE);
+      }
+      // todo 发送全程跟踪
+    }
+    // 按板取消发货
+    if (!cancelSend(request)) {
+      log.info("按板取消发货异常:{}", JsonHelper.toJson(request));
       return new InvokeResult<>(CANCEL_COM_BOARD_CODE, CANCEL_COM_BOARD_MESSAGE);
     }
     return new InvokeResult<>(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE);
   }
 
+  private Boolean cancelSend(CancelBoardReq request) {
+    SendM sendM = toSendM(request);
+    //查询一下sendCode信息
+    SendM sendMDto = sendMService.selectSendByBoardCode(request.getCurrentOperate().getSiteCode(), sendM.getBoxCode(), 1);
+    if (sendMDto == null) {
+      log.info("按板取消发货没有找到按板的sendM(发货)记录:{}", JsonHelper.toJson(request));
+      return Boolean.FALSE;
+    }
+    sendM.setSendCode(sendMDto.getSendCode());
+    deliveryService.dellCancelDeliveryMessageWithServerTime(sendM,true);
+    return Boolean.TRUE;
+  }
+  private SendM toSendM(CancelBoardReq request) {
+    SendM sendM = new SendM();
+    sendM.setBoxCode(request.getBoardCode());
+    sendM.setCreateSiteCode(request.getCurrentOperate().getSiteCode());
+    sendM.setUpdaterUser(request.getUser().getUserName());
+    sendM.setSendType(10);
+    sendM.setUpdateUserCode(request.getUser().getUserCode());
+    Date now = new Date();
+    sendM.setOperateTime(now);
+    sendM.setUpdateTime(now);
+    sendM.setYn(0);
+    return sendM;
+  }
   @Override
   public InvokeResult<QueryBelongBoardResp> queryBelongBoardByBarCode(QueryBelongBoardReq request) {
     if (!checkBaseRequest(request) || StringUtils.isEmpty(request.getBarCode())) {

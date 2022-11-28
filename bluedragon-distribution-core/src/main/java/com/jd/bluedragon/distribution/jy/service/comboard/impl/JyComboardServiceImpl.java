@@ -43,7 +43,7 @@ public class JyComboardServiceImpl implements JyComboardService {
     }
 
     @Override
-    public String queryWayBillCodeByBoardCode(String boardCode) {
-        return jyComboardDao.queryWayBillCodeByBoardCode(boardCode);
+    public String queryWayBillCodeByBoardCode(JyComboardEntity entity) {
+        return jyComboardDao.queryWayBillCodeByBoardCode(entity);
     }
 }

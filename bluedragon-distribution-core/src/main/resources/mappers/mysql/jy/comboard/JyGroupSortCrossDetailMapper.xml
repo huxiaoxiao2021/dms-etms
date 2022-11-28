@@ -26,6 +26,7 @@
     <result column="template_name" jdbcType="VARCHAR" property="templateName" />
     <result column="create_user_erp" jdbcType="VARCHAR" property="createUserErp" />
     <result column="create_user_name" jdbcType="VARCHAR" property="createUserName" />
+    <result column="cross_code" jdbcType="VARCHAR" property="crossCode"/>
     <result column="create_user_erp" jdbcType="VARCHAR" property="createUserErp" />
     <result column="send_flow_count" jdbcType="BIGINT" property="sendFlowCount" />
   </resultMap>
@@ -267,7 +268,7 @@
   </insert>
   <select id="queryCTTGroupData" parameterType="com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity"
           resultMap="cttGroupDtoMap">
-    select template_code, template_name, create_user_name, create_user_erp, count(1) as send_flow_count
+    select template_code, template_name, create_user_name, create_user_erp, cross_code, count(1) as send_flow_count
     from jy_group_sort_cross_detail
     where yn = 1
     and start_site_id = #{startSiteId,jdbcType=BIGINT}

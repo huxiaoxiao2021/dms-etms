@@ -28,6 +28,16 @@ public class BatchUpdateCancelReq {
      */
     private List<String> barCodeList;
 
+    /**
+     * 取消标识
+     */
+    private Boolean cancelFlag;
+
+    /**
+     * 场地ID
+     */
+    private Long startSiteId;
+    
     public String getUpdateUserErp() {
         return updateUserErp;
     }
@@ -58,5 +68,21 @@ public class BatchUpdateCancelReq {
 
     public void setBarCodeList(List<String> barCodeList) {
         this.barCodeList = barCodeList;
+    }
+
+    public Boolean getCancelFlag() {
+        return cancelFlag;
+    }
+
+    public void setCancelFlag(Boolean cancelFlag) {
+        this.cancelFlag = cancelFlag;
+    }
+
+    public Long getStartSiteId() {
+        return startSiteId;
+    }
+
+    public void setStartSiteId(Long startSiteId) {
+        this.startSiteId = startSiteId;
     }
 }

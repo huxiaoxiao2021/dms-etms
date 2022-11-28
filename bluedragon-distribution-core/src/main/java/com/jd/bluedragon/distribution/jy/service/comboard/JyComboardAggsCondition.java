@@ -30,18 +30,18 @@ public class JyComboardAggsCondition {
     /**
      * 扫描类型
      */
-    private String scanType;
+    private Integer scanType;
 
     private List<String> productTypes;
 
-    private List<String> scanTypes;
+    private List<Integer> scanTypes;
 
     private List<Integer> receiveSiteIds;
 
     private List<String> boardCodes;
 
 
-    public JyComboardAggsCondition(Integer operateSiteId, Integer receiveSiteId, String bizId, String boardCode, String productType, String scanType, List<String> productTypes, List<String> scanTypes, List<Integer> receiveSiteIds, List<String> boardCodes) {
+    public JyComboardAggsCondition(Integer operateSiteId, Integer receiveSiteId, String bizId, String boardCode, String productType, Integer scanType, List<String> productTypes, List<Integer> scanTypes, List<Integer> receiveSiteIds, List<String> boardCodes) {
         this.operateSiteId = operateSiteId;
         this.receiveSiteId = receiveSiteId;
         this.bizId = bizId;

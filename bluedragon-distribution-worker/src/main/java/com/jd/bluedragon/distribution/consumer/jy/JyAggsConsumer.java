@@ -25,8 +25,6 @@ import java.util.Objects;
 public class JyAggsConsumer extends MessageBaseConsumer {
     private static final Logger logger = LoggerFactory.getLogger(JyAggsConsumer.class);
 
-    @Autowired
-    private BizTypeProcessor bizTypeProcessor;
     @Override
     public void consume(Message message) throws Exception {
         if (StringHelper.isEmpty(message.getText())) {
@@ -46,7 +44,7 @@ public class JyAggsConsumer extends MessageBaseConsumer {
             //执行逻辑
         }
         JyAggsService jyAggsService = this.getJyAggsService(jyAggsDto.getJyAggsTypeEnum());
-        jyAggsService.saveAggs(jyAggsDto);
+        jyAggsService.saveAggs(message);
     }
 
     private JyAggsService getJyAggsService(JyAggsTypeEnum jyAggsTypeEnum){

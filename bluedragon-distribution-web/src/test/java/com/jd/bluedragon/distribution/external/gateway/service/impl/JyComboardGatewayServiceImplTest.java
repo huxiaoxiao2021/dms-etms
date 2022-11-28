@@ -302,14 +302,14 @@ public class JyComboardGatewayServiceImplTest {
     public void listSendFlowUnderCTTGroupTest() {
         SendFlowDataReq resp = new SendFlowDataReq();
         CurrentOperate operate = new CurrentOperate();
-        resp.setGroupCode("group111");
+        resp.setGroupCode("G00000047004");
         operate.setSiteCode(910);
-        resp.setTemplateCode("CTT22111700000002");
+        resp.setTemplateCode("CTT22112800000002");
         operate.setSiteName("北京马驹桥分拣中心");
         resp.setCurrentOperate(operate);
         User user = new User();
         user.setUserName("李文吉");
-        user.setUserErp("liwenji3");
+        user.setUserErp("wuyoude");
         resp.setUser(user);
         JdCResponse<SendFlowDataResp> response = jyComboardGatewayService.listSendFlowUnderCTTGroup(resp);
         System.out.println(JsonHelper.toJson(response));

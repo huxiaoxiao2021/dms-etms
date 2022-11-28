@@ -33,7 +33,7 @@ public class JyComboardAggsDto extends JyAggsDto{
     /**
      * 扫描类型
      */
-    private String scanType;
+    private Integer scanType;
     /**
      * 已扫
      */
