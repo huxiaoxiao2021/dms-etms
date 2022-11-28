@@ -96,7 +96,7 @@ public class JyComboardGatewayServiceImpl implements JyComboardGatewayService {
   @Override
   public JdCResponse<BoardStatisticsResp> queryBoardStatisticsUnderSendFlow(
       BoardStatisticsReq request) {
-    return null;
+    return retJdCResponse(jyComBoardSendService.queryBoardStatisticsUnderSendFlow(request));
   }
 
   @Override
@@ -107,18 +107,18 @@ public class JyComboardGatewayServiceImpl implements JyComboardGatewayService {
   @Override
   public JdCResponse<HaveScanStatisticsResp> queryHaveScanStatisticsUnderBoard(
       HaveScanStatisticsReq request) {
-    return null;
+    return retJdCResponse(jyComBoardSendService.queryHaveScanStatisticsUnderBoard(request));
   }
 
   @Override
   public JdCResponse<PackageDetailResp> listPackageDetailUnderBox(BoxQueryReq request) {
-    return null;
+    return retJdCResponse(jyComBoardSendService.listPackageDetailRespUnderBox(request));
   }
 
   @Override
   public JdCResponse<WaitScanStatisticsResp> queryWaitScanStatisticsUnderSendFlow(
       WaitScanStatisticsReq request) {
-    return null;
+    return retJdCResponse(jyComBoardSendService.queryWaitScanStatisticsUnderSendFlow(request));
   }
 
   @Override
@@ -130,13 +130,13 @@ public class JyComboardGatewayServiceImpl implements JyComboardGatewayService {
   @Override
   public JdCResponse<BoardExcepStatisticsResp> queryExcepScanStatisticsUnderBoard(
       BoardExcepStatisticsReq request) {
-    return null;
+    return retJdCResponse(jyComBoardSendService.queryExcepScanStatisticsUnderBoard(request));
   }
 
   @Override
   public JdCResponse<SendFlowExcepStatisticsResp> queryExcepScanStatisticsUnderCTTGroup(
       SendFlowExcepStatisticsReq request) {
-    return null;
+    return retJdCResponse(jyComBoardSendService.queryExcepScanStatisticsUnderCTTGroup(request));
   }
 
   @Override

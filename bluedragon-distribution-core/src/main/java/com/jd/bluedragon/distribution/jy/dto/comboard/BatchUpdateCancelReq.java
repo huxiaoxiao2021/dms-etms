@@ -1,15 +1,13 @@
 package com.jd.bluedragon.distribution.jy.dto.comboard;
 
-import lombok.Data;
-
 import java.util.List;
 
 /**
  * @author liwenji
- * @date 2022-11-23 11:56
+ * @date 2022-11-26 12:32
  */
-public class JyBizTaskComboardReq {
-    
+public class BatchUpdateCancelReq {
+
     /**
      * 更新人姓名
      */
@@ -21,20 +19,15 @@ public class JyBizTaskComboardReq {
     private String updateUserName;
 
     /**
-     * 始发站点
-     */
-    private Integer startSiteId;
-
-    /**
-     * 目的地站点
-     */
-    private List<Integer> endSiteCodeList;
-
-    /**
      * 板号
      */
     private String boardCode;
-    
+
+    /**
+     * 运单号|包裹号|箱号集合
+     */
+    private List<String> barCodeList;
+
     public String getUpdateUserErp() {
         return updateUserErp;
     }
@@ -51,27 +44,19 @@ public class JyBizTaskComboardReq {
         this.updateUserName = updateUserName;
     }
 
-    public Integer getStartSiteId() {
-        return startSiteId;
-    }
-
-    public void setStartSiteId(Integer startSiteId) {
-        this.startSiteId = startSiteId;
-    }
-
-    public List<Integer> getEndSiteCodeList() {
-        return endSiteCodeList;
-    }
-
-    public void setEndSiteCodeList(List<Integer> endSiteCodeList) {
-        this.endSiteCodeList = endSiteCodeList;
-    }
-
     public String getBoardCode() {
         return boardCode;
     }
 
     public void setBoardCode(String boardCode) {
         this.boardCode = boardCode;
+    }
+
+    public List<String> getBarCodeList() {
+        return barCodeList;
+    }
+
+    public void setBarCodeList(List<String> barCodeList) {
+        this.barCodeList = barCodeList;
     }
 }

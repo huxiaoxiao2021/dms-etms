@@ -6,7 +6,9 @@ import com.jd.bluedragon.distribution.jy.comboard.JyBizTaskComboardEntity;
 import com.jd.bluedragon.distribution.jy.dao.comboard.JyBizTaskComboardDao;
 import com.jd.bluedragon.distribution.jy.dto.comboard.JyBizTaskComboardReq;
 import com.jd.bluedragon.distribution.jy.enums.ComboardStatusEnum;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.ObjectHelper;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,15 +74,25 @@ public class JyBizTaskComboardServiceImpl implements JyBizTaskComboardService {
   }
 
   @Override
-  public Boolean finishBoard(String boardCode) {
-    return jyBizTaskComboardDao.finishBoard(boardCode) > 0;
+  public Boolean finishBoard(JyBizTaskComboardReq jyBizTaskComboardReq) {
+    return jyBizTaskComboardDao.finishBoard(jyBizTaskComboardReq) > 0;
   }
 
   @Override
-  public Boolean batchFinishBoardBySendFLowList(Integer startSiteId, List<Integer> endSiteCodeList) {
-    JyBizTaskComboardReq req = new JyBizTaskComboardReq();
-    req.setStartSiteId(startSiteId);
-    req.setEndSiteCodeList(endSiteCodeList);
-    return jyBizTaskComboardDao.batchFinishBoardBySendFLowList(req) > 0;
+  public Boolean batchFinishBoardBySendFLowList(JyBizTaskComboardReq jyBizTaskComboardReq) {
+    return jyBizTaskComboardDao.batchFinishBoardBySendFLowList(jyBizTaskComboardReq) > 0;
+  }
+
+  @Override
+  public List<JyBizTaskComboardEntity> listBoardTaskBySendFlow(SendFlowDto sendFlowDto) {
+    JyBizTaskComboardEntity condition = new JyBizTaskComboardEntity();
+    condition.setStartSiteId(Long.valueOf(sendFlowDto.getStartSiteId()));
+    condition.setEndSiteId(Long.valueOf(sendFlowDto.getEndSiteId()));
+    condition.setCreateTime(sendFlowDto.getQueryTimeBegin());
+    List<Integer> statusList = new ArrayList<>();
+    statusList.add(ComboardStatusEnum.PROCESSING.getCode());
+    statusList.add(ComboardStatusEnum.FINISHED.getCode());
+    statusList.add(ComboardStatusEnum.CANCEL_SEAL.getCode());
+    return jyBizTaskComboardDao.listBoardTaskBySendFlow(condition);
   }
 }

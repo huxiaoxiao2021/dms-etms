@@ -5,6 +5,7 @@ import java.util.List;
 
 public class PackageDetailResp implements Serializable {
     private static final long serialVersionUID = -9151315421097125474L;
+    private String boxCode;
     private List<PackageScanDto> packageCodeList;
     private Integer totalPage;
 
@@ -22,5 +23,13 @@ public class PackageDetailResp implements Serializable {
 
     public void setTotalPage(Integer totalPage) {
         this.totalPage = totalPage;
+    }
+
+    public String getBoxCode() {
+        return boxCode;
+    }
+
+    public void setBoxCode(String boxCode) {
+        this.boxCode = boxCode;
     }
 }

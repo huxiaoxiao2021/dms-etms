@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.jy.comboard;
 
 import java.util.Date;
+import java.util.List;
 
 public class JyBizTaskComboardEntity {
 
@@ -42,6 +43,8 @@ public class JyBizTaskComboardEntity {
     private Boolean bulkFlag;
 
     private Integer count;
+
+    private transient List<Integer> statusList;
 
     public Long getId() {
         return id;
@@ -193,5 +196,13 @@ public class JyBizTaskComboardEntity {
 
     public void setCount(Integer count) {
         this.count = count;
+    }
+
+    public List<Integer> getStatusList() {
+        return statusList;
+    }
+
+    public void setStatusList(List<Integer> statusList) {
+        this.statusList = statusList;
     }
 }

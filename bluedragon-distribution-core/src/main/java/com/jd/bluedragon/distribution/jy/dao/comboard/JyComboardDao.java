@@ -2,6 +2,8 @@ package com.jd.bluedragon.distribution.jy.dao.comboard;
 
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.jy.comboard.JyComboardEntity;
+import com.jd.bluedragon.distribution.jy.dto.comboard.BatchUpdateCancelReq;
+
 public class JyComboardDao extends BaseDao<JyComboardEntity> {
 
     private final static String NAMESPACE = JyComboardDao.class.getName();
@@ -31,5 +33,18 @@ public class JyComboardDao extends BaseDao<JyComboardEntity> {
 
     public String queryWayBillCodeByBoardCode(String boardCode) {
         return this.getSqlSession().selectOne(NAMESPACE + ".queryWayBillCodeByBoardCode", boardCode);
+    }
+
+    public JyComboardEntity queryByBarCode(JyComboardEntity record) {
+        return this.getSqlSession().selectOne(NAMESPACE + ".queryByBarCode", record);
+    }
+
+    /**
+     * 批量更新取消标识
+     * @param req
+     * @return
+     */
+    public int batchUpdateCancelFlag(BatchUpdateCancelReq req) {
+        return this.getSqlSession().update(NAMESPACE + ".batchUpdateCancelFlag", req);
     }
 }

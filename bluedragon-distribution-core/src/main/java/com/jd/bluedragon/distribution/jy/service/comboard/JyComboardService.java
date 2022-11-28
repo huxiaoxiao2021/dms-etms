@@ -1,6 +1,9 @@
 package com.jd.bluedragon.distribution.jy.service.comboard;
 
 import com.jd.bluedragon.distribution.jy.comboard.JyComboardEntity;
+import com.jd.bluedragon.distribution.jy.dto.comboard.BatchUpdateCancelReq;
+
+import java.util.List;
 
 /**
  * @author liwenji
@@ -22,4 +25,13 @@ public interface JyComboardService {
      */
     String queryWayBillCodeByBoardCode(String boardCode);
     int save(JyComboardEntity entity);
+
+    JyComboardEntity queryIfScaned(JyComboardEntity condition);
+
+    /**
+     * 批量更新取消标识
+     * @param req
+     * @return
+     */
+    int batchUpdateCancelFlag(BatchUpdateCancelReq req);
 }

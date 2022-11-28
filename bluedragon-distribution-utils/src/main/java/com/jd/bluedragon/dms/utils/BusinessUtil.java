@@ -1673,6 +1673,8 @@ public class BusinessUtil {
             return null;
         }
     }
+
+
     /**
      * 根据sendPay判断是否预售,第297位等于1或2
      * @param sendPay
@@ -2311,7 +2313,7 @@ public class BusinessUtil {
         message.append("</OrderTaskInfo>");
 
         return message.toString();
-    }	
+    }
     /**
      * 校验该运单是否为航空单（WaybillSign31位=1【特快送】或WaybillSign84位=3【干线运输模式为航空】或Sendpay137位=1【京航达】）
      * @param waybillSign
