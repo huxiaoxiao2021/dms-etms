@@ -483,7 +483,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     }
     return new InvokeResult<>(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, cttGroupDataResp);
   }
-
+  
   @Override
   public InvokeResult<SendFlowDataResp> listSendFlowUnderCTTGroup(SendFlowDataReq request) {
     if (!checkBaseRequest(request) || 
@@ -635,6 +635,18 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     String boardCode = request.getBoardCode();
     Integer endSiteId = request.getEndSiteId();
     try {
+      // 查询是否是运单
+      JyBizTaskComboardEntity queryBoard = new JyBizTaskComboardEntity();
+      queryBoard.setStartSiteId(Long.valueOf(startSIteId));
+      queryBoard.setBoardCode(boardCode);
+      queryBoard.setStatus(1);
+      JyBizTaskComboardEntity boardTaskInfo = jyBizTaskComboardService
+              .queryBizTaskByBoardCode(queryBoard);
+      if (boardTaskInfo == null ) {
+        log.info("未获取到该板号的任务{}", JsonHelper.toJson(request));
+        return new InvokeResult<>(BOARD_INFO_CODE, BOARD_INFO_MESSAGE);
+      }
+      resp.setBulkFlag(boardTaskInfo.getBulkFlag());
       // 获取组板包裹号箱号信息
       JyComboardAggsEntity boardInfo = jyComboardAggsService.queryComboardAggs(boardCode);
       resp.setPackageHaveScanCount(boardInfo.getPackageScannedCount());

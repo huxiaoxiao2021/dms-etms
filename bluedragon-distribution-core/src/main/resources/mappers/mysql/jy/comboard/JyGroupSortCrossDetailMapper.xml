@@ -266,7 +266,7 @@
       #{item.createUserName,jdbcType=VARCHAR}, #{item.createTime,jdbcType=TIMESTAMP})
     </foreach>
   </insert>
-  <select id="queryCTTGroupData" parameterType="com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity"
+  <select id="queryCommonCTTGroupData" parameterType="com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity"
           resultMap="cttGroupDtoMap">
     select template_code, template_name, create_user_name, create_user_erp, cross_code, count(1) as send_flow_count
     from jy_group_sort_cross_detail
