@@ -30,12 +30,7 @@ public class GoodsPhotoServiceImpl implements GoodsPhoteService {
         po.setSiteName(dto.getCurrentOperate().getSiteName());
         po.setBarCode(dto.getBarCode());
         po.setOperateNode(1);
-        po.setUrl1(dto.getUrl1());
-        po.setUrl2(dto.getUrl2());
-        po.setUrl3(dto.getUrl3());
-        po.setUrl4(dto.getUrl4());
-        po.setUrl5(dto.getUrl5());
-        po.setUrl6(dto.getUrl6());
+
         po.setCreateUser(dto.getUser().getUserName());
         po.setCreateTime(new Date());
         goodsPhotoDao.insert(po);
