@@ -11,11 +11,25 @@ public class SendFlowDataReq extends BaseReq implements Serializable {
      */
     private String templateCode;
 
+    /**
+     * 目的id
+     */
+    private Integer endSiteId;
+
+
     public String getTemplateCode() {
         return templateCode;
     }
 
     public void setTemplateCode(String templateCode) {
         this.templateCode = templateCode;
+    }
+
+    public Integer getEndSiteId() {
+        return endSiteId;
+    }
+
+    public void setEndSiteId(Integer endSiteId) {
+        this.endSiteId = endSiteId;
     }
 }
