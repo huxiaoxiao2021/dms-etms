@@ -178,7 +178,7 @@ public class JyComboardAggsServiceImpl implements JyComboardAggsService {
 
     @Override
     public List<JyComboardAggsEntity> queryComboardAggs(Integer operateSiteId, List<Integer> receiveSiteIds) throws Exception {
-        if (CollectionUtils.isNotEmpty(receiveSiteIds)) {
+        if (CollectionUtils.isEmpty(receiveSiteIds)) {
             return null;
         }
 
@@ -194,7 +194,7 @@ public class JyComboardAggsServiceImpl implements JyComboardAggsService {
 
     @Override
     public List<JyComboardAggsEntity> queryComboardAggs(List<String> boardCodes) throws Exception {
-        if (CollectionUtils.isNotEmpty(boardCodes)) {
+        if (CollectionUtils.isEmpty(boardCodes)) {
             return null;
         }
 
