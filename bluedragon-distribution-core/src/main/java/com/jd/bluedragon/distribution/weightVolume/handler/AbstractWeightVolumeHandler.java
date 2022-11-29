@@ -423,10 +423,12 @@ public abstract class AbstractWeightVolumeHandler implements IWeightVolumeHandle
                 confirmMessage.append(WeightVolumeRuleConstant.RESULT_SPECIAL_MESSAGE_CONFIRM_C_6);
             }
             // 弱卡控：体积（cm³）除以重量（kg）大于20000小于500
-            if (volume > WeightVolumeRuleConstant.FOAM_WEIGHT_RATIO_C_1 * weight
-                    || volume < WeightVolumeRuleConstant.FOAM_WEIGHT_RATIO_C_2 * weight) {
-                result.confirmMessage(WeightVolumeRuleConstant.RESULT_SPECIAL_MESSAGE_CONFIRM_C_6);
-                result.setData(Boolean.FALSE);
+            if (Boolean.TRUE.equals(weightVolumeContext.getCheckVolume())) {
+                if (volume > WeightVolumeRuleConstant.FOAM_WEIGHT_RATIO_C_1 * weight
+                        || volume < WeightVolumeRuleConstant.FOAM_WEIGHT_RATIO_C_2 * weight) {
+                    result.confirmMessage(WeightVolumeRuleConstant.RESULT_SPECIAL_MESSAGE_CONFIRM_C_6);
+                    result.setData(Boolean.FALSE);
+                }
             }
         }
 
@@ -471,9 +473,11 @@ public abstract class AbstractWeightVolumeHandler implements IWeightVolumeHandle
         StringBuilder confirmMessage = new StringBuilder();
 
         //弱卡控：1. 重泡比校验： 重体录入不合规提醒：录入的体积（m³）除以重量（kg）大于0.2或者小于0.0005时，此处有体积单位换算
-        if (volume > WeightVolumeRuleConstant.FOAM_WEIGHT_RATIO_B_1 * weight || volume < WeightVolumeRuleConstant.FOAM_WEIGHT_RATIO_B_2 * weight) {
-            setNextRowChar(confirmMessage);
-            confirmMessage.append(WeightVolumeRuleConstant.RESULT_SPECIAL_MESSAGE_CONFIRM_B_5);
+        if (Boolean.TRUE.equals(weightVolumeContext.getCheckVolume())) {
+            if (volume > WeightVolumeRuleConstant.FOAM_WEIGHT_RATIO_B_1 * weight || volume < WeightVolumeRuleConstant.FOAM_WEIGHT_RATIO_B_2 * weight) {
+                setNextRowChar(confirmMessage);
+                confirmMessage.append(WeightVolumeRuleConstant.RESULT_SPECIAL_MESSAGE_CONFIRM_B_5);
+            }
         }
 
         // B网包裹维度的称重校验逻辑
