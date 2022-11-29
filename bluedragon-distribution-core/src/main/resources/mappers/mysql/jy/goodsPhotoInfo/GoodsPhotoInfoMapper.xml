@@ -75,6 +75,7 @@
       update_user,
       create_time,
       update_time
+          )
     values (
       #{userCode,jdbcType=INTEGER},
       #{userName,jdbcType=VARCHAR},
