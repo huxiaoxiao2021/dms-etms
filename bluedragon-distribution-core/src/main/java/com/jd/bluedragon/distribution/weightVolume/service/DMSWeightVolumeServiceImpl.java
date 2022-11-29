@@ -256,6 +256,10 @@ public class DMSWeightVolumeServiceImpl implements DMSWeightVolumeService {
                     (StringUtils.isBlank(waybillSign) && StringUtils.isBlank(customerCode))){
                 logger.info("零称重量方，需要提前加载数据,waybillCode={},packageCode={}",waybillCode,packageCode);
                 waybillNoCache = waybillCacheService.getNoCache(waybillCode);
+                if(waybillNoCache == null){
+                    logger.warn("零称重量方，未获取到运单数据,waybillCode={},packageCode={}",waybillCode,packageCode);
+                    return Boolean.FALSE;
+                }
                 if(StringUtils.isBlank(waybillSign)){
                     waybillSign = waybillNoCache.getWaybillSign();
                 }

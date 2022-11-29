@@ -6,6 +6,8 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.dms.comp.api.hint.HintApi;
 import com.jd.dms.comp.api.hint.vo.HintReq;
 import com.jd.dms.comp.api.hint.vo.HintResp;
+import com.jd.dms.comp.api.hint.vo.HintVoiceReq;
+import com.jd.dms.comp.api.hint.vo.HintVoiceResp;
 import com.jd.dms.comp.base.ApiResult;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -108,6 +110,23 @@ public class HintApiManagerImpl implements IHintApiManager {
             }
         } catch (Exception e) {
             log.error("HintApiManagerImpl.getHint exception {}", e.getMessage(), e);
+            hintResult.toFail("调用提示语系统异常");
+        }
+        return hintResult;
+    }
+
+    @Override
+    @JProfiler(jKey = "DMS.BASE.HintApiManagerImpl.getCommonHintVoiceConfig", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
+    public ApiResult<HintVoiceResp> getCommonHintVoiceConfig(HintVoiceReq req) {
+        ApiResult<HintVoiceResp> hintResult = new ApiResult<>();
+        try {
+            req.setSystemCode(dmsSystemCode);
+            hintResult = hintApi.getCommonHintVoiceConfig(req);
+            if(!hintResult.checkSuccess()){
+                log.error("HintApiManagerImpl.getCommonHintVoiceConfig fail {}", JsonHelper.toJson(hintResult));
+            }
+        } catch (Exception e) {
+            log.error("HintApiManagerImpl.getCommonHintVoiceConfig exception {}", e.getMessage(), e);
             hintResult.toFail("调用提示语系统异常");
         }
         return hintResult;

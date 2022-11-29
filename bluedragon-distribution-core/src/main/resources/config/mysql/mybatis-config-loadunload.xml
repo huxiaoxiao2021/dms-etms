@@ -30,6 +30,7 @@
         <typeAlias type="com.jd.bluedragon.distribution.loadAndUnload.UnloadCarTransBoard" alias="unloadCarTransBoard"/>
 
         <typeAlias type="com.jd.bluedragon.distribution.board.domain.TaskBoard" alias="taskBoard"/>
+        <typeAlias type="com.jd.bluedragon.distribution.jy.config.WaybillConfig" alias="waybillConfig"/>
     </typeAliases>
 
 
@@ -53,6 +54,9 @@
 
         <!-- 老组板和卸车任务绑定业务 -->
         <mapper resource="mappers/mysql/board/TaskBoardMapper.xml" />
+
+        <!-- 大宗扫描配置业务 -->
+        <mapper resource="mappers/mysql/loadAndUnload/WaybillConfigMapper.xml" />
 
     </mappers>
 </configuration>

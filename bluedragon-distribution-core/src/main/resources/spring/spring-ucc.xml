@@ -156,6 +156,7 @@
 		<property name="restApiOuthSwitch" value="${restApiOuthSwitch:true}"/>
 		<property name="needInterceptUrls" value="${needInterceptUrls:*}"/>
 		<property name="notSignedOutRecordMoreThanHours" value="${notSignedOutRecordMoreThanHours:-1}"/>
+		<property name="notSignedOutRecordRangeHours" value="${notSignedOutRecordRangeHours:12}"/>
 		<property name="spotCheckReformSiteCodes" value="${spotCheckReformSiteCodes:true}"/>
 		<property name="aiDistinguishSwitch" value="${aiDistinguishSwitch:true}"/>
 		<property name="deviceAIDistinguishSwitch" value="${deviceAIDistinguishSwitch:910}"/>
@@ -191,6 +192,11 @@
 		<property name="syncJySealStatusSwitch" value="${syncJySealStatusSwitch:false}"/>
 		<property name="sealStatusBatchSizeLimit" value="${sealStatusBatchSizeLimit:30}"/>
 
+		<property name="unloadCacheDurationHours" value="${unloadCacheDurationHours:24}"/>
+		<property name="unloadBoardBindingsMaxCount" value="${unloadBoardBindingsMaxCount:100}"/>
+		<property name="packageWeightLimit" value="${packageWeightLimit:'2000'}"/>
+		<property name="waybillWeightLimit" value="${waybillWeightLimit:'10000'}"/>
+		<property name="weightVolumeSwitchVersion" value="${weightVolumeSwitchVersion:0}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -327,6 +333,7 @@
 				<value>uccPropertyConfiguration.restApiOuthSwitch</value>
 				<value>uccPropertyConfiguration.needInterceptUrls</value>
 				<value>uccPropertyConfiguration.notSignedOutRecordMoreThanHours</value>
+				<value>uccPropertyConfiguration.notSignedOutRecordRangeHours</value>
 				<value>uccPropertyConfiguration.spotCheckReformSiteCodes</value>
 				<value>uccPropertyConfiguration.aiDistinguishSwitch</value>
 				<value>uccPropertyConfiguration.deviceAIDistinguishSwitch</value>
@@ -363,6 +370,11 @@
 				<value>uccPropertyConfiguration.syncJySealStatusSwitch</value>
 				<value>uccPropertyConfiguration.sealStatusBatchSizeLimit</value>
 
+				<value>uccPropertyConfiguration.unloadCacheDurationHours</value>
+				<value>uccPropertyConfiguration.unloadBoardBindingsMaxCount</value>
+				<value>uccPropertyConfiguration.packageWeightLimit</value>
+				<value>uccPropertyConfiguration.waybillWeightLimit</value>
+				<value>uccPropertyConfiguration.weightVolumeSwitchVersion</value>
 
 				<value>hystrixRouteUccPropertyConfiguration.executionTimeoutInMilliseconds</value>
                 <value>hystrixRouteUccPropertyConfiguration.circuitBreakerEnabled</value>

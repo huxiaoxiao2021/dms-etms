@@ -95,5 +95,11 @@ public interface UserSignGatewayService {
      * @param signInRequest
      * @return
      */
-	JdCResponse<UserSignRecordData> signAutoWithGroup(UserSignRequest userSignRequest);	
+	JdCResponse<UserSignRecordData> signAutoWithGroup(UserSignRequest userSignRequest);
+	/**
+	 * 作废签到记录
+	 * @param userSignRequest
+	 * @return
+	 */
+	JdCResponse<UserSignRecordData> deleteUserSignRecord(UserSignRequest userSignRequest);	
 }

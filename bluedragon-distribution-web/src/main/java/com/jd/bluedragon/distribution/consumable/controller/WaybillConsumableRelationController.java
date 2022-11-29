@@ -3,10 +3,13 @@ package com.jd.bluedragon.distribution.consumable.controller;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.base.controller.DmsBaseController;
 import com.jd.bluedragon.distribution.consumable.domain.*;
 import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRecordService;
 import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRelationService;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.etms.waybill.domain.Waybill;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.ql.dms.common.web.mvc.api.PagerResult;
@@ -48,6 +51,9 @@ public class WaybillConsumableRelationController extends DmsBaseController{
 
 	@Autowired
 	private UccPropertyConfiguration uccPropertyConfiguration;
+
+	@Autowired
+	private WaybillQueryManager waybillQueryManager;
 
 	/**
 	 * 返回主页面
@@ -97,15 +103,53 @@ public class WaybillConsumableRelationController extends DmsBaseController{
 				return rest;
 			}
 
+
 			WaybillConsumableRelation waybillConsumableRelation1 = waybillConsumableRelationService.findById(waybillConsumableRelation.getId());
-			//如果是打木架，则打包后体积必传
+
+
+			boolean canModify = waybillConsumableRecordService.canModifyNew(waybillConsumableRelation1.getWaybillCode());
+			Waybill waybill = waybillQueryManager.queryWaybillByWaybillCode(waybillConsumableRelation1.getWaybillCode());
+			boolean isWaybillConsumableOnlyConfirm = waybill != null && !BusinessUtil.isWaybillConsumableOnlyConfirm(waybill.getWaybillSign());
+			int packageNumber = waybill != null && waybill.getGoodNumber() != null? waybill.getGoodNumber() : 1;
+
+			/*
+				木箱、木架：耗材数量限制999
+				木托盘：
+					单包裹：单个耗材数量不超5个，即单个耗材上限数量=包裹数量（1个）*5=5个，防呆提醒话术：每种耗材数量不能超过5个/包裹；
+					一单多件：耗材数量不超当前包裹数量*5，即耗材上限数量=包裹数量*5，防呆提醒话术：每种耗材数量不能超过5个/包裹。
+				以上三种类型打包装后体积必填，限制为100方
+			 */
 			if ((ConsumableCodeEnums.isWoodenConsumable(waybillConsumableRelation1.getConsumableCode()) || PackingTypeEnum.isWoodenConsumable(waybillConsumableRelation1.getConsumableType()))
-					&& (waybillConsumableRelation.getConfirmVolume() == null || waybillConsumableRelation.getConfirmVolume() <= 0 || waybillConsumableRelation.getConfirmVolume() > 999.999d)) {
-				rest.toError("数据格式不对，请录入大于0小于1000的数据");
+					&& (waybillConsumableRelation.getConfirmVolume() == null || waybillConsumableRelation.getConfirmVolume() <= 0 || waybillConsumableRelation.getConfirmVolume() > 100d)) {
+				rest.toError("数据格式不对，请录入大于0小于100方的数据");
 				return rest;
 			}
-			if (!waybillConsumableRecordService.canModify(waybillConsumableRelation1.getWaybillCode())
-					&& !Objects.equals(waybillConsumableRelation1.getConfirmQuantity(),waybillConsumableRelation.getConfirmQuantity())) {
+
+			if (PackingTypeEnum.TY004.getTypeCode().equals(waybillConsumableRelation1.getConsumableType()) || ConsumableCodeEnums.MX.getCode().equals(waybillConsumableRelation1.getConsumableCode())) {
+				//木箱判断标准：耗材类型为【TY004】；耗材编码为【09092050】
+				if (waybillConsumableRelation.getConfirmQuantity() == null || waybillConsumableRelation.getConfirmQuantity() <= 0 || waybillConsumableRelation.getConfirmQuantity() > 999d) {
+					rest.toError("耗材数量不能为空且不能超过999");
+					return rest;
+				}
+			}
+			if (PackingTypeEnum.TY003.getTypeCode().equals(waybillConsumableRelation1.getConsumableType()) || ConsumableCodeEnums.MJ.getCode().equals(waybillConsumableRelation1.getConsumableCode())) {
+				//木架判断标准：耗材类型为【TY003】；耗材编码为【09092048】
+				if (waybillConsumableRelation.getConfirmQuantity() == null || waybillConsumableRelation.getConfirmQuantity() <= 0 || waybillConsumableRelation.getConfirmQuantity() > 999d) {
+					rest.toError("耗材数量不能为空且不能超过999");
+					return rest;
+				}
+
+			}
+			if (PackingTypeEnum.TY008.getTypeCode().equals(waybillConsumableRelation1.getConsumableType()) || ConsumableCodeEnums.MTP.getCode().equals(waybillConsumableRelation1.getConsumableCode())) {
+				//木托盘判断标准：耗材类型为【TY004】；耗材编码为【09092049】
+
+				if (waybillConsumableRelation.getConfirmQuantity() == null || waybillConsumableRelation.getConfirmQuantity() <= 0 || waybillConsumableRelation.getConfirmQuantity() > packageNumber * 5d) {
+					rest.toError("每种耗材数量不能超过5个/包裹");
+					return rest;
+				}
+			}
+
+			if (!(canModify && isWaybillConsumableOnlyConfirm) && !Objects.equals(waybillConsumableRelation1.getConfirmQuantity(),waybillConsumableRelation.getConfirmQuantity())) {
 				rest.toError("【已确认】或为【寄付运费运单】，不允许修改耗材使用数量！");
 				return rest;
 			}

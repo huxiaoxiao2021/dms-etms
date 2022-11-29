@@ -4,6 +4,8 @@ import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.group.GroupMemberData;
 import com.jd.bluedragon.common.dto.group.GroupMemberQueryRequest;
 import com.jd.bluedragon.common.dto.group.GroupMemberRequest;
+import com.jd.bluedragon.common.dto.group.JyGroupMemberData;
+import com.jd.bluedragon.common.dto.group.JyGroupMemberResponse;
 import com.jd.bluedragon.common.dto.station.UserSignRecordData;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
 
@@ -39,4 +41,10 @@ public interface GroupMemberGatewayService {
 	 * @return
 	 */
 	JdCResponse<GroupMemberData> queryGroupData(String groupCode);
+	/**
+	 * 按条件分页查询小组成员信息
+	 * @param query
+	 * @return
+	 */
+	JdCResponse<JyGroupMemberResponse> queryMemberListByGroup(GroupMemberQueryRequest query);
 }

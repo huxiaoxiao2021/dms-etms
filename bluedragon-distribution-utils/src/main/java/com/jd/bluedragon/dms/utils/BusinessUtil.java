@@ -353,6 +353,20 @@ public class BusinessUtil {
     }
 
     /**
+     * 称重量方B网卡控逻辑
+     * B网卡控标准（waybillsign40=1/2/3，且80位不等于6/7/8（剔除冷链），且89位不等于1/2（剔除tc），且99位不等于1（剔除京小仓））：
+     *
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isWeightVolumeB(String waybillSign) {
+        return isSignInChars(waybillSign, WaybillSignConstants.POSITION_40,WaybillSignConstants.CHAR_40_1,WaybillSignConstants.CHAR_40_2, WaybillSignConstants.CHAR_40_3)
+                && !isSignInChars(waybillSign, WaybillSignConstants.POSITION_80,WaybillSignConstants.CHAR_80_6,WaybillSignConstants.CHAR_80_7,WaybillSignConstants.CHAR_80_8)
+                && !isSignInChars(waybillSign, WaybillSignConstants.POSITION_89,WaybillSignConstants.CHAR_89_1,WaybillSignConstants.CHAR_89_2)
+                && !isSignInChars(waybillSign, WaybillSignConstants.POSITION_99,WaybillSignConstants.CHAR_99_1);
+    }
+
+    /**
      * 判断字符串指定的位置是否在指定的字符范围之内
      *
      * @param signStr  目标字符串
@@ -2499,4 +2513,16 @@ public class BusinessUtil {
         }
         return WORKITEM_SIMPLECODE_REGEX.matcher(simpleCode).matches() ;
     }
+    /**
+     * 通过运单标识 判断是否需求称重
+     * <p>
+     * 66 位 是0  标识可以称重
+     *
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isAllowWeight(String waybillSign) {
+        return isSignChar(waybillSign, WaybillSignConstants.POSITION_66, WaybillSignConstants.CHAR_66_0);
+    }
+
 }

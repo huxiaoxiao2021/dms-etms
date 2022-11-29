@@ -133,7 +133,10 @@ public class UnloadCar extends DbEntity {
      * 任务完成状态：0-正常完成，1-超时完成
      */
     private Integer endStatus;
-
+    /**
+     * AppVersionEnums
+     */
+    private String version;
 
     public Date getEndTime() {
         return endTime;
@@ -373,5 +376,13 @@ public class UnloadCar extends DbEntity {
 
     public void setEndStatus(Integer endStatus) {
         this.endStatus = endStatus;
+    }
+
+    public String getVersion() {
+        return version;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
     }
 }
