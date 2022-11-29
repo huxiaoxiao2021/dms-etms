@@ -47,7 +47,7 @@ public class JySendVehicleTysJsfServiceImpl implements JySendVehicleTysJsfServic
         InvokeResult<List<JySendVehicleProductType>> invokeResult = new InvokeResult<>();
         SendVehicleCommonRequest req = new SendVehicleCommonRequest();
         BeanUtils.copyProperties(request, req);
-        log.info("拣运发车岗获取待扫产品类型 入参-{}", JSON.toJSONString(req));
+        log.info("tys拣运发车岗获取待扫产品类型 入参-{}", JSON.toJSONString(req));
         try {
             InvokeResult<List<SendVehicleProductTypeAgg>> result = jySendVehicleService.sendVehicleToScanAggByProduct(req);
             invokeResult.setMessage(result.getMessage());
@@ -60,9 +60,10 @@ public class JySendVehicleTysJsfServiceImpl implements JySendVehicleTysJsfServic
                     productTypeList.add(type);
                 }
             }
-            log.info("拣运发车岗获取待扫产品类型 结果-{}", JSON.toJSONString(productTypeList));
+            log.info("tys拣运发车岗获取待扫产品类型 结果-{}", JSON.toJSONString(productTypeList));
+            invokeResult.setData(productTypeList);
         } catch (Exception e) {
-            log.error("拣运发车岗获取待扫产品类型异常！-{}", e.getMessage(), e);
+            log.error("tys拣运发车岗获取待扫产品类型异常！-{}", e.getMessage(), e);
             invokeResult.error("拣运发车岗获取待扫产品类型异常！");
         }
         return invokeResult;
