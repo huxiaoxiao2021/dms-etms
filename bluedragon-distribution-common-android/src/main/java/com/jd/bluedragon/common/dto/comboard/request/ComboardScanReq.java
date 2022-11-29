@@ -40,15 +40,16 @@ public class ComboardScanReq extends BaseReq implements Serializable {
      */
     private String boardCode;
 
-
-
-
     /**
      * 以下不是请求入参，作为参数上下文使用
      */
     private String sendCode;
     private String bizId;
     private boolean cancelLastSend;
+    /**
+     * 包裹、箱号的目的地
+     */
+    private Integer destinationId;
     public String getBarCode() {
         return barCode;
     }
@@ -137,4 +138,11 @@ public class ComboardScanReq extends BaseReq implements Serializable {
         this.needSkipSendFlowCheck = needSkipSendFlowCheck;
     }
 
+    public Integer getDestinationId() {
+        return destinationId;
+    }
+
+    public void setDestinationId(Integer destinationId) {
+        this.destinationId = destinationId;
+    }
 }

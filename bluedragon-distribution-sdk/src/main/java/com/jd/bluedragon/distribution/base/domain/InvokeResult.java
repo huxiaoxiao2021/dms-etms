@@ -144,7 +144,7 @@ public class InvokeResult<T> implements Serializable {
 
     public static final int UPDATE_CTT_GROUP_LIST_CODE = 3039;
     public static final String UPDATE_CTT_GROUP_LIST_MESSAGE= "更新流向异常！";
-    
+
     public static final int SEND_FLOW_UNDER_CTTGROUP_CODE = 3040;
     public static final String SEND_FLOW_UNDER_CTTGROUP_MESSAGE= "获取混扫任务下流向信息异常!";
 
@@ -168,12 +168,25 @@ public class InvokeResult<T> implements Serializable {
 
     public static final int FINISH_BOARD_CODE = 3047;
     public static final String FINISH_BOARD_MESSAGE = "完结组板失败！";
-    
+
     public static final int HAVE_CREATE_SEND_FLOW_CODE = 3048;
     public static final String HAVE_CREATE_SEND_FLOW_MESSAGE = "该用户以创建包含该流向的混扫任务";
 
     public static final int HAVE_IN_HAND_BOARD_CODE = 3049;
     public static final String HAVE_IN_HAND_BOARD_MESSAGE = "当前存在扫描中的板，请勿移除！";
+
+
+    public static final int NOT_BELONG_THIS_HUNSAO_TASK_CODE = 3050;
+    public static final String NOT_BELONG_THIS_HUNSAO_TASK_MESSAGE = "非本混扫任务流向货物！";
+
+    public static final int NOT_BELONG_THIS_SENDFLOW_CODE = 3051;
+    public static final String NOT_BELONG_THIS_SENDFLOW_MESSAGE = "非本流向货物！";
+
+    public static final int NOT_CONSISTENT_WHIT_LAST_SENDFLOW_CODE = 3052;
+    public static final String NOT_CONSISTENT_WHIT_LAST_SENDFLOW_MESSAGE = "与上单流向不一致！";
+
+    public static final int BOARD_HAS_BEEN_FULL_CODE = 3053;
+    public static final String BOARD_HAS_BEEN_FULL_MESSAGE = "已达上限，需要换新板！";
 
     public InvokeResult(){
         this.code=RESULT_SUCCESS_CODE;

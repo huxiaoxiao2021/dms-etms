@@ -8,6 +8,8 @@ package com.jd.bluedragon.distribution.jy.exception;
  * @Description: 拣运自定义业务异常
  */
 public class JyBizException extends RuntimeException{
+
+    private Integer code;
     /**
      * Constructs a new runtime exception with {@code null} as its
      * detail message.  The cause is not initialized, and may subsequently be
@@ -28,6 +30,10 @@ public class JyBizException extends RuntimeException{
         super(message);
     }
 
+    public JyBizException(int code,String message) {
+        super(message);
+        this.code =code;
+    }
     /**
      * Constructs a new runtime exception with the specified detail message and
      * cause.  <p>Note that the detail message associated with
@@ -79,5 +85,13 @@ public class JyBizException extends RuntimeException{
      */
     public JyBizException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
+    }
+
+    public int getCode() {
+        return code;
+    }
+
+    public void setCode(int code) {
+        this.code = code;
     }
 }

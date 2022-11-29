@@ -1,12 +1,15 @@
 package com.jd.bluedragon.distribution.delivery;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.dto.comboard.request.ComboardScanReq;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
 import com.jd.bluedragon.distribution.delivery.constants.SendKeyTypeEnum;
 import com.jd.bluedragon.distribution.delivery.entity.SendMWrapper;
 import com.jd.bluedragon.distribution.delivery.processor.IDeliveryBaseHandler;
+import com.jd.bluedragon.distribution.jy.dto.comboard.ComboardTaskDto;
 import com.jd.bluedragon.distribution.jy.dto.send.VehicleSendRelationDto;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
@@ -20,6 +23,7 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.Md5Helper;
 import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.coo.sa.mybatis.plugins.id.SequenceGenAdaptor;
+import com.jd.etms.waybill.domain.Waybill;
 import com.jd.jim.cli.Cluster;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
@@ -72,6 +76,9 @@ public class DeliveryOperationServiceImpl implements IDeliveryOperationService {
     protected Cluster redisClientCache;
     @Autowired
     DeliveryService deliveryService;
+    @Autowired
+    private WaybillQueryManager waybillQueryManager;
+    final static int SEND_SPLIT_NUM = 1024;
 
     /**
      * 按包裹、箱号、运单处理发货数据
@@ -204,6 +211,61 @@ public class DeliveryOperationServiceImpl implements IDeliveryOperationService {
         }
         return DeliveryResponse.oK();
     }
+
+    @Override
+    public void generateAsyncComboardAndSendTask(ComboardTaskDto dto) {
+
+        // 获取运单包裹数
+        Waybill waybill = waybillQueryManager.getOnlyWaybillByWaybillCode(dto.getWaybillCode());
+        if (waybill == null || waybill.getGoodNumber() == null) {
+            log.error("[组板任务]获取运单包裹数失败! code:{}, sendM:{}", dto.getWaybillCode(), JsonHelper.toJson(dto));
+            return;
+        }
+
+        int totalNum = waybill.getGoodNumber();
+        int onePageSize = uccConfig.getWaybillSplitPageSize() == 0 ? SEND_SPLIT_NUM : uccConfig.getWaybillSplitPageSize();
+        int pageTotal = (totalNum % onePageSize) == 0 ? (totalNum / onePageSize) : (totalNum / onePageSize) + 1;
+
+        // 生成本次发货的唯一标识
+        String batchUniqKey = "";//TODO
+
+        // 设置本次发货的批处理锁
+        //lockPageDelivery(batchUniqKey, pageTotal);
+
+        // 插入分页任务
+        for (int i = 0; i < pageTotal; i++) {
+
+           /* SendM sendM = wrapper.getSendM();
+
+            SendMWrapper copyWrapper = new SendMWrapper();
+            copyWrapper.setSendM(wrapper.getSendM());
+            copyWrapper.setWaybillCode(waybillCode);
+            copyWrapper.setKeyType(wrapper.getKeyType());
+            copyWrapper.setBatchUniqKey(batchUniqKey);
+            copyWrapper.setPageNo(i + 1);
+            copyWrapper.setPageSize(onePageSize);
+            copyWrapper.setTotalPage(pageTotal);*/
+
+            Task task = new Task();
+
+            //task.setCreateSiteCode(sendM.getCreateSiteCode());
+            //task.setReceiveSiteCode(sendM.getReceiveSiteCode());
+
+            task.setSequenceName(Task.getSequenceName(task.getTableName()));
+            task.setType(Task.TASK_TYPE_COMBOARD_SEND);
+            task.setTableName(Task.getTableName(task.getType()));
+            //task.setKeyword1(wrapper.getKeyType().name());
+            //task.setKeyword2(i + 1 + Constants.UNDER_LINE + pageTotal + Constants.UNDER_LINE + waybillCode);
+            task.setOwnSign(BusinessHelper.getOwnSign());
+            //task.setBody(JsonHelper.toJson(copyWrapper));
+
+            String fingerprint =   Constants.UNDER_LINE + System.currentTimeMillis();
+            task.setFingerprint(Md5Helper.encode(fingerprint));
+
+            taskService.doAddTask(task,false);
+        }
+    }
+
 
     private SendM makeTransferDomain(SendM request) {
         SendM sendM = new SendM();
@@ -355,5 +417,11 @@ public class DeliveryOperationServiceImpl implements IDeliveryOperationService {
 
         List<String> enableSites = Arrays.asList(configSites.split(Constants.SEPARATOR_COMMA));
         return enableSites.contains(createSiteCode.toString());
+    }
+
+    @Override
+    public void dealComboardAndSendTask(Task task) {
+        //获取包裹列表，批次租板，批量发货
+
     }
 }

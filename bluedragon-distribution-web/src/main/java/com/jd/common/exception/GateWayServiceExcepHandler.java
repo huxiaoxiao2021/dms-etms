@@ -5,6 +5,7 @@ import com.jd.bluedragon.common.dto.base.response.MSCodeMapping;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.ministore.exception.MiniStoreBizException;
 import com.jd.bluedragon.enums.EnvEnum;
+import com.jd.bluedragon.utils.ObjectHelper;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
@@ -40,6 +41,9 @@ public class GateWayServiceExcepHandler {
             }
             if (throwable instanceof JyBizException) {
                 JyBizException exception = (JyBizException) throwable;
+                if (ObjectHelper.isNotNull(exception.getCode())){
+                    return new JdCResponse(exception.getCode(), exception.getMessage());
+                }
                 return new JdCResponse(CODE_ERROR, exception.getMessage());
             }
             if (EnvEnum.TEST.getCode().equals(env) && throwable instanceof Exception){

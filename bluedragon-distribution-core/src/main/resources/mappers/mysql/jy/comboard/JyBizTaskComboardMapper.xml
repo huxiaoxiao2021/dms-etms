@@ -320,7 +320,7 @@
     and yn = 1
     and status = 1
   </update>
-  <select id="">
+  <select id="listBoardTaskBySendFlow" resultMap="BaseResultMap">
     SELECT
     <include refid="Base_Column_List" />
     FROM

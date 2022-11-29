@@ -25,7 +25,7 @@ public class BoardReq extends BaseReq implements Serializable {
         this.boardCode = boardCode;
     }
 
-    public boolean isBulkFlag() {
+    public boolean getBulkFlag() {
         return bulkFlag;
     }
 

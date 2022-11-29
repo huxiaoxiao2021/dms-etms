@@ -1,0 +1,13 @@
+package com.jd.bluedragon.distribution.jy.dto.comboard;
+
+import lombok.Data;
+
+@Data
+public class ComboardTaskDto {
+  private String waybillCode;
+  private Integer startSiteId;
+  private String startSiteName;
+  private Integer endSiteId;
+  private String endSiteName;
+  private String boardCode;
+}

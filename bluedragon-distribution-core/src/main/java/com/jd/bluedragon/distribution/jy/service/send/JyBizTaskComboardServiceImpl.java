@@ -40,6 +40,7 @@ public class JyBizTaskComboardServiceImpl implements JyBizTaskComboardService {
       dto.setCount(bizTaskList.get(0).getCount());
       dto.setStatus(bizTaskList.get(0).getStatus());
       dto.setBulkFlag(bizTaskList.get(0).getBulkFlag());
+      dto.setBizId(bizTaskList.get(0).getBizId());
       return dto;
     }
     return null;

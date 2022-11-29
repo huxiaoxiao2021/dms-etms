@@ -21,22 +21,22 @@ public class Task implements java.io.Serializable, TaskModeAware{
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
     /**
-	 * 
+	 *
 	 */
 	private static final long serialVersionUID = -3856203284357675794L;
 	public static final Integer INTERVAL_TIME = 15;
     public static final Integer INITIAL_COUNT = 0;
     public static final Integer STEP = 1;
-    
+
     public static final Integer TASK_STATUS_UNHANDLED = 0; // 未处理
     public static final Integer TASK_STATUS_PROCESSING = 1; // 处理中
     public static final Integer TASK_STATUS_FINISHED = 2; // 完成
     public static final Integer TASK_STATUS_FAILED = 3; // 处理失败
     public static final Integer TASK_STATUS_PARSE_ERROR = 4; // 格式转换失败
-    
+
     public static final Integer TASK_YN_YES = 1; // 使用
     public static final Integer TASK_YN_NO = 0; // 已删除
-    
+
     public static final Integer TASK_TYPE_POP = 1030; // pop收货
     public static final Integer TASK_TYPE_RECEIVE_COUNT = 1040; // 运单通知
     public static final Integer TASK_TYPE_BOUNDARY = 1050; // pop上门取货
@@ -64,7 +64,7 @@ public class Task implements java.io.Serializable, TaskModeAware{
     public static final Integer TASK_TYPE_WEIGHT = 1160;// 称重信息回传运单中心
     public static final Integer TASK_TYPE_WEIGHT_VOLUME = 1170;// 称重信息回传运单中心(整合
     public static final Integer TASK_TYPE_POP_PRINT_INSPECTION=1180;//平台打印 补验货数据
-    
+
     /** 分拣相关　 */
     public static final Integer TASK_TYPE_SORTING = 1200; // 分拣
     public static final Integer TASK_TYPE_SORTING_SPLIT = 1260; // 分拣拆分任务
@@ -73,7 +73,7 @@ public class Task implements java.io.Serializable, TaskModeAware{
     public static final Integer TASK_TYPE_RETURNS = 1220;// 分拣退货
     public static final Integer TASK_TYPE_SORTING_EXCEPTION=1240; //分拣异常记录日志
     public static final Integer TASK_TYPE_ZHIPEI_SORTING = 1250; // 智配分拣
-    
+
     /** 发货发车相关　 */
     public static final Integer TASK_TYPE_DEPARTURE = 1400; // 发车
     /**
@@ -95,14 +95,15 @@ public class Task implements java.io.Serializable, TaskModeAware{
     /**
      * 130004-包裹发货
      */
-    public static final Integer TASK_SUB_TYPE_PACKAGE_SEND = 130004;    
-    
+    public static final Integer TASK_SUB_TYPE_PACKAGE_SEND = 130004;
+
     public static final Integer TASK_TYPE_ACARABILL_SEND_DELIVERY = 1301; // 一车一单离线发货
     public static final Integer TASK_TYPE_WATBILL_NOTIFY = 1310; // 运单通知
     public static final Integer TASK_TYPE_CYCLE_BOX_STATUS = 1330; //同步青流箱状态
     public static final Integer TASK_TYPE_DELIVERY_ASYNC = 1350;
     public static final Integer TASK_TYPE_DELIVERY_ASYNC_V2 = 1360;
     public static final Integer TASK_TYPE_DELIVERY_TRANSFER = 1370;
+    public static final Integer TASK_TYPE_COMBOARD_SEND = 1380;
 
     /**
      * 整板发货任务
@@ -123,18 +124,18 @@ public class Task implements java.io.Serializable, TaskModeAware{
     public static final Integer TASK_TYPE_SCANNER_FRAME=7779;//龙门架自动发货
     /** PDA log */
     public static final Integer TASK_TYPE_PDA = 1700;// PDA日志
-    
+
     /** 接货平台 */
     public static final Integer TASK_TYPE_RECEIVE_PICKUP = 2110;
     public static final Integer TASK_TYPE_RECEIVE_RECEIVE = 2120;
     public static final Integer TASK_TYPE_RECEIVE_EXCEPTION = 2130;
-    
+
     /** 逆向物流 */
     public static final Integer TASK_TYPE_REVERSE_RECEIVE = 3100;
     public static final Integer TASK_TYPE_REVERSE_SEND = 3200;// 逆向发货
     public static final Integer TASK_TYPE_REVERSE_SPWARE = 3300;// 逆向备件库分拣
     public static final Integer TASK_TYPE_REVERSE_QUALITYCONTROL = 3340; //质控、外呼
-    
+
     /** 运单 */
     public static final Integer TASK_TYPE_WAYBILL = 9999;
     public static final Integer TASK_TYPE_WAYBILL_FINISHED = 6667;
@@ -159,7 +160,7 @@ public class Task implements java.io.Serializable, TaskModeAware{
     public static final Integer TASK_TYPE_FERRY_SEAL_OFFLINE = 1881;
     public static final Integer CANCEL_SORTING = 1201;
     public static final Integer CANCEL_THIRD_INSPECTION = 1131;
-    
+
     /**
      * 离线超区处理
      */
@@ -169,7 +170,7 @@ public class Task implements java.io.Serializable, TaskModeAware{
      * 发车 发大波次新建任务类型 任务写到 task_send 任务表中
      */
     public static final Integer TASK_TYPE_DEPARTURE_CAR=1410;
-    
+
     /**
      * xumei 基础资料-->跨分拣箱号中转维护导入文件中信息定时生效
      */
@@ -206,7 +207,7 @@ public class Task implements java.io.Serializable, TaskModeAware{
     public static final String TABLE_NAME_RECEIVE_PICKUP = "task_receive_pickup";
     public static final String TABLE_NAME_RECEIVE_RECEIVE = "task_receive_receive";
     public static final String TABLE_NAME_RECEIVE_EXCEPTION = "task_receive_exception";
-    
+
     public static final String TABLE_NAME_OFFLINE = "task_offline";
     public static final String TABLE_NAME_AUTOSORTING_HANDOVER = "task_handover";
     public static final String TABLE_NAME_WEIGHT = "task_weight";
@@ -236,7 +237,7 @@ public class Task implements java.io.Serializable, TaskModeAware{
     public static final String TABLE_NAME_DELIVERY_TO_FINANCE_BATCH = "task_delivery_to_finance_batch";
 
     public static final String TABLE_NAME_DELIVERY_TO_FINANCE = "task_delivery_to_finance";
-    
+
     public static final String TABLE_NAME_AR_RECEIVE = "task_ar_receive";
 
     public static final String TABLE_NAME_POP_PRINT_INSPECTION = "task_pop_print_inspection";
@@ -257,7 +258,7 @@ public class Task implements java.io.Serializable, TaskModeAware{
     public static final String TABLE_NAME_RECEIVE_RECEIVE_SEQ = "SEQ_TASK_RECEIVE_RECEIVE";
     public static final String TABLE_NAME_RECEIVE_EXCEPTION_SEQ = "SEQ_TASK_RECEIVE_EXCEPTION";
     public static final String TABLE_NAME_POP_RECEIVE_COUNT = "TASK_POP_RECIEVE_COUNT";
-    
+
     public static final String TABLE_NAME_OFFLINE_SEQ = "SEQ_TASK_OFFLINE";
     public static final String TABLE_NAME_HANDOVER_SEQ = "SEQ_TASK_HANDOVER";
     public static final String TABLE_NAME_WEIGHT_SEQ = "SEQ_TASK_WEIGHT";
@@ -265,7 +266,7 @@ public class Task implements java.io.Serializable, TaskModeAware{
     public static final String TABLE_NAME_GLOBAL_TRADE_SEQ = "SEQ_TASK_GLOBAL_TRADE";
     public static final String TABLE_NAME_MESSAGE_SEQ="SEQ_TASK_MESSAGE";
     public static final String TABLE_NAME_SCANNER_FRAME_SEQ ="SEQ_TASK_SCANNER_FRAME";
-    
+
     /**xumei**/
     public static final String TABLE_NAME_CORSS_BOX_SEQ ="TABLE_NAME_CROSSBOX_SEQ";
     //平台打印，补发货数据tangcq
@@ -275,69 +276,69 @@ public class Task implements java.io.Serializable, TaskModeAware{
     /** 任务数据通过redis,还是通过数据库 **/
     public static final int TASK_DATA_SOURCE_REDIS = 1;
     public static final int TASK_DATA_SOURCE_DB = 2;
-    
+
     /** 全局唯一ID */
     private Long id;
-    
+
     /** 创建站点编号 */
     private Integer createSiteCode;
-    
+
     /** 创建时间 */
     private Date createTime;
-    
+
     /** 执行次数 */
     private Integer executeCount;
-    
+
     /** 下次执行次数 */
     private Date executeTime;
-    
+
     /** 类型 */
     private Integer type;
-    
+
     /** 状态 '0' 未处理 '1' 已处理 */
     private Integer status;
-    
+
     private String statuses;
-    
+
     /** 是否删除 '0' 删除 '1' 使用 */
     private Integer yn;
-    
+
     /** 关键词1 */
     private String keyword1;
-    
+
     /** 关键词2 */
     private String keyword2;
-    
+
     /** 数据内容 */
     private String body;
-    
+
     /** 动态表名 */
     private String tableName;
-    
+
     /** 动态序列名 */
     private String sequenceName;
-    
+
     /** 数据内容解析的对象 */
     private Object parsedObject;
-    
+
     /** 箱号 */
     private String boxCode;
-    
+
     /** 收货单位Code */
     private Integer receiveSiteCode;
-    
+
     /** 信息指纹 */
     private String fingerprint;
-    
+
     /** 部署环境 */
     private String ownSign;
-    
+
     /** 业务类型 */
     private Integer businessType;
-    
+
     /** 操作类型 */
     private Integer operateType;
-    
+
     /** 操作时间 */
     private Date operateTime;
 
@@ -347,166 +348,166 @@ public class Task implements java.io.Serializable, TaskModeAware{
     private List<Integer> statusesList;
     /** 子类型 */
     private Integer subType;
-    
+
     public Task() {
     }
-    
+
     public Task(Long id) {
         this.id = id;
     }
-    
+
     public String getBoxCode() {
         return this.boxCode;
     }
-    
+
     public void setBoxCode(String boxCode) {
         this.boxCode = boxCode;
     }
-    
+
     public Integer getReceiveSiteCode() {
         return this.receiveSiteCode;
     }
-    
+
     public void setReceiveSiteCode(Integer receiveSiteCode) {
         this.receiveSiteCode = receiveSiteCode;
     }
-    
+
     public Long getId() {
         return this.id;
     }
-    
+
     public void setId(Long id) {
         this.id = id;
     }
-    
+
     public Date getCreateTime() {
     	return createTime!=null?(Date)createTime.clone():null;
     }
-    
+
     public void setCreateTime(Date createTime) {
     	this.createTime = createTime!=null?(Date)createTime.clone():null;
     }
-    
+
     public Integer getExecuteCount() {
         return this.executeCount;
     }
-    
+
     public void setExecuteCount(Integer executeCount) {
         this.executeCount = executeCount;
     }
-    
+
     public Date getExecuteTime() {
         return executeTime!=null?(Date)executeTime.clone():new Date();
     }
-    
+
     public void setExecuteTime(Date executeTime) {
     	this.executeTime = executeTime!=null?(Date)executeTime.clone():null;
     }
-    
+
     public Integer getType() {
         return this.type;
     }
-    
+
     public void setType(Integer type) {
         this.type = type;
     }
-    
+
     public Integer getStatus() {
         return this.status;
     }
-    
+
     public void setStatus(Integer status) {
         this.status = status;
     }
-    
+
     public String getStatuses() {
         return this.statuses;
     }
-    
+
     public void setStatuses(String statuses) {
         this.statuses = statuses;
     }
-    
+
     public Integer getYn() {
         return this.yn;
     }
-    
+
     public void setYn(Integer yn) {
         this.yn = yn;
     }
-    
+
     public String getKeyword1() {
         return this.keyword1;
     }
-    
+
     public void setKeyword1(String keyword1) {
         this.keyword1 = keyword1;
     }
-    
+
     public String getKeyword2() {
         return this.keyword2;
     }
-    
+
     public void setKeyword2(String keyword2) {
         this.keyword2 = keyword2;
     }
-    
+
     public String getBody() {
         return this.body;
     }
-    
+
     public void setBody(String body) {
         this.body = body;
     }
-    
+
     public Integer getCreateSiteCode() {
         return this.createSiteCode;
     }
-    
+
     public void setCreateSiteCode(Integer createSiteCode) {
         this.createSiteCode = createSiteCode;
     }
-    
+
     public String getTableName() {
         return this.tableName;
     }
-    
+
     public void setTableName(String tableName) {
         this.tableName = tableName;
     }
-    
+
     public String getFingerprint() {
         return this.fingerprint;
     }
-    
+
     public void setFingerprint(String fingerprint) {
         this.fingerprint = fingerprint;
     }
-    
+
     public Object getParsedObject() {
         return this.parsedObject;
     }
-    
+
     public void setParsedObject(Object parsedObject) {
         this.parsedObject = parsedObject;
     }
-    
+
     public String getSequenceName() {
         return this.sequenceName;
     }
-    
+
     public void setSequenceName(String sequenceName) {
         this.sequenceName = sequenceName;
     }
-    
+
     public String getOwnSign() {
         return this.ownSign;
     }
-    
+
     public void setOwnSign(String ownSign) {
         this.ownSign = ownSign;
     }
-    
+
     public Integer getBusinessType() {
 		return this.businessType;
 	}
@@ -549,7 +550,7 @@ public class Task implements java.io.Serializable, TaskModeAware{
 
     public static String getTableName(Integer type) {
         Assert.notNull(type, "type must not be null");
-        
+
         if (Task.TASK_TYPE_SORTING.equals(type) || Task.TASK_TYPE_SEAL_BOX.equals(type)
                 || Task.TASK_TYPE_RETURNS.equals(type) || Task.TASK_TYPE_SORTING_SPLIT.equals(type) || TASK_TYPE_SORTING_CORE_SUCCESS.equals(type)) {
             return Task.TABLE_NAME_SORTING;
@@ -566,7 +567,8 @@ public class Task implements java.io.Serializable, TaskModeAware{
                 || Task.TASK_TYPE_WATBILL_NOTIFY.equals(type)
                 || Task.TASK_TYPE_DELIVERY_ASYNC.equals(type)
                 || Task.TASK_TYPE_DELIVERY_ASYNC_V2.equals(type)
-                ||Task.TASK_TYPE_DELIVERY_TRANSFER.equals(type)) {
+                ||Task.TASK_TYPE_DELIVERY_TRANSFER.equals(type)
+                ||Task.TASK_TYPE_COMBOARD_SEND.equals(type)) {
             return Task.TABLE_NAME_SEND;
         } else if (Task.TASK_TYPE_POP.equals(type)||Task.TASK_TYPE_WAYBILL_TRACK.equals(type)) {
             return Task.TABLE_NAME_POP;
@@ -630,14 +632,14 @@ public class Task implements java.io.Serializable, TaskModeAware{
         else if (Task.TASK_TYPE_PRINT_CALLBACK_BIG_WAYBILL.equals(type)) {
             return Task.TABLE_NAME_POP_PRINT;
         }
-        
+
         return Task.TABLE_NAME_SORTING;
     }
-    
+
     public static String getTaskWaybillTableName() {
         return Task.TABLE_NAME_WAYBILL;
     }
-    
+
     public static String getSequenceName(String tableName) {
         if (Task.TABLE_NAME_SORTING.equals(tableName)) {
             return Task.TABLE_NAME_SORTING_SEQ;
@@ -680,10 +682,10 @@ public class Task implements java.io.Serializable, TaskModeAware{
         }else if (Task.TABLE_NAME_POP_PRINT_INSPECTION.equals(tableName)){
             return Task.TABLE_NAME_POP_PRINT_INSPECTION_SEQ;
         }
-        
+
         return Task.TABLE_NAME_SORTING_SEQ;
     }
-    
+
     @Override
     public String toString() {
         return "Task [id=" + this.id + ", createSiteCode=" + this.createSiteCode + ", type="
@@ -729,7 +731,7 @@ public class Task implements java.io.Serializable, TaskModeAware{
 	// 提示：redis改造的任务需要检查本接口
 	public QueueKeyInfo findQueueKey() {
 		QueueKeyInfo result = null;
-		
+
 		//1.设定task type, 如果为空则直接返回空
 		String taskType = null;
 		if (Task.TASK_TYPE_SEAL_BOX.equals(type)) {
@@ -789,11 +791,11 @@ public class Task implements java.io.Serializable, TaskModeAware{
 
 		if(StringUtils.isEmpty(taskType))
 			return null;
-		
+
 		//2.计算任务的灰度 FIXME:是否应从配置文件中得来
 		if(StringUtils.isEmpty(ownSign))
 			ownSign = BusinessHelper.getOwnSign();
-		
+
 		//3.计算任务的队列号
         int hashCode = 0;
         if(getFingerprint() != null){
@@ -807,10 +809,10 @@ public class Task implements java.io.Serializable, TaskModeAware{
         int theQueueId = Math.abs(hashCode) % RedisTaskHelper.getQueueNum();
 
 		StringBuilder queueKey = new StringBuilder(taskType).append("$").append(ownSign).append(theQueueId);
-		
+
 		//4.设定QueueKeyInfo
 		result = new QueueKeyInfo(taskType, ownSign, theQueueId, queueKey.toString());
-		
+
 		return result;
 	}
 
@@ -911,6 +913,9 @@ public class Task implements java.io.Serializable, TaskModeAware{
         }
         else if (TASK_TYPE_DELIVERY_TRANSFER.equals(type)) {
             return "DeliverySendTransferTask";
+        }
+        else if (TASK_TYPE_COMBOARD_SEND.equals(type)) {
+            return "JyComboardAndSendTask";
         }
         else if(TASK_TYPE_ACARABILL_SEND_DELIVERY.equals(type)){
             //TASK_TYPE_ACARABILL_SEND_DELIVERY = 1301; // 不会有
