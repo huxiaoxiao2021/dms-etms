@@ -92,8 +92,7 @@
       #{createUser,jdbcType=VARCHAR},
       #{updateUser,jdbcType=VARCHAR},
       #{createTime,jdbcType=TIMESTAMP},
-      #{updateTime,jdbcType=TIMESTAMP},
-      #{yn,jdbcType=TINYINT}
+      #{updateTime,jdbcType=TIMESTAMP}
         )
   </insert>
 

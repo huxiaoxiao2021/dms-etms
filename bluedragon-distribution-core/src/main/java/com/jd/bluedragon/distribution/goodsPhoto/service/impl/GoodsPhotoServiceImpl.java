@@ -44,15 +44,15 @@ public class GoodsPhotoServiceImpl implements GoodsPhoteService {
                 }else if(i == 1){
                     po.setUrl1(dto.getPhotoUrls().get(i));
                 }else if(i == 2){
-                    po.setUrl1(dto.getPhotoUrls().get(i));
+                    po.setUrl2(dto.getPhotoUrls().get(i));
                 }else if(i == 3){
-                    po.setUrl1(dto.getPhotoUrls().get(i));
+                    po.setUrl3(dto.getPhotoUrls().get(i));
                 }else if(i == 4){
-                    po.setUrl1(dto.getPhotoUrls().get(i));
+                    po.setUrl4(dto.getPhotoUrls().get(i));
                 }else if(i == 5){
-                    po.setUrl1(dto.getPhotoUrls().get(i));
+                    po.setUrl5(dto.getPhotoUrls().get(i));
                 }else if(i == 6){
-                    po.setUrl1(dto.getPhotoUrls().get(i));
+                    po.setUrl6(dto.getPhotoUrls().get(i));
                 }
             }
         }
