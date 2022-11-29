@@ -96,9 +96,9 @@ public class JyGroupSortCrossDetailServiceImpl implements JyGroupSortCrossDetail
         entity.setStartSiteId((long) request.getCurrentOperate().getSiteCode());
         if (request.isGroupQueryFlag()) {
             entity.setGroupCode(request.getGroupCode());
-            cttGroupDtos = jyGroupSortCrossDetailDao.queryCTTGroupData(entity);
+            cttGroupDtos = jyGroupSortCrossDetailDao.queryCommonCTTGroupData(entity);
         } else {
-            cttGroupDtos = jyGroupSortCrossDetailDao.queryCTTGroupData(entity);
+            cttGroupDtos = jyGroupSortCrossDetailDao.queryCommonCTTGroupData(entity);
         }
         resp.setCttGroupDtolist(cttGroupDtos);
         return resp;

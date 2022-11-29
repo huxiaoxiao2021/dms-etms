@@ -27,8 +27,20 @@ public class BoardResp implements Serializable {
      * 该板已扫箱子数量
      */
     private Integer boxHaveScanCount;
+    /**
+     * 大宗标识
+     */
+    private boolean bulkFlag;
     private List<GoodsCategoryDto> goodsCategoryList;
 
+    public boolean isBulkFlag() {
+        return bulkFlag;
+    }
+
+    public void setBulkFlag(boolean bulkFlag) {
+        this.bulkFlag = bulkFlag;
+    }
+    
     public Integer getGroupUserCount() {
         return groupUserCount;
     }

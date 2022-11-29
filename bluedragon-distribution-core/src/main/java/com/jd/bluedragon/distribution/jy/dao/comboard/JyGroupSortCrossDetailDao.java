@@ -51,8 +51,8 @@ public class JyGroupSortCrossDetailDao extends BaseDao<JyGroupSortCrossDetailEnt
      * @param entity
      * @return
      */
-    public List<CTTGroupDto> queryCTTGroupData(JyGroupSortCrossDetailEntity entity) {
-        return this.getSqlSession().selectList(NAMESPACE + ".queryCTTGroupData", entity);
+    public List<CTTGroupDto> queryCommonCTTGroupData(JyGroupSortCrossDetailEntity entity) {
+        return this.getSqlSession().selectList(NAMESPACE + ".queryCommonCTTGroupData", entity);
     }
 
     /**

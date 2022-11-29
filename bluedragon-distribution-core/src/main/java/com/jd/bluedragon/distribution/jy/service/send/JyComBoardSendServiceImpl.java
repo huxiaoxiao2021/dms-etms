@@ -483,15 +483,18 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     }
     return new InvokeResult<>(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, cttGroupDataResp);
   }
-
+  
   @Override
   public InvokeResult<SendFlowDataResp> listSendFlowUnderCTTGroup(SendFlowDataReq request) {
-    if (!checkBaseRequest(request) || StringUtils.isEmpty(request.getTemplateCode())) {
+    if (!checkBaseRequest(request) || 
+            (StringUtils.isEmpty(request.getTemplateCode()) && request.getEndSiteId() == null)) {
       return new InvokeResult<>(RESULT_THIRD_ERROR_CODE, PARAM_ERROR);
     }
     SendFlowDataResp resp = new SendFlowDataResp();
     List<SendFlowDto> sendFlowDtoList = new ArrayList<>();
     resp.setSendFlowDtoList(sendFlowDtoList);
+    List<Integer> endSiteCodeList = new ArrayList<>();
+    List<JyGroupSortCrossDetailEntity> sendFlowList = new ArrayList<>();
     Integer startSiteCode = request.getCurrentOperate().getSiteCode();
     try {
       log.info("开始获取混扫任务下流向的详细信息：{}", JsonHelper.toJson(request));
@@ -502,11 +505,15 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       // 获取当前网格码内扫描的人数
       int userCount = jyComboardService.queryUserCountByStartSiteCode(Long.valueOf(startSiteCode));
       resp.setScanUserCount(userCount);
-      // 获取混扫任务下的流向信息
-      List<JyGroupSortCrossDetailEntity> sendFlowList = jyGroupSortCrossDetailService
-          .listSendFlowByTemplateCode(entity);
-      // 获取目的地
-      List<Integer> endSiteCodeList = getEndSiteCodeListBySendFlowList(sendFlowList);
+      // 获取当前流向
+      if (request.getEndSiteId() != null ){
+        endSiteCodeList.add(request.getEndSiteId());
+      }else {
+        // 获取混扫任务下的流向信息
+        sendFlowList = jyGroupSortCrossDetailService.listSendFlowByTemplateCode(entity);
+        // 获取目的地
+        endSiteCodeList = getEndSiteCodeListBySendFlowList(sendFlowList);
+      }
       // 获取当前混扫任务下多个流向的组板数量和待扫统计
       List<JyComboardAggsEntity> jyComboardAggsEntities = jyComboardAggsService
           .queryComboardAggs(startSiteCode, endSiteCodeList);
@@ -628,6 +635,18 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     String boardCode = request.getBoardCode();
     Integer endSiteId = request.getEndSiteId();
     try {
+      // 查询是否是运单
+      JyBizTaskComboardEntity queryBoard = new JyBizTaskComboardEntity();
+      queryBoard.setStartSiteId(Long.valueOf(startSIteId));
+      queryBoard.setBoardCode(boardCode);
+      queryBoard.setStatus(1);
+      JyBizTaskComboardEntity boardTaskInfo = jyBizTaskComboardService
+              .queryBizTaskByBoardCode(queryBoard);
+      if (boardTaskInfo == null ) {
+        log.info("未获取到该板号的任务{}", JsonHelper.toJson(request));
+        return new InvokeResult<>(BOARD_INFO_CODE, BOARD_INFO_MESSAGE);
+      }
+      resp.setBulkFlag(boardTaskInfo.getBulkFlag());
       // 获取组板包裹号箱号信息
       JyComboardAggsEntity boardInfo = jyComboardAggsService.queryComboardAggs(boardCode);
       resp.setPackageHaveScanCount(boardInfo.getPackageScannedCount());
