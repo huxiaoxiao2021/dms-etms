@@ -30,6 +30,9 @@ public class GoodsPhotoInfo implements Serializable {
     //拍照环节
     private Integer operateNode;
 
+    //拍照环节描述
+    private String operateDesc;
+
     //照片地址一
     private String url1;
 
@@ -213,5 +216,13 @@ public class GoodsPhotoInfo implements Serializable {
 
     public void setYn(Integer yn) {
         this.yn = yn;
+    }
+
+    public String getOperateDesc() {
+        return operateDesc;
+    }
+
+    public void setOperateDesc(String operateDesc) {
+        this.operateDesc = operateDesc;
     }
 }

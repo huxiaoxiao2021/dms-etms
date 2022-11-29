@@ -15,12 +15,14 @@ import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.board.service.BoardCombinationService;
 import com.jd.bluedragon.distribution.external.enums.AppVersionEnums;
+import com.jd.bluedragon.distribution.goodsPhoto.service.GoodsPhoteService;
 import com.jd.bluedragon.distribution.inspection.service.InspectionService;
 import com.jd.bluedragon.distribution.jy.api.JyUnloadVehicleTysService;
 import com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskUnloadVehicleDao;
 import com.jd.bluedragon.distribution.jy.dao.unload.JyBizTaskUnloadVehicleStageDao;
 import com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadAggsDao;
 import com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadVehicleBoardDao;
+import com.jd.bluedragon.distribution.jy.dto.GoodsPhotoInfoDto;
 import com.jd.bluedragon.distribution.jy.dto.task.JyBizTaskUnloadCountDto;
 import com.jd.bluedragon.distribution.jy.dto.unload.*;
 import com.jd.bluedragon.distribution.jy.enums.*;
@@ -129,7 +131,8 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     @Autowired
     private WaybillService waybillService;
 
-
+    @Autowired
+    private GoodsPhoteService goodsPhoteService;
 
 
     @Override
@@ -1605,6 +1608,46 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             return response;
         }
         return response;
+    }
+
+    @Override
+    public InvokeResult<Boolean> tysUploadUnloadScanPhotoAboutEasyFreeze(GoodsPhotoInfoDto dto) {
+        InvokeResult<Boolean> response = new InvokeResult<>();
+        response.success();
+        log.info("tysUploadUnloadScanPhotoAboutEasyFreeze 货物照片保存入参-{}", JSON.toJSONString(dto));
+
+        try{
+            String checkResult = checkParam(dto);
+            if(StringUtils.isNotBlank(checkResult)){
+                response.error(checkResult);
+                return response;
+            }
+            com.jd.bluedragon.common.dto.photo.GoodsPhotoInfoDto infoDto =new
+                    com.jd.bluedragon.common.dto.photo.GoodsPhotoInfoDto();
+            org.springframework.beans.BeanUtils.copyProperties(dto,infoDto);
+            response.setData(goodsPhoteService.insert(infoDto));
+        }catch (Exception e){
+            log.error("添加货物照片异常!-{}",e.getMessage(),e);
+            response.error("添加货物照片异常!");
+        }
+        return response;
+    }
+
+    private String checkParam(GoodsPhotoInfoDto dto){
+        if(dto == null){
+            return "入参不能为空!";
+        }
+        if(dto.getUser() == null || (dto.getUser().getUserCode())<= 0){
+            return "操作用户信息不能为空!";
+        }
+        if(dto.getCurrentOperate() == null || dto.getCurrentOperate().getSiteCode() <= 0){
+            return "操作站点信息不能为空!";
+        }
+        if(StringUtils.isBlank(dto.getBarCode())){
+            return "单号不能为空!";
+        }
+        return "";
+
     }
 
     private com.jd.bluedragon.common.dto.base.request.User copyUser(com.jd.bluedragon.distribution.jy.dto.User userParam) {

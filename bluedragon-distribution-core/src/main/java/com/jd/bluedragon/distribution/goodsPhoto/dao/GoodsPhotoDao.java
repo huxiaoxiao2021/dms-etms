@@ -23,8 +23,8 @@ public class GoodsPhotoDao extends BaseDao<GoodsPhotoInfo> {
         return this.getSqlSession().insert(namespace+".insertSelective", record);
     }
 
-    public GoodsPhotoInfo selectByBarCode(Long id){
-        return this.getSqlSession().selectOne(namespace+".selectByPrimaryKey", id);
+    public GoodsPhotoInfo selectByBarCode(String barCode ){
+        return this.getSqlSession().selectOne(namespace+".selectByBarCode", barCode);
     }
 
 

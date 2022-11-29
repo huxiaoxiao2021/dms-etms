@@ -9,6 +9,7 @@
     <result column="site_name" jdbcType="VARCHAR" property="siteName" />
     <result column="bar_code" jdbcType="VARCHAR" property="barCode" />
     <result column="opreate_node" jdbcType="INTEGER" property="operateNode" />
+    <result column="opreate_desc" jdbcType="VARCHAR" property="operateDesc" />
     <result column="url1" jdbcType="VARCHAR" property="url1" />
     <result column="url2" jdbcType="VARCHAR" property="url2" />
     <result column="url3" jdbcType="VARCHAR" property="url3" />
@@ -31,6 +32,7 @@
     site_name,
     bar_code,
     opreate_node,
+    opreate_desc,
     url1,
     url2,
     url3,
@@ -47,21 +49,22 @@
   <select id="selectByBarCode" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
-    from goods_photo_info
-    where bar_code = #{barCode,jdbcType=BIGINT}
+    from jy_goods_photo_info
+    where bar_code = #{barCode,jdbcType=BIGINT} and yn =1 limit 1
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
-    delete from goods_photo_info
+    delete from jy_goods_photo_info
     where id = #{id,jdbcType=BIGINT}
   </delete>
   <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.jd.bluedragon.distribution.goodsPhoto.domain.GoodsPhotoInfo" useGeneratedKeys="true">
-    insert into goods_photo_info (
+    insert into jy_goods_photo_info (
       user_code,
       user_name,
       site_code,
       site_name,
       bar_code,
       opreate_node,
+      opreate_desc,
       url1,
       url2,
       url3,
@@ -79,6 +82,7 @@
       #{siteName,jdbcType=VARCHAR},
       #{barCode,jdbcType=VARCHAR},
       #{operateNode,jdbcType=INTEGER},
+      #{operateDesc,jdbcType=VARCHAR},
       #{url1,jdbcType=VARCHAR},
       #{url2,jdbcType=VARCHAR},
       #{url3,jdbcType=VARCHAR},

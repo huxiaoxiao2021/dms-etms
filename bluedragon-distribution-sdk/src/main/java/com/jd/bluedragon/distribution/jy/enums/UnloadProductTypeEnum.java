@@ -45,7 +45,7 @@ public enum UnloadProductTypeEnum {
                 return productType.getDisplayOrder();
             }
         }
-        return null;
+        return NONE.getDisplayOrder();
     }
 
     public String getCode() {
