@@ -171,6 +171,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   @Override
   public InvokeResult<CrossDataResp> listCrossData(CrossDataReq request) {
     log.info("开始获取场地滑道信息：{}", JsonHelper.toJson(request));
+    
     CrossPageQuery query = new CrossPageQuery();
     if (!checkBaseRequest(request)) {
       return new InvokeResult<>(RESULT_THIRD_ERROR_CODE, PARAM_ERROR);
@@ -483,10 +484,10 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     }
     return new InvokeResult<>(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, cttGroupDataResp);
   }
-  
+
   @Override
   public InvokeResult<SendFlowDataResp> listSendFlowUnderCTTGroup(SendFlowDataReq request) {
-    if (!checkBaseRequest(request) || 
+    if (!checkBaseRequest(request) ||
             (StringUtils.isEmpty(request.getTemplateCode()) && request.getEndSiteId() == null)) {
       return new InvokeResult<>(RESULT_THIRD_ERROR_CODE, PARAM_ERROR);
     }
