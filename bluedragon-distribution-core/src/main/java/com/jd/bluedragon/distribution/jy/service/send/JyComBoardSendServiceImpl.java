@@ -548,8 +548,16 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       List<JyComboardAggsEntity> boardScanInfoList, List<JyBizTaskComboardEntity> boardList) {
     HashMap<Long, JyComboardAggsEntity> boardFlowMap = new HashMap<>();
     HashMap<String, Long> boardMap = new HashMap<>();
-    if (CollectionUtils.isEmpty(boardList) || CollectionUtils.isEmpty(boardScanInfoList)) {
+    if (CollectionUtils.isEmpty(boardList) && CollectionUtils.isEmpty(boardScanInfoList)) {
       return boardFlowMap;
+    }
+    // 如果没有统计数据
+    if (CollectionUtils.isEmpty(boardScanInfoList)) {
+      for (JyBizTaskComboardEntity boardScanInfo : boardList) {
+        JyComboardAggsEntity aggsEntity = new JyComboardAggsEntity();
+        aggsEntity.setBoardCode(boardScanInfo.getBoardCode());
+        boardFlowMap.put(boardScanInfo.getEndSiteId(),aggsEntity);
+      }
     }
     for (JyBizTaskComboardEntity boardScanInfo : boardList) {
       boardMap.put(boardScanInfo.getBoardCode(), boardScanInfo.getEndSiteId());
@@ -589,9 +597,11 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
         boardDto.setPackageHaveScanCount(boardFlow.getPackageScannedCount());
         boardDto.setInterceptCount(boardFlow.getInterceptCount());
         // 已扫比例
-        int scanCount = boardFlow.getPackageScannedCount() + boardFlow.getBoxScannedCount();
-        int scanProgress = (int) ((scanCount * 1.00 / ucc.getJyComboardCountLimit()) * 100);
-        boardDto.setProgress(scanProgress + "%");
+        if (boardFlow.getPackageScannedCount()!=null && boardFlow.getPackageScannedCount()!=null) {
+          int scanCount = boardFlow.getPackageScannedCount() + boardFlow.getBoxScannedCount();
+          int scanProgress = (int) ((scanCount * 1.00 / ucc.getJyComboardCountLimit()) * 100);
+          boardDto.setProgress(scanProgress + "%");
+        }
       }
       sendFlowDtoList.add(sendFlowDto);
     }
