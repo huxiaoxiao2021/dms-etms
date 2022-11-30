@@ -517,8 +517,6 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
 
     private InvokeResult<ScanPackageRespDto> packageScan(ScanPackageDto scanPackageDto, JyBizTaskUnloadVehicleEntity unloadVehicleEntity,
                                                          InvokeResult<ScanPackageRespDto> invokeResult) {
-
-        log.info("packageScan 入参-{}",JSON.toJSONString(scanPackageDto));
         String barCode = scanPackageDto.getScanCode();
         String bizId = scanPackageDto.getBizId();
         Integer operateSiteCode = scanPackageDto.getCurrentOperate().getSiteCode();
@@ -608,7 +606,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         //易冻品校验
         log.info("易冻品校验 packageScan 入参-{}",JSON.toJSONString(scanPackageDto));
         InvokeResult<Boolean> checkResult
-                = waybillService.checkEasyFreeze(waybillCode, scanPackageDto.getCurrentOperate().getOperateTime(), operateSiteCode);
+                = waybillService.checkEasyFreeze(waybillCode, new Date(), operateSiteCode);
         log.info("packageScan-易冻品校验结果-{}",JSON.toJSONString(checkResult));
         Map<String,String> confirmMap = new HashMap<>(2);
         if(checkResult != null && checkResult.getData()){
@@ -699,7 +697,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         //易冻品校验
         log.info("易冻品校验 waybillScan 入参-{}",JSON.toJSONString(scanPackageDto));
         InvokeResult<Boolean> easyFreezeCheckResult
-                = waybillService.checkEasyFreeze(waybillCode, scanPackageDto.getCurrentOperate().getOperateTime(), scanPackageDto.getCurrentOperate().getSiteCode());
+                = waybillService.checkEasyFreeze(waybillCode, new Date(), scanPackageDto.getCurrentOperate().getSiteCode());
         log.info("waybillScan -易冻品校验结果-{}",JSON.toJSONString(easyFreezeCheckResult));
         Map<String,String> confirmMap = new HashMap<>(2);
         if(easyFreezeCheckResult != null && easyFreezeCheckResult.getData()){
