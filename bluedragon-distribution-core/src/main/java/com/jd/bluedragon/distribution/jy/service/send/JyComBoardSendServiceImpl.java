@@ -76,7 +76,6 @@ import com.jd.bluedragon.dms.utils.BarCodeType;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.coo.sa.sequence.JimdbSequenceGen;
-import com.jd.intelligent.common.model.enums.GoodsTypeEnum;
 import com.jd.jim.cli.Cluster;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.transboard.api.dto.*;
@@ -86,7 +85,7 @@ import com.jdl.basic.api.domain.cross.*;
 import com.jdl.jy.realtime.base.Pager;
 import com.jdl.jy.realtime.model.es.comboard.ComboardScanedDto;
 import com.jdl.jy.realtime.model.es.comboard.JyComboardPackageDetail;
-import com.sun.org.apache.regexp.internal.RE;
+
 import java.util.*;
 import java.util.Date;
 import java.util.HashMap;
@@ -847,7 +846,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
         JyComboardEntity comboardEntity = createJyComboardRecord(request);
         jyComboardService.save(comboardEntity);
         //发送组板全程跟踪
-        sendComboardWaybillTrace(request);
+        sendComboardWaybillTrace(request,WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION);
       } else {
         throw new JyBizException("已到上限，需要换新板");
       }
@@ -868,10 +867,10 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     deliveryOperationService.generateAsyncComboardAndSendTask(dto);
   }
 
-  private void sendComboardWaybillTrace(ComboardScanReq request) {
+  private void sendComboardWaybillTrace(ComboardScanReq request, Integer waybillTrackBoardCombination) {
     OperatorInfo operatorInfo = assembleComboardOperatorInfo(request);
     virtualBoardService.sendWaybillTrace(request.getBarCode(), operatorInfo, request.getBoardCode(),
-        request.getEndSiteName(), WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION,
+        request.getEndSiteName(), waybillTrackBoardCombination,
         BizSourceEnum.PDA.getValue());
   }
 
@@ -1701,7 +1700,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
         // todo 异步发送全程跟踪
       }
     } else {
-      // 包裹号
+      // 包裹号或箱号
       List<String> boxCodeList = new ArrayList<>();
       removeBoardBoxDto.setBoxCodeList(boxCodeList);
       for (ComboardDetailDto comboardDetailDto : cancelList) {
@@ -1723,7 +1722,14 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
         log.error("取消组板失败：{}", JsonHelper.toJson(removeBoardBoxDto), e);
         return new InvokeResult<>(CANCEL_COM_BOARD_CODE, CANCEL_COM_BOARD_MESSAGE);
       }
-      // todo 发送全程跟踪
+      // 发送全程跟踪
+      ComboardScanReq comboardScanReq = new ComboardScanReq();
+      comboardScanReq.setBarCode(request.getBoardCode());
+      comboardScanReq.setBoardCode(request.getBoardCode());
+      comboardScanReq.setEndSiteName(request.getEndSiteName());
+      comboardScanReq.setCurrentOperate(request.getCurrentOperate());
+      comboardScanReq.setUser(request.getUser());
+      sendComboardWaybillTrace(comboardScanReq,WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION_CANCEL);
     }
     // 按板取消发货
     if (!cancelSend(request)) {

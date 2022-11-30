@@ -15,6 +15,11 @@ public class CancelBoardReq extends BaseReq implements Serializable {
    * 大宗标识
    */
   private boolean bulkFlag;
+
+  /**
+   * 目的地站点名称
+   */
+  private String endSiteName;
   
   public List<ComboardDetailDto> getCancelList() {
     return cancelList;
@@ -38,5 +43,13 @@ public class CancelBoardReq extends BaseReq implements Serializable {
 
   public void setBulkFlag(boolean bulkFlag) {
     this.bulkFlag = bulkFlag;
+  }
+
+  public String getEndSiteName() {
+    return endSiteName;
+  }
+
+  public void setEndSiteName(String endSiteName) {
+    this.endSiteName = endSiteName;
   }
 }
