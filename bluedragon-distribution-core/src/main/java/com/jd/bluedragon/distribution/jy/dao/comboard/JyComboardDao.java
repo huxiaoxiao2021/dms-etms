@@ -1,8 +1,11 @@
 package com.jd.bluedragon.distribution.jy.dao.comboard;
 
 import com.jd.bluedragon.common.dao.BaseDao;
+import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.distribution.jy.comboard.JyComboardEntity;
 import com.jd.bluedragon.distribution.jy.dto.comboard.BatchUpdateCancelReq;
+
+import java.util.List;
 
 public class JyComboardDao extends BaseDao<JyComboardEntity> {
 
@@ -27,8 +30,8 @@ public class JyComboardDao extends BaseDao<JyComboardEntity> {
     public int updateByPrimaryKey(JyComboardEntity record) {
         return this.getSqlSession().update(NAMESPACE + ".updateByPrimaryKey", record);
     }
-    public int queryUserCountByStartSiteCode(Long startSiteId) {
-        return this.getSqlSession().selectOne(NAMESPACE + ".queryUserCountByStartSiteCode", startSiteId);
+    public List<User> queryUserByStartSiteCode(Long startSiteId) {
+        return this.getSqlSession().selectList(NAMESPACE + ".queryUserByStartSiteCode", startSiteId);
     }
 
     public String queryWayBillCodeByBoardCode(JyComboardEntity entity) {

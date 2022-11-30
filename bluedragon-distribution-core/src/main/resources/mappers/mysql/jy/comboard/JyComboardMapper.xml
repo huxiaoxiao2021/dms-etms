@@ -24,6 +24,10 @@
     <result column="force_send_flag" jdbcType="BIT" property="forceSendFlag" />
     <result column="cancel_flag" jdbcType="BIT" property="cancelFlag" />
   </resultMap>
+  <resultMap id="userInfo" type="com.jd.bluedragon.common.dto.base.request.User">
+    <result column="create_user_name" jdbcType="VARCHAR" property="userName" />
+    <result column="create_user_erp" jdbcType="VARCHAR" property="userErp" />
+  </resultMap>
   <sql id="Base_Column_List">
     id, biz_id, bar_code, bar_code_type, board_code, send_code, start_site_id, start_site_name,
     end_site_id, end_site_name, create_user_erp, create_user_name, update_user_erp, update_user_name,
@@ -264,8 +268,8 @@
       ts = #{ts,jdbcType=TIMESTAMP}
     where id = #{id,jdbcType=BIGINT}
   </update>
-  <select id="queryUserCountByStartSiteCode" parameterType="java.lang.Long" resultType="java.lang.Integer">
-    select count(distinct create_user_erp)
+  <select id="queryUserByStartSiteCode" parameterType="java.lang.Long" resultMap="userInfo">
+    select distinct create_user_erp, create_user_name 
     from jy_comboard
     where start_site_id = #{startSiteId,jdbcType=BIGINT}
       and yn = 1

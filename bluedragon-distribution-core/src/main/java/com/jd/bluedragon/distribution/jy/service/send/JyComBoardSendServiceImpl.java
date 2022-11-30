@@ -4,6 +4,7 @@ import com.github.pagehelper.PageHelper;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.request.BaseReq;
 import com.jd.bluedragon.common.dto.base.request.OperatorInfo;
+import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.common.dto.board.BizSourceEnum;
 import com.jd.bluedragon.common.dto.comboard.request.*;
 import com.jd.bluedragon.common.dto.comboard.response.*;
@@ -232,6 +233,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
         JyGroupSortCrossDetailEntity condition = new JyGroupSortCrossDetailEntity();
         condition.setStartSiteId(Long.valueOf(request.getCurrentOperate().getSiteCode()));
         condition.setTemplateCode(request.getTemplateCode());
+        condition.setGroupCode(request.getGroupCode());
         List<JyGroupSortCrossDetailEntity> groupSortCrossDetailList = jyGroupSortCrossDetailService
             .listSendFlowByTemplateCode(condition);
 
@@ -512,9 +514,9 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       entity.setGroupCode(request.getGroupCode());
       entity.setStartSiteId(Long.valueOf(startSiteCode));
       entity.setTemplateCode(request.getTemplateCode());
-      // 获取当前网格码内扫描的人数
-      int userCount = jyComboardService.queryUserCountByStartSiteCode(Long.valueOf(startSiteCode));
-      resp.setScanUserCount(userCount);
+      // 获取当前网格码内扫描人员信息
+      List<User> userList = jyComboardService.queryUserByStartSiteCode(Long.valueOf(startSiteCode));
+      resp.setScanUserList(userList);
       // 获取当前流向
       if (request.getEndSiteId() != null ){
         endSiteCodeList.add(request.getEndSiteId());
