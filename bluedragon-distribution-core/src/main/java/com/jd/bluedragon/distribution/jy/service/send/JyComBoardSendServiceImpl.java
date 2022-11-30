@@ -7,6 +7,8 @@ import com.jd.bluedragon.common.dto.base.request.OperatorInfo;
 import com.jd.bluedragon.common.dto.board.BizSourceEnum;
 import com.jd.bluedragon.common.dto.comboard.request.*;
 import com.jd.bluedragon.common.dto.comboard.response.*;
+import com.jd.bluedragon.common.dto.operation.workbench.enums.UnloadScanTypeEnum;
+import com.jd.bluedragon.common.dto.operation.workbench.unload.response.LabelOption;
 import com.jd.bluedragon.common.lock.redis.JimDbLock;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BoardCommonManagerImpl;
@@ -43,6 +45,7 @@ import com.jd.bluedragon.distribution.jy.dto.comboard.JyBizTaskComboardReq;
 import com.jd.bluedragon.distribution.jy.enums.ComboardBarCodeTypeEnum;
 import com.jd.bluedragon.distribution.jy.enums.UnloadProductTypeEnum;
 import com.jd.bluedragon.distribution.jy.enums.ComboardStatusEnum;
+import com.jd.bluedragon.distribution.jy.manager.IJyComboardJsfManager;
 import com.jd.bluedragon.distribution.jy.service.comboard.JyComboardAggsService;
 import com.jd.bluedragon.distribution.jy.service.comboard.JyComboardService;
 import com.jd.bluedragon.distribution.middleend.sorting.dao.DynamicSortingQueryDao;
@@ -72,12 +75,17 @@ import com.jd.bluedragon.dms.utils.BarCodeType;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.coo.sa.sequence.JimdbSequenceGen;
+import com.jd.intelligent.common.model.enums.GoodsTypeEnum;
 import com.jd.jim.cli.Cluster;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.transboard.api.dto.*;
 import com.jd.transboard.api.enums.ResponseEnum;
 import com.jdl.basic.api.domain.cross.*;
 
+import com.jdl.jy.realtime.base.Pager;
+import com.jdl.jy.realtime.model.es.comboard.ComboardScanedDto;
+import com.jdl.jy.realtime.model.es.comboard.JyComboardPackageDetail;
+import com.sun.org.apache.regexp.internal.RE;
 import java.util.*;
 import java.util.Date;
 import java.util.HashMap;
@@ -96,6 +104,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.CollectionUtils;
 
 import static com.jd.bluedragon.Constants.LOCK_EXPIRE;
+import static com.jd.bluedragon.Constants.RESULT_SUCCESS;
+import static com.jd.bluedragon.Constants.SUCCESS_CODE;
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.*;
 import static com.jd.bluedragon.distribution.businessCode.BusinessCodeFromSourceEnum.JY_APP;
 import static com.jd.bluedragon.distribution.loadAndUnload.exception.LoadIllegalException.BOARD_TOTC_FAIL_INTERCEPT_MESSAGE;
@@ -161,6 +171,8 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   SendMService sendMService;
   @Autowired
   IDeliveryOperationService deliveryOperationService;
+  @Autowired
+  IJyComboardJsfManager comboardJsfManager;
 
   private static final Integer BOX_TYPE = 1;
 
@@ -171,7 +183,6 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   @Override
   public InvokeResult<CrossDataResp> listCrossData(CrossDataReq request) {
     log.info("开始获取场地滑道信息：{}", JsonHelper.toJson(request));
-    
     CrossPageQuery query = new CrossPageQuery();
     if (!checkBaseRequest(request)) {
       return new InvokeResult<>(RESULT_THIRD_ERROR_CODE, PARAM_ERROR);
@@ -1072,7 +1083,8 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     if (barCodeType == null) {
       throw new JyBizException("请扫描正确的条码！");
     }
-    if (Objects.equals(SendVehicleScanTypeEnum.SCAN_ONE.getCode(), request.getScanType()) &&
+    if ((Objects.equals(SendVehicleScanTypeEnum.SCAN_ONE.getCode(), request.getScanType())
+        ||Objects.equals(UnloadScanTypeEnum.SCAN_ONE.getCode(), request.getScanType())) &&
         (!Objects.equals(BarCodeType.PACKAGE_CODE.getCode(), barCodeType.getCode()) && !Objects
             .equals(BarCodeType.BOX_CODE.getCode(), barCodeType.getCode()))) {
       throw new JyBizException("请扫描包裹号或箱号！");
@@ -1441,9 +1453,55 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   }
 
   @Override
-  public InvokeResult<HaveScanStatisticsResp> queryHaveScanStatisticsUnderBoard(
-      HaveScanStatisticsReq request) {
-    return null;
+  public InvokeResult<HaveScanStatisticsResp> queryHaveScanStatisticsUnderBoard(HaveScanStatisticsReq request) {
+    checkHaveScanStatisticsParams(request);
+    HaveScanStatisticsResp haveScanStatisticsResp =new HaveScanStatisticsResp();
+    Pager<JyComboardPackageDetail> query = assembleQueryHaveScan(request);
+    Pager<ComboardScanedDto> comboardScanedDtoPager =comboardJsfManager.queryScannedDetail(query);
+    if (ObjectHelper.isNotNull(comboardScanedDtoPager) && ObjectHelper.isNotNull(comboardScanedDtoPager.getData()) ){
+      List<ComboardScanedDto> comboardScanedDtoLis = comboardScanedDtoPager.getData();
+      List<HaveScanDto> haveScanDtoList =new ArrayList<>();
+      for (ComboardScanedDto comboardScanedDto:comboardScanedDtoLis){
+        HaveScanDto haveScanDto =new HaveScanDto();
+        haveScanDto.setBarCode(comboardScanedDto.getBarCode());
+        haveScanDto.setType(comboardScanedDto.getBarCodeType());
+        haveScanDto.setPackageCount(comboardScanedDto.getPackageCount());
+        haveScanDto.setLabelOptionList(resolveProductTag(comboardScanedDto));
+        haveScanDtoList.add(haveScanDto);
+      }
+      haveScanStatisticsResp.setHaveScanDtoList(haveScanDtoList);
+    }
+    return new InvokeResult<>(SUCCESS_CODE,RESULT_SUCCESS_MESSAGE,haveScanStatisticsResp);
+  }
+
+  private List<LabelOption> resolveProductTag(ComboardScanedDto comboardScanedDto) {
+    List<LabelOption> tagList = new ArrayList<>();
+    tagList.add(new LabelOption(Constants.NO_MATCH_DATA,UnloadProductTypeEnum.getNameByCode(comboardScanedDto.getProductType())));
+    return tagList;
+  }
+
+  private Pager<JyComboardPackageDetail> assembleQueryHaveScan(HaveScanStatisticsReq request) {
+    Pager pager =new Pager();
+    JyComboardPackageDetail condition =new JyComboardPackageDetail();
+    condition.setBoardCode(request.getBoardCode());
+    condition.setScannedFlag(Constants.YN_YES);
+    condition.setOperateSiteId(request.getCurrentOperate().getSiteCode());
+    pager.setPageNo(request.getPageNo());
+    pager.setPageSize(request.getPageSize());
+    if (ObjectHelper.isEmpty(request.getPageNo())){
+      pager.setPageNo(Constants.YN_YES);
+    }
+    if (ObjectHelper.isEmpty(request.getPageSize())){
+      pager.setPageSize(Constants.COMBOARD_LIMIT);
+    }
+    pager.setSearchVo(condition);
+    return pager;
+  }
+
+  private void checkHaveScanStatisticsParams(HaveScanStatisticsReq request) {
+    if (ObjectHelper.isEmpty(request.getBoardCode())){
+      throw new JyBizException("参数错误：缺失板号");
+    }
   }
 
   @Override
@@ -1471,9 +1529,48 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   }
 
   @Override
-  public InvokeResult<WaitScanStatisticsResp> queryWaitScanStatisticsUnderSendFlow(
-      WaitScanStatisticsReq request) {
-    return null;
+  public InvokeResult<WaitScanStatisticsResp> queryWaitScanStatisticsUnderSendFlow(WaitScanStatisticsReq request) {
+    checkWaitScanParams(request);
+    WaitScanStatisticsResp waitScanStatisticsResp =new WaitScanStatisticsResp();
+    try {
+      List<JyComboardAggsEntity> comboardAggsEntityList =jyComboardAggsService.queryComboardAggs(request.getCurrentOperate().getSiteCode(),request.getEndSiteId(),UnloadProductTypeEnum.values());
+      if (ObjectHelper.isNotNull(comboardAggsEntityList)){
+        List<GoodsCategoryDto> goodsCategoryDtoList =new ArrayList<>();
+        for (JyComboardAggsEntity jyComboardAggsEntity:comboardAggsEntityList){
+          GoodsCategoryDto goodsCategoryDto =new GoodsCategoryDto();
+          goodsCategoryDto.setType(jyComboardAggsEntity.getProductType());
+          goodsCategoryDto.setName(UnloadProductTypeEnum.getNameByCode(jyComboardAggsEntity.getProductType()));
+          goodsCategoryDto.setCount(jyComboardAggsEntity.getScannedCount());
+          goodsCategoryDtoList.add(goodsCategoryDto);
+        }
+        waitScanStatisticsResp.setGoodsCategoryDtoList(goodsCategoryDtoList);
+        Pager<JyComboardPackageDetail> query =assembleQueryWaitScan(request);
+        Pager<ComboardScanedDto> pager =comboardJsfManager.queryWaitScanDetail(query);
+        if (ObjectHelper.isNotNull(pager) && ObjectHelper.isNotNull(pager.getData())){
+
+        }
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+      log.error("queryWaitScanStatisticsUnderSendFlow 查询流向待扫数据异常",e);
+    }
+    return new InvokeResult<>(RESULT_SUCCESS, RESULT_SUCCESS_MESSAGE,waitScanStatisticsResp);
+  }
+
+  private Pager<JyComboardPackageDetail> assembleQueryWaitScan(WaitScanStatisticsReq request) {
+    Pager<JyComboardPackageDetail> pager = new Pager<>();
+    JyComboardPackageDetail con =new JyComboardPackageDetail();
+    pager.setSearchVo(con);
+    return pager;
+  }
+
+  private void checkWaitScanParams(WaitScanStatisticsReq request) {
+    if (ObjectHelper.isEmpty(request.getEndSiteId())){
+      throw  new JyBizException("参数错误:缺少endSiteId");
+    }
+    if(ObjectHelper.isEmpty(request.getGoodsType())){
+      request.setGoodsType(UnloadProductTypeEnum.FAST.getCode());
+    }
   }
 
   @Override

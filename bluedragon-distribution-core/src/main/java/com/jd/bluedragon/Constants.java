@@ -1734,6 +1734,8 @@ public class Constants {
      */
     public static final int DB_SQL_IN_LIMIT_NUM = 200;
 
+    public static  final  int COMBOARD_LIMIT =100;
+
     /**
      * 传摆发货功能编码：0203004-gz
      */

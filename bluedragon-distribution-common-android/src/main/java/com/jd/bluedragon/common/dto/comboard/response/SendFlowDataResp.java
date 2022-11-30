@@ -1,5 +1,6 @@
 package com.jd.bluedragon.common.dto.comboard.response;
 
+import com.jd.bluedragon.common.dto.base.request.User;
 import java.io.Serializable;
 import java.util.List;
 
@@ -9,6 +10,7 @@ public class SendFlowDataResp implements Serializable {
      * 岗位码下扫描实操的人数
      */
     private Integer scanUserCount;
+    private List<User>  scanUserList;
     private List<SendFlowDto> sendFlowDtoList;
 
     public Integer getScanUserCount() {
@@ -25,5 +27,13 @@ public class SendFlowDataResp implements Serializable {
 
     public void setSendFlowDtoList(List<SendFlowDto> sendFlowDtoList) {
         this.sendFlowDtoList = sendFlowDtoList;
+    }
+
+    public List<User> getScanUserList() {
+        return scanUserList;
+    }
+
+    public void setScanUserList(List<User> scanUserList) {
+        this.scanUserList = scanUserList;
     }
 }

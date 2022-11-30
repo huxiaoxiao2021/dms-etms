@@ -14,8 +14,7 @@ public class HaveScanDto implements Serializable {
     /**
      * 包含包裹数量
      */
-    private String packageCount;
-
+    private Integer packageCount;
     /**
      * 包裹标签
      */
@@ -37,11 +36,11 @@ public class HaveScanDto implements Serializable {
         this.type = type;
     }
 
-    public String getPackageCount() {
+    public Integer getPackageCount() {
         return packageCount;
     }
 
-    public void setPackageCount(String packageCount) {
+    public void setPackageCount(Integer packageCount) {
         this.packageCount = packageCount;
     }
 
