@@ -1288,7 +1288,7 @@ public class WaybillServiceImpl implements WaybillService {
      */
     private boolean checkEasyFreezeSiteConf(Integer siteCode,Date scanTime){
         EasyFreezeSiteDto dto = easyFreezeSiteManager.selectOneBysiteCode(siteCode);
-        if(dto == null){
+        if(dto == null || dto.getUseState().equals(0)){
             return false;
         }
         //配置的提示开始时间
