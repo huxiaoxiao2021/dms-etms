@@ -516,6 +516,8 @@ public class UccPropertyConfiguration {
      */
     private int goodsResidenceTime;
 
+    private String planSendTime ;
+
     public String getAddiOwnNumberConf() {
         return addiOwnNumberConf;
     }
@@ -2274,5 +2276,13 @@ public class UccPropertyConfiguration {
 
     public void setGoodsResidenceTime(int goodsResidenceTime) {
         this.goodsResidenceTime = goodsResidenceTime;
+    }
+
+    public String getPlanSendTime() {
+        return planSendTime;
+    }
+
+    public void setPlanSendTime(String planSendTime) {
+        this.planSendTime = planSendTime;
     }
 }
