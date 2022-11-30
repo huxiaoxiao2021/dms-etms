@@ -517,6 +517,8 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
 
     private InvokeResult<ScanPackageRespDto> packageScan(ScanPackageDto scanPackageDto, JyBizTaskUnloadVehicleEntity unloadVehicleEntity,
                                                          InvokeResult<ScanPackageRespDto> invokeResult) {
+
+        log.info("packageScan 入参-{}",JSON.toJSONString(scanPackageDto));
         String barCode = scanPackageDto.getScanCode();
         String bizId = scanPackageDto.getBizId();
         Integer operateSiteCode = scanPackageDto.getCurrentOperate().getSiteCode();
@@ -604,6 +606,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             jyUnloadVehicleCheckTysService.dealUnloadAndBoxToBoard(scanPackageDto, scanPackageRespDto);
         }
         //易冻品校验
+        log.info("易冻品校验 packageScan 入参-{}",JSON.toJSONString(scanPackageDto));
         InvokeResult<Boolean> checkResult
                 = waybillService.checkEasyFreeze(waybillCode, scanPackageDto.getCurrentOperate().getOperateTime(), operateSiteCode);
         log.info("packageScan-易冻品校验结果-{}",JSON.toJSONString(checkResult));
@@ -624,6 +627,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
 
     private InvokeResult<ScanPackageRespDto> waybillScan(ScanPackageDto scanPackageDto, JyBizTaskUnloadVehicleEntity unloadVehicleEntity,
                                                          InvokeResult<ScanPackageRespDto> invokeResult) {
+        log.info("易冻品校验 waybillScan 入参-{}",JSON.toJSONString(scanPackageDto));
         String barCode = scanPackageDto.getScanCode();
         String bizId = scanPackageDto.getBizId();
         ScanPackageRespDto scanPackageRespDto = invokeResult.getData();
@@ -693,6 +697,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         }
         // todo  添加易冻品逻辑判断
         //易冻品校验
+        log.info("易冻品校验 waybillScan 入参-{}",JSON.toJSONString(scanPackageDto));
         InvokeResult<Boolean> easyFreezeCheckResult
                 = waybillService.checkEasyFreeze(waybillCode, scanPackageDto.getCurrentOperate().getOperateTime(), scanPackageDto.getCurrentOperate().getSiteCode());
         log.info("waybillScan -易冻品校验结果-{}",JSON.toJSONString(easyFreezeCheckResult));
