@@ -1295,9 +1295,12 @@ public class WaybillServiceImpl implements WaybillService {
         Date remindStartTime = dto.getRemindStartTime();
         //配置的提示结束时间
         Date remindEndTime = dto.getRemindEndTime();
+        log.info("配置开始时间-{}，配置结束时间-{}",JSON.toJSONString(remindStartTime),JSON.toJSONString(remindEndTime));
         if(DateHelper.compare(scanTime,remindStartTime)>=0 && DateHelper.compare(remindEndTime,scanTime) >=0){
+            log.info("配置时间满足");
             return true;
         }
+        log.info("配置时间不满足");
         return false;
 
     }
