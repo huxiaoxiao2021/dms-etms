@@ -38,6 +38,7 @@ public class EasyFreezeSiteManagerImpl implements EasyFreezeSiteManager {
                 dto.setRemindStartTime(result.getData().getRemindStartTime());
                 dto.setRemindEndTime(result.getData().getRemindEndTime());
                 dto.setSiteCode(result.getData().getSiteCode());
+                dto.setUseState(result.getData().getUseState());
                 log.info("获取单个易冻品站点配置----{}",JSON.toJSONString(dto));
                 return  dto;
             }
