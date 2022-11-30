@@ -1549,10 +1549,19 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
           goodsCategoryDtoList.add(goodsCategoryDto);
         }
         waitScanStatisticsResp.setGoodsCategoryDtoList(goodsCategoryDtoList);
+
         Pager<JyComboardPackageDetail> query =assembleQueryWaitScan(request);
         Pager<ComboardScanedDto> pager =comboardJsfManager.queryWaitScanDetail(query);
         if (ObjectHelper.isNotNull(pager) && ObjectHelper.isNotNull(pager.getData())){
-
+          List<ComboardScanedDto> comboardScanedDtoList =pager.getData();
+          List<WaitScanDto> waitScanDtoList =new ArrayList<>();
+          for (ComboardScanedDto comboardScanedDto:comboardScanedDtoList){
+            WaitScanDto waitScanDto =new WaitScanDto();
+            waitScanDto.setBarCode(comboardScanedDto.getBarCode());
+            //waitScanDto.setType();
+            waitScanDtoList.add(waitScanDto);
+          }
+          waitScanStatisticsResp.setWaitScanDtoList(waitScanDtoList);
         }
       }
     } catch (Exception e) {
@@ -1565,6 +1574,10 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   private Pager<JyComboardPackageDetail> assembleQueryWaitScan(WaitScanStatisticsReq request) {
     Pager<JyComboardPackageDetail> pager = new Pager<>();
     JyComboardPackageDetail con =new JyComboardPackageDetail();
+    con.setOperateSiteId(request.getCurrentOperate().getSiteCode());
+    con.setReceiveSiteId(String.valueOf(request.getEndSiteId()));
+    con.setProductType(request.getGoodsType());
+    con.setScannedFlag(Constants.YN_NO);
     pager.setSearchVo(con);
     return pager;
   }
