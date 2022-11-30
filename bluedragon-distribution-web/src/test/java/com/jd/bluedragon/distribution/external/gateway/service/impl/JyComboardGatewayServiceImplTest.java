@@ -30,7 +30,7 @@ public class JyComboardGatewayServiceImplTest {
 
     @Autowired
     private JyComboardGatewayService jyComboardGatewayService;
-    
+
     @Test
     public void listCrossDataTest() {
         CrossDataReq crossDataReq = new CrossDataReq();
@@ -353,10 +353,13 @@ public class JyComboardGatewayServiceImplTest {
     @Test
     public void comboardScanTest(){
         ComboardScanReq scanReq =new ComboardScanReq();
-        scanReq.setTemplateCode("CTT22112500000001");
+        scanReq.setTemplateCode("CTT22113000000003");
         scanReq.setGroupCode("G00000047004");
         scanReq.setBarCode("JD0003403815964-1-1-");
         scanReq.setScanType(1);
+        scanReq.setEndSiteId(39);
+        scanReq.setSupportMutilSendFlow(true);
+        //scanReq.setNeedSkipSendFlowCheck(true);
         CurrentOperate operate = new CurrentOperate();
         operate.setSiteCode(910);
         operate.setSiteName("北京马驹桥分拣中心");
@@ -433,7 +436,7 @@ public class JyComboardGatewayServiceImplTest {
         resp.setCancelList(cancelList);
         jyComboardGatewayService.cancelComboard(resp);
     }
-    
+
     @Test
     public void finishBoardTest() {
         BoardReq resp = new BoardReq();
@@ -463,7 +466,7 @@ public class JyComboardGatewayServiceImplTest {
         JdCResponse jdCResponse1 = jyComboardGatewayService.finishBoard(resp2);
         System.out.println(JsonHelper.toJson(jdCResponse1));
     }
-    
+
     @Test
     public void finishBoardsUnderCTTGroupTest() {
         CTTGroupReq resp = new CTTGroupReq();
@@ -480,7 +483,7 @@ public class JyComboardGatewayServiceImplTest {
         JdCResponse jdCResponse = jyComboardGatewayService.finishBoardsUnderCTTGroup(resp);
         System.out.println(JsonHelper.toJson(jdCResponse));
     }
-    
+
     @Test
     public void queryBelongBoardByBarCodeTest() {
         QueryBelongBoardReq resp = new QueryBelongBoardReq();
@@ -497,7 +500,7 @@ public class JyComboardGatewayServiceImplTest {
         JdCResponse<QueryBelongBoardResp> re = jyComboardGatewayService.queryBelongBoardByBarCode(resp);
         System.out.println(JsonHelper.toJson(re));
     }
-    
+
     @Test
     public void listPackageDetailUnderBoxTest() {
         BoxQueryReq resp = new BoxQueryReq();

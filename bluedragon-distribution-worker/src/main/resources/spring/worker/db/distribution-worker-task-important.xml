@@ -284,7 +284,7 @@
         <property name="desc" value="jy发货任务迁移逻辑"/>
     </bean>
 
-    <bean id="jyComboardAndSendTask" class="com.jd.bluedragon.distribution.worker.delivery.JyComboardAndSendTask"
+   <!-- <bean id="jyComboardAndSendTask" class="com.jd.bluedragon.distribution.worker.delivery.JyComboardAndSendTask"
       init-method="init" lazy-init="false" depends-on="managerFactory">
         <property name="dataSource" ref="taskDataSource"/>
         <property name="managerFactory" ref="managerFactory"/>
@@ -292,7 +292,7 @@
         <property name="ownSign" value="${ownSign}"/>
         <property name="type" value="1380"/>
         <property name="desc" value="jy异步组板发货任务"/>
-    </bean>
+    </bean>-->
 
 
     <bean id="createSendTask" class="com.jd.bluedragon.distribution.worker.delivery.CreateSendTask"
