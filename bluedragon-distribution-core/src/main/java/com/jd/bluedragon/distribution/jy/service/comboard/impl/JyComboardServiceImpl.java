@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.jy.service.comboard.impl;
 
+import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.distribution.jy.comboard.JyComboardEntity;
 import com.jd.bluedragon.distribution.jy.dao.comboard.JyComboardDao;
 import com.jd.bluedragon.distribution.jy.dto.comboard.BatchUpdateCancelReq;
@@ -20,8 +21,8 @@ public class JyComboardServiceImpl implements JyComboardService {
     private JyComboardDao jyComboardDao;
 
     @Override
-    public int queryUserCountByStartSiteCode(Long startSiteId) {
-        return jyComboardDao.queryUserCountByStartSiteCode(startSiteId);
+    public List<User> queryUserByStartSiteCode(Long startSiteId) {
+        return jyComboardDao.queryUserByStartSiteCode(startSiteId);
     }
 
     @Override

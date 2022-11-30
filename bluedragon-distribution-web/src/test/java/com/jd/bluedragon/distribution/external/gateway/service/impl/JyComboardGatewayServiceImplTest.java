@@ -304,7 +304,7 @@ public class JyComboardGatewayServiceImplTest {
         CurrentOperate operate = new CurrentOperate();
         resp.setGroupCode("G00000047004");
         operate.setSiteCode(910);
-        resp.setTemplateCode("CTT22112800000002");
+        resp.setTemplateCode("CTT22113000000003");
         operate.setSiteName("北京马驹桥分拣中心");
         resp.setCurrentOperate(operate);
         User user = new User();

@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.jy.service.comboard;
 
+import com.jd.bluedragon.common.dto.base.request.User;
 import com.jd.bluedragon.distribution.jy.comboard.JyComboardEntity;
 import com.jd.bluedragon.distribution.jy.dto.comboard.BatchUpdateCancelReq;
 
@@ -16,7 +17,7 @@ public interface JyComboardService {
      * @param startSiteId
      * @return
      */
-    int queryUserCountByStartSiteCode(Long startSiteId);
+    List<User> queryUserByStartSiteCode(Long startSiteId);
 
     /**
      * 根据板号获取运单号
