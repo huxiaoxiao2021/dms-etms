@@ -33,15 +33,18 @@ public class EasyFreezeSiteManagerImpl implements EasyFreezeSiteManager {
             Result<com.jdl.basic.api.domain.easyFreeze.EasyFreezeSiteDto> result = easyFreezeSiteJsfService.selectOneBysiteCode(siteCode);
             log.info("获取单个易冻品站点配置出参-{}", JSON.toJSONString(result));
             if(ResultCodeConstant.SUCCESS == result.getCode() && null != result.getData()){
+                log.info("获取单个易冻品站点配置----");
                 EasyFreezeSiteDto dto = new EasyFreezeSiteDto();
                 dto.setRemindStartTime(result.getData().getRemindStartTime());
                 dto.setRemindEndTime(result.getData().getRemindEndTime());
                 dto.setSiteCode(result.getData().getSiteCode());
+                log.info("获取单个易冻品站点配置----{}",JSON.toJSONString(dto));
                 return  dto;
             }
         }catch (Exception e){
             log.error("获取单个易冻品站点配置异常 -{}",e.getMessage(),e);
         }
+        log.info("获取单个易冻品站点配置===返回");
         return null;
     }
 }

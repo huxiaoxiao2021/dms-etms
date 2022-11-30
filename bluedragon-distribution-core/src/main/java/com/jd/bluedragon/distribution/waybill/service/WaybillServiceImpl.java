@@ -1287,6 +1287,7 @@ public class WaybillServiceImpl implements WaybillService {
      * @return
      */
     private boolean checkEasyFreezeSiteConf(Integer siteCode,Date scanTime){
+        log.info("checkEasyFreezeSiteConf------");
         EasyFreezeSiteDto dto = easyFreezeSiteManager.selectOneBysiteCode(siteCode);
         log.info("checkEasyFreezeSiteConf--{}--state:-{}",JSON.toJSONString(dto),(dto.getUseState()).equals(0));
         log.info("  dto == null-{} ",(dto == null));
