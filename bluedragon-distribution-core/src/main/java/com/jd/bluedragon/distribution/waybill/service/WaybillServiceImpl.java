@@ -1288,9 +1288,13 @@ public class WaybillServiceImpl implements WaybillService {
      */
     private boolean checkEasyFreezeSiteConf(Integer siteCode,Date scanTime){
         EasyFreezeSiteDto dto = easyFreezeSiteManager.selectOneBysiteCode(siteCode);
-        if(dto == null || dto.getUseState().equals(0)){
+        log.info("checkEasyFreezeSiteConf--{}--state:-{}",JSON.toJSONString(dto),(dto.getUseState()).equals(0));
+        log.info("  dto == null-{} ",(dto == null));
+        if(( dto == null) || (dto.getUseState()).equals(0)){
+            log.info("checkEasyFreezeSiteConf ----false");
             return false;
         }
+        log.info("checkEasyFreezeSiteConf ----");
         //配置的提示开始时间
         Date remindStartTime = dto.getRemindStartTime();
         //配置的提示结束时间
