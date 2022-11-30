@@ -905,6 +905,14 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
                 target.setTransportModeFlag(TextConstants.PRODUCT_NAME_TKS_FLAG);
             }
         }
+        //添加抖音标识
+        if(Constants.SOURCE_CODE_DOUYIN.equals(waybill.getSourceCode())) {
+            if(StringHelper.isNotEmpty(transportMode)){
+            	target.setTransportMode(StringHelper.append(TextConstants.PRODUCT_FLAG_DOUYIN_PRE, transportMode));
+            }else {
+            	target.setTransportMode(TextConstants.PRODUCT_FLAG_DOUYIN);
+            }
+        }
 
         /**
          * 1.waybill_sign第80位等于1时，面单打印“特惠运”
