@@ -1250,10 +1250,6 @@ public class WaybillServiceImpl implements WaybillService {
         if(planSendvehicleTime == null){
             return false;
         }
-        String planSendTime = uccPropertyConfiguration.getPlanSendTime();
-        log.info("ucc 计划发货时间-{}",JSON.toJSONString(planSendTime));
-        Date planSenddate = DateHelper.parseDate(planSendTime, DateHelper.DATE_FORMAT_YYYYMMDDHHmmss2);
-        log.info("计划发货时间-{} 当前扫描时间-{}",JSON.toJSONString(planSenddate),JSON.toJSONString(scanTime));
         int miniDiff = DateHelper.getMiniDiff(scanTime, planSendvehicleTime);
         int goodsResidenceTime = uccPropertyConfiguration.getGoodsResidenceTime();
         //使用分钟更精确些
@@ -1279,8 +1275,10 @@ public class WaybillServiceImpl implements WaybillService {
                 }
             }
         }
-        Date date = DateHelper.parseDate(DateHelper.DATE_FORMAT_YYYYMMDDHHmmss2, "2022-11-30 22:00:00");
-        return date;
+        String planSendTime = uccPropertyConfiguration.getPlanSendTime();
+        Date planSenddate = DateHelper.parseDate(planSendTime, DateHelper.DATE_FORMAT_YYYYMMDDHHmmss2);
+        log.info("ucc 计划发货时间-{}",JSON.toJSONString(planSendTime));
+        return planSenddate;
     }
 
     /**
