@@ -355,7 +355,7 @@ public class JyComboardGatewayServiceImplTest {
         ComboardScanReq scanReq =new ComboardScanReq();
         scanReq.setTemplateCode("CTT22113000000003");
         scanReq.setGroupCode("G00000047004");
-        scanReq.setBarCode("JD0003403815964-1-1-");
+        scanReq.setBarCode("JD0003403871414-1-1-");
         scanReq.setScanType(1);
         scanReq.setEndSiteId(39);
         scanReq.setSupportMutilSendFlow(true);

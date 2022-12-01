@@ -908,9 +908,6 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
    * 执行发货
    */
   private void execSend(ComboardScanReq request) {
-    /*if (WaybillUtil.isWaybillCode(request.getBarCode())) {
-      return;
-    }*/
     SendKeyTypeEnum sendType = getSendType(request.getBarCode());
     SendM sendM = toSendMDomain(request);
     boolean oldForceSend = true;
