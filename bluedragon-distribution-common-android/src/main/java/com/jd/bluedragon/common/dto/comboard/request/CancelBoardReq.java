@@ -20,6 +20,11 @@ public class CancelBoardReq extends BaseReq implements Serializable {
    * 目的地站点名称
    */
   private String endSiteName;
+
+  /**
+   * 全选标识
+   */
+  private boolean selectAll;
   
   public List<ComboardDetailDto> getCancelList() {
     return cancelList;
@@ -51,5 +56,13 @@ public class CancelBoardReq extends BaseReq implements Serializable {
 
   public void setEndSiteName(String endSiteName) {
     this.endSiteName = endSiteName;
+  }
+
+  public boolean isSelectAll() {
+    return selectAll;
+  }
+
+  public void setSelectAll(boolean selectAll) {
+    this.selectAll = selectAll;
   }
 }

@@ -107,7 +107,7 @@ public class GroupBoardManagerImpl implements GroupBoardManager {
     @JProfiler(jKey = "dmsWeb.jsf.tc.groupBoardService.removeBardBoxByWaybillCode",jAppName= Constants.UMP_APP_NAME_DMSWEB,
             mState = {JProEnum.TP, JProEnum.FunctionError})
     @Override
-    public Response removeBardBoxByWaybillCode(RemoveBoardBoxDto removeBoardWaybillDto) {
+    public Response removeBoardBoxByWaybillCode(RemoveBoardBoxDto removeBoardWaybillDto) {
         return groupBoardService.removeBardBoxByWaybillCode(removeBoardWaybillDto);
     }
 

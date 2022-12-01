@@ -56,4 +56,11 @@ public interface JyGroupSortCrossDetailService {
      * @return
      */
     CTTGroupDataResp listGroupByEndSiteCodeOrCTTCode(JyGroupSortCrossDetailEntity entity);
+
+    /**
+     * 查询流向
+     * @param query
+     * @return
+     */
+    JyGroupSortCrossDetailEntity selectOneByGroupCrossTableTrolley(JyGroupSortCrossDetailEntity query);
 }
