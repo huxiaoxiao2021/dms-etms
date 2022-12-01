@@ -41,6 +41,8 @@ public class BoardDto implements Serializable {
 
     private String bizId;
 
+    private String sendCode;
+
     public String getBoardCode() {
         return boardCode;
     }
@@ -119,5 +121,13 @@ public class BoardDto implements Serializable {
 
     public void setBizId(String bizId) {
         this.bizId = bizId;
+    }
+
+    public String getSendCode() {
+        return sendCode;
+    }
+
+    public void setSendCode(String sendCode) {
+        this.sendCode = sendCode;
     }
 }

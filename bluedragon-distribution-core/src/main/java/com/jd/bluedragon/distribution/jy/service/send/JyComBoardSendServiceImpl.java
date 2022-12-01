@@ -962,6 +962,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
         throw new JyBizException("已封车禁止继续扫描！");
       }
       request.setBizId(entity.getBizId());
+      request.setSendCode(entity.getSendCode());
       return;
     }
     /**
@@ -980,6 +981,8 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       if (ObjectHelper.isNotNull(boardDto)) {
         if (!boardDto.getBulkFlag() && boardDto.getCount() < ucc.getJyComboardCountLimit()) {
           request.setBoardCode(boardDto.getBoardCode());
+          request.setBizId(boardDto.getBizId());
+          request.setSendCode(boardDto.getSendCode());
         } else {
           throw new JyBizException(BOARD_HAS_BEEN_FULL_CODE,BOARD_HAS_BEEN_FULL_MESSAGE);
         }
