@@ -65,6 +65,7 @@ public class DMSSendCodeJSFServiceImpl implements DMSSendCodeJSFService {
     private SendDetailService sendDetailService;
 
     @Override
+    @JProfiler(jKey = "DMS.CORE.DMSSendCodeJSFServiceImpl.queryBigInfoBySendCode", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP,JProEnum.FunctionError})
     public InvokeResult<HugeSendCodeEntity> queryBigInfoBySendCode(String sendCode) {
         InvokeResult<HugeSendCodeEntity> result = new InvokeResult<>();
         result.success();
@@ -84,9 +85,17 @@ public class DMSSendCodeJSFServiceImpl implements DMSSendCodeJSFService {
         if (weightVolSendCodeSumVoBaseEntity != null && weightVolSendCodeSumVoBaseEntity.isSuccess()
                 && weightVolSendCodeSumVoBaseEntity.getData() != null) {
             WeightVolSendCodeSumVo sumVo = weightVolSendCodeSumVoBaseEntity.getData();
+            CallerInfo callerInfo1 = ProfilerHelper.registerInfo( "DMSSendCodeJSFService.queryBigInfoBySendCode.send.processing");
+            if(sumVo.getSendDetailCount()  == 0){
+                Profiler.registerInfoEnd(callerInfo1);
+                result.customMessage(SEND_PROCESSING.getCode(), SEND_PROCESSING.getDesc());
+                logger.info("根据批次号查询体积重量es有积压,es中发货数量为0，sendCode:{}", sendCode);
+                return result;
+            }
             entity.setVolume(weightVolSendCodeSumVoBaseEntity.getData().getPackageVolumeSum());
             entity.setWeight(weightVolSendCodeSumVoBaseEntity.getData().getPackageWeightSum());
             if(sumVo.getSendDetailCount() < checkResult.getValue()){
+                Profiler.registerInfoEnd(callerInfo1);
                 result.customMessage(SEND_PROCESSING.getCode(), SEND_PROCESSING.getDesc());
                 logger.info("根据批次号查询体积重量es有积压，表数量:{}大于es中发货数量:{},sendCode:", checkResult.getValue(),
                         sumVo.getSendDetailCount(), sendCode);
@@ -94,6 +103,7 @@ public class DMSSendCodeJSFServiceImpl implements DMSSendCodeJSFService {
                 logger.info("根据批次号查询体积重量发货数量正常，表数量:{}与es中发货数量:{}对比通过,sendCode:", checkResult.getValue(),
                         sumVo.getSendDetailCount(), sendCode);
             }
+
         } else {
             logger.error("根据批次号查询批次下重量体积失败：{}", sendCode);
         }
@@ -117,7 +127,8 @@ public class DMSSendCodeJSFServiceImpl implements DMSSendCodeJSFService {
         com.jd.bluedragon.distribution.base.domain.InvokeResult<Boolean> validate =  sendCodeService.validateSendCodeEffective(sendCode);
         //服务执行异常
         if(validate.getCode() == com.jd.bluedragon.distribution.base.domain.InvokeResult.SERVER_ERROR_CODE){
-            result.customMessage(validate.getCode(), validate.getMessage());
+            result.customMessage(com.jd.bluedragon.distribution.base.domain.InvokeResult.SERVER_ERROR_CODE,
+                    com.jd.bluedragon.distribution.base.domain.InvokeResult.SERVER_ERROR_MESSAGE);
             return Pair.of(result, null);
         }
         //非200不存在（不符合正则，或在库里不存在）
