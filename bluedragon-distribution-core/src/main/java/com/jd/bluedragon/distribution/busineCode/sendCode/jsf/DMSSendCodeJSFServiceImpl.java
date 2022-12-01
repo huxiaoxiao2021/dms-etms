@@ -37,8 +37,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.jd.bluedragon.distribution.busineCode.sendCode.contant.HugeSendCodeResponseEnum.NOT_DMS_POSITIVE;
-import static com.jd.bluedragon.distribution.busineCode.sendCode.contant.HugeSendCodeResponseEnum.SEND_PROCESSING;
+import static com.jd.bluedragon.distribution.busineCode.sendCode.contant.HugeSendCodeResponseEnum.*;
 
 /**
  * <p>
@@ -166,7 +165,7 @@ public class DMSSendCodeJSFServiceImpl implements DMSSendCodeJSFService {
         if(sendDetailCount == 0){
             logger.error("根据批次号查询批次内的体积重量,批次号无发货数据，sendcode:{},sendDetailCount:{}",
                     sendCode, sendDetailCount);
-            result.customMessage(NOT_DMS_POSITIVE.getCode(), NOT_DMS_POSITIVE.getDesc());
+            result.customMessage(NO_SEND.getCode(), NO_SEND.getDesc());
             return Pair.of(result, 0);
         }
         
