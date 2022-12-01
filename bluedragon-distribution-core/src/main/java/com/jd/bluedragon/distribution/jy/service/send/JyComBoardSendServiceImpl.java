@@ -1445,6 +1445,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     if (ObjectHelper.isNotNull(entityList) && entityList.size() > 0) {
       List<String> boardCodeList = new ArrayList<>();
       List<BoardDto> boardDtoList = new ArrayList<>();
+      resp.setBoardDtoList(boardDtoList);
       for (JyBizTaskComboardEntity entity : entityList) {
         boardCodeList.add(entity.getBoardCode());
         BoardDto boardDto =new BoardDto();
@@ -1743,8 +1744,8 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
         boardReq.setCurrentOperate(request.getCurrentOperate());
         boardReq.setUser(boardReq.getUser());
         InvokeResult<ComboardDetailResp> boxOrPackCodeList = listPackageOrBoxUnderBoard(boardReq);
-        if (boxOrPackCodeList != null 
-                && boxOrPackCodeList.getData() != null 
+        if (boxOrPackCodeList != null
+                && boxOrPackCodeList.getData() != null
                 && !CollectionUtils.isEmpty(boxOrPackCodeList.getData().getComboardDetailDtoList())) {
           for (ComboardDetailDto dto : boxOrPackCodeList.getData().getComboardDetailDtoList()) {
             barCodeList.add(dto.getBarCode());
