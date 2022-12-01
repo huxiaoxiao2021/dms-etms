@@ -1275,10 +1275,7 @@ public class WaybillServiceImpl implements WaybillService {
                 }
             }
         }
-        String planSendTime = uccPropertyConfiguration.getPlanSendTime();
-        Date planSenddate = DateHelper.parseDate(planSendTime, DateHelper.DATE_FORMAT_YYYYMMDDHHmmss2);
-        log.info("ucc 计划发货时间-{}",JSON.toJSONString(planSendTime));
-        return planSenddate;
+       return null;
     }
 
     /**
