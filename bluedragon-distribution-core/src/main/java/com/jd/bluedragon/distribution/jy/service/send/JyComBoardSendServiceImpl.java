@@ -696,8 +696,10 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       resp.setBulkFlag(boardTaskInfo.getBulkFlag());
       // 获取组板包裹号箱号信息
       JyComboardAggsEntity boardInfo = jyComboardAggsService.queryComboardAggs(boardCode);
-      resp.setPackageHaveScanCount(boardInfo.getPackageScannedCount());
-      resp.setBoxHaveScanCount(boardInfo.getBoxScannedCount());
+      if (boardInfo != null ) {
+        resp.setPackageHaveScanCount(boardInfo.getPackageScannedCount());
+        resp.setBoxHaveScanCount(boardInfo.getBoxScannedCount());
+      }
       // 获取当前流向的滑道号和笼车号
       TableTrolleyQuery query = new TableTrolleyQuery();
       query.setSiteCode(endSiteId);
