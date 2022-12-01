@@ -192,6 +192,8 @@
 		<property name="sealStatusBatchSizeLimit" value="${sealStatusBatchSizeLimit:30}"/>
 		<property name="jyComboardCountLimit" value="${jyComboardCountLimit:100}"/>
 		<property name="bulkScanPackageMinCount" value="${bulkScanPackageMinCount:100}"/>
+		<property name="jyComboardTaskCreateTimeBeginDay" value="${jyComboardTaskCreateTimeBeginDay:7}"/>
+
 
 
 
@@ -368,6 +370,7 @@
 				<value>uccPropertyConfiguration.sealStatusBatchSizeLimit</value>
 				<value>uccPropertyConfiguration.jyComboardCountLimit</value>
 				<value>uccPropertyConfiguration.bulkScanPackageMinCount</value>
+				<value>uccPropertyConfiguration.jyComboardTaskCreateTimeBeginDay</value>
 
 
 				<value>hystrixRouteUccPropertyConfiguration.executionTimeoutInMilliseconds</value>

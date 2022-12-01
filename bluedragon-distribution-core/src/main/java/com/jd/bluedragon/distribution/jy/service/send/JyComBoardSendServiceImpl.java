@@ -1026,8 +1026,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   }
 
   private String genTaskBizId(ComboardScanReq request) {
-    String ownerKey = String.format(JyBizTaskComboardEntity.BIZ_PREFIX,
-        DateHelper.formatDate(new Date(), DateHelper.DATE_FORMATE_yyMMdd));
+    String ownerKey = String.format(JyBizTaskComboardEntity.BIZ_PREFIX, DateHelper.formatDate(new Date(), DateHelper.DATE_FORMATE_yyMMdd));
     String bizId = ownerKey + StringHelper.padZero(redisJyBizIdSequenceGen.gen(ownerKey));
     request.setBizId(bizId);
     return bizId;
@@ -1812,4 +1811,4 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       comboardDetailDtoList.add(dto);
     }
   }
-} 
+}
