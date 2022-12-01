@@ -73,6 +73,9 @@ public class JyComboardAggsServiceImpl implements JyComboardAggsService {
                         if (CollectionUtils.isNotEmpty(jyComboardAggsEntities)) {
                             redisClientCache.setEx(redisKey,JsonHelper.toJson(jyComboardAggsEntities.get(0)), LOCAL_CACHE_EXPIRE_MINUTES, TimeUnit.MINUTES);
                         }
+                        if (CollectionUtils.isNotEmpty(jyComboardAggsEntities)) {
+                            return jyComboardAggsEntities.get(0);
+                        }
                         return null;
                     }
                 });
@@ -168,7 +171,12 @@ public class JyComboardAggsServiceImpl implements JyComboardAggsService {
     }
 
     private JyComboardAggsEntity queryComboardAggsCache(JyComboardAggsCondition comboardAggsCondition) throws Exception {
-        return COMBOARD_AGGS_CACHE.get(comboardAggsCondition);
+        List<JyComboardAggsEntity> jyComboardAggsEntities = jyComboardAggsDao.queryComboardAggs(comboardAggsCondition);
+        if (CollectionUtils.isNotEmpty(jyComboardAggsEntities)){
+            return jyComboardAggsEntities.get(0);
+        }
+        return null;
+//        return COMBOARD_AGGS_CACHE.get(comboardAggsCondition);
     }
 
     @Override
