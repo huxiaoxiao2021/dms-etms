@@ -1,5 +1,7 @@
 package com.jd.bluedragon.common.dto.predict.response;
 
+import com.jd.bluedragon.common.dto.predict.model.InspectedNotSendBarCode;
+
 import java.io.Serializable;
 import java.util.List;
 
@@ -9,8 +11,8 @@ public class WorkWaveInspectedNotSendDetailsResponse implements Serializable {
 
     private Long total;
     private Integer pageSize;
-    private List<String> waybillCodes;
-    private List<String> packageCodes;
+    private List<InspectedNotSendBarCode> waybillCodes;
+    private List<InspectedNotSendBarCode> packageCodes;
 
     public Long getTotal() {
         return total;
@@ -28,19 +30,19 @@ public class WorkWaveInspectedNotSendDetailsResponse implements Serializable {
         this.pageSize = pageSize;
     }
 
-    public List<String> getWaybillCodes() {
+    public List<InspectedNotSendBarCode> getWaybillCodes() {
         return waybillCodes;
     }
 
-    public void setWaybillCodes(List<String> waybillCodes) {
+    public void setWaybillCodes(List<InspectedNotSendBarCode> waybillCodes) {
         this.waybillCodes = waybillCodes;
     }
 
-    public List<String> getPackageCodes() {
+    public List<InspectedNotSendBarCode> getPackageCodes() {
         return packageCodes;
     }
 
-    public void setPackageCodes(List<String> packageCodes) {
+    public void setPackageCodes(List<InspectedNotSendBarCode> packageCodes) {
         this.packageCodes = packageCodes;
     }
 }
