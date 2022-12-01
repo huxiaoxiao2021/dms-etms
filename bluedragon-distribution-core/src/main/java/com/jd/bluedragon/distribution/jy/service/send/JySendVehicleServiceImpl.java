@@ -2544,15 +2544,15 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             progress.setLoadVolume(sendAgg.getTotalScannedVolume());
             progress.setLoadWeight(sendAgg.getTotalScannedWeight());
             //progress.setToScanCount(this.dealMinus(sendAgg.getTotalShouldScanCount(), sendAgg.getTotalScannedCount()));
-            log.info("获取待扫数据入参--{}",taskSend.getBizId());
-            Long toScanCountSum = jySendProductAggsService.getToScanCountSum(taskSend.getBizId());
-            log.info("获取待扫数据--{}",toScanCountSum);
-            progress.setToScanCount(toScanCountSum);
             progress.setScannedPackCount(sendAgg.getTotalScannedCount().longValue());
             progress.setScannedBoxCount(sendAgg.getTotalScannedBoxCodeCount().longValue());
             progress.setInterceptedPackCount(sendAgg.getTotalInterceptCount().longValue());
             progress.setForceSendPackCount(sendAgg.getTotalForceSendCount().longValue());
         }
+        log.info("获取待扫数据入参--{}",taskSend.getBizId());
+        Long toScanCountSum = jySendProductAggsService.getToScanCountSum(taskSend.getBizId());
+        log.info("获取待扫数据--{}",toScanCountSum);
+        progress.setToScanCount(toScanCountSum);
 
         progress.setDestTotal(this.getDestTotal(taskSend.getBizId()));
         progress.setSealedTotal(this.getSealedDestTotal(taskSend.getBizId()));
