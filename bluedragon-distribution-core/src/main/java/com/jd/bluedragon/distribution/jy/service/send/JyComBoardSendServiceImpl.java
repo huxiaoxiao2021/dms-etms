@@ -924,9 +924,6 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
    * 执行发货
    */
   private void execSend(ComboardScanReq request) {
-    /*if (WaybillUtil.isWaybillCode(request.getBarCode())) {
-      return;
-    }*/
     SendKeyTypeEnum sendType = getSendType(request.getBarCode());
     SendM sendM = toSendMDomain(request);
     boolean oldForceSend = true;
@@ -1042,8 +1039,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   }
 
   private String genTaskBizId(ComboardScanReq request) {
-    String ownerKey = String.format(JyBizTaskComboardEntity.BIZ_PREFIX,
-        DateHelper.formatDate(new Date(), DateHelper.DATE_FORMATE_yyMMdd));
+    String ownerKey = String.format(JyBizTaskComboardEntity.BIZ_PREFIX, DateHelper.formatDate(new Date(), DateHelper.DATE_FORMATE_yyMMdd));
     String bizId = ownerKey + StringHelper.padZero(redisJyBizIdSequenceGen.gen(ownerKey));
     request.setBizId(bizId);
     return bizId;
@@ -1309,9 +1305,10 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     domain.setCreateUserCode(request.getUser().getUserCode());
     domain.setSendType(DmsConstants.BUSSINESS_TYPE_POSITIVE);
     domain.setBizSource(SendBizSourceEnum.JY_APP_SEND.getCode());
+    domain.setBoardCode(request.getBoardCode());
     domain.setYn(1);
-    domain.setCreateTime(request.getCurrentOperate().getOperateTime());//固定加5秒
-    domain.setOperateTime(request.getCurrentOperate().getOperateTime());//固定加5秒
+    domain.setCreateTime(new Date(System.currentTimeMillis()+ Constants.DELIVERY_DELAY_TIME));//固定加5秒
+    domain.setOperateTime(new Date(System.currentTimeMillis()+ Constants.DELIVERY_DELAY_TIME));//固定加5秒
     return domain;
   }
 
@@ -1861,4 +1858,4 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       comboardDetailDtoList.add(dto);
     }
   }
-} 
+}

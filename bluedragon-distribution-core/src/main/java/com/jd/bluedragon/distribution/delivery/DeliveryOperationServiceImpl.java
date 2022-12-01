@@ -218,19 +218,13 @@ public class DeliveryOperationServiceImpl implements IDeliveryOperationService {
         // 获取运单包裹数
         Waybill waybill = waybillQueryManager.getOnlyWaybillByWaybillCode(dto.getWaybillCode());
         if (waybill == null || waybill.getGoodNumber() == null) {
-            log.error("[组板任务]获取运单包裹数失败! code:{}, sendM:{}", dto.getWaybillCode(), JsonHelper.toJson(dto));
+            log.error("[异步组板任务]获取运单包裹数失败! code:{}, sendM:{}", dto.getWaybillCode(), JsonHelper.toJson(dto));
             return;
         }
 
         int totalNum = waybill.getGoodNumber();
         int onePageSize = uccConfig.getWaybillSplitPageSize() == 0 ? SEND_SPLIT_NUM : uccConfig.getWaybillSplitPageSize();
         int pageTotal = (totalNum % onePageSize) == 0 ? (totalNum / onePageSize) : (totalNum / onePageSize) + 1;
-
-        // 生成本次发货的唯一标识
-        String batchUniqKey = "";//TODO
-
-        // 设置本次发货的批处理锁
-        //lockPageDelivery(batchUniqKey, pageTotal);
 
         // 插入分页任务
         for (int i = 0; i < pageTotal; i++) {
@@ -247,7 +241,7 @@ public class DeliveryOperationServiceImpl implements IDeliveryOperationService {
             copyWrapper.setTotalPage(pageTotal);*/
 
             Task task = new Task();
-
+            task.setBoxCode(dto.getWaybillCode());
             //task.setCreateSiteCode(sendM.getCreateSiteCode());
             //task.setReceiveSiteCode(sendM.getReceiveSiteCode());
 
@@ -258,10 +252,8 @@ public class DeliveryOperationServiceImpl implements IDeliveryOperationService {
             //task.setKeyword2(i + 1 + Constants.UNDER_LINE + pageTotal + Constants.UNDER_LINE + waybillCode);
             task.setOwnSign(BusinessHelper.getOwnSign());
             //task.setBody(JsonHelper.toJson(copyWrapper));
-
             String fingerprint =   Constants.UNDER_LINE + System.currentTimeMillis();
             task.setFingerprint(Md5Helper.encode(fingerprint));
-
             taskService.doAddTask(task,false);
         }
     }
