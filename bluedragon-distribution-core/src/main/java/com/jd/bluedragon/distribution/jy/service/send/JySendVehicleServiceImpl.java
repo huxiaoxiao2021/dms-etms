@@ -59,6 +59,7 @@ import com.jd.bluedragon.distribution.jy.service.config.JyDemotionService;
 import com.jd.bluedragon.distribution.jy.service.group.JyTaskGroupMemberService;
 import com.jd.bluedragon.distribution.jy.service.seal.JySendSealCodeService;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetailService;
+import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetailServiceImpl;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleService;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleDetailEntity;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskSendVehicleEntity;
@@ -3072,10 +3073,19 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             invokeResult.parameterError("查询分页信息不能为空！");
         }
         try {
+            JyBizTaskSendVehicleDetailEntity entity = new JyBizTaskSendVehicleDetailEntity();
+            entity.setSendVehicleBizId(request.getSendVehicleBizId());
+
+            List<Long> receiveIds = taskSendVehicleDetailService.getAllSendDest(entity);
+
+            log.info("发车岗按产品类型查询待扫包裹获取目的地-{}  结果-{}",JSON.toJSONString(entity),JSON.toJSONString(receiveIds));
+
             Pager<SendVehiclePackageDetailQuery> queryPager = new Pager<>();
             SendVehiclePackageDetailQuery query = new SendVehiclePackageDetailQuery();
-            query.setSendVehicleBizId(request.getSendVehicleBizId());
+            //query.setSendVehicleBizId(request.getSendVehicleBizId());
             query.setProductType(request.getProductType());
+            query.setOperateSiteId(request.getCurrentOperate().getSiteCode());
+            query.setReceiveSiteIds(receiveIds);
 
             queryPager.setPageNo(request.getPageNumber());
             queryPager.setPageSize(request.getPageSize());
