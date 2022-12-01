@@ -1286,8 +1286,8 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     domain.setSendType(DmsConstants.BUSSINESS_TYPE_POSITIVE);
     domain.setBizSource(SendBizSourceEnum.JY_APP_SEND.getCode());
     domain.setYn(1);
-    domain.setCreateTime(request.getCurrentOperate().getOperateTime());//固定加5秒
-    domain.setOperateTime(request.getCurrentOperate().getOperateTime());//固定加5秒
+    domain.setCreateTime(new Date(System.currentTimeMillis()+ Constants.DELIVERY_DELAY_TIME));//固定加5秒
+    domain.setOperateTime(new Date(System.currentTimeMillis()+ Constants.DELIVERY_DELAY_TIME));//固定加5秒
     return domain;
   }
 
