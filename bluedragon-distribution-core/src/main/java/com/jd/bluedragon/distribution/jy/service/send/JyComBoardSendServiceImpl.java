@@ -109,6 +109,7 @@ import static com.jd.bluedragon.Constants.SUCCESS_CODE;
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.*;
 import static com.jd.bluedragon.distribution.businessCode.BusinessCodeFromSourceEnum.JY_APP;
 import static com.jd.bluedragon.distribution.loadAndUnload.exception.LoadIllegalException.BOARD_TOTC_FAIL_INTERCEPT_MESSAGE;
+import static com.jd.bluedragon.dms.utils.BusinessUtil.encryptIdCard;
 
 @Service
 @Slf4j
@@ -517,6 +518,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       entity.setTemplateCode(request.getTemplateCode());
       // 获取当前网格码内扫描人员信息
       List<User> userList = jyComboardService.queryUserByStartSiteCode(Long.valueOf(startSiteCode));
+      hideInfo(userList);
       resp.setScanUserList(userList);
       // 获取当前流向
       if (request.getEndSiteId() != null ){
@@ -547,6 +549,12 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       return new InvokeResult<>(SEND_FLOW_UNDER_CTTGROUP_CODE, SEND_FLOW_UNDER_CTTGROUP_MESSAGE);
     }
     return new InvokeResult<>(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, resp);
+  }
+
+  private void hideInfo(List<User> userList) {
+    for (User user : userList) {
+      user.setUserErp(encryptIdCard(user.getUserErp()));
+    }
   }
 
   private List<String> getBoardCodeList(List<JyBizTaskComboardEntity> boardList) {
@@ -1804,4 +1812,4 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       comboardDetailDtoList.add(dto);
     }
   }
-}
+} 
