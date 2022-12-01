@@ -22,7 +22,9 @@ import com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskUnloadVehicleDao;
 import com.jd.bluedragon.distribution.jy.dao.unload.JyBizTaskUnloadVehicleStageDao;
 import com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadAggsDao;
 import com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadVehicleBoardDao;
+import com.jd.bluedragon.distribution.jy.dto.CurrentOperate;
 import com.jd.bluedragon.distribution.jy.dto.GoodsPhotoInfoDto;
+import com.jd.bluedragon.distribution.jy.dto.User;
 import com.jd.bluedragon.distribution.jy.dto.task.JyBizTaskUnloadCountDto;
 import com.jd.bluedragon.distribution.jy.dto.unload.*;
 import com.jd.bluedragon.distribution.jy.enums.*;
@@ -1628,6 +1630,17 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             com.jd.bluedragon.common.dto.photo.GoodsPhotoInfoDto infoDto =new
                     com.jd.bluedragon.common.dto.photo.GoodsPhotoInfoDto();
             org.springframework.beans.BeanUtils.copyProperties(dto,infoDto);
+
+            com.jd.bluedragon.common.dto.base.request.User  user = new com.jd.bluedragon.common.dto.base.request.User ();
+            user.setUserCode(dto.getUser().getUserCode());
+            user.setUserName(dto.getUser().getUserName());
+            infoDto.setUser(user);
+
+            com.jd.bluedragon.common.dto.base.request.CurrentOperate  currentOperate = new com.jd.bluedragon.common.dto.base.request.CurrentOperate ();
+            currentOperate.setSiteCode(dto.getCurrentOperate().getSiteCode());
+            currentOperate.setSiteName(dto.getCurrentOperate().getSiteName());
+            infoDto.setCurrentOperate(currentOperate);
+
             response.setData(goodsPhoteService.insert(infoDto));
         }catch (Exception e){
             log.error("添加货物照片异常!-{}",e.getMessage(),e);
