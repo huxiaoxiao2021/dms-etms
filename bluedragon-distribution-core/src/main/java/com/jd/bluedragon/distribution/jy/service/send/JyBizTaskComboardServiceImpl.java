@@ -95,6 +95,7 @@ public class JyBizTaskComboardServiceImpl implements JyBizTaskComboardService {
     statusList.add(ComboardStatusEnum.PROCESSING.getCode());
     statusList.add(ComboardStatusEnum.FINISHED.getCode());
     statusList.add(ComboardStatusEnum.CANCEL_SEAL.getCode());
+    condition.setStatusList(statusList);
     return jyBizTaskComboardDao.listBoardTaskBySendFlow(condition);
   }
 }
