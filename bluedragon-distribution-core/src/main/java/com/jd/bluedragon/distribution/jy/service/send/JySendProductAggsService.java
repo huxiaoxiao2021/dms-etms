@@ -24,5 +24,7 @@ public interface JySendProductAggsService {
     List<JySendProductAggsEntity> findBySendVehicleBizId(String sendVehicleBizId);
 
     List<JySendVehicleProductType> getSendVehicleProductTypeList(String sendVehicleBizId);
+
+    Long getToScanCountSum(String sendVehicleBizId);
 }
 

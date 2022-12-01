@@ -39,4 +39,8 @@ public class JySendProductAggsDao extends BaseDao<JySendProductAggsEntity> {
     public List<JySendVehicleProductType> getSendVehicleProductTypeList(String sendVehicleBizId){
         return this.getSqlSession().selectList(NAMESPACE + ".getSendVehicleProductTypeList", sendVehicleBizId);
     }
+
+    public Long getToScanCountSum(String sendVehicleBizId){
+        return this.getSqlSession().selectOne(NAMESPACE + ".getToScanCountSum", sendVehicleBizId);
+    }
 }

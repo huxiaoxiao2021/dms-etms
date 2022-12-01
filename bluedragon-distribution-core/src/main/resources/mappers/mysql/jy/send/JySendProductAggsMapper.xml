@@ -57,6 +57,16 @@
            GROUP BY product_type
     </select>
 
+    <select id="getToScanCountSum" parameterType="java.lang.String" resultType="java.lang.Long">
+        select
+               sum(should_scan_count) as productwaitScanCount
+        from jy_send_product_aggs
+        WHERE
+            yn = 1
+          AND send_vehicle_biz_id = #{sendVehicleBizId}
+
+    </select>
+
 
 
 </mapper>

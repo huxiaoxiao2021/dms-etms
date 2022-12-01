@@ -31,5 +31,10 @@ public class JySendProductAggsServiceImpl implements JySendProductAggsService {
         return jySendProductAggsDao.getSendVehicleProductTypeList(sendVehicleBizId);
     }
 
+    @Override
+    public Long getToScanCountSum(String sendVehicleBizId) {
+        return jySendProductAggsDao.getToScanCountSum(sendVehicleBizId);
+    }
+
 
 }
