@@ -134,7 +134,7 @@ public class JyGroupSortCrossDetailServiceImpl implements JyGroupSortCrossDetail
             JyGroupSortCrossDetailEntity entity = jyGroupSortCrossDetailDao.selectOneByGroupCrossTableTrolley(query);
             if (entity == null) {
                 log.error("未查询到该流向：{}", JsonHelper.toJson(query));
-                return Boolean.FALSE;
+                return false;
             }
             ids.add(entity.getId());
         }
@@ -144,14 +144,14 @@ public class JyGroupSortCrossDetailServiceImpl implements JyGroupSortCrossDetail
         updateReq.setUpdateTime(new Date());
         try {
             if (jyGroupSortCrossDetailDao.deleteByIds(updateReq) > 0) {
-                return Boolean.TRUE;
+                return true;
             } else {
                 log.error("删除本场地常用的笼车集合失败：{}", JsonHelper.toJson(ids));
-                return Boolean.FALSE;
+                return false;
             }
         } catch (Exception e) {
             log.error("删除本场地常用的笼车集合失败: {}{}", JsonHelper.toJson(ids), e);
-            return Boolean.FALSE;
+            return false;
         }
     }
 
