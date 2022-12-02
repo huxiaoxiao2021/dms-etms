@@ -1,6 +1,7 @@
 package com.jd.bluedragon.common.dto.predict.response;
 
-import com.jd.bluedragon.common.dto.predict.model.InspectedNotSendBarCode;
+import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleToScanPackage;
+import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleToScanWaybill;
 
 import java.io.Serializable;
 import java.util.List;
@@ -11,8 +12,25 @@ public class WorkWaveInspectedNotSendDetailsResponse implements Serializable {
 
     private Long total;
     private Integer pageSize;
-    private List<InspectedNotSendBarCode> waybillCodes;
-    private List<InspectedNotSendBarCode> packageCodes;
+
+    public List<SendVehicleToScanWaybill> getWaybillCodes() {
+        return waybillCodes;
+    }
+
+    public void setWaybillCodes(List<SendVehicleToScanWaybill> waybillCodes) {
+        this.waybillCodes = waybillCodes;
+    }
+
+    public List<SendVehicleToScanPackage> getPackageCodes() {
+        return packageCodes;
+    }
+
+    public void setPackageCodes(List<SendVehicleToScanPackage> packageCodes) {
+        this.packageCodes = packageCodes;
+    }
+
+    private List<SendVehicleToScanWaybill> waybillCodes;
+    private List<SendVehicleToScanPackage> packageCodes;
 
     public Long getTotal() {
         return total;
@@ -30,19 +48,4 @@ public class WorkWaveInspectedNotSendDetailsResponse implements Serializable {
         this.pageSize = pageSize;
     }
 
-    public List<InspectedNotSendBarCode> getWaybillCodes() {
-        return waybillCodes;
-    }
-
-    public void setWaybillCodes(List<InspectedNotSendBarCode> waybillCodes) {
-        this.waybillCodes = waybillCodes;
-    }
-
-    public List<InspectedNotSendBarCode> getPackageCodes() {
-        return packageCodes;
-    }
-
-    public void setPackageCodes(List<InspectedNotSendBarCode> packageCodes) {
-        this.packageCodes = packageCodes;
-    }
 }
