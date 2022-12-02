@@ -3,8 +3,11 @@ package com.jd.bluedragon.distribution.jy.service.send;
 import com.jd.bluedragon.common.dto.comboard.response.BoardDto;
 import com.jd.bluedragon.common.dto.comboard.response.SendFlowDto;
 import com.jd.bluedragon.distribution.jy.comboard.JyBizTaskComboardEntity;
+import com.jd.bluedragon.distribution.jy.dto.comboard.BoardCountDto;
+import com.jd.bluedragon.distribution.jy.dto.comboard.BoardCountReq;
 import com.jd.bluedragon.distribution.jy.dto.comboard.JyBizTaskComboardReq;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -52,4 +55,11 @@ public interface JyBizTaskComboardService {
    * @return
    */
   List<JyBizTaskComboardEntity> listBoardTaskBySendFlow(SendFlowDto sendFlowDto);
+
+  /**
+   * 查询流向下板数量(某个流向-7日内所有未封车的板任务列表)
+   * @return
+   */
+    List<BoardCountDto> boardCountTaskBySendFlowList(BoardCountReq boardCountReq);
 }
+

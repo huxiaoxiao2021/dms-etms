@@ -40,9 +40,7 @@ import com.jd.bluedragon.distribution.jy.comboard.JyComboardAggsEntity;
 import com.jd.bluedragon.distribution.jy.comboard.JyComboardEntity;
 import com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity;
 import com.jd.bluedragon.distribution.jy.dao.comboard.JyGroupSortCrossDetailDao;
-import com.jd.bluedragon.distribution.jy.dto.comboard.BatchUpdateCancelReq;
-import com.jd.bluedragon.distribution.jy.dto.comboard.ComboardTaskDto;
-import com.jd.bluedragon.distribution.jy.dto.comboard.JyBizTaskComboardReq;
+import com.jd.bluedragon.distribution.jy.dto.comboard.*;
 import com.jd.bluedragon.distribution.jy.enums.ComboardBarCodeTypeEnum;
 import com.jd.bluedragon.distribution.jy.enums.UnloadProductTypeEnum;
 import com.jd.bluedragon.distribution.jy.enums.ComboardStatusEnum;
@@ -249,6 +247,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
           }
         }
       }
+      // todo 排序 七天内未封车的流向不依赖统计数据
       if (request.getNeedSendFlowStatistics() && ObjectHelper.isNotNull(request.getCrossCode())) {
         List<Integer> endSiteIdList = new ArrayList<>();
         for (TableTrolleyDto dto : tableTrolleyResp.getTableTrolleyDtoList()) {
@@ -549,6 +548,14 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       List<JyComboardAggsEntity> jyComboardAggsEntities = jyComboardAggsService
           .queryComboardAggs(startSiteCode, endSiteCodeList);
       HashMap<Long, JyComboardAggsEntity> sendFlowMap = getSendFlowMap(jyComboardAggsEntities);
+      //查询流向下7天内未封车的板
+      BoardCountReq boardCountReq = new BoardCountReq();
+      Date time = DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -ucc.getJyComboardTaskCreateTimeBeginDay());
+      boardCountReq.setCreateTime(time);
+      boardCountReq.setEndSiteIdList(endSiteCodeList);
+      boardCountReq.setStartSiteId(startSiteCode.longValue());
+      List<BoardCountDto> entityList = jyBizTaskComboardService.boardCountTaskBySendFlowList(boardCountReq);
+      HashMap<Long,Integer> boardCountMap = getBoardCountMap(entityList);
       // 获取当前流向执行中的板号
       List<JyBizTaskComboardEntity> boardList = jyBizTaskComboardService
           .queryInProcessBoardListBySendFlowList(startSiteCode, endSiteCodeList);
@@ -559,12 +566,20 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       // 当前板的扫描信息
       HashMap<Long, JyComboardAggsEntity> boardFlowMap = getBoardFlowMap(boardScanInfoList,
           boardList);
-      getSendFlowDtoList(sendFlowList, boardFlowMap, sendFlowMap, sendFlowDtoList);
+      getSendFlowDtoList(sendFlowList, boardFlowMap, sendFlowMap,boardCountMap, sendFlowDtoList);
     } catch (Exception e) {
       log.info("获取混扫任务下的流向详情信息失败：{}", JsonHelper.toJson(request), e);
       return new InvokeResult<>(SEND_FLOW_UNDER_CTTGROUP_CODE, SEND_FLOW_UNDER_CTTGROUP_MESSAGE);
     }
     return new InvokeResult<>(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, resp);
+  }
+
+  private HashMap<Long, Integer> getBoardCountMap(List<BoardCountDto> entityList) {
+    HashMap<Long, Integer> boardCountMap = new HashMap<>();
+    for (BoardCountDto boardCountDto : entityList) {
+      boardCountMap.put(boardCountDto.getEndSiteId(),boardCountDto.getBoardCount());
+    }
+    return boardCountMap;
   }
 
   private void hideInfo(List<User> userList) {
@@ -608,9 +623,10 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   }
 
   private void getSendFlowDtoList(List<JyGroupSortCrossDetailEntity> sendFlowList,
-      HashMap<Long, JyComboardAggsEntity> boardFlowMap,
-      HashMap<Long, JyComboardAggsEntity> sendFlowMap,
-      List<SendFlowDto> sendFlowDtoList) {
+                                  HashMap<Long, JyComboardAggsEntity> boardFlowMap,
+                                  HashMap<Long, JyComboardAggsEntity> sendFlowMap,
+                                  HashMap<Long, Integer> boardCountMap, 
+                                  List<SendFlowDto> sendFlowDtoList) {
     for (JyGroupSortCrossDetailEntity entity : sendFlowList) {
       Long endSiteCode = entity.getEndSiteId();
       SendFlowDto sendFlowDto = new SendFlowDto();
@@ -619,8 +635,10 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       sendFlowDto.setEndSiteId(entity.getEndSiteId().intValue());
       sendFlowDto.setEndSiteName(entity.getEndSiteName());
       JyComboardAggsEntity sendFlow = sendFlowMap.get(endSiteCode);
+      if (boardCountMap!=null) {
+        sendFlowDto.setBoardCount(boardCountMap.get(endSiteCode));
+      }
       if (sendFlow != null) {
-        sendFlowDto.setBoardCount(sendFlow.getBoardCount());
         sendFlowDto.setWaitScanCount(sendFlow.getWaitScanCount());
       }
 
@@ -694,6 +712,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
         return new InvokeResult<>(BOARD_INFO_CODE, BOARD_INFO_MESSAGE);
       }
       resp.setBulkFlag(boardTaskInfo.getBulkFlag());
+      resp.setEndSiteName(boardTaskInfo.getEndSiteName());
       // 获取组板包裹号箱号信息
       JyComboardAggsEntity boardInfo = jyComboardAggsService.queryComboardAggs(boardCode);
       if (boardInfo != null ) {
@@ -1742,7 +1761,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
         boardReq.setBoardCode(request.getBoardCode());
         boardReq.setGroupCode(request.getGroupCode());
         boardReq.setCurrentOperate(request.getCurrentOperate());
-        boardReq.setUser(boardReq.getUser());
+        boardReq.setUser(request.getUser());
         InvokeResult<ComboardDetailResp> boxOrPackCodeList = listPackageOrBoxUnderBoard(boardReq);
         if (boxOrPackCodeList != null
                 && boxOrPackCodeList.getData() != null
