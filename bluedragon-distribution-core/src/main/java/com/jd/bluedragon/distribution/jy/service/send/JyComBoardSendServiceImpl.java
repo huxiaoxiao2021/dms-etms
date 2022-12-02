@@ -238,8 +238,8 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
             .listSendFlowByTemplateCode(condition);
 
         if (ObjectHelper.isNotNull(groupSortCrossDetailList)) {
-          for (JyGroupSortCrossDetailEntity entity : groupSortCrossDetailList) {
-            for (TableTrolleyDto dto : tableTrolleyResp.getTableTrolleyDtoList()) {
+          for (TableTrolleyDto dto : tableTrolleyResp.getTableTrolleyDtoList()) {
+            for (JyGroupSortCrossDetailEntity entity : groupSortCrossDetailList) {
               if (entity.getEndSiteId().intValue() == dto.getEndSiteId()) {
                 dto.setSelectedFlag(true);
               }
@@ -247,7 +247,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
           }
         }
       }
-      // todo 排序 七天内未封车的流向不依赖统计数据
+      // todo 排序
       if (request.getNeedSendFlowStatistics() && ObjectHelper.isNotNull(request.getCrossCode())) {
         List<Integer> endSiteIdList = new ArrayList<>();
         for (TableTrolleyDto dto : tableTrolleyResp.getTableTrolleyDtoList()) {
