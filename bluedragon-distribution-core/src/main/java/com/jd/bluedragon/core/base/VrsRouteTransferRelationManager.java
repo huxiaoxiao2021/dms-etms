@@ -92,7 +92,7 @@ public interface VrsRouteTransferRelationManager {
      * @param operateType 操作类型
      * @return
      */
-    List<WaybillRouteLinkCustDetailResp> waybillRouteLinkQueryCondition(String packageCode,String siteCode,Integer operateType);
+    List<WaybillRouteLinkCustDetailResp> waybillRouteLinkQueryCondition(String packageCode, String siteCode,WaybillRouteEnum.RealTimeOperateType operateType);
 
     /**
      * 获取路由产品类型
@@ -101,6 +101,5 @@ public interface VrsRouteTransferRelationManager {
      * @return
      */
     RouteProductEnum obtainRouterProduct(String waybillSign);
-    List<WaybillRouteLinkCustDetailResp> waybillRouteLinkQueryCondition(String packageCode, String siteCode,WaybillRouteEnum.RealTimeOperateType operateType);
 }
 
