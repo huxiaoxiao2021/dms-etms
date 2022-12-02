@@ -8,7 +8,7 @@ public class BoardExcepStatisticsReq extends BaseReq implements Serializable {
     private static final long serialVersionUID = 597519678244355595L;
     private String boardCode;
     /**
-     * 异常类型
+     * 异常类型 1 拦截 2 强发
      */
     private Integer excepType;
     private Integer pageNo;
