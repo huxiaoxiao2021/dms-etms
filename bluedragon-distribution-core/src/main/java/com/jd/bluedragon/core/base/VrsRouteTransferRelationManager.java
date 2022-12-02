@@ -2,6 +2,7 @@ package com.jd.bluedragon.core.base;
 
 import com.jd.etms.api.common.dto.PageDto;
 import com.jd.etms.api.common.enums.RouteProductEnum;
+import com.jd.etms.api.common.enums.WaybillRouteEnum;
 import com.jd.etms.api.transferwavemonitor.req.TransferWaveMonitorReq;
 import com.jd.etms.api.transferwavemonitor.resp.TransferWaveMonitorDetailResp;
 import com.jd.etms.api.transferwavemonitor.resp.TransferWaveMonitorResp;
@@ -100,5 +101,6 @@ public interface VrsRouteTransferRelationManager {
      * @return
      */
     RouteProductEnum obtainRouterProduct(String waybillSign);
+    List<WaybillRouteLinkCustDetailResp> waybillRouteLinkQueryCondition(String packageCode, String siteCode,WaybillRouteEnum.RealTimeOperateType operateType);
 }
 
