@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.jy.service.send;
 
+import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.request.BaseReq;
@@ -1440,12 +1441,13 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     }
     //查询流向下7天内未封车的板
     SendFlowDto sendFlowDto = assemblySendFlowParams(request);
-    PageHelper.startPage(request.getPageNo(),request.getPageSize());
+    Page page =PageHelper.startPage(request.getPageNo(),request.getPageSize());
     List<JyBizTaskComboardEntity> entityList = jyBizTaskComboardService.listBoardTaskBySendFlow(sendFlowDto);
     if (ObjectHelper.isNotNull(entityList) && entityList.size() > 0) {
       List<String> boardCodeList = new ArrayList<>();
       List<BoardDto> boardDtoList = new ArrayList<>();
       resp.setBoardDtoList(boardDtoList);
+      resp.setTotalBoardCount((int)page.getTotal());
       for (JyBizTaskComboardEntity entity : entityList) {
         boardCodeList.add(entity.getBoardCode());
         BoardDto boardDto =new BoardDto();
