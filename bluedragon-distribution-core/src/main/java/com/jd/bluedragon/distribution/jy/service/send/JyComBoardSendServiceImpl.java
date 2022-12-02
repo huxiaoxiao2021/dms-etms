@@ -45,6 +45,7 @@ import com.jd.bluedragon.distribution.jy.dto.comboard.BatchUpdateCancelReq;
 import com.jd.bluedragon.distribution.jy.dto.comboard.ComboardTaskDto;
 import com.jd.bluedragon.distribution.jy.dto.comboard.JyBizTaskComboardReq;
 import com.jd.bluedragon.distribution.jy.enums.ComboardBarCodeTypeEnum;
+import com.jd.bluedragon.distribution.jy.enums.ExcepScanTypeEnum;
 import com.jd.bluedragon.distribution.jy.enums.UnloadProductTypeEnum;
 import com.jd.bluedragon.distribution.jy.enums.ComboardStatusEnum;
 import com.jd.bluedragon.distribution.jy.manager.IJyComboardJsfManager;
@@ -1628,9 +1629,65 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   }
 
   @Override
-  public InvokeResult<BoardExcepStatisticsResp> queryExcepScanStatisticsUnderBoard(
-      BoardExcepStatisticsReq request) {
-    return null;
+  public InvokeResult<BoardExcepStatisticsResp> queryExcepScanStatisticsUnderBoard(BoardExcepStatisticsReq request) {
+    checkExcepScanParams(request);
+    BoardExcepStatisticsResp resp =new BoardExcepStatisticsResp();
+    try {
+      JyComboardAggsEntity jyComboardAggsEntity =jyComboardAggsService.queryComboardAggs(request.getBoardCode());
+      if (ObjectHelper.isNotNull(jyComboardAggsEntity)){
+        List<ExcepScanDto> excepScanDtoList = assembleExcepScanDtoList(jyComboardAggsEntity);
+        resp.setExcepScanDtoList(excepScanDtoList);
+
+        Pager<JyComboardPackageDetail> query =assembleQueryExcepScan(request);
+        Pager<ComboardScanedDto> pager =comboardJsfManager.queryInterceptDetail(query);
+        if (ObjectHelper.isNotNull(pager) && ObjectHelper.isNotNull(pager.getData())){
+          List<ComboardScanedDto> comboardScanedDtoList =pager.getData();
+          List<PackageScanDto> packageScanDtoList =new ArrayList<>();
+          for (ComboardScanedDto comboardScanedDto:comboardScanedDtoList){
+            PackageScanDto packageScanDto =new PackageScanDto();
+            packageScanDto.setPackageCode(comboardScanedDto.getBarCode());
+            packageScanDtoList.add(packageScanDto);
+          }
+          resp.setPackageCodeList(packageScanDtoList);
+        }
+      }
+    } catch (Exception e) {
+      log.error("queryExcepScanStatisticsUnderBoard 查询流向待扫数据异常",e);
+    }
+    return new InvokeResult<>(RESULT_SUCCESS_CODE,RESULT_SUCCESS_MESSAGE,resp);
+  }
+
+  private Pager<JyComboardPackageDetail> assembleQueryExcepScan(BoardExcepStatisticsReq request) {
+    Pager<JyComboardPackageDetail> pager = new Pager<>();
+    JyComboardPackageDetail con =new JyComboardPackageDetail();
+    con.setOperateSiteId(request.getCurrentOperate().getSiteCode());
+    con.setBoardCode(request.getBoardCode());
+    con.setInterceptFlag(Constants.YN_NO);
+    pager.setSearchVo(con);
+    return pager;
+  }
+
+  private List<ExcepScanDto> assembleExcepScanDtoList(JyComboardAggsEntity jyComboardAggsEntity) {
+    List<ExcepScanDto> excepScanDtoList =new ArrayList<>();
+    ExcepScanDto excepScanDto =new ExcepScanDto();
+    excepScanDto.setType(ExcepScanTypeEnum.INTERCEPTE.getCode());
+    excepScanDto.setName(ExcepScanTypeEnum.INTERCEPTE.getName());
+    excepScanDto.setCount(jyComboardAggsEntity.getInterceptCount());
+    excepScanDtoList.add(excepScanDto);
+    return excepScanDtoList;
+  }
+
+  private void checkExcepScanParams(BoardExcepStatisticsReq request) {
+    if (ObjectHelper.isEmpty(request.getBoardCode())){
+      throw new JyBizException("参数错误：缺失板号信息！");
+    }
+    if (ObjectHelper.isEmpty(request.getExcepType())){
+      request.setExcepType(ExcepScanTypeEnum.INTERCEPTE.getCode());
+    }
+    if (ObjectHelper.isNotNull(request.getExcepType()) && !ExcepScanTypeEnum.INTERCEPTE.getCode().equals(request.getExcepType())){
+      throw  new JyBizException("暂不支持该异常类型的查询！");
+    }
+
   }
 
   @Override
