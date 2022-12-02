@@ -311,7 +311,7 @@ public class BoardCommonManagerImpl implements BoardCommonManager {
             if (StringUtils.isBlank(nextSiteName)) {
                 BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteBySiteId(nextSiteCode);
                 if (baseSite == null || StringUtils.isEmpty(baseSite.getSiteName())) {
-                    logger.warn("根据站点【{}】获取站点名称为空!", nextSiteCode);
+                    logger.warn("按包裹创建板：根据站点【{}】获取站点名称为空!", nextSiteCode);
                     result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, "站点【" + nextSiteCode + "】不存在!");
                     return result;
                 }
@@ -355,7 +355,7 @@ public class BoardCommonManagerImpl implements BoardCommonManager {
             if (StringUtils.isBlank(nextSiteName)) {
                 BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteBySiteId(request.getReceiveSiteCode());
                 if (baseSite == null || StringUtils.isEmpty(baseSite.getSiteName())) {
-                    logger.warn("根据站点【{}】获取站点名称为空!", request.getReceiveSiteCode());
+                    logger.warn("按箱号创建板：根据站点【{}】获取站点名称为空!", request.getReceiveSiteCode());
                     result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, "站点【" + request.getReceiveSiteCode() + "】不存在!");
                     return result;
                 }

@@ -691,6 +691,10 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         }
         String routerStr = waybillCacheService.getRouterByWaybillCode(scanCode);
         Integer nextSiteCode = getRouteNextSite(scanPackageDto.getCurrentOperate().getSiteCode(), routerStr);
+        if(log.isInfoEnabled()) {
+            log.info("JyUnloadVehicleTysServiceImpl.checkScan-转运场地扫描包裹{}，当前场地{}，下一场地{}，获取其路由信息={}{}",
+                    scanPackageDto.getScanCode(), scanPackageDto.getCurrentOperate().getSiteCode(), nextSiteCode, routerStr);
+        }
         scanPackageDto.setNextSiteCode(nextSiteCode);
         if (Constants.START_SITE_INITIAL_VALUE.equals(unloadVehicleEntity.getStartSiteId())) {
             Integer prevSiteCode = getPrevSiteCodeByRouter(routerStr, scanPackageDto.getCurrentOperate().getSiteCode());
@@ -745,11 +749,12 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         }
         scanPackageDto.setRandomPackageCode(randomPackageCode);
 
-        if(log.isInfoEnabled()) {
-            log.info("JyUnloadVehicleTysServiceImpl.checkScan-转运场地按箱号{}扫描，抽其中一包裹号{}取其流向信息,route={}", scanPackageDto.getScanCode(), randomPackageCode, randomPackageCodeRoute);
-        }
 
         Integer nextSiteCode = getRouteNextSite(scanPackageDto.getCurrentOperate().getSiteCode(), randomPackageCodeRoute);
+        if(log.isInfoEnabled()) {
+            log.info("JyUnloadVehicleTysServiceImpl.checkScan-转运场地按箱号{}扫描，当前场地{}，下一场地{}，获取流向方式为随机抽取箱内一包裹号{}取其路由信息,route={}",
+                    scanPackageDto.getScanCode(), scanPackageDto.getCurrentOperate().getSiteCode(), nextSiteCode, randomPackageCode, randomPackageCodeRoute);
+        }
         scanPackageDto.setNextSiteCode(nextSiteCode);
         if (Constants.START_SITE_INITIAL_VALUE.equals(unloadVehicleEntity.getStartSiteId())) {
             Integer prevSiteCode = getPrevSiteCodeByRouter(randomPackageCodeRoute, scanPackageDto.getCurrentOperate().getSiteCode());

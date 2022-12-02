@@ -480,10 +480,13 @@ public class JyUnloadVehicleCheckTysService {
             boardCommonRequest.setBizSource(BizSourceEnum.PDA.getValue());
             boardCommonRequest.setBarCode(request.getScanCode());
             InvokeResult<Board> invokeResult = null;
+            if(log.isInfoEnabled()) {
+                log.info("JyUnloadVehicleCheckTysService.routerCheck-按箱号卸车扫描开板-param={}", JsonUtils.toJSONString(boardCommonRequest));
+            }
+            if(boardCommonRequest.getReceiveSiteCode() == null) {
+                throw new LoadIllegalException("验货成功。获取下一流向为空，无法建板");
+            }
             if(BusinessUtil.isBoxcode(request.getScanCode())) {
-                if(log.isInfoEnabled()) {
-                    log.info("JyUnloadVehicleCheckTysService.routerCheck-按箱号卸车扫描开板-param={}", JsonUtils.toJSONString(boardCommonRequest));
-                }
                 invokeResult = boardCommonManager.createBoardCodeByBox(boardCommonRequest);
             }else {
                 invokeResult = boardCommonManager.createBoardCode(boardCommonRequest);
