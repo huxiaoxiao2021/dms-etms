@@ -10,4 +10,7 @@ public class ComboardTaskDto {
   private Integer endSiteId;
   private String endSiteName;
   private String boardCode;
+  private Integer pageNo;
+  private Integer pageSize;
+  private Integer totalPage;
 }

@@ -547,8 +547,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
         endSiteCodeList = getEndSiteCodeListBySendFlowList(sendFlowList);
       }
       // 获取当前混扫任务下多个流向的组板数量和待扫统计
-      List<JyComboardAggsEntity> jyComboardAggsEntities = jyComboardAggsService
-          .queryComboardAggs(startSiteCode, endSiteCodeList);
+      List<JyComboardAggsEntity> jyComboardAggsEntities = jyComboardAggsService.queryComboardAggs(startSiteCode, endSiteCodeList);
       HashMap<Long, JyComboardAggsEntity> sendFlowMap = getSendFlowMap(jyComboardAggsEntities);
       //查询流向下7天内未封车的板
       BoardCountReq boardCountReq = new BoardCountReq();
@@ -559,12 +558,10 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       List<BoardCountDto> entityList = jyBizTaskComboardService.boardCountTaskBySendFlowList(boardCountReq);
       HashMap<Long,Integer> boardCountMap = getBoardCountMap(entityList);
       // 获取当前流向执行中的板号
-      List<JyBizTaskComboardEntity> boardList = jyBizTaskComboardService
-          .queryInProcessBoardListBySendFlowList(startSiteCode, endSiteCodeList);
+      List<JyBizTaskComboardEntity> boardList = jyBizTaskComboardService.queryInProcessBoardListBySendFlowList(startSiteCode, endSiteCodeList);
       List<String> boardCodeList = getBoardCodeList(boardList);
       // 获取当前板号的扫描信息
-      List<JyComboardAggsEntity> boardScanInfoList = jyComboardAggsService
-          .queryComboardAggs(boardCodeList);
+      List<JyComboardAggsEntity> boardScanInfoList = jyComboardAggsService.queryComboardAggs(boardCodeList);
       // 当前板的扫描信息
       HashMap<Long, JyComboardAggsEntity> boardFlowMap = getBoardFlowMap(boardScanInfoList,
           boardList);
@@ -1105,9 +1102,9 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     /**
      * 参数校验
      */
-    if (!ObjectHelper.isNotNull(request.getTemplateCode())) {
+    /*if (!ObjectHelper.isNotNull(request.getTemplateCode())) {
       throw new JyBizException("参数错误：缺少混扫任务编号！");
-    }
+    }*/
     if (!ObjectHelper.isNotNull(request.getScanType())) {
       throw new JyBizException("参数错误：缺少扫货方式！");
     }
@@ -1411,6 +1408,9 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
         throw new JyBizException(NOT_BELONG_THIS_SENDFLOW_CODE,NOT_BELONG_THIS_SENDFLOW_MESSAGE);
       }
       return;
+    }
+    if (!ObjectHelper.isNotNull(request.getTemplateCode())) {
+      throw new JyBizException("参数错误：缺少混扫任务编号！");
     }
 
     JyGroupSortCrossDetailEntity condition = new JyGroupSortCrossDetailEntity();
