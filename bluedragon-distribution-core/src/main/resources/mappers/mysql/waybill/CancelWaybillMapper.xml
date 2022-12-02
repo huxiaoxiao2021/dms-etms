@@ -49,7 +49,7 @@
 			operate_time_order,
 			yn,
 			ts
-		FROM Waybill_Cancel
+		FROM waybill_cancel
 		WHERE
 			waybill_code = #{waybillCode}
 			AND  (package_code is null OR LENGTH(package_code)=0)
@@ -71,7 +71,7 @@
 			operate_time_order,
 			yn,
 			ts
-		FROM Waybill_Cancel
+		FROM waybill_cancel
 		WHERE yn = 1
 		AND	waybill_code = #{waybillCode}
 		AND business_type = #{businessType,jdbcType=VARCHAR}
@@ -97,7 +97,7 @@
 		operate_time_order,
 		yn,
 		ts
-		FROM Waybill_Cancel
+		FROM waybill_cancel
 		WHERE
 		waybill_code= #{waybillCode,jdbcType=VARCHAR}
 		AND  package_code is NOT null and LENGTH(package_code)>0
@@ -109,7 +109,7 @@
 	<select id="findPackageCodeCountByFeatureTypeAndWaybillCode" parameterType="java.util.Map"  resultType="Long">
 		SELECT
 		COUNT(*)
-		FROM Waybill_Cancel
+		FROM waybill_cancel
 		WHERE
 		waybill_code= #{waybillCode,jdbcType=VARCHAR}
 		and package_code is NOT null and LENGTH(package_code)>0
@@ -132,7 +132,7 @@
 		operate_time_order,
 		yn,
 		ts
-		FROM Waybill_Cancel
+		FROM waybill_cancel
 		WHERE
 		package_code = #{packageCode,jdbcType=VARCHAR}
 		AND feature_type = #{featureType,jdbcType=INTEGER}
@@ -154,7 +154,7 @@
 			operate_time_order,
 			yn,
 			ts
-		FROM Waybill_Cancel
+		FROM waybill_cancel
 		WHERE yn = 1
 		AND package_code = #{packageCode,jdbcType=VARCHAR}
 		AND business_type = #{businessType,jdbcType=VARCHAR}
@@ -179,7 +179,7 @@
 		operate_time_order,
 		yn,
 		ts
-		FROM Waybill_Cancel
+		FROM waybill_cancel
 		WHERE
 		waybill_code = #{waybillCode,jdbcType=VARCHAR}
 		AND intercept_type = #{interceptType,jdbcType=INTEGER}
