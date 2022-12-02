@@ -627,7 +627,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   private void getSendFlowDtoList(List<JyGroupSortCrossDetailEntity> sendFlowList,
                                   HashMap<Long, JyComboardAggsEntity> boardFlowMap,
                                   HashMap<Long, JyComboardAggsEntity> sendFlowMap,
-                                  HashMap<Long, Integer> boardCountMap, 
+                                  HashMap<Long, Integer> boardCountMap,
                                   List<SendFlowDto> sendFlowDtoList) {
     for (JyGroupSortCrossDetailEntity entity : sendFlowList) {
       Long endSiteCode = entity.getEndSiteId();
@@ -846,6 +846,9 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
 
     ComboardScanResp resp = new ComboardScanResp();
     resp.setEndSiteId(request.getDestinationId());
+    resp.setBarCode(request.getBarCode());
+    resp.setBarCodeType(request.getBarCodeType());
+    resp.setScanDetailCount(request.getScanDetailCount());
     return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, resp);
   }
 
@@ -1148,6 +1151,8 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       }
       request.setBarCode(WaybillUtil.getWaybillCode(request.getBarCode()));
     }
+    request.setBarCodeType(barCodeType.getCode());
+    request.setScanDetailCount(Constants.YN_YES);
   }
 
   /**
@@ -1168,6 +1173,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
           .getBulkScanPackageMinCount()) {
         throw new JyBizException("大宗扫描：运单包裹数量不得低于100！");
       }
+      request.setScanDetailCount(waybill.getGoodNumber());
       request.setDestinationId(waybill.getOldSiteId());
       //匹流向
       matchDestinationCheck(request);

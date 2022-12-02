@@ -50,6 +50,16 @@ public class ComboardScanReq extends BaseReq implements Serializable {
      * 包裹、箱号的目的地
      */
     private Integer destinationId;
+
+    /**
+     *单号类型，参见BarCodeType
+     */
+    private Integer barCodeType;
+
+    /**
+     * 扫描件数（包裹或者箱子，扫描运单要返回包裹数量）
+     */
+    private Integer scanDetailCount;
     public String getBarCode() {
         return barCode;
     }
@@ -144,5 +154,21 @@ public class ComboardScanReq extends BaseReq implements Serializable {
 
     public void setDestinationId(Integer destinationId) {
         this.destinationId = destinationId;
+    }
+
+    public Integer getBarCodeType() {
+        return barCodeType;
+    }
+
+    public void setBarCodeType(Integer barCodeType) {
+        this.barCodeType = barCodeType;
+    }
+
+    public Integer getScanDetailCount() {
+        return scanDetailCount;
+    }
+
+    public void setScanDetailCount(Integer scanDetailCount) {
+        this.scanDetailCount = scanDetailCount;
     }
 }

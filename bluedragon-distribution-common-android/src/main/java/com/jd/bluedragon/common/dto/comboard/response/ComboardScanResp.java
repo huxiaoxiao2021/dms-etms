@@ -25,6 +25,15 @@ public class ComboardScanResp implements Serializable {
      */
     private String barCode;
     /**
+     *单号类型，参见BarCodeType
+     */
+    private Integer barCodeType;
+
+    /**
+     * 扫描件数（包裹或者箱子，扫描运单要返回包裹数量）
+     */
+    private Integer scanDetailCount;
+    /**
      * 混扫任务编号
      */
     private String templateCode;
@@ -88,5 +97,21 @@ public class ComboardScanResp implements Serializable {
 
     public void setBoardCode(String boardCode) {
         this.boardCode = boardCode;
+    }
+
+    public Integer getBarCodeType() {
+        return barCodeType;
+    }
+
+    public void setBarCodeType(Integer barCodeType) {
+        this.barCodeType = barCodeType;
+    }
+
+    public Integer getScanDetailCount() {
+        return scanDetailCount;
+    }
+
+    public void setScanDetailCount(Integer scanDetailCount) {
+        this.scanDetailCount = scanDetailCount;
     }
 }
