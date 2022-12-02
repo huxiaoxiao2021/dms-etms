@@ -615,11 +615,11 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             confirmMap.put(checkResult.getCode()+"",checkResult.getMessage());
         }
         //特保单校验
-        InvokeResult<Boolean> luxurySecurityResult = waybillService.checkLuxurySecurity(barCode, waybill.getWaybillSign());
-        log.info("packageScan-特保单校验结果-{}",JSON.toJSONString(luxurySecurityResult));
-        if(luxurySecurityResult != null && luxurySecurityResult.getData()){
-            confirmMap.put(luxurySecurityResult.getCode()+"",luxurySecurityResult.getMessage());
-        }
+//        InvokeResult<Boolean> luxurySecurityResult = waybillService.checkLuxurySecurity(barCode, waybill.getWaybillSign());
+//        log.info("packageScan-特保单校验结果-{}",JSON.toJSONString(luxurySecurityResult));
+//        if(luxurySecurityResult != null && luxurySecurityResult.getData()){
+//            confirmMap.put(luxurySecurityResult.getCode()+"",luxurySecurityResult.getMessage());
+//        }
         scanPackageRespDto.setConfirmMsg(confirmMap);
         log.info("JyUnloadVehicleTysServiceImpl.packageScan invokeResult-{}",JSON.toJSONString(invokeResult));
         return invokeResult;
@@ -705,12 +705,12 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         if(easyFreezeCheckResult != null && easyFreezeCheckResult.getData()){
             confirmMap.put(easyFreezeCheckResult.getCode()+"",easyFreezeCheckResult.getMessage());
         }
-        InvokeResult<Boolean> luxurySecurityResult = waybillService.checkLuxurySecurity(barCode, waybill.getWaybillSign());
-        log.info("waybillScan -特保单校验结果-{}",JSON.toJSONString(luxurySecurityResult));
-        if(luxurySecurityResult != null && luxurySecurityResult.getData()){
-            confirmMap.put(luxurySecurityResult.getCode()+"",luxurySecurityResult.getMessage());
-
-        }
+//        InvokeResult<Boolean> luxurySecurityResult = waybillService.checkLuxurySecurity(barCode, waybill.getWaybillSign());
+//        log.info("waybillScan -特保单校验结果-{}",JSON.toJSONString(luxurySecurityResult));
+//        if(luxurySecurityResult != null && luxurySecurityResult.getData()){
+//            confirmMap.put(luxurySecurityResult.getCode()+"",luxurySecurityResult.getMessage());
+//
+//        }
         scanPackageRespDto.setConfirmMsg(confirmMap);
         return invokeResult;
     }

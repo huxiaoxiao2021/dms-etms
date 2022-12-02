@@ -290,7 +290,7 @@ public class InspectionGatewayServiceImpl implements InspectionGatewayService {
         easyFreezeCheck(request,response);
 
         //特保单校验
-        luxurySecurityCheck(request,response);
+        //luxurySecurityCheck(request,response);
 
         // 提示语校验
         HintCheckRequest hintCheckRequest = new HintCheckRequest();
