@@ -301,16 +301,21 @@
       #{item}
     </foreach>
   </update>
-  <select id="listSendFlowByTemplateCode" parameterType="com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity" resultMap="BaseResultMap">
+  <select id="listSendFlowByTemplateCodeOrEndSiteCode" parameterType="com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity" resultMap="BaseResultMap">
     SELECT
     <include refid="Base_Column_List" />
     FROM
-      jy_group_sort_cross_detail
+    jy_group_sort_cross_detail
     WHERE
-      group_code = #{groupCode}
+    group_code = #{groupCode}
+    <if test="templateCode !=null and templateCode!=''">
       AND template_code = #{templateCode}
-      AND start_site_id = #{startSiteId}
-      AND yn = 1
+    </if>
+    <if test="endSiteId !=null and endSiteId!=''">
+      and end_site_id = #{endSiteId}
+    </if>
+    AND start_site_id = #{startSiteId}
+    AND yn = 1
   </select>
   <select id="listCTTGroupData"
           parameterType="com.jd.bluedragon.distribution.jy.comboard.JyGroupSortCrossDetailEntity"

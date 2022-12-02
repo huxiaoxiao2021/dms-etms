@@ -237,7 +237,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
         condition.setTemplateCode(request.getTemplateCode());
         condition.setGroupCode(request.getGroupCode());
         List<JyGroupSortCrossDetailEntity> groupSortCrossDetailList = jyGroupSortCrossDetailService
-            .listSendFlowByTemplateCode(condition);
+            .listSendFlowByTemplateCodeOrEndSiteCode(condition);
 
         if (ObjectHelper.isNotNull(groupSortCrossDetailList)) {
           for (TableTrolleyDto dto : tableTrolleyResp.getTableTrolleyDtoList()) {
@@ -249,7 +249,6 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
           }
         }
       }
-      // todo 排序
       if (request.getNeedSendFlowStatistics() && ObjectHelper.isNotNull(request.getCrossCode())) {
         List<Integer> endSiteIdList = new ArrayList<>();
         for (TableTrolleyDto dto : tableTrolleyResp.getTableTrolleyDtoList()) {
@@ -530,17 +529,20 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       JyGroupSortCrossDetailEntity entity = new JyGroupSortCrossDetailEntity();
       entity.setGroupCode(request.getGroupCode());
       entity.setStartSiteId(Long.valueOf(startSiteCode));
-      entity.setTemplateCode(request.getTemplateCode());
       // 获取当前网格码内扫描人员信息
       List<User> userList = jyComboardService.queryUserByStartSiteCode(Long.valueOf(startSiteCode));
       hideInfo(userList);
       resp.setScanUserList(userList);
       // 获取当前流向
       if (request.getEndSiteId() != null ){
+        entity.setEndSiteId(request.getEndSiteId().longValue());
+        // 获取混扫任务下的流向信息
+        sendFlowList = jyGroupSortCrossDetailService.listSendFlowByTemplateCodeOrEndSiteCode(entity);
         endSiteCodeList.add(request.getEndSiteId());
       }else {
+        entity.setTemplateCode(request.getTemplateCode());
         // 获取混扫任务下的流向信息
-        sendFlowList = jyGroupSortCrossDetailService.listSendFlowByTemplateCode(entity);
+        sendFlowList = jyGroupSortCrossDetailService.listSendFlowByTemplateCodeOrEndSiteCode(entity);
         // 获取目的地
         endSiteCodeList = getEndSiteCodeListBySendFlowList(sendFlowList);
       }
@@ -813,7 +815,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
 
       // 获取当前混扫任务下的流向信息
       List<JyGroupSortCrossDetailEntity> sendFlowList = jyGroupSortCrossDetailService
-          .listSendFlowByTemplateCode(entity);
+          .listSendFlowByTemplateCodeOrEndSiteCode(entity);
       // 获取目的地
       List<Integer> endSiteCodeList = getEndSiteCodeListBySendFlowList(sendFlowList);
       List<JyBizTaskComboardEntity> boardInProcess = jyBizTaskComboardService
@@ -1423,7 +1425,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     condition.setTemplateCode(request.getTemplateCode());
 
     List<JyGroupSortCrossDetailEntity> groupSortCrossDetailEntityList = jyGroupSortCrossDetailDao
-        .listSendFlowByTemplateCode(condition);
+        .listSendFlowByTemplateCodeOrEndSiteCode(condition);
 
     boolean hasMatchDestinationIdFlag = false;
     for (JyGroupSortCrossDetailEntity entity : groupSortCrossDetailEntityList) {

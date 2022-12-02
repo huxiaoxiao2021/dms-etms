@@ -48,7 +48,7 @@ public interface JyGroupSortCrossDetailService {
      * @param record
      * @return
      */
-    List<JyGroupSortCrossDetailEntity> listSendFlowByTemplateCode(JyGroupSortCrossDetailEntity record);
+    List<JyGroupSortCrossDetailEntity> listSendFlowByTemplateCodeOrEndSiteCode(JyGroupSortCrossDetailEntity record);
 
     /**
      * 根据目的地或CTTcode获取混扫任务信息
