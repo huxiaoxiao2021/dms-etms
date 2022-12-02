@@ -156,9 +156,9 @@ public class JyGroupSortCrossDetailServiceImpl implements JyGroupSortCrossDetail
     }
 
     @Override
-    public List<JyGroupSortCrossDetailEntity> listSendFlowByTemplateCode(
+    public List<JyGroupSortCrossDetailEntity> listSendFlowByTemplateCodeOrEndSiteCode(
         JyGroupSortCrossDetailEntity record) {
-        return jyGroupSortCrossDetailDao.listSendFlowByTemplateCode(record);
+        return jyGroupSortCrossDetailDao.listSendFlowByTemplateCodeOrEndSiteCode(record);
     }
 
     @Override
