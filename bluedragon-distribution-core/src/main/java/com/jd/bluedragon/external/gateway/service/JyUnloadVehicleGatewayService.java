@@ -131,5 +131,4 @@ public interface JyUnloadVehicleGatewayService {
      */
     JdVerifyResponse<Void> transportTaskHint(TransportTaskRequest request);
 
-    JdCResponse<Boolean> uploadUnloadScanPhotoAboutEasyFreeze(GoodsPhotoInfoDto dto);
 }

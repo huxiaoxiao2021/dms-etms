@@ -216,6 +216,4 @@ public interface JyUnloadVehicleTysService {
      */
     InvokeResult<FlowBoardDto> getTaskFlowBoardInfoByPackageCode(FlowBoardDto flowBoardDto);
 
-    InvokeResult<Boolean> tysUploadUnloadScanPhotoAboutEasyFreeze(GoodsPhotoInfoDto dto);
-
 }

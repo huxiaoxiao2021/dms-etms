@@ -615,11 +615,11 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             confirmMap.put(checkResult.getCode()+"",checkResult.getMessage());
         }
         //特保单校验
-//        InvokeResult<Boolean> luxurySecurityResult = waybillService.checkLuxurySecurity(barCode, waybill.getWaybillSign());
-//        log.info("packageScan-特保单校验结果-{}",JSON.toJSONString(luxurySecurityResult));
-//        if(luxurySecurityResult != null && luxurySecurityResult.getData()){
-//            confirmMap.put(luxurySecurityResult.getCode()+"",luxurySecurityResult.getMessage());
-//        }
+        InvokeResult<Boolean> luxurySecurityResult = waybillService.checkLuxurySecurity(barCode, waybill.getWaybillSign());
+        log.info("packageScan-特保单校验结果-{}",JSON.toJSONString(luxurySecurityResult));
+        if(luxurySecurityResult != null && luxurySecurityResult.getData()){
+            confirmMap.put(luxurySecurityResult.getCode()+"",luxurySecurityResult.getMessage());
+        }
         scanPackageRespDto.setConfirmMsg(confirmMap);
         log.info("JyUnloadVehicleTysServiceImpl.packageScan invokeResult-{}",JSON.toJSONString(invokeResult));
         return invokeResult;
@@ -705,12 +705,12 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         if(easyFreezeCheckResult != null && easyFreezeCheckResult.getData()){
             confirmMap.put(easyFreezeCheckResult.getCode()+"",easyFreezeCheckResult.getMessage());
         }
-//        InvokeResult<Boolean> luxurySecurityResult = waybillService.checkLuxurySecurity(barCode, waybill.getWaybillSign());
-//        log.info("waybillScan -特保单校验结果-{}",JSON.toJSONString(luxurySecurityResult));
-//        if(luxurySecurityResult != null && luxurySecurityResult.getData()){
-//            confirmMap.put(luxurySecurityResult.getCode()+"",luxurySecurityResult.getMessage());
-//
-//        }
+        InvokeResult<Boolean> luxurySecurityResult = waybillService.checkLuxurySecurity(barCode, waybill.getWaybillSign());
+        log.info("waybillScan -特保单校验结果-{}",JSON.toJSONString(luxurySecurityResult));
+        if(luxurySecurityResult != null && luxurySecurityResult.getData()){
+            confirmMap.put(luxurySecurityResult.getCode()+"",luxurySecurityResult.getMessage());
+
+        }
         scanPackageRespDto.setConfirmMsg(confirmMap);
         return invokeResult;
     }
@@ -1614,58 +1614,6 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         }
         return response;
     }
-
-    @Override
-    public InvokeResult<Boolean> tysUploadUnloadScanPhotoAboutEasyFreeze(GoodsPhotoInfoDto dto) {
-        InvokeResult<Boolean> response = new InvokeResult<>();
-        response.success();
-        log.info("tysUploadUnloadScanPhotoAboutEasyFreeze 货物照片保存入参-{}", JSON.toJSONString(dto));
-
-        try{
-            String checkResult = checkParam(dto);
-            if(StringUtils.isNotBlank(checkResult)){
-                response.error(checkResult);
-                return response;
-            }
-            com.jd.bluedragon.common.dto.photo.GoodsPhotoInfoDto infoDto =new
-                    com.jd.bluedragon.common.dto.photo.GoodsPhotoInfoDto();
-            org.springframework.beans.BeanUtils.copyProperties(dto,infoDto);
-
-            com.jd.bluedragon.common.dto.base.request.User  user = new com.jd.bluedragon.common.dto.base.request.User ();
-            user.setUserCode(dto.getUser().getUserCode());
-            user.setUserName(dto.getUser().getUserName());
-            infoDto.setUser(user);
-
-            com.jd.bluedragon.common.dto.base.request.CurrentOperate  currentOperate = new com.jd.bluedragon.common.dto.base.request.CurrentOperate ();
-            currentOperate.setSiteCode(dto.getCurrentOperate().getSiteCode());
-            currentOperate.setSiteName(dto.getCurrentOperate().getSiteName());
-            infoDto.setCurrentOperate(currentOperate);
-
-            response.setData(goodsPhoteService.insert(infoDto));
-        }catch (Exception e){
-            log.error("添加货物照片异常!-{}",e.getMessage(),e);
-            response.error("添加货物照片异常!");
-        }
-        return response;
-    }
-
-    private String checkParam(GoodsPhotoInfoDto dto){
-        if(dto == null){
-            return "入参不能为空!";
-        }
-        if(dto.getUser() == null || (dto.getUser().getUserCode())<= 0){
-            return "操作用户信息不能为空!";
-        }
-        if(dto.getCurrentOperate() == null || dto.getCurrentOperate().getSiteCode() <= 0){
-            return "操作站点信息不能为空!";
-        }
-        if(StringUtils.isBlank(dto.getBarCode())){
-            return "单号不能为空!";
-        }
-        return "";
-
-    }
-
     private com.jd.bluedragon.common.dto.base.request.User copyUser(com.jd.bluedragon.distribution.jy.dto.User userParam) {
         com.jd.bluedragon.common.dto.base.request.User user = new com.jd.bluedragon.common.dto.base.request.User();
         user.setUserCode(userParam.getUserCode());

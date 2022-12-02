@@ -376,39 +376,4 @@ public class JyUnloadVehicleGatewayServiceImpl implements JyUnloadVehicleGateway
         }
         return jdVerifyResponse;
     }
-
-    @Override
-    public JdCResponse<Boolean> uploadUnloadScanPhotoAboutEasyFreeze(GoodsPhotoInfoDto dto) {
-        JdCResponse<Boolean> response = new JdCResponse<>();
-        response.toSucceed("成功");
-        try{
-            String checkResult = checkParam(dto);
-            if(StringUtils.isNotBlank(checkResult)){
-                response.toFail(checkResult);
-                return  response;
-            }
-            response.setData(goodsPhoteService.insert(dto));
-        }catch (Exception e){
-            logger.error("添加货物照片异常!-{}",e.getMessage(),e);
-            response.toError("添加货物照片异常!");
-        }
-        return response;
-    }
-
-    private String checkParam(GoodsPhotoInfoDto dto){
-        if(dto == null){
-            return "入参不能为空!";
-        }
-        if(dto.getUser() == null || (dto.getUser().getUserCode())<= 0){
-            return "操作用户信息不能为空!";
-        }
-        if(dto.getCurrentOperate() == null || dto.getCurrentOperate().getSiteCode() <= 0){
-            return "操作站点信息不能为空!";
-        }
-        if(StringUtils.isBlank(dto.getBarCode())){
-            return "单号不能为空!";
-        }
-        return "";
-
-    }
 }

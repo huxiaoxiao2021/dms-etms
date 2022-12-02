@@ -1194,50 +1194,50 @@ public class WaybillServiceImpl implements WaybillService {
     public InvokeResult<Boolean> checkLuxurySecurity(String barCode, String waybillSign) {
         log.info("特保单 checkLuxurySecurity 单号-{}",barCode);
         InvokeResult<Boolean> result = new InvokeResult();
-        result.success();
-        result.setData(Boolean.FALSE);
-        log.info("特保单校验 入参-{}",barCode);
-        //箱号暂时不做处理
-        Boolean isBoxCode = BusinessUtil.isBoxcode(barCode);
-        if(isBoxCode){
-            log.warn("箱号暂时不做处理！");
-            return result;
-        }
-        //如果是包裹号解析成运单号
-        String waybillCode = WaybillUtil.getWaybillCode(barCode);
-        try{
-            if(StringUtils.isBlank(waybillSign)){
-                //根据运单获取waybillSign
-                com.jd.etms.waybill.domain.BaseEntity<BigWaybillDto> dataByChoice
-                        = waybillQueryManager.getDataByChoice(waybillCode, true, true, true, false);
-                log.info("InspectionServiceImpl.checkLuxurySecurity-根据运单号获取运单标识接口请求成功!返回waybillsign数据:{}",dataByChoice.getData());
-                if(dataByChoice == null
-                        || dataByChoice.getData() == null
-                        || dataByChoice.getData().getWaybill() == null
-                        || org.apache.commons.lang3.StringUtils.isBlank(dataByChoice.getData().getWaybill().getWaybillSign())) {
-                    log.warn("特保单查询运单waybillSign失败!");
-                    return result;
-                }
-                waybillSign = dataByChoice.getData().getWaybill().getWaybillSign();
-            }
-
-            //通过waybillsign判断此运单是否包含增值服务
-            if(!BusinessUtil.isVasWaybill(waybillSign)){
-                log.warn("此运单不包含特保单增值服务!");
-                return result;
-            }
-            //判断增值服务是否包含特保单增值服务
-            boolean isLuxurySecurity = isLuxurySecurityVosWaybill(waybillCode);
-            log.info("增值服务是否包含特保单增值服务-{}",isLuxurySecurity);
-            if(isLuxurySecurity){
+//        result.success();
+//        result.setData(Boolean.FALSE);
+//        log.info("特保单校验 入参-{}",barCode);
+//        //箱号暂时不做处理
+//        Boolean isBoxCode = BusinessUtil.isBoxcode(barCode);
+//        if(isBoxCode){
+//            log.warn("箱号暂时不做处理！");
+//            return result;
+//        }
+//        //如果是包裹号解析成运单号
+//        String waybillCode = WaybillUtil.getWaybillCode(barCode);
+//        try{
+//            if(StringUtils.isBlank(waybillSign)){
+//                //根据运单获取waybillSign
+//                com.jd.etms.waybill.domain.BaseEntity<BigWaybillDto> dataByChoice
+//                        = waybillQueryManager.getDataByChoice(waybillCode, true, true, true, false);
+//                log.info("InspectionServiceImpl.checkLuxurySecurity-根据运单号获取运单标识接口请求成功!返回waybillsign数据:{}",dataByChoice.getData());
+//                if(dataByChoice == null
+//                        || dataByChoice.getData() == null
+//                        || dataByChoice.getData().getWaybill() == null
+//                        || org.apache.commons.lang3.StringUtils.isBlank(dataByChoice.getData().getWaybill().getWaybillSign())) {
+//                    log.warn("特保单查询运单waybillSign失败!");
+//                    return result;
+//                }
+//                waybillSign = dataByChoice.getData().getWaybill().getWaybillSign();
+//            }
+//
+//            //通过waybillsign判断此运单是否包含增值服务
+//            if(!BusinessUtil.isVasWaybill(waybillSign)){
+//                log.warn("此运单不包含特保单增值服务!");
+//                return result;
+//            }
+//            //判断增值服务是否包含特保单增值服务
+//            boolean isLuxurySecurity = isLuxurySecurityVosWaybill(waybillCode);
+//            log.info("增值服务是否包含特保单增值服务-{}",isLuxurySecurity);
+//            if(isLuxurySecurity){
                 result.customMessage(InvokeResult.LUXURY_SECURITY_TIPS_CODE, InvokeResult.LUXURY_SECURITY_TIPS_MESSAGE);
                 result.setData(Boolean.TRUE);
                 return result;
-            }
-        }catch (Exception e){
-            log.error("特保单校验异常-{}",e.getMessage(),e);
-        }
-        return result;
+//            }
+//        }catch (Exception e){
+//            log.error("特保单校验异常-{}",e.getMessage(),e);
+//        }
+//        return result;
     }
 
 
