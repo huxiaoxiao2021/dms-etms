@@ -448,7 +448,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     }
     List<JyBizTaskComboardEntity> boardListBySendFlowList = jyBizTaskComboardService
             .queryInProcessBoardListBySendFlowList(request.getCurrentOperate().getSiteCode(), endSiteCodeList);
-    if (boardListBySendFlowList == null || boardListBySendFlowList.size() < endSiteCodeList.size()) {
+    if (!CollectionUtils.isEmpty(boardListBySendFlowList) && boardListBySendFlowList.size()>0) {
       return new InvokeResult(HAVE_IN_HAND_BOARD_CODE, HAVE_IN_HAND_BOARD_MESSAGE);
     }
     if (jyGroupSortCrossDetailService.removeCTTFromGroup(request)) {
