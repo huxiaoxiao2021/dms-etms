@@ -2551,4 +2551,12 @@ public class BusinessUtil {
         return isSignChar(waybillSign, WaybillSignConstants.POSITION_66, WaybillSignConstants.CHAR_66_0);
     }
 
+    /**
+     * 根据waybillSign 判断此运单是否包含增值服务 是： true  不是：false
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isVasWaybill(String waybillSign){
+        return !isSignChar(waybillSign,WaybillSignConstants.POSITION_86,WaybillSignConstants.CHAR_86_0);
+    }
 }

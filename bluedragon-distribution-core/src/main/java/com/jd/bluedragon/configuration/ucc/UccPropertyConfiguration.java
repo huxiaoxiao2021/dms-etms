@@ -535,6 +535,13 @@ public class UccPropertyConfiguration {
      */
     private  String addiOwnNumberConf;
 
+    /**
+     * 货物滞留时间
+     */
+    private int goodsResidenceTime;
+
+    private String planSendTime ;
+
     public String getAddiOwnNumberConf() {
         return addiOwnNumberConf;
     }
@@ -2348,5 +2355,21 @@ public class UccPropertyConfiguration {
 
     public void setWeightVolumeSwitchVersion(Integer weightVolumeSwitchVersion) {
         this.weightVolumeSwitchVersion = weightVolumeSwitchVersion;
+    }
+
+    public int getGoodsResidenceTime() {
+        return goodsResidenceTime;
+    }
+
+    public void setGoodsResidenceTime(int goodsResidenceTime) {
+        this.goodsResidenceTime = goodsResidenceTime;
+    }
+
+    public String getPlanSendTime() {
+        return planSendTime;
+    }
+
+    public void setPlanSendTime(String planSendTime) {
+        this.planSendTime = planSendTime;
     }
 }

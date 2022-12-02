@@ -627,4 +627,13 @@ public class DateHelper {
         calendar.set(Calendar.MILLISECOND, 0);
         return calendar.getTimeInMillis();
     }
+
+    public static Date parse(String date, String format) {
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat(format);
+            return sdf.parse(date);
+        } catch (Exception e) {
+            return null;
+        }
+    }
 }

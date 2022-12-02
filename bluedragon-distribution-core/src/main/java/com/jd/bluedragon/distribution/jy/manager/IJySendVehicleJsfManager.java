@@ -3,8 +3,10 @@ package com.jd.bluedragon.distribution.jy.manager;
 import com.jd.bluedragon.distribution.jy.dto.send.SendPackageDto;
 import com.jd.bluedragon.distribution.jy.dto.send.SendWaybillDto;
 import com.jdl.jy.realtime.base.Pager;
+import com.jdl.jy.realtime.model.query.send.SendVehiclePackageDetailQuery;
 import com.jdl.jy.realtime.model.query.send.SendVehicleTaskQuery;
 import com.jdl.jy.realtime.model.vo.send.SendBarCodeDetailVo;
+import com.jdl.jy.realtime.model.vo.send.SendVehiclePackageDetailVo;
 
 /**
  * @ClassName IJySendVehicleJsfManager
@@ -34,4 +36,12 @@ public interface IJySendVehicleJsfManager {
      * @return
      */
     Pager<SendPackageDto> querySendPackageDetail(Pager<SendVehicleTaskQuery> queryPager);
+
+    /**
+     * 查询待扫包裹明细
+     * @param queryPager
+     * @return
+     */
+    Pager<SendVehiclePackageDetailVo> querySendVehicleToScanPackageDetail(Pager<SendVehiclePackageDetailQuery> queryPager);
+
 }

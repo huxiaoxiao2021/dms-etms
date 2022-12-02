@@ -1077,4 +1077,21 @@
         <jsf:parameter key="token" value="${jsf.sendhandover.token}" hide="true"/>
     </jsf:consumer>
 
+
+    <!--查询运单路由环节信息接口-->
+    <jsf:consumer id="waybillRouteLinkQueryAPI" interface="com.jd.etms.api.waybillroutelink.WaybillRouteLinkQueryAPI"
+                  protocol="jsf" alias="${jsf.waybill.route.alias}" timeout="${jsf.waybill.route.timeout}"  retries="${jsf.retries}">
+    </jsf:consumer>
+
+    <!--查询基础服务易冻品站点配置接口-->
+    <jsf:consumer id="easyFreezeSiteJsfService"
+                  interface="com.jdl.basic.api.service.easyFreeze.EasyFreezeSiteJsfService"
+                  alias="${jsf.alias.jy_basic}"
+                  timeout="${jsf.jy_basic.timeout}"
+                  retries="${jsf.retries}"
+                  serialization="hessian"
+                  lazy="${jsf.consumer.lazy}">
+        <jsf:parameter key="token" value="${jsf.jy_basic.token}" hide="true"/>
+    </jsf:consumer>
+
 </beans>
