@@ -22,6 +22,10 @@
     <result column="bulk_flag" jdbcType="BIT" property="bulkFlag" />
     <result column="count" jdbcType="INTEGER" property="count" />
   </resultMap>
+  <resultMap id="boardCountDto" type="com.jd.bluedragon.distribution.jy.dto.comboard.BoardCountDto">
+    <result column="end_site_id" jdbcType="BIGINT" property="endSiteId" />
+    <result column="board_count" jdbcType="INTEGER" property="boardCount" />
+  </resultMap>
   <sql id="Base_Column_List">
     id, biz_id, board_code, send_code, status, start_site_id, start_site_name, end_site_id,
     end_site_name, create_user_erp, create_user_name, update_user_erp, update_user_name,
@@ -334,5 +338,21 @@
           </foreach>
       AND create_time > #{createTime}
       AND yn = 1
+  </select>
+  <select id="boardCountTaskBySendFlowList" resultMap="boardCountDto">
+    select end_site_id, count(*) board_count
+    from jy_biz_task_comboard
+    where start_site_id = #{startSiteId}
+      and end_site_id in
+    <foreach item="item" index="index" collection="endSiteIdList" open="(" separator="," close=")">
+      #{item}
+    </foreach>
+      and status in
+    <foreach item="item" index="index" collection="statusList" open="(" separator="," close=")">
+      #{item}
+    </foreach>
+      and yn = 1
+    AND create_time > #{createTime}
+    group by end_site_id;
   </select>
 </mapper>
