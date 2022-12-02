@@ -4,11 +4,14 @@ import com.jd.bluedragon.common.dto.comboard.response.BoardDto;
 import com.jd.bluedragon.common.dto.comboard.response.SendFlowDto;
 import com.jd.bluedragon.distribution.jy.comboard.JyBizTaskComboardEntity;
 import com.jd.bluedragon.distribution.jy.dao.comboard.JyBizTaskComboardDao;
+import com.jd.bluedragon.distribution.jy.dto.comboard.BoardCountDto;
+import com.jd.bluedragon.distribution.jy.dto.comboard.BoardCountReq;
 import com.jd.bluedragon.distribution.jy.dto.comboard.JyBizTaskComboardReq;
 import com.jd.bluedragon.distribution.jy.enums.ComboardStatusEnum;
 import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.ObjectHelper;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -97,5 +100,15 @@ public class JyBizTaskComboardServiceImpl implements JyBizTaskComboardService {
     statusList.add(ComboardStatusEnum.CANCEL_SEAL.getCode());
     condition.setStatusList(statusList);
     return jyBizTaskComboardDao.listBoardTaskBySendFlow(condition);
+  }
+
+  @Override
+  public List<BoardCountDto> boardCountTaskBySendFlowList(BoardCountReq boardCountReq){
+    List<Integer> statusList = new ArrayList<>();
+    statusList.add(ComboardStatusEnum.PROCESSING.getCode());
+    statusList.add(ComboardStatusEnum.FINISHED.getCode());
+    statusList.add(ComboardStatusEnum.CANCEL_SEAL.getCode());
+    boardCountReq.setStatusList(statusList);
+    return jyBizTaskComboardDao.boardCountTaskBySendFlowList(boardCountReq);
   }
 }

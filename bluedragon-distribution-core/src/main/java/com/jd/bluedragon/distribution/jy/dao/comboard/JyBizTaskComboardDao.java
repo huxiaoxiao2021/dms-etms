@@ -4,6 +4,8 @@ import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.common.dto.comboard.response.BoardDto;
 import com.jd.bluedragon.common.dto.comboard.response.SendFlowDto;
 import com.jd.bluedragon.distribution.jy.comboard.JyBizTaskComboardEntity;
+import com.jd.bluedragon.distribution.jy.dto.comboard.BoardCountDto;
+import com.jd.bluedragon.distribution.jy.dto.comboard.BoardCountReq;
 import com.jd.bluedragon.distribution.jy.dto.comboard.JyBizTaskComboardReq;
 
 import java.util.List;
@@ -65,4 +67,13 @@ public class JyBizTaskComboardDao extends BaseDao<JyBizTaskComboardEntity> {
   public List<JyBizTaskComboardEntity> listBoardTaskBySendFlow(JyBizTaskComboardEntity condition) {
     return this.getSqlSession().selectList(NAMESPACE + ".listBoardTaskBySendFlow", condition);
   }
+
+    /**
+     * 查询其他内未封车的板
+     * @param boardCountReq
+     * @return
+     */
+    public List<BoardCountDto> boardCountTaskBySendFlowList(BoardCountReq boardCountReq) {
+        return this.getSqlSession().selectList(NAMESPACE + ".boardCountTaskBySendFlowList", boardCountReq);
+    }
 }

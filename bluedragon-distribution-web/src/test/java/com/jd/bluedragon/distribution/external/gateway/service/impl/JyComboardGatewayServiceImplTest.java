@@ -252,7 +252,8 @@ public class JyComboardGatewayServiceImplTest {
         CurrentOperate operate = new CurrentOperate();
         resp.setGroupCode("group111");
         operate.setSiteCode(910);
-        resp.setTemplateCode("CTT22111700000002");
+        resp.setTemplateCode("CTT22120100000004");
+        resp.setTemplateName("混扫4");
         operate.setSiteName("北京马驹桥分拣中心");
         resp.setCurrentOperate(operate);
         User user = new User();
@@ -275,27 +276,6 @@ public class JyComboardGatewayServiceImplTest {
         dtos.add(tableTrolleyDto1);
         JdCResponse jdCResponse = jyComboardGatewayService.addCTT2Group(resp);
         System.out.println(JsonHelper.toJson(jdCResponse));
-        RemoveCTTReq req = new RemoveCTTReq();
-        CurrentOperate operate2 = new CurrentOperate();
-        req.setGroupCode("group2");
-        operate2.setSiteCode(910);
-        req.setTemplateCode("CTT22111700000001");
-        operate2.setSiteName("北京马驹桥分拣中心");
-        req.setCurrentOperate(operate2);
-        User user2 = new User();
-        user2.setUserName("李文吉");
-        user2.setUserErp("liwenji3");
-        req.setUser(user2);
-        List<TableTrolleyDto> dtos2 = new ArrayList<>();
-        req.setTableTrolleyDtoList(dtos2);
-        TableTrolleyDto tableTrolleyDto2 = new TableTrolleyDto();
-        tableTrolleyDto2.setEndSiteId(630171);
-        dtos2.add(tableTrolleyDto2);
-        TableTrolleyDto tableTrolleyDto3 = new TableTrolleyDto();
-        tableTrolleyDto3.setEndSiteId(630109);
-        dtos2.add(tableTrolleyDto3);
-        JdCResponse jdCResponse1 = jyComboardGatewayService.removeCTTFromGroup(req);
-        System.out.println(jdCResponse1);
     }
 
     @Test
@@ -409,7 +389,7 @@ public class JyComboardGatewayServiceImplTest {
         resp.setBulkFlag(true);
         List<ComboardDetailDto>  cancelList = new ArrayList<>();
         ComboardDetailDto comboardDetailDto = new ComboardDetailDto();
-        comboardDetailDto.setBarCode("JDV000707553583");
+        comboardDetailDto.setBarCode("JD0003403868515-1-1-");
         cancelList.add(comboardDetailDto);
         resp.setCancelList(cancelList);
         jyComboardGatewayService.cancelComboard(resp);
@@ -420,20 +400,22 @@ public class JyComboardGatewayServiceImplTest {
         CancelBoardReq resp = new CancelBoardReq();
         CurrentOperate operate = new CurrentOperate();
         resp.setGroupCode("group111");
-        resp.setBoardCode("B21112200000035");
+        resp.setBoardCode("B22120100000055");
         operate.setSiteCode(910);
         operate.setSiteName("北京马驹桥分拣中心");
         resp.setCurrentOperate(operate);
         User user = new User();
+        user.setUserCode(11111);
         user.setUserName("李文吉");
         user.setUserErp("liwenji3");
         resp.setUser(user);
         resp.setBulkFlag(false);
         List<ComboardDetailDto>  cancelList = new ArrayList<>();
         ComboardDetailDto comboardDetailDto = new ComboardDetailDto();
-        comboardDetailDto.setBarCode("JDV000707553583-3-5-");
+        comboardDetailDto.setBarCode("JD0003365286683-1-1-");
         cancelList.add(comboardDetailDto);
         resp.setCancelList(cancelList);
+        resp.setEndSiteName("石景山营业部");
         jyComboardGatewayService.cancelComboard(resp);
     }
 

@@ -48,7 +48,7 @@ public interface JyGroupSortCrossDetailService {
      * @param record
      * @return
      */
-    List<JyGroupSortCrossDetailEntity> listSendFlowByTemplateCode(JyGroupSortCrossDetailEntity record);
+    List<JyGroupSortCrossDetailEntity> listSendFlowByTemplateCodeOrEndSiteCode(JyGroupSortCrossDetailEntity record);
 
     /**
      * 根据目的地或CTTcode获取混扫任务信息
@@ -56,4 +56,11 @@ public interface JyGroupSortCrossDetailService {
      * @return
      */
     CTTGroupDataResp listGroupByEndSiteCodeOrCTTCode(JyGroupSortCrossDetailEntity entity);
+
+    /**
+     * 查询流向
+     * @param query
+     * @return
+     */
+    JyGroupSortCrossDetailEntity selectOneByGroupCrossTableTrolley(JyGroupSortCrossDetailEntity query);
 }

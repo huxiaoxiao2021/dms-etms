@@ -39,6 +39,7 @@ public class BoardStatisticsResp implements Serializable {
      * 该流向下已组板列表（7日内未封车的板）
      */
     private List<BoardDto> boardDtoList;
+    private Integer totalBoardCount;
 
     public Integer getGroupUserCount() {
         return groupUserCount;
@@ -118,5 +119,13 @@ public class BoardStatisticsResp implements Serializable {
 
     public void setBoardDtoList(List<BoardDto> boardDtoList) {
         this.boardDtoList = boardDtoList;
+    }
+
+    public Integer getTotalBoardCount() {
+        return totalBoardCount;
+    }
+
+    public void setTotalBoardCount(Integer totalBoardCount) {
+        this.totalBoardCount = totalBoardCount;
     }
 }

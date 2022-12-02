@@ -13,6 +13,11 @@ public class AddCTTReq extends BaseReq implements Serializable {
      * 混扫任务编号
      */
     private String templateCode;
+    /**
+     * 混扫任务名称
+     */
+    private String templateName;
+
     private List<TableTrolleyDto> tableTrolleyDtoList;
 
     public String getTemplateCode() {
@@ -29,5 +34,13 @@ public class AddCTTReq extends BaseReq implements Serializable {
 
     public void setTableTrolleyDtoList(List<TableTrolleyDto> tableTrolleyDtoList) {
         this.tableTrolleyDtoList = tableTrolleyDtoList;
+    }
+
+    public String getTemplateName() {
+        return templateName;
+    }
+
+    public void setTemplateName(String templateName) {
+        this.templateName = templateName;
     }
 }

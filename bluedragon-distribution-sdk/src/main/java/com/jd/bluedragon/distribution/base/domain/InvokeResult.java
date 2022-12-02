@@ -188,6 +188,9 @@ public class InvokeResult<T> implements Serializable {
     public static final int BOARD_HAS_BEEN_FULL_CODE = 3053;
     public static final String BOARD_HAS_BEEN_FULL_MESSAGE = "已达上限，需要换新板！";
 
+    public static final int HAVE_SEND_FLOW_UNDER_GROUP_CODE = 3054;
+    public static final String HAVE_SEND_FLOW_UNDER_GROUP_MESSAGE = "当前混扫任务以包含该流向，请勿重复添加！";
+
     public InvokeResult(){
         this.code=RESULT_SUCCESS_CODE;
     }

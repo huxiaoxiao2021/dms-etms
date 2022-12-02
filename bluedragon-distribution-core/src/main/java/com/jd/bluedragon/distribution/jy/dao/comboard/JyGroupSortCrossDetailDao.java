@@ -33,8 +33,8 @@ public class JyGroupSortCrossDetailDao extends BaseDao<JyGroupSortCrossDetailEnt
         return this.getSqlSession().update(NAMESPACE + ".updateByPrimaryKey", record);
     }
 
-    public List<JyGroupSortCrossDetailEntity> listSendFlowByTemplateCode(JyGroupSortCrossDetailEntity record) {
-        return this.getSqlSession().selectList(NAMESPACE + ".listSendFlowByTemplateCode", record);
+    public List<JyGroupSortCrossDetailEntity> listSendFlowByTemplateCodeOrEndSiteCode(JyGroupSortCrossDetailEntity record) {
+        return this.getSqlSession().selectList(NAMESPACE + ".listSendFlowByTemplateCodeOrEndSiteCode", record);
     }
 
     /**
