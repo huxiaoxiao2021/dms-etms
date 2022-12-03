@@ -227,6 +227,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     }
     if (tableTrolleyJsfResp != null && !CollectionUtils
         .isEmpty(tableTrolleyJsfResp.getTableTrolleyDtoJsfList())) {
+      log.info("<===========sortCrossJsfManager.queryTableTrolleyListByDmsId============>:{}",tableTrolleyJsfResp.getTableTrolleyDtoJsfList().toString());
       tableTrolleyResp.setTableTrolleyDtoList(
           getTableTrolleyDto(tableTrolleyJsfResp.getTableTrolleyDtoJsfList()));
       tableTrolleyResp.setTotalPage(tableTrolleyJsfResp.getTotalPage());
