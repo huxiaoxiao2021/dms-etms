@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.jy.service.comboard;
 
+import org.apache.commons.collections.CollectionUtils;
+
 import java.util.List;
 
 public class JyComboardAggsConditionBuilder {
@@ -91,12 +93,13 @@ public class JyComboardAggsConditionBuilder {
     }
 
     public JyComboardAggsCondition build() {
-        return new JyComboardAggsCondition(operateSiteId==null?DEFAULT_CONDITON_INTEGER_VALUE:operateSiteId,
-                receiveSiteId==null?DEFAULT_CONDITON_INTEGER_VALUE:receiveSiteId,
+        return new JyComboardAggsCondition(
+                operateSiteId==null?DEFAULT_CONDITON_INTEGER_VALUE:operateSiteId,
+                receiveSiteId==null && CollectionUtils.isEmpty(receiveSiteIds)?DEFAULT_CONDITON_INTEGER_VALUE:receiveSiteId,
                 bizId==null?DEFAULT_CONDITON_VALUE:bizId,
-                boardCode==null?DEFAULT_CONDITON_VALUE:boardCode,
-                productType==null?DEFAULT_CONDITON_VALUE:productType,
-                scanType==null?DEFAULT_CONDITON_INTEGER_VALUE:scanType,
+                boardCode==null && CollectionUtils.isEmpty(boardCodes)?DEFAULT_CONDITON_VALUE:boardCode,
+                productType==null && CollectionUtils.isEmpty(productTypes)?DEFAULT_CONDITON_VALUE:productType,
+                scanType==null && CollectionUtils.isEmpty(scanTypes)?DEFAULT_CONDITON_INTEGER_VALUE:scanType,
                 productTypes, scanTypes, receiveSiteIds, boardCodes);
     }
 

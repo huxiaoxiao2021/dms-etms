@@ -348,7 +348,6 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       if (waybill.getOldSiteId() == null) {
         throw new JyBizException("运单对应的预分拣站点为空");
       }
-      query.setDmsId(request.getCurrentOperate().getSiteCode());
       query.setSiteCode(waybill.getOldSiteId());
       tableTrolleyJsfResp = sortCrossJsfManager.queryCTTByStartEndSiteCode(query);
     } else if (BusinessHelper.isBoxcode(barCode)) {
@@ -536,9 +535,15 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       resp.setScanUserList(userList);
       // 获取当前流向
       if (request.getEndSiteId() != null ){
-        entity.setEndSiteId(request.getEndSiteId().longValue());
-        // 获取混扫任务下的流向信息
-        sendFlowList = jyGroupSortCrossDetailService.listSendFlowByTemplateCodeOrEndSiteCode(entity);
+        TableTrolleyQuery query = new TableTrolleyQuery();
+        query.setSiteCode(request.getEndSiteId());
+        query.setDmsId(startSiteCode);
+        TableTrolleyJsfResp tableTrolleyJsfResp = sortCrossJsfManager.queryCTTByStartEndSiteCode(query);
+        if (tableTrolleyJsfResp != null && !CollectionUtils.isEmpty(tableTrolleyJsfResp.getTableTrolleyDtoJsfList()) ) {
+          sendFlowList = getSendFlowList(tableTrolleyJsfResp.getTableTrolleyDtoJsfList().get(0));
+        }else {
+          return new InvokeResult<>(SEND_FLOE_CTT_CODE, SEND_FLOE_CTT_MESSAGE, resp);
+        }
         endSiteCodeList.add(request.getEndSiteId());
       }else {
         entity.setTemplateCode(request.getTemplateCode());
@@ -572,6 +577,17 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       return new InvokeResult<>(SEND_FLOW_UNDER_CTTGROUP_CODE, SEND_FLOW_UNDER_CTTGROUP_MESSAGE);
     }
     return new InvokeResult<>(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, resp);
+  }
+
+  private List<JyGroupSortCrossDetailEntity> getSendFlowList(TableTrolleyJsfDto tableTrolleyJsfDto) {
+    List<JyGroupSortCrossDetailEntity> entities = new ArrayList<>();
+    JyGroupSortCrossDetailEntity entity = new JyGroupSortCrossDetailEntity();
+    entities.add(entity);
+    entity.setEndSiteId(Long.valueOf(tableTrolleyJsfDto.getEndSiteId()));
+    entity.setEndSiteName(tableTrolleyJsfDto.getEndSiteName());
+    entity.setCrossCode(tableTrolleyJsfDto.getCrossCode());
+    entity.setTabletrolleyCode(tableTrolleyJsfDto.getTableTrolleyCode());
+    return entities;
   }
 
   private HashMap<Long, Integer> getBoardCountMap(List<BoardCountDto> entityList) {
