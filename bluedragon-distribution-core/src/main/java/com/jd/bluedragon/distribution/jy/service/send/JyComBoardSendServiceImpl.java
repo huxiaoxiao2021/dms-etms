@@ -542,7 +542,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     try {
       jyComboardAggsEntities = jyComboardAggsService.queryComboardAggs(startSiteCode, endSiteCodeList);
     } catch (Exception e) {
-      log.info("获取当前混扫任务下待扫统计失败: {}", JsonHelper.toJson(request));
+      log.info("获取当前混扫任务下待扫统计失败: {}", JsonHelper.toJson(request),e);
     }
     HashMap<Long, JyComboardAggsEntity> sendFlowMap = getSendFlowMap(jyComboardAggsEntities);
     //查询流向下7天内未封车的板
@@ -561,7 +561,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     try {
       boardScanInfoList = jyComboardAggsService.queryComboardAggs(boardCodeList);
     } catch (Exception e) {
-      log.info("获取当前板号的扫描信息失败：{}", JsonHelper.toJson(request));
+      log.info("获取当前板号的扫描信息失败：{}", JsonHelper.toJson(request),e);
     }
     // 当前板的扫描信息
     HashMap<Long, JyComboardAggsEntity> boardFlowMap = getBoardFlowMap(boardScanInfoList,
@@ -660,7 +660,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
         if (boardFlow.getPackageScannedCount()!=null && boardFlow.getPackageScannedCount()!=null) {
           int scanCount = boardFlow.getPackageScannedCount() + boardFlow.getBoxScannedCount();
           int scanProgress = (int) ((scanCount * 1.00 / ucc.getJyComboardCountLimit()) * 100);
-          boardDto.setProgress(scanProgress + "%");
+          boardDto.setProgress(String.valueOf(scanProgress));
         }
       }
       sendFlowDtoList.add(sendFlowDto);
@@ -721,7 +721,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     // 获取当前流向下的待扫统计
     JyComboardAggsEntity aggsEntity = null;
     try {
-      // aggsEntity = jyComboardAggsService.queryComboardAggs(startSiteCode, request.getEndSiteId());
+      aggsEntity = jyComboardAggsService.queryComboardAggs(startSiteCode, request.getEndSiteId());
     } catch (Exception e) {
       log.info("获取流向下带扫数据失败：{}", JsonHelper.toJson(request));
     }
@@ -742,7 +742,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     // 获取当前板号的扫描信息
     JyComboardAggsEntity boardScanInfo = null;
     try {
-      // boardScanInfo = jyComboardAggsService.queryComboardAggs(request.getBoardCode());
+      boardScanInfo = jyComboardAggsService.queryComboardAggs(request.getBoardCode());
     } catch (Exception e) {
       log.info("获取当前板号的扫描信息失败：{}", JsonHelper.toJson(request));
     }
@@ -1892,8 +1892,8 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
           log.error("取消组板失败：{}", JsonHelper.toJson(removeBoardBoxDto), e);
           return new InvokeResult<>(CANCEL_COM_BOARD_CODE, CANCEL_COM_BOARD_MESSAGE);
         }
-        // 
-        // asyncSendComboardWaybillTrace();
+        // 异步发送全程跟踪
+        asyncSendComboardWaybillTrace(request);
         // 取消发货
         SendM sendM = toSendM(request);
         sendM.setBoxCode(waybillCode);
@@ -1951,6 +1951,10 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       cancelSend(request,barCodeList);
     }
     return new InvokeResult<>(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE);
+  }
+
+  private void asyncSendComboardWaybillTrace(CancelBoardReq request) {
+    cancelComboardTaskDto cancelComboardTaskDto = new cancelComboardTaskDto();
   }
 
   private void cancelSend(CancelBoardReq request, List<String> barCodeList) {
