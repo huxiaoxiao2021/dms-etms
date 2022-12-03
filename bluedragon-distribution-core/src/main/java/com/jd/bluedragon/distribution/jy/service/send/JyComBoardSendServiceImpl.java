@@ -542,26 +542,27 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     try {
       jyComboardAggsEntities = jyComboardAggsService.queryComboardAggs(startSiteCode, endSiteCodeList);
     } catch (Exception e) {
-      log.info("获取当前混扫任务下待扫统计失败: {}", JsonHelper.toJson(request));
+      log.info("获取当前混扫任务下待扫统计失败: {}", JsonHelper.toJson(request),e);
     }
     HashMap<Long, JyComboardAggsEntity> sendFlowMap = getSendFlowMap(jyComboardAggsEntities);
     //查询流向下7天内未封车的板
     BoardCountReq boardCountReq = new BoardCountReq();
-    Date time = DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -ucc.getJyComboardTaskCreateTimeBeginDay());
+    Date time = DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -7);
     boardCountReq.setCreateTime(time);
     boardCountReq.setEndSiteIdList(endSiteCodeList);
     boardCountReq.setStartSiteId(startSiteCode.longValue());
     List<BoardCountDto> entityList = jyBizTaskComboardService.boardCountTaskBySendFlowList(boardCountReq);
     HashMap<Long, Integer> boardCountMap = getBoardCountMap(entityList);
     // 获取当前流向执行中的板号
-    List<JyBizTaskComboardEntity> boardList = jyBizTaskComboardService.queryInProcessBoardListBySendFlowList(startSiteCode, endSiteCodeList);
+    List<JyBizTaskComboardEntity> boardList = jyBizTaskComboardService
+            .queryInProcessBoardListBySendFlowList(startSiteCode, endSiteCodeList);
     List<String> boardCodeList = getBoardCodeList(boardList);
     // 获取当前板号的扫描信息
     List<JyComboardAggsEntity> boardScanInfoList = null;
     try {
       boardScanInfoList = jyComboardAggsService.queryComboardAggs(boardCodeList);
     } catch (Exception e) {
-      log.info("获取当前板号的扫描信息失败：{}", JsonHelper.toJson(request));
+      log.info("获取当前板号的扫描信息失败：{}", JsonHelper.toJson(request),e);
     }
     // 当前板的扫描信息
     HashMap<Long, JyComboardAggsEntity> boardFlowMap = getBoardFlowMap(boardScanInfoList,
@@ -604,7 +605,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   private HashMap<Long, JyComboardAggsEntity> getBoardFlowMap(
       List<JyComboardAggsEntity> boardScanInfoList, List<JyBizTaskComboardEntity> boardList) {
     HashMap<Long, JyComboardAggsEntity> boardFlowMap = new HashMap<>();
-    HashMap<String, Long> boardMap = new HashMap<>();
+    HashMap<String, JyComboardAggsEntity> boardMap = new HashMap<>();
     if (CollectionUtils.isEmpty(boardList) && CollectionUtils.isEmpty(boardScanInfoList)) {
       return boardFlowMap;
     }
@@ -616,13 +617,18 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
         boardFlowMap.put(boardScanInfo.getEndSiteId(),aggsEntity);
       }
     }
-    for (JyBizTaskComboardEntity boardScanInfo : boardList) {
-      boardMap.put(boardScanInfo.getBoardCode(), boardScanInfo.getEndSiteId());
+    for (JyComboardAggsEntity aggsEntity : boardScanInfoList) {
+      boardMap.put(aggsEntity.getBoardCode(),aggsEntity);
     }
-    for (JyComboardAggsEntity entity : boardScanInfoList) {
-      String boardCode = entity.getBoardCode();
-      Long endSiteId = boardMap.get(boardCode);
-      boardFlowMap.put(endSiteId, entity);
+    for (JyBizTaskComboardEntity boardScanInfo : boardList) {
+      JyComboardAggsEntity aggsEntity = boardMap.get(boardScanInfo.getBoardCode());
+      if (aggsEntity == null ) {
+        JyComboardAggsEntity jyComboardAggsEntity = new JyComboardAggsEntity();
+        jyComboardAggsEntity.setBoardCode(boardScanInfo.getBoardCode());
+        boardFlowMap.put(boardScanInfo.getEndSiteId(),jyComboardAggsEntity);
+      }else {
+        boardFlowMap.put(boardScanInfo.getEndSiteId(),aggsEntity);
+      }
     }
     return boardFlowMap;
   }
@@ -660,7 +666,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
         if (boardFlow.getPackageScannedCount()!=null && boardFlow.getPackageScannedCount()!=null) {
           int scanCount = boardFlow.getPackageScannedCount() + boardFlow.getBoxScannedCount();
           int scanProgress = (int) ((scanCount * 1.00 / ucc.getJyComboardCountLimit()) * 100);
-          boardDto.setProgress(scanProgress + "%");
+          boardDto.setProgress(String.valueOf(scanProgress));
         }
       }
       sendFlowDtoList.add(sendFlowDto);
@@ -721,7 +727,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     // 获取当前流向下的待扫统计
     JyComboardAggsEntity aggsEntity = null;
     try {
-      // aggsEntity = jyComboardAggsService.queryComboardAggs(startSiteCode, request.getEndSiteId());
+      aggsEntity = jyComboardAggsService.queryComboardAggs(startSiteCode, request.getEndSiteId());
     } catch (Exception e) {
       log.info("获取流向下带扫数据失败：{}", JsonHelper.toJson(request));
     }
@@ -742,7 +748,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     // 获取当前板号的扫描信息
     JyComboardAggsEntity boardScanInfo = null;
     try {
-      // boardScanInfo = jyComboardAggsService.queryComboardAggs(request.getBoardCode());
+      boardScanInfo = jyComboardAggsService.queryComboardAggs(request.getBoardCode());
     } catch (Exception e) {
       log.info("获取当前板号的扫描信息失败：{}", JsonHelper.toJson(request));
     }
@@ -1891,8 +1897,8 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
           log.error("取消组板失败：{}", JsonHelper.toJson(removeBoardBoxDto), e);
           return new InvokeResult<>(CANCEL_COM_BOARD_CODE, CANCEL_COM_BOARD_MESSAGE);
         }
-        //
-        // asyncSendComboardWaybillTrace();
+        // 异步发送全程跟踪
+        asyncSendComboardWaybillTrace(request);
         // 取消发货
         SendM sendM = toSendM(request);
         sendM.setBoxCode(waybillCode);
@@ -1950,6 +1956,18 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       cancelSend(request,barCodeList);
     }
     return new InvokeResult<>(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE);
+  }
+
+  private void asyncSendComboardWaybillTrace(CancelBoardReq request) {
+    cancelComboardTaskDto taskDto = new cancelComboardTaskDto();
+    taskDto.setBoardCode(request.getBoardCode());
+    taskDto.setWaybillCode(request.getCancelList().get(0).getBarCode());
+    taskDto.setEndSiteName(request.getEndSiteName());
+    taskDto.setSiteCode(request.getCurrentOperate().getSiteCode());
+    taskDto.setUserErp(request.getUser().getUserErp());
+    taskDto.setUserName(request.getUser().getUserName());
+    taskDto.setSiteName(request.getCurrentOperate().getSiteName());
+    deliveryOperationService.asyncSendComboardWaybillTrace(taskDto);
   }
 
   private void cancelSend(CancelBoardReq request, List<String> barCodeList) {

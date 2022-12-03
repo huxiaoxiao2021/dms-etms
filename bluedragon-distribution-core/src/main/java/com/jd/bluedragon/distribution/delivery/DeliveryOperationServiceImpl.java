@@ -13,6 +13,7 @@ import com.jd.bluedragon.distribution.delivery.constants.SendKeyTypeEnum;
 import com.jd.bluedragon.distribution.delivery.entity.SendMWrapper;
 import com.jd.bluedragon.distribution.delivery.processor.IDeliveryBaseHandler;
 import com.jd.bluedragon.distribution.jy.dto.comboard.ComboardTaskDto;
+import com.jd.bluedragon.distribution.jy.dto.comboard.cancelComboardTaskDto;
 import com.jd.bluedragon.distribution.jy.dto.send.VehicleSendRelationDto;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
@@ -86,6 +87,7 @@ public class DeliveryOperationServiceImpl implements IDeliveryOperationService {
     @Autowired
     private WaybillQueryManager waybillQueryManager;
     final static int SEND_SPLIT_NUM = 1024;
+    final static int COMBOARD_SPLIT_NUM = 1024;
     @Autowired
     GroupBoardManager groupBoardManager;
 
@@ -438,5 +440,36 @@ public class DeliveryOperationServiceImpl implements IDeliveryOperationService {
             log.info("循环发送全程跟踪");
         }
         log.info("运单异步执行组板{} 成功",JsonHelper.toJson(dto));
+    }
+
+    @Override
+    public void asyncSendComboardWaybillTrace(cancelComboardTaskDto dto) {
+        // 获取运单包裹数
+        Waybill waybill = waybillQueryManager.getOnlyWaybillByWaybillCode(dto.getWaybillCode());
+        if (waybill == null || waybill.getGoodNumber() == null) {
+            log.error("[异步组板任务]获取运单包裹数失败! code:{}, sendM:{}", dto.getWaybillCode(), JsonHelper.toJson(dto));
+            return;
+        }
+
+        int totalNum = waybill.getGoodNumber();
+        int onePageSize = uccConfig.getWaybillSplitPageSize() == 0 ? COMBOARD_SPLIT_NUM : uccConfig.getWaybillSplitPageSize();
+        int pageTotal = (totalNum % onePageSize) == 0 ? (totalNum / onePageSize) : (totalNum / onePageSize) + 1;
+        // 插入分页任务
+        for (int i = 0; i < pageTotal; i++) {
+            dto.setPageNo(i+1);
+            dto.setPageSize(onePageSize);
+            Task task = new Task();
+            task.setBoxCode(dto.getWaybillCode());//运单号
+            task.setCreateSiteCode(dto.getSiteCode());
+            task.setType(Task.TASK_TYPE_COMBOARD_CANCEL);
+            task.setTableName(Task.getTableName(task.getType()));
+            task.setSequenceName(Task.getSequenceName(task.getTableName()));
+            task.setKeyword1(dto.getBoardCode());
+            task.setOwnSign(BusinessHelper.getOwnSign());
+            task.setBody(JsonHelper.toJson(dto));
+            String fingerprint =   Constants.UNDER_LINE + System.currentTimeMillis();
+            task.setFingerprint(Md5Helper.encode(fingerprint));
+            taskService.doAddTask(task,false);
+        }
     }
 }
