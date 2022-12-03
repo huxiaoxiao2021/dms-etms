@@ -15,16 +15,11 @@ import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.board.service.BoardCombinationService;
 import com.jd.bluedragon.distribution.external.enums.AppVersionEnums;
-import com.jd.bluedragon.distribution.goodsPhoto.service.GoodsPhoteService;
-import com.jd.bluedragon.distribution.inspection.service.InspectionService;
 import com.jd.bluedragon.distribution.jy.api.JyUnloadVehicleTysService;
 import com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskUnloadVehicleDao;
 import com.jd.bluedragon.distribution.jy.dao.unload.JyBizTaskUnloadVehicleStageDao;
 import com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadAggsDao;
 import com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadVehicleBoardDao;
-import com.jd.bluedragon.distribution.jy.dto.CurrentOperate;
-import com.jd.bluedragon.distribution.jy.dto.GoodsPhotoInfoDto;
-import com.jd.bluedragon.distribution.jy.dto.User;
 import com.jd.bluedragon.distribution.jy.dto.task.JyBizTaskUnloadCountDto;
 import com.jd.bluedragon.distribution.jy.dto.unload.*;
 import com.jd.bluedragon.distribution.jy.enums.*;
@@ -132,9 +127,6 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     private DefaultJMQProducer jyUnloadCarPostTaskCompleteProducer;
     @Autowired
     private WaybillService waybillService;
-
-    @Autowired
-    private GoodsPhoteService goodsPhoteService;
 
 
     @Override
@@ -610,15 +602,9 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         InvokeResult<Boolean> checkResult
                 = waybillService.checkEasyFreeze(waybillCode, new Date(), operateSiteCode);
         log.info("packageScan-易冻品校验结果-{}",JSON.toJSONString(checkResult));
-        Map<String,String> confirmMap = new HashMap<>(2);
+        Map<String,String> confirmMap = new HashMap<>(1);
         if(checkResult != null && checkResult.getData()){
             confirmMap.put(checkResult.getCode()+"",checkResult.getMessage());
-        }
-        //特保单校验
-        InvokeResult<Boolean> luxurySecurityResult = waybillService.checkLuxurySecurity(barCode, waybill.getWaybillSign());
-        log.info("packageScan-特保单校验结果-{}",JSON.toJSONString(luxurySecurityResult));
-        if(luxurySecurityResult != null && luxurySecurityResult.getData()){
-            confirmMap.put(luxurySecurityResult.getCode()+"",luxurySecurityResult.getMessage());
         }
         scanPackageRespDto.setConfirmMsg(confirmMap);
         log.info("JyUnloadVehicleTysServiceImpl.packageScan invokeResult-{}",JSON.toJSONString(invokeResult));
@@ -701,15 +687,9 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         InvokeResult<Boolean> easyFreezeCheckResult
                 = waybillService.checkEasyFreeze(waybillCode, new Date(), scanPackageDto.getCurrentOperate().getSiteCode());
         log.info("waybillScan -易冻品校验结果-{}",JSON.toJSONString(easyFreezeCheckResult));
-        Map<String,String> confirmMap = new HashMap<>(2);
+        Map<String,String> confirmMap = new HashMap<>(1);
         if(easyFreezeCheckResult != null && easyFreezeCheckResult.getData()){
             confirmMap.put(easyFreezeCheckResult.getCode()+"",easyFreezeCheckResult.getMessage());
-        }
-        InvokeResult<Boolean> luxurySecurityResult = waybillService.checkLuxurySecurity(barCode, waybill.getWaybillSign());
-        log.info("waybillScan -特保单校验结果-{}",JSON.toJSONString(luxurySecurityResult));
-        if(luxurySecurityResult != null && luxurySecurityResult.getData()){
-            confirmMap.put(luxurySecurityResult.getCode()+"",luxurySecurityResult.getMessage());
-
         }
         scanPackageRespDto.setConfirmMsg(confirmMap);
         return invokeResult;

@@ -861,10 +861,6 @@
         <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
     </bean>
 
-    <bean id="goodsPhotoDao" class="com.jd.bluedragon.distribution.goodsPhoto.dao.GoodsPhotoDao">
-        <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
-    </bean>
-
     <!--################################## jy_core 相关DAO END ############################################ -->
 
 

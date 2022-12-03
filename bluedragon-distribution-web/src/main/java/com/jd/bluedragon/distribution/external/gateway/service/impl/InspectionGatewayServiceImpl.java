@@ -289,9 +289,6 @@ public class InspectionGatewayServiceImpl implements InspectionGatewayService {
         //异动品校验
         easyFreezeCheck(request,response);
 
-        //特保单校验
-        luxurySecurityCheck(request,response);
-
         // 提示语校验
         HintCheckRequest hintCheckRequest = new HintCheckRequest();
         hintCheckRequest.setPackageCode(barCode);
@@ -329,15 +326,6 @@ public class InspectionGatewayServiceImpl implements InspectionGatewayService {
         if(easyFreezeResult != null && easyFreezeResult.getData()){
             response.addWarningBox(0, easyFreezeResult.getMessage());
         }
-    }
-
-    private void luxurySecurityCheck(InspectionRequest request, JdVerifyResponse<InspectionCheckResultDto> response){
-        InvokeResult<Boolean> luxurySecurityResult = waybillService.checkLuxurySecurity(request.getBarCode(), "");
-        log.info("checkBeforeInspection -特保单校验结果-{}",JSON.toJSONString(luxurySecurityResult));
-        if(luxurySecurityResult != null && luxurySecurityResult.getData()){
-            response.addWarningBox(luxurySecurityResult.getCode(), luxurySecurityResult.getMessage());
-        }
-        log.info("checkBeforeInspection -结果-response {}",JSON.toJSONString(response));
     }
 
     private void checkWaybillCancel(InspectionRequest request, JdVerifyResponse<InspectionCheckResultDto> response) {

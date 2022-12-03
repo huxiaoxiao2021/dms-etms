@@ -1,7 +1,6 @@
 package com.jd.bluedragon.distribution.jy.api;
 
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.jy.dto.GoodsPhotoInfoDto;
 import com.jd.bluedragon.distribution.jy.dto.unload.*;
 
 import java.util.List;
