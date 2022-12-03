@@ -55,7 +55,7 @@ public interface JyComboardGatewayService {
   JdCResponse<SendFlowDataResp> listSendFlowUnderCTTGroup(SendFlowDataReq request);
 
   /**
-   * 查询流向作业详情(支撑扫描页的流向详情查询)
+   * 查询流向下板作业详情(支撑扫描页的流向详情查询)
    */
   JdCResponse<SendFlowDetailResp> querySendFlowDetail(SendFlowDetailReq request);
 

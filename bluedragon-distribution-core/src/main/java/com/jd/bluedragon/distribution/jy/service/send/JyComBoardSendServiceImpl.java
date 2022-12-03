@@ -524,70 +524,59 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     List<Integer> endSiteCodeList = new ArrayList<>();
     List<JyGroupSortCrossDetailEntity> sendFlowList = new ArrayList<>();
     Integer startSiteCode = request.getCurrentOperate().getSiteCode();
+    log.info("开始获取混扫任务下流向的详细信息：{}", JsonHelper.toJson(request));
+    JyGroupSortCrossDetailEntity entity = new JyGroupSortCrossDetailEntity();
+    entity.setGroupCode(request.getGroupCode());
+    entity.setStartSiteId(Long.valueOf(startSiteCode));
+    // 获取当前网格码内扫描人员信息
+    List<User> userList = jyComboardService.queryUserByStartSiteCode(Long.valueOf(startSiteCode));
+    hideInfo(userList);
+    resp.setScanUserList(userList);
+    entity.setTemplateCode(request.getTemplateCode());
+    // 获取混扫任务下的流向信息
+    sendFlowList = jyGroupSortCrossDetailService.listSendFlowByTemplateCodeOrEndSiteCode(entity);
+    // 获取目的地
+    endSiteCodeList = getEndSiteCodeListBySendFlowList(sendFlowList);
+    // 获取当前混扫任务下多个流向的组板数量和待扫统计
+    List<JyComboardAggsEntity> jyComboardAggsEntities = null;
     try {
-      log.info("开始获取混扫任务下流向的详细信息：{}", JsonHelper.toJson(request));
-      JyGroupSortCrossDetailEntity entity = new JyGroupSortCrossDetailEntity();
-      entity.setGroupCode(request.getGroupCode());
-      entity.setStartSiteId(Long.valueOf(startSiteCode));
-      // 获取当前网格码内扫描人员信息
-      List<User> userList = jyComboardService.queryUserByStartSiteCode(Long.valueOf(startSiteCode));
-      hideInfo(userList);
-      resp.setScanUserList(userList);
-      // 获取当前流向
-      if (request.getEndSiteId() != null ){
-        TableTrolleyQuery query = new TableTrolleyQuery();
-        query.setSiteCode(request.getEndSiteId());
-        query.setDmsId(startSiteCode);
-        TableTrolleyJsfResp tableTrolleyJsfResp = sortCrossJsfManager.queryCTTByStartEndSiteCode(query);
-        if (tableTrolleyJsfResp != null && !CollectionUtils.isEmpty(tableTrolleyJsfResp.getTableTrolleyDtoJsfList()) ) {
-          sendFlowList = getSendFlowList(tableTrolleyJsfResp.getTableTrolleyDtoJsfList().get(0));
-        }else {
-          return new InvokeResult<>(SEND_FLOE_CTT_CODE, SEND_FLOE_CTT_MESSAGE, resp);
-        }
-        endSiteCodeList.add(request.getEndSiteId());
-      }else {
-        entity.setTemplateCode(request.getTemplateCode());
-        // 获取混扫任务下的流向信息
-        sendFlowList = jyGroupSortCrossDetailService.listSendFlowByTemplateCodeOrEndSiteCode(entity);
-        // 获取目的地
-        endSiteCodeList = getEndSiteCodeListBySendFlowList(sendFlowList);
-      }
-      // 获取当前混扫任务下多个流向的组板数量和待扫统计
-      List<JyComboardAggsEntity> jyComboardAggsEntities = jyComboardAggsService.queryComboardAggs(startSiteCode, endSiteCodeList);
-      HashMap<Long, JyComboardAggsEntity> sendFlowMap = getSendFlowMap(jyComboardAggsEntities);
-      //查询流向下7天内未封车的板
-      BoardCountReq boardCountReq = new BoardCountReq();
-      Date time = DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -ucc.getJyComboardTaskCreateTimeBeginDay());
-      boardCountReq.setCreateTime(time);
-      boardCountReq.setEndSiteIdList(endSiteCodeList);
-      boardCountReq.setStartSiteId(startSiteCode.longValue());
-      List<BoardCountDto> entityList = jyBizTaskComboardService.boardCountTaskBySendFlowList(boardCountReq);
-      HashMap<Long,Integer> boardCountMap = getBoardCountMap(entityList);
-      // 获取当前流向执行中的板号
-      List<JyBizTaskComboardEntity> boardList = jyBizTaskComboardService.queryInProcessBoardListBySendFlowList(startSiteCode, endSiteCodeList);
-      List<String> boardCodeList = getBoardCodeList(boardList);
-      // 获取当前板号的扫描信息
-      List<JyComboardAggsEntity> boardScanInfoList = jyComboardAggsService.queryComboardAggs(boardCodeList);
-      // 当前板的扫描信息
-      HashMap<Long, JyComboardAggsEntity> boardFlowMap = getBoardFlowMap(boardScanInfoList,
-          boardList);
-      getSendFlowDtoList(sendFlowList, boardFlowMap, sendFlowMap,boardCountMap, sendFlowDtoList);
+      jyComboardAggsEntities = jyComboardAggsService.queryComboardAggs(startSiteCode, endSiteCodeList);
     } catch (Exception e) {
-      log.info("获取混扫任务下的流向详情信息失败：{}", JsonHelper.toJson(request), e);
-      return new InvokeResult<>(SEND_FLOW_UNDER_CTTGROUP_CODE, SEND_FLOW_UNDER_CTTGROUP_MESSAGE);
+      log.info("获取当前混扫任务下待扫统计失败: {}", JsonHelper.toJson(request));
     }
+    HashMap<Long, JyComboardAggsEntity> sendFlowMap = getSendFlowMap(jyComboardAggsEntities);
+    //查询流向下7天内未封车的板
+    BoardCountReq boardCountReq = new BoardCountReq();
+    Date time = DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -ucc.getJyComboardTaskCreateTimeBeginDay());
+    boardCountReq.setCreateTime(time);
+    boardCountReq.setEndSiteIdList(endSiteCodeList);
+    boardCountReq.setStartSiteId(startSiteCode.longValue());
+    List<BoardCountDto> entityList = jyBizTaskComboardService.boardCountTaskBySendFlowList(boardCountReq);
+    HashMap<Long, Integer> boardCountMap = getBoardCountMap(entityList);
+    // 获取当前流向执行中的板号
+    List<JyBizTaskComboardEntity> boardList = jyBizTaskComboardService.queryInProcessBoardListBySendFlowList(startSiteCode, endSiteCodeList);
+    List<String> boardCodeList = getBoardCodeList(boardList);
+    // 获取当前板号的扫描信息
+    List<JyComboardAggsEntity> boardScanInfoList = null;
+    try {
+      boardScanInfoList = jyComboardAggsService.queryComboardAggs(boardCodeList);
+    } catch (Exception e) {
+      log.info("获取当前板号的扫描信息失败：{}", JsonHelper.toJson(request));
+    }
+    // 当前板的扫描信息
+    HashMap<Long, JyComboardAggsEntity> boardFlowMap = getBoardFlowMap(boardScanInfoList,
+            boardList);
+    getSendFlowDtoList(sendFlowList, boardFlowMap, sendFlowMap, boardCountMap, sendFlowDtoList);
     return new InvokeResult<>(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, resp);
   }
 
-  private List<JyGroupSortCrossDetailEntity> getSendFlowList(TableTrolleyJsfDto tableTrolleyJsfDto) {
-    List<JyGroupSortCrossDetailEntity> entities = new ArrayList<>();
+  private JyGroupSortCrossDetailEntity getSendFlowList(TableTrolleyJsfDto tableTrolleyJsfDto) {
     JyGroupSortCrossDetailEntity entity = new JyGroupSortCrossDetailEntity();
-    entities.add(entity);
     entity.setEndSiteId(Long.valueOf(tableTrolleyJsfDto.getEndSiteId()));
     entity.setEndSiteName(tableTrolleyJsfDto.getEndSiteName());
     entity.setCrossCode(tableTrolleyJsfDto.getCrossCode());
     entity.setTabletrolleyCode(tableTrolleyJsfDto.getTableTrolleyCode());
-    return entities;
+    return entity;
   }
 
   private HashMap<Long, Integer> getBoardCountMap(List<BoardCountDto> entityList) {
@@ -701,7 +690,75 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
 
   @Override
   public InvokeResult<SendFlowDetailResp> querySendFlowDetail(SendFlowDetailReq request) {
-    return null;
+    if (!checkBaseRequest(request) 
+            || StringUtils.isEmpty(request.getBoardCode()) 
+            || request.getEndSiteId() == null) {
+      return new InvokeResult<>(RESULT_THIRD_ERROR_CODE, PARAM_ERROR);
+    }
+    SendFlowDetailResp resp = new SendFlowDetailResp();
+    SendFlowDto sendFlowDto = new SendFlowDto();
+    resp.setSendFlowDto(sendFlowDto);
+    Integer startSiteCode = request.getCurrentOperate().getSiteCode();
+    log.info("开始流向下板的详细信息：{}", JsonHelper.toJson(request));
+    // 获取当前网格码内扫描人员信息
+    List<User> userList = jyComboardService.queryUserByStartSiteCode(Long.valueOf(startSiteCode));
+    hideInfo(userList);
+    resp.setScanUserList(userList);
+    // 获取当前流向
+    TableTrolleyQuery query = new TableTrolleyQuery();
+    query.setSiteCode(request.getEndSiteId());
+    query.setDmsId(startSiteCode);
+    TableTrolleyJsfResp tableTrolleyJsfResp = sortCrossJsfManager.queryCTTByStartEndSiteCode(query);
+    if (tableTrolleyJsfResp != null && !CollectionUtils.isEmpty(tableTrolleyJsfResp.getTableTrolleyDtoJsfList())) {
+      JyGroupSortCrossDetailEntity sendFlow = getSendFlowList(tableTrolleyJsfResp.getTableTrolleyDtoJsfList().get(0));
+      sendFlowDto.setEndSiteId(sendFlow.getEndSiteId().intValue());
+      sendFlowDto.setEndSiteName(sendFlow.getEndSiteName());
+      sendFlowDto.setCrossCode(sendFlow.getCrossCode());
+      sendFlowDto.setTableTrolleyCode(sendFlow.getTabletrolleyCode());
+    } else {
+      return new InvokeResult<>(SEND_FLOE_CTT_CODE, SEND_FLOE_CTT_MESSAGE, resp);
+    }
+    // 获取当前流向下的待扫统计
+    JyComboardAggsEntity aggsEntity = null;
+    try {
+      // aggsEntity = jyComboardAggsService.queryComboardAggs(startSiteCode, request.getEndSiteId());
+    } catch (Exception e) {
+      log.info("获取流向下带扫数据失败：{}", JsonHelper.toJson(request));
+    }
+    if (aggsEntity != null) {
+      sendFlowDto.setWaitScanCount(aggsEntity.getWaitScanCount());
+    }
+    //查询流向下7天内未封车的板
+    SendFlowDto sendFlow = new SendFlowDto();
+    Date time = DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -ucc.getJyComboardTaskCreateTimeBeginDay());
+    sendFlow.setQueryTimeBegin(time);
+    sendFlow.setEndSiteId(request.getEndSiteId());
+    sendFlow.setStartSiteId(startSiteCode);
+    List<JyBizTaskComboardEntity> entities = jyBizTaskComboardService.listBoardTaskBySendFlow(sendFlow);
+    sendFlowDto.setBoardCount(entities.size());
+    BoardDto boardDto = new BoardDto();
+    boardDto.setBoardCode(request.getBoardCode());
+    sendFlowDto.setCurrentBoardDto(boardDto);
+    // 获取当前板号的扫描信息
+    JyComboardAggsEntity boardScanInfo = null;
+    try {
+      // boardScanInfo = jyComboardAggsService.queryComboardAggs(request.getBoardCode());
+    } catch (Exception e) {
+      log.info("获取当前板号的扫描信息失败：{}", JsonHelper.toJson(request));
+    }
+    if (boardScanInfo != null) {
+      boardDto.setBoxHaveScanCount(boardScanInfo.getBoxScannedCount());
+      boardDto.setPackageHaveScanCount(boardScanInfo.getPackageScannedCount());
+      boardDto.setInterceptCount(boardScanInfo.getInterceptCount());
+      // 已扫比例
+      if (boardScanInfo.getPackageScannedCount() != null && boardScanInfo.getPackageScannedCount() != null) {
+        int scanCount = boardScanInfo.getPackageScannedCount() + boardScanInfo.getBoxScannedCount();
+        int scanProgress = (int) ((scanCount * 1.00 / ucc.getJyComboardCountLimit()) * 100);
+        boardDto.setProgress(scanProgress + "%");
+      }
+    }
+
+    return new InvokeResult<>(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, resp);
   }
 
   @Override
@@ -1835,7 +1892,8 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
           log.error("取消组板失败：{}", JsonHelper.toJson(removeBoardBoxDto), e);
           return new InvokeResult<>(CANCEL_COM_BOARD_CODE, CANCEL_COM_BOARD_MESSAGE);
         }
-        // todo 异步发送全程跟踪
+        // 
+        // asyncSendComboardWaybillTrace();
         // 取消发货
         SendM sendM = toSendM(request);
         sendM.setBoxCode(waybillCode);
