@@ -70,7 +70,7 @@ public class JyComboardGatewayServiceImpl implements JyComboardGatewayService {
 
   @Override
   public JdCResponse<SendFlowDetailResp> querySendFlowDetail(SendFlowDetailReq request) {
-    return null;
+    return retJdCResponse(jyComBoardSendService.querySendFlowDetail(request));
   }
 
   @Override

@@ -296,6 +296,24 @@ public class JyComboardGatewayServiceImplTest {
     }
 
     @Test
+    public void querySendFlowDetailTest() {
+        SendFlowDetailReq resp = new SendFlowDetailReq();
+        CurrentOperate operate = new CurrentOperate();
+        resp.setGroupCode("group111");
+        operate.setSiteCode(910);
+        operate.setSiteName("北京马驹桥分拣中心");
+        resp.setCurrentOperate(operate);
+        User user = new User();
+        user.setUserName("李文吉");
+        user.setUserErp("liwenji3");
+        resp.setUser(user);
+        resp.setEndSiteId(630105);
+        resp.setBoardCode("B22120200000067");
+        JdCResponse<SendFlowDetailResp> r = jyComboardGatewayService.querySendFlowDetail(resp);
+        System.out.println(JsonHelper.toJson(r));
+    }
+    
+    @Test
     public void queryBoardDetailTest() {
         BoardReq resp = new BoardReq();
         CurrentOperate operate = new CurrentOperate();
