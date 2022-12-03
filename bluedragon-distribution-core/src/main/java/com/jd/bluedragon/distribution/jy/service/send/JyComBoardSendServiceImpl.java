@@ -696,8 +696,8 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
 
   @Override
   public InvokeResult<SendFlowDetailResp> querySendFlowDetail(SendFlowDetailReq request) {
-    if (!checkBaseRequest(request) 
-            || StringUtils.isEmpty(request.getBoardCode()) 
+    if (!checkBaseRequest(request)
+            || StringUtils.isEmpty(request.getBoardCode())
             || request.getEndSiteId() == null) {
       return new InvokeResult<>(RESULT_THIRD_ERROR_CODE, PARAM_ERROR);
     }
@@ -1244,8 +1244,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   private void comboardCheck(ComboardScanReq request) {
     String barCode = request.getBarCode();
     if (WaybillUtil.isPackageCode(barCode) || WaybillUtil.isWaybillCode(barCode)) {
-      Waybill waybill = waybillQueryManager
-          .getOnlyWaybillByWaybillCode(WaybillUtil.getWaybillCodeByPackCode(barCode));
+      Waybill waybill = waybillQueryManager.getOnlyWaybillByWaybillCode(WaybillUtil.getWaybillCode(barCode));
       if (waybill == null) {
         throw new JyBizException("未查找到运单数据");
       }
