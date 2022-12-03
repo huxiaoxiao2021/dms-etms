@@ -955,7 +955,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
           comboardEntity.setUpdateUserName(request.getUser().getUserName());
           jyBizTaskComboardService.updateBizTaskById(comboardEntity);
           log.info("扫描大宗运单，走异步租板逻辑");
-          //asyncExecComboard(request);
+          asyncExecComboard(request);
           return;
         }
         AddBoardBox addBoardBox = assembleComboardParam(request);
