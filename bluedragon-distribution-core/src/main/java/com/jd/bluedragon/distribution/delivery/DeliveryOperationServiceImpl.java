@@ -7,6 +7,7 @@ import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
+import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
 import com.jd.bluedragon.distribution.delivery.constants.SendKeyTypeEnum;
 import com.jd.bluedragon.distribution.delivery.entity.SendMWrapper;
@@ -85,6 +86,8 @@ public class DeliveryOperationServiceImpl implements IDeliveryOperationService {
     @Autowired
     private WaybillQueryManager waybillQueryManager;
     final static int SEND_SPLIT_NUM = 1024;
+    @Autowired
+    GroupBoardManager groupBoardManager;
 
     /**
      * 按包裹、箱号、运单处理发货数据
@@ -250,6 +253,7 @@ public class DeliveryOperationServiceImpl implements IDeliveryOperationService {
             task.setFingerprint(Md5Helper.encode(fingerprint));
             taskService.doAddTask(task,false);
         }
+        log.info("====================成功生成大宗运单异步组板任务============================");
     }
 
 
@@ -430,6 +434,7 @@ public class DeliveryOperationServiceImpl implements IDeliveryOperationService {
 
         for (DeliveryPackageD deliveryPackageD:packageDList){
             //发送组板全程跟踪
+
         }
         log.info("运单异步执行组板{} 成功",JsonHelper.toJson(dto));
     }
