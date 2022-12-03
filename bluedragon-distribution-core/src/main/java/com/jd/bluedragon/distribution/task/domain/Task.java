@@ -104,6 +104,7 @@ public class Task implements java.io.Serializable, TaskModeAware{
     public static final Integer TASK_TYPE_DELIVERY_ASYNC_V2 = 1360;
     public static final Integer TASK_TYPE_DELIVERY_TRANSFER = 1370;
     public static final Integer TASK_TYPE_COMBOARD_SEND = 1380;
+    public static final Integer TASK_TYPE_COMBOARD_CANCEL = 1390;
 
     /**
      * 整板发货任务
