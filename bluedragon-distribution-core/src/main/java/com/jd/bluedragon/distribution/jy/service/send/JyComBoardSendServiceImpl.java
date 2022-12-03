@@ -547,7 +547,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     HashMap<Long, JyComboardAggsEntity> sendFlowMap = getSendFlowMap(jyComboardAggsEntities);
     //查询流向下7天内未封车的板
     BoardCountReq boardCountReq = new BoardCountReq();
-    Date time = DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -7);
+    Date time = DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -ucc.getJyComboardTaskCreateTimeBeginDay());
     boardCountReq.setCreateTime(time);
     boardCountReq.setEndSiteIdList(endSiteCodeList);
     boardCountReq.setStartSiteId(startSiteCode.longValue());
@@ -1960,7 +1960,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   }
 
   private void asyncSendComboardWaybillTrace(CancelBoardReq request) {
-    cancelComboardTaskDto taskDto = new cancelComboardTaskDto();
+    CancelComboardTaskDto taskDto = new CancelComboardTaskDto();
     taskDto.setBoardCode(request.getBoardCode());
     taskDto.setWaybillCode(request.getCancelList().get(0).getBarCode());
     taskDto.setEndSiteName(request.getEndSiteName());
@@ -1968,6 +1968,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     taskDto.setUserErp(request.getUser().getUserErp());
     taskDto.setUserName(request.getUser().getUserName());
     taskDto.setSiteName(request.getCurrentOperate().getSiteName());
+    taskDto.setUserCode(request.getUser().getUserCode());
     deliveryOperationService.asyncSendComboardWaybillTrace(taskDto);
   }
 

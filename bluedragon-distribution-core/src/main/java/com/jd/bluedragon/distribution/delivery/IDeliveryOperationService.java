@@ -1,9 +1,8 @@
 package com.jd.bluedragon.distribution.delivery;
 
-import com.jd.bluedragon.common.dto.comboard.request.ComboardScanReq;
 import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
 import com.jd.bluedragon.distribution.jy.dto.comboard.ComboardTaskDto;
-import com.jd.bluedragon.distribution.jy.dto.comboard.cancelComboardTaskDto;
+import com.jd.bluedragon.distribution.jy.dto.comboard.CancelComboardTaskDto;
 import com.jd.bluedragon.distribution.jy.dto.send.VehicleSendRelationDto;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
@@ -74,5 +73,7 @@ public interface IDeliveryOperationService {
      * 运单号取消组板
      * @param taskDto
      */
-    void asyncSendComboardWaybillTrace(cancelComboardTaskDto taskDto);
+    void asyncSendComboardWaybillTrace(CancelComboardTaskDto taskDto);
+
+    void dealSendComboardWaybillTrace(Task taskDto);
 }

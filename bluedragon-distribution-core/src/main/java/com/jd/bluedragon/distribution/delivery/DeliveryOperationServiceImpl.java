@@ -1,26 +1,27 @@
 package com.jd.bluedragon.distribution.delivery;
 
-import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.common.dto.comboard.request.ComboardScanReq;
+import com.jd.bluedragon.common.dto.base.request.OperatorInfo;
+import com.jd.bluedragon.common.dto.board.BizSourceEnum;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
+import com.jd.bluedragon.distribution.board.service.VirtualBoardService;
 import com.jd.bluedragon.distribution.delivery.constants.SendKeyTypeEnum;
 import com.jd.bluedragon.distribution.delivery.entity.SendMWrapper;
 import com.jd.bluedragon.distribution.delivery.processor.IDeliveryBaseHandler;
 import com.jd.bluedragon.distribution.jy.dto.comboard.ComboardTaskDto;
-import com.jd.bluedragon.distribution.jy.dto.comboard.cancelComboardTaskDto;
+import com.jd.bluedragon.distribution.jy.dto.comboard.CancelComboardTaskDto;
 import com.jd.bluedragon.distribution.jy.dto.send.VehicleSendRelationDto;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
-import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
@@ -90,7 +91,9 @@ public class DeliveryOperationServiceImpl implements IDeliveryOperationService {
     final static int COMBOARD_SPLIT_NUM = 1024;
     @Autowired
     GroupBoardManager groupBoardManager;
-
+    
+    @Autowired
+    private VirtualBoardService virtualBoardService;
     /**
      * 按包裹、箱号、运单处理发货数据
      * @param requests
@@ -245,9 +248,9 @@ public class DeliveryOperationServiceImpl implements IDeliveryOperationService {
             task.setBoxCode(dto.getWaybillCode());//运单号
             task.setCreateSiteCode(dto.getStartSiteId());
             task.setReceiveSiteCode(dto.getEndSiteId());
-            task.setSequenceName(Task.getSequenceName(task.getTableName()));
             task.setType(Task.TASK_TYPE_COMBOARD_SEND);
             task.setTableName(Task.getTableName(task.getType()));
+            task.setSequenceName(Task.getSequenceName(task.getTableName()));
             task.setKeyword1(dto.getBoardCode());
             task.setOwnSign(BusinessHelper.getOwnSign());
             task.setBody(JsonHelper.toJson(dto));
@@ -442,7 +445,7 @@ public class DeliveryOperationServiceImpl implements IDeliveryOperationService {
     }
 
     @Override
-    public void asyncSendComboardWaybillTrace(cancelComboardTaskDto dto) {
+    public void asyncSendComboardWaybillTrace(CancelComboardTaskDto dto) {
         // 获取运单包裹数
         Waybill waybill = waybillQueryManager.getOnlyWaybillByWaybillCode(dto.getWaybillCode());
         if (waybill == null || waybill.getGoodNumber() == null) {
@@ -463,12 +466,46 @@ public class DeliveryOperationServiceImpl implements IDeliveryOperationService {
             task.setType(Task.TASK_TYPE_COMBOARD_CANCEL);
             task.setTableName(Task.getTableName(task.getType()));
             task.setSequenceName(Task.getSequenceName(task.getTableName()));
-            task.setKeyword1(dto.getBoardCode());
             task.setOwnSign(BusinessHelper.getOwnSign());
             task.setBody(JsonHelper.toJson(dto));
             String fingerprint =   Constants.UNDER_LINE + System.currentTimeMillis();
             task.setFingerprint(Md5Helper.encode(fingerprint));
             taskService.doAddTask(task,false);
         }
+    }
+
+    @Override
+    public void dealSendComboardWaybillTrace(Task task) {
+        //获取包裹列表，批次租板，批量发货
+        if (ObjectHelper.isEmpty(task)){
+            log.error("dealSendComboardWaybillTrace 任务信息为空！");
+            return;
+        }
+        CancelComboardTaskDto dto =JsonHelper.fromJson(task.getBody(),CancelComboardTaskDto.class);
+        if (ObjectHelper.isEmpty(dto)){
+            log.error("dealSendComboardWaybillTrace body体为空！");
+            return;
+        }
+        final int pageSize = dto.getPageSize();
+        final int pageNo = dto.getPageNo();
+        final String waybillCode = dto.getWaybillCode();
+        BaseEntity<List<DeliveryPackageD>> baseEntity = waybillPackageManager.getPackListByWaybillCodeOfPage(waybillCode, pageNo, pageSize);
+        if (baseEntity == null || CollectionUtils.isEmpty(baseEntity.getData())) {
+            log.error("[取消组板]运单拆分任务分页获取包裹数量为空! waybillCode={}", waybillCode);
+            return;
+        }
+        // 按包裹发送全程跟踪
+        for (DeliveryPackageD packageD : baseEntity.getData()) {
+            OperatorInfo operatorInfo = new OperatorInfo();
+            operatorInfo.setSiteCode(dto.getSiteCode());
+            operatorInfo.setSiteName(dto.getSiteName());
+            operatorInfo.setUserCode(dto.getUserCode());
+            operatorInfo.setOperateTime(new Date());
+            virtualBoardService.sendWaybillTrace(packageD.getPackageBarcode(),
+                    operatorInfo,dto.getBoardCode(),dto.getSiteName(),
+                    WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION_CANCEL, 
+                    BizSourceEnum.PDA.getValue());
+        }
+        log.info("运单异步执行取消组板{} 成功",JsonHelper.toJson(dto));
     }
 }
