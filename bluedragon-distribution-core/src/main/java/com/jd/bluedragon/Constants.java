@@ -1266,6 +1266,10 @@ public class Constants {
      * */
     public static final String TE_AN_SONG_SERVICE = "fr-a-0010";
 
+    /**
+     * 特保单增值服务编码
+     */
+    public static final String LUXURY_SECURITY_SERVICE = "LuxurySecurity";
 
     public static final String INSPECTION_TOKEN1="D945A448A7D952F1F88CCE5EBE551FE9AA6FF322A21210B0";
     public static final String INSPECTION_TOKEN2="E945A448A7D952F1F88CCE5EBE551FE9AA6FF322A21210B0";

@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jd.bluedragon.distribution.goodsPhoto.dao.GoodsPhotoDao">
+  <resultMap id="BaseResultMap" type="com.jd.bluedragon.distribution.goodsPhoto.domain.GoodsPhotoInfo">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="user_code" jdbcType="INTEGER" property="userCode" />
+    <result column="user_name" jdbcType="VARCHAR" property="userName" />
+    <result column="site_code" jdbcType="INTEGER" property="siteCode" />
+    <result column="site_name" jdbcType="VARCHAR" property="siteName" />
+    <result column="bar_code" jdbcType="VARCHAR" property="barCode" />
+    <result column="opreate_node" jdbcType="INTEGER" property="operateNode" />
+    <result column="opreate_desc" jdbcType="VARCHAR" property="operateDesc" />
+    <result column="url1" jdbcType="VARCHAR" property="url1" />
+    <result column="url2" jdbcType="VARCHAR" property="url2" />
+    <result column="url3" jdbcType="VARCHAR" property="url3" />
+    <result column="url4" jdbcType="VARCHAR" property="url4" />
+    <result column="url5" jdbcType="VARCHAR" property="url5" />
+    <result column="url6" jdbcType="VARCHAR" property="url6" />
+
+    <result column="create_user" jdbcType="VARCHAR"  property="createUser" />
+    <result column="update_user" jdbcType="VARCHAR" property="updateUser" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="yn" jdbcType="TINYINT" property="yn" />
+
+  </resultMap>
+  <sql id="Base_Column_List">
+    id,
+    user_code,
+    user_name,
+    site_code,
+    site_name,
+    bar_code,
+    opreate_node,
+    opreate_desc,
+    url1,
+    url2,
+    url3,
+    url4,
+    url5,
+    url6,
+    create_user,
+    update_user,
+    create_time,
+    update_time,
+    yn,
+    ts
+  </sql>
+  <select id="selectByBarCode" resultMap="BaseResultMap">
+    select 
+    <include refid="Base_Column_List" />
+    from jy_goods_photo_info
+    where bar_code = #{barCode,jdbcType=BIGINT} and yn =1 limit 1
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from jy_goods_photo_info
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.jd.bluedragon.distribution.goodsPhoto.domain.GoodsPhotoInfo" useGeneratedKeys="true">
+    insert into jy_goods_photo_info (
+      user_code,
+      user_name,
+      site_code,
+      site_name,
+      bar_code,
+      opreate_node,
+      opreate_desc,
+      url1,
+      url2,
+      url3,
+      url4,
+      url5,
+      url6,
+      create_user,
+      update_user,
+      create_time,
+      update_time
+          )
+    values (
+      #{userCode,jdbcType=INTEGER},
+      #{userName,jdbcType=VARCHAR},
+      #{siteCode,jdbcType=INTEGER},
+      #{siteName,jdbcType=VARCHAR},
+      #{barCode,jdbcType=VARCHAR},
+      #{operateNode,jdbcType=INTEGER},
+      #{operateDesc,jdbcType=VARCHAR},
+      #{url1,jdbcType=VARCHAR},
+      #{url2,jdbcType=VARCHAR},
+      #{url3,jdbcType=VARCHAR},
+      #{url4,jdbcType=VARCHAR},
+      #{url5,jdbcType=VARCHAR},
+      #{url6,jdbcType=VARCHAR},
+      #{createUser,jdbcType=VARCHAR},
+      #{updateUser,jdbcType=VARCHAR},
+      #{createTime,jdbcType=TIMESTAMP},
+      #{updateTime,jdbcType=TIMESTAMP}
+        )
+  </insert>
+
+</mapper>

@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.base.response.JdVerifyResponse;
@@ -261,6 +262,9 @@ public class InspectionGatewayServiceImpl implements InspectionGatewayService {
         // 暂存校验
         tempStorageCheck(request, response);
 
+        //特保单校验
+        luxurySecurityCheck(request,response);
+
         // 提示语校验
         HintCheckRequest hintCheckRequest = new HintCheckRequest();
         hintCheckRequest.setPackageCode(barCode);
@@ -347,5 +351,19 @@ public class InspectionGatewayServiceImpl implements InspectionGatewayService {
                 }
             }
         }
+    }
+
+    /**
+     * 特保单校验
+     * @param request
+     * @param response
+     */
+    private void luxurySecurityCheck(InspectionRequest request, JdVerifyResponse<InspectionCheckResultDto> response){
+        InvokeResult<Boolean> luxurySecurityResult = waybillService.checkLuxurySecurity(request.getBarCode(), "");
+        log.info("checkBeforeInspection -特保单校验结果-{}", JSON.toJSONString(luxurySecurityResult));
+        if(luxurySecurityResult != null && luxurySecurityResult.getData()){
+            response.addWarningBox(luxurySecurityResult.getCode(), luxurySecurityResult.getMessage());
+        }
+        log.info("checkBeforeInspection -结果-response {}",JSON.toJSONString(response));
     }
 }

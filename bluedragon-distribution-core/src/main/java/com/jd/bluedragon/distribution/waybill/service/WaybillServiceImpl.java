@@ -54,6 +54,8 @@ import com.jd.etms.waybill.dto.PackOpeFlowDto;
 import com.jd.etms.waybill.dto.WChoice;
 import com.jd.etms.waybill.dto.WaybillVasDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
+import com.jd.ump.annotation.JProEnum;
+import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -1057,6 +1059,82 @@ public class WaybillServiceImpl implements WaybillService {
         }
 
         return null;
+    }
+
+    @Override
+    public boolean isLuxurySecurityVosWaybill(String waybillCode) {
+        try {
+            //获取增值服务信息
+            log.info("获取特保单增值服务入参-{}",waybillCode);
+            BaseEntity<List<WaybillVasDto>> baseEntity = waybillQueryManager.getWaybillVasInfosByWaybillCode(waybillCode);
+            log.info("运单getWaybillVasInfosByWaybillCode返回的结果为：{}", JsonHelper.toJson(baseEntity));
+            if (baseEntity != null && baseEntity.getResultCode() == EnumBusiCode.BUSI_SUCCESS.getCode() && baseEntity.getData() != null) {
+                List<WaybillVasDto> vasDtoList = baseEntity.getData();
+                for (WaybillVasDto waybillVasDto : vasDtoList) {
+                    if (waybillVasDto != null && Constants.LUXURY_SECURITY_SERVICE.equals(waybillVasDto.getVasNo())) {
+                        return true;
+                    }
+                }
+            } else {
+                log.warn("运单{}获取特保单增值服务信息失败！返回baseEntity: ", waybillCode, JsonHelper.toJson(baseEntity));
+            }
+        } catch (Exception e) {
+            log.error("运单{}获取增值服务信息异常！", waybillCode, e);
+        }
+        return false;
+    }
+
+
+
+    @Override
+    @JProfiler(jKey= "DMSWEB.InspectionService.checkLuxurySecurity", mState = {JProEnum.TP, JProEnum.FunctionError})
+    public InvokeResult<Boolean> checkLuxurySecurity(String barCode, String waybillSign) {
+        log.info("特保单 checkLuxurySecurity 单号-{}",barCode);
+        InvokeResult<Boolean> result = new InvokeResult();
+        result.success();
+        result.setData(Boolean.FALSE);
+        log.info("特保单校验 入参-{}",barCode);
+        //箱号暂时不做处理
+        Boolean isBoxCode = BusinessUtil.isBoxcode(barCode);
+        if(isBoxCode){
+            log.warn("箱号暂时不做处理！");
+            return result;
+        }
+        //如果是包裹号解析成运单号
+        String waybillCode = WaybillUtil.getWaybillCode(barCode);
+        try{
+            if(StringUtils.isBlank(waybillSign)){
+                //根据运单获取waybillSign
+                com.jd.etms.waybill.domain.BaseEntity<BigWaybillDto> dataByChoice
+                        = waybillQueryManager.getDataByChoice(waybillCode, true, true, true, false);
+                log.info("InspectionServiceImpl.checkLuxurySecurity-根据运单号获取运单标识接口请求成功!返回waybillsign数据:{}",dataByChoice.getData());
+                if(dataByChoice == null
+                        || dataByChoice.getData() == null
+                        || dataByChoice.getData().getWaybill() == null
+                        || org.apache.commons.lang3.StringUtils.isBlank(dataByChoice.getData().getWaybill().getWaybillSign())) {
+                    log.warn("特保单查询运单waybillSign失败!");
+                    return result;
+                }
+                waybillSign = dataByChoice.getData().getWaybill().getWaybillSign();
+            }
+
+            //通过waybillsign判断此运单是否包含增值服务
+            if(!BusinessUtil.isVasWaybill(waybillSign)){
+                log.warn("此运单不包含特保单增值服务!");
+                return result;
+            }
+            //判断增值服务是否包含特保单增值服务
+            boolean isLuxurySecurity = isLuxurySecurityVosWaybill(waybillCode);
+            log.info("增值服务是否包含特保单增值服务-{}",isLuxurySecurity);
+            if(isLuxurySecurity){
+                result.customMessage(InvokeResult.LUXURY_SECURITY_TIPS_CODE, InvokeResult.LUXURY_SECURITY_TIPS_MESSAGE);
+                result.setData(Boolean.TRUE);
+                return result;
+            }
+        }catch (Exception e){
+            log.error("特保单校验异常-{}",e.getMessage(),e);
+        }
+        return result;
     }
 
     /**
