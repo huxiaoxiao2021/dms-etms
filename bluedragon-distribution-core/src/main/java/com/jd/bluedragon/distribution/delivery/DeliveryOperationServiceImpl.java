@@ -421,6 +421,7 @@ public class DeliveryOperationServiceImpl implements IDeliveryOperationService {
             log.error("dealComboardAndSendTask异常 body体为空！");
             return;
         }
+        log.info("=====================JyComboardAndSendTask====================,{}",JsonHelper.toJson(dto));
         final int pageSize = dto.getPageSize();
         final int pageNo = dto.getPageNo();
         final String waybillCode = dto.getWaybillCode();
@@ -434,7 +435,7 @@ public class DeliveryOperationServiceImpl implements IDeliveryOperationService {
 
         for (DeliveryPackageD deliveryPackageD:packageDList){
             //发送组板全程跟踪
-
+            log.info("循环发送全程跟踪");
         }
         log.info("运单异步执行组板{} 成功",JsonHelper.toJson(dto));
     }

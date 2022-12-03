@@ -312,7 +312,7 @@ public class JyComboardGatewayServiceImplTest {
         JdCResponse<SendFlowDetailResp> r = jyComboardGatewayService.querySendFlowDetail(resp);
         System.out.println(JsonHelper.toJson(r));
     }
-    
+
     @Test
     public void queryBoardDetailTest() {
         BoardReq resp = new BoardReq();
@@ -351,10 +351,10 @@ public class JyComboardGatewayServiceImplTest {
     @Test
     public void comboardScanTest(){
         ComboardScanReq scanReq =new ComboardScanReq();
-        scanReq.setTemplateCode("CTT22113000000003");
+        scanReq.setTemplateCode("CTT22120300000003");
         scanReq.setGroupCode("G00000047004");
-        scanReq.setBarCode("JD0003403871414-1-1-");
-        scanReq.setScanType(1);
+        scanReq.setBarCode("JD0003365308628");
+        scanReq.setScanType(2);
         scanReq.setEndSiteId(39);
         scanReq.setSupportMutilSendFlow(true);
         //scanReq.setNeedSkipSendFlowCheck(true);
