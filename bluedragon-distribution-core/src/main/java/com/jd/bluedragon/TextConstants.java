@@ -274,6 +274,14 @@ public class TextConstants {
      */
     public static final String PRODUCT_NAME_TKBG = "特快包裹";
     /**
+     * 产品标识-抖音
+     */
+    public static final String PRODUCT_FLAG_DOUYIN = "抖";
+    /**
+     * 产品标识-抖音标识前缀
+     */
+    public static final String PRODUCT_FLAG_DOUYIN_PRE = "抖-";    
+    /**
      * 无人车配送标识-车
      */
     public static final String WRCPS_FLAG = "车";
