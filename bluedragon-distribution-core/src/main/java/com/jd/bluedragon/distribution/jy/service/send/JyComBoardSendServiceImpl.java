@@ -760,7 +760,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       if (boardScanInfo.getPackageScannedCount() != null && boardScanInfo.getPackageScannedCount() != null) {
         int scanCount = boardScanInfo.getPackageScannedCount() + boardScanInfo.getBoxScannedCount();
         int scanProgress = (int) ((scanCount * 1.00 / ucc.getJyComboardCountLimit()) * 100);
-        boardDto.setProgress(scanProgress + "%");
+        boardDto.setProgress(String.valueOf(scanProgress));
       }
     }
 
