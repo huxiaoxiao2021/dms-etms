@@ -85,6 +85,8 @@ public class PkgPredictGateWayServiceImpl implements PkgPredictGateWayService {
                 labelOption.setCode(BarCodeLabelOptionEnum.PRODUCT_TYPE.getCode());
                 labelOption.setOrder(1);
                 labelOption.setName(OperationProductType.nameByType(waybill.getProductType()));
+                labelOptions.add(labelOption);
+
                 waybill.setTags(labelOptions);
                 barCodes.add(waybill);
             }
@@ -122,6 +124,7 @@ public class PkgPredictGateWayServiceImpl implements PkgPredictGateWayService {
                 labelOption.setCode(BarCodeLabelOptionEnum.PRODUCT_TYPE.getCode());
                 labelOption.setOrder(1);
                 labelOption.setName(OperationProductType.nameByType(pkg.getProductType()));
+                labelOptions.add(labelOption);
                 pkg.setTags(labelOptions);
                 barCodes.add(pkg);
             }
