@@ -658,6 +658,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       if (boardFlow != null) {
         BoardDto boardDto = new BoardDto();
         sendFlowDto.setCurrentBoardDto(boardDto);
+        boardDto.setStatus(1);
         boardDto.setBoardCode(boardFlow.getBoardCode());
         boardDto.setBoxHaveScanCount(boardFlow.getBoxScannedCount());
         boardDto.setPackageHaveScanCount(boardFlow.getPackageScannedCount());
@@ -743,6 +744,12 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     List<JyBizTaskComboardEntity> entities = jyBizTaskComboardService.listBoardTaskBySendFlow(sendFlow);
     sendFlowDto.setBoardCount(entities.size());
     BoardDto boardDto = new BoardDto();
+    // 查询当前板状态
+    JyBizTaskComboardEntity queryBoard = new JyBizTaskComboardEntity();
+    queryBoard.setStartSiteId((long) request.getCurrentOperate().getSiteCode());
+    queryBoard.setBoardCode(request.getBoardCode());
+    JyBizTaskComboardEntity entity = jyBizTaskComboardService.queryBizTaskByBoardCode(queryBoard);
+    boardDto.setStatus(entity.getStatus());
     boardDto.setBoardCode(request.getBoardCode());
     sendFlowDto.setCurrentBoardDto(boardDto);
     // 获取当前板号的扫描信息
