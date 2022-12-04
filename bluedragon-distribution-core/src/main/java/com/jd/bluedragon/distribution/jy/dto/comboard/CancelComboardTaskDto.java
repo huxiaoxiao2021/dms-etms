@@ -4,8 +4,13 @@ package com.jd.bluedragon.distribution.jy.dto.comboard;
  * @author liwenji
  * @date 2022-12-03 17:23
  */
-public class cancelComboardTaskDto {
+public class CancelComboardTaskDto {
 
+    /**
+     * 操作人编码
+     */
+    private int userCode;
+    
     /**
      * 操作人姓名
      */
@@ -113,5 +118,13 @@ public class cancelComboardTaskDto {
 
     public void setPageSize(Integer pageSize) {
         this.pageSize = pageSize;
+    }
+
+    public int getUserCode() {
+        return userCode;
+    }
+
+    public void setUserCode(int userCode) {
+        this.userCode = userCode;
     }
 }

@@ -305,4 +305,14 @@
         <property name="keyType" value="20"/>
         <property name="desc" value="创建发货任务"/>
     </bean>
+
+    <bean id="jyCancelComboardTask" class="com.jd.bluedragon.distribution.worker.delivery.JyCancelComboardTask"
+          init-method="init" lazy-init="false" depends-on="managerFactory">
+        <property name="dataSource" ref="taskDataSource"/>
+        <property name="managerFactory" ref="managerFactory"/>
+        <property name="taskType" value="JyCancelComboardTask"/>
+        <property name="ownSign" value="${ownSign}"/>
+        <property name="type" value="1390"/>
+        <property name="desc" value="大宗异步取消组板"/>
+    </bean>
 </beans>

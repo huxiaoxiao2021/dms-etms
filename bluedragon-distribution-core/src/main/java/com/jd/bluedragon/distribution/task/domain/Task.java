@@ -569,7 +569,8 @@ public class Task implements java.io.Serializable, TaskModeAware{
                 || Task.TASK_TYPE_DELIVERY_ASYNC.equals(type)
                 || Task.TASK_TYPE_DELIVERY_ASYNC_V2.equals(type)
                 ||Task.TASK_TYPE_DELIVERY_TRANSFER.equals(type)
-                ||Task.TASK_TYPE_COMBOARD_SEND.equals(type)) {
+                ||Task.TASK_TYPE_COMBOARD_SEND.equals(type)
+                ||Task.TASK_TYPE_COMBOARD_CANCEL.equals(type)) {
             return Task.TABLE_NAME_SEND;
         } else if (Task.TASK_TYPE_POP.equals(type)||Task.TASK_TYPE_WAYBILL_TRACK.equals(type)) {
             return Task.TABLE_NAME_POP;
@@ -917,8 +918,9 @@ public class Task implements java.io.Serializable, TaskModeAware{
         }
         else if (TASK_TYPE_COMBOARD_SEND.equals(type)) {
             return "JyComboardAndSendTask";
-        }
-        else if(TASK_TYPE_ACARABILL_SEND_DELIVERY.equals(type)){
+        }else if (TASK_TYPE_COMBOARD_CANCEL.equals(type)){
+            return "JyCancelComboardTask";
+        } else if(TASK_TYPE_ACARABILL_SEND_DELIVERY.equals(type)){
             //TASK_TYPE_ACARABILL_SEND_DELIVERY = 1301; // 不会有
 
 
