@@ -1,10 +1,15 @@
 package com.jd.bluedragon.distribution.delivery;
 
+import static com.jd.bluedragon.distribution.loadAndUnload.exception.LoadIllegalException.BOARD_TOTC_FAIL_INTERCEPT_MESSAGE;
+
+import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.request.OperatorInfo;
 import com.jd.bluedragon.common.dto.board.BizSourceEnum;
+import com.jd.bluedragon.common.dto.comboard.request.ComboardScanReq;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
+import com.jd.bluedragon.core.base.BoardCommonManagerImpl;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
@@ -16,13 +21,17 @@ import com.jd.bluedragon.distribution.delivery.processor.IDeliveryBaseHandler;
 import com.jd.bluedragon.distribution.jy.dto.comboard.ComboardTaskDto;
 import com.jd.bluedragon.distribution.jy.dto.comboard.CancelComboardTaskDto;
 import com.jd.bluedragon.distribution.jy.dto.send.VehicleSendRelationDto;
+import com.jd.bluedragon.distribution.jy.enums.ComboardBarCodeTypeEnum;
+import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.utils.BeanUtils;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.Md5Helper;
@@ -32,6 +41,9 @@ import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.jim.cli.Cluster;
+import com.jd.transboard.api.dto.AddBoardBoxes;
+import com.jd.transboard.api.dto.Response;
+import com.jd.transboard.api.enums.ResponseEnum;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections.CollectionUtils;
@@ -91,9 +103,9 @@ public class DeliveryOperationServiceImpl implements IDeliveryOperationService {
     final static int COMBOARD_SPLIT_NUM = 1024;
     @Autowired
     GroupBoardManager groupBoardManager;
-    
     @Autowired
     private VirtualBoardService virtualBoardService;
+
     /**
      * 按包裹、箱号、运单处理发货数据
      * @param requests
@@ -252,6 +264,7 @@ public class DeliveryOperationServiceImpl implements IDeliveryOperationService {
             task.setTableName(Task.getTableName(task.getType()));
             task.setSequenceName(Task.getSequenceName(task.getTableName()));
             task.setKeyword1(dto.getBoardCode());
+            task.setKeyword2(dto.getWaybillCode());
             task.setOwnSign(BusinessHelper.getOwnSign());
             task.setBody(JsonHelper.toJson(dto));
             String fingerprint =   Constants.UNDER_LINE + System.currentTimeMillis();
@@ -437,12 +450,55 @@ public class DeliveryOperationServiceImpl implements IDeliveryOperationService {
         }
         List<DeliveryPackageD> packageDList =baseEntity.getData();
         //批量组板
-
+        List<String> packageList =new ArrayList<>();
         for (DeliveryPackageD deliveryPackageD:packageDList){
-            //发送组板全程跟踪
-            log.info("循环发送全程跟踪");
+            packageList.add(deliveryPackageD.getPackageBarcode());
+        }
+        AddBoardBoxes addBoardBoxes =new AddBoardBoxes();
+        addBoardBoxes.setBoardCode(dto.getBoardCode());
+        addBoardBoxes.setBoxCodes(packageList);
+        addBoardBoxes.setBarcodeType(getBarCodeType(packageList.get(0)));
+        addBoardBoxes.setBizSource(BizSourceEnum.PDA.getValue());
+        addBoardBoxes.setOperatorErp(dto.getUserErp());
+        addBoardBoxes.setOperatorName(dto.getUserName());
+        addBoardBoxes.setSiteCode(dto.getStartSiteId());
+        addBoardBoxes.setSiteName(dto.getStartSiteName());
+        addBoardBoxes.setSiteType(BoardCommonManagerImpl.BOARD_COMBINATION_SITE_TYPE);
+        Response<Integer> response = groupBoardManager.addBoxesToBoard(addBoardBoxes);
+        if (response.getCode() != ResponseEnum.SUCCESS.getIndex()) {
+            log.error("异步执行大宗组板"+response.getMesseage()!=null?response.getMesseage():BOARD_TOTC_FAIL_INTERCEPT_MESSAGE);
+            return;
+        }
+        for (String packageCode:packageList){
+            dto.setBarCode(packageCode);
+            sendComboardWaybillTrace(dto);
         }
         log.info("运单异步执行组板{} 成功",JsonHelper.toJson(dto));
+    }
+
+    private void sendComboardWaybillTrace(ComboardTaskDto dto) {
+        OperatorInfo operatorInfo = assembleComboardOperatorInfo(dto);
+        virtualBoardService.sendWaybillTrace(dto.getBarCode(), operatorInfo, dto.getBoardCode(),
+            dto.getEndSiteName(), WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION, BizSourceEnum.PDA.getValue());
+    }
+
+    private OperatorInfo assembleComboardOperatorInfo(ComboardTaskDto dto) {
+        OperatorInfo operatorInfo = new OperatorInfo();
+        operatorInfo.setSiteCode(dto.getStartSiteId());
+        operatorInfo.setSiteName(dto.getStartSiteName());
+        operatorInfo.setUserCode(dto.getUserCode());
+        operatorInfo.setOperateTime(dto.getOperateTime());
+        return operatorInfo;
+    }
+
+    private Integer getBarCodeType(String barCode) {
+        if (WaybillUtil.isWaybillCode(barCode)) {
+            return ComboardBarCodeTypeEnum.WAYBILL.getCode();
+        } else if (WaybillUtil.isPackageCode(barCode)) {
+            return ComboardBarCodeTypeEnum.PACKAGE.getCode();
+        } else {
+            return ComboardBarCodeTypeEnum.BOX.getCode();
+        }
     }
 
     @Override
@@ -467,6 +523,7 @@ public class DeliveryOperationServiceImpl implements IDeliveryOperationService {
             task.setType(Task.TASK_TYPE_COMBOARD_CANCEL);
             task.setTableName(Task.getTableName(task.getType()));
             task.setSequenceName(Task.getSequenceName(task.getTableName()));
+            task.setKeyword1(dto.getBoardCode());
             task.setOwnSign(BusinessHelper.getOwnSign());
             task.setBody(JsonHelper.toJson(dto));
             String fingerprint =   Constants.UNDER_LINE + System.currentTimeMillis();
@@ -504,7 +561,7 @@ public class DeliveryOperationServiceImpl implements IDeliveryOperationService {
             operatorInfo.setOperateTime(new Date());
             virtualBoardService.sendWaybillTrace(packageD.getPackageBarcode(),
                     operatorInfo,dto.getBoardCode(),dto.getSiteName(),
-                    WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION_CANCEL, 
+                    WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION_CANCEL,
                     BizSourceEnum.PDA.getValue());
         }
         log.info("运单异步执行取消组板{} 成功",JsonHelper.toJson(dto));
