@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.jy.dto.comboard;
 
+import java.util.Date;
 import lombok.Data;
 
 @Data
@@ -13,4 +14,9 @@ public class ComboardTaskDto {
   private Integer pageNo;
   private Integer pageSize;
   private Integer totalPage;
+  private String userErp;
+  private String userName;
+  private String barCode;
+  private Integer userCode;
+  private Date operateTime;
 }

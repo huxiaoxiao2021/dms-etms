@@ -37,6 +37,8 @@ public interface GroupBoardManager {
      */
     Response<Integer> addBoxToBoard(AddBoardBox addBoardBox);
 
+    Response<Integer> addBoxesToBoard(AddBoardBoxes addBoardBox);
+
     /**
      * 组板转移
      * @param moveBoxRequest

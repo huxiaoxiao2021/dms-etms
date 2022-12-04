@@ -48,6 +48,11 @@ public class GroupBoardManagerImpl implements GroupBoardManager {
     }
 
     @Override
+    public Response<Integer> addBoxesToBoard(AddBoardBoxes addBoardBox) {
+        return groupBoardService.addBoxesToBoard(addBoardBox);
+    }
+
+    @Override
     @JProfiler(jKey = "dmsWeb.jsf.tc.groupBoardService.moveBoxToNewBoard",jAppName= Constants.UMP_APP_NAME_DMSWEB,
             mState = {JProEnum.TP, JProEnum.FunctionError})
     public Response<String> moveBoxToNewBoard(MoveBoxRequest moveBoxRequest) {
@@ -89,7 +94,7 @@ public class GroupBoardManagerImpl implements GroupBoardManager {
     public Response<Board> getBoardByBoxCode(String boxCode, Integer siteCode) {
         return groupBoardService.getBoardByBoxCode(boxCode,siteCode);
     }
-    
+
     @JProfiler(jKey = "dmsWeb.jsf.tc.groupBoardService.getBoardStatisticsByBoardCode",jAppName= Constants.UMP_APP_NAME_DMSWEB,
             mState = {JProEnum.TP, JProEnum.FunctionError})
     @Override

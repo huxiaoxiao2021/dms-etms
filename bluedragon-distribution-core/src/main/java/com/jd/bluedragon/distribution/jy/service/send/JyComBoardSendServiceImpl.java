@@ -997,6 +997,10 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     dto.setEndSiteName(request.getEndSiteName());
     dto.setBoardCode(request.getBoardCode());
     dto.setWaybillCode(request.getBarCode());
+    dto.setUserErp(request.getUser().getUserErp());
+    dto.setUserName(request.getUser().getUserName());
+    dto.setUserCode(request.getUser().getUserCode());
+    dto.setOperateTime(new Date());
     deliveryOperationService.generateAsyncComboardAndSendTask(dto);
   }
 
@@ -1019,6 +1023,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   private AddBoardBox assembleComboardParam(ComboardScanReq request) {
     AddBoardBox addBoardBox = new AddBoardBox();
     addBoardBox.setBoardCode(request.getBoardCode());
+    addBoardBox.setBarcodeType(getBarCodeType(request.getBarCode()));
     addBoardBox.setBoxCode(request.getBarCode());
     addBoardBox.setOperatorErp(request.getUser().getUserErp());
     addBoardBox.setOperatorName(request.getUser().getUserName());
