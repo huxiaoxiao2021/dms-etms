@@ -1931,10 +1931,6 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
         comboardDetailDto.setType(WAYBILL_TYPE);
         comboardDetailDto.setBarCode(wayBillCode);
         comboardDetailDtoList.add(comboardDetailDto);
-      } else {
-        log.info("根据板号获取运单号异常：{}", boardCode);
-        return new InvokeResult<>(PACKAGE_OR_BOX_UNDER_BOARD_CODE,
-            PACKAGE_OR_BOX_UNDER_BOARD_MESSAGE);
       }
     } else {
       Response<BoardBoxCountDto> boardScanInfo = groupBoardManager
