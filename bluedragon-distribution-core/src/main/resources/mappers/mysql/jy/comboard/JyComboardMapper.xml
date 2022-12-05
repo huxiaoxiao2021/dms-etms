@@ -280,7 +280,8 @@
     select bar_code
     from jy_comboard
     where board_code = #{boardCode,jdbcType=VARCHAR}
-      and start_site_id = #{startSiteId,jdbcType=BIGINT} 
+      and start_site_id = #{startSiteId,jdbcType=BIGINT}
+      and yn = 1
       limit 1
   </select>
   <update id="batchUpdateCancelFlag"
