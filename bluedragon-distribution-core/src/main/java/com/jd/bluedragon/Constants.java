@@ -1755,7 +1755,10 @@ public class Constants {
      */
     public static final String MENU_CODE_BATCH_SEND_CODE  = "0101004-gz";
 
-
+    /**
+     * 抖音来源标识
+     */
+    public static final String SOURCE_CODE_DOUYIN  = "cn_jdl_ecp-bytedance";
     /**
      * 无任务卸车上游站点初始值
      */

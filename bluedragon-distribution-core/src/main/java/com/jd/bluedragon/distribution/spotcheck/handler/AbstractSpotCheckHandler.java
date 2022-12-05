@@ -5,6 +5,8 @@ import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.core.base.*;
 import com.jd.bluedragon.distribution.base.domain.DmsBaseDict;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.consumable.domain.ConsumableCodeEnums;
+import com.jd.bluedragon.distribution.consumable.domain.PackingTypeEnum;
 import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.send.service.SendDetailService;
 import com.jd.bluedragon.distribution.spotcheck.domain.*;
@@ -18,6 +20,7 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.etms.waybill.domain.BaseEntity;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
+import com.jd.etms.waybill.dto.BoxChargeDto;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ql.dms.report.domain.spotcheck.SpotCheckQueryCondition;
@@ -107,8 +110,11 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
             return;
         }
         // 泡重比校验
-        if(Objects.equals(spotCheckContext.getSpotCheckBusinessType(), SpotCheckBusinessTypeEnum.SPOT_CHECK_TYPE_B.getCode())
-                && weightVolumeRatioCheck(spotCheckContext, result)){
+        if(weightVolumeRatioCheck(spotCheckContext, result)){
+            return;
+        }
+        //有打木架服务不支持人工抽检
+        if(!isSupportSpotCheck(spotCheckContext, result)){
             return;
         }
         // 是否妥投
@@ -122,6 +128,33 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
         }
         // 是否已抽检
         reformSpotCheck(spotCheckContext, result);
+    }
+
+    /**
+     * 是否支持抽检，由子类实现，默认是true（支持抽检）
+     * @param context
+     * @param result
+     * @return
+     */
+    protected boolean isSupportSpotCheck(SpotCheckContext context, InvokeResult<Boolean> result){return true;}
+
+    /**
+     * 检查是否存在打木架服务
+     * @param context
+     * @param result
+     * @return
+     */
+    protected boolean checkWoodenFrameService(SpotCheckContext context, InvokeResult<Boolean> result){
+        BaseEntity<List<BoxChargeDto>> baseEntity = waybillQueryManager.getBoxChargeByWaybillCode(context.getWaybillCode());
+        if (baseEntity != null && CollectionUtils.isNotEmpty(baseEntity.getData())){
+            for(BoxChargeDto boxChargeDto : baseEntity.getData()){
+                if(ConsumableCodeEnums.isWoodenConsumable(boxChargeDto.getBarCode()) || PackingTypeEnum.isWoodenConsumable(boxChargeDto.getPackingType())){
+                    result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.WOODEN_FRAME_NOT_SUPPORT_ARTIFICIAL_SPOT_CHECK);
+                    return false;
+                }
+            }
+        }
+        return true;
     }
 
     private boolean reformSendCheck(SpotCheckContext spotCheckContext, InvokeResult<Boolean> result) {
@@ -287,39 +320,31 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
      */
     protected boolean weightVolumeRatioCheck(SpotCheckContext spotCheckContext, InvokeResult<Boolean> result) {
         Waybill waybill = spotCheckContext.getWaybill();
-        String packageCode = spotCheckContext.getPackageCode();
-        String waybillCode = WaybillUtil.getWaybillCode(packageCode);
+        int packNum = waybill.getGoodNumber();
         SpotCheckReviewDetail spotCheckReviewDetail = spotCheckContext.getSpotCheckReviewDetail();
         double weight = spotCheckReviewDetail.getReviewWeight();
         double volume = spotCheckReviewDetail.getReviewVolume();
+
+        double standVolumeMax = weight * SpotCheckConstants.CM3_M3_MAGNIFICATION * SpotCheckConstants.VOLUME_WEIGHT_RATIO_MAX;
+        double standVolumeMin = weight * SpotCheckConstants.CM3_M3_MAGNIFICATION * SpotCheckConstants.VOLUME_WEIGHT_RATIO_MIN;
+        //体积（m³）与重量（kg）之比不能大于0.2，不能小于0.0005
+        if(volume > standVolumeMax || volume < standVolumeMin){
+            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_NOT_MEET_THEORETICAL_VALUE);
+            return true;
+        }
         // 包裹维度泡重比校验
         if(Objects.equals(spotCheckContext.getSpotCheckDimensionType(), SpotCheckDimensionEnum.SPOT_CHECK_PACK.getCode())){
-            if(weight / volume * SpotCheckConstants.CM3_M3_MAGNIFICATION > SpotCheckConstants.WEIGHT_VOLUME_RATIO){
-                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, String.format(SpotCheckConstants.SPOT_CHECK_VOLUME_RATE_LIMIT_B_PACK, packageCode, SpotCheckConstants.WEIGHT_VOLUME_RATIO));
-                return true;
-            }
-            if(weight > SpotCheckConstants.WEIGHT_MAX_RATIO){
-                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, String.format(SpotCheckConstants.SPOT_CHECK_WEIGHT_LIMIT_B_PACK, SpotCheckConstants.WEIGHT_MAX_RATIO));
-                return true;
-            }
-            if(volume > SpotCheckConstants.VOLUME_MAX_RATIO * SpotCheckConstants.CM3_M3_MAGNIFICATION){
-                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, String.format(SpotCheckConstants.SPOT_CHECK_VOLUME_LIMIT_B_PACK, SpotCheckConstants.VOLUME_MAX_RATIO));
+            //运单估计重量和估计体积不超过最大值
+            if(weight * packNum > SpotCheckConstants.WEIGHT_MAX_RATIO || volume * packNum > SpotCheckConstants.VOLUME_MAX_RATIO * SpotCheckConstants.CM3_M3_MAGNIFICATION){
+                result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_EXCESS_LIMITATION);
                 return true;
             }
             return false;
         }
         // 运单维度泡重比校验
-        if(weight / volume * SpotCheckConstants.CM3_M3_MAGNIFICATION > SpotCheckConstants.WEIGHT_VOLUME_RATIO){
-            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, String.format(SpotCheckConstants.SPOT_CHECK_VOLUME_RATE_LIMIT_B, waybillCode, SpotCheckConstants.WEIGHT_VOLUME_RATIO));
-            return true;
-        }
-        int packNum = waybill.getGoodNumber();
-        if(weight / packNum > SpotCheckConstants.WEIGHT_MAX_RATIO){
-            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, String.format(SpotCheckConstants.SPOT_CHECK_WEIGHT_LIMIT_B, SpotCheckConstants.WEIGHT_MAX_RATIO));
-            return true;
-        }
-        if(volume / packNum > SpotCheckConstants.VOLUME_MAX_RATIO * SpotCheckConstants.CM3_M3_MAGNIFICATION){
-            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, String.format(SpotCheckConstants.SPOT_CHECK_VOLUME_LIMIT_B, SpotCheckConstants.VOLUME_MAX_RATIO));
+        //运单重量和体积不超过最大值
+        if(weight > SpotCheckConstants.WEIGHT_MAX_RATIO || volume > SpotCheckConstants.VOLUME_MAX_RATIO * SpotCheckConstants.CM3_M3_MAGNIFICATION){
+            result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, SpotCheckConstants.SPOT_CHECK_EXCESS_LIMITATION);
             return true;
         }
         return false;
@@ -375,7 +400,7 @@ public abstract class AbstractSpotCheckHandler implements ISpotCheckHandler {
      * @return
      */
     private SpotCheckContext initSpotCheckContext(SpotCheckDto spotCheckDto) {
-        String waybillCode = WaybillUtil.getWaybillCode(spotCheckDto.getBarCode());
+        String waybillCode = WaybillUtil.getWaybillCode(spotCheckDto.getBarCode().trim());
         SpotCheckContext spotCheckContext = new SpotCheckContext();
         spotCheckContext.setSpotCheckSourceFrom(spotCheckDto.getSpotCheckSourceFrom());
         spotCheckContext.setSpotCheckDimensionType(spotCheckDto.getDimensionType());

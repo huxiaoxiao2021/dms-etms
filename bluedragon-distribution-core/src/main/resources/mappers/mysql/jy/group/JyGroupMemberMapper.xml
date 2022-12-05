@@ -226,7 +226,19 @@
             #{item, jdbcType=BIGINT}
         </foreach>
         AND status != #{data.status,jdbcType=INTEGER}
-    </update>      
+    </update>
+    <select id="queryMemberCodesBySignRecordIds" parameterType="java.util.List" resultType="String">
+        select
+            member_code
+        from
+            jy_group_member
+        WHERE
+            yn = 1
+            AND ref_sign_record_id in
+        <foreach collection="list" item="item" open="(" close=")" separator=",">
+            #{item, jdbcType=BIGINT}
+        </foreach>
+    </select>          
     <select id="querySignIdListByGroup" parameterType="com.jd.bluedragon.common.dto.group.GroupMemberQueryRequest" resultType="long">
         select
             t.ref_sign_record_id

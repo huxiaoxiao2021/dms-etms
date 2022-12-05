@@ -99,7 +99,7 @@ public class DealPopPrintHandler implements Handler<WaybillPrintCompleteContext,
             if (CollectionUtils.isNotEmpty(nonFirstPrintCodes)) {
                 context.setReprintPackages(nonFirstPrintCodes);
 
-                saveReprintRecord(context.getRequest());
+                saveReprintRecord(context);
             }
         }
         catch (Exception e) {
@@ -156,8 +156,10 @@ public class DealPopPrintHandler implements Handler<WaybillPrintCompleteContext,
         }
     }
 
-    private void saveReprintRecord(PrintCompleteRequest request) {
+    private void saveReprintRecord(WaybillPrintCompleteContext context) {
         ReprintRecord rePrintRecord = new ReprintRecord();
+        rePrintRecord.setInterfaceType(context.getOperateType());
+        PrintCompleteRequest request = context.getRequest();
         rePrintRecord.setBarCode(request.getPackageBarcode());
         rePrintRecord.setSiteCode(request.getOperateSiteCode());
         rePrintRecord.setSiteName(request.getOperateSiteName());

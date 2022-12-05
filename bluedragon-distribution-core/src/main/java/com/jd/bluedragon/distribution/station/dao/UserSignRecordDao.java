@@ -113,7 +113,7 @@ public interface UserSignRecordDao {
 	 */
 	List<UserSignNoticeJobItemVo> queryUserSignNoticeJobItems(UserSignRecordQuery query);
 	
-    List<Long> querySignInMoreThanSpecifiedTime(Date signInTime, Integer limit);
+    List<Long> querySignInMoreThanSpecifiedTime(Date signInTimeStart,Date signInTime, Integer limit);
     
     int signOutById(UserSignRecord signOutRequest, List<Long> list);
     /**
