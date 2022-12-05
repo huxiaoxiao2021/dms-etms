@@ -99,4 +99,6 @@
 	</bean>
 	<bean id="checkCanAirToRoadJobHandler" class="com.jd.bluedragon.distribution.arAbnormal.CheckCanAirToRoadJobHandler" parent="parentConcurrentJobHandler">
 	</bean>
+    <bean id="checkStrandReportJobHandler" class="com.jd.bluedragon.distribution.abnormal.service.impl.CheckStrandReportJobHandler" parent="parentConcurrentJobHandler">
+    </bean>	
 </beans>

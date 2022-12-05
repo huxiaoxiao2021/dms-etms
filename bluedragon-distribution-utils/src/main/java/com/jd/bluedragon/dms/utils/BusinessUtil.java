@@ -2533,4 +2533,12 @@ public class BusinessUtil {
     public static boolean isVasWaybill(String waybillSign){
         return !isSignChar(waybillSign,WaybillSignConstants.POSITION_86,WaybillSignConstants.CHAR_86_0);
     }
+    /**
+     * 是否特快送
+     * @param waybillSign
+     * @return
+     */
+    public static boolean isTKS(String waybillSign){
+        return isSignChar(waybillSign,WaybillSignConstants.POSITION_31,WaybillSignConstants.CHAR_31_1);
+    }
 }

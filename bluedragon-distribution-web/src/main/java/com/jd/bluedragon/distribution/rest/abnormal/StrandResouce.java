@@ -3,6 +3,7 @@ package com.jd.bluedragon.distribution.rest.abnormal;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.strandreport.request.ConfigStrandReasonData;
+import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.distribution.abnormal.domain.ReportTypeEnum;
 import com.jd.bluedragon.distribution.abnormal.domain.StrandReportRequest;
@@ -15,8 +16,11 @@ import com.jd.bluedragon.distribution.config.query.ConfigStrandReasonQuery;
 import com.jd.bluedragon.distribution.config.service.ConfigStrandReasonService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.ldop.utils.CollectionUtils;
+import com.jd.ql.dms.common.cache.CacheKeyGenerator;
+import com.jd.ql.dms.common.cache.CacheService;
 import com.jd.ql.dms.common.web.mvc.api.PageDto;
 import com.jd.transboard.api.dto.Board;
 import com.jd.transboard.api.dto.Response;
@@ -27,6 +31,7 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import javax.ws.rs.*;
@@ -59,6 +64,10 @@ public class StrandResouce {
     private ConfigStrandReasonService configStrandReasonService;
     @Autowired
     private GroupBoardManager groupBoardManager;
+	
+    @Autowired
+    @Qualifier("jimdbCacheService")
+    private CacheService jimdbCacheService;
 
     /**
      * 包裹滞留上报
@@ -73,7 +82,18 @@ public class StrandResouce {
         if(RESULT_SUCCESS_CODE != invokeResult.getCode()){
             return invokeResult;
         }
+        boolean lockFlag = false;
+        String cacheKey = String.format(CacheKeyConstants.CACHE_KEY_FORMAT_STRAND_REPORT, request.getSiteCode(), request.getBarcode());
         try {
+        	//箱、板、批次上报，加锁防止现场多次重复操作
+        	if(ReportTypeEnum.BATCH_NO.getCode().equals(request.getReportType())
+        			||ReportTypeEnum.BOX_CODE.getCode().equals(request.getReportType())
+        			||ReportTypeEnum.BOARD_NO.getCode().equals(request.getReportType())) {
+        		lockFlag = jimdbCacheService.setNx(cacheKey, Constants.FLAG_OPRATE_ON, DateHelper.FIVE_MINUTES_SECONDS);
+        		if(!lockFlag) {
+        			invokeResult.error("该" + ReportTypeEnum.getReportTypeName(request.getReportType()) + "已滞留上报，后台处理中请稍后");
+        		}
+        	}
             //判断一下
             if (ReportTypeEnum.BOARD_NO.getCode().equals(request.getReportType())){
                 log.info("============按板进行滞留上报================");
@@ -99,11 +119,19 @@ public class StrandResouce {
         	ConfigStrandReason reasonData = reasonInfo.getData();
         	request.setSyncFlag(reasonData.getSyncFlag());
             //发送滞留上报消息
-            strandService.sendStrandReportJmq(request);
+        	InvokeResult<Boolean> sendResult = strandService.sendStrandReportJmq(request);
+        	if(InvokeResult.RESULT_SUCCESS_CODE != sendResult.getCode()) {
+        		invokeResult.error(sendResult.getMessage());
+        		return invokeResult;
+        	}
         }catch (Exception e){
             log.error("滞留上报异常,请求参数：{}", JsonHelper.toJson(request),e);
             invokeResult.error("滞留上报异常,请联系分拣小秘！");
-        }
+        } finally {
+			if(lockFlag) {
+				this.jimdbCacheService.del(cacheKey);
+			}
+		}
         //按批次提交 单独提示
         if(ReportTypeEnum.BATCH_NO.getCode().equals(request.getReportType())){
             invokeResult.setMessage("提交成功，如需取消发货或封车，请手动操作！");

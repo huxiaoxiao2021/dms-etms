@@ -265,4 +265,9 @@ public class CacheKeyConstants {
      */
     public static final String CACHE_KEY_WORK_STATION_ATTEND_PLAN_EDIT = "k_work_station_attend_plan_edit";
 
+    /**
+     * 滞留上报操作key，场地+箱号|批次|板号
+     */
+    public static final String CACHE_KEY_FORMAT_STRAND_REPORT = "dmsWeb:strandReport:%s:%s";
+
 }
