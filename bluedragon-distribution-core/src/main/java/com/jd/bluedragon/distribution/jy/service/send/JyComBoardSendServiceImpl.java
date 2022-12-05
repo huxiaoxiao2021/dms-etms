@@ -967,6 +967,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
           JyBizTaskComboardEntity comboardEntity = new JyBizTaskComboardEntity();
           comboardEntity.setId(entity.getId());
           comboardEntity.setBulkFlag(true);
+          comboardEntity.setCount(request.getScanDetailCount());
           comboardEntity.setUpdateTime(now);
           comboardEntity.setUpdateUserErp(request.getUser().getUserErp());
           comboardEntity.setUpdateUserName(request.getUser().getUserName());
@@ -985,7 +986,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
         }
         JyBizTaskComboardEntity bizTaskComboardEntity = new JyBizTaskComboardEntity();
         bizTaskComboardEntity.setId(entity.getId());
-        bizTaskComboardEntity.setCount(entity.getCount() + Constants.CONSTANT_NUMBER_ONE);
+        bizTaskComboardEntity.setCount(entity.getCount() + request.getScanDetailCount());
         bizTaskComboardEntity.setUpdateTime(now);
         bizTaskComboardEntity.setUpdateUserErp(request.getUser().getUserErp());
         bizTaskComboardEntity.setUpdateUserName(request.getUser().getUserName());
@@ -1146,7 +1147,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
         generateNewBoard(request);
         //存储jy_task
         JyBizTaskComboardEntity record = assembleJyBizTaskComboardParam(request);
-        //空板是不确定是大宗还是非大宗，组板扫描成功后再确定
+        //空板是不确定-是大宗还是非大宗，组板扫描成功后再确定
         jyBizTaskComboardService.save(record);
       }
     } finally {
