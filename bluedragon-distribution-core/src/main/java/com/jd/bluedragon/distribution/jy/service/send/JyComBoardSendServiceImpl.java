@@ -699,7 +699,8 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   public InvokeResult<SendFlowDetailResp> querySendFlowDetail(SendFlowDetailReq request) {
     if (!checkBaseRequest(request)
             || StringUtils.isEmpty(request.getBoardCode())
-            || request.getEndSiteId() == null) {
+            || request.getEndSiteId() == null 
+            || request.getEndSiteId() < 0) {
       return new InvokeResult<>(RESULT_THIRD_ERROR_CODE, PARAM_ERROR);
     }
     SendFlowDetailResp resp = new SendFlowDetailResp();
@@ -1721,7 +1722,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       e.printStackTrace();
       log.error("queryWaitScanStatisticsUnderSendFlow 查询流向待扫数据异常",e);
     }
-    return new InvokeResult<>(RESULT_SUCCESS, RESULT_SUCCESS_MESSAGE,waitScanStatisticsResp);
+    return new InvokeResult<>(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE,waitScanStatisticsResp);
   }
 
   private Pager<JyComboardPackageDetail> assembleQueryWaitScan(WaitScanStatisticsReq request) {
