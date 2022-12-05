@@ -930,6 +930,8 @@ public class JyUnloadVehicleCheckTysService {
             if (!goodsAreaCode.equals(request.getGoodsAreaCode())) {
                 return "扫描包裹非本货区，请移除本区！";
             }
+        }else {
+            request.setGoodsAreaCode(goodsAreaCode);
         }
         response.setGoodsAreaCode(goodsAreaCode);
         return null;
