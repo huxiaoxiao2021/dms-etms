@@ -1152,6 +1152,8 @@ public class UserSignRecordServiceImpl implements UserSignRecordService {
 		}
 	}
 
+	@Override
+	@JProfiler(jKey = "DMS.WEB.UserSignRecordService.queryUnsignedOutRecordByRefGridKey", jAppName= Constants.UMP_APP_NAME_DMSWEB, mState={JProEnum.TP, JProEnum.FunctionError})
 	public Result<List<UserSignRecord>> queryUnsignedOutRecordByRefGridKey(String refGridKey){
 		Result result = new Result<>();
 		result.toSuccess();
