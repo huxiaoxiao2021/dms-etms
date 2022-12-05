@@ -51,6 +51,7 @@ import com.jd.transboard.api.dto.Response;
 import com.jd.transboard.api.enums.ResponseEnum;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -735,10 +736,16 @@ public class BoardCommonManagerImpl implements BoardCommonManager {
         if(!BusinessUtil.isBoxcode(request.getBarCode())) {
             return;
         }
+        Box box = boxService.findBoxByCode(request.getBarCode());
         Sorting sorting = new Sorting();
         sorting.setBoxCode(request.getBarCode());
-        sorting.setCreateSiteCode(request.getOperateSiteCode());
+        sorting.setCreateSiteCode(box.getCreateSiteCode());
         List<Sorting> sortingList = sortingService.listSortingByBoxCode(sorting);
+        if(CollectionUtils.isEmpty(sortingList)) {
+            if(logger.isInfoEnabled()) {
+                logger.info("按箱{}未查询到箱内包裹，箱信息={}", request.getBarCode(), JsonHelper.toJson(box));
+            }
+        }
 //        logger.info("按箱操作组板发送全流程跟踪：节点={}（7000组板7600取消组板），箱信息={}，箱内包裹集合={}",operateType, JsonHelper.toJson(request), JsonHelper.toJson(sortingList));
         for (Sorting s:sortingList){
             if(s.getYn() == 1 && s.getIsCancel() == 0) {
