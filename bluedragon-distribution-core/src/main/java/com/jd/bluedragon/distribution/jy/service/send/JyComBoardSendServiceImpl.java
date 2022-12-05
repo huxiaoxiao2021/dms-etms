@@ -104,7 +104,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.CollectionUtils;
 
 import static com.jd.bluedragon.Constants.LOCK_EXPIRE;
-import static com.jd.bluedragon.Constants.RESULT_SUCCESS;
 import static com.jd.bluedragon.Constants.SUCCESS_CODE;
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.*;
 import static com.jd.bluedragon.distribution.businessCode.BusinessCodeFromSourceEnum.JY_APP;
@@ -1999,7 +1998,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
           return new InvokeResult<>(CANCEL_COM_BOARD_CODE, CANCEL_COM_BOARD_MESSAGE);
         }
         // 异步发送全程跟踪
-        asyncSendComboardWaybillTrace(request);
+        asyncSendComboardWaybillTrace(request,waybillCode);
         // 取消发货
         SendM sendM = toSendM(request);
         sendM.setBoxCode(waybillCode);
@@ -2058,10 +2057,10 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     return new InvokeResult<>(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE);
   }
 
-  private void asyncSendComboardWaybillTrace(CancelBoardReq request) {
+  private void asyncSendComboardWaybillTrace(CancelBoardReq request, String waybillCode) {
     CancelComboardTaskDto taskDto = new CancelComboardTaskDto();
     taskDto.setBoardCode(request.getBoardCode());
-    taskDto.setWaybillCode(request.getCancelList().get(0).getBarCode());
+    taskDto.setWaybillCode(waybillCode);
     taskDto.setEndSiteName(request.getEndSiteName());
     taskDto.setSiteCode(request.getCurrentOperate().getSiteCode());
     taskDto.setUserErp(request.getUser().getUserErp());
