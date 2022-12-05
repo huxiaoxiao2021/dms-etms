@@ -20,7 +20,6 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<org.springframework.version>3.2.18.RELEASE</org.springframework.version>
 		<slf4j.version>1.6.4</slf4j.version>
-		<aspectj.version>1.6.11</aspectj.version>
 		<jmq.version>2.3.2</jmq.version>
 		<etms.waybill.agent.version>4.2.259</etms.waybill.agent.version>
 		<jddl-client.version>2.0.1-SNAPSHOT</jddl-client.version>
@@ -43,6 +42,13 @@
 	</properties>
 
 	<dependencies>
+		<dependency>
+			<groupId>org.hibernate.validator</groupId>
+			<artifactId>hibernate-validator</artifactId>
+			<version>6.0.5.Final</version>
+		</dependency>
+
+
 		<dependency>
 			<artifactId>sorting-api</artifactId>
 			<exclusions>
@@ -165,6 +171,14 @@
 					<groupId>com.alibaba</groupId>
 					<artifactId>fastjson</artifactId>
 				</exclusion>
+				<exclusion>
+					<artifactId>netty-all</artifactId>
+					<groupId>io.netty</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>validation-api</artifactId>
+					<groupId>javax.validation</groupId>
+				</exclusion>
 			</exclusions>
 		</dependency>
 
@@ -187,12 +201,18 @@
 		<dependency>
 			<groupId>asm</groupId>
 			<artifactId>asm</artifactId>
-			<version>3.1</version>
+			<version>6.0</version>
 		</dependency>
         <dependency>
             <groupId>cglib</groupId>
             <artifactId>cglib</artifactId>
             <version>2.2.2</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>asm</artifactId>
+					<groupId>asm</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
@@ -278,15 +298,11 @@
 			<version>1.4</version>
 		</dependency>
 
-		<dependency>
-			<groupId>org.aspectj</groupId>
-			<artifactId>aspectjrt</artifactId>
-			<version>${aspectj.version}</version>
-		</dependency>
+
 		<dependency>
 			<groupId>org.aspectj</groupId>
 			<artifactId>aspectjweaver</artifactId>
-			<version>1.6.9</version>
+			<version>1.8.9</version>
 		</dependency>
 
 		<dependency>
@@ -377,29 +393,25 @@
 			<version>1.9.2</version>
 		</dependency>
 
-		<dependency>
-			<groupId>org.apache.cxf</groupId>
-			<artifactId>cxf-api</artifactId>
-			<version>2.2.5</version>
-		</dependency>
 
 		<dependency>
 			<groupId>org.apache.cxf</groupId>
-			<artifactId>cxf-rt-databinding-jaxb</artifactId>
-			<version>2.2.5</version>
-		</dependency>
-
-		<dependency>
-			<groupId>org.apache.cxf</groupId>
-			<artifactId>cxf-rt-bindings-soap</artifactId>
-			<version>2.2.5</version>
+			<artifactId>cxf-rt-frontend-jaxws</artifactId>
+			<version>3.1.16</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>asm</artifactId>
+					<groupId>org.ow2.asm</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<dependency>
 			<groupId>org.apache.cxf</groupId>
 			<artifactId>cxf-rt-transports-http</artifactId>
-			<version>2.2.5</version>
+			<version>3.1.16</version>
 		</dependency>
+
 
 		<dependency>
 			<groupId>javax.servlet</groupId>
@@ -408,11 +420,6 @@
 			<scope>provided</scope>
 		</dependency>
 
-		<dependency>
-			<groupId>org.apache.cxf</groupId>
-			<artifactId>cxf-rt-frontend-jaxws</artifactId>
-			<version>2.2.5</version>
-		</dependency>
 		<dependency>
 			<groupId>org.jboss.resteasy</groupId>
 			<artifactId>resteasy-jaxrs</artifactId>
@@ -502,6 +509,10 @@
 					<artifactId>commons-io</artifactId>
 					<groupId>commons-io</groupId>
 				</exclusion>
+				<exclusion>
+					<artifactId>cxf-rt-frontend-jaxws</artifactId>
+					<groupId>org.apache.cxf</groupId>
+				</exclusion>
 			</exclusions>
 		</dependency>
         <!--安全相关 ConfigSecSDK importants运行环境加密-->
@@ -521,7 +532,13 @@
 			<groupId>com.jd.ql.basic</groupId>
 			<artifactId>ql-basic-client</artifactId>
 			<version>2.0.11-online-SNAPSHOT</version>
-        </dependency>
+			<exclusions>
+				<exclusion>
+					<artifactId>validation-api</artifactId>
+					<groupId>javax.validation</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
 		<!-- 基础资料 获取编码 -->
 		<dependency>
 			<groupId>com.jd.ql.basic</groupId>
@@ -531,6 +548,16 @@
 			<groupId>com.jd.ldop.basic</groupId>
 			<artifactId>ldop-basic-api</artifactId>
 			<version>1.1.14-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>hibernate-validator</artifactId>
+					<groupId>org.hibernate</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>validation-api</artifactId>
+					<groupId>javax.validation</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<!-- 查询揽收未分配列表-->
@@ -542,6 +569,14 @@
 				<exclusion>
 					<artifactId>fastjson</artifactId>
 					<groupId>com.alibaba</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>hibernate-validator</artifactId>
+					<groupId>org.hibernate</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>validation-api</artifactId>
+					<groupId>javax.validation</groupId>
 				</exclusion>
 			</exclusions>
 		</dependency>
@@ -671,6 +706,10 @@
 					<artifactId>commons-io</artifactId>
 					<groupId>commons-io</groupId>
 				</exclusion>
+				<exclusion>
+					<artifactId>cxf-rt-frontend-jaxws</artifactId>
+					<groupId>org.apache.cxf</groupId>
+				</exclusion>
 			</exclusions>
 		</dependency>
 
@@ -702,6 +741,10 @@
 				<exclusion>
 					<groupId>com.jd.jim.cli</groupId>
 					<artifactId>jim-cli-api</artifactId>
+				</exclusion>
+				<exclusion>
+					<artifactId>netty-all</artifactId>
+					<groupId>io.netty</groupId>
 				</exclusion>
             </exclusions>
         </dependency>
@@ -773,7 +816,15 @@
                     <artifactId>commons-beanutils</artifactId>
                     <groupId>commons-beanutils</groupId>
                 </exclusion>
-            </exclusions>
+				<exclusion>
+					<artifactId>hibernate-validator</artifactId>
+					<groupId>org.hibernate</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>validation-api</artifactId>
+					<groupId>javax.validation</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<!-- 供应链二期 渠道库存分配接口 -->
 		<dependency>
@@ -846,6 +897,16 @@
             <groupId>com.jd.tms.ecp</groupId>
             <artifactId>tms-ecp-client</artifactId>
             <version>1.0.1-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>hibernate-validator</artifactId>
+					<groupId>org.hibernate</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>validation-api</artifactId>
+					<groupId>javax.validation</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>com.jd.eclp</groupId>
@@ -864,6 +925,14 @@
                 	<groupId>com.jd.jim.cli</groupId>
                 	<artifactId>jim-cli-api</artifactId>
                 </exclusion>
+				<exclusion>
+					<artifactId>hibernate-validator</artifactId>
+					<groupId>org.hibernate</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>validation-api</artifactId>
+					<groupId>javax.validation</groupId>
+				</exclusion>
                 <exclusion>
                     <artifactId>log4j-core</artifactId>
                     <groupId>org.apache.logging.log4j</groupId>
@@ -880,14 +949,44 @@
                     <artifactId>jaxen</artifactId>
                     <groupId>jaxen</groupId>
                 </exclusion>
-            </exclusions>
+				<exclusion>
+					<artifactId>asm</artifactId>
+					<groupId>asm</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>asm-commons</artifactId>
+					<groupId>asm</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>asm-tree</artifactId>
+					<groupId>asm</groupId>
+				</exclusion>
+			</exclusions>
         </dependency>
         <!-- cassandra -->
 		<dependency>
             <groupId>com.datastax.cassandra</groupId>
             <artifactId>cassandra-driver-core</artifactId>
             <version>2.1.7.1</version>
-        </dependency>
+			<exclusions>
+				<exclusion>
+					<artifactId>netty-buffer</artifactId>
+					<groupId>io.netty</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>netty-codec</artifactId>
+					<groupId>io.netty</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>netty-handler</artifactId>
+					<groupId>io.netty</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>netty-transport</artifactId>
+					<groupId>io.netty</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
 
         <!-- slave write replication lib. -->
 	  	<dependency>
@@ -993,6 +1092,38 @@
 					<groupId>com.jd.jmq</groupId>
 					<artifactId>jmq-client-ump</artifactId>
                  </exclusion>
+				 <exclusion>
+					 <artifactId>cxf-api</artifactId>
+					 <groupId>org.apache.cxf</groupId>
+				 </exclusion>
+				 <exclusion>
+					 <artifactId>cxf-common-utilities</artifactId>
+					 <groupId>org.apache.cxf</groupId>
+				 </exclusion>
+				 <exclusion>
+					 <artifactId>cxf-rt-bindings-http</artifactId>
+					 <groupId>org.apache.cxf</groupId>
+				 </exclusion>
+				 <exclusion>
+					 <artifactId>cxf-rt-bindings-xml</artifactId>
+					 <groupId>org.apache.cxf</groupId>
+				 </exclusion>
+				 <exclusion>
+					 <artifactId>cxf-rt-core</artifactId>
+					 <groupId>org.apache.cxf</groupId>
+				 </exclusion>
+				 <exclusion>
+					 <artifactId>cxf-rt-frontend-jaxrs</artifactId>
+					 <groupId>org.apache.cxf</groupId>
+				 </exclusion>
+				 <exclusion>
+					 <artifactId>cxf-rt-frontend-jaxws</artifactId>
+					 <groupId>org.apache.cxf</groupId>
+				 </exclusion>
+                 <exclusion>
+                     <artifactId>cxf-rt-transports-http</artifactId>
+                     <groupId>org.apache.cxf</groupId>
+                 </exclusion>
              </exclusions>
         </dependency>
 
@@ -1005,7 +1136,11 @@
                     <artifactId>fastjson</artifactId>
                     <groupId>com.alibaba</groupId>
                 </exclusion>
-            </exclusions>
+				<exclusion>
+					<artifactId>netty-all</artifactId>
+					<groupId>io.netty</groupId>
+				</exclusion>
+			</exclusions>
         </dependency>
 
 
@@ -1048,6 +1183,12 @@
 			<groupId>com.jd.ioms</groupId>
 			<artifactId>ioms-export-cbd-sdk</artifactId>
 			<version>3.0.8-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>fastjson</artifactId>
+					<groupId>com.alibaba</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>com.jd.ioms</groupId>
@@ -1065,6 +1206,20 @@
 			<groupId>order-ws-client</groupId>
 			<artifactId>order-ws-client</artifactId>
 			<version>2.5.0-mini-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>cxf-rt-bindings-soap</artifactId>
+					<groupId>org.apache.cxf</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>cxf-rt-frontend-jaxws</artifactId>
+					<groupId>org.apache.cxf</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>cxf-rt-transports-http</artifactId>
+					<groupId>org.apache.cxf</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<!-- 增加JSS的依赖包 -->
@@ -1082,6 +1237,10 @@
 				<exclusion>
 					<artifactId>jsf</artifactId>
 					<groupId>com.jd</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>netty-all</artifactId>
+					<groupId>io.netty</groupId>
 				</exclusion>
 			</exclusions>
 		</dependency>
@@ -1124,6 +1283,10 @@
 					<artifactId>fastjson</artifactId>
 					<groupId>com.alibaba</groupId>
 				</exclusion>
+				<exclusion>
+					<artifactId>jsf</artifactId>
+					<groupId>com.jd</groupId>
+				</exclusion>
 			</exclusions>
 		</dependency>
         <dependency>
@@ -1138,6 +1301,14 @@
 			<artifactId>transboard-api</artifactId>
 			<version>1.0.10-uat-SNAPSHOT</version>
 			<exclusions>
+				<exclusion>
+					<artifactId>hibernate-validator</artifactId>
+					<groupId>org.hibernate</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>validation-api</artifactId>
+					<groupId>javax.validation</groupId>
+				</exclusion>
 				<exclusion>
 					<artifactId>fastjson</artifactId>
 					<groupId>com.alibaba</groupId>
@@ -1177,6 +1348,16 @@
 			<groupId>com.jd.ldop.center</groupId>
 			<artifactId>ldop-center-api</artifactId>
 			<version>1.7.55-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>hibernate-validator</artifactId>
+					<groupId>org.hibernate</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>validation-api</artifactId>
+					<groupId>javax.validation</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<!-- 理赔系统接口 -->
 		<dependency>
@@ -1207,13 +1388,27 @@
                     <artifactId>log4j-slf4j-impl</artifactId>
                     <groupId>org.apache.logging.log4j</groupId>
                 </exclusion>
-            </exclusions>
+				<exclusion>
+					<artifactId>jaxb-impl</artifactId>
+					<groupId>com.sun.xml.bind</groupId>
+				</exclusion>
+			</exclusions>
         </dependency>
 
 		<dependency>
 			<groupId>com.jd.bd.dms.automatic</groupId>
 			<artifactId>automatic-sdk</artifactId>
 			<version>1.0-uat-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>hibernate-validator</artifactId>
+					<groupId>org.hibernate</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>validation-api</artifactId>
+					<groupId>javax.validation</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<dependency>
@@ -1251,6 +1446,10 @@
 				<exclusion>
 					<artifactId>jboss-logging</artifactId>
 					<groupId>org.jboss.logging</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>asm</artifactId>
+					<groupId>org.ow2.asm</groupId>
 				</exclusion>
 			</exclusions>
 			<version>${jddl-client.version}</version>
@@ -1326,6 +1525,10 @@
 					<groupId>com.alibaba</groupId>
 					<artifactId>fastjson</artifactId>
 				</exclusion>
+				<exclusion>
+					<artifactId>hibernate-validator</artifactId>
+					<groupId>org.hibernate</groupId>
+				</exclusion>
 			</exclusions>
 		</dependency>
 
@@ -1340,6 +1543,16 @@
 			<groupId>com.jd.ldop.business</groupId>
 			<artifactId>ldop-business-api</artifactId>
 			<version>1.0.40-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>hibernate-validator</artifactId>
+					<groupId>org.hibernate</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>validation-api</artifactId>
+					<groupId>javax.validation</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<!-- 打印引擎    start-->
         <dependency>
@@ -1390,6 +1603,14 @@
                 	<groupId>com.jd.jim.cli</groupId>
                 	<artifactId>jim-cli-api</artifactId>
                 </exclusion>
+				<exclusion>
+					<artifactId>netty</artifactId>
+					<groupId>org.jboss.netty</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>hibernate-validator</artifactId>
+					<groupId>org.hibernate</groupId>
+				</exclusion>
 			</exclusions>
 		</dependency>
 
@@ -1401,6 +1622,14 @@
 				<exclusion>
 					<artifactId>fastjson</artifactId>
 					<groupId>com.alibaba</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>hibernate-validator</artifactId>
+					<groupId>org.hibernate</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>validation-api</artifactId>
+					<groupId>javax.validation</groupId>
 				</exclusion>
 				<exclusion>
 					<artifactId>tdeclient</artifactId>
@@ -1497,6 +1726,10 @@
 					<artifactId>jackson-annotations</artifactId>
 					<groupId>com.fasterxml.jackson.core</groupId>
 				</exclusion>
+				<exclusion>
+					<artifactId>hibernate-validator</artifactId>
+					<groupId>org.hibernate.validator</groupId>
+				</exclusion>
 			</exclusions>
 		</dependency>
 
@@ -1504,6 +1737,16 @@
 			<groupId>com.jd.ldop.oms</groupId>
 			<artifactId>ldop-oms-api</artifactId>
 			<version>1.0.39-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>hibernate-validator</artifactId>
+					<groupId>org.hibernate</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>validation-api</artifactId>
+					<groupId>javax.validation</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<dependency>
@@ -1574,19 +1817,39 @@
                     <artifactId>log4j-slf4j-impl</artifactId>
                     <groupId>org.apache.logging.log4j</groupId>
                 </exclusion>
-            </exclusions>
+				<exclusion>
+					<artifactId>jsf</artifactId>
+					<groupId>com.jd</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>hibernate-validator</artifactId>
+					<groupId>org.hibernate</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<dependency>
 			<groupId>com.jd.etms.contract</groupId>
 			<artifactId>etms-contract-api</artifactId>
 			<version>1.0.8.7-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>hibernate-validator</artifactId>
+					<groupId>org.hibernate</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<dependency>
 			<groupId>com.jd.ccmp</groupId>
 			<artifactId>ccmp-ctm-api</artifactId>
 			<version>1.0-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>validation-api</artifactId>
+					<groupId>javax.validation</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<dependency>
@@ -1614,6 +1877,12 @@
 			<groupId>com.jd.jdwl</groupId>
 			<artifactId>feedback-common</artifactId>
 			<version>1.0-jdk1.6-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>hibernate-validator</artifactId>
+					<groupId>org.hibernate.validator</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>com.jd.mobilePhoneMsg.sender</groupId>
@@ -1631,11 +1900,23 @@
 			<groupId>com.netflix.hystrix</groupId>
 			<artifactId>hystrix-javanica</artifactId>
 			<version>1.5.12</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>asm</artifactId>
+					<groupId>org.ow2.asm</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>com.jd.lljk</groupId>
 			<artifactId>ccmp-ctm-api</artifactId>
 			<version>1.0.0-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>validation-api</artifactId>
+					<groupId>javax.validation</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<!-- 金鹏相关服务 -->
 		<dependency>
@@ -1668,6 +1949,12 @@
 		<dependency>
 			<groupId>com.jdl.express.weight.report</groupId>
 			<artifactId>jdl-express-weight-report-api</artifactId>
+			<exclusions>
+				<exclusion>
+					<artifactId>hibernate-validator</artifactId>
+					<groupId>org.hibernate.validator</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<!--京东数据库加密安全包-->
 		<dependency>
@@ -1711,6 +1998,16 @@
 			<groupId>com.jd.jp</groupId>
 			<artifactId>print-templet-center-sdk</artifactId>
 			<version>1.0.5-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>netty</artifactId>
+					<groupId>io.netty</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>validation-api</artifactId>
+					<groupId>javax.validation</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<dependency>
@@ -1729,6 +2026,16 @@
 			<groupId>com.jd.cp.wbms</groupId>
 			<artifactId>cp-wbms-client</artifactId>
 			<version>${cp-wbms-client.version}</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>hibernate-validator</artifactId>
+					<groupId>org.hibernate.validator</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>validation-api</artifactId>
+					<groupId>javax.validation</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>com.jd.dms.wb</groupId>
@@ -1758,6 +2065,12 @@
 			<groupId>com.jd.lsb</groupId>
 			<artifactId>lsb-flow-api</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>validation-api</artifactId>
+					<groupId>javax.validation</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<dependency>
@@ -1776,7 +2089,17 @@
             <groupId>cn.jdl.oms</groupId>
             <artifactId>jdl-oms-client</artifactId>
             <version>1.0.5-SNAPSHOT</version>
-        </dependency>
+			<exclusions>
+				<exclusion>
+					<artifactId>hibernate-validator</artifactId>
+					<groupId>org.hibernate</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>validation-api</artifactId>
+					<groupId>javax.validation</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
 
         <!-- 提示语系统 -->
         <dependency>
@@ -1841,6 +2164,16 @@
 		<!--冷链逆向单生成-->
 		<dependency>
 			<artifactId>coldchain-fulfillment-ot-api</artifactId>
+			<exclusions>
+				<exclusion>
+					<artifactId>hibernate-validator</artifactId>
+					<groupId>org.hibernate</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>validation-api</artifactId>
+					<groupId>javax.validation</groupId>
+				</exclusion>
+			</exclusions>
 			<groupId>com.jd.coldchain.fulfillment</groupId>
 			<version>1.0-uat-SNAPSHOT</version>
 		</dependency>
@@ -1892,6 +2225,10 @@
 					<groupId>com.jd.ldop.center</groupId>
 					<artifactId>ldop-center-api</artifactId>
 				</exclusion>
+				<exclusion>
+					<artifactId>hibernate-validator</artifactId>
+					<groupId>org.hibernate.validator</groupId>
+				</exclusion>
 			</exclusions>
 		</dependency>
 		<dependency>
@@ -1902,6 +2239,16 @@
 		<dependency>
 			<groupId>com.jd.eclp</groupId>
 			<artifactId>eclp-so-api</artifactId>
+			<exclusions>
+				<exclusion>
+					<artifactId>validation-api</artifactId>
+					<groupId>javax.validation</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>fastjson</artifactId>
+					<groupId>com.alibaba</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<!--查询运输车辆任务-->
@@ -1943,6 +2290,12 @@
 			<groupId>com.jdl.basic</groupId>
 			<artifactId>jy-basic-api</artifactId>
 			<version>1.0-uat-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>fastjson</artifactId>
+					<groupId>com.alibaba</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<dependency>
