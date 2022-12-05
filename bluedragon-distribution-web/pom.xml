@@ -15,11 +15,8 @@
 	<url>http://bluedragon.360buy.com</url>
 
 	<properties>
-		<jdk.version>1.7</jdk.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.compiler.encoding>UTF-8</maven.compiler.encoding>
-		<aspectj.version>1.6.11</aspectj.version>
-		<tomcat.version>6.0.35</tomcat.version>
 	</properties>
 
 	<dependencies>
@@ -41,6 +38,10 @@
 				<exclusion>
 					<artifactId>slf4j-log4j12</artifactId>
 					<groupId>org.slf4j</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>cxf-api</artifactId>
+					<groupId>org.apache.cxf</groupId>
 				</exclusion>
 				<exclusion>
 					<artifactId>log4j-api</artifactId>
@@ -65,16 +66,8 @@
 			</exclusions>
 		</dependency>
 
-		<dependency>
-			<groupId>org.aspectj</groupId>
-			<artifactId>aspectjrt</artifactId>
-			<version>${aspectj.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.aspectj</groupId>
-			<artifactId>aspectjweaver</artifactId>
-			<version>1.6.9</version>
-		</dependency>
+
+
 
 		<dependency>
 			<groupId>org.codehaus.jackson</groupId>
@@ -165,6 +158,12 @@
 			<groupId>org.jboss.resteasy</groupId>
 			<artifactId>resteasy-jaxb-provider</artifactId>
 			<version>2.2.3.GA</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>jaxb-impl</artifactId>
+					<groupId>com.sun.xml.bind</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<dependency>
@@ -367,19 +366,7 @@
 		</dependency>
 
 		<!--Tomcat6版本配置方法-->
-		<dependency>
-			<groupId>org.apache.tomcat</groupId>
-			<artifactId>jasper</artifactId>
-			<version>${tomcat.version}</version>
-			<scope>provided</scope>
-		</dependency>
 
-		<dependency>
-			<groupId>org.apache.tomcat</groupId>
-			<artifactId>catalina</artifactId>
-			<version>${tomcat.version}</version>
-			<scope>provided</scope>
-		</dependency>
 		<!--京东安全禁止jsp直接访问-结束-->
 
 		<!-- rest安全鉴权相关jar包 -->
