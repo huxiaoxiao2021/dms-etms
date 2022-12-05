@@ -1897,14 +1897,11 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     removeBoardBoxDto.setBoxCodeList(barCodeList);
     batchUpdateCancelReq.setStartSiteId((long)request.getCurrentOperate().getSiteCode());
     if (request.isBulkFlag()) {
-      // 运单号
-      if (request.getCancelList().get(0) != null
-              && request.getCancelList().get(0).getBarCode() != null) {
-        String waybillCode = request.getCancelList().get(0).getBarCode();
-        if (WaybillUtil.isWaybillCode(waybillCode)) {
-          log.error("取消组板失败，参数格式错误：{}", JsonHelper.toJson(request));
-          return new InvokeResult<>(RESULT_THIRD_ERROR_CODE, PARAM_ERROR);
-        }
+        // 获取运单号
+        JyComboardEntity entity = new JyComboardEntity();
+        entity.setBoardCode(request.getBoardCode());
+        entity.setStartSiteId((long) request.getCurrentOperate().getSiteCode());
+        String waybillCode = jyComboardService.queryWayBillCodeByBoardCode(entity);
         removeBoardBoxDto.setWaybillCode(waybillCode);
         try {
           barCodeList.add(waybillCode);
@@ -1928,7 +1925,6 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
         SendM sendM = toSendM(request);
         sendM.setBoxCode(waybillCode);
         deliveryService.dellCancelDeliveryMessageWithServerTime(sendM,true);
-      }
     } else {
       // 如果为全选
       if (request.isSelectAll()){
