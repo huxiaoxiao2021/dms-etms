@@ -1,16 +1,12 @@
 package com.jd.bluedragon.distribution.jy.service.comboard.impl;
 
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.Lists;
-import com.google.gson.reflect.TypeToken;
 import com.jd.bluedragon.distribution.abnormal.domain.ReportTypeEnum;
 import com.jd.bluedragon.distribution.jy.annotation.JyAggsType;
 import com.jd.bluedragon.distribution.jy.comboard.JyComboardAggsEntity;
 import com.jd.bluedragon.distribution.jy.constants.JyAggsTypeEnum;
 import com.jd.bluedragon.distribution.jy.dao.comboard.JyComboardAggsDao;
-import com.jd.bluedragon.distribution.jy.dto.comboard.JyAggsDto;
 import com.jd.bluedragon.distribution.jy.dto.comboard.JyComboardAggsDto;
 import com.jd.bluedragon.distribution.jy.enums.UnloadProductTypeEnum;
 import com.jd.bluedragon.distribution.jy.service.comboard.JyComboardAggsCondition;
@@ -20,14 +16,13 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.dbs.util.CollectionUtils;
 import com.jd.jim.cli.Cluster;
 import com.jd.jmq.common.message.Message;
+import com.jd.ql.dms.common.cache.CacheService;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
@@ -44,46 +39,28 @@ public class JyComboardAggsServiceImpl implements JyComboardAggsService {
     @Qualifier("redisClientCache")
     protected Cluster redisClientCache;
 
-    @Value("${local.cache.expire.minutes:30}")
-    private Integer LOCAL_CACHE_EXPIRE_MINUTES = null;
+    @Value("${local.cache.expire.days:7}")
+    private Integer LOCAL_CACHE_EXPIRE_DAYS = null;
+    @Autowired
+    @Qualifier("jimdbCacheService")
+    private CacheService jimdbCacheService;
 
+    public static final String PREFIXOFLOCK = "DMS_COMBOARD_AGGS_LOCK_";
+    public static final String PREFIXOFDATA = "DMS_COMBOARD_AGGS_DATA_";
+    public static final Integer LOCK_TTL = 2;
     /**
      * 根缓存信息
      */
     public static LoadingCache<JyComboardAggsCondition, JyComboardAggsEntity> COMBOARD_AGGS_CACHE = null;
 
-    @PostConstruct
-    public void init() {
-        COMBOARD_AGGS_CACHE = CacheBuilder
-                .newBuilder()
-                .initialCapacity(2000)
-                .concurrencyLevel(10)
-                .expireAfterWrite(LOCAL_CACHE_EXPIRE_MINUTES, TimeUnit.MINUTES)
-                .maximumSize(200_000L)
-                .softValues()
-                .build(new CacheLoader<JyComboardAggsCondition, JyComboardAggsEntity>() {
-                    @Override
-                    public JyComboardAggsEntity load(JyComboardAggsCondition comboardAggsCondition) throws Exception {
-                        String redisKey = comboardAggsCondition.redisKey();
-                        String resultStr = redisClientCache.get(redisKey);
-                        if (StringUtils.isNotBlank(resultStr)) {
-                            return JsonHelper.fromJsonUseGson(resultStr, new TypeToken<List<JyComboardAggsEntity>>(){}.getType());
-                        }
-                        List<JyComboardAggsEntity> jyComboardAggsEntities = jyComboardAggsDao.queryComboardAggs(comboardAggsCondition);
-                        if (CollectionUtils.isNotEmpty(jyComboardAggsEntities)) {
-                            redisClientCache.setEx(redisKey,JsonHelper.toJson(jyComboardAggsEntities.get(0)), LOCAL_CACHE_EXPIRE_MINUTES, TimeUnit.MINUTES);
-                        }
-                        if (CollectionUtils.isNotEmpty(jyComboardAggsEntities)) {
-                            return jyComboardAggsEntities.get(0);
-                        }
-                        return null;
-                    }
-                });
-    }
     @Override
     public boolean saveAggs(Message message) {
         JyComboardAggsDto dto = JsonHelper.fromJson(message.getText(), JyComboardAggsDto.class);
         try {
+            if (!lock(dto)){
+                // 获取锁当前数据丢弃
+                return false;
+            }
             saveOrUpdate(dto);
             //冗余包裹、箱号数量
             redundancyPackageAndBox(dto);
@@ -91,7 +68,51 @@ public class JyComboardAggsServiceImpl implements JyComboardAggsService {
         }catch (Exception e){
             log.error("saveAggs error :param json 【{}】",JsonHelper.toJson(dto),e);
             return false;
+        }finally {
+            unLock(dto);
         }
+    }
+
+    private String getLockCashKey(String pre,JyComboardAggsDto dto){
+        return  pre + dto.getOperateSiteId() + "-" +
+                dto.getReceiveSiteId() + "-" +
+                dto.getBizId() + "-" +
+                dto.getBoardCode() + "-" +
+                dto.getProductType() + "-" +
+                dto.getScanType();
+    }
+
+    private boolean lock(JyComboardAggsDto dto) {
+        String lockKey = getLockCashKey(PREFIXOFLOCK,dto);
+        log.info("开始获取锁lockKey={}", lockKey);
+        try {
+            for(int i =0;i < 4;i++){
+                if (jimdbCacheService.setNx(lockKey, org.apache.commons.lang.StringUtils.EMPTY, LOCK_TTL, TimeUnit.SECONDS)){
+                    return Boolean.TRUE;
+                }else{
+                    Thread.sleep(100);
+                }
+            }
+        } catch (Exception e) {
+            log.error("组板统计数据Lock异常:JyComboardAggsDto={},e=", JsonHelper.toJson(dto) , e);
+            jimdbCacheService.del(lockKey);
+        }
+        return Boolean.FALSE;
+    }
+    private void unLock(JyComboardAggsDto dto) {
+        try {
+            String lockKey = getLockCashKey(PREFIXOFLOCK,dto);
+            jimdbCacheService.del(lockKey);
+        } catch (Exception e) {
+            log.error("组板统计数据unLock异常:JyComboardAggsDto={},e=", JsonHelper.toJson(dto) , e);
+        }
+    }
+    private boolean saveCache(JyComboardAggsDto dto,JyComboardAggsEntity jyComboardAggsEntity){
+        if (jyComboardAggsEntity == null){
+            return false;
+        }
+        String dataKey = getLockCashKey(PREFIXOFDATA,dto);
+        return jimdbCacheService.setEx(dataKey,JsonHelper.toJson(jyComboardAggsEntity),LOCAL_CACHE_EXPIRE_DAYS,TimeUnit.DAYS);
     }
     //冗余包裹、箱号数量
     private void redundancyPackageAndBox(JyComboardAggsDto dto) {
@@ -152,6 +173,7 @@ public class JyComboardAggsServiceImpl implements JyComboardAggsService {
             jyComboardAggsEntity.setMoreScannedCount(dto.getMoreScannedCount());
             jyComboardAggsEntity.setTs(dto.getCreateTime());
             jyComboardAggsDao.updateByPrimaryKeyAndTs(jyComboardAggsEntity);
+            saveCache(dto,jyComboardAggsEntity);
         }else{
             JyComboardAggsEntity jyComboardAggsEntity = new JyComboardAggsEntity();
             jyComboardAggsEntity.setWaitScanCount(dto.getWaitScanCount());
@@ -167,6 +189,7 @@ public class JyComboardAggsServiceImpl implements JyComboardAggsService {
             jyComboardAggsEntity.setProductType(dto.getProductType());
             jyComboardAggsEntity.setScanType(Integer.valueOf(dto.getScanType()));
             jyComboardAggsDao.insertSelective(jyComboardAggsEntity);
+            saveCache(dto,jyComboardAggsEntity);
         }
     }
 
@@ -176,7 +199,6 @@ public class JyComboardAggsServiceImpl implements JyComboardAggsService {
             return jyComboardAggsEntities.get(0);
         }
         return null;
-//        return COMBOARD_AGGS_CACHE.get(comboardAggsCondition);
     }
 
     @Override
