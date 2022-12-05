@@ -748,14 +748,12 @@ public class BoardCommonManagerImpl implements BoardCommonManager {
         }
 //        logger.info("按箱操作组板发送全流程跟踪：节点={}（7000组板7600取消组板），箱信息={}，箱内包裹集合={}",operateType, JsonHelper.toJson(request), JsonHelper.toJson(sortingList));
         for (Sorting s:sortingList){
-            if(s.getYn() == 1 && s.getIsCancel() == 0) {
-                BoardCommonRequest boardCommonRequest = BeanUtils.copy(request, BoardCommonRequest.class);
-                boardCommonRequest.setBarCode(s.getPackageCode());
-                if(logger.isInfoEnabled()) {
-                    logger.info("按箱操作组板发送全流程跟踪：节点={}（7000组板7600取消组板），箱信息={}，包裹流程跟踪={}",operateType, JsonHelper.toJson(request), JsonHelper.toJson(boardCommonRequest));
-                }
-                sendWaybillTrace(boardCommonRequest, operateType);
+            BoardCommonRequest boardCommonRequest = BeanUtils.copy(request, BoardCommonRequest.class);
+            boardCommonRequest.setBarCode(s.getPackageCode());
+            if(logger.isInfoEnabled()) {
+                logger.info("按箱操作组板发送全流程跟踪：节点={}（7000组板7600取消组板），箱信息={}，包裹流程跟踪={}",operateType, JsonHelper.toJson(request), JsonHelper.toJson(boardCommonRequest));
             }
+            sendWaybillTrace(boardCommonRequest, operateType);
         }
     }
 }
