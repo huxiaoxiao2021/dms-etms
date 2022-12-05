@@ -1,15 +1,20 @@
 package com.jd.bluedragon.core.base;
 
+import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.unloadCar.UnloadScanDetailDto;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
+import com.jd.bluedragon.core.hint.constants.HintArgsConstants;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.BoardCombinationRequest;
 import com.jd.bluedragon.distribution.api.request.BoardCommonRequest;
+import com.jd.bluedragon.distribution.api.request.TransportServiceRequest;
 import com.jd.bluedragon.distribution.api.response.BoardResponse;
+import com.jd.bluedragon.distribution.api.response.SortingResponse;
+import com.jd.bluedragon.distribution.base.domain.BlockResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.domain.JdCancelWaybillResponse;
 import com.jd.bluedragon.distribution.box.domain.Box;
@@ -27,7 +32,9 @@ import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.storage.service.StoragePackageMService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
+import com.jd.bluedragon.distribution.ver.exception.SortingCheckException;
 import com.jd.bluedragon.distribution.ver.service.SortingCheckService;
+import com.jd.bluedragon.distribution.waybill.domain.CancelWaybill;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
@@ -52,6 +59,7 @@ import com.jd.transboard.api.enums.BizSourceEnum;
 import com.jd.transboard.api.enums.ResponseEnum;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -628,6 +636,96 @@ public class BoardCommonManagerImpl implements BoardCommonManager {
             return result;
         }
         return result;
+    }
+
+    @Override
+    public InvokeResult<Boolean> loadUnloadInterceptValidate(TransportServiceRequest request) {
+        InvokeResult<Boolean> result = new InvokeResult<Boolean>();
+        result.success();
+        result.setData(false);
+        if(request == null
+                || !WaybillUtil.isWaybillCode(request.getWaybillCode())
+                || (StringUtils.isNotEmpty(request.getPackageCode()) && !WaybillUtil.isPackageCode(request.getPackageCode()))
+                || StringUtils.isEmpty(request.getWaybillSign())){
+            result.parameterError();
+            return result;
+        }
+        String packageCode = request.getPackageCode();
+        String waybillCode = request.getWaybillCode();
+        String waybillSign = request.getWaybillSign();
+
+        if(StringUtils.isNotEmpty(packageCode)){
+            // 包裹维度拦截特殊校验
+            loadUnloadPackIntercept(packageCode, waybillSign, result);
+        }else {
+            // 运单维度拦截特殊校验
+            loadUnloadWaybillIntercept(waybillCode, waybillSign, result);
+        }
+        return result;
+    }
+
+    private void loadUnloadWaybillIntercept(String waybillCode, String waybillSign, InvokeResult<Boolean> result) {
+        // 运单维度快运改址拦截
+        if(BusinessUtil.isKyAddressModifyWaybill(waybillSign)){
+            BlockResponse blockResponse = waybillService.checkWaybillBlock(waybillCode, CancelWaybill.FEATURE_TYPE_KY_ADDRESS_MODIFY_INTERCEPT);
+            if (BlockResponse.BLOCK.equals(blockResponse.getCode())) {
+                String hintMessage;
+                List<String> blockPackageList = blockResponse.getBlockPackages();
+                if(CollectionUtils.isNotEmpty(blockPackageList) && blockPackageList.size() < 5){ // 运单下拦截状态的包裹数小于5则提示具体包裹
+                    List<Integer> lockPackIndexList = Lists.newArrayList();
+                    for (String packCode : blockPackageList) {
+                        lockPackIndexList.add(WaybillUtil.getPackIndexByPackCode(packCode));
+                    }
+                    Map<String, String> argsMap = new HashMap<>();
+                    argsMap.put(HintArgsConstants.ARG_FIRST, JsonHelper.toJson(lockPackIndexList));
+                    hintMessage = HintService.getHint(HintCodeConstants.WAYBILL_KY_ADDRESS_MODIFY_INTERCEPT_HINT, argsMap);
+                }else {
+                    hintMessage = HintService.getHint(HintCodeConstants.WAYBILL_KY_ADDRESS_MODIFY_INTERCEPT);
+                }
+                result.setData(true);
+                result.setMessage(hintMessage);
+                return;
+            }
+        }
+        loadUnloadCommonIntercept(WaybillUtil.getWaybillCode(waybillCode), waybillSign, result);
+    }
+
+    private void loadUnloadPackIntercept(String packageCode, String waybillSign, InvokeResult<Boolean> result) {
+        // 包裹维度快运改址拦截
+        if(BusinessUtil.isKyAddressModifyWaybill(waybillSign)){
+            BlockResponse blockResponse = waybillService.checkPackageBlock(packageCode, CancelWaybill.FEATURE_TYPE_KY_ADDRESS_MODIFY_INTERCEPT);
+            if (BlockResponse.BLOCK.equals(blockResponse.getCode())) {
+                result.setData(true);
+                result.setMessage(HintService.getHint(HintCodeConstants.PACK_KY_ADDRESS_MODIFY_INTERCEPT));
+                return;
+            }
+        }
+        // 公共校验
+        loadUnloadCommonIntercept(WaybillUtil.getWaybillCode(packageCode), waybillSign, result);
+    }
+
+    private void loadUnloadCommonIntercept(String waybillCode, String waybillSign, InvokeResult<Boolean> result) {
+        // waybillCancel拦截（运单维度）
+        JdCancelWaybillResponse jdResponse = waybillService.dealCancelWaybill(waybillCode);
+        if (jdResponse != null && jdResponse.getCode() != null && !jdResponse.getCode().equals(JdResponse.CODE_OK)) {
+            logger.info("运单【{}】已被拦截【{}】", waybillCode, jdResponse.getMessage());
+            result.setData(true);
+            result.setMessage(jdResponse.getMessage());
+            return ;
+        }
+        // 有包装服务
+        if(waybillConsumableRecordService.needConfirmed(waybillCode)){
+            logger.warn("loadUnloadInterceptValidate 装卸车包装服务运单未确认包装完成禁止发货单号：{}",waybillCode);
+            result.setData(true);
+            result.setMessage(LoadIllegalException.PACK_SERVICE_NO_CONFIRM_FORBID_SEND_MESSAGE);
+            return;
+        }
+        // 金鹏订单
+        if(!storagePackageMService.checkWaybillCanSend(waybillCode, waybillSign)){
+            logger.warn("loadUnloadInterceptValidate 装卸车金鹏订单未上架集齐禁止发货单号：{}",waybillCode);
+            result.setData(true);
+            result.setMessage(LoadIllegalException.JIN_PENG_NO_TOGETHER_FORBID_SEND_MESSAGE);
+        }
     }
 
 }
