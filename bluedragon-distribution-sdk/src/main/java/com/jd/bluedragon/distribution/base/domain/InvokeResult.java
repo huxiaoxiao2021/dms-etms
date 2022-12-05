@@ -169,12 +169,8 @@ public class InvokeResult<T> implements Serializable {
     public static final int FINISH_BOARD_CODE = 3047;
     public static final String FINISH_BOARD_MESSAGE = "完结组板失败！";
 
-    public static final int HAVE_CREATE_SEND_FLOW_CODE = 3048;
-    public static final String HAVE_CREATE_SEND_FLOW_MESSAGE = "该用户以创建包含该流向的混扫任务";
-
     public static final int HAVE_IN_HAND_BOARD_CODE = 3049;
     public static final String HAVE_IN_HAND_BOARD_MESSAGE = "当前存在扫描中的板，请勿移除！";
-
 
     public static final int NOT_BELONG_THIS_HUNSAO_TASK_CODE = 3050;
     public static final String NOT_BELONG_THIS_HUNSAO_TASK_MESSAGE = "非本混扫任务流向货物！";
@@ -191,6 +187,9 @@ public class InvokeResult<T> implements Serializable {
     public static final int HAVE_SEND_FLOW_UNDER_GROUP_CODE = 3054;
     public static final String HAVE_SEND_FLOW_UNDER_GROUP_MESSAGE = "当前混扫任务以包含该流向，请勿重复添加！";
 
+    public static final int SEND_FLOW_UNDER_GROUP_CODE = 3055;
+    public static final String SEND_FLOW_UNDER_GROUP_MESSAGE = "获取当前混扫任务流向失败！";
+    
     public InvokeResult(){
         this.code=RESULT_SUCCESS_CODE;
     }
