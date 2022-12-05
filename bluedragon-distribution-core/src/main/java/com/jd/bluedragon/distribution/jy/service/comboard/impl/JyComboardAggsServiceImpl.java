@@ -175,6 +175,14 @@ public class JyComboardAggsServiceImpl implements JyComboardAggsService {
             jyComboardAggsDao.updateByPrimaryKeyAndTs(jyComboardAggsEntity);
             saveCache(dto,jyComboardAggsEntity);
         }else{
+            if (null == dto.getWaitScanCount()&&
+                    null == dto.getScannedCount()&&
+                    null == dto.getBoardCount()&&
+                    null == dto.getInterceptCount()&&
+                    null == dto.getMoreScannedCount()){
+                //全为空的数据丢弃
+                return;
+            }
             JyComboardAggsEntity jyComboardAggsEntity = new JyComboardAggsEntity();
             jyComboardAggsEntity.setWaitScanCount(dto.getWaitScanCount());
             jyComboardAggsEntity.setScannedCount(dto.getScannedCount());
