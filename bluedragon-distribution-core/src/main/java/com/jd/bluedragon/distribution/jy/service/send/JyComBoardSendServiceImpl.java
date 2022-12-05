@@ -535,7 +535,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     entity.setTemplateCode(request.getTemplateCode());
     // 获取混扫任务下的流向信息
     sendFlowList = jyGroupSortCrossDetailService.listSendFlowByTemplateCodeOrEndSiteCode(entity);
-    if (CollectionUtils.isEmpty(sendFlowDtoList)) {
+    if (CollectionUtils.isEmpty(sendFlowList)) {
       return new InvokeResult<>(SEND_FLOW_UNDER_GROUP_CODE, SEND_FLOW_UNDER_GROUP_MESSAGE);
     }
     // 获取目的地
