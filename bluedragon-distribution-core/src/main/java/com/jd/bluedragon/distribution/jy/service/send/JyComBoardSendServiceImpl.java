@@ -702,7 +702,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   public InvokeResult<SendFlowDetailResp> querySendFlowDetail(SendFlowDetailReq request) {
     if (!checkBaseRequest(request)
             || StringUtils.isEmpty(request.getBoardCode())
-            || request.getEndSiteId() == null 
+            || request.getEndSiteId() == null
             || request.getEndSiteId() < 0) {
       return new InvokeResult<>(RESULT_THIRD_ERROR_CODE, PARAM_ERROR);
     }
@@ -1828,7 +1828,85 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   @Override
   public InvokeResult<SendFlowExcepStatisticsResp> queryExcepScanStatisticsUnderCTTGroup(
       SendFlowExcepStatisticsReq request) {
-    return null;
+    checkExcepScanUnderCTTParams(request);
+    JyGroupSortCrossDetailEntity entity = new JyGroupSortCrossDetailEntity();
+    entity.setGroupCode(request.getGroupCode());
+    entity.setStartSiteId((long)request.getCurrentOperate().getSiteCode());
+    entity.setTemplateCode(request.getTemplateCode());
+    // 获取混扫任务下的流向信息
+    List<JyGroupSortCrossDetailEntity>  groupSortCrossDetailList= jyGroupSortCrossDetailService.listSendFlowByTemplateCodeOrEndSiteCode(entity);
+    if (!ObjectHelper.isNotNull(groupSortCrossDetailList) || groupSortCrossDetailList.size()==0){
+      throw new JyBizException("未查询到该混扫任务下的流向信息！");
+    }
+    SendFlowExcepStatisticsResp resp =new SendFlowExcepStatisticsResp();
+    //查询多个流向下的拦截数据
+    List<Integer> endSiteIdList =assembleEndSiteIdList(groupSortCrossDetailList);
+    try {
+      List<JyComboardAggsEntity> aggsEntityList =jyComboardAggsService.queryComboardAggs(request.getCurrentOperate().getSiteCode(),endSiteIdList);
+      if (ObjectHelper.isNotNull(aggsEntityList) && aggsEntityList.size()>0){
+        List<ExcepScanDto> excepScanDtoList = assembleExcepScanUnderCTTList(aggsEntityList);
+        List<SendFlowDto> sendFlowDtoList =assembleSendFlowList(groupSortCrossDetailList,aggsEntityList);
+        resp.setExcepScanDtoList(excepScanDtoList);
+        resp.setSendFlowDtoList(sendFlowDtoList);
+      }
+    } catch (Exception e) {
+      log.error("查询混扫任务下 异常统计数据异常");
+    }
+    return new InvokeResult<>(RESULT_SUCCESS_CODE,RESULT_SUCCESS_MESSAGE,resp);
+  }
+
+  private List<SendFlowDto> assembleSendFlowList(List<JyGroupSortCrossDetailEntity> groupSortCrossDetailList, List<JyComboardAggsEntity> aggsEntityList) {
+    List<SendFlowDto> sendFlowDtoList =new ArrayList<>();
+    for (JyGroupSortCrossDetailEntity sortCrossDetailEntity:groupSortCrossDetailList){
+      SendFlowDto sendFlowDto =new SendFlowDto();
+      sendFlowDto.setCrossCode(sortCrossDetailEntity.getCrossCode());
+      sendFlowDto.setTableTrolleyCode(sortCrossDetailEntity.getTabletrolleyCode());
+      sendFlowDto.setEndSiteId(sortCrossDetailEntity.getEndSiteId().intValue());
+      sendFlowDto.setEndSiteName(sortCrossDetailEntity.getEndSiteName());
+      for (JyComboardAggsEntity aggsEntity:aggsEntityList){
+        if (sortCrossDetailEntity.getEndSiteId().intValue() == aggsEntity.getReceiveSiteId()){
+          sendFlowDto.setInterceptCount(aggsEntity.getInterceptCount());
+          break;
+        }
+      }
+      sendFlowDtoList.add(sendFlowDto);
+    }
+    return sendFlowDtoList;
+  }
+
+  private List<ExcepScanDto> assembleExcepScanUnderCTTList(List<JyComboardAggsEntity> aggsEntityList) {
+    List<ExcepScanDto> excepScanDtoList =new ArrayList<>();
+    ExcepScanDto excepScanDto =new ExcepScanDto();
+    excepScanDto.setType(ExcepScanTypeEnum.INTERCEPTE.getCode());
+    excepScanDto.setName(ExcepScanTypeEnum.INTERCEPTE.getName());
+    int count =0;
+    for (JyComboardAggsEntity entity:aggsEntityList){
+      count =count+entity.getInterceptCount();
+    }
+    excepScanDto.setCount(count);
+    excepScanDtoList.add(excepScanDto);
+    return excepScanDtoList;
+  }
+
+  private List<Integer> assembleEndSiteIdList(List<JyGroupSortCrossDetailEntity> groupSortCrossDetailList) {
+    List<Integer> endSiteIdList =new ArrayList<>();
+    for (JyGroupSortCrossDetailEntity entity:groupSortCrossDetailList){
+      endSiteIdList.add(entity.getEndSiteId().intValue());
+    }
+    return endSiteIdList;
+  }
+
+  private void checkExcepScanUnderCTTParams(SendFlowExcepStatisticsReq request) {
+    if (ObjectHelper.isEmpty(request.getTemplateCode())){
+      throw new JyBizException("参数错误：缺失混扫任务编号！");
+    }
+    if (ObjectHelper.isEmpty(request.getType())){
+      request.setType(ExcepScanTypeEnum.INTERCEPTE.getCode());
+    }
+    if (ObjectHelper.isNotNull(request.getType()) && !ExcepScanTypeEnum.INTERCEPTE.getCode().equals(request.getType())){
+      throw  new JyBizException("暂不支持该异常类型的查询！");
+    }
+
   }
 
   @Override
