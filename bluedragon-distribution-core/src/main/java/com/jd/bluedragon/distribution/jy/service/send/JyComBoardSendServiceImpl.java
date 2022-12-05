@@ -535,6 +535,9 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     entity.setTemplateCode(request.getTemplateCode());
     // 获取混扫任务下的流向信息
     sendFlowList = jyGroupSortCrossDetailService.listSendFlowByTemplateCodeOrEndSiteCode(entity);
+    if (CollectionUtils.isEmpty(sendFlowList)) {
+      return new InvokeResult<>(SEND_FLOW_UNDER_GROUP_CODE, SEND_FLOW_UNDER_GROUP_MESSAGE);
+    }
     // 获取目的地
     endSiteCodeList = getEndSiteCodeListBySendFlowList(sendFlowList);
     // 获取当前混扫任务下多个流向的组板数量和待扫统计
@@ -699,7 +702,8 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   public InvokeResult<SendFlowDetailResp> querySendFlowDetail(SendFlowDetailReq request) {
     if (!checkBaseRequest(request)
             || StringUtils.isEmpty(request.getBoardCode())
-            || request.getEndSiteId() == null) {
+            || request.getEndSiteId() == null 
+            || request.getEndSiteId() < 0) {
       return new InvokeResult<>(RESULT_THIRD_ERROR_CODE, PARAM_ERROR);
     }
     SendFlowDetailResp resp = new SendFlowDetailResp();
