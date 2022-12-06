@@ -52,6 +52,9 @@ public class TransferServiceImpl implements TransferService {
             res.error("新老版本互斥加锁版本暂不支持");
             return res;
         }
+        if(log.isInfoEnabled()) {
+            log.info("新老版本互斥,sealCarCode={}, version={}", sealCarCode, pdaVersion);
+        }
         try{
             //todo zcf 考虑加锁
             boolean resData = true;
@@ -63,10 +66,14 @@ public class TransferServiceImpl implements TransferService {
                 UnloadCar uc = unloadCarCommonService.selectBySealCarCodeWithStatus(sealCarCode);
                 if (uc != null && !uc.getStatus().equals(UnloadCarStatusEnum.UNLOAD_CAR_UN_DISTRIBUTE.getType())) {
                     if(log.isInfoEnabled()) {
-                        log.info("新老版本互斥，兼容历史数据，给历史数据加锁，version=1,task={}", JsonHelper.toJson(uc));
+                        log.info("新老版本互斥，兼容历史数据，给历史数据加锁修改version为1，请求sealCarCode={}, 请求version={},task={}", sealCarCode, pdaVersion, JsonHelper.toJson(uc));
+                    }
+                    String defaultVersion = AppVersionEnums.PDA_OLD.getVersion();
+                    if(AppVersionEnums.PDA_GUIDED.getVersion().equals(uc.getVersion())) {
+                        defaultVersion = AppVersionEnums.PDA_GUIDED.getVersion();
                     }
                     //老PDA已经操作领取status=1或者已经开始扫描status=2或任务完成status=3，但是无redis
-                    redisClientOfJy.setEx(key, AppVersionEnums.PDA_OLD.getVersion(), TransportServiceConstants.CACHE_PREFIX_PDA_ACTUAL_OPERATE_VERSION_EXPIRE, TimeUnit.DAYS);
+                    redisClientOfJy.setEx(key, defaultVersion, TransportServiceConstants.CACHE_PREFIX_PDA_ACTUAL_OPERATE_VERSION_EXPIRE, TimeUnit.DAYS);
                     resData = AppVersionEnums.PDA_OLD.getVersion().equals(pdaVersion);
                 } else {
                     redisClientOfJy.setEx(key, pdaVersion, TransportServiceConstants.CACHE_PREFIX_PDA_ACTUAL_OPERATE_VERSION_EXPIRE, TimeUnit.DAYS);
