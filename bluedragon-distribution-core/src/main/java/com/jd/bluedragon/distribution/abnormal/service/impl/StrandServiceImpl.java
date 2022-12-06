@@ -421,11 +421,32 @@ public class StrandServiceImpl implements StrandService {
         tWaybillStatus.setCreateSiteType(siteOrgDto.getSiteType());
         tWaybillStatus.setOperateType(WaybillStatus.WAYBILL_STRAND_REPORT);
         tWaybillStatus.setWaybillCode(waybillCode);
-        tWaybillStatus.setRemark("滞留上报，原因：" + request.getReasonMessage());
+        String content = getReportTypeAndBarCode(request);
+        tWaybillStatus.setRemark("滞留上报，原因：" + request.getReasonMessage() + content);
         // 运单自行区分 是包裹号还是运单号来更新状态
         tWaybillStatus.setPackageCode(barcode);
         tTask.setBody(JsonHelper.toJson(tWaybillStatus));
         return taskService.add(tTask);
+    }
+
+    /**
+     * 获取滞留上报方式
+     * @return
+     */
+    private String getReportTypeAndBarCode(StrandReportRequest request){
+        String s="";
+        if(ReportTypeEnum.PACKAGE_CODE.getCode().equals(request.getReportType())){
+            s = ", 方式: 按包裹" ;
+        }else if(ReportTypeEnum.WAYBILL_CODE.getCode().equals(request.getReportType())){
+            s = ", 方式: 按运单" ;
+        }else if(ReportTypeEnum.BOX_CODE.getCode().equals(request.getReportType())){
+            s = ", 方式: 按箱号," + request.getBarcode();
+        }else if(ReportTypeEnum.BATCH_NO.getCode().equals(request.getReportType())){
+            s = ", 方式: 按批次号," + request.getBarcode();
+        }else if(ReportTypeEnum.BOARD_NO.getCode().equals(request.getReportType())){
+            s = ", 方式: 按板号," + request.getBarcode();
+        }
+        return s;
     }
 
     /**
@@ -498,8 +519,9 @@ public class StrandServiceImpl implements StrandService {
         //发暂存的全程跟踪 和 滞留明细jmq
         reportStrandDetail(request);
         SendM sendM = initSendM(request);
-        //按批次提交,不取消发货
-        if(ReportTypeEnum.BATCH_NO.getCode().equals(request.getReportType())){
+        //按批次或板号提交,不取消发货
+        if((ReportTypeEnum.BATCH_NO.getCode().equals(request.getReportType())) ||
+                (ReportTypeEnum.BOARD_NO.getCode().equals(request.getReportType()))){
             return;
         }
         if (ReportTypeEnum.BOARD_NO.getCode().equals(request.getReportType())){
