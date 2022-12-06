@@ -282,9 +282,9 @@ public class JyComboardGatewayServiceImplTest {
     public void listSendFlowUnderCTTGroupTest() {
         SendFlowDataReq resp = new SendFlowDataReq();
         CurrentOperate operate = new CurrentOperate();
-        resp.setGroupCode("G00000047004");
+        resp.setGroupCode("G00000059001");
         operate.setSiteCode(910);
-        resp.setTemplateCode("CTT22120200000005");
+        resp.setTemplateCode("CTT22120600000014");
         operate.setSiteName("北京马驹桥分拣中心");
         resp.setCurrentOperate(operate);
         User user = new User();

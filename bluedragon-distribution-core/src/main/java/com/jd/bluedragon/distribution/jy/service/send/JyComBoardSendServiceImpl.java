@@ -671,7 +671,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
         boardDto.setPackageHaveScanCount(boardFlow.getPackageScannedCount());
         boardDto.setInterceptCount(boardFlow.getInterceptCount());
         // 已扫比例
-        if (boardFlow.getPackageScannedCount()!=null && boardFlow.getPackageScannedCount()!=null) {
+        if (boardFlow.getPackageScannedCount()!=null && boardFlow.getBoxScannedCount()!=null) {
           int scanCount = boardFlow.getPackageScannedCount() + boardFlow.getBoxScannedCount();
           int scanProgress = (int) ((scanCount * 1.00 / ucc.getJyComboardCountLimit()) * 100);
           boardDto.setProgress(String.valueOf(scanProgress));
@@ -772,7 +772,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       boardDto.setPackageHaveScanCount(boardScanInfo.getPackageScannedCount());
       boardDto.setInterceptCount(boardScanInfo.getInterceptCount());
       // 已扫比例
-      if (boardScanInfo.getPackageScannedCount() != null && boardScanInfo.getPackageScannedCount() != null) {
+      if (boardScanInfo.getPackageScannedCount() != null && boardScanInfo.getBoxScannedCount() != null) {
         int scanCount = boardScanInfo.getPackageScannedCount() + boardScanInfo.getBoxScannedCount();
         int scanProgress = (int) ((scanCount * 1.00 / ucc.getJyComboardCountLimit()) * 100);
         boardDto.setProgress(String.valueOf(scanProgress));
