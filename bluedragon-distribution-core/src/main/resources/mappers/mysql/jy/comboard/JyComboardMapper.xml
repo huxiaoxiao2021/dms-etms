@@ -280,13 +280,15 @@
     select bar_code
     from jy_comboard
     where board_code = #{boardCode,jdbcType=VARCHAR}
-      and start_site_id = #{startSiteId,jdbcType=BIGINT} 
+      and start_site_id = #{startSiteId,jdbcType=BIGINT}
+      and yn = 1
       limit 1
   </select>
   <update id="batchUpdateCancelFlag"
           parameterType="com.jd.bluedragon.distribution.jy.dto.comboard.BatchUpdateCancelReq">
     update jy_comboard
     set cancel_flag = #{cancelFlag,jdbcType=BIT},
+    yn = 0,
     <if test="updateUserErp != null and updateUserErp != ''">
       update_user_erp = #{updateUserErp,jdbcType=VARCHAR},
     </if>

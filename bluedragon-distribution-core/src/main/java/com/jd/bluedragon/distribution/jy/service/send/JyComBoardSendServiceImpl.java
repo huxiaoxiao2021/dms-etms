@@ -104,7 +104,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.CollectionUtils;
 
 import static com.jd.bluedragon.Constants.LOCK_EXPIRE;
-import static com.jd.bluedragon.Constants.RESULT_SUCCESS;
 import static com.jd.bluedragon.Constants.SUCCESS_CODE;
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.*;
 import static com.jd.bluedragon.distribution.businessCode.BusinessCodeFromSourceEnum.JY_APP;
@@ -329,9 +328,11 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
 
   @Override
   public InvokeResult<TableTrolleyResp> querySendFlowByBarCode(QuerySendFlowReq request) {
-    if (!checkBaseRequest(request) || StringUtils.isEmpty(request.getBarCode()) || !checkBarCode(
-        request.getBarCode())) {
+    if (!checkBaseRequest(request) || StringUtils.isEmpty(request.getBarCode())) {
       return new InvokeResult<>(RESULT_THIRD_ERROR_CODE, PARAM_ERROR);
+    }
+    if (!checkBarCode(request.getBarCode())) {
+      return new InvokeResult<>(CHECK_BARCODE_CODE, CHECK_BARCODE_MESSAGE);
     }
     log.info("开始根据包裹号,箱号或滑道-笼车号获取流向信息：{}", JsonHelper.toJson(request));
     TableTrolleyResp tableTrolleyResp = new TableTrolleyResp();
@@ -470,9 +471,11 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
 
   @Override
   public InvokeResult<CTTGroupDataResp> queryCTTGroupByBarCode(QueryCTTGroupReq request) {
-    if (!checkBaseRequest(request) || StringUtils.isEmpty(request.getBarCode()) || !checkBarCode(
-        request.getBarCode())) {
+    if (!checkBaseRequest(request) || StringUtils.isEmpty(request.getBarCode())) {
       return new InvokeResult<>(RESULT_THIRD_ERROR_CODE, PARAM_ERROR);
+    }
+    if (!checkBarCode(request.getBarCode())) {
+      return new InvokeResult<>(CHECK_BARCODE_CODE, CHECK_BARCODE_MESSAGE);
     }
     log.info("开始根据包裹号,箱号或滑道-笼车号获取混扫任务信息：{}", JsonHelper.toJson(request));
     CTTGroupDataResp cttGroupDataResp = new CTTGroupDataResp();
@@ -1933,10 +1936,6 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
         comboardDetailDto.setType(WAYBILL_TYPE);
         comboardDetailDto.setBarCode(wayBillCode);
         comboardDetailDtoList.add(comboardDetailDto);
-      } else {
-        log.info("根据板号获取运单号异常：{}", boardCode);
-        return new InvokeResult<>(PACKAGE_OR_BOX_UNDER_BOARD_CODE,
-            PACKAGE_OR_BOX_UNDER_BOARD_MESSAGE);
       }
     } else {
       Response<BoardBoxCountDto> boardScanInfo = groupBoardManager
@@ -1977,14 +1976,11 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     removeBoardBoxDto.setBoxCodeList(barCodeList);
     batchUpdateCancelReq.setStartSiteId((long)request.getCurrentOperate().getSiteCode());
     if (request.isBulkFlag()) {
-      // 运单号
-      if (request.getCancelList().get(0) != null
-              && request.getCancelList().get(0).getBarCode() != null) {
-        String waybillCode = request.getCancelList().get(0).getBarCode();
-        if (WaybillUtil.isWaybillCode(waybillCode)) {
-          log.error("取消组板失败，参数格式错误：{}", JsonHelper.toJson(request));
-          return new InvokeResult<>(RESULT_THIRD_ERROR_CODE, PARAM_ERROR);
-        }
+        // 获取运单号
+        JyComboardEntity entity = new JyComboardEntity();
+        entity.setBoardCode(request.getBoardCode());
+        entity.setStartSiteId((long) request.getCurrentOperate().getSiteCode());
+        String waybillCode = jyComboardService.queryWayBillCodeByBoardCode(entity);
         removeBoardBoxDto.setWaybillCode(waybillCode);
         try {
           barCodeList.add(waybillCode);
@@ -2003,12 +1999,11 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
           return new InvokeResult<>(CANCEL_COM_BOARD_CODE, CANCEL_COM_BOARD_MESSAGE);
         }
         // 异步发送全程跟踪
-        asyncSendComboardWaybillTrace(request);
+        asyncSendComboardWaybillTrace(request,waybillCode);
         // 取消发货
         SendM sendM = toSendM(request);
         sendM.setBoxCode(waybillCode);
         deliveryService.dellCancelDeliveryMessageWithServerTime(sendM,true);
-      }
     } else {
       // 如果为全选
       if (request.isSelectAll()){
@@ -2063,10 +2058,10 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     return new InvokeResult<>(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE);
   }
 
-  private void asyncSendComboardWaybillTrace(CancelBoardReq request) {
+  private void asyncSendComboardWaybillTrace(CancelBoardReq request, String waybillCode) {
     CancelComboardTaskDto taskDto = new CancelComboardTaskDto();
     taskDto.setBoardCode(request.getBoardCode());
-    taskDto.setWaybillCode(request.getCancelList().get(0).getBarCode());
+    taskDto.setWaybillCode(waybillCode);
     taskDto.setEndSiteName(request.getEndSiteName());
     taskDto.setSiteCode(request.getCurrentOperate().getSiteCode());
     taskDto.setUserErp(request.getUser().getUserErp());
