@@ -328,9 +328,11 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
 
   @Override
   public InvokeResult<TableTrolleyResp> querySendFlowByBarCode(QuerySendFlowReq request) {
-    if (!checkBaseRequest(request) || StringUtils.isEmpty(request.getBarCode()) || !checkBarCode(
-        request.getBarCode())) {
+    if (!checkBaseRequest(request) || StringUtils.isEmpty(request.getBarCode())) {
       return new InvokeResult<>(RESULT_THIRD_ERROR_CODE, PARAM_ERROR);
+    }
+    if (!checkBarCode(request.getBarCode())) {
+      return new InvokeResult<>(CHECK_BARCODE_CODE, CHECK_BARCODE_MESSAGE);
     }
     log.info("开始根据包裹号,箱号或滑道-笼车号获取流向信息：{}", JsonHelper.toJson(request));
     TableTrolleyResp tableTrolleyResp = new TableTrolleyResp();
@@ -469,9 +471,11 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
 
   @Override
   public InvokeResult<CTTGroupDataResp> queryCTTGroupByBarCode(QueryCTTGroupReq request) {
-    if (!checkBaseRequest(request) || StringUtils.isEmpty(request.getBarCode()) || !checkBarCode(
-        request.getBarCode())) {
+    if (!checkBaseRequest(request) || StringUtils.isEmpty(request.getBarCode())) {
       return new InvokeResult<>(RESULT_THIRD_ERROR_CODE, PARAM_ERROR);
+    }
+    if (!checkBarCode(request.getBarCode())) {
+      return new InvokeResult<>(CHECK_BARCODE_CODE, CHECK_BARCODE_MESSAGE);
     }
     log.info("开始根据包裹号,箱号或滑道-笼车号获取混扫任务信息：{}", JsonHelper.toJson(request));
     CTTGroupDataResp cttGroupDataResp = new CTTGroupDataResp();
