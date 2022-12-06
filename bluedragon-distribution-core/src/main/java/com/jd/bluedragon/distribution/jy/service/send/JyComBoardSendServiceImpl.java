@@ -622,6 +622,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
         aggsEntity.setBoardCode(boardScanInfo.getBoardCode());
         boardFlowMap.put(boardScanInfo.getEndSiteId(),aggsEntity);
       }
+      return boardFlowMap;
     }
     for (JyComboardAggsEntity aggsEntity : boardScanInfoList) {
       boardMap.put(aggsEntity.getBoardCode(),aggsEntity);
