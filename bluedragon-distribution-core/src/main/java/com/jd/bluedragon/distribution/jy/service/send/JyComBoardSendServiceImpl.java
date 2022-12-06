@@ -1284,7 +1284,9 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
           .getBulkScanPackageMinCount()) {
         throw new JyBizException("大宗扫描：运单包裹数量不得低于100！");
       }
-      request.setScanDetailCount(waybill.getGoodNumber());
+      if (Objects.equals(SendVehicleScanTypeEnum.SCAN_WAYBILL.getCode(), request.getScanType())){
+        request.setScanDetailCount(waybill.getGoodNumber());
+      }
       request.setDestinationId(waybill.getOldSiteId());
       //匹流向
       matchDestinationCheck(request);
