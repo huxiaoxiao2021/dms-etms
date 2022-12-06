@@ -206,6 +206,12 @@
       <if test="yn != null">
         yn = #{yn,jdbcType=BIT},
       </if>
+      <if test="packageScannedCount != null">
+        package_scanned_count = #{packageScannedCount},
+      </if>
+      <if test="boxScannedCount != null">
+        box_scanned_count = #{boxScannedCount},
+      </if>
     </set>
     where id = #{id,jdbcType=BIGINT}  and ts <![CDATA[ <= ]]>  #{ts,jdbcType=TIMESTAMP}
   </update>
