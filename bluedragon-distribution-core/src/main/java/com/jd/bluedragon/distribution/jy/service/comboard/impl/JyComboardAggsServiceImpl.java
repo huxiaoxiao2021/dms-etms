@@ -17,6 +17,7 @@ import com.jd.dbs.util.CollectionUtils;
 import com.jd.jim.cli.Cluster;
 import com.jd.jmq.common.message.Message;
 import com.jd.ql.dms.common.cache.CacheService;
+import com.jdl.jy.realtime.enums.comboard.ComboardBarCodeTypeEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -126,9 +127,9 @@ public class JyComboardAggsServiceImpl implements JyComboardAggsService {
 
         if (CollectionUtils.isNotEmpty(jyComboardAggsEntities)){
             JyComboardAggsEntity jyComboardAggsEntity = jyComboardAggsEntities.get(0);
-            if (Objects.equals(dto.getScanType(),ReportTypeEnum.PACKAGE_CODE.getCode())){
+            if (Objects.equals(dto.getScanType(), ComboardBarCodeTypeEnum.PACKAGE.getCode())){
                 jyComboardAggsEntity.setPackageScannedCount(dto.getScannedCount());
-            }else if (Objects.equals(dto.getScanType(),ReportTypeEnum.BOX_CODE.getCode())){
+            }else if (Objects.equals(dto.getScanType(),ComboardBarCodeTypeEnum.BOX.getCode())){
                 jyComboardAggsEntity.setBoxScannedCount(dto.getScannedCount());
             }
             jyComboardAggsDao.updateByPrimaryKeyAndTs(jyComboardAggsEntity);
@@ -142,9 +143,9 @@ public class JyComboardAggsServiceImpl implements JyComboardAggsService {
             jyComboardAggsEntity.setBoardCode(dto.getBoardCode());
             jyComboardAggsEntity.setProductType(dto.getProductType());
             jyComboardAggsEntity.setScanType(JyComboardAggsConditionBuilder.DEFAULT_CONDITON_INTEGER_VALUE);
-            if (Objects.equals(dto.getScanType(),ReportTypeEnum.PACKAGE_CODE.getCode())){
+            if (Objects.equals(dto.getScanType(),ComboardBarCodeTypeEnum.PACKAGE.getCode())){
                 jyComboardAggsEntity.setPackageScannedCount(dto.getScannedCount());
-            }else if (Objects.equals(dto.getScanType(),ReportTypeEnum.BOX_CODE.getCode())){
+            }else if (Objects.equals(dto.getScanType(),ComboardBarCodeTypeEnum.BOX.getCode())){
                 jyComboardAggsEntity.setBoxScannedCount(dto.getScannedCount());
             }
             jyComboardAggsDao.insertSelective(jyComboardAggsEntity);
