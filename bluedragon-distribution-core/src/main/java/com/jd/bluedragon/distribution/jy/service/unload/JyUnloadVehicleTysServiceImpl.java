@@ -38,6 +38,7 @@ import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BeanUtils;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
@@ -58,7 +59,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 
 import static com.jd.bluedragon.Constants.WAYBILL_ROUTER_SPLIT;
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.*;
@@ -137,6 +141,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         if (ObjectHelper.isNotNull(unloadVehicleTaskReqDto.getPackageCode())) {
             return queryUnloadVehicleTaskByVehicleNumOrPackage(unloadVehicleTaskReqDto);
         }
+        queryTimeRangeHandler(unloadVehicleTaskReqDto);
         //查询状态统计数据(按状态分组聚合)
         JyBizTaskUnloadStatusEnum[] statusEnums = {WAIT_UN_LOAD, UN_LOADING, UN_LOAD_DONE};
         JyBizTaskUnloadVehicleEntity statusStatisticsQueryParams = assembleQueryStatusStatisticsCondition(unloadVehicleTaskReqDto);
@@ -157,6 +162,19 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         respDto.setLineTypeStatisDtoList(lineTypeStatisDtoList);
 
         return new InvokeResult<>(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, respDto);
+    }
+
+    private void queryTimeRangeHandler(UnloadVehicleTaskReqDto unloadVehicleTaskReqDto) {
+        if(unloadVehicleTaskReqDto == null) {
+            return;
+        }
+        if(unloadVehicleTaskReqDto.getEndTime() == null || unloadVehicleTaskReqDto.getEndTime() == null) {
+            Date endTIme = new Date();
+            Date startTime = DateHelper.getZeroFromDay(endTIme, 3);
+            unloadVehicleTaskReqDto.setStartTime(startTime);
+            unloadVehicleTaskReqDto.setEndTime(endTIme);
+            log.info("test-卸车岗任务列表查询时间过滤，param={}", JsonHelper.toJson(unloadVehicleTaskReqDto));
+        }
     }
 
 //    /**
@@ -187,6 +205,8 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         condition.setEndSiteId(Long.valueOf(unloadVehicleTaskReqDto.getCurrentOperate().getSiteCode()));
         condition.setLineType(unloadVehicleTaskReqDto.getLineType());
         condition.setFuzzyVehicleNumber(unloadVehicleTaskReqDto.getVehicleNumber());
+        condition.setStartTime(unloadVehicleTaskReqDto.getStartTime());
+        condition.setEndTime(unloadVehicleTaskReqDto.getEndTime());
         return condition;
     }
 
@@ -195,6 +215,8 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         condition.setLineType(unloadVehicleTaskReqDto.getLineType());
         condition.setEndSiteId(Long.valueOf(unloadVehicleTaskReqDto.getCurrentOperate().getSiteCode()));
         condition.setFuzzyVehicleNumber(unloadVehicleTaskReqDto.getVehicleNumber());
+        condition.setStartTime(unloadVehicleTaskReqDto.getStartTime());
+        condition.setEndTime(unloadVehicleTaskReqDto.getEndTime());
         return condition;
     }
 

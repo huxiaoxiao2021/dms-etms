@@ -8,6 +8,7 @@ import com.jd.bluedragon.distribution.external.enums.AppVersionEnums;
 import com.jd.bluedragon.distribution.loadAndUnload.UnloadCar;
 import com.jd.bluedragon.distribution.loadAndUnload.service.UnloadCarCommonService;
 import com.jd.bluedragon.distribution.transfer.service.TransferService;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.common.util.StringUtils;
 import com.jd.jim.cli.Cluster;
 import com.jd.ump.annotation.JProEnum;
@@ -61,6 +62,9 @@ public class TransferServiceImpl implements TransferService {
                 //兼容历史数据：
                 UnloadCar uc = unloadCarCommonService.selectBySealCarCodeWithStatus(sealCarCode);
                 if (uc != null && !uc.getStatus().equals(UnloadCarStatusEnum.UNLOAD_CAR_UN_DISTRIBUTE.getType())) {
+                    if(log.isInfoEnabled()) {
+                        log.info("新老版本互斥，兼容历史数据，给历史数据加锁，version=1,task={}", JsonHelper.toJson(uc));
+                    }
                     //老PDA已经操作领取status=1或者已经开始扫描status=2或任务完成status=3，但是无redis
                     redisClientOfJy.setEx(key, AppVersionEnums.PDA_OLD.getVersion(), TransportServiceConstants.CACHE_PREFIX_PDA_ACTUAL_OPERATE_VERSION_EXPIRE, TimeUnit.DAYS);
                     resData = AppVersionEnums.PDA_OLD.getVersion().equals(pdaVersion);

@@ -187,6 +187,12 @@ public class JyBizTaskUnloadVehicleEntity implements Serializable {
      */
     private Integer taskType;
 
+    /**
+     * 时间字段过滤
+     */
+    private Date startTime;
+    private Date EndTime;
+
     public Long setId(Long id) {
         return this.id = id;
     }
@@ -524,4 +530,19 @@ public class JyBizTaskUnloadVehicleEntity implements Serializable {
         this.railwayPfNo = railwayPfNo;
     }
 
+    public Date getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(Date startTime) {
+        this.startTime = startTime;
+    }
+
+    public Date getEndTime() {
+        return EndTime;
+    }
+
+    public void setEndTime(Date endTime) {
+        EndTime = endTime;
+    }
 }
