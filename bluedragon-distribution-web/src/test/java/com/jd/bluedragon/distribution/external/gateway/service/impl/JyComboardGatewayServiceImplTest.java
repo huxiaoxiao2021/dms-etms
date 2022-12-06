@@ -351,11 +351,11 @@ public class JyComboardGatewayServiceImplTest {
     @Test
     public void comboardScanTest(){
         ComboardScanReq scanReq =new ComboardScanReq();
-        scanReq.setTemplateCode("CTT22120300000003");
+        scanReq.setTemplateCode("CTT22120500000007");
         scanReq.setGroupCode("G00000047004");
-        scanReq.setBarCode("JD0003365308628");
-        scanReq.setScanType(2);
-        scanReq.setEndSiteId(39);
+        scanReq.setBarCode("JD0003403913723-1-1-");
+        scanReq.setScanType(0);
+        scanReq.setEndSiteId(38);
         scanReq.setSupportMutilSendFlow(true);
         //scanReq.setNeedSkipSendFlowCheck(true);
         CurrentOperate operate = new CurrentOperate();
