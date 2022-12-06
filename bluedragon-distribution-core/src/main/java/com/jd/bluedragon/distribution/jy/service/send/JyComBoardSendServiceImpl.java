@@ -1546,6 +1546,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
         for (JyGroupSortCrossDetailEntity entity : groupSortCrossDetailEntityList) {
           if (entity.getEndSiteId().intValue() == parentSiteId) {
             hasMatchDestinationIdFlag = true;
+            request.setDestinationId(parentSiteId);
             break;
           }
         }
