@@ -935,7 +935,10 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   public InvokeResult<ComboardScanResp> comboardScan(ComboardScanReq request) {
     baseCheck(request);
     comboardCheck(request);
+
     getOrCreateBoardCode(request);
+
+    comboardCheckChain(request);
     sendCheck(request);
 
     execComboard(request);
@@ -1294,10 +1297,8 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
        * 已集包校验
        */
       sortingCheck(request);
-      /**
-       * 通用拦截链
-       */
-      comboardCheckChain(request);
+
+      //comboardCheckChain(request);
     } else if (BusinessHelper.isBoxcode(barCode)) {
       final Box box = boxService.findBoxByCode(barCode);
       if (box == null) {
@@ -1510,7 +1511,9 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     BoardCombinationJsfResponse interceptResult = sortingCheckService
         .virtualBoardCombinationCheck(pdaOperateRequest);
     if (!interceptResult.getCode().equals(200)) {
-      //TODO 把这个链放在获取板号后面，持久化扫描拦截记录
+      JyComboardEntity comboardEntity = createJyComboardRecord(request);
+      comboardEntity.setInterceptFlag(true);
+      jyComboardService.save(comboardEntity);
       throw new JyBizException(interceptResult.getMessage());
     }
   }
