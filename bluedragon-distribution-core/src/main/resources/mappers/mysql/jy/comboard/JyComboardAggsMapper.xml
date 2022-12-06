@@ -103,6 +103,12 @@
       <if test="ts != null">
         ts,
       </if>
+      <if test="packageScannedCount != null">
+        package_scanned_count,
+      </if>
+      <if test="boxScannedCount != null">
+        box_scanned_count,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -155,6 +161,12 @@
       </if>
       <if test="ts != null">
         #{ts,jdbcType=TIMESTAMP},
+      </if>
+      <if test="packageScannedCount != null">
+         #{packageScannedCount},
+      </if>
+      <if test="boxScannedCount != null">
+         #{boxScannedCount},
       </if>
     </trim>
   </insert>
