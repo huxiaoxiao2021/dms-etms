@@ -464,7 +464,12 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             if (StringUtils.isNotBlank(scanPackageDto.getSealCarCode())) {
                 // 新老版本互斥
                 InvokeResult<Boolean> permissionResult = transferService.saveOperatePdaVersion(scanPackageDto.getSealCarCode(), AppVersionEnums.PDA_GUIDED.getVersion());
-                if (permissionResult.getCode() != RESULT_SUCCESS_CODE || Boolean.FALSE.equals(permissionResult.getData())) {
+                if (permissionResult.getCode() != RESULT_SUCCESS_CODE) {
+                    log.warn("作业app版本校验失败，该任务已经在老PDA版本领取:request={},permissionResult={}", JSON.toJSONString(scanPackageDto), JSON.toJSONString(permissionResult));
+                    invokeResult.customMessage(RESULT_INTERCEPT_CODE, permissionResult.getMessage());
+                    return invokeResult;
+                }
+                if (Boolean.FALSE.equals(permissionResult.getData())) {
                     log.warn("作业app版本校验失败，该任务已经在老PDA版本领取:request={},permissionResult={}", JSON.toJSONString(scanPackageDto), JSON.toJSONString(permissionResult));
                     invokeResult.customMessage(RESULT_INTERCEPT_CODE, "该任务已经在老版PDA领取，请前往老版PDA继续操作");
                     return invokeResult;
@@ -781,9 +786,14 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             if (StringUtils.isNotBlank(scanPackageDto.getSealCarCode())) {
                 // 新老版本互斥
                 InvokeResult<Boolean> permissionResult = transferService.saveOperatePdaVersion(scanPackageDto.getSealCarCode(), AppVersionEnums.PDA_GUIDED.getVersion());
-                if (permissionResult.getCode() != RESULT_SUCCESS_CODE || Boolean.FALSE.equals(permissionResult.getData())) {
+                if (permissionResult.getCode() != RESULT_SUCCESS_CODE) {
                     log.warn("流水线扫描新版本获取锁失败或卸车任务已在老版本操作:request={},permissionResult={}", JSON.toJSONString(scanPackageDto), JSON.toJSONString(permissionResult));
-                    invokeResult.customMessage(RESULT_INTERCEPT_CODE, "流水线扫描新版本获取锁失败或卸车任务已在老版本操作");
+                    invokeResult.customMessage(RESULT_INTERCEPT_CODE, permissionResult.getMessage());
+                    return invokeResult;
+                }
+                if (Boolean.FALSE.equals(permissionResult.getData())) {
+                    log.warn("流水线扫描新版本获取锁失败或卸车任务已在老版本操作:request={},permissionResult={}", JSON.toJSONString(scanPackageDto), JSON.toJSONString(permissionResult));
+                    invokeResult.customMessage(RESULT_INTERCEPT_CODE, "该任务已经在老版PDA领取，请前往老版PDA继续操作");
                     return invokeResult;
                 }
             }

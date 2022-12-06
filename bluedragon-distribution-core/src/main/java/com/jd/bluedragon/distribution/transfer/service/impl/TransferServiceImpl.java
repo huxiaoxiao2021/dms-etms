@@ -44,11 +44,11 @@ public class TransferServiceImpl implements TransferService {
         res.success();
 
         if(StringUtils.isBlank(sealCarCode) || StringUtils.isBlank(pdaVersion)) {
-            res.error("参数不能为空");
+            res.error("新老版本互斥加锁参数不能为空");
             return res;
         }
         if(!AppVersionEnums.existValidation(pdaVersion)) {
-            res.error("版本暂不支持");
+            res.error("新老版本互斥加锁版本暂不支持");
             return res;
         }
         try{
