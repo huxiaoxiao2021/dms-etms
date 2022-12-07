@@ -1681,7 +1681,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   }
 
   private void checkHaveScanStatisticsParams(HaveScanStatisticsReq request) {
-    if (ObjectHelper.isEmpty(request.getBoardCode())){
+    if (!ObjectHelper.isNotNull(request.getBoardCode())){
       throw new JyBizException("参数错误：缺失板号");
     }
   }
@@ -2138,6 +2138,56 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       return new InvokeResult<>(BOARD_INFO_CODE, BOARD_INFO_MESSAGE);
     }
     return new InvokeResult<>(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, resp);
+  }
+
+  @Override
+  public InvokeResult<PackageDetailResp> listPackageDetailUnderSendFlow(SendFlowQueryReq request) {
+    checkSendFlowQueryParams(request);
+    Pager<JyComboardPackageDetail> query =assembleQuerySendFlowExcepScan(request);
+    Pager<ComboardScanedDto> pager =comboardJsfManager.queryInterceptDetail(query);
+    PackageDetailResp resp =new PackageDetailResp();
+    if (ObjectHelper.isNotNull(pager) && ObjectHelper.isNotNull(pager.getData())){
+      List<ComboardScanedDto> comboardScanedDtoList =pager.getData();
+      List<PackageScanDto> packageScanDtoList =new ArrayList<>();
+      for (ComboardScanedDto comboardScanedDto:comboardScanedDtoList){
+        PackageScanDto packageScanDto =new PackageScanDto();
+        packageScanDto.setPackageCode(comboardScanedDto.getBarCode());
+        packageScanDto.setLabelOptionList(resolveProductTag(comboardScanedDto));
+        packageScanDtoList.add(packageScanDto);
+      }
+      resp.setPackageCodeList(packageScanDtoList);
+    }
+    return new InvokeResult(RESULT_SUCCESS_CODE,RESULT_SUCCESS_MESSAGE,resp);
+  }
+
+  private Pager<JyComboardPackageDetail> assembleQuerySendFlowExcepScan(SendFlowQueryReq request) {
+    Pager<JyComboardPackageDetail> pager = new Pager<>();
+    JyComboardPackageDetail con =new JyComboardPackageDetail();
+    con.setOperateSiteId(request.getCurrentOperate().getSiteCode());
+    con.setReceiveSiteId(String.valueOf(request.getEndSiteId()));
+    con.setInterceptFlag(Constants.YN_NO);
+    pager.setSearchVo(con);
+    pager.setPageNo(request.getPageNo());
+    pager.setPageSize(request.getPageSize());
+    return pager;
+  }
+
+  private void checkSendFlowQueryParams(SendFlowQueryReq request) {
+    if (ObjectHelper.isEmpty(request.getEndSiteId())){
+      throw new JyBizException("参数错误：缺失目的地信息");
+    }
+    if (ObjectHelper.isEmpty(request.getPageNo())){
+      throw new JyBizException("参数错误:缺失页码");
+    }
+    if (ObjectHelper.isEmpty(request.getPageSize())){
+      throw new JyBizException("参数错误:缺失分页大小");
+    }
+    if (ObjectHelper.isEmpty(request.getType())){
+      request.setType(ExcepScanTypeEnum.INTERCEPTE.getCode());
+    }
+    if (ObjectHelper.isNotNull(request.getType()) && !ExcepScanTypeEnum.INTERCEPTE.getCode().equals(request.getType())){
+      throw  new JyBizException("暂不支持该异常类型的查询！");
+    }
   }
 
   private void getComboardDetailDtoList(List<String> barCodeList, Integer boxCount,
