@@ -788,6 +788,10 @@ public class Constants {
      */
     public static final Integer THIRD_SITE_SUB_TYPE = 16;
     /**
+     * 第三方配送站点-三级类型-邮政落地配-16001
+     */
+    public static final Integer THIRD_SITE_THIRD_TYPE_SMS = 16001;
+    /**
      * Double值-0
      */
     public static final Double DOUBLE_ZERO = 0.0;
