@@ -519,4 +519,24 @@ public class JyComboardGatewayServiceImplTest {
         JdCResponse<PackageDetailResp> respJdCResponse = jyComboardGatewayService.listPackageDetailUnderBox(resp);
         System.out.println(JsonHelper.toJson(respJdCResponse));
     }
+    
+    @Test
+    public void queryExcepScanStatisticsUnderBoardTest() {
+        BoardExcepStatisticsReq resp = new BoardExcepStatisticsReq();
+        CurrentOperate operate = new CurrentOperate();
+        resp.setGroupCode("G00000047004");
+        operate.setSiteCode(910);
+        operate.setSiteName("北京马驹桥分拣中心");
+        resp.setCurrentOperate(operate);
+        User user = new User();
+        user.setUserName("李文吉");
+        user.setUserErp("liwenji3");
+        resp.setUser(user);
+        resp.setBoardCode("B22120700000039");
+        resp.setPageNo(1);
+        resp.setPageSize(30);
+        resp.setExcepType(1);
+        JdCResponse<BoardExcepStatisticsResp> s = jyComboardGatewayService.queryExcepScanStatisticsUnderBoard(resp);
+        System.out.println(JsonHelper.toJson(s));
+    }
 }

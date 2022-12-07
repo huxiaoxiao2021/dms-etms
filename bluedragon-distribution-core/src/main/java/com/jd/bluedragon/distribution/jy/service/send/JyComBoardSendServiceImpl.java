@@ -1787,7 +1787,9 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
         resp.setExcepScanDtoList(excepScanDtoList);
 
         Pager<JyComboardPackageDetail> query =assembleQueryExcepScan(request);
+        log.info("请求参数：{}", JsonHelper.toJson(query));
         Pager<ComboardScanedDto> pager =comboardJsfManager.queryInterceptDetail(query);
+        log.info("返回结果：{}",JsonHelper.toJson(pager));
         if (ObjectHelper.isNotNull(pager) && ObjectHelper.isNotNull(pager.getData())){
           List<ComboardScanedDto> comboardScanedDtoList =pager.getData();
           List<PackageScanDto> packageScanDtoList =new ArrayList<>();
@@ -1810,7 +1812,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     JyComboardPackageDetail con =new JyComboardPackageDetail();
     con.setOperateSiteId(request.getCurrentOperate().getSiteCode());
     con.setBoardCode(request.getBoardCode());
-    con.setInterceptFlag(Constants.YN_NO);
+    con.setInterceptFlag(Constants.YN_YES);
     pager.setSearchVo(con);
     pager.setPageNo(request.getPageNo());
     pager.setPageSize(request.getPageSize());
