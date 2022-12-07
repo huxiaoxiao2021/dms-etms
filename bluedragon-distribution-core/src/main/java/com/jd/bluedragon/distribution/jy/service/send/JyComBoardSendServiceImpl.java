@@ -2126,8 +2126,8 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
         resp.setBoardCode(boardBoxInfoDto.getCode());
         resp.setEndSiteId(boardBoxInfoDto.getDestinationId());
       } else {
-        log.error("获取板号信息失败：{}", JsonHelper.toJson(request.getBarCode()));
-        return new InvokeResult<>(BOARD_INFO_CODE, BOARD_INFO_MESSAGE);
+        log.error("未找到对应的板信息：{}", JsonHelper.toJson(request.getBarCode()));
+        return new InvokeResult<>(NOT_FIND_BOARD_INFO_CODE, NOT_FIND_BOARD_INFO_MESSAGE);
       }
     } catch (Exception e) {
       log.error("获取板号信息失败：{}", JsonHelper.toJson(request.getBarCode()));

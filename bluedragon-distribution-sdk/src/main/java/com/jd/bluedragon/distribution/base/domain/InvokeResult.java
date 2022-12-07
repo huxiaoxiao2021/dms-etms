@@ -193,6 +193,10 @@ public class InvokeResult<T> implements Serializable {
     public static final int CHECK_BARCODE_CODE = 3056;
     public static final String CHECK_BARCODE_MESSAGE = "请输入正确的箱号|包裹号|滑道笼车号";
 
+
+    public static final int NOT_FIND_BOARD_INFO_CODE = 3057;
+    public static final String NOT_FIND_BOARD_INFO_MESSAGE= "未找到对应的板信息！";
+
     public InvokeResult(){
         this.code=RESULT_SUCCESS_CODE;
     }
