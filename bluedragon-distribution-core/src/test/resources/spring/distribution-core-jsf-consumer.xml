@@ -926,15 +926,15 @@
                   interface="com.jd.addresstranslation.api.address.GBDistrictJDDistrictMapService"
                   protocol="jsf"
                   alias="${jsf.address.gbmap.alias}"
-                  timeout="jsf.address.gbmap.timeout"
+                  timeout="${jsf.address.gbmap.timeout}"
                   retries="${jsf.retries}"/>
     <!--  eclp服务  -->
     <jsf:consumer id="thirdJsfInterface"
                   interface="com.jd.etms.third.jsf.ThirdJsfInterface"
                   protocol="jsf"
                   alias="${jsf.eclp.thirdJsfInterface.alias}"
-                  timeout="jsf.eclp.thirdJsfInterface.timeout"
-                  retries="${jsf.retries}"/>
+                  timeout="${jsf.eclp.thirdJsfInterface.timeout}"
+                  retries="${jsf.retries}"/>  
                                     
     <!-- 运输任务相关接口 -->
     <jsf:consumer id="tpcLineCargoVolumeApi" interface="com.jd.tms.tpc.api.TpcRouteLineCargoApi"
