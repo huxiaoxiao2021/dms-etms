@@ -113,7 +113,7 @@
     -->
     <bean id="stateCodeToEmsMap" class="java.util.HashMap">
         <constructor-arg>
-           <map key-type="java.lange.String" value-type="com.jd.bluedragon.external.crossbow.postal.domain.TracesOperType">
+           <map key-type="java.lang.String" value-type="com.jd.bluedragon.external.crossbow.postal.domain.TracesOperType">
 			<entry key="-1630"  value-ref="emsTraces50"/>
 			<entry key="10"     value-ref="emsTraces53"/>
 			<entry key="16"     value-ref="emsTraces52"/>
