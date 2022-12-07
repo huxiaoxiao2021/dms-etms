@@ -218,4 +218,12 @@ public interface JyUnloadVehicleTysService {
 
     InvokeResult<Boolean> tysUploadUnloadScanPhotoAboutEasyFreeze(GoodsPhotoInfoDto dto);
 
+    /**
+     * 查转运卸车组板第一单信息
+     * @param siteCode
+     * @param boardCode
+     * @return
+     */
+    BoardScanTypeDto getBoardTypeCache(Integer siteCode, String boardCode);
+
 }

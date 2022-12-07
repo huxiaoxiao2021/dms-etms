@@ -1,7 +1,9 @@
 package com.jd.bluedragon.distribution.jy.service.unload;
 
+import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BoardCommonManager;
@@ -19,6 +21,7 @@ import com.jd.bluedragon.distribution.consumable.service.WaybillConsumableRecord
 import com.jd.bluedragon.distribution.jy.config.WaybillConfig;
 import com.jd.bluedragon.distribution.jy.dao.config.WaybillConfigDao;
 import com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadVehicleBoardDao;
+import com.jd.bluedragon.distribution.jy.dto.unload.BoardScanTypeDto;
 import com.jd.bluedragon.distribution.jy.dto.unload.ScanPackageDto;
 import com.jd.bluedragon.distribution.jy.dto.unload.ScanPackageRespDto;
 import com.jd.bluedragon.distribution.jy.dto.unload.UnloadScanDto;
@@ -135,6 +138,10 @@ public class JyUnloadVehicleCheckTysService {
 
     @Resource
     private Cluster redisClientCache;
+
+    @Autowired
+    @Qualifier("redisClientOfJy")
+    private Cluster redisClientOfJy;
 
 
 
@@ -300,6 +307,11 @@ public class JyUnloadVehicleCheckTysService {
         // 验货任务
         unloadScanProducer.sendOnFailPersistent(barCode, JsonHelper.toJson(unloadScanDto));
     }
+
+    public void inspection(String barCode, UnloadScanDto unloadScanDto) throws LoadIllegalException {
+        unloadScanProducer.sendOnFailPersistent(barCode, JsonHelper.toJson(unloadScanDto));
+    }
+
 
     public String interceptValidateUnloadCar(Waybill waybill, DeliveryPackageD deliveryPackageD, ScanPackageRespDto response, String barCode) {
         log.info("JyUnloadCarCheckServiceImpl-interceptValidateUnloadCar-barCode:{}", barCode);
@@ -467,7 +479,18 @@ public class JyUnloadVehicleCheckTysService {
             boardCommonRequest.setReceiveSiteName(request.getNextSiteName());
             boardCommonRequest.setBizSource(BizSourceEnum.PDA.getValue());
             boardCommonRequest.setBarCode(request.getScanCode());
-            InvokeResult<Board> invokeResult = boardCommonManager.createBoardCode(boardCommonRequest);
+            InvokeResult<Board> invokeResult = null;
+            if(log.isInfoEnabled()) {
+                log.info("JyUnloadVehicleCheckTysService.routerCheck-按箱号卸车扫描开板-param={}", JsonUtils.toJSONString(boardCommonRequest));
+            }
+            if(boardCommonRequest.getReceiveSiteCode() == null) {
+                throw new LoadIllegalException("验货成功。获取下一流向为空，无法建板");
+            }
+            if(BusinessUtil.isBoxcode(request.getScanCode())) {
+                invokeResult = boardCommonManager.createBoardCodeByBox(boardCommonRequest);
+            }else {
+                invokeResult = boardCommonManager.createBoardCode(boardCommonRequest);
+            }
             if (invokeResult.getCode() != InvokeResult.RESULT_SUCCESS_CODE) {
                 throw new LoadIllegalException(invokeResult.getMessage());
             }
@@ -485,6 +508,9 @@ public class JyUnloadVehicleCheckTysService {
             response.setEndSiteId(Long.valueOf(board.getDestinationId()));
             response.setEndSiteName(board.getDestination());
             response.setCreateBoardSuccessFlag(true);
+
+            //存储开板箱包缓存
+            this.setBoardTypeCache(request);
             return true;
 
         }
@@ -516,7 +542,12 @@ public class JyUnloadVehicleCheckTysService {
      */
     public void isSendCheck(ScanPackageDto scanPackageDto) {
         BoardCommonRequest boardCommonRequest = new BoardCommonRequest();
-        boardCommonRequest.setBarCode(scanPackageDto.getScanCode());
+        //转运不拆包，箱内随机包裹发货认为箱已发货
+        if(BusinessUtil.isBoxcode(scanPackageDto.getScanCode())) {
+            boardCommonRequest.setBarCode(scanPackageDto.getRandomPackageCode());
+        }else {
+            boardCommonRequest.setBarCode(scanPackageDto.getScanCode());
+        }
         boardCommonRequest.setOperateSiteCode(scanPackageDto.getCurrentOperate().getSiteCode());
         boardCommonRequest.setReceiveSiteCode(scanPackageDto.getNextSiteCode());
         boardCommonManager.isSendCheck(boardCommonRequest);
@@ -611,7 +642,11 @@ public class JyUnloadVehicleCheckTysService {
                 // 组板实操时间多加1秒，防止和验货实操时间相同导致全流程跟踪显示顺序错乱
                 boardCommonRequest.setOperateTime(System.currentTimeMillis() + 1000L);
                 // 组板全程跟踪
-                boardCommonManager.sendWaybillTrace(boardCommonRequest, WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION);
+                if(BusinessUtil.isBoxcode(boardCommonRequest.getBarCode())) {
+                    boardCommonManager.sendBoxWaybillTrace(boardCommonRequest, WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION);
+                }else {
+                    boardCommonManager.sendWaybillTrace(boardCommonRequest, WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION);
+                }
                 return;
             }
             /*
@@ -624,6 +659,18 @@ public class JyUnloadVehicleCheckTysService {
             if (response.getCode() == JdCResponse.CODE_ERROR) {
                 log.warn("添加板箱关系失败,板号={},barCode={},原因={}", request.getBoardCode(), request.getScanCode(), response.getMesseage());
                 if (request.getIsCombinationTransfer()) {
+
+                    BoardScanTypeDto boardScanTypeDto = this.getBoardTypeCache(request.getCurrentOperate().getSiteCode(), request.getBoardCode());
+                    if(!checkScanBoardType(boardScanTypeDto, request.getScanCode())) {
+                        String warnMsg = "该板不支持组箱号包裹号，请重新开板尝试";
+                        if(CacheKeyConstants.BOARD_SCAN_TYPE_PACKAGE.equals(boardScanTypeDto.getBoardType())) {
+                            warnMsg = "该板为扫包裹类型，禁止扫箱号,请重新开板";
+                        }
+                        if(CacheKeyConstants.BOARD_SCAN_TYPE_BOX.equals(boardScanTypeDto.getBoardType())) {
+                            warnMsg = "该板为扫箱类型，禁止扫包裹，请重新开板";
+                        }
+                        throw new RuntimeException(warnMsg);
+                    };
                     // 调用TC的板号转移接口
                     InvokeResult<String> invokeResult = boardCommonManager.boardMoveIgnoreStatus(boardCommonRequest);
                     log.info("组板转移结果【{}】", JsonHelper.toJson(invokeResult));
@@ -884,8 +931,9 @@ public class JyUnloadVehicleCheckTysService {
             if (!goodsAreaCode.equals(request.getGoodsAreaCode())) {
                 return "扫描包裹非本货区，请移除本区！";
             }
+        }else {
+            request.setGoodsAreaCode(goodsAreaCode);
         }
-        request.setGoodsAreaCode(goodsAreaCode);
         response.setGoodsAreaCode(goodsAreaCode);
         return null;
     }
@@ -1024,4 +1072,73 @@ public class JyUnloadVehicleCheckTysService {
     }
 
 
+    /**
+     * 方法作用： 记录组板扫描的箱类型还是包裹类型：转运场地按包裹按箱不可混装
+     * （1）组板时机存储cache：  存在问题：
+     *      场景一：开板成功被拦截，没有组板，cache为空
+     *      场景二：历史板，没有数据
+     *    无法区分以上两个场景，可能出现混装
+     * （2）按开板计算
+     *     代价： 组板前被拦截的场景，DB可能存在空板
+     * @param scanPackageDto
+     */
+    public void setBoardTypeCache(ScanPackageDto scanPackageDto) {
+        String cacheKey= CacheKeyConstants.REDIS_PREFIX_BOARD_SCAN_TYPE + scanPackageDto.getCurrentOperate().getSiteCode() +":" + scanPackageDto.getBoardCode();
+        //记录板号扫的包裹还是箱号（冷链医药围板箱组板单独码放，不能和包裹混组）
+        if(StringUtils.isNotBlank(redisClientOfJy.get(cacheKey))) {
+            return;
+        }
+        BoardScanTypeDto boardScanTypeDto = new BoardScanTypeDto();
+        boardScanTypeDto.setBoard(scanPackageDto.getBoardCode());
+        boardScanTypeDto.setFirstScanCode(scanPackageDto.getScanCode());
+        boardScanTypeDto.setFirstScanTime(System.currentTimeMillis());
+        boardScanTypeDto.setSiteCode(scanPackageDto.getCurrentOperate().getSiteCode());
+        boardScanTypeDto.setBizId(scanPackageDto.getBizId());
+        if(BusinessUtil.isBoxcode(scanPackageDto.getScanCode())) {
+            boardScanTypeDto.setBoardType(CacheKeyConstants.BOARD_SCAN_TYPE_BOX);
+        }else if(WaybillUtil.isPackageCode(scanPackageDto.getScanCode())) {
+            boardScanTypeDto.setBoardType(CacheKeyConstants.BOARD_SCAN_TYPE_PACKAGE);
+        }else {
+            boardScanTypeDto.setBoardType(CacheKeyConstants.BOARD_SCAN_TYPE_ELSE);
+        }
+        String msg = JsonUtils.toJSONString(boardScanTypeDto);
+        if(log.isInfoEnabled()) {
+            log.info("JyUnloadVehicleCheckTysService.setBoardTypeCache-转运卸车岗开板确定板类型redis缓存={}过期时间35天", msg);
+        }
+        //卸车岗任务完成之后可扫包裹，无时间控制，该过期时间不宜过短
+        redisClientOfJy.setEx(cacheKey, msg, 35, TimeUnit.DAYS);
+    }
+
+    public BoardScanTypeDto getBoardTypeCache(Integer siteCode, String boardCode) {
+        if(siteCode == null || StringUtils.isEmpty(boardCode)) {
+            return new BoardScanTypeDto();
+        }
+        String cacheKey= CacheKeyConstants.REDIS_PREFIX_BOARD_SCAN_TYPE + siteCode +":" + boardCode;
+        String cacheValue = redisClientOfJy.get(cacheKey);
+        BoardScanTypeDto res = JSONObject.parseObject(cacheValue, BoardScanTypeDto.class);
+
+        //历史板或没有类型的场景都认为是扫包裹的板,强拦截扫描箱号
+        if(res == null) {
+            res = new BoardScanTypeDto();
+        }
+        if(StringUtils.isBlank(res.getBoardType())) {
+            res.setBoardType(CacheKeyConstants.BOARD_SCAN_TYPE_PACKAGE);
+        }
+        return res;
+    }
+
+
+    private boolean checkScanBoardType(BoardScanTypeDto boardScanTypeDto, String scanCode) {
+        boolean res = false;
+        String boardType = boardScanTypeDto.getBoardType();
+        if(WaybillUtil.isPackageCode(scanCode)) {
+            res = CacheKeyConstants.BOARD_SCAN_TYPE_PACKAGE.equals(boardType);
+        }else if(BusinessUtil.isBoxcode(scanCode)) {
+            res = CacheKeyConstants.BOARD_SCAN_TYPE_BOX.equals(boardType);
+        }
+        if(log.isInfoEnabled()) {
+            log.info("checkScanBoardType校验扫描板类型不符：当前扫描code={},板类型为{}，开板数据为：{}", scanCode, boardScanTypeDto.getBoardType(), JsonUtils.toJSONString(boardScanTypeDto));
+        }
+        return res;
+    }
 }

@@ -110,6 +110,13 @@ public class ScanPackageDto extends UnloadBaseDto implements Serializable {
      */
     private boolean createNewBoard;
 
+    /**
+     * 按箱号查询时取随机一个包裹:
+     *   按包裹取路由
+     *   按包裹校验发货
+     */
+    private String randomPackageCode;
+
     public String getBizId() {
         return bizId;
     }
@@ -300,5 +307,13 @@ public class ScanPackageDto extends UnloadBaseDto implements Serializable {
 
     public void setCreateNewBoard(boolean createNewBoard) {
         this.createNewBoard = createNewBoard;
+    }
+
+    public String getRandomPackageCode() {
+        return randomPackageCode;
+    }
+
+    public void setRandomPackageCode(String randomPackageCode) {
+        this.randomPackageCode = randomPackageCode;
     }
 }
