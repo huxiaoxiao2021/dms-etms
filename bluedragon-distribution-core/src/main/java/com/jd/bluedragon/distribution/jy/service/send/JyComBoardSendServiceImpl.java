@@ -1756,6 +1756,8 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     con.setProductType(request.getGoodsType());
     con.setScannedFlag(Constants.YN_NO);
     pager.setSearchVo(con);
+    pager.setPageNo(request.getPageNo());
+    pager.setPageSize(request.getPageSize());
     return pager;
   }
 
@@ -1810,6 +1812,8 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     con.setBoardCode(request.getBoardCode());
     con.setInterceptFlag(Constants.YN_NO);
     pager.setSearchVo(con);
+    pager.setPageNo(request.getPageNo());
+    pager.setPageSize(request.getPageSize());
     return pager;
   }
 

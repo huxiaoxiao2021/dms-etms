@@ -11,7 +11,8 @@ public class WaitScanStatisticsReq extends BaseReq implements Serializable {
      * 货物类型
      */
     private String goodsType;
-
+    private Integer pageNo;
+    private Integer pageSize;
     public Integer getEndSiteId() {
         return endSiteId;
     }
@@ -26,5 +27,21 @@ public class WaitScanStatisticsReq extends BaseReq implements Serializable {
 
     public void setGoodsType(String goodsType) {
         this.goodsType = goodsType;
+    }
+
+    public Integer getPageNo() {
+        return pageNo;
+    }
+
+    public void setPageNo(Integer pageNo) {
+        this.pageNo = pageNo;
+    }
+
+    public Integer getPageSize() {
+        return pageSize;
+    }
+
+    public void setPageSize(Integer pageSize) {
+        this.pageSize = pageSize;
     }
 }
