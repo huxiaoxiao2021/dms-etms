@@ -928,7 +928,7 @@
                   alias="${jsf.address.gbmap.alias}"
                   timeout="jsf.address.gbmap.timeout"
                   retries="${jsf.retries}"/>
-    <!--  国标映射京标服务  -->
+    <!--  eclp服务  -->
     <jsf:consumer id="thirdJsfInterface"
                   interface="com.jd.etms.third.jsf.ThirdJsfInterface"
                   protocol="jsf"
