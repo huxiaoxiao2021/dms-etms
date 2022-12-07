@@ -1668,6 +1668,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     condition.setBoardCode(request.getBoardCode());
     condition.setScannedFlag(Constants.YN_YES);
     condition.setOperateSiteId(request.getCurrentOperate().getSiteCode());
+    condition.setNeedQueryBox(true);
     pager.setPageNo(request.getPageNo());
     pager.setPageSize(request.getPageSize());
     if (ObjectHelper.isEmpty(request.getPageNo())){
