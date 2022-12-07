@@ -124,7 +124,7 @@ public class JyComboardGatewayServiceImpl implements JyComboardGatewayService {
   @Override
   public JdCResponse<PackageDetailResp> listPackageDetailUnderSendFlow(
       SendFlowQueryReq request) {
-    return null;
+    return retJdCResponse(jyComBoardSendService.listPackageDetailUnderSendFlow(request));
   }
 
   @Override

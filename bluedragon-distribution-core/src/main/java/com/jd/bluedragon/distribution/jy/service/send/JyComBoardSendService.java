@@ -145,4 +145,6 @@ public interface JyComBoardSendService {
    * @return
    */
   InvokeResult<QueryBelongBoardResp> queryBelongBoardByBarCode(QueryBelongBoardReq request);
+
+  InvokeResult<PackageDetailResp> listPackageDetailUnderSendFlow(SendFlowQueryReq request);
 }
