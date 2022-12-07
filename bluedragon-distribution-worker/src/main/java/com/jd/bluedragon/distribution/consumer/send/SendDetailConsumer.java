@@ -308,7 +308,7 @@ public class SendDetailConsumer extends MessageBaseConsumer {
         }
         BaseStaffSiteOrgDto receiveSiteDto = this.getBaseStaffSiteDto(sendDetail.getReceiveSiteCode());
     	//判断发货站点是否三方邮政落地配-16001
-        boolean isThirdSmsSite = false;
+        boolean isThirdSmsSite = true;
         if(receiveSiteDto != null 
         		&& Constants.THIRD_SITE_TYPE.equals(receiveSiteDto.getSiteType())
         		&& Constants.THIRD_SITE_SUB_TYPE.equals(receiveSiteDto.getSubType())
