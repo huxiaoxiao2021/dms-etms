@@ -665,7 +665,7 @@ public class JyUnloadVehicleCheckTysService {
                         if(CacheKeyConstants.BOARD_SCAN_TYPE_PACKAGE.equals(boardScanTypeDto.getBoardType())) {
                             warnMsg = "该板为扫包裹类型，禁止扫箱号,请重新开板";
                         }
-                        if(CacheKeyConstants.BOARD_SCAN_TYPE_PACKAGE.equals(boardScanTypeDto.getBoardType())) {
+                        if(CacheKeyConstants.BOARD_SCAN_TYPE_BOX.equals(boardScanTypeDto.getBoardType())) {
                             warnMsg = "该板为扫箱类型，禁止扫包裹，请重新开板";
                         }
                         throw new RuntimeException(warnMsg);
