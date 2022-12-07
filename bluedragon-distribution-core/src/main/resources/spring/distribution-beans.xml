@@ -112,7 +112,7 @@
 		51  邮政退回    BACK_C  接货中心退货至分拣中心状态   接货中心退货至分拣中心状态   8
     -->
     <bean id="stateCodeToEmsMap" class="java.util.HashMap">
-        <constructor-arg>
+        <constructor-arg type="java.util.HashMap">
            <map key-type="java.lang.String" value-type="com.jd.bluedragon.external.crossbow.postal.domain.TracesOperType">
 			<entry key="-1630"  value-ref="emsTraces50"/>
 			<entry key="10"     value-ref="emsTraces53"/>
