@@ -6,6 +6,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.UnifiedExceptionProcess;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.unload.request.UnloadCompleteRequest;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BoardCommonManager;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
@@ -128,7 +129,8 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     @Autowired
     @Qualifier("jyUnloadCarPostTaskCompleteProducer")
     private DefaultJMQProducer jyUnloadCarPostTaskCompleteProducer;
-
+    @Autowired
+    private UccPropertyConfiguration uccPropertyConfiguration ;
 
 
 
@@ -170,7 +172,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         }
         if(unloadVehicleTaskReqDto.getEndTime() == null || unloadVehicleTaskReqDto.getEndTime() == null) {
             Date endTIme = new Date();
-            Date startTime = DateHelper.getZeroFromDay(endTIme, 3);
+            Date startTime = DateHelper.getZeroFromDay(endTIme, uccPropertyConfiguration.getJyUnloadCarListQueryDayFilter());
             unloadVehicleTaskReqDto.setStartTime(startTime);
             unloadVehicleTaskReqDto.setEndTime(endTIme);
             log.info("test-卸车岗任务列表查询时间过滤，param={}", JsonHelper.toJson(unloadVehicleTaskReqDto));
