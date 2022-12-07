@@ -26,6 +26,7 @@ import com.jd.bluedragon.external.crossbow.postal.domain.TracesCompanyRequest;
 import com.jd.bluedragon.external.crossbow.postal.domain.TracesCompanyRequestItem;
 import com.jd.bluedragon.external.crossbow.postal.domain.TracesCompanyResponse;
 import com.jd.bluedragon.external.crossbow.postal.domain.TracesOperType;
+import com.jd.bluedragon.external.crossbow.postal.domain.TracesOperTypeMap;
 import com.jd.bluedragon.external.crossbow.postal.domain.WaybillInfoRequest;
 import com.jd.bluedragon.external.crossbow.postal.domain.WaybillInfoResponse;
 import com.jd.bluedragon.external.crossbow.postal.enums.DoTypeEnum;
@@ -83,8 +84,8 @@ public class DmsSendToEmsWaybillInfoConsumer extends MessageBaseConsumer {
     
     
     @Autowired
-    @Qualifier("stateCodeToEmsMap")
-    private Map<String,TracesOperType> stateCodeToEmsMap;
+    @Qualifier("tracesOperTypeMap")
+    private TracesOperTypeMap tracesOperTypeMap;
     
     @Autowired
     private BaseMajorManager baseMajorManager;
@@ -271,7 +272,7 @@ public class DmsSendToEmsWaybillInfoConsumer extends MessageBaseConsumer {
     	TracesCompanyRequest request = new TracesCompanyRequest();
     	List<TracesCompanyRequestItem> traces = new ArrayList<TracesCompanyRequestItem>();
     	for(PackageState item: traceData.getData()) {
-    		if(stateCodeToEmsMap.containsKey(item.getState())) {
+    		if(tracesOperTypeMap.getStateCodeToEmsMap().containsKey(item.getState())) {
     			traces.add(toEmsTrace(item));
     		}
     	}
@@ -289,8 +290,8 @@ public class DmsSendToEmsWaybillInfoConsumer extends MessageBaseConsumer {
 		TracesCompanyRequestItem trace = new TracesCompanyRequestItem();
 		trace.setWaybillNo(packageState.getPackageBarcode());
 		trace.setOpTime(packageState.getCreateTime().getTime()/1000);
-		trace.setOpCode(stateCodeToEmsMap.get(packageState.getState()).getCode());
-		trace.setOpName(stateCodeToEmsMap.get(packageState.getState()).getName());
+		trace.setOpCode(tracesOperTypeMap.getStateCodeToEmsMap().get(packageState.getState()).getCode());
+		trace.setOpName(tracesOperTypeMap.getStateCodeToEmsMap().get(packageState.getState()).getName());
 		trace.setOpDesc(packageState.getRemark());
 		//查询操作网点对应的省市
 		BaseStaffSiteOrgDto operatorSite = baseMajorManager.getBaseSiteBySiteId(packageState.getOperatorSiteId());

@@ -111,8 +111,8 @@
 		81  收件人已取走  SELF_SIGNED 签收  签收  -970
 		51  邮政退回    BACK_C  接货中心退货至分拣中心状态   接货中心退货至分拣中心状态   8
     -->
-    <bean id="stateCodeToEmsMap" class="java.util.HashMap">
-        <constructor-arg type="java.util.HashMap">
+    <bean id="tracesOperTypeMap" class="com.jd.bluedragon.external.crossbow.postal.domain.TracesOperTypeMap">
+         <property name="stateCodeToEmsMap">
            <map key-type="java.lang.String" value-type="com.jd.bluedragon.external.crossbow.postal.domain.TracesOperType">
 			<entry key="-1630"  value-ref="emsTraces50"/>
 			<entry key="10"     value-ref="emsTraces53"/>
@@ -124,7 +124,7 @@
 			<entry key="-970"   value-ref="emsTraces81"/>
 			<entry key="8"      value-ref="emsTraces51"/>				
            </map>
-        </constructor-arg>
+        </property>
     </bean>
     <bean id="emsTraces50" class="com.jd.bluedragon.external.crossbow.postal.domain.TracesOperType">
         <property name="code" value = "50"/>
