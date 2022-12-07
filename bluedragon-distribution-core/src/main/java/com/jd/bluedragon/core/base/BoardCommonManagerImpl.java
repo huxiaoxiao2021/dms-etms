@@ -1,7 +1,6 @@
 package com.jd.bluedragon.core.base;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.common.dto.unloadCar.UnloadScanDetailDto;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
@@ -33,6 +32,7 @@ import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.utils.BeanUtils;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
@@ -48,10 +48,10 @@ import com.jd.transboard.api.dto.AddBoardRequest;
 import com.jd.transboard.api.dto.Board;
 import com.jd.transboard.api.dto.MoveBoxRequest;
 import com.jd.transboard.api.dto.Response;
-import com.jd.transboard.api.enums.BizSourceEnum;
 import com.jd.transboard.api.enums.ResponseEnum;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,8 +60,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
-
-import static com.jd.ql.dms.common.constants.OperateDeviceTypeConstants.PDA;
 
 /**
  * 组板公用操作实现
@@ -314,7 +312,7 @@ public class BoardCommonManagerImpl implements BoardCommonManager {
             if (StringUtils.isBlank(nextSiteName)) {
                 BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteBySiteId(nextSiteCode);
                 if (baseSite == null || StringUtils.isEmpty(baseSite.getSiteName())) {
-                    logger.warn("根据站点【{}】获取站点名称为空!", nextSiteCode);
+                    logger.warn("按包裹创建板：根据站点【{}】获取站点名称为空!", nextSiteCode);
                     result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, "站点【" + nextSiteCode + "】不存在!");
                     return result;
                 }
@@ -340,6 +338,43 @@ public class BoardCommonManagerImpl implements BoardCommonManager {
         }
         return result;
     }
+
+    @Override
+    public InvokeResult<Board> createBoardCodeByBox(BoardCommonRequest request) {
+        InvokeResult<Board> result = new InvokeResult<Board>();
+        result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE,"生成板号失败!");
+        AddBoardRequest addBoardRequest = new AddBoardRequest();
+        try {
+            addBoardRequest.setBoardCount(SINGLE_BOARD_CODE);
+            addBoardRequest.setOperatorErp(request.getOperateUserErp());
+            addBoardRequest.setOperatorName(request.getOperateUserName());
+            addBoardRequest.setSiteCode(request.getOperateSiteCode());
+            addBoardRequest.setSiteName(request.getOperateSiteName());
+            addBoardRequest.setBizSource(request.getBizSource());
+            addBoardRequest.setDestinationId(request.getReceiveSiteCode());
+            String nextSiteName = request.getReceiveSiteName();
+            if (StringUtils.isBlank(nextSiteName)) {
+                BaseStaffSiteOrgDto baseSite = baseMajorManager.getBaseSiteBySiteId(request.getReceiveSiteCode());
+                if (baseSite == null || StringUtils.isEmpty(baseSite.getSiteName())) {
+                    logger.warn("按箱号创建板：根据站点【{}】获取站点名称为空!", request.getReceiveSiteCode());
+                    result.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, "站点【" + request.getReceiveSiteCode() + "】不存在!");
+                    return result;
+                }
+                nextSiteName = baseSite.getSiteName();
+            }
+            addBoardRequest.setDestination(nextSiteName);
+            Response<List<Board>> response = groupBoardManager.createBoards(addBoardRequest);
+            if(response != null && response.getCode() == ResponseEnum.SUCCESS.getIndex()
+                    && !response.getData().isEmpty()){
+                result.success();
+                result.setData(response.getData().get(0));
+            }
+        }catch (Exception e){
+            logger.error("根据参数【{}】生成板号异常,errMsg={}", JsonHelper.toJson(addBoardRequest), e.getMessage(), e);
+        }
+        return result;
+    }
+
 
     /**
      * 组板转移
@@ -410,13 +445,24 @@ public class BoardCommonManagerImpl implements BoardCommonManager {
         if (tcResponse != null && tcResponse.getCode() == ResponseEnum.SUCCESS.getIndex()) {
             String boardOld = tcResponse.getData();
             String boardNew = request.getBoardCode();
-            // 取消组板的全称跟踪 -- 旧板号
-            request.setBoardCode(boardOld);
-            sendWaybillTrace(request, WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION_CANCEL);
+            if(BusinessUtil.isBoxcode(request.getBarCode())) {
+                // 取消组板的全称跟踪 -- 旧板号
+                request.setBoardCode(boardOld);
+                sendBoxWaybillTrace(request, WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION_CANCEL);
 
-            // 组板的全称跟踪 -- 新板号
-            request.setBoardCode(boardNew);
-            sendWaybillTrace(request, WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION);
+                // 组板的全称跟踪 -- 新板号
+                request.setBoardCode(boardNew);
+                sendBoxWaybillTrace(request, WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION);
+            }else {
+                // 取消组板的全称跟踪 -- 旧板号
+                request.setBoardCode(boardOld);
+                sendWaybillTrace(request, WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION_CANCEL);
+
+                // 组板的全称跟踪 -- 新板号
+                request.setBoardCode(boardNew);
+                sendWaybillTrace(request, WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION);
+            }
+
 
             result.setData(tcResponse.getData());
         } else {
@@ -679,4 +725,35 @@ public class BoardCommonManagerImpl implements BoardCommonManager {
         return result;
     }
 
+
+    /**
+     * 发送箱号组板全程跟踪
+     * @param request
+     * @param operateType 操作类型
+     */
+    @Override
+    public void sendBoxWaybillTrace(BoardCommonRequest request, Integer operateType) {
+        if(!BusinessUtil.isBoxcode(request.getBarCode())) {
+            return;
+        }
+        Box box = boxService.findBoxByCode(request.getBarCode());
+        Sorting sorting = new Sorting();
+        sorting.setBoxCode(request.getBarCode());
+        sorting.setCreateSiteCode(box.getCreateSiteCode());
+        List<Sorting> sortingList = sortingService.listSortingByBoxCode(sorting);
+        if(CollectionUtils.isEmpty(sortingList)) {
+            if(logger.isInfoEnabled()) {
+                logger.info("按箱{}未查询到箱内包裹，箱信息={}", request.getBarCode(), JsonHelper.toJson(box));
+            }
+        }
+//        logger.info("按箱操作组板发送全流程跟踪：节点={}（7000组板7600取消组板），箱信息={}，箱内包裹集合={}",operateType, JsonHelper.toJson(request), JsonHelper.toJson(sortingList));
+        for (Sorting s:sortingList){
+            BoardCommonRequest boardCommonRequest = BeanUtils.copy(request, BoardCommonRequest.class);
+            boardCommonRequest.setBarCode(s.getPackageCode());
+            if(logger.isInfoEnabled()) {
+                logger.info("按箱操作组板发送全流程跟踪：节点={}（7000组板7600取消组板），箱信息={}，包裹流程跟踪={}",operateType, JsonHelper.toJson(request), JsonHelper.toJson(boardCommonRequest));
+            }
+            sendWaybillTrace(boardCommonRequest, operateType);
+        }
+    }
 }

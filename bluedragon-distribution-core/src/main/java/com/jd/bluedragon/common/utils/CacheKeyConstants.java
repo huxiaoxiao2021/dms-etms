@@ -282,4 +282,14 @@ public class CacheKeyConstants {
      */
     public static final String JY_WAREHOUSE_INSPECTION_TASK_EXIST_KEY = JY_CACHE_PREFIX + "ware_inspec:group_code:%s";
 
+
+    /**
+     * 转运卸车任务人工模式组板  包裹板 或者箱号板
+     */
+    public static final String REDIS_PREFIX_BOARD_SCAN_TYPE = "tys.unload.board.scan.type:";
+    public static final String BOARD_SCAN_TYPE_PACKAGE = "package";
+    public static final String BOARD_SCAN_TYPE_BOX = "box";
+    public static final String BOARD_SCAN_TYPE_ELSE = "else";
+
+
 }
