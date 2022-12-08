@@ -367,8 +367,8 @@
         yn = 1
 
         AND end_site_id = #{entity.endSiteId}
-        <if test="entity.startTime != null">
-            and update_time >= #{entity.startTime}
+        <if test="entity.actualArriveStartTime != null">
+            and actual_arrive_time >= #{entity.actualArriveStartTime}
         </if>
         <if test="entity.sealCarCode">
             and seal_car_code = #{entity.sealCarCode}
@@ -401,8 +401,8 @@
         from jy_biz_task_unload_vehicle
         where end_site_id =#{endSiteId}
           and yn=1
-        <if test="startTime != null">
-            and update_time >= #{startTime}
+        <if test="actualArriveStartTime != null">
+            and actual_arrive_time >= #{actualArriveStartTime}
         </if>
         <if test="vehicleStatus != null">
             and vehicle_status =#{vehicleStatus}

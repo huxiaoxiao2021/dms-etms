@@ -188,10 +188,9 @@ public class JyBizTaskUnloadVehicleEntity implements Serializable {
     private Integer taskType;
 
     /**
-     * 时间字段过滤
+     * 时间字段过滤查询：实际到达时间
      */
-    private Date startTime;
-    private Date EndTime;
+    private Date actualArriveStartTime;
 
     public Long setId(Long id) {
         return this.id = id;
@@ -530,19 +529,12 @@ public class JyBizTaskUnloadVehicleEntity implements Serializable {
         this.railwayPfNo = railwayPfNo;
     }
 
-    public Date getStartTime() {
-        return startTime;
+
+    public Date getActualArriveStartTime() {
+        return actualArriveStartTime;
     }
 
-    public void setStartTime(Date startTime) {
-        this.startTime = startTime;
-    }
-
-    public Date getEndTime() {
-        return EndTime;
-    }
-
-    public void setEndTime(Date endTime) {
-        EndTime = endTime;
+    public void setActualArriveStartTime(Date actualArriveStartTime) {
+        this.actualArriveStartTime = actualArriveStartTime;
     }
 }
