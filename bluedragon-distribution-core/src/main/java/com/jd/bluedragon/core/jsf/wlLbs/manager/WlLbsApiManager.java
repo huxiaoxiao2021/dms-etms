@@ -52,6 +52,15 @@ public interface WlLbsApiManager {
     com.jdl.gis.trans.fence.api.vo.resp.base.BaseResponse<QueryFenceResp> queryTransFenceByCode(String appKey, QueryFenceReq queryFenceReq);
 
     /**
+     * 根据场地ID查询围栏信息
+     * @param siteCode 场地ID
+     * @return 围栏信息
+     * @author fanggang7
+     * @time 2022-11-11 17:07:22 周五
+     */
+    com.jdl.gis.trans.fence.api.vo.resp.base.BaseResponse<QueryFenceResp> queryTransFenceBySiteId(Integer siteCode);
+
+    /**
      * 根据IP获取经纬度
      * @param appKey appKey
      * @param locationRequestDto IP请求

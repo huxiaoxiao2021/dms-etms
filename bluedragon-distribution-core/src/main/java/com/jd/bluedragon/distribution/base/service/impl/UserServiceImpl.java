@@ -12,6 +12,10 @@ import com.jd.bluedragon.core.hint.service.HintService;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.AppUpgradeRequest;
 import com.jd.bluedragon.distribution.api.request.LoginRequest;
+import com.jd.bluedragon.distribution.api.request.base.OperateUser;
+import com.jd.bluedragon.distribution.api.request.client.DeviceInfo;
+import com.jd.bluedragon.distribution.api.request.client.DeviceLocationInfo;
+import com.jd.bluedragon.distribution.api.request.client.DeviceLocationUploadPo;
 import com.jd.bluedragon.distribution.api.response.AppUpgradeResponse;
 import com.jd.bluedragon.distribution.api.response.BaseResponse;
 import com.jd.bluedragon.distribution.api.response.LoginUserResponse;
@@ -23,6 +27,7 @@ import com.jd.bluedragon.distribution.base.service.*;
 import com.jd.bluedragon.distribution.client.domain.CheckMenuAuthRequest;
 import com.jd.bluedragon.distribution.client.domain.CheckMenuAuthResponse;
 import com.jd.bluedragon.distribution.command.JdResult;
+import com.jd.bluedragon.distribution.device.service.DeviceLocationService;
 import com.jd.bluedragon.distribution.jy.service.config.JyDemotionService;
 import com.jd.bluedragon.distribution.sysloginlog.domain.ClientInfo;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
@@ -32,6 +37,7 @@ import com.jd.bluedragon.sdk.modules.client.LogoutTypeEnum;
 import com.jd.bluedragon.sdk.modules.client.ProgramTypeEnum;
 import com.jd.bluedragon.sdk.modules.client.dto.*;
 import com.jd.bluedragon.utils.*;
+import com.jd.etms.sdk.util.DateUtil;
 import com.jd.mrd.srv.dto.RpcResultDto;
 import com.jd.mrd.srv.service.erp.dto.LoginContextDto;
 import com.jd.mrd.srv.service.erp.dto.LoginDto;
@@ -48,6 +54,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.Resource;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -88,6 +95,9 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
 
 	@Autowired
 	private JyDemotionService jyDemotionService;
+
+    @Resource
+    private DeviceLocationService deviceLocationService;
 
 	/**
 	 * 分拣客户端登录服务
@@ -145,6 +155,7 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
         }
         LoginUserResponse loginUserResponse = baseService.clientLoginIn(request);
         this.getAndSaveToken(request, loginUserResponse);
+        this.handleDeviceLocation(request, loginUserResponse);
         return loginUserResponse;
     }
 
@@ -210,6 +221,38 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
             loginUserResponse.setWlGwTicket(loginResult.getData().getTicket());
         } catch (Exception e) {
             log.error("wlGwErpLogin exception ", e);
+        }
+    }
+
+    private void handleDeviceLocation(LoginRequest loginRequest, LoginUserResponse loginUserResponse) {
+        try {
+            if (loginUserResponse == null || !Objects.equals(loginUserResponse.getCode(), JdResponse.CODE_OK)) {
+                return;
+            }
+            final DeviceInfo deviceInfo = loginRequest.getDeviceInfo();
+            final DeviceLocationInfo deviceLocationInfo = loginRequest.getDeviceLocationInfo();
+            if (deviceInfo == null) {
+                return;
+            }
+
+            DeviceLocationUploadPo deviceLocationUploadPo = new DeviceLocationUploadPo();
+            deviceLocationUploadPo.setDeviceLocationInfo(deviceLocationInfo);
+            deviceLocationUploadPo.setDeviceInfo(deviceInfo);
+
+            long operateTime = new Date().getTime();
+            final Date operateTimeDate = DateUtil.parse(loginRequest.getOperateTime(), DateUtil.FORMAT_DATE_TIME);
+            if (operateTimeDate != null) {
+                operateTime = operateTimeDate.getTime();
+            }
+            deviceLocationUploadPo.setOperateTime(operateTime);
+
+            final OperateUser operateUser = new OperateUser();
+            operateUser.setUserCode(loginUserResponse.getErpAccount());
+            operateUser.setUserName(loginUserResponse.getStaffName());
+            deviceLocationUploadPo.setOperateUser(operateUser);
+            deviceLocationService.sendUploadLocationMsg(deviceLocationUploadPo);
+        } catch (Exception e) {
+            log.error("UserServiceImpl.handleDeviceLocation exception {} {}", JsonHelper.toJson(loginRequest), JsonHelper.toJson(loginUserResponse), e);
         }
     }
 

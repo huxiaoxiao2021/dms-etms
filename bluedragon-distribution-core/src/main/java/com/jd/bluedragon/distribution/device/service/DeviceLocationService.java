@@ -13,6 +13,15 @@ import com.jd.dms.java.utils.sdk.base.Result;
 public interface DeviceLocationService {
 
     /**
+     * 上传设备位置信息消息
+     * @param deviceLocationUploadPo 位置信息
+     * @return 上传结果
+     * @author fanggang7
+     * @time 2022-11-23 18:21:59 周三
+     */
+    Result<Boolean> sendUploadLocationMsg(DeviceLocationUploadPo deviceLocationUploadPo);
+
+    /**
      * 上传设备位置信息
      * @param deviceLocationUploadPo 位置信息
      * @return 上传结果
@@ -29,6 +38,15 @@ public interface DeviceLocationService {
      * @time 2022-11-23 18:21:59 周三
      */
     Result<Boolean> checkLocationMatchUserSite(DeviceLocationUploadPo deviceLocationUploadPo);
+
+    /**
+     * 上传设备位置信息消息
+     * @param deviceLocationUploadPo 位置信息
+     * @return 上传结果
+     * @author fanggang7
+     * @time 2022-11-23 18:21:59 周三
+     */
+    Result<Boolean> sendUploadLocationExceptionOpMsg(DeviceLocationUploadPo deviceLocationUploadPo);
 
     /**
      * 上传异常位置操作数据

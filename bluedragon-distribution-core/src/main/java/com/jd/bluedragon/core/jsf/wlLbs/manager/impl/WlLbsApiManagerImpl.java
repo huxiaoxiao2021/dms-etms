@@ -1,6 +1,7 @@
 package com.jd.bluedragon.core.jsf.wlLbs.manager.impl;
 
 import com.jd.bluedragon.common.utils.ProfilerHelper;
+import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.jsf.wlLbs.manager.WlLbsApiManager;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.lbs.geocode.api.base.BaseResponse;
@@ -8,13 +9,16 @@ import com.jd.lbs.geocode.api.dto.GisPointDto;
 import com.jd.lbs.jdlbsapi.dto.LocationRequestDto;
 import com.jd.lbs.jdlbsapi.dto.LocationResultDto;
 import com.jd.lbs.jdlbsapi.dto.drawtool.PointDto;
+import com.jd.ql.basic.domain.BaseSite;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
 import com.jdl.gis.trans.fence.api.vo.req.query.QueryFenceReq;
 import com.jdl.gis.trans.fence.api.vo.resp.query.QueryFenceResp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -38,21 +42,34 @@ public class WlLbsApiManagerImpl implements WlLbsApiManager {
     @Resource
     @Qualifier("jsfGeocodingService")
     private com.jd.lbs.geocode.api.GeocodingService jsfGeocodingService;
+    @Value("jsf.wlLbs.geoCoding.appKey")
+    private String appKey_jsfGeocodingService;
 
     // 计算两点间的直线距离
     @Resource
     @Qualifier("jsfGeoToolService")
     com.jd.lbs.jdlbsapi.geotool.GeoToolService jsfGeoToolService;
+    @Value("jsf.wlLbs.geoTool.appKey")
+    private String appKey_jsfGeoToolService;
 
     // 根据IP获取经纬度及地址信息
     @Resource
     @Qualifier("jsfLocationService")
     com.jd.lbs.jdlbsapi.geotool.LocationService jsfLocationService;
+    @Value("jsf.wlLbs.locationService.appKey")
+    private String appKey_jsfLocationService;
 
     // 围栏信息查询
     @Resource
     @Qualifier("jsfTransFenceQueryService")
     private com.jdl.gis.trans.fence.api.service.TransFenceQueryService jsfTransFenceQueryService;
+    @Value("jsf.wlLbs.transFenceQuery.appKey")
+    private String appKey_transFenceQuery;
+    @Value("jsf.wlLbs.transFenceQuery.nodeDateSource")
+    private String transFenceQueryNodeDateSource;
+
+    @Autowired
+    private BaseMajorManager baseMajorManager;
 
     private void logInfo(String message, Object... objects) {
         if (log.isInfoEnabled()) {
@@ -76,6 +93,9 @@ public class WlLbsApiManagerImpl implements WlLbsApiManager {
         com.jd.lbs.geocode.api.base.BaseResponse<GisPointDto> result = new com.jd.lbs.geocode.api.base.BaseResponse<>();
         try {
             logInfo("jsfGeocodingService.geo param: {} , {}", appKey, address);
+            if (appKey != null) {
+                appKey = appKey_jsfGeocodingService;
+            }
             result = jsfGeocodingService.geo(appKey, address);
             logInfo("jsfGeocodingService.geo param: {} , {} result: %{}", appKey, address, JsonHelper.toJson(result));
             if(result == null){
@@ -113,6 +133,9 @@ public class WlLbsApiManagerImpl implements WlLbsApiManager {
         BaseResponse<GisPointDto> result = new BaseResponse<>();
         try {
             logInfo("jsfGeocodingService.regeo param: {} , {} , {}", appKey, latitude, longitude);
+            if (appKey != null) {
+                appKey = appKey_jsfGeocodingService;
+            }
             result = jsfGeocodingService.regeo(appKey, latitude, longitude);
             logInfo("jsfGeocodingService.regeo param: {} , {} , {} result {}", appKey, latitude, longitude, JsonHelper.toJson(result));
             if(result == null){
@@ -148,6 +171,13 @@ public class WlLbsApiManagerImpl implements WlLbsApiManager {
         com.jdl.gis.trans.fence.api.vo.resp.base.BaseResponse<QueryFenceResp> result = new com.jdl.gis.trans.fence.api.vo.resp.base.BaseResponse<>();
         try {
             logInfo("jsfTransFenceQueryService.queryTransFenceByCode param: {} , {}", appKey, JsonHelper.toJson(queryFenceReq));
+            if (appKey != null) {
+                appKey = appKey_transFenceQuery;
+            }
+            // 默认的nodeDateSource
+            if(queryFenceReq.getNodeDataSource() == null){
+                queryFenceReq.setNodeDataSource(transFenceQueryNodeDateSource);
+            }
             result = jsfTransFenceQueryService.queryTransFenceByCode(appKey, queryFenceReq);
             logInfo("jsfTransFenceQueryService.queryTransFenceByCode param: {} , {} result {}", appKey, JsonHelper.toJson(queryFenceReq), JsonHelper.toJson(result));
             if(result == null){
@@ -156,6 +186,52 @@ public class WlLbsApiManagerImpl implements WlLbsApiManager {
             }
         } catch (Exception e) {
             log.error("jsfTransFenceQueryService.queryTransFenceByCode exception ",e);
+            if (result == null) {
+                result = new com.jdl.gis.trans.fence.api.vo.resp.base.BaseResponse<>();
+            }
+            result.setStatusCode(-1);
+            result.setMessage("系统异常，调用围栏查询服务异常！");
+            Profiler.functionError(callerInfo);
+        }finally{
+            Profiler.registerInfoEnd(callerInfo);
+        }
+        return result;
+    }
+
+    /**
+     * 根据场地ID查询围栏信息
+     *
+     * @param siteCode 场地ID
+     * @return 围栏信息
+     * @author fanggang7
+     * @time 2022-11-11 17:07:22 周五
+     */
+    @Override
+    public com.jdl.gis.trans.fence.api.vo.resp.base.BaseResponse<QueryFenceResp> queryTransFenceBySiteId(Integer siteCode) {
+        CallerInfo callerInfo = ProfilerHelper.registerInfo(UMP_KEY_PREFIX + "jsfTransFenceQueryService.queryTransFenceBySiteId");
+        com.jdl.gis.trans.fence.api.vo.resp.base.BaseResponse<QueryFenceResp> result = new com.jdl.gis.trans.fence.api.vo.resp.base.BaseResponse<>();
+        try {
+            logInfo("jsfTransFenceQueryService.queryTransFenceBySiteId param: {}", siteCode);
+            final BaseSite siteInfo = baseMajorManager.getSiteBySiteCode(siteCode);
+            if (siteInfo == null) {
+                log.warn("jsfTransFenceQueryService.queryTransFenceBySiteId getSiteBySiteCode null: {}", siteCode);
+                return result;
+            }
+
+            String appKey = appKey_transFenceQuery;
+            final QueryFenceReq queryFenceReq = new QueryFenceReq();
+            // 默认的nodeDateSource
+            if(queryFenceReq.getNodeDataSource() == null){
+                queryFenceReq.setNodeDataSource(transFenceQueryNodeDateSource);
+            }
+            result = jsfTransFenceQueryService.queryTransFenceByCode(appKey, queryFenceReq);
+            logInfo("jsfTransFenceQueryService.queryTransFenceBySiteId param: {} , {} result {}", appKey, JsonHelper.toJson(queryFenceReq), JsonHelper.toJson(result));
+            if(result == null){
+                log.warn("jsfTransFenceQueryService.queryTransFenceBySiteId result null: {} {}", appKey, JsonHelper.toJson(queryFenceReq));
+                return null;
+            }
+        } catch (Exception e) {
+            log.error("jsfTransFenceQueryService.queryTransFenceBySiteId exception ",e);
             if (result == null) {
                 result = new com.jdl.gis.trans.fence.api.vo.resp.base.BaseResponse<>();
             }
@@ -183,6 +259,9 @@ public class WlLbsApiManagerImpl implements WlLbsApiManager {
         com.jd.lbs.jdlbsapi.dto.BaseResponse<LocationResultDto> result = new com.jd.lbs.jdlbsapi.dto.BaseResponse<>();
         try {
             logInfo("jsfLocationService.getLocationByIp param: {} , {}", appKey, JsonHelper.toJson(locationRequestDto));
+            if (appKey != null) {
+                appKey = appKey_jsfLocationService;
+            }
             result = jsfLocationService.getLocationByIp(appKey, locationRequestDto);
             logInfo("jsfLocationService.getLocationByIp result: {} , {} , {}", appKey, locationRequestDto.getIp(), JsonHelper.toJson(result));
             if(result == null){
@@ -219,6 +298,9 @@ public class WlLbsApiManagerImpl implements WlLbsApiManager {
         com.jd.lbs.jdlbsapi.dto.BaseResponse<BigDecimal> result = new com.jd.lbs.jdlbsapi.dto.BaseResponse<>();
         try {
             logInfo("jsfGeoToolService.getLength param: {} , {} , {}", appKey, JsonHelper.toJson(startPoint), JsonHelper.toJson(endPoint));
+            if (appKey != null) {
+                appKey = appKey_jsfGeoToolService;
+            }
             result = jsfGeoToolService.getLength(appKey, startPoint, endPoint);
             logInfo("jsfGeoToolService.getLength result: {} , {} , {} , {}", appKey, JsonHelper.toJson(startPoint), JsonHelper.toJson(endPoint), JsonHelper.toJson(result));
             if(result == null){
