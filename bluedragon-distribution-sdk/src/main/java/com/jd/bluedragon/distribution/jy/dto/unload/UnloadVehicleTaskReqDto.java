@@ -16,8 +16,7 @@ public class UnloadVehicleTaskReqDto extends UnloadBaseDto implements Serializab
     private Integer lineType;
     private String packageCode;
 
-    private Date startTime;
-    private Date endTime;
+    private Date actualArriveStartTime;
 
     public Integer getPageNo() {
         return pageNo;
@@ -59,19 +58,11 @@ public class UnloadVehicleTaskReqDto extends UnloadBaseDto implements Serializab
         this.packageCode = packageCode;
     }
 
-    public Date getStartTime() {
-        return startTime;
+    public Date getActualArriveStartTime() {
+        return actualArriveStartTime;
     }
 
-    public void setStartTime(Date startTime) {
-        this.startTime = startTime;
-    }
-
-    public Date getEndTime() {
-        return endTime;
-    }
-
-    public void setEndTime(Date endTime) {
-        this.endTime = endTime;
+    public void setActualArriveStartTime(Date actualArriveStartTime) {
+        this.actualArriveStartTime = actualArriveStartTime;
     }
 }
