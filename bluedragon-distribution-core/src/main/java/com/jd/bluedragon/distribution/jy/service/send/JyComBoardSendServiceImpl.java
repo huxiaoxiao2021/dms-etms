@@ -1387,6 +1387,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
           // 拦截时保存拦截记录
           JyComboardEntity comboardEntity = createJyComboardRecord(request);
           comboardEntity.setInterceptFlag(true);
+          comboardEntity.setInterceptTime(new Date());
           jyComboardService.save(comboardEntity);
         }
         throw new JyBizException(chainResp.getMessage());
@@ -1514,6 +1515,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     if (!interceptResult.getCode().equals(200)) {
       JyComboardEntity comboardEntity = createJyComboardRecord(request);
       comboardEntity.setInterceptFlag(true);
+      comboardEntity.setInterceptTime(new Date());
       jyComboardService.save(comboardEntity);
       throw new JyBizException(interceptResult.getMessage());
     }

@@ -23,6 +23,9 @@
     <result column="intercept_flag" jdbcType="BIT" property="interceptFlag" />
     <result column="force_send_flag" jdbcType="BIT" property="forceSendFlag" />
     <result column="cancel_flag" jdbcType="BIT" property="cancelFlag" />
+    <result column="cancel_time" jdbcType="TIMESTAMP" property="cancelTime" />
+    <result column="intercept_time" jdbcType="TIMESTAMP" property="interceptTime" />
+
   </resultMap>
   <resultMap id="userInfo" type="com.jd.bluedragon.common.dto.base.request.User">
     <result column="create_user_name" jdbcType="VARCHAR" property="userName" />
@@ -31,7 +34,7 @@
   <sql id="Base_Column_List">
     id, biz_id, bar_code, bar_code_type, board_code, send_code, start_site_id, start_site_name,
     end_site_id, end_site_name, create_user_erp, create_user_name, update_user_erp, update_user_name,
-    create_time, update_time, yn, ts,intercept_flag,force_send_flag,cancel_flag
+    create_time, update_time, yn, ts,intercept_flag,force_send_flag,cancel_flag,intercept_time,cancel_time
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
     select
@@ -123,6 +126,12 @@
       <if test="cancelFlag != null">
         cancel_flag,
       </if>
+      <if test="cancelTime != null">
+        cancel_time,
+      </if>
+      <if test="interceptTime != null">
+        intercept_time,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -187,6 +196,12 @@
       </if>
       <if test="cancelFlag != null">
         #{cancelFlag,jdbcType=BIT},
+      </if>
+      <if test="cancelTime != null">
+        #{cancelTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="interceptTime != null">
+        #{interceptTime,jdbcType=TIMESTAMP},
       </if>
     </trim>
   </insert>
@@ -269,12 +284,12 @@
     where id = #{id,jdbcType=BIGINT}
   </update>
   <select id="queryUserByStartSiteCode" parameterType="java.lang.Long" resultMap="userInfo">
-    select distinct create_user_erp, create_user_name 
+    select distinct create_user_erp, create_user_name
     from jy_comboard
     where start_site_id = #{startSiteId,jdbcType=BIGINT}
       and yn = 1
   </select>
-  <select id="queryWayBillCodeByBoardCode" 
+  <select id="queryWayBillCodeByBoardCode"
           parameterType="com.jd.bluedragon.distribution.jy.comboard.JyComboardEntity"
           resultType="java.lang.String">
     select bar_code
