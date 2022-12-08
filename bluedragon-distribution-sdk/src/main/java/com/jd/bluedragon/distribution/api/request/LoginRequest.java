@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.api.request;
 
 import com.jd.bluedragon.distribution.api.request.client.DeviceInfo;
+import com.jd.bluedragon.distribution.api.request.client.DeviceLocationInfo;
 
 /**
  * 登录request对象
@@ -29,6 +30,11 @@ public class LoginRequest extends BaseRequest{
      * 设备信息
      */
     private DeviceInfo deviceInfo;
+
+    /**
+     * 设备位置信息
+     */
+    private DeviceLocationInfo deviceLocationInfo;
     
     public String getClientInfo() {
         return clientInfo;
@@ -68,5 +74,13 @@ public class LoginRequest extends BaseRequest{
 
     public void setDeviceInfo(DeviceInfo deviceInfo) {
         this.deviceInfo = deviceInfo;
+    }
+
+    public DeviceLocationInfo getDeviceLocationInfo() {
+        return deviceLocationInfo;
+    }
+
+    public void setDeviceLocationInfo(DeviceLocationInfo deviceLocationInfo) {
+        this.deviceLocationInfo = deviceLocationInfo;
     }
 }

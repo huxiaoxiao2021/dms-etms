@@ -40,7 +40,6 @@ public class GeometryUtil {
      * @Description: 从WKT创建多个点
      * @return: com.vividsolutions.jts.geom.MultiPoint
      */
-    @Autowired
     public static MultiPoint createMulPointByWKT(String wellKnownText) throws ParseException {
         WKTReader reader = new WKTReader(geometryFactory);
 //        MultiPoint mpoint = (MultiPoint) reader.read("MULTIPOINT(119.013388 31.715519, 119.32488 31.435678)");
