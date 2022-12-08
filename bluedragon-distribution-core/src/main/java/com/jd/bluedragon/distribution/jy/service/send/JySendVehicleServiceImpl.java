@@ -877,6 +877,7 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
 
             // 默认按预计发车时间排序
             curSendDest.setSendVehicleBizId(null);
+            curSendDest.setTransferFlag(TransFlagEnum.IN.getCode());
             List<JyBizTaskSendVehicleEntity> vehiclePageList = taskSendVehicleService.findSendTaskByDestOfPage(curSendDest,
                     vehicleTaskReq.getPageNumber(), vehicleTaskReq.getPageSize());
 
@@ -1139,6 +1140,9 @@ public class JySendVehicleServiceImpl implements IJySendVehicleService {
             List<VehicleTaskDto> vehicleTaskList = new ArrayList<>();
             taskResp.setVehicleTaskDtoList(vehicleTaskList);
 
+            if (Objects.equals(TransFlagEnum.IN.getCode(), vehicleTaskReq.getTransferFlag())){
+                queryDetail.setTransferFlag(TransFlagEnum.IN.getCode());
+            }
             queryDetail.setLastPlanDepartTimeBegin(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(),-uccConfig.getJySendTaskPlanTimeBeginDay()));
             queryDetail.setLastPlanDepartTimeEnd(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(),uccConfig.getJySendTaskPlanTimeEndDay()));
             queryDetail.setCreateTimeBegin(DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(),-uccConfig.getJySendTaskCreateTimeBeginDay()));
