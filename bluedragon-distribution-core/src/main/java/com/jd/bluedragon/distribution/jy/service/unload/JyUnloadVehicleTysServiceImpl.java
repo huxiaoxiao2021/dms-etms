@@ -231,7 +231,11 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     private List<LineTypeStatisDto> calculationLineTypeStatis(JyBizTaskUnloadVehicleEntity condition) {
         List<LineTypeStatisDto> lineTypeList = new ArrayList<>();
         JyBizTaskUnloadStatusEnum statusEnum = JyBizTaskUnloadStatusEnum.getEnumByCode(condition.getVehicleStatus());
-        List<JyBizTaskUnloadCountDto> lineTypeAgg = jyBizTaskUnloadVehicleService.findStatusCountByCondition4StatusAndLine(condition, null, statusEnum);
+        //请求中的线路类型仅是查列表的过滤条件，线路类型为筛选条件，要展示全部
+        JyBizTaskUnloadVehicleEntity entity = new JyBizTaskUnloadVehicleEntity();
+        org.springframework.beans.BeanUtils.copyProperties(condition,entity);
+        entity.setLineType(null);
+        List<JyBizTaskUnloadCountDto> lineTypeAgg = jyBizTaskUnloadVehicleService.findStatusCountByCondition4StatusAndLine(entity, null, statusEnum);
         if (CollectionUtils.isNotEmpty(lineTypeAgg)) {
             for (JyBizTaskUnloadCountDto countDto : lineTypeAgg) {
                 LineTypeStatisDto lineTypeStatis = convertLineTypeDto(countDto);
