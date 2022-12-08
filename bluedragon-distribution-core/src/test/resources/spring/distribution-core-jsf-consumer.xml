@@ -921,6 +921,21 @@
         retries="${jsf.retries}" >
         <jsf:parameter key="token" value="${jsf.consumer.eclp.bbp.token}" hide="true"/>
     </jsf:consumer>
+    <!--  国标映射京标服务  -->
+    <jsf:consumer id="gbDistrictJDDistrictMapService"
+                  interface="com.jd.addresstranslation.api.address.GBDistrictJDDistrictMapService"
+                  protocol="jsf"
+                  alias="${jsf.address.gbmap.alias}"
+                  timeout="${jsf.address.gbmap.timeout}"
+                  retries="${jsf.retries}"/>
+    <!--  eclp服务  -->
+    <jsf:consumer id="thirdJsfInterface"
+                  interface="com.jd.etms.third.jsf.ThirdJsfInterface"
+                  protocol="jsf"
+                  alias="${jsf.eclp.thirdJsfInterface.alias}"
+                  timeout="${jsf.eclp.thirdJsfInterface.timeout}"
+                  retries="${jsf.retries}"/>  
+                                    
     <!-- 运输任务相关接口 -->
     <jsf:consumer id="tpcLineCargoVolumeApi" interface="com.jd.tms.tpc.api.TpcRouteLineCargoApi"
                   protocol="jsf" alias="${jsf.tpc.alias}"

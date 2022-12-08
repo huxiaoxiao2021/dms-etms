@@ -370,5 +370,10 @@
     <jmq:consumer id="jmq.packageCodePrintConsumer" transport="jmq.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.packageRePrintProducer}" listener="packageCodePrintConsumer"/>
     </jmq:consumer>
+    
+    <!--  分拣发邮政消息处理  -->
+    <jmq:consumer id="jmq.dmsSendToEmsWaybillInfoConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.dmsSendToEmsWaybillInfo}" listener="dmsSendToEmsWaybillInfoConsumer"/>
+    </jmq:consumer>    
 </beans>
 
