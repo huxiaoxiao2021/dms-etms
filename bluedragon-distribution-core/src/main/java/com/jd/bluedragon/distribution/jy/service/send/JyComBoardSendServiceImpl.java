@@ -2168,7 +2168,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     JyComboardPackageDetail con =new JyComboardPackageDetail();
     con.setOperateSiteId(request.getCurrentOperate().getSiteCode());
     con.setReceiveSiteId(String.valueOf(request.getEndSiteId()));
-    con.setInterceptFlag(Constants.YN_NO);
+    con.setInterceptFlag(Constants.YN_YES);
     pager.setSearchVo(con);
     pager.setPageNo(request.getPageNo());
     pager.setPageSize(request.getPageSize());
