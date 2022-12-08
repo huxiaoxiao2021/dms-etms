@@ -288,6 +288,7 @@
           parameterType="com.jd.bluedragon.distribution.jy.dto.comboard.BatchUpdateCancelReq">
     update jy_comboard
     set cancel_flag = #{cancelFlag,jdbcType=BIT},
+    cancel_time = now(),
     yn = 0,
     <if test="updateUserErp != null and updateUserErp != ''">
       update_user_erp = #{updateUserErp,jdbcType=VARCHAR},
