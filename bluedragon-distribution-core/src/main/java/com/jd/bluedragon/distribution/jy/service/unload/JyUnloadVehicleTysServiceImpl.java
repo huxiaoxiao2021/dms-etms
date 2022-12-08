@@ -170,11 +170,9 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         if(unloadVehicleTaskReqDto == null) {
             return;
         }
-        if(unloadVehicleTaskReqDto.getEndTime() == null || unloadVehicleTaskReqDto.getEndTime() == null) {
-            Date endTIme = new Date();
-            Date startTime = DateHelper.getZeroFromDay(endTIme, uccPropertyConfiguration.getJyUnloadCarListQueryDayFilter());
+        if(unloadVehicleTaskReqDto.getStartTime() == null) {
+            Date startTime = DateHelper.getZeroFromDay(new Date(), uccPropertyConfiguration.getJyUnloadCarListQueryDayFilter());
             unloadVehicleTaskReqDto.setStartTime(startTime);
-            unloadVehicleTaskReqDto.setEndTime(endTIme);
             log.info("test-卸车岗任务列表查询时间过滤，param={}", JsonHelper.toJson(unloadVehicleTaskReqDto));
         }
     }
