@@ -1,5 +1,7 @@
 package com.jd.bluedragon.distribution.api.request;
 
+import com.jd.bluedragon.distribution.api.request.client.DeviceInfo;
+
 /**
  * 登录request对象
  * Created by shipeilin on 2018/1/16.
@@ -22,6 +24,11 @@ public class LoginRequest extends BaseRequest{
      * 基础版本号
      */
     private String baseVersionCode = "01-20010101";
+
+    /**
+     * 设备信息
+     */
+    private DeviceInfo deviceInfo;
     
     public String getClientInfo() {
         return clientInfo;
@@ -54,4 +61,12 @@ public class LoginRequest extends BaseRequest{
 	public void setBaseVersionCode(String baseVersionCode) {
 		this.baseVersionCode = baseVersionCode;
 	}
+
+    public DeviceInfo getDeviceInfo() {
+        return deviceInfo;
+    }
+
+    public void setDeviceInfo(DeviceInfo deviceInfo) {
+        this.deviceInfo = deviceInfo;
+    }
 }
