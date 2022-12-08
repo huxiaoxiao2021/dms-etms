@@ -4,6 +4,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.dms.GroupBoardManager;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.request.BoardCombinationRequest;
@@ -26,6 +27,7 @@ import com.jd.bluedragon.distribution.sorting.service.SortingService;
 import com.jd.bluedragon.distribution.storage.service.StoragePackageMService;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
+import com.jd.bluedragon.distribution.trace.BarcodeTraceDto;
 import com.jd.bluedragon.distribution.ver.service.SortingCheckService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
@@ -128,6 +130,10 @@ public class BoardCommonManagerImpl implements BoardCommonManager {
 
     @Autowired
     private WaybillPackageManager waybillPackageManager;
+
+    @Autowired
+    @Qualifier("sendTraceProducer")
+    private DefaultJMQProducer sendTraceProducer;
 
     /**
      * 包裹是否发货校验
@@ -445,23 +451,13 @@ public class BoardCommonManagerImpl implements BoardCommonManager {
         if (tcResponse != null && tcResponse.getCode() == ResponseEnum.SUCCESS.getIndex()) {
             String boardOld = tcResponse.getData();
             String boardNew = request.getBoardCode();
-            if(BusinessUtil.isBoxcode(request.getBarCode())) {
-                // 取消组板的全称跟踪 -- 旧板号
-                request.setBoardCode(boardOld);
-                sendBoxWaybillTrace(request, WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION_CANCEL);
+            // 取消组板的全称跟踪 -- 旧板号
+            request.setBoardCode(boardOld);
+            sendWaybillTraceMq(request, WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION_CANCEL);
 
-                // 组板的全称跟踪 -- 新板号
-                request.setBoardCode(boardNew);
-                sendBoxWaybillTrace(request, WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION);
-            }else {
-                // 取消组板的全称跟踪 -- 旧板号
-                request.setBoardCode(boardOld);
-                sendWaybillTrace(request, WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION_CANCEL);
-
-                // 组板的全称跟踪 -- 新板号
-                request.setBoardCode(boardNew);
-                sendWaybillTrace(request, WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION);
-            }
+            // 组板的全称跟踪 -- 新板号
+            request.setBoardCode(boardNew);
+            sendWaybillTraceMq(request, WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION);
 
 
             result.setData(tcResponse.getData());
@@ -726,34 +722,67 @@ public class BoardCommonManagerImpl implements BoardCommonManager {
     }
 
 
+//    /**
+//     * 发送箱号组板全程跟踪
+//     * @param request
+//     * @param operateType 操作类型
+//     */
+//    @Override
+//    public void sendBoxWaybillTrace(BoardCommonRequest request, Integer operateType) {
+//        if(!BusinessUtil.isBoxcode(request.getBarCode())) {
+//            return;
+//        }
+//        Box box = boxService.findBoxByCode(request.getBarCode());
+//        Sorting sorting = new Sorting();
+//        sorting.setBoxCode(request.getBarCode());
+//        sorting.setCreateSiteCode(box.getCreateSiteCode());
+//        List<Sorting> sortingList = sortingService.listSortingByBoxCode(sorting);
+//        if(CollectionUtils.isEmpty(sortingList)) {
+//            if(logger.isInfoEnabled()) {
+//                logger.info("按箱{}未查询到箱内包裹，箱信息={}", request.getBarCode(), JsonHelper.toJson(box));
+//            }
+//        }
+////        logger.info("按箱操作组板发送全流程跟踪：节点={}（7000组板7600取消组板），箱信息={}，箱内包裹集合={}",operateType, JsonHelper.toJson(request), JsonHelper.toJson(sortingList));
+//        for (Sorting s:sortingList){
+//            BoardCommonRequest boardCommonRequest = BeanUtils.copy(request, BoardCommonRequest.class);
+//            boardCommonRequest.setBarCode(s.getPackageCode());
+//            if(logger.isInfoEnabled()) {
+//                logger.info("按箱操作组板发送全流程跟踪：节点={}（7000组板7600取消组板），箱信息={}，包裹流程跟踪={}",operateType, JsonHelper.toJson(request), JsonHelper.toJson(boardCommonRequest));
+//            }
+//            sendWaybillTrace(boardCommonRequest, operateType);
+//        }
+//    }
+
     /**
-     * 发送箱号组板全程跟踪
+     * 生产箱包全流程跟踪jmq
      * @param request
-     * @param operateType 操作类型
+     * @param operateType
      */
     @Override
-    public void sendBoxWaybillTrace(BoardCommonRequest request, Integer operateType) {
-        if(!BusinessUtil.isBoxcode(request.getBarCode())) {
-            return;
+    public void sendWaybillTraceMq(BoardCommonRequest request, Integer operateType) {
+        BarcodeTraceDto barcodeTraceDto = new BarcodeTraceDto();
+        //设置站点相关属性
+        barcodeTraceDto.setBarCode(request.getBarCode());
+        barcodeTraceDto.setCreateSiteCode(request.getOperateSiteCode());
+        barcodeTraceDto.setCreateSiteName(request.getOperateSiteName());
+        barcodeTraceDto.setOperatorId(request.getOperateUserCode());
+        barcodeTraceDto.setOperator(request.getOperateUserName());
+        barcodeTraceDto.setOperatorErp(request.getOperateUserErp());
+        barcodeTraceDto.setOperateTime(new Date());
+        barcodeTraceDto.setOperateType(operateType);
+        barcodeTraceDto.setBoardCode(request.getBoardCode());
+        barcodeTraceDto.setReceiveSiteCode(request.getReceiveSiteCode());
+        barcodeTraceDto.setReceiveSiteName(request.getReceiveSiteName());
+//        if (operateType.equals(WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION)) {
+//            traceDto.setRemark("包裹号：" + traceDto.getBarCode() + "已进行组板，板号" + request.getBoardCode() + "，等待送往" + request.getReceiveSiteName());
+//        } else if (operateType.equals(WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION_CANCEL)) {
+//            traceDto.setRemark("已取消组板，板号" + request.getBoardCode());
+//        }
+        String msg = com.jd.bluedragon.distribution.api.utils.JsonHelper.toJson(barcodeTraceDto);
+        if(logger.isInfoEnabled()) {
+            logger.info("发送全流程跟踪，businessId={}, msg={}", request.getBarCode(), msg);
         }
-        Box box = boxService.findBoxByCode(request.getBarCode());
-        Sorting sorting = new Sorting();
-        sorting.setBoxCode(request.getBarCode());
-        sorting.setCreateSiteCode(box.getCreateSiteCode());
-        List<Sorting> sortingList = sortingService.listSortingByBoxCode(sorting);
-        if(CollectionUtils.isEmpty(sortingList)) {
-            if(logger.isInfoEnabled()) {
-                logger.info("按箱{}未查询到箱内包裹，箱信息={}", request.getBarCode(), JsonHelper.toJson(box));
-            }
-        }
-//        logger.info("按箱操作组板发送全流程跟踪：节点={}（7000组板7600取消组板），箱信息={}，箱内包裹集合={}",operateType, JsonHelper.toJson(request), JsonHelper.toJson(sortingList));
-        for (Sorting s:sortingList){
-            BoardCommonRequest boardCommonRequest = BeanUtils.copy(request, BoardCommonRequest.class);
-            boardCommonRequest.setBarCode(s.getPackageCode());
-            if(logger.isInfoEnabled()) {
-                logger.info("按箱操作组板发送全流程跟踪：节点={}（7000组板7600取消组板），箱信息={}，包裹流程跟踪={}",operateType, JsonHelper.toJson(request), JsonHelper.toJson(boardCommonRequest));
-            }
-            sendWaybillTrace(boardCommonRequest, operateType);
-        }
+        sendTraceProducer.sendOnFailPersistent(request.getBarCode(), msg);
+
     }
 }

@@ -539,14 +539,14 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         // 包裹超重校验
         jyUnloadVehicleCheckTysService.checkPackageOverWeight(packageD, waybill, scanPackageRespDto);
         // 包裹是否扫描成功以及是否组板成功
-        jyUnloadVehicleCheckTysService.packageIsScan(scanPackageDto);
+        jyUnloadVehicleCheckTysService.scanCodeIsScan(scanPackageDto);
         // 是否强制组板
         if (!scanPackageDto.getIsForceCombination()) {
             UnloadScanDto unloadScanDto = createUnloadDto(scanPackageDto, unloadVehicleEntity);
             // 加盟商余额校验 + 推验货任务
             jyUnloadVehicleCheckTysService.inspectionIntercept(barCode, waybill, unloadScanDto);
             // 设置拦截缓存
-            jyUnloadVehicleCheckTysService.setCacheOfSealCarAndPackageIntercept(bizId, barCode);
+            jyUnloadVehicleCheckTysService.setCacheOfSealCarAndScanCodeIntercept(bizId, barCode);
             // 组装返回数据
             jyUnloadVehicleCheckTysService.assembleReturnData(scanPackageDto, scanPackageRespDto, unloadVehicleEntity, unloadScanDto);
             // 无任务设置上游站点
@@ -1702,14 +1702,14 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         ScanPackageRespDto scanPackageRespDto = invokeResult.getData();
 
         // 包裹是否扫描成功以及是否组板成功
-        jyUnloadVehicleCheckTysService.packageIsScan(scanPackageDto);
+        jyUnloadVehicleCheckTysService.scanCodeIsScan(scanPackageDto);
         // 是否强制组板
         if (!scanPackageDto.getIsForceCombination()) {
             UnloadScanDto unloadScanDto = createUnloadDto(scanPackageDto, unloadVehicleEntity);
             //推验货任务
             jyUnloadVehicleCheckTysService.inspection(boxCode, unloadScanDto);
             // 设置重复拦截缓存
-            jyUnloadVehicleCheckTysService.setCacheOfSealCarAndPackageIntercept(bizId, boxCode);
+            jyUnloadVehicleCheckTysService.setCacheOfSealCarAndScanCodeIntercept(bizId, boxCode);
             // 组装返回数据
             jyUnloadVehicleCheckTysService.assembleReturnData(scanPackageDto, scanPackageRespDto, unloadVehicleEntity, unloadScanDto);
             // 货区校验
@@ -1726,8 +1726,6 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
                     log.info("packageCodeScanNew--路由校验失败：该箱内包裹流向与当前板号流向不一致, req=【{}】,res=【{}】", JsonUtils.toJSONString(scanPackageDto), JsonUtils.toJSONString(invokeResult));
                     return invokeResult;
                 }
-                // 是否发货校验
-                jyUnloadVehicleCheckTysService.isSendCheck(scanPackageDto);
                 // 板上包裹数限制
                 jyUnloadVehicleCheckTysService.packageCountCheck(scanPackageDto);
                 // ver组板拦截校验

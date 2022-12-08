@@ -43,12 +43,12 @@ public interface BoardCommonManager {
      * @param operateType 操作类型
      */
     void sendWaybillTrace(BoardCommonRequest request, Integer operateType);
-    /**
-     * 发送箱号组板全程跟踪
-     * @param request
-     * @param operateType 操作类型
-     */
-    public void sendBoxWaybillTrace(BoardCommonRequest request, Integer operateType);
+//    /**
+//     * 发送箱号组板全程跟踪
+//     * @param request
+//     * @param operateType 操作类型
+//     */
+//    public void sendBoxWaybillTrace(BoardCommonRequest request, Integer operateType);
 
     /**
      * 创建单个组板
@@ -115,4 +115,10 @@ public interface BoardCommonManager {
      */
     InvokeResult<Boolean> loadUnloadInterceptValidate(String waybillCode, String waybillSign);
 
+    /**
+     * 发送全流程跟踪
+     * @param request
+     * @param operateType
+     */
+    public void sendWaybillTraceMq(BoardCommonRequest request, Integer operateType);
 }
