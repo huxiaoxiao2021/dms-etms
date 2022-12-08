@@ -788,6 +788,10 @@ public class Constants {
      */
     public static final Integer THIRD_SITE_SUB_TYPE = 16;
     /**
+     * 第三方配送站点-三级类型-邮政落地配-16001
+     */
+    public static final Integer THIRD_SITE_THIRD_TYPE_SMS = 16001;
+    /**
      * Double值-0
      */
     public static final Double DOUBLE_ZERO = 0.0;
@@ -1779,11 +1783,6 @@ public class Constants {
      * 批量一车一单发货批次扫描批次
      */
     public static final String MENU_CODE_BATCH_SEND_CODE  = "0101004-gz";
-
-    /**
-     * 抖音来源标识
-     */
-    public static final String SOURCE_CODE_DOUYIN  = "cn_jdl_ecp-bytedance";
     /**
      * 无任务卸车上游站点初始值
      */

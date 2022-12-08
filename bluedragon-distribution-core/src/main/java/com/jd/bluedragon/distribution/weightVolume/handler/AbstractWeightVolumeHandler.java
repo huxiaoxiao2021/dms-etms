@@ -482,7 +482,7 @@ public abstract class AbstractWeightVolumeHandler implements IWeightVolumeHandle
 
         // B网包裹维度的称重校验逻辑
         if (WeightVolumeBusinessTypeEnum.BY_PACKAGE.name().equals(weightVolumeContext.getBusinessType())) {
-            // 包裹维度-单体积超过27m³禁止揽收；超500KG禁止称重
+            // 包裹维度-单体积超过27m³禁止揽收；超1000KG禁止称重
             if (volume > WeightVolumeRuleConstant.PACKAGE_MAX_VOLUME_B * WeightVolumeRuleConstant.CM3_M3_MAGNIFICATION) {
                 result.parameterError(String.format(WeightVolumeRuleConstant.RESULT_SPECIAL_MESSAGE_FORCE_PACKAGE_MAX_WEIGHT_B, WeightVolumeRuleConstant.PACKAGE_MAX_VOLUME_B));
                 result.setData(Boolean.FALSE);
