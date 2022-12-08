@@ -359,7 +359,8 @@ public class InspectionGatewayServiceImpl implements InspectionGatewayService {
      * @param response
      */
     private void luxurySecurityCheck(InspectionRequest request, JdVerifyResponse<InspectionCheckResultDto> response){
-        InvokeResult<Boolean> luxurySecurityResult = waybillService.checkLuxurySecurity(request.getBarCode(), "");
+        InvokeResult<Boolean> luxurySecurityResult = waybillService.checkLuxurySecurity(request.getCreateSiteCode(),
+                request.getBarCode(), "");
         log.info("checkBeforeInspection -特保单校验结果-{}", JSON.toJSONString(luxurySecurityResult));
         if(luxurySecurityResult != null && luxurySecurityResult.getData()){
             response.addWarningBox(luxurySecurityResult.getCode(), luxurySecurityResult.getMessage());

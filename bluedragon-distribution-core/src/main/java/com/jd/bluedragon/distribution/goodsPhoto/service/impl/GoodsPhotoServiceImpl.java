@@ -64,4 +64,12 @@ public class GoodsPhotoServiceImpl implements GoodsPhoteService {
     public GoodsPhotoInfo getOneByBarCode(String barCode) {
         return goodsPhotoDao.selectByBarCode(barCode);
     }
+
+    @Override
+    public GoodsPhotoInfo selectOne(Integer siteCode, String barCode) {
+        GoodsPhotoInfo info = new GoodsPhotoInfo();
+        info.setSiteCode(siteCode);
+        info.setBarCode(barCode);
+        return goodsPhotoDao.selectOneBySiteCodeAndBarCode(info);
+    }
 }

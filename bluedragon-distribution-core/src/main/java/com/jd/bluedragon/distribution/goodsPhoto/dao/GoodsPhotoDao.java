@@ -27,5 +27,8 @@ public class GoodsPhotoDao extends BaseDao<GoodsPhotoInfo> {
         return this.getSqlSession().selectOne(namespace+".selectByBarCode", barCode);
     }
 
+    public GoodsPhotoInfo selectOneBySiteCodeAndBarCode(GoodsPhotoInfo info){
+        return this.getSqlSession().selectOne(namespace+".selectByBarCode",info);
+    }
 
 }

@@ -206,6 +206,6 @@ public interface WaybillService {
      * @param waybillCode
      * @return
      */
-    InvokeResult<Boolean> checkLuxurySecurity(String waybillCode, String waybilSign);
+    InvokeResult<Boolean> checkLuxurySecurity(Integer siteCode,String waybillCode, String waybilSign);
 
 }

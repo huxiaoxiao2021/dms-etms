@@ -29,6 +29,8 @@ import com.jd.bluedragon.distribution.base.service.SysConfigService;
 import com.jd.bluedragon.distribution.box.domain.Box;
 import com.jd.bluedragon.distribution.box.service.BoxService;
 import com.jd.bluedragon.distribution.client.domain.PdaOperateRequest;
+import com.jd.bluedragon.distribution.goodsPhoto.domain.GoodsPhotoInfo;
+import com.jd.bluedragon.distribution.goodsPhoto.service.GoodsPhoteService;
 import com.jd.bluedragon.distribution.mixedPackageConfig.enums.SiteTypeEnum;
 import com.jd.bluedragon.distribution.print.service.ScheduleSiteSupportInterceptService;
 import com.jd.bluedragon.distribution.reverse.domain.ReverseReceive;
@@ -127,6 +129,8 @@ public class WaybillServiceImpl implements WaybillService {
 
     @Autowired
     private SecurityCheckerExecutor securityCheckerExecutor;
+
+    private GoodsPhoteService goodsPhoteService;
 
     /**
      * 普通运单类型（非移动仓内配）
@@ -1088,8 +1092,8 @@ public class WaybillServiceImpl implements WaybillService {
 
     @Override
     @JProfiler(jKey= "DMSWEB.InspectionService.checkLuxurySecurity", mState = {JProEnum.TP, JProEnum.FunctionError})
-    public InvokeResult<Boolean> checkLuxurySecurity(String barCode, String waybillSign) {
-        log.info("特保单 checkLuxurySecurity 单号-{}",barCode);
+    public InvokeResult<Boolean> checkLuxurySecurity(Integer siteCode,String barCode, String waybillSign) {
+        log.info("特保单 checkLuxurySecurity 站点-{} 单号-{}",siteCode,barCode);
         InvokeResult<Boolean> result = new InvokeResult();
         result.success();
         result.setData(Boolean.FALSE);
@@ -1100,6 +1104,7 @@ public class WaybillServiceImpl implements WaybillService {
             log.warn("箱号暂时不做处理！");
             return result;
         }
+
         //如果是包裹号解析成运单号
         String waybillCode = WaybillUtil.getWaybillCode(barCode);
         try{
@@ -1127,6 +1132,12 @@ public class WaybillServiceImpl implements WaybillService {
             boolean isLuxurySecurity = isLuxurySecurityVosWaybill(waybillCode);
             log.info("增值服务是否包含特保单增值服务-{}",isLuxurySecurity);
             if(isLuxurySecurity){
+                //判断此特保单是否已经有拍照记录 有的话直接返回不提示
+                GoodsPhotoInfo info = goodsPhoteService.selectOne(siteCode, barCode);
+                if(info != null){
+                    log.warn("此单照片已经拍过");
+                    return result;
+                }
                 result.customMessage(InvokeResult.LUXURY_SECURITY_TIPS_CODE, InvokeResult.LUXURY_SECURITY_TIPS_MESSAGE);
                 result.setData(Boolean.TRUE);
                 return result;

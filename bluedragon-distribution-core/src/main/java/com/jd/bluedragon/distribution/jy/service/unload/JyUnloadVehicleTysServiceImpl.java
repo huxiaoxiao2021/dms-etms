@@ -600,7 +600,8 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
 
         Map<String,String> confirmMap = new HashMap<>(2);
         //特保单校验
-        InvokeResult<Boolean> luxurySecurityResult = waybillService.checkLuxurySecurity(barCode, waybill.getWaybillSign());
+        InvokeResult<Boolean> luxurySecurityResult = waybillService.checkLuxurySecurity(scanPackageDto.getCurrentOperate().getSiteCode(),
+                barCode, waybill.getWaybillSign());
         log.info("packageScan-特保单校验结果-{}",JSON.toJSONString(luxurySecurityResult));
         if(luxurySecurityResult != null && luxurySecurityResult.getData()){
             confirmMap.put(luxurySecurityResult.getCode()+"",luxurySecurityResult.getMessage());
@@ -679,7 +680,8 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             return invokeResult;
         }
         Map<String,String> confirmMap = new HashMap<>(2);
-        InvokeResult<Boolean> luxurySecurityResult = waybillService.checkLuxurySecurity(barCode, waybill.getWaybillSign());
+        InvokeResult<Boolean> luxurySecurityResult = waybillService.checkLuxurySecurity(scanPackageDto.getCurrentOperate().getSiteCode(),
+                barCode, waybill.getWaybillSign());
         log.info("waybillScan -特保单校验结果-{}",JSON.toJSONString(luxurySecurityResult));
         if(luxurySecurityResult != null && luxurySecurityResult.getData()){
             confirmMap.put(luxurySecurityResult.getCode()+"",luxurySecurityResult.getMessage());

@@ -50,7 +50,17 @@
     select 
     <include refid="Base_Column_List" />
     from jy_goods_photo_info
-    where bar_code = #{barCode,jdbcType=BIGINT} and yn =1 limit 1
+    where bar_code = #{barCode,jdbcType=VARCHAR} and yn =1 limit 1
+  </select>
+
+  <select id="selectOneBySiteCodeAndBarCode" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from jy_goods_photo_info
+    where
+          bar_code = #{barCode,jdbcType=VARCHAR}
+      and site_code= #{siteCode,jdbcType=INTEGER}
+      and yn =1 limit 1
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from jy_goods_photo_info
