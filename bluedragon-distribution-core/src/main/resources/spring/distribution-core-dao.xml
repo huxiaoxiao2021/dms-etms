@@ -858,6 +858,13 @@
         <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
     </bean>
 
+    <bean id="jyBizTaskMachineCalibrateDao" class="com.jd.bluedragon.distribution.jy.dao.calibrate.JyBizTaskMachineCalibrateDao">
+        <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
+    </bean>
+    <bean id="jyBizTaskMachineCalibrateDetailDao" class="com.jd.bluedragon.distribution.jy.dao.calibrate.JyBizTaskMachineCalibrateDetailDao">
+        <property name="sqlSession" ref="jyCoreSqlSessionTemplate"/>
+    </bean>
+
     <!--################################## jy_core 相关DAO END ############################################ -->
 
 

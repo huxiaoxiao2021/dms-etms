@@ -465,5 +465,10 @@
         <jmq:listener topic="${jmq.topic.send.car.arrive.status}" listener="sendCarArriveStatusConsumer"/>
     </jmq:consumer>
 
+    <!--  dws称重量方校准消息处理  -->
+    <jmq:consumer id="jmq.dwsWeightVolumeCalibrateConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.dms.weightVolume.calibrate}" listener="dwsWeightVolumeCalibrateConsumer"/>
+    </jmq:consumer>
+
 </beans>
 

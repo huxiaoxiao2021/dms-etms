@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.spotcheck.service;
 
 import com.jd.bluedragon.distribution.base.domain.DmsBaseDict;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
+import com.jd.bluedragon.distribution.jy.dto.calibrate.DwsMachineCalibrateMQ;
 import com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckContext;
 import com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckResult;
 import com.jd.ql.dms.report.domain.spotcheck.WeightVolumeSpotCheckDto;
@@ -149,4 +150,11 @@ public interface SpotCheckDealService {
     String getSpotCheckPackUrlFromCache(String packageCode, Integer siteCode);
 
     void brushSpotCheck(List<WeightVolumeSpotCheckDto> list, String userErp);
+
+    /**
+     * 根据设备校准数据处理抽检数据（判定是否将抽检数据下发）
+     *
+     * @param dwsMachineCalibrateMQ
+     */
+    void dealSpotCheckWithDwsCalibrateData(DwsMachineCalibrateMQ dwsMachineCalibrateMQ);
 }

@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jd.bluedragon.distribution.jy.dao.calibrate.JyBizTaskMachineCalibrateDetailDao">
+
+	<!-- 可根据自己的需求，是否要使用 -->
+    <resultMap type="com.jd.bluedragon.distribution.jy.calibrate.JyBizTaskMachineCalibrateDetailEntity" id="jyBizTaskMachineCalibrateDetailMap">
+        <result property="id" column="id"/>
+        <result property="machineCode" column="machine_code"/>
+        <result property="taskCreateTime" column="task_create_time"/>
+        <result property="taskEndTime" column="task_end_time"/>
+        <result property="taskStatus" column="task_status"/>
+        <result property="weightCalibrateTime" column="weight_calibrate_time"/>
+        <result property="volumeCalibrateTime" column="volume_calibrate_time"/>
+        <result property="calibrateFinishTime" column="calibrate_finish_time"/>
+        <result property="weightCalibrateStatus" column="weight_calibrate_status"/>
+        <result property="volumeCalibrateStatus" column="volume_calibrate_status"/>
+        <result property="machineStatus" column="machine_status"/>
+        <result property="createUserErp" column="create_user_erp"/>
+        <result property="updateUserErp" column="update_user_erp"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="yn" column="yn"/>
+        <result property="ts" column="ts"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, machine_code, task_create_time, task_end_time, task_status, weight_calibrate_time, volume_calibrate_time, calibrate_finish_time,
+        weight_calibrate_status, volume_calibrate_status, machine_status, create_user_erp, update_user_erp, create_time, update_time, yn, ts
+    </sql>
+
+    <insert id="insert" parameterType="com.jd.bluedragon.distribution.jy.calibrate.JyBizTaskMachineCalibrateDetailEntity">
+        INSERT INTO jy_biz_task_machine_calibrate_detail (
+            <trim suffixOverrides=",">
+                <if test="id != null">
+                    id,
+                </if>
+                <if test="machineCode != null">
+                    machine_code,
+                </if>
+                <if test="taskCreateTime != null">
+                    task_create_time,
+                </if>
+                <if test="taskEndTime != null">
+                    task_end_time,
+                </if>
+                <if test="taskStatus != null">
+                    task_status,
+                </if>
+                <if test="weightCalibrateTime != null">
+                    weight_calibrate_time,
+                </if>
+                <if test="volumeCalibrateTime != null">
+                    volume_calibrate_time,
+                </if>
+                <if test="calibrateFinishTime != null">
+                    calibrate_finish_time,
+                </if>
+                <if test="weightCalibrateStatus != null">
+                    weight_calibrate_status,
+                </if>
+                <if test="volumeCalibrateStatus != null">
+                    volume_calibrate_status,
+                </if>
+                <if test="machineStatus != null">
+                    machine_status,
+                </if>
+                <if test="createUserErp != null">
+                    create_user_erp,
+                </if>
+                <if test="updateUserErp != null">
+                    update_user_erp,
+                </if>
+                    create_time,
+                    update_time,
+                    yn,
+                    ts
+            </trim>
+        ) VALUES (
+            <trim suffixOverrides=",">
+                <if test="id != null">
+                    #{id},
+                </if>
+                <if test="machineCode != null">
+                    #{machineCode},
+                </if>
+                <if test="taskCreateTime != null">
+                    #{taskCreateTime},
+                </if>
+                <if test="taskEndTime != null">
+                    #{taskEndTime},
+                </if>
+                <if test="taskStatus != null">
+                    #{taskStatus},
+                </if>
+                <if test="weightCalibrateTime != null">
+                    #{weightCalibrateTime},
+                </if>
+                <if test="volumeCalibrateTime != null">
+                    #{volumeCalibrateTime},
+                </if>
+                <if test="calibrateFinishTime != null">
+                    #{calibrateFinishTime},
+                </if>
+                <if test="weightCalibrateStatus != null">
+                    #{weightCalibrateStatus},
+                </if>
+                <if test="volumeCalibrateStatus != null">
+                    #{volumeCalibrateStatus},
+                </if>
+                <if test="machineStatus != null">
+                    #{machineStatus},
+                </if>
+                <if test="createUserErp != null">
+                    #{createUserErp},
+                </if>
+                <if test="updateUserErp != null">
+                    #{updateUserErp},
+                </if>
+                    now(),
+                    now(),
+                    1,
+                    now()
+            </trim>
+        )
+    </insert>
+
+    <update id="update" parameterType="com.jd.bluedragon.distribution.jy.calibrate.JyBizTaskMachineCalibrateDetailEntity">
+        UPDATE jy_biz_task_machine_calibrate_detail
+            <set>
+                <if test="id != null">
+                    id = #{id} ,
+                </if>
+                <if test="machineCode != null">
+                    machine_code = #{machineCode} ,
+                </if>
+                <if test="taskCreateTime != null">
+                    task_create_time = #{taskCreateTime} ,
+                </if>
+                <if test="taskEndTime != null">
+                    task_end_time = #{taskEndTime} ,
+                </if>
+                <if test="taskStatus != null">
+                    task_status = #{taskStatus} ,
+                </if>
+                <if test="weightCalibrateTime != null">
+                    weight_calibrate_time = #{weightCalibrateTime} ,
+                </if>
+                <if test="volumeCalibrateTime != null">
+                    volume_calibrate_time = #{volumeCalibrateTime} ,
+                </if>
+                <if test="calibrateFinishTime != null">
+                    calibrate_finish_time = #{calibrateFinishTime} ,
+                </if>
+                <if test="weightCalibrateStatus != null">
+                    weight_calibrate_status = #{weightCalibrateStatus} ,
+                </if>
+                <if test="volumeCalibrateStatus != null">
+                    volume_calibrate_status = #{volumeCalibrateStatus} ,
+                </if>
+                <if test="machineStatus != null">
+                    machine_status = #{machineStatus} ,
+                </if>
+                <if test="createUserErp != null">
+                    create_user_erp = #{createUserErp} ,
+                </if>
+                <if test="updateUserErp != null">
+                    update_user_erp = #{updateUserErp} ,
+                </if>
+                <if test="createTime != null">
+                    create_time = #{createTime} ,
+                </if>
+                <if test="updateTime != null">
+                    update_time = #{updateTime} ,
+                </if>
+                <if test="yn != null">
+                    yn = #{yn} ,
+                </if>
+                <if test="ts != null">
+                    ts = #{ts}
+                </if>
+            </set>
+        <where>
+            id = #{id}
+        </where>
+    </update>
+
+
+    <update id="delete" parameterType="com.jd.bluedragon.distribution.jy.calibrate.JyBizTaskMachineCalibrateDetailEntity">
+        update upee_product
+        <set>
+            yn = 0,
+            update_time = #{updateTime},
+            update_user = #{updateUser}
+        </set>
+        <where>
+            id = #{id}
+        </where>
+    </update>
+
+    <select id="selectByCondition" parameterType="com.jd.bluedragon.distribution.jy.calibrate.JyBizTaskMachineCalibrateDetailEntity" resultMap="jyBizTaskMachineCalibrateDetailMap">
+        select
+        <include refid="Base_Column_List"/>
+        from jy_biz_task_machine_calibrate_detail
+        <where>
+            yn = 1
+            <include refid="condition_sql"/>
+        </where>
+    </select>
+
+    <select id="findByPageCount" resultType="Integer">
+        select count(1) from upee_product
+        <where>
+            yn = 1
+            <include refid="condition_sql"/>
+        </where>
+    </select>
+
+    <select id="findByPage" resultMap="upeeProductMap">
+        select
+        <include refid="Base_Column_List"/>
+        from upee_product
+        <where>
+            yn = 1
+            <include refid="condition_sql"/>
+        </where>
+        limit #{offset},#{limitNum}
+    </select>
+
+    <sql id="condition_sql">
+        <if test="machineCode != null">
+            and machine_code = #{machineCode}
+        </if>
+        <if test="taskStatus != null">
+            and task_status = #{taskStatus}
+        </if>
+        <if test="createUserErp != null">
+            and create_user_erp = #{createUserErp}
+        </if>
+    </sql>
+</mapper>
