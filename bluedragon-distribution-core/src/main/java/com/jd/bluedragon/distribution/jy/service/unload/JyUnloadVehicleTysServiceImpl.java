@@ -215,7 +215,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         condition.setFuzzyVehicleNumber(unloadVehicleTaskReqDto.getVehicleNumber());
         condition.setActualArriveStartTime(unloadVehicleTaskReqDto.getActualArriveStartTime());
         if(WAIT_UN_LOAD.getCode().equals(unloadVehicleTaskReqDto.getVehicleStatus())) {
-            unloadVehicleTaskReqDto.setActualArriveStartTime(waitUnloadQueryTimeRange());
+            condition.setActualArriveStartTime(waitUnloadQueryTimeRange());
         }
         return condition;
     }
