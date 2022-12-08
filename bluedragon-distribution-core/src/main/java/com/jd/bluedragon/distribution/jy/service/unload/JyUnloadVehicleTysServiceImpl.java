@@ -143,11 +143,20 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         if (ObjectHelper.isNotNull(unloadVehicleTaskReqDto.getPackageCode())) {
             return queryUnloadVehicleTaskByVehicleNumOrPackage(unloadVehicleTaskReqDto);
         }
-        waitUnloadQueryTimeRangeHandler(unloadVehicleTaskReqDto);
         //查询状态统计数据(按状态分组聚合)
-        JyBizTaskUnloadStatusEnum[] statusEnums = {WAIT_UN_LOAD, UN_LOADING, UN_LOAD_DONE};
+        JyBizTaskUnloadStatusEnum[] statusEnums = {UN_LOADING, UN_LOAD_DONE};
         JyBizTaskUnloadVehicleEntity statusStatisticsQueryParams = assembleQueryStatusStatisticsCondition(unloadVehicleTaskReqDto);
         List<JyBizTaskUnloadCountDto> unloadCountDtos = jyBizTaskUnloadVehicleService.findStatusCountByCondition4Status(statusStatisticsQueryParams, null, statusEnums);
+        if(CollectionUtils.isEmpty(unloadCountDtos)) {
+            unloadCountDtos = new ArrayList<>();
+        }
+        //待扫状态单独计算，待扫要过滤到达时间，其他状态不过滤时间
+        JyBizTaskUnloadStatusEnum[] waitStatusEnums = {WAIT_UN_LOAD};
+        JyBizTaskUnloadVehicleEntity waitStatusStatisticsQueryParams = assembleQueryStatusStatisticsCondition(unloadVehicleTaskReqDto);
+        waitStatusStatisticsQueryParams.setActualArriveStartTime(waitUnloadQueryTimeRange());
+        List<JyBizTaskUnloadCountDto> waitStatusUnloadCountDtos = jyBizTaskUnloadVehicleService.findStatusCountByCondition4Status(waitStatusStatisticsQueryParams, null, waitStatusEnums);
+        unloadCountDtos.addAll(waitStatusUnloadCountDtos);
+
         if (!CollectionUtils.isNotEmpty(unloadCountDtos)) {
             return new InvokeResult<>(RESULT_SUCCESS_CODE, TASK_NO_FOUND_BY_STATUS_MESSAGE);
         }
@@ -160,6 +169,9 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         respDto.setUnloadVehicleTaskDtoList(unloadVehicleTaskDtoList);
 
         statusStatisticsQueryParams.setVehicleStatus(unloadVehicleTaskReqDto.getVehicleStatus());
+        if(WAIT_UN_LOAD.getCode().equals(unloadVehicleTaskReqDto.getVehicleStatus())) {
+            unloadVehicleTaskReqDto.setActualArriveStartTime(waitUnloadQueryTimeRange());
+        }
         List<LineTypeStatisDto> lineTypeStatisDtoList = calculationLineTypeStatis(statusStatisticsQueryParams);
         respDto.setLineTypeStatisDtoList(lineTypeStatisDtoList);
 
@@ -167,18 +179,10 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     }
 
     /**
-     * 待卸车列表展示查询实际到达时间范围过滤
-     * @param unloadVehicleTaskReqDto
-     */
-    private void waitUnloadQueryTimeRangeHandler(UnloadVehicleTaskReqDto unloadVehicleTaskReqDto) {
-        if(unloadVehicleTaskReqDto == null || !JyBizTaskUnloadStatusEnum.WAIT_UN_LOAD.getCode().equals(unloadVehicleTaskReqDto.getVehicleStatus())){
-            return;
-        }
-        if(unloadVehicleTaskReqDto.getActualArriveStartTime() == null) {
-            Date startTime = DateHelper.getZeroFromDay(new Date(), uccPropertyConfiguration.getJyUnloadCarListQueryDayFilter());
-            unloadVehicleTaskReqDto.setActualArriveStartTime(startTime);
-            log.info("test-卸车岗任务列表查询时间过滤，param={}", JsonHelper.toJson(unloadVehicleTaskReqDto));
-        }
+     * 待卸车装车过滤时间范围
+     * */
+    private Date waitUnloadQueryTimeRange() {
+        return DateHelper.getZeroFromDay(new Date(), uccPropertyConfiguration.getJyUnloadCarListQueryDayFilter());
     }
 
 //    /**
@@ -210,6 +214,9 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         condition.setLineType(unloadVehicleTaskReqDto.getLineType());
         condition.setFuzzyVehicleNumber(unloadVehicleTaskReqDto.getVehicleNumber());
         condition.setActualArriveStartTime(unloadVehicleTaskReqDto.getActualArriveStartTime());
+        if(WAIT_UN_LOAD.getCode().equals(unloadVehicleTaskReqDto.getVehicleStatus())) {
+            unloadVehicleTaskReqDto.setActualArriveStartTime(waitUnloadQueryTimeRange());
+        }
         return condition;
     }
 
@@ -218,7 +225,6 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         condition.setLineType(unloadVehicleTaskReqDto.getLineType());
         condition.setEndSiteId(Long.valueOf(unloadVehicleTaskReqDto.getCurrentOperate().getSiteCode()));
         condition.setFuzzyVehicleNumber(unloadVehicleTaskReqDto.getVehicleNumber());
-        condition.setActualArriveStartTime(unloadVehicleTaskReqDto.getActualArriveStartTime());
         return condition;
     }
 
