@@ -45,6 +45,26 @@ public class JyComboardEntity {
 
     private Boolean cancelFlag;
 
+    private Date cancelTime;
+
+    private Date interceptTime;
+
+    public Date getCancelTime() {
+        return cancelTime;
+    }
+
+    public void setCancelTime(Date cancelTime) {
+        this.cancelTime = cancelTime;
+    }
+
+    public Date getInterceptTime() {
+        return interceptTime;
+    }
+
+    public void setInterceptTime(Date interceptTime) {
+        this.interceptTime = interceptTime;
+    }
+
     public Boolean getCancelFlag() {
         return cancelFlag;
     }
