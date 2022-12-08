@@ -1501,23 +1501,24 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   }
 
   private void comboardCheckChain(ComboardScanReq request) {
-    final PdaOperateRequest pdaOperateRequest = new PdaOperateRequest();
-    pdaOperateRequest.setPackageCode(request.getBarCode());
-    pdaOperateRequest.setBoxCode(request.getBarCode());
-    pdaOperateRequest.setReceiveSiteCode(request.getDestinationId());
-    pdaOperateRequest.setCreateSiteCode(request.getCurrentOperate().getSiteCode());
-    pdaOperateRequest.setCreateSiteName(request.getCurrentOperate().getSiteName());
-    pdaOperateRequest.setOperateUserCode(request.getUser().getUserCode());
-    pdaOperateRequest.setOperateUserName(request.getUser().getUserName());
-    pdaOperateRequest.setOnlineStatus(BusinessInterceptOnlineStatusEnum.ONLINE.getCode());
-    BoardCombinationJsfResponse interceptResult = sortingCheckService
-        .virtualBoardCombinationCheck(pdaOperateRequest);
-    if (!interceptResult.getCode().equals(200)) {
-      JyComboardEntity comboardEntity = createJyComboardRecord(request);
-      comboardEntity.setInterceptFlag(true);
-      comboardEntity.setInterceptTime(new Date());
-      jyComboardService.save(comboardEntity);
-      throw new JyBizException(interceptResult.getMessage());
+    if (WaybillUtil.isPackageCode(request.getBarCode()) || WaybillUtil.isWaybillCode(request.getBarCode())) {
+      final PdaOperateRequest pdaOperateRequest = new PdaOperateRequest();
+      pdaOperateRequest.setPackageCode(request.getBarCode());
+      pdaOperateRequest.setBoxCode(request.getBarCode());
+      pdaOperateRequest.setReceiveSiteCode(request.getDestinationId());
+      pdaOperateRequest.setCreateSiteCode(request.getCurrentOperate().getSiteCode());
+      pdaOperateRequest.setCreateSiteName(request.getCurrentOperate().getSiteName());
+      pdaOperateRequest.setOperateUserCode(request.getUser().getUserCode());
+      pdaOperateRequest.setOperateUserName(request.getUser().getUserName());
+      pdaOperateRequest.setOnlineStatus(BusinessInterceptOnlineStatusEnum.ONLINE.getCode());
+      BoardCombinationJsfResponse interceptResult = sortingCheckService.virtualBoardCombinationCheck(pdaOperateRequest);
+      if (!interceptResult.getCode().equals(200)) {
+        JyComboardEntity comboardEntity = createJyComboardRecord(request);
+        comboardEntity.setInterceptFlag(true);
+        comboardEntity.setInterceptTime(new Date());
+        jyComboardService.save(comboardEntity);
+        throw new JyBizException(interceptResult.getMessage());
+      }
     }
   }
 
