@@ -133,14 +133,14 @@ public class DmsSendToEmsWaybillInfoConsumer extends MessageBaseConsumer {
     private boolean buildAndSendWaybillInfoToEms(DmsSendToEmsWaybillInfoMq sendDataMq) {
     	WaybillInfoRequest request = new WaybillInfoRequest();
     	request.setDoType(DoTypeEnum.A.toString());
-    	request.setWaybillNo(sendDataMq.getBoardCode());
+    	request.setWaybillNo(sendDataMq.getPackageBarcode());
     	request.setProductCode(ProductTypeEnum.STANDARD.getCode());
     	request.setIsInternational(InternationalTypeEnum.INTERNAL.getCode());
     	if(sendDataMq.getBusiId() != null) {
     		request.setPickupAttribute(sendDataMq.getBusiId().toString());
     	}
     	//取包裹重量
-    	DeliveryPackageD packageData = waybillPackageManager.getPackageInfoByPackageCode(sendDataMq.getBoardCode());
+    	DeliveryPackageD packageData = waybillPackageManager.getPackageInfoByPackageCode(sendDataMq.getPackageBarcode());
     	Double weight = 0d;
     	if(packageData != null) {
     		if(NumberHelper.gt0(packageData.getAgainWeight())) {
@@ -155,17 +155,17 @@ public class DmsSendToEmsWaybillInfoConsumer extends MessageBaseConsumer {
     	request.setSenderMobile(sendDataMq.getConsignerMobile());
     	request.setSenderAddress(sendDataMq.getConsignerAddress());
     	request.setReceiverLinker(sendDataMq.getReceiverName());
-    	request.setReceiverAddress(sendDataMq.getReceiverMobile());
-    	request.setReceiverMobile(sendDataMq.getReceiverAddress());
+    	request.setReceiverMobile(sendDataMq.getReceiverMobile());
+    	request.setReceiverAddress(sendDataMq.getReceiverAddress());
 
     	request.setInsuranceFlag(InsuranceFlagEnum.N.getCode());
     	
     	request.setSenderRegionCode(getSenderRegionCode(sendDataMq));
     	request.setReceiverRegionCode(getReceiverRegionCode(sendDataMq));
     	
-    	log.info("分拣发邮政运单信息request:{}"+JsonHelper.toJson(request));
+    	log.info("分拣发邮政运单信息request:{}",JsonHelper.toJson(request));
     	WaybillInfoResponse waybillResponse= emsWaybillInfoManager.doRestInterface(request);
-    	log.info("分拣发邮政运单信息response:{}"+JsonHelper.toJson(waybillResponse));
+    	log.info("分拣发邮政运单信息response:{}",JsonHelper.toJson(waybillResponse));
     	if(waybillResponse != null && waybillResponse.checkSucceed()) {
     		return true;
     	}
@@ -194,7 +194,7 @@ public class DmsSendToEmsWaybillInfoConsumer extends MessageBaseConsumer {
     		return gbResult.getData().getGbCode();
     		
     	}else {
-    		log.warn("获取收件人12位区划编码失败:{}"+JsonHelper.toJson(gbResult));
+    		log.warn("获取收件人12位区划编码失败:{}",JsonHelper.toJson(gbResult));
     	}
 		return null;
 	}
@@ -226,7 +226,7 @@ public class DmsSendToEmsWaybillInfoConsumer extends MessageBaseConsumer {
     		return gbResult.getData().getGbCode();
     		
     	}else {
-    		log.warn("获取寄件人12位区划编码失败:{}"+JsonHelper.toJson(gbResult));
+    		log.warn("获取寄件人12位区划编码失败:{}",JsonHelper.toJson(gbResult));
     	}
 		return null;
 	}
@@ -255,7 +255,7 @@ public class DmsSendToEmsWaybillInfoConsumer extends MessageBaseConsumer {
     	list.add(param);
     	JdResult<List<ReceiptStateParameter>> eclpResult = thirdJsfInterfaceManager.partnerReceiptState(list);
     	if(!eclpResult.isSucceed()) {
-    		log.warn("分拣发邮政通知eclp失败:{}"+JsonHelper.toJson(eclpResult));
+    		log.warn("分拣发邮政通知eclp失败:{}",JsonHelper.toJson(eclpResult));
     	}
     }
     /**
@@ -266,7 +266,7 @@ public class DmsSendToEmsWaybillInfoConsumer extends MessageBaseConsumer {
     	
     	BaseEntity<List<PackageState>> traceData = waybillTraceManager.getPkStateByPCode(sendDataMq.getPackageBarcode());
     	if(traceData == null || CollectionUtils.isEmpty(traceData.getData())) {
-    		log.warn("包裹号{}全程跟踪为空，不发送邮政:"+sendDataMq.getPackageBarcode());
+    		log.warn("包裹号{}全程跟踪为空，不发送邮政:",sendDataMq.getPackageBarcode());
     		return;
     	}
     	TracesCompanyRequest request = new TracesCompanyRequest();
@@ -277,9 +277,9 @@ public class DmsSendToEmsWaybillInfoConsumer extends MessageBaseConsumer {
     		}
     	}
     	request.setTraces(traces);
-    	log.info("分拣发邮政全程跟踪信息request:{}"+JsonHelper.toJson(request));
+    	log.info("分拣发邮政全程跟踪信息request:{}",JsonHelper.toJson(request));
     	TracesCompanyResponse tracesResponse= emsTracesCompanyManager.doRestInterface(request);
-    	log.info("分拣发邮政全程跟踪信息response:{}"+JsonHelper.toJson(tracesResponse));
+    	log.info("分拣发邮政全程跟踪信息response:{}",JsonHelper.toJson(tracesResponse));
     }
     /**
      * 转换成外部全程跟踪对象
