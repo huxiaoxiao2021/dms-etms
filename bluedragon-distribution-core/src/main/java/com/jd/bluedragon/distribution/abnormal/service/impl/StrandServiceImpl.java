@@ -645,7 +645,7 @@ public class StrandServiceImpl implements StrandService {
 			Profiler.registerInfoEnd(call);
 		}
         if(!CollectionUtils.isEmpty(checkFailPackageCodes)) {
-        	result.error("特快送包裹禁止上报\n"+checkFailPackageCodes.get(0));
+        	result.error("特保单包裹禁止上报\n"+checkFailPackageCodes.get(0));
         }
     	return result;
     }
@@ -658,8 +658,8 @@ public class StrandServiceImpl implements StrandService {
             return result;
         }
         if(BusinessUtil.isVasWaybill(bigWaybillDto.getWaybill().getWaybillSign()) && waybillService.isLuxurySecurityVosWaybill(waybillCode)) {
-            log.warn("根据运单号：特快送包裹禁止上报{}", waybillCode);
-            result.error("特快送包裹禁止上报");
+            log.warn("根据运单号：特保单包裹禁止上报{}", waybillCode);
+            result.error("特保单包裹禁止上报");
             return result;
         }
     	return result;
