@@ -526,6 +526,8 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             invokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, "该运单号不存在，请检查运单号是否正确！");
             return invokeResult;
         }
+
+        checkEasyFreezeResult(waybillCode,scanPackageDto.getCurrentOperate().getSiteCode(),scanPackageRespDto);
         // 判断是否是跨越的取消订单
         String kyCancelCheckStr = jyUnloadVehicleCheckTysService.kyExpressCancelCheck(operateSiteCode, waybill);
         if (StringUtils.isNotBlank(kyCancelCheckStr)) {
@@ -597,23 +599,12 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             // 卸车处理并回传TC组板关系
             jyUnloadVehicleCheckTysService.dealUnloadAndBoxToBoard(scanPackageDto, scanPackageRespDto);
         }
-        //易冻品校验
-        log.info("易冻品校验 packageScan 入参-{}",JSON.toJSONString(scanPackageDto));
-        InvokeResult<Boolean> checkResult
-                = waybillService.checkEasyFreeze(waybillCode, new Date(), operateSiteCode);
-        log.info("packageScan-易冻品校验结果-{}",JSON.toJSONString(checkResult));
-        Map<String,String> confirmMap = new HashMap<>(1);
-        if(checkResult != null && checkResult.getData()){
-            confirmMap.put(checkResult.getCode()+"",checkResult.getMessage());
-        }
-        scanPackageRespDto.setConfirmMsg(confirmMap);
         log.info("JyUnloadVehicleTysServiceImpl.packageScan invokeResult-{}",JSON.toJSONString(invokeResult));
         return invokeResult;
     }
 
     private InvokeResult<ScanPackageRespDto> waybillScan(ScanPackageDto scanPackageDto, JyBizTaskUnloadVehicleEntity unloadVehicleEntity,
                                                          InvokeResult<ScanPackageRespDto> invokeResult) {
-        log.info("易冻品校验 waybillScan 入参-{}",JSON.toJSONString(scanPackageDto));
         String barCode = scanPackageDto.getScanCode();
         String bizId = scanPackageDto.getBizId();
         ScanPackageRespDto scanPackageRespDto = invokeResult.getData();
@@ -634,6 +625,8 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             invokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, "该运单号不存在，请检查运单号是否正确！");
             return invokeResult;
         }
+        //易冻损校验
+        checkEasyFreezeResult(waybillCode,scanPackageDto.getCurrentOperate().getSiteCode(),scanPackageRespDto);
         scanPackageDto.setGoodsNumber(waybill.getGoodNumber());
         // 校验是否达到大宗使用标准
         String checkStr = jyUnloadVehicleCheckTysService.checkIsMeetWaybillStandard(waybill);
@@ -681,21 +674,22 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             invokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, interceptResult);
             return invokeResult;
         }
-        // todo  添加易冻品逻辑判断
-        //易冻品校验
-        log.info("易冻品校验 waybillScan 入参-{}",JSON.toJSONString(scanPackageDto));
-        InvokeResult<Boolean> easyFreezeCheckResult
-                = waybillService.checkEasyFreeze(waybillCode, new Date(), scanPackageDto.getCurrentOperate().getSiteCode());
-        log.info("waybillScan -易冻品校验结果-{}",JSON.toJSONString(easyFreezeCheckResult));
-        Map<String,String> confirmMap = new HashMap<>(1);
-        if(easyFreezeCheckResult != null && easyFreezeCheckResult.getData()){
-            confirmMap.put(easyFreezeCheckResult.getCode()+"",easyFreezeCheckResult.getMessage());
-        }
-        scanPackageRespDto.setConfirmMsg(confirmMap);
+        log.info("JyUnloadVehicleTysServiceImpl.waybillScan invokeResult-{}",JSON.toJSONString(invokeResult));
         return invokeResult;
     }
 
 
+    private void checkEasyFreezeResult(String barCode, Integer siteCode,ScanPackageRespDto scanPackageRespDto){
+        //易冻品校验
+        InvokeResult<Boolean> easyFreezeCheckResult
+                = waybillService.checkEasyFreeze(barCode, new Date(), siteCode);
+        log.info("checkEasyFreezeResult-易冻品校验结果-{}",JSON.toJSONString(easyFreezeCheckResult));
+        if(easyFreezeCheckResult != null && easyFreezeCheckResult.getData()){
+            Map<String, String> confirmMsg = scanPackageRespDto.getConfirmMsg();
+            confirmMsg.put(easyFreezeCheckResult.getCode()+"",easyFreezeCheckResult.getMessage());
+            scanPackageRespDto.setConfirmMsg(confirmMsg);
+        }
+    }
 
 
 
