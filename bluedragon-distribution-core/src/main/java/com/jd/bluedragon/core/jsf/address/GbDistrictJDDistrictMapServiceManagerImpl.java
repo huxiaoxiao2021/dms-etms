@@ -62,7 +62,7 @@ public class GbDistrictJDDistrictMapServiceManagerImpl implements GbDistrictJDDi
 			}
 			BaseResponse<List<GBAddressLevelsResponse>>  rpcResult = gbDistrictJDDistrictMapService.getGBDistrictByJDCode(appKey, jdCode);
 			if(log.isInfoEnabled()){
-				log.info("京标国标映射服务-response："+JsonHelper.toJson(rpcResult));
+				log.info("京标国标映射服务-response：{}",JsonHelper.toJson(rpcResult));
 			}
 			if(rpcResult != null
 					&& SUC_CODE.equals(rpcResult.getStatus())
