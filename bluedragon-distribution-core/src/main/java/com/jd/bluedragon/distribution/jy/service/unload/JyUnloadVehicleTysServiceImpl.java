@@ -6,6 +6,7 @@ import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.UnifiedExceptionProcess;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.common.dto.operation.workbench.unload.request.UnloadCompleteRequest;
+import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BaseMajorManager;
 import com.jd.bluedragon.core.base.BoardCommonManager;
 import com.jd.bluedragon.core.base.WaybillPackageManager;
@@ -38,6 +39,7 @@ import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BeanUtils;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.ObjectHelper;
 import com.jd.etms.waybill.domain.DeliveryPackageD;
@@ -58,7 +60,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
 
 import static com.jd.bluedragon.Constants.WAYBILL_ROUTER_SPLIT;
 import static com.jd.bluedragon.distribution.base.domain.InvokeResult.*;
@@ -124,7 +129,8 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     @Autowired
     @Qualifier("jyUnloadCarPostTaskCompleteProducer")
     private DefaultJMQProducer jyUnloadCarPostTaskCompleteProducer;
-
+    @Autowired
+    private UccPropertyConfiguration uccPropertyConfiguration ;
 
 
 
@@ -138,9 +144,19 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             return queryUnloadVehicleTaskByVehicleNumOrPackage(unloadVehicleTaskReqDto);
         }
         //查询状态统计数据(按状态分组聚合)
-        JyBizTaskUnloadStatusEnum[] statusEnums = {WAIT_UN_LOAD, UN_LOADING, UN_LOAD_DONE};
+        JyBizTaskUnloadStatusEnum[] statusEnums = {UN_LOADING, UN_LOAD_DONE};
         JyBizTaskUnloadVehicleEntity statusStatisticsQueryParams = assembleQueryStatusStatisticsCondition(unloadVehicleTaskReqDto);
         List<JyBizTaskUnloadCountDto> unloadCountDtos = jyBizTaskUnloadVehicleService.findStatusCountByCondition4Status(statusStatisticsQueryParams, null, statusEnums);
+        if(CollectionUtils.isEmpty(unloadCountDtos)) {
+            unloadCountDtos = new ArrayList<>();
+        }
+        //待扫状态单独计算，待扫要过滤到达时间，其他状态不过滤时间
+        JyBizTaskUnloadStatusEnum[] waitStatusEnums = {WAIT_UN_LOAD};
+        JyBizTaskUnloadVehicleEntity waitStatusStatisticsQueryParams = assembleQueryStatusStatisticsCondition(unloadVehicleTaskReqDto);
+        waitStatusStatisticsQueryParams.setActualArriveStartTime(waitUnloadQueryTimeRange());
+        List<JyBizTaskUnloadCountDto> waitStatusUnloadCountDtos = jyBizTaskUnloadVehicleService.findStatusCountByCondition4Status(waitStatusStatisticsQueryParams, null, waitStatusEnums);
+        unloadCountDtos.addAll(waitStatusUnloadCountDtos);
+
         if (!CollectionUtils.isNotEmpty(unloadCountDtos)) {
             return new InvokeResult<>(RESULT_SUCCESS_CODE, TASK_NO_FOUND_BY_STATUS_MESSAGE);
         }
@@ -153,10 +169,20 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         respDto.setUnloadVehicleTaskDtoList(unloadVehicleTaskDtoList);
 
         statusStatisticsQueryParams.setVehicleStatus(unloadVehicleTaskReqDto.getVehicleStatus());
+        if(WAIT_UN_LOAD.getCode().equals(unloadVehicleTaskReqDto.getVehicleStatus())) {
+            unloadVehicleTaskReqDto.setActualArriveStartTime(waitUnloadQueryTimeRange());
+        }
         List<LineTypeStatisDto> lineTypeStatisDtoList = calculationLineTypeStatis(statusStatisticsQueryParams);
         respDto.setLineTypeStatisDtoList(lineTypeStatisDtoList);
 
         return new InvokeResult<>(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, respDto);
+    }
+
+    /**
+     * 待卸车装车过滤时间范围
+     * */
+    private Date waitUnloadQueryTimeRange() {
+        return DateHelper.getZeroFromDay(new Date(), uccPropertyConfiguration.getJyUnloadCarListQueryDayFilter());
     }
 
 //    /**
@@ -187,6 +213,10 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         condition.setEndSiteId(Long.valueOf(unloadVehicleTaskReqDto.getCurrentOperate().getSiteCode()));
         condition.setLineType(unloadVehicleTaskReqDto.getLineType());
         condition.setFuzzyVehicleNumber(unloadVehicleTaskReqDto.getVehicleNumber());
+        condition.setActualArriveStartTime(unloadVehicleTaskReqDto.getActualArriveStartTime());
+        if(WAIT_UN_LOAD.getCode().equals(unloadVehicleTaskReqDto.getVehicleStatus())) {
+            condition.setActualArriveStartTime(waitUnloadQueryTimeRange());
+        }
         return condition;
     }
 
@@ -201,7 +231,11 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     private List<LineTypeStatisDto> calculationLineTypeStatis(JyBizTaskUnloadVehicleEntity condition) {
         List<LineTypeStatisDto> lineTypeList = new ArrayList<>();
         JyBizTaskUnloadStatusEnum statusEnum = JyBizTaskUnloadStatusEnum.getEnumByCode(condition.getVehicleStatus());
-        List<JyBizTaskUnloadCountDto> lineTypeAgg = jyBizTaskUnloadVehicleService.findStatusCountByCondition4StatusAndLine(condition, null, statusEnum);
+        //请求中的线路类型仅是查列表的过滤条件，线路类型为筛选条件，要展示全部
+        JyBizTaskUnloadVehicleEntity entity = new JyBizTaskUnloadVehicleEntity();
+        org.springframework.beans.BeanUtils.copyProperties(condition,entity);
+        entity.setLineType(null);
+        List<JyBizTaskUnloadCountDto> lineTypeAgg = jyBizTaskUnloadVehicleService.findStatusCountByCondition4StatusAndLine(entity, null, statusEnum);
         if (CollectionUtils.isNotEmpty(lineTypeAgg)) {
             for (JyBizTaskUnloadCountDto countDto : lineTypeAgg) {
                 LineTypeStatisDto lineTypeStatis = convertLineTypeDto(countDto);
@@ -464,7 +498,12 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             if (StringUtils.isNotBlank(scanPackageDto.getSealCarCode())) {
                 // 新老版本互斥
                 InvokeResult<Boolean> permissionResult = transferService.saveOperatePdaVersion(scanPackageDto.getSealCarCode(), AppVersionEnums.PDA_GUIDED.getVersion());
-                if (permissionResult.getCode() != RESULT_SUCCESS_CODE || Boolean.FALSE.equals(permissionResult.getData())) {
+                if (permissionResult.getCode() != RESULT_SUCCESS_CODE) {
+                    log.warn("作业app版本校验失败，该任务已经在老PDA版本领取:request={},permissionResult={}", JSON.toJSONString(scanPackageDto), JSON.toJSONString(permissionResult));
+                    invokeResult.customMessage(RESULT_INTERCEPT_CODE, permissionResult.getMessage());
+                    return invokeResult;
+                }
+                if (Boolean.FALSE.equals(permissionResult.getData())) {
                     log.warn("作业app版本校验失败，该任务已经在老PDA版本领取:request={},permissionResult={}", JSON.toJSONString(scanPackageDto), JSON.toJSONString(permissionResult));
                     invokeResult.customMessage(RESULT_INTERCEPT_CODE, "该任务已经在老版PDA领取，请前往老版PDA继续操作");
                     return invokeResult;
@@ -781,9 +820,14 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             if (StringUtils.isNotBlank(scanPackageDto.getSealCarCode())) {
                 // 新老版本互斥
                 InvokeResult<Boolean> permissionResult = transferService.saveOperatePdaVersion(scanPackageDto.getSealCarCode(), AppVersionEnums.PDA_GUIDED.getVersion());
-                if (permissionResult.getCode() != RESULT_SUCCESS_CODE || Boolean.FALSE.equals(permissionResult.getData())) {
+                if (permissionResult.getCode() != RESULT_SUCCESS_CODE) {
                     log.warn("流水线扫描新版本获取锁失败或卸车任务已在老版本操作:request={},permissionResult={}", JSON.toJSONString(scanPackageDto), JSON.toJSONString(permissionResult));
-                    invokeResult.customMessage(RESULT_INTERCEPT_CODE, "流水线扫描新版本获取锁失败或卸车任务已在老版本操作");
+                    invokeResult.customMessage(RESULT_INTERCEPT_CODE, permissionResult.getMessage());
+                    return invokeResult;
+                }
+                if (Boolean.FALSE.equals(permissionResult.getData())) {
+                    log.warn("流水线扫描新版本获取锁失败或卸车任务已在老版本操作:request={},permissionResult={}", JSON.toJSONString(scanPackageDto), JSON.toJSONString(permissionResult));
+                    invokeResult.customMessage(RESULT_INTERCEPT_CODE, "该任务已经在老版PDA领取，请前往老版PDA继续操作");
                     return invokeResult;
                 }
             }
