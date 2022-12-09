@@ -35,6 +35,7 @@ public class GbDistrictJDDistrictMapServiceManagerImpl implements GbDistrictJDDi
     private static final Logger log = LoggerFactory.getLogger(GbDistrictJDDistrictMapServiceManagerImpl.class);
     private static final String UMP_KEY_PREFIX = "dmsWeb.jsf.client.address.gbDistrictJDDistrictMapService.";
     private static final Integer SUC_CODE = 200;
+    private static final String SUFF_CODE = "000000000000000000000000000000000000";
     
     @Autowired
     @Qualifier("gbDistrictJDDistrictMapService")
@@ -113,6 +114,9 @@ public class GbDistrictJDDistrictMapServiceManagerImpl implements GbDistrictJDDi
 		return dmsData;
 	}
 	private String toCode12(String code) {
-		return String.format("%012d", code);
+		if(code != null && code.length() < 12) {
+			return code.concat(SUFF_CODE.substring(0, 12 - code.length()));
+		}
+		return code;
 	}
 }

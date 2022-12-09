@@ -62,9 +62,9 @@ public class DMSCrossbowClientTest {
     }
     public static void main(String[] args) {
         EmsTracesCompanyManager a = new EmsTracesCompanyManager();
-        a.setSecret("test");
+        a.setSecret("789dde1cf8ews59deg6cdg4ew8dfe2w6");
         TracesCompanyRequest request = new TracesCompanyRequest();
-        request.setBrandCode("jd");
+        request.setBrandCode("JDL");
         request.setTraces(new ArrayList<TracesCompanyRequestItem>());
         for(int i=0;i<10;i++) {
         	TracesCompanyRequestItem item = new TracesCompanyRequestItem();
@@ -73,6 +73,16 @@ public class DMSCrossbowClientTest {
         	item.setOpDesc("desc"+i);
         	request.getTraces().add(item);
         }
+        
         a.getMyHeaderParams(request);
+        System.out.println(JsonHelper.toJson(request));
+        System.out.println(toCode12("653222211"));
     }
+    
+	private static String toCode12(String code) {
+		if(code != null && code.length() < 12) {
+			return code.concat("00000000000000000000000".substring(0, 12 - code.length()));
+		}
+		return code;
+	}
 }

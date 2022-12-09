@@ -155,8 +155,8 @@ public class DmsSendToEmsWaybillInfoConsumer extends MessageBaseConsumer {
     	request.setSenderMobile(sendDataMq.getConsignerMobile());
     	request.setSenderAddress(sendDataMq.getConsignerAddress());
     	request.setReceiverLinker(sendDataMq.getReceiverName());
-    	request.setReceiverAddress(sendDataMq.getReceiverMobile());
-    	request.setReceiverMobile(sendDataMq.getReceiverAddress());
+    	request.setReceiverMobile(sendDataMq.getReceiverMobile());
+    	request.setReceiverAddress(sendDataMq.getReceiverAddress());
 
     	request.setInsuranceFlag(InsuranceFlagEnum.N.getCode());
     	
