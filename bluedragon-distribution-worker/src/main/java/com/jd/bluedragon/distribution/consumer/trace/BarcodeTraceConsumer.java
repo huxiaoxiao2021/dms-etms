@@ -31,7 +31,7 @@ import java.util.List;
  * @Description //TODO
  * @date
  **/
-@Service("sendTraceConsume")
+@Service("barcodeTraceConsumer")
 public class BarcodeTraceConsumer extends MessageBaseConsumer {
 
     private final Logger log = LoggerFactory.getLogger(this.getClass());
