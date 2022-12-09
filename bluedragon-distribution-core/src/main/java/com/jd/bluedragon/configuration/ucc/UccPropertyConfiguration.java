@@ -980,6 +980,13 @@ public class UccPropertyConfiguration {
      */
     private Integer weightVolumeSwitchVersion;
 
+    /**
+     * 卸车岗列表页过滤最近N天数据
+     */
+    private Integer jyUnloadCarListQueryDayFilter;
+
+
+
     public String getScheduleSiteCheckSameCity() {
         return scheduleSiteCheckSameCity;
     }
@@ -2371,5 +2378,13 @@ public class UccPropertyConfiguration {
 
     public void setPlanSendTime(String planSendTime) {
         this.planSendTime = planSendTime;
+    }
+
+    public Integer getJyUnloadCarListQueryDayFilter() {
+        return jyUnloadCarListQueryDayFilter;
+    }
+
+    public void setJyUnloadCarListQueryDayFilter(Integer jyUnloadCarListQueryDayFilter) {
+        this.jyUnloadCarListQueryDayFilter = jyUnloadCarListQueryDayFilter;
     }
 }

@@ -636,4 +636,25 @@ public class DateHelper {
             return null;
         }
     }
+
+
+    /**
+     * 获取几天前的零点
+     * @param date
+     * @param days
+     * @return
+     */
+    public static Date getZeroFromDay(Date date, Integer days) {
+        if(date == null){
+            return null;
+        }
+        Calendar c = Calendar.getInstance();
+        c.setTime(new Date());
+        c.add(Calendar.DAY_OF_YEAR, days * -1);
+        c.set(Calendar.HOUR_OF_DAY, 0);
+        c.set(Calendar.MINUTE, 0);
+        c.set(Calendar.SECOND, 0);
+        c.set(Calendar.MILLISECOND, 0);
+        return c.getTime();
+    }
 }
