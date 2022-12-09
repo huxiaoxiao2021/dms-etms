@@ -12,6 +12,7 @@ import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.trace.BarcodeTraceDto;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
+import com.jd.bluedragon.external.gateway.dto.request.WaybillSyncRequest;
 import com.jd.bluedragon.utils.BusinessHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.jmq.common.message.Message;
@@ -53,7 +54,8 @@ public class BarcodeTraceConsumer extends MessageBaseConsumer {
             if(log.isInfoEnabled()) {
                 log.info("BarcodeTraceConsumer-msg={}", message.getText());
             }
-            BarcodeTraceDto barcodeTraceDto = JsonHelper.fromJsonUseGson(message.getText(), BarcodeTraceDto.class);
+            BarcodeTraceDto barcodeTraceDto = JsonHelper.fromJson(message.getText(), BarcodeTraceDto.class);
+
 
             if(BusinessUtil.isBoxcode(barcodeTraceDto.getBarCode())) {
                 boxTrace(barcodeTraceDto);
