@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.jy.service.send;
 
+import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.jd.bluedragon.Constants;
@@ -16,6 +17,7 @@ import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.BoardCommonManagerImpl;
 import com.jd.bluedragon.core.hint.constants.HintCodeConstants;
 import com.jd.bluedragon.core.hint.service.HintService;
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.core.jsf.cross.SortCrossJsfManager;
 import com.jd.bluedragon.common.dto.operation.workbench.enums.SendVehicleScanTypeEnum;
 import com.jd.bluedragon.core.base.WaybillQueryManager;
@@ -60,6 +62,7 @@ import com.jd.bluedragon.distribution.send.service.SendMService;
 import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
 import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.sorting.service.SortingService;
+import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.ver.filter.FilterChain;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.dms.utils.DmsConstants;
@@ -77,6 +80,7 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.coo.sa.sequence.JimdbSequenceGen;
 import com.jd.jim.cli.Cluster;
+import com.jd.jmq.common.exception.JMQException;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.transboard.api.dto.*;
 import com.jd.transboard.api.enums.ResponseEnum;
@@ -173,12 +177,18 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   IDeliveryOperationService deliveryOperationService;
   @Autowired
   IJyComboardJsfManager comboardJsfManager;
+  
+  @Autowired
+  @Qualifier("waybillCancelComboardProducer")
+  private DefaultJMQProducer waybillCancelComboardProducer;
 
   private static final Integer BOX_TYPE = 1;
 
   private static final Integer PACKAGE_TYPE = 2;
 
   private static final Integer WAYBILL_TYPE = 3;
+
+  final static int COMBOARD_SPLIT_NUM = 1024;
 
   @Override
   public InvokeResult<CrossDataResp> listCrossData(CrossDataReq request) {
@@ -2079,6 +2089,17 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   }
 
   private void asyncSendComboardWaybillTrace(CancelBoardReq request, String waybillCode) {
+    // 获取运单包裹数
+    Waybill waybill = waybillQueryManager.getOnlyWaybillByWaybillCode(waybillCode);
+    if (waybill == null || waybill.getGoodNumber() == null) {
+      log.error("[异步取消组板任务]获取运单包裹数失败! {}", waybillCode);
+      return;
+    }
+
+    int totalNum = waybill.getGoodNumber();
+    int onePageSize = ucc.getWaybillSplitPageSize() == 0 ? COMBOARD_SPLIT_NUM : ucc.getWaybillSplitPageSize();
+    int pageTotal = (totalNum % onePageSize) == 0 ? (totalNum / onePageSize) : (totalNum / onePageSize) + 1;
+    // 插入分页任务
     CancelComboardTaskDto taskDto = new CancelComboardTaskDto();
     taskDto.setBoardCode(request.getBoardCode());
     taskDto.setWaybillCode(waybillCode);
@@ -2088,7 +2109,17 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     taskDto.setUserName(request.getUser().getUserName());
     taskDto.setSiteName(request.getCurrentOperate().getSiteName());
     taskDto.setUserCode(request.getUser().getUserCode());
-    deliveryOperationService.asyncSendComboardWaybillTrace(taskDto);
+    for (int i = 0; i < pageTotal; i++) {
+      taskDto.setPageNo(i + 1);
+      taskDto.setPageSize(onePageSize);
+      try {
+        waybillCancelComboardProducer.send(waybillCode + "_" + i+1, JsonHelper.toJson(taskDto));
+        log.info("JyComBoardSendServiceImpl asyncSendComboardWaybillTrace : {}", JsonHelper.toJson(taskDto));
+      } catch (Exception e) {
+        log.error("JyComBoardSendServiceImpl asyncSendComboardWaybillTrace exception {}", e.getMessage(), e);
+        throw new JyBizException("异步发送全程跟踪失败");
+      }
+    }
   }
 
   private void cancelSend(CancelBoardReq request, List<String> barCodeList) {
