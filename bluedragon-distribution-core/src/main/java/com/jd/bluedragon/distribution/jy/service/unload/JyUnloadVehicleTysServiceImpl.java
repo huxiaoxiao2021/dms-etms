@@ -505,7 +505,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         }
         scanResult.setEndSiteName(request.getNextSiteName());
         scanResult.setWarnMsg(new HashMap<String, String>(5));
-        scanResult.setConfirmMsg(new HashMap<String, String>(1));
+        scanResult.setConfirmMsg(new HashMap<String, String>(3));
         return scanResult;
     }
 
@@ -689,15 +689,14 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
      */
 
     private void checkLuxurySecurityResult(Integer siteCode,String barCode, String waybillSign,ScanPackageRespDto respDto){
-        Map<String,String> confirmMap = new HashMap<>(2);
         InvokeResult<Boolean> luxurySecurityResult = waybillService.checkLuxurySecurity(siteCode,
                 barCode, waybillSign);
         log.info("waybillScan -特保单校验结果-{}",JSON.toJSONString(luxurySecurityResult));
         if(luxurySecurityResult != null && luxurySecurityResult.getData()){
-            confirmMap.put(luxurySecurityResult.getCode()+"",luxurySecurityResult.getMessage());
-
+            Map<String, String> confirmMsg = respDto.getConfirmMsg();
+            confirmMsg.put(luxurySecurityResult.getCode()+"",luxurySecurityResult.getMessage());
+            respDto.setConfirmMsg(confirmMsg);
         }
-        respDto.setConfirmMsg(confirmMap);
     }
 
 
