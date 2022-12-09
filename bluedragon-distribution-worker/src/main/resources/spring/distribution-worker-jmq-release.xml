@@ -469,5 +469,12 @@
     <jmq:consumer id="jmq.dmsSendToEmsWaybillInfoConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.dmsSendToEmsWaybillInfo}" listener="dmsSendToEmsWaybillInfoConsumer"/>
     </jmq:consumer>
+
+
+    <!--  包裹维度全流程跟踪处理  -->
+    <jmq:consumer id="jmq.barcodeTraceConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.barcode.trace}" listener="barcodeTraceConsumer"/>
+    </jmq:consumer>
+
 </beans>
 
