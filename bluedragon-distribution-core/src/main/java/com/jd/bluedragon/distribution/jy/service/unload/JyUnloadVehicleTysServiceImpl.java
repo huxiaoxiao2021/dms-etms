@@ -526,6 +526,10 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             invokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, "该运单号不存在，请检查运单号是否正确！");
             return invokeResult;
         }
+        //特保单校验
+        checkLuxurySecurityResult(scanPackageDto.getCurrentOperate().getSiteCode(),
+                barCode, waybill.getWaybillSign(),scanPackageRespDto);
+
         // 判断是否是跨越的取消订单
         String kyCancelCheckStr = jyUnloadVehicleCheckTysService.kyExpressCancelCheck(operateSiteCode, waybill);
         if (StringUtils.isNotBlank(kyCancelCheckStr)) {
@@ -598,15 +602,6 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             jyUnloadVehicleCheckTysService.dealUnloadAndBoxToBoard(scanPackageDto, scanPackageRespDto);
         }
 
-        Map<String,String> confirmMap = new HashMap<>(2);
-        //特保单校验
-        InvokeResult<Boolean> luxurySecurityResult = waybillService.checkLuxurySecurity(scanPackageDto.getCurrentOperate().getSiteCode(),
-                barCode, waybill.getWaybillSign());
-        log.info("packageScan-特保单校验结果-{}",JSON.toJSONString(luxurySecurityResult));
-        if(luxurySecurityResult != null && luxurySecurityResult.getData()){
-            confirmMap.put(luxurySecurityResult.getCode()+"",luxurySecurityResult.getMessage());
-        }
-        scanPackageRespDto.setConfirmMsg(confirmMap);
         return invokeResult;
     }
 
@@ -632,6 +627,9 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             invokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, "该运单号不存在，请检查运单号是否正确！");
             return invokeResult;
         }
+        //特保单校验
+        checkLuxurySecurityResult(scanPackageDto.getCurrentOperate().getSiteCode(),
+                barCode, waybill.getWaybillSign(),scanPackageRespDto);
         scanPackageDto.setGoodsNumber(waybill.getGoodNumber());
         // 校验是否达到大宗使用标准
         String checkStr = jyUnloadVehicleCheckTysService.checkIsMeetWaybillStandard(waybill);
@@ -679,20 +677,28 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             invokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, interceptResult);
             return invokeResult;
         }
+        return invokeResult;
+    }
+
+    /**
+     * 特保单校验
+     * @param siteCode
+     * @param barCode
+     * @param waybillSign
+     * @param respDto
+     */
+
+    private void checkLuxurySecurityResult(Integer siteCode,String barCode, String waybillSign,ScanPackageRespDto respDto){
         Map<String,String> confirmMap = new HashMap<>(2);
-        InvokeResult<Boolean> luxurySecurityResult = waybillService.checkLuxurySecurity(scanPackageDto.getCurrentOperate().getSiteCode(),
-                barCode, waybill.getWaybillSign());
+        InvokeResult<Boolean> luxurySecurityResult = waybillService.checkLuxurySecurity(siteCode,
+                barCode, waybillSign);
         log.info("waybillScan -特保单校验结果-{}",JSON.toJSONString(luxurySecurityResult));
         if(luxurySecurityResult != null && luxurySecurityResult.getData()){
             confirmMap.put(luxurySecurityResult.getCode()+"",luxurySecurityResult.getMessage());
 
         }
-        scanPackageRespDto.setConfirmMsg(confirmMap);
-        return invokeResult;
+        respDto.setConfirmMsg(confirmMap);
     }
-
-
-
 
 
     private void checkScan(ScanPackageDto scanPackageDto, JyBizTaskUnloadVehicleEntity unloadVehicleEntity) {
