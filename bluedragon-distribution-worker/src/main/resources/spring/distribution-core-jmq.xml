@@ -699,4 +699,9 @@
         <property name="topic" value="${jmq.topic.send.vehicle.detail.task}" />
         <property name="timeout" value="1000" />
     </bean>
+    <!--  发送全流程跟踪 -->
+    <bean id="sendBarcodeTraceProducer" parent="jmq4DmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.barcode.trace}" />
+        <property name="timeout" value="1000" />
+    </bean>
 </beans>

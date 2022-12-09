@@ -248,7 +248,7 @@ public class JyUnloadVehicleCheckTysService {
     /**
      * 判断包裹是否扫描成功
      */
-    public void packageIsScan(ScanPackageDto request) throws LoadIllegalException {
+    public void scanCodeIsScan(ScanPackageDto request) throws LoadIllegalException {
         if (request.getIsForceCombination()) {
             return;
         }
@@ -542,12 +542,7 @@ public class JyUnloadVehicleCheckTysService {
      */
     public void isSendCheck(ScanPackageDto scanPackageDto) {
         BoardCommonRequest boardCommonRequest = new BoardCommonRequest();
-        //转运不拆包，箱内随机包裹发货认为箱已发货
-        if(BusinessUtil.isBoxcode(scanPackageDto.getScanCode())) {
-            boardCommonRequest.setBarCode(scanPackageDto.getRandomPackageCode());
-        }else {
-            boardCommonRequest.setBarCode(scanPackageDto.getScanCode());
-        }
+        boardCommonRequest.setBarCode(scanPackageDto.getScanCode());
         boardCommonRequest.setOperateSiteCode(scanPackageDto.getCurrentOperate().getSiteCode());
         boardCommonRequest.setReceiveSiteCode(scanPackageDto.getNextSiteCode());
         boardCommonManager.isSendCheck(boardCommonRequest);
@@ -642,11 +637,7 @@ public class JyUnloadVehicleCheckTysService {
                 // 组板实操时间多加1秒，防止和验货实操时间相同导致全流程跟踪显示顺序错乱
                 boardCommonRequest.setOperateTime(System.currentTimeMillis() + 1000L);
                 // 组板全程跟踪
-                if(BusinessUtil.isBoxcode(boardCommonRequest.getBarCode())) {
-                    boardCommonManager.sendBoxWaybillTrace(boardCommonRequest, WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION);
-                }else {
-                    boardCommonManager.sendWaybillTrace(boardCommonRequest, WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION);
-                }
+                boardCommonManager.sendWaybillTraceMq(boardCommonRequest, WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION);
                 return;
             }
             /*
@@ -859,7 +850,7 @@ public class JyUnloadVehicleCheckTysService {
     /**
      * 拦截设置缓存
      */
-    public void setCacheOfSealCarAndPackageIntercept(String bizId, String barCode) {
+    public void setCacheOfSealCarAndScanCodeIntercept(String bizId, String barCode) {
         try {
             int unloadCacheDurationHours = uccPropertyConfiguration.getUnloadCacheDurationHours();
             String key = REDIS_PREFIX_SEAL_PACK_INTERCEPT + bizId + Constants.SEPARATOR_HYPHEN + barCode;
