@@ -57,6 +57,7 @@ import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.distribution.send.domain.ConfirmMsgBox;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.domain.SendResult;
+import com.jd.bluedragon.distribution.send.domain.ThreeDeliveryResponse;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.send.service.SendMService;
 import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
@@ -2006,34 +2007,36 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     removeBoardBoxDto.setBoxCodeList(barCodeList);
     batchUpdateCancelReq.setStartSiteId((long)request.getCurrentOperate().getSiteCode());
     if (request.isBulkFlag()) {
-        // 获取运单号
-        JyComboardEntity entity = new JyComboardEntity();
-        entity.setBoardCode(request.getBoardCode());
-        entity.setStartSiteId((long) request.getCurrentOperate().getSiteCode());
-        String waybillCode = jyComboardService.queryWayBillCodeByBoardCode(entity);
-        removeBoardBoxDto.setWaybillCode(waybillCode);
-        try {
-          barCodeList.add(waybillCode);
-          batchUpdateCancelReq.setCancelFlag(Boolean.TRUE);
-          jyComboardService.batchUpdateCancelFlag(batchUpdateCancelReq);
-        } catch (Exception e) {
-          log.error("取消组板失败：{}", JsonHelper.toJson(removeBoardBoxDto), e);
-          return new InvokeResult<>(CANCEL_COM_BOARD_CODE, CANCEL_COM_BOARD_MESSAGE);
-        }
-        try {
-          groupBoardManager.removeBoardBoxByWaybillCode(removeBoardBoxDto);
-        } catch (Exception e) {
-          batchUpdateCancelReq.setCancelFlag(Boolean.FALSE);
-          jyComboardService.batchUpdateCancelFlag(batchUpdateCancelReq);
-          log.error("取消组板失败：{}", JsonHelper.toJson(removeBoardBoxDto), e);
-          return new InvokeResult<>(CANCEL_COM_BOARD_CODE, CANCEL_COM_BOARD_MESSAGE);
-        }
-        // 异步发送全程跟踪
-        asyncSendComboardWaybillTrace(request,waybillCode);
-        // 取消发货
-        SendM sendM = toSendM(request);
-        sendM.setBoxCode(waybillCode);
-        deliveryService.dellCancelDeliveryMessageWithServerTime(sendM,true);
+      // 获取运单号
+      JyComboardEntity entity = new JyComboardEntity();
+      entity.setBoardCode(request.getBoardCode());
+      entity.setStartSiteId((long) request.getCurrentOperate().getSiteCode());
+      String waybillCode = jyComboardService.queryWayBillCodeByBoardCode(entity);
+      removeBoardBoxDto.setWaybillCode(waybillCode);
+      try {
+        barCodeList.add(waybillCode);
+        batchUpdateCancelReq.setCancelFlag(Boolean.TRUE);
+        jyComboardService.batchUpdateCancelFlag(batchUpdateCancelReq);
+      } catch (Exception e) {
+        log.error("取消组板失败：{}", JsonHelper.toJson(removeBoardBoxDto), e);
+        return new InvokeResult<>(CANCEL_COM_BOARD_CODE, CANCEL_COM_BOARD_MESSAGE);
+      }
+      try {
+        groupBoardManager.removeBoardBoxByWaybillCode(removeBoardBoxDto);
+      } catch (Exception e) {
+        batchUpdateCancelReq.setCancelFlag(Boolean.FALSE);
+        jyComboardService.batchUpdateCancelFlag(batchUpdateCancelReq);
+        log.error("取消组板失败：{}", JsonHelper.toJson(removeBoardBoxDto), e);
+        return new InvokeResult<>(CANCEL_COM_BOARD_CODE, CANCEL_COM_BOARD_MESSAGE);
+      }
+      // 异步发送全程跟踪
+      asyncSendComboardWaybillTrace(request, waybillCode);
+      // 取消发货
+      log.info("按运单号取消发货：{}", waybillCode);
+      SendM sendM = toSendM(request);
+      sendM.setBoxCode(waybillCode);
+      ThreeDeliveryResponse response = deliveryService.dellCancelDeliveryMessageWithServerTime(sendM, true);
+      log.info("按运单号取消发货执行结果：{}", JsonHelper.toJson(response));
     } else {
       // 如果为全选
       if (request.isSelectAll()){
