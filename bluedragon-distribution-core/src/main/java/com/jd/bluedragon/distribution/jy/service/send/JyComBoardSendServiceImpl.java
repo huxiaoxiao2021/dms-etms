@@ -1128,6 +1128,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       request.setSendCode(entity.getSendCode());
       return;
     }
+
     /**
      * 流向加锁
      */
@@ -1142,6 +1143,9 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       sendFlowDto.setEndSiteId(request.getDestinationId());
       BoardDto boardDto = jyBizTaskComboardService.queryInProcessBoard(sendFlowDto);
       if (ObjectHelper.isNotNull(boardDto)) {
+        if (boardDto.getCount()>Constants.NO_MATCH_DATA && WaybillUtil.isWaybillCode(request.getBarCode())){
+          throw new JyBizException(BOARD_HAS_BEEN_FULL_CODE,BOARD_HAS_BEEN_FULL_MESSAGE);
+        }
         if (!boardDto.getBulkFlag() && boardDto.getCount() < ucc.getJyComboardCountLimit()) {
           request.setBoardCode(boardDto.getBoardCode());
           request.setBizId(boardDto.getBizId());

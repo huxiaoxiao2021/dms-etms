@@ -20,7 +20,7 @@ public class ComboardScanReq extends BaseReq implements Serializable {
     private String templateCode;
 
     /**
-     * 当前页面所处流向
+     * 用户所处当前页面流向
      */
     private Integer endSiteId;
     private String endSiteName;
@@ -39,6 +39,8 @@ public class ComboardScanReq extends BaseReq implements Serializable {
      * 单独选板进入扫描的时候要传入（这个时候可能会没有混扫任务的限定（流向从混扫任务给移除了））
      */
     private String boardCode;
+
+
 
     /**
      * 以下不是请求入参，作为参数上下文使用
