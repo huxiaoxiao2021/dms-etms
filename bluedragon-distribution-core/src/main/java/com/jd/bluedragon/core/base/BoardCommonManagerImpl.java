@@ -132,8 +132,8 @@ public class BoardCommonManagerImpl implements BoardCommonManager {
     private WaybillPackageManager waybillPackageManager;
 
     @Autowired
-    @Qualifier("sendTraceProducer")
-    private DefaultJMQProducer sendTraceProducer;
+    @Qualifier("sendBarcodeTraceProducer")
+    private DefaultJMQProducer sendBarcodeTraceProducer;
 
     /**
      * 包裹是否发货校验
@@ -782,7 +782,7 @@ public class BoardCommonManagerImpl implements BoardCommonManager {
         if(logger.isInfoEnabled()) {
             logger.info("发送全流程跟踪，businessId={}, msg={}", request.getBarCode(), msg);
         }
-        sendTraceProducer.sendOnFailPersistent(request.getBarCode(), msg);
+        sendBarcodeTraceProducer.sendOnFailPersistent(request.getBarCode(), msg);
 
     }
 }
