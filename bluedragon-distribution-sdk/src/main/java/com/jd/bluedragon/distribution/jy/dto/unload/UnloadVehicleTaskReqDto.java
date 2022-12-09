@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.jy.dto.unload;
 
 
 import java.io.Serializable;
+import java.util.Date;
 
 public class UnloadVehicleTaskReqDto extends UnloadBaseDto implements Serializable {
     private static final long serialVersionUID = 8483802798838866603L;
@@ -14,6 +15,8 @@ public class UnloadVehicleTaskReqDto extends UnloadBaseDto implements Serializab
      */
     private Integer lineType;
     private String packageCode;
+
+    private Date actualArriveStartTime;
 
     public Integer getPageNo() {
         return pageNo;
@@ -53,5 +56,13 @@ public class UnloadVehicleTaskReqDto extends UnloadBaseDto implements Serializab
 
     public void setPackageCode(String packageCode) {
         this.packageCode = packageCode;
+    }
+
+    public Date getActualArriveStartTime() {
+        return actualArriveStartTime;
+    }
+
+    public void setActualArriveStartTime(Date actualArriveStartTime) {
+        this.actualArriveStartTime = actualArriveStartTime;
     }
 }
