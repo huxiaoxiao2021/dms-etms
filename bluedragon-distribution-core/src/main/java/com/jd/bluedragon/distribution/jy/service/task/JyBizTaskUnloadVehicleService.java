@@ -31,6 +31,13 @@ public interface JyBizTaskUnloadVehicleService {
     JyBizTaskUnloadVehicleEntity findByBizId(String bizId);
 
     /**
+     * 获取6个小时内实际解封车顺序
+     *
+     * @param entity
+     * @return
+     */
+    JyBizTaskUnloadVehicleEntity findRealRankingByBizId(JyBizTaskUnloadVehicleEntity entity);
+    /**
      * 根据派车明细编码获取数据
      * @return
      */

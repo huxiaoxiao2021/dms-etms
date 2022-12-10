@@ -50,6 +50,13 @@ public class JyBizTaskUnloadVehicleDao extends BaseDao<JyBizTaskUnloadVehicleEnt
     }
 
     /**
+     * 根据bizId获取实际解封车顺序
+     * @return
+     */
+    public JyBizTaskUnloadVehicleEntity findRealRankingByBizId(JyBizTaskUnloadVehicleEntity entity){
+        return this.getSqlSession().selectOne(NAMESPACE + ".findRealRankingByBizId", entity);
+    }
+    /**
      * 根据派车明细编码获取数据
      * @param transWorkItemCode
      * @return
