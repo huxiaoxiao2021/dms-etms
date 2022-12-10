@@ -1054,7 +1054,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       dto.setPageNo(i+1);
       dto.setPageSize(onePageSize);
       try {
-        waybillCancelComboardProducer.send(dto.getWaybillCode() + "_" + i+1, JsonHelper.toJson(dto));
+        waybillComboardProducer.send(dto.getWaybillCode() + "_" + i+1, JsonHelper.toJson(dto));
         log.info("JyComBoardSendServiceImpl asyncExecComboard : {}", JsonHelper.toJson(dto));
       } catch (Exception e) {
         log.error("JyComBoardSendServiceImpl asyncExecComboard exception {}", e.getMessage(), e);
