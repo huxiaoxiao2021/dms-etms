@@ -472,5 +472,10 @@
     <jmq:consumer id="jmq.waybillCancelComboardConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.jy.waybill.cancel.comboard}" listener="waybillCancelComboardConsumer"/>
     </jmq:consumer>
+
+    <!--  拣运组板岗-运单异步组板发货  -->
+    <jmq:consumer id="jmq.waybillComboardConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.jy.waybill.comboard}" listener="waybillComboardConsumer"/>
+    </jmq:consumer>
 </beans>
 

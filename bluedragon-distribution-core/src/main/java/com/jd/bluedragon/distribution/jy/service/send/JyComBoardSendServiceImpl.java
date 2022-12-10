@@ -1,6 +1,5 @@
 package com.jd.bluedragon.distribution.jy.service.send;
 
-import com.alibaba.fastjson.JSON;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.jd.bluedragon.Constants;
@@ -81,7 +80,6 @@ import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.coo.sa.sequence.JimdbSequenceGen;
 import com.jd.jim.cli.Cluster;
-import com.jd.jmq.common.exception.JMQException;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.transboard.api.dto.*;
 import com.jd.transboard.api.enums.ResponseEnum;
@@ -183,6 +181,11 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
   @Qualifier("waybillCancelComboardProducer")
   private DefaultJMQProducer waybillCancelComboardProducer;
 
+
+  @Autowired
+  @Qualifier("waybillComboardProducer")
+  private DefaultJMQProducer waybillComboardProducer;
+  
   private static final Integer BOX_TYPE = 1;
 
   private static final Integer PACKAGE_TYPE = 2;
@@ -1034,7 +1037,31 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     dto.setUserName(request.getUser().getUserName());
     dto.setUserCode(request.getUser().getUserCode());
     dto.setOperateTime(new Date());
-    deliveryOperationService.generateAsyncComboardAndSendTask(dto);
+    // 获取运单包裹数
+    Waybill waybill = waybillQueryManager.getOnlyWaybillByWaybillCode(dto.getWaybillCode());
+    if (waybill == null || waybill.getGoodNumber() == null) {
+      log.error("[异步组板任务]获取运单包裹数失败! code:{}, sendM:{}", dto.getWaybillCode(), JsonHelper.toJson(dto));
+      return;
+    }
+
+    int totalNum = waybill.getGoodNumber();
+    int onePageSize = ucc.getWaybillSplitPageSize() == 0 ? COMBOARD_SPLIT_NUM : ucc.getWaybillSplitPageSize();
+    int pageTotal = (totalNum % onePageSize) == 0 ? (totalNum / onePageSize) : (totalNum / onePageSize) + 1;
+    dto.setTotalPage(pageTotal);
+
+    // 插入分页任务
+    for (int i = 0; i < pageTotal; i++) {
+      dto.setPageNo(i+1);
+      dto.setPageSize(onePageSize);
+      try {
+        waybillCancelComboardProducer.send(dto.getWaybillCode() + "_" + i+1, JsonHelper.toJson(dto));
+        log.info("JyComBoardSendServiceImpl asyncExecComboard : {}", JsonHelper.toJson(dto));
+      } catch (Exception e) {
+        log.error("JyComBoardSendServiceImpl asyncExecComboard exception {}", e.getMessage(), e);
+        throw new JyBizException("异步发送全程跟踪失败");
+      }
+    }
+    log.info("====================成功生成大宗运单异步组板任务============================");
   }
 
   private void sendComboardWaybillTrace(ComboardScanReq request, Integer waybillTrackBoardCombination) {
