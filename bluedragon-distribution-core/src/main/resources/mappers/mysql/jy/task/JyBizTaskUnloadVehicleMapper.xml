@@ -707,7 +707,7 @@
 
     </update>
 
-    <select id="findRealRankingByBizId" parameterType="JyBizTaskUnloadVehicleEntity" resultMap="jyBizTaskUnloadVehicleMap">
+    <select id="findRealRankingByBizId" resultMap="jyBizTaskUnloadVehicleMap">
         SELECT
             biz_id,
             ranking,
@@ -718,7 +718,7 @@
                 WHERE yn = 1
                   and end_site_id = #{endSiteId}
                   and vehicle_status = #{vehicleStatus}
-                  and sort_time >= #{sortTime}
+                  and sort_time BETWEEN #{sortTimeBegin} and #{sortTimeEnd}
                 ORDER BY ranking
             ) as task_order_ranking
         where  biz_id = #{bizId}

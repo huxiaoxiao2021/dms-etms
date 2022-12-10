@@ -87,7 +87,7 @@ public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
     /**
      * 默认时间
      */
-    private static final int DEFAULT_LAST_HOUR = 6;
+    public static final int DEFAULT_LAST_HOUR = 6;
     @Autowired
     @Qualifier("jyUnSealVehicleManager")
     private IJyUnSealVehicleManager jySealVehicleManager;
@@ -290,6 +290,9 @@ public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
      * @param bizId
      * @return
      */
+    @Override
+    @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "IJyUnSealVehicleService.saveRealUnSealRanking",
+           jAppName = Constants.UMP_APP_NAME_DMSWORKER, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public void saveRealUnSealRanking(String bizId,Date unSealTime){
         try {
             JyBizTaskUnloadVehicleEntity unloadVehicle = jyBizTaskUnloadVehicleService.findByBizId(bizId);
@@ -308,12 +311,19 @@ public class JyUnSealVehicleServiceImpl implements IJyUnSealVehicleService {
                 log.info("saveRealUnSealRanking realRankingResult, req:{},resp:{}",JsonHelper.toJson(condition),JsonHelper.toJson(realRankingResult));
             }
             if(realRankingResult == null){
+                log.error("saveRealUnSealRanking not find task by condition! {}",bizId);
                 return;
             }
             JyBizTaskUnloadVehicleEntity RealUnSealRankingUpdateParam = new JyBizTaskUnloadVehicleEntity();
             RealUnSealRankingUpdateParam.setBizId(bizId);
             RealUnSealRankingUpdateParam.setRealRanking(realRankingResult.getRealRanking());
-            jyBizTaskUnloadVehicleService.saveOrUpdateOfBusinessInfo(RealUnSealRankingUpdateParam);
+            if(jyBizTaskUnloadVehicleService.saveOrUpdateOfBusinessInfo(RealUnSealRankingUpdateParam)){
+                if(log.isInfoEnabled()){
+                    log.info("saveRealUnSealRanking success!, bizId:{},realRanking:{}",bizId,realRankingResult.getRealRanking());
+                }
+            }else{
+                log.error("saveRealUnSealRanking fail!, bizId:{},realRanking:{}",bizId,realRankingResult.getRealRanking());
+            }
 
 
         }catch (Exception e){
