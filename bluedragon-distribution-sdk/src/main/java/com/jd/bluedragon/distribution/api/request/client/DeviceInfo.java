@@ -34,6 +34,16 @@ public class DeviceInfo implements Serializable {
     private String programType;
 
     /**
+     * 制造商/生产厂家
+     */
+    private String manufacturer;
+
+    /**
+     * 设备系统版本
+     */
+    private String deviceSystemVersion;
+
+    /**
      * 设备型号，厂家的型号，东大，销邦，优博讯等等
      */
     private String deviceType;
@@ -90,6 +100,22 @@ public class DeviceInfo implements Serializable {
         this.programType = programType;
     }
 
+    public String getManufacturer() {
+        return manufacturer;
+    }
+
+    public void setManufacturer(String manufacturer) {
+        this.manufacturer = manufacturer;
+    }
+
+    public String getDeviceSystemVersion() {
+        return deviceSystemVersion;
+    }
+
+    public void setDeviceSystemVersion(String deviceSystemVersion) {
+        this.deviceSystemVersion = deviceSystemVersion;
+    }
+
     public String getDeviceType() {
         return deviceType;
     }
@@ -135,7 +161,10 @@ public class DeviceInfo implements Serializable {
         return "DeviceInfo{" +
                 "runningEnv='" + runningEnv + '\'' +
                 ", systemCode='" + systemCode + '\'' +
+                ", programTypeId='" + programTypeId + '\'' +
                 ", programType='" + programType + '\'' +
+                ", manufacturer='" + manufacturer + '\'' +
+                ", deviceSystemVersion='" + deviceSystemVersion + '\'' +
                 ", deviceType='" + deviceType + '\'' +
                 ", versionCode='" + versionCode + '\'' +
                 ", deviceCode='" + deviceCode + '\'' +
