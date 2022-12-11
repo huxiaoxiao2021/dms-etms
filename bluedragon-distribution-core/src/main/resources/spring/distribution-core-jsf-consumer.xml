@@ -1138,6 +1138,7 @@
                   lazy="${jsf.consumer.lazy}">
         <jsf:parameter key="token" value="${jsf.wlLbs.geoTool.token}" hide="true"/>
     </jsf:consumer>
+    <!-- 根据外网ip获取经纬度 -->
     <jsf:consumer id="jsfLocationService"
                   interface="com.jd.lbs.jdlbsapi.geotool.LocationService"
                   alias="${jsf.wlLbs.locationService.alias}"
@@ -1145,5 +1146,10 @@
                   retries="${jsf.wlLbs.locationService.retries}"
                   serialization="hessian"
                   lazy="${jsf.consumer.lazy}">
+    </jsf:consumer>
+    <!-- JY_MSP -->
+    <jsf:consumer id="messageSendApiJsf" interface="com.jdl.jy.msp.api.IMessageSendApi"
+                  protocol="jsf" alias="${jsf.jy_msp.alias}" timeout="${jsf.jy_msp.timeout}">
+        <jsf:parameter key="token" value="$jsf.jy_msp.token}" hide="true"/>
     </jsf:consumer>
 </beans>

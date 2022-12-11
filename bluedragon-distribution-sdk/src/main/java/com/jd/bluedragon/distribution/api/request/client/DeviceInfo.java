@@ -26,6 +26,11 @@ public class DeviceInfo implements Serializable {
     /**
      * 程序类型，安卓客户端，iOS客户端，winCE客户端，PC客户端等
      */
+    private String programTypeId;
+
+    /**
+     * 程序类型，安卓客户端，iOS客户端，winCE客户端，PC客户端等
+     */
     private String programType;
 
     /**
@@ -67,6 +72,14 @@ public class DeviceInfo implements Serializable {
 
     public void setSystemCode(String systemCode) {
         this.systemCode = systemCode;
+    }
+
+    public String getProgramTypeId() {
+        return programTypeId;
+    }
+
+    public void setProgramTypeId(String programTypeId) {
+        this.programTypeId = programTypeId;
     }
 
     public String getProgramType() {

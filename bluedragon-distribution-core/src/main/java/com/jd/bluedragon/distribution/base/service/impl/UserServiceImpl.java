@@ -226,12 +226,14 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
 
     private void handleDeviceLocation(LoginRequest loginRequest, LoginUserResponse loginUserResponse) {
         try {
+            log.info("UserServiceImpl.handleDeviceLocation param {}", JsonHelper.toJson(loginRequest));
             if (loginUserResponse == null || !Objects.equals(loginUserResponse.getCode(), JdResponse.CODE_OK)) {
                 return;
             }
             final DeviceInfo deviceInfo = loginRequest.getDeviceInfo();
             final DeviceLocationInfo deviceLocationInfo = loginRequest.getDeviceLocationInfo();
             if (deviceInfo == null) {
+                log.warn("UserServiceImpl.handleDeviceLocation deviceInfo null {}", JsonHelper.toJson(loginRequest));
                 return;
             }
 
@@ -249,6 +251,10 @@ public class UserServiceImpl extends AbstractBaseUserService implements UserServ
             final OperateUser operateUser = new OperateUser();
             operateUser.setUserCode(loginUserResponse.getErpAccount());
             operateUser.setUserName(loginUserResponse.getStaffName());
+            operateUser.setOrgId(loginUserResponse.getOrgId());
+            operateUser.setOrgName(loginUserResponse.getOrgName());
+            operateUser.setSiteCode(loginUserResponse.getSiteCode());
+            operateUser.setSiteName(loginUserResponse.getSiteName());
             deviceLocationUploadPo.setOperateUser(operateUser);
             deviceLocationService.sendUploadLocationMsg(deviceLocationUploadPo);
         } catch (Exception e) {
