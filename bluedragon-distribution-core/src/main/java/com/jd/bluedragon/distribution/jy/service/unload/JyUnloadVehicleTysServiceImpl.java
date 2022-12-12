@@ -345,7 +345,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
                     log.info("");
             }
         }
-        unloadVehicleTaskRespDto.setUnloadVehicleTaskDtoList(unloadVehicleTaskDtoList);
+        unloadVehicleTaskRespDto.setUnloadVehicleTaskDtoList(queryStatusList);
 
         unloadVehicleTaskRespDto.setWaitUnloadCount(waitUnloadCount);
         unloadVehicleTaskRespDto.setUnloadingCount(unloadingCount);
