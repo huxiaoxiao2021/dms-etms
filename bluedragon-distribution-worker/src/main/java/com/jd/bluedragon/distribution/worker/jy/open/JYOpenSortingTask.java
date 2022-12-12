@@ -28,7 +28,7 @@ public class JYOpenSortingTask extends DBSingleScheduler {
 
     @Override
     protected boolean executeSingleTask(Task task, String ownSign) throws Exception {
-        InvokeResult<Boolean> result = jyOpenCargoOperate.inspection(JsonHelper.fromJsonUseGson(task.getBody(), JYCargoOperateEntity.class));
+        InvokeResult<Boolean> result = jyOpenCargoOperate.sorting(JsonHelper.fromJsonUseGson(task.getBody(), JYCargoOperateEntity.class));
         return result.codeSuccess();
     }
 }
