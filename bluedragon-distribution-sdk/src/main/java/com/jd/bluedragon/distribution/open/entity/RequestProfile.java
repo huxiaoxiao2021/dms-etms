@@ -31,7 +31,7 @@ public class RequestProfile {
     /**
      * 毫秒时间戳
      */
-    private String timestamp;
+    private Long timestamp;
 
     public String getSysSource() {
         return sysSource;
@@ -57,11 +57,11 @@ public class RequestProfile {
         this.timeZone = timeZone;
     }
 
-    public String getTimestamp() {
+    public Long getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(String timestamp) {
+    public void setTimestamp(Long timestamp) {
         this.timestamp = timestamp;
     }
 }

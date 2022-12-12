@@ -2,7 +2,6 @@ package com.jd.bluedragon.openplateform;
 
 import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.core.base.BaseMinorManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.busineCode.sendCode.service.SendCodeService;
@@ -15,6 +14,7 @@ import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.weightVolume.domain.WeightVolumeEntity;
 import com.jd.bluedragon.distribution.weightVolume.service.DMSWeightVolumeService;
 import com.jd.bluedragon.distribution.weightvolume.FromSourceEnum;
+import com.jd.bluedragon.distribution.weightvolume.WeightVolumeBusinessTypeEnum;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.openplateform.entity.JYCargoOperateEntity;
@@ -24,7 +24,6 @@ import com.jd.bluedragon.utils.Md5Helper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -127,8 +126,10 @@ public class JYCenterServiceImpl implements JYCenterService {
             for (CargoOperateInfo cargoOperateInfo : list) {
                 OperatorInfo operatorInfo = new OperatorInfo();
                 operatorInfo.setOperateTime(cargoOperateInfo.getOperateTime());
-                operatorInfo.setOperateSiteCode(batchInspectionPageRequest.getOperateSiteCode());
-                operatorInfo.setOperateSiteName(batchInspectionPageRequest.getOperateSiteName());
+                operatorInfo.setOperateSiteId(siteOrgDto.getSiteCode());
+                operatorInfo.setOperateSiteCode(siteOrgDto.getDmsSiteCode());
+                operatorInfo.setOperateSiteName(siteOrgDto.getSiteName());
+                operatorInfo.setOperateUserId(-1);
                 operatorInfo.setOperateUserErp(cargoOperateInfo.getOperateUserErp());
                 operatorInfo.setOperateUserName(cargoOperateInfo.getOperateUserName());
 
@@ -213,8 +214,10 @@ public class JYCenterServiceImpl implements JYCenterService {
             for (CargoOperateInfo cargoOperateInfo : list) {
                 OperatorInfo operatorInfo = new OperatorInfo();
                 operatorInfo.setOperateTime(cargoOperateInfo.getOperateTime());
-                operatorInfo.setOperateSiteCode(batchSortingPageRequest.getOperateSiteCode());
-                operatorInfo.setOperateSiteName(batchSortingPageRequest.getOperateSiteName());
+                operatorInfo.setOperateSiteId(siteOrgDto.getSiteCode());
+                operatorInfo.setOperateSiteCode(siteOrgDto.getDmsSiteCode());
+                operatorInfo.setOperateSiteName(siteOrgDto.getSiteName());
+                operatorInfo.setOperateUserId(-1);
                 operatorInfo.setOperateUserErp(cargoOperateInfo.getOperateUserErp());
                 operatorInfo.setOperateUserName(cargoOperateInfo.getOperateUserName());
 
@@ -299,8 +302,10 @@ public class JYCenterServiceImpl implements JYCenterService {
             for (CargoOperateInfo cargoOperateInfo : list) {
                 OperatorInfo operatorInfo = new OperatorInfo();
                 operatorInfo.setOperateTime(cargoOperateInfo.getOperateTime());
-                operatorInfo.setOperateSiteCode(batchSendPageRequest.getOperateSiteCode());
-                operatorInfo.setOperateSiteName(batchSendPageRequest.getOperateSiteName());
+                operatorInfo.setOperateSiteId(siteOrgDto.getSiteCode());
+                operatorInfo.setOperateSiteCode(siteOrgDto.getDmsSiteCode());
+                operatorInfo.setOperateSiteName(siteOrgDto.getSiteName());
+                operatorInfo.setOperateUserId(-1);
                 operatorInfo.setOperateUserErp(cargoOperateInfo.getOperateUserErp());
                 operatorInfo.setOperateUserName(cargoOperateInfo.getOperateUserName());
 
@@ -361,6 +366,9 @@ public class JYCenterServiceImpl implements JYCenterService {
         for (WeightVolumeOperateInfo weightVolumeOperateInfo : batchWeightVolumeRequest.getDetailList()) {
             WeightVolumeEntity entity = new WeightVolumeEntity();
             entity.setBarCode(weightVolumeOperateInfo.getBarcode());
+            if (FromSourceEnum.DPRH.equals(fromSource)) {
+                entity.setBusinessType(WeightVolumeBusinessTypeEnum.BY_PACKAGE);
+            }
             entity.setSourceCode(fromSource);
             if (weightVolumeOperateInfo.getWeight() != null) {
                 entity.setWeight(weightVolumeOperateInfo.getHeight().doubleValue());
