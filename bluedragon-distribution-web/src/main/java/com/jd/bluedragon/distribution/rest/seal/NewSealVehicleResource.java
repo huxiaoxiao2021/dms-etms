@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.rest.seal;
 
+import com.alibaba.fastjson.JSONObject;
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.request.User;
@@ -14,13 +15,13 @@ import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.ReportExternalManager;
 import com.jd.bluedragon.core.base.JdiQueryWSManager;
 import com.jd.bluedragon.core.base.JdiSelectWSManager;
+import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.JdResponse;
 import com.jd.bluedragon.distribution.api.domain.TransAbnormalTypeDto;
 import com.jd.bluedragon.distribution.api.request.*;
 import com.jd.bluedragon.distribution.api.response.*;
 import com.jd.bluedragon.distribution.api.response.spot.SpotCheckResponse;
 import com.jd.bluedragon.distribution.api.utils.JsonHelper;
-import com.jd.bluedragon.distribution.base.domain.DmsBaseDict;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.busineCode.sendCode.service.SendCodeService;
@@ -29,6 +30,7 @@ import com.jd.bluedragon.distribution.coldchain.service.ColdChainSendService;
 import com.jd.bluedragon.distribution.command.JdResult;
 import com.jd.bluedragon.distribution.jy.enums.SpotCheckTypeEnum;
 import com.jd.bluedragon.distribution.jy.service.send.SendVehicleTransactionManager;
+import com.jd.bluedragon.distribution.seal.domain.CreateTransAbnormalAndUnsealJmqMsg;
 import com.jd.bluedragon.distribution.seal.service.CarLicenseChangeUtil;
 import com.jd.bluedragon.distribution.seal.service.NewSealVehicleService;
 import com.jd.bluedragon.distribution.transport.service.TransportRelatedService;
@@ -41,6 +43,7 @@ import com.jd.dms.logger.annotation.BusinessLog;
 import com.jd.etms.vos.dto.CommonDto;
 import com.jd.etms.vos.dto.PageDto;
 import com.jd.etms.vos.dto.SealCarDto;
+import com.jd.jmq.common.exception.JMQException;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ql.basic.util.SiteSignTool;
 import com.jd.ql.basic.ws.BasicPrimaryWS;
@@ -65,6 +68,8 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import java.text.MessageFormat;
 import java.util.*;
+
+import static com.jd.bluedragon.distribution.seal.domain.CreateTransAbnormalAndUnsealJmqMsg.TYPE_CREATE_TRANS_ABNORMAL_AND_UNSEAL;
 
 /**
  * create by zhanglei 2017-05-10
@@ -150,6 +155,11 @@ public class NewSealVehicleResource {
     @Autowired
     @Qualifier("sendVehicleTransactionManager")
     private SendVehicleTransactionManager sendVehicleTransactionManager;
+
+
+    @Autowired
+    @Qualifier("createTransAbnormalAndUnsealProducer")
+    private DefaultJMQProducer createTransAbnormalAndUnsealProducer;
 
     /**
      * 校验并获取运力编码信息
@@ -1119,6 +1129,13 @@ public class NewSealVehicleResource {
         if (!JdResponse.CODE_OK.equals(response.getCode())) {
             unSealVehicleResponse.setCode(response.getCode());
             unSealVehicleResponse.setMessage(response.getMessage());
+
+            try {
+                createTransAbnormalAndUnseal2jmq(request);
+            } catch (JMQException e) {
+                this.log.error("提报异常并解封车异常 NewSealVehicleResource.createTransAbnormalAndUnsealWithCheckUsage-error", e);
+            }
+
             return unSealVehicleResponse;
         }
         try {
@@ -1133,6 +1150,38 @@ public class NewSealVehicleResource {
             unSealVehicleResponse.setMessage("提报异常成功，解封签异常");
         }
         return unSealVehicleResponse;
+    }
+
+    public void createTransAbnormalAndUnseal2jmq(TransAbnormalAndUnsealRequest request) throws JMQException {
+        TransAbnormalDto transAbnormalDto = request.getTransAbnormalDto();
+        com.jd.bluedragon.distribution.wss.dto.SealCarDto sealCarDto = request.getSealCarDto();
+        CreateTransAbnormalAndUnsealJmqMsg msg = new CreateTransAbnormalAndUnsealJmqMsg();
+        msg.setDesealCarTime(sealCarDto.getDesealCarTime());
+        msg.setDesealCodes(sealCarDto.getDesealCodes());
+        msg.setDesealSiteId(sealCarDto.getDesealSiteId());
+        msg.setDesealSiteName(sealCarDto.getDesealSiteName());
+        msg.setDesealUserCode(sealCarDto.getDesealUserCode());
+        msg.setDesealUserName(sealCarDto.getDesealUserName());
+        msg.setSealCarCode(sealCarDto.getSealCarCode());
+        msg.setVehicleNumber(sealCarDto.getVehicleNumber());
+        msg.setAbnormalDesc(transAbnormalDto.getAbnormalDesc());
+        msg.setAbnormalTypeCode(transAbnormalDto.getAbnormalTypeCode());
+        msg.setAbnormalTypeName(transAbnormalDto.getAbnormalTypeName());
+        msg.setPhotoUrlList(transAbnormalDto.getPhotoUrlList());
+        msg.setReferBillCode(transAbnormalDto.getReferBillCode());
+        msg.setReferBillType(transAbnormalDto.getReferBillType());
+
+        msg.setSource(TYPE_CREATE_TRANS_ABNORMAL_AND_UNSEAL);
+        msg.setCreateTransAbnormalTime(new Date());
+
+        String msgkey = "";
+        if (StringUtils.isNotEmpty(sealCarDto.getSealUserCode())) {
+            msgkey = sealCarDto.getSealUserCode();
+        }
+        String body = JSONObject.toJSONString(msg);
+        createTransAbnormalAndUnsealProducer.send(msgkey, body);
+        log.info("提报异常并解封车消息发送成功，消息内容：{}", body);
+
     }
 
 
