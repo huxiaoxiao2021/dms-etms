@@ -205,7 +205,7 @@
                     <property name="appKey" value="${dms.external.postal.emsWaybillInfo.appKey}" />
                     <property name="appSecret" value="${dms.external.postal.emsWaybillInfo.appSecret}" />
                     <property name="customerId" value="${dms.external.postal.emsWaybillInfo.customerId}" />
-                    <property name="securityEnum" value="message_sign" />
+                    <property name="securityEnum" value="default_" />
                 </bean>
             </property>
         <property name="serializationConfig">
@@ -225,7 +225,7 @@
                     <property name="appKey" value="${dms.external.postal.emsTracesCompany.appKey}" />
                     <property name="appSecret" value="${dms.external.postal.emsTracesCompany.appSecret}" />
                     <property name="customerId" value="${dms.external.postal.emsTracesCompany.customerId}" />
-                    <property name="securityEnum" value="message_sign" />
+                    <property name="securityEnum" value="default_" />
                 </bean>
             </property>
         <property name="serializationConfig">
