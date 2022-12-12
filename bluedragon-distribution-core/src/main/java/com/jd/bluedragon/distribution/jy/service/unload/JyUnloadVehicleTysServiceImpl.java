@@ -291,7 +291,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
                         return new InvokeResult(RESULT_SUCCESS_CODE, TASK_NO_FOUND_BY_PARAMS_MESSAGE);
                     }
                     unloadVehicleTaskDtoList.add(jyBizTaskUnloadVehicleService.entityConvertDto(entity));
-                    calculationCount(unloadVehicleTaskRespDto, unloadVehicleTaskDtoList);
+                    calculationCount(unloadVehicleTaskRespDto, unloadVehicleTaskDtoList, queryUnloadTaskDto);
                     return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, unloadVehicleTaskRespDto);
                 }else {
                     log.info("{}未查到包裹号对应任务信息；请求信息={}", methodDesc, JsonUtils.toJSONString(queryUnloadTaskDto));
@@ -304,7 +304,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
                 List<Integer> statusList = Arrays.asList(WAIT_UN_LOAD.getCode(),UN_LOADING.getCode(), UN_LOAD_DONE.getCode());
                 entity.setStatusCodeList(statusList);
                 List<UnloadVehicleTaskDto> unloadVehicleTaskDtoList = jyBizTaskUnloadVehicleService.queryByFuzzyVehicleNumberAndStatus(entity);
-                calculationCount(unloadVehicleTaskRespDto, unloadVehicleTaskDtoList);
+                calculationCount(unloadVehicleTaskRespDto, unloadVehicleTaskDtoList, queryUnloadTaskDto);
                 return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, unloadVehicleTaskRespDto);
             }else {
                 log.info("{}参数缺失：该接口包裹号或车牌号不能全部为空；请求信息={}", methodDesc, JsonUtils.toJSONString(queryUnloadTaskDto));
@@ -317,28 +317,36 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         }
     }
 
-    private void calculationCount(UnloadVehicleTaskRespDto unloadVehicleTaskRespDto, List<UnloadVehicleTaskDto> unloadVehicleTaskDtoList) {
-        unloadVehicleTaskRespDto.setUnloadVehicleTaskDtoList(unloadVehicleTaskDtoList);
+    private void calculationCount(UnloadVehicleTaskRespDto unloadVehicleTaskRespDto, List<UnloadVehicleTaskDto> unloadVehicleTaskDtoList, UnloadVehicleTaskReqDto unloadVehicleTaskReqDto) {
         int waitUnloadCount = 0;
         //卸车中数量
         int unloadingCount = 0;
         //已完成卸车数量
         int unloadedCount = 0;
+        List<UnloadVehicleTaskDto> queryStatusList = new ArrayList<>();
+
         for (UnloadVehicleTaskDto unloadVehicleTaskDto : unloadVehicleTaskDtoList) {
+            if(unloadVehicleTaskReqDto.getVehicleStatus() != null && unloadVehicleTaskDto.getVehicleStatus() != null
+                    && unloadVehicleTaskReqDto.getVehicleStatus().equals(unloadVehicleTaskDto.getVehicleStatus())) {
+                queryStatusList.add(unloadVehicleTaskDto);
+            }
+
             switch (unloadVehicleTaskDto.getVehicleStatus()) {
                 case 3:
                     waitUnloadCount++;
-                    break;
+                    continue;
                 case 4:
                     unloadingCount++;
-                    break;
+                    continue;
                 case 5:
                     unloadedCount++;
-                    break;
+                    continue;
                 default:
                     log.info("");
             }
         }
+        unloadVehicleTaskRespDto.setUnloadVehicleTaskDtoList(unloadVehicleTaskDtoList);
+
         unloadVehicleTaskRespDto.setWaitUnloadCount(waitUnloadCount);
         unloadVehicleTaskRespDto.setUnloadingCount(unloadingCount);
         unloadVehicleTaskRespDto.setUnloadedCount(unloadedCount);
