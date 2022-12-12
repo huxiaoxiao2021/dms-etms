@@ -765,4 +765,22 @@ public class JyBizTaskUnloadVehicleServiceImpl implements JyBizTaskUnloadVehicle
         }
         return Constants.B2B_SITE_TYPE == baseStaffSiteOrgDto.getSubType() ? UNLOAD_TASK_CATEGORY_TYS : UNLOAD_TASK_CATEGORY_DMS;
     }
+
+
+    @Override
+    public List<UnloadVehicleTaskDto> queryByFuzzyVehicleNumberAndStatus(JyBizTaskUnloadVehicleEntity condition) {
+        if (condition == null) {
+            return new ArrayList<>();
+        }
+        List<JyBizTaskUnloadVehicleEntity> entityList = jyBizTaskUnloadVehicleDao.queryByFuzzyVehicleNumberAndStatus(condition);
+        if (ObjectHelper.isNotNull(entityList) && entityList.size() > 0) {
+            List<UnloadVehicleTaskDto> unloadVehicleTaskDtoList = new ArrayList<>();
+            for (JyBizTaskUnloadVehicleEntity unloadTask : entityList) {
+                UnloadVehicleTaskDto unloadVehicleTaskDto = entityConvertDto(unloadTask);
+                unloadVehicleTaskDtoList.add(unloadVehicleTaskDto);
+            }
+            return unloadVehicleTaskDtoList;
+        }
+        return new ArrayList<>();
+    }
 }
