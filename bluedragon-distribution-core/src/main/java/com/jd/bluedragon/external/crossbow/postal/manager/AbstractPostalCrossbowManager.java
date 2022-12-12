@@ -147,6 +147,7 @@ public abstract class AbstractPostalCrossbowManager<P,R> extends AbstractCrossbo
 			String base64Str = new Base64().encodeToString(md5Str.getBytes("UTF-8"));
 			log.info("base64报文：{}",base64Str);
 			headerParams.put("sign",base64Str);
+			headerParams.put("content-type","application/json");
 		} catch (UnsupportedEncodingException e) {
 			log.error("报文转换base64异常", e);
 			throw new RuntimeException("签名计算异常"+e.getMessage());

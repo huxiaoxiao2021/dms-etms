@@ -148,6 +148,8 @@ public class DmsSendToEmsWaybillInfoConsumer extends MessageBaseConsumer {
     		}else if(NumberHelper.gt0(packageData.getGoodWeight())) {
     			weight = packageData.getGoodWeight();
     		}
+    		//单位转成g
+    		weight = weight * 1000;
     	}
     	request.setRealWeight(WEIGHT_FORMAT.format(weight));
     	//设置收寄件人信息
