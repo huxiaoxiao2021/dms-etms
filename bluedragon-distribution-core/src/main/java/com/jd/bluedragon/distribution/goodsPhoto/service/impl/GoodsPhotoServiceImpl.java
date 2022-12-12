@@ -30,6 +30,7 @@ public class GoodsPhotoServiceImpl implements GoodsPhoteService {
     public Boolean insert(GoodsPhotoInfoDto dto) {
         log.info("insert 货物照片保存入参-{}", JSON.toJSONString(dto));
         GoodsPhotoInfo po = new GoodsPhotoInfo();
+        po.setBizId(dto.getBizId());
         po.setUserCode(dto.getUser().getUserCode());
         po.setUserName(dto.getUser().getUserName());
         po.setSiteCode(dto.getCurrentOperate().getSiteCode());

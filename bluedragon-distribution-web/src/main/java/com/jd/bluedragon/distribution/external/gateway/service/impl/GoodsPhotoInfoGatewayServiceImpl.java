@@ -45,6 +45,9 @@ public class GoodsPhotoInfoGatewayServiceImpl implements GoodsPhotoInfoGatewaySe
         if(dto == null){
             return "入参不能为空!";
         }
+        if(StringUtils.isBlank(dto.getBizId())){
+            return  "bizId 不能为空!";
+        }
         if(dto.getUser() == null || (dto.getUser().getUserCode())<= 0){
             return "操作用户信息不能为空!";
         }

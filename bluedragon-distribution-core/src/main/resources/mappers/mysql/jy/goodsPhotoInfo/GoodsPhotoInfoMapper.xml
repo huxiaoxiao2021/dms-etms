@@ -3,6 +3,7 @@
 <mapper namespace="com.jd.bluedragon.distribution.goodsPhoto.dao.GoodsPhotoDao">
   <resultMap id="BaseResultMap" type="com.jd.bluedragon.distribution.goodsPhoto.domain.GoodsPhotoInfo">
     <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="biz_id" jdbcType="VARCHAR" property="bizId" />
     <result column="user_code" jdbcType="INTEGER" property="userCode" />
     <result column="user_name" jdbcType="VARCHAR" property="userName" />
     <result column="site_code" jdbcType="INTEGER" property="siteCode" />
@@ -26,6 +27,7 @@
   </resultMap>
   <sql id="Base_Column_List">
     id,
+    biz_id,
     user_code,
     user_name,
     site_code,
@@ -68,6 +70,7 @@
   </delete>
   <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.jd.bluedragon.distribution.goodsPhoto.domain.GoodsPhotoInfo" useGeneratedKeys="true">
     insert into jy_goods_photo_info (
+      biz_id,
       user_code,
       user_name,
       site_code,
@@ -87,6 +90,7 @@
       update_time
           )
     values (
+      #{bizId,jdbcType=VARCHAR},
       #{userCode,jdbcType=INTEGER},
       #{userName,jdbcType=VARCHAR},
       #{siteCode,jdbcType=INTEGER},
