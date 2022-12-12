@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.jy.dao.calibrate;
 
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.jy.calibrate.JyBizTaskMachineCalibrateDetailEntity;
+import com.jd.bluedragon.distribution.jy.dto.calibrate.JyBizTaskMachineCalibrateQuery;
 
 import java.util.List;
 
@@ -29,5 +30,17 @@ public class JyBizTaskMachineCalibrateDetailDao extends BaseDao<JyBizTaskMachine
 
     public List<JyBizTaskMachineCalibrateDetailEntity> selectByCondition(JyBizTaskMachineCalibrateDetailEntity condition) {
         return this.getSqlSession().selectList(NAMESPACE + ".selectByCondition", condition);
+    }
+
+    public JyBizTaskMachineCalibrateDetailEntity queryCurrentTaskDetail(JyBizTaskMachineCalibrateQuery query) {
+        return this.getSqlSession().selectOne(NAMESPACE + ".queryCurrentTaskDetail", query);
+    }
+
+    public int duplicateNewestTaskDetail(JyBizTaskMachineCalibrateDetailEntity deleteEntity){
+        return this.getSqlSession().update(NAMESPACE + ".duplicateNewestTaskDetail", deleteEntity);
+    }
+
+    public List<JyBizTaskMachineCalibrateDetailEntity> getMachineCalibrateDetail(JyBizTaskMachineCalibrateQuery query){
+        return this.getSqlSession().selectList(NAMESPACE + ".getMachineCalibrateDetail", query);
     }
 }

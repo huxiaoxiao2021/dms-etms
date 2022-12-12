@@ -38,4 +38,9 @@ public class JyBizTaskMachineCalibrateServiceImpl implements JyBizTaskMachineCal
         }
         return jyBizTaskMachineCalibrateDao.queryOneByCondition(entity);
     }
+
+    @Override
+    public int closeMachineCalibrateTask(JyBizTaskMachineCalibrateEntity entity) {
+        return jyBizTaskMachineCalibrateDao.closeMachineCalibrateTask(entity);
+    }
 }

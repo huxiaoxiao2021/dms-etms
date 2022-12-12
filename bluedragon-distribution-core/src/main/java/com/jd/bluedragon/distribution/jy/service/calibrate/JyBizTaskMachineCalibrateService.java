@@ -31,4 +31,11 @@ public interface JyBizTaskMachineCalibrateService {
      * @return
      */
     JyBizTaskMachineCalibrateEntity queryOneByCondition(JyBizTaskMachineCalibrateEntity entity);
+
+    /**
+     * 根据条件关闭任务
+     * @param entity
+     * @return
+     */
+    int closeMachineCalibrateTask(JyBizTaskMachineCalibrateEntity entity);
 }

@@ -28,4 +28,8 @@ public class JyBizTaskMachineCalibrateDao extends BaseDao<JyBizTaskMachineCalibr
     public JyBizTaskMachineCalibrateEntity queryOneByCondition(JyBizTaskMachineCalibrateEntity entity) {
         return this.getSqlSession().selectOne(NAMESPACE + ".queryOneByCondition", entity);
     }
+
+    public int closeMachineCalibrateTask(JyBizTaskMachineCalibrateEntity entity){
+        return this.getSqlSession().update(NAMESPACE + ".closeMachineCalibrateTask", entity);
+    }
 }

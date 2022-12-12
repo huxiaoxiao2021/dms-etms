@@ -46,5 +46,5 @@ public interface JyWeightVolumeCalibrateService {
      * @param dwsMachineCalibrateMQ
      * @return
      */
-    InvokeResult<Boolean> dealCalibrateTask(DwsMachineCalibrateMQ dwsMachineCalibrateMQ);
+    InvokeResult<Boolean> dealCalibrateTask(DwsMachineCalibrateMQ dwsMachineCalibrateMQ) throws Exception;
 }

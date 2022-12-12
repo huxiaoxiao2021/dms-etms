@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.jy.service.calibrate;
 
 import com.jd.bluedragon.distribution.jy.calibrate.JyBizTaskMachineCalibrateDetailEntity;
 import com.jd.bluedragon.distribution.jy.dao.calibrate.JyBizTaskMachineCalibrateDetailDao;
+import com.jd.bluedragon.distribution.jy.dto.calibrate.JyBizTaskMachineCalibrateQuery;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -33,4 +34,20 @@ public class JyBizTaskMachineCalibrateDetailServiceImpl implements JyBizTaskMach
     public List<JyBizTaskMachineCalibrateDetailEntity> selectByCondition(JyBizTaskMachineCalibrateDetailEntity condition) {
         return jyBizTaskMachineCalibrateDetailDao.selectByCondition(condition);
     }
+
+    @Override
+    public JyBizTaskMachineCalibrateDetailEntity queryCurrentTaskDetail(JyBizTaskMachineCalibrateQuery query) {
+        return jyBizTaskMachineCalibrateDetailDao.queryCurrentTaskDetail(query);
+    }
+
+    @Override
+    public int duplicateNewestTaskDetail(JyBizTaskMachineCalibrateDetailEntity entity) {
+        return jyBizTaskMachineCalibrateDetailDao.duplicateNewestTaskDetail(entity);
+    }
+
+    @Override
+    public List<JyBizTaskMachineCalibrateDetailEntity> getMachineCalibrateDetail(JyBizTaskMachineCalibrateQuery query) {
+        return jyBizTaskMachineCalibrateDetailDao.getMachineCalibrateDetail(query);
+    }
+
 }
