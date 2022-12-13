@@ -252,7 +252,9 @@ public class DmsSendToEmsWaybillInfoConsumer extends MessageBaseConsumer {
 		param.setOrderId(sendDataMq.getWaybillCode());
 		param.setShipId(sendDataMq.getPackageBarcode());
 		param.setState(STATUS_NOTICE_ECLP);
-		param.setOperatorId(sendDataMq.getOperatorId());
+		if(sendDataMq.getOperatorId() != null){
+			param.setOperatorId(sendDataMq.getOperatorId());
+		}
 		param.setOperatorName(sendDataMq.getOperatorName());
     	list.add(param);
     	JdResult<List<ReceiptStateParameter>> eclpResult = thirdJsfInterfaceManager.partnerReceiptState(list);
