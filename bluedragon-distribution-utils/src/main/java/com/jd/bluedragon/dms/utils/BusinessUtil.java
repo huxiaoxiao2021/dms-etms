@@ -2524,5 +2524,18 @@ public class BusinessUtil {
     public static boolean isAllowWeight(String waybillSign) {
         return isSignChar(waybillSign, WaybillSignConstants.POSITION_66, WaybillSignConstants.CHAR_66_0);
     }
-
+    /**
+     * 
+     * @param waybillCode
+     * @param sourceCode
+     * @param sendPay
+     * @return
+     */
+    public static boolean isDouyin(String waybillCode,String sourceCode,String sendPay){
+    	return DmsConstants.SOURCE_CODE_DOUYIN.equals(sourceCode) 
+    			|| (waybillCode != null && waybillCode.startsWith(DmsConstants.WAYBILL_CODE_PRE_DOUYIN))
+    			|| BusinessUtil.isSignChar(sendPay, SendPayConstants.POSITION_327,SendPayConstants.CHAR_327_2)
+    	;
+    	
+    }
 }
