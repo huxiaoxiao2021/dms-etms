@@ -123,11 +123,14 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
     @Value("${WaybillCommonServiceImpl.additionalComment:http://www.jdwl.com   客服电话：950616}")
     private String additionalComment;
 
-    @Value("${WaybillCommonServiceImpl.popularizeMatrixCode:http://weixin.qq.com/q/02ixD6QH52bQO100000074}")
+    @Value("${WaybillCommonServiceImpl.popularizeMatrixCode:https://logistics-mrd.jd.com/express/index.html?source=yingxiao_miantie}")
     private String popularizeMatrixCode;
     private String POPULARIZEMATRIXCODEDESC_DEFAULT = "扫码寄快递";
     private String POPULARIZEMATRIXCODEDESC_PACKAGE_SAY = "包裹有话说";
-
+    /**
+     * 惊喜打服务
+     */
+    private String POPULARIZEMATRIXCODEDESC_JXD = "扫码收祝福";
     /**
      * 京东logo的文件路径
      */
@@ -729,6 +732,24 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
                     }
                 }
             }
+            //增值服务，打印京喜送达服务url
+            BaseEntity<WaybillVasDto> waybillVasJXD = waybillQueryManager.getWaybillVasWithExtendInfoByWaybillCode(waybill.getWaybillCode(),DmsConstants.WAYBILL_VAS_JXD);
+            if (waybillVasJXD != null 
+            		&& waybillVasJXD.getData() != null){
+                Map<String, String> extendMap = waybillVasJXD.getData().getExtendMap();
+                if (extendMap != null && extendMap.containsKey(DmsConstants.WAYBILL_VAS_JXD_CARDINFOS)){
+                	String attachmentUrl = null;
+                	Map<String, String> cardInfosData = JsonHelper.fromJson(extendMap.get(DmsConstants.WAYBILL_VAS_JXD_CARDINFOS), Map.class);
+                    if(cardInfosData != null && cardInfosData.containsKey(DmsConstants.WAYBILL_VAS_JXD_ATTCHMENTURL)) {
+                    	attachmentUrl = cardInfosData.get(DmsConstants.WAYBILL_VAS_JXD_ATTCHMENTURL);
+                    }
+                    if(StringUtils.isNotBlank(attachmentUrl)) {
+                    	target.setPopularizeMatrixCode(attachmentUrl);
+                        target.setPopularizeMatrixCodeDesc(POPULARIZEMATRIXCODEDESC_JXD);
+                    }
+                }
+            }
+            
             String customerCode = waybill.getCustomerCode();
             List<String> qlListConfigList = sysConfigService.getStringListConfig(Constants.SYS_WAYBILL_PRINT_ADDIOWN_NUMBER_CONF);
             boolean signInChars = BusinessUtil.isSignInChars(waybill.getWaybillSign(), WaybillSignConstants.POSITION_61, WaybillSignConstants.CHAR_61_1,

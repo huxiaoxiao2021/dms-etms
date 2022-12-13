@@ -1236,5 +1236,17 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
     public BaseEntity<List<BoxChargeDto>> getBoxChargeByWaybillCode(String waybillCode){
         return WaybillUtil.isWaybillCode(waybillCode) ? waybillQueryApi.getBoxChargeByWaybillCode(waybillCode) : null;
     }
+    /**
+     * 根据运单号以及增值服务编码获取运单增值服务信息,包括其扩展属性信息，其它接口不包含扩展属性信息
+     */
+    @JProfiler(jKey = "DMS.BASE.WaybillQueryManagerImpl.getBoxChargeByWaybillCode",
+        mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
+	@Override
+	public BaseEntity<WaybillVasDto> getWaybillVasWithExtendInfoByWaybillCode(String waybillCode,String vasNo) {
+    	if(StringHelper.isEmpty(waybillCode)||StringHelper.isEmpty(vasNo)) {
+    		return null;
+    	}
+    	return waybillQueryApi.getWaybillVasWithExtendInfoByWaybillCode(waybillCode, vasNo);
+	}
 
 }
