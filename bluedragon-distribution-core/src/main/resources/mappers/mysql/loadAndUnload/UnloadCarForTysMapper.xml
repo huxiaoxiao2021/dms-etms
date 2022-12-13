@@ -62,6 +62,8 @@
         <result column="update_time" property="updateTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
         <result column="yn" property="yn" javaType="java.lang.Integer" jdbcType="TINYINT" />
         <result column="ts" property="ts" javaType="java.util.Date" jdbcType="TIMESTAMP" />
+
+        <result column="version" property="version" javaType="java.lang.String" jdbcType="VARCHAR" />
     </resultMap>
 
     <sql id="Base_Column_List" >
