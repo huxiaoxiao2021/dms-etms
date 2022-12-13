@@ -285,9 +285,9 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
 //                    List<UnloadVehicleTaskDto> unloadVehicleTaskDtoList = convertUnloadVehicleTaskDto(unloadDetailList);
                     List<UnloadVehicleTaskDto> unloadVehicleTaskDtoList = new ArrayList<>();
                     JyBizTaskUnloadVehicleEntity entity = jyBizTaskUnloadVehicleService.findByBizId(unloadDetailList.get(0).getBizId());
-                    if(!WAIT_UN_LOAD.getCode().equals(entity.getVehicleStatus())
+                    if(entity == null || (!WAIT_UN_LOAD.getCode().equals(entity.getVehicleStatus())
                             && !UN_LOADING.getCode().equals(entity.getVehicleStatus())
-                            && !UN_LOAD_DONE.getCode().equals(entity.getVehicleStatus())) {
+                            && !UN_LOAD_DONE.getCode().equals(entity.getVehicleStatus()))) {
                         return new InvokeResult(RESULT_SUCCESS_CODE, TASK_NO_FOUND_BY_PARAMS_MESSAGE);
                     }
                     unloadVehicleTaskDtoList.add(jyBizTaskUnloadVehicleService.entityConvertDto(entity));
