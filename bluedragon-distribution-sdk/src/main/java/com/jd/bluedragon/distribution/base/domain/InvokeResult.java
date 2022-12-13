@@ -161,7 +161,7 @@ public class InvokeResult<T> implements Serializable {
     public static final String PACKAGE_OR_BOX_UNDER_BOARD_MESSAGE = "获取组板下的包裹号|运单号|箱号异常！";
 
     public static final int CANCEL_COM_BOARD_CODE = 3045;
-    public static final String CANCEL_COM_BOARD_MESSAGE = "取消组板异常！";
+    public static final String CANCEL_COM_BOARD_MESSAGE = "取消组板失败！";
 
     public static final int FINISH_BOARD_AGAIN_CODE = 3046;
     public static final String FINISH_BOARD_AGAIN_MESSAGE = "该板已完结，请刷新页面！";
@@ -196,6 +196,9 @@ public class InvokeResult<T> implements Serializable {
 
     public static final int NOT_FIND_BOARD_INFO_CODE = 3057;
     public static final String NOT_FIND_BOARD_INFO_MESSAGE= "未找到对应的板信息！";
+    
+    public static final int  CREATE_GROUP_CTT_DATA_CODE = 3058;
+    public static final String CREATE_GROUP_CTT_DATA_MESSAGE = "保存本场地常用的笼车集合失败！";
 
     public InvokeResult(){
         this.code=RESULT_SUCCESS_CODE;

@@ -136,8 +136,9 @@ public interface JyComBoardSendService {
 
   /**
    * 取消组板
+   * @return
    */
-  InvokeResult cancelComboard(CancelBoardReq request);
+  InvokeResult<Void> cancelComboard(CancelBoardReq request);
 
   /**
    * 根据包裹号或者箱号 定位所在的板

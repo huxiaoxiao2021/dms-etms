@@ -34,5 +34,5 @@ public interface JyComboardService {
      * @param req
      * @return
      */
-    int batchUpdateCancelFlag(BatchUpdateCancelReq req);
+    boolean batchUpdateCancelFlag(BatchUpdateCancelReq req);
 }

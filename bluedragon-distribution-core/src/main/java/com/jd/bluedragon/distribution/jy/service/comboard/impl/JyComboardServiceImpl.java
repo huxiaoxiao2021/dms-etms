@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+import static com.jd.bluedragon.dms.utils.BusinessUtil.encryptIdCard;
+
 /**
  * @author liwenji
  * @date 2022-11-23 21:17
@@ -22,9 +24,17 @@ public class JyComboardServiceImpl implements JyComboardService {
 
     @Override
     public List<User> queryUserByStartSiteCode(Long startSiteId) {
-        return jyComboardDao.queryUserByStartSiteCode(startSiteId);
+        List<User> users = jyComboardDao.queryUserByStartSiteCode(startSiteId);
+        hideInfo(users);
+        return users;
     }
 
+    private void hideInfo(List<User> userList) {
+        for (User user : userList) {
+            user.setUserErp(encryptIdCard(user.getUserErp()));
+        }
+    }
+    
     @Override
     public int save(JyComboardEntity entity) {
         return jyComboardDao.insertSelective(entity);
@@ -39,8 +49,8 @@ public class JyComboardServiceImpl implements JyComboardService {
     }
 
     @Override
-    public int batchUpdateCancelFlag(BatchUpdateCancelReq req) {
-        return jyComboardDao.batchUpdateCancelFlag(req);
+    public boolean batchUpdateCancelFlag(BatchUpdateCancelReq req) {
+        return jyComboardDao.batchUpdateCancelFlag(req) > 0;
     }
 
     @Override

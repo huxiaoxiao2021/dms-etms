@@ -35,9 +35,9 @@ public interface JyComboardGatewayService {
   /**
    * 变更（添加或者移除滑道笼车流向）
    */
-  JdCResponse addCTT2Group(AddCTTReq request);
+  JdCResponse<Void> addCTT2Group(AddCTTReq request);
 
-  JdCResponse removeCTTFromGroup(RemoveCTTReq request);
+  JdCResponse<Void> removeCTTFromGroup(RemoveCTTReq request);
 
   /**
    * 查询(本岗位或本场地)常用滑道笼车流向集合(【“混扫01”，“混扫02”，“混扫03”】)
@@ -66,13 +66,15 @@ public interface JyComboardGatewayService {
 
   /**
    * 完结板
+   * @return
    */
-  JdCResponse finishBoard(BoardReq request);
+  JdCResponse<Void> finishBoard(BoardReq request);
 
   /**
    * 结束混扫任务的所有流向的板
+   * @return
    */
-  JdCResponse finishBoardsUnderCTTGroup(CTTGroupReq request);
+  JdCResponse<Void> finishBoardsUnderCTTGroup(CTTGroupReq request);
 
 
   /**
@@ -134,6 +136,7 @@ public interface JyComboardGatewayService {
   /**
    * 取消组板
    * @param request
+   * @return
    */
-  JdCResponse cancelComboard(CancelBoardReq request);
+  JdCResponse<Void> cancelComboard(CancelBoardReq request);
 }
