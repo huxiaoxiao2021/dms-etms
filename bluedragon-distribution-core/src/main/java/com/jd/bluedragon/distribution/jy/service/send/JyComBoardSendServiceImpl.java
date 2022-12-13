@@ -429,7 +429,6 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     }
     log.info("开始更新常用滑道笼车流向集合：{}", JsonHelper.toJson(request));
     // 校验是否包含当前流向
-    // todo 批量
     for (TableTrolleyDto tableTrolleyDto : request.getTableTrolleyDtoList()) {
       JyGroupSortCrossDetailEntity query = new JyGroupSortCrossDetailEntity();
       query.setStartSiteId((long) request.getCurrentOperate().getSiteCode());
