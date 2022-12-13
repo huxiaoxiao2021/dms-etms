@@ -2300,6 +2300,17 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
+		<dependency>
+			<groupId>com.jdl.basic</groupId>
+			<artifactId>jy-basic-common</artifactId>
+			<version>1.0-uat-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>fastjson</artifactId>
+					<groupId>com.alibaba</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
 
 		<dependency>
 			<groupId>com.jd.ql.basic</groupId>
