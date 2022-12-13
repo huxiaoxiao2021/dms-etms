@@ -111,6 +111,7 @@ public class JYOpenCargoOperateServiceImpl implements IJYOpenCargoOperate {
         request.setReceiveSiteCode(entity.getReceiveSiteId());
         request.setReceiveSiteName(entity.getReceiveSiteName());
         request.setWaybillCode(entity.getWaybillCode());
+        request.setPackageCode(entity.getPackageCode());
         request.setBusinessType(10);
         request.setOperateTime(DateFormatUtils.format(entity.getOperatorInfo().getOperateTime(), DateHelper.DATE_FORMAT_YYYYMMDDHHmmss2));
         request.setSiteCode(entity.getCreateSiteId());
