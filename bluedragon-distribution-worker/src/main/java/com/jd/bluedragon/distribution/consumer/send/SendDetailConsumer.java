@@ -345,6 +345,8 @@ public class SendDetailConsumer extends MessageBaseConsumer {
             dto.setReceiveSiteCode(sendDetail.getReceiveSiteCode());
             dto.setReceiveSiteName(rbDto.getSiteName());
             dto.setOperateTime(new Date(sendDetail.getOperateTime()));
+            dto.setOperatorId(sendDetail.getCreateUserCode());
+            dto.setOperatorName(sendDetail.getCreateUser());
             dto.setSendCode(sendDetail.getSendCode());
             dto.setWaybillSign(waybill.getWaybillSign());
             dto.setSource(source);
