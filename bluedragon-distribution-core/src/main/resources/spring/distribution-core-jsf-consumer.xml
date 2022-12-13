@@ -1047,7 +1047,7 @@
 
     <!-- 货量预测 -->
     <jsf:consumer id="iPackagePredictAggsJsfService" interface="com.jdl.jy.realtime.api.predict.IPackagePredictAggsJsfService"
-                  protocol="jsf" alias="${jsf.jy.realtime.service.alias}" timeout="${jsf.sendhandover.timeout}"  retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
+                  protocol="jsf" alias="${jsf.jy.realtime.service.alias}" timeout="${jsf.jy.realtime.service.timeout}"  retries="${jsf.retries}" lazy="${jsf.consumer.lazy}">
     </jsf:consumer>
 
 
