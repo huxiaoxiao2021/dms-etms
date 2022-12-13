@@ -33,6 +33,8 @@
 
         <result column="start_time" property="startTime" javaType="java.util.Date" jdbcType="TIMESTAMP" />
         <result column="duration" property="duration" javaType="java.lang.Integer" jdbcType="INTEGER" />
+        <result column="version" property="version" javaType="java.lang.String" jdbcType="VARCHAR" />
+
     </resultMap>
 
     <resultMap id="unloadCarTask" type="com.jd.bluedragon.distribution.loadAndUnload.UnloadCarTask" >
