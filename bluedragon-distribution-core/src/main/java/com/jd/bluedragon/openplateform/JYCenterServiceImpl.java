@@ -226,9 +226,7 @@ public class JYCenterServiceImpl implements JYCenterService {
                 if (WaybillUtil.isPackageCode(cargoOperateInfo.getBarcode())) {
                     entity.setPackageCode(cargoOperateInfo.getBarcode());
                 }
-                if (BusinessHelper.isBoxcode(batchSortingPageRequest.getBoxCode())) {
-                    entity.setBoxCode(batchSortingPageRequest.getBoxCode());
-                }
+                entity.setBoxCode(batchSortingPageRequest.getBoxCode());
                 entity.setDataOperateType(batchSortingPageRequest.getOperateType());
                 entity.setCreateSiteId(siteOrgDto1.getSiteCode());
                 entity.setCreateSiteCode(siteOrgDto1.getDmsSiteCode());
@@ -389,8 +387,9 @@ public class JYCenterServiceImpl implements JYCenterService {
                 BaseStaffSiteOrgDto baseStaffSiteOrgDto = baseService.queryDmsBaseSiteByCode(weightVolumeOperateInfo.getOperatorInfo().getOperateSiteCode());
                 if (baseStaffSiteOrgDto != null) {
                     entity.setOperateSiteCode(baseStaffSiteOrgDto.getSiteCode());
+                    entity.setOperateSiteName(baseStaffSiteOrgDto.getSiteName());
                 }
-                entity.setOperateSiteName(weightVolumeOperateInfo.getOperatorInfo().getOperateSiteName());
+                entity.setOperatorId(-1);
                 entity.setOperatorCode(weightVolumeOperateInfo.getOperatorInfo().getOperateUserErp());
                 entity.setOperatorName(weightVolumeOperateInfo.getOperatorInfo().getOperateUserName());
                 entity.setOperateTime(new Date(weightVolumeOperateInfo.getOperatorInfo().getOperateTime()));
