@@ -15,6 +15,17 @@ import java.util.*;
  */
 public class UccPropertyConfiguration {
 
+
+    private Boolean dataReadSwitch;
+
+    public Boolean getDataReadSwitch() {
+        return dataReadSwitch;
+    }
+
+    public void setDataReadSwitch(Boolean dataReadSwitch) {
+        this.dataReadSwitch = dataReadSwitch;
+    }
+
     /** 开启的多级异步缓冲组件的任务类型列表 **/
     private String asynbufferEnabledTaskType;
 
