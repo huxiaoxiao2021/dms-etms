@@ -83,6 +83,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
      */
     public static final Integer OPERATE_NODE_HANDOVER_COMPLETE = 1;
     public static final Integer OPERATE_NODE_TASK_COMPLETE = 2;
+    public static final String PACKAGE_ILLEGAL="该包裹号不存在，可能修改过包裹数，需要按运单号重新补打面单";
 
 
     @Autowired
@@ -570,7 +571,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         ScanPackageRespDto scanPackageRespDto = invokeResult.getData();
         DeliveryPackageD packageD = waybillPackageManager.getPackageInfoByPackageCode(barCode);
         if (packageD == null) {
-            invokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, "该包裹号不存在，请检查包裹号是否正确！");
+                invokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, PACKAGE_ILLEGAL);
             return invokeResult;
         }
         String waybillCode = WaybillUtil.getWaybillCode(scanPackageDto.getScanCode());
@@ -663,7 +664,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         if (WaybillUtil.isPackageCode(barCode)) {
             packageD = waybillPackageManager.getPackageInfoByPackageCode(barCode);
             if (packageD == null) {
-                invokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, "该包裹号不存在，请检查包裹号是否正确！");
+                invokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, PACKAGE_ILLEGAL);
                 return invokeResult;
             }
             waybillCode = WaybillUtil.getWaybillCode(scanPackageDto.getScanCode());
