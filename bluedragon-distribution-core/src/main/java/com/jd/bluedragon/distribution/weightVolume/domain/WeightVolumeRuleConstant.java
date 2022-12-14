@@ -76,9 +76,9 @@ public class WeightVolumeRuleConstant {
     public static final int PACKAGE_MAX_VOLUME_B = 27;
 
     /**
-     * B网包裹最大重量限制500KG
+     * B网包裹最大重量限制1000KG
      */
-    public static final int PACKAGE_MAX_WEIGHT_B = 500;
+    public static final int PACKAGE_MAX_WEIGHT_B = 1000;
 
     /**
      * 泡重比

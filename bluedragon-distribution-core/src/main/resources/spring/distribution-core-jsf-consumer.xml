@@ -1043,9 +1043,9 @@
         <jsf:parameter key="token" value="${jsf.sendhandover.token}" hide="true"/>
     </jsf:consumer>
     <!--  基础资料获取货区编码  -->
-    <jsf:consumer id="basicGoodsAreaWS" interface="com.jd.ql.basic.ws.BasicGoodsAreaWS" alias="${basic.ql.alias}" protocol="jsf"
+    <jsf:consumer id="basicGoodsAreaWS" interface="com.jd.ql.basic.ws.BasicGoodsAreaWS" alias="${basic.jsfGoodsArea.alias}" protocol="jsf"
                   timeout="10000">
-        <jsf:parameter key="token" value="${basic.jsf.token}" hide="true" />
+        <jsf:parameter key="token" value="${basic.jsfGoodsArea.token}" hide="true" />
     </jsf:consumer>
 
 

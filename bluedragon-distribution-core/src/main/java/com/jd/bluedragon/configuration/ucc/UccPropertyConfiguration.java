@@ -516,7 +516,6 @@ public class UccPropertyConfiguration {
      */
     private int goodsResidenceTime;
 
-    private String planSendTime ;
 
     public String getAddiOwnNumberConf() {
         return addiOwnNumberConf;
@@ -957,6 +956,13 @@ public class UccPropertyConfiguration {
      * 称重量方的规则一直在变化，为了有一个版本的切换过程，这里加一个开关，
      */
     private Integer weightVolumeSwitchVersion;
+
+    /**
+     * 卸车岗列表页过滤最近N天数据
+     */
+    private Integer jyUnloadCarListQueryDayFilter;
+
+
 
     public String getScheduleSiteCheckSameCity() {
         return scheduleSiteCheckSameCity;
@@ -2270,6 +2276,14 @@ public class UccPropertyConfiguration {
         this.weightVolumeSwitchVersion = weightVolumeSwitchVersion;
     }
 
+    public Integer getJyUnloadCarListQueryDayFilter() {
+        return jyUnloadCarListQueryDayFilter;
+    }
+
+    public void setJyUnloadCarListQueryDayFilter(Integer jyUnloadCarListQueryDayFilter) {
+        this.jyUnloadCarListQueryDayFilter = jyUnloadCarListQueryDayFilter;
+    }
+
     public int getGoodsResidenceTime() {
         return goodsResidenceTime;
     }
@@ -2278,11 +2292,4 @@ public class UccPropertyConfiguration {
         this.goodsResidenceTime = goodsResidenceTime;
     }
 
-    public String getPlanSendTime() {
-        return planSendTime;
-    }
-
-    public void setPlanSendTime(String planSendTime) {
-        this.planSendTime = planSendTime;
-    }
 }
