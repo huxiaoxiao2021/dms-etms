@@ -37,7 +37,10 @@
 		<ps-epf.version>1.0-SNAPSHOT</ps-epf.version>
 		<!--jim redis-->
 		<jimdb.version>3.1.2-SNAPSHOT</jimdb.version>
+		<tms-workbench-api.version>1.0-SNAPSHOT</tms-workbench-api.version>
 		<cp-wbms-client.version>1.0.110</cp-wbms-client.version>
+        <jd-ql-3pl-client.version>2.0.7-SNAPSHOT</jd-ql-3pl-client.version>
+		<addressTranslation-api.version>1.6.4-SNAPSHOT</addressTranslation-api.version>
 	</properties>
 
 	<dependencies>
@@ -107,7 +110,7 @@
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
-            <version>1.2.83</version>
+            <version>1.2.83-jdsec.rc1</version>
         </dependency>
         <dependency>
 			<groupId>com.jd.fms.ivc</groupId>
@@ -301,7 +304,7 @@
 		<dependency>
 			<groupId>org.aspectj</groupId>
 			<artifactId>aspectjweaver</artifactId>
-			<version>1.8.9</version>
+			<version>1.8.7</version>
 		</dependency>
 
 		<dependency>
@@ -384,7 +387,7 @@
 		<dependency>
 			<groupId>org.codehaus.jackson</groupId>
 			<artifactId>jackson-jaxrs</artifactId>
-			<version>1.9.2</version>
+			<version>1.7.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.codehaus.jackson</groupId>
@@ -428,6 +431,16 @@
 			<groupId>org.jboss.resteasy</groupId>
 			<artifactId>resteasy-jackson-provider</artifactId>
 			<version>2.2.3.GA</version>
+			<exclusions>
+				<exclusion>
+					<artifactId>jackson-jaxrs</artifactId>
+					<groupId>org.codehaus.jackson</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>jackson-mapper-asl</artifactId>
+					<groupId>org.codehaus.jackson</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>com.jd.ldop.middle.api</groupId>
@@ -598,7 +611,11 @@
             <artifactId>msg-sender-client-service</artifactId>
             <version>1.0.0</version>
 		</dependency>
-
+		<dependency>
+			<groupId>com.jd.tms.workbench</groupId>
+			<artifactId>tms-workbench-api</artifactId>
+			<version>${tms-workbench-api.version}</version>
+		</dependency>
 		<!-- Excel导出 -->
 		<dependency>
 			<groupId>org.apache.poi</groupId>
@@ -625,7 +642,13 @@
             <groupId>com.jd.ump</groupId>
             <artifactId>profiler</artifactId>
             <version>6.2.13-HOTFIX-T1</version>
-        </dependency>
+			<exclusions>
+				<exclusion>
+					<artifactId>aspectjweaver</artifactId>
+					<groupId>org.aspectj</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
 		<!-- JIM Redis -->
 		<dependency>
 			<groupId>com.jd.jmiss</groupId>
@@ -680,6 +703,10 @@
                     <artifactId>commons-beanutils</artifactId>
                     <groupId>commons-beanutils</groupId>
                 </exclusion>
+				<exclusion>
+					<groupId>org.aspectj</groupId>
+					<artifactId>aspectjweaver</artifactId>
+				</exclusion>
             </exclusions>
         </dependency>
 
@@ -708,6 +735,14 @@
             <artifactId>framework-utils</artifactId>
             <version>1.1.5-SNAPSHOT</version>
             <exclusions>
+				<exclusion>
+					<groupId>org.aspectj</groupId>
+					<artifactId>aspectjrt</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.aspectj</groupId>
+					<artifactId>aspectjweaver</artifactId>
+				</exclusion>
                 <exclusion>
                     <artifactId>mybatis-spring</artifactId>
                     <groupId>org.mybatis</groupId>
@@ -794,6 +829,10 @@
             <artifactId>iwms-app-export</artifactId>
 			<version>2.2.0-jdk6-SNAPSHOT</version>
 			<exclusions>
+				<exclusion>
+					<groupId>org.codehaus.jackson</groupId>
+					<artifactId>jackson-jaxrs</artifactId>
+				</exclusion>
 				<exclusion>
 					<artifactId>jsf</artifactId>
 					<groupId>com.jd</groupId>
@@ -1043,6 +1082,10 @@
 				<exclusion>
 					<artifactId>erp-sso</artifactId>
 					<groupId>com.jd</groupId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.aspectj</groupId>
+					<artifactId>aspectjweaver</artifactId>
 				</exclusion>
 			</exclusions>
 		</dependency>
@@ -1299,6 +1342,14 @@
 					<artifactId>validation-api</artifactId>
 					<groupId>javax.validation</groupId>
 				</exclusion>
+				<exclusion>
+					<artifactId>fastjson</artifactId>
+					<groupId>com.alibaba</groupId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.projectlombok</groupId>
+					<artifactId>lombok</artifactId>
+				</exclusion>
 			</exclusions>
 		</dependency>
 
@@ -1358,6 +1409,10 @@
 			<groupId>com.jd.ql.dms.opLog</groupId>
 			<artifactId>opLog-agent</artifactId>
             <exclusions>
+				<exclusion>
+					<groupId>org.aspectj</groupId>
+					<artifactId>aspectjweaver</artifactId>
+				</exclusion>
                 <exclusion>
                     <artifactId>fastjson</artifactId>
                     <groupId>com.alibaba</groupId>
@@ -1373,6 +1428,10 @@
 				<exclusion>
 					<artifactId>jaxb-impl</artifactId>
 					<groupId>com.sun.xml.bind</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>aspectjrt</artifactId>
+					<groupId>org.aspectj</groupId>
 				</exclusion>
 			</exclusions>
         </dependency>
@@ -1562,6 +1621,14 @@
 			<version>0.0.1-SNAPSHOT</version>
 			<exclusions>
 				<exclusion>
+					<groupId>org.aspectj</groupId>
+					<artifactId>aspectjrt</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.aspectj</groupId>
+					<artifactId>aspectjweaver</artifactId>
+				</exclusion>
+				<exclusion>
 					<artifactId>jss-sdk-java</artifactId>
 					<groupId>com.jcloud</groupId>
 				</exclusion>
@@ -1638,6 +1705,10 @@
 					<artifactId>fastjson</artifactId>
 				</exclusion>
                 <exclusion>
+					<artifactId>log4j-1.2-api</artifactId>
+					<groupId>org.apache.logging.log4j</groupId>
+				</exclusion>
+                <exclusion>
                     <artifactId>log4j-core</artifactId>
                     <groupId>org.apache.logging.log4j</groupId>
                 </exclusion>
@@ -1656,6 +1727,10 @@
 			<artifactId>crossbow-api</artifactId>
 			<version>${crossbow.api.version}</version>
             <exclusions>
+                <exclusion>
+					<artifactId>log4j-1.2-api</artifactId>
+					<groupId>org.apache.logging.log4j</groupId>
+				</exclusion>
                 <exclusion>
                     <artifactId>log4j-core</artifactId>
                     <groupId>org.apache.logging.log4j</groupId>
@@ -1735,6 +1810,18 @@
 			<artifactId>data.qc.abnormal.jsf.jar</artifactId>
 			<version>1.0.7-pda-SNAPSHOT</version>
 			<exclusions>
+				<exclusion>
+					<groupId>org.aspectj</groupId>
+					<artifactId>aspectjrt</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.aspectj</groupId>
+					<artifactId>aspectjweaver</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.jboss.resteasy</groupId>
+					<artifactId>resteasy-jaxrs</artifactId>
+				</exclusion>
 				<exclusion>
 					<groupId>org.apache.kafka</groupId>
 					<artifactId>kafka-clients</artifactId>
@@ -1829,6 +1916,12 @@
 		<dependency>
 			<groupId>com.jd.bdp</groupId>
 			<artifactId>jdq</artifactId>
+			<exclusions>
+				<exclusion>
+					<artifactId>jackson-mapper-asl</artifactId>
+					<groupId>org.codehaus.jackson</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<dependency>
@@ -1878,6 +1971,14 @@
 				<exclusion>
 					<artifactId>asm</artifactId>
 					<groupId>org.ow2.asm</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>aspectjweaver</artifactId>
+					<groupId>org.aspectj</groupId>
+				</exclusion>
+				<exclusion>
+					<artifactId>aspectjrt</artifactId>
+					<groupId>org.aspectj</groupId>
 				</exclusion>
 			</exclusions>
 		</dependency>
@@ -1981,6 +2082,14 @@
 					<artifactId>validation-api</artifactId>
 					<groupId>javax.validation</groupId>
 				</exclusion>
+				<exclusion>
+					<groupId>org.aspectj</groupId>
+					<artifactId>aspectjrt</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.aspectj</groupId>
+					<artifactId>aspectjweaver</artifactId>
+				</exclusion>
 			</exclusions>
 		</dependency>
 
@@ -2072,6 +2181,10 @@
 				<exclusion>
 					<artifactId>validation-api</artifactId>
 					<groupId>javax.validation</groupId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.aspectj</groupId>
+					<artifactId>aspectjrt</artifactId>
 				</exclusion>
 			</exclusions>
 		</dependency>
@@ -2184,6 +2297,12 @@
 			<version>1.0.0-SNAPSHOT</version>
 		</dependency>
 
+		<dependency>
+			<groupId>com.jd.cmp</groupId>
+			<artifactId>cmp-api-dms</artifactId>
+			<version>0.0.3-SNAPSHOT</version>
+		</dependency>
+
 		<!--查询冷链耗材-->
 		<dependency>
 			<groupId>com.jd.coldchain</groupId>
@@ -2266,6 +2385,142 @@
 			</exclusions>
 		</dependency>
 
+		<dependency>
+			<groupId>com.jd.ql.basic</groupId>
+			<artifactId>ql-basic-facade</artifactId>
+			<version>2.0.12-online-SNAPSHOT</version>
+			<exclusions>
+				<exclusion>
+					<groupId>javax.validation</groupId>
+					<artifactId>validation-api</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<!-- 3pl-api -->
+		<dependency>
+			<groupId>com.jd.ql.3pl</groupId>
+			<artifactId>jd-ql-3pl-client</artifactId>
+			<version>${jd-ql-3pl-client.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.jboss.resteasy</groupId>
+					<artifactId>resteasy-jaxrs</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.jboss.resteasy</groupId>
+					<artifactId>jaxrs-api</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.jboss.resteasy</groupId>
+					<artifactId>resteasy-spring</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.aspectj</groupId>
+					<artifactId>aspectjrt</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.aspectj</groupId>
+					<artifactId>aspectjweaver</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.alibaba</groupId>
+					<artifactId>fastjson</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.jd</groupId>
+					<artifactId>jsf</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>log4j</groupId>
+					<artifactId>log4j</artifactId>
+				</exclusion>
+				<exclusion>
+					<artifactId>slf4j-log4j12</artifactId>
+					<groupId>org.slf4j</groupId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.jd.ql.erp</groupId>
+					<artifactId>ql-erp-client</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>commons-lang</groupId>
+					<artifactId>commons-lang</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.jd.etms.waybill</groupId>
+					<artifactId>etms-waybill-agent</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.jd.ump</groupId>
+					<artifactId>profiler</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.jd.etms.framework</groupId>
+					<artifactId>framework-utils</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.jd.orderBank</groupId>
+					<artifactId>order-bank-export</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>order-ws-client</groupId>
+					<artifactId>order-ws-client</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>MasterCheckDataServer</groupId>
+					<artifactId>MasterCheckDataServer</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.thoughtworks.xstream</groupId>
+					<artifactId>xstream</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>xpp3</groupId>
+					<artifactId>xpp3_min</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.jd.cdsec</groupId>
+					<artifactId>jdcd-security-filter-mini</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.apache.poi</groupId>
+					<artifactId>poi</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.apache.poi</groupId>
+					<artifactId>poi-ooxml</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.jd.etms</groupId>
+					<artifactId>etms-common</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>commons-collections</groupId>
+					<artifactId>commons-collections</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.jd.security.codesec</groupId>
+					<artifactId>ajdv</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.jd.etms.waybill</groupId>
+					<artifactId>etms-waybillcode-rule</artifactId>
+				</exclusion>
+
+				<exclusion>
+					<groupId>org.powermock</groupId>
+					<artifactId>powermock-module-junit4</artifactId>
+				</exclusion>
+
+			</exclusions>
+		</dependency>
+		<!-- 中台四级地址 -->
+		<dependency>
+		  <groupId>com.jd.addresstranslation</groupId>
+		  <artifactId>addressTranslation-api</artifactId>
+		  <version>${addressTranslation-api.version}</version>
+		</dependency>
+		
     </dependencies>
 
 	<profiles>
