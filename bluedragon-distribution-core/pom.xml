@@ -39,7 +39,6 @@
 		<!--jim redis-->
 		<jimdb.version>3.1.2-SNAPSHOT</jimdb.version>
 		<cp-wbms-client.version>1.0.110</cp-wbms-client.version>
-        <version>${cp-wbms-client.version}</version>
         <jd-ql-3pl-client.version>2.0.7-SNAPSHOT</jd-ql-3pl-client.version>
 		<addressTranslation-api.version>1.6.4-SNAPSHOT</addressTranslation-api.version>
 	</properties>
