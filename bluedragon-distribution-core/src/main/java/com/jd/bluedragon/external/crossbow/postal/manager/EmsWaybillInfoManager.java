@@ -18,6 +18,7 @@ public class EmsWaybillInfoManager extends AbstractPostalCrossbowManager<Waybill
     protected WaybillInfoRequest getMyRequestBody(Object condition) {
     	WaybillInfoRequest request = (WaybillInfoRequest)condition;
     	request.setBrandCode(brandCode);
+    	request.setPickupAttribute(brandCode);
         return request;
     }
 
