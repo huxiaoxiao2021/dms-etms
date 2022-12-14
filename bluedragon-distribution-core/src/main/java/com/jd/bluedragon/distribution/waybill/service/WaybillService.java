@@ -12,6 +12,8 @@ import com.jd.bluedragon.distribution.waybill.domain.WaybillPackageDTO;
 import com.jd.etms.waybill.domain.Waybill;
 import com.jd.etms.waybill.dto.BigWaybillDto;
 
+import java.util.Date;
+
 public interface WaybillService {
 
     BigWaybillDto getWaybill(String waybillCode);
@@ -193,6 +195,22 @@ public interface WaybillService {
      * @return
      */
     CancelWaybill checkClaimDamagedCancelWaybill(String waybillCode);
+
+    /**
+     * 判断是否运单是否包含易冻品增值服务
+     * @param waybillCode
+     * @return
+     */
+    boolean isEasyFrozenVosWaybill(String waybillCode);
+
+    /**
+     * 根据运单、操作时间、操作场地 检查易冻品
+     * @param waybillCode
+     * @param operateTime
+     * @param siteCode
+     * @return
+     */
+    InvokeResult<Boolean> checkEasyFreeze(String waybillCode, Date operateTime, Integer siteCode);
 
     /**
      * 判断运单是否包含特保单增值服务

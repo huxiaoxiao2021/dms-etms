@@ -61,6 +61,7 @@ public class JyUnloadVehicleGatewayServiceImpl implements JyUnloadVehicleGateway
     @Autowired
     private TransportRelatedService transportRelatedService;
 
+
     @Override
     public JdCResponse<UnloadNoTaskResponse> createNoTaskUnloadTask(UnloadNoTaskRequest request) {
         CallerInfo info = Profiler.registerInfo("JyUnloadVehicleGatewayService.createNoTaskUnloadTask",

@@ -511,6 +511,12 @@ public class UccPropertyConfiguration {
      */
     private  String addiOwnNumberConf;
 
+    /**
+     * 货物滞留时间
+     */
+    private int goodsResidenceTime;
+
+
     public String getAddiOwnNumberConf() {
         return addiOwnNumberConf;
     }
@@ -820,7 +826,7 @@ public class UccPropertyConfiguration {
      * 自动签退超过多少小时未签退的数据
      */
     private int notSignedOutRecordMoreThanHours;
-    
+
     /**
      * 自动签退查询数据-扫描小时数
      */
@@ -950,6 +956,13 @@ public class UccPropertyConfiguration {
      * 称重量方的规则一直在变化，为了有一个版本的切换过程，这里加一个开关，
      */
     private Integer weightVolumeSwitchVersion;
+
+    /**
+     * 卸车岗列表页过滤最近N天数据
+     */
+    private Integer jyUnloadCarListQueryDayFilter;
+
+
 
     public String getScheduleSiteCheckSameCity() {
         return scheduleSiteCheckSameCity;
@@ -2262,4 +2275,21 @@ public class UccPropertyConfiguration {
     public void setWeightVolumeSwitchVersion(Integer weightVolumeSwitchVersion) {
         this.weightVolumeSwitchVersion = weightVolumeSwitchVersion;
     }
+
+    public Integer getJyUnloadCarListQueryDayFilter() {
+        return jyUnloadCarListQueryDayFilter;
+    }
+
+    public void setJyUnloadCarListQueryDayFilter(Integer jyUnloadCarListQueryDayFilter) {
+        this.jyUnloadCarListQueryDayFilter = jyUnloadCarListQueryDayFilter;
+    }
+
+    public int getGoodsResidenceTime() {
+        return goodsResidenceTime;
+    }
+
+    public void setGoodsResidenceTime(int goodsResidenceTime) {
+        this.goodsResidenceTime = goodsResidenceTime;
+    }
+
 }

@@ -215,5 +215,4 @@ public interface JyUnloadVehicleTysService {
      */
     InvokeResult<FlowBoardDto> getTaskFlowBoardInfoByPackageCode(FlowBoardDto flowBoardDto);
 
-
 }

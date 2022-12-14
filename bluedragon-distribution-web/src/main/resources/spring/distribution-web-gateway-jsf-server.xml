@@ -527,6 +527,7 @@
                   server="dmsjsf">
     </jsf:provider>
 
+
     <!--货物拍照图片信息服务-->
     <bean id="goodsPhotoInfoGatewayServiceImpl" class="com.jd.bluedragon.distribution.external.gateway.service.impl.GoodsPhotoInfoGatewayServiceImpl" />
     <jsf:provider id="jsfGoodsPhotoInfoGatewayService"
