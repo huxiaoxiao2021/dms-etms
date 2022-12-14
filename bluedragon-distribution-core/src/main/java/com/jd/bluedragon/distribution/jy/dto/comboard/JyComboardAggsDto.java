@@ -63,6 +63,15 @@ public class JyComboardAggsDto extends JyAggsDto{
      * 更新时间
      */
     private Date updateTime;
+    /**
+     * 重量
+     */
+    private Double weight;
+    /**
+     * 体积
+     */
+    private Double volume;
+
     public String getSendFlow() {
         if (operateSiteId == null || receiveSiteId == null) {
             return null;

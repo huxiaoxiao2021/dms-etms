@@ -41,6 +41,10 @@ public class JyComboardAggsEntity {
 
     private Integer boxScannedCount;
 
+    private Double weight;
+
+    private Double volume;
+
     public Integer getOperateSiteId() {
         return operateSiteId;
     }
@@ -191,5 +195,21 @@ public class JyComboardAggsEntity {
 
     public void setBoxScannedCount(Integer boxScannedCount) {
         this.boxScannedCount = boxScannedCount;
+    }
+
+    public Double getWeight() {
+        return weight;
+    }
+
+    public void setWeight(Double weight) {
+        this.weight = weight;
+    }
+
+    public Double getVolume() {
+        return volume;
+    }
+
+    public void setVolume(Double volume) {
+        this.volume = volume;
     }
 }
