@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.spotcheck.service.impl;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.dto.operation.workbench.enums.JyBizTaskMachineCalibrateStatusEnum;
 import com.jd.bluedragon.common.utils.CacheKeyConstants;
 import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.*;
@@ -23,6 +24,7 @@ import com.jd.bluedragon.dms.utils.MathUtils;
 import com.jd.bluedragon.dms.utils.WaybillSignConstants;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import com.jd.bluedragon.utils.BusinessHelper;
+import com.jd.bluedragon.utils.DateHelper;
 import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.etms.waybill.domain.Waybill;
@@ -909,9 +911,30 @@ public class SpotCheckDealServiceImpl implements SpotCheckDealService {
 
     @Override
     public void dealSpotCheckWithDwsCalibrateData(DwsMachineCalibrateMQ dwsMachineCalibrateMQ) {
-
-        // todo 根据设备校准数据处理抽检数据
-
+        String machineCode = dwsMachineCalibrateMQ.getMachineCode();
+        Integer calibrateStatus = dwsMachineCalibrateMQ.getCalibrateStatus();
+        if(!Objects.equals(calibrateStatus, JyBizTaskMachineCalibrateStatusEnum.ELIGIBLE.getCode())){
+            logger.warn("设备:{}的校准状态不合格，不进行抽检下发处理!", machineCode);
+            return;
+        }
+        Date previousMachineEligibleTime = new Date(dwsMachineCalibrateMQ.getPreviousMachineEligibleTime()); // 上传设备合格的时间
+        Date currentMachineEligibleTime = new Date(dwsMachineCalibrateMQ.getCalibrateTime()); // 本次设备合格的时间
+        // 获取合格时间内的抽检数据
+        SpotCheckQueryCondition condition = new SpotCheckQueryCondition();
+        condition.setReviewStartTime(previousMachineEligibleTime);
+        condition.setReviewEndTime(currentMachineEligibleTime);
+        condition.setRecordType(SpotCheckRecordTypeEnum.SUMMARY_RECORD.getCode());
+        condition.setIsExcess(ExcessStatusEnum.EXCESS_ENUM_YES.getCode());
+        List<WeightVolumeSpotCheckDto> spotCheckList = spotCheckQueryManager.querySpotCheckByCondition(condition);
+        if(CollectionUtils.isEmpty(spotCheckList)){
+            logger.warn("时间范围:{} - {}内未有抽检超标数据!", DateHelper.formatDateTime(previousMachineEligibleTime),
+                    DateHelper.formatDateTime(currentMachineEligibleTime));
+            return;
+        }
+        // 执行下发
+        for (WeightVolumeSpotCheckDto spotCheckDto : spotCheckList) {
+            executeIssue(spotCheckDto);
+        }
     }
 
     private WeightVolumeSpotCheckDto getSpotCheck(WeightVolumeSpotCheckDto dto, boolean isGetSummaryWeight) {

@@ -1,5 +1,9 @@
 package com.jd.bluedragon.common.dto.operation.workbench.calibrate;
 
+import com.jd.bluedragon.common.dto.operation.workbench.enums.JyBizTaskMachineCalibrateTypeEnum;
+import com.jd.bluedragon.common.dto.operation.workbench.enums.JyBizTaskMachineVolumeCalibrateStatusEnum;
+import com.jd.bluedragon.common.dto.operation.workbench.enums.JyBizTaskMachineWeightCalibrateStatusEnum;
+
 import java.io.Serializable;
 import java.math.BigDecimal;
 
@@ -15,6 +19,7 @@ public class DwsWeightVolumeCalibrateDetail implements Serializable {
 
     /**
      * 校准类型
+     * @see JyBizTaskMachineCalibrateTypeEnum
      */
     private Integer calibrateType;
 
@@ -49,11 +54,6 @@ public class DwsWeightVolumeCalibrateDetail implements Serializable {
     private BigDecimal farmarHigh;
 
     /**
-     * 砝码长宽高
-     */
-    private String farmarLwh;
-
-    /**
      * 实际重量
      */
     private BigDecimal actualWeight;
@@ -74,9 +74,21 @@ public class DwsWeightVolumeCalibrateDetail implements Serializable {
     private BigDecimal actualHigh;
 
     /**
-     * 实际长宽高
+     * 校准状态
+     * @see JyBizTaskMachineVolumeCalibrateStatusEnum
+     * @see JyBizTaskMachineWeightCalibrateStatusEnum
      */
-    private String actualLwh;
+    private Integer calibrateStatus;
+
+    /**
+     * 校准时间
+     */
+    private Integer calibrateTime;
+
+    /**
+     * 误差范围提示语
+     */
+    private String errorRangeHintMsg;
 
     public Integer getCalibrateType() {
         return calibrateType;
@@ -134,14 +146,6 @@ public class DwsWeightVolumeCalibrateDetail implements Serializable {
         this.farmarHigh = farmarHigh;
     }
 
-    public String getFarmarLwh() {
-        return farmarLwh;
-    }
-
-    public void setFarmarLwh(String farmarLwh) {
-        this.farmarLwh = farmarLwh;
-    }
-
     public BigDecimal getActualWeight() {
         return actualWeight;
     }
@@ -174,11 +178,27 @@ public class DwsWeightVolumeCalibrateDetail implements Serializable {
         this.actualHigh = actualHigh;
     }
 
-    public String getActualLwh() {
-        return actualLwh;
+    public Integer getCalibrateStatus() {
+        return calibrateStatus;
     }
 
-    public void setActualLwh(String actualLwh) {
-        this.actualLwh = actualLwh;
+    public void setCalibrateStatus(Integer calibrateStatus) {
+        this.calibrateStatus = calibrateStatus;
+    }
+
+    public Integer getCalibrateTime() {
+        return calibrateTime;
+    }
+
+    public void setCalibrateTime(Integer calibrateTime) {
+        this.calibrateTime = calibrateTime;
+    }
+
+    public String getErrorRangeHintMsg() {
+        return errorRangeHintMsg;
+    }
+
+    public void setErrorRangeHintMsg(String errorRangeHintMsg) {
+        this.errorRangeHintMsg = errorRangeHintMsg;
     }
 }

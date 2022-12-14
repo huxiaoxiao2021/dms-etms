@@ -6,6 +6,8 @@ import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 /**
  * 拣运设备校准任务SERVICE
  *
@@ -42,5 +44,10 @@ public class JyBizTaskMachineCalibrateServiceImpl implements JyBizTaskMachineCal
     @Override
     public int closeMachineCalibrateTask(JyBizTaskMachineCalibrateEntity entity) {
         return jyBizTaskMachineCalibrateDao.closeMachineCalibrateTask(entity);
+    }
+
+    @Override
+    public List<JyBizTaskMachineCalibrateEntity> queryListByCondition(JyBizTaskMachineCalibrateEntity condition) {
+        return jyBizTaskMachineCalibrateDao.queryListByCondition(condition);
     }
 }

@@ -197,6 +197,9 @@
 		<property name="packageWeightLimit" value="${packageWeightLimit:'2000'}"/>
 		<property name="waybillWeightLimit" value="${waybillWeightLimit:'10000'}"/>
 		<property name="weightVolumeSwitchVersion" value="${weightVolumeSwitchVersion:0}"/>
+		<property name="machineCalibrateTaskDuration" value="${machineCalibrateTaskDuration:10800000}"/>
+		<property name="machineCalibrateTaskQueryRange" value="${machineCalibrateTaskQueryRange:172800000}"/>
+		<property name="machineCalibrateTaskForceCreateIntervalTime" value="${machineCalibrateTaskForceCreateIntervalTime:172800000}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -375,6 +378,9 @@
 				<value>uccPropertyConfiguration.packageWeightLimit</value>
 				<value>uccPropertyConfiguration.waybillWeightLimit</value>
 				<value>uccPropertyConfiguration.weightVolumeSwitchVersion</value>
+				<value>uccPropertyConfiguration.machineCalibrateTaskDuration</value>
+				<value>uccPropertyConfiguration.machineCalibrateTaskQueryRange</value>
+				<value>uccPropertyConfiguration.machineCalibrateTaskForceCreateIntervalTime</value>
 
 				<value>hystrixRouteUccPropertyConfiguration.executionTimeoutInMilliseconds</value>
                 <value>hystrixRouteUccPropertyConfiguration.circuitBreakerEnabled</value>

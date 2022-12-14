@@ -1,11 +1,9 @@
 package com.jd.bluedragon.external.gateway.service;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
-import com.jd.bluedragon.common.dto.operation.workbench.calibrate.DwsWeightVolumeCalibrateDetail;
+import com.jd.bluedragon.common.dto.operation.workbench.calibrate.DwsWeightVolumeCalibrateDetailResult;
 import com.jd.bluedragon.common.dto.operation.workbench.calibrate.DwsWeightVolumeCalibrateRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.calibrate.DwsWeightVolumeCalibrateTaskResult;
-
-import java.util.List;
 
 /**
  * 拣运设备称重重量校准网关服务
@@ -29,7 +27,7 @@ public interface JyWeightVolumeCalibrateGatewayService {
      * @param request
      * @return
      */
-    JdCResponse<List<DwsWeightVolumeCalibrateDetail>> getMachineCalibrateDetail(DwsWeightVolumeCalibrateRequest request);
+    JdCResponse<DwsWeightVolumeCalibrateDetailResult> getMachineCalibrateDetail(DwsWeightVolumeCalibrateRequest request);
 
     /**
      * 关闭设备校准任务

@@ -1,6 +1,8 @@
 package com.jd.bluedragon.common.dto.operation.workbench.calibrate;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -16,17 +18,25 @@ public class DwsWeightVolumeCalibrateTaskResult implements Serializable {
     /**
      * 待处理任务
      */
-    private List<DwsWeightVolumeCalibrateTaskDetail> todoTaskList;
+    private List<DwsWeightVolumeCalibrateTaskDetail> todoTaskList
+            = new ArrayList<DwsWeightVolumeCalibrateTaskDetail>();
 
     /**
      * 已完成任务
      */
-    private List<DwsWeightVolumeCalibrateTaskDetail> doneTaskList;
+    private List<DwsWeightVolumeCalibrateTaskDetail> doneTaskList
+            = new ArrayList<DwsWeightVolumeCalibrateTaskDetail>();
 
     /**
      * 超时任务
      */
-    private List<DwsWeightVolumeCalibrateTaskDetail> overtimeTaskList;
+    private List<DwsWeightVolumeCalibrateTaskDetail> overtimeTaskList
+            = new ArrayList<DwsWeightVolumeCalibrateTaskDetail>();
+
+    /**
+     * 服务器系统时间
+     */
+    private Date systemTime;
 
     public List<DwsWeightVolumeCalibrateTaskDetail> getTodoTaskList() {
         return todoTaskList;
@@ -50,5 +60,13 @@ public class DwsWeightVolumeCalibrateTaskResult implements Serializable {
 
     public void setOvertimeTaskList(List<DwsWeightVolumeCalibrateTaskDetail> overtimeTaskList) {
         this.overtimeTaskList = overtimeTaskList;
+    }
+
+    public Date getSystemTime() {
+        return systemTime;
+    }
+
+    public void setSystemTime(Date systemTime) {
+        this.systemTime = systemTime;
     }
 }

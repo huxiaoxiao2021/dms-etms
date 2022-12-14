@@ -37,6 +37,10 @@ public class DwsWeightVolumeCalibrateRequest implements Serializable {
      * 校准任务结束时间
      */
     private Date calibrateTaskEndTime;
+    /**
+     * 强制创建任务
+     */
+    private Boolean forceCreateTask;
 
     public Integer getPageNumber() {
         return pageNumber;
@@ -92,5 +96,13 @@ public class DwsWeightVolumeCalibrateRequest implements Serializable {
 
     public void setCalibrateTaskEndTime(Date calibrateTaskEndTime) {
         this.calibrateTaskEndTime = calibrateTaskEndTime;
+    }
+
+    public Boolean getForceCreateTask() {
+        return forceCreateTask;
+    }
+
+    public void setForceCreateTask(Boolean forceCreateTask) {
+        forceCreateTask = forceCreateTask;
     }
 }

@@ -1,12 +1,10 @@
 package com.jd.bluedragon.distribution.jy.service.calibrate;
 
-import com.jd.bluedragon.common.dto.operation.workbench.calibrate.DwsWeightVolumeCalibrateDetail;
+import com.jd.bluedragon.common.dto.operation.workbench.calibrate.DwsWeightVolumeCalibrateDetailResult;
 import com.jd.bluedragon.common.dto.operation.workbench.calibrate.DwsWeightVolumeCalibrateRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.calibrate.DwsWeightVolumeCalibrateTaskResult;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.jy.dto.calibrate.DwsMachineCalibrateMQ;
-
-import java.util.List;
 
 /**
  * 拣运称重量方校准服务
@@ -30,7 +28,7 @@ public interface JyWeightVolumeCalibrateService {
      * @param request
      * @return
      */
-    InvokeResult<List<DwsWeightVolumeCalibrateDetail>> getMachineCalibrateDetail(DwsWeightVolumeCalibrateRequest request);
+    InvokeResult<DwsWeightVolumeCalibrateDetailResult> getMachineCalibrateDetail(DwsWeightVolumeCalibrateRequest request);
 
     /**
      * 关闭设备校准任务
@@ -46,5 +44,12 @@ public interface JyWeightVolumeCalibrateService {
      * @param dwsMachineCalibrateMQ
      * @return
      */
-    InvokeResult<Boolean> dealCalibrateTask(DwsMachineCalibrateMQ dwsMachineCalibrateMQ) throws Exception;
+    InvokeResult<Boolean> dealCalibrateTask(DwsMachineCalibrateMQ dwsMachineCalibrateMQ);
+
+    /**
+     * 定时扫描校准任务
+     *
+     * @return
+     */
+    InvokeResult<Boolean> regularScanCalibrateTask();
 }
