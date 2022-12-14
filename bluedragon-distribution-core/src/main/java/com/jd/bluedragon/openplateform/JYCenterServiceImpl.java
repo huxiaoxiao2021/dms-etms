@@ -369,7 +369,7 @@ public class JYCenterServiceImpl implements JYCenterService {
             }
             entity.setSourceCode(fromSource);
             if (weightVolumeOperateInfo.getWeight() != null) {
-                entity.setWeight(weightVolumeOperateInfo.getHeight().doubleValue());
+                entity.setWeight(weightVolumeOperateInfo.getWeight().doubleValue());
             }
             if (weightVolumeOperateInfo.getVolume() != null) {
                 entity.setVolume(weightVolumeOperateInfo.getVolume().doubleValue());
@@ -378,7 +378,7 @@ public class JYCenterServiceImpl implements JYCenterService {
                 entity.setLength(weightVolumeOperateInfo.getLength().doubleValue());
             }
             if (weightVolumeOperateInfo.getWidth() != null) {
-                entity.setWidth(weightVolumeOperateInfo.getWeight().doubleValue());
+                entity.setWidth(weightVolumeOperateInfo.getWidth().doubleValue());
             }
             if (weightVolumeOperateInfo.getHeight() != null) {
                 entity.setHeight(weightVolumeOperateInfo.getHeight().doubleValue());
