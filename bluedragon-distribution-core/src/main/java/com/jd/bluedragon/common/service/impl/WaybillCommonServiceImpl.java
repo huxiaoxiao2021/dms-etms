@@ -739,9 +739,17 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
                 Map<String, String> extendMap = waybillVasJXD.getData().getExtendMap();
                 if (extendMap != null && extendMap.containsKey(DmsConstants.WAYBILL_VAS_JXD_CARDINFOS)){
                 	String attachmentUrl = null;
-                	Map<String, String> cardInfosData = JsonHelper.fromJson(extendMap.get(DmsConstants.WAYBILL_VAS_JXD_CARDINFOS), Map.class);
-                    if(cardInfosData != null && cardInfosData.containsKey(DmsConstants.WAYBILL_VAS_JXD_ATTCHMENTURL)) {
-                    	attachmentUrl = cardInfosData.get(DmsConstants.WAYBILL_VAS_JXD_ATTCHMENTURL);
+                	List cardInfosData = JsonHelper.fromJson(extendMap.get(DmsConstants.WAYBILL_VAS_JXD_CARDINFOS), List.class);
+                    if(CollectionUtils.isNotEmpty(cardInfosData)) {
+                    	for(Object item:cardInfosData) {
+                    		if(item instanceof Map) {
+                    			Map data = (Map)item;
+                    			if(data.containsKey(DmsConstants.WAYBILL_VAS_JXD_ATTCHMENTURL)) {
+                    				attachmentUrl = data.get(DmsConstants.WAYBILL_VAS_JXD_ATTCHMENTURL).toString();
+                    				break;
+                    			}
+                    		}
+                    	}
                     }
                     if(StringUtils.isNotBlank(attachmentUrl)) {
                     	target.setPopularizeMatrixCode(attachmentUrl);
