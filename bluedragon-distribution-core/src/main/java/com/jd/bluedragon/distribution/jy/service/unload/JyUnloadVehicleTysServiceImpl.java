@@ -562,7 +562,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         }
         scanResult.setEndSiteName(request.getNextSiteName());
         scanResult.setWarnMsg(new HashMap<String, String>(5));
-        scanResult.setConfirmMsg(new HashMap<String, String>(1));
+        scanResult.setConfirmMsg(new HashMap<String, String>(3));
         return scanResult;
     }
 
