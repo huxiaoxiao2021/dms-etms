@@ -1084,7 +1084,6 @@ public class WaybillServiceImpl implements WaybillService {
             //获取增值服务信息
             log.info("获取易冻品增值服务入参-{}",waybillCode);
             BaseEntity<List<WaybillVasDto>> baseEntity = waybillQueryManager.getWaybillVasInfosByWaybillCode(waybillCode);
-            log.info("运单getWaybillVasInfosByWaybillCode返回的结果为：{}", JsonHelper.toJson(baseEntity));
             if (baseEntity != null && baseEntity.getResultCode() == EnumBusiCode.BUSI_SUCCESS.getCode() && baseEntity.getData() != null) {
                 List<WaybillVasDto> vasDtoList = baseEntity.getData();
                 for (WaybillVasDto waybillVasDto : vasDtoList) {
@@ -1125,7 +1124,6 @@ public class WaybillServiceImpl implements WaybillService {
             //根据运单获取waybillSign
             com.jd.etms.waybill.domain.BaseEntity<BigWaybillDto> dataByChoice
                     = waybillQueryManager.getDataByChoice(waybillCode, true, true, true, false);
-            log.info("InspectionServiceImpl.checkEasyFreeze-根据运单号获取运单标识接口请求成功!返回waybillsign数据:{}",dataByChoice.getData());
             if(dataByChoice == null
                     || dataByChoice.getData() == null
                     || dataByChoice.getData().getWaybill() == null
@@ -1210,15 +1208,10 @@ public class WaybillServiceImpl implements WaybillService {
      * @return
      */
     private boolean checkEasyFreezeSiteConf(Integer siteCode,Date scanTime){
-        log.info("checkEasyFreezeSiteConf------");
         EasyFreezeSiteDto dto = easyFreezeSiteManager.selectOneBysiteCode(siteCode);
-        log.info("checkEasyFreezeSiteConf--{}--state:-{}",JSON.toJSONString(dto),(dto.getUseState()).equals(0));
-        log.info("  dto == null-{} ",(dto == null));
         if(( dto == null) || (dto.getUseState()).equals(0)){
-            log.info("checkEasyFreezeSiteConf ----false");
             return false;
         }
-        log.info("checkEasyFreezeSiteConf ----");
         //配置的提示开始时间
         Date remindStartTime = dto.getRemindStartTime();
         //配置的提示结束时间
