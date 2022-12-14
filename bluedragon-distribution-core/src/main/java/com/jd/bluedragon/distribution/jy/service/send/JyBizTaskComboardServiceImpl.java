@@ -35,13 +35,13 @@ public class JyBizTaskComboardServiceImpl implements JyBizTaskComboardService {
     JyBizTaskComboardEntity condition = new JyBizTaskComboardEntity();
     condition.setStartSiteId(Long.valueOf(sendFlowDto.getStartSiteId()));
     condition.setEndSiteId(Long.valueOf(sendFlowDto.getEndSiteId()));
-    condition.setStatus(ComboardStatusEnum.PROCESSING.getCode());
+    condition.setBoardStatus(ComboardStatusEnum.PROCESSING.getCode());
     List<JyBizTaskComboardEntity> bizTaskList = jyBizTaskComboardDao.queryBoardTask(condition);
     if (ObjectHelper.isNotNull(bizTaskList) && bizTaskList.size() == 1) {
       BoardDto dto = new BoardDto();
       dto.setBoardCode(bizTaskList.get(0).getBoardCode());
-      dto.setCount(bizTaskList.get(0).getCount());
-      dto.setStatus(bizTaskList.get(0).getStatus());
+      dto.setCount(bizTaskList.get(0).getHaveScanCount());
+      dto.setStatus(bizTaskList.get(0).getBoardStatus());
       dto.setBulkFlag(bizTaskList.get(0).getBulkFlag());
       dto.setBizId(bizTaskList.get(0).getBizId());
       dto.setSendCode(bizTaskList.get(0).getSendCode());

@@ -14,7 +14,7 @@ public class JyBizTaskComboardEntity {
 
     private String sendCode;
 
-    private Integer status;
+    private Integer boardStatus;
 
     private Long startSiteId;
 
@@ -42,7 +42,7 @@ public class JyBizTaskComboardEntity {
 
     private Boolean bulkFlag;
 
-    private Integer count;
+    private Integer haveScanCount;
 
     private transient List<Integer> statusList;
 
@@ -76,14 +76,6 @@ public class JyBizTaskComboardEntity {
 
     public void setSendCode(String sendCode) {
         this.sendCode = sendCode;
-    }
-
-    public Integer getStatus() {
-        return status;
-    }
-
-    public void setStatus(Integer status) {
-        this.status = status;
     }
 
     public Long getStartSiteId() {
@@ -189,14 +181,7 @@ public class JyBizTaskComboardEntity {
     public void setBulkFlag(Boolean bulkFlag) {
         this.bulkFlag = bulkFlag;
     }
-
-    public Integer getCount() {
-        return count;
-    }
-
-    public void setCount(Integer count) {
-        this.count = count;
-    }
+    
 
     public List<Integer> getStatusList() {
         return statusList;
@@ -204,5 +189,21 @@ public class JyBizTaskComboardEntity {
 
     public void setStatusList(List<Integer> statusList) {
         this.statusList = statusList;
+    }
+
+    public Integer getHaveScanCount() {
+        return haveScanCount;
+    }
+
+    public void setHaveScanCount(Integer haveScanCount) {
+        this.haveScanCount = haveScanCount;
+    }
+
+    public Integer getBoardStatus() {
+        return boardStatus;
+    }
+
+    public void setBoardStatus(Integer boardStatus) {
+        this.boardStatus = boardStatus;
     }
 }
