@@ -11,6 +11,19 @@ public class GoodsCategoryDto implements Serializable {
     private Integer waitScanCount;
     private Integer moreScanTotalCount;
 
+    /**
+     * 排序
+     */
+    private Integer order;
+
+
+    public static class OrderComparator implements java.util.Comparator<GoodsCategoryDto> {
+        @Override
+        public int compare(GoodsCategoryDto o1, GoodsCategoryDto o2) {
+            return o1.getOrder().compareTo(o2.getOrder());
+        }
+    }
+
     public String getType() {
         return type;
     }
@@ -57,5 +70,13 @@ public class GoodsCategoryDto implements Serializable {
 
     public void setMoreScanTotalCount(Integer moreScanTotalCount) {
         this.moreScanTotalCount = moreScanTotalCount;
+    }
+
+    public Integer getOrder() {
+        return order;
+    }
+
+    public void setOrder(Integer order) {
+        this.order = order;
     }
 }

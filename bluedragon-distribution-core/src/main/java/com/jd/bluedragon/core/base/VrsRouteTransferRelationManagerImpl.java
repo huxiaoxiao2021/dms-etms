@@ -14,6 +14,7 @@ import com.jd.etms.api.common.dto.BaseDto;
 import com.jd.etms.api.common.dto.CommonDto;
 import com.jd.etms.api.common.dto.PageDto;
 import com.jd.etms.api.common.enums.RouteProductEnum;
+import com.jd.etms.api.common.enums.WaybillRouteEnum;
 import com.jd.etms.api.recommendroute.resp.RecommendRouteResp;
 import com.jd.etms.api.transferwavemonitor.TransferWaveMonitorAPI;
 import com.jd.etms.api.transferwavemonitor.req.TransferWaveMonitorReq;
@@ -435,7 +436,7 @@ public class VrsRouteTransferRelationManagerImpl implements VrsRouteTransferRela
     @Cache(key = "VrsRouteTransferRelationManagerImpl.waybillRouteLinkQueryCondition@args0@args1@args2", memoryEnable = true, memoryExpiredTime = 30 * 60 * 1000,
             redisEnable = true, redisExpiredTime = 60 * 60 * 1000)
     @Override
-    public List<WaybillRouteLinkCustDetailResp> waybillRouteLinkQueryCondition(String packageCode,String siteCode,Integer operateType) {
+    public List<WaybillRouteLinkCustDetailResp> waybillRouteLinkQueryCondition(String packageCode, String siteCode,WaybillRouteEnum.RealTimeOperateType operateType) {
         if(operateType == null|| StringUtils.isEmpty(packageCode)
                 || StringUtils.isEmpty(siteCode)){
             log.warn("包裹号、计划网点、操作节点不能为空");
@@ -445,7 +446,7 @@ public class VrsRouteTransferRelationManagerImpl implements VrsRouteTransferRela
         condition.setWaybillCode(WaybillUtil.getWaybillCode(packageCode));
         condition.setPackageCode(packageCode);
         condition.setPlanNodeCode(siteCode);
-        condition.setOperateType(operateType);
+        condition.setRealTimeOperateType(operateType);
         CommonDto<List<WaybillRouteLinkCustDetailResp>> commonDto
                 = waybillRouteLinkCustAPI.waybillRouteLinkQueryCondition(condition);
         if(commonDto != null && commonDto.getCode() == CommonDto.CODE_SUCCESS){
