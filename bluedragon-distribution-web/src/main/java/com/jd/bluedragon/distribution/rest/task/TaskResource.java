@@ -5,6 +5,7 @@ import com.jd.bluedragon.configuration.ucc.UccPropertyConfiguration;
 import com.jd.bluedragon.core.base.WaybillTraceManager;
 import com.jd.bluedragon.core.jmq.producer.DefaultJMQProducer;
 import com.jd.bluedragon.distribution.api.JdResponse;
+import com.jd.bluedragon.distribution.api.enums.OperatorTypeEnum;
 import com.jd.bluedragon.distribution.api.request.AutoSortingPackageDto;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.api.response.InspectionECResponse;
@@ -136,6 +137,8 @@ public class TaskResource {
             }
 
             //inspection.setBizSource(InspectionBizSourceEnum.AUTOMATIC_SORTING_MACHINE_INSPECTION.getCode());
+            inspection.setOperatorTypeCode(OperatorTypeEnum.AUTO_MACHINE.getCode());
+            inspection.setOperatorId(inspection.getMachineCode());	
         }
         if(inspections.size() ==0){
             return new TaskResponse(JdResponse.CODE_OK, JdResponse.MESSAGE_OK,

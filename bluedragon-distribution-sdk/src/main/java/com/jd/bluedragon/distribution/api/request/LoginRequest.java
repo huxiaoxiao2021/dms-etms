@@ -22,6 +22,10 @@ public class LoginRequest extends BaseRequest{
      * 基础版本号
      */
     private String baseVersionCode = "01-20010101";
+    /**
+     * 岗位信息
+     */
+    private String positionCode;
     
     public String getClientInfo() {
         return clientInfo;
@@ -53,5 +57,13 @@ public class LoginRequest extends BaseRequest{
 
 	public void setBaseVersionCode(String baseVersionCode) {
 		this.baseVersionCode = baseVersionCode;
+	}
+
+	public String getPositionCode() {
+		return positionCode;
+	}
+
+	public void setPositionCode(String positionCode) {
+		this.positionCode = positionCode;
 	}
 }

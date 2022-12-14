@@ -136,9 +136,6 @@ public class DmsSendToEmsWaybillInfoConsumer extends MessageBaseConsumer {
     	request.setWaybillNo(sendDataMq.getPackageBarcode());
     	request.setProductCode(ProductTypeEnum.STANDARD.getCode());
     	request.setIsInternational(InternationalTypeEnum.INTERNAL.getCode());
-    	if(sendDataMq.getBusiId() != null) {
-    		request.setPickupAttribute(sendDataMq.getBusiId().toString());
-    	}
     	//取包裹重量
     	DeliveryPackageD packageData = waybillPackageManager.getPackageInfoByPackageCode(sendDataMq.getPackageBarcode());
     	Double weight = 0d;
