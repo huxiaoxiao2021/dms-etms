@@ -766,6 +766,7 @@
             user_sign_record
         WHERE
             yn = 1
+        AND sign_in_time <![CDATA[ >= ]]> #{signInTimeStart,jdbcType=TIMESTAMP}
         AND sign_in_time <![CDATA[ < ]]> #{signInTime,jdbcType=TIMESTAMP}
         AND sign_out_time IS NULL
         LIMIT #{limit,jdbcType=INTEGER}
@@ -863,6 +864,12 @@
 				<if test="signDate != null" >
 					and t.sign_date = #{signDate,jdbcType=DATE}
 				</if>
+				<if test="signInTimeStart != null" >
+					and  <![CDATA[   t.sign_in_time >= #{signInTimeStart,jdbcType=TIMESTAMP}  ]]>
+				</if>
+				<if test="signInTimeEnd != null" >
+					and  <![CDATA[   t.sign_in_time <= #{signInTimeEnd,jdbcType=TIMESTAMP}  ]]>
+				</if>
 				order by t.sign_in_time desc
 				limit 1) r
 		<include refid="joinSql"/>
@@ -942,4 +949,27 @@
             and r.sign_date = #{signDate,jdbcType=DATE}
         </where>
     </sql>
+
+	<select id="queryUnsignedOutRecordByRefGridKey" parameterType="java.lang.String" resultMap="UserSignRecord">
+		select
+			<include refid="Main_Column_List"/>
+		from
+			user_sign_record r
+		where
+		    r.yn = 1
+			and r.ref_grid_key = #{refGridKey,jdbcType=VARCHAR}
+			and sign_out_time is null
+		limit #{offset}, #{limit}
+	</select>
+
+	<select id="queryTotalUnsignedOutRecordByRefGridKey" parameterType="com.jd.bluedragon.common.dto.station.UserSignQueryRequest" resultType="long">
+		select
+		    count(*)
+		from
+		    user_sign_record r
+		where
+			r.yn = 1
+			and r.ref_grid_key = #{refGridKey,jdbcType=VARCHAR}
+			and sign_out_time is null
+	</select>
 </mapper>

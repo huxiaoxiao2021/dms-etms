@@ -623,6 +623,11 @@
         <property name="timeout" value="1000" />
     </bean>
 
+    <!--  拣运转运卸车岗任务完成  -->
+    <bean id="jyUnloadCarPostTaskCompleteProducer" parent="jmq4DmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.jy.unload.car.task.complete}" />
+        <property name="timeout" value="1000" />
+    </bean>
 
     <bean id="miniStoreSealBoxProducer" parent="jmq4DmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.ministore.bind.relation}"/>
@@ -642,6 +647,28 @@
     <!--  拣运发货任务车辆拍照  -->
     <bean id="sendCarArriveStatusProducer" parent="jmq4DmsWebDefaultJMQProducer">
         <property name="topic" value="${jmq.topic.send.car.arrive.status}" />
+        <property name="timeout" value="1000" />
+    </bean>
+
+    <!--  拣运任务调度修改状态消息发布  -->
+    <bean id="scheduleTaskChangeStatusWorkerProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.jyapp.exception.task.change}" />
+        <property name="timeout" value="1000" />
+    </bean>
+    <!--  拣运任务调度修改状态消息发布  -->
+    <bean id="scheduleTaskAddWorkerProducer" parent="jmq4DmsWorkerDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.jyapp.exception.task.add}" />
+        <property name="timeout" value="1000" />
+    </bean>
+
+    <!--  拣运异常岗-上报任务  -->
+    <bean id="scheduleTaskAddProducer" parent="jmq4DmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.jyapp.exception.task.add}" />
+        <property name="timeout" value="1000" />
+    </bean>
+    <!--  拣运异常岗-更新任务状态  -->
+    <bean id="scheduleTaskChangeStatusProducer" parent="jmq4DmsWebDefaultJMQProducer">
+        <property name="topic" value="${jmq.topic.jyapp.exception.task.change}" />
         <property name="timeout" value="1000" />
     </bean>
 

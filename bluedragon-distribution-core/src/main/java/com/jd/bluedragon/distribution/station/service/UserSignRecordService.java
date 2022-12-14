@@ -172,5 +172,18 @@ public interface UserSignRecordService {
 	 * @param query
 	 * @return
 	 */
-	JdCResponse<PageDto<UserSignRecordData>> querySignListByOperateUser(UserSignQueryRequest query);	
+	JdCResponse<PageDto<UserSignRecordData>> querySignListByOperateUser(UserSignQueryRequest query);
+
+	/**
+	 * 根据网格业务主键查询未签退记录
+	 * @param refGridKey
+	 * @return
+	 */
+	Result<List<UserSignRecord>> queryUnsignedOutRecordByRefGridKey(String refGridKey);
+	/**
+	 * 作废签到记录
+	 * @param query
+	 * @return
+	 */
+	JdCResponse<UserSignRecordData> deleteUserSignRecord(UserSignRequest userSignRequest);
 }

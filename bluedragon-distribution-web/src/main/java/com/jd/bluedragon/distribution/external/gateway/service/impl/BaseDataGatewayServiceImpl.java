@@ -1,19 +1,31 @@
 package com.jd.bluedragon.distribution.external.gateway.service.impl;
 
+import com.alibaba.fastjson.JSON;
+import com.google.common.collect.Lists;
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.common.dto.base.request.Pager;
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
+import com.jd.bluedragon.common.dto.basedata.request.StreamlinedBasicSiteQuery;
 import com.jd.bluedragon.common.dto.basedata.response.BaseDataDictDto;
 import com.jd.bluedragon.common.dto.sysConfig.request.MenuUsageConfigRequestDto;
 import com.jd.bluedragon.common.dto.sysConfig.response.MenuUsageProcessDto;
+import com.jd.bluedragon.common.dto.voice.request.HintVoiceReq;
+import com.jd.bluedragon.common.dto.voice.response.HintVoiceConfig;
+import com.jd.bluedragon.common.dto.voice.response.HintVoiceResp;
+import com.jd.bluedragon.core.hint.manager.IHintApiUnwrapManager;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.base.service.BaseService;
 import com.jd.bluedragon.distribution.rest.base.BaseResource;
 import com.jd.bluedragon.external.gateway.service.BaseDataGatewayService;
+import com.jd.bluedragon.utils.BeanUtils;
 import com.jd.bluedragon.utils.JsonHelper;
+import com.jd.dms.workbench.utils.sdk.base.Result;
 import com.jd.ql.basic.domain.BaseDataDict;
+import com.jd.ql.dms.report.domain.StreamlinedBasicSite;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -36,6 +48,9 @@ public class BaseDataGatewayServiceImpl implements BaseDataGatewayService {
     @Autowired
     @Qualifier("baseService")
     private BaseService baseService;
+
+    @Autowired
+    private IHintApiUnwrapManager hintApiUnwrapManager;
 
     @Override
     @JProfiler(jKey = "DMSWEB.BaseDataGatewayServiceImpl.getBaseDictionaryTree",jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -125,5 +140,61 @@ public class BaseDataGatewayServiceImpl implements BaseDataGatewayService {
             response.toError("接口处理异常");
         }
         return response;
+    }
+
+    /**
+     * 场地列表
+     *
+     * @param request 请求参数
+     * @return 返回结果
+     * @author fanggang7
+     * @time 2022-10-11 14:59:04 周二
+     */
+    @Override
+    public JdCResponse<Pager<StreamlinedBasicSite>> selectSiteList(Pager<StreamlinedBasicSiteQuery> request) {
+        JdCResponse<Pager<StreamlinedBasicSite>> response = new JdCResponse<>();
+        response.toSucceed();
+        Pager<StreamlinedBasicSite> pageData = new Pager<>(request.getPageNo(), request.getPageSize(), 0L);
+        response.setData(pageData);
+        try {
+            request.setSearchVo(JSON.parseObject(JSON.toJSONString(request.getSearchVo()), StreamlinedBasicSiteQuery.class));
+            final Result<Pager<StreamlinedBasicSite>> pagerResult = baseService.selectSiteList(request);
+            if(!pagerResult.isSuccess()){
+                log.warn("BaseService.selectSiteList error " + JsonHelper.toJson(pagerResult));
+                response.toFail("查询站点信息异常");
+                return response;
+            }
+            if (pagerResult.getData() != null) {
+                final Pager<StreamlinedBasicSite> queryPageData = pagerResult.getData();
+                pageData.setData(queryPageData.getData());
+                pageData.setTotal(queryPageData.getTotal());
+            }
+        } catch (Exception e) {
+            log.error("BaseDataGatewayServiceImpl.getMenuUsageProcessByMenuCode exception ", e);
+            response.toError("接口处理异常");
+        }
+        return response;
+    }
+
+    @Override
+    public JdCResponse<HintVoiceResp> getCommonHintVoice(HintVoiceReq hintVoiceReq) {
+        JdCResponse<HintVoiceResp> jdCResponse = new JdCResponse<>();
+        jdCResponse.toSucceed();
+        if(hintVoiceReq == null){
+            jdCResponse.toFail();
+            return jdCResponse;
+        }
+        com.jd.dms.comp.api.hint.vo.HintVoiceResp hintVoiceResp
+                = hintApiUnwrapManager.getCommonHintVoiceConfig(BeanUtils.copy(hintVoiceReq, com.jd.dms.comp.api.hint.vo.HintVoiceReq.class));
+        if(hintVoiceResp == null){
+            jdCResponse.toFail("未查询到通用提示音配置，请联系分拣小秘!");
+            return jdCResponse;
+        }
+        HintVoiceResp resp = new HintVoiceResp();
+        resp.setVersion(hintVoiceResp.getVersion());
+        resp.setHintVoiceConfigList(CollectionUtils.isEmpty(hintVoiceResp.getHintVoiceList())
+                ? Lists.<HintVoiceConfig>newArrayList() : BeanUtils.copy(hintVoiceResp.getHintVoiceList(), HintVoiceConfig.class));
+        jdCResponse.setData(resp);
+        return jdCResponse;
     }
 }

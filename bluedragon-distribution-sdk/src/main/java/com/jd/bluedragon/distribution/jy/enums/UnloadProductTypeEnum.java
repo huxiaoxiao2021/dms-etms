@@ -9,10 +9,13 @@ package com.jd.bluedragon.distribution.jy.enums;
 public enum UnloadProductTypeEnum {
 
     NONE("NONE", "其他", 99),
-    FRESH("FRESH", "生鲜", 2),
-    KA("KA", "KA", 4),
-    MEDICINE("MEDICINE", "医药", 3),
     FAST("FAST", "特快送", 1),
+    FRESH("FRESH", "生鲜", 2),
+    TIKTOK("TIKTOK", "抖音", 3),
+    LUXURY("LUXURY", "特保单", 4),
+    EASYFROZEN("EASYFROZEN", "易冻损", 5),
+    KA("KA", "KA", 6),
+    MEDICINE("MEDICINE", "医药", 7)
     ;
 
     private String code;
@@ -34,6 +37,15 @@ public enum UnloadProductTypeEnum {
             }
         }
         return "";
+    }
+
+    public static Integer getOrderByCode(String code) {
+        for (UnloadProductTypeEnum productType : UnloadProductTypeEnum.values()) {
+            if (productType.code.equals(code)) {
+                return productType.getDisplayOrder();
+            }
+        }
+        return NONE.getDisplayOrder();
     }
 
     public String getCode() {

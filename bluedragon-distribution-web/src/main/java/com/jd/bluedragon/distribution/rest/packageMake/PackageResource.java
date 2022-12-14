@@ -53,6 +53,8 @@ import com.jd.ql.dms.common.constants.DisposeNodeConstants;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 
+import static com.jd.bluedragon.distribution.print.domain.WaybillPrintOperateTypeEnum.PACKAGE_AGAIN_PRINT;
+
 /**
  * Created by hujiping on 2018/4/4.
  */
@@ -174,6 +176,7 @@ public class PackageResource {
 
         //3.补打记录
         ReprintRecord rePrintRecord = new ReprintRecord();
+        rePrintRecord.setInterfaceType(PACKAGE_AGAIN_PRINT.getType());
         rePrintRecord.setBarCode(barCode);
         rePrintRecord.setSiteCode(siteId);
         rePrintRecord.setSiteName(siteName);

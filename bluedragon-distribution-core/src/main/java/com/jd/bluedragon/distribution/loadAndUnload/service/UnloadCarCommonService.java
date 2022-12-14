@@ -46,4 +46,11 @@ public interface UnloadCarCommonService {
 
     public List<UnloadCar> selectByCondition(UnloadCar unloadCar);
 
+    /**
+     * 根据封车编码查询集合任务信息
+     * @param sealCarCodes
+     * @return
+     */
+    List<UnloadCar> getTaskInfoBySealCarCodes(List<String> sealCarCodes);
+
 }

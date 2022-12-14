@@ -5,6 +5,7 @@ import com.jd.bluedragon.distribution.jy.dao.send.JySendDao;
 import com.jd.bluedragon.distribution.jy.dto.send.TransferDto;
 import com.jd.bluedragon.distribution.jy.dto.send.VehicleSendRelationDto;
 import com.jd.bluedragon.distribution.jy.send.JySendEntity;
+import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.utils.BeanUtils;
 import com.jd.bluedragon.utils.ObjectHelper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,6 +60,7 @@ public class JySendServiceImpl implements IJySendService{
         entity.setUpdateTime(new Date());
         if (ObjectHelper.isNotNull(dto.getNewSendCode())){
             entity.setNewSendCode(dto.getNewSendCode());
+            entity.setReceiveSiteId((long)BusinessUtil.getReceiveSiteCodeFromSendCode(dto.getNewSendCode()));
         }
         for (String sendCode:dto.getSendCodes()){
             entity.setSendCode(sendCode);

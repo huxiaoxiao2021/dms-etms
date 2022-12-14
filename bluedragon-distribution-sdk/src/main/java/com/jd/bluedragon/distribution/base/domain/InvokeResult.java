@@ -48,7 +48,10 @@ public class InvokeResult<T> implements Serializable {
     public static final String RESULT_NO_BOX_MESSAGE = "箱号:{0}，箱号不合法";
 
     public static final Integer CODE_CONFIRM = 30001;
+    //普通拦截
     public static final Integer CODE_HINT = 30002;
+    //特殊展示拦截
+    public static final Integer CODE_SPECIAL_INTERCEPT = 30003;
 
     public static final int RESULT_BC_BOX_NO_BINDING_CODE= 305;
     public static final String RESULT_BC_BOX_NO_BINDING_MESSAGE ="该箱号未绑定循环集包袋";
@@ -141,6 +144,25 @@ public class InvokeResult<T> implements Serializable {
 
     public static final int FORBID_TRANS_FOR_EMPTY_BATCH_CODE= 336;
     public static final String FORBID_TRANS_FOR_EMPTY_BATCH_MESSAGE ="空批次禁止迁出！";
+
+    public static final int TASK_NO_FOUND_BY_STATUS_CODE=325;
+    public static final String TASK_NO_FOUND_BY_STATUS_MESSAGE="未找到相应状态下的任务数据！";
+
+    public static final int TASK_NO_FOUND_BY_PARAMS_CODE=326;
+    public static final String TASK_NO_FOUND_BY_PARAMS_MESSAGE="未找到相应的卸车任务数据！";
+
+    public static final int NOT_SUPPORT_TYPE_QUERY_CODE=327;
+    public static final String NOT_SUPPORT_TYPE_QUERY_MESSAGE="暂不支持该类型的统计数据查询！";
+
+    public static final int UNLOAD_SCAN_EXCEPTION_CODE=328;
+    public static final String UNLOAD_SCAN_EXCEPTION_MESSAGE="卸车扫描异常！";
+
+    public static final int EASY_FROZEN_TIPS_CODE= 340;
+    public static final String EASY_FROZEN_TIPS_MESSAGE ="此运单为易冻品!";
+
+    public static final int EASY_FROZEN_TIPS_STORAGE_CODE= 341;
+    public static final String EASY_FROZEN_TIPS_STORAGE_MESSAGE ="此运单为易冻品，请放至保温储存区等待发货!";
+
 
     public InvokeResult(){
         this.code=RESULT_SUCCESS_CODE;

@@ -92,4 +92,8 @@ public class JyGroupServiceImpl implements JyGroupService {
 		}
 		return result;
 	}
+	@Override
+	public JyGroupEntity queryGroupByGroupCode(String groupCode) {
+		return jyGroupDao.queryGroupByGroupCode(groupCode);
+	}
 }

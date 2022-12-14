@@ -144,6 +144,9 @@
             <if test="newSendCode != null">
                 send_code = #{newSendCode},
             </if>
+            <if test="receiveSiteId != null">
+                receive_site_id = #{receiveSiteId},
+            </if>
             <if test="updateUserErp != null">
                 update_user_erp = #{updateUserErp},
             </if>
