@@ -114,6 +114,8 @@ public class SendGatewayServiceImpl implements SendGatewayService {
         request.setUserName(cRequest.getUser().getUserName());
         request.setSiteCode(cRequest.getCurrentOperate().getSiteCode());
         request.setSiteName(cRequest.getCurrentOperate().getSiteName());
+        request.setOperatorTypeCode(cRequest.getCurrentOperate().getOperatorTypeCode());
+        request.setOperatorId(cRequest.getCurrentOperate().getOperatorId());
         request.setBusinessType(cRequest.getBusinessType());
 //        request.setId(0);
         request.setOperateTime(DateUtil.format(cRequest.getCurrentOperate().getOperateTime(),DateUtil.FORMAT_DATE_TIME));

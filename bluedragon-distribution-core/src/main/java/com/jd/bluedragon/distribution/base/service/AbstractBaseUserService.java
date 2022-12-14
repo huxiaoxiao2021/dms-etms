@@ -390,6 +390,7 @@ public abstract class AbstractBaseUserService implements LoginService {
         dmsClientLoginRequest.setMachineCode(clientInfo.getMachineName());
         dmsClientLoginRequest.setIpv4(clientInfo.getIpv4());
         dmsClientLoginRequest.setIpv6(clientInfo.getIpv6());
+        dmsClientLoginRequest.setPositionCode(loginRequest.getPositionCode());
         return dmsClientLoginRequest;
     }
 

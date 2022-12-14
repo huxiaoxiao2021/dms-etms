@@ -28,6 +28,8 @@
 		<result column="is_loss" property="isLoss"/>
 		<result column="feature_type" property="featureType"/>
 		<result column="biz_source" property="bizSource" />
+        <result column="operator_type_code" property="operatorTypeCode" />
+        <result column="operator_id" property="operatorId" />		
 	</resultMap>
 	
 	<insert id="add" parameterType="sorting" >
@@ -41,7 +43,8 @@
 			sorting_type, create_site_code, receive_site_code,
 			create_user_code, create_user, update_user_code, update_user,
 			create_time, update_time, operate_time, is_cancel, excute_count, excute_time, 
-			sorting_status, yn, spare_reason, is_loss, feature_type, biz_source)
+			sorting_status, yn, spare_reason, is_loss, feature_type, biz_source,
+			operator_type_code,operator_id)
 		VALUES (
 			#{id,jdbcType=BIGINT}, #{bsendCode,jdbcType=VARCHAR}, #{boxCode,jdbcType=VARCHAR}, #{packageCode,jdbcType=VARCHAR},
 			#{waybillCode,jdbcType=VARCHAR}, #{pickupCode,jdbcType=VARCHAR}, #{type,jdbcType=INTEGER}, 
@@ -49,7 +52,8 @@
 			#{createUserCode,jdbcType=INTEGER}, #{createUser,jdbcType=VARCHAR},
 			#{createUserCode,jdbcType=INTEGER}, #{createUser,jdbcType=VARCHAR},
 			NOW(), NOW(),#{operateTime,jdbcType=TIMESTAMP}, #{isCancel,jdbcType=INTEGER}, 
-			0, NOW(), 1, 1, #{spareReason,jdbcType=VARCHAR}, #{isLoss,jdbcType=INTEGER}, #{featureType,jdbcType=INTEGER}, #{bizSource,jdbcType=INTEGER})
+			0, NOW(), 1, 1, #{spareReason,jdbcType=VARCHAR}, #{isLoss,jdbcType=INTEGER}, #{featureType,jdbcType=INTEGER}, #{bizSource,jdbcType=INTEGER},
+            #{operatorTypeCode,jdbcType=INTEGER},#{operatorId,jdbcType=VARCHAR})
     </insert>
 
 	<!-- Author by lixin456 指定更新时使用索引 解决更新死锁问题 若对该表索引进行调整 请注意修改此处 -->
@@ -72,6 +76,12 @@
 			is_loss = #{isLoss,jdbcType=INTEGER},
 			feature_type = #{featureType,jdbcType=INTEGER},
 			biz_source = #{bizSource,jdbcType=INTEGER}
+            <if test="operatorTypeCode != null">
+                ,operator_type_code = #{operatorTypeCode,jdbcType=INTEGER}
+            </if>
+            <if test="operatorId != null">
+                ,operator_id = #{operatorId,jdbcType=VARCHAR}
+            </if>			
 	    WHERE yn = 1
 	        AND box_code = #{boxCode}
 	        AND sorting_type = #{type}

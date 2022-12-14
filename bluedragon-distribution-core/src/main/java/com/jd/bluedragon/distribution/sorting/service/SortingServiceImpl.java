@@ -49,6 +49,7 @@ import com.jd.bluedragon.distribution.sorting.domain.Sorting;
 import com.jd.bluedragon.distribution.task.domain.Task;
 import com.jd.bluedragon.distribution.task.service.TaskService;
 import com.jd.bluedragon.distribution.ver.service.SortingCheckService;
+import com.jd.bluedragon.distribution.waybill.domain.OperatorData;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.distribution.waybill.service.WaybillService;
 import com.jd.bluedragon.dms.utils.BusinessUtil;
@@ -294,6 +295,10 @@ public class SortingServiceImpl implements SortingService {
 		waybillStatus.setOperateType(true == sorting.isForward() ? WaybillStatus.WAYBILL_STATUS_CODE_FORWARD_SORTING
 				: WaybillStatus.WAYBILL_STATUS_CODE_REVERSE_SORTING);
 		waybillStatus.setOperateTime(sorting.getOperateTime());
+		OperatorData operatorData = new OperatorData();
+		operatorData.setOperatorTypeCode(sorting.getOperatorTypeCode());
+		operatorData.setOperatorId(sorting.getOperatorId());
+		waybillStatus.setOperatorData(operatorData);
 		return waybillStatus;
 	}
 

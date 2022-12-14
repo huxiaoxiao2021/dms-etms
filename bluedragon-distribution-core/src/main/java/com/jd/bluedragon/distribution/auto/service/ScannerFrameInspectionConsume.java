@@ -1,6 +1,7 @@
 package com.jd.bluedragon.distribution.auto.service;
 
 import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.distribution.api.enums.OperatorTypeEnum;
 import com.jd.bluedragon.distribution.api.request.InspectionRequest;
 import com.jd.bluedragon.distribution.api.request.TaskRequest;
 import com.jd.bluedragon.distribution.auto.domain.UploadData;
@@ -51,6 +52,8 @@ public class ScannerFrameInspectionConsume implements ScannerFrameConsume {
         if (StringUtils.isNotEmpty(uploadData.getRegisterNo())){
             inspection.setMachineCode(uploadData.getRegisterNo());
         }
+        inspection.setOperatorTypeCode(OperatorTypeEnum.AUTO_MACHINE.getCode());
+        inspection.setOperatorId(inspection.getMachineCode());
 
         TaskRequest request=new TaskRequest();
         request.setBusinessType(businessType);

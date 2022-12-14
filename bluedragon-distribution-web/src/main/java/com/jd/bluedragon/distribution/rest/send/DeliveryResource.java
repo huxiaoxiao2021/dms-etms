@@ -306,6 +306,8 @@ public class DeliveryResource {
         domain.setYn(1);
         domain.setCreateTime(new Date(System.currentTimeMillis() + Constants.DELIVERY_DELAY_TIME));
         domain.setOperateTime(new Date(System.currentTimeMillis() + Constants.DELIVERY_DELAY_TIME));
+        domain.setOperatorTypeCode(request.getOperatorTypeCode());
+        domain.setOperatorId(request.getOperatorId());
         return domain;
     }
 
