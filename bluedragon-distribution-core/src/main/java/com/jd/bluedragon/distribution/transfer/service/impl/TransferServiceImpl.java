@@ -74,7 +74,7 @@ public class TransferServiceImpl implements TransferService {
                     }
                     //老PDA已经操作领取status=1或者已经开始扫描status=2或任务完成status=3，但是无redis
                     redisClientOfJy.setEx(key, defaultVersion, TransportServiceConstants.CACHE_PREFIX_PDA_ACTUAL_OPERATE_VERSION_EXPIRE, TimeUnit.DAYS);
-                    resData = AppVersionEnums.PDA_OLD.getVersion().equals(pdaVersion);
+                    resData = defaultVersion.equals(pdaVersion);
                 } else {
                     redisClientOfJy.setEx(key, pdaVersion, TransportServiceConstants.CACHE_PREFIX_PDA_ACTUAL_OPERATE_VERSION_EXPIRE, TimeUnit.DAYS);
                 }
