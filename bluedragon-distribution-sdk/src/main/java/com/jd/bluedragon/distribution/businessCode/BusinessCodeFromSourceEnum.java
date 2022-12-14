@@ -44,6 +44,11 @@ public enum BusinessCodeFromSourceEnum {
     JY_APP,
 
     /**
+     * 德邦融合项目-外部门创建
+     */
+    DBRH,
+
+    /**
      * 未知来源
      */
     UNKNOWN_SYS;
