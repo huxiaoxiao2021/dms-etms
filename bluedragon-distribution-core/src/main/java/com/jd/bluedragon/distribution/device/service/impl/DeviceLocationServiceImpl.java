@@ -7,6 +7,9 @@ import com.jd.bluedragon.core.jsf.device.IDeviceLocationExceptionOpLogManager;
 import com.jd.bluedragon.core.jsf.device.IDeviceLocationLogManager;
 import com.jd.bluedragon.core.jsf.itBasic.ItBasicIpRegionManager;
 import com.jd.bluedragon.core.jsf.itBasic.ItBasicRegionManager;
+import com.jd.bluedragon.core.jsf.wlLbs.dto.fence.FenceData;
+import com.jd.bluedragon.core.jsf.wlLbs.dto.fence.TransFenceInfoVo;
+import com.jd.bluedragon.core.jsf.wlLbs.dto.qo.QueryTransFenceBySiteIdQo;
 import com.jd.bluedragon.core.jsf.wlLbs.manager.WlLbsApiWrapResultManager;
 import com.jd.bluedragon.distribution.api.request.base.OperateUser;
 import com.jd.bluedragon.distribution.api.request.client.DeviceInfo;
@@ -26,7 +29,6 @@ import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
 import com.jdl.gis.trans.fence.api.vo.req.query.QueryFenceReq;
 import com.jdl.gis.trans.fence.api.vo.resp.query.QueryFenceResp;
-import com.jdl.gis.trans.fence.api.vo.resp.query.TransFenceInfoVo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -217,13 +219,15 @@ public class DeviceLocationServiceImpl implements DeviceLocationService {
             // 1. 查询场地围栏
             final OperateUser operateUser = deviceLocationUploadPo.getOperateUser();
             final DeviceLocationInfo deviceLocationInfo = deviceLocationUploadPo.getDeviceLocationInfo();
-            final Result<QueryFenceResp> queryFenceRespResult = wlLbsApiWrapResultManager.queryTransFenceBySiteId(operateUser.getSiteCode());
+            QueryTransFenceBySiteIdQo queryTransFenceBySiteIdQo = new QueryTransFenceBySiteIdQo();
+            queryTransFenceBySiteIdQo.setSiteId(operateUser.getSiteCode());
+            final Result<FenceData> queryFenceRespResult = wlLbsApiWrapResultManager.queryTransFenceBySiteIdForWeb(queryTransFenceBySiteIdQo);
             if (!queryFenceRespResult.isSuccess()) {
                 log.warn("DeviceLocationServiceImpl.checkLocationMatchUserSite queryTransFenceBySiteId fail {}", JsonHelper.toJson(queryFenceRespResult));
                 return result.toFail("处理失败，查询场地围栏信息失败");
             }
-            final QueryFenceResp queryFenceResp = queryFenceRespResult.getData();
-            if (queryFenceResp == null) {
+            final FenceData fenceData = queryFenceRespResult.getData();
+            if (fenceData == null) {
                 log.warn("DeviceLocationServiceImpl.checkLocationMatchUserSite queryTransFenceBySiteId empty {}", JsonHelper.toJson(queryFenceRespResult));
                 return result.toFail("未查询到围栏数据");
             }
@@ -232,7 +236,10 @@ public class DeviceLocationServiceImpl implements DeviceLocationService {
             if(deviceLocationInfo.getLatitude() != null && deviceLocationInfo.getLongitude() != null){
                 hasLocation = true;
             }
-            final List<TransFenceInfoVo> transFenceInfoVoList = queryFenceResp.getTransFenceInfoVoList();
+            final List<TransFenceInfoVo> transFenceInfoVoList = fenceData.getTransFenceInfoVoList();
+            for (TransFenceInfoVo transFenceInfoVo : transFenceInfoVoList) {
+                final String fenceType = transFenceInfoVo.getFenceType();
+            }
             //  2.1 判断设备经纬度是否在场地围栏内
             if (hasLocation) {
                 LatLng point = new LatLng();
@@ -337,6 +344,7 @@ public class DeviceLocationServiceImpl implements DeviceLocationService {
 
     private DeviceLocationExceptionOpLog genDeviceLocationExceptionOpLog(DeviceLocationUploadPo deviceLocationUploadPo) {
         final DeviceLocationExceptionOpLog deviceLocationExceptionOpLog = new DeviceLocationExceptionOpLog();
+        deviceLocationExceptionOpLog.setRefLogId(deviceLocationUploadPo.getRefLogId());
         // 设备信息
         final DeviceInfo deviceInfo = deviceLocationUploadPo.getDeviceInfo();
         deviceLocationExceptionOpLog.setSystemCode("DMS");

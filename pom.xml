@@ -354,6 +354,11 @@
                 <artifactId>jts</artifactId>
                 <version>${vividsolutions.jts.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.geotools</groupId>
+                <artifactId>gt-geojson</artifactId>
+                <version>26.4</version>
+            </dependency>
 		</dependencies>
 	</dependencyManagement>
 

@@ -29,6 +29,11 @@ public class DeviceLocationUploadPo implements Serializable {
     private OperateUser operateUser;
 
     /**
+     * 上传成功后的记录主键ID
+     */
+    private Long refLogId;
+
+    /**
      * 操作类型
      */
     private Integer operateType;
@@ -60,6 +65,14 @@ public class DeviceLocationUploadPo implements Serializable {
 
     public void setOperateUser(OperateUser operateUser) {
         this.operateUser = operateUser;
+    }
+
+    public Long getRefLogId() {
+        return refLogId;
+    }
+
+    public void setRefLogId(Long refLogId) {
+        this.refLogId = refLogId;
     }
 
     public Integer getOperateType() {

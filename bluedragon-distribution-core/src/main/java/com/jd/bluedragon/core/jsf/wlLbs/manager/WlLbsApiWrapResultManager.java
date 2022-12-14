@@ -1,5 +1,7 @@
 package com.jd.bluedragon.core.jsf.wlLbs.manager;
 
+import com.jd.bluedragon.core.jsf.wlLbs.dto.fence.FenceData;
+import com.jd.bluedragon.core.jsf.wlLbs.dto.qo.QueryTransFenceBySiteIdQo;
 import com.jd.dms.java.utils.sdk.base.Result;
 import com.jd.lbs.geocode.api.dto.GisPointDto;
 import com.jd.lbs.jdlbsapi.dto.LocationRequestDto;
@@ -61,6 +63,25 @@ public interface WlLbsApiWrapResultManager {
      * @time 2022-11-11 17:07:22 周五
      */
     Result<QueryFenceResp> queryTransFenceBySiteId(Integer siteCode);
+
+    /**
+     * 根据网点编码查询围栏信息
+     * @param appKey appKey
+     * @param queryFenceReq 请求参数
+     * @return 围栏信息
+     * @author fanggang7
+     * @time 2022-11-11 17:07:22 周五
+     */
+    Result<FenceData> queryTransFenceByCodeForWeb(String appKey, QueryFenceReq queryFenceReq);
+
+    /**
+     * 根据场地ID查询围栏信息
+     * @param queryTransFenceBySiteIdQo 查询参数
+     * @return 围栏信息
+     * @author fanggang7
+     * @time 2022-11-11 17:07:22 周五
+     */
+    Result<FenceData> queryTransFenceBySiteIdForWeb(QueryTransFenceBySiteIdQo queryTransFenceBySiteIdQo);
 
     /**
      * 根据IP获取经纬度
