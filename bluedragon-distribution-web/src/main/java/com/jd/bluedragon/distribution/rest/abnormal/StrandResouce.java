@@ -132,8 +132,9 @@ public class StrandResouce {
 				this.jimdbCacheService.del(cacheKey);
 			}
 		}
-        //按批次提交 单独提示
-        if(ReportTypeEnum.BATCH_NO.getCode().equals(request.getReportType())){
+        //按批次或板号提交 单独提示
+        if(ReportTypeEnum.BATCH_NO.getCode().equals(request.getReportType())
+                || ReportTypeEnum.BOARD_NO.getCode().equals(request.getReportType())){
             invokeResult.setMessage("提交成功，如需取消发货或封车，请手动操作！");
             return invokeResult;
         }
