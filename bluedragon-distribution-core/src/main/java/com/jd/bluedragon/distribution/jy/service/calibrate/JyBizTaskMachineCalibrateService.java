@@ -2,6 +2,8 @@ package com.jd.bluedragon.distribution.jy.service.calibrate;
 
 import com.jd.bluedragon.distribution.jy.calibrate.JyBizTaskMachineCalibrateEntity;
 
+import java.util.List;
+
 /**
  * 类的描述
  *
@@ -31,6 +33,14 @@ public interface JyBizTaskMachineCalibrateService {
      * @return
      */
     JyBizTaskMachineCalibrateEntity queryOneByCondition(JyBizTaskMachineCalibrateEntity entity);
+
+    /**
+     * 根据条件查询
+     *
+     * @param condition
+     * @return
+     */
+    List<JyBizTaskMachineCalibrateEntity> queryListByCondition(JyBizTaskMachineCalibrateEntity condition);
 
     /**
      * 根据条件关闭任务

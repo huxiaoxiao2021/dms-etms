@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.jy.service.calibrate;
 
+import com.jd.bluedragon.distribution.jy.calibrate.JyBizTaskMachineCalibrateCondition;
 import com.jd.bluedragon.distribution.jy.calibrate.JyBizTaskMachineCalibrateDetailEntity;
 import com.jd.bluedragon.distribution.jy.dao.calibrate.JyBizTaskMachineCalibrateDetailDao;
 import com.jd.bluedragon.distribution.jy.dto.calibrate.JyBizTaskMachineCalibrateQuery;
@@ -31,8 +32,28 @@ public class JyBizTaskMachineCalibrateDetailServiceImpl implements JyBizTaskMach
     }
 
     @Override
-    public List<JyBizTaskMachineCalibrateDetailEntity> selectByCondition(JyBizTaskMachineCalibrateDetailEntity condition) {
+    public int updateMachineStatus(JyBizTaskMachineCalibrateDetailEntity entity) {
+        return 0;
+    }
+
+    @Override
+    public int updateTaskStatus(JyBizTaskMachineCalibrateDetailEntity entity) {
+        return 0;
+    }
+
+    @Override
+    public JyBizTaskMachineCalibrateDetailEntity selectLatelyOneByCondition(JyBizTaskMachineCalibrateCondition condition) {
+        return jyBizTaskMachineCalibrateDetailDao.selectLatelyOneByCondition(condition);
+    }
+
+    @Override
+    public List<JyBizTaskMachineCalibrateDetailEntity> selectByCondition(JyBizTaskMachineCalibrateCondition condition) {
         return jyBizTaskMachineCalibrateDetailDao.selectByCondition(condition);
+    }
+
+    @Override
+    public void batchUpdateStatus(List<Long> ids, Integer status) {
+        jyBizTaskMachineCalibrateDetailDao.batchUpdateStatus(ids, status);
     }
 
     @Override
@@ -43,11 +64,6 @@ public class JyBizTaskMachineCalibrateDetailServiceImpl implements JyBizTaskMach
     @Override
     public int duplicateNewestTaskDetail(JyBizTaskMachineCalibrateDetailEntity entity) {
         return jyBizTaskMachineCalibrateDetailDao.duplicateNewestTaskDetail(entity);
-    }
-
-    @Override
-    public List<JyBizTaskMachineCalibrateDetailEntity> getMachineCalibrateDetail(JyBizTaskMachineCalibrateQuery query) {
-        return jyBizTaskMachineCalibrateDetailDao.getMachineCalibrateDetail(query);
     }
 
 }

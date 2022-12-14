@@ -4,7 +4,6 @@ import com.jd.bluedragon.common.dto.base.request.CurrentOperate;
 import com.jd.bluedragon.common.dto.base.request.User;
 
 import java.io.Serializable;
-import java.util.Date;
 
 /**
  * 设备称重校准请求体
@@ -32,11 +31,15 @@ public class DwsWeightVolumeCalibrateRequest implements Serializable {
     /**
      * 校准任务开始时间
      */
-    private Date calibrateTaskStartTime;
+    private Long calibrateTaskStartTime;
     /**
      * 校准任务结束时间
      */
-    private Date calibrateTaskEndTime;
+    private Long calibrateTaskEndTime;
+    /**
+     * 强制创建任务
+     */
+    private Boolean forceCreateTask;
 
     public Integer getPageNumber() {
         return pageNumber;
@@ -78,19 +81,27 @@ public class DwsWeightVolumeCalibrateRequest implements Serializable {
         this.machineCode = machineCode;
     }
 
-    public Date getCalibrateTaskStartTime() {
+    public Long getCalibrateTaskStartTime() {
         return calibrateTaskStartTime;
     }
 
-    public void setCalibrateTaskStartTime(Date calibrateTaskStartTime) {
+    public void setCalibrateTaskStartTime(Long calibrateTaskStartTime) {
         this.calibrateTaskStartTime = calibrateTaskStartTime;
     }
 
-    public Date getCalibrateTaskEndTime() {
+    public Long getCalibrateTaskEndTime() {
         return calibrateTaskEndTime;
     }
 
-    public void setCalibrateTaskEndTime(Date calibrateTaskEndTime) {
+    public void setCalibrateTaskEndTime(Long calibrateTaskEndTime) {
         this.calibrateTaskEndTime = calibrateTaskEndTime;
+    }
+
+    public Boolean getForceCreateTask() {
+        return forceCreateTask;
+    }
+
+    public void setForceCreateTask(Boolean forceCreateTask) {
+        this.forceCreateTask = forceCreateTask;
     }
 }

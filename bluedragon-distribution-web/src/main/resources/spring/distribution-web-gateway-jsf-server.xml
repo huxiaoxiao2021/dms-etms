@@ -528,7 +528,7 @@
     </jsf:provider>
 
     <!-- 拣运设备称重量方校准服务 -->
-    <bean id="jyWeightVolumeCalibrateGatewayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.JyExceptionGatewayServiceImpl" />
+    <bean id="jyWeightVolumeCalibrateGatewayService" class="com.jd.bluedragon.distribution.external.gateway.service.impl.JyWeightVolumeCalibrateGatewayServiceImpl" />
     <jsf:provider id="jsfJyWeightVolumeCalibrateGatewayService"
                   interface="com.jd.bluedragon.external.gateway.service.JyWeightVolumeCalibrateGatewayService"
                   alias="${dms.gateway.jsf.alias}"

@@ -36,7 +36,7 @@ import java.util.Objects;
 @Service("dwsWeightVolumeCalibrateConsumer")
 public class DwsWeightVolumeCalibrateConsumer extends MessageBaseConsumer {
 
-    private Logger logger = LoggerFactory.getLogger(DwsWeightVolumeCalibrateConsumer.class);
+    private final Logger logger = LoggerFactory.getLogger(DwsWeightVolumeCalibrateConsumer.class);
 
     @Autowired
     private JyWeightVolumeCalibrateService jyWeightVolumeCalibrateService;
@@ -55,6 +55,13 @@ public class DwsWeightVolumeCalibrateConsumer extends MessageBaseConsumer {
             DwsMachineCalibrateMQ dwsMachineCalibrateMQ = JsonHelper.fromJsonUseGson(message.getText(), DwsMachineCalibrateMQ.class);
             if(dwsMachineCalibrateMQ == null) {
                 logger.warn("dws称重量方校准消息体转换失败，内容为【{}】", message.getText());
+                return;
+            }
+            if(StringUtils.isEmpty(dwsMachineCalibrateMQ.getMachineCode())
+                    || dwsMachineCalibrateMQ.getCalibrateStatus() == null
+                    || dwsMachineCalibrateMQ.getMachineStatus() == null
+                    || dwsMachineCalibrateMQ.getCalibrateTime() == null){
+                logger.warn("dws称重量方校准消息体缺少必要参数，内容为【{}】", message.getText());
                 return;
             }
             // 根据设备校准数据更新处理设备校准任务

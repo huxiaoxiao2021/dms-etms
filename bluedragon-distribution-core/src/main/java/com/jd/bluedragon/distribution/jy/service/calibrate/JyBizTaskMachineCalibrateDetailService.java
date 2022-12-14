@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.jy.service.calibrate;
 
+import com.jd.bluedragon.distribution.jy.calibrate.JyBizTaskMachineCalibrateCondition;
 import com.jd.bluedragon.distribution.jy.calibrate.JyBizTaskMachineCalibrateDetailEntity;
 import com.jd.bluedragon.distribution.jy.dto.calibrate.JyBizTaskMachineCalibrateQuery;
 
@@ -44,12 +45,20 @@ public interface JyBizTaskMachineCalibrateDetailService {
     int updateTaskStatus(JyBizTaskMachineCalibrateDetailEntity entity);
 
     /**
+     * 根据条件查询最近一条记录
+     *
+     * @param condition
+     * @return
+     */
+    JyBizTaskMachineCalibrateDetailEntity selectLatelyOneByCondition(JyBizTaskMachineCalibrateCondition condition);
+
+    /**
      * 根据条件查询任务
      *
      * @param condition
      * @return
      */
-    List<JyBizTaskMachineCalibrateDetailEntity> selectByCondition(JyBizTaskMachineCalibrateDetailEntity condition);
+    List<JyBizTaskMachineCalibrateDetailEntity> selectByCondition(JyBizTaskMachineCalibrateCondition condition);
 
 
     /**
@@ -66,4 +75,11 @@ public interface JyBizTaskMachineCalibrateDetailService {
      */
     int duplicateNewestTaskDetail(JyBizTaskMachineCalibrateDetailEntity entity);
 
+    /**
+     * 根据id批量更新状态
+     *
+     * @param ids
+     * @param status
+     */
+    void batchUpdateStatus(List<Long> ids, Integer status);
 }

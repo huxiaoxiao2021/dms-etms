@@ -1,7 +1,6 @@
 package com.jd.bluedragon.distribution.consumer.spotCheck;
 
 import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.core.base.DWSCheckManager;
 import com.jd.bluedragon.core.message.base.MessageBaseConsumer;
 import com.jd.bluedragon.distribution.spotcheck.domain.SpotCheckDto;
 import com.jd.bluedragon.distribution.spotcheck.enums.SpotCheckDimensionEnum;
@@ -13,14 +12,10 @@ import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.jmq.common.message.Message;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-
-import java.util.Date;
 
 /**
  * dws抽检消费处理
@@ -36,10 +31,6 @@ public class DmsSpotCheckDealConsumer extends MessageBaseConsumer {
     @Autowired
     private SpotCheckCurrencyService spotCheckCurrencyService;
 
-    @Qualifier("dwsCheckManager")
-    @Autowired
-    private DWSCheckManager dwsCheckManager;
-
     @Override
     public void consume(Message message) throws Exception {
         CallerInfo info = Profiler.registerInfo("DmsSpotCheckDealConsumer.consume", Constants.UMP_APP_NAME_DMSWORKER,false, true);
@@ -53,11 +44,6 @@ public class DmsSpotCheckDealConsumer extends MessageBaseConsumer {
                 log.warn("dws抽检消息体转换失败，内容为【{}】", message.getText());
                 return;
             }
-            // 校验设备称重是否合规
-            if(!checkEquipmentWeightIsAccurate(packWeightVO)){
-                log.warn("设备:{}的称重不合规，此次称重单号:{}", packWeightVO.getMachineCode(), packWeightVO.getCodeStr());
-                return;
-            }
             spotCheckCurrencyService.spotCheckDeal(transferToSpotCheckDto(packWeightVO));
         }catch (SpotCheckSysException e){
             log.warn("抽检异常进行并MQ进行重试", e);
@@ -68,13 +54,6 @@ public class DmsSpotCheckDealConsumer extends MessageBaseConsumer {
         }finally {
             Profiler.registerInfoEnd(info);
         }
-    }
-
-    private boolean checkEquipmentWeightIsAccurate(PackWeightVO packWeightVO) {
-        if(StringUtils.isEmpty(packWeightVO.getMachineCode()) || packWeightVO.getOperateTimeMillis() == 0){
-            return true;
-        }
-        return dwsCheckManager.checkDWSMachineWeightIsAccurate(packWeightVO.getMachineCode(), new Date(packWeightVO.getOperateTimeMillis()));
     }
 
     private SpotCheckDto transferToSpotCheckDto(PackWeightVO packWeightVO) {

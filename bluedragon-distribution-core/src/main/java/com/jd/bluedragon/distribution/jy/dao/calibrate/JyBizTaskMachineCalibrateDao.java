@@ -3,6 +3,8 @@ package com.jd.bluedragon.distribution.jy.dao.calibrate;
 import com.jd.bluedragon.common.dao.BaseDao;
 import com.jd.bluedragon.distribution.jy.calibrate.JyBizTaskMachineCalibrateEntity;
 
+import java.util.List;
+
 /**
  * 类的描述
  *
@@ -31,5 +33,9 @@ public class JyBizTaskMachineCalibrateDao extends BaseDao<JyBizTaskMachineCalibr
 
     public int closeMachineCalibrateTask(JyBizTaskMachineCalibrateEntity entity){
         return this.getSqlSession().update(NAMESPACE + ".closeMachineCalibrateTask", entity);
+    }
+
+    public List<JyBizTaskMachineCalibrateEntity> queryListByCondition(JyBizTaskMachineCalibrateEntity condition) {
+        return this.getSqlSession().selectList(NAMESPACE + ".queryListByCondition", condition);
     }
 }

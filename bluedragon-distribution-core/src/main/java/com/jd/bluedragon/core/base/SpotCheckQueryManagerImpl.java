@@ -7,6 +7,7 @@ import com.jd.ql.dms.report.domain.BaseEntity;
 import com.jd.ql.dms.report.domain.Pager;
 import com.jd.ql.dms.report.domain.spotcheck.SpotCheckQueryCondition;
 import com.jd.ql.dms.report.domain.spotcheck.SpotCheckScrollResult;
+import com.jd.ql.dms.report.domain.spotcheck.SpotCheckUpdateRequest;
 import com.jd.ql.dms.report.domain.spotcheck.WeightVolumeSpotCheckDto;
 import com.jd.ump.profiler.CallerInfo;
 import com.jd.ump.profiler.proxy.Profiler;
@@ -160,6 +161,25 @@ public class SpotCheckQueryManagerImpl implements SpotCheckQueryManager {
             return baseEntity.getData();
         }catch (Exception e){
             logger.error("根据条件查询所有抽检数据异常!查询条件:{}", JsonHelper.toJson(condition), e);
+            Profiler.functionError(callerInfo);
+        }finally {
+            Profiler.registerInfoEnd(callerInfo);
+        }
+        return null;
+    }
+
+    @Override
+    public Integer batchUpdateMachineStatus(SpotCheckUpdateRequest updateRequest) {
+        CallerInfo callerInfo = Profiler.registerInfo("dmsWeb.jsf.SpotCheckQueryManager.batchUpdateMachineStatus",
+                Constants.UMP_APP_NAME_DMSWEB,false,true);
+        try {
+            BaseEntity<Integer> baseEntity = spotCheckQueryService.batchUpdateMachineStatus(updateRequest);
+            if(baseEntity == null || baseEntity.getData() == null){
+                return null;
+            }
+            return baseEntity.getData();
+        }catch (Exception e){
+            logger.error("根据条件:{}批量更新抽检数据设备状态异常!", JsonHelper.toJson(updateRequest), e);
             Profiler.functionError(callerInfo);
         }finally {
             Profiler.registerInfoEnd(callerInfo);

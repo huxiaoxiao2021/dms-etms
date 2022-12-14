@@ -1,13 +1,14 @@
 package com.jd.bluedragon.common.dto.operation.workbench.enums;
 
 /**
- * 设备校准状态
+ * 设备体积校准状态枚举
  *
  * @author hujiping
  * @date 2022/12/7 8:26 PM
  */
-public enum MachineCalibrateStatus {
+public enum JyBizTaskMachineVolumeCalibrateStatusEnum {
 
+    NO_CALIBRATE(0, "未校准"),
     ELIGIBLE(1, "合格"),
     UN_ELIGIBLE(2, "不合格");
 
@@ -15,7 +16,7 @@ public enum MachineCalibrateStatus {
 
     private String name;
 
-    MachineCalibrateStatus(int code, String name) {
+    JyBizTaskMachineVolumeCalibrateStatusEnum(int code, String name) {
         this.code = code;
         this.name = name;
     }

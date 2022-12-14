@@ -1,17 +1,15 @@
 package com.jd.bluedragon.common.dto.operation.workbench.calibrate;
 
-import com.jd.bluedragon.common.dto.operation.workbench.enums.JyBizTaskMachineCalibrateHintEnum;
-import com.jd.bluedragon.common.dto.operation.workbench.enums.JyBizTaskMachineCalibrateStatusEnum;
-
 import java.io.Serializable;
+import java.util.List;
 
 /**
- * dws设备称重量方校准任务详情
+ * 设备称重量方校准明细返回体
  *
  * @author hujiping
- * @date 2022/12/7 8:17 PM
+ * @date 2022/12/15 10:29 AM
  */
-public class DwsWeightVolumeCalibrateTaskDetail implements Serializable {
+public class DwsWeightVolumeCalibrateDetailResult implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -19,32 +17,36 @@ public class DwsWeightVolumeCalibrateTaskDetail implements Serializable {
      * 设备编码
      */
     private String machineCode;
+
     /**
-     * 设备校准状态
-     * @see JyBizTaskMachineCalibrateStatusEnum
+     * 设备状态
      */
     private Integer machineStatus;
+
     /**
-     * 任务状态
+     * 重量体积校验详情
      */
-    private Integer taskStatus;
+    private List<DwsWeightVolumeCalibrateDetail> detailList;
+
     /**
-     * 校准提示
-     * @see JyBizTaskMachineCalibrateHintEnum
-     */
-    private Integer calibrateHint;
-    /**
-     * 校准任务开始时间
+     * 设备任务开始时间
      */
     private Long taskCreateTime;
+
     /**
-     * 校准任务截止时间
+     * 设备任务结束时间
      */
     private Long taskEndTime;
+
     /**
-     * 设备校准完成时间
+     * 设备任务完成时间
      */
     private Long calibrateFinishTime;
+
+    /**
+     * 设备上次合格时间
+     */
+    private Long previousMachineEligibleTime;
 
     public String getMachineCode() {
         return machineCode;
@@ -62,20 +64,12 @@ public class DwsWeightVolumeCalibrateTaskDetail implements Serializable {
         this.machineStatus = machineStatus;
     }
 
-    public Integer getTaskStatus() {
-        return taskStatus;
+    public List<DwsWeightVolumeCalibrateDetail> getDetailList() {
+        return detailList;
     }
 
-    public void setTaskStatus(Integer taskStatus) {
-        this.taskStatus = taskStatus;
-    }
-
-    public Integer getCalibrateHint() {
-        return calibrateHint;
-    }
-
-    public void setCalibrateHint(Integer calibrateHint) {
-        this.calibrateHint = calibrateHint;
+    public void setDetailList(List<DwsWeightVolumeCalibrateDetail> detailList) {
+        this.detailList = detailList;
     }
 
     public Long getTaskCreateTime() {
@@ -100,5 +94,13 @@ public class DwsWeightVolumeCalibrateTaskDetail implements Serializable {
 
     public void setCalibrateFinishTime(Long calibrateFinishTime) {
         this.calibrateFinishTime = calibrateFinishTime;
+    }
+
+    public Long getPreviousMachineEligibleTime() {
+        return previousMachineEligibleTime;
+    }
+
+    public void setPreviousMachineEligibleTime(Long previousMachineEligibleTime) {
+        this.previousMachineEligibleTime = previousMachineEligibleTime;
     }
 }

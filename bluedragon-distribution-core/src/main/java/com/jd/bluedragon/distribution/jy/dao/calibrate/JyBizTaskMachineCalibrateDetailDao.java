@@ -1,10 +1,13 @@
 package com.jd.bluedragon.distribution.jy.dao.calibrate;
 
 import com.jd.bluedragon.common.dao.BaseDao;
+import com.jd.bluedragon.distribution.jy.calibrate.JyBizTaskMachineCalibrateCondition;
 import com.jd.bluedragon.distribution.jy.calibrate.JyBizTaskMachineCalibrateDetailEntity;
 import com.jd.bluedragon.distribution.jy.dto.calibrate.JyBizTaskMachineCalibrateQuery;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 类的描述
@@ -28,8 +31,19 @@ public class JyBizTaskMachineCalibrateDetailDao extends BaseDao<JyBizTaskMachine
         return this.getSqlSession().delete(NAMESPACE + ".delete", entity);
     }
 
-    public List<JyBizTaskMachineCalibrateDetailEntity> selectByCondition(JyBizTaskMachineCalibrateDetailEntity condition) {
+    public JyBizTaskMachineCalibrateDetailEntity selectLatelyOneByCondition(JyBizTaskMachineCalibrateDetailEntity condition) {
+        return this.getSqlSession().selectOne(NAMESPACE + ".selectLatelyOneByCondition", condition);
+    }
+
+    public List<JyBizTaskMachineCalibrateDetailEntity> selectByCondition(JyBizTaskMachineCalibrateCondition condition) {
         return this.getSqlSession().selectList(NAMESPACE + ".selectByCondition", condition);
+    }
+
+    public int batchUpdateStatus(List<Long> ids, Integer taskStatus) {
+        Map<String, Object> params = new HashMap<>();
+        params.put("ids", ids);
+        params.put("taskStatus", taskStatus);
+        return this.getSqlSession().update(NAMESPACE + ".batchUpdateStatus", params);
     }
 
     public JyBizTaskMachineCalibrateDetailEntity queryCurrentTaskDetail(JyBizTaskMachineCalibrateQuery query) {

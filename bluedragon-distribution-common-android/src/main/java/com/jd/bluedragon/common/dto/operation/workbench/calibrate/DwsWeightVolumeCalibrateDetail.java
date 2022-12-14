@@ -1,7 +1,10 @@
 package com.jd.bluedragon.common.dto.operation.workbench.calibrate;
 
+import com.jd.bluedragon.common.dto.operation.workbench.enums.JyBizTaskMachineCalibrateTypeEnum;
+import com.jd.bluedragon.common.dto.operation.workbench.enums.JyBizTaskMachineVolumeCalibrateStatusEnum;
+import com.jd.bluedragon.common.dto.operation.workbench.enums.JyBizTaskMachineWeightCalibrateStatusEnum;
+
 import java.io.Serializable;
-import java.math.BigDecimal;
 
 /**
  * 设备称重量方校准明细
@@ -15,6 +18,7 @@ public class DwsWeightVolumeCalibrateDetail implements Serializable {
 
     /**
      * 校准类型
+     * @see JyBizTaskMachineCalibrateTypeEnum
      */
     private Integer calibrateType;
 
@@ -31,52 +35,59 @@ public class DwsWeightVolumeCalibrateDetail implements Serializable {
     /**
      * 砝码重量
      */
-    private BigDecimal farmarWeight;
+    private String farmarWeight;
 
     /**
      * 砝码长：cm
      */
-    private BigDecimal farmarLength;
+    private String farmarLength;
 
     /**
      * 砝码宽：cm
      */
-    private BigDecimal farmarWidth;
+    private String farmarWidth;
 
     /**
      * 砝码高：cm
      */
-    private BigDecimal farmarHigh;
-
-    /**
-     * 砝码长宽高
-     */
-    private String farmarLwh;
+    private String farmarHigh;
 
     /**
      * 实际重量
      */
-    private BigDecimal actualWeight;
+    private String actualWeight;
 
     /**
      * 实际长：cm
      */
-    private BigDecimal actualLength;
+    private String actualLength;
 
     /**
      * 实际宽：cm
      */
-    private BigDecimal actualWidth;
+    private String actualWidth;
 
     /**
      * 实际高：cm
      */
-    private BigDecimal actualHigh;
+    private String actualHigh;
 
     /**
-     * 实际长宽高
+     * 校准状态
+     * @see JyBizTaskMachineVolumeCalibrateStatusEnum
+     * @see JyBizTaskMachineWeightCalibrateStatusEnum
      */
-    private String actualLwh;
+    private Integer calibrateStatus;
+
+    /**
+     * 校准时间
+     */
+    private Long calibrateTime;
+
+    /**
+     * 误差范围
+     */
+    private String errorRange;
 
     public Integer getCalibrateType() {
         return calibrateType;
@@ -102,83 +113,91 @@ public class DwsWeightVolumeCalibrateDetail implements Serializable {
         this.farmarCode = farmarCode;
     }
 
-    public BigDecimal getFarmarWeight() {
+    public String getFarmarWeight() {
         return farmarWeight;
     }
 
-    public void setFarmarWeight(BigDecimal farmarWeight) {
+    public void setFarmarWeight(String farmarWeight) {
         this.farmarWeight = farmarWeight;
     }
 
-    public BigDecimal getFarmarLength() {
+    public String getFarmarLength() {
         return farmarLength;
     }
 
-    public void setFarmarLength(BigDecimal farmarLength) {
+    public void setFarmarLength(String farmarLength) {
         this.farmarLength = farmarLength;
     }
 
-    public BigDecimal getFarmarWidth() {
+    public String getFarmarWidth() {
         return farmarWidth;
     }
 
-    public void setFarmarWidth(BigDecimal farmarWidth) {
+    public void setFarmarWidth(String farmarWidth) {
         this.farmarWidth = farmarWidth;
     }
 
-    public BigDecimal getFarmarHigh() {
+    public String getFarmarHigh() {
         return farmarHigh;
     }
 
-    public void setFarmarHigh(BigDecimal farmarHigh) {
+    public void setFarmarHigh(String farmarHigh) {
         this.farmarHigh = farmarHigh;
     }
 
-    public String getFarmarLwh() {
-        return farmarLwh;
-    }
-
-    public void setFarmarLwh(String farmarLwh) {
-        this.farmarLwh = farmarLwh;
-    }
-
-    public BigDecimal getActualWeight() {
+    public String getActualWeight() {
         return actualWeight;
     }
 
-    public void setActualWeight(BigDecimal actualWeight) {
+    public void setActualWeight(String actualWeight) {
         this.actualWeight = actualWeight;
     }
 
-    public BigDecimal getActualLength() {
+    public String getActualLength() {
         return actualLength;
     }
 
-    public void setActualLength(BigDecimal actualLength) {
+    public void setActualLength(String actualLength) {
         this.actualLength = actualLength;
     }
 
-    public BigDecimal getActualWidth() {
+    public String getActualWidth() {
         return actualWidth;
     }
 
-    public void setActualWidth(BigDecimal actualWidth) {
+    public void setActualWidth(String actualWidth) {
         this.actualWidth = actualWidth;
     }
 
-    public BigDecimal getActualHigh() {
+    public String getActualHigh() {
         return actualHigh;
     }
 
-    public void setActualHigh(BigDecimal actualHigh) {
+    public void setActualHigh(String actualHigh) {
         this.actualHigh = actualHigh;
     }
 
-    public String getActualLwh() {
-        return actualLwh;
+    public Integer getCalibrateStatus() {
+        return calibrateStatus;
     }
 
-    public void setActualLwh(String actualLwh) {
-        this.actualLwh = actualLwh;
+    public void setCalibrateStatus(Integer calibrateStatus) {
+        this.calibrateStatus = calibrateStatus;
+    }
+
+    public Long getCalibrateTime() {
+        return calibrateTime;
+    }
+
+    public void setCalibrateTime(Long calibrateTime) {
+        this.calibrateTime = calibrateTime;
+    }
+
+    public String getErrorRange() {
+        return errorRange;
+    }
+
+    public void setErrorRange(String errorRange) {
+        this.errorRange = errorRange;
     }
 }

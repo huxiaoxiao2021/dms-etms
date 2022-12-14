@@ -65,7 +65,7 @@
 		<dependency>
 			<groupId>ql-dms-report</groupId>
 			<artifactId>report-sdk</artifactId>
-			<version>1.1.37-SNAPSHOT</version>
+			<version>1.0.0-calibrate-SNAPSHOT</version>
 		</dependency>
 
 		<dependency>
@@ -239,7 +239,7 @@
 		<dependency>
             <groupId>com.jd.bluedragon</groupId>
             <artifactId>bluedragon-distribution-common-android</artifactId>
-            <version>1.6.2-SNAPSHOT</version>
+            <version>1.0.0-calibrate-SNAPSHOT</version>
         </dependency>
 		<dependency>
 			<groupId>com.jd.etms.waybill</groupId>
@@ -1822,6 +1822,22 @@
             <groupId>com.jdl.jy.realtime</groupId>
             <artifactId>realtime-service-sdk</artifactId>
         </dependency>
+
+		<!-- jy_msp -->
+		<dependency>
+			<groupId>com.jdl.jy</groupId>
+			<artifactId>jy-msp-api</artifactId>
+		</dependency>
+		<!-- 京东短链 -->
+		<dependency>
+			<groupId>com.jd.shorturl</groupId>
+			<artifactId>shorturl-rpc-client</artifactId>
+		</dependency>
+		<!-- 人资 -->
+		<dependency>
+			<groupId>jd-omdm-client</groupId>
+			<artifactId>jd-omdm-client</artifactId>
+		</dependency>
 
 		<dependency>
 			<groupId>com.jd.wl.ai.cv</groupId>

@@ -38,18 +38,10 @@
                 <if test="createUserErp != null">
                     create_user_erp,
                 </if>
-                <if test="createTime != null">
                     create_time,
-                </if>
-                <if test="updateTime != null">
                     update_time,
-                </if>
-                <if test="yn != null">
                     yn,
-                </if>
-                <if test="ts != null">
                     ts
-                </if>
             </trim>
         ) VALUES (
             <trim suffixOverrides=",">
@@ -68,18 +60,10 @@
                 <if test="createUserErp != null">
                     #{createUserErp},
                 </if>
-                <if test="createTime != null">
-                    #{createTime},
-                </if>
-                <if test="updateTime != null">
-                    #{updateTime},
-                </if>
-                <if test="yn != null">
-                    #{yn},
-                </if>
-                <if test="ts != null">
-                    #{ts}
-                </if>
+                now(),
+                now(),
+                1,
+                now()
             </trim>
         )
     </insert>

@@ -951,6 +951,30 @@ public class UccPropertyConfiguration {
      */
     private Integer weightVolumeSwitchVersion;
 
+    /**
+     * 设备校准任务时长
+     *  单位：毫秒
+     */
+    private Long machineCalibrateTaskDuration;
+
+    /**
+     * 设备校准任务查询范围
+     *  单位：毫秒
+     */
+    private Long machineCalibrateTaskQueryRange;
+
+    /**
+     * 设备任务强制创建的间隔时间
+     *  单位：毫秒
+     */
+    private Long machineCalibrateTaskForceCreateIntervalTime;
+
+    /**
+     * 设备两次合格间隔时间（用于抽检下发校验）
+     *  单位：毫秒
+     */
+    private Long machineCalibrateIntervalTimeOfSpotCheck;
+
     public String getScheduleSiteCheckSameCity() {
         return scheduleSiteCheckSameCity;
     }
@@ -2261,5 +2285,37 @@ public class UccPropertyConfiguration {
 
     public void setWeightVolumeSwitchVersion(Integer weightVolumeSwitchVersion) {
         this.weightVolumeSwitchVersion = weightVolumeSwitchVersion;
+    }
+
+    public Long getMachineCalibrateTaskDuration() {
+        return machineCalibrateTaskDuration;
+    }
+
+    public void setMachineCalibrateTaskDuration(Long machineCalibrateTaskDuration) {
+        this.machineCalibrateTaskDuration = machineCalibrateTaskDuration;
+    }
+
+    public Long getMachineCalibrateTaskQueryRange() {
+        return machineCalibrateTaskQueryRange;
+    }
+
+    public void setMachineCalibrateTaskQueryRange(Long machineCalibrateTaskQueryRange) {
+        this.machineCalibrateTaskQueryRange = machineCalibrateTaskQueryRange;
+    }
+
+    public Long getMachineCalibrateTaskForceCreateIntervalTime() {
+        return machineCalibrateTaskForceCreateIntervalTime;
+    }
+
+    public void setMachineCalibrateTaskForceCreateIntervalTime(Long machineCalibrateTaskForceCreateIntervalTime) {
+        this.machineCalibrateTaskForceCreateIntervalTime = machineCalibrateTaskForceCreateIntervalTime;
+    }
+
+    public Long getMachineCalibrateIntervalTimeOfSpotCheck() {
+        return machineCalibrateIntervalTimeOfSpotCheck;
+    }
+
+    public void setMachineCalibrateIntervalTimeOfSpotCheck(Long machineCalibrateIntervalTimeOfSpotCheck) {
+        this.machineCalibrateIntervalTimeOfSpotCheck = machineCalibrateIntervalTimeOfSpotCheck;
     }
 }

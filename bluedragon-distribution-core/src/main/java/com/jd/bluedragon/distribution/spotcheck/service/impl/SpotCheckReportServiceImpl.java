@@ -2,6 +2,7 @@ package com.jd.bluedragon.distribution.spotcheck.service.impl;
 
 import com.jd.bluedragon.Constants;
 import com.jd.bluedragon.common.domain.ExportConcurrencyLimitEnum;
+import com.jd.bluedragon.common.dto.operation.workbench.enums.JyBizTaskMachineCalibrateStatusEnum;
 import com.jd.bluedragon.common.service.ExportConcurrencyLimitService;
 import com.jd.bluedragon.core.base.SpotCheckQueryManager;
 import com.jd.bluedragon.core.base.SpotCheckServiceProxy;
@@ -213,6 +214,8 @@ public class SpotCheckReportServiceImpl implements SpotCheckReportService {
                     Objects.equals(spotCheckDto.getContrastSource(), 1) ? "计费重量(计费)" : Objects.equals(spotCheckDto.getContrastSource(), 2) ? "运单复重"
                             : Objects.equals(spotCheckDto.getContrastSource(), 3) ? "下单重量" : "计费重量(运单)");
             exportSpotCheckDto.setMachineCode(spotCheckDto.getMachineCode());
+            exportSpotCheckDto.setMachineStatus(Objects.equals(spotCheckDto.getMachineStatus(), JyBizTaskMachineCalibrateStatusEnum.ELIGIBLE.getCode())
+                    ? "合格" : "不合格");
             exportSpotCheckDto.setIsGatherTogether(Objects.equals(spotCheckDto.getIsGatherTogether(), 1) ? "是" : "否");
             exportSpotCheckDto.setIsExcess(spotCheckDto.getIsExcess() == null ? null : ExcessStatusEnum.analysisNameFromCode(spotCheckDto.getIsExcess()));
             exportSpotCheckDto.setIsIssueDownstream( Objects.equals(spotCheckDto.getIsIssueDownstream(), 1) ? "是" : "否");
@@ -265,6 +268,7 @@ public class SpotCheckReportServiceImpl implements SpotCheckReportService {
         headerMap.put("reviewSource", "复核来源");
         headerMap.put("contrastSource", "核对来源");
         headerMap.put("machineCode", "设备编码");
+        headerMap.put("machineStatus", "设备状态");
         headerMap.put("isGatherTogether", "是否集齐");
         headerMap.put("isExcess", "是否超标");
         headerMap.put("isIssueDownstream", "是否下发");
