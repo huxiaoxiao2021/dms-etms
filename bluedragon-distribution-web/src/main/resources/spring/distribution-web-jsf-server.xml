@@ -495,4 +495,14 @@
                   server="dmsjsf">
     </jsf:provider>
 
+    <!--  拣运开放接口   -->
+    <jsf:provider id="jyCenterServiceJsf"
+                  interface="com.jd.bluedragon.distribution.open.JYCenterService"
+                  alias="${dms.jsf.alias}"
+                  ref="jyCenterService"
+                  server="dmsjsf">
+    </jsf:provider>
+
+
+
 </beans>
