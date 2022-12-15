@@ -9,6 +9,7 @@ import com.jd.bluedragon.core.jsf.itBasic.ItBasicIpRegionManager;
 import com.jd.bluedragon.core.jsf.itBasic.ItBasicRegionManager;
 import com.jd.bluedragon.core.jsf.wlLbs.dto.fence.FenceData;
 import com.jd.bluedragon.core.jsf.wlLbs.dto.fence.TransFenceInfoVo;
+import com.jd.bluedragon.core.jsf.wlLbs.dto.fenceForWeb.Geometry;
 import com.jd.bluedragon.core.jsf.wlLbs.dto.qo.QueryTransFenceBySiteIdQo;
 import com.jd.bluedragon.core.jsf.wlLbs.manager.WlLbsApiWrapResultManager;
 import com.jd.bluedragon.distribution.api.request.base.OperateUser;
@@ -27,8 +28,9 @@ import com.jd.lbs.jdlbsapi.dto.LocationRequestDto;
 import com.jd.lbs.jdlbsapi.dto.LocationResultDto;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
-import com.jdl.gis.trans.fence.api.vo.req.query.QueryFenceReq;
-import com.jdl.gis.trans.fence.api.vo.resp.query.QueryFenceResp;
+import com.jdl.basic.api.dto.itBasic.dto.MatchIpRegionDto;
+import com.jdl.basic.api.dto.itBasic.po.ItBasicIpRegionPo;
+import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -144,7 +146,7 @@ public class DeviceLocationServiceImpl implements DeviceLocationService {
     @Override
     @JProfiler(jKey = UmpConstants.UMP_KEY_BASE + "DeviceLocationServiceImpl.uploadLocationInfo", jAppName = Constants.UMP_APP_NAME_DMSWEB, mState = {JProEnum.TP, JProEnum.Heartbeat, JProEnum.FunctionError})
     public Result<Boolean> uploadLocationInfo(DeviceLocationUploadPo deviceLocationUploadPo) {
-        log.info("DeviceLocationServiceImpl.queryCount param {}", JsonHelper.toJson(deviceLocationUploadPo));
+        log.info("DeviceLocationServiceImpl.uploadLocationInfo param {}", JsonHelper.toJson(deviceLocationUploadPo));
         Result<Boolean> result = Result.success();
         try {
             // 0. base param check
@@ -157,14 +159,24 @@ public class DeviceLocationServiceImpl implements DeviceLocationService {
             final DeviceLocationLog deviceLocationLog = this.genDeviceLocationLog(deviceLocationUploadPo);
             final Result<Long> remoteResult = iDeviceLocationLogManager.add(deviceLocationLog);
             if (remoteResult == null || remoteResult.isFail()) {
-                result.toFail(String.format("插入失败, %s", remoteResult != null ? remoteResult.getMessage() : "未知异常"));
+                return result.toFail(String.format("插入失败, %s", remoteResult != null ? remoteResult.getMessage() : "未知异常"));
             } else {
+                deviceLocationLog.setId(remoteResult.getData());
+                deviceLocationUploadPo.setRefLogId(remoteResult.getData());
                 result.setData(true);
             }
             // 2. check location
+            final Result<Boolean> checkLocationResult = this.checkLocationMatchUserSite(deviceLocationUploadPo);
+            if(!checkLocationResult.isSuccess()){
+                log.warn("DeviceLocationServiceImpl.uploadLocationInfo checkLocationMatchUserSite fail {}", JsonHelper.toJson(checkLocationResult));
+                return result;
+            }
             // 2.1 if location is wrong, do some process logic
+            if(!checkLocationResult.getData()){
+                this.sendUploadLocationExceptionOpMsg(deviceLocationUploadPo);
+            }
         } catch (Exception e) {
-            log.error("DeviceLocationServiceImpl.queryCount exception {}", JsonHelper.toJson(deviceLocationUploadPo), e);
+            log.error("DeviceLocationServiceImpl.uploadLocationInfo exception {}", JsonHelper.toJson(deviceLocationUploadPo), e);
             result.toFail("系统异常");
         }
         return result;
@@ -215,6 +227,7 @@ public class DeviceLocationServiceImpl implements DeviceLocationService {
     public Result<Boolean> checkLocationMatchUserSite(DeviceLocationUploadPo deviceLocationUploadPo) {
         log.info("DeviceLocationServiceImpl.checkLocationMatchUserSite param {}", JsonHelper.toJson(deviceLocationUploadPo));
         Result<Boolean> result = Result.success();
+        result.setData(false);
         try {
             // 1. 查询场地围栏
             final OperateUser operateUser = deviceLocationUploadPo.getOperateUser();
@@ -236,41 +249,35 @@ public class DeviceLocationServiceImpl implements DeviceLocationService {
             if(deviceLocationInfo.getLatitude() != null && deviceLocationInfo.getLongitude() != null){
                 hasLocation = true;
             }
+
             final List<TransFenceInfoVo> transFenceInfoVoList = fenceData.getTransFenceInfoVoList();
-            for (TransFenceInfoVo transFenceInfoVo : transFenceInfoVoList) {
-                final String fenceType = transFenceInfoVo.getFenceType();
-            }
             //  2.1 判断设备经纬度是否在场地围栏内
             if (hasLocation) {
-                LatLng point = new LatLng();
-                List<LatLng> polygonShape = new ArrayList<>();
-                final boolean isPointInPolygon = GeoUtils.isPointInPolygon(point, polygonShape);
-                // 如果不在围栏内，判断两点之间直线距离
-                result.setData(isPointInPolygon);
+                LatLng point = new LatLng(deviceLocationInfo.getLatitude().doubleValue(), deviceLocationInfo.getLongitude().doubleValue());
+                final boolean isPointInPolygon = checkLatLngPointInFence(point, transFenceInfoVoList);
+                if(isPointInPolygon){
+                    return result.setData(true);
+                }
+                // 经纬度可能不准，继续用网络IP形式去加一层判断
+                final String ipv4 = deviceLocationInfo.getIpv4();
+                final Result<Boolean> netWorkCheckResult = checkNetworkInFence(ipv4, transFenceInfoVoList);
+                if(!netWorkCheckResult.isSuccess()){
+                    return result.toFail(netWorkCheckResult.getMessage());
+                }
+                if(netWorkCheckResult.getData()){
+                    return result.setData(true);
+                }
             }
-            // 3. 若没有经纬度
-            if (hasLocation) {
+            else {
+                // 3. 若没有经纬度
                 //  3.1 判断是内网还是外网
                 final String ipv4 = deviceLocationInfo.getIpv4();
-                boolean isInternalNetwork = true;
-                if (IpUtils.isInternalFormatV4Ip(ipv4)) {
-                    isInternalNetwork = false;
+                final Result<Boolean> netWorkCheckResult = checkNetworkInFence(ipv4, transFenceInfoVoList);
+                if(!netWorkCheckResult.isSuccess()){
+                    return result.toFail(netWorkCheckResult.getMessage());
                 }
-                //  3.1 根据IP地址查询场地地址，内网调IT基础接口，外网调gis接口
-                if (isInternalNetwork) {
-                    final LocationRequestDto locationRequestDto = new LocationRequestDto();
-                    locationRequestDto.setIp(ipv4);
-                    final Result<LocationResultDto> ipLocationResult = wlLbsApiWrapResultManager.getLocationByIp(null, locationRequestDto);
-                    if (!ipLocationResult.isSuccess()) {
-                        log.warn("DeviceLocationServiceImpl.checkLocationMatchUserSite getLocationByIp fail {}", JsonHelper.toJson(queryFenceRespResult));
-                        return result.toFail("处理失败，根据内网IP查询位置失败失败");
-                    }
-                    final LocationResultDto ipLocationData = ipLocationResult.getData();
-                    if (ipLocationData == null) {
-                        log.warn("DeviceLocationServiceImpl.checkLocationMatchUserSite getLocationByIp empty {}", JsonHelper.toJson(queryFenceRespResult));
-                        return result.toFail("未获取到内网IP地址数据");
-                    }
-                    //  3.2 根据场地地址查询经纬度，在判断经纬度是否在场地围栏内
+                if(netWorkCheckResult.getData()){
+                    return result.setData(true);
                 }
             }
         } catch (Exception e) {
@@ -278,6 +285,92 @@ public class DeviceLocationServiceImpl implements DeviceLocationService {
             result.toFail("系统异常");
         }
         return result;
+    }
+
+    /**
+     * 判断经纬度点是否在围栏内
+     * @param point 经纬度点
+     * @param transFenceInfoVoList 围栏列表数据
+     * @return 判断结果
+     */
+    private boolean checkLatLngPointInFence(LatLng point, List<TransFenceInfoVo> transFenceInfoVoList) {
+        boolean isPointInPolygon = false;
+        for (TransFenceInfoVo transFenceInfoVo : transFenceInfoVoList) {
+            // 可能存在"主围栏"、"临时围栏"，只要满足一个条件即可
+            final Geometry geometry = transFenceInfoVo.getGeometry();
+            if (geometry == null) {
+                continue;
+            }
+            final List<List<List<Double>>> coordinates = geometry.getCoordinates();
+            if (CollectionUtils.isEmpty(coordinates)) {
+                continue;
+            }
+            List<LatLng> polygonShape = new ArrayList<>();
+            final List<List<Double>> pointList = coordinates.get(0);
+            if (CollectionUtils.isEmpty(pointList)) {
+                continue;
+            }
+            for (List<Double> doubles : pointList) {
+                final LatLng latLng = new LatLng();
+                latLng.setLng(doubles.get(0));
+                latLng.setLat(doubles.get(1));
+                polygonShape.add(latLng);
+            }
+            isPointInPolygon = GeoUtils.isPointInPolygon(point, polygonShape);
+            // 如果不在围栏内，判断两点之间直线距离
+            if (isPointInPolygon) {
+                break;
+            }
+        }
+        return isPointInPolygon;
+    }
+
+    /**
+     * 检查网络IP地址是否在围栏范围内
+     * @param ip IP地址
+     * @param transFenceInfoVoList 围栏范围
+     * @return 判断结果
+     */
+    private Result<Boolean> checkNetworkInFence(String ip, List<TransFenceInfoVo> transFenceInfoVoList) {
+        Result<Boolean> result = Result.success();
+        boolean netWorkInFence = false;
+        boolean isInternalNetwork = true;
+        if (IpUtils.isInternalFormatV4Ip(ip)) {
+            isInternalNetwork = false;
+        }
+        //  3.1 根据IP地址查询场地地址，内网调IT基础接口，外网调gis接口
+        if (!isInternalNetwork) {
+            final LocationRequestDto locationRequestDto = new LocationRequestDto();
+            locationRequestDto.setIp(ip);
+            final Result<LocationResultDto> ipLocationResult = wlLbsApiWrapResultManager.getLocationByIp(null, locationRequestDto);
+            if (!ipLocationResult.isSuccess()) {
+                log.warn("DeviceLocationServiceImpl.checkNetworkInFence getLocationByIp fail {}", JsonHelper.toJson(ipLocationResult));
+                 return result.toFail("处理失败，根据内网IP查询位置失败失败");
+            }
+            final LocationResultDto ipLocationData = ipLocationResult.getData();
+            if (ipLocationData == null) {
+                log.warn("DeviceLocationServiceImpl.checkNetworkInFence getLocationByIp empty {}", JsonHelper.toJson(ipLocationData));
+                 return result.toFail("未获取到内网IP地址数据");
+            }
+            //  3.2 根据场地地址查询经纬度，在判断经纬度是否在场地围栏内 (不用继续查，3.1已返回经纬度)
+            LatLng point = new LatLng(ipLocationData.getLat().doubleValue(), ipLocationData.getLng().doubleValue());
+            final boolean isPointInPolygon = checkLatLngPointInFence(point, transFenceInfoVoList);
+            result.setData(isPointInPolygon);
+        } else {
+            // 如果是内网IP，只用判断是在一个城市即可
+            ItBasicIpRegionPo itBasicIpRegionPo = new ItBasicIpRegionPo();
+            itBasicIpRegionPo.setIp(ip);
+            final Result<MatchIpRegionDto> matchIpRegionResult = itBasicIpRegionManager.selectMatchRegionByIp(itBasicIpRegionPo);
+            if (!matchIpRegionResult.isSuccess()) {
+                log.warn("DeviceLocationServiceImpl.checkNetworkInFence selectMatchRegionByIp fail {}", JsonHelper.toJson(matchIpRegionResult));
+                return result.toFail("处理失败，根据内网IP查询位置失败失败");
+            }
+            final MatchIpRegionDto matchIpRegionDto = matchIpRegionResult.getData();
+            if (matchIpRegionDto != null) {
+                // 根据地址获取经纬度 todo 园区信息表依据结果较差，只能精确到城市维度
+            }
+        }
+        return result.setData(netWorkInFence);
     }
 
     /**
@@ -422,7 +515,7 @@ public class DeviceLocationServiceImpl implements DeviceLocationService {
                 return result.toFail(handleResult.getMessage());
             }
 
-            // 发送异常提醒
+            // 发送异常提醒 封装MSP todo
         } catch (Exception e) {
             log.error("DeviceLocationServiceImpl.handleDmsUploadDeviceLocationExceptionOpConsume exception {}", JsonHelper.toJson(deviceLocationUploadPo), e);
             result.toFail("系统异常");
