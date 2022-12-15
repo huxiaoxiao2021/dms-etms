@@ -1488,7 +1488,43 @@ public class SendPrintServiceImpl implements SendPrintService {
         }
 
     }
+    @Override
+    public PrintHandoverListDto buildPrintHandoverListDtoTmp(SendDetail sendDetail) {
 
+        // 获取运单对象
+        String waybillCode = dealCreateWaybillCode(sendDetail);
+        if(StringUtils.isEmpty(waybillCode)){
+            log.warn("未获取到运单号!包裹号：{},站点：{}", sendDetail.getPackageBarcode(), sendDetail.getCreateSiteCode());
+            return null;
+        }
+        BigWaybillDto bigWaybillDto = getBigWaybillDto(waybillCode);
+        if(bigWaybillDto == null || bigWaybillDto.getWaybill() == null){
+            log.warn("根据运单号{}获取运单信息为空!", waybillCode);
+            return null;
+        }
+        // 获取发货sendM对象
+        SendM sendM = new SendM();
+
+        // 构建打印接交接对象的基础属性
+        PrintHandoverListDto printHandoverListDto = buildBasicData(sendDetail,sendM,waybillCode);
+
+        // 构建打印接交接对象的运单属性
+        buildWaybillData(bigWaybillDto,printHandoverListDto);
+
+        // 构建打印接交接对象的包裹属性
+        buildPackageData(printHandoverListDto);
+
+        // 构建取件单信息
+        buildPickupData(printHandoverListDto);
+
+        // 构建打印交接清单对象的应付量方属性
+        buildDmsOutWeightData(printHandoverListDto);
+
+        // 构建打印交接清单对象的封车数据
+        buildSealCarData(printHandoverListDto);
+
+        return printHandoverListDto;
+    }
     @Override
     public PrintHandoverListDto buildPrintHandoverListDto(SendDetail sendDetail) {
 
