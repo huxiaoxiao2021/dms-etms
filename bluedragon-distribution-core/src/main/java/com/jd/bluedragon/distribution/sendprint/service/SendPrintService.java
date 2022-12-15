@@ -60,7 +60,11 @@ public interface SendPrintService {
 	 * @return
 	 */
 	InvokeResult<Boolean> batchPrintExportToTripartite(TripartiteEntity tripartiteEntity, String content, List<String> tos, List<String> ccs);
-
+	/**
+	 * 构建打印交接清单实体-临时
+	 * @return
+	 */
+    PrintHandoverListDto buildPrintHandoverListDtoTmp(SendDetail sendDetail);
 	/**
 	 * 构建打印交接清单实体
 	 * @return
