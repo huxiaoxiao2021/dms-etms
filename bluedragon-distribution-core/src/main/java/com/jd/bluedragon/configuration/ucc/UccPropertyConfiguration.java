@@ -540,7 +540,6 @@ public class UccPropertyConfiguration {
      */
     private int goodsResidenceTime;
 
-    private String planSendTime ;
 
     public String getAddiOwnNumberConf() {
         return addiOwnNumberConf;
@@ -2372,13 +2371,6 @@ public class UccPropertyConfiguration {
         this.goodsResidenceTime = goodsResidenceTime;
     }
 
-    public String getPlanSendTime() {
-        return planSendTime;
-    }
-
-    public void setPlanSendTime(String planSendTime) {
-        this.planSendTime = planSendTime;
-    }
 
     public Integer getJyUnloadCarListQueryDayFilter() {
         return jyUnloadCarListQueryDayFilter;
@@ -2387,4 +2379,5 @@ public class UccPropertyConfiguration {
     public void setJyUnloadCarListQueryDayFilter(Integer jyUnloadCarListQueryDayFilter) {
         this.jyUnloadCarListQueryDayFilter = jyUnloadCarListQueryDayFilter;
     }
+
 }

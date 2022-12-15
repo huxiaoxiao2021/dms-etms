@@ -13,6 +13,9 @@ public class GoodsPhotoInfo implements Serializable {
 
     private Long id;
 
+    //业务主键
+    private String bizId;
+
     //拍照人用户编码
     private Integer userCode;
 
@@ -79,6 +82,14 @@ public class GoodsPhotoInfo implements Serializable {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getBizId() {
+        return bizId;
+    }
+
+    public void setBizId(String bizId) {
+        this.bizId = bizId;
     }
 
     public Integer getUserCode() {

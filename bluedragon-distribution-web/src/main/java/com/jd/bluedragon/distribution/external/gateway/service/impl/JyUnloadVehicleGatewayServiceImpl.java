@@ -11,12 +11,10 @@ import com.jd.bluedragon.common.dto.operation.workbench.transport.request.Transp
 import com.jd.bluedragon.common.dto.operation.workbench.enums.UnloadScanTypeEnum;
 import com.jd.bluedragon.common.dto.operation.workbench.unload.request.*;
 import com.jd.bluedragon.common.dto.operation.workbench.unload.response.*;
-import com.jd.bluedragon.common.dto.photo.GoodsPhotoInfoDto;
 import com.jd.bluedragon.common.dto.select.SelectOption;
 import com.jd.bluedragon.common.dto.select.StringSelectOption;
 import com.jd.bluedragon.distribution.api.response.TransWorkItemResponse;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.goodsPhoto.service.GoodsPhoteService;
 import com.jd.bluedragon.distribution.jy.enums.JyUnloadVehicleStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.UnloadProductTypeEnum;
 import com.jd.bluedragon.distribution.jy.service.unload.IJyUnloadVehicleService;
@@ -63,8 +61,6 @@ public class JyUnloadVehicleGatewayServiceImpl implements JyUnloadVehicleGateway
     @Autowired
     private TransportRelatedService transportRelatedService;
 
-    @Autowired
-    private GoodsPhoteService goodsPhoteService;
 
     @Override
     public JdCResponse<UnloadNoTaskResponse> createNoTaskUnloadTask(UnloadNoTaskRequest request) {
@@ -375,40 +371,5 @@ public class JyUnloadVehicleGatewayServiceImpl implements JyUnloadVehicleGateway
             jdVerifyResponse.addPromptBox(checkResult.left, checkResult.right);
         }
         return jdVerifyResponse;
-    }
-
-    @Override
-    public JdCResponse<Boolean> uploadUnloadScanPhotoAboutEasyFreeze(GoodsPhotoInfoDto dto) {
-        JdCResponse<Boolean> response = new JdCResponse<>();
-        response.toSucceed("成功");
-        try{
-            String checkResult = checkParam(dto);
-            if(StringUtils.isNotBlank(checkResult)){
-                response.toFail(checkResult);
-                return  response;
-            }
-            response.setData(goodsPhoteService.insert(dto));
-        }catch (Exception e){
-            logger.error("添加货物照片异常!-{}",e.getMessage(),e);
-            response.toError("添加货物照片异常!");
-        }
-        return response;
-    }
-
-    private String checkParam(GoodsPhotoInfoDto dto){
-        if(dto == null){
-            return "入参不能为空!";
-        }
-        if(dto.getUser() == null || (dto.getUser().getUserCode())<= 0){
-            return "操作用户信息不能为空!";
-        }
-        if(dto.getCurrentOperate() == null || dto.getCurrentOperate().getSiteCode() <= 0){
-            return "操作站点信息不能为空!";
-        }
-        if(StringUtils.isBlank(dto.getBarCode())){
-            return "单号不能为空!";
-        }
-        return "";
-
     }
 }

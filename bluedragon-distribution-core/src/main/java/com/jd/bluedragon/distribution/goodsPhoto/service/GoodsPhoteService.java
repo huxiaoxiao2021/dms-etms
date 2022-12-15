@@ -13,4 +13,6 @@ public interface GoodsPhoteService {
     Boolean insert(GoodsPhotoInfoDto record);
 
     GoodsPhotoInfo getOneByBarCode(String barCode);
+
+    GoodsPhotoInfo selectOne(Integer siteCode,String barCode);
 }

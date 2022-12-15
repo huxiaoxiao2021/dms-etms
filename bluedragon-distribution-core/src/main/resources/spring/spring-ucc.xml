@@ -203,7 +203,6 @@
 		<property name="sealStatusBatchSizeLimit" value="${sealStatusBatchSizeLimit:30}"/>
 		<property name="weightVolumeSwitchVersion" value="${weightVolumeSwitchVersion:0}"/>
 		<property name="goodsResidenceTime" value="${goodsResidenceTime:3}"/>
-		<property name="planSendTime" value="${planSendTime}"/>
 
 		<property name="jyUnloadCarListQueryDayFilter" value="${jyUnloadCarListQueryDayFilter:3}"/>
 	</bean>
@@ -391,7 +390,6 @@
 				<value>uccPropertyConfiguration.sealStatusBatchSizeLimit</value>
 				<value>uccPropertyConfiguration.weightVolumeSwitchVersion</value>
 				<value>uccPropertyConfiguration.goodsResidenceTime</value>
-				<value>uccPropertyConfiguration.planSendTime</value>
 
 
 				<value>hystrixRouteUccPropertyConfiguration.executionTimeoutInMilliseconds</value>

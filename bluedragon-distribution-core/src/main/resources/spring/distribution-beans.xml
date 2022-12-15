@@ -122,7 +122,7 @@
 			<entry key="150"    value-ref="emsTraces80"/>
 			<entry key="-320"   value-ref="emsTraces90"/>
 			<entry key="-970"   value-ref="emsTraces81"/>
-			<entry key="8"      value-ref="emsTraces51"/>				
+			<entry key="8"      value-ref="emsTraces51"/>
            </map>
         </property>
     </bean>
@@ -161,5 +161,7 @@
     <bean id="emsTraces51" class="com.jd.bluedragon.external.crossbow.postal.domain.TracesOperType">
         <property name="code" value = "51"/>
         <property name="name" value = "邮政退回"/>
-    </bean>               
+    </bean>
+    <bean id="checkStrandReportJobHandler" class="com.jd.bluedragon.distribution.abnormal.service.impl.CheckStrandReportJobHandler" parent="parentConcurrentJobHandler">
+    </bean>
 </beans>
