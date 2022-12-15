@@ -471,7 +471,7 @@ public class JyUnloadVehicleCheckTysService {
                 log.info("JyUnloadVehicleCheckTysService.routerCheck-按箱号卸车扫描开板-param={}", JsonUtils.toJSONString(boardCommonRequest));
             }
             if(boardCommonRequest.getReceiveSiteCode() == null) {
-                throw new LoadIllegalException("验货成功。获取下一流向为空，无法建板");
+                throw new LoadIllegalException("验货成功。未找到包裹下游流向场地，无法进行建板");
             }
             InvokeResult<Board> invokeResult = boardCommonManager.createBoardCode(boardCommonRequest);
             if (invokeResult.getCode() != InvokeResult.RESULT_SUCCESS_CODE) {
@@ -498,7 +498,7 @@ public class JyUnloadVehicleCheckTysService {
         String waybillCode = WaybillUtil.getWaybillCode(request.getScanCode());
         if (request.getNextSiteCode() == null) {
             // 此处直接返回，因为ver组板校验链会判断
-            return true;
+            throw new LoadIllegalException("验货成功，未找到包裹下游流向场地，无法进行后续组板");
         }
         Integer destinationId = null;
         Response<Board> result = groupBoardManager.getBoard(request.getBoardCode());
@@ -559,13 +559,13 @@ public class JyUnloadVehicleCheckTysService {
         boardCommonRequest.setBarCode(request.getScanCode());
         boardCommonRequest.setOperateSiteCode(request.getCurrentOperate().getSiteCode());
         boardCommonRequest.setOperateSiteName(request.getCurrentOperate().getSiteName());
-        if (request.isCreateNewBoard()) {
-            boardCommonRequest.setReceiveSiteCode(request.getNextSiteCode());
-            boardCommonRequest.setReceiveSiteName(request.getNextSiteName());
-        } else {
-            boardCommonRequest.setReceiveSiteCode(request.getReceiveSiteCode());
-            boardCommonRequest.setReceiveSiteName(request.getReceiveSiteName());
-        }
+//        if (request.isCreateNewBoard()) {
+        boardCommonRequest.setReceiveSiteCode(request.getNextSiteCode());
+        boardCommonRequest.setReceiveSiteName(request.getNextSiteName());
+//        } else {
+//            boardCommonRequest.setReceiveSiteCode(request.getReceiveSiteCode());
+//            boardCommonRequest.setReceiveSiteName(request.getReceiveSiteName());
+//        }
         boardCommonRequest.setOperateUserErp(request.getUser().getUserErp());
         boardCommonRequest.setOperateUserName(request.getUser().getUserName());
         boardCommonRequest.setOperateUserCode(request.getUser().getUserCode());
