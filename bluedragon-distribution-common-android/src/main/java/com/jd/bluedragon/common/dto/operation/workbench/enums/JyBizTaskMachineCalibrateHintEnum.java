@@ -8,9 +8,9 @@ package com.jd.bluedragon.common.dto.operation.workbench.enums;
  */
 public enum JyBizTaskMachineCalibrateHintEnum {
 
-    WEIGHT_NOT_CALIBRATE(0, "重量校验未完成"),
-    VOLUME_NOT_CALIBRATE(1, "体积校验未完成"),
-    CALIBRATE_NOT_START(2, "校准任务未开始"),
+    WEIGHT_NOT_CALIBRATE(0, "重量待校验"),
+    VOLUME_NOT_CALIBRATE(1, "体积待校验"),
+    CALIBRATE_NOT_START(2, "重量/体积待校验"),
     CALIBRATE_COMPLETE(3, "校准任务已完成");
 
     private int code;
