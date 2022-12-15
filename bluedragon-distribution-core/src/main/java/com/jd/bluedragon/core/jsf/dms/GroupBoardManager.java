@@ -111,13 +111,7 @@ public interface GroupBoardManager {
      * @return
      */
     Response<BoardBoxCountDto> getBoxCountInfoByBoardCode(String boardCode);
-
-    /**
-     * 批量取消组板
-     * @param removeBoardBoxDto
-     * @return
-     */
-    Response batchRemoveBardBoxByBoxCodes (RemoveBoardBoxDto removeBoardBoxDto);
+    
 
     /**
      * 根据运单取消组板

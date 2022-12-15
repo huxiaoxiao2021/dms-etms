@@ -34,7 +34,7 @@
     <!--<import resource="classpath:spring/distribution-core-asynBuffer-producer.xml"/>-->
 
 	<import resource="classpath:spring/distribution-core-jss.xml"/>
-	<import resource="classpath:spring/spring-ucc-light.xml" />
+	<import resource="classpath:spring/spring-ucc.xml" />
 	<import resource="classpath:spring/distribution-core-sms.xml" />
 	<import resource="classpath:spring/distribution-core-handler.xml" />
 	<import resource="classpath:spring/distribution-core-sequence-gen.xml" />

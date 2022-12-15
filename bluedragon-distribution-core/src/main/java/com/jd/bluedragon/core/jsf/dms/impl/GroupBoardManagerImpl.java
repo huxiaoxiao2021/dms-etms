@@ -157,13 +157,6 @@ public class GroupBoardManagerImpl implements GroupBoardManager {
         return groupBoardService.getBoxCountInfoByBoardCode(boardCode);
     }
 
-    @JProfiler(jKey = "dmsWeb.jsf.tc.groupBoardService.batchRemoveBardBoxByBoxCodes",jAppName= Constants.UMP_APP_NAME_DMSWEB,
-            mState = {JProEnum.TP, JProEnum.FunctionError})
-    @Override
-    public Response batchRemoveBardBoxByBoxCodes(RemoveBoardBoxDto removeBoardBoxDto) {
-        return groupBoardService.batchRemoveBardBoxByBoxCodes(removeBoardBoxDto);
-    }
-
     @JProfiler(jKey = "dmsWeb.jsf.tc.groupBoardService.removeBardBoxByWaybillCode",jAppName= Constants.UMP_APP_NAME_DMSWEB,
             mState = {JProEnum.TP, JProEnum.FunctionError})
     @Override
