@@ -1239,20 +1239,6 @@
 			<groupId>order-ws-client</groupId>
 			<artifactId>order-ws-client</artifactId>
 			<version>2.5.0-mini-SNAPSHOT</version>
-			<exclusions>
-				<exclusion>
-					<artifactId>cxf-rt-bindings-soap</artifactId>
-					<groupId>org.apache.cxf</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>cxf-rt-frontend-jaxws</artifactId>
-					<groupId>org.apache.cxf</groupId>
-				</exclusion>
-				<exclusion>
-					<artifactId>cxf-rt-transports-http</artifactId>
-					<groupId>org.apache.cxf</groupId>
-				</exclusion>
-			</exclusions>
 		</dependency>
 
 		<!-- 增加JSS的依赖包 -->
@@ -2530,7 +2516,6 @@
 		  <artifactId>addressTranslation-api</artifactId>
 		  <version>${addressTranslation-api.version}</version>
 		</dependency>
-
     </dependencies>
 
 	<profiles>
@@ -2583,6 +2568,15 @@
                         <additionalClasspathElement>${project.basedir/src/main/resources</additionalClasspathElement>
                     </additionalClasspathElements>
                     -->
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.mybatis.generator</groupId>
+				<artifactId>mybatis-generator-maven-plugin</artifactId>
+				<version>1.3.5</version>
+				<configuration>
+					<verbose>true</verbose>
+					<overwrite>true</overwrite>
 				</configuration>
 			</plugin>
 		</plugins>

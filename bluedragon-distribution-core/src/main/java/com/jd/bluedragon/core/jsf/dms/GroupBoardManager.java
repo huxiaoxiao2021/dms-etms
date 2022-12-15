@@ -44,6 +44,8 @@ public interface GroupBoardManager {
      */
     Response<Integer> addBoxToBoardIgnoreStatus(AddBoardBox addBoardBox);
 
+    Response<Integer> addBoxesToBoard(AddBoardBoxes addBoardBox);
+
     /**
      * 组板转移
      * @param moveBoxRequest
@@ -102,4 +104,33 @@ public interface GroupBoardManager {
      * @return
      */
     public Response batchRemoveBardBoxByBoxCodes(RemoveBoardBoxDto removeBoardBoxDto);
+
+    /**
+     * 查询板上统计信息
+     * @param boardCode
+     * @return
+     */
+    Response<BoardBoxCountDto> getBoxCountInfoByBoardCode(String boardCode);
+
+    /**
+     * 批量取消组板
+     * @param removeBoardBoxDto
+     * @return
+     */
+    Response batchRemoveBardBoxByBoxCodes (RemoveBoardBoxDto removeBoardBoxDto);
+
+    /**
+     * 根据运单取消组板
+     * @param removeBoardBoxDto
+     * @return
+     */
+    Response removeBoardBoxByWaybillCode (RemoveBoardBoxDto removeBoardBoxDto);
+
+    /**
+     * 根据包裹、场地获取板信息、板箱信息
+     * @param barCode
+     * @param siteCode
+     * @return
+     */
+    BoardBoxInfoDto getBoardBoxInfo(String barCode, int siteCode);
 }

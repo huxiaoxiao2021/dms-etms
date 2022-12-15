@@ -1,0 +1,299 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jd.bluedragon.distribution.jy.dao.comboard.JyComboardAggsDao">
+  <resultMap id="BaseResultMap" type="com.jd.bluedragon.distribution.jy.comboard.JyComboardAggsEntity">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="operate_site_id" jdbcType="INTEGER" property="operateSiteId" />
+    <result column="receive_site_id" jdbcType="INTEGER" property="receiveSiteId" />
+    <result column="send_flow" jdbcType="VARCHAR" property="sendFlow" />
+    <result column="biz_id" jdbcType="VARCHAR" property="bizId" />
+    <result column="board_code" jdbcType="VARCHAR" property="boardCode" />
+    <result column="product_type" jdbcType="VARCHAR" property="productType" />
+    <result column="scan_type" jdbcType="TINYINT" property="scanType" />
+    <result column="scanned_count" jdbcType="INTEGER" property="scannedCount" />
+    <result column="board_count" jdbcType="INTEGER" property="boardCount" />
+    <result column="more_scanned_count" jdbcType="INTEGER" property="moreScannedCount" />
+    <result column="intercept_count" jdbcType="INTEGER" property="interceptCount" />
+    <result column="wait_scan_count" jdbcType="INTEGER" property="waitScanCount" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="yn" jdbcType="BIT" property="yn" />
+    <result column="ts" jdbcType="TIMESTAMP" property="ts" />
+    <result column="package_scanned_count" jdbcType="INTEGER" property="packageScannedCount" />
+    <result column="box_scanned_count" jdbcType="INTEGER" property="boxScannedCount" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id,operate_site_id,receive_site_id, send_flow, biz_id, board_code, product_type, scan_type, scanned_count, board_count,
+    more_scanned_count, intercept_count, wait_scan_count, create_time, update_time, yn,
+    ts,package_scanned_count,box_scanned_count
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from jy_comboard_aggs
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+    delete from jy_comboard_aggs
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.jd.bluedragon.distribution.jy.comboard.JyComboardAggsEntity">
+    insert into jy_comboard_aggs (id,operate_site_id,receive_site_id, send_flow, biz_id,
+      board_code, product_type, scan_type,
+      scanned_count, board_count, more_scanned_count,
+      intercept_count, wait_scan_count, create_time,
+      update_time, yn, ts)
+    values (#{id,jdbcType=BIGINT},#{operateSiteId,jdbcType=INTEGER}, #{receiveSiteId,jdbcType=INTEGER},  #{sendFlow,jdbcType=VARCHAR},
+            #{bizId,jdbcType=VARCHAR},#{boardCode,jdbcType=VARCHAR}, #{productType,jdbcType=VARCHAR}, #{scanType,jdbcType=TINYINT},
+      #{scannedCount,jdbcType=INTEGER}, #{boardCount,jdbcType=INTEGER}, #{moreScannedCount,jdbcType=INTEGER},
+      #{interceptCount,jdbcType=INTEGER}, #{waitScanCount,jdbcType=INTEGER}, #{createTime,jdbcType=TIMESTAMP},
+      #{updateTime,jdbcType=TIMESTAMP}, #{yn,jdbcType=BIT}, #{ts,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.jd.bluedragon.distribution.jy.comboard.JyComboardAggsEntity">
+    insert into jy_comboard_aggs
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="operateSiteId != null">
+        operate_site_id,
+      </if>
+      <if test="receiveSiteId != null">
+        receive_site_id,
+      </if>
+      <if test="sendFlow != null">
+        send_flow,
+      </if>
+      <if test="bizId != null">
+        biz_id,
+      </if>
+      <if test="boardCode != null">
+        board_code,
+      </if>
+      <if test="productType != null">
+        product_type,
+      </if>
+      <if test="scanType != null">
+        scan_type,
+      </if>
+      <if test="scannedCount != null">
+        scanned_count,
+      </if>
+      <if test="boardCount != null">
+        board_count,
+      </if>
+      <if test="moreScannedCount != null">
+        more_scanned_count,
+      </if>
+      <if test="interceptCount != null">
+        intercept_count,
+      </if>
+      <if test="waitScanCount != null">
+        wait_scan_count,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="updateTime != null">
+        update_time,
+      </if>
+      <if test="yn != null">
+        yn,
+      </if>
+      <if test="ts != null">
+        ts,
+      </if>
+      <if test="packageScannedCount != null">
+        package_scanned_count,
+      </if>
+      <if test="boxScannedCount != null">
+        box_scanned_count,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="operateSiteId != null">
+        #{operateSiteId,jdbcType=INTEGER},
+      </if>
+      <if test="receiveSiteId != null">
+        #{receiveSiteId,jdbcType=INTEGER},
+      </if>
+      <if test="sendFlow != null">
+        #{sendFlow,jdbcType=VARCHAR},
+      </if>
+      <if test="bizId != null">
+        #{bizId,jdbcType=VARCHAR},
+      </if>
+      <if test="boardCode != null">
+        #{boardCode,jdbcType=VARCHAR},
+      </if>
+      <if test="productType != null">
+        #{productType,jdbcType=VARCHAR},
+      </if>
+      <if test="scanType != null">
+        #{scanType,jdbcType=TINYINT},
+      </if>
+      <if test="scannedCount != null">
+        #{scannedCount,jdbcType=INTEGER},
+      </if>
+      <if test="boardCount != null">
+        #{boardCount,jdbcType=INTEGER},
+      </if>
+      <if test="moreScannedCount != null">
+        #{moreScannedCount,jdbcType=INTEGER},
+      </if>
+      <if test="interceptCount != null">
+        #{interceptCount,jdbcType=INTEGER},
+      </if>
+      <if test="waitScanCount != null">
+        #{waitScanCount,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null">
+        #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="yn != null">
+        #{yn,jdbcType=BIT},
+      </if>
+      <if test="ts != null">
+        #{ts,jdbcType=TIMESTAMP},
+      </if>
+      <if test="packageScannedCount != null">
+         #{packageScannedCount},
+      </if>
+      <if test="boxScannedCount != null">
+         #{boxScannedCount},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeyAndTs" parameterType="com.jd.bluedragon.distribution.jy.comboard.JyComboardAggsEntity">
+    update jy_comboard_aggs
+    <set>
+      <if test="operateSiteId != null">
+        operate_site_id = #{operateSiteId,jdbcType=INTEGER},
+      </if>
+      <if test="receiveSiteId != null">
+        receive_site_id = #{receiveSiteId,jdbcType=INTEGER},
+      </if>
+      <if test="sendFlow != null">
+        send_flow = #{sendFlow,jdbcType=VARCHAR},
+      </if>
+      <if test="bizId != null">
+        biz_id = #{bizId,jdbcType=VARCHAR},
+      </if>
+      <if test="boardCode != null">
+        board_code = #{boardCode,jdbcType=VARCHAR},
+      </if>
+      <if test="productType != null">
+        product_type = #{productType,jdbcType=VARCHAR},
+      </if>
+      <if test="scanType != null">
+        scan_type = #{scanType,jdbcType=TINYINT},
+      </if>
+      <if test="scannedCount != null">
+        scanned_count = #{scannedCount,jdbcType=INTEGER},
+      </if>
+      <if test="boardCount != null">
+        board_count = #{boardCount,jdbcType=INTEGER},
+      </if>
+      <if test="moreScannedCount != null">
+        more_scanned_count = #{moreScannedCount,jdbcType=INTEGER},
+      </if>
+      <if test="interceptCount != null">
+        intercept_count = #{interceptCount,jdbcType=INTEGER},
+      </if>
+      <if test="waitScanCount != null">
+        wait_scan_count = #{waitScanCount,jdbcType=INTEGER},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="updateTime != null">
+        update_time = #{updateTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="yn != null">
+        yn = #{yn,jdbcType=BIT},
+      </if>
+      <if test="packageScannedCount != null">
+        package_scanned_count = #{packageScannedCount},
+      </if>
+      <if test="boxScannedCount != null">
+        box_scanned_count = #{boxScannedCount},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}  and ts <![CDATA[ <= ]]>  #{ts,jdbcType=TIMESTAMP}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.jd.bluedragon.distribution.jy.comboard.JyComboardAggsEntity">
+    update jy_comboard_aggs
+    set operate_site_id = #{operateSiteId,jdbcType=INTEGER},
+        receive_site_id = #{receiveSiteId,jdbcType=INTEGER},
+        send_flow = #{sendFlow,jdbcType=VARCHAR},
+      biz_id = #{bizId,jdbcType=VARCHAR},
+      board_code = #{boardCode,jdbcType=VARCHAR},
+      product_type = #{productType,jdbcType=VARCHAR},
+      scan_type = #{scanType,jdbcType=TINYINT},
+      scanned_count = #{scannedCount,jdbcType=INTEGER},
+      board_count = #{boardCount,jdbcType=INTEGER},
+      more_scanned_count = #{moreScannedCount,jdbcType=INTEGER},
+      intercept_count = #{interceptCount,jdbcType=INTEGER},
+      wait_scan_count = #{waitScanCount,jdbcType=INTEGER},
+      create_time = #{createTime,jdbcType=TIMESTAMP},
+      update_time = #{updateTime,jdbcType=TIMESTAMP},
+      yn = #{yn,jdbcType=BIT},
+      ts = #{ts,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <select id="queryComboardAggs" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from jy_comboard_aggs
+    <where>
+        <if test="operateSiteId != null">
+            and operate_site_id = #{operateSiteId,jdbcType=INTEGER}
+        </if>
+        <if test="receiveSiteId != null">
+            and receive_site_id = #{receiveSiteId,jdbcType=INTEGER}
+        </if>
+        <if test="bizId != null">
+            and biz_id = #{bizId,jdbcType=VARCHAR}
+        </if>
+        <if test="boardCode != null">
+            and board_code = #{boardCode,jdbcType=VARCHAR}
+        </if>
+        <if test="productType != null">
+            and product_type = #{productType,jdbcType=VARCHAR}
+        </if>
+        <if test="scanType != null">
+            and scan_type = #{scanType,jdbcType=TINYINT}
+        </if>
+        <if test="productTypes != null">
+          and product_type in
+          <foreach collection="productTypes" item="item" index="index" open="(" separator="," close=")">
+            #{item}
+          </foreach>
+        </if>
+        <if test="scanTypes != null">
+          and scan_type in
+          <foreach collection="scanTypes" item="item" index="index" open="(" separator="," close=")">
+            #{item}
+          </foreach>
+        </if>
+        <if test="boardCodes != null">
+          and board_code in
+          <foreach collection="boardCodes" item="item" index="index" open="(" separator="," close=")">
+            #{item}
+          </foreach>
+        </if>
+        <if test="receiveSiteIds != null">
+          and receive_site_id in
+          <foreach collection="receiveSiteIds" item="item" index="index" open="(" separator="," close=")">
+            #{item}
+          </foreach>
+        </if>
+    </where>
+  </select>
+</mapper>
