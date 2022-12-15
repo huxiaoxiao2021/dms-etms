@@ -42,7 +42,7 @@
 		<dms-component-sdk.version>1.0.0-UAT-SNAPSHOT</dms-component-sdk.version>
 		<workbench.services.sdk.version>1.0.7-uat-SNAPSHOT</workbench.services.sdk.version>
         <jy.realtime.sdk.version>1.0.0-uat-SNAPSHOT</jy.realtime.sdk.version>
-        <jy-basic-api.version>1.0-SNAPSHOT</jy-basic-api.version>
+        <jy-basic-api.version>1.0.uat-SNAPSHOT</jy-basic-api.version>
         <dms-java-utils-sdk.version>1.0.0-SNAPSHOT</dms-java-utils-sdk.version>
 		<!-- 用于源码tag -->
 		<maven.build.timestamp.format>yyyyMMddHHmm</maven.build.timestamp.format>
