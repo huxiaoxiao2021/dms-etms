@@ -110,7 +110,7 @@ public class DealReprintHandler implements Handler<WaybillPrintCompleteContext, 
                 blockResponse = waybillService.checkPackageBlock(printData.getPackageBarcode(),
                         CancelWaybill.FEATURE_TYPE_KY_ADDRESS_MODIFY_INTERCEPT);
             }else {
-                blockResponse = waybillService.checkWaybillBlock(WaybillUtil.getWaybillCode(printData.getPackageBarcode()),
+                blockResponse = waybillService.checkWaybillBlock(WaybillUtil.getWaybillCode(printData.getWaybillCode()),
                         CancelWaybill.FEATURE_TYPE_KY_ADDRESS_MODIFY_INTERCEPT);
             }
             if(Objects.equals(blockResponse.getCode(), BlockResponse.BLOCK)){
