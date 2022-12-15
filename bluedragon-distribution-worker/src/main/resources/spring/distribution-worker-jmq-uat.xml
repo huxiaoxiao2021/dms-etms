@@ -404,5 +404,14 @@
     <jmq:consumer id="jmq.barcodeTraceConsumer" transport="jmq4.dmsWorker.transport">
         <jmq:listener topic="${jmq.topic.barcode.trace}" listener="barcodeTraceConsumer"/>
     </jmq:consumer>
+
+    <!-- 设备位置上传消息处理 -->
+    <jmq:consumer id="jmq.dmsUploadDeviceLocationConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.dmsUploadDeviceLocation}" listener="dmsUploadDeviceLocationConsumer"/>
+    </jmq:consumer>
+    <!-- 设备操作位置异常上传消息处理 -->
+    <jmq:consumer id="jmq.dmsUploadDeviceLocationExceptionOpConsumer" transport="jmq4.dmsWorker.transport">
+        <jmq:listener topic="${jmq.topic.dmsUploadDeviceLocationExceptionOp}" listener="dmsUploadDeviceLocationExceptionOpConsumer"/>
+    </jmq:consumer>
 </beans>
 

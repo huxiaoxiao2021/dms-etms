@@ -141,6 +141,7 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
      * @param vo 运单称重参数
      * @throws WeighByWaybillExcpetion 运单称重异常
      */
+    @Override
     public void insertWaybillWeightEntry(WaybillWeightVO vo) throws WeighByWaybillExcpetion {
         String codeStr = vo.getCodeStr();
         /*1 将单号或包裹号正则校验 通过后 如果是包裹号需要转成运单号*/
@@ -184,6 +185,7 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
      * @return 运单号
      * @throws WeighByWaybillExcpetion 运单号/包裹号格式错误异常 UnknownCodeException
      */
+    @Override
     public String convertToWaybillCode(String codeStr) throws WeighByWaybillExcpetion {
 
         String waybillCode = null;
@@ -220,6 +222,7 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
      * @return 是否存在运单
      * @throws WeighByWaybillExcpetion 运单称重异常 WaybillServiceNotAvailableException WaybillNotFindException
      */
+    @Override
     public boolean validateWaybillCodeReality(String waybillCode, Integer siteCode) throws WeighByWaybillExcpetion {
         BaseEntity<Waybill> waybillBaseEntity = null;
 
@@ -269,6 +272,7 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
      * @param dto 待传输消息对象
      * @throws WeighByWaybillExcpetion MQServiceNotAvailableException WaybillWeightVOConvertExcetion
      */
+    @Override
     public void validWaybillProcess(WaybillWeightDTO dto) throws WeighByWaybillExcpetion {
 
         JSONObject request=new JSONObject();
@@ -322,6 +326,7 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
      * @param dto 待传输消息对象
      * @throws WeighByWaybillExcpetion MQServiceNotAvailableException WaybillWeightVOConvertExcetion
      */
+    @Override
     public void invalidWaybillProcess(WaybillWeightDTO dto) throws WeighByWaybillExcpetion {
         JSONObject request=new JSONObject();
         request.put("waybillCode",dto.getWaybillCode());
@@ -398,6 +403,7 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
      *
      * @param dto 操作消息对象
      */
+    @Override
     public void errorLogForOperator(WaybillWeightVO dto,LoginContext loginContext,boolean isImport) {
         try {
             Goddess goddess = new Goddess();
@@ -467,6 +473,7 @@ public class WeighByWaybillServiceImpl implements WeighByWaybillService {
      * 判断是否转网--B转C
      * @return
      */
+    @Override
     public boolean waybillTransferB2C(WaybillWeightVO vo){
         boolean flag = false;
         //从vo中取出运单号、重量体积、操作人和操作站点信息
