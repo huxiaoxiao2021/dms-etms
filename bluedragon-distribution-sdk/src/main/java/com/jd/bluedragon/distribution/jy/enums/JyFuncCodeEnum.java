@@ -10,7 +10,8 @@ public enum JyFuncCodeEnum {
     SEND_CAR_POSITION("SEND_CAR_POSITION", "分拣发货封车岗"),
     EXCEPTION_POSITION("EXCEPTION_POSITION", "拣运异常岗"),
     TYS_UNLOAD_CAR_POSITION("TYS_UNLOAD_CAR_POSITION", "转运卸车岗"),
-    TYS_SEND_CAR_POSITION("TYS_SEND_CAR_POSITION", "转运发货封车岗");
+    TYS_SEND_CAR_POSITION("TYS_SEND_CAR_POSITION", "转运发货封车岗"),
+    COMBOARD_SEND_POSITION("COMBOARD_SEND_POSITION","分拣组板发货岗");
 
     private static final Map<String, String> FUNC_CODE_ENUM_MAP;
 
