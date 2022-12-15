@@ -86,9 +86,9 @@ public class DwsWeightVolumeCalibrateDetail implements Serializable {
     private Integer calibrateTime;
 
     /**
-     * 误差范围提示语
+     * 误差范围
      */
-    private String errorRangeHintMsg;
+    private String errorRange;
 
     public Integer getCalibrateType() {
         return calibrateType;
@@ -194,11 +194,11 @@ public class DwsWeightVolumeCalibrateDetail implements Serializable {
         this.calibrateTime = calibrateTime;
     }
 
-    public String getErrorRangeHintMsg() {
-        return errorRangeHintMsg;
+    public String getErrorRange() {
+        return errorRange;
     }
 
-    public void setErrorRangeHintMsg(String errorRangeHintMsg) {
-        this.errorRangeHintMsg = errorRangeHintMsg;
+    public void setErrorRange(String errorRange) {
+        this.errorRange = errorRange;
     }
 }
