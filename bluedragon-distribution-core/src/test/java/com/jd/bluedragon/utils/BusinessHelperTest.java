@@ -3,6 +3,9 @@ package com.jd.bluedragon.utils;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.jd.bluedragon.dms.utils.BusinessUtil;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
 import org.junit.Test;
@@ -168,5 +171,15 @@ public class BusinessHelperTest {
 		
 		String encryptIdCard= BusinessUtil.encryptIdCard(userCode);
 		assertFalse(encryptIdCard.equals("1234***45678"));
+	}
+	@Test
+	public void testGetAttachmentUrlForJxd() {
+		String url="123456789012345678";
+		Map<String,String> extendMap = new HashMap<String,String>();
+		extendMap.put("cardInfos", "[{\"attchmentUrl\":\""+url+"\"}]");
+		
+		String getUrl= BusinessHelper.getAttachmentUrlForJxd(extendMap);
+		System.out.println("testGetAttachmentUrlForJxd:"+getUrl);
+		assertFalse(!url.equals(getUrl));
 	}
 }

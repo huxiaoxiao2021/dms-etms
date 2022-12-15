@@ -737,24 +737,10 @@ public class WaybillCommonServiceImpl implements WaybillCommonService {
             if (waybillVasJXD != null 
             		&& waybillVasJXD.getData() != null){
                 Map<String, String> extendMap = waybillVasJXD.getData().getExtendMap();
-                if (extendMap != null && extendMap.containsKey(DmsConstants.WAYBILL_VAS_JXD_CARDINFOS)){
-                	String attachmentUrl = null;
-                	List cardInfosData = JsonHelper.fromJson(extendMap.get(DmsConstants.WAYBILL_VAS_JXD_CARDINFOS), List.class);
-                    if(CollectionUtils.isNotEmpty(cardInfosData)) {
-                    	for(Object item:cardInfosData) {
-                    		if(item instanceof Map) {
-                    			Map data = (Map)item;
-                    			if(data.containsKey(DmsConstants.WAYBILL_VAS_JXD_ATTCHMENTURL)) {
-                    				attachmentUrl = data.get(DmsConstants.WAYBILL_VAS_JXD_ATTCHMENTURL).toString();
-                    				break;
-                    			}
-                    		}
-                    	}
-                    }
-                    if(StringUtils.isNotBlank(attachmentUrl)) {
-                    	target.setPopularizeMatrixCode(attachmentUrl);
-                        target.setPopularizeMatrixCodeDesc(POPULARIZEMATRIXCODEDESC_JXD);
-                    }
+            	String attachmentUrl = BusinessHelper.getAttachmentUrlForJxd(extendMap);
+                if(StringUtils.isNotBlank(attachmentUrl)) {
+                	target.setPopularizeMatrixCode(attachmentUrl);
+                    target.setPopularizeMatrixCodeDesc(POPULARIZEMATRIXCODEDESC_JXD);
                 }
             }
             
