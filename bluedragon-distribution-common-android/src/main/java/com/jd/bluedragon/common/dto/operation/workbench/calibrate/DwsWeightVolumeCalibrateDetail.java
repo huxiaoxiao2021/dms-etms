@@ -83,7 +83,7 @@ public class DwsWeightVolumeCalibrateDetail implements Serializable {
     /**
      * 校准时间
      */
-    private Integer calibrateTime;
+    private Long calibrateTime;
 
     /**
      * 误差范围
@@ -186,11 +186,11 @@ public class DwsWeightVolumeCalibrateDetail implements Serializable {
         this.calibrateStatus = calibrateStatus;
     }
 
-    public Integer getCalibrateTime() {
+    public Long getCalibrateTime() {
         return calibrateTime;
     }
 
-    public void setCalibrateTime(Integer calibrateTime) {
+    public void setCalibrateTime(Long calibrateTime) {
         this.calibrateTime = calibrateTime;
     }
 

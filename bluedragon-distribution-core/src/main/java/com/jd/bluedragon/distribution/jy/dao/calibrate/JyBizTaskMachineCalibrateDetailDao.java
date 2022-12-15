@@ -57,4 +57,8 @@ public class JyBizTaskMachineCalibrateDetailDao extends BaseDao<JyBizTaskMachine
     public List<JyBizTaskMachineCalibrateDetailEntity> getMachineCalibrateDetail(JyBizTaskMachineCalibrateQuery query){
         return this.getSqlSession().selectList(NAMESPACE + ".getMachineCalibrateDetail", query);
     }
+
+    public JyBizTaskMachineCalibrateDetailEntity queryTaskDetail(JyBizTaskMachineCalibrateQuery query) {
+        return this.getSqlSession().selectOne(NAMESPACE + ".queryTaskDetail", query);
+    }
 }

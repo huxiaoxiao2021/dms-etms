@@ -57,6 +57,11 @@ public class JyBizTaskMachineCalibrateDetailServiceImpl implements JyBizTaskMach
     }
 
     @Override
+    public JyBizTaskMachineCalibrateDetailEntity queryTaskDetail(JyBizTaskMachineCalibrateQuery query) {
+        return jyBizTaskMachineCalibrateDetailDao.queryTaskDetail(query);
+    }
+
+    @Override
     public JyBizTaskMachineCalibrateDetailEntity queryCurrentTaskDetail(JyBizTaskMachineCalibrateQuery query) {
         return jyBizTaskMachineCalibrateDetailDao.queryCurrentTaskDetail(query);
     }
