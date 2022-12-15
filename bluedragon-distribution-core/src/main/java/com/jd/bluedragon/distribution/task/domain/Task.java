@@ -103,6 +103,8 @@ public class Task implements java.io.Serializable, TaskModeAware{
     public static final Integer TASK_TYPE_DELIVERY_ASYNC = 1350;
     public static final Integer TASK_TYPE_DELIVERY_ASYNC_V2 = 1360;
     public static final Integer TASK_TYPE_DELIVERY_TRANSFER = 1370;
+    public static final Integer TASK_TYPE_COMBOARD_SEND = 1380;
+    public static final Integer TASK_TYPE_COMBOARD_CANCEL = 1390;
 
     /**
      * 整板发货任务
@@ -367,6 +369,7 @@ public class Task implements java.io.Serializable, TaskModeAware{
 	private String operatorId;    
     
     
+
     public Task() {
     }
     
@@ -585,7 +588,9 @@ public class Task implements java.io.Serializable, TaskModeAware{
                 || Task.TASK_TYPE_WATBILL_NOTIFY.equals(type)
                 || Task.TASK_TYPE_DELIVERY_ASYNC.equals(type)
                 || Task.TASK_TYPE_DELIVERY_ASYNC_V2.equals(type)
-                ||Task.TASK_TYPE_DELIVERY_TRANSFER.equals(type)) {
+                ||Task.TASK_TYPE_DELIVERY_TRANSFER.equals(type)
+                ||Task.TASK_TYPE_COMBOARD_SEND.equals(type)
+                ||Task.TASK_TYPE_COMBOARD_CANCEL.equals(type)) {
             return Task.TABLE_NAME_SEND;
         } else if (Task.TASK_TYPE_POP.equals(type)||Task.TASK_TYPE_WAYBILL_TRACK.equals(type)) {
             return Task.TABLE_NAME_POP;
@@ -939,7 +944,11 @@ public class Task implements java.io.Serializable, TaskModeAware{
         else if (TASK_TYPE_DELIVERY_TRANSFER.equals(type)) {
             return "DeliverySendTransferTask";
         }
-        else if(TASK_TYPE_ACARABILL_SEND_DELIVERY.equals(type)){
+        else if (TASK_TYPE_COMBOARD_SEND.equals(type)) {
+            return "JyComboardAndSendTask";
+        }else if (TASK_TYPE_COMBOARD_CANCEL.equals(type)){
+            return "JyCancelComboardTask";
+        } else if(TASK_TYPE_ACARABILL_SEND_DELIVERY.equals(type)){
             //TASK_TYPE_ACARABILL_SEND_DELIVERY = 1301; // 不会有
 
 

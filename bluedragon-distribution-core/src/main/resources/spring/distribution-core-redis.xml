@@ -11,7 +11,7 @@
 		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
 		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd"
 		default-autowire="byName">
-    
+
     <!-- 连接到配置服务器,注意配置 hosts "192.168.150.61   cfs.cache.jd.local"  -->
     <!--<bean id="configClient" class="com.jd.cachecloud.cfs.client.ConfigRESTClientFactoryBean"/>-->
     <bean id="redisClient"  class="com.jd.jim.cli.ReloadableJimClientFactoryBean">
@@ -29,7 +29,7 @@
 		<!--<property name="configId" value="${redis.cache.config.id}"/>-->
 		<property name="jimUrl" value="${redis.jy.config.url}"/>
 	</bean>
-	
+
 	<!-- 静态配置 -->
 	<!-- bean id="redisClient" class="com.jd.cachecloud.client.StaticRedisClientFactoryBean">
 	<property name="groups">
@@ -37,7 +37,7 @@
 			<bean class="com.jd.cachecloud.client.RedisClientConfig.Group">
 				<property name="name" value="master" />
 				<property name="addrs" value="127.0.0.1:6379" />
-			</bean>            
+			</bean>
 			<bean class="com.jd.cachecloud.client.RedisClientConfig.Group">
 				<property name="name" value="slave" />
 				<property name="addrs" value="192.168.225.102:6380,192.168.225.103:6380"/>

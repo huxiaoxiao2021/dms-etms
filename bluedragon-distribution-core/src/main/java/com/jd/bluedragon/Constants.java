@@ -1762,6 +1762,9 @@ public class Constants {
      */
     public static final int DB_SQL_IN_LIMIT_NUM = 200;
 
+
+    public static  final  int COMBOARD_LIMIT =100;
+
     /**
      * 传摆发货功能编码：0203004-gz
      */
@@ -1782,6 +1785,21 @@ public class Constants {
      * 批量一车一单发货批次扫描批次
      */
     public static final String MENU_CODE_BATCH_SEND_CODE  = "0101004-gz";
+
+    /**
+     * 租板岗-流向锁前缀
+     */
+    public static final String JY_COMBOARD_SENDFLOW_LOCK_PREFIX  = "jy_comboard_sendflow_lock_%s";
+    /**
+     * 租板岗-板锁前缀
+     */
+    public static final String JY_COMBOARD_BOARD_LOCK_PREFIX  = "jy_comboard_board_lock_%s";
+    /**
+     * 租板岗-混扫任务锁前缀
+     */
+    public static final String JY_COMBOARD_CTT_LOCK_PREFIX  = "jy_comboard_ctt_lock_%s";
+
+    public static final int  LOCK_EXPIRE  = 3;
     /**
      * 无任务卸车上游站点初始值
      */

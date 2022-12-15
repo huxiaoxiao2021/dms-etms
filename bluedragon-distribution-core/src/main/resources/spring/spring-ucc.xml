@@ -203,6 +203,12 @@
 		<property name="sealStatusBatchSizeLimit" value="${sealStatusBatchSizeLimit:30}"/>
 		<property name="weightVolumeSwitchVersion" value="${weightVolumeSwitchVersion:0}"/>
 		<property name="goodsResidenceTime" value="${goodsResidenceTime:3}"/>
+		<property name="jyComboardCountLimit" value="${jyComboardCountLimit:100}"/>
+		<property name="bulkScanPackageMinCount" value="${bulkScanPackageMinCount:100}"/>
+		<property name="jyComboardTaskCreateTimeBeginDay" value="${jyComboardTaskCreateTimeBeginDay:7}"/>
+
+
+
 
 		<property name="jyUnloadCarListQueryDayFilter" value="${jyUnloadCarListQueryDayFilter:3}"/>
 	</bean>
@@ -390,6 +396,9 @@
 				<value>uccPropertyConfiguration.sealStatusBatchSizeLimit</value>
 				<value>uccPropertyConfiguration.weightVolumeSwitchVersion</value>
 				<value>uccPropertyConfiguration.goodsResidenceTime</value>
+				<value>uccPropertyConfiguration.jyComboardCountLimit</value>
+				<value>uccPropertyConfiguration.bulkScanPackageMinCount</value>
+				<value>uccPropertyConfiguration.jyComboardTaskCreateTimeBeginDay</value>
 
 
 				<value>hystrixRouteUccPropertyConfiguration.executionTimeoutInMilliseconds</value>

@@ -1,6 +1,8 @@
 package com.jd.bluedragon.distribution.delivery;
 
 import com.jd.bluedragon.distribution.api.response.DeliveryResponse;
+import com.jd.bluedragon.distribution.jy.dto.comboard.ComboardTaskDto;
+import com.jd.bluedragon.distribution.jy.dto.comboard.CancelComboardTaskDto;
 import com.jd.bluedragon.distribution.jy.dto.send.VehicleSendRelationDto;
 import com.jd.bluedragon.distribution.send.domain.SendM;
 import com.jd.bluedragon.distribution.send.utils.SendBizSourceEnum;
@@ -33,6 +35,13 @@ public interface IDeliveryOperationService {
      */
     DeliveryResponse asyncHandleTransfer(List<SendM> sendMList, VehicleSendRelationDto vehicleSendRelationDto);
 
+
+    /**
+     * 生成组板发货异步任务
+     * @param comboardTaskDto
+     */
+    void generateAsyncComboardAndSendTask(ComboardTaskDto comboardTaskDto);
+
     /**
      * 执行发货任务
      * @param task
@@ -57,4 +66,14 @@ public interface IDeliveryOperationService {
      * @return
      */
     boolean deliverySendAsyncSwitch(Integer createSiteCode);
+
+    void dealComboardAndSendTask(Task task);
+
+    /**
+     * 运单号取消组板
+     * @param taskDto
+     */
+    void asyncSendComboardWaybillTrace(CancelComboardTaskDto taskDto);
+
+    void dealSendComboardWaybillTrace(Task taskDto);
 }

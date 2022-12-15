@@ -8,9 +8,9 @@
     http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd">
 
  	<aop:aspectj-autoproxy/>
- 
+
 	<bean class="org.springframework.context.annotation.CommonAnnotationBeanPostProcessor"/>
-	
+
 	<import resource="classpath:spring/distribution-core-datasource-jddl-${profiles.env}.xml" />
 	<import resource="classpath:spring/distribution-core-datasource-task-config.xml" />
 	<import resource="classpath:spring/distribution-core-datasource-undiv.xml" />
