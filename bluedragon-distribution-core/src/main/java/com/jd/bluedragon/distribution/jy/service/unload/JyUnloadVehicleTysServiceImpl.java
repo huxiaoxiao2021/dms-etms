@@ -18,16 +18,11 @@ import com.jd.bluedragon.distribution.api.request.SortingPageRequest;
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
 import com.jd.bluedragon.distribution.board.service.BoardCombinationService;
 import com.jd.bluedragon.distribution.external.enums.AppVersionEnums;
-import com.jd.bluedragon.distribution.goodsPhoto.service.GoodsPhoteService;
-import com.jd.bluedragon.distribution.inspection.service.InspectionService;
 import com.jd.bluedragon.distribution.jy.api.JyUnloadVehicleTysService;
 import com.jd.bluedragon.distribution.jy.dao.task.JyBizTaskUnloadVehicleDao;
 import com.jd.bluedragon.distribution.jy.dao.unload.JyBizTaskUnloadVehicleStageDao;
 import com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadAggsDao;
 import com.jd.bluedragon.distribution.jy.dao.unload.JyUnloadVehicleBoardDao;
-import com.jd.bluedragon.distribution.jy.dto.CurrentOperate;
-import com.jd.bluedragon.distribution.jy.dto.GoodsPhotoInfoDto;
-import com.jd.bluedragon.distribution.jy.dto.User;
 import com.jd.bluedragon.distribution.jy.dto.task.JyBizTaskUnloadCountDto;
 import com.jd.bluedragon.distribution.jy.dto.unload.*;
 import com.jd.bluedragon.distribution.jy.enums.*;
@@ -98,6 +93,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
      */
     public static final Integer OPERATE_NODE_HANDOVER_COMPLETE = 1;
     public static final Integer OPERATE_NODE_TASK_COMPLETE = 2;
+    public static final String PACKAGE_ILLEGAL="该包裹号不存在，可能修改过包裹数，需要按运单号重新补打面单";
 
 
     @Autowired
@@ -144,8 +140,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
     @Autowired
     private WaybillService waybillService;
 
-    @Autowired
-    private GoodsPhoteService goodsPhoteService;
+
     @Resource
     private SortingService sortingService;
     @Autowired
@@ -584,7 +579,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         }
         scanResult.setEndSiteName(request.getNextSiteName());
         scanResult.setWarnMsg(new HashMap<String, String>(5));
-        scanResult.setConfirmMsg(new HashMap<String, String>(1));
+        scanResult.setConfirmMsg(new HashMap<String, String>(3));
         return scanResult;
     }
 
@@ -596,7 +591,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         ScanPackageRespDto scanPackageRespDto = invokeResult.getData();
         DeliveryPackageD packageD = waybillPackageManager.getPackageInfoByPackageCode(barCode);
         if (packageD == null) {
-            invokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, "该包裹号不存在，请检查包裹号是否正确！");
+                invokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, PACKAGE_ILLEGAL);
             return invokeResult;
         }
         String waybillCode = WaybillUtil.getWaybillCode(scanPackageDto.getScanCode());
@@ -605,6 +600,12 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             invokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, "该运单号不存在，请检查运单号是否正确！");
             return invokeResult;
         }
+
+        checkEasyFreezeResult(waybillCode,scanPackageDto.getCurrentOperate().getSiteCode(),scanPackageRespDto);
+        //特保单校验
+        checkLuxurySecurityResult(scanPackageDto.getCurrentOperate().getSiteCode(),
+                barCode, waybill.getWaybillSign(),scanPackageRespDto);
+
         // 判断是否是跨越的取消订单
         String kyCancelCheckStr = jyUnloadVehicleCheckTysService.kyExpressCancelCheck(operateSiteCode, waybill);
         if (StringUtils.isNotBlank(kyCancelCheckStr)) {
@@ -676,29 +677,11 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             // 卸车处理并回传TC组板关系
             jyUnloadVehicleCheckTysService.dealUnloadAndBoxToBoard(scanPackageDto, scanPackageRespDto);
         }
-        //易冻品校验
-        log.info("易冻品校验 packageScan 入参-{}",JSON.toJSONString(scanPackageDto));
-        InvokeResult<Boolean> checkResult
-                = waybillService.checkEasyFreeze(waybillCode, new Date(), operateSiteCode);
-        log.info("packageScan-易冻品校验结果-{}",JSON.toJSONString(checkResult));
-        Map<String,String> confirmMap = new HashMap<>(2);
-        if(checkResult != null && checkResult.getData()){
-            confirmMap.put(checkResult.getCode()+"",checkResult.getMessage());
-        }
-        //特保单校验
-//        InvokeResult<Boolean> luxurySecurityResult = waybillService.checkLuxurySecurity(barCode, waybill.getWaybillSign());
-//        log.info("packageScan-特保单校验结果-{}",JSON.toJSONString(luxurySecurityResult));
-//        if(luxurySecurityResult != null && luxurySecurityResult.getData()){
-//            confirmMap.put(luxurySecurityResult.getCode()+"",luxurySecurityResult.getMessage());
-//        }
-        scanPackageRespDto.setConfirmMsg(confirmMap);
-        log.info("JyUnloadVehicleTysServiceImpl.packageScan invokeResult-{}",JSON.toJSONString(invokeResult));
         return invokeResult;
     }
 
     private InvokeResult<ScanPackageRespDto> waybillScan(ScanPackageDto scanPackageDto, JyBizTaskUnloadVehicleEntity unloadVehicleEntity,
                                                          InvokeResult<ScanPackageRespDto> invokeResult) {
-        log.info("易冻品校验 waybillScan 入参-{}",JSON.toJSONString(scanPackageDto));
         String barCode = scanPackageDto.getScanCode();
         String bizId = scanPackageDto.getBizId();
         ScanPackageRespDto scanPackageRespDto = invokeResult.getData();
@@ -707,7 +690,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         if (WaybillUtil.isPackageCode(barCode)) {
             packageD = waybillPackageManager.getPackageInfoByPackageCode(barCode);
             if (packageD == null) {
-                invokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, "该包裹号不存在，请检查包裹号是否正确！");
+                invokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, PACKAGE_ILLEGAL);
                 return invokeResult;
             }
             waybillCode = WaybillUtil.getWaybillCode(scanPackageDto.getScanCode());
@@ -719,6 +702,11 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             invokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, "该运单号不存在，请检查运单号是否正确！");
             return invokeResult;
         }
+        //易冻损校验
+        checkEasyFreezeResult(waybillCode,scanPackageDto.getCurrentOperate().getSiteCode(),scanPackageRespDto);
+        //特保单校验
+        checkLuxurySecurityResult(scanPackageDto.getCurrentOperate().getSiteCode(),
+                barCode, waybill.getWaybillSign(),scanPackageRespDto);
         scanPackageDto.setGoodsNumber(waybill.getGoodNumber());
         // 校验是否达到大宗使用标准
         String checkStr = jyUnloadVehicleCheckTysService.checkIsMeetWaybillStandard(waybill);
@@ -766,28 +754,40 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             invokeResult.customMessage(InvokeResult.RESULT_INTERCEPT_CODE, interceptResult);
             return invokeResult;
         }
-        // todo  添加易冻品逻辑判断
-        //易冻品校验
-        log.info("易冻品校验 waybillScan 入参-{}",JSON.toJSONString(scanPackageDto));
-        InvokeResult<Boolean> easyFreezeCheckResult
-                = waybillService.checkEasyFreeze(waybillCode, new Date(), scanPackageDto.getCurrentOperate().getSiteCode());
-        log.info("waybillScan -易冻品校验结果-{}",JSON.toJSONString(easyFreezeCheckResult));
-        Map<String,String> confirmMap = new HashMap<>(2);
-        if(easyFreezeCheckResult != null && easyFreezeCheckResult.getData()){
-            confirmMap.put(easyFreezeCheckResult.getCode()+"",easyFreezeCheckResult.getMessage());
-        }
-//        InvokeResult<Boolean> luxurySecurityResult = waybillService.checkLuxurySecurity(barCode, waybill.getWaybillSign());
-//        log.info("waybillScan -特保单校验结果-{}",JSON.toJSONString(luxurySecurityResult));
-//        if(luxurySecurityResult != null && luxurySecurityResult.getData()){
-//            confirmMap.put(luxurySecurityResult.getCode()+"",luxurySecurityResult.getMessage());
-//
-//        }
-        scanPackageRespDto.setConfirmMsg(confirmMap);
+
         return invokeResult;
     }
 
+    /**
+     * 特保单校验
+     * @param siteCode
+     * @param barCode
+     * @param waybillSign
+     * @param respDto
+     */
 
+    private void checkLuxurySecurityResult(Integer siteCode,String barCode, String waybillSign,ScanPackageRespDto respDto){
+        InvokeResult<Boolean> luxurySecurityResult = waybillService.checkLuxurySecurity(siteCode,
+                barCode, waybillSign);
+        log.info("waybillScan -特保单校验结果-{}",JSON.toJSONString(luxurySecurityResult));
+        if(luxurySecurityResult != null && luxurySecurityResult.getData()){
+            Map<String, String> confirmMsg = respDto.getConfirmMsg();
+            confirmMsg.put(luxurySecurityResult.getCode()+"",luxurySecurityResult.getMessage());
+            respDto.setConfirmMsg(confirmMsg);
+        }
+    }
 
+    private void checkEasyFreezeResult(String barCode, Integer siteCode,ScanPackageRespDto scanPackageRespDto){
+        //易冻品校验
+        InvokeResult<Boolean> easyFreezeCheckResult
+                = waybillService.checkEasyFreeze(barCode, new Date(), siteCode);
+        log.info("checkEasyFreezeResult-易冻品校验结果-{}",JSON.toJSONString(easyFreezeCheckResult));
+        if(easyFreezeCheckResult != null && easyFreezeCheckResult.getData()){
+            Map<String, String> confirmMsg = scanPackageRespDto.getConfirmMsg();
+            confirmMsg.put(easyFreezeCheckResult.getCode()+"",easyFreezeCheckResult.getMessage());
+            scanPackageRespDto.setConfirmMsg(confirmMsg);
+        }
+    }
 
 
     private void checkScan(ScanPackageDto scanPackageDto, JyBizTaskUnloadVehicleEntity unloadVehicleEntity) {
@@ -1771,58 +1771,6 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         }
         return response;
     }
-
-    @Override
-    public InvokeResult<Boolean> tysUploadUnloadScanPhotoAboutEasyFreeze(GoodsPhotoInfoDto dto) {
-        InvokeResult<Boolean> response = new InvokeResult<>();
-        response.success();
-        log.info("tysUploadUnloadScanPhotoAboutEasyFreeze 货物照片保存入参-{}", JSON.toJSONString(dto));
-
-        try{
-            String checkResult = checkParam(dto);
-            if(StringUtils.isNotBlank(checkResult)){
-                response.error(checkResult);
-                return response;
-            }
-            com.jd.bluedragon.common.dto.photo.GoodsPhotoInfoDto infoDto =new
-                    com.jd.bluedragon.common.dto.photo.GoodsPhotoInfoDto();
-            org.springframework.beans.BeanUtils.copyProperties(dto,infoDto);
-
-            com.jd.bluedragon.common.dto.base.request.User  user = new com.jd.bluedragon.common.dto.base.request.User ();
-            user.setUserCode(dto.getUser().getUserCode());
-            user.setUserName(dto.getUser().getUserName());
-            infoDto.setUser(user);
-
-            com.jd.bluedragon.common.dto.base.request.CurrentOperate  currentOperate = new com.jd.bluedragon.common.dto.base.request.CurrentOperate ();
-            currentOperate.setSiteCode(dto.getCurrentOperate().getSiteCode());
-            currentOperate.setSiteName(dto.getCurrentOperate().getSiteName());
-            infoDto.setCurrentOperate(currentOperate);
-
-            response.setData(goodsPhoteService.insert(infoDto));
-        }catch (Exception e){
-            log.error("添加货物照片异常!-{}",e.getMessage(),e);
-            response.error("添加货物照片异常!");
-        }
-        return response;
-    }
-
-    private String checkParam(GoodsPhotoInfoDto dto){
-        if(dto == null){
-            return "入参不能为空!";
-        }
-        if(dto.getUser() == null || (dto.getUser().getUserCode())<= 0){
-            return "操作用户信息不能为空!";
-        }
-        if(dto.getCurrentOperate() == null || dto.getCurrentOperate().getSiteCode() <= 0){
-            return "操作站点信息不能为空!";
-        }
-        if(StringUtils.isBlank(dto.getBarCode())){
-            return "单号不能为空!";
-        }
-        return "";
-
-    }
-
     private com.jd.bluedragon.common.dto.base.request.User copyUser(com.jd.bluedragon.distribution.jy.dto.User userParam) {
         com.jd.bluedragon.common.dto.base.request.User user = new com.jd.bluedragon.common.dto.base.request.User();
         user.setUserCode(userParam.getUserCode());

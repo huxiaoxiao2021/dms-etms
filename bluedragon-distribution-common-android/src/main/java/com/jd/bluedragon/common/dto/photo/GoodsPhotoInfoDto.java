@@ -17,6 +17,9 @@ public class GoodsPhotoInfoDto implements Serializable {
 
     private User user;
 
+    //业务主键
+    private String bizId;
+
     //货物单号
     private String barCode;
 
@@ -66,5 +69,13 @@ public class GoodsPhotoInfoDto implements Serializable {
 
     public void setPhotoUrls(List<String> photoUrls) {
         this.photoUrls = photoUrls;
+    }
+
+    public String getBizId() {
+        return bizId;
+    }
+
+    public void setBizId(String bizId) {
+        this.bizId = bizId;
     }
 }

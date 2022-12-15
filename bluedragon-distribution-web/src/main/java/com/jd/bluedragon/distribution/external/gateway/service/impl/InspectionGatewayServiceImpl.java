@@ -104,7 +104,7 @@ public class InspectionGatewayServiceImpl implements InspectionGatewayService {
 
     @Autowired
     private WaybillQueryManager waybillQueryManager;
-    
+
     @Autowired
     private WaybillRouteLinkQueryManager waybillRouteManager;
 
@@ -290,7 +290,7 @@ public class InspectionGatewayServiceImpl implements InspectionGatewayService {
         easyFreezeCheck(request,response);
 
         //特保单校验
-        //luxurySecurityCheck(request,response);
+        luxurySecurityCheck(request,response);
 
         // 提示语校验
         HintCheckRequest hintCheckRequest = new HintCheckRequest();
@@ -329,15 +329,6 @@ public class InspectionGatewayServiceImpl implements InspectionGatewayService {
         if(easyFreezeResult != null && easyFreezeResult.getData()){
             response.addWarningBox(0, easyFreezeResult.getMessage());
         }
-    }
-
-    private void luxurySecurityCheck(InspectionRequest request, JdVerifyResponse<InspectionCheckResultDto> response){
-        InvokeResult<Boolean> luxurySecurityResult = waybillService.checkLuxurySecurity(request.getBarCode(), "");
-        log.info("checkBeforeInspection -特保单校验结果-{}",JSON.toJSONString(luxurySecurityResult));
-        if(luxurySecurityResult != null && luxurySecurityResult.getData()){
-            response.addWarningBox(luxurySecurityResult.getCode(), luxurySecurityResult.getMessage());
-        }
-        log.info("checkBeforeInspection -结果-response {}",JSON.toJSONString(response));
     }
 
     private void checkWaybillCancel(InspectionRequest request, JdVerifyResponse<InspectionCheckResultDto> response) {
@@ -398,5 +389,20 @@ public class InspectionGatewayServiceImpl implements InspectionGatewayService {
                 }
             }
         }
+    }
+
+    /**
+     * 特保单校验
+     * @param request
+     * @param response
+     */
+    private void luxurySecurityCheck(InspectionRequest request, JdVerifyResponse<InspectionCheckResultDto> response){
+        InvokeResult<Boolean> luxurySecurityResult = waybillService.checkLuxurySecurity(request.getCreateSiteCode(),
+                request.getBarCode(), "");
+        log.info("checkBeforeInspection -特保单校验结果-{}", JSON.toJSONString(luxurySecurityResult));
+        if(luxurySecurityResult != null && luxurySecurityResult.getData()){
+            response.addWarningBox(luxurySecurityResult.getCode(), luxurySecurityResult.getMessage());
+        }
+        log.info("checkBeforeInspection -结果-response {}",JSON.toJSONString(response));
     }
 }

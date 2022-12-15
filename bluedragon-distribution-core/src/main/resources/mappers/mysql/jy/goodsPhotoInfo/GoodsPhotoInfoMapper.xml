@@ -3,6 +3,7 @@
 <mapper namespace="com.jd.bluedragon.distribution.goodsPhoto.dao.GoodsPhotoDao">
   <resultMap id="BaseResultMap" type="com.jd.bluedragon.distribution.goodsPhoto.domain.GoodsPhotoInfo">
     <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="biz_id" jdbcType="VARCHAR" property="bizId" />
     <result column="user_code" jdbcType="INTEGER" property="userCode" />
     <result column="user_name" jdbcType="VARCHAR" property="userName" />
     <result column="site_code" jdbcType="INTEGER" property="siteCode" />
@@ -26,6 +27,7 @@
   </resultMap>
   <sql id="Base_Column_List">
     id,
+    biz_id,
     user_code,
     user_name,
     site_code,
@@ -50,7 +52,17 @@
     select 
     <include refid="Base_Column_List" />
     from jy_goods_photo_info
-    where bar_code = #{barCode,jdbcType=BIGINT} and yn =1 limit 1
+    where bar_code = #{barCode,jdbcType=VARCHAR} and yn =1 limit 1
+  </select>
+
+  <select id="selectOneBySiteCodeAndBarCode" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from jy_goods_photo_info
+    where
+          bar_code = #{barCode,jdbcType=VARCHAR}
+      and site_code= #{siteCode,jdbcType=INTEGER}
+      and yn =1 limit 1
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
     delete from jy_goods_photo_info
@@ -58,6 +70,7 @@
   </delete>
   <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.jd.bluedragon.distribution.goodsPhoto.domain.GoodsPhotoInfo" useGeneratedKeys="true">
     insert into jy_goods_photo_info (
+      biz_id,
       user_code,
       user_name,
       site_code,
@@ -77,6 +90,7 @@
       update_time
           )
     values (
+      #{bizId,jdbcType=VARCHAR},
       #{userCode,jdbcType=INTEGER},
       #{userName,jdbcType=VARCHAR},
       #{siteCode,jdbcType=INTEGER},

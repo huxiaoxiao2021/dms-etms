@@ -204,13 +204,6 @@ public interface WaybillService {
     boolean isEasyFrozenVosWaybill(String waybillCode);
 
     /**
-     * 判断运单是否包含特保单增值服务
-     * @param waybillCode
-     * @return
-     */
-    boolean isLuxurySecurityVosWaybill(String waybillCode);
-
-    /**
      * 根据运单、操作时间、操作场地 检查易冻品
      * @param waybillCode
      * @param operateTime
@@ -220,10 +213,17 @@ public interface WaybillService {
     InvokeResult<Boolean> checkEasyFreeze(String waybillCode, Date operateTime, Integer siteCode);
 
     /**
+     * 判断运单是否包含特保单增值服务
+     * @param waybillCode
+     * @return
+     */
+    boolean isLuxurySecurityVosWaybill(String waybillCode);
+
+    /**
      * 根据运单号检查是否属于 特保单
      * @param waybillCode
      * @return
      */
-    InvokeResult<Boolean> checkLuxurySecurity(String waybillCode, String waybilSign);
+    InvokeResult<Boolean> checkLuxurySecurity(Integer siteCode,String waybillCode, String waybilSign);
 
 }

@@ -292,4 +292,9 @@ public class CacheKeyConstants {
     public static final String BOARD_SCAN_TYPE_ELSE = "else";
 
 
+    /**
+     * 滞留上报操作key，场地+箱号|批次|板号
+     */
+    public static final String CACHE_KEY_FORMAT_STRAND_REPORT = "dmsWeb:strandReport:%s:%s";
+
 }

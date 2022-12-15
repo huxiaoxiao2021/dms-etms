@@ -30,6 +30,7 @@ public class GoodsPhotoServiceImpl implements GoodsPhoteService {
     public Boolean insert(GoodsPhotoInfoDto dto) {
         log.info("insert 货物照片保存入参-{}", JSON.toJSONString(dto));
         GoodsPhotoInfo po = new GoodsPhotoInfo();
+        po.setBizId(dto.getBizId());
         po.setUserCode(dto.getUser().getUserCode());
         po.setUserName(dto.getUser().getUserName());
         po.setSiteCode(dto.getCurrentOperate().getSiteCode());
@@ -42,16 +43,14 @@ public class GoodsPhotoServiceImpl implements GoodsPhoteService {
                 if(i == 0){
                     po.setUrl1(dto.getPhotoUrls().get(i));
                 }else if(i == 1){
-                    po.setUrl1(dto.getPhotoUrls().get(i));
-                }else if(i == 2){
                     po.setUrl2(dto.getPhotoUrls().get(i));
-                }else if(i == 3){
+                }else if(i == 2){
                     po.setUrl3(dto.getPhotoUrls().get(i));
-                }else if(i == 4){
+                }else if(i == 3){
                     po.setUrl4(dto.getPhotoUrls().get(i));
-                }else if(i == 5){
+                }else if(i == 4){
                     po.setUrl5(dto.getPhotoUrls().get(i));
-                }else if(i == 6){
+                }else if(i == 5){
                     po.setUrl6(dto.getPhotoUrls().get(i));
                 }
             }
@@ -65,5 +64,13 @@ public class GoodsPhotoServiceImpl implements GoodsPhoteService {
     @Override
     public GoodsPhotoInfo getOneByBarCode(String barCode) {
         return goodsPhotoDao.selectByBarCode(barCode);
+    }
+
+    @Override
+    public GoodsPhotoInfo selectOne(Integer siteCode, String barCode) {
+        GoodsPhotoInfo info = new GoodsPhotoInfo();
+        info.setSiteCode(siteCode);
+        info.setBarCode(barCode);
+        return goodsPhotoDao.selectOneBySiteCodeAndBarCode(info);
     }
 }

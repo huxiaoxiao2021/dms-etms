@@ -1,7 +1,6 @@
 package com.jd.bluedragon.distribution.jy.api;
 
 import com.jd.bluedragon.distribution.base.domain.InvokeResult;
-import com.jd.bluedragon.distribution.jy.dto.GoodsPhotoInfoDto;
 import com.jd.bluedragon.distribution.jy.dto.unload.*;
 
 import java.util.List;
@@ -216,7 +215,6 @@ public interface JyUnloadVehicleTysService {
      */
     InvokeResult<FlowBoardDto> getTaskFlowBoardInfoByPackageCode(FlowBoardDto flowBoardDto);
 
-    InvokeResult<Boolean> tysUploadUnloadScanPhotoAboutEasyFreeze(GoodsPhotoInfoDto dto);
 
     /**
      * 查转运卸车组板第一单信息
