@@ -13,6 +13,7 @@ import com.jd.bluedragon.distribution.jy.dto.comboard.CancelComboardSendTaskDto;
 import com.jd.bluedragon.distribution.jy.dto.comboard.CancelComboardTaskDto;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.send.domain.SendM;
+import com.jd.bluedragon.distribution.send.domain.ThreeDeliveryResponse;
 import com.jd.bluedragon.distribution.send.service.DeliveryService;
 import com.jd.bluedragon.distribution.waybill.domain.WaybillStatus;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
@@ -27,6 +28,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
+
+import static com.jd.bluedragon.Constants.SUCCESS_CODE;
 
 /**
  * @author liwenji
@@ -71,6 +74,12 @@ public class CancelComboardSendConsumer extends MessageBaseConsumer {
         List<String> barCodeList = dto.getBarCodeList();
         SendM sendM = toSendM(dto);
         for (String barCode : barCodeList) {
+            sendM.setBoxCode(barCode);
+            ThreeDeliveryResponse response = deliveryService.dellCancelDeliveryMessageWithServerTime(sendM, true);
+            if (response != null && !response.getCode().equals(SUCCESS_CODE)){
+                log.error("取消发货失败：{},{}",barCode,response.getMessage());
+                throw new JyBizException("取消发货失败");
+            }
             if (WaybillUtil.isWaybillCode(barCode)) {
                 // 异步取消组板
                 asyncSendComboardWaybillTrace(dto,barCode);
@@ -81,8 +90,6 @@ public class CancelComboardSendConsumer extends MessageBaseConsumer {
                         dto.getEndSiteName(), WaybillStatus.WAYBILL_TRACK_BOARD_COMBINATION_CANCEL,
                         BizSourceEnum.PDA.getValue());
             }
-            sendM.setBoxCode(barCode);
-            deliveryService.dellCancelDeliveryMessageWithServerTime(sendM,true);
         }
     }
     private void asyncSendComboardWaybillTrace(CancelComboardSendTaskDto request, String waybillCode) {
