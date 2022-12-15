@@ -535,6 +535,9 @@ public class JyUnloadVehicleCheckTysService {
      */
     public String boardCombinationCheck(ScanPackageDto request) {
         BoardCommonRequest boardCommonRequest = createBoardCommonRequest(request);
+        if(boardCommonRequest.getReceiveSiteCode() == null) {
+            return "验货成功，未找到包裹下游流向场地，无法进行后续组板";
+        }
         InvokeResult invokeResult = boardCommonManager.boardCombinationCheck(boardCommonRequest);
         if (invokeResult.getCode() != InvokeResult.RESULT_SUCCESS_CODE) {
             if (JdCResponse.CODE_CONFIRM.equals(invokeResult.getCode())) {
