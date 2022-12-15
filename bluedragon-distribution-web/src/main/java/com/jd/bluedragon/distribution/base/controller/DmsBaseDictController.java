@@ -175,7 +175,7 @@ public class DmsBaseDictController {
         }
         rest.setData(new ArrayList<PrintHandoverListDto>());
         for(SendDetail sendDetail : sendList) {
-        	rest.getData().add(sendPrintService.buildPrintHandoverListDto(sendDetail));
+        	rest.getData().add(sendPrintService.buildPrintHandoverListDtoTmp(sendDetail));
         }
         return rest;
     }
