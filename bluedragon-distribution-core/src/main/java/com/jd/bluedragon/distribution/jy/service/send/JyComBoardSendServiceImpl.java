@@ -693,16 +693,20 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
         boardDto.setPackageHaveScanCount(boardFlow.getPackageScannedCount());
         boardDto.setInterceptCount(boardFlow.getInterceptCount());
         // 已扫比例
-        if (boardFlow.getPackageScannedCount()!=null && boardFlow.getBoxScannedCount()!=null) {
-          int scanCount = boardFlow.getPackageScannedCount() + boardFlow.getBoxScannedCount();
-          int scanProgress = (int) ((scanCount * 1.00 / ucc.getJyComboardCountLimit()) * 100);
-          boardDto.setProgress(String.valueOf(scanProgress));
+        int scanCount = 0;
+        if (boardFlow.getPackageScannedCount()!=null) {
+          scanCount += boardFlow.getPackageScannedCount();
+        } 
+        if ( boardFlow.getBoxScannedCount()!=null ) {
+          scanCount += boardFlow.getBoxScannedCount();
         }
+        int scanProgress = (int) ((scanCount * 1.00 / ucc.getJyComboardCountLimit()) * 100);
+        boardDto.setProgress(String.valueOf(scanProgress));
       }
       sendFlowDtoList.add(sendFlowDto);
     }
   }
-
+  
   private HashMap<Long, JyComboardAggsEntity> getSendFlowMap(
       List<JyComboardAggsEntity> jyComboardAggsEntities) {
     HashMap<Long, JyComboardAggsEntity> sendFlowMap = new HashMap<>();
@@ -798,11 +802,15 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       boardDto.setPackageHaveScanCount(boardScanInfo.getPackageScannedCount());
       boardDto.setInterceptCount(boardScanInfo.getInterceptCount());
       // 已扫比例
-      if (boardScanInfo.getPackageScannedCount() != null && boardScanInfo.getBoxScannedCount() != null) {
-        int scanCount = boardScanInfo.getPackageScannedCount() + boardScanInfo.getBoxScannedCount();
-        int scanProgress = (int) ((scanCount * 1.00 / ucc.getJyComboardCountLimit()) * 100);
-        boardDto.setProgress(String.valueOf(scanProgress));
+      int scanCount = 0;
+      if (boardScanInfo.getPackageScannedCount() != null) {
+        scanCount += boardScanInfo.getPackageScannedCount();
       }
+      if (boardScanInfo.getBoxScannedCount() != null) {
+        scanCount += boardScanInfo.getBoxScannedCount();
+      }
+      int scanProgress = (int) ((scanCount * 1.00 / ucc.getJyComboardCountLimit()) * 100);
+      boardDto.setProgress(String.valueOf(scanProgress));
     }
 
     return new InvokeResult<>(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, resp);
