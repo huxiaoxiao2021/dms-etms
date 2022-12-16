@@ -677,6 +677,8 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             // 卸车处理并回传TC组板关系
             jyUnloadVehicleCheckTysService.dealUnloadAndBoxToBoard(scanPackageDto, scanPackageRespDto);
         }
+        // 设置拦截缓存
+        jyUnloadVehicleCheckTysService.setCacheOfSealCarAndScanCodeIntercept(bizId, barCode);
         return invokeResult;
     }
 

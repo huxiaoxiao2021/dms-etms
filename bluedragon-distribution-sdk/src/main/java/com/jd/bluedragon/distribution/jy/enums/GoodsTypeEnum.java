@@ -73,6 +73,6 @@ public enum GoodsTypeEnum {
                 return goodsTypeEnum.getOrder();
             }
         }
-        return null;
+        return NONE.getOrder();
     }
 }

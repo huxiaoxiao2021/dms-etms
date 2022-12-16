@@ -174,7 +174,7 @@
 		<property name="jyUnloadSingleWaybillThreshold" value="${jyUnloadSingleWaybillThreshold:20}"/>
         <property name="jyUnSealTaskOrderByIntegral" value="${jyUnSealTaskOrderByIntegral:0}"/>
         <property name="jyUnSealTaskSwitchToEs" value="${jyUnSealTaskSwitchToEs:0}"/>
-        <property name="jySendTaskLoadRateLimit" value="${jySendTaskLoadRateLimit:'80,150'}" />
+        <property name="jySendTaskLoadRateLimit" value="${jySendTaskLoadRateLimit:80,150}" />
 		<property name="createSendTaskExecuteCount" value="${createSendTaskExecuteCount:30}"/>
 		<property name="createSendTasktimeOut" value="${createSendTasktimeOut:30}"/>
 		<property name="oldSendSplitPageSize" value="${oldSendSplitPageSize:30}"/>
@@ -206,11 +206,9 @@
 		<property name="jyComboardCountLimit" value="${jyComboardCountLimit:100}"/>
 		<property name="bulkScanPackageMinCount" value="${bulkScanPackageMinCount:100}"/>
 		<property name="jyComboardTaskCreateTimeBeginDay" value="${jyComboardTaskCreateTimeBeginDay:7}"/>
-
-
-
-
 		<property name="jyUnloadCarListQueryDayFilter" value="${jyUnloadCarListQueryDayFilter:3}"/>
+		<property name="uploadDeviceLocationInterval" value="${uploadDeviceLocationInterval:-1}"/>
+		<property name="checkDeviceLocationInRealTimeSwitch" value="${checkDeviceLocationInRealTimeSwitch:1}"/>
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -399,8 +397,8 @@
 				<value>uccPropertyConfiguration.jyComboardCountLimit</value>
 				<value>uccPropertyConfiguration.bulkScanPackageMinCount</value>
 				<value>uccPropertyConfiguration.jyComboardTaskCreateTimeBeginDay</value>
-
-
+				<value>uccPropertyConfiguration.uploadDeviceLocationInterval</value>
+				<value>uccPropertyConfiguration.checkDeviceLocationInRealTimeSwitch</value>
 				<value>hystrixRouteUccPropertyConfiguration.executionTimeoutInMilliseconds</value>
                 <value>hystrixRouteUccPropertyConfiguration.circuitBreakerEnabled</value>
                 <value>hystrixRouteUccPropertyConfiguration.fallbackEnabled</value>
@@ -409,7 +407,6 @@
                 <value>hystrixRouteUccPropertyConfiguration.circuitBreakerSleepWindowInMilliseconds</value>
                 <value>hystrixRouteUccPropertyConfiguration.maximumSize</value>
                 <value>hystrixRouteUccPropertyConfiguration.circuitBreakerRequestVolumeThreshold</value>
-
 				<value>uccPropertyConfiguration.jyUnloadCarListQueryDayFilter</value>
 			</list>
 		</property>

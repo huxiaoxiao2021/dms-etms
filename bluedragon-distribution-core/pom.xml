@@ -2361,7 +2361,6 @@
 		<dependency>
 			<groupId>com.jdl.basic</groupId>
 			<artifactId>jy-basic-api</artifactId>
-			<version>1.0-uat-SNAPSHOT</version>
 			<exclusions>
 				<exclusion>
 					<artifactId>fastjson</artifactId>
@@ -2377,7 +2376,6 @@
 		<dependency>
 			<groupId>com.jdl.basic</groupId>
 			<artifactId>jy-basic-common</artifactId>
-			<version>1.0-SNAPSHOT</version>
 			<exclusions>
 				<exclusion>
 					<artifactId>fastjson</artifactId>
@@ -2385,6 +2383,15 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
+
+        <dependency>
+            <artifactId>dms-java-utils-sdk</artifactId>
+            <groupId>com.jd.dms.utis</groupId>
+        </dependency>
+        <dependency>
+            <artifactId>dms-java-utils-core</artifactId>
+            <groupId>com.jd.dms.utis</groupId>
+        </dependency>
 
 		<dependency>
 			<groupId>com.jd.ql.basic</groupId>
@@ -2521,6 +2528,40 @@
 		  <artifactId>addressTranslation-api</artifactId>
 		  <version>${addressTranslation-api.version}</version>
 		</dependency>
+
+        <!-- see https://lbsapi.jd.com/iframe.html?nav=2&childNav=0-1&childURL=/doc/guide/addressService/geocodingService/ -->
+        <!--京图开放平台，地图及围栏相关工具-->
+        <!--根据IP获取经纬度，计算两点间的直线距离-->
+        <dependency>
+            <groupId>com.jd.lbs.jdlbsapi</groupId>
+            <artifactId>jdlbsapi-api</artifactId>
+        </dependency>
+        <!--地理编码服务 获取地理位置经纬度及根据经纬度获取地理位置-->
+        <dependency>
+            <groupId>com.jd.lbs.geocode</groupId>
+            <artifactId>geocode-api</artifactId>
+        </dependency>
+        <!--运输围栏接口查询-->
+        <dependency>
+            <groupId>com.jdl.gis.trans.fence</groupId>
+            <artifactId>trans-fence-api</artifactId>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/com.vividsolutions/jts -->
+        <dependency>
+            <groupId>com.vividsolutions</groupId>
+            <artifactId>jts</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.geotools</groupId>
+            <artifactId>gt-geojson</artifactId>
+			<exclusions>
+				<exclusion>
+					<artifactId>jackson-core</artifactId>
+					<groupId>com.fasterxml.jackson.core</groupId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
     </dependencies>
 
 	<profiles>
