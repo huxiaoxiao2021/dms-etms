@@ -1129,15 +1129,16 @@ public class NewSealVehicleResource {
         if (!JdResponse.CODE_OK.equals(response.getCode())) {
             unSealVehicleResponse.setCode(response.getCode());
             unSealVehicleResponse.setMessage(response.getMessage());
-
-            try {
-                createTransAbnormalAndUnseal2jmq(request);
-            } catch (JMQException e) {
-                this.log.error("提报异常并解封车异常 NewSealVehicleResource.createTransAbnormalAndUnsealWithCheckUsage-error", e);
-            }
-
             return unSealVehicleResponse;
         }
+
+        try {
+            createTransAbnormalAndUnseal2jmq(request);
+        } catch (JMQException e) {
+            this.log.error("提报异常并解封车异常 NewSealVehicleResource.createTransAbnormalAndUnsealWithCheckUsage-error", e);
+        }
+
+
         try {
             NewSealVehicleRequest request1 = new NewSealVehicleRequest();
             request1.setData(Collections.singletonList(request.getSealCarDto()));
