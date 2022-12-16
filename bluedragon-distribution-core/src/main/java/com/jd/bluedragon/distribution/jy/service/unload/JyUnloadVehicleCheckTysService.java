@@ -890,7 +890,9 @@ public class JyUnloadVehicleCheckTysService {
         }
         if (StringUtils.isNotBlank(request.getGoodsAreaCode())) {
             if (!goodsAreaCode.equals(request.getGoodsAreaCode())) {
-                response.setGoodsAreaCode(goodsAreaCode);
+                if(uccPropertyConfiguration.getEnableGoodsAreaOfTysScan()){
+                    response.setGoodsAreaCode(goodsAreaCode);
+                }
                 return "扫描包裹非本货区，请移除本区！";
             }
         }
