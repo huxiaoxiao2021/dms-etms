@@ -368,7 +368,7 @@
 
         AND end_site_id = #{entity.endSiteId}
         <if test="entity.actualArriveStartTime != null">
-            and actual_arrive_time >= #{entity.actualArriveStartTime}
+            and ts >= #{entity.actualArriveStartTime}
         </if>
         <if test="entity.sealCarCode">
             and seal_car_code = #{entity.sealCarCode}
@@ -402,7 +402,7 @@
         where end_site_id =#{endSiteId}
           and yn=1
         <if test="actualArriveStartTime != null">
-            and actual_arrive_time >= #{actualArriveStartTime}
+            and ts >= #{actualArriveStartTime}
         </if>
         <if test="vehicleStatus != null">
             and vehicle_status =#{vehicleStatus}
