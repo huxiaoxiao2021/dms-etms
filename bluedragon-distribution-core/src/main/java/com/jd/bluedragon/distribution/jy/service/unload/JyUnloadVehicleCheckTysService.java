@@ -608,9 +608,8 @@ public class JyUnloadVehicleCheckTysService {
             }
             BoardCommonRequest boardCommonRequest = createBoardCommonRequest(request);
             if (response.getCode() == ResponseEnum.SUCCESS.getIndex()) {
-                result.setAddBoardSuccessFlag(true);
                 // 保存任务和板的关系
-                saveUnloadVehicleBoard(request);
+                result.setAddBoardSuccessFlag(saveUnloadVehicleBoard(request));
                 // 设置板上已组包裹数
                 result.setComBoardCount(response.getData());
                 // 组板成功
@@ -645,10 +644,8 @@ public class JyUnloadVehicleCheckTysService {
                                 invokeResult.getData(), request.getBoardCode(), invokeResult.getMessage());
                         throw new LoadIllegalException(LoadIllegalException.BOARD_MOVED_FAIL_INTERCEPT_MESSAGE);
                     }
-                    result.setAddBoardSuccessFlag(true);
-
                     // 保存任务和板的关系
-                    saveUnloadVehicleBoard(request);
+                    result.setAddBoardSuccessFlag(saveUnloadVehicleBoard(request));
                     // 设置板上已组包裹数，组板转移需要重新查询新板上已组包裹数
                     setComBoardCount(request, result);
                     // 重新组板成功处理
@@ -691,7 +688,7 @@ public class JyUnloadVehicleCheckTysService {
         }
     }
 
-    private void saveUnloadVehicleBoard(ScanPackageDto scanPackageDto) {
+    private boolean saveUnloadVehicleBoard(ScanPackageDto scanPackageDto) {
         // 查询是否已经保存过此板
         JyUnloadVehicleBoardEntity entity = new JyUnloadVehicleBoardEntity();
         entity.setUnloadVehicleBizId(scanPackageDto.getBizId());
@@ -699,8 +696,10 @@ public class JyUnloadVehicleCheckTysService {
         JyUnloadVehicleBoardEntity result = jyUnloadVehicleBoardDao.selectByBizIdAndBoardCode(entity);
         if (result == null) {
             createUnloadVehicleBoard(entity, scanPackageDto);
-            jyUnloadVehicleBoardDao.insertSelective(entity);
+            int count = jyUnloadVehicleBoardDao.insertSelective(entity);
+            return count > 0 ? true : false;
         }
+        return false;
     }
 
     private void createUnloadVehicleBoard(JyUnloadVehicleBoardEntity entity, ScanPackageDto scanPackageDto) {
@@ -891,6 +890,9 @@ public class JyUnloadVehicleCheckTysService {
         }
         if (StringUtils.isNotBlank(request.getGoodsAreaCode())) {
             if (!goodsAreaCode.equals(request.getGoodsAreaCode())) {
+                if(uccPropertyConfiguration.getEnableGoodsAreaOfTysScan()){
+                    response.setGoodsAreaCode(goodsAreaCode);
+                }
                 return "扫描包裹非本货区，请移除本区！";
             }
         }
