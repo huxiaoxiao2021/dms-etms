@@ -1079,21 +1079,42 @@ public class WaybillServiceImpl implements WaybillService {
      * 增值服务中某个对象的vosNo=deductibleService
      * */
     @Override
-    public boolean isEasyFrozenVosWaybill(String waybillCode) {
+    public boolean isEasyFrozenVosWaybill(String waybillCode,String waybillSign) {
         try {
             //获取增值服务信息
             log.info("获取易冻品增值服务入参-{}",waybillCode);
-            BaseEntity<List<WaybillVasDto>> baseEntity = waybillQueryManager.getWaybillVasInfosByWaybillCode(waybillCode);
-            if (baseEntity != null && baseEntity.getResultCode() == EnumBusiCode.BUSI_SUCCESS.getCode() && baseEntity.getData() != null) {
-                List<WaybillVasDto> vasDtoList = baseEntity.getData();
-                for (WaybillVasDto waybillVasDto : vasDtoList) {
-                    //外单和自营单的增值服务编码不同 命中其一即可
-                    if (waybillVasDto != null && (Constants.EASY_FROZEN_SERVICE.equals(waybillVasDto.getVasNo()) || Constants.SELF_EASY_FROZEN_SERVICE.equals(waybillVasDto.getVasNo()))) {
-                        return true;
+            if(BusinessUtil.isSelf(waybillSign)){
+                log.info("自营单----");
+                BaseEntity<List<WaybillVasDto>> baseEntity = waybillQueryManager.getWaybillVasInfosByWaybillCode(waybillCode);
+                log.info("运单getWaybillVasInfosByWaybillCode返回的结果为：{}", JsonHelper.toJson(baseEntity));
+
+                if (baseEntity != null && baseEntity.getResultCode() == EnumBusiCode.BUSI_SUCCESS.getCode() && baseEntity.getData() != null) {
+                    List<WaybillVasDto> vasDtoList = baseEntity.getData();
+                    for (WaybillVasDto waybillVasDto : vasDtoList) {
+                        if (waybillVasDto != null &&  Constants.SELF_EASY_FROZEN_SERVICE.equals(waybillVasDto.getVasNo())) {
+                            return true;
+                        }
                     }
+                } else {
+                    log.warn("自营运单{}获取易冻品增值服务信息失败！返回baseEntity: ", waybillCode, JsonHelper.toJson(baseEntity));
                 }
-            } else {
-                log.warn("运单{}获取易冻品增值服务信息失败！返回baseEntity: ", waybillCode, JsonHelper.toJson(baseEntity));
+            }else {
+                log.info("外单----------");
+                BaseEntity<List<WaybillVasDto>> baseEntityWithExtendInfo = waybillQueryManager.getWaybillVasWithExtendInfo(waybillCode);
+                log.info("运单getWaybillVasWithExtendInfo返回的结果为：{}", JsonHelper.toJson(baseEntityWithExtendInfo));
+                if (baseEntityWithExtendInfo != null && baseEntityWithExtendInfo.getResultCode() == EnumBusiCode.BUSI_SUCCESS.getCode() && baseEntityWithExtendInfo.getData() != null) {
+                    List<WaybillVasDto> vasDtoList = baseEntityWithExtendInfo.getData();
+                    for (WaybillVasDto waybillVasDto : vasDtoList) {
+                        if (waybillVasDto != null && (Constants.EASY_FROZEN_SERVICE.equals(waybillVasDto.getVasNo()))) {
+                            if(waybillVasDto.getExtendMap() !=null){
+                                log.info("外单是否包含异动品ExtendMap-{}",waybillVasDto.getExtendMap().containsKey(Constants.EASY_FROZEN_SERVICE_KEY));
+                               return waybillVasDto.getExtendMap().containsKey(Constants.EASY_FROZEN_SERVICE_KEY);
+                            }
+                        }
+                    }
+                } else {
+                    log.warn("外单运单{}获取易冻品增值服务信息失败！返回baseEntityWithExtendInfo: ", waybillCode, JsonHelper.toJson(baseEntityWithExtendInfo));
+                }
             }
         } catch (Exception e) {
             log.error("运单{}获取增值服务信息异常！", waybillCode, e);
@@ -1138,7 +1159,7 @@ public class WaybillServiceImpl implements WaybillService {
                 return result;
             }
             //判断增值服务是否包含易冻品增值服务
-            boolean isEasyFrozen =isEasyFrozenVosWaybill(waybillCode);
+            boolean isEasyFrozen =isEasyFrozenVosWaybill(waybillCode,waybillSign);
             if(!isEasyFrozen){
                 log.warn("易冻损此运单不包含易冻品增值服务");
                 return result;

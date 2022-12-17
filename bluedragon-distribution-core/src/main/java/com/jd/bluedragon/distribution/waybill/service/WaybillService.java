@@ -201,7 +201,7 @@ public interface WaybillService {
      * @param waybillCode
      * @return
      */
-    boolean isEasyFrozenVosWaybill(String waybillCode);
+    boolean isEasyFrozenVosWaybill(String waybillCode,String waybillSign);
 
     /**
      * 根据运单、操作时间、操作场地 检查易冻品

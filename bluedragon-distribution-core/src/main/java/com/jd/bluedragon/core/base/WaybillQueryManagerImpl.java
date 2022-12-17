@@ -1237,4 +1237,12 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
         return WaybillUtil.isWaybillCode(waybillCode) ? waybillQueryApi.getBoxChargeByWaybillCode(waybillCode) : null;
     }
 
+    @Override
+    public BaseEntity<List<WaybillVasDto>> getWaybillVasWithExtendInfo(String waybillCode) {
+        WaybillVasChoice waybillVasChoice= new WaybillVasChoice();
+        waybillVasChoice.setQueryVas(true);
+        waybillVasChoice.setQueryVasExtend(true);
+        return waybillQueryApi.getWaybillVasWithExtendInfo(waybillCode,waybillVasChoice);
+    }
+
 }
