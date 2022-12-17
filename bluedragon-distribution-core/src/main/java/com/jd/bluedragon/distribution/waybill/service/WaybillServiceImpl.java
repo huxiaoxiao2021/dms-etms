@@ -1084,7 +1084,6 @@ public class WaybillServiceImpl implements WaybillService {
             //获取增值服务信息
             log.info("获取易冻品增值服务入参-{}",waybillCode);
             if(BusinessUtil.isSelf(waybillSign)){
-                log.info("自营单----");
                 BaseEntity<List<WaybillVasDto>> baseEntity = waybillQueryManager.getWaybillVasInfosByWaybillCode(waybillCode);
                 log.info("运单getWaybillVasInfosByWaybillCode返回的结果为：{}", JsonHelper.toJson(baseEntity));
 
@@ -1096,10 +1095,9 @@ public class WaybillServiceImpl implements WaybillService {
                         }
                     }
                 } else {
-                    log.warn("自营运单{}获取易冻品增值服务信息失败！返回baseEntity: ", waybillCode, JsonHelper.toJson(baseEntity));
+                    log.warn("自营运单{}获取易冻品增值服务信息失败！返回baseEntity: {} ", waybillCode, JsonHelper.toJson(baseEntity));
                 }
             }else {
-                log.info("外单----------");
                 BaseEntity<List<WaybillVasDto>> baseEntityWithExtendInfo = waybillQueryManager.getWaybillVasWithExtendInfo(waybillCode);
                 log.info("运单getWaybillVasWithExtendInfo返回的结果为：{}", JsonHelper.toJson(baseEntityWithExtendInfo));
                 if (baseEntityWithExtendInfo != null && baseEntityWithExtendInfo.getResultCode() == EnumBusiCode.BUSI_SUCCESS.getCode() && baseEntityWithExtendInfo.getData() != null) {
@@ -1113,7 +1111,7 @@ public class WaybillServiceImpl implements WaybillService {
                         }
                     }
                 } else {
-                    log.warn("外单运单{}获取易冻品增值服务信息失败！返回baseEntityWithExtendInfo: ", waybillCode, JsonHelper.toJson(baseEntityWithExtendInfo));
+                    log.warn("外单运单{}获取易冻品增值服务信息失败！返回baseEntityWithExtendInfo: {} ", waybillCode, JsonHelper.toJson(baseEntityWithExtendInfo));
                 }
             }
         } catch (Exception e) {

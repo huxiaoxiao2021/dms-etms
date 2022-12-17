@@ -1237,6 +1237,8 @@ public class WaybillQueryManagerImpl implements WaybillQueryManager {
         return WaybillUtil.isWaybillCode(waybillCode) ? waybillQueryApi.getBoxChargeByWaybillCode(waybillCode) : null;
     }
 
+    @JProfiler(jKey = "DMS.BASE.WaybillQueryManagerImpl.getWaybillVasWithExtendInfo",
+            mState = {JProEnum.TP, JProEnum.FunctionError}, jAppName = Constants.UMP_APP_NAME_DMSWEB)
     @Override
     public BaseEntity<List<WaybillVasDto>> getWaybillVasWithExtendInfo(String waybillCode) {
         WaybillVasChoice waybillVasChoice= new WaybillVasChoice();
