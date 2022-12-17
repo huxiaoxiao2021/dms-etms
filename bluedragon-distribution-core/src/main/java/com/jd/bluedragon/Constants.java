@@ -1271,9 +1271,14 @@ public class Constants {
     public static final String TE_AN_SONG_SERVICE = "fr-a-0010";
 
     /**
-     * 外单易冻品增值服务编码
+     * 外单增值服务编码
      */
     public static final String EASY_FROZEN_SERVICE = "deductibleService";
+
+    /**
+     *外单易冻品增值服务编码
+     */
+    public static final String EASY_FROZEN_SERVICE_KEY = "39001003";
 
     /**
      * 自营单易冻品增值服务编码

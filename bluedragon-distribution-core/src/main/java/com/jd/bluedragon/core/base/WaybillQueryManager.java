@@ -364,4 +364,11 @@ public interface WaybillQueryManager{
 	 */
 	BaseEntity<List<BoxChargeDto>> getBoxChargeByWaybillCode(String waybillCode);
 
+
+	/**
+	 * 根据运单获取增值服务及扩展信息
+	 * @param waybillCode
+	 * @return
+	 */
+	BaseEntity<List<WaybillVasDto>> getWaybillVasWithExtendInfo(String waybillCode);
 }
