@@ -209,6 +209,14 @@ public interface JyUnloadVehicleTysService {
     InvokeResult<UnloadBoardRespDto> queryTaskBoardInfoByChildTaskBizId(String childTaskBizId, String boardCode);
 
     /**
+     * 根据主BizId和板号唯一查询一条任务板关系
+     * @param bizId
+     * @param boardCode
+     * @return
+     */
+    InvokeResult<UnloadBoardRespDto> queryTaskBoardInfoByBizIdAndBoardCode(String bizId, String boardCode);
+
+    /**
      * 根据包裹号查询任务下流向及板信息
      * @param flowBoardDto
      * @return
