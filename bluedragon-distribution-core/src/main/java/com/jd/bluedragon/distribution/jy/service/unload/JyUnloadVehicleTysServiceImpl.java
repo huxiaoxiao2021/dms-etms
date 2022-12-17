@@ -600,7 +600,6 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
             return invokeResult;
         }
 
-        checkEasyFreezeResult(waybillCode,scanPackageDto.getCurrentOperate().getSiteCode(),scanPackageRespDto);
         //特保单校验
         checkLuxurySecurityResult(scanPackageDto.getCurrentOperate().getSiteCode(),
                 barCode, waybill.getWaybillSign(),scanPackageRespDto);
@@ -615,6 +614,10 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         jyUnloadVehicleCheckTysService.checkPackageOverWeight(packageD, waybill, scanPackageRespDto);
         // 包裹是否扫描成功以及是否组板成功
         jyUnloadVehicleCheckTysService.scanCodeIsScan(scanPackageDto);
+
+        //易冻品校验
+        checkEasyFreezeResult(waybillCode,scanPackageDto.getCurrentOperate().getSiteCode(),scanPackageRespDto);
+
         // 是否强制组板
         if (!scanPackageDto.getIsForceCombination()) {
             UnloadScanDto unloadScanDto = createUnloadDto(scanPackageDto, unloadVehicleEntity);
