@@ -132,6 +132,9 @@
       <if test="interceptTime != null">
         intercept_time,
       </if>
+      <if test="groupCode != null">
+        group_code,
+      </if>  
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -202,6 +205,9 @@
       </if>
       <if test="interceptTime != null">
         #{interceptTime,jdbcType=TIMESTAMP},
+      </if>
+      <if test="groupCode != null">
+        #{groupCode,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -283,10 +289,12 @@
       ts = #{ts,jdbcType=TIMESTAMP}
     where id = #{id,jdbcType=BIGINT}
   </update>
-  <select id="queryUserByStartSiteCode" parameterType="java.lang.Long" resultMap="userInfo">
+  <select id="queryUserByStartSiteCode" parameterType="com.jd.bluedragon.distribution.jy.comboard.JyComboardEntity" resultMap="userInfo">
     select distinct create_user_erp, create_user_name
     from jy_comboard
     where start_site_id = #{startSiteId,jdbcType=BIGINT}
+      and create_time > #{createTime,jdbcType=TIMESTAMP}
+      and group_code = #{groupCode,jdbcType=VARCHAR}
       and yn = 1
   </select>
   <select id="queryWayBillCodeByBoardCode"
