@@ -255,29 +255,34 @@ public class DeviceLocationServiceImpl implements DeviceLocationService {
             if (hasLocation) {
                 LatLng point = new LatLng(deviceLocationInfo.getLatitude().doubleValue(), deviceLocationInfo.getLongitude().doubleValue());
                 final boolean isPointInPolygon = checkLatLngPointInFence(point, transFenceInfoVoList);
+                log.info("hasLocation checkLatLngPointInFence isPointInPolygon {}", isPointInPolygon);
                 if(isPointInPolygon){
                     return result.setData(true);
                 }
                 // 经纬度可能不准，继续用网络IP形式去加一层判断
                 final String ipv4 = deviceLocationInfo.getIpv4();
-                final Result<Boolean> netWorkCheckResult = checkNetworkInFence(ipv4, transFenceInfoVoList);
-                if(!netWorkCheckResult.isSuccess()){
-                    return result.toFail(netWorkCheckResult.getMessage());
-                }
-                if(netWorkCheckResult.getData()){
-                    return result.setData(true);
+                if(ipv4 != null){
+                    final Result<Boolean> netWorkCheckResult = checkNetworkInFence(ipv4, transFenceInfoVoList);
+                    if(!netWorkCheckResult.isSuccess()){
+                        return result.toFail(netWorkCheckResult.getMessage());
+                    }
+                    if(netWorkCheckResult.getData()){
+                        return result.setData(true);
+                    }
                 }
             }
             else {
                 // 3. 若没有经纬度
                 //  3.1 判断是内网还是外网
                 final String ipv4 = deviceLocationInfo.getIpv4();
-                final Result<Boolean> netWorkCheckResult = checkNetworkInFence(ipv4, transFenceInfoVoList);
-                if(!netWorkCheckResult.isSuccess()){
-                    return result.toFail(netWorkCheckResult.getMessage());
-                }
-                if(netWorkCheckResult.getData()){
-                    return result.setData(true);
+                if(ipv4 != null) {
+                    final Result<Boolean> netWorkCheckResult = checkNetworkInFence(ipv4, transFenceInfoVoList);
+                    if (!netWorkCheckResult.isSuccess()) {
+                        return result.toFail(netWorkCheckResult.getMessage());
+                    }
+                    if (netWorkCheckResult.getData()) {
+                        return result.setData(true);
+                    }
                 }
             }
         } catch (Exception e) {
