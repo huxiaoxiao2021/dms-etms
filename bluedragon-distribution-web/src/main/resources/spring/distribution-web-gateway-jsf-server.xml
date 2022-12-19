@@ -580,4 +580,5 @@
                   ref="jsfDeviceLocationGatewayServiceImpl"
                   server="dmsjsf">
     </jsf:provider>
+
 </beans>

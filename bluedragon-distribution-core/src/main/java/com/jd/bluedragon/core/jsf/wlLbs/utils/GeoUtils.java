@@ -1,9 +1,9 @@
 package com.jd.bluedragon.core.jsf.wlLbs.utils;
 
 import com.alibaba.fastjson.JSONObject;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.io.WKTReader;
 import org.geotools.geojson.geom.GeometryJSON;
-import org.locationtech.jts.geom.Geometry;
-import org.locationtech.jts.io.WKTReader;
 
 import java.io.IOException;
 import java.io.Reader;
