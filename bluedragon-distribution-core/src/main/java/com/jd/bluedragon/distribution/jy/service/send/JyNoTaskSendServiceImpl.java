@@ -201,6 +201,22 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
         return jyScheduleTaskManager.createScheduleTask(req);
     }
 
+    /**
+     * 关闭调度任务
+     * @param entity
+     * @return
+     */
+    private boolean closeScheduleTask(JyBizTaskSendVehicleEntity entity){
+        JyScheduleTaskReq req = new JyScheduleTaskReq();
+        req.setBizId(entity.getBizId());
+        req.setTaskType(String.valueOf(JyScheduleTaskTypeEnum.SEND.getCode()));
+        req.setOpeUser(entity.getUpdateUserErp());
+        req.setOpeUserName(entity.getUpdateUserName());
+        req.setOpeTime(new Date());
+        JyScheduleTaskResp jyScheduleTaskResp = jyScheduleTaskManager.closeScheduleTask(req);
+        return jyScheduleTaskResp != null;
+    }
+
     private JyBizTaskSendVehicleEntity initJyBizTaskSendVehicle(CreateVehicleTaskReq createVehicleTaskReq) {
         JyBizTaskSendVehicleEntity entity = new JyBizTaskSendVehicleEntity();
         entity.setBizId(genMainTaskBizId());
@@ -289,6 +305,13 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
                     }
                 }
 
+            }
+
+            //关闭调度任务
+            try {
+                closeScheduleTask(entity);
+            } catch (Exception e) {
+                log.error("删除自建任务-同步删除调度任务异常",e);
             }
         }
         return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE);
@@ -419,6 +442,14 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
             fromSvDetailTask.setUpdateUserErp(bindVehicleDetailTaskReq.getUser().getUserErp());
             fromSvDetailTask.setUpdateUserName(bindVehicleDetailTaskReq.getUser().getUserName());
             jyBizTaskSendVehicleDetailService.updateDateilTaskByVehicleBizId(fromSvDetailTask);
+
+
+            //关闭调度任务
+            try {
+                closeScheduleTask(fromSvTask);
+            } catch (Exception e) {
+                log.error("自建任务绑定-同步删除调度任务异常",e);
+            }
 
             return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE);
         }
