@@ -744,8 +744,8 @@ public class JyUnloadVehicleCheckTysService {
             entity = queryCurrentStage(unloadScanDto.getBizId(), unloadScanDto.getSupplementary());
             //锁内二次确认
             if(entity != null) {
-                unloadScanDto.setStageBizId(entity.getBizId());
                 createStageTaskUnlock(key);
+                unloadScanDto.setStageBizId(entity.getBizId());
                 return res;
             }
             entity = new JyBizTaskUnloadVehicleStageEntity();
@@ -773,8 +773,31 @@ public class JyUnloadVehicleCheckTysService {
     private InvokeResult<Boolean> createStageTaskLock(String key) {
         InvokeResult<Boolean> res = new InvokeResult<>();
         res.success();
+        try{
+            Boolean getLockFlag = false;
+            getLockFlag = redisClientCache.set(key, "1", REDIS_PREFIX_STAGE_TASK_CREATE_TIMEOUT_SECONDS, TimeUnit.SECONDS, false);
+            if(getLockFlag != null && getLockFlag) {
+                return res;
+            }
 
-        return res;
+            Long startTime = System.currentTimeMillis();
+            long waitSpin = REDIS_PREFIX_STAGE_TASK_CREATE_WAIT_SPIN_TIMESTAMP;//自旋时间
+            while(System.currentTimeMillis() - startTime < waitSpin) {
+                getLockFlag = redisClientCache.set(key, "1", REDIS_PREFIX_STAGE_TASK_CREATE_TIMEOUT_SECONDS, TimeUnit.SECONDS, false);
+                if(getLockFlag != null && getLockFlag) {
+                    break;
+                }
+            }
+            if(getLockFlag == null || !getLockFlag) {
+                log.warn("JyUnloadVehicleCheckTysService.createStageTaskLock-未获取创建子任务锁，key={}", key);
+                res.error("多人同时创建该任务，稍后重试");
+            }
+            return res;
+        }catch (Exception ex) {
+            log.error("JyUnloadVehicleCheckTysService.createStageTaskLock-获取创建子任务锁服务异常，key={}，errMsg={}", key, ex.getMessage(), ex);
+            res.error("获取锁服务异常，稍后重试");
+            return res;
+        }
     }
 
     private JyBizTaskUnloadVehicleStageEntity queryCurrentStage(String bizId, boolean isSupplementary) {
