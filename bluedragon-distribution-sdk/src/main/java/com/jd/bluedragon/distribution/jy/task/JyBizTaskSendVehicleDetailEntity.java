@@ -131,6 +131,19 @@ public class JyBizTaskSendVehicleDetailEntity implements Serializable {
 	private Integer excepLabel;
 	private transient Date createTimeBegin;
 	private transient List<String> transWorkCodeList;
+	/**
+	 * 迁入迁出标识
+	 * 1 source（出） 2 target （入）
+	 */
+	private transient Integer transferFlag;
+
+	public Integer getTransferFlag() {
+		return transferFlag;
+	}
+
+	public void setTransferFlag(Integer transferFlag) {
+		this.transferFlag = transferFlag;
+	}
 
 	public List<String> getTransWorkCodeList() {
 		return transWorkCodeList;

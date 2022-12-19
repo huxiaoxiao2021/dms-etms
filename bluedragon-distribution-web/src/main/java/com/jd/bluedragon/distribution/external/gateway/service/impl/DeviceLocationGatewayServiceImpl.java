@@ -32,6 +32,6 @@ public class DeviceLocationGatewayServiceImpl implements DeviceLocationGatewaySe
      */
     @Override
     public JdCResponse<Boolean> uploadLocationInfo(DeviceLocationUploadPo deviceLocationUploadPO) {
-        return ResultConverter.convertResultToJdcResponse(deviceLocationService.uploadLocationInfo(deviceLocationUploadPO));
+        return ResultConverter.convertResultToJdcResponse(deviceLocationService.sendUploadLocationMsg(deviceLocationUploadPO));
     }
 }

@@ -777,9 +777,9 @@ public class UccPropertyConfiguration {
     private int sealStatusBatchSizeLimit;
 
     private Integer jyComboardScanUserBeginDay;
-    
+
     private Integer jyComboardSiteCTTPageSize;
-    
+
     public int getSealStatusBatchSizeLimit() {
         return sealStatusBatchSizeLimit;
     }
@@ -1010,7 +1010,6 @@ public class UccPropertyConfiguration {
      * 卸车岗列表页过滤最近N天数据
      */
     private Integer jyUnloadCarListQueryDayFilter;
-
 
 
     /**
@@ -2437,15 +2436,6 @@ public class UccPropertyConfiguration {
         this.weightVolumeSwitchVersion = weightVolumeSwitchVersion;
     }
 
-    public int getGoodsResidenceTime() {
-        return goodsResidenceTime;
-    }
-
-    public void setGoodsResidenceTime(int goodsResidenceTime) {
-        this.goodsResidenceTime = goodsResidenceTime;
-    }
-
-
     public Integer getJyUnloadCarListQueryDayFilter() {
         return jyUnloadCarListQueryDayFilter;
     }
@@ -2454,37 +2444,12 @@ public class UccPropertyConfiguration {
         this.jyUnloadCarListQueryDayFilter = jyUnloadCarListQueryDayFilter;
     }
 
-
-    public Integer getBulkScanPackageMinCount() {
-        return bulkScanPackageMinCount;
+    public int getGoodsResidenceTime() {
+        return goodsResidenceTime;
     }
 
-    public void setBulkScanPackageMinCount(Integer bulkScanPackageMinCount) {
-        this.bulkScanPackageMinCount = bulkScanPackageMinCount;
-    }
-
-    public Integer getJyComboardTaskCreateTimeBeginDay() {
-        return jyComboardTaskCreateTimeBeginDay;
-    }
-
-    public void setJyComboardTaskCreateTimeBeginDay(Integer jyComboardTaskCreateTimeBeginDay) {
-        this.jyComboardTaskCreateTimeBeginDay = jyComboardTaskCreateTimeBeginDay;
-    }
-
-    public Integer getJyComboardScanUserBeginDay() {
-        return jyComboardScanUserBeginDay;
-    }
-
-    public void setJyComboardScanUserBeginDay(Integer jyComboardScanUserBeginDay) {
-        this.jyComboardScanUserBeginDay = jyComboardScanUserBeginDay;
-    }
-
-    public Integer getJyComboardSiteCTTPageSize() {
-        return jyComboardSiteCTTPageSize;
-    }
-
-    public void setJyComboardSiteCTTPageSize(Integer jyComboardSiteCTTPageSize) {
-        this.jyComboardSiteCTTPageSize = jyComboardSiteCTTPageSize;
+    public void setGoodsResidenceTime(int goodsResidenceTime) {
+        this.goodsResidenceTime = goodsResidenceTime;
     }
 
     public Integer getUploadDeviceLocationInterval() {
