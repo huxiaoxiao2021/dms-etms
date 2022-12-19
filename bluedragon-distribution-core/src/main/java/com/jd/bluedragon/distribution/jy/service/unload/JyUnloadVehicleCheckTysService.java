@@ -25,6 +25,7 @@ import com.jd.bluedragon.distribution.jy.dto.unload.UnloadScanDto;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskStageStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.JyBizTaskStageTypeEnum;
 import com.jd.bluedragon.distribution.jy.enums.ScanTypeEnum;
+import com.jd.bluedragon.distribution.jy.exception.JyBizException;
 import com.jd.bluedragon.distribution.jy.manager.IJyUnloadVehicleManager;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskUnloadVehicleService;
 import com.jd.bluedragon.distribution.jy.task.JyBizTaskUnloadVehicleEntity;
@@ -691,13 +692,32 @@ public class JyUnloadVehicleCheckTysService {
     }
 
     private boolean saveUnloadVehicleBoard(ScanPackageDto scanPackageDto) {
-        jyTysTaskBoardRelationGenerate.sendOnFailPersistent(scanPackageDto.getBoardCode(), JsonHelper.toJson(scanPackageDto));
-        return true;
+        //暂时不考虑异步
+//        jyTysTaskBoardRelationGenerate.sendOnFailPersistent(scanPackageDto.getBoardCode(), JsonHelper.toJson(scanPackageDto));
+        InvokeResult<Boolean> invokeResultRes = this.saveUnloadVehicleBoardHandler(scanPackageDto);
+        if(!invokeResultRes.codeSuccess()) {
+            log.warn("JyUnloadVehicleCheckTysService.saveUnloadVehicleBoard--转运卸车岗验货成功、组板成功，推送板关系失败，scanPackageDto={}，res={}",
+                    JsonHelper.toJson(scanPackageDto), JsonHelper.toJson(invokeResultRes));
+            throw new JyBizException(invokeResultRes.getMessage());
+        }
+        if(invokeResultRes.getData() != null && invokeResultRes.getData()) {
+            if(log.isInfoEnabled()){
+                log.info("JyUnloadVehicleCheckTysService.saveUnloadVehicleBoard--成功创建任务板关系，scanPackageDto={}", JsonHelper.toJson(scanPackageDto));
+            }
+            return true;
+        }
+        return false;
     }
 
-    public InvokeResult<Void> saveUnloadVehicleBoardHandler(ScanPackageDto scanPackageDto) {
-        InvokeResult<Void> res = new InvokeResult<>();
+    /**
+     *
+     * @param scanPackageDto
+     * @return  只有成功插入数据为true
+     */
+    public InvokeResult<Boolean> saveUnloadVehicleBoardHandler(ScanPackageDto scanPackageDto) {
+        InvokeResult<Boolean> res = new InvokeResult<>();
         res.success();
+        res.setData(false);
 
         try{
             // 查询是否已经保存过此板
@@ -722,7 +742,8 @@ public class JyUnloadVehicleCheckTysService {
                 }
                 //释放锁
                 createUnloadVehicleBoard(entity, scanPackageDto);
-                jyUnloadVehicleBoardDao.insertSelective(entity);
+                int i = jyUnloadVehicleBoardDao.insertSelective(entity);
+                res.setData(i > 0 ? true : false);
                 unlockIgnoreException(key);
             }
             return res;
@@ -839,7 +860,8 @@ public class JyUnloadVehicleCheckTysService {
 
             Long startTime = System.currentTimeMillis();
             long waitSpin = REDIS_PREFIX_STAGE_TASK_CREATE_WAIT_SPIN_TIMESTAMP;//自旋时间
-            while(System.currentTimeMillis() - startTime < waitSpin) {
+            while(System.currentTimeMillis() - startTime <= waitSpin) {
+                Thread.sleep(20);
                 getLockFlag = redisClientCache.set(key, "1", REDIS_PREFIX_STAGE_TASK_CREATE_TIMEOUT_SECONDS, TimeUnit.SECONDS, false);
                 if(getLockFlag != null && getLockFlag) {
                     break;

@@ -40,7 +40,7 @@ public class JyUnloadTaskBoardRelationGenerateConsume extends MessageBaseConsume
         if(logger.isInfoEnabled()) {
             logger.info("JyUnloadTaskBoardRelationGenerateConsume--消息来了-msg={}", message.getText());
         }
-        InvokeResult<Void> InvokeResultRes = jyUnloadVehicleCheckTysService.saveUnloadVehicleBoardHandler(mqDto);
+        InvokeResult<Boolean> InvokeResultRes = jyUnloadVehicleCheckTysService.saveUnloadVehicleBoardHandler(mqDto);
         if(InvokeResult.RESULT_SUCCESS_CODE != InvokeResultRes.getCode()) {
             throw new JyBizException("获取锁失败或获取锁服务异常");
         }

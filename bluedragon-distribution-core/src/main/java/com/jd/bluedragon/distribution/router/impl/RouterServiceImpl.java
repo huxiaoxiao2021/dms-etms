@@ -127,6 +127,9 @@ public class RouterServiceImpl implements RouterService {
                 break;
             }
         }
+        if(!currentSite) {
+            return RouteNextDto.NONE;
+        }
         return new RouteNextDto(firstNextSiteId,Boolean.TRUE,nextSiteIdList, firstLastSiteId);
     }
 }

@@ -802,7 +802,10 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
         unloadScanDto.setTaskId(request.getTaskId());
         unloadScanDto.setTaskType(JyBizTaskSourceTypeEnum.TRANSPORT.getCode());
         // 设置子阶段bizId
-        jyUnloadVehicleCheckTysService.setStageBizId(unloadScanDto);
+        InvokeResult<Boolean> invokeResult = jyUnloadVehicleCheckTysService.setStageBizId(unloadScanDto);
+        if(!invokeResult.codeSuccess()) {
+            throw new JyBizException(invokeResult.getMessage());
+        }
         return unloadScanDto;
     }
 
