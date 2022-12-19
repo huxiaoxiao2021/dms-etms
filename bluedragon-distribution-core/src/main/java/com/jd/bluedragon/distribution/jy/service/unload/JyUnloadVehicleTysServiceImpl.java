@@ -171,7 +171,7 @@ public class JyUnloadVehicleTysServiceImpl implements JyUnloadVehicleTysService 
 
         statusStatisticsQueryParams.setVehicleStatus(unloadVehicleTaskReqDto.getVehicleStatus());
         if(WAIT_UN_LOAD.getCode().equals(unloadVehicleTaskReqDto.getVehicleStatus())) {
-            unloadVehicleTaskReqDto.setActualArriveStartTime(waitUnloadQueryTimeRange());
+            statusStatisticsQueryParams.setActualArriveStartTime(waitUnloadQueryTimeRange());
         }
         List<LineTypeStatisDto> lineTypeStatisDtoList = calculationLineTypeStatis(statusStatisticsQueryParams);
         respDto.setLineTypeStatisDtoList(lineTypeStatisDtoList);
