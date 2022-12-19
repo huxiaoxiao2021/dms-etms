@@ -1,7 +1,6 @@
 package com.jd.bluedragon.external.gateway.service;
 
 import com.jd.bluedragon.common.dto.base.response.JdCResponse;
-import com.jd.bluedragon.common.dto.blockcar.response.TransportInfoDto;
 import com.jd.bluedragon.common.dto.comboard.request.BoardQueryReq;
 import com.jd.bluedragon.common.dto.comboard.request.QueryBelongBoardReq;
 import com.jd.bluedragon.common.dto.comboard.response.BoardQueryResp;
@@ -28,7 +27,7 @@ public interface JyComboardSealGatewayService {
   JdCResponse<SendVehicleTaskResponse> fetchSendVehicleTask(SendVehicleTaskRequest request);
 
   /**
-   * 发货任务流向明细列表
+   * 任务流向明细列表
    * @param request
    * @return
    */
@@ -49,12 +48,12 @@ public interface JyComboardSealGatewayService {
   JdCResponse<SealCodeResp> listSealCodeByBizId(SealCodeReq sealCodeReq);
 
   /**
-   * 根据运力编码查询运输信息
+   * 校验运力编码和当前流向是否一致
    * @param transportReq
    * @return
    *
    */
-  JdCResponse<TransportInfoDto>  getTransportResourceByTransCode(TransportReq transportReq);
+  JdCResponse  checkTransCode(TransportReq transportReq);
 
   /**
    * 封车数据暂存
@@ -68,6 +67,7 @@ public interface JyComboardSealGatewayService {
    *
    */
   JdCResponse sealVehicle(SealVehicleReq sealVehicleReq);
+
   /**
    * 根据包裹号或者箱号 定位所在的板
    */

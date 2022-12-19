@@ -20,6 +20,16 @@ public class BoardDto implements Serializable {
      * 该板已扫箱子数量
      */
     private Integer boxHaveScanCount;
+
+
+    /**
+     * 板内货物重量
+     */
+    private String weight;
+    /**
+     * 板内货物体积
+     */
+    private String volume;
     /**
      * 该板拦截数量
      */
@@ -129,5 +139,21 @@ public class BoardDto implements Serializable {
 
     public void setSendCode(String sendCode) {
         this.sendCode = sendCode;
+    }
+
+    public String getWeight() {
+        return weight;
+    }
+
+    public void setWeight(String weight) {
+        this.weight = weight;
+    }
+
+    public String getVolume() {
+        return volume;
+    }
+
+    public void setVolume(String volume) {
+        this.volume = volume;
     }
 }
