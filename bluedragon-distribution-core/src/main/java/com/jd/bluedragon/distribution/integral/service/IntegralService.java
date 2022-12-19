@@ -1,8 +1,9 @@
 package com.jd.bluedragon.distribution.integral.service;
 
+import com.jd.bluedragon.common.dto.base.response.JdCResponse;
 import com.jd.bluedragon.distribution.api.Response;
-import com.jdl.jy.flat.entity.personalIntegralStatistics.JyIntegralDetailDTO;
-import com.jdl.jy.flat.query.personalIntegralStatistics.JyIntegralDetailQuery;
+import com.jd.bluedragon.distribution.integral.domain.JyIntegralDetailDTO;
+import com.jd.bluedragon.distribution.integral.domain.JyIntegralDetailQuery;
 
 /**
  * @author liuluntao1
@@ -10,5 +11,18 @@ import com.jdl.jy.flat.query.personalIntegralStatistics.JyIntegralDetailQuery;
  * @date 2022/12/19
  */
 public interface IntegralService {
-    Response<JyIntegralDetailDTO> getSimpleJyIntegralInfo(JyIntegralDetailQuery var1);
+    /*
+     * 查询个人积分总览
+     */
+    JdCResponse<JyIntegralDetailDTO> getSimpleJyIntegralInfo(JyIntegralDetailQuery query);
+
+    /*
+     * 查询基本分明细
+     */
+    JdCResponse<JyIntegralDetailDTO> getJyBaseScoreDetail(JyIntegralDetailQuery query);
+
+    /*
+     * 查询系数明细
+     */
+    JdCResponse<JyIntegralDetailDTO> getJyIntegralCoefficientDetail(JyIntegralDetailQuery query);
 }

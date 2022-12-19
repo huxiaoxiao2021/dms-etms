@@ -1759,4 +1759,11 @@ public class Constants {
      */
     public static final Long START_SITE_INITIAL_VALUE = 0L;
 
+    /**
+     * 数字
+     */
+    public static final class Numbers {
+        public static final Integer INTEGER_ZERO = 0;
+    }
+
 }

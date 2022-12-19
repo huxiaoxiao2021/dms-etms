@@ -5,12 +5,16 @@ import com.jd.fastjson.JSON;
 import com.jd.tp.common.utils.Objects;
 import com.jdl.jy.flat.api.PersonalIntegralStatistics.IJyPersonalIntegralStatisticsJSFService;
 import com.jdl.jy.flat.base.ServiceResult;
+import com.jdl.jy.flat.entity.personalIntegralStatistics.JyIntegralDTO;
 import com.jdl.jy.flat.entity.personalIntegralStatistics.JyIntegralDetailDTO;
 import com.jdl.jy.flat.query.personalIntegralStatistics.JyIntegralDetailQuery;
+import com.jdl.jy.flat.query.personalIntegralStatistics.JyIntegralQuery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * @author liuluntao1
@@ -25,15 +29,50 @@ public class IntegralProxy {
     @Autowired
     IJyPersonalIntegralStatisticsJSFService personalIntegralJSFService;
 
-    public JyIntegralDetailDTO getSimpleJyIntegralInfo(JyIntegralDetailQuery var1) {
-        JyIntegralDetailDTO detailDTO = new JyIntegralDetailDTO();
-        ServiceResult<JyIntegralDetailDTO> integralInfoResult = personalIntegralJSFService.getSimpleJyIntegralInfo(var1);
-        if (integralInfoResult.getSuccess() && Objects.nonNull(integralInfoResult.getData())) {
-            detailDTO = integralInfoResult.getData();
+
+    public List<JyIntegralDTO> querySumByUserCode(JyIntegralQuery query){
+        ServiceResult<List<JyIntegralDTO>> serviceResult = personalIntegralJSFService.querySumByUserCode(query);
+        if (serviceResult.getSuccess()) {
+            return serviceResult.getData();
         } else {
-            throw new RuntimeException("IntegralProxy.getSimpleJyIntegralInfo请求失败入参-" + JSON.toJSONString(var1));
+            throw new RuntimeException();
         }
-        return detailDTO;
+    }
+
+    public List<JyIntegralDTO> queryIntegralPersonalByCondition(JyIntegralQuery query){
+        ServiceResult<List<JyIntegralDTO>> serviceResult = personalIntegralJSFService.querySumByUserCode(query);
+        if (serviceResult.getSuccess()) {
+            return serviceResult.getData();
+        } else {
+            throw new RuntimeException();
+        }
+    }
+
+    public List<JyIntegralDTO> queryIntegralPersonalQuotaByCondition(JyIntegralQuery query){
+        ServiceResult<List<JyIntegralDTO>> serviceResult = personalIntegralJSFService.querySumByUserCode(query);
+        if (serviceResult.getSuccess()) {
+            return serviceResult.getData();
+        } else {
+            throw new RuntimeException();
+        }
+    }
+
+    public List<JyIntegralDTO> queryFlatIntegralScoreRuleByCondition(JyIntegralQuery query){
+        ServiceResult<List<JyIntegralDTO>> serviceResult = personalIntegralJSFService.querySumByUserCode(query);
+        if (serviceResult.getSuccess()) {
+            return serviceResult.getData();
+        } else {
+            throw new RuntimeException();
+        }
+    }
+
+    public List<JyIntegralDTO> queryFlatIntegralQuotaByCondition(JyIntegralQuery query){
+        ServiceResult<List<JyIntegralDTO>> serviceResult = personalIntegralJSFService.querySumByUserCode(query);
+        if (serviceResult.getSuccess()) {
+            return serviceResult.getData();
+        } else {
+            throw new RuntimeException();
+        }
     }
 
 }

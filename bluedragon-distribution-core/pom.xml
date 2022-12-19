@@ -1921,6 +1921,14 @@
             <artifactId>flat-service-sdk</artifactId>
             <version>1.0.0-TEST-LLT-SNAPSHOT</version>
         </dependency>
+        <dependency>
+            <groupId>com.jdl.jy.flat</groupId>
+            <artifactId>flat-service-sdk</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.jdl.jy.flat</groupId>
+            <artifactId>flat-service-sdk</artifactId>
+        </dependency>
 
     </dependencies>
 
@@ -1976,7 +1984,15 @@
                     -->
 				</configuration>
 			</plugin>
-		</plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>8</source>
+                    <target>8</target>
+                </configuration>
+            </plugin>
+        </plugins>
 	</build>
 	<groupId>com.jd.bluedragon</groupId>
 	<version>1.0.0</version>
