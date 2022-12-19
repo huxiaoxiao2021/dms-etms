@@ -48,6 +48,8 @@ public class JyComboardEntity {
     private Date cancelTime;
 
     private Date interceptTime;
+    
+    private String groupCode;
 
     public Date getCancelTime() {
         return cancelTime;
@@ -233,4 +235,11 @@ public class JyComboardEntity {
         this.ts = ts;
     }
 
+    public String getGroupCode() {
+        return groupCode;
+    }
+
+    public void setGroupCode(String groupCode) {
+        this.groupCode = groupCode;
+    }
 }

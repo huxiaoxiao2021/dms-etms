@@ -30,8 +30,8 @@ public class JyComboardDao extends BaseDao<JyComboardEntity> {
     public int updateByPrimaryKey(JyComboardEntity record) {
         return this.getSqlSession().update(NAMESPACE + ".updateByPrimaryKey", record);
     }
-    public List<User> queryUserByStartSiteCode(Long startSiteId) {
-        return this.getSqlSession().selectList(NAMESPACE + ".queryUserByStartSiteCode", startSiteId);
+    public List<User> queryUserByStartSiteCode(JyComboardEntity entity) {
+        return this.getSqlSession().selectList(NAMESPACE + ".queryUserByStartSiteCode", entity);
     }
 
     public String queryWayBillCodeByBoardCode(JyComboardEntity entity) {

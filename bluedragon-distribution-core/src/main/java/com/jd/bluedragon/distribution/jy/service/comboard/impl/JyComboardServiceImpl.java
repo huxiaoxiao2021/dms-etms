@@ -23,8 +23,8 @@ public class JyComboardServiceImpl implements JyComboardService {
     private JyComboardDao jyComboardDao;
 
     @Override
-    public List<User> queryUserByStartSiteCode(Long startSiteId) {
-        List<User> users = jyComboardDao.queryUserByStartSiteCode(startSiteId);
+    public List<User> queryUserByStartSiteCode(JyComboardEntity entity) {
+        List<User> users = jyComboardDao.queryUserByStartSiteCode(entity);
         hideInfo(users);
         return users;
     }

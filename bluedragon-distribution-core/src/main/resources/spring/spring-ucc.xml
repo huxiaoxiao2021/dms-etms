@@ -210,6 +210,12 @@
 		<property name="jyUnloadCarListQueryDayFilter" value="${jyUnloadCarListQueryDayFilter:3}"/>
 		<property name="uploadDeviceLocationInterval" value="${uploadDeviceLocationInterval:-1}"/>
 		<property name="checkDeviceLocationInRealTimeSwitch" value="${checkDeviceLocationInRealTimeSwitch:1}"/>
+		<property name="jyComboardScanUserBeginDay" value="${jyComboardScanUserBeginDay:1}"/>
+		<property name="jyComboardSiteCTTPageSize" value="${jyComboardSiteCTTPageSize:5000}"/>
+
+
+
+
 	</bean>
 	<!-- hystrix 动态配置 -->
 	<bean name = "hystrixRouteUccPropertyConfiguration" class="com.jd.bluedragon.configuration.ucc.HystrixRouteUccPropertyConfiguration">
@@ -401,6 +407,10 @@
 				<value>uccPropertyConfiguration.jyComboardTaskCreateTimeBeginDay</value>
 				<value>uccPropertyConfiguration.uploadDeviceLocationInterval</value>
 				<value>uccPropertyConfiguration.checkDeviceLocationInRealTimeSwitch</value>
+				<value>uccPropertyConfiguration.jyComboardSiteCTTPageSize</value>
+				<value>uccPropertyConfiguration.jyComboardScanUserBeginDay</value>
+
+
 				<value>hystrixRouteUccPropertyConfiguration.executionTimeoutInMilliseconds</value>
                 <value>hystrixRouteUccPropertyConfiguration.circuitBreakerEnabled</value>
                 <value>hystrixRouteUccPropertyConfiguration.fallbackEnabled</value>
