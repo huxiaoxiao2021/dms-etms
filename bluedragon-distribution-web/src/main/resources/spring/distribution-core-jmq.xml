@@ -671,5 +671,14 @@
         <property name="topic" value="${jmq.topic.jyapp.exception.task.change}" />
         <property name="timeout" value="1000" />
     </bean>
-
+    <!--  拣运卸车tmp  -->
+    <bean id="unloadTmpProducer" parent="jmq4DmsWebDefaultJMQProducer">
+        <property name="topic" value="unload_car_post_scan" />
+        <property name="timeout" value="1000" />
+    </bean>
+    <!--  拣运卸车tmp  -->
+    <bean id="sendTestTmpProducer" parent="jmq4DmsWebDefaultJMQProducer">
+        <property name="topic" value="dms_send_to_ems_waybill_info" />
+        <property name="timeout" value="1000" />
+    </bean>    
 </beans>
