@@ -2452,6 +2452,38 @@ public class UccPropertyConfiguration {
         this.goodsResidenceTime = goodsResidenceTime;
     }
 
+    public Integer getBulkScanPackageMinCount() {
+        return bulkScanPackageMinCount;
+    }
+
+    public void setBulkScanPackageMinCount(Integer bulkScanPackageMinCount) {
+        this.bulkScanPackageMinCount = bulkScanPackageMinCount;
+    }
+
+    public Integer getJyComboardTaskCreateTimeBeginDay() {
+        return jyComboardTaskCreateTimeBeginDay;
+    }
+
+    public void setJyComboardTaskCreateTimeBeginDay(Integer jyComboardTaskCreateTimeBeginDay) {
+        this.jyComboardTaskCreateTimeBeginDay = jyComboardTaskCreateTimeBeginDay;
+    }
+
+    public Integer getJyComboardScanUserBeginDay() {
+        return jyComboardScanUserBeginDay;
+    }
+
+    public void setJyComboardScanUserBeginDay(Integer jyComboardScanUserBeginDay) {
+        this.jyComboardScanUserBeginDay = jyComboardScanUserBeginDay;
+    }
+
+    public Integer getJyComboardSiteCTTPageSize() {
+        return jyComboardSiteCTTPageSize;
+    }
+
+    public void setJyComboardSiteCTTPageSize(Integer jyComboardSiteCTTPageSize) {
+        this.jyComboardSiteCTTPageSize = jyComboardSiteCTTPageSize;
+    }
+
     public Integer getUploadDeviceLocationInterval() {
         return uploadDeviceLocationInterval;
     }
