@@ -56,6 +56,7 @@ public class DefaultJMQProducer {
         if (log.isDebugEnabled()) {
             log.debug("推送MQ数据为topic:{}->body:{}", this.topic, body);
         }
+        log.info("DefaultJMQProducer.send topic:{}->body:{}", this.topic, body);
         Message message = new Message(this.topic, body, businessId);
         jmqProducer.send(message, this.timeout);
     }
