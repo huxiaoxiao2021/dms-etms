@@ -8,6 +8,7 @@ import com.jd.bluedragon.distribution.router.domain.dto.RouteNextDto;
 import com.jd.bluedragon.distribution.router.RouterService;
 import com.jd.bluedragon.distribution.waybill.service.WaybillCacheService;
 import com.jd.bluedragon.dms.utils.WaybillUtil;
+import com.jd.bluedragon.utils.JsonHelper;
 import com.jd.bluedragon.utils.NumberHelper;
 import com.jd.ql.basic.dto.BaseStaffSiteOrgDto;
 import com.jd.ump.annotation.JProEnum;
@@ -130,6 +131,11 @@ public class RouterServiceImpl implements RouterService {
         if(!currentSite) {
             return RouteNextDto.NONE;
         }
+        if(log.isInfoEnabled()) {
+            log.info("RouterServiceImpl.matchNextNodeByRouter--routerStr={}，firstNextSiteId={}，firstLastSiteId={}，nextSiteIdList={}",
+                    routerStr,firstNextSiteId, firstLastSiteId, JsonHelper.toJson(nextSiteIdList));
+        }
+
         return new RouteNextDto(firstNextSiteId,Boolean.TRUE,nextSiteIdList, firstLastSiteId);
     }
 }
