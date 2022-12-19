@@ -178,7 +178,11 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
         createVehicleTaskResp.setTaskName("自建" + jyBizTaskSendVehicleEntity.getBizNo());
         createVehicleTaskResp.setCreateUserErp(createVehicleTaskReq.getUser().getUserErp());
         // 创建发货调度任务
-        createSendScheduleTask(jyBizTaskSendVehicleEntity);
+        try {
+            createSendScheduleTask(jyBizTaskSendVehicleEntity);
+        } catch (Exception e) {
+            log.error("createVehicleTask创建自建任务-增补调度任务异常",e);
+        }
         return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, createVehicleTaskResp);
     }
 
