@@ -1,19 +1,7 @@
 package com.jd.bluedragon.distribution.base.controller;
 
-import com.jd.bluedragon.Constants;
-import com.jd.bluedragon.distribution.api.utils.JsonHelper;
-import com.jd.bluedragon.distribution.base.domain.DmsBaseDict;
-import com.jd.bluedragon.distribution.base.domain.DmsBaseDictCondition;
-import com.jd.bluedragon.distribution.base.service.DmsBaseDictService;
-import com.jd.bluedragon.distribution.send.domain.SendDetail;
-import com.jd.bluedragon.distribution.sendprint.service.SendPrintService;
-import com.jd.bluedragon.utils.Md5Helper;
-import com.jd.dms.wb.report.api.dto.printhandover.PrintHandoverListDto;
-import com.jd.ql.dms.common.domain.JdResponse;
-import com.jd.ql.dms.common.web.mvc.api.PagerResult;
-import com.jd.uim.annotation.Authorization;
+import java.util.List;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,8 +11,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.util.ArrayList;
-import java.util.List;
+import com.jd.bluedragon.Constants;
+import com.jd.bluedragon.distribution.base.domain.DmsBaseDict;
+import com.jd.bluedragon.distribution.base.domain.DmsBaseDictCondition;
+import com.jd.bluedragon.distribution.base.service.DmsBaseDictService;
+import com.jd.bluedragon.distribution.sendprint.service.SendPrintService;
+import com.jd.ql.dms.common.domain.JdResponse;
+import com.jd.ql.dms.common.web.mvc.api.PagerResult;
+import com.jd.uim.annotation.Authorization;
 
 /**
  * 
@@ -155,28 +149,6 @@ public class DmsBaseDictController {
     public @ResponseBody JdResponse<List<DmsBaseDict>> getAllDicGroups() {
         JdResponse<List<DmsBaseDict>> rest = new JdResponse<List<DmsBaseDict>>();
         rest.setData(dmsBaseDictService.queryAllGroups());
-        return rest;
-    }
-    /**
-     * 获取所有分组信息
-     * @return
-     */
-    @Authorization(Constants.DMS_WEB_DEVELOP_DICT_R)
-    @RequestMapping(value = "/getPrintRecords/{sign}")
-    public @ResponseBody JdResponse<List<PrintHandoverListDto>> getPrintRecords(@PathVariable("sign") String sign,@RequestBody List<SendDetail> sendList) {
-        JdResponse<List<PrintHandoverListDto>> rest = new JdResponse<List<PrintHandoverListDto>>();
-        if(sign != null && sign.equals(Md5Helper.encode(Md5Helper.encode(JsonHelper.toJson(sendList))))) {
-        	rest.toFail("签名认证失败！");
-        	return rest;
-        }
-        if(CollectionUtils.isEmpty(sendList)) {
-        	rest.toFail("列表不能为空！");
-        	return rest;
-        }
-        rest.setData(new ArrayList<PrintHandoverListDto>());
-        for(SendDetail sendDetail : sendList) {
-        	rest.getData().add(sendPrintService.buildPrintHandoverListDtoTmp(sendDetail));
-        }
         return rest;
     }
 }
