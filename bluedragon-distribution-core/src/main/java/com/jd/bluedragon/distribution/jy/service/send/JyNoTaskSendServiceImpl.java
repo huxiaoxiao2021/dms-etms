@@ -18,6 +18,7 @@ import com.jd.bluedragon.distribution.jy.enums.JyBizTaskSendStatusEnum;
 import com.jd.bluedragon.distribution.jy.enums.SendTaskExcepLabelEnum;
 import com.jd.bluedragon.distribution.jy.enums.TransferLogTypeEnum;
 import com.jd.bluedragon.distribution.jy.exception.JyBizException;
+import com.jd.bluedragon.distribution.jy.manager.JyScheduleTaskManager;
 import com.jd.bluedragon.distribution.jy.manager.JyTransportManager;
 import com.jd.bluedragon.distribution.jy.send.JySendCodeEntity;
 import com.jd.bluedragon.distribution.jy.service.task.JyBizTaskSendVehicleDetailService;
@@ -48,6 +49,9 @@ import com.jd.transboard.api.dto.Board;
 import com.jd.transboard.api.dto.Response;
 import com.jd.ump.annotation.JProEnum;
 import com.jd.ump.annotation.JProfiler;
+import com.jdl.jy.schedule.dto.task.JyScheduleTaskReq;
+import com.jdl.jy.schedule.dto.task.JyScheduleTaskResp;
+import com.jdl.jy.schedule.enums.task.JyScheduleTaskTypeEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -113,6 +117,8 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
     private IJySendService jySendService;
     @Autowired
     private NewSealVehicleService newsealVehicleService;
+    @Autowired
+    private JyScheduleTaskManager jyScheduleTaskManager;
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyNoTaskSendServiceImpl.listVehicleType", mState = {JProEnum.TP, JProEnum.FunctionError})
@@ -171,7 +177,24 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
         createVehicleTaskResp.setBizNo(jyBizTaskSendVehicleEntity.getBizNo());
         createVehicleTaskResp.setTaskName("自建" + jyBizTaskSendVehicleEntity.getBizNo());
         createVehicleTaskResp.setCreateUserErp(createVehicleTaskReq.getUser().getUserErp());
+        // 创建发货调度任务
+        createSendScheduleTask(jyBizTaskSendVehicleEntity);
         return new InvokeResult(RESULT_SUCCESS_CODE, RESULT_SUCCESS_MESSAGE, createVehicleTaskResp);
+    }
+
+    /**
+     * 创建发货调度任务
+     * @param sendVehicleEntity
+     * @return
+     */
+    public JyScheduleTaskResp createSendScheduleTask(JyBizTaskSendVehicleEntity sendVehicleEntity){
+        JyScheduleTaskReq req = new JyScheduleTaskReq();
+        req.setBizId(sendVehicleEntity.getBizId());
+        req.setTaskType(JyScheduleTaskTypeEnum.SEND.getCode());
+        req.setOpeUser(sendVehicleEntity.getCreateUserErp());
+        req.setOpeUserName(sendVehicleEntity.getCreateUserName());
+        req.setOpeTime(new Date());
+        return jyScheduleTaskManager.createScheduleTask(req);
     }
 
     private JyBizTaskSendVehicleEntity initJyBizTaskSendVehicle(CreateVehicleTaskReq createVehicleTaskReq) {
@@ -297,7 +320,7 @@ public class JyNoTaskSendServiceImpl implements JyNoTaskSendService {
             }
         }
         return result;
-    }    
+    }
 
     @Override
     @JProfiler(jAppName = Constants.UMP_APP_NAME_DMSWEB, jKey = "DMSWEB.JyNoTaskSendServiceImpl.listVehicleTask", mState = {JProEnum.TP, JProEnum.FunctionError})
