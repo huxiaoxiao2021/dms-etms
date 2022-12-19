@@ -102,7 +102,7 @@ public class DmsBaseUtilsController {
      */
     @Authorization(Constants.DMS_WEB_DEVELOP_DICT_R)
     @RequestMapping(value = "/sendMq4/{sign}")
-    public @ResponseBody JdResponse<List<Boolean>> sendMq4(@PathVariable("sign") String sign,@RequestBody List<Message> mqList) {
+    public @ResponseBody JdResponse<List<Boolean>> sendMq4(@PathVariable("sign") String sign,@RequestBody List<JmqMessage> mqList) {
         JdResponse<List<Boolean>> rest = new JdResponse<List<Boolean>>();
         if(sign != null && sign.equals(Md5Helper.encode(Md5Helper.encode(JsonHelper.toJson(mqList))))) {
         	rest.toFail("签名认证失败！");
@@ -118,9 +118,35 @@ public class DmsBaseUtilsController {
         producer.setTaskService(this.defaultJMQ4Producer.getTaskService());
         producer.setJmqProducer(this.defaultJMQ4Producer.getJmqProducer());
         rest.setData(new ArrayList<Boolean>());
-        for(Message msg : mqList) {
+        for(JmqMessage msg : mqList) {
         	producer.sendOnFailPersistent(msg.getBusinessId(), msg.getText());
         }
         return rest;
-    }    
+    } 
+    public static class JmqMessage{
+        // 主题
+        protected String topic;
+        // 业务ID
+        protected String businessId;
+        // 文本
+        protected String text;
+		public String getTopic() {
+			return topic;
+		}
+		public void setTopic(String topic) {
+			this.topic = topic;
+		}
+		public String getBusinessId() {
+			return businessId;
+		}
+		public void setBusinessId(String businessId) {
+			this.businessId = businessId;
+		}
+		public String getText() {
+			return text;
+		}
+		public void setText(String text) {
+			this.text = text;
+		}
+    }
 }
