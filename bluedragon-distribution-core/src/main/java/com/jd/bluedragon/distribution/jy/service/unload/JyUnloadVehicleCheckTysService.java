@@ -728,16 +728,53 @@ public class JyUnloadVehicleCheckTysService {
         entity.setUpdateUserName(scanPackageDto.getUser().getUserName());
     }
 
-    public void setStageBizId(UnloadScanDto unloadScanDto) {
+    public InvokeResult<Boolean> setStageBizId(UnloadScanDto unloadScanDto) {
+        InvokeResult<Boolean> res = new InvokeResult<>();
+        res.success();
+
         JyBizTaskUnloadVehicleStageEntity entity = queryCurrentStage(unloadScanDto.getBizId(), unloadScanDto.getSupplementary());
         if (entity == null) {
+
+            String key = REDIS_PREFIX_STAGE_TASK_CREATE + unloadScanDto.getBizId() + unloadScanDto.getSupplementary();
+            //排它锁
+            InvokeResult<Boolean> lockRes = createStageTaskLock(key);
+            if(InvokeResult.RESULT_SUCCESS_CODE != lockRes.getCode()) {
+                res.error(lockRes.getMessage());
+            }
+            entity = queryCurrentStage(unloadScanDto.getBizId(), unloadScanDto.getSupplementary());
+            //锁内二次确认
+            if(entity != null) {
+                unloadScanDto.setStageBizId(entity.getBizId());
+                createStageTaskUnlock(key);
+                return res;
+            }
             entity = new JyBizTaskUnloadVehicleStageEntity();
             createUnloadVehicleStage(entity, unloadScanDto);
             jyBizTaskUnloadVehicleStageService.insertSelective(entity);
             unloadScanDto.setStageBizId(entity.getBizId());
+            //释放锁
+            createStageTaskUnlock(key);
         } else {
             unloadScanDto.setStageBizId(entity.getBizId());
         }
+
+        return res;
+    }
+
+    private void createStageTaskUnlock(String key) {
+        try{
+            redisClientCache.del(key);
+        }catch (Exception e) {
+            //异常不抛出，超时时间几秒自动释放
+            log.error("JyUnloadVehicleCheckTysService.createStageTaskUnlock--redis释放锁失败", key);
+        }
+    }
+
+    private InvokeResult<Boolean> createStageTaskLock(String key) {
+        InvokeResult<Boolean> res = new InvokeResult<>();
+        res.success();
+
+        return res;
     }
 
     private JyBizTaskUnloadVehicleStageEntity queryCurrentStage(String bizId, boolean isSupplementary) {

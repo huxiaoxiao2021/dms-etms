@@ -68,6 +68,8 @@ public class CacheKeyConstants {
      */
     public static final String REDIS_PREFIX_SEALCAR_SURPLUS_PACK = "unload.sealCar.surplusPackage-";
 
+    public static final String REDIS_PREFIX_STAGE_TASK_CREATE = "stage.task.create-";
+
     /***************************************** 抽检缓存start *******************************************/
 
     /**
