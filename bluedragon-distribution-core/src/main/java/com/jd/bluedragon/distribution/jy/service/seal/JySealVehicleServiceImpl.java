@@ -173,9 +173,13 @@ public class JySealVehicleServiceImpl implements JySealVehicleService {
             List<String> afterFilterDuplicate = ListUtil.processDuplicateByContains(sealCarDto.getBatchCodes());
             sealCarDto.setBatchCodes(afterFilterDuplicate);
 
-            if (sealCarDto.getSealCodes() != null) {
-                sealCarDto.getSealCodes().addAll(sealCodes);
-            } else {
+            if (sealCarDto.getSealCodes() != null && sealCarDto.getSealCodes().size()>0
+                    && sealCodes!=null && sealCodes.size()>0) {
+                List mergeList =new ArrayList();
+                mergeList.addAll(sealCarDto.getSealCodes());
+                mergeList.addAll(sealCodes);
+                sealCarDto.setSealCodes(mergeList);
+            } else if (sealCodes!=null && sealCodes.size()>0){
                 sealCarDto.setSealCodes(sealCodes);
             }
             if (ObjectHelper.isNotNull(sealVehicleReq.getTransWay())

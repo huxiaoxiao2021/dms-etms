@@ -40,6 +40,7 @@
 		<property name="virtualSiteCode" value="${virtualSiteCode}" />
 		<property name="asynbufferEnabledTaskType" value="${asynBuffer.enabled.task.type}"/>
 		<property name="cassandraGlobalSwitch" value="${cassandra.global.on}"/>
+		<property name="enableGoodsAreaOfTysScan" value="${enableGoodsAreaOfTysScan:true}"/>
 		<property name="asynBufferDynamicProducerProducerType" value="${asynBuffer.dynamicProducer.producerType}"/>
 		<property name="asynBufferNotenabledTaskKeyword1" value="${asynBuffer.notenabled.task.keyword1}"/>
 		<property name="asynBufferJmqComsumerTaskProcessorPostTaskStoreEnbaled" value="${asynBuffer.jmqComsumer.task.processor.post.task.store.enbaled}"/>
@@ -197,6 +198,8 @@
 		<property name="packageWeightLimit" value="${packageWeightLimit:'2000'}"/>
 		<property name="waybillWeightLimit" value="${waybillWeightLimit:'10000'}"/>
 		<property name="weightVolumeSwitchVersion" value="${weightVolumeSwitchVersion:0}"/>
+		<property name="jyUnloadCarListQueryDayFilter" value="${jyUnloadCarListQueryDayFilter:3}"/>
+		<property name="goodsResidenceTime" value="${goodsResidenceTime:3}"/>
 		<property name="uploadDeviceLocationInterval" value="${uploadDeviceLocationInterval:-1}"/>
 		<property name="checkDeviceLocationInRealTimeSwitch" value="${checkDeviceLocationInRealTimeSwitch:1}"/>
 	</bean>
@@ -219,7 +222,8 @@
 			<list>
 				<value>uccPropertyConfiguration.asynbufferEnabledTaskType</value>
 				<value>uccPropertyConfiguration.cassandraGlobalSwitch</value>
-                <value>uccPropertyConfiguration.asynBufferDynamicProducerProducerType</value>
+				<value>uccPropertyConfiguration.enableGoodsAreaOfTysScan</value>
+				<value>uccPropertyConfiguration.asynBufferDynamicProducerProducerType</value>
                 <value>uccPropertyConfiguration.asynBufferNotenabledTaskKeyword1</value>
                 <value>uccPropertyConfiguration.asynBufferJmqComsumerTaskProcessorPostTaskStoreEnbaled</value>
                 <value>uccPropertyConfiguration.redisSwitchOn</value>
@@ -377,6 +381,7 @@
 				<value>uccPropertyConfiguration.packageWeightLimit</value>
 				<value>uccPropertyConfiguration.waybillWeightLimit</value>
 				<value>uccPropertyConfiguration.weightVolumeSwitchVersion</value>
+				<value>uccPropertyConfiguration.goodsResidenceTime</value>
 				<value>uccPropertyConfiguration.uploadDeviceLocationInterval</value>
 				<value>uccPropertyConfiguration.checkDeviceLocationInRealTimeSwitch</value>
 
@@ -388,6 +393,8 @@
                 <value>hystrixRouteUccPropertyConfiguration.circuitBreakerSleepWindowInMilliseconds</value>
                 <value>hystrixRouteUccPropertyConfiguration.maximumSize</value>
                 <value>hystrixRouteUccPropertyConfiguration.circuitBreakerRequestVolumeThreshold</value>
+
+				<value>uccPropertyConfiguration.jyUnloadCarListQueryDayFilter</value>
 			</list>
 		</property>
 	</bean>

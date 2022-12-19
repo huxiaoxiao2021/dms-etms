@@ -467,6 +467,12 @@ public class JyUnloadVehicleCheckTysService {
             boardCommonRequest.setReceiveSiteName(request.getNextSiteName());
             boardCommonRequest.setBizSource(BizSourceEnum.PDA.getValue());
             boardCommonRequest.setBarCode(request.getScanCode());
+            if(log.isInfoEnabled()) {
+                log.info("JyUnloadVehicleCheckTysService.routerCheck-按箱号卸车扫描开板-param={}", JsonUtils.toJSONString(boardCommonRequest));
+            }
+            if(boardCommonRequest.getReceiveSiteCode() == null) {
+                throw new LoadIllegalException("验货成功。未找到包裹下游流向场地，无法进行建板");
+            }
             InvokeResult<Board> invokeResult = boardCommonManager.createBoardCode(boardCommonRequest);
             if (invokeResult.getCode() != InvokeResult.RESULT_SUCCESS_CODE) {
                 throw new LoadIllegalException(invokeResult.getMessage());
@@ -492,7 +498,7 @@ public class JyUnloadVehicleCheckTysService {
         String waybillCode = WaybillUtil.getWaybillCode(request.getScanCode());
         if (request.getNextSiteCode() == null) {
             // 此处直接返回，因为ver组板校验链会判断
-            return true;
+            throw new LoadIllegalException("验货成功，未找到包裹下游流向场地，无法进行后续组板");
         }
         Integer destinationId = null;
         Response<Board> result = groupBoardManager.getBoard(request.getBoardCode());
@@ -535,6 +541,9 @@ public class JyUnloadVehicleCheckTysService {
      */
     public String boardCombinationCheck(ScanPackageDto request) {
         BoardCommonRequest boardCommonRequest = createBoardCommonRequest(request);
+        if(boardCommonRequest.getReceiveSiteCode() == null) {
+            return "验货成功，未找到包裹下游流向场地，无法进行后续组板";
+        }
         InvokeResult invokeResult = boardCommonManager.boardCombinationCheck(boardCommonRequest);
         if (invokeResult.getCode() != InvokeResult.RESULT_SUCCESS_CODE) {
             if (JdCResponse.CODE_CONFIRM.equals(invokeResult.getCode())) {
@@ -550,13 +559,13 @@ public class JyUnloadVehicleCheckTysService {
         boardCommonRequest.setBarCode(request.getScanCode());
         boardCommonRequest.setOperateSiteCode(request.getCurrentOperate().getSiteCode());
         boardCommonRequest.setOperateSiteName(request.getCurrentOperate().getSiteName());
-        if (request.isCreateNewBoard()) {
-            boardCommonRequest.setReceiveSiteCode(request.getNextSiteCode());
-            boardCommonRequest.setReceiveSiteName(request.getNextSiteName());
-        } else {
-            boardCommonRequest.setReceiveSiteCode(request.getReceiveSiteCode());
-            boardCommonRequest.setReceiveSiteName(request.getReceiveSiteName());
-        }
+//        if (request.isCreateNewBoard()) {
+        boardCommonRequest.setReceiveSiteCode(request.getNextSiteCode());
+        boardCommonRequest.setReceiveSiteName(request.getNextSiteName());
+//        } else {
+//            boardCommonRequest.setReceiveSiteCode(request.getReceiveSiteCode());
+//            boardCommonRequest.setReceiveSiteName(request.getReceiveSiteName());
+//        }
         boardCommonRequest.setOperateUserErp(request.getUser().getUserErp());
         boardCommonRequest.setOperateUserName(request.getUser().getUserName());
         boardCommonRequest.setOperateUserCode(request.getUser().getUserCode());
@@ -599,9 +608,8 @@ public class JyUnloadVehicleCheckTysService {
             }
             BoardCommonRequest boardCommonRequest = createBoardCommonRequest(request);
             if (response.getCode() == ResponseEnum.SUCCESS.getIndex()) {
-                result.setAddBoardSuccessFlag(true);
                 // 保存任务和板的关系
-                saveUnloadVehicleBoard(request);
+                result.setAddBoardSuccessFlag(saveUnloadVehicleBoard(request));
                 // 设置板上已组包裹数
                 result.setComBoardCount(response.getData());
                 // 组板成功
@@ -636,10 +644,8 @@ public class JyUnloadVehicleCheckTysService {
                                 invokeResult.getData(), request.getBoardCode(), invokeResult.getMessage());
                         throw new LoadIllegalException(LoadIllegalException.BOARD_MOVED_FAIL_INTERCEPT_MESSAGE);
                     }
-                    result.setAddBoardSuccessFlag(true);
-
                     // 保存任务和板的关系
-                    saveUnloadVehicleBoard(request);
+                    result.setAddBoardSuccessFlag(saveUnloadVehicleBoard(request));
                     // 设置板上已组包裹数，组板转移需要重新查询新板上已组包裹数
                     setComBoardCount(request, result);
                     // 重新组板成功处理
@@ -682,7 +688,7 @@ public class JyUnloadVehicleCheckTysService {
         }
     }
 
-    private void saveUnloadVehicleBoard(ScanPackageDto scanPackageDto) {
+    private boolean saveUnloadVehicleBoard(ScanPackageDto scanPackageDto) {
         // 查询是否已经保存过此板
         JyUnloadVehicleBoardEntity entity = new JyUnloadVehicleBoardEntity();
         entity.setUnloadVehicleBizId(scanPackageDto.getBizId());
@@ -690,8 +696,10 @@ public class JyUnloadVehicleCheckTysService {
         JyUnloadVehicleBoardEntity result = jyUnloadVehicleBoardDao.selectByBizIdAndBoardCode(entity);
         if (result == null) {
             createUnloadVehicleBoard(entity, scanPackageDto);
-            jyUnloadVehicleBoardDao.insertSelective(entity);
+            int count = jyUnloadVehicleBoardDao.insertSelective(entity);
+            return count > 0 ? true : false;
         }
+        return false;
     }
 
     private void createUnloadVehicleBoard(JyUnloadVehicleBoardEntity entity, ScanPackageDto scanPackageDto) {
@@ -882,6 +890,9 @@ public class JyUnloadVehicleCheckTysService {
         }
         if (StringUtils.isNotBlank(request.getGoodsAreaCode())) {
             if (!goodsAreaCode.equals(request.getGoodsAreaCode())) {
+                if(uccPropertyConfiguration.getEnableGoodsAreaOfTysScan()){
+                    response.setGoodsAreaCode(goodsAreaCode);
+                }
                 return "扫描包裹非本货区，请移除本区！";
             }
         }
