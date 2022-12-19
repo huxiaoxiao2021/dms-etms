@@ -1,6 +1,5 @@
 package com.jd.bluedragon.distribution.base.controller;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,7 +21,6 @@ import com.jd.bluedragon.distribution.send.domain.SendDetail;
 import com.jd.bluedragon.distribution.sendprint.service.SendPrintService;
 import com.jd.bluedragon.utils.Md5Helper;
 import com.jd.dms.wb.report.api.dto.printhandover.PrintHandoverListDto;
-import com.jd.jmq.common.message.Message;
 import com.jd.ql.dms.common.domain.JdResponse;
 import com.jd.uim.annotation.Authorization;
 
@@ -42,12 +40,47 @@ public class DmsBaseUtilsController {
 	
 	@Autowired
 	SendPrintService sendPrintService;
+	
 	//mq2配置-发送模板
+	@Autowired
 	@Qualifier("spotCheckDetailProducer")
 	DefaultJMQProducer defaultJMQ2Producer;
+	
 	//mq4配置-发送模板
+	@Autowired
 	@Qualifier("jyUnloadScanProducer")
 	DefaultJMQProducer defaultJMQ4Producer;	
+	
+	@Autowired
+	@Qualifier("unloadTmpProducer")
+	DefaultJMQProducer unloadTmpProducer;	
+	
+	@Autowired
+	@Qualifier("sendTestTmpProducer")
+	DefaultJMQProducer sendTestTmpProducer;	
+	
+    /**
+     * 导出邮政-交接清单
+     * @return
+     */
+    @Authorization(Constants.DMS_WEB_DEVELOP_DICT_R)
+    @RequestMapping(value = "/sendMqTest1")
+    public @ResponseBody JdResponse<Boolean> sendMqTest1(@RequestBody JmqMessage mq){
+    	JdResponse<Boolean> rest = new JdResponse<Boolean>();
+    	sendTestTmpProducer.sendOnFailPersistent(mq.getBusinessId(), mq.getText());
+    	return rest;
+	}	
+    /**
+     * 导出邮政-交接清单
+     * @return
+     */
+    @Authorization(Constants.DMS_WEB_DEVELOP_DICT_R)
+    @RequestMapping(value = "/sendMqTest2")
+    public @ResponseBody JdResponse<Boolean> sendMqTest2(@RequestBody JmqMessage mq){
+    	JdResponse<Boolean> rest = new JdResponse<Boolean>();
+    	unloadTmpProducer.sendOnFailPersistent(mq.getBusinessId(), mq.getText());
+    	return rest;
+	}
     /**
      * 导出邮政-交接清单
      * @return
@@ -123,32 +156,5 @@ public class DmsBaseUtilsController {
         	producer.sendOnFailPersistent(msg.getBusinessId(), msg.getText());
         }
         return rest;
-    } 
-    public static class JmqMessage  implements Serializable {
-    	private static final long serialVersionUID = 1L;
-        // 主题
-        protected String topic;
-        // 业务ID
-        protected String businessId;
-        // 文本
-        protected String text;
-		public String getTopic() {
-			return topic;
-		}
-		public void setTopic(String topic) {
-			this.topic = topic;
-		}
-		public String getBusinessId() {
-			return businessId;
-		}
-		public void setBusinessId(String businessId) {
-			this.businessId = businessId;
-		}
-		public String getText() {
-			return text;
-		}
-		public void setText(String text) {
-			this.text = text;
-		}
     }
 }
