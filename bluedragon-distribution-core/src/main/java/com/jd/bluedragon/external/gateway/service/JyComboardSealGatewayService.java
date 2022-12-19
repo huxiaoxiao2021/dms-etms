@@ -9,10 +9,10 @@ import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendDetailR
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicleTaskRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendDestDetail;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleTaskResponse;
+import com.jd.bluedragon.common.dto.seal.request.CheckTransportReq;
 import com.jd.bluedragon.common.dto.seal.request.SealCodeReq;
 import com.jd.bluedragon.common.dto.seal.request.SealVehicleInfoReq;
 import com.jd.bluedragon.common.dto.seal.request.SealVehicleReq;
-import com.jd.bluedragon.common.dto.seal.request.TransportReq;
 import com.jd.bluedragon.common.dto.seal.response.SealCodeResp;
 import com.jd.bluedragon.common.dto.seal.response.SealVehicleInfoResp;
 import java.util.List;
@@ -49,11 +49,11 @@ public interface JyComboardSealGatewayService {
 
   /**
    * 校验运力编码和当前流向是否一致
-   * @param transportReq
+   * @param checkTransportReq
    * @return
    *
    */
-  JdCResponse  checkTransCode(TransportReq transportReq);
+  JdCResponse  checkTransCode(CheckTransportReq checkTransportReq);
 
   /**
    * 封车数据暂存

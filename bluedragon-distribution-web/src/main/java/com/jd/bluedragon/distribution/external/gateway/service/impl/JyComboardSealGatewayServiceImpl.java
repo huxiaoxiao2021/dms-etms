@@ -9,6 +9,8 @@ import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendDetailR
 import com.jd.bluedragon.common.dto.operation.workbench.send.request.SendVehicleTaskRequest;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendDestDetail;
 import com.jd.bluedragon.common.dto.operation.workbench.send.response.SendVehicleTaskResponse;
+import com.jd.bluedragon.common.dto.seal.request.CheckTransportCodeReq;
+import com.jd.bluedragon.common.dto.seal.request.CheckTransportReq;
 import com.jd.bluedragon.common.dto.seal.request.SealCodeReq;
 import com.jd.bluedragon.common.dto.seal.request.SealVehicleInfoReq;
 import com.jd.bluedragon.common.dto.seal.request.SealVehicleReq;
@@ -42,7 +44,7 @@ public class JyComboardSealGatewayServiceImpl implements JyComboardSealGatewaySe
   }
 
   @Override
-  public JdCResponse checkTransCode(TransportReq transportReq) {
+  public JdCResponse checkTransCode(CheckTransportReq checkTransportReq) {
     return null;
   }
 
