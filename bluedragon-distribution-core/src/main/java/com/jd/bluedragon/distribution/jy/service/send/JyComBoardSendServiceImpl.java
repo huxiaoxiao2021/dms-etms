@@ -561,7 +561,12 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     entity.setGroupCode(request.getGroupCode());
     entity.setStartSiteId(Long.valueOf(startSiteCode));
     // 获取当前场地扫描人员信息
-    List<User> userList = jyComboardService.queryUserByStartSiteCode(Long.valueOf(startSiteCode));
+    JyComboardEntity userQuery = new JyComboardEntity();
+    userQuery.setGroupCode(request.getGroupCode());
+    userQuery.setStartSiteId(Long.valueOf(startSiteCode));
+    Date time = DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -ucc.getJyComboardTaskCreateTimeBeginDay());
+    userQuery.setCreateTime(time);
+    List<User> userList = jyComboardService.queryUserByStartSiteCode(userQuery);
     resp.setScanUserList(userList);
     entity.setTemplateCode(request.getTemplateCode());
     // 获取混扫任务下的流向信息
@@ -581,7 +586,6 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     HashMap<Long, JyComboardAggsEntity> sendFlowMap = getSendFlowMap(jyComboardAggsEntities);
     //查询流向下7天内未封车的板
     BoardCountReq boardCountReq = new BoardCountReq();
-    Date time = DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -ucc.getJyComboardTaskCreateTimeBeginDay());
     boardCountReq.setCreateTime(time);
     boardCountReq.setEndSiteIdList(endSiteCodeList);
     boardCountReq.setStartSiteId(startSiteCode.longValue());
@@ -745,7 +749,12 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
       log.info("开始流向下板的详细信息：{}", JsonHelper.toJson(request));
     }
     // 获取当前网格码内扫描人员信息
-    List<User> userList = jyComboardService.queryUserByStartSiteCode(Long.valueOf(startSiteCode));
+    JyComboardEntity userQuery = new JyComboardEntity();
+    userQuery.setGroupCode(request.getGroupCode());
+    userQuery.setStartSiteId(Long.valueOf(startSiteCode));
+    Date time = DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -ucc.getJyComboardTaskCreateTimeBeginDay());
+    userQuery.setCreateTime(time);
+    List<User> userList = jyComboardService.queryUserByStartSiteCode(userQuery);
     resp.setScanUserList(userList);
     // 获取当前流向
     TableTrolleyQuery query = new TableTrolleyQuery();
@@ -775,7 +784,6 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     }
     //查询流向下7天内未封车的板
     SendFlowDto sendFlow = new SendFlowDto();
-    Date time = DateHelper.addDate(DateHelper.getCurrentDayWithOutTimes(), -ucc.getJyComboardTaskCreateTimeBeginDay());
     sendFlow.setQueryTimeBegin(time);
     sendFlow.setEndSiteId(request.getEndSiteId());
     sendFlow.setStartSiteId(startSiteCode);
@@ -1495,6 +1503,7 @@ public class JyComBoardSendServiceImpl implements JyComBoardSendService {
     comboardEntity.setUpdateUserName(request.getUser().getUserName());
     comboardEntity.setCreateTime(now);
     comboardEntity.setUpdateTime(now);
+    comboardEntity.setGroupCode(request.getGroupCode());
     return comboardEntity;
   }
 
