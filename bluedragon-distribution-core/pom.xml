@@ -1776,6 +1776,12 @@
 		<dependency>
 			<groupId>com.jd.dms.wb</groupId>
 			<artifactId>workbench-services-sdk</artifactId>
+			<exclusions>
+				<exclusion>
+					<artifactId>dms-workbench-utils-sdk</artifactId>
+					<groupId>com.jd.dms.wb</groupId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<!-- 分拣自动化总部任务服务-->
 		<dependency>
