@@ -3,7 +3,9 @@ package com.jd.bluedragon.utils;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import com.jd.bluedragon.dms.utils.BusinessUtil;
@@ -174,10 +176,17 @@ public class BusinessHelperTest {
 	}
 	@Test
 	public void testGetAttachmentUrlForJxd() {
+		
 		String url="123456789012345678";
 		Map<String,String> extendMap = new HashMap<String,String>();
-		extendMap.put("cardInfos", "[{\"attchmentUrl\":\""+url+"\"}]");
-		
+//		extendMap.put("cardInfos", "[{\\\"attachmentUrl\\\":\\\"  https://logistics-mrd.jd.com/gif?waybillcode=SG16714152985650389434\\\",\\\"code\\\":\\\"shengri-datu\\\",\\\"greetings\\\":\\\"可乐\\\"}]");
+		List<Map> a = new ArrayList<>();
+		Map<String,String> m1= new HashMap<String,String>();
+		a.add(m1);
+		m1.put("attachmentUrl", "https://logistics-mrd.jd.com/gif?waybillcode=SG16714152985650389434");
+		String as = JsonHelper.toJson(a);
+		extendMap.put("cardInfos", as);
+		String bs = extendMap.get("cardInfos");
 		String getUrl= BusinessHelper.getAttachmentUrlForJxd(extendMap);
 		System.out.println("testGetAttachmentUrlForJxd:"+getUrl);
 		assertFalse(!url.equals(getUrl));

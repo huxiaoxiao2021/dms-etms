@@ -364,7 +364,7 @@ public class DmsConstants {
     /**
      * 增值服务编码-京喜送达服务-取值key2-url
      */
-    public static final String WAYBILL_VAS_JXD_ATTCHMENTURL  = "attchmentUrl";
+    public static final String WAYBILL_VAS_JXD_ATTCHMENTURL  = "attachmentUrl";
     /**
      * 暂存类型枚举值
      */
