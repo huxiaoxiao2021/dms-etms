@@ -136,7 +136,9 @@ public class JyUnloadVehicleCheckTysService {
     @Resource
     private Cluster redisClientCache;
 
-
+    @Autowired
+    @Qualifier("jyTysTaskBoardRelationGenerate")
+    private DefaultJMQProducer jyTysTaskBoardRelationGenerate;
 
 
     /**
@@ -689,18 +691,72 @@ public class JyUnloadVehicleCheckTysService {
     }
 
     private boolean saveUnloadVehicleBoard(ScanPackageDto scanPackageDto) {
-        // 查询是否已经保存过此板
-        JyUnloadVehicleBoardEntity entity = new JyUnloadVehicleBoardEntity();
-        entity.setUnloadVehicleBizId(scanPackageDto.getBizId());
-        entity.setBoardCode(scanPackageDto.getBoardCode());
-        JyUnloadVehicleBoardEntity result = jyUnloadVehicleBoardDao.selectByBizIdAndBoardCode(entity);
-        if (result == null) {
-            createUnloadVehicleBoard(entity, scanPackageDto);
-            int count = jyUnloadVehicleBoardDao.insertSelective(entity);
-            return count > 0 ? true : false;
-        }
-        return false;
+        jyTysTaskBoardRelationGenerate.sendOnFailPersistent(scanPackageDto.getBoardCode(), JsonHelper.toJson(scanPackageDto));
+        return true;
     }
+
+    public InvokeResult<Void> saveUnloadVehicleBoardHandler(ScanPackageDto scanPackageDto) {
+        InvokeResult<Void> res = new InvokeResult<>();
+        res.success();
+
+        try{
+            // 查询是否已经保存过此板
+            JyUnloadVehicleBoardEntity entity = new JyUnloadVehicleBoardEntity();
+            entity.setUnloadVehicleBizId(scanPackageDto.getBizId());
+            entity.setBoardCode(scanPackageDto.getBoardCode());
+            JyUnloadVehicleBoardEntity result = jyUnloadVehicleBoardDao.selectByBizIdAndBoardCode(entity);
+            if (result == null) {
+                //并发写入锁
+                String key = REDIS_PREFIX_TASK_BOARD_CREATE + scanPackageDto.getBizId() + scanPackageDto.getBoardCode();
+                InvokeResult<Void> lockRes = taskBoardRelationGenerateLock(key);
+                if(InvokeResult.RESULT_SUCCESS_CODE != lockRes.getCode()) {
+                    res.error(lockRes.getMessage());
+                    return res;
+                }
+
+                result = jyUnloadVehicleBoardDao.selectByBizIdAndBoardCode(entity);
+                if (result != null) {
+                    //释放锁
+                    unlockIgnoreException(key);
+                    return res;
+                }
+                //释放锁
+                createUnloadVehicleBoard(entity, scanPackageDto);
+                jyUnloadVehicleBoardDao.insertSelective(entity);
+                unlockIgnoreException(key);
+            }
+            return res;
+        }catch (Exception e) {
+            log.error("JyUnloadVehicleCheckTysService.saveUnloadVehicleBoardHandler--服务异常,request={},errmsg={}",
+                    JsonHelper.toJson(scanPackageDto), e.getMessage(), e);
+            res.error("jy创建卸车任务板关系服务异常");
+            return res;
+        }
+    }
+
+
+    private InvokeResult<Void> taskBoardRelationGenerateLock(String key) {
+        InvokeResult<Void> res = new InvokeResult<>();
+        res.success();
+        try{
+            Boolean getLockFlag = redisClientCache.set(key, "1", REDIS_PREFIX_TASK_BOARD_CREATE_TIMEOUT_SECONDS, TimeUnit.SECONDS, false);
+            if(getLockFlag != null && getLockFlag) {
+                return res;
+            }
+            Thread.sleep(REDIS_PREFIX_TASK_BOARD_CREATE_WAIT_SPIN_TIMESTAMP);
+            getLockFlag = redisClientCache.set(key, "1", REDIS_PREFIX_TASK_BOARD_CREATE_TIMEOUT_SECONDS, TimeUnit.SECONDS, false);
+            if(getLockFlag == null && !getLockFlag) {
+                log.warn("JyUnloadVehicleCheckTysService.taskBoardRelationGenerateLock-未获取jy卸车任务板关系创建锁，key={}", key);
+                res.error("多人同时操作，未获取到锁");
+            }
+            return res;
+        }catch (Exception ex) {
+            log.error("JyUnloadVehicleCheckTysService.taskBoardRelationGenerateLock-获取jy卸车任务板关系创建锁服务异常，key={}，errMsg={}", key, ex.getMessage(), ex);
+            res.error("获取任务板关系锁服务异常，稍后重试");
+            return res;
+        }
+    }
+
 
     private void createUnloadVehicleBoard(JyUnloadVehicleBoardEntity entity, ScanPackageDto scanPackageDto) {
         Date now = new Date();
@@ -737,14 +793,15 @@ public class JyUnloadVehicleCheckTysService {
 
             String key = REDIS_PREFIX_STAGE_TASK_CREATE + unloadScanDto.getBizId() + unloadScanDto.getSupplementary();
             //排它锁
-            InvokeResult<Boolean> lockRes = createStageTaskLock(key);
+            InvokeResult<Void> lockRes = createStageTaskLock(key);
             if(InvokeResult.RESULT_SUCCESS_CODE != lockRes.getCode()) {
                 res.error(lockRes.getMessage());
+                return res;
             }
             entity = queryCurrentStage(unloadScanDto.getBizId(), unloadScanDto.getSupplementary());
             //锁内二次确认
             if(entity != null) {
-                createStageTaskUnlock(key);
+                unlockIgnoreException(key);
                 unloadScanDto.setStageBizId(entity.getBizId());
                 return res;
             }
@@ -753,7 +810,7 @@ public class JyUnloadVehicleCheckTysService {
             jyBizTaskUnloadVehicleStageService.insertSelective(entity);
             unloadScanDto.setStageBizId(entity.getBizId());
             //释放锁
-            createStageTaskUnlock(key);
+            unlockIgnoreException(key);
         } else {
             unloadScanDto.setStageBizId(entity.getBizId());
         }
@@ -761,7 +818,7 @@ public class JyUnloadVehicleCheckTysService {
         return res;
     }
 
-    private void createStageTaskUnlock(String key) {
+    private void unlockIgnoreException(String key) {
         try{
             redisClientCache.del(key);
         }catch (Exception e) {
@@ -770,8 +827,8 @@ public class JyUnloadVehicleCheckTysService {
         }
     }
 
-    private InvokeResult<Boolean> createStageTaskLock(String key) {
-        InvokeResult<Boolean> res = new InvokeResult<>();
+    private InvokeResult<Void> createStageTaskLock(String key) {
+        InvokeResult<Void> res = new InvokeResult<>();
         res.success();
         try{
             Boolean getLockFlag = false;
