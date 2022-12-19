@@ -1,5 +1,6 @@
 package com.jd.bluedragon.distribution.base.controller;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -75,7 +76,7 @@ public class DmsBaseUtilsController {
      */
     @Authorization(Constants.DMS_WEB_DEVELOP_DICT_R)
     @RequestMapping(value = "/sendMq2/{sign}")
-    public @ResponseBody JdResponse<List<Boolean>> sendMq2(@PathVariable("sign") String sign,@RequestBody List<Message> mqList) {
+    public @ResponseBody JdResponse<List<Boolean>> sendMq2(@PathVariable("sign") String sign,@RequestBody List<JmqMessage> mqList) {
         JdResponse<List<Boolean>> rest = new JdResponse<List<Boolean>>();
         if(sign != null && sign.equals(Md5Helper.encode(Md5Helper.encode(JsonHelper.toJson(mqList))))) {
         	rest.toFail("签名认证失败！");
@@ -91,7 +92,7 @@ public class DmsBaseUtilsController {
         producer.setTaskService(this.defaultJMQ2Producer.getTaskService());
         producer.setJmqProducer(this.defaultJMQ2Producer.getJmqProducer());
         rest.setData(new ArrayList<Boolean>());
-        for(Message msg : mqList) {
+        for(JmqMessage msg : mqList) {
         	producer.sendOnFailPersistent(msg.getBusinessId(), msg.getText());
         }
         return rest;
@@ -123,7 +124,8 @@ public class DmsBaseUtilsController {
         }
         return rest;
     } 
-    public static class JmqMessage{
+    public static class JmqMessage  implements Serializable {
+    	private static final long serialVersionUID = 1L;
         // 主题
         protected String topic;
         // 业务ID
